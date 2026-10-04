@@ -222,12 +222,12 @@ export class Trial {
     const [x, y] = key.split(",").map(Number);
     return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, SKIES.rains());
   }
-  /** Do to a plot what the thing in my hand does: clear it, till it, sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
-  farmDo(key: string, name = ""): { ok: true; deed: Deed; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+  /** Do to a plot what the thing in my hand does: clear it, till it, dig its plant out (a living one only when it is `sure`), sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
+  farmDo(key: string, name = "", sure = false): { ok: true; deed: Deed; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
     const p = this.purse(), now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, beds = this.beds();
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
-    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains());
+    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains(), sure);
     if (!did.ok) return did;
     const next = { ...plots };
     if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = did.plot;
@@ -248,6 +248,8 @@ export class Trial {
     this.save(did.purse);
     return { ok: true, chore: did.chore };
   }
+  /** For scripts trying things out: a plot as it is told (a plant sown days ago that a pest has had, say: nothing else brings one about for certain). */
+  setPlot(key: string, plot: Plot) { this.write(FARM, { ...this.farm(), [key]: plot }); this.tell(); }
   /** For the test window: so many buckets in the well. */
   setWell(buckets: number) { this.write(WELL, Math.max(0, Math.min(WATER.well, Math.floor(buckets)))); this.tell(); }
   /**

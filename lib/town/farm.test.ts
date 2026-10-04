@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  BEDS, FARMING, WATER, WILD, chore, choreFor, cropOf, cure, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, see, sow, tend, toolOf, water, waterIn, yieldOf,
+  BEDS, FARMING, WATER, WILD, chore, choreFor, cropOf, cure, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
   type Bed, type Plant, type Plot,
 } from "./farm";
 import atlas from "./icon-atlas.json";
@@ -227,11 +227,11 @@ describe("pests", () => {
     expect(see(key, cured.plot, t + 2 * HOUR)).toMatchObject({ pest: false, dead: false });
     expect(cure(key, stranger, cured.plot, "pestCure", t + 2 * HOUR)).toEqual({ ok: false, why: "soil" });
     expect(cure(key, stranger, plot, "hoe", t + HOUR)).toEqual({ ok: false, why: "hand" });
-    // dead, it cannot be picked or watered; pulled up with a hoe it leaves compost and cleared ground
+    // dead, it cannot be picked or watered; dug out with a hoe it leaves compost and cleared ground
     const late = t + FARMING.pests.kills * HOUR + HOUR, me = withWater("can", 5, ["hoe", 1]);
     expect(pick(key, me, plot, true, null, late)).toEqual({ ok: false, why: "soil" });
     expect(water(key, me, plot, "can", late)).toEqual({ ok: false, why: "soil" });
-    const pulled = done(hoe(key, me, plot, "hoe", late));
+    const pulled = done(uproot(key, me, plot, true, false, "hoe", late));
     expect(pulled.plot).toEqual({ soil: "cleared", plant: null });
     expect(held(pulled.purse.bag, "compost")).toBe(1);
   });
@@ -263,8 +263,9 @@ describe("what a thing in the hand does to a plot", () => {
     expect(deedFor("1,1", growing, "growFert", "me", NIGHT)).toBe("feed");
     expect(deedFor("1,1", growing, "guardFert", "me", NIGHT)).toBe("feed");
     expect(deedFor("1,1", growing, "pestCure", "me", NIGHT)).toBeNull();
-    // ripe, in my bed: picked whatever is in the hand (but a hoe has its own work, and does none here)
+    // ripe, in my bed: picked whatever is in the hand (but a hoe has its own work: it would dig the plant out)
     expect(deedFor("1,1", growing, null, "me", ripeAt, "me")).toBe("pick");
+    expect(deedFor("1,1", growing, "hoe", "me", ripeAt, "me")).toBe("uproot");
     expect(deedFor("1,1", growing, "rod", "me", ripeAt, "me")).toBe("pick");
     expect(deedFor("1,1", growing, "sickle", "me", ripeAt, "me")).toBe("pick");
     expect(deedFor("1,1", growing, null, "me", ripeAt - HOUR, "me")).toBeNull();
@@ -473,10 +474,12 @@ describe("tired hands (the owner, 2026-10-04: the work that has no game stayed f
       expect(hitsFor("clear", spent)).toBe(FARMING.swings.clear);
       expect(hitsFor("till", spent)).toBe(FARMING.swings.till);
     }
-    for (const work of ["pull", "sow", "water", "feed", "cure", "pick", "draw", "pour", "fill"] as const) {
+    for (const work of ["sow", "water", "feed", "cure", "pick", "draw", "pour", "fill"] as const) {
       expect(hitsFor(work, false)).toBe(0);
       expect(hitsFor(work, true)).toBe(FARMING.tired);
     }
+    // digging a plant out is never a game, tired or not: it is asked for twice instead (the owner, 2026-10-04)
+    for (const work of ["pull", "uproot"] as const) for (const spent of [false, true]) expect(hitsFor(work, spent)).toBe(0);
     // lighter work, a shorter round: fewer hits than the hoe's, and more than one
     expect(FARMING.tired).toBe(2);
     expect(FARMING.tired).toBeLessThan(FARMING.swings.clear);
@@ -554,5 +557,106 @@ describe("rain on the plots (the owner, 2026-10-04: \"ระหว่างท�
       // (no pest ever comes to it in the rain that would not have come without, and none after the rain has ripened it)
       if (wet !== null) { expect(wet).toBe(dry); expect(wet).toBeLessThan(ripeWet); }
     }
+  });
+});
+
+describe("digging a plant out (the owner, 2026-10-04: \"ใช้จอบ ขุดเอาพืชที่ไม่ต้องการออกได้ ทั้งพืชที่ปกติ และพืชที่ตายแล้ว ไม่ต้องเล่นมินิเกม แต่ต้องกด ยืนยันก่อน … ใช้ได้เฉพาะเจ้าของแปลงผัก\")", () => {
+  const digger = () => holding(purseWith(["hoe", 1]), "hoe"), bed: Bed = { by: "me", tended: NIGHT, empty: 0 };
+  /** A pumpkin a pest has killed by `late`, and the plot it stands in. */
+  const key = Array.from({ length: 400 }, (_, i) => `${i},3`).find((k) => pestAt(k, plant({ crop: "pumpkin" }), NIGHT + 48 * HOUR) !== null)!;
+  const dying: Plot = { soil: "tilled", plant: plant({ crop: "pumpkin" }) }, late = pestAt(key, dying.plant!, NIGHT + 48 * HOUR)! + FARMING.pests.kills * HOUR + HOUR;
+
+  it("is the hoe's deed on a plant, living or dead, in one's own bed and nobody else's", () => {
+    expect(see(key, dying, late).dead).toBe(true);
+    // mine: a dead one is pulled up, a living one dug out, sprouting or ripe
+    expect(deedFor(key, dying, "hoe", "me", late, "me")).toBe("pull");
+    expect(deedFor("1,1", sown(), "hoe", "me", NIGHT + HOUR, "me")).toBe("uproot");
+    expect(deedFor("1,1", sown(), "hoeSteel", "me", NIGHT + CROPS.kangkong.hours * HOUR, "me")).toBe("uproot");
+    // somebody else's: neither, though the hoe still clears and tills there
+    expect(deedFor(key, dying, "hoe", "you", late, "me")).toBeNull();
+    expect(deedFor("1,1", sown(), "hoe", "you", NIGHT + HOUR, "me")).toBeNull();
+    expect(deedFor("1,1", WILD, "hoe", "you", NIGHT + HOUR, "me")).toBe("clear");
+    // nobody's (never sown, or lapsed): anybody's hoe, as anybody may pick there
+    expect(deedFor(key, dying, "hoe", "you", late, null)).toBe("pull");
+    expect(deedFor("1,1", sown(), "hoe", "you", NIGHT + HOUR, null)).toBe("uproot");
+    // the hoe by itself has nothing to do with a plant: it clears and tills bare ground
+    expect(hoe("1,1", digger(), sown(), "hoe", NIGHT + HOUR)).toEqual({ ok: false, why: "soil" });
+    expect(hoe(key, digger(), dying, "hoe", late)).toEqual({ ok: false, why: "soil" });
+  });
+
+  it("takes a living plant only when it is said to be meant, and leaves nothing of it", () => {
+    const p = digger(), plot = sown({ crop: "cabbage" }), t = NIGHT + HOUR;
+    expect(uproot("1,1", p, plot, true, false, "hoe", t)).toEqual({ ok: false, why: "sure" });
+    const out = done(uproot("1,1", p, plot, true, true, "hoe", t));
+    expect(out.plot).toEqual({ soil: "cleared", plant: null });
+    expect(out.got).toEqual([]);
+    expect(out.purse.bag).toEqual(p.bag);
+    expect(staminaOf(p, t) - staminaOf(out.purse, t)).toBe(FARMING.costs.pull);
+    // ripe, it is dug out all the same, and nothing is harvested
+    const ripe = done(uproot("1,1", p, plot, true, true, "hoe", NIGHT + CROPS.cabbage.hours * HOUR));
+    expect(ripe.got).toEqual([]);
+    expect(held(ripe.purse.bag, "cabbage")).toBe(0);
+    // not by somebody who may not, not without a hoe in the hand, not where nothing grows
+    expect(uproot("1,1", p, plot, false, true, "hoe", t)).toEqual({ ok: false, why: "theirs" });
+    expect(uproot("1,1", p, plot, true, true, "can", t)).toEqual({ ok: false, why: "hand" });
+    expect(uproot("1,1", purseWith(["can", 1]), plot, true, true, "hoe", t)).toEqual({ ok: false, why: "hand" });
+    expect(uproot("1,1", p, { soil: "tilled", plant: null }, true, true, "hoe", t)).toEqual({ ok: false, why: "soil" });
+    expect(uproot("1,1", p, WILD, true, true, "hoe", t)).toEqual({ ok: false, why: "soil" });
+  });
+
+  it("takes a dead one whether that is said or not, and leaves compost if there is room", () => {
+    for (const sure of [false, true]) {
+      const out = done(uproot(key, digger(), dying, true, sure, "hoe", late));
+      expect(out.plot).toEqual({ soil: "cleared", plant: null });
+      expect(out.got).toEqual([["compost", 1]]);
+      expect(held(out.purse.bag, "compost")).toBe(1);
+    }
+    expect(uproot(key, digger(), dying, false, true, "hoe", late)).toEqual({ ok: false, why: "theirs" });
+    // a full bag: it is pulled up all the same, and the compost is left where it lay
+    const full: Purse = { ...digger(), bag: Array.from({ length: 5 }, (_, i) => (i === 0 ? { item: "hoe" as ItemId, n: 1 } : { item: "pebble" as ItemId, n: 1 })) };
+    const none = done(uproot(key, full, dying, true, false, "hoe", late));
+    expect(none.got).toEqual([]);
+    expect(none.plot).toEqual({ soil: "cleared", plant: null });
+    // the same plant an hour before it died is a living one: not without the word
+    expect(uproot(key, digger(), dying, true, false, "hoe", late - 2 * HOUR)).toEqual({ ok: false, why: "sure" });
+  });
+
+  it("is the owner's tending, by way of the bed's keeping; a living plant waits for the word there too", () => {
+    const t = NIGHT + 2 * HOUR, plot = sown();
+    // asked once: nothing is done, and nothing spent
+    expect(tend("1,1", plot, bed, 1, 0, digger(), "me", t)).toEqual({ ok: false, why: "sure" });
+    // asked twice: gone, and the bed tended
+    const out = done(tend("1,1", plot, bed, 1, 0, digger(), "me", t, [], true));
+    expect(out.deed).toBe("uproot");
+    expect(out.plot).toEqual({ soil: "cleared", plant: null });
+    expect(out.got).toEqual([]);
+    expect(out.bed).toEqual({ by: "me", tended: t, empty: 0 });
+    // the last plant of the bed: the day it may stand empty begins
+    const last = done(tend("1,1", plot, bed, 0, 0, digger(), "me", t, [], true));
+    expect(last.bed).toEqual({ by: "me", tended: t, empty: t });
+    // a dead one needs no word
+    const pulled = done(tend(key, dying, { ...bed, tended: late - HOUR }, 1, 0, digger(), "me", late));
+    expect(pulled.deed).toBe("pull");
+    expect(pulled.got).toEqual([["compost", 1]]);
+    // somebody else, with the word or without: the bed is somebody's
+    for (const sure of [false, true]) {
+      expect(tend("1,1", plot, bed, 1, 0, digger(), "you", t, [], sure)).toEqual({ ok: false, why: "theirs" });
+      expect(tend(key, dying, { ...bed, tended: late - HOUR }, 1, 0, digger(), "you", late, [], sure)).toEqual({ ok: false, why: "theirs" });
+    }
+    // a bed its owner has left for more than four days is nobody's: anybody digs out what stands there
+    const lapsed = t + (BEDS.untended + 1) * HOUR;
+    const freed = done(tend("1,1", sown({ guard: lapsed + HOUR }), bed, 1, 0, digger(), "you", lapsed, [], true));
+    expect(freed.deed).toBe("uproot");
+    expect(freed.bed).toBeUndefined();
+  });
+
+  it("costs what pulling up a dead plant always did, and the word changes nothing else that is tended", () => {
+    expect(FARMING.costs.pull).toBe(2);
+    // the word is only about a living plant under a hoe: every other deed is done as it was, with it or without
+    const sower = holding(purseWith(["seedKangkong", 2]), "seedKangkong"), tilled: Plot = { soil: "tilled", plant: null };
+    expect(tend("1,1", tilled, undefined, 0, 0, sower, "me", NIGHT, [], true)).toEqual(tend("1,1", tilled, undefined, 0, 0, sower, "me", NIGHT));
+    expect(tend("1,1", WILD, bed, 0, 0, digger(), "me", NIGHT, [], true)).toEqual(tend("1,1", WILD, bed, 0, 0, digger(), "me", NIGHT));
+    const ripeAt = NIGHT + CROPS.kangkong.hours * HOUR;
+    expect(tend("1,1", sown(), bed, 0, 0, newPurse(), "me", ripeAt, [], true)).toEqual(tend("1,1", sown(), bed, 0, 0, newPurse(), "me", ripeAt));
   });
 });

@@ -37,7 +37,7 @@ export type FarmDraw = (frame: FarmFrame) => void;
 
 /** The word on the button for each deed, and for each chore with water. */
 const VERB: Record<Deed | Chore, [th: string, en: string]> = {
-  clear: ["ถางหญ้า", "Clear the weeds"], till: ["พรวนดิน", "Till the soil"], pull: ["ถอนทิ้ง", "Pull it up"], sow: ["หว่านเมล็ด", "Sow"],
+  clear: ["ถางหญ้า", "Clear the weeds"], till: ["พรวนดิน", "Till the soil"], pull: ["ถอนทิ้ง", "Pull it up"], uproot: ["ขุดออก", "Dig it out"], sow: ["หว่านเมล็ด", "Sow"],
   water: ["รดน้ำ", "Water"], feed: ["ใส่ปุ๋ย", "Feed"], cure: ["ไล่แมลง", "Drive the pest off"], pick: ["เก็บ", "Pick"],
   draw: ["ตักน้ำ", "Draw water"], pour: ["เทน้ำลงบ่อ", "Pour it into the well"], fill: ["เติมน้ำใส่บัว", "Fill the can"],
 };
@@ -45,6 +45,8 @@ const WHY_FARM: Record<string, [string, string]> = {
   hand: ["ของในมือทำอะไรกับแปลงนี้ไม่ได้", "What you hold does nothing here"], soil: ["แปลงนี้ยังไม่พร้อม", "This plot is not ready for that"],
   wet: ["เพิ่งรดไป", "Watered already"], theirs: ["แปลงนี้มีเจ้าของแล้ว", "This bed is somebody's"], unripe: ["ยังไม่สุก", "Not ripe yet"],
   beds: ["มีแปลงของตัวเองครบแล้ว", "You hold as many beds as you may"],
+  // (the page thought the plant dead and asked about a dead one; it lives: somebody cured it just now)
+  sure: ["ต้นนี้ยังไม่ตาย ถ้าจะขุดออกให้กดอีกครั้ง", "It is alive after all: ask again to dig it out"],
   tired: ["หมดแรง จอบหลุดมือ", "Too tired: the hoe slips from your hands"],
   shaky: ["หมดแรง มือสั่นจนทำไม่สำเร็จ", "Too tired: your hands shake, and it comes to nothing"],
 };
@@ -57,7 +59,7 @@ function toolIcon(work: Deed | Chore, hand: ItemId | null): IconName {
 }
 /** What flies up at each deed, and what it sounds like (the owner, 2026-10-03: "ปลูกพืช ช่วยใช้ vfx ที่เหมาะสมด้วยนะครับ ตอนนี้เหมือน ตกปลาเลย"). */
 const DEED_FX: Record<Deed, [VfxKind, WorkSound]> = {
-  clear: ["leaves", "pull"], till: ["soil", "hoe"], pull: ["soil", "pull"], sow: ["seeds", "sow"], water: ["water", "water"], feed: ["dust", "feed"], cure: ["mist", "spray"], pick: ["sparkle", "pick"],
+  clear: ["leaves", "pull"], till: ["soil", "hoe"], pull: ["soil", "pull"], uproot: ["soil", "pull"], sow: ["seeds", "sow"], water: ["water", "water"], feed: ["dust", "feed"], cure: ["mist", "spray"], pick: ["sparkle", "pick"],
 };
 /** And at each chore with water. */
 const CHORE_FX: Record<Chore, [VfxKind, WorkSound]> = { draw: ["splash", "dip"], pour: ["splash", "pour"], fill: ["water", "pour"] };
@@ -92,14 +94,16 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * The vegetable plots, to tend (the owner, 2026-10-03: "ช่วยลองเทสด้วยว่า … การปลูกผัก
  * พร้อมที่จะเล่นได้จริง"). The rules are lib/town/farm's. Standing on a plot, what
  * can be done to it with the thing in the hand is offered as one button: a
- * hoe clears weeds, tills and pulls up what has died (each by the game of
- * timing); a seed is sown; a can waters; a fertiliser feeds; a cure drives a
- * pest off; and a ripe plant of one's own bed is picked. By the river a bucket
+ * hoe clears weeds and tills (each by the game of timing), and in one's own
+ * bed digs a plant out, dead or living, which is no game but is asked for
+ * twice (the owner, 2026-10-04: "ไม่ต้องเล่นมินิเกม แต่ต้องกด ยืนยันก่อนว่าจะเอาออกจริง");
+ * a seed is sown; a can waters; a fertiliser feeds; a cure drives a pest off;
+ * and a ripe plant of one's own bed is picked. By the river a bucket
  * is filled, at the farm's well it is poured in, and a can is filled there.
  * Nothing says which thing does what: the button only shows when the hand
  * holds the right one. With no stamina left everything but the hoe's work is a
  * short round of the hoe's game as well (lib/town/farm's hitsFor), and all of
- * it is dropped at the third miss.
+ * it is dropped at the third miss; digging a plant out is never a game.
  *
  * It also draws every plot on the map, each frame: weeds, tilled soil, a
  * plant at its stage, a pest on it, the shine of a ripe one; whose each bed
@@ -136,6 +140,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   useEffect(() => (near ? keeper.look("farm") : undefined), [near, keeper]);
   /** The work being done by the game of timing: on which plot (none, for carrying water), what, and how many hits it asks for. */
   const [working, setWorking] = useState<{ key: string | null; work: Deed | Chore; need: number } | null>(null);
+  /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
+  const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" } | null>(null);
+  const leaveIt = useRef<HTMLButtonElement>(null);
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
   /** What is in the air over the plots: earth, leaves, water, a sparkle. */
@@ -206,10 +213,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const say = useCallback((why: string) => { const w = WHY_FARM[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
-  /** Do the deed, and say what came of it. */
-  const act = useCallback(async (k: string, timing?: TimingResult) => {
+  /** Do the deed, and say what came of it. `sure`: a living plant is meant to be dug out (asked twice, and answered). */
+  const act = useCallback(async (k: string, timing?: TimingResult, sure = false) => {
     // (every miss of the hoe is a little more stamina gone: the keeper's to take)
-    const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined);
+    const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined, sure);
     if (!did.ok) { say(did.why); return; }
     if (timing) keeper.record({ game: "farming", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(purse, now), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
     setNote(did.got.length ? did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ") : null);
@@ -234,6 +241,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const begin = useCallback(() => {
     const work = key && deed ? deed : chore;
     if (!work) return;
+    // digging a plant out is asked for a second time, and is no game
+    if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
     const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
     if (need) setWorking({ key: key && deed ? key : null, work, need });
@@ -242,12 +251,29 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }, [key, deed, chore, act, carry, keeper]);
   // walking off the plot, or away from the water, leaves the work
   useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
+  // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
+  useEffect(() => { if (asking && (asking.key !== key || asking.deed !== deed)) setAsking(null); }, [asking, key, deed]);
+  // The asking opens with "leave it" under the keys: Space or Enter, pressed once too often, digs nothing out. Escape leaves it too.
+  useEffect(() => {
+    if (!asking) return;
+    leaveIt.current?.focus();
+    const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); setAsking(null); } };
+    window.addEventListener("keydown", down);
+    return () => window.removeEventListener("keydown", down);
+  }, [asking]);
+  /** The second asking, answered: dig it out. (A dead plant is not said to be meant living: if it lives after all, the keeper says so and nothing is done.) */
+  const digOut = useCallback(() => {
+    if (!asking) return;
+    const { key: k, deed: what } = asking;
+    setAsking(null);
+    void act(k, undefined, what === "uproot");
+  }, [asking, act]);
   const hoeing = working?.work === "clear" || working?.work === "till";
   const offer = deed ?? chore;
 
   // The space bar is the button (while the timing game is up it is the game's).
   useEffect(() => {
-    if (working || !offer) return;
+    if (working || asking || !offer) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
@@ -258,19 +284,22 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     };
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
-  }, [working, offer, begin]);
+  }, [working, asking, offer, begin]);
 
   // (for scripts in `next dev`: what stands in a plot, the deed or the chore on offer, the well and whose the beds are)
   useEffect(() => {
     const handle = {
       seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now(), keeper.rains()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
+      asking: () => asking,
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
     };
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
-  }, [deed, chore, begin, keeper]);
+  }, [deed, chore, begin, keeper, asking]);
 
   if (!working && !offer && !note) return null;
+  /** The plant the asking is about, as it stands. */
+  const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
@@ -299,6 +328,32 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
                         else void carry();
                       }}
                       onCancel={() => setWorking(null)} />
+        </div>
+      ) : asking ? (
+        <div role="alertdialog" aria-labelledby="farm-ask-h" aria-describedby="farm-ask-p" data-state="open" data-farm-ask={asking.deed}
+             className="pop-in pointer-events-auto mb-14 w-full max-w-[22rem] rounded-2xl border border-line-lit bg-surface/97 p-4 shadow-xl shadow-black/40 backdrop-blur-sm">
+          <p id="farm-ask-h" className="text-read font-semibold text-ink">
+            {asking.deed === "pull"
+              ? (th ? "ถอนต้นที่ตายแล้วออกจากแปลง?" : "Pull the dead plant up?")
+              : th ? `ขุด${asked?.crop ? nameOf(asked.crop) : "ต้นนี้"}ออกจากแปลง?` : `Dig the ${asked?.crop ? nameOf(asked.crop).toLowerCase() : "plant"} out?`}
+          </p>
+          <p id="farm-ask-p" className="mt-1 text-ui leading-relaxed text-muted">
+            {asking.deed === "pull"
+              ? (th ? "แปลงจะกลับเป็นดินว่าง" : "The plot will be bare ground again.")
+              : asked?.ripe
+                ? (th ? "ต้นนี้เก็บได้แล้ว ถ้าขุดออกจะไม่ได้ผลผลิต และเอาคืนไม่ได้" : "It is ripe. Dug out, it gives nothing, and it cannot be had back.")
+                : (th ? "ต้นนี้ยังโตอยู่ ขุดออกแล้วจะหายไป เอาคืนไม่ได้" : "It is still growing. Dug out, it is gone, and cannot be had back.")}
+          </p>
+          <div className="mt-3 flex justify-end gap-2">
+            <button ref={leaveIt} type="button" onClick={() => setAsking(null)} data-farm-ask-no
+                    className="pressable min-h-11 rounded-full border border-line-strong px-4 text-ui font-semibold text-ink transition-colors hover:border-accent hover:text-accent">
+              {th ? "ยกเลิก" : "Leave it"}
+            </button>
+            <button type="button" onClick={digOut} data-farm-ask-yes
+                    className="pressable min-h-11 rounded-full border border-chili bg-chili/15 px-4 text-ui font-semibold text-chili transition-colors hover:bg-chili/25">
+              {asking.deed === "pull" ? (th ? "ถอนออก" : "Pull it up") : th ? "ขุดออก" : "Dig it out"}
+            </button>
+          </div>
         </div>
       ) : offer && (
         <button type="button" onClick={begin}

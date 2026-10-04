@@ -6,7 +6,7 @@
 // First the game shut, as it goes up (v115's knob at 0, and `&townSites=1`: the deck and the cooking yard as the
 // building sites production begins with): no bag, no deck to stand on. Then opened: the bag, and the deck finished.
 // Then two testers in two tabs: the bank and the stall through their panels; a line dropped, struck and fought with the
-// database deciding what bit; a plot cleared, tilled and sown, which the other sees when the room says the farm
+// database deciding what bit; a plot cleared, tilled and sown (and its plant dug out again by its owner, asked twice), which the other sees when the room says the farm
 // changed; a dish cooked and its pot ladled from by the other; a deal between the two.
 //
 //   node scripts/db/town-bench.mjs            (in a scratch folder, see scripts/db/README.md: leave it running)
@@ -258,6 +258,24 @@ try {
   await sleep(600);
   ok("…and their hoe has nothing to do in a bed that is somebody's", (await Y.evaluate(`window.__townFarm.deed()`)) === null, await Y.evaluate(`window.__townFarm.deed()`));
   await X.shot(`${OUT}/db-farm.png`);
+  // the plant dug out again by its owner (v119): the page asks a second time, and only then is the database asked
+  if ((await sql(`select to_regprocedure('town.uproot(text, jsonb, jsonb, boolean, boolean, text, bigint)') is not null as there`))[0].there) {
+    await hold(X, "hoe");
+    await until("the owner's hoe is offered the plant", () => X.evaluate(`window.__townFarm.deed() === "uproot"`), 6000);
+    const left = (await X.evaluate(`window.__townKeeper.purse().stamina.left`));
+    await X.evaluate(`window.__townFarm.act()`);
+    await until("the page asks a second time", () => X.evaluate(`!!document.querySelector('[data-farm-ask="uproot"]')`), 4000);
+    await sleep(500);
+    const still = await sql(`select plant->>'crop' as crop from public.town_plots where x = 133 and y = 5`);
+    ok("with a hoe in its owner's hand, the page asks before the database is asked anything", still[0]?.crop === "kangkong" && !(await X.evaluate(`!!window.__townTiming`)), still);
+    await X.shot(`${OUT}/db-dig.png`);
+    await X.evaluate(`document.querySelector("[data-farm-ask-yes]").click()`);
+    await until("the plant is gone", () => X.evaluate(`!window.__townFarm.seen("133,5").crop`), 6000);
+    const gone = await sql(`select soil, plant from public.town_plots where x = 133 and y = 5`);
+    ok("answered, the database digs it out: cleared ground and no plant, for two of stamina", gone[0]?.soil === "cleared" && gone[0].plant === null && left - (await X.evaluate(`window.__townKeeper.purse().stamina.left`)) === 2, { gone, left, now: await X.evaluate(`window.__townKeeper.purse().stamina`) });
+    const goneForB = await until("the other sees it gone", () => Y.evaluate(`!window.__townFarm.seen("133,5").crop`), 12000).catch((e) => e.message);
+    ok("…and the other tester sees it gone within moments", goneForB === true, goneForB);
+  }
 
   console.log("the kitchen");
   await setPurse(a, 0, [{ item: "pan", n: 1 }, { item: "minnow", n: 3 }, { item: "salt", n: 1 }], { hand: "pan" });

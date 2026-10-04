@@ -6,7 +6,7 @@ import {
 } from "./cooking";
 import { DEAL, agree, hasAll, lay, pull, push, sideOf, swap, tidyGive, type Deal, type Give } from "./deal";
 import {
-  BEDS, FARMING, HOES, WATER, chore, choreFor, cure, deedFor, feed, grown, hoe, ownerOf, pestAt, pick, plotKey, roll, see, sow, tend, toolOf, water, yieldOf,
+  BEDS, FARMING, HOES, WATER, chore, choreFor, cure, deedFor, feed, grown, hoe, ownerOf, pestAt, pick, plotKey, roll, see, sow, tend, toolOf, uproot, water, yieldOf,
   type Bed, type Plant, type Plot,
 } from "./farm";
 import { castLine, hookBait, landCatch, loseBait, oddsOf, strikeWindowOf } from "./fishing";
@@ -417,11 +417,28 @@ export function vectorsV110(rains: readonly Rain[] = DRY, share = 1): Vector[] {
     add("chore_for", [p, where, well], choreFor(p, where, well));
     add("chore", [p, where, well, now], chore(p, where, well, now));
   }
+
+  // digging a plant out (v119): a hoe, most times, at a plot with a plant in it, most times, living or dead; by
+  // somebody who may or may not, with the word that a living one is meant or without; by itself, and by way of the
+  // bed's keeping (`tend_sure` is tend() with that word given, which the cases above never give)
+  for (let i = 0; i < many(900); i++) {
+    let at = scene();
+    for (let n = 0; n < 3 && !at.plot.plant; n++) at = scene();
+    const { now, key, plot } = at, me = c.of(WHO), hand = c.maybe(0.85) ? c.of(HOES) : handFor(key, plot, now);
+    // (now and then a bag with no room for what a dead plant leaves)
+    const p: Purse = c.maybe(0.12) && hand ? { ...farmer(now, hand), hand, bag: Array.from({ length: 5 }, (_, n): Stack => (n === 0 ? { item: hand, n: 1 } : { item: "pebble" as ItemId, n: 1 })) } : farmer(now, hand);
+    const may = c.maybe(0.8), sure = c.maybe(0.5);
+    add("uproot", [key, p, plot, may, sure, hand, now], uproot(key, p, plot, may, sure, hand, now, rains));
+    const tended = now - c.of([0, 1, 20, 30, 90, 100]) * HOUR - c.int(0, 3_599_999);
+    const bed: Bed | undefined = c.maybe(0.2) ? undefined : { by: c.maybe(0.7) ? me : c.of(WHO), tended, empty: c.maybe(0.6) ? 0 : tended + c.int(0, now - tended) };
+    const others = c.of([0, 0, 1, 5]), holds = c.of([0, 1, BEDS.each]), word = c.maybe(0.6);
+    add("tend_sure", [key, plot, bed ?? null, others, holds, p, me, now, word], tend(key, plot, bed, others, holds, p, me, now, rains, word));
+  }
   return out;
 }
 
 /** The farm's rules that the rain can touch. */
-const RAIN_FNS = ["grown", "pest_at", "see", "hoe", "water", "feed", "cure", "pick", "deed_for", "tend"];
+const RAIN_FNS = ["grown", "pest_at", "see", "hoe", "water", "feed", "cure", "pick", "deed_for", "tend", "uproot", "tend_sure"];
 /**
  * The skies v118's cases are made under, each the quarter hours that are wet: showers of half an hour, rains of
  * four hours, whole wet days, rain without a break, and a quarter hour here and there. Over every quarter hour a
@@ -716,12 +733,32 @@ describe("the cases the database's rules are held to", () => {
     expect(whys("feed")).toEqual(["hand", "ok", "soil"]);
     expect(whys("cure")).toEqual(["hand", "ok", "soil"]);
     expect(whys("pick")).toEqual(["full", "ok", "soil", "theirs", "unripe"]);
-    expect(whys("tend")).toEqual(["beds", "dry", "full", "ok", "soil", "theirs"]);
+    // (tended with no word given, a living plant under its owner's hoe waits for one: `sure`)
+    expect(whys("tend")).toEqual(["beds", "dry", "full", "ok", "soil", "sure", "theirs"]);
     expect(whys("chore")).toEqual(["dry", "none", "ok"]);
     // every deed and every chore is done somewhere; a bed taken, kept, dropped and left alone
     expect([...new Set(of<{ deed?: string }>("tend").map((w) => w.deed).filter(Boolean))].sort()).toEqual(["clear", "cure", "feed", "pick", "pull", "sow", "till", "water"]);
     expect([...new Set(of<{ chore?: string }>("chore").map((w) => w.chore).filter(Boolean))].sort()).toEqual(["draw", "fill", "pour"]);
-    expect(new Set(of<string | null>("deed_for")).size).toBe(9);
+    expect(new Set(of<string | null>("deed_for")).size).toBe(10);
+    // digging a plant out (v119): refused every way it can be, and done to the living and to the dead; a dead one
+    // leaves compost, or nothing where there is no room; a living one leaves nothing
+    expect(whys("uproot")).toEqual(["hand", "ok", "soil", "sure", "theirs"]);
+    const dug = all.filter((v) => v.fn === "uproot" && (v.want as { ok: boolean }).ok).map((v) => ({ dead: see(v.args[0] as string, v.args[2] as Plot, v.args[6] as number).dead, got: (v.want as { got: unknown[] }).got.length, sure: v.args[4] as boolean }));
+    expect(dug.filter((d) => d.dead && d.got === 1).length).toBeGreaterThan(20);
+    expect(dug.filter((d) => d.dead && d.got === 0).length).toBeGreaterThan(2);
+    expect(dug.filter((d) => d.dead && !d.sure).length).toBeGreaterThan(10);
+    expect(dug.filter((d) => !d.dead).length).toBeGreaterThan(100);
+    expect(dug.filter((d) => !d.dead && (d.got !== 0 || !d.sure)).length).toBe(0);
+    expect(whys("tend_sure")).toEqual(expect.arrayContaining(["ok", "soil", "sure", "theirs"]));
+    const dugOut = all.filter((v) => v.fn === "tend_sure" && (v.want as { deed?: string }).deed === "uproot");
+    expect(dugOut.length).toBeGreaterThan(60);
+    // (never without the word, and by the bed's owner or in a bed that is nobody's: the bed is given back tended, or not at all)
+    expect(dugOut.every((v) => v.args[8] === true)).toBe(true);
+    expect(dugOut.some((v) => (v.want as { bed?: Bed }).bed?.by === v.args[6])).toBe(true);
+    expect(dugOut.some((v) => !(v.want as { bed?: Bed }).bed)).toBe(true);
+    expect(dugOut.every((v) => { const b = (v.want as { bed?: Bed }).bed; return !b || b.by === v.args[6]; })).toBe(true);
+    expect(all.filter((v) => v.fn === "tend_sure" && (v.want as { deed?: string }).deed === "pull").length).toBeGreaterThan(10);
+    expect(all.filter((v) => v.fn === "tend_sure" && (v.want as { why?: string }).why === "sure" && v.args[8] === false).length).toBeGreaterThan(20);
     const tended = all.filter((v) => v.fn === "tend" && (v.want as { ok: boolean }).ok);
     expect(tended.some((v) => v.args[2] === null && (v.want as { bed?: Bed }).bed)).toBe(true);
     expect(tended.some((v) => v.args[2] !== null && !(v.want as { bed?: Bed }).bed)).toBe(true);
@@ -749,7 +786,7 @@ describe("the cases the database's rules are held to", () => {
     const refusedWet = (list: Vector[]) => list.filter((v) => (v.want as { why?: string } | null)?.why === "wet").length;
     for (let sky = 0; sky < skies.length; sky++) {
       // every rule the rain can touch is asked about under every sky
-      for (const fn of RAIN_FNS) expect(under(sky, fn).length).toBeGreaterThan(fn === "tend" || fn === "pick" ? 150 : 100);
+      for (const fn of RAIN_FNS) expect(under(sky, fn).length).toBeGreaterThan(fn === "tend" || fn === "pick" || fn === "uproot" || fn === "tend_sure" ? 150 : 100);
       // and the rain does something: plants have grown more than the clock, the fertiliser and the can account for
       const more = under(sky, "grown").filter((v) => (v.want as number) > grown(v.args[0] as Plant, v.args[1] as number) + 1e-9).length;
       expect(more).toBeGreaterThan(sky === 4 ? 20 : 80);

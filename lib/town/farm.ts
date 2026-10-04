@@ -18,11 +18,22 @@ import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, ty
  *   tended for more than four days.
  * - **A hoe works in anybody's bed** (the owner, 2026-10-04: "ยังขุดแปลงคนอื่นได้
  *   เหมือนเดิมแต่ เสีย stamina และถ้า stamina หมดก็จะเกมยากขึ้นเหมือนปกติ"): anybody may
- *   clear its weeds, till its soil and pull up what has died there, for the
- *   stamina it costs anybody and by the same game (harder with none left, as
- *   everywhere). It is help, like watering: the bed stays its owner's, and
- *   only the owner's own deeds count as tending it. (For its first day the
- *   database let nobody hoe in a bed that was somebody's.)
+ *   clear its weeds and till its soil, for the stamina it costs anybody and by
+ *   the same game (harder with none left, as everywhere). It is help, like
+ *   watering: the bed stays its owner's, and only the owner's own deeds count
+ *   as tending it. (For its first day the database let nobody hoe in a bed
+ *   that was somebody's.)
+ * - **A hoe digs a plant out, for the bed's owner only** (the owner, later
+ *   that day: "ช่วยทำให้สามารถใช้จอบ ขุดเอาพืชที่ไม่ต้องการออกได้ ทั้งพืชที่ปกติ และพืชที่ตายแล้ว
+ *   ไม่ต้องเล่นมินิเกม แต่ต้องกด ยืนยันก่อนว่าจะเอาออกจริง ใช้ได้เฉพาะเจ้าของแปลงผัก"): one that
+ *   has died, which leaves compost as it always did, and now one that lives,
+ *   which leaves nothing. No game, with stamina or without: it is asked for
+ *   twice, and the second asking is the page's (components/town/TownFarm).
+ *   Here a living plant goes only when the asking says it is meant (`sure`),
+ *   so that nothing which did not ask about a living plant can dig one out: a
+ *   page built before this, or one that still thinks the plant dead when a
+ *   friend has just cured it. (Until then anybody's hoe pulled up what had
+ *   died, in anybody's bed. In a bed that is nobody's, anybody's still does.)
  * - **Watering** adds half an hour of growth, once an hour for each plot, and
  *   anybody may water anybody's plant; half as much again from somebody a meal
  *   has left with green fingers. **A can has to have water in it**
@@ -74,8 +85,9 @@ export const FARMING = {
   /** What a dead plant leaves when it is pulled up. */
   pulled: "compost" as ItemId,
   /**
-   * Tired hands: with no stamina left, how many hits of the hoe's game everything else on the farm asks for (pulling
-   * up what died, sowing, watering, feeding, curing, picking, and carrying water). The owner, 2026-10-04, had the
+   * Tired hands: with no stamina left, how many hits of the hoe's game everything else on the farm asks for (sowing,
+   * watering, feeding, curing, picking, and carrying water; not digging a plant out, which is never a game: it is
+   * asked for twice instead). The owner, 2026-10-04, had the
    * mini-games made three times as hard with none, "เพื่อที่อาหารจะได้สำคัญมากขึ้น"; told that this work has no game and so
    * stays free, he said "ออกแบบเพิ่มเลย". So with none it is a short round of the same game, with the tired stretch,
    * and dropped at the third miss like the hoe's (lib/town/timing): nothing is done then and nothing lost, and it
@@ -195,24 +207,34 @@ export function see(key: string, plot: Plot, now: number, rains: readonly Rain[]
   };
 }
 
-/** Why something was not done to a plot, beyond a purse's own reasons: the wrong thing in the hand, a plot not ready for it, watered already this hour, somebody else's bed, not ripe yet, as many beds held as one may. */
-export type FarmRefusal = "hand" | "soil" | "wet" | "theirs" | "unripe" | "beds";
+/** Why something was not done to a plot, beyond a purse's own reasons: the wrong thing in the hand, a plot not ready for it, watered already this hour, somebody else's bed, not ripe yet, as many beds held as one may, a living plant that nothing said was meant to go. */
+export type FarmRefusal = "hand" | "soil" | "wet" | "theirs" | "unripe" | "beds" | "sure";
 type Did = Done<{ purse: Purse; plot: Plot; got?: Array<[ItemId, number]> }> | { ok: false; why: FarmRefusal };
 const not = (why: FarmRefusal): { ok: false; why: FarmRefusal } => ({ ok: false, why });
 const hasInHand = (purse: Purse, hand: ItemId | null) => !!hand && held(purse.bag, hand) > 0;
 
-/** Clear a plot of weeds, or till cleared ground, or pull up a dead plant (which leaves compost): each with a hoe in the hand. */
-export function hoe(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
+/** Clear a plot of weeds, or till cleared ground, with a hoe in the hand. (A plot with a plant in it is not the hoe's to clear: digging it out is `uproot`. The plot's name and the rain are taken as every deed takes them, and the database's takes them; neither is needed any more.) */
+export function hoe(_key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, _rains: readonly Rain[] = DRY): Did {
   if (toolOf(hand) !== "hoe" || !hasInHand(purse, hand)) return not("hand");
-  const seen = see(key, plot, now, rains);
-  if (seen.dead) {
-    const left = FARMING.pulled, room = roomFor(purse.bag, left) > 0;
-    return { ok: true, plot: { soil: "cleared", plant: null }, purse: { ...spend(purse, FARMING.costs.pull, now), bag: room ? put(purse.bag, left, 1) : purse.bag }, got: room ? [[left, 1]] : [] };
-  }
   if (plot.plant) return not("soil");
   if (plot.soil === "wild") return { ok: true, plot: { soil: "cleared", plant: null }, purse: spend(purse, FARMING.costs.clear, now) };
   if (plot.soil === "cleared") return { ok: true, plot: { soil: "tilled", plant: null }, purse: spend(purse, FARMING.costs.till, now) };
   return not("soil");
+}
+
+/**
+ * Dig the plant out of a plot with a hoe in the hand, by somebody who may (the bed's owner; or anybody, in a bed that
+ * is nobody's): the ground is left cleared. One that has died leaves compost, if there is room for it; one that
+ * lives leaves nothing, and goes only when it is `sure` that a living one is meant.
+ */
+export function uproot(key: string, purse: Purse, plot: Plot, may: boolean, sure: boolean, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
+  if (toolOf(hand) !== "hoe" || !hasInHand(purse, hand)) return not("hand");
+  if (!plot.plant) return not("soil");
+  if (!may) return not("theirs");
+  const dead = see(key, plot, now, rains).dead;
+  if (!dead && !sure) return not("sure");
+  const left = FARMING.pulled, room = dead && roomFor(purse.bag, left) > 0;
+  return { ok: true, plot: { soil: "cleared", plant: null }, purse: { ...spend(purse, FARMING.costs.pull, now), bag: room ? put(purse.bag, left, 1) : purse.bag }, got: room ? [[left, 1]] : [] };
 }
 
 /** Sow the seed in the hand in a tilled plot: one seed, one plot. */
@@ -292,15 +314,16 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
 /**
  * What the thing in the hand can do to a plot now, if anything: the one deed
  * the map offers. In somebody else's bed only the helping deeds are offered:
- * the hoe's (clearing, tilling, pulling up what died), watering, feeding and
- * curing; never sowing or picking. (Picking needs nothing in the hand: a ripe
- * plant is picked whatever is held, unless what is held has a deed of its own
- * to do.)
+ * the hoe's on bare ground (clearing, tilling), watering, feeding and curing;
+ * never sowing, picking, or digging a plant out, dead (`pull`) or living
+ * (`uproot`). (Picking needs nothing in the hand: a ripe plant is picked
+ * whatever is held, unless what is held has a deed of its own to do. With a
+ * hoe in the hand a ripe plant is dug out, not picked: so it is asked twice.)
  */
-export type Deed = "clear" | "till" | "pull" | "sow" | "water" | "feed" | "cure" | "pick";
+export type Deed = "clear" | "till" | "pull" | "uproot" | "sow" | "water" | "feed" | "cure" | "pick";
 export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null, rains: readonly Rain[] = DRY): Deed | null {
   const seen = see(key, plot, now, rains), kind = toolOf(hand), p = plot.plant, mine = owner === null || owner === me;
-  if (kind === "hoe") return seen.dead ? "pull" : p ? null : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
+  if (kind === "hoe") return p ? (!mine ? null : seen.dead ? "pull" : "uproot") : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
   if (kind === "seed") return mine && plot.soil === "tilled" && !p ? "sow" : null;
   if (p && !seen.dead) {
     if (kind === "cure" && seen.pest) return "cure";
@@ -319,14 +342,16 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
  * owns it (unless they hold as many as one may); its owner's every deed there
  * counts as tending it; and when its last plant goes, the day it may stand
  * empty begins. A bed that has lapsed is nobody's: its keeping is dropped.
+ * `sure` is the asking's own word that a living plant is meant to be dug out
+ * (the page's second asking, answered): without it only a dead one goes.
  */
-export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: readonly Rain[] = DRY):
+export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: readonly Rain[] = DRY, sure = false):
   { ok: true; deed: Deed; purse: Purse; plot: Plot; bed: Bed | undefined; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
   const hand = handOf(purse), owner = ownerOf(bed, others > 0 || !!plot.plant, now);
   const deed = deedFor(key, plot, hand, me, now, owner, rains);
   if (!deed) return { ok: false, why: owner !== null && owner !== me ? "theirs" : "soil" };
   if (deed === "sow" && owner === null && holds >= BEDS.each) return { ok: false, why: "beds" };
-  const did = deed === "clear" || deed === "till" || deed === "pull" ? hoe(key, purse, plot, hand, now, rains)
+  const did = deed === "clear" || deed === "till" ? hoe(key, purse, plot, hand, now, rains) : deed === "pull" || deed === "uproot" ? uproot(key, purse, plot, true, sure, hand, now, rains)
     : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now, rains)
       : deed === "feed" ? feed(key, purse, plot, hand, now, rains) : deed === "cure" ? cure(key, purse, plot, hand, now, rains) : pick(key, purse, plot, true, hand, now, rains);
   if (!did.ok) return did;
@@ -341,9 +366,9 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
 
 /** What the thing in the hand can do with water where one stands: draw a bucket at the river, pour it into the well, fill a can at the well. */
 export type Chore = "draw" | "pour" | "fill";
-/** How many hits of the game of timing a piece of the farm's work asks for: the hoe's always, anything else only of tired hands. None: it is done at once. */
+/** How many hits of the game of timing a piece of the farm's work asks for: clearing and tilling always, digging a plant out never (it is asked for twice instead), anything else only of tired hands. None: it is done at once. */
 export const hitsFor = (work: Deed | Chore, spent: boolean): number =>
-  (work === "clear" || work === "till" ? FARMING.swings[work] : spent ? FARMING.tired : 0);
+  (work === "clear" || work === "till" ? FARMING.swings[work] : work === "pull" || work === "uproot" ? 0 : spent ? FARMING.tired : 0);
 export function choreFor(purse: Purse, where: "river" | "well" | null, well: number): Chore | null {
   const hand = handOf(purse);
   if (hand && hand in WATER.buckets) {

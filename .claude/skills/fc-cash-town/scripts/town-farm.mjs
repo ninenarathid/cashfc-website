@@ -7,6 +7,9 @@
 // - a watering can waters nothing until it is filled: a bucket is drawn at the river, poured into the farm's well,
 //   and the can is filled there; the other tester may water too;
 // - time is put forward until the plant is ripe, it is picked into the bag and bears again;
+// - a hoe digs a plant out of one's own bed and nobody else's: a living one or one a pest has killed, with no game,
+//   asked for twice (Space pressed once too often leaves it), for stamina, and with none left all the same; what
+//   lived leaves nothing, what died leaves compost;
 // - a bed nobody has tended for more than four days is anybody's again;
 // - nothing is offered to a hand that holds the wrong thing; every go at the hoe is written down;
 // - with no stamina left the stretch is a good third of itself and the hoe is dropped at the third miss, the plot left
@@ -237,6 +240,96 @@ try {
   await X.evaluate(`${T}.skipHours(12)`);
   await sleep(700);
   ok("…and ripe again half a day on", (await seen(X, KEY)).ripe === true && (await deed(X)) === "pick");
+
+  // a hoe digs a plant out of one's own bed, living or dead: no game, asked for twice (the owner, 2026-10-04: "ใช้จอบ
+  // ขุดเอาพืชที่ไม่ต้องการออกได้ ทั้งพืชที่ปกติ และพืชที่ตายแล้ว ไม่ต้องเล่นมินิเกม แต่ต้องกด ยืนยันก่อน … ใช้ได้เฉพาะเจ้าของแปลงผัก")
+  {
+    const ASK = `document.querySelector("[data-farm-ask]")`, asking = (Z) => Z.evaluate(`${ASK}?.dataset.farmAsk ?? null`);
+    const key = async (Z, k) => { for (const type of ["keyDown", "keyUp"]) await Z.send("Input.dispatchKeyEvent", { type, key: k === "Space" ? " " : k, code: k, windowsVirtualKeyCode: k === "Space" ? 32 : 27 }); await sleep(250); };
+    await hold(Y, "hoe");
+    await sleep(300);
+    ok("a living plant in somebody's bed is not the other's hoe's", (await deed(Y)) === null && !(await shown(Y, "/ขุดออก/")));
+    await hold(X, "hoe");
+    await until("in my own bed the hoe is offered the plant", async () => (await deed(X)) === "uproot", 5000);
+    ok("…and the button says dig it out", await shown(X, "/^ขุดออก/"));
+    // (stamina is kept with its day: what was left on a day gone by is a full hundred today)
+    const was = { stamina: (await purse(X)).stamina, kangkong: await has(X, "kangkong") }, left = (st, today) => (st.day === today ? st.left : 100);
+    await X.evaluate(`${F}.act()`);
+    await sleep(400);
+    let said = await X.evaluate(`(() => { const d = ${ASK}; return d ? { what: d.dataset.farmAsk, text: d.innerText.replace(/\\s+/g, " ").trim(), role: d.getAttribute("role"), no: document.activeElement?.hasAttribute("data-farm-ask-no") ?? false, emoji: /\\p{Extended_Pictographic}/u.test(d.innerText) } : null; })()`);
+    ok("it is asked a second time, by name, with what will be lost: this one is ripe", !!said && said.what === "uproot" && said.role === "alertdialog" && /ขุดผักบุ้งออกจากแปลง\?/.test(said.text) && /เก็บได้แล้ว/.test(said.text) && /เอาคืนไม่ได้/.test(said.text) && !said.emoji, said);
+    ok("…with no game of timing, and nothing done yet", !(await X.evaluate(`!!window.__townTiming`)) && (await seen(X, KEY)).crop === "kangkong");
+    ok("…and leaving it is what the keys are on", !!said && said.no === true, said);
+    await X.shot(`${OUT}/farm-dig-ask.png`);
+    await key(X, "Space");
+    ok("Space pressed once too often leaves it: the plant stands", (await asking(X)) === null && (await seen(X, KEY)).crop === "kangkong" && JSON.stringify((await purse(X)).stamina) === JSON.stringify(was.stamina), await seen(X, KEY));
+    await key(X, "Space");
+    ok("Space asks again", (await asking(X)) === "uproot");
+    await key(X, "Escape");
+    ok("Escape leaves it too", (await asking(X)) === null && (await seen(X, KEY)).crop === "kangkong");
+    await X.evaluate(`${F}.act()`);
+    await sleep(300);
+    await warp(X, 134, 5);
+    ok("walking off the plot leaves it", (await asking(X)) === null && (await seen(X, KEY)).crop === "kangkong");
+    await warp(X, 133, 5);
+    await until("the hoe is offered the plant again", async () => (await deed(X)) === "uproot", 5000);
+    await X.evaluate(`${F}.act()`);
+    await sleep(300);
+    await X.evaluate(`${ASK}.querySelector("[data-farm-ask-yes]").click()`);
+    await until("the plant is gone", async () => !(await seen(X, KEY)).crop, 4000);
+    s = await seen(X, KEY);
+    p = await purse(X);
+    ok("said to be meant, it is dug out: bare cleared ground", s.soil === "cleared" && !s.crop && (await deed(X)) === "till", s);
+    ok("…a ripe one too, with nothing harvested and nothing left of it", (await has(X, "kangkong")) === was.kangkong && (await has(X, "compost")) === 0, p.bag);
+    ok("…for the stamina of pulling a plant up, and no game was played", left(was.stamina, p.stamina.day) - p.stamina.left === 2 && (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").length === 4, p.stamina);
+    ok("the bed is still mine, with nothing growing in it", (await X.evaluate(`${F}.owners()`)).some((o) => o.bed === 0 && /M/.test(o.name)));
+
+    // one a pest has killed: a pumpkin sown so many days ago that one came and was left, found by looking
+    let dead = null;
+    for (let d = 1; d <= 5 && !dead; d++) for (const k of ["133,6", "134,6", "135,6", "136,6", "133,7", "134,7", "135,7", "136,7"]) {
+      await X.evaluate(`${T}.setPlot(${JSON.stringify(k)}, { soil: "tilled", plant: { by: ${T}.id, crop: "pumpkin", sown: ${T}.now() - ${d} * 86400000, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } })`);
+      await sleep(60);
+      if ((await X.evaluate(`${F}.seen(${JSON.stringify(k)})`)).dead) { dead = k; break; }
+      await X.evaluate(`${T}.setPlot(${JSON.stringify(k)}, { soil: "wild", plant: null })`);
+    }
+    ok("a pumpkin a pest has killed is found", !!dead, dead);
+    const [dx, dy] = dead.split(",").map(Number);
+    await warp(Y, dx, dy);
+    await sleep(400);
+    ok("a dead plant in somebody's bed is not the other's to pull up", (await deed(Y)) === null, await deed(Y));
+    await warp(X, dx, dy);
+    await until("in my own bed the hoe is offered the dead plant", async () => (await deed(X)) === "pull", 5000);
+    const tired = (await purse(X)).stamina.left;
+    await X.evaluate(`${F}.act()`);
+    await sleep(400);
+    said = await X.evaluate(`(() => { const d = ${ASK}; return d ? { what: d.dataset.farmAsk, text: d.innerText.replace(/\\s+/g, " ").trim() } : null; })()`);
+    ok("a dead one is asked about too, as a dead one", !!said && said.what === "pull" && /ถอนต้นที่ตายแล้วออกจากแปลง\?/.test(said.text) && /ถอนออก/.test(said.text), said);
+    await X.shot(`${OUT}/farm-dig-dead.png`);
+    await X.evaluate(`${ASK}.querySelector("[data-farm-ask-yes]").click()`);
+    await until("the dead plant is gone", async () => !(await seen(X, dead)).crop, 4000);
+    ok("pulled up, it leaves compost and cleared ground, for the same stamina", (await has(X, "compost")) === 1 && (await seen(X, dead)).soil === "cleared" && tired - (await purse(X)).stamina.left === 2 && (await shown(X, "/ปุ๋ยหมัก ×1/")), await purse(X));
+
+    // with no stamina left it is still no game: asked twice, and done
+    const kept = (await purse(X)).stamina.left;
+    await X.evaluate(`${T}.setPlot("136,8", { soil: "tilled", plant: { by: ${T}.id, crop: "kangkong", sown: ${T}.now() - 3600000, boost: 0, watered: 0, fed: 0, guard: ${T}.now() + 864000000, cured: 0, picked: 0, pickedAt: 0 } })`);
+    await X.evaluate(`${T}.setStamina(0)`);
+    await warp(X, 136, 8);
+    await until("with no stamina the hoe is offered the plant", async () => (await deed(X)) === "uproot", 5000);
+    await X.evaluate(`${F}.act()`);
+    await sleep(400);
+    said = await X.evaluate(`(() => { const d = ${ASK}; return d ? { what: d.dataset.farmAsk, text: d.innerText.replace(/\\s+/g, " ").trim() } : null; })()`);
+    ok("with no stamina left it is still asked, not played: this one is growing", !!said && said.what === "uproot" && /ยังโตอยู่/.test(said.text) && !(await X.evaluate(`!!window.__townTiming`)), said);
+    await X.evaluate(`${ASK}.querySelector("[data-farm-ask-yes]").click()`);
+    await until("the plant is gone, with no stamina", async () => !(await seen(X, "136,8")).crop, 4000);
+    ok("…and dug out with no game", !(await X.evaluate(`!!window.__townTiming`)) && (await seen(X, "136,8")).soil === "cleared" && (await X.evaluate(`${T}.plays()`)).filter((l) => l.game === "farming").length === 4);
+    await X.evaluate(`${T}.setStamina(${kept})`);
+    // (the plot is put back as it stood, for what the check goes on to: a plant in it, ripe, mine)
+    await X.evaluate(`${T}.setPlot(${JSON.stringify(KEY)}, { soil: "tilled", plant: { by: ${T}.id, crop: "kangkong", sown: ${T}.now() - 86400000, boost: 0, watered: 0, fed: 0, guard: ${T}.now() + 864000000, cured: 0, picked: 0, pickedAt: 0 } })`);
+    await warp(X, 133, 5);
+    // (and half a day goes by: digging was the owner's tending, and what follows counts four days from the last of it)
+    await X.evaluate(`${T}.skipHours(12)`);
+    await sleep(500);
+  }
 
   // left alone for more than four days, a bed is anybody's again
   await X.evaluate(`${T}.skipHours(90)`);

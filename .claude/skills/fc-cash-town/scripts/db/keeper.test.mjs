@@ -20,7 +20,7 @@ const { shelfOf } = await import("@/lib/town/orders");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (a draft of the next migration, kept out of supabase/ until it is proved, is tried with the rest)
-const NEXT = "v118";
+const NEXT = "v119";
 const draft = fileURLToPath(new URL(`./${NEXT}_draft.sql`, import.meta.url));
 const pending = existsSync(draft) && !readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`).some((f) => f.startsWith(`${NEXT}_`));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -38,9 +38,10 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const post = async (path, body) => (await fetch(`${BASE}${path}`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) })).json();
 const sql = async (text, params = []) => { const r = await post("/bench/sql", { sql: text, params }); if (!r.rows) throw new Error(`sql: ${JSON.stringify(r)}`); return r.rows; };
 const skip = (ms) => post("/bench/skip", { ms });
-const asked = [];
+const asked = [], sent = [];
 const askAs = (as) => async (fn, args) => {
   asked.push(`${as} ${fn}`);
+  sent.push({ as, fn, args: args ?? {} });
   const r = await fetch(`${BASE}/rest/v1/rpc/${fn}`, { method: "POST", headers: { "content-type": "application/json", ...(as ? { "x-town-as": as } : {}) }, body: JSON.stringify(args ?? {}) });
   if (r.status === 403) return { denied: true };
   return r.ok ? r.json() : null;
@@ -255,6 +256,39 @@ try {
   ok("a plot gone back to weeds is forgotten here when the farm is next asked for", A.farm()[key] === undefined, A.farm()[key]);
   stopFarmA();
   void nextTo;
+
+  if ((await sql(`select to_regprocedure('town.uproot(text, jsonb, jsonb, boolean, boolean, text, bigint)') is not null as there`))[0].there) {
+    section("a plant dug out: the page asks twice, and the word goes to the database (v119)");
+    const far = "(town.now_ms() + 365::bigint * 86400000)";
+    const cabbage = (x, y) => sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1::int, $2::int, town.bed_of($1::int, $2::int), 'tilled',
+      jsonb_build_object('by', $3::text, 'crop', 'cabbage', 'sown', town.now_ms() - 3600000, 'boost', 0, 'watered', 0, 'fed', 0, 'guard', ${far}, 'cured', 0, 'picked', 0, 'pickedAt', 0), town.now_ms())
+      on conflict (x, y) do update set soil = excluded.soil, plant = excluded.plant, changed = excluded.changed`, [x, y, a]);
+    await cabbage(...plot);
+    await cabbage(...nextTo);
+    await sql(`insert into public.town_beds (bed, member_id, tended, empty) values (town.bed_of($1::int, $2::int), $3, town.now_ms() - 3600000, 0)
+      on conflict (bed) do update set member_id = excluded.member_id, tended = excluded.tended, empty = 0`, [...plot, a]);
+    for (const who of [a, b]) {
+      await purse(who, 0, [{ item: "hoe", n: 1 }]);
+      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'hoe', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who]);
+    }
+    await settled(A); await settled(B);
+    const lookA = A.look("farm"), lookB = B.look("farm");
+    await settled(A); await settled(B);
+    const other = `${nextTo[0]},${nextTo[1]}`;
+    ok("my own living plant, with a hoe in the hand: to be dug out", A.deedAt(key) === "uproot" && A.farm()[key]?.plant?.crop === "cabbage", A.deedAt(key));
+    ok("…somebody else's hoe has nothing to do there", B.deedAt(key) === null && B.farm()[key]?.plant?.crop === "cabbage", B.deedAt(key));
+    sent.length = 0;
+    let dug = await A.farmDo(key, "Tester A");
+    ok("asked with no word, the database says it is not sure: nothing is done, and the plant is still kept here", !dug.ok && dug.why === "sure" && A.farm()[key]?.plant?.crop === "cabbage" && A.purse().stamina.left === 100, dug);
+    dug = await A.farmDo(key, "Tester A", undefined, true);
+    ok("asked with the word: dug out, bare cleared ground kept here at once, and nothing got", dug.ok && dug.deed === "uproot" && dug.got.length === 0 && A.farm()[key]?.soil === "cleared" && !A.farm()[key]?.plant, dug);
+    ok("…for the stamina of pulling a plant up, and the bed still mine", A.purse().stamina.left === 98 && A.owners().get(bed)?.by === a, { stamina: A.purse().stamina, owners: [...A.owners()] });
+    const tends = sent.filter((s) => s.fn === "town_tend");
+    ok("the word is sent only when it is given: a database that has not had v119 is asked as it always was", tends.length === 2 && !("p_sure" in tends[0].args) && tends[1].args.p_sure === true, tends.map((s) => s.args));
+    const theirs = await B.farmDo(other, "Tester B", undefined, true);
+    ok("somebody else, word or no word: the bed is somebody's, and the plant stands", !theirs.ok && theirs.why === "theirs" && (await sql(`select plant->>'crop' as crop from public.town_plots where x = $1 and y = $2`, nextTo))[0].crop === "cabbage", theirs);
+    lookA(); lookB();
+  }
 
   section("the kitchen: pots, and what has been found");
   await purse(a, 0, [{ item: "pan", n: 1 }, { item: "minnow", n: 3 }, { item: "salt", n: 1 }, { item: "bowl", n: 1 }]);

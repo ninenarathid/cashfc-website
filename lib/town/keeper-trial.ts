@@ -116,8 +116,8 @@ class TrialKeeper implements Keeper {
     return { how, kept: false, record: false };
   }
 
-  async farmDo(key: string, name: string, timing?: Timing): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {
-    const did = this.trial.farmDo(key, name);
+  async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {
+    const did = this.trial.farmDo(key, name, sure);
     // every miss of the hoe is a little more stamina gone
     if (did.ok && timing?.misses) this.trial.spend(timing.misses);
     return did;

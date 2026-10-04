@@ -121,7 +121,8 @@ export interface Keeper {
   missed(): Promise<{ what?: CatchId; size?: number }>;
   land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null): Promise<Landed>;
 
-  farmDo(key: string, name: string, timing?: Timing): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>>;
+  /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
+  farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>>;
   choreDo(where: Water, at: [number, number] | null): Promise<Did<{ chore: Chore }>>;
 
   /** Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who they are (the database reads each one's hand itself). */
@@ -458,9 +459,11 @@ export class DbKeeper implements Keeper {
     return { how: a.how as FishingEnd, kept: !!a.kept, record: !!a.record };
   }
 
-  async farmDo(key: string, _name: string, timing?: Timing): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {
+  async farmDo(key: string, _name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {
     const [x, y] = key.split(",").map(Number);
-    const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]> }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null });
+    // (the word is sent only when it is given: a database that has not had v119 knows no such argument, and every
+    // other deed is to go on being done there)
+    const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]> }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null, ...(sure ? { p_sure: true } : {}) });
     if (did.ok) this.onDeed?.("farm");
     return did;
   }
