@@ -334,6 +334,58 @@ describe("the database's keeper", () => {
     k.close();
   });
 
+  it("knows what the well's water is only where the database tells of it, reads it again when water is poured or the farm stirs, and names a bucket's water by its moment", async () => {
+    let told: unknown, water: unknown = { kind: "dawn", by: "bo", until: NOW + 10 * 60_000 };
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_well_ranks: () => ({ now: NOW, ranks: {}, ...(told === undefined ? {} : { wellWater: told }) }),
+      town_chore: () => ({ ok: true, chore: "pour", well: 3, now: NOW, purse: purse() }),
+    });
+    const raining = vi.spyOn(SKIES, "raining").mockReturnValue(true);
+    // a database that says nothing of the well's water: none, and a bucket's water is not named
+    let k = new DbKeeper("me", db.ask);
+    await settle();
+    expect([k.wellWater(), k.drawnNow()]).toEqual([null, null]);
+    const ranks = () => db.asked.filter((f) => f === "town_well_ranks").length;
+    let asked = ranks();
+    await k.choreDo("well", [1, 1]);
+    k.nudged("farm");
+    await settle();
+    expect(ranks()).toBe(asked);
+    k.close();
+    // …and one that tells of it
+    told = water;
+    k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.wellWater()).toEqual(water);
+    // (water drawn while it rains is the rain's; at three in the afternoon under a dry sky, plain)
+    expect(k.drawnNow()).toBe("rain");
+    raining.mockReturnValue(false);
+    expect(k.drawnNow()).toBeNull();
+    // a bucket poured into the well may have changed its water: it is asked for again
+    asked = ranks();
+    told = water = { kind: "rain", by: "me", until: NOW + 30 * 60_000 };
+    await k.choreDo("well", [1, 1]);
+    await settle();
+    expect(ranks()).toBe(asked + 1);
+    expect(k.wellWater()).toEqual(water);
+    // …and so it is when the room says something was done on the farm
+    told = null;
+    k.nudged("farm");
+    await settle();
+    expect(ranks()).toBe(asked + 2);
+    expect(k.wellWater()).toBeNull();
+    // a nature that has run out by this page's clock is none, though nobody has said so yet
+    told = { kind: "moon", by: "bo", until: NOW + 60_000 };
+    k.nudged("farm");
+    await settle();
+    expect(k.wellWater()?.kind).toBe("moon");
+    vi.setSystemTime(NOW + 61_000);
+    expect(k.wellWater()).toBeNull();
+    k.close();
+    raining.mockRestore();
+  });
+
   it("offers no book where the database has none yet: nothing is kept of an answer that never came", async () => {
     const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
     const k = new DbKeeper("me", db.ask);

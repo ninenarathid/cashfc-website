@@ -2,6 +2,7 @@ import { WATER } from "./farm";
 import type { ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { no, put, roomFor, roundOf, type Done, type Purse } from "./trade";
+import { natureOf, pouredIn, type Nature, type WellWater } from "./waters";
 
 /**
  * The well's book: whose water went where.
@@ -43,8 +44,14 @@ import { no, put, roomFor, roundOf, type Done, type Purse } from "./trade";
  * the pourer is (their rank, the day's carriers, their work at the jar).
  * Whose water it was stays the pourer's.
  *
- * Pure. The database keeps the same (v127, v129, v130, v132): a trigger reads
- * each line of `town_deeds` as it is written and does what `seen` does here.
+ * Since the fifth, water has a nature by the moment it was drawn (lib/town/
+ * waters): a bucket keeps the nature of its water, hands it on with it, and
+ * poured into the well gives it to the well for a while. The book says what
+ * the well's water is now, and whose doing.
+ *
+ * Pure. The database keeps the same (v127, v129, v130, v132, v133): a trigger
+ * reads each line of `town_deeds` as it is written and does what `seen` does
+ * here.
  */
 export const WELL_BOOK = {
   /** The bucketfuls poured into the well, all told, at which each rank begins. */
@@ -65,7 +72,8 @@ export const RANK_TITLES: Array<[th: string, en: string]> = [["คนหาบ�
  * a bed (`ditch`: so many bucketfuls, for so many `plants`, each of which is then written as a watering with that
  * bucket), a bucket poured into the yard's jar (`yard`), and a pot cooked with a bucketful of the jar's (`fresh`: by
  * the cook). Since the fourth: a bucket drawn at the river (`draw`: nobody's hands are on its water yet) and one
- * handed on (`pass`: from which bucket, `to` whom, `into` which of theirs).
+ * handed on (`pass`: from which bucket, `to` whom, `into` which of theirs). Since the fifth a bucket drawn says the
+ * nature of its water, when it has one (`kind`: the database works it out from the moment and the sky).
  */
 export interface WaterDeed {
   by: string;
@@ -80,6 +88,8 @@ export interface WaterDeed {
   /** Handed on: to whom, and into which bucket of theirs. */
   to?: string;
   into?: string;
+  /** Drawn: the nature of the water, when it has one. */
+  kind?: Nature;
   tile?: [number, number];
   whose?: string;
 }
@@ -111,8 +121,12 @@ export interface WellLog {
   pots: Record<string, Record<string, number>>;
   /** Whose hands the water in a bucket has been through (lib/town/line): by who holds the bucket and which it is, in the order it came by them, the holder last. A bucket drawn at the river has none. */
   line: Record<string, string[]>;
+  /** The nature of the water in a bucket, when it has one (lib/town/waters): by who holds the bucket and which it is. */
+  kinds: Record<string, Nature>;
+  /** The well's water when a nature was last poured into it: which, until when, by whom. */
+  wellWater: WellWater | null;
 }
-export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {}, yard: [], pots: {}, line: {} });
+export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {}, yard: [], pots: {}, line: {}, kinds: {}, wellWater: null });
 /** How many of those whose hands the water went through are remembered: the last so many (lib/town/line's own number, kept here so that the book does not hang on the map). */
 export const LINE_HANDS = 8;
 
@@ -151,17 +165,23 @@ function counted(log: WellLog, d: WaterDeed, n: number): WellLog {
 export function seen(log: WellLog, d: WaterDeed): WellLog {
   const day = dayOf(d.at), round = roundOf(d.at);
   if (d.what === "draw") {
-    // a bucket drawn at the river: nobody's hands are on its water but the drawer's own
-    if (!d.can || !(canKey(d.by, d.can) in log.line)) return log;
-    const line = { ...log.line };
-    delete line[canKey(d.by, d.can)];
-    return { ...log, line };
+    // a bucket drawn at the river: nobody's hands are on its water but the drawer's own, and it has the nature of the moment, or none
+    if (!d.can) return log;
+    const key = canKey(d.by, d.can);
+    if (!(key in log.line) && !(key in log.kinds) && !d.kind) return log;
+    const line = { ...log.line }, kinds = { ...log.kinds };
+    delete line[key];
+    if (d.kind) kinds[key] = d.kind; else delete kinds[key];
+    return { ...log, line, kinds };
   }
   if (d.what === "pass") {
     if (!d.can || !d.to || !d.into || Math.floor(d.n ?? 0) <= 0) return log;
     // the hands it came by, and whoever takes it last (once): only the last so many are remembered
     const was = log.line[canKey(d.by, d.can)] ?? [d.by], hands = [...was.filter((h) => h !== d.to), d.to].slice(-LINE_HANDS);
-    return { ...log, line: { ...log.line, [canKey(d.to, d.into)]: hands } };
+    // (the water's nature goes with it)
+    const kind = log.kinds[canKey(d.by, d.can)], kinds = { ...log.kinds };
+    if (kind) kinds[canKey(d.to, d.into)] = kind; else delete kinds[canKey(d.to, d.into)];
+    return { ...log, line: { ...log.line, [canKey(d.to, d.into)]: hands }, kinds };
   }
   if (d.what === "sow") {
     if (!d.tile || !(plotOf(d.tile) in log.help)) return log;
@@ -173,8 +193,11 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
     const n = Math.floor(d.n ?? 0);
     if (n <= 0) return log;
     const was = log.carriers[d.by] ?? { buckets: 0, taken: [] }, today = log.days[day] ?? {}, mine = today[d.by] ?? { buckets: 0, first: d.at };
+    // (water with a nature gives it to the well for a while: lib/town/waters)
+    const kind = d.can ? log.kinds[canKey(d.by, d.can)] : undefined;
     return counted({
       ...log,
+      ...(kind ? { wellWater: pouredIn(log.wellWater, kind, n, d.by, d.at) } : {}),
       water: [...log.water, { by: d.by, left: n }],
       carriers: { ...log.carriers, [d.by]: { ...was, buckets: was.buckets + n } },
       days: { ...log.days, [day]: { ...today, [d.by]: { ...mine, buckets: mine.buckets + n } } },
@@ -254,6 +277,8 @@ export interface WellBook {
   today: { buckets: number; waterings: number; plants: number; people: number; watered: number; helped: number; pots?: number; cooks?: number };
   /** Today's carriers, in the order they came: who, by name, how many bucketfuls, and their rank. */
   carriers: Array<{ id: string; name: string; buckets: number; rank: number }>;
+  /** The well's water, while it has a nature (lib/town/waters): which, until when, and who brought it (the last to pour some of it in). */
+  water?: { kind: Nature; until: number; by: string; name: string };
 }
 
 /** The book as somebody reads it at a moment. `nameOf` gives a carrier's name. */
@@ -271,6 +296,7 @@ export function bookOf(log: WellLog, me: string, now: number, nameOf: (id: strin
       ...(pots.length ? { pots: pots.reduce((t, n) => t + n, 0), cooks: pots.length } : {}),
     },
     carriers: today.slice(0, WELL_BOOK.listed).map(([id, c]) => ({ id, name: nameOf(id), buckets: c.buckets, rank: rankOf(log.carriers[id]?.buckets ?? 0) })),
+    ...(log.wellWater && natureOf(log.wellWater, now) ? { water: { kind: log.wellWater.kind, until: log.wellWater.until, by: log.wellWater.by, name: nameOf(log.wellWater.by) } } : {}),
   };
 }
 

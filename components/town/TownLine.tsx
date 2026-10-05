@@ -160,7 +160,7 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx }: 
           ) : next && (
             <button type="button" onClick={begin} disabled={busy} data-line-chip data-state="open"
                     className="pop-in pressable pointer-events-auto flex min-h-11 max-w-[22rem] items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent disabled:opacity-60">
-              <TownIcon name={icon} size={20} />
+              <TownIcon name="lineHands" size={22} />
               <span className="min-w-0 truncate">{th ? `ส่งน้ำต่อให้ ${next.name || ITEMS[next.hold!].name.th}` : `Hand it on to ${next.name || "them"}`}</span>
             </button>
           )}

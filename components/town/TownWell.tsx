@@ -6,12 +6,15 @@ import { mayDrop } from "@/lib/town/jar";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import { handOf } from "@/lib/town/trade";
+import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import { RANK_TITLES } from "@/lib/town/well";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
 
 /** The mark of each rank, the first to the last. */
 export const RANK_ICONS: IconName[] = ["rankWaterA", "rankWaterB", "rankWaterC"];
+/** The picture of each water that has a nature (lib/town/waters): a drop under the rising sun, under a cloud, beside the moon. */
+const NATURE_ICONS: Record<Nature, IconName> = { dawn: "waterDawn", rain: "waterRain", moon: "waterMoon" };
 
 /**
  * The well's book (lib/town/well; the owner, 2026-10-05: those who carry water
@@ -166,6 +169,18 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
                 {note && <p className="mt-2 text-meta text-ink" aria-live="polite" data-well-note>{note}</p>}
               </div>
 
+              {/* the well's water, while it has a nature (lib/town/waters): what it is, for how long yet, and whose doing; never what it does */}
+              {book.water && book.water.until > keeper.now() && (
+                <p className="mt-3 flex items-center gap-2 rounded-xl border border-gold/50 bg-gold/10 px-3 py-2 text-ui text-ink" data-well-water={book.water.kind}>
+                  <TownIcon name={NATURE_ICONS[book.water.kind]} size={24} />
+                  <span className="min-w-0">
+                    {th
+                      ? `น้ำในบ่อตอนนี้คือ${NATURE_NAMES[book.water.kind][0]} · อีก ${Math.max(1, Math.ceil((book.water.until - keeper.now()) / 60_000))} นาที · ${book.water.name || "เพื่อนคนหนึ่ง"}หาบมา`
+                      : `The well's water is ${NATURE_NAMES[book.water.kind][1].toLowerCase()} · ${Math.max(1, Math.ceil((book.water.until - keeper.now()) / 60_000))} min more · brought by ${book.water.name || "somebody"}`}
+                  </span>
+                </p>
+              )}
+
               <h3 className="mb-1.5 mt-4 font-data text-label uppercase tracking-wider text-muted">{th ? "วันนี้" : "Today"}</h3>
               <ul className="flex flex-col gap-1.5 rounded-xl border border-line bg-card/60 px-3 py-2.5 text-ui text-ink" data-well-today>
                 {/* (every bucketful carried: into the well, over a bed, into the cooking yard's jar) */}
@@ -178,7 +193,7 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
                   : `Watered others' plants ${n(book.today.watered)} time${book.today.watered === 1 ? "" : "s"} · for ${n(book.today.helped)} ${book.today.helped === 1 ? "person" : "people"}`} />
                 {/* (the cooking yard's jar: said only once a pot has been cooked with my water) */}
                 {!!book.today.pots && (
-                  <Line icon="pot" text={th
+                  <Line icon="yardJar" text={th
                     ? `น้ำของฉันอยู่ในอาหาร ${n(book.today.pots)} หม้อ · ของ ${n(book.today.cooks ?? 0)} คน`
                     : `My water went into ${n(book.today.pots)} pot${book.today.pots === 1 ? "" : "s"} · of ${n(book.today.cooks ?? 0)} ${book.today.cooks === 1 ? "cook" : "cooks"}`} />
                 )}

@@ -23,9 +23,10 @@ import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type 
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
 import { ditch, reachOf } from "./ditch";
-import { hotAt, warmed } from "./heat";
+import { hotAt } from "./heat";
 import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
+import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -363,8 +364,8 @@ export class Trial {
     const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains(), sure);
     if (!did.ok) return did;
     const next = { ...plots };
-    // (a watering on a hot afternoon does as much again: lib/town/heat, as the plot is kept)
-    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = warmed(plot, did.plot, now, SKIES.sky(now));
+    // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
+    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = keptAs(plot, did.plot, now, SKIES.sky(now), this.natureNow(now));
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -396,7 +397,7 @@ export class Trial {
     const did = ditch(p, this.bedAt(x, y), [x, y], now, SKIES.rains());
     if (!did.ok) return did;
     const next = { ...plots }, sky = SKIES.sky(now), hand = handOf(p) ?? undefined;
-    for (const [k, plot] of Object.entries(did.plots)) next[k] = warmed(plots[k], plot, now, sky);
+    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now));
     this.write(FARM, next);
     // (its owner's every deed in a bed counts as tending it)
     const beds = this.beds(), bed = String(bedOf(x, y));
@@ -421,6 +422,15 @@ export class Trial {
     this.save(did.purse);
     return { ok: true, poured: did.poured };
   }
+  /** Waters that differ (lib/town/waters): the nature the well's water has now, if any, with whose doing it is; and the nature of water drawn at this moment. */
+  private natureNow(now: number): Nature | null { return natureOf(this.wellLog().wellWater, now); }
+  wellWater(): WellWater | null { const w = this.wellLog().wellWater; return w && natureOf(w, this.now()) ? w : null; }
+  drawnNow(): Nature | null { const now = this.now(); return natureAt(now, SKIES.raining(now)); }
+  /** For scripts and the test window: the well's water given a nature for so many minutes (as if somebody had poured it in), or none. */
+  setWellWater(kind: Nature | null, minutes = 30) {
+    this.write(WELL_LOG, { ...this.wellLog(), wellWater: kind ? { kind, until: this.now() + minutes * 60_000, by: this.id } : null });
+    this.tell();
+  }
   /** A bucket line (lib/town/line): whether I hold a bucket with water to hand on, and handing it on to another tester of this browser. */
   canPass(): boolean { return !!carried(this.purse()); }
   passTo(to: string): { ok: true; n: number } | { ok: false; why: PassRefusal } {
@@ -443,7 +453,7 @@ export class Trial {
     // (the well's book: so many bucketfuls poured, and out of which bucket; a can filled; a bucket drawn, with nobody's hands on its water yet)
     if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well, can: handOf(p) ?? undefined });
     else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", can: handOf(p) ?? undefined });
-    else this.wellSeen({ by: this.id, at: now, what: "draw", can: handOf(p) ?? undefined });
+    else this.wellSeen({ by: this.id, at: now, what: "draw", can: handOf(p) ?? undefined, kind: natureAt(now, SKIES.raining(now)) ?? undefined });
     this.save(did.purse);
     return { ok: true, chore: did.chore };
   }

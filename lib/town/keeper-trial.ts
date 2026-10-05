@@ -167,6 +167,8 @@ class TrialKeeper implements Keeper {
   yardJar() { return this.trial.yardJar(); }
   yardCanPour() { return this.trial.yardCanPour(); }
   async yardPour(): Promise<Did<{ poured: number }>> { return this.trial.yardPour(); }
+  wellWater() { return this.trial.wellWater(); }
+  drawnNow() { return this.trial.drawnNow(); }
   canPass() { return this.trial.canPass(); }
   async passTo(to: string): Promise<Did<{ n: number }>> {
     const did = this.trial.passTo(to);

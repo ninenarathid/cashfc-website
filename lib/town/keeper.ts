@@ -20,6 +20,7 @@ import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
+import { natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
@@ -224,6 +225,13 @@ export interface Keeper {
    */
   canPass(): boolean;
   passTo(to: string): Promise<Did<{ n: number }>>;
+  /**
+   * Waters that differ (lib/town/waters): the nature the well's water has now, with until when and whose doing it
+   * is (null when it has none, and where whoever keeps the game knows of no such thing); and the nature of water
+   * drawn at this moment, for the page to name a bucket's water by as it is drawn (what counts is the keeper's own).
+   */
+  wellWater(): WellWater | null;
+  drawnNow(): Nature | null;
 
   /**
    * Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who
@@ -314,6 +322,9 @@ export class DbKeeper implements Keeper {
   private yard_: number | null = null;
   /** Whether the database knows of a bucket line: said with everybody's rank. */
   private line_ = false;
+  /** Whether the database knows of waters that differ, and the well's water as it last told it: both said with everybody's rank. */
+  private waters_ = false;
+  private water_: WellWater | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -441,6 +452,7 @@ export class DbKeeper implements Keeper {
     if (a.jar && typeof a.jar === "object") this.jar_ = a.jar as JarTold;
     if (a.yard && typeof a.yard === "object" && typeof (a.yard as { jar?: unknown }).jar === "number") this.yard_ = (a.yard as { jar: number }).jar;
     if (a.line === true) this.line_ = true;
+    if ("wellWater" in a) { this.waters_ = true; this.water_ = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; }
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -493,6 +505,8 @@ export class DbKeeper implements Keeper {
   nudged(what: Looked) {
     // (somebody handed me water: it is in my purse, which is read again)
     if (what === "line") { void this.ask("town_me"); return; }
+    // (something was done on the farm: a bucket poured into the well may have changed what its water is)
+    if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
     if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what);
   }
   /** Ask for one of them now, and again in its time while it is looked at. */
@@ -676,8 +690,8 @@ export class DbKeeper implements Keeper {
     // other deed is to go on being done there)
     const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]> }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null, ...(sure ? { p_sure: true } : {}) });
     if (did.ok) this.onDeed?.("farm");
-    // (a watering on a hot afternoon does as much again as the plot is kept, after this answer was made: the plot is read again)
-    if (did.ok && did.deed === "water" && this.hot()) this.fetch("farm");
+    // (a watering on a hot afternoon, or while the well's water has a nature, is kept with more than this answer says: the plot is read again)
+    if (did.ok && did.deed === "water" && (this.hot() || this.wellWater())) this.fetch("farm");
     return did;
   }
   /**
@@ -713,8 +727,9 @@ export class DbKeeper implements Keeper {
     if (!at) return { ok: false, why: "none" };
     const did = await this.deed<{ chore: Chore }>("town_chore", { p_x: at[0], p_y: at[1] });
     if (did.ok && did.chore !== "draw") this.onDeed?.("farm");
-    // (the book changes with a bucketful poured: read again by whoever has had it open)
+    // (the book changes with a bucketful poured: read again by whoever has had it open; and what the well's water is may have changed)
     if (did.ok && did.chore === "pour" && this.wellBook_) void this.ask("town_well");
+    if (did.ok && did.chore === "pour" && this.waters_) void this.ask("town_well_ranks");
     return did;
   }
   async wellLook() { await this.ask("town_well"); }
@@ -755,6 +770,8 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
+  wellWater(): WellWater | null { return this.water_ && natureOf(this.water_, this.now()) ? this.water_ : null; }
+  drawnNow(): Nature | null { const now = this.now(); return this.waters_ ? natureAt(now, SKIES.raining(now)) : null; }
   canPass(): boolean { return this.line_ && !!carried(this.mine); }
   async passTo(to: string): Promise<Did<{ n: number }>> {
     const did = await this.deed<{ n: number }>("town_pass", { p_to: to });

@@ -7,6 +7,7 @@ import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
+import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, plotAt, type Vec } from "@/lib/town/world";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -77,6 +78,8 @@ const DEED_FX: Record<Deed, [VfxKind, WorkSound]> = {
 };
 /** And at each chore with water. */
 const CHORE_FX: Record<Chore, [VfxKind, WorkSound]> = { draw: ["splash", "dip"], pour: ["splash", "pour"], fill: ["water", "pour"] };
+/** The light about the well while its water has a nature (lib/town/waters): the dew's gold, the rain's blue, the moon's silver. */
+const NATURE_GLOW: Record<Nature, string> = { dawn: "#ffd98a", rain: "#9fd0ff", moon: "#e8ecff" };
 /** How big a plant is drawn: screen pixels to one of its picture's, at the map's own scale 1. */
 const PLANT = 0.62;
 
@@ -125,6 +128,8 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * plant at its stage, a pest on it, the shine of a ripe one; whose each bed
  * is, and how much water the well has. On a hot afternoon (lib/town/heat) the
  * air shimmers over every plant that could do with water: nothing says why.
+ * While the well's water has a nature (lib/town/waters) motes of its colour
+ * rise about the well and its sign names the water: nothing says what it does.
  *
  * With a bucket of water in the hand, standing on a plot of a bed that has
  * thirsty plants, the bucket is poured over the bed (lib/town/ditch): one
@@ -184,6 +189,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** Whether it is a hot afternoon: looked at with the rest, not every frame. */
   const hot = useRef(false);
   hot.current = keeper.hot();
+  /** The nature the well's water has now, if any. */
+  const nature = useRef<Nature | null>(null);
+  nature.current = keeper.wellWater()?.kind ?? null;
 
   // The plots, drawn among everything else on the map.
   useEffect(() => {
@@ -246,7 +254,26 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         if (onScreen(at)) sign(thai ? `แปลงของ ${who.name}` : `${who.name}'s bed`, at.x, at.y - 6 * s);
       }
       const top = project({ x: WELL.x + 0.5, y: WELL.y + 0.5 });
-      if (onScreen(top)) sign(`${thai ? "บ่อน้ำ" : "Well"} ${well.current}/${WATER.well}`, top.x, top.y - 66 * s);
+      const kind = nature.current;
+      if (onScreen(top)) sign(`${thai ? "บ่อน้ำ" : "Well"} ${well.current}/${WATER.well}${kind ? ` · ${NATURE_NAMES[kind][thai ? 0 : 1]}` : ""}`, top.x, top.y - 66 * s);
+      // while its water has a nature: motes of that water's colour rising about the well, each in its own time
+      if (kind && onScreen(top)) {
+        things.push({ depth: WELL.x + WELL.y + 1.2, draw: () => {
+          const px = Math.max(3, Math.round(2.4 * s));
+          ctx.fillStyle = NATURE_GLOW[kind];
+          for (let i = 0; i < 11; i++) {
+            const rise = still ? (i + 0.5) / 11 : (t / 3200 + i / 11) % 1, turn = i * 2.4 + (still ? 0 : t / 2100);
+            ctx.globalAlpha = Math.sin(rise * Math.PI);
+            // (a mote is a small cross of its colour: a point of light, not a square)
+            const x = Math.round(top.x + Math.cos(turn) * (16 + (i % 3) * 5) * s), y = Math.round(top.y - (14 + rise * 92) * s);
+            ctx.fillRect(x, y, px, px);
+            ctx.globalAlpha *= 0.55;
+            ctx.fillRect(x - px, y, px * 3, px);
+            ctx.fillRect(x, y - px, px, px * 3);
+          }
+          ctx.globalAlpha = 1;
+        } });
+      }
     });
     return () => register(null);
   }, [register, vfx]);
@@ -290,6 +317,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // (a bucket drawn under the fountain's blessing for water bearers: its own burst)
     for (const id of seenAtPlot(did.chore, mine, began)) vfx.add("bless", null, { icon: BURST[id], lift: 26 });
     if (did.chore !== "draw") setNote(`${th ? "บ่อน้ำ" : "Well"} ${keeper.well()}/${WATER.well}`);
+    else {
+      // (water drawn at certain moments has a nature: it is named for what it is, and a light goes up from the bucket)
+      const kind = keeper.drawnNow();
+      if (kind) { setNote(NATURE_NAMES[kind][th ? 0 : 1]); vfx.add("sparkle", null, { lift: 22 }); }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the tile is told by its two numbers
   }, [keeper, water, at?.[0], at?.[1], sfx, th, say, vfx]);
   /** Pour the bucket over the bed I stand in. */
@@ -361,7 +393,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   useEffect(() => {
     const handle = {
       seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now(), keeper.rains()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
-      offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note,
+      offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note, wellWater: () => keeper.wellWater(),
       asking: () => asking,
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
     };

@@ -21,7 +21,7 @@ const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v130", "v132"];
+const NEXT = ["v130", "v132", "v133"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -815,6 +815,53 @@ try {
     did = await I.passTo(c);
     ok("into a bucket that has water nothing goes", !did.ok && did.why === "full" && I.canPass() === true, did);
     I.close(); J.close(); K.close();
+  }
+
+  if ((await sql(`select to_regprocedure('town.water_kind(bigint)') is not null as there`))[0].there) {
+    section("waters that differ: the dew drawn, poured into the well, and a watering under it (v133)");
+    const well = (await sql(`select town.cat('farming')->'wellAt' as at`))[0].at, AT_WELL = [well[0] + 1, well[1]], RIVER = [16, 38];
+    await sql(`truncate public.town_deeds, public.town_well_water, public.town_well_cans, public.town_carriers, public.town_well_reach, public.town_plot_help, public.town_thanks, public.town_yard_water, public.town_yard_reach, public.town_line_water`);
+    await sql(`update public.town_things set doc = '0'::jsonb where key = 'well'; update public.town_things set doc = 'null'::jsonb where key = 'well_water'; delete from public.town_weather; truncate public.town_plots, public.town_beds`);
+    // six in the morning in Bangkok, a dry sky in the database and over this page
+    const now0 = Number((await sql(`select town.now_ms() as n`))[0].n), hour = (((now0 + 7 * 3600000) % 86400000) + 86400000) % 86400000 / 3600000;
+    await skip(Math.round((((6.1 - hour) % 24 + 24) % 24) * 3600000));
+    const { SKIES } = await import("@/lib/town/skies");
+    SKIES.force({ sky: "cloudy", wind: 5, gust: 10, rain: 0 });
+    const now = Number((await sql(`select town.now_ms() as n`))[0].n);
+    await sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values (133, 5, town.bed_of(133, 5), 'tilled', $1::jsonb, 0)`,
+      [JSON.stringify({ by: a, crop: "pumpkin", sown: now - 3600000, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 })]);
+    const fresh = (id, hand) => sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', $2::text, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [id, hand]);
+    await purse(a, 0, [{ item: "bucket", n: 1 }]);
+    await fresh(a, "bucket");
+    await purse(b, 0, [{ item: "can", n: 1, water: 8 }]);
+    await fresh(b, "can");
+    const M = new DbKeeper(a, askAs("A")), N = new DbKeeper(b, askAs("B"));
+    await settled(M); await settled(N);
+    const stopN = N.look("farm");
+    await sleep(500);
+    ok("the well's water is plain, and both keepers know that waters differ", M.wellWater() === null && N.wellWater() === null && M.drawnNow() === "dawn", { drawn: M.drawnNow() });
+    await M.choreDo("river", RIVER);
+    let did = await M.choreDo("well", AT_WELL);
+    await settled(M); await settled(M);
+    ok("dew drawn at six and poured into the well: the pourer's keeper asks what the well's water is, and has it: the dew's, half an hour, its own doing", did.ok && did.chore === "pour"
+      && M.wellWater()?.kind === "dawn" && M.wellWater().by === a && Math.abs(M.wellWater().until - M.now() - 30 * 60000) < 20000, M.wellWater());
+    ok("the other's keeper knows nothing of it yet", N.wellWater() === null);
+    // (the room's word, as the map would hand it on)
+    N.nudged("farm");
+    await settled(N); await settled(N);
+    ok("told through the room that something was done on the farm, it asks, and has it", N.wellWater()?.kind === "dawn" && N.wellWater().by === a, N.wellWater());
+    await N.wellLook();
+    ok("the book says what the well's water is and whose doing, by name", N.wellBook()?.water?.kind === "dawn" && N.wellBook().water.name === "Tester A" && N.wellBook().water.until === N.wellWater().until, N.wellBook()?.water);
+    const before = asked.filter((x) => x === "B town_farm").length;
+    did = await N.farmDo("133,5", "Tester B");
+    await settled(N); await settled(N);
+    ok("a watering while the well has the dew's nature: the keeper reads the farm again, and has the plot as it is kept, with as much again", did.ok && did.deed === "water"
+      && asked.filter((x) => x === "B town_farm").length === before + 1 && N.farm()["133,5"].plant.boost === 3600000, N.farm()["133,5"]?.plant);
+    await skip(31 * 60000);
+    // (any answer puts a keeper's clock right)
+    await settled(M); await settled(N);
+    ok("half an hour on, by the keepers' own clocks, the well's water is plain again", M.wellWater() === null && N.wellWater() === null);
+    stopN(); M.close(); N.close();
   }
 
   section("one thing at a time");

@@ -191,6 +191,9 @@ const SHEETS = [
   // full; the book; something waiting; a carrier's three ranks; and, for what comes after, a jar, a card of thanks, a cart
   ["icons-well-a", ["waterYoke", "waterYokeFull", "waterYokeGreat", "waterYokeGreatFull", "wellBook", "wellGift"], { range: [7, 8] }],
   ["icons-well-b", ["rankWaterA", "rankWaterB", "rankWaterC", "tipJar", "thanksCard", "waterCart"]],
+  // the carriers' later rounds (2026-10-05): the cart with water in it (a bucket's picture when it holds water is its name and Full), the three
+  // waters that differ (lib/town/waters: the dew's, the rain's, the moon's), the cooking yard's jar, and a bucket handed on
+  ["icons-well-c", ["waterCartFull", "waterDawn", "waterRain", "waterMoon", "yardJar", "lineHands"]],
 ];
 
 const pieces = [];
