@@ -520,7 +520,7 @@ function towardFountain(x: number, y: number): Facing {
 }
 
 /** The stretch of the town's map the north path leaves by: where its woods thicken towards the forest's gate. */
-const NORTH_WOOD = { x: 14, w: 38, h: 9 };
+export const NORTH_WOOD = { x: 14, w: 38, h: 9 };
 
 /**
  * The town's scenery, laid out by a fixed seed so every screen has the same

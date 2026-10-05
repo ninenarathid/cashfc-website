@@ -8,6 +8,7 @@ import {
   BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
   atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
+import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
 import { PUDDLE_SIZES, RING_MS, Rain, ageOf, drawPicture, puddleRing, puddleRingsFor, puddlesFor, ringsFor, type Pictures } from "@/lib/town/rain";
@@ -169,7 +170,11 @@ const PROP_K: Partial<Record<string, number>> = {
   bin: 0.75, flowerbed: 0.8, signpost: 0.85, well: 0.75, shed: 0.9, scarecrow: 0.7, hay: 0.8, storebox: 0.9,
   // (the forest's two great things are drawn larger than their pictures: the tree over its three tiles by three, the cliff along the back of its pool)
   greattree: 1.7, waterfall: 1.6,
+  // (pixel art that came drawn, each thing at its artist's own size: lib/town/decor)
+  appletree: 0.8, stumpCaps: 0.7, stumpMoss: 0.7, jacko: 0.75, jacko2: 0.75, pumpkin: 0.62, pumpkin2: 0.62,
 };
+/** The picture a prop is drawn as: one of its kind's several (lib/town/decor), or its kind's own where the scenery has not that one (a picture built before it). */
+const shown = (scenery: SceneryKit, p: Prop) => { const art = artOf(p); return scenery.has(art) ? art : p.kind; };
 /** What the forest's own trees and rocks are drawn as until its picture has come (lib/town/scenery's loadForest): the town's. */
 const FOREST_STAND_IN: Partial<Record<string, string>> = { oak: "tree", birch: "tree", bamboo: "pine", boulder: "rock" };
 /** How long before the forest's picture is asked for again, when it did not come. */
@@ -384,11 +389,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** `next dev` only: ?townHour=21 shows the town at that hour; ?townPopoto=lunch brings that popoto out now. */
   const forcedHour = useRef<number | null>(null);
   const forcedPopoto = useRef<Activity | undefined>(undefined);
+  /** `next dev` only: ?townCarving=0 puts the carved pumpkins away as out of their season, =1 brings them out. */
+  const forcedCarving = useRef<boolean | null>(null);
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const q = new URLSearchParams(location.search);
     const h = Number(q.get("townHour"));
     if (Number.isFinite(h) && q.has("townHour")) forcedHour.current = h;
+    if (q.has("townCarving")) forcedCarving.current = q.get("townCarving") !== "0";
     const p = q.get("townPopoto");
     if (p && ["rush", "lunch", "football", "badminton", "tired"].includes(p)) forcedPopoto.current = p as Activity;
   }, []);
@@ -1360,6 +1368,59 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }
 
   /**
+   * The rings on the ground at the gates (lib/town/decor), each under its gateway: the picture, and a few motes of
+   * its light going up from it by the clock.
+   */
+  function drawRings(ctx: CanvasRenderingContext2D, scenery: SceneryKit, dpr: number, now: number) {
+    const s = cam.current.s, dot = Math.max(1, Math.round(2 * s));
+    for (const g of GATES) {
+      const ring = gateLook(g).ring;
+      if (g.from !== placeRef.current || !scenery.has(ring)) continue;
+      const c = project(ringAt(g));
+      if (!onScreen(c)) continue;
+      scenery.drawProp(ctx, ring, c.x, c.y, s, dpr);
+      if (reducedRef.current) continue;
+      for (let i = 0; i < 6; i++) {
+        const life = (now / 2800 + i * 0.173) % 1, turn = i * 2.4 + 0.7, out = 8 + ((i * 37) % 19);
+        ctx.fillStyle = `rgba(200,238,255,${(Math.sin(life * Math.PI) * 0.85).toFixed(3)})`;
+        ctx.fillRect(Math.round(c.x + Math.cos(turn) * out * s), Math.round(c.y + (Math.sin(turn) * out * 0.5 - life * 34) * s), dot, dot);
+      }
+    }
+  }
+
+  /**
+   * The light of what is only looked at (lib/town/decor), added after the sky has had its say: a ring's own, soft
+   * by day and bright at night, breathing slowly; and a carved pumpkin's face, once the lamps are lit.
+   */
+  function drawDecorLights(ctx: CanvasRenderingContext2D, lamps: number, now: number) {
+    const scenery = sceneryRef.current;
+    if (!scenery) return;
+    const s = cam.current.s, still = reducedRef.current;
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const breath = still ? 0.9 : 0.8 + 0.2 * Math.sin(now / 1500);
+    for (const g of GATES) {
+      if (g.from !== placeRef.current || !scenery.has(gateLook(g).ring)) continue;
+      const c = project(ringAt(g));
+      if (!onScreen(c)) continue;
+      const lit = (0.14 + 0.5 * lamps) * breath;
+      glowAt(ctx, c.x, c.y - 2 * s, 50 * s, "120,205,255", lit, 0.55);
+      glowAt(ctx, c.x, c.y - 10 * s, 84 * s, "110,180,255", lit * 0.4, 0.7);
+    }
+    if (lamps > 0.02 && (forcedCarving.current ?? carving(Date.now()))) for (const d of DECOR) {
+      if (!d.carved || !scenery.has(d.art)) continue;
+      const c = project(d);
+      if (!onScreen(c)) continue;
+      const k = s * (PROP_K[d.art] ?? 1), [fx, fy] = FACES[d.art as keyof typeof FACES];
+      const flicker = still ? 0.9 : 0.86 + 0.09 * Math.sin(now / 310 + d.x * 7) + 0.05 * Math.sin(now / 130 + d.y * 5);
+      const x = c.x + (d.mirror ? -fx : fx) * k, y = c.y - fy * k;
+      glowAt(ctx, x, y, 13 * s, "255,214,120", 0.6 * lamps * flicker);
+      glowAt(ctx, x, y + 6 * s, 46 * s, "255,150,60", 0.3 * lamps * flicker, 0.7);
+    }
+    ctx.restore();
+  }
+
+  /**
    * The cooking yard's own lights, added after the sky has had its say. Inside: the camp fire, which lights the whole
    * yard, and the stoves' mouths. Outside: the house's two lanterns, the fire's light in its windows (their bars left
    * dark) and its doorway, and what of it falls on the ground before them. Faint by day, warm at night; and slow
@@ -1432,6 +1493,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     drawYardLights(ctx, day.lamps, now);
     drawCampLight(ctx, day.lamps, now);
+    drawDecorLights(ctx, day.lamps, now);
     if (day.lamps < 0.02) return;
     const s = cam.current.s;
     ctx.save();
@@ -1598,6 +1660,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
     // The river flowing, and what floats and swims in it.
     if (scenery) drawRiver(ctx, scenery, dpr);
+    // A ring of light on the ground at each gate, under its gateway and whoever walks onto it.
+    if (scenery) drawRings(ctx, scenery, dpr, now);
+    /** Whether carved pumpkins are out (lib/town/decor), by the calendar or as `next dev` was asked. */
+    const carvingNow = forcedCarving.current ?? carving(Date.now());
 
     // How far a voice carries, when distance matters at all.
     if (PROXIMITY && mine && stay?.voice.active) {
@@ -1660,8 +1726,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           scenery.drawProp(ctx, boxShown.current && scenery.has("storeboxOpen") ? "storeboxOpen" : "storebox", c.x, c.y, k, dpr);
           const [w, h] = scenery.sizeOf("storebox"), [ax, ay] = scenery.anchorOf("storebox");
           storeBox.current = { x0: c.x - ax * k, y0: c.y - ay * k, x1: c.x + (w - ax) * k, y1: c.y + (h - ay) * k };
-        } else if (scenery?.has(p.kind)) scenery.drawProp(ctx, p.kind, c.x, c.y, v.s * (PROP_K[p.kind] ?? 1), dpr, 0, false, swayOf(p, now));
-        else if (p.kind === "tree" || p.kind === "pine") drawTree(ctx, p);
+        } else if (scenery?.has(p.kind)) {
+          const art = shown(scenery, p);
+          scenery.drawProp(ctx, art, c.x, c.y, v.s * (PROP_K[art] ?? 1), dpr, 0, false, swayOf(p, now));
+        } else if (p.kind === "tree" || p.kind === "pine") drawTree(ctx, p);
       } });
     }
     // Popoto Shop, being built: the site as it stands at its stage, and popoto workers at it.
@@ -1827,9 +1895,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (scenery?.has("gateway")) for (const g of GATES) {
       const c = project(g.arch);
       if (!onScreen(c)) continue;
+      // (the forest's way has a torii at both its ends: lib/town/decor. The wooden gateway is drawn for a way that
+      // runs along the map and turned for one that runs up it; the torii the other way about)
+      const torii = gateLook(g).arch === "torii" && scenery.has("torii"), arch = torii ? "torii" : "gateway";
       things.push({ depth: g.arch.x + g.arch.y, draw: () => {
-        scenery.drawProp(ctx, "gateway", c.x, c.y, v.s, dpr, 0, !!g.across);
-        const [gw, gh] = scenery.sizeOf("gateway");
+        scenery.drawProp(ctx, arch, c.x, c.y, v.s, dpr, 0, torii ? !g.across : !!g.across);
+        const [gw, gh] = scenery.sizeOf(arch);
         gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (gw / 2) * v.s, y0: c.y - gh * v.s, x1: c.x + (gw / 2) * v.s, y1: c.y });
         const th = words.current.th;
         const leads = g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest") : (th ? "กลับเข้าเมือง" : "Back to town");
@@ -1858,8 +1929,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
       if (!onScreen(c) || !scenery.has(p.kind)) continue;
+      const art = shown(scenery, p);
       things.push({ depth: p.x + p.y + 1, draw: () =>
-        scenery.drawProp(ctx, p.kind, c.x, c.y, v.s * (PROP_K[p.kind] ?? 1), dpr, 0, false, swayOf(p, now)) });
+        scenery.drawProp(ctx, art, c.x, c.y, v.s * (PROP_K[art] ?? 1), dpr, 0, false, swayOf(p, now)) });
+    }
+    // Pumpkins (lib/town/decor): carved ones about the town in their season, great ones on the farm.
+    if (scenery) for (const d of DECOR) {
+      if ((d.carved && !carvingNow) || !scenery.has(d.art)) continue;
+      const c = project(d);
+      if (!onScreen(c)) continue;
+      things.push({ depth: d.x + d.y, draw: () => scenery.drawProp(ctx, d.art, c.x, c.y, v.s * (PROP_K[d.art] ?? 1), dpr, 0, !!d.mirror) });
     }
     // The forest, beyond the north gate (a map of its own): its trees, bamboo and rocks, what lies and grows under
     // them, the camp and its fire, the great tree and the waterfall.
@@ -1881,9 +1960,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         if (p.kind === "flowers") continue;
         const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
         if (!onScreen(c)) continue;
-        const name = scenery.has(p.kind) ? p.kind : FOREST_STAND_IN[p.kind];
+        const art = artOf(p), name = scenery.has(art) ? art : scenery.has(p.kind) ? p.kind : FOREST_STAND_IN[p.kind];
         if (!name || !scenery.has(name)) continue;
-        const k = v.s * (PROP_K[p.kind] ?? 1);
+        const k = v.s * (PROP_K[name] ?? 1);
         stand(name, c, k, p.x + p.y + 1, () => {
           scenery.drawProp(ctx, name, c.x, c.y, k, dpr, 0, false, swayOf(p, now));
           if (p.kind === "campfire") drawFlames(ctx, c.x, c.y - 7 * v.s, v.s, now);

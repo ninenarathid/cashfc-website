@@ -3,19 +3,23 @@
 //   node build-scenery.mjs [--out <dir>]        (default: fcnext/public/town)
 //   node build-scenery.mjs --set forest         the forest's things, in a picture of their own (forest-<hash>.png +
 //                                               forest.json): fetched only by whoever goes there (lib/town/scenery.ts)
+//   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //
 // scene-props-a.png  tree, pine, bush, rock        (one row, the characters' pixel size and angle)
 // scene-props-b.png  lamp, bench, flowers, sign
 // scene-fountain.png fountain
 // tex-<kind>.png     top-down ground textures (grass, plaza, road), projected onto the
 //                    isometric ground in the browser (lib/town/scenery.ts)
+// work/oatto/*.png   pixel art that came drawn, not as a model's sheet (READY, below)
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import * as L from "./pxlib.mjs";
 
 const HERE = path.dirname(new URL(import.meta.url).pathname).replace(/^\/([A-Z]:)/, "$1");
-const OUT = path.join(HERE, "work", "out");
+const argWork = process.argv.indexOf("--work");
+const WORK = argWork > 0 ? process.argv[argWork + 1] : path.join(HERE, "work");
+const OUT = path.join(WORK, "out");
 const argOut = process.argv.indexOf("--out");
 const PUB = argOut > 0 ? process.argv[argOut + 1] : "E:/NinenineProject/fcnext/public/town";
 fs.mkdirSync(PUB, { recursive: true });
@@ -115,6 +119,66 @@ const FOREST = [
   // (and the camp's fire seen close, for what is roasted on a stick: components/town/TownRoasting)
   ["scene-forest-game-fire", ["gameFire"], "scene"],
 ];
+// Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
+// like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist
+// liked. [file, name, the size of its own pixel, how]. `twice` doubles one that is to stand as tall as the town's own
+// things (Scale2x: an edge stays an edge, where a plain doubling would give it pixels twice the town's). `drop` are the
+// colours of a shadow painted under it, which nothing else in the town has. `foot` is its ground point, as shares of
+// its box from the left and from the top (the middle of its lowest rows, where none is said). `greys` drops, low
+// down, whatever has hardly a colour in it and is neither dark nor white: a shadow's fading edge, a pixel at a time.
+const READY = {
+  scenery: [
+    // a ring of light on the ground at each gate: one for the farm's way, one for the forest's
+    ["warpring4", "ring", 4, { foot: [0.5, 0.44] }],
+    ["warpring2", "ringWild", 4, { foot: [0.5, 0.44] }],
+    // the gateway to the forest, at both ends of the way (it stands across a way that runs up the map)
+    ["toori", "torii", 4, { twice: true, foot: [0.5, 0.955] }],
+    // an apple tree among the town's and the farm's own
+    ["Appletree", "appletree", 4, { twice: true }],
+    // pumpkins: carved ones about the town in October, great ones on the farm
+    ["jacko1", "jacko", 4, { drop: ["998a7f", "9e8e88", "978c85", "8c766b", "a3897f"] }],
+    ["jacko2", "jacko2", 4, { drop: ["a9abad", "acb5c2", "b0bec7", "c3c9c6"] }],
+    ["pumpkin1", "pumpkin", 2, { drop: ["dea3a1", "c2aa9a", "ebd2d0", "ddcdbf", "eed8d8", "d5aec3"] }],
+    ["pumpkin2", "pumpkin2", 2, { drop: ["d5aec3", "b295b4"] }],
+  ],
+  forest: [
+    // stumps with toadstools at their feet (drawn large: one pixel from every eight, where the others give one from
+    // four), and a short log
+    ["woodstump1", "stumpCaps", 8, { drop: ["979a9f", "8d918f", "7d8288", "bec6c2", "a9abad", "c3c9c6", "989fa1", "b0bec7", "acb5c2"], greys: true, foot: [0.5, 0.9] }],
+    ["woodstump2", "stumpMoss", 8, { foot: [0.5, 0.9] }],
+    ["woodlog1", "logShort", 4, { twice: true, drop: ["a7a9a4", "a4a09e"], foot: [0.5, 0.86] }],
+  ],
+};
+/** A drawn thing as true pixels: one from each block of its own pixel's size, the colour most of the block has. */
+function trueCells(raw, p, drop = [], greys = false) {
+  const GW = Math.floor(raw.W / p), GH = Math.floor(raw.H / p), c = new Uint8Array(GW * GH * 4), gone = new Set(drop);
+  for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) {
+    const votes = new Map();
+    for (let dy = 0; dy < p; dy++) for (let dx = 0; dx < p; dx++) {
+      const i = ((y * p + dy) * raw.W + x * p + dx) * 4;
+      const k = raw.data[i + 3] < 128 ? "" : [raw.data[i], raw.data[i + 1], raw.data[i + 2]].map((v) => v.toString(16).padStart(2, "0")).join("");
+      votes.set(k, (votes.get(k) ?? 0) + 1);
+    }
+    const best = [...votes].sort((a, b) => b[1] - a[1])[0][0];
+    if (!best || gone.has(best)) continue;
+    const rgb = [parseInt(best.slice(0, 2), 16), parseInt(best.slice(2, 4), 16), parseInt(best.slice(4, 6), 16)], hi = Math.max(...rgb);
+    if (greys && y > GH * 0.6 && hi - Math.min(...rgb) <= 30 && hi >= 90 && hi <= 235) continue;
+    c.set([...rgb, 255], (y * GW + x) * 4);
+  }
+  return { GW, GH, c };
+}
+/** Twice the size the way pixel art is doubled (Scale2x): a corner of a pixel takes its two neighbours' colour where they agree and the two opposite do not. */
+function twice(im) {
+  const { w, h, buf } = im, out = Buffer.alloc(w * 2 * h * 2 * 4);
+  const at = (x, y) => (x < 0 || y < 0 || x >= w || y >= h ? 0 : buf.readUInt32LE((y * w + x) * 4));
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const e = at(x, y), b = at(x, y - 1), d = at(x - 1, y), f = at(x + 1, y), below = at(x, y + 1);
+    const open = b !== below && d !== f;
+    const four = [open && d === b ? d : e, open && b === f ? f : e, open && d === below ? d : e, open && below === f ? f : e];
+    four.forEach((v, k) => out.writeUInt32LE(v, ((y * 2 + (k >> 1)) * w * 2 + x * 2 + (k & 1)) * 4));
+  }
+  return { buf: out, w: w * 2, h: h * 2 };
+}
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 const TEXTURES = SET === "forest" ? ["wood"] : ["grass", "plaza", "road", "water", "sand", "field"];
@@ -236,6 +300,25 @@ for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST :
       }
     }
   }
+}
+
+// what came drawn: its true pixels, less a painted shadow and whatever specks that leaves, doubled where it is to be
+for (const [file, name, p, how = {}] of READY[SET]) {
+  const src = path.join(WORK, "oatto", `${file}.png`);
+  if (!fs.existsSync(src)) { console.log(`no ${file}`); continue; }
+  const g = trueCells(await L.loadRaw(src), p, how.drop, how.greys);
+  let im = L.crop(g, new Set(L.components(g).filter((c) => c.mem.length >= 4).flatMap((c) => c.mem)));
+  if (how.twice) im = twice(im);
+  // the ground point: where it is said to be, or the middle of what its lowest rows have
+  let ax = 0, ay = im.h - 1;
+  if (how.foot) { ax = Math.round(how.foot[0] * (im.w - 1)); ay = Math.round(how.foot[1] * (im.h - 1)); }
+  else {
+    let sx = 0, n = 0;
+    for (let y = Math.floor(im.h * 0.9); y < im.h; y++) for (let x = 0; x < im.w; x++) if (im.buf[(y * im.w + x) * 4 + 3]) { sx += x; n++; }
+    ax = Math.round(sx / n);
+  }
+  pieces.push({ name, img: im, ax, ay });
+  console.log(`${name.padEnd(9)} ${im.w}x${im.h}  (drawn: ${p} to the pixel${how.twice ? ", doubled" : ""})`);
 }
 
 // textures: true pixels, cut to a whole number of their own pixels
