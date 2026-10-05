@@ -56,8 +56,13 @@ if (!live) console.log(`\n  ${v} has not run yet: the catalog has no \`${W.row}\
 else {
   ok(`the live \`${W.row}\` row is what the file writes, to the entry`, same(live.data, want[W.row]), live.data);
   const all = (await get(`/rest/v1/town_catalog?select=key,updated_at&order=key`)).body ?? [];
-  const beside = all.filter((r) => r.key !== W.row && Math.abs(new Date(r.updated_at) - new Date(live.updated_at)) < 60000).map((r) => r.key);
+  // (a file is run in one go, and its rows bear that one moment: a row written half a minute on is another file's,
+  // as the insects' v138 was, run 33 seconds after v137)
+  const apart = (r) => Math.abs(new Date(r.updated_at) - new Date(live.updated_at));
+  const beside = all.filter((r) => r.key !== W.row && apart(r) < 2000).map((r) => r.key);
   ok(`no other row of the catalog was written with it (${all.length} rows now)`, beside.length === 0, beside);
+  const near = all.filter((r) => r.key !== W.row && apart(r) >= 2000 && apart(r) < 120000);
+  if (near.length) console.log(`  (written within two minutes of it, by another file: ${near.map((r) => `${r.key}, ${Math.round(apart(r) / 1000)} s apart`).join("; ")})`);
   const kept = await get(`/rest/v1/${W.table}?select=*`);
   ok(`the table ${W.table} is there, and the site's key reads it`, kept.status >= 200 && kept.status < 300 && Array.isArray(kept.body), kept.status);
   const anon = await get(`/rest/v1/${W.table}?select=*`, ANON);
