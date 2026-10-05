@@ -1,6 +1,7 @@
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId } from "./items";
-import { spend } from "./stamina";
+import { BLESSINGS } from "./fountain";
+import { hasBuff, spend } from "./stamina";
 import type { TimingMods } from "./timing";
 import { held, no, put, roomFor, take, type Done, type Purse, type Stack } from "./trade";
 
@@ -244,7 +245,8 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
     spent = { ...spent, tries: { ...spent.tries, [near.of]: (spent.tries?.[near.of] ?? 0) + 1 } };
   }
   if (dish) {
-    const left = made ? helpings(dish, crew, misses, purse.bag) : oddHelpings(all, misses);
+    // (under the fountain's big pot, a helping more: lib/town/fountain)
+    const left = (made ? helpings(dish, crew, misses, purse.bag) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0);
     return { ok: true, made: dish, n: left, ...(near ? { taste: near.taste } : {}), purse: { ...spent, bag: bag.map((s, i) => (i === pot ? { item: "potFull" as ItemId, n: 1, of: { dish, left } } : s)) } };
   }
   // put together with bare hands, things that make nothing are lost

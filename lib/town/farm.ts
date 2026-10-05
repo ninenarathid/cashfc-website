@@ -1,6 +1,7 @@
 import { FIELD } from "./gear";
 import { BUFFS, CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
-import { buffOf, spend } from "./stamina";
+import { BLESSINGS } from "./fountain";
+import { hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -253,7 +254,8 @@ export function sow(purse: Purse, plot: Plot, hand: ItemId | null, me: string, n
   if (plot.soil !== "tilled" || plot.plant) return not("soil");
   return {
     ok: true,
-    plot: { soil: "tilled", plant: { by: me, crop, sown: now, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } },
+    // (under the fountain's warm soil a seed is some of its way to ripe at once: lib/town/fountain)
+    plot: { soil: "tilled", plant: { by: me, crop, sown: now, boost: hasBuff(purse, now, "sprout") ? BLESSINGS.sprout.by * CROPS[crop].hours * 3_600_000 : 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } },
     purse: { ...spend(purse, FARMING.costs.sow, now), bag: take(purse.bag, hand!, 1) },
   };
 }
@@ -271,10 +273,10 @@ export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null
   if (seen.wet) return not("wet");
   const slot = purse.bag.findIndex((s) => s?.item === hand && (s.water ?? 0) > 0);
   if (slot < 0) return no("dry");
-  const can = purse.bag[slot]!, green = buffOf(purse, now) === "green" ? 1 + BUFFS.green.by : 1;
+  const can = purse.bag[slot]!, green = hasBuff(purse, now, "green") ? 1 + BUFFS.green.by : 1;
   return {
     ok: true, plot: { ...plot, plant: { ...p, watered: now, boost: p.boost + FARMING.water.adds * 60_000 * (FIELD[hand!] ?? 1) * green } },
-    purse: { ...spend(purse, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: can.water! - 1 }) },
+    purse: { ...spend(purse, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: can.water! - (hasBuff(purse, now, "spring") ? 0 : 1) }) },
   };
 }
 
@@ -405,7 +407,7 @@ export function chore(purse: Purse, where: "river" | "well" | null, well: number
   if (!what || !hand) return no("none");
   if (what === "draw") {
     const slot = purse.bag.findIndex((s) => s?.item === hand && !s.water);
-    return { ok: true, chore: what, well, purse: { ...spend(purse, WATER.costs.draw, now), bag: setStack(purse.bag, slot, { item: hand, n: 1, water: WATER.buckets[hand]! }) } };
+    return { ok: true, chore: what, well, purse: { ...spend(purse, WATER.costs.draw, now), bag: setStack(purse.bag, slot, { item: hand, n: 1, water: WATER.buckets[hand]! + (hasBuff(purse, now, "carry") ? BLESSINGS.carry.by : 0) }) } };
   }
   if (what === "pour") {
     // as much of it as the well has room for; the rest stays in the bucket

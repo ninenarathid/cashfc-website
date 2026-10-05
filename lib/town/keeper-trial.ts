@@ -2,11 +2,12 @@ import type { Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, SIGNS, castLine, seeded, signsOf, type Cast, type Strike } from "./fishing";
+import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 import type { Play } from "./plays";
 import { SKIES } from "./skies";
-import { buffOf, isSpent } from "./stamina";
+import { hasBuff, isSpent } from "./stamina";
 import type { Purse } from "./trade";
 import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
@@ -57,6 +58,9 @@ class TrialKeeper implements Keeper {
   knownMakes() { return this.trial.knownMakes(); }
   cookTry(things: Array<[ItemId, number]>, crew: Array<ItemId | null>) { return this.trial.cookTry(things, crew); }
   deal() { return this.trial.deal(); }
+  fountain() { return this.trial.fountain(); }
+  prices() { return this.trial.prices(); }
+  notices() { return this.trial.notices(); }
 
   async buy(item: ItemId, n: number): Promise<Did> { return this.trial.buy(item, n); }
   async hint(): Promise<Did<{ hint: ItemId }>> { return this.trial.hint(); }
@@ -65,6 +69,19 @@ class TrialKeeper implements Keeper {
   async takeBack(at: number): Promise<Did> { return this.trial.takeBack(at); }
   async collect(): Promise<Did<{ coins: number }>> { return this.trial.collect(); }
   async change(kind: keyof Purse["popoto"], n: number): Promise<Did> { return this.trial.change(kind, n); }
+  async toss(wish: WishId, coins: number, note: string | null = null): Promise<Did<{ took: number; counted: number; granted: WishId | null }>> { return this.trial.toss(wish, coins, note); }
+  async cheer(note: number, coins: number): Promise<Did<{ took: number; counted: number; granted: WishId | null }>> { return this.trial.cheer(note, coins); }
+  async wishReport(note: number): Promise<Did> { return this.trial.wishReport(note); }
+  async noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number): Promise<Did<{ id: number }>> { return this.trial.noticePost(kind, item, n, price); }
+  async noticeBuy(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>> { return this.trial.noticeBuy(id, n); }
+  async noticeFill(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>> { return this.trial.noticeFill(id, n); }
+  async noticeFetch(id: number): Promise<Did<{ item: ItemId; got: number }>> { return this.trial.noticeFetch(id); }
+  async noticeDown(id: number): Promise<Did<{ item: ItemId; things: number; coins: number }>> { return this.trial.noticeDown(id); }
+  async noticeCollect(): Promise<Did<{ coins: number }>> { return this.trial.noticeCollect(); }
+  async noticeSlot(): Promise<Did<{ coins: number }>> { return this.trial.noticeSlot(); }
+  async wishUnsay(note: number): Promise<Did> { return this.trial.wishUnsay(note); }
+  // (nobody is an admin in the trial)
+  async wishHide(): Promise<Did> { return { ok: false, why: "none" }; }
   async sitDown(slot: number, seated: boolean): Promise<Did<{ dish: DishId }>> { return this.trial.sitDown(slot, seated); }
   chew(company: number) { this.trial.chew(company); }
   async getUp(company: number) { this.trial.getUp(company); }
@@ -79,7 +96,7 @@ class TrialKeeper implements Keeper {
   async serve(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.serve(slot); }
   async drop(slot: number): Promise<Did> { this.trial.drop(slot); return { ok: true }; }
 
-  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false): Promise<Did<{ wait: number; nibbles: number[]; lag: number }>> {
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>> {
     const used = this.trial.bait(bait);
     if (!used.ok) return used;
     const now = this.trial.now(), p = this.trial.purse();
@@ -88,11 +105,13 @@ class TrialKeeper implements Keeper {
     // there holds as well, so that a fish that waits for the moon need not be waited for.
     const named = (typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("townSigns") ?? "").split(",").filter((x): x is Sign => ALL_SIGNS.includes(x as Sign));
     const signs = [...new Set([...signsOf({ now, spent: isSpent(p, now), others: 0, wet: wetMs(SKIES.rains(), now - SIGNS.after * 60_000, now) }, rain), ...named])];
-    const cast = castLine(bait, bangkokHour(now), rain, buffOf(p, now) === "lucky", seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep, signs);
+    const drawn = castLine(bait, bangkokHour(now), rain, hasBuff(p, now, "lucky"), seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep, signs);
+    // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
+    const cast = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     this.out = { cast, bait };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
-    return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0 };
+    return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}) };
   }
   async strike(_reaction: number, how: Strike | null): Promise<Did<Struck>> {
     const o = this.out;

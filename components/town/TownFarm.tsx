@@ -11,6 +11,7 @@ import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, plotAt, type Vec } from "@/lib/town/world";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
+import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
 import TownSteady from "./TownSteady";
 import TownTiming from "./TownTiming";
@@ -225,6 +226,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
 
   /** Do the deed, and say what came of it. `sure`: a living plant is meant to be dug out (asked twice, and answered). */
   const act = useCallback(async (k: string, timing?: GameResult, sure = false) => {
+    // (the buffs I have as the work begins: a blessing that had a hand in it shows over the plot when it is done)
+    const mine = keeper.purse(), began = keeper.now();
     // (every miss of the hoe is a little more stamina gone: the keeper's to take)
     const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined, sure);
     if (!did.ok) { say(did.why); return; }
@@ -235,16 +238,20 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     sfx?.wake();
     if (!timing) sfx?.work(sound);
     vfx.add(fx, at);
+    for (const id of seenAtPlot(did.deed, mine, began)) vfx.add("bless", at, { icon: BURST[id], lift: 8 });
     if (did.got.length) vfx.add("pop", at, { icon: did.got[0][0] });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
   }, [keeper, th, sfx, name, say, vfx]);
   /** Draw a bucket of water, pour it into the well, or fill the can. */
   const carry = useCallback(async () => {
+    const mine = keeper.purse(), began = keeper.now();
     const did = await keeper.choreDo(water, at);
     if (!did.ok) { say(did.why); return; }
     sfx?.wake();
     sfx?.work(CHORE_FX[did.chore][1], did.chore === "fill" ? 0.7 : 1);
     vfx.add(CHORE_FX[did.chore][0], null, { lift: did.chore === "fill" ? 10 : 0 });
+    // (a bucket drawn under the fountain's blessing for water bearers: its own burst)
+    for (const id of seenAtPlot(did.chore, mine, began)) vfx.add("bless", null, { icon: BURST[id], lift: 26 });
     if (did.chore !== "draw") setNote(`${th ? "บ่อน้ำ" : "Well"} ${keeper.well()}/${WATER.well}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the tile is told by its two numbers
   }, [keeper, water, at?.[0], at?.[1], sfx, th, say, vfx]);
@@ -343,6 +350,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         };
         return (
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
+            {/* the buffs that have a hand in this work, twinkling over the board */}
+            <BuffAura ids={atPlot(working.work, purse, now)} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1 empty:hidden" />
             {game === "weeding" ? <TownWeeding {...common} need={working.need} mods={mods} />
               : game === "pouring" ? <TownPouring {...common} verb={(HOLD[working.work] ?? HOLD.pour!)[th ? 0 : 1]} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} taking={working.work === "draw" || working.work === "fill"} into={(working.work === "water" && growing?.crop ? growIconOf(growing.crop, growing.stage) : INTO[working.work] ?? "plotDrop") as IconName} />
                 : game === "steady" ? <TownSteady {...common} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} over={(growing?.crop ? growIconOf(growing.crop, growing.stage) : "plotSoil") as IconName} />

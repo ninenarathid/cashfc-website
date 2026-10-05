@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small magic effect sprites for that game, in the same pixel art style: one little burst for each kind of blessing, shown when the blessing does its work.
+
+Each sprite is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel is a large crisp square, all the same size, simple and bold so they read clearly when shown small, with a thin dark outline and two or three tones per colour. Six sprites in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) three rings of light-blue water ripples, one inside the other, seen from a little above, with two white glints; 2) five small bright green leaves flying outwards from one middle point in a swirl; 3) a small burst of four gold clover leaves and four gold dots flying outwards; 4) a small puff of soft red and pink with a little red heart in its middle; 5) a round puff of white steam with two small gold stars on it; 6) five bright blue water drops flying outwards and up from one middle point.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes, no shadows, no text, no letters, no numbers.

@@ -1,16 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
+import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
 import { STEPS, oddsOf, seesOdds, startFight, stepFight, strikeOf, strikeWindow, surging, warning, type Fight, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
 import { measure, type FishSfx, type FishSound } from "@/lib/town/sfx";
-import { buffOf, isSpent, staminaOf } from "@/lib/town/stamina";
+import { buffOf, buffsOf, hasBuff, isSpent, staminaOf } from "@/lib/town/stamina";
 import { handOf, held, roomFor } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Fishing } from "@/lib/town/world";
 import { BIG, PixelGround, STAGE } from "./TownGame";
+import { AT_THE_LINE, BuffAura, Twinkle } from "./TownBuffFx";
 import TownIcon, { type IconName } from "./TownIcon";
 import { ItemIcon, WHY } from "./TownTrade";
 
@@ -19,11 +21,18 @@ export type LineState = "wait" | "nibble" | "bite" | "fight";
 /** A place to fish from: the tile stood on, where its float lands, and whether that is deep water (the deck's) or the shallows (the bank's). */
 export type FishPlace = Fishing & { tile: [number, number] };
 
+/** How the shade of what is on its way looks under clear water: the rarer, the brighter. */
+const SHADE_LOOK: Record<Shade, string> = {
+  common: "none", uncommon: "brightness(1.6) saturate(1.4)", rare: "brightness(2.2) saturate(2) hue-rotate(60deg)",
+  legend: "brightness(3) saturate(2.4) hue-rotate(190deg) drop-shadow(0 0 4px #ffe07a)", other: "grayscale(1) brightness(0.9)",
+};
+
 type Phase =
   | { at: "ready" }
   /** The line is on its way out, or the strike on its way in: nothing to press until the keeper has answered. */
   | { at: "casting" }
-  | { at: "waiting"; wait: number; nibbles: number[]; from: number }
+  /** (`shade`: under the fountain's clear water, how rare a thing is on its way; never which) */
+  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade }
   | { at: "striking" }
   | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
   | { at: "result"; how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean };
@@ -89,7 +98,9 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const [sound, setSound] = useState(() => sfx.on);
 
   const now = keeper.now(), purse = keeper.purse(), hour = bangkokHour(now);
-  const stamina = Math.round(staminaOf(purse, now)), buff = buffOf(purse, now), spent = isSpent(purse, now);
+  const stamina = Math.round(staminaOf(purse, now)), spent = isSpent(purse, now);
+  // (every buff I have: a meal's, and the fountain's blessings)
+  const buffs = buffsOf(purse, now), keen = buffs.includes("keen"), lucky = buffs.includes("lucky");
   const have = (b: BaitId) => held(purse.bag, b);
   /** What I fish with: the rod in my hand, and the best of each kind of tackle in my bag (lib/town/gear). */
   const gear = gearOf(purse.bag, handOf(purse));
@@ -113,7 +124,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   // the bait in hand: the one chosen, or the first there is any of
   const inHand = have(bait) ? bait : baits[0] ?? bait;
   const shown = seesOdds(me);
-  const odds = useMemo(() => (shown ? oddsOf(inHand, hour, rain, buff === "lucky", !place.deep).sort((a, b) => b.p - a.p) : []), [shown, inHand, hour, rain, buff, place.deep]);
+  const odds = useMemo(() => (shown ? oddsOf(inHand, hour, rain, lucky, !place.deep).sort((a, b) => b.p - a.p) : []), [shown, inHand, hour, rain, lucky, place.deep]);
 
   // Tell the map what my line is doing.
   const line = useRef<LineState | null>(null);
@@ -172,12 +183,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       return;
     }
     out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
-    setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000 });
+    setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}) });
   };
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
   useEffect(() => {
     if (phase.at !== "waiting") return;
-    const { from } = phase, cast = phase, grace = strikeWindow({ keen: buff === "keen", spent, gear: out.current?.gear });
+    const { from } = phase, cast = phase, grace = strikeWindow({ keen, spent, gear: out.current?.gear });
     let raf = 0, heard = -1, under = false;
     const frame = (t: number) => {
       const s = (t - from) / 1000;
@@ -210,7 +221,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [phase, buff, spent, reduced, show, write, sfx, keeper]);
+  }, [phase, keen, spent, reduced, show, write, sfx, keeper]);
 
   /** Strike: at a nibble or before anything it scares the fish off; within moments of the bite it sets the hook. */
   const strike = useCallback(async () => {
@@ -219,7 +230,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     const reaction = Math.round(((performance.now() - from) / 1000 - wait) * 1000) / 1000;
     // How good a strike it was is this hand's to say, and heard at once; whether anything is on the hook, and what,
     // is the keeper's (its clock gives a moment's grace either way).
-    const hit = strikeOf(reaction, { keen: buffOf(p, t) === "keen", spent: isSpent(p, t), gear: out.current?.gear });
+    const hit = strikeOf(reaction, { keen: hasBuff(p, t, "keen"), spent: isSpent(p, t), gear: out.current?.gear });
     sfx.wake();
     sfx.play(!hit ? "early" : hit === "perfect" ? "perfect" : "strike");
     setPhase({ at: "striking" });
@@ -258,7 +269,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "fight") return;
     const p = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31);
-    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: buffOf(p, t0) === "calm", gear: out.current?.gear }, seed);
+    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: hasBuff(p, t0, "calm"), gear: out.current?.gear }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction: phase.reaction };
     bout.current = log;
     // (the fight's stamina was taken as the hook was set: a fight costs it whatever comes of it)
@@ -382,7 +393,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         <span className={`ml-auto flex items-center gap-1 font-data text-ui tabular-nums ${stamina ? "text-[#fff6e3]" : "text-[#ffb09c]"}`} title="Stamina">
           <TownIcon name="stamina" size={16} />{stamina}
         </span>
-        {buff && <span title={th ? BUFFS[buff].name.th : BUFFS[buff].name.en}><TownIcon name={BUFFS[buff].icon as IconName} size={18} /></span>}
+        <BuffAura ids={AT_THE_LINE.filter((b) => buffs.includes(b))} th={th} size={18} />
         <button type="button" onClick={() => { const on = !sound; sfx.setOn(on); setSound(on); if (on) { sfx.wake(); sfx.play("nibble"); } }} aria-pressed={sound}
                 title={th ? (sound ? "ปิดเสียงตกปลา" : "เปิดเสียงตกปลา") : (sound ? "Turn the fishing sounds off" : "Turn the fishing sounds on")}
                 className={`pressable grid size-8 place-items-center rounded-full border ${sound ? "border-[#2a190d]" : "border-[#2a190d] opacity-50"}`}>
@@ -462,6 +473,15 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               <line x1="292" y1="-10" x2="262" y2="6" stroke="#3d2913" strokeWidth="6" strokeLinecap="round" />
               <line x1="292" y1="-10" x2="262" y2="6" stroke="#e0ba72" strokeWidth="3" strokeLinecap="round" />
             </svg>
+            {/* what the buffs show on the water: quick rings under the swift blessing, the shade of what is coming under
+                clear water (the rarer, the brighter), a light for luck */}
+            {phase.at === "waiting" && buffs.includes("swift") && <span className="absolute translate-y-3 animate-ping opacity-70 motion-reduce:animate-none" data-fx="swift"><TownIcon name="fxRipple" size={44} /></span>}
+            {phase.at === "waiting" && phase.shade && (
+              <span className="absolute translate-y-7 animate-pulse motion-reduce:animate-none" data-fx="clear" data-shade={phase.shade} style={{ filter: SHADE_LOOK[phase.shade] }}>
+                <TownIcon name={phase.shade === "other" ? "fxRing1" : "fishShadow"} size={phase.shade === "legend" ? 46 : phase.shade === "rare" ? 40 : 34} />
+              </span>
+            )}
+            {phase.at === "waiting" && lucky && <Twinkle size={20} className="absolute -translate-y-6 translate-x-7" />}
             <span ref={ring} className="absolute size-10 rounded-full border-2 border-white/80 opacity-0" />
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
           </div>
@@ -479,7 +499,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                 long as it was at first (the owner: "เพิ่มหลอด ตกปลาให้กว้างกว่านี้ 2 เท่า"), less on a short screen. */}
             <div aria-hidden className={`${STAGE} h-[min(20rem,44dvh)] w-12 shrink-0 bg-[#1c2c38]`} data-look="tension">
               <span className="absolute inset-x-0 top-0 h-[2.5%] bg-[#e9573f]" />
-              <span ref={gauge.band} className="absolute inset-x-0 border-y-[3px] border-[#d6ffe0] bg-[#5cc58d]/60" style={{ bottom: "42%", height: "16%" }} />
+              <span ref={gauge.band} data-fx={buffs.includes("calm") ? "calm" : undefined}
+                    className={`absolute inset-x-0 border-y-[3px] border-[#d6ffe0] bg-[#5cc58d]/60 ${buffs.includes("calm") ? "shadow-[0_0_14px_4px_rgba(150,225,255,0.75)]" : ""}`} style={{ bottom: "42%", height: "16%" }} />
               <span ref={gauge.needle} className="absolute inset-x-0 -mb-[2px] h-[5px] bg-[#fff6e3] shadow-[0_0_0_1px_#2a190d]" style={{ bottom: "50%" }} />
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-2">

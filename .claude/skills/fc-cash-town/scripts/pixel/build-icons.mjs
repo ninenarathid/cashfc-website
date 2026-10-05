@@ -150,6 +150,14 @@ const SHEETS = [
   ["icons-items-ba", ["crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast"], { range: [7.9, 8.1] }],
   ["icons-pots-l", ["potFishChips", "potUkha", "potThieboudienne", "potPiranhaSoup"], { range: [7.9, 8.1] }],
   ["icons-pots-m", ["potCrawfishBoil", "potMasgouf", "potSalmonSteak", "potArapaimaRoast"], { range: [7.9, 8.1] }],
+  // the wishing fountain (2026-10-05): the five blessings that are its own, and a coin dropped into water; the frames
+  // of a sparkle as it twinkles and of a ring as it spreads, drawn where a blessing is at work; and a burst for each
+  // kind of blessing (water, leaves, clover, heart, steam, drops)
+  ["icons-fx-a", ["buffSwift", "buffClear", "buffSpring", "buffSprout", "buffFeast", "wishCoin"]],
+  ["icons-fx-b", ["fxSpark1", "fxSpark2", "fxSpark3", "fxSpark4", "fxRing1", "fxRing2"], { range: [7.5, 8.5] }],
+  ["icons-fx-c", ["fxRipple", "fxLeaves", "fxClover", "fxHeart", "fxSteam", "fxDrops"]],
+  // three more blessings (a carrier of water, a forager, a catcher of insects), and a wish in its writer's words
+  ["icons-fx-d", ["buffCarry", "buffForage", "buffNet", "wishNote"]],
 ];
 
 const pieces = [];

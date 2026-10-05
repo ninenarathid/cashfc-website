@@ -2,8 +2,11 @@ import { cook, hasMade, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
 import type { Strike } from "./fishing";
+import type { FountainTold, Shade, WishId } from "./fountain";
 import { nextHint } from "./hints";
 import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
+import { NO_PRICES, type PricesTold } from "./market";
+import type { NoticeRefusal, PinboardTold } from "./notices";
 import { shelfOf, sourcesAt, type Order } from "./orders";
 import { SKIES } from "./skies";
 import type { Rain } from "./weather";
@@ -40,10 +43,10 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal;
+export type Why = Refusal | FarmRefusal | NoticeRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "notices";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -70,6 +73,8 @@ export interface Keeper {
 
   purse(): Purse;
   stall(): Stall;
+  /** What I am told of the relatives' prices (lib/town/market): of each thing I hold or have left with the uncle whose price moves. Of none, where no price moves yet. */
+  prices(): PricesTold;
   shelf(): ItemId[];
   order(): Order | null;
   nextHint(): ItemId | null;
@@ -89,6 +94,10 @@ export interface Keeper {
   knownMakes(): ItemId[];
   cookTry(things: Array<[ItemId, number]>, crew: Array<ItemId | null>): Refusal | null;
   deal(): KeptDeal | null;
+  /** The fountain as it was last told (lib/town/fountain); null until it has been looked at. */
+  fountain(): FountainTold | null;
+  /** The notice board beside the stall as it was last told (lib/town/notices); null until it has been looked at, and where there is none yet. */
+  notices(): PinboardTold | null;
 
   buy(item: ItemId, n: number): Promise<Did>;
   hint(): Promise<Did<{ hint: ItemId }>>;
@@ -97,6 +106,21 @@ export interface Keeper {
   takeBack(at: number): Promise<Did>;
   collect(): Promise<Did<{ coins: number }>>;
   change(kind: keyof Purse["popoto"], n: number): Promise<Did>;
+  /** Toss coins into the fountain, towards a wish: what it took (no more than fills the pot), what that counted for, and the wish that came true, if it filled it. */
+  toss(wish: WishId, coins: number, note?: string | null): Promise<Did<{ took: number; counted: number; granted: WishId | null }>>;
+  /** Toss coins onto somebody's wish (towards the wish it was for); say one should not be there; take my own back; and, an admin, hide one or show it again. */
+  cheer(note: number, coins: number): Promise<Did<{ took: number; counted: number; granted: WishId | null }>>;
+  wishReport(note: number): Promise<Did>;
+  wishUnsay(note: number): Promise<Did>;
+  wishHide(note: number, hidden: boolean): Promise<Did>;
+  /** The notice board: pin a notice up (to sell so many of a thing from my bag, or of something wanted, with the coins put down); buy from one, or bring to one; take what was brought to mine; take mine down; collect what waits there; buy one more place. */
+  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number): Promise<Did<{ id: number }>>;
+  noticeBuy(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>>;
+  noticeFill(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>>;
+  noticeFetch(id: number): Promise<Did<{ item: ItemId; got: number }>>;
+  noticeDown(id: number): Promise<Did<{ item: ItemId; things: number; coins: number }>>;
+  noticeCollect(): Promise<Did<{ coins: number }>>;
+  noticeSlot(): Promise<Did<{ coins: number }>>;
   sitDown(slot: number, seated: boolean): Promise<Did<{ dish: DishId }>>;
   /** Count the meal on, with so many eating beside one (asked every second; a keeper may ask less often of whoever it keeps with). */
   chew(company: number): void;
@@ -116,7 +140,7 @@ export interface Keeper {
    * A strike says what was hooked, if anything; `missed` that the float came up again with nobody striking; `land`
    * how the fight ended, with the hand's own account of it.
    */
-  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number }>>;
+  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>>;
   strike(reaction: number, how: Strike | null): Promise<Did<Struck>>;
   missed(): Promise<{ what?: CatchId; size?: number }>;
   land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null): Promise<Landed>;
@@ -152,7 +176,7 @@ export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknow
 type Answer = Record<string, unknown>;
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, notices: 30_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -179,6 +203,7 @@ export class DbKeeper implements Keeper {
   private read = false;
   private opened: boolean | null = null;
   private stall_: Stall = newStall();
+  private prices_: PricesTold = NO_PRICES;
   private unlocked = 0;
   private shelf_: ItemId[] = shelfOf(0);
   private order_: Order | null = null;
@@ -190,6 +215,8 @@ export class DbKeeper implements Keeper {
   private farmAt = 0;
   private pots_: Pot[] = [];
   private deal_: KeptDeal | null = null;
+  private fountain_: FountainTold | null = null;
+  private notices_: PinboardTold | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -263,6 +290,8 @@ export class DbKeeper implements Keeper {
     if (typeof a.now === "number") this.skew = a.now - (sent + Date.now()) / 2;
     if (a.purse && typeof a.purse === "object") { this.mine = a.purse as Purse; this.read = true; this.opened = true; this.meal(); }
     if (a.stall && typeof a.stall === "object") this.stall_ = a.stall as Stall;
+    // (the stall's answer, and a thing left or taken back: a database that has no moving price yet says nothing, and every thing keeps its one price)
+    if (a.prices && typeof a.prices === "object" && typeof (a.prices as PricesTold).things === "object") this.prices_ = a.prices as PricesTold;
     if (typeof a.unlocked === "number") this.unlocked = a.unlocked;
     // The shelf is the database's, and the database can come to sell a thing this page was built before (the scroll of
     // the cure for pests did, on the game's first day, with members in town who had not loaded the page again). Such
@@ -287,6 +316,8 @@ export class DbKeeper implements Keeper {
     }
     if (typeof a.well === "number") this.well_ = a.well;
     if (Array.isArray(a.pots)) this.pots_ = a.pots as Pot[];
+    if (a.fountain && typeof a.fountain === "object") this.fountain_ = a.fountain as FountainTold;
+    if (a.notices && typeof a.notices === "object" && Array.isArray((a.notices as PinboardTold).notices)) this.notices_ = a.notices as PinboardTold;
     if ("deal" in a) this.dealt(a.deal as (KeptDeal & { end?: string | null }) | null, !!a.purse);
     this.tell();
   }
@@ -329,6 +360,8 @@ export class DbKeeper implements Keeper {
     const asked = what === "stall" ? this.ask("town_stall")
       : what === "kitchen" ? this.ask("town_kitchen")
       : what === "deal" ? this.ask("town_deal")
+      : what === "fountain" ? this.ask("town_fountain")
+      : what === "notices" ? this.ask("town_notices")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -341,6 +374,7 @@ export class DbKeeper implements Keeper {
   /** My purse; while a meal is on, with what it has given up to this moment (the rule's own count, kept only when the database counts it). */
   purse(): Purse { return this.mine.eating ? chew(this.mine, this.company, this.now()).purse : this.mine; }
   stall(): Stall { return this.stall_; }
+  prices(): PricesTold { return this.prices_; }
   shelf(): ItemId[] { return this.shelf_; }
   order(): Order | null { return this.order_; }
   nextHint(): ItemId | null { const at = sourcesAt(this.unlocked); return nextHint(this.mine, this.found_, (id) => at.has(id)); }
@@ -377,6 +411,8 @@ export class DbKeeper implements Keeper {
     return did.ok ? null : did.why;
   }
   deal(): KeptDeal | null { return this.deal_; }
+  fountain(): FountainTold | null { return this.fountain_; }
+  notices(): PinboardTold | null { return this.notices_; }
 
   /* ── deeds ── */
   /** A deed's answer as the panels take it: what the rule answered, or that the town could not be reached. */
@@ -397,6 +433,33 @@ export class DbKeeper implements Keeper {
     if (did.ok) await this.ask("town_me");
     return did;
   }
+  async toss(wish: WishId, coins: number, note: string | null = null) {
+    const did = await this.deed<{ took: number; counted: number; granted: WishId | null }>("town_toss", { p_wish: wish, p_coins: coins, p_note: note });
+    // (the pot is everybody's to see, and a wish granted is theirs whose coins were in it)
+    if (did.ok) this.onDeed?.("fountain");
+    return did;
+  }
+  async cheer(note: number, coins: number) {
+    const did = await this.deed<{ took: number; counted: number; granted: WishId | null }>("town_cheer", { p_note: note, p_coins: coins });
+    if (did.ok) this.onDeed?.("fountain");
+    return did;
+  }
+  wishReport(note: number) { return this.deed("town_wish_report", { p_note: note }); }
+  /** A deed at the notice board: what it came to, and the room told when it changed what others see there. */
+  private async pinned<T>(fn: string, args: Record<string, unknown>, shown: boolean): Promise<Did<T>> {
+    const did = await this.deed<T>(fn, args);
+    if (did.ok && shown) this.onDeed?.("notices");
+    return did;
+  }
+  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number) { return this.pinned<{ id: number }>("town_notice_post", { p_kind: kind, p_item: item, p_n: n, p_price: price }, true); }
+  noticeBuy(id: number, n: number) { return this.pinned<{ item: ItemId; coins: number }>("town_notice_buy", { p_id: id, p_n: n }, true); }
+  noticeFill(id: number, n: number) { return this.pinned<{ item: ItemId; coins: number }>("town_notice_fill", { p_id: id, p_n: n }, true); }
+  noticeFetch(id: number) { return this.pinned<{ item: ItemId; got: number }>("town_notice_fetch", { p_id: id }, false); }
+  noticeDown(id: number) { return this.pinned<{ item: ItemId; things: number; coins: number }>("town_notice_down", { p_id: id }, true); }
+  noticeCollect() { return this.pinned<{ coins: number }>("town_notice_collect", {}, false); }
+  noticeSlot() { return this.pinned<{ coins: number }>("town_notice_slot", {}, false); }
+  async wishUnsay(note: number) { const did = await this.deed("town_wish_unsay", { p_note: note }); if (did.ok) this.onDeed?.("fountain"); return did; }
+  async wishHide(note: number, hidden: boolean) { const did = await this.deed("town_wish_hide", { p_note: note, p_hidden: hidden }); if (did.ok) this.onDeed?.("fountain"); return did; }
   sitDown(slot: number, seated: boolean) { return this.deed<{ dish: DishId }>("town_sit", { p_slot: slot, p_seated: seated }); }
   chew(company: number) {
     if (!this.mine.eating || this.chewing) return;
@@ -429,12 +492,13 @@ export class DbKeeper implements Keeper {
   serve(slot: number) { return this.deed<{ dish: DishId }>("town_serve", { p_slot: slot }); }
   drop(slot: number) { return this.deed("town_drop", { p_slot: slot }); }
 
-  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number }>> {
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>> {
     const sent = Date.now(), a = await this.ask("town_cast", { p_bait: bait, p_x: place.tile[0], p_y: place.tile[1], p_rain: rain });
     if (!a) return AWAY;
     if (!a.ok) return { ok: false, why: (a.why as Why) ?? "none" };
-    const line = a.line as { wait: number; nibbles: number[] };
-    return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000) };
+    // (under clear water the database tells the shade of what is on its way, and nothing more of it)
+    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade };
+    return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000), ...(line.shade ? { shade: line.shade } : {}) };
   }
   async strike(reaction: number): Promise<Did<Struck>> {
     const a = await this.ask("town_strike", { p_reaction: Math.round(reaction * 1000) });

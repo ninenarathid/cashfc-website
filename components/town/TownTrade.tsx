@@ -4,27 +4,31 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WATER } from "@/lib/town/farm";
 import { CARRIES } from "@/lib/town/gear";
 import { HINT_PRICE, hintOf } from "@/lib/town/hints";
-import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type BuffId, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
+import { WISH, type WishId } from "@/lib/town/fountain";
+import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
-import { MEALS, STAMINA, buffOf, eatenToday, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
+import type { PricesTold } from "@/lib/town/market";
+import { MEALS, STAMINA, buffsOf, eatenToday, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
-  GOODS, RULES, SHELF, handOf, leftOf, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
+  GOODS, RULES, SHELF, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
   type Purse, type Refusal, type Stack, type Stall,
 } from "@/lib/town/trade";
 import type { Did, Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
 import TownIcon, { type IconName } from "./TownIcon";
+import TownNotices from "./TownNotices";
+import { Delta, PriceGraph, PriceNow } from "./TownPrice";
 
-/** What of the trade is open on the screen: the uncle's stall (buying, or leaving things to be sold), the bank, or my own bag. */
-export type TradeView = "buy" | "sell" | "bank" | "bag";
+/** What of the trade is open on the screen: the uncle's stall (buying, leaving things to be sold, or the notice board beside it, where members sell to one another), the bank, or my own bag. */
+export type TradeView = "buy" | "sell" | "board" | "bank" | "bag";
 /** What the map needs to know of me without opening anything: my coins, the money waiting with the uncle, my stamina, the buff a meal left, the meal I am at, and what I hold in my hand. */
 export interface TradeSummary {
   hand: ItemId | null;
   coins: number;
   waiting: number;
   stamina: number;
-  buff: BuffId | null;
+  buff: WishId | null;
   eating: { dish: DishId; progress: number } | null;
 }
 
@@ -54,6 +58,7 @@ export const WHY: Record<Refusal, [th: string, en: string]> = {
   crew: ["คนยังไม่ครบ", "Not everybody is here"],
   taken: ["ตรงนี้มีของวางอยู่แล้ว", "Something stands here already"],
   many: ["วางหม้อไว้หลายใบแล้ว เก็บใบเก่าก่อน", "Too many pots set down: take one up first"],
+  note: ["คำอธิษฐานยาวเกินไป", "Those words are too long for a wish"],
   busy: ["กำลังแลกของกับคนอื่นอยู่", "In a deal with somebody else"],
   away: ["ติดต่อเมืองไม่ได้ ลองอีกครั้ง", "The town cannot be reached. Try again."],
 };
@@ -141,8 +146,10 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
     return () => { stop(); clearInterval(t); };
   }, [keeper]);
   // What the stall has left is the whole village's: kept in sight while its panel is open.
-  const atStall = view === "buy" || view === "sell";
+  const atStall = view === "buy" || view === "sell" || view === "board";
   useEffect(() => (atStall ? keeper.look("stall") : undefined), [atStall, keeper]);
+  // …and so is the notice board beside it (lib/town/notices): there is a tab for it once the keeper has been told of one
+  useEffect(() => (atStall ? keeper.look("notices") : undefined), [atStall, keeper]);
   // (handed to scripts in `next dev`, like the town's own handle: the trial itself where there is one)
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
@@ -153,7 +160,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
   }, [keeper]);
 
   const now = keeper.now(), purse = keeper.purse(), stall = keeper.stall();
-  const due = waiting(purse, now), stamina = staminaOf(purse, now), buff = buffOf(purse, now);
+  const due = waiting(purse, now), stamina = staminaOf(purse, now), buff = buffsOf(purse, now)[0] ?? null;
   const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now) } : null, hand = handOf(purse);
   useEffect(() => {
     onSummary({ hand, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating });
@@ -181,7 +188,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
   };
 
   if (!view) return null;
-  const uncle = atStall, order = keeper.order();
+  const uncle = atStall, order = keeper.order(), board = keeper.notices();
   const title = uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
   return (
     <section aria-labelledby="town-trade-h" className="flex h-full flex-col">
@@ -197,18 +204,19 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
 
       {uncle && (
         <div role="tablist" aria-label={title} className="flex gap-1 border-b border-line px-3 pt-2">
-          {([["buy", th ? "ซื้อของ" : "Buy"], ["sell", th ? "ฝากขาย" : "Sell"]] as const).map(([v, label]) => (
+          {([["buy", th ? "ซื้อของ" : "Buy"], ["sell", th ? "ฝากขาย" : "Sell"], ...(board ? [["board", th ? "กระดาน" : "Board"] as const] : [])] as const).map(([v, label]) => (
             <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => onView(v)}
                     className={`pressable -mb-px rounded-t-lg border-b-2 px-3 py-2 text-ui font-semibold ${view === v ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"}`}>
               {label}
               {v === "sell" && due.coins > 0 && <span className="ml-1.5 rounded-full bg-gold/20 px-1.5 py-0.5 font-data text-meta text-gold">{due.coins}</span>}
+              {v === "board" && !!board?.due && <span className="ml-1.5 rounded-full bg-gold/20 px-1.5 py-0.5 font-data text-meta text-gold">{board.due}</span>}
             </button>
           ))}
         </div>
       )}
 
       {uncle && (view === "buy" || view === "sell") && (
-        <NextRound keeper={keeper} th={th} sell={view === "sell"} coming={due.held.reduce((t, l) => t + l.n * l.pays, 0)} />
+        <NextRound keeper={keeper} th={th} sell={view === "sell"} coming={Math.floor(due.held.reduce((t, l) => t + lotWorth(l), 0))} />
       )}
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-3">
@@ -223,10 +231,11 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
                                       if (did.opened) say(`ครบแล้ว! ขอบใจทุกคนนะ ลุงมีของใหม่มาขาย: ${ITEMS[did.opened].name.th}`, `That's the lot! Thank you all. Something new on my shelf: ${ITEMS[did.opened].name.en.toLowerCase()}`);
                                       else say(`ขอบใจนะหลาน นี่ ${did.coins} coin`, `Much obliged, kiddo. Here's ${did.coins} coins.`);
                                     }} />}
-        {view === "sell" && <Sell purse={purse} now={now} th={th}
+        {view === "sell" && <Sell purse={purse} now={now} th={th} prices={keeper.prices()}
                                   onLeave={(slot, n) => tried(keeper.leave(slot, n), ["ลุงรับฝากไว้ให้นะ ญาติลุงมารับรอบหน้า", "I'll keep it for my relatives. They fetch it next round."])}
                                   onBack={(at) => tried(keeper.takeBack(at), ["เอาคืนไปได้เลย", "Here, have it back."])}
                                   onCollect={() => tried(keeper.collect(), ["นี่เงินของหลาน นับดูได้เลย", "Here's your money. Count it if you like."])} />}
+        {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
         {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} recipes={[...keeper.known(), ...keeper.knownMakes()]}
@@ -376,12 +385,20 @@ function Buy({ purse, stall, now, th, next, shelf, onBuy, onHint }: {
   );
 }
 
-/** What I can leave with the uncle to be sold, what he is holding for me, and the money that has come back. */
-function Sell({ purse, now, th, onLeave, onBack, onCollect }: {
-  purse: Purse; now: number; th: boolean;
+/**
+ * What I can leave with the uncle to be sold, what he is holding for me, and the money that has come back. A thing
+ * whose price moves (lib/town/market) says what one fetches this round, and opens its graph (./TownPrice); a lot is
+ * worth what it was left at.
+ */
+function Sell({ purse, now, th, prices, onLeave, onBack, onCollect }: {
+  purse: Purse; now: number; th: boolean; prices: PricesTold;
   onLeave: (slot: number, n: number) => void; onBack: (at: number) => void; onCollect: () => void;
 }) {
   const due = waiting(purse, now), mine = purse.bag.map((s, slot) => ({ s, slot })).filter((x) => x.s);
+  /** The slot whose graph is open: shut again when the slot is emptied. */
+  const [graph, setGraph] = useState<number | null>(null);
+  const gone = graph !== null && !purse.bag[graph];
+  useEffect(() => { if (gone) setGraph(null); }, [gone]);
   return (
     <>
       <div className={`mb-3 flex items-center gap-2 rounded-xl border px-3 py-2.5 ${due.coins ? "border-gold/60 bg-gold/10" : "border-line bg-card/60"}`}>
@@ -399,30 +416,35 @@ function Sell({ purse, now, th, onLeave, onBack, onCollect }: {
       {mine.length ? (
         <ul className="flex flex-col gap-1.5">
           {mine.map(({ s, slot }) => {
-            const it = ITEMS[s!.item];
+            const it = ITEMS[s!.item], told = it.pays ? prices.things[s!.item] : undefined;
             return (
-              <li key={slot} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2">
-                <ItemIcon id={s!.item} size={30} className="shrink-0" />
-                <div className="min-w-0 flex-1">
-                  <span className="block truncate text-ui font-semibold text-ink">{th ? it.name.th : it.name.en} <span className="font-data text-muted">×{s!.n}</span></span>
-                  {it.pays
-                    ? <span className="flex items-center gap-1 text-meta text-muted">{th ? "ได้ชิ้นละ" : "Fetches"} <Coins n={it.pays} th={th} small />{th ? "" : " each"}</span>
-                    : <span className="text-meta text-muted">{th ? WHY.unwanted[0] : WHY.unwanted[1]}</span>}
-                </div>
-                {it.pays > 0 && (
-                  <div className="flex shrink-0 gap-1">
-                    {s!.n > 1 && (
-                      <button type="button" onClick={() => onLeave(slot, s!.n)}
-                              className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent">
-                        {th ? "ทั้งหมด" : "All"}
-                      </button>
-                    )}
-                    <button type="button" onClick={() => onLeave(slot, 1)}
-                            className="pressable min-h-11 rounded-full bg-accent px-4 text-ui font-semibold text-bg">
-                      {th ? "ฝาก 1" : "Leave 1"}
-                    </button>
+              <li key={slot} className="rounded-xl border border-line bg-card/60 px-2.5 py-2">
+                <div className="flex items-center gap-2.5">
+                  <ItemIcon id={s!.item} size={30} className="shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <span className="block truncate text-ui font-semibold text-ink">{th ? it.name.th : it.name.en} <span className="font-data text-muted">×{s!.n}</span></span>
+                    {told
+                      ? <PriceNow id={s!.item} told={told} th={th} open={graph === slot} onToggle={() => setGraph(graph === slot ? null : slot)} />
+                      : it.pays
+                        ? <span className="flex items-center gap-1 text-meta text-muted">{th ? "ได้ชิ้นละ" : "Fetches"} <Coins n={it.pays} th={th} small />{th ? "" : " each"}</span>
+                        : <span className="text-meta text-muted">{th ? WHY.unwanted[0] : WHY.unwanted[1]}</span>}
                   </div>
-                )}
+                  {it.pays > 0 && (
+                    <div className="flex shrink-0 gap-1">
+                      {s!.n > 1 && (
+                        <button type="button" onClick={() => onLeave(slot, s!.n)}
+                                className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent">
+                          {th ? "ทั้งหมด" : "All"}
+                        </button>
+                      )}
+                      <button type="button" onClick={() => onLeave(slot, 1)}
+                              className="pressable min-h-11 rounded-full bg-accent px-4 text-ui font-semibold text-bg">
+                        {th ? "ฝาก 1" : "Leave 1"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {told && graph === slot && <PriceGraph id={s!.item} told={told} round={prices.round} th={th} />}
               </li>
             );
           })}
@@ -434,10 +456,11 @@ function Sell({ purse, now, th, onLeave, onBack, onCollect }: {
         <>
           <ul className="flex flex-col gap-1.5">
             {due.held.map((l, at) => (
-              <li key={`${l.item}:${l.round}`} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2">
+              <li key={`${l.item}:${l.round}:${l.f ?? 100}`} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-lot={l.item}>
                 <ItemIcon id={l.item} size={26} className="shrink-0" />
                 <span className="min-w-0 flex-1 truncate text-ui text-ink">{th ? ITEMS[l.item].name.th : ITEMS[l.item].name.en} <span className="font-data text-muted">×{l.n}</span></span>
-                <Coins n={l.n * l.pays} th={th} small />
+                <Delta f={l.f ?? 100} th={th} />
+                <Coins n={Math.floor(lotWorth(l))} th={th} small />
                 <button type="button" onClick={() => onBack(at)}
                         className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent">
                   {th ? "เอาคืน" : "Take back"}
@@ -522,8 +545,10 @@ function Bag({ purse, now, th, seated, company, recipes, onEat, onGetUp, onRead,
   /** Open the thing in a slot, to see what is in it. */
   onOpen: (slot: number) => void;
 }) {
-  const stamina = Math.round(staminaOf(purse, now)), meal = mealOf(now), eaten = eatenToday(purse, now), buff = buffOf(purse, now);
-  const hoursLeft = buff && purse.buff ? Math.max(1, Math.ceil((purse.buff.until - now) / 60_000)) : 0;
+  const stamina = Math.round(staminaOf(purse, now)), meal = mealOf(now), eaten = eatenToday(purse, now);
+  // Every buff I have, each with the minutes it has left: a meal's, and the fountain's blessings (one had twice lasts as long as the longer).
+  const until = (id: WishId) => Math.max(purse.buff?.id === id ? purse.buff.until : 0, ...(purse.blessed ?? []).filter((b) => b.id === id).map((b) => b.until));
+  const buffs = buffsOf(purse, now).map((id) => ({ id, minutes: Math.max(1, Math.ceil((until(id) - now) / 60_000)) }));
   /** The thing taken up to look at, by its slot: it is named under the pockets, with what can be done with it. (When the slot comes to hold something else, nothing is taken up.) */
   const [picked, setPicked] = useState<{ slot: number; item: ItemId } | null>(null);
   const slot = picked && purse.bag[picked.slot]?.item === picked.item ? picked.slot : null, inHand = slot !== null ? purse.bag[slot]! : null;
@@ -548,13 +573,13 @@ function Bag({ purse, now, th, seated, company, recipes, onEat, onGetUp, onRead,
             </span>
           ))}
         </div>
-        {buff && (
-          <p className="mt-2 flex items-center gap-1.5 text-meta text-ink">
-            <TownIcon name={BUFFS[buff].icon as IconName} size={18} />
-            <span className="font-semibold text-gold">{th ? BUFFS[buff].name.th : BUFFS[buff].name.en}</span>
-            <span className="min-w-0 text-muted">{th ? `อีก ${hoursLeft} นาที` : `${hoursLeft} min left`}</span>
+        {buffs.map((b) => (
+          <p key={b.id} className="mt-2 flex items-center gap-1.5 text-meta text-ink">
+            <TownIcon name={WISH[b.id].icon as IconName} size={18} />
+            <span className="font-semibold text-gold">{th ? WISH[b.id].name.th : WISH[b.id].name.en}</span>
+            <span className="min-w-0 text-muted">{th ? `อีก ${b.minutes} นาที` : `${b.minutes} min left`}</span>
           </p>
-        )}
+        ))}
         {purse.eating && (
           <div className="mt-2 rounded-lg border border-gold/50 bg-gold/10 px-2.5 py-2">
             <p className="flex items-center gap-1.5 text-ui text-ink">

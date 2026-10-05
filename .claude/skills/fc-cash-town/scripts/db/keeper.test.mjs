@@ -19,12 +19,12 @@ const { FARM, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
 const { shelfOf } = await import("@/lib/town/orders");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
-// (a draft of the next migration, kept out of supabase/ until it is proved, is tried with the rest)
-const NEXT = "v119";
-const draft = fileURLToPath(new URL(`./${NEXT}_draft.sql`, import.meta.url));
-const pending = existsSync(draft) && !readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`).some((f) => f.startsWith(`${NEXT}_`));
+// (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
+const NEXT = ["v123", "v124", "v128"];
+const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
+const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
-  { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, BENCH_EXTRA: pending ? draft : "" } });
+  { stdio: ["ignore", "pipe", "pipe"], env: { ...process.env, BENCH_EXTRA: drafts.join(",") } });
 let up = false, log = "";
 bench.stdout.on("data", (d) => { log += d; if (/stand-in database is up/.test(log)) up = true; });
 bench.stderr.on("data", (d) => { log += d; });
@@ -374,6 +374,139 @@ try {
     ok("what goes into it is tried here first, and taken for it", A.cookTry(CURE, ["pot"]) === null, A.cookTry(CURE, ["pot"]));
     const cure = await A.cookDo(CURE, ["pot"], [], { hits: 5, misses: 0, secs: 4, need: 5 }, "Tester A");
     ok("chilies, scallions and salt in a pot: two of the cure, found first, and made", cure.ok && cure.made === "pestCure" && cure.n === 2 && cure.first === true && A.purse().bag[slotOf(A, "pestCure")]?.n === 2 && A.madeBefore("pestCure"), cure);
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_toss(text, integer, text)') is not null as there`))[0].there) {
+    section("the fountain: a pot the village fills, and a blessing beside a meal's buff (v123)");
+    await purse(a, 300, []);
+    await purse(b, 300, []);
+    await settled(A); await settled(B);
+    ok("not looked at yet, the fountain is not known", A.fountain() === null);
+    const stopA = A.look("fountain");
+    await settled(A);
+    const goal = A.fountain()?.goal;
+    ok("looked at: the pot is empty, and the day's goal is a share of the village's coins or the least there is", A.fountain()?.pot === 0 && goal >= 100 && A.fountain().who.length === 0 && A.fountain().mine === false, A.fountain());
+    let from = sent.length;
+    let did = await A.toss("green", 30);
+    ok("a toss reaches the database with the wish and the coins", sent[from]?.fn === "town_toss" && sent[from].args.p_wish === "green" && sent[from].args.p_coins === 30, sent[from]);
+    ok("…and its answer is kept at once: the purse lighter, the pot told", did.ok && did.took === 30 && did.granted === null && A.purse().coins === 270 && A.fountain().pot === 30 && A.fountain().by.green === 30 && A.fountain().mine === true, [did, A.fountain()]);
+    let told = null;
+    A.onDeed = (what) => { told = what; };
+    did = await A.toss("green", 1);
+    ok("the room is told the fountain changed", told === "fountain");
+    A.onDeed = null;
+    did = await A.toss("rain", 5);
+    ok("a wish there is not is refused as the rule refuses it, and nothing is taken", did.ok === false && did.why === "none" && A.purse().coins === 269, did);
+    ok("the other keeper has not looked, and knows nothing of it", B.fountain() === null);
+    const stopB = B.look("fountain");
+    await settled(B);
+    ok("looked at, it sees the same pot, and that its coin is not in it", B.fountain()?.pot === 31 && B.fountain().mine === false && B.fountain().who.length === 1, B.fountain());
+    did = await B.toss("hearty", 300);
+    ok("the coin that fills the pot: no more is taken than fills it, and the wish with the most behind it comes true", did.ok && did.took === goal - 31 && did.granted === (goal - 31 > 31 ? "hearty" : "green"), did);
+    const wish = did.granted;
+    ok("…the blessing in the purse of whoever filled it, with the answer", B.purse().blessed?.length === 1 && B.purse().blessed[0].id === wish, B.purse().blessed);
+    ok("…and the next pot of the day asks twice as much", B.fountain().goal === goal * 2 && B.fountain().pot === 0 && B.fountain().blessings.length === 1 && B.fountain().blessings[0].mine === true, B.fountain());
+    ok("the first keeper has not been told yet", !A.purse().blessed);
+    A.nudged("fountain");
+    await settled(A);
+    ok("the room's word brings it: the blessing is theirs too, whose coin was in the pot", A.fountain().blessings[0]?.mine === true && A.purse().blessed?.[0]?.id === wish, [A.fountain().blessings, A.purse().blessed]);
+    // a wish in its writer's words
+    from = sent.length;
+    did = await A.toss("calm", 1, "ขอให้ปลากินเบ็ด");
+    ok("a toss's words go with it", sent[from]?.fn === "town_toss" && sent[from].args.p_note === "ขอให้ปลากินเบ็ด" && did.ok, sent[from]);
+    const words = A.fountain().notes.find((n) => n.mine);
+    ok("…and the wish is told with the fountain: mine, with nobody's coin on it", !!words && words.note === "ขอให้ปลากินเบ็ด" && words.wish === "calm" && words.cheers === 0 && A.fountain().admin === false, A.fountain().notes);
+    did = await A.toss("calm", 1, "x".repeat(81));
+    ok("words too long are refused as the database refuses them, and nothing is taken", did.ok === false && did.why === "note", did);
+    B.nudged("fountain");
+    await settled(B);
+    from = sent.length;
+    did = await B.cheer(words.id, 2);
+    ok("a coin tossed onto somebody's wish reaches the database with which wish and how many", sent[from]?.fn === "town_cheer" && sent[from].args.p_note === words.id && sent[from].args.p_coins === 2 && did.ok && did.took === 2, [sent[from], did]);
+    ok("…and is counted beside it at once", B.fountain().notes.find((n) => n.id === words.id)?.cheers === 1 && B.fountain().notes.find((n) => n.id === words.id)?.cheered === true, B.fountain().notes);
+    did = await B.wishReport(words.id);
+    ok("a report is taken, once", did.ok && B.fountain().notes.find((n) => n.id === words.id)?.reported === true && (await B.wishReport(words.id)).ok === false, B.fountain().notes);
+    did = await B.wishHide(words.id, true);
+    ok("hiding a wish is an admin's: a member's keeper is refused, and says the town is out of reach", did.ok === false, did);
+    did = await A.wishUnsay(words.id);
+    ok("its writer takes it back", did.ok && !A.fountain().notes.some((n) => n.id === words.id), A.fountain().notes);
+    stopA(); stopB();
+  }
+
+  if ((await sql(`select to_regprocedure('town.prices_told(uuid)') is not null as there`))[0].there) {
+    section("the relatives' price: told at the stall, and with a thing left or taken back (v124)");
+    const P = new DbKeeper(a, askAs("A"));
+    await purse(a, 0, [...Array(8).fill({ item: "kangkong", n: 20 }), { item: "worm", n: 3 }]);
+    await settled(P);
+    ok("not looked at yet, no price is known: every thing is at its usual one", Object.keys(P.prices().things).length === 0 && P.prices().round === 0, P.prices());
+    const stopP = P.look("stall");
+    await sleep(500);
+    ok("the stall looked at: the price of what I hold whose price moves, and of nothing else", Object.keys(P.prices().things).join() === "kangkong" && P.prices().things.kangkong.f === 100 && P.prices().round > 0, P.prices());
+    for (let i = 0; i < 8; i++) did = await P.leave(slotOf(P, "kangkong"), 20);
+    ok("a hundred and sixty left: one lot at the usual price, and the price still told, for the lot", did.ok && P.purse().left.at(-1).n === 160 && !("f" in P.purse().left.at(-1)) && P.prices().things.kangkong?.f === 100, [P.purse().left, P.prices()]);
+    await skip(12 * 3_600_000);
+    await purse(b, 0, [{ item: "kangkong", n: 20 }]);
+    await settled(B);
+    const stopQ = B.look("stall");
+    await sleep(500);
+    const now = B.prices().things.kangkong;
+    ok("a round on, somebody else is told the lower price, with the round that ended behind it", now?.f === 83 && now.was.length === 1 && now.was[0][1] === 100 && now.was[0][2] === 160 && now.floor === 40 && now.ceil === 150, B.prices());
+    did = await B.leave(0, 20);
+    ok("…and a lot left then keeps it", did.ok && B.purse().left.at(-1).f === 83 && B.prices().things.kangkong?.f === 83, [B.purse().left, B.prices()]);
+    did = await B.takeBack(B.purse().left.length - 1);
+    ok("taken back, it is in the bag again, and its price is told with the answer", did.ok && B.purse().bag[0]?.n === 20 && B.prices().things.kangkong?.f === 83, [B.purse().bag[0], B.prices()]);
+    stopP(); stopQ(); P.close();
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_notices()') is not null as there`))[0].there) {
+    section("the notice board: a member sells to a member (v128)");
+    const P = new DbKeeper(a, askAs("A")), Q = new DbKeeper(b, askAs("B"));
+    await purse(a, 0, [{ item: "kangkong", n: 20 }]);
+    await purse(b, 100, [{ item: "minnow", n: 5 }]);
+    await settled(P); await settled(Q);
+    ok("not looked at yet, the board is not known", P.notices() === null);
+    const stopP = P.look("notices"), stopQ = Q.look("notices");
+    await sleep(600);
+    ok("looked at: nothing pinned, three places, and what may be wanted: what is in a bag, and the uncle's shelf", P.notices()?.notices.length === 0 && P.notices().slots === 3 && P.notices().more === 100
+      && ["kangkong", "minnow", "worm"].every((id) => P.notices().seen.includes(id)) && !P.notices().seen.includes("megaCatfish"), P.notices());
+    let nudges = 0;
+    P.onDeed = (what) => { if (what === "notices") nudges++; };
+    let from = sent.length;
+    did = await P.noticePost("sell", "kangkong", 10, 4);
+    ok("a notice pinned reaches the database with its kind, its thing, how many and the price; the room is told; and the board comes back with the answer",
+      did.ok && sent[from]?.fn === "town_notice_post" && JSON.stringify(sent[from].args) === JSON.stringify({ p_kind: "sell", p_item: "kangkong", p_n: 10, p_price: 4 })
+      && nudges === 1 && P.notices().mine.length === 1 && P.purse().bag[0]?.n === 10, [did, sent[from], nudges]);
+    Q.nudged("notices");
+    await sleep(500);
+    const up = Q.notices().notices[0];
+    ok("the other member's keeper, told by the room, has it: whose it is by name, and not theirs", Q.notices().notices.length === 1 && up.by === "Tester A" && up.mine === false && up.left === 10 && up.price === 4, Q.notices().notices);
+    did = await Q.noticeBuy(up.id, 4);
+    ok("four bought: the things and the coins at once", did.ok && did.coins === 16 && did.item === "kangkong" && Q.purse().coins === 84 && slotOf(Q, "kangkong") >= 0 && Q.notices().notices[0]?.left === 6, [did, Q.purse().coins]);
+    P.nudged("notices");
+    await sleep(500);
+    ok("the writer is told what waits: nine tenths of sixteen, in whole coins", P.notices().due === 14 && P.notices().mine[0]?.left === 6, P.notices());
+    nudges = 0;
+    did = await P.noticeCollect();
+    ok("collected: fourteen coins, nothing more waiting, and the room is not told of what only its collector sees", did.ok && did.coins === 14 && P.purse().coins === 14 && P.notices().due === 0 && nudges === 0, [did, nudges]);
+    did = await P.noticePost("want", "megaCatfish", 1, 5);
+    ok("a thing nobody has met is refused as a thing that is not there", !did.ok && did.why === "none", did);
+    did = await P.noticePost("want", "minnow", 3, 2);
+    const want = did.ok ? did.id : -1;
+    ok("three minnows wanted at two coins: six coins put down", did.ok && P.purse().coins === 8 && P.notices().mine.some((n) => n.id === want && n.kind === "want"), [did, P.purse().coins]);
+    did = await Q.noticeFill(want, 3);
+    ok("the other brings three: out of the bag, and five of the six coins wait for them", did.ok && did.coins === 6 && Q.purse().bag[slotOf(Q, "minnow")]?.n === 2 && Q.notices().due === 5, [did, Q.notices().due]);
+    P.nudged("notices");
+    await sleep(500);
+    ok("the writer is told three wait", P.notices().mine.find((n) => n.id === want)?.held === 3, P.notices().mine);
+    did = await P.noticeFetch(want);
+    ok("…and takes them: the notice is done with, and gone", did.ok && did.got === 3 && slotOf(P, "minnow") >= 0 && !P.notices().mine.some((n) => n.id === want), [did, P.notices().mine]);
+    did = await P.noticeDown(P.notices().mine[0]?.id ?? -1);
+    ok("the first notice taken down: the six not sold are back in the bag", did.ok && did.things === 6 && did.coins === 0 && P.purse().bag[slotOf(P, "kangkong")]?.n === 16 && P.notices().mine.length === 0, [did, P.purse().bag]);
+    did = await P.noticeSlot();
+    ok("one more place is refused without the coins for it", !did.ok && did.why === "coins", did);
+    did = await Q.noticeBuy(up.id, 1);
+    ok("a notice that is gone is said so", !did.ok && did.why === "gone", did);
+    stopP(); stopQ(); P.close(); Q.close();
   }
 
   section("one thing at a time");

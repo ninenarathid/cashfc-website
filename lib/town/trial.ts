@@ -2,7 +2,10 @@ import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot
 import { WATER, WILD, chore, choreFor, deedFor, ownerOf, tend, type Bed, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { hookBait, landCatch, loseBait } from "./fishing";
+import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { buyHint, nextHint } from "./hints";
+import * as Notices from "./notices";
+import { MARKET, counted, factorOf, factsOf, newMarket, pricesTold, rolled, type Logged, type Market, type PricesTold } from "./market";
 import { CROPS, CROP_IDS, DISHES, STAGES, STAGE_AT, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { UNLOCKS, give, newVillage, orderOf, shelfOf, sourcesAt, type Order, type Village } from "./orders";
 import { count, keep, newTally, type Play, type Tally } from "./plays";
@@ -10,7 +13,7 @@ import { open } from "./scrolls";
 import { SKIES } from "./skies";
 import { STAMINA, bowlsBack, chew, dayOf, getUp, readScroll, sitDown, spend } from "./stamina";
 import {
-  RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, takeBack, takeOff, wear,
+  RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, roundOf, takeBack, takeOff, wear,
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
 import { bedCorner, bedOf } from "./world";
@@ -41,6 +44,14 @@ import { bedCorner, bedOf } from "./world";
 
 const STALL = "cashtown.trial.stall.1", CLOCK = "cashtown.trial.clock.1", FARM = "cashtown.trial.farm.2";
 const WELL = "cashtown.trial.well.1", BEDS = "cashtown.trial.beds.1";
+/** The fountain (lib/town/fountain): the village's, like the stall. */
+const FOUNTAIN = "cashtown.trial.fountain.1", NOTES = "cashtown.trial.wishes.1";
+/** The relatives' prices (lib/town/market): the village's, like the stall; and the rounds gone by, as they were written down. */
+const MARKET_AT = "cashtown.trial.market.1", MARKET_LOG = "cashtown.trial.market.log.1";
+/** The notice board beside the stall (lib/town/notices): the village's; and what the testers of this browser have met, which only grows. */
+const PINBOARD = "cashtown.trial.notices.1", SEEN = "cashtown.trial.seen.1";
+/** A wish's words as the trial keeps them: who wrote them and who tossed onto or reported them, by their ids. */
+interface KeptNote { id: number; by: string; day: number; wish: WishId; note: string; cheers: string[]; reports: string[]; hidden: boolean; at: number }
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -106,11 +117,64 @@ export class Trial {
       return !!p && typeof p.coins === "number" && Array.isArray(p.bag) && Array.isArray(p.left) && !!p.bought && !!p.changed && !!p.popoto
         && !!p.stamina && !!p.meals && Array.isArray(p.recipes) && !!p.best;
     });
-    if (this.get(slotsKey(this.id)) === String(RULES.slots)) return bowlsBack(kept);
+    if (this.get(slotsKey(this.id)) === String(RULES.slots)) return this.blessed(bowlsBack(kept));
     const grown = roomy(kept);
     if (grown !== kept) this.write(purseKey(this.id), grown);
     this.set(slotsKey(this.id), String(RULES.slots));
-    return bowlsBack(grown);
+    return this.blessed(bowlsBack(grown));
+  }
+  /** A purse with the fountain's blessings its tester has (lib/town/fountain), as the database reads one. */
+  private blessed(purse: Purse): Purse { return blessed(purse, this.kept(), this.id, this.now()); }
+  private kept(): Fountain {
+    return this.read<Fountain>(FOUNTAIN, newFountain, (v) => { const f = v as Partial<Fountain> | null; return !!f && typeof f.pot === "number" && Array.isArray(f.who) && Array.isArray(f.lately) && Array.isArray(f.blessings); });
+  }
+  /** The fountain as a member is told it. (All the coins the trial knows of are this tester's own; and a tester is called by their letter.) */
+  fountain(): FountainTold {
+    const today = dayOf(this.now());
+    const notes = this.notes().filter((n) => (!n.hidden || n.by === this.id) && n.day >= today - 1).sort((a, b) => b.at - a.at).slice(0, NOTE.shown)
+      .map((n): WishNote => ({ id: n.id, by: n.by, wish: n.wish, note: n.note, cheers: n.cheers.length, mine: n.by === this.id, cheered: n.cheers.includes(this.id), reported: n.reports.includes(this.id), hidden: n.hidden, at: n.at }));
+    return told(this.kept(), this.id, this.now(), this.purse().coins, (id) => id, undefined, notes);
+  }
+  private notes(): KeptNote[] { return this.read<KeptNote[]>(NOTES, () => [], (v) => Array.isArray(v)); }
+  /** Toss coins into it, towards a wish; with a line of words, if I like (my wish of the day: a new one takes the old one's place). */
+  toss(wish: WishId, coins: number, note: string | null = null) {
+    const said = tidyNote(note);
+    if (note && note.trim() && !said) return { ok: false as const, why: "note" as const };
+    const purse = this.purse(), did = toss(purse, this.kept(), this.id, wish, coins, this.now(), purse.coins);
+    if (did.ok) {
+      this.write(purseKey(this.id), did.purse);
+      this.write(FOUNTAIN, did.fountain);
+      if (said) {
+        const all = this.notes(), day = dayOf(this.now()), mine = all.find((n) => n.by === this.id && n.day === day);
+        this.write(NOTES, [...all.filter((n) => n !== mine), { id: mine?.id ?? Math.max(0, ...all.map((n) => n.id)) + 1, by: this.id, day, wish, note: said, cheers: [], reports: [], hidden: false, at: this.now() }]);
+      }
+      this.tell();
+    }
+    return did;
+  }
+  /** Toss coins onto somebody's wish: towards the wish it was for. */
+  cheer(id: number, coins: number) {
+    const n = this.notes().find((x) => x.id === id && !x.hidden);
+    if (!n) return { ok: false as const, why: "gone" as const };
+    if (n.by === this.id) return { ok: false as const, why: "none" as const };
+    const did = this.toss(n.wish, coins);
+    if (did.ok && !n.cheers.includes(this.id)) { this.write(NOTES, this.notes().map((x) => (x.id === id ? { ...x, cheers: [...x.cheers, this.id] } : x))); this.tell(); }
+    return did;
+  }
+  /** Say a wish should not be there (the third report hides it); take my own back. */
+  wishReport(id: number) {
+    const n = this.notes().find((x) => x.id === id);
+    if (!n || n.by === this.id || n.reports.includes(this.id)) return { ok: false as const, why: "none" as const };
+    this.write(NOTES, this.notes().map((x) => (x.id === id ? { ...x, reports: [...x.reports, this.id], hidden: x.hidden || x.reports.length + 1 >= NOTE.reports } : x)));
+    this.tell();
+    return { ok: true as const };
+  }
+  wishUnsay(id: number) {
+    const all = this.notes(), n = all.find((x) => x.id === id && x.by === this.id);
+    if (!n) return { ok: false as const, why: "none" as const };
+    this.write(NOTES, all.filter((x) => x !== n));
+    this.tell();
+    return { ok: true as const };
   }
   stall(): Stall {
     return this.read<Stall>(STALL, newStall, (v) => { const s = v as Partial<Stall> | null; return !!s && typeof s.round === "number" && !!s.sold; });
@@ -150,10 +214,61 @@ export class Trial {
     this.write(VILLAGE, { ...this.village(), unlocked: Math.max(0, Math.min(UNLOCKS.length, Math.floor(n))), opened: -1 });
     this.tell();
   }
-  leave(slot: number, n: number) { return this.keep(leave(this.purse(), slot, n, this.now())); }
-  takeBack(at: number) { return this.keep(takeBack(this.purse(), at, this.now())); }
+  /** The market, brought to this round: each round gone by moves every price once, and is written down. (A trial's village is counted as its fewest heads.) */
+  private market(): Market {
+    const round = roundOf(this.now()), fresh = this.get(MARKET_AT) === null;
+    const kept = this.read<Market>(MARKET_AT, () => newMarket(round), (v) => { const m = v as Partial<Market> | null; return !!m && typeof m.round === "number" && !!m.at && !!m.sold; });
+    const did = rolled(kept, round, MARKET.heads, factsOf());
+    if (fresh || did.log.length) this.write(MARKET_AT, did.market);
+    if (did.log.length) this.write(MARKET_LOG, [...this.marketLog(), ...did.log].slice(-4 * MARKET.lately));
+    return did.market;
+  }
+  private marketLog(): Logged[] { return this.read<Logged[]>(MARKET_LOG, () => [], (v) => Array.isArray(v)); }
+  /** What I am told of prices: of what I hold, and of what I have left with the uncle. */
+  prices(): PricesTold {
+    const p = this.purse(), market = this.market();
+    return pricesTold(market, this.marketLog(), [...p.bag.flatMap((s) => (s ? [s.item] : [])), ...p.left.map((l) => l.item)], factsOf());
+  }
+  /** Leave things with the uncle at this round's price. What is left counts as sold this round; what is taken back in the round it was left in was not sold. */
+  leave(slot: number, n: number) {
+    const purse = this.purse(), market = this.market(), item = purse.bag[slot]?.item;
+    const did = leave(purse, slot, n, this.now(), item ? factorOf(market, item) : 100);
+    if (did.ok && item) this.write(MARKET_AT, counted(market, item, n));
+    return this.keep(did);
+  }
+  takeBack(at: number) {
+    const purse = this.purse(), lot = purse.left[at], did = takeBack(purse, at, this.now());
+    if (did.ok && lot && lot.round === roundOf(this.now())) this.write(MARKET_AT, counted(this.market(), lot.item, -lot.n));
+    return this.keep(did);
+  }
   collect() { return this.keep(collect(this.purse(), this.now())); }
   change(kind: keyof Purse["popoto"], n: number) { return this.keep(change(this.purse(), kind, n, this.now())); }
+
+  /* ── the notice board: the village's, so the browser's ── */
+  private pinboard(): Notices.Pinboard {
+    return this.read<Notices.Pinboard>(PINBOARD, Notices.newPinboard, (v) => { const b = v as Partial<Notices.Pinboard> | null; return !!b && typeof b.next === "number" && Array.isArray(b.notices) && !!b.due && !!b.more && Array.isArray(b.sales); });
+  }
+  /** What may be wanted: whatever has been in a tester's bag or left with the uncle when the board was looked at, what is on a notice, and what is on his shelf. */
+  private seen(): ItemId[] {
+    const p = this.purse(), was = this.read<ItemId[]>(SEEN, () => [], Array.isArray);
+    const now = [...new Set<ItemId>([...was, ...p.bag.flatMap((s) => (s ? [s.item] : [])), ...p.left.map((l) => l.item), ...this.pinboard().notices.map((n) => n.item)])];
+    if (now.length !== was.length) this.write(SEEN, now);
+    return [...new Set<ItemId>([...now, ...this.shelf()])].sort();
+  }
+  /** The board as a member is told it. (A tester is called by their letter.) */
+  notices(): Notices.PinboardTold { return Notices.told(this.pinboard(), this.id, this.now(), (id) => id, this.seen()); }
+  /** Keep what a deed at the board came to, if it came to anything. */
+  private pin<T extends { purse: Purse; board: Notices.Pinboard }>(did: ({ ok: true } & T) | { ok: false; why: Notices.NoticeRefusal }) {
+    if (did.ok) { this.write(PINBOARD, did.board); this.save(did.purse); }
+    return did;
+  }
+  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number) { return this.pin(Notices.post(this.purse(), this.pinboard(), this.id, kind, item, n, price, this.now(), this.seen())); }
+  noticeBuy(id: number, n: number) { return this.pin(Notices.buy(this.purse(), this.pinboard(), this.id, id, n, this.now())); }
+  noticeFill(id: number, n: number) { return this.pin(Notices.fill(this.purse(), this.pinboard(), this.id, id, n, this.now())); }
+  noticeFetch(id: number) { return this.pin(Notices.fetch(this.purse(), this.pinboard(), this.id, id)); }
+  noticeDown(id: number) { return this.pin(Notices.takeDown(this.purse(), this.pinboard(), this.id, id)); }
+  noticeCollect() { return this.pin(Notices.collectDue(this.purse(), this.pinboard(), this.id)); }
+  noticeSlot() { return this.pin(Notices.moreSlot(this.purse(), this.pinboard(), this.id)); }
 
   /** Sit down to the dish in a slot of the bag (somebody standing is refused). */
   sitDown(slot: number, seated: boolean) { return this.keep(sitDown(this.purse(), slot, seated, this.now())); }
@@ -471,9 +586,9 @@ export class Trial {
     this.write(CLOCK, this.now() - Date.now() + hours * 3_600_000);
     this.tell();
   }
-  /** Begin again: my purse, the stall, the farm and the clock as they were at first. (What was played stays written down.) */
+  /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), STALL, CLOCK, FARM, WELL, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

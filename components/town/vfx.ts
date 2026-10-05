@@ -14,14 +14,16 @@ import { ICON_ATLAS, type IconName } from "./TownIcon";
  * panel, the kitchen's). Mine only: nobody is told of them. With reduced
  * motion there are none.
  */
-export type VfxKind = "soil" | "leaves" | "seeds" | "water" | "dust" | "mist" | "sparkle" | "steam" | "smoke" | "bubbles" | "splash" | "pop";
+export type VfxKind = "soil" | "leaves" | "seeds" | "water" | "dust" | "mist" | "sparkle" | "steam" | "smoke" | "bubbles" | "splash" | "pop" | "bless";
 
 interface Burst { kind: VfxKind; at: Vec | null; born: number; seed: number; icon?: string; lift: number }
 
 /** How long each lasts, in milliseconds. */
 const LIFE: Record<VfxKind, number> = {
-  soil: 560, leaves: 760, seeds: 460, water: 700, dust: 640, mist: 820, sparkle: 820, steam: 1350, smoke: 1600, bubbles: 1450, splash: 600, pop: 950,
+  soil: 560, leaves: 760, seeds: 460, water: 700, dust: 640, mist: 820, sparkle: 820, steam: 1350, smoke: 1600, bubbles: 1450, splash: 600, pop: 950, bless: 1300,
 };
+/** The sparkle's four frames (the icons' own), for the lights round a blessing's burst. */
+const SPARKS: IconName[] = ["fxSpark1", "fxSpark2", "fxSpark3", "fxSpark4"];
 const EARTH = ["#6b4a2a", "#8a623a", "#4e3520"], GREEN = ["#5a9a3a", "#7cc04f", "#3f7a2a"], WATER = ["#7fc7f0", "#bfe6ff", "#4fa3e0"];
 
 /** A number in [0, 1) from a seed and two counts: the same every frame, so a particle keeps its own way. */
@@ -113,6 +115,24 @@ function paint({ ctx, s, img }: FarmFrame, b: Burst, x: number, y: number, t: nu
       ctx.globalAlpha = clamp(t < 0.12 ? t / 0.12 : fade);
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(img, sx, sy, w, h, Math.round(x - (w * k) / 2), Math.round(y - rise - h * k), w * k, h * k);
+      break;
+    }
+    case "bless": {
+      // a buff at work (components/town/TownBuffFx): its own burst, growing as it rises and then gone, with little
+      // lights twinkling round it, each through the sparkle's four frames on its own beat
+      const cell = b.icon ? ICON_ATLAS.icons[b.icon as IconName] : undefined;
+      if (!cell || !img?.complete || !img.naturalWidth) break;
+      const [sx, sy, w, h] = cell, k = (28 / Math.max(w, h)) * s * (0.7 + 0.45 * Math.min(1, t * 3)), rise = (18 + 20 * t) * s;
+      ctx.imageSmoothingEnabled = false;
+      ctx.globalAlpha = clamp(t < 0.1 ? t / 0.1 : fade);
+      ctx.drawImage(img, sx, sy, w, h, Math.round(x - (w * k) / 2), Math.round(y - rise - (h * k) / 2), w * k, h * k);
+      for (let i = 0; i < 4; i++) {
+        const light = ICON_ATLAS.icons[SPARKS[Math.min(3, Math.floor(((t * 2.4 + rnd(b.seed, i, 0)) % 1) * 4))]];
+        if (!light) continue;
+        const a = rnd(b.seed, i, 1) * Math.PI * 2, r = (15 + 13 * rnd(b.seed, i, 2)) * s * (0.6 + 0.6 * t), [lx, ly, lw, lh] = light, lk = 0.5 * s;
+        ctx.globalAlpha = clamp(fade * 0.95);
+        ctx.drawImage(img, lx, ly, lw, lh, Math.round(x + Math.cos(a) * r - (lw * lk) / 2), Math.round(y - rise + Math.sin(a) * r * 0.7 - (lh * lk) / 2), lw * lk, lh * lk);
+      }
       break;
     }
   }

@@ -1,4 +1,5 @@
 import { BOWL, BUFFS, BUFF_HOURS, DISHES, SCROLLS, inBowl, isDish, type BuffId, type DishId, type ItemId } from "./items";
+import type { WishId } from "./fountain";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 
 /**
@@ -96,12 +97,23 @@ export const staminaOf = (purse: Purse, now: number) => (purse.stamina.day === d
 export const isSpent = (purse: Purse, now: number) => staminaOf(purse, now) <= 0;
 /** The buff a meal left, while it lasts. */
 export const buffOf = (purse: Purse, now: number): BuffId | null => (purse.buff && purse.buff.until > now ? purse.buff.id : null);
+/**
+ * Every buff somebody has now, each once: the one a meal left, and the fountain's blessings they have that still run
+ * (lib/town/fountain). They are held together (the owner, 2026-10-05: "เอาแบบบัพคู่ หรือ มากกว่า 2 บัพได้ไปเลย"); the
+ * same one twice is no stronger.
+ */
+export function buffsOf(purse: Purse, now: number): WishId[] {
+  const meal = buffOf(purse, now), mine = (purse.blessed ?? []).filter((b) => b.until > now).map((b) => b.id);
+  return [...new Set(meal ? [meal, ...mine] : mine)];
+}
+/** Whether somebody has a buff now, from a meal or from the fountain: what every rule asks. */
+export const hasBuff = (purse: Purse, now: number, id: WishId) => buffsOf(purse, now).includes(id);
 /** Which of today's meals have been eaten. */
 export const eatenToday = (purse: Purse, now: number): [boolean, boolean, boolean] =>
   (purse.meals.day === dayOf(now) ? purse.meals.eaten : [false, false, false]);
 
 /** What something costs somebody, in stamina: less after a hearty meal. */
-export const costOf = (purse: Purse, n: number, now: number) => Math.round(n * (buffOf(purse, now) === "hearty" ? 1 - BUFFS.hearty.by : 1));
+export const costOf = (purse: Purse, n: number, now: number) => Math.round(n * (hasBuff(purse, now, "hearty") ? 1 - BUFFS.hearty.by : 1));
 /** Spend stamina on something: never below none (it is done all the same, the harder way). */
 export function spend(purse: Purse, n: number, now: number): Purse {
   return { ...purse, stamina: { day: dayOf(now), left: Math.max(0, staminaOf(purse, now) - costOf(purse, n, now)) } };

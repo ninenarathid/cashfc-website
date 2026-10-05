@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small magic effect sprites for that game, in the same pixel art style: the frames of one sparkle as it twinkles, and of one ring as it spreads.
+
+Each sprite is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel is a large crisp square, all the same size, simple and bold so they read clearly when shown small, in warm white and pale gold with a thin darker gold outline. Six sprites in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a tiny four-pointed star, only three pixels wide; 2) the same four-pointed star grown to a medium size, with a white middle; 3) the same star at its biggest, long thin points up, down, left and right, a white middle, and four single gold pixels between the points; 4) the star gone: only eight small single gold pixels scattered in a loose circle where it was; 5) a small ring of twelve separate gold dots; 6) a bigger, fainter ring of twelve separate small pale dots.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes, no shadows, no text, no letters, no numbers.

@@ -1,6 +1,6 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
 import { BAITS, BUFFS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign } from "./items";
-import { STAMINA, buffOf, isSpent } from "./stamina";
+import { STAMINA, hasBuff, isSpent } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
 /**
@@ -172,7 +172,7 @@ export function landCatch(purse: Purse, what: CatchId, size: number): { purse: P
 }
 /** How long after the bite somebody's strike still hooks the fish, by the meal in them, the stamina left and the float they carry. */
 export const strikeWindowOf = (purse: Purse, now: number) =>
-  strikeWindow({ keen: buffOf(purse, now) === "keen", spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse)) });
+  strikeWindow({ keen: hasBuff(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse)) });
 
 /* ── the strike ─────────────────────────────────────────────────────────── */
 

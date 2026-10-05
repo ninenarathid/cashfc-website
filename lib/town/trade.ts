@@ -1,4 +1,5 @@
 import { CARRIES } from "./gear";
+import type { WishId } from "./fountain";
 import { ITEMS, type BuffId, type DishId, type FishId, type ItemId } from "./items";
 
 /**
@@ -134,8 +135,14 @@ export function weekOf(now: number): number {
  * lib/town/cooking), a watering can the waterings left in it and a bucket whether it is full (`water`, lib/town/farm).
  */
 export interface Stack { item: ItemId; n: number; of?: { dish: DishId; left: number }; water?: number }
-/** Some of one thing left with the uncle to be sold: what each will fetch, and the round it was left in. */
-export interface Lot { item: ItemId; n: number; pays: number; round: number }
+/**
+ * Some of one thing left with the uncle to be sold: what each fetches at the usual price, the round it was left in,
+ * and the round's price it was left at, in hundredths of the usual one (lib/town/market; left out when it is the
+ * usual price, as it is for everything the price of which does not move, and for a lot from before prices moved).
+ */
+export interface Lot { item: ItemId; n: number; pays: number; round: number; f?: number }
+/** What a lot fetches in all: whole coins. */
+export const lotWorth = (l: Lot) => (l.n * l.pays * (l.f ?? 100)) / 100;
 
 /**
  * One person's: their coins and bag, what they have bought this round, what
@@ -160,6 +167,8 @@ export interface Purse {
   /** The meal being eaten: the dish, which meal of the day it is, when it was begun, how far it had been counted, and the stamina it has given so far. */
   eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number } | null;
   buff: { id: BuffId; until: number } | null;
+  /** The fountain's blessings somebody has, each while it lasts (lib/town/fountain): put there as the purse is read, and held beside the meal's buff. */
+  blessed?: Array<{ id: WishId; until: number }>;
   best: Partial<Record<FishId, number>>;
   /** The recipes read off scrolls: of dishes, and of the one other thing a scroll tells of (lib/town/items' SCROLLS). */
   recipes: ItemId[];
@@ -206,6 +215,7 @@ export type Refusal =
   | "crew"     // not everybody the dish takes is at their place
   | "taken"    // something stands there already
   | "many"     // as many pots of food standing about as one person may leave
+  | "note"     // a wish's words cannot be kept: too long
   | "busy"     // one of the two is in a deal already
   | "away";    // the town's books could not be reached (the database's keeping: lib/town/keeper)
 export type Done<T> = ({ ok: true } & T) | { ok: false; why: Refusal };
@@ -335,16 +345,20 @@ export function buy(purse: Purse, stall: Stall, id: ItemId, n: number, now: numb
   };
 }
 
-/** Leave some of what is in a slot with the uncle, to be sold: it is out of the bag at once, and paid for after the relatives come. */
-export function leave(purse: Purse, slot: number, n: number, now: number): Done<{ purse: Purse }> {
+/**
+ * Leave some of what is in a slot with the uncle, to be sold: it is out of the bag at once, and paid for after the
+ * relatives come. `f` is the round's price for the thing, in hundredths of its usual one (lib/town/market): the lot
+ * keeps it, whatever the price does afterwards.
+ */
+export function leave(purse: Purse, slot: number, n: number, now: number, f = 100): Done<{ purse: Purse }> {
   if (!whole(n)) return no("amount");
   const s = purse.bag[slot];
   if (!s || s.n < n) return no("none");
   const round = roundOf(now), pays = ITEMS[s.item].pays;
   if (!pays) return no("unwanted");
   const bag = purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { item: s.item, n: s.n - n }));
-  const same = purse.left.findIndex((l) => l.item === s.item && l.round === round && l.pays === pays);
-  const left = same < 0 ? [...purse.left, { item: s.item, n, pays, round }]
+  const same = purse.left.findIndex((l) => l.item === s.item && l.round === round && l.pays === pays && (l.f ?? 100) === f);
+  const left = same < 0 ? [...purse.left, { item: s.item, n, pays, round, ...(f === 100 ? {} : { f }) }]
     : purse.left.map((l, i) => (i === same ? { ...l, n: l.n + n } : l));
   return { ok: true, purse: { ...purse, bag, left } };
 }
@@ -353,7 +367,8 @@ export function leave(purse: Purse, slot: number, n: number, now: number): Done<
 export function waiting(purse: Purse, now: number): { held: Lot[]; fetched: Lot[]; coins: number } {
   const round = roundOf(now);
   const held = purse.left.filter((l) => l.round >= round), fetched = purse.left.filter((l) => l.round < round);
-  return { held, fetched, coins: fetched.reduce((t, l) => t + l.n * l.pays, 0) };
+  // (whole coins: the odd part of what was fetched at a price that moved is lost)
+  return { held, fetched, coins: Math.floor(fetched.reduce((t, l) => t + lotWorth(l), 0)) };
 }
 
 /** Take back something left with the uncle, while he still has it. `at` counts along `waiting().held`. */

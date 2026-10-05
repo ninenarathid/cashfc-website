@@ -4,13 +4,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COOKING, goesIn, isCookware, isFind, mayTake, reachOf, stirMods, stirsFor, type Pot, type Taste } from "@/lib/town/cooking";
 import { DISHES, ITEMS, potIconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx } from "@/lib/town/sfx";
-import { isSpent } from "@/lib/town/stamina";
+import { hasBuff, isSpent } from "@/lib/town/stamina";
 import { handOf, held } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import { KITCHEN, onYard } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
+import { AT_THE_POT, BURST, BuffAura } from "./TownBuffFx";
 import TownStirring from "./TownStirring";
 import { ItemIcon, WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
@@ -178,6 +179,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     sfx?.work(cooked ? "cooked" : right ? "made" : odd ? "odd" : "nothing");
     vfx.add(right ? "sparkle" : odd ? "smoke" : "dust", null, { lift: 20 });
     if (cooked) vfx.add("steam", null, { lift: 22 });
+    // (the fountain's big pot gave a helping more: its own burst over the pot)
+    if ((cooked || odd) && hasBuff(purse, now, "feast")) vfx.add("bless", null, { icon: BURST.feast, lift: 30 });
     if (did.made) vfx.add("pop", null, { icon: did.made, lift: 24 });
     // (what is no recipe's is tasted: how near it was to something)
     const taste = did.taste ? ` · ${th ? TASTE[did.taste][0] : TASTE[did.taste][1]}` : "";
@@ -237,6 +240,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {stirring ? (
         <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
+          <BuffAura ids={AT_THE_POT.filter((id) => hasBuff(purse, now, id))} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1" />
           <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent)}
                         onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                         onDone={finish} onCancel={() => setStirring(null)} />

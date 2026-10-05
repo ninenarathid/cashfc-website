@@ -94,8 +94,9 @@ const TownFarm = lazy(() => import("./TownFarm"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
+const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal"];
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices"];
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
 const DEAL_NEAR = 3;
 /** How near somebody sits to be eating with me, in tiles. */
@@ -358,6 +359,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, []);
   /** The Popoto Board on the screen, for taps; and whether it waits for my vote (a "!" over it). */
   const boardBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  /** Where the fountain's picture is on the screen: a tap on it opens the wishing panel, once the game is open. */
+  const fountainBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** The shopkeepers and the gateways on the screen this frame, for taps and the cursor: who, or the tile a gateway leads to. */
   const keeperBoxes = useRef<Array<{ id: Keeper["id"]; x0: number; y0: number; x1: number; y1: number }>>([]);
   const gateBoxes = useRef<Array<{ to: [number, number]; x0: number; y0: number; x1: number; y1: number }>>([]);
@@ -465,6 +468,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
   const [boardOpen, setBoardOpen] = useState(false);
+  /** The wishing fountain's panel: it takes the board's place while it is open (so whatever makes way for the board makes way for it). */
+  const [fountainOpen, setFountainOpen] = useState(false);
   /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
   const [talk, setTalk] = useState<{ who: Speaker; n: number; lines: Line[]; choices?: TalkChoice[] } | null>(null);
   /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
@@ -1826,8 +1831,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     things.push({ depth: FOUNTAIN.x + FOUNTAIN.y + 2, draw: () => {
       // the basin's front edge on the bottom corner of its two-by-two tiles
       const c = project({ x: FOUNTAIN.x + FOUNTAIN.w - 0.12, y: FOUNTAIN.y + FOUNTAIN.h - 0.12 });
-      if (scenery?.has("fountain")) scenery.drawProp(ctx, "fountain", c.x, c.y, v.s, dpr, reducedRef.current ? 0 : now);
-      else drawFountain(ctx, now);
+      if (scenery?.has("fountain")) {
+        scenery.drawProp(ctx, "fountain", c.x, c.y, v.s, dpr, reducedRef.current ? 0 : now);
+        const [fw, fh] = scenery.sizeOf("fountain");
+        fountainBox.current = { x0: c.x - (fw / 2) * v.s, y0: c.y - fh * v.s, x1: c.x + (fw / 2) * v.s, y1: c.y };
+      } else drawFountain(ctx, now);
     } });
     if (stay) {
       // (whoever is under the cooking yard's roof is not seen from outside it, nor their name)
@@ -2385,6 +2393,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (b) { setPopover({ b, x, y }); return; }
     const bb = boardBox.current;
     if (bb && x >= bb.x0 && x <= bb.x1 && y >= bb.y0 && y <= bb.y1) { setPopover(null); openBoard(); return; }
+    // the fountain: a wish (the game's: until it is open to me, the fountain is only a fountain)
+    const fb = fountainBox.current;
+    if (gameRef.current && fb && x >= fb.x0 && x <= fb.x1 && y >= fb.y0 && y <= fb.y1) { setPopover(null); openFountain(); return; }
     // a shopkeeper: a talk; a gateway: walk to it, and through
     const keeper = keeperBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (keeper) { setPopover(null); openTalk(keeper.id); return; }
@@ -2541,6 +2552,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       }),
       /** The Popoto Board's middle on the screen, if it is drawn. */
       board: () => (boardBox.current ? { x: (boardBox.current.x0 + boardBox.current.x1) / 2, y: (boardBox.current.y0 + boardBox.current.y1) / 2 } : null),
+      /** The fountain's middle on the screen, if it is drawn. */
+      fountain: () => (fountainBox.current ? { x: (fountainBox.current.x0 + fountainBox.current.x1) / 2, y: (fountainBox.current.y0 + fountainBox.current.y1) / 2 } : null),
     };
     (window as unknown as { __townView?: unknown }).__townView = handle;
     return () => { delete (window as unknown as { __townView?: unknown }).__townView; };
@@ -2591,8 +2604,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   const openBoard = () => {
     if (wardrobeOpenRef.current) closeWardrobe();
+    setFountainOpen(false);
     setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null);
     setBoardOpen(true);
+  };
+
+  /** The wishing fountain: its panel takes the board's place. */
+  const openFountain = () => {
+    openBoard();
+    setFountainOpen(true);
   };
 
   /**
@@ -3106,7 +3126,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                : "right-3 top-16 w-[22rem] rounded-2xl"}`}
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
-          <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt} />
+          {fountainOpen && game && keeper
+            ? <Suspense fallback={null}><TownFountain keeper={keeper} th={w.th} onClose={() => setBoardOpen(false)} /></Suspense>
+            : <TownBoard th={w.th} onClose={() => setBoardOpen(false)} onVoted={onVoted} art={boardArt} />}
         </div>
       )}
       {/* A talk with a shopkeeper: across the foot of the map, like a story game's box */}
