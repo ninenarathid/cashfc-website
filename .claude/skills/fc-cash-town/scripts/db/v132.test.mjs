@@ -4,8 +4,8 @@
  * v132 stands on v130 (a hot afternoon, a bucket over a bed, the yard's jar). `town_pass` hands the water in the
  * bucket one holds on into the empty bucket somebody else holds; `town_line_water` has whose hands the water in a
  * bucket has been through; and the well's reader, its book and the jar's count of work are written again, so that
- * everybody whose hands a bucketful went through is counted it when it is poured. v105 to v129 are replayed as they
- * ran, then v130 (its draft, its file, or history), then:
+ * everybody whose hands a bucketful went through is counted it when it is poured. v105 to v131 are replayed as they
+ * ran (v126 and v131 are the insects'), then v130 (its draft, its file, or history), then:
  *
  *   · a morning of water before the file, and the file run twice;
  *   · its closing block; that nothing else changed: every function its own text, the five written again the lines meant;
@@ -49,7 +49,7 @@ create table public.gallery_likes (post_id bigint not null references public.gal
 alter table public.gallery_likes enable row level security;
 `;
 // (everything of the town's that has run, in the order it ran; then v130, which this one stands on)
-const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 128, 129];
+const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 128, 129, 126, 131];
 const MIN = 60_000, HOUR = 3_600_000;
 const MORNING = Date.parse("2026-10-06T09:00:00+07:00");
 const settle = (v) => (Array.isArray(v) ? v.map(settle) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, settle(v[k])])) : v);

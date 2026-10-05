@@ -4,7 +4,8 @@
  * v130 stands on v129 (the well's book, thanks, the jar at the well). A trigger on `town_plots` adds once more what a
  * watering added when it is hot; `town_ditch` pours a bucket over a bed; `town_yard_pour` fills the cooking yard's
  * jar and a trigger on `town_plays` gives a pot cooked with its water a helping more; and the well's book follows all
- * of it (its reader, its book and the jar's count of work written again). v105 to v129 are replayed as they ran, then:
+ * of it (its reader, its book and the jar's count of work written again). v105 to v131 are replayed as they ran (v126
+ * and v131 are the insects', which ran before it), then:
  *
  *   · a morning of water and a soup before the file, and the file run twice;
  *   · its closing block; that nothing else changed: every function its own text, the six written again the lines meant;
@@ -44,7 +45,7 @@ create table public.gallery_likes (post_id bigint not null references public.gal
 alter table public.gallery_likes enable row level security;
 `;
 // (everything of the town's that has run, in the order it ran)
-const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 128, 129];
+const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 128, 129, 126, 131];
 const MIN = 60_000, HOUR = 3_600_000;
 // 09:00 in Bangkok on a Tuesday; one in the afternoon of the same day, and five
 const MORNING = Date.parse("2026-10-06T09:00:00+07:00"), ONE = Date.parse("2026-10-06T13:00:00+07:00"), FIVE = Date.parse("2026-10-06T17:00:00+07:00");
