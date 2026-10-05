@@ -20,7 +20,7 @@ const { shelfOf } = await import("@/lib/town/orders");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v126"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -598,6 +598,64 @@ try {
     did = await F.jarTake();
     ok("taken: the coins and the things are in the purse, and nothing waits", did.ok && did.coins === 12 && F.purse().coins === 12 && F.purse().bag.some((s) => s?.item === "kangkong" && s.n === 2) && F.jar().mine === null, { did, jar: F.jar() });
     E.close(); F.close();
+  }
+
+  if ((await sql(`select to_regprocedure('town.rid_pick(jsonb, bigint, double precision)') is not null as there`))[0].there) {
+    section("a ladybird takes a pest with it: the plot is cured on the page at once (v126)");
+    // a moment a ladybird is out at some haunt: the clock put on a turn at a time until one is
+    let haunt = null;
+    for (let i = 0; i < 300 && haunt === null; i++) {
+      const out = await sql(`select i from generate_series(0, jsonb_array_length(town.cat('insects')->'haunts') - 1) i where town.bug_at(i, town.now_ms())->>'bug' = 'ladybird' order by i limit 1`);
+      if (out.length) haunt = out[0].i; else await skip(10 * 60000);
+    }
+    ok("(a ladybird is out somewhere, to try it with)", haunt !== null);
+    if (haunt !== null) {
+      const HOUR = 3600000, now = Number((await sql(`select town.now_ms() as now`))[0].now);
+      // a plant of B's with a pest on it now, on the farm's last plot: sown so many hours ago that one has come, found by looking
+      let spare = null;
+      for (let y = FARM.y + FARM.h - 1; y >= FARM.y && !spare; y--) for (let x = FARM.x + FARM.w - 1; x >= FARM.x; x--) if (plotAt(x, y)) { spare = [x, y]; break; }
+      const pkey = `${spare[0]},${spare[1]}`;
+      let sick = null;
+      for (let h = 2; h <= 72 && !sick; h++) {
+        const plant = { by: b, crop: "pumpkin", sown: now - h * HOUR, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
+        if ((await sql(`select town.rid_pick(jsonb_build_object($1::text, jsonb_build_object('soil', 'tilled', 'plant', $2::jsonb)), town.now_ms(), 0) is not null as pest`, [pkey, JSON.stringify(plant)]))[0].pest) sick = plant;
+      }
+      ok("(a plant with a pest on it, to try it with)", !!sick);
+      await sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1::int, $2::int, town.bed_of($1::int, $2::int), 'tilled', $3::jsonb, 1)
+        on conflict (x, y) do update set soil = 'tilled', plant = excluded.plant, changed = 1`, [spare[0], spare[1], JSON.stringify(sick)]);
+      const pests = (await sql(`select p.x::text || ',' || p.y::text as key from public.town_plots p where p.plant is not null
+        and town.rid_pick(jsonb_build_object(p.x::text || ',' || p.y::text, jsonb_build_object('soil', p.soil, 'plant', p.plant)), town.now_ms(), 0) is not null`)).map((r) => r.key);
+      const perch = (await sql(`select town.cat('insects')->'haunts'->$1::int->3->0 as p`, [haunt]))[0].p, tile = [Math.floor(perch[0]), Math.floor(perch[1])];
+      const chance = (n) => sql(`update public.town_catalog set data = jsonb_set(data, '{bugs,ladybird,rids}', $1::jsonb) where key = 'insects'`, [String(n)]);
+      for (const who of [a, b]) {
+        await purse(who, 0, [{ item: "bugNet", n: 1 }]);
+        await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'bugNet', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who]);
+      }
+      await settled(A); await settled(B);
+      // never: the chance at nothing
+      await chance(0);
+      const heardB = [], wasA = A.onDeed, wasB = B.onDeed;
+      B.onDeed = (what, to) => heardB.push([what, to]);
+      let did = await B.netDo(haunt, tile, { misses: 0 }, "Tester B");
+      ok("with no chance: caught, no plot is named, and the farm is not said to have changed", did.ok && did.got[0][0] === "ladybird" && !did.rid && !heardB.some(([w]) => w === "farm") && B.purse().bag.some((x) => x?.item === "ladybird"), { did, heardB });
+      // always: the chance certain
+      await chance(1);
+      const heardA = [], from = asked.length;
+      const before = Object.fromEntries((await sql(`select x::text || ',' || y::text as key, plant from public.town_plots where plant is not null`)).map((r) => [r.key, r.plant]));
+      A.onDeed = (what, to) => heardA.push([what, to]);
+      did = await A.netDo(haunt, tile, { misses: 0 }, "Tester A");
+      ok("with the chance certain: caught, and the keeper says which plot's pest went", did.ok && did.got[0][0] === "ladybird" && pests.includes(did.rid), { did, pests });
+      if (did.ok && did.rid) {
+        const mine = A.farm()[did.rid], [rx, ry] = did.rid.split(",").map(Number);
+        const kept = (await sql(`select soil, plant from public.town_plots where x = $1::int and y = $2::int`, [rx, ry]))[0];
+        ok("the plot is cured on the page at once, with the farm not asked for again, and the page is told the farm changed",
+          !!mine?.plant && mine.plant.cured >= now && mine.plant.cured <= now + 60000 && !asked.slice(from).includes("A town_farm") && asked.slice(from).includes("A town_net") && heardA.some(([w]) => w === "farm"), { mine, asked: asked.slice(from), heardA });
+        ok("and it is the plot as the database keeps it: cured, and nothing else of it touched", JSON.stringify(mine.plant) === JSON.stringify(kept.plant) && mine.soil === kept.soil && kept.plant.cured > 0
+          && JSON.stringify({ ...kept.plant, cured: 0 }) === JSON.stringify({ ...before[did.rid], cured: 0 }), { mine, kept, before: before[did.rid] });
+      }
+      await chance(0.1);
+      A.onDeed = wasA; B.onDeed = wasB;
+    }
   }
 
   section("one thing at a time");

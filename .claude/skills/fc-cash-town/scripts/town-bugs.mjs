@@ -5,7 +5,9 @@
 // cricket is not seen, falls quiet while somebody walks near and sings again when they stand; a stick insect lies
 // among sticks and is somewhere else after a miss; a moth goes round a lamp; a beetle comes down its tree only to
 // something sweet in another's hand. Each is caught once, and costs stamina; tired hands have a smaller ring. The
-// first of a kind caught is in the village's book, in the bag, with who caught it.
+// first of a kind caught is in the village's book, in the bag, with who caught it. A ladybird caught may take a pest
+// off some plant of the farm with it: the plant is cured, whoever sowed it, and a line over the catcher's head says
+// that one went, not where; with the chance turned off no pest goes and nothing is said.
 // Prints PASS/FAIL lines and writes pictures to <outdir>.
 //
 //   node town-bugs.mjs <base> <outdir>
@@ -16,7 +18,7 @@ const [BASE = "http://localhost:3100", OUT = "."] = process.argv.slice(2);
 mkdirSync(OUT, { recursive: true });
 let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + (typeof d === "string" ? d : JSON.stringify(d))}`); };
-const K = "window.__townTrade", V = "window.__townView", B = "window.__townBugs";
+const K = "window.__townTrade", V = "window.__townView", B = "window.__townBugs", F = "window.__townFarm";
 const held = (X, id) => X.evaluate(`${K}.purse().bag.reduce((t, s) => t + (s && s.item === "${id}" ? s.n : 0), 0)`);
 const hold = async (X, id) => { await X.evaluate(`${K}.hold(${K}.purse().bag.findIndex((s) => s && s.item === "${id}"))`); await sleep(400); };
 const stamina = (X) => X.evaluate(`${K}.purse().stamina.left`);
@@ -135,6 +137,18 @@ try {
   const lb = await put(A, "ladybird", "farm", "field", 0), hl = haunts.find((h) => h.id === lb);
   await warp(A, ...Object.values(await standNear(A, hl)));
   await until("the ladybird is about", () => poseOf(A, lb), 8000, 100);
+  // (a plant of somebody else's with a pest on it: a pumpkin sown so many hours ago that one has come, found by looking;
+  // and the chance that a ladybird takes it turned to certain)
+  await until("the farm's own code", () => A.evaluate(`!!${F}`), 20000);
+  let pest = null;
+  for (let h = 3; h <= 72 && !pest; h++) for (const k of ["133,6", "134,6", "135,6", "136,6"]) {
+    await A.evaluate(`${K}.setPlot(${JSON.stringify(k)}, { soil: "tilled", plant: { by: "somebody-else", crop: "pumpkin", sown: ${K}.now() - ${h} * 3600000, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } })`);
+    await sleep(60);
+    if ((await A.evaluate(`${F}.seen(${JSON.stringify(k)})`)).pest) { pest = k; break; }
+    await A.evaluate(`${K}.setPlot(${JSON.stringify(k)}, { soil: "wild", plant: null })`);
+  }
+  ok("a plant of somebody else's with a pest on it is found", !!pest, pest);
+  await A.evaluate(`${K}.setRidChance(1)`);
   got = false;
   for (let i = 0; i < 10 && !got; i++) {
     const q = await poseOf(A, lb), me = await A.evaluate(`${V}.self()`);
@@ -143,6 +157,20 @@ try {
     got = (await held(A, "ladybird")) > 0;
   }
   ok("a ladybird only walks: a swing on it takes it", got);
+  {
+    const last = (await A.evaluate(`${B}.caught()`)).at(-1), plot = (await A.evaluate(`${F}.plots()`))[pest], now = await A.evaluate(`${K}.now()`);
+    ok("caught, it took the pest off that plant with it", last?.bug === "ladybird" && last.rid === pest, last);
+    ok("the plant is cured at that moment, and is still whose it was", !!plot?.plant && plot.plant.cured > now - 20000 && plot.plant.cured <= now && plot.plant.by === "somebody-else" && plot.plant.crop === "pumpkin", plot);
+    await sleep(200);
+    ok("and has no pest on it now", (await A.evaluate(`${F}.seen(${JSON.stringify(pest)})`)).pest === false, await A.evaluate(`${F}.seen(${JSON.stringify(pest)})`));
+    ok("a line over the catcher's head says a pest went", (await A.evaluate(`${B}.ridShown()`)) === true);
+    await A.shot(`${OUT}/bugs-4b-pest-gone.png`);
+    await until("the line goes", async () => !(await A.evaluate(`${B}.ridShown()`)), 9000, 200).catch(() => {});
+    ok("for a little while, and no longer", (await A.evaluate(`${B}.ridShown()`)) === false);
+    // (from here on no ladybird takes one: the last of this check is caught with the chance at nothing)
+    await A.evaluate(`${K}.setPlot(${JSON.stringify(pest)}, { soil: "tilled", plant: { ...${JSON.stringify(plot.plant)}, cured: 0 } })`);
+    await A.evaluate(`${K}.setRidChance(0)`);
+  }
 
   const gh = await put(A, "grasshopper", "farm", "field", 3), hg = haunts.find((h) => h.id === gh);
   await warp(A, ...Object.values(await standNear(A, hg, hg, 6, 9)));
@@ -263,6 +291,12 @@ try {
     got = (await held(A, "ladybird")) > had;
   }
   ok("but nothing is refused: it is still caught", got);
+  {
+    const last = (await A.evaluate(`${B}.caught()`)).at(-1), plot = (await A.evaluate(`${F}.plots()`))[pest];
+    ok("with the chance at nothing a ladybird takes no pest, and nothing is said", last?.bug === "ladybird" && last.rid === null && plot?.plant?.cured === 0 && (await A.evaluate(`${B}.ridShown()`)) === false, { last, plot });
+    await A.evaluate(`${K}.setRidChance(null)`);
+    await A.evaluate(`${K}.setPlot(${JSON.stringify(pest)}, { soil: "wild", plant: null })`);
+  }
   ok("no page errors", A.logs.length === 0 && C.logs.length === 0, [...A.logs, ...C.logs]);
 } catch (e) { ok("the run", false, e.stack ?? e.message); console.log(A.logs.join("\n")); } finally { A.close(); await sleep(900); }
 console.log(`\n${pass} passed, ${fail} failed`);

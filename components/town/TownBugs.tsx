@@ -18,6 +18,13 @@ import { ICON_ATLAS, type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
 
+/**
+ * What is written over the head of whoever catches a ladybird that took a pest off some plant with it (the owner,
+ * 2026-10-05: "จะมี text ขึ้นบนหัว ซักครู่ … ทำให้ดูคลุมเคลือหน่อย"): that it happened, not where or to whose plant; and how
+ * long it stays, in milliseconds.
+ */
+const RID: [th: string, en: string] = ["จับเต่าทองตัวนี้แล้ว ศัตรูพืชที่ไหนสักแห่งก็หายไปหนึ่งตัว", "With this one caught, a pest somewhere is gone"];
+const RID_MS = 6000;
 const WHY_BUGS: Record<string, [string, string]> = {
   had: ["จับตัวนี้ไปแล้ว", "You have caught this one already"], bare: ["มันบินหนีไปหมดแล้ว", "They have all gone"], far: ["อยู่ไกลเกินไป", "Too far away"],
   none: ["ไม่อยู่แล้ว", "It is gone"], lure: ["มันปีนกลับขึ้นไปแล้ว", "It has climbed back up"],
@@ -88,7 +95,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const sang = useRef(new Map<number, number>());
   const swing = useRef<Swing | null>(null), ready = useRef(0);
   const misses = useRef(new Map<string, number>()), stirred = useRef(new Map<number, boolean>());
-  const caught = useRef<Array<{ bug: BugId; first: boolean }>>([]);
+  const caught = useRef<Array<{ bug: BugId; first: boolean; rid: string | null }>>([]);
+  /** Until when the line about a pest gone is written over my head. */
+  const ridUntil = useRef(0);
   const tapRef = useRef<((at: Vec) => boolean) | null>(null);
 
   useEffect(() => {
@@ -111,7 +120,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           void keeper.netDo(id, tile, { misses: misses.current.get(key) ?? 0, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name).then((did) => {
             if (!did.ok) { say(did.why); return; }
             misses.current.delete(key);
-            caught.current.push({ bug: sight.bug, first: did.first });
+            caught.current.push({ bug: sight.bug, first: did.first, rid: did.rid ?? null });
+            if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
             const what = did.got.map(([item, n]) => `${nameOf(item)} ×${n}`).join(" · ");
             setNote(did.first ? `${what} · ${live.current.th ? "ตัวแรกของหมู่บ้าน" : "the village's first"}` : what);
             sfx?.wake();
@@ -210,6 +220,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       }
       for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); }
 
+      // a ladybird took a pest off some plant with it: said over my head, a little while
+      if (now < ridUntil.current && frame.self) {
+        const head = project(frame.self);
+        frame.sign(live.current.th ? RID[0] : RID[1], head.x, head.y - 78 * s);
+      }
+
       // the swing: the ring it will take, and the net coming down on it
       const sw = swing.current;
       if (sw) {
@@ -270,7 +286,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       /** A tap at a point of the map, as the map hands one over: whether it was taken for a swing. */
       tap: (x: number, y: number) => tapRef.current?.({ x, y }) ?? false,
       swinging: () => !!swing.current && !swing.current.done,
-      caught: () => caught.current, note: () => note,
+      caught: () => caught.current, note: () => note, ridShown: () => Date.now() < ridUntil.current,
     };
     (window as unknown as { __townBugs?: typeof handle }).__townBugs = handle;
     return () => { delete (window as unknown as { __townBugs?: typeof handle }).__townBugs; };

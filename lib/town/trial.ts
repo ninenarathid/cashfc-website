@@ -3,7 +3,7 @@ import { WATER, WILD, chore, choreFor, deedFor, ownerOf, tend, type Bed, type Ch
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { hookBait, landCatch, loseBait } from "./fishing";
 import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
-import { BUGS, HAUNTS, HAUNT_KINDS, bugTurn, net, swarmAt, swarms, type BugId, type BugRefusal, type BugSight, type Haunt, type Swarm } from "./insects";
+import { BUGS, HAUNTS, HAUNT_KINDS, bugTurn, net, swarmAt, swarms, type BugId, type BugRefusal, type BugSight, type Haunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { buyHint, nextHint } from "./hints";
 import * as Notices from "./notices";
@@ -443,7 +443,7 @@ export class Trial {
   /** The village's book of insects: who first caught each kind. */
   bugBook(): Record<string, string> { return this.read<Record<string, string>>(BUG_BOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }
   /** Catch what a haunt has, from the tile I stand on, after so many swings that missed. Says what came of it and whether it is the village's first, or why not. */
-  netDo(id: number, at: [number, number], misses: number, lure: ItemId | null, name: string): { ok: true; got: Array<[ItemId, number]>; first: boolean } | { ok: false; why: Refusal | BugRefusal } {
+  netDo(id: number, at: [number, number], misses: number, lure: ItemId | null, name: string): { ok: true; got: Array<[ItemId, number]>; first: boolean; rid: string | null } | { ok: false; why: Refusal | BugRefusal } {
     const h = HAUNTS[id];
     if (!h) return no("none");
     const now = this.now(), has = this.swarm(h, now), took = this.netted(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];
@@ -453,9 +453,20 @@ export class Trial {
     this.write(BUG_TOOK, { ...kept, [key]: [...who, this.id] });
     const book = this.bugBook(), first = !book[has!.bug];
     if (first) this.write(BUG_BOOK, { ...book, [has!.bug]: name || this.id });
+    // a ladybird, now and then: some plant of the farm is rid of its pest, as a cure rids it
+    let rid: string | null = null;
+    const rids = BUGS[has!.bug].rids ? this.ridChance ?? BUGS[has!.bug].rids! : 0;
+    if (rids > 0 && Math.random() < rids) {
+      const farm = this.farm();
+      rid = pestToRid(farm, now, SKIES.rains(), Math.random());
+      if (rid) this.write(FARM, { ...farm, [rid]: { ...farm[rid], plant: { ...farm[rid].plant!, cured: now } } });
+    }
     this.save(did.purse);
-    return { ok: true, got: did.got, first };
+    return { ok: true, got: did.got, first, rid };
   }
+  /** For scripts trying things out: how likely an insect that may take a pest with it does, whatever its own chance is (in this tab; null: its own). */
+  private ridChance: number | null = null;
+  setRidChance(chance: number | null) { this.ridChance = chance; }
 
   /* ── the well's book (lib/town/well) ── */
   private wellLog(): WellLog {

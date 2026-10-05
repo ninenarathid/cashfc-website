@@ -1,12 +1,13 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { HOES } from "./farm";
+import { FARMING, HOES, pestAt, see, type Plant, type Plot } from "./farm";
 import { KINDS, SPOTS, gather, holds, turnStart, type Held } from "./forest";
-import { BUGS, HAUNTS, HAUNT_KINDS, LURES, bugTurnStart, net, swarmAt, type Swarm } from "./insects";
-import type { ItemId } from "./items";
+import { BUGS, HAUNTS, HAUNT_KINDS, LURES, bugTurnStart, net, pestToRid, swarmAt, type Swarm } from "./insects";
+import { CROP_IDS, type ItemId } from "./items";
 import { newPurse, put, type Purse } from "./trade";
 import { DRY, type Rain } from "./weather";
 import { WISHES } from "./fountain";
+import { FARM, plotAt } from "./world";
 
 /**
  * The cases the database's forest and insects are held to (v125), made as lib/town/db-vectors makes the others':
@@ -121,3 +122,70 @@ describe("the cases the database's forest and insects are held to", () => {
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v125.json`, JSON.stringify({ word: WORD, wet: WET_SLOTS, cases: all })); }
   });
 });
+
+/**
+ * The cases the ladybird's doing is held to (v126): `pestToRid`, with some plots of the farm as they might stand (plants
+ * sown hours or days before, some covered, some cured, some long dead of a pest), a moment and a pick.
+ *
+ *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-wild.test.ts     writes vectors-v126.json too
+ *
+ * No rain in them: the dry run's sky is to be clear.
+ */
+export function vectorsV126(): Vector[] {
+  const out: Vector[] = [], c = chance(20261026), tiles: Array<[number, number]> = [];
+  for (let y = FARM.y; y < FARM.y + FARM.h; y++) for (let x = FARM.x; x < FARM.x + FARM.w; x++) if (plotAt(x, y)) tiles.push([x, y]);
+  const day = at("2026-10-05T05:00:00");
+  for (let i = 0; i < 260; i++) {
+    const now = day + c.int(0, 72) * HOUR + c.int(0, 59) * MINUTE, plots: Record<string, Plot> = {};
+    for (let n = c.int(0, 46); n > 0; n--) {
+      const [x, y] = c.of(tiles), sown = now - c.int(1, 70) * HOUR - c.int(0, 59) * MINUTE;
+      const plant: Plant = { by: c.of(["a", "b", "c"]), crop: c.of(CROP_IDS), sown, boost: 0, watered: 0, fed: 0, guard: c.maybe(0.15) ? sown + c.int(1, 30) * HOUR : 0,
+        cured: c.maybe(0.2) ? sown + c.int(1, 40) * HOUR : 0, picked: 0, pickedAt: 0 };
+      plots[`${x},${y}`] = c.maybe(0.08) ? { soil: c.of(["cleared", "tilled"] as const), plant: null } : { soil: "tilled", plant };
+    }
+    const pick = c.of([0, 0.2, 0.5, 0.75, 0.999, 1, c.next()]);
+    out.push({ fn: "rid_pick", args: [plots, now, pick], want: pestToRid(plots, now, DRY, pick) });
+  }
+  out.push({ fn: "rid_pick", args: [{}, day, 0.5], want: null });
+  // (two plants with a pest in one column, one above its tenth row and one from there down: "132,4" comes before
+  // "132,10" by its tile and after it by its name, so these tell the one order from the other)
+  const noon = day + 7 * HOUR, bare = (sown: number): Plant => ({ by: "a", crop: "pumpkin", sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 });
+  /** A plant on a tile with a pest on it at that noon, found by looking; null when no hour of sowing brings one. */
+  const struckAt = (x: number, y: number): Plot | null => {
+    for (let h = 2; h <= 70; h++) { const plot: Plot = { soil: "tilled", plant: bare(noon - h * HOUR) }; if (see(`${x},${y}`, plot, noon).pest) return plot; }
+    return null;
+  };
+  let pairs = 0;
+  for (const [x, y] of tiles) {
+    if (pairs >= 6 || y >= 10) continue;
+    const low = tiles.find(([x2, y2]) => x2 === x && y2 >= 10 && !!struckAt(x2, y2)), up = struckAt(x, y);
+    if (!low || !up) continue;
+    const plots = { [`${x},${low[1]}`]: struckAt(x, low[1])!, [`${x},${y}`]: up };
+    for (const pick of [0, 0.999]) out.push({ fn: "rid_pick", args: [plots, noon, pick], want: pestToRid(plots, noon, DRY, pick) });
+    pairs++;
+  }
+  return out;
+}
+
+describe("the cases the database's ladybird is held to", () => {
+  it("come out of the site's own rule, and have plots with a pest and plots without", () => {
+    const all = vectorsV126();
+    const found = all.filter((v) => v.want !== null).length;
+    expect(found).toBeGreaterThan(60);
+    expect(all.length - found).toBeGreaterThan(30);
+    // (among them: plots whose plant died of its pest, which has none to take; and several with a pest, of which the pick tells one from another)
+    const dead = all.some((v) => Object.entries(v.args[0] as Record<string, Plot>).some(([k, p]) => p.plant && see(k, p, v.args[1] as number).dead));
+    expect(dead).toBe(true);
+    const several = all.filter((v) => Object.entries(v.args[0] as Record<string, Plot>).filter(([k, p]) => p.plant && see(k, p, v.args[1] as number).pest).length > 1);
+    expect(several.length).toBeGreaterThan(10);
+    expect(several.some((v) => pestToRid(v.args[0] as Record<string, Plot>, v.args[1] as number, DRY, 0) !== pestToRid(v.args[0] as Record<string, Plot>, v.args[1] as number, DRY, 0.999))).toBe(true);
+    // (and some where the first by its tile is not the first by its name)
+    const byName = all.filter((v) => { const keys = Object.keys(v.args[0] as Record<string, Plot>); return keys.length === 2 && v.args[2] === 0 && v.want !== null && v.want !== [...keys].sort()[0]; });
+    expect(byName.length).toBeGreaterThanOrEqual(3);
+    for (const v of all) if (v.want) { const p = (v.args[0] as Record<string, Plot>)[v.want as string].plant!; expect(pestAt(v.want as string, p, v.args[1] as number)).not.toBeNull(); }
+    expect(FARMING.pests.kills).toBe(6);
+    const dir = process.env.TOWN_VECTORS;
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v126.json`, JSON.stringify({ cases: all })); }
+  });
+});
+

@@ -166,7 +166,7 @@ export interface Keeper {
    * only to something sweet) what whoever stands under its tree holds, and who they are. `first`: nobody in the
    * village had caught one before.
    */
-  netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean }>>;
+  netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>>;
   /** The village's book of insects: who first caught each kind that has been caught. */
   bugBook(): Record<string, string>;
 
@@ -637,10 +637,12 @@ export class DbKeeper implements Keeper {
     return did;
   }
   bugs(): BugSight[] { const now = this.now(); return this.bugs_.filter((s) => s.until > now); }
-  async netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean }>> {
+  async netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>> {
     // (who stands under the tree is told by who they are: what they hold is their own purse's to say)
     const by = went.by && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(went.by) ? went.by : null;
-    const did = await this.deed<{ got: Array<[ItemId, number]>; first: boolean }>("town_net", { p_haunt: haunt, p_x: at[0], p_y: at[1], p_misses: went.misses, p_by: by });
+    const did = await this.deed<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null; ridPlot?: Plot }>("town_net", { p_haunt: haunt, p_x: at[0], p_y: at[1], p_misses: went.misses, p_by: by });
+    // (a ladybird took a pest off some plant with it: that plot is as the database now has it, and the farm is told)
+    if (did.ok && did.rid && did.ridPlot) { this.plot(did.rid, did.ridPlot); this.onDeed?.("farm"); }
     if (did.ok || did.why === "had" || did.why === "bare" || did.why === "none") {
       if (did.ok && did.first && did.got[0]) this.book_ = { ...this.book_, [did.got[0][0]]: name };
       this.bugs_ = this.bugs_.filter((s) => s.id !== haunt);

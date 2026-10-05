@@ -1,4 +1,4 @@
-import { roll } from "./farm";
+import { roll, see, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import type { ItemId } from "./items";
 import { spend } from "./stamina";
@@ -84,6 +84,8 @@ export interface Bug {
   shy?: "hush" | "flight";
   /** (what hides) The picture it is taken for, which lies at its haunt's other perches; none for what is only seen when it glows. */
   like?: string;
+  /** The chance that catching one takes a pest off some plant of the farm with it (`pestToRid`). */
+  rids?: number;
 }
 
 const DAYTIME: Array<[number, number]> = [[6, 18]], NIGHT: Array<[number, number]> = [[19, 24], [0, 5]];
@@ -122,7 +124,9 @@ export const BUGS: Record<BugId, Bug> = {
   jewelBeetle: { habit: "lure", at: ["tree"], weight: 6, n: [1, 1], cost: 3, size: 0.8, hours: [[10, 16]], day: 0.25 },
   herculesBeetle: { habit: "lure", at: ["tree"], weight: 3, n: [1, 1], cost: 3, size: 1, zones: ["deep"], hours: NIGHT, day: 0.1 },
   // only walks
-  ladybird: { habit: "crawl", at: ["field", "blooms"], weight: 60, n: [1, 1], cost: 1, size: 1, places: ["farm", "town"], hours: [[5, 11]] },
+  // (out the whole of the day, as the pests are; and now and then one caught takes a pest off some plant with it: the
+  // owner, 2026-10-05, "จะสุ่มโอกาศเล็กน้อย ประมาณ 10% ที่จะลดแมลงที่กินพืชอยู่ในแปลงได้แบบสุ่ม")
+  ladybird: { habit: "crawl", at: ["field", "blooms"], weight: 60, n: [1, 1], cost: 1, size: 1, places: ["farm", "town"], hours: [[5, 18]], rids: 0.1 },
   scarab: { habit: "crawl", at: ["field"], weight: 30, n: [1, 1], cost: 1, size: 1, places: ["farm"], hours: DAYTIME },
   caterpillar: { habit: "crawl", at: ["litter", "blooms"], weight: 45, n: [1, 1], cost: 1, size: 1, places: ["forest"], hours: DAYTIME },
 };
@@ -335,6 +339,22 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   if (roomFor(purse.bag, has.bug) < has.n) return no("full");
   const cost = bug.cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
   return { ok: true, purse: { ...spend(purse, cost, now), bag: put(purse.bag, has.bug, has.n) }, got: [[has.bug, has.n]] };
+}
+
+/* ── a ladybird's doing ─────────────────────────────────────────────────── */
+
+/**
+ * Which plant a ladybird rids of its pest: one of the plots that have a pest on them at this moment (a plant already
+ * dead of one has none), whoever sowed it, picked by a number from 0 up to 1 among them in the order of their tiles
+ * (across, then down); null when no plot has one. Whether a catch does this at all is the keeper's roll, against the
+ * insect's `rids`; the plot is then cured as a cure in the hand cures it (lib/town/farm: `cured` is that moment).
+ */
+export function pestToRid(plots: Readonly<Record<string, Plot>>, now: number, rains: readonly Rain[], pick: number): string | null {
+  const at = (key: string) => key.split(",").map(Number);
+  const keys = Object.keys(plots).filter((key) => see(key, plots[key], now, rains).pest)
+    .sort((a, b) => at(a)[0] - at(b)[0] || at(a)[1] - at(b)[1]);
+  if (!keys.length) return null;
+  return keys[Math.min(keys.length - 1, Math.max(0, Math.floor(pick * keys.length)))];
 }
 
 /* ── how each one moves ─────────────────────────────────────────────────── */

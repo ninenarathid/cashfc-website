@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { PUT_ON } from "./farm";
+import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
   BUGS, BUG_IDS, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, aimOf, bugTurn, bugTurnStart, mayNet, missed, nearHaunt, net, newMind, poseOf, ringOf, swarmAt,
-  swarms, swingMs, taken, think, type BugId, type Haunt, type Mind, type Person, type Swarm,
+  swarms, swingMs, taken, think, type BugId, type Haunt, type Mind, type Person, type Swarm, pestToRid,
 } from "./insects";
 import { BAITS, BAIT_AS, FISH, FISH_IDS, ITEMS, MAKES, type ItemId } from "./items";
 import { BASIC } from "./orders";
@@ -409,3 +409,56 @@ describe("under the fountain's soft step", () => {
     expect(HABITS.behind.ahead * soft).toBeLessThan(NET.reach);
   });
 });
+
+describe("a ladybird caught (the owner: \"จะสุ่มโอกาศเล็กน้อย ประมาณ 10% ที่จะลดแมลงที่กินพืชอยู่ในแปลงได้แบบสุ่ม\")", () => {
+  /** A plant sown at a moment, nothing done to it since. */
+  const plant = (sown: number, more: Partial<Plant> = {}): Plant => ({ by: "a", crop: "pumpkin", sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0, ...more });
+  /** Plots of the farm sown two days before a noon, and those of them a pest is on at that noon. */
+  const farm = (() => {
+    const plots: Record<string, Plot> = {};
+    for (let x = 132; x < 139; x++) for (let y = 4; y < 11; y++) plots[`${x},${y}`] = { soil: "tilled", plant: plant(NOON - 50 * HOUR + x * 60_000) };
+    return plots;
+  })();
+  // (a moment at which several of them have a pest on them, found by looking)
+  const when = (() => { for (let t = NOON; t < NOON + 48 * HOUR; t += HOUR / 2) if (Object.keys(farm).filter((k) => see(k, farm[k], t).pest).length >= 3) return t; return NOON; })();
+  const struck = Object.keys(farm).filter((k) => see(k, farm[k], when).pest);
+
+  it("has one chance in ten of taking a pest off some plant with it, and is out the whole of the day", () => {
+    expect(BUGS.ladybird.rids).toBe(0.1);
+    expect(BUG_IDS.filter((id) => BUGS[id].rids)).toEqual(["ladybird"]);
+    expect(BUGS.ladybird.hours).toEqual([[5, 18]]);
+    // (the pests' own hours are inside the ladybird's)
+    expect(BUGS.ladybird.hours![0][0]).toBeLessThanOrEqual(FARMING.pests.from);
+    expect(BUGS.ladybird.hours![0][1]).toBeGreaterThanOrEqual(FARMING.pests.to);
+  });
+
+  it("rids one of the plants that have a pest on them, whoever sowed it: which, by the pick, in the order of their tiles", () => {
+    expect(struck.length).toBeGreaterThanOrEqual(3);
+    const sorted = [...struck].sort((a, b) => Number(a.split(",")[0]) - Number(b.split(",")[0]) || Number(a.split(",")[1]) - Number(b.split(",")[1]));
+    expect(pestToRid(farm, when, DRY, 0)).toBe(sorted[0]);
+    expect(pestToRid(farm, when, DRY, 0.9999)).toBe(sorted[sorted.length - 1]);
+    expect(pestToRid(farm, when, DRY, 1)).toBe(sorted[sorted.length - 1]);
+    expect(pestToRid(farm, when, DRY, -1)).toBe(sorted[0]);
+    const seen = new Set<string>();
+    for (let i = 0; i < 400; i++) seen.add(pestToRid(farm, when, DRY, i / 400)!);
+    expect([...seen].sort()).toEqual([...struck].sort());
+    // every one it may pick has a pest on it, and none of the others is ever picked
+    for (const k of seen) expect(see(k, farm[k], when).pest).toBe(true);
+  });
+
+  it("takes none where there is none: no plant, a plant with no pest, one covered, one already dead of its pest", () => {
+    expect(pestToRid({}, when, DRY, 0.5)).toBeNull();
+    expect(pestToRid({ "132,4": { soil: "tilled", plant: null } }, when, DRY, 0.5)).toBeNull();
+    const clean = Object.fromEntries(Object.entries(farm).filter(([k]) => !struck.includes(k)));
+    expect(pestToRid(clean, when, DRY, 0.5)).toBeNull();
+    // cured, it has none; and the cure is what a ladybird leaves behind
+    const k = struck[0], cured: Plot = { ...farm[k], plant: { ...farm[k].plant!, cured: when } };
+    expect(see(k, cured, when).pest).toBe(false);
+    expect(pestToRid({ [k]: cured }, when, DRY, 0)).toBeNull();
+    // left long enough the plant dies, and a dead plant has no pest to take
+    const later = when + (FARMING.pests.kills + 1) * HOUR;
+    expect(see(k, farm[k], later).dead).toBe(true);
+    expect(pestToRid({ [k]: farm[k] }, later, DRY, 0)).toBeNull();
+  });
+});
+
