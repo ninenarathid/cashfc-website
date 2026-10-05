@@ -7,6 +7,8 @@ import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
 import { nextHint } from "./hints";
 import type { JarTold } from "./jar";
+import { reachOf } from "./ditch";
+import { hotAt } from "./heat";
 import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { NO_PRICES, type PricesTold } from "./market";
 import type { NoticeRefusal, PinboardTold } from "./notices";
@@ -18,6 +20,7 @@ import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
 import type { WellBook } from "./well";
+import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
 
@@ -197,8 +200,29 @@ export interface Keeper {
   jarDrop(what: { coins: number } | { slot: number; n: number }): Promise<Did>;
   jarTake(): Promise<Did<{ coins: number; things: Array<[ItemId, number]> }>>;
 
-  /** Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who they are (the database reads each one's hand itself). */
-  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>>;
+  /** Whether it is a hot afternoon now (lib/town/heat): a watering does as much again. Never, where whoever keeps the game knows of no heat. */
+  hot(): boolean;
+  /**
+   * A bucket poured over a bed (lib/town/ditch): the plots the bucket in my hand would water from the plot I stand
+   * on (none: there is nothing to offer), and pouring it: how many bucketfuls it took, and which plots it watered.
+   */
+  ditchAt(key: string): string[];
+  ditchDo(key: string): Promise<Did<{ used: number; watered: string[] }>>;
+  /**
+   * The cooking yard's water jar (lib/town/yard): the bucketfuls in it (null until it is known, and for as long as
+   * whoever keeps the game knows of no jar), whether the bucket in my hand can be poured in, and pouring it from
+   * where I stand.
+   */
+  yardJar(): number | null;
+  yardCanPour(): boolean;
+  yardPour(at: [number, number] | null): Promise<Did<{ poured: number }>>;
+
+  /**
+   * Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who
+   * they are (the database reads each one's hand itself). `fresh`: the pot took a bucketful of the yard's jar, and has
+   * a helping more than `n` says.
+   */
+  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>>;
   potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
   potLadle(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot | null }>>;
   potTake(id: string, at: [number, number] | null): Promise<Did>;
@@ -278,6 +302,8 @@ export class DbKeeper implements Keeper {
   private thanks_: ThanksBoard | null = null;
   private thanked_: Array<{ id: string; name: string }> = [];
   private jar_: JarTold | null = null;
+  /** The bucketfuls in the cooking yard's jar: null until a database that has one has said. */
+  private yard_: number | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -403,6 +429,7 @@ export class DbKeeper implements Keeper {
     if (a.thanks && typeof a.thanks === "object") { this.thanks_ = a.thanks as ThanksBoard; this.thanked_ = this.thanks_.today; }
     if (Array.isArray(a.thanked)) this.thanked_ = a.thanked as Array<{ id: string; name: string }>;
     if (a.jar && typeof a.jar === "object") this.jar_ = a.jar as JarTold;
+    if (a.yard && typeof a.yard === "object" && typeof (a.yard as { jar?: unknown }).jar === "number") this.yard_ = (a.yard as { jar: number }).jar;
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -458,7 +485,7 @@ export class DbKeeper implements Keeper {
     const l = this.looking.get(what);
     if (l?.timer) { clearTimeout(l.timer); l.timer = null; }
     const asked = what === "stall" ? this.ask("town_stall")
-      : what === "kitchen" ? this.ask("town_kitchen")
+      : what === "kitchen" ? this.ask("town_kitchen").then((a) => { if (this.yard_ !== null) void this.ask("town_yard"); return a; })
       : what === "deal" ? this.ask("town_deal")
       : what === "fountain" ? this.ask("town_fountain")
       : what === "notices" ? this.ask("town_notices")
@@ -633,6 +660,8 @@ export class DbKeeper implements Keeper {
     // other deed is to go on being done there)
     const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]> }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null, ...(sure ? { p_sure: true } : {}) });
     if (did.ok) this.onDeed?.("farm");
+    // (a watering on a hot afternoon does as much again as the plot is kept, after this answer was made: the plot is read again)
+    if (did.ok && did.deed === "water" && this.hot()) this.fetch("farm");
     return did;
   }
   /**
@@ -683,10 +712,46 @@ export class DbKeeper implements Keeper {
   jarDrop(what: { coins: number } | { slot: number; n: number }) { return this.deed("town_jar_drop", "coins" in what ? { p_coins: what.coins } : { p_slot: what.slot, p_n: what.n }); }
   jarTake() { return this.deed<{ coins: number; things: Array<[ItemId, number]> }>("town_jar_take"); }
 
-  async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>> {
-    const did = await this.deed<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });
+  // (a database that knows of no heat has no yard's jar either: it says of the jar with everybody's rank)
+  hot(): boolean { const now = this.now(); return this.yard_ !== null && hotAt(now, SKIES.sky(now)); }
+  ditchAt(key: string): string[] {
+    if (this.yard_ === null) return [];
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    if (bed < 0) return [];
+    const plots = Object.fromEntries(Object.entries(this.plots).filter(([k]) => { const [u, v] = k.split(",").map(Number); return bedOf(u, v) === bed; }));
+    return reachOf(this.mine, plots, [x, y], this.now(), SKIES.rains());
+  }
+  async ditchDo(key: string): Promise<Did<{ used: number; watered: string[] }>> {
+    const [x, y] = key.split(",").map(Number);
+    const did = await this.deed<{ used: number; watered: string[] }>("town_ditch", { p_x: x, p_y: y });
+    if (did.ok) this.onDeed?.("farm");
+    // (the book changes with it: read again by whoever has had it open)
+    if (did.ok && this.wellBook_) void this.ask("town_well");
+    return did;
+  }
+  yardJar(): number | null { return this.yard_; }
+  yardCanPour(): boolean { return this.yard_ !== null && canPour(this.mine, this.yard_); }
+  async yardPour(at: [number, number] | null): Promise<Did<{ poured: number }>> {
+    if (!at) return { ok: false, why: "none" };
+    const did = await this.deed<{ poured: number }>("town_yard_pour", { p_x: at[0], p_y: at[1] });
+    if (did.ok) this.onDeed?.("kitchen");
+    if (did.ok && this.wellBook_) void this.ask("town_well");
+    return did;
+  }
+
+  async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>> {
+    // (the helpings of each dish in the pots I hold, before: a pot that took the yard's water comes with more than the rule of cooking says)
+    const inPots = (dish: ItemId) => this.mine.bag.reduce((t, s) => t + (s?.item === "potFull" && s.of?.dish === dish ? s.of.left : 0), 0);
+    const before = Object.fromEntries(this.mine.bag.filter((s) => s?.item === "potFull" && s.of).map((s) => [s!.of!.dish, inPots(s!.of!.dish)]));
+    const did = await this.deed<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });
     // a find is everybody's: the list of them is asked for again, by me and by whoever is in the kitchen
     if (did.ok && did.first) { void this.ask("town_kitchen"); this.onDeed?.("kitchen"); }
+    if (did.ok && this.yard_ !== null && takesWater(did.made) && inPots(did.made) - (before[did.made] ?? 0) >= did.n + YARD.gives) {
+      this.yard_ = Math.max(0, this.yard_ - 1);
+      this.tell();
+      this.onDeed?.("kitchen");
+      return { ...did, fresh: true };
+    }
     return did;
   }
   async potDown(at: [number, number]): Promise<Did<{ pot: Pot }>> {

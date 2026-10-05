@@ -168,13 +168,20 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
 
               <h3 className="mb-1.5 mt-4 font-data text-label uppercase tracking-wider text-muted">{th ? "วันนี้" : "Today"}</h3>
               <ul className="flex flex-col gap-1.5 rounded-xl border border-line bg-card/60 px-3 py-2.5 text-ui text-ink" data-well-today>
-                <Line icon="bucketFull" text={th ? `เทน้ำลงบ่อ ${n(book.today.buckets)} ถัง` : `Poured into the well: ${n(book.today.buckets)}`} />
+                {/* (every bucketful carried: into the well, over a bed, into the cooking yard's jar) */}
+                <Line icon="bucketFull" text={th ? `หาบน้ำมา ${n(book.today.buckets)} ถัง` : `Carried: ${n(book.today.buckets)} bucketful${book.today.buckets === 1 ? "" : "s"}`} />
                 <Line icon="plotDrop" text={th
                   ? `น้ำของฉันถูกรดไป ${n(book.today.waterings)} ครั้ง · ผัก ${n(book.today.plants)} ต้น · ของ ${n(book.today.people)} คน`
                   : `My water went on ${n(book.today.waterings)} watering${book.today.waterings === 1 ? "" : "s"} · ${n(book.today.plants)} plant${book.today.plants === 1 ? "" : "s"} · of ${n(book.today.people)} ${book.today.people === 1 ? "person" : "people"}`} />
                 <Line icon="can" text={th
                   ? `รดน้ำให้ผักของคนอื่น ${n(book.today.watered)} ครั้ง · ${n(book.today.helped)} คน`
                   : `Watered others' plants ${n(book.today.watered)} time${book.today.watered === 1 ? "" : "s"} · for ${n(book.today.helped)} ${book.today.helped === 1 ? "person" : "people"}`} />
+                {/* (the cooking yard's jar: said only once a pot has been cooked with my water) */}
+                {!!book.today.pots && (
+                  <Line icon="pot" text={th
+                    ? `น้ำของฉันอยู่ในอาหาร ${n(book.today.pots)} หม้อ · ของ ${n(book.today.cooks ?? 0)} คน`
+                    : `My water went into ${n(book.today.pots)} pot${book.today.pots === 1 ? "" : "s"} · of ${n(book.today.cooks ?? 0)} ${book.today.cooks === 1 ? "cook" : "cooks"}`} />
+                )}
               </ul>
 
               <h3 className="mb-1.5 mt-4 font-data text-label uppercase tracking-wider text-muted">{th ? "คนหาบน้ำวันนี้" : "Today's carriers"}</h3>

@@ -9,6 +9,7 @@ import { hasBuff, isSpent } from "@/lib/town/stamina";
 import { handOf, held } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import { KITCHEN, onYard } from "@/lib/town/world";
+import { YARD } from "@/lib/town/yard";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
@@ -35,10 +36,15 @@ const TASTE: Record<Taste, [string, string]> = {
   swap: ["เกือบแล้ว มีของอย่างหนึ่งที่ไม่ใช่", "Nearly: one thing is not the one"], amounts: ["ของใช่ทุกอย่างแล้ว แต่สัดส่วนยังไม่ใช่", "The right things, in the wrong amounts"],
   way: ["ของครบ สัดส่วนก็ใช่ แต่วิธีทำยังไม่ใช่", "Everything is right but the way it was cooked"],
 };
-type Offer = "cook" | "down" | "ladle" | "take";
+type Offer = "cook" | "down" | "ladle" | "take" | "water";
 const VERB: Record<Offer, [string, string]> = {
   cook: ["ทำอาหาร", "Cook"], down: ["วางหม้อ", "Set the pot down"], ladle: ["ตักใส่ถ้วย", "Ladle a helping"], take: ["เก็บหม้อ", "Take the pot"],
+  water: ["เทน้ำใส่โอ่ง", "Pour it into the jar"],
 };
+/** Where the yard's water jar stands, for the few words over it: the middle of the tiles beside it. */
+const JAR_AT = KITCHEN.wash.length
+  ? { x: KITCHEN.wash.reduce((t, [x]) => t + x + 0.5, 0) / KITCHEN.wash.length, y: KITCHEN.wash.reduce((t, [, y]) => t + y + 0.5, 0) / KITCHEN.wash.length }
+  : null;
 
 /**
  * The cooking yard, to cook in (the owner, 2026-10-03: "ช่วยทำให้ ลานทำอาหารเสร็จเลย
@@ -56,7 +62,13 @@ const VERB: Record<Offer, [string, string]> = {
  *   until it is eaten; its owner takes it up again while there is food in it;
  *   its last helping out, it is gone.
  *
- * Nothing says what makes what. It also draws the pots that stand about.
+ * - By the yard's water jar, with a bucket that has water in it: the bucket
+ *   is poured in (lib/town/yard). A pot cooked while the jar has water takes
+ *   a bucketful and has a helping more: nothing says so but the pot itself,
+ *   and the jar, which is a bucketful the less.
+ *
+ * Nothing says what makes what. It also draws the pots that stand about, and
+ * how much water the jar has.
  * What is kept is the keeper's (lib/town/keeper): the database's for a member,
  * the browser's trial in `next dev`'s test room.
  */
@@ -99,6 +111,9 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   // The pots that stand about, drawn among everything else on the map.
   const pots = keeper.pots(), potsRef = useRef<Pot[]>(pots);
   potsRef.current = pots;
+  /** The bucketfuls in the yard's jar: null where whoever keeps the game knows of no jar. */
+  const jar = keeper.yardJar(), jarRef = useRef<number | null>(jar);
+  jarRef.current = jar;
   useEffect(() => {
     register((frame) => {
       const { ctx, things, project, onScreen, sign, s, now: t, img, still, th: thai, indoors } = frame;
@@ -125,6 +140,11 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
         } });
         if (pot.left > 0) sign(`${thai ? ITEMS[pot.dish].name.th : ITEMS[pot.dish].name.en} ×${pot.left}`, at.x, at.y - 44 * s);
       }
+      // how much water the yard's jar has, over it (under the roof, for whoever is outside)
+      if (indoors && JAR_AT && jarRef.current !== null) {
+        const at = project(JAR_AT);
+        if (onScreen(at)) sign(`${thai ? "โอ่งน้ำ" : "Water jar"} ${jarRef.current}/${YARD.holds}`, at.x, at.y - 58 * s);
+      }
     });
     return () => register(null);
   }, [register, vfx]);
@@ -146,6 +166,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (hand === "potFull") offers.push("down");
     if (near && near.left > 0) offers.push("ladle");
     if (near && mayTake(near, me)) offers.push("take");
+    // (by the water jar, with a bucket that has water in it)
+    if (here.place === "wash" && keeper.yardCanPour()) offers.push("water");
   }
 
   /* ── cooking ── */
@@ -187,11 +209,14 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     // (the fountain's big pot gave a helping more: its own burst over the pot)
     if ((cooked || odd) && hasBuff(purse, now, "feast")) vfx.add("bless", null, { icon: BURST.feast, lift: 30 });
     if (did.made) vfx.add("pop", null, { icon: did.made, lift: 24 });
+    // (the pot took a bucketful of the yard's jar: water over it, and a helping more than the stirring made)
+    if (did.fresh) vfx.add("water", null, { lift: 26 });
+    const helpings = did.n + (did.fresh ? YARD.gives : 0);
     // (what is no recipe's is tasted: how near it was to something)
     const taste = did.taste ? ` · ${th ? TASTE[did.taste][0] : TASTE[did.taste][1]}` : "";
     if (!did.made) { setNote(`${th ? "ไม่ได้อะไรเลย" : "Nothing came of it"}${taste}`); return; }
     const dish = did.made in DISHES;
-    setNote(`${did.first ? (th ? "พบสูตรใหม่! " : "A new recipe! ") : ""}${name(did.made)} ${dish ? (th ? `· ${did.n} ที่` : `· ${did.n} helpings`) : `×${did.n}`}${taste}`);
+    setNote(`${did.first ? (th ? "พบสูตรใหม่! " : "A new recipe! ") : ""}${name(did.made)} ${dish ? (th ? `· ${helpings} ที่` : `· ${helpings} helpings`) : `×${did.n}`}${taste}`);
     if (dish) setOpen(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the dish is done
   }, [stirring, keeper, others, th, sfx, name, say, called, vfx]);
@@ -199,6 +224,15 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   /* ── pots ── */
   const act = useCallback(async (offer: Offer) => {
     if (offer === "cook") { setOpen(true); return; }
+    if (offer === "water") {
+      const poured = await keeper.yardPour(here?.tile ?? null);
+      if (!poured.ok) { say(poured.why); return; }
+      sfx?.wake();
+      sfx?.work("pour");
+      vfx.add("splash", JAR_AT, { lift: 30 });
+      setNote(`${th ? "โอ่งน้ำ" : "Water jar"} ${keeper.yardJar() ?? 0}/${YARD.holds}`);
+      return;
+    }
     const did = offer === "down" ? (here ? await keeper.potDown(here.tile) : null)
       : offer === "ladle" ? (near ? await keeper.potLadle(near.id, here?.tile ?? null) : null) : (near ? await keeper.potTake(near.id, here?.tile ?? null) : null);
     if (!did) return;
@@ -232,6 +266,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       offers: () => offers, act, pots: () => keeper.pots(), crew: () => cooks, open: () => open, things: () => things,
       put: (list: Array<[ItemId, number]>) => setThings(list), go, found: () => keeper.found(),
       places: () => KITCHEN.places, floor: () => KITCHEN.floor, note: () => note,
+      wash: () => KITCHEN.wash, jar: () => keeper.yardJar(),
     };
     (window as unknown as { __townCook?: typeof handle }).__townCook = handle;
     return () => { delete (window as unknown as { __townCook?: typeof handle }).__townCook; };

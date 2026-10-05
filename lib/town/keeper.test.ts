@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { HINT_IDS, nextHint } from "./hints";
 import { DbKeeper, type Ask } from "./keeper";
 import { shelfOf, sourcesAt } from "./orders";
+import { SKIES } from "./skies";
 import { newPurse, type Purse } from "./trade";
 import { bedOf } from "./world";
 
@@ -220,6 +221,83 @@ describe("the database's keeper", () => {
     expect(await k.jarTake()).toMatchObject({ ok: true, coins: 6, things: [["kangkong", 2]] });
     expect(k.purse().coins).toBe(21);
     k.close();
+  });
+
+  it("knows of the heat, the pour over a bed and the yard's jar only where the database says there is a jar, and tells a pot that took its water", async () => {
+    const bucket = (water: number): Purse => purse({ hand: "bucket", bag: [{ item: "bucket", n: 1, ...(water ? { water } : {}) }, ...Array(9).fill(null)] });
+    const plant = { by: "di", crop: "pumpkin" as const, sown: NOW - 3_600_000, boost: 0, watered: 0, fed: 0, guard: NOW + 4 * 86_400_000, cured: 0, picked: 0, pickedAt: 0 };
+    const plots = (watered: number) => ({ "132,5": { soil: "tilled", plant: { ...plant, watered } }, "133,5": { soil: "tilled", plant: { ...plant, watered } } });
+    const pot = (left: number) => ({ item: "potFull", n: 1, of: { dish: "pumpkinSoup", left } });
+    // (three in the afternoon in Bangkok, and a clear sky over this page)
+    const sky = vi.spyOn(SKIES, "sky").mockReturnValue("clear");
+    let jar: number | undefined, mine = bucket(1), pots: unknown[] = [];
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }),
+      town_well_ranks: () => ({ now: NOW, ranks: {}, ...(jar === undefined ? {} : { yard: { jar } }) }),
+      town_farm: () => ({ now: NOW, well: 0, plots: plots(0), beds: {} }),
+      town_hold: () => ({ ok: true, now: NOW, purse: (mine = bucket(1)) }),
+      town_tend: () => ({ ok: true, deed: "water", got: [], now: NOW, purse: mine, key: "132,5", plot: plots(NOW)["132,5"], bed: null }),
+      town_ditch: (args) => ({ ok: true, used: 1, watered: ["132,5", "133,5"], now: NOW, purse: (mine = bucket(0)), plots: plots(NOW), asked: args }),
+      town_yard_pour: (args) => ({ ok: true, poured: 1, now: NOW, purse: (mine = bucket(0)), yard: { jar: (jar = (jar ?? 0) + 1) }, asked: args }),
+      town_yard: () => ({ now: NOW, yard: { jar } }),
+      town_kitchen: () => ({ now: NOW, pots: [], found: [], finders: {} }),
+      town_cook: () => ({ ok: true, made: "pumpkinSoup", n: 5, first: false, now: NOW, purse: purse({ bag: [...pots, ...Array(10).fill(null)].slice(0, 10) as Purse["bag"] }) }),
+    });
+    // a database that says nothing of a jar: no heat, nothing to pour over a bed, no jar
+    let k = new DbKeeper("me", db.ask);
+    await settle();
+    let stop = k.look("farm");
+    await settle();
+    expect([k.yardJar(), k.hot(), k.yardCanPour(), k.ditchAt("132,5")]).toEqual([null, false, false, []]);
+    const farmAsked = () => db.asked.filter((f) => f === "town_farm").length;
+    let asked = farmAsked();
+    await k.farmDo("132,5", "Me");
+    await settle();
+    expect(farmAsked()).toBe(asked);
+    stop();
+    k.close();
+
+    // …and one that does
+    jar = 0;
+    mine = bucket(1);
+    k = new DbKeeper("me", db.ask);
+    await settle();
+    stop = k.look("farm");
+    await settle();
+    expect([k.yardJar(), k.hot(), k.yardCanPour()]).toEqual([0, true, true]);
+    // the bucket in my hand would water both plants of the bed, the nearer first
+    expect(k.ditchAt("133,5")).toEqual(["133,5", "132,5"]);
+    expect(k.ditchAt("10,10")).toEqual([]);
+    // a watering in the heat: the plot is kept with more than this answer says, so the farm is read again
+    asked = farmAsked();
+    await k.farmDo("132,5", "Me");
+    await settle();
+    expect(farmAsked()).toBe(asked + 1);
+    // poured over the bed: told by the plot's tile, and the plots of the answer are kept
+    const poured = await k.ditchDo("133,5");
+    expect(poured).toMatchObject({ ok: true, used: 1, watered: ["132,5", "133,5"], asked: { p_x: 133, p_y: 5 } });
+    expect(k.farm()["133,5"].plant?.watered).toBe(NOW);
+    expect(k.ditchAt("133,5")).toEqual([]);
+    // the jar: poured into from where I stand, and the answer says how full it is
+    await k.hold(0);
+    expect(await k.yardPour(null)).toEqual({ ok: false, why: "none" });
+    expect(await k.yardPour([46, 38])).toMatchObject({ ok: true, poured: 1, asked: { p_x: 46, p_y: 38 } });
+    expect([k.yardJar(), k.yardCanPour()]).toEqual([1, false]);
+    // a soup that comes with a helping more than the rule of cooking says took the jar's water…
+    pots = [pot(6)];
+    expect(await k.cookDo([["pumpkin", 1]], ["pot"], [], { hits: 4, misses: 0, secs: 5 })).toMatchObject({ ok: true, n: 5, fresh: true });
+    expect(k.yardJar()).toBe(0);
+    // …and one that comes with what the rule says did not, whatever other pots of it I hold
+    pots = [pot(6), pot(5)];
+    const plain = await k.cookDo([["pumpkin", 1]], ["pot"], [], { hits: 4, misses: 0, secs: 5 });
+    expect(plain.ok && !plain.fresh).toBe(true);
+    expect(k.yardJar()).toBe(0);
+    // under cloud it is not hot
+    sky.mockReturnValue("cloudy");
+    expect(k.hot()).toBe(false);
+    stop();
+    k.close();
+    sky.mockRestore();
   });
 
   it("offers no book where the database has none yet: nothing is kept of an answer that never came", async () => {

@@ -161,6 +161,12 @@ class TrialKeeper implements Keeper {
   jar() { return this.trial.jar(); }
   async jarDrop(what: { coins: number } | { slot: number; n: number }): Promise<Did> { return this.trial.jarDrop(what); }
   async jarTake(): Promise<Did<{ coins: number; things: Array<[ItemId, number]> }>> { return this.trial.jarTake(); }
+  hot() { return this.trial.hot(); }
+  ditchAt(key: string) { return this.trial.ditchAt(key); }
+  async ditchDo(key: string): Promise<Did<{ used: number; watered: string[] }>> { return this.trial.ditchDo(key); }
+  yardJar() { return this.trial.yardJar(); }
+  yardCanPour() { return this.trial.yardCanPour(); }
+  async yardPour(): Promise<Did<{ poured: number }>> { return this.trial.yardPour(); }
 
   wild() { return this.trial.wild(); }
   async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }
@@ -170,7 +176,7 @@ class TrialKeeper implements Keeper {
   }
   bugBook() { return this.trial.bugBook(); }
 
-  async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>> {
+  async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>> {
     return this.trial.cookDo(things, crew, timing.misses, name);
   }
   async potDown(at: [number, number]) { return this.trial.potDown(at); }

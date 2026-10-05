@@ -30,8 +30,15 @@ import { no, put, roomFor, roundOf, type Done, type Purse } from "./trade";
  *   carries two bucketfuls a trip; at the last a great one, which carries
  *   four. Things like any other: lent, held, never sold (they fetch nothing).
  *
- * Pure. The database keeps the same (v127): a trigger reads each line of
- * `town_deeds` as it is written and does what `seen` does here.
+ * Since the third round of the same (2026-10-05) water goes two more ways,
+ * and the book follows both: **a bucket poured over a bed** (lib/town/ditch)
+ * is the pourer's own water on every plant it reaches, and counts towards
+ * their rank like a bucketful into the well; **a bucket poured into the
+ * cooking yard's jar** (lib/town/yard) is kept lot by lot like the well's,
+ * and a pot cooked with it is a line of what came of that carrier's water.
+ *
+ * Pure. The database keeps the same (v127, v129, v130): a trigger reads each
+ * line of `town_deeds` as it is written and does what `seen` does here.
  */
 export const WELL_BOOK = {
   /** The bucketfuls poured into the well, all told, at which each rank begins. */
@@ -48,15 +55,20 @@ export const RANK_TITLES: Array<[th: string, en: string]> = [["คนหาบ�
 /**
  * A deed with water, as it is written down (the database's `town_deeds`): who, when, what; how many bucketfuls were
  * poured, the can filled or watered with, the plot, and whose plant it was when not one's own. And a seed sown, which
- * is no water: a plot sown anew begins with nobody having helped its plant.
+ * is no water: a plot sown anew begins with nobody having helped its plant. Since the third round: a bucket poured over
+ * a bed (`ditch`: so many bucketfuls, for so many `plants`, each of which is then written as a watering with that
+ * bucket), a bucket poured into the yard's jar (`yard`), and a pot cooked with a bucketful of the jar's (`fresh`: by
+ * the cook).
  */
 export interface WaterDeed {
   by: string;
   at: number;
-  what: "pour" | "fill" | "water" | "sow";
-  /** Poured: how many bucketfuls went in. */
+  what: "pour" | "fill" | "water" | "sow" | "ditch" | "yard" | "fresh";
+  /** Poured: how many bucketfuls went in (or over the bed). */
   n?: number;
-  /** Filled, or watered with: which can. */
+  /** Poured over a bed: how many plants it watered. */
+  plants?: number;
+  /** Filled, or watered with: which can (or, poured over a bed, which bucket). */
   can?: string;
   tile?: [number, number];
   whose?: string;
@@ -83,8 +95,12 @@ export interface WellLog {
   help: Record<string, { owner: string; by: Record<string, { water: number; carry: number }> }>;
   /** What each did for the others in each of the uncle's rounds (lib/town/jar): bucketfuls poured, and waterings of other people's plants. */
   work: Record<string, Record<string, { buckets: number; waterings: number }>>;
+  /** The water in the cooking yard's jar (lib/town/yard), the oldest first: whose each lot is, and how many bucketfuls of it are left. */
+  yard: Array<{ by: string | null; left: number }>;
+  /** The pots cooked with each carrier's water on each day: by the day and the carrier, how many to a cook. */
+  pots: Record<string, Record<string, number>>;
 }
-export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {} });
+export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {}, yard: [], pots: {} });
 
 const canKey = (by: string, can: string) => `${by}/${can}`;
 const dayKey = (day: number, who: string) => `${day}/${who}`;
@@ -119,6 +135,26 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
       days: { ...log.days, [day]: { ...today, [d.by]: { ...mine, buckets: mine.buckets + n } } },
       work: worked(log.work, round, d.by, n, 0),
     };
+  }
+  if (d.what === "ditch" || d.what === "yard") {
+    const n = Math.floor(d.n ?? 0);
+    if (n <= 0 || (d.what === "ditch" && !d.can)) return log;
+    // carried all the same: it counts towards the rank, and among the day's carriers
+    const was = log.carriers[d.by] ?? { buckets: 0, taken: [] }, today = log.days[day] ?? {}, mine = today[d.by] ?? { buckets: 0, first: d.at };
+    const next = { ...log, carriers: { ...log.carriers, [d.by]: { ...was, buckets: was.buckets + n } }, days: { ...log.days, [day]: { ...today, [d.by]: { ...mine, buckets: mine.buckets + n } } } };
+    // over a bed: the bucket is a can of the pourer's own water, for the plants it reached (each is written as a watering next)
+    if (d.what === "ditch") return { ...next, cans: { ...log.cans, [canKey(d.by, d.can!)]: { by: d.by, left: Math.max(0, Math.floor(d.plants ?? 0)) } } };
+    // into the yard's jar: a lot of its water, and work done for the others
+    return { ...next, yard: [...log.yard, { by: d.by, left: n }], work: worked(log.work, round, d.by, n, 0) };
+  }
+  if (d.what === "fresh") {
+    // a bucketful of the oldest water the jar has; a pot of somebody else's cooked with it is a line of what came of that carrier's water
+    const [first, ...rest] = log.yard;
+    if (!first) return log;
+    const yard = first.left > 1 ? [{ ...first, left: first.left - 1 }, ...rest] : rest;
+    if (!first.by || first.by === d.by) return { ...log, yard };
+    const key = dayKey(day, first.by), cooks = log.pots[key] ?? {};
+    return { ...log, yard, pots: { ...log.pots, [key]: { ...cooks, [d.by]: (cooks[d.by] ?? 0) + 1 } } };
   }
   if (d.what === "fill") {
     if (!d.can) return log;
@@ -165,8 +201,12 @@ export interface WellBook {
   rank: number;
   towards: number;
   gift: boolean;
-  /** Today: the bucketfuls I poured; the waterings that were of my water, of how many plants, of how many people's; and the plants of others I watered myself, and for how many people. */
-  today: { buckets: number; waterings: number; plants: number; people: number; watered: number; helped: number };
+  /**
+   * Today: the bucketfuls I poured; the waterings that were of my water, of how many plants, of how many people's; the
+   * plants of others I watered myself, and for how many people; and, when there are any (the yard's jar: of none the
+   * book says nothing, as it said nothing before there was a jar), the pots cooked with my water, and for how many cooks.
+   */
+  today: { buckets: number; waterings: number; plants: number; people: number; watered: number; helped: number; pots?: number; cooks?: number };
   /** Today's carriers, in the order they came: who, by name, how many bucketfuls, and their rank. */
   carriers: Array<{ id: string; name: string; buckets: number; rank: number }>;
 }
@@ -176,12 +216,14 @@ export function bookOf(log: WellLog, me: string, now: number, nameOf: (id: strin
   const day = dayOf(now), mine = log.carriers[me] ?? { buckets: 0, taken: [] };
   const reached = Object.values(log.reach[dayKey(day, me)] ?? {}), hands = log.hands[dayKey(day, me)] ?? {};
   const today = Object.entries(log.days[day] ?? {}).sort((a, b) => a[1].first - b[1].first || (a[0] < b[0] ? -1 : 1));
+  const pots = Object.values(log.pots[dayKey(day, me)] ?? {});
   return {
     buckets: mine.buckets, rank: rankOf(mine.buckets), towards: towards(mine.buckets), gift: !!dueOf(mine.buckets, mine.taken),
     today: {
       buckets: log.days[day]?.[me]?.buckets ?? 0,
       waterings: reached.reduce((t, r) => t + r.n, 0), plants: reached.length, people: new Set(reached.map((r) => r.owner)).size,
       watered: Object.values(hands).reduce((t, n) => t + n, 0), helped: Object.keys(hands).length,
+      ...(pots.length ? { pots: pots.reduce((t, n) => t + n, 0), cooks: pots.length } : {}),
     },
     carriers: today.slice(0, WELL_BOOK.listed).map(([id, c]) => ({ id, name: nameOf(id), buckets: c.buckets, rank: rankOf(log.carriers[id]?.buckets ?? 0) })),
   };

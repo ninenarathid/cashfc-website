@@ -1,8 +1,10 @@
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
+import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
+import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
@@ -17,7 +19,8 @@ import { STAMINA } from "./stamina";
 import { THANKS } from "./thanks";
 import { GOODS, RULES } from "./trade";
 import { WELL_BOOK } from "./well";
-import { BEDS_IN_FARM, COLS, FARM, ROWS, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
+import { BEDS_IN_FARM, COLS, FARM, KITCHEN, ROWS, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
+import { YARD } from "./yard";
 
 /**
  * What the database is told of the game: the numbers its functions decide by.
@@ -207,6 +210,17 @@ export function catalogOf() {
     thanks: { listed: THANKS.listed },
     /** The jar at the well (lib/town/jar): how many waterings a bucketful poured counts as when it is shared, and the kinds of thing it takes. */
     jar: { bucket: JAR.bucket, kinds: JAR.kinds },
+    /** A hot afternoon (lib/town/heat): the hours of the day it can be hot in, the skies it is hot under, and how much more a watering does then. */
+    heat: { from: HEAT.from, to: HEAT.to, skies: HEAT.skies, by: HEAT.by },
+    /** A bucket poured over a bed (lib/town/ditch): how many plants a bucketful waters, and the stamina it costs. */
+    ditch: { plants: DITCH.plants, cost: DITCH.cost },
+    /**
+     * The cooking yard's water jar (lib/town/yard): how many bucketfuls it holds, the helpings more a pot cooked with
+     * its water has, what pouring into it costs, the cookware whose dishes take no water; and what the database
+     * alone needs, the tiles one stands on to pour into it (the same wherever this is asked: the yard's own picture
+     * says where the jar stands, finished or not).
+     */
+    yard: { holds: YARD.holds, gives: YARD.gives, cost: YARD.cost, dry: YARD.dry, at: asBuilt(() => KITCHEN.wash.map(([x, y]): [number, number] => [x, y])) },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -246,6 +260,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v129 (ran 2026-10-05) seeded `thanks` and `jar`: how many the board of thanks lists, and what the jar at the well counts a
  * bucketful as and takes.
  *
+ * v130 (pending) seeds `heat`, `ditch` and `yard`, for the same members' third round: a hot afternoon's hours and
+ * what a watering does in them, what a bucket poured over a bed waters and costs, and the cooking yard's water jar.
+ *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
  * (`over`): name that migration here with the rows it writes, and `TOWN_WRITE=1 npx vitest run
@@ -269,7 +286,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * `shares`, and `comeback`); and the common insects fetch about a third less, a common fish's worth for the stamina
  * (items: the `pays` of twelve of them).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v130: { keys: ["heat", "ditch", "yard"], over: [] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

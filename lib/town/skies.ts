@@ -67,6 +67,8 @@ export class Skies {
 
   /** The weather at a moment. */
   weather(ms = this.now()): Weather { return this.one ?? this.slots.get(slotOf(ms)) ?? FINE; }
+  /** The sky at a moment, when it is known: the one held or forced, or that quarter hour's as the database has it. Null when neither is (what is drawn then is fine weather; what hangs on the sky does not happen). */
+  sky(ms = this.now()): Sky | null { return (this.one ?? this.slots.get(slotOf(ms)))?.sky ?? null; }
   /** What the town draws at a moment. */
   effects(ms = this.now()): Effects { return this.one ? effectsOf(this.one) : effectsAt(this.slots, ms); }
   /** The stretches of rain known: what waters the plots. (None from a weather that is only held: the database counts none either.) */

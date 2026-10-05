@@ -22,6 +22,9 @@ import { bedCorner, bedOf } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
+import { ditch, reachOf } from "./ditch";
+import { hotAt, warmed } from "./heat";
+import { canPour, freshen, pourIn } from "./yard";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -64,6 +67,8 @@ const BUG_TOOK = "cashtown.trial.bugs.took.1", BUG_BOOK = "cashtown.trial.bugs.b
 const WELL_LOG = "cashtown.trial.welllog.1";
 /** The thanks given (lib/town/thanks), and the jar at the well with what waits at it for each (lib/town/jar): the whole browser's. */
 const THANKS = "cashtown.trial.thanks.1", JAR = "cashtown.trial.jar.1";
+/** The bucketfuls in the cooking yard's water jar (lib/town/yard): the whole browser's. */
+const YARD_JAR = "cashtown.trial.yardjar.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -357,7 +362,8 @@ export class Trial {
     const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains(), sure);
     if (!did.ok) return did;
     const next = { ...plots };
-    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = did.plot;
+    // (a watering on a hot afternoon does as much again: lib/town/heat, as the plot is kept)
+    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = warmed(plot, did.plot, now, SKIES.sky(now));
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -370,6 +376,52 @@ export class Trial {
     this.save(did.purse);
     return { ok: true, deed: did.deed, got: did.got };
   }
+  /** Whether it is a hot afternoon now (lib/town/heat), by this page's sky. */
+  hot(): boolean { const now = this.now(); return hotAt(now, SKIES.sky(now)); }
+  /** Every plot of the bed a tile is in that is not weeds, by its tile. */
+  private bedAt(x: number, y: number): Record<string, Plot> {
+    const bed = bedOf(x, y);
+    return Object.fromEntries(Object.entries(this.farm()).filter(([k]) => { const [u, v] = k.split(",").map(Number); return bedOf(u, v) === bed; }));
+  }
+  /** The plots the bucket in my hand would water, poured over the bed from a plot of it (lib/town/ditch): none, when there is nothing to pour or nothing to pour it on. */
+  ditchAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number);
+    return bedOf(x, y) < 0 ? [] : reachOf(this.purse(), this.bedAt(x, y), [x, y], this.now(), SKIES.rains());
+  }
+  /** Pour it. */
+  ditchDo(key: string): { ok: true; used: number; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
+    const [x, y] = key.split(",").map(Number), p = this.purse(), now = this.now(), plots = this.farm();
+    if (bedOf(x, y) < 0) return no("none");
+    const did = ditch(p, this.bedAt(x, y), [x, y], now, SKIES.rains());
+    if (!did.ok) return did;
+    const next = { ...plots }, sky = SKIES.sky(now), hand = handOf(p) ?? undefined;
+    for (const [k, plot] of Object.entries(did.plots)) next[k] = warmed(plots[k], plot, now, sky);
+    this.write(FARM, next);
+    // (its owner's every deed in a bed counts as tending it)
+    const beds = this.beds(), bed = String(bedOf(x, y));
+    if (beds[bed] && ownerOf(beds[bed], true, now) === this.id) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
+    // (the well's book: the pourer's own water on each plant it reached, each a watering)
+    this.wellSeen({ by: this.id, at: now, what: "ditch", n: did.used, plants: did.watered.length, can: hand });
+    for (const k of did.watered) {
+      const by = plots[k].plant!.by, [u, v] = k.split(",").map(Number);
+      this.wellSeen({ by: this.id, at: now, what: "water", can: hand, tile: [u, v], ...(by !== this.id ? { whose: by } : {}) });
+    }
+    this.save(did.purse);
+    return { ok: true, used: did.used, watered: did.watered };
+  }
+  /** The cooking yard's jar (lib/town/yard): the bucketfuls in it, whether the bucket in my hand can be poured in, and pouring it. */
+  yardJar(): number { return this.read<number>(YARD_JAR, () => 0, (v) => typeof v === "number" && v >= 0); }
+  yardCanPour(): boolean { return canPour(this.purse(), this.yardJar()); }
+  yardPour(): { ok: true; poured: number } | { ok: false; why: Refusal } {
+    const now = this.now(), did = pourIn(this.purse(), this.yardJar(), now);
+    if (!did.ok) return did;
+    this.write(YARD_JAR, did.jar);
+    this.wellSeen({ by: this.id, at: now, what: "yard", n: did.poured });
+    this.save(did.purse);
+    return { ok: true, poured: did.poured };
+  }
+  /** For scripts and the test window: so many bucketfuls in the yard's jar (nobody's water). */
+  setYardJar(buckets: number) { this.write(YARD_JAR, Math.max(0, Math.floor(buckets))); this.tell(); }
   /** What the thing in my hand can do with water where I stand (by the river, or at the well), if anything; and doing it. */
   choreAt(where: "river" | "well" | null): Chore | null { return choreFor(this.purse(), where, this.well()); }
   choreDo(where: "river" | "well" | null): { ok: true; chore: Chore } | { ok: false; why: Refusal } {
@@ -624,16 +676,19 @@ export class Trial {
    * the first time anybody made it, which is written down with the name of whoever did. What I have made is written
    * in my purse, and I read all of its recipe from then on. The odd dish is nobody's find.
    */
-  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = ""): Done<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste }> {
-    const did = cook(this.purse(), things, crew, misses, this.now());
+  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = ""): Done<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }> {
+    const now = this.now(), did = cook(this.purse(), things, crew, misses, now);
     if (!did.ok) return did;
     const made = isFind(did.made) ? did.made : null, found = this.found(), first = !!made && !found.includes(made);
-    let purse = did.purse;
+    // (a pot cooked while the yard's jar has water takes a bucketful of it, and has a helping more: lib/town/yard)
+    const watered = freshen(did.purse, did.made, this.yardJar());
+    if (watered.fresh) { this.write(YARD_JAR, watered.jar); this.wellSeen({ by: this.id, at: now, what: "fresh" }); }
+    let purse = watered.purse;
     if (made && made in DISHES && !purse.recipes.includes(made as DishId)) purse = { ...purse, recipes: [...purse.recipes, made as DishId] };
     if (made && !hasMade(purse, made)) purse = { ...purse, made: [...(purse.made ?? []), made] };
     if (first && made) { this.write(FOUND, [...found, made]); this.write(FINDERS, { ...this.finders(), [made]: name || this.id }); }
     this.save(purse);
-    return { ...did, purse, first };
+    return { ...did, purse, first, ...(watered.fresh ? { fresh: true } : {}) };
   }
   /** Set the pot of food I hold down where I stand, if nothing stands there and I have not left too many about already. */
   potDown(at: [number, number]): Done<{ purse: Purse; pot: Pot }> {
@@ -786,7 +841,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

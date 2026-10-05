@@ -21,7 +21,7 @@ const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v130"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -705,6 +705,70 @@ try {
     }
     stopA(); stopB();
     await sql(`update public.town_catalog set data = jsonb_set(data, '{comeback,after}', '30') where key = 'insects'`);
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_ditch(integer, integer)') is not null as there`))[0].there) {
+    section("a bucket over a bed, the yard's jar, and a hot afternoon (v130)");
+    const RIVER = [16, 38], JAR_AT = (await sql(`select town.cat('yard')->'at'->0 as at`))[0].at, SOUP = [["pumpkin", 1], ["scallion", 1], ["salt", 1]];
+    await sql(`truncate public.town_deeds, public.town_well_water, public.town_well_cans, public.town_carriers, public.town_well_reach, public.town_plot_help, public.town_thanks, public.town_yard_water, public.town_yard_reach`);
+    await sql(`update public.town_things set doc = '0'::jsonb where key = 'yard'; delete from public.town_weather; truncate public.town_plots, public.town_beds`);
+    const plantAt = async (x, y, by) => { const now = Number((await sql(`select town.now_ms() as n`))[0].n); await sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1::int, $2::int, town.bed_of($1::int, $2::int), 'tilled', $3::jsonb, 0)`,
+      [x, y, JSON.stringify({ by, crop: "pumpkin", sown: now - 3600000, boost: 0, watered: 0, fed: 0, guard: now + 4 * 86400000, cured: 0, picked: 0, pickedAt: 0 })]); };
+    for (const x of [132, 133, 134]) await plantAt(x, 5, a);
+    const fresh = (id, hand) => sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', $2::text, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [id, hand]);
+    await purse(a, 0, [{ item: "pot", n: 1 }, { item: "pumpkin", n: 2 }, { item: "scallion", n: 2 }, { item: "salt", n: 2 }]);
+    await fresh(a, "pot");
+    await purse(b, 0, [{ item: "bucket", n: 1 }, { item: "can", n: 1, water: 8 }]);
+    await fresh(b, "bucket");
+    const began = asked.length, G = new DbKeeper(a, askAs("A")), H = new DbKeeper(b, askAs("B"));
+    await settled(G); await settled(H);
+    const stopG = G.look("farm"), stopH = H.look("farm");
+    await sleep(600);
+    ok("the yard's jar is known from the keeper's beginning, told with everybody's rank: empty", G.yardJar() === 0 && H.yardJar() === 0 && !asked.slice(began).includes("B town_yard"), [G.yardJar(), H.yardJar()]);
+    ok("an empty bucket would water nothing, and has nothing for the jar", H.ditchAt("133,5").length === 0 && H.yardCanPour() === false);
+    await H.choreDo("river", RIVER);
+    ok("a full one would water the bed's three plants, the nearest first", H.ditchAt("133,5").join(" ") === "133,5 132,5 134,5", H.ditchAt("133,5"));
+    let did = await H.ditchDo("133,5");
+    ok("poured over the bed: a bucketful, three plants, and the plots are kept as the answer has them", did.ok && did.used === 1 && did.watered.length === 3 && H.farm()["132,5"].plant.watered > 0 && H.farm()["134,5"].plant.boost === 1800000
+      && !H.purse().bag[slotOf(H, "bucket")].water && H.ditchAt("133,5").length === 0, did);
+    await G.thankLook();
+    ok("the bed's owner has the pourer to thank, for each of the three", Object.keys(G.toThank()).length === 3 && Object.values(G.toThank()).every((list) => list.length === 1 && list[0].id === b && list[0].water === 1 && list[0].carry === 1), G.toThank());
+    await H.wellLook();
+    ok("the pourer's book: a bucketful carried, their water on three plants of one other's, by their own hand", H.wellBook()?.buckets === 1 && H.wellBook().today.waterings === 3 && H.wellBook().today.watered === 3 && H.wellBook().today.people === 1 && H.wellBook().today.pots === undefined, H.wellBook()?.today);
+    // the yard's jar
+    await H.choreDo("river", RIVER);
+    did = await H.yardPour(null);
+    ok("with nowhere said to stand, nothing is poured", !did.ok && did.why === "none" && H.yardCanPour() === true, did);
+    did = await H.yardPour(JAR_AT);
+    ok("poured into the jar by it: a bucketful in, and the keeper has the jar as the answer says", did.ok && did.poured === 1 && H.yardJar() === 1 && H.yardCanPour() === false, did);
+    await settled(H); await settled(H);
+    ok("…and the book counts it among what was carried", H.wellBook()?.buckets === 2 && H.wellBook().today.buckets === 2, H.wellBook()?.today);
+    did = await G.cookDo(SOUP, ["pot"], [], { hits: 4, misses: 0, secs: 5 }, "Tester A");
+    ok("a soup cooked while the jar has water: the keeper says it took the jar's water, and the pot has a helping more than the rule says", did.ok && did.made === "pumpkinSoup" && did.n === 5 && did.fresh === true
+      && G.purse().bag.find((s) => s?.item === "potFull")?.of.left === 6, did);
+    await H.wellLook();
+    ok("the carrier's book says whose pot their water went into", H.wellBook().today.pots === 1 && H.wellBook().today.cooks === 1, H.wellBook().today);
+    await G.hold(slotOf(G, "pot"));
+    did = await G.cookDo(SOUP, ["pot"], [], { hits: 4, misses: 0, secs: 5 }, "Tester A");
+    ok("with the jar empty a soup is cooked as it always was, and the keeper says nothing of water", did.ok && did.n === 5 && !did.fresh && G.purse().bag.filter((s) => s?.item === "potFull").map((s) => s.of.left).sort().join() === "5,6", did);
+    const jar = await askAs("A")("town_yard");
+    ok("the jar is told to whoever asks: empty again", jar?.yard?.jar === 0, jar);
+    // a hot afternoon: one o'clock in Bangkok, a clear sky in the database and over this page
+    const now = Number((await sql(`select town.now_ms() as n`))[0].n), hour = (((now + 7 * 3600000) % 86400000) + 86400000) % 86400000 / 3600000;
+    await skip(Math.round((((13.1 - hour) % 24 + 24) % 24) * 3600000));
+    await sql(`delete from public.town_weather; insert into public.town_weather (slot, sky, wind, gust, rain) values (floor(town.now_ms()::numeric / 900000)::bigint, 'clear', 5, 10, 0)`);
+    const { SKIES } = await import("@/lib/town/skies");
+    SKIES.force({ sky: "clear", wind: 5, gust: 10, rain: 0 });
+    await plantAt(136, 5, a);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [b]);
+    await H.hold(slotOf(H, "can"));
+    await sleep(300);
+    const before = asked.filter((x) => x === "B town_farm").length;
+    did = await H.farmDo("136,5", "Tester B");
+    await settled(H); await settled(H);
+    ok("a watering in the heat: the keeper knows it is hot, reads the farm again, and has the plot as it is kept, with as much again", did.ok && did.deed === "water" && H.hot() === true
+      && asked.filter((x) => x === "B town_farm").length === before + 1 && H.farm()["136,5"].plant.boost === 3600000, { hot: H.hot(), boost: H.farm()["136,5"]?.plant?.boost });
+    stopG(); stopH(); G.close(); H.close();
   }
 
   section("one thing at a time");
