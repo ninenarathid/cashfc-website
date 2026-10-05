@@ -266,11 +266,11 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v129 (ran 2026-10-05) seeded `thanks` and `jar`: how many the board of thanks lists, and what the jar at the well counts a
  * bucketful as and takes.
  *
- * v130 (pending) seeds `heat`, `ditch` and `yard`, for the same members' third round: a hot afternoon's hours and
+ * v130 (ran 2026-10-05) seeded `heat`, `ditch` and `yard`, for the same members' third round: a hot afternoon's hours and
  * what a watering does in them, what a bucket poured over a bed waters and costs, and the cooking yard's water jar.
- * And it writes three over, for their last round, a water cart (lib/town/cart): the thing (items), the six
- * bucketfuls it carries (farming), and the rank the well gives it at (well). Whole rows: its block is made again
- * from the tree at the push, or it would drop what somebody else had added to them since.
+ * And it wrote three over, for their last round, a water cart (lib/town/cart): the thing (items), the six
+ * bucketfuls it carries (farming), and the rank the well gives it at (well). Whole rows, made from the tree at the
+ * push (it ran after v131, which had written `items` over too: whoever replays them keeps that order).
  *
  * v132 (pending) seeds `line`, for their fourth: how far water is handed on, what that costs, and how many hands a
  * bucketful remembers.
@@ -302,7 +302,6 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * (items: the `pays` of twelve of them).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v130: { keys: ["heat", "ditch", "yard"], over: ["items", "farming", "well"] },
   v132: { keys: ["line"], over: [] },
   v133: { keys: ["waters"], over: [] },
 };

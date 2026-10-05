@@ -36,7 +36,11 @@ const t = await supabaseLike({ extra });
 const RAN = 135;
 const pending = existsSync(`${repo}/supabase`) ? readdirSync(`${repo}/supabase`).map((f) => Number(/^v(\d+)_/.exec(f)?.[1])).filter((n) => n > RAN) : [];
 const newest = Math.max(RAN, ...pending);
-for (let n = 104; n <= newest; n++) {
+// (by number, but for one: v130 ran after v131, and both write the catalog's `items` over, whole. The row that stands
+// is the later one's, v130's, which has the water cart: so v130 is replayed after v131, as it ran.)
+const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130);
+numbers.splice(numbers.indexOf(131) + 1, 0, 130);
+for (const n of numbers) {
   let sql = null;
   try { sql = migration(n); } catch { /* a number that was never a file */ }
   if (sql) await t.run(sql, `v${n}`);
