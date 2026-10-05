@@ -41,7 +41,7 @@ if (Array.isArray(carriers) && Array.isArray(pours)) {
   const odd = Object.keys({ ...sum, ...got }).filter((id) => Math.abs((sum[id] ?? 0) - (got[id] ?? 0)) > 4);
   ok(`every carrier's count is the bucketfuls their lines say: ${carriers.length} carriers, ${pours.length} pourings`, carriers.length > 0 && odd.length === 0, { odd: odd.length, carriers: carriers.length });
   console.log(`    ranks: ${carriers.filter((c) => c.buckets >= 600).length} at the third, ${carriers.filter((c) => c.buckets >= 200 && c.buckets < 600).length} at the second, ${carriers.filter((c) => c.buckets >= 50 && c.buckets < 200).length} at the first; gifts taken: ${carriers.reduce((n, c) => n + c.taken.length, 0)}`);
-} else ok("the carriers and the deeds can be read with the site's key", false, { carriers, pours });
+} else ok("the carriers and the deeds can be read with the site's key", false, [carriers, pours].map((x) => (Array.isArray(x) ? x.length : x)));
 if (Array.isArray(water) && Array.isArray(things)) {
   const followed = water.reduce((n, w) => n + w.buckets, 0), well = Number(things[0]?.doc);
   ok(`the book's count of the well's water is the well's own, or within a bucket or two of it while members carry (${followed} followed, ${well} in the well)`, Math.abs(followed - well) <= 4, { followed, well });

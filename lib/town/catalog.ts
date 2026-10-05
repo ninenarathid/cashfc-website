@@ -236,7 +236,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * the signs), which is why the code went out before the file: a page built before cannot draw a fish it has not
  * heard of.
  *
- * v127 (pending) seeds `well` and writes two over, for the members who carry water for the others (the owner,
+ * v127 (ran 2026-10-05) seeded `well` and wrote two over, for the members who carry water for the others (the owner,
  * 2026-10-05): what the well's book counts by (well), the two yokes the well gives its carriers (items) and how many
  * bucketfuls each carries (farming).
  *
@@ -258,7 +258,6 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * uncle may ask for and hint at (order, hints).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v127: { keys: ["well"], over: ["items", "farming"] },
   v129: { keys: ["thanks", "jar"], over: [] },
 };
 
