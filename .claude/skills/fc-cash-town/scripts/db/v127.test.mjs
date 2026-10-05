@@ -6,7 +6,7 @@
  * told, and which plots a carrier's water reached each day. `town_well()` is the book a member reads,
  * `town_well_ranks()` the ranks for the names over heads, `town_well_take()` the yoke the well has for its carrier.
  * It writes two catalog rows over (two yokes: `items`, `farming`) and seeds one (`well`). No function of the game's
- * is written again but `town.deed_th`, which is given one word more from its own text. v105 to v122 are replayed as
+ * is written again but `town.deed_th`, which is given one word more from its own text. v105 to v125 are replayed as
  * they ran, then:
  *
  *   · a morning of water is carried before the file (the game's own functions, the well with five bucketfuls of
@@ -57,7 +57,8 @@ create table public.gallery_likes (post_id bigint not null references public.gal
   created_at timestamptz not null default now(), primary key (post_id, profile_id));
 alter table public.gallery_likes enable row level security;
 `;
-const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122];
+// (v123 to v125 are the fountain, the moving price, the forest and the insects: they run before this one)
+const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125];
 const MIN = 60_000, HOUR = 3_600_000, SLOT = 900000;
 // 09:00 in Bangkok, the day after the deeds began to be written down
 const MORNING = Date.parse("2026-10-06T09:00:00+07:00");
@@ -563,15 +564,16 @@ t.section("nothing else changed");
   const others = Object.keys(textsWas).filter((sig) => sig !== "town.deed_th(text)" && textsWas[sig] !== textsNow[sig]);
   t.check("every function there was, the rules among them, is its text from before to the letter", others.length === 0 && Object.keys(textsWas).length > 150, others);
   const d = differ(textsWas["town.deed_th(text)"], textsNow["town.deed_th(text)"]);
-  t.check("the tally's words are v121's with one more: of the old text only its last line is written otherwise", same(d.gone, ["    else p_what end"]) && same(d.more, ["    when 'gift' then 'รับของที่บ่อน้ำฝากไว้ให้' else p_what end"]), d);
+  t.check("the tally's words are as they stood with one more: of the old text only its last line is written otherwise", d.gone.length === 1 && d.more.length === 1 && d.gone[0].includes("else p_what end")
+    && d.more[0] === d.gone[0].replace("else p_what end", "when 'gift' then 'รับของที่บ่อน้ำฝากไว้ให้' else p_what end"), d);
 
   const after = (await t.sql(`select key, data, updated_at from public.town_catalog order by key`)).rows;
   const was = Object.fromEntries(before.map((row) => [row.key, row])), written = after.filter((row) => !was[row.key] || String(row.updated_at) !== String(was[row.key].updated_at)).map((row) => row.key);
-  t.check("it seeds one row and writes two over, and leaves the other sixteen as they were", same(written, ["farming", "items", "well"]) && after.length === 19 && before.length === 18
+  t.check("it seeds one row and writes two over, and leaves the others as they were", same(written, ["farming", "items", "well"]) && after.length === before.length + 1
     && after.every((row) => written.includes(row.key) || same(row.data, was[row.key].data)), written);
   const odd = after.filter((row) => !same(row.key === "carries" ? { ...row.data, note: undefined } : row.data, CODE[row.key])).map((row) => row.key);
   // (the code may have rows of later files by now: only the nineteen there are here are held to it)
-  t.check("every row of the catalog is what the site's code gives now, all nineteen", odd.length === 0 && after.length === 19, odd);
+  t.check("every row of the catalog is what the site's code gives now", odd.length === 0 && after.length === before.length + 1, odd);
   const now = Object.fromEntries(after.map((row) => [row.key, row.data]));
   const itemsMore = Object.keys(now.items).filter((id) => !(id in was.items.data)), itemsMoved = Object.keys(was.items.data).filter((id) => !same(was.items.data[id], now.items[id]));
   const farmMoved = Object.keys(now.farming).filter((k) => !same(now.farming[k], was.farming.data[k]));

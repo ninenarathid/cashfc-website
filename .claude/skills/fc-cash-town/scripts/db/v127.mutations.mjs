@@ -114,7 +114,7 @@ const all = ({ swap, cut }) => [
     ["their water in the well is nobody's now"]],
   ["the tally has no word for a gift taken",
     cut("do $$\ndeclare\n  def text;", "revoke execute on all functions in schema town from public, anon, authenticated;\n\n/* ── what a browser calls"),
-    ["the tally has a word for a gift taken", "the tally's words are v121's with one more"]],
+    ["the tally has a word for a gift taken", "the tally's words are as they stood with one more"]],
   ["the first rank begins at five bucketfuls in the catalog",
     swap("\"ranks\": [50,200,600]", "\"ranks\": [5,200,600]"),
     ["the catalog has the well's numbers", "every row of the catalog is what the site's code gives now", "well_rank:"]],
