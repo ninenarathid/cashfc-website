@@ -1,9 +1,11 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ITEMS, iconOf } from "@/lib/town/items";
+import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
+import { mayDrop } from "@/lib/town/jar";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
+import { handOf } from "@/lib/town/trade";
 import { RANK_TITLES } from "@/lib/town/well";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
@@ -21,6 +23,14 @@ export const RANK_ICONS: IconName[] = ["rankWaterA", "rankWaterB", "rankWaterC"]
  *
  * It states what is, as everything in the town does: nothing says how many
  * bucketfuls a rank takes, nor what the well will have for whoever gets there.
+ *
+ * The book has two things more (v129). **The thanks I have had** (lib/town/
+ * thanks): today's, by whom; this week's and all told; and who has been
+ * thanked most this week. And **the jar** that stands by the well (lib/town/
+ * jar): what is in it, when it is next shared, coins or the thing in my hand
+ * dropped in, and what waits for me taken. The jar alone says what it is for,
+ * as the bank says what changing popoto costs: nobody gives to a jar they
+ * know nothing of.
  *
  * What is kept is the keeper's: for a member the database's (v127), where the
  * book is read as it is opened; in `next dev`'s test room the browser's trial.
@@ -54,7 +64,27 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
     return () => window.removeEventListener("keydown", down);
   }, [open]);
 
-  const book = keeper.wellBook();
+  const book = keeper.wellBook(), thanks = keeper.thanks(), jar = keeper.jar();
+  const purse = keeper.purse(), hand = handOf(purse), handSlot = hand ? purse.bag.findIndex((s) => s?.item === hand && mayDrop(s)) : -1;
+  /** Drop coins into the jar, or one of the thing in my hand; and take what waits for me. */
+  const give = useCallback(async (what: { coins: number } | { slot: number; n: number }) => {
+    setBusy(true);
+    const did = await keeper.jarDrop(what);
+    setBusy(false);
+    if (!did.ok) { const w = WHY[did.why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); return; }
+    sfx?.wake();
+    sfx?.work("pick");
+    void keeper.wellLook();
+  }, [keeper, th, sfx]);
+  const takeShare = useCallback(async () => {
+    setBusy(true);
+    const did = await keeper.jarTake();
+    setBusy(false);
+    if (!did.ok) { const w = WHY[did.why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); return; }
+    sfx?.wake();
+    sfx?.work("pick");
+    void keeper.wellLook();
+  }, [keeper, th, sfx]);
   const take = useCallback(async () => {
     setBusy(true);
     const did = await keeper.wellTake();
@@ -68,14 +98,21 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
 
   // (for scripts in `next dev`: the book as it is read, opening it, taking what waits)
   useEffect(() => {
-    const handle = { book: () => keeper.wellBook(), ranks: () => keeper.ranks(), open: () => setOpen(true), close: () => setOpen(false), isOpen: () => open, take };
+    const handle = { book: () => keeper.wellBook(), ranks: () => keeper.ranks(), open: () => setOpen(true), close: () => setOpen(false), isOpen: () => open, take, jar: () => keeper.jar(), thanks: () => keeper.thanks(), give, takeShare };
     (window as unknown as { __townWell?: typeof handle }).__townWell = handle;
     return () => { delete (window as unknown as { __townWell?: typeof handle }).__townWell; };
-  }, [keeper, open, take]);
+  }, [keeper, open, take, give, takeShare]);
 
   if (!at || !book) return null;
   const title = book.rank > 0 ? RANK_TITLES[book.rank - 1][th ? 0 : 1] : null;
   const n = (k: number) => k.toLocaleString(th ? "th-TH" : "en-US");
+  const hour = (at: number) => new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Bangkok" }).format(at);
+  const things = (list: Array<[ItemId, number]>) => list.map(([id, k]) => (
+    <span key={id} className="flex items-center gap-1" title={th ? ITEMS[id]?.name.th : ITEMS[id]?.name.en}>
+      <TownIcon name={(iconOf(id) in ICON_ATLAS.icons ? iconOf(id) : "mystery") as IconName} size={18} />
+      <span className="font-data tabular-nums">{n(k)}</span>
+    </span>
+  ));
   return (
     <>
       {!open && (
@@ -153,6 +190,74 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
                 </ol>
               ) : (
                 <p className="text-meta text-muted">{th ? "วันนี้ยังไม่มีใครหาบน้ำมาเติมบ่อ" : "Nobody has carried water to the well today"}</p>
+              )}
+
+              {thanks && (
+                <>
+                  <h3 className="mb-1.5 mt-4 font-data text-label uppercase tracking-wider text-muted">{th ? "คำขอบคุณ" : "Thanks"}</h3>
+                  <div className="rounded-xl border border-line bg-card/60 px-3 py-2.5" data-well-thanks>
+                    <div className="flex items-center gap-2">
+                      <TownIcon name="thanksCard" size={22} />
+                      <span className="text-ui text-ink">{th ? `สัปดาห์นี้ ${n(thanks.week)} · ทั้งหมด ${n(thanks.all)}` : `This week ${n(thanks.week)} · all told ${n(thanks.all)}`}</span>
+                    </div>
+                    <p className="mt-1 text-meta text-muted">
+                      {thanks.today.length
+                        ? `${th ? "วันนี้" : "Today"}: ${thanks.today.map((p) => p.name || "?").join(", ")}`
+                        : th ? "วันนี้ยังไม่มีใครขอบคุณ" : "Nobody has thanked you today"}
+                    </p>
+                    {thanks.top.length > 0 && (
+                      <ol className="mt-2 flex flex-col gap-1 border-t border-line pt-2" data-well-thanked>
+                        {thanks.top.map((p) => (
+                          <li key={p.id} className="flex items-center gap-2 text-ui">
+                            <span className={`min-w-0 flex-1 truncate ${p.id === keeper.id ? "font-semibold text-accent" : "text-ink"}`}>{p.id === keeper.id && p.name === p.id ? name : p.name}</span>
+                            <span className="shrink-0 font-data tabular-nums text-muted">{n(p.n)}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {jar && (
+                <>
+                  <h3 className="mb-1.5 mt-4 font-data text-label uppercase tracking-wider text-muted">{th ? "กระปุกน้ำใจ" : "The jar"}</h3>
+                  <div className="rounded-xl border border-line bg-card/60 px-3 py-2.5" data-well-jar>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-ui text-ink">
+                      <TownIcon name="tipJar" size={26} />
+                      <span className="flex items-center gap-1" data-jar-coins-in={jar.coins}><TownIcon name="coin" size={16} /><span className="font-data tabular-nums">{n(jar.coins)}</span></span>
+                      {things(jar.things)}
+                    </div>
+                    <p className="mt-1 text-meta leading-snug text-muted">
+                      {th ? `แบ่งให้คนที่หาบน้ำและรดน้ำให้คนอื่น ตอน ${hour(jar.next)} น.` : `Shared among those who carried and watered for others, at ${hour(jar.next)}`}
+                    </p>
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {[1, 5, 10].map((k) => (
+                        <button key={k} type="button" onClick={() => void give({ coins: k })} disabled={busy || purse.coins < k} data-jar-give={k}
+                                className="pressable flex min-h-10 items-center gap-1 rounded-full border border-line-strong px-3 text-ui font-semibold text-ink transition-colors hover:border-accent disabled:opacity-40">
+                          +{k} <TownIcon name="coin" size={14} />
+                        </button>
+                      ))}
+                      {hand && handSlot >= 0 && (
+                        <button type="button" onClick={() => void give({ slot: handSlot, n: 1 })} disabled={busy} data-jar-give-thing
+                                className="pressable flex min-h-10 items-center gap-1 rounded-full border border-line-strong px-3 text-ui font-semibold text-ink transition-colors hover:border-accent disabled:opacity-40">
+                          +1 <TownIcon name={(iconOf(hand) in ICON_ATLAS.icons ? iconOf(hand) : "mystery") as IconName} size={16} />
+                        </button>
+                      )}
+                    </div>
+                    {jar.mine && (jar.mine.coins > 0 || jar.mine.things.length > 0) && (
+                      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-accent/60 bg-accent/10 px-2.5 py-2 text-ui text-ink" data-jar-mine>
+                        <span className="min-w-0 flex-1">{th ? "ส่วนแบ่งของฉัน" : "My share"}</span>
+                        {jar.mine.coins > 0 && <span className="flex items-center gap-1"><TownIcon name="coin" size={16} /><span className="font-data tabular-nums">{n(jar.mine.coins)}</span></span>}
+                        {things(jar.mine.things)}
+                        <button type="button" onClick={() => void takeShare()} disabled={busy} data-jar-take
+                                className="pressable min-h-10 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-60">
+                          {th ? "รับ" : "Take it"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           </section>

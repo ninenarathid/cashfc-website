@@ -153,6 +153,14 @@ class TrialKeeper implements Keeper {
   ranks() { return this.trial.ranks(); }
   async wellLook() { /* the book is in this browser already */ }
   async wellTake(): Promise<Did<{ gift: ItemId; rank: number }>> { return this.trial.wellTake(); }
+  toThank() { return this.trial.toThank(); }
+  async thankLook() { /* who helped is in this browser already */ }
+  async thankAt(key: string): Promise<Did<{ thanked: string[] }>> { return this.trial.thankAt(key); }
+  thanks() { return this.trial.thanksBoard(); }
+  thanked() { return this.trial.thanksBoard().today; }
+  jar() { return this.trial.jar(); }
+  async jarDrop(what: { coins: number } | { slot: number; n: number }): Promise<Did> { return this.trial.jarDrop(what); }
+  async jarTake(): Promise<Did<{ coins: number; things: Array<[ItemId, number]> }>> { return this.trial.jarTake(); }
 
   wild() { return this.trial.wild(); }
   async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }

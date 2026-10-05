@@ -95,6 +95,7 @@ const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
 const TownWell = lazy(() => import("./TownWell"));
+const TownThanks = lazy(() => import("./TownThanks"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
@@ -3352,6 +3353,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownWell keeper={keeper} name={me.name} th={w.th} at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen)} phone={phone} tabbar={tabbar}
                     bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} />
+        </Suspense>
+      )}
+      {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownThanks keeper={keeper} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? plotHere : null} near={onFarm}
+                      bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} />
         </Suspense>
       )}
       {/* The kitchen: cooking at the yard, and the pots that stand about */}

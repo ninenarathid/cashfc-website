@@ -6,6 +6,7 @@ import { FORAGING, KINDS, SPOTS } from "./forest";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
+import { JAR } from "./jar";
 import {
   BAITS, BOWL, BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT,
   inBowl, type ItemId,
@@ -13,6 +14,7 @@ import {
 import { BASIC, ORDER, UNLOCKS, mayAsk, sourcesAt } from "./orders";
 import { INSIDE, insideOf } from "./scrolls";
 import { STAMINA } from "./stamina";
+import { THANKS } from "./thanks";
 import { GOODS, RULES } from "./trade";
 import { WELL_BOOK } from "./well";
 import { BEDS_IN_FARM, COLS, FARM, ROWS, WELL, bedCorner, bedOf, fishFrom } from "./world";
@@ -198,6 +200,10 @@ export function catalogOf() {
     },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
     well: { ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed },
+    /** Thanks (lib/town/thanks): how many the board lists. */
+    thanks: { listed: THANKS.listed },
+    /** The jar at the well (lib/town/jar): how many waterings a bucketful poured counts as when it is shared, and the kinds of thing it takes. */
+    jar: { bucket: JAR.bucket, kinds: JAR.kinds },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -234,6 +240,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * 2026-10-05): what the well's book counts by (well), the two yokes the well gives its carriers (items) and how many
  * bucketfuls each carries (farming).
  *
+ * v129 (pending) seeds `thanks` and `jar`: how many the board of thanks lists, and what the jar at the well counts a
+ * bucketful as and takes.
+ *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
  * (`over`): name that migration here with the rows it writes, and `TOWN_WRITE=1 npx vitest run
@@ -250,6 +259,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   v127: { keys: ["well"], over: ["items", "farming"] },
+  v129: { keys: ["thanks", "jar"], over: [] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

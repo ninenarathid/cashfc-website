@@ -20,7 +20,7 @@ const { shelfOf } = await import("@/lib/town/orders");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v123", "v124", "v127", "v128"];
+const NEXT = ["v123", "v124", "v127", "v129", "v128"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -547,6 +547,56 @@ try {
     await settled(C); await settled(C);
     ok("…and poured, two more in the well and in the book", did.ok && C.well() === 4 && C.wellBook().buckets === 52, { well: C.well(), book: C.wellBook() });
     C.close(); D.close();
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_thank(integer, integer)') is not null as there`))[0].there) {
+    section("thanks at the picking, and the jar at the well (v129)");
+    const well = (await sql(`select town.cat('farming')->'wellAt' as at`))[0].at, AT_WELL = [well[0] + 1, well[1]], RIVER = [16, 38];
+    await sql(`update public.town_things set doc = '0'::jsonb where key = 'well'`);
+    // (the deeds too: what was carried earlier in this test is work of this round, and would have its share of the jar)
+    await sql(`truncate public.town_deeds, public.town_well_water, public.town_well_cans, public.town_plot_help, public.town_thanks, public.town_jar, public.town_jar_owed`);
+    const now = Number((await sql(`select town.now_ms() as n`))[0].n);
+    // a plant of A's in a plot; B carries a bucketful, fills a can with it and waters A's plant
+    await sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values (133, 5, town.bed_of(133, 5), 'tilled', $1::jsonb, 0) on conflict (x, y) do update set soil = 'tilled', plant = excluded.plant`,
+      [JSON.stringify({ by: a, crop: "pumpkin", sown: now - 3600000, boost: 0, watered: 0, fed: 0, guard: now + 172800000, cured: 0, picked: 0, pickedAt: 0 })]);
+    await purse(a, 20, [{ item: "kangkong", n: 3 }, { item: "hoe", n: 1 }]);
+    await purse(b, 0, [{ item: "bucket", n: 1 }, { item: "can", n: 1 }]);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'bucket', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [b]);
+    const E = new DbKeeper(a, askAs("A")), F = new DbKeeper(b, askAs("B"));
+    await settled(E); await settled(F);
+    await F.choreDo("river", RIVER);
+    await F.choreDo("well", AT_WELL);
+    await F.hold(slotOf(F, "can"));
+    await F.choreDo("well", AT_WELL);
+    let did = await F.farmDo("133,5", "Tester B");
+    ok("a plant of the other's watered with water one carried oneself", did.ok && did.deed === "water", did);
+    ok("before it is asked for, nobody is known to thank", Object.keys(E.toThank()).length === 0);
+    await E.thankLook();
+    ok("asked for: the plot, and the helper by name, who both watered and carried", E.toThank()["133,5"]?.length === 1 && E.toThank()["133,5"][0].id === b && E.toThank()["133,5"][0].name === "Tester B"
+      && E.toThank()["133,5"][0].water === 1 && E.toThank()["133,5"][0].carry === 1, E.toThank());
+    did = await E.thankAt("133,5");
+    ok("thanked: the answer says who, and nobody is left to thank today", did.ok && did.thanked.length === 1 && did.thanked[0] === b && Object.keys(E.toThank()).length === 0, did);
+    did = await E.thankAt("133,5");
+    ok("once a day", !did.ok && did.why === "none", did);
+    const told = await askAs("B")("town_well_ranks");
+    ok("the one thanked is told so with everybody's rank", told?.thanked?.length === 1 && told.thanked[0].id === a && told.thanked[0].name === "Tester A", told);
+    await F.wellLook();
+    ok("their book has the board: one thanks today, and they are the week's most thanked", F.thanks()?.today.length === 1 && F.thanks().week === 1 && F.thanks().top[0]?.id === b && F.thanked()[0]?.id === a, F.thanks());
+    ok("…and the jar, empty, with the moment it is next shared", F.jar()?.coins === 0 && F.jar().things.length === 0 && F.jar().next > now && F.jar().mine === null, F.jar());
+    did = await E.jarDrop({ coins: 12 });
+    ok("coins dropped into the jar: out of the purse, and the jar is told back", did.ok && E.purse().coins === 8 && E.jar()?.coins === 12, { did, jar: E.jar() });
+    did = await E.jarDrop({ slot: slotOf(E, "kangkong"), n: 2 });
+    ok("something grown dropped too", did.ok && E.purse().bag[slotOf(E, "kangkong")]?.n === 1 && E.jar().things.length === 1 && E.jar().things[0][0] === "kangkong" && E.jar().things[0][1] === 2, E.jar());
+    did = await E.jarDrop({ slot: slotOf(E, "hoe"), n: 1 });
+    ok("a tool is not taken", !did.ok && did.why === "unwanted", did);
+    did = await F.jarTake();
+    ok("nothing waits before the round turns", !did.ok && did.why === "nothing", did);
+    await skip(12 * 3600000);
+    await F.wellLook();
+    ok("the round turned: the jar is shared as the book is opened, all of it to the one who worked", F.jar()?.coins === 0 && F.jar().mine?.coins === 12 && F.jar().mine.things[0]?.[1] === 2, F.jar());
+    did = await F.jarTake();
+    ok("taken: the coins and the things are in the purse, and nothing waits", did.ok && did.coins === 12 && F.purse().coins === 12 && F.purse().bag.some((s) => s?.item === "kangkong" && s.n === 2) && F.jar().mine === null, { did, jar: F.jar() });
+    E.close(); F.close();
   }
 
   section("one thing at a time");

@@ -1,7 +1,7 @@
 import { WATER } from "./farm";
 import type { ItemId } from "./items";
 import { dayOf } from "./stamina";
-import { no, put, roomFor, type Done, type Purse } from "./trade";
+import { no, put, roomFor, roundOf, type Done, type Purse } from "./trade";
 
 /**
  * The well's book: whose water went where.
@@ -45,11 +45,15 @@ export const WELL_BOOK = {
 /** What a carrier of each rank is called, under their own name: the first rank to the last. */
 export const RANK_TITLES: Array<[th: string, en: string]> = [["คนหาบน้ำ", "Water carrier"], ["คนหาบน้ำมือฉมัง", "Seasoned carrier"], ["ผู้ดูแลบ่อน้ำ", "Keeper of the well"]];
 
-/** A deed with water, as it is written down (the database's `town_deeds`): who, when, what; how many bucketfuls were poured, the can filled or watered with, the plot, and whose plant it was when not one's own. */
+/**
+ * A deed with water, as it is written down (the database's `town_deeds`): who, when, what; how many bucketfuls were
+ * poured, the can filled or watered with, the plot, and whose plant it was when not one's own. And a seed sown, which
+ * is no water: a plot sown anew begins with nobody having helped its plant.
+ */
 export interface WaterDeed {
   by: string;
   at: number;
-  what: "pour" | "fill" | "water";
+  what: "pour" | "fill" | "water" | "sow";
   /** Poured: how many bucketfuls went in. */
   n?: number;
   /** Filled, or watered with: which can. */
@@ -72,15 +76,38 @@ export interface WellLog {
   reach: Record<string, Record<string, { owner: string; n: number }>>;
   /** The plants of other people each member watered on each day: by the day and the member, the waterings to an owner. */
   hands: Record<string, Record<string, number>>;
+  /**
+   * Who has helped the plant in each plot since it was sown (lib/town/thanks): whose plant it is, and for each helper
+   * how many times they watered it and how many waterings of it were of water they carried.
+   */
+  help: Record<string, { owner: string; by: Record<string, { water: number; carry: number }> }>;
+  /** What each did for the others in each of the uncle's rounds (lib/town/jar): bucketfuls poured, and waterings of other people's plants. */
+  work: Record<string, Record<string, { buckets: number; waterings: number }>>;
 }
-export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {} });
+export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {} });
 
 const canKey = (by: string, can: string) => `${by}/${can}`;
 const dayKey = (day: number, who: string) => `${day}/${who}`;
+const plotOf = (tile: [number, number]) => `${tile[0]},${tile[1]}`;
+function worked(work: WellLog["work"], round: number, who: string, buckets: number, waterings: number): WellLog["work"] {
+  const all = work[round] ?? {}, mine = all[who] ?? { buckets: 0, waterings: 0 };
+  return { ...work, [round]: { ...all, [who]: { buckets: mine.buckets + buckets, waterings: mine.waterings + waterings } } };
+}
+function helped(help: WellLog["help"], plot: string, owner: string, who: string, how: "water" | "carry"): WellLog["help"] {
+  // (a plant of somebody else's than the one the plot's helpers helped: theirs are forgotten)
+  const was = help[plot]?.owner === owner ? help[plot] : { owner, by: {} }, mine = was.by[who] ?? { water: 0, carry: 0 };
+  return { ...help, [plot]: { owner, by: { ...was.by, [who]: { ...mine, [how]: mine[how] + 1 } } } };
+}
 
 /** The log after a deed with water. */
 export function seen(log: WellLog, d: WaterDeed): WellLog {
-  const day = dayOf(d.at);
+  const day = dayOf(d.at), round = roundOf(d.at);
+  if (d.what === "sow") {
+    if (!d.tile || !(plotOf(d.tile) in log.help)) return log;
+    const help = { ...log.help };
+    delete help[plotOf(d.tile)];
+    return { ...log, help };
+  }
   if (d.what === "pour") {
     const n = Math.floor(d.n ?? 0);
     if (n <= 0) return log;
@@ -90,6 +117,7 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
       water: [...log.water, { by: d.by, left: n }],
       carriers: { ...log.carriers, [d.by]: { ...was, buckets: was.buckets + n } },
       days: { ...log.days, [day]: { ...today, [d.by]: { ...mine, buckets: mine.buckets + n } } },
+      work: worked(log.work, round, d.by, n, 0),
     };
   }
   if (d.what === "fill") {
@@ -100,18 +128,21 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
     return { ...log, water, cans: { ...log.cans, [canKey(d.by, d.can)]: { by: first?.by ?? null, left: WATER.cans[d.can as ItemId] ?? 0 } } };
   }
   // a plant watered: with whose water, and whose plant
-  const owner = d.whose ?? d.by;
+  const owner = d.whose ?? d.by, plot = d.tile ? plotOf(d.tile) : null;
   let next = log;
   if (owner !== d.by) {
     const key = dayKey(day, d.by), mine = log.hands[key] ?? {};
-    next = { ...next, hands: { ...log.hands, [key]: { ...mine, [owner]: (mine[owner] ?? 0) + 1 } } };
+    next = {
+      ...next, hands: { ...log.hands, [key]: { ...mine, [owner]: (mine[owner] ?? 0) + 1 } },
+      work: worked(log.work, round, d.by, 0, 1), help: plot ? helped(log.help, plot, owner, d.by, "water") : log.help,
+    };
   }
   const can = d.can ? log.cans[canKey(d.by, d.can)] : undefined;
   if (!can || can.left <= 0 || !d.can) return next;
   next = { ...next, cans: { ...next.cans, [canKey(d.by, d.can)]: { ...can, left: can.left - 1 } } };
-  if (!can.by || can.by === owner || !d.tile) return next;
-  const key = dayKey(day, can.by), plots = next.reach[key] ?? {}, plot = `${d.tile[0]},${d.tile[1]}`;
-  return { ...next, reach: { ...next.reach, [key]: { ...plots, [plot]: { owner, n: (plots[plot]?.n ?? 0) + 1 } } } };
+  if (!can.by || can.by === owner || !plot) return next;
+  const key = dayKey(day, can.by), plots = next.reach[key] ?? {};
+  return { ...next, reach: { ...next.reach, [key]: { ...plots, [plot]: { owner, n: (plots[plot]?.n ?? 0) + 1 } } }, help: helped(next.help, plot, owner, can.by, "carry") };
 }
 
 /** The rank so many bucketfuls make: none, or the first, the second, the third. */

@@ -6,6 +6,7 @@ import type { ForestRefusal, Outcome, Sight } from "./forest";
 import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
 import { nextHint } from "./hints";
+import type { JarTold } from "./jar";
 import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
 import { NO_PRICES, type PricesTold } from "./market";
 import type { NoticeRefusal, PinboardTold } from "./notices";
@@ -14,6 +15,7 @@ import { SKIES } from "./skies";
 import type { Rain } from "./weather";
 import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
+import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
 import type { WellBook } from "./well";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
@@ -180,6 +182,21 @@ export interface Keeper {
   /** Take what the well has waiting for me. */
   wellTake(): Promise<Did<{ gift: ItemId; rank: number }>>;
 
+  /**
+   * Thanks (lib/town/thanks): every plot of mine with somebody in it to thank today, each by name (as last asked);
+   * thanking whoever helped the plant in one; the board, as last read with the book; and who has thanked me today
+   * (asked for with everybody's rank).
+   */
+  toThank(): Record<string, Array<Helper & { name: string }>>;
+  thankLook(): Promise<void>;
+  thankAt(key: string): Promise<Did<{ thanked: string[] }>>;
+  thanks(): ThanksBoard | null;
+  thanked(): Array<{ id: string; name: string }>;
+  /** The jar at the well (lib/town/jar), as last read with the book; dropping coins or a thing into it; taking what waits for me. */
+  jar(): JarTold | null;
+  jarDrop(what: { coins: number } | { slot: number; n: number }): Promise<Did>;
+  jarTake(): Promise<Did<{ coins: number; things: Array<[ItemId, number]> }>>;
+
   /** Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who they are (the database reads each one's hand itself). */
   cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>>;
   potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
@@ -257,6 +274,10 @@ export class DbKeeper implements Keeper {
   private wellBook_: WellBook | null = null;
   private ranks_: Record<string, number> = {};
   private ranksAgain: ReturnType<typeof setInterval> | null = null;
+  private toThank_: Record<string, Array<Helper & { name: string }>> = {};
+  private thanks_: ThanksBoard | null = null;
+  private thanked_: Array<{ id: string; name: string }> = [];
+  private jar_: JarTold | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -373,6 +394,10 @@ export class DbKeeper implements Keeper {
     }
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
+    if (a.toThank && typeof a.toThank === "object") this.toThank_ = a.toThank as Record<string, Array<Helper & { name: string }>>;
+    if (a.thanks && typeof a.thanks === "object") { this.thanks_ = a.thanks as ThanksBoard; this.thanked_ = this.thanks_.today; }
+    if (Array.isArray(a.thanked)) this.thanked_ = a.thanked as Array<{ id: string; name: string }>;
+    if (a.jar && typeof a.jar === "object") this.jar_ = a.jar as JarTold;
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -632,6 +657,14 @@ export class DbKeeper implements Keeper {
   }
   async wellLook() { await this.ask("town_well"); }
   wellTake() { return this.deed<{ gift: ItemId; rank: number }>("town_well_take"); }
+  toThank() { return this.toThank_; }
+  async thankLook() { await this.ask("town_to_thank"); }
+  thankAt(key: string) { const [x, y] = key.split(",").map(Number); return this.deed<{ thanked: string[] }>("town_thank", { p_x: x, p_y: y }); }
+  thanks(): ThanksBoard | null { return this.thanks_; }
+  thanked() { return this.thanked_; }
+  jar(): JarTold | null { return this.jar_; }
+  jarDrop(what: { coins: number } | { slot: number; n: number }) { return this.deed("town_jar_drop", "coins" in what ? { p_coins: what.coins } : { p_slot: what.slot, p_n: what.n }); }
+  jarTake() { return this.deed<{ coins: number; things: Array<[ItemId, number]> }>("town_jar_take"); }
 
   async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>> {
     const did = await this.deed<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });

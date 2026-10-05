@@ -19,6 +19,8 @@ import {
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
 import { bedCorner, bedOf } from "./world";
+import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
+import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
 
 /**
@@ -60,6 +62,8 @@ const WILD_SALT = "cashtown.trial.wild.salt.1", WILD_TOOK = "cashtown.trial.wild
 const BUG_TOOK = "cashtown.trial.bugs.took.1", BUG_BOOK = "cashtown.trial.bugs.book.1";
 /** The well's book (lib/town/well): whose water is where, for the whole browser. */
 const WELL_LOG = "cashtown.trial.welllog.1";
+/** The thanks given (lib/town/thanks), and the jar at the well with what waits at it for each (lib/town/jar): the whole browser's. */
+const THANKS = "cashtown.trial.thanks.1", JAR = "cashtown.trial.jar.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -359,6 +363,8 @@ export class Trial {
     if (!did.bed) delete kept[bed];
     else kept[bed] = { ...did.bed, name: (did.bed.by === beds[bed]?.by && beds[bed]?.name) || name || did.bed.by };
     this.write(BEDS, kept);
+    // (a plot sown anew forgets who helped the plant that was there)
+    if (did.deed === "sow") this.wellSeen({ by: this.id, at: now, what: "sow", tile: [x, y] });
     // (a plant watered is a line of the well's book: with which can, and whose plant when not my own)
     if (did.deed === "water") this.wellSeen({ by: this.id, at: now, what: "water", can: handOf(p) ?? undefined, tile: [x, y], ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}) });
     this.save(did.purse);
@@ -453,7 +459,8 @@ export class Trial {
 
   /* ── the well's book (lib/town/well) ── */
   private wellLog(): WellLog {
-    return this.read<WellLog>(WELL_LOG, newLog, (v) => { const l = v as Partial<WellLog> | null; return !!l && Array.isArray(l.water) && !!l.cans && !!l.carriers && !!l.days && !!l.reach && !!l.hands; });
+    // (a log kept before it remembered who helped each plant, or what each did in a round, is given those as empty)
+    return { ...newLog(), ...this.read<WellLog>(WELL_LOG, newLog, (v) => { const l = v as Partial<WellLog> | null; return !!l && Array.isArray(l.water) && !!l.cans && !!l.carriers && !!l.days && !!l.reach && !!l.hands; }) };
   }
   private wellSeen(deed: WaterDeed) { this.write(WELL_LOG, seen(this.wellLog(), deed)); }
   /** The book as I read it now; a carrier is called what their bed is called by, if they have one. */
@@ -468,6 +475,50 @@ export class Trial {
     this.write(WELL_LOG, did.log);
     this.save(did.purse);
     return { ok: true, gift: did.gift, rank: did.rank };
+  }
+  /* ── thanks, and the jar at the well (lib/town/thanks, lib/town/jar) ── */
+  private nameOf(): (id: string) => string {
+    const names = new Map([...this.owners().values()].map((o) => [o.by, o.name]));
+    return (id) => names.get(id) ?? id;
+  }
+  private given(): Thanks[] { return this.read<Thanks[]>(THANKS, () => [], Array.isArray); }
+  toThank(): Record<string, Array<Helper & { name: string }>> {
+    const name = this.nameOf();
+    return Object.fromEntries(Object.entries(toThank(this.wellLog(), this.given(), this.id, this.now())).map(([plot, list]) => [plot, list.map((h) => ({ ...h, name: name(h.id) }))]));
+  }
+  thankAt(key: string): { ok: true; thanked: string[] } | { ok: false; why: Refusal } {
+    const did = thank(this.wellLog(), this.given(), key, this.id, this.now());
+    if (!did.ok) return did;
+    this.write(THANKS, did.given);
+    this.tell();
+    return { ok: true, thanked: did.thanked };
+  }
+  thanksBoard(): ThanksBoard { return boardOf(this.given(), this.id, this.now(), this.nameOf()); }
+  /** The jar and what waits at it, shared out first if a round has turned. */
+  private jarKept(): { jar: Jar; owed: Owed } {
+    const now = this.now();
+    const kept = this.read<{ jar: Jar; owed: Owed }>(JAR, () => ({ jar: newJar(roundOf(now)), owed: {} }), (v) => { const k = v as { jar?: Partial<Jar>; owed?: unknown } | null; return !!k && !!k.jar && typeof k.jar.round === "number" && Array.isArray(k.jar.things) && !!k.owed; });
+    const did = settle(kept.jar, kept.owed, this.wellLog(), now);
+    if (did.jar !== kept.jar || did.owed !== kept.owed) this.write(JAR, { jar: did.jar, owed: did.owed });
+    return { jar: did.jar, owed: did.owed };
+  }
+  jar(): JarTold {
+    const { jar, owed } = this.jarKept();
+    return { ...jar, next: nextRoundAt(this.now()), mine: owed[this.id] ?? null };
+  }
+  jarDrop(what: { coins: number } | { slot: number; n: number }): { ok: true } | { ok: false; why: Refusal } {
+    const { jar, owed } = this.jarKept(), did = jarDrop(this.purse(), jar, what);
+    if (!did.ok) return did;
+    this.write(JAR, { jar: did.jar, owed });
+    this.save(did.purse);
+    return { ok: true };
+  }
+  jarTake(): { ok: true; coins: number; things: Array<[ItemId, number]> } | { ok: false; why: Refusal } {
+    const { jar, owed } = this.jarKept(), did = jarCollect(this.purse(), owed, this.id);
+    if (!did.ok) return did;
+    this.write(JAR, { jar, owed: did.owed });
+    this.save(did.purse);
+    return { ok: true, coins: did.coins, things: did.things };
   }
   /** For scripts and the test window: so many bucketfuls poured, all told, as mine. */
   setCarried(buckets: number) {
@@ -701,7 +752,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

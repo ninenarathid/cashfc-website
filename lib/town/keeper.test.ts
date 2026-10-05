@@ -181,6 +181,46 @@ describe("the database's keeper", () => {
     expect(db.asked.filter((f) => f === "town_well_ranks")).toHaveLength(2);
   });
 
+  it("keeps whom I have to thank, who thanked me, the board and the jar, each from the answer that brings it", async () => {
+    const helper = { id: "bo", name: "Bo", water: 2, carry: 1 };
+    const board = { today: [{ id: "cy", name: "Cy" }], week: 3, all: 9, top: [{ id: "me", name: "Me", n: 3 }], ever: [{ id: "me", name: "Me", n: 9 }] };
+    const jar = (coins: number, mine: unknown = null) => ({ round: 7, coins, things: [], next: NOW + 3_600_000, mine });
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse({ coins: 20 }) }),
+      town_well_ranks: () => ({ now: NOW, ranks: {}, thanked: [{ id: "di", name: "Di" }] }),
+      town_to_thank: () => ({ now: NOW, toThank: { "133,5": [helper] } }),
+      town_thank: (args) => ({ ok: true, thanked: ["bo"], now: NOW, toThank: {}, asked: args }),
+      town_well: () => ({ now: NOW, wellBook: { buckets: 0, rank: 0, towards: 0, gift: false, today: {}, carriers: [] }, thanks: board, jar: jar(4) }),
+      town_jar_drop: (args) => ({ ok: true, now: NOW, purse: purse({ coins: 15 }), jar: jar(9), asked: args }),
+      town_jar_take: () => ({ ok: true, coins: 6, things: [["kangkong", 2]], now: NOW, purse: purse({ coins: 21 }), jar: jar(9) }),
+    });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    // who thanked me today comes with everybody's rank
+    expect(k.thanked()).toEqual([{ id: "di", name: "Di" }]);
+    expect(k.toThank()).toEqual({});
+    expect(k.thanks()).toBeNull();
+    expect(k.jar()).toBeNull();
+    await k.thankLook();
+    expect(k.toThank()).toEqual({ "133,5": [helper] });
+    // thanking tells the plot's tile, and the answer says who is left
+    const did = await k.thankAt("133,5");
+    expect(did).toMatchObject({ ok: true, thanked: ["bo"], asked: { p_x: 133, p_y: 5 } });
+    expect(k.toThank()).toEqual({});
+    // the book brings the board and the jar; the board's own "today" is who thanked me
+    await k.wellLook();
+    expect(k.thanks()).toEqual(board);
+    expect(k.thanked()).toEqual([{ id: "cy", name: "Cy" }]);
+    expect(k.jar()?.coins).toBe(4);
+    // coins dropped, a thing dropped: each as the function takes it; the answer's purse and jar are kept
+    expect(await k.jarDrop({ coins: 5 })).toMatchObject({ ok: true, asked: { p_coins: 5 } });
+    expect([k.purse().coins, k.jar()?.coins]).toEqual([15, 9]);
+    expect(await k.jarDrop({ slot: 2, n: 3 })).toMatchObject({ ok: true, asked: { p_slot: 2, p_n: 3 } });
+    expect(await k.jarTake()).toMatchObject({ ok: true, coins: 6, things: [["kangkong", 2]] });
+    expect(k.purse().coins).toBe(21);
+    k.close();
+  });
+
   it("offers no book where the database has none yet: nothing is kept of an answer that never came", async () => {
     const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
     const k = new DbKeeper("me", db.ask);

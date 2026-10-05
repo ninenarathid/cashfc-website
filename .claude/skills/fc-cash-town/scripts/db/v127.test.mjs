@@ -570,7 +570,8 @@ t.section("nothing else changed");
   t.check("it seeds one row and writes two over, and leaves the other sixteen as they were", same(written, ["farming", "items", "well"]) && after.length === 19 && before.length === 18
     && after.every((row) => written.includes(row.key) || same(row.data, was[row.key].data)), written);
   const odd = after.filter((row) => !same(row.key === "carries" ? { ...row.data, note: undefined } : row.data, CODE[row.key])).map((row) => row.key);
-  t.check("every row of the catalog is what the site's code gives now, all nineteen", odd.length === 0 && Object.keys(CODE).length === 19, odd);
+  // (the code may have rows of later files by now: only the nineteen there are here are held to it)
+  t.check("every row of the catalog is what the site's code gives now, all nineteen", odd.length === 0 && after.length === 19, odd);
   const now = Object.fromEntries(after.map((row) => [row.key, row.data]));
   const itemsMore = Object.keys(now.items).filter((id) => !(id in was.items.data)), itemsMoved = Object.keys(was.items.data).filter((id) => !same(was.items.data[id], now.items[id]));
   const farmMoved = Object.keys(now.farming).filter((k) => !same(now.farming[k], was.farming.data[k]));
