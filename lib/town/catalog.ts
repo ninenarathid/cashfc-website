@@ -272,7 +272,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * bucketfuls it carries (farming), and the rank the well gives it at (well). Whole rows, made from the tree at the
  * push (it ran after v131, which had written `items` over too: whoever replays them keeps that order).
  *
- * v132 (pending) seeds `line`, for their fourth: how far water is handed on, what that costs, and how many hands a
+ * v132 (ran 2026-10-05) seeded `line`, for their fourth: how far water is handed on, what that costs, and how many hands a
  * bucketful remembers.
  *
  * v133 (pending) seeds `waters`, for their fifth: when water has a nature, how long the well keeps it, and what a
@@ -302,7 +302,6 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * (items: the `pays` of twelve of them).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v132: { keys: ["line"], over: [] },
   v133: { keys: ["waters"], over: [] },
 };
 
