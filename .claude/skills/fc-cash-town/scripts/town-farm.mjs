@@ -56,7 +56,8 @@ async function dig(X) {
   }
 }
 async function enter(X, letter) {
-  await X.goto(`${BASE}/town?townTest=${letter}&townRoom=check&townHour=12&townWeather=clear`);
+  // (a cloudy sky: under a clear one a watering from noon to four is worth twice, lib/town/heat, and this runs at whatever the hour is)
+  await X.goto(`${BASE}/town?townTest=${letter}&townRoom=check&townHour=12&townWeather=cloudy`);
   await until("ready", async () => (await status(X)) === "ready", 240000);
   await until("the trial is there", () => X.evaluate(`!!${T}`), 20000);
 }
