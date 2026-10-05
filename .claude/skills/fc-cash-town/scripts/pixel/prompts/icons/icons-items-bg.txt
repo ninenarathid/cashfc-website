@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small item icons for that game's shop, bag and cooking, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) one small apple, red and green, with a leaf on its stalk; 2) one glossy dark brown chestnut beside its open green spiny husk; 3) one pink-purple orchid flower with a yellow throat, growing on a small piece of bark; 4) one pale white trumpet-shaped flower tinted with soft blue, on a short green stalk; 5) one jagged sliver of blue-silver star stone with a small white four-pointed sparkle on it; 6) a small mound of freshly turned dark brown earth with a crack across its top and one tiny green sprout.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

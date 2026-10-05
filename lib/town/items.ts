@@ -24,6 +24,8 @@ export type ItemKind =
   | "crop"
   | "fish"
   | "catch"   // what else comes up on a line
+  | "wild"    // what is found in the forest (lib/town/forest)
+  | "bug"     // an insect, caught with a net (lib/town/insects)
   | "goods"   // things made from other things
   | "dish"
   | "scroll"; // a recipe written out, to be read
@@ -217,6 +219,125 @@ export const ITEMS = {
   scrollMasgouf: it("scroll", "ม้วนสูตร มัสกูฟ", "Recipe scroll: masgouf", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
   scrollSalmonSteak: it("scroll", "ม้วนสูตร สเต็กแซลมอน", "Recipe scroll: salmon steak", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
   scrollArapaimaRoast: it("scroll", "ม้วนสูตร ปลายักษ์ย่างทั้งตัว", "Recipe scroll: whole roast giant", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+
+  // What is found in the forest (the owner, 2026-10-05: "หาของป่า … เดินเข้าไปเก็บของป่าที่จะ spawn ออกมาเป็นช่วงเวลา", and of the first
+  // list he was shown: "อยากให้การออกแบบเป็น universal เลยครับ ใช้ของประเทศไหนก็ได้ หรือจะแฟนตาซีก็ได้"): things known everywhere, and a
+  // few of no country at all among the rare ones. Where and when each is there, and how it is gathered, is
+  // lib/town/forest's; nothing says so here. All of the early game: the forest is walked into with empty hands.
+  // lying on the ground
+  twig: it("wild", "กิ่งไม้แห้ง", "Dry twig", "กิ่งไม้เล็กสีน้ำตาล แห้งกรอบ หักง่าย", "A small brown stick, dry and brittle", 20, 1),
+  leafMould: it("wild", "ใบไม้ผุ", "Leaf mould", "ใบไม้เก่าสีน้ำตาลเข้ม เปื่อยยุ่ย ชื้น กลิ่นเหมือนดิน", "Old dark brown leaves, soft and damp, smelling of earth", 20, 1),
+  pineCone: it("wild", "ลูกสน", "Pine cone", "ลูกสีน้ำตาล เกล็ดแข็งซ้อนกันเป็นชั้น", "A brown cone of hard, overlapping scales", 20, 1),
+  feather: it("wild", "ขนนก", "Feather", "ขนนกสีขาวปลายเทา ก้านแข็ง เบาหวิว", "A white feather tipped with grey, stiff-quilled and very light", 20, 3),
+  resin: it("wild", "ยางไม้", "Resin", "ก้อนสีเหลืองอำพัน เหนียวหนึบ กลิ่นหอมฉุน", "A sticky amber-yellow lump with a sharp, sweet smell", 10, 3),
+  vine: it("wild", "เถาวัลย์", "Vine", "เถาสีเขียวอมน้ำตาล ยาวและเหนียว ขดเป็นวง", "A long, tough, green-brown creeper, coiled up", 20, 2),
+  bambooCane: it("wild", "ลำไผ่", "Bamboo cane", "ลำสีเขียวเป็นปล้อง ข้างในกลวง", "A green cane in jointed lengths, hollow inside", 10, 2),
+  wildflower: it("wild", "ดอกไม้ป่า", "Wildflowers", "ดอกเล็กหลายสี ก้านบาง กลิ่นหอมอ่อนๆ", "Small flowers of several colours on thin stalks, faintly sweet", 20, 2),
+  clay: it("wild", "ดินเหนียว", "Clay", "ก้อนดินสีเทาอมน้ำตาล เนื้อเนียน ชื้น กดแล้วคงรูป", "A grey-brown lump, smooth and damp, that keeps the shape it is pressed into", 20, 2),
+  // growing, and picked with care
+  shiitake: it("wild", "เห็ดชิตาเกะ", "Shiitake", "หมวกสีน้ำตาลเข้ม ผิวแตกลาย ก้านสั้นสีครีม", "A dark brown cap with a cracked skin, on a short cream stalk", 20, 3),
+  chanterelle: it("wild", "เห็ดชานเทอเรล", "Chanterelle", "ทรงกรวยสีเหลืองทอง ขอบหยักเป็นคลื่น ใต้หมวกเป็นสันย่น", "A golden yellow funnel with a wavy edge and wrinkled ridges beneath", 20, 5),
+  porcini: it("wild", "เห็ดพอร์ชินี", "Porcini", "หมวกกลมสีน้ำตาลเหมือนขนมปัง ก้านอ้วนสีขาว", "A round cap as brown as a bun, on a fat white stalk", 20, 7),
+  glowMushroom: it("wild", "เห็ดเรืองแสง", "Glowing mushroom", "เห็ดดอกเล็กสีฟ้าอมเขียว เปล่งแสงนวลในที่มืด", "A small blue-green mushroom that gives off a soft light in the dark", 10, 12),
+  toadstool: it("wild", "เห็ดแดงจุดขาว", "Red toadstool", "หมวกสีแดงสด มีจุดขาวกระจายทั่ว ก้านขาว", "A bright red cap scattered with white spots, on a white stalk", 20, 0),
+  fiddlehead: it("wild", "ยอดเฟิร์น", "Fiddleheads", "ยอดอ่อนสีเขียวสด ม้วนเป็นก้นหอย", "Fresh green shoots, each curled into a tight spiral", 20, 3),
+  mint: it("wild", "มินต์ป่า", "Wild mint", "ใบเล็กสีเขียว ขอบหยัก กลิ่นเย็นซ่า", "Small green leaves with toothed edges and a cool, sharp scent", 20, 3),
+  rosemary: it("wild", "โรสแมรี่", "Rosemary", "กิ่งแข็ง ใบเรียวเหมือนเข็มสีเขียวเทา กลิ่นหอมแรง", "Stiff sprigs of grey-green needles, strongly scented", 20, 3),
+  chamomile: it("wild", "คาโมมายล์", "Chamomile", "ดอกเล็ก กลีบขาว เกสรเหลืองนูน กลิ่นคล้ายแอปเปิล", "Small flowers with white petals round a domed yellow heart, smelling a little of apples", 20, 3),
+  lavender: it("wild", "ลาเวนเดอร์", "Lavender", "ช่อดอกเล็กสีม่วงบนก้านยาว กลิ่นหอมติดมือ", "Spikes of small purple flowers on long stalks; the scent stays on the hands", 20, 3),
+  blueberry: it("wild", "บลูเบอร์รี่", "Blueberries", "ลูกกลมเล็กสีน้ำเงินเข้ม มีนวลขาวเคลือบ", "Small, round, dark blue berries with a pale bloom on them", 20, 2),
+  raspberry: it("wild", "ราสป์เบอร์รี่", "Raspberries", "ลูกสีแดงอมชมพู เป็นเม็ดเล็กๆ เกาะกัน นิ่ม", "Soft, pink-red berries made of many tiny beads", 20, 2),
+  wildStrawberry: it("wild", "สตรอว์เบอร์รี่ป่า", "Wild strawberries", "ลูกจิ๋วสีแดงสด มีเมล็ดเล็กๆ ทั่วผิว กลิ่นหอมหวาน", "Tiny bright red berries dotted with seeds, sweet-smelling", 20, 3),
+  silkCocoon: it("wild", "รังไหม", "Silk cocoon", "ก้อนรีสีขาวนวล พันด้วยเส้นใยละเอียดเป็นมัน", "A pale oval wound in fine, glossy thread", 10, 8),
+  fourLeafClover: it("wild", "โคลเวอร์สี่แฉก", "Four-leaf clover", "ใบเล็กสีเขียวสด มีสี่แฉกเท่ากันพอดี", "A small bright green leaf in four even parts", 5, 40),
+  // dug up
+  bambooShoot: it("wild", "หน่อไม้", "Bamboo shoot", "หน่อทรงกรวย เปลือกสีน้ำตาลซ้อนกันหลายชั้น เนื้อในสีครีม", "A cone wrapped in layers of brown sheath, cream within", 20, 5),
+  wildYam: it("wild", "มันป่า", "Wild yam", "หัวยาวขรุขระ เปลือกสีน้ำตาลมีขน เนื้อในขาว", "A long knobbly tuber with hairy brown skin, white inside", 20, 5),
+  truffle: it("wild", "ทรัฟเฟิล", "Truffle", "ก้อนสีดำขรุขระเท่าลูกปิงปอง กลิ่นแรงจนได้กลิ่นผ่านดิน", "A black, warty lump the size of a small ball, with a smell strong enough to come up through the earth", 10, 45),
+  ginseng: it("wild", "โสมป่า", "Wild ginseng", "รากสีครีมแตกแขนงคล้ายคนตัวเล็กๆ มีรากฝอย", "A cream root forked like a little person, trailing fine hairs", 5, 80),
+  amber: it("wild", "อำพัน", "Amber", "ก้อนใสสีน้ำผึ้ง แข็ง เบา มีแมลงตัวเล็กติดอยู่ข้างใน", "A clear, honey-coloured stone, hard and light, with a tiny insect caught inside", 5, 120),
+  mandrake: it("wild", "แมนเดรก", "Mandrake", "รากอ้วนสีน้ำตาลรูปร่างเหมือนเด็กทารก มีหน้าย่นๆ กับใบเป็นกระจุกบนหัว", "A fat brown root shaped like a baby, with a wrinkled face and a tuft of leaves on its head", 1, 200),
+  // shaken down
+  wildApple: it("wild", "แอปเปิลป่า", "Wild apple", "ลูกเล็กสีแดงปนเขียว ผิวมัน เนื้อแน่น", "A small apple, red and green, glossy and firm", 20, 2),
+  chestnut: it("wild", "เกาลัด", "Chestnut", "เมล็ดสีน้ำตาลเข้มเป็นมัน อยู่ในเปลือกหนามสีเขียว", "A glossy dark brown nut in a green, spiny husk", 20, 3),
+  // found only now and then
+  wildOrchid: it("wild", "กล้วยไม้ป่า", "Wild orchid", "ดอกสีม่วงอมชมพู กลีบบาง กลางดอกสีเหลือง เกาะอยู่บนเปลือกไม้", "A pink-purple flower with thin petals and a yellow throat, clinging to a piece of bark", 5, 60),
+  moonflower: it("wild", "ดอกจันทรา", "Moonflower", "ดอกสีขาวนวลทรงแตร กลีบเรืองแสงจางๆ เหมือนแสงจันทร์", "A pale white trumpet of a flower whose petals glow faintly, like moonlight", 5, 70),
+  starShard: it("wild", "เศษดาวตก", "Star shard", "เศษหินสีเงินอมฟ้า ยังอุ่น มีประกายระยิบ", "A sliver of blue-silver stone, still warm, glinting as it turns", 5, 150),
+  // What is made of the forest's things (2026-10-05, once the twenty fish had gone up): a skewer whittled from a twig,
+  // which is cookware nobody has to buy (the owner, asked whether something might be roasted at the camp's fire with
+  // no cookware of the uncle's: "ได้ครับ"); a float and a line for the river, plainer than the uncle's; two things to
+  // put on a plant; and eighteen dishes of what is gathered, with a scroll each. (Two of the dishes take an egg, and
+  // so are of the second tier, as an egg is.)
+  skewer: it("tool", "ไม้เสียบ", "Skewer", "กิ่งไม้เหลาปลายแหลม ยาวราวศอก", "A twig whittled to a point, about a forearm long", 1, 1),
+  floatFeather: it("tool", "ทุ่นก้านขนนก", "Feather float", "ก้านขนนกสีขาวผูกติดกับปล้องไม้ไผ่ชิ้นเล็ก", "A white quill bound to a small joint of bamboo", 1, 6),
+  lineSpun: it("tool", "เส้นไหมปั่นมือ", "Hand-spun silk line", "เส้นด้ายสีขาวนวลเป็นมัน ปั่นเกลียวแน่น ม้วนอยู่บนแกนไม้", "A glossy pale thread, tightly twisted, wound on a wooden spool", 1, 12),
+  mulch: it("goods", "ปุ๋ยใบไม้", "Leaf mulch", "เศษใบไม้สีน้ำตาลเข้มบดละเอียดในถุงผ้า ชื้นและอุ่น", "Dark brown crumbled leaves in a cloth bag, damp and warm", 20, 3),
+  lavenderSachet: it("goods", "ถุงหอมลาเวนเดอร์", "Lavender sachet", "ถุงผ้าใบเล็กมัดด้วยเถาวัลย์ ข้างในเป็นดอกแห้งสีม่วง กลิ่นหอมแรง", "A small cloth bag tied with vine, full of dried purple flowers, strongly scented", 20, 6),
+  mushroomSoup: it("dish", "ซุปเห็ด", "Mushroom soup", "น้ำซุปสีน้ำตาลอ่อน มีเห็ดหั่นชิ้นกับต้นหอมลอยอยู่", "A pale brown broth with sliced mushrooms and spring onion afloat", 5, 11),
+  mushroomSkewer: it("dish", "เห็ดเสียบไม้ย่าง", "Mushroom skewer", "เห็ดสีน้ำตาลเสียบไม้เรียงกัน ผิวเกรียมเป็นจุด", "Brown mushrooms in a row on a stick, charred in spots", 5, 8),
+  fishOnStick: it("dish", "ปลาเสียบไม้ย่าง", "Fish on a stick", "ปลาทั้งตัวเสียบไม้ หนังเกรียมสีทอง โรยเกล็ดเกลือ", "A whole fish on a stick, its skin golden and charred, flecked with salt", 5, 11),
+  roastYam: it("dish", "มันป่าเผา", "Roast yam", "หัวมันผ่าครึ่ง เปลือกไหม้ดำ เนื้อในขาวฟู ควันกรุ่น", "A tuber split in half, its skin burnt black, fluffy white inside, steaming", 5, 12),
+  roastedApple: it("dish", "แอปเปิลย่าง", "Roasted apple", "แอปเปิลลูกเล็กเสียบไม้ ผิวเหี่ยวย่นสีน้ำตาลทอง มีน้ำเชื่อมเยิ้ม", "A small apple on a stick, its skin wrinkled golden brown and oozing syrup", 5, 5),
+  mushroomRisotto: it("dish", "ริซอตโตเห็ด", "Mushroom risotto", "ข้าวเม็ดอ้วนสีครีมข้นๆ มีเห็ดชิ้นสีน้ำตาลแทรกอยู่", "Creamy plump rice with brown pieces of mushroom through it", 5, 10),
+  fernSalad: it("dish", "สลัดยอดเฟิร์น", "Fiddlehead salad", "ยอดสีเขียวม้วนเป็นก้นหอยกองอยู่ในจาน มีใบเล็กๆ โรยหน้า", "Green spirals heaped on a plate, with small leaves scattered on top", 5, 16),
+  herbTea: it("dish", "ชาสมุนไพร", "Herb tea", "น้ำใสสีเหลืองอ่อนในถ้วยดิน มีดอกสีขาวลอยอยู่ ควันหอม", "A clear pale yellow drink in a clay cup, white flowers floating in it, fragrant steam rising", 5, 7),
+  berryCompote: it("dish", "เบอร์รี่เชื่อม", "Berry compote", "ผลไม้ลูกเล็กสีม่วงแดงในน้ำเชื่อมข้นสีเข้ม", "Small purple and red fruit in a thick dark syrup", 5, 9),
+  bakedApple: it("dish", "แอปเปิลอบเกาลัด", "Baked apples with chestnut", "แอปเปิลอบผ่าซีก เนื้อนิ่มสีทอง โรยเกาลัดบด", "Halved baked apples, soft and golden, with crushed chestnut on top", 5, 7),
+  roastChestnut: it("dish", "เกาลัดคั่ว", "Roast chestnuts", "เมล็ดสีน้ำตาลเข้มเปลือกแตกอ้า เห็นเนื้อสีเหลืองข้างใน", "Dark brown nuts with their shells split open on the yellow inside", 5, 11),
+  forestStew: it("dish", "สตูว์ป่า", "Forest stew", "น้ำข้นสีน้ำตาลเข้ม มีมันหั่นก้อน เห็ด และแครอทสีส้ม", "A thick dark brown stew with chunks of tuber, mushrooms and orange carrot", 5, 10),
+  bambooShootStir: it("dish", "ผัดหน่อไม้", "Stir-fried bamboo shoots", "หน่อไม้หั่นแว่นสีครีมผัดกับพริกแดง มันวาว", "Cream slices of bamboo shoot fried glossy with red chilli", 5, 13),
+  rosemaryFish: it("dish", "ปลาย่างโรสแมรี่", "Rosemary grilled fish", "ปลาย่างทั้งตัว มีกิ่งใบเข็มสีเขียววางพาดบนตัว", "A whole grilled fish with a sprig of green needles laid across it", 5, 16),
+  ginsengSoup: it("dish", "ซุปโสม", "Ginseng soup", "น้ำซุปใสสีทอง มีรากสีครีมทั้งรากนอนอยู่ก้นถ้วย", "A clear golden broth with a whole cream root lying at the bottom of the bowl", 5, 34),
+  moonTea: it("dish", "ชาดอกจันทรา", "Moonflower tea", "น้ำสีฟ้าอ่อนเรืองแสงจางๆ มีกลีบดอกสีขาวลอยอยู่", "A pale blue drink that glows faintly, white petals floating on it", 5, 28),
+  truffleEggs: it("dish", "ไข่คนทรัฟเฟิล", "Truffle scrambled eggs", "ไข่คนสีเหลืองนุ่ม โรยแผ่นบางสีดำลายหินอ่อน", "Soft yellow scrambled eggs under thin black marbled shavings", 5, 35, 2),
+  mushroomOmelette: it("dish", "ออมเล็ตเห็ด", "Mushroom omelette", "ไข่ม้วนสีเหลืองทอง มีเห็ดสีส้มทองโผล่ออกมาตรงกลาง", "A golden rolled omelette with orange-gold mushrooms showing at its middle", 5, 15, 2),
+  scrollMushroomSoup: it("scroll", "ม้วนสูตร ซุปเห็ด", "Recipe scroll: mushroom soup", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollMushroomSkewer: it("scroll", "ม้วนสูตร เห็ดเสียบไม้ย่าง", "Recipe scroll: mushroom skewer", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollFishOnStick: it("scroll", "ม้วนสูตร ปลาเสียบไม้ย่าง", "Recipe scroll: fish on a stick", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollRoastYam: it("scroll", "ม้วนสูตร มันป่าเผา", "Recipe scroll: roast yam", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollRoastedApple: it("scroll", "ม้วนสูตร แอปเปิลย่าง", "Recipe scroll: roasted apple", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollMushroomRisotto: it("scroll", "ม้วนสูตร ริซอตโตเห็ด", "Recipe scroll: mushroom risotto", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollFernSalad: it("scroll", "ม้วนสูตร สลัดยอดเฟิร์น", "Recipe scroll: fiddlehead salad", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollHerbTea: it("scroll", "ม้วนสูตร ชาสมุนไพร", "Recipe scroll: herb tea", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollBerryCompote: it("scroll", "ม้วนสูตร เบอร์รี่เชื่อม", "Recipe scroll: berry compote", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollBakedApple: it("scroll", "ม้วนสูตร แอปเปิลอบเกาลัด", "Recipe scroll: baked apples with chestnut", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollRoastChestnut: it("scroll", "ม้วนสูตร เกาลัดคั่ว", "Recipe scroll: roast chestnuts", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollForestStew: it("scroll", "ม้วนสูตร สตูว์ป่า", "Recipe scroll: forest stew", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollBambooShootStir: it("scroll", "ม้วนสูตร ผัดหน่อไม้", "Recipe scroll: stir-fried bamboo shoots", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollRosemaryFish: it("scroll", "ม้วนสูตร ปลาย่างโรสแมรี่", "Recipe scroll: rosemary grilled fish", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollGinsengSoup: it("scroll", "ม้วนสูตร ซุปโสม", "Recipe scroll: ginseng soup", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollMoonTea: it("scroll", "ม้วนสูตร ชาดอกจันทรา", "Recipe scroll: moonflower tea", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 10),
+  scrollTruffleEggs: it("scroll", "ม้วนสูตร ไข่คนทรัฟเฟิล", "Recipe scroll: truffle scrambled eggs", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 20, 2),
+  scrollMushroomOmelette: it("scroll", "ม้วนสูตร ออมเล็ตเห็ด", "Recipe scroll: mushroom omelette", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 20, 2),
+  // Insects, and the net they are caught with (the owner, 2026-10-05: "จับแมลง ในทุกแมพในเกม … สามารถใช้ที่จับแมลงจับมาได้").
+  // Twenty-four of them, the cricket above being one: known everywhere, with one of no country (he asked for twice
+  // the twelve first listed, and for nothing of one country alone). Where and when each is out, and what it takes
+  // to catch it, is lib/town/insects'; nothing says so here. All of the early game.
+  bugNet: it("tool", "สวิงจับแมลง", "Insect net", "ห่วงกลมขึงตาข่ายบาง ด้ามไม้ยาว", "A round hoop with a bag of fine mesh, on a long wooden handle", 1, 12),
+  butterflyWhite: it("bug", "ผีเสื้อขาว", "White butterfly", "ปีกสีขาวนวล มีจุดดำเล็กๆ ที่ปลายปีก", "Creamy white wings with a small black spot near each tip", 20, 3),
+  monarch: it("bug", "ผีเสื้อโมนาร์ค", "Monarch butterfly", "ปีกสีส้มสด เส้นปีกสีดำ ขอบดำแต้มจุดขาว", "Bright orange wings veined in black, with white-spotted black edges", 20, 4),
+  morpho: it("bug", "ผีเสื้อมอร์โฟ", "Blue morpho", "ปีกใหญ่สีฟ้าเหลือบเงาเหมือนโลหะ ขอบสีดำ", "Large wings of shimmering metallic blue, edged with black", 5, 20),
+  dragonfly: it("bug", "แมลงปอ", "Dragonfly", "ลำตัวยาวสีแดงอมส้ม ปีกใสสี่ปีก ตาโต", "A long orange-red body, four clear wings and large eyes", 20, 3),
+  damselfly: it("bug", "แมลงปอเข็ม", "Damselfly", "ตัวเรียวเล็กเท่าเข็ม สีฟ้าสด ปีกใสหุบแนบลำตัว", "A body as thin as a needle, bright blue, with clear wings folded along it", 20, 7),
+  glassDragonfly: it("bug", "แมลงปอแก้ว", "Glass dragonfly", "ทั้งตัวใสเหมือนแก้ว เห็นเพียงขอบสีรุ้งเมื่อต้องแสง", "Clear as glass all over, seen only by the rainbow edge the light gives it", 5, 60),
+  grasshopper: it("bug", "ตั๊กแตน", "Grasshopper", "ตัวสีเขียว ขาหลังยาวพับงอ หนวดสั้น", "Green, with long folded hind legs and short feelers", 20, 3, 2),
+  mantis: it("bug", "ตั๊กแตนตำข้าว", "Praying mantis", "ตัวสีเขียวเรียวยาว หัวสามเหลี่ยม ขาหน้าพับเหมือนพนมมือ", "Long and green, with a three-cornered head and forelegs folded as if in prayer", 10, 9),
+  cicada: it("bug", "จักจั่น", "Cicada", "ตัวป้อมสีน้ำตาลเข้ม ตาห่าง ปีกใสมีเส้นลาย", "Stout and dark brown, with wide-set eyes and clear, veined wings", 20, 7),
+  stickInsect: it("bug", "ตั๊กแตนกิ่งไม้", "Stick insect", "ตัวยาวสีน้ำตาล ผอมเหมือนกิ่งไม้แห้ง ขายาวหกขา", "Long, brown and as thin as a dry twig, on six long legs", 10, 8),
+  leafInsect: it("bug", "แมลงใบไม้", "Leaf insect", "ตัวแบนสีเขียว มีเส้นลายเหมือนใบไม้ ขอบหยัก", "Flat and green, veined like a leaf, with ragged edges", 10, 8),
+  firefly: it("bug", "หิ่งห้อย", "Firefly", "แมลงตัวเล็กสีดำ ก้นเปล่งแสงสีเหลืองอมเขียว", "A small black insect whose tail shines yellow-green", 20, 6),
+  orchidMantis: it("bug", "ตั๊กแตนตำข้าวกล้วยไม้", "Orchid mantis", "ตัวสีขาวอมชมพู ขาแผ่เป็นแผ่นเหมือนกลีบดอกไม้", "Pink-white, with legs that spread flat like petals", 5, 40),
+  moth: it("bug", "มอธ", "Moth", "ปีกสีน้ำตาลเทา มีขนฟู หนวดเหมือนขนนก", "Grey-brown, furry wings and feathery feelers", 20, 2),
+  lunaMoth: it("bug", "มอธพระจันทร์", "Luna moth", "ปีกสีเขียวอ่อนนวล หางปีกยาวเรียว มีจุดวงกลมเหมือนดวงตา", "Pale green wings with long, trailing tails and a round eye-spot on each", 5, 50),
+  hawkMoth: it("bug", "มอธหัวกะโหลก", "Death's-head hawkmoth", "ตัวอ้วนสีเหลืองสลับดำ บนหลังมีลายเหมือนหัวกะโหลก", "Stout, banded yellow and black, with a mark like a skull on its back", 5, 20),
+  rhinoBeetle: it("bug", "ด้วงกว่าง", "Rhinoceros beetle", "ตัวสีน้ำตาลเข้มเป็นมัน มีเขาโค้งยาวบนหัว", "Glossy dark brown, with a long curved horn on its head", 10, 8),
+  stagBeetle: it("bug", "ด้วงคีม", "Stag beetle", "ตัวสีดำเป็นมัน มีเขี้ยวใหญ่สองข้างเหมือนคีม", "Glossy black, with two great jaws like a pair of tongs", 5, 25),
+  jewelBeetle: it("bug", "ด้วงอัญมณี", "Jewel beetle", "ตัวรีสีเขียวเหลือบทอง เป็นเงาเหมือนโลหะ", "Oval, green shot with gold, shining like metal", 5, 40),
+  herculesBeetle: it("bug", "ด้วงเฮอร์คิวลีส", "Hercules beetle", "ตัวใหญ่ ปีกสีเหลืองมะกอกแต้มจุดดำ เขายาวกว่าลำตัว", "Very large, with olive-yellow wing cases spotted black and a horn longer than its body", 5, 150),
+  ladybird: it("bug", "เต่าทอง", "Ladybird", "ตัวกลมเล็กสีแดง มีจุดดำเจ็ดจุด", "Small, round and red, with seven black spots", 20, 3),
+  scarab: it("bug", "ด้วงสคารับ", "Scarab beetle", "ตัวสีดำเหลือบเขียว ขาหน้าแบนเหมือนพลั่ว", "Black with a green sheen, its forelegs flat like spades", 20, 4),
+  caterpillar: it("bug", "หนอนผีเสื้อ", "Caterpillar", "ตัวอ้วนสีเขียว เป็นปล้อง มีจุดเหลืองข้างตัว", "Plump, green and ringed, with yellow spots along its sides", 20, 2),
 
   /* ── the second tier: iron and hardwood. The village has grown a little: more to catch, more to grow, cookware of
         more kinds, and dishes that take two cooks, each at a tool of their own. ── */
@@ -501,6 +622,10 @@ export const SCROLLS: Partial<Record<ItemId, ItemId>> = {
   // the dishes of the twenty fish that came later (2026-10-05): none of them sold, all of the early game
   scrollFishChips: "fishChips", scrollUkha: "ukha", scrollThieboudienne: "thieboudienne", scrollPiranhaSoup: "piranhaSoup",
   scrollCrawfishBoil: "crawfishBoil", scrollMasgouf: "masgouf", scrollSalmonSteak: "salmonSteak", scrollArapaimaRoast: "arapaimaRoast",
+  // the dishes of the forest's things (2026-10-05): none of them sold; they are found where every found scroll is
+  scrollMushroomSoup: "mushroomSoup", scrollMushroomSkewer: "mushroomSkewer", scrollFishOnStick: "fishOnStick", scrollRoastYam: "roastYam", scrollRoastedApple: "roastedApple", scrollMushroomRisotto: "mushroomRisotto",
+  scrollFernSalad: "fernSalad", scrollHerbTea: "herbTea", scrollBerryCompote: "berryCompote", scrollBakedApple: "bakedApple", scrollRoastChestnut: "roastChestnut", scrollForestStew: "forestStew",
+  scrollBambooShootStir: "bambooShootStir", scrollRosemaryFish: "rosemaryFish", scrollGinsengSoup: "ginsengSoup", scrollMoonTea: "moonTea", scrollTruffleEggs: "truffleEggs", scrollMushroomOmelette: "mushroomOmelette",
 };
 /** The name of an item's picture: its own id, but every scroll looks the same. */
 export const iconOf = (id: ItemId): string => (id in SCROLLS ? "scroll" : id);
@@ -515,8 +640,18 @@ export const potIconOf = (dish: DishId): string => `pot${dish[0].toUpperCase()}$
  * eggs, a carved fish, a fermented ball). The fish of a later tier take only that tier's baits or later ones, so
  * the early game's water has only the early game's fish in it.
  */
-export type BaitId = "worm" | "dough" | "minnow" | "corn" | "loach" | "cricket" | "branBait" | "shrimpLive" | "antEggs" | "lure" | "fermentedBait";
-export const BAITS: BaitId[] = ["worm", "dough", "minnow", "corn", "loach", "cricket", "branBait", "shrimpLive", "antEggs", "lure", "fermentedBait"];
+export type BaitId = "worm" | "dough" | "minnow" | "corn" | "loach" | "cricket" | "branBait" | "shrimpLive" | "antEggs" | "lure" | "fermentedBait"
+  | "caterpillar" | "moth" | "dragonfly" | "grasshopper";
+export const BAITS: BaitId[] = ["worm", "dough", "minnow", "corn", "loach", "cricket", "branBait", "shrimpLive", "antEggs", "lure", "fermentedBait",
+  "caterpillar", "moth", "dragonfly", "grasshopper"];
+/**
+ * Four insects go on a hook (lib/town/insects), each as a bait there already is does: whatever takes that takes the
+ * insect, as readily, and nothing else does. A caterpillar is a worm and a moth a ball of dough, which nobody then
+ * has to buy; a dragonfly is a minnow, for the hunters; a grasshopper is a cricket, the one bait of a later tier
+ * the owner said the wild might give before the uncle's shelf does (2026-10-05, asked of the cricket: "ได้ครับยอมให้
+ * เปิดก่อนได้").
+ */
+export const BAIT_AS: Partial<Record<BaitId, BaitId>> = { caterpillar: "worm", moth: "dough", dragonfly: "minnow", grasshopper: "cricket" };
 /** Baits that are not eaten: they come back with the line, and are lost only when the line snaps. */
 export const KEPT_BAITS: BaitId[] = ["lure"];
 export type FishId =
@@ -718,6 +853,12 @@ export const FLOTSAM: Record<FlotsamId, { weight: number; wait: [number, number]
   chest: { weight: 0.3, wait: [20, 75], on: ["antEggs", "lure", "fermentedBait"] },
 };
 export const FLOTSAM_IDS = Object.keys(FLOTSAM) as FlotsamId[];
+// (an insect on the hook is taken as the bait it stands for is: written into the same tables, so that nothing that
+// reads them has to know)
+for (const [bug, as] of Object.entries(BAIT_AS) as Array<[BaitId, BaitId]>) {
+  for (const id of FISH_IDS) { const likes = FISH[id].baits[as]; if (likes) FISH[id].baits[bug] = likes; }
+  for (const id of FLOTSAM_IDS) if (FLOTSAM[id].on?.includes(as)) FLOTSAM[id].on!.push(bug);
+}
 
 /* ── vegetables ─────────────────────────────────────────────────────────── */
 
@@ -843,10 +984,13 @@ export type DishId =
   | "greenCurry" | "khanomJeen" | "hoMok" | "mangoStickyRice" | "bananaInCoconut" | "taroPudding" | "steamedCroaker" | "gingerFish" | "turmericFish" | "jungleCurry" | "megaLaab" | "watermelonSlices" | "khantoke" | "naamPrik"
   | "sushi" | "ramen" | "tempura" | "unadon" | "okonomiyaki" | "kimchi" | "bibimbap" | "tteokbokki" | "kimbap" | "pajeon" | "harGow" | "chowMein" | "springRoll" | "congee" | "mapoTofu"
   | "pizza" | "spaghetti" | "risotto" | "lasagna" | "minestrone" | "fishCurry" | "naan" | "biryani" | "samosa" | "lassi"
-  | "dozyFish" | "rainbowFish" | "fishChips" | "ukha" | "thieboudienne" | "piranhaSoup" | "crawfishBoil" | "masgouf" | "salmonSteak" | "arapaimaRoast";
+  | "dozyFish" | "rainbowFish" | "fishChips" | "ukha" | "thieboudienne" | "piranhaSoup" | "crawfishBoil" | "masgouf" | "salmonSteak" | "arapaimaRoast"
+  | "mushroomSoup" | "mushroomSkewer" | "fishOnStick" | "roastYam" | "roastedApple" | "mushroomRisotto" | "fernSalad" | "herbTea" | "berryCompote" | "bakedApple" | "roastChestnut" | "forestStew" | "bambooShootStir" | "rosemaryFish" | "ginsengSoup" | "moonTea" | "truffleEggs" | "mushroomOmelette";
 /** What a dish is cooked in: the first three, and the cookware of the later tiers. */
 export type Cookware = "pot" | "pan" | "grill" | "mortar" | "steamer" | "cleaver" | "jar" | "wok" | "potBrass" | "stoveBig" | "panBrass" | "steamerBamboo" | "hotpot"
-  | "rollingPin" | "sushiMat" | "stoneBowl" | "oven";
+  | "rollingPin" | "sushiMat" | "stoneBowl" | "oven"
+  // (a twig whittled to a point: what the forest's roasts are made on)
+  | "skewer";
 
 /**
  * A dish: the stamina a helping gives and the buff it leaves, and its recipe
@@ -963,6 +1107,28 @@ export const DISHES: Record<DishId, Dish> = {
   masgouf: { stamina: 28, buff: "calm", recipe: { needs: [["salt", 2], ["scallion", 2], ["carp", 1]], in: ["grill"], serves: 3, cooks: 1 } },
   salmonSteak: { stamina: 34, buff: "keen", recipe: { needs: [["salmon", 1], ["salt", 1], ["garlic", 1]], in: ["pan"], serves: 2, cooks: 1 } },
   arapaimaRoast: { stamina: 45, buff: "hearty", recipe: { needs: [["arapaima", 1], ["salt", 3], ["chili", 2]], in: ["grill"], serves: 10, cooks: 3 } },
+  // Dishes of what the forest gives (lib/town/forest), the same day: of things known everywhere (the owner: "อยากให้การ
+  // ออกแบบเป็น universal เลยครับ"). Four are roasted on a skewer, which is a twig and costs nothing: so that somebody with
+  // no coins for a pan can still cook, and sit down to it. The last thing of each is the forest's own, and is the
+  // one a found recipe does not name. The rare finds make the best of them: a soup that fills half the gauge.
+  mushroomSoup: { stamina: 26, buff: "calm", recipe: { needs: [["scallion", 1], ["salt", 1], ["shiitake", 3]], in: ["pot"], serves: 3, cooks: 1 } },
+  mushroomSkewer: { stamina: 16, recipe: { needs: [["salt", 1], ["shiitake", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
+  fishOnStick: { stamina: 20, recipe: { needs: [["salt", 1], ["barb", 1]], in: ["skewer"], serves: 2, cooks: 1 } },
+  roastYam: { stamina: 18, recipe: { needs: [["wildYam", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
+  roastedApple: { stamina: 12, recipe: { needs: [["wildApple", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
+  mushroomRisotto: { stamina: 34, buff: "hearty", recipe: { needs: [["rice", 2], ["scallion", 1], ["salt", 1], ["porcini", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  fernSalad: { stamina: 20, buff: "green", recipe: { needs: [["fiddlehead", 3], ["salt", 1], ["mint", 1]], in: ["pan"], serves: 2, cooks: 1 } },
+  herbTea: { stamina: 12, buff: "calm", recipe: { needs: [["mint", 1], ["chamomile", 2]], in: ["pot"], serves: 3, cooks: 1 } },
+  berryCompote: { stamina: 22, buff: "lucky", recipe: { needs: [["blueberry", 2], ["raspberry", 2], ["wildStrawberry", 1]], in: ["pot"], serves: 3, cooks: 1 } },
+  bakedApple: { stamina: 20, recipe: { needs: [["wildApple", 3], ["chestnut", 1]], in: ["grill"], serves: 3, cooks: 1 } },
+  roastChestnut: { stamina: 16, recipe: { needs: [["salt", 1], ["chestnut", 4]], in: ["pan"], serves: 3, cooks: 1 } },
+  forestStew: { stamina: 38, buff: "hearty", recipe: { needs: [["wildYam", 2], ["shiitake", 1], ["carrot", 1], ["rosemary", 1]], in: ["pot"], serves: 6, cooks: 2 } },
+  bambooShootStir: { stamina: 24, buff: "keen", recipe: { needs: [["chili", 1], ["salt", 1], ["bambooShoot", 2]], in: ["pan"], serves: 3, cooks: 1 } },
+  rosemaryFish: { stamina: 30, buff: "calm", recipe: { needs: [["perch", 1], ["salt", 1], ["rosemary", 1]], in: ["grill"], serves: 2, cooks: 1 } },
+  ginsengSoup: { stamina: 50, buff: "hearty", recipe: { needs: [["shiitake", 2], ["scallion", 1], ["salt", 1], ["ginseng", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  moonTea: { stamina: 30, buff: "lucky", recipe: { needs: [["chamomile", 1], ["mint", 1], ["moonflower", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  truffleEggs: { stamina: 44, buff: "lucky", recipe: { needs: [["egg", 2], ["salt", 1], ["truffle", 1]], in: ["pan"], serves: 3, cooks: 1 } },
+  mushroomOmelette: { stamina: 30, buff: "keen", recipe: { needs: [["egg", 2], ["salt", 1], ["chanterelle", 1]], in: ["pan"], serves: 2, cooks: 1 } },
 };
 export const DISH_IDS = Object.keys(DISHES) as DishId[];
 export const isDish = (id: ItemId): id is DishId => id in DISHES;
@@ -996,6 +1162,15 @@ export const MAKES: Partial<Record<ItemId, Make>> = {
   hookScale: { needs: [["gar", 1]], in: [], gives: 1 },
   floatGlow: { needs: [["moonFish", 1]], in: [], gives: 1 },
   bowl: { needs: [["mussel", 2]], in: [], gives: 1 },
+  // (and of the forest's things, all by hand: a skewer to roast on, a float and a line for the river, and two
+  // things to put on a plant: leaves for it to grow in, and a scent the pests keep away from)
+  skewer: { needs: [["twig", 2]], in: [], gives: 1 },
+  floatFeather: { needs: [["bambooCane", 1], ["feather", 2]], in: [], gives: 1 },
+  lineSpun: { needs: [["silkCocoon", 3]], in: [], gives: 1 },
+  mulch: { needs: [["leafMould", 3]], in: [], gives: 2 },
+  lavenderSachet: { needs: [["vine", 1], ["lavender", 3]], in: [], gives: 2 },
+  // (and a net for insects, for whoever would sooner walk to the forest than pay the uncle for one)
+  bugNet: { needs: [["bambooCane", 1], ["vine", 2]], in: [], gives: 1 },
   // the second tier
   driedFish: { needs: [["barb", 2], ["salt", 1]], in: ["grill"], gives: 2 },
   saltedFish: { needs: [["tilapia", 1], ["salt", 3]], in: ["jar"], gives: 2 },
@@ -1020,4 +1195,7 @@ export const MAKE_IDS = Object.keys(MAKES) as ItemId[];
  * as they were for the rest: the uncle's hints of these are sold after the others of their tier (lib/town/hints),
  * and he does not ask for them in an order (lib/town/orders).
  */
-export const LATER_MADE: ItemId[] = ["fishChips", "ukha", "thieboudienne", "piranhaSoup", "crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast", "hookScale", "floatGlow", "bowl"];
+export const LATER_MADE: ItemId[] = ["fishChips", "ukha", "thieboudienne", "piranhaSoup", "crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast", "hookScale", "floatGlow", "bowl",
+  // (and what is made of the forest's things, which came the same day)
+  "mushroomSoup", "mushroomSkewer", "fishOnStick", "roastYam", "roastedApple", "mushroomRisotto", "fernSalad", "herbTea", "berryCompote", "bakedApple", "roastChestnut", "forestStew", "bambooShootStir", "rosemaryFish", "ginsengSoup", "moonTea", "truffleEggs", "mushroomOmelette",
+  "skewer", "floatFeather", "lineSpun", "mulch", "lavenderSachet", "bugNet"];

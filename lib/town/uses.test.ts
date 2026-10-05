@@ -4,6 +4,7 @@ import { WATER, chore, hoe, toolOf, WILD, yieldOf, type Plant } from "./farm";
 import { CARRIES, PLAIN, gearOf } from "./gear";
 import { COOKING } from "./cooking";
 import { HINT_IDS, HINT_PRICE, KIND_WORD, buyHint, hintOf, nextHint, toldOf } from "./hints";
+import { mayNet } from "./insects";
 import { CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { GOODS, RULES, hold, newPurse, put, takeOff, wear, type Purse } from "./trade";
 import { idle, missing, sources, usesOf } from "./uses";
@@ -61,6 +62,7 @@ describe("every piece of gear (the owner: \"make sure ว่า อุปกร�
         expect(ladle(purseWith([id, 1]), pot).ok).toBe(true);
         expect(ladle(newPurse(), pot).ok).toBe(false);
       }
+      if (use === "net") expect(mayNet(id)).toBe(true);
       if (use === "serve" && id === "ladle") expect(helpings("tomYum", ["pot"], 0, bag)).toBeGreaterThan(helpings("tomYum", ["pot"], 0));
     }
     // a hoe, a can and a seed are told apart by the hand

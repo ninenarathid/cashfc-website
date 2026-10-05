@@ -1,8 +1,8 @@
 import {
   describe, expect, it, vi } from "vitest";
 import {
-  BENCHES, BOARD, COLS, DROP, FARM, FARM_PROPS, GATES, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
-  YARD_SEATS, isBuilt, setBuilt, yardSeat,
+  BENCHES, BEYOND, BEYOND_PROPS, BOARD, CAMP, COLS, DROP, FARM, FARM_PROPS, FORDS, FOREST, FOREST_PROPS, GATES, GREAT_TREE, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
+  YARD_SEATS, atFire, isBuilt, seenAt, setBuilt, yardSeat, zoneAt, type Zone,
 } from "./world";
 
 describe("projection", () => {
@@ -28,14 +28,12 @@ describe("walking", () => {
     for (const p of PROPS) if (!["lamp", "bench", "barrel", "planter", "signpost", "bin", "flowerbed"].includes(p.kind)) expect(groundAt(p.x, p.y)).toBe("grass");
     // and nothing at all stands on a path
     for (const p of PROPS) expect(groundAt(p.x, p.y)).not.toBe("road");
-    // every bit of path is walkable, but where the road works close it (and the shop, on its dirt plot)
+    // every bit of path is walkable (but the shop, on its dirt plot)
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) {
-      if (groundAt(x, y) === "road") expect(walkable(x, y) || thingAt(x, y) === "roadworks" || thingAt(x, y) === "shop").toBe(true);
+      if (groundAt(x, y) === "road") expect(walkable(x, y) || thingAt(x, y) === "shop").toBe(true);
     }
-    // and the north path goes out to its road works, the east one to the farm's gate; the river stops the other two
-    const n = ROADWORKS.find((w) => w.arm === "N")!, [ex, ey] = GATES[0].tiles[0];
-    expect(findPath({ x: 32.5, y: 31.5 }, { x: Math.floor(n.x) + 0.5, y: 2.5 })).not.toBeNull();
-    expect(findPath({ x: 32.5, y: 31.5 }, { x: ex + 0.5, y: ey + 0.5 })).not.toBeNull();
+    // and the north path goes out to the forest's gate, the east one to the farm's; the river stops the other two
+    for (const g of [GATES[0], GATES[2]]) expect(findPath({ x: 32.5, y: 31.5 }, { x: g.tiles[0][0] + 0.5, y: g.tiles[0][1] + 0.5 })).not.toBeNull();
   });
 
   it("winds its paths: each wanders across, but leaves the plaza straight", () => {
@@ -59,17 +57,13 @@ describe("walking", () => {
     }
   });
 
-  it("closes the north path with road works at the map's edge; the east path's are finished", () => {
-    expect(ROADWORKS.map((w) => w.arm)).toEqual(["N"]);
-    for (const w of ROADWORKS) {
-      expect(groundAt(Math.floor(w.x), Math.floor(w.y))).toBe("road");
-      expect(thingAt(Math.floor(w.x), Math.floor(w.y))).toBe("roadworks");
-    }
-    // nobody gets past them along the path
-    const n = ROADWORKS[0];
-    expect(findPath({ x: 32.5, y: 31.5 }, { x: Math.floor(n.x) + 0.5, y: 0.5 })).toBeNull();
-    // the east path is walked to its very end now
+  it("has no road works left: the north path and the east one are walked to their very ends", () => {
+    expect(ROADWORKS).toEqual([]);
+    for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) expect(thingAt(x, y)).not.toBe("roadworks");
     for (let y = 0; y < ROWS; y++) if (groundAt(COLS - 1, y) === "road") expect(walkable(COLS - 1, y)).toBe(true);
+    let north = 0;
+    for (let x = 0; x < COLS; x++) if (groundAt(x, 0) === "road") { north++; expect(walkable(x, 0)).toBe(true); }
+    expect(north).toBeGreaterThanOrEqual(2);
   });
 
   it("has a river on the left that nobody can cross yet, with a sandy bank", () => {
@@ -384,11 +378,18 @@ describe("walking", () => {
     expect(findPath(town.to, { x: farm.tiles[0][0] + 0.5, y: farm.tiles[0][1] + 0.5 })).not.toBeNull();
   });
 
-  it("joins the two maps by gates: the east path's end, and the farm lane's", () => {
-    const [town, farm] = GATES;
-    expect(town.from).toBe("town");
-    expect(farm.from).toBe("farm");
+  it("joins the maps by gates: the east path's end and the farm lane's, the north path's end and the foot of the forest's trail", () => {
+    const [town, farm, north, forest] = GATES;
+    expect(GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"]]);
     expect(town.tiles.length).toBeGreaterThanOrEqual(2);
+    expect(north.tiles.length).toBeGreaterThanOrEqual(2);
+    // the north one is at the top of the town's map, and no tile is a gate to two places
+    for (const [, y] of north.tiles) expect(y).toBeLessThan(2);
+    expect(new Set(GATES.flatMap((g) => g.tiles.map(([x, y]) => `${x},${y}`))).size).toBe(GATES.reduce((n, g) => n + g.tiles.length, 0));
+    expect(placeOf(north.to.x, north.to.y)).toBe("forest");
+    expect(placeOf(forest.to.x, forest.to.y)).toBe("town");
+    expect(findPath({ x: 32.5, y: 31.5 }, forest.to)).not.toBeNull();
+    expect(findPath(north.to, { x: forest.tiles[0][0] + 0.5, y: forest.tiles[0][1] + 0.5 })).not.toBeNull();
     for (const g of GATES) {
       for (const [x, y] of g.tiles) {
         expect(placeOf(x, y)).toBe(g.from);
@@ -406,6 +407,161 @@ describe("walking", () => {
     // walked to from the fountain, and from the farm's far corner
     expect(findPath({ x: 32.5, y: 31.5 }, { x: town.tiles[0][0] + 0.5, y: town.tiles[0][1] + 0.5 })).not.toBeNull();
     expect(findPath({ x: FARM.x + 55.5, y: FARM.y + 39.5 }, { x: farm.tiles[0][0] + 0.5, y: farm.tiles[0][1] + 0.5 })).not.toBeNull();
+  });
+
+  it("has a forest of its own, out of the north path, that only a gate reaches", () => {
+    expect(placeOf(FOREST.x + 5, FOREST.y + 5)).toBe("forest");
+    expect(placeOf(FOREST.x - 1, FOREST.y + 5)).toBeNull();
+    // clear of the farm, and no further east than a path's tiles are numbered
+    expect(FOREST.y).toBeGreaterThan(FARM.y + FARM.h + 32);
+    expect(FOREST.x + FOREST.w).toBeLessThanOrEqual(256);
+    const [, , north] = GATES;
+    expect(findPath({ x: 32.5, y: 31.5 }, north.to)).toBeNull();
+    expect(findPath(north.to, { x: 32.5, y: 31.5 })).toBeNull();
+    expect(findPath(north.to, { x: FARM.x + 5.5, y: FARM.y + 5.5 })).toBeNull();
+    // a big map with every kind of ground a forest has, and every part of it
+    const grounds = new Map<string, number>(), zones = new Map<Zone, number>();
+    for (let y = FOREST.y; y < FOREST.y + FOREST.h; y++) for (let x = FOREST.x; x < FOREST.x + FOREST.w; x++) {
+      const g = groundAt(x, y);
+      grounds.set(g, (grounds.get(g) ?? 0) + 1);
+      zones.set(zoneAt(x, y)!, (zones.get(zoneAt(x, y)!) ?? 0) + 1);
+      // drawn with curves: a tile's middle looks like the tile; and nobody walks on water
+      expect(groundLook(x + 0.5, y + 0.5)).toBe(g);
+      if (g === "water") expect(walkable(x, y)).toBe(false);
+    }
+    expect([...grounds.keys()].sort()).toEqual(["grass", "road", "sand", "water", "wood"]);
+    expect(grounds.get("wood")!).toBeGreaterThan(3000);
+    expect([...zones.keys()].sort()).toEqual(["bamboo", "camp", "deep", "edge", "rise", "stream", "woods"]);
+    for (const n of zones.values()) expect(n).toBeGreaterThan(100);
+    expect(zoneAt(32, 32)).toBeNull();
+    expect(zoneAt(FARM.x + 5, FARM.y + 5)).toBeNull();
+  });
+
+  it("lays the forest out so that nothing but the stream and the cliff shuts a way", () => {
+    const at = (p: { x: number; y: number }) => `${p.x},${p.y}`;
+    const solid = new Set(FOREST_PROPS.filter((p) => p.solid).map(at));
+    for (const p of FOREST_PROPS) {
+      expect(placeOf(p.x, p.y)).toBe("forest");
+      expect(walkable(p.x, p.y)).toBe(!p.solid && thingAt(p.x, p.y) === null);
+      // nothing stands on a trail or in the water, and nothing solid right beside a trail
+      expect(["road", "water"]).not.toContain(groundAt(p.x, p.y));
+      if (!p.solid) continue;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) expect(groundAt(p.x + dx, p.y + dy)).not.toBe("road");
+    }
+    // within the forest (its rim and its cliff apart) no two solid things touch, even at a corner
+    const inner = (p: { x: number; y: number; kind: string }) => p.x > FOREST.x + 1 && p.y > FOREST.y + 1 && p.x < FOREST.x + FOREST.w - 2 && p.y < FOREST.y + 70
+      && p.kind !== "boulder" && p.kind !== "rock" && p.kind !== "tent" && p.kind !== "logseat" && p.kind !== "campfire";
+    for (const p of FOREST_PROPS) if (p.solid && inner(p)) {
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) {
+        const q = FOREST_PROPS.find((o) => o.solid && o.x === p.x + dx && o.y === p.y + dy);
+        if (q && inner(q)) expect(`${at(p)} beside ${at(q)}`).toBe("");
+      }
+    }
+    expect(solid.size).toBeGreaterThan(900);
+    // so from where the gate puts somebody, all of it is walked to (a handful of corners by the water apart)
+    const [, , north] = GATES, start: [number, number] = [Math.floor(north.to.x), Math.floor(north.to.y)];
+    const seen = new Set([start.join(",")]), queue = [start];
+    while (queue.length) {
+      const [x, y] = queue.pop()!;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const k = `${x + dx},${y + dy}`;
+        if (!seen.has(k) && walkable(x + dx, y + dy)) { seen.add(k); queue.push([x + dx, y + dy]); }
+      }
+    }
+    let open = 0;
+    for (let y = FOREST.y; y < FOREST.y + FOREST.h; y++) for (let x = FOREST.x; x < FOREST.x + FOREST.w; x++) if (walkable(x, y)) open++;
+    expect(open).toBeGreaterThan(5200);
+    expect(open - seen.size).toBeLessThan(10);
+    // the camp, the grove, the rise, the pool's shore and the great tree's foot
+    for (const [u, v] of [[49, 50], [10, 47], [84, 50], [82, 35], [48, 10], [20, 14], [76, 10]]) expect(seen.has(`${FOREST.x + u},${FOREST.y + v}`)).toBe(true);
+  });
+
+  it("keeps the deep woods the far side of the stream: reached only over a ford", () => {
+    const [, , north] = GATES;
+    const way = findPath(north.to, { x: GREAT_TREE.x + 1.5, y: GREAT_TREE.y + GREAT_TREE.h + 1.5 })!;
+    expect(way).not.toBeNull();
+    // the walk to the great tree crosses the stream on stones, at one of the fords
+    const stones = way.filter((p) => groundAt(Math.floor(p.x), Math.floor(p.y)) === "sand" && FORDS.some((f) => Math.abs(p.x - FOREST.x - f) < 1.1));
+    expect(stones.length).toBeGreaterThan(0);
+    // and with the fords shut there is no way at all: every tile of them is where the stream would be
+    const banks = new Set<string>();
+    for (const f of FORDS) for (let v = 0; v < FOREST.h; v++) for (const u of [f - 1, f]) if (groundAt(FOREST.x + u, FOREST.y + v) === "sand") banks.add(`${FOREST.x + u},${FOREST.y + v}`);
+    const seen = new Set([`${Math.floor(north.to.x)},${Math.floor(north.to.y)}`]), queue: Array<[number, number]> = [[Math.floor(north.to.x), Math.floor(north.to.y)]];
+    while (queue.length) {
+      const [x, y] = queue.pop()!;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [1, -1], [-1, 1], [-1, -1]]) {
+        const k = `${x + dx},${y + dy}`;
+        if (!seen.has(k) && !banks.has(k) && walkable(x + dx, y + dy)) { seen.add(k); queue.push([x + dx, y + dy]); }
+      }
+    }
+    for (let y = FOREST.y; y < FOREST.y + FOREST.h; y++) for (let x = FOREST.x; x < FOREST.x + FOREST.w; x++) if (seen.has(`${x},${y}`)) expect(zoneAt(x, y)).not.toBe("deep");
+    // the great tree is closed, with a clearing round it; the camp's fire is stood beside
+    for (let y = GREAT_TREE.y; y < GREAT_TREE.y + GREAT_TREE.h; y++) for (let x = GREAT_TREE.x; x < GREAT_TREE.x + GREAT_TREE.w; x++) expect(walkable(x, y)).toBe(false);
+    expect(zoneAt(GREAT_TREE.x, GREAT_TREE.y)).toBe("deep");
+    expect(walkable(CAMP.fire.x, CAMP.fire.y)).toBe(false);
+    expect(zoneAt(CAMP.fire.x, CAMP.fire.y)).toBe("camp");
+    expect(atFire(CAMP.fire.x + 1, CAMP.fire.y)).toBe(true);
+    expect(atFire(CAMP.fire.x + 1, CAMP.fire.y + 1)).toBe(true);
+    expect(atFire(CAMP.fire.x, CAMP.fire.y)).toBe(false);
+    expect(atFire(CAMP.fire.x + 2, CAMP.fire.y)).toBe(false);
+    expect(walkable(CAMP.fire.x + 1, CAMP.fire.y)).toBe(true);
+  });
+
+  it("is entered through woods on both sides of its gate, with woods beyond them where no map is", () => {
+    const [, , north, forest] = GATES;
+    // the town's side: the north path's last stretch has trees thick about it, none on it, and it is still walked to its end
+    const about = PROPS.filter((p) => (p.kind === "tree" || p.kind === "pine") && p.y < 9 && Math.abs(p.x - north.tiles[0][0]) < 14);
+    expect(about.length).toBeGreaterThan(70);
+    for (const p of about) expect(groundAt(p.x, p.y)).not.toBe("road");
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: north.tiles[0][0] + 0.5, y: north.tiles[0][1] + 0.5 })).not.toBeNull();
+    // the forest's side: the gate is in a belt of woods, and the meadow opens beyond it
+    expect(groundAt(forest.tiles[0][0] - 6, forest.tiles[0][1] - 2)).toBe("wood");
+    expect(groundAt(forest.tiles[0][0] - 6, forest.tiles[0][1] - 11)).toBe("grass");
+    expect(FOREST_PROPS.filter((p) => p.solid && p.y >= FOREST.y + 73 && p.y < FOREST.y + 78).length).toBeGreaterThan(150);
+    // (thick woods, walked through only by the trail)
+    expect(walkable(forest.tiles[0][0] - 6, forest.tiles[0][1] - 2)).toBe(false);
+    expect(findPath(north.to, { x: forest.tiles[0][0] + 0.5, y: forest.tiles[0][1] - 9.5 })).not.toBeNull();
+    // beyond each: ground to look at and trees on it, on no map, the path running on between them
+    for (const [r, trees] of [[BEYOND.north, BEYOND_PROPS.north], [BEYOND.south, BEYOND_PROPS.south]] as const) {
+      expect(trees.length).toBeGreaterThan(r.w * r.h * 0.35);
+      for (const p of trees) {
+        expect(placeOf(p.x, p.y)).toBeNull();
+        expect(walkable(p.x, p.y)).toBe(false);
+        expect(seenAt(p.x + 0.5, p.y + 0.5)).toBe(true);
+        expect(groundLook(p.x + 0.5, p.y + 0.5)).toBe("wood");
+      }
+    }
+    expect(BEYOND.north.y + BEYOND.north.h).toBe(0);
+    expect(BEYOND.south.y).toBe(FOREST.y + FOREST.h);
+    const across = (y: number, from: number, to: number) => Array.from({ length: (to - from) * 4 }, (_, i) => from + i / 4).filter((x) => groundLook(x, y) === "road");
+    for (const y of [-2.5, -9.5]) { const way = across(y, BEYOND.north.x, BEYOND.north.x + BEYOND.north.w); expect(way.length).toBeGreaterThanOrEqual(6); expect(Math.abs(way[0] - north.tiles[0][0])).toBeLessThan(8); }
+    for (const y of [3.5, 10.5]) expect(across(FOREST.y + FOREST.h + y, forest.tiles[0][0] - 4, forest.tiles[0][0] + 6).length).toBeGreaterThanOrEqual(6);
+    expect(seenAt(32, 32)).toBe(true);
+    expect(seenAt(-5, 32)).toBe(false);
+    expect(findPath({ x: 33.5, y: 3.5 }, { x: 33.5, y: -1.5 })).toBeNull();
+  });
+
+  it("has logs round the forest camp's fire that are sat on like the town's benches", () => {
+    const logs = BENCHES.filter((b) => b.kind === "logseat");
+    expect(logs.length).toBe(4);
+    // after the town's own, so that every bench's number is what it was
+    expect(BENCHES.findIndex((b) => b.kind === "logseat")).toBe(BENCHES.length - 4);
+    for (const b of logs) {
+      expect(zoneAt(b.x, b.y)).toBe("camp");
+      expect(benchAt(b.x, b.y)).toBe(BENCHES.indexOf(b));
+      // each faces whoever looks on, and is walked up to from the fire's side
+      expect(["SE", "SW"]).toContain(b.facing);
+      const f = FRONT[b.facing!];
+      expect(walkable(b.x + f.x, b.y + f.y)).toBe(true);
+      expect(Math.max(Math.abs(b.x + f.x - CAMP.fire.x), Math.abs(b.y + f.y - CAMP.fire.y))).toBeLessThanOrEqual(2);
+      expect(findPath(GATES[2].to, { x: b.x + f.x + 0.5, y: b.y + f.y + 0.5 })).not.toBeNull();
+    }
+  });
+
+  it("finds a way across the whole forest quickly", () => {
+    const [, , north] = GATES, t0 = performance.now();
+    for (const [u, v] of [[90, 6], [4, 6], [86, 51], [8, 47]]) expect(findPath(north.to, { x: FOREST.x + u + 0.5, y: FOREST.y + v + 0.5 })).not.toBeNull();
+    expect(performance.now() - t0).toBeLessThan(400);
   });
 
   it("puts the plaza in the middle and the fountain in the plaza", () => {

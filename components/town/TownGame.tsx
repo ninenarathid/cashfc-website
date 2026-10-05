@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import type { Sprite } from "@/lib/town/scenery";
 
 /** How a game went: what the game of timing always gave back, and every game gives now. `dropped`: the work was not done (tired hands, and too many misses). */
 export interface GameResult { hits: number; misses: number; secs: number; need: number; dropped?: boolean }
@@ -67,6 +68,21 @@ export const STAGE = "relative overflow-hidden rounded-[4px] border-[3px] border
 /** The board's own big button: for the games that are played by one. */
 export const BIG = "min-h-14 w-full touch-none select-none rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] text-read font-semibold text-[#3a2209] shadow-[inset_0_-4px_0_#c98f2f,inset_0_2px_0_#ffe19a] active:translate-y-px active:shadow-[inset_0_-2px_0_#c98f2f]";
 
+/**
+ * A game's own scene, filling its stage: a picture out of the town's scenery (lib/town/scenery's `sprite`), shown
+ * with its pixels kept square, cut to the stage's shape about its middle. Nothing is drawn while the picture has
+ * not come: the stage is its plain dark hollow until then.
+ */
+export function GameScene({ sprite, className = "" }: { sprite: Sprite | null; className?: string }) {
+  if (!sprite) return null;
+  const [x, y, w, h] = sprite.at;
+  return (
+    <svg aria-hidden viewBox={`${x} ${y} ${w} ${h}`} preserveAspectRatio="xMidYMid slice" className={`pointer-events-none ${className}`} style={{ imageRendering: "pixelated" }}>
+      <image href={sprite.src} width={sprite.sheet[0]} height={sprite.sheet[1]} style={{ imageRendering: "pixelated" }} />
+    </svg>
+  );
+}
+
 /** A number in [0, 1) from a seed and a place: the same every time. */
 function speck(seed: number, x: number, y: number): number {
   let h = (seed ^ Math.imul(x + 1, 374761393) ^ Math.imul(y + 1, 668265263)) | 0;
@@ -78,6 +94,8 @@ const GROUND = {
   soil: { base: "#6a4426", dark: ["#54341c", "#442a16"], light: ["#7d5330", "#8a623a"], odd: "#5e8c3a" },
   rows: { base: "#5b3a1f", dark: ["#48290f", "#3b210c"], light: ["#734a28", "#80562e"], odd: "#9a8468" },
   water: { base: "#2f7fa8", dark: ["#276d92", "#205d7f"], light: ["#48a0c8", "#7cc6e6"], odd: "#bfe6ff" },
+  // the forest's floor: dark earth under old leaves, with a little moss
+  leaf: { base: "#3f3a24", dark: ["#322d1b", "#282414"], light: ["#5a5230", "#6f5a2f"], odd: "#6f8a3a" },
 } as const;
 
 /**

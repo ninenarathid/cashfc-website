@@ -1,9 +1,11 @@
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
-import { BEDS, BLADES, FARMING, TREE_PICKS, WATER, toolOf } from "./farm";
+import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
+import { FORAGING, KINDS, SPOTS } from "./forest";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { HINT_IDS, HINT_PRICE } from "./hints";
+import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
 import {
   BAITS, BOWL, BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT,
   inBowl, type ItemId,
@@ -68,7 +70,7 @@ export function catalogOf() {
     /** The uncle's order: how many he wants of each kind of thing, and what he may ask for from which stage. */
     order: { n: ORDER.n, asks: { fish: asks("fish"), crop: asks("crop"), made: asks("made") } },
     /** His hints: the price by tier, and each thing there is a hint of, in the order they are sold, with the stage it can first be made at. */
-    hints: { price: HINT_PRICE, ids: HINT_IDS.map((id): [ItemId, number] => [id, firstStage((s) => sourcesAt(s).has(id))]) },
+    hints: { price: HINT_PRICE, ids: HINT_IDS.map((id): [ItemId, number] => [id, firstStage((s) => sourcesAt(s, true).has(id))]) },
     /** Stamina and meals: the gauge, a meal's minutes, what company adds, the meals' hours, how long a buff lasts, and how much each buff is. */
     stamina: {
       max: STAMINA.max, minutes: STAMINA.minutes, together: STAMINA.together, company: STAMINA.company, meals: STAMINA.meals, hours: BUFF_HOURS,
@@ -164,6 +166,35 @@ export function catalogOf() {
      * ended is still told to its two sides, so that each sees how it ended.
      */
     deals: { kinds: DEAL.kinds, near: DEAL.near, idle: 600, shown: 10 },
+    /**
+     * The forest (lib/town/forest): each kind of place (how its things are gathered, how many minutes its turn lasts,
+     * the chance a turn has anything, how many may take from it, what it costs, and what it may have: each thing with
+     * how often beside the others, how many, and what has to hold: `zones`, `hours`, `rain` within so many hours,
+     * a `day` of its own, the full `moon`); the places themselves, by their number (kind, tile, part of the
+     * forest); how near one stands; what a wrong one taken among mushrooms is, and how many at most; what digs. Last,
+     * what the database alone needs: the most misses of a game it counts in one go.
+     */
+    forest: {
+      kinds: KINDS,
+      spots: SPOTS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]),
+      reach: FORAGING.reach, decoy: FORAGING.decoy, decoys: FORAGING.decoys, hoes: HOES, misses: 30,
+    },
+    /**
+     * Insects (lib/town/insects): each of them in the order they are weighed (its habit, the haunts it keeps to, how
+     * often beside the others, how many a catch gives, what it costs, and what has to hold: `places`, `zones`,
+     * `hours`, a `dry` sky, a `day` of its own, the full `moon`); each kind of haunt (its turn's minutes, the
+     * chance of an insect, how many may catch it); the haunts themselves, by their number (kind, map, part of the
+     * forest, perches); the net (how far it reaches, how far beyond that somebody may stand from a perch and still
+     * have caught what is there, how many misses are counted); what catches, and what brings a beetle down. How an
+     * insect moves, and the net's ring, are the page's: the database is told of a catch, as of any game's end.
+     */
+    insects: {
+      order: BUG_IDS,
+      bugs: Object.fromEntries(BUG_IDS.map((id) => { const { size: _size, quick: _quick, tracks: _tracks, shy: _shy, like: _like, ...kept } = BUGS[id]; return [id, kept]; })),
+      kinds: HAUNT_KINDS,
+      haunts: HAUNTS.map((h): [string, string, string | null, Array<[number, number]>] => [h.kind, h.place, h.zone, h.perches.map((p): [number, number] => [p.x, p.y])]),
+      net: { reach: NET.reach, far: NET.far, misses: NET.misses }, nets: NETS, lures: LURES,
+    },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -202,8 +233,17 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * lib/town/catalog.test.ts` writes its block; the ordinary test then fails whenever the block and the code differ.
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
+ *
+ * v125 (pending) seeds two and writes thirteen over, for the forest and the insects the owner asked for on
+ * 2026-10-05: what the forest's places have and where they are (forest), the insects and their haunts (insects); the
+ * things themselves, the net on the first day's shelf and its price (items, goods, shelf); what is cooked and made of
+ * them, with a skewer as cookware and an insect never put in a pot (dishes, scrolls, makes, cooking); the insects
+ * that go on a hook as a bait there already was (fish, flotsam, fishing) and on a plant (farming); and what the
+ * uncle may ask for and hint at (order, hints).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v125: { keys: ["forest", "insects"], over: ["items", "goods", "shelf", "dishes", "scrolls", "makes", "cooking", "fish", "flotsam", "fishing", "farming", "order", "hints"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

@@ -5,6 +5,7 @@ import { WATER } from "@/lib/town/farm";
 import { CARRIES } from "@/lib/town/gear";
 import { HINT_PRICE, hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
+import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
@@ -238,7 +239,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} recipes={[...keeper.known(), ...keeper.knownMakes()]}
+        {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
                                 onWear={(slot) => tried(keeper.wear(slot), ["สะพายแล้ว", "On your back."])}
                                 onTakeOff={(item) => tried(keeper.takeOff(item), ["ถอดเก็บแล้ว", "Taken off."])}
                                 onServe={async (slot) => { const did = await keeper.serve(slot); if (did.ok) say("ตักใส่ถ้วยแล้ว", "A helping, in your bowl."); else say(...(did.why === "tool" ? (["ไม่มีถ้วย", "No bowl"] as [string, string]) : why(did.why))); }}
@@ -532,10 +533,12 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, now, th, seated, company, recipes, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen }: {
+function Bag({ purse, now, th, seated, company, recipes, book, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen }: {
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
   /** What I know how to make: dishes, and other things. */
   recipes: ItemId[];
+  /** The village's book of insects: who first caught each kind that has been caught. */
+  book: Record<string, string>;
   onEat: (slot: number) => void; onGetUp: () => void; onRead: (slot: number) => void; onRecipe: (dish: ItemId) => void;
   /** Put on what carries more (from a slot), take one off, and ladle a helping out of a pot of my own. */
   onWear: (slot: number) => void; onTakeOff: (item: ItemId) => void; onServe: (slot: number) => void;
@@ -701,6 +704,27 @@ function Bag({ purse, now, th, seated, company, recipes, onEat, onGetUp, onRead,
                 {/* a recipe I have not made myself has a thing in it I am not told */}
                 {!(purse.made ?? []).includes(d) && <TownIcon name="mystery" size={16} />}
               </button>
+            </li>
+          ))}
+        </ul>
+        </>
+      )}
+
+      {/* the village's book of insects: not there until one has been caught; only the kinds somebody has caught, each with who caught the first */}
+      {BUG_IDS.some((id) => book[id] !== undefined) && (
+        <>
+        <h3 className="mb-1.5 mt-4 flex items-center gap-1.5 font-data text-label uppercase tracking-wider text-muted" data-bug-book>
+          <TownIcon name="bugNet" size={14} />{th ? "สมุดแมลงของหมู่บ้าน" : "The village's book of insects"}
+          <span className="ml-1 text-muted">{BUG_IDS.filter((id) => book[id] !== undefined).length}/{BUG_IDS.length}</span>
+        </h3>
+        <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+          {BUG_IDS.filter((id) => book[id] !== undefined).map((id) => (
+            <li key={id} className="flex min-h-11 items-center gap-2 rounded-lg border border-line-strong bg-card/60 px-3 py-1.5" data-bug={id}>
+              <ItemIcon id={id} size={26} />
+              <span className="min-w-0">
+                <span className="block truncate text-ui text-ink">{th ? ITEMS[id].name.th : ITEMS[id].name.en}</span>
+                <span className="block truncate text-label text-muted">{th ? "จับได้คนแรก" : "First caught by"} {book[id] || (th ? "ใครสักคน" : "somebody")}</span>
+              </span>
             </li>
           ))}
         </ul>

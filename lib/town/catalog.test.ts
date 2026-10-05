@@ -33,7 +33,8 @@ describe("what the database is told of the game", () => {
     expect(all.hints.ids.map(([id]) => id)).toEqual(HINT_IDS);
     for (const [id, from] of all.hints.ids) {
       expect(from).toBeGreaterThanOrEqual(0);
-      for (const stage of [0, 1, 6, 20, 41, UNLOCKS.length]) expect(sourcesAt(stage).has(id)).toBe(from <= stage);
+      // (what he hints at counts what the forest gives; what he asks for does not)
+      for (const stage of [0, 1, 6, 20, 41, UNLOCKS.length]) expect(sourcesAt(stage, true).has(id)).toBe(from <= stage);
     }
   });
 

@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small item icons for that game's shop, bag and cooking, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) one short length of green bamboo cane with joints, lying at a slant; 2) a small bunch of wild flowers, pink, yellow and white, on thin green stalks; 3) a lump of smooth grey-brown wet clay; 4) one shiitake mushroom: a dark brown cap with pale cracks on a short cream stalk; 5) one golden yellow chanterelle mushroom shaped like a funnel with a wavy edge; 6) one porcini mushroom: a round bun-brown cap on a fat white stalk.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

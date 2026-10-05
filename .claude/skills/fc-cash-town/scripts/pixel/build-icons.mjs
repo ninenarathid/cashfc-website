@@ -150,6 +150,35 @@ const SHEETS = [
   ["icons-items-ba", ["crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast"], { range: [7.9, 8.1] }],
   ["icons-pots-l", ["potFishChips", "potUkha", "potThieboudienne", "potPiranhaSoup"], { range: [7.9, 8.1] }],
   ["icons-pots-m", ["potCrawfishBoil", "potMasgouf", "potSalmonSteak", "potArapaimaRoast"], { range: [7.9, 8.1] }],
+  // what is found in the forest (the owner, 2026-10-05; work/make-forest-prompts.mjs): what lies on the ground, what
+  // grows, what is dug up, what is shaken down, the rare finds, and the mound of earth something is dug out of
+  ["icons-items-bb", ["twig", "leafMould", "pineCone", "feather", "resin", "vine"], { range: [7.9, 8.1] }],
+  ["icons-items-bc", ["bambooCane", "wildflower", "clay", "shiitake", "chanterelle", "porcini"], { range: [7.9, 8.1] }],
+  ["icons-items-bd", ["glowMushroom", "toadstool", "fiddlehead", "mint", "rosemary", "chamomile"], { range: [7.9, 8.1] }],
+  ["icons-items-be", ["lavender", "blueberry", "raspberry", "wildStrawberry", "silkCocoon", "fourLeafClover"], { range: [7.9, 8.1] }],
+  ["icons-items-bf", ["bambooShoot", "wildYam", "truffle", "ginseng", "amber", "mandrake"], { range: [7.9, 8.1] }],
+  ["icons-items-bg", ["wildApple", "chestnut", "wildOrchid", "moonflower", "starShard", "mound"], { range: [7.9, 8.1] }],
+  // what the forest's gathering games are played with (work/make-forest-game-prompts.mjs): what only looks like each
+  // thing that is chosen, wrong in a way of its own; and the earth a thing is dug out of, a layer at a time
+  ["icons-game-b", ["likeShiitake", "likeChanterelle", "likePorcini", "likeGlowMushroom", "likeFiddlehead", "likeMint"], { range: [7.9, 8.1] }],
+  ["icons-game-c", ["likeRosemary", "likeChamomile", "likeLavender", "likeBlueberry", "likeRaspberry", "likeWildStrawberry"], { range: [7.9, 8.1] }],
+  ["icons-game-d", ["earthDeep", "earthMid", "earthThin", "earthHole", "earthFound", "earthTop"], { range: [11.4, 11.7] }],
+  // what is made of the forest's things (work/make-forest-dish-prompts.mjs): eighteen dishes, the five things made by
+  // hand and a net for the insects to come, and the pot each dish comes as. (The first sheet was drawn big and soft:
+  // it is cut at ten to the pixel, which gives its icons the others' size.)
+  ["icons-items-bh", ["mushroomSoup", "mushroomSkewer", "fishOnStick", "roastYam", "roastedApple", "mushroomRisotto"], { range: [9.9, 10.2] }],
+  ["icons-items-bi", ["fernSalad", "herbTea", "berryCompote", "bakedApple", "roastChestnut", "forestStew"], { range: [7.9, 8.1] }],
+  ["icons-items-bj", ["bambooShootStir", "rosemaryFish", "ginsengSoup", "moonTea", "truffleEggs", "mushroomOmelette"], { range: [8.1, 8.3] }],
+  ["icons-items-bk", ["skewer", "mulch", "lavenderSachet", "floatFeather", "lineSpun", "bugNet"], { range: [7.9, 8.1] }],
+  ["icons-pots-n", ["potMushroomSoup", "potMushroomSkewer", "potFishOnStick", "potRoastYam", "potRoastedApple", "potMushroomRisotto"], { range: [7.9, 8.1] }],
+  ["icons-pots-o", ["potFernSalad", "potHerbTea", "potBerryCompote", "potBakedApple", "potRoastChestnut", "potForestStew"], { range: [8.0, 8.2] }],
+  ["icons-pots-p", ["potBambooShootStir", "potRosemaryFish", "potGinsengSoup", "potMoonTea", "potTruffleEggs", "potMushroomOmelette"], { range: [8.1, 8.3] }],
+  // the insects (work/make-insect-prompts.mjs): twenty-three of them, every one facing left (the map flips them), and
+  // a leaf for the leaf insect to lie among
+  ["icons-items-bl", ["butterflyWhite", "monarch", "morpho", "moth", "lunaMoth", "hawkMoth"], { range: [7.9, 8.1] }],
+  ["icons-items-bm", ["dragonfly", "damselfly", "glassDragonfly", "firefly", "cicada", "ladybird"], { range: [7.9, 8.1] }],
+  ["icons-items-bn", ["grasshopper", "mantis", "orchidMantis", "stickInsect", "leafInsect", "caterpillar"], { range: [7.9, 8.1] }],
+  ["icons-items-bo", ["rhinoBeetle", "stagBeetle", "jewelBeetle", "herculesBeetle", "scarab", "decoyLeaf"], { range: [7.9, 8.1] }],
   // the wishing fountain (2026-10-05): the five blessings that are its own, and a coin dropped into water; the frames
   // of a sparkle as it twinkles and of a ring as it spreads, drawn where a blessing is at work; and a burst for each
   // kind of blessing (water, leaves, clover, heart, steam, drops)

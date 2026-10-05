@@ -99,7 +99,7 @@ export const ODD: DishId = "oddDish";
 /** Whether a thing is cookware: something a dish, or anything else, is made in. */
 export const isCookware = (id: ItemId | null | undefined): id is Cookware => !!id && COOKWARE.has(id);
 /** The kinds of thing that are never put in: a tool, a scroll, a dish already. */
-export const NOT_PUT_IN = ["tool", "scroll", "dish"];
+export const NOT_PUT_IN = ["tool", "scroll", "dish", "bug"];
 /** Whether a thing can be put in. */
 export const goesIn = (id: ItemId) => !NOT_PUT_IN.includes(ITEMS[id].kind);
 

@@ -21,14 +21,22 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (and a scroll for every dish that had none: thirteen, twenty-three and twenty-four of them; and one of how the
     // cure for pests is made, 2026-10-04)
     // (and the twenty fish of 2026-10-05: with them a hook and a float that are made of two, eight dishes, and a scroll of each)
-    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8);
+    // (and the forest's thirty-five, the same day: all of them things that are found, none that is made yet)
+    // (and what is made of them: a skewer, a float and a line, two things for a plant, sixteen dishes and a scroll of each)
+    // (and the insects, the same day: a net and twenty-two of them; the cricket was there, and the grasshopper is of
+    // the second tier, as the cricket it goes on a hook for is)
+    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8 + 35 + 5 + 16 + 16 + 1 + 22);
+    expect(ITEM_IDS.filter((id) => ITEMS[id].kind === "bug").length).toBe(23);
+    expect(by(1).filter((id) => ITEMS[id].kind === "wild").length).toBe(35);
     // the later tiers were twice what the early game was when he asked, seventy-two each; then came the dishes of five
     // other countries (the owner: "ช่วยเอาอาหารประเทศอื่นที่ดังๆ มาด้วย ซัก 5 ประเทศ ประเทสละ 5 menu จะเพิ่ม อุปกรณ์ด้วยก็ได้"): twenty-five
     // dishes, the noodles they are made of, four staples and four pieces of cookware; and flour came down a tier for them
     // (less the brush and the soap, which were for washing up)
-    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2);
+    // (and two dishes of the forest's that take an egg, with their scrolls)
+    // (and a grasshopper, which goes on a hook as a cricket does)
+    expect(by(2).length).toBe(72 + 13 + 1 + 2 + 3 + 1 + 23 - 2 + 2 + 2 + 1);
     expect(by(3).length).toBe(72 + 12 + 2 + 1 - 1 + 24);
-    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2);
+    expect(by(2).length + by(3).length).toBe(72 * 2 + 25 + 1 + 4 + 4 + 47 - 2 + 4 + 1);
     // what was there before is still the early game, and still what the uncle sells
     for (const id of ["rod", "hoe", "pot", "worm", "minnow", "koi", "shabu", "scrollGrilledFish"] as const) expect(tierOf(id)).toBe(1);
     for (const id of ["rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox", "seedKangkong", "scrollFriedMinnow"] as const) expect(GOODS[id]).toBeDefined();

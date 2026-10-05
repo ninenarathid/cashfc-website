@@ -57,7 +57,8 @@ describe("the scrolls nobody sells (the owner: \"อาหารมีหลา�
     expect(ITEMS[last.found!].tier).toBeLessThanOrEqual(2);
     // a chest, of the later two
     const chest = done(open(purseWith(5, ["chest", 1]), 0, [0.5, 0.999999]));
-    expect(ITEMS[chest.found!].tier).toBe(3);
+    expect(ITEMS[chest.found!].tier).toBeGreaterThanOrEqual(2);
+    expect(ITEMS[done(open(purseWith(5, ["chest", 1]), 0, [0.5, 0.5])).found!].tier).toBe(3);
     expect(held(chest.purse.bag, "chest")).toBe(0);
     // an old boot has one now and then, of the early game's; more often it is only a boot, and gone either way
     const boot = purseWith(5, ["boot", 1]);

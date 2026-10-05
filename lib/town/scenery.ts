@@ -1,6 +1,6 @@
 "use client";
 
-import { COLS, FARM, ROWS, TILE_H, TILE_W, fromIso, groundLook, placeOf } from "./world";
+import { BEYOND, COLS, FARM, FOREST, ROWS, TILE_H, TILE_W, fromIso, groundLook, seenAt } from "./world";
 
 /**
  * Cash Town's scenery in pixel art: the ground and what stands on it (trees,
@@ -21,6 +21,10 @@ import { COLS, FARM, ROWS, TILE_H, TILE_W, fromIso, groundLook, placeOf } from "
  * (the jet rising and falling, splashes, ripples), played there and back, with
  * the stone the same in all of them. A picture without them falls back to
  * cycling the one fountain's blues.
+ *
+ * The forest's things are in a picture of their own (public/town/forest.json,
+ * the same script's `--set forest`), fetched only by somebody who goes that way
+ * (loadForest) and added to this one: nobody who stays in town pays for it.
  */
 
 type Piece = [x: number, y: number, w: number, h: number, ax: number, ay: number];
@@ -34,8 +38,11 @@ interface SceneryJson {
   size: [number, number];
   /** Props: where in the picture, and their ground point (bottom middle). */
   props: Record<string, Piece>;
-  /** `field` (the farm's plots) is missing from a picture built before the farm: its plots are then laid in the path's earth. */
-  textures: Record<"grass" | "plaza" | "road" | "water" | "sand", [x: number, y: number, w: number, h: number]> & { field?: [x: number, y: number, w: number, h: number] };
+  /**
+   * `field` (the farm's plots) is missing from a picture built before the farm: its plots are then laid in the path's
+   * earth. `wood` (the forest's floor) is the forest picture's: until that has come it is laid in grass.
+   */
+  textures: Partial<Record<(typeof KINDS)[number], [x: number, y: number, w: number, h: number]>>;
 }
 
 /** Texture pixels along a tile's side: a 64×32 diamond holds as many pixels as a 32×32 square. */
@@ -46,28 +53,34 @@ const CHUNKS_KEPT = 24;
 const LAY_PER_FRAME = 2;
 /** The ground's kind is worked out once per eighth of a tile, then remembered. */
 const SUB = 8;
-const KINDS = ["grass", "plaza", "road", "water", "sand", "field"] as const;
+const KINDS = ["grass", "plaza", "road", "water", "sand", "field", "wood"] as const;
+/** What a kind is laid in while its own texture is missing. */
+const STAND_IN: Partial<Record<(typeof KINDS)[number], (typeof KINDS)[number]>> = { field: "road", wood: "grass" };
+/** The maps, each with its own grid of remembered kinds: the town's, the farm's, the forest's; and the woods seen beyond the town's north gate and the forest's own (ground to look at, on no map). */
+const MAPS = [{ x: 0, y: 0, w: COLS, h: ROWS }, FARM, FOREST, BEYOND.north, BEYOND.south];
 /** How dark the rim of a plot is laid: the ridge of earth between one plot and the next. */
 const RIDGE = 0.085;
 
 export class SceneryKit {
   /**
    * The isometric point at the ground's top-left corner, and the ground's size
-   * in isometric pixels: the box round both maps, the town's and the farm's far
-   * to its east. Most of it is nothing at all, and no chunk of that is ever laid.
+   * in isometric pixels: the box round every map, the town's and the farm's and
+   * the forest's far off from it. Most of it is nothing at all, and no chunk of
+   * that is ever laid.
    */
-  readonly origin = { x: -ROWS * (TILE_W / 2), y: 0 };
+  readonly origin = { x: Math.min(...MAPS.map((m) => m.x - m.y - m.h)) * (TILE_W / 2), y: Math.min(...MAPS.map((m) => m.x + m.y)) * (TILE_H / 2) };
   readonly size = {
-    w: (FARM.x + FARM.w - FARM.y + ROWS) * (TILE_W / 2),
-    h: Math.max(COLS + ROWS, FARM.x + FARM.w + FARM.y + FARM.h) * (TILE_H / 2),
+    w: Math.max(...MAPS.map((m) => m.x + m.w - m.y)) * (TILE_W / 2) - this.origin.x,
+    h: Math.max(...MAPS.map((m) => m.x + m.w + m.y + m.h)) * (TILE_H / 2) - this.origin.y,
   };
   private readonly img: HTMLImageElement;
+  /** Pictures added to the first (the forest's): each with its own props. */
+  private readonly more: Array<{ json: SceneryJson; img: HTMLImageElement }> = [];
   /** The fountain, its water a step further along in each. */
   private readonly fountain: HTMLCanvasElement[] = [];
   private readonly tex: Record<(typeof KINDS)[number], { w: number; h: number; d: Uint8ClampedArray }>;
-  /** The kind at each eighth of a tile, as 1 + its index in KINDS; 0 not worked out yet. The town's, then the farm's. */
-  private readonly kinds = new Uint8Array(COLS * SUB * ROWS * SUB);
-  private readonly farmKinds = new Uint8Array(FARM.w * SUB * FARM.h * SUB);
+  /** The kind at each eighth of a tile, as 1 + its index in KINDS; 0 not worked out yet. A grid to a map (MAPS). */
+  private readonly kinds = MAPS.map((m) => new Uint8Array(m.w * SUB * m.h * SUB));
   /** The ground is laid in square chunks, each when it first comes into view, a few kept. */
   private readonly chunks = new Map<string, HTMLCanvasElement>();
 
@@ -79,17 +92,48 @@ export class SceneryKit {
     const sg = src.getContext("2d", { willReadFrequently: true })!;
     sg.drawImage(img, 0, 0);
     this.tex = Object.fromEntries(KINDS.map((k) => {
-      const [x, y, w, h] = json.textures[k] ?? json.textures.road;
+      const [x, y, w, h] = json.textures[k] ?? json.textures[STAND_IN[k] ?? "road"]!;
       return [k, { w, h, d: sg.getImageData(x, y, w, h).data }];
     })) as SceneryKit["tex"];
     const fp = json.props.fountain;
     if (fp) for (const c of waterFrames(sg.getImageData(fp[0], fp[1], fp[2], fp[3]))) this.fountain.push(c);
   }
 
+  /**
+   * More scenery, from a picture of its own: its props are added to the first's, and its textures take the place of
+   * what stood in for them (the ground laid so far is laid again).
+   */
+  add(json: SceneryJson, img: HTMLImageElement) {
+    this.more.push({ json, img });
+    const src = document.createElement("canvas");
+    src.width = json.size[0]; src.height = json.size[1];
+    const sg = src.getContext("2d", { willReadFrequently: true })!;
+    sg.drawImage(img, 0, 0);
+    for (const k of KINDS) {
+      const t = json.textures[k];
+      if (t) this.tex[k] = { w: t[2], h: t[3], d: sg.getImageData(t[0], t[1], t[2], t[3]).data };
+    }
+    this.chunks.clear();
+    this.parts.clear();
+  }
+
+  /** A prop's piece and the picture it is in: the first picture's, or one added to it. */
+  private piece(name: string): { p: Piece; img: HTMLImageElement } | null {
+    const p = this.json.props[name];
+    if (p) return { p, img: this.img };
+    for (const m of this.more) if (m.json.props[name]) return { p: m.json.props[name], img: m.img };
+    return null;
+  }
+
   private kindAt(x: number, y: number): (typeof KINDS)[number] {
-    // The farm's points are remembered apart from the town's: on its own grid, from its own corner.
-    const farm = x >= FARM.x;
-    const ox = farm ? FARM.x : 0, oy = farm ? FARM.y : 0, cols = farm ? FARM.w : COLS, rows = farm ? FARM.h : ROWS, kinds = farm ? this.farmKinds : this.kinds;
+    // Each map's points are remembered apart: on its own grid, from its own corner. (A point of no map is asked
+    // only as the neighbour of one at a map's edge: it is taken for the edge's.)
+    let n = -1;
+    // (a point is its own map's first: only one that is in none is given to the map it is beside)
+    for (let i = 0; i < MAPS.length && n < 0; i++) if (x >= MAPS[i].x && y >= MAPS[i].y && x < MAPS[i].x + MAPS[i].w && y < MAPS[i].y + MAPS[i].h) n = i;
+    for (let i = 0; i < MAPS.length && n < 0; i++) if (x >= MAPS[i].x - 1 && y >= MAPS[i].y - 1 && x < MAPS[i].x + MAPS[i].w + 1 && y < MAPS[i].y + MAPS[i].h + 1) n = i;
+    if (n < 0) n = 0;
+    const { x: ox, y: oy, w: cols, h: rows } = MAPS[n], kinds = this.kinds[n];
     const sx = Math.min(cols * SUB - 1, Math.max(0, Math.floor((x - ox) * SUB))), sy = Math.min(rows * SUB - 1, Math.max(0, Math.floor((y - oy) * SUB)));
     const k = sy * cols * SUB + sx;
     let v = kinds[k];
@@ -108,7 +152,7 @@ export class SceneryKit {
     const out = g.createImageData(CHUNK, CHUNK), o = out.data;
     for (let py = 0; py < CHUNK; py++) for (let px = 0; px < CHUNK; px++) {
       const t = fromIso(this.origin.x + cx * CHUNK + px + 0.5, this.origin.y + cy * CHUNK + py + 0.5);
-      if (placeOf(t.x, t.y) === null) continue;
+      if (!seenAt(t.x, t.y)) continue;
       const kind = this.kindAt(t.x, t.y), T = this.tex[kind];
       const u = ((Math.floor(t.x * PER_TILE) % T.w) + T.w) % T.w, v = ((Math.floor(t.y * PER_TILE) % T.h) + T.h) % T.h;
       const si = (v * T.w + u) * 4, di = (py * CHUNK + px) * 4;
@@ -156,7 +200,7 @@ export class SceneryKit {
   }
 
   /** Whether the picture has this prop. */
-  has(name: string): boolean { return name in this.json.props; }
+  has(name: string): boolean { return name in this.json.props || this.more.some((m) => name in m.json.props); }
 
   /**
    * Draw a prop with its ground point at (x, y) on the canvas, one picture
@@ -164,29 +208,53 @@ export class SceneryKit {
    */
   /** Where a prop sits in the picture, for drawing it outside the map (a CSS sprite). */
   sprite(name: string): Sprite | null {
-    const p = this.json.props[name];
-    return p ? { src: this.img.src, sheet: this.json.size, at: [p[0], p[1], p[2], p[3]] } : null;
+    const at = this.piece(name);
+    if (!at) return null;
+    const sheet = at.img === this.img ? this.json.size : this.more.find((m) => m.img === at.img)!.json.size;
+    return { src: at.img.src, sheet, at: [at.p[0], at.p[1], at.p[2], at.p[3]] };
+  }
+
+  /** Water that moves in a prop of an added picture (the forest's waterfall), as the fountain's does: its frames, made once. */
+  private readonly moving = new Map<string, HTMLCanvasElement[]>();
+  private framesOf(name: string): HTMLCanvasElement[] {
+    let frames = this.moving.get(name);
+    if (!frames) {
+      frames = [];
+      const at = this.piece(name);
+      try {
+        if (at) {
+          const [sx, sy, w, h] = at.p, c = document.createElement("canvas");
+          c.width = w; c.height = h;
+          const g = c.getContext("2d", { willReadFrequently: true })!;
+          g.drawImage(at.img, sx, sy, w, h, 0, 0, w, h);
+          frames = waterFrames(g.getImageData(0, 0, w, h));
+        }
+      } catch { /* a picture that cannot be read back stands still */ }
+      this.moving.set(name, frames);
+    }
+    return frames;
   }
 
   /** Where a prop stands in its picture: its ground point, from the picture's top-left corner. */
   anchorOf(name: string): [number, number] {
-    const p = this.json.props[name];
+    const p = this.piece(name)?.p;
     return p ? [p[4], p[5]] : [0, 0];
   }
 
   /** A prop's size in picture pixels: [width, height]. */
   sizeOf(name: string): [number, number] {
-    const p = this.json.props[name];
+    const p = this.piece(name)?.p;
     return p ? [p[2], p[3]] : [0, 0];
   }
 
   /** `skew` leans it from its foot, as wind does a tree: its top moves skew × its height sideways. */
   drawProp(ctx: CanvasRenderingContext2D, name: string, x: number, y: number, scale: number, px = 1, now = 0, mirror = false, skew = 0) {
     if (name === "fountain" && this.json.props[FOUNTAIN_LOOP[0]]) name = FOUNTAIN_LOOP[Math.floor(now / FOUNTAIN_MS) % FOUNTAIN_LOOP.length];
-    const p = this.json.props[name];
-    if (!p) return;
-    const [sx, sy, w, h, ax, ay] = p;
-    const frame = name === "fountain" && this.fountain.length ? this.fountain[Math.floor(now / WATER_MS) % this.fountain.length] : null;
+    const at = this.piece(name);
+    if (!at) return;
+    const [sx, sy, w, h, ax, ay] = at.p;
+    const flows = name === "fountain" ? this.fountain : FLOWING.includes(name) && now ? this.framesOf(name) : [];
+    const frame = flows.length ? flows[Math.floor(now / WATER_MS) % flows.length] : null;
     ctx.save();
     ctx.imageSmoothingEnabled = scale * px < 1;
     ctx.imageSmoothingQuality = "high";
@@ -195,7 +263,7 @@ export class SceneryKit {
     ctx.scale(scale, scale);
     if (skew) ctx.transform(1, 0, mirror ? skew : -skew, 1, 0, 0);
     if (frame) ctx.drawImage(frame, -ax, -ay);
-    else ctx.drawImage(this.img, sx, sy, w, h, -ax, -ay, w, h);
+    else ctx.drawImage(at.img, sx, sy, w, h, -ax, -ay, w, h);
     ctx.restore();
   }
 
@@ -212,9 +280,9 @@ export class SceneryKit {
    * nobody's legs go behind a floor.
    */
   drawPart(ctx: CanvasRenderingContext2D, name: string, x: number, y: number, scale: number, px: number, box: readonly [number, number, number, number]) {
-    const p = this.json.props[name];
-    if (!p) return;
-    const [sx, sy, w, h, ax, ay] = p;
+    const at = this.piece(name);
+    if (!at) return;
+    const [sx, sy, w, h, ax, ay] = at.p;
     const x0 = Math.max(0, Math.floor(box[0] + ax)), y0 = Math.max(0, Math.floor(box[1] + ay));
     const x1 = Math.min(w, Math.ceil(box[2] + ax)), y1 = Math.min(h, Math.ceil(box[3] + ay));
     if (x1 <= x0 || y1 <= y0) return;
@@ -227,7 +295,7 @@ export class SceneryKit {
         cut.width = x1 - x0;
         cut.height = y1 - y0;
         const c = cut.getContext("2d", { willReadFrequently: true })!;
-        c.drawImage(this.img, sx + x0, sy + y0, x1 - x0, y1 - y0, 0, 0, x1 - x0, y1 - y0);
+        c.drawImage(at.img, sx + x0, sy + y0, x1 - x0, y1 - y0, 0, 0, x1 - x0, y1 - y0);
         const data = c.getImageData(0, 0, cut.width, cut.height), d = data.data;
         for (let i = 0; i < d.length; i += 4) {
           const hi = Math.max(d[i], d[i + 1], d[i + 2]), lo = Math.min(d[i], d[i + 1], d[i + 2]);
@@ -255,6 +323,8 @@ const FOUNTAIN_LOOP = ["fountain_a1", "fountain_a2", "fountain_a3", "fountain_a4
 const FOUNTAIN_MS = 150;
 /** How long each step of the cycled water shows (a picture without the drawn frames). */
 const WATER_MS = 130;
+/** The props of an added picture whose water moves the same way. */
+const FLOWING = ["waterfall"];
 const WATER_FRAMES = 6;
 
 /**
@@ -319,4 +389,26 @@ export function loadScenery(): Promise<SceneryKit> {
   })();
   kit.catch(() => { kit = null; });
   return kit;
+}
+
+let forest: Promise<void> | null = null;
+
+/** The forest's picture, fetched once per tab by whoever goes that way, and added to the scenery. */
+export function loadForest(): Promise<void> {
+  forest ??= (async () => {
+    const into = await loadScenery();
+    const r = await fetch("/town/forest.json");
+    if (!r.ok) throw new Error(`forest.json ${r.status}`);
+    const json = await r.json() as SceneryJson;
+    const img = await new Promise<HTMLImageElement>((ok, no) => {
+      const i = new Image();
+      i.decoding = "async";
+      i.onload = () => ok(i);
+      i.onerror = () => no(new Error(`${json.image} did not load`));
+      i.src = `/town/${json.image}`;
+    });
+    into.add(json, img);
+  })();
+  forest.catch(() => { forest = null; });
+  return forest;
 }

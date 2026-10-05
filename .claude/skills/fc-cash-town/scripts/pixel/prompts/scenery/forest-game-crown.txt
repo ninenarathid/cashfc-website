@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+A fruit tree seen from in front, close, by somebody standing under it with a basket. Across the top third of the picture the underside of its thick leafy green crown stretches from the left edge to the right edge, with a few brown branches showing among the leaves. Below the crown is plain open air: a flat, even, pale sky-blue with nothing in it. Along the bottom edge a low strip of green grass with a few tiny flowers. No trunk in the middle, and no fruit anywhere.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no hands, no text, no letters, no numbers.

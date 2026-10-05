@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+A patch of bare, freshly loosened dark brown earth seen straight from above, filling almost the whole picture, plain and even with only small crumbs in it. Round its edges a narrow rim of the forest floor: green grass tufts, small ferns, thin roots and a few grey stones, reaching in a little from every side.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no hands, no text, no letters, no numbers.

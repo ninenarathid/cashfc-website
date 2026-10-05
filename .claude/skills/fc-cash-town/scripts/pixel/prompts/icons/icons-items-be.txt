@@ -1,0 +1,6 @@
+Use the attached picture only as the reference for the pixel art style, the colours and the thick dark outline of a cozy 2D town game. Draw a new sprite sheet of small item icons for that game's shop, bag and cooking, in the same pixel art style.
+
+Each icon is drawn on its own 16 by 16 pixel grid, scaled up big so every pixel of the icon is a large crisp square, all icons the same size, simple and bold so they read clearly when shown small, with a thick dark outline and two or three tones per colour. Six icons in one row across the canvas, evenly spaced with wide empty gaps between them, not touching, not overlapping:
+1) a small bunch of lavender: purple flower spikes on long green stalks, tied with string; 2) a cluster of round dark blue blueberries with two green leaves; 3) three pink-red raspberries with a green leaf; 4) two tiny bright red wild strawberries with a green leaf; 5) one pale cream oval silk cocoon wound in fine thread, on a green leaf; 6) one bright green four-leaf clover.
+
+Crisp pixel art with hard square pixel edges, no anti-aliasing, no blur, no gradients, no glow. Transparent background, no frames or boxes around the icons, no shadows, no text, no letters, no numbers.

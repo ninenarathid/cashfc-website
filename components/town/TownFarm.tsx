@@ -37,6 +37,8 @@ export interface FarmFrame {
   indoors: boolean;
   /** Where I stand on the map, if I am in town. */
   self: Vec | null;
+  /** Everybody on the map as this screen has them, myself among them: where, whether they are walking, and what they hold (lib/town/insects minds them). */
+  people?: () => Array<{ id: string; x: number; y: number; moving: boolean; hold: ItemId | null }>;
 }
 export type FarmDraw = (frame: FarmFrame) => void;
 

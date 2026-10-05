@@ -57,6 +57,8 @@ export const KIND_WORD: Record<ItemKind, Line> = {
   crop: { th: "ผักหรือผลไม้สักอย่าง", en: "some vegetable or fruit" },
   fish: { th: "ปลาหรือสัตว์น้ำสักอย่าง", en: "some fish or river creature" },
   catch: { th: "ของที่ลอยมากับน้ำสักอย่าง", en: "something the river brings" },
+  wild: { th: "ของป่าสักอย่าง", en: "something from the forest" },
+  bug: { th: "แมลงสักตัว", en: "some insect" },
   goods: { th: "ของแปรรูปสักอย่าง", en: "something that is made" },
   dish: { th: "อาหารสักอย่าง", en: "some dish" },
   scroll: { th: "ม้วนกระดาษสักม้วน", en: "some scroll" },

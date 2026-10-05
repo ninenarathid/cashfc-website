@@ -29,9 +29,9 @@ describe("the uncle's shelf (the owner: \"เราเอาของ basic ข�
     const all = Object.keys(GOODS) as ItemId[];
     expect(new Set([...BASIC, ...UNLOCKS]).size).toBe(BASIC.length + UNLOCKS.length);
     expect([...BASIC, ...UNLOCKS].sort()).toEqual([...all].sort());
-    // (twenty-one, and the scroll of the cure for pests: the owner, 2026-10-04)
-    expect(BASIC.length).toBe(22);
-    expect(UNLOCKS.length).toBe(all.length - 22);
+    // (twenty-one, and the scroll of the cure for pests: the owner, 2026-10-04; and a net for insects, 2026-10-05)
+    expect(BASIC.length).toBe(23);
+    expect(UNLOCKS.length).toBe(all.length - 23);
     // the basic things are the early game's; what is opened comes tier by tier
     for (const id of BASIC) expect(ITEMS[id].tier).toBe(1);
     const tiers = UNLOCKS.map((id) => ITEMS[id].tier);
@@ -57,7 +57,12 @@ describe("the uncle's shelf (the owner: \"เราเอาของ basic ข�
   it("opens more to do with each thing: what cannot be had at first can be had later", () => {
     const first = sources(shelfOf(0));
     for (const id of ["minnow", "kangkong", "friedMinnow", "fishSauce", "basket"] as const) expect(first.has(id)).toBe(true);
-    for (const id of ["garlic", "stirKangkong", "curryPaste", "gourami", "khantoke"] as const) expect(first.has(id)).toBe(false);
+    // (a gourami was one of these until 2026-10-05: it takes a cricket, and a cricket is now caught with a net on the
+    // first day, as the owner allowed; a snail takes only the ball of bran his shelf opens later)
+    for (const id of ["garlic", "stirKangkong", "curryPaste", "snail", "khantoke"] as const) expect(first.has(id)).toBe(false);
+    expect(first.get("cricket")).toBe("net");
+    expect(first.has("gourami")).toBe(true);
+    expect(sources(shelfOf(0), false).has("gourami")).toBe(false);
     const second = sources(shelfOf(1));
     expect(second.has("garlic")).toBe(true);
     expect(second.has("stirKangkong")).toBe(true);

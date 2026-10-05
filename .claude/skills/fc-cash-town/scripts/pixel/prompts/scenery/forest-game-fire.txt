@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one scene that fills the whole canvas from edge to edge, with no border and no frame, for a mini-game of the same cozy 2D game.
+
+A camp fire seen from the front and a little above, at dusk in a forest clearing. Along the bottom of the picture, in the middle, a ring of grey stones holds a bed of glowing orange embers and a few charred logs, with no tall flames (the flames are drawn by the game). Above the embers the whole upper two thirds of the picture is open, dark, plain air: a deep blue-green dusk with only the faint dark shapes of tree trunks far behind at the left and right edges. On the ground at either side of the stones, short grass, a few fallen leaves and one small pile of split firewood.
+
+Crisp pixel art with hard square pixel edges, a thick dark outline on things, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. No characters, no hands, no food, no stick, no text, no letters, no numbers.

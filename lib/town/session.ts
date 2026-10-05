@@ -563,7 +563,10 @@ export class TownSession {
         this.early.delete(p.id);
         const spot = d.x !== undefined && d.y !== undefined ? { x: d.x, y: d.y } : spawnFor(p.id);
         this.avatars.set(p.id, {
-          info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1 },
+          // (everything heard of them before the room listed them: what they hold, eat and do with a rod too, which
+          // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
+          info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
+            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
         });
       } else {

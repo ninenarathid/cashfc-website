@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COOKING, goesIn, isCookware, isFind, mayTake, reachOf, stirMods, stirsFor, type Pot, type Taste } from "@/lib/town/cooking";
 import { DISHES, ITEMS, potIconOf, type ItemId } from "@/lib/town/items";
+import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { hasBuff, isSpent } from "@/lib/town/stamina";
 import { handOf, held } from "@/lib/town/trade";
@@ -12,12 +13,14 @@ import type { FarmDraw } from "./TownFarm";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
 import { AT_THE_POT, BURST, BuffAura } from "./TownBuffFx";
+import TownRoasting from "./TownRoasting";
 import TownStirring from "./TownStirring";
 import { ItemIcon, WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
 
 /** Where I stand still: my tile, and what of the cooking yard I am at there. */
-export interface Standing { tile: [number, number]; place: "stove" | "table" | "fire" | "wash" | null }
+/** Where somebody stands still: the tile, and what of a cooking place it is (one of the yard's, or `camp`: beside the forest camp's fire, where things are cooked and put together by hand alike). */
+export interface Standing { tile: [number, number]; place: "stove" | "table" | "fire" | "wash" | "camp" | null }
 
 /** Why not, in the kitchen's own words (the rest are the trade's). */
 const WHY_COOK: Record<string, [string, string]> = {
@@ -57,7 +60,9 @@ const VERB: Record<Offer, [string, string]> = {
  * What is kept is the keeper's (lib/town/keeper): the database's for a member,
  * the browser's trial in `next dev`'s test room.
  */
-export default function TownCook({ me, keeper, called, th, here, crew, cooks: others, sfx, bottom, register, onOpen }: {
+export default function TownCook({ me, keeper, called, th, here, crew, cooks: others, sfx, bottom, register, onOpen, art }: {
+  /** A picture out of the town's scenery, by its name: the scene a roast is played on (the forest's own sheet has it). */
+  art?: (name: string) => Sprite | null;
   me: string;
   keeper: Keeper;
   /** What I am called, for the name beside a recipe I am the first to find. */
@@ -134,10 +139,10 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     }
     return best;
   }, [here, pots]);
-  const atPlace = here?.place === "stove" || here?.place === "table" || here?.place === "fire";
+  const atPlace = here?.place === "stove" || here?.place === "table" || here?.place === "fire" || here?.place === "camp";
   const offers: Offer[] = [];
   if (here) {
-    if (atPlace && (isCookware(hand) || here.place === "table")) offers.push("cook");
+    if (atPlace && (isCookware(hand) || here.place === "table" || here.place === "camp")) offers.push("cook");
     if (hand === "potFull") offers.push("down");
     if (near && near.left > 0) offers.push("ladle");
     if (near && mayTake(near, me)) offers.push("take");
@@ -241,9 +246,17 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       {stirring ? (
         <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
           <BuffAura ids={AT_THE_POT.filter((id) => hasBuff(purse, now, id))} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1" />
-          <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent)}
-                        onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
-                        onDone={finish} onCancel={() => setStirring(null)} />
+          {/* what is cooked on a stick is roasted over the fire, a game of its own; everything else is stirred */}
+          {stirring.crew[0] === "skewer" ? (
+            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} scene={art?.("gameFire") ?? null}
+                          onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) vfx.add("smoke", null, { lift: 22 }); }}
+                          onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
+                          onDone={finish} onCancel={() => setStirring(null)} />
+          ) : (
+            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent)}
+                          onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
+                          onDone={finish} onCancel={() => setStirring(null)} />
+          )}
         </div>
       ) : open ? (
         <section aria-label={th ? "ทำอาหาร" : "Cooking"} className="pop-in pointer-events-auto w-full max-w-[30rem] rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">

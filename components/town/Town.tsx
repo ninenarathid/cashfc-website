@@ -5,15 +5,15 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BOARD, BUILDINGS, FAR, FARM, FARM_PROPS, FOUNTAIN, GATES, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atWell, benchAt, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  atFire, atWell, benchAt, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, paced, type Fps } from "@/lib/town/pace";
 import { keepMotion, keptMotion } from "@/lib/town/motion";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
-import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
+import { loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
 import { SKINS, decodeLook, defaultLook, type Look } from "@/lib/town/look";
@@ -91,6 +91,8 @@ const TownTrade = lazy(() => import("./TownTrade"));
 const TownFish = lazy(() => import("./TownFish"));
 const TownTest = process.env.NODE_ENV !== "production" ? lazy(() => import("./TownTest")) : null;
 const TownFarm = lazy(() => import("./TownFarm"));
+const TownForest = lazy(() => import("./TownForest"));
+const TownBugs = lazy(() => import("./TownBugs"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
@@ -150,7 +152,17 @@ const ROD_LOOKS: Record<RodId, { cane: string; joint: string; grip: string; edge
 /** How long a bite of a meal takes, the morsel going up and the chewing after it, in milliseconds. */
 const BITE_MS = 2600;
 /** Props drawn a little smaller than their pictures, to sit within a tile. */
-const PROP_K: Partial<Record<string, number>> = { bin: 0.75, flowerbed: 0.8, signpost: 0.85, well: 0.75, shed: 0.9, scarecrow: 0.7, hay: 0.8 };
+const PROP_K: Partial<Record<string, number>> = {
+  bin: 0.75, flowerbed: 0.8, signpost: 0.85, well: 0.75, shed: 0.9, scarecrow: 0.7, hay: 0.8,
+  // (the forest's two great things are drawn larger than their pictures: the tree over its three tiles by three, the cliff along the back of its pool)
+  greattree: 1.7, waterfall: 1.6,
+};
+/** What the forest's own trees and rocks are drawn as until its picture has come (lib/town/scenery's loadForest): the town's. */
+const FOREST_STAND_IN: Partial<Record<string, string>> = { oak: "tree", birch: "tree", bamboo: "pine", boulder: "rock" };
+/** How long before the forest's picture is asked for again, when it did not come. */
+const FOREST_AGAIN_MS = 30_000;
+/** What leans in the wind: the town's trees and bushes, and the forest's. */
+const SWAYS = ["tree", "pine", "bush", "oak", "birch", "bamboo"];
 /** Popoto are drawn smaller than their pictures: about half a Lalafell tall. */
 const POPOTO_K = 0.78;
 /** How long a blink lasts. */
@@ -168,6 +180,7 @@ const GROUND: Record<ReturnType<typeof groundAt>, [string, string]> = {
   water: ["#1d4a6b", "#205073"],
   field: ["#4a3d2f", "#4f4232"],
   sand: ["#6b5d43", "#706247"],
+  wood: ["#1f3027", "#22342b"],
 };
 
 const KEYS: Record<string, [number, number]> = {
@@ -179,6 +192,8 @@ const KEYS: Record<string, [number, number]> = {
 
 /** How far above a bench's ground point its seat is (a picture pixel is a unit). */
 const SEAT_LIFT = 12;
+/** A log by the forest camp's fire is lower than a bench. */
+const LOG_LIFT = 7;
 /** A bench's facing, as the doll's view. */
 const FACINGS: Record<Facing, { view: View; mirror: boolean }> = {
   SE: { view: "front", mirror: false }, SW: { view: "front", mirror: true },
@@ -284,6 +299,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Which map I am on (lib/town/world's places): the camera stays inside it. And when I last went through a gate: the other map comes up out of the dark. */
   const placeRef = useRef<Place>("town");
   const warpedAt = useRef(-1e9);
+  /** When the forest's picture was last asked for (the frame's clock), and whether it has come. */
+  const forestAsked = useRef(-1e9);
+  const forestHere = useRef(false);
   const hover = useRef<Building | null>(null);
   const fontRef = useRef("sans-serif");
   const fpsRef = useRef(0);
@@ -570,6 +588,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const wellRef = useRef(false);
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
+  /** Whether I am on the forest's map (what it has is looked at while I am), and its own way of drawing what lies and grows there. */
+  const [onForest, setOnForest] = useState(false);
+  const onForestRef = useRef(false);
+  const forestDraw = useRef<FarmDraw | null>(null);
+  const registerForest = useCallback((draw: FarmDraw | null) => { forestDraw.current = draw; }, []);
+  // The insects (TownBugs): drawn on every map, and a tap is asked of the net before it is a step.
+  const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec) => boolean) | null>(null);
+  const registerBugs = useCallback((draw: FarmDraw | null) => { bugsDraw.current = draw; }, []);
+  const registerBugsTap = useCallback((tap: ((at: Vec) => boolean) | null) => { bugsTap.current = tap; }, []);
   /** The test window (the owner's, in the trial): every thing there is, to look at and to conjure. */
   const [testOpen, setTestOpen] = useState(false);
   /** How many are eating beside me (sitting within a few tiles, a dish before them), and whether it is raining: told to the page when they change. */
@@ -913,7 +940,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       // perched just in front of its tree; flying, over everything
       things.push({ depth: b.flying ? 1e6 : b.pos.x + b.pos.y - 0.11, draw: () => scenery.drawProp(ctx, name, c.x, c.y, s * 0.5, dpr, 0, !b.right) });
     }
-    if (sunny) for (let i = 0; i < BUTTERFLIES; i++) {
+    // (with a net in the hand, the butterflies about are only the ones that can be caught: lib/town/insects)
+    if (sunny && !(gameRef.current && handRef.current === "bugNet")) for (let i = 0; i < BUTTERFLIES; i++) {
       const f = butterflyAt(i, wall);
       if (!f) continue;
       const g = project(f.pos), c = { x: g.x, y: g.y - f.height * s };
@@ -960,9 +988,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   /** How far a tree, a pine or a bush leans in the wind now: a steady lean and a sway of its own. */
   function swayOf(p: { kind: string; x: number; y: number }, now: number): number {
-    if (reducedRef.current || (p.kind !== "tree" && p.kind !== "pine" && p.kind !== "bush")) return 0;
+    if (reducedRef.current || !SWAYS.includes(p.kind)) return 0;
     const w = effects.current.wind, ph = (p.x * 12.9898 + p.y * 78.233) % (Math.PI * 2);
-    const amp = p.kind === "bush" ? 0.035 : 0.06;
+    const amp = p.kind === "bush" ? 0.035 : p.kind === "bamboo" ? 0.08 : p.kind === "oak" ? 0.04 : 0.06;
     return w * (amp * 0.5 + amp * Math.sin(now / (900 - 300 * w) + ph) * (0.6 + 0.4 * Math.sin(now / 2300 + ph * 2)));
   }
 
@@ -1255,6 +1283,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.restore();
   }
 
+  /** The light of the forest camp's fire, on whoever sits round it: faint by day, warm at night, wavering a little. */
+  function drawCampLight(ctx: CanvasRenderingContext2D, lamps: number, now: number) {
+    if (placeRef.current !== "forest") return;
+    const fire = project({ x: CAMP.fire.x + 0.5, y: CAMP.fire.y + 0.62 });
+    if (!onScreen(fire)) return;
+    const s = cam.current.s, lit = (0.15 + 0.85 * lamps) * (reducedRef.current ? 0.92 : 0.9 + 0.06 * Math.sin(now / 760) + 0.04 * Math.sin(now / 430 + 1.3));
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    glowAt(ctx, fire.x, fire.y - 14 * s, 150 * s, "255,170,90", 0.5 * lit);
+    glowAt(ctx, fire.x, fire.y + 6 * s, 330 * s, "255,150,70", 0.2 * lit, 0.5);
+    ctx.restore();
+  }
+
   /**
    * The cooking yard's own lights, added after the sky has had its say. Inside: the camp fire, which lights the whole
    * yard, and the stoves' mouths. Outside: the house's two lanterns, the fire's light in its windows (their bars left
@@ -1327,6 +1368,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.restore();
     }
     drawYardLights(ctx, day.lamps, now);
+    drawCampLight(ctx, day.lamps, now);
     if (day.lamps < 0.02) return;
     const s = cam.current.s;
     ctx.save();
@@ -1392,6 +1434,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       setCam(camNow());
       warpedAt.current = now;
     }
+    // The forest's picture: asked for by whoever is in the forest, or on the north path on the way to it.
+    if (!forestHere.current && mine && now - forestAsked.current > FOREST_AGAIN_MS && (place === "forest" || (place === "town" && mine.pos.y < 14))) {
+      forestAsked.current = now;
+      loadForest().then(() => { forestHere.current = true; }).catch(() => { /* its trees are the town's until it comes */ });
+    }
     if (v.follow && mine) {
       const iso = toIso(mine.pos.x, mine.pos.y);
       const f = focus.current ?? { x: cw / 2, y: ch / 2 };
@@ -1440,12 +1487,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (byWell !== wellRef.current) { wellRef.current = byWell; setWellHere(byWell); }
       const farming = tx >= FARM.x - 2 && ty >= FARM.y - 2 && tx < FARM.x + FARM.w + 2 && ty < FARM.y + FARM.h + 2;
       if (farming !== onFarmRef.current) { onFarmRef.current = farming; setOnFarm(farming); }
+      const foraging = placeOf(tx, ty) === "forest";
+      if (foraging !== onForestRef.current) { onForestRef.current = foraging; setOnForest(foraging); }
       // where I stand still (not sitting), for the kitchen; and what the others at the yard's places hold
       const spot = !mine.path.length && (mine.info.sit ?? -1) === -1 ? `${tx},${ty}` : "";
-      if (spot !== standRef.current) { standRef.current = spot; setStanding(spot ? { tile: [tx, ty], place: yardPlace(tx, ty) } : null); }
+      // (beside the forest camp's fire is a place to cook at too: with a skewer or a pot in the hand, or by hand)
+      const camp = atFire(tx, ty);
+      if (spot !== standRef.current) { standRef.current = spot; setStanding(spot ? { tile: [tx, ty], place: yardPlace(tx, ty) ?? (camp ? "camp" : null) } : null); }
       let hands = "", who = "";
+      // (whoever cooks with me is at the same fire as I am: the yard's places, or the camp's)
       for (const a of sessionRef.current?.avatars.values() ?? []) {
-        const at = a.path.length ? null : yardPlace(Math.floor(a.pos.x), Math.floor(a.pos.y));
+        const ax = Math.floor(a.pos.x), ay = Math.floor(a.pos.y);
+        const at = a.path.length ? null : camp ? (atFire(ax, ay) ? "camp" : null) : yardPlace(ax, ay);
         if (at && at !== "wash") { hands += `${a.info.hold ?? ""},`; who += `${a.info.id},`; }
       }
       if (hands + who !== crewRef.current) {
@@ -1473,7 +1526,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (scenery) {
       scenery.drawGround(ctx, v, cw, ch, dpr);
       // Flowers lie flat: under whoever walks over them.
-      for (const p of PROPS) {
+      for (const p of placeRef.current === "forest" ? FOREST_PROPS : PROPS) {
         if (p.kind !== "flowers") continue;
         const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
         if (onScreen(c)) scenery.drawProp(ctx, "flowers", c.x, c.y, v.s, dpr);
@@ -1715,12 +1768,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const c = project(g.arch);
       if (!onScreen(c)) continue;
       things.push({ depth: g.arch.x + g.arch.y, draw: () => {
-        scenery.drawProp(ctx, "gateway", c.x, c.y, v.s, dpr);
+        scenery.drawProp(ctx, "gateway", c.x, c.y, v.s, dpr, 0, !!g.across);
         const [gw, gh] = scenery.sizeOf("gateway");
         gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (gw / 2) * v.s, y0: c.y - gh * v.s, x1: c.x + (gw / 2) * v.s, y1: c.y });
         const th = words.current.th;
-        signs.push(() => label(ctx, g.from === "town" ? (th ? "ไปแปลงผัก" : "To the farm") : (th ? "กลับเข้าเมือง" : "Back to town"), c.x, c.y - (gh + 4) * v.s,
-          "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
+        const leads = g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest") : (th ? "กลับเข้าเมือง" : "Back to town");
+        signs.push(() => label(ctx, leads, c.x, c.y - (gh + 4) * v.s, "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
     }
     // The farm, beyond the east gate (a map of its own): what stands about it. Its trees sway as the town's do.
@@ -1730,9 +1783,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         ctx, things, project, onScreen, s: v.s, now, img: iconImg.current, still: reducedRef.current, th: words.current.th,
         indoors: !(KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1),
         self: mine ? { x: mine.pos.x, y: mine.pos.y } : null,
+        people: () => (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
+          .map((a) => ({ id: a.info.id, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null) })),
         sign: (text: string, x: number, y: number) => { signs.push(() => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)")); },
       };
       if (placeRef.current === "farm") farmDraw.current?.(frame);
+      if (placeRef.current === "forest") forestDraw.current?.(frame);
+      bugsDraw.current?.(frame);
       // the pots of food that stand about, wherever they were set down
       cookDraw.current?.(frame);
     }
@@ -1741,6 +1798,62 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (!onScreen(c) || !scenery.has(p.kind)) continue;
       things.push({ depth: p.x + p.y + 1, draw: () =>
         scenery.drawProp(ctx, p.kind, c.x, c.y, v.s * (PROP_K[p.kind] ?? 1), dpr, 0, false, swayOf(p, now)) });
+    }
+    // The forest, beyond the north gate (a map of its own): its trees, bamboo and rocks, what lies and grows under
+    // them, the camp and its fire, the great tree and the waterfall.
+    if (scenery && placeRef.current === "forest") {
+      // (whatever tall stands in front of me is drawn faint, so that nobody is lost to their own sight in the woods)
+      const me = mine ? { at: project(mine.pos), depth: mine.pos.x + mine.pos.y } : null;
+      const faint = (name: string, c: Vec, k: number, depth: number) => {
+        if (!me || depth <= me.depth) return false;
+        const [w, h] = scenery.sizeOf(name);
+        return h * k > 60 * v.s && Math.abs(c.x - me.at.x) < (w / 2) * k && c.y - h * k < me.at.y - 12 * v.s;
+      };
+      const stand = (name: string, c: Vec, k: number, depth: number, draw: () => void) => things.push({ depth, draw: () => {
+        const dim = faint(name, c, k, depth);
+        if (dim) ctx.globalAlpha = 0.38;
+        draw();
+        if (dim) ctx.globalAlpha = 1;
+      } });
+      for (const p of FOREST_PROPS) {
+        if (p.kind === "flowers") continue;
+        const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
+        if (!onScreen(c)) continue;
+        const name = scenery.has(p.kind) ? p.kind : FOREST_STAND_IN[p.kind];
+        if (!name || !scenery.has(name)) continue;
+        const k = v.s * (PROP_K[p.kind] ?? 1);
+        stand(name, c, k, p.x + p.y + 1, () => {
+          scenery.drawProp(ctx, name, c.x, c.y, k, dpr, 0, false, swayOf(p, now));
+          if (p.kind === "campfire") drawFlames(ctx, c.x, c.y - 7 * v.s, v.s, now);
+          // a log by the fire is sat on like a bench: where it is on the screen, a little larger, for taps and the cursor
+          if (p.kind === "logseat") {
+            const [w, h] = scenery.sizeOf(name), [ax, ay] = scenery.anchorOf(name), pad = 8;
+            benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, x0: c.x - ax * k - pad, y0: c.y - ay * k - pad, x1: c.x + (w - ax) * k + pad, y1: c.y + (h - ay) * k + pad, depth: p.x + p.y });
+          }
+        });
+      }
+      // the woods beyond the forest's south edge, which its gate is in: trees to look at, where no map is
+      for (const p of BEYOND_PROPS.south) {
+        const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
+        if (!onScreen(c)) continue;
+        const name = scenery.has(p.kind) ? p.kind : FOREST_STAND_IN[p.kind] ?? p.kind;
+        if (scenery.has(name)) stand(name, c, v.s, p.x + p.y + 1, () => scenery.drawProp(ctx, name, c.x, c.y, v.s, dpr, 0, false, swayOf(p, now)));
+      }
+      if (scenery.has("greattree")) {
+        const c = project({ x: GREAT_TREE.x + GREAT_TREE.w - 0.1, y: GREAT_TREE.y + GREAT_TREE.h - 0.1 }), k = v.s * (PROP_K.greattree ?? 1);
+        stand("greattree", c, k, GREAT_TREE.x + GREAT_TREE.y + GREAT_TREE.w + GREAT_TREE.h - 1, () => scenery.drawProp(ctx, "greattree", c.x, c.y, k, dpr));
+      }
+      if (scenery.has("waterfall")) {
+        const c = project(WATERFALL);
+        things.push({ depth: WATERFALL.x + WATERFALL.y, draw: () => scenery.drawProp(ctx, "waterfall", c.x, c.y, v.s * (PROP_K.waterfall ?? 1), dpr, reducedRef.current ? 0 : now) });
+      }
+    }
+    // The woods beyond the town's north edge, which the path runs on into: trees to look at, where no map is.
+    if (scenery && placeRef.current === "town") for (const p of BEYOND_PROPS.north) {
+      const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
+      if (!onScreen(c)) continue;
+      const name = scenery.has(p.kind) ? p.kind : FOREST_STAND_IN[p.kind] ?? p.kind;
+      if (scenery.has(name)) things.push({ depth: p.x + p.y + 1, draw: () => scenery.drawProp(ctx, name, c.x, c.y, v.s, dpr, 0, false, swayOf(p, now)) });
     }
     // The two who keep shop in front of the Popoto Shop: the uncle at his stall, the banker at his counter.
     if (scenery?.has("stall") && scenery.has("un_stand")) for (const kp of KEEPERS) {
@@ -1962,7 +2075,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const b = seatOf(a);
     if (!b) return project(a.pos);
     const c = project({ x: b.x + 0.5, y: b.y + 0.62 });
-    return { x: c.x, y: c.y - SEAT_LIFT * cam.current.s };
+    return { x: c.x, y: c.y - (b.kind === "logseat" ? LOG_LIFT : SEAT_LIFT) * cam.current.s };
   }
 
   /** What somebody is doing with a rod, if anything: where their float lands (from where they stand), and what their line is doing. Mine is known to the moment; another's is what they told the room. */
@@ -2410,6 +2523,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (seat >= 0) { setPopover(null); setPeopleOpen(false); if (sessionRef.current?.sitOn(seat)) cam.current.follow = true; return; }
     setPopover(null);
     setPeopleOpen(false);
+    // with a net in the hand, a tap on an insect within reach is a swing at it
+    if (gameRef.current && bugsTap.current) {
+      const v = cam.current, iso = toIsoPoint(v, x, y, v.cw, v.ch);
+      if (bugsTap.current(fromIso(iso.x, iso.y))) return;
+    }
     const t = tileAt(x, y);
     if (walkable(t.x, t.y) && sessionRef.current?.walkTo(t)) cam.current.follow = true;
     // A bench: walk up to it and sit down.
@@ -2529,6 +2647,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       lookAt: (x: number, y: number) => { const p = toIso(x, y); cam.current.follow = false; setCam({ s: cam.current.s, cx: p.x, cy: p.y }); },
       /** Stand at a tile of either map at once, without walking to a gate. */
       warp: (x: number, y: number) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
+      /** Walk to a tile, as a tap on it does; and where I am now, and whether I am walking. */
+      walk: (x: number, y: number) => sessionRef.current?.walkTo({ x, y }) ?? false,
+      self: () => { const a = sessionRef.current?.self; return a ? { x: a.pos.x, y: a.pos.y, moving: a.path.length > 0 } : null; },
       /** The shopkeepers and the gateways on the screen this frame. */
       keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
       /** The place to fish from that I stand at, if it is one: its tile, where its float lands, and whether that is deep water. */
@@ -3183,10 +3304,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} />
         </Suspense>
       )}
+      {/* The forest: what lies and grows there, and gathering what is at the place I stand by */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownForest keeper={keeper} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onForest} sfx={sfxRef.current} art={boardArt}
+                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerForest} />
+        </Suspense>
+      )}
+      {/* The insects: out on every map, and caught with a net */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownBugs keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerBugs} registerTap={registerBugsTap} />
+        </Suspense>
+      )}
       {/* The kitchen: cooking at the yard, and the pots that stand about */}
       {s && game && keeper && (
         <Suspense fallback={null}>
-          <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
+          <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} art={boardArt} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} />
         </Suspense>
       )}

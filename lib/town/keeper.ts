@@ -2,6 +2,8 @@ import { cook, hasMade, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
 import type { Strike } from "./fishing";
+import type { ForestRefusal, Outcome, Sight } from "./forest";
+import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
 import { nextHint } from "./hints";
 import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
@@ -43,10 +45,10 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | NoticeRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "notices";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -149,6 +151,22 @@ export interface Keeper {
   farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>>;
   choreDo(where: Water, at: [number, number] | null): Promise<Did<{ chore: Chore }>>;
 
+  /** The forest (lib/town/forest): every place that has something for me now. */
+  wild(): Sight[];
+  /** Gather what a place has, from the tile I stand on, with how its game went (and how long it took). */
+  gatherDo(spot: number, at: [number, number], went: Outcome & { secs?: number }): Promise<Did<{ got: Array<[ItemId, number]> }>>;
+
+  /** Insects (lib/town/insects): every haunt that has one for me now. */
+  bugs(): BugSight[];
+  /**
+   * Catch what a haunt has, from the tile I stand on: how many swings missed first, and (a beetle, which comes down
+   * only to something sweet) what whoever stands under its tree holds, and who they are. `first`: nobody in the
+   * village had caught one before.
+   */
+  netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean }>>;
+  /** The village's book of insects: who first caught each kind that has been caught. */
+  bugBook(): Record<string, string>;
+
   /** Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who they are (the database reads each one's hand itself). */
   cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>>;
   potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
@@ -176,7 +194,7 @@ export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknow
 type Answer = Record<string, unknown>;
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, notices: 30_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -217,6 +235,10 @@ export class DbKeeper implements Keeper {
   private deal_: KeptDeal | null = null;
   private fountain_: FountainTold | null = null;
   private notices_: PinboardTold | null = null;
+  /** What the forest's places and the haunts have for me, each until its turn ends; and the village's book of insects. */
+  private wild_: Array<Sight & { until: number }> = [];
+  private bugs_: Array<BugSight & { until: number }> = [];
+  private book_: Record<string, string> = {};
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -318,6 +340,14 @@ export class DbKeeper implements Keeper {
     if (Array.isArray(a.pots)) this.pots_ = a.pots as Pot[];
     if (a.fountain && typeof a.fountain === "object") this.fountain_ = a.fountain as FountainTold;
     if (a.notices && typeof a.notices === "object" && Array.isArray((a.notices as PinboardTold).notices)) this.notices_ = a.notices as PinboardTold;
+    // (a thing or an insect this page was built before is left out: it could not be drawn)
+    if (Array.isArray(a.wild)) {
+      this.wild_ = (a.wild as Array<[number, ItemId | null, number, number]>).filter((s) => Array.isArray(s) && (s[1] === null || s[1] in ITEMS)).map(([id, item, n, until]) => ({ id, item, n, until }));
+    }
+    if (Array.isArray(a.bugs)) {
+      this.bugs_ = (a.bugs as Array<[number, BugId, number, number, number]>).filter((s) => Array.isArray(s) && s[1] in BUGS).map(([id, bug, turn, seed, until]) => ({ id, bug, turn, seed, until }));
+    }
+    if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
     if ("deal" in a) this.dealt(a.deal as (KeptDeal & { end?: string | null }) | null, !!a.purse);
     this.tell();
   }
@@ -362,6 +392,8 @@ export class DbKeeper implements Keeper {
       : what === "deal" ? this.ask("town_deal")
       : what === "fountain" ? this.ask("town_fountain")
       : what === "notices" ? this.ask("town_notices")
+      : what === "wild" ? this.ask("town_wild")
+      : what === "bugs" ? this.ask("town_bugs")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -377,7 +409,7 @@ export class DbKeeper implements Keeper {
   prices(): PricesTold { return this.prices_; }
   shelf(): ItemId[] { return this.shelf_; }
   order(): Order | null { return this.order_; }
-  nextHint(): ItemId | null { const at = sourcesAt(this.unlocked); return nextHint(this.mine, this.found_, (id) => at.has(id)); }
+  nextHint(): ItemId | null { const at = sourcesAt(this.unlocked, true); return nextHint(this.mine, this.found_, (id) => at.has(id)); }
   farm(): Record<string, Plot> { return this.plots; }
   well(): number { return this.well_; }
   owners(): Map<number, { by: string; name: string }> {
@@ -531,6 +563,31 @@ export class DbKeeper implements Keeper {
     if (did.ok) this.onDeed?.("farm");
     return did;
   }
+  /**
+   * The forest and the insects (v125): what each place and each haunt has is asked for while it is looked at, and
+   * kept until its turn ends. A database that has not had v125 answers nothing, and there is nothing to gather.
+   */
+  wild(): Sight[] { const now = this.now(); return this.wild_.filter((s) => s.until > now); }
+  async gatherDo(spot: number, at: [number, number], went: Outcome & { secs?: number }): Promise<Did<{ got: Array<[ItemId, number]> }>> {
+    const did = await this.deed<{ got: Array<[ItemId, number]> }>("town_gather", { p_spot: spot, p_x: at[0], p_y: at[1], p_went: went });
+    // (gathered, or there is nothing there for me after all: either way the place has no more for me)
+    if (did.ok || did.why === "had" || did.why === "bare" || did.why === "none") { this.wild_ = this.wild_.filter((s) => s.id !== spot); this.tell(); }
+    return did;
+  }
+  bugs(): BugSight[] { const now = this.now(); return this.bugs_.filter((s) => s.until > now); }
+  async netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean }>> {
+    // (who stands under the tree is told by who they are: what they hold is their own purse's to say)
+    const by = went.by && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(went.by) ? went.by : null;
+    const did = await this.deed<{ got: Array<[ItemId, number]>; first: boolean }>("town_net", { p_haunt: haunt, p_x: at[0], p_y: at[1], p_misses: went.misses, p_by: by });
+    if (did.ok || did.why === "had" || did.why === "bare" || did.why === "none") {
+      if (did.ok && did.first && did.got[0]) this.book_ = { ...this.book_, [did.got[0][0]]: name };
+      this.bugs_ = this.bugs_.filter((s) => s.id !== haunt);
+      this.tell();
+    }
+    return did;
+  }
+  bugBook(): Record<string, string> { return this.book_; }
+
   async choreDo(_where: Water, at: [number, number] | null): Promise<Did<{ chore: Chore }>> {
     if (!at) return { ok: false, why: "none" };
     const did = await this.deed<{ chore: Chore }>("town_chore", { p_x: at[0], p_y: at[1] });

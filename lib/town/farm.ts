@@ -161,6 +161,11 @@ const isCan = (id: ItemId | null) => !!id && id in WATER.cans;
 export const PUT_ON: Partial<Record<ItemId, "feed" | "guard" | "cure">> = {
   growFert: "feed", guardFert: "guard", pestCure: "cure",
   herring: "feed", mosquitofish: "guard", archerfish: "cure",
+  // (and two made of the forest's things: rotted leaves to grow in, and a scent the pests keep away from)
+  mulch: "feed", lavenderSachet: "guard",
+  // (and five insects let go on a plant, lib/town/insects: a ladybird and a mantis eat what would eat it; a butterfly
+  // sets its flowers; a scarab buries what feeds it)
+  ladybird: "guard", mantis: "guard", butterflyWhite: "feed", monarch: "feed", scarab: "feed",
 };
 /** What can be done to a plot with a thing in the hand, by its kind. */
 export const toolOf = (hand: ItemId | null): "hoe" | "can" | "seed" | "feed" | "guard" | "cure" | null =>

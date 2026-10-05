@@ -33,9 +33,10 @@ export const isRod = (id: string | null | undefined): id is RodId => !!id && id 
 /** What a piece of tackle is better at: the strike's moment, how long a hook holds while slack, how long a line bears strain, and the share of the line left to win. */
 export const TACKLE: Partial<Record<ItemId, { strike?: number; slip?: number; snap?: number; line?: number }>> = {
   // (the first of each is made, of a fish: a float of a moonfish's scale, a hook of a gar's; lib/town/items' MAKES)
-  floatGlow: { strike: 1.15 }, floatQuill: { strike: 1.25 }, floatBell: { strike: 1.5 },
+  // (and two of the forest's things: a float of a feather and a joint of bamboo, a line spun of silk cocoons)
+  floatFeather: { strike: 1.1 }, floatGlow: { strike: 1.15 }, floatQuill: { strike: 1.25 }, floatBell: { strike: 1.5 },
   hookScale: { slip: 1.15 }, hookSteel: { slip: 1.3 }, hookTwin: { slip: 1.6 },
-  lineBraid: { snap: 1.3 }, lineSilk: { snap: 1.6 },
+  lineSpun: { snap: 1.15 }, lineBraid: { snap: 1.3 }, lineSilk: { snap: 1.6 },
   netSmall: { line: 0.88 }, netLong: { line: 0.76 },
 };
 

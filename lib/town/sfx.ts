@@ -32,12 +32,20 @@ export type FishSound =
   | "cast" | "nibble" | "bite" | "strike" | "perfect" | "early" | "missed"
   | "surge" | "strain" | "landed" | "flotsam" | "record" | "snapped" | "slipped";
 
-/** The sounds of work done by hand: in a plot, with water, at the stove, at the tub. */
+/**
+ * The sounds of work done by hand: in a plot, with water, at the stove, at the tub; and (the owner, 2026-10-05, asked
+ * whether the forest and the insects had sounds of their own: "ถ้าไม่มี ทำใหม่ขึ้นมาเลยได้นะ") in the forest, with a net,
+ * and at the camp's fire.
+ */
 export type WorkSound =
   | "hoe" | "knock" | "sow" | "water" | "feed" | "spray" | "pick" | "pull" | "dip" | "pour"
-  | "stir" | "clang" | "cooked" | "odd" | "nothing" | "made" | "ladle" | "down" | "soak" | "scrub" | "squeak" | "clean";
+  | "stir" | "clang" | "cooked" | "odd" | "nothing" | "made" | "ladle" | "down" | "soak" | "scrub" | "squeak" | "clean"
+  | "rustle" | "pluck" | "wrong" | "brush" | "bruise" | "shake" | "basket" | "thud"
+  | "swish" | "netted" | "flit" | "chirp" | "cicada"
+  | "crackle" | "sizzle" | "turn" | "charred";
 export const WORK_SOUNDS: WorkSound[] = ["hoe", "knock", "sow", "water", "feed", "spray", "pick", "pull", "dip", "pour",
-  "stir", "clang", "cooked", "odd", "nothing", "made", "ladle", "down", "soak", "scrub", "squeak", "clean"];
+  "stir", "clang", "cooked", "odd", "nothing", "made", "ladle", "down", "soak", "scrub", "squeak", "clean",
+  "rustle", "pluck", "wrong", "brush", "bruise", "shake", "basket", "thud", "swish", "netted", "flit", "chirp", "cicada", "crackle", "sizzle", "turn", "charred"];
 
 const KEY = "cashtown.sfx.off";
 /** Another's fishing: how loud it is beside them, as a share of one's own, and how many tiles off it is last heard. */
@@ -329,6 +337,106 @@ function makeWork(b: Bench, name: WorkSound, t: number) {
       // rinsed, and shining
       hiss(b, t, "lowpass", 1700, 800, 0.7, 0.3, 0.14, 0.03);
       for (const [i, hz] of [1567.98, 2093, 2637.02].entries()) bell(b, t + 0.14 + i * 0.075, hz, 0.12, 0.34);
+      break;
+
+    /* ── the forest ── */
+    case "rustle":
+      // dry leaves turned over by a hand, and something lifted out of them
+      hiss(b, t, "bandpass", 3400, 2300, 0.8, 0.09, 0.2, 0.01);
+      hiss(b, t + 0.08, "bandpass", 2600, 3600, 0.8, 0.11, 0.17, 0.012);
+      hiss(b, t + 0.19, "highpass", 4200, 3000, 0.7, 0.07, 0.1, 0.008);
+      bell(b, t + 0.24, 698.46, 0.1, 0.24);
+      break;
+    case "pluck":
+      // a stalk nipped off between finger and thumb: the right one
+      tone(b, t, "triangle", 760, 1180, 0.035, 0.26, 0.002);
+      hiss(b, t, "bandpass", 2800, 2200, 2, 0.03, 0.12, 0.001);
+      bell(b, t + 0.05, 880, 0.12, 0.2);
+      break;
+    case "wrong":
+      // one that only looked like it: a soft squash, and a note going down
+      hiss(b, t, "lowpass", 700, 300, 0.8, 0.12, 0.22, 0.006);
+      tone(b, t, "sine", 240, 150, 0.11, 0.24, 0.004);
+      tone(b, t + 0.1, "triangle", 277.18, 207.65, 0.2, 0.14, 0.01);
+      break;
+    case "brush":
+      // loose earth swept off with the flat of the blade
+      hiss(b, t, "bandpass", 1500, 2600, 0.7, 0.16, 0.22, 0.03);
+      hiss(b, t + 0.04, "lowpass", 600, 380, 0.7, 0.1, 0.12, 0.01);
+      break;
+    case "bruise":
+      // the blade into what was already bare: a dull knock, and a wince
+      tone(b, t, "sine", 210, 120, 0.09, 0.4, 0.002);
+      hiss(b, t, "lowpass", 520, 260, 1, 0.07, 0.2, 0.002);
+      tone(b, t + 0.09, "triangle", 233.08, 174.61, 0.22, 0.13, 0.01);
+      break;
+    case "shake":
+      // a trunk shaken: the creak of it, and the whole crown hissing
+      tone(b, t, "sawtooth", 96, 132, 0.2, 0.1, 0.03, { hz: 13, by: 14 });
+      hiss(b, t + 0.03, "bandpass", 3000, 4600, 0.6, 0.5, 0.2, 0.1);
+      hiss(b, t + 0.2, "highpass", 5200, 3800, 0.7, 0.34, 0.1, 0.06);
+      break;
+    case "basket":
+      // something falls into wicker: a small hollow knock, and it settles
+      tone(b, t, "sine", 400, 250, 0.07, 0.34, 0.002);
+      hiss(b, t, "bandpass", 1300, 900, 2.2, 0.05, 0.16, 0.002);
+      tone(b, t + 0.07, "sine", 310, 230, 0.05, 0.12, 0.002);
+      break;
+    case "thud":
+      // and one that fell past it, into the grass
+      tone(b, t, "sine", 130, 62, 0.13, 0.42, 0.003);
+      hiss(b, t, "lowpass", 480, 220, 0.7, 0.1, 0.18, 0.004);
+      break;
+
+    /* ── a net ── */
+    case "swish":
+      // the hoop through the air, and the mesh after it
+      hiss(b, t, "bandpass", 900, 3800, 1.1, 0.19, 0.3, 0.06);
+      hiss(b, t + 0.1, "highpass", 5200, 2600, 0.7, 0.12, 0.1, 0.02);
+      break;
+    case "netted":
+      // wings against the mesh, and three bright notes going up
+      for (const [i, at] of [0, 0.05, 0.1, 0.15, 0.2].entries()) hiss(b, t + at, "bandpass", 2300 + i * 260, 1800, 3, 0.03, 0.13, 0.002);
+      for (const [hz, at] of [[783.99, 0.16], [987.77, 0.25], [1318.51, 0.35]]) bell(b, t + at, hz, 0.15, 0.36);
+      break;
+    case "flit":
+      // off it goes: a quick whirr of wings, rising and gone
+      tone(b, t, "triangle", 310, 620, 0.16, 0.12, 0.01, { hz: 46, by: 60 });
+      hiss(b, t, "highpass", 3600, 6200, 0.7, 0.16, 0.07, 0.02);
+      break;
+    case "chirp":
+      // a cricket: three quick strokes of one high note
+      for (const at of [0, 0.07, 0.14]) tone(b, t + at, "sine", 4300, 4180, 0.045, 0.13, 0.004, { hz: 62, by: 130 });
+      break;
+    case "cicada":
+      // a cicada: a dry buzz that swells and falls away
+      tone(b, t, "sawtooth", 3100, 3250, 0.85, 0.045, 0.3, { hz: 88, by: 420 });
+      hiss(b, t, "bandpass", 5600, 5200, 6, 0.85, 0.11, 0.3);
+      break;
+
+    /* ── the camp's fire ── */
+    case "crackle":
+      // a stick settling in the fire: three small snaps
+      for (const [i, at] of [0, 0.09, 0.21].entries()) {
+        hiss(b, t + at, "highpass", 2600 + i * 500, 1900, 0.9, 0.022, 0.24 - i * 0.05, 0.001);
+        tone(b, t + at, "triangle", 300 - i * 30, 160, 0.03, 0.1, 0.001);
+      }
+      break;
+    case "sizzle":
+      // fat on the embers
+      hiss(b, t, "highpass", 4600, 6800, 0.8, 0.42, 0.15, 0.03);
+      hiss(b, t + 0.03, "bandpass", 2600, 3200, 2, 0.32, 0.07, 0.04);
+      break;
+    case "turn":
+      // the stick turned in the hand: a small wooden knock, and the hiss of the other side
+      tone(b, t, "triangle", 430, 360, 0.04, 0.22, 0.002);
+      tone(b, t + 0.012, "sine", 860, 760, 0.03, 0.06, 0.002);
+      hiss(b, t + 0.03, "highpass", 5000, 6400, 0.8, 0.2, 0.1, 0.02);
+      break;
+    case "charred":
+      // left a moment too long: a puff, and a note going down
+      hiss(b, t, "lowpass", 1100, 360, 0.7, 0.3, 0.2, 0.02);
+      tone(b, t + 0.06, "triangle", 293.66, 220, 0.24, 0.14, 0.01);
       break;
   }
 }

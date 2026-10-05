@@ -2,6 +2,7 @@ import type { Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, SIGNS, castLine, seeded, signsOf, type Cast, type Strike } from "./fishing";
+import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
@@ -148,6 +149,14 @@ class TrialKeeper implements Keeper {
     return did;
   }
   async choreDo(where: Water): Promise<Did<{ chore: Chore }>> { return this.trial.choreDo(where); }
+
+  wild() { return this.trial.wild(); }
+  async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }
+  bugs() { return this.trial.bugs(); }
+  async netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean }>> {
+    return this.trial.netDo(haunt, at, went.misses, went.lure ?? null, name);
+  }
+  bugBook() { return this.trial.bugBook(); }
 
   async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste }>> {
     return this.trial.cookDo(things, crew, timing.misses, name);

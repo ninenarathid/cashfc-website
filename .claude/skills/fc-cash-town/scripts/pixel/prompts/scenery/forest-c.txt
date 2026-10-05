@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, the chunky square pixel size and the scale: the little characters in it are the size of a person. Draw a new sprite sheet of forest scenery for the same cozy 2D game, seen from the same three-quarter top-down angle, at the same scale and with the same chunky pixel size. Do not draw any characters.
+
+Draw one item in the middle: a giant ancient tree, the oldest tree of a deep forest, about five times as tall as the characters and four characters wide. It has an enormous gnarled brown trunk with a dark hollow at its foot, thick roots spreading out over the ground on every side, a huge heavy crown of dark green leaves with a few lighter patches, and one golden yellow beehive hanging from a low branch on its right side.
+
+It stands in the middle of the canvas, facing the viewer at the same three-quarter angle, with empty space all around it. Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no ground under it, no shadows, no text, no labels.

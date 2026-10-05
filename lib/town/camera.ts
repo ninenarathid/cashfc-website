@@ -1,4 +1,4 @@
-import { COLS, FARM, ROWS, TILE_H, TILE_W, type Place, type Vec } from "./world";
+import { COLS, FARM, FOREST, ROWS, TILE_H, TILE_W, type Place, type Vec } from "./world";
 
 /**
  * The town's camera: how far in it is zoomed and which point of the map is
@@ -19,13 +19,16 @@ export const ISO_MAX_Y = (COLS + ROWS) * (TILE_H / 2) + 50;
 
 /** A map's isometric extent: the camera stays inside the one it is looking at. */
 export interface Bounds { minX: number; maxX: number; minY: number; maxY: number }
-/** The town's, and the farm's (a map of its own, far to the east in the same tile space), with the same room above and below. */
+/** The extent of a map that is a rectangle of tiles, with the town's room above and below. */
+const boundsOf = (r: { x: number; y: number; w: number; h: number }): Bounds => ({
+  minX: (r.x - r.y - r.h) * (TILE_W / 2), maxX: (r.x + r.w - r.y) * (TILE_W / 2),
+  minY: (r.x + r.y) * (TILE_H / 2) - 130, maxY: (r.x + r.w + r.y + r.h) * (TILE_H / 2) + 50,
+});
+/** The town's, and the farm's and the forest's (maps of their own, far off in the same tile space). */
 export const BOUNDS: Record<Place, Bounds> = {
   town: { minX: ISO_MIN_X, maxX: ISO_MAX_X, minY: ISO_MIN_Y, maxY: ISO_MAX_Y },
-  farm: {
-    minX: (FARM.x - FARM.y - FARM.h) * (TILE_W / 2), maxX: (FARM.x + FARM.w - FARM.y) * (TILE_W / 2),
-    minY: (FARM.x + FARM.y) * (TILE_H / 2) - 130, maxY: (FARM.x + FARM.w + FARM.y + FARM.h) * (TILE_H / 2) + 50,
-  },
+  farm: boundsOf(FARM),
+  forest: boundsOf(FOREST),
 };
 
 /** Screen pixels the edge of the map may be pulled in from the edge of the screen. */

@@ -1,6 +1,8 @@
 // Cash Town's scenery: AI sheets in work/out -> public/town/scenery-<hash>.png + scenery.json.
 //
 //   node build-scenery.mjs [--out <dir>]        (default: fcnext/public/town)
+//   node build-scenery.mjs --set forest         the forest's things, in a picture of their own (forest-<hash>.png +
+//                                               forest.json): fetched only by whoever goes there (lib/town/scenery.ts)
 //
 // scene-props-a.png  tree, pine, bush, rock        (one row, the characters' pixel size and angle)
 // scene-props-b.png  lamp, bench, flowers, sign
@@ -17,6 +19,10 @@ const OUT = path.join(HERE, "work", "out");
 const argOut = process.argv.indexOf("--out");
 const PUB = argOut > 0 ? process.argv[argOut + 1] : "E:/NinenineProject/fcnext/public/town";
 fs.mkdirSync(PUB, { recursive: true });
+const argSet = process.argv.indexOf("--set");
+/** Which picture is built: the town's scenery, or the forest's. */
+const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
+if (SET !== "scenery" && SET !== "forest") throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -87,9 +93,26 @@ const SHEETS = [
   ["talk-uncle", ["tk_uncle", "tk_uncle_o"], "talk", undefined, [7.5, 13]],
   ["talk-banker", ["tk_banker", "tk_banker_o"], "talk", undefined, [7.5, 13]],
 ];
+// The forest's own (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ"): its trees and what grows and lies under them,
+// the camp's things, the great tree of the deep woods, and the waterfall on its cliff.
+const FOREST = [
+  ["scene-forest-a", ["oak", "birch", "bamboo", "fern"]],
+  // (drawn on the model's widest canvas, where its pixels come out twice as big: cut at about twelve to the pixel, so
+  // that a stump is knee high and not chest high)
+  ["scene-forest-b", ["log", "stump", "boulder", "campfire", "logseat", "tent"], undefined, undefined, [10.5, 13.5]],
+  ["scene-forest-c", ["greattree"], "whole"],
+  ["scene-forest-d", ["waterfall"], "whole"],
+  // what its three gathering games are played on (the owner: "UI และ gameplay ของ mini game unique"): a scene each,
+  // filling its canvas: the forest's floor seen close, the underside of a tree's crown, a patch of loosened earth
+  ["scene-forest-game-floor", ["gameFloor"], "scene"],
+  ["scene-forest-game-crown", ["gameCrown"], "scene"],
+  ["scene-forest-game-mound", ["gameMound"], "scene"],
+  // (and the camp's fire seen close, for what is roasted on a stick: components/town/TownRoasting)
+  ["scene-forest-game-fire", ["gameFire"], "scene"],
+];
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
-const TEXTURES = ["grass", "plaza", "road", "water", "sand", "field"];
+const TEXTURES = SET === "forest" ? ["wood"] : ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
 /** Whole sheets as gridded, for a later sheet to stand where an earlier one does: its cells and its ground point. */
@@ -111,7 +134,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of SHEETS) {
+for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST : SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
@@ -119,7 +142,9 @@ for (const [sheet, names, how, like, range, opts] of SHEETS) {
   const grid = L.detectGrid(raw, wholes.get(like)?.grid.p, range ?? [4.5, 7.5]);
   const g = L.cellsOf(raw, grid);
   L.snap(g, L.paletteOf([g], 64));
-  const figs = how === "whole" ? [new Set(L.components(g).filter(c => c.mem.length >= 3).flatMap(c => c.mem))] : L.figures(g, L.spansOf(g, names.length));
+  // ("scene": the whole canvas is the one piece, every cell of it)
+  const figs = how === "scene" ? [new Set(Array.from({ length: g.GW * g.GH }, (_, i) => i))]
+    : how === "whole" ? [new Set(L.components(g).filter(c => c.mem.length >= 3).flatMap(c => c.mem))] : L.figures(g, L.spansOf(g, names.length));
   names.forEach((name, k) => {
     const set = figs[k], b = L.bbox(g, set), im = L.crop(g, set);
     // the ground point: the bottom middle (props stand on it)
@@ -222,11 +247,11 @@ for (const p of all) for (let r = 0; r < p.img.h; r++) p.img.buf.copy(sheet, ((p
 const png = await L.sharp(sheet, { raw: { width: W, height: H, channels: 4 } }).png({ compressionLevel: 9 }).toBuffer();
 const hash = crypto.createHash("sha256").update(png).digest("hex").slice(0, 10);
 const meta = {
-  v: 1, image: `scenery-${hash}.png`, size: [W, H],
+  v: 1, image: `${SET}-${hash}.png`, size: [W, H],
   props: Object.fromEntries(pieces.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h, p.ax, p.ay]])),
   textures: Object.fromEntries(textures.map(p => [p.name, [p.x, p.y, p.img.w, p.img.h]])),
 };
-for (const f of fs.readdirSync(PUB)) if (/^scenery-[0-9a-f]{10}\.png$/.test(f) && f !== meta.image) fs.unlinkSync(path.join(PUB, f));
+for (const f of fs.readdirSync(PUB)) if (f.startsWith(`${SET}-`) && /^-[0-9a-f]{10}\.png$/.test(f.slice(SET.length)) && f !== meta.image) fs.unlinkSync(path.join(PUB, f));
 fs.writeFileSync(path.join(PUB, meta.image), png);
-fs.writeFileSync(path.join(PUB, "scenery.json"), JSON.stringify(meta));
+fs.writeFileSync(path.join(PUB, `${SET}.json`), JSON.stringify(meta));
 console.log(`wrote ${meta.image} ${W}x${H} (${(png.length / 1024).toFixed(0)} KB)`);

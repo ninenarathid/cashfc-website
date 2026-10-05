@@ -414,7 +414,9 @@ export const FRONT: Record<Facing, Vec> = { SE: { x: 1, y: 0 }, SW: { x: 0, y: 1
 /** What stands about the town, drawn from the scenery picture (lib/town/scenery). */
 export type PropKind = "tree" | "pine" | "bush" | "rock" | "lamp" | "bench" | "flowers" | "barrel" | "planter" | "signpost" | "bin" | "flowerbed"
   // the farm's own
-  | "fence" | "well" | "shed" | "scarecrow" | "hay";
+  | "fence" | "well" | "shed" | "scarecrow" | "hay"
+  // the forest's own
+  | "oak" | "birch" | "bamboo" | "fern" | "log" | "stump" | "boulder" | "campfire" | "logseat" | "tent";
 export interface Prop {
   kind: PropKind; x: number; y: number;
   /** Whether it stops a walker (flowers do not). */
@@ -471,7 +473,9 @@ const isKeeper = (x: number, y: number) => keeperAt.has(`${x},${y}`);
  * Where each stands: the path's middle a tile in from the map's edge.
  *
  * The east path's were finished on 2026-10-03, when the farm opened beyond it
- * (GATES): only the north path is closed now.
+ * (GATES), and the north path's on 2026-10-05, when the forest did: no path is
+ * closed now. Where they stood is still kept (`closedThen`), since the town
+ * was laid out round them.
  */
 type Works = { x: number; y: number; arm: "N" | "E" };
 const WORKS: Works[] = (["N", "E"] as const).map((dir) => {
@@ -480,7 +484,7 @@ const WORKS: Works[] = (["N", "E"] as const).map((dir) => {
   const across = pathMiddle(along, out, arm.seed);
   return dir === "N" ? { x: across, y: along, arm: dir } : { x: along, y: across, arm: dir };
 });
-export const ROADWORKS: Works[] = WORKS.filter((w) => w.arm === "N");
+export const ROADWORKS: Works[] = [];
 /** The tiles road works close: across the path and a tile beyond each side, two deep. */
 const tilesOf = (works: Works[]) => {
   const out = new Set<string>();
@@ -501,6 +505,9 @@ function towardFountain(x: number, y: number): Facing {
   if (Math.abs(dx) >= Math.abs(dy)) return dx > 0 ? "SE" : "NW";
   return dy > 0 ? "SW" : "NE";
 }
+
+/** The stretch of the town's map the north path leaves by: where its woods thicken towards the forest's gate. */
+const NORTH_WOOD = { x: 14, w: 38, h: 9 };
 
 /**
  * The town's scenery, laid out by a fixed seed so every screen has the same
@@ -587,11 +594,28 @@ export const PROPS: Prop[] = (() => {
   // town stays exactly where it was.
   const wild = (p: Prop) => p.kind === "tree" || p.kind === "pine" || p.kind === "bush" || p.kind === "rock";
   // And the river is twice as wide as when they were laid out: what stood where it runs now is gone.
-  return out.filter((p) => !isPier(p.x, p.y) && !isKitchen(p.x, p.y) && !isKeeper(p.x, p.y) && !(wild(p) && bySite(p.x, p.y))
+  const stands = out.filter((p) => !isPier(p.x, p.y) && !isKitchen(p.x, p.y) && !isKeeper(p.x, p.y) && !(wild(p) && bySite(p.x, p.y))
     && !isWater(p.x, p.y) && !isBank(p.x, p.y));
+  // The north path ends at the forest's gate (2026-10-05), and its last stretch is to look like the way into a
+  // forest (the owner: "ทางเข้าทำให้ดูเป้นป่ากว่านี้"): the woods close in on it there, thick at the map's edge and
+  // thinning towards the town, laid after everything else and each tree from its own tile, so that nothing that
+  // stood before has moved. None on the path or right beside it; what ground they shut in, nobody had to walk on.
+  const there = new Set(stands.map((p) => `${p.x},${p.y}`));
+  for (let y = 0; y < NORTH_WOOD.h; y++) for (let x = NORTH_WOOD.x; x < NORTH_WOOD.x + NORTH_WOOD.w; x++) {
+    if (there.has(`${x},${y}`) || wetThen(x, y) || [-1, 0, 1].some((dx) => [-1, 0, 1].some((dy) => roadThen(x + dx, y + dy) || isRoad(x + dx, y + dy)))) continue;
+    let h = Math.imul(x + 977, 374761393) ^ Math.imul(y + 331, 668265263);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    const k = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+    if (k < (y < 5 ? 0.5 : 0.5 - (y - 4) * 0.09)) stands.push({ kind: k < 0.2 ? "pine" : "tree", x, y, solid: true });
+  }
+  return stands;
 })();
 
-/** The benches, in a fixed order: somebody sitting is told to the room by this index. */
+/**
+ * The benches, in a fixed order: somebody sitting is told to the room by this index. The town's come first, as they
+ * always were; the logs round the forest camp's fire are added after them, where the forest is laid out (the owner,
+ * 2026-10-05: "ท่อนไม้แถว กองไฟ ช่วยทำให้นั่งได้ด้วย เหมือนเก้าอี้").
+ */
 export const BENCHES: Prop[] = PROPS.filter((p) => p.kind === "bench");
 
 /**
@@ -624,11 +648,20 @@ const solidAt = new Set(PROPS.filter((p) => p.solid).map((p) => `${p.x},${p.y}`)
  * the rim. Nothing can be done in it yet: there are no tools.
  */
 export const FARM = { x: 128, y: 0, w: 60, h: 44 };
-export type Place = "town" | "farm";
+/**
+ * The forest (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ สามารถเดินเข้าไป
+ * เก็บของป่า"): a third map, out of the town's north path, where its road works
+ * were. Like the farm it lies far off in the same tile space (below the farm
+ * and clear of it on the screen, and no further east than a path's tiles are
+ * numbered: findPath's SPAN), so which map somebody is on is where they stand.
+ * What it is made of is further down, under "the forest".
+ */
+export const FOREST = { x: 144, y: 112, w: 96, h: 80 };
+export type Place = "town" | "farm" | "forest";
 /** Which map a point is on, or null for nowhere. */
 export function placeOf(x: number, y: number): Place | null {
   if (x >= 0 && y >= 0 && x < COLS && y < ROWS) return "town";
-  return within(x, y, FARM) ? "farm" : null;
+  return within(x, y, FARM) ? "farm" : within(x, y, FOREST) ? "forest" : null;
 }
 /** Whether a farm tile, counted from the farm's own corner, is a plot. */
 function isPlot(u: number, v: number): boolean {
@@ -700,27 +733,258 @@ const farmSolid = new Set([`${FARM.x + 1},${FARM.y + 20}`, `${FARM.x + 1},${FARM
   return p.solid ? [at(0, 0)] : [];
 })]);
 
+/* ── the forest ─────────────────────────────────────────────────────────── */
+
+/**
+ * The forest's ground (FOREST, above). It is entered from its south edge, the
+ * screen's lower left. A trail runs from the gate up through a meadow at the
+ * wood's edge to a camp in a clearing, and on over a stream to the deep woods
+ * and the great tree; one goes off west to a bamboo grove and north from it to
+ * a glade, one east to a rocky rise and round to the pool under the waterfall,
+ * where the stream begins. The stream runs west across the whole map and is
+ * crossed only at its fords, and a cliff shuts the pool's far side: the deep
+ * woods are the other side of water.
+ *
+ * Everything here is in the forest's own tiles, (u, v) from its top corner,
+ * and a shape, not a tile, as the town's paths are: the ground is drawn from
+ * them point by point, and a tile is what its middle is.
+ */
+/** The stream: where its middle is at a point along it, and half its width there (it widens into a pond a third of the way across). */
+const streamMid = (u: number) => 27 + 3.2 * Math.sin(u / 11 + 0.6) + 1.4 * Math.sin(u / 4.7 + 2);
+const streamHalf = (u: number) => 1.25 + 0.25 * Math.sin(u / 5.3) + 2.3 * Math.exp(-(((u - 30) / 5) ** 2));
+/** Where the stream begins, and the pool it runs out of. */
+const SPRING = 86;
+const POOL = { u: 87.5, v: streamMid(SPRING), r: 4.4 };
+/** Where the stream is crossed, along it: stones across the water, two tiles wide. */
+export const FORDS = [18, 50, 70];
+const inPool = (u: number, v: number, more = 0) => Math.hypot(u - POOL.u, (v - POOL.v) * 1.15) < POOL.r + more;
+const byStream = (u: number, v: number, more: number) => u <= SPRING + more && Math.abs(v - streamMid(Math.min(u, SPRING))) < streamHalf(Math.min(u, SPRING)) + more;
+const inStream = (u: number, v: number) => inPool(u, v) || (byStream(u, v, 0) && !FORDS.some((f) => Math.abs(u - f) < 1.1));
+/** The cliff the water falls from, behind the pool and round its far end: nobody walks there. */
+const onCliff = (u: number, v: number) => (u >= 83 && v >= POOL.v - 8.5 && v < POOL.v - 3.7) || (u >= 92 && v >= POOL.v - 8.5 && v < POOL.v + 5.5);
+/** The trails, as lines from point to point. */
+const TRAILS_IN: Array<Array<[number, number]>> = [
+  // from the gate up through the meadow to the camp, and on over the middle ford to the great tree
+  [[48, 80.5], [47.5, 73], [50, 66], [48, 58], [49, 52.5]],
+  [[49, 41.5], [51, 37], [50, 31], [50, 24], [48.5, 18], [46.5, 14], [48, 11.5]],
+  // west to the bamboo grove, and north from it over the west ford to a glade
+  [[43.5, 47.5], [37, 49.5], [28, 46.5], [19, 49], [11, 47]],
+  [[19, 49], [18, 41], [18.5, 33], [18.5, 27], [19.5, 21], [20, 17.5]],
+  // east to the rocky rise, and round to the pool under the waterfall
+  [[54.5, 46.5], [62, 44.5], [70, 48.5], [78, 46], [84, 49.5]],
+  [[70, 48.5], [73, 41.5], [78, 36.5], [82.5, 35.2]],
+];
+const onTrail = (u: number, v: number) => {
+  const half = 0.95 + 0.12 * Math.sin(u * 0.9 + v * 0.7), p = { x: u, y: v };
+  return TRAILS_IN.some((line) => line.some(([x, y], i) => i > 0 && nearSegment(p, { x: line[i - 1][0], y: line[i - 1][1] }, { x, y }) < half));
+};
+/** Where no tree stands: the camp, the great tree's, and a few glades. */
+const CLEARINGS = [
+  { u: 49, v: 47, r: 5.6 }, { u: 48.5, v: 7.5, r: 5.2 },
+  { u: 20, v: 14, r: 3.4 }, { u: 76, v: 10, r: 3.2 }, { u: 13, v: 57, r: 2.8 }, { u: 84, v: 53, r: 3 },
+];
+const inClearing = (u: number, v: number) =>
+  CLEARINGS.some((c) => Math.hypot(u - c.u, v - c.v) < c.r + 0.35 * Math.sin(Math.atan2(v - c.v, u - c.u) * 5 + c.u));
+/** Where the meadow at the wood's edge ends and the trees begin, along the map. */
+const meadowLine = (u: number) => 63 + 2 * Math.sin(u / 7) + 0.8 * Math.sin(u / 2.3);
+/**
+ * And where the meadow ends on its other side: the forest is entered through a belt of woods (the owner, 2026-10-05:
+ * "ทางเข้าทำให้ดูเป้นป่ากว่านี้"), which the trail comes out of into the meadow.
+ */
+const gateWood = (u: number) => 72.6 + 1.3 * Math.sin(u / 5.3) + 0.6 * Math.sin(u / 1.9);
+/** Whether a point is in that belt and off the trail through it: thick woods, which nobody walks in. */
+const inGateWood = (u: number, v: number) => v > gateWood(u) && Math.abs(u - 48) > 2.6;
+/** The forest's ground at a point counted from its own corner. */
+function forestGround(u: number, v: number): "water" | "sand" | "road" | "grass" | "wood" {
+  if (inStream(u, v)) return "water";
+  if (inPool(u, v, 1) || byStream(u, v, 0.9)) return "sand";
+  if (onTrail(u, v)) return "road";
+  return (v > meadowLine(u) && v < gateWood(u)) || inClearing(u, v) ? "grass" : "wood";
+}
+/**
+ * The parts of the forest, each with things of its own to find (lib/town/forest): the meadow at its edge, the woods,
+ * the bamboo grove, the banks of the stream, the deep woods beyond it, the rocky rise, and the camp's clearing.
+ */
+export type Zone = "edge" | "woods" | "bamboo" | "stream" | "deep" | "rise" | "camp";
+/** Which part of the forest a tile is in; null outside it. */
+export function zoneAt(tx: number, ty: number): Zone | null {
+  if (!within(tx, ty, FOREST)) return null;
+  const u = tx - FOREST.x + 0.5, v = ty - FOREST.y + 0.5;
+  if (Math.hypot(u - CLEARINGS[0].u, v - CLEARINGS[0].v) < CLEARINGS[0].r + 0.5) return "camp";
+  if (inPool(u, v, 2.5) || byStream(u, v, 2.5)) return "stream";
+  if (v < streamMid(Math.min(u, SPRING))) return "deep";
+  if (v > meadowLine(u)) return "edge";
+  return u < 32 ? "bamboo" : u > 66 ? "rise" : "woods";
+}
+/**
+ * The camp in the middle of the forest: a fire in a ring of stones with logs to sit on round it and a tent beside.
+ * Somebody on a tile beside the fire is at it (what is roasted there is lib/town/forest's to say).
+ */
+export const CAMP = { fire: { x: FOREST.x + 49, y: FOREST.y + 47 } };
+export const atFire = (tx: number, ty: number) => Math.max(Math.abs(tx - CAMP.fire.x), Math.abs(ty - CAMP.fire.y)) === 1;
+/** The great tree of the deep woods, three tiles by three, and where the waterfall's foot stands, at the back of its pool. */
+export const GREAT_TREE = { x: FOREST.x + 47, y: FOREST.y + 5, w: 3, h: 3 };
+export const WATERFALL = { x: FOREST.x + 87.5, y: FOREST.y + Math.round((POOL.v - 3.6) * 10) / 10 };
+/**
+ * What stands about the forest, laid out by a fixed seed like the town: trees of the wood's own kinds, thicker the
+ * deeper in; bamboo in its grove; rocks on the rise; ferns and flowers underfoot; fallen logs and stumps; the camp's
+ * things; and a line of trees round the rim. Nothing solid stands on a trail or beside one, on the meadow's gate, or
+ * touching another solid thing even at a corner: so nothing but the stream and the cliff ever shuts a way.
+ */
+export const FOREST_PROPS: Prop[] = (() => {
+  const out: Prop[] = [];
+  const solid = new Set<string>(), used = new Set<string>();
+  const put = (kind: PropKind, u: number, v: number, isSolid = true) => {
+    out.push({ kind, x: FOREST.x + u, y: FOREST.y + v, solid: isSolid });
+    used.add(`${u},${v}`);
+    if (isSolid) solid.add(`${u},${v}`);
+  };
+  const ground = (u: number, v: number) => forestGround(u + 0.5, v + 0.5);
+  // the camp: the fire, four logs to sit on along its two far sides (each facing the fire and whoever looks on), a
+  // tent at the clearing's back
+  put("campfire", 49, 47);
+  for (const [u, v, facing] of [[47, 46, "SE"], [47, 47, "SE"], [48, 45, "SW"], [49, 45, "SW"]] as const) {
+    put("logseat", u, v);
+    out[out.length - 1].facing = facing;
+  }
+  put("tent", 53, 44);
+  // kept clear: the great tree's own tiles and the cliff (closed further down), and the gate's way in
+  const kept = (u: number, v: number) => within(FOREST.x + u, FOREST.y + v, GREAT_TREE) || onCliff(u + 0.5, v + 0.5) || (v >= 76 && Math.abs(u + 0.5 - 48) < 3);
+  let a = 20261005;
+  const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const around = (u: number, v: number, is: (x: number, y: number) => boolean) => {
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (is(u + dx, v + dy)) return true;
+    return false;
+  };
+  // the rim: two rows of trees, every other tile of each, so the edge of the world is behind a wood
+  const rim = (u: number, v: number) => {
+    if ((u + v) % 2 || used.has(`${u},${v}`) || kept(u, v) || (ground(u, v) !== "wood" && ground(u, v) !== "grass")) return;
+    put(rnd() < 0.5 ? "pine" : rnd() < 0.5 ? "oak" : "tree", u, v);
+  };
+  for (let u = 0; u < FOREST.w; u++) for (const v of [0, 1, FOREST.h - 2, FOREST.h - 1]) rim(u, v);
+  for (let v = 2; v < FOREST.h - 2; v++) for (const u of [0, 1, FOREST.w - 2, FOREST.w - 1]) rim(u, v);
+  /** So many of some kinds, by their shares, somewhere in these parts of the forest, on this ground. */
+  const grow = (n: number, zones: Zone[], kinds: Array<[PropKind, number]>, isSolid = true, on: Array<ReturnType<typeof forestGround>> = ["wood"]) => {
+    for (let tries = 0, placed = 0; placed < n && tries < n * 60; tries++) {
+      const u = 2 + Math.floor(rnd() * (FOREST.w - 4)), v = 2 + Math.floor(rnd() * (FOREST.h - 4)), k = rnd();
+      if (used.has(`${u},${v}`) || kept(u, v) || !on.includes(ground(u, v)) || !zones.includes(zoneAt(FOREST.x + u, FOREST.y + v)!)) continue;
+      if (isSolid && (around(u, v, (x, y) => solid.has(`${x},${y}`)) || around(u, v, (x, y) => ground(x, y) === "road"))) continue;
+      let acc = 0;
+      put(kinds.find(([, share]) => (acc += share) > k)?.[0] ?? kinds[kinds.length - 1][0], u, v, isSolid);
+      placed++;
+    }
+  };
+  grow(250, ["deep"], [["oak", 0.5], ["pine", 0.25], ["tree", 0.25]]);
+  grow(90, ["woods"], [["tree", 0.4], ["birch", 0.3], ["pine", 0.2], ["oak", 0.1]]);
+  grow(120, ["bamboo"], [["bamboo", 0.8], ["tree", 0.1], ["birch", 0.1]]);
+  grow(70, ["rise"], [["boulder", 0.45], ["rock", 0.25], ["pine", 0.3]]);
+  grow(40, ["stream"], [["birch", 0.5], ["tree", 0.3], ["rock", 0.2]]);
+  grow(40, ["edge"], [["tree", 0.5], ["birch", 0.35], ["bush", 0.15]], true, ["grass"]);
+  // (the belt of woods the gate is in: thick, as a forest's edge is from outside. Nobody walks in it but along the
+  // trail: all of it is closed, further down)
+  for (let v = 2; v < FOREST.h - 2; v++) for (let u = 2; u < FOREST.w - 2; u++) {
+    if (!inGateWood(u + 0.5, v + 0.5) || used.has(`${u},${v}`) || around(u, v, (x, y) => ground(x, y) === "road")) continue;
+    const k = rnd();
+    if (k < 0.5) put(k < 0.2 ? "oak" : k < 0.35 ? "pine" : "tree", u, v);
+  }
+  grow(46, ["woods", "deep", "bamboo", "rise"], [["log", 0.5], ["stump", 0.5]]);
+  grow(250, ["woods", "deep", "stream", "bamboo", "edge"], [["fern", 1]], false);
+  grow(80, ["edge", "camp", "deep", "bamboo", "rise"], [["flowers", 1]], false, ["grass"]);
+  // the cliff: rock on every other tile of it (all of it is closed, below)
+  for (let v = 0; v < FOREST.h; v++) for (let u = 0; u < FOREST.w; u++) {
+    if (onCliff(u + 0.5, v + 0.5) && !used.has(`${u},${v}`) && (u + v) % 2 === 0) put(rnd() < 0.7 ? "boulder" : "rock", u, v);
+  }
+  return out;
+})();
+/**
+ * The forest's tiles that stop a walker: what stands on them, the great tree's nine, the cliff, the tent's second
+ * tile, the gateway's two posts either side of the trail, the belt of thick woods the gate is in (but for the
+ * trail through it), and the outermost ring of the map but for the gate (its trees stand on every other tile, and
+ * nobody is to be shut in between two of them).
+ */
+const forestSolid = (() => {
+  const out = new Set(FOREST_PROPS.filter((p) => p.solid).map((p) => `${p.x},${p.y}`));
+  for (let y = 0; y < FOREST.h; y++) for (let x = 0; x < FOREST.w; x++) {
+    const rim = x === 0 || y === 0 || x === FOREST.w - 1 || (y === FOREST.h - 1 && x !== 47 && x !== 48);
+    if (rim || onCliff(x + 0.5, y + 0.5) || inGateWood(x + 0.5, y + 0.5) || within(FOREST.x + x, FOREST.y + y, GREAT_TREE)) out.add(`${FOREST.x + x},${FOREST.y + y}`);
+  }
+  for (const [u, v] of [[54, 44], [46, 78], [49, 78]]) out.add(`${FOREST.x + u},${FOREST.y + v}`);
+  return out;
+})();
+const isForestWater = (tx: number, ty: number) => inStream(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
+// (the camp's logs are benches: sat on like the town's, told to the room by their place in the same list)
+BENCHES.push(...FOREST_PROPS.filter((p) => p.kind === "logseat"));
+
+/**
+ * The woods seen beyond a gate, where no map is (the owner, 2026-10-05: "ทางทิศเหนือใกล้ทางเข้า ช่วยทำให้ด้านหลังเป้นเหมือนป่าไป
+ * เลย (แทนที่พื้นที่ว่างๆสีดำ)"): beyond the town's north edge about its gate, and beyond the forest's south edge all
+ * along it. Ground and trees to look at, with the path running on into them; nobody walks there (it is on no map:
+ * `placeOf` is null), and nothing is kept of it.
+ */
+export const BEYOND = {
+  north: { x: 12, y: -16, w: 42, h: 16 },
+  south: { x: FOREST.x - 8, y: FOREST.y + FOREST.h, w: FOREST.w + 16, h: 14 },
+};
+/** The north path's own shape, which runs on into the wood beyond its gate. */
+const NORTH_SEED = ARMS.find((a) => a.dir === "N")!.seed;
+/** Whether a point has ground to draw: it is on a map, or in the woods seen beyond a gate. */
+export const seenAt = (x: number, y: number) => placeOf(x, y) !== null || within(x, y, BEYOND.north) || within(x, y, BEYOND.south);
+/** The ground of those woods at a point: the path running on through them, and the forest's floor. */
+function beyondGround(x: number, y: number): "road" | "wood" {
+  if (within(x, y, BEYOND.north)) return Math.abs(x - pathMiddle(y, PLAZA.y - y, NORTH_SEED)) < pathHalf(y, NORTH_SEED) ? "road" : "wood";
+  const u = x - FOREST.x, v = y - FOREST.y;
+  return Math.abs(u - 48 - 0.6 * Math.sin(v / 2.4)) < 0.95 ? "road" : "wood";
+}
+/** Their trees: thick, on about every other tile, none on the path or right beside it. From the tile itself, so the same for everybody. */
+function beyondTrees(r: { x: number; y: number; w: number; h: number }): Prop[] {
+  const out: Prop[] = [];
+  for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) {
+    let h = Math.imul(x + 977, 374761393) ^ Math.imul(y + 331, 668265263);
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    const k = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+    if (k > 0.56 || [-1, 0, 1].some((d) => beyondGround(x + d + 0.5, y + 0.5) === "road")) continue;
+    out.push({ kind: k < 0.2 ? "pine" : k < 0.38 ? "oak" : k < 0.5 ? "tree" : "birch", x, y, solid: true });
+  }
+  return out;
+}
+export const BEYOND_PROPS = { north: beyondTrees(BEYOND.north), south: beyondTrees(BEYOND.south) };
+
 /**
  * The gates between the maps: the tiles that are one, where stepping on it
  * puts you (`to`, a couple of tiles inside the other map, so nobody arrives on
- * a gate), and where its gateway stands, in the middle of the way. The town's
- * is the end of the east path, where the road works were; the farm's is the
- * lane's first tiles.
+ * a gate), where its gateway stands, in the middle of the way, and which map
+ * it leads to. The town's are the ends of the east path and of the north one,
+ * where the road works were; the farm's is the lane's first tiles, the
+ * forest's the foot of its trail. `across` is for a gateway over a way that
+ * runs up the map and not along it: its picture is turned the other way.
  */
-const EAST = ARMS.find((a) => a.dir === "E")!;
+const EAST = ARMS.find((a) => a.dir === "E")!, NORTH = ARMS.find((a) => a.dir === "N")!;
 const eastRow = (x: number) => Math.floor(pathMiddle(x + 0.5, x + 0.5 - PLAZA.x - PLAZA.w, EAST.seed));
-export const GATES: Array<{ from: Place; tiles: Array<[number, number]>; to: Vec; arch: Vec }> = [
+const northCol = (y: number) => Math.floor(pathMiddle(y + 0.5, PLAZA.y - y - 0.5, NORTH.seed));
+export const GATES: Array<{ from: Place; leads: Place; tiles: Array<[number, number]>; to: Vec; arch: Vec; across?: boolean }> = [
   {
-    from: "town",
+    from: "town", leads: "farm",
     tiles: [COLS - 2, COLS - 1].flatMap((x) => [...Array(ROWS).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
     to: { x: FARM.x + 2.5, y: FARM.y + 21.5 },
     arch: { x: COLS - 1.5, y: pathMiddle(COLS - 1.5, COLS - 1.5 - PLAZA.x - PLAZA.w, EAST.seed) },
   },
   {
-    from: "farm",
+    from: "farm", leads: "town",
     tiles: [[FARM.x, FARM.y + 21], [FARM.x, FARM.y + 22]],
     to: { x: COLS - 3.5, y: eastRow(COLS - 4) + 0.5 },
     arch: { x: FARM.x + 1.5, y: FARM.y + 22 },
+  },
+  {
+    from: "town", leads: "forest", across: true,
+    tiles: [0, 1].flatMap((y) => [...Array(COLS).keys()].filter((x) => isRoad(x, y)).map((x): [number, number] => [x, y])),
+    to: { x: FOREST.x + 48.5, y: FOREST.y + 76.5 },
+    arch: { x: pathMiddle(1.5, PLAZA.y - 1.5, NORTH.seed), y: 1.5 },
+  },
+  {
+    from: "forest", leads: "town", across: true,
+    tiles: [[FOREST.x + 47, FOREST.y + 79], [FOREST.x + 48, FOREST.y + 79]],
+    to: { x: northCol(3) + 0.5, y: 3.5 },
+    arch: { x: FOREST.x + 48, y: FOREST.y + 78.5 },
   },
 ];
 /** Where the gate under a point leads, or null when there is none there. */
@@ -732,6 +996,7 @@ export function gateAt(x: number, y: number): Vec | null {
 /** What stands on a tile and stops a walker, if anything. */
 export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" | "board" | "pier" | "kitchen" | "keeper" | "roadworks" | "water" | "prop" | null {
   if (within(tx, ty, FARM)) return farmSolid.has(`${tx},${ty}`) ? "prop" : null;
+  if (within(tx, ty, FOREST)) return forestSolid.has(`${tx},${ty}`) ? "prop" : isForestWater(tx, ty) ? "water" : null;
   for (const b of BUILDINGS) if (within(tx, ty, b)) return b;
   if (within(tx, ty, FOUNTAIN)) return "fountain";
   if (isShop(tx, ty)) return "shop";
@@ -862,12 +1127,13 @@ export function fishFrom(tx: number, ty: number): Fishing | null {
   return found;
 }
 
-/** The kinds of ground: the town's, and the farm's plots. */
-export type Ground = "plaza" | "road" | "grass" | "water" | "sand" | "field";
+/** The kinds of ground: the town's, the farm's plots, and the floor of the forest under its trees. */
+export type Ground = "plaza" | "road" | "grass" | "water" | "sand" | "field" | "wood";
 
 /** The kind of ground, for drawing. */
 export function groundAt(tx: number, ty: number): Ground {
   if (within(tx, ty, FARM)) return farmGround(tx - FARM.x + 0.5, ty - FARM.y + 0.5);
+  if (within(tx, ty, FOREST)) return forestGround(tx - FOREST.x + 0.5, ty - FOREST.y + 0.5);
   if (isWater(tx, ty)) return "water";
   if (isBank(tx, ty)) return "sand";
   if (isPlaza(tx, ty)) return "plaza";
@@ -882,6 +1148,8 @@ export function groundAt(tx: number, ty: number): Ground {
  */
 export function groundLook(x: number, y: number): Ground {
   if (within(x, y, FARM)) return farmGround(x - FARM.x, y - FARM.y);
+  if (within(x, y, FOREST)) return forestGround(x - FOREST.x, y - FOREST.y);
+  if (within(x, y, BEYOND.north) || within(x, y, BEYOND.south)) return beyondGround(x, y);
   const r = acrossRiver(x, y);
   if (r < RIVER_HALF) return "water";
   if (r < RIVER_HALF + 0.9 + 0.22 * Math.sin(x * 1.9) * Math.sin(y * 2.3)) return "sand";
@@ -924,7 +1192,7 @@ export function findPath(from: Vec, to: Vec): Vec[] | null {
   // No walking from one map to the other: only a gate goes there.
   if (placeOf(sx, sy) !== placeOf(gx, gy)) return null;
 
-  // A tile's number: wider than the farthest tile east (the farm's), so no two tiles share one.
+  // A tile's number: wider than the farthest tile east (the forest's), so no two tiles share one.
   const SPAN = 256;
   const key = (x: number, y: number) => y * SPAN + x;
   const h = (x: number, y: number) => {

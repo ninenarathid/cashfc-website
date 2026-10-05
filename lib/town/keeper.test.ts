@@ -122,7 +122,7 @@ describe("the database's keeper", () => {
   it("leaves off the shelf a thing this page was built before, and takes the uncle's own count of his orders filled", async () => {
     const shelf = [...shelfOf(0), "seedGarlic", "somethingOfNextWeek"];
     // (somebody who has every hint there is with one order filled: with two there would be another to buy)
-    const mine = purse({ hints: HINT_IDS.filter((id) => sourcesAt(1).has(id)) });
+    const mine = purse({ hints: HINT_IDS.filter((id) => sourcesAt(1, true).has(id)) });
     const db = database({
       town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }),
       town_stall: () => ({ now: NOW, stall: { round: 3, sold: {} }, shelf, unlocked: 1, found: [], order: null }),
@@ -132,7 +132,7 @@ describe("the database's keeper", () => {
     await settle();
     expect(k.shelf()).toEqual([...shelfOf(0), "seedGarlic"]);
     // (one order filled, as he says: not two, as a shelf two longer than the first day's would say)
-    expect(nextHint(mine, [], (id) => sourcesAt(2).has(id))).not.toBeNull();
+    expect(nextHint(mine, [], (id) => sourcesAt(2, true).has(id))).not.toBeNull();
     expect(k.nextHint()).toBeNull();
     stop();
     k.close();

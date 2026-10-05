@@ -45,7 +45,7 @@ export const ORDER = {
 export const BASIC: ItemId[] = [
   "rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox",
   "seedKangkong", "seedScallion", "seedCabbage", "seedCarrot", "seedChili", "seedPumpkin",
-  "scrollFriedMinnow", "scrollGrilledFish", "scrollPestCure", "bowl", "bucket",
+  "scrollFriedMinnow", "scrollGrilledFish", "scrollPestCure", "bowl", "bucket", "bugNet",
 ];
 /**
  * What the orders open, in this order, one for each day filled: the early
@@ -77,11 +77,16 @@ export interface Village {
 }
 export const newVillage = (): Village => ({ unlocked: 0, day: -1, got: {}, opened: -1 });
 
-/** Everything that can be had when so many things are open, and from where. Worked out once for each count. */
-const had = new Map<number, Map<ItemId, Source>>();
-export function sourcesAt(unlocked: number): Map<ItemId, Source> {
-  let from = had.get(unlocked);
-  if (!from) { from = sources(shelfOf(unlocked)); had.set(unlocked, from); }
+/**
+ * Everything that can be had when so many things are open, and from where. Worked out once for each count. `wild`
+ * is whether what the forest gives is counted: it is not for what he asks for (an order is never to hang on what
+ * somebody may happen to find); it is for what he hints at, since a hint is only something heard.
+ */
+const had = new Map<string, Map<ItemId, Source>>();
+export function sourcesAt(unlocked: number, wild = false): Map<ItemId, Source> {
+  const key = `${unlocked}:${wild}`;
+  let from = had.get(key);
+  if (!from) { from = sources(shelfOf(unlocked), wild); had.set(key, from); }
   return from;
 }
 

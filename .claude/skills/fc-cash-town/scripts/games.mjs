@@ -30,6 +30,17 @@ export async function play(X, ms = 60000) {
   if (kind === "stirring") await X.evaluate(`${G}.drive(0.9)`);
   if (kind === "steady") await X.evaluate(`${G}.hold(true)`);
   if (kind === "pouring") await X.evaluate(`${G}.steady(0.5)`);
+  // (a roast: the stick is turned as each face turned to the fire is done, and at once when the next would burn)
+  if (kind === "roasting") {
+    const end = Date.now() + ms;
+    while (Date.now() < end) {
+      const done = await X.evaluate(`(() => { const g = ${G}; if (!g || g.kind !== "roasting") return true;
+        const r = g.roast(), d = g.done(); if (r.faces[r.down] >= d + 0.04) g.turn(); return false; })()`);
+      if (done) return kind;
+      await sleep(25);
+    }
+    return null;
+  }
   const end = Date.now() + ms;
   while (Date.now() < end) {
     const done = await X.evaluate(`(() => { const g = ${G}; if (!g || g.kind !== ${JSON.stringify(kind)}) return true;

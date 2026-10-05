@@ -2,6 +2,8 @@ import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot
 import { WATER, WILD, chore, choreFor, deedFor, ownerOf, tend, type Bed, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { hookBait, landCatch, loseBait } from "./fishing";
+import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
+import { BUGS, HAUNTS, HAUNT_KINDS, bugTurn, net, swarmAt, swarms, type BugId, type BugRefusal, type BugSight, type Haunt, type Swarm } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { buyHint, nextHint } from "./hints";
 import * as Notices from "./notices";
@@ -52,6 +54,9 @@ const MARKET_AT = "cashtown.trial.market.1", MARKET_LOG = "cashtown.trial.market
 const PINBOARD = "cashtown.trial.notices.1", SEEN = "cashtown.trial.seen.1";
 /** A wish's words as the trial keeps them: who wrote them and who tossed onto or reported them, by their ids. */
 interface KeptNote { id: number; by: string; day: number; wish: WishId; note: string; cheers: string[]; reports: string[]; hidden: boolean; at: number }
+/** The forest: the word its rolls hang on, and who has taken from which place in which turn. */
+const WILD_SALT = "cashtown.trial.wild.salt.1", WILD_TOOK = "cashtown.trial.wild.took.1";
+const BUG_TOOK = "cashtown.trial.bugs.took.1", BUG_BOOK = "cashtown.trial.bugs.book.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -363,6 +368,81 @@ export class Trial {
     this.save(did.purse);
     return { ok: true, chore: did.chore };
   }
+  /* ── the forest: what each place has is everybody's, so the browser's ── */
+  /** The word the forest's rolls hang on: made once for the browser (the database has one of its own, that nobody reads). */
+  private salt(): string {
+    let s = this.get(WILD_SALT);
+    if (!s) { s = Math.random().toString(36).slice(2, 12); this.set(WILD_SALT, s); }
+    return s;
+  }
+  /** Who has taken from each place in which turn: by "place:turn". */
+  private took(): Record<string, string[]> {
+    return this.read<Record<string, string[]>>(WILD_TOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
+  }
+  /** Every place of the forest that has something for me now. */
+  wild(): Sight[] {
+    const took = this.took();
+    return sights(this.salt(), this.now(), SKIES.rains(), (spot, turn) => { const who = took[`${spot.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; });
+  }
+  /** Gather what a place has, from the tile I stand on, with how its game went. Says what came of it, or why not. */
+  gatherDo(id: number, at: [number, number], went: Outcome): { ok: true; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | ForestRefusal } {
+    const spot = SPOTS[id];
+    if (!spot) return no("none");
+    const now = this.now(), has = holds(this.salt(), spot, now, SKIES.rains()), took = this.took(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];
+    const did = gather(this.purse(), spot, has, who.length, who.includes(this.id), handOf(this.purse()), at, went, now);
+    if (!did.ok) return did;
+    // (turns gone by are forgotten: only what the places have now is kept)
+    const kept = Object.fromEntries(Object.entries(took).filter(([k]) => { const [s, t] = k.split(":").map(Number); return !!SPOTS[s] && t >= turnOf(SPOTS[s], now); }));
+    this.write(WILD_TOOK, { ...kept, [key]: [...who, this.id] });
+    this.save(did.purse);
+    return { ok: true, got: did.got };
+  }
+  /** For scripts trying things out: the word the forest's rolls hang on, as it is told (so that what a place has can be known beforehand). */
+  setSalt(word: string) { this.set(WILD_SALT, word); this.set(WILD_TOOK, null); this.set(BUG_TOOK, null); this.tell(); }
+
+  /* ── insects: what each haunt has is everybody's too, rolled from the same word ── */
+  /** Who has caught each haunt's insect in which turn: by "haunt:turn". */
+  private netted(): Record<string, string[]> {
+    return this.read<Record<string, string[]>>(BUG_TOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
+  }
+  /** For scripts trying things out: the insect a haunt has, whatever the rolls say (in this tab; null lets the rolls say again). */
+  private forced = new Map<number, BugId>();
+  setBug(haunt: number, bug: BugId | null) { if (bug) this.forced.set(haunt, bug); else this.forced.delete(haunt); this.tell(); }
+  /** What a haunt has now. */
+  private swarm(h: Haunt, now: number): Swarm | null {
+    const bug = this.forced.get(h.id);
+    if (!bug) return swarmAt(this.salt(), h, now, SKIES.rains());
+    const turn = bugTurn(h, now);
+    return { turn, bug, n: BUGS[bug].n[0], seed: h.id * 100003 + turn };
+  }
+  /** Every haunt that has an insect for me now. */
+  bugs(): BugSight[] {
+    const took = this.netted(), now = this.now();
+    const mine = (h: Haunt, turn: number) => { const who = took[`${h.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; };
+    const rolled = swarms(this.salt(), now, SKIES.rains(), mine).filter((s) => !this.forced.has(s.id));
+    const told = [...this.forced.keys()].flatMap((id) => {
+      const h = HAUNTS[id], has = h ? this.swarm(h, now) : null, t = has ? mine(h, has.turn) : null;
+      return has && t && !t.mine && t.n < HAUNT_KINDS[h.kind].shares ? [{ id, bug: has.bug, turn: has.turn, seed: has.seed }] : [];
+    });
+    return [...rolled, ...told];
+  }
+  /** The village's book of insects: who first caught each kind. */
+  bugBook(): Record<string, string> { return this.read<Record<string, string>>(BUG_BOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }
+  /** Catch what a haunt has, from the tile I stand on, after so many swings that missed. Says what came of it and whether it is the village's first, or why not. */
+  netDo(id: number, at: [number, number], misses: number, lure: ItemId | null, name: string): { ok: true; got: Array<[ItemId, number]>; first: boolean } | { ok: false; why: Refusal | BugRefusal } {
+    const h = HAUNTS[id];
+    if (!h) return no("none");
+    const now = this.now(), has = this.swarm(h, now), took = this.netted(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];
+    const did = net(this.purse(), h, has, who.length, who.includes(this.id), handOf(this.purse()), at, misses, now, lure);
+    if (!did.ok) return did;
+    const kept = Object.fromEntries(Object.entries(took).filter(([k]) => { const [s, t] = k.split(":").map(Number); return !!HAUNTS[s] && t >= bugTurn(HAUNTS[s], now); }));
+    this.write(BUG_TOOK, { ...kept, [key]: [...who, this.id] });
+    const book = this.bugBook(), first = !book[has!.bug];
+    if (first) this.write(BUG_BOOK, { ...book, [has!.bug]: name || this.id });
+    this.save(did.purse);
+    return { ok: true, got: did.got, first };
+  }
+
   /** For scripts trying things out: a plot as it is told (a plant sown days ago that a pest has had, say: nothing else brings one about for certain). */
   setPlot(key: string, plot: Plot) { this.write(FARM, { ...this.farm(), [key]: plot }); this.tell(); }
   /** For the test window: so many buckets in the well. */
@@ -472,8 +552,8 @@ export class Trial {
   /** Ladle a helping out of the pot in a slot of my own bag, into my bowl. */
   serve(slot: number) { return this.keep(serve(this.purse(), slot)); }
   /** The uncle's next hint for me (of what can be made with what he sells so far), and buying it. */
-  nextHint(): ItemId | null { const at = sourcesAt(this.village().unlocked); return nextHint(this.purse(), this.found(), (id) => at.has(id)); }
-  hint() { const at = sourcesAt(this.village().unlocked); return this.keep(buyHint(this.purse(), this.found(), (id) => at.has(id))); }
+  nextHint(): ItemId | null { const at = sourcesAt(this.village().unlocked, true); return nextHint(this.purse(), this.found(), (id) => at.has(id)); }
+  hint() { const at = sourcesAt(this.village().unlocked, true); return this.keep(buyHint(this.purse(), this.found(), (id) => at.has(id))); }
   /** Put on what carries more, from a slot of the bag; and take one off. */
   wear(slot: number) { return this.keep(wear(this.purse(), slot)); }
   takeOff(item: ItemId) { return this.keep(takeOff(this.purse(), item)); }

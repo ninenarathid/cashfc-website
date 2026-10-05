@@ -63,6 +63,8 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   scrollPestCure: good(40, 6, 1),
   // for serving, carrying water and cooking in
   bowl: good(5, 60, 5), bucket: good(20, 30, 4),
+  // (a net for insects, from the first day: lib/town/insects. It can be made of what the forest gives, too.)
+  bugNet: good(35, 6, 1),
   bucketIron: good(70, 6, 1), apron: good(120, 4, 1),
   // The early seeds that were to be found in the wild: sold here until foraging opens (it does not, today), since
   // without them half the early dishes could not be cooked at all.
