@@ -119,7 +119,7 @@ const all = ({ swap, cut }) => [
     swap("    perform town.keep_purse(me, did->'purse');\n    if did->'mine' is null", "    if did->'mine' is null"),
     ["once: nothing waits any more"]],
   ["the book does not share the jar as it is opened",
-    swap("  perform town.jar_now(now_);\n  return jsonb_build_object('book'", "  return jsonb_build_object('book'"),
+    swap("  perform town.jar_now(now_);\n  return jsonb_build_object('wellBook'", "  return jsonb_build_object('wellBook'"),
     ["the jar is there, empty, and says when it is next shared"]],
   ["a round begins at the other round's hour",
     swap("(case when p_round % 2 = 0 then 0 else 1 end)", "(case when p_round % 2 = 0 then 1 else 0 end)"),

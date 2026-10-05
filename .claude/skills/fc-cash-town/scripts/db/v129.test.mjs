@@ -5,7 +5,7 @@
  * (`town_plot_help`, kept by v127's trigger, whose reader is written again); its owner thanks them, one a day from
  * one person to another (`town_thanks`), counted on a board; and a jar by the well takes coins and things, shared
  * out at the uncle's next round among those who worked for the others (`town_jar`, `town_jar_owed`, `town_jar_log`).
- * v105 to v125 are replayed as they ran, then v127, then:
+ * v105 to v128 are replayed as they ran (v127 the well's book, v128 the notice board, which ran before it), then:
  *
  *   · a morning of water before the file, and the file run twice;
  *   · its closing block; that nothing else changed: every function its own text, v127's reader and its two
@@ -48,8 +48,8 @@ create table public.gallery_likes (post_id bigint not null references public.gal
   created_at timestamptz not null default now(), primary key (post_id, profile_id));
 alter table public.gallery_likes enable row level security;
 `;
-// (v123 to v125 are the fountain, the moving price, the forest and the insects: they run before this one)
-const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125];
+// (v123 to v125 are the fountain, the moving price, the forest and the insects; v127 the well's book it stands on; v128 the notice board: all ran before this one)
+const RAN = [105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 127, 128];
 const MIN = 60_000, HOUR = 3_600_000;
 // 09:00 in Bangkok on a Tuesday: the round that began at seven
 const MORNING = Date.parse("2026-10-06T09:00:00+07:00");
@@ -58,7 +58,6 @@ const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 
 const t = await supabaseLike({ extra });
 for (const n of RAN) await t.run(migration(n), `v${n}`);
-await t.run(fileOf(127), "v127");
 await t.sql(`update public.town_knobs set value = 1 where key = 'game_open'`);
 await t.sql(`create table town.test_clock (ms bigint not null); insert into town.test_clock values (${MORNING});
   create or replace function town.now_ms() returns bigint language sql stable as $$ select ms from town.test_clock $$;`);
