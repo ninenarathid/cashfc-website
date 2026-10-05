@@ -107,8 +107,8 @@ try {
   ok("popoto from pictures are refused: none to change", !did.ok && did.why === "popoto", did);
   did = await A.change("profile", 17);
   ok("more than the week's rest is refused: cap", !did.ok && did.why === "cap", did);
-  // (the first day's shelf: twenty-one things, and from v117 the scroll of the cure for pests)
-  const withCure = (await sql(`select town.cat('items') ? 'scrollPestCure' as there`))[0].there, first = withCure ? 22 : 21;
+  // (the first day's shelf: twenty-one things, from v117 the scroll of the cure for pests, and from v125 a net for insects)
+  const sells = (await sql(`select town.cat('items') ? 'scrollPestCure' as cure, town.cat('items') ? 'bugNet' as net`))[0], first = 21 + (sells.cure ? 1 : 0) + (sells.net ? 1 : 0);
   ok("the stall is not known until it is looked at", A.order() === null && A.shelf().length === shelfOf(0).length);
   const stopStall = A.look("stall");
   await settled(A);
@@ -361,7 +361,7 @@ try {
   await A.dealCancel();
   ok("called off: said so, to the one who called it off", deal.ok && A.deal()?.end === "off", A.deal());
 
-  if (withCure) {
+  if (sells.cure) {
     section("the cure for pests: its scroll bought, read and cooked (v117)");
     const CURE = [["chili", 2], ["scallion", 2], ["salt", 1]];
     await purse(a, 100, [{ item: "pot", n: 1 }, { item: "chili", n: 2 }, { item: "scallion", n: 2 }, { item: "salt", n: 1 }]);
