@@ -7,6 +7,7 @@ import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
 import { nextHint } from "./hints";
 import type { JarTold } from "./jar";
+import { carried, type PassRefusal } from "./line";
 import { reachOf } from "./ditch";
 import { hotAt } from "./heat";
 import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
@@ -51,10 +52,10 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -216,6 +217,13 @@ export interface Keeper {
   yardJar(): number | null;
   yardCanPour(): boolean;
   yardPour(at: [number, number] | null): Promise<Did<{ poured: number }>>;
+  /**
+   * A bucket line (lib/town/line): whether I hold a bucket with water that can be handed on (never, where whoever
+   * keeps the game knows of no line), and handing it on to somebody. Who stands near enough is the page's to say:
+   * nothing that keeps the game knows where anybody is. Whoever takes it is told through the room (`line`).
+   */
+  canPass(): boolean;
+  passTo(to: string): Promise<Did<{ n: number }>>;
 
   /**
    * Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who
@@ -248,7 +256,7 @@ export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknow
 type Answer = Record<string, unknown>;
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -304,6 +312,8 @@ export class DbKeeper implements Keeper {
   private jar_: JarTold | null = null;
   /** The bucketfuls in the cooking yard's jar: null until a database that has one has said. */
   private yard_: number | null = null;
+  /** Whether the database knows of a bucket line: said with everybody's rank. */
+  private line_ = false;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -430,6 +440,7 @@ export class DbKeeper implements Keeper {
     if (Array.isArray(a.thanked)) this.thanked_ = a.thanked as Array<{ id: string; name: string }>;
     if (a.jar && typeof a.jar === "object") this.jar_ = a.jar as JarTold;
     if (a.yard && typeof a.yard === "object" && typeof (a.yard as { jar?: unknown }).jar === "number") this.yard_ = (a.yard as { jar: number }).jar;
+    if (a.line === true) this.line_ = true;
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -479,7 +490,11 @@ export class DbKeeper implements Keeper {
       if (l.n <= 0 && l.timer) { clearTimeout(l.timer); l.timer = null; }
     };
   }
-  nudged(what: Looked) { if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what); }
+  nudged(what: Looked) {
+    // (somebody handed me water: it is in my purse, which is read again)
+    if (what === "line") { void this.ask("town_me"); return; }
+    if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what);
+  }
   /** Ask for one of them now, and again in its time while it is looked at. */
   private fetch(what: Looked) {
     const l = this.looking.get(what);
@@ -491,6 +506,7 @@ export class DbKeeper implements Keeper {
       : what === "notices" ? this.ask("town_notices")
       : what === "wild" ? this.ask("town_wild")
       : what === "bugs" ? this.ask("town_bugs")
+      : what === "line" ? this.ask("town_me")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -736,6 +752,13 @@ export class DbKeeper implements Keeper {
     const did = await this.deed<{ poured: number }>("town_yard_pour", { p_x: at[0], p_y: at[1] });
     if (did.ok) this.onDeed?.("kitchen");
     if (did.ok && this.wellBook_) void this.ask("town_well");
+    return did;
+  }
+
+  canPass(): boolean { return this.line_ && !!carried(this.mine); }
+  async passTo(to: string): Promise<Did<{ n: number }>> {
+    const did = await this.deed<{ n: number }>("town_pass", { p_to: to });
+    if (did.ok) this.onDeed?.("line", to);
     return did;
   }
 

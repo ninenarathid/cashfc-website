@@ -300,6 +300,40 @@ describe("the database's keeper", () => {
     sky.mockRestore();
   });
 
+  it("hands water on only where the database says there is a line, tells whoever takes it through the room, and reads the purse again when told it was handed some", async () => {
+    const bucket = (water: number): Purse => purse({ hand: "bucket", bag: [{ item: "bucket", n: 1, ...(water ? { water } : {}) }, ...Array(9).fill(null)] });
+    let line = false, mine = bucket(1);
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }),
+      town_well_ranks: () => ({ now: NOW, ranks: {}, ...(line ? { line: true } : {}) }),
+      town_pass: (args) => ({ ok: true, n: 1, can: "bucket", into: "bucket", now: NOW, purse: (mine = bucket(0)), asked: args }),
+    });
+    // a database that says nothing of a line: a full bucket is not offered to be handed on
+    let k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.canPass()).toBe(false);
+    k.close();
+    // …and one that does
+    line = true;
+    k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.canPass()).toBe(true);
+    const told: Array<[string, string | undefined]> = [];
+    k.onDeed = (what, to) => { told.push([what, to]); };
+    expect(await k.passTo("you")).toMatchObject({ ok: true, n: 1, asked: { p_to: "you" } });
+    expect(told).toEqual([["line", "you"]]);
+    // (my bucket is empty now, as the answer's purse says)
+    expect(k.canPass()).toBe(false);
+    // told through the room that somebody handed me water: my purse is read again, whatever I am looking at
+    mine = bucket(1);
+    const before = db.asked.filter((f) => f === "town_me").length;
+    k.nudged("line");
+    await settle();
+    expect(db.asked.filter((f) => f === "town_me").length).toBe(before + 1);
+    expect(k.canPass()).toBe(true);
+    k.close();
+  });
+
   it("offers no book where the database has none yet: nothing is kept of an answer that never came", async () => {
     const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
     const k = new DbKeeper("me", db.ask);

@@ -9,6 +9,7 @@ import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
 import { JAR } from "./jar";
+import { LINE } from "./line";
 import {
   BAITS, BOWL, BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT,
   inBowl, type ItemId,
@@ -221,6 +222,8 @@ export function catalogOf() {
      * says where the jar stands, finished or not).
      */
     yard: { holds: YARD.holds, gives: YARD.gives, cost: YARD.cost, dry: YARD.dry, at: asBuilt(() => KITCHEN.wash.map(([x, y]): [number, number] => [x, y])) },
+    /** A bucket line (lib/town/line): how far apart two may stand for water to be handed on (the page's to hold to: the database knows where nobody stands), what handing on costs, and how many of the hands the water went through are remembered. */
+    line: { reach: LINE.reach, cost: LINE.cost, hands: LINE.hands },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -263,6 +266,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v130 (pending) seeds `heat`, `ditch` and `yard`, for the same members' third round: a hot afternoon's hours and
  * what a watering does in them, what a bucket poured over a bed waters and costs, and the cooking yard's water jar.
  *
+ * v132 (pending) seeds `line`, for their fourth: how far water is handed on, what that costs, and how many hands a
+ * bucketful remembers.
+ *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
  * twice). What the code itself changes after a row was seeded has to be written over it by the next migration
  * (`over`): name that migration here with the rows it writes, and `TOWN_WRITE=1 npx vitest run
@@ -288,6 +294,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   v130: { keys: ["heat", "ditch", "yard"], over: [] },
+  v132: { keys: ["line"], over: [] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

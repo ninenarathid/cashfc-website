@@ -167,6 +167,13 @@ class TrialKeeper implements Keeper {
   yardJar() { return this.trial.yardJar(); }
   yardCanPour() { return this.trial.yardCanPour(); }
   async yardPour(): Promise<Did<{ poured: number }>> { return this.trial.yardPour(); }
+  canPass() { return this.trial.canPass(); }
+  async passTo(to: string): Promise<Did<{ n: number }>> {
+    const did = this.trial.passTo(to);
+    // (whoever took it is in another tab: told through the room, as the database's keeper tells them)
+    if (did.ok) this.onDeed?.("line", to);
+    return did;
+  }
 
   wild() { return this.trial.wild(); }
   async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }

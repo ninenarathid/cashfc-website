@@ -25,6 +25,7 @@ import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook,
 import { ditch, reachOf } from "./ditch";
 import { hotAt, warmed } from "./heat";
 import { canPour, freshen, pourIn } from "./yard";
+import { carried, pass, type PassRefusal } from "./line";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -416,9 +417,20 @@ export class Trial {
     const now = this.now(), did = pourIn(this.purse(), this.yardJar(), now);
     if (!did.ok) return did;
     this.write(YARD_JAR, did.jar);
-    this.wellSeen({ by: this.id, at: now, what: "yard", n: did.poured });
+    this.wellSeen({ by: this.id, at: now, what: "yard", n: did.poured, can: handOf(this.purse()) ?? undefined });
     this.save(did.purse);
     return { ok: true, poured: did.poured };
+  }
+  /** A bucket line (lib/town/line): whether I hold a bucket with water to hand on, and handing it on to another tester of this browser. */
+  canPass(): boolean { return !!carried(this.purse()); }
+  passTo(to: string): { ok: true; n: number } | { ok: false; why: PassRefusal } {
+    if (!to || to === this.id) return { ok: false, why: "none" };
+    const other = trialFor(to), now = this.now(), did = pass(this.purse(), other.purse(), now);
+    if (!did.ok) return did;
+    this.wellSeen({ by: this.id, at: now, what: "pass", n: did.n, can: did.can, to, into: did.into });
+    other.save(did.to);
+    this.save(did.from);
+    return { ok: true, n: did.n };
   }
   /** For scripts and the test window: so many bucketfuls in the yard's jar (nobody's water). */
   setYardJar(buckets: number) { this.write(YARD_JAR, Math.max(0, Math.floor(buckets))); this.tell(); }
@@ -428,9 +440,10 @@ export class Trial {
     const p = this.purse(), well = this.well(), now = this.now(), did = chore(p, where, well, now);
     if (!did.ok) return did;
     this.write(WELL, did.well);
-    // (the well's book: so many bucketfuls poured; a can filled)
-    if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well });
+    // (the well's book: so many bucketfuls poured, and out of which bucket; a can filled; a bucket drawn, with nobody's hands on its water yet)
+    if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well, can: handOf(p) ?? undefined });
     else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", can: handOf(p) ?? undefined });
+    else this.wellSeen({ by: this.id, at: now, what: "draw", can: handOf(p) ?? undefined });
     this.save(did.purse);
     return { ok: true, chore: did.chore };
   }

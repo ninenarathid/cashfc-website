@@ -37,8 +37,14 @@ import { no, put, roomFor, roundOf, type Done, type Purse } from "./trade";
  * cooking yard's jar** (lib/town/yard) is kept lot by lot like the well's,
  * and a pot cooked with it is a line of what came of that carrier's water.
  *
- * Pure. The database keeps the same (v127, v129, v130): a trigger reads each
- * line of `town_deeds` as it is written and does what `seen` does here.
+ * Since the fourth round a bucketful may come by several hands (lib/town/
+ * line: a bucket line). **Everybody whose hands it went through has carried
+ * it**: when it is poured, wherever, each of them is counted the bucketful as
+ * the pourer is (their rank, the day's carriers, their work at the jar).
+ * Whose water it was stays the pourer's.
+ *
+ * Pure. The database keeps the same (v127, v129, v130, v132): a trigger reads
+ * each line of `town_deeds` as it is written and does what `seen` does here.
  */
 export const WELL_BOOK = {
   /** The bucketfuls poured into the well, all told, at which each rank begins. */
@@ -58,18 +64,22 @@ export const RANK_TITLES: Array<[th: string, en: string]> = [["คนหาบ�
  * is no water: a plot sown anew begins with nobody having helped its plant. Since the third round: a bucket poured over
  * a bed (`ditch`: so many bucketfuls, for so many `plants`, each of which is then written as a watering with that
  * bucket), a bucket poured into the yard's jar (`yard`), and a pot cooked with a bucketful of the jar's (`fresh`: by
- * the cook).
+ * the cook). Since the fourth: a bucket drawn at the river (`draw`: nobody's hands are on its water yet) and one
+ * handed on (`pass`: from which bucket, `to` whom, `into` which of theirs).
  */
 export interface WaterDeed {
   by: string;
   at: number;
-  what: "pour" | "fill" | "water" | "sow" | "ditch" | "yard" | "fresh";
+  what: "pour" | "fill" | "water" | "sow" | "ditch" | "yard" | "fresh" | "draw" | "pass";
   /** Poured: how many bucketfuls went in (or over the bed). */
   n?: number;
   /** Poured over a bed: how many plants it watered. */
   plants?: number;
-  /** Filled, or watered with: which can (or, poured over a bed, which bucket). */
+  /** Filled, or watered with: which can; or which bucket was drawn, handed on, poured (into the well, over a bed, into the yard's jar). */
   can?: string;
+  /** Handed on: to whom, and into which bucket of theirs. */
+  to?: string;
+  into?: string;
   tile?: [number, number];
   whose?: string;
 }
@@ -99,8 +109,12 @@ export interface WellLog {
   yard: Array<{ by: string | null; left: number }>;
   /** The pots cooked with each carrier's water on each day: by the day and the carrier, how many to a cook. */
   pots: Record<string, Record<string, number>>;
+  /** Whose hands the water in a bucket has been through (lib/town/line): by who holds the bucket and which it is, in the order it came by them, the holder last. A bucket drawn at the river has none. */
+  line: Record<string, string[]>;
 }
-export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {}, yard: [], pots: {} });
+export const newLog = (): WellLog => ({ water: [], cans: {}, carriers: {}, days: {}, reach: {}, hands: {}, help: {}, work: {}, yard: [], pots: {}, line: {} });
+/** How many of those whose hands the water went through are remembered: the last so many (lib/town/line's own number, kept here so that the book does not hang on the map). */
+export const LINE_HANDS = 8;
 
 const canKey = (by: string, can: string) => `${by}/${can}`;
 const dayKey = (day: number, who: string) => `${day}/${who}`;
@@ -115,9 +129,40 @@ function helped(help: WellLog["help"], plot: string, owner: string, who: string,
   return { ...help, [plot]: { owner, by: { ...was.by, [who]: { ...mine, [how]: mine[how] + 1 } } } };
 }
 
+/**
+ * The log after so many bucketfuls were poured out of a bucket: everybody else whose hands that water went through is
+ * counted them too (their rank, the day's carriers, their work in the round).
+ */
+function counted(log: WellLog, d: WaterDeed, n: number): WellLog {
+  const others = (d.can ? log.line[canKey(d.by, d.can)] ?? [] : []).filter((h) => h !== d.by);
+  if (!others.length || n <= 0) return log;
+  const day = dayOf(d.at), round = roundOf(d.at);
+  let { carriers, work } = log, today = log.days[day] ?? {};
+  for (const h of others) {
+    const was = carriers[h] ?? { buckets: 0, taken: [] }, mine = today[h] ?? { buckets: 0, first: d.at };
+    carriers = { ...carriers, [h]: { ...was, buckets: was.buckets + n } };
+    today = { ...today, [h]: { ...mine, buckets: mine.buckets + n } };
+    work = worked(work, round, h, n, 0);
+  }
+  return { ...log, carriers, work, days: { ...log.days, [day]: today } };
+}
+
 /** The log after a deed with water. */
 export function seen(log: WellLog, d: WaterDeed): WellLog {
   const day = dayOf(d.at), round = roundOf(d.at);
+  if (d.what === "draw") {
+    // a bucket drawn at the river: nobody's hands are on its water but the drawer's own
+    if (!d.can || !(canKey(d.by, d.can) in log.line)) return log;
+    const line = { ...log.line };
+    delete line[canKey(d.by, d.can)];
+    return { ...log, line };
+  }
+  if (d.what === "pass") {
+    if (!d.can || !d.to || !d.into || Math.floor(d.n ?? 0) <= 0) return log;
+    // the hands it came by, and whoever takes it last (once): only the last so many are remembered
+    const was = log.line[canKey(d.by, d.can)] ?? [d.by], hands = [...was.filter((h) => h !== d.to), d.to].slice(-LINE_HANDS);
+    return { ...log, line: { ...log.line, [canKey(d.to, d.into)]: hands } };
+  }
   if (d.what === "sow") {
     if (!d.tile || !(plotOf(d.tile) in log.help)) return log;
     const help = { ...log.help };
@@ -128,13 +173,13 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
     const n = Math.floor(d.n ?? 0);
     if (n <= 0) return log;
     const was = log.carriers[d.by] ?? { buckets: 0, taken: [] }, today = log.days[day] ?? {}, mine = today[d.by] ?? { buckets: 0, first: d.at };
-    return {
+    return counted({
       ...log,
       water: [...log.water, { by: d.by, left: n }],
       carriers: { ...log.carriers, [d.by]: { ...was, buckets: was.buckets + n } },
       days: { ...log.days, [day]: { ...today, [d.by]: { ...mine, buckets: mine.buckets + n } } },
       work: worked(log.work, round, d.by, n, 0),
-    };
+    }, d, n);
   }
   if (d.what === "ditch" || d.what === "yard") {
     const n = Math.floor(d.n ?? 0);
@@ -143,9 +188,9 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
     const was = log.carriers[d.by] ?? { buckets: 0, taken: [] }, today = log.days[day] ?? {}, mine = today[d.by] ?? { buckets: 0, first: d.at };
     const next = { ...log, carriers: { ...log.carriers, [d.by]: { ...was, buckets: was.buckets + n } }, days: { ...log.days, [day]: { ...today, [d.by]: { ...mine, buckets: mine.buckets + n } } } };
     // over a bed: the bucket is a can of the pourer's own water, for the plants it reached (each is written as a watering next)
-    if (d.what === "ditch") return { ...next, cans: { ...log.cans, [canKey(d.by, d.can!)]: { by: d.by, left: Math.max(0, Math.floor(d.plants ?? 0)) } } };
+    if (d.what === "ditch") return counted({ ...next, cans: { ...log.cans, [canKey(d.by, d.can!)]: { by: d.by, left: Math.max(0, Math.floor(d.plants ?? 0)) } } }, d, n);
     // into the yard's jar: a lot of its water, and work done for the others
-    return { ...next, yard: [...log.yard, { by: d.by, left: n }], work: worked(log.work, round, d.by, n, 0) };
+    return counted({ ...next, yard: [...log.yard, { by: d.by, left: n }], work: worked(log.work, round, d.by, n, 0) }, d, n);
   }
   if (d.what === "fresh") {
     // a bucketful of the oldest water the jar has; a pot of somebody else's cooked with it is a line of what came of that carrier's water

@@ -39,6 +39,7 @@ import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { FarmDraw } from "./TownFarm";
 import type { Standing } from "./TownCook";
+import type { Stander } from "./TownLine";
 import type { OpenDeal } from "./TownDeal";
 import type { FishPlace, LineState } from "./TownFish";
 import type { DishId, ItemId } from "@/lib/town/items";
@@ -97,12 +98,13 @@ const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
 const TownWell = lazy(() => import("./TownWell"));
 const TownThanks = lazy(() => import("./TownThanks"));
+const TownLine = lazy(() => import("./TownLine"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs"];
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
@@ -603,6 +605,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const ranksRef = useRef<{ ranks: Record<string, number>; me: string }>({ ranks: {}, me: "" });
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
+  /** Everybody on the map now, as this screen has them (the bucket line asks who stands within sight: lib/town/line). */
+  const standers = useCallback((): Stander[] => {
+    const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
+    return (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null) }));
+  }, []);
   /** Whether I am on the forest's map (what it has is looked at while I am), and its own way of drawing what lies and grows there. */
   const [onForest, setOnForest] = useState(false);
   const onForestRef = useRef(false);
@@ -3362,6 +3370,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownWell keeper={keeper} name={me.name} th={w.th} at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen)} phone={phone} tabbar={tabbar}
                     bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} />
+        </Suspense>
+      )}
+      {/* A bucket line: water handed on to whoever stands within sight with a bucket, nearer the well */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownLine keeper={keeper} me={keeper.id} th={w.th} people={standers}
+                    here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? standing?.tile ?? null : null}
+                    bottom={phone && tabbar ? "calc(15.5rem + env(safe-area-inset-bottom))" : "11.5rem"} sfx={sfxRef.current} />
         </Suspense>
       )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}

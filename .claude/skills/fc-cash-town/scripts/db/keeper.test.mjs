@@ -21,7 +21,7 @@ const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v130"];
+const NEXT = ["v130", "v132"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -769,6 +769,52 @@ try {
     ok("a watering in the heat: the keeper knows it is hot, reads the farm again, and has the plot as it is kept, with as much again", did.ok && did.deed === "water" && H.hot() === true
       && asked.filter((x) => x === "B town_farm").length === before + 1 && H.farm()["136,5"].plant.boost === 3600000, { hot: H.hot(), boost: H.farm()["136,5"]?.plant?.boost });
     stopG(); stopH(); G.close(); H.close();
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_pass(uuid)') is not null as there`))[0].there) {
+    section("a bucket line: water handed from one to the next, and counted for each (v132)");
+    const well = (await sql(`select town.cat('farming')->'wellAt' as at`))[0].at, AT_WELL = [well[0] + 1, well[1]], RIVER = [16, 38];
+    const c = await member("C", "Tester C");
+    await sql(`truncate public.town_deeds, public.town_well_water, public.town_well_cans, public.town_carriers, public.town_well_reach, public.town_plot_help, public.town_thanks, public.town_yard_water, public.town_yard_reach, public.town_line_water`);
+    await sql(`update public.town_things set doc = '0'::jsonb where key = 'well'`);
+    const holding = async (id, item) => {
+      await purse(id, 0, [{ item, n: 1 }]);
+      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', $2::text, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [id, item]);
+    };
+    await holding(a, "bucket"); await holding(b, "bucket"); await holding(c, "bucketIron");
+    const I = new DbKeeper(a, askAs("A")), J = new DbKeeper(b, askAs("B")), K = new DbKeeper(c, askAs("C"));
+    await settled(I); await settled(J); await settled(K);
+    const told = [];
+    I.onDeed = (what, to) => { told.push(`${what} ${to}`); };
+    ok("an empty bucket is not offered to be handed on, though the database has told of a line", I.canPass() === false && (await askAs("A")("town_well_ranks"))?.line === true);
+    await I.choreDo("river", RIVER);
+    ok("a bucket with water is", I.canPass() === true && J.canPass() === false);
+    let did = await I.passTo(b);
+    ok("handed on: the answer says how much went, my bucket is empty, and whoever took it is to be told through the room", did.ok && did.n === 1 && I.canPass() === false && told.join() === `line ${b}`, { did, told });
+    ok("the taker's keeper knows nothing of it yet", J.canPass() === false);
+    // (the room's word, as the map would hand it on)
+    J.nudged("line");
+    await settled(J);
+    ok("told through the room, it reads its purse again and has the water", J.canPass() === true && J.purse().bag[slotOf(J, "bucket")].water === 1, J.purse().bag);
+    did = await J.passTo(c);
+    K.nudged("line");
+    await settled(K);
+    ok("handed on again, into an iron bucket", did.ok && did.n === 1 && K.purse().bag[slotOf(K, "bucketIron")].water === 1, did);
+    did = await K.choreDo("well", AT_WELL);
+    await K.wellLook();
+    ok("poured by the third: the book lists all three among today's carriers, a bucketful each", did.ok && did.chore === "pour" && K.well() === 1 && K.wellBook()?.carriers.length === 3
+      && K.wellBook().carriers.every((p) => p.buckets === 1) && [a, b, c].every((id) => K.wellBook().carriers.some((p) => p.id === id)), K.wellBook()?.carriers);
+    await I.wellLook();
+    ok("the first, who never left the river, has a bucketful towards their rank", I.wellBook()?.buckets === 1 && I.wellBook().today.buckets === 1, I.wellBook());
+    did = await I.passTo(b);
+    ok("with nothing in the bucket there is nothing to hand on", !did.ok && did.why === "hand", did);
+    await I.choreDo("river", RIVER);
+    did = await I.passTo(c);
+    ok("handed straight to the third, whose bucket is empty again: the database asks nobody where they stand", did.ok && did.n === 1, did);
+    await I.choreDo("river", RIVER);
+    did = await I.passTo(c);
+    ok("into a bucket that has water nothing goes", !did.ok && did.why === "full" && I.canPass() === true, did);
+    I.close(); J.close(); K.close();
   }
 
   section("one thing at a time");
