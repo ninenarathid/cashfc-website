@@ -19,6 +19,10 @@ import { existsSync, readFileSync } from "node:fs";
 import { supabaseLike, migration, U } from "./pglite-harness.mjs";
 import { TOWN_BUGS, TOWN_NET } from "./v131.lines.mjs";
 
+// (the site's own number for the knob this file turns: lib/town/market, loaded as v124's dry run loads it)
+await import("./repo-ts-town.mjs");
+const { MARKET } = await import("@/lib/town/market");
+
 const here = (name) => new URL(`./${name}`, import.meta.url);
 const FILE = process.env.MIGRATION_FILE ? readFileSync(process.env.MIGRATION_FILE, "utf8") : existsSync(here("v131_draft.sql")) ? readFileSync(here("v131_draft.sql"), "utf8") : migration(131);
 const told = JSON.parse(readFileSync(here("now/vectors-v131.json"), "utf8"));
@@ -84,6 +88,8 @@ t.section("the rows, and the relatives' usual amount");
     && now.items.glassDragonfly.pays === 60 && now.items.herculesBeetle.pays === 150);
   const knob = async () => Number((await t.sql(`select value from public.town_knobs where key = 'market_bug'`)).rows[0].value);
   t.check("the relatives' usual amount of an insect is 7 coins a head a round, where it was 10", (await knob()) === 7, await knob());
+  const K = (await t.sql(`select town.market_knobs() as k`)).rows[0].k;
+  t.check("which is the number the site's own code has, as every other knob of the market's is", MARKET.usual.bug === 7 && same(K, MARKET), { code: MARKET.usual, knobs: K.usual });
   await t.sql(`update public.town_knobs set value = 12 where key = 'market_bug'`);
   await t.db.exec(FILE);
   t.check("one an admin has turned stays turned when the file runs again", (await knob()) === 12, await knob());

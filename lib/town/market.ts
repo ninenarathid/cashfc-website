@@ -58,8 +58,12 @@ export const MARKET = {
   /** The fewest heads the village is counted as, and how many rounds back somebody is counted from. */
   heads: 10,
   lately: 14,
-  /** The usual amount of a thing, in coins' worth a head a round, by its kind. A kind not here has one price. */
-  usual: { crop: 30, fish: 15, catch: 10, dish: 15, goods: 15, wild: 15, bug: 10 } as Partial<Record<ItemKind, number>>,
+  /**
+   * The usual amount of a thing, in coins' worth a head a round, by its kind. A kind not here has one price.
+   * (An insect's was 10 until v131, 2026-10-05: what the common insects fetch was cut by a third then, and 7 keeps
+   * their usual number of things where it was, 7/2 against 10/3, so that the cut is a third however many are sold.)
+   */
+  usual: { crop: 30, fish: 15, catch: 10, dish: 15, goods: 15, wild: 15, bug: 7 } as Partial<Record<ItemKind, number>>,
 };
 export type MarketKnobs = typeof MARKET;
 
