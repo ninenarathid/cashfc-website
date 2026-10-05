@@ -21,7 +21,7 @@ const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v139"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -614,11 +614,13 @@ try {
 
   if ((await sql(`select to_regprocedure('town.rid_pick(jsonb, bigint, double precision)') is not null as there`))[0].there) {
     section("a ladybird takes a pest with it: the plot is cured on the page at once (v126)");
-    // a moment two ladybirds are out, each at a haunt of its own (an insect is one member's): the clock put on a turn at a time until they are
+    // a moment two ladybirds are out, each at a haunt of its own (an insect is one member's): the clock put on a turn at a time until they are.
+    // (From v138 a ladybird is seldom out, and from six: so the moment is also to be one at which a plant can have a pest on it,
+    // between nine and five. A pest comes from eight and has killed its plant six hours on, so the early morning has none.)
     let haunt = null, other = null;
-    for (let i = 0; i < 400 && haunt === null; i++) {
-      const out = await sql(`select i from generate_series(0, jsonb_array_length(town.cat('insects')->'haunts') - 1) i where town.bug_at(i, town.now_ms())->>'bug' = 'ladybird' order by i limit 2`);
-      if (out.length === 2) { haunt = out[0].i; other = out[1].i; } else await skip(10 * 60000);
+    for (let i = 0; i < 3000 && haunt === null; i++) {
+      const out = await sql(`select i, town.hour_at(town.now_ms()) as hour from generate_series(0, jsonb_array_length(town.cat('insects')->'haunts') - 1) i where town.bug_at(i, town.now_ms())->>'bug' = 'ladybird' order by i limit 2`);
+      if (out.length === 2 && out[0].hour >= 9 && out[0].hour < 17) { haunt = out[0].i; other = out[1].i; } else await skip(10 * 60000);
     }
     ok("(two ladybirds are out somewhere, to try it with)", haunt !== null);
     if (haunt !== null) {
@@ -676,6 +678,9 @@ try {
     // (the wait before one comes back made two seconds here, so that the pages' own asking again is seen)
     await sql(`update public.town_catalog set data = jsonb_set(data, '{comeback,after}', '2') where key = 'insects'`);
     await sql(`delete from public.town_comebacks`);
+    // (and nothing caught so far counts against any kind: from v139 a kind that has been caught comes back a little
+    // less often, and here one is to come back for certain)
+    await sql(`delete from public.town_deeds where what = 'net'`);
     for (const who of [a, b]) {
       await purse(who, 0, [{ item: "bugNet", n: 1 }]);
       await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'bugNet', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who]);
@@ -716,6 +721,32 @@ try {
     }
     stopA(); stopB();
     await sql(`update public.town_catalog set data = jsonb_set(data, '{comeback,after}', '30') where key = 'insects'`);
+  }
+
+  if ((await sql(`select to_regprocedure('town.plenty(text, bigint, jsonb)') is not null as there`))[0].there) {
+    section("hunted, a kind is gone from the page's map by its haunts' next turns, and back a day on (v139)");
+    await sql(`delete from public.town_deeds where what = 'net'`);
+    await sql(`delete from public.town_takes where what = 'haunt'; delete from public.town_comebacks`);
+    const stopA = A.look("bugs");
+    const looked = async () => { A.nudged("bugs"); await sleep(400); return A.bugs(); };
+    // a moment a dozen insects are out: the clock put on a turn at a time until they are
+    let first = await looked();
+    for (let i = 0; i < 200 && first.length < 12; i++) { await skip(10 * 60000); first = await looked(); }
+    ok("(a dozen insects are out, to try it with)", first.length >= 12, first.length);
+    const kinds = [...new Set(first.map((s) => s.bug))];
+    // every kind that is out, caught beyond counting at this moment
+    await sql(`insert into public.town_deeds (member_id, at, what, thing, n) select $1, to_timestamp(town.now_ms() / 1000.0), 'net', k, 1000000 from unnest($2::text[]) k`, [a, kinds]);
+    const during = await looked();
+    ok("caught this moment, they are on the page still: a turn is as it began", first.every((s) => during.some((x) => x.id === s.id && x.bug === s.bug && x.turn === s.turn)), { first: first.length, during: during.length });
+    await skip(61 * 60000);
+    const hourOn = await looked();
+    ok("an hour on, the page has none of those kinds", !hourOn.some((s) => kinds.includes(s.bug)), hourOn.filter((s) => kinds.includes(s.bug)).slice(0, 4));
+    await skip(24 * 60 * 60000);
+    let back = await looked();
+    for (let i = 0; i < 12 && !back.some((s) => kinds.includes(s.bug)); i++) { await skip(60 * 60000); back = await looked(); }
+    ok("a day on, they are on the page again", back.some((s) => kinds.includes(s.bug)), back.length);
+    stopA();
+    await sql(`delete from public.town_deeds where what = 'net' and n = 1000000`);
   }
 
   if ((await sql(`select to_regprocedure('public.town_ditch(integer, integer)') is not null as there`))[0].there) {

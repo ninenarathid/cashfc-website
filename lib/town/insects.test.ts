@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
-  BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, aimOf, bugTurn, bugTurnStart, comeback, hereAt, mayNet, missed, nearHaunt, net, newMind, poseOf, ringOf, swarmAt,
-  swarms, swingMs, taken, think, type BugId, type Comeback, type Haunt, type Mind, type Person, type Swarm, pestToRid, fledBy,
+  BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE, UNHUNTED, aimOf, bugTurn, bugTurnStart, comeback, hereAt, mayNet, missed, nearHaunt, net, newMind, plentyOf, poseOf, ringOf, swarmAt,
+  swarms, swingMs, taken, think, type BugId, type Comeback, type Haunt, type Hunt, type Mind, type Person, type Swarm, pestToRid, fledBy,
 } from "./insects";
 import { BAITS, BAIT_AS, FISH, FISH_IDS, ITEMS, MAKES, type ItemId } from "./items";
 import { BASIC } from "./orders";
@@ -644,5 +644,116 @@ describe("an insect caught (the owner: \"เมื่อจับแมลงแ
     expect(backs.length).toBeLessThan(HAUNTS.filter((h) => h.place === "town").length);
     expect(comeback(WORD, from, NOON, DRY, backs, [0.5, 0.5, 0.5])).toBeNull();
     expect(new Set(backs.map((b) => b.haunt)).size).toBe(backs.length);
+  });
+});
+
+describe("an insect that is hunted (the owner: \"adapt ไปกับทุกแมลงเลย ยิ่งโดนจับเยอะ ยิ่งหายาก พอเวลาผ่านไปนานพอ (1วัน) ค่อยกลับมาปกติ\")", () => {
+  const WORD = "a hunted word", DAYMS = 24 * HOUR;
+  /** So many of a kind caught at a moment, one at a time. */
+  const caught = (bug: BugId, n: number, at: number): Hunt[] => Array.from({ length: n }, () => ({ bug, at, n: 1 }));
+  /** What every haunt has in each of its turns over so many hours from a moment: "haunt:turn" to the insect. */
+  const outOverHours = (from: number, hours: number, hunts: readonly Hunt[]) => {
+    const out = new Map<string, BugId>();
+    for (const h of HAUNTS) {
+      const every = HAUNT_KINDS[h.kind].every * MINUTE;
+      for (let t = from; t < from + hours * HOUR; t += every) { const s = swarmAt(WORD, h, t, DRY, hunts); if (s) out.set(`${h.id}:${s.turn}`, s.bug); }
+    }
+    return out;
+  };
+  const count = (out: Map<string, BugId>, bug: BugId) => [...out.values()].filter((b) => b === bug).length;
+
+  it("is as plentiful as ever while nobody catches it, half as plentiful with twenty just caught, a third with forty", () => {
+    expect(SCARCE).toEqual({ day: 24, half: 20 });
+    expect(plentyOf(UNHUNTED, "dragonfly", NOON)).toBe(1);
+    expect(plentyOf(caught("dragonfly", 20, NOON - 1), "dragonfly", NOON)).toBeCloseTo(1 / 2, 6);
+    expect(plentyOf(caught("dragonfly", 40, NOON - 1), "dragonfly", NOON)).toBeCloseTo(1 / 3, 6);
+    expect(plentyOf(caught("dragonfly", 60, NOON - 1), "dragonfly", NOON)).toBeCloseTo(1 / 4, 6);
+    // one caught makes little of it; a catch of two counts as two
+    expect(plentyOf(caught("dragonfly", 1, NOON - 1), "dragonfly", NOON)).toBeCloseTo(20 / 21, 6);
+    expect(plentyOf([{ bug: "cricket", at: NOON - 1, n: 2 }], "cricket", NOON)).toBeCloseTo(20 / 22, 6);
+    // it is its own kind's: whatever else is caught, a kind nobody catches is as it was
+    expect(plentyOf(caught("dragonfly", 200, NOON - 1), "ladybird", NOON)).toBe(1);
+    for (const id of BUG_IDS) expect(plentyOf(caught(id, 5, NOON - HOUR), id, NOON), id).toBeLessThan(1);
+  });
+
+  it("comes back as the hours go by: a catch counts for less with each, and a day on for nothing", () => {
+    const forty = caught("cicada", 40, NOON);
+    let last = 0;
+    for (let h = 1; h <= 24; h++) {
+      const p = plentyOf(forty, "cicada", NOON + h * HOUR);
+      expect(p, `${h} h on`).toBeGreaterThan(last);
+      last = p;
+    }
+    // forty caught: a third at once, half when half the day is gone, itself again when the day is
+    expect(plentyOf(forty, "cicada", NOON + 1)).toBeCloseTo(1 / 3, 4);
+    expect(plentyOf(forty, "cicada", NOON + 12 * HOUR)).toBeCloseTo(1 / 2, 6);
+    expect(plentyOf(forty, "cicada", NOON + DAYMS)).toBe(1);
+    expect(plentyOf(forty, "cicada", NOON + 3 * DAYMS)).toBe(1);
+    // what is caught later than a moment says nothing of that moment
+    expect(plentyOf(forty, "cicada", NOON)).toBe(1);
+    expect(plentyOf(forty, "cicada", NOON - HOUR)).toBe(1);
+  });
+
+  it("is out less often, by as much; and nothing takes its place, nor is any other kind touched", () => {
+    // (six in the morning in Bangkok, and sixty caught the moment before: a dragonfly is out until seven in the evening)
+    const from = Date.UTC(2026, 9, 6, 23), before = outOverHours(from, 24, UNHUNTED);
+    const hunts = caught("dragonfly", 60, from - 1), after = outOverHours(from, 24, hunts);
+    const was = count(before, "dragonfly"), is = count(after, "dragonfly");
+    expect(was).toBeGreaterThan(200);
+    // a quarter of them at six, two in five by the evening: about a third over its day
+    expect(is / was).toBeGreaterThan(0.25);
+    expect(is / was).toBeLessThan(0.42);
+    for (const [key, bug] of before) {
+      // every haunt and turn that had another insect has it still; one that had a dragonfly has it or has nothing
+      if (bug !== "dragonfly") expect(after.get(key), key).toBe(bug);
+      else expect([undefined, "dragonfly"], key).toContain(after.get(key));
+    }
+    // and nothing is out that was not: a haunt that had none has none
+    for (const key of after.keys()) expect(before.has(key), key).toBe(true);
+    // a day after the last of them was caught, every haunt has what it would have had
+    expect(outOverHours(from + DAYMS, 24, hunts)).toEqual(outOverHours(from + DAYMS, 24, UNHUNTED));
+  });
+
+  it("is decided as a turn begins: what is caught during a turn changes nothing of that turn, for anybody", () => {
+    // a haunt with an insect of its own now, and enough of that kind caught a moment ago to have made it scarce
+    const h = HAUNTS.find((x) => !!swarmAt(WORD, x, NOON))!, has = swarmAt(WORD, h, NOON)!, start = bugTurnStart(h, has.turn), every = HAUNT_KINDS[h.kind].every * MINUTE;
+    const during = caught(has.bug, 4000, start), justBefore = caught(has.bug, 4000, start - 1);
+    for (const t of [start, start + 1, start + every - 1]) expect(swarmAt(WORD, h, t, DRY, during)).toEqual(has);
+    // caught before the turn began, so many leave none of it (one chance in two hundred: this roll is not it)
+    expect(swarmAt(WORD, h, NOON, DRY, justBefore)).toBeNull();
+    // and the turns after it are as scarce as that, until the day is gone
+    let out = 0;
+    for (let i = 1; i <= 40; i++) if (swarmAt(WORD, h, start + i * every, DRY, during)?.bug === has.bug) out++;
+    expect(out).toBeLessThanOrEqual(2);
+  });
+
+  it("comes back less often after a catch, too: one that is scarce mostly does not, and no other comes in its stead", () => {
+    const from = HAUNTS.find((h) => h.place === "town" && !!swarmAt(WORD, h, NOON))!;
+    const tries = 400, r = (i: number): [number, number, number] => [((i * 0.6180339887) % 1), ((i * 0.7548776662) % 1), 0];
+    const plain = Array.from({ length: tries }, (_, i) => comeback(WORD, from, NOON, DRY, [], r(i)));
+    expect(plain.every((b) => !!b)).toBe(true);
+    // every kind that may come back there, hunted to a quarter of itself
+    const kinds = [...new Set(plain.map((b) => b!.bug))], hunts = kinds.flatMap((bug) => caught(bug, 60, NOON - 1));
+    const hunted = Array.from({ length: tries }, (_, i) => comeback(WORD, from, NOON, DRY, [], r(i), hunts));
+    const back = hunted.filter((b) => !!b).length;
+    expect(back / tries).toBeGreaterThan(0.15);
+    expect(back / tries).toBeLessThan(0.36);
+    // what does come back is what would have, where it would have: the same haunt, the same insect
+    hunted.forEach((b, i) => { if (b) expect(b).toEqual(plain[i]); });
+    // a kind nobody catches comes back as ever, whatever else is hunted
+    const others = caught("herculesBeetle", 500, NOON - 1);
+    expect(Array.from({ length: tries }, (_, i) => comeback(WORD, from, NOON, DRY, [], r(i), others))).toEqual(plain);
+  });
+
+  it("says nothing new to whoever asks with nothing caught: every haunt has what it had, and what is seen is the same", () => {
+    const none = () => ({ n: 0, mine: false });
+    for (const t of [NOON, NIGHT, NOON + 7 * HOUR]) {
+      for (const h of HAUNTS) expect(swarmAt(WORD, h, t, DRY, UNHUNTED)).toEqual(swarmAt(WORD, h, t));
+      expect(swarms(WORD, t, DRY, none, [], UNHUNTED)).toEqual(swarms(WORD, t, DRY, none));
+      // what is seen is thinned with what is hunted: fewer haunts, and none that was not seen
+      const all = swarms(WORD, t, DRY, none), few = swarms(WORD, t, DRY, none, [], BUG_IDS.flatMap((id) => caught(id, 100, t - 2 * HOUR)));
+      expect(few.length).toBeLessThan(all.length * 0.5);
+      for (const s of few) expect(all).toContainEqual(s);
+    }
   });
 });

@@ -9,7 +9,7 @@ import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
 import { HINT_IDS, HINT_PRICE } from "./hints";
-import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
+import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE } from "./insects";
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
@@ -196,7 +196,8 @@ export function catalogOf() {
      * `hours`, a `dry` sky, a `day` of its own, the full `moon`); each kind of haunt (its turn's minutes, the
      * chance of an insect, how many may catch it); the haunts themselves, by their number (kind, map, part of the
      * forest, perches); the net (how far it reaches, how far beyond that somebody may stand from a perch and still
-     * have caught what is there, how many misses are counted); what catches, and what brings a beetle down. How an
+     * have caught what is there, how many misses are counted); what catches, and what brings a beetle down; when one
+     * comes back after a catch (`comeback`), and how a kind that is hunted grows scarce (`scarce`). How an
      * insect moves, and the net's ring, are the page's: the database is told of a catch, as of any game's end.
      */
     insects: {
@@ -207,6 +208,8 @@ export function catalogOf() {
       net: { reach: NET.reach, far: NET.far, misses: NET.misses }, nets: NETS, lures: LURES,
       // an insect caught comes back at another haunt of its map: how many seconds after, and how many its turn there must have left
       comeback: { after: COMEBACK.after, least: COMEBACK.least },
+      // hunted, a kind grows scarce: the hours a catch counts against it for, less with each, and how many counting halve it
+      scarce: { day: SCARCE.day, half: SCARCE.half },
     },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
     well: { ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed },
@@ -316,8 +319,13 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v138 (ran 2026-10-05, 16:45) wrote one over, for what he asked of the ladybird that afternoon, with the village running after them: few of
  * them, and on every map (insects: the ladybird's `weight`, 6 for 60; no `places`; the others' `hours` and `dry` sky,
  * so that it is never the only insect of a haunt).
+ *
+ * v139 writes it over again, for what he asked of every insect the same afternoon: the more of a kind are caught the
+ * scarcer it is, and a day on it is as it was (insects: `scarce`, new).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v139: { keys: [], over: ["insects"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { FARMING, HOES, pestAt, see, type Plant, type Plot } from "./farm";
 import { KINDS, SPOTS, gather, holds, turnStart, type Held } from "./forest";
-import { BUGS, HAUNTS, HAUNT_KINDS, LURES, bugTurnStart, net, pestToRid, swarmAt, type Swarm, COMEBACK, comeback, hereAt, type Comeback } from "./insects";
+import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, LURES, SCARCE, bugTurnStart, net, pestToRid, plentyOf, swarmAt, type BugId, type Hunt, type Swarm, COMEBACK, comeback, hereAt, type Comeback } from "./insects";
 import { CROP_IDS, type ItemId } from "./items";
 import { newPurse, put, type Purse } from "./trade";
 import { DRY, type Rain } from "./weather";
@@ -19,7 +19,7 @@ import { FARM, plotAt } from "./world";
  * The word the rolls hang on is `WORD`, and the sky is `RAINS` (quarter hours of rain, as the database keeps them):
  * the dry run sets both before it asks.
  */
-interface Vector { fn: string; args: unknown[]; want: unknown }
+interface Vector { fn: string; args: unknown[]; want: unknown; keep?: true }
 
 export const WORD = "dryrun";
 const QUARTER = 900_000, HOUR = 3_600_000, MINUTE = 60_000;
@@ -240,5 +240,102 @@ describe("the cases the database's coming back is held to", () => {
     expect(new Set(backs.filter((v) => v.want).map((v) => (v.want as Comeback).bug)).size).toBeGreaterThan(12);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v131.json`, JSON.stringify({ word: WORD, wet: WET_SLOTS, cases: all })); }
+  });
+});
+
+/**
+ * The cases an insect's scarcity is held to (v139): `plentyOf` (how much of its usual self a kind is at a moment), and
+ * `swarmAt`, `hereAt` and `comeback` again with what has been caught: three made-up days of catches (`HUNTS`), the
+ * common kinds by the score, the rare ones hardly, one morning's forty dragonflies in ten minutes, and one afternoon's
+ * six hundred white butterflies in ten (`BURST`: a kind going from plentiful to all but gone while turns are under way,
+ * which is where a turn's beginning and the moment of asking say different things).
+ *
+ *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-wild.test.ts     writes vectors-v139.json too
+ *
+ * With v125's word and sky. The catches are in the file (`hunts`: the insect, the moment, how many): the dry run
+ * writes each down as a catch is written down (a line of `town_deeds`) before it asks, and has no other.
+ */
+const BURST = at("2026-10-05T15:00:00");
+export const HUNTS: Hunt[] = (() => {
+  const c = chance(20261039), out: Hunt[] = [];
+  const many: Array<[BugId, number]> = [["dragonfly", 480], ["cicada", 150], ["ladybird", 50], ["caterpillar", 50], ["damselfly", 40], ["grasshopper", 30], ["butterflyWhite", 25], ["cricket", 40],
+    ["moth", 40], ["firefly", 25], ["rhinoBeetle", 20], ["stickInsect", 10], ["mantis", 6], ["scarab", 6], ["morpho", 3], ["leafInsect", 3], ["monarch", 2]];
+  for (const [bug, n] of many) for (let i = 0; i < n; i++) out.push({ bug, at: START - 20 * HOUR + c.int(0, 80 * 3600) * 1000 + c.int(0, 999), n: c.int(BUGS[bug].n[0], BUGS[bug].n[1]) });
+  for (let i = 0; i < 40; i++) out.push({ bug: "dragonfly", at: at("2026-10-06T09:00:00") + c.int(0, 600) * 1000, n: 1 });
+  for (let i = 0; i < 600; i++) out.push({ bug: "butterflyWhite", at: BURST + c.int(0, 600) * 1000, n: 1 });
+  return out.sort((a, b) => a.at - b.at);
+})();
+
+export function vectorsV139(): Vector[] {
+  const out: Vector[] = [], c = chance(20261139), day = SCARCE.day * HOUR;
+  // how plentiful each kind is: at moments of the three days, and on either side of a catch and of its day's end
+  const moments = [...Array.from({ length: 9 }, (_, i) => START - 2 * HOUR + i * 11 * HOUR + i * 17 * MINUTE), START + 9 * 24 * HOUR];
+  for (const bug of BUG_IDS) {
+    for (const now of moments) out.push({ fn: "plenty", args: [bug, now], want: plentyOf(HUNTS, bug, now) });
+    const one = HUNTS.find((h) => h.bug === bug);
+    if (one) for (const now of [one.at - 1, one.at, one.at + 1, one.at + day - 1, one.at + day, one.at + day + 1]) out.push({ fn: "plenty", args: [bug, now], want: plentyOf(HUNTS, bug, now) });
+  }
+  out.push({ fn: "plenty", args: ["no such insect", START], want: 1 });
+  // what every haunt has, hunted: v125's thirty moments again, and the hour after the burst ten minutes at a time
+  const hours = [...Array.from({ length: 30 }, (_, i) => START + i * 2.4 * HOUR + i * 7 * MINUTE), ...Array.from({ length: 7 }, (_, i) => at("2026-10-06T09:05:00") + i * 10 * MINUTE)];
+  for (const now of hours) for (const h of HAUNTS) out.push({ fn: "bug_at", args: [h.id, now], want: swarmAs(swarmAt(WORD, h, now, RAINS, HUNTS), h.id) });
+  // (and in the thick of the butterflies' burst, a minute at a time: these are kept by whoever takes only some of the cases)
+  for (let m = 2; m <= 12; m += 2) for (const h of HAUNTS) if (h.kind === "blooms" || h.kind === "field") {
+    const now = BURST + m * MINUTE;
+    out.push({ fn: "bug_at", args: [h.id, now], want: swarmAs(swarmAt(WORD, h, now, RAINS, HUNTS), h.id), keep: true });
+  }
+  // and an insect's coming back, hunted: v131's way of making them, with what has been caught
+  for (const first of [START + 7 * HOUR, START + 17 * HOUR, at("2026-10-06T09:20:00"), at("2026-10-06T15:30:00"), at("2026-10-06T23:10:00"), at("2026-10-07T09:40:00"), at("2026-10-07T13:00:00")]) for (let k = 0; k < 6; k++) {
+    const now = first + c.int(0, 50) * MINUTE + c.int(0, 59) * 1000;
+    const caught = HAUNTS.filter((h) => swarmAt(WORD, h, now, RAINS, HUNTS)), backs: Comeback[] = [];
+    for (let i = c.int(0, 8); i > 0 && caught.length; i--) {
+      const b = comeback(WORD, c.of(caught), now, RAINS, backs, [c.next(), c.next(), c.next()], HUNTS);
+      if (b) backs.push(b);
+    }
+    for (let i = 0; i < 10; i++) {
+      const from = c.of(c.maybe(0.8) && caught.length ? caught : HAUNTS);
+      const r: [number, number, number] = c.maybe(0.12) ? [c.of([0, 1, -0.5, 1.5]), c.of([0, 1, 0.999999, -2]), c.of([0, 1, 3])] : [c.next(), c.next(), c.next()];
+      out.push({ fn: "comeback", args: [from.id, now, backs, ...r], want: comeback(WORD, from, now, RAINS, backs, r, HUNTS) });
+    }
+    const looked = [...backs.map((b) => HAUNTS[b.haunt]), ...Array.from({ length: 10 }, () => c.of(HAUNTS))];
+    for (const h of looked) for (const t of [now, now + COMEBACK.after * 1000, now + 5 * MINUTE, now + 25 * MINUTE])
+      out.push({ fn: "bug_here", args: [h.id, t, backs], want: swarmAs(hereAt(WORD, h, t, RAINS, backs, HUNTS), h.id) });
+  }
+  return out;
+}
+
+describe("the cases the database's scarcity is held to", () => {
+  it("come out of the site's own rules: kinds as plentiful as ever and kinds down to a fifth; haunts that have lost their insect to it, and comings back that it stopped", () => {
+    const all = vectorsV139();
+    const plenty = all.filter((v) => v.fn === "plenty").map((v) => v.want as number);
+    expect(plenty.every((p) => p > 0 && p <= 1)).toBe(true);
+    expect(plenty.filter((p) => p === 1).length).toBeGreaterThan(60);
+    expect(plenty.filter((p) => p < 0.25).length).toBeGreaterThan(3);
+    expect(plenty.filter((p) => p > 0.5 && p < 1).length).toBeGreaterThan(40);
+    // a catch counts from the moment after it, and for a day
+    const one = HUNTS[0];
+    expect(plentyOf([one], one.bug, one.at)).toBe(1);
+    expect(plentyOf([one], one.bug, one.at + 1)).toBeLessThan(1);
+    expect(plentyOf([one], one.bug, one.at + SCARCE.day * HOUR)).toBe(1);
+    // of the haunts and moments asked, some hundreds have an insect that the same roll would have had with nothing caught, and many have lost theirs
+    const at_ = all.filter((v) => v.fn === "bug_at");
+    const lost = at_.filter((v) => !v.want && swarmAt(WORD, HAUNTS[v.args[0] as number], v.args[1] as number, RAINS)).length;
+    const kept = at_.filter((v) => v.want).length;
+    expect(lost).toBeGreaterThan(150);
+    expect(kept).toBeGreaterThan(400);
+    // in the burst, haunts whose turn began before it have their butterfly still, though by the moment of asking the kind is all but gone
+    const mid = BURST + 6 * MINUTE;
+    expect(plentyOf(HUNTS, "butterflyWhite", BURST)).toBeGreaterThan(0.5);
+    expect(plentyOf(HUNTS, "butterflyWhite", mid)).toBeLessThan(0.12);
+    expect(at_.filter((v) => v.keep && v.args[1] === mid && (v.want as Swarm | null)?.bug === "butterflyWhite").length).toBeGreaterThanOrEqual(2);
+    // what is out hunted is what was out anyway: never another insect, never one where there was none
+    for (const v of at_) if (v.want) expect(swarmAs(swarmAt(WORD, HAUNTS[v.args[0] as number], v.args[1] as number, RAINS), v.args[0] as number)).toEqual(v.want);
+    const backs = all.filter((v) => v.fn === "comeback"), here = all.filter((v) => v.fn === "bug_here");
+    expect(backs.filter((v) => v.want).length).toBeGreaterThan(120);
+    expect(backs.filter((v) => !v.want).length).toBeGreaterThan(60);
+    expect(here.filter((v) => (v.want as Swarm | null)?.back).length).toBeGreaterThan(30);
+    expect(here.filter((v) => v.want && !(v.want as Swarm).back).length).toBeGreaterThan(80);
+    const dir = process.env.TOWN_VECTORS;
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v139.json`, JSON.stringify({ word: WORD, wet: WET_SLOTS, hunts: HUNTS, cases: all })); }
   });
 });

@@ -4,7 +4,7 @@ import { WATER, WILD, chore, choreFor, deedFor, ownerOf, tend, type Bed, type Ch
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { hookBait, landCatch, loseBait } from "./fishing";
 import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
-import { BUGS, HAUNTS, HAUNT_KINDS, bugTurn, comeback, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Swarm, pestToRid } from "./insects";
+import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
 import { buyHint, hintPrice, hintsLeft } from "./hints";
@@ -67,6 +67,8 @@ interface KeptNote { id: number; by: string; day: number; wish: WishId; note: st
 /** The forest: the word its rolls hang on, and who has taken from which place in which turn. */
 const WILD_SALT = "cashtown.trial.wild.salt.1", WILD_TOOK = "cashtown.trial.wild.took.1";
 const BUG_TOOK = "cashtown.trial.bugs.took.1", BUG_BOOK = "cashtown.trial.bugs.book.1", BUG_BACK = "cashtown.trial.bugs.back.1";
+/** Every insect caught in this browser within the day: what the scarcity of each kind is counted from. */
+const BUG_HUNTS = "cashtown.trial.bugs.hunts.1";
 /** The well's book (lib/town/well): whose water is where, for the whole browser. */
 const WELL_LOG = "cashtown.trial.welllog.1";
 /** The thanks given (lib/town/thanks), and the jar at the well with what waits at it for each (lib/town/jar): the whole browser's. */
@@ -515,7 +517,7 @@ export class Trial {
     return { ok: true, got: did.got };
   }
   /** For scripts trying things out: the word the forest's rolls hang on, as it is told (so that what a place has can be known beforehand). */
-  setSalt(word: string) { this.set(WILD_SALT, word); this.set(WILD_TOOK, null); this.set(BUG_TOOK, null); this.set(BUG_BACK, null); this.tell(); }
+  setSalt(word: string) { this.set(WILD_SALT, word); this.set(WILD_TOOK, null); this.set(BUG_TOOK, null); this.set(BUG_BACK, null); this.set(BUG_HUNTS, null); this.tell(); }
 
   /* ── insects: what each haunt has is everybody's too, rolled from the same word ── */
   /** Who has caught each haunt's insect in which turn: by "haunt:turn". */
@@ -532,10 +534,17 @@ export class Trial {
     const now = this.now();
     return this.read<Comeback[]>(BUG_BACK, () => [], (v) => Array.isArray(v)).filter((b) => !!HAUNTS[b.haunt] && b.turn >= bugTurn(HAUNTS[b.haunt], now));
   }
+  /** What has been caught in the village within the day, which each kind grows scarce by (lib/town/insects' plentyOf). */
+  hunts(): Hunt[] {
+    const now = this.now();
+    return this.read<Hunt[]>(BUG_HUNTS, () => [], (v) => Array.isArray(v)).filter((x) => !!BUGS[x.bug] && x.at > now - SCARCE.day * 3_600_000);
+  }
+  /** For scripts trying things out: what has been caught, as if it had been (null: nothing has). */
+  setHunts(hunts: Hunt[] | null) { this.write(BUG_HUNTS, hunts ?? []); this.tell(); }
   /** What a haunt has now. */
   private swarm(h: Haunt, now: number): Swarm | null {
     const bug = this.forced.get(h.id);
-    if (!bug) return hereAt(this.salt(), h, now, SKIES.rains(), this.backs());
+    if (!bug) return hereAt(this.salt(), h, now, SKIES.rains(), this.backs(), this.hunts());
     const turn = bugTurn(h, now);
     return { turn, bug, n: BUGS[bug].n[0], seed: h.id * 100003 + turn };
   }
@@ -543,7 +552,7 @@ export class Trial {
   bugs(): BugSight[] {
     const took = this.netted(), now = this.now();
     const mine = (h: Haunt, turn: number) => { const who = took[`${h.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; };
-    const rolled = swarms(this.salt(), now, SKIES.rains(), mine, this.backs()).filter((s) => !this.forced.has(s.id));
+    const rolled = swarms(this.salt(), now, SKIES.rains(), mine, this.backs(), this.hunts()).filter((s) => !this.forced.has(s.id));
     const told = [...this.forced.keys()].flatMap((id) => {
       const h = HAUNTS[id], has = h ? this.swarm(h, now) : null, t = has ? mine(h, has.turn) : null;
       return has && t && !t.mine && t.n < HAUNT_KINDS[h.kind].shares ? [{ id, bug: has.bug, turn: has.turn, seed: has.seed }] : [];
@@ -572,13 +581,14 @@ export class Trial {
       if (rid) this.write(FARM, { ...farm, [rid]: { ...farm[rid], plant: { ...farm[rid].plant!, cured: now } } });
     }
     // caught, it is gone for everybody; and one of a haunt's own comes back somewhere else on that map a little later
+    const hunts = this.hunts();
     if (!has!.back) {
       const backs = this.backs();
       // (a haunt where something was caught this turn already has had its insect: only one a script put there can have
       // been caught where the rolls had none, and nothing comes back to such a haunt)
       let back: Comeback | null = null;
       for (let i = 0; i < 12 && !back; i++) {
-        const b = comeback(this.salt(), h, now, SKIES.rains(), backs, [Math.random(), Math.random(), Math.random()]);
+        const b = comeback(this.salt(), h, now, SKIES.rains(), backs, [Math.random(), Math.random(), Math.random()], hunts);
         if (!b) break;
         if (!took[`${b.haunt}:${b.turn}`]?.length) back = b;
       }
@@ -587,6 +597,8 @@ export class Trial {
         setTimeout(() => this.tell(), Math.max(0, back.from - now) + 60);
       }
     }
+    // and it counts against its kind from the next turn on, for a day
+    this.write(BUG_HUNTS, [...hunts, { bug: has!.bug, at: now, n: has!.n }]);
     this.save(did.purse);
     return { ok: true, got: did.got, first, rid };
   }

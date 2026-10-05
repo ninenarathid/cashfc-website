@@ -10,6 +10,8 @@
 // off some plant of the farm with it: the plant is cured, whoever sowed it, and a line over the catcher's head says
 // that one went, not where; with the chance turned off no pest goes and nothing is said. An insect caught in one tab
 // is gone from the other tab's map too, and half a minute later one is out at another haunt of that map, on both.
+// Hunted, a kind grows scarce: what is caught is kept, and with every kind caught beyond counting no haunt has an
+// insect of its own, in either tab, until what was caught is forgotten.
 // Prints PASS/FAIL lines and writes pictures to <outdir>.
 //
 //   node town-bugs.mjs <base> <outdir>
@@ -312,14 +314,17 @@ try {
   await until("another ladybird is about", () => poseOf(A, lb2), 8000, 100);
   const had = await held(A, "ladybird");
   got = false;
-  for (let i = 0; i < 12 && !got; i++) {
+  // (a tap is a swing only once the page has drawn me where I was put, which a tab behind another does slowly: one
+  // that is not taken is tried again a moment later, where it used to be tried twelve times in one breath and given up)
+  for (let i = 0; i < 40 && !got; i++) {
     // (a tired net is slow and its ring small: it is aimed where the ladybird will be when the net lands, which for
     // something that only walks the clock alone says; read and swung in one breath of the page)
     const q = await A.evaluate(`(() => { const p = ${B}.poseAt(${lb2}, ${B}.swingMs() + 20), me = ${V}.self(); if (!p) return null;
       const d = Math.hypot(p.aim.x - me.x, p.aim.y - me.y); return { x: p.x, y: p.y, d, swung: d <= 2 ? ${B}.tap(p.aim.x, p.aim.y) : false }; })()`);
     if (!q) break;
     if (q.d > 2) { const t = await standNear(A, q); await warp(A, t.x, t.y); continue; }
-    if (q.swung) await landed(A);
+    if (!q.swung) { await sleep(150); continue; }
+    await landed(A);
     got = (await held(A, "ladybird")) > had;
   }
   ok("but nothing is refused: a swing aimed where it will be still catches it", got);
@@ -345,11 +350,12 @@ try {
   await until("the ladybird to be caught is about", () => poseOf(A, one), 8000, 100);
   const had2 = await held(A, "ladybird"), before = (await A.evaluate(`${K}.backs()`)).length;
   got = false;
-  for (let i = 0; i < 12 && !got; i++) {
+  for (let i = 0; i < 40 && !got; i++) {
     const q = await poseOf(A, one), me = await A.evaluate(`${V}.self()`);
     if (!q) break;
     if (Math.hypot(q.aim.x - me.x, q.aim.y - me.y) > 2) { const t = await standNear(A, q); await warp(A, t.x, t.y); continue; }
-    if (await A.evaluate(`${B}.tap(${q.aim.x}, ${q.aim.y})`)) await landed(A);
+    if (!(await A.evaluate(`${B}.tap(${q.aim.x}, ${q.aim.y})`))) { await sleep(150); continue; }
+    await landed(A);
     got = (await held(A, "ladybird")) > had2;
   }
   ok("an insect both tabs see is caught in one", got);
@@ -372,6 +378,26 @@ try {
     await sleep(900);
     await A.shot(`${OUT}/bugs-9-come-back.png`);
   }
+  // hunted, a kind grows scarce (the rule is the unit tests' and the dry run's: here, that the trial keeps the catches and the map follows)
+  const hunts = await A.evaluate(`${K}.hunts()`);
+  ok("what this check caught since its last word is kept, each with its insect and its moment", hunts.length >= 1 && hunts.every((h) => typeof h.bug === "string" && h.at > 0 && h.n >= 1) && hunts.some((h) => h.bug === "ladybird"), hunts);
+  await A.evaluate(`${K}.unsetBugs()`);
+  await C.evaluate(`${K}.unsetBugs()`);
+  await sleep(600);
+  const rolled = async (X) => (await X.evaluate(`${K}.bugs()`)).length, plain = await rolled(A);
+  ok("(with next to nothing caught, the haunts have their insects)", plain >= 4, plain);
+  const KINDS = ["butterflyWhite", "monarch", "morpho", "dragonfly", "damselfly", "glassDragonfly", "grasshopper", "mantis", "cricket", "cicada", "stickInsect", "leafInsect", "firefly", "orchidMantis",
+    "moth", "lunaMoth", "hawkMoth", "rhinoBeetle", "stagBeetle", "jewelBeetle", "herculesBeetle", "ladybird", "scarab", "caterpillar"];
+  const t0 = await A.evaluate(`${K}.now()`);
+  await A.evaluate(`${K}.setHunts(${JSON.stringify(KINDS.map((bug) => ({ bug, at: t0 - 2 * 3600000, n: 1e9 })))})`);
+  await sleep(900);
+  // (what had come back before is there until its turn ends: it was let come back when it was, and a turn is as it began)
+  const cameBack = (await A.evaluate(`${K}.backs()`)).map((b) => b.haunt), own = async (X) => (await X.evaluate(`${K}.bugs()`)).filter((s) => !cameBack.includes(s.id)).length;
+  ok("every kind caught beyond counting two hours ago: no haunt has an insect of its own, on either tab's map", (await own(A)) === 0 && (await own(C)) === 0 && (await sights(A)).every((s) => cameBack.includes(s.id)) && (await rolled(A)) < plain,
+    { a: await own(A), c: await own(C), told: await rolled(A), cameBack });
+  await A.evaluate(`${K}.setHunts(null)`);
+  await sleep(900);
+  ok("forgotten, they are back as they were", (await rolled(A)) === plain && (await rolled(C)) >= 4, { a: await rolled(A), c: await rolled(C), plain });
   ok("no page errors", A.logs.length === 0 && C.logs.length === 0, [...A.logs, ...C.logs]);
 } catch (e) { ok("the run", false, e.stack ?? e.message); console.log(A.logs.join("\n")); } finally { A.close(); await sleep(900); }
 console.log(`\n${pass} passed, ${fail} failed`);
