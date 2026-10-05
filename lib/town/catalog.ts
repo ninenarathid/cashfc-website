@@ -7,6 +7,7 @@ import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
+import { GROUND, GROUND_MAPS } from "./ground";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
 import { JAR } from "./jar";
@@ -230,6 +231,8 @@ export function catalogOf() {
     waters: { dawn: WATERS.dawn, night: WATERS.night, lasts: WATERS.lasts, most: WATERS.most, adds: WATERS.adds, guards: WATERS.guards },
     /** The storage box in the plaza (lib/town/box): the slots a member's has for nothing, how near it one stands to use it, and the tile it stands on. */
     box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y] },
+    /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
+    ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -309,6 +312,8 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   v134: { keys: ["box"], over: [] },
+  // things dropped from the bag onto the ground (the owner, 2026-10-05): how long one lies, how near it one stands, the maps
+  v137: { keys: ["ground"], over: [] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

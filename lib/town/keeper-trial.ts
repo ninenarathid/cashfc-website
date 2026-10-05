@@ -96,6 +96,18 @@ class TrialKeeper implements Keeper {
   async takeOff(item: ItemId): Promise<Did> { return this.trial.takeOff(item); }
   async serve(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.serve(slot); }
   async drop(slot: number): Promise<Did> { this.trial.drop(slot); return { ok: true }; }
+  ground() { return this.trial.ground(); }
+  // (whoever else is in town is in another tab: told through the room, as the database's keeper tells them)
+  async groundDrop(slot: number, at: [number, number]): Promise<Did<{ id: number }>> {
+    const did = this.trial.groundDrop(slot, at);
+    if (did.ok) this.onDeed?.("ground");
+    return did;
+  }
+  async groundTake(id: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> {
+    const did = this.trial.groundTake(id, at);
+    if (did.ok) this.onDeed?.("ground");
+    return did;
+  }
 
   async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>> {
     const used = this.trial.bait(bait);

@@ -38,7 +38,9 @@ const pending = existsSync(`${repo}/supabase`) ? readdirSync(`${repo}/supabase`)
 const newest = Math.max(RAN, ...pending);
 // (by number, but for one: v130 ran after v131, and both write the catalog's `items` over, whole. The row that stands
 // is the later one's, v130's, which has the water cart: so v130 is replayed after v131, as it ran.)
-const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130);
+// (and not every number is the town's: v136 is the party finder's polls, whose tables are not here)
+const OTHERS = [136];
+const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n));
 numbers.splice(numbers.indexOf(131) + 1, 0, 130);
 for (const n of numbers) {
   let sql = null;

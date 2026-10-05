@@ -63,6 +63,11 @@ export const WHY: Record<Refusal, [th: string, en: string]> = {
   busy: ["กำลังแลกของกับคนอื่นอยู่", "In a deal with somebody else"],
   away: ["ติดต่อเมืองไม่ได้ ลองอีกครั้ง", "The town cannot be reached. Try again."],
 };
+/** Why a thing on the ground was not picked up (lib/town/ground), beyond what a bag refuses for. */
+export const WHY_GROUND: Record<string, [th: string, en: string]> = {
+  lost: ["ไม่อยู่แล้ว", "It is gone"],
+  far: ["ต้องยืนใกล้กว่านี้", "Stand nearer"],
+};
 
 /**
  * When the relatives come next, at the uncle's stall, for everybody to see (the owner, 2026-10-04: "ในลุงขายของ ช่วยทำ
@@ -121,7 +126,7 @@ export function ItemIcon({ id, size, className }: { id: ItemId; size: number; cl
  * it, and tells the map my coins, my stamina and what I am eating. It draws a
  * panel only when one is open.
  */
-export default function TownTrade({ keeper, view, th, art, seated, company, onView, onSummary, onScroll }: {
+export default function TownTrade({ keeper, view, th, art, seated, company, where, onView, onSummary, onScroll }: {
   /** Who keeps my purse. */
   keeper: Keeper;
   view: TradeView | null;
@@ -131,6 +136,8 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
   /** Whether I am sitting down (a meal is eaten sitting), and how many are eating beside me. */
   seated: boolean;
   company: number;
+  /** The tile I am on, asked when a thing is dropped on the ground or picked back up from it. */
+  where: () => [number, number] | null;
   onView: (view: TradeView | null) => void;
   onSummary: (s: TradeSummary) => void;
   /** Unroll a recipe to read: a dish's, or that of something else that is made. */
@@ -260,7 +267,15 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
                                   if (did.found) say(`ข้างในมี ${ITEMS[did.found].name.th}`, `Inside: ${ITEMS[did.found].name.en.toLowerCase()}`);
                                   else say("ข้างในไม่มีอะไร", "There is nothing in it.");
                                 }}
-                                onDrop={(slot) => tried(keeper.drop(slot), ["ทิ้งไปแล้ว", "Thrown away."])} />}
+                                dropsAll={keeper.ground() !== null}
+                                lying={<Lying keeper={keeper} th={th} where={where} say={say} />}
+                                onDrop={(slot) => {
+                                  // onto the ground where I stand, for anybody to pick up while it lies there (lib/town/ground);
+                                  // where whoever keeps the game knows of no ground, junk is thrown away, as it always was
+                                  const at = keeper.ground() ? where() : null;
+                                  if (at) tried(keeper.groundDrop(slot, at), ["วางลงพื้นแล้ว", "On the ground."]);
+                                  else tried(keeper.drop(slot), ["ทิ้งไปแล้ว", "Thrown away."]);
+                                }} />}
       </div>
 
       {/* what I carry, always in sight at the stall: buying fills it, leaving things empties it */}
@@ -533,8 +548,11 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, now, th, seated, company, recipes, book, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen }: {
+function Bag({ purse, now, th, seated, company, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen }: {
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
+  /** Whether anything can be dropped (onto the ground, where somebody may pick it up); otherwise only what is worth nothing, which is thrown away. And what I dropped that still lies there. */
+  dropsAll: boolean;
+  lying: React.ReactNode;
   /** What I know how to make: dishes, and other things. */
   recipes: ItemId[];
   /** The village's book of insects: who first caught each kind that has been caught. */
@@ -626,6 +644,7 @@ function Bag({ purse, now, th, seated, company, recipes, book, onEat, onGetUp, o
                 ))}
               </ul>
             )}
+            {lying}
             <Pockets bag={purse.bag} th={th} picked={slot} hand={hand} onPick={(i) => setPicked(i === slot || !purse.bag[i] ? null : { slot: i, item: purse.bag[i]!.item })} />
             <div className="mt-2.5 min-h-[4.25rem] rounded-xl border border-[#4a341f] bg-[#2a1e13]/80 px-2.5 py-2" aria-live="polite">
               {inHand && it ? (
@@ -674,7 +693,7 @@ function Bag({ purse, now, th, seated, company, recipes, book, onEat, onGetUp, o
                       {th ? "เปิดดู" : "Open"}
                     </button>
                   )}
-                  {!it.pays && !scroll && it.kind === "catch" && (
+                  {(dropsAll || (!it.pays && !scroll && it.kind === "catch")) && (
                     <button type="button" onClick={() => onDrop(slot!)}
                             className="pressable min-h-11 shrink-0 rounded-full border border-[#6b4a2a] px-3 text-ui text-[#f3e3c3] hover:border-chili">
                       {th ? "ทิ้ง" : "Drop"}
@@ -731,6 +750,43 @@ function Bag({ purse, now, th, seated, company, recipes, book, onEat, onGetUp, o
         </>
       )}
     </>
+  );
+}
+
+/**
+ * What I have dropped that still lies on the ground (lib/town/ground), in my bag's own panel: each with the seconds it
+ * has left there, and a tap picks it back up from where I stand. So a thing dropped by a slip of the finger is not
+ * lost for it, though the bag's panel covers the map.
+ */
+function Lying({ keeper, th, where, say }: { keeper: Keeper; th: boolean; where: () => [number, number] | null; say: (th: string, en: string) => void }) {
+  const [, setTick] = useState(0);
+  const mine = (keeper.ground() ?? []).filter((d) => d.by === keeper.id), some = mine.length > 0;
+  useEffect(() => {
+    if (!some) return;
+    const t = setInterval(() => setTick((n) => n + 1), 250);
+    return () => clearInterval(t);
+  }, [some]);
+  if (!some) return null;
+  const now = keeper.now();
+  const back = async (id: number) => {
+    const at = where();
+    if (!at) return;
+    const did = await keeper.groundTake(id, at);
+    if (did.ok) say("เก็บคืนแล้ว", "Picked back up.");
+    else say(...(WHY_GROUND[did.why] ?? WHY[did.why as Refusal] ?? WHY.none));
+  };
+  return (
+    <ul className="mb-2 flex flex-wrap gap-1.5" aria-label={th ? "ของที่วางไว้บนพื้น" : "On the ground"} data-bag-lying>
+      {mine.map((d) => (
+        <li key={d.id}>
+          <button type="button" onClick={() => void back(d.id)} data-item={d.stack.item}
+                  className="pressable flex min-h-9 items-center gap-1.5 rounded-full border border-[#6b4a2a] bg-[#33251a] pl-1.5 pr-3 text-meta text-[#f3e3c3] hover:border-gold">
+            <StackIcon stack={d.stack} size={22} />{th ? "เก็บคืน" : "Pick back up"}
+            <span aria-hidden className="font-data tabular-nums text-[#c9a877]">{Math.max(1, Math.ceil((d.until - now) / 1000))}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
   );
 }
 

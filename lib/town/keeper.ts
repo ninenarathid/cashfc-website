@@ -6,6 +6,7 @@ import type { Strike } from "./fishing";
 import type { ForestRefusal, Outcome, Sight } from "./forest";
 import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
+import type { Dropped, GroundRefusal } from "./ground";
 import { hintPrice } from "./hints";
 import type { JarTold } from "./jar";
 import { carried, type PassRefusal } from "./line";
@@ -54,10 +55,10 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -145,6 +146,15 @@ export interface Keeper {
   takeOff(item: ItemId): Promise<Did>;
   serve(slot: number): Promise<Did<{ dish: DishId }>>;
   drop(slot: number): Promise<Did>;
+  /**
+   * Things dropped on the ground (lib/town/ground): what lies about now, as last told (null until it has been, and
+   * for as long as whoever keeps the game knows of no ground: a thing can then only be thrown away, `drop`).
+   * Dropping what is in a slot of my bag where I stand, for anybody to pick up; and picking a thing up from the tile
+   * I stand on. Whoever is in town is told through the room when either is done (`ground`).
+   */
+  ground(): Dropped[] | null;
+  groundDrop(slot: number, at: [number, number]): Promise<Did<{ id: number }>>;
+  groundTake(id: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>>;
 
   /**
    * Fishing. A line is dropped from a tile with a bait: the answer is how long until the bite and when the float
@@ -277,7 +287,7 @@ export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknow
 type Answer = Record<string, unknown>;
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -286,6 +296,8 @@ const CHEW = 20_000;
 const SHUT_MS = 5 * 60_000;
 /** How often everybody's rank at the well is asked for again. */
 const RANKS_MS = 5 * 60_000;
+/** While something lies on the ground, how often it is looked at again (a thing lies ten seconds; the room's word of the next one may come seconds late). */
+const GROUND_AGAIN = 3000;
 /** How long an ended deal is still shown. */
 const ENDED_MS = 6000;
 /** The database gives a late strike this much grace (the catalog's `fishing.slack.late`), and a little for the clocks. */
@@ -339,6 +351,8 @@ export class DbKeeper implements Keeper {
   private waters_ = false;
   private water_: WellWater | null = null;
   private box_: Box | null = null;
+  /** What lies on the ground, as the database last told it: null until one that keeps a ground has said. */
+  private ground_: Dropped[] | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -380,6 +394,9 @@ export class DbKeeper implements Keeper {
     // (and whether the chest in the plaza is a storage box yet, with what I keep in it: asked once as the game begins;
     // a database without one answers nothing, and the chest is only a chest)
     if (this.read && !this.shut) void this.ask("town_box");
+    // (and whether things can be dropped on the ground, with what lies about now: asked once as the game begins; a
+    // database that keeps no ground answers nothing, and a thing is only thrown away, as it was)
+    if (this.read && !this.shut) void this.ask("town_ground");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
@@ -471,6 +488,8 @@ export class DbKeeper implements Keeper {
     if (a.line === true) this.line_ = true;
     if ("wellWater" in a) { this.waters_ = true; this.water_ = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; }
     if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
+    // (what lies on the ground; a thing this page was built before is left out: it could not be drawn)
+    if (Array.isArray(a.ground)) { this.ground_ = (a.ground as Dropped[]).filter((d) => !!d && !!d.stack && d.stack.item in ITEMS && Array.isArray(d.at)); this.groundDue(); }
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -509,6 +528,25 @@ export class DbKeeper implements Keeper {
     this.bugsTimer = setTimeout(() => { this.bugsTimer = null; this.nudged("bugs"); }, Math.min(10 * 60_000, Math.max(0, at - this.now())) + 400);
   }
 
+  /**
+   * While something lies on the ground it is asked for again every few seconds, and whoever watches is told when a
+   * thing's time runs out. With nothing lying, nothing is asked: the room's word (`nudged`) begins it.
+   */
+  private groundTimer: ReturnType<typeof setTimeout> | null = null;
+  private groundDue() {
+    if (this.groundTimer) { clearTimeout(this.groundTimer); this.groundTimer = null; }
+    const left = this.ground() ?? [];
+    if (this.shut || !left.length) return;
+    const first = Math.min(...left.map((d) => d.until)) - this.now();
+    this.groundTimer = setTimeout(() => {
+      this.groundTimer = null;
+      this.tell();
+      if (!this.ground()?.length) return;
+      // (could not be reached: what is known goes on being counted down)
+      void this.ask("town_ground").then((a) => { if (!a) this.groundDue(); });
+    }, Math.max(50, Math.min(GROUND_AGAIN, first + 50)));
+  }
+
   /* ── what others change ── */
   look(what: Looked): () => void {
     const l = this.looking.get(what) ?? { n: 0, timer: null };
@@ -523,6 +561,8 @@ export class DbKeeper implements Keeper {
   nudged(what: Looked) {
     // (somebody handed me water: it is in my purse, which is read again)
     if (what === "line") { void this.ask("town_me"); return; }
+    // (somebody dropped a thing, or picked one up: asked for, wherever I am in town; not of a database with no ground)
+    if (what === "ground") { if (this.ground_) void this.ask("town_ground"); return; }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
     if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
     if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what);
@@ -539,6 +579,7 @@ export class DbKeeper implements Keeper {
       : what === "wild" ? this.ask("town_wild")
       : what === "bugs" ? this.ask("town_bugs")
       : what === "line" ? this.ask("town_me")
+      : what === "ground" ? this.ask("town_ground")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -670,6 +711,20 @@ export class DbKeeper implements Keeper {
   takeOff(item: ItemId) { return this.deed("town_take_off", { p_item: item }); }
   serve(slot: number) { return this.deed<{ dish: DishId }>("town_serve", { p_slot: slot }); }
   drop(slot: number) { return this.deed("town_drop", { p_slot: slot }); }
+  ground(): Dropped[] | null { if (!this.ground_) return null; const now = this.now(); return this.ground_.filter((d) => d.until > now); }
+  async groundDrop(slot: number, at: [number, number]): Promise<Did<{ id: number }>> {
+    const did = await this.deed<{ id: number }>("town_ground_drop", { p_slot: slot, p_x: at[0], p_y: at[1] });
+    // (it lies there for anybody: the room is told, and everybody in town looks)
+    if (did.ok) this.onDeed?.("ground");
+    return did;
+  }
+  async groundTake(id: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> {
+    const did = await this.deed<{ item: ItemId; n: number }>("town_ground_take", { p_id: id, p_x: at[0], p_y: at[1] });
+    // (picked up, or not there any more: either way it lies there no longer)
+    if ((did.ok || did.why === "lost") && this.ground_) { this.ground_ = this.ground_.filter((d) => d.id !== id); this.tell(); }
+    if (did.ok) this.onDeed?.("ground");
+    return did;
+  }
 
   async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>> {
     const sent = Date.now(), a = await this.ask("town_cast", { p_bait: bait, p_x: place.tile[0], p_y: place.tile[1], p_rain: rain });
@@ -868,6 +923,7 @@ export class DbKeeper implements Keeper {
     this.looking.clear();
     if (this.mealEnd) clearTimeout(this.mealEnd);
     if (this.bugsTimer) clearTimeout(this.bugsTimer);
+    if (this.groundTimer) clearTimeout(this.groundTimer);
     if (this.retry) clearTimeout(this.retry);
     if (this.ranksAgain) clearInterval(this.ranksAgain);
     this.heard.clear();

@@ -6,6 +6,7 @@ import { hookBait, landCatch, loseBait } from "./fishing";
 import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { BUGS, HAUNTS, HAUNT_KINDS, bugTurn, comeback, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
+import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
 import { buyHint, hintPrice, hintsLeft } from "./hints";
 import * as Notices from "./notices";
 import { MARKET, counted, factorOf, factsOf, newMarket, pricesTold, rolled, type Logged, type Market, type PricesTold } from "./market";
@@ -72,6 +73,8 @@ const WELL_LOG = "cashtown.trial.welllog.1";
 const THANKS = "cashtown.trial.thanks.1", JAR = "cashtown.trial.jar.1";
 /** The bucketfuls in the cooking yard's water jar (lib/town/yard): the whole browser's. */
 const YARD_JAR = "cashtown.trial.yardjar.1";
+/** What lies on the ground (lib/town/ground): the whole browser's, so that one tester picks up what another dropped. */
+const GROUND_AT = "cashtown.trial.ground.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -847,6 +850,24 @@ export class Trial {
   tally(): Tally {
     return this.read<Tally>(tallyKey(this.id), newTally, (v) => { const t = v as Partial<Tally> | null; return !!t && !!t.games && !!t.fishing?.caught && !!t.fishing.places; });
   }
+  /* ── things dropped on the ground: the whole browser's, like the farm ── */
+  /** What lies about now. */
+  ground(): Dropped[] { return lying(this.read<Dropped[]>(GROUND_AT, () => [], Array.isArray), this.now()); }
+  /** Drop what is in a slot of my bag where I stand, for anybody to pick up while it lies. */
+  groundDrop(slot: number, at: [number, number]): Done<{ id: number }> {
+    // (a number of its own: the moment, and a little chance for two dropped in the same one)
+    const did = dropDown(this.purse(), slot, this.id, at, this.now(), this.now() * 100 + Math.floor(Math.random() * 100));
+    if (!did.ok) return did;
+    this.write(GROUND_AT, [...this.ground(), did.dropped]);
+    this.save(did.purse);
+    return { ok: true, id: did.dropped.id };
+  }
+  /** Pick a thing up from the ground, from the tile I stand on. */
+  groundTake(id: number, at: [number, number]) {
+    const all = this.ground(), did = pickUp(this.purse(), all.find((d) => d.id === id), at, this.now());
+    if (did.ok) { this.write(GROUND_AT, all.filter((d) => d.id !== id)); this.save(did.purse); }
+    return did;
+  }
   /** Throw away what is in a slot (to make room). */
   drop(slot: number) { const p = this.purse(); this.save({ ...p, bag: p.bag.map((b, i) => (i === slot ? null : b)) }); }
   /** For scripts trying things out: put something in the bag, as much of it as fits, and coins in the purse. */
@@ -893,7 +914,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), boxKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

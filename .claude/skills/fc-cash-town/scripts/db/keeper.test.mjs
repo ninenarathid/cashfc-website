@@ -21,7 +21,7 @@ const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v134"];
+const NEXT = ["v134", "v137"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -916,6 +916,52 @@ try {
     const lines = await sql(`select what, thing, n::int as n from public.town_deeds where member_id = $1 and what like 'box\\_%' order by id`, [a]);
     ok("each deed that came off is written down, and the refusals are not", JSON.stringify(lines) === JSON.stringify([{ what: "box_put", thing: "minnow", n: 5 }, { what: "box_put", thing: "can", n: 1 }, { what: "box_take", thing: "minnow", n: 2 }]), lines);
     M.close(); N.close(); page.close();
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_ground()') is not null as there`))[0].there) {
+    section("things dropped on the ground: lying for everybody, picked up by the first, gone in ten seconds (v137)");
+    await sql(`truncate public.town_ground restart identity`);
+    await purse(a, 0, [{ item: "minnow", n: 9 }, { item: "can", n: 1, water: 4 }]);
+    await purse(b, 0, []);
+    const from = asked.length;
+    const M = new DbKeeper(a, askAs("A")), N = new DbKeeper(b, askAs("B"));
+    const said = [];
+    M.onDeed = (what) => { said.push(`A ${what}`); };
+    N.onDeed = (what) => { said.push(`B ${what}`); };
+    await settled(M); await settled(N);
+    await sleep(300);
+    ok("asked for once as the game begins: nothing lies about", asked.slice(from).filter((x) => x === "A town_ground").length === 1 && Array.isArray(M.ground()) && M.ground().length === 0 && N.ground().length === 0, M.ground());
+    let did = await M.groundDrop(slotOf(M, "minnow"), [30, 40]);
+    ok("nine minnows dropped: out of my bag, lying for me at once, and the room is told", did.ok && typeof did.id === "number" && slotOf(M, "minnow") < 0
+      && M.ground().length === 1 && M.ground()[0].stack.n === 9 && M.ground()[0].by === a && said.join() === "A ground", { did, ground: M.ground(), said });
+    ok("…asked with the slot and the tile stood on", JSON.stringify(sent.filter((x) => x.fn === "town_ground_drop").at(-1)?.args) === JSON.stringify({ p_slot: 0, p_x: 30, p_y: 40 }), sent.at(-1));
+    ok("the other's keeper knows nothing of it yet", N.ground().length === 0);
+    // (the room's word, as the map would hand it on)
+    N.nudged("ground");
+    await settled(N);
+    ok("told through the room, it asks, and has it: what, how many, where, and until when", N.ground().length === 1 && N.ground()[0].id === did.id && N.ground()[0].stack.item === "minnow"
+      && N.ground()[0].at.join() === "30,40" && Math.abs(N.ground()[0].until - N.now() - 10000) < 3000, N.ground());
+    const far = await N.groundTake(did.id, [35, 40]);
+    ok("from five tiles off it is refused, and lies on", !far.ok && far.why === "far" && N.ground().length === 1, far);
+    const got = await N.groundTake(did.id, [31, 41]);
+    ok("picked up from beside it: in the other's bag, gone from what lies, and the room is told", got.ok && got.item === "minnow" && got.n === 9 && N.purse().bag[0]?.n === 9 && N.ground().length === 0
+      && said.join() === "A ground,B ground", { got, said });
+    M.nudged("ground");
+    await settled(M);
+    const late = await M.groundTake(did.id, [30, 40]);
+    ok("the dropper is told it is gone, and asking for it says so", M.ground().length === 0 && !late.ok && late.why === "lost", late);
+    did = await M.groundDrop(slotOf(M, "can"), [30, 40]);
+    N.nudged("ground");
+    await settled(N);
+    ok("a can dropped lies with its water", did.ok && N.ground()[0]?.stack.water === 4, N.ground());
+    await skip(10_500);
+    await settled(M); await settled(N);
+    ok("ten seconds on, by the keepers' own clocks, nothing lies for either", M.ground().length === 0 && N.ground().length === 0, [M.ground(), N.ground()]);
+    const none = await N.groundTake(did.id, [30, 40]);
+    ok("…and nobody picks it up: it is lost", !none.ok && none.why === "lost" && slotOf(M, "can") < 0 && slotOf(N, "can") < 0, none);
+    const lines = await sql(`select what, thing, n::int as n from public.town_deeds where what like 'ground\\_%' order by id`);
+    ok("each deed is written down: two drops, and the one picking up", JSON.stringify(lines) === JSON.stringify([{ what: "ground_drop", thing: "minnow", n: 9 }, { what: "ground_take", thing: "minnow", n: 9 }, { what: "ground_drop", thing: "can", n: 1 }]), lines);
+    M.close(); N.close();
   }
 
   section("one thing at a time");

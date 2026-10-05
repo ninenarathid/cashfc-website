@@ -40,6 +40,7 @@ import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { FarmDraw } from "./TownFarm";
+import type { GroundTap } from "./TownGround";
 import type { Standing } from "./TownCook";
 import type { Stander } from "./TownLine";
 import type { OpenDeal } from "./TownDeal";
@@ -100,6 +101,7 @@ const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
 const TownWell = lazy(() => import("./TownWell"));
 const TownBox = lazy(() => import("./TownBox"));
+const TownGround = lazy(() => import("./TownGround"));
 const TownThanks = lazy(() => import("./TownThanks"));
 const TownLine = lazy(() => import("./TownLine"));
 const TownCook = lazy(() => import("./TownCook"));
@@ -107,7 +109,7 @@ const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line"];
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
@@ -636,6 +638,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec) => boolean) | null>(null);
   const registerBugs = useCallback((draw: FarmDraw | null) => { bugsDraw.current = draw; }, []);
   const registerBugsTap = useCallback((tap: ((at: Vec) => boolean) | null) => { bugsTap.current = tap; }, []);
+  /** Things dropped on the ground (lib/town/ground): their own way of drawing what lies about, and of saying whether a tap was on one of them. */
+  const groundDraw = useRef<FarmDraw | null>(null), groundTap = useRef<GroundTap | null>(null);
+  const registerGround = useCallback((draw: FarmDraw | null) => { groundDraw.current = draw; }, []);
+  const registerGroundTap = useCallback((tap: GroundTap | null) => { groundTap.current = tap; }, []);
+  /** The tile I am on, walking or not: where a thing I drop comes to lie. */
+  const whereAmI = useCallback((): [number, number] | null => { const a = sessionRef.current?.self; return a ? [Math.floor(a.pos.x), Math.floor(a.pos.y)] : null; }, []);
   /** The test window (the owner's, in the trial): every thing there is, to look at and to conjure. */
   const [testOpen, setTestOpen] = useState(false);
   /** How many are eating beside me (sitting within a few tiles, a dish before them), and whether it is raining: told to the page when they change. */
@@ -1844,6 +1852,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       bugsDraw.current?.(frame);
       // the pots of food that stand about, wherever they were set down
       cookDraw.current?.(frame);
+      // what has been dropped on the ground, on whichever map
+      groundDraw.current?.(frame);
     }
     if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
@@ -2575,7 +2585,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     setHistoryOpen(false);
     boxWant.current = false;
     const who = personAt(x, y);
-    if (who) { setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return; }
+    // (a thing lying at somebody's feet is drawn over them: a tap on it is for the thing, not for who stands there)
+    const atFeet = !!who && gameRef.current && !!groundTap.current?.(x, y, true);
+    if (who && !atFeet) { setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return; }
     setCard(null);
     const b = buildingAt(x, y);
     if (b) { setPopover({ b, x, y }); return; }
@@ -2603,9 +2615,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const v = cam.current, iso = toIsoPoint(v, x, y, v.cw, v.ch);
       if (bugsTap.current(fromIso(iso.x, iso.y))) return;
     }
+    // a thing lying on the ground: picked up if I stand by it, walked to and picked up otherwise. (Asked after the
+    // net: an insect is drawn over whatever lies under it, and a swing aimed at one is not to turn into something else.)
+    if (gameRef.current && groundTap.current) {
+      const thing = groundTap.current(x, y);
+      if (thing) { if (thing.walk && sessionRef.current?.walkTo(thing.walk)) cam.current.follow = true; return; }
+    }
     // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
-    // chest). Asked after the net: an insect over the chest's picture is the net's, and a swing aimed at one is not to
-    // turn into something else.
+    // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
     if (gameRef.current && sb && x >= sb.x0 && x <= sb.x1 && y >= sb.y0 && y <= sb.y1 && openBox()) return;
     const t = tileAt(x, y);
@@ -3451,6 +3468,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                    bottom={phone && tabbar ? "calc(8.25rem + env(safe-area-inset-bottom))" : "4.25rem"} art={boardArt} sfx={sfxRef.current} onShown={onBoxShown} />
         </Suspense>
       )}
+      {/* Things dropped on the ground: drawn where they lie, and offered to whoever stands by one */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownGround keeper={keeper} th={w.th} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? standing?.tile ?? null : null}
+                      bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} register={registerGround} registerTap={registerGroundTap} />
+        </Suspense>
+      )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}
       {s && game && keeper && (
         <Suspense fallback={null}>
@@ -3487,7 +3511,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
           <Suspense fallback={null}>
-            <TownTrade keeper={keeper} view={trade} th={w.th} art={boardArt} seated={(s.self.info.sit ?? -1) !== -1} company={company}
+            <TownTrade keeper={keeper} view={trade} th={w.th} art={boardArt} seated={(s.self.info.sit ?? -1) !== -1} company={company} where={whereAmI}
                        onView={setTrade} onSummary={setPurse} onScroll={setScroll} />
           </Suspense>
         </div>

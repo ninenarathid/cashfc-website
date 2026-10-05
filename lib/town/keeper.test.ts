@@ -40,9 +40,9 @@ describe("the database's keeper", () => {
     expect(k.open()).toBeNull();
     await settle();
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
-    // whether the chest in the plaza is a storage box, with what I keep in it; and everybody's rank at the well, for
-    // the names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_well_ranks"]);
+    // whether the chest in the plaza is a storage box, with what I keep in it; whether things can be dropped on the
+    // ground, with what lies about; and everybody's rank at the well, for the names over heads)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_well_ranks"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -68,14 +68,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_well_ranks"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_well_ranks"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(7);
+    expect(db.asked).toHaveLength(8);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -402,7 +402,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_ground" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);
@@ -451,6 +451,80 @@ describe("the database's keeper", () => {
     await settle();
     expect(await none).toEqual({ ok: false, why: "away" });
     expect(o.box()).toBeNull();
+    o.close();
+  });
+
+  it("keeps what lies on the ground as it is told of it, looks again while something lies, and asks when the room says so", async () => {
+    let lying: unknown[] = [{ id: 7, by: "them", stack: { item: "minnow", n: 3 }, at: [30, 40], until: NOW + 10_000 }];
+    const sent: Array<Record<string, unknown>> = [], told: string[] = [];
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_ground: () => ({ now: Date.now(), ground: lying }),
+      town_ground_drop: (a) => { sent.push(a); lying = [...lying, { id: 8, by: "me", stack: { item: "rod", n: 1 }, at: [31, 40], until: Date.now() + 10_000 }]; return { ok: true, id: 8, now: Date.now(), purse: purse({ coins: 1 }), ground: lying }; },
+      town_ground_take: (a) => { sent.push(a); lying = lying.filter((d) => (d as { id: number }).id !== a.p_id); return a.p_id === 7 ? { ok: true, item: "minnow", n: 3, now: Date.now(), purse: purse({ coins: 2 }), ground: lying } : { ok: false, why: "lost", now: Date.now(), purse: purse({ coins: 2 }), ground: lying }; },
+    });
+    const k = new DbKeeper("me", db.ask);
+    k.onDeed = (what) => { told.push(what); };
+    expect(k.ground()).toBeNull();
+    await settle();
+    // asked for once as the game begins: what lies about is known without anybody saying so
+    expect(k.ground()).toHaveLength(1);
+    expect(k.ground()![0]).toMatchObject({ id: 7, stack: { item: "minnow", n: 3 }, at: [30, 40] });
+    // while something lies it is looked at again every few seconds, by itself
+    const before = db.asked.filter((f) => f === "town_ground").length;
+    await vi.advanceTimersByTimeAsync(3100);
+    await settle();
+    expect(db.asked.filter((f) => f === "town_ground").length).toBe(before + 1);
+    // dropping: the slot and the tile I stand on; the room is told
+    const drop = k.groundDrop(2, [31, 40]);
+    await settle();
+    expect(await drop).toMatchObject({ ok: true, id: 8 });
+    expect(sent[0]).toEqual({ p_slot: 2, p_x: 31, p_y: 40 });
+    expect(told).toEqual(["ground"]);
+    expect(k.ground()!.map((d) => d.id)).toEqual([7, 8]);
+    expect(k.purse().coins).toBe(1);
+    // picking up: which, and the tile; it lies there no longer, and the room is told again
+    const take = k.groundTake(7, [30, 41]);
+    await settle();
+    expect(await take).toMatchObject({ ok: true, item: "minnow", n: 3 });
+    expect(sent[1]).toEqual({ p_id: 7, p_x: 30, p_y: 41 });
+    expect(told).toEqual(["ground", "ground"]);
+    expect(k.ground()!.map((d) => d.id)).toEqual([8]);
+    // one that is not there any more is taken off what is known, and nobody is told
+    const late = k.groundTake(99, [30, 41]);
+    await settle();
+    expect(await late).toEqual({ ok: false, why: "lost" });
+    expect(told).toHaveLength(2);
+    // a thing's time runs out: it is no longer among what lies, with nothing asked for that
+    lying = [];
+    await vi.advanceTimersByTimeAsync(11_000);
+    await settle();
+    expect(k.ground()).toEqual([]);
+    // with nothing lying nothing is asked, until the room says something was dropped
+    const quiet = db.asked.filter((f) => f === "town_ground").length;
+    await vi.advanceTimersByTimeAsync(60_000);
+    await settle();
+    expect(db.asked.filter((f) => f === "town_ground").length).toBe(quiet);
+    lying = [{ id: 9, by: "them", stack: { item: "kangkong", n: 5 }, at: [20, 20], until: Date.now() + 10_000 }];
+    k.nudged("ground");
+    await settle();
+    expect(k.ground()!.map((d) => d.id)).toEqual([9]);
+    // (a thing this page was built before is left out: it could not be drawn)
+    lying = [{ id: 10, by: "them", stack: { item: "somethingNew", n: 1 }, at: [20, 20], until: Date.now() + 10_000 }];
+    k.nudged("ground");
+    await settle();
+    expect(k.ground()).toEqual([]);
+    k.close();
+
+    // a database that keeps no ground answers nothing: nothing lies, the room's word asks nothing, and a thing is only thrown away
+    const old = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const o = new DbKeeper("me", old.ask);
+    await settle();
+    expect(o.ground()).toBeNull();
+    const asked = old.asked.length;
+    o.nudged("ground");
+    await settle();
+    expect(old.asked).toHaveLength(asked);
     o.close();
   });
 
