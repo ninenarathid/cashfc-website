@@ -157,6 +157,15 @@ export const CHATS: Record<Speaker, Line[][]> = {
       { th: "แล้วก็มีตัวหนึ่ง ชอบมาหาแต่คนที่หมดแรงแล้ว ลุงก็ไม่รู้ว่าทำไม", en: "And there's one that only comes to somebody who's worn out. Don't ask me why." },
       { th: "จริงเท็จแค่ไหนลุงไม่รู้นะ ลองถามคนที่ตกปลาบ่อยๆ ดูสิ", en: "How much of it is true, I couldn't say. Ask whoever fishes a lot." },
     ],
+    // That water can be handed from one bucket to the next (lib/town/line). Nothing said so, and on its first day
+    // nobody found it (the owner, 2026-10-05: "การส่งน้ำ ต้องทำยังไง ทำไมใช้ยากจังเลย"). The uncle says how it is
+    // done and that the way is long; how many it takes he leaves to them.
+    [
+      { th: "สมัยก่อนคนหาบน้ำเขาไม่เดินเองทั้งทางหรอกหลาน ยืนต่อกันเป็นทอดๆ ส่งน้ำต่อมือกันไป", en: "In the old days nobody carried water the whole way, kiddo. They stood in a line and handed it on." },
+      { th: "คนรับแค่ถือถังเปล่าไว้ในมือ ยืนนิ่งๆ ให้คนส่งเห็น เดี๋ยวน้ำก็มาอยู่ในถังเอง", en: "Whoever takes it only holds an empty bucket and stands still in sight. The water comes to them." },
+      { th: "จากแม่น้ำถึงบ่อที่แปลงผักมันไกลอยู่นะ ส่งกันทอดเดียวไม่ถึงหรอก ต้องมีคนกลางช่วยรับช่วงต่อ", en: "It's a long way from the river to the farm's well. One hand-over won't do: it takes somebody in between." },
+      { th: "น้ำผ่านมือใคร สมุดที่บ่อก็จดให้คนนั้นด้วย ไม่มีใครเหนื่อยเปล่าหรอก", en: "And the book at the well writes down every hand the water went through. Nobody works for nothing." },
+    ],
   ],
   banker: [
     [

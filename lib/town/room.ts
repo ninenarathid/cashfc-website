@@ -64,6 +64,8 @@ export interface Doing {
   eat?: string;
   /** The thing held in the hand (its name in lib/town/items), "" when none; missing from a browser older than hands. */
   hold?: string;
+  /** Whether the bucket held in the hand has water in it; missing from a browser older than that, and then nothing is known of it. */
+  wet?: boolean;
   /** Fishing: 1 with a rod in hand, 2 with a line in the water, 3 with a fish on, 4 for a moment when one has just been landed; 0 or missing when not. Where the float is follows from where they stand (lib/town/world's fishFrom). */
   fish?: number;
 }
@@ -148,6 +150,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (typing !== undefined) d.typing = typing;
   if (typeof p.eat === "string" && /^[A-Za-z]{0,24}$/.test(p.eat)) d.eat = p.eat;
   if (typeof p.hold === "string" && /^[A-Za-z]{0,24}$/.test(p.hold)) d.hold = p.hold;
+  const wet = bool(p.wet);
+  if (wet !== undefined) d.wet = wet;
   if (p.fish === 0 || p.fish === 1 || p.fish === 2 || p.fish === 3 || p.fish === 4) d.fish = p.fish;
   return d;
 }

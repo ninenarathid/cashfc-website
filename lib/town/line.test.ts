@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { WATER } from "./farm";
 import type { ItemId } from "./items";
-import { LINE, between, carried, inReach, pass } from "./line";
+import { LINE, OFFER, between, carried, inReach, pass, takers, toWell, type Stander } from "./line";
 import { staminaOf } from "./stamina";
 import { hold, newPurse, put, type Purse } from "./trade";
 import { workOf } from "./jar";
@@ -184,5 +184,90 @@ describe("a bucket line (the owner, 2026-10-05: \"a bucket line of three or more
     }
     // water poured out of a bucket nothing is known of (every bucketful before there were lines): the pourer's alone
     expect(Object.keys(seen(newLog(), { by: "ann", at: NOW, what: "pour", n: 2 }).carriers)).toEqual(["ann"]);
+  });
+});
+
+describe("whom a page offers the water to (the owner, 2026-10-05: \"การส่งน้ำ ต้องทำยังไง ทำไมใช้ยากจังเลย\")", () => {
+  // a plot of the farm some twenty tiles from the well, and somebody standing still there with an empty bucket
+  const HERE = { x: FARM.x + 12.5, y: FARM.y + 8.5 };
+  const one = (id: string, dx: number, dy: number, more: Partial<Stander> = {}): Stander => ({ id, name: id, x: HERE.x + dx, y: HERE.y + dy, moving: false, hold: "bucket", wet: false, ...more });
+  const ids = (people: Stander[], quiet = false) => takers("me", HERE, people, quiet).offered.map((p) => p.id);
+  const lacks = (people: Stander[], quiet = false) => { const l = takers("me", HERE, people, quiet).lacks; return l ? [l.who.id, l.why] : null; };
+
+  it("offers a friend who stands beside me, whichever of us is nearer the well", () => {
+    // (water went only to somebody two tiles or more nearer the well: side by side nobody was offered anything)
+    const nearer = one("bo", 1, 0), further = one("cy", -1, 0), level = one("di", 0.3, -0.3);
+    expect(toWell(nearer)).toBeLessThan(toWell(HERE));
+    expect(toWell(HERE) - toWell(nearer)).toBeLessThan(2);
+    expect(toWell(further)).toBeGreaterThan(toWell(HERE));
+    expect(ids([nearer])).toEqual(["bo"]);
+    expect(ids([further])).toEqual(["cy"]);
+    expect(ids([level])).toEqual(["di"]);
+    // …and a farmer at a bed far out from the well, from somebody who stands by it
+    const byWell = { x: WELL.x - 0.5, y: WELL.y + 0.5 }, farmer: Stander = { id: "ed", name: "ed", x: FARM.x + 50.5, y: FARM.y + 6.5, moving: false, hold: "waterYoke", wet: false };
+    expect(toWell(farmer)).toBeGreaterThan(toWell(byWell) + 20);
+    expect(takers("me", byWell, [farmer]).offered.map((p) => p.id)).toEqual(["ed"]);
+  });
+
+  it("offers nobody who is walking, whose bucket has water, who holds no bucket, who is out of reach, nor me", () => {
+    expect(ids([one("bo", 2, 0, { moving: true })])).toEqual([]);
+    expect(ids([one("bo", 2, 0, { wet: true })])).toEqual([]);
+    expect(ids([one("bo", 2, 0, { hold: null })])).toEqual([]);
+    expect(ids([one("bo", 2, 0, { hold: "can" })])).toEqual([]);
+    expect(ids([one("me", 2, 0)])).toEqual([]);
+    expect(ids([one("bo", LINE.reach + 0.5, 0)])).toEqual([]);
+    expect(ids([one("bo", LINE.reach - 0.5, 0)])).toEqual(["bo"]);
+    // a page built before it was told whether a bucket has water says nothing of it: offered (whoever keeps the game refuses a full one)
+    expect(ids([one("bo", 2, 0, { wet: undefined })])).toEqual(["bo"]);
+    // every kind of bucket takes water
+    for (const id of Object.keys(WATER.buckets) as ItemId[]) expect(ids([one("bo", 2, 0, { hold: id })])).toEqual(["bo"]);
+  });
+
+  it("puts those nearer the well first, the nearest to it first, then the others by how near they are to me: three at the most", () => {
+    // towards the well from here is down the map and to the right: two that way, two the other
+    const a = one("a-far-forward", 10, 8), b = one("b-near-forward", 3, 2), c = one("c-beside-back", -1, -1), d = one("d-far-back", -9, -3);
+    expect([toWell(a), toWell(b)].every((w) => w < toWell(HERE)) && [toWell(c), toWell(d)].every((w) => w > toWell(HERE))).toBe(true);
+    expect(toWell(a)).toBeLessThan(toWell(b));
+    expect(ids([d, c, b, a])).toEqual(["a-far-forward", "b-near-forward", "c-beside-back"]);
+    expect(ids([d, c])).toEqual(["c-beside-back", "d-far-back"]);
+    expect(OFFER.most).toBe(3);
+    // with somebody to offer, nobody is named as lacking anything
+    expect(lacks([c, one("w", 1, 1, { moving: true })])).toBeNull();
+  });
+
+  it("with nobody to offer, names whoever stands close by and what they lack", () => {
+    expect(lacks([])).toBeNull();
+    expect(lacks([one("bo", 2, 0, { moving: true })])).toEqual(["bo", "walking"]);
+    expect(lacks([one("bo", 2, 0, { wet: true })])).toEqual(["bo", "full"]);
+    // (walking with a full bucket: it is the water that is in the way)
+    expect(lacks([one("bo", 2, 0, { wet: true, moving: true })])).toEqual(["bo", "full"]);
+    expect(lacks([one("bo", 2, 0, { hold: null })])).toEqual(["bo", "bare"]);
+    expect(lacks([one("bo", 2, 0, { hold: "can" })])).toEqual(["bo", "bare"]);
+    // somebody with a bucket before somebody with none, however near; of two alike, the nearer
+    expect(lacks([one("bare", 1, 0, { hold: null }), one("full", 3, 0, { wet: true })])).toEqual(["full", "full"]);
+    expect(lacks([one("far", 3, 0, { hold: null }), one("near", 1, 0, { hold: null })])).toEqual(["near", "bare"]);
+    // only who is close by: further off they are nobody's business
+    expect(lacks([one("bo", OFFER.beside + 0.5, 0, { wet: true }), one("cy", 0, OFFER.beside + 0.5, { hold: null })])).toBeNull();
+    expect(lacks([one("bo", OFFER.beside - 0.5, 0, { wet: true })])).toEqual(["bo", "full"]);
+    // somebody passing by with nothing in their hand is not named
+    expect(lacks([one("bo", 1, 0, { hold: null, moving: true })])).toBeNull();
+    // where the water has a place of its own to go, those standing about with no bucket are not named; one with a bucket still is
+    expect(lacks([one("bo", 1, 0, { hold: null })], true)).toBeNull();
+    expect(lacks([one("bo", 1, 0, { hold: null }), one("cy", 2, 0, { wet: true })], true)).toEqual(["cy", "full"]);
+  });
+
+  it("still makes a line of three from the river to the well", () => {
+    const river = Object.keys(catalogOf().fishing.places).map((k) => { const [x, y] = k.split(",").map(Number); return { x: x + 0.5, y: y + 0.5 }; })
+      .sort((p, q) => toWell(p) - toWell(q))[0];
+    const gate = GATES.find((g) => g.from === "town" && g.leads === "farm")!;
+    const mid: Stander = { id: "mid", name: "mid", x: gate.tiles[0][0] + 0.5 - 2, y: gate.tiles[0][1] + 0.5, moving: false, hold: "bucket", wet: false };
+    const last: Stander = { id: "last", name: "last", x: WELL.x - 0.5, y: WELL.y + 0.5, moving: false, hold: "bucketIron", wet: false };
+    // by the river: the one about the gate, and not the one at the well (out of reach)
+    expect(takers("first", river, [mid, last]).offered.map((p) => p.id)).toEqual(["mid"]);
+    // about the gate with the water: the one at the well first, then the one by the river (whose bucket is empty now)
+    const first: Stander = { id: "first", name: "first", ...river, moving: false, hold: "bucket", wet: false };
+    expect(takers("mid", mid, [first, last]).offered.map((p) => p.id)).toEqual(["last", "first"]);
+    // …and while the first still has water, only the one at the well
+    expect(takers("mid", mid, [{ ...first, wet: true }, last]).offered.map((p) => p.id)).toEqual(["last"]);
   });
 });

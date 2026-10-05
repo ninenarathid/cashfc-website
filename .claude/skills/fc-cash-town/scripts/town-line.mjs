@@ -5,8 +5,13 @@
 // - with nobody near enough holding a bucket, nothing is offered; the one at the well is out of the river's reach;
 // - the one by the river is offered to hand the water on to the one about the gate, by name; it is in their bucket
 //   at once, and they are told; they hand it on through the gate to the one at the well, who pours it;
-// - the well's book counts a bucketful for each of the three, and lists all three among the day's carriers;
-// - water goes forward, never back; a bucket that has water takes none; with no stamina it is the short game.
+// - the well's book counts a bucketful for each of the three, lists all three among the day's carriers, and says
+//   that water can be handed on;
+// - whoever is nearer the well is offered first, and then the others: a chip each; a bucket known to have water is
+//   not offered; with no stamina it is the short game;
+// - two side by side on the farm: the one with water is told what the other lacks (a bucket that has water, no
+//   bucket in the hand, walking), and is offered them once they stand still with an empty one, though they are the
+//   further from the well; and everybody's page is told whether a held bucket has water, and draws it so.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
@@ -17,7 +22,11 @@ import { gameUp, play } from "./games.mjs";
 const [BASE = "http://localhost:3100", OUT = "."] = process.argv.slice(2);
 let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + (typeof d === "string" ? d : JSON.stringify(d))}`); };
-const T = "window.__townTrade", F = "window.__townFarm", W = "window.__townWell", L = "window.__townLine";
+const T = "window.__townTrade", F = "window.__townFarm", W = "window.__townWell", L = "window.__townLine", V = "window.__townView", S = "window.__cashTown";
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+const chips = (X) => X.evaluate(`[...document.querySelectorAll("[data-line-chip]")].map((e) => e.innerText.trim())`);
+/** What a page has heard of somebody else: what they hold, and whether it has water. */
+const heldBy = (X, id) => X.evaluate(`(() => { const p = ${S}.people().find((q) => q.id === ${JSON.stringify(id)}); return p ? [p.hold, p.wet] : null; })()`);
 const purse = (X) => X.evaluate(`${T}.purse()`);
 const slotOf = (X, item) => X.evaluate(`${T}.purse().bag.findIndex((s) => s?.item === ${JSON.stringify(item)})`);
 const hold = async (X, item) => { await X.evaluate(`${T}.hold(${await slotOf(X, item)})`); await sleep(350); };
@@ -90,11 +99,16 @@ try {
   await until("the taker is told", () => there(Y, "[data-line-toast]"), 8000);
   ok("whoever takes it is told so on their map", /มีคนส่งน้ำมาให้/.test((await textOf(Y, "[data-line-toast]")) ?? ""), await textOf(Y, "[data-line-toast]"));
   await Y.shot(`${OUT}/line-taken.png`);
-  ok("water goes forward: the one by the river, bucket empty, is offered nothing; the one about the gate is offered the one at the well, through the gate", (await X.evaluate(`${L}.next()`)) === null && (await Y.evaluate(`${L}.next()`)) === c, { x: await X.evaluate(`${L}.next()`), y: await Y.evaluate(`${L}.next()`) });
+  await until("the one about the gate is offered both ways", async () => same(await Y.evaluate(`${L}.offered()`), [c, a]), 12000).catch(() => {});
+  ok("the one by the river, bucket empty, is offered nothing; the one about the gate is offered the one at the well first, through the gate, and then the one by the river", (await X.evaluate(`${L}.next()`)) === null && same(await Y.evaluate(`${L}.offered()`), [c, a]), { x: await X.evaluate(`${L}.next()`), y: await Y.evaluate(`${L}.offered()`) });
+  const two = await chips(Y);
+  ok("…a chip for each: the first named in full, the next as another", two.length === 2 && /ส่งน้ำต่อให้/.test(two[0]) && /U/.test(two[0]) && /^หรือ/.test(two[1]) && /W/.test(two[1]), two);
+  await Y.shot(`${OUT}/line-two.png`);
   await handOn(Y, c);
   await until("the water is at the well", async () => (await waterOf(Z, "bucketIron")) === 1, 8000);
   ok("handed on through the gate: one bucketful in the iron bucket of the one at the well", (await waterOf(Y, "bucket")) === 0 && (await waterOf(Z, "bucketIron")) === 1);
-  ok("the one at the well is offered nobody: nobody is nearer the well", (await Z.evaluate(`${L}.next()`)) === null);
+  await until("the one at the well is offered the one about the gate", async () => (await Z.evaluate(`${L}.next()`)) === b, 12000).catch(() => {});
+  ok("the one at the well may hand it to the one about the gate, whose bucket is empty now: water goes any way (the one by the river is out of reach)", same(await Z.evaluate(`${L}.offered()`), [b]), await Z.evaluate(`${L}.offered()`));
   await chore(Z, "pour");
   ok("…and pours it in", (await Z.evaluate(`${F}.well()`)) === 1 && (await waterOf(Z, "bucketIron")) === 0);
 
@@ -104,6 +118,7 @@ try {
   await until("the book opens", () => there(Z, "[data-well-today]"), 5000);
   const book = await Z.evaluate(`${W}.book()`);
   ok("the well's book lists all three among today's carriers, a bucketful each", book.carriers.length === 3 && book.carriers.every((p) => p.buckets === 1) && [a, b, c].every((id) => book.carriers.some((p) => p.id === id)), book.carriers);
+  ok("…and says that water can be handed on, and that it counts", /ส่งต่อมือกันได้/.test((await textOf(Z, "[data-well-line]")) ?? "") && /นับถัง/.test((await textOf(Z, "[data-well-line]")) ?? ""), await textOf(Z, "[data-well-line]"));
   await Z.shot(`${OUT}/line-book.png`);
   await Z.evaluate(`${W}.close()`);
   await warp(Y, 60, 40);
@@ -116,10 +131,11 @@ try {
   await handOn(X, b);
   await until("the second has water again", async () => (await waterOf(Y, "bucket")) === 1, 8000);
   await chore(X, "draw");
-  await until("handing on is offered again", async () => (await X.evaluate(`${L}.next()`)) === b, 12000);
-  await X.evaluate(`${L}.act()`);
-  await sleep(700);
-  ok("into a bucket that has water already nothing is handed: said, and the water stays", (await waterOf(X, "bucket")) === 1 && /มีน้ำอยู่แล้ว/.test((await X.evaluate(`${L}.note()`)) ?? ""), await X.evaluate(`${L}.note()`));
+  await until("the room has said that the second's bucket has water", async () => same(await heldBy(X, b), ["bucket", true]), 12000).catch(() => {});
+  await sleep(1200);
+  ok("a bucket that has water is known to have it on everybody's page, and is not offered: the water stays", same(await heldBy(X, b), ["bucket", true]) && (await X.evaluate(`${L}.next()`)) === null && !(await there(X, "[data-line-chip]")) && (await waterOf(X, "bucket")) === 1,
+     { held: await heldBy(X, b), next: await X.evaluate(`${L}.next()`) });
+  ok("…and from as far off as the gate nothing is said of what they lack", (await X.evaluate(`${L}.lacks()`)) === null && !(await there(X, "[data-line-lacks]")), await X.evaluate(`${L}.lacks()`));
 
   // tired hands
   await handOn(Y, c);
@@ -134,6 +150,39 @@ try {
   await play(X);
   await until("played, it goes over", async () => (await waterOf(Y, "bucket")) === 1, 8000);
   ok("…and played, the water goes over", (await waterOf(X, "bucket")) === 0);
+
+  // Two side by side on the farm's lane, the one with water the nearer the well: what the other lacks, and then the chip.
+  const NEAR = [140, 21], FAR = [138, 21], PAST = [146, 21];
+  await warp(Z, ...NEAR);
+  await warp(Y, ...FAR);
+  const further = (await Z.evaluate(`${L}.toWell(${FAR[0]} + 0.5, ${FAR[1]} + 0.5)`)) - (await Z.evaluate(`${L}.toWell(${NEAR[0]} + 0.5, ${NEAR[1]} + 0.5)`));
+  await until("the one with water is told what the other lacks", async () => (await Z.evaluate(`${L}.lacks()`))?.why === "full", 12000).catch(() => {});
+  ok("beside somebody whose bucket has water: nothing to press, and it says whose bucket has water already", (await waterOf(Z, "bucketIron")) === 1 && same(await Z.evaluate(`${L}.lacks()`), { who: b, why: "full" }) && /ถังของ .*V.* มีน้ำอยู่แล้ว/.test((await textOf(Z, "[data-line-lacks]")) ?? "") && !(await there(Z, "[data-line-chip]")),
+     { lacks: await Z.evaluate(`${L}.lacks()`), text: await textOf(Z, "[data-line-lacks]") });
+  await Z.shot(`${OUT}/line-lacks.png`);
+  await Y.evaluate(`${T}.letGo()`);
+  await until("…then that they hold no bucket", async () => (await Z.evaluate(`${L}.lacks()`))?.why === "bare", 12000).catch(() => {});
+  ok("beside somebody with nothing in their hand: it says they have to hold an empty bucket", same(await Z.evaluate(`${L}.lacks()`), { who: b, why: "bare" }) && /V.*ต้องถือถังเปล่าไว้ในมือ/.test((await textOf(Z, "[data-line-lacks]")) ?? ""), await textOf(Z, "[data-line-lacks]"));
+  await Y.evaluate(`${T}.grant("bucketIron", 1)`);
+  await hold(Y, "bucketIron");
+  await until("the one beside is offered", async () => (await Z.evaluate(`${L}.next()`)) === b, 12000).catch(() => {});
+  ok("with an empty bucket in their hand they are offered, though they stand the further from the well", further > 1.5 && same(await Z.evaluate(`${L}.offered()`), [b]) && (await Z.evaluate(`${L}.lacks()`)) === null && /ส่งน้ำต่อให้/.test((await chips(Z))[0] ?? ""),
+     { further, offered: await Z.evaluate(`${L}.offered()`), chips: await chips(Z) });
+  await Z.shot(`${OUT}/line-beside.png`);
+  // walking past: not offered, and said so while they are close by
+  let walking = null;
+  await Y.evaluate(`${V}.walk(${PAST[0]} + 0.5, ${PAST[1]} + 0.5)`);
+  for (let i = 0; i < 40 && !walking; i++) { const l = await Z.evaluate(`${L}.lacks()`); if (l?.why === "walking") walking = { ...l, chip: await there(Z, "[data-line-chip]") }; else await sleep(100); }
+  ok("while they walk past they are not offered, and it says they have to stand still", same(walking, { who: b, why: "walking", chip: false }), walking);
+  await until("stopped, they are offered again", async () => (await Z.evaluate(`${L}.next()`)) === b, 15000).catch(() => {});
+  await handOn(Z, b);
+  await until("the water is in the iron bucket of the one beside", async () => (await waterOf(Y, "bucketIron")) === 1, 8000).catch(() => {});
+  ok("stopped, they are offered again and the water goes over", (await waterOf(Y, "bucketIron")) === 1 && (await waterOf(Z, "bucketIron")) === 0);
+  await until("everybody's page is told whose bucket has water", async () => same(await heldBy(Z, b), ["bucketIron", true]) && same(await heldBy(Y, c), ["bucketIron", false]), 12000).catch(() => {});
+  ok("each page is told whose held bucket has water now and whose is empty, and its own avatar the same", same(await heldBy(Z, b), ["bucketIron", true]) && same(await heldBy(Y, c), ["bucketIron", false]) && (await Y.evaluate(`${S}.me().wet`)) === true && (await Z.evaluate(`${S}.me().wet`)) === false,
+     { b: await heldBy(Z, b), c: await heldBy(Y, c), me: [await Y.evaluate(`${S}.me().wet`), await Z.evaluate(`${S}.me().wet`)] });
+  await sleep(600);
+  await Y.shot(`${OUT}/line-held.png`);
 } catch (e) {
   fail++;
   console.log(`  FAIL (stopped) ${e?.message ?? e}`);

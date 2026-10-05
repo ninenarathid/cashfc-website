@@ -1,19 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FARMING, WATER } from "@/lib/town/farm";
+import { FARMING } from "@/lib/town/farm";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
-import { LINE, between, carried } from "@/lib/town/line";
+import { carried, takers, toWell, type Lack, type Stander } from "@/lib/town/line";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent, staminaOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
-import { WELL, type Vec } from "@/lib/town/world";
+import { atWell, fishFrom, yardPlace } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownPouring from "./TownPouring";
 
-/** Somebody on the map, as the map has them. */
-export interface Stander { id: string; name: string; x: number; y: number; moving: boolean; hold: ItemId | null }
+export type { Stander };
 
 /** Why not, in the line's own words. */
 const WHY_LINE: Record<string, [string, string]> = {
@@ -21,9 +20,12 @@ const WHY_LINE: Record<string, [string, string]> = {
   full: ["ถังของอีกฝ่ายมีน้ำอยู่แล้ว", "Their bucket has water in it already"], away: ["ติดต่อเมืองไม่ได้ ลองอีกครั้ง", "The town could not be reached: try again"],
   shaky: ["หมดแรง มือสั่นจนส่งไม่ถึง", "Too tired: your hands shake, and it does not get there"],
 };
-/** How much nearer the well, as the path goes, somebody has to stand than I do for water to be handed on to them: it goes forward, never back. */
-const FORWARD = 2;
-const toWell = (p: Vec) => between(p, { x: WELL.x + 0.5, y: WELL.y + 0.5 });
+/** What somebody close by lacks to be handed water, said of them by name. */
+const LACKS: Record<Lack, [(name: string) => string, (name: string) => string]> = {
+  walking: [(n) => `${n} ต้องยืนนิ่งก่อน ถึงจะส่งน้ำให้ได้`, (n) => `${n} has to stand still to be handed water`],
+  full: [(n) => `ถังของ ${n} มีน้ำอยู่แล้ว`, (n) => `${n} has a bucket with water in it already`],
+  bare: [(n) => `${n} ต้องถือถังเปล่าไว้ในมือ ถึงจะส่งน้ำให้ได้`, (n) => `${n} has to hold an empty bucket to be handed water`],
+};
 
 /**
  * A bucket line (lib/town/line; the owner, 2026-10-05: "a bucket line of
@@ -31,15 +33,20 @@ const toWell = (p: Vec) => between(p, { x: WELL.x + 0.5, y: WELL.y + 0.5 });
  * that the town's games need several people).
  *
  * Standing still with a bucket that has water in it, when somebody stands
- * within sight who holds a bucket and is nearer the farm's well than I am (as
- * the path goes: across the map, or through the gate): one button hands the
- * water on to them, by name. With several such, to whoever is nearest the
- * well. It is in their bucket at once, and they hand it on in their turn, or
- * pour it where they stand.
+ * still within sight (as the path goes: across the map, or through the gate)
+ * with an empty bucket in their hand: a button hands the water on to them,
+ * by name. With several such there is a button for each, three at the most:
+ * whoever is nearer the farm's well than I am first (the way a line goes),
+ * then whoever is nearest me. It is in their bucket at once, and they hand it
+ * on in their turn, or pour it where they stand. With no stamina left it is
+ * poured like any water, the short game of tired hands.
  *
- * Nothing says how many it takes, nor that there is such a thing: the button
- * is there when somebody stands near enough with a bucket. With no stamina
- * left it is poured like any water, the short game of tired hands.
+ * **With nobody to hand it to, whoever stands close by is named with what
+ * they lack**: walking, a bucket that has water, no bucket in the hand (the
+ * owner, 2026-10-05: "ทำไมใช้ยากจังเลย": until then nothing was shown unless
+ * everything held, and water went only to somebody two tiles nearer the
+ * well, so two friends side by side were offered nothing and could not tell
+ * why; lib/town/line's `takers`).
  *
  * And the other way round: when water comes into my bucket by somebody's
  * hand, the map says so.
@@ -76,17 +83,15 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx }: 
   /** The handing on that tired hands are at: to whom. */
   const [working, setWorking] = useState<Stander | null>(null);
 
-  /** Whoever I would hand it to: within reach, standing still with a bucket in their hand, nearer the well than I am; of several, the nearest to it. */
-  let next: Stander | null = null;
-  if (can && here) {
-    const at = { x: here[0] + 0.5, y: here[1] + 0.5 }, mine = toWell(at);
-    let best = mine - FORWARD;
-    for (const p of people()) {
-      if (p.id === me || p.moving || !p.hold || !(p.hold in WATER.buckets)) continue;
-      const far = toWell(p);
-      if (far < best && between(at, p) <= LINE.reach) { best = far; next = p; }
-    }
-  }
+  /**
+   * Whoever I may hand it to (lib/town/line's `takers`), and, with nobody, who stands close by and what they lack.
+   * (Where those standing about have come for something else, they are not named for holding no bucket: at the
+   * well and the yard's jar, where the water in my hand has a place of its own to go, and by the water it is drawn
+   * from, where the others are fishing.)
+   */
+  const quiet = !!here && (atWell(here[0], here[1]) || yardPlace(here[0], here[1]) === "wash" || !!fishFrom(here[0], here[1]));
+  const found = can && here ? takers(me, { x: here[0] + 0.5, y: here[1] + 0.5 }, people(), quiet) : null;
+  const offered = found?.offered ?? [], next = offered[0] ?? null, lacks = found?.lacks ?? null;
 
   const say = useCallback((why: string) => { const w = WHY_LINE[why]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
   const hand_on = useCallback(async (to: Stander) => {
@@ -98,13 +103,14 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx }: 
     sfx?.work("pour", 0.8);
     setNote(th ? `ส่งน้ำ ${did.n} ถังให้ ${to.name || "เพื่อน"} แล้ว` : `${did.n} bucketful${did.n === 1 ? "" : "s"} handed to ${to.name || "them"}`);
   }, [keeper, sfx, th, say]);
-  const begin = useCallback(() => {
-    if (!next || busy) return;
+  const begin = useCallback((to: Stander | null) => {
+    if (!to || busy) return;
     // (no game with stamina; with none it is poured like any water, a short round)
-    if (isSpent(keeper.purse(), keeper.now())) setWorking(next); else void hand_on(next);
-  }, [next, busy, keeper, hand_on]);
+    if (isSpent(keeper.purse(), keeper.now())) setWorking(to); else void hand_on(to);
+  }, [busy, keeper, hand_on]);
   // walking off, or whoever it was for going, leaves the work
-  useEffect(() => { if (working && (!can || !next || next.id !== working.id)) setWorking(null); }, [working, can, next]);
+  const stays = !!working && can && offered.some((p) => p.id === working.id);
+  useEffect(() => { if (working && !stays) setWorking(null); }, [working, stays]);
 
   // Water that comes into the bucket I hold by somebody's hand: said once, when my purse comes to have it. (Told apart
   // from a bucket I drew myself by the stamina, which drawing costs and being handed water does not.)
@@ -124,7 +130,10 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx }: 
 
   // (for scripts in `next dev`: whom I would hand it to, handing it on, and what was said)
   useEffect(() => {
-    const handle = { can: () => can, next: () => next?.id ?? null, act: begin, note: () => note, toast: () => toast, toWell: (x: number, y: number) => toWell({ x, y }) };
+    const handle = {
+      can: () => can, next: () => next?.id ?? null, offered: () => offered.map((p) => p.id), lacks: () => (lacks ? { who: lacks.who.id, why: lacks.why } : null),
+      act: (id?: string) => begin(id ? offered.find((p) => p.id === id) ?? null : next), note: () => note, toast: () => toast, toWell: (x: number, y: number) => toWell({ x, y }),
+    };
     (window as unknown as { __townLine?: typeof handle }).__townLine = handle;
     return () => { delete (window as unknown as { __townLine?: typeof handle }).__townLine; };
   });
@@ -140,7 +149,7 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx }: 
           </p>
         </div>
       )}
-      {(next || note || working) && (
+      {(next || lacks || note || working) && (
         <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
           {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-line-note>{note}</p>}
           {working ? (
@@ -157,12 +166,26 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx }: 
                            }}
                            onCancel={() => setWorking(null)} />
             </div>
-          ) : next && (
-            <button type="button" onClick={begin} disabled={busy} data-line-chip data-state="open"
-                    className="pop-in pressable pointer-events-auto flex min-h-11 max-w-[22rem] items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent disabled:opacity-60">
-              <TownIcon name="lineHands" size={22} />
-              <span className="min-w-0 truncate">{th ? `ส่งน้ำต่อให้ ${next.name || ITEMS[next.hold!].name.th}` : `Hand it on to ${next.name || "them"}`}</span>
-            </button>
+          ) : next ? (
+            // (one for each of those it may go to, the likeliest first and named in full)
+            <div className="flex max-w-full flex-wrap items-center justify-center gap-2">
+              {offered.map((p, i) => {
+                const name = p.name || (th ? ITEMS[p.hold!].name.th : "them");
+                return (
+                  <button key={p.id} type="button" onClick={() => begin(p)} disabled={busy} data-line-chip={p.id} data-state="open"
+                          className="pop-in pressable pointer-events-auto flex min-h-11 max-w-[22rem] items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent disabled:opacity-60">
+                    <TownIcon name="lineHands" size={22} />
+                    <span className="min-w-0 truncate">{i === 0 ? (th ? `ส่งน้ำต่อให้ ${name}` : `Hand it on to ${name}`) : th ? `หรือ ${name}` : `or ${name}`}</span>
+                  </button>
+                );
+              })}
+            </div>
+          ) : lacks && !note && (
+            // (nobody to hand it to: who stands close by, and what they lack. Nothing to press.)
+            <p className="pop-in flex max-w-[22rem] items-center gap-2 rounded-full border border-line bg-bg/80 px-4 py-2 text-ui text-muted shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-line-lacks={lacks.why}>
+              <TownIcon name="lineHands" size={18} className="shrink-0 opacity-60" />
+              <span className="min-w-0">{LACKS[lacks.why][th ? 0 : 1](lacks.who.name || (th ? "เพื่อน" : "Your friend"))}</span>
+            </p>
           )}
         </div>
       )}

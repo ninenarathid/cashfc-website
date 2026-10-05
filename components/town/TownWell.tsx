@@ -213,6 +213,14 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
               ) : (
                 <p className="text-meta text-muted">{th ? "วันนี้ยังไม่มีใครหาบน้ำมาเติมบ่อ" : "Nobody has carried water to the well today"}</p>
               )}
+              {/* (that water can be handed on at all was said nowhere, and in its first three hours nobody did: the owner,
+                  2026-10-05, "การส่งน้ำ ต้องทำยังไง ทำไมใช้ยากจังเลย". The book says so, and that it counts.) */}
+              <p className="mt-2 flex items-start gap-2 text-meta text-muted" data-well-line>
+                <TownIcon name="lineHands" size={18} className="mt-0.5" />
+                <span className="min-w-0 flex-1 leading-snug">{th
+                  ? "น้ำในถังส่งต่อมือกันได้ ยืนนิ่งใกล้คนที่ถือถังเปล่าไว้ในมือ น้ำผ่านมือใคร สมุดก็นับถังให้คนนั้นด้วย"
+                  : "Water can be handed on: stand still near somebody holding an empty bucket. Everybody whose hands it goes through is counted the bucketful."}</span>
+              </p>
 
               {thanks && (
                 <>

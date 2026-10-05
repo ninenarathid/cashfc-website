@@ -9,6 +9,7 @@ import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
+import { carried } from "@/lib/town/line";
 import type { PricesTold } from "@/lib/town/market";
 import { MEALS, STAMINA, buffsOf, eatenToday, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
@@ -23,9 +24,10 @@ import { Delta, PriceGraph, PriceNow } from "./TownPrice";
 
 /** What of the trade is open on the screen: the uncle's stall (buying, leaving things to be sold, or the notice board beside it, where members sell to one another), the bank, or my own bag. */
 export type TradeView = "buy" | "sell" | "board" | "bank" | "bag";
-/** What the map needs to know of me without opening anything: my coins, the money waiting with the uncle, my stamina, the buff a meal left, the meal I am at, and what I hold in my hand. */
+/** What the map needs to know of me without opening anything: my coins, the money waiting with the uncle, my stamina, the buff a meal left, the meal I am at, and what I hold in my hand (and whether it is a bucket with water in it). */
 export interface TradeSummary {
   hand: ItemId | null;
+  wet: boolean;
   coins: number;
   waiting: number;
   stamina: number;
@@ -169,11 +171,11 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
 
   const now = keeper.now(), purse = keeper.purse(), stall = keeper.stall();
   const due = waiting(purse, now), stamina = staminaOf(purse, now), buff = buffsOf(purse, now)[0] ?? null;
-  const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now) } : null, hand = handOf(purse);
+  const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now) } : null, hand = handOf(purse), wet = !!carried(purse);
   useEffect(() => {
-    onSummary({ hand, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating });
+    onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the meal is told by its dish and how far through it is
-  }, [onSummary, hand, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating && Math.round(eating.progress * 100)]);
+  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating && Math.round(eating.progress * 100)]);
 
   // A meal is counted on every second while I sit at it; getting up leaves it.
   const sitting = useRef(seated), beside = useRef(company);

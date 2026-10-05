@@ -515,7 +515,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const talks = useRef(0);
   /** The trade's panel that is open (the uncle's stall, the bank, my bag), and what the map shows of my purse. */
   const [trade, setTrade] = useState<TradeView | null>(null);
-  const [purse, setPurse] = useState<TradeSummary>({ hand: null, coins: 0, waiting: 0, stamina: 100, buff: null, eating: null });
+  const [purse, setPurse] = useState<TradeSummary>({ hand: null, wet: false, coins: 0, waiting: 0, stamina: 100, buff: null, eating: null });
   /**
    * Who keeps the game for me (lib/town/keeper), and whether it is open to me: the database for a member (which
    * answers whether it is), the browser's trial in `next dev`'s test room. With `&townDb=<address>` the test room is
@@ -627,7 +627,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const standers = useCallback((): Stander[] => {
     const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
     return (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
-      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null) }));
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null), wet: a.info.wet }));
   }, []);
   /** Whether I am on the forest's map (what it has is looked at while I am), and its own way of drawing what lies and grows there. */
   const [onForest, setOnForest] = useState(false);
@@ -2212,12 +2212,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /**
    * What somebody holds in their hand (the owner, 2026-10-03: "ของทุกชิ้นสามารถ กดใส่เพื่อถือในมือได้เช่น คันเบ็ดหรือปลา"): the
    * thing's own picture at their side, on the side they face, with their fist on it. (A rod is drawn as the rod it
-   * is, upright; and while somebody fishes, the rod they fish with is what is seen.)
+   * is, upright; and while somebody fishes, the rod they fish with is what is seen.) **A bucket with water in it is
+   * drawn full** (the owner, 2026-10-05: "ตอนถือถังน้ำ … ไม่ได้บอกว่าเป็นถังมีน้ำหรือถังว่าง"), as it is in the bag: its
+   * own picture with water, and a drop over it, since at the map's size the two pictures are much alike.
    */
-  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number) {
+  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false) {
     if (isRod(item)) { drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side); return; }
     // (its picture is its own name's, but every scroll looks the same: lib/town/items' iconOf, without the catalog)
-    const icon = (item.startsWith("scroll") ? "scroll" : item) as IconName;
+    const full = wet && `${item}Full` in ICON_ATLAS.icons;
+    const icon = (item.startsWith("scroll") ? "scroll" : full ? `${item}Full` : item) as IconName;
     if (!(icon in ICON_ATLAS.icons)) return;
     const v = cam.current, px = Math.max(1, v.s), size = Math.round(15 * v.s);
     const snap = (n: number) => Math.round(n / px) * px;
@@ -2229,6 +2232,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     const x = snap(p.x + side * h * 0.27), y = snap(p.y - h * 0.36);
     drawIcon(ctx, iconImg.current, icon, x, y - size * 0.25, size);
+    if (full) drawIcon(ctx, iconImg.current, "plotDrop", snap(x + side * size * 0.45), snap(y - size * 0.8), Math.round(7 * v.s));
     // the fist that holds it: a few pixels of their own skin, edged dark
     ctx.save();
     ctx.fillStyle = "#2a1b12";
@@ -2333,7 +2337,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const handSide = (face.view === "back") !== face.mirror ? -1 : 1;
     const fishesWith: RodId = isRod(a.info.hold) ? a.info.hold : "rod";
     if (rod && face.view === "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
-    if (held && face.view === "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now);
+    if (held && face.view === "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -2349,7 +2353,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fill();
     }
     if (rod && face.view !== "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
-    if (held && face.view !== "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now);
+    if (held && face.view !== "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
@@ -2896,7 +2900,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [fishing]);
   const eatingNow = purse.eating?.dish ?? null;
   useEffect(() => { sessionRef.current?.setEating(eatingNow); }, [eatingNow]);
-  useEffect(() => { sessionRef.current?.setHolding(purse.hand); }, [purse.hand]);
+  useEffect(() => { sessionRef.current?.setHolding(purse.hand, purse.wet); }, [purse.hand, purse.wet]);
   const landedAt = useRef(0);
   const onLine = useCallback((state: LineState | null) => {
     lineRef.current = state;
