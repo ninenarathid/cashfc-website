@@ -234,16 +234,14 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * **Changing any number the catalog carries (a price, a recipe, a thing) needs such a migration before it is true in
  * the database.**
  *
- * v125 (pending) seeds two and writes thirteen over, for the forest and the insects the owner asked for on
+ * v125 (ran 2026-10-05) seeded two and wrote thirteen over, for the forest and the insects the owner asked for on
  * 2026-10-05: what the forest's places have and where they are (forest), the insects and their haunts (insects); the
  * things themselves, the net on the first day's shelf and its price (items, goods, shelf); what is cooked and made of
  * them, with a skewer as cookware and an insect never put in a pot (dishes, scrolls, makes, cooking); the insects
  * that go on a hook as a bait there already was (fish, flotsam, fishing) and on a plant (farming); and what the
  * uncle may ask for and hint at (order, hints).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v125: { keys: ["forest", "insects"], over: ["items", "goods", "shelf", "dishes", "scrolls", "makes", "cooking", "fish", "flotsam", "fishing", "farming", "order", "hints"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

@@ -175,7 +175,7 @@ export function vectorsV106(): Vector[] {
 
   // his hints
   for (let i = 0; i < 300; i++) {
-    const now = c.of(MOMENTS), p = purseOf(c, now), stage = c.int(0, UNLOCKS.length), at = sourcesAt(stage);
+    const now = c.of(MOMENTS), p = purseOf(c, now), stage = c.int(0, UNLOCKS.length), at = sourcesAt(stage, true);
     const found = Array.from({ length: c.int(0, 8) }, () => c.of(ITEM_IDS));
     add("next_hint", [p, found, stage], nextHint(p, found, (id) => at.has(id)));
     add("buy_hint", [p, found, stage], buyHint(p, found, (id) => at.has(id)));
@@ -183,7 +183,7 @@ export function vectorsV106(): Vector[] {
 
   // (somebody who has heard everything there is to hear at a stage, or found it, is sold nothing)
   for (let i = 0; i < 12; i++) {
-    const now = c.of(MOMENTS), stage = c.of([0, 3, 20, UNLOCKS.length]), at = sourcesAt(stage), can = HINT_IDS.filter((id) => at.has(id));
+    const now = c.of(MOMENTS), stage = c.of([0, 3, 20, UNLOCKS.length]), at = sourcesAt(stage, true), can = HINT_IDS.filter((id) => at.has(id));
     const half = can.filter(() => c.maybe(0.5)), p: Purse = { ...purseOf(c, now), coins: 100_000, hints: half }, found = can.filter((id) => !half.includes(id));
     add("next_hint", [p, found, stage], nextHint(p, found, (id) => at.has(id)));
     add("buy_hint", [p, found, stage], buyHint(p, found, (id) => at.has(id)));
