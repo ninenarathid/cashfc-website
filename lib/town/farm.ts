@@ -156,7 +156,9 @@ const isCan = (id: ItemId | null) => !!id && id in WATER.cans;
 /**
  * What is put on a plant: the two fertilisers and the cure; and three of the fish that came on 2026-10-05, each of
  * which does as one of those does (a herring dug in feeds a plant, as fish were buried under corn; a mosquitofish
- * keeps the pests off it for a day; an archerfish spits a pest off it). Used up by it, like the powder.
+ * keeps the pests off it for a day; an archerfish spits a pest off it). Used up by it, like the powder. Of the three
+ * kinds, `guard` keeps pests off a plant that has none and `cure` takes off one that is there: neither does the
+ * other's work (`feed`, below).
  */
 export const PUT_ON: Partial<Record<ItemId, "feed" | "guard" | "cure">> = {
   growFert: "feed", guardFert: "guard", pestCure: "cure",
@@ -285,12 +287,20 @@ export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null
   };
 }
 
-/** Put the fertiliser in the hand on a growing plant: one makes it grow faster from now on, the other keeps pests off it for a day. */
+/**
+ * Put the fertiliser in the hand on a growing plant: one makes it grow faster from now on, the other keeps pests off it
+ * for a day. **What keeps pests off does not take one off**: it does not go on a plant that has a pest on it, which
+ * is the cure's to rid first. (It did until 2026-10-05, by the way a strike is counted: every strike before a cover's
+ * end is passed over, the one before the cover was put on with them. So whatever covers a plant cured it too, and for
+ * a day more; and the day the insects came the members found that a ladybird, which is caught for a point of stamina,
+ * did the work of a cure that takes a scroll, a pot and five things. The owner: "แมลงที่หาง่ายกว่า จะทำให้ ยาไล่แมลง
+ * ไม่มีคนใช้เพราะทำยากกว่า". A plant covered so before then stays rid of its pest: nothing is counted again.)
+ */
 export function feed(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
   const kind = toolOf(hand);
   if ((kind !== "feed" && kind !== "guard") || !hasInHand(purse, hand)) return not("hand");
   const seen = see(key, plot, now, rains), p = plot.plant;
-  if (!p || seen.dead || (kind === "feed" && p.fed) || (kind === "guard" && p.guard > now)) return not("soil");
+  if (!p || seen.dead || (kind === "feed" && p.fed) || (kind === "guard" && (p.guard > now || seen.pest))) return not("soil");
   const plant = kind === "feed" ? { ...p, fed: now } : { ...p, guard: now + FARMING.guard * HOUR };
   return { ok: true, plot: { ...plot, plant }, purse: { ...spend(purse, FARMING.costs.feed, now), bag: take(purse.bag, hand!, 1) } };
 }
@@ -345,7 +355,8 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
     if (kind === "cure" && seen.pest) return "cure";
     if (kind === "can" && !seen.wet && !growing(p, now, rains).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
     if (kind === "feed" && !p.fed) return "feed";
-    if (kind === "guard" && p.guard <= now) return "feed";
+    // (what keeps pests off is for a plant that has none: one that has is the cure's)
+    if (kind === "guard" && p.guard <= now && !seen.pest) return "feed";
     if (seen.ripe && mine) return "pick";
   }
   return null;

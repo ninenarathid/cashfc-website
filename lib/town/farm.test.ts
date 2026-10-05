@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  BEDS, FARMING, WATER, WILD, chore, choreFor, cropOf, cure, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
+  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
   type Bed, type Plant, type Plot,
 } from "./farm";
 import atlas from "./icon-atlas.json";
@@ -234,6 +234,54 @@ describe("pests", () => {
     const pulled = done(uproot(key, me, plot, true, false, "hoe", late));
     expect(pulled.plot).toEqual({ soil: "cleared", plant: null });
     expect(held(pulled.purse.bag, "compost")).toBe(1);
+  });
+
+  // The owner, 2026-10-05, the day the members found that a ladybird put on a plant rid it of its pest: "แมลงที่หาง่ายกว่า
+  // จะทำให้ ยาไล่แมลง ไม่มีคนใช้เพราะทำยากกว่า". Whatever covers a plant cured it too, by the way a strike is counted.
+  it("are kept off by what covers a plant and taken off by a cure, and neither does the other's work", () => {
+    const COVERS = (Object.keys(PUT_ON) as ItemId[]).filter((id) => PUT_ON[id] === "guard"), CURES = (Object.keys(PUT_ON) as ItemId[]).filter((id) => PUT_ON[id] === "cure");
+    expect(COVERS.sort()).toEqual(["guardFert", "ladybird", "lavenderSachet", "mantis", "mosquitofish"]);
+    expect(CURES.sort()).toEqual(["archerfish", "pestCure"]);
+    const key = Array.from({ length: 400 }, (_, i) => `${i},3`).find((k) => pestAt(k, plant({ crop: "pumpkin" }), NIGHT + 48 * HOUR) !== null)!;
+    const p = plant({ crop: "pumpkin" }), plot: Plot = { soil: "tilled", plant: p }, t = pestAt(key, p, NIGHT + 48 * HOUR)!, now = t + HOUR;
+    expect(see(key, plot, now).pest).toBe(true);
+    for (const id of COVERS) {
+      // on a plant with a pest on it, it is not offered and does nothing: it stays in the bag, and the pest on the plant
+      const me = holding(purseWith([id, 2]), id);
+      expect(deedFor(key, plot, id, "me", now), id).toBeNull();
+      expect(feed(key, me, plot, id, now), id).toEqual({ ok: false, why: "soil" });
+      expect(tend(key, plot, undefined, 0, 0, me, "me", now), id).toEqual({ ok: false, why: "soil" });
+      expect(tend(key, plot, { by: "you", tended: now, empty: 0 }, 0, 0, me, "me", now), id).toEqual({ ok: false, why: "theirs" });
+      // the moment before the pest came it went on, and the plant was covered for the day: that pest never comes
+      const before = done(feed(key, me, plot, id, t - 1));
+      expect(before.plot.plant!.guard, id).toBe(t - 1 + FARMING.guard * HOUR);
+      expect(see(key, before.plot, now).pest, id).toBe(false);
+      expect(held(before.purse.bag, id), id).toBe(1);
+    }
+    for (const id of CURES) {
+      const cured = done(cure(key, purseWith([id, 1]), plot, id, now));
+      expect(see(key, cured.plot, now + 1), id).toMatchObject({ pest: false, dead: false });
+      // rid of its pest, the plant can be covered, by anything that covers: for a day from then
+      for (const cover of COVERS) {
+        expect(deedFor(key, cured.plot, cover, "me", now + 1), cover).toBe("feed");
+        const kept = done(feed(key, purseWith([cover, 1]), cured.plot, cover, now + 1));
+        expect(kept.plot.plant!.guard, cover).toBe(now + 1 + FARMING.guard * HOUR);
+        expect(held(kept.purse.bag, cover), cover).toBe(0);
+        const next = pestAt(key, kept.plot.plant!, now + 30 * 24 * HOUR);
+        if (next !== null) expect(next, cover).toBeGreaterThanOrEqual(now + 1 + FARMING.guard * HOUR);
+      }
+      // and a cure covers nothing: the plant may be struck again the same day
+      expect(cured.plot.plant!.guard, id).toBe(0);
+    }
+    // what makes a plant grow is put on whether it has a pest or not, as ever
+    expect(deedFor(key, plot, "growFert", "me", now)).toBe("feed");
+    expect(done(feed(key, purseWith(["growFert", 1]), plot, "growFert", now)).plot.plant!.fed).toBe(now);
+    // left with its pest, the plant dies of it six hours on, whatever one holds
+    expect(see(key, plot, t + FARMING.pests.kills * HOUR + 1).dead).toBe(true);
+    // a plant that was covered while it had a pest, before this was so, is rid of it still: nothing is counted again
+    const old: Plot = { soil: "tilled", plant: { ...p, guard: now + FARMING.guard * HOUR } };
+    expect(see(key, old, now + 2 * HOUR)).toMatchObject({ pest: false, dead: false });
+    expect(see(key, old, t + FARMING.pests.kills * HOUR + 1)).toMatchObject({ pest: false, dead: false });
   });
 
   it("leave a ripe plant alone: nothing is lost by coming late to pick it", () => {
