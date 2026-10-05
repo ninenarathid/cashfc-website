@@ -6,6 +6,7 @@ import type {
   Progress, Reaction, SeatRule, Shape, SlotTaken, Spot,
 } from "@/lib/party";
 import { askedAbout, endsAt } from "@/lib/party";
+import type { PartyPoll, PollVoter } from "@/lib/party-poll";
 
 /**
  * The party finder, read from and written to the database.
@@ -129,6 +130,97 @@ const MEMBER_COLS =
   "id, party_id, seat, character_id, name, avatar, job, jobs, flex, asked_by,"
   + " confirmed_at";
 
+/**
+ * Whether the database has the questions' tables (v136).
+ *
+ * Found out by asking once and remembered for the page's life, the same way
+ * the outcome is: a board ahead of its migration draws its parties without
+ * questions, and does not ask again on every reload. Signed out is not "no":
+ * the tables are for members, so a reader with no session is refused them,
+ * and that is an empty list rather than a missing table.
+ */
+let knowsPolls = true;
+
+/** A table PostgREST has never heard of, as opposed to one it will not show. */
+const noSuchTable = (e: { code?: string; message: string } | null): boolean =>
+  !!e && (e.code === "PGRST205" || e.code === "42P01"
+    || /could not find the table|does not exist/i.test(e.message));
+
+/**
+ * The questions under these parties, with their choices and who picked what.
+ *
+ * Three small queries rather than one embedded select. The answers hang off
+ * both the question and the choice, which is two roads between the same
+ * tables — PostgREST would have to be told which one is meant, by the name of
+ * a constraint, and a board that stops loading the day somebody renames a
+ * constraint is a poor trade for one round trip on the parties that have a
+ * question at all. Most have none, and those cost the first query and stop.
+ *
+ * Undefined where the database has no such tables yet; see knowsPolls.
+ */
+async function loadPolls(
+  supabase: SupabaseClient, partyIds: number[],
+): Promise<Map<number, PartyPoll[]> | undefined> {
+  if (!knowsPolls) return undefined;
+  const { data: asked, error } = await supabase.from("party_polls")
+    .select("id, party_id, question, multi, closed_at, created_at")
+    .in("party_id", partyIds)
+    .order("created_at", { ascending: true })
+    .order("id", { ascending: true });
+  if (error) {
+    if (noSuchTable(error)) { knowsPolls = false; return undefined; }
+    // Anything else is this load's bad luck, not a board without the feature.
+    return new Map();
+  }
+  const rows = (asked ?? []) as unknown as {
+    id: number; party_id: number; question: string; multi: boolean;
+    closed_at: string | null; created_at: string;
+  }[];
+  const out = new Map<number, PartyPoll[]>();
+  if (!rows.length) return out;
+
+  const ids = rows.map((r) => r.id);
+  const [{ data: options }, { data: votes }] = await Promise.all([
+    supabase.from("party_poll_options")
+      .select("id, poll_id, label, sort")
+      .in("poll_id", ids)
+      .order("sort", { ascending: true })
+      .order("id", { ascending: true }),
+    supabase.from("party_poll_votes")
+      .select("poll_id, option_id, profile_id, character_id, name, created_at")
+      .in("poll_id", ids)
+      // First to answer, first in the line under a choice.
+      .order("created_at", { ascending: true }),
+  ]);
+
+  const byChoice = new Map<number, PollVoter[]>();
+  for (const v of (votes ?? []) as unknown as {
+    option_id: number; profile_id: string; character_id: number | null; name: string | null;
+  }[]) {
+    const at = byChoice.get(v.option_id) ?? [];
+    at.push({ profileId: v.profile_id, characterId: v.character_id, name: v.name });
+    byChoice.set(v.option_id, at);
+  }
+  const choicesOf = new Map<number, PartyPoll["choices"]>();
+  for (const o of (options ?? []) as unknown as {
+    id: number; poll_id: number; label: string;
+  }[]) {
+    const at = choicesOf.get(o.poll_id) ?? [];
+    at.push({ id: String(o.id), label: o.label, by: byChoice.get(o.id) ?? [] });
+    choicesOf.set(o.poll_id, at);
+  }
+  for (const r of rows) {
+    const at = out.get(r.party_id) ?? [];
+    at.push({
+      id: String(r.id), question: r.question, multi: !!r.multi,
+      closedAt: r.closed_at, createdAt: r.created_at,
+      choices: choicesOf.get(r.id) ?? [],
+    });
+    out.set(r.party_id, at);
+  }
+  return out;
+}
+
 /* ── reading ──────────────────────────────────────────────────────────────── */
 
 /**
@@ -183,7 +275,7 @@ export async function loadParties(
     .filter((p) => !!opts?.statics === !!p.is_static);
   if (!rows.length) return [];
   const ids = rows.map((p) => p.id);
-  const [{ data: members }, { data: comments }] = await Promise.all([
+  const [{ data: members }, { data: comments }, pollOf] = await Promise.all([
     supabase.from("party_members")
       .select(MEMBER_COLS)
       .in("party_id", ids)
@@ -202,6 +294,9 @@ export async function loadParties(
               + " mentions, reply_to, mentions_all")
       .in("party_id", ids)
       .order("created_at", { ascending: true }),
+    // Beside the other two rather than after them, so a board with no
+    // questions on it waits no longer for having looked.
+    loadPolls(supabase, ids),
   ]);
 
   const seatsOf = new Map<number, Record<string, SlotTaken>>();
@@ -381,6 +476,7 @@ export async function loadParties(
     invites: inviteOf.get(p.id) ?? [],
     comments: talkOf.get(p.id) ?? [],
     photos: photoOf.get(p.id) ?? [],
+    polls: pollOf ? (pollOf.get(p.id) ?? []) : undefined,
   }));
 }
 
@@ -413,6 +509,8 @@ interface Roster {
   invites: Floater[];
   comments: PartyComment[];
   photos?: GroupPhoto[];
+  /** Undefined where the database has no questions yet. See knowsPolls. */
+  polls?: PartyPoll[];
 }
 
 /** A listing with nobody in it yet. See recentSetups. */
@@ -459,6 +557,7 @@ function partyOf(p: PostRow, who: Roster): Party {
     body: p.body ?? [],
     comments: who.comments,
     photos: who.photos ?? [],
+    ...(who.polls ? { polls: who.polls } : {}),
     createdAt: p.created_at,
     updatedAt: p.updated_at ?? undefined,
     endedAt: p.ended_at,
@@ -1279,6 +1378,76 @@ export async function toggleReaction(
   // report — it is the second press finding the first already done.
   if (error && !/duplicate key/i.test(error.message)) return { error: error.message };
   return {};
+}
+
+/* ── questions ────────────────────────────────────────────────────────────── */
+
+/*
+ * Every one of these is a function in the database rather than a row written
+ * from here (v136). A question and its choices have to arrive together, "one
+ * answer only" is a rule about another table's row, and the name under an
+ * answer is the database's to read off the caller's own profile — none of
+ * which a table policy can say. So the page sends what was pressed and the
+ * database decides whether it counts.
+ */
+
+/** The lead asking the party something. Its people are told by the database. */
+export async function askPoll(
+  supabase: SupabaseClient, partyId: string,
+  q: { question: string; choices: string[]; multi: boolean },
+): Promise<{ id: string } | { error: string }> {
+  const { data, error } = await supabase.rpc("party_poll_create", {
+    p_party: Number(partyId),
+    p_question: q.question,
+    p_options: q.choices,
+    p_multi: q.multi,
+  });
+  if (error || data == null) return { error: error?.message ?? "no row" };
+  return { id: String(data) };
+}
+
+/**
+ * My answer, whole: exactly these choices, replacing whatever I had said.
+ *
+ * One call for answering, changing my mind and taking it back (an empty list),
+ * because on the card it is one press — and so two windows open on the same
+ * question cannot leave me holding an answer neither of them shows.
+ */
+export async function answerPoll(
+  supabase: SupabaseClient, pollId: string, picks: string[],
+): Promise<{ error?: string }> {
+  const { error } = await supabase.rpc("party_poll_vote", {
+    p_poll: Number(pollId), p_options: picks.map(Number),
+  });
+  return error ? { error: error.message } : {};
+}
+
+/** One more choice on a question that is still open. The lead's. */
+export async function addPollChoice(
+  supabase: SupabaseClient, pollId: string, label: string,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.rpc("party_poll_add_option", {
+    p_poll: Number(pollId), p_label: label,
+  });
+  return error ? { error: error.message } : {};
+}
+
+/** Stop taking answers, or start again. The answers stay either way. */
+export async function closePoll(
+  supabase: SupabaseClient, pollId: string, closed = true,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.rpc("party_poll_close", {
+    p_poll: Number(pollId), p_closed: closed,
+  });
+  return error ? { error: error.message } : {};
+}
+
+/** Take a question down, with its answers. Not a tombstone: see v136. */
+export async function dropPoll(
+  supabase: SupabaseClient, pollId: string,
+): Promise<{ error?: string }> {
+  const { error } = await supabase.rpc("party_poll_drop", { p_poll: Number(pollId) });
+  return error ? { error: error.message } : {};
 }
 
 /* ── pictures ─────────────────────────────────────────────────────────────── */

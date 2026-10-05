@@ -53,9 +53,25 @@ export function useLiveParties(
     }
     ch.subscribe();
 
+    /*
+     * The questions, on a channel of their own (v136).
+     *
+     * One table for all of it: every answer and every change to a question
+     * moves that question's own row, so this hears a vote without the votes
+     * being published at all. Its own channel so that whatever the server
+     * makes of a table it does not have yet, on a board ahead of its
+     * migration, it says it about this channel and not about the other four.
+     * Both ride the one socket.
+     */
+    const polls = supabase.channel("party-polls")
+      .on("postgres_changes",
+        { event: "*", schema: "public", table: "party_polls" }, soon)
+      .subscribe();
+
     return () => {
       if (timer) clearTimeout(timer);
       void supabase.removeChannel(ch);
+      void supabase.removeChannel(polls);
     };
   }, [supabase, enabled]);
 }

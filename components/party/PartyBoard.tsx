@@ -70,6 +70,8 @@ import CloseParty, { GroupPhotos, StaticTag, SuccessTag } from "@/components/par
 import { useAdmin } from "@/lib/admin";
 import ShareParty from "@/components/party/ShareParty";
 import PfHelper from "@/components/party/PfHelper";
+import PartyPolls from "@/components/party/PartyPolls";
+import { openPolls, pollWaitsOn } from "@/lib/party-poll";
 
 /**
  * Who is running what, and when.
@@ -744,6 +746,14 @@ function PartyDetail(
                      clash={me ? clashFor(parties, me.id, party, party.id) : null}
                      supabase={supabase} now={now}
                      onDone={refresh} onError={setErr} />
+
+          {/* What the lead is asking everybody, under the seats and above
+              the conversation: what the party is, whether there is a place in
+              it, then what is being asked and said. Asked by whoever may
+              change the listing — the lead, or an admin standing in. */}
+          <PartyPolls party={party} me={me} userId={userId} people={people}
+                      supabase={supabase} canAsk={!!onEdit}
+                      refresh={refresh} setErr={setErr} setParties={setParties} />
 
           {/* The boss, which neither the title nor the row has room for: the
               title leads with the duty you queue for, and this is the third
@@ -1676,6 +1686,21 @@ export default function PartyBoard(
                   ✋ {pendingAsks(p)}
                 </span>
               )}
+              {/* A question still open. Gold only for somebody who is in the
+                  party and has not answered: to everybody else it is a thing
+                  the party has, not a thing they owe it. */}
+              {openPolls(p.polls).length > 0 && (() => {
+                const n = openPolls(p.polls).length;
+                const waits = !!me && !!placeOf(p, me.id) && pollWaitsOn(p.polls, userId);
+                return (
+                  <span title={t(waits ? "pf.pollsWaiting" : "pf.pollsOpen", { n })}
+                        className={waits
+                          ? "rounded-full border border-gold/50 bg-gold/10 px-1.5 font-data text-ui text-gold"
+                          : "font-data text-read text-muted"}>
+                    📊 {n}
+                  </span>
+                );
+              })()}
               {!!p.comments?.length && (
                 <span className="font-data text-read text-muted">
                   💬 {p.comments.length}

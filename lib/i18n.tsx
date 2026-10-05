@@ -1136,6 +1136,11 @@ const DICT = {
     en: "{who} said something in a party you are in.",
     th: "{who} ส่งข้อความในปาร์ตี้ที่คุณอยู่",
   },
+  // The lead asked the party something (v136). The question is the line under it.
+  "notif.partyPoll": {
+    en: "{who} asked a question in a party you are in.",
+    th: "{who} ตั้งโพลในปาร์ตี้ที่คุณอยู่",
+  },
   /* Said when a notification arrives of a kind this version does not know.
      Vague on purpose: claiming it is an announcement sends people looking
      through the announcements for something that is not in them. */
@@ -3423,6 +3428,86 @@ const DICT = {
   "pf.groupPhotoTitle": { en: "Group photos", th: "รูปถ่ายรวม" },
   "pf.addGroupPhoto": { en: "Add a photo", th: "เพิ่มรูป" },
   "pf.saveGroupPhotos": { en: "Save photos", th: "บันทึกรูป" },
+  /*
+   * A question the lead asks the party (v136).
+   *
+   * "Poll" in both languages: it is the word the FC already uses for this in
+   * Discord, and "แบบสอบถาม" is a form somebody hands you at a counter.
+   */
+  "pf.polls": { en: "Polls", th: "โพล" },
+  "pf.pollAsk": { en: "Ask the party", th: "ตั้งโพล" },
+  "pf.pollFull": {
+    en: "A party holds {n} polls at the most.",
+    th: "ปาร์ตี้หนึ่งตั้งได้สูงสุด {n} โพล",
+  },
+  "pf.pollQuestion": { en: "Question", th: "คำถาม" },
+  "pf.pollQuestionHint": {
+    en: "Which evening works for everyone?",
+    th: "เช่น ว่างวันไหนกันบ้าง",
+  },
+  "pf.pollChoices": { en: "Choices", th: "ตัวเลือก" },
+  "pf.pollChoiceN": { en: "Choice {n}", th: "ตัวเลือกที่ {n}" },
+  "pf.pollAddChoice": { en: "Add a choice", th: "เพิ่มตัวเลือก" },
+  "pf.pollAdd": { en: "Add", th: "เพิ่ม" },
+  "pf.pollRemoveChoice": { en: "Remove this choice", th: "เอาตัวเลือกนี้ออก" },
+  "pf.pollMultiple": {
+    en: "Let people pick more than one",
+    th: "ให้เลือกได้หลายข้อ",
+  },
+  "pf.pollPost": { en: "Post the poll", th: "ตั้งโพล" },
+  "pf.pollPosting": { en: "Posting…", th: "กำลังตั้ง…" },
+  "pf.pollNeedQuestion": { en: "Write the question first.", th: "ใส่คำถามก่อนนะ" },
+  "pf.pollNeedTwo": {
+    en: "It needs at least {n} choices.",
+    th: "ต้องมีอย่างน้อย {n} ตัวเลือก",
+  },
+  "pf.pollTooMany": {
+    en: "{n} choices at the most.",
+    th: "ใส่ได้สูงสุด {n} ตัวเลือก",
+  },
+  "pf.pollSame": {
+    en: "Two of the choices say the same thing.",
+    th: "มีตัวเลือกที่ซ้ำกัน",
+  },
+  "pf.pollTooLong": {
+    en: "A choice is {n} characters at the most.",
+    th: "ตัวเลือกยาวได้ไม่เกิน {n} ตัวอักษร",
+  },
+  "pf.pollOne": { en: "One answer each", th: "ตอบได้ข้อเดียว" },
+  "pf.pollMany": { en: "Pick as many as fit", th: "เลือกได้หลายข้อ" },
+  "pf.pollAnswered": { en: "{n} answered", th: "ตอบแล้ว {n} คน" },
+  "pf.pollNobody": { en: "No answers yet", th: "ยังไม่มีใครตอบ" },
+  "pf.pollClosed": { en: "Closed", th: "ปิดโพลแล้ว" },
+  "pf.pollPressOne": {
+    en: "Press a choice to answer.",
+    th: "กดตัวเลือกเพื่อตอบได้เลย",
+  },
+  "pf.pollPressMany": {
+    en: "Press every choice that works for you.",
+    th: "กดได้ทุกข้อที่ใช่สำหรับคุณ",
+  },
+  "pf.pollChange": {
+    en: "Press another choice to change your answer, or yours again to take it back.",
+    th: "กดข้ออื่นเพื่อเปลี่ยนคำตอบ หรือกดข้อเดิมอีกครั้งเพื่อยกเลิก",
+  },
+  "pf.pollSignIn": { en: "Sign in to answer.", th: "เข้าสู่ระบบก่อนถึงจะตอบได้" },
+  // For a screen reader, on each choice: how many, and who.
+  "pf.pollPickedBy": { en: "{n} picked this: {who}", th: "เลือกข้อนี้ {n} คน: {who}" },
+  "pf.pollWho": { en: "See who answered", th: "ดูว่าใครตอบอะไร" },
+  "pf.pollWhoHide": { en: "Hide the names", th: "ซ่อนรายชื่อ" },
+  "pf.pollClose": { en: "Close poll", th: "ปิดโพล" },
+  "pf.pollReopen": { en: "Reopen poll", th: "เปิดโพลอีกครั้ง" },
+  "pf.pollDelete": { en: "Delete poll", th: "ลบโพล" },
+  "pf.pollDeleteAsk": {
+    en: "Delete this poll? Everybody's answers go with it.",
+    th: "ลบโพลนี้ไหม คำตอบของทุกคนจะหายไปด้วย",
+  },
+  // On a party's row: questions still open, and gold while one waits for you.
+  "pf.pollsOpen": { en: "{n} open polls", th: "โพลที่ยังเปิดอยู่ {n} โพล" },
+  "pf.pollsWaiting": {
+    en: "{n} open polls, and one you have not answered",
+    th: "โพลที่ยังเปิดอยู่ {n} โพล มีข้อที่คุณยังไม่ได้ตอบ",
+  },
   // An admin answering an invitation for the person it was sent to.
   "party.acceptFor": { en: "Confirm for them", th: "ยืนยันแทน" },
   "pf.reopenParty": { en: "Reopen", th: "เปิดปาร์ตี้อีกครั้ง" },

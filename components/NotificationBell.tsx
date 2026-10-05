@@ -294,6 +294,14 @@ const KIND: Record<string, { say: Key; icon: React.ReactNode; href: string }> = 
    */
   party_moved: { say: "notif.partyMoved", icon: "🔀", href: "/party" },
   /*
+   * The lead asked the party a question (v136), told to everybody in it.
+   *
+   * The body is the question and is printed under the line, the way a message
+   * is: it is the thing to read before deciding whether to open the party.
+   * Not in any quiet group (lib/notifications.ts): it is waiting on an answer.
+   */
+  party_poll: { say: "notif.partyPoll", icon: "📊", href: "/party" },
+  /*
    * Your own party, filling and emptying, told to you and to nobody else.
    *
    * A lead who asked four people about D4 and went to make dinner used to come

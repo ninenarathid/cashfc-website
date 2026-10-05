@@ -25,6 +25,7 @@ import { LEGACY } from "@/lib/legacy";
 import { artFocus, dutySlug, type DutyKind } from "@/lib/duty";
 import { FC_WORLD } from "@/lib/world";
 import { EMOTES } from "@/lib/emotes";
+import type { PartyPoll } from "@/lib/party-poll";
 
 export type SlotRole = "tank" | "healer" | "dps";
 export type Shape = "light" | "four" | "full" | "eight" | "alliance" | "open";
@@ -1204,6 +1205,13 @@ export interface Party {
    * only on a success; kept whatever the outcome.
    */
   photos?: GroupPhoto[];
+  /**
+   * The questions the lead has asked the party, oldest first. See v136.
+   *
+   * Absent — not empty — on a board whose database has no such table yet, so
+   * the lead is not offered a button that can only fail.
+   */
+  polls?: PartyPoll[];
   /**
    * A static rather than an evening. See v76.
    *

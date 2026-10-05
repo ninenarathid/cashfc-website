@@ -61,6 +61,9 @@ Surveyed 2026-10-01. The site ships almost daily; check the code and
   - a progress track and a loot plan; map, roulette and place pickers;
   - chat with mentions; SeatSuggest; weekly reposts; statics;
     success/fail with group photos;
+  - polls: the lead asks the party a question with 2 to 10 choices (one
+    answer or several), any verified member answers under their name, and
+    everybody in the party is told (v136);
   - the Japanese PF text helper; realtime.
 - **`/leaderboards`:** two popoto boards and eight playstyle boards
   (crafter, gatherer, relic, explorer, treasure, Gold Saucer, seasonal,
