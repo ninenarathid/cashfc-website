@@ -34,6 +34,7 @@ import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
+import { CART } from "@/lib/town/cart";
 import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
@@ -2185,6 +2186,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!(icon in ICON_ATLAS.icons)) return;
     const v = cam.current, px = Math.max(1, v.s), size = Math.round(15 * v.s);
     const snap = (n: number) => Math.round(n / px) * px;
+    // (a cart is not held up: it stands on the ground before them, their hands on it: lib/town/cart)
+    if (item === CART.item) {
+      const wide = Math.round(30 * v.s);
+      drawIcon(ctx, iconImg.current, icon, snap(p.x + side * h * 0.46), snap(p.y - wide * 0.42), wide);
+      return;
+    }
     const x = snap(p.x + side * h * 0.27), y = snap(p.y - h * 0.36);
     drawIcon(ctx, iconImg.current, icon, x, y - size * 0.25, size);
     // the fist that holds it: a few pixels of their own skin, edged dark
@@ -2692,6 +2699,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       /** Walk to a tile, as a tap on it does; and where I am now, and whether I am walking. */
       walk: (x: number, y: number) => sessionRef.current?.walkTo({ x, y }) ?? false,
       self: () => { const a = sessionRef.current?.self; return a ? { x: a.pos.x, y: a.pos.y, moving: a.path.length > 0 } : null; },
+      /** Where somebody else is as this page has them, and whether they are walking. */
+      at: (id: string) => { const a = sessionRef.current?.avatars.get(id); return a ? { x: a.pos.x, y: a.pos.y, moving: a.path.length > 0 } : null; },
       /** The shopkeepers and the gateways on the screen this frame. */
       keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
       /** The place to fish from that I stand at, if it is one: its tile, where its float lands, and whether that is deep water. */

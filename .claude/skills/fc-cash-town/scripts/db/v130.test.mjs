@@ -148,6 +148,10 @@ let soupBefore;
   soupBefore = await cook(U.guest, SOUP);
   t.check("…and a soup cooked: five helpings", soupBefore.ok === true && soupBefore.made === "pumpkinSoup" && soupBefore.n === 5 && (await kept(U.guest)).bag.find((s) => s?.item === "potFull").of.left === 5, soupBefore);
 }
+{
+  const due = await one(`select town.well_due(200, '{1}') as second, town.well_due(600, '{1}') as third, town.cat('farming')->'buckets' as buckets, town.cat('items') ? 'waterCart' as thing`);
+  t.check("before the file: the well has nothing for the second rank, and there is no cart", due.second === null && same(due.third, [3, "waterYokeGreat"]) && !("waterCart" in due.buckets) && due.thing === false, due);
+}
 const bookWas = await book(), helpWas = await helpNow(), textsWas = await texts(), plotWas = await plotNow(133, 5), deedsWas = await lastDeed();
 
 await t.runTwice(FILE, "v130");
@@ -212,7 +216,17 @@ t.section("nothing else changed");
 
   const after = (await t.sql(`select key, data, updated_at from public.town_catalog order by key`)).rows;
   const was = Object.fromEntries(before.map((row) => [row.key, row])), written = after.filter((row) => !was[row.key] || String(row.updated_at) !== String(was[row.key].updated_at)).map((row) => row.key);
-  t.check("it seeds three rows and writes none over", same(written, ["ditch", "heat", "yard"]) && after.length === before.length + 3 && after.every((row) => written.includes(row.key) || same(row.data, was[row.key].data)), written);
+  t.check("it seeds three rows and writes three over", same(written, ["ditch", "farming", "heat", "items", "well", "yard"]) && after.length === before.length + 3 && after.every((row) => written.includes(row.key) || same(row.data, was[row.key].data)), written);
+  {
+    // (whole rows are written over: each is what it was, but for the cart)
+    const now = Object.fromEntries(after.map((row) => [row.key, row.data]));
+    const { waterCart, ...things } = now.items, { waterCart: holds, ...buckets } = now.farming.buckets;
+    t.check("…and the three written over are as they were but for the cart: the thing, what it carries, the rank it is given at",
+      same(things, was.items.data) && same(waterCart, { kind: "tool", tier: 1, stack: 1, pays: 0 })
+      && same({ ...now.farming, buckets }, was.farming.data) && holds === 6
+      && same({ ...now.well, gifts: was.well.data.gifts }, was.well.data) && same(now.well.gifts, [[1, "waterYoke"], [2, "waterCart"], [3, "waterYokeGreat"]]),
+      { waterCart, holds, gifts: now.well.gifts });
+  }
   const odd = after.filter((row) => !same(row.data, CODE[row.key])).map((row) => row.key);
   t.check("every row of the catalog is what the site's code gives now", odd.length === 0 && after.length === before.length + 3, odd);
   t.check("what the book kept before the file is as it was, who helped whom too, and the plot watered that morning", same(await book(), bookWas) && same(await helpNow(), helpWas) && same(await plotNow(133, 5), plotWas) && (await lastDeed()) === deedsWas, await book());
@@ -560,6 +574,55 @@ t.section("the cooking yard's water jar: by the functions a member calls");
 }
 
 /* ── who may ─────────────────────────────────────────────────────────────── */
+
+t.section("the water cart: by the functions a member calls");
+{
+  // (nothing is written for it: the game's functions read what a thing is, what it carries and what the well gives from the catalog)
+  await t.sql(`delete from public.town_weather`);
+  await wipe();
+  await clock(MORNING);
+  await t.sql(`update public.town_things set doc = '0'::jsonb where key in ('well', 'yard')`);
+  await t.sql(`insert into public.town_carriers (member_id, buckets, taken) values ($1, 199, '{1}')`, [U.m1]);
+  await purse(U.m1, 3, [{ item: "waterYoke", n: 1 }], 100, { hand: "waterYoke" });
+  r = await call(U.m1, "town_well");
+  t.check("one short of the second rank, with the yoke taken: nothing waits", r.wellBook.rank === 1 && r.wellBook.gift === false, r.wellBook);
+  await t.sql(`update public.town_carriers set buckets = 200 where member_id = $1`, [U.m1]);
+  r = await call(U.m1, "town_well");
+  t.check("at the second rank something waits at the well", r.wellBook.rank === 2 && r.wellBook.gift === true, r.wellBook);
+  r = await call(U.m1, "town_well_take");
+  v = await book();
+  const carts = (bag) => bag.filter((s) => s?.item === "waterCart").length;
+  t.check("it is the cart: in the bag beside the yoke, marked as taken", r.ok === true && r.gift === "waterCart" && r.rank === 2 && carts(r.purse.bag) === 1 && r.purse.bag[0].item === "waterYoke" && r.purse.coins === 3
+    && same(v.carriers[U.m1], { buckets: 200, taken: [1, 2] }) && carts((await kept(U.m1)).bag) === 1, r);
+  r = await call(U.m1, "town_well_take");
+  t.check("once: asked again, there is nothing", r.ok === false && r.why === "none" && carts((await kept(U.m1)).bag) === 1, r);
+  v = await one(`select town.well_due(600, '{1,3}') as late, town.well_due(600, '{1,2}') as great, town.well_due(600, '{1,2,3}') as none, town.well_due(600, '{}') as first`);
+  t.check("whoever had the great yoke before there was a cart finds the cart waiting; the lowest rank not taken comes first", same(v, { late: [2, "waterCart"], great: [3, "waterYokeGreat"], none: null, first: [1, "waterYoke"] }), v);
+
+  // six bucketfuls at the river, for what one bucket costs
+  await purse(U.m1, 0, [{ item: "waterCart", n: 1 }], 100, { hand: "waterCart" });
+  r = await call(U.m1, "town_chore", ...RIVER);
+  t.check("it draws six bucketfuls at the river, for the stamina of one bucket", r.ok === true && r.purse.bag[0].water === 6 && r.purse.stamina.left === 98, r);
+  const from = await lastDeed();
+  r = await call(U.m1, "town_chore", ...AT_WELL);
+  v = await book();
+  t.check("…and pours the six into the well: six of the well's water its carrier's, six towards their rank", r.ok === true && (await wellIs()) === 6 && !("water" in r.purse.bag[0])
+    && same(v.water, [{ by: U.m1, left: 6 }]) && v.carriers[U.m1].buckets === 206, { r, v });
+  v = await deedsSince(from);
+  t.check("…written down as one pouring of six, with the cart", v.length === 1 && v[0].what === "pour" && v[0].thing === "waterCart" && v[0].n === 6, v);
+
+  // over a bed, and into the yard's jar
+  await t.sql(`truncate public.town_plots, public.town_beds`);
+  for (const [x, y] of [[132, 5], [133, 5], [134, 5]]) await plant(x, y, growing(U.admin));
+  await call(U.m1, "town_chore", ...RIVER);
+  r = await call(U.m1, "town_ditch", 132, 5);
+  t.check("over a bed it pours no more than the bed's plants take, and keeps the rest", r.ok === true && r.used === 1 && r.watered.length === 3 && r.purse.bag[0].water === 5, r);
+  r = await call(U.m1, "town_yard_pour", ...JAR_AT);
+  t.check("into the yard's jar go the five it has left", r.ok === true && r.poured === 5 && same(r.yard, { jar: 5 }) && !("water" in r.purse.bag[0]), r);
+  await call(U.m1, "town_chore", ...RIVER);
+  r = await call(U.m1, "town_yard_pour", ...JAR_AT);
+  t.check("…and of the next six as many as the jar has room for", r.ok === true && r.poured === 5 && same(r.yard, { jar: 10 }) && r.purse.bag[0].water === 1, r);
+}
 
 t.section("who may read and call what");
 for (const [fn, args] of [["town_ditch", [132, 5]], ["town_yard", []], ["town_yard_pour", JAR_AT]]) {

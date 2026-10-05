@@ -191,6 +191,26 @@ const all = ({ swap, cut }) => [
   ["the jar's own row is not made",
     swap("insert into public.town_things (key, doc) values ('yard', '0'::jsonb) on conflict (key) do nothing;\n", ""),
     ["the yard's jar is there, empty", "standing by it, an iron bucket's two bucketfuls go in"]],
+
+  /* ── the cart: three rows of the catalog written over ── */
+  ["the rows there already are left as they are",
+    swap("  on conflict (key) do update set data = excluded.data, updated_at = now();", "  on conflict (key) do nothing;"),
+    ["it seeds three rows and writes three over", "…and the three written over are as they were but for the cart", "every row of the catalog is what the site's code gives now", "at the second rank something waits at the well", "it draws six bucketfuls at the river"]],
+  ["the cart carries what a great yoke does",
+    swap(`"waterYokeGreat":4,"waterCart":6}`, `"waterYokeGreat":4,"waterCart":4}`),
+    ["…and the three written over are as they were but for the cart", "every row of the catalog is what the site's code gives now", "it draws six bucketfuls at the river", "…and pours the six into the well"]],
+  ["the well has no cart to give",
+    swap(`[[1,"waterYoke"],[2,"waterCart"],[3,"waterYokeGreat"]]`, `[[1,"waterYoke"],[3,"waterYokeGreat"]]`),
+    ["…and the three written over are as they were but for the cart", "every row of the catalog is what the site's code gives now", "at the second rank something waits at the well", "it is the cart"]],
+  ["the cart is the last rank's",
+    swap(`[2,"waterCart"]`, `[3,"waterCart"]`),
+    ["…and the three written over are as they were but for the cart", "at the second rank something waits at the well", "whoever had the great yoke before there was a cart finds the cart waiting"]],
+  ["the cart is no thing the catalog knows",
+    swap(`    "waterCart": {"kind":"tool","tier":1,"stack":1,"pays":0},\n`, ""),
+    ["…and the three written over are as they were but for the cart", "every row of the catalog is what the site's code gives now"]],
+  ["the cart fetches coins",
+    swap(`"waterCart": {"kind":"tool","tier":1,"stack":1,"pays":0}`, `"waterCart": {"kind":"tool","tier":1,"stack":1,"pays":50}`),
+    ["…and the three written over are as they were but for the cart", "every row of the catalog is what the site's code gives now"]],
 ];
 
 export default (h) => {

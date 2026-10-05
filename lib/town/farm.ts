@@ -104,10 +104,10 @@ export const HOES: ItemId[] = ["hoe", "hoeIron", "hoeSteel"];
 /** The blades that pick one more: shears for a tree or a bush that bears for a season, a sickle for the rest; and how many pickings make a plant one of the first. */
 export const BLADES: { tree: ItemId; plant: ItemId } = { tree: "shears", plant: "sickle" };
 export const TREE_PICKS = 5;
-/** Water: how many waterings each can holds when full, how many bucketfuls each bucket carries (and each yoke: the well's own gifts to its carriers, lib/town/well), how many the well holds, and the stamina to draw a bucket at the river, pour it into the well, and fill a can there. */
+/** Water: how many waterings each can holds when full, how many bucketfuls each bucket carries (and each yoke, and the cart: the well's own gifts to its carriers, lib/town/well and lib/town/cart), how many the well holds, and the stamina to draw a bucket at the river, pour it into the well, and fill a can there. */
 export const WATER = {
   cans: { can: 8, canCopper: 12, canBrass: 18 } as Partial<Record<ItemId, number>>,
-  buckets: { bucket: 1, bucketIron: 2, waterYoke: 2, waterYokeGreat: 4 } as Partial<Record<ItemId, number>>,
+  buckets: { bucket: 1, bucketIron: 2, waterYoke: 2, waterYokeGreat: 4, waterCart: 6 } as Partial<Record<ItemId, number>>,
   well: 40,
   costs: { draw: 2, pour: 1, fill: 1 },
 };

@@ -268,6 +268,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  *
  * v130 (pending) seeds `heat`, `ditch` and `yard`, for the same members' third round: a hot afternoon's hours and
  * what a watering does in them, what a bucket poured over a bed waters and costs, and the cooking yard's water jar.
+ * And it writes three over, for their last round, a water cart (lib/town/cart): the thing (items), the six
+ * bucketfuls it carries (farming), and the rank the well gives it at (well). Whole rows: its block is made again
+ * from the tree at the push, or it would drop what somebody else had added to them since.
  *
  * v132 (pending) seeds `line`, for their fourth: how far water is handed on, what that costs, and how many hands a
  * bucketful remembers.
@@ -299,7 +302,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * (items: the `pays` of twelve of them).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v130: { keys: ["heat", "ditch", "yard"], over: [] },
+  v130: { keys: ["heat", "ditch", "yard"], over: ["items", "farming", "well"] },
   v132: { keys: ["line"], over: [] },
   v133: { keys: ["waters"], over: [] },
 };

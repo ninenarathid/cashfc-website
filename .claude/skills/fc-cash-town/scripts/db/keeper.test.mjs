@@ -768,6 +768,15 @@ try {
     await settled(H); await settled(H);
     ok("a watering in the heat: the keeper knows it is hot, reads the farm again, and has the plot as it is kept, with as much again", did.ok && did.deed === "water" && H.hot() === true
       && asked.filter((x) => x === "B town_farm").length === before + 1 && H.farm()["136,5"].plant.boost === 3600000, { hot: H.hot(), boost: H.farm()["136,5"]?.plant?.boost });
+    // the cart: three rows of v130's catalog, and nothing the keeper has to know of
+    await sql(`insert into public.town_carriers (member_id, buckets, taken) values ($1, 200, '{1}') on conflict (member_id) do update set buckets = 200, taken = '{1}'`, [b]);
+    await H.wellLook();
+    ok("the second rank has something waiting for whoever has the yoke", H.wellBook()?.rank === 2 && H.wellBook().gift === true, H.wellBook());
+    did = await H.wellTake();
+    ok("…a cart, which the keeper has in the bag at once", did.ok && did.gift === "waterCart" && did.rank === 2 && slotOf(H, "waterCart") >= 0 && H.wellBook().gift === false, did);
+    await H.hold(slotOf(H, "waterCart"));
+    did = await H.choreDo("river", RIVER);
+    ok("…and it draws six bucketfuls at the river", did.ok && did.chore === "draw" && H.purse().bag[slotOf(H, "waterCart")]?.water === 6, { did, bag: H.purse().bag });
     stopG(); stopH(); G.close(); H.close();
   }
 

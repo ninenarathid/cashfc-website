@@ -68,6 +68,8 @@ export const ITEMS = {
   // what the farm's well has for whoever carries water to it (lib/town/well): a yoke, and a great one. They fetch nothing: they are not for selling.
   waterYoke: it("tool", "คานหาบน้ำ", "Water yoke", "คานไม้พาดบ่า ปลายสองข้างแขวนถังไม้ใบย่อม", "A wooden pole worn across the shoulders, a small wooden pail hung from each end", 1, 0),
   waterYokeGreat: it("tool", "คานหาบน้ำใหญ่", "Great water yoke", "คานไม้เนื้อแข็งหัวหุ้มทองเหลือง ปลายสองข้างแขวนถังใบใหญ่คาดทองเหลือง", "A hardwood pole capped with brass, a big brass-hooped pail hung from each end", 1, 0),
+  // (and between the two a cart: more water than either, and heavy: lib/town/cart)
+  waterCart: it("tool", "รถเข็นน้ำ", "Water cart", "รถเข็นไม้สองล้อ บรรทุกถังน้ำไม้ใบใหญ่ หนักเอาการ", "A two-wheeled wooden hand cart with one big water barrel on it. It is heavy", 1, 0),
 
   // bait
   worm: it("bait", "ไส้เดือน", "Worm", "ตัวยาวสีชมพูอมน้ำตาล เปื้อนดิน ยังดิ้นอยู่", "Long, pinkish brown and earthy, and still wriggling", 20, 1),

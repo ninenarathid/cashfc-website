@@ -74,14 +74,21 @@ describe("the well's book: whose water went where (the owner, 2026-10-05: those 
     expect(bookOf(log, "bo", DAY + 2, name).carriers.map((c) => c.rank)).toEqual([1, 0]);
   });
 
-  it("has a yoke at the well for whoever reaches the first rank, and a great one at the last, each once", () => {
-    const [first, , third] = WELL_BOOK.ranks;
+  it("has a yoke at the well for whoever reaches the first rank, a cart at the second and a great yoke at the last, each once", () => {
+    const [first, second, third] = WELL_BOOK.ranks;
     expect(dueOf(first - 1, [])).toBeNull();
     expect(dueOf(first, [])).toEqual([1, "waterYoke"]);
     expect(dueOf(first, [1])).toBeNull();
-    expect(dueOf(third, [1])).toEqual([3, "waterYokeGreat"]);
+    expect(dueOf(second - 1, [1])).toBeNull();
+    expect(dueOf(second, [1])).toEqual([2, "waterCart"]);
+    expect(dueOf(second, [1, 2])).toBeNull();
+    expect(dueOf(third, [1, 2])).toEqual([3, "waterYokeGreat"]);
     // the lower one first, for somebody who never took it
     expect(dueOf(third, [])).toEqual([1, "waterYoke"]);
+    expect(dueOf(third, [1])).toEqual([2, "waterCart"]);
+    // (the cart came after the yokes: whoever had the great one already finds the cart waiting, once)
+    expect(dueOf(third, [1, 3])).toEqual([2, "waterCart"]);
+    expect(dueOf(third, [1, 3, 2])).toBeNull();
 
     let log = play([{ by: "ann", at: DAY, what: "pour", n: first }]);
     expect(bookOf(log, "ann", DAY + 1, name).gift).toBe(true);
@@ -109,8 +116,8 @@ describe("the well's book: whose water went where (the owner, 2026-10-05: those 
     // nobody has one without something to carry the first water in
     expect(sources(["rod", "hoe"]).has("waterYoke")).toBe(false);
     expect(sources(["bucket"]).get("waterYoke")).toBe("well");
-    // a yoke draws two bucketfuls at the river, a great one four, for what one bucket costs
-    for (const [gift, holds] of [["waterYoke", 2], ["waterYokeGreat", 4]] as const) {
+    // a yoke draws two bucketfuls at the river, a great one four and the cart six, for what one bucket costs
+    for (const [gift, holds] of [["waterYoke", 2], ["waterYokeGreat", 4], ["waterCart", 6]] as const) {
       const p: Purse = { ...newPurse(), bag: put(newPurse().bag, gift, 1), hand: gift, stamina: { day: -1, left: 50 } };
       const drew = chore(p, "river", 0, DAY);
       expect(drew.ok && drew.purse.bag[0]).toEqual({ item: gift, n: 1, water: holds });

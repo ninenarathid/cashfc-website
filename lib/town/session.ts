@@ -7,6 +7,7 @@ import { Flood, LOG_MAX, chatEvery, cleanChat } from "./chat";
 import { defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
+import { CART, cartPace } from "./cart";
 import {
   BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, yardSeat, type Vec,
 } from "./world";
@@ -257,8 +258,12 @@ export class TownSession {
       }
     }
     this.steppedAt = now;
-    for (const a of [this.self, ...this.avatars.values()]) {
-      if (a.path.length) Object.assign(a, stepAlong(a.pos, a.path, SPEED * dt));
+    const all = [this.self, ...this.avatars.values()];
+    for (const a of all) {
+      if (!a.path.length) continue;
+      // (a water cart is heavy for one, and goes as fast as anybody with somebody beside it: lib/town/cart)
+      const pace = a.info.hold === CART.item ? cartPace(a.info.hold, a.pos, all.filter((o) => o !== a).map((o) => o.pos)) : 1;
+      Object.assign(a, stepAlong(a.pos, a.path, SPEED * pace * dt));
     }
     // Stopped on a gate: through it, to the other map.
     if (!this.self.path.length) {

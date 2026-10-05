@@ -56,8 +56,8 @@ import { natureOf, pouredIn, type Nature, type WellWater } from "./waters";
 export const WELL_BOOK = {
   /** The bucketfuls poured into the well, all told, at which each rank begins. */
   ranks: [50, 200, 600],
-  /** What the well has for whoever reaches a rank: the rank, and the thing. */
-  gifts: [[1, "waterYoke"], [3, "waterYokeGreat"]] as Array<[number, ItemId]>,
+  /** What the well has for whoever reaches a rank: the rank, and the thing. (The cart came later, lib/town/cart: whoever had passed its rank by then finds it waiting.) */
+  gifts: [[1, "waterYoke"], [2, "waterCart"], [3, "waterYokeGreat"]] as Array<[number, ItemId]>,
   /** How many of the day's carriers the book lists. */
   listed: 40,
 };
