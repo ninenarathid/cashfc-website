@@ -310,14 +310,13 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v134 (ran 2026-10-05) seeded `box`, for the storage box the owner asked for in the plaza that day: the slots a member's box has
  * for nothing, how near it one stands, and where it is. It wrote no row over: nothing that was seeded changed.
  *
- * v138 writes one over, for what he asked of the ladybird that afternoon, with the village running after them: few of
+ * v138 (ran 2026-10-05, 16:45) wrote one over, for what he asked of the ladybird that afternoon, with the village running after them: few of
  * them, and on every map (insects: the ladybird's `weight`, 6 for 60; no `places`; the others' `hours` and `dry` sky,
  * so that it is never the only insect of a haunt).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // things dropped from the bag onto the ground (the owner, 2026-10-05): how long one lies, how near it one stands, the maps
   v137: { keys: ["ground"], over: [] },
-  v138: { keys: [], over: ["insects"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
