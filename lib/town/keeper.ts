@@ -313,6 +313,9 @@ export class DbKeeper implements Keeper {
       return;
     }
     await this.once("town_me", {});
+    // (whether there is a notice board beside the stall, and what waits there for me: asked once as the game begins,
+    // so that the uncle can offer it by name; a database without one answers nothing)
+    if (this.read && !this.shut) void this.ask("town_notices");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {

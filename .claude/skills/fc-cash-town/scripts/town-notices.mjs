@@ -35,7 +35,7 @@ async function come(X, letter) {
   await until("ready", async () => (await status(X)) === "ready", 240000);
   await until("the trial is there", () => X.evaluate(`!!${T}`), 20000);
 }
-/** Tap the uncle on the map, go through what he says, and open his stall at the board. */
+/** Tap the uncle on the map, go through what he says, and ask him for the board by its name: his stall opens at it. */
 async function toBoard(X) {
   await X.evaluate(`window.__townView.lookAt(46, 27.2)`);
   await sleep(900);
@@ -44,13 +44,12 @@ async function toBoard(X) {
   await click(X, r.x + (k.x0 + k.x1) / 2, r.y + (k.y0 + k.y1) / 2);
   await until("the talk opens", () => X.evaluate(`!!${TALK}`), 4000);
   for (let i = 0; i < 8 && !(await X.evaluate(`!!${TALK}?.querySelector('[role="group"]')`)); i++) { await enter(X); await sleep(160); }
-  await press(X, "ฝากขาย", TALK);
-  await until("the stall opens", () => X.evaluate(`!!${TRADE}`), 5000);
+  const offers = await X.evaluate(`[...${TALK}.querySelector('[role="group"]').querySelectorAll("button")].map((b) => b.innerText.replace(/\\s+/g, " ").trim())`);
+  await press(X, "กระดานฝากขาย", TALK);
+  await until("the stall opens at the board", () => X.evaluate(`!!${TRADE} && !!${BOARD}`), 5000);
   await sleep(250);
   const tabs = await X.evaluate(`[...${TRADE}.querySelectorAll('[role="tablist"]')[0].querySelectorAll('[role="tab"]')].map((b) => b.innerText.replace(/\\s+/g, " ").trim())`);
-  await X.evaluate(`[...${TRADE}.querySelectorAll('[role="tab"]')].find((b) => b.innerText.trim().startsWith("กระดาน"))?.click()`);
-  await until("the board is shown", () => X.evaluate(`!!${BOARD}`), 4000);
-  return tabs;
+  return { offers, tabs };
 }
 const tab = async (X, which) => { await X.evaluate(`${BOARD}.querySelector('[data-notices-tab="${which}"]').click()`); await sleep(250); };
 /** Write a number into one of the form's boxes, as typing does. */
@@ -73,8 +72,9 @@ try {
   await sleep(400);
 
   console.log("a notice to sell");
-  const tabs = await toBoard(X);
-  ok("the uncle's stall has a third tab: the board", tabs.length === 3 && /กระดาน/.test(tabs[2]), tabs);
+  const { offers, tabs } = await toBoard(X);
+  ok("the uncle offers the board by its own name, beside buying and selling", ["ซื้อของ", "ฝากขาย", "กระดานฝากขาย"].every((o) => offers.includes(o)), offers);
+  ok("…and his stall opens at it: the third tab, the board", tabs.length === 3 && /กระดาน/.test(tabs[2]), tabs);
   let b = await told(X);
   ok("nothing is pinned, three places are mine, and one more costs a hundred", b.notices.length === 0 && b.mine.length === 0 && b.slots === 3 && b.more === 100 && b.due === 0, b);
   await tab(X, "mine");

@@ -464,7 +464,8 @@ try {
     await purse(a, 0, [{ item: "kangkong", n: 20 }]);
     await purse(b, 100, [{ item: "minnow", n: 5 }]);
     await settled(P); await settled(Q);
-    ok("not looked at yet, the board is not known", P.notices() === null);
+    // (asked once as the keeper begins, so that the uncle can offer the board by name before his stall is opened)
+    ok("the board is known from the keeper's beginning, before it is looked at: three places, nothing waiting", P.notices() !== null && P.notices().slots === 3 && P.notices().due === 0, P.notices());
     const stopP = P.look("notices"), stopQ = Q.look("notices");
     await sleep(600);
     ok("looked at: nothing pinned, three places, and what may be wanted: what is in a bag, and the uncle's shelf", P.notices()?.notices.length === 0 && P.notices().slots === 3 && P.notices().more === 100

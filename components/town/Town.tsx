@@ -2780,11 +2780,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const buy: TalkChoice = { id: "buy", label: th ? "ซื้อของ" : "Buy" };
     // (his order of the day is where things are left with him: the same panel, asked for by its own name)
     const order: TalkChoice = { id: "order", label: th ? "ลุงอยากได้อะไร" : "What do you want today?" };
+    // (the notice board beside his stall, where members sell to one another: asked for by its own name too, once the
+    // keeper has been told there is one; with what waits there for me, when something does. The owner looked for it
+    // here, 2026-10-05: "ผมยังไม่เห็นกระดานเลยนะ")
+    const pinned = who === "uncle" ? keeper?.notices() ?? null : null;
+    const board: TalkChoice[] = pinned ? [{ id: "board", label: th ? "กระดานฝากขาย" : "Notice board", ...(pinned.due > 0 ? { note: String(pinned.due) } : {}) }] : [];
     const choices: TalkChoice[] = who === "banker"
       ? [{ id: "bank", label: th ? "แลก popoto" : "Exchange popoto" }, chat]
       : purse.waiting > 0
-        ? [{ id: "sell", label: th ? "รับเงิน" : "Collect", note: String(purse.waiting) }, buy, order, chat]
-        : [buy, { id: "sell", label: th ? "ฝากขาย" : "Sell" }, order, chat];
+        ? [{ id: "sell", label: th ? "รับเงิน" : "Collect", note: String(purse.waiting) }, buy, ...board, order, chat]
+        : [buy, { id: "sell", label: th ? "ฝากขาย" : "Sell" }, ...board, order, chat];
     setTalk({ who, n, lines: askFor(who, hour, purse.waiting > 0), choices });
   };
   // Walking off my place to fish from puts the rod away, and so does letting go of it; and the room is told what I do

@@ -86,6 +86,14 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
         ))}
       </div>
 
+      {/* a notice of my own can be begun from either list, too: it is written under "mine" (the owner, 2026-10-05: "ถ้าอยากรับซื้อต้องทำยังไงบ้าง") */}
+      {tab !== "mine" && mine.length < board.slots && (
+        <button type="button" onClick={() => { setDraft({ kind: tab, item: null, n: 1, price: 1 }); setTab("mine"); }} data-notice-begin={tab}
+                className="pressable mb-2 min-h-11 w-full rounded-full border border-dashed border-line-strong px-4 text-ui font-semibold text-ink hover:border-accent">
+          {tab === "sell" ? (th ? "+ ปักประกาศขายของฉัน" : "+ Pin up something to sell") : (th ? "+ ปักประกาศรับซื้อของที่อยากได้" : "+ Pin up something wanted")}
+        </button>
+      )}
+
       {tab === "sell" && (selling.length ? (
         <ul className="flex flex-col gap-1.5">
           {selling.map((n) => {
