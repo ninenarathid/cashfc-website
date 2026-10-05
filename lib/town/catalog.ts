@@ -264,14 +264,12 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * chance in ten of taking a pest off some plant of the farm with it (`rids`), and it is out the whole of the day, as
  * the pests are (insects).
  *
- * v131 (pending, after v126) writes two over, for two more things he asked of the insects the same day: an insect caught
+ * v131 (ran 2026-10-05, after v126) wrote two over, for two more things he asked of the insects the same day: an insect caught
  * is one member's and gone for everybody, and comes back at another haunt a little later (insects: every kind's
  * `shares`, and `comeback`); and the common insects fetch about a third less, a common fish's worth for the stamina
  * (items: the `pays` of twelve of them).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v131: { keys: [], over: ["insects", "items"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

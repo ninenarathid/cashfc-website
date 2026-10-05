@@ -33,7 +33,7 @@ alter table public.gallery_likes enable row level security;
 const t = await supabaseLike({ extra });
 // every file of the town's there is, in order: v104 to v122 have run and are read back from history (the harness's
 // migration() does that); what is in supabase/ after them is taken to be the town's, as it stands in the folder
-const RAN = 129;
+const RAN = 131;
 const pending = existsSync(`${repo}/supabase`) ? readdirSync(`${repo}/supabase`).map((f) => Number(/^v(\d+)_/.exec(f)?.[1])).filter((n) => n > RAN) : [];
 const newest = Math.max(RAN, ...pending);
 for (let n = 104; n <= newest; n++) {
