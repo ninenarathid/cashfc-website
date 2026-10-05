@@ -128,7 +128,11 @@ export const BUGS: Record<BugId, Bug> = {
   // only walks
   // (out the whole of the day, as the pests are; and now and then one caught takes a pest off some plant with it: the
   // owner, 2026-10-05, "จะสุ่มโอกาศเล็กน้อย ประมาณ 10% ที่จะลดแมลงที่กินพืชอยู่ในแปลงได้แบบสุ่ม")
-  ladybird: { habit: "crawl", at: ["field", "blooms"], weight: 60, n: [1, 1], cost: 1, size: 1, places: ["farm", "town"], hours: [[5, 18]], rids: 0.1 },
+  // (few of them, and on every map: the same afternoon the village was running after them, and he had them come
+  // seldom and anywhere, "ลดการ spawn ของเต่าทอง … สุ่มเกิดทุกแมพ ในปริมาณที่ลดลง". It weighed 60 on the farm and in the
+  // town: one haunt in five there by day, and every one that had anything at dawn and in the rain, when nothing
+  // else of those haunts is out. So it keeps the others' hours and sky, and is never the only one at a haunt.)
+  ladybird: { habit: "crawl", at: ["field", "blooms"], weight: 6, n: [1, 1], cost: 1, size: 1, hours: DAYTIME, dry: true, rids: 0.1 },
   scarab: { habit: "crawl", at: ["field"], weight: 30, n: [1, 1], cost: 1, size: 1, places: ["farm"], hours: DAYTIME },
   caterpillar: { habit: "crawl", at: ["litter", "blooms"], weight: 45, n: [1, 1], cost: 1, size: 1, places: ["forest"], hours: DAYTIME },
 };

@@ -479,10 +479,44 @@ describe("a ladybird caught (the owner: \"จะสุ่มโอกาศเ�
   it("has one chance in ten of taking a pest off some plant with it, and is out the whole of the day", () => {
     expect(BUGS.ladybird.rids).toBe(0.1);
     expect(BUG_IDS.filter((id) => BUGS[id].rids)).toEqual(["ladybird"]);
-    expect(BUGS.ladybird.hours).toEqual([[5, 18]]);
+    expect(BUGS.ladybird.hours).toEqual([[6, 18]]);
     // (the pests' own hours are inside the ladybird's)
     expect(BUGS.ladybird.hours![0][0]).toBeLessThanOrEqual(FARMING.pests.from);
     expect(BUGS.ladybird.hours![0][1]).toBeGreaterThanOrEqual(FARMING.pests.to);
+  });
+
+  // The owner, the same afternoon, with the village running after them: "ลดการ spawn ของเต่าทอง … สุ่มเกิดทุกแมพ ในปริมาณ
+  // ที่ลดลง". They were nineteen an hour over the farm and the town, by the haunts' own rolls.
+  it("is seldom out, and on every map: about one an hour on each, where the farm and the town had nine and ten", () => {
+    expect(BUGS.ladybird.places).toBeUndefined();
+    const days = 20, from = Date.UTC(2026, 9, 5, 23), by: Record<string, number> = { town: 0, farm: 0, forest: 0 };
+    for (const h of HAUNTS) {
+      const every = HAUNT_KINDS[h.kind].every * MINUTE;
+      for (let t = from; t < from + days * 24 * HOUR; t += every) if (swarmAt("a word of the day", h, t)?.bug === "ladybird") by[h.place]++;
+    }
+    // (an hour of the twelve it is out in, a monarch's days among them)
+    for (const place of ["town", "farm", "forest"]) {
+      expect(by[place] / (days * 12), place).toBeGreaterThan(0.5);
+      expect(by[place] / (days * 12), place).toBeLessThan(2.2);
+    }
+  });
+
+  it("is never the only insect of a haunt: it keeps the hours and the sky of the others there, so that few stays few at dawn and in the rain", () => {
+    for (const h of HAUNTS.filter((x) => BUGS.ladybird.at.includes(x.kind))) {
+      const every = HAUNT_KINDS[h.kind].every * MINUTE;
+      for (let t = NOON - 12 * HOUR; t < NOON + 36 * HOUR; t += every) {
+        const start = bugTurnStart(h, bugTurn(h, t)), hour = (((start + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR;
+        const others = BUG_IDS.filter((id) => id !== "ladybird" && BUGS[id].at.includes(h.kind) && !BUGS[id].day && !BUGS[id].moon && !BUGS[id].zones && (!BUGS[id].places || BUGS[id].places!.includes(h.place))
+          && (!BUGS[id].hours || BUGS[id].hours!.some(([a, z]) => hour >= a && hour < z)));
+        if (hour >= 6 && hour < 18) expect(others.length, `haunt ${h.id} at ${hour}`).toBeGreaterThan(0);
+        else expect(swarmAt("a word of the day", h, t)?.bug, `haunt ${h.id} at ${hour}`).not.toBe("ladybird");
+        // (and what is out with it by day is out in the same sky: none of them in the rain, or one that does not mind it)
+        expect(swarmAt("a word of the day", h, t, ALWAYS_RAIN)?.bug, `haunt ${h.id} in the rain`).not.toBe("ladybird");
+      }
+    }
+    // in the rain a haunt of flowers in the town has nothing, where it had a ladybird every time it had anything
+    const wet = outOver("a word of the day", NOON - 12 * HOUR, 2, ALWAYS_RAIN);
+    expect(wet.get("ladybird") ?? 0).toBe(0);
   });
 
   it("rids one of the plants that have a pest on them, whoever sowed it: which, by the pick, in the order of their tiles", () => {
