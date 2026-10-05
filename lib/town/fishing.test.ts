@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type Sign } from "./items";
 import {
-  ALL_SIGNS, FIGHT, SIGNS, STEPS, STRIKE, bangkokDay, castLine, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, signsOf, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
+  ALL_SIGNS, FIGHT, REST, SIGNS, STEPS, STRIKE, bangkokDay, castLine, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods,
 } from "./fishing";
 import { STAMINA } from "./stamina";
@@ -309,6 +309,21 @@ describe("the strike", () => {
     expect(strikeWindow({ spent: true })).toBeGreaterThanOrEqual(0.91);
     // and a meal that sharpens the eye helps then too
     expect(strikeWindow({ spent: true, keen: true })).toBeGreaterThan(1.4);
+  });
+
+  it("is not taken while the line has only just gone out (the members: \"ขอ time zone ช่วงที่โยนผิดไม่นับเสียเหยื่อซัก 2 วิ\")", () => {
+    expect(REST.settle).toBe(2);
+    expect(settling(0, 12)).toBe(true);
+    expect(settling(1.99, 12)).toBe(true);
+    expect(settling(2, 12)).toBe(false);
+    // never past the bite: a strike that would have hooked something is always taken
+    expect(settling(0.99, 1)).toBe(true);
+    expect(settling(1, 1)).toBe(false);
+    for (const id of FISH_IDS) for (const wait of [FISH[id].wait[0], Math.max(1, Math.ceil(FISH[id].wait[0] * 0.6))])
+      for (let s = wait; s <= wait + STRIKE.window; s += 0.1) expect(settling(s, wait), `${id} ${wait} ${s}`).toBe(false);
+    // and what a go came to is looked at for a moment before anything goes on from it
+    expect(REST.pause).toBeGreaterThanOrEqual(0.8);
+    expect(REST.pause).toBeLessThanOrEqual(1.5);
   });
 });
 

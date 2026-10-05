@@ -180,7 +180,7 @@ try {
   let landed = null, early = false, fights = 0;
   for (let go = 0; go < 6 && !landed; go++) {
     await until("ready to drop", () => X.evaluate(`["ready", "result"].includes(window.__townFish?.phase())`), 8000);
-    if ((await X.evaluate(`window.__townFish.phase()`)) === "result") { await press(X, "หย่อนอีก", FISH); await sleep(200); }
+    if ((await X.evaluate(`window.__townFish.phase()`)) === "result") { await until("what the go came to can be left", () => press(X, "หย่อนอีก", FISH), 5000, 60); await sleep(200); }
     await press(X, "หย่อนเบ็ด", FISH);
     await until("the line is out", () => X.evaluate(`window.__townFish.phase() === "waiting"`), 5000);
     const c = await X.evaluate(`window.__townFish.cast()`);

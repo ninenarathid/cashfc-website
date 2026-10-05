@@ -37,6 +37,8 @@ async function cast(X) {
   await until("the line is out", () => X.evaluate(`window.__townFish.phase() === "waiting"`), 4000);
   return X.evaluate(`window.__townFish.cast()`);
 }
+/** On from what a go came to. Its buttons are not to be pressed until it has been shown a moment (lib/town/fishing's `REST`), so the press is waited for. */
+const dropAgain = (X) => until("what the go came to can be left", () => press(X, "หย่อนอีก", FISH), 5000, 60);
 const fx = (X, name) => X.evaluate(`!!${FISH}?.querySelector('[data-fx="${name}"]')`);
 const aura = (X) => X.evaluate(`${FISH}?.querySelector("[data-buffs]")?.getAttribute("data-buffs") ?? ""`);
 
@@ -66,7 +68,7 @@ try {
   ok("…and nothing shows on the water", !(await fx(X, "swift")) && !(await fx(X, "clear")), c);
   const plain = c.wait;
   await until("the line is gone", () => X.evaluate(`["ready", "result"].includes(window.__townFish.phase())`), (plain + 12) * 1000, 200);
-  if ((await X.evaluate(`window.__townFish.phase()`)) === "result") { await press(X, "หย่อนอีก", FISH); await sleep(300); }
+  if ((await X.evaluate(`window.__townFish.phase()`)) === "result") { await dropAgain(X); await sleep(300); }
 
   // the fountain's blessings, and a meal's two
   await bless(X, id, ["swift", "clear", "lucky", "calm", "hearty", "feast"]);
@@ -88,10 +90,10 @@ try {
     shaded ||= await fx(X, "clear");
     shades.add(await X.evaluate(`${FISH}.querySelector('[data-fx="clear"]')?.getAttribute("data-shade") ?? null`));
     if (i === 0) await X.shot(`${OUT}/buff-fx-line.png`);
-    // strike at once: too soon, the line comes in, and the next can be dropped
+    // strike at once (a script's strike, taken whenever it comes): too soon, the line comes in, and the next can be dropped
     await X.evaluate(`window.__townFish.strike()`);
     await until("the strike is answered", () => X.evaluate(`["ready", "result", "fight"].includes(window.__townFish.phase())`), 6000, 100);
-    if ((await X.evaluate(`window.__townFish.phase()`)) === "result") { await press(X, "หย่อนอีก", FISH); await sleep(400); }
+    if ((await X.evaluate(`window.__townFish.phase()`)) === "result") { await dropAgain(X); await sleep(400); }
   }
   ok("under the swift blessing rings spread under the float", ringed);
   ok("under clear water the shade of what is on its way shows, and says only how rare it is", shaded && [...shades].every((s) => ["common", "uncommon", "rare", "legend", "other"].includes(s)), [...shades]);

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
-import { STEPS, oddsOf, seesOdds, startFight, stepFight, strikeOf, strikeWindow, surging, warning, type Fight, type Strike } from "@/lib/town/fishing";
+import { REST, STEPS, oddsOf, seesOdds, settling, startFight, stepFight, strikeOf, strikeWindow, surging, warning, type Fight, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
@@ -36,7 +36,9 @@ type Phase =
   | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade }
   | { at: "striking" }
   | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
-  | { at: "result"; how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean };
+  /** (`from`: when it was shown, by the page's own clock: nothing goes on from it for a moment) */
+  | { at: "result"; from: number; how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean };
+type Ended = Omit<Extract<Phase, { at: "result" }>, "at" | "from">;
 
 /** How long a nibble's twitch shows, in seconds. */
 const NIBBLE = 0.55;
@@ -57,6 +59,11 @@ const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)
  * What a bait may bring is not told ("hide feature นี้ไปก่อน เราจะเปิดทีหลังเฉพาะบาง
  * คน"), and only the baits in the bag are offered ("อยากให้ผู้เล่นค้นพบเอาเองว่า อะไรใช้
  * ตกปลาได้บ้าง"): what can go on a hook is for the players to find out.
+ *
+ * The hand rests twice (lib/town/fishing's `REST`; the members, 2026-10-06, who fight by hammering the space bar and
+ * found it going on to drop the next line and strike it at once, a bait gone each time): a line that has only just
+ * gone out takes no strike, and what a go came to is left neither at once nor by the space bar at all: by Enter, or
+ * a click, a moment after it shows.
  *
  * It has its own sounds (lib/town/sfx: "ช่วย gen sound effect ตอนตกปลา ให้ด้วย"), made
  * in code like the town's music, with a button to turn them off.
@@ -91,6 +98,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const [, setTick] = useState(0);
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
   const [phase, setPhase] = useState<Phase>({ at: "ready" });
+  /** A go has ended: what it came to is shown, from now. */
+  const end = useCallback((it: Ended) => setPhase({ at: "result", from: performance.now(), ...it }), []);
   const [bait, setBait] = useState<BaitId>("worm");
   const [note, setNote] = useState<string | null>(null);
   /** In the trial, the wait can be cut to a fifth, to try the fight without the fishing. */
@@ -219,19 +228,24 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         sfx.play("missed");
         afloat.current = false;
         void keeper.missed().then((it) => write("missed", it));
-        setPhase({ at: "result", how: "missed" });
+        end({ how: "missed" });
         return;
       }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [phase, keen, spent, reduced, show, write, sfx, keeper]);
+  }, [phase, keen, spent, reduced, show, write, sfx, keeper, end]);
 
-  /** Strike: at a nibble or before anything it scares the fish off; within moments of the bite it sets the hook. */
-  const strike = useCallback(async () => {
+  /**
+   * Strike: at a nibble or before anything it scares the fish off; within moments of the bite it sets the hook. A
+   * line that has only just gone out takes none (lib/town/fishing's `REST`): the hand that dropped it is often still
+   * pressing. (`whenever`: a script's, which is no hand.)
+   */
+  const strike = useCallback(async (whenever = false) => {
     if (phase.at !== "waiting") return;
     const { wait, from } = phase, p = keeper.purse(), t = keeper.now();
+    if (!whenever && settling((performance.now() - from) / 1000, wait)) return;
     const reaction = Math.round(((performance.now() - from) / 1000 - wait) * 1000) / 1000;
     // How good a strike it was is this hand's to say, and heard at once; whether anything is on the hook, and what,
     // is the keeper's (its clock gives a moment's grace either way).
@@ -245,7 +259,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       const how = did.ok && did.how === "missed" ? "missed" : "early";
       if (hit) sfx.play(how);
       write(how, { reaction, what: did.ok ? did.what : undefined, size: did.ok ? did.size : undefined });
-      setPhase({ at: "result", how });
+      end({ how });
       return;
     }
     // (taken by the keeper's grace when this hand thought it too soon: a late one's worth)
@@ -258,12 +272,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       window.setTimeout(() => sfx.play("flotsam"), 350);
       onLanded();
       write("landed", { reaction, strike: worth, ...landed, what: did.what, size: 0 });
-      setPhase({ at: "result", how: "landed", what: did.what, size: 0, ...landed });
+      end({ how: "landed", what: did.what, size: 0, ...landed });
       return;
     }
     if (out.current) { out.current.what = did.what; out.current.size = did.size ?? 0; }
     setPhase({ at: "fight", fish: did.what as FishId, size: did.size ?? 0, strike: worth, reaction });
-  }, [phase, keeper, write, sfx, onLanded]);
+  }, [phase, keeper, write, sfx, onLanded, end]);
 
   /* ── the fight ── */
   const holding = useRef(false);
@@ -330,12 +344,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         sfx.reel(false, false, 0);
         const told = { seed: log.seed, steps: log.steps, secs: Math.round(log.secs * 10) / 10, inBand: log.steps ? Math.round((log.inside / log.steps) * 1000) / 1000 : 0,
           strike: log.strike, holds: log.holds.slice(0, 1500) };
-        void keeper.land(f.over, told).then((end) => {
-          const how = end.how === "landed" || end.how === "snapped" ? end.how : "slipped";
-          if (how === "landed") { sfx.play("landed", FISH[phase.fish].tier); onLanded(); if (end.record) window.setTimeout(() => sfx.play("record"), 1100); }
+        void keeper.land(f.over, told).then((got) => {
+          const how = got.how === "landed" || got.how === "snapped" ? got.how : "slipped";
+          if (how === "landed") { sfx.play("landed", FISH[phase.fish].tier); onLanded(); if (got.record) window.setTimeout(() => sfx.play("record"), 1100); }
           else sfx.play(how);
-          write(how, { kept: end.kept, record: end.record });
-          setPhase({ at: "result", how, what: phase.fish, size: phase.size, kept: end.kept, record: end.record });
+          write(how, { kept: got.kept, record: got.record });
+          end({ how, what: phase.fish, size: phase.size, kept: got.kept, record: got.record });
         });
         return;
       }
@@ -344,19 +358,43 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     raf = requestAnimationFrame(frame);
     return () => { cancelAnimationFrame(raf); fight.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- a fight runs from when it begins; the gauge's refs do not change
-  }, [phase, keeper, reduced, th, show, write, sfx, onLanded]);
+  }, [phase, keeper, reduced, th, show, write, sfx, onLanded, end]);
 
   useEffect(() => { if (phase.at === "ready" || phase.at === "result") show(null); else if (phase.at === "casting") show("wait"); }, [phase, show]);
 
+  // The hand's rest, as the buttons show it: the strike's is dim while the line settles, and the two under what a go
+  // came to for a moment after it shows. (Whether a press is taken is asked of the clock where it is taken.)
+  const [rested, setRested] = useState<Phase | null>(null);
+  useEffect(() => {
+    if (phase.at !== "waiting" && phase.at !== "result") return;
+    const rest = phase.at === "waiting" ? Math.min(REST.settle, phase.wait) : REST.pause;
+    const id = window.setTimeout(() => setRested(phase), Math.max(0, phase.from + rest * 1000 - performance.now()));
+    return () => window.clearTimeout(id);
+  }, [phase]);
+  const resting = (phase.at === "waiting" || phase.at === "result") && rested !== phase;
+  /** Whether what a go came to has been shown long enough to go on from. */
+  const seen = useCallback(() => phase.at === "result" && performance.now() - phase.from >= REST.pause * 1000, [phase]);
+  /** On from what a go came to: back to the baits, and the button that drops the line. */
+  const again = useCallback(() => { if (seen()) setPhase({ at: "ready" }); }, [seen]);
+
   // The keyboard (the owner: "การเล่น mini game ตกปลา ช่วยทำให้กดปุ่ม space bar แทนได้"): the space bar does whatever the
-  // big button does: drops the line, strikes, is held to reel, and drops again; Escape puts the rod away. Heard
-  // before the town hears it, and before a button that happens to have the focus does.
+  // big button does: drops the line, strikes, is held to reel; Escape puts the rod away. Heard before the town hears
+  // it, and before a button that happens to have the focus does. **What a go came to is not left by the space bar**
+  // (the members, 2026-10-06: "อยากให้เปลี่ยนปุ่มตรงข้อมูลปลาที่จับได้ ให้มันไม่ลั่นต่อไปโดนโยนเบ็ต"): the key that was hammered
+  // through the fight does nothing there, and Enter goes on (the town's key for typing everywhere else; a button that
+  // has the focus keeps it, as a button does).
   const dropRef = useRef<() => void>(() => {});
   useEffect(() => {
     const key = (down: boolean) => (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && (/^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) && (target as HTMLInputElement).type !== "checkbox")) return;
       if (e.key === "Escape" && down) { e.preventDefault(); onClose(); return; }
+      if (e.key === "Enter" && phase.at === "result" && !(target && /^(BUTTON|A)$/.test(target.tagName))) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (down && !e.repeat) again();
+        return;
+      }
       if (e.key !== " " && e.code !== "Space") return;
       e.preventDefault();
       e.stopPropagation();
@@ -364,13 +402,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (!down || e.repeat) return;
       if (phase.at === "waiting") void strike();
       else if (phase.at === "ready") dropRef.current();
-      else if (phase.at === "result") setPhase({ at: "ready" });
     };
     const down = key(true), up = key(false);
     window.addEventListener("keydown", down, true);
     window.addEventListener("keyup", up, true);
     return () => { window.removeEventListener("keydown", down, true); window.removeEventListener("keyup", up, true); };
-  }, [phase, strike, onClose, sfx]);
+  }, [phase, strike, again, onClose, sfx]);
   // (the way to drop the line is made anew each time the panel is drawn: the keyboard is given the newest)
   useEffect(() => { dropRef.current = () => { void drop(); }; });
 
@@ -378,7 +415,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     const handle = {
       phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000 } : null),
-      fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike, result: () => (phase.at === "result" ? phase : null),
+      // (a script's strike is taken whenever it comes: the line's rest is for hands, which the checks try by the button and the key)
+      fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike: () => strike(true), result: () => (phase.at === "result" ? phase : null),
       quick: (on: boolean) => setQuick(on), place: () => place,
       /** A sound made where nobody hears it, and measured. */
       sound: (name: FishSound | "tick", tier?: Parameters<typeof measure>[1]) => measure(name, tier),
@@ -495,7 +533,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
           </div>
           {/* (nothing is said of when to strike: the float shows it, and a strike too soon or too late says why it failed) */}
-          <button type="button" onClick={() => { void strike(); }} disabled={phase.at !== "waiting"} className={`${BIG} mt-2 disabled:opacity-70`}>
+          {/* (dim while the keeper is waited for, and while a line that has only just gone out settles) */}
+          <button type="button" onClick={() => { void strike(); }} disabled={phase.at !== "waiting" || resting} className={`${BIG} mt-2 disabled:opacity-70`}>
             {th ? "ตวัดเบ็ด!" : "Strike!"}<Key />
           </button>
         </div>
@@ -559,8 +598,9 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             </p>
           )}
           <div className="mt-2 flex justify-end gap-1.5">
-            <button type="button" onClick={onClose} className="pressable min-h-11 rounded-full px-3 text-ui text-[#e9cfa4] hover:text-[#fff6e3]">{th ? "พอแล้ว" : "That will do"}</button>
-            <button type="button" onClick={() => setPhase({ at: "ready" })} className="pressable min-h-11 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-5 text-ui font-semibold text-[#3a2209] shadow-[inset_0_-3px_0_#c98f2f]">{th ? "หย่อนอีก" : "Again"}<Key /></button>
+            {/* (both lie where the reel's button was a moment ago: neither is pressed until what the go came to has been seen) */}
+            <button type="button" onClick={() => { if (seen()) onClose(); }} disabled={resting} className="pressable min-h-11 rounded-full px-3 text-ui text-[#e9cfa4] hover:text-[#fff6e3] disabled:opacity-60">{th ? "พอแล้ว" : "That will do"}</button>
+            <button type="button" onClick={again} disabled={resting} className="pressable min-h-11 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-5 text-ui font-semibold text-[#3a2209] shadow-[inset_0_-3px_0_#c98f2f] disabled:opacity-60">{th ? "หย่อนอีก" : "Again"}<Key name="Enter" /></button>
           </div>
         </div>
       )}
@@ -569,8 +609,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 }
 
 /** The key that does what a button does, shown on it where there is a keyboard to press (not on a phone's width). */
-function Key() {
-  return <kbd aria-hidden className="ml-2 hidden rounded border border-[#3a2209]/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-[#3a2209]/80 sm:inline">Space</kbd>;
+function Key({ name = "Space" }: { name?: string }) {
+  return <kbd aria-hidden className="ml-2 hidden rounded border border-[#3a2209]/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-[#3a2209]/80 sm:inline">{name}</kbd>;
 }
 
 /** A bar with its sign and its name, filled from the left as told: in the board's own hard edges. */

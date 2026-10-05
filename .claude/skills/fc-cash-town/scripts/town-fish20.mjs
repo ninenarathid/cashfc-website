@@ -39,7 +39,9 @@ async function cast(X) {
   await until("the line is out", () => X.evaluate(`window.__townFish.phase() === "waiting"`), 3000);
   return X.evaluate(`window.__townFish.cast()`);
 }
-/** So many lines dropped and struck too soon: what was on each (the trial writes it down with the go). */
+/** On from what a go came to. Its buttons are not to be pressed until it has been shown a moment (lib/town/fishing's `REST`), so the press is waited for. */
+const dropAgain = (X) => until("what the go came to can be left", () => press(X, "หย่อนอีก", FISH), 5000, 60);
+/** So many lines dropped and struck too soon (a script's strike, taken whenever it comes): what was on each (the trial writes it down with the go). */
 async function dropped(X, many) {
   const got = [];
   for (let i = 0; i < many; i++) {
@@ -47,7 +49,7 @@ async function dropped(X, many) {
     await X.evaluate(`window.__townFish.strike()`);
     await until("that cast is over", () => X.evaluate(`window.__townFish.phase() === "result"`), 3000);
     got.push(await T(X, `t.plays().at(-1).what`));
-    await press(X, "หย่อนอีก", FISH);
+    await dropAgain(X);
   }
   return got;
 }
@@ -59,7 +61,12 @@ async function begin(X, bait, n) {
   await until("the rod's panel opens", () => X.evaluate(`!!${FISH}`), 5000);
   await sleep(300);
 }
-const close = async (X) => { await press(X, "พอแล้ว", FISH); await sleep(300); };
+// (from what a go came to, its button is waited for: it is not to be pressed until that has been shown a moment)
+const close = async (X) => {
+  if ((await X.evaluate(`window.__townFish?.phase()`)) === "result") await until("what the go came to can be left", () => press(X, "พอแล้ว", FISH), 5000, 60);
+  else await press(X, "พอแล้ว", FISH);
+  await sleep(300);
+};
 /** A hand on the reel: reel below the middle of the safe stretch (lower in it while the fish surges). */
 async function fight(X) {
   const end = Date.now() + 120000;
@@ -154,7 +161,7 @@ try {
       const r = await fight(X);
       if (r.how === "landed") { landed = r; await sleep(400); await X.shot(`${OUT}/fish20-landed.png`); }
     }
-    await press(X, "หย่อนอีก", FISH);
+    await dropAgain(X);
   }
   // (whichever of them is about at this hour: the trial's clock is the real one)
   ok(`on a loach, one of the fish that take it is fought and landed (${tries} casts)`, !!landed && ["piranha", "nilePerch", "catfish", "pike", "gar", "wels", "salmon", "arapaima"].includes(landed.what), landed);

@@ -191,6 +191,22 @@ export function strikeOf(reaction: number, mods: StrikeMods = {}): Strike | null
   return reaction <= STRIKE.perfect * k ? "perfect" : reaction <= STRIKE.good * k ? "good" : "late";
 }
 
+/**
+ * The hand's rest (the members, by way of the owner, 2026-10-06: "ซื้อเหยื่อมา 12 อัน จับได้ 3 ตัว"). A fish is fought by
+ * hammering one button, and the same button then went on from what was caught, dropped the next line and struck it
+ * at once, each of those a bait gone for nothing. So, in seconds:
+ * - `settle`: a line that has only just gone out takes no strike ("ขอ time zone ช่วงที่โยนผิดไม่นับเสียเหยื่อซัก 2 วิ");
+ *   only until the bite when that comes sooner, so that no strike that would have hooked anything is ever let by;
+ * - `pause`: what a go came to is shown this long before anything goes on from it ("เพิ่มดีเลบางจุดให้หยุดมือทัน").
+ *
+ * Both are the page's own, and nothing that keeps the game is asked: the line stays in the water with its bait on,
+ * so nothing is given back and nothing can be had by it. (A line taken up again with its bait given back would be a
+ * line dropped again for nothing until what is on its way is worth waiting for.)
+ */
+export const REST = { settle: 2, pause: 1 };
+/** Whether a line that has been out so many seconds, with its bite so many seconds after the cast, is still settling: a strike then is not taken. */
+export const settling = (since: number, wait: number) => since < Math.min(REST.settle, wait);
+
 /* ── the fight ──────────────────────────────────────────────────────────── */
 
 /**

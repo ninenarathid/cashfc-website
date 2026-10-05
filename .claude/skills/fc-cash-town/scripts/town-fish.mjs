@@ -1,7 +1,9 @@
 // Cash Town's fishing, tried in a real browser on the dev test room (the trial kept in the browser, `next dev` only):
 // up the finished deck's steps to where a line reaches water (and not where it does not); the rod in the hands; only
 // the baits in the bag offered and nothing told of what they bring; a strike too soon and a bite left alone both lose
-// the fish; a strike at the bite and a hand on the reel land one while the safe stretch moves; every go written down;
+// the fish; a line that has only just gone out takes no strike, and what a go came to is not left by the space bar
+// however it is hammered (Enter, or a click a moment on); a strike at the bite and a hand on the reel land one while
+// the safe stretch moves; every go written down;
 // no stamina said to be harder; the bank's shallows and their common fish; the sounds, each made and measured; the
 // bag opened like a bag, a thing's card on hover, a thing held in the hand; a meal, a recipe scroll, and the test
 // window that conjures anything. Prints PASS/FAIL lines and writes screenshots to <outdir>.
@@ -28,15 +30,22 @@ async function walk(X, x, y, ms = 30000) {
   await X.evaluate(`window.__cashTown.walkTo(${x}, ${y})`);
   return until(`I stand at ${x},${y}`, async () => { const p = (await me(X)).pos; return Math.floor(p.x) === x && Math.floor(p.y) === y; }, ms).catch((e) => e.message);
 }
-/** Drop a line (the short wait), and say what took it once the float goes under. */
-async function cast(X) {
+/** Drop a line (the short wait, or the whole of it: three seconds at the least, so that there is a moment to strike too soon in once the line has settled), and say what it was told once it is out. */
+async function cast(X, quick = true, drop = () => press(X, "หย่อนเบ็ด", FISH)) {
   await until("the rod's panel is ready", () => X.evaluate(`window.__townFish?.phase() === "ready"`), 5000);
-  await X.evaluate(`window.__townFish.quick(true)`);
+  await X.evaluate(`window.__townFish.quick(${quick})`);
   await sleep(120);
-  await press(X, "หย่อนเบ็ด", FISH);
-  await until("the line is out", () => X.evaluate(`window.__townFish.phase() === "waiting"`), 3000);
+  await drop();
+  await until("the line is out", () => X.evaluate(`window.__townFish.phase() === "waiting"`), 3000, 40);
   return X.evaluate(`window.__townFish.cast()`);
 }
+/** On from what a go came to. Its buttons are not to be pressed until it has been shown a moment (lib/town/fishing's `REST`), so the press is waited for. */
+const dropAgain = (X) => until("what the go came to can be left", () => press(X, "หย่อนอีก", FISH), 5000, 60);
+/** How long the line has been out, in seconds (nothing when none is). */
+const since = (X) => X.evaluate(`window.__townFish.cast()?.since ?? null`);
+/** Whether a button of the rod's panel is there and not to be pressed. */
+const dim = (X, words) => X.evaluate(`(() => { const b = [...${FISH}.querySelectorAll("button")].find((x) => x.innerText.replace(/\\s+/g, " ").trim().startsWith(${JSON.stringify(words)})); return b ? b.disabled : null; })()`);
+const worms = async (X) => (await purse(X)).bag.find((s) => s?.item === "worm")?.n ?? 0;
 /** Wait for the bite and strike a moment after it. Says what phase follows. */
 async function strikeAtBite(X, c) {
   await until("the bite", () => X.evaluate(`(() => { const c = window.__townFish.cast(); return !c || c.since >= c.wait + 0.12; })()`), (c.wait + 5) * 1000, 30);
@@ -94,35 +103,57 @@ try {
   ok("with the panel open the rod is in my hands, for the room to see", (await me(X)).fish === 1);
   await X.shot(`${OUT}/fish-ready.png`);
 
-  // a strike before the bite scares it off, and the bait is gone
-  await cast(X);
-  await sleep(500);
-  ok("with the line out the room is told so", (await me(X)).fish === 2);
-  await X.shot(`${OUT}/fish-waiting.png`);
-  await press(X, "ตวัดเบ็ด", FISH);
-  await until("too soon", () => X.evaluate(`window.__townFish.phase() === "result"`), 3000);
-  ok("a strike before the bite loses the fish", (await X.evaluate(`window.__townFish.result().how`)) === "early");
-  ok("…and the bait went with it", (await purse(X)).bag.find((s) => s?.item === "worm").n === 19);
-  await press(X, "หย่อนอีก", FISH);
-
-  // the space bar does what the big button does: drops the line, and strikes
+  // The hand's rest (the members, 2026-10-06: the space bar hammered through a fight went on from the catch, dropped
+  // the next line and struck it at once, a bait gone each time). The space bar, hammered as through a fight: so many
+  // times, a tenth of a second apart, for as long as it is asked to go on.
   const space = async (type) => X.send("Input.dispatchKeyEvent", { type, key: " ", code: "Space", windowsVirtualKeyCode: 32, text: type === "keyDown" ? " " : undefined });
-  await X.evaluate(`window.__townFish.quick(true)`);
-  await sleep(150);
+  const enter = async () => { for (const type of ["rawKeyDown", "keyUp"]) await X.send("Input.dispatchKeyEvent", { type, key: "Enter", code: "Enter", windowsVirtualKeyCode: 13 }); };
+  const hammer = async (n, whilst = async () => true) => { let done = 0; for (let i = 0; i < n && (await whilst()); i++) { await space("keyDown"); await space("keyUp"); done++; await sleep(80); } return done; };
+  const settled = (X) => until("the line has settled", async () => (await since(X)) >= 2.05, 4000, 30);
+
+  // a line that has only just gone out takes no strike; a moment on, one before the bite scares it off, and the bait is gone
+  await cast(X, false);
+  let shut = await dim(X, "ตวัดเบ็ด"), taps = await hammer(5, async () => (await since(X)) < 1.6);
+  ok(`a line that has only just gone out takes no strike: its button is not to be pressed, and the space bar hammered on does nothing (${taps} times)`,
+    shut === true && taps >= 2 && (await X.evaluate(`window.__townFish.phase()`)) === "waiting" && (await since(X)) < 2, { shut, taps, since: await since(X) });
+  ok("with the line out the room is told so", (await me(X)).fish === 2);
+  await settled(X);
+  await sleep(60);
+  ok("…two seconds on, the button is there to be pressed", (await dim(X, "ตวัดเบ็ด")) === false, await since(X));
+  await press(X, "ตวัดเบ็ด", FISH);
+  await until("too soon", () => X.evaluate(`window.__townFish.phase() === "result"`), 3000, 30);
+  ok("a strike before the bite loses the fish", (await X.evaluate(`window.__townFish.result().how`)) === "early");
+  ok("…and the bait went with it", (await worms(X)) === 19);
+  await X.shot(`${OUT}/fish-early.png`);
+  await dropAgain(X);
+
+  // the space bar does what the big button does: drops the line, and strikes (not a line that has only just gone out)
+  const bySpace = await cast(X, false, async () => { await space("keyDown"); await space("keyUp"); }).then(() => true, (e) => e.message);
+  await X.shot(`${OUT}/fish-waiting.png`);
+  taps = await hammer(4, async () => (await since(X)) < 1.6);
+  const held = (await X.evaluate(`window.__townFish.phase()`)) === "waiting";
+  await settled(X);
   await space("keyDown"); await space("keyUp");
-  const bySpace = await until("the space bar drops the line", () => X.evaluate(`window.__townFish.phase() === "waiting"`), 3000).catch((e) => e.message);
-  await sleep(300);
-  await space("keyDown"); await space("keyUp");
-  const struck = await until("the space bar strikes", () => X.evaluate(`window.__townFish.phase() === "result"`), 3000).catch((e) => e.message);
-  ok("the space bar drops the line and strikes, like the big button", bySpace === true && struck === true && (await X.evaluate(`window.__townFish.result().how`)) === "early", { bySpace, struck });
-  await space("keyDown"); await space("keyUp");
-  await until("the space bar begins again", () => X.evaluate(`window.__townFish.phase() === "ready"`), 3000);
+  const struck = await until("the space bar strikes", () => X.evaluate(`window.__townFish.phase() === "result"`), 3000, 30).catch((e) => e.message);
+  ok("the space bar drops the line and strikes, like the big button, and does not strike a line only just out", bySpace === true && held && struck === true && (await X.evaluate(`window.__townFish.result().how`)) === "early", { bySpace, held, taps, struck });
+
+  // …and what a go came to is not left by it: its buttons wait a moment, the space bar does nothing there, Enter goes on
+  shut = [await dim(X, "หย่อนอีก"), await dim(X, "พอแล้ว")];
+  const before = await worms(X);
+  taps = await hammer(14);
+  ok(`what a go came to is not left by the space bar, however it is hammered (${taps} times): no line is dropped, no bait gone`,
+    (await X.evaluate(`window.__townFish.phase()`)) === "result" && (await worms(X)) === before && before === 18, { phase: await X.evaluate(`window.__townFish.phase()`), before, now: await worms(X) });
+  ok("…its two buttons are not to be pressed at first, and are a second on; the one that goes on says Enter",
+    shut[0] === true && shut[1] === true && (await dim(X, "หย่อนอีก")) === false && (await dim(X, "พอแล้ว")) === false && /enter/i.test(await text(X, FISH)) && !/space/i.test(await text(X, FISH)), { shut, text: await text(X, FISH) });
+  await enter();
+  const on = await until("Enter goes on", () => X.evaluate(`window.__townFish.phase() === "ready"`), 3000, 30).catch((e) => e.message);
+  ok("Enter goes on to the baits, and is not taken for the town's key to type with", on === true && !(await X.evaluate(`/^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName ?? "")`)), on);
 
   // a bite left alone is lost too
   let c = await cast(X);
   await until("it bit and was not struck", () => X.evaluate(`window.__townFish.phase() === "result"`), (c.wait + 6) * 1000);
   ok("a bite that is not struck within moments is lost", (await X.evaluate(`window.__townFish.result().how`)) === "missed");
-  await press(X, "หย่อนอีก", FISH);
+  await dropAgain(X);
 
   // strike at the bite, and fight: a fish is landed within a few casts
   let landed = null, tries = 0, fights = 0, moved = 0, seenFight = false;
@@ -140,15 +171,20 @@ try {
       const res = await X.evaluate(`window.__townFish.result()`);
       if (res.how === "landed" && !["hyacinth", "boot"].includes(res.what)) landed = res;
     }
-    if (!landed) await press(X, "หย่อนอีก", FISH);
+    if (!landed) await dropAgain(X);
   }
   ok(`a strike at the bite hooks the fish, and it is landed (${tries} casts, ${fights} fights)`, !!landed, landed);
+  // (as the members met it: the fish is landed and the hand goes on hammering)
+  const left = await worms(X);
+  taps = await hammer(12);
+  ok(`the hand that fought it goes on hammering the space bar (${taps} times): the fish stays shown, and no line is dropped`,
+    (await X.evaluate(`window.__townFish.result()?.what ?? null`)) === landed?.what && (await worms(X)) === left, { result: await X.evaluate(`window.__townFish.result()`), left, now: await worms(X) });
   ok("in the fight the safe stretch moves, and the room is told a fish is on", moved > 0.02 && seenFight, { moved, seenFight });
   await X.shot(`${OUT}/fish-landed.png`);
   let p = await purse(X);
   ok("the fish is in the bag, and the longest of its kind is remembered", !!landed && p.bag.some((s) => s?.item === landed.what) && p.best[landed.what] === landed.size, p);
   ok("fighting spent stamina", fights > 0 && p.stamina.left < 100, p.stamina);
-  ready = (await press(X, "หย่อนอีก", FISH), await sleep(300), await text(X, FISH));
+  ready = (await dropAgain(X), await sleep(300), await text(X, FISH));
   ok("the fish I caught is offered as a bait only if it is one: found out by having it", landed?.what !== "minnow" || /ปลาซิว/.test(ready), ready);
 
   // every go was written down
@@ -183,7 +219,7 @@ try {
   ok("a legend's landing ends on a longer tune than a common fish's", legend.secs > sounds.find(([n]) => n === "landed")[1].secs + 0.5 && legend.peak <= 0.95, legend);
   console.log("   " + sounds.map(([n, m]) => `${n} ${m.peak}/${m.secs}s`).join("  "));
 
-  await press(X, "พอแล้ว", FISH);
+  await until("what the go came to can be left", () => press(X, "พอแล้ว", FISH), 5000, 60);
   await sleep(300);
   ok("putting the rod away closes the panel, and the room is told", !(await X.evaluate(`!!${FISH}`)) && (await me(X)).fish === 0);
 
@@ -197,11 +233,11 @@ try {
   const shallows = /น้ำตื้น/.test(await text(X, FISH)), got = [];
   for (let i = 0; i < 4; i++) {
     c = await cast(X);
-    await X.evaluate(`window.__townFish.strike()`);   // (too soon: only what took the bait is wanted here)
+    await X.evaluate(`window.__townFish.strike()`);   // (too soon, and a script's, taken whenever it comes: only what took the bait is wanted here)
     await until("that cast is over", () => X.evaluate(`window.__townFish.phase() === "result"`), 3000);
     // (the panel is not told what is on its way: it is in what the trial wrote down of the go)
     got.push(await X.evaluate(`window.__townTrade.plays().at(-1).what`));
-    await press(X, "หย่อนอีก", FISH);
+    await dropAgain(X);
   }
   await X.shot(`${OUT}/fish-bank.png`);
   ok("its water is shallow: only the common fish come", shallows && got.every((w) => COMMON.includes(w)), got);
