@@ -1082,6 +1082,22 @@ export function setBuilt(done: boolean) {
 /** Whether they are finished here now. */
 export const isBuilt = () => PIER.stage === 2 && KITCHEN.stage === 2;
 /**
+ * Something worked out with the two finished, whatever this page shows at the moment.
+ *
+ * For whatever the database keeps a copy of and holds a member to (the insects' haunts, where a line may be dropped
+ * from: lib/town/catalog): it has to come out the same on every page, and a page in a production build begins with the
+ * two as building sites, before its keeper has answered. The haunts were once laid out as the page stood at that
+ * moment: on the site itself nearly every one lay somewhere else than the database's, and a catch there was refused as
+ * too far away (found 2026-10-05, the morning the insects came, by a member).
+ */
+export function asBuilt<T>(make: () => T): T {
+  const pier = PIER.stage, kitchen = KITCHEN.stage, same = pier === 2 && kitchen === 2;
+  if (!same) { PIER.stage = 2; KITCHEN.stage = 2; fishing.clear(); }
+  try { return make(); } finally {
+    if (!same) { PIER.stage = pier; KITCHEN.stage = kitchen; fishing.clear(); }
+  }
+}
+/**
  * Whether somebody standing on a tile can fish from it, and where their float
  * lands.
  *

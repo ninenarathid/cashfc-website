@@ -17,7 +17,7 @@ import { STAMINA } from "./stamina";
 import { THANKS } from "./thanks";
 import { GOODS, RULES } from "./trade";
 import { WELL_BOOK } from "./well";
-import { BEDS_IN_FARM, COLS, FARM, ROWS, WELL, bedCorner, bedOf, fishFrom } from "./world";
+import { BEDS_IN_FARM, COLS, FARM, ROWS, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 
 /**
  * What the database is told of the game: the numbers its functions decide by.
@@ -113,8 +113,9 @@ export function catalogOf() {
       // what some fish wait for (lib/town/fishing's SIGNS): how many others' lines make a crowd and how lately dropped,
       // the minutes after rain, the days either side of a full moon, the weekend's days
       signs: SIGNS,
-      places: Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
-        .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; })),
+      // (with the deck finished, whatever is shown where this is asked: lib/town/world's asBuilt)
+      places: asBuilt(() => Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
+        .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; }))),
     },
     /** Every vegetable: its seed, the hours from sowing to ripe, how many a picking gives (least and most), and, for one that bears again, the hours until it is ripe again and how many times it is picked in all. */
     crops: Object.fromEntries(CROP_IDS.map((id) => [id, { seed: CROPS[id].seed, hours: CROPS[id].hours, yield: CROPS[id].yield, again: CROPS[id].again ?? null, picks: CROPS[id].picks ?? 1 }])),

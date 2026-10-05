@@ -4,7 +4,7 @@ import type { ItemId } from "./items";
 import { spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { CAMP, FARM, FOREST, FOREST_PROPS, GATES, PROPS, WATERFALL, WELL, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { CAMP, FARM, FOREST, FOREST_PROPS, GATES, PROPS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 
 /**
  * Catching insects, as rules (the owner, 2026-10-05: "จับแมลง ในทุกแมพในเกม แมพกลางเมือง
@@ -170,7 +170,8 @@ export interface Haunt { id: number; kind: HauntKind; place: Place; zone: Zone |
 
 const far = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
 
-export const HAUNTS: Haunt[] = (() => {
+// (laid out with the deck and the yard finished, as the database's row of them was: lib/town/world's asBuilt)
+export const HAUNTS: Haunt[] = asBuilt(() => {
   let a = 20261007;
   const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   // what can be walked to on each map, from where its gate puts somebody
@@ -257,7 +258,7 @@ export const HAUNTS: Haunt[] = (() => {
   }
   add("lamp", "forest", CAMP.fire.x, CAMP.fire.y, [{ x: CAMP.fire.x + 0.5, y: CAMP.fire.y + 0.5 }]);
   return out;
-})();
+});
 
 /* ── what a haunt has ───────────────────────────────────────────────────── */
 
