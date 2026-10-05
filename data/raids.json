@@ -30715,6 +30715,10 @@
       "kills": 21,
       "best": 86
      },
+     "Summoner": {
+      "kills": 1,
+      "best": 5
+     },
      "WhiteMage": {
       "kills": 4,
       "best": 44
@@ -72670,7 +72674,7 @@
       "best": 51
      },
      "Paladin": {
-      "kills": 3,
+      "kills": 4,
       "best": 93
      },
      "Gunbreaker": {
@@ -72680,6 +72684,10 @@
      "BlackMage": {
       "kills": 1,
       "best": 7
+     },
+     "DarkKnight": {
+      "kills": 1,
+      "best": 29
      },
      "Warrior": {
       "kills": 1,
@@ -79057,7 +79065,7 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 7,
+      "kills": 8,
       "best": 85
      }
     }

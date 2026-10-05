@@ -1,6 +1,27 @@
 {
  "events": [
   {
+   "date": "2026-10-05",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-10-05",
+   "type": "rare_up",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "earned With Pestle in Hand III — only 4.2% of players have it"
+  },
+  {
+   "date": "2026-10-05",
+   "type": "level_100",
+   "id": 51060767,
+   "name": "Yatchy Concreategirls",
+   "text": "reached level 100 on Reaper!"
+  },
+  {
    "date": "2026-10-04",
    "type": "level_100",
    "id": 43864764,
@@ -1378,27 +1399,6 @@
    "id": 39199441,
    "name": "Dodoco Chocodoco",
    "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-24",
-   "type": "level_100",
-   "id": 50821570,
-   "name": "Haruki Mizumoto",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-24",
-   "type": "level_100",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "reached level 100 on White Mage!"
-  },
-  {
-   "date": "2026-09-24",
-   "type": "level_100",
-   "id": 60873337,
-   "name": "Imy Kitty",
-   "text": "reached level 100 on Dragoon!"
   }
  ]
 }

@@ -2290,7 +2290,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 88,
+  "level": 89,
   "cc": [
    true,
    true,
@@ -2336,7 +2336,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -5601,7 +5601,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5723,7 +5723,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6804,7 +6804,7 @@
   "ult": 1,
   "mounts": 55,
   "minions": 109,
-  "rare": null,
+  "rare": 1,
   "level": 95,
   "cc": [
    false,
@@ -6813,14 +6813,16 @@
    false,
    false
   ],
-  "rare_ids": [],
+  "rare_ids": [
+   631
+  ],
   "tiers": {},
   "jobs": {},
   "ex": [],
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-26"
+  "chg": "2026-10-05"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -8353,7 +8355,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 62,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8366,7 +8368,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-05"
  },
  "42845691": {
   "name": "Yuukizuz Akino",
