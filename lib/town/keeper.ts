@@ -5,7 +5,7 @@ import type { Strike } from "./fishing";
 import type { ForestRefusal, Outcome, Sight } from "./forest";
 import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
-import { nextHint } from "./hints";
+import { hintPrice } from "./hints";
 import type { JarTold } from "./jar";
 import { carried, type PassRefusal } from "./line";
 import { reachOf } from "./ditch";
@@ -87,7 +87,8 @@ export interface Keeper {
   prices(): PricesTold;
   shelf(): ItemId[];
   order(): Order | null;
-  nextHint(): ItemId | null;
+  /** What the uncle's next hint costs me (lib/town/hints), or null when he has none for me. Which hint it will be is by chance and the keeper's to say, at the buying. */
+  hintPrice(): number | null;
   farm(): Record<string, Plot>;
   well(): number;
   owners(): Map<number, { by: string; name: string }>;
@@ -536,7 +537,7 @@ export class DbKeeper implements Keeper {
   prices(): PricesTold { return this.prices_; }
   shelf(): ItemId[] { return this.shelf_; }
   order(): Order | null { return this.order_; }
-  nextHint(): ItemId | null { const at = sourcesAt(this.unlocked, true); return nextHint(this.mine, this.found_, (id) => at.has(id)); }
+  hintPrice(): number | null { const at = sourcesAt(this.unlocked, true); return hintPrice(this.mine, this.found_, (id) => at.has(id)); }
   farm(): Record<string, Plot> { return this.plots; }
   well(): number { return this.well_; }
   owners(): Map<number, { by: string; name: string }> {

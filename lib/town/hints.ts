@@ -28,17 +28,23 @@ import { no, type Done, type Purse } from "./trade";
  * recipe itself, so a hint can never be wrong, or out of date when a recipe is
  * changed.
  *
- * The uncle sells them one at a time, the next he has that the buyer has
- * neither heard nor found, early ones first; dearer the later the tier.
- * A hint once bought is kept, to be read again.
+ * The uncle sells them one at a time, and which one is by chance (the owner,
+ * 2026-10-05: "ช่วยทำให้ คำใบ้จากลุงขายของ สุ่มด้วยครับ ตอนนี้เหมือนเรียง 1 23 4"; they
+ * came in one order until then, so whoever had bought four had the same four
+ * as everybody else, and nobody had heard anything worth asking about): one
+ * of those the buyer has neither heard nor found, of the earliest tier he
+ * still has one of. Dearer the later the tier, so what the next one costs is
+ * known though which it will be is not. A hint once bought is kept, to be
+ * read again.
  */
 export const HINT_PRICE: Record<1 | 2 | 3, number> = { 1: 15, 2: 40, 3: 90 };
 
 /**
- * Everything there is a hint for: the dishes that are cooked, then what else is made; the early game's first. What
- * came after the game opened (the dishes and the made things of the twenty fish of 2026-10-05) is sold after the
- * rest of its tier, so that the hints he was selling already come in the order they did (the owner had been told
- * which were the seventh and the eighth, and chose to leave them there).
+ * Everything there is a hint for: the dishes that are cooked, then what else is made; the early game's first, and
+ * what came after the game opened (`LATER_MADE`) after the rest of its tier. It was the order they were sold in
+ * until they were sold by chance; now it is only the order the database's row lists them in (lib/town/catalog),
+ * by which a number of chance is turned into one of them, and it is left as it was so that the row need not be
+ * written over.
  */
 export const HINT_IDS: ItemId[] = [...DISH_IDS.filter((id) => DISHES[id].recipe), ...MAKE_IDS]
   .map((id, i) => ({ id: id as ItemId, i: i + (LATER_MADE.includes(id as ItemId) ? 1000 : 0) })).sort((a, b) => ITEMS[a.id].tier - ITEMS[b.id].tier || a.i - b.i).map((x) => x.id);
@@ -94,18 +100,35 @@ export function hintOf(id: ItemId): Line {
 }
 
 /**
- * The hint the uncle would sell somebody next: the first they have neither
- * heard nor found, of what can be made now (`can`: with what his shelf has
- * open, lib/town/orders; a hint of a dish nobody can cook yet would be coins
- * for nothing). None when they have them all.
+ * The hints the uncle may sell somebody next: those they have neither heard
+ * nor found, of what can be made now (`can`: with what his shelf has open,
+ * lib/town/orders; a hint of a dish nobody can cook yet would be coins for
+ * nothing), of the earliest tier there is one of. All of one tier, and so of
+ * one price. None when they have them all.
  */
-export function nextHint(purse: Purse, found: ItemId[] = [], can: (id: ItemId) => boolean = () => true): ItemId | null {
+export function hintsLeft(purse: Purse, found: ItemId[] = [], can: (id: ItemId) => boolean = () => true): ItemId[] {
   const have = new Set<ItemId>([...(purse.hints ?? []), ...purse.recipes, ...found]);
-  return HINT_IDS.find((id) => !have.has(id) && can(id)) ?? null;
+  const left = HINT_IDS.filter((id) => !have.has(id) && can(id)), tier = Math.min(...left.map((id) => ITEMS[id].tier));
+  return left.filter((id) => ITEMS[id].tier === tier);
 }
-/** Buy the next hint. */
-export function buyHint(purse: Purse, found: ItemId[] = [], can: (id: ItemId) => boolean = () => true): Done<{ purse: Purse; hint: ItemId }> {
-  const hint = nextHint(purse, found, can);
+/** What the uncle's next hint costs somebody, whichever it turns out to be; null when he has none for them. */
+export function hintPrice(purse: Purse, found: ItemId[] = [], can: (id: ItemId) => boolean = () => true): number | null {
+  const left = hintsLeft(purse, found, can);
+  return left.length ? HINT_PRICE[ITEMS[left[0]].tier] : null;
+}
+/**
+ * The hint the uncle would sell somebody next: one of those he may
+ * (`hintsLeft`), which of them by `r`, a number of chance from 0 up to 1 that
+ * whoever keeps the game draws (0 is the first of them, as they are listed).
+ * None when they have them all.
+ */
+export function nextHint(purse: Purse, r: number, found: ItemId[] = [], can: (id: ItemId) => boolean = () => true): ItemId | null {
+  const left = hintsLeft(purse, found, can);
+  return left.length ? left[Math.min(left.length - 1, Math.floor((r > 0 ? r : 0) * left.length))] : null;
+}
+/** Buy the next hint: which one, by `r` (see `nextHint`). */
+export function buyHint(purse: Purse, r: number, found: ItemId[] = [], can: (id: ItemId) => boolean = () => true): Done<{ purse: Purse; hint: ItemId }> {
+  const hint = nextHint(purse, r, found, can);
   if (!hint) return no("none");
   const price = HINT_PRICE[ITEMS[hint].tier];
   if (purse.coins < price) return no("coins");

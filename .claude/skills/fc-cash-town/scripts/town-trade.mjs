@@ -153,6 +153,34 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     await press(X, "ซื้อของ", TRADE); await sleep(200);
     await press(X, "เมล็ดพันธุ์", TRADE); await sleep(200);
     ok("…and it is there to buy", await X.evaluate(`${TRADE}.innerText.includes("กลีบกระเทียม")`));
+
+    // the uncle's hints come by chance (the owner, 2026-10-05: "ช่วยทำให้ คำใบ้จากลุงขายของ สุ่มด้วยครับ ตอนนี้เหมือนเรียง 1 23 4")
+    await tab("สูตรและคำใบ้"); await sleep(250);
+    const CARD = `${TRADE}.querySelector("[data-uncle-hint]")`;
+    const card = () => X.evaluate(`(() => { const c = ${CARD}; return c ? { price: c.dataset.uncleHint, off: c.querySelector("button").disabled, text: c.innerText.replace(/\\s+/g, " ").trim(), heard: c.querySelectorAll("li").length } : null; })()`);
+    const buyHint = async (n) => { await X.evaluate(`${CARD}.querySelector("button").click()`); await until(`hint ${n} is kept`, async () => ((await purse(X)).hints ?? []).length === n, 4000); await sleep(120); };
+    await X.evaluate(`window.__townTrade.grant("rice", 0, 400)`);
+    await sleep(250);
+    const may = await X.evaluate(`window.__townTrade.hintsLeft()`), had = (await purse(X)).coins;
+    let c = await card();
+    ok("his hint says what it costs before it is bought, and not which it will be", !!c && c.price === "15" && !c.off && /คำใบ้ของลุง/.test(c.text) && /15/.test(c.text) && c.heard === 0 && may.length > 20, { c, may: may.length });
+    // (for the check, the number of chance is said: nothing is the first he may sell, nearly 1 the last)
+    await X.evaluate(`window.__townTrade.setHintChance(0)`);
+    await buyHint(1);
+    await X.evaluate(`window.__townTrade.setHintChance(0.999999)`);
+    await buyHint(2);
+    p = await purse(X);
+    c = await card();
+    ok("a number of chance says which: nothing the first he may sell, nearly one the last; each written under the button", p.hints[0] === may[0] && p.hints[1] === may[may.length - 1] && c.heard === 2 && p.coins === had - 30, { hints: p.hints, first: may[0], last: may[may.length - 1], c });
+    // left to chance, as a member's are
+    await X.evaluate(`window.__townTrade.setHintChance(null)`);
+    for (let n = 3; n <= 8; n++) await buyHint(n);
+    p = await purse(X);
+    c = await card();
+    const six = p.hints.slice(2), rest = may.slice(1, -1);
+    ok("six more by chance: six different ones of those he may sell, fifteen coins each", new Set(p.hints).size === 8 && six.every((id) => rest.includes(id)) && p.coins === had - 8 * 15 && c.heard === 8 && c.price === "15", { six, coins: p.coins, c });
+    ok("…and not the next six on his list, in their order", six.join() !== rest.slice(0, 6).join(), { six, listed: rest.slice(0, 6) });
+    await X.shot(`${OUT}/trade-${label}-hints.png`);
     await press(X, "ปิด", TRADE); await sleep(200);
 
     // a chat, when that is what one stops for

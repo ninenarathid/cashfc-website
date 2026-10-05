@@ -5,7 +5,7 @@ import { hookBait, landCatch, loseBait } from "./fishing";
 import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { BUGS, HAUNTS, HAUNT_KINDS, bugTurn, comeback, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
-import { buyHint, nextHint } from "./hints";
+import { buyHint, hintPrice, hintsLeft } from "./hints";
 import * as Notices from "./notices";
 import { MARKET, counted, factorOf, factsOf, newMarket, pricesTold, rolled, type Logged, type Market, type PricesTold } from "./market";
 import { CROPS, CROP_IDS, DISHES, STAGES, STAGE_AT, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
@@ -747,9 +747,13 @@ export class Trial {
   }
   /** Ladle a helping out of the pot in a slot of my own bag, into my bowl. */
   serve(slot: number) { return this.keep(serve(this.purse(), slot)); }
-  /** The uncle's next hint for me (of what can be made with what he sells so far), and buying it. */
-  nextHint(): ItemId | null { const at = sourcesAt(this.village().unlocked, true); return nextHint(this.purse(), this.found(), (id) => at.has(id)); }
-  hint() { const at = sourcesAt(this.village().unlocked, true); return this.keep(buyHint(this.purse(), this.found(), (id) => at.has(id))); }
+  /** What the uncle's next hint costs me (of what can be made with what he sells so far), and buying it: which one it is, by chance. */
+  hintPrice(): number | null { const at = sourcesAt(this.village().unlocked, true); return hintPrice(this.purse(), this.found(), (id) => at.has(id)); }
+  hint() { const at = sourcesAt(this.village().unlocked, true); return this.keep(buyHint(this.purse(), this.hintChance ?? Math.random(), this.found(), (id) => at.has(id))); }
+  /** For scripts trying things out: the hints he may sell me next, as they are listed, and the number of chance the next are drawn by (in this tab; 0 is the first of them; null: by chance). */
+  hintsLeft(): ItemId[] { const at = sourcesAt(this.village().unlocked, true); return hintsLeft(this.purse(), this.found(), (id) => at.has(id)); }
+  private hintChance: number | null = null;
+  setHintChance(r: number | null) { this.hintChance = r; }
   /** Put on what carries more, from a slot of the bag; and take one off. */
   wear(slot: number) { return this.keep(wear(this.purse(), slot)); }
   takeOff(item: ItemId) { return this.keep(takeOff(this.purse(), item)); }

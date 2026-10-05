@@ -43,7 +43,7 @@ class TrialKeeper implements Keeper {
   stall() { return this.trial.stall(); }
   shelf() { return this.trial.shelf(); }
   order() { return this.trial.order(); }
-  nextHint() { return this.trial.nextHint(); }
+  hintPrice() { return this.trial.hintPrice(); }
   farm() { return this.trial.farm(); }
   well() { return this.trial.well(); }
   owners() { return this.trial.owners(); }

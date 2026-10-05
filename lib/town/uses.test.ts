@@ -3,7 +3,7 @@ import { easeOf, helpings, isCookware, ladle, reachOf, type Pot } from "./cookin
 import { WATER, chore, hoe, toolOf, WILD, yieldOf, type Plant } from "./farm";
 import { CARRIES, PLAIN, gearOf } from "./gear";
 import { COOKING } from "./cooking";
-import { HINT_IDS, HINT_PRICE, KIND_WORD, buyHint, hintOf, nextHint, toldOf } from "./hints";
+import { HINT_IDS, HINT_PRICE, KIND_WORD, buyHint, hintOf, hintPrice, hintsLeft, nextHint, toldOf } from "./hints";
 import { mayNet } from "./insects";
 import { CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { GOODS, RULES, hold, newPurse, put, takeOff, wear, type Purse } from "./trade";
@@ -155,22 +155,48 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
     expect(Object.keys(SCROLLS).filter((s) => GOODS[s as ItemId]).length).toBe(7);
   });
 
-  it("sells its hints one at a time: the next that is neither heard nor found, for coins", () => {
+  it("sells its hints one at a time, for coins: one that is neither heard nor found, of the earliest tier there is one of, and which of them by chance (the owner: \"ช่วยทำให้ คำใบ้จากลุงขายของ สุ่มด้วยครับ\")", () => {
     let purse: Purse = { ...newPurse(), coins: 100_000, recipes: ["friedMinnow"] };
-    expect(nextHint(purse)).toBe("grilledFish");
-    expect(nextHint(purse, ["grilledFish"])).toBe("grilledCorn");
-    const heard: ItemId[] = [];
+    // those he may sell next: every early one but what is known already, as they are listed; all of one price
+    const early = HINT_IDS.filter((id) => ITEMS[id].tier === 1 && id !== "friedMinnow");
+    expect(early.length).toBeGreaterThan(20);
+    expect(hintsLeft(purse)).toEqual(early);
+    expect(hintsLeft(purse, ["grilledFish"])).toEqual(early.filter((id) => id !== "grilledFish"));
+    expect(hintPrice(purse)).toBe(HINT_PRICE[1]);
+    // the number of chance says which: each of them over as wide a stretch of it as any other
+    expect(nextHint(purse, 0)).toBe(early[0]);
+    const drawn = new Map<ItemId, number>();
+    for (let i = 0; i < early.length * 40; i++) { const id = nextHint(purse, (i + 0.5) / (early.length * 40))!; drawn.set(id, (drawn.get(id) ?? 0) + 1); }
+    expect([...drawn.keys()]).toEqual(early);
+    expect(new Set(drawn.values())).toEqual(new Set([40]));
+    // (a number that is none from 0 up to 1 is brought to the nearest that is)
+    expect(nextHint(purse, -3)).toBe(early[0]);
+    expect(nextHint(purse, Number.NaN)).toBe(early[0]);
+    expect(nextHint(purse, 1)).toBe(early[early.length - 1]);
+    expect(nextHint(purse, 7)).toBe(early[early.length - 1]);
+    // fifty who buy four each hear fifty different fours (until 2026-10-05 everybody heard the same four, in the same order)
+    const dice = (seed: number) => () => { seed = (seed + 0x6d2b79f5) | 0; let t = Math.imul(seed ^ (seed >>> 15), 1 | seed); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const four = (roll: () => number) => { let p = purse; const got: ItemId[] = []; for (let i = 0; i < 4; i++) { const d = buyHint(p, roll()); if (!d.ok) throw new Error(d.why); got.push(d.hint); p = d.purse; } return got; };
+    const fours = Array.from({ length: 50 }, (_, i) => four(dice(i + 1)));
+    expect(new Set(fours.map((f) => f.join())).size).toBe(50);
+    expect(new Set(fours.map((f) => f[0])).size).toBeGreaterThan(15);
+    // bought to the end, whatever the dice: every hint but the one already known, each once, each at its tier's price, which was known before it was bought
+    const roll = dice(7), heard: ItemId[] = [];
     for (let i = 0; i < HINT_IDS.length + 5; i++) {
-      const d = buyHint(purse);
-      if (!d.ok) { expect(d.why).toBe("none"); break; }
+      const price = hintPrice(purse), d = buyHint(purse, roll());
+      if (!d.ok) { expect(d.why).toBe("none"); expect(price).toBeNull(); break; }
       expect(purse.coins - d.purse.coins).toBe(HINT_PRICE[ITEMS[d.hint].tier]);
+      expect(price).toBe(HINT_PRICE[ITEMS[d.hint].tier]);
       heard.push(d.hint);
       purse = d.purse;
     }
-    // every hint but the one already known, each once
     expect(heard.length).toBe(HINT_IDS.length - 1);
     expect(new Set(heard).size).toBe(heard.length);
     expect(purse.hints).toEqual(heard);
-    expect(buyHint({ ...newPurse(), coins: HINT_PRICE[1] - 1 })).toEqual({ ok: false, why: "coins" });
+    // a tier at a time, the early game's first; and within a tier not as they are listed
+    const tiers = heard.map((id) => ITEMS[id].tier);
+    expect([...tiers].sort((a, b) => a - b)).toEqual(tiers);
+    expect(heard).not.toEqual(HINT_IDS.filter((id) => id !== "friedMinnow"));
+    expect(buyHint({ ...newPurse(), coins: HINT_PRICE[1] - 1 }, 0.5)).toEqual({ ok: false, why: "coins" });
   });
 });

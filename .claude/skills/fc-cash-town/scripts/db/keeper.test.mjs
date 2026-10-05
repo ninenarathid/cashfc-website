@@ -21,7 +21,7 @@ const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v130", "v132", "v133"];
+const NEXT = ["v130", "v132", "v133", "v135"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -113,7 +113,7 @@ try {
   ok("the stall is not known until it is looked at", A.order() === null && A.shelf().length === shelfOf(0).length);
   const stopStall = A.look("stall");
   await settled(A);
-  ok(`looked at: today's order, the first day's shelf of ${first}, the next hint`, A.order()?.wants?.length === 3 && A.shelf().length === first && typeof A.nextHint() === "string", { order: A.order(), shelf: A.shelf().length, hint: A.nextHint() });
+  ok(`looked at: today's order, the first day's shelf of ${first}, what his next hint costs`, A.order()?.wants?.length === 3 && A.shelf().length === first && A.hintPrice() === 15, { order: A.order(), shelf: A.shelf().length, hint: A.hintPrice() });
   stopStall();
   did = await A.buy("worm", 3);
   ok("three worms bought: six coins gone, in the bag, counted on the stall", did.ok && A.purse().coins === 14 && A.purse().bag[0]?.item === "worm" && A.purse().bag[0].n === 3 && A.stall().sold.worm === 3, { purse: A.purse().bag[0], stall: A.stall() });
@@ -133,7 +133,18 @@ try {
   ok("the worms thrown away", did.ok && A.purse().bag.every((s) => s === null), A.purse().bag);
   await purse(a, 500, []);
   did = await A.hint();
-  ok("a hint bought: named, and paid for", did.ok && typeof did.hint === "string" && A.purse().coins < 500 && (A.purse().hints ?? []).includes(did.hint), did.ok ? { hint: did.hint, coins: A.purse().coins } : did);
+  ok("a hint bought: named, and paid for at the price said before", did.ok && typeof did.hint === "string" && A.purse().coins === 485 && (A.purse().hints ?? []).includes(did.hint) && A.hintPrice() === 15, did.ok ? { hint: did.hint, coins: A.purse().coins } : did);
+  if ((await sql(`select to_regprocedure('town.next_hint(jsonb, jsonb, integer, double precision)') is not null as there`))[0].there) {
+    // (v135: which hint is by chance, and the database's to say; the page knows only what it costs)
+    await purse(a, 500, []);
+    await purse(b, 500, []);
+    await settled(A); await settled(B);
+    const heard = { A: [], B: [] };
+    for (let i = 0; i < 6; i++) { heard.A.push((await A.hint()).hint); heard.B.push((await B.hint()).hint); }
+    ok("two who buy six each are each sold six different hints, kept in their purses as they came, fifteen coins each",
+      new Set(heard.A).size === 6 && new Set(heard.B).size === 6 && heard.A.join() === (A.purse().hints ?? []).join() && heard.B.join() === (B.purse().hints ?? []).join() && A.purse().coins === 410 && B.purse().coins === 410, heard);
+    ok("…and not the same six in the same order", heard.A.join() !== heard.B.join(), heard);
+  }
 
   section("a meal");
   await purse(a, 0, [{ item: "riceBox", n: 2 }]);

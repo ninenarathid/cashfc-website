@@ -173,20 +173,23 @@ export function vectorsV106(): Vector[] {
     add("give", [p, village, slot, n, now], give(p, village, slot as number, n as number, now));
   }
 
-  // his hints
+  // his hints, as v106 wrote the two rules: three words, and the first he has. They are drawn by chance since v135,
+  // which gave each rule a fourth word (vectorsV135, below); these are what the code answers with no chance in it
+  // (0: the first), and so what v106's own rules answer still. A dry run that replays v135 asks these with a
+  // fourth word of 0 (`town.next_hint($1::jsonb, $2::jsonb, $3::int, 0)`): the three-word rules are gone then.
   for (let i = 0; i < 300; i++) {
     const now = c.of(MOMENTS), p = purseOf(c, now), stage = c.int(0, UNLOCKS.length), at = sourcesAt(stage, true);
     const found = Array.from({ length: c.int(0, 8) }, () => c.of(ITEM_IDS));
-    add("next_hint", [p, found, stage], nextHint(p, found, (id) => at.has(id)));
-    add("buy_hint", [p, found, stage], buyHint(p, found, (id) => at.has(id)));
+    add("next_hint", [p, found, stage], nextHint(p, 0, found, (id) => at.has(id)));
+    add("buy_hint", [p, found, stage], buyHint(p, 0, found, (id) => at.has(id)));
   }
 
   // (somebody who has heard everything there is to hear at a stage, or found it, is sold nothing)
   for (let i = 0; i < 12; i++) {
     const now = c.of(MOMENTS), stage = c.of([0, 3, 20, UNLOCKS.length]), at = sourcesAt(stage, true), can = HINT_IDS.filter((id) => at.has(id));
     const half = can.filter(() => c.maybe(0.5)), p: Purse = { ...purseOf(c, now), coins: 100_000, hints: half }, found = can.filter((id) => !half.includes(id));
-    add("next_hint", [p, found, stage], nextHint(p, found, (id) => at.has(id)));
-    add("buy_hint", [p, found, stage], buyHint(p, found, (id) => at.has(id)));
+    add("next_hint", [p, found, stage], nextHint(p, 0, found, (id) => at.has(id)));
+    add("buy_hint", [p, found, stage], buyHint(p, 0, found, (id) => at.has(id)));
   }
 
   // a purse nobody has used
@@ -682,7 +685,65 @@ export function vectorsV113(): Vector[] {
   return out;
 }
 
+/**
+ * Every case for the rules of v135: the uncle's hints drawn by chance (the owner, 2026-10-05). v106's two rules with
+ * the number of chance as a fourth word: purses as they come, and somebody who has heard most of a tier, all of it,
+ * or all of two, so that what is left is few, or of the next tier, or nothing.
+ */
+export function vectorsV135(): Vector[] {
+  const c = chance(20261005), out: Vector[] = [];
+  const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
+  // a number of chance: any from 0 up to 1, and now and then an end of that or something beyond it or nothing (a rule
+  // is handed random(), and is held to the code whatever it is handed)
+  const ENDS = [0, 0.999999, 1, -0.25, 1.75, null];
+  const r = () => (c.maybe(0.2) ? c.of(ENDS) : c.next()) as number;
+  const sources = new Map<number, ReturnType<typeof sourcesAt>>();
+  const both = (p: Purse, found: ItemId[], stage: number) => {
+    const at = sources.get(stage) ?? sourcesAt(stage, true), x = r(), y = r();
+    sources.set(stage, at);
+    add("next_hint", [p, found, stage, x], nextHint(p, x, found, (id) => at.has(id)));
+    add("buy_hint", [p, found, stage, y], buyHint(p, y, found, (id) => at.has(id)));
+  };
+  for (let i = 0; i < 300; i++) {
+    const now = c.of(MOMENTS), p = purseOf(c, now), stage = c.int(0, UNLOCKS.length);
+    both(p, Array.from({ length: c.int(0, 8) }, () => c.of(ITEM_IDS)), stage);
+  }
+  for (let i = 0; i < 300; i++) {
+    const now = c.of(MOMENTS), stage = c.of([0, 1, 3, 8, 20, 45, UNLOCKS.length]), at = sources.get(stage) ?? sourcesAt(stage, true), can = HINT_IDS.filter((id) => at.has(id));
+    sources.set(stage, at);
+    // so many tiers known whole, and so much of the next; some of it heard from him, some read, the rest found by the village
+    const whole = c.int(0, 3), share = c.of([0, 0.5, 0.9, 1]);
+    const known = can.filter((id) => ITEMS[id].tier <= whole || (ITEMS[id].tier === whole + 1 && c.maybe(share)));
+    const mine = known.filter(() => c.maybe(0.6)), found = known.filter((id) => !mine.includes(id));
+    const p: Purse = { ...purseOf(c, now), coins: c.maybe(0.85) ? 100_000 : c.int(0, 100), hints: mine.filter((_, k) => k % 2 === 0), recipes: mine.filter((_, k) => k % 2 === 1) as DishId[] };
+    both(p, found, stage);
+  }
+  return out;
+}
+
 describe("the cases the database's rules are held to", () => {
+  it("are made for the uncle's hints drawn by chance too (v135)", () => {
+    const all = vectorsV135();
+    expect(all.length).toBe(1200);
+    expect(JSON.stringify(vectorsV135())).toBe(JSON.stringify(all));
+    const next = all.filter((v) => v.fn === "next_hint"), buy = all.filter((v) => v.fn === "buy_hint");
+    // a hint of every tier is drawn, and none where there is none; bought, refused for want of coins, and none to buy
+    const tierOf = (v: Vector) => (v.want === null ? 0 : ITEMS[v.want as ItemId].tier);
+    for (const tier of [0, 1, 2, 3]) expect(next.filter((v) => tierOf(v) === tier).length).toBeGreaterThan(25);
+    expect([...new Set(buy.map((v) => { const w = v.want as { ok?: boolean; why?: string }; return w.ok ? "ok" : w.why; }))].sort()).toEqual(["coins", "none", "ok"]);
+    // which is seldom the first he has: with no chance in it, most of these would be answered otherwise
+    const sources = new Map<number, ReturnType<typeof sourcesAt>>();
+    const first = (v: Vector) => { const stage = v.args[2] as number, at = sources.get(stage) ?? sourcesAt(stage, true); sources.set(stage, at); return nextHint(v.args[0] as Purse, 0, v.args[1] as ItemId[], (id) => at.has(id)); };
+    const some = next.filter((v) => v.want !== null);
+    expect(some.filter((v) => v.want !== first(v)).length).toBeGreaterThan(some.length * 0.6);
+    // and what is drawn is always of the tier the first is of: the price is known before it is bought
+    for (const v of some) expect(ITEMS[v.want as ItemId].tier).toBe(ITEMS[first(v)!].tier);
+    // the ends of chance, what is beyond them, and no number at all are among them
+    for (const end of [0, 0.999999, 1, -0.25, 1.75, null]) expect(next.some((v) => v.args[3] === end && v.want !== null)).toBe(true);
+    const dir = process.env.TOWN_VECTORS;
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v135.json`, JSON.stringify(all)); }
+  });
+
   it("are made for a bag that grew too", () => {
     const all = vectorsV113();
     const grew = all.filter((v) => (v.want as Purse).bag.length > (v.args[0] as Purse).bag.length);

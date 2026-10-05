@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { HINT_IDS, nextHint } from "./hints";
+import { HINT_IDS, HINT_PRICE, hintPrice } from "./hints";
 import { DbKeeper, type Ask } from "./keeper";
 import { shelfOf, sourcesAt } from "./orders";
 import { SKIES } from "./skies";
@@ -135,8 +135,8 @@ describe("the database's keeper", () => {
     await settle();
     expect(k.shelf()).toEqual([...shelfOf(0), "seedGarlic"]);
     // (one order filled, as he says: not two, as a shelf two longer than the first day's would say)
-    expect(nextHint(mine, [], (id) => sourcesAt(2, true).has(id))).not.toBeNull();
-    expect(k.nextHint()).toBeNull();
+    expect(hintPrice(mine, [], (id) => sourcesAt(2, true).has(id))).toBe(HINT_PRICE[1]);
+    expect(k.hintPrice()).toBeNull();
     stop();
     k.close();
   });

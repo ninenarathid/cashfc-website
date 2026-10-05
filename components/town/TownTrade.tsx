@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WATER } from "@/lib/town/farm";
 import { CARRIES } from "@/lib/town/gear";
-import { HINT_PRICE, hintOf } from "@/lib/town/hints";
+import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
@@ -222,7 +222,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-3">
         <p className="mb-2 min-h-[1.5em] text-meta text-accent" aria-live="polite">{said ?? ""}</p>
-        {view === "buy" && <Buy purse={purse} stall={stall} now={now} th={th} next={keeper.nextHint()} shelf={keeper.shelf()}
+        {view === "buy" && <Buy purse={purse} stall={stall} now={now} th={th} hintCoins={keeper.hintPrice()} shelf={keeper.shelf()}
                                 onBuy={(id, n) => tried(keeper.buy(id, n), ["ขอบใจนะหลาน", "Much obliged, kiddo."])}
                                 onHint={() => tried(keeper.hint(), ["ลุงจดให้แล้วนะ ส่วนอย่างสุดท้าย ไปเดาเอาเอง", "There, I've jotted it down. The last thing is yours to guess."])} />}
         {view === "sell" && order && <Wanted order={order} purse={purse} th={th}
@@ -297,10 +297,10 @@ export default function TownTrade({ keeper, view, th, art, seated, company, onVi
 }
 
 /** The stall's shelf: each thing, what it costs, how many are left for the village and for me, and a button to buy. */
-function Buy({ purse, stall, now, th, next, shelf, onBuy, onHint }: {
+function Buy({ purse, stall, now, th, hintCoins, shelf, onBuy, onHint }: {
   purse: Purse; stall: Stall; now: number; th: boolean;
-  /** The hint he would sell me next, if he has one. */
-  next: ItemId | null;
+  /** What his next hint costs me, if he has one for me: which one it will be is by chance, and not this page's to know. */
+  hintCoins: number | null;
   /** What the stall has open: the basic things, and what the village's orders have opened since (lib/town/orders). */
   shelf: ItemId[];
   onBuy: (id: ItemId, n: number) => void; onHint: () => void;
@@ -319,19 +319,19 @@ function Buy({ purse, stall, now, th, next, shelf, onBuy, onHint }: {
           </button>
         ))}
       </div>
-      {/* a recipe is not told: the uncle sells a hint of the next one, which names all that goes in but the last thing */}
+      {/* a recipe is not told: the uncle sells a hint of one, by chance, which names all that goes in but the last thing */}
       {kind === "scroll" && (
-        <div className="mb-2 rounded-xl border border-line bg-card/60 px-2.5 py-2">
+        <div data-uncle-hint={hintCoins ?? "none"} className="mb-2 rounded-xl border border-line bg-card/60 px-2.5 py-2">
           <div className="flex items-center gap-2.5">
             <TownIcon name="note" size={30} className="shrink-0" />
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2">
                 <span className="truncate text-ui font-semibold text-ink">{th ? "คำใบ้ของลุง" : "The uncle's hint"}</span>
-                {next && <Coins n={HINT_PRICE[ITEMS[next].tier]} th={th} small />}
+                {hintCoins !== null && <Coins n={hintCoins} th={th} small />}
               </div>
               <p className="font-data text-meta text-muted">{hints.length}</p>
             </div>
-            <button type="button" disabled={!next} onClick={onHint}
+            <button type="button" disabled={hintCoins === null} onClick={onHint}
                     className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
               {th ? "ซื้อ" : "Buy"}
             </button>

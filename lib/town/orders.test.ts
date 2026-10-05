@@ -76,7 +76,8 @@ describe("the uncle's hints, with a shelf that is not whole yet", () => {
     const at = sourcesAt(0);
     let purse: Purse = { ...newPurse(), coins: 100_000 };
     const heard: ItemId[] = [];
-    for (;;) { const d = buyHint(purse, [], (id) => at.has(id)); if (!d.ok) { expect(d.why).toBe("none"); break; } heard.push(d.hint); purse = d.purse; }
+    // (whichever way the dice fall: here a different number of chance at each buying)
+    for (;;) { const d = buyHint(purse, (heard.length * 0.618) % 1, [], (id) => at.has(id)); if (!d.ok) { expect(d.why).toBe("none"); break; } heard.push(d.hint); purse = d.purse; }
     expect(heard.length).toBeGreaterThanOrEqual(6);
     expect(heard.length).toBeLessThan(HINT_IDS.length);
     for (const id of heard) expect(at.has(id)).toBe(true);
@@ -85,7 +86,7 @@ describe("the uncle's hints, with a shelf that is not whole yet", () => {
     expect(heard).not.toContain("stirKangkong");
     // one more thing open, more to hint at
     const then = sourcesAt(1);
-    expect(buyHint(purse, [], (id) => then.has(id)).ok).toBe(true);
+    expect(buyHint(purse, 0.5, [], (id) => then.has(id)).ok).toBe(true);
   });
 });
 
