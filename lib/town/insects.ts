@@ -21,8 +21,9 @@ import { CAMP, FARM, FOREST, FOREST_PROPS, GATES, PROPS, WATERFALL, WELL, asBuil
  *   (lib/town/forest): in a turn a haunt has one insect or none, rolled from
  *   the haunt, the turn and the keeper's word, by where it is, the hour, the
  *   sky, the moon and (for the rare ones) whether today is a day of theirs.
- *   The same for everybody, and each member catches it once (`shares` of them
- *   in a turn): calling a friend over loses nothing.
+ *   The same for everybody, and caught once: whoever's net takes it has it,
+ *   and it is gone from everybody's map (`shares`, one). A little later
+ *   another comes out at some other haunt of that map (`comeback`), once.
  * - **Each insect has a habit**, and a habit is the whole of how it is caught.
  *   Nobody is told them: a butterfly never stops, and is met where it will be;
  *   a dragonfly hovers and darts on, and is waited for; a grasshopper sees far
@@ -133,17 +134,28 @@ export const BUGS: Record<BugId, Bug> = {
 export const BUG_IDS = Object.keys(BUGS) as BugId[];
 export const isBug = (id: string | null | undefined): id is BugId => !!id && id in BUGS;
 
-/** A kind of haunt: how many minutes its turn lasts, the chance a turn has an insect, and how many people may catch it in a turn. */
+/**
+ * A kind of haunt: how many minutes its turn lasts, the chance a turn has an insect, and how many people may catch it
+ * in a turn. One, since 2026-10-05 (three before): an insect caught is gone for everybody (the owner: "เมื่อจับแมลงแล้ว
+ * ช่วยทำให้หายไปจากแมพ ในหน้าจอคนอื่นด้วย").
+ */
 export const HAUNT_KINDS: Record<HauntKind, { every: number; chance: number; shares: number }> = {
-  blooms: { every: 10, chance: 0.55, shares: 3 },
-  water: { every: 10, chance: 0.5, shares: 3 },
-  field: { every: 10, chance: 0.55, shares: 3 },
-  lamp: { every: 10, chance: 0.6, shares: 3 },
-  tree: { every: 20, chance: 0.5, shares: 3 },
-  litter: { every: 20, chance: 0.5, shares: 3 },
-  glade: { every: 60, chance: 0.25, shares: 3 },
-  falls: { every: 30, chance: 0.3, shares: 3 },
+  blooms: { every: 10, chance: 0.55, shares: 1 },
+  water: { every: 10, chance: 0.5, shares: 1 },
+  field: { every: 10, chance: 0.55, shares: 1 },
+  lamp: { every: 10, chance: 0.6, shares: 1 },
+  tree: { every: 20, chance: 0.5, shares: 1 },
+  litter: { every: 20, chance: 0.5, shares: 1 },
+  glade: { every: 60, chance: 0.25, shares: 1 },
+  falls: { every: 30, chance: 0.3, shares: 1 },
 };
+/**
+ * An insect caught comes back somewhere else (the owner, the same day: "หลังจากนั้น จะมี delay เล็กน้อยก่อนสุ่มเกิดที่ใหม่"):
+ * so many seconds after the catch, at another haunt of the same map that has nothing in its turn, which must have at
+ * least so many seconds of that turn left. Once: what came back and is caught does not come back again, so that a
+ * map gives at most twice what its haunts roll, however many hunt it.
+ */
+export const COMEBACK = { after: 30, least: 120 };
 
 export const NET = {
   /** How far from where one stands a swing can be aimed, in tiles. */
@@ -284,28 +296,67 @@ function fits(b: Bug, id: BugId, h: Haunt, at: number, salt: string, rains: read
   return true;
 }
 
-/** What a haunt has in a turn: the turn, the insect, how many a catch gives, and the seed its ways follow from (no secret: it only says how it moves). */
-export interface Swarm { turn: number; bug: BugId; n: number; seed: number }
+/** What a haunt has in a turn: the turn, the insect, how many a catch gives, and the seed its ways follow from (no secret: it only says how it moves); and whether it is one that came back there after a catch elsewhere. */
+export interface Swarm { turn: number; bug: BugId; n: number; seed: number; back?: boolean }
+/** An insect that comes back: at which haunt, in which turn of its, which insect and how many a catch gives, and from what moment it is there. */
+export interface Comeback { haunt: number; turn: number; bug: BugId; n: number; from: number }
+
+/** The insects that may be at a haunt in a turn of its, in the order they are weighed. */
+const mayBe = (salt: string, h: Haunt, turn: number, rains: readonly Rain[]) => { const at = bugTurnStart(h, turn); return BUG_IDS.filter((id) => fits(BUGS[id], id, h, at, salt, rains)); };
+/** One of them, by their weights and a number from 0 up to 1. */
+function whichOf(may: BugId[], r: number): BugId | undefined {
+  let left = r * may.reduce((t, id) => t + BUGS[id].weight, 0);
+  return may.find((id) => (left -= BUGS[id].weight) < 0) ?? may[may.length - 1];
+}
 
 /** What a haunt has now, or null: decided as its turn begins, and rolled from the keeper's word, the haunt and the turn. The same for everybody. */
 export function swarmAt(salt: string, h: Haunt, now: number, rains: readonly Rain[] = DRY): Swarm | null {
-  const kind = HAUNT_KINDS[h.kind], turn = bugTurn(h, now), at = bugTurnStart(h, turn);
+  const kind = HAUNT_KINDS[h.kind], turn = bugTurn(h, now);
   if (roll(`${salt}:bug`, h.id, turn) >= kind.chance) return null;
-  const may = BUG_IDS.filter((id) => fits(BUGS[id], id, h, at, salt, rains));
-  let left = roll(`${salt}:which`, h.id, turn) * may.reduce((t, id) => t + BUGS[id].weight, 0);
-  const bug = may.find((id) => (left -= BUGS[id].weight) < 0) ?? may[may.length - 1];
+  const bug = whichOf(mayBe(salt, h, turn, rains), roll(`${salt}:which`, h.id, turn));
   if (!bug) return null;
   const [lo, hi] = BUGS[bug].n;
   return { turn, bug, n: lo + Math.floor(roll(`${salt}:bugs`, h.id, turn) * (hi - lo + 1)), seed: h.id * 100003 + turn };
 }
 
+/** What a haunt has now, of its own or come back to it after a catch elsewhere (`backs`: those the keeper knows of). */
+export function hereAt(salt: string, h: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[]): Swarm | null {
+  const own = swarmAt(salt, h, now, rains);
+  if (own) return own;
+  const turn = bugTurn(h, now), back = backs.find((b) => b.haunt === h.id && b.turn === turn && b.from <= now);
+  return back ? { turn, bug: back.bug, n: back.n, seed: h.id * 100003 + turn, back: true } : null;
+}
+
+/**
+ * Where the insect caught at a haunt comes back, and as what: at another haunt of the same map that has nothing in the
+ * turn it will be in then (none of its own, none come back to it already), with enough of that turn left, picked by a
+ * number from 0 up to 1 among them in the order of their numbers; the insect by that haunt's own weights at that hour
+ * (a second number), and how many (a third). Null when the map has no such haunt. Whether a catch brings one back at
+ * all is the keeper's to say: only one that was the haunt's own does.
+ */
+export function comeback(salt: string, from: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], r: readonly [number, number, number]): Comeback | null {
+  const at = now + COMEBACK.after * 1000;
+  const free = HAUNTS.filter((h) => {
+    if (h.id === from.id || h.place !== from.place) return false;
+    const turn = bugTurn(h, at);
+    if (bugTurnStart(h, turn + 1) - at < COMEBACK.least * 1000) return false;
+    if (swarmAt(salt, h, at, rains) || backs.some((b) => b.haunt === h.id && b.turn === turn)) return false;
+    return mayBe(salt, h, turn, rains).length > 0;
+  });
+  if (!free.length) return null;
+  const pick = (x: number, n: number) => Math.min(n - 1, Math.max(0, Math.floor(x * n)));
+  const h = free[pick(r[0], free.length)], turn = bugTurn(h, at), bug = whichOf(mayBe(salt, h, turn, rains), Math.min(0.999999, Math.max(0, r[1])))!;
+  const [lo, hi] = BUGS[bug].n;
+  return { haunt: h.id, turn, bug, n: lo + pick(r[2], hi - lo + 1), from: at };
+}
+
 /** A haunt as somebody sees it now: which, its insect, and what its ways follow from. */
 export interface BugSight { id: number; bug: BugId; turn: number; seed: number }
-/** Every haunt that has an insect for me now: one out this turn, with a share of it left, that I have not caught. */
-export function swarms(salt: string, now: number, rains: readonly Rain[], took: (h: Haunt, turn: number) => { n: number; mine: boolean }): BugSight[] {
+/** Every haunt that has an insect for me now: one out this turn (its own, or come back to it), that nobody has caught. */
+export function swarms(salt: string, now: number, rains: readonly Rain[], took: (h: Haunt, turn: number) => { n: number; mine: boolean }, backs: readonly Comeback[] = []): BugSight[] {
   const out: BugSight[] = [];
   for (const h of HAUNTS) {
-    const has = swarmAt(salt, h, now, rains);
+    const has = hereAt(salt, h, now, rains, backs);
     if (!has) continue;
     const t = took(h, has.turn);
     if (t.mine || t.n >= HAUNT_KINDS[h.kind].shares) continue;

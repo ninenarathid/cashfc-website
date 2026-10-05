@@ -17,10 +17,11 @@ await import("./repo-ts-town.mjs");
 const { DbKeeper } = await import("@/lib/town/keeper");
 const { FARM, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
 const { shelfOf } = await import("@/lib/town/orders");
+const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v131"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -602,13 +603,13 @@ try {
 
   if ((await sql(`select to_regprocedure('town.rid_pick(jsonb, bigint, double precision)') is not null as there`))[0].there) {
     section("a ladybird takes a pest with it: the plot is cured on the page at once (v126)");
-    // a moment a ladybird is out at some haunt: the clock put on a turn at a time until one is
-    let haunt = null;
-    for (let i = 0; i < 300 && haunt === null; i++) {
-      const out = await sql(`select i from generate_series(0, jsonb_array_length(town.cat('insects')->'haunts') - 1) i where town.bug_at(i, town.now_ms())->>'bug' = 'ladybird' order by i limit 1`);
-      if (out.length) haunt = out[0].i; else await skip(10 * 60000);
+    // a moment two ladybirds are out, each at a haunt of its own (an insect is one member's): the clock put on a turn at a time until they are
+    let haunt = null, other = null;
+    for (let i = 0; i < 400 && haunt === null; i++) {
+      const out = await sql(`select i from generate_series(0, jsonb_array_length(town.cat('insects')->'haunts') - 1) i where town.bug_at(i, town.now_ms())->>'bug' = 'ladybird' order by i limit 2`);
+      if (out.length === 2) { haunt = out[0].i; other = out[1].i; } else await skip(10 * 60000);
     }
-    ok("(a ladybird is out somewhere, to try it with)", haunt !== null);
+    ok("(two ladybirds are out somewhere, to try it with)", haunt !== null);
     if (haunt !== null) {
       const HOUR = 3600000, now = Number((await sql(`select town.now_ms() as now`))[0].now);
       // a plant of B's with a pest on it now, on the farm's last plot: sown so many hours ago that one has come, found by looking
@@ -625,7 +626,8 @@ try {
         on conflict (x, y) do update set soil = 'tilled', plant = excluded.plant, changed = 1`, [spare[0], spare[1], JSON.stringify(sick)]);
       const pests = (await sql(`select p.x::text || ',' || p.y::text as key from public.town_plots p where p.plant is not null
         and town.rid_pick(jsonb_build_object(p.x::text || ',' || p.y::text, jsonb_build_object('soil', p.soil, 'plant', p.plant)), town.now_ms(), 0) is not null`)).map((r) => r.key);
-      const perch = (await sql(`select town.cat('insects')->'haunts'->$1::int->3->0 as p`, [haunt]))[0].p, tile = [Math.floor(perch[0]), Math.floor(perch[1])];
+      const tileOf = async (id) => { const p = (await sql(`select town.cat('insects')->'haunts'->$1::int->3->0 as p`, [id]))[0].p; return [Math.floor(p[0]), Math.floor(p[1])]; };
+      const tile = await tileOf(haunt), tile2 = await tileOf(other);
       const chance = (n) => sql(`update public.town_catalog set data = jsonb_set(data, '{bugs,ladybird,rids}', $1::jsonb) where key = 'insects'`, [String(n)]);
       for (const who of [a, b]) {
         await purse(who, 0, [{ item: "bugNet", n: 1 }]);
@@ -636,7 +638,7 @@ try {
       await chance(0);
       const heardB = [], wasA = A.onDeed, wasB = B.onDeed;
       B.onDeed = (what, to) => heardB.push([what, to]);
-      let did = await B.netDo(haunt, tile, { misses: 0 }, "Tester B");
+      let did = await B.netDo(other, tile2, { misses: 0 }, "Tester B");
       ok("with no chance: caught, no plot is named, and the farm is not said to have changed", did.ok && did.got[0][0] === "ladybird" && !did.rid && !heardB.some(([w]) => w === "farm") && B.purse().bag.some((x) => x?.item === "ladybird"), { did, heardB });
       // always: the chance certain
       await chance(1);
@@ -656,6 +658,53 @@ try {
       await chance(0.1);
       A.onDeed = wasA; B.onDeed = wasB;
     }
+  }
+
+  if ((await sql(`select to_regclass('public.town_comebacks') is not null as there`))[0].there) {
+    section("an insect caught is gone from the other page too, and one comes back elsewhere (v131)");
+    // (the wait before one comes back made two seconds here, so that the pages' own asking again is seen)
+    await sql(`update public.town_catalog set data = jsonb_set(data, '{comeback,after}', '2') where key = 'insects'`);
+    await sql(`delete from public.town_comebacks`);
+    for (const who of [a, b]) {
+      await purse(who, 0, [{ item: "bugNet", n: 1 }]);
+      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'bugNet', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who]);
+    }
+    await settled(A); await settled(B);
+    // a moment an insect one alone can catch is out on the farm: the clock put on a turn at a time until one is
+    let sight = null;
+    const stopA = A.look("bugs"), stopB = B.look("bugs");
+    for (let i = 0; i < 200 && !sight; i++) {
+      A.nudged("bugs"); B.nudged("bugs");
+      await sleep(350);
+      sight = A.bugs().find((s) => HAUNTS[s.id]?.place === "farm" && BUGS[s.bug].habit !== "lure") ?? null;
+      if (!sight) await skip(10 * 60000);
+    }
+    ok("(an insect is out on the farm, to try it with)", !!sight);
+    if (sight) {
+      const tile = [Math.floor(HAUNTS[sight.id].perches[0].x), Math.floor(HAUNTS[sight.id].perches[0].y)];
+      ok("both pages are told the same insect at the same haunt", B.bugs().some((s) => s.id === sight.id && s.bug === sight.bug && s.turn === sight.turn), B.bugs().length);
+      // what the room does with the word that the insects changed (Town.tsx passes it to every page's keeper): done here by hand
+      const wasA = A.onDeed, wasB = B.onDeed, said = [];
+      A.onDeed = (what) => { said.push(what); if (what === "bugs") B.nudged("bugs"); };
+      let from = asked.length;
+      const did = await A.netDo(sight.id, tile, { misses: 0 }, "Tester A");
+      ok("caught: gone from the catcher's page at once, and the room is told the insects changed", did.ok && did.got[0][0] === sight.bug && !A.bugs().some((s) => s.id === sight.id) && said.includes("bugs"), { did, said });
+      await sleep(600);
+      ok("the other page asks again on that word, and has it no more", asked.slice(from).includes("B town_bugs") && !B.bugs().some((s) => s.id === sight.id), asked.slice(from));
+      const late = await B.netDo(sight.id, tile, { misses: 0 }, "Tester B");
+      ok("a swing at where it was, from the other page, is answered that it is gone", late.ok === false && late.why === "bare", late);
+      const back = (await sql(`select haunt, bug from public.town_comebacks order by at desc limit 1`))[0];
+      ok("one is to come back, at another haunt of the farm, and neither page has it yet", !!back && back.haunt !== sight.id && HAUNTS[back.haunt].place === "farm"
+        && !A.bugs().some((s) => s.id === back.haunt) && !B.bugs().some((s) => s.id === back.haunt), back);
+      from = asked.length;
+      await sleep(3600);
+      ok("when its moment comes both pages ask again by themselves", asked.slice(from).includes("A town_bugs") && asked.slice(from).includes("B town_bugs"), asked.slice(from));
+      ok("and both have the one that came back: the same insect at the same haunt", !!back && A.bugs().some((s) => s.id === back.haunt && s.bug === back.bug) && B.bugs().some((s) => s.id === back.haunt && s.bug === back.bug),
+        { back, a: A.bugs().map((s) => s.id), b: B.bugs().map((s) => s.id) });
+      A.onDeed = wasA; B.onDeed = wasB;
+    }
+    stopA(); stopB();
+    await sql(`update public.town_catalog set data = jsonb_set(data, '{comeback,after}', '30') where key = 'insects'`);
   }
 
   section("one thing at a time");

@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
-  BUGS, BUG_IDS, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, aimOf, bugTurn, bugTurnStart, mayNet, missed, nearHaunt, net, newMind, poseOf, ringOf, swarmAt,
-  swarms, swingMs, taken, think, type BugId, type Haunt, type Mind, type Person, type Swarm, pestToRid,
+  BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, aimOf, bugTurn, bugTurnStart, comeback, hereAt, mayNet, missed, nearHaunt, net, newMind, poseOf, ringOf, swarmAt,
+  swarms, swingMs, taken, think, type BugId, type Comeback, type Haunt, type Mind, type Person, type Swarm, pestToRid,
 } from "./insects";
 import { BAITS, BAIT_AS, FISH, FISH_IDS, ITEMS, MAKES, type ItemId } from "./items";
 import { BASIC } from "./orders";
@@ -102,6 +102,32 @@ describe("insects (the owner: \"จับแมลง ในทุกแมพ�
       expect(pays, id).toBeGreaterThanOrEqual(1);
       expect(pays, id).toBeLessThanOrEqual(4);
     }
+  });
+
+  // The owner, 2026-10-05: "ช่วยทำให้ การจับแมลงขาย balance ด้วย อย่าให้ได้เงินเยอะกว่าอาชีพอื่น". A net costs once and an
+  // insect nothing, so what one fetches is held to what the other lines fetch for the same stamina: a common fish
+  // about 2 coins a point, the forest about 2.4, a quick vegetable 3.7.
+  it("fetch no more for the stamina than the other lines of work: a day of them, caught with no miss, about a common fish's worth", () => {
+    const day = Date.UTC(2026, 9, 5, 17);
+    for (const place of ["town", "farm", "forest"] as const) {
+      let coins = 0, cost = 0, n = 0;
+      for (const h of HAUNTS.filter((x) => x.place === place)) {
+        const every = HAUNT_KINDS[h.kind].every * MINUTE;
+        for (let t = day; t < day + 24 * HOUR; t += every) {
+          const has = swarmAt("the day's word", h, t);
+          if (!has || ITEMS[has.bug].pays >= 15) continue;
+          n++; coins += ITEMS[has.bug].pays * has.n; cost += BUGS[has.bug].cost;
+        }
+      }
+      expect(n, place).toBeGreaterThan(300);
+      expect(coins / cost, place).toBeGreaterThan(1.6);
+      expect(coins / cost, place).toBeLessThanOrEqual(2.9);
+      // (and with a swing that missed before each, which costs a point: well under)
+      expect(coins / (cost + n), place).toBeLessThan(1.8);
+    }
+    // the ones that walk or fly about in plain sight fetch two coins; none of the common ones more than six
+    for (const id of ["butterflyWhite", "dragonfly", "grasshopper", "ladybird", "moth", "caterpillar"] as BugId[]) expect(ITEMS[id].pays, id).toBe(2);
+    for (const id of BUG_IDS) if (BUGS[id].weight >= 40 && !BUGS[id].day && !BUGS[id].moon && BUGS[id].habit !== "lure") expect(ITEMS[id].pays, id).toBeLessThanOrEqual(6);
   });
 });
 
@@ -462,3 +488,100 @@ describe("a ladybird caught (the owner: \"จะสุ่มโอกาศเ�
   });
 });
 
+
+describe("an insect caught (the owner: \"เมื่อจับแมลงแล้ว ช่วยทำให้หายไปจากแมพ ในหน้าจอคนอื่นด้วย หลังจากนั้น จะมี delay เล็กน้อยก่อนสุ่มเกิดที่ใหม่\")", () => {
+  const WORD = "a word";
+  const none = () => ({ n: 0, mine: false });
+  /** A haunt of a map that has an insect of its own at a moment, found by looking. */
+  const withOne = (place: Haunt["place"], now: number) => HAUNTS.find((h) => h.place === place && !!swarmAt(WORD, h, now))!;
+  /** The haunts of a map an insect may come back to after a catch at one of them at a moment. */
+  const freeOf = (from: Haunt, now: number, backs: Comeback[] = []) => {
+    const at = now + COMEBACK.after * 1000, seen = new Set<number>();
+    for (let i = 0; i < 600; i++) { const b = comeback(WORD, from, now, DRY, backs, [i / 600, 0.5, 0]); if (b) seen.add(b.haunt); }
+    return { at, ids: [...seen].sort((a, b) => a - b) };
+  };
+
+  it("is one member's: every kind of haunt has it once, and whoever swings second is told it is gone", () => {
+    for (const kind of Object.keys(HAUNT_KINDS) as Array<keyof typeof HAUNT_KINDS>) expect(HAUNT_KINDS[kind].shares, kind).toBe(1);
+    const h = withOne("farm", NOON), has = swarmAt(WORD, h, NOON)!, at: [number, number] = [Math.floor(h.perches[0].x), Math.floor(h.perches[0].y)];
+    expect(net(bagOf(["bugNet", 1]), h, has, 0, false, "bugNet", at, 0, NOON).ok).toBe(true);
+    expect(net(bagOf(["bugNet", 1]), h, has, 1, false, "bugNet", at, 0, NOON)).toEqual({ ok: false, why: "bare" });
+    // and it is on nobody's map any more: not the catcher's, not anybody else's
+    expect(swarms(WORD, NOON, DRY, none).some((x) => x.id === h.id)).toBe(true);
+    expect(swarms(WORD, NOON, DRY, (x) => ({ n: x.id === h.id ? 1 : 0, mine: false })).some((x) => x.id === h.id)).toBe(false);
+    expect(swarms(WORD, NOON, DRY, (x) => ({ n: x.id === h.id ? 1 : 0, mine: x.id === h.id })).some((x) => x.id === h.id)).toBe(false);
+  });
+
+  it("comes back a little later at another haunt of the same map, one that had nothing in its turn", () => {
+    expect(COMEBACK).toEqual({ after: 30, least: 120 });
+    for (const place of ["town", "farm", "forest"] as const) {
+      const from = withOne(place, NOON), { at, ids } = freeOf(from, NOON);
+      expect(ids.length, place).toBeGreaterThanOrEqual(3);
+      for (const id of ids) {
+        const h = HAUNTS[id];
+        expect(h.place, place).toBe(place);
+        expect(id).not.toBe(from.id);
+        // nothing of its own there in the turn it will be in, and enough of that turn left to be found in
+        expect(swarmAt(WORD, h, at)).toBeNull();
+        expect(bugTurnStart(h, bugTurn(h, at) + 1) - at).toBeGreaterThanOrEqual(COMEBACK.least * 1000);
+      }
+      // and every such haunt of the map may be the one: none is left out
+      const all = HAUNTS.filter((h) => h.place === place && h.id !== from.id && !swarmAt(WORD, h, at) && bugTurnStart(h, bugTurn(h, at) + 1) - at >= COMEBACK.least * 1000);
+      expect(ids.every((id) => all.some((h) => h.id === id))).toBe(true);
+    }
+  });
+
+  it("is there from that moment and not before, until that haunt's turn ends: seen by everybody, caught by one", () => {
+    const from = withOne("farm", NOON), back = comeback(WORD, from, NOON, DRY, [], [0.37, 0.5, 0])!;
+    const h = HAUNTS[back.haunt];
+    expect(back.from).toBe(NOON + COMEBACK.after * 1000);
+    expect(back.turn).toBe(bugTurn(h, back.from));
+    expect(hereAt(WORD, h, back.from - 1, DRY, [back])).toBeNull();
+    const there = hereAt(WORD, h, back.from, DRY, [back])!;
+    expect(there).toEqual({ turn: back.turn, bug: back.bug, n: back.n, seed: h.id * 100003 + back.turn, back: true });
+    expect(hereAt(WORD, h, bugTurnStart(h, back.turn + 1) - 1, DRY, [back])?.bug).toBe(back.bug);
+    // (the next turn the haunt rolls for itself again: what came back is not there any more)
+    expect(hereAt(WORD, h, bugTurnStart(h, back.turn + 1), DRY, [back])?.back).toBeUndefined();
+    expect(hereAt(WORD, h, back.from, DRY, [])).toBeNull();
+    // on everybody's map from then, and off it when somebody has caught it
+    expect(swarms(WORD, back.from - 1, DRY, none, [back]).some((x) => x.id === h.id)).toBe(false);
+    expect(swarms(WORD, back.from, DRY, none, [back]).find((x) => x.id === h.id)).toEqual({ id: h.id, bug: back.bug, turn: back.turn, seed: h.id * 100003 + back.turn });
+    expect(swarms(WORD, back.from, DRY, (x, turn) => ({ n: x.id === h.id && turn === back.turn ? 1 : 0, mine: false }), [back]).some((x) => x.id === h.id)).toBe(false);
+    // a haunt's own insect is its own, whatever is said to have come back there
+    const own = swarmAt(WORD, from, NOON)!;
+    expect(hereAt(WORD, from, NOON, DRY, [{ haunt: from.id, turn: own.turn, bug: "ladybird", n: 1, from: 0 }])).toEqual(own);
+  });
+
+  it("is an insect that may be at that haunt at that hour, by that haunt's own odds", () => {
+    const from = withOne("forest", NIGHT), seen = new Map<number, Set<BugId>>();
+    for (let i = 0; i < 40; i++) for (let j = 0; j < 40; j++) {
+      const b = comeback(WORD, from, NIGHT, DRY, [], [i / 40, j / 40, 0.99])!;
+      (seen.get(b.haunt) ?? seen.set(b.haunt, new Set()).get(b.haunt)!).add(b.bug);
+      const kind = HAUNTS[b.haunt].kind, bug = BUGS[b.bug];
+      expect(bug.at, b.bug).toContain(kind);
+      if (bug.places) expect(bug.places, b.bug).toContain("forest");
+      // (a night's insect at night: none of the day's)
+      if (bug.hours) expect(bug.hours.some(([a, z]) => { const hr = ((b.from + 7 * HOUR) % (24 * HOUR)) / HOUR; return hr >= a && hr < z; }), b.bug).toBe(true);
+      expect(b.n).toBeGreaterThanOrEqual(bug.n[0]);
+      expect(b.n).toBeLessThanOrEqual(bug.n[1]);
+    }
+    expect(seen.size).toBeGreaterThan(5);
+    // numbers out of their range pick the first or the last, never nothing
+    expect(comeback(WORD, from, NIGHT, DRY, [], [-1, -1, -1])).not.toBeNull();
+    expect(comeback(WORD, from, NIGHT, DRY, [], [2, 2, 2])).not.toBeNull();
+  });
+
+  it("never comes back where one has come back already in that turn; and nowhere, when the map has no such haunt left", () => {
+    const from = withOne("town", NOON), backs: Comeback[] = [];
+    for (let i = 0; i < 60; i++) {
+      const b = comeback(WORD, from, NOON, DRY, backs, [0, 0.5, 0]);
+      if (!b) break;
+      expect(backs.some((x) => x.haunt === b.haunt && x.turn === b.turn)).toBe(false);
+      backs.push(b);
+    }
+    expect(backs.length).toBeGreaterThanOrEqual(3);
+    expect(backs.length).toBeLessThan(HAUNTS.filter((h) => h.place === "town").length);
+    expect(comeback(WORD, from, NOON, DRY, backs, [0.5, 0.5, 0.5])).toBeNull();
+    expect(new Set(backs.map((b) => b.haunt)).size).toBe(backs.length);
+  });
+});

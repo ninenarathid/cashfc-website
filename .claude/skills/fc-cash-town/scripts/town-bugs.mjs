@@ -7,7 +7,8 @@
 // something sweet in another's hand. Each is caught once, and costs stamina; tired hands have a smaller ring. The
 // first of a kind caught is in the village's book, in the bag, with who caught it. A ladybird caught may take a pest
 // off some plant of the farm with it: the plant is cured, whoever sowed it, and a line over the catcher's head says
-// that one went, not where; with the chance turned off no pest goes and nothing is said.
+// that one went, not where; with the chance turned off no pest goes and nothing is said. An insect caught in one tab
+// is gone from the other tab's map too, and half a minute later one is out at another haunt of that map, on both.
 // Prints PASS/FAIL lines and writes pictures to <outdir>.
 //
 //   node town-bugs.mjs <base> <outdir>
@@ -266,7 +267,7 @@ try {
     if (!${V}.walkable(x, y) || (x === ${mine.x} && y === ${mine.y})) continue; const d = Math.hypot(x + 0.5 - ${trunk.x}, y + 0.5 - ${trunk.y}); if (d < d0) { d0 = d; best = { x, y, d }; } } return best; })()`);
   await C.evaluate(`${V}.warp(${theirs.x}, ${theirs.y})`);
   const down = await until("the beetle comes down", async () => { const q = await poseOf(A, rb); return q && q.open ? q : null; }, 15000, 100).catch(() => null);
-  ok("it comes down to resin held still under it by somebody else", !!down, { theirs, people: await A.evaluate(`${B}.people()`) });
+  ok("it comes down to resin held still under it by somebody else", !!down, { theirs, pose: await poseOf(A, rb), sight: (await sights(A)).filter((x) => x.id === rb).map((x) => [x.bug, x.turn]), people: await A.evaluate(`${B}.people()`) });
   await sleep(200);
   await A.shot(`${OUT}/bugs-7-beetle.png`);
   if (down && (await A.evaluate(`${B}.tap(${down.aim.x}, ${down.aim.y})`))) await landed(A);
@@ -296,6 +297,42 @@ try {
     ok("with the chance at nothing a ladybird takes no pest, and nothing is said", last?.bug === "ladybird" && last.rid === null && plot?.plant?.cured === 0 && (await A.evaluate(`${B}.ridShown()`)) === false, { last, plot });
     await A.evaluate(`${K}.setRidChance(null)`);
     await A.evaluate(`${K}.setPlot(${JSON.stringify(pest)}, { soil: "wild", plant: null })`);
+  }
+  // caught, an insect is gone for everybody; and one comes back elsewhere on that map
+  await A.evaluate(`${K}.setStamina(100)`);
+  await A.evaluate(`${K}.unsetBugs()`);
+  await C.evaluate(`${K}.unsetBugs()`);
+  const one = await put(A, "ladybird", "farm", "field", 5), ho = haunts.find((h) => h.id === one);
+  await C.evaluate(`${K}.setBug(${one}, "ladybird")`);
+  await until("the other tab has it on its map too", () => C.evaluate(`${B}.sights().some((s) => s.id === ${one} && s.bug === "ladybird")`), 8000, 200);
+  await warp(A, ...Object.values(await standNear(A, ho)));
+  await until("the ladybird to be caught is about", () => poseOf(A, one), 8000, 100);
+  const had2 = await held(A, "ladybird"), before = (await A.evaluate(`${K}.backs()`)).length;
+  got = false;
+  for (let i = 0; i < 12 && !got; i++) {
+    const q = await poseOf(A, one), me = await A.evaluate(`${V}.self()`);
+    if (!q) break;
+    if (Math.hypot(q.aim.x - me.x, q.aim.y - me.y) > 2) { const t = await standNear(A, q); await warp(A, t.x, t.y); continue; }
+    if (await A.evaluate(`${B}.tap(${q.aim.x}, ${q.aim.y})`)) await landed(A);
+    got = (await held(A, "ladybird")) > had2;
+  }
+  ok("an insect both tabs see is caught in one", got);
+  const goneThere = await until("gone from the other", async () => !(await C.evaluate(`${B}.sights().some((s) => s.id === ${one})`)), 8000, 200).then(() => true).catch(() => false);
+  ok("it is gone from the other tab's map too, at once", goneThere && !(await sights(A)).some((s) => s.id === one));
+  // (every catch of this check brought one back: the one this catch brought is the last of them)
+  const every = await A.evaluate(`${K}.backs()`), backs = every.slice(-1), nowT = await A.evaluate(`${K}.now()`);
+  ok("and one is to come back at another haunt of the farm, half a minute on", every.length === before + 1 && backs[0].haunt !== one && haunts.find((h) => h.id === backs[0].haunt)?.place === "farm"
+    && backs[0].from - nowT > 15000 && backs[0].from - nowT <= 30000, { backs, nowT });
+  if (backs.length === 1) {
+    const there = backs[0].haunt;
+    ok("it is on nobody's map before its moment", !(await sights(A)).some((s) => s.id === there) && !(await sights(C)).some((s) => s.id === there));
+    const came = await until("it comes back", async () => (await sights(A)).some((s) => s.id === there) && (await sights(C)).some((s) => s.id === there), 45000, 500).then(() => true).catch(() => false);
+    const a1 = (await sights(A)).find((s) => s.id === there), c1 = (await sights(C)).find((s) => s.id === there);
+    ok("half a minute later it is on both tabs' maps: the same insect at the same haunt", came && !!a1 && !!c1 && a1.bug === backs[0].bug && c1.bug === backs[0].bug && (await A.evaluate(`${K}.now()`)) >= backs[0].from, { a1, c1 });
+    const hb = haunts.find((h) => h.id === there);
+    await warp(A, ...Object.values(await standNear(A, hb)));
+    await sleep(900);
+    await A.shot(`${OUT}/bugs-9-come-back.png`);
   }
   ok("no page errors", A.logs.length === 0 && C.logs.length === 0, [...A.logs, ...C.logs]);
 } catch (e) { ok("the run", false, e.stack ?? e.message); console.log(A.logs.join("\n")); } finally { A.close(); await sleep(900); }

@@ -5,7 +5,7 @@ import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { HINT_IDS, HINT_PRICE } from "./hints";
-import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
+import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS } from "./insects";
 import { JAR } from "./jar";
 import {
   BAITS, BOWL, BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT,
@@ -198,6 +198,8 @@ export function catalogOf() {
       kinds: HAUNT_KINDS,
       haunts: HAUNTS.map((h): [string, string, string | null, Array<[number, number]>] => [h.kind, h.place, h.zone, h.perches.map((p): [number, number] => [p.x, p.y])]),
       net: { reach: NET.reach, far: NET.far, misses: NET.misses }, nets: NETS, lures: LURES,
+      // an insect caught comes back at another haunt of its map: how many seconds after, and how many its turn there must have left
+      comeback: { after: COMEBACK.after, least: COMEBACK.least },
     },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
     well: { ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed },
@@ -261,8 +263,15 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v126 (ran 2026-10-05) wrote one over, for something the owner asked of the ladybird on 2026-10-05: one caught has about one
  * chance in ten of taking a pest off some plant of the farm with it (`rids`), and it is out the whole of the day, as
  * the pests are (insects).
+ *
+ * v131 (pending, after v126) writes two over, for two more things he asked of the insects the same day: an insect caught
+ * is one member's and gone for everybody, and comes back at another haunt a little later (insects: every kind's
+ * `shares`, and `comeback`); and the common insects fetch about a third less, a common fish's worth for the stamina
+ * (items: the `pays` of twelve of them).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v131: { keys: [], over: ["insects", "items"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

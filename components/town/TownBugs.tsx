@@ -26,7 +26,7 @@ import { Vfx } from "./vfx";
 const RID: [th: string, en: string] = ["จับเต่าทองตัวนี้แล้ว ศัตรูพืชที่ไหนสักแห่งก็หายไปหนึ่งตัว", "With this one caught, a pest somewhere is gone"];
 const RID_MS = 6000;
 const WHY_BUGS: Record<string, [string, string]> = {
-  had: ["จับตัวนี้ไปแล้ว", "You have caught this one already"], bare: ["มันบินหนีไปหมดแล้ว", "They have all gone"], far: ["อยู่ไกลเกินไป", "Too far away"],
+  had: ["จับตัวนี้ไปแล้ว", "You have caught this one already"], bare: ["มีคนจับไปก่อนแล้ว", "Somebody caught it first"], far: ["อยู่ไกลเกินไป", "Too far away"],
   none: ["ไม่อยู่แล้ว", "It is gone"], lure: ["มันปีนกลับขึ้นไปแล้ว", "It has climbed back up"],
 };
 /** How big an insect is drawn on the map: screen pixels to one of its picture's, at the map's own scale 1. */
@@ -88,7 +88,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   live.current = { hand, spent, busy, th, name, soft, me: keeper.id };
 
   /** What each insect has in mind on this screen, how each is this frame, where I am and who is about, and the swing in the air. */
-  const minds = useRef(new Map<number, { turn: number; mind: Mind }>());
+  const minds = useRef(new Map<number, { turn: number; bug: BugId; mind: Mind }>());
   const poses = useRef(new Map<number, { sight: BugSight; pose: Pose }>());
   const me = useRef<Vec | null>(null), about = useRef<Array<Person & { id: string }>>([]);
   /** When each singer was last heard. */
@@ -169,7 +169,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         if (!h || h.place !== here) continue;
         shown.add(h.id);
         let kept = minds.current.get(h.id);
-        if (!kept || kept.turn !== sight.turn) { kept = { turn: sight.turn, mind: newMind(sight.bug, h, sight.seed, bugTurnStart(h, sight.turn)) }; minds.current.set(h.id, kept); }
+        // (a mind is one insect's: another at the same haunt, in the same turn or the next, begins with its own)
+        if (!kept || kept.turn !== sight.turn || kept.bug !== sight.bug) { kept = { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, bugTurnStart(h, sight.turn)) }; minds.current.set(h.id, kept); }
         const before = kept.mind;
         if (!still) kept.mind = think(sight.bug, h, sight.seed, kept.mind, now, about.current);
         const pose = poseOf(sight.bug, h, sight.seed, kept.mind, now), bug = BUGS[sight.bug], at = project({ x: pose.x, y: pose.y });

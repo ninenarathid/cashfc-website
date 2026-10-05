@@ -395,6 +395,8 @@ export class DbKeeper implements Keeper {
     if (Array.isArray(a.bugs)) {
       this.bugs_ = (a.bugs as Array<[number, BugId, number, number, number]>).filter((s) => Array.isArray(s) && s[1] in BUGS).map(([id, bug, turn, seed, until]) => ({ id, bug, turn, seed, until }));
     }
+    // (an insect comes back somewhere at that moment, v131: what is out is asked for again then)
+    if (typeof a.bugsAgain === "number") this.bugsDue(a.bugsAgain);
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
     if (a.toThank && typeof a.toThank === "object") this.toThank_ = a.toThank as Record<string, Array<Helper & { name: string }>>;
@@ -429,6 +431,14 @@ export class DbKeeper implements Keeper {
       // what changed hands is in my purse now, whoever gave the last word: asked for, when this answer did not bring it
       if (end === "done" && !withPurse) void this.ask("town_me");
     }
+  }
+
+  /** When an insect that was caught comes back somewhere, as the database told it: asked for then, while insects are looked at. */
+  private bugsTimer: ReturnType<typeof setTimeout> | null = null;
+  private bugsDue(at: number) {
+    if (this.shut) return;
+    if (this.bugsTimer) clearTimeout(this.bugsTimer);
+    this.bugsTimer = setTimeout(() => { this.bugsTimer = null; this.nudged("bugs"); }, Math.min(10 * 60_000, Math.max(0, at - this.now())) + 400);
   }
 
   /* ── what others change ── */
@@ -643,6 +653,8 @@ export class DbKeeper implements Keeper {
     const did = await this.deed<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null; ridPlot?: Plot }>("town_net", { p_haunt: haunt, p_x: at[0], p_y: at[1], p_misses: went.misses, p_by: by });
     // (a ladybird took a pest off some plant with it: that plot is as the database now has it, and the farm is told)
     if (did.ok && did.rid && did.ridPlot) { this.plot(did.rid, did.ridPlot); this.onDeed?.("farm"); }
+    // (caught, it is gone from everybody's map: the room is told, and whoever looks at the insects asks again)
+    if (did.ok) this.onDeed?.("bugs");
     if (did.ok || did.why === "had" || did.why === "bare" || did.why === "none") {
       if (did.ok && did.first && did.got[0]) this.book_ = { ...this.book_, [did.got[0][0]]: name };
       this.bugs_ = this.bugs_.filter((s) => s.id !== haunt);
@@ -728,6 +740,7 @@ export class DbKeeper implements Keeper {
     for (const l of this.looking.values()) if (l.timer) clearTimeout(l.timer);
     this.looking.clear();
     if (this.mealEnd) clearTimeout(this.mealEnd);
+    if (this.bugsTimer) clearTimeout(this.bugsTimer);
     if (this.retry) clearTimeout(this.retry);
     if (this.ranksAgain) clearInterval(this.ranksAgain);
     this.heard.clear();

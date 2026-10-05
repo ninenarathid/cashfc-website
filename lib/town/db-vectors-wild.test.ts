@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { FARMING, HOES, pestAt, see, type Plant, type Plot } from "./farm";
 import { KINDS, SPOTS, gather, holds, turnStart, type Held } from "./forest";
-import { BUGS, HAUNTS, HAUNT_KINDS, LURES, bugTurnStart, net, pestToRid, swarmAt, type Swarm } from "./insects";
+import { BUGS, HAUNTS, HAUNT_KINDS, LURES, bugTurnStart, net, pestToRid, swarmAt, type Swarm, COMEBACK, comeback, hereAt, type Comeback } from "./insects";
 import { CROP_IDS, type ItemId } from "./items";
 import { newPurse, put, type Purse } from "./trade";
 import { DRY, type Rain } from "./weather";
@@ -189,3 +189,56 @@ describe("the cases the database's ladybird is held to", () => {
   });
 });
 
+/**
+ * The cases an insect's coming back is held to (v131): `hereAt` (what a haunt has, of its own or come back to it) and
+ * `comeback` (where the one caught comes back, and as what), at moments of the three days and the full moon's night,
+ * each with some that have come back already: made one after another, as catches at that moment would make them.
+ *
+ *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-wild.test.ts     writes vectors-v131.json too
+ *
+ * With v125's word and sky.
+ */
+export function vectorsV131(): Vector[] {
+  const out: Vector[] = [], c = chance(20261031);
+  const moments = [START + 7 * HOUR, START + 17 * HOUR, at("2026-10-06T15:30:00"), at("2026-10-06T23:10:00"), at("2026-10-07T09:40:00"), at("2026-10-07T13:00:00"), MOON];
+  for (const first of moments) for (let k = 0; k < 6; k++) {
+    const now = first + c.int(0, 50) * MINUTE + c.int(0, 59) * 1000;
+    const caught = HAUNTS.filter((h) => swarmAt(WORD, h, now, RAINS)), backs: Comeback[] = [];
+    for (let i = c.int(0, 8); i > 0 && caught.length; i--) {
+      const b = comeback(WORD, c.of(caught), now, RAINS, backs, [c.next(), c.next(), c.next()]);
+      if (b) backs.push(b);
+    }
+    // (and one of a turn before, which is nobody's any more)
+    if (backs.length && c.maybe(0.5)) backs.push({ ...backs[0], turn: backs[0].turn - 1, from: backs[0].from - 20 * MINUTE });
+    for (let i = 0; i < 8; i++) {
+      const from = c.of(c.maybe(0.8) && caught.length ? caught : HAUNTS);
+      const r: [number, number, number] = c.maybe(0.12) ? [c.of([0, 1, -0.5, 1.5]), c.of([0, 1, 0.999999, -2]), c.of([0, 1, 3])] : [c.next(), c.next(), c.next()];
+      out.push({ fn: "comeback", args: [from.id, now, backs, ...r], want: comeback(WORD, from, now, RAINS, backs, r) });
+    }
+    const looked = [...backs.map((b) => HAUNTS[b.haunt]), ...Array.from({ length: 10 }, () => c.of(HAUNTS))];
+    for (const h of looked) for (const t of [now, now + COMEBACK.after * 1000 - 1, now + COMEBACK.after * 1000, now + 5 * MINUTE, now + 25 * MINUTE])
+      out.push({ fn: "bug_here", args: [h.id, t, backs], want: swarmAs(hereAt(WORD, h, t, RAINS, backs), h.id) });
+  }
+  for (const id of [-1, HAUNTS.length]) out.push({ fn: "comeback", args: [id, START, [], 0.5, 0.5, 0.5], want: null }, { fn: "bug_here", args: [id, START, []], want: null });
+  return out;
+}
+
+describe("the cases the database's coming back is held to", () => {
+  it("come out of the site's own rules: some come back and some cannot, some haunts have their own and some one come back", () => {
+    const all = vectorsV131();
+    const backs = all.filter((v) => v.fn === "comeback"), here = all.filter((v) => v.fn === "bug_here");
+    expect(backs.filter((v) => v.want).length).toBeGreaterThan(200);
+    expect(here.filter((v) => (v.want as Swarm | null)?.back).length).toBeGreaterThan(60);
+    expect(here.filter((v) => v.want && !(v.want as Swarm).back).length).toBeGreaterThan(200);
+    expect(here.filter((v) => !v.want).length).toBeGreaterThan(200);
+    // (one that has come back is not there a moment before, and is from its moment)
+    const b = backs.find((v) => v.want)!.want as Comeback;
+    expect(hereAt(WORD, HAUNTS[b.haunt], b.from - 1, RAINS, [b])).toBeNull();
+    expect(hereAt(WORD, HAUNTS[b.haunt], b.from, RAINS, [b])?.back).toBe(true);
+    // every map is among them, the day's insects and the night's
+    expect(new Set(backs.filter((v) => v.want).map((v) => HAUNTS[(v.want as Comeback).haunt].place)).size).toBe(3);
+    expect(new Set(backs.filter((v) => v.want).map((v) => (v.want as Comeback).bug)).size).toBeGreaterThan(12);
+    const dir = process.env.TOWN_VECTORS;
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v131.json`, JSON.stringify({ word: WORD, wet: WET_SLOTS, cases: all })); }
+  });
+});
