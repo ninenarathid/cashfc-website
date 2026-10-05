@@ -14,9 +14,11 @@ import TownIcon, { type IconName } from "./TownIcon";
  *
  * - **To sell** and **wanted** are two lists, the newest first. A notice says the thing, how many are left, the price
  *   each and who pinned it; mine are marked, and have nothing to press.
- * - **Mine**: my notices, whatever has become of them (one past its days is off the board, and says so), my places,
- *   and a new notice. A thing to sell is picked from my bag; a thing wanted from what the village has met, and from
- *   nothing else: what the database tells (`seen`) is all this page ever names.
+ * - **The two deeds are at its head**, always in sight: leave something to be sold, or ask for something (the
+ *   owner, 2026-10-05: "เมื่อเข้าไปมีปุ่ม ฝากขาย กับฝากซื้อได้เลย ตอนนี้ยุ่งยากไป"). A thing to sell is picked from my bag,
+ *   and begins at all I have of it; a thing wanted from what the village has met, and from nothing else: what the
+ *   database tells (`seen`) is all this page ever names. With every place of mine taken, the way to one more is there.
+ * - **Mine**: my notices, whatever has become of them (one past its days is off the board, and says so).
  * - **What the board keeps is said plainly** where a notice is written, like the bank's rate: coins are at stake.
  *
  * It asks its keeper for every deed and shows what the keeper was told; nothing is decided here.
@@ -68,14 +70,53 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
 
   return (
     <div data-notices>
-      <div className={`mb-3 flex items-center gap-2 rounded-xl border px-3 py-2.5 ${board.due ? "border-gold/60 bg-gold/10" : "border-line bg-card/60"}`}>
-        <p className="min-w-0 flex-1 text-ui font-semibold text-ink">{th ? "เงินรอรับที่กระดาน" : "Waiting at the board"}</p>
-        <Coin n={board.due} />
-        <button type="button" disabled={!board.due} onClick={() => tried(keeper.noticeCollect(), (d) => [`รับเงิน ${d.coins} coin แล้ว`, `${d.coins} coins collected.`])}
-                className="pressable min-h-11 rounded-full bg-gold px-4 text-ui font-semibold text-bg disabled:opacity-40">
-          {th ? "รับเงิน" : "Collect"}
-        </button>
-      </div>
+      {/* the two things to do here, first and always in sight (the owner, 2026-10-05: "เมื่อเข้าไปมีปุ่ม ฝากขาย กับฝากซื้อได้เลย"):
+          a notice being written takes their place; with every place of mine taken, the way to one more does */}
+      {draft ? (
+        <div className="mb-3">
+          <Writing draft={draft} board={board} purse={purse} prices={prices} th={th} onChange={setDraft} onCancel={() => setDraft(null)}
+                   onPin={(d) => tried(keeper.noticePost(d.kind, d.item!, d.n, d.price), () => ["ปักประกาศแล้ว", "Pinned up."], () => { setDraft(null); setTab("mine"); })} />
+        </div>
+      ) : mine.length < board.slots ? (
+        <div className="mb-3 grid grid-cols-2 gap-2">
+          <button type="button" onClick={() => setDraft({ kind: "sell", item: null, n: 1, price: 1 })} data-notice-new="sell"
+                  className="pressable flex min-h-14 flex-col items-center justify-center rounded-2xl bg-accent px-3 py-2 text-bg">
+            <span className="text-lead font-semibold">{th ? "ฝากขาย" : "Sell"}</span>
+            <span className="text-meta opacity-80">{th ? "ของในกระเป๋า" : "from your bag"}</span>
+          </button>
+          <button type="button" onClick={() => setDraft({ kind: "want", item: null, n: 1, price: 1 })} data-notice-new="want"
+                  className="pressable flex min-h-14 flex-col items-center justify-center rounded-2xl border border-accent/70 bg-accent/10 px-3 py-2 text-ink hover:border-accent">
+            <span className="text-lead font-semibold">{th ? "ฝากซื้อ" : "Ask for"}</span>
+            <span className="text-meta text-muted">{th ? "ของที่อยากได้" : "something you want"}</span>
+          </button>
+        </div>
+      ) : (
+        <div className="mb-3 rounded-xl border border-line bg-card/60 px-3 py-2.5">
+          <p className="text-ui font-semibold text-ink">{th ? `ช่องประกาศเต็มแล้ว (${mine.length}/${board.slots})` : `Every place you have is taken (${mine.length}/${board.slots}).`}</p>
+          {board.more !== null && (
+            <div className="mt-2 flex items-center gap-2">
+              <p className="min-w-0 flex-1 text-meta text-muted">{th ? "เพิ่มอีก 1 ช่อง" : "One more place"}</p>
+              <Coin n={board.more} small />
+              <button type="button" disabled={purse.coins < board.more} onClick={() => tried(keeper.noticeSlot(), () => ["ได้ช่องประกาศเพิ่มแล้ว", "One more place is yours."])} data-notice-slot
+                      className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent disabled:opacity-40">
+                {th ? "ซื้อช่อง" : "Buy"}
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* what waits here for me, when something does */}
+      {board.due > 0 && (
+        <div className="mb-3 flex items-center gap-2 rounded-xl border border-gold/60 bg-gold/10 px-3 py-2.5" data-notice-due>
+          <p className="min-w-0 flex-1 text-ui font-semibold text-ink">{th ? "เงินรอรับที่กระดาน" : "Waiting at the board"}</p>
+          <Coin n={board.due} />
+          <button type="button" onClick={() => tried(keeper.noticeCollect(), (d) => [`รับเงิน ${d.coins} coin แล้ว`, `${d.coins} coins collected.`])}
+                  className="pressable min-h-11 rounded-full bg-gold px-4 text-ui font-semibold text-bg">
+            {th ? "รับเงิน" : "Collect"}
+          </button>
+        </div>
+      )}
 
       <div role="tablist" aria-label={th ? "กระดานประกาศ" : "The notice board"} className="mb-2 flex gap-1.5">
         {TABS.map(([v, label, count]) => (
@@ -85,14 +126,6 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
           </button>
         ))}
       </div>
-
-      {/* a notice of my own can be begun from either list, too: it is written under "mine" (the owner, 2026-10-05: "ถ้าอยากรับซื้อต้องทำยังไงบ้าง") */}
-      {tab !== "mine" && mine.length < board.slots && (
-        <button type="button" onClick={() => { setDraft({ kind: tab, item: null, n: 1, price: 1 }); setTab("mine"); }} data-notice-begin={tab}
-                className="pressable mb-2 min-h-11 w-full rounded-full border border-dashed border-line-strong px-4 text-ui font-semibold text-ink hover:border-accent">
-          {tab === "sell" ? (th ? "+ ปักประกาศขายของฉัน" : "+ Pin up something to sell") : (th ? "+ ปักประกาศรับซื้อของที่อยากได้" : "+ Pin up something wanted")}
-        </button>
-      )}
 
       {tab === "sell" && (selling.length ? (
         <ul className="flex flex-col gap-1.5">
@@ -159,7 +192,7 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
       {tab === "mine" && (
         <>
           {mine.length > 0 && (
-            <ul className="mb-3 flex flex-col gap-1.5">
+            <ul className="flex flex-col gap-1.5">
               {mine.map((n) => (
                 <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-notice-mine>
                   <Pic id={n.item} size={28} />
@@ -187,32 +220,7 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
             </ul>
           )}
 
-          {draft ? (
-            <Writing draft={draft} board={board} purse={purse} prices={prices} th={th} onChange={setDraft} onCancel={() => setDraft(null)}
-                     onPin={(d) => tried(keeper.noticePost(d.kind, d.item!, d.n, d.price), () => ["ปักประกาศแล้ว", "Pinned up."], () => setDraft(null))} />
-          ) : mine.length < board.slots ? (
-            <div className="flex flex-wrap gap-1.5">
-              <button type="button" onClick={() => setDraft({ kind: "sell", item: null, n: 1, price: 1 })} data-notice-new="sell"
-                      className="pressable min-h-11 flex-1 rounded-full bg-accent px-4 text-ui font-semibold text-bg">
-                {th ? "ปักประกาศขาย" : "Pin up to sell"}
-              </button>
-              <button type="button" onClick={() => setDraft({ kind: "want", item: null, n: 1, price: 1 })} data-notice-new="want"
-                      className="pressable min-h-11 flex-1 rounded-full border border-line-strong px-4 text-ui font-semibold text-ink hover:border-accent">
-                {th ? "ปักประกาศรับซื้อ" : "Pin up a want"}
-              </button>
-            </div>
-          ) : <p className="text-meta text-muted">{th ? "ช่องประกาศเต็มแล้ว" : "Every place you have is taken."}</p>}
-
-          {!draft && board.more !== null && (
-            <div className="mt-3 flex items-center gap-2 rounded-xl border border-line bg-card/60 px-3 py-2">
-              <p className="min-w-0 flex-1 text-meta text-muted">{th ? `ช่องประกาศ ${board.slots} ช่อง · เพิ่มอีก 1 ช่อง` : `${board.slots} places · one more`}</p>
-              <Coin n={board.more} small />
-              <button type="button" disabled={purse.coins < board.more} onClick={() => tried(keeper.noticeSlot(), () => ["ได้ช่องประกาศเพิ่มแล้ว", "One more place is yours."])} data-notice-slot
-                      className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent disabled:opacity-40">
-                {th ? "ซื้อช่อง" : "Buy"}
-              </button>
-            </div>
-          )}
+          {mine.length === 0 && <p className="text-meta text-muted">{th ? "ยังไม่มีประกาศของฉัน" : "You have no notice up."}</p>}
         </>
       )}
     </div>
@@ -240,13 +248,13 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
   const days = item ? board.sales[item] ?? [] : [], soldN = days.reduce((t, d) => t + d[1], 0), soldCoins = days.reduce((t, d) => t + d[2], 0);
   const pick = (id: ItemId) => {
     const c = capOf(id, { ...NOTICES, cap: board.cap, capless: board.capless }), usual = ITEMS[id].pays || 1;
-    onChange({ ...draft, item: id, n: 1, price: Math.max(1, Math.min(c, usual)) });
+    onChange({ ...draft, item: id, n: sell ? Math.max(1, Math.min(board.most, plain(purse.bag, id))) : 1, price: Math.max(1, Math.min(c, usual)) });
   };
 
   return (
     <div className="rounded-xl border border-accent/50 bg-card/60 px-3 py-3" data-notice-writing={draft.kind}>
       <div className="mb-2 flex items-center gap-2">
-        <h3 className="min-w-0 flex-1 text-ui font-semibold text-ink">{sell ? (th ? "ประกาศขาย" : "A notice to sell") : (th ? "ประกาศรับซื้อ" : "A notice of something wanted")}</h3>
+        <h3 className="min-w-0 flex-1 text-ui font-semibold text-ink">{sell ? (th ? "ฝากขาย" : "Sell") : (th ? "ฝากซื้อ" : "Ask for")}{!item && <span className="ml-2 text-meta font-normal text-muted">{sell ? (th ? "เลือกของจากกระเป๋า" : "pick from your bag") : (th ? "เลือกของที่อยากได้" : "pick what you want")}</span>}</h3>
         <button type="button" onClick={onCancel} className="pressable min-h-9 rounded-full border border-line-strong px-3 text-meta text-ink hover:border-accent">{th ? "ยกเลิก" : "Cancel"}</button>
       </div>
 
@@ -314,7 +322,7 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
           </p>
           <button type="button" disabled={short} onClick={() => onPin(draft)} data-notice-pin
                   className="pressable mt-2 min-h-11 w-full rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
-            {short ? (th ? "Popoto coin ไม่พอ" : "Not enough Popoto coins") : (th ? "ปักประกาศ" : "Pin it up")}
+            {short ? (th ? "Popoto coin ไม่พอ" : "Not enough Popoto coins") : sell ? (th ? "ฝากขายเลย" : "Pin it up to sell") : (th ? "ฝากซื้อเลย" : "Pin it up")}
           </button>
         </>
       )}
