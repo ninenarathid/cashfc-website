@@ -320,12 +320,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * them, and on every map (insects: the ladybird's `weight`, 6 for 60; no `places`; the others' `hours` and `dry` sky,
  * so that it is never the only insect of a haunt).
  *
- * v139 writes it over again, for what he asked of every insect the same afternoon: the more of a kind are caught the
+ * v139 (ran 2026-10-05, 19:42) wrote it over again, for what he asked of every insect the same afternoon: the more of a kind are caught the
  * scarcer it is, and a day on it is as it was (insects: `scarce`, new).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v139: { keys: [], over: ["insects"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
