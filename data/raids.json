@@ -87183,7 +87183,7 @@
     "cleared": true,
     "job_kills": {
      "Ninja": {
-      "kills": 7,
+      "kills": 8,
       "best": 82
      }
     }
@@ -89363,7 +89363,13 @@
       "best": 94,
       "median": 87,
       "kills": 6,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 6,
+        "best": 94
+       }
+      }
      },
      {
       "label": "P10S",
@@ -89372,7 +89378,17 @@
       "best": 87,
       "median": 79,
       "kills": 6,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 5,
+        "best": 87
+       },
+       "Paladin": {
+        "kills": 1,
+        "best": 45
+       }
+      }
      },
      {
       "label": "P11S",
@@ -89381,7 +89397,13 @@
       "best": 95,
       "median": 87,
       "kills": 9,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 9,
+        "best": 95
+       }
+      }
      },
      {
       "label": "P12S",
@@ -89390,7 +89412,13 @@
       "best": 93,
       "median": 58,
       "kills": 26,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 26,
+        "best": 93
+       }
+      }
      },
      {
       "label": null,
@@ -89399,7 +89427,13 @@
       "best": 97,
       "median": 71,
       "kills": 11,
-      "job": "Warrior"
+      "job": "Warrior",
+      "job_kills": {
+       "Warrior": {
+        "kills": 11,
+        "best": 97
+       }
+      }
      }
     ]
    }
@@ -89457,7 +89491,17 @@
      "best": 66,
      "median": 14,
      "kills": 8,
-     "job": "Dancer"
+     "job": "Dancer",
+     "job_kills": {
+      "Dancer": {
+       "kills": 7,
+       "best": 66
+      },
+      "Viper": {
+       "kills": 1,
+       "best": 7
+      }
+     }
     },
     {
      "label": "M10S",
@@ -89466,7 +89510,17 @@
      "best": 62,
      "median": 62,
      "kills": 6,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Dancer": {
+       "kills": 5,
+       "best": 57
+      },
+      "Viper": {
+       "kills": 1,
+       "best": 62
+      }
+     }
     },
     {
      "label": "M11S",
@@ -89475,7 +89529,17 @@
      "best": 44,
      "median": 44,
      "kills": 7,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 1,
+       "best": 44
+      },
+      "Dancer": {
+       "kills": 6,
+       "best": 19
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -89484,7 +89548,17 @@
      "best": 37,
      "median": 15,
      "kills": 7,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 6,
+       "best": 37
+      },
+      "Gunbreaker": {
+       "kills": 1,
+       "best": 4
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -89493,7 +89567,17 @@
      "best": 77,
      "median": 25,
      "kills": 4,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 3,
+       "best": 77
+      },
+      "Gunbreaker": {
+       "kills": 1,
+       "best": 5
+      }
+     }
     }
    ],
    "clears": [
@@ -89514,7 +89598,13 @@
     "best": 6,
     "kills": 3,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 3,
+      "best": 6
+     }
+    }
    },
    {
     "zone": "Dragonsong's Reprise",
@@ -89525,7 +89615,13 @@
     "best": 33,
     "kills": 2,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 2,
+      "best": 33
+     }
+    }
    },
    {
     "zone": "Ultimates",
@@ -89536,7 +89632,13 @@
     "best": 36,
     "kills": 17,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 17,
+      "best": 36
+     }
+    }
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -89547,7 +89649,17 @@
     "best": 67,
     "kills": 7,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 5,
+      "best": 67
+     },
+     "RedMage": {
+      "kills": 2,
+      "best": 24
+     }
+    }
    },
    {
     "zone": "Ultimates (Stormblood)",
@@ -89558,7 +89670,13 @@
     "best": 44,
     "kills": 3,
     "job": "WhiteMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "WhiteMage": {
+      "kills": 3,
+      "best": 44
+     }
+    }
    },
    {
     "zone": "The Weapon's Refrain",
@@ -89569,7 +89687,13 @@
     "best": 10,
     "kills": 12,
     "job": "Bard",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Bard": {
+      "kills": 12,
+      "best": 10
+     }
+    }
    }
   ],
   "extremes": [
@@ -89582,7 +89706,17 @@
     "best": 23,
     "kills": 10,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 8,
+      "best": 23
+     },
+     "Gunbreaker": {
+      "kills": 2,
+      "best": 3
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -89593,7 +89727,13 @@
     "best": 43,
     "kills": 3,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 3,
+      "best": 43
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -89604,7 +89744,13 @@
     "best": 8,
     "kills": 2,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 2,
+      "best": 8
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -89626,7 +89772,13 @@
     "best": 73,
     "kills": 9,
     "job": "Dancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Dancer": {
+      "kills": 9,
+      "best": 73
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -89653,7 +89805,13 @@
       "best": 62,
       "median": 58,
       "kills": 3,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 3,
+        "best": 62
+       }
+      }
      },
      {
       "label": "P10S",
@@ -89662,7 +89820,13 @@
       "best": 39,
       "median": 36,
       "kills": 2,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 2,
+        "best": 39
+       }
+      }
      },
      {
       "label": "P11S",
@@ -89671,7 +89835,13 @@
       "best": 62,
       "median": 13,
       "kills": 4,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 4,
+        "best": 62
+       }
+      }
      },
      {
       "label": "P12S",
@@ -89705,7 +89875,17 @@
       "best": 87,
       "median": 50,
       "kills": 13,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 11,
+        "best": 87
+       },
+       "WhiteMage": {
+        "kills": 2,
+        "best": 34
+       }
+      }
      },
      {
       "label": "E6S",
@@ -89714,7 +89894,17 @@
       "best": 68,
       "median": 38,
       "kills": 17,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 14,
+        "best": 68
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 46
+       }
+      }
      },
      {
       "label": "E7S",
@@ -89723,7 +89913,17 @@
       "best": 63,
       "median": 48,
       "kills": 15,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 14,
+        "best": 63
+       },
+       "WhiteMage": {
+        "kills": 1,
+        "best": 25
+       }
+      }
      },
      {
       "label": "E8S",
@@ -89732,7 +89932,17 @@
       "best": 70,
       "median": 23,
       "kills": 19,
-      "job": "Dancer"
+      "job": "Dancer",
+      "job_kills": {
+       "Dancer": {
+        "kills": 16,
+        "best": 70
+       },
+       "WhiteMage": {
+        "kills": 3,
+        "best": 29
+       }
+      }
      }
     ]
    }
