@@ -275,7 +275,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v132 (ran 2026-10-05) seeded `line`, for their fourth: how far water is handed on, what that costs, and how many hands a
  * bucketful remembers.
  *
- * v133 (pending) seeds `waters`, for their fifth: when water has a nature, how long the well keeps it, and what a
+ * v133 (ran 2026-10-05) seeded `waters`, for their fifth: when water has a nature, how long the well keeps it, and what a
  * watering has more under each.
  *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
@@ -301,9 +301,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * `shares`, and `comeback`); and the common insects fetch about a third less, a common fish's worth for the stamina
  * (items: the `pays` of twelve of them).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v133: { keys: ["waters"], over: [] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
