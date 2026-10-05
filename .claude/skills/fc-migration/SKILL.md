@@ -101,6 +101,15 @@ Each rule exists because breaking it was possible here, not in theory:
      anything anon must not run: `revoke execute on function public.f(args)
      from public, anon;` then `grant execute ... to authenticated;`.
    - Mark read-only helpers `stable`.
+   - **Every UPDATE and DELETE in a function has a WHERE**, a table of one
+     row included (`where j.one`; `where true` to empty a table on purpose).
+     Supabase loads `safeupdate` for the API's role: a statement with none
+     is refused (21000, "UPDATE requires a WHERE clause") the moment a
+     browser's call reaches it, `security definer` or not, while the SQL
+     editor and PGlite let it by. v129's jar had two, one on a path first
+     taken hours later, and the well's book stopped for everybody (v141).
+     The dry run cannot fail on it, so read for it:
+     `.claude/skills/fc-cash-town/scripts/db/bare-writes.mjs`.
 5. **Columns only the server may set** (a verified timestamp, an approval,
    which look a notice is about, a tally) have two ways in:
    - Nobody in a browser may set it: leave it out of the column grant, and a
