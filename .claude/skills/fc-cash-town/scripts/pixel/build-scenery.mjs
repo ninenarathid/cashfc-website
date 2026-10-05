@@ -4,6 +4,7 @@
 //   node build-scenery.mjs --set forest         the forest's things, in a picture of their own (forest-<hash>.png +
 //                                               forest.json): fetched only by whoever goes there (lib/town/scenery.ts)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
+//   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
 // scene-props-a.png  tree, pine, bush, rock        (one row, the characters' pixel size and angle)
 // scene-props-b.png  lamp, bench, flowers, sign
@@ -11,6 +12,7 @@
 // tex-<kind>.png     top-down ground textures (grass, plaza, road), projected onto the
 //                    isometric ground in the browser (lib/town/scenery.ts)
 // work/oatto/*.png   pixel art that came drawn, not as a model's sheet (READY, below)
+// work/oatto/tex/    ground that came drawn, brought to the colours of the town's own (READY_TEX, below)
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -149,6 +151,43 @@ const READY = {
     ["woodlog1", "logShort", 4, { twice: true, drop: ["a7a9a4", "a4a09e"], foot: [0.5, 0.86] }],
   ],
 };
+// Ground that came drawn (the same folder's pack of textures; the ones used are in work/oatto/tex, with the pack's
+// licence: free to use and to change, not to be handed on as files, which is one more reason they stay out of the
+// repo). Each is 256 true pixels square and made to repeat: twice as far across as the model's, so the ground repeats
+// every eight tiles and not every four. The pack is dark and worn as it comes, and the town is not: each is brought to
+// the colours of the town's own texture of its kind (GRADE, below), so the town keeps its palette and takes only the
+// drawing. [file, how much of the town's own spread of light and dark it is given: 1 where nothing is said]. The
+// forest's floor stays the model's: the pack's fallen leaves are each half a tile long, and read as paving.
+const READY_TEX = {
+  scenery: {
+    grass: ["Grass_02_Green_2", 0.7], plaza: ["Cobblestones_01_Grey_1", 0.8], road: ["Dirt_Pebbles_01_Yellow_1"], water: ["Water_01_Blue_2"],
+    sand: ["Sand_03_Yellow_1"], field: ["Dirt_Silt_01_Brown_1", 0.7],
+  },
+  forest: {},
+};
+/** The mean of each colour of a picture's pixels, and how far its light and dark spread about their mean. */
+function colourOf(buf) {
+  const m = [0, 0, 0], n = buf.length / 4, lum = (i) => 0.299 * buf[i] + 0.587 * buf[i + 1] + 0.114 * buf[i + 2];
+  for (let i = 0; i < buf.length; i += 4) for (let c = 0; c < 3; c++) m[c] += buf[i + c] / n;
+  let v = 0;
+  const ml = 0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2];
+  for (let i = 0; i < buf.length; i += 4) v += (lum(i) - ml) ** 2 / n;
+  return { m, spread: Math.sqrt(v) };
+}
+/**
+ * GRADE: a drawn texture in the town's colours. Every pixel keeps how far it is from its own picture's mean, times one
+ * number for all three colours (so that its hues stay as they were drawn), about the mean the town's own texture has.
+ * The number gives it the town's spread of light and dark times `share`, and is never more than doubles it.
+ */
+function graded(src, own, share = 1) {
+  const a = colourOf(src), b = colourOf(own), gain = Math.min(2, (b.spread * share) / Math.max(1, a.spread));
+  const out = Buffer.alloc(src.length);
+  for (let i = 0; i < src.length; i += 4) {
+    for (let c = 0; c < 3; c++) out[i + c] = Math.max(0, Math.min(255, Math.round((src[i + c] - a.m[c]) * gain + b.m[c])));
+    out[i + 3] = 255;
+  }
+  return { buf: out, gain };
+}
 /** A drawn thing as true pixels: one from each block of its own pixel's size, the colour most of the block has. */
 function trueCells(raw, p, drop = [], greys = false) {
   const GW = Math.floor(raw.W / p), GH = Math.floor(raw.H / p), c = new Uint8Array(GW * GH * 4), gone = new Set(drop);
@@ -331,6 +370,17 @@ for (const t of TEXTURES) {
   const n = Math.min(g.GW, g.GH);
   const buf = Buffer.alloc(n * n * 4);
   for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const i = (y * g.GW + x) * 4; buf.set([g.c[i], g.c[i + 1], g.c[i + 2], 255], (y * n + x) * 4); }
+  // a texture that came drawn takes its place, in the colours this one has
+  const [drawn, share] = READY_TEX[SET][t] ?? [], file = drawn && path.join(WORK, "oatto", "tex", `${drawn}.png`);
+  if (file && fs.existsSync(file) && !process.argv.includes("--own-ground")) {
+    const src = await L.loadRaw(file), to = graded(src.data, buf, share);
+    // (a palette of its own, as the model's have: its colours are few again after the grading, and the picture small)
+    const cells = { GW: src.W, GH: src.H, c: new Uint8Array(to.buf) };
+    L.snap(cells, L.paletteOf([cells], 48));
+    textures.push({ name: t, img: { buf: Buffer.from(cells.c), w: src.W, h: src.H } });
+    console.log(`tex ${t.padEnd(6)} ${src.W}x${src.H}  (drawn: ${drawn}, its light and dark times ${to.gain.toFixed(2)})`);
+    continue;
+  }
   textures.push({ name: t, img: { buf, w: n, h: n } });
   console.log(`tex ${t.padEnd(6)} ${n}x${n}  (grid ${grid.p.toFixed(2)})`);
 }
