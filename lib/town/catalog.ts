@@ -307,15 +307,14 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * `shares`, and `comeback`); and the common insects fetch about a third less, a common fish's worth for the stamina
  * (items: the `pays` of twelve of them).
  *
- * v134 seeds `box`, for the storage box the owner asked for in the plaza on 2026-10-05: the slots a member's box has
- * for nothing, how near it one stands, and where it is. It writes no row over: nothing that was seeded changes.
+ * v134 (ran 2026-10-05) seeded `box`, for the storage box the owner asked for in the plaza that day: the slots a member's box has
+ * for nothing, how near it one stands, and where it is. It wrote no row over: nothing that was seeded changed.
  *
  * v138 writes one over, for what he asked of the ladybird that afternoon, with the village running after them: few of
  * them, and on every map (insects: the ladybird's `weight`, 6 for 60; no `places`; the others' `hours` and `dry` sky,
  * so that it is never the only insect of a haunt).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v134: { keys: ["box"], over: [] },
   // things dropped from the bag onto the ground (the owner, 2026-10-05): how long one lies, how near it one stands, the maps
   v137: { keys: ["ground"], over: [] },
   v138: { keys: [], over: ["insects"] },
