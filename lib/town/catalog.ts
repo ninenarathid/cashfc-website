@@ -241,7 +241,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * 2026-10-05): what the well's book counts by (well), the two yokes the well gives its carriers (items) and how many
  * bucketfuls each carries (farming).
  *
- * v129 (pending) seeds `thanks` and `jar`: how many the board of thanks lists, and what the jar at the well counts a
+ * v129 (ran 2026-10-05) seeded `thanks` and `jar`: how many the board of thanks lists, and what the jar at the well counts a
  * bucketful as and takes.
  *
  * A seed adds a row only where there is none (`keys`: so that a number an admin changed outlives the file being run
@@ -258,9 +258,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * that go on a hook as a bait there already was (fish, flotsam, fishing) and on a plant (farming); and what the
  * uncle may ask for and hint at (order, hints).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v129: { keys: ["thanks", "jar"], over: [] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
