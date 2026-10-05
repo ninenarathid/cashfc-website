@@ -418,7 +418,6 @@
    3652,
    3656,
    3657,
-   3752,
    3754,
    3755,
    3756,
@@ -508,7 +507,8 @@
    3968,
    3969,
    3979,
-   3998
+   3998,
+   4002
   ],
   "tiers": {
    "relic": "legendary"
@@ -1068,7 +1068,7 @@
   ],
   "tiers": {
    "gatherer": "expert",
-   "crafter": "master",
+   "crafter": "legendary",
    "relic": "legendary",
    "explorer": "legendary",
    "treasure": "master",
@@ -1400,7 +1400,6 @@
    3469,
    3477,
    3479,
-   3555,
    3556,
    3674,
    3680,
@@ -1465,6 +1464,7 @@
    3922,
    3923,
    3924,
+   3937,
    3938,
    3949,
    3950,
@@ -2290,7 +2290,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 89,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2510,7 +2510,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 76,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -2537,7 +2537,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -2896,11 +2896,11 @@
    3770,
    3771,
    3772,
-   3793,
    3794,
    3795,
    3796,
    3797,
+   3798,
    3811,
    3818,
    3819,
@@ -3005,7 +3005,6 @@
    3649,
    3652,
    3677,
-   3752,
    3754,
    3755,
    3759,
@@ -3020,6 +3019,7 @@
    3768,
    3772,
    3784,
+   3792,
    3798,
    3799,
    3811,
@@ -3133,6 +3133,7 @@
    1316,
    1318,
    1319,
+   1320,
    1322,
    1323,
    1327,
@@ -3187,7 +3188,6 @@
    2940,
    2991,
    3074,
-   3113,
    3155,
    3185,
    3256,
@@ -3463,7 +3463,7 @@
   "ult": 1,
   "mounts": 187,
   "minions": 436,
-  "rare": 139,
+  "rare": 141,
   "level": 100,
   "cc": [
    true,
@@ -3591,7 +3591,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-05"
  },
  "51922514": {
   "name": "Mumu Nene",
@@ -6805,7 +6805,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 95,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -6905,7 +6905,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 68,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -6922,7 +6922,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7242,8 +7242,8 @@
   "ult": 0,
   "mounts": 69,
   "minions": 104,
-  "rare": 53,
-  "level": 50,
+  "rare": 54,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -7302,6 +7302,7 @@
    4047,
    4048,
    4049,
+   4050,
    4051,
    4053,
    4062
@@ -7315,7 +7316,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7809,7 +7810,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 100,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -7854,7 +7855,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8280,7 +8281,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8293,7 +8294,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8377,7 +8378,7 @@
   "mounts": 81,
   "minions": 158,
   "rare": 19,
-  "level": 64,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -8418,7 +8419,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "15932791": {
   "name": "Yuziris Andra'nov",
@@ -8593,7 +8594,7 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8610,7 +8611,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8655,6 +8656,31 @@
   "ex": [],
   "ults": [],
   "chg": "2026-09-30"
+ },
+ "57519259": {
+  "name": "Kertia Cruz",
+  "parse": 48,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 100,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [
+   "Valigarmanda",
+   "Zoraal Ja"
+  ],
+  "ults": [],
+  "chg": "2026-10-05"
  },
  "62539607": {
   "name": "Kross Astra",
@@ -8707,7 +8733,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 62,
+  "level": 63,
   "cc": [
    false,
    false,
@@ -8720,7 +8746,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8756,7 +8782,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 63,
+  "level": 20,
   "cc": [
    false,
    false,
@@ -8772,7 +8798,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-05"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8846,6 +8872,28 @@
   "ex": [],
   "ults": [],
   "chg": "2026-09-30"
+ },
+ "21388050": {
+  "name": "Riizerk Ciel",
+  "parse": null,
+  "ult": 0,
+  "mounts": null,
+  "minions": null,
+  "rare": null,
+  "level": 82,
+  "cc": [
+   false,
+   false,
+   false,
+   false,
+   false
+  ],
+  "rare_ids": [],
+  "tiers": {},
+  "jobs": {},
+  "ex": [],
+  "ults": [],
+  "chg": "2026-10-05"
  },
  "31685121": {
   "name": "Squid Girls",

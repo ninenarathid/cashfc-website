@@ -1240,10 +1240,10 @@
   },
   {
    "date": "2026-10-05",
-   "total": 510,
+   "total": 512,
    "tags": {
     "veteran": 156,
-    "extreme": 143,
+    "extreme": 144,
     "ultimate": 119,
     "tier-clear": 41,
     "gatherer": 11,
@@ -1257,14 +1257,15 @@
     "private": 226,
     "casual": 30,
     "prog": 23,
+    "unknown": 1,
     "oldtimer": 1
    },
    "raider": 64,
    "ultimate": 119,
-   "extreme": 143,
-   "unknown": 0,
+   "extreme": 144,
+   "unknown": 1,
    "final_boss": 41,
-   "active": 165,
+   "active": 167,
    "vacation": 345,
    "guests": 14
   }

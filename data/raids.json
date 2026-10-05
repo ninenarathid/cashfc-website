@@ -9206,7 +9206,7 @@
       "best": 49
      },
      "Sage": {
-      "kills": 5,
+      "kills": 6,
       "best": 71
      },
      "Samurai": {
@@ -62556,7 +62556,7 @@
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 11,
+      "kills": 14,
       "best": 93
      },
      "Viper": {
@@ -72819,11 +72819,15 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 4,
-      "best": 59
+      "kills": 6,
+      "best": 64
+     },
+     "Dancer": {
+      "kills": 1,
+      "best": 26
      },
      "Astrologian": {
-      "kills": 31,
+      "kills": 34,
       "best": 79
      },
      "WhiteMage": {
@@ -72988,8 +72992,8 @@
       "best": 90
      },
      "Astrologian": {
-      "kills": 3,
-      "best": 86
+      "kills": 7,
+      "best": 90
      },
      "Scholar": {
       "kills": 10,
@@ -89956,5 +89960,66 @@
    }
   ],
   "_status": "ok"
+ },
+ "57519259": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 48,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 41,
+    "kills": 4,
+    "job": "Viper",
+    "cleared": true
+   }
+  ],
+  "legacy": [],
+  "_status": "ok"
+ },
+ "21388050": {
+  "current": {
+   "zone": "AAC Heavyweight",
+   "zone_id": 73,
+   "expansion": "Dawntrail",
+   "encounters": [],
+   "clears": [
+    false,
+    false,
+    false,
+    false,
+    false
+   ]
+  },
+  "ultimates": [],
+  "extremes": [],
+  "legacy": [],
+  "_status": "none"
  }
 }
