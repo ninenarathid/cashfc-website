@@ -5,8 +5,8 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atFire, atWell, benchAt, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
@@ -35,6 +35,7 @@ import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
 import { CART } from "@/lib/town/cart";
+import { BOX } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
@@ -98,6 +99,7 @@ const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
 const TownWell = lazy(() => import("./TownWell"));
+const TownBox = lazy(() => import("./TownBox"));
 const TownThanks = lazy(() => import("./TownThanks"));
 const TownLine = lazy(() => import("./TownLine"));
 const TownCook = lazy(() => import("./TownCook"));
@@ -162,7 +164,7 @@ const ROD_LOOKS: Record<RodId, { cane: string; joint: string; grip: string; edge
 const BITE_MS = 2600;
 /** Props drawn a little smaller than their pictures, to sit within a tile. */
 const PROP_K: Partial<Record<string, number>> = {
-  bin: 0.75, flowerbed: 0.8, signpost: 0.85, well: 0.75, shed: 0.9, scarecrow: 0.7, hay: 0.8,
+  bin: 0.75, flowerbed: 0.8, signpost: 0.85, well: 0.75, shed: 0.9, scarecrow: 0.7, hay: 0.8, storebox: 0.9,
   // (the forest's two great things are drawn larger than their pictures: the tree over its three tiles by three, the cliff along the back of its pool)
   greattree: 1.7, waterfall: 1.6,
 };
@@ -602,6 +604,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Whether I stand still at the farm's well (where a bucket is poured in and a can filled). */
   const [wellHere, setWellHere] = useState(false);
   const wellRef = useRef(false);
+  /**
+   * The storage box in the plaza (lib/town/box): whether I stand still by it; where its picture is on the screen (a
+   * tap on it walks up to it and opens it); whether such a tap is still being walked towards, and how many have been
+   * walked to their end; and whether my own panel of it is open (the chest is drawn with its lid up then).
+   */
+  const [boxHere, setBoxHere] = useState(false);
+  const boxHereRef = useRef(false);
+  const storeBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  const boxWant = useRef(false);
+  const [boxAsk, setBoxAsk] = useState(0);
+  const boxShown = useRef(false);
+  const onBoxShown = useCallback((open: boolean) => { boxShown.current = open; }, []);
+  useEffect(() => { if (boxHere && boxWant.current) { boxWant.current = false; setBoxAsk((n) => n + 1); } }, [boxHere]);
   /** Everybody's rank at the well, and who I am to whoever keeps the game: for the names over heads. */
   const ranksRef = useRef<{ ranks: Record<string, number>; me: string }>({ ranks: {}, me: "" });
   const farmDraw = useRef<FarmDraw | null>(null);
@@ -1486,6 +1501,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.fillRect(0, 0, cw, ch);
 
     benchBoxes.current = [];
+    storeBox.current = null;
     keeperBoxes.current = [];
     gateBoxes.current = [];
     // Whether a line can be dropped from where I stand, who is eating beside me, and whether it rains: told to the
@@ -1512,6 +1528,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (onPlot !== plotRef.current) { plotRef.current = onPlot; setPlotHere(onPlot ? [tx, ty] : null); }
       const byWell = !mine.path.length && atWell(tx, ty);
       if (byWell !== wellRef.current) { wellRef.current = byWell; setWellHere(byWell); }
+      const byBox = !mine.path.length && (mine.info.sit ?? -1) === -1 && byStorebox(tx, ty, BOX.reach);
+      if (byBox !== boxHereRef.current) { boxHereRef.current = byBox; setBoxHere(byBox); }
       const farming = tx >= FARM.x - 2 && ty >= FARM.y - 2 && tx < FARM.x + FARM.w + 2 && ty < FARM.y + FARM.h + 2;
       if (farming !== onFarmRef.current) { onFarmRef.current = farming; setOnFarm(farming); }
       const foraging = placeOf(tx, ty) === "forest";
@@ -1627,6 +1645,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           const [w, h] = scenery.sizeOf(name), [ax, ay] = scenery.anchorOf(name), pad = 6;
           const left = mirror ? c.x - (w - ax) * v.s : c.x - ax * v.s;
           benchBoxes.current.push({ i: benchIndex.get(p) ?? -1, x0: left - pad, y0: c.y - ay * v.s - pad, x1: left + w * v.s + pad, y1: c.y - (ay - h) * v.s + pad, depth: p.x + p.y });
+        } else if (p.kind === "storebox" && scenery?.has("storebox")) {
+          // the storage box: its lid is up while my own panel of it is open (nobody else's shows); and where it is on
+          // the screen, for taps and the cursor (the shut one's place, so that it does not grow under the pointer)
+          const k = v.s * (PROP_K.storebox ?? 1);
+          scenery.drawProp(ctx, boxShown.current && scenery.has("storeboxOpen") ? "storeboxOpen" : "storebox", c.x, c.y, k, dpr);
+          const [w, h] = scenery.sizeOf("storebox"), [ax, ay] = scenery.anchorOf("storebox");
+          storeBox.current = { x0: c.x - ax * k, y0: c.y - ay * k, x1: c.x + (w - ax) * k, y1: c.y + (h - ay) * k };
         } else if (scenery?.has(p.kind)) scenery.drawProp(ctx, p.kind, c.x, c.y, v.s * (PROP_K[p.kind] ?? 1), dpr, 0, false, swayOf(p, now));
         else if (p.kind === "tree" || p.kind === "pine") drawTree(ctx, p);
       } });
@@ -2548,6 +2573,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const tap = (x: number, y: number) => {
     setHint(false);
     setHistoryOpen(false);
+    boxWant.current = false;
     const who = personAt(x, y);
     if (who) { setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return; }
     setCard(null);
@@ -2577,6 +2603,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const v = cam.current, iso = toIsoPoint(v, x, y, v.cw, v.ch);
       if (bugsTap.current(fromIso(iso.x, iso.y))) return;
     }
+    // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
+    // chest). Asked after the net: an insect over the chest's picture is the net's, and a swing aimed at one is not to
+    // turn into something else.
+    const sb = storeBox.current;
+    if (gameRef.current && sb && x >= sb.x0 && x <= sb.x1 && y >= sb.y0 && y <= sb.y1 && openBox()) return;
     const t = tileAt(x, y);
     if (walkable(t.x, t.y) && sessionRef.current?.walkTo(t)) cam.current.follow = true;
     // A bench: walk up to it and sit down.
@@ -2621,7 +2652,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         const bb = boardBox.current, t = tileAt(p.x, p.y);
         const someone = !!personAt(p.x, p.y);
         const seat = !someone && (benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
+        const sb = gameRef.current && boxKnown() ? storeBox.current : null;
         const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
+          || (!!sb && p.x >= sb.x0 && p.x <= sb.x1 && p.y >= sb.y0 && p.y <= sb.y1)
           || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1);
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
@@ -2726,6 +2759,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       board: () => (boardBox.current ? { x: (boardBox.current.x0 + boardBox.current.x1) / 2, y: (boardBox.current.y0 + boardBox.current.y1) / 2 } : null),
       /** The fountain's middle on the screen, if it is drawn. */
       fountain: () => (fountainBox.current ? { x: (fountainBox.current.x0 + fountainBox.current.x1) / 2, y: (fountainBox.current.y0 + fountainBox.current.y1) / 2 } : null),
+      /** The storage box's middle on the screen, if it is drawn; and whether its lid is drawn up. */
+      storebox: () => (storeBox.current ? { x: (storeBox.current.x0 + storeBox.current.x1) / 2, y: (storeBox.current.y0 + storeBox.current.y1) / 2, open: boxShown.current } : null),
     };
     (window as unknown as { __townView?: unknown }).__townView = handle;
     return () => { delete (window as unknown as { __townView?: unknown }).__townView; };
@@ -2751,6 +2786,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const stay = sessionRef.current;
       if (!step || !stay || stay.closed) return;
       e.preventDefault();
+      boxWant.current = false;
       const a = stay.self;
       const from = a.path.length ? a.path[a.path.length - 1] : a.pos;
       const next = { x: Math.floor(from.x) + step[0], y: Math.floor(from.y) + step[1] };
@@ -2785,6 +2821,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const openFountain = () => {
     openBoard();
     setFountainOpen(true);
+  };
+
+  /** Whether whoever keeps the game knows of a storage box (the database before v134 does not). */
+  const boxKnown = () => !!keeper?.box();
+  /**
+   * The storage box: open its panel if I stand by it; otherwise walk up to it (the nearest tile beside it that can
+   * be stood on) and open it on arriving. False when there is no box to open.
+   */
+  const openBox = (): boolean => {
+    const stay = sessionRef.current;
+    if (!stay || !boxKnown()) return false;
+    if (wardrobeOpenRef.current) closeWardrobe();
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setBoardOpen(false); setFishing(false);
+    if (boxHereRef.current) { setBoxAsk((n) => n + 1); return true; }
+    const from = stay.self.pos, far = (t: Vec) => Math.hypot(t.x + 0.5 - from.x, t.y + 0.5 - from.y);
+    const beside = [[1, 1], [1, 0], [0, 1], [-1, 1], [1, -1], [-1, 0], [0, -1], [-1, -1]].map(([dx, dy]) => ({ x: STOREBOX.x + dx, y: STOREBOX.y + dy }))
+      .filter((t) => walkable(t.x, t.y)).sort((a, b) => far(a) - far(b));
+    for (const t of beside) if (stay.walkTo(t)) { boxWant.current = true; cam.current.follow = true; break; }
+    return true;
   };
 
   /**
@@ -3387,6 +3442,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownLine keeper={keeper} me={keeper.id} th={w.th} people={standers}
                     here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? standing?.tile ?? null : null}
                     bottom={phone && tabbar ? "calc(15.5rem + env(safe-area-inset-bottom))" : "11.5rem"} sfx={sfxRef.current} />
+        </Suspense>
+      )}
+      {/* The storage box in the plaza: offered to whoever stands by it; a tap on the chest walks up to it and opens it */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownBox keeper={keeper} th={w.th} at={boxHere && standing && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing.tile : null} ask={boxAsk} phone={phone} tabbar={tabbar}
+                   bottom={phone && tabbar ? "calc(8.25rem + env(safe-area-inset-bottom))" : "4.25rem"} art={boardArt} sfx={sfxRef.current} onShown={onBoxShown} />
         </Suspense>
       )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}

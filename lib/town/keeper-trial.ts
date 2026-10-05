@@ -176,6 +176,10 @@ class TrialKeeper implements Keeper {
     if (did.ok) this.onDeed?.("line", to);
     return did;
   }
+  box() { return this.trial.box(); }
+  async boxLook() { /* the box is in this browser already */ }
+  async boxPut(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxPut(slot, n, at); }
+  async boxTake(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxTake(slot, n, at); }
 
   wild() { return this.trial.wild(); }
   async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }

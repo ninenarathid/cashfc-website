@@ -21,7 +21,7 @@ const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v134"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -882,6 +882,40 @@ try {
     await settled(M); await settled(N);
     ok("half an hour on, by the keepers' own clocks, the well's water is plain again", M.wellWater() === null && N.wellWater() === null);
     stopN(); M.close(); N.close();
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_box()') is not null as there`))[0].there) {
+    section("the storage box: read as the game begins, mine alone, things put away and taken out (v134)");
+    await sql(`delete from public.town_boxes`);
+    await purse(a, 5, [{ item: "minnow", n: 9 }, { item: "can", n: 1, water: 4 }]);
+    await purse(b, 0, []);
+    const from = asked.length;
+    const M = new DbKeeper(a, askAs("A")), N = new DbKeeper(b, askAs("B"));
+    await settled(M); await settled(N);
+    await sleep(300);
+    ok("asked for once as the game begins: ten empty slots, known before the chest is walked up to", asked.slice(from).filter((x) => x === "A town_box").length === 1
+      && M.box()?.things.length === 10 && M.box().things.every((s) => s === null) && M.box().more === 0, M.box());
+    let did = await M.boxPut(slotOf(M, "minnow"), 5, [35, 35]);
+    ok("five minnows put away from beside the chest: the keeper has my purse and my box as they now stand, at once", did.ok && did.item === "minnow" && did.n === 5
+      && M.purse().bag[0].n === 4 && M.box().things[0]?.item === "minnow" && M.box().things[0].n === 5, { did, box: M.box() });
+    ok("…asked with the slot, how many, and the tile stood on", JSON.stringify(sent.filter((x) => x.fn === "town_box_put").at(-1)?.args) === JSON.stringify({ p_slot: 0, p_n: 5, p_x: 35, p_y: 35 }), sent.at(-1));
+    did = await M.boxPut(slotOf(M, "can"), 1, [35, 35]);
+    ok("a can goes in with its water", did.ok && M.box().things[1]?.item === "can" && M.box().things[1].water === 4 && slotOf(M, "can") < 0, M.box());
+    did = await M.boxPut(slotOf(M, "minnow"), 1, [40, 40]);
+    ok("from across the plaza it is refused, and nothing moves", !did.ok && did.why === "far" && M.purse().bag[0].n === 4 && M.box().things[0].n === 5, did);
+    await N.boxLook();
+    ok("the other's box is their own: empty, with nothing of mine told", N.box().things.every((s) => s === null) && !JSON.stringify(N.box()).includes("minnow"), N.box());
+    did = await N.boxTake(0, 1, [35, 35]);
+    ok("…and they take nothing of mine out of it", !did.ok && did.why === "none" && N.purse().bag.every((s) => s === null), did);
+    did = await M.boxTake(0, 2, [33, 34]);
+    ok("two taken out again: in my bag, three left in the box", did.ok && did.n === 2 && M.purse().bag[0].n === 6 && M.box().things[0].n === 3, { did, box: M.box() });
+    const page = new DbKeeper(a, askAs("A"));
+    await settled(page);
+    await sleep(300);
+    ok("another page of mine has the same box", page.box()?.things[0]?.n === 3 && page.box().things[1]?.item === "can", page.box());
+    const lines = await sql(`select what, thing, n::int as n from public.town_deeds where member_id = $1 and what like 'box\\_%' order by id`, [a]);
+    ok("each deed that came off is written down, and the refusals are not", JSON.stringify(lines) === JSON.stringify([{ what: "box_put", thing: "minnow", n: 5 }, { what: "box_put", thing: "can", n: 1 }, { what: "box_take", thing: "minnow", n: 2 }]), lines);
+    M.close(); N.close(); page.close();
   }
 
   section("one thing at a time");

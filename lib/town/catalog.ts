@@ -1,3 +1,4 @@
+import { BOX } from "./box";
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
@@ -21,7 +22,7 @@ import { THANKS } from "./thanks";
 import { GOODS, RULES } from "./trade";
 import { WATERS } from "./waters";
 import { WELL_BOOK } from "./well";
-import { BEDS_IN_FARM, COLS, FARM, KITCHEN, ROWS, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
+import { BEDS_IN_FARM, COLS, FARM, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
 
 /**
@@ -227,6 +228,8 @@ export function catalogOf() {
     line: { reach: LINE.reach, cost: LINE.cost, hands: LINE.hands },
     /** Waters that differ (lib/town/waters): the hours the dew is drawn in, the hours of a night for the moon's (a night the moon is full, by `fishing.signs`), the minutes a bucketful keeps the well's nature and at most, and what a watering has more under each. */
     waters: { dawn: WATERS.dawn, night: WATERS.night, lasts: WATERS.lasts, most: WATERS.most, adds: WATERS.adds, guards: WATERS.guards },
+    /** The storage box in the plaza (lib/town/box): the slots a member's has for nothing, how near it one stands to use it, and the tile it stands on. */
+    box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y] },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -300,8 +303,13 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * is one member's and gone for everybody, and comes back at another haunt a little later (insects: every kind's
  * `shares`, and `comeback`); and the common insects fetch about a third less, a common fish's worth for the stamina
  * (items: the `pays` of twelve of them).
+ *
+ * v134 seeds `box`, for the storage box the owner asked for in the plaza on 2026-10-05: the slots a member's box has
+ * for nothing, how near it one stands, and where it is. It writes no row over: nothing that was seeded changes.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v134: { keys: ["box"], over: [] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

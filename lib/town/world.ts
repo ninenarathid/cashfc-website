@@ -105,6 +105,17 @@ export const SHOP = { x: 39, y: 24, w: 3, h: 3, stage: 2 };
  */
 export const BOARD = { x: 23, y: 23, w: 2, h: 2 };
 /**
+ * The storage box (the owner, 2026-10-05: "ช่วยทำ กล่องเก็บของ มาตั้งไว้กลางเมือง"): a big chest in the plaza, in front of
+ * the fountain as the screen sees it, at the near corner of its ring of benches. Not walkable. Whoever stands by it
+ * keeps things of their own in it (lib/town/box).
+ */
+export const STOREBOX = { x: 34, y: 34 };
+/** Whether a tile is within so many steps of the storage box (and is not the box itself). */
+export const byStorebox = (tx: number, ty: number, reach: number) => {
+  const far = Math.max(Math.abs(tx - STOREBOX.x), Math.abs(ty - STOREBOX.y));
+  return far >= 1 && far <= reach;
+};
+/**
  * The fishing deck (the owner, 2026-10-03: "ลานตกปลา แถวแม่น้ำด้านซ้าย", then
  * "ไม่อยู่จุดที่เป็นทางเดิน แต่อยู่ระหว่างทางเดิน ซ้ายบน ซ้ายล่าง ทำให้ใหญ่พอ จะทำให้หลายคน
  * ตกปลาพร้อมกันได้", then "ขอใหญ่กว่านี้ 2 เท่า ตอนสร้างเสร็จขอมีทางเดินขึ้นไปได้ (บันได
@@ -415,6 +426,8 @@ export const FRONT: Record<Facing, Vec> = { SE: { x: 1, y: 0 }, SW: { x: 0, y: 1
 export type PropKind = "tree" | "pine" | "bush" | "rock" | "lamp" | "bench" | "flowers" | "barrel" | "planter" | "signpost" | "bin" | "flowerbed"
   // the farm's own
   | "fence" | "well" | "shed" | "scarecrow" | "hay"
+  // the plaza's storage box (lib/town/box)
+  | "storebox"
   // the forest's own
   | "oak" | "birch" | "bamboo" | "fern" | "log" | "stump" | "boulder" | "campfire" | "logseat" | "tent";
 export interface Prop {
@@ -608,6 +621,11 @@ export const PROPS: Prop[] = (() => {
     const k = ((h ^ (h >>> 16)) >>> 0) / 4294967296;
     if (k < (y < 5 ? 0.5 : 0.5 - (y - 4) * 0.09)) stands.push({ kind: k < 0.2 ? "pine" : "tree", x, y, solid: true });
   }
+  // The storage box came last of all (2026-10-05), and is the list's last, so that nothing before it has another
+  // number than it had. One closed tile in the open plaza: no way is shut by it, and nothing that was laid out from
+  // where one may walk has moved (the insects' haunts, the places to fish from: each made with and without it and
+  // compared, the day it came; lib/town/box.test.ts holds the tiles about it open).
+  stands.push({ kind: "storebox", x: STOREBOX.x, y: STOREBOX.y, solid: true });
   return stands;
 })();
 

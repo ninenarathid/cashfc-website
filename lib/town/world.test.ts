@@ -25,7 +25,8 @@ describe("walking", () => {
   });
 
   it("keeps the paths and the plaza clear of trees, so nobody's way is blocked", () => {
-    for (const p of PROPS) if (!["lamp", "bench", "barrel", "planter", "signpost", "bin", "flowerbed"].includes(p.kind)) expect(groundAt(p.x, p.y)).toBe("grass");
+    // (the plaza's furniture, and the storage box that stands on it: lib/town/box)
+    for (const p of PROPS) if (!["lamp", "bench", "barrel", "planter", "signpost", "bin", "flowerbed", "storebox"].includes(p.kind)) expect(groundAt(p.x, p.y)).toBe("grass");
     // and nothing at all stands on a path
     for (const p of PROPS) expect(groundAt(p.x, p.y)).not.toBe("road");
     // every bit of path is walkable (but the shop, on its dirt plot)

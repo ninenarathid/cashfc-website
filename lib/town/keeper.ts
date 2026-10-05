@@ -1,3 +1,4 @@
+import type { Box, BoxRefusal } from "./box";
 import { cook, hasMade, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
@@ -53,7 +54,7 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line";
@@ -235,6 +236,17 @@ export interface Keeper {
   drawnNow(): Nature | null;
 
   /**
+   * The storage box in the plaza (lib/town/box): what I keep in it, as last told. Null until it has been read, and
+   * for as long as whoever keeps the game knows of no box. Putting so many of what is in a slot of my bag away, and
+   * taking so many of what is in a slot of the box out, from the tile I stand on.
+   */
+  box(): Box | null;
+  /** Read it again. */
+  boxLook(): Promise<void>;
+  boxPut(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>>;
+  boxTake(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>>;
+
+  /**
    * Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who
    * they are (the database reads each one's hand itself). `fresh`: the pot took a bucketful of the yard's jar, and has
    * a helping more than `n` says.
@@ -326,6 +338,7 @@ export class DbKeeper implements Keeper {
   /** Whether the database knows of waters that differ, and the well's water as it last told it: both said with everybody's rank. */
   private waters_ = false;
   private water_: WellWater | null = null;
+  private box_: Box | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -364,6 +377,9 @@ export class DbKeeper implements Keeper {
     // (whether there is a notice board beside the stall, and what waits there for me: asked once as the game begins,
     // so that the uncle can offer it by name; a database without one answers nothing)
     if (this.read && !this.shut) void this.ask("town_notices");
+    // (and whether the chest in the plaza is a storage box yet, with what I keep in it: asked once as the game begins;
+    // a database without one answers nothing, and the chest is only a chest)
+    if (this.read && !this.shut) void this.ask("town_box");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
@@ -454,6 +470,7 @@ export class DbKeeper implements Keeper {
     if (a.yard && typeof a.yard === "object" && typeof (a.yard as { jar?: unknown }).jar === "number") this.yard_ = (a.yard as { jar: number }).jar;
     if (a.line === true) this.line_ = true;
     if ("wellWater" in a) { this.waters_ = true; this.water_ = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; }
+    if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -743,6 +760,10 @@ export class DbKeeper implements Keeper {
   jar(): JarTold | null { return this.jar_; }
   jarDrop(what: { coins: number } | { slot: number; n: number }) { return this.deed("town_jar_drop", "coins" in what ? { p_coins: what.coins } : { p_slot: what.slot, p_n: what.n }); }
   jarTake() { return this.deed<{ coins: number; things: Array<[ItemId, number]> }>("town_jar_take"); }
+  box(): Box | null { return this.box_; }
+  async boxLook() { await this.ask("town_box"); }
+  boxPut(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_put", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }
+  boxTake(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_take", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }
 
   // (a database that knows of no heat has no yard's jar either: it says of the jar with everybody's rank)
   hot(): boolean { const now = this.now(); return this.yard_ !== null && hotAt(now, SKIES.sky(now)); }

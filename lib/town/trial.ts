@@ -1,3 +1,4 @@
+import { newBox, roomyBox, stow, unstow, type Box } from "./box";
 import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot, type Taste } from "./cooking";
 import { WATER, WILD, chore, choreFor, deedFor, ownerOf, tend, type Bed, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
@@ -84,6 +85,8 @@ const purseKey = (id: string) => `cashtown.trial.purse.2.${id}`;
 /** How many slots a bag began with when this tester's purse was last looked at: a purse kept from when bags began smaller is given the rest, once (the test window can still make a bag smaller afterwards, to try one). */
 const slotsKey = (id: string) => `cashtown.trial.slots.1.${id}`;
 const playsKey = (id: string) => `cashtown.trial.plays.1.${id}`, tallyKey = (id: string) => `cashtown.trial.tally.1.${id}`;
+/** What a tester keeps in the plaza's storage box (lib/town/box): each tester's own, like a purse. */
+const boxKey = (id: string) => `cashtown.trial.box.1.${id}`;
 /** The popoto a trial's member has to change: what a verified member held on 2026-10-03, about (profile), and a share of pictures'. */
 const SAMPLE = { profile: 247, gallery: 31 };
 
@@ -288,6 +291,28 @@ export class Trial {
   noticeDown(id: number) { return this.pin(Notices.takeDown(this.purse(), this.pinboard(), this.id, id)); }
   noticeCollect() { return this.pin(Notices.collectDue(this.purse(), this.pinboard(), this.id)); }
   noticeSlot() { return this.pin(Notices.moreSlot(this.purse(), this.pinboard(), this.id)); }
+
+  /* ── the storage box in the plaza: each tester's own ── */
+  box(): Box {
+    return roomyBox(this.read<Box>(boxKey(this.id), newBox, (v) => { const b = v as Partial<Box> | null; return !!b && Array.isArray(b.things) && typeof b.more === "number"; }));
+  }
+  /** Keep what a deed at the box came to. (What goes into a box has been in a bag: the notice board counts it as met, though it may never be in one when the board is looked at.) */
+  private boxed<T extends { purse: Purse; box: Box; item: ItemId }>(did: ({ ok: true } & T) | { ok: false; why: Refusal | "far" | "packed" }) {
+    if (!did.ok) return did;
+    const met = this.read<ItemId[]>(SEEN, () => [], Array.isArray);
+    if (!met.includes(did.item)) this.write(SEEN, [...met, did.item]);
+    this.write(boxKey(this.id), did.box);
+    this.save(did.purse);
+    return did;
+  }
+  /** Put so many of what is in a slot of my bag away in my box; take so many of what is in a slot of the box out. */
+  boxPut(slot: number, n: number, at: [number, number]) { return this.boxed(stow(this.purse(), this.box(), slot, n, at)); }
+  boxTake(slot: number, n: number, at: [number, number]) { return this.boxed(unstow(this.purse(), this.box(), slot, n, at)); }
+  /** For scripts and the test window: a box with so many slots beyond the free ones (how a box grows is not settled: this is how a bigger one is tried). */
+  setBoxMore(more: number) {
+    this.write(boxKey(this.id), roomyBox({ ...this.box(), more: Math.max(0, Math.floor(more)) }));
+    this.tell();
+  }
 
   /** Sit down to the dish in a slot of the bag (somebody standing is refused). */
   sitDown(slot: number, seated: boolean) { return this.keep(sitDown(this.purse(), slot, seated, this.now())); }
@@ -868,7 +893,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

@@ -853,7 +853,7 @@ export function Coins({ n, th, small = false, className = "" }: { n: number; th:
 }
 
 /** A picture from the scenery, fitted into a square box; an empty box until it has come. */
-function Pic({ sprite, box }: { sprite: Sprite | null; box: number }) {
+export function Pic({ sprite, box }: { sprite: Sprite | null; box: number }) {
   if (!sprite) return <span aria-hidden className="shrink-0" style={{ width: box, height: box }} />;
   const [x, y, w, h] = sprite.at, k = box / Math.max(w, h);
   return (

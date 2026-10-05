@@ -40,8 +40,9 @@ describe("the database's keeper", () => {
     expect(k.open()).toBeNull();
     await settle();
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
-    // and everybody's rank at the well, for the names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_well_ranks"]);
+    // whether the chest in the plaza is a storage box, with what I keep in it; and everybody's rank at the well, for
+    // the names over heads)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_well_ranks"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -67,14 +68,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_well_ranks"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_well_ranks"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(6);
+    expect(db.asked).toHaveLength(7);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -401,7 +402,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);
@@ -411,6 +412,46 @@ describe("the database's keeper", () => {
     expect(done).toEqual(["a", "b", "c"]);
     expect(k.purse().coins).toBe(3);
     k.close();
+  });
+
+  it("keeps my storage box as it is told of it, and knows of none where the database has none", async () => {
+    const empty = Array<null>(10).fill(null), asked: Array<Record<string, unknown>> = [];
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_box: () => ({ now: NOW, box: { things: [{ item: "minnow", n: 5 }, ...empty.slice(1)], more: 0 } }),
+      town_box_put: (a) => { asked.push(a); return { ok: true, item: "rod", n: 1, now: NOW, purse: purse({ coins: 2 }), box: { things: [{ item: "minnow", n: 5 }, { item: "rod", n: 1 }, ...empty.slice(2)], more: 0 } }; },
+      town_box_take: (a) => { asked.push(a); return { ok: false, why: "full", now: NOW, purse: purse({ coins: 2 }), box: { things: [{ item: "minnow", n: 5 }, { item: "rod", n: 1 }, ...empty.slice(2)], more: 0 } }; },
+    });
+    const k = new DbKeeper("me", db.ask);
+    expect(k.box()).toBeNull();
+    await settle();
+    // asked for once as the game begins: what I keep is known before the chest is walked up to
+    expect(k.box()?.things[0]).toEqual({ item: "minnow", n: 5 });
+    expect(k.box()?.things).toHaveLength(10);
+    const put = k.boxPut(3, 1, [35, 35]);
+    await settle();
+    // the slot, how many, and the tile I stand on; the answer brings the purse and the box as they now stand
+    expect(await put).toMatchObject({ ok: true, item: "rod", n: 1 });
+    expect(asked[0]).toEqual({ p_slot: 3, p_n: 1, p_x: 35, p_y: 35 });
+    expect(k.box()?.things[1]).toEqual({ item: "rod", n: 1 });
+    expect(k.purse().coins).toBe(2);
+    const take = k.boxTake(1, 1, [33, 34]);
+    await settle();
+    expect(await take).toEqual({ ok: false, why: "full" });
+    expect(asked[1]).toEqual({ p_slot: 1, p_n: 1, p_x: 33, p_y: 34 });
+    k.close();
+
+    // a database that has no box yet answers nothing: the chest is only a chest, and nothing can be put away
+    const old = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const o = new DbKeeper("me", old.ask);
+    await settle();
+    expect(old.asked).toContain("town_box");
+    expect(o.box()).toBeNull();
+    const none = o.boxPut(0, 1, [35, 35]);
+    await settle();
+    expect(await none).toEqual({ ok: false, why: "away" });
+    expect(o.box()).toBeNull();
+    o.close();
   });
 
   it("keeps the farm as it is told of it: what changed, a plot gone back to weeds, whose a bed is", async () => {

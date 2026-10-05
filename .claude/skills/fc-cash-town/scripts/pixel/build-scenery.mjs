@@ -92,6 +92,11 @@ const SHEETS = [
   // with only its mouth changed, so nothing else moves when it speaks
   ["talk-uncle", ["tk_uncle", "tk_uncle_o"], "talk", undefined, [7.5, 13]],
   ["talk-banker", ["tk_banker", "tk_banker_o"], "talk", undefined, [7.5, 13]],
+  // the plaza's storage box, shut and open (lib/town/box; the owner, 2026-10-05: "กล่องเก็บของ มาตั้งไว้กลางเมือง"). Two things
+  // on a sheet came out with pixels twice the size, as the forest's second sheet did: cut at about twelve. "pair" stands
+  // the second on the first's ground point (its lid thrown back makes it wider on one side: by the middle of its own
+  // box it would jump sideways when it opens)
+  ["scene-storebox", ["storebox", "storeboxOpen"], "pair", undefined, [10.5, 14]],
 ];
 // The forest's own (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ"): its trees and what grows and lies under them,
 // the camp's things, the great tree of the deep woods, and the waterfall on its cliff.
@@ -173,6 +178,23 @@ for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST :
     pieces.push({ name, img: im, ax: ax - im.x0, ay: ay - im.y0 });
     console.log(`${name.padEnd(9)} ${im.w}x${im.h}  (grid ${grid.p.toFixed(2)})`);
   });
+  if (how === "pair") {
+    // the second stands where the first does: laid on it at the move at which the most of the first's lower half agrees
+    const a = pieces.find(p => p.name === names[0]), b = pieces.find(p => p.name === names[1]);
+    let best = { n: -1, dx: 0, dy: 0 };
+    for (let dy = -a.img.h; dy <= b.img.h; dy++) for (let dx = -a.img.w; dx <= b.img.w; dx++) {
+      let n = 0;
+      for (let y = Math.round(a.img.h * 0.5); y < a.img.h; y++) for (let x = 0; x < a.img.w; x++) {
+        const X = x + dx, Y = y + dy;
+        if (X < 0 || Y < 0 || X >= b.img.w || Y >= b.img.h) continue;
+        const i = (y * a.img.w + x) * 4, j = (Y * b.img.w + X) * 4;
+        if (a.img.buf[i + 3] && b.img.buf[j + 3] && Math.abs(a.img.buf[i] - b.img.buf[j]) + Math.abs(a.img.buf[i + 1] - b.img.buf[j + 1]) + Math.abs(a.img.buf[i + 2] - b.img.buf[j + 2]) < 40) n++;
+      }
+      if (n > best.n) best = { n, dx, dy };
+    }
+    b.ax = a.ax + best.dx; b.ay = a.ay + best.dy;
+    console.log(`  ${names[1]}: stands where ${names[0]} does (laid on it at ${best.dx},${best.dy}, ${best.n} cells of its lower half agree)`);
+  }
   if (how === "talk") {
     // the talking face is the quiet one with only its mouth changed: the second is laid on the first at the move
     // that agrees best, and only the cells that differ about the mouth (the middle of the lower face) are taken
