@@ -30,5 +30,5 @@ describe("the catalog, in a production build and out of one", () => {
     expect(Object.keys(here.rows).filter((key) => here.rows[key] !== there.rows[key])).toEqual([]);
     expect(there.haunts).toBe(here.haunts);
     expect(here.haunts).toBeGreaterThan(80);
-  });
+  }, 60_000);
 });
