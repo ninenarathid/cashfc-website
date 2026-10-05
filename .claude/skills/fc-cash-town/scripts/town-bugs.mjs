@@ -4,7 +4,8 @@
 // before it and stays for somebody behind; a dragonfly darts from whoever walks up and comes to whoever waits; a
 // cricket is not seen, falls quiet while somebody walks near and sings again when they stand; a stick insect lies
 // among sticks and is somewhere else after a miss; a moth goes round a lamp; a beetle comes down its tree only to
-// something sweet in another's hand. Each is caught once, and costs stamina; tired hands have a smaller ring. The
+// something sweet in another's hand. Each is caught once, and costs stamina; tired hands have a ring under half as
+// wide and a slower net, lose an insect at the second swing that misses it, and still catch with a good swing. The
 // first of a kind caught is in the village's book, in the bag, with who caught it. A ladybird caught may take a pest
 // off some plant of the farm with it: the plant is cured, whoever sowed it, and a line over the catcher's head says
 // that one went, not where; with the chance turned off no pest goes and nothing is said. An insect caught in one tab
@@ -279,19 +280,49 @@ try {
   await A.evaluate(`${K}.setStamina(0)`);
   await sleep(500);
   const tired = (await A.evaluate(`${B}.ringOf("ladybird")`));
-  ok("with no stamina the net's ring is smaller", tired < ring && tired > 0, { ring, tired });
+  ok("with no stamina the net's ring is under half as wide", tired < ring * 0.5 && tired > 0, { ring, tired });
+  {
+    // two swings beside a ladybird, near enough for it to mind and too far to take it: at the second it is off
+    const shy = await put(A, "ladybird", "farm", "field", 11), hs = haunts.find((h) => h.id === shy);
+    await warp(A, ...Object.values(await standNear(A, hs)));
+    await until("a ladybird to miss is about", () => poseOf(A, shy), 8000, 100);
+    /** A swing beside it (the insect's place read and the swing begun in one breath of the page), and what the page then counts against it. */
+    const beside = async () => {
+      await A.evaluate(`(() => { const p = ${B}.poses().find((p) => p.id === ${shy}); if (p) ${B}.swing(p.aim.x + 0.7, p.aim.y); })()`);
+      await sleep(150);
+      await landed(A);
+      const all = await A.evaluate(`${B}.misses()`), key = Object.keys(all).find((k) => k.startsWith(`${shy}:`));
+      return { n: key ? all[key] : 0, fled: await A.evaluate(`${B}.fled()`) };
+    };
+    const hadShy = await held(A, "ladybird");
+    const first = await beside();
+    ok("a first tired swing that misses is counted against it, and leaves it there", first.n === 1 && first.fled.length === 0 && !!(await poseOf(A, shy)) && (await sights(A)).some((x) => x.id === shy), first);
+    let second = await beside();
+    // (a haunt's turn may end between the two swings: what is there then is another insect, missed once)
+    if (second.fled.length === 0 && second.n === 1) second = await beside();
+    await sleep(300);
+    const fled = await A.evaluate(`${B}.fled()`);
+    ok("at the second it takes fright and is off: gone from my map, and said so", fled.length === 1 && fled[0].startsWith(`${shy}:`) && !(await sights(A)).some((x) => x.id === shy)
+      && /หนีไป|took fright/.test((await A.evaluate(`${B}.note()`)) ?? ""), { fled, note: await A.evaluate(`${B}.note()`) });
+    ok("nobody has caught it: it is only I who lost it", (await held(A, "ladybird")) === hadShy && (await A.evaluate(`${K}.bugs().some((x) => x.id === ${shy})`)));
+    await A.shot(`${OUT}/bugs-8-fled.png`);
+  }
   const lb2 = await put(A, "ladybird", "farm", "field", 9), hl2 = haunts.find((h) => h.id === lb2);
   await warp(A, ...Object.values(await standNear(A, hl2)));
   await until("another ladybird is about", () => poseOf(A, lb2), 8000, 100);
   const had = await held(A, "ladybird");
   got = false;
   for (let i = 0; i < 12 && !got; i++) {
-    const q = await poseOf(A, lb2), me = await A.evaluate(`${V}.self()`);
-    if (Math.hypot(q.aim.x - me.x, q.aim.y - me.y) > 2) { const t = await standNear(A, q); await warp(A, t.x, t.y); continue; }
-    if (await lead(A, lb2, 450)) await landed(A);
+    // (a tired net is slow and its ring small: it is aimed where the ladybird will be when the net lands, which for
+    // something that only walks the clock alone says; read and swung in one breath of the page)
+    const q = await A.evaluate(`(() => { const p = ${B}.poseAt(${lb2}, ${B}.swingMs() + 20), me = ${V}.self(); if (!p) return null;
+      const d = Math.hypot(p.aim.x - me.x, p.aim.y - me.y); return { x: p.x, y: p.y, d, swung: d <= 2 ? ${B}.tap(p.aim.x, p.aim.y) : false }; })()`);
+    if (!q) break;
+    if (q.d > 2) { const t = await standNear(A, q); await warp(A, t.x, t.y); continue; }
+    if (q.swung) await landed(A);
     got = (await held(A, "ladybird")) > had;
   }
-  ok("but nothing is refused: it is still caught", got);
+  ok("but nothing is refused: a swing aimed where it will be still catches it", got);
   {
     const last = (await A.evaluate(`${B}.caught()`)).at(-1), plot = (await A.evaluate(`${F}.plots()`))[pest];
     ok("with the chance at nothing a ladybird takes no pest, and nothing is said", last?.bug === "ladybird" && last.rid === null && plot?.plant?.cured === 0 && (await A.evaluate(`${B}.ridShown()`)) === false, { last, plot });
@@ -302,6 +333,11 @@ try {
   await A.evaluate(`${K}.setStamina(100)`);
   await A.evaluate(`${K}.unsetBugs()`);
   await C.evaluate(`${K}.unsetBugs()`);
+  // (a word of its own from here: what the check caught before, and what came back for it, is forgotten, so that the
+  // farm has haunts with nothing in their turn for one to come back to)
+  await A.evaluate(`${K}.setSalt("check-back")`);
+  await A.evaluate(`${B}.forget()`);
+  await sleep(500);
   const one = await put(A, "ladybird", "farm", "field", 5), ho = haunts.find((h) => h.id === one);
   await C.evaluate(`${K}.setBug(${one}, "ladybird")`);
   await until("the other tab has it on its map too", () => C.evaluate(`${B}.sights().some((s) => s.id === ${one} && s.bug === "ladybird")`), 8000, 200);
@@ -322,12 +358,14 @@ try {
   // (every catch of this check brought one back: the one this catch brought is the last of them)
   const every = await A.evaluate(`${K}.backs()`), backs = every.slice(-1), nowT = await A.evaluate(`${K}.now()`);
   ok("and one is to come back at another haunt of the farm, half a minute on", every.length === before + 1 && backs[0].haunt !== one && haunts.find((h) => h.id === backs[0].haunt)?.place === "farm"
-    && backs[0].from - nowT > 15000 && backs[0].from - nowT <= 30000, { backs, nowT });
+    && backs[0].from - nowT > 15000 && backs[0].from - nowT <= 30000,
+    { one, before, every: every.map((b) => [b.haunt, haunts.find((h) => h.id === b.haunt)?.place, b.bug, Math.round((b.from - nowT) / 1000)]) });
   if (backs.length === 1) {
-    const there = backs[0].haunt;
-    ok("it is on nobody's map before its moment", !(await sights(A)).some((s) => s.id === there) && !(await sights(C)).some((s) => s.id === there));
-    const came = await until("it comes back", async () => (await sights(A)).some((s) => s.id === there) && (await sights(C)).some((s) => s.id === there), 45000, 500).then(() => true).catch(() => false);
-    const a1 = (await sights(A)).find((s) => s.id === there), c1 = (await sights(C)).find((s) => s.id === there);
+    // (it comes back in the turn that haunt is in half a minute on: the haunt may still have its own of the turn before)
+    const there = backs[0].haunt, back = (list) => list.find((s) => s.id === there && s.turn === backs[0].turn);
+    ok("it is on nobody's map before its moment", !back(await sights(A)) && !back(await sights(C)));
+    const came = await until("it comes back", async () => !!back(await sights(A)) && !!back(await sights(C)), 45000, 500).then(() => true).catch(() => false);
+    const a1 = back(await sights(A)), c1 = back(await sights(C));
     ok("half a minute later it is on both tabs' maps: the same insect at the same haunt", came && !!a1 && !!c1 && a1.bug === backs[0].bug && c1.bug === backs[0].bug && (await A.evaluate(`${K}.now()`)) >= backs[0].from, { a1, c1 });
     const hb = haunts.find((h) => h.id === there);
     await warp(A, ...Object.values(await standNear(A, hb)));

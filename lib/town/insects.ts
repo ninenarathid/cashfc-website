@@ -35,7 +35,8 @@ import { CAMP, FARM, FOREST, FOREST_PROPS, GATES, PROPS, WATERFALL, WELL, asBuil
  * - **The net is slow**: a swing lands a moment after it is begun (`NET.lands`)
  *   where it was aimed, and takes what is under its ring then. Everybody walks
  *   as fast as everybody else, so nothing is run down: it is the aim that
- *   catches. With no stamina the ring is smaller and the net slower.
+ *   catches. With no stamina the ring is much smaller and the net slower, and
+ *   an insect missed twice is off (`NET.tired`).
  * - **What a screen shows is the screen's own**: where an insect is at a
  *   moment follows from its seed and the clock where it can (a butterfly's
  *   round, a moth's, a ladybird's walk), and from who is near on that screen
@@ -164,8 +165,17 @@ export const NET = {
   lands: 300, again: 350,
   /** The ring a net takes what is under, in tiles across its half. */
   radius: 0.6,
-  /** With no stamina: the ring as a share of that, and how long the swing takes. */
-  tired: { radius: 0.65, lands: 450 },
+  /**
+   * With no stamina: the ring as a share of that, how long the swing takes, and how many swings that miss an insect
+   * it stays for: at that many it is off, and whoever missed it does not see it again for the rest of its turn.
+   *
+   * The owner, 2026-10-05: "การจับแมลงควรต้องทำให้ยากกว่านี้ตอน stamina หมด" (it was a ring of 0.65, 450 ms and any number of
+   * misses: the members took one swing in two with none, against two in three with some, and one of them had caught
+   * 17 of 22 insects with none, which cost nothing). Set by hands fitted to the members' own swings (read from the
+   * deeds): of the insects tried with none, a member's hand now takes about 42 in 100, a practised one 64, a very good
+   * one 99; a butterfly and a moth, hardly any but for the very good. As tired fishing is (42, 77, 97).
+   */
+  tired: { radius: 0.4, lands: 600, misses: 2 },
   /** How many misses before a catch are counted against it, a point of stamina each. */
   misses: 2,
   /** How near a miss has to land for an insect to mind it. */
@@ -635,6 +645,8 @@ export function poseOf(id: BugId, h: Haunt, seed: number, m: Mind, now: number):
 export const aimOf = (p: Pose): Vec => ({ x: p.x - p.lift, y: p.y - p.lift });
 /** The ring a net takes an insect within, in tiles: smaller for the small ones, and for tired hands. */
 export const ringOf = (id: BugId, spent: boolean) => NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1);
+/** Whether an insect missed so many times is off for good, for whoever missed it: only tired hands lose one so. */
+export const fledBy = (misses: number, spent: boolean) => spent && misses >= NET.tired.misses;
 /** How long a swing takes to land. */
 export const swingMs = (spent: boolean) => (spent ? NET.tired.lands : NET.lands);
 /** Whether a net landing at a point takes an insect as it is then. */

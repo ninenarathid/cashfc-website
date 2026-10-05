@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  BUGS, HABITS, HAUNTS, LURES, NET, aimOf, bugTurnStart, mayNet, missed, newMind, poseOf, ringOf, swingMs, taken, think,
+  BUGS, HABITS, HAUNTS, LURES, NET, aimOf, bugTurnStart, fledBy, mayNet, missed, newMind, poseOf, ringOf, swingMs, taken, think,
   type BugId, type BugSight, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
@@ -28,7 +28,19 @@ const RID_MS = 6000;
 const WHY_BUGS: Record<string, [string, string]> = {
   had: ["จับตัวนี้ไปแล้ว", "You have caught this one already"], bare: ["มีคนจับไปก่อนแล้ว", "Somebody caught it first"], far: ["อยู่ไกลเกินไป", "Too far away"],
   none: ["ไม่อยู่แล้ว", "It is gone"], lure: ["มันปีนกลับขึ้นไปแล้ว", "It has climbed back up"],
+  fled: ["มันตกใจหนีไปแล้ว", "It took fright and is gone"],
 };
+/** Where the insects that fled from my tired hands are kept on this device, each until its turn ends: a page opened again does not bring them back. */
+const FLED_KEY = "cashTown:bugsFled";
+function fledKept(): Map<string, number> {
+  try {
+    const kept = JSON.parse(window.localStorage.getItem(FLED_KEY) ?? "{}") as Record<string, number>, now = Date.now();
+    return new Map(Object.entries(kept).filter(([, until]) => typeof until === "number" && until > now - 60_000));
+  } catch { return new Map(); }
+}
+function keepFled(fled: Map<string, number>) {
+  try { window.localStorage.setItem(FLED_KEY, JSON.stringify(Object.fromEntries(fled))); } catch { /* a device that keeps nothing: it is forgotten with the page */ }
+}
 /** How big an insect is drawn on the map: screen pixels to one of its picture's, at the map's own scale 1. */
 const SIZE = 0.66;
 /** How near an insect a tap has to be to be a swing at it, and not a step: in tiles. */
@@ -79,8 +91,11 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const vfx = useMemo(() => new Vfx(), []);
 
   // What every haunt has for me now: looked at afresh when something changes and every few seconds, not every frame.
+  // (less those that fled from my tired hands: gone for me, for the rest of their turn)
+  const fled = useRef<Map<string, number> | null>(null);
+  if (!fled.current && typeof window !== "undefined") fled.current = fledKept();
   const seen = useRef<BugSight[]>([]);
-  seen.current = keeper.bugs();
+  seen.current = keeper.bugs().filter((s) => !fled.current?.has(`${s.id}:${s.turn}`));
   const purse = keeper.purse(), hand = handOf(purse), spent = isSpent(purse, keeper.now());
   // (the fountain's soft step: an insect lets me come nearer, lib/town/forest-eye)
   const soft = hasBuff(purse, keeper.now(), WILD_WISHES.net as WishId) ? softStep((WISH as Record<string, { by: number }>)[WILD_WISHES.net]?.by ?? 0.5) : 1;
@@ -132,6 +147,18 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         }
         if (far(aimOf(pose), s.at) <= NET.near) {
           misses.current.set(key, (misses.current.get(key) ?? 0) + 1);
+          // tired hands lose it at the second miss: it is off, and is not seen here again this turn
+          if (fledBy(misses.current.get(key) ?? 0, live.current.spent)) {
+            const gone = fled.current ?? new Map<string, number>();
+            gone.set(key, bugTurnStart(h, sight.turn + 1) - keeper.now() + Date.now());
+            fled.current = gone;
+            keepFled(gone);
+            misses.current.delete(key);
+            sfx?.work("flit");
+            vfx.add("leaves", { x: pose.x, y: pose.y }, { lift: 30 });
+            say("fled");
+            continue;
+          }
           const was = kept.mind;
           kept.mind = missed(sight.bug, h, sight.seed, kept.mind, now, here ?? s.at);
           if (kept.mind !== was && pose.seen) sfx?.work("flit", 0.7);
@@ -287,7 +314,17 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       /** A tap at a point of the map, as the map hands one over: whether it was taken for a swing. */
       tap: (x: number, y: number) => tapRef.current?.({ x, y }) ?? false,
       swinging: () => !!swing.current && !swing.current.done,
-      caught: () => caught.current, note: () => note, ridShown: () => Date.now() < ridUntil.current,
+      caught: () => caught.current, note: () => note, ridShown: () => Date.now() < ridUntil.current, fled: () => [...(fled.current?.keys() ?? [])],
+      // (how many swings have missed each insect, by "haunt:turn"; how an insect will be so many milliseconds on, as far
+      // as the clock alone says; how long my swing takes; and every insect that fled from me forgotten)
+      misses: () => Object.fromEntries(misses.current), swingMs: () => swingMs(live.current.spent),
+      poseAt: (id: number, ms: number) => {
+        const at = poses.current.get(id), kept = minds.current.get(id), h = HAUNTS[id];
+        if (!at || !kept || !h) return null;
+        const p = poseOf(at.sight.bug, h, at.sight.seed, kept.mind, Date.now() + ms);
+        return { ...p, aim: aimOf(p) };
+      },
+      forget: () => { fled.current = new Map(); keepFled(fled.current); setTick((n) => n + 1); },
     };
     (window as unknown as { __townBugs?: typeof handle }).__townBugs = handle;
     return () => { delete (window as unknown as { __townBugs?: typeof handle }).__townBugs; };

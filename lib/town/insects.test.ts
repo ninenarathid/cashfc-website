@@ -3,7 +3,7 @@ import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
   BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, aimOf, bugTurn, bugTurnStart, comeback, hereAt, mayNet, missed, nearHaunt, net, newMind, poseOf, ringOf, swarmAt,
-  swarms, swingMs, taken, think, type BugId, type Comeback, type Haunt, type Mind, type Person, type Swarm, pestToRid,
+  swarms, swingMs, taken, think, type BugId, type Comeback, type Haunt, type Mind, type Person, type Swarm, pestToRid, fledBy,
 } from "./insects";
 import { BAITS, BAIT_AS, FISH, FISH_IDS, ITEMS, MAKES, type ItemId } from "./items";
 import { BASIC } from "./orders";
@@ -187,12 +187,39 @@ describe("a net", () => {
     for (const id of BUG_IDS) {
       expect(ringOf(id, true), id).toBeLessThan(ringOf(id, false));
       expect(ringOf(id, false), id).toBeLessThanOrEqual(NET.radius);
-      expect(ringOf(id, true), id).toBeGreaterThan(0.2);
+      expect(ringOf(id, true), id).toBeGreaterThan(0.12);
     }
+    // (the owner, 2026-10-05: "การจับแมลงควรต้องทำให้ยากกว่านี้ตอน stamina หมด": less than half the ring, twice as long a swing)
+    expect(NET.tired).toEqual({ radius: 0.4, lands: 600, misses: 2 });
+    expect(swingMs(true)).toBe(2 * NET.lands);
+    for (const id of BUG_IDS) expect(ringOf(id, true) / ringOf(id, false), id).toBeCloseTo(0.4, 10);
     // a swing can be aimed further than a grasshopper lets somebody come behind it, and nearer than it sees before it
     expect(NET.reach).toBeGreaterThan(HABITS.behind.back + NET.radius);
     expect(NET.reach).toBeLessThan(HABITS.behind.ahead);
     expect(NET.reach).toBeLessThan(HABITS.spot.notice);
+  });
+});
+
+describe("tired hands", () => {
+  it("lose an insect at the second swing that misses it; hands with stamina never do", () => {
+    expect(fledBy(0, true)).toBe(false);
+    expect(fledBy(1, true)).toBe(false);
+    expect(fledBy(2, true)).toBe(true);
+    expect(fledBy(7, true)).toBe(true);
+    for (const misses of [0, 1, 2, 9, 30]) expect(fledBy(misses, false), `${misses} misses, with stamina`).toBe(false);
+  });
+
+  it("can still catch: a swing that lands on it takes it, whatever went before, and costs nothing they have not got", () => {
+    const h = hauntOf("field", "farm"), has = swarmOf(h, "ladybird", NOON), at: [number, number] = [Math.floor(h.perches[0].x), Math.floor(h.perches[0].y)];
+    const tired: Purse = { ...bagOf(["bugNet", 1]), stamina: { day: bagOf().stamina?.day ?? 0, left: 0 } };
+    const did = net(tired, h, has, 0, false, "bugNet", at, 1, NOON);
+    expect(did.ok && did.got).toEqual([["ladybird", 1]]);
+    // a walker a ring's width off is taken by fresh hands and missed by tired ones: the ring is under half as wide
+    const mind = newMind("ladybird", h, has.seed, bugTurnStart(h, has.turn)), pose = poseOf("ladybird", h, has.seed, mind, NOON), aim = aimOf(pose);
+    const beside = { x: aim.x + ringOf("ladybird", true) + 0.05, y: aim.y };
+    expect(taken("ladybird", pose, beside, false)).toBe(true);
+    expect(taken("ladybird", pose, beside, true)).toBe(false);
+    expect(taken("ladybird", pose, aim, true)).toBe(true);
   });
 });
 
