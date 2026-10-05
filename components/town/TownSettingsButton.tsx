@@ -11,13 +11,18 @@ import TownIcon from "./TownIcon";
  * (lib/town/motion): it does for everybody, and whoever the rain and the leaves make dizzy turns it off here. The
  * choices are the town's page's to keep and to draw by; this shows them, and what the map is drawing at now, and asks.
  */
-export default function TownSettingsButton({ th, pace, onPace, drawn, moving, onMoving, low = false, className }: {
+export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, moving, onMoving, low = false, className }: {
   th: boolean;
   /** How many frames a second the map is held to. */
   pace: Fps;
   onPace: (fps: Fps) => void;
   /** How many the map drew in the last second: the page's own count, read while the panel is open. */
   drawn: { readonly current: number };
+  /**
+   * Told when the panel opens and shuts: the map rests while nobody touches the page (lib/town/pace), but not
+   * under somebody reading here what it draws at, or the number would not be the one they chose.
+   */
+  onShown?: (open: boolean) => void;
   /** Whether the town moves: the rain, the leaves, the river, the trees. */
   moving: boolean;
   onMoving: (moving: boolean) => void;
@@ -40,6 +45,12 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, moving, on
     window.addEventListener("pointerdown", away);
     return () => window.removeEventListener("pointerdown", away);
   }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    onShown?.(true);
+    return () => onShown?.(false);
+  }, [open, onShown]);
 
   // What the map is drawing at: the page counts it once a second, so twice a second is often enough to read it.
   useEffect(() => {

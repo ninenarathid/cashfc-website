@@ -8,7 +8,11 @@
 //   kept on the device and is still the choice after a reload; choosing 60 goes back;
 // - walking is as fast at 30 as at 60: the same road in the same time;
 // - a phone's cog is at the foot of its screen, beside the chat (no room in its corner); it is held to 60 all the same,
-//   and to 30 when that is chosen there.
+//   and to 30 when that is chosen there;
+// - what a town nobody is at costs (the owner, 2026-10-05: "คนใน cashtown เล่นแล้วใช้ CPU เยอะมาก"): left alone for twenty
+//   seconds it is drawn at 30, and the page is woken for no more frames than that (it sleeps between them); a touch
+//   has it back at once; under the settings left open it does not rest; with its window behind another it is drawn at
+//   20, and the mouse moved over it wakes it for a moment.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
@@ -19,6 +23,17 @@ const [BASE = "http://localhost:3100", OUT = "."] = process.argv.slice(2);
 let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + (typeof d === "string" ? d : JSON.stringify(d)).slice(0, 700)}`); };
 const sky = (X) => X.evaluate(`window.__townView.sky()`);
+/** A touch of the page, as the map hears one (a click from a script is no touch: it moves no pointer). */
+const touch = (X) => X.evaluate(`(window.dispatchEvent(new Event("pointermove")), 1)`);
+/** How many frames a second the town itself asks the screen for: the page's own askings, counted over `ms`. */
+const asks = (X, ms = 3000) => X.evaluate(`new Promise((res) => { const real = window.requestAnimationFrame; let n = 0; window.requestAnimationFrame = (f) => { n++; return real.call(window, f); }; setTimeout(() => { window.requestAnimationFrame = real; res(Math.round((n * 1000) / ${ms})); }, ${ms}); })`);
+/** The same as `drawn`, with the page touched all the while. */
+async function drawnTouched(X, secs = 4) {
+  const f = [];
+  for (let i = 0; i < secs * 2; i++) { await touch(X); await sleep(500); if (i % 2) f.push((await sky(X)).fps); }
+  const by = [...f].sort((a, b) => a - b);
+  return { mid: by[Math.floor(by.length / 2)], most: by[by.length - 1], least: by[0], all: f };
+}
 /** How many frames a second the browser asks the page for, counted by the page itself over `ms`. */
 const asked = (X, ms = 3000) => X.evaluate(`new Promise((res) => { let n = 0; const t0 = performance.now(); const f = (t) => { n++; if (t - t0 >= ${ms}) res(Math.round((n * 1000) / (t - t0))); else requestAnimationFrame(f); }; requestAnimationFrame(f); })`);
 /** How many the town draws: its own count of each second, read over a few; the middle one, and the most. */
@@ -54,13 +69,14 @@ let P = null;
 try {
   console.log("a fast screen:");
   await enter(X, "F");
+  await touch(X);
   const raw = await asked(X);
   ok(`this screen asks the page for far more than 60 frames a second (${raw})`, raw > 100, `${raw} a second: this machine's screen is no faster than the pace, so nothing is proved here`);
   const first = await sky(X);
   ok("the town is held to 60 until somebody chooses", first.pace === 60, first.pace);
   const at60 = await drawn(X);
   ok(`…and draws 60 of them, no more (${at60.all.join(" ")})`, at60.most <= 61 && at60.mid >= 57, at60);
-  ok("the frames it lets go by cost nothing: the page is still asked for as many", (await asked(X, 2000)) > 100);
+  ok("…of as many as the screen has, still", (await asked(X, 2000)) > 100);
 
   console.log("the settings at the top right:");
   const cog = await X.evaluate(`(() => { const b = document.querySelector("[data-town-settings]"), c = document.querySelector("canvas").getBoundingClientRect(); if (!b) return null; const r = b.getBoundingClientRect(); return { down: r.top - c.top, in: c.right - r.right, title: b.title }; })()`);
@@ -107,6 +123,48 @@ try {
   ok("a kept number that is no choice is read as 60", (await sky(X)).pace === 60, (await sky(X)).pace);
   const odd = await drawn(X, 4);
   ok(`…and 60 is what is drawn (${odd.all.join(" ")})`, odd.most <= 61 && odd.mid >= 57, odd);
+
+  console.log("left alone, the map rests:");
+  await touch(X);
+  await sleep(150);
+  ok("touched, it is drawn at the pace chosen", (await sky(X)).paceNow === 60, (await sky(X)).paceNow);
+  await sleep(21000);
+  const rest = await drawn(X, 4);
+  ok(`nobody touching the page for twenty seconds, it is drawn at 30 (${rest.all.join(" ")})`, (await sky(X)).paceNow === 30 && rest.most <= 31 && rest.mid >= 28, rest);
+  ok("…with 60 still the pace chosen", (await sky(X)).pace === 60);
+  const dozing = await asks(X);
+  ok(`…and the page is woken for no more frames than it draws: it sleeps between them (${dozing} a second, of the ${raw} to be had)`, dozing >= 27 && dozing <= 36, dozing);
+  await touch(X);
+  await sleep(150);
+  ok("a touch, and it is 60 again at once", (await sky(X)).paceNow === 60, (await sky(X)).paceNow);
+  const woke = await drawnTouched(X, 4);
+  ok(`…and stays there while it is touched (${woke.all.join(" ")})`, woke.most <= 61 && woke.mid >= 57, woke);
+  await openSettings(X);
+  await sleep(22000);
+  const read = await drawn(X, 3);
+  ok(`under the settings left open it does not rest: what they say it draws at is what was chosen (${read.all.join(" ")})`, (await sky(X)).paceNow === 60 && read.mid >= 57 && (await X.evaluate(`Number(${panel}.querySelector("[data-drawn]").dataset.drawn)`)) >= 57, read);
+  await X.evaluate(`document.querySelector("[data-town-settings]").click()`);
+  await until("the settings shut", () => X.evaluate(`!${panel}`), 4000);
+
+  console.log("its window behind another:");
+  await touch(X);
+  await X.send("Emulation.setFocusEmulationEnabled", { enabled: false });
+  await sleep(1000);
+  ok("just gone behind, it is still drawn as chosen", !(await X.evaluate(`document.hasFocus()`)) && (await sky(X)).paceNow === 60, { focus: await X.evaluate(`document.hasFocus()`), pace: (await sky(X)).paceNow });
+  await sleep(3500);
+  const behind = await drawn(X, 4);
+  ok(`a few seconds on, it is drawn at 20 (${behind.all.join(" ")})`, (await sky(X)).paceNow === 20 && behind.most <= 21 && behind.mid >= 19, behind);
+  const few = await asks(X);
+  ok(`…and the page is woken for no more than that (${few} a second)`, few >= 18 && few <= 26, few);
+  await touch(X);
+  await sleep(150);
+  ok("the mouse moved over it wakes it", (await sky(X)).paceNow === 60, (await sky(X)).paceNow);
+  await sleep(4000);
+  ok("…for a moment", (await sky(X)).paceNow === 20, (await sky(X)).paceNow);
+  await X.send("Emulation.setFocusEmulationEnabled", { enabled: true });
+  await touch(X);
+  await sleep(150);
+  ok("in front again, it is drawn as chosen", (await X.evaluate(`document.hasFocus()`)) && (await sky(X)).paceNow === 60, (await sky(X)).paceNow);
   ok("no errors on the page", X.logs.length === 0, X.logs);
 
   console.log("a phone:");

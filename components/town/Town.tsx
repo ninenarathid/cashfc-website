@@ -9,7 +9,8 @@ import {
   atFire, atWell, benchAt, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
-import { PACE, keepFps, keptFps, paced, type Fps } from "@/lib/town/pace";
+import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
+import { PUDDLE_SIZES, RING_MS, Rain, ageOf, drawPicture, puddleRing, puddleRingsFor, puddlesFor, ringsFor, type Pictures } from "@/lib/town/rain";
 import { keepMotion, keptMotion } from "@/lib/town/motion";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
@@ -312,6 +313,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const fpsRef = useRef(0);
   /** How many frames a second the map is held to (lib/town/pace): what the drawing reads, every frame. */
   const paceRef = useRef<number>(PACE.most);
+  /** What it is drawn at just now: the pace chosen, or fewer while nobody is at it (lib/town/pace's paceOf). */
+  const paceNowRef = useRef<number>(PACE.most);
+  /** Whether the settings' panel is open: the map does not rest while somebody reads there what it draws at. */
+  const settingsOpenRef = useRef(false);
   /**
    * Whether the town stands still: what the drawing reads, every frame. The settings' choice (lib/town/motion), and
    * not the machine's word on motion, which this was until 2026-10-04: the town moves for everybody until they turn
@@ -411,10 +416,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const leaves = useRef<Leaf[]>([]);
   /** The wind's gusts: when the last one came, when the next will, and how hard it blows now (0 to 1). */
   const gust = useRef({ at: -1e9, next: 0, strength: 0 });
-  /** Rain in the air: where on the screen, and how near (0 far and faint, 1 near and long). */
-  const drops = useRef<Array<{ x: number; y: number; z: number }>>([]);
+  /** Rain in the air: its streaks on sheets drawn once and laid over the screen each frame (lib/town/rain). */
+  const rain = useRef(new Rain());
   /** Rain landing: a ring on the ground at a tile, and when it began. */
   const splashes = useRef<Array<{ x: number; y: number; at: number }>>([]);
+  /** What the rain leaves on the ground, as small pictures made for the zoom the map is at: the rings where it lands, the puddles, the rings in them. */
+  const wetArt = useRef<{ landed: Pictures | null; pools: Pictures | null; rings: Pictures | null }>({ landed: null, pools: null, rings: null });
   /** How far the clouds have drifted (lib/town/clouds), and their shadows' pictures, drawn once. */
   const cloudDrift = useRef(0);
   const cloudArt = useRef<HTMLCanvasElement[] | null>(null);
@@ -483,6 +490,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [pace, setPace] = useState<Fps>(PACE.most);
   useEffect(() => { const kept = keptFps(); paceRef.current = kept; setPace(kept); }, []);
   const choosePace = (fps: Fps) => { paceRef.current = fps; setPace(fps); keepFps(fps); };
+  const settingsShown = useCallback((open: boolean) => { settingsOpenRef.current = open; }, []);
   /** The settings' choice of whether the town moves (lib/town/motion): kept on this device, moving until it is read. */
   const [moving, setMoving] = useState(true);
   useEffect(() => { const kept = keptMotion(); stillAt.current = Date.now(); reducedRef.current = !kept; setMoving(kept); }, []);
@@ -789,6 +797,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     let due = 0;
     let frames = 0;
     let fpsSince = last;
+    /** The sleep before the next frame is asked for while the map rests (lib/town/pace's nap), and whether one was taken since the last frame. */
+    let timer = 0, napped = false;
+    /** When the page was last touched, and whether the map rests: drawn at fewer than the pace chosen. */
+    let touchedAt = last, resting = false;
 
     const resize = () => {
       const r = stage.getBoundingClientRect();
@@ -807,23 +819,61 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const ro = new ResizeObserver(resize);
     ro.observe(stage);
 
+    /**
+     * Ask for the next frame: at once, or while the map rests after sleeping till it is nearly due. (A frame asked
+     * for and let go by is not free: the page, the compositor and the GPU's process are woken for it all the same.
+     * Measured 2026-10-05 on a screen of 180: 180 wakings a second, for 20 frames drawn.)
+     */
+    const ask = () => {
+      const ms = resting ? nap(performance.now(), due) : 0;
+      if (ms <= 0) { raf = requestAnimationFrame(frame); return; }
+      napped = true;
+      timer = window.setTimeout(() => { timer = 0; raf = requestAnimationFrame(frame); }, ms);
+    };
     const frame = (now: number) => {
       // No more often than the pace: a fast screen asks for frames the town does not draw (the owner, 2026-10-04:
-      // "บางคนรันแล้ว fps สูงเกินไป แล้วคอมร้อน"). One let go by costs nothing: nothing moves, nothing is drawn.
-      const after = paced(now, last, due, paceRef.current);
-      if (after === null) { raf = requestAnimationFrame(frame); return; }
+      // "บางคนรันแล้ว fps สูงเกินไป แล้วคอมร้อน"). And fewer while nobody is at it (lib/town/pace's paceOf; the owner,
+      // 2026-10-05: "คนใน cashtown เล่นแล้วใช้ CPU เยอะมาก"): the page not touched for a while, or its window behind
+      // another. Not under the settings while they are read: what they say the map draws at is what was chosen there.
+      const live = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
+      const focused = document.hasFocus();
+      const pace = settingsOpenRef.current && focused ? paceRef.current
+        : paceOf(paceRef.current, { focused, idle: performance.now() - touchedAt, walking: !!live?.self.path.length });
+      const slept = napped;
+      napped = false;
+      resting = pace < paceRef.current;
+      paceNowRef.current = pace;
+      // (the frame that comes after a sleep is the one slept for, whatever time it is told as: lib/town/pace)
+      const after = slept && resting ? wokenFor(now, due, pace) : paced(now, last, due, pace);
+      if (after === null) { ask(); return; }
       due = after;
       const dt = Math.min(0.1, (now - last) / 1000);
       last = now;
       frames++;
       if (now - fpsSince >= 1000) { fpsRef.current = Math.round((frames * 1000) / (now - fpsSince)); frames = 0; fpsSince = now; }
-      const live = sessionRef.current;
-      if (live && !live.closed) live.step(now, dt);
+      if (live) live.step(now, dt);
       draw(ctx, canvas, now, dt);
-      raf = requestAnimationFrame(frame);
+      ask();
     };
+    // A touch of the page: the map is at the pace chosen again, and at once (the frame it was waiting for was a
+    // slow pace's, as much as a twentieth of a second off).
+    const touched = () => {
+      touchedAt = performance.now();
+      if (!resting) return;
+      resting = false;
+      due = 0;
+      napped = false;
+      if (timer) { window.clearTimeout(timer); timer = 0; raf = requestAnimationFrame(frame); }
+    };
+    const TOUCHES = ["pointerdown", "pointermove", "keydown", "wheel", "touchstart", "focus"] as const;
+    for (const e of TOUCHES) window.addEventListener(e, touched, { passive: true, capture: true });
     raf = requestAnimationFrame(frame);
-    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+    return () => {
+      cancelAnimationFrame(raf);
+      window.clearTimeout(timer);
+      for (const e of TOUCHES) window.removeEventListener(e, touched, { capture: true });
+      ro.disconnect();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1031,26 +1081,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fillStyle = `rgba(150,166,192,${0.07 * e.wet})`;
       ctx.fillRect(0, 0, cw, ch);
       ctx.globalCompositeOperation = "source-over";
+      // (each a small picture made for this zoom, one to a size, and the rings in them one to an age: lib/town/rain)
+      const dpr = cam.current.dpr, wet = wetArt.current;
+      const pools = wet.pools = puddlesFor(s, dpr, wet.pools), rings = wet.rings = puddleRingsFor(s, dpr, wet.rings);
+      const seen: Array<[number, Vec]> = [];
       for (const [i, p] of PUDDLES.entries()) {
         const c = project(p);
-        if (!onScreen(c)) continue;
-        const r = (10 + (i % 4) * 4) * s;
-        ctx.fillStyle = `rgba(150,185,220,${0.3 * e.wet})`;
-        ctx.beginPath();
-        ctx.ellipse(c.x, c.y, r, r * 0.45, 0, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = `rgba(235,245,255,${0.35 * e.wet})`;
-        ctx.fillRect(c.x - r * 0.4, c.y - r * 0.12, r * 0.5, Math.max(1, s));
-        // rings where the rain lands in it
-        if (!still && e.rain > 0.05) {
-          const k = ((now + i * 377) % 1100) / 1100;
-          ctx.strokeStyle = `rgba(225,240,255,${0.5 * e.rain * (1 - k)})`;
-          ctx.lineWidth = Math.max(1, s * 0.8);
-          ctx.beginPath();
-          ctx.ellipse(c.x + ((i * 7) % 5 - 2) * s, c.y, r * 0.8 * k, r * 0.36 * k, 0, 0, Math.PI * 2);
-          ctx.stroke();
-        }
+        if (onScreen(c)) seen.push([i, c]);
       }
+      ctx.imageSmoothingEnabled = true;
+      ctx.globalAlpha = Math.min(1, e.wet);
+      for (const [i, c] of seen) drawPicture(ctx, pools, i % PUDDLE_SIZES, c.x, c.y, s);
+      // rings where the rain lands in them
+      if (!still && e.rain > 0.05) {
+        ctx.globalAlpha = Math.min(1, e.rain);
+        for (const [i, c] of seen) drawPicture(ctx, rings, puddleRing(i % PUDDLE_SIZES, ((now + i * 377) % 1100) / 1100), c.x + ((i * 7) % 5 - 2) * s, c.y, s);
+      }
+      ctx.globalAlpha = 1;
     }
     // grey light under cloud and rain, and mist
     if (e.dim > 0.01) {
@@ -1065,35 +1112,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fillRect(0, 0, cw, ch);
     }
     if (!still) {
-      const slant = 0.08 + 0.46 * e.wind;
       // Rain: streaks falling at a slant with the wind, the near ones long, bright and fast, the far ones short and
-      // faint. A shower's are few and fine; a downpour's many, longer and faster.
-      const heavy = Math.min(1, Math.max(0, (e.rain - 0.35) / 0.65));
-      const want = Math.round(e.rain * (cw * ch) / 2600);
-      const D = drops.current;
-      while (D.length < want) D.push({ x: Math.random() * (cw + 200) - 100, y: Math.random() * ch, z: Math.random() });
-      if (D.length > want) D.length = want;
-      if (D.length) {
-        const fast = 0.8 + 0.5 * heavy, long = 0.75 + 0.85 * heavy;
-        for (const [z0, z1, alpha, width] of [[0, 0.4, 0.28, 1], [0.4, 0.75, 0.42, 1], [0.75, 1.01, 0.62, 1.4]] as const) {
-          ctx.strokeStyle = `rgba(214,228,246,${alpha * (0.8 + 0.2 * heavy)})`;
-          ctx.lineWidth = width;
-          ctx.beginPath();
-          for (const d of D) {
-            if (d.z < z0 || d.z >= z1) continue;
-            const v = (520 + 480 * d.z) * fast;
-            d.y += v * sec; d.x += v * slant * sec;
-            if (d.y > ch + 30) { d.y = -20; d.x = Math.random() * (cw + 200) - 200; }
-            if (d.x > cw + 20) d.x -= cw + 220;
-            const len = (8 + 16 * d.z) * long;
-            ctx.moveTo(d.x, d.y);
-            ctx.lineTo(d.x - len * slant, d.y - len);
-          }
-          ctx.stroke();
-        }
-      }
+      // faint. A shower's are few and fine; a downpour's many, longer and faster. (Laid from sheets drawn once, not
+      // stroked line by line each frame, which cost the machine four times what a fine day does: lib/town/rain.)
+      rain.current.draw(ctx, cw, ch, cam.current.dpr, sec, e.rain, e.wind);
       // and where it lands: a ring on the ground of the town, gone in a quarter of a second
-      const P = splashes.current, wantP = Math.round(e.rain * (cw * ch) / 9000), LAST = 260;
+      const P = splashes.current, wantP = Math.round(e.rain * (cw * ch) / 9000), LAST = RING_MS;
       if (P.length > wantP) P.length = wantP;
       while (P.length < wantP) P.push({ x: -1, y: -1, at: now - Math.random() * LAST });
       if (P.length) {
@@ -1105,18 +1129,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           const inTown = t.x >= 0 && t.y >= 0 && t.x < COLS && t.y < ROWS;
           p.x = inTown ? t.x : -1; p.y = t.y; p.at = now - Math.random() * 40;
         }
-        ctx.lineWidth = Math.max(1, s * 0.7);
-        for (const [a0, a1, alpha] of [[0, 0.4, 0.5], [0.4, 0.75, 0.3], [0.75, 1.01, 0.14]] as const) {
-          ctx.strokeStyle = `rgba(225,238,252,${alpha})`;
-          ctx.beginPath();
-          for (const p of P) {
-            const age = (now - p.at) / LAST;
-            if (p.x < 0 || age < a0 || age >= a1) continue;
-            const c = project(p), r = (1.2 + 3.2 * age) * s;
-            ctx.moveTo(c.x + r, c.y);
-            ctx.ellipse(c.x, c.y, r, r * 0.45, 0, 0, Math.PI * 2);
-          }
-          ctx.stroke();
+        // (each a small picture of a ring at its age, made for this zoom: lib/town/rain)
+        const pics = wetArt.current.landed = ringsFor(s, v.dpr, wetArt.current.landed);
+        ctx.imageSmoothingEnabled = true;
+        for (const p of P) {
+          if (p.x < 0) continue;
+          const c = project(p);
+          drawPicture(ctx, pics, ageOf((now - p.at) / LAST), c.x, c.y, s);
         }
       }
       // Leaves, in the town itself (not on the screen), two ways (the owner, 2026-10-02: "ใบไม้ร่วงจากต้นไม้ ใบไม้ที่
@@ -1225,7 +1244,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       }
     } else {
       // (motion turned off while it rained or blew: what was in the air is not kept hanging there, unseen)
-      drops.current.length = 0; splashes.current.length = 0; leaves.current.length = 0;
+      rain.current.stop(); splashes.current.length = 0; leaves.current.length = 0;
     }
     ctx.restore();
   }
@@ -1286,15 +1305,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** A soft round light at a point of the screen, added to what is there. */
   function glowAt(ctx: CanvasRenderingContext2D, x: number, y: number, r: number, rgb: string, alpha: number, flat = 1) {
     if (alpha <= 0.004) return;
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(1, flat);
-    const g = ctx.createRadialGradient(0, 0, 0, 0, 0, r);
-    g.addColorStop(0, `rgba(${rgb},${alpha})`);
-    g.addColorStop(1, `rgba(${rgb},0)`);
-    ctx.fillStyle = g;
-    ctx.fillRect(-r, -r, 2 * r, 2 * r);
-    ctx.restore();
+    // (a picture of the light, made once for its colour and laid at its size and strength: not a gradient made anew
+    // for every light of every frame, two to every lamp in sight)
+    const was = ctx.globalAlpha;
+    ctx.imageSmoothingEnabled = true;
+    ctx.globalAlpha = was * Math.min(1, alpha);
+    ctx.drawImage(glowPicture(rgb), x - r, y - r * flat, 2 * r, 2 * r * flat);
+    ctx.globalAlpha = was;
   }
 
   /** The light of the forest camp's fire, on whoever sits round it: faint by day, warm at night, wavering a little. */
@@ -1391,22 +1408,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (p.kind !== "lamp") continue;
       const base = project({ x: p.x + 0.5, y: p.y + 0.62 });
       if (!onScreen(base)) continue;
-      const lantern = { x: base.x, y: base.y - 78 * s };
-      const glow = ctx.createRadialGradient(lantern.x, lantern.y, 0, lantern.x, lantern.y, 44 * s);
-      glow.addColorStop(0, `rgba(255,196,120,${0.55 * day.lamps})`);
-      glow.addColorStop(1, "rgba(255,196,120,0)");
-      ctx.fillStyle = glow;
-      ctx.fillRect(lantern.x - 44 * s, lantern.y - 44 * s, 88 * s, 88 * s);
+      glowAt(ctx, base.x, base.y - 78 * s, 44 * s, "255,196,120", 0.55 * day.lamps);
       // a pool of light on the ground
-      ctx.save();
-      ctx.translate(base.x, base.y);
-      ctx.scale(1, 0.5);
-      const pool = ctx.createRadialGradient(0, 0, 0, 0, 0, 70 * s);
-      pool.addColorStop(0, `rgba(255,180,100,${0.22 * day.lamps})`);
-      pool.addColorStop(1, "rgba(255,180,100,0)");
-      ctx.fillStyle = pool;
-      ctx.fillRect(-70 * s, -70 * s, 140 * s, 140 * s);
-      ctx.restore();
+      glowAt(ctx, base.x, base.y, 70 * s, "255,180,100", 0.22 * day.lamps, 0.5);
     }
     ctx.restore();
   }
@@ -2698,7 +2702,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       /** The sky: what the weather draws now, the light, and each cloud's shadow with its middle on the screen. */
       sky: () => ({
         weather: SKIES.weather(), raining: SKIES.raining(), known: SKIES.knows(), clock: SKIES.now(),
-        effects: effects.current, day: skyNow(), fps: fpsRef.current, pace: paceRef.current, moving: !reducedRef.current, drops: drops.current.length, splashes: splashes.current.filter((p) => p.x >= 0).length,
+        effects: effects.current, day: skyNow(), fps: fpsRef.current, pace: paceRef.current, paceNow: paceNowRef.current, moving: !reducedRef.current, drops: rain.current.drops, splashes: splashes.current.filter((p) => p.x >= 0).length,
         clouds: cloudsAt(cloudDrift.current, effects.current.clouds).map((c) => ({ ...c, at: toScreen(cam.current, c, cam.current.cw, cam.current.ch) })),
       }),
       /** The Popoto Board's middle on the screen, if it is drawn. */
@@ -2944,7 +2948,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownMusicButton th={w.th} hour={forcedHour.current} className={hudBtn} />
           {/* (here on a wide screen only, like the numbers: a phone's corner has no room for one more, and its cog is
               at the foot of the screen, beside the chat) */}
-          {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} moving={moving} onMoving={chooseMoving} className={hudBtn} />}
+          {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} className={hudBtn} />}
           {!phone && (
             <button type="button" onClick={() => setStatsOpen((o) => !o)} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
               <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>
@@ -3152,7 +3156,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               <div className="pointer-events-auto relative flex w-fit items-center gap-1.5">
                 <button type="button" onClick={openHistory}
                         aria-label={w.chat} className={`${hudBtn} size-11`}><TownIcon name="chat" size={22} /></button>
-                <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} moving={moving} onMoving={chooseMoving} low className={`${hudBtn} size-11`} />
+                <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} low className={`${hudBtn} size-11`} />
               </div>
             ) : (
               <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
@@ -3456,6 +3460,30 @@ function cloudPicture(shape: number): HTMLCanvasElement {
     ctx.fillStyle = g;
     ctx.fillRect(x - r, y - r, r * 2, r * 2);
   }
+  return canvas;
+}
+
+/**
+ * A soft round light of a colour as a picture: all of it at the middle, fading evenly to nothing at the rim. Made
+ * once for each colour (there are ten: the lamps, the cooking yard's fire and windows, the camp's fire) and laid at
+ * whatever size and strength a light is.
+ */
+const GLOWS = new Map<string, HTMLCanvasElement>();
+function glowPicture(rgb: string): HTMLCanvasElement {
+  let canvas = GLOWS.get(rgb);
+  if (canvas) return canvas;
+  const R = 64;
+  canvas = document.createElement("canvas");
+  canvas.width = canvas.height = R * 2;
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    const g = ctx.createRadialGradient(R, R, 0, R, R, R);
+    g.addColorStop(0, `rgba(${rgb},1)`);
+    g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, R * 2, R * 2);
+  }
+  GLOWS.set(rgb, canvas);
   return canvas;
 }
 

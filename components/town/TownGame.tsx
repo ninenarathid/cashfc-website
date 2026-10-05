@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { PACE, paced } from "@/lib/town/pace";
 import type { Sprite } from "@/lib/town/scenery";
 
 /** How a game went: what the game of timing always gave back, and every game gives now. `dropped`: the work was not done (tired hands, and too many misses). */
@@ -128,16 +129,24 @@ export function PixelGround({ kind, seed = 7, w = 80, h = 40, className = "" }: 
   return <canvas ref={ref} width={w} height={h} aria-hidden className={`[image-rendering:pixelated] ${className}`} />;
 }
 
-/** Call something every frame the browser draws, with the seconds gone by since the last (never more than a tenth) and the time. */
+/**
+ * Call something every frame the game draws, with the seconds gone by since the last (never more than a tenth) and the
+ * time. No more often than the map is drawn at the most (lib/town/pace): a game on a screen of 144 or 240 a second is
+ * played no better for being drawn that often, and the machine runs hot for it.
+ */
 export function useFrames(step: (dt: number, now: number) => void) {
   const fn = useRef(step);
   useEffect(() => { fn.current = step; });
   useEffect(() => {
-    let raf = 0, last = performance.now();
+    let raf = 0, last = performance.now(), due = 0;
     const frame = (now: number) => {
-      const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
-      last = now;
-      fn.current(dt, now);
+      const after = paced(now, last, due, PACE.most);
+      if (after !== null) {
+        due = after;
+        const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
+        last = now;
+        fn.current(dt, now);
+      }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);

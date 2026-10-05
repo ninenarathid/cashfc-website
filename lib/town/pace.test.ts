@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PACE, fpsOf, paced } from "./pace";
+import { PACE, fpsOf, nap, paceOf, paced, wokenFor } from "./pace";
 
 /**
  * A screen of `hz` asking for frames for `secs` seconds, each told at `tell(time)`: which of its frames the town
@@ -179,5 +179,127 @@ describe("how often the map is drawn (the owner, 2026-10-04: \"ช่วยล�
     for (const odd of ["", " ", "144", "0", "-30", "abc", "30.5", "Infinity", undefined, null, {}, [], true, 1e9, NaN]) {
       expect(fpsOf(odd), String(odd)).toBe(PACE.most);
     }
+  });
+});
+
+/**
+ * A browser with a town at rest in it, for the sleeping between frames: a screen of `hz`, a page that asks for
+ * frames as the map does while it rests (components/town/Town.tsx's `ask` and `frame`), held to `fps`, for `secs`
+ * seconds. `how` is what the browser does with a frame asked for after a sleep: `handed` the screen's frame it is
+ * in, at once, told as begun when that one began (what Chrome does when nothing else is being drawn); `next` the
+ * screen's next. `late(n)` is how much later than asked the nth sleep ends. Says how many frames were asked for, how
+ * many drawn, and the times between those drawn.
+ */
+function rest(hz: number, fps: number, secs: number, how: "handed" | "next" = "handed", late: (n: number) => number = () => 0) {
+  const own = 1000 / hz, before = (t: number) => 1000 + Math.floor((t - 1000) / own + 1e-9) * own, after = (t: number) => before(t) + own;
+  let due = 0, last = 0, napped = false, sleeps = 0, took = 0;
+  const count = { asked: 0, drawn: 0, slept: 0, gaps: [] as number[] };
+  // (the first frame is asked for as the page opens)
+  let at = after(1000), stamp = at;
+  while (at < 1000 + secs * 1000) {
+    // the frame comes: `at` by the clock, told as `stamp`
+    count.asked++;
+    const next = napped ? wokenFor(stamp, due, fps) : paced(stamp, last, due, fps);
+    napped = false;
+    if (next !== null) {
+      if (count.drawn) count.gaps.push(at - took);
+      took = at;
+      due = next; last = stamp;
+      count.drawn++;
+    }
+    // …and the next is asked for, a ms of work later: at once, or after a sleep
+    const clock = at + 1, ms = nap(clock, due);
+    if (ms <= 0) { at = after(clock); stamp = at; continue; }
+    napped = true;
+    count.slept++;
+    const woke = clock + ms + late(sleeps++);
+    if (how === "handed") { at = woke; stamp = before(woke); }
+    else { at = after(woke); stamp = at; }
+  }
+  return { ...count, perSec: count.drawn / secs, askedPerSec: count.asked / secs };
+}
+
+describe("the map rests while nobody is at it (the owner, 2026-10-05: \"คนใน cashtown เล่นแล้วใช้ CPU เยอะมาก\")", () => {
+  it("is drawn at the pace chosen while somebody is at it", () => {
+    for (const chosen of PACE.choices) {
+      expect(paceOf(chosen, { focused: true, idle: 0, walking: false })).toBe(chosen);
+      expect(paceOf(chosen, { focused: true, idle: PACE.restAfter - 1, walking: false })).toBe(chosen);
+      // walking somewhere far off, hands off the mouse: the map moves under me, and is drawn as chosen
+      expect(paceOf(chosen, { focused: true, idle: PACE.restAfter * 10, walking: true })).toBe(chosen);
+      // the mouse moved over a window that is behind another: as chosen, for a moment
+      expect(paceOf(chosen, { focused: false, idle: 0, walking: false })).toBe(chosen);
+      expect(paceOf(chosen, { focused: false, idle: PACE.awayAfter - 1, walking: false })).toBe(chosen);
+    }
+  });
+
+  it("rests at 30 once nobody has touched the page for a while", () => {
+    expect(PACE.rest).toBe(30);
+    expect(PACE.restAfter).toBeGreaterThanOrEqual(10_000);
+    expect(paceOf(60, { focused: true, idle: PACE.restAfter, walking: false })).toBe(30);
+    expect(paceOf(60, { focused: true, idle: 3_600_000, walking: false })).toBe(30);
+    // whoever chose 30 has 30, never more for resting
+    expect(paceOf(30, { focused: true, idle: PACE.restAfter, walking: false })).toBe(30);
+  });
+
+  it("is drawn at 20 while its window is behind another, walking or not", () => {
+    expect(PACE.away).toBe(20);
+    for (const chosen of PACE.choices) {
+      for (const walking of [false, true]) {
+        expect(paceOf(chosen, { focused: false, idle: PACE.awayAfter, walking })).toBe(20);
+        expect(paceOf(chosen, { focused: false, idle: 3_600_000, walking })).toBe(20);
+      }
+    }
+    // no pace is ever more than the one chosen
+    for (const chosen of [20, 30, 60]) for (const focused of [true, false]) for (const idle of [0, 5000, 60_000]) for (const walking of [true, false]) {
+      expect(paceOf(chosen, { focused, idle, walking })).toBeLessThanOrEqual(chosen);
+    }
+  });
+
+  it("at rest the page sleeps till its frame is nearly due", () => {
+    expect(nap(1000, 1050)).toBeCloseTo(50 - PACE.lead, 6);
+    // a frame nearly due, or overdue, is asked for at once
+    expect(nap(1000, 1000 + PACE.lead + PACE.worth - 0.1)).toBe(0);
+    expect(nap(1000, 1000)).toBe(0);
+    expect(nap(1000, 0)).toBe(0);
+    // the frame that comes is the one slept for, whatever time it is told as: the next is due a frame on from when this was
+    expect(wokenFor(1047 - 5, 1050, 20)).toBeCloseTo(1050 + 1000 / (20 * (1 + PACE.over)), 6);
+    // …and lost time is not made up after a sleep either
+    expect(wokenFor(5000, 1050, 20)).toBe(5000);
+  });
+
+  it("…and is woken only for the frames it draws, on any screen", () => {
+    for (const how of ["handed", "next"] as const) {
+      for (const hz of [60, 75, 120, 144, 165, 180, 240, 360]) {
+        for (const fps of [PACE.rest, PACE.away]) {
+          const p = rest(hz, fps, 30, how), say = `${hz} at ${fps}, ${how}`;
+          expect(p.perSec, say).toBeGreaterThan(fps - 0.2);
+          expect(p.perSec, say).toBeLessThanOrEqual(fps * 1.002 + 0.05);
+          // woken once for each frame, where it was woken for every one of the screen's (240 a second, for 20 drawn)
+          expect(p.asked, say).toBe(p.drawn);
+          expect(p.slept, say).toBeGreaterThanOrEqual(p.drawn - 1);
+          // the frames come evenly: a frame's time apart, give or take one of the screen's
+          const gaps = p.gaps.slice(2);
+          expect(Math.max(...gaps), say).toBeLessThan(1000 / fps + 1000 / hz + 0.5);
+          expect(Math.min(...gaps), say).toBeGreaterThan(1000 / fps - 1000 / hz - 0.5);
+        }
+      }
+    }
+  });
+
+  it("…and a sleep that runs over costs that frame's lateness, and nothing after it", () => {
+    // every tenth sleep ends 40 ms late (the page was busy with something else): that frame is late, the pace holds
+    for (const how of ["handed", "next"] as const) {
+      const p = rest(144, 20, 60, how, (n) => (n % 10 === 3 ? 40 : 0));
+      expect(p.perSec).toBeGreaterThan(19.5);
+      expect(p.perSec).toBeLessThanOrEqual(20.1);
+      // (the frame after a late one is due too soon to sleep for: it is asked for at once, and now and then once more)
+      expect(p.asked).toBeLessThan(p.drawn * 1.06);
+    }
+    // timers a whole 16 ms coarse (a laptop on its battery): still its pace, a little uneven, which nobody is there to see
+    let a = 7;
+    const coarse = () => { a = (Math.imul(a, 1103515245) + 12345) | 0; return ((a >>> 8) % 1600) / 100; };
+    const q = rest(60, 30, 60, "handed", coarse);
+    expect(q.perSec).toBeGreaterThan(29.5);
+    expect(q.perSec).toBeLessThanOrEqual(30.1);
   });
 });

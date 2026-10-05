@@ -5,6 +5,7 @@ import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
 import { STEPS, oddsOf, seesOdds, startFight, stepFight, strikeOf, strikeWindow, surging, warning, type Fight, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
+import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
 import { measure, type FishSfx, type FishSound } from "@/lib/town/sfx";
 import { buffOf, buffsOf, hasBuff, isSpent, staminaOf } from "@/lib/town/stamina";
@@ -189,8 +190,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "waiting") return;
     const { from } = phase, cast = phase, grace = strikeWindow({ keen, spent, gear: out.current?.gear });
-    let raf = 0, heard = -1, under = false;
+    let raf = 0, heard = -1, under = false, drawn = 0, due = 0;
     const frame = (t: number) => {
+      // (no more often than the map is drawn at the most: lib/town/pace)
+      const after = paced(t, drawn, due, PACE.most);
+      if (after === null) { raf = requestAnimationFrame(frame); return; }
+      due = after; drawn = t;
       const s = (t - from) / 1000;
       const nibble = cast.nibbles.findIndex((n) => s >= n && s < n + NIBBLE), nibbling = nibble >= 0, bitten = s >= cast.wait;
       show(bitten ? "bite" : nibbling ? "nibble" : "wait");
@@ -276,8 +281,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     fight.current = f;
     holding.current = false;
     show("fight");
-    let raf = 0, last = performance.now(), owed = 0, was = false, thrashing = false, creak = 0;
+    let raf = 0, last = performance.now(), owed = 0, was = false, thrashing = false, creak = 0, due = 0;
     const frame = (t: number) => {
+      // (no more often than the map is drawn at the most: lib/town/pace; the fight goes by its own steps whatever the frames)
+      const after = paced(t, last, due, PACE.most);
+      if (after === null) { raf = requestAnimationFrame(frame); return; }
+      due = after;
       // In steps of the same length wherever it is played (so that it can be played again from what is written down),
       // however long the frame was; a step left over waits for the next frame.
       owed += Math.min(0.1, (t - last) / 1000);

@@ -12,6 +12,19 @@
  * screen faster than the pace draws that many a second whatever its own rate: 144 a second draws two frames of
  * every five (every second or third, as near even as its rate allows), 120 every second one, 240 every fourth. A
  * screen no faster than the pace draws every frame, as before.
+ *
+ * **And nobody is looking at most of the frames** (the owner, 2026-10-05: "คนใน cashtown เล่นแล้วใช้ CPU เยอะมาก").
+ * Measured that day (the fc-cash-town skill's scripts/town-cpu.mjs): what a frame costs is mostly the browser
+ * putting a canvas the size of the window on the screen, whatever was drawn on it, so what a town costs goes by how
+ * many frames it draws and little else. And a town is a place to sit in: on a bench with the voice on, or with the
+ * game somebody really plays in the window in front. So the map rests (`paceOf`): drawn `PACE.rest` times a second
+ * once nobody has touched the page for a while, and `PACE.away` while its window is not the one in front. A touch,
+ * a key or the mouse moved over the page, and it is the pace chosen again at the next frame.
+ *
+ * While it rests the page also sleeps between frames (`nap`). A frame asked for and let go by is not free: the
+ * page, the compositor and the GPU's process are woken for it all the same (180 times a second on a screen of 180,
+ * for 20 drawn). Asleep, it is woken only for the frames it draws. Not while somebody is at it: there every frame
+ * is one of the screen's own, told as begun when the screen began it, and walking is as smooth as it was.
  */
 export const PACE = {
   /** The most frames a second anybody's town draws, and what everybody's draws until they choose. */
@@ -33,6 +46,25 @@ export const PACE = {
    * 60 divides would, with the time told that roughly, now and then let its own frame go and wait a whole one more.)
    */
   early: 1.5,
+  /**
+   * Resting: what the map is drawn at once nobody has touched the page for `restAfter` ms and I am not walking
+   * anywhere. What moves by itself (the river, the leaves, the rain, a bird) moves as well at 30.
+   */
+  rest: 30,
+  restAfter: 20_000,
+  /**
+   * What it is drawn at while its window is not the one in front (the game somebody really plays is, and wants the
+   * machine), `awayAfter` ms after the page was last touched: the mouse moved over a window that is behind wakes
+   * it for that long.
+   */
+  away: 20,
+  awayAfter: 3000,
+  /**
+   * Sleeping between frames while the map rests (`nap`), in ms: the sleep ends `lead` before the frame is due (the
+   * frame the screen has next is the one drawn), and a sleep shorter than `worth` is not taken.
+   */
+  lead: 3,
+  worth: 4,
 } as const;
 
 /** How many frames a second, of those that can be chosen. */
@@ -45,9 +77,44 @@ export type Fps = (typeof PACE.choices)[number];
  * up beyond one frame's: a tab come back to after an hour draws one frame, not an hour's.)
  */
 export function paced(now: number, last: number, next: number, fps: number): number | null {
-  const frame = 1000 / (fps * (1 + PACE.over));
+  const frame = frameOf(fps);
   if (now < next - (now - last >= frame - PACE.early ? PACE.early : 0)) return null;
   return Math.max(next + frame, now);
+}
+
+/** A frame's time at a pace, in ms (the pace counted a hair over its number: `PACE.over`). */
+function frameOf(fps: number): number {
+  return 1000 / (fps * (1 + PACE.over));
+}
+
+/**
+ * What the map is drawn at now: the pace chosen, or fewer while nobody is at it. `focused`: its window is the one
+ * in front. `idle`: ms since the page was last touched (a key, a tap, the wheel, the mouse moved over it, which a
+ * window behind another is told of too). `walking`: I am on my way somewhere, the map moving under me.
+ */
+export function paceOf(chosen: number, at: { focused: boolean; idle: number; walking: boolean }): number {
+  if (!at.focused) return at.idle >= PACE.awayAfter ? Math.min(chosen, PACE.away) : chosen;
+  if (at.idle >= PACE.restAfter && !at.walking) return Math.min(chosen, PACE.rest);
+  return chosen;
+}
+
+/**
+ * While the map rests: how long the page sleeps before it asks the screen for the frame due at `due`, by the clock
+ * (`now`, in ms like the frames' own times). 0 is no sleep: the frame is asked for at once.
+ */
+export function nap(now: number, due: number): number {
+  const ms = due - PACE.lead - now;
+  return ms >= PACE.worth ? ms : 0;
+}
+
+/**
+ * The frame that comes after a sleep is the one slept for, whatever time it is told as: it is drawn, and the one
+ * after it is due a frame's time on from when this one was (given back). A page that asks for a frame late in one
+ * of the screen's is handed that one at once, told as begun some ms ago, and what it draws is shown at the screen's
+ * next. Held to the time it is told as (`paced`) it would be let go and the next asked for: two wakings a frame.
+ */
+export function wokenFor(now: number, next: number, fps: number): number {
+  return Math.max(next + frameOf(fps), now);
 }
 
 /** What was chosen, from what was kept: anything that is not one of the choices is the most. */
