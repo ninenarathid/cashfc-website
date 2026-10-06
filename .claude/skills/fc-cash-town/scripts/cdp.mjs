@@ -36,8 +36,13 @@ async function attach(label, url, size) {
     if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? r.exceptionDetails.text);
     return r.result.value;
   };
+  // What the page threw and nobody caught. (The checks ask `X.errors`, some as a list and one as a function: it is both.
+  // It was neither until 2026-10-07, so "no page errors" passed whatever the page did.)
+  const errors = () => logs.filter((l) => l.startsWith("exception:"));
+  Object.defineProperty(errors, "length", { get: () => errors().length });
+  errors.toJSON = () => errors();
   return {
-    label, logs, send, evaluate, ws,
+    label, logs, errors, send, evaluate, ws,
     async goto(to) { await send("Page.navigate", { url: to }); },
     async shot(file) { const s = await send("Page.captureScreenshot", { format: "png" }); writeFileSync(file, Buffer.from(s.data, "base64")); },
     /** Close the tab the way a person does (✕): the page gets to say goodbye. */
