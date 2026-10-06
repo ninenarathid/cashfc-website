@@ -16,10 +16,14 @@ import { readSlots, readWeather, slotOf, type Weather } from "@/lib/town/weather
  * asked of this route is to write the quarter hours that are due.
  *
  * So, when somebody asks: if the newest quarter hour kept is not at least
- * two ahead of now, Open-Meteo (free, no key) is asked for those since the
+ * four ahead of now, Open-Meteo (free, no key) is asked for those since the
  * newest (a week back at the most, so that rain nobody was in town to see is
- * still kept) and for the three to come, and they are written; one that is
- * there already is left as it is. With none kept at all it begins at the
+ * still kept) and for the five to come, and they are written; one that is
+ * there already is left as it is. (Two and three until the rain frog,
+ * lib/town/well-gifts: its member is shown the sky forty-five minutes ahead,
+ * and a page with a frog on it asks while the fourth to come is not kept, so
+ * that the third always is. The pages without one ask as they did, when the
+ * last kept is under twenty minutes off.) With none kept at all it begins at the
  * quarter hour before this one: what rained before the town kept its weather
  * waters nothing. The answer is this quarter hour's weather, in the shape
  * the one cached answer had, for a page built before the change.
@@ -34,7 +38,7 @@ export const dynamic = "force-dynamic";
 const BANGKOK = "https://api.open-meteo.com/v1/forecast?latitude=13.75&longitude=100.5";
 const FIELDS = "weather_code,precipitation,wind_speed_10m,wind_gusts_10m";
 /** How many quarter hours ahead of now are written, how few ahead make the next ones due, and how far back a gap is filled (a week). */
-const AHEAD = 3, DUE = 2, BACK = 672;
+const AHEAD = 5, DUE = 4, BACK = 672;
 /** Asked for by a town full of people, answered once a minute. */
 const HEADERS = { "Cache-Control": "public, s-maxage=60, stale-while-revalidate=240" };
 

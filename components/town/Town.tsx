@@ -54,6 +54,10 @@ import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Pairing, Stander } from "./TownLine";
 import type { OpenDeal } from "./TownDeal";
+// ── gifts: well ──
+import type { DrinkPairing, OfferDrink } from "./TownDrink";
+import { croaksAt, drinkNear, isBucket } from "@/lib/town/well-gifts";
+import { drawCroak, drawRainGather, frogHop } from "./frog-art";
 import type { FishPlace, LineState } from "./TownFish";
 import type { DishId, ItemId } from "@/lib/town/items";
 import { isRod, type RodId } from "@/lib/town/gear";
@@ -116,6 +120,10 @@ const TownSign = lazy(() => import("./TownSign"));
 const TownCircle = lazy(() => import("./TownCircle"));
 const TownThanks = lazy(() => import("./TownThanks"));
 const TownLine = lazy(() => import("./TownLine"));
+// ── gifts: well ──
+const TownDrink = lazy(() => import("./TownDrink"));
+const TownFrog = lazy(() => import("./TownFrog"));
+const TownMoon = lazy(() => import("./TownMoon"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
@@ -474,12 +482,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** How far the clouds have drifted (lib/town/clouds), and their shadows' pictures, drawn once. */
   const cloudDrift = useRef(0);
   const cloudArt = useRef<HTMLCanvasElement[] | null>(null);
+  // ── gifts: well ── (how far ahead this page wants the sky kept, in minutes: twenty, or an hour with a rain frog of
+  // mine on it, whose member is shown forty-five, lib/town/well-gifts; and the way to ask for it now)
+  const skyWant = useRef(20), skyLook = useRef<(() => void) | null>(null);
   useEffect(() => {
     // somewhere else in their round each visit
     cloudDrift.current = (Date.now() / 1000) * 24;
     const dev = process.env.NODE_ENV !== "production", params = new URLSearchParams(location.search);
     const forced = dev ? forcedWeather(params.get("townWeather")) : null;
     if (forced) { SKIES.force(forced); effects.current = SKIES.effects(); return; }
+    // ── gifts: well ── (`next dev` only: ?townSkies=clear,clear,rain is this quarter hour's weather and those to come, the last for all that follow)
+    const ahead = dev ? (params.get("townSkies") ?? "").split(",").map((word) => forcedWeather(word)).filter((w): w is NonNullable<typeof w> => !!w) : [];
+    if (ahead.length) { SKIES.forceAhead(ahead); effects.current = SKIES.effects(); return; }
     // (which database: the stand-in's, in `next dev`'s &townDb=; otherwise the site's own, which anybody may ask the weather of)
     const bench = dev && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(params.get("townDb") ?? "") ? params.get("townDb") : null;
     const supabase = bench ? null : createClient();
@@ -503,7 +517,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         // The quarter hours to come are written when somebody asks the site for them: asked when the last one kept
         // is less than twenty minutes off (and where the database has no weather at all, what the site answers is
         // held, as the town did before).
-        if ((took && SKIES.reaches(20)) || Date.now() - written < 60_000) return;
+        if ((took && SKIES.reaches(skyWant.current)) || Date.now() - written < 60_000) return;
         written = Date.now();
         const one = readWeather(await (await fetch("/api/town/weather")).json());
         if (gone) return;
@@ -512,10 +526,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       } catch { /* fine weather it is */ }
     };
     void look();
+    skyLook.current = () => void look();
     const t = setInterval(() => void look(), 4 * 60_000);
     const shown = () => { if (document.visibilityState === "visible") void look(); };
     document.addEventListener("visibilitychange", shown);
-    return () => { gone = true; clearInterval(t); document.removeEventListener("visibilitychange", shown); };
+    return () => { gone = true; skyLook.current = null; clearInterval(t); document.removeEventListener("visibilitychange", shown); };
   }, []);
   const facings = useRef(new Map<string, { view: View; mirror: boolean; at: number }>());
   const blinks = useRef(new Map<string, number>());
@@ -645,6 +660,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** A deal with somebody (the trial's): its own way of opening one, handed over when it has loaded. */
   const openDeal = useRef<OpenDeal | null>(null);
   const registerDeal = useCallback((open: OpenDeal | null) => { openDeal.current = open; }, []);
+  // ── gifts: well ── (the flask of living water, lib/town/well-gifts: its own way of holding a drink out to somebody, handed over when it has loaded)
+  const offerDrink = useRef<OfferDrink | null>(null);
+  const registerDrink = useCallback((offer: OfferDrink | null) => { offerDrink.current = offer; }, []);
+  /** (the rain frog's: how full the bucket the rain is filling for me is by now, none to all, for the map to draw; and asking for the sky's next quarter hours now) */
+  const rainFull = useRef<number | null>(null);
+  const askSky = useCallback(() => { skyLook.current?.(); }, []);
+  /** (whose empty bucket gathers the rain in this frame, by who holds it: how full, where the page knows) */
+  const gathering = useRef(new Map<string, number | null>());
+  /** (the moon flask's own way of drawing its light at the well, handed over when it has loaded) */
+  const wellGiftDraw = useRef<FarmDraw | null>(null);
+  const registerWellGift = useCallback((draw: FarmDraw | null) => { wellGiftDraw.current = draw; }, []);
   /** Whether I stand still at the farm's well (where a bucket is poured in and a can filled). */
   const [wellHere, setWellHere] = useState(false);
   const wellRef = useRef(false);
@@ -750,7 +776,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => { sessionRef.current = session; }, [session]);
   // A game two play together (water handed on: lib/town/handing): what the two pages tell each other goes by the
   // room's letterboxes, from one to the other and to nobody else.
-  const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { session.onPair = fn; } } : null), [session]);
+  // ── gifts: well ── (a drink held out goes by the same letterboxes: each of the two hears every word, and takes its own)
+  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null });
+  const pairWire = useCallback((s: TownSession) => {
+    const { line, drink } = pairHears.current;
+    s.onPair = line || drink ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); } : null;
+  }, []);
+  const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.line = fn; pairWire(session); } } : null), [session, pairWire]);
+  const drinking = useMemo<DrinkPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.drink = fn; pairWire(session); } } : null), [session, pairWire]);
   // The room says when something of the game's changed, and the keeper asks the database for it; my own deeds are
   // said the same way. Only the word for what: never the change.
   useEffect(() => {
@@ -2020,6 +2053,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         sign: (text: string, x: number, y: number) => { signs.push(() => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)")); },
       };
       if (placeRef.current === "farm") farmDraw.current?.(frame);
+      if (placeRef.current === "farm") wellGiftDraw.current?.(frame);   // ── gifts: well ── (the light at the well as a moon flask is poured)
       if (placeRef.current === "forest") forestDraw.current?.(frame);
       bugsDraw.current?.(frame);
       // the pots of food that stand about, wherever they were set down
@@ -2192,6 +2226,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         fountainBox.current = { x0: c.x - (fw / 2) * v.s, y0: c.y - fh * v.s, x1: c.x + (fw / 2) * v.s, y1: c.y };
       } else drawFountain(ctx, now);
     } });
+    gathering.current.clear();   // ── gifts: well ──
     if (stay) {
       // (whoever is under the cooking yard's roof is not seen from outside it, nor their name)
       const roofOn = KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1;
@@ -2200,12 +2235,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         things.push({ depth: depthOf(a), draw: () => drawAvatar(ctx, a, false, names, boxes, !live, wall, now, dpr) });
         const pet = petOf(a, dt);
         if (pet) things.push({ depth: pet.at.x + pet.at.y, draw: () => drawPet(ctx, pet, now) });
+        // ── gifts: well ── (under rain, the empty bucket of whoever a rain frog follows gathers it: drawHeld draws it)
+        if (pet?.name === "famFrog" && rainGathers(a)) gathering.current.set(a.info.id, null);
       }
     }
     if (mine) things.push({ depth: depthOf(mine), draw: () => drawAvatar(ctx, mine, true, names, boxes, false, wall, now, dpr) });
     // ── gifts: farming ── (my familiar is not at my heels while it is off at work: the gnome going down a bed, drawn there by the farm's own code)
     const myPet = mine && performance.now() >= FAMILIAR_AWAY.until ? petOf(mine, dt) : null;
     if (myPet) things.push({ depth: myPet.at.x + myPet.at.y, draw: () => drawPet(ctx, myPet, now) });
+    // ── gifts: well ── (…and my own, with how full it is by now)
+    if (mine && myPet?.name === "famFrog" && rainGathers(mine) && rainFull.current !== null) gathering.current.set(mine.info.id, rainFull.current);
     // (a familiar whose member has gone is forgotten)
     if (pets.current.size > (stay?.avatars.size ?? 0) + 1) for (const id of pets.current.keys()) if (id !== mine?.info.id && !stay?.avatars.has(id)) pets.current.delete(id);
     things.sort((a, b) => a.depth - b.depth);
@@ -2336,7 +2375,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!onScreen(c)) return;
     const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = 1.5 * sc, flies = pet.name === "famButterfly", still = reducedRef.current;
     const bob = still ? 0 : flies ? Math.sin(now / 260) * 3 * sc : pet.moving ? Math.abs(Math.sin(now / 95)) * 3.5 * sc : 0;
-    const lift = (flies ? 18 * sc : 0) + bob;
+    // ── gifts: well ── (a frog hops: long hops as it follows, a small glad one in the rain; components/town/frog-art)
+    const frog = pet.name === "famFrog", hop = frog && !still ? frogHop(now, pet.moving, SKIES.raining()) * sc : null;
+    const lift = (flies ? 18 * sc : 0) + (hop ?? bob);
     ctx.fillStyle = "rgba(0,0,0,0.2)";
     ctx.beginPath();
     ctx.ellipse(c.x, c.y, (flies ? 5 : 7) * sc, (flies ? 2 : 3) * sc, 0, 0, Math.PI * 2);
@@ -2347,7 +2388,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!pet.right) ctx.scale(-1, 1);
     ctx.drawImage(img, x, y, w, h, -Math.round((w * k) / 2), -Math.round(h * k), Math.round(w * k), Math.round(h * k));
     ctx.restore();
+    // ── gifts: well ── (…and it croaks in the quarter hour before rain, by this page's own sky: for everybody who sees it)
+    if (frog && croaksAt(SKIES.now(), (ms) => SKIES.sky(ms))) drawCroak(ctx, { x: c.x, y: c.y - lift }, sc, now, still, pet.right, Math.round(h * k), Math.round(pet.at.x * 7 + pet.at.y * 3));
   }
+  // ── gifts: well ── (whether somebody's bucket gathers the rain: they hold one that is empty, and it rains)
+  function rainGathers(a: Avatar): boolean { return isBucket(a.info.hold) && !a.info.wet && SKIES.raining(); }
 
   function depthOf(a: Avatar): number {
     // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
@@ -2454,13 +2499,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const v = cam.current, px = Math.max(1, v.s), size = Math.round(15 * v.s);
     const snap = (n: number) => Math.round(n / px) * px;
     // (a cart is not held up: it stands on the ground before them, their hands on it: lib/town/cart)
+    // ── gifts: well ── (under rain, the empty bucket of whoever a rain frog follows gathers it: drawn falling into the bucket itself, and for my own how full it is by now)
+    const gathers = gathering.current.has(id) && !wet ? gathering.current.get(id) ?? undefined : null;
     if (item === CART.item) {
       const wide = Math.round(30 * v.s);
       drawIcon(ctx, iconImg.current, icon, snap(p.x + side * h * 0.46), snap(p.y - wide * 0.42), wide);
+      if (gathers !== null) drawRainGather(ctx, { x: snap(p.x + side * h * 0.46), y: snap(p.y - wide * 0.5) }, v.s, now, reducedRef.current, gathers, side);
       return;
     }
     const x = snap(p.x + side * h * 0.27), y = snap(p.y - h * 0.36);
     drawIcon(ctx, iconImg.current, icon, x, y - size * 0.25, size);
+    if (gathers !== null) drawRainGather(ctx, { x, y: y - size * 0.5 }, v.s, now, reducedRef.current, gathers, side);
     if (full) drawIcon(ctx, iconImg.current, "plotDrop", snap(x + side * size * 0.45), snap(y - size * 0.8), Math.round(7 * v.s));
     // the fist that holds it: a few pixels of their own skin, edged dark
     ctx.save();
@@ -3392,6 +3441,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   // The card's person, if they are still here.
   const cardWho = card && s ? (card.id === me.id ? s.self : s.avatars.get(card.id) ?? null) : null;
+  // ── gifts: well ── (where somebody's head is on the screen now: what a drink gave rises from there)
+  const headOf = (id: string): { x: number; y: number } | null => {
+    const stay = sessionRef.current, a = id === me.id || id === keeper?.id ? stay?.self : stay?.avatars.get(id);
+    if (!a || a.byeAt !== undefined) return null;
+    const p = project(a.pos);
+    return onScreen(p) ? { x: p.x, y: p.y - dollH(a) * cam.current.s } : null;
+  };
+  const headRef = useRef(headOf);
+  headRef.current = headOf;
+  const headSpot = useCallback((id: string) => headRef.current(id), []);
+  /** Whether I have the flask of living water, where whoever keeps the game gives it. */
+  const hasFlask = giftsTold.gifts.had.includes("thingFlask") && giftsTold.given.includes("thingFlask");
+  /** Whether the rain frog follows me: its member's page keeps the sky an hour ahead, and asks for it as the frog comes. */
+  const hasFrog = giftsTold.gifts.familiar === "famFrog" && giftsTold.given.includes("famFrog");
+  useEffect(() => { skyWant.current = hasFrog ? 60 : 20; if (hasFrog) skyLook.current?.(); }, [hasFrog]);
+  /** Whether I have the moon flask. */
+  const hasMoon = giftsTold.gifts.had.includes("thingMoon") && giftsTold.given.includes("thingMoon");
   /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
   const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
   // A sign that was tapped from far off: asked again now that I have stopped walking.
@@ -3463,6 +3529,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         )}
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
       </div>
+
+      {/* ── gifts: well ── Under the clock: what the well's gifts show their member (the rain frog's sky, and what the moon flask keeps) */}
+      {s && game && keeper && (hasFrog || hasMoon) && (
+        <div className="pointer-events-none absolute left-3 top-[3.75rem] z-10 flex max-w-[calc(100%-1.5rem)] flex-col items-start gap-1.5" data-well-gifts>
+          <Suspense fallback={null}>
+            {hasFrog && <TownFrog keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} gauge={rainFull} onWant={askSky} />}
+            {hasMoon && <TownMoon keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} register={registerWellGift}
+                                  at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null}
+                                  bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} />}
+          </Suspense>
+        </div>
+      )}
 
       {/* Top right: the wardrobe, the music, the settings, the numbers, fullscreen, the way out */}
       {s && (
@@ -3598,6 +3676,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             {game && card.id !== me.id && s && Math.hypot(cardWho.pos.x - s.self.pos.x, cardWho.pos.y - s.self.pos.y) <= DEAL_NEAR && (
               <button type="button" onClick={() => { openDeal.current?.(cardWho.info.id, cardWho.info.name); setCard(null); }}
                       className="pressable rounded-lg bg-gold/15 px-3 py-1.5 text-ui text-gold hover:bg-gold/25"><span className="flex items-center gap-1.5"><TownIcon name="handshake" size={16} />{w.th ? "แลกของ" : "Trade"}</span></button>
+            )}
+            {/* ── gifts: well ── a drink of the flask of living water, held out to somebody who stands near */}
+            {game && hasFlask && card.id !== me.id && s && drinkNear(cardWho.pos, s.self.pos) && (
+              <button type="button" onClick={() => { offerDrink.current?.(cardWho.info.id, cardWho.info.name); setCard(null); }} data-card-drink
+                      className="pressable rounded-lg bg-[#4aa3d8]/15 px-3 py-1.5 text-ui text-[#8fd0f5] hover:bg-[#4aa3d8]/25"><span className="flex items-center gap-1.5"><TownIcon name={"thingFlask" as IconName} size={16} />{w.th ? "รินน้ำให้" : "A drink"}</span></button>
             )}
             {/* the sign they hold up: their chat room, or their stall */}
             {card.id !== me.id && signOf(cardWho.info.sign) && (
@@ -3922,6 +4005,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownLine keeper={keeper} me={keeper.id} th={w.th} people={standers} pair={pairing} art={boardArt}
                     here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                     bottom={phone && tabbar ? "calc(15.5rem + env(safe-area-inset-bottom))" : "11.5rem"} sfx={sfxRef.current} />
+        </Suspense>
+      )}
+      {/* ── gifts: well ── The flask of living water: a drink held out to a friend, and one held out to me */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownDrink keeper={keeper} me={keeper.id} th={w.th} people={standers} pair={drinking} where={whereAmI} spot={headSpot} register={registerDrink} sfx={sfxRef.current} reduced={!moving}
+                     here={!fishing && !signView ? standing?.tile ?? null : null} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || (phone && testOpen)} />
         </Suspense>
       )}
       {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall */}

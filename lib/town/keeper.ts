@@ -22,7 +22,7 @@ import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
-import { natureAt, natureOf, type Nature, type WellWater } from "./waters";
+import { NATURES, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
 import { CHARM_IDS, type GiftRefusal } from "./gifts";
 import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
@@ -40,6 +40,8 @@ import { glassReach, gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
 /** What a row's deed came to (lib/town/farm's rowTend), as a panel is told it. */
 export interface RowDid { deed: RowDeed; done: string[]; got: Array<[ItemId, number]>; seeds?: number }
 import { rowOf } from "./world";
+// ── gifts: well ──
+import type { WellGiftRefusal } from "./well-gifts";
 
 /**
  * Who keeps the game.
@@ -68,7 +70,7 @@ import { rowOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal | /* gifts: well */ WellGiftRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 // ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
@@ -387,6 +389,31 @@ export interface Keeper {
   dealAgree(word?: boolean): Promise<Did<{ done: boolean }>>;
   dealCancel(): Promise<void>;
 
+  // ── gifts: well ── (lib/town/well-gifts)
+  /**
+   * The flask of living water: hold a drink out to somebody standing near, from the tile I stand on (null: put it
+   * away), which says until when it is held; and drink what somebody holds out to me, from the tile I stand on: what
+   * I had of it, and what its giver had for the giving. Whoever gave it is told through the room (`line`: their purse
+   * has changed by another's hand).
+   */
+  drinkOffer(to: string | null, at: [number, number]): Promise<Did<{ till: number | null }>>;
+  drinkTake(from: string, at: [number, number]): Promise<Did<{ got: number; back: number }>>;
+  /**
+   * The rain frog: the empty bucket in my hand filled by the rain, while it rains and the frog follows me. Says how
+   * many bucketfuls. (When it rains is the sky's, lib/town/skies: whoever keeps the game judges by its own.)
+   */
+  rainFill(): Promise<Did<{ n: number }>>;
+  /**
+   * The moon flask: the nature of the water in the bucket I hold, when it has one, as whoever keeps the game has it
+   * (null for plain water, for no water, and where it is not known yet; `moonLook` asks again, for a page that sees
+   * the bucket's water change). Keeping that water in my flask; and pouring so many bucketfuls of the flask into the
+   * well, from the tile I stand on: how many were poured, and how many the well had room for.
+   */
+  carriedKind(): Nature | null;
+  moonLook(): void;
+  moonKeep(): Promise<Did<{ n: number; kind: Nature }>>;
+  moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>>;
+
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
   record(play: Play): void;
   /** Stop every timer: the member has left the town. */
@@ -639,6 +666,8 @@ export class DbKeeper implements Keeper {
       const t = a.shopTold && typeof a.shopTold === "object" && Array.isArray((a.shopTold as ShopTold).lines) ? (a.shopTold as ShopTold) : null;
       this.visit_ = { who: a.shopWho, told: t ? { ...t, lines: t.lines.filter((l) => l.item in ITEMS) } : null };
     }
+    // ── gifts: well ── (the nature of the water in each of my buckets, told with the moon flask's answers)
+    if (a.carried && typeof a.carried === "object" && !Array.isArray(a.carried)) this.kinds_ = a.carried as Record<string, Nature>;
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -1161,6 +1190,28 @@ export class DbKeeper implements Keeper {
     const to = this.other();
     await this.ask("town_deal_cancel");
     this.onDeed?.("deal", to);
+  }
+
+  // ── gifts: well ──
+  drinkOffer(to: string | null, at: [number, number]) { return this.deed<{ till: number | null }>("town_drink_offer", { p_to: to, p_x: at[0], p_y: at[1] }); }
+  async drinkTake(from: string, at: [number, number]): Promise<Did<{ got: number; back: number }>> {
+    const did = await this.deed<{ got: number; back: number }>("town_drink_take", { p_from: from, p_x: at[0], p_y: at[1] });
+    // (the giver's purse has what the giving gave: they read it again, as somebody handed water does)
+    if (did.ok) this.onDeed?.("line", from);
+    return did;
+  }
+  rainFill() { return this.deed<{ n: number }>("town_rain_fill"); }
+  /** The nature of the water in each bucket of mine that has one, as the database last told it (with the flask's own answers, and `town_moon`). */
+  private kinds_: Record<string, Nature> = {};
+  carriedKind(): Nature | null { const c = carried(this.mine), kind = c ? this.kinds_[c.hand] : undefined; return kind && NATURES.includes(kind) ? kind : null; }
+  moonLook() { void this.ask("town_moon"); }
+  moonKeep() { return this.deed<{ n: number; kind: Nature }>("town_moon_keep"); }
+  async moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>> {
+    if (!at) return { ok: false, why: "none" };
+    const did = await this.deed<{ poured: number; into: number; kind: Nature }>("town_moon_pour", { p_x: at[0], p_y: at[1], p_n: n });
+    // (the well has more water and another nature: everybody at the farm looks, and so do I, the book too)
+    if (did.ok) { this.onDeed?.("farm"); if (this.wellBook_) void this.ask("town_well"); void this.ask("town_well_ranks"); }
+    return did;
   }
 
   record() { /* the database writes every go down itself, as the deed is done */ }

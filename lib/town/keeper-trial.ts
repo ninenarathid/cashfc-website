@@ -15,6 +15,8 @@ import type { ShopAsk } from "./shop";
 import { SKIES } from "./skies";
 import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
 import type { Purse } from "./trade";
+import type { Nature } from "./waters";
+import { atWell } from "./world";
 import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
@@ -271,6 +273,26 @@ class TrialKeeper implements Keeper {
   async dealLay(give: Give, coins = 0): Promise<Did> { return this.trial.dealLay(give, coins); }
   async dealAgree(word = true): Promise<Did<{ done: boolean }>> { return this.trial.dealAgree(word); }
   async dealCancel() { this.trial.dealCancel(); }
+
+  // ── gifts: well ──
+  async drinkOffer(to: string | null, at: [number, number]): Promise<Did<{ till: number | null }>> { return this.trial.drinkOffer(to, at); }
+  async drinkTake(from: string, at: [number, number]): Promise<Did<{ got: number; back: number }>> {
+    const did = this.trial.drinkTake(from, at);
+    // (whoever gave it is in another tab: told through the room, as the database's keeper tells them)
+    if (did.ok) this.onDeed?.("line", from);
+    return did;
+  }
+  async rainFill(): Promise<Did<{ n: number }>> { return this.trial.rainFill(); }
+  carriedKind() { return this.trial.carriedKind(); }
+  moonLook() { /* whose water is what is in this browser already */ }
+  async moonKeep(): Promise<Did<{ n: number; kind: Nature }>> { return this.trial.moonKeep(); }
+  async moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>> {
+    // (at the well, as the database holds a pour to: on one of the tiles about it)
+    if (!at || !atWell(at[0], at[1])) return { ok: false, why: "none" };
+    const did = this.trial.moonPour(n);
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

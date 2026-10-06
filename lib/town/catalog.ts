@@ -27,6 +27,7 @@ import { THANKS } from "./thanks";
 import { GOODS, RULES } from "./trade";
 import { WATERS } from "./waters";
 import { WELL_BOOK } from "./well";
+import { DRINK, FROG, MOON } from "./well-gifts";
 import { BEDS_IN_FARM, COLS, FARM, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
 
@@ -223,7 +224,15 @@ export function catalogOf() {
       scarce: { day: SCARCE.day, half: SCARCE.half },
     },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
-    well: { ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed },
+    well: {
+      ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed,
+      // ── gifts: well ── (lib/town/well-gifts; since v153) a drink of the flask of living water: what its giver has of it, how near the two stand, the seconds it is held out
+      drink: { back: DRINK.back, reach: DRINK.reach, waits: DRINK.waits },
+      // …the rain frog: the minutes before rain that it croaks (the page's own to read), and the seconds of rain a bucketful takes to fill
+      frog: { croaks: FROG.croaks, fills: FROG.fills },
+      // …the moon flask: the bucketfuls it keeps (how many times as long its water works in the well is its own number, in `gifts`)
+      moon: { holds: MOON.holds },
+    },
     /** Thanks (lib/town/thanks): how many the board lists. */
     thanks: { listed: THANKS.listed },
     /** The jar at the well (lib/town/jar): how many waterings a bucketful poured counts as when it is shared, and the kinds of thing it takes. */
@@ -360,7 +369,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts", "farming"] },
+  v153: { keys: [], over: ["gifts", "farming", "well"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
