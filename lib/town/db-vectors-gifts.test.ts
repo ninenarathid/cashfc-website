@@ -55,7 +55,7 @@ export function vectorsGifts(): Vector[] {
     // (a familiar that follows: one had, one not had, a charm, something that is none, or nothing said of one)
     const fam = c.of<() => string | null | undefined>([() => undefined, () => undefined, () => null, () => had.find((x) => fams.includes(x)) ?? c.of(fams), () => c.of(fams), () => c.of([...CHARM_IDS]), () => "noSuchGift"])();
     // (what was used of a counted gift: nothing said, a sound count of these hours or of others, and counts kept wrongly)
-    const k = stretchOf("meal", NOW);
+    const k = stretchOf({ n: 1, per: "meal" }, NOW);
     const used = c.of<() => unknown>([() => undefined, () => undefined, () => undefined, () => ({ famGnome: { k, n: c.int(0, 12) } }), () => ({ famGnome: { k: k - 1, n: 4 } }), () => "x", () => [1, 2],
       () => ({ famGnome: "3" }), () => ({ famGnome: { k, n: 2.5 } }), () => ({ noSuchGift: { k: 1, n: 1 }, famGnome: { k, n: -3 } })])();
     const and = <T extends object>(g: T) => ({ ...g, ...(fam === undefined ? {} : { familiar: fam }), ...(used === undefined ? {} : { used }) }) as T;
@@ -90,7 +90,7 @@ export function vectorsGifts(): Vector[] {
   // a counted gift used: the gnome following and not, with every count kept, in the stretch kept and in another
   // (and something else kept beside it of what was used, which a use leaves as it is)
   for (const fam of ["famGnome", "famSquirrel", null, undefined]) for (const n of [undefined, 0, 1, 9, 10, 11, 3.5, -2, "4"]) for (const dk of [0, 1, -1]) for (const when of [NOW, NOW + 7 * 3_600_000, NOW + 86_400_000]) {
-    const p = purse({ had: ["famGnome", "famSquirrel", "charmHoe"], charms: ["charmHoe"], ...(fam === undefined ? {} : { familiar: fam }), ...(n === undefined ? {} : { used: { famGnome: { k: stretchOf("meal", NOW) + dk, n }, ...(dk === 0 ? { famSquirrel: { k: 7, n: 2 } } : {}) } }) } as Purse["gifts"]);
+    const p = purse({ had: ["famGnome", "famSquirrel", "charmHoe"], charms: ["charmHoe"], ...(fam === undefined ? {} : { familiar: fam }), ...(n === undefined ? {} : { used: { famGnome: { k: stretchOf({ n: 1, per: "meal" }, NOW) + dk, n }, ...(dk === 0 ? { famSquirrel: { k: 7, n: 2 } } : {}) } }) } as Purse["gifts"]);
     for (const id of ["famGnome", "famSquirrel", "charmHoe"]) {
       add("gift_works", [p, id], works(p, id));
       add("used_of", [p, id, when], usedOf(p, id, when));
@@ -101,7 +101,7 @@ export function vectorsGifts(): Vector[] {
   for (const v of out) if (v.fn === "charm_by") v.want = charmBy(v.args[0] as Purse, v.args[1] as (typeof CHARM_IDS)[number], v.args[2] as number);
 
   // a gift taken: every line and its first ranks, with points either side of each mark
-  for (const line of [...LINE_IDS, "cooking"]) for (const rank of [0, 1, 2, 3, 11]) {
+  for (const line of [...LINE_IDS, "cooking"]) for (const rank of [0, 1, 2, 3, 4, 5, 6, 11]) {
     const mark = line in LINES ? LINES[line as (typeof LINE_IDS)[number]].marks[Math.max(0, Math.min(9, rank - 1))] : 50;
     for (const has of [0, mark - 1, mark - 0.25, mark, mark + 40, 99999]) for (const gifts of [undefined, { had: [], charms: [] }, { had: [...ids], charms: ["charmHoe"] }, { had: some(3), charms: [], owed: 0.5 }]) {
       const p = purse(gifts), points = c.maybe(0.85) ? { farming: c.of([0, 60]), [line]: has } : {};

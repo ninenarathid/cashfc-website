@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FARMING, tend, type Plant, type Plot } from "./farm";
 import { STRIKE, strikeOf, strikeWindowOf } from "./fishing";
-import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, stretchOf, takeGift, useGift, usedOf, usesLeft, USES, wearCharms, wearFamiliar, wearing, works, type CharmId, type FamiliarId } from "./gifts";
+import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, THING_IDS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, numberOf, stretchOf, takeGift, useGift, usedOf, usesLeft, USES, wearCharms, wearFamiliar, wearing, works, type CharmId, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { eased, staminaOf } from "./stamina";
@@ -13,20 +13,34 @@ const done = <T extends { ok: boolean }>(d: T) => { if (!d.ok) throw new Error(`
 const first = (line: string) => LINES[line as (typeof LINE_IDS)[number]].marks[0];
 
 describe("the gifts of the lines of work", () => {
-  it("the first rank of every line but the well's gives a charm, and the second of three lines a familiar; each has its words in both languages", () => {
-    const first = GIFTS.filter((g) => g.rank === 1), second = GIFTS.filter((g) => g.rank === 2);
+  it("every rank from the first to the sixth of every line gives one gift (the well's first three are its own book's); each has its words in both languages", () => {
+    const first = GIFTS.filter((g) => g.rank === 1);
     expect(first.map((g) => g.line).sort()).toEqual(LINE_IDS.filter((l) => l !== "well").sort());
-    expect(first.every((g) => g.kind === "charm") && second.every((g) => g.kind === "familiar")).toBe(true);
-    expect(second.map((g) => g.id).sort()).toEqual([...FAMILIAR_IDS].sort());
-    expect(GIFTS.length).toBe(first.length + second.length);
+    expect(first.every((g) => g.kind === "charm")).toBe(true);
+    // (six ranks of six lines, and the well's fourth to sixth)
+    for (const line of LINE_IDS) for (const rank of [1, 2, 3, 4, 5, 6]) expect(GIFTS.filter((g) => g.line === line && g.rank === rank).length, `${line} ${rank}`).toBe(line === "well" && rank < 4 ? 0 : 1);
+    expect(GIFTS.length).toBe(6 * 6 + 3);
+    expect(GIFTS.filter((g) => g.kind === "charm").map((g) => g.id).sort()).toEqual([...CHARM_IDS].sort());
+    expect(GIFTS.filter((g) => g.kind === "familiar").map((g) => g.id).sort()).toEqual([...FAMILIAR_IDS].sort());
+    expect(GIFTS.filter((g) => g.kind === "thing").map((g) => g.id).sort()).toEqual([...THING_IDS].sort());
     for (const g of GIFTS) {
       expect(g.name.th && g.name.en && g.does.th && g.does.en, g.id).toBeTruthy();
       expect(giftAt(g.line, g.rank)?.id, g.id).toBe(g.id);
-      expect(g.kind === "charm" ? CHARMS[g.id as CharmId] : FAMILIARS[g.id as FamiliarId], g.id).toBeGreaterThan(0);
+      expect(numberOf(g.id), g.id).toBeGreaterThanOrEqual(0);
+      // (an id says its kind: the page draws a familiar by its id's first letters)
+      expect(g.id.startsWith(g.kind === "charm" ? "charm" : g.kind === "familiar" ? "fam" : "thing"), g.id).toBe(true);
+    }
+    // what is counted is of a gift there is, so many times and to a stretch that is known
+    for (const [id, use] of Object.entries(USES)) {
+      expect(GIFTS.some((g) => g.id === id), id).toBe(true);
+      expect(use!.n).toBeGreaterThan(0);
+      expect(use!.per === "day" || use!.per === "meal" || (use!.per === "span" && (use!.ms ?? 0) >= 1000), id).toBe(true);
     }
     expect(new Set(GIFTS.map((g) => g.id)).size).toBe(GIFTS.length);
     expect(giftAt("well", 1)).toBeNull();
-    expect(giftAt("kitchen", 2)).toBeNull();
+    expect(giftAt("kitchen", 2)?.id).toBe("thingBasket");
+    expect(giftAt("kitchen", 7)).toBeNull();
+    expect(giftAt("well", 4)?.id).toBe("thingFlask");
     expect(giftAt("forest", 2)?.id).toBe("famSquirrel");
     expect(giftAt("cooking", 1)).toBeNull();
   });
@@ -48,7 +62,7 @@ describe("the gifts of the lines of work", () => {
     const p = newPurse();
     expect(takeGift(p, {}, "kitchen", 1)).toEqual({ ok: false, why: "rank" });
     expect(takeGift(p, { kitchen: first("kitchen") - 1 }, "kitchen", 1)).toEqual({ ok: false, why: "rank" });
-    expect(takeGift(p, { kitchen: 99999 }, "kitchen", 2)).toEqual({ ok: false, why: "none" });
+    expect(takeGift(p, { kitchen: 99999 }, "kitchen", 7)).toEqual({ ok: false, why: "none" });
     expect(takeGift(p, { well: 99999 }, "well", 1)).toEqual({ ok: false, why: "none" });
     const took = done(takeGift(p, { kitchen: first("kitchen") }, "kitchen", 1));
     expect(took.gift).toBe("charmApron");
@@ -128,10 +142,10 @@ describe("the gifts of the lines of work", () => {
     const rule = USES.famGnome!;
     expect(rule).toEqual({ n: FAMILIARS.famGnome, per: "meal" });
     // (a day is from dawn; a meal's hours are a third of it)
-    expect(stretchOf("day", morning)).toBe(stretchOf("day", noon));
-    expect(stretchOf("meal", morning)).not.toBe(stretchOf("meal", noon));
-    expect(stretchOf("day", at("2026-10-07T04:00:00"))).toBe(stretchOf("day", morning));
-    expect(stretchOf("meal", at("2026-10-07T04:00:00"))).toBe(stretchOf("meal", at("2026-10-06T19:00:00")));
+    expect(stretchOf({ n: 1, per: "day" }, morning)).toBe(stretchOf({ n: 1, per: "day" }, noon));
+    expect(stretchOf({ n: 1, per: "meal" }, morning)).not.toBe(stretchOf({ n: 1, per: "meal" }, noon));
+    expect(stretchOf({ n: 1, per: "day" }, at("2026-10-07T04:00:00"))).toBe(stretchOf({ n: 1, per: "day" }, morning));
+    expect(stretchOf({ n: 1, per: "meal" }, at("2026-10-07T04:00:00"))).toBe(stretchOf({ n: 1, per: "meal" }, at("2026-10-06T19:00:00")));
     let p: Pick<Purse, "gifts"> = { gifts: { had: ["famGnome", "charmHoe"], charms: ["charmHoe"], familiar: "famGnome" } };
     expect(usesLeft(p, "famGnome", morning)).toBe(rule.n);
     for (let i = 1; i <= rule.n; i++) {
@@ -155,16 +169,32 @@ describe("the gifts of the lines of work", () => {
     expect(useGift(p, "noSuchGift", morning)).toEqual({ ok: false, why: "none" });
     expect(usesLeft(p, "charmHoe", morning)).toBe(0);
     // (a count kept wrongly counts for nothing)
-    const k = stretchOf("meal", morning), bad = (used: unknown) => ({ gifts: { had: ["famGnome"], charms: [], familiar: "famGnome", used } }) as Pick<Purse, "gifts">;
+    const k = stretchOf({ n: 1, per: "meal" }, morning), bad = (used: unknown) => ({ gifts: { had: ["famGnome"], charms: [], familiar: "famGnome", used } }) as Pick<Purse, "gifts">;
     for (const used of ["x", [1], { famGnome: "3" }, { famGnome: { k, n: "3" } }, { famGnome: { k: k + 1, n: 3 } }, { famGnome: { k, n: -4 } }, { famGnome: null }]) expect(usedOf(bad(used), "famGnome", morning)).toBe(0);
     expect(usedOf(bad({ famGnome: { k, n: 3.7 } }), "famGnome", morning)).toBe(3);
     expect(usesLeft(bad({ famGnome: { k, n: 99 } }), "famGnome", morning)).toBe(0);
   });
 
+  it("a count may be of a span of minutes: one use to a span, and the next span has it again", () => {
+    const rule = USES.thingFlute!, t0 = at("2026-10-06T12:00:00");
+    expect(rule).toEqual({ n: 1, per: "span", ms: 300_000 });
+    expect(stretchOf(rule, t0)).toBe(stretchOf(rule, t0 + 299_000 - (t0 % 300_000)));
+    expect(stretchOf(rule, t0 + 300_000)).toBe(stretchOf(rule, t0) + 1);
+    let p: Pick<Purse, "gifts"> = { gifts: { had: ["thingFlute"], charms: [] } };
+    const start = t0 - (t0 % 300_000), did = useGift(p, "thingFlute", start + 1000);
+    expect(did.ok && did.left).toBe(0);
+    if (did.ok) p = did.purse;
+    expect(useGift(p, "thingFlute", start + 299_000)).toEqual({ ok: false, why: "spent" });
+    expect(usesLeft(p, "thingFlute", start + 300_000)).toBe(1);
+    // (a thing works for whoever has it: nothing to wear, nothing to call)
+    expect(works(p, "thingFlute")).toBe(true);
+    expect(works({ gifts: { had: [], charms: [] } }, "thingFlute")).toBe(false);
+  });
+
   it("the catalog's row says the places, and of each gift which rank of which line gives it and its number", () => {
     const row = giftsRow();
     expect(row.slots).toBe(2);
-    expect(Object.keys(row.gifts).sort()).toEqual([...CHARM_IDS, ...FAMILIAR_IDS].sort());
+    expect(Object.keys(row.gifts).sort()).toEqual([...CHARM_IDS, ...FAMILIAR_IDS, ...THING_IDS].sort());
     expect(row.gifts.famGnome).toEqual({ kind: "familiar", line: "farming", rank: 2, by: 10 });
     // (the float and the net do something that is no number: theirs is 1, which does nothing where a rule multiplies by it)
     expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1 });

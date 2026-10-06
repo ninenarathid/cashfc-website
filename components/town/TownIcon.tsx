@@ -20,7 +20,10 @@ export default function TownIcon({ name, size = 20, className = "" }: {
   size?: number;
   className?: string;
 }) {
-  const [x, y, w, h] = ICON_ATLAS.icons[name];
+  // (a picture not built into the atlas yet, of something declared before it was drawn: an empty place of its size)
+  const cell = ICON_ATLAS.icons[name] as [number, number, number, number] | undefined;
+  if (!cell) return <span aria-hidden className={className} style={{ display: "inline-block", width: size, height: size }} data-icon-missing={name} />;
+  const [x, y, w, h] = cell;
   const k = size / Math.max(w, h);
   return (
     <span aria-hidden className={`inline-block shrink-0 align-middle ${className}`}

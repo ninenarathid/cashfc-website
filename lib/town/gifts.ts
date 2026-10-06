@@ -21,18 +21,28 @@ import type { Purse } from "./trade";
  * somebody else's bed) the same number is in the catalog's row and the rule is written again there (v151).
  * **Every number here is mine, not the owner's.**
  */
-export const CHARM_IDS = ["charmApron", "charmGloves", "charmFloat", "charmLamp", "charmNet", "charmHoe"] as const;
+export const CHARM_IDS = ["charmApron", "charmGloves", "charmFloat", "charmLamp", "charmNet", "charmHoe",
+  // the later ranks' (the ladder laid out anew, 2026-10-07)
+  "charmAnklet", "charmBell", "charmLine", "charmFirefly", "charmWind", "charmSickle", "charmRing", "charmCloak", "charmGuard"] as const;
 export type CharmId = (typeof CHARM_IDS)[number];
 /**
  * The familiars: a creature that follows its member wherever they go, for everybody to see (the owner, 2026-10-06:
  * "ใส่ ภูติ หรือ สัตว์เดินตามได้ 1 ชนิด"; changed "อิสระ"). One at a time. It needs no hand: the hand stays free.
  */
-export const FAMILIAR_IDS = ["famSquirrel", "famButterfly", "famGnome"] as const;
+export const FAMILIAR_IDS = ["famSquirrel", "famButterfly", "famGnome", "famOtter", "famPiglet", "famSprite", "famFrog", "famStag", "famMandrake"] as const;
 export type FamiliarId = (typeof FAMILIAR_IDS)[number];
-export type GiftId = CharmId | FamiliarId;
-export type GiftKind = "charm" | "familiar";
+/**
+ * The things: a gift that is neither worn nor follows. It takes no place: once had it works by itself, or is there to
+ * be used (so many times to a day or a meal's hours, where it is counted: `USES`).
+ */
+export const THING_IDS = ["thingBasket", "thingSpoon", "thingSpice", "thingFlame", "thingRod", "thingOrb", "thingBait", "thingMap", "thingNectar", "thingFlute",
+  "thingPouch", "thingHourglass", "thingDust", "thingFlask", "thingMoon"] as const;
+export type ThingId = (typeof THING_IDS)[number];
+export type GiftId = CharmId | FamiliarId | ThingId;
+export type GiftKind = "charm" | "familiar" | "thing";
 
-export interface Gift { id: GiftId; kind: GiftKind; line: LineId; rank: number; name: { th: string; en: string }; does: { th: string; en: string } }
+/** (`by`: a gift's number, where it has one and the two older tables below do not hold it: what it multiplies by, how many, how far) */
+export interface Gift { id: GiftId; kind: GiftKind; line: LineId; rank: number; name: { th: string; en: string }; does: { th: string; en: string }; by?: number }
 
 export const GIFTS: readonly Gift[] = [
   { id: "charmApron", kind: "charm", line: "kitchen", rank: 1, name: { th: "ผ้ากันเปื้อนต้องมนตร์", en: "Enchanted apron" },
@@ -54,6 +64,78 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "แมลงตื่นตัวช้าลง เข้าใกล้ได้มากขึ้นก่อนมันหนี", en: "Insects are slower to startle: you come nearer before they flee" } },
   { id: "famGnome", kind: "familiar", line: "farming", rank: 2, name: { th: "โนมสวน", en: "A garden gnome" },
     does: { th: "โนมถอนหญ้าให้เองโดยไม่ต้องเล่นมินิเกม มื้อละ 10 ช่อง", en: "It pulls the weeds for you with no game, ten plots to a meal's hours" } },
+
+  // ── The rest of ranks 1 to 6, as the ladder was laid out anew (the owner, 2026-10-07: nearly OP, each rank more than
+  // the last, and no power that takes failing away). DECLARED HERE SO THAT EACH LINE CAN BE BUILT APART: a gift below
+  // does nothing until its line's code reads it, and no member is offered it until the database's catalog has it
+  // (the keeper's `gives`). What each is to do is in its words; the plan's page has the whole table. ──
+  // the kitchen
+  { id: "thingBasket", kind: "thing", line: "kitchen", rank: 2, by: 12, name: { th: "ตะกร้ามิติ", en: "Dimension basket" },
+    does: { th: "กระเป๋าอาหารของเราเอง เก็บอาหารได้ 12 ที่ คละชนิดได้ ไม่กินช่องกระเป๋า และกินจากตะกร้าได้เลย", en: "A food pocket of your own: twelve helpings of any dishes, in no slot of the bag, and eaten straight from it" } },
+  { id: "thingSpoon", kind: "thing", line: "kitchen", rank: 3, name: { th: "ช้อนกระซิบรส", en: "Whispering spoon" },
+    does: { th: "บอกวัตถุดิบชิ้นลับของสูตรที่กำลังทำ วันละ 3 ครั้ง", en: "Tells the secret thing of the recipe you are making, three times a day" } },
+  { id: "famSprite", kind: "familiar", line: "kitchen", rank: 4, by: 1, name: { th: "ภูตเตาไฟตัวน้อย", en: "A little hearth sprite" },
+    does: { th: "สูตรที่เคยทำแล้ว ทำเสร็จทันทีไม่ต้องเล่นมินิเกม ได้เต็มจำนวนและเพิ่มอีก 1 ที่ มื้อละ 3 หม้อ", en: "A recipe you have made before is done at once with no game, its full helpings and one more, three pots to a meal's hours" } },
+  { id: "thingSpice", kind: "thing", line: "kitchen", rank: 5, by: 4, name: { th: "เครื่องเทศดาวตก", en: "Stardust spice" },
+    does: { th: "โรยบนถ้วยที่จะกิน บัฟของถ้วยนั้นขึ้นถึงขั้น 4 ทันที วันละครั้ง", en: "Sprinkled on a bowl you are about to eat: its buff goes to level 4 at once, once a day" } },
+  { id: "thingFlame", kind: "thing", line: "kitchen", rank: 6, name: { th: "เปลวฟีนิกซ์ในขวด", en: "Phoenix flame in a bottle" },
+    does: { th: "ตั้งเตาได้ทุกที่ และถ้าออกมาเป็นอาหารแปลก ได้วัตถุดิบคืนทั้งหมด วันละ 3 ครั้ง", en: "A stove anywhere; and an odd dish gives every ingredient back, three times a day" } },
+  // the helpers
+  { id: "charmAnklet", kind: "charm", line: "helpers", rank: 2, by: 2, name: { th: "กระพรวนภูตสวน", en: "Garden fae anklet" },
+    does: { th: "ต้นของคนอื่นที่เรารดโตเพิ่ม 2 เท่าทันที รดต่อเนื่องครบ 20 ต้นเป็น 3 เท่า (เว้นเกิน 8 วินาทีนับใหม่)", en: "Another's plant you water grows twice as much at once; twenty in a row, three times (a gap over eight seconds begins again)" } },
+  { id: "charmBell", kind: "charm", line: "helpers", rank: 3, by: 2, name: { th: "ระฆังคู่หู", en: "Duet bell" },
+    does: { th: "รดน้ำแปลงเดียวกับเพื่อนห่างกันไม่เกิน 10 วินาที การรดของทั้งคู่นับ 2 เท่า และได้แรงคืนต้นละ 2", en: "Water the same bed as a friend within ten seconds of each other: both waterings count double, and each gets two stamina back a plant" } },
+  { id: "charmRing", kind: "charm", line: "helpers", rank: 4, by: 30, name: { th: "แหวนแบ่งแรง", en: "Ring of shared strength" },
+    does: { th: "ยกแรงให้เพื่อน 30 แต้ม ของเราลดแค่ครึ่งเดียว วันละ 3 ครั้ง", en: "Give a friend thirty stamina, yours falls by half of it, three times a day" } },
+  { id: "thingDust", kind: "thing", line: "helpers", rank: 5, by: 12, name: { th: "ผงภูตสวน", en: "Garden fae dust" },
+    does: { th: "โรยบนต้นของคนอื่นที่โดนแมลง หยุดนับเวลาตายไว้ 12 ชั่วโมง (ไม่ได้รักษา) วันละ 5 ครั้ง", en: "On another's plant with pests: its dying clock stops twelve hours (no cure), five times a day" } },
+  { id: "charmGuard", kind: "charm", line: "helpers", rank: 6, by: 2, name: { th: "ผ้าคลุมผู้พิทักษ์", en: "Guardian's cloak" },
+    does: { th: "ตอนหมดแรง งานในแปลงของคนอื่นไม่ยากขึ้นเลย และมินิเกมของงานช่วยกว้างขึ้น 2 เท่า", en: "With no stamina, work in another's bed is no harder at all, and its games are twice as wide" } },
+  // the deck
+  { id: "famOtter", kind: "familiar", line: "fishing", rank: 2, by: 1, name: { th: "นากคู่ใจ", en: "An otter" },
+    does: { th: "ปลาหลุดเมื่อไหร่ นากต้อนกลับมาให้สู้ใหม่ทันทีอีกหนึ่งรอบ ไม่เสียเหยื่อ มื้อละ 10 ครั้ง", en: "A fish that gets away is driven back for one more fight at once, no bait lost, ten times to a meal's hours" } },
+  { id: "thingRod", kind: "thing", line: "fishing", rank: 3, by: 0.75, name: { th: "คันเบ็ดสองสาย", en: "Rod of two lines" },
+    does: { th: "ตกได้ทีละคู่: ปลาอีกตัวติดสายที่สองมาด้วย ต้องสู้สองตัวพร้อมกัน ช่วงปลอดภัยแคบลง (ใช้เหยื่อ 2 ชิ้น)", en: "A pair at a time: a second fish on the second line, two fought at once in a narrower stretch (two baits)" } },
+  { id: "charmLine", kind: "charm", line: "fishing", rank: 4, by: 3, name: { th: "สายเบ็ดใยมังกร", en: "Dragon-silk line" },
+    does: { th: "สายตึงเกินหรือหย่อนเกินยังไม่หลุดทันที มีเวลาแก้ 3 วินาที แก้ไม่ทันปลาหลุดตามเดิม", en: "Too taut or too slack does not lose the fish at once: three seconds to mend it; not mended, it is lost as ever" } },
+  { id: "thingOrb", kind: "thing", line: "fishing", rank: 5, by: 2, name: { th: "ลูกแก้วฟ้าจำลอง", en: "Sky orb" },
+    does: { th: "เลือกฟ้าเอง (กลางคืน ฝน หรือจันทร์เต็มดวง) 30 นาที และช่วงนั้นปลากินเบ็ดเร็วขึ้น 2 เท่า วันละครั้ง เฉพาะเรา", en: "Choose the sky (night, rain or a full moon) for thirty minutes, and bites come twice as soon then; once a day, for you alone" } },
+  { id: "thingBait", kind: "thing", line: "fishing", rank: 6, name: { th: "เหยื่อดาวตก", en: "Stardust bait" },
+    does: { th: "ปลาที่กินเหยื่อนี้เป็นปลาหายากขึ้นไปแน่นอน (ยังต้องสู้ให้ได้เอง) วันละ 3 ชิ้น", en: "What takes this bait is a rare fish or better (still to be fought), three a day" } },
+  // the forest
+  { id: "famPiglet", kind: "familiar", line: "forest", rank: 3, by: 1, name: { th: "หมูน้อยนักดม", en: "A truffle piglet" },
+    does: { th: "ขุดได้โดยไม่ต้องถือจอบ ของไม่ช้ำแม้ขุดพลาด และได้เพิ่ม 1 ชิ้นทุกหลุม มื้อละ 10 หลุม", en: "Dig with no hoe in hand, nothing bruised though you dig badly, and one more from every hole, ten holes to a meal's hours" } },
+  { id: "charmFirefly", kind: "charm", line: "forest", rank: 4, name: { th: "โคมหิ่งห้อย", en: "Firefly lantern" },
+    does: { th: "เห็นของทุกจุดในป่าตลอดเวลา ทั้งกลางวันและกลางคืน และเห็นจุดลับในป่าลึกที่คนอื่นมองไม่เห็น", en: "Everything in the forest shows for you at all hours, and the secret places of the deep woods that nobody else sees" } },
+  { id: "thingMap", kind: "thing", line: "forest", rank: 5, name: { th: "ลายแทงของภูตป่า", en: "A sprite's treasure map" },
+    does: { th: "ลายแทงหีบของภูต ขุดเจอได้ของหายากเฉพาะวันหรือม้วนสูตร วันละ 3 ใบ", en: "A map to a sprite's chest: dug up, a rare thing of the day or a scroll; three maps a day" } },
+  { id: "famStag", kind: "familiar", line: "forest", rank: 6, by: 2, name: { th: "กวางมอส", en: "A moss stag" },
+    does: { th: "ขี่ได้ทุกแผนที่ เดินเร็วขึ้น 2 เท่า และเก็บของได้จากบนหลังกวางในระยะ 2 ช่อง", en: "Ridden on every map, twice as fast, and things are gathered from its back within two tiles" } },
+  // the insects
+  { id: "thingNectar", kind: "thing", line: "insects", rank: 3, name: { th: "หยดน้ำหวานล่อแมลง", en: "A drop of nectar" },
+    does: { th: "หยดลงพื้น ภายใน 10 วินาทีมีแมลงบินมาหา ชนิดตามที่และเวลานั้น วันละ 10 หยด", en: "Dropped on the ground: within ten seconds an insect flies to it, of that place and hour; ten drops a day" } },
+  { id: "charmWind", kind: "charm", line: "insects", rank: 4, name: { th: "สวิงสายลม", en: "Wind net" },
+    does: { th: "สวิงลงทันทีไม่ต้องรอจังหวะ เล็งตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน", en: "The net falls at once, where it is aimed; it still misses when it is aimed badly" } },
+  { id: "thingFlute", kind: "thing", line: "insects", rank: 5, by: 15, name: { th: "ขลุ่ยกล่อมแมลง", en: "Lulling flute" },
+    does: { th: "แมลงทุกตัวบนจอหลับ 15 วินาที ใช้ได้ 5 นาทีครั้ง", en: "Every insect on the screen sleeps fifteen seconds; once in five minutes" } },
+  { id: "charmCloak", kind: "charm", line: "insects", rank: 6, by: 3, name: { th: "ผ้าคลุมปีกผีเสื้อ", en: "Butterfly-wing cloak" },
+    does: { th: "จับได้ทีละคู่: แมลงที่จับได้มีอีกตัวตามมา ต้องสวิงให้ทันใน 3 วินาที และแมลงหายากเฉพาะวันออกมาให้เราเห็นทุกวัน", en: "A pair at a time: an insect caught has another following, to be netted within three seconds; and the rare insects of a day show for you every day" } },
+  // the farm
+  { id: "thingPouch", kind: "thing", line: "farming", rank: 3, by: 5, name: { th: "ถุงเมล็ดร่ายมนตร์", en: "Spellbound seed pouch" },
+    does: { th: "หว่านทั้งแถว 7 ช่องในครั้งเดียว ใช้เมล็ดแค่ 5 เมล็ด", en: "Sows a row's seven plots at once, for five seeds" } },
+  { id: "charmSickle", kind: "charm", line: "farming", rank: 4, by: 1, name: { th: "เคียวจันทร์เสี้ยว", en: "Crescent sickle" },
+    does: { th: "เก็บผักที่สุกทั้งแถวในครั้งเดียวด้วยเกมตวัดเคียว ได้ผลเพิ่มต้นละ 1 ต้นไหนตวัดพลาดต้นนั้นไม่ได้เพิ่ม (เฉพาะแปลงของเรา)", en: "Picks a whole ripe row at once by a game of the sickle, one more a plant; a plant swung at badly gives no more (your own beds)" } },
+  { id: "thingHourglass", kind: "thing", line: "farming", rank: 5, by: 3, name: { th: "นาฬิกาทรายแห่งฤดู", en: "Hourglass of seasons" },
+    does: { th: "แปลงของเราหนึ่งแปลงโตเร็วขึ้น 3 เท่า 3 ชั่วโมง วันละครั้ง", en: "One bed of yours grows three times as fast for three hours, once a day" } },
+  { id: "famMandrake", kind: "familiar", line: "farming", rank: 6, by: 1, name: { th: "ต้นกล้าแมนเดรก", en: "A mandrake sprout" },
+    does: { th: "ร้องเพลงให้ต้นไม้: ต้นที่เก็บแล้วออกผลให้เก็บได้อีก 1 รอบ ทุกชนิด วันละ 7 ต้น", en: "It sings to a plant: one that was picked bears once more, any crop; seven plants a day" } },
+  // the well (its first three ranks give things of the bag, lib/town/well's own)
+  { id: "thingFlask", kind: "thing", line: "well", rank: 4, by: 30, name: { th: "กระติกน้ำพุแห่งชีวิต", en: "Flask of living water" },
+    does: { th: "รินให้เพื่อนดื่ม เพื่อนได้แรง +30 และเราได้ +10 (คนหนึ่งดื่มได้มื้อละครั้ง)", en: "Pour a friend a drink: thirty stamina to them and ten to you (a drinker once to a meal's hours)" } },
+  { id: "famFrog", kind: "familiar", line: "well", rank: 5, by: 45, name: { th: "กบพยากรณ์ฝน", en: "A rain-oracle frog" },
+    does: { th: "เห็นอากาศล่วงหน้า 45 นาที และตอนฝนตก ถังที่เราหาบเต็มเองโดยไม่ต้องเดินไปแม่น้ำ", en: "You see the sky forty-five minutes ahead; and in rain the buckets you carry fill by themselves, with no walk to the river" } },
+  { id: "thingMoon", kind: "thing", line: "well", rank: 6, by: 3, name: { th: "ขวดแก้วจันทรา", en: "Moon flask" },
+    does: { th: "เก็บน้ำค้าง น้ำฝน หรือน้ำจันทร์ไว้ได้ 3 ถัง เทตอนไหนก็ได้ และออกฤทธิ์ในบ่อนาน 3 เท่า", en: "Keeps three bucketfuls of dew, rain or moon water to pour when you like, and it works three times as long in the well" } },
 ];
 
 /**
@@ -74,12 +156,26 @@ export const FAMILIARS = { famSquirrel: 2, famButterfly: 1, famGnome: 10 } as co
  * What a gift does only so many times: to a day (from dawn, as the stamina's day is) or to a meal's hours. Counted in
  * the purse (`gifts.used`) by whoever keeps the game, so that the count is the same on every device a member plays on.
  */
-export type Per = "day" | "meal";
-export const USES: Partial<Record<GiftId, { n: number; per: Per }>> = {
+export type Per = "day" | "meal" | "span";
+/** (`ms`: of a count to a span of time that is neither, how long the span is: once in five minutes is one to a span of 300,000) */
+export interface Use { n: number; per: Per; ms?: number }
+export const USES: Partial<Record<GiftId, Use>> = {
   famGnome: { n: FAMILIARS.famGnome, per: "meal" },
+  // (the later ranks': each line's own to tune)
+  thingSpoon: { n: 3, per: "day" }, famSprite: { n: 3, per: "meal" }, thingSpice: { n: 1, per: "day" }, thingFlame: { n: 3, per: "day" },
+  charmRing: { n: 3, per: "day" }, thingDust: { n: 5, per: "day" },
+  famOtter: { n: 10, per: "meal" }, thingOrb: { n: 1, per: "day" }, thingBait: { n: 3, per: "day" },
+  famPiglet: { n: 10, per: "meal" }, thingMap: { n: 3, per: "day" },
+  thingNectar: { n: 10, per: "day" }, thingFlute: { n: 1, per: "span", ms: 300_000 },
+  thingHourglass: { n: 1, per: "day" }, famMandrake: { n: 7, per: "day" },
 };
-/** The stretch of time a count is of, as one number: the day, or the day and which meal's hours of it. */
-export const stretchOf = (per: Per, now: number): number => (per === "day" ? dayOf(now) : dayOf(now) * 3 + mealOf(now));
+/**
+ * The stretch of time a count is of, as one number: the day, the day and which meal's hours of it, or which span of
+ * so many milliseconds the moment is in (spans are counted from the clock's beginning, so one ends for everybody at
+ * the same moment: a wait of up to a span, never more).
+ */
+export const stretchOf = (rule: Use, now: number): number =>
+  (rule.per === "day" ? dayOf(now) : rule.per === "meal" ? dayOf(now) * 3 + mealOf(now) : Math.floor(now / Math.max(1, rule.ms ?? 1)));
 
 /** What a member has of the gifts: those taken, the charms worn of them, the familiar that follows, and what part of a point the gloves' half has left owing (lib/town/stamina's eased). */
 export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number; familiar: FamiliarId | null; used: Record<string, { k: number; n: number }> }
@@ -106,7 +202,9 @@ export function giftsOf(purse: Pick<Purse, "gifts">): Gifts {
 }
 /** The familiar that follows somebody now, if one does; and what it does for them: its number, or what does nothing. */
 export const familiarOf = (purse: Pick<Purse, "gifts">): FamiliarId | null => giftsOf(purse).familiar;
-export const famBy = (purse: Pick<Purse, "gifts">, id: FamiliarId, else_ = 0): number => (giftsOf(purse).familiar === id ? FAMILIARS[id] : else_);
+export const famBy = (purse: Pick<Purse, "gifts">, id: FamiliarId, else_ = 0): number => (giftsOf(purse).familiar === id ? numberOf(id) : else_);
+/** Whether somebody has a thing (a gift that takes no place): it works for them from then on. */
+export const hasThing = (purse: Pick<Purse, "gifts">, id: ThingId): boolean => giftsOf(purse).had.includes(id);
 /** Have this familiar follow me and no other (null: none follows): one I have. */
 export function wearFamiliar<P extends Pick<Purse, "gifts">>(purse: P, id: string | null): { ok: true; purse: P } | { ok: false; why: GiftRefusal } {
   const mine = giftsOf(purse);
@@ -121,7 +219,7 @@ export function works(purse: Pick<Purse, "gifts">, id: string): boolean {
 /** How many times a gift that is counted has been used in the stretch `now` is in (none, of a count kept wrongly or of another stretch). */
 export function usedOf(purse: Pick<Purse, "gifts">, id: string, now: number): number {
   const rule = isGift(id) ? USES[id] : undefined, u = giftsOf(purse).used[id] as { k?: unknown; n?: unknown } | undefined;
-  if (!rule || !u || typeof u !== "object" || u.k !== stretchOf(rule.per, now) || typeof u.n !== "number" || !Number.isFinite(u.n)) return 0;
+  if (!rule || !u || typeof u !== "object" || u.k !== stretchOf(rule, now) || typeof u.n !== "number" || !Number.isFinite(u.n)) return 0;
   return Math.max(0, Math.floor(u.n));
 }
 /** How many times more it may be used in this stretch (none, of a gift that is not counted). */
@@ -136,12 +234,12 @@ export function useGift<P extends Pick<Purse, "gifts">>(purse: P, id: string, no
   const n = usedOf(purse, id, now);
   if (n >= rule.n) return { ok: false, why: "spent" };
   const mine = giftsOf(purse);
-  return { ok: true, left: rule.n - n - 1, purse: { ...purse, gifts: { ...mine, used: { ...mine.used, [id]: { k: stretchOf(rule.per, now), n: n + 1 } } } } };
+  return { ok: true, left: rule.n - n - 1, purse: { ...purse, gifts: { ...mine, used: { ...mine.used, [id]: { k: stretchOf(rule, now), n: n + 1 } } } } };
 }
 /** Whether somebody wears a charm now. */
 export const wearing = (purse: Pick<Purse, "gifts">, id: CharmId): boolean => giftsOf(purse).charms.includes(id);
 /** What a charm does for whoever wears it: its number, or what does nothing (`else_`: 1 for something multiplied, 0 for something added). */
-export const charmBy = (purse: Pick<Purse, "gifts">, id: CharmId, else_ = 1): number => (wearing(purse, id) ? CHARMS[id] : else_);
+export const charmBy = (purse: Pick<Purse, "gifts">, id: CharmId, else_ = 1): number => (wearing(purse, id) ? numberOf(id) : else_);
 
 /**
  * Work in somebody else's bed with the gardener's gloves on: the purse after it, with half its stamina given back
@@ -179,9 +277,14 @@ export function wearCharms<P extends Pick<Purse, "gifts">>(purse: P, ids: readon
   return { ok: true, purse: { ...purse, gifts: { ...mine, charms: ids as CharmId[] } } };
 }
 
+/** A gift's number: its own (`by`), or the older tables' for the first charms and familiars, or 1, which does nothing where a rule multiplies by it. */
+export const numberOf = (id: string): number => {
+  const g = giftOf(id);
+  return g?.by ?? (CHARMS as Record<string, number>)[id] ?? (FAMILIARS as Record<string, number>)[id] ?? 1;
+};
 /** The catalog's row: what the database needs of the gifts to give and to judge them (the places for charms; of each gift its kind, which rank of which line gives it, and its number; and what is counted, so many times to what). */
 export const giftsRow = () => ({
   slots: CHARMS.slots,
   uses: USES,
-  gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: g.kind === "charm" ? CHARMS[g.id as CharmId] : FAMILIARS[g.id as FamiliarId] }])),
+  gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: numberOf(g.id) }])),
 });

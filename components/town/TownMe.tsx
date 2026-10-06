@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CHARMS, dueOf, giftOf, type CharmId, type FamiliarId, type Gift, type Gifts } from "@/lib/town/gifts";
+import { CHARMS, USES, dueOf, giftOf, usesLeft, type CharmId, type FamiliarId, type Gift, type Gifts, type ThingId } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
 import { LINES, LINE_IDS, type LinesTold } from "@/lib/town/lines";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -15,6 +15,9 @@ const PAPER = "#f0dfb6", PAPER_EDGE = "#d9bf85", INK = "#4a3520", INK_SOFT = "#7
  *
  * - **Two places for charms.** A charm worn works by itself, with nothing held for it: the hand stays free for the
  *   hoe or the rod. A tap on one worn takes it off; a tap on one I have puts it on, where there is a place.
+ * - **A shelf of things**: the gifts that are neither worn nor follow (lib/town/gifts' things). Each works by itself
+ *   once had, or is used where its line's game is played; the shelf says what each does and, where it is counted, how
+ *   many times it may still be used in this stretch. Nothing is used from here.
  * - **A place for a familiar**: the one that follows me, for everybody to see; a tap sends it to rest, a tap on
  *   another I have calls that one. Empty until a rank gives one, and then it says nothing of what is to come.
  * - **What waits to be taken**: the gift of a rank I have reached and not taken, with a button. Only then is it named.
@@ -30,6 +33,9 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
   const fams = gifts.had.filter((id) => giftOf(id)?.kind === "familiar") as FamiliarId[], fam = gifts.familiar ? giftOf(gifts.familiar) : null;
   const got = gifts.had.filter((id) => given.includes(id)).length, left = given.length - got;
   const spare = gifts.had.filter((id) => giftOf(id)?.kind === "charm" && !worn.includes(id as CharmId)) as CharmId[];
+  const things = gifts.had.filter((id) => giftOf(id)?.kind === "thing") as ThingId[];
+  /** How a count's stretch is said. */
+  const stretch = (id: string) => { const u = USES[id as ThingId]; return !u ? "" : u.per === "day" ? (th ? "วันนี้" : "today") : u.per === "meal" ? (th ? "มื้อนี้" : "these hours") : (th ? "ตอนนี้" : "now"); };
   const act = async (what: () => Promise<{ ok: boolean }>, no: string) => {
     if (busy) return;
     setBusy(true); setSaid(null);
@@ -171,6 +177,28 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
               </ul>
             )}
           </section>
+          {things.length > 0 && (
+            <section className="rounded-[4px] border-[3px] border-[#2a190d] px-3 py-2.5" style={{ color: INK, backgroundColor: PAPER, backgroundImage: `linear-gradient(90deg, ${PAPER_EDGE} 0, transparent 7%, transparent 93%, ${PAPER_EDGE} 100%)` }}
+                     aria-label={th ? "ของวิเศษ" : "Things"} data-me-things={things.join(",")}>
+              <h3 className="text-ui font-semibold">{th ? "ของวิเศษ" : "Things"}</h3>
+              <p className="text-label" style={{ color: INK_SOFT }}>{th ? "มีแล้วใช้ได้เลย ไม่ต้องใส่" : "Yours to use: nothing to put on."}</p>
+              <ul className="mt-1.5 grid gap-1.5">
+                {things.map((id) => {
+                  const g = giftOf(id)!, use = USES[id], left = use ? usesLeft(keeper.purse(), id, keeper.now()) : null;
+                  return (
+                    <li key={id} className="flex items-center gap-2 rounded-md border-2 px-2 py-1.5" style={{ borderColor: INK_SOFT, backgroundColor: "rgba(74,53,32,0.06)" }} data-me-thing={id} data-left={left ?? ""}>
+                      <span className="grid size-10 shrink-0 place-items-center rounded-md border-2" style={{ borderColor: INK_SOFT, backgroundColor: PAPER_EDGE }}><TownIcon name={id as IconName} size={28} /></span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-meta font-semibold">{th ? g.name.th : g.name.en}</span>
+                        <span className="block text-label leading-snug" style={{ color: INK_SOFT }}>{th ? g.does.th : g.does.en}</span>
+                        {use && <span className="mt-0.5 block font-data text-label tabular-nums" style={{ color: left ? JADE : "#b0452f" }}>{th ? `${stretch(id)}เหลือ ${left}/${use.n}` : `${left}/${use.n} left ${stretch(id)}`}</span>}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          )}
           <section className="rounded-[4px] border-[3px] border-[#2a190d] px-3 py-2.5" style={{ color: INK, backgroundColor: PAPER, backgroundImage: `linear-gradient(90deg, ${PAPER_EDGE} 0, transparent 7%, transparent 93%, ${PAPER_EDGE} 100%)` }}
                    aria-label={th ? "ของที่สะสมได้" : "What you have"} data-me-count={`${got}/${given.length}`}>
             <h3 className="text-ui font-semibold">{th ? "ของที่สะสมได้" : "What you have"}</h3>

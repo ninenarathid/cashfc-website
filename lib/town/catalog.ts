@@ -353,7 +353,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * is counted and the first charms' numbers as they were laid out anew (`gifts`); twice the uncle's two baits, a member's
  * share and his stock (`goods`: worm and dough, nothing else); and half the stamina a common fish's fight takes (`fish`).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
+  v153: { keys: [], over: ["gifts"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
