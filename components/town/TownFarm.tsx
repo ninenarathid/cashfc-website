@@ -39,6 +39,10 @@ export interface FarmFrame {
   indoors: boolean;
   /** Where I stand on the map, if I am in town. */
   self: Vec | null;
+  /** How dark it is, none (0) to night (1): the lamps' own measure. */
+  dark?: number;
+  /** Draw something over the hour's light and the night's dark, as the signs are: what is to show in the dark as it is. */
+  over?: (draw: () => void) => void;
   /** Everybody on the map as this screen has them, myself among them: where, whether they are walking, and what they hold (lib/town/insects minds them). */
   people?: () => Array<{ id: string; x: number; y: number; moving: boolean; hold: ItemId | null }>;
 }

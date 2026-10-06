@@ -74,7 +74,8 @@ describe("the gifts of the lines of work", () => {
     expect(wearing(p, "charmHoe") && wearing(p, "charmApron") && !wearing(p, "charmNet")).toBe(true);
     expect(charmBy(p, "charmHoe")).toBe(1.5);
     expect(charmBy(p, "charmNet")).toBe(1);
-    expect(charmBy(p, "charmBasket", 0)).toBe(0);
+    expect(charmBy(p, "charmLamp", 0)).toBe(0);
+    expect(charmBy({ gifts: { had: ["charmLamp"], charms: ["charmLamp"] } }, "charmLamp", 0)).toBe(5);
     p = done(wearCharms(p, ["charmNet"])).purse;
     expect(giftsOf(p).charms).toEqual(["charmNet"]);
     p = done(wearCharms(p, [])).purse;

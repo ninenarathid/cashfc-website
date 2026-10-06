@@ -196,6 +196,8 @@ const SHEETS = [
   ["icons-well-c", ["waterCartFull", "waterDawn", "waterRain", "waterMoon", "yardJar", "lineHands"]],
   // the charms of each line of work's first rank (lib/town/gifts): an apron, gardener's gloves, a float, a vine basket, a net, a hoe, each with its sparkle
   ["icons-charms-a", ["charmApron", "charmGloves", "charmFloat", "charmBasket", "charmNet", "charmHoe"], { range: [4.9, 5.2] }],
+  // the forest walker's lamp, which took the vine basket's place at the forest's first rank (the basket's picture is used by nothing), and a jar of fireflies for a later one
+  ["icons-charms-b", ["charmLamp", "charmFirefly"], { range: [10.1, 10.6] }],
 ];
 
 const pieces = [];

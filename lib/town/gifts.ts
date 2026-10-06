@@ -14,12 +14,14 @@ import type { Purse } from "./trade";
  *   likes ("อิสระ"). Twelve charms and two places: one chooses by what one is about to do;
  * - nothing says what a rank will give until it is reached: the page shows a gift only once it can be taken.
  *
- * The first round is the first rank of every line: six charms (the well's first is its yoke). What each does is a
+ * The first round is the first rank of every line: six charms (the well's first is its yoke). The forest's was a
+ * vine basket that made its games kinder until he asked for a light in its place (the basket's picture is still in
+ * the icons' sheet, used by nothing). What each does is a
  * number of this file (`CHARMS`); where it is the database that judges (the strike's moment, the stamina of work in
  * somebody else's bed) the same number is in the catalog's row and the rule is written again there (v151).
  * **Every number here is mine, not the owner's.**
  */
-export const CHARM_IDS = ["charmApron", "charmGloves", "charmFloat", "charmBasket", "charmNet", "charmHoe"] as const;
+export const CHARM_IDS = ["charmApron", "charmGloves", "charmFloat", "charmLamp", "charmNet", "charmHoe"] as const;
 export type CharmId = (typeof CHARM_IDS)[number];
 export type GiftId = CharmId;
 export type GiftKind = "charm";
@@ -33,8 +35,8 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "งานในแปลงของคนอื่นใช้แรงครึ่งเดียว", en: "Work in somebody else's bed takes half the stamina" } },
   { id: "charmFloat", kind: "charm", line: "fishing", rank: 1, name: { th: "ทุ่นกระซิบ", en: "Whispering float" },
     does: { th: "ช่วงตวัดเบ็ดยาวขึ้นครึ่งเท่า", en: "The moment to strike is half as long again" } },
-  { id: "charmBasket", kind: "charm", line: "forest", rank: 1, name: { th: "ตะกร้าเถาวัลย์ต้องมนตร์", en: "Enchanted vine basket" },
-    does: { th: "เก็บของป่าง่ายขึ้นทุกแบบ: ตัวหลอกน้อยลง ขุดพลาดได้เพิ่ม รับลูกไม้ได้มากขึ้น", en: "Every forest game is kinder: fewer look-alikes, a stroke to spare, more fruit to catch" } },
+  { id: "charmLamp", kind: "charm", line: "forest", rank: 1, name: { th: "ตะเกียงผู้เดินป่า", en: "Forest walker's lamp" },
+    does: { th: "ในป่าตอนมืด รอบตัวเราสว่างขึ้น และของที่เก็บได้ในวงแสงมีประกาย (เห็นเฉพาะจอเรา)", en: "In the forest's dark, a light about you, and what can be gathered in it glints (on your own screen)" } },
   { id: "charmNet", kind: "charm", line: "insects", rank: 1, name: { th: "สวิงใยเงิน", en: "Silver-web net" },
     does: { th: "วงสวิงกว้างขึ้นครึ่งเท่า", en: "The net's ring is half as wide again" } },
   { id: "charmHoe", kind: "charm", line: "farming", rank: 1, name: { th: "จอบต้องมนตร์", en: "Enchanted hoe" },
@@ -44,9 +46,11 @@ export const GIFTS: readonly Gift[] = [
 /**
  * How many charms are worn at once, and what each does: the apron, the net and the hoe widen their games so many
  * times; the float lengthens the strike's moment so many times; the gloves leave so much of the cost of work in
- * somebody else's bed (farm work costs a point or two, so the half is kept exact over time: `gloved`); the basket is so many steps of the forest's eye (lib/town/forest-eye).
+ * somebody else's bed (farm work costs a point or two, so the half is kept exact over time: `gloved`); the lamp
+ * lights so many tiles about its wearer in the forest's dark, on their own screen (the owner, 2026-10-06, of an early
+ * gift of the forest's: "ของที่ช่วยให้ป่าสว่างเวลากลางคืน เอาแค่พอให้ตัวเองเล่นง่ายขึ้น": it finds nothing more, it only shows).
  */
-export const CHARMS = { slots: 2, charmApron: 1.5, charmGloves: 0.5, charmFloat: 1.5, charmBasket: 1, charmNet: 1.5, charmHoe: 1.5 } as const;
+export const CHARMS = { slots: 2, charmApron: 1.5, charmGloves: 0.5, charmFloat: 1.5, charmLamp: 5, charmNet: 1.5, charmHoe: 1.5 } as const;
 
 /** What a member has of the gifts: those taken, the charms worn of them, and what part of a point the gloves' half has left owing (lib/town/stamina's eased). */
 export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number }

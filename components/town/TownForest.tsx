@@ -91,7 +91,10 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
 
   useEffect(() => {
     register((frame) => {
-      const { ctx, things, project, onScreen, s, now: t, img, still } = frame;
+      const { ctx, things, project, onScreen, s, now: t, img, still, self, dark, over } = frame;
+      // (in the dark, what can be gathered within the lamp's light glints: on my own screen, and nothing more is found for it)
+      const reach = (dark ?? 0) > 0.3 && self ? lamp.current : 0;
+      let lit = 0;
       vfx.draw(frame);
       if (!img?.complete || !img.naturalWidth) return;
       const blit = (name: IconName, at: Vec, lift = 0, k = SIZE * s) => {
@@ -107,17 +110,28 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
         const at = project({ x: spot.x + 0.5, y: spot.y + 0.5 });
         if (!onScreen(at)) continue;
         const icon = iconFor(sight.item), fruit = spot.kind === "fruit", rare = !!sight.item && ITEMS[sight.item].pays >= RARE;
+        if (!fruit && reach > 0 && Math.hypot(spot.x + 0.5 - self!.x, spot.y + 0.5 - self!.y) <= reach) lit++;
         // (fruit hangs in the crown of its tree, in front of it; everything else lies at its place)
         things.push({ depth: spot.x + spot.y + (fruit ? 1.05 : 0.6), draw: () => {
           if (fruit) {
             for (const [dx, up] of [[-14, 58], [10, 66], [2, 46]]) blit(icon, { x: at.x + dx * s, y: at.y }, (up + (still ? 0 : Math.sin(t / 700 + spot.id + dx) * 1.5)) * s, SIZE * s * 0.62);
           } else {
             blit(icon, at);
+            // (the lamp's glint on it: over the night's dark, where it shows)
+            if (reach > 0 && Math.hypot(spot.x + 0.5 - self!.x, spot.y + 0.5 - self!.y) <= reach) {
+              over?.(() => {
+                const d = Math.max(2, Math.round(2.5 * s)), gx = Math.round(at.x + 9 * s), gy = Math.round(at.y - 24 * s);
+                ctx.fillStyle = `rgba(255,236,170,${(still ? 0.9 : 0.5 + 0.45 * Math.sin(t / 380 + spot.id * 1.7)).toFixed(3)})`;
+                ctx.fillRect(gx - d, gy, 3 * d, d);
+                ctx.fillRect(gx, gy - d, d, 3 * d);
+              });
+            }
             if (sight.n > 1 && KINDS[spot.kind].how !== "dig") blit(icon, { x: at.x + 11 * s, y: at.y + 3 * s }, 0, SIZE * s * 0.8);
           }
           if (rare && (still || Math.floor(t / 420 + spot.id) % 3 !== 0)) blit("plotShine", { x: at.x + 9 * s, y: at.y }, 18 * s, SIZE * s * 0.8);
         } });
       }
+      glints.current = lit;
     });
     return () => register(null);
   }, [register, vfx]);
@@ -126,8 +140,10 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   const purse = keeper.purse(), hand = handOf(purse), spent = isSpent(purse, keeper.now());
   // (the fountain's forest eye: each game a little kinder, lib/town/forest-eye)
   // (and a meal of the forest's own leaves it too, the more at each of its levels: items' byOf)
-  // (and the vine basket worn as a charm is a step more of it, lib/town/gifts)
-  const eye = byOf(WILD_WISHES.forest, levelOf(purse, keeper.now(), WILD_WISHES.forest as WishId)) + charmBy(purse, "charmBasket", 0);
+  const eye = byOf(WILD_WISHES.forest, levelOf(purse, keeper.now(), WILD_WISHES.forest as WishId));
+  // (the forest walker's lamp worn as a charm: how far its light reaches about me, in tiles; none without it. lib/town/gifts)
+  const lamp = useRef(0), glints = useRef(0);
+  lamp.current = charmBy(purse, "charmLamp", 0);
   const here = tile && near ? seen.current.map((sight) => ({ sight, spot: SPOTS[sight.id] })).filter(({ spot }) => spot && reaches(spot, tile) && mayGather(spot.kind, hand))
     .sort((a, b) => Math.hypot(a.spot.x - tile[0], a.spot.y - tile[1]) - Math.hypot(b.spot.x - tile[0], b.spot.y - tile[1]))[0] ?? null : null;
   const hereId = here?.spot.id ?? -1;
@@ -176,7 +192,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
-      sights: () => seen.current.map((x) => ({ ...x, ...SPOTS[x.id] })), here: () => (here ? { ...here.sight, kind: here.spot.kind } : null), act: begin,
+      sights: () => seen.current.map((x) => ({ ...x, ...SPOTS[x.id] })), glints: () => glints.current, here: () => (here ? { ...here.sight, kind: here.spot.kind } : null), act: begin,
       game: () => working?.game ?? null,
     };
     (window as unknown as { __townForest?: typeof handle }).__townForest = handle;

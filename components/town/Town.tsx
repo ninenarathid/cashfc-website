@@ -37,7 +37,7 @@ import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
-import { dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
+import { CHARMS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { BOX } from "@/lib/town/box";
@@ -758,6 +758,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     keeper.onDeed = (what, to) => session.nudge(what, to && session.avatars.has(to) ? to : undefined);
     return () => { session.onNudge = null; keeper.onDeed = null; };
   }, [session, keeper]);
+  /** How far the forest walker's lamp lights about me, in tiles, while I wear it (lib/town/gifts): none without it. And where I stand, for its light. */
+  const lampRef = useRef(0), lampAt = useRef<Vec | null>(null);
   // Everybody's rank at the well (lib/town/well): the keeper's, read as it changes.
   useEffect(() => {
     if (!keeper) { ranksRef.current = { ranks: {}, titles: {}, me: "" }; setLinesTold(null); return; }
@@ -768,6 +770,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       setLinesTold((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next));
       const mine = { gifting: keeper.gifting(), gifts: giftsOf(keeper.purse()) };
       setGiftsTold((was) => (JSON.stringify(was) === JSON.stringify(mine) ? was : mine));
+      lampRef.current = mine.gifts.charms.includes("charmLamp") ? CHARMS.charmLamp : 0;
     };
     read();
     return keeper.watch(read);
@@ -1437,6 +1440,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }
 
   /**
+   * The light of the forest walker's lamp (a charm, lib/town/gifts), about my own doll in the forest's dark: on my
+   * screen and nobody else's (the owner, 2026-10-06: "เอาแค่พอให้ตัวเองเล่นง่ายขชึ้น"). A wide low pool on the ground as
+   * far as the lamp reaches, and a small warm core at the hand.
+   */
+  function drawLampLight(ctx: CanvasRenderingContext2D, lamps: number, now: number) {
+    const reach = lampRef.current, me = lampAt.current;
+    if (placeRef.current !== "forest" || reach <= 0 || !me || lamps < 0.02) return;
+    const at = project({ x: me.x + 0.5, y: me.y + 0.5 }), s = cam.current.s;
+    const lit = lamps * (reducedRef.current ? 0.95 : 0.93 + 0.05 * Math.sin(now / 900) + 0.02 * Math.sin(now / 370 + 0.8));
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    // (a light's picture fades to nothing at its rim: drawn half as wide again as the lamp reaches, so that what is in reach is lit)
+    glowAt(ctx, at.x, at.y - 4 * s, reach * (TILE_W / 2) * 1.5 * s, "255,214,150", 0.5 * lit, 0.55);
+    glowAt(ctx, at.x, at.y - 30 * s, 64 * s, "255,196,120", 0.34 * lit);
+    ctx.restore();
+  }
+
+  /**
    * The rings on the ground at the gates (lib/town/decor), each under its gateway: the picture, and a few motes of
    * its light going up from it by the clock.
    */
@@ -1562,6 +1583,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     drawYardLights(ctx, day.lamps, now);
     drawCampLight(ctx, day.lamps, now);
+    drawLampLight(ctx, day.lamps, now);
     drawDecorLights(ctx, day.lamps, now);
     if (day.lamps < 0.02) return;
     const s = cam.current.s;
@@ -1596,6 +1618,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const dpr = canvas.width / cw;
     const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
     const mine = stay?.self ?? null;
+    lampAt.current = mine ? { x: mine.pos.x, y: mine.pos.y } : null;
 
     // The camera: where it starts, and following me (to the spot a panel leaves).
     if (!v.ready) {
@@ -1986,6 +2009,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         ctx, things, project, onScreen, s: v.s, now, img: iconImg.current, still: reducedRef.current, th: words.current.th,
         indoors: !(KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1),
         self: mine ? { x: mine.pos.x, y: mine.pos.y } : null,
+        dark: skyNow().lamps,
+        over: (draw: () => void) => { signs.push(draw); },
         people: () => (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
           .map((a) => ({ id: a.info.id, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null) })),
         sign: (text: string, x: number, y: number) => { signs.push(() => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)")); },
