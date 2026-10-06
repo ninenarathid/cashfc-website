@@ -1,7 +1,7 @@
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { famBy, gloved, wearing } from "./gifts";
+import { famBy, gloved, hasThing, numberOf, wearing } from "./gifts";
 import { buffBy, hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -549,13 +549,25 @@ export const SEEDS: ItemId[] = CROP_IDS.map((c) => CROPS[c].seed).filter((s) => 
  *
  * - **the enchanted hoe** (a charm, worn): weeds or tills every plot of the row that wants the same work, by one game
  *   of a beat to a plot (lib/town/timing's `startRow`); a beat missed leaves its plot undone.
+ * - **the spellbound seed pouch** (a thing, had): sows every plot of the row that is ready for a seed, with the seed
+ *   in the hand, for five seeds where seven plots would take seven (`pouchSeeds`: in that measure for fewer plots,
+ *   never more than the plots); with fewer seeds than that in the bag, as many plots as they reach. No game of its
+ *   own: sowing has none (tired hands steady themselves once for the row, as for a plot).
  *
  * It is **one deed** for whoever keeps the game, judged whole (`rowTend`): told how each plot's beat went, it does
  * each plot as `tend` would have done it by itself, one after another from the plot stood on outwards, so that the
  * stamina, the bed's keeping, the gloves and what is written down are each plot's own, as ever. A row of one plot is
  * no row: that is the plain deed.
  */
-export type RowDeed = "clear" | "till";
+export type RowDeed = "clear" | "till" | "sow";
+/** The seeds the pouch takes for so many plots of a row of `side`: five for seven (its number), in that measure for fewer, never more than the plots. */
+export const pouchSeeds = (plots: number, side = 7): number => Math.min(plots, Math.ceil((plots * numberOf("thingPouch")) / side));
+/** How many plots of a row so many seeds reach from the pouch. */
+export function pouchPlots(seeds: number, side = 7): number {
+  let plots = 0;
+  while (plots < side && pouchSeeds(plots + 1, side) <= seeds) plots++;
+  return plots;
+}
 /** What a plot's place in its row is: its x. */
 const xOf = (key: string) => Number(key.split(",")[0]);
 /**
@@ -569,9 +581,12 @@ export function rowFor(at: string, keys: readonly string[], plots: Readonly<Reco
   if (!keys.includes(at)) return null;
   const hand = handOf(purse), want = (key: string) => deedFor(key, plots[key] ?? WILD, hand, me, now, owner, rains);
   const deed = want(at);
-  if (!((deed === "clear" || deed === "till") && wearing(purse, "charmHoe"))) return null;
-  const x0 = xOf(at), row = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
-  return row.length > 1 ? { deed, plots: row } : null;
+  const hoes = (deed === "clear" || deed === "till") && wearing(purse, "charmHoe"), sows = deed === "sow" && hasThing(purse, "thingPouch");
+  if (!hoes && !sows) return null;
+  const x0 = xOf(at), all = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
+  // (the pouch sows as many plots as the seeds in the bag reach, the nearest first)
+  const row = sows ? all.slice(0, pouchPlots(held(purse.bag, hand!), keys.length)) : all;
+  return row.length > 1 ? { deed: deed as RowDeed, plots: row } : null;
 }
 /**
  * **The garden gnome** (a familiar, following; the owner, 2026-10-07, in place of the weeding it began with): it goes
@@ -627,19 +642,23 @@ export interface RowDone { key: string; crop: CropId | null; n: number }
  */
 export function rowTend(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, bed: Bed | undefined, rest: number, holds: number, purse: Purse, me: string, now: number,
   marks: Readonly<Record<string, boolean>>, rains: FarmSky = DRY):
-  { ok: true; deed: RowDeed; purse: Purse; plots: Record<string, Plot>; bed: Bed | undefined; each: RowDone[]; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+  { ok: true; deed: RowDeed; purse: Purse; plots: Record<string, Plot>; bed: Bed | undefined; each: RowDone[]; got: Array<[ItemId, number]>; seeds?: number } | { ok: false; why: Refusal | FarmRefusal } {
   const planted = (state: Readonly<Record<string, Plot>>, but: string) => rest + keys.filter((k) => k !== but && !!state[k]?.plant).length;
   const found = rowFor(at, keys, plots, purse, me, now, ownerOf(bed, planted(plots, "") > 0, now), rains);
   if (!found) return { ok: false, why: "none" };
-  const state: Record<string, Plot> = {}, each: RowDone[] = [];
+  const state: Record<string, Plot> = {}, each: RowDone[] = [], sows = found.deed === "sow", hand = handOf(purse);
+  // (the pouch: of the seeds its plots would have taken one by one, so many are spared)
+  const spared = sows ? found.plots.length - pouchSeeds(found.plots.length, keys.length) : 0;
   let mine = purse, keeping = bed;
   for (const key of found.plots) {
-    // (a beat missed leaves its plot undone)
-    if (marks[key] !== true) continue;
+    // (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown)
+    if (!sows && marks[key] !== true) continue;
     const plot = state[key] ?? plots[key] ?? WILD, did = tend(key, plot, keeping, planted({ ...plots, ...state }, key), holds, mine, me, now, rains);
     if (!did.ok || did.deed !== found.deed) { if (!each.length && !did.ok) return did; break; }
     mine = did.purse; keeping = did.bed; state[key] = did.plot;
+    // (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
+    if (sows && each.length < spared) mine = { ...mine, bag: put(mine.bag, hand!, 1) };
     each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 });
   }
-  return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [] };
+  return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [], ...(sows ? { seeds: each.length - Math.min(spared, each.length) } : {}) };
 }

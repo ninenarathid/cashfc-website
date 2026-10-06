@@ -16,7 +16,7 @@ import type { Purse } from "./trade";
 import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
-import type { RowDeed } from "./farm";
+import type { RowDid } from "./keeper";
 
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
@@ -177,7 +177,7 @@ class TrialKeeper implements Keeper {
   async choreDo(where: Water): Promise<Did<{ chore: Chore }>> { return this.trial.choreDo(where); }
   // ── gifts: farming ──
   rowAt(key: string) { return this.trial.rowAt(key); }
-  async rowDo(key: string, name: string, marks: Record<string, boolean>): Promise<Did<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>> { return this.trial.rowDo(key, name, marks); }
+  async rowDo(key: string, name: string, marks: Record<string, boolean>): Promise<Did<RowDid>> { return this.trial.rowDo(key, name, marks); }
   gnomeAt(key: string) { return this.trial.gnomeAt(key); }
   async gnomeDo(key: string): Promise<Did<{ watered: string[] }>> { return this.trial.gnomeDo(key); }
   wellBook() { return this.trial.wellBook(); }

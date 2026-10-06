@@ -148,4 +148,57 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   t.check("the gnome is no longer a gift that is counted: nothing of it to use", did?.ok === false && did.why === "none", did);
   const shut = await call(U.unver, "town_gnome", ...xy(C[0]));
   t.check("it is for a proved character of the town", shut?.code === "42501", shut);
+
+  // ── the spellbound seed pouch: a row sown at once ──
+  t.section("the spellbound seed pouch: a row sown at once, for five seeds (town_row)");
+  const tilled = async (keys, bed) => { for (const k of keys) await t.sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1, $2, $3, 'tilled', null, $4)
+    on conflict (x, y) do update set soil = 'tilled', plant = null, changed = excluded.changed`, [...xy(k), bed, now]); };
+  const seedsOf = async (who) => (await purseOf(who)).bag.reduce((n, s) => n + (s?.item === "seedPumpkin" ? s.n : 0), 0);
+  const sowDeeds = async (who) => (await deeds("sow")).filter((d) => d.member_id === who && d.doc.row === true);
+  // (the row the hoe tilled, in a bed that is nobody's)
+  await give(U.m1, { had: ["charmHoe"], charms: ["charmHoe"] });
+  await hands(U.m1, "seedPumpkin", 100, ["seedPumpkin", 9], ["hoe", 1]);
+  let rowsWas = (await deeds("row")).length;
+  did = await call(U.m1, "town_row", ...xy(mid), {}, null);
+  t.check("without the pouch a row is not sown: refused, no seed gone", did?.ok === false && did.why === "none" && (await seedsOf(U.m1)) === 9 && (await plotAt(mid)).plant === null, did);
+  await give(U.m1, { had: ["charmHoe", "thingPouch"], charms: ["charmHoe"] });
+  did = await call(U.m1, "town_row", ...xy(mid), {}, null);
+  t.check("with the pouch the whole row is sown at once, the plot stood on first: seven plots", did?.ok === true && did.deed === "sow" && same(did.done, order) && did.seeds === 5, did);
+  t.check("…for five seeds, and the stamina of seven sowings", (await seedsOf(U.m1)) === 4 && (await staminaOf(U.m1)) === 100 - 7 * f.costs.sow, { seeds: await seedsOf(U.m1), stamina: await staminaOf(U.m1) });
+  const sownNow = await Promise.all(A.map(plotAt));
+  t.check("…every plot has its plant, the sower's, sown at that moment", sownNow.every((p) => p.soil === "tilled" && p.plant?.by === U.m1 && p.plant.crop === "pumpkin" && p.plant.picked === 0) && new Set(sownNow.map((p) => p.plant.sown)).size === 1, sownNow.map((p) => p.plant));
+  t.check("…the bed is whoever sowed in it first, as ever: the answer says so", did.bed?.by === U.m1 && (await one(`select member_id from public.town_beds where bed = 2`))?.member_id === U.m1, did.bed);
+  let sowedRow = await sowDeeds(U.m1);
+  noted = await deeds("row");
+  t.check("…each plot written down as its own sowing, with its tile, and the row once, whole", sowedRow.length === 7 && same(sowedRow.map((d) => d.doc.tile.join(",")), order) && sowedRow.every((d) => d.thing === "pumpkin" && d.n === 1 && d.doc.with === "seedPumpkin")
+    && noted.length === rowsWas + 1 && noted.at(-1).n === 7 && noted.at(-1).doc.deed === "sow" && noted.at(-1).thing === "seedPumpkin", sowedRow);
+  t.check("…sowing earns no points on the farming line, as ever", (await points(U.m1, "farming")) === 0);
+  // fewer seeds: as many plots as they reach; one seed is one plot, which is no row
+  const E = row(2, 5);
+  await tilled(E, 2);
+  await hands(U.m1, "seedPumpkin", 100, ["seedPumpkin", 3]);
+  did = await call(U.m1, "town_row", ...xy(E[0]), {}, null);
+  t.check("with three seeds, four plots are sown, the nearest first, and the hand is empty", did?.ok === true && same(did.done, E.slice(0, 4)) && did.seeds === 3 && (await seedsOf(U.m1)) === 0 && (await plotAt(E[4])).plant === null, did);
+  await hands(U.m1, "seedPumpkin", 100, ["seedPumpkin", 1]);
+  did = await call(U.m1, "town_row", ...xy(E[4]), {}, null);
+  t.check("with one seed there is no row to sow: refused, the seed still in the hand", did?.ok === false && did.why === "none" && (await seedsOf(U.m1)) === 1, did);
+  const one1 = await call(U.m1, "town_tend", ...xy(E[4]), null);
+  t.check("…and it is sown by hand as ever: one seed, one plot", one1?.ok === true && one1.deed === "sow" && (await seedsOf(U.m1)) === 0 && (await plotAt(E[4])).plant?.crop === "pumpkin", one1);
+  // somebody else's bed; a free bed, to whoever holds as many as one may
+  await tilled(row(3, 2), 3);
+  await hands(U.m1, "seedPumpkin", 100, ["seedPumpkin", 9]);
+  did = await call(U.m1, "town_row", ...xy(row(3, 2)[0]), {}, null);
+  t.check("in somebody else's bed nothing is sown (sowing is its owner's)", did?.ok === false && did.why === "none" && (await seedsOf(U.m1)) === 9, did);
+  await tilled(row(7, 0), 7);
+  await tilled(row(8, 0), 8);
+  did = await call(U.m1, "town_row", ...xy(row(7, 0)[3]), {}, null);
+  t.check("a second bed is taken by the pouch's sowing as by any", did?.ok === true && did.done.length === 7 && did.bed?.by === U.m1, did);
+  const had9 = await seedsOf(U.m1);
+  did = await call(U.m1, "town_row", ...xy(row(8, 0)[3]), {}, null);
+  t.check("…and a third is refused to whoever holds as many as one may: nothing sown, no seed gone", did?.ok === false && did.why === "beds" && (await seedsOf(U.m1)) === had9 && (await plotAt(row(8, 0)[3])).plant === null, did);
+  // tired hands sow the row all the same (the page asks its short game of them first)
+  await tilled(row(7, 1), 7);
+  await hands(U.m1, "seedPumpkin", 0, ["seedPumpkin", 5]);
+  did = await call(U.m1, "town_row", ...xy(row(7, 1)[0]), {}, { hits: 2, misses: 1, secs: 3 });
+  t.check("with no stamina the row is sown all the same", did?.ok === true && did.done.length === 7 && (await seedsOf(U.m1)) === 0 && (await staminaOf(U.m1)) === 0, did);
 }

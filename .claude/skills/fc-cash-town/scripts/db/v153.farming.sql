@@ -7,6 +7,9 @@
 --     (`town.tend`, as it is), from the plot stood on outwards, and leaves each whose beat was missed. Each plot done
 --     is written down as its own go at farming (`town_plays`, which the lines of work count), and the row whole as
 --     one line of `town_deeds` (`row`).
+--   * The spellbound seed pouch (a thing, had): the same deed sows every plot of the row that is ready for a seed,
+--     for five seeds where seven plots would take seven (`town.pouch_seeds`), each plot written down as its own
+--     sowing (`sow`, which earns no points, as ever).
 --   * The garden gnome (a familiar, following) waters its member's whole bed at once: no water out of a can, no
 --     stamina, what a plain can adds; a bed rests so many minutes between two of its rounds (the catalog's gifts row:
 --     the gnome's number), kept in the purse (`gnomed`). `town_gnome(x, y)`; written down as one line (`gnome`:
@@ -24,6 +27,15 @@ as $$
      where b.ord - 1 = town.bed_of(p_x, p_y)), '[]'::jsonb)
 $$;
 
+-- The seeds the pouch takes for so many plots of a row of p_side (lib/town/farm's pouchSeeds): its number for a
+-- whole row, in that measure for fewer plots, never more than the plots. And how many plots so many seeds reach.
+create or replace function town.pouch_seeds(p_plots integer, p_side integer)
+returns integer language sql stable
+as $$ select least(p_plots, ceil(p_plots::numeric * (town.cat('gifts')->'gifts'->'thingPouch'->>'by')::numeric / p_side)::integer) $$;
+create or replace function town.pouch_plots(p_seeds integer, p_side integer)
+returns integer language sql stable
+as $$ select coalesce(max(m), 0)::integer from generate_series(1, p_side) m where town.pouch_seeds(m, p_side) <= p_seeds $$;
+
 -- What a gift of the farming line would do to the row from the plot stood on, if anything (lib/town/farm's rowFor):
 -- which work, and the plots it would do it to, the one stood on first and then outwards (of two as near, the one
 -- further left). p_keys: the row's plots; p_plots: those of them that are kept (one that is not is weeds).
@@ -36,14 +48,25 @@ declare
   x0 integer;
   deed text;
   row_ jsonb;
+  hoes boolean;
+  sows boolean;
 begin
   if p_at is null or jsonb_typeof(p_keys) is distinct from 'array' or not (p_keys ? p_at) then return null; end if;
   deed := town.deed_for(p_at, coalesce(p_plots->p_at, wild), hand, p_me, p_now, p_owner);
-  if deed is null or not (deed in ('clear', 'till') and town.wearing(p_purse, 'charmHoe')) then return null; end if;
+  if deed is null then return null; end if;
+  hoes := deed in ('clear', 'till') and town.wearing(p_purse, 'charmHoe');
+  sows := deed = 'sow' and town.gift_works(p_purse, 'thingPouch');
+  if not hoes and not sows then return null; end if;
   x0 := split_part(p_at, ',', 1)::integer;
-  select jsonb_agg(k.key_ order by abs(split_part(k.key_, ',', 1)::integer - x0), split_part(k.key_, ',', 1)::integer) into row_
-    from jsonb_array_elements_text(p_keys) as k(key_)
-   where town.deed_for(k.key_, coalesce(p_plots->k.key_, wild), hand, p_me, p_now, p_owner) = deed;
+  -- (the pouch sows as many plots as the seeds in the bag reach, the nearest first)
+  select jsonb_agg(q.key_ order by q.far, q.x) into row_
+    from (
+      select k.key_, abs(split_part(k.key_, ',', 1)::integer - x0) as far, split_part(k.key_, ',', 1)::integer as x
+        from jsonb_array_elements_text(p_keys) as k(key_)
+       where town.deed_for(k.key_, coalesce(p_plots->k.key_, wild), hand, p_me, p_now, p_owner) = deed
+       order by far, x
+       limit case when sows then town.pouch_plots(town.held(p_purse->'bag', hand), jsonb_array_length(p_keys)) end
+    ) q;
   if row_ is null or jsonb_array_length(row_) < 2 then return null; end if;
   return jsonb_build_object('deed', deed, 'plots', row_);
 end;
@@ -70,13 +93,19 @@ declare
   plot jsonb;
   did jsonb;
   others integer;
+  hand text := town.hand_of(p_purse);
+  sows boolean;
+  spared integer := 0;
 begin
   found := town.row_for(p_at, p_keys, plots, p_purse, p_me, p_now, town.owner_of(bed,
     p_rest + (select count(*) from jsonb_array_elements_text(p_keys) as k(key_) where coalesce(plots->k.key_->'plant', 'null'::jsonb) <> 'null'::jsonb) > 0, p_now));
   if found is null then return town.no('none'); end if;
+  sows := found->>'deed' = 'sow';
+  -- (the pouch: of the seeds its plots would have taken one by one, so many are spared)
+  if sows then spared := jsonb_array_length(found->'plots') - town.pouch_seeds(jsonb_array_length(found->'plots'), jsonb_array_length(p_keys)); end if;
   for key in select t.key_ from jsonb_array_elements_text(found->'plots') with ordinality as t(key_, ord) order by t.ord loop
-    -- (a beat missed leaves its plot undone)
-    continue when marks->key is distinct from 'true'::jsonb;
+    -- (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown)
+    continue when not sows and marks->key is distinct from 'true'::jsonb;
     stand := plots || state;
     plot := coalesce(stand->key, wild);
     select p_rest + count(*)::int into others from jsonb_array_elements_text(p_keys) as k(key_)
@@ -89,10 +118,13 @@ begin
     mine := did->'purse';
     bed := did->'bed';
     state := state || jsonb_build_object(key, did->'plot');
+    -- (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
+    if sows and jsonb_array_length(each) < spared then mine := mine || jsonb_build_object('bag', town.put(mine->'bag', hand, 1)); end if;
     each := each || jsonb_build_array(jsonb_build_object('key', key, 'crop', coalesce(plot->'plant'->'crop', did->'plot'->'plant'->'crop', 'null'::jsonb), 'n', 1));
   end loop;
   return jsonb_build_object('ok', true, 'deed', found->>'deed', 'purse', mine, 'plots', state, 'each', each, 'got', '[]'::jsonb)
-    || case when bed is null then '{}'::jsonb else jsonb_build_object('bed', bed) end;
+    || case when bed is null then '{}'::jsonb else jsonb_build_object('bed', bed) end
+    || case when sows then jsonb_build_object('seeds', jsonb_array_length(each) - least(spared, jsonb_array_length(each))) else '{}'::jsonb end;
 end;
 $$;
 
@@ -226,8 +258,14 @@ begin
   for e in select t.x from jsonb_array_elements(did->'each') with ordinality as t(x, ord) order by t.ord loop
     v_x := split_part(e->>'key', ',', 1)::integer;
     v_y := split_part(e->>'key', ',', 2)::integer;
-    perform town.record(me, 'farming', true, coalesce((claims->>'secs')::double precision, 0) / n, town.stamina_of(purse, now_) <= 0, town.buff_of(purse, now_),
-      jsonb_build_object('what', did->>'deed', 'tile', jsonb_build_array(v_x, v_y), 'need', 1, 'misses', 0, 'row', true));
+    if did->>'deed' in ('clear', 'till') then
+      perform town.record(me, 'farming', true, coalesce((claims->>'secs')::double precision, 0) / n, town.stamina_of(purse, now_) <= 0, town.buff_of(purse, now_),
+        jsonb_build_object('what', did->>'deed', 'tile', jsonb_build_array(v_x, v_y), 'need', 1, 'misses', 0, 'row', true));
+    else
+      -- (everything else is a deed of its own, as town_tend writes it: the plant, how many, the tile, the thing in the hand)
+      perform town.note(me, did->>'deed', e->>'crop', (e->>'n')::numeric, 0,
+        jsonb_build_object('tile', jsonb_build_array(v_x, v_y), 'with', town.hand_of(purse), 'row', true));
+    end if;
     insert into public.town_plots (x, y, bed, soil, plant, changed)
       values (v_x, v_y, bed_n, did->'plots'->(e->>'key')->>'soil', nullif(did->'plots'->(e->>'key')->'plant', 'null'::jsonb), now_)
       on conflict (x, y) do update set soil = excluded.soil, plant = excluded.plant, changed = excluded.changed;

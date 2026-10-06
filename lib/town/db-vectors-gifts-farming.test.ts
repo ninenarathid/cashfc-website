@@ -1,10 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { gnomeWater, rowFor, rowTend, type Bed, type Plant, type Plot } from "./farm";
+import { BEDS, gnomeWater, pouchPlots, pouchSeeds, rowFor, rowTend, type Bed, type Plant, type Plot } from "./farm";
 import { CROP_IDS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
-import { HOUR, newPurse, put, type Purse } from "./trade";
+import { HOUR, held, newPurse, put, type Purse } from "./trade";
 import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
 
 /**
@@ -16,6 +16,9 @@ import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
  *   them and off them, in one's own bed, somebody else's, nobody's and one that has lapsed, with each gift worn and
  *   not, the right thing in the hand and not, stamina and none, and marks of every sort.
  *
+ * - `pouch_seeds`, `pouch_plots`: every count of plots and of seeds, for a row of seven and of other lengths; and
+ *   rows to sow (`row_for`, `row_tend` again): tilled plots and plots not ready, the pouch had and not, a seed in
+ *   the hand and not, from one seed to more than enough, a free bed taken and refused to whoever holds two.
  * - `gnome_water`: beds with plants of every pace sown at many moments (growing, ripe, bearing again, watered a
  *   while ago and just now), bare soil and nothing at all; the gnome following, another familiar, none; rounds kept
  *   for this bed and for others, fresh, old and kept wrongly; one's own bed, somebody else's and nobody's.
@@ -96,6 +99,30 @@ export function vectorsFarming(): Vector[] {
     const owner = c.of<string | null>([me, me, me, me === ME ? YOU : ME, null]);
     add("gnome_water", [bed, plots, p, me, NOW, owner], gnomeWater(bed, plots, p, me, NOW, owner));
   }
+  // the pouch: what a row takes of it, and how far so many seeds reach
+  for (const side of [7, 5, 1]) for (let n = 0; n <= 9; n++) { add("pouch_seeds", [n, side], pouchSeeds(n, side)); add("pouch_plots", [n, side], pouchPlots(n, side)); }
+  // …and rows sown from it
+  for (let i = 0; i < 320; i++) {
+    const bed = c.int(0, BEDS_IN_FARM - 1), [bx, by] = bedCorner(bed), y = by + c.int(0, 6), keys = rowOf(bx, y).map(([u, v]) => `${u},${v}`);
+    const me = c.of([ME, ME, YOU]), whose = c.of([me, me, me, me === ME ? YOU : ME, null, null]);
+    // the row: mostly tilled; some plots cleared, some weeds, some with a plant already
+    const sort = c.of(["tilled", "tilled", "mixed", "mixed", "mixed"]), plots: Record<string, Plot> = {};
+    for (const key of keys) {
+      const what = sort === "tilled" ? 0 : c.next();
+      if (what < 0.6) plots[key] = SOILS[1];
+      else if (what < 0.72) plots[key] = SOILS[0];
+      else if (what < 0.86) plots[key] = { soil: "tilled", plant: { by: whose ?? me, crop: c.of(CROP_IDS), sown: NOW - c.int(1, 40) * HOUR, boost: 0, watered: 0, fed: 0, guard: NOW + 99 * HOUR, cured: 0, picked: 0, pickedAt: 0 } };
+    }
+    const keeping: Bed | null = whose === null ? null : { by: whose, tended: NOW - c.of([1, 30, 97]) * HOUR, empty: c.of([0, 0, NOW - 2 * HOUR, NOW - 30 * HOUR]) };
+    const gifts = c.of<Purse["gifts"] | undefined>([{ had: ["thingPouch"], charms: [] }, { had: ["thingPouch"], charms: [] }, { had: ["thingPouch", "charmHoe"], charms: ["charmHoe"] }, { had: ["charmHoe"], charms: ["charmHoe"] }, undefined]);
+    const seed = c.of<ItemId>(["seedPumpkin", "seedKangkong", "seedMango"]), hand = c.of<ItemId | null>([seed, seed, seed, seed, "hoe", null]);
+    const p = purse(gifts, hand, [["hoe", 1], [seed, c.of([1, 2, 3, 4, 5, 6, 9, 20])]], c.of([100, 100, 4, 0]));
+    const stood = c.maybe(0.92) ? c.of(keys) : `${bx + 7},${y}`, rest = c.of([0, 0, 2]), holds = c.of([0, 0, 1, 2]);
+    const owner = c.of<string | null>([null, me, whose]);
+    add("row_for", [stood, keys, plots, p, me, NOW, owner], rowFor(stood, keys, plots, p, me, NOW, owner));
+    const marks = c.of<Record<string, boolean>>([{}, {}, Object.fromEntries(keys.map((k) => [k, false])), Object.fromEntries(keys.map((k) => [k, true]))]);
+    add("row_tend", [stood, keys, plots, keeping, rest, holds, p, me, NOW, marks], rowTend(stood, keys, plots, keeping ?? undefined, rest, holds, p, me, NOW, marks));
+  }
   return out;
 }
 
@@ -120,6 +147,15 @@ describe("the cases the database's rules of the farming line's gifts are held to
     expect(tends.some((t) => t.d.ok && t.d.each!.length > 0 && t.bed?.by === t.me && t.d.bed?.tended === NOW)).toBe(true);
     expect(tends.some((t) => t.d.ok && t.d.each!.length > 0 && !!t.bed && t.bed.by !== t.me && t.d.bed?.by === t.bed.by)).toBe(true);
     expect(tends.some((t) => t.d.ok && t.d.each!.length > 0 && !t.d.bed)).toBe(true);
+    // the pouch: a whole row for five seeds, fewer plots for fewer, as many as the seeds reach, a free bed taken, and refused to whoever holds as many as one may
+    const sows = of("row_tend").map((v) => ({ purse: v.args[6] as Purse, bed: v.args[3] as Bed | null, holds: v.args[5] as number, me: v.args[7] as string, d: v.want as { ok: boolean; why?: string; deed?: string; each?: unknown[]; seeds?: number; purse?: Purse; bed?: Bed } }))
+      .filter((x) => !x.d.ok || x.d.deed === "sow");
+    const seedsIn = (p: Purse) => (p.hand ? held(p.bag, p.hand) : 0);
+    expect(sows.some((x) => x.d.ok && x.d.each!.length === 7 && x.d.seeds === 5 && seedsIn(x.purse) - seedsIn({ ...x.d.purse!, hand: x.purse.hand }) === 5)).toBe(true);
+    expect(sows.some((x) => x.d.ok && x.d.each!.length === 4 && x.d.seeds === 3) && sows.some((x) => x.d.ok && x.d.each!.length === 2 && x.d.seeds === 2)).toBe(true);
+    expect(sows.some((x) => x.d.ok && x.d.each!.length < 7 && seedsIn({ ...x.d.purse!, hand: x.purse.hand }) === 0)).toBe(true);
+    expect(sows.some((x) => x.d.ok && !x.bed && x.d.bed?.by === x.me) && sows.some((x) => !x.d.ok && x.d.why === "beds" && x.holds >= BEDS.each)).toBe(true);
+    expect(of("pouch_seeds").length).toBe(30);
     // the gnome: a bed watered whole and in part, and refused each way
     const gnomes = of("gnome_water").map((v) => ({ plots: v.args[1] as Record<string, Plot>, d: v.want as { ok: boolean; why?: string; watered?: string[]; purse?: Purse } }));
     const plantsIn = (plots: Record<string, Plot>) => Object.values(plots).filter((x) => x.plant).length;

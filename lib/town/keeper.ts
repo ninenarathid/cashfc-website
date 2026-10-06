@@ -31,6 +31,8 @@ import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
 // ── gifts: farming ──
 import { gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
+/** What a row's deed came to (lib/town/farm's rowTend), as a panel is told it. */
+export interface RowDid { deed: RowDeed; done: string[]; got: Array<[ItemId, number]>; seeds?: number }
 import { rowOf } from "./world";
 
 /**
@@ -188,10 +190,11 @@ export interface Keeper {
    * A row at a time (lib/town/farm's rowFor): what a gift of the farming line would do to the whole row of the bed
    * from the plot I stand on, with the thing in my hand: which work, and the plots, the one stood on first. Null:
    * nothing to offer (and never, where whoever keeps the game knows of no rows). Doing it is one deed: `marks` says
-   * how each plot's beat went, by its key; `done` is the plots it did, in the order it did them.
+   * how each plot's beat went, by its key; `done` is the plots it did, in the order it did them (and `seeds`, of a
+   * row sown from the pouch, how many seeds it took).
    */
   rowAt(key: string): { deed: RowDeed; plots: string[] } | null;
-  rowDo(key: string, name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>>;
+  rowDo(key: string, name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<RowDid>>;
   /**
    * The garden gnome (lib/town/farm's gnomeWater): the plots of the bed I stand in that it would water if I sent it
    * now, in the order it would go (none: there is nothing to send it for), and sending it.
@@ -911,10 +914,10 @@ export class DbKeeper implements Keeper {
     const [x, y] = key.split(",").map(Number);
     return rowFor(key, rowOf(x, y).map(([u, v]) => plotKey(u, v)), this.plots, this.mine, this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains());
   }
-  async rowDo(key: string, _name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>> {
+  async rowDo(key: string, _name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<RowDid>> {
     const [x, y] = key.split(",").map(Number);
     // (the answer brings every plot it changed, and the bed's keeping: kept as any answer's are)
-    const did = await this.deed<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>("town_row", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
+    const did = await this.deed<RowDid>("town_row", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
     if (did.ok) this.onDeed?.("farm");
     return did;
   }

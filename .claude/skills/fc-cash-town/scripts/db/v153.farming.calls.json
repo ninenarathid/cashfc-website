@@ -1,5 +1,7 @@
 {
   "gnome_water": "town.gnome_water($1::integer, $2::jsonb, $3::jsonb, $4::text, $5::bigint, $6::text)",
+  "pouch_seeds": "to_jsonb(town.pouch_seeds($1::integer, $2::integer))",
+  "pouch_plots": "to_jsonb(town.pouch_plots($1::integer, $2::integer))",
   "row_keys": "town.row_keys($1::integer, $2::integer)",
   "row_for": "town.row_for($1::text, $2::jsonb, $3::jsonb, $4::jsonb, $5::text, $6::bigint, $7::text)",
   "row_tend": "town.row_tend($1::text, $2::jsonb, $3::jsonb, $4::jsonb, $5::integer, $6::integer, $7::jsonb, $8::text, $9::bigint, $10::jsonb)"

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { FARMING, WILD, gnomeReach, gnomeWater, rowFor, rowTend, see, tend, type Bed, type Plant, type Plot } from "./farm";
+import { BEDS, FARMING, WILD, gnomeReach, gnomeWater, pouchPlots, pouchSeeds, rowFor, rowTend, see, tend, type Bed, type Plant, type Plot } from "./farm";
 import type { ItemId } from "./items";
 import { dayOf, staminaOf } from "./stamina";
-import { HOUR, hold, newPurse, put, type Purse } from "./trade";
+import { HOUR, held, hold, newPurse, put, type Purse } from "./trade";
 import { bedCorner, rowOf } from "./world";
 
 /**
@@ -181,5 +181,82 @@ describe("the garden gnome: a whole bed of its member's watered at once", () => 
     expect(gnomeWater(0, {}, me, "me", NOON, "me")).toEqual({ ok: false, why: "soil" });
     // (a count of its rounds kept wrongly is no round)
     expect(done(gnomeWater(0, bed(), { ...me, gnomed: { "0": "soon" } as unknown as Record<string, number> }, "me", NOON, "me")).purse.gnomed).toEqual({ "0": NOON });
+  });
+});
+
+describe("the spellbound seed pouch: a row sown at once, for five seeds", () => {
+  const POUCH = { had: ["thingPouch"], charms: [] };
+  const tilled = (keys: readonly string[]): Record<string, Plot> => Object.fromEntries(keys.map((k) => [k, { soil: "tilled", plant: null } as Plot]));
+  const sower = (seeds: number, gifts: Purse["gifts"] = POUCH) => holding(purseWith(gifts, ["seedPumpkin", seeds]), "seedPumpkin");
+
+  it("takes five seeds for seven plots, in that measure for fewer, and never more than the plots; no part of a row is a better bargain than the whole", () => {
+    expect([1, 2, 3, 4, 5, 6, 7].map((n) => pouchSeeds(n))).toEqual([1, 2, 3, 3, 4, 5, 5]);
+    expect([0, 1, 2, 3, 4, 5, 6, 20].map((n) => pouchPlots(n))).toEqual([0, 1, 2, 4, 5, 7, 7, 7]);
+    for (let n = 1; n <= 7; n++) { expect(pouchSeeds(n)).toBeLessThanOrEqual(n); expect(pouchSeeds(n) / n).toBeGreaterThanOrEqual(5 / 7); }
+  });
+
+  it("sows every plot of the row that is ready for a seed, the one stood on first: seven plots for five seeds, and the stamina of seven sowings", () => {
+    const me = sower(9), row = rowFor(MID, KEYS, tilled(KEYS), me, "me", NOON)!;
+    expect(row).toEqual({ deed: "sow", plots: [KEYS[3], KEYS[2], KEYS[4], KEYS[1], KEYS[5], KEYS[0], KEYS[6]] });
+    const did = done(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, 0, me, "me", NOON, {}));
+    expect(did.deed).toBe("sow");
+    expect(did.each.map((e) => e.key)).toEqual(row.plots);
+    expect(did.each.every((e) => e.crop === "pumpkin" && e.n === 1)).toBe(true);
+    expect(did.seeds).toBe(5);
+    expect(held(did.purse.bag, "seedPumpkin")).toBe(4);
+    expect(staminaOf(did.purse, NOON)).toBe(100 - 7 * FARMING.costs.sow);
+    for (const key of KEYS) expect(did.plots[key].plant).toMatchObject({ by: "me", crop: "pumpkin", sown: NOON, picked: 0 });
+    // the bed is whoever sowed first in it: mine, as with a seed sown by hand
+    expect(did.bed).toEqual({ by: "me", tended: NOON, empty: 0 });
+    // …each plot as a sowing by hand leaves it, and nothing else of the purse moved
+    const byHand = done(tend(MID, tilled(KEYS)[MID], undefined, 0, 0, me, "me", NOON));
+    expect(did.plots[MID]).toEqual(byHand.plot);
+    expect({ ...did.purse, bag: [], stamina: null }).toEqual({ ...me, bag: [], stamina: null });
+  });
+
+  it("with exactly five seeds the whole row is sown and the hand is empty; with fewer, as many plots as they reach, the nearest first", () => {
+    const five = done(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, 0, sower(5), "me", NOON, {}));
+    expect(five.each.length).toBe(7);
+    expect(held(five.purse.bag, "seedPumpkin")).toBe(0);
+    const three = sower(3);
+    expect(rowFor(MID, KEYS, tilled(KEYS), three, "me", NOON)!.plots).toEqual([KEYS[3], KEYS[2], KEYS[4], KEYS[1]]);
+    const did = done(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, 0, three, "me", NOON, {}));
+    expect(did.each.length).toBe(4);
+    expect(did.seeds).toBe(3);
+    expect(held(did.purse.bag, "seedPumpkin")).toBe(0);
+    // two seeds are two plots, for two seeds: a row, with nothing spared; one seed is one plot, which is no row
+    const two = done(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, 0, sower(2), "me", NOON, {}));
+    expect([two.each.length, two.seeds, held(two.purse.bag, "seedPumpkin")]).toEqual([2, 2, 0]);
+    expect(rowFor(MID, KEYS, tilled(KEYS), sower(1), "me", NOON)).toBeNull();
+  });
+
+  it("is only the plots that are tilled and empty; what it is told of beats changes nothing", () => {
+    const some: Record<string, Plot> = { ...tilled([KEYS[0], KEYS[1], KEYS[3], KEYS[6]]), [KEYS[2]]: { soil: "cleared", plant: null }, [KEYS[4]]: sown() };
+    const me = sower(9), row = rowFor(KEYS[3], KEYS, some, me, "me", NOON, "me")!;
+    expect(row.plots).toEqual([KEYS[1], KEYS[3], KEYS[0], KEYS[6]].sort((a, b) => Math.abs(Number(a.split(",")[0]) - Number(KEYS[3].split(",")[0])) - Math.abs(Number(b.split(",")[0]) - Number(KEYS[3].split(",")[0])) || Number(a.split(",")[0]) - Number(b.split(",")[0])));
+    const mine: Bed = { by: "me", tended: NOON - HOUR, empty: 0 };
+    const did = done(rowTend(KEYS[3], KEYS, some, mine, 0, 0, me, "me", NOON, all(KEYS, false)));
+    expect(did.each.length).toBe(4);
+    expect(did.seeds).toBe(3);
+    expect(held(did.purse.bag, "seedPumpkin")).toBe(6);
+    expect(did.bed).toEqual({ ...mine, tended: NOON });
+  });
+
+  it("is nothing without the pouch, with no seed in the hand, where one plot alone is ready, or in a bed that is somebody else's", () => {
+    expect(rowFor(MID, KEYS, tilled(KEYS), sower(9, { had: [], charms: [] }), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, tilled(KEYS), holding(purseWith(undefined, ["seedPumpkin", 9]), "seedPumpkin"), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, tilled(KEYS), purseWith(POUCH, ["seedPumpkin", 9]), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, tilled([MID]), sower(9), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, tilled(KEYS), sower(9), "me", NOON, "you")).toBeNull();
+    expect(rowTend(MID, KEYS, tilled(KEYS), { by: "you", tended: NOON, empty: 0 }, 2, 0, sower(9), "me", NOON, {})).toEqual({ ok: false, why: "none" });
+    // (the hoe's charm sows nothing, and the pouch hoes nothing)
+    expect(rowFor(MID, KEYS, tilled(KEYS), sower(9, HOE), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, {}, holding(purseWith(POUCH, ["hoe", 1]), "hoe"), "me", NOON)).toBeNull();
+  });
+
+  it("takes a free bed as a sowing does, and is refused one by whoever holds as many beds as one may: nothing is sown then, and no seed gone", () => {
+    const me = sower(9);
+    expect(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, BEDS.each, me, "me", NOON, {})).toEqual({ ok: false, why: "beds" });
+    expect(done(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, BEDS.each - 1, me, "me", NOON, {})).each.length).toBe(7);
   });
 });

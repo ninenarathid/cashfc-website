@@ -462,7 +462,7 @@ export class Trial {
     return rowFor(key, this.rowKeys(key), this.farm(), this.purse(), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky());
   }
   /** Do it, whole: one deed. Each plot done is kept, and counted, as if it had been done by itself. */
-  rowDo(key: string, name: string, marks: Record<string, boolean>): { ok: true; deed: RowDeed; done: string[]; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+  rowDo(key: string, name: string, marks: Record<string, boolean>): { ok: true; deed: RowDeed; done: string[]; got: Array<[ItemId, number]>; seeds?: number } | { ok: false; why: Refusal | FarmRefusal } {
     this.swarmNote();
     const p = this.purse(), now = this.now(), plots = this.farm(), beds = this.beds(), keys = this.rowKeys(key);
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
@@ -477,11 +477,13 @@ export class Trial {
     else kept[bed] = { ...did.bed, name: (did.bed.by === beds[bed]?.by && beds[bed]?.name) || name || did.bed.by };
     this.write(BEDS, kept);
     for (const e of did.each) {
-      const was = plots[e.key]?.plant;
+      const was = plots[e.key]?.plant, [u, v] = e.key.split(",").map(Number);
+      // (a plot sown anew forgets who helped the plant that was there)
+      if (did.deed === "sow") this.wellSeen({ by: this.id, at: now, what: "sow", tile: [u, v] });
       this.counted({ from: "deed", what: did.deed, thing: e.crop, n: 1, doc: { ...(was && was.by !== this.id ? { whose: was.by } : {}), ...(!was && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}) } });
     }
     this.save(did.purse);
-    return { ok: true, deed: did.deed, done: did.each.map((e) => e.key), got: did.got };
+    return { ok: true, deed: did.deed, done: did.each.map((e) => e.key), got: did.got, ...(did.seeds === undefined ? {} : { seeds: did.seeds }) };
   }
   /** The plots of the bed a plot is in that the garden gnome would water if it were sent now (lib/town/farm's gnomeReach), in the order it would go. */
   gnomeAt(key: string): string[] {
