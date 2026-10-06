@@ -193,6 +193,9 @@ export interface Purse {
   made?: ItemId[];
   /** How many times something has been cooked that was a recipe's own but for its last thing: by the recipe (lib/town/cooking). */
   tries?: Partial<Record<ItemId, number>>;
+  // ── gifts: kitchen ──
+  /** The dimension basket (lib/town/cooking): the helpings kept in it, each dish once with how many of it, in the order they were first put in. In no slot of the bag. */
+  basket?: Array<[DishId, number]>;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

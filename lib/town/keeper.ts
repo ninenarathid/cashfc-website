@@ -28,6 +28,8 @@ import { CHARM_IDS, type GiftRefusal } from "./gifts";
 import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
+// ── gifts: kitchen ──
+import type { KitchenRefusal } from "./cooking";
 import { bedOf } from "./world";
 
 /**
@@ -59,6 +61,8 @@ import { bedOf } from "./world";
 
 export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
+// ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
+export type KitchenDid<T = unknown> = Did<T> | { ok: false; why: KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
 export type Water = "river" | "well" | null;
@@ -325,6 +329,15 @@ export interface Keeper {
   potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
   potLadle(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot | null }>>;
   potTake(id: string, at: [number, number] | null): Promise<Did>;
+  // ── gifts: kitchen ──
+  /**
+   * The dimension basket (lib/town/cooking): so many helpings of the dish in a slot of my bag put into it; so many of
+   * a dish taken back out, into the bag; and sitting down to a helping straight out of it, as to one out of the bag.
+   * What it holds is in my purse (`basketOf(purse())`).
+   */
+  basketPut(slot: number, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>>;
+  basketTake(dish: DishId, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>>;
+  basketEat(dish: DishId, seated: boolean): Promise<KitchenDid<{ dish: DishId }>>;
 
   dealOpen(other: string, myName: string, otherName: string): Promise<Did>;
   dealLay(give: Give, coins?: number): Promise<Did>;
@@ -1034,6 +1047,10 @@ export class DbKeeper implements Keeper {
     if (did.ok) this.onDeed?.("kitchen");
     return did;
   }
+  // ── gifts: kitchen ──
+  basketPut(slot: number, n: number) { return this.deed<{ dish: DishId; n: number }>("town_basket_put", { p_slot: slot, p_n: n }); }
+  basketTake(dish: DishId, n: number) { return this.deed<{ dish: DishId; n: number }>("town_basket_take", { p_dish: dish, p_n: n }); }
+  basketEat(dish: DishId, seated: boolean) { return this.deed<{ dish: DishId }>("town_basket_eat", { p_dish: dish, p_seated: seated }); }
 
   async dealOpen(other: string): Promise<Did> {
     const did = await this.deed("town_deal_open", { p_other: other });

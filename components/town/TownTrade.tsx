@@ -21,6 +21,8 @@ import type { Did, Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownNotices from "./TownNotices";
+// ── gifts: kitchen ──
+import TownBasket from "./TownBasket";
 import { Delta, PriceGraph, PriceNow } from "./TownPrice";
 
 /** What of the trade is open on the screen: the uncle's stall (buying, leaving things to be sold, or the notice board beside it, where members sell to one another), the bank, or my own bag. */
@@ -264,6 +266,8 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
         {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
+                                // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
+                                kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} />}
                                 onWear={(slot) => tried(keeper.wear(slot), ["สะพายแล้ว", "On your back."])}
                                 onTakeOff={(item) => tried(keeper.takeOff(item), ["ถอดเก็บแล้ว", "Taken off."])}
                                 onServe={async (slot) => { const did = await keeper.serve(slot); if (did.ok) say("ตักใส่ถ้วยแล้ว", "A helping, in your bowl."); else say(...(did.why === "tool" ? (["ไม่มีถ้วย", "No bowl"] as [string, string]) : why(did.why))); }}
@@ -566,8 +570,10 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen }: {
+function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen }: {
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
+  // ── gifts: kitchen ── (what the kitchen's gifts show in the bag's panel, under how I am)
+  kitchen?: React.ReactNode;
   /** How many helpings a meal's hours take with whoever keeps the game (the keeper's `helpings`). */
   helpings: number;
   /** Whether anything can be dropped (onto the ground, where somebody may pick it up); otherwise only what is worth nothing, which is thrown away. And what I dropped that still lies there. */
@@ -642,6 +648,9 @@ function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAl
           </div>
         )}
       </div>
+
+      {/* ── gifts: kitchen ── */}
+      {kitchen}
 
       {/* The bag itself, opened (the owner: "ให้เหมือนเปิดกระเป๋ามากกว่านี้"): its flap thrown back, its pockets inside, and
           under them the thing taken up to look at. What a thing is shows when the mouse is over it; a tap takes it up. */}

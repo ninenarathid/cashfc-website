@@ -27,6 +27,8 @@ import {
 import { bedCorner, bedOf } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
+// ── gifts: kitchen ──
+import { basketEat, basketPut, basketTake } from "./cooking";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
 import { ditch, reachOf } from "./ditch";
 import { hotAt } from "./heat";
@@ -836,6 +838,13 @@ export class Trial {
   }
   /** Ladle a helping out of the pot in a slot of my own bag, into my bowl. */
   serve(slot: number) { return this.keep(serve(this.purse(), slot)); }
+  // ── gifts: kitchen ──
+  /** Keep what a deed with a gift of the kitchen's came to, if it came to anything. */
+  private gifted<T extends { purse: Purse }, W>(did: ({ ok: true } & T) | { ok: false; why: W }) { if (did.ok) this.save(did.purse); return did; }
+  /** The dimension basket (lib/town/cooking): helpings put in from a slot of the bag, taken back out, and one sat down to straight out of it. */
+  basketPut(slot: number, n: number) { return this.gifted(basketPut(this.purse(), slot, n)); }
+  basketTake(dish: string, n: number) { return this.gifted(basketTake(this.purse(), dish, n)); }
+  basketEat(dish: string, seated: boolean) { return this.gifted(basketEat(this.purse(), dish, seated, this.now())); }
   /** What the uncle's next hint costs me (of what can be made with what he sells so far), and buying it: which one it is, by chance. */
   hintPrice(): number | null { const at = sourcesAt(this.village().unlocked, true); return hintPrice(this.purse(), this.found(), (id) => at.has(id)); }
   hint() { const at = sourcesAt(this.village().unlocked, true); return this.keep(buyHint(this.purse(), this.hintChance ?? Math.random(), this.found(), (id) => at.has(id))); }

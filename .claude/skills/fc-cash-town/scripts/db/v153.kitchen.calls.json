@@ -1,0 +1,8 @@
+{
+  "basket_of": "town.basket_of($1::jsonb)",
+  "basket_room": "to_jsonb(town.basket_room($1::jsonb))",
+  "basket_put": "town.basket_put($1::jsonb, $2::integer, $3::numeric)",
+  "basket_take": "town.basket_take($1::jsonb, $2::text, $3::numeric)",
+  "basket_eat": "town.basket_eat($1::jsonb, $2::text, $3::boolean, $4::bigint)",
+  "begun": "town.begun($1::jsonb, $2::text, $3::bigint)"
+}

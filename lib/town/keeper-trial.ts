@@ -7,6 +7,8 @@ import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import { wearing } from "./gifts";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
+// ── gifts: kitchen ──
+import type { KitchenDid } from "./keeper";
 import type { Worn } from "./lines";
 import type { Play } from "./plays";
 import type { ShopAsk } from "./shop";
@@ -249,6 +251,10 @@ class TrialKeeper implements Keeper {
   async potDown(at: [number, number]) { return this.trial.potDown(at); }
   async potLadle(id: string) { return this.trial.potLadle(id); }
   async potTake(id: string): Promise<Did> { return this.trial.potTake(id); }
+  // ── gifts: kitchen ──
+  async basketPut(slot: number, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketPut(slot, n); }
+  async basketTake(dish: DishId, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketTake(dish, n); }
+  async basketEat(dish: DishId, seated: boolean): Promise<KitchenDid<{ dish: DishId }>> { return this.trial.basketEat(dish, seated); }
 
   async dealOpen(other: string, myName: string, otherName: string): Promise<Did> { return this.trial.dealOpen(other, myName, otherName); }
   async dealLay(give: Give, coins = 0): Promise<Did> { return this.trial.dealLay(give, coins); }

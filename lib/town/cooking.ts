@@ -1,9 +1,10 @@
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
-import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId } from "./items";
+import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { hasBuff, spend } from "./stamina";
+import { hasThing, numberOf, type GiftRefusal } from "./gifts";
+import { begun, hasBuff, mayEat, spend } from "./stamina";
 import type { TimingMods } from "./timing";
-import { held, no, put, roomFor, take, type Done, type Purse, type Stack } from "./trade";
+import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -322,4 +323,69 @@ export function serve(purse: Purse, slot: number): Done<{ purse: Purse; dish: Di
   const bag = take(purse.bag.map((b, i) => (i !== slot ? b : left ? { ...s, of: { dish, left } } : null)), BOWL, 1);
   if (roomFor(bag, dish) < 1) return no("full");
   return { ok: true, dish, purse: { ...purse, bag: put(bag, dish, 1) } };
+}
+
+/* ── The gifts of the kitchen's ranks (lib/town/gifts; the owner, 2026-10-07: each rank cuts a whole rule of its line out) ── */
+
+/** Why a gift of the kitchen's was not used, beyond the trade's reasons and the gifts' own. */
+export type KitchenRefusal = never;
+/** What a deed with a gift of the kitchen's comes to. */
+export type Gifted<T> = ({ ok: true } & T) | { ok: false; why: Refusal | GiftRefusal | KitchenRefusal };
+
+/**
+ * The dimension basket (the kitchen's second rank): a food pocket of its owner's own. It holds so many helpings
+ * (the gift's number), of any dishes together, in no slot of the bag: a helping is put into it from the bag, taken
+ * back out, or eaten straight from it as from the bag. Food only: whatever is a dish (a helping in its bowl, the
+ * uncle's rice parcel, the odd dish), and nothing else. A helping in it has its bowl with it, as one in the bag has:
+ * the bowl is back when it has been eaten.
+ *
+ * What a purse keeps in it, made sound: dishes only, each once, a whole number of helpings of each, in the order
+ * they were first put in.
+ */
+export function basketOf(purse: Pick<Purse, "basket">): Array<[DishId, number]> {
+  const out: Array<[DishId, number]> = [];
+  for (const e of Array.isArray(purse.basket) ? (purse.basket as unknown[]) : []) {
+    if (!Array.isArray(e) || e.length !== 2) continue;
+    const [id, n] = e as [unknown, unknown];
+    if (typeof id === "string" && Object.prototype.hasOwnProperty.call(DISHES, id) && typeof n === "number" && Number.isInteger(n) && n > 0 && !out.some(([d]) => d === id)) out.push([id as DishId, n]);
+  }
+  return out;
+}
+/** How many helpings are in the basket, and how many more it has room for (none, for whoever has no basket). */
+export const inBasket = (purse: Pick<Purse, "basket">): number => basketOf(purse).reduce((t, [, n]) => t + n, 0);
+export const basketRoom = (purse: Pick<Purse, "basket" | "gifts">): number => (hasThing(purse, "thingBasket") ? Math.max(0, numberOf("thingBasket") - inBasket(purse)) : 0);
+
+/** Put so many helpings of the dish in a slot of the bag into the basket. */
+export function basketPut(purse: Purse, slot: number, n: number): Gifted<{ purse: Purse; dish: DishId; n: number }> {
+  const s = purse.bag[slot];
+  if (!hasThing(purse, "thingBasket") || !s || !isDish(s.item)) return no("none");
+  if (!Number.isInteger(n) || n < 1 || n > s.n) return no("amount");
+  if (n > basketRoom(purse)) return no("full");
+  const dish = s.item, mine = basketOf(purse);
+  return {
+    ok: true, dish, n,
+    purse: {
+      ...purse,
+      bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { item: s.item, n: s.n - n })),
+      basket: mine.some(([d]) => d === dish) ? mine.map(([d, k]): [DishId, number] => (d === dish ? [d, k + n] : [d, k])) : [...mine, [dish, n]],
+    },
+  };
+}
+/** A basket with so many helpings of a dish out of it (it must hold as many). */
+const less = (mine: Array<[DishId, number]>, dish: DishId, n: number) => mine.flatMap(([d, k]): Array<[DishId, number]> => (d !== dish ? [[d, k]] : k > n ? [[d, k - n]] : []));
+/** Take so many helpings of a dish back out of the basket, into the bag. */
+export function basketTake(purse: Purse, dish: string, n: number): Gifted<{ purse: Purse; dish: DishId; n: number }> {
+  const mine = basketOf(purse), had = mine.find(([d]) => d === dish);
+  if (!hasThing(purse, "thingBasket") || !had) return no("none");
+  if (!Number.isInteger(n) || n < 1 || n > had[1]) return no("amount");
+  if (roomFor(purse.bag, had[0]) < n) return no("full");
+  return { ok: true, dish: had[0], n, purse: { ...purse, bag: put(purse.bag, had[0], n), basket: less(mine, had[0], n) } };
+}
+/** Sit down to a helping of a dish out of the basket: as to one out of the bag (lib/town/stamina's sitDown), but that it leaves the basket. */
+export function basketEat(purse: Purse, dish: string, seated: boolean, now: number): Gifted<{ purse: Purse; dish: DishId }> {
+  const mine = basketOf(purse), had = mine.find(([d]) => d === dish);
+  if (!hasThing(purse, "thingBasket") || !had) return no("none");
+  if (!seated) return no("stand");
+  if (!mayEat(purse, now)) return no("meal");
+  return { ok: true, dish: had[0], purse: { ...purse, basket: less(mine, had[0], 1), ...begun(purse, had[0], now) } };
 }

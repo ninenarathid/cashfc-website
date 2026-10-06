@@ -170,20 +170,27 @@ export function bowlsBack(purse: Purse, more = 0): Purse {
   return { ...rest, bag: fits ? put(purse.bag, BOWL, fits) : purse.bag, ...(owed > fits ? { owed: owed - fits } : {}) };
 }
 
+/**
+ * A helping of a dish begun now, wherever it was taken from (a slot of the bag; the dimension basket,
+ * lib/town/cooking): one more of this meal's hours' helpings, and the meal at hand.
+ */
+export function begun(purse: Purse, dish: DishId, now: number): Pick<Purse, "meals" | "eating"> {
+  const meal = mealOf(now), bowls = bowlsToday(purse, now).map((n, i) => (i === meal ? n + 1 : n)) as [number, number, number];
+  return { meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0) as [boolean, boolean, boolean], bowls }, eating: { dish, meal, from: now, till: now, got: 0 } };
+}
+
 /** Sit down to the dish in a slot of the bag: one of this meal's hours' helpings begins, and leaves the bag. */
 export function sitDown(purse: Purse, slot: number, seated: boolean, now: number): Done<{ purse: Purse; dish: DishId }> {
   const s = purse.bag[slot];
   if (!s || !isDish(s.item)) return no("none");
   if (!seated) return no("stand");
   if (!mayEat(purse, now)) return no("meal");
-  const meal = mealOf(now), bowls = bowlsToday(purse, now).map((n, i) => (i === meal ? n + 1 : n)) as [number, number, number];
   return {
     ok: true, dish: s.item,
     purse: {
       ...purse,
       bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === 1 ? null : { item: s.item, n: s.n - 1 })),
-      meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0) as [boolean, boolean, boolean], bowls },
-      eating: { dish: s.item, meal, from: now, till: now, got: 0 },
+      ...begun(purse, s.item, now),
     },
   };
 }
