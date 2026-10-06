@@ -51,10 +51,15 @@ try {
   await sleep(1600);
   ok("with no squirrel, two tiles from it nothing is fetched and nothing is offered", (await X.evaluate(`${F}.fetched()`)) === 0 && (await heldOf(X, one.item)) === 0 && (await X.evaluate(`${F}.here()`)) === null);
 
-  // ── with one: walking past is enough ──
+  // ── with one, and a keeper that does not know of its fetching yet (a page out before its database's file): as it was ──
+  await X.evaluate(`${K}.gives = () => false`);
   await X.evaluate(`${T}.setGifts(["famSquirrel"])`);
   const called = await X.evaluate(`${K}.familiarWear("famSquirrel")`);
   ok("the squirrel is called", called.ok === true, called);
+  await sleep(1600);
+  ok("where the keeper does not give the later gifts yet, the page fetches nothing and offers nothing from two tiles off", (await X.evaluate(`${F}.fetched()`)) === 0 && (await heldOf(X, one.item)) === 0 && (await X.evaluate(`${F}.here()`)) === null);
+  // ── with one: walking past is enough ──
+  await X.evaluate(`(delete ${K}.gives, ${T}.setStamina(100))`);
   await until("it is fetched from two tiles off, standing", async () => (await X.evaluate(`${F}.fetched()`)) === 1, 6000).catch(() => null);
   ok("with it at my heels, what lies two tiles off is fetched while I stand", (await X.evaluate(`${F}.fetched()`)) === 1 && (await heldOf(X, one.item)) === one.n, { fetched: await X.evaluate(`${F}.fetched()`), held: await heldOf(X, one.item), one });
   ok("…for no stamina", (await left(X)) === 100, await left(X));

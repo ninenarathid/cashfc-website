@@ -284,8 +284,17 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   const points = keeper.lines()?.lines.forest.points ?? 0;
   // (a truffle piglet at my heels digs with no hoe held, so many holes to these hours: lib/town/forest's pigletDigs)
   const piglet = pigletDigs(purse, keeper.now());
+  /**
+   * Whether whoever keeps the game knows that a squirrel fetches. Members had a squirrel before it fetched anything,
+   * and a page goes out before its database's file is run: a page that fetched for a database that does not know of
+   * it would be refused from two tiles off, and from one would spend its member's stamina as a picking by hand does,
+   * as they walked. So the page fetches only where the keeper gives the forest's later gifts (the same file brings
+   * both); until then a squirrel is what it was.
+   */
+  const fetchKept = keeper.gives("famPiglet");
+  const reachFor = (how: Gather) => (!fetchKept && fetches(purse, how) ? FORAGING.reach : reachOf(purse, how));
   const here = tile && near ? seen.current.flatMap((sight) => { const spot = placeAt(sight.id); return spot ? [{ sight, spot }] : []; })
-    .filter(({ spot }) => reaches(spot, tile, reachOf(purse, ruleOf(spot).how)) && (isSecret(spot.id) || mayGather(spot.kind as SpotKind, hand) || (piglet && ruleOf(spot).how === "dig")))
+    .filter(({ spot }) => reaches(spot, tile, reachFor(ruleOf(spot).how)) && (isSecret(spot.id) || mayGather(spot.kind as SpotKind, hand) || (piglet && ruleOf(spot).how === "dig")))
     .sort((a, b) => Math.hypot(a.spot.x - tile[0], a.spot.y - tile[1]) - Math.hypot(b.spot.x - tile[0], b.spot.y - tile[1]))[0] ?? null : null;
   const hereId = here?.spot.id ?? -1, hereSecret = !!here && isSecret(here.spot.id), hereHow = here ? ruleOf(here.spot).how : "pick";
   /** Of what is offered here: whether my own hands can do it, and whether the piglet can. (A secret place is for the hands alone.) */
@@ -326,11 +335,11 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     const withPig = byPig && (pig || !byHand);
     if (!withPig && !byHand) return;
     // (what a squirrel fetches is no work of my hands: no game for it, tired or not)
-    const game = fetches(purse, hereHow) ? null : gameFor(hereHow, spent);
+    const game = fetchKept && fetches(purse, hereHow) ? null : gameFor(hereHow, spent);
     if (game) { setWorking({ ...here, game, from: tile, pig: withPig, ...(hereSecret ? { stage: 0 as const } : {}) }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
     else void act(here.spot, tile, { misses: 0, wrong: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse is read when the button is pressed
-  }, [here, tile, spent, act, sfx, byHand, byPig, hereSecret, hereHow]);
+  }, [here, tile, spent, act, sfx, byHand, byPig, hereSecret, hereHow, fetchKept]);
 
   /**
    * The squirrel at my heels fetches what lies on the ground as I pass it (lib/town/forest's `fetches`): looked for a
@@ -338,7 +347,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
    * that gave nothing (a bag with no room for it, somebody else's last share) is left alone for a while.
    */
   const selfAt = useRef<Vec | null>(null), fetching = useRef(false), left = useRef(new Map<number, number>()), fetched = useRef(0);
-  const squirrel = near && fetches(purse, "pick");
+  const squirrel = near && fetchKept && fetches(purse, "pick");
   useEffect(() => {
     if (!squirrel) return;
     const look = async () => {
