@@ -89997,7 +89997,13 @@
     "best": 41,
     "kills": 4,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 4,
+      "best": 41
+     }
+    }
    }
   ],
   "legacy": [],

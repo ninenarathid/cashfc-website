@@ -1007,7 +1007,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "Fat Cat",
-   "seen": "2026-09-29",
+   "seen": "2026-10-06",
    "mounts": 175,
    "minions": 266,
    "rare_achv": 252,
@@ -1178,7 +1178,7 @@
    "world": "Aegis",
    "dc": "Elemental",
    "fc": "The Etheirys",
-   "seen": "2026-09-29",
+   "seen": "2026-10-06",
    "mounts": 81,
    "minions": 95,
    "rare_achv": 90,
@@ -1261,7 +1261,7 @@
    "world": "Tonberry",
    "dc": "Elemental",
    "fc": "CatNip's Company",
-   "seen": "2026-09-29",
+   "seen": "2026-10-06",
    "tags": [
     "ultimate",
     "tier-clear",
@@ -1886,6 +1886,6 @@
    "stats_seen": "2026-10-05"
   }
  },
- "generated_at": "2026-10-05T17:42:22Z",
+ "generated_at": "2026-10-06T00:05:25Z",
  "count": 14
 }
