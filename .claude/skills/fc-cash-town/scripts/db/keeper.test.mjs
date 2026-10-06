@@ -22,7 +22,7 @@ const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v153"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -1219,9 +1219,12 @@ try {
           gnome.ok && gnome.gift === "famGnome" && called.ok && A.purse().gifts.familiar === "famGnome" && A.purse().gifts.charms.join() === "charmHoe", { gnome, called, gifts: A.purse().gifts });
         await A.buy("worm", 1);
         ok("…it follows through whatever else is done", A.purse().gifts.familiar === "famGnome", A.purse().gifts);
+        // (v152 counted the gnome's weeding, ten to a meal's hours; from v153 it waters a bed an hour and nothing of it is counted so)
+        const counted = (await sql(`select coalesce(town.cat('gifts')->'uses' ? 'famGnome', false) as c`))[0].c;
         const used = await A.giftUse("famGnome"), other = await A.giftUse("charmHoe");
-        ok("a counted gift is used through the keeper: told how many are left, counted in the purse it keeps at once; one that is not counted is refused",
+        if (counted) ok("a counted gift is used through the keeper: told how many are left, counted in the purse it keeps at once; one that is not counted is refused",
           used.ok && used.left === 9 && A.purse().gifts.used?.famGnome?.n === 1 && !other.ok && other.why === "none", { used, other, gifts: A.purse().gifts });
+        else ok("a gift that is not counted is refused through the keeper, and nothing is counted in the purse", !used.ok && used.why === "none" && !other.ok && other.why === "none" && !A.purse().gifts.used?.famGnome, { used, other, gifts: A.purse().gifts });
         const rest = await A.familiarWear(null);
         ok("…and is sent to rest", rest.ok && A.purse().gifts.familiar === null && A.purse().gifts.had.join() === "charmHoe,famGnome", { rest, gifts: A.purse().gifts });
       } else ok("a database with charms and no familiars: the keeper offers the charms and no familiar", A.gives("charmHoe") && !A.gives("famGnome"));
