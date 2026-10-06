@@ -1,18 +1,27 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { FARMING, PUT_ON, cure, deedFor, feed, pestAt, plotKey, see, tend, type Bed, type Plant, type Plot } from "./farm";
+import { FARMING, PUT_ON, cure, deedFor, feed, pestAt, plotKey, ridLuck, see, tend, type Bed, type Plant, type Plot } from "./farm";
 import { CROPS, CROP_IDS, ITEMS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { HOUR, newPurse, put, type Purse } from "./trade";
 import { BEDS_IN_FARM, bedCorner } from "./world";
 
 /**
- * The cases v140 is held to: what covers a plant against pests is not put on one that has a pest (lib/town/farm's
- * `feed` and `deedFor`), made as lib/town/db-vectors makes the others'. Plants a pest has struck, found by looking,
- * at moments before it came, while it is on them and after it has killed them; plants with none, covered and not;
- * and each with everything that is put on a plant in the hand, and a few things that are not.
+ * The cases the database's cover and cure are held to (lib/town/farm's `feed` and `deedFor`), made as
+ * lib/town/db-vectors makes the others'. Plants a pest has struck, found by looking, at moments before it came, while
+ * it is on them and after it has killed them; plants with none, covered and not; and each with everything that is put
+ * on a plant in the hand, and a few things that are not.
  *
- *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-guard.test.ts     writes vectors-v140.json
+ * What covers a plant against pests is not put on one that has a pest (v140, 2026-10-05), but for the two insects that
+ * eat pests, which are let go on it and eat the pest so often (v145, 2026-10-06: `FARMING.rids`), by a number made of
+ * the plot, the plant and the very moment (`ridLuck`): so the cases have each of the two at many moments of a pest,
+ * some that come off and some that do not. And the cure that is made keeps pests off for a day after (`FARMING.cures`,
+ * the same day), where the fish that cures does not.
+ *
+ *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-guard.test.ts     writes vectors-v145.json
+ *
+ * (v140's own dry run reads `vectors-v140.json`, made from the tree as v140 went out, 9cf5932, where no cover went on a
+ * plant with a pest: this file wrote it then.)
  *
  * Under a clear sky (the dry run's weather is empty for them; the farm's cases in the rain are lib/town/db-vectors').
  */
@@ -28,11 +37,13 @@ const WHO = ["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-00
 /** Everything that is put on a plant, by what it does; and things that are not. */
 export const COVERS = (Object.keys(PUT_ON) as ItemId[]).filter((id) => PUT_ON[id] === "guard");
 export const CURES = (Object.keys(PUT_ON) as ItemId[]).filter((id) => PUT_ON[id] === "cure");
+/** The covers that eat a pest that is there. */
+export const EATERS = Object.keys(FARMING.rids) as ItemId[];
 const FEEDS = (Object.keys(PUT_ON) as ItemId[]).filter((id) => PUT_ON[id] === "feed");
 const OTHERS: Array<ItemId | null> = ["hoe", "can", "sickle", "rod", null];
 
-export function vectorsV140(): Vector[] {
-  const c = chance(20261040), out: Vector[] = [];
+export function vectorsV145(): Vector[] {
+  const c = chance(20261045), out: Vector[] = [];
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
   /** Somebody with two of a thing in the bag and it in the hand, fed or tired. */
   const holding = (hand: ItemId | null, now: number): Purse => {
@@ -67,10 +78,12 @@ export function vectorsV140(): Vector[] {
       ask(key, plot, c.of(FEEDS), now);
       ask(key, plot, c.of(OTHERS), now);
     }
+    // an insect that eats pests, at more moments of the pest: each is tried by its own moment's number
+    for (const hand of EATERS) for (let i = 0; i < 5; i++) ask(key, plot, hand, t + c.int(1, dies - 2));
     // cured an hour in, it is covered by anything that covers; covered already, by nothing more
     const cured: Plot = { soil: "tilled", plant: { ...plant, cured: t + HOUR } }, covered: Plot = { soil: "tilled", plant: { ...plant, cured: t + HOUR, guard: t + HOUR + 1 + FARMING.guard * HOUR } };
     for (const hand of [...COVERS, c.of(CURES)]) { ask(key, cured, hand, t + HOUR + 1); ask(key, covered, hand, t + 2 * HOUR); }
-    // covered while the pest was on it, before a cover minded one: it is rid of it still, and its cover is as any
+    // covered while the pest was on it (by an insect that ate it, or before a cover minded a pest): it is rid of it, and its cover is as any
     const old: Plot = { soil: "tilled", plant: { ...plant, guard: t + HOUR + FARMING.guard * HOUR } };
     for (const now of [t + 2 * HOUR, t + dies + 1, t + HOUR + FARMING.guard * HOUR + 1]) {
       add("see", [key, old, now], see(key, old, now));
@@ -82,36 +95,76 @@ export function vectorsV140(): Vector[] {
 }
 
 describe("the cases the database's cover and cure are held to", () => {
-  it("come out of the site's own rules: a cover refused to every plant that has a pest and taken by every one that has none", () => {
-    const all = vectorsV140(), covers = new Set<string>(COVERS), cures = new Set<string>(CURES);
+  it("come out of the site's own rules: a cover refused to every plant that has a pest but an insect that eats pests, which is let go on it and eats the pest so often", () => {
+    const all = vectorsV145(), covers = new Set<string>(COVERS), cures = new Set<string>(CURES), eaters = new Set<string>(EATERS);
     expect([...covers].sort()).toEqual(["guardFert", "ladybird", "lavenderSachet", "mantis", "mosquitofish"]);
     expect([...cures].sort()).toEqual(["archerfish", "pestCure"]);
+    expect([...eaters].sort()).toEqual(["ladybird", "mantis"]);
     const feeds = all.filter((v) => v.fn === "feed" && covers.has(v.args[3] as string));
     const pestOn = (v: Vector) => see(v.args[0] as string, v.args[2] as Plot, v.args[4] as number).pest;
     const ok = (v: Vector) => (v.want as { ok: boolean }).ok;
-    // on a plant with a pest: never; on one with none, alive and not covered: always
-    expect(feeds.filter(pestOn).length).toBeGreaterThan(800);
-    expect(feeds.filter(pestOn).every((v) => !ok(v) && (v.want as { why: string }).why === "soil")).toBe(true);
+    const plain = feeds.filter((v) => !eaters.has(v.args[3] as string));
+    // a cover that eats nothing, on a plant with a pest: never; on one with none, alive and not covered: always
+    expect(plain.filter(pestOn).length).toBeGreaterThan(450);
+    expect(plain.filter(pestOn).every((v) => !ok(v) && (v.want as { why: string }).why === "soil")).toBe(true);
     expect(feeds.filter((v) => !pestOn(v) && ok(v)).length).toBeGreaterThan(500);
     for (const id of COVERS) {
       expect(feeds.some((v) => v.args[3] === id && pestOn(v)), id).toBe(true);
       expect(feeds.some((v) => v.args[3] === id && ok(v)), id).toBe(true);
+    }
+    // an insect that eats pests, on a plant with a pest: let go every time, gone from the bag every time; the plant
+    // covered from that moment when the moment's number is under how often it eats one, and as it was when it is not
+    const heldOf = (p: Purse, id: ItemId) => p.bag.reduce((n, s) => n + (s?.item === id ? s.n : 0), 0);
+    for (const id of EATERS) {
+      const tried = feeds.filter((v) => v.args[3] === id && pestOn(v)), often = FARMING.rids[id]!;
+      expect(tried.length, id).toBeGreaterThan(400);
+      let ate = 0;
+      for (const v of tried) {
+        const [key, purse, plot, , now] = v.args as [string, Purse, Plot, ItemId, number], want = v.want as { ok: boolean; plot: Plot; purse: Purse };
+        expect(want.ok, id).toBe(true);
+        expect(heldOf(want.purse, id), id).toBe(heldOf(purse, id) - 1);
+        // (eaten, the plant is rid of its pest as a cure rids it, and covered by nothing)
+        // (but at the very millisecond a pest comes, on the hour: a plant rid then is struck by that hour's roll all the
+        // same, as one cured then always was. One moment in 3,600,000; the cases have it, and the database answers alike.)
+        if (ridLuck(key, plot.plant!, now) < often) { ate++; expect(want.plot.plant, id).toEqual({ ...plot.plant!, cured: now }); if (now % HOUR) expect(see(key, want.plot, now).pest, id).toBe(false); }
+        else { expect(want.plot, id).toEqual(plot); expect(see(key, want.plot, now).pest, id).toBe(true); }
+      }
+      // (both ways many times over, and about as often as it should)
+      expect(ate, id).toBeGreaterThan(100);
+      expect(tried.length - ate, id).toBeGreaterThan(100);
+      expect(ate / tried.length, id).toBeGreaterThan(often - 0.08);
+      expect(ate / tried.length, id).toBeLessThan(often + 0.08);
     }
     // a cure is taken by every plant with a pest and by none without
     const curing = all.filter((v) => v.fn === "cure" && cures.has(v.args[3] as string));
     const pestOnCure = (v: Vector) => see(v.args[0] as string, v.args[2] as Plot, v.args[4] as number).pest;
     expect(curing.filter(pestOnCure).length).toBeGreaterThan(300);
     expect(curing.every((v) => ok(v) === pestOnCure(v))).toBe(true);
-    // what the hand is offered says the same: a cover never where there is a pest
+    // …and the one that keeps pests off afterwards covers the plant for its hours from that moment; the other covers nothing
+    for (const v of curing.filter(ok)) {
+      const [, , plot, id, now] = v.args as [string, Purse, Plot, ItemId, number], keeps = FARMING.cures[id];
+      expect((v.want as { plot: Plot }).plot.plant, id).toEqual({ ...plot.plant!, cured: now, ...(keeps ? { guard: now + keeps * HOUR } : {}) });
+    }
+    expect(Object.keys(FARMING.cures)).toEqual(["pestCure"]);
+    expect(curing.filter((v) => ok(v) && v.args[3] === "pestCure").length).toBeGreaterThan(100);
+    expect(curing.filter((v) => ok(v) && v.args[3] === "archerfish").length).toBeGreaterThan(100);
+    // what the hand is offered says the same: a cover never where there is a pest, but an insect that eats them, always
     const offers = all.filter((v) => v.fn === "deed_for" && covers.has(v.args[2] as string));
     // (a plant may ripen with its pest still on it: its owner is then offered the picking, never the cover)
     const onPest = offers.filter((v) => see(v.args[0] as string, v.args[1] as Plot, v.args[4] as number).pest);
-    expect(onPest.length).toBeGreaterThan(1500);
-    expect(onPest.every((v) => v.want === null || v.want === "pick")).toBe(true);
+    expect(onPest.filter((v) => !eaters.has(v.args[2] as string)).length).toBeGreaterThan(900);
+    expect(onPest.filter((v) => !eaters.has(v.args[2] as string)).every((v) => v.want === null || v.want === "pick")).toBe(true);
+    expect(onPest.filter((v) => eaters.has(v.args[2] as string)).length).toBeGreaterThan(2000);
+    expect(onPest.filter((v) => eaters.has(v.args[2] as string)).every((v) => v.want === "feed")).toBe(true);
     expect(offers.filter((v) => v.want === "feed").length).toBeGreaterThan(900);
+    // tending does what the deed does: an insect let go on a plant with a pest, anybody's, eaten or off
+    const tended = all.filter((v) => v.fn === "tend" && eaters.has((v.args[5] as Purse).hand as string) && see(v.args[0] as string, v.args[1] as Plot, v.args[7] as number).pest);
+    expect(tended.length).toBeGreaterThan(800);
+    expect(tended.every((v) => (v.want as { ok: boolean; deed?: string }).ok && (v.want as { deed: string }).deed === "feed")).toBe(true);
+    expect(tended.some((v) => (v.want as { plot: Plot }).plot.plant!.cured === v.args[7]) && tended.some((v) => (v.want as { plot: Plot }).plot.plant!.cured !== v.args[7])).toBe(true);
     // and what makes a plant grow goes on with a pest there or not
     expect(all.some((v) => v.fn === "feed" && PUT_ON[v.args[3] as ItemId] === "feed" && pestOn(v) && ok(v))).toBe(true);
     const dir = process.env.TOWN_VECTORS;
-    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v140.json`, JSON.stringify({ cases: all })); }
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v145.json`, JSON.stringify({ cases: all })); }
   });
 });

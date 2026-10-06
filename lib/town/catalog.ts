@@ -131,7 +131,8 @@ export function catalogOf() {
     crops: Object.fromEntries(CROP_IDS.map((id) => [id, { seed: CROPS[id].seed, hours: CROPS[id].hours, yield: CROPS[id].yield, again: CROPS[id].again ?? null, picks: CROPS[id].picks ?? 1 }])),
     /**
      * The farm's own numbers: what each deed costs in stamina; what a watering adds and how often; how much faster a
-     * fed plant grows; the hours the other fertiliser covers; the pests' hours, their chance and how long they take
+     * fed plant grows; the hours the other fertiliser covers, how often each cover that eats pests takes off one
+     * that is there (`rids`), and the hours each cure that keeps pests off afterwards does (`cures`); the pests' hours, their chance and how long they take
      * to kill; how many swings of the hoe a plot takes; what a dead plant leaves; how far through its hours a plant
      * is when each stage begins; what each thing does in the hand, and which vegetable each seed grows; what a
      * better can adds; the blades that pick one more, and how many pickings make a tree; what the cans and buckets
@@ -141,7 +142,7 @@ export function catalogOf() {
      * of its own game is believed, within bounds).
      */
     farming: {
-      costs: FARMING.costs, water: FARMING.water, feed: FARMING.feed, guard: FARMING.guard, pests: FARMING.pests, swings: FARMING.swings, pulled: FARMING.pulled,
+      costs: FARMING.costs, water: FARMING.water, feed: FARMING.feed, guard: FARMING.guard, rids: FARMING.rids, cures: FARMING.cures, pests: FARMING.pests, swings: FARMING.swings, pulled: FARMING.pulled,
       stages: STAGE_AT,
       tools: Object.fromEntries(ITEM_IDS.flatMap((id) => { const kind = toolOf(id); return kind ? [[id, kind] as [ItemId, string]] : []; })),
       seeds: Object.fromEntries(CROP_IDS.map((id) => [CROPS[id].seed, id])),
@@ -325,8 +326,17 @@ export type Catalog = ReturnType<typeof catalogOf>;
  *
  * v139 (ran 2026-10-05, 19:42) wrote it over again, for what he asked of every insect the same afternoon: the more of a kind are caught the
  * scarcer it is, and a day on it is as it was (insects: `scarce`, new).
+ *
+ * v145 writes two over, for what he asked on 2026-10-06 of the two insects that eat pests and of the cure: let go on a
+ * plant that has a pest the insects are to work again, a ladybird half the time and a mantis seven times in ten, and
+ * to keep nothing off afterwards (farming: `rids`, new; v140 had kept every cover off such a plant), where the pest
+ * cure keeps pests off for a day after it has rid a plant (farming: `cures`, new); and there are to be twice as many
+ * of the two insects (insects: the ladybird's `weight`, 13 for 6, and the mantis's, 50 for 22), hunted scarce as every
+ * insect is.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v145: { keys: [], over: ["farming", "insects"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

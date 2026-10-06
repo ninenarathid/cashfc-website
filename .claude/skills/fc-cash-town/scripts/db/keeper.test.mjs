@@ -18,10 +18,11 @@ const { DbKeeper } = await import("@/lib/town/keeper");
 const { FARM, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
 const { shelfOf } = await import("@/lib/town/orders");
 const { BUGS, HAUNTS } = await import("@/lib/town/insects");
+const { ridCameOf, see } = await import("@/lib/town/farm");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v145"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -749,47 +750,89 @@ try {
     await sql(`delete from public.town_deeds where what = 'net' and n = 1000000`);
   }
 
-  // (v140 makes no new function: it is known by what the rule of putting a thing on a plant says)
+  // (v140 makes no new function: it is known by what the rule of putting a thing on a plant says. Nor does v145: it is
+  // known by the farm's row saying which insects eat pests. The page's own rule is v145's either way: this page with a
+  // database that has not had the file offers the insect, and is told the plot is not ready for it.)
   if ((await sql(`select position('pest' in pg_get_functiondef('town.feed(text, jsonb, jsonb, text, bigint)'::regprocedure)) > 0 as there`))[0].there) {
-    section("a cover is not a cure: what the page offers for a plant with a pest, and what the database answers (v140)");
+    const v145 = (await sql(`select town.cat('farming')->'rids' is not null as there`))[0].there;
+    section(v145 ? "an insect that eats pests, and a cure that keeps them off: what the page offers for a plant with a pest, and what comes of it (v145)"
+      : "a cover is not a cure (v140): this page, against a database that has not had v145");
     const HOUR = 3600000;
     let spare = null;
     for (let y = FARM.y + FARM.h - 1; y >= FARM.y && !spare; y--) for (let x = FARM.x + FARM.w - 1; x >= FARM.x; x--) if (plotAt(x, y)) { spare = [x - 1, y]; break; }
     const pkey = `${spare[0]},${spare[1]}`;
     // a pumpkin with a pest on it now: sown so many hours ago that one has come, found by looking; the clock put on an hour at a time until there is one
+    // (and with two hours of the pest to go at the least: what follows takes a moment, and a plant dead of its pest takes nothing)
     let sick = null, now = 0;
     for (let i = 0; i < 48 && !sick; i++) {
       now = Number((await sql(`select town.now_ms() as now`))[0].now);
       for (let h = 2; h <= 72 && !sick; h++) {
         const plant = { by: b, crop: "pumpkin", sown: now - h * HOUR, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
-        if ((await sql(`select (town.see($1::text, jsonb_build_object('soil', 'tilled', 'plant', $2::jsonb), town.now_ms())->>'pest')::boolean as pest`, [pkey, JSON.stringify(plant)]))[0].pest) sick = plant;
+        const seen = (await sql(`select (town.see($1::text, jsonb_build_object('soil', 'tilled', 'plant', $2::jsonb), town.now_ms())->>'pest')::boolean as pest,
+          (town.see($1::text, jsonb_build_object('soil', 'tilled', 'plant', $2::jsonb), town.now_ms() + 7200000)->>'pest')::boolean as still`, [pkey, JSON.stringify(plant)]))[0];
+        if (seen.pest && seen.still) sick = plant;
       }
       if (!sick) await skip(HOUR);
     }
     ok("(a plant with a pest on it, to try it with)", !!sick);
     if (sick) {
-      await sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1::int, $2::int, town.bed_of($1::int, $2::int), 'tilled', $3::jsonb, town.now_ms())
+      const plant = () => sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1::int, $2::int, town.bed_of($1::int, $2::int), 'tilled', $3::jsonb, town.now_ms())
         on conflict (x, y) do update set soil = 'tilled', plant = excluded.plant, changed = excluded.changed`, [spare[0], spare[1], JSON.stringify(sick)]);
-      await purse(a, 0, [{ item: "ladybird", n: 2 }, { item: "pestCure", n: 1 }, { item: "mantis", n: 1 }]);
-      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'ladybird', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [a]);
+      const fresh = (hand) => sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', $2::text, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [a, hand]);
+      await plant();
+      await purse(a, 0, [{ item: "ladybird", n: 40 }, { item: "pestCure", n: 2 }, { item: "mantis", n: 1 }, { item: "lavenderSachet", n: 1 }]);
+      await fresh("ladybird");
       await settled(A);
       const stop = A.look("farm");
       A.nudged("farm");
       await sleep(500);
       const held = (item) => A.purse().bag.reduce((n, s) => n + (s?.item === item ? s.n : 0), 0);
-      ok("the page has the plant with its pest, and offers nothing for a ladybird in the hand", !!A.farm()[pkey]?.plant && A.deedAt(pkey) === null && held("ladybird") === 2, { deed: A.deedAt(pkey), plot: A.farm()[pkey] });
+      const pestNow = () => see(pkey, A.farm()[pkey], A.now(), A.rains()).pest;
+      ok("the page has the plant with its pest, and offers to let the ladybird in the hand go on it", !!A.farm()[pkey]?.plant && pestNow() && A.deedAt(pkey) === "feed" && held("ladybird") === 40, { deed: A.deedAt(pkey), plot: A.farm()[pkey] });
+      // a sachet is no such thing: the page offers nothing for it, and asked all the same the database refuses it
+      await A.hold(A.purse().bag.findIndex((s) => s?.item === "lavenderSachet"));
       let did = await A.farmDo(pkey, "Tester A");
-      ok("asked all the same, the database answers that the plot is not ready for it: the ladybird is in the bag still", !did.ok && did.why === "soil" && held("ladybird") === 2 && A.farm()[pkey]?.plant?.guard === 0, did);
-      await A.hold(A.purse().bag.findIndex((s) => s?.item === "mantis"));
-      ok("a mantis the same", A.deedAt(pkey) === null && !(await A.farmDo(pkey, "Tester A")).ok && held("mantis") === 1);
+      ok("a sachet is not offered for it; asked all the same, the database answers that the plot is not ready, and the sachet is in the bag still", A.deedAt(pkey) === null && !did.ok && did.why === "soil" && held("lavenderSachet") === 1, did);
+      await A.hold(A.purse().bag.findIndex((s) => s?.item === "ladybird"));
+      if (!v145) {
+        did = await A.farmDo(pkey, "Tester A");
+        ok("a database that has not had v145 answers that the plot is not ready for the ladybird: it is in the bag still, and the pest on the plant", !did.ok && did.why === "soil" && held("ladybird") === 40 && A.farm()[pkey]?.plant?.cured === 0 && pestNow(), did);
+      } else {
+        // let go one after another, each at its own moment, until one eats the pest: every one is gone from the bag, and
+        // what came of each is read from the plot as the page kept it before and keeps it after
+        let off = 0, ate = false, wrong = null;
+        for (let i = 0; i < 40 && !ate && !wrong; i++) {
+          const stood = A.farm()[pkey], then = A.now(), had = held("ladybird");
+          did = await A.farmDo(pkey, "Tester A");
+          const came = ridCameOf(pkey, stood, A.farm()[pkey], "ladybird", then, A.rains());
+          if (!did.ok || did.deed !== "feed" || held("ladybird") !== had - 1 || came === null) wrong = { did, came, held: held("ladybird") };
+          else if (came) ate = true;
+          else { off++; if (JSON.stringify(A.farm()[pkey]) !== JSON.stringify(stood) || !pestNow()) wrong = { off: A.farm()[pkey], stood }; await sleep(3); }
+        }
+        ok("ladybirds let go on it one after another: each is gone from the bag; one that is off leaves the plot as it was on the page, pest and all", !wrong, wrong);
+        ok("…until one eats the pest: by the plot as the page now keeps it, the plant was rid of it at that moment, has no pest, and is covered by nothing", ate && A.farm()[pkey]?.plant?.cured > 0 && A.farm()[pkey].plant.guard === 0 && !pestNow(), { off, plot: A.farm()[pkey] });
+        console.log(`    (${off} off before the one that ate it)`);
+        const lines = await sql(`select doc->'rid' as rid from public.town_deeds where member_id = $1 and what = 'feed' and doc->>'with' = 'ladybird' and doc ? 'rid' order by id desc limit $2`, [a, off + 1]);
+        ok("each is written down with what came of it: the last eaten, the others off", lines.length === off + 1 && lines[0].rid === true && lines.slice(1).every((l) => l.rid === false), lines);
+        ok("the plant has no pest now, so the page offers the ladybird as a cover", A.deedAt(pkey) === "feed");
+        // the plant with its pest again, for the cure
+        await plant();
+        A.nudged("farm");
+        await sleep(500);
+      }
       await A.hold(A.purse().bag.findIndex((s) => s?.item === "pestCure"));
       ok("with the cure in the hand the page offers the curing", A.deedAt(pkey) === "cure", A.deedAt(pkey));
       did = await A.farmDo(pkey, "Tester A");
-      ok("…and it is done: the pest is off, by the plot as the page now keeps it", did.ok && did.deed === "cure" && held("pestCure") === 0 && A.farm()[pkey]?.plant?.cured > 0, did);
-      await A.hold(A.purse().bag.findIndex((s) => s?.item === "ladybird"));
-      ok("now the page offers the ladybird: the plant has no pest", A.deedAt(pkey) === "feed", A.deedAt(pkey));
-      did = await A.farmDo(pkey, "Tester A");
-      ok("…and it goes on: covered for a day, one ladybird the fewer", did.ok && did.deed === "feed" && held("ladybird") === 1 && A.farm()[pkey]?.plant?.guard > A.now() + 23 * HOUR, did);
+      ok("…and it is done: the pest is off, by the plot as the page now keeps it", did.ok && did.deed === "cure" && held("pestCure") === 1 && A.farm()[pkey]?.plant?.cured > 0 && !pestNow(), did);
+      await A.hold(A.purse().bag.findIndex((s) => s?.item === "mantis"));
+      if (v145) {
+        ok("the cure keeps pests off the plant for a day from then, by the plot as the page keeps it", A.farm()[pkey]?.plant?.guard > A.now() + 23 * HOUR && A.farm()[pkey].plant.guard <= A.now() + 24 * HOUR, A.farm()[pkey]?.plant);
+        ok("…so the page offers no cover for it: it is covered", A.deedAt(pkey) === null && !(await A.farmDo(pkey, "Tester A")).ok && held("mantis") === 1, A.deedAt(pkey));
+      } else {
+        ok("now the page offers the mantis: the plant has no pest, and that database's cure covers nothing", A.deedAt(pkey) === "feed" && A.farm()[pkey]?.plant?.guard === 0, A.deedAt(pkey));
+        did = await A.farmDo(pkey, "Tester A");
+        ok("…and it goes on: covered for a day, the mantis gone", did.ok && did.deed === "feed" && held("mantis") === 0 && A.farm()[pkey]?.plant?.guard > A.now() + 23 * HOUR, did);
+      }
       stop();
     }
   }

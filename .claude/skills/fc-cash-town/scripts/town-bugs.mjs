@@ -162,6 +162,12 @@ try {
   }
   ok("a ladybird only walks: a swing on it takes it", got);
   {
+    // how it is used is said under what was caught (the owner, 2026-10-06: "พร้อมเขียนบอกวิธีใช้ตอนได้แมลงไปเลย"): for the two that eat pests, and no other
+    const tip = await A.evaluate(`${B}.tip()`), said = await A.evaluate(`document.querySelector("[data-bug-tip]")?.innerText ?? null`);
+    ok("caught, the page says how a ladybird is used: let go on a plant that has a pest, it eats it about half the time, or flies off", got && /วิธีใช้/.test(tip ?? "") && /เต่าทอง/.test(tip) && /ต้นที่มีศัตรูพืช/.test(tip) && /ราวครึ่งหนึ่ง/.test(tip) && /บินหนี/.test(tip) && said === tip, { tip, said });
+    await A.shot(`${OUT}/bugs-4a-how-to.png`);
+  }
+  {
     const last = (await A.evaluate(`${B}.caught()`)).at(-1), plot = (await A.evaluate(`${F}.plots()`))[pest], now = await A.evaluate(`${K}.now()`);
     ok("caught, it took the pest off that plant with it", last?.bug === "ladybird" && last.rid === pest, last);
     ok("the plant is cured at that moment, and is still whose it was", !!plot?.plant && plot.plant.cured > now - 20000 && plot.plant.cured <= now && plot.plant.by === "somebody-else" && plot.plant.crop === "pumpkin", plot);

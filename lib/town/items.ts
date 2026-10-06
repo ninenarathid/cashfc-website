@@ -134,7 +134,9 @@ export const ITEMS = {
   compost: it("goods", "ปุ๋ยหมัก", "Compost", "เนื้อร่วนสีดำ กลิ่นเหมือนดินหลังฝน", "Dark and crumbly, smelling of earth after rain", 20, 4),
   growFert: it("goods", "ปุ๋ยเร่งโต", "Growth fertiliser", "ผงสีเขียวอ่อนในถุงผ้า", "A pale green powder in a cloth bag", 20, 10),
   guardFert: it("goods", "ปุ๋ยกันแมลง", "Pest-proof fertiliser", "ผงสีน้ำตาลแดงในถุงผ้า กลิ่นฉุน", "A red-brown powder in a cloth bag. It smells sharp.", 20, 12),
-  pestCure: it("goods", "ยาไล่แมลง", "Pest cure", "น้ำสีเขียวเข้มในขวดเล็ก กลิ่นสมุนไพรฉุนจัด", "A dark green liquid in a small bottle, smelling of bitter herbs", 10, 10),
+  // (the one thing whose line says what it is for, by the owner's word, 2026-10-06: "เขียนบอกสรรพคุณด้วยว่า ป้องกันแมลงได้ 24 ชม".
+  // The words are lib/town/farm's cureWords, and its hours FARMING.cures': a test holds this line to them.)
+  pestCure: it("goods", "ยาไล่แมลง", "Pest cure", "น้ำสีเขียวเข้มในขวดเล็ก กลิ่นสมุนไพรฉุนจัด สรรพคุณ: กำจัดศัตรูพืชบนต้น และป้องกันศัตรูพืชต่ออีก 24 ชม.", "A dark green liquid in a small bottle, smelling of bitter herbs. Rids a plant of its pest, and keeps pests off it for 24 hours after.", 10, 10),
   basket: it("goods", "ตะกร้าสาน", "Woven basket", "ตะกร้าสานจากก้านพืชแห้งสีน้ำตาลอ่อน มีหูหิ้ว", "A basket woven of dried, pale brown stalks, with a handle", 1, 0),
 
   // dishes

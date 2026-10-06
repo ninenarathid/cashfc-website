@@ -107,7 +107,8 @@ export const BUGS: Record<BugId, Bug> = {
   glassDragonfly: { habit: "spot", at: ["falls"], weight: 100, n: [1, 1], cost: 3, size: 0.6, quick: 1.5, hours: [[5, 10]], day: 0.25 },
   // sees before it, not behind
   grasshopper: { habit: "behind", at: ["field"], weight: 100, n: [1, 1], cost: 1, size: 0.9, hours: DAYTIME },
-  mantis: { habit: "behind", at: ["field"], weight: 22, n: [1, 1], cost: 3, size: 0.9, places: ["farm"], hours: DAYTIME, tracks: true },
+  // (twice as many of it since 2026-10-06, with the ladybird: below)
+  mantis: { habit: "behind", at: ["field"], weight: 50, n: [1, 1], cost: 3, size: 0.9, places: ["farm"], hours: DAYTIME, tracks: true },
   // heard, not seen
   cricket: { habit: "sound", at: ["field"], weight: 100, n: [1, 2], cost: 1, size: 0.75, hours: NIGHT, shy: "hush" },
   cicada: { habit: "sound", at: ["tree"], weight: 100, n: [1, 1], cost: 2, size: 0.85, hours: [[8, 18]], dry: true, shy: "flight" },
@@ -132,7 +133,12 @@ export const BUGS: Record<BugId, Bug> = {
   // seldom and anywhere, "ลดการ spawn ของเต่าทอง … สุ่มเกิดทุกแมพ ในปริมาณที่ลดลง". It weighed 60 on the farm and in the
   // town: one haunt in five there by day, and every one that had anything at dawn and in the rain, when nothing
   // else of those haunts is out. So it keeps the others' hours and sky, and is never the only one at a haunt.)
-  ladybird: { habit: "crawl", at: ["field", "blooms"], weight: 6, n: [1, 1], cost: 1, size: 1, hours: DAYTIME, dry: true, rids: 0.1 },
+  // (twice as many of it and of the mantis from 2026-10-06, when he had the two eat pests again, lib/town/farm's
+  // FARMING.rids: "เพิ่มจำนวนแมลงสองตัวนี้ไปอีกเท่า แต่ยังคงทำให้การยิ่งจับยิ่งน้อยยังมีอยู่". A weight is a share, so twice the
+  // weight is a little short of twice as many: 13 for 6 and 50 for 22 are what a dry day's haunts roll twice as
+  // often, about eight ladybirds an hour over the three maps for four, and eight mantises on the farm for four.
+  // Hunted, each grows scarce as every insect does: SCARCE is not touched.)
+  ladybird: { habit: "crawl", at: ["field", "blooms"], weight: 13, n: [1, 1], cost: 1, size: 1, hours: DAYTIME, dry: true, rids: 0.1 },
   scarab: { habit: "crawl", at: ["field"], weight: 30, n: [1, 1], cost: 1, size: 1, places: ["farm"], hours: DAYTIME },
   caterpillar: { habit: "crawl", at: ["litter", "blooms"], weight: 45, n: [1, 1], cost: 1, size: 1, places: ["forest"], hours: DAYTIME },
 };

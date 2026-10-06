@@ -127,7 +127,11 @@ describe("insects (the owner: \"จับแมลง ในทุกแมพ�
     }
     // the ones that walk or fly about in plain sight fetch two coins; none of the common ones more than six
     for (const id of ["butterflyWhite", "dragonfly", "grasshopper", "ladybird", "moth", "caterpillar"] as BugId[]) expect(ITEMS[id].pays, id).toBe(2);
-    for (const id of BUG_IDS) if (BUGS[id].weight >= 40 && !BUGS[id].day && !BUGS[id].moon && BUGS[id].habit !== "lure") expect(ITEMS[id].pays, id).toBeLessThanOrEqual(6);
+    // (but the mantis, of which there are twice as many since 2026-10-06 for the pests it eats, not for what it fetches:
+    // seven coins for three points of stamina, which is no more a point than a grasshopper's two for one)
+    for (const id of BUG_IDS) if (BUGS[id].weight >= 40 && !BUGS[id].day && !BUGS[id].moon && BUGS[id].habit !== "lure" && id !== "mantis") expect(ITEMS[id].pays, id).toBeLessThanOrEqual(6);
+    expect(ITEMS.mantis.pays).toBe(7);
+    expect(ITEMS.mantis.pays / BUGS.mantis.cost).toBeLessThan(2.5);
   });
 });
 
@@ -486,19 +490,34 @@ describe("a ladybird caught (the owner: \"จะสุ่มโอกาศเ�
   });
 
   // The owner, the same afternoon, with the village running after them: "ลดการ spawn ของเต่าทอง … สุ่มเกิดทุกแมพ ในปริมาณ
-  // ที่ลดลง". They were nineteen an hour over the farm and the town, by the haunts' own rolls.
-  it("is seldom out, and on every map: about one an hour on each, where the farm and the town had nine and ten", () => {
+  // ที่ลดลง". They were nineteen an hour over the farm and the town, by the haunts' own rolls; he had them come to about
+  // one an hour on each map. And the day after, when he had the ladybird and the mantis eat pests again (lib/town/farm's
+  // FARMING.rids): "เพิ่มจำนวนแมลงสองตัวนี้ไปอีกเท่า แต่ยังคงทำให้การยิ่งจับยิ่งน้อยยังมีอยู่".
+  it("is seldom out, and on every map: about two an hour on each, twice the one of the day before, where the farm and the town had nine and ten; and the mantis twice its four an hour on the farm", () => {
     expect(BUGS.ladybird.places).toBeUndefined();
+    expect(BUGS.ladybird.weight).toBe(13);
+    expect(BUGS.mantis.weight).toBe(50);
+    expect(BUGS.mantis.places).toEqual(["farm"]);
     const days = 20, from = Date.UTC(2026, 9, 5, 23), by: Record<string, number> = { town: 0, farm: 0, forest: 0 };
+    let mantises = 0;
     for (const h of HAUNTS) {
       const every = HAUNT_KINDS[h.kind].every * MINUTE;
-      for (let t = from; t < from + days * 24 * HOUR; t += every) if (swarmAt("a word of the day", h, t)?.bug === "ladybird") by[h.place]++;
+      for (let t = from; t < from + days * 24 * HOUR; t += every) {
+        const bug = swarmAt("a word of the day", h, t)?.bug;
+        if (bug === "ladybird") by[h.place]++;
+        if (bug === "mantis") { mantises++; expect(h.place).toBe("farm"); }
+      }
     }
-    // (an hour of the twelve it is out in, a monarch's days among them)
-    for (const place of ["town", "farm", "forest"]) {
-      expect(by[place] / (days * 12), place).toBeGreaterThan(0.5);
-      expect(by[place] / (days * 12), place).toBeLessThan(2.2);
+    // (an hour of the twelve it is out in, a monarch's days among them: it was 1.3, 1.1 and 1.7 an hour, and is 2.6, 2.0 and 3.4)
+    for (const [place, least, most] of [["town", 1.9, 3.4], ["farm", 1.4, 2.7], ["forest", 2.6, 4.3]] as const) {
+      expect(by[place] / (days * 12), place).toBeGreaterThan(least);
+      expect(by[place] / (days * 12), place).toBeLessThan(most);
     }
+    // (the mantis, on the farm alone: it was 3.9 an hour and is 7.9)
+    expect(mantises / (days * 12)).toBeGreaterThan(6.9);
+    expect(mantises / (days * 12)).toBeLessThan(8.9);
+    // hunted, each grows scarce as every insect does: twenty caught in a day and it is out half as often
+    expect(SCARCE).toEqual({ day: 24, half: 20 });
   });
 
   it("is never the only insect of a haunt: it keeps the hours and the sky of the others there, so that few stays few at dawn and in the rain", () => {

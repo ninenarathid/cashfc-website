@@ -20,6 +20,11 @@
  *     plant covered while it had a pest, before the file, rid of it still;
  *   · who may; run a third time.
  *
+ * Its rule cases are v140's own (`now/vectors-v140.json`, and the farm's): made from the tree as v140 went out, 9cf5932,
+ * where no cover went on a plant with a pest and no cure covered one. v145 lets two insects go on such a plant and has
+ * the pest cure keep it a day; lib/town/db-vectors-guard.test.ts writes the cases of the code as it stands to
+ * `vectors-v145.json`, which v145.test.mjs reads. This file is run again only with the cases of 9cf5932.
+ *
  *   FC_REPO=<the tree> node build-v140.mjs && node v140.test.mjs      (RULES=0 skips the cases; RULES=few puts one in four, for the breaks)
  *   node mutate.mjs v140_draft.sql v140.test.mjs v140.mutations.mjs
  */

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, roll, see, type Chore, type Deed, type Seen } from "@/lib/town/farm";
+import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, ridCameOf, roll, see, type Chore, type Deed, type Seen } from "@/lib/town/farm";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
@@ -52,6 +52,9 @@ const VERB: Record<Work, [th: string, en: string]> = {
   water: ["รดน้ำ", "Water"], feed: ["ใส่ปุ๋ย", "Feed"], cure: ["ไล่แมลง", "Drive the pest off"], pick: ["เก็บ", "Pick"],
   draw: ["ตักน้ำ", "Draw water"], pour: ["เทน้ำลงบ่อ", "Pour it into the well"], fill: ["เติมน้ำใส่บัว", "Fill the can"],
 };
+/** An insect in the hand is let go on a plant, not spread on it: the button says so (the deed is the fertiliser's all the same: lib/town/farm's PUT_ON). */
+const LET_GO: [th: string, en: string] = ["ปล่อยแมลง", "Let it go"];
+const verbOf = (work: Work, hand: ItemId | null): [th: string, en: string] => (work === "feed" && hand && ITEMS[hand].kind === "bug" ? LET_GO : VERB[work]);
 const WHY_FARM: Record<string, [string, string]> = {
   hand: ["ของในมือทำอะไรกับแปลงนี้ไม่ได้", "What you hold does nothing here"], soil: ["แปลงนี้ยังไม่พร้อม", "This plot is not ready for that"],
   wet: ["เพิ่งรดไป", "Watered already"], theirs: ["แปลงนี้มีเจ้าของแล้ว", "This bed is somebody's"], unripe: ["ยังไม่สุก", "Not ripe yet"],
@@ -114,7 +117,9 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * hoe clears weeds and tills (each by the game of timing), and in one's own
  * bed digs a plant out, dead or living, which is no game but is asked for
  * twice (the owner, 2026-10-04: "ไม่ต้องเล่นมินิเกม แต่ต้องกด ยืนยันก่อนว่าจะเอาออกจริง");
- * a seed is sown; a can waters; a fertiliser feeds; a cure drives a pest off;
+ * a seed is sown; a can waters; a fertiliser feeds; a cure drives a pest off
+ * (and an insect that eats pests, let go on a plant that has one, eats it or
+ * is off: which, is said in a word, since the insect is gone either way);
  * and a ripe plant of one's own bed is picked. By the river a bucket
  * is filled, at the farm's well it is poured in, and a can is filled there.
  * Nothing says which thing does what: the button only shows when the hand
@@ -292,16 +297,25 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const act = useCallback(async (k: string, timing?: GameResult, sure = false) => {
     // (the buffs I have as the work begins: a blessing that had a hand in it shows over the plot when it is done)
     const mine = keeper.purse(), began = keeper.now();
+    // (and the plot as it stands, with what is in the hand: what came of an insect let go on a pest is read from the plot as it was and as it is)
+    const stood = keeper.farm()[k] ?? WILD, held = handOf(mine);
     // (every miss of the hoe is a little more stamina gone: the keeper's to take)
     const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined, sure);
     if (!did.ok) { say(did.why); return; }
     if (timing) keeper.record({ game: "farming", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(purse, now), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
-    setNote(did.got.length ? did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ") : null);
+    // an insect that eats pests, let go on a plant that had one: it ate it, or it is off with the pest still there (lib/town/farm's FARMING.rids)
+    const rid = did.deed === "feed" && held ? ridCameOf(k, stood, keeper.farm()[k] ?? WILD, held, began, keeper.rains()) : null;
+    setNote(did.got.length ? did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")
+      : rid === null || !held ? null
+        : th ? `${nameOf(held)}${rid ? "กินศัตรูพืชหมดแล้ว" : "บินหนีไปแล้ว ศัตรูพืชยังอยู่"}`
+          : `The ${nameOf(held).toLowerCase()} ${rid ? "ate the pest" : "flew off, and the pest is still there"}`);
     // what flies up over the plot, and what it sounds like (the hoe's own swings were heard as they were made)
     const [x, y] = k.split(",").map(Number), at = { x: x + 0.5, y: y + 0.5 }, [fx, sound] = DEED_FX[did.deed];
     sfx?.wake();
-    if (!timing) sfx?.work(sound);
-    vfx.add(fx, at);
+    // (an insect that is off is heard going, and leaves nothing in the air; one that ate its pest, a sparkle)
+    if (!timing) sfx?.work(rid === false ? "flit" : sound);
+    if (rid !== false) vfx.add(fx, at);
+    if (rid) vfx.add("sparkle", at);
     for (const id of seenAtPlot(did.deed, mine, began)) vfx.add("bless", at, { icon: BURST[id], lift: 8 });
     if (did.got.length) vfx.add("pop", at, { icon: did.got[0][0] });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
@@ -410,7 +424,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
-        const game = working.work === "ditch" ? "pouring" : gameFor(working.work), title = th ? VERB[working.work][0] : VERB[working.work][1];
+        const game = working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
         // (a meal's buff on the hands: steady hands for the pouring, a keen eye for the hoe and the weeding; the game of
         // tired hands is as it is)
         const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen") };
@@ -478,7 +492,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       ) : offer && (
         <button type="button" onClick={begin} data-farm-offer={offer}
                 className="pop-in pressable pointer-events-auto mb-14 flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">
-          {th ? VERB[offer][0] : VERB[offer][1]}
+          {verbOf(offer, hand)[th ? 0 : 1]}
           <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
         </button>
       )}

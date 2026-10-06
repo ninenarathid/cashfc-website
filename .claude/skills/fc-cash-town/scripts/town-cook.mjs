@@ -397,6 +397,8 @@ try {
   ok("read, the cure is in the recipe book with what else is made, and the scroll is used up", told.ok === true && told.dish === "pestCure" && (await X.evaluate(`${T}.knownMakes()`)).includes("pestCure") && (await has(X, "scrollPestCure")) === 0, told);
   paper = await readRecipe(X, "ยาไล่แมลง");
   ok("the book tells all of it but its last thing, which is some staple the uncle has had from the first", /พริก/.test(paper) && /ต้นหอม/.test(paper) && !/เกลือ/.test(paper) && /ของคู่ครัวสักอย่าง/.test(paper) && /ลุงมีขายตั้งแต่แรก/.test(paper), paper);
+  // (the owner, 2026-10-06: "เขียนบอกสรรพคุณด้วยว่า ป้องกันแมลงได้ 24 ชม")
+  ok("…and says what the cure does: it rids a plant of its pest and keeps pests off it for 24 hours after", /สรรพคุณ/.test(paper) && /กำจัดศัตรูพืชบนต้น และป้องกันศัตรูพืชต่ออีก 24 ชม\./.test(paper), paper);
   await X.shot(`${OUT}/cook-cure-scroll.png`);
   await rollUp(X);
   // (the bag shut again, and a pot of one's own in it)

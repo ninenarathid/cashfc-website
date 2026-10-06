@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
+  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, cureWords, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, ridCameOf, ridLuck, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
   type Bed, type Plant, type Plot,
 } from "./farm";
 import atlas from "./icon-atlas.json";
@@ -242,6 +242,7 @@ describe("pests", () => {
 
   // The owner, 2026-10-05, the day the members found that a ladybird put on a plant rid it of its pest: "แมลงที่หาง่ายกว่า
   // จะทำให้ ยาไล่แมลง ไม่มีคนใช้เพราะทำยากกว่า". Whatever covers a plant cured it too, by the way a strike is counted.
+  // (The two insects that eat pests are let go on such a plant again from the day after: the next test.)
   it("are kept off by what covers a plant and taken off by a cure, and neither does the other's work", () => {
     const COVERS = (Object.keys(PUT_ON) as ItemId[]).filter((id) => PUT_ON[id] === "guard"), CURES = (Object.keys(PUT_ON) as ItemId[]).filter((id) => PUT_ON[id] === "cure");
     expect(COVERS.sort()).toEqual(["guardFert", "ladybird", "lavenderSachet", "mantis", "mosquitofish"]);
@@ -250,21 +251,44 @@ describe("pests", () => {
     const p = plant({ crop: "pumpkin" }), plot: Plot = { soil: "tilled", plant: p }, t = pestAt(key, p, NIGHT + 48 * HOUR)!, now = t + HOUR;
     expect(see(key, plot, now).pest).toBe(true);
     for (const id of COVERS) {
-      // on a plant with a pest on it, it is not offered and does nothing: it stays in the bag, and the pest on the plant
       const me = holding(purseWith([id, 2]), id);
-      expect(deedFor(key, plot, id, "me", now), id).toBeNull();
-      expect(feed(key, me, plot, id, now), id).toEqual({ ok: false, why: "soil" });
-      expect(tend(key, plot, undefined, 0, 0, me, "me", now), id).toEqual({ ok: false, why: "soil" });
-      expect(tend(key, plot, { by: "you", tended: now, empty: 0 }, 0, 0, me, "me", now), id).toEqual({ ok: false, why: "theirs" });
+      // on a plant with a pest on it, it is not offered and does nothing: it stays in the bag, and the pest on the plant
+      // (all but the insects that eat pests)
+      if (FARMING.rids[id] === undefined) {
+        expect(deedFor(key, plot, id, "me", now), id).toBeNull();
+        expect(feed(key, me, plot, id, now), id).toEqual({ ok: false, why: "soil" });
+        // (whatever number it might have been tried by: it is tried by none)
+        expect(feed(key, me, plot, id, now, [], 0), id).toEqual({ ok: false, why: "soil" });
+        expect(tend(key, plot, undefined, 0, 0, me, "me", now), id).toEqual({ ok: false, why: "soil" });
+        expect(tend(key, plot, { by: "you", tended: now, empty: 0 }, 0, 0, me, "me", now), id).toEqual({ ok: false, why: "theirs" });
+        expect(ridCameOf(key, plot, plot, id, now), id).toBeNull();
+      }
       // the moment before the pest came it went on, and the plant was covered for the day: that pest never comes
       const before = done(feed(key, me, plot, id, t - 1));
       expect(before.plot.plant!.guard, id).toBe(t - 1 + FARMING.guard * HOUR);
       expect(see(key, before.plot, now).pest, id).toBe(false);
       expect(held(before.purse.bag, id), id).toBe(1);
     }
+    // The owner, 2026-10-06: "แต่ยาฆ่าแมลงจะยังป้องกันได้ 24 ชม". The cure that is made keeps pests off for a day after;
+    // the archerfish only spits the pest off.
+    expect(FARMING.cures).toEqual({ pestCure: 24 });
     for (const id of CURES) {
-      const cured = done(cure(key, purseWith([id, 1]), plot, id, now));
+      const cured = done(cure(key, purseWith([id, 1]), plot, id, now)), keeps = FARMING.cures[id];
       expect(see(key, cured.plot, now + 1), id).toMatchObject({ pest: false, dead: false });
+      expect(cured.plot.plant!.cured, id).toBe(now);
+      if (keeps) {
+        // the pest cure: the plant is covered for a day from that moment, as by a cover, and takes no cover more
+        expect(cured.plot.plant!.guard, id).toBe(now + keeps * HOUR);
+        const next = pestAt(key, cured.plot.plant!, now + 30 * 24 * HOUR);
+        if (next !== null) expect(next, id).toBeGreaterThanOrEqual(now + keeps * HOUR);
+        for (const cover of COVERS) {
+          expect(deedFor(key, cured.plot, cover, "me", now + 1), cover).toBeNull();
+          expect(feed(key, purseWith([cover, 1]), cured.plot, cover, now + 1, [], 0), cover).toEqual({ ok: false, why: "soil" });
+        }
+        continue;
+      }
+      // the fish: it covers nothing, so the plant may be struck again the same day
+      expect(cured.plot.plant!.guard, id).toBe(0);
       // rid of its pest, the plant can be covered, by anything that covers: for a day from then
       for (const cover of COVERS) {
         expect(deedFor(key, cured.plot, cover, "me", now + 1), cover).toBe("feed");
@@ -274,9 +298,13 @@ describe("pests", () => {
         const next = pestAt(key, kept.plot.plant!, now + 30 * 24 * HOUR);
         if (next !== null) expect(next, cover).toBeGreaterThanOrEqual(now + 1 + FARMING.guard * HOUR);
       }
-      // and a cure covers nothing: the plant may be struck again the same day
-      expect(cured.plot.plant!.guard, id).toBe(0);
     }
+    // (and the cure says so, in its own words and on its own line in the bag: "เขียนบอกสรรพคุณด้วยว่า ป้องกันแมลงได้ 24 ชม")
+    expect(cureWords("pestCure")).toEqual({ th: "กำจัดศัตรูพืชบนต้น และป้องกันศัตรูพืชต่ออีก 24 ชม.", en: "Rids a plant of its pest, and keeps pests off it for 24 hours after." });
+    expect(cureWords("archerfish")).toBeNull();
+    expect(cureWords("ladybird")).toBeNull();
+    expect(ITEMS.pestCure.about.th.endsWith(cureWords("pestCure")!.th)).toBe(true);
+    expect(ITEMS.pestCure.about.en.endsWith(cureWords("pestCure")!.en)).toBe(true);
     // what makes a plant grow is put on whether it has a pest or not, as ever
     expect(deedFor(key, plot, "growFert", "me", now)).toBe("feed");
     expect(done(feed(key, purseWith(["growFert", 1]), plot, "growFert", now)).plot.plant!.fed).toBe(now);
@@ -286,6 +314,122 @@ describe("pests", () => {
     const old: Plot = { soil: "tilled", plant: { ...p, guard: now + FARMING.guard * HOUR } };
     expect(see(key, old, now + 2 * HOUR)).toMatchObject({ pest: false, dead: false });
     expect(see(key, old, t + FARMING.pests.kills * HOUR + 1)).toMatchObject({ pest: false, dead: false });
+  });
+
+  // The owner, 2026-10-06: "แมลงที่ใช้กำจัด ศัตรูพืช … ช่วยทำให้กลับมาใช้งานได้ แต่มีโอกาศสำเร็จแค่ 70%", then "เอาเต่าทอง 50%
+  // ตักแตนตำข้าว 70%", and "การกำจัดแมลงด้วยแมลง จะไม่ทำให้ป้องกันแมลงกลับมาโจมตีได้".
+  it("are eaten by an insect let go on the plant, a ladybird half the time and a mantis seven times in ten, which keeps nothing off afterwards; the other times it is off, and gone all the same", () => {
+    expect(FARMING.rids).toEqual({ ladybird: 0.5, mantis: 0.7 });
+    const EATERS = Object.keys(FARMING.rids) as ItemId[];
+    // (each of them is a cover, and an insect)
+    for (const id of EATERS) { expect(PUT_ON[id], id).toBe("guard"); expect(ITEMS[id].kind, id).toBe("bug"); }
+    const key = Array.from({ length: 400 }, (_, i) => `${i},3`).find((k) => pestAt(k, plant({ crop: "pumpkin" }), NIGHT + 48 * HOUR) !== null)!;
+    const p = plant({ crop: "pumpkin" }), plot: Plot = { soil: "tilled", plant: p }, t = pestAt(key, p, NIGHT + 48 * HOUR)!, now = t + HOUR;
+    for (const id of EATERS) {
+      const me = holding(purseWith([id, 2]), id), often = FARMING.rids[id]!;
+      // it is offered for a plant with a pest on it, in anybody's bed, as a cure is
+      expect(deedFor(key, plot, id, "me", now), id).toBe("feed");
+      expect(deedFor(key, plot, id, "me", now, "you"), id).toBe("feed");
+      // under how often it does, it eats the pest: the plant is rid of it as a cure rids it, and is not covered
+      for (const luck of [0, often / 2, often - 0.0001]) {
+        const ate = done(feed(key, me, plot, id, now, [], luck));
+        expect(ate.plot.plant, id).toEqual({ ...p, cured: now });
+        expect(ate.plot.plant!.guard, id).toBe(0);
+        expect(see(key, ate.plot, now), id).toMatchObject({ pest: false, dead: false });
+        expect(held(ate.purse.bag, id), id).toBe(1);
+        expect(staminaOf(ate.purse, now), id).toBe(100 - FARMING.costs.feed);
+        expect(ridCameOf(key, plot, ate.plot, id, now), id).toBe(true);
+        // rid so, the plant has no pest and no cover: a second insect let go on it is a cover, for a day, as on any plant
+        expect(deedFor(key, ate.plot, id, "me", now + 1), id).toBe("feed");
+        const kept = done(feed(key, ate.purse, ate.plot, id, now + 1, [], 0.9999));
+        expect(kept.plot.plant, id).toEqual({ ...p, cured: now, guard: now + 1 + FARMING.guard * HOUR });
+        expect(ridCameOf(key, ate.plot, kept.plot, id, now + 1), id).toBeNull();
+      }
+      // (a pest may come to it again the same day, where the pest cure would have kept it a day: over many plots, some are struck again within the day)
+      {
+        let again = 0, tried = 0;
+        for (let i = 0; i < 400; i++) {
+          const k = `${i},3`, q = plant({ crop: "pumpkin" }), struck = pestAt(k, q, NIGHT + 48 * HOUR);
+          if (struck === null) continue;
+          tried++;
+          const rid = done(feed(k, me, { soil: "tilled", plant: q }, id, struck + 1, [], 0)).plot.plant!, cured = done(cure(k, purseWith(["pestCure", 1]), { soil: "tilled", plant: q }, "pestCure", struck + 1)).plot.plant!;
+          const next = pestAt(k, rid, struck + 24 * HOUR);
+          if (next !== null) { again++; expect(next, id).toBeGreaterThan(struck); }
+          expect(pestAt(k, cured, struck + 24 * HOUR), id).toBeNull();
+        }
+        expect(tried, id).toBeGreaterThan(60);
+        expect(again, id).toBeGreaterThan(3);
+      }
+      // at that and over it is off: the plant is as it was, pest and all, and the insect and the stamina are gone all the same
+      for (const luck of [often, (often + 1) / 2, 0.9999]) {
+        const off = done(feed(key, me, plot, id, now, [], luck));
+        expect(off.plot, id).toEqual(plot);
+        expect(see(key, off.plot, now).pest, id).toBe(true);
+        expect(see(key, off.plot, t + FARMING.pests.kills * HOUR + 1).dead, id).toBe(true);
+        expect(held(off.purse.bag, id), id).toBe(1);
+        expect(staminaOf(off.purse, now), id).toBe(100 - FARMING.costs.feed);
+        expect(ridCameOf(key, plot, off.plot, id, now), id).toBe(false);
+        // and another may be tried at once, or a cure
+        expect(deedFor(key, off.plot, id, "me", now + 1), id).toBe("feed");
+        expect(done(feed(key, off.purse, off.plot, id, now + 1, [], 0)).plot.plant, id).toEqual({ ...p, cured: now + 1 });
+        expect(done(cure(key, purseWith(["pestCure", 1]), off.plot, "pestCure", now + 1)).plot.plant!.cured, id).toBe(now + 1);
+      }
+      // told no number, it is tried by the moment's own, the same for whoever asks; and tending hands a number on
+      const own = ridLuck(key, p, now), byItself = done(feed(key, me, plot, id, now));
+      expect(byItself.plot.plant!.cured > 0, id).toBe(own < often);
+      expect(byItself.plot.plant!.guard, id).toBe(0);
+      expect(feed(key, me, plot, id, now), id).toEqual(byItself);
+      expect(done(tend(key, plot, undefined, 0, 0, me, "me", now)).plot, id).toEqual(byItself.plot);
+      expect(done(tend(key, plot, undefined, 0, 0, me, "me", now, [], false, 0)).plot.plant, id).toEqual({ ...p, cured: now });
+      expect(done(tend(key, plot, undefined, 0, 0, me, "me", now, [], false, 0.99)).plot, id).toEqual(plot);
+      // (somebody else's plant is helped the same way, and the bed stays its owner's)
+      const theirs = done(tend(key, plot, { by: "you", tended: now, empty: 0 }, 0, 0, me, "me", now, [], false, 0));
+      expect(theirs.deed, id).toBe("feed");
+      expect(theirs.bed, id).toEqual({ by: "you", tended: now, empty: 0 });
+      // on a plant with no pest it is a cover as ever, whatever the number: nothing is tried
+      expect(done(feed(key, me, plot, id, t - 1, [], 0.99)).plot.plant!.guard, id).toBe(t - 1 + FARMING.guard * HOUR);
+      expect(ridCameOf(key, plot, done(feed(key, me, plot, id, t - 1)).plot, id, t - 1), id).toBeNull();
+      // and on one dead of its pest it does nothing
+      expect(deedFor(key, plot, id, "me", t + FARMING.pests.kills * HOUR + 1), id).toBeNull();
+      expect(feed(key, me, plot, id, t + FARMING.pests.kills * HOUR + 1, [], 0), id).toEqual({ ok: false, why: "soil" });
+    }
+    // a cure is no such thing, nor is what makes a plant grow
+    expect(ridCameOf(key, plot, done(cure(key, purseWith(["pestCure", 1]), plot, "pestCure", now)).plot, "pestCure", now)).toBeNull();
+    expect(ridCameOf(key, plot, done(feed(key, purseWith(["growFert", 1]), plot, "growFert", now)).plot, "growFert", now)).toBeNull();
+    expect(ridCameOf(key, plot, plot, null, now)).toBeNull();
+  });
+
+  it("…and that often is what the moments come to: over many plots and many moments, no plot's run like another's", () => {
+    // every plot of a row that a pest has struck, each tried at four hundred moments of the hour after, a few milliseconds apart
+    for (const id of Object.keys(FARMING.rids) as ItemId[]) {
+      const often = FARMING.rids[id]!, runs: string[] = [];
+      let tries = 0, ate = 0;
+      for (let i = 0; i < 400 && runs.length < 40; i++) {
+        const key = `${i},3`, p = plant({ crop: "pumpkin" }), t = pestAt(key, p, NIGHT + 48 * HOUR);
+        if (t === null) continue;
+        const plot: Plot = { soil: "tilled", plant: p }, me = holding(purseWith([id, 1]), id);
+        let run = "";
+        for (let n = 0; n < 400; n++) {
+          const now = t + HOUR + n * 7, yes = done(feed(key, me, plot, id, now)).plot.plant!.cured > 0;
+          expect(yes, id).toBe(ridLuck(key, p, now) < often);
+          tries++; if (yes) ate++;
+          run += yes ? "1" : "0";
+        }
+        runs.push(run);
+      }
+      expect(tries, id).toBe(16_000);
+      expect(ate / tries, id).toBeGreaterThan(often - 0.015);
+      expect(ate / tries, id).toBeLessThan(often + 0.015);
+      // no two plots have the same luck, and no plot's luck comes round again a hundred moments on
+      expect(new Set(runs).size, id).toBe(runs.length);
+      for (const run of runs) expect(run.slice(0, 100), id).not.toBe(run.slice(100, 200));
+      // from one millisecond to the next it turns as often as two draws of that chance differ: nothing is learnt from the last try
+      let turns = 0;
+      for (const run of runs) for (let n = 1; n < run.length; n++) if (run[n] !== run[n - 1]) turns++;
+      const differ = 2 * often * (1 - often);
+      expect(turns / (tries - runs.length), id).toBeGreaterThan(differ - 0.02);
+      expect(turns / (tries - runs.length), id).toBeLessThan(differ + 0.02);
+    }
   });
 
   it("leave a ripe plant alone: nothing is lost by coming late to pick it", () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { cureWords } from "@/lib/town/farm";
 import { toldOf, type Hidden } from "@/lib/town/hints";
 import { WISH } from "@/lib/town/fountain";
 import { DISHES, ITEMS, MAKES, type DishId, type ItemId } from "@/lib/town/items";
@@ -64,7 +65,7 @@ export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
   }, [close]);
 
   const d = dish in DISHES ? DISHES[dish as DishId] : null, it = ITEMS[dish];
-  const by = keeper.finder(dish);
+  const by = keeper.finder(dish), does = cureWords(dish);
   const recipe = d?.recipe || MAKES[dish] ? toldOf(dish, keeper.madeBefore(dish), keeper.triesAt(dish)) : undefined;
   const name = (id: keyof typeof ITEMS) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const ms = open ? UNROLL_MS : ROLL_MS;
@@ -129,6 +130,10 @@ export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
                 ) : (
                   <p className="text-center text-ui">{th ? "ไม่ต้องทำเอง ลุงขายของมีขาย" : "Nothing to cook: the uncle sells it."}</p>
                 )}
+                {/* a cure that keeps pests off afterwards says what it does (the owner, 2026-10-06): the one made thing that does */}
+                {does && <Rule />}
+                {does && <h3 className="font-data text-label uppercase tracking-wider" style={{ color: INK_SOFT }}>{th ? "สรรพคุณ" : "What it does"}</h3>}
+                {does && <p className="mt-1 text-ui font-semibold" data-scroll-does>{th ? does.th : does.en}</p>}
                 {d && <Rule />}
                 {d && <h3 className="font-data text-label uppercase tracking-wider" style={{ color: INK_SOFT }}>{th ? "กินแล้วได้" : "Eating it gives"}</h3>}
                 {d && <p className="mt-1 flex items-center gap-1.5 text-ui font-semibold"><TownIcon name="stamina" size={18} />Stamina +{d.stamina}</p>}

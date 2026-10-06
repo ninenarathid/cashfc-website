@@ -522,6 +522,108 @@ try {
   await X.evaluate(`${T}.clearFarm()`);
   await sleep(500);
   ok("the farm is cleared again", Object.keys(await X.evaluate(`${F}.plots()`)).length === 0 && (await X.evaluate(`${F}.owners()`)).length === 0);
+
+  // An insect that eats pests, and a cure that keeps them off (the owner, 2026-10-06: "แมลงที่ใช้กำจัด ศัตรูพืช … ช่วยทำให้กลับมา
+  // ใช้งานได้", "เอาเต่าทอง 50% ตักแตนตำข้าว 70%", "การกำจัดแมลงด้วยแมลง จะไม่ทำให้ป้องกันแมลงกลับมาโจมตีได้ แต่ยาฆ่าแมลงจะยังป้องกันได้ 24 ชม").
+  // A pumpkin of somebody else's with a pest on it, found by looking, at an hour pests are about; the number an insect is
+  // tried by said by the check (`setPutLuck`), so that what comes of each is known.
+  {
+    await X.evaluate(`(${T}.empty(), ${T}.setStamina(100))`);
+    const PEST = "134,6", [px, py] = PEST.split(",").map(Number);
+    // (whether a pest has come hangs on the very moment a plant was sown: the one found is kept, to be stood up again as it was)
+    let sick = null;
+    for (let turn = 0; turn < 30 && !sick; turn++) {
+      const at = await X.evaluate(`${T}.now()`);
+      for (let h = 3; h <= 72 && !sick; h++) {
+        const plot = { soil: "tilled", plant: { by: "somebody-else", crop: "pumpkin", sown: at - h * 3600000, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } };
+        await X.evaluate(`${T}.setPlot(${JSON.stringify(PEST)}, ${JSON.stringify(plot)})`);
+        await sleep(40);
+        if ((await seen(X, PEST)).pest) sick = plot;
+      }
+      if (!sick) await X.evaluate(`${T}.skipHours(1)`);
+    }
+    ok("a plant of somebody else's with a pest on it is found", !!sick, sick);
+    const again = async () => { await X.evaluate(`${T}.setPlot(${JSON.stringify(PEST)}, ${JSON.stringify(sick)})`); await sleep(300); };
+    const note = () => X.evaluate(`${F}.note()`);
+    const label = () => X.evaluate(`document.querySelector("[data-farm-offer]")?.innerText.replace(/\\s+/g, " ").trim() ?? null`);
+    await warp(X, px, py);
+    await X.evaluate(`(${T}.grant("ladybird", 3), ${T}.grant("mantis", 1), ${T}.grant("lavenderSachet", 1), ${T}.grant("pestCure", 1), ${T}.grant("archerfish", 1))`);
+    // a cover that eats nothing is not offered for it, as since the day before
+    await hold(X, "lavenderSachet");
+    ok("a sachet in the hand is offered nothing for a plant with a pest", (await deed(X)) === null && (await label()) === null, await deed(X));
+    // a ladybird is, by its own word
+    await hold(X, "ladybird");
+    await until("the ladybird is offered", async () => (await deed(X)) === "feed", 5000);
+    ok("a ladybird in the hand is offered for it, and the button says it is let go", /ปล่อยแมลง/.test((await label()) ?? ""), await label());
+    await X.shot(`${OUT}/farm-insect-offered.png`);
+    // at a number over its half: it is off
+    await X.evaluate(`${T}.setPutLuck(0.6)`);
+    let stood = (await X.evaluate(`${F}.plots()`))[PEST], left = (await purse(X)).stamina.left;
+    await X.evaluate(`${F}.act()`);
+    await sleep(500);
+    ok("let go at a moment it does not eat: the ladybird is gone from the bag, for a point of stamina", (await has(X, "ladybird")) === 2 && left - (await purse(X)).stamina.left === 1, await purse(X));
+    ok("…the plant is as it was to the letter, with its pest", JSON.stringify((await X.evaluate(`${F}.plots()`))[PEST]) === JSON.stringify(stood) && (await seen(X, PEST)).pest === true, (await X.evaluate(`${F}.plots()`))[PEST]);
+    ok("…and the page says it flew off, with the pest still there", /เต่าทองบินหนีไปแล้ว ศัตรูพืชยังอยู่/.test((await note()) ?? ""), await note());
+    await X.shot(`${OUT}/farm-insect-off.png`);
+    ok("another is offered at once", (await deed(X)) === "feed");
+    // at a number under it: it eats the pest, and covers nothing
+    await X.evaluate(`${T}.setPutLuck(0.4)`);
+    await X.evaluate(`${F}.act()`);
+    await sleep(500);
+    let plot = (await X.evaluate(`${F}.plots()`))[PEST];
+    ok("let go at a moment it eats: the pest is gone, the plant rid of it at that moment and covered by nothing", (await seen(X, PEST)).pest === false && plot.plant.cured > 0 && plot.plant.guard === 0 && (await has(X, "ladybird")) === 1, plot);
+    ok("…and the page says it ate the pest", /เต่าทองกินศัตรูพืชหมดแล้ว/.test((await note()) ?? ""), await note());
+    await X.shot(`${OUT}/farm-insect-ate.png`);
+    // on the plant now, which has no pest, the third is a cover for a day, whatever the number, and nothing is said
+    await X.evaluate(`${T}.setPutLuck(0.99)`);
+    await until("the ladybird is offered as a cover", async () => (await deed(X)) === "feed", 5000);
+    await sleep(2700);
+    await X.evaluate(`${F}.act()`);
+    await sleep(500);
+    plot = (await X.evaluate(`${F}.plots()`))[PEST];
+    ok("on a plant with no pest a ladybird is a cover for a day, as ever, and nothing is said of a pest", plot.plant.guard > (await X.evaluate(`${T}.now()`)) + 23 * 3600000 && (await has(X, "ladybird")) === 0 && !/ศัตรูพืช/.test((await note()) ?? ""), { plot, note: await note() });
+    // a mantis: seven in ten. At 0.6, where the ladybird was off, it eats
+    await again();
+    await hold(X, "mantis");
+    await until("the mantis is offered", async () => (await deed(X)) === "feed", 5000);
+    await X.evaluate(`${T}.setPutLuck(0.6)`);
+    await X.evaluate(`${F}.act()`);
+    await sleep(500);
+    ok("a mantis, at the number the ladybird was off at, eats the pest: it is the surer", (await seen(X, PEST)).pest === false && (await has(X, "mantis")) === 0 && /ตั๊กแตนตำข้าวกินศัตรูพืชหมดแล้ว/.test((await note()) ?? ""), await note());
+    await X.evaluate(`${T}.setPutLuck(null)`);
+    // the cure that is made rids the plant and keeps it a day; the fish only rids it
+    await again();
+    await hold(X, "pestCure");
+    await until("the cure is offered", async () => (await deed(X)) === "cure", 5000);
+    await X.evaluate(`${F}.act()`);
+    await sleep(500);
+    plot = (await X.evaluate(`${F}.plots()`))[PEST];
+    const now = await X.evaluate(`${T}.now()`);
+    ok("the pest cure rids the plant and keeps pests off it for 24 hours from then", (await seen(X, PEST)).pest === false && plot.plant.cured > 0 && plot.plant.guard > now + 23.9 * 3600000 && plot.plant.guard <= now + 24 * 3600000, plot);
+    await hold(X, "lavenderSachet");
+    ok("…so a cover is offered nothing there: it is covered", (await deed(X)) === null);
+    await again();
+    await hold(X, "archerfish");
+    await until("the fish is offered", async () => (await deed(X)) === "cure", 5000);
+    await X.evaluate(`${F}.act()`);
+    await sleep(500);
+    plot = (await X.evaluate(`${F}.plots()`))[PEST];
+    ok("an archerfish rids it and covers nothing, as ever", (await seen(X, PEST)).pest === false && plot.plant.cured > 0 && plot.plant.guard === 0, plot);
+    // the cure says what it does, in the bag
+    await X.evaluate(`${T}.grant("pestCure", 1)`);
+    await X.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า").click()`);
+    await sleep(700);
+    const bag = await X.evaluate(`document.querySelector('[aria-labelledby="town-trade-h"]')?.innerText ?? ""`);
+    await X.evaluate(`[...document.querySelector('[aria-labelledby="town-trade-h"]').querySelectorAll("button")].find((b) => /ยาไล่แมลง/.test(b.innerText) || /ยาไล่แมลง/.test(b.title ?? "") || /ยาไล่แมลง/.test(b.getAttribute("aria-label") ?? ""))?.click()`);
+    await sleep(500);
+    const card = await X.evaluate(`document.querySelector('[aria-labelledby="town-trade-h"]')?.innerText ?? ""`);
+    ok("the pest cure's own line in the bag says what it does: rids a plant of its pest, and keeps pests off for 24 hours", /ป้องกันศัตรูพืชต่ออีก 24 ชม\./.test(bag + card), (bag + card).slice(0, 400));
+    await X.shot(`${OUT}/farm-cure-line.png`);
+    await X.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า")?.click()`);
+    await sleep(400);
+    await X.evaluate(`${T}.clearFarm()`);
+    await sleep(300);
+  }
   ok("no page errors", X.logs.length === 0 && Y.logs.length === 0, [...X.logs, ...Y.logs]);
 } catch (e) { ok("the run", false, e.message + " " + JSON.stringify(X.logs)); } finally { X.close(); }
 console.log(`\n${pass} passed, ${fail} failed`);

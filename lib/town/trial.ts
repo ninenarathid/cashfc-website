@@ -394,7 +394,7 @@ export class Trial {
     const p = this.purse(), now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, beds = this.beds();
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
-    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains(), sure);
+    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains(), sure, this.putLuck ?? undefined);
     if (!did.ok) return did;
     const next = { ...plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
@@ -608,6 +608,9 @@ export class Trial {
   /** For scripts trying things out: how likely an insect that may take a pest with it does, whatever its own chance is (in this tab; null: its own). */
   private ridChance: number | null = null;
   setRidChance(chance: number | null) { this.ridChance = chance; }
+  /** For scripts: the number an insect let go on a plant that has a pest is tried by (lib/town/farm's `feed`: under how often that insect eats one, it does), in place of the moment's own (in this tab; null: the moment's). */
+  private putLuck: number | null = null;
+  setPutLuck(luck: number | null) { this.putLuck = luck; }
 
   /* ── the well's book (lib/town/well) ── */
   private wellLog(): WellLog {

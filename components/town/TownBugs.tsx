@@ -5,6 +5,7 @@ import {
   BUGS, HABITS, HAUNTS, LURES, NET, aimOf, bugTurnStart, fledBy, mayNet, missed, newMind, poseOf, ringOf, swingMs, taken, think,
   type BugId, type BugSight, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
+import { FARMING } from "@/lib/town/farm";
 import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
@@ -25,6 +26,23 @@ import { Vfx } from "./vfx";
  */
 const RID: [th: string, en: string] = ["จับเต่าทองตัวนี้แล้ว ศัตรูพืชที่ไหนสักแห่งก็หายไปหนึ่งตัว", "With this one caught, a pest somewhere is gone"];
 const RID_MS = 6000;
+/**
+ * How an insect that eats pests is used, said under what was caught when one is (the owner, 2026-10-06, when he had
+ * the two work again: "พร้อมเขียนบอกวิธีใช้ตอนได้แมลงไปเลย"): the one thing of the town's that is told what it is for, by his
+ * word. How sure it is, is said in words that follow its number (lib/town/farm's FARMING.rids), never the number; and
+ * how long it stays, in milliseconds.
+ */
+const SURE = (often: number): [th: string, en: string] =>
+  (often >= 0.9 ? ["สำเร็จแทบทุกครั้ง", "nearly every time"] : often >= 0.65 ? ["สำเร็จเป็นส่วนใหญ่", "more often than not"]
+    : often >= 0.4 ? ["สำเร็จราวครึ่งหนึ่ง", "about half the time"] : ["นานๆ จะสำเร็จสักครั้ง", "only now and then"]);
+function howTo(id: ItemId, th: boolean): string | null {
+  const often = FARMING.rids[id];
+  if (often === undefined) return null;
+  const name = th ? ITEMS[id].name.th : ITEMS[id].name.en, sure = SURE(often)[th ? 0 : 1];
+  return th ? `วิธีใช้: ถือ${name}ไว้ในมือ แล้วปล่อยบนต้นที่มีศัตรูพืช มันจะกินศัตรูพืชให้ (${sure}) ถ้าไม่สำเร็จมันจะบินหนีไป`
+    : `Hold the ${name.toLowerCase()} and let it go on a plant that has a pest: it eats the pest (${sure}), or else it flies off.`;
+}
+const TIP_MS = 9000;
 const WHY_BUGS: Record<string, [string, string]> = {
   had: ["จับตัวนี้ไปแล้ว", "You have caught this one already"], bare: ["มีคนจับไปก่อนแล้ว", "Somebody caught it first"], far: ["อยู่ไกลเกินไป", "Too far away"],
   none: ["ไม่อยู่แล้ว", "It is gone"], lure: ["มันปีนกลับขึ้นไปแล้ว", "It has climbed back up"],
@@ -88,6 +106,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   useEffect(() => keeper.look("bugs"), [keeper]);
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2800); return () => clearTimeout(t); }, [note]);
+  /** How what was just caught is used, for the two that eat pests: it stays longer than the catch's own line. */
+  const [tip, setTip] = useState<string | null>(null);
+  useEffect(() => { if (!tip) return; const t = setTimeout(() => setTip(null), TIP_MS); return () => clearTimeout(t); }, [tip]);
   const vfx = useMemo(() => new Vfx(), []);
 
   // What every haunt has for me now: looked at afresh when something changes and every few seconds, not every frame.
@@ -140,6 +161,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
             const what = did.got.map(([item, n]) => `${nameOf(item)} ×${n}`).join(" · ");
             setNote(did.first ? `${what} · ${live.current.th ? "ตัวแรกของหมู่บ้าน" : "the village's first"}` : what);
+            // (one that eats pests: how it is used, said each time one is caught)
+            const how = did.got.map(([item]) => howTo(item, live.current.th)).find((line) => !!line);
+            if (how) setTip(how);
             sfx?.wake();
             sfx?.work("netted");
             if (did.got.length) vfx.add("pop", where, { icon: iconOf(did.got[0][0]) });
@@ -315,7 +339,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       /** A tap at a point of the map, as the map hands one over: whether it was taken for a swing. */
       tap: (x: number, y: number) => tapRef.current?.({ x, y }) ?? false,
       swinging: () => !!swing.current && !swing.current.done,
-      caught: () => caught.current, note: () => note, ridShown: () => Date.now() < ridUntil.current, fled: () => [...(fled.current?.keys() ?? [])],
+      caught: () => caught.current, note: () => note, tip: () => tip, ridShown: () => Date.now() < ridUntil.current, fled: () => [...(fled.current?.keys() ?? [])],
       // (how many swings have missed each insect, by "haunt:turn"; how an insect will be so many milliseconds on, as far
       // as the clock alone says; how long my swing takes; and every insect that fled from me forgotten)
       misses: () => Object.fromEntries(misses.current), swingMs: () => swingMs(live.current.spent),
@@ -329,12 +353,13 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     };
     (window as unknown as { __townBugs?: typeof handle }).__townBugs = handle;
     return () => { delete (window as unknown as { __townBugs?: typeof handle }).__townBugs; };
-  }, [note]);
+  }, [note, tip]);
 
-  if (!note) return null;
+  if (!note && !tip) return null;
   return (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
-      <p className="pop-in mb-14 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>
+    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2 pb-14" style={{ bottom }}>
+      {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
+      {tip && <p className="pop-in max-w-[24rem] rounded-2xl bg-bg/85 px-4 py-2 text-center text-ui leading-relaxed text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-bug-tip aria-live="polite">{tip}</p>}
     </div>
   );
 }

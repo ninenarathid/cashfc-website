@@ -50,10 +50,12 @@ import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, ty
  *   given to these rules as its stretches (`rains`): none, where nothing is
  *   said of it.
  * - **Fertiliser**: one kind makes a plant grow faster from then on, the other
- *   keeps pests off it for a day.
+ *   keeps pests off it for a day. (So do a few things caught: `PUT_ON`. Two of
+ *   them, insects, also eat a pest that is already there, though not every time.)
  * - **Pests** strike a growing plant only between 08:00 and 18:00; one left
  *   for more than six hours kills it (so the six hours always end before
- *   midnight); anybody may cure anybody's plant. A dead plant, pulled up,
+ *   midnight); anybody may cure anybody's plant, and the cure that is made
+ *   keeps pests off it for a day after. A dead plant, pulled up,
  *   leaves compost. A ripe plant is safe: nothing is lost by coming late to
  *   pick it.
  *
@@ -79,6 +81,20 @@ export const FARMING = {
   feed: 1.25,
   /** Pest-proof fertiliser: the hours it covers a plant. */
   guard: 24,
+  /**
+   * The covers that take a pest off as well, and how often: the two insects that eat what eats a plant (the owner,
+   * 2026-10-06: "แมลงที่ใช้กำจัด ศัตรูพืช … ช่วยทำให้กลับมาใช้งานได้ แต่มีโอกาศสำเร็จแค่ 70%", and then "เอาเต่าทอง 50% ตักแตนตำข้าว
+   * 70%": the mantis, which takes a friend to catch, is the surer). Let go on a plant that has a pest, one rids it of
+   * the pest so often, as a cure rids it, and keeps nothing off it afterwards ("การกำจัดแมลงด้วยแมลง จะไม่ทำให้ป้องกันแมลง
+   * กลับมาโจมตีได้"); the other times it is off and gone, and the pest is where it was (`feed`). No other cover goes on
+   * such a plant.
+   */
+  rids: { ladybird: 0.5, mantis: 0.7 } as Partial<Record<ItemId, number>>,
+  /**
+   * The cures that keep pests off the plant they have rid, and for how many hours (the owner, the same day: "แต่ยาฆ่าแมลง
+   * จะยังป้องกันได้ 24 ชม"): the pest cure, which is made, for a day. The archerfish only spits the pest off.
+   */
+  cures: { pestCure: 24 } as Partial<Record<ItemId, number>>,
   /** Pests: the hours of the day (Bangkok) they strike in, the chance for a growing plant in each of those hours, and the hours after which a plant left to them dies. */
   pests: { from: 8, to: 18, chance: 0.03, kills: 6 },
   /** How many hits of the hoe it takes to clear a plot of weeds, and to till it. */
@@ -158,7 +174,8 @@ const isCan = (id: ItemId | null) => !!id && id in WATER.cans;
  * which does as one of those does (a herring dug in feeds a plant, as fish were buried under corn; a mosquitofish
  * keeps the pests off it for a day; an archerfish spits a pest off it). Used up by it, like the powder. Of the three
  * kinds, `guard` keeps pests off a plant that has none and `cure` takes off one that is there: neither does the
- * other's work (`feed`, below).
+ * other's work (`feed`, below), but for the two insects, which eat a pest that is there as often as not, or oftener
+ * (`FARMING.rids`).
  */
 export const PUT_ON: Partial<Record<ItemId, "feed" | "guard" | "cure">> = {
   growFert: "feed", guardFert: "guard", pestCure: "cure",
@@ -180,6 +197,13 @@ export function roll(word: string, ...n: number[]): number {
   h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13; h = Math.imul(h, 3266489909); h ^= h >>> 16;
   return (h >>> 0) / 4294967296;
 }
+
+/**
+ * The number an insect let go on a plant that has a pest is tried by (`FARMING.rids`): from the plot, its plant and
+ * the very moment, which is the clock of whoever keeps the game, to the millisecond. Nobody chooses it, and whoever
+ * keeps the game needs no dice of its own: the database's rule (`town.feed`) answers every case as this does.
+ */
+export const ridLuck = (key: string, p: Plant, now: number): number => roll(`rid|${key}`, now, p.sown);
 
 /** The hours a plant has grown by a moment: the clock's, faster once it is fed, what watering added, and what the rain did. */
 export function grown(p: Plant, now: number, rains: readonly Rain[] = DRY): number {
@@ -295,23 +319,54 @@ export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null
  * a day more; and the day the insects came the members found that a ladybird, which is caught for a point of stamina,
  * did the work of a cure that takes a scroll, a pot and five things. The owner: "แมลงที่หาง่ายกว่า จะทำให้ ยาไล่แมลง
  * ไม่มีคนใช้เพราะทำยากกว่า". A plant covered so before then stays rid of its pest: nothing is counted again.)
+ *
+ * **But for an insect that eats pests** (`FARMING.rids`; the owner, the day after: they are to work again, a ladybird
+ * half the time and a mantis seven times in ten). Let go on a plant that has a pest, it is used up as ever, for the
+ * stamina it costs; so often it eats the pest, and the plant is rid of it as a cure rids it (`cured` is that moment)
+ * and covered by nothing: a pest may come again the same day. The other times it is off, and the plant is as it was,
+ * pest and all. (On a plant with no pest it is a cover as ever, for a day.)
+ * `luck` is a number given in place of the moment's own (`ridLuck`): for the trial's scripts.
  */
-export function feed(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
+export function feed(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY, luck?: number): Did {
   const kind = toolOf(hand);
   if ((kind !== "feed" && kind !== "guard") || !hasInHand(purse, hand)) return not("hand");
   const seen = see(key, plot, now, rains), p = plot.plant;
-  if (!p || seen.dead || (kind === "feed" && p.fed) || (kind === "guard" && (p.guard > now || seen.pest))) return not("soil");
-  const plant = kind === "feed" ? { ...p, fed: now } : { ...p, guard: now + FARMING.guard * HOUR };
+  // (how often what is in the hand takes off the pest that is there: nothing, for a cover that does not, and for a plant with none)
+  const rids = kind === "guard" && seen.pest ? FARMING.rids[hand!] : undefined;
+  if (!p || seen.dead || (kind === "feed" && p.fed) || (kind === "guard" && (p.guard > now || (seen.pest && rids === undefined)))) return not("soil");
+  const off = rids !== undefined && (luck ?? ridLuck(key, p, now)) >= rids;
+  const plant = kind === "feed" ? { ...p, fed: now } : rids === undefined ? { ...p, guard: now + FARMING.guard * HOUR } : off ? p : { ...p, cured: now };
   return { ok: true, plot: { ...plot, plant }, purse: { ...spend(purse, FARMING.costs.feed, now), bag: take(purse.bag, hand!, 1) } };
 }
 
-/** Rid a plant, anybody's, of its pest, with a cure in the hand. */
+/**
+ * What came of an insect let go on a plant that had a pest, read from the plot as it was and as it is: true, the pest
+ * is gone (the plant was rid of it at that moment); false, the insect is, and the pest is not. Null when the deed was
+ * no such thing: something else in the hand, or a plant with no pest. For the page, which says a word of it.
+ */
+export function ridCameOf(key: string, was: Plot, is: Plot, hand: ItemId | null, then: number, rains: readonly Rain[] = DRY): boolean | null {
+  if (!hand || FARMING.rids[hand] === undefined || !was.plant || !see(key, was, then, rains).pest) return null;
+  return !!is.plant && is.plant.cured > was.plant.cured;
+}
+
+/** Rid a plant, anybody's, of its pest, with a cure in the hand. One that keeps pests off afterwards (`FARMING.cures`: the pest cure) covers the plant for so many hours from that moment, as a cover does. */
 export function cure(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: readonly Rain[] = DRY): Did {
   if (toolOf(hand) !== "cure" || !hasInHand(purse, hand)) return not("hand");
   const seen = see(key, plot, now, rains);
   if (!plot.plant || !seen.pest) return not("soil");
-  return { ok: true, plot: { ...plot, plant: { ...plot.plant, cured: now } }, purse: { ...spend(purse, FARMING.costs.cure, now), bag: take(purse.bag, hand!, 1) } };
+  const keeps = FARMING.cures[hand!];
+  return { ok: true, plot: { ...plot, plant: { ...plot.plant, cured: now, ...(keeps ? { guard: now + keeps * HOUR } : {}) } }, purse: { ...spend(purse, FARMING.costs.cure, now), bag: take(purse.bag, hand!, 1) } };
 }
+
+/**
+ * What a cure that keeps pests off afterwards is said to do, in a line (the owner, 2026-10-06: "เขียนบอกสรรพคุณด้วยว่า
+ * ป้องกันแมลงได้ 24 ชม"): the one made thing of the town's that says what it is for, by his word. Its own line in the
+ * bag ends with the same words (lib/town/items, which a test holds to this); the scroll of how it is made has them too.
+ */
+export const cureWords = (id: ItemId): { th: string; en: string } | null => {
+  const hours = FARMING.cures[id];
+  return hours ? { th: `กำจัดศัตรูพืชบนต้น และป้องกันศัตรูพืชต่ออีก ${hours} ชม.`, en: `Rids a plant of its pest, and keeps pests off it for ${hours} hours after.` } : null;
+};
 
 /** Whether a vegetable is a tree or a bush that bears for a season (picked five times and more): shears are for those, a sickle for the rest. */
 export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;
@@ -355,8 +410,8 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
     if (kind === "cure" && seen.pest) return "cure";
     if (kind === "can" && !seen.wet && !growing(p, now, rains).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
     if (kind === "feed" && !p.fed) return "feed";
-    // (what keeps pests off is for a plant that has none: one that has is the cure's)
-    if (kind === "guard" && p.guard <= now && !seen.pest) return "feed";
+    // (what keeps pests off is for a plant that has none: one that has is the cure's, and an insect's that eats them)
+    if (kind === "guard" && p.guard <= now && (!seen.pest || FARMING.rids[hand!] !== undefined)) return "feed";
     if (seen.ripe && mine) return "pick";
   }
   return null;
@@ -371,8 +426,10 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
  * empty begins. A bed that has lapsed is nobody's: its keeping is dropped.
  * `sure` is the asking's own word that a living plant is meant to be dug out
  * (the page's second asking, answered): without it only a dead one goes.
+ * `luck` is `feed`'s: a number in place of the moment's own, for the trial's
+ * scripts.
  */
-export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: readonly Rain[] = DRY, sure = false):
+export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: readonly Rain[] = DRY, sure = false, luck?: number):
   { ok: true; deed: Deed; purse: Purse; plot: Plot; bed: Bed | undefined; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
   const hand = handOf(purse), owner = ownerOf(bed, others > 0 || !!plot.plant, now);
   const deed = deedFor(key, plot, hand, me, now, owner, rains);
@@ -380,7 +437,7 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
   if (deed === "sow" && owner === null && holds >= BEDS.each) return { ok: false, why: "beds" };
   const did = deed === "clear" || deed === "till" ? hoe(key, purse, plot, hand, now, rains) : deed === "pull" || deed === "uproot" ? uproot(key, purse, plot, true, sure, hand, now, rains)
     : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now, rains)
-      : deed === "feed" ? feed(key, purse, plot, hand, now, rains) : deed === "cure" ? cure(key, purse, plot, hand, now, rains) : pick(key, purse, plot, true, hand, now, rains);
+      : deed === "feed" ? feed(key, purse, plot, hand, now, rains, luck) : deed === "cure" ? cure(key, purse, plot, hand, now, rains) : pick(key, purse, plot, true, hand, now, rains);
   if (!did.ok) return did;
   const planted = others > 0 || !!did.plot.plant;
   let next: Bed | undefined = owner === null ? undefined : bed;
