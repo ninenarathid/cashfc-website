@@ -33,6 +33,8 @@ import { hotAt } from "./heat";
 import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
 import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./waters";
+// ── gifts: well ──
+import { drinkOffer, drinkTake, type WellGiftRefusal } from "./well-gifts";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -716,6 +718,23 @@ export class Trial {
     this.write(JAR, { jar, owed: did.owed });
     this.save(did.purse);
     return { ok: true, coins: did.coins, things: did.things };
+  }
+  /* ── gifts: well ── (lib/town/well-gifts) ── */
+  /** Hold a drink of the flask of living water out to another tester of this browser, from the tile I stand on (null: put it away). */
+  drinkOffer(to: string | null, at: [number, number]): { ok: true; till: number | null } | { ok: false; why: WellGiftRefusal } {
+    const did = drinkOffer(this.purse(), this.id, to, at, this.now());
+    if (!did.ok) return did;
+    this.save(did.purse);
+    return { ok: true, till: did.till };
+  }
+  /** Drink what another tester holds out to me, from the tile I stand on: both purses are in this browser, so both are written here. */
+  drinkTake(from: string, at: [number, number]): { ok: true; got: number; back: number } | { ok: false; why: WellGiftRefusal } {
+    if (!from || from === this.id) return { ok: false, why: "none" };
+    const other = trialFor(from), did = drinkTake(other.purse(), this.purse(), from, this.id, at, this.now());
+    if (!did.ok) return did;
+    other.save(did.giver);
+    this.save(did.drinker);
+    return { ok: true, got: did.got, back: did.back };
   }
   /** For scripts and the test window: so many bucketfuls poured, all told, as mine. */
   setCarried(buckets: number) {

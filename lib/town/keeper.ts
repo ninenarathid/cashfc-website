@@ -29,6 +29,8 @@ import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
+// ── gifts: well ──
+import type { WellGiftRefusal } from "./well-gifts";
 
 /**
  * Who keeps the game.
@@ -57,7 +59,7 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal | /* gifts: well */ WellGiftRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
@@ -330,6 +332,16 @@ export interface Keeper {
   dealLay(give: Give, coins?: number): Promise<Did>;
   dealAgree(word?: boolean): Promise<Did<{ done: boolean }>>;
   dealCancel(): Promise<void>;
+
+  // ── gifts: well ── (lib/town/well-gifts)
+  /**
+   * The flask of living water: hold a drink out to somebody standing near, from the tile I stand on (null: put it
+   * away), which says until when it is held; and drink what somebody holds out to me, from the tile I stand on: what
+   * I had of it, and what its giver had for the giving. Whoever gave it is told through the room (`line`: their purse
+   * has changed by another's hand).
+   */
+  drinkOffer(to: string | null, at: [number, number]): Promise<Did<{ till: number | null }>>;
+  drinkTake(from: string, at: [number, number]): Promise<Did<{ got: number; back: number }>>;
 
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
   record(play: Play): void;
@@ -1055,6 +1067,15 @@ export class DbKeeper implements Keeper {
     const to = this.other();
     await this.ask("town_deal_cancel");
     this.onDeed?.("deal", to);
+  }
+
+  // ── gifts: well ──
+  drinkOffer(to: string | null, at: [number, number]) { return this.deed<{ till: number | null }>("town_drink_offer", { p_to: to, p_x: at[0], p_y: at[1] }); }
+  async drinkTake(from: string, at: [number, number]): Promise<Did<{ got: number; back: number }>> {
+    const did = await this.deed<{ got: number; back: number }>("town_drink_take", { p_from: from, p_x: at[0], p_y: at[1] });
+    // (the giver's purse has what the giving gave: they read it again, as somebody handed water does)
+    if (did.ok) this.onDeed?.("line", from);
+    return did;
   }
 
   record() { /* the database writes every go down itself, as the deed is done */ }

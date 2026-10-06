@@ -52,6 +52,9 @@ import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Pairing, Stander } from "./TownLine";
 import type { OpenDeal } from "./TownDeal";
+// ── gifts: well ──
+import type { DrinkPairing, OfferDrink } from "./TownDrink";
+import { drinkNear } from "@/lib/town/well-gifts";
 import type { FishPlace, LineState } from "./TownFish";
 import type { DishId, ItemId } from "@/lib/town/items";
 import { isRod, type RodId } from "@/lib/town/gear";
@@ -114,6 +117,8 @@ const TownSign = lazy(() => import("./TownSign"));
 const TownCircle = lazy(() => import("./TownCircle"));
 const TownThanks = lazy(() => import("./TownThanks"));
 const TownLine = lazy(() => import("./TownLine"));
+// ── gifts: well ──
+const TownDrink = lazy(() => import("./TownDrink"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
@@ -643,6 +648,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** A deal with somebody (the trial's): its own way of opening one, handed over when it has loaded. */
   const openDeal = useRef<OpenDeal | null>(null);
   const registerDeal = useCallback((open: OpenDeal | null) => { openDeal.current = open; }, []);
+  // ── gifts: well ── (the flask of living water, lib/town/well-gifts: its own way of holding a drink out to somebody, handed over when it has loaded)
+  const offerDrink = useRef<OfferDrink | null>(null);
+  const registerDrink = useCallback((offer: OfferDrink | null) => { offerDrink.current = offer; }, []);
   /** Whether I stand still at the farm's well (where a bucket is poured in and a can filled). */
   const [wellHere, setWellHere] = useState(false);
   const wellRef = useRef(false);
@@ -748,7 +756,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => { sessionRef.current = session; }, [session]);
   // A game two play together (water handed on: lib/town/handing): what the two pages tell each other goes by the
   // room's letterboxes, from one to the other and to nobody else.
-  const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { session.onPair = fn; } } : null), [session]);
+  // ── gifts: well ── (a drink held out goes by the same letterboxes: each of the two hears every word, and takes its own)
+  const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null });
+  const pairWire = useCallback((s: TownSession) => {
+    const { line, drink } = pairHears.current;
+    s.onPair = line || drink ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); } : null;
+  }, []);
+  const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.line = fn; pairWire(session); } } : null), [session, pairWire]);
+  const drinking = useMemo<DrinkPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.drink = fn; pairWire(session); } } : null), [session, pairWire]);
   // The room says when something of the game's changed, and the keeper asks the database for it; my own deeds are
   // said the same way. Only the word for what: never the change.
   useEffect(() => {
@@ -3389,6 +3404,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   // The card's person, if they are still here.
   const cardWho = card && s ? (card.id === me.id ? s.self : s.avatars.get(card.id) ?? null) : null;
+  // ── gifts: well ── (where somebody's head is on the screen now: what a drink gave rises from there)
+  const headOf = (id: string): { x: number; y: number } | null => {
+    const stay = sessionRef.current, a = id === me.id || id === keeper?.id ? stay?.self : stay?.avatars.get(id);
+    if (!a || a.byeAt !== undefined) return null;
+    const p = project(a.pos);
+    return onScreen(p) ? { x: p.x, y: p.y - dollH(a) * cam.current.s } : null;
+  };
+  const headRef = useRef(headOf);
+  headRef.current = headOf;
+  const headSpot = useCallback((id: string) => headRef.current(id), []);
+  /** Whether I have the flask of living water, where whoever keeps the game gives it. */
+  const hasFlask = giftsTold.gifts.had.includes("thingFlask") && giftsTold.given.includes("thingFlask");
   /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
   const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
   // A sign that was tapped from far off: asked again now that I have stopped walking.
@@ -3595,6 +3622,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             {game && card.id !== me.id && s && Math.hypot(cardWho.pos.x - s.self.pos.x, cardWho.pos.y - s.self.pos.y) <= DEAL_NEAR && (
               <button type="button" onClick={() => { openDeal.current?.(cardWho.info.id, cardWho.info.name); setCard(null); }}
                       className="pressable rounded-lg bg-gold/15 px-3 py-1.5 text-ui text-gold hover:bg-gold/25"><span className="flex items-center gap-1.5"><TownIcon name="handshake" size={16} />{w.th ? "แลกของ" : "Trade"}</span></button>
+            )}
+            {/* ── gifts: well ── a drink of the flask of living water, held out to somebody who stands near */}
+            {game && hasFlask && card.id !== me.id && s && drinkNear(cardWho.pos, s.self.pos) && (
+              <button type="button" onClick={() => { offerDrink.current?.(cardWho.info.id, cardWho.info.name); setCard(null); }} data-card-drink
+                      className="pressable rounded-lg bg-[#4aa3d8]/15 px-3 py-1.5 text-ui text-[#8fd0f5] hover:bg-[#4aa3d8]/25"><span className="flex items-center gap-1.5"><TownIcon name={"thingFlask" as IconName} size={16} />{w.th ? "รินน้ำให้" : "A drink"}</span></button>
             )}
             {/* the sign they hold up: their chat room, or their stall */}
             {card.id !== me.id && signOf(cardWho.info.sign) && (
@@ -3919,6 +3951,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownLine keeper={keeper} me={keeper.id} th={w.th} people={standers} pair={pairing} art={boardArt}
                     here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                     bottom={phone && tabbar ? "calc(15.5rem + env(safe-area-inset-bottom))" : "11.5rem"} sfx={sfxRef.current} />
+        </Suspense>
+      )}
+      {/* ── gifts: well ── The flask of living water: a drink held out to a friend, and one held out to me */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownDrink keeper={keeper} me={keeper.id} th={w.th} people={standers} pair={drinking} where={whereAmI} spot={headSpot} register={registerDrink} sfx={sfxRef.current} reduced={!moving}
+                     here={!fishing && !signView ? standing?.tile ?? null : null} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || (phone && testOpen)} />
         </Suspense>
       )}
       {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall */}

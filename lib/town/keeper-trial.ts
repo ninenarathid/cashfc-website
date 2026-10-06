@@ -255,6 +255,15 @@ class TrialKeeper implements Keeper {
   async dealAgree(word = true): Promise<Did<{ done: boolean }>> { return this.trial.dealAgree(word); }
   async dealCancel() { this.trial.dealCancel(); }
 
+  // ── gifts: well ──
+  async drinkOffer(to: string | null, at: [number, number]): Promise<Did<{ till: number | null }>> { return this.trial.drinkOffer(to, at); }
+  async drinkTake(from: string, at: [number, number]): Promise<Did<{ got: number; back: number }>> {
+    const did = this.trial.drinkTake(from, at);
+    // (whoever gave it is in another tab: told through the room, as the database's keeper tells them)
+    if (did.ok) this.onDeed?.("line", from);
+    return did;
+  }
+
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }
 }

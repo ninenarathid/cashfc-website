@@ -193,6 +193,11 @@ export interface Purse {
   made?: ItemId[];
   /** How many times something has been cooked that was a recipe's own but for its last thing: by the recipe (lib/town/cooking). */
   tries?: Partial<Record<ItemId, number>>;
+  // ── gifts: well ── (lib/town/well-gifts)
+  /** A drink of the flask of living water that I hold out: to whom, from which tile, until when. */
+  toast?: { to: string; at: [number, number]; till: number };
+  /** The drink I was last given out of somebody's flask: in which meal's hours (the day's number three times over, and the meal), and by whom. One to a meal's hours. */
+  drunk?: { k: number; by: string };
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }
