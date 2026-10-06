@@ -22,7 +22,8 @@ const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v149"];
+const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -274,6 +275,21 @@ try {
   ok("…and the database says the same if they try", !theirs.ok, theirs);
   stopFarmB();
   const nextTo = (() => { for (let dx = 1; dx < 7; dx++) if (plotAt(plot[0] + dx, plot[1]) && bedOf(plot[0] + dx, plot[1]) === bed) return [plot[0] + dx, plot[1]]; return null; })();
+  // (v118: a hoe may work in anybody's bed. It is written down as a go at farming and as no deed, and the lines of
+  // work, where there are any, read it as help: v149)
+  {
+    const beside = `${nextTo[0]},${nextTo[1]}`;
+    const helped = await B.farmDo(beside, "Tester B", { hits: 5, misses: 0, secs: 3, need: 5 });
+    ok("a hoe clears the weeds of somebody else's bed", helped.ok && helped.deed === "clear", helped);
+    if ((await sql(`select to_regclass('public.town_work') is not null as there`))[0].there) {
+      const line = await sql(`select (kept->>'points')::float8 as p from public.town_work where member_id = $1 and line = 'helpers'`, [b]);
+      ok("…and it is help, on the helper's own line: two points", line[0]?.p === 2, line);
+    }
+    await sql(`delete from public.town_plots where x = $1 and y = $2`, nextTo);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [b]);
+    B.nudged("farm");
+    await settled(B);
+  }
   // back to weeds: a plot that goes wild again leaves what is kept here
   await sql(`update public.town_plots set soil = 'wild', plant = null, changed = town.now_ms() where x = $1 and y = $2`, plot);
   const stopFarmA = A.look("farm");
@@ -1168,6 +1184,17 @@ try {
   const many = await Promise.all([A.buy("worm", 1), A.buy("worm", 1), A.buy("worm", 1), A.buy("dough", 1)]);
   ok("four deeds asked at once are done in the order they were asked, each answer kept in turn", many.every((d) => d.ok) && A.purse().coins === 100 - 2 * 3 - 3 && A.purse().bag[0]?.item === "worm" && A.purse().bag[0].n === 3 && A.purse().bag[1]?.item === "dough",
     { coins: A.purse().coins, bag: A.purse().bag.filter(Boolean) });
+  // (v149, a draft or run: all that was played above was written down by the game's own functions, as members', and
+  // each line of it was read by the lines' trigger as it was written)
+  if ((await sql(`select to_regclass('public.town_work') is not null as there`))[0].there) {
+    section("the lines of work, counted from what was played");
+    const counted = Object.fromEntries((await sql(`select line, sum((kept->>'points')::float8)::float8 as p from public.town_work group by 1 order by 1`)).map((r) => [r.line, Number(r.p)]));
+    console.log("    " + JSON.stringify(counted));
+    ok(`what the keepers did above counted on the lines it is of: ${LINES_PLAYED.join(", ")}`, LINES_PLAYED.every((l) => counted[l] > 0), counted);
+    A.linesRead();
+    await settled(A);
+    ok("…and a keeper is told its own, all seven", Object.keys(A.lines()?.lines ?? {}).length === 7, A.lines());
+  }
   A.close(); B.close();
   const after = asked.length;
   await A.buy("worm", 1);

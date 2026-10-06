@@ -21,7 +21,8 @@
 --     day's points past its bound count a quarter.
 --   * Points come of what is written down anyway. A trigger after every line
 --     of `town_deeds` and of `town_plays` reads it (`town.work_counts_of`) and
---     counts it for whoever it counts for: a pot by its helpings and a
+--     counts it for whoever it counts for (a hoe's work is a go at farming
+--     there, and is read as the deed it is): a pot by its helpings and a
 --     helping somebody else ladles from it; help on other people's plants and
 --     thanks for it; a fish by how rare it is; a forest thing by how it is
 --     had; an insect by how it is caught; a picking by how long its crop
@@ -30,14 +31,23 @@
 --     **The trigger can never stand in a deed's way**: whatever goes wrong in
 --     it is swallowed, and the deed is written as it always was.
 --   * The past is counted once, from both logs in the order things happened
---     (plays since the game opened, deeds since v121).
+--     (plays since the game opened, deeds since v121): in one reading, which
+--     writes only where each line stands at its end. **Nothing of the game's
+--     waits on it**: the logs are only read while it counts, and what holds
+--     a lock (the tie to `profiles`, the two triggers) comes after it and is
+--     short. What members write down meanwhile is counted then.
 --   * A title of a rank one has may be worn under one's name (`town_titles`),
 --     or none. `town_work()` tells a member their lines and everybody's worn
 --     title; `town_title_wear(line, rank)` wears one.
 --
 -- What it changes: nothing that was there. Two tables new and closed, one
--- catalog row new (`work`), eight rules new, two triggers, two functions a
+-- catalog row new (`work`), nine rules new, two triggers, two functions a
 -- member calls. None of the game's functions is written again.
+--
+-- Before running it, to know how much there is to count (a line takes about
+-- a tenth of a millisecond; a hundred thousand is nothing to worry about):
+--
+--   select (select count(*) from public.town_deeds) as deeds, (select count(*) from public.town_plays) as plays;
 
 do $$ begin
   if to_regclass('public.town_deeds') is null or to_regclass('public.town_plays') is null then raise exception 'v121 has not run: nothing is written down to count'; end if;
@@ -67,25 +77,17 @@ insert into public.town_catalog (key, data) values
 
 -- A member's standing on a line, as lib/town/line-points' LineKept: points,
 -- the day last counted on, what that day was worth, what the day holds to so
--- many, the kinds had the first of.
+-- many, the kinds had the first of. (Whose it is is tied to the member further
+-- down, once the past is counted: the tie holds a lock on `profiles` from the
+-- moment it is made to the file's end, and the counting is the long part.)
 create table if not exists public.town_work (
-  member_id uuid not null references public.profiles (id) on delete cascade,
+  member_id uuid not null,
   line      text not null check (line ~ '^[a-z]{1,20}$'),
   kept      jsonb not null,
   primary key (member_id, line)
 );
 alter table public.town_work enable row level security;
 revoke all on public.town_work from anon, authenticated;
-
--- The title a member wears under their name: of which line, which rank.
-create table if not exists public.town_titles (
-  member_id uuid primary key references public.profiles (id) on delete cascade,
-  line      text not null check (line ~ '^[a-z]{1,20}$'),
-  rank      integer not null check (rank between 1 and 10),
-  at        timestamptz not null default now()
-);
-alter table public.town_titles enable row level security;
-revoke all on public.town_titles from anon, authenticated;
 
 -- ─── The rules ───────────────────────────────────────────────────────────
 
@@ -204,7 +206,7 @@ end;
 $$;
 
 -- A deed as the rule is to read it: with the owner of the bed, for a hoe's work in a bed that is somebody else's
--- (no plant is there to say whose).
+-- (no plant is there to say whose; whose the bed is now is taken for whose it was then).
 create or replace function town.work_done(p_member uuid, p_what text, p_thing text, p_n numeric, p_doc jsonb)
 returns jsonb language plpgsql stable set search_path = public
 as $$
@@ -213,11 +215,25 @@ declare
   owner_ uuid;
 begin
   if p_what in ('clear', 'till') and not (doc ? 'whose') and jsonb_typeof(doc->'tile') = 'array' then
-    select b.member_id into owner_ from public.town_beds b where b.bed = town.bed_of((doc->'tile'->>0)::integer, (doc->'tile'->>1)::integer);
+    -- (a tile that is no tile says whose nothing is)
+    begin
+      select b.member_id into owner_ from public.town_beds b where b.bed = town.bed_of((doc->'tile'->>0)::integer, (doc->'tile'->>1)::integer);
+    exception when others then owner_ := null;
+    end;
     if owner_ is not null and owner_ <> p_member then doc := doc || jsonb_build_object('owner', owner_::text); end if;
   end if;
   return jsonb_build_object('from', 'deed', 'what', p_what, 'thing', p_thing, 'n', coalesce(p_n, 1), 'doc', doc);
 end;
+$$;
+
+-- A go at a game as the rule is to read it. **A hoe's work is written down as a go at farming and as no deed**
+-- (v110's `town_tend`: what it was and its tile are the go's particulars), so it is read here as the deed it is.
+create or replace function town.work_went(p_member uuid, p_game text, p_won boolean, p_doc jsonb)
+returns jsonb language sql stable set search_path = public
+as $$
+  select case when p_game = 'farming'
+    then town.work_done(p_member, p_doc->>'what', null, 1, jsonb_build_object('tile', p_doc->'tile'))
+    else jsonb_build_object('from', 'play', 'what', p_game, 'thing', p_doc->>'what', 'n', 1, 'won', p_won, 'doc', '{}'::jsonb) end
 $$;
 
 -- Something done, counted on whatever line it counts on, for whoever it counts for. A count for somebody who is no
@@ -233,8 +249,11 @@ begin
   for c in select x from jsonb_array_elements(town.work_counts_of(p_done, p_member::text)) as t(x) loop
     begin
       who := coalesce((c->>'to')::uuid, p_member);
-      insert into public.town_work (member_id, line, kept) values (who, c->>'line', town.work_count(town.work_new(), c, day_))
-        on conflict (member_id, line) do update set kept = town.work_count(public.town_work.kept, c, day_);
+      update public.town_work w set kept = town.work_count(w.kept, c, day_) where w.member_id = who and w.line = c->>'line';
+      if not found then
+        insert into public.town_work (member_id, line, kept) values (who, c->>'line', town.work_count(town.work_new(), c, day_))
+          on conflict (member_id, line) do update set kept = town.work_count(public.town_work.kept, c, day_);
+      end if;
     exception when others then null;
     end;
   end loop;
@@ -264,9 +283,7 @@ as $$
 begin
   begin
     if new.member_id is not null then
-      perform town.work_counted(new.member_id,
-        jsonb_build_object('from', 'play', 'what', new.game, 'thing', new.doc->>'what', 'n', 1, 'won', new.won, 'doc', '{}'::jsonb),
-        floor(extract(epoch from new.at) * 1000)::bigint);
+      perform town.work_counted(new.member_id, town.work_went(new.member_id, new.game, new.won, new.doc), floor(extract(epoch from new.at) * 1000)::bigint);
     end if;
   exception when others then null;
   end;
@@ -275,32 +292,99 @@ end;
 $$;
 
 -- ─── The past, counted once ──────────────────────────────────────────────
--- Both logs, in the order things happened (a go before a deed of the same moment). The mark that it is done is a
--- thing of the village's, so that running the file again counts nothing twice. For a hoe's work in a bed, whose the
--- bed is now is taken for whose it was then: nothing keeps the past of that.
+-- Both logs, in the order things happened (a go before a deed of the same moment), each member's line folded in one
+-- reading: nothing is written but where each line stands at its end, and nothing of the game's waits meanwhile (the
+-- logs are only read here; what locks anything comes after). The mark that it is done is a thing of the village's,
+-- with how far each log had got, so that running the file again counts nothing twice. For a hoe's work in a bed,
+-- whose the bed is now is taken for whose it was then: nothing keeps the past of that.
+
+-- (the rule that counts one more thing on a line, as a sum over a line's things in their order; gone again below)
+drop aggregate if exists town.work_sum(jsonb, integer);
+create aggregate town.work_sum(jsonb, integer) (
+  sfunc = town.work_count, stype = jsonb, initcond = '{"points": 0, "day": -1, "today": 0, "held": {}, "firsts": []}'
+);
 
 do $$
 declare
-  r record;
+  d1 bigint;
+  p1 bigint;
 begin
   if exists (select 1 from public.town_things t where t.key = 'work_counted') then return; end if;
+  select coalesce(max(d.id), 0) into d1 from public.town_deeds d;
+  select coalesce(max(p.id), 0) into p1 from public.town_plays p;
+  insert into public.town_work (member_id, line, kept)
+  select m.id, s.line, town.work_sum(s.c, s.day order by s.at, s.src, s.id, s.ord)
+    from (
+      select l.member_id, l.at, l.src, l.id, c.ord, c.x as c, c.x->>'line' as line, town.day_of(floor(extract(epoch from l.at) * 1000)::bigint)::integer as day
+        from (
+          select d.member_id, d.at, 1 as src, d.id, town.work_done(d.member_id, d.what, d.thing, d.n, d.doc) as done
+            from public.town_deeds d where d.member_id is not null and d.id <= d1
+          union all
+          select p.member_id, p.at, 0 as src, p.id, town.work_went(p.member_id, p.game, p.won, p.doc)
+            from public.town_plays p where p.member_id is not null and p.id <= p1
+        ) l
+        cross join lateral jsonb_array_elements(town.work_counts_of(l.done, l.member_id::text)) with ordinality as c(x, ord)
+    ) s
+    -- (a count for somebody who is no member any more is let go; asked as text, so that a name that is no id is no error)
+    join public.profiles m on m.id::text = coalesce(s.c->>'to', s.member_id::text)
+   group by m.id, s.line
+  on conflict (member_id, line) do nothing;
+  insert into public.town_things (key, doc) values ('work_counted', jsonb_build_object('at', town.now_ms(), 'deeds', d1, 'plays', p1));
+end $$;
+
+drop aggregate if exists town.work_sum(jsonb, integer);
+
+-- ─── Whose a standing is, and the title worn ─────────────────────────────
+-- From here on the file holds locks that things written wait behind: on `profiles`, then on the two logs. All that
+-- is left is short.
+
+do $$ begin
+  if not exists (select 1 from pg_constraint c where c.conrelid = 'public.town_work'::regclass and c.conname = 'town_work_member_id_fkey') then
+    -- (whoever left while the past was being counted)
+    delete from public.town_work w where not exists (select 1 from public.profiles p where p.id = w.member_id);
+    alter table public.town_work add constraint town_work_member_id_fkey foreign key (member_id) references public.profiles (id) on delete cascade;
+  end if;
+end $$;
+
+-- The title a member wears under their name: of which line, which rank.
+create table if not exists public.town_titles (
+  member_id uuid primary key references public.profiles (id) on delete cascade,
+  line      text not null check (line ~ '^[a-z]{1,20}$'),
+  rank      integer not null check (rank between 1 and 10),
+  at        timestamptz not null default now()
+);
+alter table public.town_titles enable row level security;
+revoke all on public.town_titles from anon, authenticated;
+
+-- ─── Counted from now on, and what was written down meanwhile ────────────
+-- The triggers, and under the lock they take on the two logs (one statement, so that it holds however the file is
+-- run), the few lines written down while the past was being counted: the logs have gone on from the mark, and no
+-- trigger was there yet. Nothing more can be written down until this is done, so those few are all there are.
+-- (A line that was being written at the very moment the mark was read, under a later line's number, is not among
+-- them: a deed or two at the most, of a file that is run once.)
+do $$
+declare
+  m jsonb;
+  r record;
+begin
+  drop trigger if exists town_deeds_work on public.town_deeds;
+  create trigger town_deeds_work after insert on public.town_deeds for each row execute function town.work_deed();
+  drop trigger if exists town_plays_work on public.town_plays;
+  create trigger town_plays_work after insert on public.town_plays for each row execute function town.work_play();
+  select t.doc into m from public.town_things t where t.key = 'work_counted';
+  if m is null or jsonb_typeof(m) <> 'object' or m ? 'since' then return; end if;
   for r in
     select d.member_id, d.at, 1 as src, d.id, town.work_done(d.member_id, d.what, d.thing, d.n, d.doc) as done
-      from public.town_deeds d where d.member_id is not null
+      from public.town_deeds d where d.member_id is not null and d.id > (m->>'deeds')::bigint
     union all
-    select p.member_id, p.at, 0 as src, p.id, jsonb_build_object('from', 'play', 'what', p.game, 'thing', p.doc->>'what', 'n', 1, 'won', p.won, 'doc', '{}'::jsonb)
-      from public.town_plays p where p.member_id is not null
+    select p.member_id, p.at, 0 as src, p.id, town.work_went(p.member_id, p.game, p.won, p.doc)
+      from public.town_plays p where p.member_id is not null and p.id > (m->>'plays')::bigint
     order by 2, 3, 4
   loop
     perform town.work_counted(r.member_id, r.done, floor(extract(epoch from r.at) * 1000)::bigint);
   end loop;
-  insert into public.town_things (key, doc) values ('work_counted', to_jsonb(town.now_ms())) on conflict (key) do nothing;
+  update public.town_things t set doc = t.doc || jsonb_build_object('since', town.now_ms()) where t.key = 'work_counted';
 end $$;
-
-drop trigger if exists town_deeds_work on public.town_deeds;
-create trigger town_deeds_work after insert on public.town_deeds for each row execute function town.work_deed();
-drop trigger if exists town_plays_work on public.town_plays;
-create trigger town_plays_work after insert on public.town_plays for each row execute function town.work_play();
 
 -- ─── What a member is told, and the title they wear ──────────────────────
 
@@ -378,6 +462,10 @@ grant execute on function public.town_title_wear(text, integer) to authenticated
 --
 --   select tgname from pg_trigger where tgname in ('town_deeds_work', 'town_plays_work') order by 1;
 --   -- town_deeds_work, town_plays_work
+--
+--   -- the past was counted up to these lines of the two logs, and everything since by the triggers
+--   select doc from public.town_things where key = 'work_counted';
+--   -- {"at": …, "deeds": …, "plays": …, "since": …}
 --
 --   select count(*) from pg_proc p where p.pronamespace = 'town'::regnamespace
 --      and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'));

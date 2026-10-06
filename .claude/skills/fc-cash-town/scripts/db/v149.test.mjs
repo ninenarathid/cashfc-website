@@ -3,7 +3,9 @@
  *
  * Every file of the town's is replayed as it ran (v104 to v148, whichever of the last are files yet), some things
  * are done and written down as they were before there were lines, then v149 twice. Then:
- *   - the past is counted once, for whoever it counts for, and not again by the second run;
+ *   - the past is counted once, for whoever it counts for, and not again by the second run; odd lines in it (a tile
+ *     that is no tile, a name that is no id) stop nothing; and what is written down while the past is being counted
+ *     (put into the file's text here, between the counting and the triggers) is counted too, once;
  *   - the rules: every case made from the code as it is now (what counts, a line counted, the day's bound, the
  *     marks), put to the SQL and held to what the code answers;
  *   - what is done from now on counts as it is written down (a deed, a go), and nothing that goes wrong in the
@@ -51,7 +53,8 @@ const settle = (v) => (Array.isArray(v) ? v.map(settle) : v && typeof v === "obj
 const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 const points = async (who) => Object.fromEntries((await t.sql(`select line, (kept->>'points')::float8 as p from public.town_work where member_id = $1 order by 1`, [who])).rows.map((r) => [r.line, r.p]));
 const note = (who, what, thing, n = 1, doc = {}) => t.sql(`select town.note($1, $2, $3, $4, 0, $5::jsonb)`, [who, what, thing, n, JSON.stringify(doc)]);
-const went = (who, game, what, won) => t.sql(`select town.record($1, $2, $3, 4, false, null, $4::jsonb)`, [who, game, won, JSON.stringify({ what })]);
+const went = (who, game, what, won, more = {}) => t.sql(`select town.record($1, $2, $3, 4, false, null, $4::jsonb)`, [who, game, won, JSON.stringify({ what, ...more })]);
+const plays = async () => (await one(`select count(*)::int as n from public.town_plays`)).n;
 const deeds = async () => (await one(`select count(*)::int as n from public.town_deeds`)).n;
 
 /* ── what was done before there were lines ── */
@@ -67,11 +70,28 @@ await note(U.m2, "ladle", "tomYum", 1, { pot: "p1", whose: U.m1 });
 await note(U.m2, "gather", "truffle", 1, { how: "dig", kind: "mound" });
 await note(U.m2, "net", "moth", 1, { haunt: 3 });
 await note(U.m2, "buy", "worm", 5);
-// (a line of nobody's, as a member who has left leaves behind)
+// (a line of nobody's, as a member who has left leaves behind; and lines that are odd: a tile that is no tile, a pot of
+// somebody whose name is no id, thanks to nobody who is here)
 await t.sql(`insert into public.town_deeds (member_id, what, thing, n) values (null, 'net', 'moth', 1)`);
+await went(U.m2, "farming", "till", true, { tile: ["x", "y"] });
+await note(U.m2, "ladle", "tomYum", 1, { pot: "p0", whose: "nobody at all" });
+// (a hoe's work, written down as the game writes it: a go at farming, with what it was and its tile. In a bed that is m1's)
+const bed = await one(`select (data->'bedsAt'->0->>0)::int as x, (data->'bedsAt'->0->>1)::int as y from public.town_catalog where key = 'farming'`);
+await t.sql(`insert into public.town_beds (bed, member_id, tended) values (town.bed_of($1, $2), $3, town.now_ms()) on conflict (bed) do update set member_id = excluded.member_id`, [bed.x, bed.y, U.m1]);
+await went(U.guest, "farming", "clear", true, { tile: [bed.x, bed.y], need: 5, misses: 0 });
+await went(U.m1, "farming", "till", true, { tile: [bed.x, bed.y], need: 5, misses: 0 });
+await note(U.m1, "thank", null, 1, { to: ["not a member", "00000000-0000-0000-0000-0000000000ff"] });
 const before = await deeds();
+const last = await one(`select (select max(id) from public.town_deeds)::int as deeds, (select max(id) from public.town_plays)::int as plays`);
 
-await t.runTwice(FILE, "v149");
+// the first run with something written down while the past is being counted: after the counting, before the triggers
+const AFTER = "-- ─── Whose a standing is, and the title worn";
+if (!FILE.includes(AFTER)) throw new Error("the file has no such heading any more: " + AFTER);
+const meanwhile = FILE.replace(AFTER, () => `select town.note('${U.admin}'::uuid, 'net', 'ladybird', 1, 0, '{}'::jsonb);
+select town.record('${U.admin}'::uuid, 'fishing', true, 4, false, null, '{"what": "minnow"}'::jsonb);
+${AFTER}`);
+await t.run(meanwhile, "v149");
+await t.run(FILE, "v149 a second time");
 
 /* ── the catalog ── */
 t.section("the catalog's row");
@@ -86,7 +106,14 @@ const m1 = await points(U.m1), m2 = await points(U.m2);
 t.check("what was done before counts for whoever did it: a fish and its first, two pots and a first, a picking and its first; and a helping ladled by another",
   same(m1, { farming: 6 + 10, fishing: 1 + 10, kitchen: 4 + 10 + 4 + 1 }), m1);
 t.check("…help on another's plant and thanks for it, a truffle dug on a day of its own, a moth by its lamp", same(m2, { forest: 3 + 10 + 10, helpers: 1 + 3, insects: 3 + 10 }), m2);
-t.check("the file run twice counted it once, and wrote nothing down itself", (await deeds()) === before && !!(await one(`select 1 as x from public.town_things where key = 'work_counted'`)));
+const mark = (await one(`select doc from public.town_things where key = 'work_counted'`))?.doc;
+t.check("a hoe's work is a go at farming in the book, and is read as the deed it is: help in somebody else's bed, nothing in one's own", same(await points(U.guest), { helpers: 2 }) && m1.helpers === undefined, await points(U.guest));
+t.check("the file run twice counted it once, and wrote nothing down itself: the mark says how far the logs had got", (await deeds()) === before + 1 && mark?.deeds === last.deeds && mark?.plays === last.plays && mark?.since >= mark?.at, mark);
+t.check("what was written down while the past was being counted is counted too, once: a ladybird and a minnow, each the first", same(await points(U.admin), { fishing: 1 + 10, insects: 1 + 10 }), await points(U.admin));
+const tie = await one(`select c.confdeltype as gone from pg_constraint c where c.conrelid = 'public.town_work'::regclass and c.conname = 'town_work_member_id_fkey'`);
+t.check("a standing is tied to its member, and goes with them", tie?.gone === "c", tie);
+const sums = await one(`select count(*)::int as n from pg_proc p where p.pronamespace = 'town'::regnamespace and p.prokind = 'a'`);
+t.check("nothing is left behind: the sum the past was counted with is gone", sums.n === 0, sums);
 const firsts = (await one(`select kept->'firsts' as f, kept->'held' as h from public.town_work where member_id = $1 and line = 'kitchen'`, [U.m1]));
 t.check("…with the firsts had, and what a day holds to so many", same(firsts.f, ["kitchen:tomYum"]) && firsts.h["pot:tomYum"] === 2 && firsts.h[`ladle:${U.m2}`] === 1, firsts);
 
@@ -125,19 +152,36 @@ await note(U.m1, "buy", "worm", 5);
 t.check("a line lost, and a deed of no line's, count nothing", (await points(U.m1)).fishing === 12 && Object.keys(await points(U.m1)).length === 4);
 await note(U.m2, "ladle", "tomYum", 1, { pot: "p2", whose: U.m1 });
 t.check("a helping ladled counts for whoever set the pot down", (await points(U.m1)).kitchen === 20, await points(U.m1));
-// a hoe's work in a bed that is somebody else's: the bed's owner is looked up from the tile
-const bed = await one(`select (data->'bedsAt'->0->>0)::int as x, (data->'bedsAt'->0->>1)::int as y from public.town_catalog where key = 'farming'`);
-await t.sql(`insert into public.town_beds (bed, member_id, tended) values (town.bed_of($1, $2), $3, town.now_ms()) on conflict (bed) do update set member_id = excluded.member_id`, [bed.x, bed.y, U.m1]);
-await note(U.m2, "till", null, 1, { tile: [bed.x, bed.y] });
+// a hoe's work in a bed that is somebody else's (a go at farming, as the game writes it): the bed's owner is looked up from the tile
+await went(U.m2, "farming", "till", true, { tile: [bed.x, bed.y], need: 5, misses: 1 });
 t.check("a hoe's work in somebody else's bed is help: the bed's owner is looked up from the tile", (await points(U.m2)).helpers === 4 + 2, await points(U.m2));
-await note(U.m1, "till", null, 1, { tile: [bed.x, bed.y] });
+await went(U.m1, "farming", "till", true, { tile: [bed.x, bed.y], need: 5, misses: 0 });
 t.check("…and in one's own bed it is not", (await points(U.m1)).helpers === undefined, await points(U.m1));
+await note(U.m1, "water", "tomato", 1, { whose: U.m1 });
+t.check("…nor is a can over one's own plant", (await points(U.m1)).helpers === undefined, await points(U.m1));
+// as the game writes a deed: from a function a member calls, which runs as its owner (were the counting refused to it,
+// the trigger would swallow that and count nothing)
+await t.sql(`create function public.bench_note() returns void language plpgsql security definer set search_path = public
+  as $$ begin perform town.note(auth.uid(), 'net', 'ladybird', 1, 0, '{}'::jsonb); end $$;
+  grant execute on function public.bench_note() to authenticated`);
+const asked = await t.as(U.m2, `select public.bench_note()`);
+t.check("a deed written down by a function a member calls counts for them: a ladybird, the first", !asked.error && (await points(U.m2)).insects === 13 + 1 + 10, { error: asked.error, m2: await points(U.m2) });
+await t.sql(`drop function public.bench_note()`);
 // nothing that goes wrong in the counting stands in a deed's way
 let n0 = await deeds();
 await note(U.m2, "ladle", "tomYum", 1, { pot: "p3", whose: "00000000-0000-0000-0000-0000000000ff" });
 await note(U.m2, "ladle", "tomYum", 1, { pot: "p4", whose: "nobody at all" });
 await note(U.m2, "thank", null, 1, { to: ["not a member", U.m1, "00000000-0000-0000-0000-0000000000ff"] });
 t.check("a count for somebody who is no member is let go: the deed is written all the same, and the rest of it counts", (await deeds()) === n0 + 3 && (await points(U.m1)).helpers === 3, { deeds: await deeds(), m1: await points(U.m1) });
+// (a hoe's work whose tile is no tile: the bed's owner is nobody, and the go is written as it always was)
+n0 = await plays();
+const wrote = await went(U.m2, "farming", "till", true, { tile: ["x", "y"] }).then(() => true).catch(() => false);
+t.check("a hoe's work whose tile is no tile is written all the same, and is nobody's help", wrote && (await plays()) === n0 + 1 && (await points(U.m2)).helpers === 6, { wrote, plays: await plays(), n0, m2: await points(U.m2) });
+// (a number of the catalog's that is none: the reading of the deed itself fails, before anything is counted)
+await t.sql(`update public.town_catalog set data = jsonb_set(data, '{forest,how,dig}', '"deep"') where key = 'work'`);
+n0 = await deeds();
+const dug = await note(U.m2, "gather", "truffle", 1, { how: "dig" }).then(() => true).catch(() => false);
+t.check("a deed whose counting goes wrong is written all the same", dug && (await deeds()) === n0 + 1 && (await points(U.m2)).forest === 23, { dug, deeds: await deeds(), n0, m2: await points(U.m2) });
 await t.sql(`update public.town_catalog set data = data - 'insects' where key = 'work'`);
 n0 = await deeds();
 await note(U.m1, "net", "moth", 1, {});
