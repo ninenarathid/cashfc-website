@@ -12,6 +12,7 @@ import { SIGN, decodeSign, encodeSign, inReach, mayRaise, tidyTitle, type Sign }
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import { CART, cartPace } from "./cart";
 import { readTold } from "./handing";
+import { paceOf } from "./riding";
 import {
   BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, yardSeat, type Vec,
 } from "./world";
@@ -292,7 +293,8 @@ export class TownSession {
     for (const a of all) {
       if (!a.path.length) continue;
       // (a water cart is heavy for one, and goes as fast as anybody with somebody beside it: lib/town/cart)
-      const pace = a.info.hold === CART.item ? cartPace(a.info.hold, a.pos, all.filter((o) => o !== a).map((o) => o.pos)) : 1;
+      // ── gifts: forest ── (and whoever has a moss stag to ride goes twice as fast, on every page that walks them: lib/town/riding; a cart is pushed on foot)
+      const pace = a.info.hold === CART.item ? cartPace(a.info.hold, a.pos, all.filter((o) => o !== a).map((o) => o.pos)) : paceOf(a.info.pet);
       Object.assign(a, stepAlong(a.pos, a.path, SPEED * pace * dt));
     }
     // Stopped on a gate: through it, to the other map.

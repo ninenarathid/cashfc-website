@@ -30,7 +30,9 @@ import { newPurse, put, type Purse } from "./trade";
  *   and wrongly; members, days and maps; digs from on the chest to far beyond the last warmth; chests on days with
  *   a rare thing of their own and on days with none, by every sort of roll;
  * - `map_use`, `map_dig`: the thing had and not, every count of the day's maps, a hunt on already; digs on the chest
- *   and off it, a bag with no room, no hunt on, a count of chests kept and kept wrongly.
+ *   and off it, a bag with no room, no hunt on, a count of chests kept and kept wrongly;
+ * - `wild_reach` and `gather` from a moss stag's back: the stag following, at rest, another familiar at the heels;
+ *   every kind of place and the secret ones, from on the place to three tiles off.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-forest.test.ts     writes vectors-gifts-forest.json
  */
@@ -51,6 +53,8 @@ const MOMENTS = [...Array.from({ length: 9 }, (_, i) => at("2027-03-02T05:30:00"
 /** What a place has, as the database tells it: with the moment its turn ends. */
 const heldAs = (h: Held | null, p: Place) => (h ? { ...h, until: turnStart(p, h.turn + 1) } : null);
 const HOWS = ["pick", "choose", "dig", "shake"] as const;
+
+const clean = { misses: 0, wrong: 0 };
 
 export function vectorsForest(): Vector[] {
   const c = chance(20261071), out: Vector[] = [];
@@ -191,6 +195,22 @@ export function vectorsForest(): Vector[] {
     const when = c.of([NOON, NOON, NOON + 3 * HOUR]), r0 = c.of([0, 0.2, 0.6, 0.95]), r1 = c.next();
     add("map_dig", [p, WORD, me, tile[0], tile[1], when, r0, r1], mapDig(p, WORD, me, tile, when, [r0, r1]));
   }
+
+  // the moss stag: how far is reached from its back, and a gathering from there
+  const stags: Array<Purse["gifts"]> = [
+    { had: ["famStag"], charms: [], familiar: "famStag" }, { had: ["famStag"], charms: [], familiar: "famStag" }, { had: ["famStag"], charms: [] }, { had: [], charms: [], familiar: "famStag" },
+    { had: ["famStag", "famSquirrel"], charms: [], familiar: "famSquirrel" }, { had: ["famStag", "charmFirefly"], charms: ["charmFirefly"], familiar: "famStag" }, { had: ["famStag", "famPiglet"], charms: [], familiar: "famPiglet" },
+  ];
+  for (const g of stags) for (const how of [...HOWS, null]) add("wild_reach", [purseOf(g), how], reachOf(purseOf(g), how as (typeof HOWS)[number]));
+  for (let i = 0; i < 500; i++) {
+    const s: Place = c.maybe(0.2) ? c.of(SECRETS) : c.of(SPOTS), kind = ruleOf(s), find = c.of(kind.finds), now = NOON + c.int(0, 20) * HOUR;
+    const has: Held = { turn: c.int(1, 99999), item: find.item, n: c.int(find.n[0], find.n[1]) };
+    const hand = kind.how === "dig" && c.maybe(0.8) ? c.of(HOES) : c.of<ItemId | null>([null, "rod"]);
+    const p = purseOf(c.of(stags), hand ? [[hand, 1]] : [], hand, c.of([100, 100, 0]));
+    const far = c.of([0, 1, 2, 2, 2, 3]);
+    const tile: [number, number] = c.maybe(0.5) ? [s.x + far * c.of([-1, 1]), s.y + c.int(-far, far)] : [s.x + c.int(-far, far), s.y + far * c.of([-1, 1])];
+    add("gather", [p, s.id, has, 0, false, hand, tile[0], tile[1], 0, 0, now, null, false], gather(p, s, has, 0, false, hand, tile, clean, now));
+  }
   return out;
 }
 
@@ -202,6 +222,10 @@ describe("the cases the database's rules of the forest's gifts are held to", () 
     // the squirrel fetches, and does not; reaches a tile, and as far as it runs; costs nothing, and what a place costs
     expect(new Set(of("wild_fetches").map((v) => v.want))).toEqual(new Set([true, false]));
     expect(new Set(of("wild_reach").map((v) => v.want))).toEqual(new Set([FORAGING.reach, FORAGING.squirrel]));
+    expect(FORAGING.stag).toBe(FORAGING.squirrel);
+    // (from a stag's back: two tiles for every way of gathering while it follows, and a tile when it does not)
+    const stagReach = of("wild_reach").filter((v) => (v.args[0] as Purse).gifts?.had?.includes?.("famStag"));
+    expect(stagReach.some((v) => v.want === FORAGING.stag && v.args[1] === "dig" && (v.args[0] as Purse).gifts!.familiar === "famStag") && stagReach.some((v) => v.want === FORAGING.reach && v.args[1] === "choose")).toBe(true);
     expect(new Set(of("wild_cost").map((v) => v.want))).toEqual(new Set([0, 1, 2, 3]));
     // a gathering done and refused each way; fetched for nothing from further than a hand reaches; and by hand as ever
     const every = of("gather").map((v) => ({ id: v.args[1] as number, p: v.args[0] as Purse, spot: placeAt(v.args[1] as number)!, has: v.args[2] as Held | null, hand: v.args[5] as string | null, x: v.args[6] as number, y: v.args[7] as number, misses: v.args[8] as number,
@@ -277,6 +301,11 @@ describe("the cases the database's rules of the forest's gifts are held to", () 
     expect(up.every((d) => d.did.purse!.forest!.hunt === null && d.did.got!.length === 1 && d.did.purse!.coins === d.p.coins)).toBe(true);
     expect(up.some((d) => d.did.purse!.forest!.chests === 1) && up.some((d) => d.did.purse!.forest!.chests === 4) && up.some((d) => d.did.purse!.forest!.chests === 3 && d.p.forest!.chests === 2.6)
       && up.some((d) => ITEMS[d.did.got![0][0]].kind === "scroll") && up.some((d) => ITEMS[d.did.got![0][0]].kind === "wild") && up.some((d) => d.did.digs! > 5)).toBe(true);
+    // from a stag's back: gathered from two tiles off, every way there is and at a secret place; too far from three; and on foot from two
+    const stagged = every.filter((g) => g.p.gifts?.had?.includes?.("famStag")), off = (g: (typeof every)[number]) => Math.max(Math.abs(g.x - g.spot.x), Math.abs(g.y - g.spot.y)), riding = (g: (typeof every)[number]) => g.p.gifts!.familiar === "famStag" && g.p.gifts!.had.includes("famStag");
+    for (const how of ["pick", "choose", "dig", "shake"]) expect(stagged.some((g) => riding(g) && off(g) === 2 && g.did.ok && ruleOf(g.spot).how === how), how).toBe(true);
+    expect(stagged.some((g) => riding(g) && off(g) === 2 && g.did.ok && isSecret(g.id)) && stagged.some((g) => riding(g) && off(g) === 3 && !g.did.ok && g.did.why === "far")
+      && stagged.some((g) => !riding(g) && off(g) === 2 && !g.did.ok && g.did.why === "far") && stagged.some((g) => riding(g) && off(g) === 2 && g.did.ok && g.p.stamina.left - g.did.purse!.stamina.left >= 2)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-forest.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

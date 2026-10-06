@@ -9,12 +9,14 @@ create or replace function town.wild_fetches(p_purse jsonb, p_how text)
 returns boolean language sql stable
 as $$ select coalesce(p_how = 'pick' and town.gift_works(p_purse, 'famSquirrel'), false) $$;
 
--- How far somebody reaches a kind of place from, in tiles (lib/town/forest's reachOf): a tile; or as far as their
--- squirrel fetches.
+-- How far somebody reaches a kind of place from, in tiles (lib/town/forest's reachOf): a tile; as far as their
+-- squirrel fetches; or, whatever the place, as far as is reached from a moss stag's back (rank 6: lib/town/gifts'
+-- famStag, while it follows them).
 create or replace function town.wild_reach(p_purse jsonb, p_how text)
 returns integer language sql stable
 as $$
   select case when town.wild_fetches(p_purse, p_how) then (town.cat('forest')->>'squirrel')::integer
+    when town.gift_works(p_purse, 'famStag') then (town.cat('forest')->>'stag')::integer
     else (town.cat('forest')->>'reach')::integer end
 $$;
 

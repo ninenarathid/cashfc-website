@@ -145,6 +145,8 @@ export const FORAGING = {
    * runs for it, so its member need not stand at the place, and its member's stamina is not what is spent).
    */
   squirrel: 2,
+  /** How far whoever rides a moss stag gathers from, in tiles (lib/town/gifts' famStag): from its back, not having to stand at the place. */
+  stag: 2,
 };
 /** Everything the forest may give, whatever the day. */
 export const FINDS: ItemId[] = [...new Set([...SPOT_KINDS.flatMap((k) => KINDS[k].finds.map((f) => f.item)), FORAGING.decoy])];
@@ -413,8 +415,8 @@ export const reaches = (spot: Pick<Place, "x" | "y">, at: readonly [number, numb
  * turn, a heap's shares, and room in the bag.
  */
 export const fetches = (purse: Pick<Purse, "gifts">, how: Gather): boolean => how === "pick" && works(purse, "famSquirrel");
-/** How far somebody reaches a kind of place from, in tiles: a tile; or as far as their squirrel fetches. */
-export const reachOf = (purse: Pick<Purse, "gifts">, how: Gather): number => (fetches(purse, how) ? FORAGING.squirrel : FORAGING.reach);
+/** How far somebody reaches a kind of place from, in tiles: a tile; as far as their squirrel fetches; or, whatever the place, as far as is reached from a moss stag's back. */
+export const reachOf = (purse: Pick<Purse, "gifts">, how: Gather): number => (fetches(purse, how) ? FORAGING.squirrel : works(purse, "famStag") ? FORAGING.stag : FORAGING.reach);
 /** The stamina a gathering of a kind of place costs somebody: its own; none of theirs when the squirrel fetches it. */
 export const costFor = (purse: Pick<Purse, "gifts">, kind: Kind): number => (fetches(purse, kind.how) ? 0 : kind.cost);
 /**

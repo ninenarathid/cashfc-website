@@ -196,10 +196,10 @@ export function catalogOf() {
       kinds: KINDS,
       spots: SPOTS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]),
       reach: FORAGING.reach, decoy: FORAGING.decoy, decoys: FORAGING.decoys, hoes: HOES, misses: 30,
-      // ── gifts: forest ── (how near its member's way a squirrel fetches what lies on the ground; and the secret places
+      // ── gifts: forest ── (how near its member's way a squirrel fetches what lies on the ground, and how far is reached from a stag's back; and the secret places
       // of the deep woods, for whoever wears the firefly lantern: their kinds, as `kinds` with the way of the second
       // game (`then`), and the places themselves, whose numbers go on from the last of `spots`)
-      squirrel: FORAGING.squirrel,
+      squirrel: FORAGING.squirrel, stag: FORAGING.stag,
       secret: { kinds: SECRET_KINDS, spots: SECRETS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]) },
       // (and a sprite's treasure map, lib/town/hunt: where a chest may be buried, the ring a map draws, how warm a dig is, what a chest may hold)
       hunt: huntRow(),

@@ -274,6 +274,33 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, pa
   await patch(U.m2, { forest: { hunt: { k: kept.k - 1, n: 1, digs: 5 }, chests: 3 } });
   did = await call(U.m2, "town_map_dig", site[0], site[1]);
   t.check("a hunt of another day is no hunt", did?.ok === false && did.why === "none" && (await call(U.m2, "town_wild")).hunt === null, did);
+  // ── the moss stag ──
+  t.section("the moss stag: from its back whatever is within two tiles is gathered");
+  const fresh = await holding();
+  const free = async (who, p) => { const tk = (await one(`select town.taken('spot', $1::int, $2::bigint, $3) as t`, [p.id, p.turn, who])).t; return !tk.mine && tk.n < F.kinds[p.kind].shares; };
+  const pickFor = async (who, how, skip = []) => { for (const p of fresh) if (p.how === how && !skip.includes(p.id) && (await free(who, p))) return p; return null; };
+  await give(U.m1, {}); await patch(U.m1, { bag: Array(10).fill(null), hand: null, stamina: { day, left: 100 }, forest: null });
+  await give(U.m2, { had: ["famStag"], familiar: "famStag" }); await patch(U.m2, { bag: [{ item: "hoe", n: 1 }, ...Array(9).fill(null)], hand: "hoe", stamina: { day, left: 100 }, forest: null });
+  const grows = await pickFor(U.m2, "choose"), tree = await pickFor(U.m2, "shake"), buried = await pickFor(U.m2, "dig"), lies = await pickFor(U.m2, "pick"), other = await pickFor(U.m2, "choose", [grows.id]);
+  did = await call(U.m1, "town_gather", grows.id, grows.x + 2, grows.y - 2, { misses: 0, wrong: 0 });
+  t.check("on foot, two tiles off is too far", did?.ok === false && did.why === "far", did);
+  did = await call(U.m2, "town_gather", grows.id, grows.x + 2, grows.y - 2, { misses: 0, wrong: 0 });
+  t.check("from a stag's back what grows two tiles off is gathered", did?.ok === true && did.got?.[0]?.[0] === grows.item && did.got[0][1] === grows.n, did?.got ?? did);
+  t.check("…for the stamina it costs, as on foot", (await stamina(U.m2)) === 100 - F.kinds[grows.kind].cost, await stamina(U.m2));
+  deed = await lastDeed("gather");
+  t.check("…written down as a gathering like any other, from the tile it was done from", deed?.member_id === U.m2 && deed.thing === grows.item && same(deed.doc.tile, [grows.x + 2, grows.y - 2]) && !("by" in deed.doc), deed);
+  for (const [p, name] of [[tree, "what hangs"], [buried, "what is buried (with a hoe in the hand)"], [lies, "what lies about"]]) {
+    did = await call(U.m2, "town_gather", p.id, p.x - 2, p.y + 1, { misses: 0, wrong: 0 });
+    t.check(`…and ${name}`, did?.ok === true && did.got?.[0]?.[0] === p.item, did?.got ?? did);
+  }
+  did = await call(U.m2, "town_gather", other.id, other.x + 3, other.y, { misses: 0, wrong: 0 });
+  t.check("three tiles off is too far from its back too", did?.ok === false && did.why === "far", did);
+  await give(U.m2, { had: ["famStag"], familiar: null });
+  did = await call(U.m2, "town_gather", other.id, other.x + 2, other.y, { misses: 0, wrong: 0 });
+  t.check("a stag at rest carries nobody: two tiles off is too far again", did?.ok === false && did.why === "far", did);
+  await give(U.m2, { had: ["famStag", "famPiglet"], familiar: "famPiglet" });
+  did = await call(U.m2, "town_gather", other.id, other.x + 2, other.y, { misses: 0, wrong: 0 });
+  t.check("…and with another familiar at the heels", did?.ok === false && did.why === "far", did);
   // nothing here gives coins
   const coins = await one(`select coalesce(sum(coins), 0)::int as c from public.town_deeds where what in ('gather', 'slip', 'map_use', 'map_dig', 'chest')`);
   t.check("no deed of the forest's gifts gave a coin", coins.c === 0, coins);
