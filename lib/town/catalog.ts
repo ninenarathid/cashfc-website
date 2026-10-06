@@ -339,11 +339,11 @@ export type Catalog = ReturnType<typeof catalogOf>;
  *
  * v147 (ran 2026-10-06, 20:16) wrote one over, for what he asked the same day of the pests: in an hour the farm was counted with insects on it
  * they strike a little oftener (farming: `pests.swarm`, new: how many are some and many, and what each adds).
+ *
+ * v149 (ran 2026-10-06, about 20:45) seeded one row, new, for the lines of work he asked for that day: the seven
+ * lines, the marks of their ten ranks, a day's bound, and what each thing done is worth on its line (`work`).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // the lines of work: a row of their own
-  v149: { keys: ["work"], over: [] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
