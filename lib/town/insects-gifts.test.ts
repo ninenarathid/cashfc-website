@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { FAMILIARS, GIFTS, USES, harderAt, harderFor, numberOf, usesLeft } from "./gifts";
+import { FAMILIARS, GIFTS, USES, harderAt, harderFor, numberOf, useGift, usesLeft } from "./gifts";
 import {
-  BUGS, BUG_IDS, HABITS, HAUNTS, LURED, NECTAR, NECTAR_MAPS, NET, ROAM, TIERS, UNHUNTED, WIND, againMs, aimAt, aimOf, harderOn, knows, lulled, luredHaunt, luredNow, nectar, nectarHaunt, nectarMay, netMine, newMind,
+  BUGS, BUG_IDS, FLUTE, HABITS, HAUNTS, LURED, NECTAR, NECTAR_MAPS, NET, ROAM, TIERS, UNHUNTED, WIND, againMs, aimAt, aimOf, asleep, harderOn, knows, lulled, luredHaunt, luredNow, nectar, nectarHaunt, nectarMay, netMine, newMind,
   perchAt, plentyOf, poseOf, ringOf, roams, stealthOf, swingMs, taken, think, tierOf, windy,
   type BugId, type Haunt, type Hunt, type Lured, type Mind, type Person,
 } from "./insects";
@@ -273,6 +273,69 @@ describe("the wind net (insects, the fourth rank: the net falls at once, where i
 
   it("is as narrow on a good insect for a good hunter as any net", () => {
     expect(ringOf("morpho", false, 1, harderAt(4))).toBeCloseTo(ringOf("morpho", false) / 1.08);
+  });
+});
+
+describe("the lulling flute (insects, the fifth rank: every insect on the screen sleeps fifteen seconds; once in five minutes)", () => {
+  it("is a thing of the fifth rank: fifteen seconds of sleep, once to a span of five minutes", () => {
+    expect(GIFTS.find((g) => g.id === "thingFlute")).toMatchObject({ kind: "thing", line: "insects", rank: 5, by: 15 });
+    expect(FLUTE.secs).toBe(15);
+    expect(USES.thingFlute).toEqual({ n: 1, per: "span", ms: 300_000 });
+    // played once, it rests until the span turns; then once more
+    const had = withGifts(["thingFlute"]), t0 = Math.floor(NOON / 300_000) * 300_000 + 1000;
+    const first = useGift(had, "thingFlute", t0);
+    if (!first.ok) throw new Error(first.why);
+    expect(first.left).toBe(0);
+    expect(useGift(first.purse, "thingFlute", t0 + 60_000)).toEqual({ ok: false, why: "spent" });
+    expect(useGift(first.purse, "thingFlute", t0 + 299_500).ok).toBe(true);
+    expect(useGift(newPurse(), "thingFlute", t0)).toEqual({ ok: false, why: "none" });
+  });
+
+  it("an insect asleep is where it was, on the ground under its picture, still and in plain sight; a net takes it there, or misses beside it", () => {
+    // a butterfly on the wing
+    const b = hauntOf("blooms", "town"), bm = newMind("butterflyWhite", b, 5, NOON), flying = poseOf("butterflyWhite", b, 5, bm, NOON + 4000), sleeps = asleep("butterflyWhite", b, 5, bm, NOON + 4000)!;
+    expect(flying.flying && flying.lift > 0.2).toBe(true);
+    expect(sleeps).toMatchObject({ lift: 0, flying: false, seen: true, open: true, sings: false, twitch: false });
+    // (its picture has not moved on the screen: the ground point under it is the same)
+    expect(aimOf(sleeps).x).toBeCloseTo(aimOf(flying).x, 9);
+    expect(aimOf(sleeps).y).toBeCloseTo(aimOf(flying).y, 9);
+    expect(taken("butterflyWhite", sleeps, aimOf(sleeps), false)).toBe(true);
+    expect(taken("butterflyWhite", sleeps, { x: aimOf(sleeps).x + 1, y: aimOf(sleeps).y }, false)).toBe(false);
+    // and it is there still, seconds on, where the waking one has flown round
+    const later = poseOf("butterflyWhite", b, 5, bm, NOON + 4000 + 6000);
+    expect(Math.hypot(aimOf(later).x - aimOf(sleeps).x, aimOf(later).y - aimOf(sleeps).y)).toBeGreaterThan(0.5);
+  });
+
+  it("what hides shows itself asleep: a cricket is seen and sings no more, a firefly glows on, a stick insect twitches no more", () => {
+    const f = hauntOf("field", "farm"), cm = newMind("cricket", f, f.id, NIGHT), awake = poseOf("cricket", f, f.id, cm, NIGHT + 5000), zc = asleep("cricket", f, f.id, cm, NIGHT + 5000)!;
+    expect(awake.seen).toBe(false);
+    expect(awake.sings).toBe(true);
+    expect(zc).toMatchObject({ seen: true, sings: false, open: true, x: f.perches[cm.at].x, y: f.perches[cm.at].y });
+    const w = hauntOf("water", "town"), fm = newMind("firefly", w, 9, NIGHT);
+    let dark = NIGHT;
+    for (let t = NIGHT; t < NIGHT + 10_000; t += 50) if (!poseOf("firefly", w, 9, fm, t).seen) { dark = t; break; }
+    expect(poseOf("firefly", w, 9, fm, dark).seen).toBe(false);
+    expect(asleep("firefly", w, 9, fm, dark)).toMatchObject({ seen: true, glow: 1, open: true, flying: false });
+    const l = hauntOf("litter", "forest", "woods"), sm = newMind("stickInsect", l, 3, NOON);
+    expect(asleep("stickInsect", l, 3, sm, NOON + 1000)).toMatchObject({ seen: true, twitch: false, glow: 0, x: l.perches[sm.at].x });
+  });
+
+  it("one in a hop sleeps where it lands; a beetle up its tree is out of hearing, one that has come down sleeps on its trunk", () => {
+    const f = hauntOf("field", "farm"), m = newMind("grasshopper", f, f.id, NOON);
+    const hop = think("grasshopper", f, f.id, m, NOON + 100, [before(f, m, 1)]);
+    expect(hop.at).not.toBe(m.at);
+    expect(poseOf("grasshopper", f, f.id, hop, NOON + 150).open).toBe(false);
+    const z = asleep("grasshopper", f, f.id, hop, NOON + 150)!;
+    expect(z).toMatchObject({ open: true, flying: false, lift: 0, x: f.perches[hop.at].x, y: f.perches[hop.at].y });
+    const t = hauntOf("tree"), bm = newMind("rhinoBeetle", t, 4, NIGHT);
+    expect(asleep("rhinoBeetle", t, 4, bm, NIGHT + 1000)).toBeNull();
+    let down = bm;
+    const under = still(t.perches[0].x + 0.4, t.perches[0].y + 0.6, { hold: "resin" });
+    for (let ms = 0; ms <= HABITS.lure.patience + HABITS.lure.down + 200; ms += 100) down = think("rhinoBeetle", t, 4, down, NIGHT + ms, [under]);
+    const when = NIGHT + HABITS.lure.patience + HABITS.lure.down + 200, awake = poseOf("rhinoBeetle", t, 4, down, when), zb = asleep("rhinoBeetle", t, 4, down, when)!;
+    expect(awake.open).toBe(true);
+    expect(aimOf(zb).x).toBeCloseTo(aimOf(awake).x, 9);
+    expect(zb.open).toBe(true);
   });
 });
 

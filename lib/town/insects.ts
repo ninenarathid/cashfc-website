@@ -1,7 +1,7 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import { softStep } from "./forest-eye";
-import { famBy, useGift, wearing, type GiftRefusal } from "./gifts";
+import { famBy, numberOf, useGift, wearing, type GiftRefusal } from "./gifts";
 import { ITEMS, type ItemId } from "./items";
 import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
@@ -903,6 +903,26 @@ export function poseOf(id: BugId, h: Haunt, seed: number, m: Mind, now: number):
       return { ...POSE, x: here.x, y: here.y, lift: H.top + (H.low - H.top) * k, open: k >= 1, stirs: false };
     }
   }
+}
+
+/**
+ * The lulling flute (lib/town/gifts' thingFlute, the insects' fifth rank; the owner's ladder of 2026-10-07: "แมลงทุกตัว
+ * บนจอหลับ 15 วินาที ใช้ได้ 5 นาทีครั้ง"). Played, every insect its owner can see on the screen sleeps so many seconds:
+ * asleep it is still where it was, shows itself (what hides, what only glows now and then), minds nobody (it does
+ * not startle, nor at a net that comes down beside it), and is still to be netted: the ring is as ever, and a net
+ * aimed badly misses. Once in five minutes (lib/town/gifts' USES, a span). **On its owner's screen only**: where an
+ * insect is has always been each screen's own, so nobody else has it asleep, and nobody else catches for it.
+ */
+export const FLUTE = { secs: numberOf("thingFlute") };
+/**
+ * An insect as it sleeps from a moment on: where it was then (one in a hop or a dart, where it lands), come down to
+ * the ground under its picture, still and in plain sight. Null for one a net could not take there (a beetle still up
+ * its tree): it is out of the flute's hearing.
+ */
+export function asleep(id: BugId, h: Haunt, seed: number, m: Mind, at: number): Pose | null {
+  const habit = BUGS[id].habit, p = poseOf(id, h, seed, m, habit === "spot" || habit === "behind" || habit === "sound" ? Math.max(at, m.land) : at);
+  if (!p.open) return null;
+  return { ...POSE, x: p.x - p.lift, y: p.y - p.lift, lift: 0, right: p.right, glow: habit === "look" && !BUGS[id].like ? 1 : 0 };
 }
 
 /** Where a net has to land to take something: the point of the ground its picture is drawn over (a tile of lift is a tile up the screen, which is one back along each of the map's ways). */

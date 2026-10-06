@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  BUGS, HABITS, HAUNTS, LURED, LURES, NET, aimAt, aimOf, againMs, bugTurnStart, fledBy, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
+  BUGS, FLUTE, HABITS, HAUNTS, LURED, LURES, NET, aimAt, aimOf, againMs, asleep, bugTurnStart, fledBy, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
   type BugId, type BugSight, type Haunt, type Lured, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { FARMING } from "@/lib/town/farm";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
-import { GIFTS, familiarOf, harderFor, hasThing, usesLeft, wearing } from "@/lib/town/gifts";
+import { GIFTS, USES, familiarOf, harderFor, hasThing, usesLeft, wearing } from "@/lib/town/gifts";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { TILE_H, placeOf, type Vec } from "@/lib/town/world";
@@ -49,9 +49,13 @@ const WHY_BUGS: Record<string, [string, string]> = {
   // (a drop of nectar: one is out already; nothing is about this place at this hour; the day's drops are used)
   out: ["มีหยดน้ำหวานวางอยู่แล้ว", "A drop is out already"], quiet: ["แถวนี้ตอนนี้ยังไม่มีแมลงมาตอม", "No insect is about here just now"],
   drops: ["วันนี้น้ำหวานหมดแล้ว", "No nectar left today"], left: ["แมลงที่มาตอมน้ำหวานบินไปแล้ว", "The insect at your nectar has flown off"],
+  // (the lulling flute: nothing on the screen to lull; it has been played and rests)
+  hush: ["ตอนนี้บนจอไม่มีแมลงให้กล่อม", "No insect on the screen to lull"], rests: ["ขลุ่ยยังพักอยู่", "The flute is resting"],
 };
 /** How long before it is there the insect of a drop is seen flying in, in milliseconds; and from how many tiles off. */
 const ARRIVE = { ms: 1700, from: 7 };
+/** The lulling flute on the screen: how long its notes and the hush going out from its player show, and how long an insect takes to be itself again as it wakes, in milliseconds. */
+const LULL = { notes: 2200, wake: 450 };
 const giftName = (id: string, th: boolean) => { const g = GIFTS.find((x) => x.id === id); return g ? (th ? g.name.th : g.name.en) : id; };
 /** Where the insects that fled from my tired hands are kept on this device, each until its turn ends: a page opened again does not bring them back. */
 const FLED_KEY = "cashTown:bugsFled";
@@ -81,6 +85,45 @@ interface Swing { at: Vec; began: number; lands: number; done: boolean; wind?: b
  * it is let go (null: it is called off, or it was a plain tap, which the map hands over as ever).
  */
 export interface BugsAim { press: (at: Vec) => boolean; move: (at: Vec) => void; loose: (at: Vec | null) => void }
+/** A little shape of square specks: each a cell across and down from its corner, so many screen pixels a cell; dark behind it, so that it shows over grass in full day. */
+function specks(ctx: CanvasRenderingContext2D, cells: ReadonlyArray<readonly [number, number]>, x: number, y: number, u: number, fill: string, edge: string) {
+  // (its shade a pixel down and across: an edge all round would fill so small a shape in)
+  ctx.fillStyle = edge;
+  for (const [cx, cy] of cells) ctx.fillRect(Math.round(x + cx * u) + 1, Math.round(y + cy * u) + 1, u, u);
+  ctx.fillStyle = fill;
+  for (const [cx, cy] of cells) ctx.fillRect(Math.round(x + cx * u), Math.round(y + cy * u), u, u);
+}
+const ZED: ReadonlyArray<readonly [number, number]> = [[0, 0], [1, 0], [2, 0], [3, 0], [2, 1], [1, 2], [0, 3], [1, 3], [2, 3], [3, 3]];
+const QUAVER: ReadonlyArray<readonly [number, number]> = [[2, 0], [3, 0], [4, 1], [2, 1], [2, 2], [2, 3], [2, 4], [0, 4], [1, 4], [0, 5], [1, 5], [2, 5]];
+/** An insect asleep: three small letters going up from it, one after another. */
+function drawSleep(ctx: CanvasRenderingContext2D, x: number, top: number, s: number, now: number, still: boolean, seed: number) {
+  for (let i = 0; i < 3; i++) {
+    const t = still ? (i + 1) / 4 : (now / 2400 + i / 3 + seed * 0.17) % 1, a = Math.sin(Math.PI * t), u = Math.max(2, Math.round((1 + 0.9 * t) * s));
+    specks(ctx, ZED, x + (5 + 12 * t) * s + Math.sin(t * 5 + i) * 2 * s, top - (12 + 26 * t) * s, u, `rgba(232,244,255,${a.toFixed(3)})`, `rgba(18,28,58,${(0.8 * a).toFixed(3)})`);
+  }
+}
+/** The flute played: its five notes going up and out from the player's head, and a hush going out over the ground from their feet. */
+function drawLull(ctx: CanvasRenderingContext2D, feet: Vec, s: number, t: number, still: boolean) {
+  ctx.save();
+  if (!still) for (const lag of [0, 0.22]) {
+    const k = Math.min(1, Math.max(0, (t - lag) / 0.7));
+    if (k <= 0 || k >= 1) continue;
+    ctx.strokeStyle = `rgba(206,255,232,${(0.55 * (1 - k)).toFixed(3)})`; ctx.lineWidth = Math.max(2, 2.5 * s * (1 - k) + 1);
+    groundRing(ctx, feet, 1 + 13 * k, s); ctx.stroke();
+  }
+  for (let i = 0; i < 5; i++) {
+    const k = still ? 0.5 : Math.min(1, Math.max(0, t * 1.25 - i * 0.15)), a = still ? 1 : Math.sin(Math.PI * k), u = Math.max(2, Math.round(1.4 * s));
+    if (a <= 0.01) continue;
+    const fan = (i - 2) * 0.42, x = feet.x + Math.sin(fan) * (10 + 34 * k) * s, y = feet.y - 62 * s - Math.cos(fan) * 30 * k * s + Math.sin(k * 7 + i) * 2 * s;
+    specks(ctx, QUAVER, x, y, u, `rgba(206,255,232,${a.toFixed(3)})`, `rgba(12,48,40,${(0.65 * a).toFixed(3)})`);
+  }
+  ctx.restore();
+}
+/** A sleeper waking: from where it slept back to where it would be, `t` of the way (0 to 1), over the ground and up. */
+function rising(from: Pose, to: Pose, t: number): Pose {
+  const e = t * t * (3 - 2 * t), gx = from.x - from.lift + (to.x - to.lift - (from.x - from.lift)) * e, gy = from.y - from.lift + (to.y - to.lift - (from.y - from.lift)) * e, lift = to.lift * e;
+  return { ...to, x: gx + lift, y: gy + lift, lift };
+}
 /** A ring of the ground about a point of the screen, so many tiles across its half: half as high as it is wide, as the map's tiles are. */
 const groundRing = (ctx: CanvasRenderingContext2D, c: Vec, tiles: number, s: number) => { ctx.beginPath(); ctx.ellipse(c.x, c.y, tiles * 45 * s, tiles * 22.5 * s, 0, 0, Math.PI * 2); };
 /** The wind net held over where it is aimed: how far it reaches about me, faintly, and the gust turning over its ring. */
@@ -214,6 +257,14 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const luredUntil = lured?.until ?? 0;
   // (the wind net worn as a charm, with stamina to swing: the net comes down at once where it is aimed, lib/town/insects' windy)
   const wind = windy(purse, keeper.now());
+  // (the lulling flute: once in a span of time, lib/town/gifts' USES; how long until it may be played again)
+  const hasFlute = keeper.gives("thingFlute") && hasThing(purse, "thingFlute"), fluteSpan = USES.thingFlute?.ms ?? 300_000;
+  const fluteWait = hasFlute && usesLeft(purse, "thingFlute", keeper.now()) <= 0 ? fluteSpan - (((keeper.now() % fluteSpan) + fluteSpan) % fluteSpan) : 0;
+  useEffect(() => {
+    if (fluteWait <= 0) return;
+    const t = setTimeout(() => setTick((n) => n + 1), fluteWait + 80);
+    return () => clearTimeout(t);
+  }, [fluteWait]);
   const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id });
   live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id };
   useEffect(() => {
@@ -230,7 +281,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
 
   /** What each insect has in mind on this screen, how each is this frame, where I am and who is about, and the swing in the air. */
   const minds = useRef(new Map<number, { turn: number; bug: BugId; mind: Mind }>());
-  const poses = useRef(new Map<number, { sight: BugSight; pose: Pose; h: Haunt }>());
+  const poses = useRef(new Map<number, { sight: BugSight; pose: Pose; h: Haunt; on: boolean }>());
+  /** The insects asleep to my flute on this screen: each where it fell asleep, until when, and which insect it is (by its turn); and when the flute was last played. */
+  const sleeping = useRef(new Map<number, { turn: number; until: number; pose: Pose }>()), played = useRef(0);
   const me = useRef<Vec | null>(null), about = useRef<Array<Person & { id: string }>>([]);
   /** When each singer was last heard. */
   const sang = useRef(new Map<number, number>());
@@ -295,6 +348,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             say("fled");
             continue;
           }
+          // (one asleep to my flute sleeps on: the miss is counted, and it has not minded it)
+          const z = sleeping.current.get(id);
+          if (z && z.turn === sight.turn && now < z.until) continue;
           const was = kept.mind;
           kept.mind = missed(sight.bug, h, sight.seed, kept.mind, now, here ?? s.at);
           if (kept.mind !== was && pose.seen) sfx?.work("flit", 0.7);
@@ -361,8 +417,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         // (a mind is one insect's: another at the same haunt, in the same turn or the next, begins with its own)
         if (!kept || kept.turn !== sight.turn || kept.bug !== sight.bug) { kept = { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, bugTurnStart(h, sight.turn)) }; minds.current.set(h.id, kept); }
         const before = kept.mind;
-        if (!still) kept.mind = think(sight.bug, h, sight.seed, kept.mind, now, about.current);
-        const pose = poseOf(sight.bug, h, sight.seed, kept.mind, now), bug = BUGS[sight.bug], at = project({ x: pose.x, y: pose.y });
+        // (asleep to my flute: it is where it fell asleep and minds nobody; waking, it is a moment getting back to itself)
+        const z = sleeping.current.get(h.id), slept = !!z && z.turn === sight.turn, dozing = slept && now < z!.until, waking = slept && !dozing && now < z!.until + LULL.wake;
+        if (z && !dozing && !waking) sleeping.current.delete(h.id);
+        if (!still && !dozing) kept.mind = think(sight.bug, h, sight.seed, kept.mind, now, about.current);
+        const awake = poseOf(sight.bug, h, sight.seed, kept.mind, now);
+        const pose = dozing ? z!.pose : waking && !still ? rising(z!.pose, awake, (now - z!.until) / LULL.wake) : awake, bug = BUGS[sight.bug], at = project({ x: pose.x, y: pose.y });
         // heard: off in a fright from somebody; and what sings, over and over, softer from further off
         const away = frame.self ? far(frame.self, pose) : 99;
         if (kept.mind.visit !== before.visit && bug.habit !== "spot" && away < 9) sfx?.work("flit", Math.max(0.15, 1 - away / 9) * 0.6);
@@ -370,8 +430,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           sang.current.set(h.id, now);
           sfx?.work(bug.shy === "flight" ? "cicada" : "chirp", Math.max(0.06, 1 - away / 11) ** 1.6);
         }
-        poses.current.set(h.id, { sight, pose, h });
+        poses.current.set(h.id, { sight, pose, h, on: onScreen(at) });
         const k = SIZE * s, icon = iconFor(iconOf(sight.bug)), mind = kept.mind;
+        if (dozing && onScreen(at)) frame.over?.(() => drawSleep(ctx, at.x, at.y - pose.lift * TILE_H * s, s, now, still, h.id));
         // the net's silver glint over it, whether it shows itself or not; one off the screen is pointed to from the edge
         if (live.current.sees) {
           lit++;
@@ -411,7 +472,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         }
         // my butterfly keeps it from knowing of me: with all its senses it would have. A little of the butterfly's
         // dust comes down over it, for as long as that is so (a state: nothing says why)
-        if (live.current.flutter && about.current[0] && frame.self && lulled(sight.bug, h, mind, about.current[0])) {
+        if (live.current.flutter && !dozing && about.current[0] && frame.self && lulled(sight.bug, h, mind, about.current[0])) {
           calm++;
           frame.over?.(() => {
             const top = at.y - pose.lift * TILE_H * s;
@@ -465,7 +526,13 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       }
       glints.current = lit;
       lulls.current = calm;
-      for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); }
+      for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); sleeping.current.delete(id); }
+
+      // my flute just played: its notes go up from my head, and a hush goes out over the ground
+      if (now - played.current < LULL.notes && frame.self) {
+        const feet = project(frame.self), t = (now - played.current) / LULL.notes;
+        frame.over?.(() => drawLull(ctx, feet, s, t, still));
+      }
 
       // a ladybird took a pest off some plant with it: said over my head, a little while
       if (now < ridUntil.current && frame.self) {
@@ -589,10 +656,29 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     });
   }, [keeper, sfx]);
 
+  /** Play the lulling flute: every insect on the screen that a net could take where it is sleeps, on this screen. Kept for another time when there is none to lull. */
+  const playFlute = useCallback(() => {
+    const hear = () => [...poses.current.entries()].filter(([id, p]) => p.on && !!minds.current.get(id) && !!asleep(p.sight.bug, p.h, p.sight.seed, minds.current.get(id)!.mind, Date.now()));
+    if (!hear().length) { setNote(live.current.th ? WHY_BUGS.hush[0] : WHY_BUGS.hush[1]); return; }
+    void keeper.giftUse("thingFlute").then((did) => {
+      if (!did.ok) { const w = did.why === "spent" ? WHY_BUGS.rests : WHY[did.why as keyof typeof WHY]; setNote(w ? (live.current.th ? w[0] : w[1]) : null); return; }
+      const now = Date.now(), until = now + FLUTE.secs * 1000;
+      for (const [id, p] of hear()) {
+        const pose = asleep(p.sight.bug, p.h, p.sight.seed, minds.current.get(id)!.mind, now);
+        if (pose) sleeping.current.set(id, { turn: p.sight.turn, until, pose });
+      }
+      played.current = now;
+      sfx?.wake();
+      sfx?.work("lull");
+    });
+  }, [keeper, sfx]);
+
   // (for scripts in `next dev`: what is out for me, how each is this moment, and a swing at a point)
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
+      // (the lulling flute: played, and which insects are asleep to it on this screen, each until when)
+      playFlute, asleep: () => [...sleeping.current.entries()].filter(([, z]) => Date.now() < z.until).map(([id, z]) => ({ id, until: z.until, ...z.pose })),
       // (my drop of nectar: what is out, and one put down where I stand)
       lured: () => live.current.lured?.l ?? null, luredHaunt: () => live.current.lured?.h ?? null, dropNectar,
       // (the wind net: whether mine is one now; a press, a drag and a letting go at points of the map, as the map hands
@@ -603,7 +689,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       /** Where a point of the map is on the map's canvas, in its own pixels, as the last frame had it. */
       project: (x: number, y: number) => projectRef.current?.({ x, y }) ?? null,
       sights: () => seen.current.map((x) => ({ ...x, place: HAUNTS[x.id]?.place, kind: HAUNTS[x.id]?.kind, x: HAUNTS[x.id]?.x, y: HAUNTS[x.id]?.y, perches: HAUNTS[x.id]?.perches })),
-      poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, 1, live.current.wary), mind: minds.current.get(id)?.mind ?? null })),
+      poses: () => [...poses.current.entries()].map(([id, { sight, pose, on }]) => ({ id, bug: sight.bug, ...pose, on, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, 1, live.current.wary), mind: minds.current.get(id)?.mind ?? null })),
       me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, 1, live.current.wary), glints: () => glints.current, lulls: () => lulls.current,
       soft: () => live.current.soft, wary: () => live.current.wary,
       swing: (x: number, y: number) => { const now = Date.now(); swing.current = { at: { x, y }, began: now, lands: now + swingMs(live.current.spent), done: false }; },
@@ -624,11 +710,11 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     };
     (window as unknown as { __townBugs?: typeof handle }).__townBugs = handle;
     return () => { delete (window as unknown as { __townBugs?: typeof handle }).__townBugs; };
-  }, [note, tip, dropNectar]);
+  }, [note, tip, dropNectar, playFlute]);
 
   // The hunter's belt: the things of the insects' ranks that are used by hand, there while a net is held. Each shows
-  // its state (how many are left, whether it is out) and says nothing of what it does.
-  const belt = !busy && mayNet(hand) && hasNectar;
+  // its state (how many are left, whether it is out, how long it rests) and says nothing of what it does.
+  const belt = !busy && mayNet(hand) && (hasNectar || hasFlute);
   if (!note && !tip && !belt) return null;
   return (
     <>
@@ -647,6 +733,15 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
               <TownIcon name={"thingNectar" as IconName} size={30} />
               <span aria-hidden className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full border border-[#8a5a1c] bg-[#f0a02c] px-1 font-data text-label font-semibold leading-4 text-[#2b1a0c]">{drops}</span>
               {lured && <span aria-hidden className="absolute inset-[-3px] animate-pulse rounded-full border-2 border-[#ffd674] motion-reduce:animate-none" />}
+            </button>
+          )}
+          {hasFlute && (
+            <button type="button" onClick={playFlute} disabled={fluteWait > 0} data-bug-flute data-ready={fluteWait > 0 ? "0" : "1"} data-wait={Math.ceil(fluteWait / 1000)}
+                    title={giftName("thingFlute", th)} aria-label={giftName("thingFlute", th)}
+                    className="pressable pointer-events-auto relative grid size-12 place-items-center overflow-hidden rounded-full border-2 border-[#3f7a66] bg-[#10261f]/90 shadow-lg shadow-black/40 backdrop-blur-sm">
+              <TownIcon name={"thingFlute" as IconName} size={30} />
+              {/* (resting: a shade over it that draws back as its time comes round) */}
+              {fluteWait > 0 && <span aria-hidden className="absolute inset-0" style={{ background: `conic-gradient(rgba(8,14,12,0.78) ${Math.round((fluteWait / fluteSpan) * 360)}deg, transparent 0)` }} />}
             </button>
           )}
         </div>
