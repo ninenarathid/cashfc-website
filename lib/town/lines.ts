@@ -101,6 +101,30 @@ export const LINES: Record<LineId, LineDef> = {
   },
 };
 
+/** The title somebody wears under their name: of which line, and which rank of it. */
+export interface Worn { line: LineId; rank: number }
+/**
+ * Somebody's lines as they are told them: on each, the points they have, all told, and what today's deeds were worth
+ * before the day's bound; and the title they wear, if they chose one.
+ */
+export interface LinesTold { lines: Record<LineId, { points: number; today: number }>; worn: Worn | null }
+/** Lines with nothing on them yet. */
+export const noLines = (): LinesTold => ({ lines: Object.fromEntries(LINE_IDS.map((id) => [id, { points: 0, today: 0 }])) as LinesTold["lines"], worn: null });
+/** Lines as a keeper is told them, made sound: every line there is, with numbers that are numbers. */
+export function linesOf(v: unknown, worn: unknown = null): LinesTold {
+  const told = noLines(), got = (v && typeof v === "object" ? v : {}) as Record<string, { points?: unknown; today?: unknown } | undefined>;
+  for (const id of LINE_IDS) {
+    const l = got[id], points = Number(l?.points), today = Number(l?.today);
+    told.lines[id] = { points: Number.isFinite(points) && points > 0 ? points : 0, today: Number.isFinite(today) && today > 0 ? today : 0 };
+  }
+  return { ...told, worn: wornOf(worn) };
+}
+/** A title as it may be told of somebody, if it is one there is: a line there is and a rank of the ten. */
+export const wornOf = (v: unknown): Worn | null => {
+  const w = v as Partial<Worn> | null;
+  return w && (LINE_IDS as readonly string[]).includes(String(w.line)) && Number.isInteger(w.rank) && w.rank! >= 1 && w.rank! <= RANKS ? { line: w.line as LineId, rank: w.rank! } : null;
+};
+
 /** The rank so many points are: none (0) to the tenth. */
 export const rankOf = (line: LineId, points: number): number => LINES[line].marks.filter((at) => points >= at).length;
 /** What somebody of a rank is called; nothing, for no rank. */

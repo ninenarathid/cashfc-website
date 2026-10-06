@@ -24,6 +24,7 @@ import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
 import { natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
+import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
@@ -200,6 +201,17 @@ export interface Keeper {
    */
   wellBook(): WellBook | null;
   ranks(): Record<string, number>;
+  /**
+   * My lines of work (lib/town/lines): the points I have on each and what today has been worth, and the title I
+   * wear. Null until they have been read, and for as long as whoever keeps the game knows of no lines (a database
+   * before its file: the page then shows nothing of them). `titles` is the title everybody wears who chose one, for
+   * the names over heads. `linesRead` reads mine again (a screen that shows them asks as it opens).
+   */
+  lines(): LinesTold | null;
+  titles(): Record<string, Worn>;
+  linesRead(): void;
+  /** Wear a title I have earned under my name, or none (null). */
+  titleWear(worn: Worn | null): Promise<Did>;
   /** Read the book again. */
   wellLook(): Promise<void>;
   /** Take what the well has waiting for me. */
@@ -366,6 +378,8 @@ export class DbKeeper implements Keeper {
   private book_: Record<string, string> = {};
   private wellBook_: WellBook | null = null;
   private ranks_: Record<string, number> = {};
+  private lines_: LinesTold | null = null;
+  private titles_: Record<string, Worn> = {};
   private ranksAgain: ReturnType<typeof setInterval> | null = null;
   private toThank_: Record<string, Array<Helper & { name: string }>> = {};
   private thanks_: ThanksBoard | null = null;
@@ -435,7 +449,9 @@ export class DbKeeper implements Keeper {
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
       void this.ask("town_well_ranks");
-      this.ranksAgain = setInterval(() => { void this.ask("town_well_ranks"); }, RANKS_MS);
+      // (and my lines of work with everybody's worn title, in the same breath: a database with no lines answers nothing)
+      void this.ask("town_lines");
+      this.ranksAgain = setInterval(() => { void this.ask("town_well_ranks"); void this.ask("town_lines"); }, RANKS_MS);
     }
     if (this.read || this.opened === false || this.shut) return;
     // The town could not be reached: asked again in a while, a little later each time. (On a timer, not here: what
@@ -519,6 +535,10 @@ export class DbKeeper implements Keeper {
     if (typeof a.bugsAgain === "number") this.bugsDue(a.bugsAgain);
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
+    if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
+    if (a.titles && typeof a.titles === "object") {
+      this.titles_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
+    }
     if (a.toThank && typeof a.toThank === "object") this.toThank_ = a.toThank as Record<string, Array<Helper & { name: string }>>;
     if (a.thanks && typeof a.thanks === "object") { this.thanks_ = a.thanks as ThanksBoard; this.thanked_ = this.thanks_.today; }
     if (Array.isArray(a.thanked)) this.thanked_ = a.thanked as Array<{ id: string; name: string }>;
@@ -682,6 +702,10 @@ export class DbKeeper implements Keeper {
   choreAt(where: Water): Chore | null { return choreFor(this.mine, where, this.well_); }
   wellBook(): WellBook | null { return this.wellBook_; }
   ranks(): Record<string, number> { return this.ranks_; }
+  lines(): LinesTold | null { return this.lines_; }
+  titles(): Record<string, Worn> { return this.titles_; }
+  linesRead() { if (this.lines_) void this.ask("town_lines"); }
+  titleWear(worn: Worn | null) { return this.deed("town_title_wear", { p_line: worn?.line ?? null, p_rank: worn?.rank ?? null }); }
   pots(): Pot[] { return this.pots_; }
   found(): ItemId[] { return this.found_; }
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }

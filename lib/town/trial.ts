@@ -3,7 +3,9 @@ import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { hookBait, landCatch, loseBait } from "./fishing";
-import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
+import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
+import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
+import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
 import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
@@ -74,6 +76,8 @@ const SWARMS = "cashtown.trial.farm.swarms.1";
 const BUG_HUNTS = "cashtown.trial.bugs.hunts.1";
 /** The well's book (lib/town/well): whose water is where, for the whole browser. */
 const WELL_LOG = "cashtown.trial.welllog.1";
+// Everybody's lines of work as they are kept, by member and by line (lib/town/line-points), and the title each wears.
+const LINES_AT = "cashtown.trial.lines.1", TITLES = "cashtown.trial.titles.1";
 /** The thanks given (lib/town/thanks), and the jar at the well with what waits at it for each (lib/town/jar): the whole browser's. */
 const THANKS = "cashtown.trial.thanks.1", JAR = "cashtown.trial.jar.1";
 /** The bucketfuls in the cooking yard's water jar (lib/town/yard): the whole browser's. */
@@ -436,6 +440,11 @@ export class Trial {
     // (a plant watered is a line of the well's book: with which can, and whose plant when not my own)
     if (did.deed === "water") this.wellSeen({ by: this.id, at: now, what: "water", can: handOf(p) ?? undefined, tile: [x, y], ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}) });
     this.save(did.purse);
+    // (and it counts on a line, if it is one that does: help in somebody else's bed, a picking of one's own plant)
+    this.counted({ from: "deed", what: did.deed, thing: plot.plant?.crop ?? null, n: 1, doc: {
+      ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}),
+      ...(!plot.plant && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}),
+    } });
     return { ok: true, deed: did.deed, got: did.got };
   }
   /** Whether it is a hot afternoon now (lib/town/heat), by this page's sky. */
@@ -544,6 +553,7 @@ export class Trial {
     const kept = Object.fromEntries(Object.entries(took).filter(([k]) => { const [s, t] = k.split(":").map(Number); return !!SPOTS[s] && t >= turnOf(SPOTS[s], now); }));
     this.write(WILD_TOOK, { ...kept, [key]: [...who, this.id] });
     this.save(did.purse);
+    if (did.got[0]) this.counted({ from: "deed", what: "gather", thing: did.got[0][0], n: did.got[0][1], doc: { how: KINDS[spot.kind].how, kind: spot.kind } });
     return { ok: true, got: did.got };
   }
   /** For scripts trying things out: the word the forest's rolls hang on, as it is told (so that what a place has can be known beforehand). */
@@ -630,6 +640,7 @@ export class Trial {
     // and it counts against its kind from the next turn on, for a day
     this.write(BUG_HUNTS, [...hunts, { bug: has!.bug, at: now, n: has!.n }]);
     this.save(did.purse);
+    this.counted({ from: "deed", what: "net", thing: has!.bug, n: has!.n, doc: {} });
     return { ok: true, got: did.got, first, rid };
   }
   /** For scripts trying things out: how likely an insect that may take a pest with it does, whatever its own chance is (in this tab; null: its own). */
@@ -672,6 +683,7 @@ export class Trial {
     const did = thank(this.wellLog(), this.given(), key, this.id, this.now());
     if (!did.ok) return did;
     this.write(THANKS, did.given);
+    this.counted({ from: "deed", what: "thank", thing: null, n: did.thanked.length, doc: { to: did.thanked } });
     this.tell();
     return { ok: true, thanked: did.thanked };
   }
@@ -806,6 +818,7 @@ export class Trial {
     const left = did.pot;
     this.write(POTS, left ? pots.map((o) => (o.id === id ? left : o)) : pots.filter((o) => o.id !== id));
     this.save(did.purse);
+    this.counted({ from: "deed", what: "ladle", thing: pot.dish, n: 1, doc: { pot: id, ...(pot.by !== this.id ? { whose: pot.by } : {}) } });
     return did;
   }
   /** Take my pot of food up again. */
@@ -888,6 +901,63 @@ export class Trial {
   record(play: Play) {
     this.write(playsKey(this.id), keep(this.plays(), play));
     this.write(tallyKey(this.id), count(this.tally(), play));
+    // (a fish landed, a pot of a real recipe: each counts on its line)
+    this.counted({ from: "play", what: play.game, thing: (play as { what?: string }).what ?? null, n: 1, won: play.won, doc: {} });
+    this.tell();
+  }
+
+  /* ── the lines of work (lib/town/lines, line-points): everybody's, since what one does may count for another ── */
+  private linesAll(): Record<string, Partial<Record<LineId, LineKept>>> {
+    return this.read<Record<string, Partial<Record<LineId, LineKept>>>>(LINES_AT, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
+  }
+  /** Something done, counted on whatever line it counts on, for whoever it counts for (mine, or the cook's whose pot I ladled from, or whoever I thanked). */
+  private counted(done: Deeded) {
+    const counts = countsOf(done, this.id);
+    if (!counts.length) return;
+    const all = { ...this.linesAll() }, day = dayOf(this.now());
+    for (const c of counts) {
+      const who = c.to ?? this.id, theirs = { ...(all[who] ?? {}) };
+      theirs[c.line] = countLine(theirs[c.line] ?? newLine(), c, day);
+      all[who] = theirs;
+    }
+    this.write(LINES_AT, all);
+  }
+  /** Everybody's worn title, by member. */
+  private worn(): Record<string, Worn> {
+    const kept = this.read<Record<string, unknown>>(TITLES, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
+    return Object.fromEntries(Object.entries(kept).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
+  }
+  /**
+   * My lines as I am told them: each one's points and what today has been worth; the well's is the bucketfuls its
+   * own book counts (lib/town/well), which no bound holds. And the title I wear.
+   */
+  lines(): LinesTold {
+    const told = noLines(), mine = this.linesAll()[this.id] ?? {}, day = dayOf(this.now()), log = this.wellLog();
+    for (const id of LINE_IDS) { const k = mine[id]; if (k) told.lines[id] = { points: k.points, today: k.day === day ? k.today : 0 }; }
+    told.lines.well = { points: log.carriers[this.id]?.buckets ?? 0, today: log.days[String(day)]?.[this.id]?.buckets ?? 0 };
+    return { ...told, worn: this.worn()[this.id] ?? null };
+  }
+  /** Wear a title I have earned under my name, or none (null). */
+  titleWear(worn: Worn | null): { ok: true } | { ok: false; why: Refusal } {
+    const all = { ...this.worn() };
+    if (worn === null) delete all[this.id];
+    else {
+      const points = Object.fromEntries(LINE_IDS.map((id) => [id, this.lines().lines[id].points]));
+      if (!mayWear(points, worn.line, worn.rank)) return no("none");
+      all[this.id] = { line: worn.line, rank: worn.rank };
+    }
+    this.write(TITLES, all);
+    this.tell();
+    return { ok: true };
+  }
+  /** The title everybody wears who chose one, by member: for the names over heads. */
+  titles(): Record<string, Worn> { return this.worn(); }
+  /** For scripts trying things out: so many points on a line of mine, as if earned before today. */
+  setLine(line: LineId, points: number) {
+    const all = { ...this.linesAll() }, mine = { ...(all[this.id] ?? {}) };
+    mine[line] = { ...(mine[line] ?? newLine()), points: Math.max(0, points) };
+    all[this.id] = mine;
+    this.write(LINES_AT, all);
     this.tell();
   }
   /** My goes at the mini-games, the oldest first (the log keeps only its newest), and the tally of them all. */

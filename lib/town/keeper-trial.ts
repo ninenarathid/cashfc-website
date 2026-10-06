@@ -6,6 +6,7 @@ import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
+import type { Worn } from "./lines";
 import type { Play } from "./plays";
 import type { ShopAsk } from "./shop";
 import { SKIES } from "./skies";
@@ -171,6 +172,10 @@ class TrialKeeper implements Keeper {
   async choreDo(where: Water): Promise<Did<{ chore: Chore }>> { return this.trial.choreDo(where); }
   wellBook() { return this.trial.wellBook(); }
   ranks() { return this.trial.ranks(); }
+  lines() { return this.trial.lines(); }
+  titles() { return this.trial.titles(); }
+  linesRead() { /* the trial's are read as they are asked for */ }
+  async titleWear(worn: Worn | null): Promise<Did> { return this.trial.titleWear(worn); }
   async wellLook() { /* the book is in this browser already */ }
   async wellTake(): Promise<Did<{ gift: ItemId; rank: number }>> { return this.trial.wellTake(); }
   toThank() { return this.trial.toThank(); }
