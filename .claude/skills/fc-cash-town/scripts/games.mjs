@@ -6,6 +6,7 @@
 //   stirring  the pot, and a pace for the ladle to go round at by itself   lib/town/stirring
 //   pouring   the water, the button held or not, and a hand that lets go at a share of the way between the marks
 //   steady    the hands, a hand that holds over the middle by itself, and a shove
+//   handing   water handed on, a game for two: each page's own bucket, and a hand that plays it by itself  lib/town/handing
 import { sleep, until } from "./cdp.mjs";
 
 const G = "window.__townGame";
@@ -30,6 +31,8 @@ export async function play(X, ms = 60000) {
   if (kind === "stirring") await X.evaluate(`${G}.drive(0.9)`);
   if (kind === "steady") await X.evaluate(`${G}.hold(true)`);
   if (kind === "pouring") await X.evaluate(`${G}.steady(0.5)`);
+  // (a game for two: this page's bucket plays by itself; the other page's has to be played too: `playTwo`)
+  if (kind === "handing") await X.evaluate(`${G}.auto(true)`);
   // (a roast: the stick is turned as each face turned to the fire is done, and at once when the next would burn)
   if (kind === "roasting") {
     const end = Date.now() + ms;
@@ -51,6 +54,18 @@ export async function play(X, ms = 60000) {
     await sleep(8);
   }
   return null;
+}
+
+/**
+ * Play water handed on, the game for two (lib/town/handing), on both its pages with a steady hand each, until it is
+ * gone from both. Says whether it came up on both.
+ */
+export async function playTwo(X, Y, ms = 30000) {
+  const up = await Promise.all([until("the board of whoever pours", async () => (await gameUp(X)) === "handing", 8000, 40).catch(() => null), until("the board of whoever takes", async () => (await gameUp(Y)) === "handing", 8000, 40).catch(() => null)]);
+  if (!up[0] || !up[1]) return false;
+  await Promise.all([X.evaluate(`${G}?.auto?.(true)`), Y.evaluate(`${G}?.auto?.(true)`)]);
+  await Promise.all([gameGone(X, ms), gameGone(Y, ms)]);
+  return true;
 }
 
 /** Make one miss at the game that is up, on purpose. Says whether one was made. */

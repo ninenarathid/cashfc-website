@@ -68,6 +68,24 @@ export async function browser(label, size = { width: 1280, height: 860 }, flags 
       tabs.push(other);
       return other;
     },
+    /**
+     * Another window of this browser: the same storage for the site, its own session, and **drawn as often as the
+     * first** (of two tabs of one window only the one in front is: the other gets a frame now and then, which is
+     * enough to stand about in but not to play a game for two in: town-handing).
+     */
+    async window(name, winSize = size) {
+      const v = await (await fetch(`http://127.0.0.1:${port}/json/version`)).json();
+      const b = new WebSocket(v.webSocketDebuggerUrl);
+      await new Promise((r) => (b.onopen = r));
+      const made = new Promise((r) => (b.onmessage = (ev) => { const m = JSON.parse(ev.data); if (m.id === 1) r(m.result); }));
+      b.send(JSON.stringify({ id: 1, method: "Target.createTarget", params: { url: "about:blank", newWindow: true } }));
+      const { targetId } = await made;
+      try { b.close(); } catch {}
+      const t = (await (await fetch(`http://127.0.0.1:${port}/json/list`)).json()).find((p) => p.id === targetId);
+      const other = await attach(name, t.webSocketDebuggerUrl, winSize);
+      tabs.push(other);
+      return other;
+    },
     /** Headless Chrome's own shutdown, which does not run the page's handlers. */
     async quit() {
       const v = await (await fetch(`http://127.0.0.1:${port}/json/version`)).json();

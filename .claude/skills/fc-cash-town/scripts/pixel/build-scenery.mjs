@@ -103,6 +103,10 @@ const SHEETS = [
   // the second on the first's ground point (its lid thrown back makes it wider on one side: by the middle of its own
   // box it would jump sideways when it opens)
   ["scene-storebox", ["storebox", "storeboxOpen"], "pair", undefined, [10.5, 14]],
+  // what water handed on is played on (lib/town/handing, components/town/TownHanding; the owner, 2026-10-06: "minigame ตอนส่งน้ำ
+  // เป็นแบบเล่นพร้อมกัน"): a lane by the river seen from the side, a scene filling its canvas, as the forest's games have.
+  // It is the town's and not the forest's: water is handed on in the town and on the farm
+  ["scene-town-game-handing", ["gameHanding"], "scene"],
 ];
 // The forest's own (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ"): its trees and what grows and lies under them,
 // the camp's things, the great tree of the deep woods, and the waterfall on its cliff.

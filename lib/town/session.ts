@@ -11,6 +11,7 @@ import { SHOP } from "./shop";
 import { SIGN, decodeSign, encodeSign, inReach, mayRaise, tidyTitle, type Sign } from "./sign";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import { CART, cartPace } from "./cart";
+import { readTold } from "./handing";
 import {
   BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, yardSeat, type Vec,
 } from "./world";
@@ -714,6 +715,21 @@ export class TownSession {
     }, wait));
   }
 
+  /**
+   * A game two people play together (lib/town/handing: water handed on): what the other says, as it came, for
+   * whoever shows the map; and saying something to them. Into one letterbox, never the room. With no map showing
+   * (another page of the site) nobody is there to play: whoever asks is told so.
+   */
+  onPair: ((from: string, data: unknown) => void) | null = null;
+  pair(to: string, data: unknown) {
+    if (!this.closed) this.current?.pair(to, data);
+  }
+  private heardPair(from: string, data: unknown) {
+    if (this.onPair) { this.onPair(from, data); return; }
+    const told = readTold(data);
+    if (told?.k === "ask") this.current?.pair(from, { k: "no", m: told.m, w: "away" });
+  }
+
   sendChat(raw: string): ChatResult {
     if (this.closed) return "offline";
     const text = cleanChat(raw);
@@ -828,6 +844,7 @@ export class TownSession {
       // (a voice line only with whoever I may hear: lib/town/circle. A page built before there were chat rooms asks everybody.)
       onSignal: (from, data) => { if (mine === this.gen && this.hearsNow(from)) void this.voice.receive(from, data as Signal); },
       onCircle: (from, word) => { if (live()) this.onCircle(from, word); },
+      onPair: (from, data) => { if (live()) this.heardPair(from, data); },
     }, { testTopic: this.testTopic, cancelled: () => !live(), doing: () => this.doing() });
     if (!r) return;
     if (!live()) { void r.leave(); return; }

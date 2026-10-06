@@ -27,7 +27,9 @@ import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
  *   · things meant for one person go to their letterbox, not the room:
  *     a private channel only they can read (v102). Those are the replies to
  *     `hi` and the two messages that connect two microphones. Sent to the
- *     room, each would be delivered to everybody.
+ *     room, each would be delivered to everybody. And what two people tell
+ *     each other while they play a game together (`pg`: lib/town/handing),
+ *     a few times a second for a few seconds.
  *
  * Nothing in any of it is stored. The room's name comes from the database
  * (town_topic), which tells it only to verified members, and the channels are
@@ -96,6 +98,8 @@ export interface RoomHandlers {
   onSignal(from: string, data: unknown): void;
   /** A word of a chat room, into my letterbox (raw: lib/town/circle reads it). */
   onCircle(from: string, word: unknown): void;
+  /** Somebody playing a game with me, or asking to, says something (raw: read it before believing it). */
+  onPair(from: string, data: unknown): void;
   /** Somebody did something the others will want to see (raw: a word for what, never the change itself, which each asks the database for). */
   onNudge(id: string, what: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
@@ -111,6 +115,8 @@ export interface Room {
   signal(to: string, data: unknown): void;
   /** A word of a chat room (lib/town/circle), into one person's letterbox: never to the room. */
   circle(to: string, word: Record<string, unknown>): void;
+  /** Into one person's letterbox: a word of a game the two of us play together. */
+  pair(to: string, data: unknown): void;
   /** Say that something of the town's game changed (the farm, the kitchen), to everybody; or, into one letterbox, that a deal with them did. */
   nudge(what: string, to?: string): void;
   bye(): void;
@@ -284,6 +290,10 @@ export async function joinTown(
     const p = payload as { from?: unknown; data?: unknown };
     if (typeof p?.from === "string" && p.from !== me.id) h.onSignal(p.from, p.data);
   });
+  box.on("broadcast", { event: "pg" }, ({ payload }) => {
+    const p = payload as { from?: unknown; data?: unknown };
+    if (typeof p?.from === "string" && p.from !== me.id) h.onPair(p.from, p.data);
+  });
 
   let roomUp = false;
   let boxUp = false;
@@ -348,6 +358,7 @@ export async function joinTown(
     chat(text) { return cast("chat", { id: me.id, t: text }); },
     signal(to, data) { post(to, "rtc", { from: me.id, data }); },
     circle(to, word) { post(to, "cr", { from: me.id, w: word }); },
+    pair(to, data) { post(to, "pg", { from: me.id, data }); },
     nudge(what, to) { if (to) post(to, "nd", { id: me.id, w: what }); else cast("nd", { id: me.id, w: what }); },
     bye() { cast("bye", { id: me.id }); },
     check() {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, lazy, useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
@@ -48,7 +48,7 @@ import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
-import type { Stander } from "./TownLine";
+import type { Pairing, Stander } from "./TownLine";
 import type { OpenDeal } from "./TownDeal";
 import type { FishPlace, LineState } from "./TownFish";
 import type { DishId, ItemId } from "@/lib/town/items";
@@ -674,7 +674,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const standers = useCallback((): Stander[] => {
     const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
     return (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
-      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null), wet: a.info.wet }));
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null), wet: a.info.wet, away: a.info.away }));
   }, []);
   /** Whether I am on the forest's map (what it has is looked at while I am), and its own way of drawing what lies and grows there. */
   const [onForest, setOnForest] = useState(false);
@@ -726,6 +726,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [me.id, testTopic, cap]);
   useEffect(() => { enter(); }, [enter]);
   useEffect(() => { sessionRef.current = session; }, [session]);
+  // A game two play together (water handed on: lib/town/handing): what the two pages tell each other goes by the
+  // room's letterboxes, from one to the other and to nobody else.
+  const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { session.onPair = fn; } } : null), [session]);
   // The room says when something of the game's changed, and the keeper asks the database for it; my own deeds are
   // said the same way. Only the word for what: never the change.
   useEffect(() => {
@@ -3765,8 +3768,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* A bucket line: water handed on to whoever stands within sight with a bucket, nearer the well */}
       {s && game && keeper && (
         <Suspense fallback={null}>
-          <TownLine keeper={keeper} me={keeper.id} th={w.th} people={standers}
-                    here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? standing?.tile ?? null : null}
+          <TownLine keeper={keeper} me={keeper.id} th={w.th} people={standers} pair={pairing} art={boardArt}
+                    here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                     bottom={phone && tabbar ? "calc(15.5rem + env(safe-area-inset-bottom))" : "11.5rem"} sfx={sfxRef.current} />
         </Suspense>
       )}

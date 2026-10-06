@@ -219,6 +219,9 @@ describe("whom a page offers the water to (the owner, 2026-10-05: \"การส
     expect(ids([one("bo", LINE.reach - 0.5, 0)])).toEqual(["bo"]);
     // a page built before it was told whether a bucket has water says nothing of it: offered (whoever keeps the game refuses a full one)
     expect(ids([one("bo", 2, 0, { wet: undefined })])).toEqual(["bo"]);
+    // handing water on is a game the two play together (lib/town/handing): whoever is looking at another page is not there to play
+    expect(ids([one("bo", 2, 0, { away: true })])).toEqual([]);
+    expect(ids([one("bo", 2, 0, { away: false })])).toEqual(["bo"]);
     // every kind of bucket takes water
     for (const id of Object.keys(WATER.buckets) as ItemId[]) expect(ids([one("bo", 2, 0, { hold: id })])).toEqual(["bo"]);
   });
@@ -243,6 +246,10 @@ describe("whom a page offers the water to (the owner, 2026-10-05: \"การส
     expect(lacks([one("bo", 2, 0, { wet: true, moving: true })])).toEqual(["bo", "full"]);
     expect(lacks([one("bo", 2, 0, { hold: null })])).toEqual(["bo", "bare"]);
     expect(lacks([one("bo", 2, 0, { hold: "can" })])).toEqual(["bo", "bare"]);
+    // standing there with an empty bucket, and looking at another page: said so (the water in their bucket first, and walking)
+    expect(lacks([one("bo", 2, 0, { away: true })])).toEqual(["bo", "away"]);
+    expect(lacks([one("bo", 2, 0, { away: true, wet: true })])).toEqual(["bo", "full"]);
+    expect(lacks([one("bo", 2, 0, { away: true, moving: true })])).toEqual(["bo", "walking"]);
     // somebody with a bucket before somebody with none, however near; of two alike, the nearer
     expect(lacks([one("bare", 1, 0, { hold: null }), one("full", 3, 0, { wet: true })])).toEqual(["full", "full"]);
     expect(lacks([one("far", 3, 0, { hold: null }), one("near", 1, 0, { hold: null })])).toEqual(["near", "bare"]);

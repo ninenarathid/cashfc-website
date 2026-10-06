@@ -23,8 +23,10 @@ import { GATES, WELL, placeOf, type Vec } from "./world";
  *   to the farm's well is some sixty-three: **two cannot reach, three can**
  *   (one by the water, one about the gate, one at the well). More make it
  *   easier to stand, and a line to the cooking yard's jar is shorter.
- * - Handing on costs a stamina and nothing else. With none left it is the
- *   short game of pouring, like any work with water.
+ * - Handing on costs a stamina and nothing else. **It is a game the two play
+ *   together** (lib/town/handing; the owner, 2026-10-06): the water is thrown
+ *   from the one bucket and has to be caught in the other, in under two
+ *   seconds. With no stamina left it is harder for whoever has none.
  * - **Everybody whose hands the water went through has carried it**: when it
  *   is poured, each of them is counted a bucketful in the well's book (their
  *   rank, the day's carriers, their work at the jar by the well), as the one
@@ -122,21 +124,25 @@ export const toWell = (p: Vec) => between(p, { x: WELL.x + 0.5, y: WELL.y + 0.5 
  * Somebody on the map, as a page has them: where, whether they are walking, what they hold in their hand, and whether
  * that has water in it (`wet`: not told by a page built before it was, and then nothing is known of it).
  */
-export interface Stander { id: string; name: string; x: number; y: number; moving: boolean; hold: ItemId | null; wet?: boolean }
-/** What somebody close by lacks to be handed water: they are walking, their bucket has water in it, or they hold no bucket. */
-export type Lack = "walking" | "full" | "bare";
+export interface Stander { id: string; name: string; x: number; y: number; moving: boolean; hold: ItemId | null; wet?: boolean; away?: boolean }
+/**
+ * What somebody close by lacks to be handed water: they are walking, their bucket has water in it, they hold no
+ * bucket, or they are not looking at the map (`away`: handing water on is a game the two play together,
+ * lib/town/handing, so whoever takes it has to be there).
+ */
+export type Lack = "walking" | "full" | "bare" | "away";
 
 /**
  * Whom the water in my bucket can be handed on to from where I stand, and, when there is nobody, who stands close by
  * and what they lack.
  *
- * - **Offered**: everybody within reach who stands still with a bucket in their hand that is not known to have water
+ * - **Offered**: everybody within reach who stands still, looking at the map, with a bucket in their hand that is not known to have water
  *   (a page built before `wet` was told says nothing of it: they are offered, and whoever keeps the game refuses a
  *   bucket that has some). Those nearer the well than I am come first, the nearest to it first: that is the way a
  *   line goes. Then the others, the nearest to me first: a friend beside me, a farmer at their bed. `OFFER.most` at
  *   the most.
- * - **Lacking**, only when nobody is offered: the nearest within `OFFER.beside` who holds a bucket and is walking or
- *   has water in it; failing that, the nearest who stands there with no bucket in their hand. The last is not said
+ * - **Lacking**, only when nobody is offered: the nearest within `OFFER.beside` who holds a bucket and is walking,
+ *   has water in it, or is looking at another page; failing that, the nearest who stands there with no bucket in their hand. The last is not said
  *   where those who stand about have come for something else (`quiet`: at the well and the yard's jar, where the
  *   water in my hand has a place of its own to go, and by the water it is drawn from, where the others are fishing).
  */
@@ -148,8 +154,8 @@ export function takers(me: string, at: Vec, people: Stander[], quiet = false): {
     const far = between(at, p);
     if (far > LINE.reach) continue;
     if (p.hold && p.hold in WATER.buckets) {
-      if (!p.moving && p.wet !== true) { const w = toWell(p); if (w < mine) forward.push([p, w]); else others.push([p, far]); }
-      else if (far <= OFFER.beside && (!held || far < held[1])) held = [p, far, p.wet === true ? "full" : "walking"];
+      if (!p.moving && p.wet !== true && !p.away) { const w = toWell(p); if (w < mine) forward.push([p, w]); else others.push([p, far]); }
+      else if (far <= OFFER.beside && (!held || far < held[1])) held = [p, far, p.wet === true ? "full" : p.moving ? "walking" : "away"];
     } else if (!quiet && !p.moving && far <= OFFER.beside && (!bare || far < bare[1])) bare = [p, far];
   }
   const nearest = (a: [Stander, number], b: [Stander, number]) => a[1] - b[1] || (a[0].id < b[0].id ? -1 : 1);

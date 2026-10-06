@@ -1,14 +1,16 @@
 // Cash Town's bucket line, tried in a real browser on the dev test room (the trial kept in the browser, `next dev`
-// only), by three testers in three tabs of one browser, who share its well:
+// only), by three testers in three windows of one browser, who share its well (windows, not tabs: handing water on is
+// a game the two play together, lib/town/handing, and of two tabs only the one in front is drawn often enough):
 //
 // - one draws at the river's nearest stretch, one stands about the gate, one at the farm's well, each with a bucket;
 // - with nobody near enough holding a bucket, nothing is offered; the one at the well is out of the river's reach;
-// - the one by the river is offered to hand the water on to the one about the gate, by name; it is in their bucket
-//   at once, and they are told; they hand it on through the gate to the one at the well, who pours it;
+// - the one by the river is offered to hand the water on to the one about the gate, by name; played by both (the
+//   game itself is town-handing's to try), it is in their bucket, and they are told; they hand it on through the gate
+//   to the one at the well, who pours it;
 // - the well's book counts a bucketful for each of the three, lists all three among the day's carriers, and says
 //   that water can be handed on;
 // - whoever is nearer the well is offered first, and then the others: a chip each; a bucket known to have water is
-//   not offered; with no stamina it is the short game;
+//   not offered; with no stamina it is the same game for two, with whoever has none marked tired;
 // - two side by side on the farm: the one with water is told what the other lacks (a bucket that has water, no
 //   bucket in the hand, walking), and is offered them once they stand still with an empty one, though they are the
 //   further from the well; and everybody's page is told whether a held bucket has water, and draws it so.
@@ -17,7 +19,7 @@
 //
 //   node town-line.mjs <base> <outdir>
 import { browser, sleep, status, until } from "./cdp.mjs";
-import { gameUp, play } from "./games.mjs";
+import { gameUp, play, playTwo } from "./games.mjs";
 
 const [BASE = "http://localhost:3100", OUT = "."] = process.argv.slice(2);
 let pass = 0, fail = 0;
@@ -47,10 +49,11 @@ async function chore(X, what) {
   await sleep(400);
   if (await gameUp(X)) { await play(X); await sleep(600); }
 }
-/** Hand the water on, when it is offered to that tester. */
-async function handOn(X, to) {
+/** Hand the water on, when it is offered to that tester: the game for two, played by a steady hand on both their pages. */
+async function handOn(X, to, To) {
   await until("handing on is offered", async () => (await X.evaluate(`${L}.next()`)) === to, 12000);
   await X.evaluate(`${L}.act()`);
+  if (!(await playTwo(X, To))) throw new Error("the game for two did not come up on both pages");
   await sleep(500);
 }
 
@@ -70,7 +73,7 @@ try {
   ok("a bucket drawn at the river, and nobody about: nothing to hand it on to", (await waterOf(X, "bucket")) === 1 && (await X.evaluate(`${L}.can()`)) === true && (await X.evaluate(`${L}.next()`)) === null && !(await there(X, "[data-line-chip]")));
 
   // the third stands at the well: out of the river's reach
-  const Z = await X.tab("LineC");
+  const Z = await X.window("LineC");
   await enter(Z, "U");
   await Z.evaluate(`(${T}.resize(10), ${T}.grant("bucketIron", 1), ${T}.setWell(0))`);
   const c = await Z.evaluate(`${T}.id`);
@@ -80,7 +83,7 @@ try {
   ok("somebody at the farm's well with a bucket is too far from the river: two cannot reach", (await X.evaluate(`${L}.next()`)) === null, await X.evaluate(`${L}.next()`));
 
   // the second stands about the gate
-  const Y = await X.tab("LineB");
+  const Y = await X.window("LineB");
   await enter(Y, "V");
   await Y.evaluate(`(${T}.resize(10), ${T}.grant("bucket", 1))`);
   const b = await Y.evaluate(`${T}.id`);
@@ -93,9 +96,9 @@ try {
   ok("the one about the gate, with an empty bucket, is offered nothing", (await Y.evaluate(`${L}.can()`)) === false && !(await there(Y, "[data-line-chip]")));
   await X.shot(`${OUT}/line-offer.png`);
   const before = await stamina(X);
-  await handOn(X, b);
+  await handOn(X, b, Y);
   await until("the water has gone over", async () => (await waterOf(Y, "bucket")) === 1, 8000);
-  ok("handed on: the water is in the other's bucket at once, mine is empty, and it cost me one stamina", (await waterOf(X, "bucket")) === 0 && before - (await stamina(X)) === 1 && /ส่งน้ำ 1 ถัง/.test((await X.evaluate(`${L}.note()`)) ?? ""), await X.evaluate(`${L}.note()`));
+  ok("handed on, the two having played it: the water is in the other's bucket, mine is empty, and it cost me one stamina", (await waterOf(X, "bucket")) === 0 && before - (await stamina(X)) === 1 && /ส่งน้ำ 1 ถัง/.test((await X.evaluate(`${L}.note()`)) ?? ""), await X.evaluate(`${L}.note()`));
   await until("the taker is told", () => there(Y, "[data-line-toast]"), 8000);
   ok("whoever takes it is told so on their map", /มีคนส่งน้ำมาให้/.test((await textOf(Y, "[data-line-toast]")) ?? ""), await textOf(Y, "[data-line-toast]"));
   await Y.shot(`${OUT}/line-taken.png`);
@@ -104,7 +107,7 @@ try {
   const two = await chips(Y);
   ok("…a chip for each: the first named in full, the next as another", two.length === 2 && /ส่งน้ำต่อให้/.test(two[0]) && /U/.test(two[0]) && /^หรือ/.test(two[1]) && /W/.test(two[1]), two);
   await Y.shot(`${OUT}/line-two.png`);
-  await handOn(Y, c);
+  await handOn(Y, c, Z);
   await until("the water is at the well", async () => (await waterOf(Z, "bucketIron")) === 1, 8000);
   ok("handed on through the gate: one bucketful in the iron bucket of the one at the well", (await waterOf(Y, "bucket")) === 0 && (await waterOf(Z, "bucketIron")) === 1);
   await until("the one at the well is offered the one about the gate", async () => (await Z.evaluate(`${L}.next()`)) === b, 12000).catch(() => {});
@@ -128,7 +131,7 @@ try {
 
   // a bucket that has water takes none
   await chore(X, "draw");
-  await handOn(X, b);
+  await handOn(X, b, Y);
   await until("the second has water again", async () => (await waterOf(Y, "bucket")) === 1, 8000);
   await chore(X, "draw");
   await until("the room has said that the second's bucket has water", async () => same(await heldBy(X, b), ["bucket", true]), 12000).catch(() => {});
@@ -138,16 +141,18 @@ try {
   ok("…and from as far off as the gate nothing is said of what they lack", (await X.evaluate(`${L}.lacks()`)) === null && !(await there(X, "[data-line-lacks]")), await X.evaluate(`${L}.lacks()`));
 
   // tired hands
-  await handOn(Y, c);
+  await handOn(Y, c, Z);
   await until("the third has it", async () => (await waterOf(Z, "bucketIron")) === 1, 8000);
   await X.evaluate(`${T}.spend(500)`);
   await sleep(400);
   await until("handing on is offered to tired hands", async () => (await X.evaluate(`${L}.next()`)) === b, 12000);
   await X.evaluate(`${L}.act()`);
-  await sleep(500);
-  ok("with no stamina left handing on is the short game of pouring", (await gameUp(X)) === "pouring" && (await waterOf(X, "bucket")) === 1, await gameUp(X));
+  await until("the board comes up on both", async () => (await gameUp(X)) === "handing" && (await gameUp(Y)) === "handing", 8000, 40).catch(() => {});
+  ok("with no stamina left it is the same game for two, whoever has none marked tired on both pages, and nothing handed on yet",
+     (await gameUp(X)) === "handing" && (await gameUp(Y)) === "handing" && (await X.evaluate(`${L}.match()`))?.tired.from === true && (await Y.evaluate(`${L}.match()`))?.tired.from === true && (await waterOf(X, "bucket")) === 1,
+     { x: await gameUp(X), y: await gameUp(Y), match: await X.evaluate(`${L}.match()`) });
   await X.shot(`${OUT}/line-tired.png`);
-  await play(X);
+  await playTwo(X, Y);
   await until("played, it goes over", async () => (await waterOf(Y, "bucket")) === 1, 8000);
   ok("…and played, the water goes over", (await waterOf(X, "bucket")) === 0);
 
@@ -175,7 +180,7 @@ try {
   for (let i = 0; i < 40 && !walking; i++) { const l = await Z.evaluate(`${L}.lacks()`); if (l?.why === "walking") walking = { ...l, chip: await there(Z, "[data-line-chip]") }; else await sleep(100); }
   ok("while they walk past they are not offered, and it says they have to stand still", same(walking, { who: b, why: "walking", chip: false }), walking);
   await until("stopped, they are offered again", async () => (await Z.evaluate(`${L}.next()`)) === b, 15000).catch(() => {});
-  await handOn(Z, b);
+  await handOn(Z, b, Y);
   await until("the water is in the iron bucket of the one beside", async () => (await waterOf(Y, "bucketIron")) === 1, 8000).catch(() => {});
   ok("stopped, they are offered again and the water goes over", (await waterOf(Y, "bucketIron")) === 1 && (await waterOf(Z, "bucketIron")) === 0);
   await until("everybody's page is told whose bucket has water", async () => same(await heldBy(Z, b), ["bucketIron", true]) && same(await heldBy(Y, c), ["bucketIron", false]), 12000).catch(() => {});
