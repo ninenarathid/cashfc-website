@@ -3,7 +3,7 @@
 //
 // Not on the list: the guard at the file's head (v123 has run); and the rules left to everybody (the file's `revoke`
 // taken out): six of the rules are new, so that one is on the list after all, the last.
-const all = ({ cut, swap }) => [
+const all = ({ swap }) => [
   ["a meal's hours take any number of helpings",
     swap("or (bowls->>meal)::int >= (town.cat('stamina')->>'bowls')::int then", "or false then"),
     ["sit_down: 620 cases", "a fourth in the same hours is refused, and nothing is lost"]],
@@ -79,10 +79,10 @@ const all = ({ cut, swap }) => [
     swap("    \"bowls\": 3,", "    \"bowls\": 2,"),
     ["the stamina row is written over: three helpings, four levels, and what each buff does at each", "sit_down: 620 cases"]],
   ["the odds of six arguments are left beside the new",
-    cut("drop function if exists town.odds(text, integer, boolean, boolean, boolean, text[]);\n"),
+    swap("drop function if exists town.odds(text, integer, boolean, boolean, boolean, text[]);\n", ""),
     ["the two as they were, of six and of seven arguments, are dropped"]],
   ["the new rules are left to everybody",
-    cut("revoke execute on all functions in schema town from public, anon, authenticated;\n"),
+    swap("revoke execute on all functions in schema town from public, anon, authenticated;\n", ""),
     ["no rule of the town's can be run by a browser"]],
 ];
 const list = (tools) => all(tools).slice(Number(process.env.FROM ?? 0), process.env.TO ? Number(process.env.TO) : undefined);

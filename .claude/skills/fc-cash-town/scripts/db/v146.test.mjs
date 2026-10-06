@@ -55,6 +55,20 @@ const luckyWas = (await one(`select town.odds('minnow', 21, false, true, false, 
 
 await t.runTwice(FILE, "v146");
 
+// (first of all: the odds and the cast as they were are gone. Left beside the new ones, a call that tells nothing of
+// luck would have two to choose from, and nothing after this would say anything: the stand-in was seen to stop there)
+const gone = await one(`select to_regprocedure('town.odds(text,integer,boolean,boolean,boolean,text[])') is null as odds, to_regprocedure('town.cast_line(text,integer,boolean,boolean,boolean,text[],double precision[])') is null as cast_`);
+t.check("the two as they were, of six and of seven arguments, are dropped", gone.odds && gone.cast_, gone);
+if (!gone.odds || !gone.cast_) { t.done(); process.exit(1); }
+
+/* ── who may run what, as the file leaves it (before this run puts a clock of its own in the town's schema) ── */
+t.section("who may run what");
+const open = await one(`select count(*)::int as n, coalesce(string_agg(p.proname, ', '), '') as names from pg_proc p where p.pronamespace = 'town'::regnamespace
+  and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'))`);
+t.check("no rule of the town's can be run by a browser", open.n === 0, open);
+const cast = await one(`select has_function_privilege('authenticated', 'public.town_cast(text, integer, integer, boolean)', 'execute') as member, has_function_privilege('anon', 'public.town_cast(text, integer, integer, boolean)', 'execute') as anon`);
+t.check("a member may cast, and nobody else", cast.member === true && cast.anon === false, cast);
+
 /* ── the catalog ── */
 t.section("the catalog's row");
 const stamina = (await one(`select data, updated_at > now() - interval '1 hour' as fresh from public.town_catalog where key = 'stamina'`));
@@ -109,8 +123,6 @@ for (const [mark, make] of Object.entries(MADE)) {
   const open = `-- <${mark}>\n`, a = FILE.indexOf(open), b = FILE.indexOf(`-- </${mark}>`);
   t.check(`${mark}: the file has it as build-v146 makes it`, a >= 0 && b > a && FILE.slice(a + open.length, b) === make() + "\n", a < 0 ? "no marked lines" : "the text between its marks differs");
 }
-const gone = await one(`select to_regprocedure('town.odds(text,integer,boolean,boolean,boolean,text[])') is null as odds, to_regprocedure('town.cast_line(text,integer,boolean,boolean,boolean,text[],double precision[])') is null as cast_`);
-t.check("the two as they were, of six and of seven arguments, are dropped", gone.odds && gone.cast_, gone);
 const luckyNow = await one(`select town.odds('minnow', 21, false, true, false, '{}') as untold, town.odds('minnow', 21, false, true, false, '{}', 0.5) as told, town.odds('minnow', 21, false, true, false, '{}', 2) as fourth,
   town.odds('minnow', 21, false, false, false, '{}', 2) as none, town.odds('minnow', 21, false, false, false, '{}') as plain`);
 t.check("what called the odds with nothing told of luck is answered as before", same(luckyNow.untold, luckyWas) && same(luckyNow.told, luckyWas), luckyNow.untold);
@@ -124,7 +136,7 @@ await t.sql(`
   insert into public.bench_clock default values;
   create or replace function town.now_ms() returns bigint language sql stable
   as $$ select floor(extract(epoch from now()) * 1000)::bigint + (select skew from public.bench_clock) $$;
-  revoke execute on all functions in schema town from public, anon, authenticated;
+  revoke execute on function town.now_ms() from public, anon, authenticated;
 `);
 const MIN = 60_000, HOUR = 3_600_000;
 const nowMs = async () => Number((await one(`select town.now_ms() as n`)).n);
@@ -210,13 +222,8 @@ await call(U.m2, "town_get_up", 0);
 p = await kept(U.m2);
 t.check("a helping left early raises nothing, and is one of the meal's three all the same", sat?.ok === true && same(p.buffs, [{ id: "hearty", level: 2, until: then + HOUR }]) && same(p.meals.bowls, [0, 3, 0]) && p.eating === null, { buffs: p.buffs, meals: p.meals });
 
-/* ── who may run what ── */
-t.section("who may run what");
-const open = await one(`select count(*)::int as n from pg_proc p where p.pronamespace = 'town'::regnamespace
-  and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'))`);
-t.check("no rule of the town's can be run by a browser", open.n === 0, open);
-const cast = await one(`select has_function_privilege('authenticated', 'public.town_cast(text, integer, integer, boolean)', 'execute') as member, has_function_privilege('anon', 'public.town_cast(text, integer, integer, boolean)', 'execute') as anon`);
-t.check("a member may cast, and nobody else", cast.member === true && cast.anon === false, cast);
+/* ── no write without its rows named ── */
+t.section("what the functions write");
 const bare = await bareWrites((q) => t.sql(q).then((r) => r.rows));
 t.check("no function writes without naming its rows", bare.length === 0, bare);
 
