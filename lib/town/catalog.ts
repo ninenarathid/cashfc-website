@@ -6,7 +6,7 @@ import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
-import { FORAGING, KINDS, SPOTS } from "./forest";
+import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
@@ -195,8 +195,11 @@ export function catalogOf() {
       kinds: KINDS,
       spots: SPOTS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]),
       reach: FORAGING.reach, decoy: FORAGING.decoy, decoys: FORAGING.decoys, hoes: HOES, misses: 30,
-      // ── gifts: forest ── (how near its member's way a squirrel fetches what lies on the ground)
+      // ── gifts: forest ── (how near its member's way a squirrel fetches what lies on the ground; and the secret places
+      // of the deep woods, for whoever wears the firefly lantern: their kinds, as `kinds` with the way of the second
+      // game (`then`), and the places themselves, whose numbers go on from the last of `spots`)
       squirrel: FORAGING.squirrel,
+      secret: { kinds: SECRET_KINDS, spots: SECRETS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]) },
     },
     /**
      * Insects (lib/town/insects): each of them in the order they are weighed (its habit, the haunts it keeps to, how

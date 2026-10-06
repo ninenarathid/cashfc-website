@@ -236,7 +236,7 @@ class TrialKeeper implements Keeper {
   }
 
   wild() { return this.trial.wild(); }
-  async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }
+  async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]>; lost?: boolean }>> { return this.trial.gatherDo(spot, at, went); }
   bugs() { return this.trial.bugs(); }
   async netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>> {
     return this.trial.netDo(haunt, at, went.misses, went.lure ?? null, name);

@@ -1,7 +1,7 @@
 import { HOES, roll } from "./farm";
 import { signsOf } from "./fishing";
-import { numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
-import type { ItemId } from "./items";
+import { harderFor, numberOf, useGift, usesLeft, wearing, works, type GiftRefusal } from "./gifts";
+import { ITEMS, type ItemId } from "./items";
 import { dayOf, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
@@ -155,6 +155,50 @@ export const FINDS: ItemId[] = [...new Set([...SPOT_KINDS.flatMap((k) => KINDS[k
 export interface Spot { id: number; kind: SpotKind; x: number; y: number; zone: Zone }
 
 /**
+ * The secret places of the deep woods (the forest's fourth rank: lib/town/gifts' charmFirefly). A few places on the
+ * far side of the stream that are there only for whoever wears the firefly lantern: nobody else is told of them,
+ * shown them, or given anything at them. They hold the forest's rare things, in turns as long as an afternoon.
+ *
+ * **A secret place takes two games running** (the owner's ladder, 2026-10-07: good things grow wiser): its own way
+ * of gathering, and then another (`then`), each to be done with not one miss. Win the first and the second begins;
+ * fail either, or leave it once it is begun, and the turn at that place is spent with nothing got. They are played
+ * with the hands alone (no hoe, no squirrel, no piglet): what counts there is the two games.
+ *
+ * - a **ring** of pale mushrooms on the forest floor: the true caps are chosen from among their look-alikes, and
+ *   then what the ring guards is dug out from under its middle;
+ * - a **bough** of an old tree where a sprite keeps its hoard: it is shaken down and caught, and then the true ones
+ *   are chosen from among what fell with them.
+ *
+ * Every number is mine.
+ */
+export type SecretKind = "ring" | "bough";
+/** A kind of secret place: as a kind of place is, with the way of its second game. */
+export interface SecretRule extends Kind { then: Gather }
+export const SECRET_KINDS: Record<SecretKind, SecretRule> = {
+  ring: { how: "choose", then: "dig", every: 240, chance: 0.5, shares: 3, cost: 4, finds: [
+    { item: "porcini", weight: 40, n: [2, 3] },
+    { item: "truffle", weight: 30, n: [1, 2] },
+    { item: "ginseng", weight: 14, n: [1, 1] },
+    { item: "glowMushroom", weight: 50, n: [2, 3], hours: [[19, 24], [0, 5]] },
+    { item: "mandrake", weight: 6, n: [1, 1], hours: [[19, 24], [0, 5]] },
+  ] },
+  bough: { how: "shake", then: "choose", every: 240, chance: 0.5, shares: 3, cost: 4, finds: [
+    { item: "silkCocoon", weight: 40, n: [1, 2] },
+    { item: "wildOrchid", weight: 30, n: [1, 2] },
+    { item: "amber", weight: 10, n: [1, 1] },
+    { item: "starShard", weight: 8, n: [1, 1], hours: [[19, 24], [0, 5]] },
+    { item: "moonflower", weight: 60, n: [1, 1], hours: [[19, 24], [0, 5]], moon: true },
+  ] },
+};
+export const SECRET_KIND_IDS = Object.keys(SECRET_KINDS) as SecretKind[];
+/** A secret place: as a place is. Its number goes on from the last of the places everybody has (so one book of who took what does for both). */
+export interface Secret { id: number; kind: SecretKind; x: number; y: number; zone: Zone }
+/** Any place of the forest: one everybody has, or a secret one. */
+export type Place = Spot | Secret;
+/** How many secret places of each kind (a ring on ground somebody stands on, a bough on one of the deep woods' own trees), and how far apart they are kept. */
+const HIDDEN = { ring: 3, bough: 3, apart: 9 };
+
+/**
  * How many places of each kind, in which parts of the forest, on what ground. A tree that bears is one of the
  * forest's own trees (lib/town/world's FOREST_PROPS) with open ground beside it; everything else is a tile somebody
  * can stand on.
@@ -183,7 +227,7 @@ const LAYOUT: Array<[kind: SpotKind, n: number, zones: Zone[], on: Ground[]]> = 
 /** The trees that bear: so many in the meadow at the wood's edge, so many further in. */
 const ORCHARD: Array<[n: number, zones: Zone[], trees: string[]]> = [[7, ["edge"], ["tree"]], [7, ["woods", "deep", "rise"], ["oak"]]];
 
-export const SPOTS: Spot[] = (() => {
+const LAID: { spots: Spot[]; secrets: Secret[] } = (() => {
   // what can be walked to from where the town's gate puts somebody
   const start = GATES.find((g) => g.leads === "forest")!.to, first: [number, number] = [Math.floor(start.x), Math.floor(start.y)];
   const open = new Set([first.join(",")]), queue = [first];
@@ -218,24 +262,55 @@ export const SPOTS: Spot[] = (() => {
       placed++;
     }
   }
-  return out;
+  // The secret places, after everything else and by a chance of their own (so that the places everybody has are
+  // where they always were): in the deep woods, away from every other place and far from each other.
+  let b = 20261007;
+  const rnd2 = () => { b = (b + 0x6d2b79f5) | 0; let t = Math.imul(b ^ (b >>> 15), 1 | b); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const secrets: Secret[] = [];
+  const lone = (x: number, y: number) => clear(x, y) && secrets.every((s) => Math.hypot(s.x - x, s.y - y) >= HIDDEN.apart);
+  const inside = (x: number, y: number) => x > FOREST.x + 2 && y > FOREST.y + 2 && x < FOREST.x + FOREST.w - 3 && y < FOREST.y + FOREST.h - 3;
+  const boughs = FOREST_PROPS.filter((p) => (p.kind === "oak" || p.kind === "pine") && zoneAt(p.x, p.y) === "deep" && inside(p.x, p.y));
+  for (let tries = 0, placed = 0; placed < HIDDEN.bough && tries < 4000 && boughs.length; tries++) {
+    const p = boughs[Math.floor(rnd2() * boughs.length)];
+    const beside = [[1, 0], [0, 1], [-1, 0], [0, -1]].some(([dx, dy]) => open.has(`${p.x + dx},${p.y + dy}`));
+    if (!beside || !lone(p.x, p.y)) continue;
+    secrets.push({ id: out.length + secrets.length, kind: "bough", x: p.x, y: p.y, zone: "deep" });
+    placed++;
+  }
+  for (let tries = 0, placed = 0; placed < HIDDEN.ring && tries < 4000; tries++) {
+    const x = FOREST.x + 2 + Math.floor(rnd2() * (FOREST.w - 4)), y = FOREST.y + 2 + Math.floor(rnd2() * (FOREST.h - 4));
+    if (!open.has(`${x},${y}`) || zoneAt(x, y) !== "deep" || groundAt(x, y) !== "wood" || !lone(x, y)) continue;
+    secrets.push({ id: out.length + secrets.length, kind: "ring", x, y, zone: "deep" });
+    placed++;
+  }
+  return { spots: out, secrets };
 })();
+export const SPOTS: Spot[] = LAID.spots;
+export const SECRETS: Secret[] = LAID.secrets;
+/** Whether a place's number is a secret place's. */
+export const isSecret = (id: number): boolean => id >= SPOTS.length && id < SPOTS.length + SECRETS.length;
+/** The place of a number, one everybody has or a secret one; none, for a number that is no place's. */
+export const placeAt = (id: number): Place | null => SPOTS[id] ?? SECRETS[id - SPOTS.length] ?? null;
+/** What a place is, as rules: its kind's. */
+export const ruleOf = (place: Pick<Place, "kind">): Kind => (KINDS as Record<string, Kind>)[place.kind] ?? (SECRET_KINDS as Record<string, Kind>)[place.kind];
+/** The two games a secret place takes, in their order; none, of a place everybody has. */
+export const gamesOf = (place: Pick<Place, "kind">): [Gather, Gather] | null => { const r = (SECRET_KINDS as Record<string, SecretRule | undefined>)[place.kind]; return r ? [r.how, r.then] : null; };
 
 /* ── what a place has ───────────────────────────────────────────────────── */
 
 const MINUTE = 60_000;
 /** The minute of its turn a place begins at: its own, so that the forest never changes all at once. */
-const phaseOf = (spot: Spot) => Math.floor(roll("phase", spot.id) * KINDS[spot.kind].every) * MINUTE;
+const phaseOf = (spot: Place) => Math.floor(roll("phase", spot.id) * ruleOf(spot).every) * MINUTE;
 /** The turn a place is in at a moment, and the moment a turn of its begins. */
-export const turnOf = (spot: Spot, now: number) => Math.floor((now + phaseOf(spot)) / (KINDS[spot.kind].every * MINUTE));
-export const turnStart = (spot: Spot, turn: number) => turn * KINDS[spot.kind].every * MINUTE - phaseOf(spot);
+export const turnOf = (spot: Place, now: number) => Math.floor((now + phaseOf(spot)) / (ruleOf(spot).every * MINUTE));
+export const turnStart = (spot: Place, turn: number) => turn * ruleOf(spot).every * MINUTE - phaseOf(spot);
 /** Whether the moon is full at a moment: as the river's fish have it (lib/town/fishing). */
 export const fullMoon = (now: number) => signsOf({ now, spent: false, others: 0, wet: 0 }, false).includes("full");
 /** Whether a day is one of a rare thing's own. */
 export const isDayOf = (salt: string, item: ItemId, chance: number, now: number) => roll(`${salt}:day:${item}`, dayOf(now)) < chance;
 
 /** Whether a find may be at a place in the turn that begins at a moment. */
-function fits(f: Find, spot: Spot, at: number, salt: string, rains: readonly Rain[]): boolean {
+function fits(f: Find, spot: Place, at: number, salt: string, rains: readonly Rain[]): boolean {
   if (f.zones && !f.zones.includes(spot.zone)) return false;
   if (f.hours) { const h = ((((at + BANGKOK) % DAY) + DAY) % DAY) / HOUR; if (!f.hours.some(([a, b]) => h >= a && h < b)) return false; }
   if (f.rain && wetMs(rains, at - f.rain * HOUR, at) <= 0) return false;
@@ -251,8 +326,8 @@ export interface Held { turn: number; item: ItemId; n: number }
  * What a place has now, or null for nothing: decided as its turn begins, by where it is, the hour, the sky and the
  * day then, and rolled from the keeper's word, the place and the turn. The same for everybody who looks.
  */
-export function holds(salt: string, spot: Spot, now: number, rains: readonly Rain[] = DRY): Held | null {
-  const kind = KINDS[spot.kind], turn = turnOf(spot, now), at = turnStart(spot, turn);
+export function holds(salt: string, spot: Place, now: number, rains: readonly Rain[] = DRY): Held | null {
+  const kind = ruleOf(spot), turn = turnOf(spot, now), at = turnStart(spot, turn);
   if (roll(`${salt}:has`, spot.id, turn) >= kind.chance) return null;
   const may = kind.finds.filter((f) => fits(f, spot, at, salt, rains));
   let left = roll(`${salt}:what`, spot.id, turn) * may.reduce((t, f) => t + f.weight, 0);
@@ -269,18 +344,39 @@ export interface Sight { id: number; item: ItemId | null; n: number }
 /**
  * Every place that has something for me now: something there this turn, with a share of it left, that I have not
  * taken from. `took` says, of a place's turn, how many have taken from it and whether I am one.
+ *
+ * `lit`: I wear the firefly lantern (lib/town/gifts' charmFirefly). Then what is buried is seen too, and the secret
+ * places of the deep woods are among the places: nobody else is told either.
  */
-export function sights(salt: string, now: number, rains: readonly Rain[], took: (spot: Spot, turn: number) => { n: number; mine: boolean }): Sight[] {
+export function sights(salt: string, now: number, rains: readonly Rain[], took: (spot: Place, turn: number) => { n: number; mine: boolean }, lit = false): Sight[] {
   const out: Sight[] = [];
-  for (const spot of SPOTS) {
+  for (const spot of lit ? [...SPOTS, ...SECRETS] : SPOTS) {
     const has = holds(salt, spot, now, rains);
     if (!has) continue;
-    const t = took(spot, has.turn);
-    if (t.mine || t.n >= KINDS[spot.kind].shares) continue;
-    out.push({ id: spot.id, item: KINDS[spot.kind].how === "dig" ? null : has.item, n: has.n });
+    const t = took(spot, has.turn), kind = ruleOf(spot);
+    if (t.mine || t.n >= kind.shares) continue;
+    out.push({ id: spot.id, item: kind.how === "dig" && !lit ? null : has.item, n: has.n });
   }
   return out;
 }
+/** Whether somebody's firefly lantern is lit: it is worn. */
+export const lanternLit = (purse: Pick<Purse, "gifts">): boolean => wearing(purse, "charmFirefly");
+
+/**
+ * How good a thing of the forest's is, by what the relatives pay for it: common, uncommon, or rare. What grows
+ * everywhere and lies about is common; what wants rain, the night, the deep woods or a hoe's luck is not.
+ */
+export type WildTier = "common" | "uncommon" | "rare";
+export const WILD_TIERS = { uncommon: 5, rare: 40 } as const;
+export const wildTier = (item: ItemId): WildTier => { const pays = ITEMS[item]?.pays ?? 0; return pays >= WILD_TIERS.rare ? "rare" : pays >= WILD_TIERS.uncommon ? "uncommon" : "common"; };
+/**
+ * How much harder a thing's game is for somebody with so many points on the forest's line (lib/town/gifts'
+ * harderFor: from the fourth rank, so much a rank): for what is uncommon or better, and 1 for what is common, and
+ * for a thing that is not known (what lies buried and unseen is dug as by anybody: how hard it is would tell what
+ * it is). What "harder" is, is each game's own: a patch that goes dim sooner (lib/town/choosing), fewer strokes to
+ * spare (lib/town/digging), fruit that falls quicker and closer together (lib/town/catching).
+ */
+export const harderOf = (item: ItemId | null, points: number): number => (item && wildTier(item) !== "common" ? harderFor("forest", points) : 1);
 
 /* ── gathering ──────────────────────────────────────────────────────────── */
 
@@ -289,12 +385,12 @@ export type ForestRefusal = "had" | "bare" | "far";
 /**
  * How a gathering's game went: what was missed (each is one fewer), and among mushrooms how many wrong ones were
  * taken. `with`: the gift it was asked to be done with, where the plain way was there to choose too (the piglet's
- * digging, "famPiglet").
+ * digging, "famPiglet"). `lost`: at a secret place, the two games were not both won (one was failed, or left).
  */
-export interface Outcome { misses: number; wrong: number; with?: string | null }
+export interface Outcome { misses: number; wrong: number; with?: string | null; lost?: boolean }
 
 /** Whether somebody on a tile is near enough a place to gather from it (`reach`: how far they reach, where it is not a tile). */
-export const reaches = (spot: Pick<Spot, "x" | "y">, at: readonly [number, number], reach: number = FORAGING.reach) => Math.max(Math.abs(at[0] - spot.x), Math.abs(at[1] - spot.y)) <= reach;
+export const reaches = (spot: Pick<Place, "x" | "y">, at: readonly [number, number], reach: number = FORAGING.reach) => Math.max(Math.abs(at[0] - spot.x), Math.abs(at[1] - spot.y)) <= reach;
 /**
  * Whether a squirrel fetches a kind of place's thing for somebody (lib/town/gifts' famSquirrel, the forest's second
  * rank): what lies on the ground, picked up with no game, while it follows them. It runs for it: from as far as it
@@ -323,21 +419,32 @@ export const mayGather = (kind: SpotKind, hand: ItemId | null) => KINDS[kind].ho
  * Asked of the piglet (`play.with`), what is buried is dug with no hoe held and one more comes out of the hole; it is
  * one of the piglet's holes of these hours, and refused when it has none left or does not follow (nothing is lost:
  * the hoe's way is still there).
+ *
+ * A secret place is there only for whoever wears the firefly lantern. Its two games won with not one miss, it gives
+ * all it has, and the place is in the record of those I have gathered from (`purse.forest.secrets`); anything else
+ * (`lost`) and my turn at it is spent for its stamina, with nothing got. It takes no hoe.
  */
-export function gather(purse: Purse, spot: Spot, has: Held | null, taken: number, mine: boolean, hand: ItemId | null, at: readonly [number, number], play: Outcome, now: number):
-  Done<{ purse: Purse; got: Array<[ItemId, number]> }> | { ok: false; why: ForestRefusal | GiftRefusal } {
-  const kind = KINDS[spot.kind];
-  if (!has) return no("none");
+export function gather(purse: Purse, spot: Place, has: Held | null, taken: number, mine: boolean, hand: ItemId | null, at: readonly [number, number], play: Outcome, now: number):
+  Done<{ purse: Purse; got: Array<[ItemId, number]>; lost?: boolean }> | { ok: false; why: ForestRefusal | GiftRefusal } {
+  const kind = ruleOf(spot), secret = isSecret(spot.id);
+  if (!has || (secret && !lanternLit(purse))) return no("none");
   if (mine) return { ok: false, why: "had" };
   if (taken >= kind.shares) return { ok: false, why: "bare" };
   if (!reaches(spot, at, reachOf(purse, kind.how))) return { ok: false, why: "far" };
+  if (secret) {
+    const spent = spend(purse, kind.cost, now);
+    if (play.lost || Math.floor(play.misses) > 0 || Math.floor(play.wrong) > 0) return { ok: true, purse: spent, got: [], lost: true };
+    if (roomFor(purse.bag, has.item) < has.n) return no("full");
+    const found = Array.isArray(purse.forest?.secrets) ? purse.forest.secrets : [];
+    return { ok: true, purse: { ...spent, bag: put(purse.bag, has.item, has.n), forest: { ...purse.forest, secrets: found.includes(spot.id) ? found : [...found, spot.id].sort((x, y) => x - y) } }, got: [[has.item, has.n]] };
+  }
   const piglet = kind.how === "dig" && play.with === "famPiglet";
   let mine_ = purse;
   if (piglet) {
     const used = useGift(purse, "famPiglet", now);
     if (!used.ok) return { ok: false, why: used.why };
     mine_ = used.purse;
-  } else if (!mayGather(spot.kind, hand)) return no("tool");
+  } else if (!mayGather(spot.kind as SpotKind, hand)) return no("tool");
   const n = Math.max(1, has.n - Math.max(0, Math.floor(play.misses))) + (piglet ? numberOf("famPiglet") : 0);
   const wrong = spot.kind === "mushrooms" ? Math.min(FORAGING.decoys, Math.max(0, Math.floor(play.wrong))) : 0;
   if (roomFor(purse.bag, has.item) < n) return no("full");

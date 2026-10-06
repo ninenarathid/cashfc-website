@@ -37,11 +37,11 @@ function draw(seed: number): [number, number] {
   return [((t ^ (t >>> 14)) >>> 0) / 4294967296, a];
 }
 
-/** Begin a shaking with so many wanted. */
-export function startShower(need: number, spent: boolean, seed: number, eye: boolean | number = false): Shower {
+/** Begin a shaking with so many wanted. `harder`: how much harder it is for whoever catches (1: as for anybody; lib/town/forest's harderOf): the fruit falls so much quicker, and so much closer together. */
+export function startShower(need: number, spent: boolean, seed: number, eye: boolean | number = false, harder = 1): Shower {
   // (under the fountain's forest eye, one more falls than is wanted)
-  const want = Math.max(1, Math.floor(need)), n = want + (spent ? CATCHING.tiredSpare : CATCHING.spare) + eyes(eye);
-  const fall = spent ? CATCHING.tiredFall : CATCHING.fall, gap = spent ? CATCHING.tiredGap : CATCHING.gap;
+  const want = Math.max(1, Math.floor(need)), n = want + (spent ? CATCHING.tiredSpare : CATCHING.spare) + eyes(eye), hard = Math.max(1, harder);
+  const fall = (spent ? CATCHING.tiredFall : CATCHING.fall) / hard, gap = (spent ? CATCHING.tiredGap : CATCHING.gap) / hard;
   let s = seed | 0, last = -1;
   const drops: Drop[] = [];
   for (let i = 0; i < n; i++) {

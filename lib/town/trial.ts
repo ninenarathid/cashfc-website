@@ -3,7 +3,7 @@ import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { backBait, hookBait, landCatch, loseBait } from "./fishing";
-import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
+import { gather, holds, lanternLit, placeAt, ruleOf, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
 import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
@@ -540,24 +540,24 @@ export class Trial {
   private took(): Record<string, string[]> {
     return this.read<Record<string, string[]>>(WILD_TOOK, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
   }
-  /** Every place of the forest that has something for me now. */
+  /** Every place of the forest that has something for me now (with the firefly lantern worn: what is buried too, and the secret places). */
   wild(): Sight[] {
     const took = this.took();
-    return sights(this.salt(), this.now(), SKIES.rains(), (spot, turn) => { const who = took[`${spot.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; });
+    return sights(this.salt(), this.now(), SKIES.rains(), (spot, turn) => { const who = took[`${spot.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; }, lanternLit(this.purse()));
   }
-  /** Gather what a place has, from the tile I stand on, with how its game went. Says what came of it, or why not. */
-  gatherDo(id: number, at: [number, number], went: Outcome): { ok: true; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | ForestRefusal | GiftRefusal } {
-    const spot = SPOTS[id];
+  /** Gather what a place has, from the tile I stand on, with how its game went. Says what came of it, or why not (`lost`: a secret place's games were not both won, and my turn at it is spent). */
+  gatherDo(id: number, at: [number, number], went: Outcome): { ok: true; got: Array<[ItemId, number]>; lost?: boolean } | { ok: false; why: Refusal | ForestRefusal | GiftRefusal } {
+    const spot = placeAt(id);
     if (!spot) return no("none");
     const now = this.now(), has = holds(this.salt(), spot, now, SKIES.rains()), took = this.took(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];
     const did = gather(this.purse(), spot, has, who.length, who.includes(this.id), handOf(this.purse()), at, went, now);
     if (!did.ok) return did;
     // (turns gone by are forgotten: only what the places have now is kept)
-    const kept = Object.fromEntries(Object.entries(took).filter(([k]) => { const [s, t] = k.split(":").map(Number); return !!SPOTS[s] && t >= turnOf(SPOTS[s], now); }));
+    const kept = Object.fromEntries(Object.entries(took).filter(([k]) => { const [s, t] = k.split(":").map(Number), p = placeAt(s); return !!p && t >= turnOf(p, now); }));
     this.write(WILD_TOOK, { ...kept, [key]: [...who, this.id] });
     this.save(did.purse);
-    if (did.got[0]) this.counted({ from: "deed", what: "gather", thing: did.got[0][0], n: did.got[0][1], doc: { how: KINDS[spot.kind].how, kind: spot.kind } });
-    return { ok: true, got: did.got };
+    if (did.got[0]) this.counted({ from: "deed", what: "gather", thing: did.got[0][0], n: did.got[0][1], doc: { how: ruleOf(spot).how, kind: spot.kind } });
+    return { ok: true, got: did.got, ...(did.lost ? { lost: true } : {}) };
   }
   /** For scripts trying things out: the word the forest's rolls hang on, as it is told (so that what a place has can be known beforehand). */
   setSalt(word: string) { this.set(WILD_SALT, word); this.set(WILD_TOOK, null); this.set(BUG_TOOK, null); this.set(BUG_BACK, null); this.set(BUG_HUNTS, null); this.tell(); }

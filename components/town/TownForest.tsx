@@ -2,7 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FARMING } from "@/lib/town/farm";
-import { FORAGING, KINDS, SPOTS, fetches, gameFor, mayGather, pigletDigs, reachOf, reaches, type Gather, type Sight, type Spot } from "@/lib/town/forest";
+import {
+  FORAGING, SECRETS, fetches, gameFor, gamesOf, harderOf, isSecret, lanternLit, mayGather, pigletDigs, placeAt, reachOf, reaches, ruleOf,
+  type ForestGame, type Gather, type Place, type SecretKind, type Sight, type SpotKind,
+} from "@/lib/town/forest";
 import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
@@ -17,6 +20,7 @@ import TownCatching from "./TownCatching";
 import TownChoosing from "./TownChoosing";
 import TownDigging from "./TownDigging";
 import type { FarmDraw } from "./TownFarm";
+import TownForestChart from "./TownForestChart";
 import type { GameResult } from "./TownGame";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownSteady from "./TownSteady";
@@ -27,11 +31,14 @@ import { Vfx, type VfxKind } from "./vfx";
 const VERB: Record<Gather, [th: string, en: string]> = {
   pick: ["เก็บ", "Pick up"], choose: ["เลือกเก็บ", "Gather"], dig: ["ขุด", "Dig"], shake: ["เขย่าต้นไม้", "Shake the tree"],
 };
+/** What a secret place of the deep woods is called, on its button and on its games' board. */
+const SECRET: Record<SecretKind, [th: string, en: string]> = { ring: ["วงเห็ดของภูต", "A sprite's ring"], bough: ["กิ่งของภูต", "A sprite's bough"] };
 const WHY_FOREST: Record<string, [string, string]> = {
   had: ["เก็บจากตรงนี้ไปแล้ว", "You have gathered here already"], bare: ["ไม่เหลือแล้ว", "There is none left"], far: ["ยืนไกลเกินไป", "Too far to reach"],
   none: ["ไม่มีอะไรแล้ว", "Nothing is here any more"], tool: ["ของในมือขุดไม่ได้", "What you hold does not dig"],
   shaky: ["หมดแรง มือสั่นจนเก็บไม่ขึ้น", "Too tired: your hands shake, and it comes to nothing"],
   spent: ["หมูน้อยเหนื่อยแล้ว ขอพักก่อน", "The piglet is worn out for now"],
+  lost: ["มันหายวับไปกับแสงหิ่งห้อย", "It is gone, with the fireflies"],
 };
 /** What flies up at each way of gathering, and what it sounds like. */
 const FX: Record<Gather, [VfxKind, WorkSound]> = { pick: ["leaves", "rustle"], choose: ["leaves", "pick"], dig: ["soil", "pull"], shake: ["leaves", "pick"] };
@@ -45,6 +52,8 @@ const iconFor = (item: ItemId | null): IconName => {
   const name = item ? iconOf(item) : "mound";
   return (name in ICON_ATLAS.icons ? name : "mound") as IconName;
 };
+/** What is being done at a place: its game, the tile it was begun from, whether the piglet does it, and at a secret place which of its two games this is and how long the first took. */
+interface Working { spot: Place; sight: Sight; game: ForestGame; from: [number, number]; pig?: boolean; stage?: 0 | 1; secs?: number }
 
 /**
  * The forest's things, to gather (the owner, 2026-10-05: "หาของป่า … สามารถเดินเข้าไปเก็บของป่าที่จะ spawn ออกมาเป็นช่วงเวลา …
@@ -53,6 +62,11 @@ const iconFor = (item: ItemId | null): IconName => {
  * (which is not told until it is dug out). Standing at one, gathering it is offered as one button, when the hand
  * can do it: a hoe for what is dug, anything for the rest. Each way of gathering is a game of its own; picking
  * something up off the ground is none, but for tired hands.
+ *
+ * The gifts of the forest's ranks (lib/town/gifts) are seen here: a squirrel fetches what lies on the ground as I
+ * walk past; a piglet digs with no hoe; and the firefly lantern shows what every place holds at any hour (a glint of
+ * fireflies over each, what lies buried, the whole forest on a chart) and the secret places of the deep woods, which
+ * take two games running.
  *
  * What is kept is the keeper's (lib/town/keeper): in `next dev`'s test room the browser's trial, one forest for
  * the browser.
@@ -83,9 +97,9 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   }, [keeper, near]);
   // (what the forest has is asked for while I am in it)
   useEffect(() => (near ? keeper.look("wild") : undefined), [near, keeper]);
-  const [working, setWorking] = useState<{ spot: Spot; sight: Sight; game: NonNullable<ReturnType<typeof gameFor>>; pig?: boolean } | null>(null);
+  const [working, setWorking] = useState<Working | null>(null);
   const [note, setNote] = useState<string | null>(null);
-  /** Whose doing the note is of: the squirrel's, when it fetched the thing (its picture goes beside the words). */
+  /** Whose doing the note is of: the squirrel's, when it fetched the thing; the piglet's; the lantern's (its picture goes beside the words). */
   const [noteBy, setNoteBy] = useState<IconName | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => { setNote(null); setNoteBy(null); }, 2600); return () => clearTimeout(t); }, [note]);
   const vfx = useMemo(() => new Vfx(), []);
@@ -97,11 +111,14 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   useEffect(() => {
     register((frame) => {
       const { ctx, things, project, onScreen, s, now: t, img, still, self, dark, over } = frame;
-      // (where I am this frame, walking or not: the squirrel fetches what I pass)
+      // (where I am this frame, walking or not: the squirrel fetches what I pass; and whether the town stands still)
       selfAt.current = self;
+      stillNow.current = still;
       // (in the dark, what can be gathered within the lamp's light glints: on my own screen, and nothing more is found for it)
       const reach = (dark ?? 0) > 0.3 && self ? lamp.current : 0;
-      let lit = 0;
+      // (the firefly lantern: every place with something has fireflies over it, at any hour and however far; and in the dark it is seen as by day)
+      const lit = lantern.current, night = Math.max(0, Math.min(1, ((dark ?? 0) - 0.15) / 0.5));
+      let glinting = 0, flies = 0;
       vfx.draw(frame);
       if (!img?.complete || !img.naturalWidth) return;
       const blit = (name: IconName, at: Vec, lift = 0, k = SIZE * s) => {
@@ -111,34 +128,71 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(img, x, y, w, h, Math.round(at.x - (w * k) / 2), Math.round(at.y - h * k + 5 * s - lift), w * k, h * k);
       };
+      /** A few fireflies about a point: each a bright speck in a soft halo, drifting on its own beat, glowing and going dim. Drawn over the dark. */
+      const fireflies = (at: Vec, n: number, wide: number, up: number, seed: number) => over?.(() => {
+        const d = Math.max(2, Math.round(1.6 * s));
+        for (let i = 0; i < n; i++) {
+          const beat = seed * 1.7 + i * 2.39, tt = still ? beat : t / 950 + beat;
+          const x = Math.round(at.x + Math.cos(tt * 1.3 + i) * wide * s * (0.45 + 0.55 * Math.sin(tt * 0.61 + i * 1.9)));
+          const y = Math.round(at.y - (up + 7 * Math.sin(tt * 0.83 + i * 0.7) + i * 2.5) * s);
+          const a = still ? 0.9 : 0.25 + 0.75 * Math.max(0, Math.sin(tt * 2.1 + i * 1.31));
+          ctx.fillStyle = `rgba(190,255,90,${(a * 0.28).toFixed(3)})`;
+          ctx.fillRect(x - d, y - d, 3 * d, 3 * d);
+          ctx.fillStyle = `rgba(232,255,160,${a.toFixed(3)})`;
+          ctx.fillRect(x, y, d, d);
+        }
+      });
       for (const sight of seen.current) {
-        const spot = SPOTS[sight.id];
+        const spot = placeAt(sight.id);
         if (!spot) continue;
         const at = project({ x: spot.x + 0.5, y: spot.y + 0.5 });
         if (!onScreen(at)) continue;
-        const icon = iconFor(sight.item), fruit = spot.kind === "fruit", rare = !!sight.item && ITEMS[sight.item].pays >= RARE;
-        if (!fruit && reach > 0 && Math.hypot(spot.x + 0.5 - self!.x, spot.y + 0.5 - self!.y) <= reach) lit++;
-        // (fruit hangs in the crown of its tree, in front of it; everything else lies at its place)
-        things.push({ depth: spot.x + spot.y + (fruit ? 1.05 : 0.6), draw: () => {
-          if (fruit) {
+        const icon = iconFor(sight.item), secret = isSecret(spot.id), how = ruleOf(spot).how;
+        const fruit = spot.kind === "fruit" || spot.kind === "bough", rare = !!sight.item && ITEMS[sight.item].pays >= RARE;
+        if (!fruit && reach > 0 && Math.hypot(spot.x + 0.5 - self!.x, spot.y + 0.5 - self!.y) <= reach) glinting++;
+        /** The thing as it is drawn at its place (`glow`: again over the night's dark, as bright as by day, for the lantern's wearer). */
+        const paint = (glow: boolean) => {
+          if (spot.kind === "ring") {
+            // a ring of pale caps about the place, the far ones first, and what it guards in its middle
+            const ring = iconFor("glowMushroom");
+            for (let i = 0; i < 8; i++) {
+              const turn = Math.PI * (1.25 + i * 0.25);
+              blit(ring, { x: at.x + Math.cos(turn) * 21 * s, y: at.y + Math.sin(turn) * 10.5 * s }, 0, SIZE * s * 0.5);
+              if (i === 3) blit(icon, at, (10 + (still ? 0 : Math.sin(t / 600 + spot.id) * 2)) * s, SIZE * s * 0.85);
+            }
+          } else if (fruit) {
+            // (fruit hangs in the crown of its tree, in front of it; a sprite's hoard on its bough the same)
             for (const [dx, up] of [[-14, 58], [10, 66], [2, 46]]) blit(icon, { x: at.x + dx * s, y: at.y }, (up + (still ? 0 : Math.sin(t / 700 + spot.id + dx) * 1.5)) * s, SIZE * s * 0.62);
           } else {
-            blit(icon, at);
-            // (the lamp's glint on it: over the night's dark, where it shows)
-            if (reach > 0 && Math.hypot(spot.x + 0.5 - self!.x, spot.y + 0.5 - self!.y) <= reach) {
-              over?.(() => {
-                const d = Math.max(2, Math.round(2.5 * s)), gx = Math.round(at.x + 9 * s), gy = Math.round(at.y - 24 * s);
-                ctx.fillStyle = `rgba(255,236,170,${(still ? 0.9 : 0.5 + 0.45 * Math.sin(t / 380 + spot.id * 1.7)).toFixed(3)})`;
-                ctx.fillRect(gx - d, gy, 3 * d, d);
-                ctx.fillRect(gx, gy - d, d, 3 * d);
-              });
-            }
-            if (sight.n > 1 && KINDS[spot.kind].how !== "dig") blit(icon, { x: at.x + 11 * s, y: at.y + 3 * s }, 0, SIZE * s * 0.8);
+            blit(how === "dig" ? "mound" : icon, at);
+            if (sight.n > 1 && how !== "dig") blit(icon, { x: at.x + 11 * s, y: at.y + 3 * s }, 0, SIZE * s * 0.8);
+            // (what lies buried, for whoever sees it: over its mound)
+            if (how === "dig" && sight.item) blit(icon, { x: at.x, y: at.y }, (22 + (still ? 0 : Math.sin(t / 520 + spot.id) * 2)) * s, SIZE * s * 0.7);
           }
-          if (rare && (still || Math.floor(t / 420 + spot.id) % 3 !== 0)) blit("plotShine", { x: at.x + 9 * s, y: at.y }, 18 * s, SIZE * s * 0.8);
+          if (!glow && rare && (still || Math.floor(t / 420 + spot.id) % 3 !== 0)) blit("plotShine", { x: at.x + 9 * s, y: at.y }, 18 * s, SIZE * s * 0.8);
+        };
+        things.push({ depth: spot.x + spot.y + (fruit ? 1.05 : 0.6), draw: () => {
+          paint(false);
+          // (the lamp's glint on it: over the night's dark, where it shows)
+          if (!fruit && reach > 0 && Math.hypot(spot.x + 0.5 - self!.x, spot.y + 0.5 - self!.y) <= reach) {
+            over?.(() => {
+              const d = Math.max(2, Math.round(2.5 * s)), gx = Math.round(at.x + 9 * s), gy = Math.round(at.y - 24 * s);
+              ctx.fillStyle = `rgba(255,236,170,${(still ? 0.9 : 0.5 + 0.45 * Math.sin(t / 380 + spot.id * 1.7)).toFixed(3)})`;
+              ctx.fillRect(gx - d, gy, 3 * d, d);
+              ctx.fillRect(gx, gy - d, d, 3 * d);
+            });
+          }
         } });
+        if (lit) {
+          flies++;
+          if (night > 0) over?.(() => { ctx.save(); ctx.globalAlpha = night; paint(true); ctx.restore(); });
+          fireflies({ x: at.x, y: at.y }, secret ? 7 : 2, secret ? 24 : 9, fruit ? 50 : secret ? 16 : 12, spot.id + 1);
+        }
       }
-      glints.current = lit;
+      // (and a few about my own doll: the lantern is lit)
+      if (lit && self) fireflies(project({ x: self.x, y: self.y }), 3, 13, 26, 0.5);
+      glints.current = glinting;
+      fliesOver.current = flies;
     });
     return () => register(null);
   }, [register, vfx]);
@@ -151,27 +205,49 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   // (the forest walker's lamp worn as a charm: how far its light reaches about me, in tiles; none without it. lib/town/gifts)
   const lamp = useRef(0), glints = useRef(0);
   lamp.current = charmBy(purse, "charmLamp", 0);
+  // (the firefly lantern worn: what every place holds is seen at any hour, the buried things and the secret places too)
+  const lit = near && lanternLit(purse), lantern = useRef(false), fliesOver = useRef(0), stillNow = useRef(false);
+  lantern.current = lit;
+  // (worn or taken off: what the forest has for me is asked for again, since it is not the same)
+  const wasLit = useRef<boolean | null>(null);
+  useEffect(() => { if (wasLit.current !== null && wasLit.current !== lit && near) keeper.nudged("wild"); wasLit.current = lit; }, [lit, near, keeper]);
+  const [chart, setChart] = useState(false);
+  useEffect(() => { if (!lit) setChart(false); }, [lit]);
+  /** My points on the forest's line: its good things are harder for a practised hand (lib/town/forest's harderOf). */
+  const points = keeper.lines()?.lines.forest.points ?? 0;
   // (a truffle piglet at my heels digs with no hoe held, so many holes to these hours: lib/town/forest's pigletDigs)
   const piglet = pigletDigs(purse, keeper.now());
-  const here = tile && near ? seen.current.map((sight) => ({ sight, spot: SPOTS[sight.id] }))
-    .filter(({ spot }) => spot && reaches(spot, tile, reachOf(purse, KINDS[spot.kind].how)) && (mayGather(spot.kind, hand) || (piglet && KINDS[spot.kind].how === "dig")))
+  const here = tile && near ? seen.current.flatMap((sight) => { const spot = placeAt(sight.id); return spot ? [{ sight, spot }] : []; })
+    .filter(({ spot }) => reaches(spot, tile, reachOf(purse, ruleOf(spot).how)) && (isSecret(spot.id) || mayGather(spot.kind as SpotKind, hand) || (piglet && ruleOf(spot).how === "dig")))
     .sort((a, b) => Math.hypot(a.spot.x - tile[0], a.spot.y - tile[1]) - Math.hypot(b.spot.x - tile[0], b.spot.y - tile[1]))[0] ?? null : null;
-  const hereId = here?.spot.id ?? -1;
-  /** Of what is offered here: whether my own hands can do it, and whether the piglet can. */
-  const byHand = !!here && mayGather(here.spot.kind, hand), byPig = !!here && piglet && KINDS[here.spot.kind].how === "dig";
+  const hereId = here?.spot.id ?? -1, hereSecret = !!here && isSecret(here.spot.id), hereHow = here ? ruleOf(here.spot).how : "pick";
+  /** Of what is offered here: whether my own hands can do it, and whether the piglet can. (A secret place is for the hands alone.) */
+  const byHand = !!here && (hereSecret || mayGather(here.spot.kind as SpotKind, hand)), byPig = !!here && !hereSecret && piglet && hereHow === "dig";
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const say = useCallback((why: string) => { const w = WHY_FOREST[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
   /** Gather from a place, and say what came of it. */
-  const act = useCallback(async (spot: Spot, at: [number, number], went: { misses: number; wrong: number; secs?: number; with?: string }) => {
+  const act = useCallback(async (spot: Place, at: [number, number], went: { misses: number; wrong: number; secs?: number; with?: string; lost?: boolean }) => {
     const did = await keeper.gatherDo(spot.id, at, went);
     if (!did.ok) { say(did.why); return; }
-    setNoteBy(went.with === "famPiglet" ? ("famPiglet" as IconName) : null);
-    setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · "));
-    const how = KINDS[spot.kind].how, [fx, sound] = FX[how], where = { x: spot.x + 0.5, y: spot.y + 0.5 };
+    const secret = isSecret(spot.id), where = { x: spot.x + 0.5, y: spot.y + 0.5 };
     sfx?.wake();
+    if (did.lost) {
+      // (a secret place's games not both won: my turn at it is spent, and it is gone)
+      setNoteBy("charmFirefly" as IconName);
+      say("lost");
+      sfx?.work("wrong");
+      vfx.add("mist", where);
+      return;
+    }
+    setNoteBy(went.with === "famPiglet" ? ("famPiglet" as IconName) : secret ? ("charmFirefly" as IconName) : null);
+    // (of a secret place, how many of them I have gathered from now: my own record)
+    const record = secret ? ` · ${th ? "จุดลับ" : "secret places"} ${keeper.purse().forest?.secrets?.length ?? 0}/${SECRETS.length}` : "";
+    setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ") + record);
+    const how = ruleOf(spot).how, [fx, sound] = FX[how];
     sfx?.work(sound);
     vfx.add(fx, where);
+    if (secret) vfx.add("sparkle", where);
     if (did.got.length) vfx.add("pop", where, { icon: did.got[0][0] });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the names are read when the thing is got
   }, [keeper, th, sfx, say, vfx]);
@@ -183,11 +259,11 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     const withPig = byPig && (pig || !byHand);
     if (!withPig && !byHand) return;
     // (what a squirrel fetches is no work of my hands: no game for it, tired or not)
-    const game = fetches(purse, KINDS[here.spot.kind].how) ? null : gameFor(KINDS[here.spot.kind].how, spent);
-    if (game) { setWorking({ ...here, game, pig: withPig }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
+    const game = fetches(purse, hereHow) ? null : gameFor(hereHow, spent);
+    if (game) { setWorking({ ...here, game, from: tile, pig: withPig, ...(hereSecret ? { stage: 0 as const } : {}) }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
     else void act(here.spot, tile, { misses: 0, wrong: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse is read when the button is pressed
-  }, [here, tile, spent, act, sfx, byHand, byPig]);
+  }, [here, tile, spent, act, sfx, byHand, byPig, hereSecret, hereHow]);
 
   /**
    * The squirrel at my heels fetches what lies on the ground as I pass it (lib/town/forest's `fetches`): looked for a
@@ -202,9 +278,10 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
       const me = selfAt.current;
       if (!me || fetching.current) return;
       const at: [number, number] = [Math.floor(me.x), Math.floor(me.y)], now = Date.now();
-      const sight = seen.current.find((x) => { const spot = SPOTS[x.id]; return !!spot && KINDS[spot.kind].how === "pick" && reaches(spot, at, FORAGING.squirrel) && (left.current.get(x.id) ?? 0) < now; });
-      if (!sight) return;
-      const spot = SPOTS[sight.id], where = { x: spot.x + 0.5, y: spot.y + 0.5 };
+      const sight = seen.current.find((x) => { const spot = placeAt(x.id); return !!spot && ruleOf(spot).how === "pick" && reaches(spot, at, FORAGING.squirrel) && (left.current.get(x.id) ?? 0) < now; });
+      const spot = sight ? placeAt(sight.id) : null;
+      if (!sight || !spot) return;
+      const where = { x: spot.x + 0.5, y: spot.y + 0.5 };
       fetching.current = true;
       sendPet?.({ x: spot.x, y: spot.y });
       try {
@@ -229,12 +306,21 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the names are read when the thing is got
   }, [squirrel, keeper, sendPet, sfx, vfx, say, th]);
 
+  /**
+   * Leave the work that is up. At a secret place, once its games are begun, leaving them is losing them: my turn at
+   * the place is spent (lib/town/forest's gather, `lost`).
+   */
+  const leave = useCallback((w: Working | null) => {
+    setWorking(null);
+    // (told from the tile its games were begun on: walking off is no way out of them)
+    if (w && w.stage !== undefined) void act(w.spot, w.from, { misses: 0, wrong: 0, lost: true });
+  }, [act]);
   // walking off leaves the work
-  useEffect(() => { if (working && working.spot.id !== hereId) setWorking(null); }, [working, hereId]);
+  useEffect(() => { if (working && working.spot.id !== hereId) leave(working); }, [working, hereId, leave]);
 
   // The space bar is the button (while a game is up it is the game's).
   useEffect(() => {
-    if (working || !here) return;
+    if (working || !here || chart) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
@@ -245,71 +331,107 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     };
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
-  }, [working, here, begin]);
+  }, [working, here, begin, chart]);
 
   // (for scripts in `next dev`: what the forest has for me, what is offered where I stand, and the way to begin it)
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
-      sights: () => seen.current.map((x) => ({ ...x, ...SPOTS[x.id] })), glints: () => glints.current, here: () => (here ? { ...here.sight, kind: here.spot.kind } : null), act: () => begin(),
+      sights: () => seen.current.map((x) => ({ ...x, ...placeAt(x.id), secret: isSecret(x.id) })), glints: () => glints.current, here: () => (here ? { ...here.sight, kind: here.spot.kind } : null), act: () => begin(),
       game: () => working?.game ?? null,
-      /** What is offered where I stand: by my own hands, by the piglet; and the way to have the piglet do it. */
-      offers: () => ({ hand: byHand, piglet: byPig }), actPiglet: () => begin(true),
       /** How many things the squirrel has fetched since the page came up. */
       fetched: () => fetched.current,
+      /** What is offered where I stand: by my own hands, by the piglet; and the way to have the piglet do it. */
+      offers: () => ({ hand: byHand, piglet: byPig }), actPiglet: () => begin(true),
+      /** The firefly lantern: whether it is lit, over how many places on the screen its fireflies are, and the chart. */
+      lit: () => lantern.current, flies: () => fliesOver.current, chart: (open: boolean) => setChart(open), secrets: () => SECRETS.map((p) => ({ ...p })),
+      /** At a secret place: which of its two games is up (0, 1), or null. And how much harder what is up is for me. */
+      stage: () => working?.stage ?? null, harder: () => (working ? harderOf(working.sight.item, points) : null),
     };
     (window as unknown as { __townForest?: typeof handle }).__townForest = handle;
     return () => { delete (window as unknown as { __townForest?: typeof handle }).__townForest; };
-  }, [here, begin, working, byHand, byPig]);
+  }, [here, begin, working, byHand, byPig, points]);
 
-  if (!working && !here && !note) return null;
   return (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
-      {note && (
-        <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-forest-note={noteBy ?? ""} aria-live="polite">
-          {noteBy && <TownIcon name={noteBy} size={20} />}{note}
-        </p>
+    <>
+      {/* the firefly lantern's own button: the whole forest on a chart */}
+      {lit && !working && (
+        <button type="button" onClick={() => setChart(true)} data-forest-lantern aria-label={th ? "ป่าในแสงหิ่งห้อย" : "The forest by firefly light"}
+                className="pressable pointer-events-auto absolute left-3 top-[11.5rem] z-20 grid size-11 place-items-center rounded-full border border-[#c8f07a]/70 bg-[#101a12]/85 shadow-lg shadow-black/40 backdrop-blur-sm">
+          <TownIcon name={"charmFirefly" as IconName} size={30} />
+        </button>
       )}
-      {working && tile ? (() => {
-        const { spot, sight, game, pig } = working, how = KINDS[spot.kind].how, title = pig ? (th ? "หมูน้อยขุด" : "The piglet digs") : th ? VERB[how][0] : VERB[how][1];
-        const done = (r: GameResult) => {
-          setWorking(null);
-          // (tired hands that let it fall have gathered nothing, and lost nothing)
-          if (r.dropped) { say("shaky"); return; }
-          // among mushrooms a look-alike taken is a toadstool; among anything else, one fewer
-          const wrong = game === "choosing" ? r.misses : 0;
-          void act(spot, tile, { misses: game === "choosing" ? (spot.kind === "mushrooms" ? 0 : wrong) : r.misses, wrong, secs: r.secs, ...(pig ? { with: "famPiglet" } : {}) });
-        };
-        const common = { th, title, onDone: done, onCancel: () => setWorking(null), onHit: (hit: boolean) => { sfx?.wake(); sfx?.work(GAME_FX[game][hit ? 0 : 1]); } };
-        return (
-          <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
-            {game === "choosing" ? <TownChoosing {...common} need={sight.n} spent={spent} eye={eye} icon={iconFor(sight.item)} scene={art("gameFloor")} />
-              : game === "digging" ? <TownDigging {...common} need={sight.n} spent={spent} eye={eye} how={{ gentle: !!pig }} scene={art("gameMound")} />
-                : game === "catching" ? <TownCatching {...common} need={sight.n} spent={spent} eye={eye + famBy(purse, "famSquirrel")} icon={iconFor(sight.item)} scene={art("gameCrown")} />
-                  : <TownSteady {...common} need={FARMING.tired} mods={{ spent: true, drops: true }} icon="hand" over={iconFor(sight.item)} />}
-          </div>
-        );
-      })() : here && (
-        <div className="pointer-events-none mb-14 flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
-          {byHand && (
-            <button type="button" onClick={() => begin()} data-forest-offer={KINDS[here.spot.kind].how} data-state="open"
-                    className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40">
-              {th ? VERB[KINDS[here.spot.kind].how][0] : VERB[KINDS[here.spot.kind].how][1]}
-              <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
-            </button>
+      {chart && lit && <TownForestChart th={th} sights={seen.current} self={selfAt.current} still={stillNow.current} onClose={() => setChart(false)} />}
+      {(working || here || note) && (
+        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+          {note && (
+            <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-forest-note={noteBy ?? ""} aria-live="polite">
+              {noteBy && <TownIcon name={noteBy} size={20} />}{note}
+            </p>
           )}
-          {/* the piglet's way, beside the hoe's where there is a hoe: its picture, and the holes it has left to these hours */}
-          {byPig && (
-            <button type="button" onClick={() => begin(true)} data-forest-offer="piglet" data-left={usesLeft(purse, "famPiglet", keeper.now())} data-state="open"
-                    className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-gold py-1 pl-2 pr-4 text-read font-semibold text-bg shadow-xl shadow-black/40">
-              <span className="grid size-10 place-items-center rounded-full bg-bg/25"><TownIcon name={"famPiglet" as IconName} size={30} /></span>
-              {th ? "ให้หมูน้อยขุด" : "Let the piglet dig"}
-              <span className="rounded-full bg-bg/25 px-2 py-px font-data text-meta tabular-nums">{usesLeft(purse, "famPiglet", keeper.now())}</span>
-              {!byHand && <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>}
-            </button>
+          {working && tile ? (() => {
+            const { spot, sight, game, pig, stage } = working, how = ruleOf(spot).how, secret = stage !== undefined, games = gamesOf(spot);
+            const title = secret ? `${th ? SECRET[spot.kind as SecretKind][0] : SECRET[spot.kind as SecretKind][1]} · ${stage + 1}/2`
+              : pig ? (th ? "หมูน้อยขุด" : "The piglet digs") : th ? VERB[how][0] : VERB[how][1];
+            // (a good thing is harder for a practised hand; what is buried and unseen is dug as by anybody)
+            const hard = harderOf(sight.item, points);
+            const done = (r: GameResult) => {
+              // (tired hands that let it fall have gathered nothing, and lost nothing)
+              if (!secret && r.dropped) { setWorking(null); say("shaky"); return; }
+              if (secret) {
+                // a secret place: not one miss in either game, or it is gone; the first won, the second begins
+                if (r.dropped || r.misses > 0) { setWorking(null); void act(spot, working.from, { misses: Math.max(1, r.misses), wrong: 0, secs: (working.secs ?? 0) + r.secs, lost: true }); return; }
+                if (stage === 0 && games) { sfx?.wake(); sfx?.work("pick"); setWorking({ ...working, game: gameFor(games[1], spent)!, stage: 1, secs: r.secs }); if (games[1] === "shake") sfx?.work("shake"); return; }
+                setWorking(null);
+                void act(spot, working.from, { misses: 0, wrong: 0, secs: (working.secs ?? 0) + r.secs });
+                return;
+              }
+              setWorking(null);
+              // among mushrooms a look-alike taken is a toadstool; among anything else, one fewer
+              const wrong = game === "choosing" ? r.misses : 0;
+              void act(spot, tile, { misses: game === "choosing" ? (spot.kind === "mushrooms" ? 0 : wrong) : r.misses, wrong, secs: r.secs, ...(pig ? { with: "famPiglet" } : {}) });
+            };
+            const common = { th, title, onDone: done, onCancel: () => leave(working), onHit: (hit: boolean) => { sfx?.wake(); sfx?.work(GAME_FX[game][hit ? 0 : 1]); } };
+            return (
+              <div key={`${spot.id}:${stage ?? "x"}`} className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game} data-secret-stage={stage ?? ""}>
+                {game === "choosing" ? <TownChoosing {...common} need={sight.n} spent={spent} eye={eye} harder={hard} icon={iconFor(sight.item)} scene={art("gameFloor")} />
+                  : game === "digging" ? <TownDigging {...common} need={sight.n} spent={spent} eye={eye} how={{ gentle: !!pig, harder: hard }} scene={art("gameMound")} />
+                    : game === "catching" ? <TownCatching {...common} need={sight.n} spent={spent} eye={eye + (secret ? 0 : famBy(purse, "famSquirrel"))} harder={hard} icon={iconFor(sight.item)} scene={art("gameCrown")} />
+                      : <TownSteady {...common} need={FARMING.tired} mods={{ spent: true, drops: true }} icon="hand" over={iconFor(sight.item)} />}
+              </div>
+            );
+          })() : here && (
+            <div className="pointer-events-none mb-14 flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
+              {byHand && (hereSecret ? (
+                // a secret place of the deep woods: its own button, with a mark for each of its two games
+                <button type="button" onClick={() => begin()} data-forest-offer="secret" data-secret-kind={here.spot.kind} data-state="open"
+                        className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border-2 border-[#c8f07a] bg-[#16210f] py-1 pl-2 pr-4 text-read font-semibold text-[#e8ffb8] shadow-[0_0_18px_rgba(200,240,122,0.45),0_10px_20px_rgba(0,0,0,0.45)]">
+                  <span className="grid size-10 place-items-center rounded-full bg-[#c8f07a]/15"><TownIcon name={"charmFirefly" as IconName} size={30} /></span>
+                  {th ? SECRET[here.spot.kind as SecretKind][0] : SECRET[here.spot.kind as SecretKind][1]}
+                  <span aria-hidden className="flex gap-1"><span className="size-2.5 rounded-full bg-[#c8f07a]" /><span className="size-2.5 rounded-full bg-[#c8f07a]" /></span>
+                  <kbd aria-hidden className="hidden rounded border border-[#c8f07a]/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-[#c8f07a]/80 sm:inline">Space</kbd>
+                </button>
+              ) : (
+                <button type="button" onClick={() => begin()} data-forest-offer={hereHow} data-state="open"
+                        className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40">
+                  {th ? VERB[hereHow][0] : VERB[hereHow][1]}
+                  <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
+                </button>
+              ))}
+              {/* the piglet's way, beside the hoe's where there is a hoe: its picture, and the holes it has left to these hours */}
+              {byPig && (
+                <button type="button" onClick={() => begin(true)} data-forest-offer="piglet" data-left={usesLeft(purse, "famPiglet", keeper.now())} data-state="open"
+                        className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-gold py-1 pl-2 pr-4 text-read font-semibold text-bg shadow-xl shadow-black/40">
+                  <span className="grid size-10 place-items-center rounded-full bg-bg/25"><TownIcon name={"famPiglet" as IconName} size={30} /></span>
+                  {th ? "ให้หมูน้อยขุด" : "Let the piglet dig"}
+                  <span className="rounded-full bg-bg/25 px-2 py-px font-data text-meta tabular-nums">{usesLeft(purse, "famPiglet", keeper.now())}</span>
+                  {!byHand && <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>}
+                </button>
+              )}
+            </div>
           )}
         </div>
       )}
-    </div>
+    </>
   );
 }

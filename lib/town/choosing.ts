@@ -24,6 +24,12 @@ export const CHOOSING = {
   fakes: 2, tiredFakes: 3,
   /** With no stamina left: the seconds the patch is seen clearly before it goes dim. */
   peek: 1.4,
+  /**
+   * For somebody a thing's game is harder for (lib/town/forest's harderOf: a good thing, and a practised hand): the
+   * seconds its patch is seen clearly before it goes dim, with stamina; divided by how much harder it is, as the
+   * tired moment is. A patch that is no harder for anybody never goes dim with stamina.
+   */
+  glance: 10,
 };
 
 /** What stands in a place of the patch: a good one or a look-alike, which way it is turned, and whether it has been taken. */
@@ -38,8 +44,8 @@ function draw(seed: number): [number, number] {
   return [((t ^ (t >>> 14)) >>> 0) / 4294967296, a];
 }
 
-/** Begin a patch with so many good ones in it. */
-export function startBunch(need: number, spent: boolean, seed: number, eye: boolean | number = false): Bunch {
+/** Begin a patch with so many good ones in it. `harder`: how much harder it is for whoever looks (1: as for anybody): it goes dim so much sooner. */
+export function startBunch(need: number, spent: boolean, seed: number, eye: boolean | number = false, harder = 1): Bunch {
   const places = CHOOSING.cols * CHOOSING.rows, good = Math.max(1, Math.min(places - 1, Math.floor(need)));
   // (under the fountain's forest eye, one look-alike fewer: never none)
   const fakes = Math.max(1, Math.min(places - good, spent ? CHOOSING.tiredFakes : CHOOSING.fakes) - eyes(eye));
@@ -53,7 +59,8 @@ export function startBunch(need: number, spent: boolean, seed: number, eye: bool
     const j = Math.floor(r * (i + 1));
     [things[i], things[j]] = [things[j], things[i]];
   }
-  return { need: good, hits: 0, wrong: 0, cells: things, dim: spent ? CHOOSING.peek : null };
+  const hard = Math.max(1, harder);
+  return { need: good, hits: 0, wrong: 0, cells: things, dim: spent ? CHOOSING.peek / hard : hard > 1 ? CHOOSING.glance / hard : null };
 }
 
 /** Whether every good one has been taken. */

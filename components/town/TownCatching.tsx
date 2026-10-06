@@ -14,8 +14,8 @@ const TOP = 26, FALL = 58;
  * another, each in its own lane, and a basket along the bottom that goes where the finger or the mouse is (or by
  * the arrow keys). What lands in the basket is caught.
  */
-export default function TownCatching({ th, title, need, spent, eye = false, icon, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean | number; icon: IconName; scene: Sprite | null }) {
-  const shower = useRef<Shower>(startShower(need, spent, Math.floor(Math.random() * 2 ** 31), eye));
+export default function TownCatching({ th, title, need, spent, eye = false, harder = 1, icon, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean | number; harder?: number; icon: IconName; scene: Sprite | null }) {
+  const shower = useRef<Shower>(startShower(need, spent, Math.floor(Math.random() * 2 ** 31), eye, harder));
   const basket = useRef(Math.floor(CATCHING.lanes / 2));
   const from = useRef(0), ended = useRef(false);
   const [, setShown] = useState(0);

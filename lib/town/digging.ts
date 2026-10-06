@@ -35,8 +35,12 @@ export interface Clod { earth: number; over: boolean; top: boolean }
  * (lib/town/gifts' famPiglet): a snout bruises nothing, so a stroke on a part already bare is only a stroke gone.
  */
 export interface Dig { need: number; hits: number; misses: number; strokes: number; cells: Clod[]; seen: boolean; gentle?: boolean }
-/** How a mound is dug, where it is not as for anybody: by a piglet's snout (`gentle`). */
-export interface DigHow { gentle?: boolean }
+/**
+ * How a mound is dug, where it is not as for anybody: by a piglet's snout (`gentle`); and how much harder it is for
+ * whoever digs (`harder`, lib/town/forest's harderOf; 1 as for anybody): the strokes there are to spare are divided
+ * by it, so a stroke fewer from the fourth rank and two fewer from the eighth.
+ */
+export interface DigHow { gentle?: boolean; harder?: number }
 
 function draw(seed: number): [number, number] {
   const a = (seed + 0x6d2b79f5) | 0;
@@ -60,7 +64,8 @@ export function startDig(parts: number, spent: boolean, seed: number, eye: boole
   const cells = Array.from({ length: cols * rows }, (_, i): Clod => ({ earth: least + Math.floor(next() * (most - least + 1)), over: run.includes(i), top: i === top }));
   const needed = run.reduce((t, i) => t + cells[i].earth, 0);
   // (under the fountain's forest eye, a stroke more to spare)
-  return { need, hits: 0, misses: 0, strokes: needed + (spent ? DIGGING.tiredSpare : DIGGING.spare) + eyes(eye), cells, seen: !spent, ...(how.gentle ? { gentle: true } : {}) };
+  const spare = Math.floor((spent ? DIGGING.tiredSpare : DIGGING.spare) / Math.max(1, how.harder ?? 1));
+  return { need, hits: 0, misses: 0, strokes: needed + spare + eyes(eye), cells, seen: !spent, ...(how.gentle ? { gentle: true } : {}) };
 }
 
 /** Whether the digging is over: the whole thing bare, or no stroke left. */

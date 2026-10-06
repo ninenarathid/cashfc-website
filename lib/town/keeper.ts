@@ -183,8 +183,8 @@ export interface Keeper {
 
   /** The forest (lib/town/forest): every place that has something for me now. */
   wild(): Sight[];
-  /** Gather what a place has, from the tile I stand on, with how its game went (and how long it took). */
-  gatherDo(spot: number, at: [number, number], went: Outcome & { secs?: number }): Promise<Did<{ got: Array<[ItemId, number]> }>>;
+  /** Gather what a place has, from the tile I stand on, with how its game went (and how long it took). `lost`: a secret place's two games were not both won, and my turn at it is spent with nothing got (lib/town/forest). */
+  gatherDo(spot: number, at: [number, number], went: Outcome & { secs?: number }): Promise<Did<{ got: Array<[ItemId, number]>; lost?: boolean }>>;
 
   /** Insects (lib/town/insects): every haunt that has one for me now. */
   bugs(): BugSight[];
@@ -890,8 +890,8 @@ export class DbKeeper implements Keeper {
    * kept until its turn ends. A database that has not had v125 answers nothing, and there is nothing to gather.
    */
   wild(): Sight[] { const now = this.now(); return this.wild_.filter((s) => s.until > now); }
-  async gatherDo(spot: number, at: [number, number], went: Outcome & { secs?: number }): Promise<Did<{ got: Array<[ItemId, number]> }>> {
-    const did = await this.deed<{ got: Array<[ItemId, number]> }>("town_gather", { p_spot: spot, p_x: at[0], p_y: at[1], p_went: went });
+  async gatherDo(spot: number, at: [number, number], went: Outcome & { secs?: number }): Promise<Did<{ got: Array<[ItemId, number]>; lost?: boolean }>> {
+    const did = await this.deed<{ got: Array<[ItemId, number]>; lost?: boolean }>("town_gather", { p_spot: spot, p_x: at[0], p_y: at[1], p_went: went });
     // (gathered, or there is nothing there for me after all: either way the place has no more for me)
     if (did.ok || did.why === "had" || did.why === "bare" || did.why === "none") { this.wild_ = this.wild_.filter((s) => s.id !== spot); this.tell(); }
     return did;

@@ -1,7 +1,7 @@
 // The forest's gifts through the functions a member calls, against the stand-in database (try-line.mjs plays this
 // after the rule cases): for each new or changed deed, that it is done, that it is refused for each reason, what is
 // kept in the purse, what is written down, what is counted, and that somebody without the gift is as before.
-export default async function ({ t, U, call, purseOf, deeds, one, give, patch, rank, CODE }) {
+export default async function ({ t, U, call, purseOf, deeds, one, same, give, patch, CODE }) {
   const F = CODE.forest;
   const day = (await one(`select town.day_of(town.now_ms()) as d`)).d;
   const stamina = async (who) => { const p = await purseOf(who); return p?.stamina?.day === day ? p.stamina.left : 100; };
@@ -125,7 +125,84 @@ export default async function ({ t, U, call, purseOf, deeds, one, give, patch, r
   await give(U.m2, { had: ["famPiglet"], familiar: "famPiglet", used: { famPiglet: { k: k - 1, n: most } } });
   const digs = await one(`select town.piglet_digs((select doc from public.town_purses where member_id = $1), town.now_ms()) as ok`, [U.m2]);
   t.check("a count of the hours before is no count of these", digs.ok === true, digs);
+  // ── the firefly lantern, and the secret places ──
+  t.section("the firefly lantern: what lies buried, and the secret places of the deep woods, for its wearer alone");
+  const S = F.secret, first = F.spots.length, cost = S.kinds.ring.cost;
+  t.check("the catalog has six secret places, numbered on from the places everybody has", S.spots.length === 6 && (await one(`select town.wild_secret(town.cat('forest'), $1::int) as a, town.wild_secret(town.cat('forest'), $2::int) as b`, [first, first - 1])).a === true, S.spots.length);
+  // (a word under which at least four secret places hold something now, a ring and a bough among them: the stand-in's own may have none this hour)
+  let hid = [];
+  for (let i = 0; i < 400 && !(hid.length >= 4 && hid.some((p) => p.kind === "ring") && hid.some((p) => p.kind === "bough")); i++) {
+    await t.sql(`update public.town_secrets set word = $1 where key = 'wild'`, [`lantern-${i}`]);
+    hid = (await t.sql(`select i, town.wild_holds(i, town.now_ms()) as has from generate_series($1::int, $2::int) as i`, [first, first + S.spots.length - 1])).rows
+      .filter((r) => r.has).map((r) => ({ id: r.i, kind: S.spots[r.i - first][0], x: S.spots[r.i - first][1], y: S.spots[r.i - first][2], ...r.has }));
+  }
+  t.check("four secret places hold something now", hid.length >= 4, hid.length);
+  const [s1, s2, s3, s4] = [hid.find((p) => p.kind === "ring"), hid.find((p) => p.kind === "bough"), ...hid.filter((p) => p !== hid.find((q) => q.kind === "ring") && p !== hid.find((q) => q.kind === "bough"))];
+  const everybody = await holding();
+  await give(U.m1, {}); await patch(U.m1, { bag: Array(10).fill(null), hand: null, stamina: { day, left: 100 }, forest: null });
+  await give(U.m2, { had: ["charmFirefly"], charms: ["charmFirefly"] }); await patch(U.m2, { bag: Array(10).fill(null), hand: null, stamina: { day, left: 100 }, forest: null });
+  const told = async (who) => (await call(who, "town_wild")).wild;
+  /** The places everybody has that still have something for a member: not taken from by them this turn, a share left. */
+  const stillFor = async (who) => { const out = []; for (const p of everybody) { const tk = (await one(`select town.taken('spot', $1::int, $2::bigint, $3) as t`, [p.id, p.turn, who])).t; if (!tk.mine && tk.n < F.kinds[p.kind].shares) out.push(p); } return out; };
+  // what each is told
+  let plain = await told(U.m1), seen = await told(U.m2);
+  const forM1 = await stillFor(U.m1), forM2 = await stillFor(U.m2);
+  t.check("without the lantern nobody is told of a secret place: only of the places everybody has", plain.every((r) => r[0] < first) && same(plain.map((r) => r[0]), forM1.map((p) => p.id)), { n: plain.length, all: forM1.length });
+  t.check("…nor what lies buried", plain.filter((r) => F.kinds[F.spots[r[0]][0]].how === "dig").every((r) => r[1] === null) && plain.some((r) => r[1] === null));
+  t.check("its wearer is told every secret place that holds something, with what and how many", same(seen.filter((r) => r[0] >= first).map((r) => [r[0], r[1], r[2]]), hid.map((p) => [p.id, p.item, p.n])), { seen: seen.filter((r) => r[0] >= first), hid });
+  t.check("…and what lies under every mound", seen.every((r) => r[1] !== null) && forM2.some((p) => p.how === "dig") && forM2.filter((p) => p.how === "dig").every((p) => seen.find((r) => r[0] === p.id)?.[1] === p.item));
+  t.check("…and of the places everybody has, the same as anybody is", same(seen.filter((r) => r[0] < first).map((r) => r[0]), forM2.map((p) => p.id)));
+  const near = (p) => (p.kind === "bough" ? [p.x + 1, p.y] : [p.x, p.y]);
+  const takes = async (who, id) => (await one(`select count(*)::int as n from public.town_takes where what = 'spot' and place = $1 and member_id = $2`, [id, who])).n;
+  const pointsOf = async (who) => Number((await one(`select coalesce((kept->>'points')::numeric, 0) as p from public.town_work where member_id = $1 and line = 'forest'`, [who]))?.p ?? 0);
+  // without the lantern: nothing is there
+  did = await call(U.m1, "town_gather", s1.id, ...near(s1), { misses: 0, wrong: 0 });
+  t.check("without the lantern a secret place gives nothing: it is not there", did?.ok === false && did.why === "none" && (await takes(U.m1, s1.id)) === 0 && (await stamina(U.m1)) === 100 && (await bagN(U.m1, s1.item)) === 0, did);
+  await give(U.m1, { had: ["charmFirefly"], charms: [] });
+  did = await call(U.m1, "town_gather", s1.id, ...near(s1), { misses: 0, wrong: 0 });
+  t.check("…nor to somebody who has the lantern and does not wear it", did?.ok === false && did.why === "none", did);
+  // both games won
+  const p0 = await pointsOf(U.m2);
+  did = await call(U.m2, "town_gather", s1.id, s1.x + 2, s1.y, { misses: 0, wrong: 0 });
+  t.check("too far from it, nothing: and nothing is spent or taken", did?.ok === false && did.why === "far" && (await stamina(U.m2)) === 100 && (await takes(U.m2, s1.id)) === 0, did);
+  did = await call(U.m2, "town_gather", s1.id, ...near(s1), { misses: 0, wrong: 0, secs: 31 });
+  t.check("both its games won, a secret place gives all it has", did?.ok === true && !did.lost && same(did.got, [[s1.item, s1.n]]) && (await bagN(U.m2, s1.item)) === s1.n, did?.got ?? did);
+  t.check("…for its stamina, and it is in the record of the secret places gathered from", (await stamina(U.m2)) === 100 - cost && same((await purseOf(U.m2)).forest, { secrets: [s1.id] }) && same(did.purse.forest, { secrets: [s1.id] }), (await purseOf(U.m2)).forest);
+  deed = await lastDeed("gather");
+  t.check("…written down as a gathering at a secret place, with no coin", deed?.member_id === U.m2 && deed.thing === s1.item && deed.n === s1.n && deed.doc.secret === true && deed.doc.how === S.kinds[s1.kind].how && deed.doc.kind === s1.kind && deed.coins === 0 && !("by" in deed.doc), deed);
+  t.check("…and it counts on the forest's line as a gathering does", (await pointsOf(U.m2)) > p0, { before: p0, after: await pointsOf(U.m2) });
+  did = await call(U.m2, "town_gather", s1.id, ...near(s1), { misses: 0, wrong: 0 });
+  t.check("…once a turn: it has nothing more for me", did?.ok === false && did.why === "had" && (await takes(U.m2, s1.id)) === 1, did);
+  t.check("…and I am no longer told of it", !(await told(U.m2)).some((r) => r[0] === s1.id));
+  // a game failed
+  const p1 = await pointsOf(U.m2), slips = (await deeds("slip")).length, gathers = (await deeds("gather")).length;
+  did = await call(U.m2, "town_gather", s2.id, ...near(s2), { misses: 1, wrong: 0, secs: 12 });
+  t.check("a game failed, the turn there is spent with nothing got", did?.ok === true && did.lost === true && same(did.got, []) && (await bagN(U.m2, s2.item)) === (s2.item === s1.item ? s1.n : 0) && (await takes(U.m2, s2.id)) === 1, did?.got ?? did);
+  t.check("…for its stamina, and the record is as it was", (await stamina(U.m2)) === 100 - 2 * cost && same((await purseOf(U.m2)).forest, { secrets: [s1.id] }), { left: await stamina(U.m2), forest: (await purseOf(U.m2)).forest });
+  deed = await lastDeed("slip");
+  t.check("…written down as a slip and not as a gathering, and no point of the line counted", (await deeds("slip")).length === slips + 1 && (await deeds("gather")).length === gathers && deed?.member_id === U.m2 && deed.thing === s2.item && deed.n === 0
+    && deed.coins === 0 && deed.doc.misses === 1 && deed.doc.left === false && (await pointsOf(U.m2)) === p1, deed);
+  did = await call(U.m2, "town_gather", s2.id, ...near(s2), { misses: 0, wrong: 0 });
+  t.check("…and there is no second go at it this turn", did?.ok === false && did.why === "had", did);
+  // a wrong one taken; and the games left
+  did = await call(U.m2, "town_gather", s3.id, ...near(s3), { misses: 0, wrong: 1 });
+  t.check("a look-alike taken loses it too", did?.ok === true && did.lost === true && (await takes(U.m2, s3.id)) === 1, did?.got ?? did);
+  did = await call(U.m2, "town_gather", s4.id, ...near(s4), { misses: 0, wrong: 0, lost: true });
+  deed = await lastDeed("slip");
+  t.check("its games left once begun, it is lost as well, and written down as left", did?.ok === true && did.lost === true && deed?.doc.left === true && deed.doc.spot === s4.id && (await takes(U.m2, s4.id)) === 1, { did: did?.got ?? did, deed });
+  // somebody else, the same turn: a heap is for several
+  await give(U.admin, { had: ["charmFirefly"], charms: ["charmFirefly"] }); await patch(U.admin, { bag: Array(10).fill({ item: "rod", n: 1 }), hand: null, stamina: { day, left: 100 } });
+  did = await call(U.admin, "town_gather", s2.id, ...near(s2), { misses: 0, wrong: 0 });
+  t.check("won with no room in the bag, nothing is given, spent or taken: one comes back", did?.ok === false && did.why === "full" && (await takes(U.admin, s2.id)) === 0 && (await stamina(U.admin)) === 100, did);
+  await patch(U.admin, { bag: Array(10).fill(null) });
+  did = await call(U.admin, "town_gather", s2.id, ...near(s2), { misses: 0, wrong: 0 });
+  t.check("what one lost another may still win, the same turn", did?.ok === true && !did.lost && same(did.got, [[s2.item, s2.n]]), did?.got ?? did);
+  for (const who of [U.m1, U.guest]) if ((await takes(who, s2.id)) === 0) await t.sql(`insert into public.town_takes (what, place, turn, member_id, at) values ('spot', $1, $2, $3, now())`, [s2.id, s2.turn, who]);
+  await give(U.unver, { had: ["charmFirefly"], charms: ["charmFirefly"] });
+  const bare = await one(`select town.gather((select doc || jsonb_build_object('coins', coins) from public.town_purses where member_id = $1), $2::int, $3::jsonb, (town.taken('spot', $2::int, $4::bigint, $1)->>'n')::int, false, null, $5::int, $6::int, 0, 0, town.now_ms()) as r`,
+    [U.unver, s2.id, JSON.stringify({ turn: s2.turn, item: s2.item, n: s2.n }), s2.turn, ...near(s2)]);
+  t.check("…until its shares are gone", bare.r?.ok === false && bare.r.why === "bare", bare.r);
   // nothing here gives coins
-  const coins = await one(`select coalesce(sum(coins), 0)::int as c from public.town_deeds where what = 'gather'`);
+  const coins = await one(`select coalesce(sum(coins), 0)::int as c from public.town_deeds where what in ('gather', 'slip')`);
   t.check("no gathering gave a coin", coins.c === 0, coins);
 }
