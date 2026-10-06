@@ -3,12 +3,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
-import { PAIR, REST, STEPS, oddsOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Pair, type Strike } from "@/lib/town/fishing";
+import { PAIR, REST, STEPS, oddsOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type Pair, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
 import { measure, type FishSfx, type FishSound } from "@/lib/town/sfx";
-import { numberOf, usesLeft, works } from "@/lib/town/gifts";
+import { charmBy, numberOf, usesLeft, works } from "@/lib/town/gifts";
 import { buffOf, buffsOf, isSpent, levelOf, staminaOf } from "@/lib/town/stamina";
 import { handOf, held, roomFor } from "@/lib/town/trade";
 import type { CastHow, Hooked, Keeper } from "@/lib/town/keeper";
@@ -347,20 +347,42 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   /* ── the fight ── */
   const holding = useRef(false);
   const fight = useRef<Fight | null>(null);
+  /**
+   * A line of dragon silk worn (lib/town/gifts' charmLine), in a fight of one or of two: while what would have lost
+   * the fish is being mended, a count runs down over the water. (The line itself is drawn gold while the silk has its
+   * mending still, and blinks while it mends.) Says what the word under the water is to be meanwhile, if any.
+   */
+  const silk = { box: useRef<HTMLSpanElement>(null), num: useRef<HTMLSpanElement>(null), bar: useRef<HTMLSpanElement>(null) };
+  const silkShown = (mend: Mend | undefined, since: number): string | null => {
+    if (silk.box.current) silk.box.current.style.display = mend ? "flex" : "none";
+    if (mend) {
+      if (silk.num.current) silk.num.current.textContent = String(Math.max(1, Math.ceil(mend.left)));
+      if (silk.bar.current) silk.bar.current.style.width = `${Math.max(0, Math.min(1, mend.left / numberOf("charmLine"))) * 100}%`;
+      return th ? "ใยมังกรยื้อไว้ รีบแก้!" : "The silk holds: mend it!";
+    }
+    return since < 1100 ? (th ? "รอดแล้ว!" : "Saved!") : null;
+  };
+  /** The line's colour and weight: gold with the silk's mending still to come, blinking while it mends, redder as it strains. */
+  const silkLine = (line: SVGLineElement | null, strain: number, has: boolean, mend: Mend | undefined, t: number) => {
+    if (!line) return;
+    line.setAttribute("stroke", mend ? (reduced || Math.floor(t / 130) % 2 ? "#ffb52e" : "#fff4c2") : strain >= 0.75 ? "#ff7a5c" : strain >= 0.4 ? "#ffd27a" : has ? "#ffd86b" : "#f0f0eb");
+    line.setAttribute("stroke-width", mend ? "3.2" : has ? "2.2" : "1.6");
+    line.dataset.silk = mend ? "mend" : has ? "1" : "";
+  };
   const gauge = { needle: useRef<HTMLSpanElement>(null), band: useRef<HTMLSpanElement>(null), line: useRef<HTMLSpanElement>(null),
     strain: useRef<HTMLSpanElement>(null), slack: useRef<HTMLSpanElement>(null), fish: useRef<HTMLSpanElement>(null), word: useRef<HTMLSpanElement>(null),
     swim: useRef<HTMLSpanElement>(null), taut: useRef<SVGLineElement>(null) };
   useEffect(() => {
     if (phase.at !== "fight") return;
     const p = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31);
-    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear }, seed);
+    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear, silk: charmBy(p, "charmLine", 0) }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction: phase.reaction };
     bout.current = log;
     // (the fight's stamina was taken as the hook was set: a fight costs it whatever comes of it)
     fight.current = f;
     holding.current = false;
     show("fight");
-    let raf = 0, last = performance.now(), owed = 0, was = false, thrashing = false, creak = 0, due = 0;
+    let raf = 0, last = performance.now(), owed = 0, was = false, thrashing = false, creak = 0, due = 0, mending = false, saved = -1e9;
     const frame = (t: number) => {
       // (no more often than the map is drawn at the most: lib/town/pace; the fight goes by its own steps whatever the frames)
       const after = paced(t, last, due, PACE.most);
@@ -388,8 +410,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (gauge.swim.current) gauge.swim.current.style.left = `${8 + 70 * Math.max(0, Math.min(1, f.line / f.length))}%`;
       if (gauge.taut.current) {
         gauge.taut.current.setAttribute("x2", String(26 + 202 * Math.max(0, Math.min(1, f.line / f.length))));
-        gauge.taut.current.setAttribute("stroke", f.strain >= 0.75 ? "#ff7a5c" : f.strain >= 0.4 ? "#ffd27a" : "#f0f0eb");
       }
+      // (a line of dragon silk: heard as it begins to mend and as it has; drawn gold, and counted down over the water)
+      if (f.mend && !mending) sfx.play("strain");
+      if (!f.mend && mending && !f.over) { sfx.play("perfect"); saved = t; }
+      mending = !!f.mend;
+      silkLine(gauge.taut.current, f.strain, !!f.silk, f.mend, t);
+      const silkWord = silkShown(f.mend, t - saved);
       if (gauge.strain.current) gauge.strain.current.style.width = pct(f.strain);
       if (gauge.slack.current) gauge.slack.current.style.width = pct(f.slack);
       const wild = surging(f), about = warning(f);
@@ -401,7 +428,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       creak = straining;
       sfx.reel(holding.current, f.tension >= f.lo && f.tension <= f.hi, f.tension);
       if (gauge.fish.current) gauge.fish.current.style.transform = wild && !reduced ? `translateX(${Math.sin(t / 28) * 5}px) rotate(${Math.sin(t / 40) * 9}deg)` : about && !reduced ? `translateX(${Math.sin(t / 60) * 2}px)` : "";
-      if (gauge.word.current) gauge.word.current.textContent = wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel");
+      if (gauge.word.current) gauge.word.current.textContent = silkWord ?? (wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel"));
       if (f.over) {
         // How it ended is told to the keeper, with this hand's account of the fight; the keeper has the last word (a
         // fish landed sooner than any fight could be is one that slipped).
@@ -446,13 +473,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "fight2") return;
     const p0 = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31), { fish, sizes, reaction } = phase;
-    let p = startPair(fish, phase.strike, { spent: isSpent(p0, t0), calm: levelOf(p0, t0, "calm"), gear: out.current?.gear, narrow: numberOf("thingRod") }, seed);
+    let p = startPair(fish, phase.strike, { spent: isSpent(p0, t0), calm: levelOf(p0, t0, "calm"), gear: out.current?.gear, narrow: numberOf("thingRod"), silk: charmBy(p0, "charmLine", 0) }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction };
     bout.current = log;
     pair.current = p;
     holding.current = false;
     show("fight");
-    let raf = 0, last = performance.now(), owed = 0, was = false, creak = 0, due = 0, gone = false;
+    let raf = 0, last = performance.now(), owed = 0, was = false, creak = 0, due = 0, gone = false, mending = false, saved = -1e9;
     const thrashing = [false, false];
     /** What each fish ends as is told to the keeper as it ends, one after the other: the keeper has the last word on each. */
     let asked: Promise<unknown> = Promise.resolve();
@@ -506,7 +533,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         if (band) { band.style.display = on ? "" : "none"; band.style.bottom = pct(p.lo[i]); band.style.height = pct(p.hi[i] - p.lo[i]); band.style.opacity = on && within(i) ? "1" : "0.55"; }
         if (two.line[i].current) two.line[i].current!.style.width = pct(p.ended[i] === "landed" ? 1 : 1 - f.line / f.length);
         if (swim) { swim.style.left = `${8 + 66 * (p.ended[i] === "landed" ? 0 : far)}%`; swim.style.opacity = on ? "1" : "0.25"; }
-        if (taut) { taut.setAttribute("x2", String(26 + 190 * far)); taut.style.display = on ? "" : "none"; taut.setAttribute("stroke", p.strain >= 0.75 ? "#ff7a5c" : p.strain >= 0.4 ? "#ffd27a" : "#f0f0eb"); }
+        if (taut) { taut.setAttribute("x2", String(26 + 190 * far)); taut.style.display = on ? "" : "none"; silkLine(taut, p.strain, p.silk > 0, p.mend, t); }
         if (body) body.style.transform = wild && !reduced ? `translateX(${Math.sin(t / 28 + i) * 5}px) rotate(${Math.sin(t / 40 + i) * 9}deg)` : about && !reduced ? `translateX(${Math.sin(t / 60) * 2}px)` : "";
         if (mark) { mark.style.display = p.ended[i] ? "" : "none"; mark.dataset.how = p.ended[i] ?? ""; mark.textContent = p.ended[i] === "landed" ? (th ? "ได้แล้ว" : "In") : p.ended[i] ? (th ? "หลุด" : "Gone") : ""; }
         if (wild && !thrashing[i]) sfx.play("surge");
@@ -520,10 +547,15 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       const inAny = live.some(within), inBoth = live.length === 2 && live.every(within);
       if (live.length) sfx.reel(holding.current, inAny, p.tension);
       const top = live.length ? Math.max(...live.map((i) => p.hi[i])) : 1, bottom = live.length ? Math.min(...live.map((i) => p.lo[i])) : 0;
+      // (a line of dragon silk, as in a fight of one)
+      if (p.mend && !mending) sfx.play("strain");
+      if (!p.mend && mending && live.length && !p.silk) { sfx.play("perfect"); saved = t; }
+      mending = !!p.mend;
+      const silkWord = silkShown(p.mend, t - saved);
       if (two.word.current) {
-        two.word.current.textContent = live.some((i) => surging(p.fights[i])) ? (th ? "ปลาดิ้น!" : "It surges!") : p.tension > top ? (th ? "ตึงไป!" : "Too tight!") : p.tension < bottom ? (th ? "หย่อนไป!" : "Too slack!")
-          : inBoth ? (th ? "สาวได้ทั้งคู่!" : "Reeling both!") : inAny ? (th ? "สาวสายได้" : "Reel") : (th ? "อยู่ระหว่างสองตัว" : "Between the two");
-        two.word.current.dataset.both = inBoth ? "1" : "";
+        two.word.current.textContent = silkWord ?? (live.some((i) => surging(p.fights[i])) ? (th ? "ปลาดิ้น!" : "It surges!") : p.tension > top ? (th ? "ตึงไป!" : "Too tight!") : p.tension < bottom ? (th ? "หย่อนไป!" : "Too slack!")
+          : inBoth ? (th ? "สาวได้ทั้งคู่!" : "Reeling both!") : inAny ? (th ? "สาวสายได้" : "Reel") : (th ? "อยู่ระหว่างสองตัว" : "Between the two"));
+        two.word.current.dataset.both = inBoth && !silkWord ? "1" : "";
       }
       if (p.ended[0] && p.ended[1]) return;
       raf = requestAnimationFrame(frame);
@@ -652,6 +684,14 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               : (th ? "ช้าไป ปลากินเหยื่อแล้วว่ายหนีไป" : "Too late: it ate the bait and swam off.")}
       </p>
     )
+  );
+  /** A line of dragon silk mending: the seconds left, counted down across the top of the water (shown only while it mends: `silkShown`). */
+  const silkCount = (
+    <span ref={silk.box} className="absolute inset-x-0 top-0 items-center justify-center gap-2 border-b-2 border-[#2a190d] bg-[#ffcf4a] py-0.5 text-[#3a2209]" style={{ display: "none" }} data-fx="silk">
+      <TownIcon name="charmLine" size={20} />
+      <span ref={silk.num} className="w-4 text-center font-data text-read font-bold tabular-nums" />
+      <span className="h-2 w-24 overflow-hidden border-2 border-[#2a190d] bg-[#fff4c2]"><span ref={silk.bar} className="block h-full bg-[#e9573f]" style={{ width: "100%" }} /></span>
+    </span>
   );
   /** Whether I have a rod of two lines (lib/town/gifts' thingRod): both lines are then offered beside the plain one. */
   const rodOfTwo = works(purse, "thingRod");
@@ -840,6 +880,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                 </span>
                 <span ref={gauge.word} className="absolute bottom-1 right-1.5 rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
                 {otterBy("bottom-0.5 left-1.5")}
+                {silkCount}
               </div>
               <Bar label={th ? "สายที่สาวเข้ามาแล้ว" : "Line in"} bar={gauge.line} tone="bg-[#7cc6e6]" icon="rod" />
               <Bar label={th ? "สายใกล้ขาด" : "Line straining"} bar={gauge.strain} tone="bg-[#e9573f]" icon="warning" />
@@ -884,6 +925,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                 ))}
                 <span ref={two.word} className="absolute bottom-1 right-1.5 rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3] data-[both=1]:bg-[#ffe19a] data-[both=1]:text-[#3a2209]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
                 {otterBy("bottom-0.5 left-1.5")}
+                {silkCount}
               </div>
               <Bar label={th ? "สายแรกที่สาวเข้ามาแล้ว" : "First line in"} bar={two.line[0]} tone={PAIR_LOOK[0].bar} icon="rod" />
               <Bar label={th ? "สายที่สองที่สาวเข้ามาแล้ว" : "Second line in"} bar={two.line[1]} tone={PAIR_LOOK[1].bar} icon="rod" />

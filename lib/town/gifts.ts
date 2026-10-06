@@ -97,7 +97,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "thingRod", kind: "thing", line: "fishing", rank: 3, by: 0.75, name: { th: "คันเบ็ดสองสาย", en: "Rod of two lines" },
     does: { th: "ตกได้ทีละคู่: ปลาอีกตัวติดสายที่สองมาด้วย ต้องสู้สองตัวพร้อมกัน ช่วงปลอดภัยแคบลง (ใช้เหยื่อ 2 ชิ้น)", en: "A pair at a time: a second fish on the second line, two fought at once in a narrower stretch (two baits)" } },
   { id: "charmLine", kind: "charm", line: "fishing", rank: 4, by: 3, name: { th: "สายเบ็ดใยมังกร", en: "Dragon-silk line" },
-    does: { th: "สายตึงเกินหรือหย่อนเกินยังไม่หลุดทันที มีเวลาแก้ 3 วินาที แก้ไม่ทันปลาหลุดตามเดิม", en: "Too taut or too slack does not lose the fish at once: three seconds to mend it; not mended, it is lost as ever" } },
+    does: { th: "สายตึงเกินหรือหย่อนเกินยังไม่หลุดทันที มีเวลาแก้ 3 วินาที ตัวละครั้ง แก้ไม่ทันปลาหลุดตามเดิม", en: "Too taut or too slack does not lose the fish at once: three seconds to mend it, once to a fight; not mended, it is lost as ever" } },
   { id: "thingOrb", kind: "thing", line: "fishing", rank: 5, by: 2, name: { th: "ลูกแก้วฟ้าจำลอง", en: "Sky orb" },
     does: { th: "เลือกฟ้าเอง (กลางคืน ฝน หรือจันทร์เต็มดวง) 30 นาที และช่วงนั้นปลากินเบ็ดเร็วขึ้น 2 เท่า วันละครั้ง เฉพาะเรา", en: "Choose the sky (night, rain or a full moon) for thirty minutes, and bites come twice as soon then; once a day, for you alone" } },
   { id: "thingBait", kind: "thing", line: "fishing", rank: 6, name: { th: "เหยื่อดาวตก", en: "Stardust bait" },

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type ItemId, type Sign } from "./items";
 import {
-  ALL_SIGNS, FIGHT, REST, SIGNS, STEPS, STRIKE, bangkokDay, PAIR, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
+  ALL_SIGNS, FIGHT, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods, type Pair,
 } from "./fishing";
 import { USES, numberOf, usesLeft } from "./gifts";
@@ -839,5 +839,107 @@ describe("a rod of two lines (the owner: \"ตกได้ทีละคู่:
     const hard = of(SKILLED, ["snakehead", "eel"]);
     expect(hard.landed).toBeLessThan(lands("snakehead", SKILLED) + lands("eel", SKILLED) - 0.1);
     expect(of(MASTER, ["snakehead", "eel"]).landed).toBeGreaterThan(1.3);
+  });
+});
+
+describe("a line of dragon silk (the owner: \"สายตึงเกินหรือหย่อนเกินยังไม่หลุดทันที มีเวลาแก้ 3 วินาที แก้ไม่ทันปลาหลุดตามเดิม\")", () => {
+  const SECS = numberOf("charmLine"), silk = { silk: SECS };
+  /** Play on from a fight until something is being mended (or it is over). */
+  const untilMend = (f: Fight, hold: boolean) => { while (!f.over && !f.mend) f = stepFight(f, hold, 1 / 120); return f; };
+
+  it("gives three seconds from the moment the fish would have been lost: only reeling, the line snaps three seconds later than it would", () => {
+    expect(SECS).toBe(3);
+    for (const id of ["minnow", "catfish", "snakehead", "koi"] as const) for (const seed of [3, 11]) {
+      const plain = playFight(startFight(id, "good", {}, seed), () => true, 1 / 120), worn = playFight(startFight(id, "good", silk, seed), () => true, 1 / 120);
+      expect(plain.over).toBe("snapped");
+      expect(worn.over).toBe("snapped");
+      expect(worn.t - plain.t).toBeGreaterThan(SECS - 0.02);
+      expect(worn.t - plain.t).toBeLessThan(SECS + 0.05);
+      const slack = playFight(startFight(id, "good", {}, seed), () => false, 1 / 120), loose = playFight(startFight(id, "good", silk, seed), () => false, 1 / 120);
+      expect(slack.over).toBe("slipped");
+      expect(loose.over).toBe("slipped");
+      expect(loose.t).toBeGreaterThan(slack.t);
+    }
+  });
+
+  it("begins the mending at the moment the line would have snapped or the hook slipped, and says which", () => {
+    const taut = untilMend(startFight("catfish", "good", silk, 5), true), plain = playFight(startFight("catfish", "good", {}, 5), () => true, 1 / 120);
+    expect(taut.over).toBeNull();
+    expect(taut.mend).toEqual({ how: "snapped", left: SECS });
+    expect(taut.t).toBeCloseTo(plain.t, 6);
+    const loose = untilMend(startFight("catfish", "good", silk, 5), false);
+    expect(loose.mend?.how).toBe("slipped");
+  });
+
+  it("mended, the fish is on still: the tension back in the safe stretch in time, with half of that strain left on the line", () => {
+    let f = untilMend(startFight("catfish", "good", silk, 5), true);
+    // (the reel let go: the tension falls back into the stretch)
+    let secs = 0;
+    while (f.mend && !f.over) { f = stepFight(f, false, 1 / 120); secs += 1 / 120; }
+    expect(f.over).toBeNull();
+    expect(f.mend).toBeNull();
+    expect(secs).toBeLessThan(SECS);
+    expect(f.strain).toBe(SILK.left);
+    expect(f.tension).toBeLessThanOrEqual(f.hi);
+    // (once to a fight: the silk has done what it does)
+    expect(f.silk).toBe(0);
+    // …and can be won from there by a steady hand
+    expect(playFight(f, steady).over).toBe("landed");
+    // not mended, it is lost as ever
+    let g = untilMend(startFight("catfish", "good", silk, 5), true);
+    while (!g.over) g = stepFight(g, true, 1 / 120);
+    expect(g.over).toBe("snapped");
+  });
+
+  it("takes no failing away (the owner: \"แรงไป แบบนี้จะไม่มีการ fail เกิดขึ้นเลย\"): it mends once to a fight, and the next time the fish is lost at once", () => {
+    // mended once…
+    let f = untilMend(startFight("catfish", "good", silk, 5), true);
+    while (f.mend && !f.over) f = stepFight(f, false, 1 / 120);
+    expect(f.over).toBeNull();
+    // …the line strained through again snaps there and then, as a line with no silk does
+    const from = f.t;
+    let g = f, plain: Fight = { ...f, silk: undefined, mend: undefined };
+    while (!g.over) { g = stepFight(g, true, 1 / 120); plain = stepFight(plain, true, 1 / 120); }
+    expect(g.over).toBe("snapped");
+    expect(g.t).toBe(plain.t);
+    expect(g.t).toBeGreaterThan(from);
+    expect(g.mend).toBeNull();
+    // a fish never reeled is gone all the same: the hook saved once, the slack comes again
+    expect(playFight(startFight("barb", "good", silk, 9), () => false).over).toBe("slipped");
+    // made-up hands land more with it than without, and still lose the hard fish
+    for (const [id, hand] of [["snakehead", AVERAGE], ["koi", SKILLED], ["pangasius", AVERAGE]] as Array<[FishId, [number, number]]>) {
+      expect(lands(id, hand, silk), id).toBeGreaterThan(lands(id, hand) + 0.15);
+      expect(lands(id, hand, silk), id).toBeLessThan(0.85);
+    }
+    expect(lands("koi", AVERAGE, silk)).toBeLessThan(0.1);
+    expect(lands("snakehead", NEW, silk)).toBeLessThan(0.1);
+  });
+
+  it("is nothing to a fight without it: the same fight step for step", () => {
+    const hold = (f: Fight) => Math.floor(f.t * 2) % 2 === 0;
+    for (const seed of [1, 2, 3]) {
+      let a = startFight("eel", "good", {}, seed), b = startFight("eel", "good", { silk: 0 }, seed);
+      expect(b).toEqual(a);
+      while (!a.over) { a = stepFight(a, hold(a), 1 / 120); b = stepFight(b, hold(b), 1 / 120); }
+      expect(b).toEqual(a);
+    }
+  });
+
+  it("holds for two fish at once as for one: three seconds to bring the tension back into either stretch before one is lost", () => {
+    const NARROW = { narrow: numberOf("thingRod") };
+    const lose = (mods: FightMods) => { let p = startPair(["catfish", "carp"], "good", mods, 3); while (!p.ended[0] && !p.ended[1]) p = stepPair(p, true, 1 / 120); return p; };
+    const plain = lose(NARROW), worn = lose({ ...NARROW, ...silk });
+    expect(worn.t - plain.t).toBeGreaterThan(SECS - 0.02);
+    expect(worn.t - plain.t).toBeLessThan(SECS + 0.05);
+    // mended: back into a stretch in time, neither is lost, and half the strain is left
+    let p = startPair(["catfish", "carp"], "good", { ...NARROW, ...silk }, 3);
+    while (!p.mend) p = stepPair(p, true, 1 / 120);
+    expect(p.mend).toEqual({ how: "snapped", left: SECS });
+    while (p.mend) p = stepPair(p, false, 1 / 120);
+    expect(p.ended).toEqual([null, null]);
+    expect(p.strain).toBe(SILK.left);
+    expect(p.silk).toBe(0);
+    // without it the pair is as it was
+    expect(startPair(["catfish", "carp"], "good", NARROW, 3).silk).toBe(0);
   });
 });

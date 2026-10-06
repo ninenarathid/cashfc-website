@@ -74,6 +74,7 @@ export async function strike(X) {
  */
 export const hand = (X, how) => X.evaluate(`(() => {
   clearInterval(window.__fishHand);
+  window.__fishMend = { seen: false, done: false };
   window.__fishHand = setInterval(() => {
     const h = window.__townFish, f = h?.fight?.(), p = h?.pair?.();
     // (two fish at once: the needle kept where the two stretches lie over each other, when they do; else in the
@@ -91,6 +92,14 @@ export const hand = (X, how) => X.evaluate(`(() => {
     if (!f) return;
     if (${JSON.stringify(how)} === "slack") return h.hold(false);
     if (${JSON.stringify(how)} === "taut") return h.hold(true);
+    // (a line of dragon silk: only reeled until it begins to mend, let go at once so that it is mended in time, and
+    // then won ("mendOnce") or only reeled again ("mendThenTaut"))
+    if (${JSON.stringify(how)} === "mendOnce" || ${JSON.stringify(how)} === "mendThenTaut") {
+      const st = window.__fishMend;
+      if (f.mend) { st.seen = true; return h.hold(false); }
+      if (st.seen) st.done = true;
+      if (!st.done || ${JSON.stringify(how)} === "mendThenTaut") return h.hold(true);
+    }
     const on = f.t >= f.surge.from - 0.3 && f.t < f.surge.to;
     h.hold(f.tension < f.lo + (f.hi - f.lo) * (on ? 0.25 : 0.5));
   }, 12);

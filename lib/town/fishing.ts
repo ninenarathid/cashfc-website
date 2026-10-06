@@ -329,7 +329,12 @@ export interface Fight {
   /** Where the fight's own run of numbers has got to. */
   seed: number;
   over: null | "landed" | "snapped" | "slipped";
+  /** A line of dragon silk (below): the seconds it gives; and, while what would have lost the fish is being mended, what that was and the seconds left. */
+  silk?: number;
+  mend?: Mend;
 }
+/** What is being mended on a line of dragon silk: the line that would have snapped or the hook that would have slipped, and the seconds left to. */
+export type Mend = { how: "snapped" | "slipped"; left: number } | null;
 
 /** One more number from a fight's run, and where the run is afterwards. */
 function draw(seed: number): [number, number] {
@@ -346,6 +351,8 @@ export interface FightMods {
   spent?: boolean; calm?: Level; gear?: Pick<Gear, "band" | "pace" | "slip" | "snap" | "line">;
   /** (the gifts of the deck's ranks, below) `narrow`: what is left of the safe stretch's width when two fish are fought at once on a rod of two lines. */
   narrow?: number;
+  /** `silk`: the seconds a line of dragon silk gives to mend what would have lost the fish (none: it is lost at once, as ever). */
+  silk?: number;
 }
 
 /**
@@ -373,6 +380,7 @@ export function startFight(fish: FishId, strike: Strike, mods: FightMods, seed: 
     pull: f.pull, power: f.surge * (mods.spent ? spent.surge : 1),
     surge: { from, to: from + kind.surge },
     seed: next, over: null,
+    ...(mods.silk && mods.silk > 0 ? { silk: mods.silk, mend: null } : {}),
   };
 }
 
@@ -391,7 +399,38 @@ export function stepFight(f: Fight, holding: boolean, dt: number): Fight {
   const strain = tension > hi ? f.strain + dt / f.snapIn : Math.max(0, f.strain - dt / FIGHT.mend);
   const slack = tension < lo ? f.slack + dt / f.slipIn : Math.max(0, f.slack - dt / FIGHT.mend);
   const over = line <= 0 ? "landed" : strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 || line > f.length * 1.6 ? "slipped" : null;
-  return { ...f, t, tension, line: Math.max(0, line), strain: Math.min(1, strain), slack: Math.min(1, slack), lo, hi, at, to, speed, rest, surge, seed, over };
+  const next: Fight = { ...f, t, tension, line: Math.max(0, line), strain: Math.min(1, strain), slack: Math.min(1, slack), lo, hi, at, to, speed, rest, surge, seed, over };
+  if (!f.silk || over === "landed") return next;
+  // A line of dragon silk: what would have lost the fish begins a few seconds to mend it in. (A fish that has run
+  // off with too much line is gone all the same: that is no line too taut or too slack, it is a fish never reeled.)
+  const m = mending(f.mend ?? null, f.silk, strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 ? "slipped" : null, tension >= lo && tension <= hi, dt);
+  return { ...next, mend: m.mend, over: line > f.length * 1.6 ? "slipped" : m.lost, strain: m.saved === "snapped" ? SILK.left : next.strain, slack: m.saved === "slipped" ? SILK.left : next.slack,
+    // (mended: the silk has done what it does for this fight)
+    silk: m.saved ? 0 : f.silk };
+}
+/**
+ * A line of dragon silk (the deck's fourth rank, a charm): a line too taut or too slack does not lose the fish at
+ * once. From the moment it would have, there are so many seconds (the charm's number, lib/town/gifts) to bring the
+ * tension back into the safe stretch: brought back, the fish is on still, with so much of that strain or slack left
+ * on it (`left`: it has not begun anew); not brought back, the fish is lost as ever.
+ *
+ * **Once to a fight** (a fight's `silk` is none once it has mended). The owner's rule is that no power takes failing
+ * away, and the made-up hands say what "as often as it comes to that" would do: every one of them, the newcomer too,
+ * lands every fish there is, the legend with the rest (the scratch folder's sim-silk.mjs: 100 in 100 where a
+ * practised hand had landed 36 koi and an average one none). Mending once, a practised hand lands 65 koi in a hundred
+ * for 36, an average one 59 snakeheads for 24 and 12 eels for 4, and a newcomer still next to none of the big ones:
+ * a second chance for whoever nearly had it, and no fish for nothing. (Each time shorter was tried too, three seconds
+ * then two then one: a practised hand then loses only the legend, one in ten.)
+ */
+export const SILK = { left: 0.5 };
+/** A moment of the mending: what is being mended now, and what came of it this moment (the fish lost, or saved). */
+function mending(mend: Mend, silk: number, breaks: "snapped" | "slipped" | null, safe: boolean, dt: number): { mend: Mend; lost: "snapped" | "slipped" | null; saved: "snapped" | "slipped" | null } {
+  if (mend) {
+    if (safe) return { mend: null, lost: null, saved: mend.how };
+    const left = mend.left - dt;
+    return left <= 0 ? { mend: null, lost: mend.how, saved: null } : { mend: { how: mend.how, left }, lost: null, saved: null };
+  }
+  return { mend: breaks ? { how: breaks, left: silk } : null, lost: null, saved: null };
 }
 /**
  * The fish and its safe stretch a moment later, whatever the hand does: when it surges next, where the stretch is and
@@ -553,6 +592,9 @@ export interface Pair {
   /** What the second fish's stretch keeps about, and how much of its own way it goes from there. */
   about: number;
   own: number;
+  /** A line of dragon silk: the seconds it gives (none: 0), and what is being mended. */
+  silk: number;
+  mend: Mend;
 }
 /** Where the second fish's stretch is: about a place, so much of its own way from it, never off the gauge. */
 const strayed = (f: Fight, about: number, own: number) => room(f.band, about + (f.at - FIGHT.centre) * own);
@@ -563,7 +605,7 @@ export function startPair(fish: [FishId, FishId], strike: Strike, mods: FightMod
   const at = strayed(b, a.at, PAIR.stray);
   return {
     fights: [a, b], ended: [null, null], t: 0, tension: 0.5, strain: 0, slack: 0, snapIn: a.snapIn, slipIn: a.slipIn,
-    lo: [a.lo, at - b.band / 2], hi: [a.hi, at + b.band / 2], about: a.at, own: PAIR.stray,
+    lo: [a.lo, at - b.band / 2], hi: [a.hi, at + b.band / 2], about: a.at, own: PAIR.stray, silk: mods.silk && mods.silk > 0 ? mods.silk : 0, mend: null,
   };
 }
 /** The two a moment later, the reel held or not. */
@@ -590,12 +632,23 @@ export function stepPair(p: Pair, holding: boolean, dt: number): Pair {
   let strain = tension > top ? p.strain + dt / p.snapIn : Math.max(0, p.strain - dt / FIGHT.mend);
   let slack = tension < bottom ? p.slack + dt / p.slipIn : Math.max(0, p.slack - dt / FIGHT.mend);
   const ended: Pair["ended"] = [p.ended[0], p.ended[1]];
-  const lose = (i: 0 | 1, how: "snapped" | "slipped") => { ended[i] = how; fights[i] = { ...fights[i], over: how }; strain = 0; slack = 0; };
+  let mend = p.mend, silk = p.silk;
+  const lose = (i: 0 | 1, how: "snapped" | "slipped") => { ended[i] = how; fights[i] = { ...fights[i], over: how }; strain = 0; slack = 0; mend = null; };
   for (const i of live) if (fights[i].line <= 0) { ended[i] = "landed"; fights[i] = { ...fights[i], over: "landed" }; }
   const still = live.filter((i) => !ended[i]);
   // (one at a time: whichever comes first of the line strained through, the hook slack too long, a fish run off with the line)
-  if (still.length && (strain >= 1 || tension >= 1.04)) lose(still.reduce((u, i) => (hi[i] > hi[u] ? i : u)), "snapped");
-  else if (still.length && slack >= 1) lose(still.reduce((u, i) => (lo[i] < lo[u] ? i : u)), "slipped");
+  let lost: "snapped" | "slipped" | null = !still.length ? null : strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 ? "slipped" : null;
+  // (a line of dragon silk: so many seconds to bring the tension back into either stretch before one is lost)
+  if (silk && still.length) {
+    const m = mending(mend, silk, lost, still.some((i) => tension >= lo[i] && tension <= hi[i]), dt);
+    mend = m.mend;
+    lost = m.lost;
+    if (m.saved === "snapped") strain = SILK.left;
+    if (m.saved === "slipped") slack = SILK.left;
+    if (m.saved) silk = 0;
+  }
+  if (lost === "snapped") lose(still.reduce((u, i) => (hi[i] > hi[u] ? i : u)), "snapped");
+  else if (lost === "slipped") lose(still.reduce((u, i) => (lo[i] < lo[u] ? i : u)), "slipped");
   else { const ran = still.find((i) => fights[i].line > fights[i].length * 1.6); if (ran !== undefined) lose(ran, "slipped"); }
-  return { fights, ended, t: p.t + dt, tension, strain: Math.min(1, strain), slack: Math.min(1, slack), snapIn: p.snapIn, slipIn: p.slipIn, lo, hi, about, own };
+  return { fights, ended, t: p.t + dt, tension, strain: Math.min(1, strain), slack: Math.min(1, slack), snapIn: p.snapIn, slipIn: p.slipIn, lo, hi, about, own, silk, mend };
 }
