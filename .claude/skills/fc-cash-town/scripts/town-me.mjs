@@ -1,6 +1,7 @@
 // "ตัวฉัน" and the gifts of ranks (the owner, 2026-10-06), played in the trial and read off the screen: a rank's gift
 // taken on its rung and on the leaf of what one wears; two charms worn at a time, a third refused a place; one taken
-// off and another put on; the leaf opened from one's own card; a dot on the lines' button while a gift waits.
+// off and another put on; a familiar called and sent to rest, and the room told of it; the leaf opened from one's own
+// card; a dot on the lines' button while a gift waits.
 //
 //   node .claude/skills/fc-cash-town/scripts/town-me.mjs <base-url> <out-dir>
 //
@@ -57,11 +58,24 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     await click(X, `[data-lines-leaf="me"]`, 600);
     ok(`[${label}] "ตัวฉัน" opens beside the lines: two empty places, a place for a familiar that says nothing of what is to come`, await X.evaluate(`!!${M} && ${M}.querySelectorAll('[data-me-slot=""]').length === 2 && !!${M}.querySelector("[data-me-familiar]")`));
     const due = await X.evaluate(`[...${M}.querySelectorAll("[data-me-due]")].map((li) => ({ id: li.dataset.meDue, text: li.innerText.replace(/\\s+/g, " ") }))`);
-    ok(`[${label}] what waits is listed by its line and rank, not by its name: the deck's, the insects' and the farm's`, due.map((d) => d.id).join() === "charmFloat,charmNet,charmHoe" && due.every((d) => !/ทุ่น|สวิง|จอบ/.test(d.text)), due);
-    for (const id of ["charmFloat", "charmNet", "charmHoe"]) await click(X, `[data-me-take="${id}"]`, 600);
-    ok(`[${label}] each is taken there; nothing more waits, the dot is gone, and the count says four of six`, (await gifts(X)).had.length === 4 && (await X.evaluate(`${M}.querySelectorAll("[data-me-due]").length`)) === 0
-      && (await X.evaluate(`document.querySelector("[data-town-lines-button]").dataset.due === undefined`)) && (await X.evaluate(`${M}.querySelector("[data-me-count]").dataset.meCount`)) === "4/6", await gifts(X));
-    ok(`[${label}] what is still to get is a number and no name`, await X.evaluate(`/อีก 2 ชิ้น/.test(${M}.querySelector("[data-me-count]").innerText) && !/ถุงมือ|ตะกร้า/.test(${M}.innerText)`));
+    ok(`[${label}] what waits is listed by its line and rank, not by its name: the deck's, the insects' two ranks and the farm's`, due.map((d) => d.id).join() === "charmFloat,charmNet,famButterfly,charmHoe" && due.every((d) => !/ทุ่น|สวิง|จอบ|ผีเสื้อ/.test(d.text)), due);
+    for (const id of ["charmFloat", "charmNet", "famButterfly", "charmHoe"]) await click(X, `[data-me-take="${id}"]`, 600);
+    ok(`[${label}] each is taken there; nothing more waits, the dot is gone, and the count says five of nine`, (await gifts(X)).had.length === 5 && (await X.evaluate(`${M}.querySelectorAll("[data-me-due]").length`)) === 0
+      && (await X.evaluate(`document.querySelector("[data-town-lines-button]").dataset.due === undefined`)) && (await X.evaluate(`${M}.querySelector("[data-me-count]").dataset.meCount`)) === "5/9", await gifts(X));
+    ok(`[${label}] what is still to get is a number and no name`, await X.evaluate(`/อีก 4 ชิ้น/.test(${M}.querySelector("[data-me-count]").innerText) && !/ถุงมือ|ตะเกียง|กระรอก|โนม/.test(${M}.innerText)`));
+
+    // ── a familiar ──
+    ok(`[${label}] a familiar taken follows nobody until it is called: its place is empty, and it is there to call`, await X.evaluate(`${M}.querySelector('[data-me-fam]').dataset.meFam === "" && !!${M}.querySelector('[data-me-call="famButterfly"]')`));
+    await click(X, `[data-me-call="famButterfly"]`, 700);
+    await until("the room is told", () => X.evaluate(`window.__cashTown.me().pet === "famButterfly"`), 6000);
+    ok(`[${label}] called, it follows me: in its place on the leaf, kept by the keeper, and the room is told which`, (await X.evaluate(`${M}.querySelector('[data-me-fam]').dataset.meFam`)) === "famButterfly" && (await gifts(X)).familiar === "famButterfly");
+    const noFam = await X.evaluate(`${K}.familiarWear("famGnome")`), notOne = await X.evaluate(`${K}.familiarWear("charmHoe")`);
+    ok(`[${label}] one not had, and a charm, are refused as familiars`, noFam.why === "none" && notOne.why === "none", { noFam, notOne });
+    await X.shot(`${OUT}/me-familiar-${label}.png`);
+    await click(X, `[data-me-fam="famButterfly"]`, 700);
+    await until("the room is told it rests", () => X.evaluate(`(window.__cashTown.me().pet ?? "") === ""`), 6000);
+    ok(`[${label}] a tap sends it to rest, and the room is told that too`, (await gifts(X)).familiar === null);
+    await click(X, `[data-me-call="famButterfly"]`, 700);
 
     // ── two worn at a time ──
     await click(X, `[data-me-charm="charmFloat"]`, 600);
@@ -89,7 +103,7 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     await tap(X, at.x, at.y);
     await until("my card", () => X.evaluate(`!!document.querySelector("[data-town-me-button]")`), 5000);
     await click(X, "[data-town-me-button]", 900);
-    ok(`[${label}] my own card has the way to "ตัวฉัน", and it opens the board at that leaf with what I wear`, (await X.evaluate(`!!${M}`)) && (await worn(X)) === "charmHoe,charmNet");
+    ok(`[${label}] my own card has the way to "ตัวฉัน", and it opens the board at that leaf with what I wear and what follows me`, (await X.evaluate(`!!${M}`)) && (await worn(X)) === "charmHoe,charmNet" && (await X.evaluate(`${M}.querySelector('[data-me-fam]').dataset.meFam`)) === "famButterfly");
     ok(`[${label}] no page errors`, (X.errors ?? []).length === 0, X.errors);
   } finally { await X.close(); }
 }

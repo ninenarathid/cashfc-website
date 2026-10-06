@@ -32,12 +32,14 @@ const fmt = (n: number) => Math.floor(n).toLocaleString("en-US");
  *
  * It says what is, never how points are come by: that is found by doing. With `reduced` nothing moves.
  */
-export default function TownLines({ keeper, told, gifts, gifting, leaf, th, reduced, called, bottom, onClose }: {
+export default function TownLines({ keeper, told, gifts, gifting, given, leaf, th, reduced, called, bottom, onClose }: {
   keeper: Keeper;
   told: LinesTold;
   /** What I have of the gifts and wear of them, and whether whoever keeps the game gives any (else nothing of them shows). */
   gifts: Gifts;
   gifting: boolean;
+  /** The gifts whoever keeps the game gives yet: nothing is offered or counted of any other. */
+  given: readonly string[];
   /** Which leaf the board opens at. */
   leaf: "lines" | "me";
   th: boolean;
@@ -98,7 +100,7 @@ export default function TownLines({ keeper, told, gifts, gifting, leaf, th, redu
           {worn && <button type="button" disabled={busy} onClick={() => wear(null)} data-lines-bare className="pressable min-h-10 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta disabled:opacity-50" style={{ color: CREAM }}>{th ? "ถอดฉายา" : "Wear none"}</button>}
         </div>
 
-        {at === "me" ? <TownMe keeper={keeper} told={told} gifts={gifts} th={th} /> : (
+        {at === "me" ? <TownMe keeper={keeper} told={told} gifts={gifts} given={given} th={th} /> : (
         <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-2 p-2 min-[900px]:grid-cols-[minmax(0,1fr)_22rem] min-[900px]:grid-rows-[minmax(0,1fr)]">
           {/* ── the seven lines ── */}
           <ul className="flex gap-1.5 overflow-x-auto pb-1 min-[900px]:max-h-[30rem] min-[900px]:flex-col min-[900px]:overflow-y-auto min-[900px]:overflow-x-hidden min-[900px]:pb-0 min-[900px]:pr-1 [scrollbar-color:#6b4a2a_transparent] [scrollbar-width:thin]" aria-label={th ? "สายทั้งหมด" : "The lines"}>
@@ -147,7 +149,7 @@ export default function TownLines({ keeper, told, gifts, gifting, leaf, th, redu
             <ol className="min-h-0 flex-1 overflow-y-auto px-2.5 py-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]">
               {ladder.map((r) => {
                 const isWorn = worn?.line === picked && worn.rank === r.rank;
-                const gift = gifting && r.state === "had" ? giftAt(picked, r.rank) : null, has = !!gift && gifts.had.includes(gift.id);
+                const there = gifting && r.state === "had" ? giftAt(picked, r.rank) : null, gift = there && given.includes(there.id) ? there : null, has = !!gift && gifts.had.includes(gift.id);
                 return (
                   <li key={r.rank} data-lines-rank={r.rank} data-state={r.state} className="flex items-center gap-2.5 py-1.5" style={{ opacity: r.state === "far" ? 0.55 : 1 }}>
                     <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 font-data text-ui font-semibold tabular-nums"

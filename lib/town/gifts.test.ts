@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FARMING, tend, type Plant, type Plot } from "./farm";
 import { STRIKE, strikeOf, strikeWindowOf } from "./fishing";
-import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, takeGift, wearCharms, wearFamiliar, wearing, type CharmId, type FamiliarId } from "./gifts";
+import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, takeGift, useOne, usedNow, wearCharms, wearFamiliar, wearing, type CharmId, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { eased, staminaOf } from "./stamina";
@@ -110,6 +110,22 @@ describe("the gifts of the lines of work", () => {
     expect(giftsOf(p).had).toEqual(["famSquirrel", "famGnome", "charmHoe"]);
     // (a charm cannot be worn as a familiar is, nor a familiar as a charm)
     expect(wearCharms(p, ["famGnome"])).toEqual({ ok: false, why: "none" });
+  });
+
+  it("what a familiar does so many times to a meal's hours is counted by the day and the meal, and begins again with each", () => {
+    const morning = at("2026-10-06T08:00:00"), noon = at("2026-10-06T12:00:00"), next = at("2026-10-07T08:00:00");
+    expect(usedNow(null, morning)).toBe(0);
+    let kept = useOne(null, morning);
+    kept = useOne(kept, morning + 60_000);
+    expect(usedNow(kept, morning + 120_000)).toBe(2);
+    // (another meal's hours, and another day's same hours: none used yet)
+    expect(usedNow(kept, noon)).toBe(0);
+    expect(usedNow(kept, next)).toBe(0);
+    expect(useOne(kept, noon).n).toBe(1);
+    // (what is kept wrongly counts for nothing)
+    expect(usedNow("x", morning)).toBe(0);
+    expect(usedNow({ day: kept.day, meal: kept.meal, n: "3" }, morning)).toBe(0);
+    expect(usedNow({ day: kept.day, meal: kept.meal, n: -4 }, morning)).toBe(0);
   });
 
   it("the catalog's row says the places, and of each gift which rank of which line gives it and its number", () => {

@@ -37,7 +37,7 @@ import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
-import { CHARMS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
+import { CHARMS, GIFTS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { BOX } from "@/lib/town/box";
@@ -687,7 +687,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [linesTold, setLinesTold] = useState<LinesTold | null>(null);
   const [linesOpen, setLinesOpen] = useState<false | "lines" | "me">(false);
   /** What I have of the gifts of my ranks and wear of them, and whether whoever keeps the game gives any (lib/town/gifts). */
-  const [giftsTold, setGiftsTold] = useState<{ gifting: boolean; gifts: Gifts }>({ gifting: false, gifts: { had: [], charms: [], owed: 0, familiar: null } });
+  const [giftsTold, setGiftsTold] = useState<{ gifting: boolean; given: string[]; gifts: Gifts }>({ gifting: false, given: [], gifts: { had: [], charms: [], owed: 0, familiar: null } });
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
   /** Everybody on the map now, as this screen has them (the bucket line asks who stands within sight: lib/town/line). */
@@ -760,6 +760,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [session, keeper]);
   /** How far the forest walker's lamp lights about me, in tiles, while I wear it (lib/town/gifts): none without it. And where I stand, for its light. */
   const lampRef = useRef(0), lampAt = useRef<Vec | null>(null);
+  /** Where each familiar drawn is, by whom it follows: this page's own (lib/town/gifts). */
+  const pets = useRef(new Map<string, { x: number; y: number; right: boolean }>());
   // Everybody's rank at the well (lib/town/well): the keeper's, read as it changes.
   useEffect(() => {
     if (!keeper) { ranksRef.current = { ranks: {}, titles: {}, me: "" }; setLinesTold(null); return; }
@@ -768,7 +770,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       // (my lines, kept only as they change: the keeper tells of every little thing)
       const next = keeper.lines();
       setLinesTold((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next));
-      const mine = { gifting: keeper.gifting(), gifts: giftsOf(keeper.purse()) };
+      const mine = { gifting: keeper.gifting(), given: GIFTS.filter((g) => keeper.gives(g.id)).map((g) => g.id as string), gifts: giftsOf(keeper.purse()) };
       setGiftsTold((was) => (JSON.stringify(was) === JSON.stringify(mine) ? was : mine));
       lampRef.current = mine.gifts.charms.includes("charmLamp") ? CHARMS.charmLamp : 0;
     };
@@ -2194,9 +2196,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       for (const a of stay.avatars.values()) {
         if (a.byeAt !== undefined || (roofOn && onYard(Math.floor(a.pos.x), Math.floor(a.pos.y)))) continue;
         things.push({ depth: depthOf(a), draw: () => drawAvatar(ctx, a, false, names, boxes, !live, wall, now, dpr) });
+        const pet = petOf(a, dt);
+        if (pet) things.push({ depth: pet.at.x + pet.at.y, draw: () => drawPet(ctx, pet, now) });
       }
     }
     if (mine) things.push({ depth: depthOf(mine), draw: () => drawAvatar(ctx, mine, true, names, boxes, false, wall, now, dpr) });
+    const myPet = mine ? petOf(mine, dt) : null;
+    if (myPet) things.push({ depth: myPet.at.x + myPet.at.y, draw: () => drawPet(ctx, myPet, now) });
+    // (a familiar whose member has gone is forgotten)
+    if (pets.current.size > (stay?.avatars.size ?? 0) + 1) for (const id of pets.current.keys()) if (id !== mine?.info.id && !stay?.avatars.has(id)) pets.current.delete(id);
     things.sort((a, b) => a.depth - b.depth);
     for (const t of things) t.draw();
     // The weather (lib/town/weather), then the time of day: the town multiplied by the
@@ -2296,6 +2304,48 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }
 
   /** Where somebody is drawn in the back-to-front order. */
+  /**
+   * Where somebody's familiar is now (lib/town/gifts: what the room was told follows them): it trails a little way
+   * behind its member, catches up when they stand, and is beside them at once after a gate. Nothing of the game hangs
+   * on where it is: each page walks the familiars it draws by itself.
+   */
+  function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName } | null {
+    const name = a.info.pet;
+    if (!name || !name.startsWith("fam") || !(name in ICON_ATLAS.icons) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
+    let p = pets.current.get(a.info.id);
+    if (!p || Math.hypot(a.pos.x - p.x, a.pos.y - p.y) > 5) { p = { x: a.pos.x - 0.55, y: a.pos.y + 0.3, right: true }; pets.current.set(a.info.id, p); }
+    const dx = a.pos.x - p.x, dy = a.pos.y - p.y, d = Math.hypot(dx, dy), gap = 0.72;
+    let moving = false;
+    if (d > gap) {
+      const go = Math.min(d - gap, 4.4 * dt);
+      p.x += (dx / d) * go; p.y += (dy / d) * go;
+      moving = go > 0.004;
+      // (which way it looks: the way it goes across the screen)
+      if (Math.abs(dx - dy) > 0.05) p.right = dx - dy > 0;
+    }
+    return { at: { x: p.x, y: p.y }, right: p.right, moving, name: name as IconName };
+  }
+  /** A familiar at its place: its picture out of the icons', turned the way it goes, hopping as it runs (a butterfly flies and never lands). */
+  function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName }, now: number) {
+    const img = iconImg.current;
+    if (!img?.complete || !img.naturalWidth) return;
+    const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
+    if (!onScreen(c)) return;
+    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = 1.5 * sc, flies = pet.name === "famButterfly", still = reducedRef.current;
+    const bob = still ? 0 : flies ? Math.sin(now / 260) * 3 * sc : pet.moving ? Math.abs(Math.sin(now / 95)) * 3.5 * sc : 0;
+    const lift = (flies ? 18 * sc : 0) + bob;
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.beginPath();
+    ctx.ellipse(c.x, c.y, (flies ? 5 : 7) * sc, (flies ? 2 : 3) * sc, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(Math.round(c.x), Math.round(c.y - lift));
+    if (!pet.right) ctx.scale(-1, 1);
+    ctx.drawImage(img, x, y, w, h, -Math.round((w * k) / 2), -Math.round(h * k), Math.round(w * k), Math.round(h * k));
+    ctx.restore();
+  }
+
   function depthOf(a: Avatar): number {
     // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
     // again over their legs (see where the yard is drawn)
@@ -3261,6 +3311,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // (whether I have no stamina left: handing water on is a game only where somebody has none, lib/town/handing)
   const spentNow = purse.stamina <= 0;
   useEffect(() => { sessionRef.current?.setSpent(spentNow); }, [spentNow]);
+  // (and which familiar follows me, lib/town/gifts: everybody's page draws it at my heels)
+  useEffect(() => { sessionRef.current?.setPet(giftsTold.gifts.familiar); }, [giftsTold.gifts.familiar, session]);
   const landedAt = useRef(0);
   const onLine = useCallback((state: LineState | null) => {
     lineRef.current = state;
@@ -3338,7 +3390,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // The card's person, if they are still here.
   const cardWho = card && s ? (card.id === me.id ? s.self : s.avatars.get(card.id) ?? null) : null;
   /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
-  const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).length > 0;
+  const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
   // A sign that was tapped from far off: asked again now that I have stopped walking.
   useEffect(() => {
     const id = signWant.current;
@@ -3924,7 +3976,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* The lines of work and their ladders: a board over the map */}
       {s && game && keeper && linesTold && linesOpen && (
         <Suspense fallback={null}>
-          <TownLines keeper={keeper} told={linesTold} gifts={giftsTold.gifts} gifting={giftsTold.gifting} leaf={linesOpen} th={w.th} reduced={reducedRef.current} called={me.name}
+          <TownLines keeper={keeper} told={linesTold} gifts={giftsTold.gifts} gifting={giftsTold.gifting} given={giftsTold.given} leaf={linesOpen} th={w.th} reduced={reducedRef.current} called={me.name}
                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} onClose={() => setLinesOpen(false)} />
         </Suspense>
       )}

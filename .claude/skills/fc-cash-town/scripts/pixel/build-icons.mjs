@@ -198,6 +198,8 @@ const SHEETS = [
   ["icons-charms-a", ["charmApron", "charmGloves", "charmFloat", "charmBasket", "charmNet", "charmHoe"], { range: [4.9, 5.2] }],
   // the forest walker's lamp, which took the vine basket's place at the forest's first rank (the basket's picture is used by nothing), and a jar of fireflies for a later one
   ["icons-charms-b", ["charmLamp", "charmFirefly"], { range: [10.1, 10.6] }],
+  // the familiars that follow their members (lib/town/gifts), each seen from the side and facing right: the first three are given by a second rank, the otter, the piglet and the hearth's sprite by ranks to come
+  ["icons-familiars-a", ["famSquirrel", "famButterfly", "famGnome", "famOtter", "famPiglet", "famSprite"], { range: [9.7, 10.3] }],
 ];
 
 const pieces = [];

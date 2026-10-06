@@ -10,7 +10,7 @@ import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import { WILD_WISHES, softStep } from "@/lib/town/forest-eye";
-import { charmBy } from "@/lib/town/gifts";
+import { charmBy, famBy } from "@/lib/town/gifts";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
@@ -121,7 +121,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const purse = keeper.purse(), hand = handOf(purse), spent = isSpent(purse, keeper.now());
   // (the fountain's soft step: an insect lets me come nearer, lib/town/forest-eye)
   // (the fountain's soft step, or a meal's: the softer at each of the meal's levels, items' byOf; with neither, as ever)
-  const soft = softStep(byOf(WILD_WISHES.net, levelOf(purse, keeper.now(), WILD_WISHES.net as WishId)));
+  // (and the lucky butterfly that follows me is a step more of it, lib/town/gifts)
+  const soft = softStep(byOf(WILD_WISHES.net, levelOf(purse, keeper.now(), WILD_WISHES.net as WishId)) + famBy(purse, "famButterfly"));
   // (the silver-web net worn as a charm: the ring so many times as wide, lib/town/gifts)
   const wide = charmBy(purse, "charmNet");
   const live = useRef({ hand, spent, busy, th, name, soft, wide, me: keeper.id });

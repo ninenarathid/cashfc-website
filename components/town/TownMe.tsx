@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CHARMS, GIFTS, dueOf, giftOf, leftOf, type CharmId, type Gift, type Gifts } from "@/lib/town/gifts";
+import { CHARMS, dueOf, giftOf, type CharmId, type FamiliarId, type Gift, type Gifts } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
 import { LINES, LINE_IDS, type LinesTold } from "@/lib/town/lines";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -15,17 +15,20 @@ const PAPER = "#f0dfb6", PAPER_EDGE = "#d9bf85", INK = "#4a3520", INK_SOFT = "#7
  *
  * - **Two places for charms.** A charm worn works by itself, with nothing held for it: the hand stays free for the
  *   hoe or the rod. A tap on one worn takes it off; a tap on one I have puts it on, where there is a place.
- * - **A place for a familiar**, empty until a rank gives one: it says nothing of what is to come.
+ * - **A place for a familiar**: the one that follows me, for everybody to see; a tap sends it to rest, a tap on
+ *   another I have calls that one. Empty until a rank gives one, and then it says nothing of what is to come.
  * - **What waits to be taken**: the gift of a rank I have reached and not taken, with a button. Only then is it named.
  * - What I have not got is a number and no more ("ของที่ยังไม่ได้: ไม่บอกชื่อ บอกแค่จำนวน").
  *
  * A panel of the lines' board (TownLines), on its wood. With the keeper busy nothing is pressed twice.
  */
-export default function TownMe({ keeper, told, gifts, th }: { keeper: Keeper; told: LinesTold; gifts: Gifts; th: boolean }) {
+export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Keeper; told: LinesTold; gifts: Gifts; given: readonly string[]; th: boolean }) {
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
   const points = Object.fromEntries(LINE_IDS.map((id) => [id, told.lines[id].points]));
-  const due = dueOf(points, { gifts }), worn = gifts.charms, full = worn.length >= CHARMS.slots;
+  const due = dueOf(points, { gifts }).filter((g) => given.includes(g.id)), worn = gifts.charms, full = worn.length >= CHARMS.slots;
+  const fams = gifts.had.filter((id) => giftOf(id)?.kind === "familiar") as FamiliarId[], fam = gifts.familiar ? giftOf(gifts.familiar) : null;
+  const got = gifts.had.filter((id) => given.includes(id)).length, left = given.length - got;
   const spare = gifts.had.filter((id) => giftOf(id)?.kind === "charm" && !worn.includes(id as CharmId)) as CharmId[];
   const act = async (what: () => Promise<{ ok: boolean }>, no: string) => {
     if (busy) return;
@@ -36,6 +39,7 @@ export default function TownMe({ keeper, told, gifts, th }: { keeper: Keeper; to
   };
   const wear = (ids: CharmId[]) => act(() => keeper.charmsWear(ids), th ? "ใส่ไม่ได้ ลองอีกครั้งนะ" : "That could not be worn. Try again.");
   const take = (g: Gift) => act(() => keeper.giftTake(g.line, g.rank), th ? "รับไม่ได้ ลองอีกครั้งนะ" : "That could not be taken. Try again.");
+  const follow = (id: FamiliarId | null) => act(() => keeper.familiarWear(id), th ? "เรียกภูตไม่ได้ ลองอีกครั้งนะ" : "It would not come. Try again.");
   const slots = Array.from({ length: CHARMS.slots }, (_, i) => (worn[i] ? giftOf(worn[i]) : null));
 
   return (
@@ -129,17 +133,50 @@ export default function TownMe({ keeper, told, gifts, th }: { keeper: Keeper; to
           <section className="rounded-[4px] border-[3px] border-[#2a190d] px-3 py-2.5" style={{ color: INK, backgroundColor: PAPER, backgroundImage: `linear-gradient(90deg, ${PAPER_EDGE} 0, transparent 7%, transparent 93%, ${PAPER_EDGE} 100%)` }}
                    aria-label={th ? "ภูตคู่ใจ" : "A familiar"} data-me-familiar="">
             <h3 className="text-ui font-semibold">{th ? "ภูตคู่ใจ" : "A familiar"}</h3>
-            <div className="mt-1.5 flex items-center gap-2.5">
-              <span className="grid size-14 shrink-0 place-items-center rounded-full border-2 border-dashed font-data text-title" style={{ borderColor: INK_SOFT, color: INK_SOFT }} aria-hidden>?</span>
-              <p className="min-w-0 flex-1 text-meta leading-snug" style={{ color: INK_SOFT }}>{th ? "ยังไม่ได้พบภูตตัวใด ภูตจะเดินตามเราไปทุกที่" : "No familiar met yet. One follows you wherever you go."}</p>
-            </div>
+            {fam ? (
+              <button type="button" disabled={busy} onClick={() => follow(null)} data-me-fam={fam.id} title={th ? "แตะเพื่อให้พัก" : "Tap to send it to rest"}
+                      className="tm-in pressable mt-1.5 flex w-full items-center gap-2.5 rounded-md border-2 px-2 py-1.5 text-left disabled:opacity-60" style={{ borderColor: JADE, backgroundColor: "rgba(47,125,79,0.12)" }}>
+                <span className="grid size-14 shrink-0 place-items-center rounded-full border-2" style={{ borderColor: JADE, backgroundColor: PAPER_EDGE }}><TownIcon name={fam.id as IconName} size={40} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-ui font-semibold">{th ? fam.name.th : fam.name.en}</span>
+                  <span className="block text-label leading-snug" style={{ color: INK_SOFT }}>{th ? fam.does.th : fam.does.en}</span>
+                  <span className="mt-0.5 block font-data text-label" style={{ color: JADE }}>{th ? "เดินตามอยู่ · แตะเพื่อให้พัก" : "Following you · tap to send it to rest"}</span>
+                </span>
+              </button>
+            ) : (
+              <div className="mt-1.5 flex items-center gap-2.5" data-me-fam="">
+                <span className="grid size-14 shrink-0 place-items-center rounded-full border-2 border-dashed font-data text-title" style={{ borderColor: INK_SOFT, color: INK_SOFT }} aria-hidden>{fams.length ? "" : "?"}</span>
+                <p className="min-w-0 flex-1 text-meta leading-snug" style={{ color: INK_SOFT }}>
+                  {fams.length ? (th ? "ยังไม่มีภูตเดินตาม แตะตัวที่มีเพื่อเรียก" : "None follows you now. Tap one you have to call it.") : (th ? "ยังไม่ได้พบภูตตัวใด ภูตจะเดินตามเราไปทุกที่" : "No familiar met yet. One follows you wherever you go.")}
+                </p>
+              </div>
+            )}
+            {fams.filter((id) => id !== gifts.familiar).length > 0 && (
+              <ul className="mt-2 grid gap-1.5">
+                {fams.filter((id) => id !== gifts.familiar).map((id) => {
+                  const g = giftOf(id)!;
+                  return (
+                    <li key={id}>
+                      <button type="button" disabled={busy} onClick={() => follow(id)} data-me-call={id}
+                              className="pressable flex w-full items-center gap-2 rounded-md border-2 px-2 py-1.5 text-left hover:brightness-95 disabled:opacity-55" style={{ borderColor: INK_SOFT, backgroundColor: "rgba(74,53,32,0.06)" }}>
+                        <span className="grid size-10 shrink-0 place-items-center rounded-full border-2" style={{ borderColor: INK_SOFT, backgroundColor: PAPER_EDGE }}><TownIcon name={id as IconName} size={28} /></span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-meta font-semibold">{th ? g.name.th : g.name.en}</span>
+                          <span className="block text-label leading-snug" style={{ color: INK_SOFT }}>{th ? g.does.th : g.does.en}</span>
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </section>
           <section className="rounded-[4px] border-[3px] border-[#2a190d] px-3 py-2.5" style={{ color: INK, backgroundColor: PAPER, backgroundImage: `linear-gradient(90deg, ${PAPER_EDGE} 0, transparent 7%, transparent 93%, ${PAPER_EDGE} 100%)` }}
-                   aria-label={th ? "ของที่สะสมได้" : "What you have"} data-me-count={`${gifts.had.length}/${GIFTS.length}`}>
+                   aria-label={th ? "ของที่สะสมได้" : "What you have"} data-me-count={`${got}/${given.length}`}>
             <h3 className="text-ui font-semibold">{th ? "ของที่สะสมได้" : "What you have"}</h3>
-            <p className="mt-0.5 font-data text-read tabular-nums"><span style={{ color: JADE }}>{gifts.had.length}</span> <span style={{ color: INK_SOFT }}>/ {GIFTS.length}</span></p>
+            <p className="mt-0.5 font-data text-read tabular-nums"><span style={{ color: JADE }}>{got}</span> <span style={{ color: INK_SOFT }}>/ {given.length}</span></p>
             <p className="text-label" style={{ color: INK_SOFT }}>
-              {leftOf({ gifts }) === 0 ? (th ? "ได้ครบทุกชิ้นที่มีตอนนี้แล้ว" : "You have every one there is for now.") : (th ? `ยังมีอีก ${leftOf({ gifts })} ชิ้นที่ยังไม่ได้ ไต่ขั้นแต่ละสายเพื่อรู้ว่าเป็นอะไร` : `${leftOf({ gifts })} still to get: climb a line to learn what they are.`)}
+              {left <= 0 ? (th ? "ได้ครบทุกชิ้นที่มีตอนนี้แล้ว" : "You have every one there is for now.") : (th ? `ยังมีอีก ${left} ชิ้นที่ยังไม่ได้ ไต่ขั้นแต่ละสายเพื่อรู้ว่าเป็นอะไร` : `${left} still to get: climb a line to learn what they are.`)}
             </p>
           </section>
         </div>

@@ -5,7 +5,7 @@ import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, ridCameOf, rol
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
-import { charmBy } from "@/lib/town/gifts";
+import { FAMILIARS, charmBy, famBy, useOne, usedNow } from "@/lib/town/gifts";
 import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
@@ -367,10 +367,23 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
     const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
+    // (the garden gnome that follows me pulls the weeds itself, with no game: so many plots to a meal's hours, counted
+    // on this device. lib/town/gifts)
+    if (need && work === "clear" && key && deed && famBy(keeper.purse(), "famGnome") > 0) {
+      const at = `cashtown.gnome.${keeper.id}`;
+      let kept: unknown = null;
+      try { kept = JSON.parse(window.localStorage.getItem(at) ?? "null"); } catch { /* nothing kept, or nothing can be */ }
+      const left = FAMILIARS.famGnome - usedNow(kept, keeper.now());
+      if (left > 0) {
+        try { window.localStorage.setItem(at, JSON.stringify(useOne(kept, keeper.now()))); } catch { /* it weeds all the same */ }
+        void act(key, { hits: need, misses: 0, secs: 0, need }).then(() => setNote(th ? `โนมถอนหญ้าให้แล้ว (มื้อนี้เหลือ ${left - 1})` : `The gnome pulled them (${left - 1} left these hours)`));
+        return;
+      }
+    }
     if (need) setWorking({ key: key && deed ? key : null, work, need });
     else if (key && deed) void act(key);
     else void carry();
-  }, [key, deed, chore, pours, act, carry, pourOver, keeper]);
+  }, [key, deed, chore, pours, act, carry, pourOver, keeper, th]);
   // walking off the plot, or away from the water, leaves the work
   useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)

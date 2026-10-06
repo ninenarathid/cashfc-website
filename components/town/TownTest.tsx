@@ -201,7 +201,19 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
                 }}><span className="flex items-center gap-1"><TownIcon name={g.id as IconName} size={16} />{th ? g.name.th : g.name.en}</span></Do>
               );
             })}
-            <Do onClick={() => { trial.setGifts(false); setSaid(th ? "ล้างเครื่องรางแล้ว" : "Charms cleared"); }}>{th ? "ล้าง" : "Clear"}</Do>
+            <Do onClick={() => { trial.setGifts(false); setSaid(th ? "ล้างเครื่องรางและภูตแล้ว" : "Charms and familiars cleared"); }}>{th ? "ล้าง" : "Clear"}</Do>
+          </Row>
+          <Row label={th ? "ภูตคู่ใจ" : "A familiar"} value={<span className="text-meta text-ink">{(() => { const id = giftsOf(purse).familiar; return id ? (th ? giftOf(id)?.name.th : giftOf(id)?.name.en) : "–"; })()}</span>}>
+            {GIFTS.filter((g) => g.kind === "familiar").map((g) => {
+              const on = giftsOf(purse).familiar === g.id;
+              return (
+                <Do key={g.id} on={on} onClick={() => {
+                  if (!giftsOf(purse).had.includes(g.id)) trial.setGifts(true);
+                  const did = trial.familiarWear(on ? null : g.id);
+                  if (!did.ok) setSaid(th ? "เรียกไม่ได้" : "It would not come");
+                }}><span className="flex items-center gap-1"><TownIcon name={g.id as IconName} size={16} />{th ? g.name.th : g.name.en}</span></Do>
+              );
+            })}
           </Row>
           <Row label={th ? "ถืออยู่ในมือ" : "In the hand"} value={<span className="text-ink">{handOf(purse) ? name(handOf(purse)!) : "–"}</span>}>
             <Do onClick={() => trial.letGo()}>{th ? "เก็บ" : "Put away"}</Do>

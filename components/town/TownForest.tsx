@@ -9,7 +9,7 @@ import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { WILD_WISHES } from "@/lib/town/forest-eye";
 import type { WishId } from "@/lib/town/fountain";
-import { charmBy } from "@/lib/town/gifts";
+import { charmBy, famBy } from "@/lib/town/gifts";
 import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import type { Vec } from "@/lib/town/world";
@@ -218,7 +218,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
             {game === "choosing" ? <TownChoosing {...common} need={sight.n} spent={spent} eye={eye} icon={iconFor(sight.item)} scene={art("gameFloor")} />
               : game === "digging" ? <TownDigging {...common} need={sight.n} spent={spent} eye={eye} scene={art("gameMound")} />
-                : game === "catching" ? <TownCatching {...common} need={sight.n} spent={spent} eye={eye} icon={iconFor(sight.item)} scene={art("gameCrown")} />
+                : game === "catching" ? <TownCatching {...common} need={sight.n} spent={spent} eye={eye + famBy(purse, "famSquirrel")} icon={iconFor(sight.item)} scene={art("gameCrown")} />
                   : <TownSteady {...common} need={FARMING.tired} mods={{ spent: true, drops: true }} icon="hand" over={iconFor(sight.item)} />}
           </div>
         );

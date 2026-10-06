@@ -1,5 +1,5 @@
 import { LINE_IDS, rankOf, type LineId } from "./lines";
-import { eased } from "./stamina";
+import { dayOf, eased, mealOf } from "./stamina";
 import type { Purse } from "./trade";
 
 /**
@@ -101,6 +101,16 @@ export function wearFamiliar<P extends Pick<Purse, "gifts">>(purse: P, id: strin
   if (id !== null && !(isGift(id) && mine.had.includes(id) && giftOf(id)!.kind === "familiar")) return { ok: false, why: "none" };
   return { ok: true, purse: { ...purse, gifts: { ...mine, familiar: id as FamiliarId | null } } };
 }
+/**
+ * What a familiar has done of what it does so many times to a meal's hours (the gnome's weeding): the day, which
+ * meal's hours, and how many. Kept by the page, on the device: the game it spares is the page's own to play.
+ */
+export interface Used { day: number; meal: number; n: number }
+export const usedNow = (kept: unknown, now: number): number => {
+  const k = kept as Partial<Used> | null;
+  return k && typeof k === "object" && k.day === dayOf(now) && k.meal === mealOf(now) && typeof k.n === "number" && Number.isFinite(k.n) ? Math.max(0, Math.floor(k.n)) : 0;
+};
+export const useOne = (kept: unknown, now: number): Used => ({ day: dayOf(now), meal: mealOf(now), n: usedNow(kept, now) + 1 });
 /** Whether somebody wears a charm now. */
 export const wearing = (purse: Pick<Purse, "gifts">, id: CharmId): boolean => giftsOf(purse).charms.includes(id);
 /** What a charm does for whoever wears it: its number, or what does nothing (`else_`: 1 for something multiplied, 0 for something added). */
