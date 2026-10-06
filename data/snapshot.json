@@ -395,7 +395,7 @@
  },
  "58199536": {
   "name": "Areeya Lovekin",
-  "parse": 44,
+  "parse": 62,
   "ult": 0,
   "mounts": 70,
   "minions": 196,
@@ -515,10 +515,11 @@
   },
   "jobs": {},
   "ex": [
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-10-06"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -2333,7 +2334,8 @@
    "Doomtrain",
    "Enuo",
    "Queen Eternal",
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
   "chg": "2026-10-05"
@@ -3710,6 +3712,7 @@
    "Enuo",
    "Necron",
    "Queen Eternal",
+   "Valigarmanda",
    "Zelenia"
   ],
   "ults": [],
@@ -3755,11 +3758,11 @@
   "rare": 63,
   "level": 100,
   "cc": [
-   false,
-   false,
-   false,
-   false,
-   false
+   true,
+   true,
+   true,
+   true,
+   true
   ],
   "rare_ids": [
    170,
@@ -3828,23 +3831,33 @@
   ],
   "tiers": {},
   "jobs": {
-   "Reaper": "expert",
+   "Viper": "legendary",
+   "RedMage": "expert",
+   "Reaper": "legendary",
    "Summoner": "legendary",
-   "Viper": "master",
    "Bard": "expert",
    "Gunbreaker": "expert",
    "DarkKnight": "master",
    "Dancer": "expert",
    "Machinist": "legendary"
   },
-  "ex": [],
+  "ex": [
+   "Doomtrain",
+   "Enuo",
+   "Guardian Arkveld",
+   "Necron",
+   "Queen Eternal",
+   "Valigarmanda",
+   "Zelenia",
+   "Zoraal Ja"
+  ],
   "ults": [
    "Dragonsong's Reprise",
    "Futures Rewritten",
    "The Omega Protocol",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-09-30"
+  "chg": "2026-10-06"
  },
  "9444020": {
   "name": "Non Elemental",
@@ -4071,7 +4084,8 @@
    "Necron",
    "Queen Eternal",
    "Valigarmanda",
-   "Zelenia"
+   "Zelenia",
+   "Zoraal Ja"
   ],
   "ults": [
    "The Weapon's Refrain"

@@ -1,6 +1,153 @@
 {
  "events": [
   {
+   "date": "2026-10-06",
+   "type": "parse_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "set a new best parse: 62 on Zoraal Ja as Pictomancer"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 50821570,
+   "name": "Haruki Mizumoto",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 36183541,
+   "name": "Nagi Amano",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "boss_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared M9S for the first time 🎉"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "boss_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared M10S for the first time 🎉"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "boss_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared M11S for the first time 🎉"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "boss_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared M12S-1 for the first time 🎉"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "boss_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared M12S-2 for the first time 🎉"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Doomtrain (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Guardian Arkveld (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Necron (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Queen Eternal (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Valigarmanda (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Zelenia (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "is now a Legendary Viper"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "job_up",
+   "id": 5644067,
+   "name": "Ninenine Everdark",
+   "text": "is now a Legendary Reaper"
+  },
+  {
+   "date": "2026-10-06",
+   "type": "ex_clear",
+   "id": 30667251,
+   "name": "Roxas Akatsuki",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
    "date": "2026-10-05",
    "type": "rare_up",
    "id": 58199536,
@@ -1252,153 +1399,6 @@
    "id": 33272037,
    "name": "Hermanita Imouto",
    "text": "is now a Expert Sage"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "parse_up",
-   "id": 40652404,
-   "name": "Jade Solaire",
-   "text": "set a new best parse: 70 on Proto-Carbuncle as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "job_up",
-   "id": 40652404,
-   "name": "Jade Solaire",
-   "text": "is now a Expert White Mage"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "job_up",
-   "id": 28127069,
-   "name": "Jim Carried",
-   "text": "is now a Legendary Dragoon"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "parse_up",
-   "id": 31923628,
-   "name": "Kakigori Kyrielight",
-   "text": "set a new best parse: 89 on Hegemone as Summoner"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "job_up",
-   "id": 31923628,
-   "name": "Kakigori Kyrielight",
-   "text": "is now a Master Summoner"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "rare_up",
-   "id": 29152036,
-   "name": "Fluffy Tinytail",
-   "text": "earned Phantom of the Umbra: War Scythe Umbrae"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Clare Obscurum: Musketoon Obscurum — only 3.9% of players have it"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "level_100",
-   "id": 28579232,
-   "name": "Dessiny Valkyrie",
-   "text": "reached level 100 on Monk!"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "level_100",
-   "id": 36183378,
-   "name": "K' Potassium",
-   "text": "reached level 100 on Black Mage!"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned Quick to Judge: Law's Order Codex"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "level_100",
-   "id": 36183541,
-   "name": "Nagi Amano",
-   "text": "reached level 100 on Samurai!"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "level_100",
-   "id": 47494518,
-   "name": "Farcia Soluna",
-   "text": "reached level 100 on Ninja!"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "level_100",
-   "id": 29907674,
-   "name": "Ranjoe Tp'",
-   "text": "reached level 100 on Fisher!"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "level_100",
-   "id": 36363091,
-   "name": "Snow Winsfield",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "level_100",
-   "id": 42845691,
-   "name": "Yuukizuz Akino",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "rare_up",
-   "id": 42146242,
-   "name": "Zxazi Rowan",
-   "text": "earned Onward and Upward — only 4.6% of players have it, and 8 more"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "parse_up",
-   "id": 31806958,
-   "name": "Baron Master",
-   "text": "set a new best parse: 85 on Kokytos as Dragoon"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "job_up",
-   "id": 31806958,
-   "name": "Baron Master",
-   "text": "is now a Master Dragoon"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "parse_up",
-   "id": 17473430,
-   "name": "Bigon Truesilver",
-   "text": "set a new best parse: 84 on Athena as Paladin"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "job_up",
-   "id": 17473430,
-   "name": "Bigon Truesilver",
-   "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-09-25",
-   "type": "parse_up",
-   "id": 38276690,
-   "name": "Cannes Ferragamo",
-   "text": "set a new best parse: 45 on Kokytos as Bard"
   }
  ]
 }
