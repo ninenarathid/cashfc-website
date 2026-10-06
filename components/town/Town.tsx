@@ -172,6 +172,16 @@ const PUDDLES: Vec[] = (() => {
 type CursorMode = "arrow" | "hand" | "sit" | "grab";
 /** Each bench prop's place in BENCHES (a tap sits on it by that number). */
 const benchIndex = new Map(BENCHES.map((b, i) => [b, i]));
+/**
+ * The nearest place to sit within a few steps of somewhere, as `sitOn` takes it: a place at one of the cooking
+ * yard's tables, or a bench (a log by the camp's fire is one). Null when there is none: the ground will do.
+ */
+function seatNear(p: Vec): number | null {
+  let best: number | null = null, far = 9;
+  if (KITCHEN.stage === 2) KITCHEN.seats.forEach((seat, i) => { const d = distance(p, seat.at); if (d < far) { far = d; best = YARD_SEATS + i; } });
+  BENCHES.forEach((b, i) => { const d = b.facing ? distance(p, { x: b.x + 0.5, y: b.y + 0.5 }) : Infinity; if (d < far) { far = d; best = i; } });
+  return best;
+}
 /** How tall somebody sitting is against standing, for their name and the box a tap finds them in. */
 const SIT_HEIGHT = 0.72;
 /** How each rod is drawn in the hand: its cane, the joints along it, its grip, its dark edge, and its reel if it has one. */
@@ -3181,6 +3191,27 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [fishing]);
   const eatingNow = purse.eating?.dish ?? null;
   useEffect(() => { sessionRef.current?.setEating(eatingNow); }, [eatingNow]);
+  // "Ladle one and eat", from the kitchen table (TownCook): the helping is in the bag already. I walk to the nearest
+  // place to sit (the ground where I stand, if none is near), and the meal begins when I am sat. Forgotten if I am
+  // not sat within a while: I went somewhere else.
+  const eatWhenSat = useRef<{ dish: DishId; till: number } | null>(null);
+  const eatNow = useCallback((dish: DishId) => {
+    const sess = sessionRef.current;
+    if (!sess) return;
+    eatWhenSat.current = { dish, till: Date.now() + 30_000 };
+    const seat = seatNear(sess.self.pos);
+    if (seat === null || !sess.sitOn(seat)) sess.sitHere();
+    cam.current.follow = true;
+  }, []);
+  const satNow = (s?.self.info.sit ?? -1) !== -1;
+  useEffect(() => {
+    const want = eatWhenSat.current;
+    if (!want || !satNow || !keeper) return;
+    eatWhenSat.current = null;
+    if (Date.now() > want.till) return;
+    const slot = keeper.purse().bag.findIndex((b) => b?.item === want.dish);
+    if (slot >= 0) void keeper.sitDown(slot, true);
+  }, [satNow, keeper]);
   useEffect(() => { sessionRef.current?.setHolding(purse.hand, purse.wet); }, [purse.hand, purse.wet]);
   const landedAt = useRef(0);
   const onLine = useCallback((state: LineState | null) => {
@@ -3815,7 +3846,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} art={boardArt} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} />
         </Suspense>
       )}
       {/* A deal with somebody: what each lays out, and their word */}

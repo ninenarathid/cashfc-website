@@ -26,6 +26,7 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 |---|---|
 | `gen.mjs` | One API call: `node gen.mjs <name> <model> <quality> <size> <prompt.txt> [ref.png ...]` |
 | `gen-hairs.sh` | Hairstyle sheets as in-place edits: `./gen-hairs.sh <g> <hair> [<g> <hair> ...]` |
+| `build-scenery.mjs` | The town's scenery; `--set forest` the forest's own sheet; `--set kitchen` the cooking screen's (`public/town/kitchen.json`). In a worktree pass `--out <tree>/public/town` (the default writes into fcnext's), and link `work` to fcnext's so that the ledger is the one ledger (`mklink /J work …cnext…pixelwork`) |
 | `build-pixel-atlas.mjs` | `work/out` → `public/town` (`--out <dir>` to try elsewhere; `--poses` adds sit, sleep and wave) |
 | `gen-race.mjs`, `build-race-atlas.mjs`, `race-data.mjs` | The other seven races: sheets, picture, and what the wardrobe offers (see the last section) |
 | `checks/` | Audits and close-ups of the built dolls, and the town's sky in a headless browser (see the last section, and SKILL.md) |

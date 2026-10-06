@@ -162,7 +162,7 @@ export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
  * mark after more such misses (lib/town/hints' `Hidden`). Three small marks at its foot are filled as it says
  * more. Never its name: that is for whoever has made the dish, the one to ask.
  */
-function Secret({ hidden, th }: { hidden: Hidden; th: boolean }) {
+export function Secret({ hidden, th }: { hidden: Hidden; th: boolean }) {
   const said = 1 + (hidden.looks ? 1 : 0) + (hidden.shadow ? 1 : 0);
   const label = `font-data text-label ${th ? "" : "uppercase tracking-wider"}`;
   return (

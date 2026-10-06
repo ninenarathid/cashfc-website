@@ -60,6 +60,18 @@ async function enter(X, letter) {
 }
 const TOMYUM = [["snakehead", 1], ["tomato", 2], ["chili", 2], ["scallion", 1]];
 const TRADE = `document.querySelector('[aria-labelledby="town-trade-h"]')`, SCROLL = `document.querySelector('[aria-labelledby="town-scroll-h"]')`;
+/** The kitchen table (components/town/TownKitchen), and the card on it that says what came of a go. */
+const K = `document.querySelector("[data-town-kitchen]")`;
+const cameOf = (Z) => Z.evaluate(`(() => { const el = document.querySelector("[data-kitchen-came]"); return el ? { kind: el.dataset.kitchenCame, taste: el.querySelector("[data-kitchen-taste]")?.dataset.kitchenTaste ?? null, text: el.innerText.replace(/\\s+/g, " ") } : null; })()`);
+/** A recipe's page in the table's book, pinned open: its lines against the bag and the pot, what it hides, its cookware, the guesses, and how many buttons it has. */
+const pageOf = async (Z, id) => {
+  if (!(await Z.evaluate(`!!${K}.querySelector('[data-kitchen-page="${id}"]')`))) { await Z.evaluate(`${K}.querySelector('[data-kitchen-recipe="${id}"]').click()`); await sleep(300); }
+  return Z.evaluate(`(() => { const el = ${K}.querySelector('[data-kitchen-page="${id}"]'); return el ? {
+    lines: [...el.querySelectorAll("[data-kitchen-line]")].map((l) => [l.dataset.kitchenLine, l.dataset.state]), secret: el.querySelector("[data-secret]")?.dataset.secret ?? null,
+    wares: [...el.querySelectorAll("[data-kitchen-ware]")].map((l) => [l.dataset.kitchenWare, l.dataset.state]), guesses: el.querySelector("[data-kitchen-guesses]")?.innerText.replace(/\\s+/g, " ") ?? null,
+    buttons: el.querySelectorAll("button").length } : null; })()`);
+};
+const tap = async (Z, what) => { await Z.evaluate(`${K}.querySelector('${what}').click()`); await sleep(160); };
 /** Take up some cookware and open the cooking panel again (a dish made shuts it, and leaves the pot of it in the hand). */
 async function cookAgain(X, tool = "pot") {
   await hold(X, tool);
@@ -106,18 +118,29 @@ try {
   ok("on open floor, with nothing to do, nothing is offered", (await offers(X)).length === 0, await offers(X));
   await X.shot(`${OUT}/cook-yard.png`);
 
-  // a stove: only with cookware in the hand
+  // a stove: the kitchen table is laid for whoever stands there, and the cookware is taken up at it (the owner,
+  // 2026-10-06: "rework UI การทำอาหารให้เข้าใจง่ายขึ้น")
   await warp(X, at("stove"));
-  ok("at a stove with nothing in the hand, cooking is not offered", !(await offers(X)).includes("cook"));
-  await hold(X, "rod").catch(() => {});
-  await hold(X, "pot");
-  await until("with a pot in the hand it is", async () => (await offers(X)).includes("cook"), 5000);
+  await until("at a stove the kitchen table is offered, with nothing in the hand", async () => (await offers(X)).includes("cook"), 5000);
   await act(X, "cook");
-  await until("the cooking panel opens", () => X.evaluate(`${C}.open()`), 4000);
-  await X.shot(`${OUT}/cook-panel.png`);
+  await until("the kitchen table is laid", () => X.evaluate(`${C}.open() && !!${K}`), 4000);
+  await sleep(600);
+  ok("with no cookware in the hand it asks for some, and will not cook", /เลือกเครื่องครัวก่อน/.test(await X.evaluate(`${K}.querySelector("[data-kitchen-with]").innerText`)) && await X.evaluate(`${K}.querySelector("[data-kitchen-go]").disabled`));
+  await tap(X, '[data-kitchen-tool="pot"]');
+  await until("a tap on the pot takes it up", async () => (await purse(X)).hand === "pot", 4000);
+  ok("…and the table says which is held", (await X.evaluate(`${K}.querySelector("[data-kitchen-with]").innerText`)).trim() === "หม้อดิน" && (await X.evaluate(`${K}.querySelector('[data-kitchen-tool="pot"]').getAttribute("aria-checked")`)) === "true");
+  ok("its pictures are the cooking screen's own, fetched when it is first laid", await X.evaluate(`!!${K}.querySelector('[data-kitchen-stage] svg image')?.getAttribute("href")?.includes("/town/kitchen-")`));
 
-  // things are picked one by one: the panel offers no recipe
-  ok("the panel offers things from the bag, and no recipe to pick", await X.evaluate(`!!document.querySelector('[aria-label="ของในกระเป๋า"]') && !document.querySelector('[aria-label="สูตรที่รู้"]')`));
+  // things are picked one by one, each by its name: the book beside the pot is for reading
+  const basket = await X.evaluate(`[...${K}.querySelectorAll("[data-kitchen-thing]")].map((b) => ({ id: b.dataset.kitchenThing, text: b.innerText.replace(/\\s+/g, " ").trim() }))`);
+  ok("the basket has what the bag has that can go in, each by its name, and none of the cookware", basket.some((b) => b.id === "snakehead" && /ปลาช่อน/.test(b.text)) && basket.some((b) => b.id === "rice" && /ข้าวสาร/.test(b.text))
+    && !basket.some((b) => ["pot", "pan", "bowl"].includes(b.id)), basket);
+  await tap(X, '[data-kitchen-thing="minnow"]'); await tap(X, '[data-kitchen-thing="minnow"]'); await tap(X, '[data-kitchen-thing="rice"]');
+  ok("a tap puts one in", JSON.stringify(await X.evaluate(`${C}.things()`)) === JSON.stringify([["minnow", 2], ["rice", 1]]), await X.evaluate(`${C}.things()`));
+  await tap(X, '[data-kitchen-in="minnow"]');
+  ok("…and a tap on it there takes one back out", JSON.stringify(await X.evaluate(`${C}.things()`)) === JSON.stringify([["minnow", 1], ["rice", 1]]), await X.evaluate(`${C}.things()`));
+  ok("no recipe is known yet: the book beside the pot is empty", (await X.evaluate(`${K}.querySelectorAll("[data-kitchen-recipe]").length`)) === 0);
+  await X.shot(`${OUT}/cook-panel.png`);
   // things that make nothing, cooked in a pot
   await X.evaluate(`${C}.put([["minnow", 2], ["rice", 1]])`);
   await sleep(300);
@@ -152,6 +175,10 @@ try {
   ok("the pot it came in is the yard's: the cook's own is still theirs", (await has(X, "pot")) === 1 && p.bag.filter((s) => s?.item === "potFull").length === 1, p.bag);
   // (minnows and rice: rice alone is nearly something, so the minnows are one thing too many)
   ok("it tastes of how near it was: one thing too many", await shown(X, "/มีของเกินมาอย่างหนึ่ง/"));
+  let came = await cameOf(X);
+  ok("a card on the table says what came of it and how it tasted, and offers another go", came?.kind === "odd" && came.taste === "more" && /อาหารแปลกๆ/.test(came.text) && /ลองใหม่/.test(came.text), came);
+  let jotted = await X.evaluate(`${C}.notes()`);
+  ok("…and the try is written in the notebook: what went in, in what, and how it tasted", jotted.length === 1 && jotted[0].tool === "pot" && jotted[0].taste === "more" && JSON.stringify(jotted[0].things) === JSON.stringify([["minnow", 2], ["rice", 1]]), jotted);
   await X.shot(`${OUT}/cook-odd.png`);
   // the right things, the wrong amounts: an odd dish like any other
   await cookAgain(X);
@@ -172,12 +199,28 @@ try {
   ok("…into a pot of the dish: a pot of tom yum, four helpings, and the cook's own pot still clean", pot?.of?.dish === "tomYum" && pot.of.left === 4 && (await has(X, "pot")) === 1 && (await has(X, "snakehead")) === 0, p.bag);
   ok("its recipe is found, in the book, under the finder's name", (await X.evaluate(`${C}.found()`)).includes("tomYum") && p.recipes.includes("tomYum") && (p.made ?? []).includes("tomYum")
     && /K/.test((await X.evaluate(`${T}.finder("tomYum")`)) ?? "") && (await shown(X, "/พบสูตรใหม่/")), await X.evaluate(`${T}.finders()`));
+  came = await cameOf(X);
+  ok("the card says a new recipe is found, and offers a helping at once or the pot set down", came?.kind === "found" && came.taste === null && /พบสูตรใหม่/.test(came.text) && /ต้มยำปลาช่อน/.test(came.text) && /4 ที่/.test(came.text)
+    && /ตักกินเลย/.test(came.text) && /วางหม้อให้เพื่อน/.test(came.text), came);
+  await sleep(400);
   await X.shot(`${OUT}/cook-made.png`);
+  // from the card, the pot set down where the cook stands
+  await X.evaluate(`document.querySelector("[data-kitchen-down]").click()`);
+  await until("from the card the pot is set down where the cook stands, and the table is cleared away", async () => (await X.evaluate(`${C}.pots()`)).length === 1 && !(await X.evaluate(`${C}.open()`)), 5000);
+  await until("…and its owner may take it up again", async () => (await offers(X)).includes("take"), 5000);
+  await act(X, "take");
+  ok("taken up, it is in the bag as it was", (await X.evaluate(`${C}.pots()`)).length === 0 && (await purse(X)).bag.find((s) => s?.item === "potFull")?.of?.left === 4, (await purse(X)).bag);
   // having made it, the cook is told what is missing, and loses nothing
   await grant(X, TOMYUM);
   await cookAgain(X, "pan");
   ok("having made it, the cook is told when the cookware is wrong, and loses nothing", (await make(X, TOMYUM)) === false && (await has(X, "snakehead")) === 1 && (await shown(X, "/ของในมือทำสิ่งนี้ไม่ได้/")));
-  ok("the panel still offers no recipe to pick", await X.evaluate(`!document.querySelector('[aria-label="สูตรที่รู้"]')`));
+  ok("…the table says so itself", /ของในมือทำสิ่งนี้ไม่ได้/.test(await X.evaluate(`${K}.querySelector("[data-kitchen-why]").innerText`)));
+  // the recipe, read beside the pot by whoever has made it: all of it, each line against the bag and the pot
+  let page = await pageOf(X, "tomYum");
+  ok("whoever has made it reads all of it beside the pot: every line is in, and its cookware is in the bag, not the hand",
+    page?.lines.length === 4 && page.lines.every(([, state]) => state === "in") && page.secret === null && JSON.stringify(page.wares) === JSON.stringify([["pot", "bag"]]), page);
+  ok("…and the page is for reading: nothing on it puts a thing in", page.buttons === 1, page);
+  await X.shot(`${OUT}/cook-table-whole.png`);
 
   // by hand, at a worktable
   await hold(X, null);
@@ -304,6 +347,35 @@ try {
   ok("missed three times, its shadow is in the question mark's place; its name is never told", slip?.said === "3" && slip.shadow === true && !/ต้นหอม/.test(paper), { slip, paper });
   await Y.shot(`${OUT}/cook-scroll-shadow.png`);
   await rollUp(Y);
+
+  // the same recipe read beside the pot: its hidden thing as on its scroll, and the guesses that has had; then the
+  // right thing, and from the card straight to a helping (the owner: "ทำเสร็จไปต่อได้ทันที")
+  if (await Y.evaluate(`!!${TRADE}`)) { await Y.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า").click()`); await sleep(700); }
+  await grant(Y, [["snakehead", 1], ["tomato", 2], ["chili", 2], ["scallion", 1], ["bowl", 1]]);
+  await warp(Y, at("stove"));
+  await cookAgain(Y, "pot");
+  await sleep(500);
+  page = await pageOf(Y, "tomYum");
+  ok("read beside the pot, a recipe hides its last thing as its scroll does, and lists the guesses that has had",
+    page?.secret === "3" && page.lines.length === 3 && page.lines.every(([, state]) => state === "have") && /กระเทียม ×1/.test(page.guesses ?? "") && /มีของอย่างหนึ่งที่ไม่ใช่/.test(page.guesses), page);
+  ok("…the same miss thrice is one line of the notebook", (await Y.evaluate(`${C}.notes()`)).length === 1 && page.buttons === 1, await Y.evaluate(`${C}.notes()`));
+  await Y.shot(`${OUT}/cook-table-guess.png`);
+  for (const [id, n] of TOMYUM) for (let i = 0; i < n; i++) await tap(Y, `[data-kitchen-thing="${id}"]`);
+  page = await pageOf(Y, "tomYum");
+  ok("put in by hand, each line it tells says it is in", JSON.stringify(await Y.evaluate(`${C}.things()`)) === JSON.stringify(TOMYUM) && page.lines.every(([, state]) => state === "in"), page);
+  await Y.evaluate(`${C}.go()`);
+  await sleep(350);
+  await play(Y);
+  await sleep(900);
+  came = await cameOf(Y);
+  ok("the right thing at last: the dish, on the card", came?.kind === "found" && /ต้มยำปลาช่อน/.test(came.text) && (await Y.evaluate(`${T}.madeBefore("tomYum")`)) === true, came);
+  await Y.evaluate(`document.querySelector("[data-kitchen-eat]").click()`);
+  await until("from the card a helping is ladled, the cook walks to a place to sit, and the meal begins", async () => (await purse(Y)).eating?.dish === "tomYum", 25000);
+  const fed = await purse(Y);
+  ok("…at one of the yard's tables, with the rest of the pot still in the bag", (await Y.evaluate(`window.__cashTown?.me?.().sit ?? -1`)) >= 0 && fed.bag.find((b) => b?.item === "potFull" && b.of.dish === "tomYum")?.of.left === 3
+    && !(await Y.evaluate(`${C}.open()`)), { sit: await Y.evaluate(`window.__cashTown?.me?.().sit ?? -1`), bag: fed.bag });
+  await sleep(600);
+  await Y.shot(`${OUT}/cook-eat-now.png`);
 
   // the uncle's hint
   await X.evaluate(`${T}.grant("rice", 0, 100)`);

@@ -412,3 +412,20 @@ export function loadForest(): Promise<void> {
   forest.catch(() => { forest = null; });
   return forest;
 }
+
+let kitchen: Promise<(name: string) => Sprite | null> | null = null;
+/**
+ * The cooking screen's own pictures (public/town/kitchen.json, the same script's `--set kitchen`): what the
+ * cookware stands on while things are put in it. Fetched once per tab by whoever opens the screen, and kept apart
+ * from the scenery: nothing of them is drawn on the map. Gives a way to ask for one by its name.
+ */
+export function loadKitchen(): Promise<(name: string) => Sprite | null> {
+  kitchen ??= (async () => {
+    const r = await fetch("/town/kitchen.json");
+    if (!r.ok) throw new Error(`kitchen.json ${r.status}`);
+    const json = await r.json() as SceneryJson;
+    return (name: string) => { const p = json.props[name]; return p ? { src: `/town/${json.image}`, sheet: json.size, at: [p[0], p[1], p[2], p[3]] } : null; };
+  })();
+  kitchen.catch(() => { kitchen = null; });
+  return kitchen;
+}

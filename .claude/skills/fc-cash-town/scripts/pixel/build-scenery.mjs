@@ -3,6 +3,8 @@
 //   node build-scenery.mjs [--out <dir>]        (default: fcnext/public/town)
 //   node build-scenery.mjs --set forest         the forest's things, in a picture of their own (forest-<hash>.png +
 //                                               forest.json): fetched only by whoever goes there (lib/town/scenery.ts)
+//   node build-scenery.mjs --set kitchen        what the cooking screen is laid on (kitchen-<hash>.png + kitchen.json):
+//                                               fetched only by whoever opens it (components/town/TownKitchen)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -26,9 +28,9 @@ const argOut = process.argv.indexOf("--out");
 const PUB = argOut > 0 ? process.argv[argOut + 1] : "E:/NinenineProject/fcnext/public/town";
 fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
-/** Which picture is built: the town's scenery, or the forest's. */
+/** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (SET !== "scenery" && SET !== "forest") throw new Error(`no such set: ${SET}`);
+if (SET !== "scenery" && SET !== "forest" && SET !== "kitchen") throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -125,6 +127,13 @@ const FOREST = [
   // (and the camp's fire seen close, for what is roasted on a stick: components/town/TownRoasting)
   ["scene-forest-game-fire", ["gameFire"], "scene"],
 ];
+// The cooking screen's own (the owner, 2026-10-06: "UI แบบใหม่ gen ภาพมาใหม่ได้ เพื่อให้มี theme เหมือนทำอาหาร"): what the
+// cookware stands on while things are put in it, seen from the front, a scene each filling its canvas. A stove's
+// hearth, and a worktable for what is put together with bare hands. The camp's fire has the forest's `gameFire`.
+const KITCHEN = [
+  ["scene-town-game-kitchen", ["gameKitchen"], "scene"],
+  ["scene-town-game-worktable", ["gameWorktable"], "scene"],
+];
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
 // like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist
 // liked. [file, name, the size of its own pixel, how]. `twice` doubles one that is to stand as tall as the town's own
@@ -154,6 +163,7 @@ const READY = {
     ["woodstump2", "stumpMoss", 8, { foot: [0.5, 0.9] }],
     ["woodlog1", "logShort", 4, { twice: true, drop: ["a7a9a4", "a4a09e"], foot: [0.5, 0.86] }],
   ],
+  kitchen: [],
 };
 // Ground that came drawn (the same folder's pack of textures; the ones used are in work/oatto/tex, with the pack's
 // licence: free to use and to change, not to be handed on as files, which is one more reason they stay out of the
@@ -168,6 +178,7 @@ const READY_TEX = {
     sand: ["Sand_03_Yellow_1"], field: ["Dirt_Silt_01_Brown_1", 0.7],
   },
   forest: {},
+  kitchen: {},
 };
 /** The mean of each colour of a picture's pixels, and how far its light and dark spread about their mean. */
 function colourOf(buf) {
@@ -224,7 +235,7 @@ function twice(im) {
 }
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
-const TEXTURES = SET === "forest" ? ["wood"] : ["grass", "plaza", "road", "water", "sand", "field"];
+const TEXTURES = SET === "forest" ? ["wood"] : SET === "kitchen" ? [] : ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
 /** Whole sheets as gridded, for a later sheet to stand where an earlier one does: its cells and its ground point. */
@@ -246,7 +257,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST : SHEETS) {
+for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST : SET === "kitchen" ? KITCHEN : SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
