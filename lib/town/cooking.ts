@@ -1,7 +1,7 @@
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { hasThing, numberOf, type GiftRefusal } from "./gifts";
+import { hasThing, numberOf, useGift, usesLeft, type GiftRefusal } from "./gifts";
 import { begun, hasBuff, mayEat, spend } from "./stamina";
 import type { TimingMods } from "./timing";
 import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -327,10 +327,15 @@ export function serve(purse: Purse, slot: number): Done<{ purse: Purse; dish: Di
 
 /* ── The gifts of the kitchen's ranks (lib/town/gifts; the owner, 2026-10-07: each rank cuts a whole rule of its line out) ── */
 
-/** Why a gift of the kitchen's was not used, beyond the trade's reasons and the gifts' own. */
-export type KitchenRefusal = never;
+/**
+ * Why a gift of the kitchen's was not used, beyond the trade's reasons and the gifts' own: the spoon has nothing to
+ * say of a pot that no recipe has (`astray`), or of one whose every recipe its owner reads whole already (`known`).
+ */
+export type KitchenRefusal = "astray" | "known";
 /** What a deed with a gift of the kitchen's comes to. */
 export type Gifted<T> = ({ ok: true } & T) | { ok: false; why: Refusal | GiftRefusal | KitchenRefusal };
+/** A no, for a reason of any of the three sorts. */
+const nay = <W extends Refusal | GiftRefusal | KitchenRefusal>(why: W): { ok: false; why: W } => ({ ok: false, why });
 
 /**
  * The dimension basket (the kitchen's second rank): a food pocket of its owner's own. It holds so many helpings
@@ -388,4 +393,54 @@ export function basketEat(purse: Purse, dish: string, seated: boolean, now: numb
   if (!seated) return no("stand");
   if (!mayEat(purse, now)) return no("meal");
   return { ok: true, dish: had[0], purse: { ...purse, basket: less(mine, had[0], 1), ...begun(purse, had[0], now) } };
+}
+
+/**
+ * The whispering spoon (the kitchen's third rank): asked while cooking, it tells its owner the secret thing of the
+ * recipe that what is in the pot is on the way to: the one thing a found recipe never names (its last). To its
+ * owner only, and so many times a day (lib/town/gifts' USES).
+ *
+ * **Which recipe, where the pot can still be more than one.** The pot is on the way to every recipe that has each
+ * thing in it, in no smaller an amount (what the apron's `potSays` calls fitting). Of those, the ones its owner
+ * reads whole already (made, or told by the spoon before) are left out: there is nothing to tell of them. Of the
+ * rest it answers for **the one nearest done**: the fewest things still to go in; of two as near, the first in the
+ * book's own order. It says how many ways the pot could still go (`ways`), so a member knows it chose.
+ *
+ * It tells nothing, and is not counted, of a pot with nothing in it, of one no recipe has (`astray`), and of one
+ * whose every recipe is read whole already (`known`).
+ */
+export function spoonSays(things: Array<[ItemId, number]>, known: readonly string[]): { ok: true; of: ItemId; secret: ItemId; ways: number } | { ok: false; why: "amount" | KitchenRefusal } {
+  const mine = tidy(things);
+  if (!mine.length) return { ok: false, why: "amount" };
+  const total = mine.reduce((t, [, n]) => t + n, 0);
+  const fits = RECIPE_IDS.map((id, i) => ({ id, i, needs: needsOf(id) })).filter(({ needs }) => { const takes = new Map(needs); return mine.every(([k, n]) => (takes.get(k) ?? 0) >= n); });
+  if (!fits.length) return { ok: false, why: "astray" };
+  const open = fits.filter(({ id }) => !known.includes(id)).map((f) => ({ ...f, short: f.needs.reduce((t, [, n]) => t + n, 0) - total })).sort((a, b) => a.short - b.short || a.i - b.i);
+  if (!open.length) return { ok: false, why: "known" };
+  const best = open[0];
+  return { ok: true, of: best.id, secret: best.needs[best.needs.length - 1][0], ways: open.length };
+}
+/** The recipes whose secret thing the spoon has told somebody, made sound: recipes there are, each once. */
+export function whispersOf(purse: Pick<Purse, "whispers">): ItemId[] {
+  const out: ItemId[] = [];
+  for (const id of Array.isArray(purse.whispers) ? (purse.whispers as unknown[]) : []) if (typeof id === "string" && RECIPE_IDS.includes(id as ItemId) && !out.includes(id as ItemId)) out.push(id as ItemId);
+  return out;
+}
+/** Whether somebody reads all of a recipe: they have made the thing, or the spoon has told them its secret thing. */
+export const readsAll = (purse: Purse, id: ItemId) => hasMade(purse, id) || whispersOf(purse).includes(id);
+/**
+ * Ask the spoon about what is in the pot (things of one's own bag, as they would be cooked). It answers as `spoonSays`
+ * does, is counted once, and the recipe is read whole from then on (`whispers` in the purse).
+ */
+export function spoon(purse: Purse, things: Array<[ItemId, number]>, now: number): Gifted<{ purse: Purse; of: ItemId; secret: ItemId; ways: number; left: number }> {
+  if (!hasThing(purse, "thingSpoon")) return no("none");
+  const all = tidy(things);
+  if (!all.length || all.length > COOKING.kinds) return no("amount");
+  for (const [id, n] of all) if (!Number.isInteger(n) || !Object.prototype.hasOwnProperty.call(ITEMS, id) || !goesIn(id) || held(purse.bag, id) < n) return no("none");
+  if (usesLeft(purse, "thingSpoon", now) < 1) return nay("spent");
+  const told = whispersOf(purse), says = spoonSays(all, [...(purse.made ?? []), ...told]);
+  if (!says.ok) return says;
+  const used = useGift(purse, "thingSpoon", now);
+  if (!used.ok) return nay(used.why);
+  return { ok: true, of: says.of, secret: says.secret, ways: says.ways, left: used.left, purse: { ...used.purse, whispers: [...told, says.of] } };
 }

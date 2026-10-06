@@ -28,7 +28,7 @@ import { bedCorner, bedOf } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 // ── gifts: kitchen ──
-import { basketEat, basketPut, basketTake } from "./cooking";
+import { basketEat, basketPut, basketTake, spoon } from "./cooking";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
 import { ditch, reachOf } from "./ditch";
 import { hotAt } from "./heat";
@@ -845,6 +845,8 @@ export class Trial {
   basketPut(slot: number, n: number) { return this.gifted(basketPut(this.purse(), slot, n)); }
   basketTake(dish: string, n: number) { return this.gifted(basketTake(this.purse(), dish, n)); }
   basketEat(dish: string, seated: boolean) { return this.gifted(basketEat(this.purse(), dish, seated, this.now())); }
+  /** The whispering spoon, asked of what is in the pot: the secret thing of the recipe it is on the way to. */
+  spoonAsk(things: Array<[ItemId, number]>) { return this.gifted(spoon(this.purse(), things, this.now())); }
   /** What the uncle's next hint costs me (of what can be made with what he sells so far), and buying it: which one it is, by chance. */
   hintPrice(): number | null { const at = sourcesAt(this.village().unlocked, true); return hintPrice(this.purse(), this.found(), (id) => at.has(id)); }
   hint() { const at = sourcesAt(this.village().unlocked, true); return this.keep(buyHint(this.purse(), this.hintChance ?? Math.random(), this.found(), (id) => at.has(id))); }

@@ -65,4 +65,33 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, pa
   did = await call(U.m2, "town_basket_take", "tomYum", 1);
   const theirs = await call(U.m2, "town_sit", 0, false);
   t.check("another member has no basket of mine to take from; and eating from the bag is as it was", did?.why === "none" && theirs?.why === "stand" && inBasket(await purseOf(U.m1)) === 7, { did, theirs });
+
+  t.section("the whispering spoon (rank 3)");
+  const things = bag({ item: "snakehead", n: 1 }, { item: "tomato", n: 2 }, { item: "minnow", n: 4 }, { item: "pot", n: 1 });
+  await patch(U.m2, { bag: things, whispers: null, made: [] });
+  await give(U.m2, { had: [] });
+  did = await call(U.m2, "town_spoon", [["snakehead", 1]]);
+  t.check("without the gift the spoon says nothing", did?.why === "none" && (await purseOf(U.m2)).whispers == null, did);
+  await give(U.m2, { had: ["thingSpoon"] });
+  did = await call(U.m2, "town_spoon", [["snakehead", 1], ["tomato", 2]]);
+  p = await purseOf(U.m2);
+  t.check("asked of what is in the pot, it tells the secret thing of the recipe the pot is on the way to", did?.ok === true && did.of === "tomYum" && did.secret === "scallion" && did.ways === 1 && did.left === 2, { ...did, purse: undefined });
+  t.check("…kept in the purse as told, counted once, and nothing leaves the bag", same(p.whispers, ["tomYum"]) && p.gifts.used.thingSpoon.n === 1 && same(p.bag, things), { whispers: p.whispers, used: p.gifts.used, bag: p.bag });
+  const known = await call(U.m2, "town_spoon", [["snakehead", 1], ["tomato", 2]]), astray = await call(U.m2, "town_spoon", [["snakehead", 1], ["minnow", 1]]);
+  const notMine = await call(U.m2, "town_spoon", [["snakehead", 2]]), empty = await call(U.m2, "town_spoon", []), tool = await call(U.m2, "town_spoon", [["pot", 1]]);
+  const shape = await call(U.m2, "town_spoon", [["snakehead", "1"]]), word = await call(U.m2, "town_spoon", JSON.stringify("snakehead"));
+  t.check("silent, and not counted: a pot read whole already, one no recipe has, things the bag has not, nothing, cookware, and what is no list of things",
+    known?.why === "known" && astray?.why === "astray" && notMine?.why === "none" && empty?.why === "amount" && tool?.why === "none" && shape?.why === "none" && word?.why === "none"
+    && (await purseOf(U.m2)).gifts.used.thingSpoon.n === 1, [known, astray, notMine, empty, tool, shape, word].map((d) => d?.why ?? d));
+  const two = await call(U.m2, "town_spoon", [["minnow", 3]]), three = await call(U.m2, "town_spoon", [["minnow", 3]]), four = await call(U.m2, "town_spoon", [["tomato", 1]]);
+  t.check("a pot that could still be two recipes: the nearest done first (saying there are two), then the other; and a fourth time today is refused",
+    two?.of === "friedMinnow" && two.ways === 2 && two.secret === "salt" && three?.of === "fishSauce" && three.ways === 1 && three.left === 0 && four?.why === "spent"
+    && same((await purseOf(U.m2)).whispers, ["tomYum", "friedMinnow", "fishSauce"]), { two: { ...two, purse: undefined }, three: { ...three, purse: undefined }, four });
+  written = (await deeds("gift_use")).filter((d) => d.thing === "thingSpoon");
+  t.check("each telling is written down for its member alone: which recipe, how many ways, how many left", written.length === 3 && written.every((d) => d.member_id === U.m2 && d.coins === 0)
+    && same(written.map((d) => [d.doc.of, d.doc.ways, d.doc.left]), [["tomYum", 1, 2], ["friedMinnow", 2, 1], ["fishSauce", 1, 0]]), written);
+  await patch(U.m2, { made: ["tomYum", "friedMinnow"], whispers: null, gifts: { ...(await purseOf(U.m2)).gifts, used: {} } });
+  did = await call(U.m2, "town_spoon", [["minnow", 3]]);
+  t.check("a recipe its owner has made is not what it answers for", did?.of === "fishSauce" && did.ways === 1, { ...did, purse: undefined });
+  t.check("the other member's purse knows nothing of it", (await purseOf(U.m1)).whispers == null);
 }

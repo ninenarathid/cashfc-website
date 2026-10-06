@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { potSays, COOKING, type Taste } from "@/lib/town/cooking";
+import { potSays, whispersOf, needsOf, COOKING, type Taste } from "@/lib/town/cooking";
 import { wearing } from "@/lib/town/gifts";
 import { toldOf, type Told } from "@/lib/town/hints";
 import { WISH } from "@/lib/town/fountain";
@@ -20,6 +20,10 @@ import { ItemIcon } from "./TownTrade";
 export type KitchenPlace = "stove" | "table" | "fire" | "camp";
 /** What came of the cooking, for the card that says so. */
 export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }
+/** What the whispering spoon told of the pot: the secret thing of which recipe, and how many ways the pot could still go. */
+export interface Whisper { of: ItemId; secret: ItemId; ways: number }
+/** The whispering spoon at the table (lib/town/gifts): how many times more it answers today, of how many, and what it last told while that is shown. */
+export interface SpoonAt { left: number; most: number; told: Whisper | null; busy: boolean }
 
 /** The board's wood and what is written on it; the book's paper and its ink (the scroll's own). */
 const WOOD_DARK = "#2a190d", CREAM = "#ffeccb", CREAM_SOFT = "#e9cfa4", HOLLOW = "#3a2513";
@@ -56,7 +60,11 @@ const PIN_KEY = "cashtown.kitchen.pin";
  * It draws and asks; what is cooked is the keeper's to say (components/town/TownCook holds this open and plays the
  * game). On a phone the book folds into a strip above the hearth. With `reduced` nothing moves.
  */
-export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown }: {
+export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown, spoon = null, onSpoon, onSpoonShut }: {
+  /** The whispering spoon, for whoever has it (null: nothing of it is shown); asking it of what is in the pot, and putting away what it told. */
+  spoon?: SpoonAt | null;
+  onSpoon?: () => void;
+  onSpoonShut?: () => void;
   th: boolean;
   reduced: boolean;
   place: KitchenPlace;
@@ -110,8 +118,10 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   const scene = SCENE[place], sprite = place === "camp" && fire ? fire : art?.(scene.art) ?? null;
 
   /* ── the book ── */
+  // (a recipe whose secret thing the spoon has told is read whole, as one that was made is)
+  const whispers = useMemo(() => whispersOf(purse), [purse]);
   const book = useMemo(() => [...keeper.known(), ...keeper.knownMakes()].map((id) => {
-    const told = toldOf(id, keeper.madeBefore(id), keeper.triesAt(id));
+    const told = toldOf(id, keeper.madeBefore(id) || whispers.includes(id), keeper.triesAt(id));
     return { id, told, ready: stocked(told, purse.bag), buff: id in DISHES ? DISHES[id as DishId].buff ?? null : null };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- what is known changes with the purse, which is read anew when the keeper says so
   }), [keeper, purse]);
@@ -135,11 +145,11 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
     const down = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       e.stopPropagation();
-      if (result) onAgain(); else if (unfolded) setUnfolded(false); else onClose();
+      if (result) onAgain(); else if (spoon?.told) onSpoonShut?.(); else if (unfolded) setUnfolded(false); else onClose();
     };
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
-  }, [result, unfolded, onAgain, onClose]);
+  }, [result, unfolded, onAgain, onClose, spoon?.told, onSpoonShut]);
 
   // A thing put in is seen going: from its place in the basket to the cookware (nothing, with `reduced`).
   const [flights, setFlights] = useState<Array<{ key: number; id: ItemId; x: number; y: number; dx: number; dy: number }>>([]);
@@ -162,6 +172,14 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
         @keyframes kt-ember { 0%, 100% { opacity: .22 } 50% { opacity: .5 } }
         @keyframes kt-rise { from { transform: translateY(16px) scale(.94); opacity: 0 } to { transform: none; opacity: 1 } }
         @keyframes kt-rays { to { transform: rotate(360deg) } }
+        @keyframes kt-ripple { from { transform: scale(.3); opacity: .9 } to { transform: scale(2.1); opacity: 0 } }
+        @keyframes kt-dip { 0% { transform: translateY(-10px) rotate(-18deg) } 40% { transform: translateY(2px) rotate(8deg) } 70% { transform: translateY(0) rotate(-6deg) } 100% { transform: none } }
+        @keyframes kt-glow { 0%, 100% { box-shadow: 0 0 0 2px #2a190d, 0 0 6px 1px rgba(72,214,196,.5) } 50% { box-shadow: 0 0 0 2px #2a190d, 0 0 12px 3px rgba(72,214,196,.9) } }
+        .kt-ripple { animation: kt-ripple 1.5s ease-out infinite }
+        .kt-dip { animation: kt-dip 520ms cubic-bezier(.2, .8, .2, 1) }
+        .kt-glow { animation: kt-glow 2.2s ease-in-out infinite }
+        [data-town-kitchen][data-still] .kt-ripple, [data-town-kitchen][data-still] .kt-dip, [data-town-kitchen][data-still] .kt-glow { animation: none }
+        [data-town-kitchen][data-still] .kt-ripple { opacity: 0 }
         .kt-pop { animation: kt-pop 140ms ease-out }
         .kt-squash { animation: kt-squash 180ms ease-out; transform-origin: 50% 100% }
         .kt-steam { animation: kt-steam 2.6s linear infinite }
@@ -243,6 +261,18 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
                   {says.whole ? (th ? "ครบสูตร" : "A recipe, whole") : says.fits ? (th ? "ยังไปต่อได้" : "On its way") : (th ? "ไม่มีสูตรแบบนี้" : "No recipe has this")}
                 </p>
               )}
+              {/* the whispering spoon: asked of what is in the pot, as often as it has answers left today */}
+              {spoon && (
+                <button type="button" disabled={!things.length || spoon.left < 1 || spoon.busy || !!spoon.told} onClick={onSpoon} data-kitchen-spoon data-left={spoon.left}
+                        title={th ? "ถามช้อนกระซิบรส" : "Ask the whispering spoon"} aria-label={th ? `ถามช้อนกระซิบรส เหลือ ${spoon.left} ครั้ง` : `Ask the whispering spoon: ${spoon.left} left`}
+                        className={`pressable absolute bottom-1 left-1 z-[1] flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-[6px] border-2 border-[#2a190d] bg-[#4a2f18] px-1 pb-1 pt-0.5 disabled:opacity-60 ${things.length && spoon.left > 0 && !spoon.told ? "kt-glow" : ""}`}>
+                  <TownIcon name={"thingSpoon" as IconName} size={28} />
+                  <span aria-hidden className="flex gap-0.5">
+                    {Array.from({ length: spoon.most }, (_, i) => <span key={i} className={`size-1.5 rounded-full border border-[#2a190d] ${i < spoon.left ? "bg-[#48d6c4]" : "bg-[#2a190d]"}`} />)}
+                  </span>
+                </button>
+              )}
+              {spoon?.told && <Whispered told={spoon.told} th={th} inBook={book.some((r) => r.id === spoon.told!.of)} onShut={() => onSpoonShut?.()} />}
               {/* the cookware, standing on the stove; steam off it once something is in */}
               <div ref={ware} className="absolute left-1/2 flex origin-bottom -translate-x-1/2 scale-[0.82] flex-col items-center min-[900px]:scale-100" style={{ bottom: scene.foot }}>
                 {scene.fire && !!tool && things.length > 0 && (
@@ -316,7 +346,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
               <button type="button" onClick={() => setUnfolded(false)} className="pressable ml-auto min-h-9 rounded-md px-2 text-meta font-semibold min-[900px]:hidden" style={{ color: INK_SOFT }}>{th ? "พับเก็บ" : "Fold away"}</button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-3 pt-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]">
-              {tab === "notes" ? <Tried notes={notes} th={th} />
+              {tab === "notes" ? <Tried notes={notes} th={th} whispers={whispers} known={book.map((r) => r.id)} />
                 : pinned ? <Page id={pinned.id} told={pinned.told} lines={lines} purse={purse} crew={crew} notes={notes} th={th} onBack={() => choose(null)} />
                   : <Index book={book} only={only} onOnly={setOnly} th={th} onPick={choose} />}
             </div>
@@ -472,11 +502,48 @@ function Page({ id, told, lines, purse, crew, notes, th, onBack }: {
   );
 }
 
-/** The notebook: what was put together before, and what came of each, the newest first. */
-function Tried({ notes, th }: { notes: Note[]; th: boolean }) {
+/** What the spoon told, on a slip over the hearth: the secret thing, of which recipe (by name only where the book has it), and how many ways the pot could still go. A tap puts it away. */
+function Whispered({ told, th, inBook, onShut }: { told: Whisper; th: boolean; inBook: boolean; onShut: () => void }) {
   const name = (t: ItemId) => (th ? ITEMS[t].name.th : ITEMS[t].name.en);
-  if (!notes.length) return <p className="px-2 py-8 text-center text-ui" style={{ color: INK_SOFT }}>{th ? "ยังไม่ได้ลองทำอะไร ลองแล้วจะจดไว้ให้ตรงนี้" : "Nothing tried yet. What you try is written down here."}</p>;
   return (
+    <button type="button" onClick={onShut} data-kitchen-whisper={told.secret} data-of={inBook ? told.of : ""} data-ways={told.ways} aria-live="polite"
+            className="kt-rise pressable absolute inset-x-1.5 bottom-1 z-[2] flex items-center gap-2.5 rounded-[6px] border-2 border-[#2a190d] px-2 py-1.5 text-left shadow-[0_6px_14px_rgba(0,0,0,0.55)]" style={{ backgroundColor: PAPER, color: INK }}>
+      <span className="relative grid size-12 shrink-0 place-items-center">
+        <span aria-hidden className="kt-ripple absolute inset-1 rounded-full border-2 border-[#48d6c4]" />
+        <span aria-hidden className="kt-ripple absolute inset-1 rounded-full border-2 border-[#48d6c4] [animation-delay:-0.75s]" />
+        <ItemIcon id={told.secret} size={38} className="kt-dip relative" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1 font-data text-label" style={{ color: INK_SOFT }}><TownIcon name={"thingSpoon" as IconName} size={14} />{th ? "ช้อนกระซิบ: ชิ้นลับคือ" : "The spoon whispers: the secret thing is"}</span>
+        <span className="block truncate font-display text-title font-semibold leading-tight">{name(told.secret)}</span>
+        <span className="block truncate text-meta" style={{ color: INK_SOFT }}>
+          {inBook ? (th ? `ของ ${name(told.of)}` : `of ${name(told.of)}`) : (th ? "ของสูตรที่ยังไม่อยู่ในสมุด" : "of a recipe not in your book")}
+          {told.ways > 1 && (th ? ` · หม้อนี้ยังไปได้ ${told.ways} สูตร` : ` · this pot could still be ${told.ways}`)}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/** The notebook: what was put together before, and what came of each, the newest first; and over them what the spoon has told. */
+function Tried({ notes, th, whispers = [], known = [] }: { notes: Note[]; th: boolean; whispers?: ItemId[]; known?: ItemId[] }) {
+  const name = (t: ItemId) => (th ? ITEMS[t].name.th : ITEMS[t].name.en);
+  const told = whispers.length > 0 && (
+    <ul className="mb-2 flex flex-col gap-1" data-kitchen-whispers={whispers.length} aria-label={th ? "ที่ช้อนกระซิบไว้" : "What the spoon has told"}>
+      {whispers.map((id) => { const secret = needsOf(id).at(-1)?.[0]; return secret ? (
+        <li key={id} className="flex items-center gap-1.5 rounded-md px-2 py-1 text-meta" style={{ backgroundColor: "rgba(72,214,196,0.16)" }}>
+          <TownIcon name={"thingSpoon" as IconName} size={16} className="shrink-0" />
+          {known.includes(id) ? <><ItemIcon id={id} size={18} /><span className="min-w-0 truncate font-semibold">{name(id)}</span></> : <TownIcon name="mystery" size={16} />}
+          <span aria-hidden style={{ color: INK_SOFT }}>:</span>
+          <ItemIcon id={secret} size={18} /><span className="min-w-0 truncate font-semibold">{name(secret)}</span>
+        </li>
+      ) : null; })}
+    </ul>
+  );
+  if (!notes.length) return <>{told}<p className="px-2 py-8 text-center text-ui" style={{ color: INK_SOFT }}>{th ? "ยังไม่ได้ลองทำอะไร ลองแล้วจะจดไว้ให้ตรงนี้" : "Nothing tried yet. What you try is written down here."}</p></>;
+  return (
+    <>
+    {told}
     <ul className="flex flex-col gap-1.5" data-kitchen-notes={notes.length}>
       {notes.map((n) => (
         <li key={n.at} className="rounded-md px-2 py-1.5" style={{ backgroundColor: "rgba(74,53,32,0.08)" }}>
@@ -491,6 +558,7 @@ function Tried({ notes, th }: { notes: Note[]; th: boolean }) {
         </li>
       ))}
     </ul>
+    </>
   );
 }
 

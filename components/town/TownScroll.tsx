@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { whispersOf } from "@/lib/town/cooking";
 import { cureWords } from "@/lib/town/farm";
 import { toldOf, type Hidden } from "@/lib/town/hints";
 import { WISH } from "@/lib/town/fountain";
@@ -66,7 +67,8 @@ export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
 
   const d = dish in DISHES ? DISHES[dish as DishId] : null, it = ITEMS[dish];
   const by = keeper.finder(dish), does = cureWords(dish);
-  const recipe = d?.recipe || MAKES[dish] ? toldOf(dish, keeper.madeBefore(dish), keeper.triesAt(dish)) : undefined;
+  // (a recipe whose secret thing the whispering spoon has told is read whole, as one that was made is: lib/town/cooking)
+  const recipe = d?.recipe || MAKES[dish] ? toldOf(dish, keeper.madeBefore(dish) || whispersOf(keeper.purse()).includes(dish), keeper.triesAt(dish)) : undefined;
   const name = (id: keyof typeof ITEMS) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const ms = open ? UNROLL_MS : ROLL_MS;
   return (

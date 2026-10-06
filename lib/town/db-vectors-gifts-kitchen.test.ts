@@ -1,7 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { basketEat, basketOf, basketPut, basketRoom, basketTake } from "./cooking";
+import { RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, needsOf, spoon, spoonSays, whispersOf } from "./cooking";
+import { stretchOf } from "./gifts";
 import { ITEMS, type DishId, type ItemId } from "./items";
 import { begun, dayOf } from "./stamina";
 import { newPurse, put, type Purse } from "./trade";
@@ -16,7 +17,11 @@ import { newPurse, put, type Purse } from "./trade";
  *   none, more than the slot has, more than the basket has room for;
  * - `basket_take`: dishes in the basket and not, amounts of every sort, bags with room, with a stack begun, with none;
  * - `begun`, `basket_eat`: sitting and standing, a meal at hand, a meal's hours with none, some and all of their
- *   helpings had, on the day kept and on another, in each of the three meals' hours.
+ *   helpings had, on the day kept and on another, in each of the three meals' hours;
+ * - `whispers_of`, `spoon_says`, `spoon`: pots that are a part of every recipe there is (some of its things, all but
+ *   its last, all of it, one too many of a thing, a thing no recipe has with the rest), with recipes read whole
+ *   already and not; asked with the spoon and without, of things the bag has and has not, with every count of the
+ *   day's answers kept (none, some, all, of another day).
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-kitchen.test.ts
  */
@@ -112,6 +117,46 @@ export function vectorsKitchen(): Vector[] {
   }
   // (begun's dish was drawn twice above: answered again as it was asked)
   for (const v of out) if (v.fn === "begun") v.want = JSON.parse(JSON.stringify(begun(v.args[0] as Purse, v.args[1] as DishId, v.args[2] as number)));
+
+  // the spoon: a pot that is a part of a recipe, of every recipe there is, and pots that are no recipe's
+  const part = (id: ItemId, how: number): Array<[ItemId, number]> => {
+    const needs = needsOf(id);
+    if (how === 0) return needs.slice(0, -1);                                    // all but its secret thing
+    if (how === 1) return needs.slice(0, Math.max(1, c.int(1, needs.length)));   // its first things
+    if (how === 2) return needs.map(([t, n]): [ItemId, number] => [t, c.int(1, n)]).filter(() => c.maybe(0.7)); // some of each
+    if (how === 3) return needs;                                                 // all of it
+    if (how === 4) return needs.map(([t, n], i): [ItemId, number] => [t, i === 0 ? n + 1 : n]); // one too many of its first
+    return [...needs.slice(0, 1), [c.of<ItemId>(["hyacinth", "boot", "minnow", "salt"]), 1]]; // with something else
+  };
+  const knowns = (id: ItemId): string[] => c.of<() => string[]>([() => [], () => [], () => [id], () => [c.of(RECIPE_IDS)], () => [...RECIPE_IDS], () => RECIPE_IDS.filter(() => c.maybe(0.5)), () => ["noSuchThing", id]])();
+  for (const id of RECIPE_IDS) for (let how = 0; how < 6; how++) {
+    const pot = part(id, how);
+    add("spoon_says", [pot, knowns(id)], spoonSays(pot, knowns(id)));
+    // (and the recipe whole, with nothing known: it is the one answered for)
+    if (how === 3) add("spoon_says", [pot, []], spoonSays(pot, []));
+  }
+  for (const pot of [[], [["minnow", 3]], [["minnow", 3], ["minnow", 1]], [["salt", 1]], [["rice", 0]], [["chili", 1], ["garlic", 1]]] as Array<Array<[ItemId, number]>>) for (const known of [[], ["friedMinnow"], ["friedMinnow", "fishSauce"]]) add("spoon_says", [pot, known], spoonSays(pot, known));
+  // (spoon_says' known recipes were drawn twice above: answered again as they were asked)
+  for (const v of out) if (v.fn === "spoon_says") v.want = JSON.parse(JSON.stringify(spoonSays(v.args[0] as Array<[ItemId, number]>, v.args[1] as string[])));
+  for (let i = 0; i < 60; i++) {
+    const p = { whispers: c.of<() => unknown>([() => undefined, () => [], () => ["tomYum"], () => ["tomYum", "minnow", "tomYum", 3, null, "fishSauce", "oddDish", "noSuchThing"], () => "tomYum", () => ({ tomYum: 1 }), () => RECIPE_IDS.filter(() => c.maybe(0.3))])() } as Pick<Purse, "whispers">;
+    add("whispers_of", [p], whispersOf(p));
+  }
+  const kDay = stretchOf({ n: 3, per: "day" }, NOON);
+  for (let i = 0; i < 420; i++) {
+    const id = c.of(RECIPE_IDS), pot = part(id, c.int(0, 5)), now = c.of([NOON, NOON + 5 * HOUR, NOON + 24 * HOUR]);
+    // a bag that has the pot's things (or is one short of one of them), and something else
+    let b = newPurse().bag.map(() => null) as Purse["bag"];
+    const short = c.maybe(0.12);
+    pot.forEach(([t, n], j) => { const k = short && j === 0 ? n - 1 : n; if (k > 0) b = put(b, t, Math.min(k, ITEMS[t].stack)); });
+    const used = c.of<() => unknown>([() => undefined, () => undefined, () => ({ thingSpoon: { k: kDay, n: c.int(0, 4) } }), () => ({ thingSpoon: { k: kDay, n: 3 } }), () => ({ thingSpoon: { k: kDay - 1, n: 3 } }), () => ({ thingSpoon: { k: kDay, n: 2 }, famGnome: { k: 5, n: 1 } })])();
+    const g = c.of<() => Purse["gifts"] | undefined>([() => undefined, () => ({ had: ["thingBasket"], charms: [] }), () => ({ had: ["thingSpoon"], charms: [] }), () => ({ had: ["thingSpoon"], charms: [] }), () => ({ had: ["thingSpoon", "charmApron"], charms: ["charmApron"] })])();
+    const p = { ...newPurse(), stamina: { day: dayOf(NOON), left: 50 }, bag: b, ...(g ? { gifts: { ...g, ...(used === undefined ? {} : { used }) } } : {}),
+      ...(c.maybe(0.4) ? { made: c.of<() => ItemId[]>([() => [id], () => [c.of(RECIPE_IDS)], () => RECIPE_IDS.filter(() => c.maybe(0.5))])() } : {}),
+      ...(c.maybe(0.4) ? { whispers: c.of<() => ItemId[]>([() => [id], () => [c.of(RECIPE_IDS), c.of(RECIPE_IDS)], () => RECIPE_IDS.filter(() => c.maybe(0.5))])() } : {}) } as Purse;
+    const asked = c.of<() => Array<[ItemId, number]>>([() => pot, () => pot, () => pot, () => [], () => [...pot, ["pot" as ItemId, 1]], () => pot.map(([t, n]): [ItemId, number] => [t, n + 0.5]), () => Array.from({ length: 9 }, (_, j): [ItemId, number] => [(["minnow", "salt", "rice", "chili", "garlic", "corn", "tomato", "basil", "scallion"] as ItemId[])[j], 1])])();
+    add("spoon", [p, asked, now], spoon(p, asked, now));
+  }
   return out;
 }
 
@@ -138,6 +183,16 @@ describe("the cases the database's rules of the kitchen's gifts are held to", ()
     // a meal begun out of the basket in each of the three meals' hours
     const meals = new Set(of("basket_eat").filter((v) => (v.want as { ok: boolean }).ok).map((v) => (v.want as { purse: Purse }).purse.eating!.meal));
     expect([...meals].sort()).toEqual([0, 1, 2]);
+    // the spoon: told, and silent each way; of a pot that could be one recipe and of one that could be many; a recipe kept as told
+    expect([...whys("spoon_says")].sort()).toEqual(["amount", "astray", "known", "ok"]);
+    expect([...whys("spoon")].sort()).toEqual(["amount", "astray", "known", "none", "ok", "spent"]);
+    const said = of("spoon_says").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { of: string; ways: number });
+    expect(said.some((s) => s.ways === 1) && said.some((s) => s.ways > 3)).toBe(true);
+    for (const id of RECIPE_IDS) expect(said.some((s) => s.of === id), id).toBe(true);
+    const told = of("spoon").filter((v) => (v.want as { ok: boolean }).ok).map((v) => ({ before: whispersOf(v.args[0] as Purse), d: v.want as { of: ItemId; left: number; purse: Purse } }));
+    expect(told.every((x) => x.d.purse.whispers!.at(-1) === x.d.of && x.d.purse.whispers!.length === x.before.length + 1)).toBe(true);
+    expect(told.some((x) => x.d.left === 0) && told.some((x) => x.d.left === 2) && told.some((x) => x.before.length > 0)).toBe(true);
+    expect(of("whispers_of").some((v) => (v.want as unknown[]).length === 2) && of("whispers_of").some((v) => (v.want as unknown[]).length === 0)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-kitchen.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

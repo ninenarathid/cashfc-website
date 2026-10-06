@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COOKING, isFind, mayTake, reachOf, stirMods, stirsFor, type Pot } from "@/lib/town/cooking";
+import { USES, hasThing, usesLeft } from "@/lib/town/gifts";
 import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/town/items";
 import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
 import type { Sprite } from "@/lib/town/scenery";
@@ -15,7 +16,7 @@ import type { FarmDraw } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
 import { AT_THE_POT, BURST, BuffAura } from "./TownBuffFx";
-import TownKitchen, { type KitchenResult } from "./TownKitchen";
+import TownKitchen, { type KitchenResult, type Whisper } from "./TownKitchen";
 import TownRoasting from "./TownRoasting";
 import TownStirring from "./TownStirring";
 import { WHY } from "./TownTrade";
@@ -29,6 +30,9 @@ export interface Standing { tile: [number, number]; place: "stove" | "table" | "
 const WHY_COOK: Record<string, [string, string]> = {
   tool: ["ของในมือทำสิ่งนี้ไม่ได้", "What you hold will not make this"], none: ["ของในกระเป๋าไม่พอ", "Not enough of that in your bag"],
   amount: ["ยังไม่ได้ใส่อะไร", "Nothing is in yet"],
+  // (the whispering spoon's: lib/town/cooking's spoon)
+  astray: ["ช้อนเงียบ ไม่มีสูตรไหนใช้ของแบบนี้", "The spoon is silent: no recipe has this"], known: ["ช้อนเงียบ สูตรของหม้อนี้รู้ครบแล้ว", "The spoon is silent: you know all of this pot's recipes"],
+  spent: ["วันนี้ใช้ครบแล้ว", "No more of it today"],
   bowl:["ไม่มีถ้วยว่าง", "No bowl to spare"],
 };
 /** Where the kitchen's notebook is kept, a member: what was tried and what came of it (lib/town/kitchen). */
@@ -206,6 +210,21 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     });
   };
   const drop = (id: ItemId) => setThings((was) => was.flatMap(([t, n]): Array<[ItemId, number]> => (t !== id ? [[t, n]] : n > 1 ? [[t, n - 1]] : [])));
+  /* ── the whispering spoon (lib/town/cooking): asked of what is in the pot; what it tells is mine alone ── */
+  const [whisper, setWhisper] = useState<Whisper | null>(null);
+  const [asking, setAsking] = useState(false);
+  useEffect(() => { setWhisper(null); }, [things, open]);
+  const askSpoon = useCallback(async () => {
+    if (asking) return;
+    setAsking(true);
+    try {
+      const did = await keeper.spoonAsk(things);
+      if (!did.ok) { say(did.why); return; }
+      sfx?.wake(); sfx?.work("made", 0.5);
+      setRefusal(null);
+      setWhisper({ of: did.of, secret: did.secret, ways: did.ways });
+    } finally { setAsking(false); }
+  }, [asking, keeper, things, say, sfx]);
   /** Take up the cookware in a slot of the bag, or put away what is held (the table's own choosing of it). */
   const takeUp = useCallback(async (slot: number | null) => {
     const did = await keeper.hold(slot);
@@ -324,6 +343,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       result: () => result, again: () => setResult(null), eatNow, potDown, notes: () => notes, tool: takeUp, shut: () => { setResult(null); setOpen(false); },
       places: () => KITCHEN.places, floor: () => KITCHEN.floor, note: () => note,
       wash: () => KITCHEN.wash, jar: () => keeper.yardJar(),
+      // (the kitchen's gifts)
+      spoon: askSpoon, whisper: () => whisper,
     };
     (window as unknown as { __townCook?: typeof handle }).__townCook = handle;
     return () => { delete (window as unknown as { __townCook?: typeof handle }).__townCook; };
@@ -339,7 +360,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
                    result={result} why={refusal} bottom={bottom} fire={art?.("gameFire") ?? null}
                    eat={{ bowl: held(purse.bag, BOWL) > 0, meal: mayEat(purse, now, keeper.helpings()) }}
                    onAdd={add} onDrop={drop} onClear={() => setThings([])} onTool={takeUp} onGo={go} onClose={() => { setResult(null); setOpen(false); }}
-                   onAgain={() => setResult(null)} onEat={eatNow} onPotDown={potDown} />
+                   onAgain={() => setResult(null)} onEat={eatNow} onPotDown={potDown}
+                   spoon={hasThing(purse, "thingSpoon") ? { left: usesLeft(purse, "thingSpoon", now), most: USES.thingSpoon?.n ?? 0, told: whisper, busy: asking } : null} onSpoon={askSpoon} onSpoonShut={() => setWhisper(null)} />
     )}
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
