@@ -73460,14 +73460,14 @@
     "expansion": "Dawntrail",
     "encounter_id": 1076,
     "name": "Dragonsong's Reprise",
-    "best": 63,
-    "kills": 2,
+    "best": 64,
+    "kills": 4,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 2,
-      "best": 63
+      "kills": 4,
+      "best": 64
      }
     }
    }
@@ -84752,17 +84752,17 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 89,
-    "kills": 58,
+    "kills": 62,
     "job": "Warrior",
     "cleared": true,
     "job_kills": {
+     "Warrior": {
+      "kills": 61,
+      "best": 89
+     },
      "DarkKnight": {
       "kills": 1,
       "best": 79
-     },
-     "Warrior": {
-      "kills": 57,
-      "best": 89
      }
     }
    }
