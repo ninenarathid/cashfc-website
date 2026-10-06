@@ -112,6 +112,10 @@ export function countsOf(d: Done, doer: string): Counts[] {
         ? [{ to: d.doc.whose, line: "kitchen", raw: POINTS.kitchen.ladled, held: { key: `ladle:${doer}`, most: POINTS.kitchen.ladling } }] : [];
     case "water": case "clear": case "till": case "feed": case "cure":
       return other && other !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers[d.what] }] : [];
+    // ── gifts: helpers ── (a duet bell that rang, lib/town/helping: written down for each of the two, with how many of
+    // somebody else's plants it rang over for them: each is a watering's worth more)
+    case "bell":
+      return d.n > 0 ? [{ to: null, line: "helpers", raw: POINTS.helpers.water * Math.floor(d.n) }] : [];
     case "thank":
       return (Array.isArray(d.doc.to) ? d.doc.to : []).filter((id): id is string => typeof id === "string" && id !== doer)
         .map((id) => ({ to: id, line: "helpers" as const, raw: POINTS.helpers.thanked }));

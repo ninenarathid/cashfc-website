@@ -199,6 +199,10 @@ export interface Purse {
   // ── gifts: helpers ──
   /** The run of waterings of other members' plants by whoever wears the anklet (lib/town/helping's chime): how many in a row, and when the last was. */
   chime?: { n: number; at: number };
+  /** The plants the duet bell has given stamina back for today (lib/town/helping's belled): the day, and how many. */
+  rung?: { day: number; n: number };
+  /** What friends' gifts of the helpers' line did for me lately, to be told of once (lib/town/helping's Aid): the newest few. */
+  aided?: Array<{ what: string; by: string; name: string; n: number; at: number; back?: number; key?: string }>;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

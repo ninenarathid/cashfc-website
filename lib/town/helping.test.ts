@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import { FARMING, pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
 import { giftOf } from "./gifts";
 import { HEAT } from "./heat";
-import { HELPING, bridged, chime, pouredAs, runOf, timesAt } from "./helping";
+import { HELPING, aided, aidsOf, belled, bridged, chime, pouredAs, ring, runOf, timesAt } from "./helping";
+import { POINTS, countsOf, type Done } from "./line-points";
 import { WATERS, keptAs, type Nature } from "./waters";
 import type { ItemId } from "./items";
 import { dayOf, staminaOf } from "./stamina";
@@ -198,6 +199,73 @@ describe("a watering as it is kept: the gifts, the heat and the well's water in 
     }
     expect(pouredAs(undefined, next, T, false, null, "me", 2)).toBe(next);
     expect(pouredAs({ soil: "tilled", plant: { ...was.plant!, watered: T } }, next, T, false, null, "me", 2)).toBe(next);
+  });
+});
+
+describe("the duet bell: two watering in the same bed within ten seconds, and both waterings count double", () => {
+  const ADDS = FARMING.water.adds * 60_000;
+  /** A plant of the bed's owner watered with a can by somebody, so long ago, kept so many times over. */
+  const poured = (by: string, ago: number, x = 1, more: Partial<NonNullable<Plant["pour"]>> = {}): Plot =>
+    sown({ watered: NOON - ago, boost: ADDS * x, pour: { by, at: NOON - ago, base: ADDS, x, ...more } });
+  const [A, B, C] = KEYS;
+
+  it("rings when a friend watered in the bed within ten seconds and one of the two wears it: both waterings are doubled, once", () => {
+    const bed = { [A]: poured("me", 0), [B]: poured("pal", 4000) };
+    const rang = ring(bed, [A], "me", true, NOON)!;
+    expect([rang.mine, rang.pals, rang.near]).toEqual([[A], { pal: [B] }, ["pal"]]);
+    expect([rang.plots[A].plant!.boost, rang.plots[B].plant!.boost]).toEqual([2 * ADDS, 2 * ADDS]);
+    expect(rang.plots[B].plant!.pour).toEqual({ by: "pal", at: NOON - 4000, base: ADDS, x: 2, bell: true });
+    // (the friend's watering, rung already, says only that the friend is there: mine is doubled, theirs not again)
+    const again = ring({ [A]: rang.plots[A], [B]: rang.plots[B], [C]: poured("me", 0) }, [C], "me", true, NOON)!;
+    expect([Object.keys(again.plots), again.pals, again.near]).toEqual([[C], {}, ["pal"]]);
+  });
+
+  it("one bell is enough: it rings for a wearer's friend who has none, whichever of them waters second", () => {
+    expect(ring({ [A]: poured("me", 0), [B]: poured("pal", 4000, 1, { worn: true }) }, [A], "me", false, NOON)).not.toBeNull();
+    expect(ring({ [A]: poured("me", 0), [B]: poured("pal", 4000) }, [A], "me", false, NOON)).toBeNull();
+  });
+
+  it("alone it does nothing; nor more than ten seconds apart; nor with a friend whose purse is not held", () => {
+    expect(ring({ [A]: poured("me", 0), [B]: poured("me", 3000) }, [A], "me", true, NOON)).toBeNull();
+    expect(ring({ [A]: poured("me", 0), [B]: poured("pal", 10_001) }, [A], "me", true, NOON)).toBeNull();
+    expect(ring({ [A]: poured("me", 0), [B]: poured("pal", 10_000) }, [A], "me", true, NOON)).not.toBeNull();
+    expect(ring({ [A]: poured("me", 0), [B]: poured("pal", 4000) }, [A], "me", true, NOON, [])).toBeNull();
+    expect(ring({ [A]: poured("me", 0), [B]: poured("pal", 4000) }, [A], "me", true, NOON, ["pal"])).not.toBeNull();
+    // (a plant watered since by something that is no can, or never watered with one: no friend's watering)
+    expect(ring({ [A]: poured("me", 0), [B]: sown({ watered: NOON - 100 }) }, [A], "me", true, NOON)).toBeNull();
+    expect(ring({ [A]: poured("me", 0), [B]: { soil: "tilled", plant: { ...poured("pal", 4000).plant!, watered: NOON - 50 } } }, [A], "me", true, NOON)).toBeNull();
+  });
+
+  it("with the anklet's twice or the heat's, the whole is still never more than three times", () => {
+    const rang = ring({ [A]: poured("me", 0, 2), [B]: poured("pal", 100, 3), [C]: poured("pal", 100, 1.5) }, [A], "me", true, NOON)!;
+    expect([rang.plots[A].plant!.pour!.x, rang.plots[B].plant!.pour!.x, rang.plots[C].plant!.pour!.x]).toEqual([3, 3, 3]);
+    expect([rang.plots[A].plant!.boost, rang.plots[B].plant!.boost, rang.plots[C].plant!.boost]).toEqual([3 * ADDS, 3 * ADDS, 3 * ADDS]);
+  });
+
+  it("gives two stamina back a plant, never above the full gauge, of no more plants a day than its bound", () => {
+    const at = (left: number, rung?: Purse["rung"]) => ({ ...purse(undefined, 8, left), ...(rung ? { rung } : {}) });
+    const day = dayOf(NOON);
+    expect(belled(at(50), 7, NOON)).toMatchObject({ back: 14, purse: { stamina: { day, left: 64 }, rung: { day, n: 7 } } });
+    expect(belled(at(99), 7, NOON)).toMatchObject({ back: 1, purse: { stamina: { left: 100 }, rung: { n: 1 } } });
+    const full = at(100);
+    expect(belled(full, 7, NOON)).toEqual({ purse: full, back: 0 });
+    expect(belled(at(50, { day, n: HELPING.bell.plants - 2 }), 7, NOON)).toMatchObject({ back: 4, purse: { rung: { day, n: HELPING.bell.plants } } });
+    expect(belled(at(50, { day, n: HELPING.bell.plants }), 7, NOON).back).toBe(0);
+    expect(belled(at(50, { day: day - 1, n: HELPING.bell.plants }), 3, NOON)).toMatchObject({ back: 6, purse: { rung: { day, n: 3 } } });
+    expect([HELPING.bell.back, HELPING.bell.within, HELPING.bell.plants]).toEqual([2, 10, 25]);
+  });
+
+  it("tells a purse of what a friend's gift did, the newest few kept", () => {
+    let p = purse(undefined);
+    for (let i = 0; i < HELPING.told + 3; i++) p = aided(p, { what: "bell", by: "pal", name: "Pal", n: i, at: NOON + i });
+    expect(aidsOf(p).map((a) => a.n)).toEqual(Array.from({ length: HELPING.told }, (_, i) => i + 3));
+    expect(aidsOf({ aided: [null, "x", { what: "ring" }, { what: "ring", by: "pal", name: "", n: 30, at: 5 }] as unknown as Purse["aided"] }).length).toBe(1);
+  });
+
+  it("counts on the helpers' line: a watering's worth more for each of somebody else's plants it rang over", () => {
+    const bellOf = (n: number): Done => ({ from: "deed", what: "bell", thing: null, n, doc: {} });
+    expect(countsOf(bellOf(6), "me")).toEqual([{ to: null, line: "helpers", raw: 6 * POINTS.helpers.water }]);
+    expect(countsOf(bellOf(0), "me")).toEqual([]);
   });
 });
 

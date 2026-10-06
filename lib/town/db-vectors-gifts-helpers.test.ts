@@ -4,7 +4,9 @@ import { catalogOf } from "./catalog";
 import { vectorsFarming } from "./db-vectors-gifts-farming.test";
 import { pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
 import { wearing } from "./gifts";
-import { HELPING, bridged, chime, pouredAs, runOf } from "./helping";
+import { vectorsLines } from "./db-vectors-lines.test";
+import { HELPING, aided, belled, bridged, chime, pouredAs, ring, runOf, type Aid } from "./helping";
+import { countsOf, type Done } from "./line-points";
 import type { Nature } from "./waters";
 import { CROP_IDS, type ItemId } from "./items";
 import { dayOf, staminaOf } from "./stamina";
@@ -29,6 +31,15 @@ import { BEDS_IN_FARM, bedCorner, rowOf } from "./world";
  * - `poured_as`: waterings of every size kept under every sky and water (hot and not; the dew's, the rain's, the
  *   moon's and none), once, twice and three times over, by a wearer of the bell and not; and what is no watering (a
  *   plant watered before, another plant, no plant, nothing added).
+ * - `ring`: beds with waterings of mine at this moment and of others a moment ago, at the very end of the ten
+ *   seconds, past them and long ago; marked as a bell-wearer's and not, rung already and not, once, twice and three
+ *   times over; the bell worn by me and not; friends whose purses are held, and not.
+ * - `belled`: gauges full, nearly full, half and empty; plants from none to more than a day's bound; a day's count
+ *   fresh, near the bound, at it, of yesterday, and kept wrongly. `aided`: purses told of nothing yet, of some, of
+ *   as many as are kept, and of what is kept wrongly.
+ * - `counts_of`: **the lines of work as they were counted** (every case of lib/town/db-vectors-lines.test.ts for
+ *   what something done counts for, asked again of the rule written again), and a bell that rang, for every number
+ *   of plants.
  *
  * Under a clear sky (the stand-in's weather is empty for these days).
  *
@@ -129,6 +140,46 @@ export function vectorsHelpers(): Vector[] {
     const hot = c.maybe(0.35), kind = c.of<Nature | null>([null, null, null, "dawn", "rain", "moon"]), times = c.of([1, 1, 2, 2, 3]), worn = c.maybe(0.3);
     add("poured_as", [before, next, NOW, hot, kind, ME, times, worn], pouredAs(before ?? undefined, next, NOW, hot, kind, ME, times, worn));
   }
+  // a bed rung over
+  const ADDS = 1_800_000;
+  for (let i = 0; i < 460; i++) {
+    const bedN = c.int(0, BEDS_IN_FARM - 1), [bx, by] = bedCorner(bedN), bed: Record<string, Plot> = {}, watered: string[] = [];
+    const lately = () => NOW - c.of([0, 1, 3000, 3000, 9999, 10000, 10001, 60000]);
+    for (let n = c.of([1, 2, 4, 8, 14]); n > 0; n--) {
+      const key = `${bx + c.int(0, 6)},${by + c.int(0, 6)}`, what = c.next(), base = c.of([ADDS, ADDS, ADDS * 1.5]), x = c.of([1, 1, 2, 3, 1.5, 2.5]);
+      if (what < 0.08) { bed[key] = { soil: "tilled", plant: null }; continue; }
+      if (what < 0.2) { bed[key] = { soil: "tilled", plant: plant(YOU, { watered: c.of([0, NOW - HOUR]) }) }; continue; }
+      const mine = what < 0.55, by2 = mine ? ME : c.of([YOU, YOU, THEM]), when = mine ? c.of([NOW, NOW, NOW, NOW - 2000]) : lately();
+      const mark = { by: by2, at: c.maybe(0.06) ? when - 5 : when, base, x, ...(c.maybe(mine ? 0.5 : 0.4) ? { worn: true } : {}), ...(c.maybe(mine ? 0.1 : 0.25) ? { bell: true } : {}) };
+      bed[key] = { soil: "tilled", plant: plant(YOU, { watered: when, boost: c.of([0, 900_000]) + base * x, pour: c.maybe(0.05) ? ("x" as unknown as Plant["pour"]) : mark }) };
+      if (mine && c.maybe(0.85)) watered.push(key);
+    }
+    if (c.maybe(0.1)) watered.push(`${bx},${by}`);
+    const wears = c.maybe(0.5), may = c.of<string[] | null>([null, null, null, [YOU], [YOU, THEM], [THEM], []]);
+    add("ring", [bed, [...new Set(watered)], ME, wears, NOW, may], ring(bed, [...new Set(watered)], ME, wears, NOW, may));
+  }
+  // what a bell gives back, and what a purse is told of
+  {
+    const day = dayOf(NOW);
+    for (const left of [100, 99, 97.5, 50, 0]) for (const plants of [0, 1, 7, 25, 30]) for (const rung of [undefined, { day, n: 0 }, { day, n: 3 }, { day, n: 24 }, { day, n: 25 }, { day: day - 1, n: 25 }, { day, n: 3.5 }, "x", { day: String(day), n: 2 }]) {
+      const p = { ...purse(undefined, null, 0, left), ...(rung === undefined ? {} : { rung }) } as Purse;
+      add("belled", [p, plants, NOW], belled(p, plants, NOW));
+    }
+    // (and on a day the gauge has not been counted yet: it is full)
+    const fresh = { ...purse(undefined, null, 0, 40), stamina: { day: day - 1, left: 40 } } as Purse;
+    add("belled", [fresh, 5, NOW], belled(fresh, 5, NOW));
+    const told = (n: number): Aid[] => Array.from({ length: n }, (_, i) => ({ what: c.of(["bell", "ring", "dust"] as const), by: YOU, name: "Yo", n: i + 1, at: NOW - (n - i) * 1000 }));
+    for (const kept of [undefined, [], told(1), told(7), told(8), told(11), "x", [null, 3, { what: "ring" }, ...told(2)]]) for (const aid of [{ what: "bell", by: YOU, name: "Yo", n: 3, at: NOW, back: 6 }, { what: "dust", by: THEM, name: "", n: 1, at: NOW, key: "132,7" }] as Aid[]) {
+      const p = { ...purse(undefined, null, 0, 50), ...(kept === undefined ? {} : { aided: kept }) } as Purse;
+      add("aided", [p, aid], aided(p, aid));
+    }
+  }
+  // the lines of work as they were counted, and a bell that rang
+  for (const v of vectorsLines()) if (v.fn === "counts_of") out.push(v);
+  for (const n of [0, 1, 3, 7, 2.5, -1]) for (const doer of [ME, YOU]) {
+    const d: Done = { from: "deed", what: "bell", thing: null, n, doc: { bed: 3, with: [YOU], plants: 7 } };
+    add("counts_of", [d, doer], countsOf(d, doer));
+  }
   // (and rows poured one after another by a wearer of both, whatever chance gave above: the run kept alive by the pours' own seconds, crossing twenty, and begun anew)
   {
     const [bx, by] = bedCorner(4), keys = rowOf(bx, by + 2).map(([u, v]) => `${u},${v}`), keeping: Bed = { by: YOU, tended: NOW - HOUR, empty: 0 };
@@ -183,6 +234,20 @@ describe("the cases the database's rules of the helpers' line's gifts are held t
     expect(xs.every((k) => k.x <= HELPING.most) && xs.some((k) => k.x === 3 && k.times === 2) && xs.some((k) => k.x === 2 && k.times === 2) && xs.some((k) => k.x === 2 && k.times === 1)).toBe(true);
     expect(kept.some((k) => k.d.plant?.pour?.worn === true) && kept.some((k) => !!k.d.plant?.pour && k.d.plant.guard > (k.next.plant?.guard ?? 0))).toBe(true);
     expect(kept.filter((k) => JSON.stringify(k.d) === JSON.stringify(k.next)).length).toBeGreaterThan(60);
+    // the bell: rung for me alone, for a friend too, for two friends; not rung with nobody near, with no bell between us, with nothing of mine to double, with a friend whose purse is not held
+    const rings = of("ring").map((v) => ({ wears: v.args[3] as boolean, may: v.args[5] as string[] | null, d: v.want as { plots: Record<string, Plot>; mine: string[]; pals: Record<string, string[]>; near: string[] } | null }));
+    expect(rings.filter((r) => r.d).length).toBeGreaterThan(60);
+    expect(rings.filter((r) => !r.d).length).toBeGreaterThan(60);
+    expect(rings.some((r) => r.d && Object.keys(r.d.pals).length === 0) && rings.some((r) => r.d && Object.keys(r.d.pals).length === 1) && rings.some((r) => r.d && Object.keys(r.d.pals).length === 2)).toBe(true);
+    expect(rings.some((r) => r.d && !r.wears) && rings.some((r) => r.d && r.may !== null)).toBe(true);
+    // (a friend whose watering had rung already is rung with all the same, and not doubled again)
+    expect(rings.some((r) => r.d && r.d.near.length > Object.keys(r.d.pals).length) && rings.every((r) => !r.d || r.d.near.length >= 1)).toBe(true);
+    const rungX = rings.flatMap((r) => (r.d ? Object.values(r.d.plots).map((pl) => pl.plant!.pour!.x) : []));
+    expect(rungX.every((x) => x <= HELPING.most) && rungX.some((x) => x === 2) && rungX.some((x) => x === 3)).toBe(true);
+    const backs = of("belled").map((v) => (v.want as { back: number }).back);
+    expect(backs.some((b) => b === 0) && backs.some((b) => b === 14) && backs.some((b) => b === 2.5) && backs.some((b) => b === 2) && backs.some((b) => b === 50)).toBe(true);
+    expect(of("aided").some((v) => (v.want as Purse).aided!.length === HELPING.told) && of("aided").some((v) => (v.want as Purse).aided!.length === 1)).toBe(true);
+    expect(of("counts_of").length).toBeGreaterThan(200);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-helpers.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

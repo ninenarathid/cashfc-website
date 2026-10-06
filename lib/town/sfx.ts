@@ -516,6 +516,16 @@ export class FishSfx {
     bell(b, t, hz, 0.11, 0.5);
     if (top) bell(b, t + 0.08, hz * 1.5, 0.08, 0.6);
   }
+  /** The duet bell (lib/town/helping): two bells a fifth apart, the second a breath after the first, and once more, softer. */
+  duet() {
+    const b = this.bench;
+    if (this.off || !b || (b.ctx as AudioContext).state !== "running") return;
+    const t = b.ctx.currentTime + 0.01;
+    bell(b, t, 659.25, 0.17, 0.9);
+    bell(b, t + 0.13, 987.77, 0.14, 1.1);
+    bell(b, t + 0.55, 659.25, 0.07, 0.7);
+    bell(b, t + 0.68, 987.77, 0.06, 0.9);
+  }
   /** The reel, counted on each frame of a fight: ticks while it is held, at the pace its line is coming in. */
   reel(holding: boolean, winning: boolean, tension: number) {
     const b = this.bench;

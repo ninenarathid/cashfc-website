@@ -920,6 +920,8 @@ export class DbKeeper implements Keeper {
     // other deed is to go on being done there)
     const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]> }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null, ...(sure ? { p_sure: true } : {}) });
     if (did.ok) this.onDeed?.("farm");
+    // ── gifts: helpers ── (a duet bell rang: whoever it rang with has stamina back and is told of it, in their own purse, which they read again)
+    if (did.ok) this.rangWith(did);
     // (a watering on a hot afternoon, or while the well's water has a nature, is kept with more than this answer says: the plot is read again)
     if (did.ok && did.deed === "water" && (this.hot() || this.wellWater())) this.fetch("farm");
     return did;
@@ -969,6 +971,11 @@ export class DbKeeper implements Keeper {
   // ── gifts: helpers ──
   /** Whether the database knows of the helpers' line's later gifts (v153): it says so by giving them, the anklet among them. A page out before the file offers none of what they do. */
   private helpGifts(): boolean { return this.gives("charmAnklet"); }
+  /** After a watering of mine: whoever the duet bell rang with (the answer's `bell.with`) is told through the room that their purse changed. */
+  private rangWith(did: unknown) {
+    const pals = (did as { bell?: { with?: unknown } }).bell?.with;
+    if (Array.isArray(pals)) for (const pal of pals) if (typeof pal === "string") this.onDeed?.("line", pal);
+  }
   pourAt(key: string): string[] {
     if (!this.helpGifts()) return [];
     const [x, y] = key.split(",").map(Number);
@@ -978,7 +985,7 @@ export class DbKeeper implements Keeper {
     const [x, y] = key.split(",").map(Number);
     // (the answer brings every plot it watered as it is kept, with what the heat and the well's water added)
     const did = await this.deed<{ done: string[] }>("town_longpour", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
-    if (did.ok) this.onDeed?.("farm");
+    if (did.ok) { this.onDeed?.("farm"); this.rangWith(did); }
     return did;
   }
   /**

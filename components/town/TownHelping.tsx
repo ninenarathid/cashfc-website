@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { wearing } from "@/lib/town/gifts";
-import { HELPING, runOf, timesAt } from "@/lib/town/helping";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { wearing, type GiftId } from "@/lib/town/gifts";
+import { HELPING, aidsOf, runOf, timesAt, type Aid } from "@/lib/town/helping";
 import type { Keeper } from "@/lib/town/keeper";
+import type { FishSfx } from "@/lib/town/sfx";
 import TownIcon, { type IconName } from "./TownIcon";
 
 /**
@@ -36,6 +37,68 @@ export function AnkletRun({ keeper }: { keeper: Keeper }) {
         <span className="block h-[3px] w-full overflow-hidden bg-[#4a2f18]"><span className={`block h-full ${top ? "bg-[#ffd98a]" : "bg-[#cfe9ff]"}`} style={{ width: `${left * 100}%` }} /></span>
       </span>
       <span className={`font-data text-ui font-semibold tabular-nums ${top ? "text-[#ffe19a]" : "text-[#e9cfa4]"}`}>×{timesAt(run)}</span>
+    </div>
+  );
+}
+
+/** The gift each thing a friend did for me is of: its picture is on the word of it. */
+const AID_GIFT: Record<Aid["what"], GiftId> = { bell: "charmBell", ring: "charmRing", dust: "thingDust" };
+const tenth = (n: number) => Math.round(n * 10) / 10;
+/** What is said of one, in a line. */
+function aidWord(a: Aid, th: boolean): string {
+  const who = a.name || (th ? "เพื่อน" : "a friend");
+  if (a.what === "bell") {
+    const back = a.back ? tenth(a.back) : 0;
+    return th ? `ระฆังคู่หูดังกับ ${who} · ${a.n} ต้นนับ 2 เท่า${back ? ` · แรง +${back}` : ""}` : `The duet bell rang with ${who}: ${a.n} ${a.n === 1 ? "plant counts" : "plants count"} double${back ? `, +${back} stamina` : ""}`;
+  }
+  if (a.what === "ring") return th ? `${who} แบ่งแรงให้คุณ +${tenth(a.n)}` : `${who} shared strength with you: +${tenth(a.n)} stamina`;
+  return th ? `${who} โรยผงภูตสวนให้ต้นไม้ของคุณ` : `${who} sprinkled fae dust on a plant of yours`;
+}
+
+/**
+ * What friends' gifts did for me, told once (lib/town/helping's Aid: kept in my own purse by whoever keeps the game,
+ * so it is told wherever and whenever I next look, though I was away when it was done): a bell that rang with a
+ * friend, strength somebody shared with me, dust somebody sprinkled on a plant of mine. One at a time, a few seconds
+ * each, with its sound; and the map is told (`onAid`), to show it where it happened. What this device has told of
+ * is remembered on the device, by its moment.
+ */
+export function HelpNews({ keeper, th, sfx, onAid }: { keeper: Keeper; th: boolean; sfx: FishSfx | null; onAid?: (aid: Aid) => void }) {
+  const [, setTick] = useState(0);
+  useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
+  const [shown, setShown] = useState<Aid | null>(null);
+  const queue = useRef<Aid[]>([]), told = useRef<number | null>(null), busy = useRef(false);
+  const next = useCallback(() => {
+    const a = queue.current.shift() ?? null;
+    busy.current = !!a;
+    setShown(a);
+    if (!a) return;
+    sfx?.wake();
+    if (a.what === "bell") sfx?.duet(); else sfx?.work(a.what === "ring" ? "made" : "feed", 0.8);
+    onAid?.(a);
+    window.setTimeout(next, 3600);
+  }, [sfx, onAid]);
+  const ready = keeper.ready(), aids = ready ? aidsOf(keeper.purse()) : [], newest = aids.length ? Math.max(...aids.map((a) => a.at)) : 0;
+  useEffect(() => {
+    if (!ready || !newest) return;
+    const key = `cashtown.aided.${keeper.id}`;
+    if (told.current === null) { try { told.current = Number(window.localStorage.getItem(key)) || 0; } catch { told.current = 0; } }
+    const was = told.current, now = keeper.now();
+    // (what was done more than two days ago is no news any more)
+    const fresh = aidsOf(keeper.purse()).filter((a) => a.at > was && now - a.at < 2 * 86_400_000).sort((a, b) => a.at - b.at);
+    if (!fresh.length) return;
+    told.current = newest;
+    try { window.localStorage.setItem(key, String(newest)); } catch { /* told again another time, then */ }
+    queue.current.push(...fresh);
+    if (!busy.current) next();
+  }, [ready, newest, keeper, next]);
+  if (!shown) return null;
+  return (
+    <div className="pointer-events-none absolute inset-x-0 top-[8.25rem] z-30 flex justify-center px-3">
+      <p key={shown.at} role="status" data-state="open" data-help-news={shown.what} data-help-by={shown.by}
+         className="pop-in flex max-w-[24rem] items-center gap-2 rounded-2xl border-2 border-[#f0c060] bg-[#3a2513]/95 py-1.5 pl-2 pr-4 text-ui font-semibold leading-snug text-[#ffeccb] shadow-xl shadow-black/40">
+        <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-[#2a190d] bg-[#6b4424]"><TownIcon name={AID_GIFT[shown.what] as IconName} size={26} /></span>
+        {aidWord(shown, th)}
+      </p>
     </div>
   );
 }

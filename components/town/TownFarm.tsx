@@ -20,7 +20,8 @@ import TownSteady from "./TownSteady";
 import TownSweep from "./TownSweep";
 // ── gifts: helpers ──
 import TownLongPour from "./TownLongPour";
-import { AnkletRun } from "./TownHelping";
+import { AnkletRun, HelpNews } from "./TownHelping";
+import type { Aid } from "@/lib/town/helping";
 import { wearing } from "@/lib/town/gifts";
 import { HELPING, runOf } from "@/lib/town/helping";
 import TownTiming from "./TownTiming";
@@ -257,6 +258,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
    * so far, for a script to hear by.
    */
   const chimes = useRef<Array<{ x: number; y: number; step: number; top: boolean; from: number | null }>>([]), tune = useRef<number[]>([]);
+  /**
+   * What friends' gifts did, shown on the map where it happened (components/town/TownHelping tells of each once): a
+   * bell over each of the two it rang for.
+   */
+  const bellsUp = useRef<Array<{ ids: string[]; from: number | null }>>([]);
+  const onAid = useCallback((aid: Aid) => {
+    if (aid.what === "bell") bellsUp.current.push({ ids: [keeper.id, aid.by], from: null });
+  }, [keeper]);
   const chimeAt = useCallback((plot: string, step: number, wait = 0) => {
     const [x, y] = plot.split(",").map(Number), top = step >= HELPING.anklet.run;
     window.setTimeout(() => { chimes.current.push({ x, y, step, top, from: null }); tune.current = [...tune.current.slice(-39), step]; sfx?.wake(); sfx?.chime(step, top); }, wait);
@@ -401,6 +410,42 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ctx.globalAlpha = 1;
           note(at.x + 10 * s + Math.sin(part * 6 + c.x) * 4 * s, at.y - (26 + part * (26 + Math.min(20, c.step) * 1.4)) * s, Math.sin(Math.min(1, part) * Math.PI), tint, 1.7);
         });
+      }
+      // a duet bell that rang: over each of the two a bell swings, and rings of its sound go out from it
+      bellsUp.current = bellsUp.current.filter((b) => b.from === null || t - b.from < 2300);
+      for (const b of bellsUp.current) {
+        if (b.from === null) b.from = t;
+        const since = t - b.from, all = frame.people?.() ?? [];
+        for (const id of b.ids) {
+          const who = all.find((p) => p.id === id);
+          if (!who) continue;
+          const at = project({ x: who.x, y: who.y });
+          if (!onScreen(at)) continue;
+          above(() => {
+            const head = at.y - 64 * s, fade = Math.min(1, since / 200) * Math.min(1, (2300 - since) / 500);
+            ctx.strokeStyle = "#ffe19a";
+            ctx.lineWidth = Math.max(2, 2 * s);
+            for (let i = 0; i < 3; i++) {
+              const part = still ? (i + 1) / 4 : ((since / 900 + i / 3) % 1);
+              ctx.globalAlpha = fade * (1 - part) * 0.85;
+              ctx.beginPath();
+              ctx.ellipse(at.x, head, (10 + part * 26) * s, (6 + part * 15) * s, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            const cell = ICON_ATLAS.icons["charmBell" as IconName];
+            ctx.globalAlpha = fade;
+            if (cell) {
+              const [x, y, w, h] = cell, k = 0.8 * s;
+              ctx.save();
+              ctx.imageSmoothingEnabled = false;
+              ctx.translate(Math.round(at.x), Math.round(head - (h * k) / 2));
+              ctx.rotate(still ? 0 : Math.sin(since / 85) * 0.38 * Math.max(0, 1 - since / 2000));
+              ctx.drawImage(img, x, y, w, h, -(w * k) / 2, 0, w * k, h * k);
+              ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+          });
+        }
       }
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
         const tx = FARM.x + u, ty = FARM.y + v;
@@ -718,6 +763,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       pour: () => (key ? keeper.pourAt(key) : []), pourAct: beginLong,
       // (the anklet: the run as it stands, the notes of its tune played so far, and how many are in the air)
       run: () => runOf(keeper.purse(), keeper.now()), tune: () => [...tune.current], chimes: () => chimes.current.length,
+      // (the bells swinging over heads on this screen now)
+      bells: () => bellsUp.current.map((b) => b.ids),
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
       row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
       // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
@@ -748,10 +795,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   if (pourHere.length > 1) powers.push({ id: "charmGloves", word: th ? "เทยาวรดทั้งแถว" : "One long pour down the row", go: beginLong, more: th ? `${pourHere.length} ต้น` : `${pourHere.length} plants` });
   /** Whether a run of the anklet's is going: it is shown while it lasts, whatever else is. */
   const running = wearing(purse, "charmAnklet") && runOf(purse, now) > 0;
-  if (!working && !offer && !note && !powers.length && !running) return null;
+  /** What friends' gifts did for me: told wherever I stand, whatever else is shown. */
+  const news = <HelpNews keeper={keeper} th={th} sfx={sfx} onAid={onAid} />;
+  // (it keeps its place whatever else is shown: so what it is telling of is not lost when a button comes or goes)
+  const bare = !working && !offer && !note && !powers.length && !running;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
+    <>{news}{bare ? null : (
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
       {running && <AnkletRun keeper={keeper} />}
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
@@ -868,6 +919,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ))}
         </div>
       )}
-    </div>
+    </div>)}
+    </>
   );
 }
