@@ -12,6 +12,10 @@
  *   node v128.test.mjs                       (after v123 and v124, as it will be run)
  *   V128_ALONE=1 node v128.test.mjs          (straight after v122: it stands on neither)
  *   node mutate.mjs v128_draft.sql v128.test.mjs v128.mutations.mjs
+ *
+ * It holds v128 to the code it loads. From v144 on the code's most for what the uncle sells is no longer his price
+ * (lib/town/notices' capOf), so this file is run again only with the tree as it was before, 852fc62
+ * (`FC_REPO=<a worktree there>`); v144.test.mjs holds the board's most to the code as it stands.
  */
 import { existsSync, readFileSync } from "node:fs";
 import { supabaseLike, migration, U } from "./pglite-harness.mjs";

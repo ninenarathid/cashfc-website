@@ -2,7 +2,8 @@ import { describe, expect, it } from "vitest";
 import type { ItemId } from "./items";
 import { NOTICES, afterFee, buy, capOf, collectDue, dueOf, fetch, fill, moreSlot, newPinboard, nextSlot, plain, post, slotsOf, takeDown, told, type Pinboard } from "./notices";
 import { dayOf } from "./stamina";
-import { HOUR, newPurse, put, type Purse } from "./trade";
+import { capOf as stallCap } from "./shop";
+import { GOODS, HOUR, newPurse, put, type Purse } from "./trade";
 
 const NOON = Date.parse("2026-10-05T12:00:00+07:00");
 const SEEN: ItemId[] = ["kangkong", "minnow", "carrot", "worm"];
@@ -30,10 +31,22 @@ describe("a notice to sell", () => {
     expect(post(p, b, "a", "sell", "kangkong", 5, 30, NOON, SEEN).ok).toBe(true);
     expect(post(p, b, "a", "sell", "nothing" as ItemId, 5, 3, NOON, SEEN)).toEqual({ ok: false, why: "none" });
   });
-  it("of what the uncle sells is never above his price; of what the relatives do not take, never above a flat most", () => {
-    expect(capOf("worm")).toBe(2);
-    expect(capOf("rod")).toBe(60);
-    expect(post(has(0, [["worm", 5]]), newPinboard(), "a", "sell", "worm", 5, 3, NOON, SEEN)).toEqual({ ok: false, why: "dear" });
+  it("of what the uncle sells may be above his price (the owner: \"กระดานฝากขาย เอาเหมือนกัน\"), up to ten times what his relatives pay; of what they do not take, never above a flat most", () => {
+    // a worm he sells for two, a rod for sixty: his relatives pay one and thirty
+    expect(GOODS.worm!.price).toBe(2);
+    expect(capOf("worm")).toBe(10);
+    expect(capOf("rod")).toBe(300);
+    expect(post(has(0, [["worm", 5]]), newPinboard(), "a", "sell", "worm", 5, 3, NOON, SEEN).ok).toBe(true);
+    expect(post(has(0, [["worm", 5]]), newPinboard(), "a", "sell", "worm", 5, 10, NOON, SEEN).ok).toBe(true);
+    expect(post(has(0, [["worm", 5]]), newPinboard(), "a", "sell", "worm", 5, 11, NOON, SEEN)).toEqual({ ok: false, why: "dear" });
+    // wanted, too: coins put down for worms at more than he asks
+    expect(post(has(50, []), newPinboard(), "a", "want", "worm", 5, 4, NOON, [...SEEN, "worm"]).ok).toBe(true);
+    // every thing he sells: the board's most is above his price, and is the stall's own
+    for (const [id, good] of Object.entries(GOODS) as Array<[ItemId, { price: number }]>) {
+      expect(capOf(id), id).toBeGreaterThan(good.price);
+      expect(capOf(id), id).toBe(stallCap(id));
+    }
+    expect(capOf("scrollPestCure")).toBe(NOTICES.capless);
   });
   it("does not take a thing that holds something: a can with water in it is no plain can", () => {
     const p: Purse = { ...newPurse(), bag: [{ item: "can", n: 1, water: 3 }, { item: "can", n: 1 }, ...Array(8).fill(null)] };

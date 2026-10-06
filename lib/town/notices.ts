@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
-import { GOODS, HOUR, no as refuse, put, roomFor, type Purse, type Refusal } from "./trade";
+import { HOUR, no as refuse, put, roomFor, type Purse, type Refusal } from "./trade";
 
 /**
  * The notice board beside the uncle's stall, where members sell to one another
@@ -24,7 +24,10 @@ import { GOODS, HOUR, no as refuse, put, roomFor, type Purse, type Refusal } fro
  *   bought, each for twice the one before. A notice past its days is off the
  *   board, and its things (or its coins) wait for its writer to take it down.
  * - **A price has a most**: so many times what the relatives usually pay, and
- *   for what the uncle sells, never more than he asks.
+ *   so many coins for a thing they do not take. What the uncle sells was held
+ *   to his own price at first; **it may be asked more for than he asks** now,
+ *   here as at a stall (the owner, 2026-10-06, of the stall: "ช่วยทำให้ตั้งราคา
+ *   แพงกว่าร้านขายของลุงได้", and of the board: "กระดานฝากขาย เอาเหมือนกัน").
  * - A thing that holds something (a pot with food in it, a can with water) is
  *   not put up: only the plain thing.
  *
@@ -70,10 +73,10 @@ type Did<T> = ({ ok: true } & T) | { ok: false; why: NoticeRefusal };
 const no = (why: NoticeRefusal) => refuse(why as Refusal) as { ok: false; why: NoticeRefusal };
 const whole = (n: number) => Number.isInteger(n) && n > 0;
 
-/** The most a thing may be asked or offered for. */
+/** The most a thing may be asked or offered for: by what the relatives pay for it, whether the uncle sells it or not (the same as at a stall: lib/town/shop). */
 export function capOf(item: ItemId, k: NoticeKnobs = NOTICES): number {
-  const good = GOODS[item], pays = ITEMS[item].pays;
-  return good ? good.price : pays > 0 ? pays * k.cap : k.capless;
+  const pays = ITEMS[item].pays;
+  return pays > 0 ? pays * k.cap : k.capless;
 }
 /** How many of a thing are in a bag as plain things: a stack that holds something is not counted. */
 export const plain = (bag: Purse["bag"], id: ItemId) => bag.reduce((t, s) => t + (s && s.item === id && !s.of && !s.water ? s.n : 0), 0);

@@ -58,9 +58,9 @@ describe("a stall of one's own (the owner: \"ตั้งรับซื้อ�
       expect(capOf(id), id).toBeGreaterThan(good.price);
       expect(capOf(id), id).toBe(ITEMS[id].pays > 0 ? ITEMS[id].pays * SHOP.cap : SHOP.capless);
     }
-    // what he does not sell is as it was, and the notice board still holds what he sells to his price
+    // what he does not sell is as it was; and the notice board has the same most as a stall, for every thing there is
     expect(capOf("kangkong")).toBe(boardCap("kangkong"));
-    expect(boardCap("worm")).toBe(his);
+    for (const id of Object.keys(ITEMS) as ItemId[]) expect(boardCap(id), id).toBe(capOf(id));
   });
 
   it("wants only what the village has met, and only what the purse can pay for (the owner, of the board: \"การรับซื้อห้าม show ไอเทม ที่ยังไม่มีคนพบเด็ดขาด\")", () => {

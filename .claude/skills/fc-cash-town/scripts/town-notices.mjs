@@ -166,6 +166,13 @@ try {
   ok("bought: four places, the next for two hundred, and a notice can be written again", b.slots === 4 && b.more === 200 && (await purse(X)).coins === 60 && await X.evaluate(`!!${BOARD}.querySelector("[data-notice-new]")`), [b.slots, b.more, (await purse(X)).coins]);
   ok("nothing is wider than its panel", await within(X));
   await X.shot(`${OUT}/notices-places.png`);
+  // what the uncle sells, for more than he asks (the owner, 2026-10-06: "กระดานฝากขาย เอาเหมือนกัน"): he sells a worm for two, and
+  // his relatives pay one, so ten is the most a notice may ask
+  const W = await X.tab("NoticesW");
+  await come(W, "W");
+  await W.evaluate(`${T}.grant("worm", 6)`);
+  const dearer = await W.evaluate(`window.__townKeeper.noticePost("sell", "worm", 2, 5)`), tooDear = await W.evaluate(`window.__townKeeper.noticePost("sell", "worm", 1, 11)`);
+  ok("a notice of worms at five each goes up, where the uncle asks two; at eleven it is too dear", dearer.ok === true && tooDear.ok === false && tooDear.why === "dear", { dearer, tooDear });
   ok("no page errors", X.logs.length === 0 && Y.logs.length === 0, [X.logs, Y.logs]);
   await X.evaluate(`(${T}.reset(), localStorage.removeItem("cashtown.trial.notices.1"), localStorage.removeItem("cashtown.trial.seen.1"))`);
 } catch (e) { ok("the run", false, e.message); await X.shot(`${OUT}/notices-died.png`).catch(() => {}); } finally { X.close(); }

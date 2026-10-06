@@ -28,7 +28,7 @@ import { put, roomFor, type Purse, type Refusal } from "./trade";
  *   asks** (the owner, 2026-10-06: "ช่วยทำให้ตั้งราคาแพงกว่าร้านขายของลุงได้"): his
  *   shelf is small and so many a person a round, so whoever has some to
  *   spare, or is there when he has none, names their own price. (The notice
- *   board still holds what he sells to his price: lib/town/notices' capOf.)
+ *   board has the same most, from the same day: lib/town/notices' capOf.)
  * - Only plain things are sold (not a pot with food in it, nor a can with
  *   water).
  *
