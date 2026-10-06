@@ -316,6 +316,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
 
   // (for scripts in `next dev`)
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const handle = {
       offers: () => offers, act, pots: () => keeper.pots(), crew: () => cooks, open: () => open, things: () => things,
       put: (list: Array<[ItemId, number]>) => setThings(list), go, found: () => keeper.found(),

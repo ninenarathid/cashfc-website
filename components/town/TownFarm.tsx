@@ -420,6 +420,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
 
   // (for scripts in `next dev`: what stands in a plot, the deed or the chore on offer, the well and whose the beds are)
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const handle = {
       seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now(), keeper.rains()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
       offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note, wellWater: () => keeper.wellWater(),

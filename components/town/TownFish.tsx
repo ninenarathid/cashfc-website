@@ -420,8 +420,9 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   // (the way to drop the line is made anew each time the panel is drawn: the keyboard is given the newest)
   useEffect(() => { dropRef.current = () => { void drop(); }; });
 
-  // (for scripts in `next dev`: what is happening, and a hand on the reel)
+  // (for scripts in `next dev`: what is happening, and a hand on the reel. Never in a production page: it strikes and reels for whoever calls it)
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const handle = {
       phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000, coming: phase.coming ?? null } : null),
       // (a script's strike is taken whenever it comes: the line's rest is for hands, which the checks try by the button and the key)
