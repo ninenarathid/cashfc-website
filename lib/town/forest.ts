@@ -197,6 +197,8 @@ export interface Secret { id: number; kind: SecretKind; x: number; y: number; zo
 export type Place = Spot | Secret;
 /** How many secret places of each kind (a ring on ground somebody stands on, a bough on one of the deep woods' own trees), and how far apart they are kept. */
 const HIDDEN = { ring: 3, bough: 3, apart: 9 };
+/** How many places there are where a sprite may have buried a chest (lib/town/hunt), and how far apart they are kept. */
+const BURIED = { sites: 180, apart: 3 };
 
 /**
  * How many places of each kind, in which parts of the forest, on what ground. A tree that bears is one of the
@@ -227,7 +229,7 @@ const LAYOUT: Array<[kind: SpotKind, n: number, zones: Zone[], on: Ground[]]> = 
 /** The trees that bear: so many in the meadow at the wood's edge, so many further in. */
 const ORCHARD: Array<[n: number, zones: Zone[], trees: string[]]> = [[7, ["edge"], ["tree"]], [7, ["woods", "deep", "rise"], ["oak"]]];
 
-const LAID: { spots: Spot[]; secrets: Secret[] } = (() => {
+const LAID: { spots: Spot[]; secrets: Secret[]; sites: Array<[number, number]> } = (() => {
   // what can be walked to from where the town's gate puts somebody
   const start = GATES.find((g) => g.leads === "forest")!.to, first: [number, number] = [Math.floor(start.x), Math.floor(start.y)];
   const open = new Set([first.join(",")]), queue = [first];
@@ -283,10 +285,23 @@ const LAID: { spots: Spot[]; secrets: Secret[] } = (() => {
     secrets.push({ id: out.length + secrets.length, kind: "ring", x, y, zone: "deep" });
     placed++;
   }
-  return { spots: out, secrets };
+  // Where a sprite may have buried a chest (lib/town/hunt), by a chance of its own again: open ground all over the
+  // forest that somebody can stand on, off the trails, away from every place and from each other.
+  let d = 20261008;
+  const rnd3 = () => { d = (d + 0x6d2b79f5) | 0; let t = Math.imul(d ^ (d >>> 15), 1 | d); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  const sites: Array<[number, number]> = [];
+  for (let tries = 0; sites.length < BURIED.sites && tries < 80000; tries++) {
+    const x = FOREST.x + 2 + Math.floor(rnd3() * (FOREST.w - 4)), y = FOREST.y + 2 + Math.floor(rnd3() * (FOREST.h - 4)), ground = groundAt(x, y);
+    if (!open.has(`${x},${y}`) || kept(x, y) || (ground !== "wood" && ground !== "grass") || !clear(x, y)) continue;
+    if (secrets.some((s) => Math.hypot(s.x - x, s.y - y) < FORAGING.apart) || sites.some(([a, b]) => Math.hypot(a - x, b - y) < BURIED.apart)) continue;
+    sites.push([x, y]);
+  }
+  return { spots: out, secrets, sites };
 })();
 export const SPOTS: Spot[] = LAID.spots;
 export const SECRETS: Secret[] = LAID.secrets;
+/** The tiles where a sprite may have buried a chest (lib/town/hunt): which of them a map leads to is rolled by whoever keeps the game. */
+export const DIG_SITES: ReadonlyArray<readonly [number, number]> = LAID.sites;
 /** Whether a place's number is a secret place's. */
 export const isSecret = (id: number): boolean => id >= SPOTS.length && id < SPOTS.length + SECRETS.length;
 /** The place of a number, one everybody has or a secret one; none, for a number that is no place's. */

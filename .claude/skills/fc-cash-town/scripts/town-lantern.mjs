@@ -35,6 +35,11 @@ async function standAt(X, s) {
   }
   return false;
 }
+/** Stand on a place, and wait until it is the place the page offers (not the one stood at before). */
+async function standOn(X, s) {
+  await X.evaluate(`${V}.warp(${s.x}, ${s.y})`);
+  await until("the place is offered", async () => (await X.evaluate(`${F}.here()?.id ?? null`)) === s.id && (await offers(X)).includes("dig"), 6000, 100);
+}
 /** Play the game that is up without a miss (`slip`: with one wrong touch in it). */
 async function playClean(X, slip = false) {
   const kind = await gameUp(X);
@@ -183,8 +188,7 @@ try {
   const alone = (s) => !all.some((o) => o.id !== s.id && Math.max(Math.abs(o.x - s.x), Math.abs(o.y - s.y)) <= 2);
   const yam = all.find((s) => s.kind === "mound" && ["wildYam", "bambooShoot", "truffle"].includes(s.item) && alone(s)), worm = all.find((s) => s.kind === "mound" && s.item === "worm" && alone(s));
   if (yam) {
-    await X.evaluate(`${V}.warp(${yam.x}, ${yam.y})`);
-    await until("the offer", async () => (await offers(X)).includes("dig") || null, 5000, 150);
+    await standOn(X, yam);
     await X.evaluate(`${F}.act()`);
     await until("the digging game", () => gameUp(X), 4000);
     const d = await X.evaluate(`${G}.dig()`), spare = d.strokes - d.cells.filter((c) => c.over).reduce((t, c) => t + c.earth, 0);
@@ -193,8 +197,7 @@ try {
     await sleep(400);
   } else ok("a mound with a good thing under it (none this hour: not tried)", true);
   if (worm) {
-    await X.evaluate(`${V}.warp(${worm.x}, ${worm.y})`);
-    await until("the offer", async () => (await offers(X)).includes("dig") || null, 5000, 150);
+    await standOn(X, worm);
     await X.evaluate(`${F}.act()`);
     await until("the digging game", () => gameUp(X), 4000);
     const d = await X.evaluate(`${G}.dig()`), spare = d.strokes - d.cells.filter((c) => c.over).reduce((t, c) => t + c.earth, 0);
@@ -206,8 +209,7 @@ try {
   if (yam) {
     await X.evaluate(`${K}.charmsWear([])`);
     await sleep(900);
-    await X.evaluate(`${V}.warp(${yam.x}, ${yam.y})`);
-    await until("the offer", async () => (await offers(X)).includes("dig") || null, 5000, 150);
+    await standOn(X, yam);
     ok("with the lantern off, the same mound's thing is not told", (await X.evaluate(`${F}.here()?.item ?? null`)) === null);
     await X.evaluate(`${F}.act()`);
     await until("the digging game", () => gameUp(X), 4000);

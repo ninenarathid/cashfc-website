@@ -233,8 +233,179 @@ begin
 end;
 $function$;
 
+-- ── a sprite's treasure map (rank 5): a hunt for a chest, hot and cold ──────────────────────────────────────────
+-- The catalog's forest row has `hunt`: the dig sites, how far a map's ring may lie off the chest and how wide it is,
+-- how near a dig is for each warmth, and what a chest may hold. A hunt is kept in the purse (`forest.hunt`: the day
+-- it is of, which of that day's maps, the digs that missed); the tile is never kept and never told: it is rolled
+-- from the word no browser reads, whose hunt it is, the day and the map.
+-- The hunt somebody is on now (lib/town/hunt's huntOf): the one kept, if it is of today; null with none.
+create or replace function town.hunt_of(p_purse jsonb, p_now bigint)
+returns jsonb language sql stable
+as $$
+  select case when jsonb_typeof(h.h) = 'object' and jsonb_typeof(h.h->'k') = 'number' and jsonb_typeof(h.h->'n') = 'number'
+      and (h.h->>'k')::numeric = town.stretch_at(town.cat('gifts')->'uses'->'thingMap', p_now)
+    then jsonb_build_object('k', h.h->'k', 'n', floor((h.h->>'n')::numeric),
+      'digs', case when jsonb_typeof(h.h->'digs') = 'number' and (h.h->>'digs')::numeric > 0 then floor((h.h->>'digs')::numeric) else 0 end) end
+    from (select p_purse->'forest'->'hunt' as h) h
+$$;
+
+-- The tile a hunt's chest is buried at (lib/town/hunt's huntSite), as [x, y].
+create or replace function town.hunt_site(p_word text, p_me text, p_hunt jsonb)
+returns jsonb language sql stable
+as $$
+  select s.sites->least(jsonb_array_length(s.sites) - 1,
+      floor(town.roll(p_word || ':hunt:' || p_me, (p_hunt->>'k')::bigint, (p_hunt->>'n')::bigint) * jsonb_array_length(s.sites))::integer)
+    from (select town.cat('forest')->'hunt'->'sites' as sites) s
+$$;
+
+-- The ring a hunt's map draws (lib/town/hunt's huntArea): its middle off the chest by rolls of its own.
+create or replace function town.hunt_area(p_word text, p_me text, p_hunt jsonb)
+returns jsonb language sql stable
+as $$
+  select jsonb_build_object(
+      'x', (s.site->>0)::integer + floor(town.roll(p_word || ':hunt:' || p_me || ':dx', (p_hunt->>'k')::bigint, (p_hunt->>'n')::bigint) * (2 * s.off + 1))::integer - s.off,
+      'y', (s.site->>1)::integer + floor(town.roll(p_word || ':hunt:' || p_me || ':dy', (p_hunt->>'k')::bigint, (p_hunt->>'n')::bigint) * (2 * s.off + 1))::integer - s.off,
+      'r', s.radius)
+    from (select town.hunt_site(p_word, p_me, p_hunt) as site, (town.cat('forest')->'hunt'->>'off')::integer as off, (town.cat('forest')->'hunt'->'radius') as radius) s
+$$;
+
+-- A hunt as its owner is told it (lib/town/hunt's huntTold): which map of the day, the digs so far, and the ring.
+create or replace function town.hunt_told(p_purse jsonb, p_word text, p_me text, p_now bigint)
+returns jsonb language sql stable
+as $$
+  select case when h.hunt is not null then jsonb_build_object('n', h.hunt->'n', 'digs', h.hunt->'digs', 'area', town.hunt_area(p_word, p_me, h.hunt)) end
+    from (select town.hunt_of(p_purse, p_now) as hunt) h
+$$;
+
+-- How warm a dig is (lib/town/hunt's warmthOf): 0 on the chest, then by the catalog's bands, and one past them, cold.
+create or replace function town.hunt_warm(p_site jsonb, p_x integer, p_y integer)
+returns integer language sql stable
+as $$
+  select coalesce((select min(b.ord)::integer - 1 from jsonb_array_elements_text(town.cat('forest')->'hunt'->'bands') with ordinality b(v, ord)
+                    where greatest(abs(p_x - (p_site->>0)::integer), abs(p_y - (p_site->>1)::integer)) <= b.v::numeric),
+                  jsonb_array_length(town.cat('forest')->'hunt'->'bands'))
+$$;
+
+-- What a chest holds, by two rolls (lib/town/hunt's chestOf), as [thing, how many]: a rare thing of the forest whose
+-- day it is (two of one worth little), or a scroll.
+create or replace function town.chest_of(p_word text, p_now bigint, p_r0 double precision, p_r1 double precision)
+returns jsonb language plpgsql stable
+as $$
+declare
+  h jsonb := town.cat('forest')->'hunt';
+  rares jsonb;
+  many integer;
+  item text;
+begin
+  select coalesce(jsonb_agg(r.v->>0 order by r.ord), '[]'::jsonb) into rares
+    from jsonb_array_elements(h->'rares') with ordinality r(v, ord)
+   where town.roll(p_word || ':day:' || (r.v->>0), town.day_of(p_now)::bigint) < (r.v->>1)::double precision;
+  many := jsonb_array_length(rares);
+  if many > 0 and p_r0 < (h->>'rare')::double precision then
+    item := rares->>least(many - 1, greatest(0, floor(p_r1 * many)::integer));
+    return jsonb_build_array(item, case when (town.cat('items')->item->>'pays')::numeric < (h->>'pair')::numeric then 2 else 1 end);
+  end if;
+  many := jsonb_array_length(h->'scrolls');
+  return jsonb_build_array(h->'scrolls'->>least(many - 1, greatest(0, floor(p_r1 * many)::integer)), 1);
+end;
+$$;
+
+-- Use a map (lib/town/hunt's mapUse): one of the day's, and a hunt begins. Refused with a hunt on already.
+create or replace function town.map_use(p_purse jsonb, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  used jsonb;
+begin
+  if town.hunt_of(p_purse, p_now) is not null then return town.no('had'); end if;
+  used := town.gift_use(p_purse, 'thingMap', p_now);
+  if not (used->>'ok')::boolean then return used; end if;
+  return jsonb_build_object('ok', true, 'left', used->'left', 'purse', (used->'purse') || jsonb_build_object('forest',
+    case when jsonb_typeof(p_purse->'forest') = 'object' then p_purse->'forest' else '{}'::jsonb end
+      || jsonb_build_object('hunt', jsonb_build_object('k', town.stretch_at(town.cat('gifts')->'uses'->'thingMap', p_now), 'n', town.used_of(used->'purse', 'thingMap', p_now), 'digs', 0))));
+end;
+$$;
+
+-- Dig for the chest from a tile (lib/town/hunt's mapDig): off it, how warm it was, and the dig is counted; on it, the
+-- chest is up, what it holds is in the bag, the hunt is over and it is one more chest found.
+create or replace function town.map_dig(p_purse jsonb, p_word text, p_me text, p_x integer, p_y integer, p_now bigint, p_r0 double precision, p_r1 double precision)
+returns jsonb language plpgsql stable
+as $$
+declare
+  hunt jsonb := town.hunt_of(p_purse, p_now);
+  mine jsonb := case when jsonb_typeof(p_purse->'forest') = 'object' then p_purse->'forest' else '{}'::jsonb end;
+  warm integer;
+  digs integer;
+  chest jsonb;
+  n integer;
+  chests integer;
+begin
+  if hunt is null then return town.no('none'); end if;
+  warm := town.hunt_warm(town.hunt_site(p_word, p_me, hunt), p_x, p_y);
+  digs := (hunt->>'digs')::integer + 1;
+  if warm > 0 then
+    return jsonb_build_object('ok', true, 'found', false, 'warm', warm, 'digs', digs, 'got', '[]'::jsonb,
+      'purse', p_purse || jsonb_build_object('forest', mine || jsonb_build_object('hunt', hunt || jsonb_build_object('digs', digs))));
+  end if;
+  chest := town.chest_of(p_word, p_now, p_r0, p_r1);
+  n := (chest->>1)::integer;
+  if town.room(p_purse->'bag', chest->>0) < n then return town.no('full'); end if;
+  chests := case when jsonb_typeof(mine->'chests') = 'number' and (mine->>'chests')::numeric > 0 then floor((mine->>'chests')::numeric)::integer else 0 end;
+  return jsonb_build_object('ok', true, 'found', true, 'warm', 0, 'digs', digs, 'got', jsonb_build_array(chest),
+    'purse', p_purse || jsonb_build_object('bag', town.put(p_purse->'bag', chest->>0, n), 'forest', mine || jsonb_build_object('hunt', null, 'chests', chests + 1)));
+end;
+$$;
+
+-- A member uses a map: one of the day's three, and a hunt begins.
+create or replace function public.town_map_use()
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  now_ bigint := town.now_ms();
+  did jsonb := town.map_use(town.purse_of(me, true), now_);
+  told jsonb;
+begin
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'purse');
+    perform town.note(me, 'map_use', 'thingMap', 1, 0, jsonb_build_object('map', did->'purse'->'forest'->'hunt'->'n', 'left', did->'left'));
+  end if;
+  told := town.answer(me, did);
+  return told || jsonb_build_object('hunt', town.hunt_told(told->'purse', town.word(), me::text, now_));
+end;
+$$;
+
+-- A member digs for the chest of the hunt they are on, from the tile they stand on.
+create or replace function public.town_map_dig(p_x integer, p_y integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  now_ bigint := town.now_ms();
+  purse jsonb := town.purse_of(me, true);
+  did jsonb;
+  told jsonb;
+begin
+  if p_x is null or p_y is null then return town.answer(me, town.no('none')); end if;
+  did := town.map_dig(purse, town.word(), me::text, p_x, p_y, now_, random(), random());
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'purse');
+    if (did->>'found')::boolean then
+      perform town.note(me, 'chest', did->'got'->0->>0, (did->'got'->0->>1)::numeric, 0, jsonb_build_object(
+        'map', town.hunt_of(purse, now_)->'n', 'digs', did->'digs', 'tile', jsonb_build_array(p_x, p_y)));
+    else
+      perform town.note(me, 'map_dig', null, 0, 0, jsonb_build_object(
+        'map', town.hunt_of(purse, now_)->'n', 'digs', did->'digs', 'warm', did->'warm', 'tile', jsonb_build_array(p_x, p_y)));
+    end if;
+  end if;
+  told := town.answer(me, did);
+  return told || jsonb_build_object('hunt', town.hunt_told(told->'purse', town.word(), me::text, now_));
+end;
+$$;
+
 -- public.town_wild: v125's. Changed: whoever wears the firefly lantern is told what lies buried, and the secret
--- places with the rest (a declaration; the loop's bound; the kind's line; and the line that says what a place has).
+-- places with the rest (a declaration; the loop's bound; the kind's line; and the line that says what a place has);
+-- and the hunt a member is on is told with the forest (the last line).
 CREATE OR REPLACE FUNCTION public.town_wild()
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -266,7 +437,7 @@ begin
     continue when t is not null and ((t->>'mine')::boolean or (t->>'n')::int >= (kind->>'shares')::int);
     out_ := out_ || jsonb_build_array(jsonb_build_array(i, case when kind->>'how' = 'dig' and not lit then null else has->>'item' end, (has->>'n')::int, (has->>'until')::bigint));
   end loop;
-  return jsonb_build_object('now', now_, 'wild', out_);
+  return jsonb_build_object('now', now_, 'wild', out_, 'hunt', town.hunt_told((select p.doc from public.town_purses p where p.member_id = me), word, me::text, now_));
 end;
 $function$;
 
@@ -274,5 +445,9 @@ revoke execute on function public.town_gather(integer, integer, integer, jsonb) 
 grant execute on function public.town_gather(integer, integer, integer, jsonb) to authenticated;
 revoke execute on function public.town_wild() from public, anon;
 grant execute on function public.town_wild() to authenticated;
+revoke execute on function public.town_map_use() from public, anon;
+grant execute on function public.town_map_use() to authenticated;
+revoke execute on function public.town_map_dig(integer, integer) from public, anon;
+grant execute on function public.town_map_dig(integer, integer) to authenticated;
 
 revoke execute on all functions in schema town from public, anon, authenticated;

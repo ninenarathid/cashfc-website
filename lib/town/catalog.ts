@@ -7,6 +7,7 @@ import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
+import { huntRow } from "./hunt";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
@@ -200,6 +201,8 @@ export function catalogOf() {
       // game (`then`), and the places themselves, whose numbers go on from the last of `spots`)
       squirrel: FORAGING.squirrel,
       secret: { kinds: SECRET_KINDS, spots: SECRETS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]) },
+      // (and a sprite's treasure map, lib/town/hunt: where a chest may be buried, the ring a map draws, how warm a dig is, what a chest may hold)
+      hunt: huntRow(),
     },
     /**
      * Insects (lib/town/insects): each of them in the order they are weighed (its habit, the haunts it keeps to, how

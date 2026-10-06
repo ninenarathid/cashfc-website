@@ -202,7 +202,79 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, pa
   const bare = await one(`select town.gather((select doc || jsonb_build_object('coins', coins) from public.town_purses where member_id = $1), $2::int, $3::jsonb, (town.taken('spot', $2::int, $4::bigint, $1)->>'n')::int, false, null, $5::int, $6::int, 0, 0, town.now_ms()) as r`,
     [U.unver, s2.id, JSON.stringify({ turn: s2.turn, item: s2.item, n: s2.n }), s2.turn, ...near(s2)]);
   t.check("…until its shares are gone", bare.r?.ok === false && bare.r.why === "bare", bare.r);
+  // ── a sprite's treasure map ──
+  t.section("a sprite's treasure map: a hunt for a chest, three a day, found by digging hot and cold");
+  const H = F.hunt;
+  t.check("the catalog has the dig sites, the ring, the warmths and what a chest may hold", H.sites.length === 180 && H.radius > H.off && H.bands.length === 5 && H.rares.length === 3 && H.scrolls.length > 20, { sites: H.sites.length });
+  const coinsOf = async (who) => (await one(`select coins from public.town_purses where member_id = $1`, [who])).coins;
+  const huntKept = async (who) => (await purseOf(who)).forest?.hunt ?? null;
+  const siteOf = async (who) => (await one(`select town.hunt_site(town.word(), ($1::uuid)::text, town.hunt_of((select doc from public.town_purses where member_id = $1::uuid), town.now_ms())) as s`, [who])).s;
+  await give(U.m1, {}); await patch(U.m1, { bag: Array(10).fill(null), hand: null, forest: null });
+  await give(U.m2, { had: ["thingMap"] }); await patch(U.m2, { bag: Array(10).fill(null), hand: null, stamina: { day, left: 50 }, forest: { secrets: [first] } });
+  // without the thing
+  did = await call(U.m1, "town_map_use");
+  t.check("without the map there is nothing to use", did?.ok === false && did.why === "none" && did.hunt === null, did);
+  did = await call(U.m1, "town_map_dig", 200, 150);
+  t.check("…and nothing to dig for", did?.ok === false && did.why === "none", did);
+  // a map used
+  const c0 = await coinsOf(U.m2), uses0 = (await deeds("map_use")).length;
+  did = await call(U.m2, "town_map_use");
+  t.check("a map used: a hunt begins, two maps are left today", did?.ok === true && did.left === 2 && did.hunt?.n === 1 && did.hunt.digs === 0 && did.hunt.area?.r === H.radius, did?.hunt ?? did);
+  const area = did.hunt.area, kept = await huntKept(U.m2);
+  t.check("…kept in the purse beside what else the forest keeps there, and counted against the day", kept?.n === 1 && kept.digs === 0 && same((await purseOf(U.m2)).forest.secrets, [first]) && (await purseOf(U.m2)).gifts.used.thingMap.n === 1, (await purseOf(U.m2)).forest);
+  deed = await lastDeed("map_use");
+  t.check("…and written down", (await deeds("map_use")).length === uses0 + 1 && deed?.member_id === U.m2 && deed.thing === "thingMap" && deed.doc.map === 1 && deed.doc.left === 2 && deed.coins === 0, deed);
+  t.check("…the purse it is told has no tile in it: only the day, the map and the digs", same(Object.keys(did.purse.forest.hunt).sort(), ["digs", "k", "n"]), did.purse.forest);
+  did = await call(U.m2, "town_map_use");
+  t.check("with a hunt on, another map is refused and not used up", did?.ok === false && did.why === "had" && (await purseOf(U.m2)).gifts.used.thingMap.n === 1 && did.hunt?.n === 1, did);
+  const site = await siteOf(U.m2);
+  t.check("the chest is at a dig site inside the map's ring, and its middle is not told as the chest", H.sites.some((s) => s[0] === site[0] && s[1] === site[1]) && Math.abs(site[0] - area.x) <= H.off && Math.abs(site[1] - area.y) <= H.off, { site, area });
+  t.check("…and somebody else's first map of the day leads elsewhere", !same((await one(`select town.hunt_site(town.word(), ($1::uuid)::text, $2::jsonb) as s`, [U.m1, JSON.stringify(kept)])).s, site));
+  t.check("the forest tells its owner the hunt, and nobody else", same((await call(U.m2, "town_wild")).hunt, { n: 1, digs: 0, area }) && (await call(U.m1, "town_wild")).hunt === null);
+  // digs that miss
+  const bag0 = JSON.stringify((await purseOf(U.m2)).bag), st = await stamina(U.m2), digs0 = (await deeds("map_dig")).length;
+  did = await call(U.m2, "town_map_dig", site[0] + 40, site[1]);
+  t.check("a dig far off: cold, and counted", did?.ok === true && did.found === false && did.warm === 5 && did.digs === 1 && same(did.got, []) && did.hunt?.digs === 1, did?.hunt ?? did);
+  did = await call(U.m2, "town_map_dig", site[0] + 1, site[1] - 1);
+  t.check("a dig beside it: as warm as it gets without the chest", did?.ok === true && did.found === false && did.warm === 1 && did.digs === 2 && (await huntKept(U.m2)).digs === 2, did);
+  deed = await lastDeed("map_dig");
+  t.check("…each written down with how warm it was, for no stamina and nothing out of the bag", (await deeds("map_dig")).length === digs0 + 2 && deed?.doc.warm === 1 && deed.doc.digs === 2 && deed.coins === 0 && deed.n === 0
+    && JSON.stringify((await purseOf(U.m2)).bag) === bag0 && (await stamina(U.m2)) === st, deed);
+  did = await call(U.m2, "town_map_dig", null, site[1]);
+  t.check("a dig from nowhere is nothing", did?.ok === false && did.why === "none" && (await huntKept(U.m2)).digs === 2, did);
+  // the chest
+  await patch(U.m2, { bag: Array(10).fill({ item: "rod", n: 1 }) });
+  did = await call(U.m2, "town_map_dig", site[0], site[1]);
+  t.check("on the chest with no room in the bag: it waits, and nothing is lost or counted", did?.ok === false && did.why === "full" && (await huntKept(U.m2)).digs === 2 && did.hunt?.n === 1, did);
+  await patch(U.m2, { bag: Array(10).fill(null) });
+  const chests0 = (await deeds("chest")).length;
+  did = await call(U.m2, "town_map_dig", site[0], site[1]);
+  const got = did?.got?.[0];
+  t.check("on the chest: it is up, and what it holds is in the bag", did?.ok === true && did.found === true && did.warm === 0 && did.digs === 3 && !!got && (await bagN(U.m2, got[0])) === got[1], did?.got ?? did);
+  t.check("…a rare thing of the forest whose day it is, or a scroll that is only found", !!got && (H.rares.some((r) => r[0] === got[0]) || H.scrolls.includes(got[0])) && (H.scrolls.includes(got[0]) ? got[1] === 1 : got[1] <= 2), got);
+  t.check("…the hunt is over, it is one more chest found, and the rest of what the forest keeps is as it was", (await huntKept(U.m2)) === null && did.hunt === null && (await purseOf(U.m2)).forest.chests === 1 && same((await purseOf(U.m2)).forest.secrets, [first]), (await purseOf(U.m2)).forest);
+  deed = await lastDeed("chest");
+  t.check("…written down with the thing, how many, and the digs it took; no coin, anywhere in it", (await deeds("chest")).length === chests0 + 1 && deed?.member_id === U.m2 && deed.thing === got[0] && deed.n === got[1] && deed.doc.digs === 3 && deed.doc.map === 1 && deed.coins === 0
+    && (await coinsOf(U.m2)) === c0, { deed, coins: await coinsOf(U.m2), c0 });
+  did = await call(U.m2, "town_map_dig", site[0], site[1]);
+  t.check("the same tile again is nothing: there is no hunt on", did?.ok === false && did.why === "none", did);
+  // the day's other maps, and no fourth
+  did = await call(U.m2, "town_map_use");
+  const second = await siteOf(U.m2);
+  t.check("the second map of the day is another hunt", did?.ok === true && did.left === 1 && did.hunt?.n === 2 && did.hunt.digs === 0, did?.hunt ?? did);
+  await call(U.m2, "town_map_dig", second[0], second[1]);
+  did = await call(U.m2, "town_map_use");
+  const third = await siteOf(U.m2);
+  t.check("…and the third", did?.ok === true && did.left === 0 && did.hunt?.n === 3 && (await purseOf(U.m2)).forest.chests === 2, did?.hunt ?? did);
+  await call(U.m2, "town_map_dig", third[0], third[1]);
+  did = await call(U.m2, "town_map_use");
+  t.check("a fourth there is not, today", did?.ok === false && did.why === "spent" && (await purseOf(U.m2)).forest.chests === 3 && (await huntKept(U.m2)) === null, did);
+  t.check("three chests, three things, never a coin", (await coinsOf(U.m2)) === c0 && (await deeds("chest")).length === chests0 + 3);
+  // a hunt of yesterday is gone with its day
+  await patch(U.m2, { forest: { hunt: { k: kept.k - 1, n: 1, digs: 5 }, chests: 3 } });
+  did = await call(U.m2, "town_map_dig", site[0], site[1]);
+  t.check("a hunt of another day is no hunt", did?.ok === false && did.why === "none" && (await call(U.m2, "town_wild")).hunt === null, did);
   // nothing here gives coins
-  const coins = await one(`select coalesce(sum(coins), 0)::int as c from public.town_deeds where what in ('gather', 'slip')`);
-  t.check("no gathering gave a coin", coins.c === 0, coins);
+  const coins = await one(`select coalesce(sum(coins), 0)::int as c from public.town_deeds where what in ('gather', 'slip', 'map_use', 'map_dig', 'chest')`);
+  t.check("no deed of the forest's gifts gave a coin", coins.c === 0, coins);
 }

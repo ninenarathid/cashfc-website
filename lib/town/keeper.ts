@@ -4,6 +4,7 @@ import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import type { Strike } from "./fishing";
 import type { ForestRefusal, Outcome, Sight } from "./forest";
+import type { HuntTold } from "./hunt";
 import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
 import type { Dropped, GroundRefusal } from "./ground";
@@ -185,6 +186,16 @@ export interface Keeper {
   wild(): Sight[];
   /** Gather what a place has, from the tile I stand on, with how its game went (and how long it took). `lost`: a secret place's two games were not both won, and my turn at it is spent with nothing got (lib/town/forest). */
   gatherDo(spot: number, at: [number, number], went: Outcome & { secs?: number }): Promise<Did<{ got: Array<[ItemId, number]>; lost?: boolean }>>;
+
+  // ── gifts: forest ──
+  /**
+   * A sprite's treasure map (lib/town/hunt): the hunt I am on, as I am told it (which map of the day, the digs so far,
+   * the ring on the forest the chest lies inside), or null. Using a map begins one; digging from the tile I stand on
+   * says how warm it was, or brings the chest up with what it holds.
+   */
+  hunt(): HuntTold | null;
+  mapUse(): Promise<Did<{ left: number }>>;
+  mapDig(at: [number, number]): Promise<Did<{ found: boolean; warm: number; digs: number; got: Array<[ItemId, number]> }>>;
 
   /** Insects (lib/town/insects): every haunt that has one for me now. */
   bugs(): BugSight[];
@@ -395,6 +406,8 @@ export class DbKeeper implements Keeper {
   /** What the forest's places and the haunts have for me, each until its turn ends; and the village's book of insects. */
   private wild_: Array<Sight & { until: number }> = [];
   private bugs_: Array<BugSight & { until: number }> = [];
+  // ── gifts: forest ── (the sprite's map I am following, as the database last told it)
+  private hunt_: HuntTold | null = null;
   private book_: Record<string, string> = {};
   private wellBook_: WellBook | null = null;
   private ranks_: Record<string, number> = {};
@@ -554,6 +567,8 @@ export class DbKeeper implements Keeper {
     if (Array.isArray(a.bugs)) {
       this.bugs_ = (a.bugs as Array<[number, BugId, number, number, number]>).filter((s) => Array.isArray(s) && s[1] in BUGS).map(([id, bug, turn, seed, until]) => ({ id, bug, turn, seed, until }));
     }
+    // ── gifts: forest ── (the hunt I am on, told with the forest and with every use of a map and dig: none, when it says none)
+    if ("hunt" in a) this.hunt_ = a.hunt && typeof a.hunt === "object" && typeof (a.hunt as HuntTold).area === "object" ? (a.hunt as HuntTold) : null;
     // (an insect comes back somewhere at that moment, v131: what is out is asked for again then)
     if (typeof a.bugsAgain === "number") this.bugsDue(a.bugsAgain);
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
@@ -896,6 +911,10 @@ export class DbKeeper implements Keeper {
     if (did.ok || did.why === "had" || did.why === "bare" || did.why === "none") { this.wild_ = this.wild_.filter((s) => s.id !== spot); this.tell(); }
     return did;
   }
+  // ── gifts: forest ──
+  hunt(): HuntTold | null { return this.hunt_; }
+  mapUse() { return this.deed<{ left: number }>("town_map_use", {}); }
+  mapDig(at: [number, number]) { return this.deed<{ found: boolean; warm: number; digs: number; got: Array<[ItemId, number]> }>("town_map_dig", { p_x: at[0], p_y: at[1] }); }
   bugs(): BugSight[] { const now = this.now(); return this.bugs_.filter((s) => s.until > now); }
   async netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>> {
     // (who stands under the tree is told by who they are: what they hold is their own purse's to say)

@@ -4,6 +4,7 @@ import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, 
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { backBait, hookBait, landCatch, loseBait } from "./fishing";
 import { gather, holds, lanternLit, placeAt, ruleOf, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
+import { huntTold, mapDig, mapUse, type HuntTold } from "./hunt";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
 import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
@@ -558,6 +559,23 @@ export class Trial {
     this.save(did.purse);
     if (did.got[0]) this.counted({ from: "deed", what: "gather", thing: did.got[0][0], n: did.got[0][1], doc: { how: ruleOf(spot).how, kind: spot.kind } });
     return { ok: true, got: did.got, ...(did.lost ? { lost: true } : {}) };
+  }
+  // ── gifts: forest ── (a sprite's treasure map, lib/town/hunt: the chest's tile hangs on the forest's word and on whose map it is)
+  /** The hunt I am on, as I am told it. */
+  hunt(): HuntTold | null { return huntTold(this.purse(), this.salt(), this.id, this.now()); }
+  /** Use a map: a hunt begins. */
+  mapUse(): { ok: true; left: number } | { ok: false; why: GiftRefusal } {
+    const did = mapUse(this.purse(), this.now());
+    if (!did.ok) return did;
+    this.save(did.purse);
+    return { ok: true, left: did.left };
+  }
+  /** Dig for the chest from the tile I stand on: how warm it was, or the chest and what it holds. */
+  mapDig(at: [number, number]): { ok: true; found: boolean; warm: number; digs: number; got: Array<[ItemId, number]> } | { ok: false; why: Refusal } {
+    const did = mapDig(this.purse(), this.salt(), this.id, at, this.now(), [Math.random(), Math.random()]);
+    if (!did.ok) return did;
+    this.save(did.purse);
+    return { ok: true, found: did.found, warm: did.warm, digs: did.digs, got: did.got };
   }
   /** For scripts trying things out: the word the forest's rolls hang on, as it is told (so that what a place has can be known beforehand). */
   setSalt(word: string) { this.set(WILD_SALT, word); this.set(WILD_TOOK, null); this.set(BUG_TOOK, null); this.set(BUG_BACK, null); this.set(BUG_HUNTS, null); this.tell(); }

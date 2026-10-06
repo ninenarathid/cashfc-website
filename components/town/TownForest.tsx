@@ -12,7 +12,8 @@ import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { WILD_WISHES } from "@/lib/town/forest-eye";
 import type { WishId } from "@/lib/town/fountain";
-import { charmBy, famBy, usesLeft } from "@/lib/town/gifts";
+import { charmBy, famBy, hasThing, usesLeft } from "@/lib/town/gifts";
+import type { HuntTold } from "@/lib/town/hunt";
 import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import type { Vec } from "@/lib/town/world";
@@ -21,6 +22,7 @@ import TownChoosing from "./TownChoosing";
 import TownDigging from "./TownDigging";
 import type { FarmDraw } from "./TownFarm";
 import TownForestChart from "./TownForestChart";
+import TownForestMap, { WARM_INK } from "./TownForestMap";
 import type { GameResult } from "./TownGame";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownSteady from "./TownSteady";
@@ -38,8 +40,18 @@ const WHY_FOREST: Record<string, [string, string]> = {
   none: ["ไม่มีอะไรแล้ว", "Nothing is here any more"], tool: ["ของในมือขุดไม่ได้", "What you hold does not dig"],
   shaky: ["หมดแรง มือสั่นจนเก็บไม่ขึ้น", "Too tired: your hands shake, and it comes to nothing"],
   spent: ["หมูน้อยเหนื่อยแล้ว ขอพักก่อน", "The piglet is worn out for now"],
+  mapless: ["วันนี้ลายแทงหมดแล้ว", "No map is left today"],
   lost: ["มันหายวับไปกับแสงหิ่งห้อย", "It is gone, with the fireflies"],
 };
+/** What a dig for a sprite's chest that missed says, by how warm it was (lib/town/hunt's warmthOf): beside it, near, not far, far, cold. */
+const WARM: Array<[th: string, en: string]> = [
+  ["", ""],
+  ["กระดิ่งภูตดังรัวอยู่ข้างเท้านี่เอง!", "The sprite's bell is ringing right beside you!"],
+  ["กระดิ่งภูตดังใกล้มากแล้ว", "The sprite's bell rings very near"],
+  ["ได้ยินกระดิ่งภูตชัดขึ้น", "The sprite's bell is clearer here"],
+  ["ได้ยินกระดิ่งภูตแว่วมาไกลๆ", "A sprite's bell, faint and far off"],
+  ["เงียบสนิท ไม่มีเสียงกระดิ่งเลย", "Silence: no bell at all"],
+];
 /** What flies up at each way of gathering, and what it sounds like. */
 const FX: Record<Gather, [VfxKind, WorkSound]> = { pick: ["leaves", "rustle"], choose: ["leaves", "pick"], dig: ["soil", "pull"], shake: ["leaves", "pick"] };
 /** What each game sounds like as it goes: something got, and something missed. */
@@ -191,6 +203,51 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
       }
       // (and a few about my own doll: the lantern is lit)
       if (lit && self) fireflies(project({ x: self.x, y: self.y }), 3, 13, 26, 0.5);
+      // A sprite's treasure map: every dig of the hunt that missed is a little hole with a mote of how warm it was, and
+      // the last one rings like the bell it heard; the chest, when it is found, comes up out of the ground.
+      const wall = performance.now();
+      for (const p of probes.current) {
+        const at = project({ x: p.x + 0.5, y: p.y + 0.5 });
+        if (!onScreen(at)) continue;
+        const ink = WARM_INK[Math.min(5, Math.max(0, p.warm))], age = wall - p.at;
+        things.push({ depth: p.x + p.y + 0.55, draw: () => blit("earthHole", at, 0, SIZE * s * 0.9) });
+        over?.(() => {
+          const d = Math.max(2, Math.round(2.4 * s)), my = Math.round(at.y - (16 + (still ? 0 : Math.sin(t / 420 + p.x) * 2)) * s);
+          ctx.fillStyle = "rgba(20,14,8,0.75)";
+          ctx.fillRect(Math.round(at.x) - d - 1, my - d - 1, 2 * d + 2, 2 * d + 2);
+          ctx.fillStyle = ink;
+          ctx.fillRect(Math.round(at.x) - d, my - d, 2 * d, 2 * d);
+          // (the bell, for a moment after the dig: the warmer, the more rings)
+          if (age < 2400 && !still) {
+            ctx.save();
+            ctx.strokeStyle = ink;
+            ctx.lineWidth = Math.max(1.5, 2 * s);
+            for (let i = 0; i < 6 - p.warm; i++) {
+              const life = ((age / 900 + i * 0.22) % 1), fade = (1 - life) * Math.min(1, (2400 - age) / 500);
+              ctx.globalAlpha = Math.max(0, fade) * 0.9;
+              ctx.beginPath();
+              ctx.ellipse(at.x, at.y, (8 + life * 34) * s, (4 + life * 17) * s, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            ctx.restore();
+          }
+        });
+      }
+      const chest = chestAt.current;
+      if (chest && wall - chest.at < 2600) {
+        const at = project({ x: chest.x + 0.5, y: chest.y + 0.5 }), life = (wall - chest.at) / 2600, up = still ? 1 : Math.min(1, life * 3.2);
+        over?.(() => {
+          ctx.save();
+          ctx.globalAlpha = life > 0.8 ? (1 - life) / 0.2 : 1;
+          // (out of the earth: only what is above the ground is drawn)
+          ctx.beginPath();
+          ctx.rect(at.x - 60 * s, at.y - 120 * s, 120 * s, 126 * s);
+          ctx.clip();
+          blit("spriteChest" as IconName, at, (-34 + 34 * (1 - (1 - up) * (1 - up))) * s, SIZE * s * 1.15);
+          ctx.restore();
+        });
+        fireflies({ x: at.x, y: at.y }, 8, 26, 22, 7);
+      }
       glints.current = glinting;
       fliesOver.current = flies;
     });
@@ -213,6 +270,16 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   useEffect(() => { if (wasLit.current !== null && wasLit.current !== lit && near) keeper.nudged("wild"); wasLit.current = lit; }, [lit, near, keeper]);
   const [chart, setChart] = useState(false);
   useEffect(() => { if (!lit) setChart(false); }, [lit]);
+  // (a sprite's treasure map, lib/town/hunt: whether I have the thing, the maps left today, the hunt I am on, the digs
+  // of it this page has seen, and whether the map is unrolled)
+  const mapHad = near && hasThing(purse, "thingMap"), mapsLeft = usesLeft(purse, "thingMap", keeper.now()), hunt: HuntTold | null = mapHad ? keeper.hunt() : null;
+  const [mapOpen, setMapOpen] = useState(false);
+  const probes = useRef<Array<{ x: number; y: number; warm: number; at: number }>>([]), chestAt = useRef<{ x: number; y: number; at: number } | null>(null), digging = useRef(false);
+  const huntN = hunt?.n ?? 0;
+  useEffect(() => { probes.current = []; }, [huntN]);
+  useEffect(() => { if (!mapHad) setMapOpen(false); }, [mapHad]);
+  /** Whether a dig for the chest is offered where I stand: on the hunt, standing still, in or about the map's ring. */
+  const digHere = !!hunt && !!tile && Math.max(Math.abs(tile[0] - hunt.area.x), Math.abs(tile[1] - hunt.area.y)) <= hunt.area.r + 2;
   /** My points on the forest's line: its good things are harder for a practised hand (lib/town/forest's harderOf). */
   const points = keeper.lines()?.lines.forest.points ?? 0;
   // (a truffle piglet at my heels digs with no hoe held, so many holes to these hours: lib/town/forest's pigletDigs)
@@ -306,6 +373,41 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the names are read when the thing is got
   }, [squirrel, keeper, sendPet, sfx, vfx, say, th]);
 
+  /** Unroll a map: one of the day's is used, and a hunt begins. */
+  const unroll = useCallback(async () => {
+    const did = await keeper.mapUse();
+    if (!did.ok) { say(did.why === "spent" ? "mapless" : did.why); return; }
+    sfx?.wake();
+    sfx?.work("rustle");
+  }, [keeper, say, sfx]);
+  /** Dig for the chest where I stand: the bell says how warm it was, or the chest comes up. */
+  const digFor = useCallback(async () => {
+    if (!tile || digging.current) return;
+    digging.current = true;
+    try {
+      const did = await keeper.mapDig(tile);
+      if (!did.ok) { setNoteBy("thingMap" as IconName); say(did.why); return; }
+      const where = { x: tile[0] + 0.5, y: tile[1] + 0.5 };
+      sfx?.wake();
+      vfx.add("soil", where);
+      if (!did.found) {
+        probes.current = [...probes.current, { x: tile[0], y: tile[1], warm: did.warm, at: performance.now() }];
+        sfx?.work(did.warm <= 2 ? "pluck" : "pull");
+        setNoteBy("thingMap" as IconName);
+        setNote(th ? WARM[did.warm][0] : WARM[did.warm][1]);
+        return;
+      }
+      chestAt.current = { x: tile[0], y: tile[1], at: performance.now() };
+      sfx?.work("pick");
+      vfx.add("sparkle", where);
+      if (did.got.length) vfx.add("pop", where, { icon: did.got[0][0], lift: 26 });
+      setMapOpen(false);
+      setNoteBy("spriteChest" as IconName);
+      setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · "));
+    } finally { digging.current = false; }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the names are read when the chest is up
+  }, [keeper, tile, th, sfx, say, vfx]);
+
   /**
    * Leave the work that is up. At a secret place, once its games are begun, leaving them is losing them: my turn at
    * the place is spent (lib/town/forest's gather, `lost`).
@@ -320,18 +422,19 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
 
   // The space bar is the button (while a game is up it is the game's).
   useEffect(() => {
-    if (working || !here || chart) return;
+    if (working || (!here && !digHere) || chart || mapOpen) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
       e.preventDefault();
       e.stopPropagation();
-      begin();
+      // (what a place offers first; with nothing here, the dig for the chest)
+      if (here) begin(); else void digFor();
     };
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
-  }, [working, here, begin, chart]);
+  }, [working, here, begin, chart, mapOpen, digHere, digFor]);
 
   // (for scripts in `next dev`: what the forest has for me, what is offered where I stand, and the way to begin it)
   useEffect(() => {
@@ -345,12 +448,16 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
       offers: () => ({ hand: byHand, piglet: byPig }), actPiglet: () => begin(true),
       /** The firefly lantern: whether it is lit, over how many places on the screen its fireflies are, and the chart. */
       lit: () => lantern.current, flies: () => fliesOver.current, chart: (open: boolean) => setChart(open), secrets: () => SECRETS.map((p) => ({ ...p })),
+      /** A sprite's map: the hunt I am on, the digs of it this page saw, whether a dig is offered here, and the ways to unroll a map and to dig. */
+      hunt: () => hunt, probes: () => probes.current.map((p) => ({ x: p.x, y: p.y, warm: p.warm })), digHere: () => digHere, unroll: () => unroll(), digFor: () => digFor(), map: (open: boolean) => setMapOpen(open),
+      /** The tile I stand still on, as this page has it. */
+      tile: () => tile,
       /** At a secret place: which of its two games is up (0, 1), or null. And how much harder what is up is for me. */
       stage: () => working?.stage ?? null, harder: () => (working ? harderOf(working.sight.item, points) : null),
     };
     (window as unknown as { __townForest?: typeof handle }).__townForest = handle;
     return () => { delete (window as unknown as { __townForest?: typeof handle }).__townForest; };
-  }, [here, begin, working, byHand, byPig, points]);
+  }, [here, begin, working, byHand, byPig, points, hunt, digHere, unroll, digFor, tile]);
 
   return (
     <>
@@ -362,7 +469,33 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
         </button>
       )}
       {chart && lit && <TownForestChart th={th} sights={seen.current} self={selfAt.current} still={stillNow.current} onClose={() => setChart(false)} />}
-      {(working || here || note) && (
+      {/* a sprite's treasure map: its own button (the maps left today; a red mark while a hunt is on), and the map itself */}
+      {mapHad && !working && (hunt || mapsLeft > 0) && (
+        <button type="button" onClick={() => setMapOpen(true)} data-forest-mapchip data-hunt={hunt ? hunt.n : ""} data-left={mapsLeft} aria-label={th ? "ลายแทงของภูตป่า" : "A sprite's treasure map"}
+                className="pressable pointer-events-auto absolute left-3 top-[15rem] z-20 grid size-11 place-items-center rounded-full border border-[#e2c27a]/80 bg-[#3a2513]/85 shadow-lg shadow-black/40 backdrop-blur-sm">
+          <TownIcon name={"thingMap" as IconName} size={30} />
+          {hunt ? <span aria-hidden className={`absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-[#3a2513] bg-[#e0392b] ${stillNow.current ? "" : "animate-pulse motion-reduce:animate-none"}`} />
+            : <span className="absolute -right-1 -top-1 grid size-5 place-items-center rounded-full border-2 border-[#3a2513] bg-[#f0c060] font-data text-label font-semibold tabular-nums text-[#3a2209]">{mapsLeft}</span>}
+        </button>
+      )}
+      {mapOpen && mapHad && (hunt
+        ? <TownForestMap th={th} hunt={hunt} probes={probes.current} self={selfAt.current} left={mapsLeft} still={stillNow.current} onClose={() => setMapOpen(false)} />
+        : (
+          // rolled up still: unrolling it uses one of the day's
+          <div className="pointer-events-auto absolute inset-0 z-30 grid place-items-center bg-black/45 p-2" data-forest-map-rolled onClick={() => setMapOpen(false)}>
+            <section aria-label={th ? "ลายแทงของภูตป่า" : "A sprite's treasure map"} onClick={(e) => e.stopPropagation()} data-state="open"
+                     className="pop-in flex w-full max-w-[18rem] flex-col items-center gap-3 rounded-[6px] border-[3px] border-[#6b4a22] bg-[#ecd9a8] p-4 shadow-[inset_0_0_0_2px_#f6e9c4,inset_0_0_26px_rgba(120,80,30,0.35),0_14px_28px_rgba(0,0,0,0.6)]">
+              <TownIcon name={"thingMap" as IconName} size={84} />
+              <button type="button" onClick={() => void unroll()} disabled={mapsLeft <= 0} data-forest-unroll
+                      className="pressable flex min-h-12 w-full items-center justify-center gap-2 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-4 text-read font-semibold text-[#3a2209] shadow-[inset_0_-4px_0_#c98f2f,inset_0_2px_0_#ffe19a] disabled:opacity-50">
+                {th ? "คลี่ลายแทง" : "Unroll the map"}
+                <span className="rounded-full bg-[#3a2209]/15 px-2 py-px font-data text-meta tabular-nums">{mapsLeft}</span>
+              </button>
+              <button type="button" onClick={() => setMapOpen(false)} className="pressable rounded-md px-2.5 py-1 text-meta text-[#6b4a22] hover:text-[#2f1b08]">{th ? "ยังก่อน" : "Not yet"}</button>
+            </section>
+          </div>
+        ))}
+      {(working || here || note || digHere) && (
         <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
           {note && (
             <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-forest-note={noteBy ?? ""} aria-live="polite">
@@ -400,9 +533,9 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
                       : <TownSteady {...common} need={FARMING.tired} mods={{ spent: true, drops: true }} icon="hand" over={iconFor(sight.item)} />}
               </div>
             );
-          })() : here && (
+          })() : (here || digHere) && (
             <div className="pointer-events-none mb-14 flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
-              {byHand && (hereSecret ? (
+              {here && byHand && (hereSecret ? (
                 // a secret place of the deep woods: its own button, with a mark for each of its two games
                 <button type="button" onClick={() => begin()} data-forest-offer="secret" data-secret-kind={here.spot.kind} data-state="open"
                         className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border-2 border-[#c8f07a] bg-[#16210f] py-1 pl-2 pr-4 text-read font-semibold text-[#e8ffb8] shadow-[0_0_18px_rgba(200,240,122,0.45),0_10px_20px_rgba(0,0,0,0.45)]">
@@ -418,8 +551,17 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
                   <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
                 </button>
               ))}
+              {/* on a sprite's hunt, in or about the map's ring: a dig for the chest */}
+              {digHere && (
+                <button type="button" onClick={() => void digFor()} data-forest-offer="chest" data-state="open"
+                        className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border-2 border-[#6b4a22] bg-[#ecd9a8] py-1 pl-2 pr-4 text-read font-semibold text-[#4a2d12] shadow-xl shadow-black/40">
+                  <span className="grid size-10 place-items-center rounded-full bg-[#6b4a22]/15"><TownIcon name={"spriteChest" as IconName} size={30} /></span>
+                  {th ? "ขุดหาหีบ" : "Dig for the chest"}
+                  {!here && <kbd aria-hidden className="hidden rounded border border-[#6b4a22]/50 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-[#6b4a22] sm:inline">Space</kbd>}
+                </button>
+              )}
               {/* the piglet's way, beside the hoe's where there is a hoe: its picture, and the holes it has left to these hours */}
-              {byPig && (
+              {here && byPig && (
                 <button type="button" onClick={() => begin(true)} data-forest-offer="piglet" data-left={usesLeft(purse, "famPiglet", keeper.now())} data-state="open"
                         className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-gold py-1 pl-2 pr-4 text-read font-semibold text-bg shadow-xl shadow-black/40">
                   <span className="grid size-10 place-items-center rounded-full bg-bg/25"><TownIcon name={"famPiglet" as IconName} size={30} /></span>

@@ -194,8 +194,12 @@ export interface Purse {
   /** How many times something has been cooked that was a recipe's own but for its last thing: by the recipe (lib/town/cooking). */
   tries?: Partial<Record<ItemId, number>>;
   // ── gifts: forest ──
-  /** The forest's own (lib/town/forest): the secret places of the deep woods I have gathered from, by their numbers. */
-  forest?: { secrets?: number[] };
+  /**
+   * The forest's own: the secret places of the deep woods I have gathered from, by their numbers (lib/town/forest);
+   * the sprite's map I am following, if I am (the day it is of, which of that day's maps, the digs that have missed),
+   * and how many chests I have dug up (lib/town/hunt).
+   */
+  forest?: { secrets?: number[]; hunt?: { k: number; n: number; digs: number } | null; chests?: number };
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

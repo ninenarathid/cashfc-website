@@ -4,6 +4,8 @@ import { catalogOf } from "./catalog";
 import { HOES } from "./farm";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS, costFor, fetches, gamesOf, gather, holds, isSecret, lanternLit, pigletDigs, placeAt, reachOf, ruleOf, turnStart, type Held, type Place } from "./forest";
 import { GIFTS, USES, stretchOf, usedOf } from "./gifts";
+import { CHEST_SCROLLS, DAY_RARES, HUNT, chestOf, huntArea, huntOf, huntSite, huntTold, mapDig, mapUse, warmthOf } from "./hunt";
+import { ITEMS } from "./items";
 import type { ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { newPurse, put, type Purse } from "./trade";
@@ -23,7 +25,12 @@ import { newPurse, put, type Purse } from "./trade";
  * - `wild_holds`: every place, the secret ones among them, at moments over two days and a night of full moon, by a
  *   word given with the case (`WORD`) under a dry sky;
  * - `gather` at the secret places: the lantern worn and not, both games won, either failed, left, a record kept
- *   already and kept wrongly, a bag with no room, the heap's last share gone, stood too far.
+ *   already and kept wrongly, a bag with no room, the heap's last share gone, stood too far;
+ * - `hunt_of`, `hunt_site`, `hunt_area`, `hunt_told`, `hunt_warm`, `chest_of`: a hunt kept soundly, of another day
+ *   and wrongly; members, days and maps; digs from on the chest to far beyond the last warmth; chests on days with
+ *   a rare thing of their own and on days with none, by every sort of roll;
+ * - `map_use`, `map_dig`: the thing had and not, every count of the day's maps, a hunt on already; digs on the chest
+ *   and off it, a bag with no room, no hunt on, a count of chests kept and kept wrongly.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-forest.test.ts     writes vectors-gifts-forest.json
  */
@@ -145,6 +152,45 @@ export function vectorsForest(): Vector[] {
     const misses = c.of([0, 0, 0, 0, 1, 3, 0.9]), wrong = c.of([0, 0, 0, 0, 1, 0.5]), lost = c.maybe(0.12), asked = c.of([null, null, "famPiglet"]);
     add("gather", [p, s.id, has, taken, mine, hand, tile[0], tile[1], misses, wrong, now, asked, lost], gather(p, s, has, taken, mine, hand, tile, { misses, wrong, with: asked, lost }, now));
   }
+
+  // a sprite's treasure map
+  const day = stretchOf(USES.thingMap!, NOON), people = ["00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-00000000000a", "me"];
+  /** A hunt as a purse may keep it: none, sound, of another day, and wrong in the ways there are. */
+  const hunts: unknown[] = [undefined, null, { k: day, n: 1, digs: 0 }, { k: day, n: 2, digs: 4 }, { k: day, n: 3, digs: 0 }, { k: day - 1, n: 1, digs: 2 }, { k: day + 1, n: 1, digs: 0 }, { k: day, n: 2.7, digs: 1.9 }, { k: day, n: 1, digs: -2 },
+    { k: day, n: 1 }, { k: String(day), n: 1, digs: 0 }, { k: day }, "x", [day, 1, 0]];
+  const withHunt = (hunt: unknown, more: Partial<Purse> = {}, forest: object | null = {}): Purse =>
+    ({ ...purseOf({ had: ["thingMap"], charms: [] }), ...(hunt === undefined && forest !== null && !Object.keys(forest).length ? {} : { forest: forest === null ? null : { ...forest, ...(hunt === undefined ? {} : { hunt }) } }), ...more }) as Purse;
+  for (const h of hunts) for (const when of [NOON, NOON + 30 * HOUR]) {
+    const p = withHunt(h);
+    add("hunt_of", [p, when], huntOf(p, when));
+    for (const me of people) add("hunt_told", [p, WORD, me, when], huntTold(p, WORD, me, when));
+  }
+  add("hunt_of", [withHunt(undefined, {}, null), NOON], huntOf(withHunt(undefined, {}, null), NOON));
+  for (const me of people) for (const k of [day, day + 1, day + 40]) for (const n of [1, 2, 3]) for (const word of [WORD, "other"]) {
+    add("hunt_site", [word, me, { k, n, digs: 0 }], huntSite(word, me, { k, n }));
+    add("hunt_area", [word, me, { k, n, digs: 0 }], huntArea(word, me, { k, n }));
+  }
+  for (const site of [[200, 150], [150, 120]] as Array<[number, number]>) for (const dx of [0, 1, -1, 2, 3, -4, 6, 7, 10, 11, -30]) for (const dy of [0, 1, -3, 6, 10, 12]) add("hunt_warm", [site, site[0] + dx, site[1] + dy], warmthOf(site, [site[0] + dx, site[1] + dy]));
+  for (const word of [WORD, "other", "third"]) for (let d = 0; d < 24; d++) for (const r0 of [0, 0.3, 0.49999, 0.5, 0.9]) for (const r1 of [0, 0.37, 0.71, 0.99999]) {
+    const when = NOON + d * 24 * HOUR;
+    add("chest_of", [word, when, r0, r1], chestOf(word, when, [r0, r1]));
+  }
+  // a map used: the thing had and not, every count of the day's, a hunt on already, what else the forest keeps
+  for (const had of [true, false]) for (const n of [undefined, 0, 1, 2, 3, 5]) for (const h of [undefined, { k: day, n: 1, digs: 3 }, { k: day - 1, n: 2, digs: 0 }, null]) for (const forest of [{}, { secrets: [SECRETS[0].id], chests: 2 }, null]) for (const when of [NOON, NOON + 24 * HOUR]) {
+    const p = withHunt(h, { gifts: { had: had ? ["thingMap"] : [], charms: [], ...(n === undefined ? {} : { used: { thingMap: { k: day, n } } }) } }, forest);
+    add("map_use", [p, when], mapUse(p, when));
+  }
+  // a dig: on the chest, off it at every warmth, with no hunt, with no room, with chests counted and counted wrongly
+  for (let i = 0; i < 500; i++) {
+    const me = c.of(people), n = c.int(1, 3), hunt = c.maybe(0.06) ? c.of([undefined, null, { k: day - 1, n: 1, digs: 0 }]) : { k: day, n, digs: c.of([0, 0, 1, 7]) };
+    const site = huntSite(WORD, me, { k: day, n }), far = c.of([0, 0, 0, 1, 2, 3, 5, 8, 11, 40]);
+    const tile: [number, number] = [site[0] + far * c.of([-1, 1]), site[1] + c.int(-far, far)];
+    const full = c.maybe(0.12), chests = c.of<unknown>([undefined, undefined, 0, 3, 2.6, -1, "4"]);
+    const base = purseOf({ had: ["thingMap"], charms: [] }, full ? Array.from({ length: 10 }, (): [ItemId, number] => [c.of(["rod", "can", "pot", "pan"] as ItemId[]), 1]) : c.maybe(0.3) ? [["truffle", 9], ["rod", 1]] : []);
+    const p = { ...base, forest: { ...(c.maybe(0.3) ? { secrets: [SECRETS[2].id] } : {}), ...(hunt === undefined ? {} : { hunt }), ...(chests === undefined ? {} : { chests }) } } as Purse;
+    const when = c.of([NOON, NOON, NOON + 3 * HOUR]), r0 = c.of([0, 0.2, 0.6, 0.95]), r1 = c.next();
+    add("map_dig", [p, WORD, me, tile[0], tile[1], when, r0, r1], mapDig(p, WORD, me, tile, when, [r0, r1]));
+  }
   return out;
 }
 
@@ -209,6 +255,28 @@ describe("the cases the database's rules of the forest's gifts are held to", () 
     expect(gone.some((g) => g.left && Math.floor(g.misses) === 0 && Math.floor(g.wrong) === 0) && gone.some((g) => !g.left && Math.floor(g.misses) > 0) && gone.some((g) => !g.left && Math.floor(g.misses) === 0 && Math.floor(g.wrong) > 0)).toBe(true);
     expect(gone.some((g) => g.p.stamina.left - g.did.purse!.stamina.left === SECRET_KINDS.ring.cost) && gone.some((g) => g.p.stamina.left === 0)).toBe(true);
     expect(hidden.some((g) => g.asked === "famPiglet" && g.did.ok && !g.did.lost && usedOf(g.did.purse!, "famPiglet", g.now) === 0 && gamesOf(g.spot)!.includes("dig"))).toBe(true);
+    // a hunt read: none, and one of today; told with its ring; a site for every member, day and map; every warmth
+    expect(of("hunt_of").some((v) => v.want === null) && of("hunt_of").some((v) => (v.want as { digs: number } | null)?.digs === 4) && of("hunt_of").some((v) => (v.want as { n: number } | null)?.n === 2 && (v.args[0] as Purse).forest!.hunt!.n === 2.7)).toBe(true);
+    expect(of("hunt_told").some((v) => v.want === null) && of("hunt_told").some((v) => (v.want as { area: { r: number } } | null)?.area.r === HUNT.radius)).toBe(true);
+    expect(new Set(of("hunt_site").map((v) => JSON.stringify(v.want))).size).toBeGreaterThan(40);
+    expect(of("hunt_area").every((v, i) => { const s = of("hunt_site")[i].want as number[], a = v.want as { x: number; y: number }; return Math.abs(a.x - s[0]) <= HUNT.off && Math.abs(a.y - s[1]) <= HUNT.off; })).toBe(true);
+    expect(new Set(of("hunt_warm").map((v) => v.want))).toEqual(new Set([0, 1, 2, 3, 4, 5]));
+    // a chest: each rare thing of a day, two of the lesser and one of the greater, and scrolls from one end of them to the other
+    const chests = of("chest_of").map((v) => v.want as [ItemId, number]);
+    for (const [id] of DAY_RARES) expect(chests.some(([item, n]) => item === id && n === (ITEMS[id].pays < HUNT.pair ? 2 : 1)), id).toBe(true);
+    expect(chests.some(([item]) => item === CHEST_SCROLLS[0]) && chests.some(([item]) => item === CHEST_SCROLLS[CHEST_SCROLLS.length - 1]) && chests.every(([item, n]) => ITEMS[item].kind !== "scroll" || n === 1)).toBe(true);
+    // a map used, and refused each way; the first, second and third of a day
+    const uses = of("map_use").map((v) => v.want as { ok: boolean; why?: string; left?: number; purse?: Purse });
+    expect(new Set(uses.map((u) => (u.ok ? `ok${u.left}` : u.why)))).toEqual(new Set(["ok2", "ok1", "ok0", "had", "spent", "none"]));
+    expect(uses.some((u) => u.ok && u.purse!.forest!.secrets?.length === 1 && u.purse!.forest!.chests === 2 && u.purse!.forest!.hunt!.digs === 0)).toBe(true);
+    // a dig: missed at every warmth and counted; the chest up, the hunt over and a chest more; no hunt; no room
+    const digs = of("map_dig").map((v) => ({ p: v.args[0] as Purse, did: v.want as { ok: boolean; why?: string; found?: boolean; warm?: number; digs?: number; got?: Array<[ItemId, number]>; purse?: Purse } }));
+    expect(new Set(digs.map((d) => (d.did.ok ? (d.did.found ? "found" : `warm${d.did.warm}`) : d.did.why)))).toEqual(new Set(["found", "warm1", "warm2", "warm3", "warm4", "warm5", "none", "full"]));
+    expect(digs.filter((d) => d.did.ok && !d.did.found).every((d) => d.did.got!.length === 0 && d.did.purse!.forest!.hunt!.digs === d.did.digs && JSON.stringify(d.did.purse!.bag) === JSON.stringify(d.p.bag))).toBe(true);
+    const up = digs.filter((d) => d.did.ok && d.did.found);
+    expect(up.every((d) => d.did.purse!.forest!.hunt === null && d.did.got!.length === 1 && d.did.purse!.coins === d.p.coins)).toBe(true);
+    expect(up.some((d) => d.did.purse!.forest!.chests === 1) && up.some((d) => d.did.purse!.forest!.chests === 4) && up.some((d) => d.did.purse!.forest!.chests === 3 && d.p.forest!.chests === 2.6)
+      && up.some((d) => ITEMS[d.did.got![0][0]].kind === "scroll") && up.some((d) => ITEMS[d.did.got![0][0]].kind === "wild") && up.some((d) => d.did.digs! > 5)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-forest.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });
