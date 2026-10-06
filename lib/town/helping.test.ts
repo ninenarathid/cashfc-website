@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { FARMING, dust, pestAt, pourFor, pourRow, see, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
-import { USES, giftOf, numberOf, usesLeft } from "./gifts";
+import { FARMING, dust, guardBy, hardIn, pestAt, pourFor, pourRow, see, tend, theirsAt, tiredAt, type Bed, type Plant, type Plot } from "./farm";
+import { USES, giftOf, harderAt, numberOf, usesLeft } from "./gifts";
 import { HEAT } from "./heat";
 import { HELPING, aided, aidsOf, belled, bridged, chime, diesAt, dustUntil, pouredAs, ring, runOf, share, timesAt } from "./helping";
 import { POINTS, countsOf, type Done } from "./line-points";
 import { WATERS, keptAs, type Nature } from "./waters";
-import type { ItemId } from "./items";
+import { CROP_IDS, ITEMS, type ItemId } from "./items";
+import { LINES } from "./lines";
+import { startLong } from "./longpour";
+import { startRound } from "./timing";
 import { dayOf, staminaOf } from "./stamina";
 import { HOUR, hold, newPurse, put, type Purse } from "./trade";
 import { bedCorner, rowOf } from "./world";
@@ -362,6 +365,33 @@ describe("garden fae dust: a pest-ridden plant of somebody else's does not die f
     const d: Done = { from: "deed", what: "dust", thing: "pumpkin", n: 1, doc: { whose: "you" } };
     expect(countsOf(d, "me")).toEqual([{ to: null, line: "helpers", raw: POINTS.helpers.feed }]);
     expect(countsOf({ ...d, doc: {} }, "me")).toEqual([]);
+  });
+});
+
+describe("the guardian's cloak, and good things harder for the skilled", () => {
+  const CLOAK = { had: ["charmGuard"], charms: ["charmGuard"] };
+
+  it("with no stamina, work for somebody else is not tired work under the cloak; one's own is, and so is anybody's without it", () => {
+    expect([tiredAt(purse(CLOAK), true, true), tiredAt(purse(CLOAK), true, false), tiredAt(purse(undefined), true, true), tiredAt(purse({ had: ["charmGuard"], charms: [] }), true, true)]).toEqual([false, true, true, true]);
+    // (with stamina nobody's hands are tired)
+    expect([tiredAt(purse(CLOAK), false, true), tiredAt(purse(undefined), false, false)]).toEqual([false, false]);
+  });
+
+  it("its games of work for somebody else are twice as wide, and no others", () => {
+    expect([guardBy(purse(CLOAK), true), guardBy(purse(CLOAK), false), guardBy(purse(undefined), true), numberOf("charmGuard")]).toEqual([2, 1, 1, 2]);
+    // (twice as wide is not without failing: the long pour's marks are still marks, and the swing's stretch a part of the bar)
+    expect(startLong([0, 1, 2, 3, 4, 5, 6], { wide: guardBy(purse(CLOAK), true) }).zone).toBeLessThan(1.5);
+    expect(startRound(3, { wide: guardBy(purse(CLOAK), true) }, 1).width).toBeLessThanOrEqual(0.5);
+  });
+
+  it("somebody else's crop of the second tier or better is harder by the helpers' rank, one's own by the farming rank, and the simplest not at all", () => {
+    const fourth = LINES.helpers.marks[3], tenth = LINES.helpers.marks[9], master = LINES.farming.marks[9];
+    const better = CROP_IDS.find((c) => ITEMS[c].tier >= 2)!, simple = CROP_IDS.find((c) => ITEMS[c].tier < 2)!;
+    expect([hardIn(better, true, 0, fourth - 1), hardIn(better, true, 0, fourth), hardIn(better, true, 0, tenth)]).toEqual([1, harderAt(4), harderAt(10)]);
+    expect([harderAt(4), harderAt(10)]).toEqual([1.08, 1.56]);
+    // (for somebody else the farming rank does not count; for oneself the helpers' rank does not)
+    expect([hardIn(better, true, master, 0), hardIn(better, false, master, 0), hardIn(better, false, 0, tenth)]).toEqual([1, harderAt(10), 1]);
+    expect([hardIn(simple, true, master, tenth), hardIn(null, true, master, tenth)]).toEqual([1, 1]);
   });
 });
 

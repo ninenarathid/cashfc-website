@@ -860,3 +860,20 @@ export function dust(key: string, purse: Purse, plot: Plot, me: string, now: num
   if (!used.ok) return { ok: false, why: used.why === "spent" ? "spent" : "none" };
   return { ok: true, left: used.left, until: now + numberOf("thingDust") * HOUR, purse: used.purse, plot: { ...plot, plant: { ...p, dust: [...dustsOf(p), now].slice(-HELPING.dust.kept) } } };
 }
+
+/**
+ * How much harder a crop is to work for somebody (the owner, 2026-10-07: good things are harder for the skilled, from
+ * a line's fourth rank, 8% a rank; common things are as they are): **for somebody else it is the helpers' rank that
+ * counts, for oneself the farming one** (`hardFor`). `farming`, `helpers`: the points somebody has on each line.
+ * Bare ground and the simplest crops are as they are for everybody.
+ */
+export const hardIn = (crop: CropId | null | undefined, theirs: boolean, farming: number, helpers: number): number =>
+  (crop && ITEMS[crop].tier >= 2 ? harderFor(theirs ? "helpers" : "farming", theirs ? helpers : farming) : 1);
+/**
+ * **The guardian's cloak** (a charm, worn; the owner, 2026-10-07): with no stamina, work for somebody else is no
+ * harder at all, and the games of that work are twice as wide; they can still be failed. Whether somebody's hands
+ * are tired for a piece of work (`spent`: they have no stamina): never, under the cloak, where the work is for
+ * somebody else. And how many times as wide its games are for them there: its number, or once.
+ */
+export const tiredAt = (purse: Purse, spent: boolean, theirs: boolean): boolean => spent && !(theirs && wearing(purse, "charmGuard"));
+export const guardBy = (purse: Purse, theirs: boolean): number => (theirs && wearing(purse, "charmGuard") ? numberOf("charmGuard") : 1);

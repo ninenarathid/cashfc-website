@@ -34,6 +34,15 @@ import { WATERS, type Nature } from "./waters";
  *    still there, to be rid by a cure or an insect as ever. Five a day (lib/town/gifts' USES). The plant shows it,
  *    and its owner is told who did it (`aided`), and has them among those to thank at the picking. The deed is
  *    lib/town/farm's `dust`.
+ * 6. **The guardian's cloak** (a charm): with no stamina, work for somebody else is no harder at all (what tired
+ *    hands meet does not apply there: the work that is done at once is done at once, and its games are as with
+ *    stamina), and the games of that work are twice as wide. They can still be failed. Others' plants only
+ *    (lib/town/farm's `tiredAt` and `guardBy`; the games are the page's, as the farm's always were).
+ *
+ * **And good things are harder for the skilled** (the owner's rule for every line): from the helpers' fourth rank,
+ * work on somebody else's crop of the second tier or better is 8% harder a rank (lib/town/farm's `hardIn`): for
+ * somebody else it is the helpers' rank that counts and not the farming one. "Harder" is what it is on the farm: a
+ * narrower mark in the game, whichever game it is (the long pour's marks, by the hardest crop of its row).
  *
  * The rest of what is here is what those rules go by. The deeds themselves, which need the farm's own rules, are in
  * lib/town/farm under "the gifts of the helpers' line".

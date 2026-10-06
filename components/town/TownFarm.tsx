@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, hardFor, hitsFor, moreOf, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
@@ -590,6 +590,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const say = useCallback((why: string) => { const w = WHY_FARM[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
+  /** Whether work on a plot is work for somebody else (lib/town/farm's theirsAt): what the helpers' line counts, and what the guardian's cloak is for. */
+  const theirsOn = useCallback((k: string | null) => {
+    if (!k) return false;
+    const [x, y] = k.split(",").map(Number);
+    return theirsAt(keeper.farm()[k], keeper.owners().get(bedOf(x, y))?.by ?? null, keeper.id);
+  }, [keeper]);
+  /** Whether my hands are tired for work on a plot: with no stamina, but never under the guardian's cloak where the work is for somebody else. */
+  const tiredOn = useCallback((k: string | null) => tiredAt(keeper.purse(), isSpent(keeper.purse(), keeper.now()), theirsOn(k)), [keeper, theirsOn]);
   /** Do the deed, and say what came of it. `sure`: a living plant is meant to be dug out (asked twice, and answered). */
   const act = useCallback(async (k: string, timing?: GameResult, sure = false) => {
     // (the buffs I have as the work begins: a blessing that had a hand in it shows over the plot when it is done)
@@ -657,18 +665,19 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (!work) return;
     if (work === "ditch") {
       // (no game with stamina; with none it is poured like any water, a short round)
-      if (isSpent(keeper.purse(), keeper.now())) setWorking({ key, work, need: FARMING.tired });
+      if (tiredOn(key)) setWorking({ key, work, need: FARMING.tired });
       else void pourOver(key!);
       return;
     }
     // digging a plant out is asked for a second time, and is no game
     if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
-    const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
+    // (under the guardian's cloak, work for somebody else is as with stamina: what is done at once is done at once)
+    const need = hitsFor(work, key && deed ? tiredOn(key) : isSpent(keeper.purse(), keeper.now()));
     if (need) setWorking({ key: key && deed ? key : null, work, need });
     else if (key && deed) void act(key);
     else void carry();
-  }, [key, deed, chore, pours, act, carry, pourOver, keeper, th]);
+  }, [key, deed, chore, pours, act, carry, pourOver, keeper, th, tiredOn]);
   /** A row's deed, done whole by whoever keeps the game: what flies up over each plot it did, and a word of how many those were. */
   const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult | null) => {
     // (the plots as they stand: which plants the mandrake sang to is read from each as it was and as it is)
@@ -794,7 +803,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (!key || row.length < 2) return;
     const [x0, y0] = key.split(",").map(Number), [bx] = bedCorner(bedOf(x0, y0)), farm = keeper.farm();
     const long = row.flatMap((k) => { const crop = farm[k]?.plant?.crop; return crop ? [{ key: k, place: Number(k.split(",")[0]) - bx, crop }] : []; }).sort((a, b) => a.place - b.place);
-    if (long.length > 1) setWorking({ key, work: "water", need: long.length, long, hard: 1 });
+    // (a row is as hard as its hardest crop is for me: somebody else's, so by my rank on the helpers' line)
+    const told = keeper.lines()?.lines, hard = Math.max(1, ...long.map((p) => hardIn(p.crop, true, told?.farming.points ?? 0, told?.helpers.points ?? 0)));
+    if (long.length > 1) setWorking({ key, work: "water", need: long.length, long, hard });
   }, [key, keeper]);
   // walking off the plot, or away from the water, leaves the work
   useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
@@ -900,8 +911,13 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         // (and what is worked on: a crop of the second tier or better is harder for whoever is far up the farming line,
         // lib/town/farm's hardFor: a narrower mark, in whichever game it is. Bare ground and water are as they are)
         const worked = working.work === "sow" ? cropOf(hand) : working.key && working.work !== "clear" && working.work !== "till" && working.work !== "ditch" ? growing?.crop ?? null : null;
-        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen"),
-          hard: hardFor(worked, keeper.lines()?.lines.farming.points ?? 0) };
+        // (and whose it is: work for somebody else is harder by my rank on the helpers' line, not the farming one; and under
+        // the guardian's cloak tired hands meet nothing there, and its games are twice as wide: the swing's stretch, the
+        // time between the weeding's gusts, the long pour's marks)
+        const theirs = theirsOn(working.key), wide = guardBy(purse, theirs), told = keeper.lines()?.lines;
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: tiredAt(purse, isSpent(purse, now), theirs), drops: true, wide,
+          buff: (game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen")) * (game === "weeding" ? wide : 1),
+          hard: theirs ? hardIn(worked, true, told?.farming.points ?? 0, told?.helpers.points ?? 0) : hardFor(worked, told?.farming.points ?? 0) };
         const common = {
           th, title,
           onHit: (hit: boolean) => {
@@ -943,7 +959,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             {/* the buffs that have a hand in this work, twinkling over the board */}
             <BuffAura ids={working.work === "ditch" ? [] : atPlot(working.work, purse, now)} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1 empty:hidden" />
             {working.long ? <TownLongPour {...common} title={th ? "เทยาวทั้งแถว" : "The long pour"} verb={th ? "กดค้างเท" : "Hold to pour"} hard={working.hard ?? 1} icon={toolIcon("water", hand)}
-                mods={{ tool: mods.tool, spent: mods.spent, buff: 1 + buffBy(purse, now, "calm") }}
+                mods={{ tool: mods.tool, spent: mods.spent, buff: 1 + buffBy(purse, now, "calm"), wide: mods.wide }}
                 onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "water" : "knock", hit ? 0.5 : 1); }}
                 plants={working.long.map((p) => ({ place: p.place, icon: growIconOf(p.crop, seen.current.get(p.key)?.stage ?? 3) as IconName }))} />
               : working.sweep ? <TownSweep {...common} title={ROW_VERB.pick[th ? 0 : 1]} verb={th ? "ตวัดเคียว" : "Swing"} mods={{ spent: mods.spent, buff: 1 + buffBy(purse, now, "keen") }}
