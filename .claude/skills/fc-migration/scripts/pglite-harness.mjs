@@ -195,8 +195,13 @@ insert into public.fc_roster (character_id) values (${CHAR.admin}), (${CHAR.m1})
  * `extra` is SQL for tables "as they stand live" that the migration leans on
  * and no replayable file creates — write them by hand, worst case first.
  */
-export async function supabaseLike({ seed = true, extra = "" } = {}) {
-  const db = new PGlite();
+/**
+ * `load`: a data directory dumped earlier (`await t.db.dumpDataDir("none")`, as a Blob), loaded in the place of an empty
+ * database with the stubs, the seed and `extra` run into it: whatever was in it is there, and nothing is run. For a
+ * stand-in that takes long to build (a hundred files replayed): build it once, dump it, and begin every check from it.
+ */
+export async function supabaseLike({ seed = true, extra = "", load = null } = {}) {
+  const db = load ? new PGlite({ loadDataDir: load }) : new PGlite();
   // One line per failure: an uncaught PGlite error prints its minified source.
   const setUp = async (sql, label) => {
     try {
@@ -205,9 +210,11 @@ export async function supabaseLike({ seed = true, extra = "" } = {}) {
       throw new Error(`${label} failed: ${e.message} (${e.code ?? "no code"})`);
     }
   };
-  await setUp(STUBS, "the stubs");
-  if (seed) await setUp(SEED, "the seed");
-  if (extra) await setUp(extra, "extra");
+  if (!load) {
+    await setUp(STUBS, "the stubs");
+    if (seed) await setUp(SEED, "the seed");
+    if (extra) await setUp(extra, "extra");
+  }
 
   let pass = 0;
   let fail = 0;

@@ -8,3 +8,6 @@ __pycache__/
 
 # TypeScript incremental build info
 tsconfig.tsbuildinfo
+
+# the town stand-in database, dumped for quick dry runs (scripts/db/stand-in.mjs)
+.claude/skills/fc-cash-town/scripts/db/snap-v*.tar
