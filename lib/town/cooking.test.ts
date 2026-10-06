@@ -376,7 +376,10 @@ describe("the cure for pests (the owner, 2026-10-04: \"ช่วยเพิ่�
   it("is told by its scroll as any found recipe is: all but its last thing, a staple", () => {
     const told = toldOf("pestCure");
     expect(told.needs).toEqual([["chili", 2], ["scallion", 2]]);
-    expect(told.last).toEqual({ kind: "staple", n: 1 });
+    expect(told.last).toMatchObject({ kind: "staple", n: 1 });
+    // (salt: a staple the uncle has had from the first, and nothing of what it looks like until it has been missed)
+    expect(told.last!.from?.en).toBe("on the uncle's shelf from the first");
+    expect(told.last!.looks).toBeUndefined();
     expect(told.in).toEqual(["pot"]);
     expect(told.gives).toBe(2);
     expect(ITEMS[MAKES.pestCure!.needs.at(-1)![0]].kind).toBe("staple");

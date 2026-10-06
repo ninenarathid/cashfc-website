@@ -79,6 +79,12 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     const scrolls = await X.evaluate(`[...${TRADE}.querySelectorAll("li")].map((li) => li.innerText.replace(/\\s+/g, " ").trim())`);
     ok("…and the scroll of how the cure for pests is made is one of them, at forty coins", (await X.evaluate(`window.__townTrade.shelf().includes("scrollPestCure")`)) && scrolls.some((s) => /ม้วนสูตร ยาไล่แมลง/.test(s) && /40/.test(s)), scrolls);
     await X.shot(`${OUT}/trade-${label}-scrolls.png`);
+    // a bag of seed says how long its plant takes (the owner, 2026-10-06: "ควรต้องเปิดเผยเวลาในการปลูกพืชแต่ละต้นในถุงเมล็ด"),
+    // in the round words a recipe's clue uses of a vegetable
+    await tab("เมล็ดพันธุ์"); await sleep(250);
+    const seeds = await X.evaluate(`[...${TRADE}.querySelectorAll("li")].map((li) => ({ name: li.innerText.split("\\n")[0].trim(), time: li.querySelector("[data-seed-time]")?.innerText.trim() ?? null })).filter((s) => s.name.startsWith("เมล็ด"))`);
+    ok("every bag of seed says how long its plant takes, in round words and never in hours", seeds.length >= 6 && seeds.every((s) => /^ใช้เวลาโต /.test(s.time ?? "") && !/ชั่วโมง|ชม\./.test(s.time)), seeds);
+    await X.shot(`${OUT}/trade-${label}-seeds.png`);
     await tab("เครื่องมือ"); await sleep(250);
     await X.evaluate(`[...${TRADE}.querySelectorAll("li")].find((li) => li.innerText.includes("คันเบ็ดไม้ไผ่")).querySelector("button:last-of-type").click()`);
     await sleep(150);

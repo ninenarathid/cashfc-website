@@ -269,9 +269,40 @@ try {
   await X.shot(`${OUT}/cook-scroll-whole.png`);
   await rollUp(X);
   paper = await readRecipe(Y, "ต้มยำปลาช่อน");
-  ok("the other reads all but its last thing, which is told only by its kind", /มะเขือเทศ/.test(paper) && /พริก/.test(paper) && !/ต้นหอม/.test(paper) && /ผักหรือผลไม้สักอย่าง/.test(paper), paper);
+  const secret = (Z) => Z.evaluate(`(() => { const el = ${SCROLL}.querySelector("[data-secret]"); return el ? { said: el.dataset.secret, shadow: !!el.querySelector("[data-secret-shadow]"), text: el.innerText } : null; })()`);
+  let slip = await secret(Y);
+  ok("the other reads all but its last thing, which is never named: which sort of thing it is, and where such a thing is had",
+    /มะเขือเทศ/.test(paper) && /พริก/.test(paper) && !/ต้นหอม/.test(paper) && /ชิ้นลับ/.test(slip?.text ?? "") && /ผักที่ปลูกจากหัว/.test(slip.text) && /ใช้เวลาโต ไม่ถึงครึ่งวัน/.test(slip.text), { paper, slip });
+  ok("…with nothing yet of what it looks like, and a question mark where its shadow would be", slip?.said === "1" && slip.shadow === false && !/หน้าตา/.test(slip.text), slip);
   ok("…and who made it first", /คนแรกที่ทำได้/.test(paper) && /K/.test(paper), paper);
   await Y.shot(`${OUT}/cook-scroll-short.png`);
+  await rollUp(Y);
+
+  // missed by that thing alone, the recipe says more (the owner, 2026-10-06: "อยากให้ใบ้ง่ายขึ้น"): what the thing looks
+  // like after the first miss, and its shadow after the third; its name never
+  await Y.evaluate(`${T}.resize(20)`);
+  await grant(Y, [["snakehead", 3], ["tomato", 6], ["chili", 6], ["garlic", 3], ["pot", 1]]);
+  const missIt = async () => {
+    if (await Y.evaluate(`!!${TRADE}`)) { await Y.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า").click()`); await sleep(700); }
+    await warp(Y, at("stove"));
+    await cookAgain(Y, "pot");
+    await make(Y, [["snakehead", 1], ["tomato", 2], ["chili", 2], ["garlic", 1]]);
+    await dropOdd(Y);
+    await hold(Y, null);
+    await warp(Y, [open[0] + 1, open[1]]);
+  };
+  await missIt();
+  ok("with one thing that is not the one, the recipe is missed by its hidden thing alone", (await Y.evaluate(`${T}.triesAt("tomYum")`)) === 1, await Y.evaluate(`${T}.triesAt("tomYum")`));
+  paper = await readRecipe(Y, "ต้มยำปลาช่อน");
+  slip = await secret(Y);
+  ok("missed once, it says what the thing looks like, and still not its name", slip?.said === "2" && /หน้าตา/.test(slip.text) && slip.shadow === false && !/ต้นหอม/.test(paper), { slip, paper });
+  await rollUp(Y);
+  await missIt();
+  await missIt();
+  paper = await readRecipe(Y, "ต้มยำปลาช่อน");
+  slip = await secret(Y);
+  ok("missed three times, its shadow is in the question mark's place; its name is never told", slip?.said === "3" && slip.shadow === true && !/ต้นหอม/.test(paper), { slip, paper });
+  await Y.shot(`${OUT}/cook-scroll-shadow.png`);
   await rollUp(Y);
 
   // the uncle's hint
@@ -293,7 +324,7 @@ try {
   const told = await X.evaluate(`${T}.readScroll(${await slotOf(X, "scrollPestCure")})`);
   ok("read, the cure is in the recipe book with what else is made, and the scroll is used up", told.ok === true && told.dish === "pestCure" && (await X.evaluate(`${T}.knownMakes()`)).includes("pestCure") && (await has(X, "scrollPestCure")) === 0, told);
   paper = await readRecipe(X, "ยาไล่แมลง");
-  ok("the book tells all of it but its last thing, which is some staple", /พริก/.test(paper) && /ต้นหอม/.test(paper) && !/เกลือ/.test(paper) && /ของคู่ครัวสักอย่าง/.test(paper), paper);
+  ok("the book tells all of it but its last thing, which is some staple the uncle has had from the first", /พริก/.test(paper) && /ต้นหอม/.test(paper) && !/เกลือ/.test(paper) && /ของคู่ครัวสักอย่าง/.test(paper) && /ลุงมีขายตั้งแต่แรก/.test(paper), paper);
   await X.shot(`${OUT}/cook-cure-scroll.png`);
   await rollUp(X);
   // (the bag shut again, and a pot of one's own in it)

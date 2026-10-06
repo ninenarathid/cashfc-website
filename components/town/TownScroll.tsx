@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { KIND_WORD, toldOf } from "@/lib/town/hints";
+import { toldOf, type Hidden } from "@/lib/town/hints";
 import { BUFFS, DISHES, ITEMS, MAKES, type DishId, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -21,7 +21,10 @@ const PAPER = "#f0dfb6", PAPER_EDGE = "#d9bf85", INK = "#4a3520", INK_SOFT = "#7
  *
  * It shows a recipe as a found recipe is told (lib/town/hints; the owner:
  * "สูตรที่มีให้เจอ จะบอกแค่เกือบหมด เหลือชิ้นสุดท้ายจะบอกแค่ชนิดของ ไอเทมนั้น ต้องไปเดากันเอง"):
- * all of it but its last thing, which is named only by its kind. Whoever has
+ * all of it but its last thing, which is never named: a card of its own
+ * says which sort of thing it is and where such a thing is had, then what it
+ * looks like and at last its shadow, as the recipe is missed by it (`Secret`;
+ * the owner, 2026-10-06: "อยากให้ใบ้ง่ายขึ้น … อยากให้ใบ้เพิ่มทุกเมนู"). Whoever has
  * made the thing reads all of it. Under its name, who found it first: the one
  * to ask. With reduced motion the paper is simply there.
  */
@@ -103,17 +106,7 @@ export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
                           <span className="font-data tabular-nums">×{n}</span>
                         </li>
                       ))}
-                      {recipe.last && (
-                        <li className="flex items-start gap-2 text-ui">
-                          <TownIcon name="mystery" size={24} className="shrink-0" />
-                          <span className="min-w-0 flex-1" style={{ color: INK_SOFT }}>
-                            <span className="block truncate font-semibold italic">{th ? KIND_WORD[recipe.last.kind].th : KIND_WORD[recipe.last.kind].en}</span>
-                            {/* after so many misses by this thing alone: what it looks like, never its name */}
-                            {recipe.last.looks && <span className="block text-meta">{th ? recipe.last.looks.th : recipe.last.looks.en}</span>}
-                          </span>
-                          <span className="font-data tabular-nums">×{recipe.last.n}</span>
-                        </li>
-                      )}
+                      {recipe.last && <Secret hidden={recipe.last} th={th} />}
                     </ul>
                     <Rule />
                     <dl className="grid grid-cols-[auto_1fr] items-center gap-x-3 gap-y-1 text-ui">
@@ -160,6 +153,47 @@ export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
         <Rod />
       </div>
     </div>
+  );
+}
+
+/**
+ * The thing a recipe will not name, on a slip of its own: which sort of thing it is and where such a thing is had,
+ * always; what it looks like once the recipe has been missed by it; and its shadow in the place of the question
+ * mark after more such misses (lib/town/hints' `Hidden`). Three small marks at its foot are filled as it says
+ * more. Never its name: that is for whoever has made the dish, the one to ask.
+ */
+function Secret({ hidden, th }: { hidden: Hidden; th: boolean }) {
+  const said = 1 + (hidden.looks ? 1 : 0) + (hidden.shadow ? 1 : 0);
+  const label = `font-data text-label ${th ? "" : "uppercase tracking-wider"}`;
+  return (
+    <li className="mt-1.5 rounded-lg px-2.5 pb-2 pt-2" data-secret={said}
+        style={{ border: `1.5px dashed ${INK_SOFT}`, backgroundColor: "rgba(120, 85, 35, 0.1)" }}>
+      <div className="flex items-center gap-2.5">
+        <span className="grid size-11 shrink-0 place-items-center rounded-md" data-secret-shadow={hidden.shadow ? "" : undefined}
+              style={{ backgroundColor: "rgba(74, 53, 32, 0.13)", boxShadow: `inset 0 0 0 1px ${PAPER_EDGE}` }}>
+          {hidden.shadow
+            ? <ItemIcon id={hidden.shadow} size={32} className="opacity-85 [filter:brightness(0)]" />
+            : <TownIcon name="mystery" size={26} />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className={label} style={{ color: INK_SOFT }}>{th ? "ชิ้นลับ" : "The secret thing"}</p>
+          <p className="text-ui font-semibold leading-snug">{th ? hidden.sort.th : hidden.sort.en[0].toUpperCase() + hidden.sort.en.slice(1)}</p>
+        </div>
+        <span className="self-start font-data text-ui tabular-nums">×{hidden.n}</span>
+      </div>
+      {(hidden.from || hidden.looks) && (
+        <dl className="mt-1.5 grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 text-meta leading-snug">
+          {hidden.from && <><dt style={{ color: INK_SOFT }}>{th ? "เบาะแส" : "Clue"}</dt><dd>{th ? hidden.from.th : hidden.from.en}</dd></>}
+          {/* once the recipe has been missed by this thing alone: what it looks like, never its name */}
+          {hidden.looks && <><dt style={{ color: INK_SOFT }}>{th ? "หน้าตา" : "Looks"}</dt><dd>{th ? hidden.looks.th : hidden.looks.en}</dd></>}
+        </dl>
+      )}
+      <p className="mt-1.5 flex items-center justify-end gap-1.5" role="img" aria-label={th ? `คำใบ้ ${said} จาก 3` : `${said} of 3 clues`}>
+        {[0, 1, 2].map((i) => (
+          <span key={i} aria-hidden className="size-1.5 rotate-45" style={{ backgroundColor: i < said ? INK : "transparent", boxShadow: `0 0 0 1px ${INK_SOFT}` }} />
+        ))}
+      </p>
+    </li>
   );
 }
 

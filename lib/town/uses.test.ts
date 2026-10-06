@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { easeOf, helpings, isCookware, ladle, reachOf, type Pot } from "./cooking";
 import { WATER, chore, hoe, toolOf, WILD, yieldOf, type Plant } from "./farm";
 import { CARRIES, PLAIN, gearOf } from "./gear";
-import { COOKING } from "./cooking";
-import { HINT_IDS, HINT_PRICE, KIND_WORD, buyHint, hintOf, hintPrice, hintsLeft, nextHint, toldOf } from "./hints";
+import { CLUES } from "./clues";
+import { HINT_IDS, HINT_PRICE, KIND_WORD, buyHint, hiddenLine, hintOf, hintPrice, hintsLeft, nextHint, toldOf } from "./hints";
 import { mayNet } from "./insects";
 import { CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { GOODS, RULES, hold, newPurse, put, takeOff, wear, type Purse } from "./trade";
@@ -121,25 +121,29 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
       expect(HINT_IDS).toContain(id);
       const hint = hintOf(id), r = id in DISHES ? DISHES[id as keyof typeof DISHES].recipe! : MAKES[id]!;
       // it names the thing, every thing that goes in with how many of each, and everything it is made in, in both
-      // languages; but the last thing only by its kind ("เหลือชิ้นสุดท้ายจะบอกแค่ชนิดของ ไอเทมนั้น ต้องไปเดากันเอง")
+      // languages; but the last thing never by its name ("เหลือชิ้นสุดท้ายจะบอกแค่ชนิดของ ไอเทมนั้น ต้องไปเดากันเอง"): by which
+      // sort of thing it is and where such a thing is had (lib/town/clues)
       expect(hint.th).toContain(ITEMS[id].name.th);
       const said = hint.th.slice(hint.th.indexOf(": ") + 2).split(" · ")[0].split(", "), saidEn = hint.en.slice(hint.en.indexOf(": ") + 2).split(" · ")[0].split(", ");
-      const [last, n] = r.needs[r.needs.length - 1], kind = KIND_WORD[ITEMS[last].kind];
+      const [last, n] = r.needs[r.needs.length - 1], hidden = hiddenLine(toldOf(id).last!);
       expect(said.length).toBe(r.needs.length);
       expect(saidEn.length).toBe(r.needs.length);
       r.needs.slice(0, -1).forEach(([need, k], i) => {
         expect(said[i]).toBe(`${ITEMS[need].name.th} ×${k}`);
         expect(saidEn[i]).toBe(`${ITEMS[need].name.en.toLowerCase()} ×${k}`);
       });
-      expect(said[said.length - 1]).toBe(`${kind.th} ×${n}`);
-      expect(saidEn[saidEn.length - 1]).toBe(`${kind.en} ×${n}`);
+      expect(said[said.length - 1]).toBe(`${hidden.th} ×${n}`);
+      expect(saidEn[saidEn.length - 1]).toBe(`${hidden.en} ×${n}`);
       for (const tool of r.in) { expect(hint.th).toContain(ITEMS[tool].name.th); expect(hint.en).toContain(ITEMS[tool].name.en.toLowerCase()); }
       // the same recipe as it is told on a scroll and in the book: short of its last thing, or whole for whoever has made it
       expect(toldOf(id)).toMatchObject({ needs: r.needs.slice(0, -1), last: { kind: ITEMS[last].kind, n }, in: r.in });
       expect(toldOf(id, true)).toMatchObject({ needs: r.needs, last: null, in: r.in });
-      // missed by that thing alone so many times, it says what the thing looks like: its own line, and still not its name
-      expect(toldOf(id, false, COOKING.clue - 1).last!.looks).toBeUndefined();
-      expect(toldOf(id, false, COOKING.clue).last).toEqual({ kind: ITEMS[last].kind, n, looks: ITEMS[last].about });
+      // missed by that thing alone, it says what the thing looks like (its own line, and still not its name), and after
+      // more such misses whose shadow to show
+      expect(toldOf(id, false, CLUES.looks - 1).last!.looks).toBeUndefined();
+      expect(toldOf(id, false, CLUES.looks).last).toMatchObject({ kind: ITEMS[last].kind, n, looks: ITEMS[last].about });
+      expect(toldOf(id, false, CLUES.shadow - 1).last!.shadow).toBeUndefined();
+      expect(toldOf(id, false, CLUES.shadow).last).toMatchObject({ looks: ITEMS[last].about, shadow: last });
       expect(toldOf(id, true, 99).last).toBeNull();
     }
     // every kind of thing a recipe ends on has its word

@@ -29,7 +29,8 @@ import { held, no, put, roomFor, take, type Done, type Purse, type Stack } from 
  *   in the wrong amounts, everything right but the way it was cooked. It costs
  *   what was put in, each time. And a recipe somebody keeps missing by its
  *   last thing alone, the one a found recipe does not name, comes to say what
- *   that thing looks like, after so many tries (`COOKING.clue`, lib/town/hints).
+ *   that thing looks like and then to show its shadow, after so many tries
+ *   (`CLUES`, lib/town/clues).
  * - **A dish takes its cookware, each piece in a cook's hand**, and as many
  *   cooks standing at the yard's places as its recipe says ("สูตรอาหารที่ต้องใช้
  *   มากกว่า 1 เครื่องมือ (ใช้หลายคนช่วยกันทำ)"). The things come from the bag of
@@ -87,7 +88,11 @@ export const COOKING = {
   pots: 6,
   /** The odd dish: a helping for every so many things put in, never fewer than one or more than so many. */
   odd: { per: 2, most: 4 },
-  /** How many times a recipe is missed by its last thing alone before it says what that thing looks like. */
+  /**
+   * How many times a recipe was missed by its last thing alone before it said what that thing looks like. Read by
+   * nothing since 2026-10-06 (the page's own `CLUES`, lib/town/clues, says it after the first miss); kept because
+   * the database's catalog row has it.
+   */
   clue: 3,
 };
 

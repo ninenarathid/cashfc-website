@@ -1,4 +1,4 @@
-import { COOKING } from "./cooking";
+import { CLUES, KIND_WORD, clueOf } from "./clues";
 import { DISHES, DISH_IDS, ITEMS, LATER_MADE, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId, type ItemKind } from "./items";
 import type { Line } from "./talk";
 import { no, type Done, type Purse } from "./trade";
@@ -11,7 +11,12 @@ import { no, type Done, type Purse } from "./trade";
  * **A recipe that is found tells nearly all of itself** ("สูตรที่มีให้เจอ จะบอกแค่
  * เกือบหมด เหลือชิ้นสุดท้ายจะบอกแค่ชนิดของ ไอเทมนั้น ต้องไปเดากันเอง"): every thing that goes
  * in, by name and number, what it is made in and by how many; but its last
- * thing only by its kind (a vegetable, something from the river, a staple).
+ * thing is never named. It is told by which sort of thing it is and where
+ * such a thing is had (lib/town/clues: a mushroom from the deep woods, a
+ * common fish off the bank by night, a plant grown from a bulb in about three
+ * days), which leaves a handful to choose among (the owner, 2026-10-06: the
+ * kind alone, one of thirty-five things of the forest or fifty fish, was too
+ * wide to search: "อยากให้ใบ้ง่ายขึ้น … อยากให้ใบ้เพิ่มทุกเมนู").
  * That one is for guessing, and for asking whoever has made the dish, which is
  * the point ("อยากให้ ผู้เล่นมีปฏิสัมพันธ์ มี communicate กันมากที่สุด หลายๆอย่างเลยต้องปิดเป็น
  * ความลับ"): a wrong guess is an odd dish (lib/town/cooking). So reads a scroll,
@@ -19,9 +24,11 @@ import { no, type Done, type Purse } from "./trade";
  * reads all of it.
  *
  * **The way can still be felt for** ("ยังต้องทำให้ ผู้เล่นยังพอ คลำทางไปเจอวิธีทำที่ถูกต้องได้"):
- * whoever has missed a recipe by that last thing alone so many times
- * (lib/town/cooking's `clue`) is told what the thing looks like, in the words
- * every thing is described in. Never its name.
+ * whoever has missed a recipe by that last thing alone (lib/town/cooking
+ * counts it) is told what the thing looks like, in the words every thing is
+ * described in, and after three such misses is shown its shadow
+ * (lib/town/clues' `CLUES`; it took three misses for the words, until
+ * 2026-10-06). Never its name.
  *
  * There is a hint for every dish that is cooked and for everything else that
  * is made, so nothing in the game is beyond finding. Each is written from the
@@ -54,44 +61,44 @@ const recipeOf = (id: ItemId) => (id in DISHES
   ? { ...DISHES[id as DishId].recipe!, gives: DISHES[id as DishId].recipe!.serves }
   : { ...MAKES[id]!, cooks: 1 });
 
-/** What a thing of each kind is called by a recipe that will not name it. */
-export const KIND_WORD: Record<ItemKind, Line> = {
-  tool: { th: "เครื่องมือสักอย่าง", en: "some tool" },
-  bait: { th: "เหยื่อสักอย่าง", en: "some bait" },
-  staple: { th: "ของคู่ครัวสักอย่าง", en: "some staple" },
-  seed: { th: "เมล็ดสักอย่าง", en: "some seed" },
-  crop: { th: "ผักหรือผลไม้สักอย่าง", en: "some vegetable or fruit" },
-  fish: { th: "ปลาหรือสัตว์น้ำสักอย่าง", en: "some fish or river creature" },
-  catch: { th: "ของที่ลอยมากับน้ำสักอย่าง", en: "something the river brings" },
-  wild: { th: "ของป่าสักอย่าง", en: "something from the forest" },
-  bug: { th: "แมลงสักตัว", en: "some insect" },
-  goods: { th: "ของแปรรูปสักอย่าง", en: "something that is made" },
-  dish: { th: "อาหารสักอย่าง", en: "some dish" },
-  scroll: { th: "ม้วนกระดาษสักม้วน", en: "some scroll" },
-};
+export { KIND_WORD };
 
-/** A recipe as it is told: the things named, the one that is not (its kind, how many, and what it looks like once that is told), what it is made in, by how many, and how many come of it. */
-export interface Told { needs: Array<[ItemId, number]>; last: { kind: ItemKind; n: number; looks?: Line } | null; in: Cookware[]; cooks: number; gives: number }
+/**
+ * The thing a recipe will not name, as it is told: its kind and how many; which sort of thing it is and where such
+ * a thing is had (lib/town/clues); and, once the recipe has been missed by it often enough, what it looks like, and
+ * then which thing's shadow to show (its picture, with nothing of it but its outline).
+ */
+export interface Hidden { kind: ItemKind; n: number; sort: Line; from: Line | null; looks?: Line; shadow?: ItemId }
+/** A recipe as it is told: the things named, the one that is not, what it is made in, by how many, and how many come of it. */
+export interface Told { needs: Array<[ItemId, number]>; last: Hidden | null; in: Cookware[]; cooks: number; gives: number }
 /**
  * A recipe as it is told: all of it to whoever has made the thing (`full`), and otherwise all but its last thing,
- * which is told by its kind; and, to whoever has missed it by that thing so many times (`tries`), by what it looks
- * like as well.
+ * which is told by its sort and its whereabouts; and, to whoever has missed it by that thing (`tries` times), by
+ * what it looks like as well, and then by its shadow.
  */
 export function toldOf(id: ItemId, full = false, tries = 0): Told {
   const r = recipeOf(id), [last, n] = r.needs[r.needs.length - 1];
   return {
     needs: full ? r.needs : r.needs.slice(0, -1),
-    last: full ? null : { kind: ITEMS[last].kind, n, ...(tries >= COOKING.clue ? { looks: ITEMS[last].about } : {}) },
+    last: full ? null : {
+      kind: ITEMS[last].kind, n, ...clueOf(last),
+      ...(tries >= CLUES.looks ? { looks: ITEMS[last].about } : {}), ...(tries >= CLUES.shadow ? { shadow: last } : {}),
+    },
     in: r.in, cooks: r.cooks, gives: r.gives,
   };
 }
+/** The thing a recipe will not name, in a line: which sort it is, and where it is had. "เห็ดสักอย่าง (แถวป่าลึก)". */
+export const hiddenLine = (h: Hidden): Line => ({
+  th: h.from ? `${h.sort.th} (${h.from.th.replaceAll(" · ", " ")})` : h.sort.th,
+  en: h.from ? `${h.sort.en} (${h.from.en.replaceAll(" · ", "; ")})` : h.sort.en,
+});
 
-/** The hint for a thing, in a line: its name, what goes into it and how many of each (the last only by its kind), what it is made in (or by hand), and how many cooks when more than one. */
+/** The hint for a thing, in a line: its name, what goes into it and how many of each (the last only by its sort and whereabouts), what it is made in (or by hand), and how many cooks when more than one. */
 export function hintOf(id: ItemId): Line {
   const t = toldOf(id), name = ITEMS[id].name;
   const things = (th: boolean) => [
     ...t.needs.map(([x, n]) => `${th ? ITEMS[x].name.th : ITEMS[x].name.en.toLowerCase()} ×${n}`),
-    `${th ? KIND_WORD[t.last!.kind].th : KIND_WORD[t.last!.kind].en} ×${t.last!.n}`,
+    `${th ? hiddenLine(t.last!).th : hiddenLine(t.last!).en} ×${t.last!.n}`,
   ].join(", ");
   return {
     th: `${name.th}: ${things(true)} · ${t.in.length ? t.in.map((x) => ITEMS[x].name.th).join(" + ") : "มือเปล่า ที่โต๊ะ"}${t.cooks > 1 ? ` · ${t.cooks} คน` : ""}`,

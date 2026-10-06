@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { WATER } from "@/lib/town/farm";
+import { seedTime } from "@/lib/town/clues";
 import { CARRIES } from "@/lib/town/gear";
 import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
@@ -106,6 +107,20 @@ export function StackIcon({ stack, size, className }: { stack: Stack; size: numb
 /** A thing's picture, by its name in lib/town/items. */
 export function ItemIcon({ id, size, className }: { id: ItemId; size: number; className?: string }) {
   return <TownIcon name={iconOf(id) as IconName} size={size} className={className} />;
+}
+/**
+ * What a seed's card says of its plant: how long it takes to ripen, in round words (lib/town/clues; the owner,
+ * 2026-10-06: "ควรต้องเปิดเผยเวลาในการปลูกพืชแต่ละต้นในถุงเมล็ด", "บอกไปเลย"). The same words a recipe's clue uses of a
+ * vegetable, so that one can be matched to the other. Nothing, for what is no seed.
+ */
+export function SeedTime({ id, th, className = "" }: { id: ItemId; th: boolean; className?: string }) {
+  const t = seedTime(id);
+  if (!t) return null;
+  return (
+    <span className={`flex items-center gap-1 ${className}`} data-seed-time>
+      <TownIcon name="plotSprout" size={14} className="shrink-0" />{th ? t.th : t.en[0].toUpperCase() + t.en.slice(1)}
+    </span>
+  );
 }
 
 /**
@@ -377,6 +392,7 @@ function Buy({ purse, stall, now, th, hintCoins, shelf, onBuy, onHint }: {
                   <Coins n={GOODS[id]!.price} th={th} small />
                 </div>
                 <p className="truncate text-meta text-muted">{th ? it.about.th : it.about.en}</p>
+                <SeedTime id={id} th={th} className="text-meta text-ink" />
                 <p className={`font-data text-meta ${may.n ? "text-muted" : "text-chili"}`}>
                   {may.n
                     ? (th ? `เหลือ ${left} · ซื้อได้อีก ${may.n}` : `${left} left · you may buy ${may.n}`)
@@ -655,6 +671,7 @@ function Bag({ purse, now, th, seated, company, recipes, book, dropsAll, lying, 
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-ui font-semibold text-[#f3e3c3]">{inHand.of ? (th ? `หม้อ${ITEMS[inHand.of.dish].name.th}` : `A pot of ${ITEMS[inHand.of.dish].name.en.toLowerCase()}`) : th ? it.name.th : it.name.en} {it.stack > 1 && <span className="font-data text-[#c9a877]">×{inHand.n}</span>}</p>
                     <p className="text-meta text-[#c9a877]">{th ? it.about.th : it.about.en}</p>
+                    <SeedTime id={inHand.item} th={th} className="text-meta text-[#f3e3c3]" />
                     {holdsOf(inHand, th) && <p className="text-meta text-[#f3e3c3]">{inHand.of ? (th ? `เหลือ ${inHand.of.left} ที่` : `${inHand.of.left} helpings left`) : holdsOf(inHand, th)}</p>}
                     {dish && !mayEat && !purse.eating && <p className="text-meta text-chili">{th ? WHY.meal[0] : WHY.meal[1]}</p>}
                     {dish && mayEat && !seated && <p className="text-meta text-chili">{th ? WHY.stand[0] : WHY.stand[1]}</p>}
@@ -808,6 +825,7 @@ export function ItemCard({ id, n, th, at, holds }: { id: ItemId; n?: number; th:
         <span className="min-w-0 text-ui font-semibold text-[#f3e3c3]">{th ? it.name.th : it.name.en}{n !== undefined && it.stack > 1 && <span className="font-data font-normal text-[#c9a877]"> ×{n}</span>}</span>
       </span>
       <span className="mt-1 block text-meta text-[#c9a877]">{th ? it.about.th : it.about.en}</span>
+      <SeedTime id={id} th={th} className="mt-1 text-meta text-[#f3e3c3]" />
       {holds && <span className="mt-1 block text-meta text-[#f3e3c3]">{holds}</span>}
     </span>
   );
