@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { FARMING, pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
+import { FARMING, dust, pestAt, pourFor, pourRow, see, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
 import { USES, giftOf, numberOf, usesLeft } from "./gifts";
 import { HEAT } from "./heat";
-import { HELPING, aided, aidsOf, belled, bridged, chime, pouredAs, ring, runOf, share, timesAt } from "./helping";
+import { HELPING, aided, aidsOf, belled, bridged, chime, diesAt, dustUntil, pouredAs, ring, runOf, share, timesAt } from "./helping";
 import { POINTS, countsOf, type Done } from "./line-points";
 import { WATERS, keptAs, type Nature } from "./waters";
 import type { ItemId } from "./items";
@@ -304,6 +304,64 @@ describe("the ring of shared strength: thirty stamina to a friend standing near,
     expect([staminaOf(p, NOON), share(p, at(undefined, 0), "me", "Me", 1, NOON)]).toEqual([55, { ok: false, why: "spent" }]);
     // (a new day: it gives again; a friend that day has not counted yet has a full gauge, so one who has spent theirs)
     expect(share(p, { ...at(undefined, 0), stamina: { day: day + 1, left: 0 } }, "me", "Me", 1, NOON + 24 * HOUR).ok).toBe(true);
+  });
+});
+
+describe("garden fae dust: a pest-ridden plant of somebody else's does not die for twelve hours", () => {
+  const KILLS = FARMING.pests.kills * HOUR, SPAN = 12 * HOUR, DUST = { had: ["thingDust"], charms: [] };
+  /** A neighbour's plant sown days ago that no cover keeps, in a plot a pest has struck (the first such plot of the bed, by the farm's own roll), with when. */
+  const base: Plant = plant({ sown: NOON - 60 * HOUR, guard: 0 });
+  const found = (() => { for (let i = 0; i < 49; i++) { const key = `${BX + (i % 7)},${BY + Math.floor(i / 7)}`, at = pestAt(key, base, NOON + 40 * HOUR); if (at !== null) return { key, at }; } throw new Error("no pest in the bed"); })();
+  const KEY = found.key, STRUCK = found.at, sick = (dusts?: number[]): Plot => ({ soil: "tilled", plant: { ...base, ...(dusts ? { dust: dusts } : {}) } });
+
+  it("a plant dies six hours after a pest struck it, as ever; dust stops that clock for twelve hours from each sprinkling", () => {
+    expect(diesAt(base, STRUCK, KILLS)).toBe(STRUCK + KILLS);
+    expect(diesAt({ dust: [STRUCK + 2 * HOUR] }, STRUCK, KILLS)).toBe(STRUCK + KILLS + SPAN);
+    // (dusted at the very end of its six hours it lives; a moment after, the dust comes too late)
+    expect(diesAt({ dust: [STRUCK + KILLS] }, STRUCK, KILLS)).toBe(STRUCK + KILLS + SPAN);
+    expect(diesAt({ dust: [STRUCK + KILLS + 1] }, STRUCK, KILLS)).toBe(STRUCK + KILLS);
+    // (dusted again as the first runs out: twelve hours more; dust from before the pest came stops only what is left of it)
+    expect(diesAt({ dust: [STRUCK + 2 * HOUR, STRUCK + 14 * HOUR] }, STRUCK, KILLS)).toBe(STRUCK + KILLS + 2 * SPAN);
+    expect(diesAt({ dust: [STRUCK - 8 * HOUR] }, STRUCK, KILLS)).toBe(STRUCK + KILLS + 4 * HOUR);
+    expect(diesAt({ dust: [STRUCK - 20 * HOUR, "x" as unknown as number] }, STRUCK, KILLS)).toBe(STRUCK + KILLS);
+    expect([dustUntil({ dust: [NOON] }, NOON), dustUntil({ dust: [NOON] }, NOON + SPAN - 1), dustUntil({ dust: [NOON] }, NOON + SPAN), dustUntil({}, NOON)]).toEqual([NOON + SPAN, NOON + SPAN, null, null]);
+    expect(numberOf("thingDust")).toBe(12);
+  });
+
+  it("the plant shows a pest and lives while the dust keeps it; without dust it is dead; and it is no cure", () => {
+    const dusted = sick([STRUCK + 3 * HOUR]);
+    expect(see(KEY, sick(), STRUCK + KILLS + 1)).toMatchObject({ pest: false, dead: true });
+    expect(see(KEY, dusted, STRUCK + KILLS + 1)).toMatchObject({ pest: true, dead: false });
+    expect(see(KEY, dusted, STRUCK + KILLS + SPAN)).toMatchObject({ pest: true, dead: false });
+    expect(see(KEY, dusted, STRUCK + KILLS + SPAN + 1)).toMatchObject({ pest: false, dead: true });
+    // (a plant no dust was sprinkled on is seen as it always was, at every moment)
+    for (const dt of [0, HOUR, KILLS, KILLS + 1, 30 * HOUR]) expect(see(KEY, sick([]), STRUCK + dt)).toEqual(see(KEY, sick(), STRUCK + dt));
+  });
+
+  it("is sprinkled on another's plant that has a pest: the plant remembers it, the day's use is counted, and no stamina is spent", () => {
+    const now = STRUCK + 2 * HOUR, mine = purse(DUST, 8, 40), did = done(dust(KEY, mine, sick(), "me", now));
+    expect([did.left, did.until, did.plot.plant!.dust, staminaOf(did.purse, now)]).toEqual([USES.thingDust!.n - 1, now + SPAN, [now], staminaOf(mine, now)]);
+    expect(see(KEY, did.plot, now).pest).toBe(true);
+    expect(usesLeft(did.purse, "thingDust", now)).toBe(4);
+  });
+
+  it("is refused without the dust, with the day's five gone, where no living plant has a pest, on a plant of one's own, and while dust still lies on it", () => {
+    const now = STRUCK + 2 * HOUR, mine = purse(DUST, 8, 40);
+    expect(dust(KEY, purse(undefined), sick(), "me", now)).toEqual({ ok: false, why: "none" });
+    expect(dust(KEY, purse({ ...DUST, used: { thingDust: { k: dayOf(now), n: 5 } } }), sick(), "me", now)).toEqual({ ok: false, why: "spent" });
+    expect(dust(KEY, mine, sown(), "me", now)).toEqual({ ok: false, why: "soil" });
+    expect(dust(KEY, mine, { soil: "tilled", plant: null }, "me", now)).toEqual({ ok: false, why: "soil" });
+    expect(dust(KEY, mine, sick(), "me", STRUCK + KILLS + 1)).toEqual({ ok: false, why: "soil" });
+    expect(dust(KEY, mine, { soil: "tilled", plant: { ...base, by: "me" } }, "me", now)).toEqual({ ok: false, why: "own" });
+    expect(dust(KEY, mine, sick([now - HOUR]), "me", now)).toEqual({ ok: false, why: "running" });
+    // (its dust gone, it may be dusted again, and remembers both)
+    expect(done(dust(KEY, mine, sick([STRUCK + HOUR]), "me", STRUCK + HOUR + SPAN)).plot.plant!.dust).toEqual([STRUCK + HOUR, STRUCK + HOUR + SPAN]);
+  });
+
+  it("counts on the helpers' line as feeding somebody else's plant does", () => {
+    const d: Done = { from: "deed", what: "dust", thing: "pumpkin", n: 1, doc: { whose: "you" } };
+    expect(countsOf(d, "me")).toEqual([{ to: null, line: "helpers", raw: POINTS.helpers.feed }]);
+    expect(countsOf({ ...d, doc: {} }, "me")).toEqual([]);
   });
 });
 

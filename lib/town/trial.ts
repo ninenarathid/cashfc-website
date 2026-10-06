@@ -37,7 +37,7 @@ import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./water
 import { glassReach, glassTurn, gnomeReach, gnomeWater, plotKey, rowFor, rowTend, type RowDeed } from "./farm";
 import { rowOf } from "./world";
 // ── gifts: helpers ──
-import { pourFor, pourRow } from "./farm";
+import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
 import { wearing } from "./gifts";
 
@@ -574,6 +574,21 @@ export class Trial {
     other.save(did.theirs);
     this.save(did.mine);
     return { ok: true, gave: did.gave, paid: did.paid, left: did.left };
+  }
+  /** Garden fae dust (lib/town/farm's dust): whether I could sprinkle it on the plant in a plot now, and sprinkling it. */
+  dustAt(key: string): boolean { return dust(key, this.purse(), this.farm()[key] ?? WILD, this.id, this.now(), this.sky()).ok; }
+  dustDo(key: string, name: string): { ok: true; left: number; until: number } | { ok: false; why: HelpRefusal } {
+    const now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, did = dust(key, this.purse(), plot, this.id, now, this.sky());
+    if (!did.ok) return did;
+    const whose = plot.plant!.by, log = this.wellLog(), was = log.help[key]?.owner === whose ? log.help[key] : { owner: whose, by: {} };
+    this.write(FARM, { ...plots, [key]: did.plot });
+    // (the plant's owner is told who did it, in their own purse, which is in this browser too; and has me among those to thank at the picking)
+    const other = trialFor(whose);
+    other.save(aided(other.purse(), { what: "dust", by: this.id, name: name || this.id, n: 1, at: now, key }));
+    this.write(WELL_LOG, { ...log, help: { ...log.help, [key]: { owner: whose, by: { ...was.by, [this.id]: was.by[this.id] ?? { water: 0, carry: 0 } } } } });
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "dust", thing: plot.plant!.crop, n: 1, doc: { whose } });
+    return { ok: true, left: did.left, until: did.until };
   }
   /** Whether I wear the duet bell in a bed that is not my own (lib/town/helping): what a watering of mine there is marked with. */
   private bellWorn(bed: number): boolean { return wearing(this.purse(), "charmBell") && (this.owners().get(bed)?.by ?? null) !== this.id; }

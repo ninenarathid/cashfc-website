@@ -29,7 +29,8 @@ import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 export const POINTS = {
   first: 10,
   kitchen: { made: 1, ladled: 1, pots: 3, ladling: 9 },
-  helpers: { water: 1, clear: 2, till: 2, feed: 2, cure: 5, thanked: 3 } as Record<string, number>,
+  // ── gifts: helpers ── (`dust`: fae dust sprinkled on somebody else's plant, lib/town/farm's dust: as much as feeding one)
+  helpers: { water: 1, clear: 2, till: 2, feed: 2, cure: 5, thanked: 3, dust: 2 } as Record<string, number>,
   fishing: { common: 1, uncommon: 3, rare: 8, legend: 30 } as Record<string, number>,
   forest: { pick: 1, choose: 2, shake: 2, dig: 3, rare: 10 } as Record<string, number>,
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
@@ -110,7 +111,7 @@ export function countsOf(d: Done, doer: string): Counts[] {
       // (out of somebody else's pot: a point to whoever set it down)
       return typeof d.doc.whose === "string" && d.doc.whose !== doer
         ? [{ to: d.doc.whose, line: "kitchen", raw: POINTS.kitchen.ladled, held: { key: `ladle:${doer}`, most: POINTS.kitchen.ladling } }] : [];
-    case "water": case "clear": case "till": case "feed": case "cure":
+    case "water": case "clear": case "till": case "feed": case "cure": case "dust":
       return other && other !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers[d.what] }] : [];
     // ── gifts: helpers ── (a duet bell that rang, lib/town/helping: written down for each of the two, with how many of
     // somebody else's plants it rang over for them: each is a watering's worth more)

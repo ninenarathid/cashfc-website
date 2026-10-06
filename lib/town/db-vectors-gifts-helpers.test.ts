@@ -2,10 +2,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { vectorsFarming } from "./db-vectors-gifts-farming.test";
-import { pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
+import { FARMING, dust, pestAt, pourFor, pourRow, see, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
+import { pestToRid } from "./insects";
 import { wearing } from "./gifts";
 import { vectorsLines } from "./db-vectors-lines.test";
-import { HELPING, aided, belled, bridged, chime, pouredAs, ring, runOf, share, type Aid } from "./helping";
+import { HELPING, aided, belled, bridged, chime, diesAt, dustUntil, pouredAs, ring, runOf, share, type Aid } from "./helping";
 import { countsOf, type Done } from "./line-points";
 import type { Nature } from "./waters";
 import { CROP_IDS, type ItemId } from "./items";
@@ -39,6 +40,10 @@ import { BEDS_IN_FARM, bedCorner, rowOf } from "./world";
  *   as many as are kept, and of what is kept wrongly.
  * - `share`: wearers of the ring and not, with uses left and none, of today and of yesterday; gauges of both from
  *   empty to full, whole and not; a friend near, at the reach's end, past it, and nowhere.
+ * - `dies_at`, `dust_until`, `see`, `rid_pick`, `dust`: plants a pest struck (found by the farm's own roll), dusted
+ *   never, once, twice, before the pest, long ago and just now, looked at before the six hours, at their very end,
+ *   within the dust's twelve and past them; and the sprinkling itself, with the dust had and not, the day's five
+ *   used and not, on a plant with a pest, with none, dead, one's own, and one the dust still lies on.
  * - `counts_of`: **the lines of work as they were counted** (every case of lib/town/db-vectors-lines.test.ts for
  *   what something done counts for, asked again of the rule written again), and a bell that rang, for every number
  *   of plants.
@@ -190,6 +195,44 @@ export function vectorsHelpers(): Vector[] {
     const fresh = { ...purse(undefined, null, 0, 20), stamina: { day: day - 1, left: 20 } } as Purse;
     add("share", [purse(RING, null, 0, 80), fresh, ME, "Me", 1, NOW], share(purse(RING, null, 0, 80), fresh, ME, "Me", 1, NOW));
   }
+  // the dying clock, and the dust that stops it
+  {
+    const KILLS = FARMING.pests.kills * HOUR, DUST = { had: ["thingDust"], charms: [] };
+    let found = 0;
+    for (let i = 0; i < 4000 && found < 150; i++) {
+      const [bx, by] = bedCorner(c.int(0, BEDS_IN_FARM - 1)), key = `${bx + c.int(0, 6)},${by + c.int(0, 6)}`;
+      const sown = NOW - c.int(60, 110) * HOUR - c.int(0, 3_599_999), base: Plant = { by: c.of([YOU, YOU, ME]), crop: "pumpkin", sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
+      const struck = pestAt(key, base, NOW + 40 * HOUR);
+      if (struck === null) continue;
+      found++;
+      // dusted: never; once in time; once too late; twice, the second as the first runs out; before the pest came; and kept wrongly
+      const lists = c.of<() => unknown>([() => undefined, () => [struck + c.of([1, 3, 5]) * HOUR + c.int(0, 999)], () => [struck + KILLS], () => [struck + KILLS + 1], () => [struck + 7 * HOUR],
+        () => [struck + 2 * HOUR, struck + 14 * HOUR], () => [struck + 2 * HOUR, struck + 14 * HOUR + c.of([0, HOUR, 5 * HOUR])], () => [struck - 20 * HOUR], () => [struck - 6 * HOUR], () => [struck + HOUR, "x", null], () => "x", () => []])();
+      const p = { ...base, ...(lists === undefined ? {} : { dust: lists }) } as Plant, plot: Plot = { soil: "tilled", plant: p };
+      add("dies_at", [p, struck, KILLS], diesAt(p, struck, KILLS));
+      for (const dt of [HOUR, 2 * HOUR + 1, KILLS, KILLS + 1, 9 * HOUR, 13 * HOUR, 14 * HOUR, 18 * HOUR, 18 * HOUR + 1, 20 * HOUR + 5, 26 * HOUR, 27 * HOUR, 40 * HOUR].filter(() => c.maybe(0.5))) {
+        const now = struck + dt;
+        add("see", [key, plot, now], see(key, plot, now));
+        add("dust_until", [p, now], dustUntil(p, now));
+        const used = c.of<unknown>([undefined, undefined, { thingDust: { k: dayOf(now), n: 2 } }, { thingDust: { k: dayOf(now), n: 5 } }, { thingDust: { k: dayOf(now) - 1, n: 5 } }]);
+        const gifts = c.of<Purse["gifts"] | undefined>([DUST, DUST, DUST, { had: ["thingDust", "charmGloves"], charms: ["charmGloves"] }, { had: ["charmGloves"], charms: ["charmGloves"] }, undefined]);
+        const mine = purse(gifts && used !== undefined ? ({ ...gifts, used } as Purse["gifts"]) : gifts, null, 0, c.of([100, 0]));
+        add("dust", [key, mine, plot, ME, now], dust(key, mine, plot, ME, now));
+      }
+      // (and a few plants beside it, some with a pest: which of them an insect caught would rid of it)
+      const bedPlots: Record<string, Plot> = { [key]: plot, [`${bx + 7},${by}`]: { soil: "tilled", plant: null } };
+      for (let n = 0; n < 5; n++) bedPlots[`${bx + c.int(0, 6)},${by + c.int(0, 6)}`] ??= { soil: "tilled", plant: { ...base, sown: sown + n * 1000, guard: c.maybe(0.4) ? NOW + 999 * HOUR : 0 } };
+      for (const dt of [3 * HOUR, 8 * HOUR, 15 * HOUR, 30 * HOUR]) for (const pick of [0, 0.5, 0.99]) add("rid_pick", [bedPlots, struck + dt, pick], pestToRid(bedPlots, struck + dt, [], pick));
+    }
+    // (a plant with no pest, no plant at all: nothing to sprinkle it on)
+    const clean: Plot = { soil: "tilled", plant: plant(YOU) };
+    add("dust", ["132,7", purse(DUST, null, 0, 100), clean, ME, NOW], dust("132,7", purse(DUST, null, 0, 100), clean, ME, NOW));
+    add("dust", ["132,7", purse(DUST, null, 0, 100), { soil: "tilled", plant: null }, ME, NOW], dust("132,7", purse(DUST, null, 0, 100), { soil: "tilled", plant: null }, ME, NOW));
+    for (const whose of [YOU, ME, ""]) for (const doer of [ME, YOU]) {
+      const d: Done = { from: "deed", what: "dust", thing: "pumpkin", n: 1, doc: whose ? { whose, tile: [132, 7] } : { tile: [132, 7] } };
+      add("counts_of", [d, doer], countsOf(d, doer));
+    }
+  }
   // the lines of work as they were counted, and a bell that rang
   for (const v of vectorsLines()) if (v.fn === "counts_of") out.push(v);
   for (const n of [0, 1, 3, 7, 2.5, -1]) for (const doer of [ME, YOU]) {
@@ -264,6 +307,19 @@ describe("the cases the database's rules of the helpers' line's gifts are held t
     expect(backs.some((b) => b === 0) && backs.some((b) => b === 14) && backs.some((b) => b === 2.5) && backs.some((b) => b === 2) && backs.some((b) => b === 50)).toBe(true);
     expect(of("aided").some((v) => (v.want as Purse).aided!.length === HELPING.told) && of("aided").some((v) => (v.want as Purse).aided!.length === 1)).toBe(true);
     expect(of("counts_of").length).toBeGreaterThan(200);
+    // the dust: a plant kept alive by it past its six hours, one it came too late for, one whose dust has run out and is dead; sprinkled, and refused each way
+    const dies = of("dies_at").map((v) => ({ p: v.args[0] as Plant, struck: v.args[1] as number, kills: v.args[2] as number, at: v.want as number }));
+    expect(dies.some((d) => d.at === d.struck + d.kills) && dies.some((d) => d.at === d.struck + d.kills + 12 * HOUR) && dies.some((d) => d.at === d.struck + d.kills + 24 * HOUR) && dies.some((d) => d.at > d.struck + d.kills && d.at < d.struck + d.kills + 12 * HOUR)).toBe(true);
+    const seenDust = of("see").map((v) => ({ key: v.args[0] as string, plot: v.args[1] as Plot, now: v.args[2] as number, s: v.want as { pest: boolean; dead: boolean } })).filter((x) => Array.isArray(x.plot.plant?.dust) && x.plot.plant!.dust!.length > 0);
+    const bare = (x: (typeof seenDust)[number]) => see(x.key, { ...x.plot, plant: { ...x.plot.plant!, dust: undefined } }, x.now);
+    expect(seenDust.filter((x) => x.s.pest && !x.s.dead && bare(x).dead).length).toBeGreaterThan(20);
+    expect(seenDust.some((x) => x.s.dead && bare(x).dead) && seenDust.some((x) => x.s.pest && bare(x).pest)).toBe(true);
+    const dusts = of("dust").map((v) => v.want as { ok: boolean; why?: string; left?: number; plot?: Plot });
+    expect(dusts.filter((d) => d.ok).length).toBeGreaterThan(30);
+    expect(dusts.some((d) => d.ok && d.left === 4) && dusts.some((d) => d.ok && d.left === 2) && dusts.some((d) => d.ok && d.plot!.plant!.dust!.length === 2)).toBe(true);
+    for (const why of ["none", "spent", "soil", "own", "running"]) expect(dusts.some((d) => !d.ok && d.why === why), why).toBe(true);
+    expect(of("dust_until").some((v) => v.want === null) && of("dust_until").some((v) => typeof v.want === "number")).toBe(true);
+    expect(of("rid_pick").some((v) => v.want === null) && of("rid_pick").some((v) => typeof v.want === "string")).toBe(true);
     // the ring: thirty given for fifteen, less where the friend's gauge has less room, and refused each way
     const shares = of("share").map((v) => v.want as { ok: boolean; why?: string; gave?: number; paid?: number; left?: number; theirs?: Purse });
     expect(shares.some((d) => d.ok && d.gave === 30 && d.paid === 15 && d.left === 2) && shares.some((d) => d.ok && d.gave! < 30 && d.gave! > 0 && d.paid === d.gave! / 2) && shares.some((d) => d.ok && d.left === 0)).toBe(true);

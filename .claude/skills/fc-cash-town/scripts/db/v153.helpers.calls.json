@@ -29,5 +29,9 @@
   "belled": "town.belled($1::jsonb, $2::double precision, $3::bigint)",
   "aided": "town.aided($1::jsonb, $2::jsonb)",
   "counts_of": "town.work_counts_of($1::jsonb, $2::text)",
-  "share": "town.share($1::jsonb, $2::jsonb, $3::text, $4::text, $5::double precision, $6::bigint)"
+  "share": "town.share($1::jsonb, $2::jsonb, $3::text, $4::text, $5::double precision, $6::bigint)",
+  "dies_at": "to_jsonb(town.dies_at($1::jsonb, $2::bigint, $3::bigint))",
+  "dust_until": "to_jsonb(town.dust_until($1::jsonb, $2::bigint))",
+  "dust": "town.dust($1::text, $2::jsonb, $3::jsonb, $4::text, $5::bigint)",
+  "rid_pick": "to_jsonb(town.rid_pick($1::jsonb, $2::bigint, $3::double precision))"
 }

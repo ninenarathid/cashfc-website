@@ -302,4 +302,84 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   t.check("no coin changes hands by it", (await deeds("ring")).every((d) => d.coins === 0) && (await deeds("ring_had")).every((d) => d.coins === 0));
   const shutRing = await call(U.unver, "town_ring", U.m2, 1);
   t.check("it is for a proved character of the town", shutRing?.code === "42501", shutRing);
+
+  // ── garden fae dust: a pest-ridden plant of somebody else's does not die for twelve hours ──
+  t.section("garden fae dust: sprinkled on another's plant that has pests, its dying clock stops for twelve hours (town_dust)");
+  // (pests strike by day: the stand-in's clock is put at two in the afternoon of its own day, for this part, and put back after it)
+  const clockAt = (ms) => t.sql(`create or replace function town.now_ms() returns bigint language sql stable as $f$ select ${Math.floor(ms)}::bigint $f$`);
+  const X = Math.floor((now + 7 * HOUR) / (24 * HOUR)) * 24 * HOUR - 7 * HOUR + 14 * HOUR;
+  await clockAt(X);
+  const dayX = (await one(`select town.day_of(town.now_ms()) as d`)).d, KILLS = f.pests.kills * HOUR, dustBy = CODE.gifts.gifts.thingDust.by, dustUses = CODE.gifts.uses.thingDust.n;
+  /** Plants sown at half past seven this morning, of which a pest has struck some since: put in a bed, and the struck ones told, with when. */
+  const sownAt = X - 6.5 * HOUR;
+  const pestBed = async (bed, by) => {
+    const struck = [];
+    for (let dy = 0; dy < side; dy++) for (const k of row(bed, dy)) {
+      const plant = { by, crop: "pumpkin", sown: sownAt, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
+      const at = (await one(`select town.pest_at($1, $2::jsonb, $3::bigint) as s`, [k, JSON.stringify(plant), X])).s;
+      await t.sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1, $2, $3, 'tilled', $4::jsonb, $5)
+        on conflict (x, y) do update set soil = excluded.soil, plant = excluded.plant, changed = excluded.changed`, [...xy(k), bed, JSON.stringify(plant), X]);
+      if (at !== null) struck.push({ key: k, at: Number(at) });
+    }
+    await t.sql(`insert into public.town_beds (bed, member_id, tended, empty) values ($1, $2, $3, 0) on conflict (bed) do update set member_id = excluded.member_id, tended = excluded.tended, empty = 0`, [bed, by, X]);
+    return struck;
+  };
+  const sick = [...(await pestBed(9, U.m2)), ...(await pestBed(11, U.m2)), ...(await pestBed(12, U.m2))], mineSick = await pestBed(10, U.m1);
+  const seenAt = async (key) => (await one(`select town.see($1, (select jsonb_build_object('soil', p.soil, 'plant', p.plant) from public.town_plots p where p.x = $2 and p.y = $3), town.now_ms()) as s`, [key, ...xy(key)])).s;
+  t.check(`(the farm's own roll struck ${sick.length} of the neighbour's plants since the morning, and ${mineSick.length} of mine: enough to try the dust on)`, sick.length >= 7 && mineSick.length >= 1 && (await seenAt(sick[0].key)).pest === true, { sick: sick.length, mine: mineSick.length });
+  const clean = row(9, 0).concat(row(9, 1), row(9, 2)).find((k) => !sick.some((s) => s.key === k));
+  await give(U.m1, { had: [], charms: [] });
+  await patch(U.m1, { stamina: { day: dayX, left: 50 }, hand: null });
+  await patch(U.m2, { aided: [] });
+  did = await call(U.m1, "town_dust", ...xy(sick[0].key));
+  t.check("without the dust: refused, and the plant is as it was", did?.ok === false && did.why === "none" && !(await plotAt(sick[0].key)).plant.dust && (await deeds("dust")).length === 0, did);
+  await give(U.m1, { had: ["thingDust"], charms: [] });
+  const pointsBefore = await points(U.m1);
+  did = await call(U.m1, "town_dust", ...xy(sick[0].key));
+  kept = (await plotAt(sick[0].key)).plant;
+  t.check("sprinkled on a neighbour's plant that has a pest: the plant remembers it, and the dust holds twelve hours from now", did?.ok === true && same(kept.dust, [X]) && did.until === X + dustBy * HOUR && did.left === dustUses - 1 && same(did.plot.plant, kept) && did.key === sick[0].key, did);
+  t.check("…it is no cure: the pest is still there", (await seenAt(sick[0].key)).pest === true && kept.cured === 0);
+  t.check("…for no stamina; the day's use is counted in the purse", (await staminaOf(U.m1)) === 50 && same((await purseOf(U.m1)).gifts.used.thingDust, { k: dayX, n: 1 }));
+  noted = await mine("dust", U.m1);
+  t.check("…written down: the plant, its tile, whose it was, until when; and it is help on the helpers' line, as feeding a plant is", noted.length === 1 && noted[0].thing === "pumpkin" && noted[0].doc.whose === U.m2 && same(noted[0].doc.tile, xy(sick[0].key)) && noted[0].doc.until === did.until
+    && (await points(U.m1)) === pointsBefore + CODE.work.helpers.dust && CODE.work.helpers.dust === CODE.work.helpers.feed, { noted, points: await points(U.m1) });
+  const news2 = (await purseOf(U.m2)).aided;
+  t.check("…the plant's owner is told who did it, and on which plot", news2.length === 1 && news2[0].what === "dust" && news2[0].by === U.m1 && news2[0].key === sick[0].key && news2[0].at === X, news2);
+  const thanks = await call(U.m2, "town_to_thank");
+  t.check("…and has the duster among those to thank at the picking", (thanks?.toThank?.[sick[0].key] ?? []).some((h) => h.id === U.m1), thanks?.toThank);
+  did = await call(U.m1, "town_dust", ...xy(sick[0].key));
+  t.check("while the dust still lies on it, it is not sprinkled again: refused, and no use of the day is counted", did?.ok === false && did.why === "running" && (await purseOf(U.m1)).gifts.used.thingDust.n === 1, did);
+  did = await call(U.m1, "town_dust", ...xy(clean));
+  t.check("a plant with no pest: refused", did?.ok === false && did.why === "soil" && !(await plotAt(clean)).plant.dust, did);
+  did = await call(U.m1, "town_dust", ...xy(mineSick[0].key));
+  t.check("a plant of one's own, though it has a pest: refused (the dust is for somebody else's)", did?.ok === false && did.why === "own" && !(await plotAt(mineSick[0].key)).plant.dust, did);
+  did = await call(U.m1, "town_dust", 0, 0);
+  t.check("off the beds: refused", did?.ok === false && did.why === "none", did);
+  // seven hours on: the dusted plant lives, with its pest; one beside it that nobody dusted has died of its own
+  const other = sick[1], lived = sick[0];
+  await clockAt(X + 7 * HOUR);
+  let a1 = await seenAt(lived.key), a2 = await seenAt(other.key);
+  t.check("seven hours on, the dusted plant is alive with its pest still on it, where one nobody dusted has died of its own", a1.pest === true && a1.dead === false && a2.dead === true, { a1, a2 });
+  // the dust gone, the clock goes on from where it stood
+  const leftWhen = KILLS - (X - lived.at), diesAt = X + dustBy * HOUR + leftWhen;
+  await clockAt(diesAt);
+  a1 = await seenAt(lived.key);
+  await clockAt(diesAt + 1);
+  a2 = await seenAt(lived.key);
+  t.check("the twelve hours over, its clock goes on from where it stood: it dies when the six hours are counted out, and not before", a1.dead === false && a1.pest === true && a2.dead === true, { a1, a2, leftWhen });
+  // it is rid by a cure as ever, while the dust lies on it
+  await clockAt(X + HOUR);
+  await patch(U.m1, { bag: bag(["pestCure", 1]), hand: "pestCure", stamina: { day: dayX, left: 50 } });
+  did = await call(U.m1, "town_tend", ...xy(lived.key), null);
+  t.check("a cure rids the dusted plant of its pest as ever", did?.ok === true && did.deed === "cure" && (await seenAt(lived.key)).pest === false, did);
+  // five a day
+  await patch(U.m1, { hand: null });
+  const more = sick.filter((s) => s.key !== lived.key && X + HOUR - s.at <= KILLS).slice(0, dustUses);
+  for (const s of more.slice(0, dustUses - 1)) did = await call(U.m1, "town_dust", ...xy(s.key));
+  t.check(`the day's ${dustUses}th sprinkling is its last`, did?.ok === true && did.left === 0 && (await purseOf(U.m1)).gifts.used.thingDust.n === dustUses, { did, more: more.length });
+  did = await call(U.m1, "town_dust", ...xy(more[dustUses - 1].key));
+  t.check("…a sixth is refused, and the plant is as it was", did?.ok === false && did.why === "spent" && !(await plotAt(more[dustUses - 1].key)).plant.dust, did);
+  const shutDust = await call(U.unver, "town_dust", ...xy(more[dustUses - 1].key));
+  t.check("it is for a proved character of the town", shutDust?.code === "42501", shutDust);
+  await t.sql(`create or replace function town.now_ms() returns bigint language sql stable as $f$ select floor(extract(epoch from now()) * 1000)::bigint $f$`);
 }

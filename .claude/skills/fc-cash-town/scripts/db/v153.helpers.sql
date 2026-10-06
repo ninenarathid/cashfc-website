@@ -42,6 +42,14 @@
 --     page's to say, `far`: the database knows where nobody stands, and holds to what it is told), or whose gauge is
 --     full. Both purses are held in the order of their ids and judged in the one call; the friend is told (`aided`);
 --     written down for both (`ring`, `ring_had`).
+--   * Garden fae dust (a thing, had): `town_dust(x, y)` sprinkles it on another member's plant that has a pest, and
+--     the plant's dying clock stands still for twelve hours (its number) from then: `town.see` (v110's) and
+--     `town.rid_pick` (v126's) are written again to reckon death by `town.dies_at`, which is the six hours it always
+--     was for a plant never dusted (`dust`, a list of moments in the plant's own document). It is no cure. Five a
+--     day (the catalog's count), no stamina. The plant's owner is told who did it (`aided`), and the duster is among
+--     those to thank at the picking (`town_plot_help`). Written down (`dust`, with whose plant), and worth what
+--     feeding a plant is on the helpers' line (`work.helpers.dust`, new in the catalog's row; `town.work_counts_of`
+--     counts it).
 
 -- Whether work on a plot is work for somebody else (lib/town/farm's theirsAt): in a bed that is another's, or on a
 -- plant another sowed.
@@ -472,7 +480,8 @@ end;
 $$;
 
 -- What something done counts for, on every line it counts on (v149's, with a duet bell that rang: each of somebody
--- else's plants it rang over for whoever it is written down for is a watering's worth more on the helpers' line).
+-- else's plants it rang over for whoever it is written down for is a watering's worth more on the helpers' line; and
+-- with fae dust sprinkled on somebody else's plant, which is help as feeding one is).
 create or replace function town.work_counts_of(p_done jsonb, p_doer text)
 returns jsonb language plpgsql stable
 as $$
@@ -502,7 +511,7 @@ begin
     end if;
     return '[]'::jsonb;
   end if;
-  if what in ('water', 'clear', 'till', 'feed', 'cure') then
+  if what in ('water', 'clear', 'till', 'feed', 'cure', 'dust') then
     if other is not null and other <> '' and other <> p_doer then
       return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', l->'helpers'->what));
     end if;
@@ -812,5 +821,176 @@ end;
 $$;
 revoke execute on function public.town_ring(uuid, double precision) from public, anon;
 grant execute on function public.town_ring(uuid, double precision) to authenticated;
+
+-- The moment a plant dies of a pest that struck it at p_struck, if nothing rids it of it (lib/town/helping's
+-- diesAt): p_kills milliseconds after, not counting the time garden fae dust lay on it (so many hours from each
+-- sprinkling: the dust's number). With no dust: p_struck + p_kills, as it always was. Null, of a plant no pest struck.
+create or replace function town.dies_at(p_plant jsonb, p_struck bigint, p_kills bigint)
+returns bigint language plpgsql stable
+as $$
+declare
+  span numeric;
+  t numeric := p_struck;
+  left_ numeric := p_kills;
+  d numeric;
+  from_ numeric;
+begin
+  if p_struck is null then return null; end if;
+  if jsonb_typeof(p_plant->'dust') is distinct from 'array' or jsonb_array_length(p_plant->'dust') = 0 then return p_struck + p_kills; end if;
+  span := (town.cat('gifts')->'gifts'->'thingDust'->>'by')::numeric * 3600000;
+  for d in select (e.v #>> '{}')::numeric from jsonb_array_elements(p_plant->'dust') as e(v)
+            where jsonb_typeof(e.v) = 'number' and (e.v #>> '{}')::numeric + span > p_struck order by 1 loop
+    from_ := greatest(d, t);
+    -- (it died before this sprinkling)
+    exit when from_ - t > left_;
+    left_ := left_ - (from_ - t);
+    t := greatest(t, d + span);
+  end loop;
+  return (t + left_)::bigint;
+end;
+$$;
+
+-- Until when the dust on a plant holds, if it does at a moment (lib/town/helping's dustUntil).
+create or replace function town.dust_until(p_plant jsonb, p_now bigint)
+returns bigint language sql stable
+as $$
+  select (max((e.v #>> '{}')::numeric) + k.span)::bigint
+    from (select (town.cat('gifts')->'gifts'->'thingDust'->>'by')::numeric * 3600000 as span) k,
+         jsonb_array_elements(case when jsonb_typeof(p_plant->'dust') = 'array' then p_plant->'dust' else '[]'::jsonb end) as e(v)
+   where jsonb_typeof(e.v) = 'number' and (e.v #>> '{}')::numeric <= p_now and p_now < (e.v #>> '{}')::numeric + k.span
+   group by k.span
+$$;
+
+-- What a plot shows at a moment (v110's, with the dying clock that fae dust stops: `town.dies_at`).
+create or replace function town.see(p_key text, p_plot jsonb, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  p jsonb := coalesce(p_plot->'plant', 'null'::jsonb);
+  f jsonb;
+  struck bigint;
+  kills bigint;
+  ends bigint;
+  dead boolean;
+  g jsonb;
+begin
+  if p = 'null'::jsonb then
+    return jsonb_build_object('soil', p_plot->'soil', 'crop', null, 'by', null, 'stage', 0, 'ripe', false, 'pest', false, 'dead', false, 'wet', false);
+  end if;
+  f := town.cat('farming');
+  struck := town.pest_at(p_key, p, p_now);
+  kills := (f->'pests'->>'kills')::bigint * 3600000;
+  -- (the moment it dies of its pest: so long after it struck, not counting the time fae dust lay on it)
+  ends := town.dies_at(p, struck, kills);
+  dead := struck is not null and p_now > ends;
+  -- (a dead plant stays as it was when it died)
+  g := town.growing(p, case when dead then ends else p_now end);
+  return jsonb_build_object('soil', p_plot->'soil', 'crop', p->'crop', 'by', p->'by', 'stage', g->'stage',
+    'ripe', (g->>'ripe')::boolean and not dead, 'pest', struck is not null and not dead, 'dead', dead,
+    'wet', p_now - (p->>'watered')::bigint < (f->'water'->>'every')::bigint * 60000 or town.raining(p_now));
+end;
+$$;
+
+-- Which plant with a pest an insect caught rids of it (v126's, with the dying clock that fae dust stops: a plant the
+-- dust keeps alive still has its pest, and may be the one).
+create or replace function town.rid_pick(p_plots jsonb, p_now bigint, p_pick double precision)
+returns text language plpgsql stable
+as $$
+declare
+  kills bigint := (town.cat('farming')->'pests'->>'kills')::bigint * 3600000;
+  keys text[];
+  n integer;
+begin
+  select array_agg(e.key order by split_part(e.key, ',', 1)::int, split_part(e.key, ',', 2)::int) into keys
+    from jsonb_each(coalesce(p_plots, '{}'::jsonb)) e
+   where coalesce(e.value->'plant', 'null'::jsonb) <> 'null'::jsonb
+     and p_now <= town.dies_at(e.value->'plant', town.pest_at(e.key, e.value->'plant', p_now), kills);
+  n := coalesce(array_length(keys, 1), 0);
+  if n = 0 then return null; end if;
+  return keys[least(n, greatest(1, floor(coalesce(p_pick, 0) * n)::int + 1))];
+end;
+$$;
+
+-- Garden fae dust sprinkled on a plant (lib/town/farm's dust): the purse with the day's use counted, the plot as it
+-- now is (the plant remembers the sprinkling), how many are left to the day, and until when the dust holds; or why
+-- not.
+create or replace function town.dust(p_key text, p_purse jsonb, p_plot jsonb, p_me text, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  p jsonb := coalesce(p_plot->'plant', 'null'::jsonb);
+  used jsonb;
+  kept jsonb;
+begin
+  if not town.gift_works(p_purse, 'thingDust') then return town.no('none'); end if;
+  if town.used_of(p_purse, 'thingDust', p_now) >= (town.cat('gifts')->'uses'->'thingDust'->>'n')::integer then return town.no('spent'); end if;
+  if p = 'null'::jsonb or not (town.see(p_key, p_plot, p_now)->>'pest')::boolean then return town.no('soil'); end if;
+  if p->>'by' = p_me then return town.no('own'); end if;
+  if town.dust_until(p, p_now) is not null then return town.no('running'); end if;
+  used := town.gift_use(p_purse, 'thingDust', p_now);
+  if not (used->>'ok')::boolean then return town.no(case when used->>'why' = 'spent' then 'spent' else 'none' end); end if;
+  -- (the sprinklings it remembers, this one last: the newest so many)
+  select coalesce(jsonb_agg(q.v order by q.ord), '[]'::jsonb) into kept
+    from (
+      select t.v, t.ord
+        from (select e.v, e.ord from jsonb_array_elements(case when jsonb_typeof(p->'dust') = 'array' then p->'dust' else '[]'::jsonb end) with ordinality as e(v, ord)
+               where jsonb_typeof(e.v) = 'number'
+              union all select to_jsonb(p_now), 9223372036854775807) t
+       order by t.ord desc limit (town.cat('farming')->'helping'->'dust'->>'kept')::int
+    ) q;
+  return jsonb_build_object('ok', true, 'left', used->'left', 'purse', used->'purse',
+    'until', p_now + ((town.cat('gifts')->'gifts'->'thingDust'->>'by')::numeric * 3600000)::bigint,
+    'plot', p_plot || jsonb_build_object('plant', p || jsonb_build_object('dust', kept)));
+end;
+$$;
+
+-- Sprinkle my fae dust on the plant in the plot I stand on. Its owner is told who did it, in their own purse (held
+-- with mine, in the order of our ids, before the bed is), and has me among those to thank at the picking.
+create or replace function public.town_dust(p_x integer, p_y integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  purse jsonb;
+  now_ bigint := town.now_ms();
+  bed_n integer := town.bed_of(coalesce(p_x, -1), coalesce(p_y, -1));
+  key text := p_x::text || ',' || p_y::text;
+  whose text;
+  owner_ uuid;
+  held uuid;
+  plot jsonb;
+  did jsonb;
+begin
+  -- (whose the plant is, read before the bed is held: their purse is held with mine)
+  select p.plant->>'by' into whose from public.town_plots p where p.x = p_x and p.y = p_y;
+  if whose ~ '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' then owner_ := whose::uuid; end if;
+  for held in select pp.member_id from public.town_purses pp where pp.member_id = me or pp.member_id = owner_ order by pp.member_id for update loop null; end loop;
+  purse := town.purse_of(me, true);
+  if bed_n < 0 then return town.answer(me, town.no('none')); end if;
+  perform pg_advisory_xact_lock(hashtext('town.bed'), bed_n);
+  select jsonb_build_object('soil', p.soil, 'plant', coalesce(p.plant, 'null'::jsonb)) into plot from public.town_plots p where p.x = p_x and p.y = p_y;
+  plot := coalesce(plot, '{"soil": "wild", "plant": null}'::jsonb);
+  did := town.dust(key, purse, plot, me::text, now_);
+  if not (did->>'ok')::boolean then return town.answer(me, did); end if;
+  perform town.keep_purse(me, did->'purse');
+  update public.town_plots p set plant = did->'plot'->'plant', changed = now_ where p.x = p_x and p.y = p_y;
+  perform town.note(me, 'dust', plot->'plant'->>'crop', 1, 0,
+    jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'whose', plot->'plant'->>'by', 'until', did->'until'));
+  -- (the plant's owner, if it is still whose it was a moment ago and they have a purse: told who did it; and I am among those who helped this plant)
+  if owner_ is not null and plot->'plant'->>'by' = whose then
+    if exists (select 1 from public.town_purses pp where pp.member_id = owner_) then
+      perform town.keep_purse(owner_, town.aided(town.purse_of(owner_, true), jsonb_build_object('what', 'dust', 'by', me::text,
+        'name', coalesce((select coalesce(pr.character_name, pr.display_name, pr.discord_username, '') from public.profiles pr where pr.id = me), ''),
+        'n', 1, 'at', now_, 'key', key)));
+    end if;
+    delete from public.town_plot_help h where h.x = p_x and h.y = p_y and h.owner <> owner_;
+    insert into public.town_plot_help (x, y, helper, owner, water, carry) values (p_x, p_y, me, owner_, 0, 0)
+      on conflict (x, y, helper) do nothing;
+  end if;
+  return town.answer(me, did - 'plot') || jsonb_build_object('key', key, 'plot', did->'plot', 'bed', town.bed_told(bed_n));
+end;
+$$;
+revoke execute on function public.town_dust(integer, integer) from public, anon;
+grant execute on function public.town_dust(integer, integer) to authenticated;
 
 revoke execute on all functions in schema town from public, anon, authenticated;

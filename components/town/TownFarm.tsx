@@ -23,8 +23,8 @@ import TownLongPour from "./TownLongPour";
 import { AnkletRun, HelpNews, RingOffer } from "./TownHelping";
 import type { Stander } from "@/lib/town/line";
 import type { Aid } from "@/lib/town/helping";
-import { wearing } from "@/lib/town/gifts";
-import { HELPING, runOf } from "@/lib/town/helping";
+import { usesLeft, wearing } from "@/lib/town/gifts";
+import { HELPING, dustUntil, runOf } from "@/lib/town/helping";
 import TownTiming from "./TownTiming";
 import TownWeeding from "./TownWeeding";
 import { WHY } from "./TownTrade";
@@ -256,6 +256,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const songs = useRef<Array<{ x: number; y: number; from: number | null }>>([]);
   /** Whether a gift's deed is with the keeper now: its button pressed twice asks once. */
   const sent = useRef(false);
+  /** The plants garden fae dust lies on now (lib/town/helping's dustUntil), each with the moment it is gone: read off the plants themselves, so everybody at the farm sees it. */
+  const dusted = useRef(new Map<string, number>());
+  dusted.current = new Map(Object.entries(plots).flatMap(([k, plot]) => { const until = plot.plant ? dustUntil(plot.plant, now) : null; return until === null ? [] : [[k, until] as [string, number]]; }));
   // ── gifts: helpers ──
   /**
    * The anklet's tune, seen (lib/town/helping's chime): a note going up from each plant as it is watered, the higher
@@ -273,7 +276,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const onAid = useCallback((aid: Aid) => {
     if (aid.what === "bell") bellsUp.current.push({ ids: [keeper.id, aid.by], from: null });
     if (aid.what === "ring") beams.current.push({ from: aid.by, to: keeper.id, born: null });
-  }, [keeper]);
+    if (aid.what === "dust" && aid.key) { const [x, y] = aid.key.split(",").map(Number); vfx.add("sparkle", { x: x + 0.5, y: y + 0.5 }); }
+  }, [keeper, vfx]);
   const onGave = useCallback((to: string) => { beams.current.push({ from: keeper.id, to, born: null }); }, [keeper]);
   const calledOf = useCallback((id: string) => people?.().find((p) => p.id === id)?.name ?? null, [people]);
   const chimeAt = useCallback((plot: string, step: number, wait = 0) => {
@@ -496,6 +500,21 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         if (!onScreen(at)) continue;
         const what = seen.current.get(plotKey(tx, ty));
         if ((sand.current.get(plotKey(tx, ty)) ?? 0) > game && what?.crop && !what.dead) above(() => grains(at, tx * 5 + ty * 3));
+        // (fae dust on a plant: motes of it twinkling round the plant, each in its own time, for as long as it holds)
+        if ((dusted.current.get(plotKey(tx, ty)) ?? 0) > game && what?.crop && !what.dead) above(() => {
+          const px = Math.max(2, Math.round(1.8 * s)), seed = tx * 7 + ty * 3;
+          for (let i = 0; i < 6; i++) {
+            const turn = (still ? 0 : t / 2600) + i * 1.047 + seed, blink = still ? 0.75 : 0.5 + 0.5 * Math.sin(t / 310 + i * 2.1 + seed);
+            const x = Math.round(at.x + Math.cos(turn) * (11 + (i % 2) * 5) * s), y = Math.round(at.y - (10 + (i % 3) * 9 + Math.sin(turn * 1.3) * 3) * s);
+            ctx.fillStyle = i % 2 ? "#ffe19a" : "#d9ffe8";
+            ctx.globalAlpha = 0.25 + 0.7 * blink;
+            ctx.fillRect(x, y, px, px);
+            ctx.globalAlpha *= 0.5;
+            ctx.fillRect(x - px, y, px * 3, px);
+            ctx.fillRect(x, y - px, px, px * 3);
+          }
+          ctx.globalAlpha = 1;
+        });
         things.push({ depth: tx + ty + 0.6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled") blit("plotSoil", at, 0, PLANT * s * 0.9);
@@ -750,6 +769,25 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const of = Object.keys(marks).length, n = did.done.length;
     setNote(th ? `เทยาวทั้งแถว: ได้น้ำ ${n} จาก ${of} ต้น` : `The long pour: ${n} of ${of} plants watered`);
   }, [keeper, name, say, sfx, th, vfx, chimeAt]);
+  /** Whether my fae dust could be sprinkled on the plant I stand on (lib/town/farm's dust): another's, with a pest, no dust on it yet, and one left to my day. */
+  const dustHere = key ? keeper.dustAt(key) : false;
+  /** Sprinkle it: a glitter over the plant, and until when it holds. */
+  const sprinkle = useCallback(async () => {
+    if (!key || sent.current) return;
+    sent.current = true;
+    const did = await keeper.dustDo(key, name).finally(() => { sent.current = false; });
+    if (!did.ok) {
+      const w = ({ own: ["ผงภูตสวนใช้กับต้นของคนอื่นเท่านั้น", "The dust is for somebody else's plant"], running: ["ผงภูตสวนยังคุ้มครองต้นนี้อยู่", "The dust still holds here"] } as Record<string, [string, string]>)[did.why];
+      if (w) setNote(th ? w[0] : w[1]); else say(did.why);
+      return;
+    }
+    sfx?.wake();
+    sfx?.work("feed");
+    const [x, y] = key.split(",").map(Number);
+    for (let i = 0; i < 3; i++) window.setTimeout(() => vfx.add("sparkle", { x: x + 0.5, y: y + 0.5 }, { lift: i * 7 }), i * 140);
+    const till = new Date(did.until + 7 * 3_600_000), clock = `${String(till.getUTCHours()).padStart(2, "0")}:${String(till.getUTCMinutes()).padStart(2, "0")}`;
+    setNote(th ? `ผงภูตสวนคุ้มครองต้นนี้ถึง ${clock} น.` : `The dust holds here until ${clock}`);
+  }, [key, keeper, name, say, sfx, th, vfx]);
   /** Begin it: one pour along the row from its head, whichever plant of it I stand on. */
   const beginLong = useCallback(() => {
     const row = key ? keeper.pourAt(key) : [];
@@ -805,6 +843,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       pour: () => (key ? keeper.pourAt(key) : []), pourAct: beginLong,
       // (the anklet: the run as it stands, the notes of its tune played so far, and how many are in the air)
       run: () => runOf(keeper.purse(), keeper.now()), tune: () => [...tune.current], chimes: () => chimes.current.length,
+      // (the dust: whether it could be sprinkled here, sprinkling it, and the plants it lies on now with when it is gone)
+      dust: () => dustHere, dustAct: sprinkle, dusted: () => Object.fromEntries(dusted.current),
       // (the bells swinging over heads on this screen now)
       bells: () => bellsUp.current.map((b) => b.ids), beams: () => beams.current.map((b) => [b.from, b.to]),
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
@@ -821,7 +861,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the plots a bucket would water are told by how many they are
-  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass, beginLong]);
+  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass, beginLong, dustHere, sprinkle]);
 
   /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
   const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void }> = [];
@@ -834,6 +874,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   if (gnomeHere.length) powers.push({ id: "famGnome", word: th ? "ให้โนมรดน้ำทั้งแปลง" : "Send the gnome down the bed", go: () => void sendGnome() });
   if (glassHere.length) powers.push({ id: "thingHourglass", word: th ? "พลิกนาฬิกาทราย" : "Turn the hourglass", go: () => void turnGlass(), more: th ? `${glassHere.length} ต้น` : `${glassHere.length} plants` });
   // ── gifts: helpers ── what the gifts of the helpers' line offer here, the same way
+  if (dustHere) { const left = usesLeft(purse, "thingDust", now); powers.push({ id: "thingDust", word: th ? "โรยผงภูตสวน" : "Sprinkle fae dust", go: () => void sprinkle(), more: th ? `วันนี้เหลือ ${left}` : `${left} left today` }); }
   if (pourHere.length > 1) powers.push({ id: "charmGloves", word: th ? "เทยาวรดทั้งแถว" : "One long pour down the row", go: beginLong, more: th ? `${pourHere.length} ต้น` : `${pourHere.length} plants` });
   /** Whether a run of the anklet's is going: it is shown while it lasts, whatever else is. */
   const running = wearing(purse, "charmAnklet") && runOf(purse, now) > 0;

@@ -364,7 +364,8 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts", "farming"] },
+  // (── gifts: helpers ── `work`: what fae dust sprinkled on somebody else's plant is worth on the helpers' line)
+  v153: { keys: [], over: ["gifts", "farming", "work"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

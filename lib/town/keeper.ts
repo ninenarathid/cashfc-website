@@ -35,7 +35,7 @@ import { glassReach, gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
 export interface RowDid { deed: RowDeed; done: string[]; got: Array<[ItemId, number]>; seeds?: number }
 import { rowOf } from "./world";
 // ── gifts: helpers ──
-import { pourFor } from "./farm";
+import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
 
 /**
@@ -226,6 +226,13 @@ export interface Keeper {
    * `name`: what I am called, for the friend to be told by. Whoever was given it is told through the room.
    */
   ringTo(to: string, far: number, name: string): Promise<{ ok: true; gave: number; paid: number; left: number } | { ok: false; why: Why | HelpRefusal }>;
+  /**
+   * Garden fae dust (lib/town/farm's dust): whether I could sprinkle it on the plant in the plot I stand on (another
+   * member's, with a pest, no dust on it yet, and one left to my day), and sprinkling it: how many the day has left,
+   * and until when it holds. The plant's owner is told through the room, and reads who did it in their own purse.
+   */
+  dustAt(key: string): boolean;
+  dustDo(key: string, name: string): Promise<{ ok: true; left: number; until: number } | { ok: false; why: Why | HelpRefusal }>;
 
   /** The forest (lib/town/forest): every place that has something for me now. */
   wild(): Sight[];
@@ -993,6 +1000,15 @@ export class DbKeeper implements Keeper {
     // (the answer brings every plot it watered as it is kept, with what the heat and the well's water added)
     const did = await this.deed<{ done: string[] }>("town_longpour", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
     if (did.ok) { this.onDeed?.("farm"); this.rangWith(did); }
+    return did;
+  }
+  dustAt(key: string): boolean {
+    return this.helpGifts() && dust(key, this.mine, this.plots[key] ?? WILD, this.id, this.now(), this.rains()).ok;
+  }
+  async dustDo(key: string, _name: string): Promise<{ ok: true; left: number; until: number } | { ok: false; why: Why | HelpRefusal }> {
+    const [x, y] = key.split(",").map(Number), whose = this.plots[key]?.plant?.by;
+    const did = await this.deed<{ left: number; until: number }>("town_dust", { p_x: x, p_y: y }) as { ok: true; left: number; until: number } | { ok: false; why: Why | HelpRefusal };
+    if (did.ok) { this.onDeed?.("farm"); if (whose) this.onDeed?.("line", whose); }
     return did;
   }
   async ringTo(to: string, far: number, _name: string): Promise<{ ok: true; gave: number; paid: number; left: number } | { ok: false; why: Why | HelpRefusal }> {
