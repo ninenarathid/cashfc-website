@@ -4,7 +4,7 @@ import { catalogOf } from "./catalog";
 import { vectorsV147 } from "./db-vectors-swarm.test";
 import { tend, type Bed, type Plot } from "./farm";
 import { strikeWindowOf } from "./fishing";
-import { CHARM_IDS, GIFTS, charmBy, giftsOf, gloved, takeGift, wearCharms, wearing } from "./gifts";
+import { CHARM_IDS, FAMILIAR_IDS, GIFTS, charmBy, famBy, giftsOf, gloved, takeGift, wearCharms, wearFamiliar, wearing, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { dayOf, eased, staminaOf } from "./stamina";
@@ -16,6 +16,7 @@ import { newPurse, put, type Purse } from "./trade";
  *
  * - `gifts_of`, `wearing`, `charm_by`: purses with gifts kept soundly and not (a gift there is none of, one twice,
  *   a charm worn that was never taken, more worn than there are places, an owing that is no part of a point);
+ * - `familiar_wear`, `fam_by`: one had, one not had, a charm, none, what is no gift; and what a familiar does only while it follows;
  * - `gift_take`: every line and rank, with points either side of the rank's mark, taken and not;
  * - `charms_wear`: none, one, two, three, the same twice, one not had, something that is no gift;
  * - `eased`, `gloved`: costs of none to seven points, parts and owings of every sort, purses near no stamina;
@@ -41,13 +42,16 @@ const NOW = at("2026-10-06T12:00:00");
 export function vectorsGifts(): Vector[] {
   const c = chance(20261051), out: Vector[] = [];
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
-  const ids = [...CHARM_IDS] as string[];
+  const ids = GIFTS.map((g) => g.id) as string[], fams = [...FAMILIAR_IDS] as string[];
   const some = (n: number) => { const pool = [...ids]; return Array.from({ length: Math.min(n, pool.length) }, () => pool.splice(c.int(0, pool.length - 1), 1)[0]); };
   /** What a purse may keep of gifts: sound, or wrong in one of the ways there are. */
   const kept = (): Purse["gifts"] | undefined | null => {
-    const had = some(c.int(0, 6)), worn = had.filter(() => c.maybe(0.5)).slice(0, c.int(0, 3));
+    const had = some(c.int(0, ids.length)), worn = had.filter(() => c.maybe(0.5)).slice(0, c.int(0, 3));
+    // (a familiar that follows: one had, one not had, a charm, something that is none, or nothing said of one)
+    const fam = c.of<() => string | null | undefined>([() => undefined, () => undefined, () => null, () => had.find((x) => fams.includes(x)) ?? c.of(fams), () => c.of(fams), () => c.of([...CHARM_IDS]), () => "noSuchGift"])();
+    const and = <T extends object>(g: T) => (fam === undefined ? g : { ...g, familiar: fam });
     return c.of<() => Purse["gifts"] | undefined | null>([
-      () => undefined, () => null, () => ({ had, charms: worn }), () => ({ had, charms: worn, owed: 0.5 }), () => ({ had, charms: worn.slice(0, 2), owed: 0 }),
+      () => undefined, () => null, () => and({ had, charms: worn }), () => and({ had, charms: worn, owed: 0.5 }), () => and({ had, charms: worn.slice(0, 2), owed: 0 }),
       () => ({ had: [...had, had[0] ?? "charmHoe", "noSuchGift"], charms: [...worn, "charmNet", "noSuchGift"] }),
       () => ({ had, charms: [worn[0] ?? "charmApron", worn[0] ?? "charmApron"], owed: 1 }), () => ({ had: had as unknown as string[], charms: [...ids], owed: -0.5 }),
       () => ({ had: "charmHoe" as unknown as string[], charms: ["charmHoe"] }), () => ({ had: [3, null, "charmFloat"] as unknown as string[], charms: [null, "charmFloat"] as unknown as string[], owed: "0.5" as unknown as number }),
@@ -62,9 +66,13 @@ export function vectorsGifts(): Vector[] {
   for (let i = 0; i < 260; i++) {
     const p = purse(kept());
     add("gifts_of", [p], giftsOf(p));
-    const id = c.of([...ids, "noSuchGift"]);
+    const id = c.of([...CHARM_IDS, "noSuchGift"]);
     add("wearing", [p, id], wearing(p, id as (typeof CHARM_IDS)[number]));
     if (id !== "noSuchGift") add("charm_by", [p, id, c.of([0, 1])], charmBy(p, id as (typeof CHARM_IDS)[number], c.of([0, 1])));
+    const fid = c.of(fams) as FamiliarId, else_ = c.of([0, 1]);
+    add("fam_by", [p, fid, else_], famBy(p, fid, else_));
+    const want = c.of<string | null>([null, c.of(fams), c.of(fams), c.of([...CHARM_IDS]), "noSuchGift"]);
+    add("familiar_wear", [p, want], wearFamiliar(p, want));
   }
   // (charm_by's last argument was drawn twice above: answered again as it was asked)
   for (const v of out) if (v.fn === "charm_by") v.want = charmBy(v.args[0] as Purse, v.args[1] as (typeof CHARM_IDS)[number], v.args[2] as number);
@@ -73,7 +81,7 @@ export function vectorsGifts(): Vector[] {
   for (const line of [...LINE_IDS, "cooking"]) for (const rank of [0, 1, 2, 3, 11]) {
     const mark = line in LINES ? LINES[line as (typeof LINE_IDS)[number]].marks[Math.max(0, Math.min(9, rank - 1))] : 50;
     for (const has of [0, mark - 1, mark - 0.25, mark, mark + 40, 99999]) for (const gifts of [undefined, { had: [], charms: [] }, { had: [...ids], charms: ["charmHoe"] }, { had: some(3), charms: [], owed: 0.5 }]) {
-      const p = purse(gifts), points = c.maybe(0.85) ? { [line]: has, farming: c.of([0, 60]) } : {};
+      const p = purse(gifts), points = c.maybe(0.85) ? { farming: c.of([0, 60]), [line]: has } : {};
       const did = takeGift(p, points as Record<string, number>, line, rank);
       add("gift_take", [p, points, line, rank], did);
     }
@@ -134,7 +142,11 @@ describe("the cases the database's rules of the gifts are held to", () => {
     const all = vectorsGifts();
     expect(JSON.stringify(vectorsGifts())).toBe(JSON.stringify(all));
     const of = (fn: string) => all.filter((v) => v.fn === fn);
-    for (const fn of ["gifts_of", "wearing", "charm_by", "gift_take", "charms_wear", "eased", "gloved", "strike_window", "tend"]) expect(of(fn).length, fn).toBeGreaterThan(40);
+    for (const fn of ["gifts_of", "wearing", "charm_by", "fam_by", "familiar_wear", "gift_take", "charms_wear", "eased", "gloved", "strike_window", "tend"]) expect(of(fn).length, fn).toBeGreaterThan(40);
+    // a familiar set to follow, taken off, and refused; and one that follows among the purses asked about
+    const fams = of("familiar_wear").map((v) => ({ id: v.args[1], d: v.want as { ok: boolean; why?: string } }));
+    expect(fams.some((x) => x.d.ok && x.id !== null) && fams.some((x) => x.d.ok && x.id === null) && fams.some((x) => !x.d.ok && x.d.why === "none")).toBe(true);
+    expect(of("gifts_of").some((v) => (v.want as { familiar: string | null }).familiar !== null) && of("fam_by").some((v) => (v.want as number) > 1)).toBe(true);
     // a gift taken, and refused each way
     const took = of("gift_take").map((v) => v.want as { ok: boolean; why?: string });
     for (const why of ["none", "rank", "had"]) expect(took.some((d) => !d.ok && d.why === why), why).toBe(true);
