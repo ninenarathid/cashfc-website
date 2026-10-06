@@ -148,13 +148,13 @@ try {
   }
 
   section("a meal");
-  await purse(a, 0, [{ item: "riceBox", n: 2 }]);
+  await purse(a, 0, [{ item: "riceBox", n: 4 }]);
   await sql(`update public.town_purses set doc = doc || jsonb_build_object('stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 0)) where member_id = $1`, [a]);
   await settled(A);
   did = await A.sitDown(0, false);
   ok("standing, a meal is refused: stand", !did.ok && did.why === "stand", did);
   did = await A.sitDown(0, true);
-  ok("sitting: the meal begins, a helping leaves the bag", did.ok && did.dish === "riceBox" && A.purse().eating?.dish === "riceBox" && A.purse().bag[0].n === 1, A.purse().eating);
+  ok("sitting: the meal begins, a helping leaves the bag", did.ok && did.dish === "riceBox" && A.purse().eating?.dish === "riceBox" && A.purse().bag[0].n === 3, A.purse().eating);
   const before = asked.length;
   for (let i = 0; i < 5; i++) A.chew(0);
   await settled(A);
@@ -172,8 +172,20 @@ try {
   await settled(A);
   await sleep(900);
   ok("its five minutes up, the keeper asks for its end by itself: no meal, the stamina in", !A.purse().eating && A.purse().stamina.left >= 15, A.purse());
+  // (since v146 a meal's hours take three helpings, each when one likes, and the keeper says so: a second and a third
+  // are taken, and a fourth refused. Unless the hours turned while this ran, when the fourth is the next meal's first.)
+  ok("the keeper says a meal's hours take three helpings, as this database counts", A.helpings() === 3, A.purse().meals);
+  for (const which of ["second", "third"]) {
+    did = await A.sitDown(0, true);
+    ok(`the same meal's hours again: a ${which} helping is taken`, did.ok === true && !!A.purse().eating, did);
+    await skip(301_000);
+    await settled(A);
+    await sleep(900);
+    ok("…and eaten up by the clock", !A.purse().eating, A.purse().eating);
+  }
   did = await A.sitDown(0, true);
-  ok("the same meal's hours again: meal", !did.ok && did.why === "meal", did);
+  ok("a fourth in the same hours: meal", (!did.ok && did.why === "meal") || A.purse().meals.bowls.filter((n) => n > 0).length > 1, { did, meals: A.purse().meals });
+  if (did.ok) { await skip(301_000); await settled(A); await sleep(900); }
 
   section("fishing: dropped, struck and landed with the database");
   let deck = null, bank = null;
