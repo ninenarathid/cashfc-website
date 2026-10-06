@@ -6,6 +6,7 @@
  *
  * It reads, in <root>/.claude/skills/fc-cash-town/scripts/db/:
  *   v153.shared.sql          what every line stands on (run first; not a line's to change)
+ *   (for the helpers' line, v153.farming.sql is run before its own: it stands on the farm's)
  *   v153.<line>.sql          the line's functions (it must run, twice over, and write to no table with no WHERE)
  *   v153.<line>.calls.json   optional: { "<case fn>": "town.x($1::jsonb, $2::text)" } for the line's rule cases
  *   v153.<line>.try.mjs      optional: `export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, give, patch, rank }) { … }`
@@ -78,6 +79,9 @@ console.log(`  rows that differ from what the database had: ${moved.length ? mov
 const SHARED = lf(readFileSync(db("v153.shared.sql"), "utf8"));
 t.section("v153.shared.sql, then the line's own");
 await t.runTwice(SHARED, "v153.shared.sql");
+// (a line that stands on another's: that one's SQL is run first, as it will be in the file put together)
+const BEFORE = { helpers: ["farming"] }[line] ?? [];
+for (const b of BEFORE) await t.runTwice(lf(readFileSync(db(`v153.${b}.sql`), "utf8")), `v153.${b}.sql (what ${line} stands on)`);
 if (line !== "shared") await t.runTwice(FILE, `v153.${line}.sql`);
 const bare = await bareWrites((q) => t.sql(q).then((r) => r.rows));
 t.check("no function writes to a table with no WHERE", bare.length === 0, bare);
