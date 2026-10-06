@@ -2291,7 +2291,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 100,
+  "level": 89,
   "cc": [
    true,
    true,
@@ -2338,7 +2338,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-05"
+  "chg": "2026-10-06"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -6280,7 +6280,7 @@
   "mounts": 130,
   "minions": 208,
   "rare": 49,
-  "level": 100,
+  "level": 96,
   "cc": [
    true,
    true,
@@ -6355,7 +6355,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-03"
+  "chg": "2026-10-06"
  },
  "29795820": {
   "name": "Elle Lauren",
@@ -6919,7 +6919,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 70,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6936,7 +6936,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-05"
+  "chg": "2026-10-06"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -8365,7 +8365,7 @@
  },
  "51060767": {
   "name": "Yatchy Concreategirls",
-  "parse": null,
+  "parse": 22,
   "ult": 0,
   "mounts": 8,
   "minions": 18,
@@ -8381,9 +8381,11 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {},
-  "ex": [],
+  "ex": [
+   "Valigarmanda"
+  ],
   "ults": [],
-  "chg": "2026-10-05"
+  "chg": "2026-10-06"
  },
  "42845691": {
   "name": "Yuukizuz Akino",

@@ -72932,7 +72932,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 52,
+    "kills": 54,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -73122,8 +73122,8 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 90,
-    "kills": 30,
-    "job": "WhiteMage",
+    "kills": 34,
+    "job": "Astrologian",
     "cleared": true,
     "job_kills": {
      "Summoner": {
@@ -79278,9 +79278,21 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 22,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   }
+  ],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  },
  "51077689": {
   "current": {
