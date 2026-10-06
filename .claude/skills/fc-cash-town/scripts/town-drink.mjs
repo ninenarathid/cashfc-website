@@ -10,7 +10,7 @@
 //   what each had of it rising over their heads;
 // - once in a meal's hours: held out again, the friend is shown nothing and the giver told; in the next meal's hours
 //   it is theirs again, and "ไว้ก่อน" leaves it;
-// - a friend near with no stamina left is named on a chip of the giver's page;
+// - a friend near with no stamina left is named on a chip of the giver's page, once in a meal's hours;
 // - the keeper refuses a drink from too far, though the card was up; a drink nobody answers is put away at its time;
 // - at a phone's width the card and its buttons fit; with the town kept still nothing of it moves.
 //
@@ -210,6 +210,13 @@ try {
   await until("it is drunk", async () => (await stamina(Y)) === 30, 8000, 40);
   ok("from beside them the tired friend drinks: thirty to them, ten to the giver; and the chip is gone, for they have stamina again", (await stamina(Y)) === 30 && (await stamina(X)) === 50
      && (await until("the chip goes", async () => !(await there(X, "[data-drink-chip]")), 15000, 100).then(() => true).catch(() => false)), [await stamina(X), await stamina(Y)]);
+
+  // (tired again in the same hours: they have had their drink, and the chip does not name them a second time)
+  await Y.evaluate(`${T}.setStamina(0)`);
+  await until("the room is told", async () => (await X.evaluate(`window.__cashTown.people().find((q) => q.id === ${JSON.stringify(b)})?.spent`)) === true, 12000, 100).catch(() => {});
+  await sleep(1200);
+  ok("worn out again in the same hours, a friend who has had their drink is not named a second time", (await X.evaluate(`${D}.tired()`)) === null && !(await there(X, "[data-drink-chip]")), await X.evaluate(`${D}.tired()`));
+  await Y.evaluate(`${T}.setStamina(30)`);
 
   // ── a drink nobody answers ──
   await until("the moment is over", async () => !(await there(X, "[data-drink-moment]")), 8000, 100);

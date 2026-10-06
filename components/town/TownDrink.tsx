@@ -5,7 +5,7 @@ import { hasThing } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Stander } from "@/lib/town/line";
 import type { FishSfx } from "@/lib/town/sfx";
-import { STAMINA, staminaOf } from "@/lib/town/stamina";
+import { STAMINA, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import { DRINK, drinkNear, hasDrunk, readDrinkTold, toastOf, type DrinkNo, type DrinkTold } from "@/lib/town/well-gifts";
 import TownIcon, { type IconName } from "./TownIcon";
 
@@ -80,6 +80,8 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
   const [card, setCard] = useState<(Who & { till: number }) | null>(null), cardRef = useRef(card);
   const [moment, setMoment] = useState<Moment | null>(null);
   useEffect(() => { outRef.current = out; cardRef.current = card; });
+  /** Whom the chip does not name again, and until when: somebody who has had their drink of these hours, until the next meal's begin. (Their card still offers one: whoever keeps the game has the last word.) */
+  const shy = useRef(new Map<string, number>());
   useEffect(() => { if (!moment) return; const t = setTimeout(() => setMoment(null), MOMENT_MS); return () => clearTimeout(t); }, [moment]);
   // who stands where is the map's, and a drink held out runs down: looked at a few times a second while either matters
   const watching = (mine && !!here) || !!out || !!card || !!moment;
@@ -168,6 +170,7 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
     const o = outRef.current;
     if (!o || o.id !== from) return;
     setOut(null);
+    if (told.m === "ok" || told.w === "drunk") shy.current.set(from, nextMealAt(keeper.now()));
     if (told.m === "ok") shown({ giver: { id: me, name: "" }, drinker: o, got: told.g, back: told.b, mine: "gave" });
     else {
       setNote(NO[told.w][th ? 0 : 1](o.name || (th ? "เพื่อน" : "Your friend")));
@@ -185,6 +188,7 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
     if (!o) return;
     if (heldTo !== o.id && now < o.till) {
       setOut(null);
+      shy.current.set(o.id, nextMealAt(keeper.now()));
       const after = staminaOf(keeper.purse(), keeper.now());
       shown({ giver: { id: me, name: "" }, drinker: o, got: DRINK.gives, back: Math.max(0, Math.min(DRINK.back, after - o.had)), mine: "gave" });
     } else if (now >= o.till) {
@@ -199,7 +203,7 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
 
   // A friend who stands near with no stamina left: named on a chip (the room says who has none).
   const tired = mine && here && !hidden && !out && !card
-    ? people().filter((p) => p.id !== me && !p.away && p.spent === true && drinkNear(p, { x: here[0], y: here[1] }))
+    ? people().filter((p) => p.id !== me && !p.away && p.spent === true && drinkNear(p, { x: here[0], y: here[1] }) && (shy.current.get(p.id) ?? 0) <= now)
       .sort((a, b) => Math.hypot(a.x - here[0], a.y - here[1]) - Math.hypot(b.x - here[0], b.y - here[1]) || (a.id < b.id ? -1 : 1))[0] ?? null
     : null;
 
