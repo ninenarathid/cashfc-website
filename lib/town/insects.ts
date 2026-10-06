@@ -1,9 +1,9 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import { softStep } from "./forest-eye";
-import { famBy, useGift, type GiftRefusal } from "./gifts";
+import { famBy, useGift, wearing, type GiftRefusal } from "./gifts";
 import { ITEMS, type ItemId } from "./items";
-import { buffBy, spend } from "./stamina";
+import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
 import { CAMP, COLS, FARM, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
@@ -911,7 +911,27 @@ export const aimOf = (p: Pose): Vec => ({ x: p.x - p.lift, y: p.y - p.lift });
 export const ringOf = (id: BugId, spent: boolean, wide = 1, harder = 1) => (NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide)) / harderOn(id, harder);
 /** Whether an insect missed so many times is off for good, for whoever missed it: only tired hands lose one so. */
 export const fledBy = (misses: number, spent: boolean) => spent && misses >= NET.tired.misses;
-/** How long a swing takes to land. */
-export const swingMs = (spent: boolean) => (spent ? NET.tired.lands : NET.lands);
+/**
+ * The wind net (lib/town/gifts' charmWind, the insects' fourth rank; the owner's ladder of 2026-10-07: "สวิงลงทันทีไม่ต้อง
+ * รอจังหวะ เล็งตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน"). Worn, the net does not take its moment to come down: it is aimed
+ * for as long as the map is pressed and falls where it is aimed the moment it is let go, so nothing has to be met
+ * where it will be. Its ring is anybody's, and aimed badly it misses as any net does; a miss is minded and counted as
+ * ever. Another gust can be loosed only `again` milliseconds on: as long as a plain swing and its rest take together,
+ * so that it is no quicker to swing over and over. **With no stamina there is no gust**: tired hands have the plain
+ * net as they have it (slower, a small ring, an insect off at the second miss), which no gift of this line changes.
+ * Mine: `again`, and that tired hands have none.
+ */
+export const WIND = { again: NET.lands + NET.again };
+/** Whether somebody's net is the wind's now: the charm worn, and stamina to swing with. */
+export const windy = (purse: Purse, now: number): boolean => wearing(purse, "charmWind") && !isSpent(purse, now);
+/** How long a swing takes to land: no time at all for the wind's. */
+export const swingMs = (spent: boolean, wind = false) => (spent ? NET.tired.lands : wind ? 0 : NET.lands);
+/** How soon after one swing is begun another may be. */
+export const againMs = (spent: boolean, wind = false) => (!spent && wind ? WIND.again : swingMs(spent) + NET.again);
+/** Where a net aimed at a point comes down: there, or as near it as the reach of whoever swings allows. */
+export function aimAt(me: Vec, at: Vec, reach = NET.reach): Vec {
+  const d = far(me, at);
+  return d <= reach || d === 0 ? { x: at.x, y: at.y } : { x: me.x + ((at.x - me.x) * reach) / d, y: me.y + ((at.y - me.y) * reach) / d };
+}
 /** Whether a net landing at a point takes an insect as it is then. */
 export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1, harder = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide, harder);

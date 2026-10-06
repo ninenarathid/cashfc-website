@@ -57,6 +57,8 @@ async function before(X, id, haunt, least, most) {
     if (!now) continue;
     // (it looked about meanwhile and turned its back on me: that is another matter, tried again)
     if (now.mind.visit === v && (now.right ? 1 : -1) !== f) continue;
+    // (its haunt's turn came round meanwhile, every ten minutes on the stroke: another insect's mind, begun anew)
+    if (now.mind.visit < v) continue;
     return { stayed: now.mind.visit === v && !now.flying, d: Math.hypot(at.x + 0.5 - q.x, at.y + 0.5 - q.y), pose: now };
   }
   return null;

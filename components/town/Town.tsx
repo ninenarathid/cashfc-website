@@ -45,6 +45,7 @@ import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { FarmDraw } from "./TownFarm";
+import type { BugsAim } from "./TownBugs";
 import type { GroundTap } from "./TownGround";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
@@ -705,6 +706,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec) => boolean) | null>(null);
   const registerBugs = useCallback((draw: FarmDraw | null) => { bugsDraw.current = draw; }, []);
   const registerBugsTap = useCallback((tap: ((at: Vec) => boolean) | null) => { bugsTap.current = tap; }, []);
+  // ── gifts: insects ── (the wind net is aimed for as long as the map is pressed and falls where it is let go: TownBugs
+  // says whether a press begins such an aim, and is told where it is dragged to and where it is let go)
+  const bugsAim = useRef<BugsAim | null>(null), bugsAimOn = useRef(false);
+  const registerBugsAim = useCallback((aim: BugsAim | null) => { bugsAim.current = aim; }, []);
+  const bugsAt = (p: { x: number; y: number }) => { const v = cam.current, iso = toIsoPoint(v, p.x, p.y, v.cw, v.ch); return fromIso(iso.x, iso.y); };
   /** Things dropped on the ground (lib/town/ground): their own way of drawing what lies about, and of saying whether a tap was on one of them. */
   const groundDraw = useRef<FarmDraw | null>(null), groundTap = useRef<GroundTap | null>(null);
   const registerGround = useCallback((draw: FarmDraw | null) => { groundDraw.current = draw; }, []);
@@ -2977,6 +2983,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     e.currentTarget.setPointerCapture(e.pointerId);
     pointers.current.set(e.pointerId, p);
     const g = gesture.current;
+    // ── gifts: insects ── (another finger down calls the wind net's aim off; a first one on an insect within reach may begin one)
+    if (bugsAimOn.current) { bugsAimOn.current = false; bugsAim.current?.loose(null); }
+    if (pointers.current.size === 1 && gameRef.current && !personAt(p.x, p.y) && !sessionRef.current?.stuck()) bugsAimOn.current = !!bugsAim.current?.press(bugsAt(p));
     if (pointers.current.size === 1) {
       Object.assign(g, { mode: "tap", sx: p.x, sy: p.y, lx: p.x, ly: p.y, slop: e.pointerType === "mouse" ? SLOP_MOUSE : SLOP_TOUCH });
     } else if (pointers.current.size === 2) {
@@ -3026,6 +3035,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       setCam({ s: ns, cx: g.iso.x - (mx - v.cw / 2) / ns, cy: g.iso.y - (my - v.ch / 2) / ns });
       return;
     }
+    // ── gifts: insects ── (the wind net's aim: dragged, the press is neither a tap nor a pull at the map)
+    if (bugsAimOn.current) {
+      if (g.mode === "tap" && Math.hypot(p.x - g.sx, p.y - g.sy) > g.slop) g.mode = "none";
+      if (g.mode === "none") { bugsAim.current?.move(bugsAt(p)); g.lx = p.x; g.ly = p.y; return; }
+    }
     if (g.mode === "tap" && Math.hypot(p.x - g.sx, p.y - g.sy) > g.slop) g.mode = "pan";
     if (g.mode === "pan") {
       setCam({ s: v.s, cx: v.cx - (p.x - g.lx) / v.s, cy: v.cy - (p.y - g.ly) / v.s });
@@ -3040,6 +3054,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const g = gesture.current;
     const had = pointers.current.delete(e.pointerId);
     if (!had) return;
+    // ── gifts: insects ── (the wind net let go: where, if it was dragged there; a plain tap is handed over as ever)
+    if (bugsAimOn.current) { bugsAimOn.current = false; bugsAim.current?.loose(g.mode === "none" && e.type === "pointerup" ? bugsAt(local(e.clientX, e.clientY)) : null); }
     if (pointers.current.size === 0) {
       if (g.mode === "tap" && e.type === "pointerup") tap(g.sx, g.sy);
       g.mode = "none";
@@ -3903,7 +3919,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownBugs keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerBugs} registerTap={registerBugsTap} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerBugs} registerTap={registerBugsTap} registerAim={registerBugsAim} />
         </Suspense>
       )}
       {/* The well's book: offered to whoever stands at the farm's well */}

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  BUGS, HABITS, HAUNTS, LURED, LURES, NET, aimOf, bugTurnStart, fledBy, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think,
+  BUGS, HABITS, HAUNTS, LURED, LURES, NET, aimAt, aimOf, againMs, bugTurnStart, fledBy, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
   type BugId, type BugSight, type Haunt, type Lured, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { FARMING } from "@/lib/town/farm";
@@ -73,8 +73,49 @@ const DOT = "#f4e9c9";
 const far = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
 const iconFor = (name: string): IconName | null => (name in ICON_ATLAS.icons ? (name as IconName) : null);
 
-/** A swing of the net: where it was aimed, when it began, and when it lands. */
-interface Swing { at: Vec; began: number; lands: number; done: boolean }
+/** A swing of the net: where it was aimed, when it began, and when it lands; and whether it is the wind's, which comes down at once. */
+interface Swing { at: Vec; began: number; lands: number; done: boolean; wind?: boolean }
+/**
+ * What the map asks of the wind net while it is pressed (lib/town/gifts' charmWind): whether a press at a point of
+ * the map begins an aim (then the press is neither a step nor a pull at the map), where it is dragged to, and where
+ * it is let go (null: it is called off, or it was a plain tap, which the map hands over as ever).
+ */
+export interface BugsAim { press: (at: Vec) => boolean; move: (at: Vec) => void; loose: (at: Vec | null) => void }
+/** A ring of the ground about a point of the screen, so many tiles across its half: half as high as it is wide, as the map's tiles are. */
+const groundRing = (ctx: CanvasRenderingContext2D, c: Vec, tiles: number, s: number) => { ctx.beginPath(); ctx.ellipse(c.x, c.y, tiles * 45 * s, tiles * 22.5 * s, 0, 0, Math.PI * 2); };
+/** The wind net held over where it is aimed: how far it reaches about me, faintly, and the gust turning over its ring. */
+function drawAim(ctx: CanvasRenderingContext2D, me: Vec, c: Vec, r: number, s: number, now: number, still: boolean) {
+  ctx.save();
+  ctx.lineWidth = Math.max(1, s);
+  ctx.setLineDash([5 * s, 6 * s]);
+  ctx.strokeStyle = "rgba(205,238,255,0.4)";
+  groundRing(ctx, me, NET.reach, s); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = "rgba(205,238,255,0.14)"; ctx.strokeStyle = "rgba(225,246,255,0.95)"; ctx.lineWidth = Math.max(1.5, 1.6 * s);
+  groundRing(ctx, c, r, s); ctx.fill(); ctx.stroke();
+  // four strokes of wind going round it
+  ctx.strokeStyle = "rgba(225,246,255,0.75)"; ctx.lineWidth = Math.max(1.5, 1.3 * s); ctx.lineCap = "round";
+  for (let i = 0; i < 4; i++) {
+    const a = (still ? 0 : now / 260) + (i * Math.PI) / 2;
+    ctx.beginPath(); ctx.ellipse(c.x, c.y, r * 1.55 * 45 * s, r * 1.55 * 22.5 * s, 0, a, a + 0.7); ctx.stroke();
+  }
+  ctx.restore();
+}
+/** The wind net come down, `t` of the way through the moment it shows (0 to 1): the gust closing in on its ring, and the ring's flash going out. */
+function drawGust(ctx: CanvasRenderingContext2D, c: Vec, r: number, s: number, t: number, still: boolean) {
+  ctx.save();
+  ctx.fillStyle = `rgba(225,246,255,${(0.3 * (1 - t)).toFixed(3)})`; ctx.strokeStyle = `rgba(235,250,255,${(1 - t * 0.8).toFixed(3)})`; ctx.lineWidth = Math.max(1.5, 1.8 * s);
+  groundRing(ctx, c, r * (1 + 0.3 * t), s); ctx.fill(); ctx.stroke();
+  if (!still) {
+    ctx.strokeStyle = `rgba(225,246,255,${(0.9 * (1 - t)).toFixed(3)})`; ctx.lineWidth = Math.max(1.5, 1.4 * s); ctx.lineCap = "round";
+    for (let i = 0; i < 6; i++) {
+      // each stroke comes in from far out, turning as it comes
+      const a = (i * Math.PI) / 3 + t * 1.6, out = r * (2.6 - 1.7 * t);
+      ctx.beginPath(); ctx.ellipse(c.x, c.y, out * 45 * s, out * 22.5 * s, 0, a, a + 0.55 * (1 - t) + 0.12); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
 
 /** A drop of nectar on the ground: an amber bead with a light on it and a ring going out from it; and while nothing has come to it yet, its scent rising. */
 function drawDrop(ctx: CanvasRenderingContext2D, c: Vec, s: number, now: number, still: boolean, waits: boolean) {
@@ -114,7 +155,7 @@ function drawDrop(ctx: CanvasRenderingContext2D, c: Vec, s: number, now: number,
  *
  * Nothing is said of how any of them is caught: only what was caught, and why not.
  */
-export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register, registerTap }: {
+export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register, registerTap, registerAim }: {
   keeper: Keeper;
   th: boolean;
   /** My name, for the village's book of insects. */
@@ -128,6 +169,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   register: (draw: FarmDraw | null) => void;
   /** Hand the map what a tap on it is asked first: whether it was a swing of the net (and take it back with null). */
   registerTap: (tap: ((at: Vec) => boolean) | null) => void;
+  /** Hand the map what a press on it is asked: whether it begins the wind net's aim (and take it back with null). */
+  registerAim?: (aim: BugsAim | null) => void;
 }) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -169,8 +212,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   if (!lured) luredKept.current = null;
   else if (luredKept.current?.l.from !== lured.from || luredKept.current.l.seed !== lured.seed) luredKept.current = { l: lured, h: luredHaunt(lured) };
   const luredUntil = lured?.until ?? 0;
-  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, lured: luredKept.current, me: keeper.id });
-  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, lured: luredKept.current, me: keeper.id };
+  // (the wind net worn as a charm, with stamina to swing: the net comes down at once where it is aimed, lib/town/insects' windy)
+  const wind = windy(purse, keeper.now());
+  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id });
+  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id };
   useEffect(() => {
     if (!luredUntil) return;
     // (it is off again at its time: said once, where I had not caught it; and the belt is looked at afresh)
@@ -190,6 +235,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   /** When each singer was last heard. */
   const sang = useRef(new Map<number, number>());
   const swing = useRef<Swing | null>(null), ready = useRef(0);
+  /** The wind net held over where it is aimed, while the map is pressed. */
+  const aim = useRef<{ at: Vec } | null>(null), aimRef = useRef<BugsAim | null>(null);
+  /** The map's own way from a point of it to a point of the screen, as the last frame had it (for scripts). */
+  const projectRef = useRef<((t: Vec) => Vec) | null>(null), landedRef = useRef<Swing | null>(null);
   const misses = useRef(new Map<string, number>()), stirred = useRef(new Map<number, boolean>());
   const caught = useRef<Array<{ bug: BugId; first: boolean; rid: string | null }>>([]);
   /** Until when the line about a pest gone is written over my head. */
@@ -258,6 +307,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       const { ctx, things, project, onScreen, s, img, still } = frame, now = Date.now();
       vfx.draw(frame);
       me.current = frame.self;
+      projectRef.current = project;
       // (everybody about, myself first: the map lists me first, and only my own blessing is known here)
       // (and only of me is it known how good I am at the line: the good insects are warier of me by that much)
       about.current = (frame.people?.() ?? []).map((p, i) => (i === 0 && (live.current.soft < 1 || live.current.wary > 1) ? { ...p, soft: live.current.soft, wary: live.current.wary } : p));
@@ -423,12 +473,35 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         frame.sign(live.current.th ? RID[0] : RID[1], head.x, head.y - 78 * s);
       }
 
+      // the wind net held over where it is aimed (drawn over the night, as what the hand is doing)
+      const held = aim.current;
+      if (held && frame.self) {
+        const mine = project(frame.self), c = project(held.at);
+        frame.over?.(() => drawAim(ctx, mine, c, NET.radius, s, now, still));
+      }
+
       // the swing: the ring it will take, and the net coming down on it
       const sw = swing.current;
       if (sw) {
         const c = project(sw.at), t = Math.min(1, (now - sw.began) / Math.max(1, sw.lands - sw.began));
-        if (!sw.done && now >= sw.lands) { sw.done = true; land(sw, now); }
-        if (now > sw.lands + 220) swing.current = null;
+        if (!sw.done && now >= sw.lands) { sw.done = true; landedRef.current = { ...sw }; land(sw, now); }
+        if (now > sw.lands + (sw.wind ? 320 : 220)) swing.current = null;
+        else if (sw.wind) things.push({ depth: sw.at.x + sw.at.y + 3, draw: () => {
+          // the wind's: down already, the gust closing in on its ring, and the net pressed flat a moment
+          const g = Math.min(1, (now - sw.lands) / 320);
+          drawGust(ctx, c, NET.radius, s, g, still);
+          const net = iconFor("bugNet"), cell = net ? ICON_ATLAS.icons[net] : null;
+          if (cell && img?.complete && img.naturalWidth) {
+            const [x, y, w, hh] = cell, kk = 0.8 * s, squash = still ? 1 : 0.8 + 0.2 * Math.min(1, g * 2.5);
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            ctx.globalAlpha = 1 - Math.max(0, g - 0.6) / 0.4;
+            ctx.translate(c.x + 16 * s, c.y + 4 * s);
+            ctx.scale(1, squash);
+            ctx.drawImage(img, x, y, w, hh, -w * kk, -hh * kk, w * kk, hh * kk);
+            ctx.restore();
+          }
+        } });
         else things.push({ depth: sw.at.x + sw.at.y + 3, draw: () => {
           const r = NET.radius * (live.current.spent ? NET.tired.radius : 1);
           // (a ring of the ground, as wide as the net: half as high as it is wide, as the map's tiles are)
@@ -452,25 +525,58 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       }
     });
 
+    /** Whether a point of the map is on an insect within my reach, or just ahead of one: where a swing may be begun. */
+    const byInsect = (at: Vec, here: Vec) => {
+      let near: Pose | null = null, least = AIM;
+      for (const { pose } of poses.current.values()) { const d = far(aimOf(pose), at); if (d <= least) { least = d; near = pose; } }
+      return !!near && far(near, here) <= NET.reach;
+    };
+    /** The wind net comes down, at once, where it is aimed (or as near that as I reach). */
+    const gust = (at: Vec, here: Vec, now: number) => {
+      const lands = aimAt(here, at);
+      swing.current = { at: lands, began: now, lands: now, done: false, wind: true };
+      ready.current = now + againMs(false, true);
+      sfx?.wake();
+      sfx?.work("gust");
+      vfx.add("leaves", lands, { lift: 6 });
+    };
     const tap = (at: Vec) => {
       const l = live.current, here = me.current, now = Date.now();
       if (l.busy || !here || !mayNet(l.hand)) return false;
       if (swing.current && !swing.current.done) return true;
       // a tap on an insect within reach, or just ahead of it, is a swing; anywhere else it is a step, as ever
-      let near: Pose | null = null, least = AIM;
-      for (const { pose } of poses.current.values()) { const d = far(aimOf(pose), at); if (d <= least) { least = d; near = pose; } }
-      if (!near || far(near, here) > NET.reach) return false;
+      if (!byInsect(at, here)) return false;
       if (now < ready.current) return true;
+      // (the wind's: it is down as the tap is)
+      if (l.wind) { gust(at, here, now); return true; }
       swing.current = { at, began: now, lands: now + swingMs(l.spent), done: false };
       ready.current = now + swingMs(l.spent) + NET.again;
       sfx?.wake();
       sfx?.work("swish");
       return true;
     };
+    // The wind net is aimed for as long as the map is pressed, and falls the moment it is let go: a press on an insect
+    // within reach holds the gust over that point, a drag moves it (never beyond my reach), and letting go looses it.
+    const aiming: BugsAim = {
+      press: (at) => {
+        const l = live.current, here = me.current;
+        if (!l.wind || l.busy || !here || !mayNet(l.hand) || Date.now() < ready.current || (swing.current && !swing.current.done) || !byInsect(at, here)) return false;
+        aim.current = { at: aimAt(here, at) };
+        return true;
+      },
+      move: (at) => { const here = me.current; if (aim.current && here) aim.current = { at: aimAt(here, at) }; },
+      loose: (at) => {
+        const held = aim.current, here = me.current;
+        aim.current = null;
+        if (held && at && here && live.current.wind && !live.current.busy) gust(at, here, Date.now());
+      },
+    };
     tapRef.current = tap;
+    aimRef.current = aiming;
     registerTap(tap);
-    return () => { register(null); registerTap(null); tapRef.current = null; };
-  }, [keeper, register, registerTap, sfx, vfx]);
+    registerAim?.(aiming);
+    return () => { register(null); registerTap(null); registerAim?.(null); tapRef.current = null; aimRef.current = null; aim.current = null; };
+  }, [keeper, register, registerTap, registerAim, sfx, vfx]);
 
   /** Put a drop of nectar down where I stand: what it brings is the keeper's to say. */
   const dropNectar = useCallback(() => {
@@ -489,6 +595,13 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     const handle = {
       // (my drop of nectar: what is out, and one put down where I stand)
       lured: () => live.current.lured?.l ?? null, luredHaunt: () => live.current.lured?.h ?? null, dropNectar,
+      // (the wind net: whether mine is one now; a press, a drag and a letting go at points of the map, as the map hands
+      // them over; where it is held; and the last swing, with whether it was the wind's)
+      windy: () => live.current.wind, press: (x: number, y: number) => aimRef.current?.press({ x, y }) ?? false, drag: (x: number, y: number) => aimRef.current?.move({ x, y }),
+      loose: (x: number | null, y = 0) => aimRef.current?.loose(x === null ? null : { x, y }), aimed: () => aim.current?.at ?? null,
+      lastSwing: () => landedRef.current, ready: () => Math.max(0, ready.current - Date.now()),
+      /** Where a point of the map is on the map's canvas, in its own pixels, as the last frame had it. */
+      project: (x: number, y: number) => projectRef.current?.({ x, y }) ?? null,
       sights: () => seen.current.map((x) => ({ ...x, place: HAUNTS[x.id]?.place, kind: HAUNTS[x.id]?.kind, x: HAUNTS[x.id]?.x, y: HAUNTS[x.id]?.y, perches: HAUNTS[x.id]?.perches })),
       poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, 1, live.current.wary), mind: minds.current.get(id)?.mind ?? null })),
       me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, 1, live.current.wary), glints: () => glints.current, lulls: () => lulls.current,
@@ -500,7 +613,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       caught: () => caught.current, note: () => note, tip: () => tip, ridShown: () => Date.now() < ridUntil.current, fled: () => [...(fled.current?.keys() ?? [])],
       // (how many swings have missed each insect, by "haunt:turn"; how an insect will be so many milliseconds on, as far
       // as the clock alone says; how long my swing takes; and every insect that fled from me forgotten)
-      misses: () => Object.fromEntries(misses.current), swingMs: () => swingMs(live.current.spent),
+      misses: () => Object.fromEntries(misses.current), swingMs: () => swingMs(live.current.spent, live.current.wind),
       poseAt: (id: number, ms: number) => {
         const at = poses.current.get(id), kept = minds.current.get(id);
         if (!at || !kept) return null;

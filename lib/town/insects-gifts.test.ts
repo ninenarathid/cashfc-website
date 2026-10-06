@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { FAMILIARS, GIFTS, USES, harderAt, harderFor, numberOf, usesLeft } from "./gifts";
 import {
-  BUGS, BUG_IDS, HABITS, HAUNTS, LURED, NECTAR, NECTAR_MAPS, NET, ROAM, TIERS, UNHUNTED, aimOf, harderOn, knows, lulled, luredHaunt, luredNow, nectar, nectarHaunt, nectarMay, netMine, newMind,
-  perchAt, plentyOf, poseOf, ringOf, roams, stealthOf, taken, think, tierOf,
+  BUGS, BUG_IDS, HABITS, HAUNTS, LURED, NECTAR, NECTAR_MAPS, NET, ROAM, TIERS, UNHUNTED, WIND, againMs, aimAt, aimOf, harderOn, knows, lulled, luredHaunt, luredNow, nectar, nectarHaunt, nectarMay, netMine, newMind,
+  perchAt, plentyOf, poseOf, ringOf, roams, stealthOf, swingMs, taken, think, tierOf, windy,
   type BugId, type Haunt, type Hunt, type Lured, type Mind, type Person,
 } from "./insects";
 import { ITEMS } from "./items";
 import { POINTS } from "./line-points";
 import { LINES } from "./lines";
-import { staminaOf } from "./stamina";
+import { dayOf, staminaOf } from "./stamina";
 import { DAY, HOUR, held, newPurse, put, type Purse } from "./trade";
 import { ALWAYS_RAIN, DRY } from "./weather";
 import { placeOf } from "./world";
@@ -218,6 +218,61 @@ describe("a rare insect does not stay (the owner's ladder: \"a rare insect moves
     // a rhinoceros beetle (not rare) keeps to the trunk it is in
     const r = newMind("rhinoBeetle", h, seed, NIGHT);
     expect(think("rhinoBeetle", h, seed, r, NIGHT + 3 * ROAM.every, [])).toBe(r);
+  });
+});
+
+describe("the wind net (insects, the fourth rank: the net falls at once, where it is aimed; aimed badly it still misses)", () => {
+  const worn = (left = 100): Purse => ({ ...withGifts(["charmWind"], { charms: ["charmWind"] }), stamina: { day: dayOf(NOON), left } });
+
+  it("comes down in no time for whoever wears it and has stamina; not worn, or with none, the net is the plain one", () => {
+    expect(GIFTS.find((g) => g.id === "charmWind")).toMatchObject({ kind: "charm", line: "insects", rank: 4 });
+    expect(windy(worn(), NOON)).toBe(true);
+    expect(windy(withGifts(["charmWind"]), NOON)).toBe(false);
+    expect(windy(newPurse(), NOON)).toBe(false);
+    // tired hands have no gust: the plain net as tired hands have it
+    expect(windy(worn(0), NOON)).toBe(false);
+    expect(swingMs(false)).toBe(NET.lands);
+    expect(swingMs(false, true)).toBe(0);
+    expect(swingMs(true, true)).toBe(NET.tired.lands);
+    expect(swingMs(true)).toBe(NET.tired.lands);
+  });
+
+  it("is no quicker to swing over and over than the plain net: a gust every so long as a swing and its rest take", () => {
+    expect(WIND.again).toBe(NET.lands + NET.again);
+    expect(againMs(false, true)).toBe(againMs(false));
+    expect(againMs(false)).toBe(NET.lands + NET.again);
+    expect(againMs(true, true)).toBe(NET.tired.lands + NET.again);
+  });
+
+  it("lands where it is aimed, or as near that as its wearer reaches", () => {
+    const me = { x: 10, y: 10 };
+    expect(aimAt(me, { x: 11, y: 11.5 })).toEqual({ x: 11, y: 11.5 });
+    expect(aimAt(me, me)).toEqual(me);
+    const far_ = aimAt(me, { x: 20, y: 10 });
+    expect(far_.x).toBeCloseTo(10 + NET.reach);
+    expect(far_.y).toBeCloseTo(10);
+    const slant = aimAt(me, { x: 13, y: 14 });
+    expect(Math.hypot(slant.x - me.x, slant.y - me.y)).toBeCloseTo(NET.reach);
+    expect((slant.y - me.y) / (slant.x - me.x)).toBeCloseTo(4 / 3);
+  });
+
+  it("takes a butterfly where it is, which the plain net misses; and misses one it is aimed beside, as any net does", () => {
+    const h = hauntOf("blooms", "town"), m = newMind("butterflyWhite", h, 5, NOON);
+    let met = 0, missed_ = 0;
+    for (let t = NOON; t < NOON + 20_000; t += 700) {
+      const now = poseOf("butterflyWhite", h, 5, m, t), then = poseOf("butterflyWhite", h, 5, m, t + NET.lands);
+      // the wind's: down the moment it is aimed, on where the butterfly is
+      expect(taken("butterflyWhite", poseOf("butterflyWhite", h, 5, m, t + swingMs(false, true)), aimOf(now), false)).toBe(true);
+      // the plain net aimed at where it is: the butterfly has flown on by the time it lands
+      if (taken("butterflyWhite", then, aimOf(now), false)) met++; else missed_++;
+      // aimed a tile to the side, the wind's has nothing
+      expect(taken("butterflyWhite", now, { x: aimOf(now).x + 1, y: aimOf(now).y }, false)).toBe(false);
+    }
+    expect(missed_).toBeGreaterThan(met);
+  });
+
+  it("is as narrow on a good insect for a good hunter as any net", () => {
+    expect(ringOf("morpho", false, 1, harderAt(4))).toBeCloseTo(ringOf("morpho", false) / 1.08);
   });
 });
 
