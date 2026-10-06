@@ -22,7 +22,7 @@ const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v152"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -1208,6 +1208,20 @@ try {
       ok("a charm not had is refused, and what is worn stays", !third.ok && third.why === "none" && A.purse().gifts.charms.join() === "charmHoe", third);
       await A.buy("worm", 1);
       ok("a purse keeps its gifts through whatever else is done", A.purse().gifts?.had?.join() === "charmHoe" && A.purse().gifts.charms.join() === "charmHoe", A.purse().gifts);
+      // (v152, a draft or run: the familiars. A database before it gives the charms only, and the keeper offers no familiar)
+      if ((await sql(`select to_regprocedure('public.town_familiar_wear(text)') is not null as there`))[0].there) {
+        ok("where familiars are given the keeper says which gifts are: the charms and the familiars, and nothing else", A.gives("charmHoe") && A.gives("famGnome") && !A.gives("noSuchGift"));
+        const none = await A.familiarWear("famGnome");
+        ok("a familiar not had is refused, and none follows", !none.ok && none.why === "none" && !A.purse().gifts.familiar, none);
+        await sql(`update public.town_work set kept = kept || '{"points": 160}'::jsonb where member_id = $1 and line = 'farming'`, [a]);
+        const gnome = await A.giftTake("farming", 2), called = await A.familiarWear("famGnome");
+        ok("the familiar of a rank reached is taken and called through the keeper: it follows, in the purse it keeps at once, and the charm stays on",
+          gnome.ok && gnome.gift === "famGnome" && called.ok && A.purse().gifts.familiar === "famGnome" && A.purse().gifts.charms.join() === "charmHoe", { gnome, called, gifts: A.purse().gifts });
+        await A.buy("worm", 1);
+        ok("…it follows through whatever else is done", A.purse().gifts.familiar === "famGnome", A.purse().gifts);
+        const rest = await A.familiarWear(null);
+        ok("…and is sent to rest", rest.ok && A.purse().gifts.familiar === null && A.purse().gifts.had.join() === "charmHoe,famGnome", { rest, gifts: A.purse().gifts });
+      } else ok("a database with charms and no familiars: the keeper offers the charms and no familiar", A.gives("charmHoe") && !A.gives("famGnome"));
     } else ok("a database that gives no gifts: the keeper says so", A.gifting() === false);
   }
   A.close(); B.close();
