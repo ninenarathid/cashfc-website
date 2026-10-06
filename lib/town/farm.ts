@@ -1,7 +1,7 @@
 import { FIELD } from "./gear";
-import { BUFFS, CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
+import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { hasBuff, spend } from "./stamina";
+import { buffBy, hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -280,7 +280,7 @@ export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null
   if (seen.wet) return not("wet");
   const slot = purse.bag.findIndex((s) => s?.item === hand && (s.water ?? 0) > 0);
   if (slot < 0) return no("dry");
-  const can = purse.bag[slot]!, green = hasBuff(purse, now, "green") ? 1 + BUFFS.green.by : 1;
+  const can = purse.bag[slot]!, green = 1 + buffBy(purse, now, "green");
   return {
     ok: true, plot: { ...plot, plant: { ...p, watered: now, boost: p.boost + FARMING.water.adds * 60_000 * (FIELD[hand!] ?? 1) * green } },
     purse: { ...spend(purse, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: can.water! - (hasBuff(purse, now, "spring") ? 0 : 1) }) },

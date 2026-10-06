@@ -1,6 +1,6 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
-import { BAITS, BUFFS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign } from "./items";
-import { STAMINA, hasBuff, isSpent } from "./stamina";
+import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign } from "./items";
+import { STAMINA, isSpent, levelOf } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
 /**
@@ -83,6 +83,9 @@ export function signsOf(scene: Scene, rain: boolean): Sign[] {
 /** Every sign there is: for reckoning what can ever be caught (lib/town/uses). */
 export const ALL_SIGNS: Sign[] = ["tired", "crowd", "weekend", "after", "full"];
 
+/** A meal's buff as a rule is told of it: its level (lib/town/stamina's levelOf), or only that there is one (the first level). */
+export type Level = number | boolean;
+const lvl = (l: Level | undefined): number => (l === true ? 1 : l || 0);
 /**
  * What takes a bait at an hour, and how likely each is. Rain brings some out
  * and keeps some away, as its end does (`rain`, `dry`); a lucky meal brings
@@ -94,7 +97,7 @@ export const ALL_SIGNS: Sign[] = ["tired", "crowd", "weekend", "after", "full"];
  * common fish keeps to the deck). A fish that waits for a sign bites only
  * while it holds (`needs`: every one of them among `signs`).
  */
-export function oddsOf(bait: BaitId, hour: number, rain = false, lucky = false, shallow = false, signs: readonly Sign[] = []): Array<{ what: CatchId; p: number }> {
+export function oddsOf(bait: BaitId, hour: number, rain = false, lucky: Level = false, shallow = false, signs: readonly Sign[] = []): Array<{ what: CatchId; p: number }> {
   const weights: Array<[CatchId, number]> = [];
   for (const id of FISH_IDS) {
     const f = FISH[id], likes = f.baits[bait] ?? 0;
@@ -104,7 +107,7 @@ export function oddsOf(bait: BaitId, hour: number, rain = false, lucky = false, 
     // (one the sky keeps away is not in the water at all: it is given no share, not a share of nothing)
     const sky = rain ? f.rain : f.dry ?? 1;
     if (!(sky > 0)) continue;
-    const luck = lucky && (f.tier === "rare" || f.tier === "legend") ? 1 + BUFFS.lucky.by : 1;
+    const luck = f.tier === "rare" || f.tier === "legend" ? 1 + byOf("lucky", lvl(lucky)) : 1;
     weights.push([id, TIER_WEIGHT[f.tier] * likes * sky * luck]);
   }
   // what is no fish: the first two on any bait, a later tier's only on that tier's baits
@@ -128,7 +131,7 @@ export interface Cast { what: CatchId; wait: number; nibbles: number[]; size: nu
 const APART = 3;
 
 /** Drop a line: everything about what happens to it is decided now. */
-export function castLine(bait: BaitId, hour: number, rain: boolean, lucky: boolean, rnd: () => number, shallow = false, signs: readonly Sign[] = []): Cast {
+export function castLine(bait: BaitId, hour: number, rain: boolean, lucky: Level, rnd: () => number, shallow = false, signs: readonly Sign[] = []): Cast {
   const odds = oddsOf(bait, hour, rain, lucky, shallow, signs);
   let roll = rnd(), what = odds[odds.length - 1].what;
   for (const o of odds) { if (roll < o.p) { what = o.what; break; } roll -= o.p; }
@@ -172,7 +175,7 @@ export function landCatch(purse: Purse, what: CatchId, size: number): { purse: P
 }
 /** How long after the bite somebody's strike still hooks the fish, by the meal in them, the stamina left and the float they carry. */
 export const strikeWindowOf = (purse: Purse, now: number) =>
-  strikeWindow({ keen: hasBuff(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse)) });
+  strikeWindow({ keen: levelOf(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse)) });
 
 /* ── the strike ─────────────────────────────────────────────────────────── */
 
@@ -180,8 +183,8 @@ export const strikeWindowOf = (purse: Purse, now: number) =>
 export const STRIKE = { window: 1.6, good: 1.0, perfect: 0.45 };
 export type Strike = "perfect" | "good" | "late";
 /** What stretches or shrinks the strike's moment: a keen eye (a meal's buff) has half as long again, a better float longer too, and somebody with no stamina left far less. */
-export interface StrikeMods { keen?: boolean; spent?: boolean; gear?: Pick<Gear, "strike"> }
-const strikeScale = (m: StrikeMods) => (m.keen ? 1 + BUFFS.keen.by : 1) * (m.spent ? STAMINA.spent.strike : 1) * (m.gear?.strike ?? 1);
+export interface StrikeMods { keen?: Level; spent?: boolean; gear?: Pick<Gear, "strike"> }
+const strikeScale = (m: StrikeMods) => (1 + byOf("keen", lvl(m.keen))) * (m.spent ? STAMINA.spent.strike : 1) * (m.gear?.strike ?? 1);
 /** How long after the bite a strike still hooks the fish, for somebody. */
 export const strikeWindow = (mods: StrikeMods = {}) => STRIKE.window * strikeScale(mods);
 /** What a strike so long after the bite is worth: nothing when it came before the bite or too late. */
@@ -326,7 +329,7 @@ function draw(seed: number): [number, number] {
 const room = (band: number, middle: number) => Math.min(Math.max(FIGHT.edge + band / 2, 1 - FIGHT.edge - band / 2), Math.max(FIGHT.edge + band / 2, middle));
 
 /** What changes a fight for somebody: no stamina left (much harder), steady hands (a meal's buff: a wider stretch), and their gear (lib/town/gear: a better rod, hook, line and net each make it easier). */
-export interface FightMods { spent?: boolean; calm?: boolean; gear?: Pick<Gear, "band" | "pace" | "slip" | "snap" | "line"> }
+export interface FightMods { spent?: boolean; calm?: Level; gear?: Pick<Gear, "band" | "pace" | "slip" | "snap" | "line"> }
 
 /**
  * Set the hook: the fight as it begins. A perfect strike leaves less line to
@@ -336,7 +339,7 @@ export interface FightMods { spent?: boolean; calm?: boolean; gear?: Pick<Gear, 
  */
 export function startFight(fish: FishId, strike: Strike, mods: FightMods, seed: number): Fight {
   const f = FISH[fish].fight, kind = STYLE[f.style], spent = STAMINA.spent, gear = mods.gear ?? PLAIN;
-  const band = f.band * (mods.spent ? spent.band : 1) * (mods.calm ? 1 + BUFFS.calm.by : 1) * gear.band;
+  const band = f.band * (mods.spent ? spent.band : 1) * (1 + byOf("calm", lvl(mods.calm))) * gear.band;
   const length = f.line * (strike === "perfect" ? FIGHT.perfect : strike === "late" ? FIGHT.late : 1) * gear.line;
   const sway = f.sway * (mods.spent ? spent.sway : 1), pace = f.pace * (mods.spent ? spent.pace : 1) * gear.pace;
   let [r, next] = draw(seed | 0);

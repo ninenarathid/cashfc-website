@@ -85,6 +85,12 @@ export interface Keeper {
   now(): number;
 
   purse(): Purse;
+  /**
+   * How many helpings a meal's hours take with whoever keeps the game: three (lib/town/stamina), or one where the
+   * database still counts a meal once. The page asks, so that it never shows a helping to come that would be refused:
+   * it goes out before the database's file is run.
+   */
+  helpings(): number;
   stall(): Stall;
   /** What I am told of the relatives' prices (lib/town/market): of each thing I hold or have left with the uncle whose price moves. Of none, where no price moves yet. */
   prices(): PricesTold;
@@ -636,6 +642,8 @@ export class DbKeeper implements Keeper {
   /* ── what is kept, read at once ── */
   /** My purse; while a meal is on, with what it has given up to this moment (the rule's own count, kept only when the database counts it). */
   purse(): Purse { return this.mine.eating ? chew(this.mine, this.company, this.now()).purse : this.mine; }
+  // (a database that counts helpings says how many each meal has had, in every purse it tells: v145)
+  helpings(): number { return this.mine.meals?.bowls ? STAMINA.bowls : 1; }
   stall(): Stall { return this.stall_; }
   prices(): PricesTold { return this.prices_; }
   shelf(): ItemId[] { return this.shelf_; }

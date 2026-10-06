@@ -8,7 +8,7 @@ import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
 import { measure, type FishSfx, type FishSound } from "@/lib/town/sfx";
-import { buffOf, buffsOf, hasBuff, isSpent, staminaOf } from "@/lib/town/stamina";
+import { buffOf, buffsOf, isSpent, levelOf, staminaOf } from "@/lib/town/stamina";
 import { handOf, held, roomFor } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Fishing } from "@/lib/town/world";
@@ -110,7 +110,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const now = keeper.now(), purse = keeper.purse(), hour = bangkokHour(now);
   const stamina = Math.round(staminaOf(purse, now)), spent = isSpent(purse, now);
   // (every buff I have: a meal's, and the fountain's blessings)
-  const buffs = buffsOf(purse, now), keen = buffs.includes("keen"), lucky = buffs.includes("lucky");
+  const buffs = buffsOf(purse, now), keen = levelOf(purse, now, "keen"), lucky = levelOf(purse, now, "lucky");
   const have = (b: BaitId) => held(purse.bag, b);
   /** What I fish with: the rod in my hand, and the best of each kind of tackle in my bag (lib/town/gear). */
   const gear = gearOf(purse.bag, handOf(purse));
@@ -249,7 +249,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     const reaction = Math.round(((performance.now() - from) / 1000 - wait) * 1000) / 1000;
     // How good a strike it was is this hand's to say, and heard at once; whether anything is on the hook, and what,
     // is the keeper's (its clock gives a moment's grace either way).
-    const hit = strikeOf(reaction, { keen: hasBuff(p, t, "keen"), spent: isSpent(p, t), gear: out.current?.gear });
+    const hit = strikeOf(reaction, { keen: levelOf(p, t, "keen"), spent: isSpent(p, t), gear: out.current?.gear });
     sfx.wake();
     sfx.play(!hit ? "early" : hit === "perfect" ? "perfect" : "strike");
     setPhase({ at: "striking" });
@@ -288,7 +288,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "fight") return;
     const p = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31);
-    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: hasBuff(p, t0, "calm"), gear: out.current?.gear }, seed);
+    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction: phase.reaction };
     bout.current = log;
     // (the fight's stamina was taken as the hook was set: a fight costs it whatever comes of it)
@@ -528,7 +528,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                 <TownIcon name={phase.shade === "other" ? "fxRing1" : "fishShadow"} size={phase.shade === "legend" ? 46 : phase.shade === "rare" ? 40 : 34} />
               </span>
             )}
-            {phase.at === "waiting" && lucky && <Twinkle size={20} className="absolute -translate-y-6 translate-x-7" />}
+            {phase.at === "waiting" && lucky > 0 && <Twinkle size={20} className="absolute -translate-y-6 translate-x-7" />}
             <span ref={ring} className="absolute size-10 rounded-full border-2 border-white/80 opacity-0" />
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
           </div>

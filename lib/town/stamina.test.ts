@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, SCROLLS, STAGES, STAGE_AT, growth, iconOf, isDish, type DishId, type ItemId } from "./items";
-import { STAMINA, bowlsBack, buffOf, chew, costOf, dayOf, eatenToday, getUp, mealOf, mealProgress, nextMealAt, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
+import { BUFFS, BUFF_HOURS, BUFF_LEVELS, BUFF_STEPS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, SCROLLS, STAGES, STAGE_AT, byOf, growth, iconOf, isDish, type BuffId, type DishId, type ItemId, type MealBuffId } from "./items";
+import { STAMINA, bowlsBack, bowlsToday, buffBy, buffOf, buffsOf, chew, costOf, dayOf, eatenToday, getUp, hasBuff, levelOf, mayEat, mealBuffs, mealOf, mealProgress, nextMealAt, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
 import { GOODS, held, newPurse, put, type Purse } from "./trade";
 import atlas from "./icon-atlas.json";
 
@@ -126,24 +126,42 @@ describe("meals", () => {
     expect(nextMealAt(at("2026-10-04T02:00:00"))).toBe(at("2026-10-04T05:00:00"));
   });
 
-  it("are eaten sitting down, a helping at a time, one to each meal's hours", () => {
-    const p = withFood("riceBox", 3);
+  it("are eaten sitting down, a helping at a time, three to each meal's hours", () => {
+    const p = withFood("riceBox", 5);
     expect(sitDown(p, 0, false, NOON)).toEqual({ ok: false, why: "stand" });
     expect(sitDown(p, 1, true, NOON)).toEqual({ ok: false, why: "none" });
     expect(sitDown({ ...p, bag: put(newPurse().bag, "worm", 1) }, 0, true, NOON)).toEqual({ ok: false, why: "none" });
     const sat = sitDown(Object.freeze(p) as Purse, 0, true, NOON);
     expect(sat.ok).toBe(true);
     if (!sat.ok) return;
-    expect(sat.purse.bag[0]).toEqual({ item: "riceBox", n: 2 });
+    expect(sat.purse.bag[0]).toEqual({ item: "riceBox", n: 4 });
     expect(sat.purse.eating).toMatchObject({ dish: "riceBox", meal: 1, got: 0 });
     expect(eatenToday(sat.purse, NOON)).toEqual([false, true, false]);
-    // not a second lunch, neither while eating nor after
+    expect(bowlsToday(sat.purse, NOON)).toEqual([0, 1, 0]);
+    // not a second helping while the first is being eaten
     expect(sitDown(sat.purse, 0, true, NOON + MIN)).toEqual({ ok: false, why: "meal" });
-    const done = chew(sat.purse, 0, NOON + 6 * MIN).purse;
-    expect(sitDown(done, 0, true, at("2026-10-03T16:00:00"))).toEqual({ ok: false, why: "meal" });
-    // dinner is another meal, and tomorrow another day
+    // eaten up, a second and a third in the same hours, each when one likes (the owner, 2026-10-06: "กินข้าวได้ 3 จานต่อมื้อ",
+    // "แยกกันกินได้ไม่ต้องกินทีเดียว"); and not a fourth
+    let done = chew(sat.purse, 0, NOON + 6 * MIN).purse;
+    expect(STAMINA.bowls).toBe(3);
+    for (const [n, when] of [[2, at("2026-10-03T13:00:00")], [3, at("2026-10-03T16:00:00")]] as const) {
+      expect(mayEat(done, when)).toBe(true);
+      const more = sitDown(done, 0, true, when);
+      expect(more.ok).toBe(true);
+      if (!more.ok) return;
+      expect(bowlsToday(more.purse, when)).toEqual([0, n, 0]);
+      done = chew(more.purse, 0, when + 6 * MIN).purse;
+    }
+    expect(mayEat(done, at("2026-10-03T16:30:00"))).toBe(false);
+    expect(sitDown(done, 0, true, at("2026-10-03T16:30:00"))).toEqual({ ok: false, why: "meal" });
+    // dinner's hours have three of their own, and tomorrow is another day
     expect(sitDown(done, 0, true, at("2026-10-03T18:00:00")).ok).toBe(true);
     expect(eatenToday(done, at("2026-10-04T05:00:00"))).toEqual([false, false, false]);
+    expect(bowlsToday(done, at("2026-10-04T05:00:00"))).toEqual([0, 0, 0]);
+    // a purse from before helpings were counted: the meal it ate is one of the three
+    const old: Purse = { ...p, meals: { day: dayOf(NOON), eaten: [false, true, false] } };
+    expect(bowlsToday(old, NOON)).toEqual([0, 1, 0]);
+    expect(mayEat(old, NOON)).toBe(true);
   });
 
   it("take five minutes, the stamina coming as they are eaten and the buff at the end", () => {
@@ -249,6 +267,102 @@ describe("meals", () => {
     expect(held(two.bag, "bowl")).toBe(1);
     expect(two.owed).toBe(1);
     expect(bowlsBack(newPurse())).toEqual(newPurse());
+  });
+});
+
+describe("what meals leave (the owner, 2026-10-06: \"buff จะ stack เป็นขั้น 2 3 4 ได้ และบัฟจะแรงขึ้น\")", () => {
+  const H = 3_600_000;
+  /** A purse after one more helping of a dish, eaten up at a moment: sat down to five minutes before. */
+  const eat = (p: Purse, dish: DishId, when: number): Purse => {
+    const sat = sitDown({ ...p, bag: put(newPurse().bag, dish, 1) }, 0, true, when - 5 * MIN);
+    if (!sat.ok) throw new Error(`${dish}: ${sat.why}`);
+    return chew(sat.purse, 0, when).purse;
+  };
+  const hearty = DISH_IDS.find((d) => DISHES[d].buff === "hearty")!, keen = DISH_IDS.find((d) => DISHES[d].buff === "keen")!;
+  const T1 = at("2026-10-03T16:40:00");
+
+  it("a helping that leaves a buff one has raises it a level, and leaves its hours as they run", () => {
+    const one = eat(newPurse(), hearty, T1);
+    expect(mealBuffs(one, T1)).toEqual([{ id: "hearty", level: 1, until: T1 + BUFF_HOURS * H }]);
+    const three = eat(eat(one, hearty, T1 + 6 * MIN), hearty, T1 + 12 * MIN);
+    expect(mealBuffs(three, T1 + 12 * MIN)).toEqual([{ id: "hearty", level: 3, until: T1 + BUFF_HOURS * H }]);
+    expect(levelOf(three, T1 + 12 * MIN, "hearty")).toBe(3);
+    // the fourth level is across a change of meals: three as lunch's hours end, a fourth as dinner's begin
+    expect(mayEat(three, T1 + 13 * MIN)).toBe(false);
+    const four = eat(three, hearty, at("2026-10-03T17:06:00"));
+    expect(levelOf(four, at("2026-10-03T17:06:00"), "hearty")).toBe(4);
+    // never past the fourth, and the hours are still the first helping's
+    const five = eat(four, hearty, at("2026-10-03T17:12:00"));
+    expect(BUFF_LEVELS).toBe(4);
+    expect(mealBuffs(five, at("2026-10-03T17:12:00"))).toEqual([{ id: "hearty", level: 4, until: T1 + BUFF_HOURS * H }]);
+    expect(levelOf(five, T1 + BUFF_HOURS * H, "hearty")).toBe(0);
+    expect(hasBuff(five, T1 + BUFF_HOURS * H, "hearty")).toBe(false);
+    // run out, the next helping of it begins again at the first
+    const again = eat(five, hearty, at("2026-10-03T19:50:00"));
+    expect(mealBuffs(again, at("2026-10-03T19:50:00"))).toEqual([{ id: "hearty", level: 1, until: at("2026-10-03T19:50:00") + BUFF_HOURS * H }]);
+  });
+
+  it("a helping that leaves another buff is a buff of its own beside it, with its own hours", () => {
+    const both = eat(eat(newPurse(), hearty, T1), keen, T1 + 6 * MIN);
+    expect(mealBuffs(both, T1 + 6 * MIN)).toEqual([{ id: "hearty", level: 1, until: T1 + BUFF_HOURS * H }, { id: "keen", level: 1, until: T1 + 6 * MIN + BUFF_HOURS * H }]);
+    expect(buffsOf(both, T1 + 6 * MIN)).toEqual(["hearty", "keen"]);
+    // the first runs out first, and the other is still there
+    expect(buffsOf(both, T1 + BUFF_HOURS * H + MIN)).toEqual(["keen"]);
+    // (beside them, the buff as it was kept before levels: the last eaten for, for a page that knows no better)
+    expect(both.buff).toEqual({ id: "keen", until: T1 + 6 * MIN + BUFF_HOURS * H });
+    expect(buffOf(both, T1 + 6 * MIN)).toBe("keen");
+    // a helping that leaves nothing leaves them as they were
+    const plain = DISH_IDS.find((d) => !DISHES[d].buff && d !== "oddDish")!;
+    expect(mealBuffs(eat(both, plain, T1 + 12 * MIN), T1 + 12 * MIN)).toEqual(mealBuffs(both, T1 + 12 * MIN));
+  });
+
+  it("is the stronger for its level, and never more than three times anything (\"Op ได้ แต่มากสุดแค่ x3 พอ\")", () => {
+    for (const id of Object.keys(BUFF_STEPS) as MealBuffId[]) {
+      const steps = BUFF_STEPS[id];
+      expect(steps.length, id).toBe(BUFF_LEVELS);
+      for (let i = 1; i < steps.length; i++) expect(steps[i], id).toBeGreaterThanOrEqual(steps[i - 1]);
+      expect(byOf(id, 0)).toBe(0);
+      expect(byOf(id, 1)).toBe(steps[0]);
+      expect(byOf(id, 9)).toBe(steps[BUFF_LEVELS - 1]);
+      // (the first level is what the buff always did)
+      if (id in BUFFS) expect(BUFFS[id as BuffId].by, id).toBe(steps[0]);
+    }
+    for (const id of ["calm", "keen", "lucky", "green", "net"] as const) expect(1 + byOf(id, BUFF_LEVELS), id).toBeLessThanOrEqual(3);
+    expect(byOf("forage", BUFF_LEVELS)).toBeLessThanOrEqual(3);
+    // hearty takes off the cost: at the last level the same stamina does three times the work, not more
+    expect(1 / (1 - byOf("hearty", BUFF_LEVELS))).toBeLessThanOrEqual(3.04);
+    const fed = (level: number): Purse => ({ ...newPurse(), buffs: [{ id: "hearty", level, until: NOON + 1 }] });
+    expect([1, 2, 3, 4].map((l) => costOf(fed(l), 20, NOON))).toEqual([14, 11, 9, 7]);
+    expect(buffBy(fed(2), NOON, "hearty")).toBe(0.45);
+    expect(buffBy(fed(2), NOON, "keen")).toBe(0);
+    expect(costOf(fed(4), 20, NOON + 2)).toBe(20);
+  });
+
+  it("a blessing of the fountain's is the first level, and a meal's own level is not lost to it", () => {
+    const blessed: Purse = { ...newPurse(), blessed: [{ id: "green", until: NOON + H }] };
+    expect(levelOf(blessed, NOON, "green")).toBe(1);
+    expect(levelOf({ ...blessed, buffs: [{ id: "green", level: 3, until: NOON + H }] }, NOON, "green")).toBe(3);
+    expect(buffsOf({ ...blessed, buffs: [{ id: "green", level: 3, until: NOON + H }] }, NOON)).toEqual(["green"]);
+    expect(levelOf(blessed, NOON + H, "green")).toBe(0);
+  });
+
+  it("a purse from before levels has its one buff, at the first", () => {
+    const old: Purse = { ...newPurse(), buff: { id: "calm", until: NOON + H } };
+    expect(mealBuffs(old, NOON)).toEqual([{ id: "calm", level: 1, until: NOON + H }]);
+    expect(levelOf(old, NOON, "calm")).toBe(1);
+    // its next helping of the same raises it, as anybody's
+    const calm = DISH_IDS.find((d) => DISHES[d].buff === "calm")!;
+    expect(mealBuffs(eat(old, calm, NOON + 10 * MIN), NOON + 10 * MIN)).toEqual([{ id: "calm", level: 2, until: NOON + H }]);
+  });
+
+  it("a helping left early raises nothing", () => {
+    const one = eat(newPurse(), hearty, T1);
+    const sat = sitDown({ ...one, bag: put(newPurse().bag, hearty, 1) }, 0, true, T1 + MIN);
+    if (!sat.ok) throw new Error(sat.why);
+    const up = getUp(sat.purse, 0, T1 + 3 * MIN);
+    expect(mealBuffs(up, T1 + 3 * MIN)).toEqual([{ id: "hearty", level: 1, until: T1 + BUFF_HOURS * H }]);
+    // (and the helping is spent all the same: it was one of the meal's three)
+    expect(bowlsToday(up, T1 + 3 * MIN)).toEqual([0, 2, 0]);
   });
 });
 

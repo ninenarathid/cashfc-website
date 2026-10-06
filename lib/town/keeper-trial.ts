@@ -9,7 +9,7 @@ import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keepe
 import type { Play } from "./plays";
 import type { ShopAsk } from "./shop";
 import { SKIES } from "./skies";
-import { hasBuff, isSpent } from "./stamina";
+import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
 import type { Purse } from "./trade";
 import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
@@ -41,6 +41,7 @@ class TrialKeeper implements Keeper {
   now() { return this.trial.now(); }
 
   purse() { return this.trial.purse(); }
+  helpings() { return STAMINA.bowls; }
   stall() { return this.trial.stall(); }
   shelf() { return this.trial.shelf(); }
   order() { return this.trial.order(); }
@@ -119,7 +120,7 @@ class TrialKeeper implements Keeper {
     // there holds as well, so that a fish that waits for the moon need not be waited for.
     const named = (typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("townSigns") ?? "").split(",").filter((x): x is Sign => ALL_SIGNS.includes(x as Sign));
     const signs = [...new Set([...signsOf({ now, spent: isSpent(p, now), others: 0, wet: wetMs(SKIES.rains(), now - SIGNS.after * 60_000, now) }, rain), ...named])];
-    const drawn = castLine(bait, bangkokHour(now), rain, hasBuff(p, now, "lucky"), seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep, signs);
+    const drawn = castLine(bait, bangkokHour(now), rain, levelOf(p, now, "lucky"), seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep, signs);
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
     const cast = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     this.out = { cast, bait };

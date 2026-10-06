@@ -6,7 +6,7 @@ import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/
 import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
 import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
-import { eatenToday, hasBuff, isSpent, mealOf } from "@/lib/town/stamina";
+import { hasBuff, isSpent, mayEat } from "@/lib/town/stamina";
 import { handOf, held } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import { KITCHEN, onYard } from "@/lib/town/world";
@@ -336,7 +336,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     {table && (
       <TownKitchen th={th} reduced={reduced} place={here!.place as "stove" | "table" | "fire" | "camp"} keeper={keeper} purse={purse} now={now} crew={cooks} things={things} notes={notes}
                    result={result} why={refusal} bottom={bottom} fire={art?.("gameFire") ?? null}
-                   eat={{ bowl: held(purse.bag, BOWL) > 0, meal: !purse.eating && !eatenToday(purse, now)[mealOf(now)] }}
+                   eat={{ bowl: held(purse.bag, BOWL) > 0, meal: mayEat(purse, now, keeper.helpings()) }}
                    onAdd={add} onDrop={drop} onClear={() => setThings([])} onTool={takeUp} onGo={go} onClose={() => { setResult(null); setOpen(false); }}
                    onAgain={() => setResult(null)} onEat={eatNow} onPotDown={potDown} />
     )}

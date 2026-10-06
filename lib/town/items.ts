@@ -968,6 +968,8 @@ export const growIconOf = (crop: CropId, stage: number): string =>
 /* ── dishes ─────────────────────────────────────────────────────────────── */
 
 export type BuffId = "calm" | "keen" | "lucky" | "hearty" | "green";
+/** What a meal may leave: one of the five, or one of the forest's two (lib/town/forest-eye), which the fountain blesses with as well. */
+export type MealBuffId = BuffId | "forage" | "net";
 /**
  * What a meal leaves behind for a while (the owner: "อาหารยังเพิ่ม buff แล้วแต่
  * ชนิดอาหาร"): one at a time, the last eaten. `by` is how much, as each rule
@@ -980,8 +982,24 @@ export const BUFFS: Record<BuffId, { name: Line; about: Line; icon: string; by: 
   hearty: { name: { th: "อิ่มทน", en: "Hearty" }, about: { th: "ใช้ stamina น้อยลง", en: "Everything costs less stamina" }, icon: "buffHearty", by: 0.3 },
   green: { name: { th: "มือเย็น", en: "Green fingers" }, about: { th: "รดน้ำแล้วผักโตไวขึ้นอีก", en: "Watering speeds a plant more" }, icon: "buffGreen", by: 0.5 },
 };
-/** How long a meal's buff lasts, in hours. */
+/** How long a meal's buff lasts, in hours: from the first helping that left it, whatever is eaten after. */
 export const BUFF_HOURS = 3;
+/**
+ * A meal's buff has a level (the owner, 2026-10-06: "ถ้ากินข้าวที่มีบัฟเหมือนกัน buff จะ stack เป็นขั้น 2 3 4 ได้ และบัฟจะแรงขึ้น
+ * จนถึงขั้น OP"; and how far: "Op ได้ แต่มากสุดแค่ x3 พอ"). A helping that leaves a buff one has already raises it a
+ * level, to the fourth at the most; its hours run on from the first helping ("buff stack กันได้ แต่เวลาไม่เพิ่ม ยกเว้น
+ * จานต่อไปจะเป็นบัฟใหม่"), so the fourth level is for whoever eats three as a meal's hours end and a fourth as the next
+ * begin. `BUFF_STEPS` is how much each does at each level, as the rule that reads it understands it (`byOf`): no
+ * more than three times anything at the fourth. Hearty takes off the cost: two thirds at the most, so that the same
+ * stamina does three times the work.
+ */
+export const BUFF_LEVELS = 4;
+export const BUFF_STEPS: Record<MealBuffId, [number, number, number, number]> = {
+  calm: [0.2, 0.6, 1.2, 2], keen: [0.5, 1, 1.5, 2], lucky: [0.5, 1, 1.5, 2], green: [0.5, 1, 1.5, 2], hearty: [0.3, 0.45, 0.55, 0.67],
+  forage: [1, 2, 2, 3], net: [0.5, 1, 1.5, 2],
+};
+/** How much a buff does at a level: nothing at none, and no more past the fourth. */
+export const byOf = (id: MealBuffId, level: number): number => (level >= 1 ? BUFF_STEPS[id][Math.min(BUFF_LEVELS, Math.floor(level)) - 1] : 0);
 
 export type DishId =
   | "riceBox" | "oddDish" | "friedMinnow" | "grilledFish" | "grilledCorn" | "roastSweetPotato" | "stirKangkong" | "basilCatfish" | "tomYum" | "sourCurry" | "friedPerch" | "fishCake" | "spicyEel" | "grilledPrawn" | "steamedGoby" | "pumpkinSoup" | "shabu"

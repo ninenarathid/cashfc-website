@@ -1,6 +1,6 @@
 import { CARRIES } from "./gear";
 import type { WishId } from "./fountain";
-import { ITEMS, type BuffId, type DishId, type FishId, type ItemId } from "./items";
+import { ITEMS, type BuffId, type DishId, type FishId, type ItemId, type MealBuffId } from "./items";
 
 /**
  * Cash Town's trade: what the uncle's stall and the banker's counter do, as
@@ -164,11 +164,17 @@ export interface Purse {
   popoto: { profile: number; gallery: number };
   /** Stamina left, on the day it was last counted (a new day begins it full). */
   stamina: { day: number; left: number };
-  /** Which of the day's three meals have been eaten. */
-  meals: { day: number; eaten: [boolean, boolean, boolean] };
+  /**
+   * Which of the day's three meals have been eaten of, and (`bowls`) how many helpings in each one's hours: three at
+   * the most (lib/town/stamina). A purse from before helpings were counted has no `bowls`: a meal it ate is one.
+   */
+  meals: { day: number; eaten: [boolean, boolean, boolean]; bowls?: [number, number, number] };
   /** The meal being eaten: the dish, which meal of the day it is, when it was begun, how far it had been counted, and the stamina it has given so far. */
   eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number } | null;
+  /** The buff of the last helping eaten, as it was kept before buffs had levels: still written, for a page that knows no better. */
   buff: { id: BuffId; until: number } | null;
+  /** What meals have left, each while it lasts: held together, each at its level (lib/town/stamina's mealBuffs reads them; a purse from before has only `buff`). */
+  buffs?: Array<{ id: MealBuffId; level: number; until: number }>;
   /** The fountain's blessings somebody has, each while it lasts (lib/town/fountain): put there as the purse is read, and held beside the meal's buff. */
   blessed?: Array<{ id: WishId; until: number }>;
   best: Partial<Record<FishId, number>>;

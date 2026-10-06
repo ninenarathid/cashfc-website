@@ -108,6 +108,10 @@ describe("a plant", () => {
     // (worn off, or another meal's buff: a plain watering)
     expect(done(water("1,1", { ...me, buff: { id: "green", until: NIGHT + HOUR } }, plot, "can", NIGHT + HOUR)).plot.plant!.boost).toBe(plain.plot.plant!.boost);
     expect(done(water("1,1", { ...me, buff: { id: "keen", until: NIGHT + 2 * HOUR } }, plot, "can", NIGHT + HOUR)).plot.plant!.boost).toBe(plain.plot.plant!.boost);
+    // at each of its levels (2026-10-06): twice, two and a half times, three times a plain watering
+    for (const [level, times] of [[1, 1.5], [2, 2], [3, 2.5], [4, 3]] as const) {
+      expect(done(water("1,1", { ...me, buffs: [{ id: "green", level, until: NIGHT + 2 * HOUR }] }, plot, "can", NIGHT + HOUR)).plot.plant!.boost).toBe(plain.plot.plant!.boost * times);
+    }
   });
 
   it("is not watered from an empty can: the can is filled first", () => {

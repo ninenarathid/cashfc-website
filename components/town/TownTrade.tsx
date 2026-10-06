@@ -12,7 +12,7 @@ import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { carried } from "@/lib/town/line";
 import type { PricesTold } from "@/lib/town/market";
-import { MEALS, STAMINA, buffsOf, eatenToday, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
+import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
   GOODS, RULES, SHELF, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
   type Purse, type Refusal, type Stack, type Stall,
@@ -54,7 +54,7 @@ export const WHY: Record<Refusal, [th: string, en: string]> = {
   popoto: ["popoto ไม่พอ", "Not that many popoto"],
   amount: ["จำนวนไม่ถูกต้อง", "Not a number that can be"],
   tool: ["ต้องมีคันเบ็ดในกระเป๋า", "You need a rod in your bag"],
-  meal: ["มื้อนี้กินไปแล้ว รอมื้อถัดไป", "This meal is eaten. Wait for the next."],
+  meal: ["มื้อนี้กินครบแล้ว รอมื้อถัดไป", "This meal's helpings are eaten. Wait for the next."],
   stand: ["นั่งก่อนถึงจะกินได้", "Sit down first"],
   known: ["สูตรนี้รู้อยู่แล้ว", "You know this recipe already"],
   dry: ["ไม่มีน้ำ", "There is no water"],
@@ -263,7 +263,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
+        {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
                                 onWear={(slot) => tried(keeper.wear(slot), ["สะพายแล้ว", "On your back."])}
                                 onTakeOff={(item) => tried(keeper.takeOff(item), ["ถอดเก็บแล้ว", "Taken off."])}
                                 onServe={async (slot) => { const did = await keeper.serve(slot); if (did.ok) say("ตักใส่ถ้วยแล้ว", "A helping, in your bowl."); else say(...(did.why === "tool" ? (["ไม่มีถ้วย", "No bowl"] as [string, string]) : why(did.why))); }}
@@ -566,8 +566,10 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, now, th, seated, company, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen }: {
+function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen }: {
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
+  /** How many helpings a meal's hours take with whoever keeps the game (the keeper's `helpings`). */
+  helpings: number;
   /** Whether anything can be dropped (onto the ground, where somebody may pick it up); otherwise only what is worth nothing, which is thrown away. And what I dropped that still lies there. */
   dropsAll: boolean;
   lying: React.ReactNode;
@@ -584,15 +586,16 @@ function Bag({ purse, now, th, seated, company, recipes, book, dropsAll, lying, 
   /** Open the thing in a slot, to see what is in it. */
   onOpen: (slot: number) => void;
 }) {
-  const stamina = Math.round(staminaOf(purse, now)), meal = mealOf(now), eaten = eatenToday(purse, now);
-  // Every buff I have, each with the minutes it has left: a meal's, and the fountain's blessings (one had twice lasts as long as the longer).
-  const until = (id: WishId) => Math.max(purse.buff?.id === id ? purse.buff.until : 0, ...(purse.blessed ?? []).filter((b) => b.id === id).map((b) => b.until));
-  const buffs = buffsOf(purse, now).map((id) => ({ id, minutes: Math.max(1, Math.ceil((until(id) - now) / 60_000)) }));
+  const stamina = Math.round(staminaOf(purse, now)), meal = mealOf(now), bowls = bowlsToday(purse, now);
+  // Every buff I have, each with its level and the minutes it has left: what meals left (a level each, the owner,
+  // 2026-10-06), and the fountain's blessings (one had from both lasts as long as the longer, at the higher level).
+  const until = (id: WishId) => Math.max(0, ...mealBuffs(purse, now).filter((b) => b.id === id).map((b) => b.until), ...(purse.blessed ?? []).filter((b) => b.id === id).map((b) => b.until));
+  const buffs = buffsOf(purse, now).map((id) => ({ id, level: levelOf(purse, now, id), minutes: Math.max(1, Math.ceil((until(id) - now) / 60_000)) }));
   /** The thing taken up to look at, by its slot: it is named under the pockets, with what can be done with it. (When the slot comes to hold something else, nothing is taken up.) */
   const [picked, setPicked] = useState<{ slot: number; item: ItemId } | null>(null);
   const slot = picked && purse.bag[picked.slot]?.item === picked.item ? picked.slot : null, inHand = slot !== null ? purse.bag[slot]! : null;
   const it = inHand ? ITEMS[inHand.item] : null, dish = !!inHand && isDish(inHand.item), scroll = inHand ? SCROLLS[inHand.item] : undefined;
-  const mayEat = dish && !purse.eating && !eaten[meal];
+  const mayEat = dish && mayEatNow(purse, now, helpings);
   const full = purse.bag.filter(Boolean).length, hand = handOf(purse);
   return (
     <>
@@ -607,8 +610,13 @@ function Bag({ purse, now, th, seated, company, recipes, book, dropsAll, lying, 
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {MEALS.map((_, i) => (
-            <span key={i} className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-meta ${eaten[i] ? "bg-line text-muted line-through" : i === meal ? "bg-accent/15 font-semibold text-accent" : "bg-bg/40 text-muted"}`}>
-              <TownIcon name={(["morning", "noon", "evening"] as const)[i]} size={12} />{th ? MEAL_NAME[i][0] : MEAL_NAME[i][1]}
+            <span key={i} data-meal={i} data-bowls={bowls[i]} aria-label={th ? `${MEAL_NAME[i][0]} กินแล้ว ${bowls[i]} จาก ${helpings} ถ้วย` : `${MEAL_NAME[i][1]}: ${bowls[i]} of ${helpings} helpings eaten`}
+                  className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-meta ${bowls[i] >= helpings ? "bg-line text-muted" : i === meal ? "bg-accent/15 font-semibold text-accent" : "bg-bg/40 text-muted"}`}>
+              <TownIcon name={(["morning", "noon", "evening"] as const)[i]} size={12} /><span className={bowls[i] >= helpings ? "line-through" : ""}>{th ? MEAL_NAME[i][0] : MEAL_NAME[i][1]}</span>
+              {/* a mark for each helping the meal's hours take, filled as they are eaten */}
+              <span aria-hidden className="ml-0.5 flex gap-0.5">
+                {Array.from({ length: helpings }, (_, k) => <span key={k} className={`size-1.5 rounded-full ${k < bowls[i] ? "bg-current" : "border border-current opacity-50"}`} />)}
+              </span>
             </span>
           ))}
         </div>
@@ -616,6 +624,7 @@ function Bag({ purse, now, th, seated, company, recipes, book, dropsAll, lying, 
           <p key={b.id} className="mt-2 flex items-center gap-1.5 text-meta text-ink">
             <TownIcon name={WISH[b.id].icon as IconName} size={18} />
             <span className="font-semibold text-gold">{th ? WISH[b.id].name.th : WISH[b.id].name.en}</span>
+            {b.level > 1 && <span className="rounded-full bg-gold/15 px-1.5 font-data text-label font-semibold text-gold" data-buff-level={b.level}>{th ? `ขั้น ${b.level}` : `Lv ${b.level}`}</span>}
             <span className="min-w-0 text-muted">{th ? `อีก ${b.minutes} นาที` : `${b.minutes} min left`}</span>
           </p>
         ))}

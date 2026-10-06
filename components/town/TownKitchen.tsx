@@ -503,7 +503,7 @@ function Came({ result, th, eat, why, onAgain, onEat, onPotDown, onClose }: {
                       className={`${plain} flex items-center justify-center gap-1.5 border-[#2a190d]`} style={found ? { backgroundColor: INK, color: PAPER } : { borderColor: INK_SOFT }}>
                 <TownIcon name="meal" size={20} />{th ? "ตักกินเลย" : "Ladle one and eat"}
               </button>
-              {(!eat.bowl || !eat.meal) && <p className="-mt-0.5 text-meta" style={{ color: CHILI }}>{!eat.meal ? (th ? "มื้อนี้กินไปแล้ว" : "This meal is eaten") : (th ? "ไม่มีถ้วยว่าง" : "No bowl to spare")}</p>}
+              {(!eat.bowl || !eat.meal) && <p className="-mt-0.5 text-meta" style={{ color: CHILI }}>{!eat.meal ? (th ? "มื้อนี้กินครบแล้ว" : "This meal's helpings are eaten") : (th ? "ไม่มีถ้วยว่าง" : "No bowl to spare")}</p>}
               <button type="button" onClick={onPotDown} data-kitchen-down className={`${plain} flex items-center justify-center gap-1.5`} style={{ borderColor: INK_SOFT }}>
                 <TownIcon name="potFull" size={20} />{th ? "วางหม้อให้เพื่อน" : "Set the pot down for company"}
               </button>

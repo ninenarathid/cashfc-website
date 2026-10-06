@@ -295,6 +295,21 @@ describe("the strike", () => {
     expect(strikeOf(STRIKE.window * 1.4, { keen: true })).toBe("late");
     expect(strikeOf(STRIKE.window * 1.6, { keen: true })).toBeNull();
     expect(strikeWindow({ keen: true })).toBeCloseTo(STRIKE.window * 1.5, 9);
+    // a keen eye at each of its levels (the owner, 2026-10-06: buffs to a fourth level, "มากสุดแค่ x3"): the first is
+    // what it always was, the fourth three times the moment
+    expect([0, 1, 2, 3, 4, 9].map((keen) => Math.round((strikeWindow({ keen }) / STRIKE.window) * 100) / 100)).toEqual([1, 1.5, 2, 2.5, 3, 3]);
+  });
+  it("brings the rare fish oftener the luckier the meal: half as often again, to three times at the fourth level", () => {
+    // (one bait, one hour: every rare or better fish's share against the commonest thing on the line)
+    const rare = (lucky: number | boolean) => {
+      const odds = oddsOf("minnow", 21, false, lucky), top = Math.max(...odds.filter((o) => !(o.what in FISH) || FISH[o.what as FishId].tier === "common").map((o) => o.p));
+      return odds.filter((o) => o.what in FISH && ["rare", "legend"].includes(FISH[o.what as FishId].tier)).reduce((t, o) => t + o.p, 0) / top;
+    };
+    const none = rare(0);
+    expect(none).toBeGreaterThan(0);
+    expect(rare(false)).toBe(none);
+    expect(rare(true)).toBeCloseTo(rare(1), 12);
+    expect([1, 2, 3, 4].map((l) => Math.round((rare(l) / none) * 100) / 100)).toEqual([1.5, 2, 2.5, 3]);
   });
 
   it("is much harder to time with no stamina left", () => {
@@ -539,6 +554,8 @@ describe("the safe stretch", () => {
 describe("with no stamina left (the owner: \"ถ้า stamina หมด mini game ทุกอย่างจะยากขึ้นมากด้วย\")", () => {
   it("the stretch is narrower, moves further and faster, and the fish surges harder; steady hands widen it", () => {
     const fresh = startFight("catfish", "good", {}, 3), spent = startFight("catfish", "good", { spent: true }, 3), calm = startFight("catfish", "good", { calm: true }, 3);
+    // (steady hands at each level: a fifth wider, as ever, to three times as wide)
+    expect([1, 2, 3, 4].map((l) => { const f = startFight("catfish", "good", { calm: l }, 3); return Math.round(((f.hi - f.lo) / (fresh.hi - fresh.lo)) * 100) / 100; })).toEqual([1.2, 1.6, 2.2, 3]);
     // (2026-10-04, eased that night) half of the stretch is left: with a good third of it the members landed nothing
     expect(spent.hi - spent.lo).toBeLessThan((fresh.hi - fresh.lo) * 0.55);
     expect(spent.hi - spent.lo).toBeGreaterThan((fresh.hi - fresh.lo) * 0.45);
