@@ -166,7 +166,9 @@ describe("the gifts of the lines of work", () => {
     expect(row.slots).toBe(2);
     expect(Object.keys(row.gifts).sort()).toEqual([...CHARM_IDS, ...FAMILIAR_IDS].sort());
     expect(row.gifts.famGnome).toEqual({ kind: "familiar", line: "farming", rank: 2, by: 10 });
-    expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1.5 });
+    // (the float and the net do something that is no number: theirs is 1, which does nothing where a rule multiplies by it)
+    expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1 });
+    expect(row.gifts.charmNet.by).toBe(1);
     expect(row.gifts.charmGloves.by).toBe(0.5);
   });
 });
@@ -174,12 +176,13 @@ describe("the gifts of the lines of work", () => {
 describe("what the charms the database judges do", () => {
   const worn = (...ids: string[]): Purse => ({ ...newPurse(), gifts: { had: ids, charms: ids } });
 
-  it("the whispering float: the strike's moment is half as long again, only while it is worn", () => {
+  it("the whispering float tells what is coming, and no longer lengthens the strike's moment (the owner, 2026-10-07)", () => {
     const bare = newPurse(), had: Purse = { ...bare, gifts: { had: ["charmFloat"], charms: [] } };
     expect(strikeWindowOf(bare, NOON)).toBeCloseTo(STRIKE.window);
     expect(strikeWindowOf(had, NOON)).toBeCloseTo(STRIKE.window);
-    expect(strikeWindowOf(worn("charmFloat"), NOON)).toBeCloseTo(STRIKE.window * 1.5);
-    // (a strike that would have been too late is a late one with it; a charm never shrinks the moment)
+    expect(strikeWindowOf(worn("charmFloat"), NOON)).toBeCloseTo(STRIKE.window);
+    expect(CHARMS.charmFloat).toBe(1);
+    // (the rule still reads a charm's number, and one never shrinks the moment)
     expect(strikeOf(STRIKE.window * 1.2)).toBeNull();
     expect(strikeOf(STRIKE.window * 1.2, { charm: 1.5 })).toBe("late");
     expect(strikeOf(STRIKE.window * 0.9, { charm: 0.2 })).toBe("late");

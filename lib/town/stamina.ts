@@ -79,7 +79,7 @@ export const STAMINA = {
    * are tried, not skill; the stretch is between what it first was and what it became. The surge, the sway and the
    * pace are not changed.
    */
-  spent: { strike: 0.6, band: 0.5, surge: 1.3, sway: 1.15, pace: 1.4 },
+  spent: { strike: 0.6, band: 0.75, surge: 1.15, sway: 1.1, pace: 1.2 },
 };
 export const MEALS = ["breakfast", "lunch", "dinner"] as const;
 

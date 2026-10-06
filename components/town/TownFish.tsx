@@ -8,7 +8,7 @@ import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
 import { measure, type FishSfx, type FishSound } from "@/lib/town/sfx";
-import { charmBy } from "@/lib/town/gifts";
+import { wearing } from "@/lib/town/gifts";
 import { buffOf, buffsOf, isSpent, levelOf, staminaOf } from "@/lib/town/stamina";
 import { handOf, held, roomFor } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
@@ -23,6 +23,8 @@ export type LineState = "wait" | "nibble" | "bite" | "fight";
 /** A place to fish from: the tile stood on, where its float lands, and whether that is deep water (the deck's) or the shallows (the bank's). */
 export type FishPlace = Fishing & { tile: [number, number] };
 
+/** The length of the whispering float's ring (a circle of radius 28), which runs down to the bite. */
+const COUNT_ROUND = 2 * Math.PI * 28;
 /** How the shade of what is on its way looks under clear water: the rarer, the brighter. */
 const SHADE_LOOK: Record<Shade, string> = {
   common: "none", uncommon: "brightness(1.6) saturate(1.4)", rare: "brightness(2.2) saturate(2) hue-rotate(60deg)",
@@ -34,7 +36,8 @@ type Phase =
   /** The line is on its way out, or the strike on its way in: nothing to press until the keeper has answered. */
   | { at: "casting" }
   /** (`shade`: under the fountain's clear water, how rare a thing is on its way; never which) */
-  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade }
+  /** (`coming`: what is on its way, for whoever wears the whispering float: a fish landed before is shown as itself, another as a shade of its tier) */
+  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId }
   | { at: "striking" }
   | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
   /** (`from`: when it was shown, by the page's own clock: nothing goes on from it for a moment) */
@@ -194,12 +197,14 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       return;
     }
     out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
-    setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}) });
+    setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}) });
   };
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
+  /** The whispering float's own: the ring that runs down to the bite, and the flash at the true bite. */
+  const count = useRef<SVGCircleElement>(null), flash = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (phase.at !== "waiting") return;
-    const { from } = phase, cast = phase, grace = strikeWindow({ keen, spent, gear: out.current?.gear, charm: charmBy(purse, "charmFloat") });
+    const { from } = phase, cast = phase, grace = strikeWindow({ keen, spent, gear: out.current?.gear });
     let raf = 0, heard = -1, under = false, drawn = 0, due = 0;
     const frame = (t: number) => {
       // (no more often than the map is drawn at the most: lib/town/pace)
@@ -220,6 +225,9 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         float.current.style.opacity = bitten ? "0.35" : "1";
       }
       if (thread.current) thread.current.setAttribute("y2", String(40 + bob + dip));
+      // (the whispering float: its ring runs down to the bite, and it flashes when the bite is the true one)
+      if (count.current) count.current.style.strokeDashoffset = String(COUNT_ROUND * Math.min(1, Math.max(0, s / cast.wait)));
+      if (flash.current) flash.current.style.opacity = bitten ? String(Math.max(0, 1 - (s - cast.wait) / 0.9)) : "0";
       if (ring.current) {
         const since = bitten ? s - cast.wait : nibbling ? s - cast.nibbles.find((n) => s >= n && s < n + NIBBLE)! : -1;
         ring.current.style.opacity = since >= 0 ? String(Math.max(0, 1 - since / (bitten ? 1.2 : NIBBLE))) : "0";
@@ -250,7 +258,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     const reaction = Math.round(((performance.now() - from) / 1000 - wait) * 1000) / 1000;
     // How good a strike it was is this hand's to say, and heard at once; whether anything is on the hook, and what,
     // is the keeper's (its clock gives a moment's grace either way).
-    const hit = strikeOf(reaction, { keen: levelOf(p, t, "keen"), spent: isSpent(p, t), gear: out.current?.gear, charm: charmBy(p, "charmFloat") });
+    const hit = strikeOf(reaction, { keen: levelOf(p, t, "keen"), spent: isSpent(p, t), gear: out.current?.gear });
     sfx.wake();
     sfx.play(!hit ? "early" : hit === "perfect" ? "perfect" : "strike");
     setPhase({ at: "striking" });
@@ -415,7 +423,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   // (for scripts in `next dev`: what is happening, and a hand on the reel)
   useEffect(() => {
     const handle = {
-      phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000 } : null),
+      phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000, coming: phase.coming ?? null } : null),
       // (a script's strike is taken whenever it comes: the line's rest is for hands, which the checks try by the button and the key)
       fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike: () => strike(true), result: () => (phase.at === "result" ? phase : null),
       quick: (on: boolean) => setQuick(on), place: () => place,
@@ -530,6 +538,24 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               </span>
             )}
             {phase.at === "waiting" && lucky > 0 && <Twinkle size={20} className="absolute -translate-y-6 translate-x-7" />}
+            {/* the whispering float worn as a charm (lib/town/gifts): what is on its way, a ring that runs down to the
+                bite, and a flash at the true bite. A fish landed before is itself; another is a shade of its tier. */}
+            {phase.at === "waiting" && phase.coming && (() => {
+              const what = phase.coming, fish = what in FISH ? (what as FishId) : null, known = !fish || purse.best[fish] !== undefined, tier: Shade = fish ? FISH[fish].tier : "other";
+              return (
+                <span className="absolute left-2 top-2 flex items-center gap-1.5 rounded-md border border-white/25 bg-black/45 px-1.5 py-1" data-fx="whisper" data-coming={known ? what : ""} data-tier={tier}>
+                  {known ? <ItemIcon id={what} size={28} /> : <span style={{ filter: SHADE_LOOK[tier] }}><TownIcon name="fishShadow" size={28} /></span>}
+                  <span className="font-data text-label text-white/90">{known ? (th ? ITEMS[what].name.th : ITEMS[what].name.en) : "???"}</span>
+                </span>
+              );
+            })()}
+            {phase.at === "waiting" && phase.coming && (
+              <svg className="absolute size-16" viewBox="0 0 64 64" aria-hidden>
+                <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="3" />
+                <circle ref={count} cx="32" cy="32" r="28" fill="none" stroke="rgba(255,236,170,0.95)" strokeWidth="3" strokeLinecap="round" strokeDasharray={COUNT_ROUND} strokeDashoffset="0" transform="rotate(-90 32 32)" data-fx="count" />
+              </svg>
+            )}
+            {phase.at === "waiting" && phase.coming && <span ref={flash} className="absolute size-14 rounded-full opacity-0" style={{ background: "radial-gradient(circle, rgba(255,246,190,0.95) 0%, rgba(255,236,150,0.5) 45%, rgba(255,236,150,0) 70%)" }} data-fx="flash" />}
             <span ref={ring} className="absolute size-10 rounded-full border-2 border-white/80 opacity-0" />
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
           </div>

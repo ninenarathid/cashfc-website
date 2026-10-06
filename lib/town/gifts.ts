@@ -40,7 +40,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "charmGloves", kind: "charm", line: "helpers", rank: 1, name: { th: "ถุงมือชาวสวนต้องมนตร์", en: "Enchanted gardener's gloves" },
     does: { th: "งานในแปลงของคนอื่นใช้แรงครึ่งเดียว", en: "Work in somebody else's bed takes half the stamina" } },
   { id: "charmFloat", kind: "charm", line: "fishing", rank: 1, name: { th: "ทุ่นกระซิบ", en: "Whispering float" },
-    does: { th: "ช่วงตวัดเบ็ดยาวขึ้นครึ่งเท่า", en: "The moment to strike is half as long again" } },
+    does: { th: "พอลงเบ็ดจะรู้ว่าปลาอะไรกำลังมา มีวงนับถอยหลังถึงตอนกิน และทุ่นสว่างวาบตอนปลากินจริง", en: "Once the line is out you know what is coming, a ring runs down to the bite, and the float flashes at the true bite" } },
   { id: "charmLamp", kind: "charm", line: "forest", rank: 1, name: { th: "ตะเกียงผู้เดินป่า", en: "Forest walker's lamp" },
     does: { th: "ในป่าตอนมืด รอบตัวเราสว่างขึ้น และของที่เก็บได้ในวงแสงมีประกาย (เห็นเฉพาะจอเรา)", en: "In the forest's dark, a light about you, and what can be gathered in it glints (on your own screen)" } },
   { id: "charmNet", kind: "charm", line: "insects", rank: 1, name: { th: "สวิงใยเงิน", en: "Silver-web net" },
@@ -63,7 +63,7 @@ export const GIFTS: readonly Gift[] = [
  * lights so many tiles about its wearer in the forest's dark, on their own screen (the owner, 2026-10-06, of an early
  * gift of the forest's: "ของที่ช่วยให้ป่าสว่างเวลากลางคืน เอาแค่พอให้ตัวเองเล่นง่ายขึ้น": it finds nothing more, it only shows).
  */
-export const CHARMS = { slots: 2, charmApron: 1.5, charmGloves: 0.5, charmFloat: 1.5, charmLamp: 5, charmNet: 1.5, charmHoe: 1.5 } as const;
+export const CHARMS = { slots: 2, charmApron: 1.5, charmGloves: 0.5, charmFloat: 1, charmLamp: 5, charmNet: 1, charmHoe: 1.5 } as const;
 /**
  * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly is so many
  * steps of softness about an insect (lib/town/forest-eye's softStep); the gnome weeds so many plots to a meal's hours

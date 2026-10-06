@@ -556,12 +556,13 @@ describe("with no stamina left (the owner: \"ถ้า stamina หมด mini ga
     const fresh = startFight("catfish", "good", {}, 3), spent = startFight("catfish", "good", { spent: true }, 3), calm = startFight("catfish", "good", { calm: true }, 3);
     // (steady hands at each level: a fifth wider, as ever, to three times as wide)
     expect([1, 2, 3, 4].map((l) => { const f = startFight("catfish", "good", { calm: l }, 3); return Math.round(((f.hi - f.lo) / (fresh.hi - fresh.lo)) * 100) / 100; })).toEqual([1.2, 1.6, 2.2, 3]);
-    // (2026-10-04, eased that night) half of the stretch is left: with a good third of it the members landed nothing
-    expect(spent.hi - spent.lo).toBeLessThan((fresh.hi - fresh.lo) * 0.55);
-    expect(spent.hi - spent.lo).toBeGreaterThan((fresh.hi - fresh.lo) * 0.45);
-    expect(spent.power).toBeGreaterThan(fresh.power * 1.2);
-    expect(spent.sway).toBeGreaterThan(fresh.sway * 1.1);
-    expect(spent.pace).toBeGreaterThan(fresh.pace * 1.2);
+    // (2026-10-04, eased that night: half of the stretch was left, where with a good third of it the members landed
+    // nothing. 2026-10-07, eased again: three quarters of it, since a tired newcomer still landed not one minnow)
+    expect(spent.hi - spent.lo).toBeLessThan((fresh.hi - fresh.lo) * 0.8);
+    expect(spent.hi - spent.lo).toBeGreaterThan((fresh.hi - fresh.lo) * 0.7);
+    expect(spent.power).toBeGreaterThan(fresh.power * 1.1);
+    expect(spent.sway).toBeGreaterThan(fresh.sway * 1.05);
+    expect(spent.pace).toBeGreaterThan(fresh.pace * 1.15);
     expect(calm.hi - calm.lo).toBeGreaterThan((fresh.hi - fresh.lo) * 1.15);
     // every number of it makes things harder, none easier
     expect(STAMINA.spent.strike).toBeLessThan(1);
@@ -571,30 +572,28 @@ describe("with no stamina left (the owner: \"ถ้า stamina หมด mini ga
     expect(playFight(spent, steady).over).toBe("landed");
   });
 
-  it("is hard and not out of reach: eased from three times as hard as it first was, when the members hardly fished with none (the owner, 2026-10-04: \"คนตกปลาน้อยเพราะพอสตามิน่าหมด เล่นยากเกินไป\")", () => {
-    const SMALL = ["minnow", "barb", "tilapia", "catfish"] as const;
-    const four = (hand: [number, number]) => SMALL.reduce((t, id) => t + lands(id, hand, { spent: true }), 0) / SMALL.length;
-    // everybody lands fewer than they do fed, the average hand far fewer, and a newcomer nothing: it has to eat
-    for (const id of SMALL) {
-      expect(lands(id, SKILLED, { spent: true })).toBeLessThan(lands(id, SKILLED) - 0.05);
-      expect(lands(id, AVERAGE, { spent: true })).toBeLessThan(lands(id, AVERAGE) - 0.5);
-      expect(lands(id, NEW, { spent: true })).toBeLessThan(0.1);
-    }
-    // an average hand lands a minnow or a barb now and then, where it landed next to none
-    expect(lands("minnow", AVERAGE, { spent: true })).toBeGreaterThan(0.1);
-    expect(lands("barb", AVERAGE, { spent: true })).toBeGreaterThan(0.1);
-    expect(four(AVERAGE)).toBeLessThan(0.3);
-    // a practised hand most of the small ones, and a catfish less than half the time
-    expect(four(SKILLED)).toBeGreaterThan(0.55);
-    expect(four(SKILLED)).toBeLessThan(0.85);
-    expect(lands("catfish", SKILLED, { spent: true })).toBeLessThan(0.6);
-    // a very good hand nearly all of them
-    expect(four(MASTER)).toBeGreaterThan(0.85);
-    // the bigger fish are for somebody who has eaten: a practised hand lands none of them, a very good one far fewer
-    for (const id of ["perch", "pangasius", "snakehead"] as const) {
-      expect(lands(id, SKILLED, { spent: true })).toBeLessThan(0.1);
-      expect(lands(id, MASTER)).toBeGreaterThan(0.8);
-      expect(lands(id, MASTER, { spent: true })).toBeLessThan(lands(id, MASTER) - 0.35);
+  it("the small fish are still landed, the big ones are for whoever has eaten (the owner, 2026-10-07, of a member's complaint: \"มีคนบ่นว่า stamina หมดแล้วตกปลาได้ยาก ในขณะที่เข้าป่าตอน stamina หมดยังเก็บของได้เรื่อยๆ\")", () => {
+    const SMALL = ["minnow", "barb", "tilapia", "catfish"] as const, BIG = ["perch", "pangasius", "snakehead"] as const, tired = { spent: true };
+    // (as it was until that day a tired newcomer landed not one fish, not a minnow, and lost the bait each time)
+    expect(lands("minnow", NEW, tired)).toBeGreaterThan(0.5);
+    expect(lands("barb", NEW, tired)).toBeGreaterThan(0.3);
+    expect(lands("tilapia", NEW, tired)).toBeGreaterThan(0.1);
+    expect(lands("minnow", AVERAGE, tired)).toBeGreaterThan(0.75);
+    expect(lands("barb", AVERAGE, tired)).toBeGreaterThan(0.6);
+    expect(lands("tilapia", AVERAGE, tired)).toBeGreaterThan(0.5);
+    // tired hands land fewer of every one of them than fed hands do: a meal is still worth having
+    for (const id of SMALL) for (const hand of [NEW, AVERAGE]) expect(lands(id, hand, tired), id).toBeLessThan(lands(id, hand));
+    for (const id of SMALL) expect(lands(id, SKILLED, tired), id).toBeLessThanOrEqual(lands(id, SKILLED));
+    // a catfish is the first that takes a meal, or practice
+    expect(lands("catfish", NEW, tired)).toBeLessThan(0.1);
+    expect(lands("catfish", SKILLED, tired)).toBeGreaterThan(0.6);
+    // the bigger fish are for somebody who has eaten: a newcomer and an average hand land next to none of them, a
+    // practised hand far fewer than fed
+    for (const id of BIG) {
+      expect(lands(id, NEW, tired), id).toBeLessThan(0.05);
+      expect(lands(id, AVERAGE, tired), id).toBeLessThan(0.1);
+      expect(lands(id, SKILLED, tired), id).toBeLessThan(lands(id, SKILLED) - 0.25);
+      expect(lands(id, MASTER), id).toBeGreaterThan(0.8);
     }
   });
 });

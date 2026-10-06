@@ -170,7 +170,8 @@ export interface Keeper {
    * A strike says what was hooked, if anything; `missed` that the float came up again with nobody striking; `land`
    * how the fight ended, with the hand's own account of it.
    */
-  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>>;
+  /** (`coming`: what is on its way, told only to whoever wears the whispering float, lib/town/gifts) */
+  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId }>>;
   strike(reaction: number, how: Strike | null): Promise<Did<Struck>>;
   missed(): Promise<{ what?: CatchId; size?: number }>;
   land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null): Promise<Landed>;
@@ -842,13 +843,13 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
-  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>> {
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId }>> {
     const sent = Date.now(), a = await this.ask("town_cast", { p_bait: bait, p_x: place.tile[0], p_y: place.tile[1], p_rain: rain });
     if (!a) return AWAY;
     if (!a.ok) return { ok: false, why: (a.why as Why) ?? "none" };
     // (under clear water the database tells the shade of what is on its way, and nothing more of it)
-    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade };
-    return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000), ...(line.shade ? { shade: line.shade } : {}) };
+    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade; coming?: CatchId };
+    return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000), ...(line.shade ? { shade: line.shade } : {}), ...(typeof line.coming === "string" ? { coming: line.coming } : {}) };
   }
   async strike(reaction: number): Promise<Did<Struck>> {
     const a = await this.ask("town_strike", { p_reaction: Math.round(reaction * 1000) });

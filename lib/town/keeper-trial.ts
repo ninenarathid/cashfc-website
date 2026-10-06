@@ -4,7 +4,8 @@ import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, SIGNS, castLine, seeded, signsOf, type Cast, type Strike } from "./fishing";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
-import { FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
+import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
+import { wearing } from "./gifts";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 import type { Worn } from "./lines";
 import type { Play } from "./plays";
@@ -118,7 +119,7 @@ class TrialKeeper implements Keeper {
     return did;
   }
 
-  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade }>> {
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId }>> {
     const used = this.trial.bait(bait);
     if (!used.ok) return used;
     const now = this.trial.now(), p = this.trial.purse();
@@ -133,7 +134,7 @@ class TrialKeeper implements Keeper {
     this.out = { cast, bait };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
-    return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}) };
+    return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}), ...(wearing(p, "charmFloat") ? { coming: cast.what } : {}) };
   }
   async strike(_reaction: number, how: Strike | null): Promise<Did<Struck>> {
     const o = this.out;

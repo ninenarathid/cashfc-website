@@ -1,9 +1,9 @@
-// Writes v152's two functions that are written again between the draft's marked lines: each from the file that last
+// Writes v152's three functions that are written again between the draft's marked lines: each from the file that last
 // wrote it, as it ran, with the lines of v152.lines.mjs changed. v152's dry run holds the file to the same.
 //   node build-v152.mjs [<v152 file>]
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { migration } from "./pglite-harness.mjs";
-import { GIFTS_OF, WORK_ANSWER } from "./v152.lines.mjs";
+import { CAST, GIFTS_OF, WORK_ANSWER } from "./v152.lines.mjs";
 
 const here = (name) => new URL(`./${name}`, import.meta.url);
 const file = process.argv[2] ?? here("v152_draft.sql");
@@ -23,7 +23,7 @@ export function again(sql, name, lines) {
 }
 /** Each function written again: the file it was last written in, its name, and the lines of it that change. */
 export const AGAIN = {
-  gifts_of: [151, "town.gifts_of", GIFTS_OF], work_answer: [151, "town.work_answer", WORK_ANSWER],
+  gifts_of: [151, "town.gifts_of", GIFTS_OF], work_answer: [151, "town.work_answer", WORK_ANSWER], cast: [146, "public.town_cast", CAST],
 };
 export const MADE = Object.fromEntries(Object.entries(AGAIN).map(([mark, [n, name, lines]]) => [mark, () => again(V(n), name, lines)]));
 

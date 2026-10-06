@@ -31,10 +31,16 @@
 --     what the page itself then does.
 --   * `town.work_answer` (v151's) says which gifts are given, so that a page
 --     offers those and no other.
+--   * The first charms do more (the owner, 2026-10-07: nearly OP, as the
+--     forest's lamp is). Two of them are the database's to know: the
+--     whispering float no longer lengthens the strike's moment (its number in
+--     the catalog is 1, which the rule multiplies by as before), and
+--     `town_cast` (v146's, written again but for the lines meant) tells
+--     whoever wears it what is on its way when the line is dropped.
 --
 -- What it changes: one catalog row written over (`gifts`: three gifts more,
--- and what is counted), five rules new, two written again, two functions a
--- member calls. No table.
+-- and what is counted; the float's number and the net's), five rules new, three
+-- functions written again, two functions a member calls. No table.
 -- No coins and no thing that can be sold comes of it.
 
 do $$ begin
@@ -46,7 +52,7 @@ insert into public.town_catalog (key, data) values
   ('gifts', $town${
     "slots": 2,
     "uses": {"famGnome":{"n":10,"per":"meal"}},
-    "gifts": {"charmApron":{"kind":"charm","line":"kitchen","rank":1,"by":1.5},"charmGloves":{"kind":"charm","line":"helpers","rank":1,"by":0.5},"charmFloat":{"kind":"charm","line":"fishing","rank":1,"by":1.5},"charmLamp":{"kind":"charm","line":"forest","rank":1,"by":5},"charmNet":{"kind":"charm","line":"insects","rank":1,"by":1.5},"charmHoe":{"kind":"charm","line":"farming","rank":1,"by":1.5},"famSquirrel":{"kind":"familiar","line":"forest","rank":2,"by":2},"famButterfly":{"kind":"familiar","line":"insects","rank":2,"by":1},"famGnome":{"kind":"familiar","line":"farming","rank":2,"by":10}}
+    "gifts": {"charmApron":{"kind":"charm","line":"kitchen","rank":1,"by":1.5},"charmGloves":{"kind":"charm","line":"helpers","rank":1,"by":0.5},"charmFloat":{"kind":"charm","line":"fishing","rank":1,"by":1},"charmLamp":{"kind":"charm","line":"forest","rank":1,"by":5},"charmNet":{"kind":"charm","line":"insects","rank":1,"by":1},"charmHoe":{"kind":"charm","line":"farming","rank":1,"by":1.5},"famSquirrel":{"kind":"familiar","line":"forest","rank":2,"by":2},"famButterfly":{"kind":"familiar","line":"insects","rank":2,"by":1},"famGnome":{"kind":"familiar","line":"farming","rank":2,"by":10}}
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();
 -- </catalog:v152>
@@ -160,6 +166,50 @@ as $$
     'titles', (select coalesce(jsonb_object_agg(t.member_id::text, jsonb_build_object('line', t.line, 'rank', t.rank)), '{}'::jsonb) from public.town_titles t))
 $$;
 -- </work_answer>
+
+-- ─── The whispering float tells what is coming ───────────────────────────
+
+-- <cast>
+create or replace function public.town_cast(p_bait text, p_x integer, p_y integer, p_rain boolean default false)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  purse jsonb := town.purse_of(me, true);
+  now_ bigint := town.now_ms();
+  deep jsonb := town.cat('fishing')->'places'->(p_x::text || ',' || p_y::text);
+  hour integer := extract(hour from to_timestamp(now_ / 1000.0) at time zone 'Asia/Bangkok')::int;
+  sg jsonb := town.cat('fishing')->'signs';
+  signs text[];
+  did jsonb;
+  line jsonb;
+begin
+  if p_bait is null or p_bait !~ '^[A-Za-z]{1,24}$' or deep is null then return town.answer(me, town.no('none')); end if;
+  did := town.hook_bait(purse, p_bait);
+  if not (did->>'ok')::boolean then return town.answer(me, did); end if;
+  -- what some fish wait for: whether I have any stamina left, how many others have dropped a line in the last few
+  -- minutes (a line still out, or a fish still fought), the rain of the minutes before, and the clock
+  signs := town.signs_of(now_, town.stamina_of(purse, now_) <= 0,
+    (select count(*)::int from public.town_lines l where l.member_id <> me and (l.doc->>'cast_at')::bigint > now_ - (sg->>'lately')::bigint * 1000),
+    town.wet_ms(now_ - (sg->>'after')::bigint * 60000, now_), town.raining(now_));
+  line := town.cast_line(p_bait, hour, town.raining(now_), town.has_buff(purse, now_, 'lucky'), not deep::boolean, signs,
+    array[random(), random(), random(), random(), random(), random()], town.buff_by(purse, now_, 'lucky'));
+  -- (under the fountain's swift blessing the bite comes sooner)
+  if town.has_buff(purse, now_, 'swift') then line := town.hastened(line, (town.wishing()->>'swift')::double precision); end if;
+  -- (a line that was still out is given up: its bait went with it when it was dropped)
+  insert into public.town_lines (member_id, doc) values (me, line || jsonb_build_object(
+      'bait', p_bait, 'x', p_x, 'y', p_y, 'deep', deep, 'hour', hour, 'rain', town.raining(now_),
+      'cast_at', now_, 'bites_at', now_ + (line->>'wait')::bigint * 1000, 'struck_at', null))
+    on conflict (member_id) do update set doc = excluded.doc, updated_at = now();
+  perform town.keep_purse(me, did->'purse');
+  perform town.note(me, 'cast', p_bait, 1, 0, jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'signs', to_jsonb(signs)));
+  -- (and under its clear water the shade of what is on its way is told: how rare a fish it is, or that it is no fish; never which)
+  return town.answer(me, jsonb_build_object('ok', true, 'line', jsonb_build_object('wait', line->'wait', 'nibbles', line->'nibbles')
+    || case when town.has_buff(purse, now_, 'clear') then jsonb_build_object('shade', coalesce(town.cat('fish')->(line->>'what')->>'tier', 'other')) else '{}'::jsonb end
+    || case when town.wearing(purse, 'charmFloat') then jsonb_build_object('coming', line->>'what') else '{}'::jsonb end));
+end;
+$$;
+-- </cast>
 
 -- ─── What a member does ──────────────────────────────────────────────────
 

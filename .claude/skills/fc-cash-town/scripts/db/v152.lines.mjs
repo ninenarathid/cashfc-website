@@ -13,6 +13,16 @@ export const GIFTS_OF = [
   ],
 ];
 
+/**
+ * public.town_cast (v146's): whoever wears the whispering float is told what is on its way when the line is dropped
+ * (the page shows a fish landed before as itself and another as a shade of its tier).
+ */
+export const CAST = [[
+  "    || case when town.has_buff(purse, now_, 'clear') then jsonb_build_object('shade', coalesce(town.cat('fish')->(line->>'what')->>'tier', 'other')) else '{}'::jsonb end));\n",
+  "    || case when town.has_buff(purse, now_, 'clear') then jsonb_build_object('shade', coalesce(town.cat('fish')->(line->>'what')->>'tier', 'other')) else '{}'::jsonb end\n" +
+  "    || case when town.wearing(purse, 'charmFloat') then jsonb_build_object('coming', line->>'what') else '{}'::jsonb end));\n",
+]];
+
 /** town.work_answer (v151's): it says which gifts are given, so that the page offers those and no other. */
 export const WORK_ANSWER = [[
   "  select jsonb_build_object('now', town.now_ms(), 'gifting', true,\n",
