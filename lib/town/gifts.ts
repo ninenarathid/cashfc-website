@@ -23,8 +23,14 @@ import type { Purse } from "./trade";
  */
 export const CHARM_IDS = ["charmApron", "charmGloves", "charmFloat", "charmLamp", "charmNet", "charmHoe"] as const;
 export type CharmId = (typeof CHARM_IDS)[number];
-export type GiftId = CharmId;
-export type GiftKind = "charm";
+/**
+ * The familiars: a creature that follows its member wherever they go, for everybody to see (the owner, 2026-10-06:
+ * "ใส่ ภูติ หรือ สัตว์เดินตามได้ 1 ชนิด"; changed "อิสระ"). One at a time. It needs no hand: the hand stays free.
+ */
+export const FAMILIAR_IDS = ["famSquirrel", "famButterfly", "famGnome"] as const;
+export type FamiliarId = (typeof FAMILIAR_IDS)[number];
+export type GiftId = CharmId | FamiliarId;
+export type GiftKind = "charm" | "familiar";
 
 export interface Gift { id: GiftId; kind: GiftKind; line: LineId; rank: number; name: { th: string; en: string }; does: { th: string; en: string } }
 
@@ -41,6 +47,13 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "วงสวิงกว้างขึ้นครึ่งเท่า", en: "The net's ring is half as wide again" } },
   { id: "charmHoe", kind: "charm", line: "farming", rank: 1, name: { th: "จอบต้องมนตร์", en: "Enchanted hoe" },
     does: { th: "ถอนหญ้าและพรวนดิน จังหวะกว้างขึ้นครึ่งเท่า", en: "Weeding and tilling are half as forgiving again" } },
+  // the second rank: the first familiars
+  { id: "famSquirrel", kind: "familiar", line: "forest", rank: 2, name: { th: "กระรอกคู่ใจ", en: "A squirrel" },
+    does: { th: "ตอนเขย่าต้นไม้ กระรอกช่วยรับลูกไม้ที่เราพลาดให้ ต้นละ 2 ลูก", en: "When a tree is shaken it catches two of the fruit you miss" } },
+  { id: "famButterfly", kind: "familiar", line: "insects", rank: 2, name: { th: "ผีเสื้อนำโชค", en: "A lucky butterfly" },
+    does: { th: "แมลงตื่นตัวช้าลง เข้าใกล้ได้มากขึ้นก่อนมันหนี", en: "Insects are slower to startle: you come nearer before they flee" } },
+  { id: "famGnome", kind: "familiar", line: "farming", rank: 2, name: { th: "โนมสวน", en: "A garden gnome" },
+    does: { th: "โนมถอนหญ้าให้เองโดยไม่ต้องเล่นมินิเกม มื้อละ 10 ช่อง", en: "It pulls the weeds for you with no game, ten plots to a meal's hours" } },
 ];
 
 /**
@@ -51,9 +64,15 @@ export const GIFTS: readonly Gift[] = [
  * gift of the forest's: "ของที่ช่วยให้ป่าสว่างเวลากลางคืน เอาแค่พอให้ตัวเองเล่นง่ายขึ้น": it finds nothing more, it only shows).
  */
 export const CHARMS = { slots: 2, charmApron: 1.5, charmGloves: 0.5, charmFloat: 1.5, charmLamp: 5, charmNet: 1.5, charmHoe: 1.5 } as const;
+/**
+ * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly is so many
+ * steps of softness about an insect (lib/town/forest-eye's softStep); the gnome weeds so many plots to a meal's hours
+ * with no game. All three are the page's own to read: their games are played in the browser.
+ */
+export const FAMILIARS = { famSquirrel: 2, famButterfly: 1, famGnome: 10 } as const;
 
-/** What a member has of the gifts: those taken, the charms worn of them, and what part of a point the gloves' half has left owing (lib/town/stamina's eased). */
-export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number }
+/** What a member has of the gifts: those taken, the charms worn of them, the familiar that follows, and what part of a point the gloves' half has left owing (lib/town/stamina's eased). */
+export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number; familiar: FamiliarId | null }
 export type GiftRefusal = "none" | "rank" | "had" | "slots";
 
 const isGift = (id: unknown): id is GiftId => typeof id === "string" && GIFTS.some((g) => g.id === id);
@@ -67,10 +86,20 @@ export function giftsOf(purse: Pick<Purse, "gifts">): Gifts {
   for (const id of Array.isArray(kept?.had) ? kept.had : []) if (isGift(id) && !had.includes(id)) had.push(id);
   const charms: CharmId[] = [];
   for (const id of Array.isArray(kept?.charms) ? kept.charms : []) {
-    if (charms.length < CHARMS.slots && isGift(id) && had.includes(id) && giftOf(id)!.kind === "charm" && !charms.includes(id)) charms.push(id);
+    if (charms.length < CHARMS.slots && isGift(id) && had.includes(id) && giftOf(id)!.kind === "charm" && !charms.includes(id as CharmId)) charms.push(id as CharmId);
   }
+  const fam = kept?.familiar, familiar = isGift(fam) && had.includes(fam) && giftOf(fam)!.kind === "familiar" ? (fam as FamiliarId) : null;
   const owed = typeof kept?.owed === "number" && kept.owed > 0 && kept.owed < 1 ? kept.owed : 0;
-  return { had, charms, owed };
+  return { had, charms, owed, familiar };
+}
+/** The familiar that follows somebody now, if one does; and what it does for them: its number, or what does nothing. */
+export const familiarOf = (purse: Pick<Purse, "gifts">): FamiliarId | null => giftsOf(purse).familiar;
+export const famBy = (purse: Pick<Purse, "gifts">, id: FamiliarId, else_ = 0): number => (giftsOf(purse).familiar === id ? FAMILIARS[id] : else_);
+/** Have this familiar follow me and no other (null: none follows): one I have. */
+export function wearFamiliar<P extends Pick<Purse, "gifts">>(purse: P, id: string | null): { ok: true; purse: P } | { ok: false; why: GiftRefusal } {
+  const mine = giftsOf(purse);
+  if (id !== null && !(isGift(id) && mine.had.includes(id) && giftOf(id)!.kind === "familiar")) return { ok: false, why: "none" };
+  return { ok: true, purse: { ...purse, gifts: { ...mine, familiar: id as FamiliarId | null } } };
 }
 /** Whether somebody wears a charm now. */
 export const wearing = (purse: Pick<Purse, "gifts">, id: CharmId): boolean => giftsOf(purse).charms.includes(id);
@@ -116,5 +145,5 @@ export function wearCharms<P extends Pick<Purse, "gifts">>(purse: P, ids: readon
 /** The catalog's row: what the database needs of the gifts to give and to judge them (the places for charms; and of each gift its kind, which rank of which line gives it, and its number). */
 export const giftsRow = () => ({
   slots: CHARMS.slots,
-  gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: CHARMS[g.id] }])),
+  gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: g.kind === "charm" ? CHARMS[g.id as CharmId] : FAMILIARS[g.id as FamiliarId] }])),
 });

@@ -5,7 +5,7 @@ import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal"
 import { hookBait, landCatch, loseBait } from "./fishing";
 import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
-import { GIFTS, giftsOf, takeGift as takeRankGift, wearCharms, type GiftId, type GiftRefusal } from "./gifts";
+import { GIFTS, giftsOf, takeGift as takeRankGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
 import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
@@ -967,6 +967,13 @@ export class Trial {
   /** Wear these charms and no others (none: take them all off). */
   charmsWear(ids: readonly string[]): { ok: true } | { ok: false; why: GiftRefusal } {
     const did = wearCharms(this.purse(), ids);
+    if (!did.ok) return did;
+    this.save(did.purse);
+    return { ok: true };
+  }
+  /** Have this familiar follow me and no other (null: none follows). */
+  familiarWear(id: string | null): { ok: true } | { ok: false; why: GiftRefusal } {
+    const did = wearFamiliar(this.purse(), id);
     if (!did.ok) return did;
     this.save(did.purse);
     return { ok: true };

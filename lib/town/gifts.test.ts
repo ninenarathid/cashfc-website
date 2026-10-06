@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FARMING, tend, type Plant, type Plot } from "./farm";
 import { STRIKE, strikeOf, strikeWindowOf } from "./fishing";
-import { CHARMS, CHARM_IDS, GIFTS, charmBy, dueOf, giftAt, giftsOf, giftsRow, gloved, leftOf, takeGift, wearCharms, wearing } from "./gifts";
+import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, takeGift, wearCharms, wearFamiliar, wearing, type CharmId, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { eased, staminaOf } from "./stamina";
@@ -13,27 +13,34 @@ const done = <T extends { ok: boolean }>(d: T) => { if (!d.ok) throw new Error(`
 const first = (line: string) => LINES[line as (typeof LINE_IDS)[number]].marks[0];
 
 describe("the gifts of the lines of work", () => {
-  it("are the first rank of every line but the well's, each a charm with its words in both languages", () => {
-    expect(GIFTS.map((g) => g.line).sort()).toEqual(LINE_IDS.filter((l) => l !== "well").sort());
+  it("the first rank of every line but the well's gives a charm, and the second of three lines a familiar; each has its words in both languages", () => {
+    const first = GIFTS.filter((g) => g.rank === 1), second = GIFTS.filter((g) => g.rank === 2);
+    expect(first.map((g) => g.line).sort()).toEqual(LINE_IDS.filter((l) => l !== "well").sort());
+    expect(first.every((g) => g.kind === "charm") && second.every((g) => g.kind === "familiar")).toBe(true);
+    expect(second.map((g) => g.id).sort()).toEqual([...FAMILIAR_IDS].sort());
+    expect(GIFTS.length).toBe(first.length + second.length);
     for (const g of GIFTS) {
-      expect(g.rank, g.id).toBe(1);
-      expect(g.kind, g.id).toBe("charm");
       expect(g.name.th && g.name.en && g.does.th && g.does.en, g.id).toBeTruthy();
       expect(giftAt(g.line, g.rank)?.id, g.id).toBe(g.id);
-      expect(CHARMS[g.id], g.id).toBeGreaterThan(0);
+      expect(g.kind === "charm" ? CHARMS[g.id as CharmId] : FAMILIARS[g.id as FamiliarId], g.id).toBeGreaterThan(0);
     }
     expect(new Set(GIFTS.map((g) => g.id)).size).toBe(GIFTS.length);
     expect(giftAt("well", 1)).toBeNull();
     expect(giftAt("kitchen", 2)).toBeNull();
+    expect(giftAt("forest", 2)?.id).toBe("famSquirrel");
     expect(giftAt("cooking", 1)).toBeNull();
   });
 
   it("a purse from before has none, and what is kept is made sound", () => {
-    expect(giftsOf(newPurse())).toEqual({ had: [], charms: [], owed: 0 });
-    expect(giftsOf({ gifts: { had: ["charmHoe", "charmHoe", "noSuch", 3 as unknown as string], charms: ["charmHoe", "charmNet", "charmHoe"], owed: 7 } })).toEqual({ had: ["charmHoe"], charms: ["charmHoe"], owed: 0 });
+    expect(giftsOf(newPurse())).toEqual({ had: [], charms: [], owed: 0, familiar: null });
+    expect(giftsOf({ gifts: { had: ["charmHoe", "charmHoe", "noSuch", 3 as unknown as string], charms: ["charmHoe", "charmNet", "charmHoe"], owed: 7 } })).toEqual({ had: ["charmHoe"], charms: ["charmHoe"], owed: 0, familiar: null });
     // (no more worn than there are places)
     expect(giftsOf({ gifts: { had: [...CHARM_IDS], charms: ["charmHoe", "charmNet", "charmApron"] } }).charms).toEqual(["charmHoe", "charmNet"]);
-    expect(giftsOf({ gifts: null as unknown as Purse["gifts"] })).toEqual({ had: [], charms: [], owed: 0 });
+    expect(giftsOf({ gifts: null as unknown as Purse["gifts"] })).toEqual({ had: [], charms: [], owed: 0, familiar: null });
+    // (a familiar follows only if it was taken and is one; a charm is no familiar, and a familiar is in no place for charms)
+    expect(giftsOf({ gifts: { had: ["famGnome", "charmHoe"], charms: ["famGnome", "charmHoe"], familiar: "famGnome" } })).toEqual({ had: ["famGnome", "charmHoe"], charms: ["charmHoe"], owed: 0, familiar: "famGnome" });
+    expect(giftsOf({ gifts: { had: ["charmHoe"], charms: [], familiar: "famGnome" } }).familiar).toBeNull();
+    expect(giftsOf({ gifts: { had: ["charmHoe"], charms: [], familiar: "charmHoe" } }).familiar).toBeNull();
     expect(giftsOf({ gifts: { had: [], charms: [], owed: 0.5 } }).owed).toBe(0.5);
   });
 
@@ -45,7 +52,7 @@ describe("the gifts of the lines of work", () => {
     expect(takeGift(p, { well: 99999 }, "well", 1)).toEqual({ ok: false, why: "none" });
     const took = done(takeGift(p, { kitchen: first("kitchen") }, "kitchen", 1));
     expect(took.gift).toBe("charmApron");
-    expect(took.purse.gifts).toEqual({ had: ["charmApron"], charms: [], owed: 0 });
+    expect(took.purse.gifts).toEqual({ had: ["charmApron"], charms: [], owed: 0, familiar: null });
     expect(took.purse.bag).toEqual(p.bag);
     expect(takeGift(took.purse, { kitchen: 99999 }, "kitchen", 1)).toEqual({ ok: false, why: "had" });
     // (points of one line are no rank of another)
@@ -79,13 +86,37 @@ describe("the gifts of the lines of work", () => {
     p = done(wearCharms(p, ["charmNet"])).purse;
     expect(giftsOf(p).charms).toEqual(["charmNet"]);
     p = done(wearCharms(p, [])).purse;
-    expect(giftsOf(p)).toEqual({ had: ["charmApron", "charmHoe", "charmNet"], charms: [], owed: 0 });
+    expect(giftsOf(p)).toEqual({ had: ["charmApron", "charmHoe", "charmNet"], charms: [], owed: 0, familiar: null });
+  });
+
+  it("one familiar follows at a time: one had, changed as often as one likes, or none; and it does its work only while it follows", () => {
+    let p: Purse = { ...newPurse(), gifts: { had: ["famSquirrel", "famGnome", "charmHoe"], charms: ["charmHoe"] } };
+    expect(familiarOf(p)).toBeNull();
+    expect(wearFamiliar(p, "famButterfly")).toEqual({ ok: false, why: "none" });
+    expect(wearFamiliar(p, "charmHoe")).toEqual({ ok: false, why: "none" });
+    expect(wearFamiliar(p, "noSuch")).toEqual({ ok: false, why: "none" });
+    p = done(wearFamiliar(p, "famSquirrel")).purse;
+    expect(familiarOf(p)).toBe("famSquirrel");
+    expect(famBy(p, "famSquirrel")).toBe(2);
+    expect(famBy(p, "famGnome")).toBe(0);
+    // (the charms worn are as they were, and a familiar takes no place of theirs)
+    expect(giftsOf(p).charms).toEqual(["charmHoe"]);
+    p = done(wearFamiliar(p, "famGnome")).purse;
+    expect(familiarOf(p)).toBe("famGnome");
+    expect(famBy(p, "famGnome")).toBe(10);
+    expect(famBy(p, "famSquirrel", 0)).toBe(0);
+    p = done(wearFamiliar(p, null)).purse;
+    expect(familiarOf(p)).toBeNull();
+    expect(giftsOf(p).had).toEqual(["famSquirrel", "famGnome", "charmHoe"]);
+    // (a charm cannot be worn as a familiar is, nor a familiar as a charm)
+    expect(wearCharms(p, ["famGnome"])).toEqual({ ok: false, why: "none" });
   });
 
   it("the catalog's row says the places, and of each gift which rank of which line gives it and its number", () => {
     const row = giftsRow();
     expect(row.slots).toBe(2);
-    expect(Object.keys(row.gifts).sort()).toEqual([...CHARM_IDS].sort());
+    expect(Object.keys(row.gifts).sort()).toEqual([...CHARM_IDS, ...FAMILIAR_IDS].sort());
+    expect(row.gifts.famGnome).toEqual({ kind: "familiar", line: "farming", rank: 2, by: 10 });
     expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1.5 });
     expect(row.gifts.charmGloves.by).toBe(0.5);
   });

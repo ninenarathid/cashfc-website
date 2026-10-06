@@ -24,7 +24,7 @@ import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
 import { natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
-import type { GiftRefusal } from "./gifts";
+import { CHARM_IDS, type GiftRefusal } from "./gifts";
 import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
@@ -222,6 +222,12 @@ export interface Keeper {
   gifting(): boolean;
   giftTake(line: string, rank: number): Promise<Did<{ gift: string }>>;
   charmsWear(ids: readonly string[]): Promise<Did>;
+  /**
+   * Whether whoever keeps the game gives this gift yet (a database gives the gifts its files have brought it: the
+   * page offers no other, and shows nothing of one). And the familiar that follows me: one I have, or none (null).
+   */
+  gives(id: string): boolean;
+  familiarWear(id: string | null): Promise<Did>;
   /** Read the book again. */
   wellLook(): Promise<void>;
   /** Take what the well has waiting for me. */
@@ -391,6 +397,8 @@ export class DbKeeper implements Keeper {
   private lines_: LinesTold | null = null;
   private titles_: Record<string, Worn> = {};
   private gifting_ = false;
+  /** The gifts the database gives, as it last said; until it says (v151 said only that it gives some), the first round's six charms. */
+  private gives_: readonly string[] = CHARM_IDS;
   private ranksAgain: ReturnType<typeof setInterval> | null = null;
   private toThank_: Record<string, Array<Helper & { name: string }>> = {};
   private thanks_: ThanksBoard | null = null;
@@ -548,6 +556,7 @@ export class DbKeeper implements Keeper {
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
     if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
     if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
+    if (Array.isArray(a.gives)) this.gives_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string");
     if (a.titles && typeof a.titles === "object") {
       this.titles_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
     }
@@ -721,6 +730,8 @@ export class DbKeeper implements Keeper {
   gifting() { return this.gifting_; }
   giftTake(line: string, rank: number) { return this.deed<{ gift: string }>("town_gift_take", { p_line: line, p_rank: rank }); }
   charmsWear(ids: readonly string[]) { return this.deed("town_charms_wear", { p_charms: [...ids] }); }
+  gives(id: string) { return this.gifting_ && this.gives_.includes(id); }
+  familiarWear(id: string | null) { return this.deed("town_familiar_wear", { p_id: id }); }
   pots(): Pot[] { return this.pots_; }
   found(): ItemId[] { return this.found_; }
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }
