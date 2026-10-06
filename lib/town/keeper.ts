@@ -342,6 +342,11 @@ export interface Keeper {
    */
   drinkOffer(to: string | null, at: [number, number]): Promise<Did<{ till: number | null }>>;
   drinkTake(from: string, at: [number, number]): Promise<Did<{ got: number; back: number }>>;
+  /**
+   * The rain frog: the empty bucket in my hand filled by the rain, while it rains and the frog follows me. Says how
+   * many bucketfuls. (When it rains is the sky's, lib/town/skies: whoever keeps the game judges by its own.)
+   */
+  rainFill(): Promise<Did<{ n: number }>>;
 
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
   record(play: Play): void;
@@ -1077,6 +1082,7 @@ export class DbKeeper implements Keeper {
     if (did.ok) this.onDeed?.("line", from);
     return did;
   }
+  rainFill() { return this.deed<{ n: number }>("town_rain_fill"); }
 
   record() { /* the database writes every go down itself, as the deed is done */ }
   close() {

@@ -61,6 +61,20 @@ async function enter(X, letter, more = "") {
   await until("the flask's own code has come", () => X.evaluate(`!!${D}`), 60000);
 }
 const sees = (X, id) => until(`${id} is in the room`, () => X.evaluate(`!!${V}.at(${JSON.stringify(id)})`), 30000, 100);
+/** Whether one page has somebody standing on a tile. */
+const stands = (X, id, x, y, ms = 4000) => until(`${id} stands at ${x},${y}`, () => X.evaluate(`(() => { const p = ${V}.at(${JSON.stringify(id)}); return !!p && !p.moving && Math.floor(p.x) === ${x} && Math.floor(p.y) === ${y}; })()`), ms, 100).then(() => true).catch(() => false);
+/**
+ * Somebody put on a tile, and seen there by the other pages. (A page that has just come in is told where everybody
+ * stands by a letter that may come after the word of a step taken meanwhile, and then has them where they stood
+ * before: the step is said again until every page has it.)
+ */
+async function place(P, id, x, y, others) {
+  for (let i = 0; i < 6; i++) {
+    await warp(P, x, y);
+    if ((await Promise.all(others.map((O) => stands(O, id, x, y)))).every(Boolean)) return;
+  }
+  throw new Error(`${id} is not seen at ${x},${y}`);
+}
 
 const X = await browser("Drink", { width: 1280, height: 860 });
 try {
@@ -72,9 +86,9 @@ try {
   await enter(Y, "V");
   await Y.evaluate(`(${T}.setGifts(false), ${T}.setCarried(0))`);
   const b = await Y.evaluate(`${T}.id`);
-  await warp(X, 30, 40);
-  await warp(Y, 31, 40);
   await sees(X, b); await sees(Y, a);
+  await place(X, a, 30, 40, [Y]);
+  await place(Y, b, 31, 40, [X]);
 
   // ── the well's fourth rank ──
   await X.evaluate(`${T}.setCarried(1499)`);
@@ -177,8 +191,7 @@ try {
   await clickOn(X, "[data-drink-chip]");
   await until("a card on the friend's page", () => there(Y, "[data-drink-card]"), 8000, 40);
   // (the keeper refuses a drink from too far off, though the card was up)
-  await Y.evaluate(`${V}.warp(40, 40)`);
-  await sleep(700);
+  await place(Y, b, 40, 40, [X]);
   await clickOn(Y, "[data-drink-take]");
   await until("the friend is told", () => Y.evaluate(`${D}.note()`), 6000, 50).catch(() => {});
   ok("from ten tiles off the keeper refuses it, though the card was up: nothing given, both told", /ยืนไกลเกินไป/.test((await Y.evaluate(`${D}.note()`)) ?? "") && (await stamina(Y)) === 0 && (await stamina(X)) === 40,
@@ -188,7 +201,7 @@ try {
   await cardOf(X, b);
   ok("…and the card of somebody ten tiles off offers no drink", !(await there(X, "[data-card-drink]")), await textOf(X, ".pop-in.w-60"));
   await X.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape" }).catch(() => {});
-  await warp(Y, 31, 41);
+  await place(Y, b, 31, 41, [X]);
   await sleep(3400);
   await until("the chip is back", () => there(X, "[data-drink-chip]"), 15000, 100);
   await clickOn(X, "[data-drink-chip]");
@@ -223,8 +236,9 @@ try {
   await enter(Z, "U");
   await Z.evaluate(`(${T}.setGifts(false), ${T}.setStamina(5))`);
   const c = await Z.evaluate(`${T}.id`);
-  await warp(Z, 30, 41);
-  await sees(X, c);
+  await sees(X, c); await sees(Z, a);
+  await place(Z, c, 30, 41, [X]);
+  await place(X, a, 30, 40, [Y, Z]);
   await sleep(3400);
   await X.evaluate(`${D}.offer(${JSON.stringify(c)}, "ทดสอบ U")`);
   await until("a card on the phone", () => there(Z, "[data-drink-card]"), 8000, 40);

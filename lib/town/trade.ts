@@ -198,6 +198,8 @@ export interface Purse {
   toast?: { to: string; at: [number, number]; till: number };
   /** The drink I was last given out of somebody's flask: in which meal's hours (the day's number three times over, and the meal), and by whom. One to a meal's hours. */
   drunk?: { k: number; by: string };
+  /** When the rain last filled a bucket of mine by itself (the rain frog's): the next is full no sooner after than it takes to fill. */
+  rained?: number;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

@@ -1,7 +1,99 @@
 // The well's gifts through the functions a member calls (try-line.mjs plays this after the rule cases): each deed
 // done, refused for each reason, what is kept in the purse, what is written down, and somebody without the gift as
 // before.
-export default async function ({ t, U, call, purseOf, deeds, one, give, patch }) {
+/** The rain frog: a bucket the rain fills, through the function a member's page calls. */
+async function frogScenes({ t, U, call, purseOf, deeds, one, give, patch, CODE, now, gauge, staminaOf }) {
+  const slotNow = async () => Math.floor((await now()) / 900000);
+  /** The weather of a quarter hour, written as the SQL editor (the trigger that keeps the weather lets it). */
+  const sky = (slot, word) => t.sql(`insert into public.town_weather (slot, sky, wind, gust, rain) values ($1, $2, 6, 12, $3)
+    on conflict (slot) do update set sky = excluded.sky, rain = excluded.rain`, [slot, word, word === "clear" ? 0 : 1.2]);
+  /** A bag with one thing in its first slot, held in the hand (with so much water in it, when it is said). */
+  const holding = async (who, item, water) => {
+    const bag = (await purseOf(who)).bag.map((_, i) => (i === 0 ? { item, n: 1, ...(water ? { water } : {}) } : null));
+    return patch(who, { bag, hand: item });
+  };
+  const lineWater = (who, item) => one(`select hands, kind from public.town_line_water where member_id = $1 and item = $2`, [who, item]);
+
+  t.section("the rain frog: under rain the bucket its member holds fills by itself");
+  const cur = await slotNow();
+  await sky(cur, "clear");
+  await give(U.m1, { had: ["thingFlask", "famFrog"], familiar: "famFrog" });
+  await holding(U.m1, "waterYokeGreat");
+  await gauge(U.m1, 37);
+  // (a bucket that came by somebody's hands once, with the dew's water: what the book still has of it, until it is drawn again)
+  await t.sql(`insert into public.town_line_water (member_id, item, hands, kind) values ($1, 'waterYokeGreat', array[$2::uuid], 'dawn')
+    on conflict (member_id, item) do update set hands = excluded.hands, kind = excluded.kind`, [U.m1, U.m2]);
+  let did = await call(U.m1, "town_rain_fill");
+  t.check("under a dry sky nothing fills", did?.ok === false && did.why === "dry" && !("rained" in (await purseOf(U.m1))) && (await deeds("rain_fill")).length === 0, did);
+  await sky(cur, "rain");
+  const t0 = await now();
+  did = await call(U.m1, "town_rain_fill");
+  let mine = await purseOf(U.m1);
+  t.check("under rain the yoke of four is full: four bucketfuls, for no stamina", did?.ok === true && did.n === 4 && did.purse.bag[0].water === 4 && mine.bag[0].water === 4 && mine.bag[0].item === "waterYokeGreat" && mine.stamina.left === 37, did);
+  t.check("…and when is kept in the purse", mine.rained >= t0 && mine.rained < t0 + 5000, mine.rained);
+  let fills = await deeds("rain_fill");
+  t.check("it is written down under a word of its own: who, which bucket, how many bucketfuls, no coin", fills.length === 1 && fills[0].member_id === U.m1 && fills[0].thing === "waterYokeGreat" && fills[0].n === 4 && fills[0].coins === 0, fills);
+  const kept = await lineWater(U.m1, "waterYokeGreat");
+  t.check("the well's book reads it as a bucket drawn: nobody's hands on its water, and its nature the rain's", kept?.kind === "rain" && kept.hands.length === 0, kept);
+  did = await call(U.m1, "town_rain_fill");
+  t.check("a bucket that has water in it is not filled again", did?.ok === false && did.why === "hand", did);
+  await holding(U.m1, "waterYokeGreat");
+  did = await call(U.m1, "town_rain_fill");
+  t.check("emptied and held out again at once: not yet, the rain takes its time", did?.ok === false && did.why === "soon" && !(await purseOf(U.m1)).bag[0].water, did);
+  await patch(U.m1, { rained: (await now()) - 47000 });
+  did = await call(U.m1, "town_rain_fill");
+  t.check("…47 seconds on, still not: a yoke of four takes 48", did?.ok === false && did.why === "soon", did);
+  await patch(U.m1, { rained: (await now()) - 48000 });
+  did = await call(U.m1, "town_rain_fill");
+  t.check("…and after its 48 seconds it is full again", did?.ok === true && did.n === 4, did);
+  await holding(U.m1, "bucket");
+  await patch(U.m1, { rained: (await now()) - 12000 });
+  did = await call(U.m1, "town_rain_fill");
+  t.check("a plain bucket is full after 12", did?.ok === true && did.n === 1 && (await purseOf(U.m1)).bag[0].water === 1, did);
+  await holding(U.m1, "can");
+  await patch(U.m1, { rained: 0 });
+  did = await call(U.m1, "town_rain_fill");
+  t.check("what is no bucket is not filled", did?.ok === false && did.why === "hand", did);
+  await patch(U.m1, { hand: null });
+  did = await call(U.m1, "town_rain_fill");
+  t.check("…nor a hand that holds nothing", did?.ok === false && did.why === "hand", did);
+
+  t.section("the rain frog: only for whoever it follows");
+  await holding(U.m1, "waterYokeGreat");
+  await give(U.m1, { had: ["thingFlask", "famFrog"], familiar: null });
+  did = await call(U.m1, "town_rain_fill");
+  t.check("a frog that rests fills nothing", did?.ok === false && did.why === "none", did);
+  await holding(U.m2, "bucket");
+  const before = await purseOf(U.m2);
+  did = await call(U.m2, "town_rain_fill");
+  const after = await purseOf(U.m2);
+  t.check("somebody with no frog stands in the rain with an empty bucket, as before", did?.ok === false && did.why === "none" && !after.bag[0].water && !("rained" in after) && JSON.stringify(after.bag) === JSON.stringify(before.bag), did);
+  fills = await deeds("rain_fill");
+  t.check("only what was filled is written down", fills.length === 3 && fills.every((d) => d.member_id === U.m1 && d.coins === 0), fills.map((d) => [d.thing, d.n]));
+
+  t.section("the rain frog: what the rain filled is still to be carried and poured");
+  await give(U.m1, { had: ["thingFlask", "famFrog"], familiar: "famFrog" });
+  await patch(U.m1, { rained: 0 });
+  await t.sql(`insert into public.town_things (key, doc) values ('well', '0'::jsonb) on conflict (key) do update set doc = excluded.doc`);
+  await t.sql(`update public.town_things set doc = 'null'::jsonb where key = 'well_water'`);
+  await t.sql(`insert into public.town_carriers (member_id, buckets) values ($1, 0) on conflict (member_id) do update set buckets = 0`, [U.m1]);
+  did = await call(U.m1, "town_rain_fill");
+  const [wx, wy] = CODE.farming.wellAt;
+  const stamina = await staminaOf(U.m1);
+  did = await call(U.m1, "town_chore", wx + 1, wy);
+  const book = await one(`select (select c.buckets from public.town_carriers c where c.member_id = $1) as buckets, (select doc from public.town_things where key = 'well_water') as water, (select (doc #>> '{}')::int from public.town_things where key = 'well') as well`, [U.m1]);
+  t.check("poured into the well as any water: the pour's own stamina, four bucketfuls in the well and in the carrier's book", did?.ok === true && did.chore === "pour" && did.well === 4 && book.well === 4 && book.buckets === 4 && (await staminaOf(U.m1)) === stamina - CODE.farming.chores.pour, { did: did?.chore ?? did, book });
+  t.check("…and the well takes the rain's nature of it, as of any rain water", book.water?.kind === "rain" && book.water.by === U.m1 && book.water.until > (await now()), book.water);
+
+  t.section("the rain frog: the sky to come is the database's, told to every page");
+  for (const [i, word] of ["cloudy", "rain", "storm", "clear", "clear"].entries()) await sky(cur + 1 + i, word);
+  const told = await call(U.m2, "town_sky", 0);
+  const ahead = Object.fromEntries((told?.slots ?? []).map((s) => [s[0], s[1]]));
+  t.check("town_sky tells this quarter hour's weather and those written ahead: the three the frog shows, and beyond", ahead[cur] === "rain" && ahead[cur + 1] === "cloudy" && ahead[cur + 2] === "rain" && ahead[cur + 3] === "storm" && ahead[cur + 5] === "clear", ahead);
+  await sky(cur, "clear");
+}
+
+export default async function ({ t, U, call, purseOf, deeds, one, give, patch, CODE }) {
   const now = async () => Number((await one(`select town.now_ms() as n`)).n);
   const today = async () => (await one(`select town.day_of(town.now_ms()) as d`)).d;
   const hours = async () => Number((await one(`select town.stretch_at('{"n":1,"per":"meal"}'::jsonb, town.now_ms()) as k`)).k);
@@ -125,6 +217,7 @@ export default async function ({ t, U, call, purseOf, deeds, one, give, patch })
   t.check("a drink is put away: nothing held out, and nothing more written down", did?.ok === true && did.till === null && !("toast" in (await purseOf(U.m1))) && (await deeds("drink_offer")).length === offers.length, did);
   did = await call(U.admin, "town_drink_take", U.m1, 10, 12);
   t.check("…and then there is none to drink", did?.ok === false && did.why === "none", did);
+  await frogScenes({ t, U, call, purseOf, deeds, one, give, patch, CODE, now, gauge, staminaOf });
   // every drink of the scenes above gave thirty at the most to one member in one meal's hours, and nothing but stamina
   const all = await deeds("drink");
   t.check("no drink gave more than the flask's thirty", all.length === 3 && all.every((d) => d.n > 0 && d.n <= 30 && d.coins === 0), all);

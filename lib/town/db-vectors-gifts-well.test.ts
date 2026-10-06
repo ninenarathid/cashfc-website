@@ -1,9 +1,11 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
+import { WATER } from "./farm";
+import type { ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { newPurse, type Purse } from "./trade";
-import { DRINK, drinkOffer, drinkTake, hasDrunk, mealHours, toastOf } from "./well-gifts";
+import { DRINK, FROG, drinkOffer, drinkTake, hasDrunk, mealHours, rainFill, toastOf } from "./well-gifts";
 
 /**
  * The cases the database's rules of the well's gifts are held to (v153's part for the well; lib/town/
@@ -16,7 +18,9 @@ import { DRINK, drinkOffer, drinkTake, hasDrunk, mealHours, toastOf } from "./we
  *   over a drink already held out;
  * - `drink_take`: every way it is refused, each said before the next (nothing held out, too late, too far, drunk
  *   already, a full gauge), and drunk with gauges of every sort on both sides (none, a part of a point, nearly full,
- *   full, counted on another day).
+ *   full, counted on another day);
+ * - `rain_fill`: every bucket and what is none, held and not, empty and not; the frog following, resting, another
+ *   following, none; rain and none; the last filling at every distance from now, and kept wrongly.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-well.test.ts
  */
@@ -107,6 +111,25 @@ export function vectorsGiftsWell(): Vector[] {
     [{ ...held, toast: { ...held.toast!, till: NOW + 5 * HOUR + 20_000 } }, plain(20, { drunk: { k: mealHours(NOW), by: "Z" } }), "A", "B", [10, 12], NOW + 5 * HOUR],
     [held, plain(100), "A", "B", [10, 12], NOW], [held, { ...plain(3), stamina: { day: day - 1, left: 3 } }, "A", "B", [10, 12], NOW],
   ] as Array<[Purse, Purse, string, string, [number, number], number]>) add("drink_take", [giver, drinker, from, me, t, when], drinkTake(giver, drinker, from, me, t, when));
+
+  // ── the rain frog: a bucket the rain fills ──
+  // every bucket and what is none, held and not, empty and not; the frog following, resting, another following, none;
+  // rain and no rain; the last filling just now, long ago, never, and kept wrongly
+  const BUCKETS: ItemId[] = ["bucket", "bucketIron", "waterYoke", "waterYokeGreat", "waterCart"];
+  for (let i = 0; i < 900; i++) {
+    const thing = c.of<ItemId>([...BUCKETS, ...BUCKETS, "can", "hoe"]), water = c.of<number | undefined>([undefined, undefined, undefined, 0, 1, 2]);
+    const base = newPurse(), at = c.int(0, 3);
+    const bag = base.bag.map((s, j) => (j === at ? { item: thing, n: 1, ...(water === undefined ? {} : { water }) } : j === at + 1 && c.maybe(0.3) ? { item: thing, n: 1 } : s)) as Purse["bag"];
+    const fam = c.of<Purse["gifts"] | undefined>([
+      { had: ["famFrog"], charms: [], familiar: "famFrog" }, { had: ["famFrog"], charms: [], familiar: "famFrog" }, { had: ["famFrog", "thingFlask"], charms: [], familiar: "famFrog" },
+      { had: ["famFrog"], charms: [], familiar: "famFrog" }, { had: ["famFrog"], charms: [], familiar: null }, { had: ["famFrog", "famGnome"], charms: [], familiar: "famGnome" }, { had: [], charms: [], familiar: "famFrog" }, undefined,
+    ]);
+    const need = (WATER.buckets[thing] ?? 1) * 12_000;
+    const rained = c.of<unknown>([undefined, undefined, NOW - need, NOW - need + 1, NOW - need - 1, NOW - 1000, NOW - 3_600_000, NOW + 5000, "x", null, String(NOW)]);
+    const p = { ...base, bag, stamina: gauge(), ...(c.maybe(0.9) ? { hand: thing } : c.maybe(0.5) ? { hand: "rod" } : {}), ...(fam === undefined ? {} : { gifts: fam }), ...(rained === undefined ? {} : { rained }) } as unknown as Purse;
+    const raining = c.maybe(0.85);
+    add("rain_fill", [p, raining, NOW], rainFill(p, raining, NOW));
+  }
   return out;
 }
 
@@ -132,6 +155,14 @@ describe("the cases the database's rules of the well's gifts are held to", () =>
     // the whole drink, a part of one at a gauge nearly full, and a giver who had the whole ten, a part of it, and none
     expect(drank.some((d) => d.got === DRINK.gives) && drank.some((d) => d.got! > 0 && d.got! < DRINK.gives)).toBe(true);
     expect(drank.some((d) => d.back === DRINK.back) && drank.some((d) => d.back! > 0 && d.back! < DRINK.back) && drank.some((d) => d.back === 0)).toBe(true);
+    // the rain's filling: each way it is refused, and every bucket filled with what it carries
+    expect([...whys("rain_fill")].sort()).toEqual(["dry", "hand", "none", "ok", "soon"]);
+    for (const why of ["dry", "hand", "none", "soon"]) expect(of("rain_fill").filter((v) => (v.want as { why?: string }).why === why).length, why).toBeGreaterThan(15);
+    const filled = of("rain_fill").map((v) => v.want as { ok: boolean; n?: number; can?: string }).filter((d) => d.ok);
+    for (const [id, n] of Object.entries(WATER.buckets)) expect(filled.some((d) => d.can === id && d.n === n), id).toBe(true);
+    // (a moment under the time it takes is too soon, and the moment itself is not)
+    const soon = of("rain_fill").map((v) => ({ p: v.args[0] as Purse, d: v.want as { ok: boolean; why?: string; n?: number } })).filter((x) => typeof x.p.rained === "number");
+    expect(soon.some((x) => x.d.ok && NOW - x.p.rained! === x.d.n! * FROG.fills * 1000) && soon.some((x) => x.d.why === "soon" && x.p.rained! < NOW)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-well.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

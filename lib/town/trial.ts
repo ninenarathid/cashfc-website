@@ -34,7 +34,7 @@ import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
 import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 // ── gifts: well ──
-import { drinkOffer, drinkTake, type WellGiftRefusal } from "./well-gifts";
+import { drinkOffer, drinkTake, rainFill, type WellGiftRefusal } from "./well-gifts";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -735,6 +735,14 @@ export class Trial {
     other.save(did.giver);
     this.save(did.drinker);
     return { ok: true, got: did.got, back: did.back };
+  }
+  /** The rain fills the empty bucket in my hand, while it rains by this page's sky and the rain frog follows me: a bucket drawn, of the rain's water, with nobody's hands on it yet. */
+  rainFill(): { ok: true; n: number } | { ok: false; why: WellGiftRefusal } {
+    const now = this.now(), did = rainFill(this.purse(), SKIES.raining(now), now);
+    if (!did.ok) return did;
+    this.wellSeen({ by: this.id, at: now, what: "draw", can: did.can, kind: natureAt(now, true) ?? undefined });
+    this.save(did.purse);
+    return { ok: true, n: did.n };
   }
   /** For scripts and the test window: so many bucketfuls poured, all told, as mine. */
   setCarried(buckets: number) {

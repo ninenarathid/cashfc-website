@@ -157,9 +157,68 @@ begin
 end;
 $$;
 
+-- ── the rain frog (rank 5, famFrog): under rain the bucket its member holds fills by itself ──
+-- (What it shows of the sky to come, and its croak before rain, are the page's own to read: public.town_sky tells
+-- every page the quarter hours the database has, those to come among them.)
+
+-- The rain fills the empty bucket in somebody's hand: as much as it carries, for no stamina. Only while it rains
+-- (p_raining: public.town_rain_fill says, by the weather the database keeps), only with the frog following, and not
+-- sooner after the last than this one takes to fill (rainFill).
+create or replace function town.rain_fill(p_purse jsonb, p_raining boolean, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  f jsonb := town.cat('farming');
+  hand text := town.hand_of(p_purse);
+  bag jsonb := p_purse->'bag';
+  slot integer;
+  n integer;
+begin
+  if not town.gift_works(p_purse, 'famFrog') then return town.no('none'); end if;
+  if not coalesce(p_raining, false) then return town.no('dry'); end if;
+  if hand is null or not (f->'buckets' ? hand) then return town.no('hand'); end if;
+  select (x.ord - 1)::int into slot from jsonb_array_elements(bag) with ordinality x(s, ord)
+   where x.s->>'item' = hand and coalesce((x.s->>'water')::numeric, 0) = 0 order by x.ord limit 1;
+  if slot is null then return town.no('hand'); end if;
+  n := (f->'buckets'->>hand)::int;
+  if jsonb_typeof(p_purse->'rained') = 'number' then
+    if p_now - (p_purse->>'rained')::numeric < n * (town.cat('well')->'frog'->>'fills')::numeric * 1000 then return town.no('soon'); end if;
+  end if;
+  return jsonb_build_object('ok', true, 'n', n, 'can', hand,
+    'purse', p_purse || jsonb_build_object('rained', p_now, 'bag', jsonb_set(bag, array[slot::text], jsonb_build_object('item', hand, 'n', 1, 'water', n))));
+end;
+$$;
+
+-- What a member's page calls when its bucket has stood under the rain long enough. Written down under a word of its
+-- own (`rain_fill`: the bucket, how many bucketfuls). The well's book reads deeds by their word and knows none of this
+-- one (its trigger on town_deeds names the words it reads: nothing of v127's is written again here), so what the book
+-- does for a bucket drawn is done here: nobody's hands are on its water yet, and it has the nature of the moment,
+-- which is the rain's.
+create or replace function public.town_rain_fill()
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  now_ bigint := town.now_ms();
+  did jsonb := town.rain_fill(town.purse_of(me, true), town.raining(now_), now_);
+begin
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'purse');
+    delete from public.town_line_water l where l.member_id = me and l.item = did->>'can';
+    if town.water_kind(now_) is not null then
+      insert into public.town_line_water (member_id, item, hands, kind) values (me, did->>'can', '{}', town.water_kind(now_));
+    end if;
+    perform town.note(me, 'rain_fill', did->>'can', (did->>'n')::numeric, 0, '{}'::jsonb);
+  end if;
+  return town.answer(me, did);
+end;
+$$;
+
 revoke execute on function public.town_drink_offer(uuid, integer, integer) from public, anon;
 grant execute on function public.town_drink_offer(uuid, integer, integer) to authenticated;
 revoke execute on function public.town_drink_take(uuid, integer, integer) from public, anon;
 grant execute on function public.town_drink_take(uuid, integer, integer) to authenticated;
+revoke execute on function public.town_rain_fill() from public, anon;
+grant execute on function public.town_rain_fill() to authenticated;
 
 revoke execute on all functions in schema town from public, anon, authenticated;

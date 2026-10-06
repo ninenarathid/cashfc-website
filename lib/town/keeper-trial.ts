@@ -263,6 +263,7 @@ class TrialKeeper implements Keeper {
     if (did.ok) this.onDeed?.("line", from);
     return did;
   }
+  async rainFill(): Promise<Did<{ n: number }>> { return this.trial.rainFill(); }
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

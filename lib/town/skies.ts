@@ -64,6 +64,26 @@ export class Skies {
   hold(w: Weather | null) { if (!this.forced && !this.slots.size) this.one = w; }
   /** `next dev` only: one weather, whatever the database says. */
   force(w: Weather) { this.one = w; this.forced = true; this.rains_ = isWet(w.sky) ? ALWAYS_RAIN : DRY; }
+  /**
+   * `next dev` only: the quarter hours from this one on, each as it is told and the last of them for all that follow
+   * (two days of them), whatever the database says: a sky that changes, for what looks ahead (the rain frog's,
+   * lib/town/well-gifts). `from`: the quarter hour the first is (this one, by this machine's clock).
+   */
+  forceAhead(list: readonly Weather[], from = slotOf(Date.now())) {
+    if (!list.length) return;
+    this.forced = true;
+    this.one = null;
+    this.skew = 0;
+    this.slots = new Map();
+    this.wet = new Set();
+    for (let i = -8; i < 192; i++) {
+      const w = list[Math.max(0, Math.min(list.length - 1, i))];
+      this.slots.set(from + i, w);
+      if (isWet(w.sky)) this.wet.add(from + i);
+    }
+    this.newest = from + 191;
+    this.rains_ = rainsOf(this.wet);
+  }
 
   /** The weather at a moment. */
   weather(ms = this.now()): Weather { return this.one ?? this.slots.get(slotOf(ms)) ?? FINE; }

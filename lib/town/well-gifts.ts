@@ -1,6 +1,9 @@
-import { hasThing, numberOf, stretchOf } from "./gifts";
+import { WATER } from "./farm";
+import { hasThing, numberOf, stretchOf, works } from "./gifts";
+import type { ItemId } from "./items";
 import { STAMINA, dayOf, staminaOf } from "./stamina";
-import type { Purse } from "./trade";
+import { handOf, type Purse } from "./trade";
+import { SLOT_MS, isWet, slotOf, type Sky } from "./weather";
 
 /**
  * What the well's later ranks give (lib/town/gifts: the fourth to the sixth; the first three are the well's own
@@ -21,8 +24,21 @@ import type { Purse } from "./trade";
  *   the game hears where each of the two stands from themselves (the giver as they hold it out, the friend as they
  *   drink): three tiles apart at the most.
  *
+ * **The rain frog** (rank 5, `famFrog`): a familiar that knows the sky.
+ *
+ * - **Its member sees the sky forty-five minutes ahead** (`skyAhead`): this quarter hour's and the three to come, as
+ *   the database keeps them (lib/town/weather: the same for everybody, a quarter hour at a time, the next ones
+ *   written before their time). Nothing else in town says what the weather is, let alone what it will be.
+ * - **It croaks before rain** (`croaksAt`): in the quarter hour before a wet one, for everybody who sees it.
+ * - **While it rains the bucket its member holds fills by itself** (`rainFill`), wherever they stand: no walk to the
+ *   river, no stamina, no game. A bucketful takes twelve seconds of rain, so a yoke of four takes forty-eight: about
+ *   what the walk takes, and not sooner after the last than that (`rained`, kept in the purse). Rain's water is the
+ *   rain's (lib/town/waters). Only in rain; and it is still to be carried and poured, which costs what it costs and,
+ *   with no stamina, is the game it always was: nothing that can be failed is taken away.
+ *
  * Pure: every function is given the moment, and what it gives back is new. The database judges the same (v153:
- * `town.drink_offer`, `town.drink_take`), both purses in the one call that drinks. **Every number is mine.**
+ * `town.drink_offer`, `town.drink_take`, both purses in the one call that drinks; `town.rain_fill`). **Every number
+ * is mine.**
  */
 export const DRINK = {
   /** The stamina a drink gives whoever drinks it (the flask's own number, lib/town/gifts), and its owner for the giving. */
@@ -34,12 +50,16 @@ export const DRINK = {
   waits: 20,
 };
 
+/** The rain frog's numbers: the minutes of sky it shows ahead (its own number, lib/town/gifts), the minutes before rain that it croaks, and the seconds of rain a bucketful takes to fill. */
+export const FROG = { ahead: numberOf("famFrog"), croaks: 15, fills: 12 };
+
 /**
  * Why nothing came of something of the well's gifts, beyond what a bag refuses for: a drink that was held out too
  * long ago (`late`), or from too far (`far`), or to somebody who has drunk in these hours (`drunk`) or whose gauge
- * is full (`sated`).
+ * is full (`sated`); a bucket the rain is to fill under a dry sky (`dry`), with no empty bucket in the hand (`hand`),
+ * or sooner after the last than it takes to fill (`soon`).
  */
-export type WellGiftRefusal = "none" | "late" | "far" | "drunk" | "sated";
+export type WellGiftRefusal = "none" | "late" | "far" | "drunk" | "sated" | "dry" | "hand" | "soon";
 type Not = { ok: false; why: WellGiftRefusal };
 const not = (why: WellGiftRefusal): Not => ({ ok: false, why });
 
@@ -124,3 +144,64 @@ export function readDrinkTold(raw: unknown): DrinkTold | null {
 /** Whether two stand near enough for a drink, as a page has them: the tiles they are on within reach of each other. */
 export const drinkNear = (a: { x: number; y: number }, b: { x: number; y: number }): boolean =>
   Math.max(Math.abs(Math.floor(a.x) - Math.floor(b.x)), Math.abs(Math.floor(a.y) - Math.floor(b.y))) <= DRINK.reach;
+
+/* ── the rain frog ─────────────────────────────────────────────────────── */
+
+/**
+ * The sky as the frog shows it: now, and each quarter hour to come within its minutes (three of them), each with the
+ * moment it begins and its sky, where that is known (`skyAt`: lib/town/skies' own; null for a quarter hour the
+ * database has not written yet).
+ */
+export function skyAhead(now: number, skyAt: (ms: number) => Sky | null, minutes = FROG.ahead): Array<{ at: number; sky: Sky | null }> {
+  const slot = slotOf(now), n = Math.max(0, Math.floor((minutes * 60_000) / SLOT_MS));
+  return Array.from({ length: n + 1 }, (_, i) => { const at = i ? (slot + i) * SLOT_MS : now; return { at, sky: skyAt(at) }; });
+}
+/**
+ * What is coming, of what the frog shows: rain in so many minutes (dry now, a wet quarter hour to come), or the
+ * rain's end in so many (wet now, a dry one to come). Null when nothing changes within what is shown, and when the
+ * sky now is not known.
+ */
+export function rainAhead(ahead: ReadonlyArray<{ at: number; sky: Sky | null }>): { rain: number } | { clears: number } | null {
+  const [first, ...rest] = ahead;
+  if (!first?.sky) return null;
+  const wet = isWet(first.sky), turn = rest.find((q) => q.sky !== null && isWet(q.sky) !== wet);
+  if (!turn) return null;
+  const minutes = Math.max(1, Math.ceil((turn.at - first.at) / 60_000));
+  return wet ? { clears: minutes } : { rain: minutes };
+}
+/** Whether a frog croaks at a moment: it is dry, and it rains within its minutes (as far as the sky is known). */
+export function croaksAt(now: number, skyAt: (ms: number) => Sky | null): boolean {
+  const here = skyAt(now), soon = skyAt(now + FROG.croaks * 60_000);
+  return !!here && !!soon && !isWet(here) && isWet(soon);
+}
+
+/** Whether a thing carries water as a bucket does (the map asks, of what somebody holds). */
+export const isBucket = (item: string | null | undefined): boolean => !!item && item in WATER.buckets;
+
+/** When the rain last filled a bucket of somebody's, if that is kept soundly. */
+const rainedOf = (purse: Pick<Purse, "rained">): number | null => (typeof purse.rained === "number" && Number.isFinite(purse.rained) ? purse.rained : null);
+/**
+ * The empty bucket in my hand that the rain fills, with the frog at my heels: which thing and slot, how many
+ * bucketfuls it holds, and how long that takes to fill. Null with no frog following, and with no empty bucket held.
+ */
+export function rainNeed(purse: Purse): { hand: ItemId; slot: number; n: number; ms: number } | null {
+  const hand = handOf(purse);
+  if (!works(purse, "famFrog") || !hand || !(hand in WATER.buckets)) return null;
+  const slot = purse.bag.findIndex((s) => s?.item === hand && !(s.water ?? 0));
+  if (slot < 0) return null;
+  const n = WATER.buckets[hand]!;
+  return { hand, slot, n, ms: n * FROG.fills * 1000 };
+}
+/**
+ * The rain fills the bucket I hold: as much as it carries, for no stamina. Only while it rains (`raining`: whoever
+ * keeps the game says), only with the frog following, and not sooner after the last than this one takes to fill.
+ */
+export function rainFill<P extends Purse>(purse: P, raining: boolean, now: number): { ok: true; purse: P; n: number; can: ItemId } | Not {
+  if (!works(purse, "famFrog")) return not("none");
+  if (!raining) return not("dry");
+  const need = rainNeed(purse);
+  if (!need) return not("hand");
+  const last = rainedOf(purse);
+  if (last !== null && now - last < need.ms) return not("soon");
+  return { ok: true, n: need.n, can: need.hand, purse: { ...purse, rained: now, bag: purse.bag.map((s, i) => (i === need.slot ? { item: need.hand, n: 1, water: need.n } : s)) } };
+}

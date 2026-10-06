@@ -25,7 +25,7 @@ import { THANKS } from "./thanks";
 import { GOODS, RULES } from "./trade";
 import { WATERS } from "./waters";
 import { WELL_BOOK } from "./well";
-import { DRINK } from "./well-gifts";
+import { DRINK, FROG } from "./well-gifts";
 import { BEDS_IN_FARM, COLS, FARM, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
 
@@ -223,6 +223,8 @@ export function catalogOf() {
       ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed,
       // ── gifts: well ── (lib/town/well-gifts; since v153) a drink of the flask of living water: what its giver has of it, how near the two stand, the seconds it is held out
       drink: { back: DRINK.back, reach: DRINK.reach, waits: DRINK.waits },
+      // …the rain frog: the minutes before rain that it croaks (the page's own to read), and the seconds of rain a bucketful takes to fill
+      frog: { croaks: FROG.croaks, fills: FROG.fills },
     },
     /** Thanks (lib/town/thanks): how many the board lists. */
     thanks: { listed: THANKS.listed },

@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { giftAt, numberOf, takeGift } from "./gifts";
+import type { ItemId } from "./items";
+import { carried } from "./line";
 import { LINES, rankOf } from "./lines";
+import { Skies } from "./skies";
 import { STAMINA, dayOf, staminaOf } from "./stamina";
 import { newPurse, type Purse } from "./trade";
-import { DRINK, drinkOffer, drinkTake, hasDrunk, mealHours, toastOf } from "./well-gifts";
+import { FINE, SLOT_MS, slotOf, type Sky } from "./weather";
+import { DRINK, FROG, croaksAt, drinkNear, drinkOffer, drinkTake, hasDrunk, mealHours, rainAhead, rainFill, rainNeed, readDrinkTold, skyAhead, toastOf } from "./well-gifts";
 
 /** A moment by Bangkok's clock. */
 const at = (s: string) => Date.parse(`${s}+07:00`);
@@ -151,5 +155,140 @@ describe("the flask of living water (the well's fourth rank): a drink for a frie
     const c = catalogOf();
     expect(c.well.drink).toEqual({ back: 10, reach: 3, waits: 20 });
     expect(c.gifts.gifts.thingFlask).toEqual({ kind: "thing", line: "well", rank: 4, by: 30 });
+  });
+
+  it("the words two pages say of a drink are read carefully", () => {
+    expect(readDrinkTold({ k: "dr", m: "offer", t: 5 })).toEqual({ k: "dr", m: "offer", t: 5 });
+    expect(readDrinkTold({ k: "dr", m: "ok", g: 30, b: 10 })).toEqual({ k: "dr", m: "ok", g: 30, b: 10 });
+    expect(readDrinkTold({ k: "dr", m: "no", w: "drunk" })).toEqual({ k: "dr", m: "no", w: "drunk" });
+    expect(readDrinkTold({ k: "dr", m: "off", more: 1 })).toEqual({ k: "dr", m: "off" });
+    // (the bucket line's words, and what is no word of a drink at all, are none of its)
+    for (const bad of [null, "dr", { k: "ask", m: "x" }, { k: "dr" }, { k: "dr", m: "offer" }, { k: "dr", m: "offer", t: "5" }, { k: "dr", m: "ok", g: 30 }, { k: "dr", m: "ok", g: -1, b: 0 }, { k: "dr", m: "no", w: "because" }, { k: "dr", m: "what" }]) {
+      expect(readDrinkTold(bad), JSON.stringify(bad)).toBeNull();
+    }
+    expect(drinkNear({ x: 10.9, y: 12.1 }, { x: 13.2, y: 9.5 })).toBe(true);
+    expect(drinkNear({ x: 10.9, y: 12.1 }, { x: 14.0, y: 12.5 })).toBe(false);
+  });
+});
+
+describe("the rain frog (the well's fifth rank): the sky ahead, a croak before rain, and a bucket the rain fills", () => {
+  const Q = SLOT_MS, T0 = 1_960_000 * Q, at3 = T0 + 3 * 60_000;
+  /** A sky by the quarter hours from T0 on: each word in turn, and nothing known past them. */
+  const sky = (...words: Array<Sky | null>) => (ms: number): Sky | null => words[slotOf(ms) - slotOf(T0)] ?? null;
+  const frog = (more: Partial<Purse> = {}, hand: ItemId | null = "bucket"): Purse => {
+    const p: Purse = { ...newPurse(), stamina: { day: dayOf(NOON), left: 50 }, gifts: { had: ["famFrog", "famGnome"], charms: [], familiar: "famFrog" }, ...more };
+    return hand ? { ...p, bag: p.bag.map((s, i) => (i === 0 ? { item: hand, n: 1 } : s)), hand } : p;
+  };
+
+  it("shows this quarter hour's sky and the three to come: forty-five minutes ahead", () => {
+    expect(FROG).toEqual({ ahead: 45, croaks: 15, fills: 12 });
+    expect(numberOf("famFrog")).toBe(45);
+    const ahead = skyAhead(at3, sky("clear", "cloudy", "rain", "storm", "clear"));
+    expect(ahead).toEqual([{ at: at3, sky: "clear" }, { at: T0 + Q, sky: "cloudy" }, { at: T0 + 2 * Q, sky: "rain" }, { at: T0 + 3 * Q, sky: "storm" }]);
+    // the moment forty-five minutes on is in the last quarter hour shown, wherever in this one it is asked
+    for (const into of [0, 1, 7 * 60_000, Q - 1]) {
+      const a = skyAhead(T0 + into, sky("clear", "clear", "clear", "rain"));
+      expect(a.length).toBe(4);
+      expect(slotOf(T0 + into + FROG.ahead * 60_000)).toBe(slotOf(a[3].at));
+    }
+    // a quarter hour the database has not written yet is not known, and says so
+    expect(skyAhead(at3, sky("clear", "cloudy")).map((q) => q.sky)).toEqual(["clear", "cloudy", null, null]);
+    expect(skyAhead(at3, sky("clear"), 20).length).toBe(2);
+  });
+
+  it("says when the weather turns within what it shows: rain in so many minutes, or its end", () => {
+    expect(rainAhead(skyAhead(at3, sky("clear", "cloudy", "rain", "storm")))).toEqual({ rain: 27 });
+    expect(rainAhead(skyAhead(at3, sky("cloudy", "drizzle", "clear", "clear")))).toEqual({ rain: 12 });
+    expect(rainAhead(skyAhead(at3, sky("rain", "rain", "storm", "fog")))).toEqual({ clears: 42 });
+    expect(rainAhead(skyAhead(T0 + Q - 1, sky("storm", "clear")))).toEqual({ clears: 1 });
+    // nothing turns; the sky now is not known; what is not known is passed over
+    expect(rainAhead(skyAhead(at3, sky("clear", "cloudy", "fog", "clear")))).toBeNull();
+    expect(rainAhead(skyAhead(at3, sky("rain", "rain", "drizzle", "storm")))).toBeNull();
+    expect(rainAhead(skyAhead(at3, sky(null, "rain", "rain", "rain")))).toBeNull();
+    expect(rainAhead(skyAhead(at3, sky("clear", null, "rain", "rain")))).toEqual({ rain: 27 });
+    expect(rainAhead([])).toBeNull();
+  });
+
+  it("croaks in the quarter hour before rain, and at no other time", () => {
+    expect(croaksAt(at3, sky("clear", "rain"))).toBe(true);
+    expect(croaksAt(T0, sky("fog", "drizzle"))).toBe(true);
+    expect(croaksAt(T0 + Q - 1, sky("cloudy", "storm"))).toBe(true);
+    // not while it rains, not with dry weather ahead, not half an hour before, and not of a sky it does not know
+    expect(croaksAt(at3, sky("rain", "rain"))).toBe(false);
+    expect(croaksAt(at3, sky("clear", "cloudy", "rain"))).toBe(false);
+    expect(croaksAt(at3, sky("clear", null))).toBe(false);
+    expect(croaksAt(at3, sky(null, "rain"))).toBe(false);
+    expect(croaksAt(at3, sky("rain", "clear"))).toBe(false);
+  });
+
+  it("under rain the empty bucket its member holds fills by itself: all it carries, for no stamina", () => {
+    for (const [hand, n] of [["bucket", 1], ["bucketIron", 2], ["waterYoke", 2], ["waterYokeGreat", 4], ["waterCart", 6]] as Array<[ItemId, number]>) {
+      const p = frog({}, hand), need = rainNeed(p)!;
+      expect([need.hand, need.slot, need.n, need.ms]).toEqual([hand, 0, n, n * 12_000]);
+      const did = done(rainFill(p, true, NOON));
+      expect([did.n, did.can]).toEqual([n, hand]);
+      expect(did.purse.bag[0]).toEqual({ item: hand, n: 1, water: n });
+      expect(did.purse.rained).toBe(NOON);
+      expect(staminaOf(did.purse, NOON)).toBe(50);
+      expect(did.purse.coins).toBe(0);
+      // (it is a bucket of water like any other: the hand that holds it has it to hand on or pour)
+      expect(carried(did.purse)).toEqual({ hand, slot: 0, has: n });
+    }
+  });
+
+  it("only in rain, only with the frog following, only an empty bucket in the hand", () => {
+    expect(why(rainFill(frog(), false, NOON))).toBe("dry");
+    // the frog had but resting, another familiar following, no frog at all
+    expect(why(rainFill(frog({ gifts: { had: ["famFrog"], charms: [], familiar: null } }), true, NOON))).toBe("none");
+    expect(why(rainFill(frog({ gifts: { had: ["famFrog", "famGnome"], charms: [], familiar: "famGnome" } }), true, NOON))).toBe("none");
+    expect(why(rainFill(frog({ gifts: { had: [], charms: [] } }), true, NOON))).toBe("none");
+    expect(rainNeed(frog({ gifts: { had: [], charms: [] } }))).toBeNull();
+    // nothing in the hand, what is no bucket, a bucket in the bag that is not held, one that has water already
+    expect(why(rainFill(frog({}, null), true, NOON))).toBe("hand");
+    expect(why(rainFill(frog({}, "can"), true, NOON))).toBe("hand");
+    expect(why(rainFill({ ...frog(), hand: null }, true, NOON))).toBe("hand");
+    const full = frog();
+    expect(why(rainFill({ ...full, bag: full.bag.map((s, i) => (i === 0 ? { item: "bucket" as ItemId, n: 1, water: 1 } : s)) }, true, NOON))).toBe("hand");
+    // (no frog is said before no rain, and no rain before no bucket)
+    expect(why(rainFill(frog({ gifts: { had: [], charms: [] } }, null), false, NOON))).toBe("none");
+    expect(why(rainFill(frog({}, null), false, NOON))).toBe("dry");
+  });
+
+  it("not sooner after the last than this bucket takes to fill: twelve seconds a bucketful", () => {
+    const first = done(rainFill(frog({}, "waterYokeGreat"), true, NOON)).purse;
+    // poured out, and held under the rain again
+    const empty: Purse = { ...first, bag: first.bag.map((s, i) => (i === 0 ? { item: "waterYokeGreat" as ItemId, n: 1 } : s)) };
+    expect(why(rainFill(empty, true, NOON + 47_999))).toBe("soon");
+    expect(done(rainFill(empty, true, NOON + 48_000)).n).toBe(4);
+    // a smaller bucket is full sooner
+    const small: Purse = { ...empty, bag: empty.bag.map((s, i) => (i === 0 ? { item: "bucket" as ItemId, n: 1 } : s)), hand: "bucket" };
+    expect(why(rainFill(small, true, NOON + 11_999))).toBe("soon");
+    expect(done(rainFill(small, true, NOON + 12_000)).n).toBe(1);
+    // so however it is asked, no more than five bucketfuls a minute come of the rain: an hour of it is three hundred
+    let p = frog({}, "waterCart"), got = 0;
+    for (let t = NOON; t < NOON + 3_600_000; t += 1000) {
+      const did = rainFill(p, true, t);
+      if (!did.ok) continue;
+      got += did.n;
+      p = { ...did.purse, bag: did.purse.bag.map((s, i) => (i === 0 ? { item: "waterCart" as ItemId, n: 1 } : s)) };
+    }
+    expect(got).toBe(300);
+    // (a time kept wrongly is no time at all)
+    expect(why(rainFill({ ...empty, rained: "x" as unknown as number }, true, NOON))).toBe("ok");
+  });
+
+  it("the catalog carries its numbers, and a sky can be laid out ahead in `next dev`", () => {
+    const c = catalogOf();
+    expect(c.well.frog).toEqual({ croaks: 15, fills: 12 });
+    expect(c.gifts.gifts.famFrog).toEqual({ kind: "familiar", line: "well", rank: 5, by: 45 });
+    const skies = new Skies(), from = slotOf(Date.now());
+    skies.forceAhead([FINE, { sky: "cloudy", wind: 5, gust: 9, rain: 0 }, { sky: "rain", wind: 10, gust: 20, rain: 1.2 }], from);
+    expect([0, 1, 2, 3, 50].map((i) => skies.sky((from + i) * Q + 1))).toEqual(["clear", "cloudy", "rain", "rain", "rain"]);
+    expect(skies.raining((from + 1) * Q + 5)).toBe(false);
+    expect(skies.raining((from + 2) * Q)).toBe(true);
+    expect(skies.sky((from - 3) * Q)).toBe("clear");
+    // (whatever the database says afterwards is not taken)
+    expect(skies.take({ now: Date.now(), slots: [[from, "storm", 1, 1, 1]] }, Date.now())).toBe(false);
+    expect(skies.reaches(60)).toBe(true);
   });
 });

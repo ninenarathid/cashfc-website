@@ -3,5 +3,6 @@
   "toast_of": "town.toast_of($1::jsonb)",
   "has_drunk": "to_jsonb(town.has_drunk($1::jsonb, $2::bigint))",
   "drink_offer": "town.drink_offer($1::jsonb, $2::text, $3::text, $4::jsonb, $5::bigint)",
-  "drink_take": "town.drink_take($1::jsonb, $2::jsonb, $3::text, $4::text, $5::jsonb, $6::bigint)"
+  "drink_take": "town.drink_take($1::jsonb, $2::jsonb, $3::text, $4::text, $5::jsonb, $6::bigint)",
+  "rain_fill": "town.rain_fill($1::jsonb, $2::boolean, $3::bigint)"
 }
