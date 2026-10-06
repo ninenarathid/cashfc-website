@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { ALL_SIGNS, PAIR, castFrom, castLine, driveBack, hookBait, hookBaits, oddsOf, sift } from "./fishing";
+import { ALL_SIGNS, ORB, PAIR, castFrom, castLine, driveBack, hookBait, hookBaits, lightOrb, oddsOf, orbOf, sift, underOrb, type OrbSky } from "./fishing";
 import { stretchOf, USES } from "./gifts";
 import { BAITS, FISH, type BaitId, type CatchId, type FishId, type ItemId, type Sign, type Tier } from "./items";
 import { dayOf } from "./stamina";
@@ -21,6 +21,9 @@ import { newPurse, put, type Purse } from "./trade";
  *   eaten; no rod; what is no bait; a count that is none.
  * - `cast_from`, `cast_line`: a line dropped from a bait's own odds and from sifted ones, by numbers drawn
  *   beforehand; and the same line by the bait's name, which is the same cast.
+ * - `orb_of`, `orb_light`, `under_orb`: a sky kept and one run out, of each sort, and kept wrongly in every way; the
+ *   orb lit under each sky and under none there is, by somebody who has it, who has lit it today already, who has it
+ *   not; and the hour, the rain and the signs a line is dropped by under each sky and under none.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-fishing.test.ts
  */
@@ -85,6 +88,26 @@ export function vectorsFishing(): Vector[] {
     // (and by the bait's name: the same cast as from its own odds)
     if (i % 4 === 0) { let j = 0; add("cast_line", [o.bait, o.hour, o.rain, false, o.shallow, o.signs, rnd], castLine(o.bait, o.hour, o.rain, false, () => rnd[j++], o.shallow, o.signs)); }
   }
+
+  // the sky an orb has lit: of each sort, lit and run out, and kept wrongly
+  const today = stretchOf(USES.thingOrb!, NOW), soon = NOW + 60_000;
+  const KEPT: unknown[] = [undefined, null, { sky: "night", until: soon }, { sky: "rain", until: NOW + 1 }, { sky: "moon", until: NOW }, { sky: "moon", until: NOW - 5 }, { sky: "moon", until: soon + ORB.minutes * 60_000 }, { sky: "noon", until: soon }, { sky: 3, until: soon },
+    { sky: "night", until: "soon" }, "night", ["night", soon], { until: soon }, { sky: "rain" }];
+  for (const orb of KEPT) for (const when of [NOW, NOW + ORB.minutes * 60_000]) {
+    const p = purse(undefined, (orb === undefined ? {} : { orb }) as Partial<Purse>);
+    add("orb_of", [p, when], orbOf(p, when));
+  }
+  // lit: by somebody who has it, who has lit it today, who lit it yesterday, who has it not; under each sky and under none there is
+  for (const gifts of [undefined, { had: ["thingOrb"], charms: [] }, { had: ["thingOrb"], charms: [], used: { thingOrb: { k: today, n: 1 } } }, { had: ["thingOrb"], charms: [], used: { thingOrb: { k: today - 1, n: 1 } } }, { had: ["thingBait"], charms: [] }] as Array<Purse["gifts"] | undefined>) {
+    for (const sky of ["night", "rain", "moon", "noon", "", null]) for (const orb of [undefined, { sky: "rain", until: soon }]) for (const when of [NOW, NOW + 86_400_000]) {
+      const p = purse(gifts, orb ? { orb } : {});
+      add("orb_light", [p, sky, when], lightOrb(p, sky as string, when));
+    }
+  }
+  // what the water answers under it
+  for (const sky of [null, ...ORB.skies] as Array<OrbSky | null>) for (const hour of [0, 6, 12, 23]) for (const rain of [false, true]) for (const signs of [[], ["after"], ["full"], ["tired", "after", "full"], [...ALL_SIGNS]] as Sign[][]) {
+    add("under_orb", [sky, hour, rain, signs], underOrb(sky, hour, rain, signs));
+  }
   return out;
 }
 
@@ -111,6 +134,15 @@ describe("the cases the database's rules of the fishing deck's gifts are held to
     const casts = of("cast_from").map((v) => v.want as { what: CatchId; nibbles: number[]; size: number });
     expect(casts.some((x) => x.what in FISH && x.nibbles.length === 2) && casts.some((x) => !(x.what in FISH) && x.size === 0) && new Set(casts.map((x) => x.what)).size).toBeGreaterThan(20);
     expect(of("cast_line").length).toBeGreaterThan(100);
+    // the orb: each sky read as lit, one run out and one kept wrongly read as none; lit, refused as spent and as nothing to light; and each sky changing what it changes
+    const lit = of("orb_of").map((v) => v.want as string | null);
+    for (const sky of ORB.skies) expect(lit.includes(sky), sky).toBe(true);
+    expect(lit.filter((x) => x === null).length).toBeGreaterThan(10);
+    const lights = of("orb_light").map((v) => v.want as { ok: boolean; why?: string; until?: number; purse?: Purse });
+    expect(lights.some((d) => d.ok && d.purse?.orb?.sky === "moon") && lights.some((d) => !d.ok && d.why === "spent") && lights.some((d) => !d.ok && d.why === "none")).toBe(true);
+    const unders = of("under_orb").map((v) => ({ sky: v.args[0] as string | null, hour: v.args[1] as number, rain: v.args[2] as boolean, signs: v.args[3] as string[], got: v.want as { hour: number; rain: boolean; signs: string[] } }));
+    expect(unders.some((u) => u.sky === "night" && u.hour === 12 && u.got.hour === ORB.night) && unders.some((u) => u.sky === "rain" && !u.rain && u.got.rain && u.signs.includes("after") && !u.got.signs.includes("after"))
+      && unders.some((u) => u.sky === "moon" && !u.signs.includes("full") && u.got.signs.includes("full") && u.got.hour === ORB.night) && unders.some((u) => u.sky === null && JSON.stringify(u.got) === JSON.stringify({ hour: u.hour, rain: u.rain, signs: u.signs }))).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-fishing.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

@@ -1,6 +1,6 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
 import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
-import { charmBy, useGift, type GiftRefusal } from "./gifts";
+import { charmBy, numberOf, useGift, type GiftRefusal } from "./gifts";
 import { STAMINA, isSpent, levelOf } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
@@ -652,3 +652,38 @@ export function stepPair(p: Pair, holding: boolean, dt: number): Pair {
   else { const ran = still.find((i) => fights[i].line > fights[i].length * 1.6); if (ran !== undefined) lose(ran, "slipped"); }
   return { fights, ended, t: p.t + dt, tension, strain: Math.min(1, strain), slack: Math.min(1, slack), snapIn: p.snapIn, slipIn: p.slipIn, lo, hi, about, own, silk, mend };
 }
+
+/**
+ * A sky orb (the deck's fifth rank, a thing): its owner chooses a sky, and for so many minutes the water answers
+ * THEM as if under it, and bites come sooner (the gift's number, lib/town/gifts: twice as soon). Once a day (its
+ * count). Nobody else's fishing changes and the town's own weather is not touched: the sky is kept in the purse.
+ *
+ * The three skies, and what each is to a line (`underOrb`): `night`, an hour of the night; `rain`, rain (and so no
+ * sky that has just cleared); `moon`, a night of a full moon. What bites by day does not bite under an orb's night,
+ * as it does not at night.
+ */
+export const ORB = { minutes: 30, night: 23, skies: ["night", "rain", "moon"] as const };
+export type OrbSky = (typeof ORB.skies)[number];
+/** The sky an orb has lit for somebody now: one of those there are, while it lasts. */
+export function orbOf(purse: Pick<Purse, "orb">, now: number): OrbSky | null {
+  const o = purse.orb as { sky?: unknown; until?: unknown } | null | undefined;
+  return !!o && typeof o === "object" && !Array.isArray(o) && typeof o.until === "number" && o.until > now && (ORB.skies as readonly unknown[]).includes(o.sky) ? (o.sky as OrbSky) : null;
+}
+/** Light the orb under a sky: one of those there are, by somebody who has it, once a day. (Lit again on a new day while it still shines, the new sky is the one that holds.) */
+export function lightOrb<P extends Pick<Purse, "gifts" | "orb">>(purse: P, sky: string, now: number): { ok: true; purse: P; until: number } | { ok: false; why: GiftRefusal } {
+  if (!(ORB.skies as readonly string[]).includes(sky)) return { ok: false, why: "none" };
+  const used = useGift(purse, "thingOrb", now);
+  if (!used.ok) return used;
+  const until = now + ORB.minutes * 60_000;
+  return { ok: true, until, purse: { ...used.purse, orb: { sky, until } } };
+}
+/** What the water answers under an orb's sky: the hour, the rain and the signs a line is dropped by. With no orb lit, they are as they are. */
+export function underOrb(sky: OrbSky | null, hour: number, rain: boolean, signs: readonly Sign[]): { hour: number; rain: boolean; signs: Sign[] } {
+  return {
+    hour: sky === "night" || sky === "moon" ? ORB.night : hour,
+    rain: sky === "rain" ? true : rain,
+    signs: sky === "rain" ? signs.filter((s) => s !== "after") : sky === "moon" && !signs.includes("full") ? [...signs, "full"] : [...signs],
+  };
+}
+/** How much sooner a bite comes under an orb: the share of the wait that is taken off (lib/town/fountain's `hastened` takes it). */
+export const orbHaste = (): number => 1 - 1 / numberOf("thingOrb");

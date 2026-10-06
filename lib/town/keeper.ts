@@ -185,6 +185,9 @@ export interface Keeper {
   cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean, how?: CastHow): Promise<Did<CastTold>>;
   strike(reaction: number, how: Strike | null): Promise<Did<Struck>>;
   missed(): Promise<{ what?: CatchId; size?: number }>;
+  // ── gifts: fishing ──
+  /** Light my sky orb under a sky ("night", "rain" or "moon": lib/town/fishing's ORB): for its minutes the water answers me as if under it, and bites come sooner. Says until when. */
+  orbLight(sky: string): Promise<Did<{ until: number }>>;
   /** (`which`: of two fish still on a rod of two lines, the one that has ended: the first, or 1 for the second) */
   land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed>;
 
@@ -866,6 +869,8 @@ export class DbKeeper implements Keeper {
       // ── gifts: fishing ──
       ...(line.pair ? { pair: true } : {}), ...(typeof line.coming2 === "string" ? { coming2: line.coming2 } : {}) };
   }
+  // ── gifts: fishing ──
+  orbLight(sky: string) { return this.deed<{ until: number }>("town_orb", { p_sky: sky }); }
   async strike(reaction: number): Promise<Did<Struck>> {
     const a = await this.ask("town_strike", { p_reaction: Math.round(reaction * 1000) });
     if (!a) return AWAY;

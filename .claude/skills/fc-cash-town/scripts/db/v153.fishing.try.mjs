@@ -1,6 +1,6 @@
 // Scenes of the fishing deck's gifts, played through the functions a member calls (try-line.mjs runs this after the
 // line's SQL is in and its rule cases have been asked).
-export default async function ({ t, U, call, purseOf, deeds, one, same, give }) {
+export default async function ({ t, U, call, purseOf, deeds, one, same, give, CODE }) {
   const DECK = [16, 38];
   const BAG = [{ item: "rod", n: 1 }, { item: "worm", n: 9 }, null, null, null, null, null, null, null, null];
   /** A member with a rod in the hand, a bag (nine worms, unless told), all their stamina, and these gifts. */
@@ -181,4 +181,49 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give }) 
   line = await lineOf(U.m1);
   t.check("with the otter, one of two that gets away is lost (the other is on still); the last one on is driven back", firstLost?.how === "slipped" && firstLost.more === true && !firstLost.again && did?.again === true && line?.what === "tilapia" && line.again === true
     && (await purseOf(U.m1)).gifts.used.famOtter.n === 1, { firstLost, did, line });
+  /* ── a sky orb ── */
+  t.section("a sky orb: the water answers its owner as if under the sky they chose");
+  const stack = CODE.items.loach.stack, WORMS = [{ item: "rod", n: 1 }, ...Array.from({ length: 9 }, () => ({ item: "loach", n: stack }))];
+  const raining = (await one(`select town.raining(town.now_ms()) as r`)).r;
+  /** So many lines dropped one after the other, each as the database kept it. */
+  const dropped = async (who, n) => {
+    const all = [];
+    for (let i = 0; i < n; i++) { const c = await call(who, "town_cast", "loach", DECK[0], DECK[1], false); if (!c?.ok) return c; all.push(await lineOf(who)); }
+    return all;
+  };
+  const longest = (what) => (CODE.fish[what] ?? CODE.flotsam[what]).wait[1];
+  await rigged(U.m2, {}, WORMS);
+  did = await call(U.m2, "town_orb", "night");
+  t.check("somebody with no orb lights no sky", did?.ok === false && did.why === "none" && (await purseOf(U.m2)).orb === undefined, did);
+  await rigged(U.m1, { had: ["thingOrb"] }, WORMS);
+  did = await call(U.m1, "town_orb", "noon");
+  t.check("a sky there is none of is not lit, and nothing is counted", did?.ok === false && did.why === "none" && (await purseOf(U.m1)).orb === undefined && !(await purseOf(U.m1)).gifts.used.thingOrb, did);
+  const usesBefore = (await deeds("gift_use")).filter((d) => d.thing === "thingOrb").length;
+  did = await call(U.m1, "town_orb", "rain");
+  let mine = await purseOf(U.m1);
+  const nowMs = Number((await one(`select town.now_ms() as n`)).n);
+  t.check("its owner lights it under rain: the sky is kept with the moment it ends, thirty minutes on, and the answer says until when", did?.ok === true && mine.orb?.sky === "rain" && did.until === mine.orb.until
+    && Math.abs(mine.orb.until - (nowMs + 30 * 60000)) < 5000 && did.purse.orb.sky === "rain", { did: { ok: did?.ok, until: did?.until }, orb: mine.orb });
+  const orbDeed = (await deeds("gift_use")).filter((d) => d.thing === "thingOrb").at(-1);
+  t.check("…counted once for the day, and written down with its sky", mine.gifts.used.thingOrb?.n === 1 && (await deeds("gift_use")).filter((d) => d.thing === "thingOrb").length === usesBefore + 1 && orbDeed.member_id === U.m1 && orbDeed.doc.sky === "rain", { used: mine.gifts.used, orbDeed });
+  did = await call(U.m1, "town_orb", "moon");
+  t.check("once a day: a second sky is refused, and the first holds", did?.ok === false && did.why === "spent" && (await purseOf(U.m1)).orb.sky === "rain", did);
+  // under it: what comes only in the rain comes, and every bite comes in half the time or less
+  const under = await dropped(U.m1, 40), other = await dropped(U.m2, 40);
+  t.check("under its rain the fish that bite only in the rain come to its owner's line", Array.isArray(under) && under.every((l) => l.orb === "rain") && under.some((l) => l.what === "salmon"), Array.isArray(under) ? under.map((l) => l.what).join(" ") : under);
+  t.check("…and every bite comes twice as soon: none waits longer than half its kind's longest, and some come sooner than their kind ever does", Array.isArray(under) && under.every((l) => l.wait <= Math.ceil(longest(l.what) / 2))
+    && under.some((l) => l.wait < (CODE.fish[l.what] ?? CODE.flotsam[l.what]).wait[0]), Array.isArray(under) ? under.map((l) => `${l.what}:${l.wait}`).join(" ") : under);
+  t.check("for its owner alone: beside them, somebody else's line is under the town's own sky (and the real weather is as it was)", Array.isArray(other) && other.every((l) => l.orb === undefined) && (raining || !other.some((l) => l.what === "salmon"))
+    && (await one(`select town.raining(town.now_ms()) as r`)).r === raining, { raining, other: Array.isArray(other) ? other.map((l) => l.what).join(" ") : other });
+  t.check("the line says under which sky it was dropped, and the hour and the rain it was really dropped in", under[0].orb === "rain" && under[0].rain === raining && typeof under[0].hour === "number", under[0]);
+  // run out
+  await t.sql(`update public.town_purses set doc = jsonb_set(doc, '{orb,until}', to_jsonb(town.now_ms() - 1)) where member_id = $1`, [U.m1]);
+  const after = await dropped(U.m1, 12);
+  t.check("its minutes over, the water is the town's own again", Array.isArray(after) && after.every((l) => l.orb === undefined) && (raining || !after.some((l) => l.what === "salmon")), Array.isArray(after) ? after.map((l) => l.what).join(" ") : after);
+  // a night of a full moon: the moon's own fish comes to dough (whatever the hour is, and whatever the moon)
+  await rigged(U.m1, { had: ["thingOrb"] }, [{ item: "rod", n: 1 }, { item: "dough", n: CODE.items.dough.stack }, { item: "dough", n: CODE.items.dough.stack }, { item: "dough", n: CODE.items.dough.stack }, null, null, null, null, null, null]);
+  did = await call(U.m1, "town_orb", "moon");
+  const moonlit = [];
+  for (let i = 0; i < 80; i++) { await call(U.m1, "town_cast", "dough", DECK[0], DECK[1], false); moonlit.push((await lineOf(U.m1)).what); }
+  t.check("under a full moon's night the moon's own fish comes to dough, and what bites only by day does not", did?.ok === true && moonlit.includes("moonFish") && !moonlit.includes("tilapia") && !moonlit.includes("barb"), [...new Set(moonlit)].join(" "));
 }

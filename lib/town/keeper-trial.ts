@@ -1,7 +1,7 @@
 import type { Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
-import { ALL_SIGNS, PAIR, SIGNS, castFrom, driveBack, oddsOf, seeded, sift, signsOf, type Cast, type Strike } from "./fishing";
+import { ALL_SIGNS, PAIR, SIGNS, castFrom, driveBack, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, underOrb, type Cast, type Strike } from "./fishing";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
@@ -136,17 +136,28 @@ class TrialKeeper implements Keeper {
     const named = (typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("townSigns") ?? "").split(",").filter((x): x is Sign => ALL_SIGNS.includes(x as Sign));
     const signs = [...new Set([...signsOf({ now, spent: isSpent(p, now), others: 0, wet: wetMs(SKIES.rains(), now - SIGNS.after * 60_000, now) }, rain), ...named])];
     const rnd = seeded(Math.floor(Math.random() * 2 ** 31));
+    // (under a sky orb the water answers its owner as if under that sky: the hour, the rain and the signs are the orb's)
+    const sky = orbOf(p, now), under = underOrb(sky, bangkokHour(now), rain, signs);
     // (what may take it: the bait's own odds, and, of a pair, never a legend)
-    const own = oddsOf(bait, bangkokHour(now), rain, levelOf(p, now, "lucky"), !place.deep, signs), odds = pair ? sift(own, PAIR.never) : own;
+    const own = oddsOf(bait, under.hour, under.rain, levelOf(p, now, "lucky"), !place.deep, under.signs), odds = pair ? sift(own, PAIR.never) : own;
     const draw = () => { const fate = this.fated.shift(); return castFrom(fate ? [{ what: fate, p: 1 }] : odds, rnd); };
     const drawn = draw(), second = pair ? draw() : null;
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
-    const cast = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
+    const blessed = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
+    // (and under an orb the bite comes sooner still)
+    const cast = sky ? hastened(blessed, orbHaste()) : blessed;
     this.out = { cast, bait, ...(second ? { two: { what: second.what, size: second.size } } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
     return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}), ...(wearing(p, "charmFloat") ? { coming: cast.what } : {}),
       ...(second ? { pair: true } : {}), ...(second && wearing(p, "charmFloat") ? { coming2: second.what } : {}) };
+  }
+  // ── gifts: fishing ──
+  async orbLight(sky: string): Promise<Did<{ until: number }>> {
+    const did = lightOrb(this.trial.purse(), sky, this.trial.now());
+    if (!did.ok) return did;
+    this.trial.fished(did.purse);
+    return { ok: true, until: did.until };
   }
   async strike(_reaction: number, how: Strike | null): Promise<Did<Struck>> {
     const o = this.out;

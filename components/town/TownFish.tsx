@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
-import { PAIR, REST, STEPS, oddsOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type Pair, type Strike } from "@/lib/town/fishing";
+import { ORB, PAIR, REST, STEPS, oddsOf, orbOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type OrbSky, type Pair, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
@@ -57,6 +57,33 @@ const PAIR_LOOK = [
   { band: "border-[#d6ffe0] bg-[#5cc58d]/60", glow: "drop-shadow(0 0 3px #7dffb4) drop-shadow(0 0 1px #7dffb4)", bar: "bg-[#5cc58d]" },
   { band: "border-[#ffd9ee] bg-[#e06aa8]/60", glow: "drop-shadow(0 0 3px #ff9ed2) drop-shadow(0 0 1px #ff9ed2)", bar: "bg-[#e06aa8]" },
 ] as const;
+/** Why a deed of the deck's gifts was not done, beyond what the bag and the stall refuse for. */
+const WHY_FISH: Record<string, [th: string, en: string]> = {
+  spent: ["วันนี้ใช้ไปแล้ว", "It has been used today"],
+};
+/** The skies of a sky orb, as they are called. */
+const SKY_NAME: Record<OrbSky, [th: string, en: string]> = { night: ["กลางคืน", "Night"], rain: ["ฝน", "Rain"], moon: ["จันทร์เต็มดวง", "Full moon"] };
+/** Where the stars stand on an orb's night water, in hundredths of its width and height. */
+const STARS: Array<[number, number]> = [[8, 18], [21, 62], [33, 30], [47, 74], [58, 14], [69, 48], [81, 26], [92, 66], [14, 84], [75, 82]];
+/** A sky of the orb's as a small picture, drawn: a night of stars, rain from a cloud, a full moon. */
+function SkyArt({ sky, size = 28 }: { sky: OrbSky; size?: number }) {
+  return (
+    <svg aria-hidden width={size} height={Math.round(size * 0.75)} viewBox="0 0 16 12" shapeRendering="crispEdges" className="shrink-0 rounded-[2px] border border-[#2a190d]" data-sky-art={sky}>
+      <rect width="16" height="12" fill={sky === "rain" ? "#5b6f84" : "#111a3d"} />
+      {sky === "rain" ? (
+        <>
+          <rect x="3" y="2" width="9" height="3" fill="#dfe7ef" /><rect x="5" y="1" width="5" height="1" fill="#dfe7ef" /><rect x="2" y="3" width="1" height="2" fill="#dfe7ef" /><rect x="12" y="3" width="1" height="2" fill="#b9c6d3" />
+          {[[4, 6], [7, 7], [10, 6], [5, 9], [8, 10], [11, 9]].map(([x, y], i) => <rect key={i} x={x} y={y} width="1" height="2" fill="#bfe4ff" />)}
+        </>
+      ) : (
+        <>
+          {[[2, 2], [6, 8], [12, 9], [14, 2], [4, 5], [9, 1]].map(([x, y], i) => <rect key={i} x={x} y={y} width="1" height="1" fill="#fff7c2" />)}
+          {sky === "moon" && <><rect x="9" y="3" width="4" height="6" fill="#fff3b0" /><rect x="8" y="4" width="6" height="4" fill="#fff3b0" /><rect x="10" y="5" width="1" height="1" fill="#e6d48a" /><rect x="12" y="6" width="1" height="1" fill="#e6d48a" /></>}
+        </>
+      )}
+    </svg>
+  );
+}
 /** How long a nibble's twitch shows, in seconds. */
 const NIBBLE = 0.55;
 /** How long the otter is watched driving a fish back before it is fought again, in seconds. */
@@ -128,6 +155,34 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
   const now = keeper.now(), purse = keeper.purse(), hour = bangkokHour(now);
   const stamina = Math.round(staminaOf(purse, now)), spent = isSpent(purse, now);
+  /* ── a sky orb (lib/town/gifts' thingOrb): the sky it has lit for me now, whether I have one, and whether it can be lit today ── */
+  const sky = orbOf(purse, now), orbHad = works(purse, "thingOrb"), orbLeft = orbHad ? usesLeft(purse, "thingOrb", now) : 0;
+  const [orbOpen, setOrbOpen] = useState(false);
+  // (its minutes run down a second at a time while it shines)
+  useEffect(() => {
+    if (!sky) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [sky]);
+  // (its rain falls across the water, where there is no wish for less motion)
+  const root = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (sky !== "rain" || reduced) return;
+    let raf = 0;
+    const fall = (t: number) => {
+      root.current?.querySelectorAll<HTMLElement>("[data-orb-rain]").forEach((el) => { el.style.backgroundPosition = `${-(t / 9) % 24}px ${(t / 3) % 24}px`; });
+      raf = requestAnimationFrame(fall);
+    };
+    raf = requestAnimationFrame(fall);
+    return () => cancelAnimationFrame(raf);
+  }, [sky, reduced]);
+  const light = async (under: OrbSky) => {
+    setOrbOpen(false);
+    sfx.wake();
+    const did = await keeper.orbLight(under);
+    if (did.ok) sfx.play("perfect");
+    else setNote(th ? (WHY_FISH[did.why]?.[0] ?? WHY.none[0]) : (WHY_FISH[did.why]?.[1] ?? WHY.none[1]));
+  };
   // (every buff I have: a meal's, and the fountain's blessings)
   const buffs = buffsOf(purse, now), keen = levelOf(purse, now, "keen"), lucky = levelOf(purse, now, "lucky");
   const have = (b: BaitId) => held(purse.bag, b);
@@ -685,6 +740,60 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       </p>
     )
   );
+  /** How long the orb's sky still shines, as minutes and seconds. */
+  const skyLeft = (() => { const secs = sky && purse.orb ? Math.max(0, Math.ceil((purse.orb.until - now) / 1000)) : 0; return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`; })();
+  /** The orb's sky laid over the water, for me alone: a night of stars (and a full moon on it), or rain falling across it. */
+  const skyOver = sky && (
+    <span aria-hidden className="pointer-events-none absolute inset-0" data-orb={sky}>
+      {sky === "rain" ? (
+        <>
+          <span className="absolute inset-0 bg-[#4a6076]/45" />
+          <span data-orb-rain className="absolute inset-0 opacity-80" style={{ backgroundImage: "repeating-linear-gradient(105deg, rgba(214,238,255,0) 0 9px, rgba(214,238,255,0.8) 9px 10px, rgba(214,238,255,0) 10px 24px)", backgroundSize: "24px 24px" }} />
+        </>
+      ) : (
+        <>
+          <span className="absolute inset-0 bg-[#0a1030]/60" />
+          {STARS.map(([x, y], i) => <span key={i} className="absolute size-[3px] animate-pulse bg-[#fff7c2] motion-reduce:animate-none" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${i * 0.37}s` }} />)}
+          {sky === "moon" && (
+            <>
+              <span className="absolute right-[13%] top-[12%] size-7 rounded-full bg-[#fff3b0] shadow-[0_0_14px_6px_rgba(255,243,176,0.5)]" data-orb-moon />
+              {[0, 1, 2].map((i) => <span key={i} className="absolute h-[3px] animate-pulse bg-[#fff3b0]/55 motion-reduce:animate-none" style={{ right: `${11 + i * 2}%`, top: `${54 + i * 13}%`, width: `${44 - i * 12}px`, animationDelay: `${i * 0.5}s` }} />)}
+            </>
+          )}
+        </>
+      )}
+    </span>
+  );
+  /** The orb where the line is dropped from: the sky that shines with its minutes; or the orb to light, and the three skies to choose from; or, lit already today, the orb at rest. */
+  const orbRow = orbHad && (
+    <div className="mb-2 flex flex-wrap items-center gap-1.5" data-orb-row={sky ?? (orbLeft ? "ready" : "spent")}>
+      {sky ? (
+        <span className="flex min-h-9 items-center gap-1.5 rounded-md border-2 border-[#2a190d] bg-[#1c2c38] px-2 text-ui text-[#fff6e3]" data-orb-lit={sky}>
+          <TownIcon name="thingOrb" size={22} /><SkyArt sky={sky} />{th ? SKY_NAME[sky][0] : SKY_NAME[sky][1]}
+          <span className="font-data tabular-nums text-[#ffe19a]" data-orb-left>{skyLeft}</span>
+        </span>
+      ) : orbLeft > 0 ? (
+        <>
+          <button type="button" onClick={() => setOrbOpen((o) => !o)} aria-expanded={orbOpen} data-orb-button
+                  className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-2.5 text-ui text-[#fff6e3] ${orbOpen ? "border-[#ffe19a] bg-[#1c2c38]" : "border-[#2a190d] hover:border-[#ffe19a]"}`}>
+            <TownIcon name="thingOrb" size={24} />{th ? "ลูกแก้วฟ้าจำลอง" : "Sky orb"}
+          </button>
+          {orbOpen && (
+            <span role="group" aria-label={th ? "เลือกฟ้า" : "Choose a sky"} className="flex flex-wrap gap-1.5">
+              {ORB.skies.map((under) => (
+                <button key={under} type="button" onClick={() => { void light(under); }} data-orb-sky={under}
+                        className="pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 border-[#2a190d] bg-[#1c2c38] px-2 text-ui text-[#fff6e3] hover:border-[#ffe19a]">
+                  <SkyArt sky={under} />{th ? SKY_NAME[under][0] : SKY_NAME[under][1]}
+                </button>
+              ))}
+            </span>
+          )}
+        </>
+      ) : (
+        <span className="flex min-h-9 items-center opacity-45" title={th ? WHY_FISH.spent[0] : WHY_FISH.spent[1]}><TownIcon name="thingOrb" size={24} /></span>
+      )}
+    </div>
+  );
   /** A line of dragon silk mending: the seconds left, counted down across the top of the water (shown only while it mends: `silkShown`). */
   const silkCount = (
     <span ref={silk.box} className="absolute inset-x-0 top-0 items-center justify-center gap-2 border-b-2 border-[#2a190d] bg-[#ffcf4a] py-0.5 text-[#3a2209]" style={{ display: "none" }} data-fx="silk">
@@ -714,7 +823,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     </span>
   );
   return (
-    <section aria-labelledby="town-fish-h" data-town-game data-look="fish"
+    <section ref={root} aria-labelledby="town-fish-h" data-town-game data-look="fish"
              className="rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex items-center gap-2">
         {/* the rod in use, when there is one */}
@@ -737,6 +846,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
       {phase.at === "ready" && (
         <div className="mt-2">
+          {hasRod && orbRow}
           {!hasRod ? (
             <>
               <p className="text-ui text-[#fff6e3]">{th ? "ต้องมีคันเบ็ดก่อน" : "You need a rod first."}</p>
@@ -806,6 +916,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         <div className="mt-2">
           <div aria-hidden className={`${STAGE} mx-auto grid h-28 w-full place-items-center`} data-look="float">
             <PixelGround kind="water" w={96} h={28} className="absolute inset-0 size-full" />
+            {skyOver}
             {/* the rod's tip, and the line down to the float */}
             <svg className="absolute inset-0 size-full" viewBox="0 0 288 96" preserveAspectRatio="none">
               <line ref={thread} x1="262" y1="6" x2="144" y2="40" stroke="rgba(240,240,235,0.85)" strokeWidth="1.2" />
@@ -870,6 +981,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               {/* the water: the fish out on the line, nearer as the line comes in, thrashing when it surges */}
               <div aria-hidden className={`${STAGE} h-24 w-full`} data-look="fight">
                 <PixelGround kind="water" w={96} h={24} className="absolute inset-0 size-full" />
+                {skyOver}
                 <svg className="absolute inset-0 size-full" viewBox="0 0 260 96" preserveAspectRatio="none">
                   <line ref={gauge.taut} x1="6" y1="8" x2="228" y2="52" stroke="#f0f0eb" strokeWidth="1.6" />
                   <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
@@ -911,6 +1023,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             <div className="flex min-w-0 flex-1 flex-col gap-1.5">
               <div aria-hidden className={`${STAGE} h-24 w-full`} data-look="fight">
                 <PixelGround kind="water" w={96} h={24} className="absolute inset-0 size-full" />
+                {skyOver}
                 <svg className="absolute inset-0 size-full" viewBox="0 0 260 96" preserveAspectRatio="none">
                   <line ref={two.taut[0]} x1="6" y1="8" x2="216" y2="34" stroke="#f0f0eb" strokeWidth="1.6" />
                   <line ref={two.taut[1]} x1="6" y1="8" x2="216" y2="68" stroke="#f0f0eb" strokeWidth="1.6" />
@@ -945,6 +1058,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         <div className="mt-2" data-look="driven">
           <div aria-hidden className={`${STAGE} h-28 w-full`}>
             <PixelGround kind="water" w={96} h={28} className="absolute inset-0 size-full" />
+            {skyOver}
             <svg className="absolute inset-0 size-full" viewBox="0 0 260 112" preserveAspectRatio="none">
               <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
               <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />

@@ -207,10 +207,73 @@ begin
 end;
 $$;
 
+-- ─── A sky orb (thingOrb, the fifth rank) ─────────────────────────────────
+
+-- The sky an orb has lit for somebody now (lib/town/fishing's orbOf): one of those there are, while it lasts.
+create or replace function town.orb_of(p_purse jsonb, p_now bigint)
+returns text language sql stable
+as $$
+  -- (what is kept is looked at before it is read as a number: a sky kept wrongly is no sky)
+  select case when jsonb_typeof(p_purse->'orb') = 'object' and jsonb_typeof(p_purse->'orb'->'until') = 'number' and jsonb_typeof(p_purse->'orb'->'sky') = 'string' then
+    case when (p_purse->'orb'->>'until')::numeric > p_now and town.cat('fishing')->'orb'->'skies' ? (p_purse->'orb'->>'sky') then p_purse->'orb'->>'sky' end end
+$$;
+
+-- Light the orb under a sky (lib/town/fishing's lightOrb): one of those there are, by somebody who has it, once a
+-- day (lib/town/gifts' count). The sky is kept in the purse with the moment it ends.
+create or replace function town.orb_light(p_purse jsonb, p_sky text, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  orb jsonb := town.cat('fishing')->'orb';
+  used jsonb;
+  until_ bigint := p_now + (orb->>'minutes')::bigint * 60000;
+begin
+  if p_sky is null or not (orb->'skies' ? p_sky) then return town.no('none'); end if;
+  used := town.gift_use(p_purse, 'thingOrb', p_now);
+  if not (used->>'ok')::boolean then return used; end if;
+  return jsonb_build_object('ok', true, 'until', until_, 'purse', (used->'purse') || jsonb_build_object('orb', jsonb_build_object('sky', p_sky, 'until', until_)));
+end;
+$$;
+
+-- What the water answers under an orb's sky (lib/town/fishing's underOrb): the hour, the rain and the signs a line
+-- is dropped by. Night is an hour of the night; rain is rain (and no sky after it); a full moon is a night of one.
+-- With no orb lit, they are as they are.
+create or replace function town.under_orb(p_sky text, p_hour integer, p_rain boolean, p_signs text[])
+returns jsonb language sql stable
+as $$
+  select jsonb_build_object(
+    'hour', case when p_sky in ('night', 'moon') then (o.orb->>'night')::integer else p_hour end,
+    'rain', case when p_sky = 'rain' then true else coalesce(p_rain, false) end,
+    'signs', to_jsonb(case
+      when p_sky = 'rain' then array(select s from unnest(coalesce(p_signs, '{}'::text[])) with ordinality as t(s, ord) where s <> 'after' order by ord)
+      when p_sky = 'moon' and not ('full' = any(coalesce(p_signs, '{}'::text[]))) then coalesce(p_signs, '{}'::text[]) || 'full'::text
+      else coalesce(p_signs, '{}'::text[]) end))
+    from (select town.cat('fishing')->'orb' as orb) o
+$$;
+
 -- ─── What a member does ──────────────────────────────────────────────────
 
--- public.town_cast: v152's, and how the line is dropped (p_how: 'pair' for a rod of two lines). The argument is
--- new, so the function of four arguments goes: a page from before names four, and is answered by this one.
+-- Light my sky orb under a sky: for its minutes the water answers me as if under it.
+create or replace function public.town_orb(p_sky text)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  did jsonb := town.orb_light(town.purse_of(me, true), p_sky, town.now_ms());
+begin
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'purse');
+    perform town.note(me, 'gift_use', 'thingOrb', 1, 0, jsonb_build_object('sky', p_sky, 'until', did->'until'));
+  end if;
+  return town.answer(me, did);
+end;
+$$;
+revoke execute on function public.town_orb(text) from public, anon;
+grant execute on function public.town_orb(text) to authenticated;
+
+-- public.town_cast: v152's, and how the line is dropped (p_how: 'pair' for a rod of two lines), under the sky an orb
+-- has lit. The argument is new, so the function of four arguments goes: a page from before names four, and is
+-- answered by this one.
 drop function if exists public.town_cast(text, integer, integer, boolean);
 create or replace function public.town_cast(p_bait text, p_x integer, p_y integer, p_rain boolean DEFAULT false, p_how text DEFAULT NULL::text)
  RETURNS jsonb
@@ -231,6 +294,8 @@ declare
   pair boolean := coalesce(p_how = 'pair', false);
   odds jsonb;
   two jsonb;
+  sky text := town.orb_of(purse, now_);
+  under jsonb;
 begin
   if p_bait is null or p_bait !~ '^[A-Za-z]{1,24}$' or deep is null then return town.answer(me, town.no('none')); end if;
   -- (a rod of two lines is its owner's to drop)
@@ -242,7 +307,10 @@ begin
   signs := town.signs_of(now_, town.stamina_of(purse, now_) <= 0,
     (select count(*)::int from public.town_lines l where l.member_id <> me and (l.doc->>'cast_at')::bigint > now_ - (sg->>'lately')::bigint * 1000),
     town.wet_ms(now_ - (sg->>'after')::bigint * 60000, now_), town.raining(now_));
-  odds := town.odds(p_bait, hour, town.raining(now_), town.has_buff(purse, now_, 'lucky'), not deep::boolean, signs, town.buff_by(purse, now_, 'lucky'));
+  -- (under a sky orb the water answers its owner as if under that sky: the hour, the rain and the signs are the orb's)
+  under := town.under_orb(sky, hour, town.raining(now_), signs);
+  odds := town.odds(p_bait, (under->>'hour')::integer, (under->>'rain')::boolean, town.has_buff(purse, now_, 'lucky'), not deep::boolean,
+    array(select jsonb_array_elements_text(under->'signs')), town.buff_by(purse, now_, 'lucky'));
   -- (a legend never comes as one of a pair)
   if pair then odds := town.sift(odds, array(select jsonb_array_elements_text(town.cat('fishing')->'pair'->'never'))); end if;
   line := town.cast_from(odds, array[random(), random(), random(), random(), random(), random()]);
@@ -253,6 +321,8 @@ begin
   end if;
   -- (under the fountain's swift blessing the bite comes sooner)
   if town.has_buff(purse, now_, 'swift') then line := town.hastened(line, (town.wishing()->>'swift')::double precision); end if;
+  -- (and under an orb sooner still: by the gift's number)
+  if sky is not null then line := town.hastened(line, 1 - 1 / (town.cat('gifts')->'gifts'->'thingOrb'->>'by')::double precision) || jsonb_build_object('orb', sky); end if;
   -- (a line that was still out is given up: its bait went with it when it was dropped)
   insert into public.town_lines (member_id, doc) values (me, line || jsonb_build_object(
       'bait', p_bait, 'x', p_x, 'y', p_y, 'deep', deep, 'hour', hour, 'rain', town.raining(now_),

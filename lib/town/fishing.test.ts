@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type ItemId, type Sign } from "./items";
 import {
-  ALL_SIGNS, FIGHT, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
-  type Fight, type FightMods, type Pair,
+  ALL_SIGNS, FIGHT, ORB, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, lightOrb, orbHaste, orbOf, underOrb, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
+  type Fight, type FightMods, type OrbSky, type Pair,
 } from "./fishing";
+import { hastened } from "./fountain";
 import { USES, numberOf, usesLeft } from "./gifts";
 import { STAMINA, dayOf } from "./stamina";
 import { held, newPurse, put, type Purse } from "./trade";
@@ -941,5 +942,66 @@ describe("a line of dragon silk (the owner: \"สายตึงเกินห�
     expect(p.silk).toBe(0);
     // without it the pair is as it was
     expect(startPair(["catfish", "carp"], "good", NARROW, 3).silk).toBe(0);
+  });
+});
+
+describe("a sky orb (the owner: \"เลือกฟ้าเอง (กลางคืน ฝน หรือจันทร์เต็มดวง) 30 นาที และช่วงนั้นปลากินเบ็ดเร็วขึ้น 2 เท่า วันละครั้ง เฉพาะเรา\")", () => {
+  const owner = gifted({ had: ["thingOrb"], charms: [] });
+  it("is lit under one of three skies by whoever has it, for thirty minutes, once a day", () => {
+    expect(ORB.skies).toEqual(["night", "rain", "moon"]);
+    const lit = lightOrb(owner, "rain", NOON);
+    expect(lit.ok && lit.until).toBe(NOON + 30 * 60_000);
+    expect(lit.ok && lit.purse.orb).toEqual({ sky: "rain", until: NOON + 30 * 60_000 });
+    expect(lit.ok && usesLeft(lit.purse, "thingOrb", NOON)).toBe(0);
+    // once a day: not again today, under any sky; again tomorrow
+    expect(lit.ok && lightOrb(lit.purse, "moon", NOON + 60_000)).toEqual({ ok: false, why: "spent" });
+    expect(lit.ok && lightOrb(lit.purse, "moon", NOON + 31 * 60_000)).toEqual({ ok: false, why: "spent" });
+    expect(lit.ok && lightOrb(lit.purse, "moon", NOON + 24 * 3_600_000).ok).toBe(true);
+    // a sky there is none of; somebody who has no orb
+    expect(lightOrb(owner, "noon", NOON)).toEqual({ ok: false, why: "none" });
+    expect(lightOrb(gifted(), "rain", NOON)).toEqual({ ok: false, why: "none" });
+    expect(usesLeft(owner, "thingOrb", NOON)).toBe(1);
+  });
+
+  it("shines until its minutes are over, and a sky kept wrongly is no sky", () => {
+    const lit = lightOrb(owner, "night", NOON);
+    if (!lit.ok) throw new Error("not lit");
+    expect(orbOf(lit.purse, NOON)).toBe("night");
+    expect(orbOf(lit.purse, NOON + 30 * 60_000 - 1)).toBe("night");
+    expect(orbOf(lit.purse, NOON + 30 * 60_000)).toBeNull();
+    expect(orbOf(owner, NOON)).toBeNull();
+    for (const orb of [null, "night", { sky: "noon", until: NOON + 9 }, { sky: "rain" }, { sky: "rain", until: "soon" }, ["rain", NOON + 9]]) expect(orbOf({ orb } as unknown as Purse, NOON)).toBeNull();
+  });
+
+  it("makes the water answer as if under its sky: an hour of the night, rain, a night of a full moon", () => {
+    expect(underOrb(null, 12, false, ["after"])).toEqual({ hour: 12, rain: false, signs: ["after"] });
+    expect(underOrb("night", 12, false, ["after"])).toEqual({ hour: ORB.night, rain: false, signs: ["after"] });
+    expect(underOrb("night", 12, true, [])).toEqual({ hour: ORB.night, rain: true, signs: [] });
+    // (under an orb's rain no sky has just cleared)
+    expect(underOrb("rain", 12, false, ["tired", "after"])).toEqual({ hour: 12, rain: true, signs: ["tired"] });
+    expect(underOrb("moon", 12, false, ["tired"])).toEqual({ hour: ORB.night, rain: false, signs: ["tired", "full"] });
+    expect(underOrb("moon", 3, false, ["full"])).toEqual({ hour: ORB.night, rain: false, signs: ["full"] });
+    // what comes of it, at noon under a clear sky: the night's fish on a minnow; the rain's own on a loach; the moon's on dough
+    const at = (sky: OrbSky | null, bait: BaitId) => { const u = underOrb(sky, 12, false, []); return oddsOf(bait, u.hour, u.rain, false, false, u.signs).map((o) => o.what); };
+    expect(at(null, "minnow")).not.toContain("featherback");
+    expect(at("night", "minnow")).toContain("featherback");
+    expect(at(null, "loach")).not.toContain("salmon");
+    expect(at("rain", "loach")).toContain("salmon");
+    expect(at("night", "dough")).not.toContain("moonFish");
+    expect(at("moon", "dough")).toContain("moonFish");
+    // …and what bites by day does not bite under an orb's night, as it does not at night
+    expect(at(null, "dough")).toContain("tilapia");
+    expect(at("night", "dough")).not.toContain("tilapia");
+    expect(at("rain", "dough")).toContain("tilapia");
+  });
+
+  it("brings bites twice as soon", () => {
+    expect(orbHaste()).toBe(0.5);
+    for (const seed of [1, 2, 3, 4, 5]) {
+      const cast = castLine("worm", 12, false, false, seeded(seed)), soon = hastened(cast, orbHaste());
+      expect(soon.wait).toBe(Math.max(1, Math.ceil(cast.wait / 2)));
+      expect(soon.nibbles).toEqual(cast.nibbles.map((n) => n / 2));
+      expect(soon.what).toBe(cast.what);
+    }
   });
 });
