@@ -3,6 +3,8 @@ import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./item
 import { BLESSINGS } from "./fountain";
 import { famBy, gloved, harderFor, hasThing, numberOf, useGift, usesLeft, wearing } from "./gifts";
 import { buffBy, hasBuff, spend } from "./stamina";
+// ── gifts: helpers ──
+import { bridged, chime } from "./helping";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -515,7 +517,7 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
  * scripts.
  */
 export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: FarmSky = DRY, sure = false, luck?: number):
-  { ok: true; deed: Deed; purse: Purse; plot: Plot; bed: Bed | undefined; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+  { ok: true; deed: Deed; purse: Purse; plot: Plot; bed: Bed | undefined; got: Array<[ItemId, number]>; times?: number } | { ok: false; why: Refusal | FarmRefusal } {
   const hand = handOf(purse), owner = ownerOf(bed, others > 0 || !!plot.plant, now);
   const deed = deedFor(key, plot, hand, me, now, owner, rains);
   if (!deed) return { ok: false, why: owner !== null && owner !== me ? "theirs" : "soil" };
@@ -526,12 +528,16 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
   if (!did.ok) return did;
   // (work in somebody else's bed, or on somebody else's plant, with the gardener's gloves on: half its stamina)
   const theirs = (owner !== null && owner !== me) || (!!plot.plant && plot.plant.by !== me);
-  const paid = theirs ? gloved(purse, did.purse, now) : did.purse;
+  const eased = theirs ? gloved(purse, did.purse, now) : did.purse;
+  // ── gifts: helpers ── (somebody else's plant watered by whoever wears the anklet: the run is one longer, and the
+  // watering so many times over. The plot is as any watering leaves it: whoever keeps the game makes it the more,
+  // with the heat and the well's water, never past the bound of them all: lib/town/helping's pouredAs)
+  const rung = deed === "water" && theirs ? chime(eased, now) : { purse: eased, times: 1 }, paid = rung.purse;
   const planted = others > 0 || !!did.plot.plant;
   let next: Bed | undefined = owner === null ? undefined : bed;
   if (deed === "sow" && owner === null) next = { by: me, tended: now, empty: 0 };
   else if (next && owner === me) next = { ...next, tended: now, empty: planted ? 0 : next.empty || now };
-  return { ok: true, deed, purse: paid, plot: did.plot, bed: next, got: did.got ?? [] };
+  return { ok: true, deed, purse: paid, plot: did.plot, bed: next, got: did.got ?? [], ...(rung.times > 1 ? { times: rung.times } : {}) };
 }
 
 /* ── water: from the river, to the well, to the can ─────────────────────── */
@@ -767,4 +773,57 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
     got.set(crop, (got.get(crop) ?? 0) + n);
   }
   return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [...got], ...(sows ? { seeds: each.length - Math.min(spared, each.length) } : {}) };
+}
+
+/* ── the gifts of the helpers' line (lib/town/gifts, lib/town/helping) ───── */
+
+/**
+ * Whether work on a plot is work for somebody else: in a bed that is another's, or on a plant another sowed (as
+ * `tend` reckons it for the gardener's gloves). What the helpers' line counts, and what its gifts are for.
+ */
+export const theirsAt = (plot: Plot | undefined, owner: string | null, me: string): boolean => (owner !== null && owner !== me) || (!!plot?.plant && plot.plant.by !== me);
+/**
+ * **The gardener's gloves** (a charm, worn; the owner, 2026-10-07): work for somebody else takes no stamina at all
+ * (`tend`, by the gloves' number: what is left to pay of it), and a row of somebody else's plants is watered at one
+ * long pour (lib/town/longpour), with the can in the hand.
+ *
+ * The plots the long pour would water from the plot stood on (`at`): every plant of the row that is somebody else's
+ * and that the can in the hand could water now, from the row's head (the lowest x) as far as the water in the can
+ * reaches. None: there is no row to pour along (no gloves, no can with water, the plot stood on not one of them, or
+ * only the one plant). Others' plants only: in a bed of one's own nothing is changed.
+ */
+export function pourFor(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY): string[] {
+  if (!keys.includes(at) || !wearing(purse, "charmGloves")) return [];
+  const hand = handOf(purse), want = (key: string) => theirsAt(plots[key], owner, me) && deedFor(key, plots[key] ?? WILD, hand, me, now, owner, rains) === "water";
+  if (!want(at)) return [];
+  // (each plant takes a watering out of the can, as ever: but under the fountain's blessing, which spares the can)
+  const reach = hasBuff(purse, now, "spring") ? keys.length : Math.floor(waterIn(purse.bag, hand));
+  const row = keys.filter(want).sort((a, b) => xOf(a) - xOf(b)).slice(0, Math.max(0, reach));
+  return row.length > 1 ? row : [];
+}
+/** A plant the long pour watered: which plot, what grows there, and how many times over the gifts of whoever poured make that watering (1: none do; lib/town/helping). */
+export interface PourDone { key: string; crop: CropId; times: number }
+/**
+ * Pour, whole: one deed for whoever keeps the game. `marks` says which plants the water reached, by their keys (the
+ * page's game says: lib/town/longpour); each of those is watered as `tend` would have watered it by itself, from the
+ * row's head on, so that the can's water, the stamina (none, with the gloves on), the bed's keeping and what is
+ * written down are each plant's own, as ever. `rest`, `holds`: as `tend` is told them. `secs`: how long the pour
+ * took, as the page says (it is not counted against a run of waterings: lib/town/helping's bridged).
+ */
+export function pourRow(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, bed: Bed | undefined, rest: number, holds: number, purse: Purse, me: string, now: number,
+  marks: Readonly<Record<string, boolean>>, secs = 0, rains: FarmSky = DRY):
+  { ok: true; purse: Purse; plots: Record<string, Plot>; bed: Bed | undefined; each: PourDone[] } | { ok: false; why: Refusal | FarmRefusal } {
+  const planted = (but: string) => rest + keys.filter((k) => k !== but && !!plots[k]?.plant).length;
+  const row = pourFor(at, keys, plots, purse, me, now, ownerOf(bed, planted("") > 0, now), rains);
+  if (!row.length) return { ok: false, why: "none" };
+  const state: Record<string, Plot> = {}, each: PourDone[] = [];
+  let mine = bridged(purse, secs, now), keeping = bed;
+  for (const key of row) {
+    if (marks[key] !== true) continue;
+    const did = tend(key, plots[key], keeping, planted(key), holds, mine, me, now, rains);
+    if (!did.ok || did.deed !== "water") { if (!each.length && !did.ok) return did; break; }
+    mine = did.purse; keeping = did.bed; state[key] = did.plot;
+    each.push({ key, crop: plots[key].plant!.crop, times: did.times ?? 1 });
+  }
+  return { ok: true, purse: mine, plots: state, bed: keeping, each };
 }

@@ -7,6 +7,8 @@ import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 // ── gifts: farming ──
 import { ENCORE, HOURGLASS } from "./farm";
+// ── gifts: helpers ──
+import { HELPING } from "./helping";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
 import { HEAT } from "./heat";
@@ -157,6 +159,8 @@ export function catalogOf() {
       // ── gifts: farming ── what the farming line's gifts go by, beyond each one's own number (the gifts' row): the hours an hourglass runs, and how many turnings a plant
       // remembers; and what part of its hours a crop that is picked once takes to bear the once more the mandrake sang it to
       gifted: { glass: { hours: HOURGLASS.hours, kept: HOURGLASS.kept }, encore: ENCORE },
+      // ── gifts: helpers ── what the helpers' line's gifts go by, beyond each one's own number (lib/town/helping)
+      helping: HELPING,
     },
     /** What else is made, at the yard or by hand: what goes in, in what, and how many come of it. */
     makes: MAKES,

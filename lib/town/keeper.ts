@@ -34,6 +34,8 @@ import { glassReach, gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
 /** What a row's deed came to (lib/town/farm's rowTend), as a panel is told it. */
 export interface RowDid { deed: RowDeed; done: string[]; got: Array<[ItemId, number]>; seeds?: number }
 import { rowOf } from "./world";
+// ── gifts: helpers ──
+import { pourFor } from "./farm";
 
 /**
  * Who keeps the game.
@@ -208,6 +210,15 @@ export interface Keeper {
    */
   glassAt(key: string): string[];
   glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>>;
+  // ── gifts: helpers ──
+  /**
+   * The long pour of the gardener's gloves (lib/town/farm's pourFor): the plants of the row of somebody else's bed
+   * that it would water from the plot I stand on, with the can in my hand, from the row's head (none: there is no
+   * row to pour along, and never where whoever keeps the game knows of no such pour). Pouring is one deed: `marks`
+   * says which plants the water reached, by their keys; `done` is the plots it watered.
+   */
+  pourAt(key: string): string[];
+  pourDo(key: string, name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ done: string[] }>>;
 
   /** The forest (lib/town/forest): every place that has something for me now. */
   wild(): Sight[];
@@ -952,6 +963,21 @@ export class DbKeeper implements Keeper {
     const [x, y] = key.split(",").map(Number);
     // (the answer brings the plots it watered as they are kept: with what the heat added, if it is hot)
     const did = await this.deed<{ watered: string[] }>("town_gnome", { p_x: x, p_y: y });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
+  // ── gifts: helpers ──
+  /** Whether the database knows of the helpers' line's later gifts (v153): it says so by giving them, the anklet among them. A page out before the file offers none of what they do. */
+  private helpGifts(): boolean { return this.gives("charmAnklet"); }
+  pourAt(key: string): string[] {
+    if (!this.helpGifts()) return [];
+    const [x, y] = key.split(",").map(Number);
+    return pourFor(key, rowOf(x, y).map(([u, v]) => plotKey(u, v)), this.plots, this.mine, this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains());
+  }
+  async pourDo(key: string, _name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ done: string[] }>> {
+    const [x, y] = key.split(",").map(Number);
+    // (the answer brings every plot it watered as it is kept, with what the heat and the well's water added)
+    const did = await this.deed<{ done: string[] }>("town_longpour", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
     if (did.ok) this.onDeed?.("farm");
     return did;
   }

@@ -199,11 +199,12 @@ describe("the cases the database's rules of the gifts are held to", () => {
     // the float's half as long again is among the strikes, and a keen eye with it
     const strikes = of("strike_window").map((v) => ({ p: v.args[0] as Purse, w: v.want as number }));
     expect(strikes.some((s) => wearing(s.p, "charmFloat") && (s.p.buffs?.length ?? 0) > 0) && strikes.some((s) => !wearing(s.p, "charmFloat"))).toBe(true);
-    // the gloves: a point given back on somebody else's plant, a half left owing, and nothing on one's own
+    // the gloves: on somebody else's plant every point is given back (nothing is left to pay, since the ladder was laid out anew: a half
+    // owing from before stays as it was kept, and is never asked for), and nothing on one's own
     const tended = of("tend").map((v) => ({ before: v.args[5] as Purse, plot: v.args[1] as Plot, me: v.args[6] as string, now: v.args[7] as number, did: v.want as { ok: boolean; purse?: Purse } })).filter((x) => x.did.ok);
     const paid = (x: (typeof tended)[number]) => staminaOf(x.before, x.now) - staminaOf(x.did.purse!, x.now);
-    expect(tended.some((x) => wearing(x.before, "charmGloves") && x.plot.plant?.by !== x.me && giftsOf(x.did.purse!).owed === 0.5)).toBe(true);
-    expect(tended.some((x) => wearing(x.before, "charmGloves") && x.plot.plant?.by !== x.me && giftsOf(x.before).owed === 0.5 && giftsOf(x.did.purse!).owed === 0 && paid(x) >= 1)).toBe(true);
+    expect(tended.some((x) => wearing(x.before, "charmGloves") && x.plot.plant?.by !== x.me && giftsOf(x.before).owed === 0 && giftsOf(x.did.purse!).owed === 0 && paid(x) === 0)).toBe(true);
+    expect(tended.some((x) => wearing(x.before, "charmGloves") && x.plot.plant?.by !== x.me && giftsOf(x.before).owed === 0.5 && giftsOf(x.did.purse!).owed === 0.5 && paid(x) === 0)).toBe(true);
     expect(tended.some((x) => wearing(x.before, "charmGloves") && x.plot.plant?.by === x.me && paid(x) >= 1 && giftsOf(x.did.purse!).owed === giftsOf(x.before).owed)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }

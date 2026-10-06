@@ -196,6 +196,9 @@ export interface Purse {
   // ── gifts: farming ──
   /** When the garden gnome last went down each bed of mine with its can, by the bed's number (lib/town/farm's gnomeWater: a bed rests an hour between two of its rounds). Only rounds that still count are kept. */
   gnomed?: Record<string, number>;
+  // ── gifts: helpers ──
+  /** The run of waterings of other members' plants by whoever wears the anklet (lib/town/helping's chime): how many in a row, and when the last was. */
+  chime?: { n: number; at: number };
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

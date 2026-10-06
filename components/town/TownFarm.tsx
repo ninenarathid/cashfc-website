@@ -18,6 +18,8 @@ import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
 import TownSteady from "./TownSteady";
 import TownSweep from "./TownSweep";
+// ── gifts: helpers ──
+import TownLongPour from "./TownLongPour";
 import TownTiming from "./TownTiming";
 import TownWeeding from "./TownWeeding";
 import { WHY } from "./TownTrade";
@@ -189,7 +191,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** (`row`: the plots of a bed's row that the enchanted hoe works at one swing, the one stood on first: a beat to each) */
   /** (`whole`: tired hands steadying themselves for a row's deed that has no game of its own, the pouch's sowing: done, the whole row is sown) */
   /** (`sweep`: the ripe plants of a row that the crescent sickle sweeps along once, from one end to the other: where each stands in the row, what it is, and how much harder it is for me) */
-  const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }> } | null>(null);
+  /** (`long`: the plants of a row of somebody else's that the gardener's gloves water at one long pour, from the row's head: where each stands in the row and what it is; `hard`: how much harder the row is for me) */
+  const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
+    long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
   const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" } | null>(null);
   const leaveIt = useRef<HTMLButtonElement>(null);
@@ -604,6 +608,29 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     }
     setWorking({ key, work: row.deed, need: row.plots.length, row: row.plots });
   }, [key, keeper, doRow]);
+  /** What the gardener's gloves offer here: the plants of this row of somebody else's that one long pour would water (lib/town/farm's pourFor). */
+  const pourHere = key ? keeper.pourAt(key) : [];
+  /** The long pour, done whole by whoever keeps the game: water over each plant it reached, and a word of how many those were. */
+  const doLong = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult) => {
+    if (sent.current) return;
+    sent.current = true;
+    const did = await keeper.pourDo(k, name, marks, { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need }).finally(() => { sent.current = false; });
+    if (!did.ok) { say(did.why); return; }
+    keeper.record({ game: "farming", at: keeper.now(), won: did.done.length > 0, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "water", need: timing.need, hits: timing.hits, misses: timing.misses });
+    sfx?.wake();
+    if (did.done.length) sfx?.work("water");
+    did.done.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => vfx.add("water", { x: x + 0.5, y: y + 0.5 }), i * 60); });
+    const of = Object.keys(marks).length, n = did.done.length;
+    setNote(th ? `เทยาวทั้งแถว: ได้น้ำ ${n} จาก ${of} ต้น` : `The long pour: ${n} of ${of} plants watered`);
+  }, [keeper, name, say, sfx, th, vfx]);
+  /** Begin it: one pour along the row from its head, whichever plant of it I stand on. */
+  const beginLong = useCallback(() => {
+    const row = key ? keeper.pourAt(key) : [];
+    if (!key || row.length < 2) return;
+    const [x0, y0] = key.split(",").map(Number), [bx] = bedCorner(bedOf(x0, y0)), farm = keeper.farm();
+    const long = row.flatMap((k) => { const crop = farm[k]?.plant?.crop; return crop ? [{ key: k, place: Number(k.split(",")[0]) - bx, crop }] : []; }).sort((a, b) => a.place - b.place);
+    if (long.length > 1) setWorking({ key, work: "water", need: long.length, long, hard: 1 });
+  }, [key, keeper]);
   // walking off the plot, or away from the water, leaves the work
   useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
@@ -647,6 +674,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const handle = {
       seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now(), keeper.rains()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
       offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note, wellWater: () => keeper.wellWater(),
+      // (the gifts of the helpers' line: the plants the long pour would water here, and beginning it)
+      pour: () => (key ? keeper.pourAt(key) : []), pourAct: beginLong,
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
       row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
       // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
@@ -661,7 +690,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the plots a bucket would water are told by how many they are
-  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass]);
+  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass, beginLong]);
 
   /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
   const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void }> = [];
@@ -673,6 +702,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }
   if (gnomeHere.length) powers.push({ id: "famGnome", word: th ? "ให้โนมรดน้ำทั้งแปลง" : "Send the gnome down the bed", go: () => void sendGnome() });
   if (glassHere.length) powers.push({ id: "thingHourglass", word: th ? "พลิกนาฬิกาทราย" : "Turn the hourglass", go: () => void turnGlass(), more: th ? `${glassHere.length} ต้น` : `${glassHere.length} plants` });
+  // ── gifts: helpers ── what the gifts of the helpers' line offer here, the same way
+  if (pourHere.length > 1) powers.push({ id: "charmGloves", word: th ? "เทยาวรดทั้งแถว" : "One long pour down the row", go: beginLong, more: th ? `${pourHere.length} ต้น` : `${pourHere.length} plants` });
   if (!working && !offer && !note && !powers.length) return null;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
@@ -681,7 +712,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
-        const game = working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
+        const game = working.long ? "longpour" : working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
         // (a meal's buff on the hands: steady hands for the pouring, a keen eye for the hoe and the weeding; the game of
         // tired hands is as it is)
         const growing = working.key ? seen.current.get(working.key) : undefined;
@@ -710,6 +741,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
               void doRow(k, Object.fromEntries(row.map((plot, i) => [plot, !!result.marks?.[i]])), result);
               return;
             }
+            // (the long pour of the gardener's gloves: each plant the water reached is watered, and the rest are left)
+            if (working.long && k) { void doLong(k, Object.fromEntries(working.long.map((p, i) => [p.key, !!result.marks?.[i]])), result); return; }
             // (a game of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
             if (result.dropped || !hoeing) keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
             // with no stamina left the work is dropped at the third miss: nothing is done
@@ -728,7 +761,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
             {/* the buffs that have a hand in this work, twinkling over the board */}
             <BuffAura ids={working.work === "ditch" ? [] : atPlot(working.work, purse, now)} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1 empty:hidden" />
-            {working.sweep ? <TownSweep {...common} title={ROW_VERB.pick[th ? 0 : 1]} verb={th ? "ตวัดเคียว" : "Swing"} mods={{ spent: mods.spent, buff: 1 + buffBy(purse, now, "keen") }}
+            {working.long ? <TownLongPour {...common} title={th ? "เทยาวทั้งแถว" : "The long pour"} verb={th ? "กดค้างเท" : "Hold to pour"} hard={working.hard ?? 1} icon={toolIcon("water", hand)}
+                mods={{ tool: mods.tool, spent: mods.spent, buff: 1 + buffBy(purse, now, "calm") }}
+                onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "water" : "knock", hit ? 0.5 : 1); }}
+                plants={working.long.map((p) => ({ place: p.place, icon: growIconOf(p.crop, seen.current.get(p.key)?.stage ?? 3) as IconName }))} />
+              : working.sweep ? <TownSweep {...common} title={ROW_VERB.pick[th ? 0 : 1]} verb={th ? "ตวัดเคียว" : "Swing"} mods={{ spent: mods.spent, buff: 1 + buffBy(purse, now, "keen") }}
                 onHit={(well) => { sfx?.wake(); sfx?.work(well ? "pick" : "swish"); }}
                 plants={working.sweep.map((p) => ({ place: p.place, icon: growIconOf(p.crop, 5) as IconName, hard: p.hard }))} />
               : working.row ? <TownTiming {...common} title={(ROW_VERB[working.work as RowDeed] ?? VERB[working.work])[th ? 0 : 1]} verb={th ? "ฟันจอบ" : "Swing"} need={working.row.length} mods={mods} icon={toolIcon(working.work, hand)} row />
