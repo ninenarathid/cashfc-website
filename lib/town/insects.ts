@@ -1,12 +1,12 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import { softStep } from "./forest-eye";
-import { famBy } from "./gifts";
+import { famBy, useGift, type GiftRefusal } from "./gifts";
 import { ITEMS, type ItemId } from "./items";
 import { buffBy, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { CAMP, FARM, FOREST, FOREST_PROPS, GATES, PROPS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { CAMP, COLS, FARM, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 
 /**
  * Catching insects, as rules (the owner, 2026-10-05: "จับแมลง ในทุกแมพในเกม แมพกลางเมือง
@@ -464,7 +464,9 @@ export function farmBugs(salt: string, now: number, rains: readonly Rain[], took
 /* ── a catch ────────────────────────────────────────────────────────────── */
 
 /** Why an insect was not caught, besides what a bag or a hand may lack: had already this turn, the last of them gone to others, stood too far from, or (a beetle) nobody under its tree with something sweet. */
-export type BugRefusal = "had" | "bare" | "far" | "lure";
+export type BugRefusal = "had" | "bare" | "far" | "lure"
+  | "out"    // a drop of nectar of mine is out already
+  | "quiet"; // no insect is about this place at this hour for a drop to call
 
 /** Whether somebody on a tile is near enough a haunt to have caught what is there. */
 export const nearHaunt = (h: Haunt, at: readonly [number, number]) => h.perches.some((p) => Math.hypot(p.x - at[0] - 0.5, p.y - at[1] - 0.5) <= NET.reach + NET.far);
@@ -486,6 +488,115 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   if (roomFor(purse.bag, has.bug) < has.n) return no("full");
   const cost = bug.cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
   return { ok: true, purse: { ...spend(purse, cost, now), bag: put(purse.bag, has.bug, has.n) }, got: [[has.bug, has.n]] };
+}
+
+/* ── a drop of nectar (lib/town/gifts' thingNectar, the insects' third rank) ─ */
+
+/**
+ * A drop of nectar put on the ground where its owner stands (the owner's ladder of 2026-10-07: "หยดลงพื้น ภายใน 10
+ * วินาทีมีแมลงบินมาหา ชนิดตามที่และเวลานั้น วันละ 10 หยด"). Within `within` seconds (and no sooner than `soon`) an insect
+ * flies to it, and stays `stays` seconds; then it is to be come up to and netted as any other. Ten drops a day
+ * (lib/town/gifts' USES). Every number here is mine.
+ *
+ * - **Which insect, the keeper says**: one of the kinds the nearest haunt of that map would have at that moment (its
+ *   place, its part of the forest, the hour, the sky, the moon, a day of its own), by their weights there, each
+ *   weighed down by how scarce its kind has been hunted (`plentyOf`): a scarce kind comes seldom, and something
+ *   always comes while anything may. When nothing may (flowers at night, a dry kind in the rain), the drop is not
+ *   put down and none is used up (`quiet`).
+ * - **The haunts a drop calls from are the ones insects pass by often** (`at`): flowers, the water's edge, a field,
+ *   a light, the litter under trees. Not a tree (what is in one comes down only to something sweet held by a hand
+ *   that then cannot hold a net: two people still), nor a glade or the fall, whose one insect is rare by how seldom
+ *   its haunt has anything at all: a drop that brought one every time would be ten of the rarest a day. The rare
+ *   ones a drop can bring are as rare as their weights beside the others make them (an orchid mantis two in a
+ *   hundred and sixty at the forest's flowers; a hawk moth four in a hundred on a day of its own).
+ * - **It is its owner's alone**, kept in their purse (`lured`), one at a time: nobody else sees it or can net it.
+ *   Caught, it is a catch like any (a `net` deed: it counts towards its kind's scarcity, the line's points, the
+ *   village's book).
+ */
+export const NECTAR = { within: 10, soon: 3, stays: 120, at: ["blooms", "water", "field", "lamp", "litter"] as HauntKind[] };
+/** The maps, each as its name and the box of its tiles: what the database is told, which knows no tile's map (lib/town/world's placeOf is the code's). */
+export const NECTAR_MAPS: Array<[Place, number, number, number, number]> = [["town", 0, 0, COLS, ROWS], ["farm", FARM.x, FARM.y, FARM.w, FARM.h], ["forest", FOREST.x, FOREST.y, FOREST.w, FOREST.h]];
+/** A drop that is out and what it brings: the tile it lies on, the haunt it called from, the insect and how many a catch gives, from when it is there and until when, and the seed its ways follow from. */
+export type Lured = NonNullable<Purse["lured"]>;
+/** The haunt a drop on a tile calls from: of the map the tile is on, among the kinds a drop calls from, the one a perch of which is nearest (the lower number, of two as near). None off the maps. */
+export function nectarHaunt(at: readonly [number, number]): Haunt | null {
+  const place = placeOf(at[0], at[1]);
+  let best: Haunt | null = null, least = Infinity;
+  if (!place) return null;
+  for (const h of HAUNTS) {
+    if (h.place !== place || !NECTAR.at.includes(h.kind)) continue;
+    for (const p of h.perches) {
+      const dx = p.x - at[0] - 0.5, dy = p.y - at[1] - 0.5, d = dx * dx + dy * dy;
+      if (d < least) { least = d; best = h; }
+    }
+  }
+  return best;
+}
+/** The insects a drop may bring at a haunt at a moment, in the order they are weighed, each with its weight there less what its kind is hunted. */
+export function nectarMay(salt: string, h: Haunt, now: number, rains: readonly Rain[] = DRY, hunts: readonly Hunt[] = UNHUNTED): Array<[BugId, number]> {
+  return BUG_IDS.filter((id) => fits(BUGS[id], id, h, now, salt, rains)).map((id): [BugId, number] => [id, BUGS[id].weight * plentyOf(hunts, id, now)]);
+}
+const share = (x: number) => Math.min(0.999999, Math.max(0, x || 0));
+/**
+ * Put a drop down where I stand: the purse with a drop used and what it brings kept, or why not (no nectar to my
+ * name, none left today, one out already, nothing about to call). `r` is three numbers of chance from 0 up to 1:
+ * which insect, how many a catch gives, and how soon it comes.
+ */
+export function nectar(purse: Purse, at: readonly [number, number], now: number, salt: string, rains: readonly Rain[], hunts: readonly Hunt[], r: readonly [number, number, number]):
+  { ok: true; purse: Purse; lured: Lured; left: number } | { ok: false; why: BugRefusal | GiftRefusal } {
+  const used = useGift(purse, "thingNectar", now);
+  if (!used.ok) return used;
+  if (purse.lured && typeof purse.lured.until === "number" && purse.lured.until > now) return { ok: false, why: "out" };
+  const h = nectarHaunt(at), may = h ? nectarMay(salt, h, now, rains, hunts) : [];
+  let total = 0;
+  for (const [, w] of may) total += w;
+  if (!h || !(total > 0)) return { ok: false, why: "quiet" };
+  let left = share(r[0]) * total, bug = may[may.length - 1][0];
+  for (const [id, w] of may) { left -= w; if (left < 0) { bug = id; break; } }
+  const [lo, hi] = BUGS[bug].n, n = lo + Math.min(hi - lo, Math.max(0, Math.floor(share(r[1]) * (hi - lo + 1))));
+  const from = now + Math.floor((NECTAR.soon + share(r[2]) * (NECTAR.within - NECTAR.soon)) * 1000);
+  const lured: Lured = { x: at[0], y: at[1], haunt: h.id, bug, n, from, until: from + NECTAR.stays * 1000, seed: (h.id * 100003 + Math.floor(now / 1000)) % 2147483647 };
+  return { ok: true, purse: { ...used.purse, lured }, lured, left: used.left };
+}
+/** The insect that has come to my drop, at a moment: there from when it came until it is off again. */
+export const luredNow = (purse: Purse, now: number): Lured | null => {
+  const l = purse.lured;
+  return l && isBug(l.bug) && typeof l.from === "number" && typeof l.until === "number" && l.from <= now && now < l.until ? l : null;
+};
+/** The number the page knows a drop's insect by, where a haunt's is known by its haunt's: no haunt has it. */
+export const LURED = -1;
+/**
+ * The place a drop's insect keeps to, as a haunt of its own for the page to move it about (`think`, `poseOf`): a few
+ * perches round the drop, a step or two out, in an order and at distances that follow from its seed (what goes round
+ * a light goes round the drop itself). Of the kind and the part of the forest of the haunt it was called from.
+ */
+export function luredHaunt(l: Lured): Haunt {
+  const from = HAUNTS[l.haunt], c = { x: l.x + 0.5, y: l.y + 0.5 };
+  const round = isBug(l.bug) && BUGS[l.bug].habit === "lamp";
+  const perches = round ? [c] : Array.from({ length: 5 }, (_, i) => {
+    const ang = ((i + roll("luredturn", l.seed)) / 5) * Math.PI * 2, r = 1.2 + 0.6 * roll("luredout", l.seed, i);
+    return { x: Math.round((c.x + Math.cos(ang) * r) * 100) / 100, y: Math.round((c.y + Math.sin(ang) * r) * 100) / 100 };
+  });
+  return { id: LURED, kind: from?.kind ?? "blooms", place: from?.place ?? "town", zone: from?.zone ?? null, x: c.x, y: c.y, perches };
+}
+
+/** An insect that is mine alone and no haunt's: the one come to my drop of nectar. */
+export type Mine = "lured";
+/**
+ * Catch an insect that is mine alone: the one come to my drop, from the tile I stand on, after so many swings that
+ * missed. As a haunt's is caught (`net`): with a net in the hand, from near enough, with room in the bag, for its
+ * stamina and a point a miss up to so many. The drop is done with.
+ */
+export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: readonly [number, number], misses: number, now: number):
+  Done<{ purse: Purse; got: Array<[ItemId, number]> }> | { ok: false; why: BugRefusal } {
+  const l = which === "lured" ? luredNow(purse, now) : null;
+  if (!l) return no("none");
+  const id = l.bug as BugId, reach = NET.reach + NET.far, dx = l.x - at[0], dy = l.y - at[1];
+  if (!mayNet(hand)) return no("tool");
+  if (dx * dx + dy * dy > reach * reach) return { ok: false, why: "far" };
+  if (roomFor(purse.bag, id) < l.n) return no("full");
+  const cost = BUGS[id].cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
+  return { ok: true, purse: { ...spend(purse, cost, now), bag: put(purse.bag, id, l.n), lured: null }, got: [[id, l.n]] };
 }
 
 /* ── a ladybird's doing ─────────────────────────────────────────────────── */

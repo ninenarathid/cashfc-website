@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  BUGS, HABITS, HAUNTS, LURES, NET, aimOf, bugTurnStart, fledBy, lulled, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think,
-  type BugId, type BugSight, type Mind, type Person, type Pose,
+  BUGS, HABITS, HAUNTS, LURED, LURES, NET, aimOf, bugTurnStart, fledBy, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think,
+  type BugId, type BugSight, type Haunt, type Lured, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { FARMING } from "@/lib/town/farm";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
-import { familiarOf, harderFor, wearing } from "@/lib/town/gifts";
+import { GIFTS, familiarOf, harderFor, hasThing, usesLeft, wearing } from "@/lib/town/gifts";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { TILE_H, placeOf, type Vec } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
-import { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
 
@@ -46,7 +46,13 @@ const WHY_BUGS: Record<string, [string, string]> = {
   had: ["จับตัวนี้ไปแล้ว", "You have caught this one already"], bare: ["มีคนจับไปก่อนแล้ว", "Somebody caught it first"], far: ["อยู่ไกลเกินไป", "Too far away"],
   none: ["ไม่อยู่แล้ว", "It is gone"], lure: ["มันปีนกลับขึ้นไปแล้ว", "It has climbed back up"],
   fled: ["มันตกใจหนีไปแล้ว", "It took fright and is gone"],
+  // (a drop of nectar: one is out already; nothing is about this place at this hour; the day's drops are used)
+  out: ["มีหยดน้ำหวานวางอยู่แล้ว", "A drop is out already"], quiet: ["แถวนี้ตอนนี้ยังไม่มีแมลงมาตอม", "No insect is about here just now"],
+  drops: ["วันนี้น้ำหวานหมดแล้ว", "No nectar left today"], left: ["แมลงที่มาตอมน้ำหวานบินไปแล้ว", "The insect at your nectar has flown off"],
 };
+/** How long before it is there the insect of a drop is seen flying in, in milliseconds; and from how many tiles off. */
+const ARRIVE = { ms: 1700, from: 7 };
+const giftName = (id: string, th: boolean) => { const g = GIFTS.find((x) => x.id === id); return g ? (th ? g.name.th : g.name.en) : id; };
 /** Where the insects that fled from my tired hands are kept on this device, each until its turn ends: a page opened again does not bring them back. */
 const FLED_KEY = "cashTown:bugsFled";
 function fledKept(): Map<string, number> {
@@ -69,6 +75,34 @@ const iconFor = (name: string): IconName | null => (name in ICON_ATLAS.icons ? (
 
 /** A swing of the net: where it was aimed, when it began, and when it lands. */
 interface Swing { at: Vec; began: number; lands: number; done: boolean }
+
+/** A drop of nectar on the ground: an amber bead with a light on it and a ring going out from it; and while nothing has come to it yet, its scent rising. */
+function drawDrop(ctx: CanvasRenderingContext2D, c: Vec, s: number, now: number, still: boolean, waits: boolean) {
+  const u = Math.max(2, Math.round(1.5 * s)), x = Math.round(c.x), y = Math.round(c.y);
+  ctx.save();
+  if (!still) for (const lag of [0, 0.5]) {
+    const t = (now / 1500 + lag) % 1;
+    ctx.strokeStyle = `rgba(255,206,104,${(0.85 * (1 - t)).toFixed(3)})`;
+    ctx.lineWidth = Math.max(1.5, 1.3 * s);
+    ctx.beginPath(); ctx.ellipse(x, y - u, (4 + 15 * t) * s, (2 + 7.5 * t) * s, 0, 0, Math.PI * 2); ctx.stroke();
+  }
+  // the bead: a drop with its point up, a dark edge, an amber body, a light on its shoulder
+  const rows: Array<[number, number]> = [[-0.5, 1], [-1.5, 3], [-1.5, 3], [-2.5, 5], [-2.5, 5], [-2.5, 5], [-1.5, 3]];
+  ctx.fillStyle = "rgba(0,0,0,0.25)"; ctx.beginPath(); ctx.ellipse(x, y + 1, 3.6 * u, 1.5 * u, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = "#5e2d08";
+  rows.forEach(([ox, w], i) => ctx.fillRect(Math.round(x + ox * u) - 1, y - (rows.length - i) * u - 1, w * u + 2, u + 2));
+  ctx.fillStyle = "#f0a02c";
+  rows.forEach(([ox, w], i) => ctx.fillRect(Math.round(x + ox * u), y - (rows.length - i) * u, w * u, u));
+  ctx.fillStyle = "#c9761a"; ctx.fillRect(Math.round(x + 0.5 * u), y - 3 * u, 2 * u, 2 * u); ctx.fillRect(Math.round(x - 0.5 * u), y - u, 2 * u, u);
+  ctx.fillStyle = "#ffe08a"; ctx.fillRect(Math.round(x - 1.5 * u), y - 4 * u, u, 2 * u); ctx.fillRect(Math.round(x - 0.5 * u), y - 6 * u, u, u);
+  ctx.fillStyle = "#fffbe6"; ctx.fillRect(Math.round(x - 1.5 * u), y - 4 * u, u, u);
+  if (waits) for (let i = 0; i < 4; i++) {
+    const t = still ? (i + 1) / 5 : (now / 1700 + i / 4) % 1;
+    ctx.fillStyle = `rgba(255,240,180,${(0.9 * Math.sin(Math.PI * t)).toFixed(3)})`;
+    ctx.fillRect(Math.round(x + Math.sin(t * 6 + i * 2) * 5 * s), Math.round(y - 9 * u - t * 22 * s), u, u);
+  }
+  ctx.restore();
+}
 
 /**
  * The insects, to catch (the owner, 2026-10-05: "จับแมลง ในทุกแมพในเกม … สามารถใช้ที่จับแมลงจับมาได้ แต่ต้องวิ่งไปจับให้ทัน
@@ -127,14 +161,31 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   // (the silver-web net worn as a charm: every insect that is out on the map I am on glints silver where it is, the
   // hidden ones too, on my own screen. Where, never how it is caught. lib/town/gifts)
   const sees = wearing(purse, "charmNet");
-  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, me: keeper.id });
-  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, me: keeper.id };
+  // (a drop of nectar of mine that is out, with what it brings: lib/town/insects' Lured, kept in my purse. Its insect
+  // is mine alone; once it has come it is drawn and minded as a haunt's is, at a haunt of its own round the drop)
+  const hasNectar = keeper.gives("thingNectar") && hasThing(purse, "thingNectar"), drops = hasNectar ? usesLeft(purse, "thingNectar", keeper.now()) : 0;
+  const lured = purse.lured && purse.lured.until > keeper.now() ? purse.lured : null;
+  const luredKept = useRef<{ l: Lured; h: Haunt } | null>(null);
+  if (!lured) luredKept.current = null;
+  else if (luredKept.current?.l.from !== lured.from || luredKept.current.l.seed !== lured.seed) luredKept.current = { l: lured, h: luredHaunt(lured) };
+  const luredUntil = lured?.until ?? 0;
+  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, lured: luredKept.current, me: keeper.id });
+  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, lured: luredKept.current, me: keeper.id };
+  useEffect(() => {
+    if (!luredUntil) return;
+    // (it is off again at its time: said once, where I had not caught it; and the belt is looked at afresh)
+    const t = setTimeout(() => {
+      setTick((n) => n + 1);
+      if (keeper.purse().lured?.until === luredUntil) { sfx?.work("flit", 0.6); setNote(live.current.th ? WHY_BUGS.left[0] : WHY_BUGS.left[1]); }
+    }, Math.max(0, luredUntil - keeper.now()) + 60);
+    return () => clearTimeout(t);
+  }, [keeper, luredUntil, sfx]);
   /** How many insects glinted in the last frame drawn, and how many my butterfly kept from knowing of me (for scripts). */
   const glints = useRef(0), lulls = useRef(0);
 
   /** What each insect has in mind on this screen, how each is this frame, where I am and who is about, and the swing in the air. */
   const minds = useRef(new Map<number, { turn: number; bug: BugId; mind: Mind }>());
-  const poses = useRef(new Map<number, { sight: BugSight; pose: Pose }>());
+  const poses = useRef(new Map<number, { sight: BugSight; pose: Pose; h: Haunt }>());
   const me = useRef<Vec | null>(null), about = useRef<Array<Person & { id: string }>>([]);
   /** When each singer was last heard. */
   const sang = useRef(new Map<number, number>());
@@ -153,16 +204,19 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     const land = (s: Swing, now: number) => {
       const here = me.current, tile: [number, number] | null = here ? [Math.floor(here.x), Math.floor(here.y)] : null;
       let got = false;
-      for (const [id, { sight, pose }] of poses.current) {
-        const h = HAUNTS[id], kept = minds.current.get(id);
-        if (!h || !kept) continue;
+      for (const [id, { sight, pose, h }] of poses.current) {
+        const kept = minds.current.get(id);
+        if (!kept) continue;
         const key = `${id}:${sight.turn}`;
         if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent, 1, live.current.wary)) {
           got = true;
           // (a beetle: whoever stands under its tree with something sweet; the tree it is in now, for one that does not stay)
           const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[kept.mind.at] ?? h.perches[0]) < HABITS.lure.reach) : null;
           const where = { x: pose.x, y: pose.y };
-          void keeper.netDo(id, tile, { misses: misses.current.get(key) ?? 0, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name).then((did) => {
+          // (the insect of my drop of nectar is no haunt's: it is caught as mine alone)
+          const asked = id === LURED ? keeper.netMine("lured", tile, { misses: misses.current.get(key) ?? 0 }, live.current.name)
+            : keeper.netDo(id, tile, { misses: misses.current.get(key) ?? 0, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name);
+          void asked.then((did) => {
             if (!did.ok) { say(did.why); return; }
             misses.current.delete(key);
             caught.current.push({ bug: sight.bug, first: did.first, rid: did.rid ?? null });
@@ -183,7 +237,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           // tired hands lose it at the second miss: it is off, and is not seen here again this turn
           if (fledBy(misses.current.get(key) ?? 0, live.current.spent)) {
             const gone = fled.current ?? new Map<string, number>();
-            gone.set(key, bugTurnStart(h, sight.turn + 1) - keeper.now() + Date.now());
+            gone.set(key, (id === LURED ? live.current.lured?.l.until ?? keeper.now() : bugTurnStart(h, sight.turn + 1)) - keeper.now() + Date.now());
             fled.current = gone;
             keepFled(gone);
             misses.current.delete(key);
@@ -226,10 +280,33 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       };
       const shown = new Set<number>();
       let lit = 0, calm = 0;
-      for (const sight of seen.current) {
-        const h = HAUNTS[sight.id];
+      // my drop of nectar on the ground, and what it brings on its way to it (the keeper's clock said by this machine's)
+      const drop = live.current.lured, lag = now - keeper.now(), came = drop ? drop.l.from + lag : 0;
+      if (drop && drop.h.place === here && now < drop.l.until + lag) {
+        // (it lies beside the feet of whoever put it down, level with them on the screen: under them, or under their
+        // name, it would not be seen)
+        const c0 = { x: drop.l.x + 1.2, y: drop.l.y - 0.2 }, c = project(c0), t = (now - (came - ARRIVE.ms)) / ARRIVE.ms;
+        if (onScreen(c)) things.push({ depth: c0.x + c0.y + 0.2, draw: () => drawDrop(ctx, c, s, now, still, now < came) });
+        if (!still && t >= 0 && t < 1) {
+          // it flies in from far off, down to where it will be the moment it is there
+          const id = drop.l.bug as BugId, end = poseOf(id, drop.h, drop.l.seed, newMind(id, drop.h, drop.l.seed, came), came);
+          const ang = (drop.l.seed % 360) * (Math.PI / 180), e = 1 - (1 - t) ** 3;
+          const from = { x: end.x + Math.cos(ang) * ARRIVE.from, y: end.y + Math.sin(ang) * ARRIVE.from };
+          const fly = { x: from.x + (end.x - from.x) * e, y: from.y + (end.y - from.y) * e }, lift = end.lift + (1 - e) * 2.2 + 0.12 * Math.sin(now / 90), p = project(fly);
+          if (onScreen(p)) things.push({ depth: fly.x + fly.y + 3.6, draw: () => {
+            ctx.fillStyle = "rgba(0,0,0,0.16)"; ctx.beginPath(); ctx.ellipse(p.x, p.y, 4.5 * s, 2.2 * s, 0, 0, Math.PI * 2); ctx.fill();
+            blit(iconFor(iconOf(id)), p, lift * TILE_H * s, end.x - from.x - (end.y - from.y) >= 0, SIZE * s, 0.5 + 0.5 * Math.abs(Math.sin(now / 60)));
+          } });
+        }
+      }
+      // (every haunt's insect; and my drop's, once it has come, at a haunt of its own round the drop)
+      const outs: Array<{ sight: BugSight; h: Haunt | undefined; born?: number }> = seen.current.map((sight) => ({ sight, h: HAUNTS[sight.id] }));
+      if (drop && now >= came && now < drop.l.until + lag && !fled.current?.has(`${LURED}:${drop.l.from}`)) outs.push({ sight: { id: LURED, bug: drop.l.bug as BugId, turn: drop.l.from, seed: drop.l.seed }, h: drop.h, born: came });
+      for (const { sight, h, born } of outs) {
         if (!h || h.place !== here) continue;
         shown.add(h.id);
+        // (the insect of my drop: its mind begins the moment it came)
+        if (born !== undefined && minds.current.get(h.id)?.turn !== sight.turn) minds.current.set(h.id, { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, born) });
         let kept = minds.current.get(h.id);
         // (a mind is one insect's: another at the same haunt, in the same turn or the next, begins with its own)
         if (!kept || kept.turn !== sight.turn || kept.bug !== sight.bug) { kept = { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, bugTurnStart(h, sight.turn)) }; minds.current.set(h.id, kept); }
@@ -243,7 +320,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           sang.current.set(h.id, now);
           sfx?.work(bug.shy === "flight" ? "cicada" : "chirp", Math.max(0.06, 1 - away / 11) ** 1.6);
         }
-        poses.current.set(h.id, { sight, pose });
+        poses.current.set(h.id, { sight, pose, h });
         const k = SIZE * s, icon = iconFor(iconOf(sight.bug)), mind = kept.mind;
         // the net's silver glint over it, whether it shows itself or not; one off the screen is pointed to from the edge
         if (live.current.sees) {
@@ -395,10 +472,23 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     return () => { register(null); registerTap(null); tapRef.current = null; };
   }, [keeper, register, registerTap, sfx, vfx]);
 
+  /** Put a drop of nectar down where I stand: what it brings is the keeper's to say. */
+  const dropNectar = useCallback(() => {
+    const here = me.current;
+    if (!here) return;
+    void keeper.nectarDrop([Math.floor(here.x), Math.floor(here.y)]).then((did) => {
+      if (did.ok) { sfx?.wake(); sfx?.work("drip"); return; }
+      const w = did.why === "spent" ? WHY_BUGS.drops : WHY_BUGS[did.why] ?? WHY[did.why as keyof typeof WHY];
+      setNote(w ? (live.current.th ? w[0] : w[1]) : null);
+    });
+  }, [keeper, sfx]);
+
   // (for scripts in `next dev`: what is out for me, how each is this moment, and a swing at a point)
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
+      // (my drop of nectar: what is out, and one put down where I stand)
+      lured: () => live.current.lured?.l ?? null, luredHaunt: () => live.current.lured?.h ?? null, dropNectar,
       sights: () => seen.current.map((x) => ({ ...x, place: HAUNTS[x.id]?.place, kind: HAUNTS[x.id]?.kind, x: HAUNTS[x.id]?.x, y: HAUNTS[x.id]?.y, perches: HAUNTS[x.id]?.perches })),
       poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, 1, live.current.wary), mind: minds.current.get(id)?.mind ?? null })),
       me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, 1, live.current.wary), glints: () => glints.current, lulls: () => lulls.current,
@@ -412,22 +502,42 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       // as the clock alone says; how long my swing takes; and every insect that fled from me forgotten)
       misses: () => Object.fromEntries(misses.current), swingMs: () => swingMs(live.current.spent),
       poseAt: (id: number, ms: number) => {
-        const at = poses.current.get(id), kept = minds.current.get(id), h = HAUNTS[id];
-        if (!at || !kept || !h) return null;
-        const p = poseOf(at.sight.bug, h, at.sight.seed, kept.mind, Date.now() + ms);
+        const at = poses.current.get(id), kept = minds.current.get(id);
+        if (!at || !kept) return null;
+        const p = poseOf(at.sight.bug, at.h, at.sight.seed, kept.mind, Date.now() + ms);
         return { ...p, aim: aimOf(p) };
       },
       forget: () => { fled.current = new Map(); keepFled(fled.current); setTick((n) => n + 1); },
     };
     (window as unknown as { __townBugs?: typeof handle }).__townBugs = handle;
     return () => { delete (window as unknown as { __townBugs?: typeof handle }).__townBugs; };
-  }, [note, tip]);
+  }, [note, tip, dropNectar]);
 
-  if (!note && !tip) return null;
+  // The hunter's belt: the things of the insects' ranks that are used by hand, there while a net is held. Each shows
+  // its state (how many are left, whether it is out) and says nothing of what it does.
+  const belt = !busy && mayNet(hand) && hasNectar;
+  if (!note && !tip && !belt) return null;
   return (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2 pb-14" style={{ bottom }}>
-      {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
-      {tip && <p className="pop-in max-w-[24rem] rounded-2xl bg-bg/85 px-4 py-2 text-center text-ui leading-relaxed text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-bug-tip aria-live="polite">{tip}</p>}
-    </div>
+    <>
+      {(note || tip) && (
+        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2 pb-14" style={{ bottom }}>
+          {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
+          {tip && <p className="pop-in max-w-[24rem] rounded-2xl bg-bg/85 px-4 py-2 text-center text-ui leading-relaxed text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-bug-tip aria-live="polite">{tip}</p>}
+        </div>
+      )}
+      {belt && (
+        <div className="pointer-events-none absolute left-2 z-20 flex flex-col gap-2 sm:left-3" style={{ bottom: `calc(${bottom} + 3.75rem)` }} data-bug-belt>
+          {hasNectar && (
+            <button type="button" onClick={dropNectar} disabled={!!lured || drops <= 0} data-bug-nectar data-left={drops} data-out={lured ? "1" : "0"}
+                    title={giftName("thingNectar", th)} aria-label={`${giftName("thingNectar", th)} ${drops}`}
+                    className="pressable pointer-events-auto relative grid size-12 place-items-center rounded-full border-2 border-[#8a5a1c] bg-[#2b1a0c]/90 shadow-lg shadow-black/40 backdrop-blur-sm transition-opacity disabled:opacity-55">
+              <TownIcon name={"thingNectar" as IconName} size={30} />
+              <span aria-hidden className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full border border-[#8a5a1c] bg-[#f0a02c] px-1 font-data text-label font-semibold leading-4 text-[#2b1a0c]">{drops}</span>
+              {lured && <span aria-hidden className="absolute inset-[-3px] animate-pulse rounded-full border-2 border-[#ffd674] motion-reduce:animate-none" />}
+            </button>
+          )}
+        </div>
+      )}
+    </>
   );
 }

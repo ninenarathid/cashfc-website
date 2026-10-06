@@ -1,13 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { FAMILIARS, GIFTS, harderAt, harderFor, numberOf } from "./gifts";
+import { FAMILIARS, GIFTS, USES, harderAt, harderFor, numberOf, usesLeft } from "./gifts";
 import {
-  BUGS, BUG_IDS, HABITS, HAUNTS, NET, ROAM, TIERS, aimOf, harderOn, knows, lulled, newMind, perchAt, poseOf, ringOf, roams, stealthOf, taken, think, tierOf,
-  type BugId, type Haunt, type Mind, type Person,
+  BUGS, BUG_IDS, HABITS, HAUNTS, LURED, NECTAR, NECTAR_MAPS, NET, ROAM, TIERS, UNHUNTED, aimOf, harderOn, knows, lulled, luredHaunt, luredNow, nectar, nectarHaunt, nectarMay, netMine, newMind,
+  perchAt, plentyOf, poseOf, ringOf, roams, stealthOf, taken, think, tierOf,
+  type BugId, type Haunt, type Hunt, type Lured, type Mind, type Person,
 } from "./insects";
 import { ITEMS } from "./items";
 import { POINTS } from "./line-points";
 import { LINES } from "./lines";
-import { HOUR, newPurse, type Purse } from "./trade";
+import { staminaOf } from "./stamina";
+import { DAY, HOUR, held, newPurse, put, type Purse } from "./trade";
+import { ALWAYS_RAIN, DRY } from "./weather";
+import { placeOf } from "./world";
 
 /** 2026-10-05 12:00 in Bangkok, and the same day's midnight. */
 const NOON = Date.UTC(2026, 9, 5, 5), NIGHT = Date.UTC(2026, 9, 5, 17);
@@ -214,5 +218,181 @@ describe("a rare insect does not stay (the owner's ladder: \"a rare insect moves
     // a rhinoceros beetle (not rare) keeps to the trunk it is in
     const r = newMind("rhinoBeetle", h, seed, NIGHT);
     expect(think("rhinoBeetle", h, seed, r, NIGHT + 3 * ROAM.every, [])).toBe(r);
+  });
+});
+
+describe("a drop of nectar (insects, the third rank: within ten seconds an insect flies to it, of that place and hour; ten drops a day)", () => {
+  const WORD = "nectar-test";
+  const mine = (more: Partial<Purse> = {}): Purse => ({ ...withGifts(["thingNectar"]), bag: put(newPurse().bag, "bugNet", 1), hand: "bugNet", ...more });
+  const tileBy = (h: Haunt): [number, number] => [Math.floor(h.perches[0].x), Math.floor(h.perches[0].y)];
+  const MID: [number, number, number] = [0.5, 0, 0];
+
+  it("is a thing of the third rank, ten drops a day, and its numbers are the catalog's", () => {
+    expect(GIFTS.find((g) => g.id === "thingNectar")).toMatchObject({ kind: "thing", line: "insects", rank: 3 });
+    expect(USES.thingNectar).toEqual({ n: 10, per: "day" });
+    expect(NECTAR).toMatchObject({ within: 10, soon: 3, stays: 120 });
+    expect(NECTAR.at).toEqual(["blooms", "water", "field", "lamp", "litter"]);
+    // (the maps as the database is told them are the ones a tile is on)
+    for (const [place, x, y, w, h] of NECTAR_MAPS) for (const [tx, ty] of [[x, y], [x + w - 1, y + h - 1], [x + Math.floor(w / 2), y + Math.floor(h / 2)]]) expect(placeOf(tx, ty)).toBe(place);
+  });
+
+  it("calls from the nearest haunt of the map one stands on that insects pass by often: never a tree, a glade or the fall", () => {
+    for (const h of HAUNTS) {
+      const from = nectarHaunt(tileBy(h))!;
+      expect(from.place).toBe(h.place);
+      expect(NECTAR.at).toContain(from.kind);
+      if (NECTAR.at.includes(h.kind)) {
+        // (beside a perch of such a haunt, it is that haunt or one as near)
+        const d = (x: Haunt) => Math.min(...x.perches.map((p) => Math.hypot(p.x - tileBy(h)[0] - 0.5, p.y - tileBy(h)[1] - 0.5)));
+        expect(d(from)).toBeLessThanOrEqual(d(h));
+      }
+    }
+    expect(nectarHaunt([-3, 10])).toBeNull();
+    expect(nectarHaunt([100, 100])).toBeNull();
+  });
+
+  it("brings one of the kinds of that place and that hour, by their weights there: within ten seconds, to stay two minutes", () => {
+    const blooms = hauntOf("blooms", "town"), at = tileBy(blooms), h = nectarHaunt(at)!;
+    const may = nectarMay(WORD, h, NOON);
+    expect(may.length).toBeGreaterThan(0);
+    for (const [id, w] of may) { expect(BUGS[id].at).toContain(h.kind); expect(w).toBe(BUGS[id].weight); }
+    // every number of chance brings one of them, each as often as its weight
+    const total = may.reduce((t, [, w]) => t + w, 0), seen = new Map<BugId, number>();
+    for (let i = 0; i < 2000; i++) {
+      const did = nectar(mine(), at, NOON, WORD, DRY, UNHUNTED, [(i + 0.5) / 2000, 0, 0]);
+      expect(did.ok).toBe(true);
+      if (did.ok) seen.set(did.lured.bug as BugId, (seen.get(did.lured.bug as BugId) ?? 0) + 1);
+    }
+    expect([...seen.keys()].sort()).toEqual(may.map(([id]) => id).sort());
+    for (const [id, w] of may) expect(seen.get(id)! / 2000).toBeCloseTo(w / total, 2);
+    // how soon, and how long
+    const soon = nectar(mine(), at, NOON, WORD, DRY, UNHUNTED, [0.5, 0, 0]), late = nectar(mine(), at, NOON, WORD, DRY, UNHUNTED, [0.5, 0, 0.999999]);
+    if (!soon.ok || !late.ok) throw new Error("a drop was refused");
+    expect(soon.lured.from).toBe(NOON + 3000);
+    expect(late.lured.from).toBeGreaterThan(NOON + 9900);
+    expect(late.lured.from).toBeLessThan(NOON + 10_000);
+    expect(soon.lured.until - soon.lured.from).toBe(120_000);
+    expect(soon.lured).toMatchObject({ x: at[0], y: at[1], haunt: h.id, n: 1 });
+    expect(soon.purse.lured).toEqual(soon.lured);
+    // a cricket comes one or two at a catch, as at its haunt
+    const field = hauntOf("field", "farm"), ns = new Set<number>();
+    for (const r2 of [0, 0.49, 0.5, 0.999999]) { const did = nectar(mine(), tileBy(field), NIGHT, WORD, DRY, UNHUNTED, [0.5, r2, 0]); if (did.ok && did.lured.bug === "cricket") ns.add(did.lured.n); }
+    expect([...ns].sort()).toEqual([1, 2]);
+  });
+
+  it("is refused to whoever has no nectar, has used the day's ten, or has one out; and a drop that is refused is not used", () => {
+    const at = tileBy(hauntOf("blooms", "town"));
+    expect(nectar(newPurse(), at, NOON, WORD, DRY, UNHUNTED, MID)).toEqual({ ok: false, why: "none" });
+    let p = mine();
+    for (let i = 0; i < 10; i++) {
+      const did = nectar(p, at, NOON + i * 1000, WORD, DRY, UNHUNTED, MID);
+      if (!did.ok) throw new Error(`drop ${i} refused: ${did.why}`);
+      expect(did.left).toBe(9 - i);
+      // (one is out: no other until it is caught or gone; after the tenth there is none to put down anyway)
+      expect(nectar(did.purse, at, NOON + i * 1000 + 500, WORD, DRY, UNHUNTED, MID)).toEqual({ ok: false, why: i < 9 ? "out" : "spent" });
+      p = { ...did.purse, lured: null };
+    }
+    expect(usesLeft(p, "thingNectar", NOON)).toBe(0);
+    expect(nectar(p, at, NOON + 60_000, WORD, DRY, UNHUNTED, MID)).toEqual({ ok: false, why: "spent" });
+    // the next day there are ten again
+    const next = nectar(p, at, NOON + DAY, WORD, DRY, UNHUNTED, MID);
+    expect(next.ok && next.left).toBe(9);
+    // one whose time is over is no longer out
+    const gone = nectar({ ...mine(), lured: { x: 1, y: 1, haunt: 0, bug: "moth", n: 1, from: NOON - 200_000, until: NOON - 1, seed: 1 } }, at, NOON, WORD, DRY, UNHUNTED, MID);
+    expect(gone.ok).toBe(true);
+  });
+
+  it("brings nothing where nothing is about, and uses no drop for it: flowers at night, a lamp by day, a dry kind's place in the rain, off the maps", () => {
+    const quiet = (h: Haunt | null, at: [number, number], when: number, rains = DRY) => {
+      // (the haunt called from is the one stood by, or one as quiet)
+      const from = nectarHaunt(at);
+      if (h) expect(nectarMay(WORD, h, when, rains)).toEqual([]);
+      if (!from || !nectarMay(WORD, from, when, rains).length) expect(nectar(mine(), at, when, WORD, rains, UNHUNTED, MID)).toEqual({ ok: false, why: "quiet" });
+    };
+    const blooms = hauntOf("blooms", "town"), lamp = hauntOf("lamp", "town");
+    quiet(blooms, tileBy(blooms), NIGHT);
+    quiet(lamp, tileBy(lamp), NOON);
+    quiet(blooms, tileBy(blooms), NOON, ALWAYS_RAIN);
+    quiet(null, [-5, 5], NOON);
+    expect(nectar(mine(), [-5, 5], NOON, WORD, DRY, UNHUNTED, MID)).toEqual({ ok: false, why: "quiet" });
+    expect(nectarMay(WORD, lamp, NIGHT).map(([id]) => id)).toContain("moth");
+  });
+
+  it("never brings what comes down only to a hand, nor a glade's or the fall's own; a rare one as seldom as its weight beside the others", () => {
+    const came = new Map<BugId, number>();
+    let drops = 0;
+    for (const h of HAUNTS) for (let hour = 0; hour < 24 * 6; hour += 1) {
+      const now = NOON + hour * HOUR, may = nectarMay(WORD, nectarHaunt(tileBy(h))!, now), total = may.reduce((t, [, x]) => t + x, 0);
+      for (const [id, w] of may) came.set(id, (came.get(id) ?? 0) + w / total);
+      if (may.length) drops++;
+    }
+    for (const id of BUG_IDS) if (BUGS[id].habit === "lure" || ["morpho", "glassDragonfly", "cicada"].includes(id)) expect(came.get(id), id).toBeUndefined();
+    // of every drop put down anywhere at any hour over six days, a rare insect comes to fewer than one in a hundred
+    const rare = [...came].filter(([id]) => tierOf(id) === "rare").reduce((t, [, n]) => t + n, 0);
+    expect(rare / drops).toBeLessThan(0.01);
+    expect(rare).toBeGreaterThan(0);
+    // and at the forest's flowers by day, an orchid mantis about one time in eighty
+    const may = nectarMay(WORD, hauntOf("blooms", "forest"), NOON), total = may.reduce((t, [, w]) => t + w, 0);
+    expect((may.find(([id]) => id === "orchidMantis")?.[1] ?? 0) / total).toBeCloseTo(2 / 160, 3);
+  });
+
+  it("a kind that is hunted comes seldom, and what is beside it there comes in its place; alone, it comes still", () => {
+    const woods = HAUNTS.find((h) => h.kind === "litter" && h.zone === "woods")!, at = tileBy(woods), from = nectarHaunt(at)!;
+    const hunts: Hunt[] = [{ bug: "stickInsect", at: NOON - 1000, n: 100_000 }];
+    const plain = nectar(mine(), at, NOON, WORD, DRY, UNHUNTED, MID), scarce = nectar(mine(), at, NOON, WORD, DRY, hunts, MID);
+    expect(from.kind).toBe("litter");
+    expect(plain.ok && plain.lured.bug).toBe("stickInsect");
+    expect(scarce.ok && scarce.lured.bug).toBe("caterpillar");
+    expect(nectarMay(WORD, from, NOON, DRY, hunts).find(([id]) => id === "stickInsect")![1]).toBeCloseTo(100 * plentyOf(hunts, "stickInsect", NOON), 9);
+    // at night a stick insect is all the woods' litter has: it comes, however hunted
+    const alone = nectar(mine(), at, NIGHT, WORD, DRY, [{ bug: "stickInsect", at: NIGHT - 1000, n: 100_000 }], MID);
+    expect(alone.ok && alone.lured.bug).toBe("stickInsect");
+  });
+
+  it("the insect is its owner's from when it has come until it is off, and keeps to a few perches round the drop", () => {
+    const at = tileBy(hauntOf("water", "town")), did = nectar(mine(), at, NOON, WORD, DRY, UNHUNTED, MID);
+    if (!did.ok) throw new Error(did.why);
+    const l = did.lured;
+    expect(luredNow(did.purse, l.from - 1)).toBeNull();
+    expect(luredNow(did.purse, l.from)).toEqual(l);
+    expect(luredNow(did.purse, l.until - 1)).toEqual(l);
+    expect(luredNow(did.purse, l.until)).toBeNull();
+    expect(luredNow(newPurse(), NOON)).toBeNull();
+    const h = luredHaunt(l);
+    expect(h.id).toBe(LURED);
+    expect(h.place).toBe("town");
+    expect(h.perches).toHaveLength(5);
+    for (const p of h.perches) { const d = Math.hypot(p.x - at[0] - 0.5, p.y - at[1] - 0.5); expect(d).toBeGreaterThan(1.1); expect(d).toBeLessThan(1.9); expect(d).toBeLessThan(NET.reach); }
+    expect(luredHaunt(l)).toEqual(h);
+    // what goes round a light goes round the drop itself
+    const moth: Lured = { ...l, bug: "moth" };
+    expect(luredHaunt(moth).perches).toEqual([{ x: at[0] + 0.5, y: at[1] + 0.5 }]);
+    // it is moved about as a haunt's insect is: what hovers, hovers at a perch of it
+    const m = newMind(l.bug as BugId, h, l.seed, l.from), pose = poseOf(l.bug as BugId, h, l.seed, m, l.from + 100);
+    expect(l.bug).toBe("dragonfly");
+    expect(pose.open).toBe(true);
+    expect(h.perches.some((p) => Math.hypot(p.x - pose.x, p.y - pose.y) < 0.2)).toBe(true);
+  });
+
+  it("is caught as a haunt's is: with a net, from near the drop, with room, for its stamina; once", () => {
+    const at = tileBy(hauntOf("water", "town")), did = nectar(mine(), at, NOON, WORD, DRY, UNHUNTED, MID);
+    if (!did.ok) throw new Error(did.why);
+    const p = did.purse, l = did.lured, when = l.from + 5000, bug = l.bug as BugId;
+    expect(netMine(p, "lured", "bugNet", at, 0, l.from - 1)).toEqual({ ok: false, why: "none" });
+    expect(netMine(p, "lured", null, at, 0, when)).toEqual({ ok: false, why: "tool" });
+    expect(netMine(p, "lured", "hoe", at, 0, when)).toEqual({ ok: false, why: "tool" });
+    expect(netMine(p, "lured", "bugNet", [at[0] + 7, at[1]], 0, when)).toEqual({ ok: false, why: "far" });
+    expect(netMine({ ...p, bag: p.bag.map(() => ({ item: "boot" as const, n: 1 })) }, "lured", "bugNet", at, 0, when)).toEqual({ ok: false, why: "full" });
+    expect(netMine(p, "lured", "bugNet", at, 0, l.until)).toEqual({ ok: false, why: "none" });
+    const got = netMine(p, "lured", "bugNet", [at[0] + 2, at[1] - 1], 5, when);
+    if (!got.ok) throw new Error(got.why);
+    expect(got.got).toEqual([[bug, l.n]]);
+    expect(held(got.purse.bag, bug)).toBe(l.n);
+    expect(got.purse.lured).toBeNull();
+    // (its stamina, and a point a miss up to two)
+    expect(staminaOf(p, when) - staminaOf(got.purse, when)).toBe(BUGS[bug].cost + NET.misses);
+    expect(netMine(got.purse, "lured", "bugNet", at, 0, when)).toEqual({ ok: false, why: "none" });
+    // the drops left are as they were: a catch uses none
+    expect(usesLeft(got.purse, "thingNectar", when)).toBe(9);
   });
 });

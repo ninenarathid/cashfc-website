@@ -193,6 +193,9 @@ export interface Purse {
   made?: ItemId[];
   /** How many times something has been cooked that was a recipe's own but for its last thing: by the recipe (lib/town/cooking). */
   tries?: Partial<Record<ItemId, number>>;
+  // ── gifts: insects ──
+  /** The drop of nectar I have out and what it brings (lib/town/insects' Lured): the tile it lies on, the haunt it called from, the insect and how many a catch gives, from when it is there and until when, and the seed its ways follow from. Mine alone. */
+  lured?: { x: number; y: number; haunt: number; bug: ItemId; n: number; from: number; until: number; seed: number } | null;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

@@ -11,7 +11,7 @@ import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
 import { HINT_IDS, HINT_PRICE } from "./hints";
-import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE } from "./insects";
+import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, SCARCE } from "./insects";
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
@@ -216,6 +216,9 @@ export function catalogOf() {
       comeback: { after: COMEBACK.after, least: COMEBACK.least },
       // hunted, a kind grows scarce: the hours a catch counts against it for, less with each, and how many counting halve it
       scarce: { day: SCARCE.day, half: SCARCE.half },
+      // ── gifts: insects ──
+      // a drop of nectar: within how many seconds an insect comes to it and no sooner than how many, how many it stays, the kinds of haunt a drop calls from, and the maps as boxes of tiles
+      nectar: { within: NECTAR.within, soon: NECTAR.soon, stays: NECTAR.stays, at: NECTAR.at, maps: NECTAR_MAPS },
     },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
     well: { ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed },
@@ -355,7 +358,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts"] },
+  v153: { keys: [], over: ["gifts", "insects"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

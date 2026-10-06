@@ -7,7 +7,7 @@ import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type O
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
 import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
-import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
+import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereAt, nectar, net, netMine, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Mine, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
 import * as Shops from "./shop";
@@ -652,6 +652,37 @@ export class Trial {
   /** For scripts: the number an insect let go on a plant that has a pest is tried by (lib/town/farm's `feed`: under how often that insect eats one, it does), in place of the moment's own (in this tab; null: the moment's). */
   private putLuck: number | null = null;
   setPutLuck(luck: number | null) { this.putLuck = luck; }
+  // ── gifts: insects ──
+  /** A drop of nectar where I stand (lib/town/insects' nectar): what it brings is drawn here, as the database draws it, and kept in my purse. */
+  nectarDrop(at: [number, number]): { ok: true; left: number } | { ok: false; why: BugRefusal | GiftRefusal } {
+    const did = nectar(this.purse(), at, this.now(), this.salt(), SKIES.rains(), this.hunts(), this.nectarLuck ?? [Math.random(), Math.random(), Math.random()]);
+    if (!did.ok) return did;
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "nectar", thing: did.lured.bug, n: did.lured.n, doc: {} });
+    return { ok: true, left: did.left };
+  }
+  /** For scripts trying things out: the three numbers a drop is drawn by (which insect, how many, how soon), in place of chance (in this tab; null: chance again). */
+  private nectarLuck: [number, number, number] | null = null;
+  setNectarLuck(r: [number, number, number] | null) { this.nectarLuck = r; }
+  /** Catch an insect that is mine alone (lib/town/insects' netMine: the one come to my drop), from the tile I stand on, after so many swings that missed: a catch like any, in the book, against its kind, on the line. */
+  netMine(which: Mine, at: [number, number], misses: number, name: string): { ok: true; got: Array<[ItemId, number]>; first: boolean; rid: string | null } | { ok: false; why: Refusal | BugRefusal } {
+    const now = this.now(), p = this.purse(), did = netMine(p, which, handOf(p), at, misses, now);
+    if (!did.ok) return did;
+    const bug = did.got[0][0] as BugId, n = did.got[0][1], book = this.bugBook(), first = !book[bug];
+    if (first) this.write(BUG_BOOK, { ...book, [bug]: name || this.id });
+    // (a ladybird, now and then, as one of a haunt's)
+    let rid: string | null = null;
+    const rids = BUGS[bug].rids ? this.ridChance ?? BUGS[bug].rids! : 0;
+    if (rids > 0 && Math.random() < rids) {
+      const farm = this.farm();
+      rid = pestToRid(farm, now, this.sky(), Math.random());
+      if (rid) this.write(FARM, { ...farm, [rid]: { ...farm[rid], plant: { ...farm[rid].plant!, cured: now } } });
+    }
+    this.write(BUG_HUNTS, [...this.hunts(), { bug, at: now, n }]);
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "net", thing: bug, n, doc: {} });
+    return { ok: true, got: did.got, first, rid };
+  }
 
   /* ── the well's book (lib/town/well) ── */
   private wellLog(): WellLog {
