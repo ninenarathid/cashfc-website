@@ -7,6 +7,8 @@ import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import { wearing } from "./gifts";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
+// ── gifts: kitchen ──
+import type { Cooked, KitchenDid } from "./keeper";
 import type { Worn } from "./lines";
 import type { Play } from "./plays";
 import type { ShopAsk } from "./shop";
@@ -243,12 +245,18 @@ class TrialKeeper implements Keeper {
   }
   bugBook() { return this.trial.bugBook(); }
 
-  async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>> {
-    return this.trial.cookDo(things, crew, timing.misses, name);
+  async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>> {
+    return this.trial.cookDo(things, crew, timing.misses, name, { sprite: !!timing.sprite, flame: !!timing.flame });
   }
   async potDown(at: [number, number]) { return this.trial.potDown(at); }
   async potLadle(id: string) { return this.trial.potLadle(id); }
   async potTake(id: string): Promise<Did> { return this.trial.potTake(id); }
+  // ── gifts: kitchen ──
+  async basketPut(slot: number, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketPut(slot, n); }
+  async basketTake(dish: DishId, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketTake(dish, n); }
+  async basketEat(dish: DishId, seated: boolean): Promise<KitchenDid<{ dish: DishId }>> { return this.trial.basketEat(dish, seated); }
+  async spoonAsk(things: Array<[ItemId, number]>): Promise<KitchenDid<{ of: ItemId; secret: ItemId; ways: number; left: number }>> { return this.trial.spoonAsk(things); }
+  async spiceEat(from: { slot: number } | { dish: DishId }, seated: boolean): Promise<KitchenDid<{ dish: DishId }>> { return this.trial.spiceEat(from, seated); }
 
   async dealOpen(other: string, myName: string, otherName: string): Promise<Did> { return this.trial.dealOpen(other, myName, otherName); }
   async dealLay(give: Give, coins = 0): Promise<Did> { return this.trial.dealLay(give, coins); }

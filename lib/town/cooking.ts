@@ -1,9 +1,10 @@
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
-import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, type Cookware, type DishId, type ItemId } from "./items";
+import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { hasBuff, spend } from "./stamina";
+import { harderFor, hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
+import { begun, hasBuff, mayEat, sitDown, spend } from "./stamina";
 import type { TimingMods } from "./timing";
-import { held, no, put, roomFor, take, type Done, type Purse, type Stack } from "./trade";
+import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -323,3 +324,202 @@ export function serve(purse: Purse, slot: number): Done<{ purse: Purse; dish: Di
   if (roomFor(bag, dish) < 1) return no("full");
   return { ok: true, dish, purse: { ...purse, bag: put(bag, dish, 1) } };
 }
+
+/* ── The gifts of the kitchen's ranks (lib/town/gifts; the owner, 2026-10-07: each rank cuts a whole rule of its line out) ── */
+
+/**
+ * Why a gift of the kitchen's was not used, beyond the trade's reasons and the gifts' own: the spoon has nothing to
+ * say of a pot that no recipe has (`astray`), or of one whose every recipe its owner reads whole already (`known`);
+ * the hearth sprite cooks only what its member has made before (`unmade`).
+ */
+export type KitchenRefusal = "astray" | "known" | "unmade";
+/** What a deed with a gift of the kitchen's comes to. */
+export type Gifted<T> = ({ ok: true } & T) | { ok: false; why: Refusal | GiftRefusal | KitchenRefusal };
+/** A no, for a reason of any of the three sorts. */
+const nay = <W extends Refusal | GiftRefusal | KitchenRefusal>(why: W): { ok: false; why: W } => ({ ok: false, why });
+
+/**
+ * The dimension basket (the kitchen's second rank): a food pocket of its owner's own. It holds so many helpings
+ * (the gift's number), of any dishes together, in no slot of the bag: a helping is put into it from the bag, taken
+ * back out, or eaten straight from it as from the bag. Food only: whatever is a dish (a helping in its bowl, the
+ * uncle's rice parcel, the odd dish), and nothing else. A helping in it has its bowl with it, as one in the bag has:
+ * the bowl is back when it has been eaten.
+ *
+ * What a purse keeps in it, made sound: dishes only, each once, a whole number of helpings of each, in the order
+ * they were first put in.
+ */
+export function basketOf(purse: Pick<Purse, "basket">): Array<[DishId, number]> {
+  const out: Array<[DishId, number]> = [];
+  for (const e of Array.isArray(purse.basket) ? (purse.basket as unknown[]) : []) {
+    if (!Array.isArray(e) || e.length !== 2) continue;
+    const [id, n] = e as [unknown, unknown];
+    if (typeof id === "string" && Object.prototype.hasOwnProperty.call(DISHES, id) && typeof n === "number" && Number.isInteger(n) && n > 0 && !out.some(([d]) => d === id)) out.push([id as DishId, n]);
+  }
+  return out;
+}
+/** How many helpings are in the basket, and how many more it has room for (none, for whoever has no basket). */
+export const inBasket = (purse: Pick<Purse, "basket">): number => basketOf(purse).reduce((t, [, n]) => t + n, 0);
+export const basketRoom = (purse: Pick<Purse, "basket" | "gifts">): number => (hasThing(purse, "thingBasket") ? Math.max(0, numberOf("thingBasket") - inBasket(purse)) : 0);
+
+/** Put so many helpings of the dish in a slot of the bag into the basket. */
+export function basketPut(purse: Purse, slot: number, n: number): Gifted<{ purse: Purse; dish: DishId; n: number }> {
+  const s = purse.bag[slot];
+  if (!hasThing(purse, "thingBasket") || !s || !isDish(s.item)) return no("none");
+  if (!Number.isInteger(n) || n < 1 || n > s.n) return no("amount");
+  if (n > basketRoom(purse)) return no("full");
+  const dish = s.item, mine = basketOf(purse);
+  return {
+    ok: true, dish, n,
+    purse: {
+      ...purse,
+      bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { item: s.item, n: s.n - n })),
+      basket: mine.some(([d]) => d === dish) ? mine.map(([d, k]): [DishId, number] => (d === dish ? [d, k + n] : [d, k])) : [...mine, [dish, n]],
+    },
+  };
+}
+/** A basket with so many helpings of a dish out of it (it must hold as many). */
+const less = (mine: Array<[DishId, number]>, dish: DishId, n: number) => mine.flatMap(([d, k]): Array<[DishId, number]> => (d !== dish ? [[d, k]] : k > n ? [[d, k - n]] : []));
+/** Take so many helpings of a dish back out of the basket, into the bag. */
+export function basketTake(purse: Purse, dish: string, n: number): Gifted<{ purse: Purse; dish: DishId; n: number }> {
+  const mine = basketOf(purse), had = mine.find(([d]) => d === dish);
+  if (!hasThing(purse, "thingBasket") || !had) return no("none");
+  if (!Number.isInteger(n) || n < 1 || n > had[1]) return no("amount");
+  if (roomFor(purse.bag, had[0]) < n) return no("full");
+  return { ok: true, dish: had[0], n, purse: { ...purse, bag: put(purse.bag, had[0], n), basket: less(mine, had[0], n) } };
+}
+/** Sit down to a helping of a dish out of the basket: as to one out of the bag (lib/town/stamina's sitDown), but that it leaves the basket. */
+export function basketEat(purse: Purse, dish: string, seated: boolean, now: number): Gifted<{ purse: Purse; dish: DishId }> {
+  const mine = basketOf(purse), had = mine.find(([d]) => d === dish);
+  if (!hasThing(purse, "thingBasket") || !had) return no("none");
+  if (!seated) return no("stand");
+  if (!mayEat(purse, now)) return no("meal");
+  return { ok: true, dish: had[0], purse: { ...purse, basket: less(mine, had[0], 1), ...begun(purse, had[0], now) } };
+}
+
+/**
+ * The whispering spoon (the kitchen's third rank): asked while cooking, it tells its owner the secret thing of the
+ * recipe that what is in the pot is on the way to: the one thing a found recipe never names (its last). To its
+ * owner only, and so many times a day (lib/town/gifts' USES).
+ *
+ * **Which recipe, where the pot can still be more than one.** The pot is on the way to every recipe that has each
+ * thing in it, in no smaller an amount (what the apron's `potSays` calls fitting). Of those, the ones its owner
+ * reads whole already (made, or told by the spoon before) are left out: there is nothing to tell of them. Of the
+ * rest it answers for **the one nearest done**: the fewest things still to go in; of two as near, the first in the
+ * book's own order. It says how many ways the pot could still go (`ways`), so a member knows it chose.
+ *
+ * It tells nothing, and is not counted, of a pot with nothing in it, of one no recipe has (`astray`), and of one
+ * whose every recipe is read whole already (`known`).
+ */
+export function spoonSays(things: Array<[ItemId, number]>, known: readonly string[]): { ok: true; of: ItemId; secret: ItemId; ways: number } | { ok: false; why: "amount" | KitchenRefusal } {
+  const mine = tidy(things);
+  if (!mine.length) return { ok: false, why: "amount" };
+  const total = mine.reduce((t, [, n]) => t + n, 0);
+  const fits = RECIPE_IDS.map((id, i) => ({ id, i, needs: needsOf(id) })).filter(({ needs }) => { const takes = new Map(needs); return mine.every(([k, n]) => (takes.get(k) ?? 0) >= n); });
+  if (!fits.length) return { ok: false, why: "astray" };
+  const open = fits.filter(({ id }) => !known.includes(id)).map((f) => ({ ...f, short: f.needs.reduce((t, [, n]) => t + n, 0) - total })).sort((a, b) => a.short - b.short || a.i - b.i);
+  if (!open.length) return { ok: false, why: "known" };
+  const best = open[0];
+  return { ok: true, of: best.id, secret: best.needs[best.needs.length - 1][0], ways: open.length };
+}
+/** The recipes whose secret thing the spoon has told somebody, made sound: recipes there are, each once. */
+export function whispersOf(purse: Pick<Purse, "whispers">): ItemId[] {
+  const out: ItemId[] = [];
+  for (const id of Array.isArray(purse.whispers) ? (purse.whispers as unknown[]) : []) if (typeof id === "string" && RECIPE_IDS.includes(id as ItemId) && !out.includes(id as ItemId)) out.push(id as ItemId);
+  return out;
+}
+/** Whether somebody reads all of a recipe: they have made the thing, or the spoon has told them its secret thing. */
+export const readsAll = (purse: Purse, id: ItemId) => hasMade(purse, id) || whispersOf(purse).includes(id);
+/**
+ * Ask the spoon about what is in the pot (things of one's own bag, as they would be cooked). It answers as `spoonSays`
+ * does, is counted once, and the recipe is read whole from then on (`whispers` in the purse).
+ */
+export function spoon(purse: Purse, things: Array<[ItemId, number]>, now: number): Gifted<{ purse: Purse; of: ItemId; secret: ItemId; ways: number; left: number }> {
+  if (!hasThing(purse, "thingSpoon")) return no("none");
+  const all = tidy(things);
+  if (!all.length || all.length > COOKING.kinds) return no("amount");
+  for (const [id, n] of all) if (!Number.isInteger(n) || !Object.prototype.hasOwnProperty.call(ITEMS, id) || !goesIn(id) || held(purse.bag, id) < n) return no("none");
+  if (usesLeft(purse, "thingSpoon", now) < 1) return nay("spent");
+  const told = whispersOf(purse), says = spoonSays(all, [...(purse.made ?? []), ...told]);
+  if (!says.ok) return says;
+  const used = useGift(purse, "thingSpoon", now);
+  if (!used.ok) return nay(used.why);
+  return { ok: true, of: says.of, secret: says.secret, ways: says.ways, left: used.left, purse: { ...used.purse, whispers: [...told, says.of] } };
+}
+
+/** How a pot is cooked beyond the hand's own account of its game: by the hearth sprite, with no game at all; and with the phoenix flame set to take back what comes to nothing. */
+export interface CookHow { sprite?: boolean; flame?: boolean }
+/**
+ * Put some things together as `cook` does, with what the kitchen's later gifts change of it (`how`).
+ *
+ * **The hearth sprite** (the fourth rank, a familiar): while it follows its member, a recipe they have made before
+ * is cooked at once with no game: as a pot stirred with no miss, and so many helpings more in it (the gift's number;
+ * something that is made otherwise comes as its full number and no more). So many pots to a meal's hours
+ * (lib/town/gifts' USES). Everything else is as ever: the things leave the bag, the stamina is paid, the cooks and
+ * the cookware the recipe takes have to be there (refused with nothing lost, and not counted, when they are not),
+ * and the pot is a pot like any other, which the line counts as it counts one cooked by hand. What its member has
+ * not made is not the sprite's to cook (`unmade`): a guess is still a guess, and a guess can still be wrong.
+ *
+ * **The phoenix flame in a bottle** (the sixth rank, a thing). It is a stove anywhere, which is the page's to offer:
+ * nothing here ever asked where a cook stands. And where its owner set it to (`how.flame`), things that are no
+ * recipe's come to nothing at all instead of an odd dish (or, put together by hand, instead of being lost): **every
+ * one of them is back in the bag** (`back`), so many times a day (USES counts the giving back). The guess is still
+ * a guess: its stamina is paid, its taste is told, and a miss by a recipe's last thing alone is counted as ever.
+ * With none of the day's left, what came of it is as it always was.
+ */
+export function cookWith(purse: Purse, things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, now: number, how: CookHow = {}):
+  Gifted<{ purse: Purse; made: ItemId | null; n: number; taste?: Taste; sprite?: boolean; back?: boolean }> {
+  if (how.sprite !== true) {
+    const did = cook(purse, things, crew, misses, now);
+    if (!did.ok || how.flame !== true || (did.made !== null && did.made !== ODD) || !hasThing(purse, "thingFlame")) return did;
+    const kept = useGift(purse, "thingFlame", now);
+    if (!kept.ok) return did;
+    // the bag as it was before anything left it; what the go cost and what it taught are the go's own
+    return { ok: true, made: null, n: 0, ...(did.taste ? { taste: did.taste } : {}), back: true, purse: { ...kept.purse, stamina: did.purse.stamina, ...(did.purse.tries ? { tries: did.purse.tries } : {}) } };
+  }
+  if (!works(purse, "famSprite")) return nay("none");
+  const recipe = madeOf(things);
+  if (!recipe || !hasMade(purse, recipe)) return nay("unmade");
+  const used = useGift(purse, "famSprite", now);
+  if (!used.ok) return nay(used.why);
+  const did = cook(used.purse, things, crew, 0, now);
+  if (!did.ok) return did;
+  // one more to the pot: the pot that was not in the bag before (the yard's pot takes a slot that had no pot in it)
+  const more = numberOf("famSprite"), at = did.purse.bag.findIndex((s, i) => s?.item === "potFull" && s.of?.dish === did.made && purse.bag[i]?.item !== "potFull");
+  if (at < 0) return { ...did, sprite: true };
+  return { ...did, sprite: true, n: did.n + more, purse: { ...did.purse, bag: did.purse.bag.map((s, i) => (i === at && s?.of ? { ...s, of: { dish: s.of.dish, left: s.of.left + more } } : s)) } };
+}
+
+/**
+ * The stardust spice (the kitchen's fifth rank): sprinkled on a bowl about to be eaten, out of the bag or out of the
+ * basket. The meal is begun as ever, and when it is eaten up its buff is at the spice's level at once (the gift's
+ * number: the last), whatever it was: lib/town/stamina's `spiceOf` and `raised`. Its hours are as they would have
+ * been: a buff one has runs on as it ran, one that is new lasts as any new one. So many times a day
+ * (lib/town/gifts' USES), counted as it is sprinkled.
+ *
+ * It can still come to nothing: getting up before the bowl is eaten forfeits its buff as ever, and the sprinkling
+ * with it. A dish that leaves no buff has nothing for it to raise: it is not sprinkled, and not counted.
+ */
+export function spiceEat(purse: Purse, from: { slot: number } | { dish: string }, seated: boolean, now: number): Gifted<{ purse: Purse; dish: DishId }> {
+  if (!hasThing(purse, "thingSpice")) return nay("none");
+  const sat = "dish" in from ? basketEat(purse, from.dish, seated, now) : sitDown(purse, from.slot, seated, now);
+  if (!sat.ok) return sat;
+  if (!DISHES[sat.dish].buff) return nay("none");
+  const used = useGift(sat.purse, "thingSpice", now);
+  if (!used.ok) return nay(used.why);
+  return { ok: true, dish: sat.dish, purse: { ...used.purse, spiced: { from: now, level: numberOf("thingSpice") } } };
+}
+
+/**
+ * How many times harder the cooking of something is for somebody with so many points on the kitchen's line (the
+ * owner, 2026-10-07: the gifts are near to too strong, so the game grows with whoever has them: lib/town/gifts'
+ * harderFor). From the fourth rank, whatever has a recipe and is of the second tier or better, a dish or something
+ * else that is made, is 8% harder a rank; the simplest things (the early game's), the odd dish and what comes to
+ * nothing are as they are for everybody.
+ *
+ * What harder is, in each cooking game, where its outcome is judged: **stirring** (lib/town/stirring's startStir) is
+ * a good pace so many times narrower and a slip that costs a helping so many times sooner; **roasting**
+ * (lib/town/roasting's startRoast) is a fire that flares so many times oftener and a face done so many times nearer
+ * to burnt. The games are played in the browser, which tells whoever keeps the game how many were missed, as it
+ * always has: so it is the page that begins the game harder, and nothing of it is shown as a rule.
+ */
+export const harderCook = (made: ItemId | null, points: number): number => (isFind(made) && ITEMS[made].tier >= 2 ? harderFor("kitchen", points) : 1);

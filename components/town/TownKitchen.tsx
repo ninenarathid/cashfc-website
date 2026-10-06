@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { potSays, COOKING, type Taste } from "@/lib/town/cooking";
+import { potSays, whispersOf, needsOf, COOKING, type Taste } from "@/lib/town/cooking";
 import { wearing } from "@/lib/town/gifts";
 import { toldOf, type Told } from "@/lib/town/hints";
 import { WISH } from "@/lib/town/fountain";
@@ -17,15 +17,28 @@ import { Secret } from "./TownScroll";
 import { ItemIcon } from "./TownTrade";
 
 /** Where the table is laid: one of the yard's places, or the forest camp's fire. */
-export type KitchenPlace = "stove" | "table" | "fire" | "camp";
+export type KitchenPlace = "stove" | "table" | "fire" | "camp" | "flame";
 /** What came of the cooking, for the card that says so. */
-export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }
+export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean }
+/** The phoenix flame at the table (lib/town/gifts): how many times more today it gives back what comes to nothing, of how many, and whether it is set to for this pot. */
+export interface FlameAt { left: number; most: number; armed: boolean }
+/**
+ * The hearth sprite at the table (lib/town/gifts), while it follows its member: how many pots more it cooks in this
+ * meal's hours, of how many; whether what is in the pot is its to cook (a recipe its member has made, with the cooks
+ * and the cookware it takes there); and whether it is at it now.
+ */
+export interface SpriteAt { left: number; most: number; may: boolean; cooking: boolean }
+/** What the whispering spoon told of the pot: the secret thing of which recipe, and how many ways the pot could still go. */
+export interface Whisper { of: ItemId; secret: ItemId; ways: number }
+/** The whispering spoon at the table (lib/town/gifts): how many times more it answers today, of how many, and what it last told while that is shown. */
+export interface SpoonAt { left: number; most: number; told: Whisper | null; busy: boolean }
 
 /** The board's wood and what is written on it; the book's paper and its ink (the scroll's own). */
 const WOOD_DARK = "#2a190d", CREAM = "#ffeccb", CREAM_SOFT = "#e9cfa4", HOLLOW = "#3a2513";
 const PAPER = "#f0dfb6", PAPER_EDGE = "#d9bf85", INK = "#4a3520", INK_SOFT = "#7a5f3c", JADE = "#2f7d4f", CHILI = "#b23a26";
 const PLACE_WORD: Record<KitchenPlace, [string, string]> = {
   stove: ["ที่เตา", "At a stove"], table: ["ที่โต๊ะเตรียมของ", "At a worktable"], fire: ["ที่กองไฟ", "At the fire"], camp: ["ที่กองไฟแคมป์", "At the camp fire"],
+  flame: ["บนเปลวฟีนิกซ์", "Over the phoenix flame"],
 };
 /**
  * What the cookware stands on at each place: a picture of the cooking screen's own sheet (or the forest's fire, at
@@ -34,6 +47,8 @@ const PLACE_WORD: Record<KitchenPlace, [string, string]> = {
 const SCENE: Record<KitchenPlace, { art: string; foot: string; fire: boolean }> = {
   stove: { art: "gameKitchen", foot: "44%", fire: true }, fire: { art: "gameKitchen", foot: "44%", fire: true },
   table: { art: "gameWorktable", foot: "37%", fire: false }, camp: { art: "gameKitchen", foot: "26%", fire: true },
+  // (the phoenix flame's own stove, wherever its owner stands: no picture of a place, the bottle and its fire drawn here)
+  flame: { art: "", foot: "40%", fire: true },
 };
 /** Where a thing put in is laid: four to a row, two on each side of the cookware. */
 const COLS = [1, 2, 4, 5];
@@ -56,7 +71,17 @@ const PIN_KEY = "cashtown.kitchen.pin";
  * It draws and asks; what is cooked is the keeper's to say (components/town/TownCook holds this open and plays the
  * game). On a phone the book folds into a strip above the hearth. With `reduced` nothing moves.
  */
-export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown }: {
+export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown, spoon = null, onSpoon, onSpoonShut, fam = null, onFam, flame = null, onFlame }: {
+  /** The whispering spoon, for whoever has it (null: nothing of it is shown); asking it of what is in the pot, and putting away what it told. */
+  spoon?: SpoonAt | null;
+  onSpoon?: () => void;
+  onSpoonShut?: () => void;
+  /** The hearth sprite, while it follows me (null: nothing of it is shown); and having it cook what is in the pot. */
+  fam?: SpriteAt | null;
+  onFam?: () => void;
+  /** The phoenix flame, for whoever has it (null: nothing of it is shown); and setting it to guard this pot, or not. */
+  flame?: FlameAt | null;
+  onFlame?: (armed: boolean) => void;
   th: boolean;
   reduced: boolean;
   place: KitchenPlace;
@@ -107,11 +132,14 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   // the screen's own pictures: fetched the first time it is opened
   const [art, setArt] = useState<((name: string) => Sprite | null) | null>(null);
   useEffect(() => { let on = true; loadKitchen().then((a) => { if (on) setArt(() => a); }).catch(() => {}); return () => { on = false; }; }, []);
-  const scene = SCENE[place], sprite = place === "camp" && fire ? fire : art?.(scene.art) ?? null;
+  const scene = SCENE[place], sprite = place === "camp" && fire ? fire : scene.art ? art?.(scene.art) ?? null : null;
+  const guarded = !!flame && flame.armed && flame.left > 0;
 
   /* ── the book ── */
+  // (a recipe whose secret thing the spoon has told is read whole, as one that was made is)
+  const whispers = useMemo(() => whispersOf(purse), [purse]);
   const book = useMemo(() => [...keeper.known(), ...keeper.knownMakes()].map((id) => {
-    const told = toldOf(id, keeper.madeBefore(id), keeper.triesAt(id));
+    const told = toldOf(id, keeper.madeBefore(id) || whispers.includes(id), keeper.triesAt(id));
     return { id, told, ready: stocked(told, purse.bag), buff: id in DISHES ? DISHES[id as DishId].buff ?? null : null };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- what is known changes with the purse, which is read anew when the keeper says so
   }), [keeper, purse]);
@@ -135,11 +163,11 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
     const down = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       e.stopPropagation();
-      if (result) onAgain(); else if (unfolded) setUnfolded(false); else onClose();
+      if (result) onAgain(); else if (spoon?.told) onSpoonShut?.(); else if (unfolded) setUnfolded(false); else onClose();
     };
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
-  }, [result, unfolded, onAgain, onClose]);
+  }, [result, unfolded, onAgain, onClose, spoon?.told, onSpoonShut]);
 
   // A thing put in is seen going: from its place in the basket to the cookware (nothing, with `reduced`).
   const [flights, setFlights] = useState<Array<{ key: number; id: ItemId; x: number; y: number; dx: number; dy: number }>>([]);
@@ -162,6 +190,31 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
         @keyframes kt-ember { 0%, 100% { opacity: .22 } 50% { opacity: .5 } }
         @keyframes kt-rise { from { transform: translateY(16px) scale(.94); opacity: 0 } to { transform: none; opacity: 1 } }
         @keyframes kt-rays { to { transform: rotate(360deg) } }
+        @keyframes kt-ripple { from { transform: scale(.3); opacity: .9 } to { transform: scale(2.1); opacity: 0 } }
+        @keyframes kt-dip { 0% { transform: translateY(-10px) rotate(-18deg) } 40% { transform: translateY(2px) rotate(8deg) } 70% { transform: translateY(0) rotate(-6deg) } 100% { transform: none } }
+        @keyframes kt-glow { 0%, 100% { box-shadow: 0 0 0 2px #2a190d, 0 0 6px 1px rgba(72,214,196,.5) } 50% { box-shadow: 0 0 0 2px #2a190d, 0 0 12px 3px rgba(72,214,196,.9) } }
+        @keyframes kt-bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-3px) } }
+        @keyframes kt-leap { 0% { transform: translate(0, 0) } 22% { transform: translate(-30px, -50px) rotate(-14deg) } 38% { transform: translate(-56px, -26px) scale(.9) }
+          50% { transform: translate(-56px, -32px) rotate(12deg) scale(.9) } 62% { transform: translate(-56px, -24px) rotate(-12deg) scale(.9) } 74% { transform: translate(-56px, -32px) rotate(10deg) scale(.9) }
+          86% { transform: translate(-36px, -46px) rotate(-8deg) } 100% { transform: translate(0, 0) } }
+        @keyframes kt-spark { 0% { transform: translate(0, 0) scale(1); opacity: 1 } 100% { transform: translate(var(--dx), var(--dy)) scale(.4); opacity: 0 } }
+        @keyframes kt-shake { 0%, 100% { transform: rotate(0) } 25% { transform: rotate(-3deg) } 75% { transform: rotate(3deg) } }
+        @keyframes kt-flare { 0%, 100% { opacity: .55; transform: scale(1) } 50% { opacity: 1; transform: scale(1.25) } }
+        @keyframes kt-phoenix { 0%, 100% { transform: scale(1) } 35% { transform: scale(1.05, 1.1) } 70% { transform: scale(.97, 1.04) } }
+        .kt-phoenix { animation: kt-phoenix 900ms steps(4) infinite; transform-origin: 50% 100% }
+        [data-town-kitchen][data-still] .kt-phoenix { animation: none }
+        .kt-bob { animation: kt-bob 1.4s steps(4) infinite }
+        .kt-leap { animation: kt-leap 1500ms cubic-bezier(.3, .7, .3, 1) }
+        .kt-spark { animation: kt-spark 620ms ease-out infinite }
+        .kt-shake { animation: kt-shake 180ms linear infinite; transform-origin: 50% 100% }
+        .kt-flare { animation: kt-flare 300ms steps(3) infinite }
+        [data-town-kitchen][data-still] .kt-bob, [data-town-kitchen][data-still] .kt-leap, [data-town-kitchen][data-still] .kt-shake, [data-town-kitchen][data-still] .kt-flare { animation: none }
+        [data-town-kitchen][data-still] .kt-spark { animation: none; opacity: 0 }
+        .kt-ripple { animation: kt-ripple 1.5s ease-out infinite }
+        .kt-dip { animation: kt-dip 520ms cubic-bezier(.2, .8, .2, 1) }
+        .kt-glow { animation: kt-glow 2.2s ease-in-out infinite }
+        [data-town-kitchen][data-still] .kt-ripple, [data-town-kitchen][data-still] .kt-dip, [data-town-kitchen][data-still] .kt-glow { animation: none }
+        [data-town-kitchen][data-still] .kt-ripple { opacity: 0 }
         .kt-pop { animation: kt-pop 140ms ease-out }
         .kt-squash { animation: kt-squash 180ms ease-out; transform-origin: 50% 100% }
         .kt-steam { animation: kt-steam 2.6s linear infinite }
@@ -221,7 +274,20 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
           <div className="order-2 flex min-w-0 flex-col gap-1.5">
             <div className={`${STAGE} h-[clamp(7.25rem,21dvh,11rem)] w-full min-[900px]:aspect-[3/2] min-[900px]:h-auto`} data-kitchen-stage={place}>
               <GameScene sprite={sprite} className="absolute inset-0 size-full" />
+              {/* the phoenix flame's stove: the bottle on the ground where its owner stands, its fire under the cookware */}
+              {place === "flame" && (
+                <>
+                  <span aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(58% 64% at 50% 80%, rgba(255,160,70,0.6), rgba(150,50,25,0.28) 46%, transparent 76%), linear-gradient(#1a1230, #2a1622 68%, #3a2513)" }} />
+                  <span aria-hidden className="kt-ember absolute left-[30%] top-[52%] h-[40%] w-[40%] rounded-[50%] bg-[#ff9a3c] mix-blend-screen blur-[8px]" />
+                  <span aria-hidden className="absolute bottom-[3%] left-1/2 -translate-x-1/2" data-kitchen-phoenix><span className="kt-phoenix block"><TownIcon name={"thingFlame" as IconName} size={50} /></span></span>
+                  {[[-28, 0], [26, -0.9], [-8, -1.7]].map(([dx, at], i) => (
+                    <span key={i} aria-hidden className="kt-steam absolute bottom-[34%] left-1/2 size-1 bg-[#ffd36b]" style={{ marginLeft: dx, animationDelay: `${at}s` }} />
+                  ))}
+                </>
+              )}
               {scene.fire && place !== "camp" && <span aria-hidden className="kt-ember absolute left-[38%] top-[74%] h-[22%] w-[24%] rounded-[50%] bg-[#ff9a3c] mix-blend-screen blur-[6px]" />}
+              {/* (the sprite at work: the fire under the cookware flares) */}
+              {fam?.cooking && <span aria-hidden className="kt-flare absolute left-[34%] top-[66%] h-[30%] w-[32%] rounded-[50%] bg-[#ffb347] mix-blend-screen blur-[5px]" />}
               {/* what is in: a tap takes one back out */}
               <ul className="absolute inset-x-1 top-1 grid grid-cols-[repeat(2,minmax(0,1fr))_minmax(4.25rem,0.9fr)_repeat(2,minmax(0,1fr))] gap-1" aria-label={th ? "ของที่ใส่แล้ว" : "What is in"}>
                 {things.map(([id, n], i) => (
@@ -243,6 +309,30 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
                   {says.whole ? (th ? "ครบสูตร" : "A recipe, whole") : says.fits ? (th ? "ยังไปต่อได้" : "On its way") : (th ? "ไม่มีสูตรแบบนี้" : "No recipe has this")}
                 </p>
               )}
+              {/* the whispering spoon: asked of what is in the pot, as often as it has answers left today */}
+              {spoon && (
+                <button type="button" disabled={!things.length || spoon.left < 1 || spoon.busy || !!spoon.told} onClick={onSpoon} data-kitchen-spoon data-left={spoon.left}
+                        title={th ? "ถามช้อนกระซิบรส" : "Ask the whispering spoon"} aria-label={th ? `ถามช้อนกระซิบรส เหลือ ${spoon.left} ครั้ง` : `Ask the whispering spoon: ${spoon.left} left`}
+                        className={`pressable absolute bottom-1 left-1 z-[1] flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-[6px] border-2 border-[#2a190d] bg-[#4a2f18] px-1 pb-1 pt-0.5 disabled:opacity-60 ${things.length && spoon.left > 0 && !spoon.told ? "kt-glow" : ""}`}>
+                  <TownIcon name={"thingSpoon" as IconName} size={28} />
+                  <span aria-hidden className="flex gap-0.5">
+                    {Array.from({ length: spoon.most }, (_, i) => <span key={i} className={`size-1.5 rounded-full border border-[#2a190d] ${i < spoon.left ? "bg-[#48d6c4]" : "bg-[#2a190d]"}`} />)}
+                  </span>
+                </button>
+              )}
+              {/* the phoenix flame, set to guard this pot or not: where things come to nothing, every one of them comes back */}
+              {flame && (
+                <button type="button" disabled={flame.left < 1} aria-pressed={guarded} onClick={() => onFlame?.(!flame.armed)} data-kitchen-flame data-left={flame.left} data-armed={guarded ? "" : undefined}
+                        title={guarded ? (th ? "เปลวฟีนิกซ์คุ้มหม้อนี้อยู่" : "The phoenix flame guards this pot") : (th ? "ให้เปลวฟีนิกซ์คุ้มหม้อนี้" : "Have the phoenix flame guard this pot")}
+                        aria-label={th ? `เปลวฟีนิกซ์คุ้มหม้อ เหลือ ${flame.left} ครั้ง` : `The phoenix flame guards the pot: ${flame.left} left`}
+                        className={`pressable absolute bottom-1 right-1 z-[1] flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-[6px] border-2 px-1 pb-1 pt-0.5 disabled:opacity-60 ${guarded ? "border-[#ff9a3c] bg-[#5a2a12] shadow-[0_0_10px_rgba(255,154,60,0.75)]" : "border-[#2a190d] bg-[#4a2f18]"}`}>
+                  <TownIcon name={"thingFlame" as IconName} size={28} className={guarded ? "" : "opacity-60 grayscale"} />
+                  <span aria-hidden className="flex gap-0.5">
+                    {Array.from({ length: flame.most }, (_, i) => <span key={i} className={`size-1.5 rounded-full border border-[#2a190d] ${i < flame.left ? "bg-[#ff9a3c]" : "bg-[#2a190d]"}`} />)}
+                  </span>
+                </button>
+              )}
+              {spoon?.told && <Whispered told={spoon.told} th={th} inBook={book.some((r) => r.id === spoon.told!.of)} onShut={() => onSpoonShut?.()} />}
               {/* the cookware, standing on the stove; steam off it once something is in */}
               <div ref={ware} className="absolute left-1/2 flex origin-bottom -translate-x-1/2 scale-[0.82] flex-col items-center min-[900px]:scale-100" style={{ bottom: scene.foot }}>
                 {scene.fire && !!tool && things.length > 0 && (
@@ -250,7 +340,16 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
                     <TownIcon name="fxSteam" size={16} className="kt-steam" /><span className="kt-steam [animation-delay:-1.3s]"><TownIcon name="fxSteam" size={12} /></span>
                   </span>
                 )}
-                <span key={total} className="kt-squash block">{tool ? <ItemIcon id={tool} size={68} /> : bare ? <TownIcon name="hand" size={44} className="opacity-80" /> : null}</span>
+                <span key={total} className={`block ${fam?.cooking ? "kt-shake" : "kt-squash"}`}>{tool ? <ItemIcon id={tool} size={68} /> : bare ? <TownIcon name="hand" size={44} className="opacity-80" /> : null}</span>
+                {/* the hearth sprite, at the stove while it follows its member: it waits beside the cookware, and leaps into it to cook */}
+                {fam && (
+                  <span aria-hidden data-kitchen-sprite={fam.cooking ? "cooking" : "idle"} className={`pointer-events-none absolute -right-11 bottom-0 ${fam.cooking ? "kt-leap" : "kt-bob"}`}>
+                    <TownIcon name={"famSprite" as IconName} size={40} />
+                  </span>
+                )}
+                {fam?.cooking && [[-34, -30], [30, -36], [-16, -46], [18, -50], [-44, -12], [42, -16]].map(([dx, dy], i) => (
+                  <span key={i} aria-hidden className="kt-spark pointer-events-none absolute left-1/2 top-2 size-1.5 bg-[#ffd36b]" style={{ ["--dx" as string]: `${dx}px`, ["--dy" as string]: `${dy}px`, animationDelay: `${-i * 100}ms` }} />
+                ))}
               </div>
             </div>
             {/* what it is cooked with, taken up here; and who else is at the places */}
@@ -316,7 +415,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
               <button type="button" onClick={() => setUnfolded(false)} className="pressable ml-auto min-h-9 rounded-md px-2 text-meta font-semibold min-[900px]:hidden" style={{ color: INK_SOFT }}>{th ? "พับเก็บ" : "Fold away"}</button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-3 pt-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]">
-              {tab === "notes" ? <Tried notes={notes} th={th} />
+              {tab === "notes" ? <Tried notes={notes} th={th} whispers={whispers} known={book.map((r) => r.id)} />
                 : pinned ? <Page id={pinned.id} told={pinned.told} lines={lines} purse={purse} crew={crew} notes={notes} th={th} onBack={() => choose(null)} />
                   : <Index book={book} only={only} onOnly={setOnly} th={th} onPick={choose} />}
             </div>
@@ -328,6 +427,17 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
           <div className="flex items-center gap-2 min-[900px]:col-start-2">
             <button type="button" disabled={!things.length} onClick={onClear} className="pressable min-h-12 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta disabled:opacity-40" style={{ color: CREAM }}>{th ? "เอาออกหมด" : "Take all out"}</button>
             <button type="button" disabled={!mayCook} onClick={onGo} data-kitchen-go className={`${BIG} disabled:opacity-45`}>{th ? "ลงมือทำ" : "Cook it"}</button>
+            {/* beside cooking by hand: the hearth sprite cooks what its member has made before, as often as it still will in these hours */}
+            {fam && (
+              <button type="button" disabled={!fam.may || fam.left < 1 || fam.cooking} onClick={onFam} data-kitchen-sprite-go data-left={fam.left}
+                      title={th ? "ให้ภูตเตาไฟทำ" : "Let the hearth sprite cook"} aria-label={th ? `ให้ภูตเตาไฟทำ เหลือ ${fam.left} หม้อ` : `Let the hearth sprite cook: ${fam.left} left`}
+                      className="pressable flex min-h-14 shrink-0 flex-col items-center justify-center gap-0.5 rounded-md border-[3px] border-[#2a190d] bg-[#ff9a3c] px-2 shadow-[inset_0_-4px_0_#c9601f,inset_0_2px_0_#ffd08a] active:translate-y-px disabled:opacity-45 disabled:saturate-50">
+                <span className="flex items-center gap-1 whitespace-nowrap text-meta font-semibold text-[#3a1a06]"><TownIcon name={"famSprite" as IconName} size={22} />{th ? "ให้ภูตทำ" : "Sprite"}</span>
+                <span aria-hidden className="flex gap-0.5">
+                  {Array.from({ length: fam.most }, (_, i) => <span key={i} className={`size-1.5 rounded-full border border-[#2a190d] ${i < fam.left ? "bg-[#fff1c2]" : "bg-[#7a3a12]"}`} />)}
+                </span>
+              </button>
+            )}
           </div>
         </footer>
 
@@ -342,6 +452,8 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
             <ItemIcon id={fl.id} size={28} />
           </span>
         ))}
+        {/* (while the sprite is at it, nothing else at the table is touched) */}
+        {fam?.cooking && <div className="absolute inset-0 z-[15]" data-kitchen-busy />}
         {result && <Came result={result} th={th} eat={eat} why={why} onAgain={onAgain} onEat={onEat} onPotDown={onPotDown} onClose={onClose} />}
       </section>
     </div>
@@ -472,11 +584,48 @@ function Page({ id, told, lines, purse, crew, notes, th, onBack }: {
   );
 }
 
-/** The notebook: what was put together before, and what came of each, the newest first. */
-function Tried({ notes, th }: { notes: Note[]; th: boolean }) {
+/** What the spoon told, on a slip over the hearth: the secret thing, of which recipe (by name only where the book has it), and how many ways the pot could still go. A tap puts it away. */
+function Whispered({ told, th, inBook, onShut }: { told: Whisper; th: boolean; inBook: boolean; onShut: () => void }) {
   const name = (t: ItemId) => (th ? ITEMS[t].name.th : ITEMS[t].name.en);
-  if (!notes.length) return <p className="px-2 py-8 text-center text-ui" style={{ color: INK_SOFT }}>{th ? "ยังไม่ได้ลองทำอะไร ลองแล้วจะจดไว้ให้ตรงนี้" : "Nothing tried yet. What you try is written down here."}</p>;
   return (
+    <button type="button" onClick={onShut} data-kitchen-whisper={told.secret} data-of={inBook ? told.of : ""} data-ways={told.ways} aria-live="polite"
+            className="kt-rise pressable absolute inset-x-1.5 bottom-1 z-[2] flex items-center gap-2.5 rounded-[6px] border-2 border-[#2a190d] px-2 py-1.5 text-left shadow-[0_6px_14px_rgba(0,0,0,0.55)]" style={{ backgroundColor: PAPER, color: INK }}>
+      <span className="relative grid size-12 shrink-0 place-items-center">
+        <span aria-hidden className="kt-ripple absolute inset-1 rounded-full border-2 border-[#48d6c4]" />
+        <span aria-hidden className="kt-ripple absolute inset-1 rounded-full border-2 border-[#48d6c4] [animation-delay:-0.75s]" />
+        <ItemIcon id={told.secret} size={38} className="kt-dip relative" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="flex items-center gap-1 font-data text-label" style={{ color: INK_SOFT }}><TownIcon name={"thingSpoon" as IconName} size={14} />{th ? "ช้อนกระซิบ: ชิ้นลับคือ" : "The spoon whispers: the secret thing is"}</span>
+        <span className="block truncate font-display text-title font-semibold leading-tight">{name(told.secret)}</span>
+        <span className="block truncate text-meta" style={{ color: INK_SOFT }}>
+          {inBook ? (th ? `ของ ${name(told.of)}` : `of ${name(told.of)}`) : (th ? "ของสูตรที่ยังไม่อยู่ในสมุด" : "of a recipe not in your book")}
+          {told.ways > 1 && (th ? ` · หม้อนี้ยังไปได้ ${told.ways} สูตร` : ` · this pot could still be ${told.ways}`)}
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/** The notebook: what was put together before, and what came of each, the newest first; and over them what the spoon has told. */
+function Tried({ notes, th, whispers = [], known = [] }: { notes: Note[]; th: boolean; whispers?: ItemId[]; known?: ItemId[] }) {
+  const name = (t: ItemId) => (th ? ITEMS[t].name.th : ITEMS[t].name.en);
+  const told = whispers.length > 0 && (
+    <ul className="mb-2 flex flex-col gap-1" data-kitchen-whispers={whispers.length} aria-label={th ? "ที่ช้อนกระซิบไว้" : "What the spoon has told"}>
+      {whispers.map((id) => { const secret = needsOf(id).at(-1)?.[0]; return secret ? (
+        <li key={id} className="flex items-center gap-1.5 rounded-md px-2 py-1 text-meta" style={{ backgroundColor: "rgba(72,214,196,0.16)" }}>
+          <TownIcon name={"thingSpoon" as IconName} size={16} className="shrink-0" />
+          {known.includes(id) ? <><ItemIcon id={id} size={18} /><span className="min-w-0 truncate font-semibold">{name(id)}</span></> : <TownIcon name="mystery" size={16} />}
+          <span aria-hidden style={{ color: INK_SOFT }}>:</span>
+          <ItemIcon id={secret} size={18} /><span className="min-w-0 truncate font-semibold">{name(secret)}</span>
+        </li>
+      ) : null; })}
+    </ul>
+  );
+  if (!notes.length) return <>{told}<p className="px-2 py-8 text-center text-ui" style={{ color: INK_SOFT }}>{th ? "ยังไม่ได้ลองทำอะไร ลองแล้วจะจดไว้ให้ตรงนี้" : "Nothing tried yet. What you try is written down here."}</p></>;
+  return (
+    <>
+    {told}
     <ul className="flex flex-col gap-1.5" data-kitchen-notes={notes.length}>
       {notes.map((n) => (
         <li key={n.at} className="rounded-md px-2 py-1.5" style={{ backgroundColor: "rgba(74,53,32,0.08)" }}>
@@ -491,6 +640,7 @@ function Tried({ notes, th }: { notes: Note[]; th: boolean }) {
         </li>
       ))}
     </ul>
+    </>
   );
 }
 
@@ -499,23 +649,28 @@ function Came({ result, th, eat, why, onAgain, onEat, onPotDown, onClose }: {
   result: KitchenResult; th: boolean; eat: { bowl: boolean; meal: boolean }; why: string | null; onAgain: () => void; onEat: () => void; onPotDown: () => void; onClose: () => void;
 }) {
   const { made, n, first, taste } = result;
-  const pot = !!made && made in DISHES, found = !!made && !taste;
+  const pot = !!made && made in DISHES, found = !!made && !taste, back = !!result.back;
   const first1 = useRef<HTMLButtonElement>(null);
   useEffect(() => { first1.current?.focus(); }, []);
-  const title = !made ? (th ? "ไม่ได้อะไรเลย" : "Nothing came of it") : th ? ITEMS[made].name.th : ITEMS[made].name.en;
+  const title = back ? (th ? "เปลวฟีนิกซ์คืนของให้ครบ" : "The phoenix flame gave everything back") : !made ? (th ? "ไม่ได้อะไรเลย" : "Nothing came of it") : th ? ITEMS[made].name.th : ITEMS[made].name.en;
   const plain = "pressable min-h-11 rounded-md border-2 px-3 text-ui font-semibold disabled:opacity-45";
   return (
-    <div className="absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#1c0f06]/80 p-3 min-[900px]:rounded-[5px]" data-kitchen-came={found ? "found" : made ? "odd" : "nothing"}>
+    <div className="absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#1c0f06]/80 p-3 min-[900px]:rounded-[5px]" data-kitchen-came={found ? "found" : back ? "back" : made ? "odd" : "nothing"}>
       <div role="alertdialog" aria-labelledby="town-kitchen-came-h" className="kt-rise w-full max-w-[21rem] rounded-lg border-[3px] border-[#2a190d] px-4 pb-4 pt-3 text-center shadow-[0_14px_28px_rgba(0,0,0,0.5)]" style={{ backgroundColor: PAPER, color: INK }}>
         {first && found && <p className="mx-auto mb-1 w-fit rounded-full px-3 py-0.5 text-meta font-semibold text-white" style={{ backgroundColor: CHILI }}>{th ? "พบสูตรใหม่!" : "A new recipe!"}</p>}
         <div className="relative mx-auto grid size-28 place-items-center">
-          {first && found && <span aria-hidden className="kt-rays absolute inset-0 rounded-full opacity-60" style={{ background: "repeating-conic-gradient(rgba(240,192,96,0.9) 0 12deg, transparent 12deg 30deg)", maskImage: "radial-gradient(circle, #000 30%, transparent 70%)", WebkitMaskImage: "radial-gradient(circle, #000 30%, transparent 70%)" }} />}
-          {made ? <ItemIcon id={made} size={80} className="relative" /> : <TownIcon name="potEmpty" size={72} className="relative opacity-80" />}
+          {((first && found) || back) && <span aria-hidden className="kt-rays absolute inset-0 rounded-full opacity-60" style={{ background: back ? "repeating-conic-gradient(rgba(255,154,60,0.9) 0 12deg, transparent 12deg 30deg)" : "repeating-conic-gradient(rgba(240,192,96,0.9) 0 12deg, transparent 12deg 30deg)", maskImage: "radial-gradient(circle, #000 30%, transparent 70%)", WebkitMaskImage: "radial-gradient(circle, #000 30%, transparent 70%)" }} />}
+          {made ? <ItemIcon id={made} size={80} className="relative" /> : back ? <span className="kt-phoenix relative block"><TownIcon name={"thingFlame" as IconName} size={76} /></span> : <TownIcon name="potEmpty" size={72} className="relative opacity-80" />}
           {pot && found && <span aria-hidden className="pointer-events-none absolute -top-1 left-1/2 -translate-x-1/2"><TownIcon name="fxSteam" size={22} className="kt-steam" /></span>}
         </div>
         <h3 id="town-kitchen-came-h" className="font-display text-title font-semibold leading-tight">{title}</h3>
         {made && <p className="font-data text-ui tabular-nums" style={{ color: INK_SOFT }}>{pot ? (th ? `${n} ที่` : `${n} helping${n === 1 ? "" : "s"}`) : `×${n}`}</p>}
         {taste && <p className="mt-1.5 rounded-md px-2 py-1.5 text-ui font-semibold" style={{ backgroundColor: "rgba(74,53,32,0.1)" }} data-kitchen-taste={taste}>{th ? TASTE_WORD[taste].th : TASTE_WORD[taste].en}</p>}
+        {result.sprite && (
+          <p className="mx-auto mt-1.5 flex w-fit items-center gap-1.5 rounded-full px-3 py-0.5 text-meta font-semibold" style={{ backgroundColor: "#ff9a3c", color: "#3a1a06" }} data-kitchen-by-sprite>
+            <TownIcon name={"famSprite" as IconName} size={18} />{pot ? (th ? "ภูตเตาไฟทำให้ · แถมอีก 1 ที่" : "Cooked by the hearth sprite · one helping more") : (th ? "ภูตเตาไฟทำให้" : "Made by the hearth sprite")}
+          </p>
+        )}
         <p className="min-h-[1.125rem] text-meta" style={{ color: CHILI }} aria-live="polite">{why ?? ""}</p>
         <div className="mt-3 flex flex-col gap-1.5">
           {!found && <button ref={first1} type="button" onClick={onAgain} data-kitchen-again className={`${plain} border-[#2a190d]`} style={{ backgroundColor: INK, color: PAPER }}>{th ? "ลองใหม่" : "Try again"}</button>}

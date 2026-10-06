@@ -28,6 +28,12 @@ import { CHARM_IDS, type GiftRefusal } from "./gifts";
 import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
+// ── gifts: kitchen ──
+import type { KitchenRefusal } from "./cooking";
+/** (how a pot was cooked beyond the game's own account, told with it: by the hearth sprite, with no game; with the phoenix flame set to give back what comes to nothing) */
+export interface Timing { sprite?: boolean; flame?: boolean }
+/** What a go at the kitchen came to: `sprite`, the hearth sprite cooked it (its helping more is in `n`); `back`, it came to nothing and the phoenix flame gave every thing back. */
+export type Cooked = { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean };
 import { bedOf } from "./world";
 
 /**
@@ -59,6 +65,8 @@ import { bedOf } from "./world";
 
 export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
+// ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
+export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
 export type Water = "river" | "well" | null;
@@ -321,10 +329,30 @@ export interface Keeper {
    * they are (the database reads each one's hand itself). `fresh`: the pot took a bucketful of the yard's jar, and has
    * a helping more than `n` says.
    */
-  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>>;
+  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>>;
   potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
   potLadle(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot | null }>>;
   potTake(id: string, at: [number, number] | null): Promise<Did>;
+  // ── gifts: kitchen ──
+  /**
+   * The dimension basket (lib/town/cooking): so many helpings of the dish in a slot of my bag put into it; so many of
+   * a dish taken back out, into the bag; and sitting down to a helping straight out of it, as to one out of the bag.
+   * What it holds is in my purse (`basketOf(purse())`).
+   */
+  basketPut(slot: number, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>>;
+  basketTake(dish: DishId, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>>;
+  basketEat(dish: DishId, seated: boolean): Promise<KitchenDid<{ dish: DishId }>>;
+  /**
+   * The whispering spoon (lib/town/cooking): asked of what is in the pot (things of my bag), it tells me the secret
+   * thing of the recipe the pot is on the way to (`of`), how many ways the pot could still go, and how many times
+   * more it will answer today. Me alone: nothing of it goes to the room.
+   */
+  spoonAsk(things: Array<[ItemId, number]>): Promise<KitchenDid<{ of: ItemId; secret: ItemId; ways: number; left: number }>>;
+  /**
+   * The stardust spice (lib/town/cooking): sitting down to a helping out of a slot of my bag, or out of the basket,
+   * with the spice sprinkled on it: eaten up, its buff is at the last level at once. Once a day.
+   */
+  spiceEat(from: { slot: number } | { dish: DishId }, seated: boolean): Promise<KitchenDid<{ dish: DishId }>>;
 
   dealOpen(other: string, myName: string, otherName: string): Promise<Did>;
   dealLay(give: Give, coins?: number): Promise<Did>;
@@ -997,11 +1025,11 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
-  async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>> {
+  async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<KitchenDid<Cooked>> {
     // (the helpings of each dish in the pots I hold, before: a pot that took the yard's water comes with more than the rule of cooking says)
     const inPots = (dish: ItemId) => this.mine.bag.reduce((t, s) => t + (s?.item === "potFull" && s.of?.dish === dish ? s.of.left : 0), 0);
     const before = Object.fromEntries(this.mine.bag.filter((s) => s?.item === "potFull" && s.of).map((s) => [s!.of!.dish, inPots(s!.of!.dish)]));
-    const did = await this.deed<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });
+    const did = await this.deed<Cooked>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });
     // a find is everybody's: the list of them is asked for again, by me and by whoever is in the kitchen
     if (did.ok && did.first) { void this.ask("town_kitchen"); this.onDeed?.("kitchen"); }
     if (did.ok && this.yard_ !== null && takesWater(did.made) && inPots(did.made) - (before[did.made] ?? 0) >= did.n + YARD.gives) {
@@ -1033,6 +1061,14 @@ export class DbKeeper implements Keeper {
     if (did.ok || did.why === "gone") { this.pots_ = this.pots_.filter((o) => o.id !== id); this.tell(); }
     if (did.ok) this.onDeed?.("kitchen");
     return did;
+  }
+  // ── gifts: kitchen ──
+  basketPut(slot: number, n: number) { return this.deed<{ dish: DishId; n: number }>("town_basket_put", { p_slot: slot, p_n: n }); }
+  basketTake(dish: DishId, n: number) { return this.deed<{ dish: DishId; n: number }>("town_basket_take", { p_dish: dish, p_n: n }); }
+  basketEat(dish: DishId, seated: boolean) { return this.deed<{ dish: DishId }>("town_basket_eat", { p_dish: dish, p_seated: seated }); }
+  spoonAsk(things: Array<[ItemId, number]>) { return this.deed<{ of: ItemId; secret: ItemId; ways: number; left: number }>("town_spoon", { p_things: things }); }
+  spiceEat(from: { slot: number } | { dish: DishId }, seated: boolean) {
+    return this.deed<{ dish: DishId }>("town_spice_eat", { p_slot: "slot" in from ? from.slot : null, p_dish: "dish" in from ? from.dish : null, p_seated: seated });
   }
 
   async dealOpen(other: string): Promise<Did> {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { COOKING, isFind, mayTake, reachOf, stirMods, stirsFor, type Pot } from "@/lib/town/cooking";
+import { COOKING, harderCook, hasMade, isFind, madeOf, mayTake, reachOf, stirMods, stirsFor, type CookHow, type Pot } from "@/lib/town/cooking";
+import { USES, hasThing, usesLeft, works } from "@/lib/town/gifts";
 import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/town/items";
 import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
 import type { Sprite } from "@/lib/town/scenery";
@@ -15,7 +16,7 @@ import type { FarmDraw } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
 import { AT_THE_POT, BURST, BuffAura } from "./TownBuffFx";
-import TownKitchen, { type KitchenResult } from "./TownKitchen";
+import TownKitchen, { type KitchenResult, type Whisper } from "./TownKitchen";
 import TownRoasting from "./TownRoasting";
 import TownStirring from "./TownStirring";
 import { WHY } from "./TownTrade";
@@ -29,6 +30,13 @@ export interface Standing { tile: [number, number]; place: "stove" | "table" | "
 const WHY_COOK: Record<string, [string, string]> = {
   tool: ["ของในมือทำสิ่งนี้ไม่ได้", "What you hold will not make this"], none: ["ของในกระเป๋าไม่พอ", "Not enough of that in your bag"],
   amount: ["ยังไม่ได้ใส่อะไร", "Nothing is in yet"],
+  // (the whispering spoon's: lib/town/cooking's spoon)
+  astray: ["ช้อนเงียบ ไม่มีสูตรไหนใช้ของแบบนี้", "The spoon is silent: no recipe has this"], known: ["ช้อนเงียบ สูตรของหม้อนี้รู้ครบแล้ว", "The spoon is silent: you know all of this pot's recipes"],
+  spent: ["ตอนนี้ใช้ครบแล้ว", "No more of it for now"],
+  // (the phoenix flame's stove: where nobody can stand still to cook)
+  nostove: ["ตรงนี้ตั้งเตาไม่ได้ ลองยืนนิ่งๆ ที่อื่น", "No stove can be set here: stand still somewhere else"],
+  // (the hearth sprite's: lib/town/cooking's cookWith)
+  unmade: ["ภูตทำได้แต่สูตรที่เราเคยทำเอง", "The sprite cooks only what you have made yourself"],
   bowl:["ไม่มีถ้วยว่าง", "No bowl to spare"],
 };
 /** Where the kitchen's notebook is kept, a member: what was tried and what came of it (lib/town/kitchen). */
@@ -147,6 +155,21 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
         } });
         if (pot.left > 0) sign(`${thai ? ITEMS[pot.dish].name.th : ITEMS[pot.dish].name.en} ×${pot.left}`, at.x, at.y - 44 * s);
       }
+      // the phoenix flame's stove, set where I stand: the bottle on the ground beside me (clear of my name), and its glow (on my own screen)
+      const lit = stoveRef.current;
+      if (lit) {
+        const at = project({ x: lit[0] + 1.35, y: lit[1] + 0.3 });
+        if (onScreen(at)) things.push({ depth: lit[0] + lit[1] + 1.66, draw: () => {
+          ctx.save();
+          ctx.globalAlpha = still ? 0.34 : 0.3 + 0.12 * Math.sin(t / 170);
+          ctx.fillStyle = "#ffb347";
+          ctx.beginPath();
+          ctx.ellipse(at.x, at.y - 10 * s, 19 * s, 12 * s, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          blit("thingFlame", at.x, at.y + (still ? 0 : Math.sin(t / 240) * 0.7 * s), 18 * s);
+        } });
+      }
       // how much water the yard's jar has, over it (under the roof, for whoever is outside)
       if (indoors && JAR_AT && jarRef.current !== null) {
         const at = project(JAR_AT);
@@ -166,7 +189,24 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     }
     return best;
   }, [here, pots]);
-  const atPlace = here?.place === "stove" || here?.place === "table" || here?.place === "fire" || here?.place === "camp";
+  const atYard = here?.place === "stove" || here?.place === "table" || here?.place === "fire" || here?.place === "camp";
+  // The phoenix flame in a bottle (lib/town/gifts): a stove wherever its owner stands still, on any map. It is set from
+  // the bag's panel (a word sent to this page, since the bag knows nothing of the kitchen), stays while I stand there,
+  // and is gone when I walk off. Nothing that keeps the game asks where a cook stands: this is the page's own.
+  const flameHad = hasThing(purse, "thingFlame"), flameLeft = flameHad ? usesLeft(purse, "thingFlame", now) : 0;
+  /** The tile its stove is set on: a stove only while I stand on that tile. */
+  const [stoveAt, setStoveAt] = useState<[number, number] | null>(null);
+  const stove = !!stoveAt && !!here && !atYard && here.tile[0] === stoveAt[0] && here.tile[1] === stoveAt[1];
+  const [stoveAsked, setStoveAsked] = useState(0);
+  const stoveRef = useRef<[number, number] | null>(null);
+  stoveRef.current = stove ? stoveAt : null;
+  useEffect(() => { if (stoveAt && !stove) setStoveAt(null); }, [stoveAt, stove]);
+  useEffect(() => {
+    const ask = () => setStoveAsked(Date.now());
+    window.addEventListener("cashtown:stove", ask);
+    return () => window.removeEventListener("cashtown:stove", ask);
+  }, []);
+  const atPlace = atYard || (stove && flameHad && !!here);
   const offers: Offer[] = [];
   if (here) {
     // (the cookware is taken up at the table itself: whoever stands at a place is offered it)
@@ -193,6 +233,23 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     return next;
   }), [me]);
   const cooks = useMemo((): Array<ItemId | null> => [hand, ...crew.map((c) => (c in ITEMS ? (c as ItemId) : null))], [hand, crew]);
+  // (the stove asked for: set as soon as I stand somewhere, which is at once when the bag's panel is put away; after a
+  // little while with nowhere to stand still, it is said so and the asking is dropped)
+  useEffect(() => {
+    if (!stoveAsked || !flameHad) return;
+    if (here) {
+      setStoveAsked(0);
+      if (!atYard) setStoveAt(here.tile);
+      setResult(null);
+      setOpen(true);
+      sfx?.wake(); sfx?.work("crackle", 0.7);
+      return;
+    }
+    const t = setTimeout(() => { setStoveAsked(0); say("nostove"); }, 2500);
+    return () => clearTimeout(t);
+  }, [stoveAsked, flameHad, here, atYard, say, sfx]);
+  /** Whether the flame is set to give back what comes to nothing, for the pots I cook (mine to turn off for a guess not worth one of the day's three). */
+  const [flameOn, setFlameOn] = useState(true);
   // walking off, or the place going, shuts it
   useEffect(() => { if (!atPlace) { setOpen(false); setStirring(null); setResult(null); } }, [atPlace]);
   useEffect(() => { onOpen?.(open); }, [open, onOpen]);
@@ -206,6 +263,21 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     });
   };
   const drop = (id: ItemId) => setThings((was) => was.flatMap(([t, n]): Array<[ItemId, number]> => (t !== id ? [[t, n]] : n > 1 ? [[t, n - 1]] : [])));
+  /* ── the whispering spoon (lib/town/cooking): asked of what is in the pot; what it tells is mine alone ── */
+  const [whisper, setWhisper] = useState<Whisper | null>(null);
+  const [asking, setAsking] = useState(false);
+  useEffect(() => { setWhisper(null); }, [things, open]);
+  const askSpoon = useCallback(async () => {
+    if (asking) return;
+    setAsking(true);
+    try {
+      const did = await keeper.spoonAsk(things);
+      if (!did.ok) { say(did.why); return; }
+      sfx?.wake(); sfx?.work("made", 0.5);
+      setRefusal(null);
+      setWhisper({ of: did.of, secret: did.secret, ways: did.ways });
+    } finally { setAsking(false); }
+  }, [asking, keeper, things, say, sfx]);
   /** Take up the cookware in a slot of the bag, or put away what is held (the table's own choosing of it). */
   const takeUp = useCallback(async (slot: number | null) => {
     const did = await keeper.hold(slot);
@@ -217,11 +289,9 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (why) { say(why); return; }
     setStirring({ things, crew: cooks });
   }, [keeper, things, cooks, say]);
-  const finish = useCallback(async (result: GameResult) => {
-    const job = stirring;
-    setStirring(null);
-    if (!job) return;
-    const did = await keeper.cookDo(job.things, job.crew, others, { hits: result.hits, misses: result.misses, secs: result.secs, need: result.need }, called);
+  /** What a go came to, however it was cooked (`how`: by hand, with the game's account; by the hearth sprite, with none): told, written down, shown. */
+  const cooked = useCallback(async (job: { things: Array<[ItemId, number]>; crew: Array<ItemId | null> }, result: GameResult, how: CookHow = {}) => {
+    const did = await keeper.cookDo(job.things, job.crew, others, { hits: result.hits, misses: result.misses, secs: result.secs, need: result.need, ...(how.sprite ? { sprite: true } : {}), ...(how.flame ? { flame: true } : {}) }, called);
     if (!did.ok) { say(did.why); return; }
     // (a recipe's dish is a go won; the odd dish, and nothing, are not)
     const right = isFind(did.made);
@@ -229,12 +299,14 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     setThings([]);
     setRefusal(null);
     jot({ at: keeper.now(), things: job.things, tool: job.crew[0], cooks: job.crew.length, made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), ...(did.taste ? { taste: did.taste } : {}), ...(did.first ? { first: true } : {}) });
-    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(did.taste ? { taste: did.taste } : {}) });
+    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(did.taste ? { taste: did.taste } : {}), ...(did.sprite ? { sprite: true } : {}), ...(did.back ? { back: true } : {}) });
     // what comes off the pot, and what it sounds like: a dish, something made, an odd dish, or nothing
     const odd = !right && !!did.made, cooked = right && did.made! in DISHES;
     sfx?.wake();
-    sfx?.work(cooked ? "cooked" : right ? "made" : odd ? "odd" : "nothing");
-    vfx.add(right ? "sparkle" : odd ? "smoke" : "dust", null, { lift: 20 });
+    sfx?.work(cooked ? "cooked" : right ? "made" : odd ? "odd" : did.back ? "crackle" : "nothing");
+    vfx.add(right || did.back ? "sparkle" : odd ? "smoke" : "dust", null, { lift: 20 });
+    // (the phoenix flame gave every thing back: the bottle held up where the pot would have been)
+    if (did.back) vfx.add("pop", null, { icon: "thingFlame", lift: 24 });
     if (cooked) vfx.add("steam", null, { lift: 22 });
     // (the fountain's big pot gave a helping more: its own burst over the pot)
     if ((cooked || odd) && hasBuff(purse, now, "feast")) vfx.add("bless", null, { icon: BURST.feast, lift: 30 });
@@ -244,11 +316,43 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     const helpings = did.n + (did.fresh ? YARD.gives : 0);
     // (what is no recipe's is tasted: how near it was to something)
     const taste = did.taste ? ` · ${th ? TASTE_WORD[did.taste].th : TASTE_WORD[did.taste].en}` : "";
-    if (!did.made) { setNote(`${th ? "ไม่ได้อะไรเลย" : "Nothing came of it"}${taste}`); return; }
+    if (!did.made) { setNote(`${did.back ? (th ? "เปลวฟีนิกซ์คืนของให้ครบ" : "The phoenix flame gave everything back") : th ? "ไม่ได้อะไรเลย" : "Nothing came of it"}${taste}`); return; }
     const dish = did.made in DISHES;
     setNote(`${did.first ? (th ? "พบสูตรใหม่! " : "A new recipe! ") : ""}${name(did.made)} ${dish ? (th ? `· ${helpings} ที่` : `· ${helpings} helpings`) : `×${did.n}`}${taste}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the dish is done
-  }, [stirring, keeper, others, th, sfx, name, say, called, vfx, jot]);
+  }, [keeper, others, th, sfx, name, say, called, vfx, jot]);
+  const finish = useCallback((result: GameResult) => {
+    const job = stirring;
+    setStirring(null);
+    // (cooked by hand with the flame set to guard the pot: what comes to nothing comes back, while it has any of the day's left)
+    if (job) void cooked(job, result, flameHad && flameOn && flameLeft > 0 ? { flame: true } : {});
+  }, [stirring, cooked, flameHad, flameOn, flameLeft]);
+
+  /* ── the hearth sprite (lib/town/cooking's cookWith): while it follows me, a recipe I have made is cooked with no game ── */
+  const spriteOn = works(purse, "famSprite"), spriteLeft = spriteOn ? usesLeft(purse, "famSprite", now) : 0;
+  const [spriting, setSpriting] = useState(false);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  // (its to cook: what is in the pot is a recipe I have made, and nothing else would refuse it: the cooks, the cookware, the bag's room)
+  const spriteMay = useMemo(() => {
+    if (!spriteOn || !things.length) return false;
+    const made = madeOf(things);
+    return !!made && hasMade(purse, made) && keeper.cookTry(things, cooks) === null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse is read anew when the keeper says so
+  }, [spriteOn, things, cooks, keeper, purse]);
+  const goSprite = useCallback(() => {
+    if (spriting || !spriteMay || spriteLeft < 1) return;
+    const job = { things, crew: cooks };
+    setSpriting(true);
+    sfx?.wake(); sfx?.work("crackle");
+    // (and over the stove on the map, where I stand)
+    vfx.add("sparkle", null, { lift: 26 });
+    vfx.add("pop", null, { icon: "famSprite", lift: 30 });
+    setTimeout(() => {
+      if (!alive.current) return;
+      void cooked(job, { hits: 0, misses: 0, secs: 0, need: 0 }, { sprite: true }).finally(() => { if (alive.current) setSpriting(false); });
+    }, reduced ? 200 : 1500);
+  }, [spriting, spriteMay, spriteLeft, things, cooks, sfx, vfx, cooked, reduced]);
 
   /* ── from the card of what came of it ── */
   /** A helping of the pot just cooked, into a bowl, and off to eat it: the map finds somewhere to sit. */
@@ -324,22 +428,30 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       result: () => result, again: () => setResult(null), eatNow, potDown, notes: () => notes, tool: takeUp, shut: () => { setResult(null); setOpen(false); },
       places: () => KITCHEN.places, floor: () => KITCHEN.floor, note: () => note,
       wash: () => KITCHEN.wash, jar: () => keeper.yardJar(),
+      // (the kitchen's gifts)
+      spoon: askSpoon, whisper: () => whisper, sprite: goSprite, spriteMay: () => spriteMay, spriting: () => spriting,
+      stove: () => window.dispatchEvent(new CustomEvent("cashtown:stove")), stoveSet: () => stove, flame: (on: boolean) => setFlameOn(on), flameOn: () => flameOn,
     };
     (window as unknown as { __townCook?: typeof handle }).__townCook = handle;
     return () => { delete (window as unknown as { __townCook?: typeof handle }).__townCook; };
   });
 
   const spent = isSpent(purse, now);
+  // (the better I am at the kitchen's line, the harder its good dishes are to cook: lib/town/cooking's harderCook. Nothing says so but the game.)
+  const harder = stirring ? harderCook(madeOf(stirring.things), keeper.lines()?.lines.kitchen.points ?? 0) : 1;
   const table = open && !stirring && atPlace;
   if (!open && !stirring && !offers.length && !note) return null;
   return (
     <>
     {table && (
-      <TownKitchen th={th} reduced={reduced} place={here!.place as "stove" | "table" | "fire" | "camp"} keeper={keeper} purse={purse} now={now} crew={cooks} things={things} notes={notes}
+      <TownKitchen th={th} reduced={reduced} place={atYard ? (here!.place as "stove" | "table" | "fire" | "camp") : "flame"} keeper={keeper} purse={purse} now={now} crew={cooks} things={things} notes={notes}
                    result={result} why={refusal} bottom={bottom} fire={art?.("gameFire") ?? null}
                    eat={{ bowl: held(purse.bag, BOWL) > 0, meal: mayEat(purse, now, keeper.helpings()) }}
                    onAdd={add} onDrop={drop} onClear={() => setThings([])} onTool={takeUp} onGo={go} onClose={() => { setResult(null); setOpen(false); }}
-                   onAgain={() => setResult(null)} onEat={eatNow} onPotDown={potDown} />
+                   onAgain={() => setResult(null)} onEat={eatNow} onPotDown={potDown}
+                   spoon={hasThing(purse, "thingSpoon") ? { left: usesLeft(purse, "thingSpoon", now), most: USES.thingSpoon?.n ?? 0, told: whisper, busy: asking } : null} onSpoon={askSpoon} onSpoonShut={() => setWhisper(null)}
+                   fam={spriteOn ? { left: spriteLeft, most: USES.famSprite?.n ?? 0, may: spriteMay, cooking: spriting } : null} onFam={goSprite}
+                   flame={flameHad ? { left: flameLeft, most: USES.thingFlame?.n ?? 0, armed: flameOn } : null} onFlame={setFlameOn} />
     )}
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
@@ -348,12 +460,12 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           <BuffAura ids={AT_THE_POT.filter((id) => hasBuff(purse, now, id))} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1" />
           {/* what is cooked on a stick is roasted over the fire, a game of its own; everything else is stirred */}
           {stirring.crew[0] === "skewer" ? (
-            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} scene={art?.("gameFire") ?? null}
+            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} harder={harder} scene={art?.("gameFire") ?? null}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) vfx.add("smoke", null, { lift: 22 }); }}
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           ) : (
-            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm")))}
+            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm")))} harder={harder}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           )}

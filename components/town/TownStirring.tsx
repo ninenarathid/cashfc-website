@@ -20,8 +20,12 @@ const HUB = 0.16;
  *
  * Played by a finger or the mouse: there is no going round a pot with a key.
  */
-export default function TownStirring({ th, title, need, mods, onDone, onCancel, onHit }: GameProps & { need: number; mods: TimingMods }) {
-  const game = useRef<Stir>(startStir(need, mods));
+export default function TownStirring({ th, title, need, mods, harder = 1, onDone, onCancel, onHit }: GameProps & {
+  need: number; mods: TimingMods;
+  /** How many times harder this pot is for whoever stirs it (lib/town/cooking's harderCook): nothing of it is shown but the game itself. */
+  harder?: number;
+}) {
+  const game = useRef<Stir>(startStir(need, mods, harder));
   const ended = useRef(false);
   const [, setShown] = useState(0);
   /** Whether the town's motion is turned off on this device (lib/town/motion): the ring that says what to do stands still then. */

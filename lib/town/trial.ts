@@ -27,6 +27,8 @@ import {
 import { bedCorner, bedOf } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
+// ── gifts: kitchen ──
+import { basketEat, basketPut, basketTake, cookWith, spiceEat, spoon, type CookHow, type Gifted } from "./cooking";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
 import { ditch, reachOf } from "./ditch";
 import { hotAt } from "./heat";
@@ -787,8 +789,9 @@ export class Trial {
    * the first time anybody made it, which is written down with the name of whoever did. What I have made is written
    * in my purse, and I read all of its recipe from then on. The odd dish is nobody's find.
    */
-  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = ""): Done<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }> {
-    const now = this.now(), did = cook(this.purse(), things, crew, misses, now);
+  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = "", how: CookHow = {}): Gifted<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean }> {
+    // (── gifts: kitchen ── with what the kitchen's gifts change of it: lib/town/cooking's cookWith)
+    const now = this.now(), did = cookWith(this.purse(), things, crew, misses, now, how);
     if (!did.ok) return did;
     const made = isFind(did.made) ? did.made : null, found = this.found(), first = !!made && !found.includes(made);
     // (a pot cooked while the yard's jar has water takes a bucketful of it, and has a helping more: lib/town/yard)
@@ -836,6 +839,17 @@ export class Trial {
   }
   /** Ladle a helping out of the pot in a slot of my own bag, into my bowl. */
   serve(slot: number) { return this.keep(serve(this.purse(), slot)); }
+  // ── gifts: kitchen ──
+  /** Keep what a deed with a gift of the kitchen's came to, if it came to anything. */
+  private gifted<T extends { purse: Purse }, W>(did: ({ ok: true } & T) | { ok: false; why: W }) { if (did.ok) this.save(did.purse); return did; }
+  /** The dimension basket (lib/town/cooking): helpings put in from a slot of the bag, taken back out, and one sat down to straight out of it. */
+  basketPut(slot: number, n: number) { return this.gifted(basketPut(this.purse(), slot, n)); }
+  basketTake(dish: string, n: number) { return this.gifted(basketTake(this.purse(), dish, n)); }
+  basketEat(dish: string, seated: boolean) { return this.gifted(basketEat(this.purse(), dish, seated, this.now())); }
+  /** The whispering spoon, asked of what is in the pot: the secret thing of the recipe it is on the way to. */
+  spoonAsk(things: Array<[ItemId, number]>) { return this.gifted(spoon(this.purse(), things, this.now())); }
+  /** A helping sat down to with the stardust spice sprinkled on it, out of a slot of the bag or out of the basket. */
+  spiceEat(from: { slot: number } | { dish: string }, seated: boolean) { return this.gifted(spiceEat(this.purse(), from, seated, this.now())); }
   /** What the uncle's next hint costs me (of what can be made with what he sells so far), and buying it: which one it is, by chance. */
   hintPrice(): number | null { const at = sourcesAt(this.village().unlocked, true); return hintPrice(this.purse(), this.found(), (id) => at.has(id)); }
   hint() { const at = sourcesAt(this.village().unlocked, true); return this.keep(buyHint(this.purse(), this.hintChance ?? Math.random(), this.found(), (id) => at.has(id))); }

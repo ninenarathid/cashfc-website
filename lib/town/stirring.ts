@@ -34,13 +34,19 @@ export const STIRRING = {
  */
 export interface Stir { need: number; hits: number; misses: number; turned: number; pace: number; off: -1 | 0 | 1; out: number; lo: number; hi: number; grace: number; begun: boolean; t: number }
 
-/** Begin a pot wanting so many stirs. */
-export function startStir(need: number, mods: TimingMods): Stir {
-  const tired = mods.spent ? mods.tired ?? { zone: 1, speed: 1 } : null;
-  const either = Math.min(STIRRING.pace * 0.8, STIRRING.either * Math.sqrt(mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1));
+/**
+ * Begin a pot wanting so many stirs. `harder`: how many times harder this pot is for whoever stirs it (the better
+ * somebody is at the kitchen's line, the harder its good dishes are for them: lib/town/gifts' harderFor,
+ * lib/town/cooking's harderCook; 1 for everybody else and for every simple dish). Harder is a good pace so many times
+ * narrower either side of its middle, and a slip that costs a helping so many times sooner. The middle of the pace,
+ * the stirs wanted and what a miss costs are as they are.
+ */
+export function startStir(need: number, mods: TimingMods, harder = 1): Stir {
+  const tired = mods.spent ? mods.tired ?? { zone: 1, speed: 1 } : null, hard = Math.max(1, harder);
+  const either = Math.min(STIRRING.pace * 0.8, STIRRING.either * Math.sqrt(mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1)) / hard;
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, turned: 0, pace: 0, off: 0, out: 0,
-    lo: STIRRING.pace - either, hi: STIRRING.pace + either, grace: STIRRING.grace / (tired ? tired.speed : 1), begun: false, t: 0,
+    lo: STIRRING.pace - either, hi: STIRRING.pace + either, grace: STIRRING.grace / (tired ? tired.speed : 1) / hard, begun: false, t: 0,
   };
 }
 

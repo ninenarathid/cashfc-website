@@ -170,20 +170,27 @@ export function bowlsBack(purse: Purse, more = 0): Purse {
   return { ...rest, bag: fits ? put(purse.bag, BOWL, fits) : purse.bag, ...(owed > fits ? { owed: owed - fits } : {}) };
 }
 
+/**
+ * A helping of a dish begun now, wherever it was taken from (a slot of the bag; the dimension basket,
+ * lib/town/cooking): one more of this meal's hours' helpings, and the meal at hand.
+ */
+export function begun(purse: Purse, dish: DishId, now: number): Pick<Purse, "meals" | "eating"> {
+  const meal = mealOf(now), bowls = bowlsToday(purse, now).map((n, i) => (i === meal ? n + 1 : n)) as [number, number, number];
+  return { meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0) as [boolean, boolean, boolean], bowls }, eating: { dish, meal, from: now, till: now, got: 0 } };
+}
+
 /** Sit down to the dish in a slot of the bag: one of this meal's hours' helpings begins, and leaves the bag. */
 export function sitDown(purse: Purse, slot: number, seated: boolean, now: number): Done<{ purse: Purse; dish: DishId }> {
   const s = purse.bag[slot];
   if (!s || !isDish(s.item)) return no("none");
   if (!seated) return no("stand");
   if (!mayEat(purse, now)) return no("meal");
-  const meal = mealOf(now), bowls = bowlsToday(purse, now).map((n, i) => (i === meal ? n + 1 : n)) as [number, number, number];
   return {
     ok: true, dish: s.item,
     purse: {
       ...purse,
       bag: purse.bag.map((b, i) => (i !== slot ? b : s.n === 1 ? null : { item: s.item, n: s.n - 1 })),
-      meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0) as [boolean, boolean, boolean], bowls },
-      eating: { dish: s.item, meal, from: now, till: now, got: 0 },
+      ...begun(purse, s.item, now),
     },
   };
 }
@@ -193,14 +200,25 @@ export const mealProgress = (purse: Purse, now: number) =>
   (purse.eating ? Math.min(1, Math.max(0, (now - purse.eating.from) / (STAMINA.minutes * 60_000))) : 0);
 
 /**
+ * The level the buff of the meal being eaten goes to at once when it is eaten up, where its bowl was sprinkled with
+ * the stardust spice (lib/town/cooking's spiceEat; `spiced` in the purse is of one meal, by the moment it began):
+ * none (0) for a bowl that was not, and for a sprinkling that was another meal's.
+ */
+export const spiceOf = (purse: Purse): number => {
+  const s = purse.spiced, e = purse.eating;
+  return e && s && typeof s === "object" && s.from === e.from && typeof s.level === "number" && s.level > 0 ? Math.floor(s.level) : 0;
+};
+
+/**
  * What a purse has of meals' buffs once a helping that leaves `id` is eaten up: one it has already is a level higher
  * (never past the last) with its hours as they run; one it has not is its own, at the first, for BUFF_HOURS from
  * now. Those that have run out are dropped. `buff` is written beside them as it always was, for the five a page
- * from before levels knows.
+ * from before levels knows. `to`: a level it is at once at the least, whatever it was (a sprinkled bowl's; never
+ * past the last, and its hours are as they would have been).
  */
-export function raised(purse: Purse, id: MealBuffId, now: number): Pick<Purse, "buff" | "buffs"> {
-  const live = mealBuffs(purse, now), had = live.find((b) => b.id === id);
-  const buffs = had ? live.map((b) => (b === had ? { ...b, level: Math.min(BUFF_LEVELS, b.level + 1) } : b)) : [...live, { id, level: 1, until: now + BUFF_HOURS * HOUR }];
+export function raised(purse: Purse, id: MealBuffId, now: number, to = 0): Pick<Purse, "buff" | "buffs"> {
+  const live = mealBuffs(purse, now), had = live.find((b) => b.id === id), level = (was: number) => Math.min(BUFF_LEVELS, Math.max(was + 1, to));
+  const buffs = had ? live.map((b) => (b === had ? { ...b, level: level(b.level) } : b)) : [...live, { id, level: level(0), until: now + BUFF_HOURS * HOUR }];
   const mine = buffs.find((b) => b.id === id)!;
   return { buffs, buff: id in BUFFS ? { id: id as BuffId, until: mine.until } : purse.buff };
 }
@@ -222,7 +240,7 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
     ...purse,
     stamina: { day: dayOf(now), left },
     eating: done ? null : { ...e, till, got: e.got + gain },
-    ...(done && dish.buff ? raised(purse, dish.buff, now) : {}),
+    ...(done && dish.buff ? raised(purse, dish.buff, now, spiceOf(purse)) : {}),
   };
   return { done, purse: done ? bowlsBack(after, inBowl(e.dish) ? 1 : 0) : after };
 }
