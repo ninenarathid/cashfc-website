@@ -1,4 +1,5 @@
 import { BOX } from "./box";
+import { giftsRow } from "./gifts";
 import { linesRow } from "./line-points";
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
@@ -241,6 +242,8 @@ export function catalogOf() {
     box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y] },
     /** The lines of work (lib/town/lines, line-points): every ladder's marks and day's bound, and what each thing is worth on its line. */
     work: linesRow(),
+    /** The gifts of the lines' ranks (lib/town/gifts): the places for charms, and of each gift its kind, the rank that gives it, and its number. */
+    gifts: giftsRow(),
     /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
   };
@@ -343,7 +346,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v149 (ran 2026-10-06, about 20:45) seeded one row, new, for the lines of work he asked for that day: the seven
  * lines, the marks of their ten ranks, a day's bound, and what each thing done is worth on its line (`work`).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // the gifts of the lines' ranks: a row of their own
+  v151: { keys: ["gifts"], over: [] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

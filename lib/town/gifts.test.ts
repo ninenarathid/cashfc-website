@@ -82,13 +82,12 @@ describe("the gifts of the lines of work", () => {
     expect(giftsOf(p)).toEqual({ had: ["charmApron", "charmHoe", "charmNet"], charms: [], owed: 0 });
   });
 
-  it("the catalog's row says which rank of which line gives which, the places, and the two numbers the database judges by", () => {
+  it("the catalog's row says the places, and of each gift which rank of which line gives it and its number", () => {
     const row = giftsRow();
     expect(row.slots).toBe(2);
     expect(Object.keys(row.gifts).sort()).toEqual([...CHARM_IDS].sort());
-    expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1 });
-    expect(row.strike).toBe(1.5);
-    expect(row.theirs).toBe(0.5);
+    expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1.5 });
+    expect(row.gifts.charmGloves.by).toBe(0.5);
   });
 });
 

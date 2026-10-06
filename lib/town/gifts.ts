@@ -113,10 +113,8 @@ export function wearCharms<P extends Pick<Purse, "gifts">>(purse: P, ids: readon
   return { ok: true, purse: { ...purse, gifts: { ...mine, charms: ids as CharmId[] } } };
 }
 
-/** The catalog's row: what the database needs of the gifts to give and to judge them (which rank of which line gives which, the places, the two numbers it reads). */
+/** The catalog's row: what the database needs of the gifts to give and to judge them (the places for charms; and of each gift its kind, which rank of which line gives it, and its number). */
 export const giftsRow = () => ({
   slots: CHARMS.slots,
-  gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank }])),
-  strike: CHARMS.charmFloat,
-  theirs: CHARMS.charmGloves,
+  gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: CHARMS[g.id] }])),
 });
