@@ -9,12 +9,13 @@
 // - the stall's keeper is told on their own page (through the room), and their panel counts it;
 // - their page says it is still there, and the database hears it; unheard from too long, the stall is shut, and the
 //   sign comes down by itself;
-// - with a stall up nothing walks its keeper off; the sign taken down takes the database's stall with it.
+// - with a stall up nothing walks its keeper off; the sign taken down takes the database's stall with it;
+// - (v143) what the uncle sells may be asked more for than he asks, up to the stall's own most.
 //
 // A stand-in's members are not in the room under their own ids (a tester's id there is not the member's here), so a
 // comer is driven by the keeper's own handle, and the room's word of a sale goes to everybody.
 //
-//   BENCH_EXTRA=<v142's file> node db/town-bench.mjs 3197     (in the scratch folder: see db/README.md)
+//   BENCH_EXTRA=<v143's file, while it is a draft> node db/town-bench.mjs 3197     (in the scratch folder: see db/README.md)
 //   node town-sign-db.mjs <base> <outdir> [bench]
 import { mkdirSync } from "node:fs";
 import { browser, sleep, status, until } from "./cdp.mjs";
@@ -128,6 +129,14 @@ try {
   await A.evaluate(`void ${C}.lowerSign()`);
   await until("the stall is gone from the database", async () => (await stall(a)) === null, 10000, 200).catch(() => {});
   ok("the sign taken down takes the database's stall with it, written down", !!second && (await A.evaluate(`${C}.sign()`)) === null && (await stall(a)) === null && (await deeds("shop\\_close")).length >= 1, { second: !!second, row: await stall(a) });
+  // (v143) what the uncle sells, for more than he asks: a worm is two at his stall, and ten is a stall's most
+  await give(a, 10, [{ item: "worm", n: 6 }]);
+  await again(A);
+  const dearer = await A.evaluate(`${K}.shopOpen([{ kind: "sell", item: "worm", n: 5, price: 5 }], [${HERE}])`);
+  const row = await stall(a);
+  const tooDear = await A.evaluate(`${K}.shopOpen([{ kind: "sell", item: "worm", n: 5, price: 11 }], [${HERE}])`);
+  ok("a stall of worms at five each, where the uncle asks two, is the database's; at eleven it is too dear", dearer.ok === true && row?.lines[0]?.price === 5 && tooDear.why === "dear", { dearer: dearer.ok ?? dearer, row: row?.lines, tooDear: tooDear.why });
+  await A.evaluate(`${K}.shopClose().then(() => null)`);
 } catch (e) {
   fail++;
   console.log(`  FAIL the check stopped: ${e?.stack ?? e}`);

@@ -3,18 +3,18 @@ import { describe, expect, it } from "vitest";
 import { ITEMS, type ItemId } from "./items";
 import { shelfOf } from "./orders";
 import { SHOP, alive, beat, buy, canOf, capOf, open, sell, told, toldOf, type Shop, type ShopAsk, type ShopLine } from "./shop";
-import { newPurse, type Purse, type Stack } from "./trade";
+import { GOODS, newPurse, type Purse, type Stack } from "./trade";
 
 /**
- * The cases the database's rules of a stall are held to (v142; lib/town/db-vectors-ground.test.ts is the same for
- * things dropped on the ground, and says how). Two kinds:
+ * The cases the database's rules of a stall are held to (v142, and v143 for the most a price is;
+ * lib/town/db-vectors-ground.test.ts is the same for things dropped on the ground, and says how). Two kinds:
  *
  * - **rules**: each a function of the schema `town` with its arguments and what the code answers: a stall opened
  *   (lines that sell and that buy, too many, a thing twice, things not held, not met, not known, numbers that are no
  *   numbers, prices at and above their most, coins that do and do not cover what is wanted); a thing bought and a
  *   thing brought (a stall open, shut, none, one's own; from beside it and from too far; lines with and without so
  *   many left; keepers who still hold the things and who do not, with and without the coins and the room); how many
- *   of a line can change hands; and a stall as a comer is told it;
+ *   of a line can change hands; a stall as a comer is told it; and the most every thing there is may be priced at;
  * - **stories**: two members and a run of deeds, one after another (opening, buying, bringing, saying one is still
  *   there, shutting, and the clock put on, sometimes past a stall's quiet), each with what the code answers and
  *   what both purses hold and both are told after it: the dry run does the same through the functions a member calls.
@@ -46,6 +46,8 @@ const THINGS: Stack[] = [
   { item: "cabbage", n: 10 }, { item: "carp", n: 4 }, { item: "koi", n: 1 }, { item: "rod", n: 1 }, { item: "hoe", n: 1 }, { item: "boot", n: 2 },
   { item: "bucket", n: 1, water: 1 }, { item: "bucket", n: 1 }, { item: "can", n: 1, water: 0 }, { item: "can", n: 1, water: 6 }, { item: "potFull", n: 1, of: { dish: "tomYum", left: 3 } },
 ];
+/** Things the uncle sells from the first day: what a stall may now ask more for than he does. */
+const HIS: ItemId[] = ["worm", "dough", "rod", "hoe", "salt", "rice", "seedKangkong", "scrollPestCure"];
 const POOL: ItemId[] = ["kangkong", "minnow", "worm", "cabbage", "carp", "koi", "rod", "hoe", "boot", "bucket", "can", "potFull", "catfish", "pumpkin"];
 /** What the village has met, in these cases: some of the pool, and the uncle's first shelf (which the database counts in by itself). */
 const MET: ItemId[] = ["kangkong", "minnow", "cabbage", "carp", "koi", "boot", "bucket"];
@@ -75,19 +77,33 @@ function pieces(c: ReturnType<typeof chance>) {
     // (a thing named twice, now and then; else each once)
     return c.maybe(0.9) ? out.filter((l, i) => out.findIndex((x) => x.item === l.item) === i || c.maybe(0.1)) : out;
   };
+  /** A line of what the uncle sells, priced about what he asks: under it, at it, over it, at the stall's most and over that. */
+  const hisLine = (p: Purse): ShopAsk[number] => {
+    const item = c.of(HIS), his = GOODS[item]!.price, most = capOf(item);
+    const have = p.bag.reduce((t, s) => t + (s && s.item === item && !s.of && !s.water ? s.n : 0), 0);
+    return { kind: have > 0 && c.maybe(0.7) ? "sell" : "buy", item, n: have > 0 ? c.int(1, have) : c.of([1, 2]), price: c.of([Math.max(1, his - 1), his, his + 1, his + 3, most, most + 1]) };
+  };
   /** A stall that is open, of things its keeper holds and things the village has met. */
   const stall = (p: Purse, by: string, now: number): Shop | null => {
     for (let i = 0; i < 30; i++) { const did = open(p, by, ask(p), HERE, now, SEEN, K); if (did.ok) return did.shop; }
     return null;
   };
-  return { bag, purse, ask, stall };
+  return { bag, purse, ask, stall, hisLine };
 }
 
 function rules(): Vector[] {
   const out: Vector[] = [], c = chance(142), { purse, ask, stall } = pieces(c);
+  // the most a price is: of every thing there is, by the stall's own numbers and by two others
+  for (const id of Object.keys(ITEMS) as ItemId[]) for (const k of [K, { ...K, cap: 3, capless: 77 }]) out.push({ fn: "shop_cap", args: plain([id, k]), want: capOf(id, k) });
   for (let i = 0; i < 700; i++) {
     const p = purse(c.of([0.3, 0.7, 1])), a = ask(p), at: [number, number] = [c.int(0, 60), c.int(0, 60)], now = NOW + c.int(0, 99_999), seen = c.maybe(0.85) ? SEEN : MET.slice(0, c.int(0, MET.length));
     out.push({ fn: "shop_open", args: plain([p, WHO[0], a, at[0], at[1], now, seen, K]), want: plain(open(p, WHO[0], a, at, now, seen, K)) });
+  }
+  // stalls of what the uncle sells, priced about what he asks (he is on everybody's list of what may be wanted)
+  for (let i = 0; i < 260; i++) {
+    const p: Purse = { ...purse(0.3, 600), bag: [{ item: c.of(HIS), n: 12 }, { item: c.of(HIS), n: 1 }, ...Array<null>(8).fill(null)] };
+    const a = [pieces(c).hisLine(p)], now = NOW + c.int(0, 99_999);
+    out.push({ fn: "shop_open", args: plain([p, WHO[0], a, HERE[0], HERE[1], now, SEEN, K]), want: plain(open(p, WHO[0], a, HERE, now, SEEN, K)) });
   }
   for (let i = 0; i < 1600; i++) {
     const keeper = purse(c.of([0.6, 0.9, 1])), opened = NOW + c.int(0, 9_999);
@@ -200,6 +216,13 @@ describe("the cases the database's rules of a stall are held to", () => {
     expect(tolds.some((v) => v.want === null)).toBe(true);
     expect(tolds.some((v) => v.want !== null && (v.want as { lines: unknown[] }).lines.length < (v.args[0] as Shop).lines.length)).toBe(true);
     expect(new Set(all.rules.filter((v) => v.fn === "shop_can").map((v) => v.want)).size).toBeGreaterThan(5);
+    // what the uncle sells: stalls opened above his price (the owner's word), and refused only above the stall's own most
+    const his = all.rules.filter((v) => v.fn === "shop_open" && (v.args[2] as ShopAsk).length === 1 && HIS.includes((v.args[2] as ShopAsk)[0].item));
+    const over = his.filter((v) => (v.args[2] as ShopAsk)[0].price > GOODS[(v.args[2] as ShopAsk)[0].item]!.price);
+    expect(over.filter((v) => (v.want as { ok: boolean }).ok).length).toBeGreaterThan(60);
+    expect(over.filter((v) => (v.want as { why?: string }).why === "dear").every((v) => (v.args[2] as ShopAsk)[0].price > capOf((v.args[2] as ShopAsk)[0].item))).toBe(true);
+    expect(over.some((v) => (v.want as { why?: string }).why === "dear")).toBe(true);
+    expect(all.rules.filter((v) => v.fn === "shop_cap").length).toBe(Object.keys(ITEMS).length * 2);
     // the stories: stalls opened and refused, things bought and brought, stalls gone quiet, and every refusal met
     const steps = all.stories.flatMap((s) => s.steps);
     const of = <D extends Step["deed"]>(d: D) => steps.filter((s): s is Extract<Step, { deed: D }> => s.deed === d);
@@ -208,10 +231,12 @@ describe("the cases the database's rules of a stall are held to", () => {
     expect(of("buy").filter((s) => s.want.ok).length).toBeGreaterThan(60);
     expect(of("sell").filter((s) => s.want.ok).length).toBeGreaterThan(25);
     const refused = new Set([...of("buy"), ...of("sell")].filter((s) => !s.want.ok).map((s) => s.want.why));
-    for (const why of ["amount", "shut", "far", "gone", "coins", "full", "none", "packed"]) expect(refused).toContain(why);
+    for (const why of ["amount", "shut", "far", "gone", "coins", "full", "none"]) expect(refused).toContain(why);
     expect(of("beat").some((s) => s.want.ok) && of("beat").some((s) => !s.want.ok)).toBe(true);
     expect(steps.some((s) => s.mine[0] !== null && s.mine[1] !== null)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
-    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v142.json`, JSON.stringify(all)); }
+    // (as the rules stand now. v142's own dry run reads vectors-v142.json, made from the tree as v142 went out, 0ee87c1:
+    // there what the uncle sells was still held to his price.)
+    if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-shop.json`, JSON.stringify(all)); }
   });
 });

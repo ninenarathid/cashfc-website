@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "./items";
-import { NOTICES, capOf as boardCap, plain, takePlain } from "./notices";
+import { NOTICES, plain, takePlain } from "./notices";
 import { put, roomFor, type Purse, type Refusal } from "./trade";
 
 /**
@@ -22,8 +22,15 @@ import { put, roomFor, type Purse, type Refusal } from "./trade";
  * - **Whoever buys or brings stands by the stall.**
  * - **Only what the village has met can be wanted**, as on the notice board
  *   (the owner, of the board: "การรับซื้อห้าม show ไอเทม ที่ยังไม่มีคนพบเด็ดขาด").
- * - **A price has a most**, the notice board's own. Only plain things are sold
- *   (not a pot with food in it, nor a can with water).
+ * - **A price has a most**: so many times what the relatives usually pay for
+ *   the thing (the notice board's own number), and so many coins for a thing
+ *   they do not take. **What the uncle sells may be asked more for than he
+ *   asks** (the owner, 2026-10-06: "ช่วยทำให้ตั้งราคาแพงกว่าร้านขายของลุงได้"): his
+ *   shelf is small and so many a person a round, so whoever has some to
+ *   spare, or is there when he has none, names their own price. (The notice
+ *   board still holds what he sells to his price: lib/town/notices' capOf.)
+ * - Only plain things are sold (not a pot with food in it, nor a can with
+ *   water).
  *
  * Every number is a knob the database keeps. Pure: the browser's trial and the
  * database are two keepers of the same rules.
@@ -38,7 +45,7 @@ export const SHOP = {
   /** A stall not heard from for this long is shut, in seconds; and how often its keeper's page says it is still there. */
   quiet: 150,
   every: 50,
-  /** The most a price is: the notice board's own (so many times what the relatives usually pay; for a thing they do not take, so many coins). */
+  /** The most a price is: so many times what the relatives usually pay, and for a thing they do not take, so many coins (the notice board's own two numbers; what the uncle asks is no part of it). */
   cap: NOTICES.cap,
   capless: NOTICES.capless,
 };
@@ -65,8 +72,8 @@ type Did<T> = ({ ok: true } & T) | { ok: false; why: ShopRefusal };
 const no = (why: ShopRefusal): { ok: false; why: ShopRefusal } => ({ ok: false, why });
 const whole = (n: number) => Number.isInteger(n) && n > 0;
 
-/** The most a thing may be asked or offered for at a stall. */
-export const capOf = (item: ItemId, k: ShopKnobs = SHOP) => boardCap(item, { ...NOTICES, cap: k.cap, capless: k.capless });
+/** The most a thing may be asked or offered for at a stall: by what the relatives pay for it, whether the uncle sells it or not. */
+export const capOf = (item: ItemId, k: ShopKnobs = SHOP) => (ITEMS[item].pays > 0 ? ITEMS[item].pays * k.cap : k.capless);
 /** Whether a stall is open: its keeper's page has been heard from lately. */
 export const alive = (shop: Shop, now: number, k: ShopKnobs = SHOP) => now - shop.beat < k.quiet * 1000;
 /** Whether somebody on a tile stands by a stall. */

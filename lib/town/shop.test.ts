@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { ITEMS, type ItemId } from "./items";
-import { NOTICES } from "./notices";
+import { NOTICES, capOf as boardCap } from "./notices";
 import { SHOP, alive, beat, buy, canOf, capOf, near, open, sell, told, toldOf, type Shop, type ShopAsk } from "./shop";
 import { GOODS, held, newPurse, put, type Purse, type Stack } from "./trade";
 
@@ -31,7 +31,7 @@ describe("a stall of one's own (the owner: \"ตั้งรับซื้อ�
     expect(why(open(purse, "k", [{ kind: "sell", item: "kangkong", n: 1, price: 2 }, { kind: "buy", item: "kangkong", n: 1, price: 1 }], HERE, NOW, SEEN))).toBe("lines");
   });
 
-  it("sells only what is in the bag as plain things, in whole numbers, at no more than the notice board's most", () => {
+  it("sells only what is in the bag as plain things, in whole numbers, at no more than ten times what the relatives pay", () => {
     const pot: Stack = { item: "potFull", n: 1, of: { dish: "tomYum", left: 3 } };
     const purse = { ...purseWith(100, 10, ["kangkong", 3]), bag: [...purseWith(0, 9, ["kangkong", 3]).bag, pot] };
     expect(why(open(purse, "k", [{ kind: "sell", item: "kangkong", n: 4, price: 2 }], HERE, NOW, SEEN))).toBe("none");
@@ -41,8 +41,26 @@ describe("a stall of one's own (the owner: \"ตั้งรับซื้อ�
     expect(capOf("kangkong")).toBe(ITEMS.kangkong.pays * NOTICES.cap);
     expect(why(open(purse, "k", [{ kind: "sell", item: "kangkong", n: 1, price: capOf("kangkong") + 1 }], HERE, NOW, SEEN))).toBe("dear");
     expect(why(open(purse, "k", [{ kind: "sell", item: "kangkong", n: 1, price: capOf("kangkong") }], HERE, NOW, SEEN))).toBe("ok");
-    // what the uncle sells is never asked more for than he asks
-    expect(capOf("worm")).toBe(GOODS.worm!.price);
+  });
+
+  it("may ask more for what the uncle sells than he asks (the owner: \"ช่วยทำให้ตั้งราคาแพงกว่าร้านขายของลุงได้\")", () => {
+    const purse = purseWith(100, 10, ["worm", 12], ["rod", 1]);
+    const his = GOODS.worm!.price;
+    // a worm: more than he asks, up to ten times what his relatives pay; and wanted at more than he asks too
+    expect(capOf("worm")).toBe(ITEMS.worm.pays * NOTICES.cap);
+    expect(capOf("worm")).toBeGreaterThan(his);
+    expect(why(open(purse, "k", [{ kind: "sell", item: "worm", n: 5, price: his + 3 }], HERE, NOW, SEEN))).toBe("ok");
+    expect(why(open(purse, "k", [{ kind: "sell", item: "worm", n: 5, price: capOf("worm") }], HERE, NOW, SEEN))).toBe("ok");
+    expect(why(open(purse, "k", [{ kind: "sell", item: "worm", n: 5, price: capOf("worm") + 1 }], HERE, NOW, SEEN))).toBe("dear");
+    expect(why(open(purse, "k", [{ kind: "buy", item: "worm", n: 5, price: his + 3 }], HERE, NOW, [...SEEN, "worm"]))).toBe("ok");
+    // every thing he sells: a stall's most is above his price, and what his relatives do not take has the one most
+    for (const [id, good] of Object.entries(GOODS) as Array<[ItemId, { price: number }]>) {
+      expect(capOf(id), id).toBeGreaterThan(good.price);
+      expect(capOf(id), id).toBe(ITEMS[id].pays > 0 ? ITEMS[id].pays * SHOP.cap : SHOP.capless);
+    }
+    // what he does not sell is as it was, and the notice board still holds what he sells to his price
+    expect(capOf("kangkong")).toBe(boardCap("kangkong"));
+    expect(boardCap("worm")).toBe(his);
   });
 
   it("wants only what the village has met, and only what the purse can pay for (the owner, of the board: \"การรับซื้อห้าม show ไอเทม ที่ยังไม่มีคนพบเด็ดขาด\")", () => {

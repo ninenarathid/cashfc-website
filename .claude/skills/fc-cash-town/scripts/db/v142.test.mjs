@@ -18,6 +18,10 @@
  *   · each thing said plainly: a sale's two lines that name each other and not a coin made or lost, a stall heard
  *     from and one gone quiet, opened anew, shut, who may, the game shut, a keeper who goes, the file a third time.
  *
+ * Its rule cases are v142's own (`now/vectors-v142.json`): made from the tree as v142 went out, 0ee87c1, where what
+ * the uncle sells was still held to his price. From v143 on the code gives a stall a most of its own and writes its
+ * cases to `vectors-shop.json`, which v143.test.mjs reads; this file is run again only with the cases of 0ee87c1.
+ *
  *   node v142.test.mjs            (STORIES=<n> takes the first n stories, RULES=<n> every n-th rule case)
  *   node mutate.mjs <the file, with plain line ends> v142.test.mjs v142.mutations.mjs
  */

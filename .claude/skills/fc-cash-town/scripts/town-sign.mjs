@@ -10,6 +10,7 @@
 // - whoever holds a sign up, looks at a stall or is in a chat room stays where they are: a tap on the ground walks
 //   none of them and says why; the sign is taken down, the stall's panel closed and the room left each by its own
 //   button, and then one walks again; a stall whose sign is down is shut; one with nothing left takes its own down;
+// - what the uncle sells may be asked more for at a stall than he asks, up to the stall's own most and no further;
 // - a chat room: somebody near taps the board and is let in, the board says how many are in; what is typed in the
 //   room is read by those in it and by nobody else, while the town's own chat is still everybody's; with microphones
 //   on, those in the room have a voice line with each other and with nobody else, and whoever is outside with nobody
@@ -203,6 +204,25 @@ try {
   const bought = await Y.evaluate(`${K}.shopBuy(${JSON.stringify(A)}, "carp", 2, [${BY[0] + 1}, ${BY[1]}])`);
   await until("the sign comes down by itself", async () => (await signOf(X)) === null, 12000, 300).catch(() => {});
   ok("both carp bought: the stall has nothing left and takes its own sign down", bought.ok && (await signOf(X)) === null && /หมดแล้ว/.test((await textOf(X, "[data-sign-toast]")) ?? ""), { bought, sign: await signOf(X), toast: await textOf(X, "[data-sign-toast]") });
+
+  /* ── what the uncle sells, for more than he asks ── */
+  // (he sells a worm for two, and his relatives pay one: a stall's most for it is ten)
+  await X.evaluate(`${T}.grant("worm", 6)`);
+  await X.evaluate(`void ${S}.open("setup")`);
+  await sleep(300);
+  await X.evaluate(`void ${S}.form("shop", "เหยื่อ", [{ kind: "sell", item: "worm", n: 5, price: 5 }])`);
+  await sleep(300);
+  const priceBox = await X.evaluate(`(() => { const p = document.querySelector('[data-sign-lines] [data-line="worm"] [data-line-price]'); return p ? { value: p.value, max: p.max } : null; })()`);
+  ok("a worm, which the uncle sells for two, may be priced at five in the panel: its box goes up to ten", priceBox?.value === "5" && priceBox.max === "10", priceBox);
+  await click(X, "[data-sign-raise]");
+  await until("the worm stall is up", async () => (await signOf(X))?.title === "เหยื่อ", 8000, 200).catch(() => {});
+  ok("and the stall opens at that price", (await signOf(X))?.kind === "shop" && (await X.evaluate(`${S}.shops().mine?.lines[0]?.price`)) === 5, await X.evaluate(`${S}.said()`));
+  const paid = await Y.evaluate(`${K}.shopBuy(${JSON.stringify(A)}, "worm", 2, [${BY[0] + 1}, ${BY[1]}])`);
+  ok("somebody buys two at five each", paid.ok && paid.coins === 10, paid);
+  await X.evaluate(`void ${S}.open("mine")`);
+  await sleep(300);
+  await click(X, "[data-sign-lower]");
+  ok("eleven a worm is more than a stall's most, and is refused", (await X.evaluate(`${K}.shopOpen([{ kind: "sell", item: "worm", n: 1, price: 11 }], [${BY}])`)).why === "dear" && (await signOf(X)) === null);
 
   /* ── a chat room ── */
   await warp(Y, ...NEAR);
