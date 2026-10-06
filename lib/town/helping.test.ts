@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { FARMING, pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
-import { giftOf } from "./gifts";
+import { USES, giftOf, numberOf, usesLeft } from "./gifts";
 import { HEAT } from "./heat";
-import { HELPING, aided, aidsOf, belled, bridged, chime, pouredAs, ring, runOf, timesAt } from "./helping";
+import { HELPING, aided, aidsOf, belled, bridged, chime, pouredAs, ring, runOf, share, timesAt } from "./helping";
 import { POINTS, countsOf, type Done } from "./line-points";
 import { WATERS, keptAs, type Nature } from "./waters";
 import type { ItemId } from "./items";
@@ -266,6 +266,44 @@ describe("the duet bell: two watering in the same bed within ten seconds, and bo
     const bellOf = (n: number): Done => ({ from: "deed", what: "bell", thing: null, n, doc: {} });
     expect(countsOf(bellOf(6), "me")).toEqual([{ to: null, line: "helpers", raw: 6 * POINTS.helpers.water }]);
     expect(countsOf(bellOf(0), "me")).toEqual([]);
+  });
+});
+
+describe("the ring of shared strength: thirty stamina to a friend standing near, for half of it", () => {
+  const RING = { had: ["charmRing"], charms: ["charmRing"] };
+  const at = (gifts: Purse["gifts"], left: number) => purse(gifts, 8, left);
+  const day = dayOf(NOON);
+
+  it("gives the friend thirty and takes fifteen, counts the day's use, and tells the friend who gave it", () => {
+    const did = done(share(at(RING, 60), at(undefined, 40), "me", "Me", 1, NOON));
+    expect([did.gave, did.paid, did.left, staminaOf(did.mine, NOON), staminaOf(did.theirs, NOON)]).toEqual([30, 15, USES.charmRing!.n - 1, 45, 70]);
+    expect(aidsOf(did.theirs)).toEqual([{ what: "ring", by: "me", name: "Me", n: 30, at: NOON }]);
+    expect(usesLeft(did.mine, "charmRing", NOON)).toBe(2);
+    expect([numberOf("charmRing"), HELPING.ring.part, USES.charmRing]).toEqual([30, 0.5, { n: 3, per: "day" }]);
+  });
+
+  it("never lifts the friend above the full gauge: what would be over is not given and not paid for", () => {
+    const did = done(share(at(RING, 60), at(undefined, 90), "me", "Me", 0, NOON));
+    expect([did.gave, did.paid, staminaOf(did.mine, NOON), staminaOf(did.theirs, NOON)]).toEqual([10, 5, 55, 100]);
+    // (a friend the day has not counted yet has a full gauge)
+    expect(share(at(RING, 60), { ...at(undefined, 5), stamina: { day: day - 1, left: 5 } }, "me", "Me", 0, NOON)).toEqual({ ok: false, why: "full" });
+  });
+
+  it("is refused without the ring worn, to a friend not near or with a full gauge, to a wearer who has not what it costs, and after the day's third", () => {
+    expect(share(at({ had: ["charmRing"], charms: [] }, 60), at(undefined, 40), "me", "Me", 1, NOON)).toEqual({ ok: false, why: "none" });
+    expect(share(at(RING, 60), at(undefined, 40), "me", "Me", HELPING.ring.reach + 0.01, NOON)).toEqual({ ok: false, why: "far" });
+    expect(share(at(RING, 60), at(undefined, 40), "me", "Me", -1, NOON)).toEqual({ ok: false, why: "far" });
+    expect(share(at(RING, 60), at(undefined, 40), "me", "Me", HELPING.ring.reach, NOON).ok).toBe(true);
+    expect(share(at(RING, 60), at(undefined, 100), "me", "Me", 1, NOON)).toEqual({ ok: false, why: "full" });
+    expect(share(at(RING, 14.9), at(undefined, 40), "me", "Me", 1, NOON)).toEqual({ ok: false, why: "weak" });
+    expect(share(at(RING, 15), at(undefined, 40), "me", "Me", 1, NOON).ok).toBe(true);
+    // (a friend with room for six costs three: a wearer with three can give that)
+    expect(share(at(RING, 3), at(undefined, 94), "me", "Me", 1, NOON).ok).toBe(true);
+    let p = at(RING, 100);
+    for (let i = 0; i < 3; i++) p = done(share(p, at(undefined, 0), "me", "Me", 1, NOON)).mine;
+    expect([staminaOf(p, NOON), share(p, at(undefined, 0), "me", "Me", 1, NOON)]).toEqual([55, { ok: false, why: "spent" }]);
+    // (a new day: it gives again; a friend that day has not counted yet has a full gauge, so one who has spent theirs)
+    expect(share(p, { ...at(undefined, 0), stamina: { day: day + 1, left: 0 } }, "me", "Me", 1, NOON + 24 * HOUR).ok).toBe(true);
   });
 });
 

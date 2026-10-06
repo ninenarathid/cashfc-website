@@ -28,5 +28,6 @@
   "ring": "town.ring($1::jsonb, $2::jsonb, $3::text, $4::boolean, $5::bigint, $6::jsonb)",
   "belled": "town.belled($1::jsonb, $2::double precision, $3::bigint)",
   "aided": "town.aided($1::jsonb, $2::jsonb)",
-  "counts_of": "town.work_counts_of($1::jsonb, $2::text)"
+  "counts_of": "town.work_counts_of($1::jsonb, $2::text)",
+  "share": "town.share($1::jsonb, $2::jsonb, $3::text, $4::text, $5::double precision, $6::bigint)"
 }

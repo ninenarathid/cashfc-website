@@ -185,6 +185,7 @@ class TrialKeeper implements Keeper {
   // ── gifts: helpers ──
   pourAt(key: string) { return this.trial.pourAt(key); }
   async pourDo(key: string, name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ done: string[] }>> { return this.trial.pourDo(key, name, marks, timing?.secs ?? 0); }
+  async ringTo(to: string, far: number, name: string) { return this.trial.ringTo(to, far, name); }
   wellBook() { return this.trial.wellBook(); }
   ranks() { return this.trial.ranks(); }
   lines() { return this.trial.lines(); }

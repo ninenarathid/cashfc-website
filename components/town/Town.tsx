@@ -3889,7 +3889,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* The farm: its plots on the map, and what the thing in my hand can do to the one I stand on */}
       {s && game && keeper && (
         <Suspense fallback={null}>
+          {/* ── gifts: helpers ── (`people`, `here`: who stands near me, and where I stand still: the ring of shared strength is for a friend beside one, anywhere in town) */}
           <TownFarm keeper={keeper} name={me.name} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? plotHere : null}
+                    people={standers} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                     at={wellHere ? standing?.tile ?? null : fishAt?.tile ?? null} near={onFarm}
                     water={talk || trade || boardOpen || wardrobeOpen || (phone && testOpen) ? null : wellHere ? "well" : fishAt ? "river" : null} sfx={sfxRef.current}
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} />

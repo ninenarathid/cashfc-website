@@ -1,5 +1,5 @@
 import type { Plot } from "./farm";
-import { numberOf, wearing } from "./gifts";
+import { numberOf, useGift, usesLeft, wearing, works } from "./gifts";
 import { STAMINA, dayOf, staminaOf } from "./stamina";
 import { HEAT } from "./heat";
 import { LONG } from "./longpour";
@@ -25,6 +25,10 @@ import { WATERS, type Nature } from "./waters";
  *    it rings when either of them wears it in a bed that is not their own; the friend may be anybody else who waters
  *    there, the bed's owner too. Alone it does nothing. Whoever keeps the game judges it for both purses at the
  *    second watering, and tells both (`aided`).
+ * 4. **The ring of shared strength** (a charm): its wearer gives a friend standing near thirty stamina, and their own
+ *    falls by half of that; three times a day (lib/town/gifts' USES). Never above the friend's full gauge: what
+ *    would be over is not given and not paid for. Refused to a wearer who has not what it costs (`share`). The
+ *    friend is told who gave it (`aided`).
  *
  * The rest of what is here is what those rules go by. The deeds themselves, which need the farm's own rules, are in
  * lib/town/farm under "the gifts of the helpers' line".
@@ -47,6 +51,8 @@ export const HELPING = {
    * which this is the one thing in the line that gives some for nothing).
    */
   bell: { within: 10, back: 2, plants: 25 },
+  /** The ring: what part of the stamina given its wearer pays, and how many tiles off a friend may stand (the page's to measure: nothing that keeps the game knows where anybody stands; it is told, and holds to it). */
+  ring: { part: 0.5, reach: 3 },
   /** How many of the things friends' gifts did for one are kept in a purse, to be told of (`aided`). */
   told: 8,
 };
@@ -168,3 +174,31 @@ export const aidsOf = (purse: Pick<Purse, "aided">): Aid[] =>
   (Array.isArray(purse.aided) ? (purse.aided as unknown[]).filter((a): a is Aid => !!a && typeof a === "object" && !Array.isArray(a) && typeof (a as Aid).at === "number") : []);
 /** A purse told of one more: the newest so many are kept. */
 export const aided = <P extends Purse>(purse: P, aid: Aid): P => ({ ...purse, aided: [...aidsOf(purse), aid].slice(-HELPING.told) });
+
+/** Why a gift of this line was not used: not had or not worn, its day's uses gone, the friend too far off, their gauge full already, not the stamina it costs; a plant of one's own, nothing there for it, or its work still running. */
+export type HelpRefusal = "none" | "spent" | "far" | "full" | "weak" | "own" | "soil" | "running";
+/**
+ * The ring of shared strength: `mine` gives `theirs` so much stamina (the ring's number, or what their gauge has room
+ * for, if that is less) and pays a part of what was given. `far`: how many tiles off the friend stands, as the page
+ * says. Gives both purses (the wearer's with the day's use counted, the friend's told who gave it), what was given
+ * and paid, and how many uses the day has left. Refused without the ring worn (`none`), with the day's uses gone
+ * (`spent`), to a friend not near (`far`) or whose gauge is full (`full`), and to a wearer who has not what this
+ * giving costs (`weak`): then nothing is counted.
+ */
+export function share<P extends Purse, Q extends Purse>(mine: P, theirs: Q, me: string, name: string, far: number, now: number):
+  { ok: true; mine: P; theirs: Q; gave: number; paid: number; left: number } | { ok: false; why: HelpRefusal } {
+  if (!works(mine, "charmRing")) return { ok: false, why: "none" };
+  if (usesLeft(mine, "charmRing", now) < 1) return { ok: false, why: "spent" };
+  if (!(typeof far === "number" && far >= 0 && far <= HELPING.ring.reach)) return { ok: false, why: "far" };
+  const has = staminaOf(theirs, now), gave = Math.min(numberOf("charmRing"), STAMINA.max - has);
+  if (!(gave > 0)) return { ok: false, why: "full" };
+  const paid = gave * HELPING.ring.part, left = staminaOf(mine, now);
+  if (left < paid) return { ok: false, why: "weak" };
+  const used = useGift(mine, "charmRing", now);
+  if (!used.ok) return { ok: false, why: used.why === "spent" ? "spent" : "none" };
+  const day = dayOf(now);
+  return {
+    ok: true, gave, paid, left: used.left, mine: { ...used.purse, stamina: { day, left: left - paid } },
+    theirs: aided({ ...theirs, stamina: { day, left: has + gave } }, { what: "ring", by: me, name, n: gave, at: now }),
+  };
+}

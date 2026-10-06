@@ -247,4 +247,59 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   t.check("…the points are not bound by the stamina's: six plants more on the helpers' line for the row", (await bells(U.m1)).at(-1).n === 6);
   did = await call(U.m1, "town_tend", ...xy(O[0]), null);
   t.check("the day's bound reached, a bell still doubles the watering, and gives no stamina", did?.ok === true && did.bell?.back === 0 && (await plotAt(O[0])).plant.boost === 2 * ADDS && (await staminaOf(U.m1)) === 50 + 3 * bell.back, did);
+
+  // ── the ring of shared strength: thirty stamina to a friend standing near, for fifteen ──
+  t.section("the ring of shared strength: thirty stamina to a friend standing near, for half of it, three times a day (town_ring)");
+  const ringBy = CODE.gifts.gifts.charmRing.by, ringUses = CODE.gifts.uses.charmRing.n, rg = f.helping.ring;
+  const usedRing = async (who) => (await purseOf(who)).gifts.used?.charmRing?.n ?? 0;
+  const gauge = (who, left) => patch(who, { stamina: { day, left } });
+  await give(U.m1, { had: ["charmRing"], charms: [] });
+  await gauge(U.m1, 60);
+  await gauge(U.m2, 40);
+  await patch(U.m2, { aided: [] });
+  did = await call(U.m1, "town_ring", U.m2, 1);
+  t.check("with the ring had but not worn: refused, and nothing changes", did?.ok === false && did.why === "none" && (await staminaOf(U.m1)) === 60 && (await staminaOf(U.m2)) === 40 && (await deeds("ring")).length === 0, did);
+  await give(U.m1, { had: ["charmRing"], charms: ["charmRing"] });
+  did = await call(U.m1, "town_ring", U.m2, 2);
+  t.check(`worn: the friend has ${ringBy} stamina, and the wearer's own falls by half of that`, did?.ok === true && did.gave === ringBy && did.paid === ringBy * rg.part && did.left === ringUses - 1
+    && (await staminaOf(U.m1)) === 60 - ringBy * rg.part && (await staminaOf(U.m2)) === 40 + ringBy && did.purse.stamina.left === 60 - ringBy * rg.part, did);
+  let told2 = (await purseOf(U.m2)).aided;
+  t.check("…the friend is told who gave it, and the day's use is counted in the wearer's purse", told2.length === 1 && told2[0].what === "ring" && told2[0].by === U.m1 && told2[0].n === ringBy && typeof told2[0].name === "string" && (await usedRing(U.m1)) === 1, told2);
+  let gaveNote = await mine("ring", U.m1), hadNote = await mine("ring_had", U.m2);
+  t.check("…it is written down for both: what was given, to whom and for how much; and by whom", gaveNote.length === 1 && gaveNote[0].n === ringBy && gaveNote[0].doc.to === U.m2 && gaveNote[0].doc.paid === ringBy * rg.part
+    && hadNote.length === 1 && hadNote[0].n === ringBy && hadNote[0].doc.by === U.m1 && gaveNote[0].coins === 0, { gaveNote, hadNote });
+  // never above the friend's full gauge: what would be over is not given and not paid for
+  await gauge(U.m1, 60);
+  await gauge(U.m2, 90);
+  did = await call(U.m1, "town_ring", U.m2, 0);
+  t.check("never above the friend's full gauge: ten is given where there is room for ten, and five paid", did?.ok === true && did.gave === 10 && did.paid === 5 && (await staminaOf(U.m2)) === 100 && (await staminaOf(U.m1)) === 55 && (await usedRing(U.m1)) === 2, did);
+  did = await call(U.m1, "town_ring", U.m2, 0);
+  t.check("a friend whose gauge is full: refused, and no use of the day is counted", did?.ok === false && did.why === "full" && (await staminaOf(U.m1)) === 55 && (await usedRing(U.m1)) === 2, did);
+  // refused each way, with nothing counted
+  await gauge(U.m2, 20);
+  did = await call(U.m1, "town_ring", U.m2, rg.reach + 0.5);
+  t.check("a friend who does not stand near: refused", did?.ok === false && did.why === "far" && (await staminaOf(U.m2)) === 20 && (await usedRing(U.m1)) === 2, did);
+  did = await call(U.m1, "town_ring", U.m2, null);
+  t.check("…nor with nothing said of how near", did?.ok === false && did.why === "far", did);
+  await gauge(U.m1, 14);
+  did = await call(U.m1, "town_ring", U.m2, 1);
+  t.check("a wearer who has not the fifteen: refused, and nothing is given", did?.ok === false && did.why === "weak" && (await staminaOf(U.m1)) === 14 && (await staminaOf(U.m2)) === 20 && (await usedRing(U.m1)) === 2, did);
+  did = await call(U.m1, "town_ring", U.m1, 0);
+  t.check("to oneself: refused", did?.ok === false && did.why === "none", did);
+  did = await call(U.m1, "town_ring", U.unver, 0);
+  t.check("to somebody who is not of the town: refused", did?.ok === false && did.why === "none", did);
+  did = await call(U.m1, "town_ring", null, 0);
+  t.check("to nobody: refused", did?.ok === false && did.why === "none", did);
+  // three times a day
+  await gauge(U.m1, 80);
+  did = await call(U.m1, "town_ring", U.m2, 1);
+  t.check("the day's third giving is its last", did?.ok === true && did.left === 0 && (await staminaOf(U.m2)) === 50 && (await usedRing(U.m1)) === ringUses, did);
+  did = await call(U.m1, "town_ring", U.m2, 1);
+  t.check("…a fourth is refused, and nothing changes", did?.ok === false && did.why === "spent" && (await staminaOf(U.m1)) === 65 && (await staminaOf(U.m2)) === 50, did);
+  await give(U.m1, { had: ["charmRing"], charms: ["charmRing"], used: { charmRing: { k: day - 1, n: ringUses } } });
+  did = await call(U.m1, "town_ring", U.m2, 1);
+  t.check("a new day: it gives again", did?.ok === true && did.left === ringUses - 1 && (await staminaOf(U.m2)) === 80, did);
+  t.check("no coin changes hands by it", (await deeds("ring")).every((d) => d.coins === 0) && (await deeds("ring_had")).every((d) => d.coins === 0));
+  const shutRing = await call(U.unver, "town_ring", U.m2, 1);
+  t.check("it is for a proved character of the town", shutRing?.code === "42501", shutRing);
 }

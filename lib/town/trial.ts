@@ -38,7 +38,7 @@ import { glassReach, glassTurn, gnomeReach, gnomeWater, plotKey, rowFor, rowTend
 import { rowOf } from "./world";
 // ── gifts: helpers ──
 import { pourFor, pourRow } from "./farm";
-import { aided, belled, pouredAs, ring } from "./helping";
+import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
 import { wearing } from "./gifts";
 
 /**
@@ -565,6 +565,15 @@ export class Trial {
     this.save(did.purse);
     this.bell(bed, did.each.map((e) => e.key), name);
     return { ok: true, done: did.each.map((e) => e.key) };
+  }
+  /** The ring of shared strength (lib/town/helping's share): give another tester of this browser stamina of mine; both purses are here. */
+  ringTo(to: string, far: number, name: string): { ok: true; gave: number; paid: number; left: number } | { ok: false; why: HelpRefusal } {
+    if (!to || to === this.id) return { ok: false, why: "none" };
+    const other = trialFor(to), did = share(this.purse(), other.purse(), this.id, name || this.id, far, this.now());
+    if (!did.ok) return did;
+    other.save(did.theirs);
+    this.save(did.mine);
+    return { ok: true, gave: did.gave, paid: did.paid, left: did.left };
   }
   /** Whether I wear the duet bell in a bed that is not my own (lib/town/helping): what a watering of mine there is marked with. */
   private bellWorn(bed: number): boolean { return wearing(this.purse(), "charmBell") && (this.owners().get(bed)?.by ?? null) !== this.id; }

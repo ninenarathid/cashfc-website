@@ -5,7 +5,7 @@ import { vectorsFarming } from "./db-vectors-gifts-farming.test";
 import { pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
 import { wearing } from "./gifts";
 import { vectorsLines } from "./db-vectors-lines.test";
-import { HELPING, aided, belled, bridged, chime, pouredAs, ring, runOf, type Aid } from "./helping";
+import { HELPING, aided, belled, bridged, chime, pouredAs, ring, runOf, share, type Aid } from "./helping";
 import { countsOf, type Done } from "./line-points";
 import type { Nature } from "./waters";
 import { CROP_IDS, type ItemId } from "./items";
@@ -37,6 +37,8 @@ import { BEDS_IN_FARM, bedCorner, rowOf } from "./world";
  * - `belled`: gauges full, nearly full, half and empty; plants from none to more than a day's bound; a day's count
  *   fresh, near the bound, at it, of yesterday, and kept wrongly. `aided`: purses told of nothing yet, of some, of
  *   as many as are kept, and of what is kept wrongly.
+ * - `share`: wearers of the ring and not, with uses left and none, of today and of yesterday; gauges of both from
+ *   empty to full, whole and not; a friend near, at the reach's end, past it, and nowhere.
  * - `counts_of`: **the lines of work as they were counted** (every case of lib/town/db-vectors-lines.test.ts for
  *   what something done counts for, asked again of the rule written again), and a bell that rang, for every number
  *   of plants.
@@ -174,6 +176,20 @@ export function vectorsHelpers(): Vector[] {
       add("aided", [p, aid], aided(p, aid));
     }
   }
+  // strength shared
+  {
+    const day = dayOf(NOW), RING = { had: ["charmRing"], charms: ["charmRing"] };
+    const wearers: Array<Purse["gifts"] | undefined> = [RING, RING, RING, { ...RING, used: { charmRing: { k: day, n: 1 } } }, { ...RING, used: { charmRing: { k: day, n: 2 } } }, { ...RING, used: { charmRing: { k: day, n: 3 } } },
+      { ...RING, used: { charmRing: { k: day - 1, n: 3 } } }, { had: ["charmRing"], charms: [] }, { had: ["charmGloves"], charms: ["charmGloves"] }, undefined];
+    for (const gifts of wearers) for (const mine of [100, 15, 14.9, 7.5, 0]) for (const theirs of [0, 50, 70, 85, 87.3, 99.9, 100]) {
+      const far = c.of<number | null>([0, 1, 2.2, 3, 3, 3.01, 12, -1, null]);
+      const a = purse(gifts, null, 0, mine), b = { ...purse(c.maybe(0.2) ? { had: ["charmBell"], charms: ["charmBell"] } : undefined, null, 0, theirs), ...(c.maybe(0.3) ? { aided: [{ what: "bell", by: THEM, name: "Th", n: 2, at: NOW - 5000, back: 4 }] } : {}) } as Purse;
+      add("share", [a, b, ME, "Me", far, NOW], share(a, b, ME, "Me", far as number, NOW));
+    }
+    // (a friend whose gauge has not been counted today: it is full)
+    const fresh = { ...purse(undefined, null, 0, 20), stamina: { day: day - 1, left: 20 } } as Purse;
+    add("share", [purse(RING, null, 0, 80), fresh, ME, "Me", 1, NOW], share(purse(RING, null, 0, 80), fresh, ME, "Me", 1, NOW));
+  }
   // the lines of work as they were counted, and a bell that rang
   for (const v of vectorsLines()) if (v.fn === "counts_of") out.push(v);
   for (const n of [0, 1, 3, 7, 2.5, -1]) for (const doer of [ME, YOU]) {
@@ -248,6 +264,11 @@ describe("the cases the database's rules of the helpers' line's gifts are held t
     expect(backs.some((b) => b === 0) && backs.some((b) => b === 14) && backs.some((b) => b === 2.5) && backs.some((b) => b === 2) && backs.some((b) => b === 50)).toBe(true);
     expect(of("aided").some((v) => (v.want as Purse).aided!.length === HELPING.told) && of("aided").some((v) => (v.want as Purse).aided!.length === 1)).toBe(true);
     expect(of("counts_of").length).toBeGreaterThan(200);
+    // the ring: thirty given for fifteen, less where the friend's gauge has less room, and refused each way
+    const shares = of("share").map((v) => v.want as { ok: boolean; why?: string; gave?: number; paid?: number; left?: number; theirs?: Purse });
+    expect(shares.some((d) => d.ok && d.gave === 30 && d.paid === 15 && d.left === 2) && shares.some((d) => d.ok && d.gave! < 30 && d.gave! > 0 && d.paid === d.gave! / 2) && shares.some((d) => d.ok && d.left === 0)).toBe(true);
+    for (const why of ["none", "spent", "far", "full", "weak"]) expect(shares.some((d) => !d.ok && d.why === why), why).toBe(true);
+    expect(shares.every((d) => !d.ok || (d.theirs!.stamina.left <= 100 && d.theirs!.aided!.at(-1)!.what === "ring"))).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-helpers.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

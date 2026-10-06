@@ -20,7 +20,8 @@ import TownSteady from "./TownSteady";
 import TownSweep from "./TownSweep";
 // ── gifts: helpers ──
 import TownLongPour from "./TownLongPour";
-import { AnkletRun, HelpNews } from "./TownHelping";
+import { AnkletRun, HelpNews, RingOffer } from "./TownHelping";
+import type { Stander } from "@/lib/town/line";
 import type { Aid } from "@/lib/town/helping";
 import { wearing } from "@/lib/town/gifts";
 import { HELPING, runOf } from "@/lib/town/helping";
@@ -166,7 +167,7 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * one farm for the whole town; in `next dev`'s test room the browser's trial,
  * one farm for the browser.
  */
-export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register }: {
+export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register, here = null, people }: {
   keeper: Keeper;
   /** What I am called, for the name plate of a bed I take. */
   name: string;
@@ -183,6 +184,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   bottom: string;
   /** Hand the map the way to draw the plots (and take it back with null). */
   register: (draw: FarmDraw | null) => void;
+  // ── gifts: helpers ──
+  /** Where I stand still, anywhere in town (null while walking, or while something else is open); and everybody on the map now, as the map has them: for the ring of shared strength, which is for a friend standing near, wherever that is. */
+  here?: [number, number] | null;
+  people?: () => Stander[];
 }) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -263,9 +268,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
    * bell over each of the two it rang for.
    */
   const bellsUp = useRef<Array<{ ids: string[]; from: number | null }>>([]);
+  /** Strength a ring shared, on its way: from whom to whom. */
+  const beams = useRef<Array<{ from: string; to: string; born: number | null }>>([]);
   const onAid = useCallback((aid: Aid) => {
     if (aid.what === "bell") bellsUp.current.push({ ids: [keeper.id, aid.by], from: null });
+    if (aid.what === "ring") beams.current.push({ from: aid.by, to: keeper.id, born: null });
   }, [keeper]);
+  const onGave = useCallback((to: string) => { beams.current.push({ from: keeper.id, to, born: null }); }, [keeper]);
+  const calledOf = useCallback((id: string) => people?.().find((p) => p.id === id)?.name ?? null, [people]);
   const chimeAt = useCallback((plot: string, step: number, wait = 0) => {
     const [x, y] = plot.split(",").map(Number), top = step >= HELPING.anklet.run;
     window.setTimeout(() => { chimes.current.push({ x, y, step, top, from: null }); tune.current = [...tune.current.slice(-39), step]; sfx?.wake(); sfx?.chime(step, top); }, wait);
@@ -409,6 +419,38 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ctx.stroke();
           ctx.globalAlpha = 1;
           note(at.x + 10 * s + Math.sin(part * 6 + c.x) * 4 * s, at.y - (26 + part * (26 + Math.min(20, c.step) * 1.4)) * s, Math.sin(Math.min(1, part) * Math.PI), tint, 1.7);
+        });
+      }
+      // strength a ring shared: motes of light going over from the giver to the friend, and a glow about the friend as they come
+      beams.current = beams.current.filter((b) => b.born === null || t - b.born < 1900);
+      for (const b of beams.current) {
+        if (b.born === null) b.born = t;
+        const all = frame.people?.() ?? [], giver = all.find((p) => p.id === b.from), friend = all.find((p) => p.id === b.to);
+        if (!friend) continue;
+        const to = project({ x: friend.x, y: friend.y }), from = giver ? project({ x: giver.x, y: giver.y }) : { x: to.x, y: to.y - 70 * s }, since = t - b.born;
+        if (!onScreen(to)) continue;
+        above(() => {
+          const px = Math.max(2, Math.round(2.2 * s));
+          for (let i = 0; i < 10; i++) {
+            const part = still ? (i + 0.5) / 10 : (since - i * 80) / 900;
+            if (part <= 0 || part >= 1) continue;
+            const x = Math.round(from.x + (to.x - from.x) * part), y = Math.round(from.y - 34 * s + (to.y - from.y) * part - Math.sin(part * Math.PI) * 26 * s);
+            ctx.fillStyle = i % 2 ? "#ffe19a" : "#b8f28a";
+            ctx.globalAlpha = Math.sin(part * Math.PI);
+            ctx.fillRect(x, y, px, px);
+            ctx.globalAlpha *= 0.5;
+            ctx.fillRect(x - px, y, px * 3, px);
+            ctx.fillRect(x, y - px, px, px * 3);
+          }
+          const glow = Math.max(0, Math.min(1, (since - 700) / 400)) * Math.max(0, Math.min(1, (1900 - since) / 500));
+          if (glow > 0) {
+            ctx.globalAlpha = glow * 0.35;
+            ctx.fillStyle = "#b8f28a";
+            ctx.beginPath();
+            ctx.ellipse(to.x, to.y - 24 * s, 20 * s, 30 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
         });
       }
       // a duet bell that rang: over each of the two a bell swings, and rings of its sound go out from it
@@ -764,7 +806,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       // (the anklet: the run as it stands, the notes of its tune played so far, and how many are in the air)
       run: () => runOf(keeper.purse(), keeper.now()), tune: () => [...tune.current], chimes: () => chimes.current.length,
       // (the bells swinging over heads on this screen now)
-      bells: () => bellsUp.current.map((b) => b.ids),
+      bells: () => bellsUp.current.map((b) => b.ids), beams: () => beams.current.map((b) => [b.from, b.to]),
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
       row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
       // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
@@ -796,13 +838,15 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** Whether a run of the anklet's is going: it is shown while it lasts, whatever else is. */
   const running = wearing(purse, "charmAnklet") && runOf(purse, now) > 0;
   /** What friends' gifts did for me: told wherever I stand, whatever else is shown. */
-  const news = <HelpNews keeper={keeper} th={th} sfx={sfx} onAid={onAid} />;
+  const news = <HelpNews keeper={keeper} th={th} sfx={sfx} onAid={onAid} nameOf={calledOf} />;
+  /** The ring of shared strength, for a friend standing near: wherever I stand still. */
+  const ringOffer = people ? <RingOffer keeper={keeper} th={th} here={here} people={people} name={name} sfx={sfx} bottom={bottom} onGave={onGave} /> : null;
   // (it keeps its place whatever else is shown: so what it is telling of is not lost when a button comes or goes)
   const bare = !working && !offer && !note && !powers.length && !running;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
-    <>{news}{bare ? null : (
+    <>{news}{ringOffer}{bare ? null : (
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
       {running && <AnkletRun keeper={keeper} />}
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}

@@ -35,6 +35,13 @@
 --     whoever watered in the bed within the ten seconds are held with the caller's own, in the order of their ids,
 --     BEFORE the bed is: `town_tend` no longer holds its caller's purse as it is declared. `town.work_counts_of`
 --     (v149's) is written again to count a `bell`.
+--   * The ring of shared strength (a charm, worn): `town_ring(to, far)` gives a friend standing near thirty stamina
+--     (its number) and takes half of that from its wearer (`farming.helping.ring.part`), three times a day (the
+--     catalog's count). Never above the friend's full gauge: what would be over is not given and not paid for.
+--     Refused to a wearer who has not what it costs, to a friend who is not of the town or not near (how near is the
+--     page's to say, `far`: the database knows where nobody stands, and holds to what it is told), or whose gauge is
+--     full. Both purses are held in the order of their ids and judged in the one call; the friend is told (`aided`);
+--     written down for both (`ring`, `ring_had`).
 
 -- Whether work on a plot is work for somebody else (lib/town/farm's theirsAt): in a bed that is another's, or on a
 -- plant another sowed.
@@ -729,5 +736,81 @@ end;
 $$;
 revoke execute on function public.town_longpour(integer, integer, jsonb, jsonb) from public, anon;
 grant execute on function public.town_longpour(integer, integer, jsonb, jsonb) to authenticated;
+
+-- The ring of shared strength (lib/town/helping's share): p_mine gives p_theirs so much stamina (the ring's number,
+-- or what their gauge has room for, if that is less) and pays a part of what was given. p_far: how many tiles off
+-- the friend stands, as the page says (nothing that keeps the game knows where anybody stands). Gives both purses
+-- (the wearer's with the day's use counted, the friend's told who gave it), what was given and paid, and how many
+-- uses the day has left; or why not.
+create or replace function town.share(p_mine jsonb, p_theirs jsonb, p_me text, p_name text, p_far double precision, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  r jsonb := town.cat('farming')->'helping'->'ring';
+  day_ integer := town.day_of(p_now);
+  has double precision;
+  gave double precision;
+  paid double precision;
+  left_ double precision;
+  used jsonb;
+begin
+  if not town.gift_works(p_mine, 'charmRing') then return town.no('none'); end if;
+  if town.used_of(p_mine, 'charmRing', p_now) >= (town.cat('gifts')->'uses'->'charmRing'->>'n')::integer then return town.no('spent'); end if;
+  if not coalesce(p_far >= 0 and p_far <= (r->>'reach')::double precision, false) then return town.no('far'); end if;
+  has := town.stamina_of(p_theirs, p_now);
+  gave := least((town.cat('gifts')->'gifts'->'charmRing'->>'by')::double precision, (town.cat('stamina')->>'max')::double precision - has);
+  if not coalesce(gave > 0, false) then return town.no('full'); end if;
+  paid := gave * (r->>'part')::double precision;
+  left_ := town.stamina_of(p_mine, p_now);
+  if left_ < paid then return town.no('weak'); end if;
+  used := town.gift_use(p_mine, 'charmRing', p_now);
+  if not (used->>'ok')::boolean then return town.no(case when used->>'why' = 'spent' then 'spent' else 'none' end); end if;
+  return jsonb_build_object('ok', true, 'gave', gave, 'paid', paid, 'left', used->'left',
+    'mine', (used->'purse') || jsonb_build_object('stamina', jsonb_build_object('day', day_, 'left', left_ - paid)),
+    'theirs', town.aided(p_theirs || jsonb_build_object('stamina', jsonb_build_object('day', day_, 'left', has + gave)),
+      jsonb_build_object('what', 'ring', 'by', p_me, 'name', p_name, 'n', gave, 'at', p_now)));
+end;
+$$;
+
+-- Give somebody standing near stamina of mine, with the ring I wear. Judged for both purses in the one call, and
+-- written down for both (`ring`, mine; `ring_had`, theirs).
+create or replace function public.town_ring(p_to uuid, p_far double precision default null)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  now_ bigint := town.now_ms();
+  mine jsonb;
+  theirs jsonb;
+  did jsonb;
+  called text;
+begin
+  -- (somebody who is of the town and has a purse there: a proved character, or an admin)
+  if p_to is null or p_to = me or not exists (
+       select 1 from public.town_purses pp join public.profiles p on p.id = pp.member_id
+        where pp.member_id = p_to and ((p.character_id is not null and p.character_verified_at is not null) or p.is_admin)) then
+    return town.answer(me, town.no('none'));
+  end if;
+  -- (two who give to each other at the same moment: the two purses are held in the order of their ids)
+  if me < p_to then
+    mine := town.purse_of(me, true);
+    theirs := town.purse_of(p_to, true);
+  else
+    theirs := town.purse_of(p_to, true);
+    mine := town.purse_of(me, true);
+  end if;
+  select coalesce(pr.character_name, pr.display_name, pr.discord_username, '') into called from public.profiles pr where pr.id = me;
+  did := town.share(mine, theirs, me::text, coalesce(called, ''), p_far, now_);
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'mine');
+    perform town.keep_purse(p_to, did->'theirs');
+    perform town.note(me, 'ring', null, (did->>'gave')::numeric, 0, jsonb_build_object('to', p_to, 'paid', did->'paid', 'far', p_far));
+    perform town.note(p_to, 'ring_had', null, (did->>'gave')::numeric, 0, jsonb_build_object('by', me));
+  end if;
+  return town.answer(me, did - 'mine' - 'theirs');
+end;
+$$;
+revoke execute on function public.town_ring(uuid, double precision) from public, anon;
+grant execute on function public.town_ring(uuid, double precision) to authenticated;
 
 revoke execute on all functions in schema town from public, anon, authenticated;
