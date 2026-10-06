@@ -37,6 +37,7 @@ import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
+import { RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { BOX } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
@@ -115,11 +116,14 @@ const TownLine = lazy(() => import("./TownLine"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
+const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
 const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
+/** What a worn title is written in, by its rank (components/town/TownLines' own, kept here so that the map does not load that screen to draw a name): bronze, silver, gold, and the last rank's own. */
+const titleInk = (rank: number) => (rank >= RANKS ? "#ff9d6c" : rank >= 7 ? "#f2c94c" : rank >= 4 ? "#d5dce3" : "#e0a66a");
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
 const DEAL_NEAR = 3;
 /** A sign as it was read, kept by what was told: the map reads everybody's every frame (lib/town/sign). */
@@ -677,7 +681,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => { if (!stuckNote) return; const id = setTimeout(() => setStuckNote(null), 3000); return () => clearTimeout(id); }, [stuckNote]);
   useEffect(() => { if (boxHere && boxWant.current) { boxWant.current = false; setBoxAsk((n) => n + 1); } }, [boxHere]);
   /** Everybody's rank at the well, and who I am to whoever keeps the game: for the names over heads. */
-  const ranksRef = useRef<{ ranks: Record<string, number>; me: string }>({ ranks: {}, me: "" });
+  const ranksRef = useRef<{ ranks: Record<string, number>; titles: Record<string, Worn>; me: string }>({ ranks: {}, titles: {}, me: "" });
+  /** My lines of work as the keeper tells them (lib/town/lines): null where it knows of none, and then nothing of them is shown. And whether their screen is open. */
+  const [linesTold, setLinesTold] = useState<LinesTold | null>(null);
+  const [linesOpen, setLinesOpen] = useState(false);
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
   /** Everybody on the map now, as this screen has them (the bucket line asks who stands within sight: lib/town/line). */
@@ -750,8 +757,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [session, keeper]);
   // Everybody's rank at the well (lib/town/well): the keeper's, read as it changes.
   useEffect(() => {
-    if (!keeper) { ranksRef.current = { ranks: {}, me: "" }; return; }
-    const read = () => { ranksRef.current = { ranks: keeper.ranks(), me: keeper.id }; };
+    if (!keeper) { ranksRef.current = { ranks: {}, titles: {}, me: "" }; setLinesTold(null); return; }
+    const read = () => {
+      ranksRef.current = { ranks: keeper.ranks(), titles: keeper.titles(), me: keeper.id };
+      // (my lines, kept only as they change: the keeper tells of every little thing)
+      const next = keeper.lines();
+      setLinesTold((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next));
+    };
     read();
     return keeper.watch(read);
   }, [keeper]);
@@ -2540,9 +2552,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.save();
       if (faded || away) ctx.globalAlpha = 0.6;
       label(ctx, name, p.x, p.y + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
-      // whoever has carried enough water to the farm's well has a name for it, under their own
-      const rank = ranksRef.current.ranks[isMe ? ranksRef.current.me : a.info.id] ?? 0;
-      if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, p.y + 31, RANK_INK[rank - 1]);
+      // the title somebody chose to wear, under their name (lib/town/lines); and for whoever has chosen none, the
+      // name the well has for those who carried enough water to it, as before there were lines
+      const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
+      const rank = ranksRef.current.ranks[who] ?? 0;
+      if (title) tag(ctx, words.current.th ? title.th : title.en, p.x, p.y + 31, titleInk(worn.rank));
+      else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, p.y + 31, RANK_INK[rank - 1]);
       ctx.restore();
       // The sign they hold up: its pole in their hand, its board over their head; what they say goes over the board.
       const over = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
@@ -3649,6 +3664,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               <TownIcon name="test" size={16} className="mr-1" />Test
             </button>
           )}
+          {/* The lines of work and their ladders: where whoever keeps the game has them */}
+          {game && keeper && linesTold && (
+            <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => !o); }}
+                    aria-expanded={linesOpen} title={w.th ? "สายอาชีพ" : "Lines of work"} data-town-lines-button
+                    className="pressable grid size-10 place-items-center rounded-full border border-line-strong bg-bg/80 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
+              <TownIcon name="rosette" size={22} /><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
+            </button>
+          )}
           {/* My bag, and my Popoto coins beside it */}
           {game && (
             <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"}
@@ -3857,6 +3880,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownDeal me={keeper.id} keeper={keeper} name={me.name} th={w.th} sfx={sfxRef.current} register={registerDeal}
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} />
+        </Suspense>
+      )}
+      {/* The lines of work and their ladders: a board over the map */}
+      {s && game && keeper && linesTold && linesOpen && (
+        <Suspense fallback={null}>
+          <TownLines keeper={keeper} told={linesTold} th={w.th} reduced={reducedRef.current} called={me.name}
+                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} onClose={() => setLinesOpen(false)} />
         </Suspense>
       )}
       {/* A recipe unrolled to be read: over everything */}
