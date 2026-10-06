@@ -1265,6 +1265,12 @@ try {
           await ask("nectarDrop", () => A.nectarDrop([30, 30]));
           await ask("netMine (lured)", () => A.netMine("lured", [30, 30], { misses: 0 }, "Tester A"));
           await ask("netMine (pair)", () => A.netMine("pair", [30, 30], { misses: 0 }, "Tester A"));
+          // the deck (a line is out after each cast: let go, so that the next finds the water free)
+          await ask("orbLight", () => A.orbLight("night"));
+          await ask("cast (two lines)", () => A.cast("worm", { tile: deck, deep: true }, false, false, "pair"));
+          await A.missed();
+          await ask("cast (stardust)", () => A.cast("worm", { tile: deck, deep: true }, false, false, "star"));
+          await A.missed();
           const lost = tried.filter(([, r]) => !reached(r));
           ok(`each new deed of the gifts reaches the database and is answered by its rule (${tried.length} deeds)`, lost.length === 0, lost);
           const done = tried.filter(([, r]) => r?.ok === true).map(([n]) => n);

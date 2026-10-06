@@ -1,0 +1,6 @@
+          // the deck (a line is out after each cast: let go, so that the next finds the water free)
+          await ask("orbLight", () => A.orbLight("night"));
+          await ask("cast (two lines)", () => A.cast("worm", { tile: deck, deep: true }, false, false, "pair"));
+          await A.missed();
+          await ask("cast (stardust)", () => A.cast("worm", { tile: deck, deep: true }, false, false, "star"));
+          await A.missed();
