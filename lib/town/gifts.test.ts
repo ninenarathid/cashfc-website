@@ -169,6 +169,7 @@ describe("the gifts of the lines of work", () => {
     // (the float and the net do something that is no number: theirs is 1, which does nothing where a rule multiplies by it)
     expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1 });
     expect(row.gifts.charmNet.by).toBe(1);
+    expect(row.gifts.charmApron.by).toBe(1);
     expect(row.gifts.charmGloves.by).toBe(0.5);
   });
 });

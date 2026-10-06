@@ -169,6 +169,24 @@ export const RECIPE_IDS: ItemId[] = [...DISH_IDS.filter((id) => DISHES[id].recip
 /** What goes into a thing. */
 export const needsOf = (id: ItemId): Array<[ItemId, number]> => (id in DISHES ? DISHES[id as DishId].recipe?.needs ?? [] : MAKES[id]?.needs ?? []);
 /**
+ * What the enchanted apron's wearer is shown of what is in the pot (lib/town/gifts; the owner, 2026-10-07: a line's
+ * first charm is to cut the line's most disheartening part out, and the kitchen's is a guess that costs everything
+ * put in). `fits`: the things can still become something real: every one of them, in no greater amount, is in some
+ * one recipe. `whole`: they are a recipe as they are. `wrong`: when they do not fit, the things that are in the way
+ * (with that one out, or one fewer of it, the rest would fit); all of them, when no one thing is. Whose recipe, what
+ * is still to go in and what it is cooked in are not told: only whether the pot is on a way that leads somewhere.
+ */
+export function potSays(things: Array<[ItemId, number]>): { fits: boolean; whole: boolean; wrong: ItemId[] } {
+  const mine = tidy(things);
+  if (!mine.length) return { fits: true, whole: false, wrong: [] };
+  const within = (some: Array<[ItemId, number]>) => RECIPE_IDS.some((id) => { const needs = new Map(needsOf(id)); return some.every(([k, n]) => (needs.get(k) ?? 0) >= n); });
+  if (within(mine)) return { fits: true, whole: madeOf(mine) !== null, wrong: [] };
+  const less = (k: ItemId) => mine.flatMap(([j, n]): Array<[ItemId, number]> => (j !== k ? [[j, n]] : n > 1 ? [[j, n - 1]] : []));
+  const wrong = mine.filter(([k]) => within(less(k))).map(([k]) => k);
+  return { fits: false, whole: false, wrong: wrong.length ? wrong : mine.map(([k]) => k) };
+}
+
+/**
  * What the wrong things taste of: how near they came to making something.
  *
  * - `far`: nothing like anything; `some`: at least half of what something takes is there;

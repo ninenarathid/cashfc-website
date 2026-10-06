@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  COOKING, ODD, cook, dishOf, easeOf, goesIn, hasMade, helpings, isCookware, isFind, ladle, madeOf, mayTake, oddHelpings, reachOf, serve, setDown, stirsFor, takeUp, takes, tasteOf, tidy,
+  COOKING, ODD, RECIPE_IDS, cook, dishOf, easeOf, goesIn, hasMade, helpings, isCookware, isFind, ladle, madeOf, mayTake, oddHelpings, potSays, reachOf, serve, setDown, stirsFor, takeUp, takes, tasteOf, tidy,
   type Pot,
 } from "./cooking";
 import atlas from "./icon-atlas.json";
@@ -395,5 +395,70 @@ describe("the cure for pests (the owner, 2026-10-04: \"ช่วยเพิ่�
     const wrong = done(cook(purseWith(["chili", 2], ["scallion", 2], ["rice", 1], ["pot", 1]), [["chili", 2], ["scallion", 2], ["rice", 1]], ["pot"], 0, NOW));
     expect(wrong.made).toBe(ODD);
     expect(wrong.taste).toBe("swap");
+  });
+});
+
+describe("what the pot says to whoever wears the enchanted apron (the owner, 2026-10-07: a first charm nearly OP, as the forest's lamp is)", () => {
+  it("an empty pot is on its way to anything, and is nothing whole", () => {
+    expect(potSays([])).toEqual({ fits: true, whole: false, wrong: [] });
+    expect(potSays([["rice", 0]])).toEqual({ fits: true, whole: false, wrong: [] });
+  });
+
+  it("every recipe, put in a thing at a time in any order, fits at every step and is whole only at the last", () => {
+    for (const id of RECIPE_IDS) {
+      const needs = needsOf(id), units = needs.flatMap(([k, n]) => Array.from({ length: n }, () => k));
+      for (const order of [units, [...units].reverse()]) {
+        const pot: Array<[ItemId, number]> = [];
+        order.forEach((k, i) => {
+          pot.push([k, 1]);
+          const said = potSays(pot);
+          expect(said.fits, `${id} after ${i + 1}`).toBe(true);
+          expect(said.wrong).toEqual([]);
+          // (whole before the last thing only where what is in is another recipe by itself)
+          if (i === order.length - 1) expect(said.whole, id).toBe(true);
+          else expect(said.whole).toBe(madeOf(pot) !== null);
+        });
+      }
+    }
+  });
+
+  it("one thing too many, and one thing that is in no recipe with the rest, are named; the rest are not", () => {
+    for (const id of RECIPE_IDS.slice(0, 40)) {
+      const needs = needsOf(id);
+      // one more of its first thing than any recipe with these things takes
+      const [k, n] = needs[0], most = Math.max(...RECIPE_IDS.filter((r) => needs.every(([j, m]) => (new Map(needsOf(r)).get(j) ?? 0) >= m)).map((r) => new Map(needsOf(r)).get(k) ?? 0));
+      const over = potSays([...needs.slice(1), [k, most + 1]]);
+      expect(over.fits, id).toBe(false);
+      expect(over.whole).toBe(false);
+      expect(over.wrong, id).toContain(k);
+      void n;
+    }
+    // a thing nothing is cooked with: it is the one in the way, whatever else is in
+    const never = (Object.keys(ITEMS) as ItemId[]).filter(goesIn).find((x) => !RECIPE_IDS.some((r) => needsOf(r).some(([j]) => j === x)));
+    expect(never).toBeDefined();
+    const needs = needsOf(RECIPE_IDS[0]);
+    expect(potSays([...needs, [never!, 1]])).toEqual({ fits: false, whole: false, wrong: [never!] });
+    expect(potSays([[never!, 2]])).toEqual({ fits: false, whole: false, wrong: [never!] });
+  });
+
+  it("two things that each go with a third and never with each other: both are in the way, since either out would mend it", () => {
+    // found from the recipes themselves: a, b, c with {a, c} and {b, c} each within some recipe and {a, b, c} within none
+    const within = (some: ItemId[]) => RECIPE_IDS.some((r) => some.every((x) => needsOf(r).some(([j]) => j === x)));
+    const things = [...new Set(RECIPE_IDS.flatMap((r) => needsOf(r).map(([j]) => j)))];
+    let found: [ItemId, ItemId, ItemId] | null = null;
+    for (const c of things) { for (const a of things) { for (const b of things) {
+      if (a < b && a !== c && b !== c && within([a, c]) && within([b, c]) && !within([a, b, c]) && !within([a, b])) { found = [a, b, c]; break; }
+    } if (found) break; } if (found) break; }
+    expect(found).not.toBeNull();
+    const [a, b, c] = found!, said = potSays([[a, 1], [b, 1], [c, 1]]);
+    expect(said.fits).toBe(false);
+    expect([...said.wrong].sort()).toEqual([a, b].sort());
+    expect(said.wrong).not.toContain(c);
+  });
+
+  it("says nothing of whose recipe, what is still to go in or what it is cooked in: three answers and the things in the way", () => {
+    const said = potSays(needsOf(RECIPE_IDS[0]));
+    expect(Object.keys(said).sort()).toEqual(["fits", "whole", "wrong"]);
+    expect(said).toEqual({ fits: true, whole: true, wrong: [] });
   });
 });

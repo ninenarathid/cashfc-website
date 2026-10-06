@@ -105,8 +105,10 @@ const kinds = Object.values(row.data.gifts).map((g) => g.kind);
 t.check("the gifts row is written over as the code has it: nine gifts, three of them familiars, each with the rank that gives it and its number, and what is counted",
   same(row.data, CODE.gifts) && same(row.data.uses, { famGnome: { n: 10, per: "meal" } }) && row.fresh === true && kinds.length === 9 && kinds.filter((k) => k === "familiar").length === 3 && row.data.gifts.famGnome.by === 10 && row.data.gifts.famSquirrel.rank === 2, row);
 const charmsNow = Object.fromEntries(Object.entries(row.data.gifts).filter(([, g]) => g.kind === "charm"));
-t.check("the six charms in it are as they were but for the float's number and the net's, which are 1 now; and the places for them",
-  same(charmsNow, { ...was.row.gifts, charmFloat: { ...was.row.gifts.charmFloat, by: 1 }, charmNet: { ...was.row.gifts.charmNet, by: 1 } }) && was.row.gifts.charmFloat.by === 1.5 && was.row.gifts.charmNet.by === 1.5
+// (what each first charm does was laid out anew: the float, the net and the apron do something that is no number, and theirs is 1, which does nothing where a rule multiplies by it)
+const MOVED = { charmFloat: 1, charmNet: 1, charmApron: 1 };
+t.check(`the six charms in it are as they were but for the numbers that moved (${Object.entries(MOVED).map(([k, v]) => `${k} ${v}`).join(", ")}); and the places for them`,
+  same(charmsNow, Object.fromEntries(Object.entries(was.row.gifts).map(([id, g]) => [id, id in MOVED ? { ...g, by: MOVED[id] } : g]))) && Object.keys(MOVED).every((id) => was.row.gifts[id].by !== MOVED[id])
   && row.data.slots === was.row.slots && Object.keys(was.row.gifts).length === 6, { now: charmsNow, was: was.row.gifts });
 const others = await one(`select count(*)::int as n from public.town_catalog where key not in ('gifts', 'goods', 'fish') and updated_at > now() - interval '1 hour'`);
 t.check("no other row of the catalog is touched", others.n === 0, others);

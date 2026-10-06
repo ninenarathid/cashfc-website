@@ -32,9 +32,11 @@
 --   * `town.work_answer` (v151's) says which gifts are given, so that a page
 --     offers those and no other.
 --   * The first charms do more (the owner, 2026-10-07: nearly OP, as the
---     forest's lamp is). Two of them are the database's to know: the
---     whispering float no longer lengthens the strike's moment (its number in
---     the catalog is 1, which the rule multiplies by as before), and
+--     forest's lamp is). What the net and the apron do is the page's own (the
+--     net shows where every insect is, the apron's pot says whether what is in
+--     it can still be a recipe): their numbers in the catalog are 1. Two are
+--     the database's to know: the whispering float no longer lengthens the
+--     strike's moment (its number is 1, which the rule multiplies by), and
 --     `town_cast` (v146's, written again but for the lines meant) tells
 --     whoever wears it what is on its way when the line is dropped.
 --   * Fishing lasts longer (the owner, 2026-10-07: "เหยือหมดไวเกินไป สตามิน่า
@@ -62,7 +64,7 @@ insert into public.town_catalog (key, data) values
   ('gifts', $town${
     "slots": 2,
     "uses": {"famGnome":{"n":10,"per":"meal"}},
-    "gifts": {"charmApron":{"kind":"charm","line":"kitchen","rank":1,"by":1.5},"charmGloves":{"kind":"charm","line":"helpers","rank":1,"by":0.5},"charmFloat":{"kind":"charm","line":"fishing","rank":1,"by":1},"charmLamp":{"kind":"charm","line":"forest","rank":1,"by":5},"charmNet":{"kind":"charm","line":"insects","rank":1,"by":1},"charmHoe":{"kind":"charm","line":"farming","rank":1,"by":1.5},"famSquirrel":{"kind":"familiar","line":"forest","rank":2,"by":2},"famButterfly":{"kind":"familiar","line":"insects","rank":2,"by":1},"famGnome":{"kind":"familiar","line":"farming","rank":2,"by":10}}
+    "gifts": {"charmApron":{"kind":"charm","line":"kitchen","rank":1,"by":1},"charmGloves":{"kind":"charm","line":"helpers","rank":1,"by":0.5},"charmFloat":{"kind":"charm","line":"fishing","rank":1,"by":1},"charmLamp":{"kind":"charm","line":"forest","rank":1,"by":5},"charmNet":{"kind":"charm","line":"insects","rank":1,"by":1},"charmHoe":{"kind":"charm","line":"farming","rank":1,"by":1.5},"famSquirrel":{"kind":"familiar","line":"forest","rank":2,"by":2},"famButterfly":{"kind":"familiar","line":"insects","rank":2,"by":1},"famGnome":{"kind":"familiar","line":"farming","rank":2,"by":10}}
   }$town$::jsonb),
   ('goods', $town${
     "rod": {"price":60,"stock":6,"each":1},

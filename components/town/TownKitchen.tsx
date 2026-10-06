@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { COOKING, type Taste } from "@/lib/town/cooking";
+import { potSays, COOKING, type Taste } from "@/lib/town/cooking";
+import { wearing } from "@/lib/town/gifts";
 import { toldOf, type Told } from "@/lib/town/hints";
 import { WISH } from "@/lib/town/fountain";
 import { DISHES, ITEMS, type DishId, type ItemId, type MealBuffId } from "@/lib/town/items";
@@ -90,6 +91,8 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const tool = crew[0];
   const wares = useMemo(() => cookwareIn(purse.bag), [purse.bag]);
+  // (the enchanted apron worn as a charm: what the pot says of what is in it, lib/town/cooking's potSays; nothing without it)
+  const apron = wearing(purse, "charmApron"), says = useMemo(() => (apron ? potSays(things) : null), [apron, things]);
   // Bare hands are offered at every place (it was the worktable's and the camp's alone, and a stove with no cookware
   // in the bag read as if cookware were a must: the owner, 2026-10-06, "เอาไอคอน มือเปล่ามาใส่เลย จะได้ดูง่ายๆ"). They are
   // what one cooks with where nothing else can be (a worktable, the camp, a bag with no cookware) and where one chose
@@ -223,15 +226,23 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
               <ul className="absolute inset-x-1 top-1 grid grid-cols-[repeat(2,minmax(0,1fr))_minmax(4.25rem,0.9fr)_repeat(2,minmax(0,1fr))] gap-1" aria-label={th ? "ของที่ใส่แล้ว" : "What is in"}>
                 {things.map(([id, n], i) => (
                   <li key={id} style={{ gridColumn: COLS[i % 4], gridRow: Math.floor(i / 4) + 1 }}>
-                    <button type="button" onClick={() => onDrop(id)} title={name(id)} data-kitchen-in={id}
+                    <button type="button" onClick={() => onDrop(id)} title={name(id)} data-kitchen-in={id} data-pot={says ? (says.whole ? "whole" : says.fits ? "fits" : says.wrong.includes(id) ? "wrong" : "held") : undefined}
                             aria-label={th ? `${name(id)} ×${n} แตะเพื่อเอาออกหนึ่ง` : `${name(id)} ×${n}: take one out`}
-                            className="kt-pop pressable flex h-9 w-full items-center justify-center gap-0.5 rounded-[4px] border-2 border-[#2a190d] px-0.5 hover:brightness-95" style={{ backgroundColor: PAPER, color: INK }}>
+                            className="kt-pop pressable flex h-9 w-full items-center justify-center gap-0.5 rounded-[4px] border-2 border-[#2a190d] px-0.5 hover:brightness-95"
+                            style={{ backgroundColor: PAPER, color: INK, ...(says ? { boxShadow: says.whole ? "0 0 0 2px #f2c14e, 0 0 10px 2px rgba(242,193,78,0.85)" : says.fits ? "0 0 0 2px #4fbf7a, 0 0 9px 1px rgba(79,191,122,0.8)" : says.wrong.includes(id) ? "0 0 0 2px #e0533c, 0 0 9px 1px rgba(224,83,60,0.85)" : "0 0 0 2px rgba(255,255,255,0.25)" } : {}) }}>
                       <ItemIcon id={id} size={22} /><span className="font-data text-meta font-semibold tabular-nums">×{n}</span>
                     </button>
                   </li>
                 ))}
               </ul>
               {!things.length && <p className="absolute inset-x-0 top-[14%] px-16 text-center text-meta [text-shadow:0_1px_0_#000]" style={{ color: CREAM_SOFT }}>{th ? "แตะของในตะกร้าเพื่อใส่" : "Tap a thing in the basket to put it in"}</p>}
+              {/* what the apron's wearer is told of the pot, in a word: a state, never a recipe */}
+              {says && things.length > 0 && (
+                <p className="absolute left-1 top-[calc(0.25rem+2.5rem*var(--rows))] rounded-[4px] border-2 border-[#2a190d] px-1.5 py-0.5 font-data text-label font-semibold" aria-live="polite" data-kitchen-pot={says.whole ? "whole" : says.fits ? "fits" : "wrong"}
+                   style={{ ["--rows" as string]: Math.ceil(things.length / 4), backgroundColor: says.whole ? "#f2c14e" : says.fits ? "#4fbf7a" : "#e0533c", color: "#1c0f06" }}>
+                  {says.whole ? (th ? "ครบสูตร" : "A recipe, whole") : says.fits ? (th ? "ยังไปต่อได้" : "On its way") : (th ? "ไม่มีสูตรแบบนี้" : "No recipe has this")}
+                </p>
+              )}
               {/* the cookware, standing on the stove; steam off it once something is in */}
               <div ref={ware} className="absolute left-1/2 flex origin-bottom -translate-x-1/2 scale-[0.82] flex-col items-center min-[900px]:scale-100" style={{ bottom: scene.foot }}>
                 {scene.fire && !!tool && things.length > 0 && (
