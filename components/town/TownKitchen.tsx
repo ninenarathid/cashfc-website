@@ -383,8 +383,13 @@ function Page({ id, told, lines, purse, crew, notes, th, onBack }: {
   const head = `${SMALL} ${th ? "" : "uppercase tracking-wider"}`;
   return (
     <div data-kitchen-page={id}>
-      <button type="button" onClick={onBack} className="pressable -ml-1 min-h-9 rounded-md px-1.5 text-meta font-semibold" style={{ color: INK_SOFT }}>{th ? "‹ สูตรทั้งหมด" : "‹ All recipes"}</button>
-      <div className="mt-0.5 flex items-center gap-2.5">
+      {/* the way back to the list: a button that looks like one (the owner, 2026-10-06: many did not find it, a faint word as it was) */}
+      <button type="button" onClick={onBack} data-kitchen-back
+              className="pressable flex min-h-10 items-center gap-2 rounded-md border-2 px-3 text-ui font-semibold shadow-[0_2px_0_rgba(74,53,32,0.35)] hover:brightness-110"
+              style={{ borderColor: INK, backgroundColor: INK, color: "#ffeccb" }}>
+        <span aria-hidden className="text-lead leading-none">←</span>{th ? "กลับไปสูตรทั้งหมด" : "Back to all recipes"}
+      </button>
+      <div className="mt-2.5 flex items-center gap-2.5">
         <ItemIcon id={id} size={48} className="shrink-0" />
         <div className="min-w-0">
           <h4 className="font-display text-title font-semibold leading-tight">{name(id)}</h4>
