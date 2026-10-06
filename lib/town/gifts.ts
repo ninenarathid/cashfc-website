@@ -56,14 +56,14 @@ export const GIFTS: readonly Gift[] = [
   { id: "charmNet", kind: "charm", line: "insects", rank: 1, name: { th: "สวิงใยเงิน", en: "Silver-web net" },
     does: { th: "เห็นแมลงทุกตัวที่ออกมาตอนนี้ทั้งแผนที่ มีประกายเงินบอกว่าอยู่ตรงไหน แม้ตัวที่ซ่อน (เห็นเฉพาะจอเรา)", en: "Every insect that is out on the map glints silver where it is, the hidden ones too (on your own screen)" } },
   { id: "charmHoe", kind: "charm", line: "farming", rank: 1, name: { th: "จอบต้องมนตร์", en: "Enchanted hoe" },
-    does: { th: "ถอนหญ้าและพรวนดิน จังหวะกว้างขึ้นครึ่งเท่า", en: "Weeding and tilling are half as forgiving again" } },
+    does: { th: "จอบเดียวทั้งแถว: ถอนหญ้าหรือพรวนดินทั้งแถวของแปลงด้วยมินิเกมเดียว จังหวะไหนพลาด ช่องนั้นไม่เสร็จ", en: "A whole row at a swing: weed or till a bed's row in one game, a beat to a plot; a beat missed leaves its plot undone" } },
   // the second rank: the first familiars
   { id: "famSquirrel", kind: "familiar", line: "forest", rank: 2, name: { th: "กระรอกคู่ใจ", en: "A squirrel" },
     does: { th: "ตอนเขย่าต้นไม้ กระรอกช่วยรับลูกไม้ที่เราพลาดให้ ต้นละ 2 ลูก", en: "When a tree is shaken it catches two of the fruit you miss" } },
   { id: "famButterfly", kind: "familiar", line: "insects", rank: 2, name: { th: "ผีเสื้อนำโชค", en: "A lucky butterfly" },
     does: { th: "แมลงตื่นตัวช้าลง เข้าใกล้ได้มากขึ้นก่อนมันหนี", en: "Insects are slower to startle: you come nearer before they flee" } },
   { id: "famGnome", kind: "familiar", line: "farming", rank: 2, name: { th: "โนมสวน", en: "A garden gnome" },
-    does: { th: "โนมถอนหญ้าให้เองโดยไม่ต้องเล่นมินิเกม มื้อละ 10 ช่อง", en: "It pulls the weeds for you with no game, ten plots to a meal's hours" } },
+    does: { th: "โนมรดน้ำให้ทั้งแปลงของเราในครั้งเดียว ไม่ใช้น้ำในบัว ไม่เสียแรง แปลงละชั่วโมงละครั้ง", en: "It waters a whole bed of yours at once, with no water out of the can and for no stamina, once an hour a bed" } },
 
   // ── The rest of ranks 1 to 6, as the ladder was laid out anew (the owner, 2026-10-07: nearly OP, each rank more than
   // the last, and no power that takes failing away). DECLARED HERE SO THAT EACH LINE CAN BE BUILT APART: a gift below
@@ -145,13 +145,15 @@ export const GIFTS: readonly Gift[] = [
  * lights so many tiles about its wearer in the forest's dark, on their own screen (the owner, 2026-10-06, of an early
  * gift of the forest's: "ของที่ช่วยให้ป่าสว่างเวลากลางคืน เอาแค่พอให้ตัวเองเล่นง่ายขึ้น": it finds nothing more, it only shows).
  */
-export const CHARMS = { slots: 2, charmApron: 1, charmGloves: 0.5, charmFloat: 1, charmLamp: 5, charmNet: 1, charmHoe: 1.5 } as const;
+export const CHARMS = { slots: 2, charmApron: 1, charmGloves: 0.5, charmFloat: 1, charmLamp: 5, charmNet: 1, charmHoe: 1 } as const;
 /**
  * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly is so many
- * steps of softness about an insect (lib/town/forest-eye's softStep); the gnome weeds so many plots to a meal's hours
- * with no game. All three are the page's own to read: their games are played in the browser.
+ * steps of softness about an insect (lib/town/forest-eye's softStep); the gnome waters a whole bed of its member's
+ * at once, and a bed rests so many minutes between two of its rounds (lib/town/farm's gnomeWater: the owner,
+ * 2026-10-07, in place of the weeding it began with). The first two are the page's own to read: their games are
+ * played in the browser. The gnome's round is a deed, judged by whoever keeps the game.
  */
-export const FAMILIARS = { famSquirrel: 2, famButterfly: 1, famGnome: 10 } as const;
+export const FAMILIARS = { famSquirrel: 2, famButterfly: 1, famGnome: 60 } as const;
 /**
  * What a gift does only so many times: to a day (from dawn, as the stamina's day is) or to a meal's hours. Counted in
  * the purse (`gifts.used`) by whoever keeps the game, so that the count is the same on every device a member plays on.
@@ -160,7 +162,6 @@ export type Per = "day" | "meal" | "span";
 /** (`ms`: of a count to a span of time that is neither, how long the span is: once in five minutes is one to a span of 300,000) */
 export interface Use { n: number; per: Per; ms?: number }
 export const USES: Partial<Record<GiftId, Use>> = {
-  famGnome: { n: FAMILIARS.famGnome, per: "meal" },
   // (the later ranks': each line's own to tune)
   thingSpoon: { n: 3, per: "day" }, famSprite: { n: 3, per: "meal" }, thingSpice: { n: 1, per: "day" }, thingFlame: { n: 3, per: "day" },
   charmRing: { n: 3, per: "day" }, thingDust: { n: 5, per: "day" },

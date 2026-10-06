@@ -56,8 +56,8 @@ export function vectorsGifts(): Vector[] {
     const fam = c.of<() => string | null | undefined>([() => undefined, () => undefined, () => null, () => had.find((x) => fams.includes(x)) ?? c.of(fams), () => c.of(fams), () => c.of([...CHARM_IDS]), () => "noSuchGift"])();
     // (what was used of a counted gift: nothing said, a sound count of these hours or of others, and counts kept wrongly)
     const k = stretchOf({ n: 1, per: "meal" }, NOW);
-    const used = c.of<() => unknown>([() => undefined, () => undefined, () => undefined, () => ({ famGnome: { k, n: c.int(0, 12) } }), () => ({ famGnome: { k: k - 1, n: 4 } }), () => "x", () => [1, 2],
-      () => ({ famGnome: "3" }), () => ({ famGnome: { k, n: 2.5 } }), () => ({ noSuchGift: { k: 1, n: 1 }, famGnome: { k, n: -3 } })])();
+    const used = c.of<() => unknown>([() => undefined, () => undefined, () => undefined, () => ({ famOtter: { k, n: c.int(0, 12) } }), () => ({ famOtter: { k: k - 1, n: 4 } }), () => "x", () => [1, 2],
+      () => ({ famOtter: "3" }), () => ({ famOtter: { k, n: 2.5 } }), () => ({ noSuchGift: { k: 1, n: 1 }, famOtter: { k, n: -3 } })])();
     const and = <T extends object>(g: T) => ({ ...g, ...(fam === undefined ? {} : { familiar: fam }), ...(used === undefined ? {} : { used }) }) as T;
     return c.of<() => Purse["gifts"] | undefined | null>([
       () => undefined, () => null, () => and({ had, charms: worn }), () => and({ had, charms: worn, owed: 0.5 }), () => and({ had, charms: worn.slice(0, 2), owed: 0 }),
@@ -87,11 +87,11 @@ export function vectorsGifts(): Vector[] {
     add("used_of", [p, gid, when], usedOf(p, gid, when));
     add("gift_use", [p, gid, when], useGift(p, gid, when));
   }
-  // a counted gift used: the gnome following and not, with every count kept, in the stretch kept and in another
+  // a counted gift used: the otter following and not, with every count kept, in the stretch kept and in another
   // (and something else kept beside it of what was used, which a use leaves as it is)
-  for (const fam of ["famGnome", "famSquirrel", null, undefined]) for (const n of [undefined, 0, 1, 9, 10, 11, 3.5, -2, "4"]) for (const dk of [0, 1, -1]) for (const when of [NOW, NOW + 7 * 3_600_000, NOW + 86_400_000]) {
-    const p = purse({ had: ["famGnome", "famSquirrel", "charmHoe"], charms: ["charmHoe"], ...(fam === undefined ? {} : { familiar: fam }), ...(n === undefined ? {} : { used: { famGnome: { k: stretchOf({ n: 1, per: "meal" }, NOW) + dk, n }, ...(dk === 0 ? { famSquirrel: { k: 7, n: 2 } } : {}) } }) } as Purse["gifts"]);
-    for (const id of ["famGnome", "famSquirrel", "charmHoe"]) {
+  for (const fam of ["famOtter", "famSquirrel", null, undefined]) for (const n of [undefined, 0, 1, 9, 10, 11, 3.5, -2, "4"]) for (const dk of [0, 1, -1]) for (const when of [NOW, NOW + 7 * 3_600_000, NOW + 86_400_000]) {
+    const p = purse({ had: ["famOtter", "famSquirrel", "charmHoe"], charms: ["charmHoe"], ...(fam === undefined ? {} : { familiar: fam }), ...(n === undefined ? {} : { used: { famOtter: { k: stretchOf({ n: 1, per: "meal" }, NOW) + dk, n }, ...(dk === 0 ? { famSquirrel: { k: 7, n: 2 } } : {}) } }) } as Purse["gifts"]);
+    for (const id of ["famOtter", "famSquirrel", "charmHoe"]) {
       add("gift_works", [p, id], works(p, id));
       add("used_of", [p, id, when], usedOf(p, id, when));
       add("gift_use", [p, id, when], useGift(p, id, when));

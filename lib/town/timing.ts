@@ -53,7 +53,14 @@ export const TIMING = {
  * for what is timed (the hoe, the weeding), steady hands for what is held steady (the pouring, the stirring, the
  * roast). Each game is as kind as it can be and no kinder: its own most still holds.
  */
-export interface TimingMods { tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number }; buff?: number }
+/**
+ * `hard` is how much harder the thing worked on is for whoever works it (lib/town/gifts' harderFor; on the farm,
+ * lib/town/farm's hardFor: a crop of the second tier or better, from the farming line's fourth rank): the stretch,
+ * the marks or the ring is so many times as narrow. 1, or nothing said: as it is for everybody.
+ */
+export interface TimingMods { tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number }; buff?: number; hard?: number }
+/** What `hard` leaves of a width: its own part, never more than the whole. */
+export const narrowed = (mods: TimingMods): number => 1 / Math.max(1, mods.hard ?? 1);
 /** A round as it stands: how many hits are still wanted, the hits and misses so far, how many misses end it (none, when it cannot be lost), how fast the marker runs, where it was and which way it ran when it last changed pace, and where the stretch lies. */
 export interface Round { need: number; hits: number; misses: number; most: number; speed: number; from: number; way: 1 | -1; since: number; lo: number; width: number; seed: number }
 
@@ -67,7 +74,7 @@ function draw(seed: number): [number, number] {
 /** Begin a round wanting so many hits. */
 export function startRound(need: number, mods: TimingMods, seed: number): Round {
   const tired = mods.spent ? mods.tired ?? TIMING.spent : null;
-  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1));
+  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1) * narrowed(mods));
   const [r, next] = draw(seed | 0);
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0,
@@ -89,6 +96,29 @@ export const over = (r: Round, t: number) => { const m = markerAt(r, t); return 
 export const finished = (r: Round) => r.hits >= r.need;
 /** Whether the work was dropped: as many misses as tired hands have in them, before it was done. */
 export const dropped = (r: Round) => r.most > 0 && r.misses >= r.most && !finished(r);
+
+/**
+ * A row's round (the enchanted hoe, lib/town/gifts; the owner, 2026-10-07: a power that does many at once has a
+ * longer game of its own, and a miss costs a part, never the whole): so many beats, one swing to each. A swing over
+ * the stretch is that beat's plot done; one off it leaves the plot undone; either way the stretch moves on and the
+ * marker quickens, so the row's last plots are its hardest. It ends when every beat has had its swing, and cannot be
+ * dropped. `marks`: each beat as it went.
+ */
+export interface RowRound extends Round { marks: boolean[] }
+export function startRow(beats: number, mods: TimingMods, seed: number): RowRound {
+  return { ...startRound(beats, { ...mods, drops: false }, seed), most: 0, marks: [] };
+}
+/** Whether every beat of a row has had its swing. */
+export const rowDone = (r: RowRound) => r.marks.length >= r.need;
+/** A swing at a row's next beat. */
+export function pressRow(r: RowRound, t: number): RowRound {
+  if (rowDone(r)) return r;
+  const hit = over(r, t), { at, way } = running(r, t);
+  const [a, s1] = draw(r.seed), room = 1 - 2 * TIMING.edge - r.width;
+  let lo = TIMING.edge + a * room;
+  if (Math.abs(lo - r.lo) < r.width) lo = TIMING.edge + ((a + 0.5) % 1) * room;
+  return { ...r, hits: r.hits + (hit ? 1 : 0), misses: r.misses + (hit ? 0 : 1), marks: [...r.marks, hit], speed: Math.min(TIMING.fastest, r.speed * TIMING.quicken), from: at, way, since: t, lo, seed: s1 };
+}
 
 /** The button pressed at a moment: a hit (the stretch moves, the marker quickens) or a miss. */
 export function press(r: Round, t: number): Round {

@@ -1,7 +1,7 @@
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { gloved } from "./gifts";
+import { famBy, gloved, harderFor, hasThing, numberOf, useGift, usesLeft, wearing } from "./gifts";
 import { buffBy, hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -160,6 +160,10 @@ export interface Plant {
   /** How many times it has been picked, and when last. */
   picked: number;
   pickedAt: number;
+  /** How many bearings more than its kind has: one, of a plant the mandrake sang to as it was picked for what would have been the last time (lib/town/gifts' famMandrake). Missing from every other plant. */
+  more?: number;
+  /** The moments an hourglass of seasons was turned over its bed while it stood there (lib/town/gifts' thingHourglass): from each, for `HOURGLASS.hours`, it grows so many times as fast (`quickMs`). Missing from a plant no hourglass was turned over. */
+  fast?: number[];
 }
 export interface Plot { soil: Soil; plant: Plant | null }
 export const WILD: Plot = { soil: "wild", plant: null };
@@ -242,15 +246,52 @@ export function inPestHours(ms: number): boolean {
   return hour >= FARMING.pests.from && hour < FARMING.pests.to;
 }
 
-/** The hours a plant has grown by a moment: the clock's, faster once it is fed, what watering added, and what the rain did. */
+/**
+ * The hourglass of seasons (lib/town/gifts' thingHourglass, the farming line's fifth rank): how many hours a turning
+ * lasts (how many times as fast a plant grows in them is the gift's own number), and how many turnings a plant
+ * remembers (one a day at the most: none that matters is ever forgotten).
+ */
+export const HOURGLASS = { hours: 3, kept: 40 };
+/**
+ * The growth the hourglass has added to a plant between two moments, in milliseconds: for every stretch it ran over
+ * the plant's bed, the part of it that lies between them, so many times over again (three times as fast is twice
+ * more). Nothing, for a plant no hourglass was turned over: every clock of it is then as it always was.
+ */
+export function quickMs(p: Plant, from: number, to: number): number {
+  if (!Array.isArray(p.fast) || !p.fast.length) return 0;
+  const span = HOURGLASS.hours * HOUR;
+  let ms = 0;
+  for (const at of p.fast) if (typeof at === "number") ms += Math.max(0, Math.min(to, at + span) - Math.max(from, at));
+  return ms * (numberOf("thingHourglass") - 1);
+}
+/** Until when the hourglass runs over a plant, if it does at a moment. */
+export function quickUntil(p: Plant | null | undefined, now: number): number | null {
+  const span = HOURGLASS.hours * HOUR, at = Array.isArray(p?.fast) ? p!.fast.filter((f) => typeof f === "number" && f <= now && now < f + span) : [];
+  return at.length ? Math.max(...at) + span : null;
+}
+
+/** The hours a plant has grown by a moment: the clock's, faster once it is fed, what watering added, what the rain did, and what an hourglass turned over its bed did. */
 export function grown(p: Plant, now: number, rains: FarmSky = DRY): number {
   const fed = p.fed ? Math.max(0, now - Math.max(p.fed, p.sown)) * (FARMING.feed - 1) : 0;
   // (rain is watering by the minute: what a watering adds, for every stretch as long as a watering lasts)
   const wet = rainsIn(rains), rained = wet.length ? wetMs(wet, p.sown, now) * FARMING.water.adds / FARMING.water.every : 0;
-  return (Math.max(0, now - p.sown) + fed + p.boost + rained) / HOUR;
+  return (Math.max(0, now - p.sown) + fed + p.boost + rained + quickMs(p, p.sown, now)) / HOUR;
 }
-/** Where a plant is in its growing, pests left out. */
-const growing = (p: Plant, now: number, rains: FarmSky = DRY) => growth(p.crop, grown(p, now, rains), p.picked, (now - p.pickedAt) / HOUR);
+/**
+ * The mandrake's song (lib/town/gifts' famMandrake, the farming line's sixth rank): what part of its hours a crop
+ * that is picked only once takes to bear the once more (one that bears again takes its own while, as ever).
+ */
+export const ENCORE = 0.5;
+/** How many bearings more than its kind a plant has (none, but for one the mandrake sang to). */
+export const moreOf = (p: Plant): number => (typeof p.more === "number" && p.more > 0 ? Math.floor(p.more) : 0);
+/** The hours a plant waits to bear its one more: its kind's own while between two pickings, or, of a kind that is picked once, a part of its hours. */
+export const encoreHours = (crop: CropId): number => CROPS[crop].again ?? CROPS[crop].hours * ENCORE;
+/** Where a plant is in its growing, pests left out. (One that was picked and bears again waits by the clock, and by the hourglass with it; one the mandrake sang to has a bearing more than its kind, and waits for it the same way.) */
+export function growing(p: Plant, now: number, rains: FarmSky = DRY): ReturnType<typeof growth> {
+  const since = (now - p.pickedAt + (p.picked > 0 ? quickMs(p, p.pickedAt, now) : 0)) / HOUR, picks = CROPS[p.crop].picks ?? 1, more = moreOf(p);
+  if (more > 0 && p.picked >= picks && p.picked < picks + more) { const ripe = since >= encoreHours(p.crop); return { stage: ripe ? 5 : 4, ripe, spent: false }; }
+  return growth(p.crop, grown(p, now, rains), p.picked, since);
+}
 
 /**
  * When a pest struck a plant, if one has and it has not been cured since: the
@@ -289,7 +330,7 @@ export function see(key: string, plot: Plot, now: number, rains: FarmSky = DRY):
 }
 
 /** Why something was not done to a plot, beyond a purse's own reasons: the wrong thing in the hand, a plot not ready for it, watered already this hour, somebody else's bed, not ripe yet, as many beds held as one may, a living plant that nothing said was meant to go. */
-export type FarmRefusal = "hand" | "soil" | "wet" | "theirs" | "unripe" | "beds" | "sure";
+export type FarmRefusal = "hand" | "soil" | "wet" | "theirs" | "unripe" | "beds" | "sure" | "running";
 type Did = Done<{ purse: Purse; plot: Plot; got?: Array<[ItemId, number]> }> | { ok: false; why: FarmRefusal };
 const not = (why: FarmRefusal): { ok: false; why: FarmRefusal } => ({ ok: false, why });
 const hasInHand = (purse: Purse, hand: ItemId | null) => !!hand && held(purse.bag, hand) > 0;
@@ -424,11 +465,15 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   if (!seen.ripe) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
   if (roomFor(purse.bag, p.crop) < n) return no("full");
-  const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1);
+  const picked = p.picked + 1, last = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
+  // (the mandrake that follows whoever picks sings as a plant is picked for what would be the last time, and the plant
+  // bears once more: any crop, one that is picked only once too; so many plants a day, lib/town/gifts' USES; a plant
+  // it has sung to is not sung to again)
+  const sung = last && !moreOf(p) ? useGift(purse, "famMandrake", now) : null, mine = sung?.ok ? sung.purse : purse, spent = last && !sung?.ok;
   return {
     ok: true, got: [[p.crop, n]],
-    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0 } },
-    purse: { ...spend(purse, FARMING.costs.pick, now), bag: put(purse.bag, p.crop, n) },
+    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0, ...(sung?.ok ? { more: numberOf("famMandrake") } : {}) } },
+    purse: { ...spend(mine, FARMING.costs.pick, now), bag: put(mine.bag, p.crop, n) },
   };
 }
 
@@ -538,3 +583,188 @@ export function chore(purse: Purse, where: "river" | "well" | null, well: number
 
 /** Every vegetable's seed is a thing, and so is what it grows (a check the tests make). */
 export const SEEDS: ItemId[] = CROP_IDS.map((c) => CROPS[c].seed).filter((s) => ITEMS[s].kind === "seed");
+
+/* ── the gifts of the farming line (lib/town/gifts) ──────────────────────── */
+
+/**
+ * A row at a time (the owner, 2026-10-07: a rank's gift cuts a whole rule of its line out, and a power that does many
+ * at once has a longer, harder game of its own, in which a miss costs a part of what it would have given, never the
+ * whole). A bed is seven plots by seven; a row of it is the plots that share a y. Standing on a plot, a gift of the
+ * farming line does to the whole row what the thing in the hand does to that plot, at once:
+ *
+ * - **the enchanted hoe** (a charm, worn): weeds or tills every plot of the row that wants the same work, by one game
+ *   of a beat to a plot (lib/town/timing's `startRow`); a beat missed leaves its plot undone.
+ * - **the spellbound seed pouch** (a thing, had): sows every plot of the row that is ready for a seed, with the seed
+ *   in the hand, for five seeds where seven plots would take seven (`pouchSeeds`: in that measure for fewer plots,
+ *   never more than the plots); with fewer seeds than that in the bag, as many plots as they reach. No game of its
+ *   own: sowing has none (tired hands steady themselves once for the row, as for a plot).
+ * - **the crescent sickle** (a charm, worn): picks every ripe plant of the row, in its wearer's own bed, by one sweep
+ *   of the blade along it (lib/town/sweep). Every plant swung at is picked, as by hand; one cut well gives one more
+ *   (its number), where the bag has room for it; one cut badly gives what it would have by hand and no more.
+ *
+ * It is **one deed** for whoever keeps the game, judged whole (`rowTend`): told how each plot's beat went, it does
+ * each plot as `tend` would have done it by itself, one after another from the plot stood on outwards, so that the
+ * stamina, the bed's keeping, the gloves and what is written down are each plot's own, as ever. A row of one plot is
+ * no row: that is the plain deed.
+ */
+export type RowDeed = "clear" | "till" | "sow" | "pick";
+/**
+ * How much harder a crop is to work for somebody with so many points on the farming line (lib/town/gifts' harderFor;
+ * the owner, 2026-10-07: good things are harder for the skilled): what is of the second tier or better, from the
+ * line's fourth rank, 8% a rank. The simplest crops are as they are for everybody, and so is bare ground. "Harder"
+ * on the farm is a narrower mark: the sickle's cut on that plant, and what tired hands are given to steady, pour or
+ * time by (lib/town/timing's `hard`). Those games are the page's, as the hoe's always were: it is applied there, and
+ * nothing on the screen says so.
+ */
+export const hardFor = (crop: CropId | null | undefined, points: number): number => (crop && ITEMS[crop].tier >= 2 ? harderFor("farming", points) : 1);
+/** The seeds the pouch takes for so many plots of a row of `side`: five for seven (its number), in that measure for fewer, never more than the plots. */
+export const pouchSeeds = (plots: number, side = 7): number => Math.min(plots, Math.ceil((plots * numberOf("thingPouch")) / side));
+/** How many plots of a row so many seeds reach from the pouch. */
+export function pouchPlots(seeds: number, side = 7): number {
+  let plots = 0;
+  while (plots < side && pouchSeeds(plots + 1, side) <= seeds) plots++;
+  return plots;
+}
+/** What a plot's place in its row is: its x. */
+const xOf = (key: string) => Number(key.split(",")[0]);
+/**
+ * What a gift of the farming line would do to the row from the plot stood on (`at`), if anything: which work, and the
+ * plots of the row it would do it to, the one stood on first and then outwards (of two as near, the one further left).
+ * `keys` are the row's plots (lib/town/world's `rowOf`), `plots` those of them that are kept (one that is not is
+ * weeds), `owner` whose the bed is now.
+ */
+export function rowFor(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY):
+  { deed: RowDeed; plots: string[] } | null {
+  if (!keys.includes(at)) return null;
+  const hand = handOf(purse), want = (key: string) => deedFor(key, plots[key] ?? WILD, hand, me, now, owner, rains);
+  const deed = want(at);
+  const hoes = (deed === "clear" || deed === "till") && wearing(purse, "charmHoe"), sows = deed === "sow" && hasThing(purse, "thingPouch");
+  // (the sickle is for its wearer's own beds: not somebody else's, nor one that is nobody's)
+  const reaps = deed === "pick" && owner === me && wearing(purse, "charmSickle");
+  if (!hoes && !sows && !reaps) return null;
+  const x0 = xOf(at), all = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
+  // (the pouch sows as many plots as the seeds in the bag reach, the nearest first)
+  const row = sows ? all.slice(0, pouchPlots(held(purse.bag, hand!), keys.length)) : all;
+  return row.length > 1 ? { deed: deed as RowDeed, plots: row } : null;
+}
+/**
+ * **The garden gnome** (a familiar, following; the owner, 2026-10-07, in place of the weeding it began with): it goes
+ * down a whole bed of its member's with a can of its own and waters every plant there that could do with water, at
+ * once: no water out of the member's can, no stamina, and what a plain can would have added to each (no better
+ * can's more, no green fingers: the gnome's can is the gnome's). A bed rests an hour between two of its rounds
+ * (`numberOf("famGnome")` minutes: kept in the purse, `gnomed`), so it is best sent when the whole bed is dry.
+ * Its member's own beds only. Rain waters everything already, and a wet plot takes none, as ever.
+ *
+ * `plots` is every plot of the bed that is kept, by its key; `owner` whose the bed is now. The plots it would water,
+ * in the order it goes: down the bed a row at a time (none: there is nothing to send it for).
+ */
+/** The gnome's rounds as a purse keeps them: when it last went down each bed (nothing, of what is kept wrongly). */
+const roundsOf = (purse: Purse): Record<string, unknown> => { const kept: unknown = purse.gnomed; return kept && typeof kept === "object" && !Array.isArray(kept) ? (kept as Record<string, unknown>) : {}; };
+const gnomedAt = (purse: Purse, bed: number): number => { const at = roundsOf(purse)[String(bed)]; return typeof at === "number" ? at : -Infinity; };
+export function gnomeReach(bed: number, plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY): string[] {
+  const rest = famBy(purse, "famGnome") * 60_000;
+  if (!(rest > 0) || owner !== me || now - gnomedAt(purse, bed) < rest) return [];
+  const yx = (key: string) => key.split(",").map(Number);
+  return Object.keys(plots).filter((key) => deedFor(key, plots[key], "can", "", now, null, rains) === "water")
+    .sort((a, b) => yx(a)[1] - yx(b)[1] || yx(a)[0] - yx(b)[0]);
+}
+/**
+ * Send it: the purse (which remembers the round, and is otherwise as it was), the plots it watered as they now are,
+ * and which those are, in the order it went. Refused when no gnome follows (`none`), in a bed that is not mine
+ * (`theirs`), when it has been down this bed within the hour or every plant that grows here is wet already (`wet`),
+ * and where nothing grows that water would help (`soil`).
+ */
+export function gnomeWater(bed: number, plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY):
+  { ok: true; purse: Purse; plots: Record<string, Plot>; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
+  const rest = famBy(purse, "famGnome") * 60_000;
+  if (!(rest > 0)) return { ok: false, why: "none" };
+  if (owner !== me) return { ok: false, why: "theirs" };
+  const kept = Object.fromEntries(Object.entries(roundsOf(purse)).filter((e): e is [string, number] => typeof e[1] === "number" && now - e[1] < rest));
+  if (now - gnomedAt(purse, bed) < rest) return { ok: false, why: "wet" };
+  const watered = gnomeReach(bed, plots, purse, me, now, owner, rains);
+  if (!watered.length) {
+    const wet = Object.keys(plots).some((key) => { const s = see(key, plots[key], now, rains); return !!plots[key].plant && !s.dead && s.wet; });
+    return { ok: false, why: wet ? "wet" : "soil" };
+  }
+  const next: Record<string, Plot> = {};
+  for (const key of watered) { const p = plots[key].plant!; next[key] = { ...plots[key], plant: { ...p, watered: now, boost: p.boost + FARMING.water.adds * 60_000 } }; }
+  return { ok: true, purse: { ...purse, gnomed: { ...kept, [String(bed)]: now } }, plots: next, watered };
+}
+
+/**
+ * **The hourglass of seasons** (a thing, had; the owner, 2026-10-07): turned over one bed of its owner's, everything
+ * growing there grows three times as fast for three hours (`quickMs`: the plants that stand in the bed at that
+ * moment, each of which remembers the turning). Once a day (lib/town/gifts' USES). A plant that waits to bear again
+ * waits a third as long through it; one that is ripe gains nothing, and nothing dies of it.
+ *
+ * The plots of a bed it would quicken (`plots`: every plot of the bed that is kept; `owner`: whose the bed is now):
+ * every plant there that lives. None: there is nothing to turn it for (not its owner's bed, used already today, the
+ * sand still running there, or nothing growing that it would help).
+ */
+export function glassReach(plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY): string[] {
+  const did = glassTurn(plots, purse, me, now, owner, rains);
+  return did.ok ? did.quickened : [];
+}
+/**
+ * Turn it: the purse with the day's turning counted, the plots it quickened as they now are, which those are, and
+ * until when the sand runs. Refused without the hourglass (`none`), with the day's turning used (`spent`), in a bed
+ * that is not mine (`theirs`), while it still runs there (`running`), and where nothing grows that it would help:
+ * no plant, or only plants that are ripe or dead (`soil`).
+ */
+export function glassTurn(plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY):
+  { ok: true; purse: Purse; plots: Record<string, Plot>; quickened: string[]; until: number } | { ok: false; why: Refusal | FarmRefusal | "spent" } {
+  if (!hasThing(purse, "thingHourglass")) return { ok: false, why: "none" };
+  if (usesLeft(purse, "thingHourglass", now) < 1) return { ok: false, why: "spent" };
+  if (owner !== me) return { ok: false, why: "theirs" };
+  const yx = (key: string) => key.split(",").map(Number);
+  const live = Object.keys(plots).filter((key) => !!plots[key].plant && !see(key, plots[key], now, rains).dead).sort((a, b) => yx(a)[1] - yx(b)[1] || yx(a)[0] - yx(b)[0]);
+  if (live.some((key) => quickUntil(plots[key].plant, now) !== null)) return { ok: false, why: "running" };
+  // (it is turned for what is still on its way: a bed of plants that only wait to be picked has nothing to gain)
+  if (!live.some((key) => !see(key, plots[key], now, rains).ripe)) return { ok: false, why: "soil" };
+  const used = useGift(purse, "thingHourglass", now);
+  if (!used.ok) return { ok: false, why: used.why === "spent" ? "spent" : "none" };
+  const next: Record<string, Plot> = {};
+  for (const key of live) { const p = plots[key].plant!; next[key] = { ...plots[key], plant: { ...p, fast: [...(Array.isArray(p.fast) ? p.fast.filter((f) => typeof f === "number") : []), now].slice(-HOURGLASS.kept) } }; }
+  return { ok: true, purse: used.purse, plots: next, quickened: live, until: now + HOURGLASS.hours * HOUR };
+}
+
+/** Whether the mandrake sang to the plant in a plot as it was picked: read from the plot as it was and as it is, for the page, which shows it. */
+export const sungTo = (was: Plot | undefined, is: Plot | undefined): boolean => !!was?.plant && !!is?.plant && moreOf(is.plant) > moreOf(was.plant);
+
+/** A plot a row's deed did: which, what grows or grew there, and how many it came to (a plot hoed or sown is one; a plant picked, how many were picked, the sickle's one more among them where it was `well` cut). */
+export interface RowDone { key: string; crop: CropId | null; n: number; well?: boolean }
+/**
+ * Do a row's deed, whole. `marks` says how each plot's beat went, by its key (a plot it says nothing of was not in
+ * the game, and is left). `rest` is how many plots of the bed outside this row have a plant, and `holds` how many
+ * other beds are mine, as `tend` is told them. Gives the purse, the plots that changed and the bed's keeping as they
+ * are afterwards, and each plot done in the order it was done. With nothing a row's power can do here: `none`.
+ */
+export function rowTend(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, bed: Bed | undefined, rest: number, holds: number, purse: Purse, me: string, now: number,
+  marks: Readonly<Record<string, boolean>>, rains: FarmSky = DRY):
+  { ok: true; deed: RowDeed; purse: Purse; plots: Record<string, Plot>; bed: Bed | undefined; each: RowDone[]; got: Array<[ItemId, number]>; seeds?: number } | { ok: false; why: Refusal | FarmRefusal } {
+  const planted = (state: Readonly<Record<string, Plot>>, but: string) => rest + keys.filter((k) => k !== but && !!state[k]?.plant).length;
+  const found = rowFor(at, keys, plots, purse, me, now, ownerOf(bed, planted(plots, "") > 0, now), rains);
+  if (!found) return { ok: false, why: "none" };
+  const state: Record<string, Plot> = {}, each: RowDone[] = [], sows = found.deed === "sow", reaps = found.deed === "pick", hand = handOf(purse), got = new Map<ItemId, number>();
+  // (the pouch: of the seeds its plots would have taken one by one, so many are spared)
+  const spared = sows ? found.plots.length - pouchSeeds(found.plots.length, keys.length) : 0;
+  let mine = purse, keeping = bed;
+  for (const key of found.plots) {
+    // (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown; and every plant the
+    // sickle swung at is picked, however it was cut: only one that was not in the sweep is left)
+    if (reaps ? !(key in marks) : !sows && marks[key] !== true) continue;
+    const plot = state[key] ?? plots[key] ?? WILD, did = tend(key, plot, keeping, planted({ ...plots, ...state }, key), holds, mine, me, now, rains);
+    if (!did.ok || did.deed !== found.deed) { if (!each.length && !did.ok) return did; break; }
+    mine = did.purse; keeping = did.bed; state[key] = did.plot;
+    // (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
+    if (sows && each.length < spared) mine = { ...mine, bag: put(mine.bag, hand!, 1) };
+    if (!reaps) { each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 }); continue; }
+    // (a plant cut well: the sickle's one more, where the bag has room for it)
+    const crop = plot.plant!.crop, well = marks[key] === true, more = well && roomFor(mine.bag, crop) >= numberOf("charmSickle") ? numberOf("charmSickle") : 0;
+    if (more) mine = { ...mine, bag: put(mine.bag, crop, more) };
+    const n = (did.got[0]?.[1] ?? 0) + more;
+    each.push({ key, crop, n, well });
+    got.set(crop, (got.get(crop) ?? 0) + n);
+  }
+  return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [...got], ...(sows ? { seeds: each.length - Math.min(spared, each.length) } : {}) };
+}

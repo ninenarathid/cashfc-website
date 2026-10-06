@@ -1,6 +1,7 @@
 // The familiars (the owner, 2026-10-06: "ใส่ ภูติ หรือ สัตว์เดินตามได้ 1 ชนิด"), tried in the trial with two members: one
 // calls a familiar and the other is told which and sees it at their heels; it is sent to rest and is gone for both;
-// and the garden gnome pulls a plot's weeds with no game, so many to a meal's hours, where another familiar does not.
+// and with any of them at heel the weeds are a game as ever (the garden gnome pulled them with no game when it came;
+// since 2026-10-07 it waters its member's whole bed instead: town-gnome.mjs).
 //
 //   node .claude/skills/fc-cash-town/scripts/town-familiar.mjs <base-url> <out-dir>
 //
@@ -71,22 +72,19 @@ try {
   await X.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape" });
   await sleep(500);
   ok("…and the plot is weeds still", (await X.evaluate(`${F}.seen("133,5").soil`)) === "wild");
+  // (the gnome pulled weeds with no game when it came; since 2026-10-07 it waters its member's bed instead, which
+  // town-gnome.mjs tries: with it at heel the weeds are a game as ever, and nothing of it is counted)
   await X.evaluate(`${K}.familiarWear("famGnome")`);
   await sleep(300);
   await X.evaluate(`${T}.setStamina(50)`);
   await sleep(200);
-  const stamina = await X.evaluate(`${T}.purse().stamina.left`);
-  await X.evaluate(`${F}.act()`);
-  await until("the plot is cleared", async () => (await X.evaluate(`${F}.seen("133,5").soil`)) === "cleared", 6000);
-  ok("with the gnome the weeds are pulled at once, with no game", !(await gameUp(X)));
-  ok("…for the stamina clearing takes, and no miss", (await X.evaluate(`${T}.purse().stamina.left`)) === stamina - 2, { before: stamina, after: await X.evaluate(`${T}.purse().stamina.left`) });
-  ok("…the page says the gnome did it and how many are left to these hours, and the keeper has counted it", (await X.evaluate(`[...document.querySelectorAll("p")].some((p) => /โนมถอนหญ้าให้แล้ว \\(มื้อนี้เหลือ 9\\)/.test(p.innerText))`))
-    && (await X.evaluate(`${T}.purse().gifts.used.famGnome.n`)) === 1);
-  // (tilling is the hoe's own game still: the gnome pulls weeds and no more)
-  await until("the hoe is offered the soil", async () => (await X.evaluate(`${F}.deed()`)) === "till", 6000);
   await X.evaluate(`${F}.act()`);
   await sleep(900);
-  ok("tilling is a game still: the gnome pulls weeds and no more", await gameUp(X), "no game came up");
+  ok("with the gnome at my heels the weeds are a game too: it waters a bed, and weeds no more", await gameUp(X), "no game came up");
+  await X.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape" });
+  await sleep(500);
+  ok("…the plot is weeds still, no stamina is gone, and nothing is counted", (await X.evaluate(`${F}.seen("133,5").soil`)) === "wild" && (await X.evaluate(`${T}.purse().stamina.left`)) === 50
+    && (await X.evaluate(`${T}.purse().gifts.used?.famGnome`)) === undefined && (await X.evaluate(`${K}.giftUse("famGnome")`)).ok === false);
   ok("no page errors", (X.errors ?? []).length === 0, X.errors);
 } finally { await X.close(); }
 console.log(`\n${pass} passed, ${fail} failed`);

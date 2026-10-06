@@ -200,6 +200,9 @@ export interface Purse {
   whispers?: ItemId[];
   /** The stardust spice sprinkled on the bowl being eaten (lib/town/cooking, lib/town/stamina): the meal it was sprinkled on, by the moment that meal began, and the level its buff is at once it is eaten up. Of no meal but that one. */
   spiced?: { from: number; level: number };
+  // ── gifts: farming ──
+  /** When the garden gnome last went down each bed of mine with its can, by the bed's number (lib/town/farm's gnomeWater: a bed rests an hour between two of its rounds). Only rounds that still count are kept. */
+  gnomed?: Record<string, number>;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }
