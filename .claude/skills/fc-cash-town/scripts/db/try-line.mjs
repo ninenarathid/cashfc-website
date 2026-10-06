@@ -86,7 +86,7 @@ if (line !== "shared") await t.runTwice(FILE, `v153.${line}.sql`);
 const bare = await bareWrites((q) => t.sql(q).then((r) => r.rows));
 t.check("no function writes to a table with no WHERE", bare.length === 0, bare);
 // (what a member may call is granted to the signed in and to nobody else)
-const made = [...FILE.matchAll(/create or replace function (public\.town_[a-z0-9_]+)\s*\(/g)].map((m) => m[1]);
+const made = [...FILE.matchAll(/create or replace function (public\.town_[a-z0-9_]+)\s*\(/gi)].map((m) => m[1].toLowerCase());
 for (const fn of new Set(made)) {
   const g = await one(`select has_function_privilege('authenticated', p.oid, 'execute') as member, has_function_privilege('anon', p.oid, 'execute') as anon, p.prosecdef as definer
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname || '.' || p.proname = $1 order by p.oid desc limit 1`, [fn]);

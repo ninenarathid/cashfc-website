@@ -32,7 +32,8 @@ const settle = (v) => (Array.isArray(v) ? v.map(settle) : v && typeof v === "obj
 const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 const param = (v) => (v === null ? null : typeof v === "object" ? JSON.stringify(v) : v);
 const FILES = [["shared", read("v153.shared.sql")], ...LINES.map((l) => [l, read(`v153.${l}.sql`)])];
-const madeIn = (sql) => [...new Set([...sql.matchAll(/create or replace function ((?:public|town)\.[a-z0-9_]+)\s*\(/g)].map((m) => m[1]))];
+// (in any case: a function written again from the database's own wording has its head in capitals)
+const madeIn = (sql) => [...new Set([...sql.matchAll(/create or replace function ((?:public|town)\.[a-z0-9_]+)\s*\(/gi)].map((m) => m[1].toLowerCase()))];
 
 /** A database with the catalog as the code has it and every file run (twice over when asked). */
 async function fresh(t0 = null, twice = false) {
