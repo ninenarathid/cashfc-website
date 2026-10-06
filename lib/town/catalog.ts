@@ -13,7 +13,7 @@ import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE 
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
-  BAITS, BOWL, BUFFS, BUFF_HOURS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT,
+  BAITS, BOWL, BUFFS, BUFF_HOURS, BUFF_LEVELS, BUFF_STEPS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT,
   inBowl, type ItemId,
 } from "./items";
 import { BASIC, ORDER, UNLOCKS, mayAsk, sourcesAt } from "./orders";
@@ -85,6 +85,9 @@ export function catalogOf() {
     stamina: {
       max: STAMINA.max, minutes: STAMINA.minutes, together: STAMINA.together, company: STAMINA.company, meals: STAMINA.meals, hours: BUFF_HOURS,
       buffs: Object.fromEntries(Object.entries(BUFFS).map(([id, b]) => [id, b.by])),
+      // (since v145: the helpings a meal's hours take, and what a meal's buff does at each of its levels; `buffs` is
+      // each one's first, as it always was, for whatever still reads it)
+      bowls: STAMINA.bowls, levels: BUFF_LEVELS, steps: BUFF_STEPS,
     },
     /** Every dish: the stamina a helping gives, the buff it leaves, and its recipe (what goes in, in what, how many helpings, how many cooks). */
     dishes: Object.fromEntries(DISH_IDS.map((id) => [id, { stamina: DISHES[id].stamina, buff: DISHES[id].buff ?? null, recipe: DISHES[id].recipe ?? null }])),
@@ -323,7 +326,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v139 (ran 2026-10-05, 19:42) wrote it over again, for what he asked of every insect the same afternoon: the more of a kind are caught the
  * scarcer it is, and a day on it is as it was (insects: `scarce`, new).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // three helpings to a meal's hours, and a meal's buffs at their levels: the `stamina` row written over
+  v145: { keys: [], over: ["stamina"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

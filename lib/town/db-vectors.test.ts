@@ -13,10 +13,10 @@ import {
 import { ALL_SIGNS, SIGNS, castLine, hookBait, landCatch, loseBait, oddsOf, signsOf, strikeWindowOf } from "./fishing";
 import { CARRIES } from "./gear";
 import { HINT_IDS, buyHint, nextHint } from "./hints";
-import { BAITS, CROPS, CROP_IDS, DISH_IDS, FISH_IDS, FLOTSAM_IDS, ITEMS, ITEM_IDS, SCROLLS, growth, type BaitId, type BuffId, type CatchId, type DishId, type ItemId, type Sign } from "./items";
+import { BAITS, BUFF_LEVELS, CROPS, CROP_IDS, DISH_IDS, FISH_IDS, FLOTSAM_IDS, ITEMS, ITEM_IDS, SCROLLS, byOf, growth, type BaitId, type BuffId, type CatchId, type DishId, type ItemId, type MealBuffId, type Sign } from "./items";
 import { UNLOCKS, give, mayAsk, orderOf, shelfOf, sourcesAt, wantsFor, type Village } from "./orders";
 import { INSIDE, open } from "./scrolls";
-import { bowlsBack, buffOf, chew, costOf, dayOf, eatenToday, getUp, mealOf, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
+import { bowlsBack, bowlsToday, buffBy, buffOf, chew, costOf, dayOf, eatenToday, getUp, levelOf, mealBuffs, mealOf, raised, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
 import {
   GOODS, HOUR, buy, collect, held, hold, leave, newPurse, put, roomFor, roomy, roundOf, take, takeBack, takeOff, wear, weekOf,
   type Purse, type Stack, type Stall,
@@ -47,6 +47,19 @@ function chance(seed: number) {
   const int = (lo: number, hi: number) => lo + Math.floor(next() * (hi - lo + 1));
   const of = <T,>(list: readonly T[]): T => list[Math.floor(next() * list.length)];
   return { next, int, of, maybe: (p: number) => next() < p };
+}
+
+/**
+ * What meals have left a purse, as one of today may have it (v145): now and then nothing more than it had (a purse
+ * from before buffs had levels), else some of these buffs, each once, at a level, some run out already.
+ */
+function leveled(c: ReturnType<typeof chance>, now: number, ids: readonly MealBuffId[]): Pick<Purse, "buffs"> | Record<string, never> {
+  if (c.maybe(0.45)) return {};
+  const pool = [...ids], buffs: NonNullable<Purse["buffs"]> = [];
+  for (let n = c.int(0, Math.min(3, pool.length)); n > 0; n--) {
+    buffs.push({ id: pool.splice(c.int(0, pool.length - 1), 1)[0], level: c.int(1, BUFF_LEVELS), until: now + c.int(-1, 2) * 3_600_000 + c.int(1, 999) });
+  }
+  return { buffs };
 }
 
 /** Moments to try: either side of the uncle's two rounds, of dawn, of midnight, of a Monday. */
@@ -204,15 +217,21 @@ export function vectorsV107(): Vector[] {
   const c = chance(20261005), out: Vector[] = [];
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
   const SCROLL_IDS = Object.keys(SCROLLS) as ItemId[], BUFF_IDS: BuffId[] = ["calm", "keen", "lucky", "hearty", "green"];
+  /** A day's meals, with how many helpings each has had: counted (v145), or not (a purse from before: a meal eaten is one). */
+  const helpings = (meals: Purse["meals"]): Purse["meals"] =>
+    (c.maybe(0.4) ? meals : { ...meals, bowls: meals.eaten.map((e) => (e ? c.int(1, 3) : 0)) as [number, number, number] });
   /** A purse as it might be with a day's eating behind it. */
   const fed = (now: number): Purse => {
     const p = purseOf(c, now, [...DISH_IDS, ...SCROLL_IDS]), today = dayOf(now), from = now - c.int(0, 9) * 60_000 - c.int(0, 59_999);
     return {
       ...p,
       stamina: c.maybe(0.2) ? p.stamina : { day: c.maybe(0.8) ? today : today - 1, left: c.of([0, 3, 41.5, 77.25, 99.9, 100]) },
-      meals: c.maybe(0.2) ? p.meals : { day: c.maybe(0.8) ? today : today - 1, eaten: [c.maybe(0.4), c.maybe(0.4), c.maybe(0.4)] },
+      meals: c.maybe(0.2) ? p.meals : helpings({ day: c.maybe(0.8) ? today : today - 1, eaten: [c.maybe(0.4), c.maybe(0.4), c.maybe(0.4)] }),
       eating: c.maybe(0.5) ? null : { dish: c.of(DISH_IDS), meal: c.of([0, 1, 2]), from, till: from + c.int(0, Math.max(0, Math.min(now - from, 300_000))), got: c.of([0, 1.5, 12.25]) },
       buff: c.maybe(0.5) ? null : { id: c.of(BUFF_IDS), until: now + c.int(-2, 2) * 3_600_000 + c.int(0, 999) },
+      ...leveled(c, now, BUFF_IDS),
+      // (a blessing of the fountain's beside them, now and then: the same buff from both is the stronger of the two)
+      ...(c.maybe(0.2) ? { blessed: [{ id: c.of(BUFF_IDS), until: now + c.int(-1, 1) * 3_600_000 + c.int(1, 999) }] } : {}),
       // (a bowl or two owed from a meal that ended with the bag full; and a bag with no room, now and then)
       ...(c.maybe(0.25) ? { owed: c.int(0, 2) } : {}),
       ...(c.maybe(0.2) ? { bag: p.bag.map((s) => s ?? { item: "driftwood" as ItemId, n: 1 }) } : {}),
@@ -224,6 +243,13 @@ export function vectorsV107(): Vector[] {
     add("stamina_of", [p, now], staminaOf(p, now));
     add("buff_of", [p, now], buffOf(p, now));
     add("eaten_today", [p, now], eatenToday(p, now));
+    // (v145: the helpings a meal has had, what meals have left and at what level, and a buff raised by one more helping)
+    const id = c.of(BUFF_IDS);
+    add("bowls_today", [p, now], bowlsToday(p, now));
+    add("meal_buffs", [p, now], mealBuffs(p, now));
+    add("level_of", [p, now, id], levelOf(p, now, id));
+    add("buff_by", [p, now, id], buffBy(p, now, id));
+    add("raised", [p, id, now], raised(p, id, now));
     add("cost_of", [p, n, now], costOf(p, n, now));
     add("spend", [p, n, now], spend(p, n, now));
     const slot = c.maybe(0.1) ? c.of([-1, p.bag.length, null]) : c.int(0, p.bag.length - 1), seated = c.maybe(0.85);
@@ -234,6 +260,17 @@ export function vectorsV107(): Vector[] {
     const more = c.of([0, 0, 1, 2]);
     add("bowls_back", [p, more], bowlsBack(p, more));
     add("read_scroll", [p, slot], readScroll(p, slot as number));
+  }
+  // (v145: a helping begun or refused by how many the meal's hours have had: every count, counted and from before
+  // helpings were, with a dish in the hand's reach, seated, and no meal under way)
+  for (const now of MOMENTS) for (const had of [0, 1, 2, 3, 4]) for (const counted of [true, false]) {
+    const meal = mealOf(now), base = purseOf(c, now, DISH_IDS);
+    const p: Purse = {
+      ...base, eating: null, bag: base.bag.map((s, i) => (i === 0 ? { item: c.of(DISH_IDS), n: 2 } : s)),
+      meals: { day: dayOf(now), eaten: [0, 1, 2].map((i) => i === meal && had > 0) as [boolean, boolean, boolean], ...(counted ? { bowls: [0, 1, 2].map((i) => (i === meal ? had : 0)) as [number, number, number] } : {}) },
+    };
+    add("sit_down", [p, 0, true, now], sitDown(p, 0, true, now));
+    add("bowls_today", [p, now], bowlsToday(p, now));
   }
   // a scroll of a recipe known already, and of one that is not: whatever the purses above happened to hold
   for (const [scroll, dish] of Object.entries(SCROLLS) as Array<[ItemId, DishId]>) {
@@ -266,6 +303,11 @@ export function vectorsV108(): Vector[] {
     const rnd = Array.from({ length: 6 }, () => (c.maybe(0.05) ? c.of([0, 0.2999999, 0.3, 0.75, 0.9999999]) : c.next()));
     let k = 0;
     add("cast_line", [bait, hour, rain, lucky, shallow, signs, rnd], castLine(bait, hour, rain, lucky, () => rnd[k++], shallow, signs));
+    // (v145: a lucky meal at a level. The database is told that there is luck, and how much it does)
+    const level = c.int(0, BUFF_LEVELS);
+    k = 0;
+    add("cast_luck", [bait, hour, rain, level > 0, shallow, signs, rnd, byOf("lucky", level)], castLine(bait, hour, rain, level, () => rnd[k++], shallow, signs));
+    if (i % 3 === 0) add("odds_luck", [bait, hour, rain, level > 0, shallow, signs, byOf("lucky", level)], oddsOf(bait, hour, rain, level, shallow, signs));
   }
   // when a sign holds: moments over two months of days and nights (so every day of the week and every age of the
   // moon, its edges among them), somebody tired or not, the others' lines on either side of a crowd, rain that fell or not
@@ -280,6 +322,7 @@ export function vectorsV108(): Vector[] {
       ...base,
       stamina: { day: c.maybe(0.8) ? dayOf(now) : dayOf(now) - 1, left: c.of([0, 0, 12, 100]) },
       buff: c.maybe(0.5) ? null : { id: c.of(["keen", "keen", "calm", "lucky"] as BuffId[]), until: now + c.int(-1, 1) * 3_600_000 + c.int(1, 999) },
+      ...leveled(c, now, ["keen", "calm", "lucky"]),
       best: Object.fromEntries(Array.from({ length: c.int(0, 4) }, () => [c.of(FISH_IDS), c.of([5, 12.3, 40, 99.9])])),
     };
     const bait = c.maybe(0.9) ? c.of(BAITS) : (c.of(ITEM_IDS) as BaitId), what = c.of(CATCHES), size = c.of([0, 4.2, 12.3, 12.4, 33, 250.5]);
@@ -356,6 +399,7 @@ export function vectorsV110(rains: readonly Rain[] = DRY, share = 1): Vector[] {
       ...p, bag, hand: c.maybe(0.92) ? hand : c.maybe(0.5) ? null : c.of(HANDS),
       stamina: { day: c.maybe(0.85) ? dayOf(now) : dayOf(now) - 1, left: c.of([0, 1, 3, 50, 100]) },
       buff: c.maybe(0.3) ? { id: c.of(["hearty", "green", "calm"] as BuffId[]), until: now + c.int(-1, 1) * HOUR + c.int(1, 999) } : null,
+      ...leveled(c, now, ["hearty", "green", "calm"]),
     };
     if (next.hand === null && c.maybe(0.5)) delete next.hand;
     return next;
@@ -922,6 +966,10 @@ describe("the cases the database's rules are held to", () => {
     expect(all.length).toBeGreaterThan(5000);
     const whys = (fn: string) => new Set(all.filter((v) => v.fn === fn).map((v) => { const w = v.want as { ok?: boolean; why?: string } | null; return w?.ok ? "ok" : w?.why; }));
     expect([...whys("sit_down")].sort()).toEqual(["meal", "none", "ok", "stand"]);
+    // (three helpings to a meal's hours: a third begun, and a fourth refused, among the cases)
+    const sat = all.filter((v) => v.fn === "sit_down").map((v) => ({ had: (v.args[0] as Purse).meals.bowls, eating: (v.args[0] as Purse).eating, want: v.want as { ok: boolean; why?: string; purse?: Purse } }));
+    expect(sat.some((x) => x.want.ok && x.want.purse!.meals.bowls!.includes(3))).toBe(true);
+    expect(sat.some((x) => !x.want.ok && x.want.why === "meal" && !x.eating && x.had?.includes(3))).toBe(true);
     expect([...whys("read_scroll")].sort()).toEqual(["known", "none", "ok"]);
     // meals both under way and run out, with and without a buff at their end
     const chewed = all.filter((v) => v.fn === "chew").map((v) => v.want as { done: boolean; purse: Purse });
