@@ -1225,6 +1225,54 @@ try {
         if (counted) ok("a counted gift is used through the keeper: told how many are left, counted in the purse it keeps at once; one that is not counted is refused",
           used.ok && used.left === 9 && A.purse().gifts.used?.famGnome?.n === 1 && !other.ok && other.why === "none", { used, other, gifts: A.purse().gifts });
         else ok("a gift that is not counted is refused through the keeper, and nothing is counted in the purse", !used.ok && used.why === "none" && !other.ok && other.why === "none" && !A.purse().gifts.used?.famGnome, { used, other, gifts: A.purse().gifts });
+        // ── v153: the gifts of ranks 1 to 6, each new deed's way to the database ──
+        if ((await sql(`select to_regprocedure('town.harder_at(integer)') is not null as there`))[0].there) {
+          // What is tried is the wiring: that each deed reaches a function that is there, with the arguments it takes, and
+          // that its answer is a rule's (done, or refused for a reason) and not "the town could not be reached". The rules
+          // themselves are the dry run's. Every gift is put into the purse, the familiar changed as each deed needs.
+          const every = Object.keys((await sql(`select town.cat('gifts')->'gifts' as g`))[0].g);
+          const withGifts = async (familiar) => { await sql(`update public.town_purses set doc = jsonb_set(doc, '{gifts}', $2::jsonb) where member_id = $1`,
+            [a, JSON.stringify({ had: every, charms: ["charmHoe", "charmSickle"], owed: 0, familiar, used: {} })]); await settled(A); };
+          const reached = (r) => !!r && (r.ok === true || (typeof r.why === "string" && r.why !== "away"));
+          const tried = [];
+          const ask = async (name, fn) => { let r; try { r = await fn(); } catch (e) { r = { threw: String(e?.message ?? e) }; } tried.push([name, r]); return r; };
+          await withGifts("famGnome");
+          ok("the keeper offers every gift the database's catalog has", every.length >= 39 && every.every((id) => A.gives(id)), every.filter((id) => !A.gives(id)));
+          const here = [plot[0], plot[1]];
+          // the kitchen
+          await ask("basketPut", () => A.basketPut(0, 1));
+          await ask("basketTake", () => A.basketTake("riceBox", 1));
+          await ask("basketEat", () => A.basketEat("riceBox", true));
+          await ask("spoonAsk", () => A.spoonAsk([["rice", 1]]));
+          await ask("spiceEat (a slot)", () => A.spiceEat({ slot: 0 }, true));
+          await ask("spiceEat (the basket)", () => A.spiceEat({ dish: "riceBox" }, true));
+          // the farm
+          await ask("rowDo", () => A.rowDo(key, "Tester A", { [key]: true }));
+          await ask("gnomeDo", () => A.gnomeDo(key));
+          await ask("glassDo", () => A.glassDo(key));
+          // the well
+          await ask("drinkOffer", () => A.drinkOffer(b, here));
+          await ask("drinkTake", () => B.drinkTake(a, here));
+          await ask("drinkOffer (taken back)", () => A.drinkOffer(null, here));
+          await withGifts("famFrog");
+          await ask("rainFill", () => A.rainFill());
+          await ask("moonKeep", () => A.moonKeep());
+          await ask("moonPour", () => A.moonPour(1, here));
+          // the forest
+          await ask("mapUse", () => A.mapUse());
+          await ask("mapDig", () => A.mapDig([190, 150]));
+          // the insects
+          await ask("nectarDrop", () => A.nectarDrop([30, 30]));
+          await ask("netMine (lured)", () => A.netMine("lured", [30, 30], { misses: 0 }, "Tester A"));
+          await ask("netMine (pair)", () => A.netMine("pair", [30, 30], { misses: 0 }, "Tester A"));
+          const lost = tried.filter(([, r]) => !reached(r));
+          ok(`each new deed of the gifts reaches the database and is answered by its rule (${tried.length} deeds)`, lost.length === 0, lost);
+          const done = tried.filter(([, r]) => r?.ok === true).map(([n]) => n);
+          ok("…and some of them are done outright, the purse kept at once", done.length >= 3 && A.purse().gifts.had.length === every.length, { done, why: tried.filter(([, r]) => r?.ok !== true).map(([n, r]) => `${n}: ${r?.why ?? JSON.stringify(r)}`) });
+          await sql(`update public.town_purses set doc = jsonb_set(doc, '{gifts}', '{"had":["charmHoe","famGnome"],"charms":["charmHoe"],"owed":0,"familiar":"famGnome","used":{}}'::jsonb) where member_id = $1`, [a]);
+          await settled(A);
+        }
+        // ── (v153's deeds end) ──
         const rest = await A.familiarWear(null);
         ok("…and is sent to rest", rest.ok && A.purse().gifts.familiar === null && A.purse().gifts.had.join() === "charmHoe,famGnome", { rest, gifts: A.purse().gifts });
       } else ok("a database with charms and no familiars: the keeper offers the charms and no familiar", A.gives("charmHoe") && !A.gives("famGnome"));
