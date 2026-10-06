@@ -175,7 +175,7 @@ describe("what somebody sees of the forest", () => {
     const all = sights("word", NOON, DRY, nobody), first = all[0], second = all[1];
     const mine = sights("word", NOON, DRY, (spot) => ({ n: 1, mine: spot.id === first.id }));
     expect(mine.map((s) => s.id)).toEqual(all.map((s) => s.id).filter((id) => id !== first.id));
-    const bare = sights("word", NOON, DRY, (spot) => ({ n: spot.id === second.id ? KINDS[spot.kind].shares : 0, mine: false }));
+    const bare = sights("word", NOON, DRY, (spot) => ({ n: spot.id === second.id ? KINDS[SPOTS[spot.id].kind].shares : 0, mine: false }));
     expect(bare.map((s) => s.id)).toEqual(all.map((s) => s.id).filter((id) => id !== second.id));
     // (asked about the turn the place is in)
     const turns: number[] = [];

@@ -8,7 +8,8 @@ import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 // ── gifts: farming ──
 import { ENCORE, HOURGLASS } from "./farm";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
-import { FORAGING, KINDS, SPOTS } from "./forest";
+import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
+import { huntRow } from "./hunt";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
@@ -201,6 +202,13 @@ export function catalogOf() {
       kinds: KINDS,
       spots: SPOTS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]),
       reach: FORAGING.reach, decoy: FORAGING.decoy, decoys: FORAGING.decoys, hoes: HOES, misses: 30,
+      // ── gifts: forest ── (how near its member's way a squirrel fetches what lies on the ground, and how far is reached from a stag's back; and the secret places
+      // of the deep woods, for whoever wears the firefly lantern: their kinds, as `kinds` with the way of the second
+      // game (`then`), and the places themselves, whose numbers go on from the last of `spots`)
+      squirrel: FORAGING.squirrel, stag: FORAGING.stag,
+      secret: { kinds: SECRET_KINDS, spots: SECRETS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]) },
+      // (and a sprite's treasure map, lib/town/hunt: where a chest may be buried, the ring a map draws, how warm a dig is, what a chest may hold)
+      hunt: huntRow(),
     },
     /**
      * Insects (lib/town/insects): each of them in the order they are weighed (its habit, the haunts it keeps to, how
@@ -369,7 +377,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts", "farming", "well"] },
+  v153: { keys: [], over: ["gifts", "farming", "well", "forest"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

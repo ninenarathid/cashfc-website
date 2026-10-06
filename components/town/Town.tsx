@@ -38,6 +38,7 @@ import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
 import { CHARMS, GIFTS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
+import { rides } from "@/lib/town/riding";
 import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { BOX } from "@/lib/town/box";
@@ -197,6 +198,9 @@ function seatNear(p: Vec): number | null {
   BENCHES.forEach((b, i) => { const d = b.facing ? distance(p, { x: b.x + 0.5, y: b.y + 0.5 }) : Infinity; if (d < far) { far = d; best = i; } });
   return best;
 }
+// ── gifts: forest ──
+/** A moss stag under its rider (lib/town/riding): how big its picture is drawn against the map's own pixels, and how far up its back is. */
+const STEED = { k: 2.1, lift: 30 };
 /** How tall somebody sitting is against standing, for their name and the box a tap finds them in. */
 const SIT_HEIGHT = 0.72;
 /** How each rod is drawn in the hand: its cane, the joints along it, its grip, its dark edge, and its reel if it has one. */
@@ -797,6 +801,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const lampRef = useRef(0), lampAt = useRef<Vec | null>(null);
   /** Where each familiar drawn is, by whom it follows: this page's own (lib/town/gifts). */
   const pets = useRef(new Map<string, { x: number; y: number; right: boolean }>());
+  // ── gifts: forest ──
+  /** Where my own familiar has been sent running, and until when (the squirrel fetching what lies on the ground: lib/town/forest). On my screen only. */
+  const petErrand = useRef<{ x: number; y: number; until: number } | null>(null);
+  const sendPet = useCallback((to: Vec) => { petErrand.current = { x: to.x, y: to.y, until: performance.now() + 1100 }; }, []);
   // Everybody's rank at the well (lib/town/well): the keeper's, read as it changes.
   useEffect(() => {
     if (!keeper) { ranksRef.current = { ranks: {}, titles: {}, me: "" }; setLinesTold(null); return; }
@@ -2354,12 +2362,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName } | null {
     const name = a.info.pet;
     if (!name || !name.startsWith("fam") || !(name in ICON_ATLAS.icons) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
+    // ── gifts: forest ── (a moss stag is ridden: it is under its member and drawn with them, see drawAvatar; here only
+    // which way it goes is kept. Sat down, they have got off, and it stands by like any familiar)
+    if (rides(name, sitting(a))) {
+      const at = pets.current.get(a.info.id) ?? { x: a.pos.x, y: a.pos.y, right: true }, mx = a.pos.x - at.x, my = a.pos.y - at.y;
+      if (Math.abs(mx - my) > 0.01) at.right = mx - my > 0;
+      at.x = a.pos.x; at.y = a.pos.y;
+      pets.current.set(a.info.id, at);
+      return null;
+    }
     let p = pets.current.get(a.info.id);
     if (!p || Math.hypot(a.pos.x - p.x, a.pos.y - p.y) > 5) { p = { x: a.pos.x - 0.55, y: a.pos.y + 0.3, right: true }; pets.current.set(a.info.id, p); }
-    const dx = a.pos.x - p.x, dy = a.pos.y - p.y, d = Math.hypot(dx, dy), gap = 0.72;
+    // ── gifts: forest ── (my own familiar sent to fetch: it runs to the place, stays a moment, and runs back to my heels)
+    const sent = a.info.id === me.id && petErrand.current && performance.now() < petErrand.current.until ? petErrand.current : null;
+    const goal = sent ?? a.pos;
+    const dx = goal.x - p.x, dy = goal.y - p.y, d = Math.hypot(dx, dy), gap = sent ? 0.08 : 0.72;
+    if (sent && d <= gap + 0.05) sent.until = Math.min(sent.until, performance.now() + 160);
     let moving = false;
     if (d > gap) {
-      const go = Math.min(d - gap, 4.4 * dt);
+      const go = Math.min(d - gap, (sent ? 11 : d > 1.6 ? 9 : 4.4) * dt);
       p.x += (dx / d) * go; p.y += (dy / d) * go;
       moving = go > 0.004;
       // (which way it looks: the way it goes across the screen)
@@ -2393,6 +2414,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }
   // ── gifts: well ── (whether somebody's bucket gathers the rain: they hold one that is empty, and it rains)
   function rainGathers(a: Avatar): boolean { return isBucket(a.info.hold) && !a.info.wet && SKIES.raining(); }
+
+  // ── gifts: forest ──
+  /** A moss stag under its rider (lib/town/riding): its picture out of the icons', bigger than at the heels, turned the way they go, stepping as it runs. */
+  function drawSteed(ctx: CanvasRenderingContext2D, a: Avatar, at: Vec, hop: number) {
+    const img = iconImg.current, cell = ICON_ATLAS.icons["famStag" as IconName];
+    if (!img?.complete || !img.naturalWidth || !cell) return;
+    const [x, y, w, h] = cell, sc = cam.current.s, k = STEED.k * sc, right = pets.current.get(a.info.id)?.right ?? true;
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.beginPath();
+    ctx.ellipse(at.x, at.y, 19 * sc, 7 * sc, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.translate(Math.round(at.x), Math.round(at.y - hop));
+    if (!right) ctx.scale(-1, 1);
+    ctx.drawImage(img, x, y, w, h, -Math.round((w * k) / 2), -Math.round(h * k) + Math.round(5 * sc), Math.round(w * k), Math.round(h * k));
+    ctx.restore();
+  }
 
   function depthOf(a: Avatar): number {
     // at a table of the cooking yard: on its bench. On the far one that is behind the table's top, which is drawn
@@ -2560,12 +2599,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   function drawAvatar(ctx: CanvasRenderingContext2D, a: Avatar, isMe: boolean, names: Array<() => void>,
     boxes: typeof hits.current, faded: boolean, wall: number, now: number, dpr: number) {
     const v = cam.current;
-    const p = spotOf(a);
     const k = v.s;
+    // ── gifts: forest ── (on a moss stag's back, lib/town/riding: lifted onto it, sat, and stepping with it; the stag is drawn under them)
+    const foot = spotOf(a), riding = rides(a.info.pet, sitting(a)) && "famStag" in ICON_ATLAS.icons, ride = riding ? STEED.lift * k : 0;
+    const hop = riding && a.path.length > 0 && !reducedRef.current ? Math.abs(Math.sin(now / 105)) * 2.5 * k : 0;
+    const p = riding ? { x: foot.x, y: foot.y - ride - hop } : foot;
     const look = lookOf(a);
     const kit = kitFor(look.race);
     // sitting, the name and the tap box come down with the head
-    const h = (kit?.heightOf(look) ?? DOLL_H) * k * (sitting(a) ? SIT_HEIGHT : 1);
+    const h = (kit?.heightOf(look) ?? DOLL_H) * k * (sitting(a) || riding ? SIT_HEIGHT : 1);
     const voice = sessionRef.current?.voice;
     const level = voice?.active ? voice.level(isMe ? "me" : a.info.id) : 0;
     const talking = a.info.voice && !a.info.muted && level > 0.06;
@@ -2579,7 +2621,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     else if (away) ctx.globalAlpha = 0.6;
 
     // A shadow (not on a bench: the bench has the ground), and a ring at the feet while they speak.
-    if (!seatOf(a) && !tableSeatOf(a)) {
+    if (riding) drawSteed(ctx, a, foot, hop);
+    else if (!seatOf(a) && !tableSeatOf(a)) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, 15 * k, 6 * k, 0, 0, Math.PI * 2);
@@ -2618,8 +2661,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (held && face.view === "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
-      const step = moving ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
-      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, sit: sitting(a) }, dpr);
+      const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
+      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, sit: sitting(a) || riding }, dpr);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -2675,7 +2718,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     ctx.restore();
 
-    boxes.push({ id: a.info.id, x0: p.x - h * 0.38, y0: top, x1: p.x + h * 0.38, y1: p.y + 22 });
+    boxes.push({ id: a.info.id, x0: p.x - h * 0.38, y0: top, x1: p.x + h * 0.38, y1: foot.y + 22 });
     const name = isMe ? `${a.info.name} (${words.current.you})` : a.info.name;
     const said = a.said && wall - a.said.at < BUBBLE_MS ? a.said : null;
     const typing = !said && (isMe ? !!a.info.typing : !!sessionRef.current?.isTyping(a));
@@ -2683,13 +2726,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     names.push(() => {
       ctx.save();
       if (faded || away) ctx.globalAlpha = 0.6;
-      label(ctx, name, p.x, p.y + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
+      label(ctx, name, p.x, foot.y + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
       // the title somebody chose to wear, under their name (lib/town/lines); and for whoever has chosen none, the
       // name the well has for those who carried enough water to it, as before there were lines
       const who = isMe ? ranksRef.current.me : a.info.id, worn = ranksRef.current.titles[who], title = worn ? titleOf(worn.line, worn.rank) : null;
       const rank = ranksRef.current.ranks[who] ?? 0;
-      if (title) tag(ctx, words.current.th ? title.th : title.en, p.x, p.y + 31, titleInk(worn.rank));
-      else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, p.y + 31, RANK_INK[rank - 1]);
+      if (title) tag(ctx, words.current.th ? title.th : title.en, p.x, foot.y + 31, titleInk(worn.rank));
+      else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, foot.y + 31, RANK_INK[rank - 1]);
       ctx.restore();
       // The sign they hold up: its pole in their hand, its board over their head; what they say goes over the board.
       const over = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
@@ -3982,7 +4025,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownForest keeper={keeper} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onForest} sfx={sfxRef.current} art={boardArt}
-                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerForest} />
+                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerForest} sendPet={sendPet} />
         </Suspense>
       )}
       {/* The insects: out on every map, and caught with a net */}

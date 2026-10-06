@@ -29,8 +29,18 @@ export const DIGGING = {
 
 /** A place of the mound: the layers of earth left on it, whether the thing lies under it, and whether it is its top (the one part that shows from the start). */
 export interface Clod { earth: number; over: boolean; top: boolean }
-/** A mound as it stands: how many parts the thing is in, those laid bare and those bruised so far, the strokes left, every place (row by row), and whether how deep each is can be seen. */
-export interface Dig { need: number; hits: number; misses: number; strokes: number; cells: Clod[]; seen: boolean }
+/**
+ * A mound as it stands: how many parts the thing is in, those laid bare and those bruised so far, the strokes left,
+ * every place (row by row), and whether how deep each is can be seen. `gentle`: it is a truffle piglet that digs
+ * (lib/town/gifts' famPiglet): a snout bruises nothing, so a stroke on a part already bare is only a stroke gone.
+ */
+export interface Dig { need: number; hits: number; misses: number; strokes: number; cells: Clod[]; seen: boolean; gentle?: boolean }
+/**
+ * How a mound is dug, where it is not as for anybody: by a piglet's snout (`gentle`); and how much harder it is for
+ * whoever digs (`harder`, lib/town/forest's harderOf; 1 as for anybody): the strokes there are to spare are divided
+ * by it, so a stroke fewer from the fourth rank and two fewer from the eighth.
+ */
+export interface DigHow { gentle?: boolean; harder?: number }
 
 function draw(seed: number): [number, number] {
   const a = (seed + 0x6d2b79f5) | 0;
@@ -40,7 +50,7 @@ function draw(seed: number): [number, number] {
 }
 
 /** Begin a mound with something in so many parts under it (two at the least: one would have nothing to find). */
-export function startDig(parts: number, spent: boolean, seed: number, eye: boolean | number = false): Dig {
+export function startDig(parts: number, spent: boolean, seed: number, eye: boolean | number = false, how: DigHow = {}): Dig {
   const { cols, rows } = DIGGING, need = Math.max(2, Math.min(cols, Math.floor(parts) + 1));
   let s = seed | 0;
   const next = () => { const [r, s1] = draw(s); s = s1; return r; };
@@ -54,7 +64,8 @@ export function startDig(parts: number, spent: boolean, seed: number, eye: boole
   const cells = Array.from({ length: cols * rows }, (_, i): Clod => ({ earth: least + Math.floor(next() * (most - least + 1)), over: run.includes(i), top: i === top }));
   const needed = run.reduce((t, i) => t + cells[i].earth, 0);
   // (under the fountain's forest eye, a stroke more to spare)
-  return { need, hits: 0, misses: 0, strokes: needed + (spent ? DIGGING.tiredSpare : DIGGING.spare) + eyes(eye), cells, seen: !spent };
+  const spare = Math.floor((spent ? DIGGING.tiredSpare : DIGGING.spare) / Math.max(1, how.harder ?? 1));
+  return { need, hits: 0, misses: 0, strokes: needed + spare + eyes(eye), cells, seen: !spent, ...(how.gentle ? { gentle: true } : {}) };
 }
 
 /** Whether the digging is over: the whole thing bare, or no stroke left. */
@@ -66,7 +77,7 @@ export const dugUp = (d: Dig) => ({ hits: Math.max(0, d.hits - d.misses), misses
 export function strike(d: Dig, place: number): Dig {
   const c = d.cells[place];
   if (dug(d) || !c) return d;
-  if (c.earth <= 0) return c.over ? { ...d, strokes: d.strokes - 1, misses: d.misses + 1 } : { ...d, strokes: d.strokes - 1 };
+  if (c.earth <= 0) return c.over && !d.gentle ? { ...d, strokes: d.strokes - 1, misses: d.misses + 1 } : { ...d, strokes: d.strokes - 1 };
   const cells = d.cells.map((x, i) => (i === place ? { ...x, earth: x.earth - 1 } : x));
   return { ...d, strokes: d.strokes - 1, cells, hits: d.hits + (c.over && c.earth === 1 ? 1 : 0) };
 }

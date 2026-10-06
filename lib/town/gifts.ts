@@ -59,7 +59,7 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "จอบเดียวทั้งแถว: ถอนหญ้าหรือพรวนดินทั้งแถวของแปลงด้วยมินิเกมเดียว จังหวะไหนพลาด ช่องนั้นไม่เสร็จ", en: "A whole row at a swing: weed or till a bed's row in one game, a beat to a plot; a beat missed leaves its plot undone" } },
   // the second rank: the first familiars
   { id: "famSquirrel", kind: "familiar", line: "forest", rank: 2, name: { th: "กระรอกคู่ใจ", en: "A squirrel" },
-    does: { th: "ตอนเขย่าต้นไม้ กระรอกช่วยรับลูกไม้ที่เราพลาดให้ ต้นละ 2 ลูก", en: "When a tree is shaken it catches two of the fruit you miss" } },
+    does: { th: "ของที่วางอยู่บนพื้นในป่า กระรอกวิ่งไปเก็บมาให้เองตอนเราเดินผ่าน ไม่เสียแรง และตอนเขย่าต้นไม้ช่วยรับลูกไม้ที่เราพลาดให้ ต้นละ 2 ลูก", en: "It runs to fetch what lies on the forest's ground as you walk past, for no stamina; and when a tree is shaken it catches two of the fruit you miss" } },
   { id: "famButterfly", kind: "familiar", line: "insects", rank: 2, name: { th: "ผีเสื้อนำโชค", en: "A lucky butterfly" },
     does: { th: "แมลงตื่นตัวช้าลง เข้าใกล้ได้มากขึ้นก่อนมันหนี", en: "Insects are slower to startle: you come nearer before they flee" } },
   { id: "famGnome", kind: "familiar", line: "farming", rank: 2, name: { th: "โนมสวน", en: "A garden gnome" },

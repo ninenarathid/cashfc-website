@@ -212,6 +212,13 @@ export interface Purse {
   rained?: number;
   /** What my moon flask keeps: the nature of its water, and how many bucketfuls. */
   moon?: { kind: "dawn" | "rain" | "moon"; n: number };
+  // ── gifts: forest ──
+  /**
+   * The forest's own: the secret places of the deep woods I have gathered from, by their numbers (lib/town/forest);
+   * the sprite's map I am following, if I am (the day it is of, which of that day's maps, the digs that have missed),
+   * and how many chests I have dug up (lib/town/hunt).
+   */
+  forest?: { secrets?: number[]; hunt?: { k: number; n: number; digs: number } | null; chests?: number };
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }
