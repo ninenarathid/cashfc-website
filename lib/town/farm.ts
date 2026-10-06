@@ -1,7 +1,7 @@
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { famBy, gloved, hasThing, numberOf, wearing } from "./gifts";
+import { famBy, gloved, harderFor, hasThing, numberOf, wearing } from "./gifts";
 import { buffBy, hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -553,13 +553,25 @@ export const SEEDS: ItemId[] = CROP_IDS.map((c) => CROPS[c].seed).filter((s) => 
  *   in the hand, for five seeds where seven plots would take seven (`pouchSeeds`: in that measure for fewer plots,
  *   never more than the plots); with fewer seeds than that in the bag, as many plots as they reach. No game of its
  *   own: sowing has none (tired hands steady themselves once for the row, as for a plot).
+ * - **the crescent sickle** (a charm, worn): picks every ripe plant of the row, in its wearer's own bed, by one sweep
+ *   of the blade along it (lib/town/sweep). Every plant swung at is picked, as by hand; one cut well gives one more
+ *   (its number), where the bag has room for it; one cut badly gives what it would have by hand and no more.
  *
  * It is **one deed** for whoever keeps the game, judged whole (`rowTend`): told how each plot's beat went, it does
  * each plot as `tend` would have done it by itself, one after another from the plot stood on outwards, so that the
  * stamina, the bed's keeping, the gloves and what is written down are each plot's own, as ever. A row of one plot is
  * no row: that is the plain deed.
  */
-export type RowDeed = "clear" | "till" | "sow";
+export type RowDeed = "clear" | "till" | "sow" | "pick";
+/**
+ * How much harder a crop is to work for somebody with so many points on the farming line (lib/town/gifts' harderFor;
+ * the owner, 2026-10-07: good things are harder for the skilled): what is of the second tier or better, from the
+ * line's fourth rank, 8% a rank. The simplest crops are as they are for everybody, and so is bare ground. "Harder"
+ * on the farm is a narrower mark: the sickle's cut on that plant, and what tired hands are given to steady, pour or
+ * time by (lib/town/timing's `hard`). Those games are the page's, as the hoe's always were: it is applied there, and
+ * nothing on the screen says so.
+ */
+export const hardFor = (crop: CropId | null | undefined, points: number): number => (crop && ITEMS[crop].tier >= 2 ? harderFor("farming", points) : 1);
 /** The seeds the pouch takes for so many plots of a row of `side`: five for seven (its number), in that measure for fewer, never more than the plots. */
 export const pouchSeeds = (plots: number, side = 7): number => Math.min(plots, Math.ceil((plots * numberOf("thingPouch")) / side));
 /** How many plots of a row so many seeds reach from the pouch. */
@@ -582,7 +594,9 @@ export function rowFor(at: string, keys: readonly string[], plots: Readonly<Reco
   const hand = handOf(purse), want = (key: string) => deedFor(key, plots[key] ?? WILD, hand, me, now, owner, rains);
   const deed = want(at);
   const hoes = (deed === "clear" || deed === "till") && wearing(purse, "charmHoe"), sows = deed === "sow" && hasThing(purse, "thingPouch");
-  if (!hoes && !sows) return null;
+  // (the sickle is for its wearer's own beds: not somebody else's, nor one that is nobody's)
+  const reaps = deed === "pick" && owner === me && wearing(purse, "charmSickle");
+  if (!hoes && !sows && !reaps) return null;
   const x0 = xOf(at), all = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
   // (the pouch sows as many plots as the seeds in the bag reach, the nearest first)
   const row = sows ? all.slice(0, pouchPlots(held(purse.bag, hand!), keys.length)) : all;
@@ -632,8 +646,8 @@ export function gnomeWater(bed: number, plots: Readonly<Record<string, Plot>>, p
   return { ok: true, purse: { ...purse, gnomed: { ...kept, [String(bed)]: now } }, plots: next, watered };
 }
 
-/** A plot a row's deed did: which, what grows or grew there, and how many it came to (a plot hoed is one). */
-export interface RowDone { key: string; crop: CropId | null; n: number }
+/** A plot a row's deed did: which, what grows or grew there, and how many it came to (a plot hoed or sown is one; a plant picked, how many were picked, the sickle's one more among them where it was `well` cut). */
+export interface RowDone { key: string; crop: CropId | null; n: number; well?: boolean }
 /**
  * Do a row's deed, whole. `marks` says how each plot's beat went, by its key (a plot it says nothing of was not in
  * the game, and is left). `rest` is how many plots of the bed outside this row have a plant, and `holds` how many
@@ -646,19 +660,26 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
   const planted = (state: Readonly<Record<string, Plot>>, but: string) => rest + keys.filter((k) => k !== but && !!state[k]?.plant).length;
   const found = rowFor(at, keys, plots, purse, me, now, ownerOf(bed, planted(plots, "") > 0, now), rains);
   if (!found) return { ok: false, why: "none" };
-  const state: Record<string, Plot> = {}, each: RowDone[] = [], sows = found.deed === "sow", hand = handOf(purse);
+  const state: Record<string, Plot> = {}, each: RowDone[] = [], sows = found.deed === "sow", reaps = found.deed === "pick", hand = handOf(purse), got = new Map<ItemId, number>();
   // (the pouch: of the seeds its plots would have taken one by one, so many are spared)
   const spared = sows ? found.plots.length - pouchSeeds(found.plots.length, keys.length) : 0;
   let mine = purse, keeping = bed;
   for (const key of found.plots) {
-    // (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown)
-    if (!sows && marks[key] !== true) continue;
+    // (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown; and every plant the
+    // sickle swung at is picked, however it was cut: only one that was not in the sweep is left)
+    if (reaps ? !(key in marks) : !sows && marks[key] !== true) continue;
     const plot = state[key] ?? plots[key] ?? WILD, did = tend(key, plot, keeping, planted({ ...plots, ...state }, key), holds, mine, me, now, rains);
     if (!did.ok || did.deed !== found.deed) { if (!each.length && !did.ok) return did; break; }
     mine = did.purse; keeping = did.bed; state[key] = did.plot;
     // (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
     if (sows && each.length < spared) mine = { ...mine, bag: put(mine.bag, hand!, 1) };
-    each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 });
+    if (!reaps) { each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 }); continue; }
+    // (a plant cut well: the sickle's one more, where the bag has room for it)
+    const crop = plot.plant!.crop, well = marks[key] === true, more = well && roomFor(mine.bag, crop) >= numberOf("charmSickle") ? numberOf("charmSickle") : 0;
+    if (more) mine = { ...mine, bag: put(mine.bag, crop, more) };
+    const n = (did.got[0]?.[1] ?? 0) + more;
+    each.push({ key, crop, n, well });
+    got.set(crop, (got.get(crop) ?? 0) + n);
   }
-  return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [], ...(sows ? { seeds: each.length - Math.min(spared, each.length) } : {}) };
+  return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [...got], ...(sows ? { seeds: each.length - Math.min(spared, each.length) } : {}) };
 }

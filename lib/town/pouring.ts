@@ -1,4 +1,4 @@
-import { TIMING, type TimingMods } from "./timing";
+import { TIMING, narrowed, type TimingMods } from "./timing";
 
 /**
  * Pouring water, as a game of its own: what tired hands play when they water a plant, draw a bucket at the river,
@@ -51,7 +51,7 @@ function next(width: number, seed: number): { lo: number; rate: number; seed: nu
 
 /** Begin a pouring wanting so many good pours. */
 export function startPour(need: number, mods: TimingMods, seed: number): Pour {
-  const width = Math.min(0.4, (mods.spent ? POURING.tired : POURING.marks) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1));
+  const width = Math.min(0.4, (mods.spent ? POURING.tired : POURING.marks) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1) * narrowed(mods));
   return { need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0, level: 0, held: false, spilt: false, width, ...next(width, seed | 0) };
 }
 

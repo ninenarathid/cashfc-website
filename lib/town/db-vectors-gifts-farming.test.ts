@@ -2,7 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { BEDS, gnomeWater, pouchPlots, pouchSeeds, rowFor, rowTend, type Bed, type Plant, type Plot } from "./farm";
-import { CROP_IDS, type ItemId } from "./items";
+import { CROPS, CROP_IDS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { HOUR, held, newPurse, put, type Purse } from "./trade";
 import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
@@ -19,6 +19,9 @@ import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
  * - `pouch_seeds`, `pouch_plots`: every count of plots and of seeds, for a row of seven and of other lengths; and
  *   rows to sow (`row_for`, `row_tend` again): tilled plots and plots not ready, the pouch had and not, a seed in
  *   the hand and not, from one seed to more than enough, a free bed taken and refused to whoever holds two.
+ * - rows reaped with the sickle (`row_for`, `row_tend` again): ripe plants of every pace, some bearing again, some
+ *   not ripe, plots with none; one's own bed, somebody else's and nobody's; the charm worn and not; nothing in the
+ *   hand, a blade, and a thing with a deed of its own; marks of every sort; bags with room, with little, with none.
  * - `gnome_water`: beds with plants of every pace sown at many moments (growing, ripe, bearing again, watered a
  *   while ago and just now), bare soil and nothing at all; the gnome following, another familiar, none; rounds kept
  *   for this bed and for others, fresh, old and kept wrongly; one's own bed, somebody else's and nobody's.
@@ -123,6 +126,37 @@ export function vectorsFarming(): Vector[] {
     const marks = c.of<Record<string, boolean>>([{}, {}, Object.fromEntries(keys.map((k) => [k, false])), Object.fromEntries(keys.map((k) => [k, true]))]);
     add("row_tend", [stood, keys, plots, keeping, rest, holds, p, me, NOW, marks], rowTend(stood, keys, plots, keeping ?? undefined, rest, holds, p, me, NOW, marks));
   }
+  // rows reaped with the sickle
+  for (let i = 0; i < 340; i++) {
+    const bed = c.int(0, BEDS_IN_FARM - 1), [bx, by] = bedCorner(bed), y = by + c.int(0, 6), keys = rowOf(bx, y).map(([u, v]) => `${u},${v}`);
+    const me = c.of([ME, ME, YOU]), other = me === ME ? YOU : ME, whose = c.of([me, me, me, me, me, me, me, other, null]), plots: Record<string, Plot> = {};
+    for (const key of keys) {
+      const what = c.next();
+      if (what < 0.08) { plots[key] = SOILS[1]; continue; }
+      if (what < 0.14) continue;
+      const crop = c.of(CROP_IDS), k = CROPS[crop], sown = NOW - Math.ceil(k.hours * c.of([1.05, 1.05, 1.05, 1.05, 1.3, 0.5])) * HOUR - c.int(0, 3_599_999);
+      const plant: Plant = { by: whose ?? me, crop, sown, boost: 0, watered: 0, fed: 0, guard: c.maybe(0.85) ? NOW + 99 * HOUR : 0, cured: 0, picked: 0, pickedAt: 0 };
+      // (one that bears again, picked before: ripe again, or not yet; and one on its last picking)
+      if (k.again && c.maybe(0.4)) { plant.picked = c.maybe(0.3) ? (k.picks ?? 1) - 1 : 1; plant.pickedAt = NOW - Math.round(k.again * c.of([1.1, 1.1, 0.4]) * HOUR); }
+      plots[key] = { soil: "tilled", plant };
+    }
+    const keeping: Bed | null = whose === null ? null : { by: whose, tended: NOW - c.of([1, 1, 30, 97]) * HOUR, empty: 0 };
+    const gifts = c.of<Purse["gifts"] | undefined>([{ had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle", "charmHoe"], charms: ["charmHoe", "charmSickle"] },
+      { had: ["charmSickle"], charms: [] }, undefined]);
+    const hand = c.of<ItemId | null>([null, null, null, null, "sickle", "sickle", "shears", "can", "hoe"]);
+    const base = purse(gifts, hand, [["sickle", 1], ["shears", 1], ["can", 1], ["hoe", 1]], c.of([100, 100, 5, 0]));
+    // (a bag with room, with little, with none: the last slots taken up by something else)
+    const taken = c.of([0, 0, 0, 0, 0, 4, 5, 6]), free = base.bag.map((s, n) => (s === null ? n : -1)).filter((n) => n >= 0).slice(-taken || base.bag.length);
+    const p = { ...base, bag: base.bag.map((s, n) => (taken && free.includes(n) ? { item: "bowl" as ItemId, n: 1 } : s)) } as Purse;
+    const grown = keys.filter((k) => !!plots[k]?.plant), stood = c.maybe(0.92) ? c.of(grown.length && c.maybe(0.85) ? grown : keys) : `${bx + 7},${y}`, rest = c.of([0, 0, 2]);
+    const owner = c.of<string | null>([me, me, me, whose, null]);
+    add("row_for", [stood, keys, plots, p, me, NOW, owner], rowFor(stood, keys, plots, p, me, NOW, owner));
+    const marks = c.of<() => Record<string, boolean>>([
+      () => Object.fromEntries(keys.map((k) => [k, true])), () => Object.fromEntries(keys.map((k) => [k, c.maybe(0.6)])), () => Object.fromEntries(keys.map((k) => [k, c.maybe(0.6)])),
+      () => Object.fromEntries(keys.filter(() => c.maybe(0.7)).map((k) => [k, c.maybe(0.7)])), () => Object.fromEntries(keys.map((k) => [k, false])), () => ({}),
+    ])();
+    add("row_tend", [stood, keys, plots, keeping, rest, 0, p, me, NOW, marks], rowTend(stood, keys, plots, keeping ?? undefined, rest, 0, p, me, NOW, marks));
+  }
   return out;
 }
 
@@ -156,6 +190,15 @@ describe("the cases the database's rules of the farming line's gifts are held to
     expect(sows.some((x) => x.d.ok && x.d.each!.length < 7 && seedsIn({ ...x.d.purse!, hand: x.purse.hand }) === 0)).toBe(true);
     expect(sows.some((x) => x.d.ok && !x.bed && x.d.bed?.by === x.me) && sows.some((x) => !x.d.ok && x.d.why === "beds" && x.holds >= BEDS.each)).toBe(true);
     expect(of("pouch_seeds").length).toBe(30);
+    // the sickle: a row picked with good cuts and bad, a plant left that the sweep did not go along, the bag too full for a plant and for its one more
+    const reaps = of("row_tend").map((v) => ({ marks: v.args[9] as Record<string, boolean>, d: v.want as { ok: boolean; why?: string; deed?: string; each?: Array<{ key: string; n: number; well?: boolean }>; plots?: Record<string, Plot>; bed?: Bed } }))
+      .filter((x) => !x.d.ok || x.d.deed === "pick");
+    const picked = reaps.filter((x) => x.d.ok && x.d.each!.length > 0);
+    expect(picked.length).toBeGreaterThan(40);
+    expect(picked.some((x) => x.d.each!.length >= 5) && picked.some((x) => x.d.each!.some((e) => e.well) && x.d.each!.some((e) => !e.well))).toBe(true);
+    expect(reaps.some((x) => !x.d.ok && x.d.why === "full") && reaps.some((x) => x.d.ok && x.d.each!.length === 0)).toBe(true);
+    // (a plant picked for the last time leaves its plot bare; one that bears again stays, picked once more)
+    expect(picked.some((x) => Object.values(x.d.plots!).some((pl) => pl.plant === null)) && picked.some((x) => Object.values(x.d.plots!).some((pl) => (pl.plant?.picked ?? 0) > 0))).toBe(true);
     // the gnome: a bed watered whole and in part, and refused each way
     const gnomes = of("gnome_water").map((v) => ({ plots: v.args[1] as Record<string, Plot>, d: v.want as { ok: boolean; why?: string; watered?: string[]; purse?: Purse } }));
     const plantsIn = (plots: Record<string, Plot>) => Object.values(plots).filter((x) => x.plant).length;

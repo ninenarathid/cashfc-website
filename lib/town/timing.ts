@@ -53,7 +53,14 @@ export const TIMING = {
  * for what is timed (the hoe, the weeding), steady hands for what is held steady (the pouring, the stirring, the
  * roast). Each game is as kind as it can be and no kinder: its own most still holds.
  */
-export interface TimingMods { tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number }; buff?: number }
+/**
+ * `hard` is how much harder the thing worked on is for whoever works it (lib/town/gifts' harderFor; on the farm,
+ * lib/town/farm's hardFor: a crop of the second tier or better, from the farming line's fourth rank): the stretch,
+ * the marks or the ring is so many times as narrow. 1, or nothing said: as it is for everybody.
+ */
+export interface TimingMods { tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number }; buff?: number; hard?: number }
+/** What `hard` leaves of a width: its own part, never more than the whole. */
+export const narrowed = (mods: TimingMods): number => 1 / Math.max(1, mods.hard ?? 1);
 /** A round as it stands: how many hits are still wanted, the hits and misses so far, how many misses end it (none, when it cannot be lost), how fast the marker runs, where it was and which way it ran when it last changed pace, and where the stretch lies. */
 export interface Round { need: number; hits: number; misses: number; most: number; speed: number; from: number; way: 1 | -1; since: number; lo: number; width: number; seed: number }
 
@@ -67,7 +74,7 @@ function draw(seed: number): [number, number] {
 /** Begin a round wanting so many hits. */
 export function startRound(need: number, mods: TimingMods, seed: number): Round {
   const tired = mods.spent ? mods.tired ?? TIMING.spent : null;
-  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1));
+  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1) * narrowed(mods));
   const [r, next] = draw(seed | 0);
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0,

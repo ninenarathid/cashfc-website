@@ -10,6 +10,10 @@
 --   * The spellbound seed pouch (a thing, had): the same deed sows every plot of the row that is ready for a seed,
 --     for five seeds where seven plots would take seven (`town.pouch_seeds`), each plot written down as its own
 --     sowing (`sow`, which earns no points, as ever).
+--   * The crescent sickle (a charm, worn): the same deed picks every ripe plant of the row its wearer swung at, in
+--     their own bed, each as `town.pick` picks it by hand; one cut well gives one more (the catalog's gifts row: the
+--     sickle's number), where the bag has room. Each plant is written down as its own picking (`pick`, which earns
+--     its points on the farming line as ever), with how it was cut.
 --   * The garden gnome (a familiar, following) waters its member's whole bed at once: no water out of a can, no
 --     stamina, what a plain can adds; a bed rests so many minutes between two of its rounds (the catalog's gifts row:
 --     the gnome's number), kept in the purse (`gnomed`). `town_gnome(x, y)`; written down as one line (`gnome`:
@@ -50,13 +54,16 @@ declare
   row_ jsonb;
   hoes boolean;
   sows boolean;
+  reaps boolean;
 begin
   if p_at is null or jsonb_typeof(p_keys) is distinct from 'array' or not (p_keys ? p_at) then return null; end if;
   deed := town.deed_for(p_at, coalesce(p_plots->p_at, wild), hand, p_me, p_now, p_owner);
   if deed is null then return null; end if;
   hoes := deed in ('clear', 'till') and town.wearing(p_purse, 'charmHoe');
   sows := deed = 'sow' and town.gift_works(p_purse, 'thingPouch');
-  if not hoes and not sows then return null; end if;
+  -- (the sickle is for its wearer's own beds: not somebody else's, nor one that is nobody's)
+  reaps := deed = 'pick' and p_owner is not distinct from p_me and town.wearing(p_purse, 'charmSickle');
+  if not hoes and not sows and not reaps then return null; end if;
   x0 := split_part(p_at, ',', 1)::integer;
   -- (the pouch sows as many plots as the seeds in the bag reach, the nearest first)
   select jsonb_agg(q.key_ order by q.far, q.x) into row_
@@ -96,16 +103,23 @@ declare
   hand text := town.hand_of(p_purse);
   sows boolean;
   spared integer := 0;
+  reaps boolean;
+  more integer := (town.cat('gifts')->'gifts'->'charmSickle'->>'by')::integer;
+  crop text;
+  n integer;
+  well boolean;
 begin
   found := town.row_for(p_at, p_keys, plots, p_purse, p_me, p_now, town.owner_of(bed,
     p_rest + (select count(*) from jsonb_array_elements_text(p_keys) as k(key_) where coalesce(plots->k.key_->'plant', 'null'::jsonb) <> 'null'::jsonb) > 0, p_now));
   if found is null then return town.no('none'); end if;
   sows := found->>'deed' = 'sow';
+  reaps := found->>'deed' = 'pick';
   -- (the pouch: of the seeds its plots would have taken one by one, so many are spared)
   if sows then spared := jsonb_array_length(found->'plots') - town.pouch_seeds(jsonb_array_length(found->'plots'), jsonb_array_length(p_keys)); end if;
   for key in select t.key_ from jsonb_array_elements_text(found->'plots') with ordinality as t(key_, ord) order by t.ord loop
-    -- (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown)
-    continue when not sows and marks->key is distinct from 'true'::jsonb;
+    -- (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown; and every plant the
+    -- sickle swung at is picked, however it was cut: only one that was not in the sweep is left)
+    continue when case when reaps then not (marks ? key) else not sows and marks->key is distinct from 'true'::jsonb end;
     stand := plots || state;
     plot := coalesce(stand->key, wild);
     select p_rest + count(*)::int into others from jsonb_array_elements_text(p_keys) as k(key_)
@@ -120,9 +134,25 @@ begin
     state := state || jsonb_build_object(key, did->'plot');
     -- (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
     if sows and jsonb_array_length(each) < spared then mine := mine || jsonb_build_object('bag', town.put(mine->'bag', hand, 1)); end if;
-    each := each || jsonb_build_array(jsonb_build_object('key', key, 'crop', coalesce(plot->'plant'->'crop', did->'plot'->'plant'->'crop', 'null'::jsonb), 'n', 1));
+    if not reaps then
+      each := each || jsonb_build_array(jsonb_build_object('key', key, 'crop', coalesce(plot->'plant'->'crop', did->'plot'->'plant'->'crop', 'null'::jsonb), 'n', 1));
+      continue;
+    end if;
+    -- (a plant cut well: the sickle's one more, where the bag has room for it)
+    crop := plot->'plant'->>'crop';
+    well := marks->key = 'true'::jsonb;
+    n := (did->'got'->0->>1)::integer;
+    if well and town.room(mine->'bag', crop) >= more then
+      mine := mine || jsonb_build_object('bag', town.put(mine->'bag', crop, more));
+      n := n + more;
+    end if;
+    each := each || jsonb_build_array(jsonb_build_object('key', key, 'crop', crop, 'n', n, 'well', well));
   end loop;
-  return jsonb_build_object('ok', true, 'deed', found->>'deed', 'purse', mine, 'plots', state, 'each', each, 'got', '[]'::jsonb)
+  return jsonb_build_object('ok', true, 'deed', found->>'deed', 'purse', mine, 'plots', state, 'each', each,
+      -- (what was picked, all told: of each crop how many, in the order they were first picked)
+      'got', case when reaps then coalesce((select jsonb_agg(jsonb_build_array(q.crop, q.total) order by q.at)
+          from (select t.e->>'crop' as crop, sum((t.e->>'n')::integer) as total, min(t.ord) as at from jsonb_array_elements(each) with ordinality as t(e, ord) group by 1) q), '[]'::jsonb)
+        else '[]'::jsonb end)
     || case when bed is null then '{}'::jsonb else jsonb_build_object('bed', bed) end
     || case when sows then jsonb_build_object('seeds', jsonb_array_length(each) - least(spared, jsonb_array_length(each))) else '{}'::jsonb end;
 end;
@@ -264,7 +294,8 @@ begin
     else
       -- (everything else is a deed of its own, as town_tend writes it: the plant, how many, the tile, the thing in the hand)
       perform town.note(me, did->>'deed', e->>'crop', (e->>'n')::numeric, 0,
-        jsonb_build_object('tile', jsonb_build_array(v_x, v_y), 'with', town.hand_of(purse), 'row', true));
+        jsonb_build_object('tile', jsonb_build_array(v_x, v_y), 'with', town.hand_of(purse), 'row', true)
+          || case when e ? 'well' then jsonb_build_object('well', e->'well') else '{}'::jsonb end);
     end if;
     insert into public.town_plots (x, y, bed, soil, plant, changed)
       values (v_x, v_y, bed_n, did->'plots'->(e->>'key')->>'soil', nullif(did->'plots'->(e->>'key')->'plant', 'null'::jsonb), now_)

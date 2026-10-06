@@ -1,4 +1,4 @@
-import { TIMING, type TimingMods } from "./timing";
+import { TIMING, narrowed, type TimingMods } from "./timing";
 
 /**
  * Tired hands, as a game of their own: what sowing, feeding, curing and picking are with no stamina left
@@ -73,7 +73,7 @@ export function startHands(need: number, mods: TimingMods, seed: number): Hands 
   const at = wander(seed | 0, 0);
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0,
-    x: -at.x, y: -at.y, inside: 0, out: 0, ring: Math.min(0.6, STEADY.ring * Math.sqrt(mods.tool ?? 1)), t: 0, seed: seed | 0,
+    x: -at.x, y: -at.y, inside: 0, out: 0, ring: Math.min(0.6, STEADY.ring * Math.sqrt(mods.tool ?? 1) * narrowed(mods)), t: 0, seed: seed | 0,
   };
 }
 

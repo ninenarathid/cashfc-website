@@ -201,4 +201,58 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   await hands(U.m1, "seedPumpkin", 0, ["seedPumpkin", 5]);
   did = await call(U.m1, "town_row", ...xy(row(7, 1)[0]), {}, { hits: 2, misses: 1, secs: 3 });
   t.check("with no stamina the row is sown all the same", did?.ok === true && did.done.length === 7 && (await seedsOf(U.m1)) === 0 && (await staminaOf(U.m1)) === 0, did);
+
+  // ── the crescent sickle: a whole ripe row at one sweep ──
+  t.section("the crescent sickle: a whole ripe row picked at one sweep (town_row)");
+  const R = row(2, 6), rMid = R[3], rOrder = outwards(R, rMid);
+  for (const k of R) await planted(k, 2, U.m1, "pumpkin", 150);   // a pumpkin takes 144 hours: ripe, two a picking, picked once
+  const pumpkins = async (who) => (await purseOf(who)).bag.reduce((n, s) => n + (s?.item === "pumpkin" ? s.n : 0), 0);
+  const today = async (who, line) => Number((await one(`select kept->>'today' as p from public.town_work where member_id = $1 and line = $2`, [who, line]))?.p ?? 0);
+  const pickDeeds = async (who) => (await deeds("pick")).filter((d) => d.member_id === who);
+  await give(U.m1, { had: ["charmHoe", "thingPouch", "charmSickle"], charms: ["charmHoe"] });
+  await hands(U.m1, null, 100);
+  rowsWas = (await deeds("row")).length;
+  did = await call(U.m1, "town_row", ...xy(rMid), Object.fromEntries(R.map((k) => [k, true])), { hits: 7, misses: 0, secs: 3 });
+  t.check("with the sickle not worn a row is not reaped: refused, nothing picked", did?.ok === false && did.why === "none" && (await pumpkins(U.m1)) === 0 && (await plotAt(rMid)).plant !== null, did);
+  const byHand = await call(U.m1, "town_tend", ...xy(R[0]), null);
+  t.check("…and a plant is picked by hand as ever: what it gives, for the stamina of a picking", byHand?.ok === true && byHand.deed === "pick" && same(byHand.got, [["pumpkin", 2]]) && (await staminaOf(U.m1)) === 100 - f.costs.pick, byHand);
+  const worth = CODE.work.farming.pumpkin, todayWas = await today(U.m1, "farming"), picksWas = (await pickDeeds(U.m1)).length;
+  await give(U.m1, { had: ["charmHoe", "thingPouch", "charmSickle"], charms: ["charmHoe", "charmSickle"] });
+  await hands(U.m1, null, 100);
+  // (the sweep went along five of the six that are left: three cut well, two badly; the sixth was not in it)
+  const swept = { [rOrder[0]]: true, [rOrder[1]]: false, [rOrder[2]]: true, [rOrder[3]]: true, [rOrder[4]]: false }, inSweep = rOrder.filter((k) => k in swept && k !== R[0]);
+  did = await call(U.m1, "town_row", ...xy(rMid), swept, { hits: 3, misses: 2, secs: 3.2 });
+  t.check("worn, in my own bed: every plant the sweep went along is picked, the one stood on first and then outwards", did?.ok === true && did.deed === "pick" && same(did.done, inSweep), did);
+  t.check("…one cut well gives one more, one cut badly what it would have by hand: three and three and three, two and two", same(did.got, [["pumpkin", 3 * 3 + 2 * 2]]) && (await pumpkins(U.m1)) === 13, did?.got);
+  t.check("…for the stamina of five pickings", (await staminaOf(U.m1)) === 100 - 5 * f.costs.pick, await staminaOf(U.m1));
+  const leftOver = R.filter((k) => k !== R[0] && !inSweep.includes(k));
+  t.check("…a pumpkin is picked once: each plot is bare ground again; the plant the sweep did not go along stands", (await soils(inSweep)).every((s) => s === "cleared") && (await Promise.all(inSweep.map(plotAt))).every((p) => p.plant === null)
+    && leftOver.length === 1 && (await plotAt(leftOver[0])).plant?.crop === "pumpkin", leftOver);
+  const picks = (await pickDeeds(U.m1)).slice(picksWas);
+  noted = await deeds("row");
+  t.check("…each plant written down as its own picking: how many, its tile, how it was cut; and the row once, whole", picks.length === 5 && same(picks.map((d) => d.doc.tile.join(",")), inSweep) && same(picks.map((d) => d.n), inSweep.map((k) => (swept[k] ? 3 : 2)))
+    && same(picks.map((d) => d.doc.well), inSweep.map((k) => swept[k])) && picks.every((d) => d.thing === "pumpkin" && d.doc.row === true)
+    && noted.length === rowsWas + 1 && noted.at(-1).n === 5 && noted.at(-1).doc.deed === "pick", picks);
+  t.check("…and each earns its points on the farming line, as a picking by hand does", Math.abs((await today(U.m1, "farming")) - todayWas - 5 * worth) < 1e-9 && worth > 0, { was: todayWas, now: await today(U.m1, "farming"), worth });
+  did = await call(U.m1, "town_row", ...xy(leftOver[0]), { [leftOver[0]]: true }, null);
+  t.check("one ripe plant alone is no row: refused, and left to the hand", did?.ok === false && did.why === "none" && (await plotAt(leftOver[0])).plant !== null, did);
+  // a bag with no room: nothing is done; somebody else's bed and nobody's: nothing to reap
+  const R2 = row(2, 1);
+  for (const k of R2) await planted(k, 2, U.m1, "pumpkin", 150);
+  await patch(U.m1, { bag: Array.from({ length: 10 }, () => ({ item: "bowl", n: 1 })), hand: null });
+  did = await call(U.m1, "town_row", ...xy(R2[0]), Object.fromEntries(R2.map((k) => [k, true])), null);
+  t.check("with no room in the bag: refused, and nothing is picked", did?.ok === false && did.why === "full" && (await Promise.all(R2.map(plotAt))).every((p) => p.plant !== null), did);
+  await patch(U.m1, { bag: [...Array.from({ length: 9 }, () => ({ item: "bowl", n: 1 })), { item: "pumpkin", n: CODE.items.pumpkin.stack - 5 }], hand: null });
+  did = await call(U.m1, "town_row", ...xy(R2[0]), Object.fromEntries(R2.map((k) => [k, true])), null);
+  t.check("with room for five: the first cut well is three, the second has no room for its one more and is two, the third does not fit and the rest stand", did?.ok === true && same(did.done, R2.slice(0, 2)) && same(did.got, [["pumpkin", 5]])
+    && (await Promise.all(R2.slice(2).map(plotAt))).every((p) => p.plant !== null), did);
+  const R3 = row(3, 5);
+  for (const k of R3) await planted(k, 3, U.m2, "pumpkin", 150);
+  await hands(U.m1, null, 100);
+  did = await call(U.m1, "town_row", ...xy(R3[0]), Object.fromEntries(R3.map((k) => [k, true])), null);
+  t.check("in somebody else's bed: refused (its wearer's own beds only), nothing picked", did?.ok === false && did.why === "none" && (await plotAt(R3[0])).plant !== null, did);
+  await give(U.m2, { had: ["charmSickle"], charms: ["charmSickle"] });
+  await hands(U.m2, null, 0);
+  did = await call(U.m2, "town_row", ...xy(R3[0]), Object.fromEntries(R3.map((k, i) => [k, i % 2 === 0])), { hits: 4, misses: 3, secs: 2.4 });
+  t.check("its owner reaps it, with no stamina too: seven plants, four of them with one more", did?.ok === true && did.done.length === 7 && same(did.got, [["pumpkin", 7 * 2 + 4]]), did);
 }

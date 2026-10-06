@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { BEDS, FARMING, WILD, gnomeReach, gnomeWater, pouchPlots, pouchSeeds, rowFor, rowTend, see, tend, type Bed, type Plant, type Plot } from "./farm";
+import { BEDS, FARMING, WILD, gnomeReach, gnomeWater, hardFor, pouchPlots, pouchSeeds, rowFor, rowTend, see, tend, yieldOf, type Bed, type Plant, type Plot } from "./farm";
+import { harderAt } from "./gifts";
+import { CROPS, CROP_IDS, ITEMS } from "./items";
+import { LINES } from "./lines";
 import type { ItemId } from "./items";
 import { dayOf, staminaOf } from "./stamina";
 import { HOUR, held, hold, newPurse, put, type Purse } from "./trade";
@@ -258,5 +261,107 @@ describe("the spellbound seed pouch: a row sown at once, for five seeds", () => 
     const me = sower(9);
     expect(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, BEDS.each, me, "me", NOON, {})).toEqual({ ok: false, why: "beds" });
     expect(done(rowTend(MID, KEYS, tilled(KEYS), undefined, 0, BEDS.each - 1, me, "me", NOON, {})).each.length).toBe(7);
+  });
+});
+
+describe("the crescent sickle: a whole ripe row picked at one sweep", () => {
+  const SICKLE = { had: ["charmSickle"], charms: ["charmSickle"] };
+  /** A pumpkin that is ripe (sown a hundred and fifty hours before noon: it takes a hundred and forty-four), and a morning glory that is (it bears again). */
+  const ripe = (over: Partial<Plant> = {}): Plot => sown({ crop: "pumpkin", sown: NOON - 150 * HOUR, ...over });
+  const mine: Bed = { by: "me", tended: NOON - HOUR, empty: 0 };
+  const me = purseWith(SICKLE);
+  const whole = (): Record<string, Plot> => Object.fromEntries(KEYS.map((k) => [k, ripe()]));
+
+  it("is offered in my own bed, where picking is the plain deed and two plants or more of the row are ripe: those, and no others", () => {
+    expect(rowFor(MID, KEYS, whole(), me, "me", NOON, "me")).toEqual({ deed: "pick", plots: [KEYS[3], KEYS[2], KEYS[4], KEYS[1], KEYS[5], KEYS[0], KEYS[6]] });
+    const some: Record<string, Plot> = { [KEYS[0]]: ripe(), [KEYS[1]]: sown(), [KEYS[3]]: ripe({ crop: "kangkong", sown: NOON - 9 * HOUR }), [KEYS[4]]: { soil: "tilled", plant: null }, [KEYS[6]]: ripe() };
+    expect(rowFor(KEYS[3], KEYS, some, me, "me", NOON, "me")).toEqual({ deed: "pick", plots: [KEYS[3], KEYS[0], KEYS[6]] });
+    // not in a bed that is somebody else's, nor one that is nobody's; not without the charm worn; not for one plant alone
+    expect(rowFor(MID, KEYS, whole(), me, "me", NOON, "you")).toBeNull();
+    expect(rowFor(MID, KEYS, whole(), me, "me", NOON, null)).toBeNull();
+    expect(rowFor(MID, KEYS, whole(), purseWith({ had: ["charmSickle"], charms: [] }), "me", NOON, "me")).toBeNull();
+    expect(rowFor(MID, KEYS, { [MID]: ripe(), [KEYS[0]]: sown() }, me, "me", NOON, "me")).toBeNull();
+    // (with a hoe in the hand a ripe plant is dug out, not picked: the sickle has nothing to do with that)
+    expect(rowFor(MID, KEYS, whole(), holding(purseWith(SICKLE, ["hoe", 1]), "hoe"), "me", NOON, "me")).toBeNull();
+  });
+
+  it("picks every plant the sweep went along: one cut well gives one more, one cut badly what it would have given by hand and no more", () => {
+    const went = [true, false, true, true, false, true, true], marks = Object.fromEntries(KEYS.map((k, i) => [k, went[i]]));
+    const did = done(rowTend(MID, KEYS, whole(), mine, 0, 0, me, "me", NOON, marks));
+    expect(did.deed).toBe("pick");
+    expect(did.each.length).toBe(7);
+    for (const e of did.each) {
+      const byHand = yieldOf(e.key, whole()[e.key].plant!, null);
+      expect(byHand).toBe(2);
+      expect(e).toEqual({ key: e.key, crop: "pumpkin", n: byHand + (marks[e.key] ? 1 : 0), well: marks[e.key] });
+    }
+    expect(did.got).toEqual([["pumpkin", 7 * 2 + 5]]);
+    expect(held(did.purse.bag, "pumpkin")).toBe(19);
+    expect(staminaOf(did.purse, NOON)).toBe(100 - 7 * FARMING.costs.pick);
+    // a pumpkin is picked once: every plot is bare ground again, and the bed's day of standing empty begins
+    for (const key of KEYS) expect(did.plots[key]).toEqual({ soil: "cleared", plant: null });
+    expect(did.bed).toEqual({ by: "me", tended: NOON, empty: NOON });
+  });
+
+  it("with every plant cut badly it is as seven pickings by hand, to the last thing in the bag", () => {
+    const did = done(rowTend(MID, KEYS, whole(), mine, 0, 0, me, "me", NOON, all(KEYS, false)));
+    let p = me, bed: Bed | undefined = mine;
+    const state = whole();
+    for (const key of [KEYS[3], KEYS[2], KEYS[4], KEYS[1], KEYS[5], KEYS[0], KEYS[6]]) {
+      const d: { purse: Purse; bed: Bed | undefined; plot: Plot } = done(tend(key, state[key], bed, KEYS.filter((k) => k !== key && state[k].plant).length, 0, p, "me", NOON));
+      p = d.purse; bed = d.bed; state[key] = d.plot;
+    }
+    expect(did.purse).toEqual(p);
+    expect(did.bed).toEqual(bed);
+    expect(did.got).toEqual([["pumpkin", 14]]);
+  });
+
+  it("leaves a plant the sweep did not go along, and one that bears again goes back a stage as when picked by hand", () => {
+    const row: Record<string, Plot> = { [KEYS[0]]: ripe(), [KEYS[1]]: ripe({ crop: "kangkong", sown: NOON - 9 * HOUR }), [KEYS[2]]: ripe(), [KEYS[5]]: sown() };
+    const did = done(rowTend(KEYS[1], KEYS, row, mine, 0, 0, me, "me", NOON, { [KEYS[1]]: true, [KEYS[0]]: false }));
+    expect(did.each.map((e) => e.key)).toEqual([KEYS[1], KEYS[0]]);
+    expect(did.plots[KEYS[1]].plant).toMatchObject({ crop: "kangkong", picked: 1, pickedAt: NOON });
+    expect(did.plots[KEYS[2]]).toBeUndefined();
+    const kang = yieldOf(KEYS[1], row[KEYS[1]].plant!, null);
+    expect(did.got).toEqual([["kangkong", kang + 1], ["pumpkin", 2]]);
+    // (the bed still has plants in it: its day of standing empty has not begun)
+    expect(did.bed).toEqual({ ...mine, tended: NOON });
+  });
+
+  it("adds to what a blade in the hand gives: the sickle held picks one more by hand, and the charm one more for a good cut", () => {
+    const held_ = holding(purseWith(SICKLE, ["sickle", 1]), "sickle");
+    const did = done(rowTend(MID, KEYS, whole(), mine, 0, 0, held_, "me", NOON, { [KEYS[3]]: true, [KEYS[2]]: false }));
+    expect(did.each.map((e) => e.n)).toEqual([2 + 1 + 1, 2 + 1]);
+  });
+
+  it("stops where the bag is full: what was picked before is picked, and a good cut with no room for its one more gives what the hand gives", () => {
+    // a bag with room for five pumpkins and no more
+    const tight: Purse = { ...me, bag: me.bag.map((_, i) => (i === 0 ? { item: "pumpkin" as ItemId, n: ITEMS.pumpkin.stack - 5 } : { item: "hoe" as ItemId, n: 1 })) };
+    const did = done(rowTend(MID, KEYS, whole(), mine, 0, 0, tight, "me", NOON, all(KEYS)));
+    // the first: two and one more; the second: two, and no room for one more; the third does not fit at all
+    expect(did.each).toEqual([{ key: KEYS[3], crop: "pumpkin", n: 3, well: true }, { key: KEYS[2], crop: "pumpkin", n: 2, well: true }]);
+    expect(Object.keys(did.plots).sort()).toEqual([KEYS[2], KEYS[3]].sort());
+    // with no room at all for the first, nothing is done
+    const full: Purse = { ...me, bag: me.bag.map(() => ({ item: "hoe" as ItemId, n: 1 })) };
+    expect(rowTend(MID, KEYS, whole(), mine, 0, 0, full, "me", NOON, all(KEYS))).toEqual({ ok: false, why: "full" });
+  });
+});
+
+describe("good things are harder for the skilled on the farm: a crop of the second tier or better, from the line's fourth rank", () => {
+  it("the simplest crops are as they are for everybody, at any rank; and so is everybody below the fourth", () => {
+    const marks = LINES.farming.marks, tiers = CROP_IDS.map((c) => ITEMS[c].tier);
+    expect(tiers.filter((t) => t === 1).length).toBe(12);
+    expect(tiers.filter((t) => t === 2).length).toBe(7);
+    expect(tiers.filter((t) => t === 3).length).toBe(7);
+    for (const crop of CROP_IDS) {
+      expect(hardFor(crop, 0)).toBe(1);
+      expect(hardFor(crop, marks[2])).toBe(1);
+      for (const rank of [4, 5, 6, 10]) expect(hardFor(crop, marks[rank - 1]), `${crop} at rank ${rank}`).toBe(ITEMS[crop].tier >= 2 ? harderAt(rank) : 1);
+    }
+    expect(hardFor("eggplant", marks[3])).toBeCloseTo(1.08, 12);
+    expect(hardFor("mango", marks[9])).toBeCloseTo(1.56, 12);
+    expect(hardFor(null, marks[9])).toBe(1);
+    // (what a crop is of is its thing's own tier: the second tier's begin at the eggplant, the third's at the mango)
+    expect(ITEMS[CROPS.eggplant.seed].tier).toBe(2);
   });
 });
