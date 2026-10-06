@@ -200,6 +200,8 @@ export interface Purse {
   drunk?: { k: number; by: string };
   /** When the rain last filled a bucket of mine by itself (the rain frog's): the next is full no sooner after than it takes to fill. */
   rained?: number;
+  /** What my moon flask keeps: the nature of its water, and how many bucketfuls. */
+  moon?: { kind: "dawn" | "rain" | "moon"; n: number };
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

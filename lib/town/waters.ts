@@ -74,12 +74,17 @@ export const natureOf = (w: WellWater | null | undefined, now: number): Nature |
 /**
  * The well after so many bucketfuls of a nature (or of none) are poured in at a moment: plain water changes nothing;
  * more of the nature it has keeps it longer, to the most from now; another takes its place.
+ *
+ * `times` (the moon flask's, lib/town/well-gifts: the well's sixth rank): water poured out of the flask works so many
+ * times as long, a bucketful and at the most. So the well may have a nature for longer than a bucket's most; and
+ * **more of the same nature never shortens what the well has of it** (a plain bucket poured after a flask leaves the
+ * flask's hours as they are, where the most alone would have cut them).
  */
-export function pouredIn(was: WellWater | null | undefined, kind: Nature | null | undefined, n: number, by: string, now: number): WellWater | null {
+export function pouredIn(was: WellWater | null | undefined, kind: Nature | null | undefined, n: number, by: string, now: number, times = 1): WellWater | null {
   const has = was && was.until > now ? was : null;
   if (!kind || !(n > 0)) return has;
-  const from = has && has.kind === kind ? has.until : now;
-  return { kind, by, until: Math.min(now + WATERS.most * 60_000, from + n * WATERS.lasts * 60_000) };
+  const from = has && has.kind === kind ? has.until : now, by_ = times > 0 ? times : 1;
+  return { kind, by, until: Math.max(from, Math.min(now + Math.floor(WATERS.most * by_ * 60_000), from + Math.floor(n * WATERS.lasts * by_ * 60_000))) };
 }
 
 /**

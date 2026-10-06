@@ -32,9 +32,9 @@ import { ditch, reachOf } from "./ditch";
 import { hotAt } from "./heat";
 import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
-import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./waters";
+import { keptAs, natureAt, natureOf, pouredIn, type Nature, type WellWater } from "./waters";
 // ── gifts: well ──
-import { drinkOffer, drinkTake, rainFill, type WellGiftRefusal } from "./well-gifts";
+import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGiftRefusal } from "./well-gifts";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -743,6 +743,34 @@ export class Trial {
     this.wellSeen({ by: this.id, at: now, what: "draw", can: did.can, kind: natureAt(now, true) ?? undefined });
     this.save(did.purse);
     return { ok: true, n: did.n };
+  }
+  /** The nature of the water in the bucket I hold, when it has one (the well's log has it by who holds which bucket). */
+  carriedKind(): Nature | null { const c = carried(this.purse()); return c ? this.wellLog().kinds[`${this.id}/${c.hand}`] ?? null : null; }
+  /** Keep the water of the bucket I hold in my moon flask. */
+  moonKeep(): { ok: true; n: number; kind: Nature } | { ok: false; why: WellGiftRefusal } {
+    const did = moonKeep(this.purse(), this.carriedKind());
+    if (!did.ok) return did;
+    this.save(did.purse);
+    return { ok: true, n: did.n, kind: did.kind };
+  }
+  /**
+   * Pour so many bucketfuls of my flask into the well: what the well has room for is a bucketful poured like any
+   * other in its book, and the well takes the water's nature from all of it, so many times as long.
+   */
+  moonPour(n: number): { ok: true; poured: number; into: number; kind: Nature } | { ok: false; why: WellGiftRefusal } {
+    const now = this.now(), did = moonPour(this.purse(), this.well(), n, now);
+    if (!did.ok) return did;
+    this.write(WELL, did.well);
+    if (did.into > 0) this.wellSeen({ by: this.id, at: now, what: "pour", n: did.into, can: "thingMoon" });
+    const log = this.wellLog();
+    this.write(WELL_LOG, { ...log, wellWater: pouredIn(log.wellWater, did.kind, did.poured, this.id, now, MOON.times) });
+    this.save(did.purse);
+    return { ok: true, poured: did.poured, into: did.into, kind: did.kind };
+  }
+  /** For scripts and the test window: what my moon flask keeps (null: nothing). */
+  setMoon(kind: Nature | null, n = MOON.holds) {
+    const { moon: _was, ...rest } = this.purse();
+    this.save((kind ? { ...rest, moon: { kind, n: Math.max(1, Math.min(MOON.holds, Math.floor(n))) } } : rest) as Purse);
   }
   /** For scripts and the test window: so many bucketfuls poured, all told, as mine. */
   setCarried(buckets: number) {

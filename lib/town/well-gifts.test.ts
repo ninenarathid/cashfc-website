@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { giftAt, numberOf, takeGift } from "./gifts";
+import { WATER } from "./farm";
 import type { ItemId } from "./items";
 import { carried } from "./line";
 import { LINES, rankOf } from "./lines";
 import { Skies } from "./skies";
 import { STAMINA, dayOf, staminaOf } from "./stamina";
 import { newPurse, type Purse } from "./trade";
+import { NATURES, WATERS, pouredIn, type Nature } from "./waters";
 import { FINE, SLOT_MS, slotOf, type Sky } from "./weather";
-import { DRINK, FROG, croaksAt, drinkNear, drinkOffer, drinkTake, hasDrunk, mealHours, rainAhead, rainFill, rainNeed, readDrinkTold, skyAhead, toastOf } from "./well-gifts";
+import { DRINK, FROG, MOON, moonKeep, moonOf, moonPour, croaksAt, drinkNear, drinkOffer, drinkTake, hasDrunk, mealHours, rainAhead, rainFill, rainNeed, readDrinkTold, skyAhead, toastOf } from "./well-gifts";
 
 /** A moment by Bangkok's clock. */
 const at = (s: string) => Date.parse(`${s}+07:00`);
@@ -290,5 +292,122 @@ describe("the rain frog (the well's fifth rank): the sky ahead, a croak before r
     // (whatever the database says afterwards is not taken)
     expect(skies.take({ now: Date.now(), slots: [[from, "storm", 1, 1, 1]] }, Date.now())).toBe(false);
     expect(skies.reaches(60)).toBe(true);
+  });
+});
+
+describe("the moon flask (the well's sixth rank): water that differs, kept for the moment of its owner's choosing", () => {
+  const MIN = 60_000;
+  /** A purse with the flask, and a bucket in the hand with so much water in it. */
+  const flask = (hand: ItemId | null = "waterYokeGreat", water = 4, more: Partial<Purse> = {}): Purse => {
+    const p: Purse = { ...newPurse(), stamina: { day: dayOf(NOON), left: 50 }, gifts: { had: ["thingMoon"], charms: [] }, ...more };
+    return hand ? { ...p, bag: p.bag.map((s, i) => (i === 0 ? { item: hand, n: 1, ...(water ? { water } : {}) } : s)), hand } : p;
+  };
+
+  it("keeps three bucketfuls of one nature, out of the bucket in the hand; the rest stays in the bucket", () => {
+    expect(MOON).toEqual({ holds: 3, times: 3 });
+    expect(numberOf("thingMoon")).toBe(MOON.times);
+    for (const kind of NATURES) {
+      const did = done(moonKeep(flask(), kind));
+      expect([did.n, did.kind, did.can]).toEqual([3, kind, "waterYokeGreat"]);
+      expect(did.purse.moon).toEqual({ kind, n: 3 });
+      expect(did.purse.bag[0]).toEqual({ item: "waterYokeGreat", n: 1, water: 1 });
+      // for nothing: no stamina, no coin
+      expect(staminaOf(did.purse, NOON)).toBe(50);
+      expect(did.purse.coins).toBe(0);
+    }
+    // a bucketful at a time, of the same water: one, two, three, and then it has all it holds
+    let p = flask("bucket", 1);
+    for (const n of [1, 2, 3]) {
+      const did = done(moonKeep(p, "dawn"));
+      expect(did.purse.moon).toEqual({ kind: "dawn", n });
+      expect(did.purse.bag[0]).toEqual({ item: "bucket", n: 1 });
+      p = { ...did.purse, bag: did.purse.bag.map((s, i) => (i === 0 ? { item: "bucket" as ItemId, n: 1, water: 1 } : s)) };
+    }
+    expect(why(moonKeep(p, "dawn"))).toBe("brim");
+    expect(moonOf(p)).toEqual({ kind: "dawn", n: 3 });
+  });
+
+  it("not plain water, not another nature than it has, not with no water in the hand, not without the flask", () => {
+    expect(why(moonKeep(flask(), null))).toBe("plain");
+    expect(why(moonKeep(flask(), undefined))).toBe("plain");
+    expect(why(moonKeep(flask(), "sea" as Nature))).toBe("plain");
+    expect(why(moonKeep(flask("bucket", 1, { moon: { kind: "moon", n: 1 } }), "rain"))).toBe("other");
+    expect(done(moonKeep(flask("bucket", 1, { moon: { kind: "moon", n: 1 } }), "moon")).purse.moon).toEqual({ kind: "moon", n: 2 });
+    expect(why(moonKeep(flask("waterYokeGreat", 0), "dawn"))).toBe("hand");
+    expect(why(moonKeep(flask(null), "dawn"))).toBe("hand");
+    expect(why(moonKeep(flask("can", 5), "dawn"))).toBe("hand");
+    expect(why(moonKeep({ ...flask(), gifts: { had: ["thingFlask"], charms: [] } }, "dawn"))).toBe("none");
+    // (no flask is said first; then no water; then what water it is; then what the flask has)
+    expect(why(moonKeep({ ...flask(null), gifts: { had: [], charms: [] } }, null))).toBe("none");
+    expect(why(moonKeep(flask(null, 0, { moon: { kind: "moon", n: 3 } }), null))).toBe("hand");
+    expect(why(moonKeep(flask("bucket", 1, { moon: { kind: "moon", n: 3 } }), null))).toBe("plain");
+    expect(why(moonKeep(flask("bucket", 1, { moon: { kind: "moon", n: 3 } }), "rain"))).toBe("other");
+  });
+
+  it("poured into the well when its owner likes: a bucketful or all of it, for a pour's stamina", () => {
+    const full = flask(null, 0, { moon: { kind: "dawn", n: 3 } });
+    const one = done(moonPour(full, 10, 1, NOON));
+    expect([one.poured, one.into, one.kind, one.well]).toEqual([1, 1, "dawn", 11]);
+    expect(one.purse.moon).toEqual({ kind: "dawn", n: 2 });
+    expect(staminaOf(one.purse, NOON)).toBe(50 - WATER.costs.pour);
+    const all = done(moonPour(full, 10, 3, NOON));
+    expect([all.poured, all.into, all.well]).toEqual([3, 3, 13]);
+    expect("moon" in all.purse).toBe(false);
+    // more asked for than it has: all it has
+    expect(done(moonPour(one.purse, 10, 9, NOON)).poured).toBe(2);
+    // a well with little room, and one that is full: what fits goes in, the rest runs over, and all of it is poured
+    const tight = done(moonPour(full, WATER.well - 1, 3, NOON));
+    expect([tight.poured, tight.into, tight.well]).toEqual([3, 1, WATER.well]);
+    const over = done(moonPour(full, WATER.well, 2, NOON));
+    expect([over.poured, over.into, over.well]).toEqual([2, 0, WATER.well]);
+    expect(over.purse.moon).toEqual({ kind: "dawn", n: 1 });
+    // nothing but the flask and the stamina changes
+    expect(all.purse.bag).toEqual(full.bag);
+    expect(all.purse.coins).toBe(0);
+  });
+
+  it("not with nothing in it, not by what is no number of bucketfuls, not without the flask", () => {
+    expect(why(moonPour(flask(null, 0), 10, 1, NOON))).toBe("dry");
+    expect(why(moonPour(flask(null, 0, { moon: { kind: "dawn", n: 0 } }), 10, 1, NOON))).toBe("dry");
+    expect(why(moonPour(flask(null, 0, { moon: { kind: "sea" as Nature, n: 2 } }), 10, 1, NOON))).toBe("dry");
+    for (const n of [0, -1, 1.5, NaN]) expect(why(moonPour(flask(null, 0, { moon: { kind: "dawn", n: 3 } }), 10, n, NOON)), String(n)).toBe("amount");
+    expect(why(moonPour({ ...flask(null, 0, { moon: { kind: "dawn", n: 3 } }), gifts: { had: [], charms: [] } }, 10, 1, NOON))).toBe("none");
+    // (what is kept wrongly is an empty flask)
+    for (const bad of [null, "x", { kind: "dawn" }, { kind: "dawn", n: 4 }, { kind: "dawn", n: 1.5 }, { n: 2 }]) expect(moonOf({ moon: bad as unknown as Purse["moon"] }), JSON.stringify(bad)).toBeNull();
+  });
+
+  it("works three times as long in the well: an hour and a half a bucketful, six hours at the most", () => {
+    expect([WATERS.lasts, WATERS.most]).toEqual([30, 120]);
+    // a bucket's bucketful, and the flask's
+    expect(pouredIn(null, "dawn", 1, "A", NOON)!.until).toBe(NOON + 30 * MIN);
+    expect(pouredIn(null, "dawn", 1, "A", NOON, MOON.times)).toEqual({ kind: "dawn", by: "A", until: NOON + 90 * MIN });
+    expect(pouredIn(null, "moon", 3, "A", NOON, MOON.times)!.until).toBe(NOON + 270 * MIN);
+    // the most: two hours of a bucket's, six of the flask's (more of the same keeps it longer, up to that from now)
+    expect(pouredIn(null, "dawn", 9, "A", NOON)!.until).toBe(NOON + 120 * MIN);
+    const three = pouredIn(null, "dawn", 3, "A", NOON, MOON.times);
+    expect(pouredIn(three, "dawn", 3, "B", NOON + 60 * MIN, MOON.times)).toEqual({ kind: "dawn", by: "B", until: NOON + 420 * MIN });
+    expect(pouredIn(three, "dawn", 3, "B", NOON, MOON.times)!.until).toBe(NOON + 360 * MIN);
+    // times of one is a bucket's, as it always was
+    for (const n of [1, 2, 5]) expect(pouredIn(null, "rain", n, "A", NOON, 1)).toEqual(pouredIn(null, "rain", n, "A", NOON));
+  });
+
+  it("a bucket of the same water poured after a flask never shortens what the well has; another nature still takes its place", () => {
+    const long = pouredIn(null, "moon", 3, "A", NOON, MOON.times)!;
+    // (a bucket's most is two hours from now: alone it would have cut four and a half hours to two)
+    const after = pouredIn(long, "moon", 1, "B", NOON + 10 * MIN)!;
+    expect(after.until).toBe(long.until);
+    expect(after.by).toBe("B");
+    // near its end a bucket lengthens it as ever
+    expect(pouredIn(long, "moon", 1, "B", long.until - 10 * MIN)!.until).toBe(long.until + 30 * MIN);
+    // another nature takes its place; plain water changes nothing; one that has run out is gone
+    expect(pouredIn(long, "rain", 1, "B", NOON + 10 * MIN)).toEqual({ kind: "rain", by: "B", until: NOON + 40 * MIN });
+    expect(pouredIn(long, null, 4, "B", NOON + 10 * MIN)).toEqual(long);
+    expect(pouredIn(long, "moon", 0, "B", long.until + 1, MOON.times)).toBeNull();
+  });
+
+  it("the catalog carries its numbers", () => {
+    const c = catalogOf();
+    expect(c.well.moon).toEqual({ holds: 3 });
+    expect(c.gifts.gifts.thingMoon).toEqual({ kind: "thing", line: "well", rank: 6, by: 3 });
   });
 });

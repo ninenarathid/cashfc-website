@@ -22,7 +22,7 @@ import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
-import { natureAt, natureOf, type Nature, type WellWater } from "./waters";
+import { NATURES, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
 import { CHARM_IDS, type GiftRefusal } from "./gifts";
 import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
@@ -347,6 +347,16 @@ export interface Keeper {
    * many bucketfuls. (When it rains is the sky's, lib/town/skies: whoever keeps the game judges by its own.)
    */
   rainFill(): Promise<Did<{ n: number }>>;
+  /**
+   * The moon flask: the nature of the water in the bucket I hold, when it has one, as whoever keeps the game has it
+   * (null for plain water, for no water, and where it is not known yet; `moonLook` asks again, for a page that sees
+   * the bucket's water change). Keeping that water in my flask; and pouring so many bucketfuls of the flask into the
+   * well, from the tile I stand on: how many were poured, and how many the well had room for.
+   */
+  carriedKind(): Nature | null;
+  moonLook(): void;
+  moonKeep(): Promise<Did<{ n: number; kind: Nature }>>;
+  moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>>;
 
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
   record(play: Play): void;
@@ -600,6 +610,8 @@ export class DbKeeper implements Keeper {
       const t = a.shopTold && typeof a.shopTold === "object" && Array.isArray((a.shopTold as ShopTold).lines) ? (a.shopTold as ShopTold) : null;
       this.visit_ = { who: a.shopWho, told: t ? { ...t, lines: t.lines.filter((l) => l.item in ITEMS) } : null };
     }
+    // ── gifts: well ── (the nature of the water in each of my buckets, told with the moon flask's answers)
+    if (a.carried && typeof a.carried === "object" && !Array.isArray(a.carried)) this.kinds_ = a.carried as Record<string, Nature>;
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -1083,6 +1095,18 @@ export class DbKeeper implements Keeper {
     return did;
   }
   rainFill() { return this.deed<{ n: number }>("town_rain_fill"); }
+  /** The nature of the water in each bucket of mine that has one, as the database last told it (with the flask's own answers, and `town_moon`). */
+  private kinds_: Record<string, Nature> = {};
+  carriedKind(): Nature | null { const c = carried(this.mine), kind = c ? this.kinds_[c.hand] : undefined; return kind && NATURES.includes(kind) ? kind : null; }
+  moonLook() { void this.ask("town_moon"); }
+  moonKeep() { return this.deed<{ n: number; kind: Nature }>("town_moon_keep"); }
+  async moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>> {
+    if (!at) return { ok: false, why: "none" };
+    const did = await this.deed<{ poured: number; into: number; kind: Nature }>("town_moon_pour", { p_x: at[0], p_y: at[1], p_n: n });
+    // (the well has more water and another nature: everybody at the farm looks, and so do I, the book too)
+    if (did.ok) { this.onDeed?.("farm"); if (this.wellBook_) void this.ask("town_well"); void this.ask("town_well_ranks"); }
+    return did;
+  }
 
   record() { /* the database writes every go down itself, as the deed is done */ }
   close() {

@@ -1,8 +1,10 @@
 import { WATER } from "./farm";
 import { hasThing, numberOf, stretchOf, works } from "./gifts";
 import type { ItemId } from "./items";
-import { STAMINA, dayOf, staminaOf } from "./stamina";
+import { carried } from "./line";
+import { STAMINA, dayOf, spend, staminaOf } from "./stamina";
 import { handOf, type Purse } from "./trade";
+import { NATURES, type Nature } from "./waters";
 import { SLOT_MS, isWet, slotOf, type Sky } from "./weather";
 
 /**
@@ -36,9 +38,26 @@ import { SLOT_MS, isWet, slotOf, type Sky } from "./weather";
  *   rain's (lib/town/waters). Only in rain; and it is still to be carried and poured, which costs what it costs and,
  *   with no stamina, is the game it always was: nothing that can be failed is taken away.
  *
+ * **The moon flask** (rank 6, `thingMoon`): water that differs, kept for the moment of its owner's choosing.
+ *
+ * Water has a nature by the moment it is drawn (lib/town/waters: the dew's at dawn, the rain's under rain, the
+ * moon's on a night of the full moon), and gives it to the well only then and there: an hour or two later it is
+ * gone, whoever is in town. The flask keeps it.
+ *
+ * - **It keeps three bucketfuls** of one nature (`moonKeep`: out of the bucket in the hand, as much as the flask has
+ *   room for; another nature only once it is empty). Kept anywhere, for nothing.
+ * - **It is poured into the well when its owner likes** (`moonPour`: a bucketful or all of it, at the well, for a
+ *   pour's stamina), and **works three times as long there**: an hour and a half a bucketful where a bucket's gives
+ *   half an hour, and six hours at the most where a bucket's most is two (`pouredIn`'s `times`). A whole flask of
+ *   dew is four and a half hours of waterings that do as much again, at the hour the village is in its beds.
+ * - What the well has room for goes into it and is counted as any bucketful poured (the rank, the day's carriers,
+ *   the jar); a well that is full takes the nature all the same, and the rest of the water runs over.
+ * - Another nature poured in still takes its place, as it always did: whoever pours the flask chooses the moment,
+ *   and the well's sign says what its water is. Whose hands a bucket's water came by is not kept in the flask.
+ *
  * Pure: every function is given the moment, and what it gives back is new. The database judges the same (v153:
- * `town.drink_offer`, `town.drink_take`, both purses in the one call that drinks; `town.rain_fill`). **Every number
- * is mine.**
+ * `town.drink_offer`, `town.drink_take`, both purses in the one call that drinks; `town.rain_fill`; `town.moon_keep`,
+ * `town.moon_pour`). **Every number is mine.**
  */
 export const DRINK = {
   /** The stamina a drink gives whoever drinks it (the flask's own number, lib/town/gifts), and its owner for the giving. */
@@ -57,9 +76,13 @@ export const FROG = { ahead: numberOf("famFrog"), croaks: 15, fills: 12 };
  * Why nothing came of something of the well's gifts, beyond what a bag refuses for: a drink that was held out too
  * long ago (`late`), or from too far (`far`), or to somebody who has drunk in these hours (`drunk`) or whose gauge
  * is full (`sated`); a bucket the rain is to fill under a dry sky (`dry`), with no empty bucket in the hand (`hand`),
- * or sooner after the last than it takes to fill (`soon`).
+ * or sooner after the last than it takes to fill (`soon`); water for the moon flask that has no nature (`plain`),
+ * or another than the flask keeps (`other`), or a flask that has all it holds (`brim`); a flask poured with nothing
+ * in it (`dry`), or by what is no number of bucketfuls (`amount`).
  */
-export type WellGiftRefusal = "none" | "late" | "far" | "drunk" | "sated" | "dry" | "hand" | "soon";
+export type WellGiftRefusal = "none" | "late" | "far" | "drunk" | "sated" | "dry" | "hand" | "soon" | "plain" | "other" | "brim" | "amount";
+/** The moon flask's numbers: the bucketfuls it keeps, and how many times as long its water works in the well (its own number, lib/town/gifts). */
+export const MOON = { holds: 3, times: numberOf("thingMoon") };
 type Not = { ok: false; why: WellGiftRefusal };
 const not = (why: WellGiftRefusal): Not => ({ ok: false, why });
 
@@ -204,4 +227,47 @@ export function rainFill<P extends Purse>(purse: P, raining: boolean, now: numbe
   const last = rainedOf(purse);
   if (last !== null && now - last < need.ms) return not("soon");
   return { ok: true, n: need.n, can: need.hand, purse: { ...purse, rained: now, bag: purse.bag.map((s, i) => (i === need.slot ? { item: need.hand, n: 1, water: need.n } : s)) } };
+}
+
+/* ── the moon flask ────────────────────────────────────────────────────── */
+
+/** What a moon flask keeps, as it is kept, if it is kept soundly: a nature there is, and a whole number of bucketfuls from one to what it holds. Null for an empty one. */
+export function moonOf(purse: Pick<Purse, "moon">): { kind: Nature; n: number } | null {
+  const m = purse.moon as { kind?: unknown; n?: unknown } | null | undefined;
+  return m && typeof m === "object" && typeof m.kind === "string" && (NATURES as string[]).includes(m.kind) && whole(m.n) && m.n >= 1 && m.n <= MOON.holds ? { kind: m.kind as Nature, n: m.n } : null;
+}
+/**
+ * Keep the water of the bucket I hold in my flask: as many bucketfuls as the flask has room for, the rest stays in
+ * the bucket. `kind` is the nature of that water as whoever keeps the game has it (a bucket's own: lib/town/well's
+ * `kinds`); plain water is not kept, nor another nature than the flask has. For nothing, anywhere.
+ */
+export function moonKeep<P extends Purse>(purse: P, kind: Nature | null | undefined): { ok: true; purse: P; n: number; kind: Nature; can: ItemId } | Not {
+  if (!hasThing(purse, "thingMoon")) return not("none");
+  const mine = carried(purse);
+  if (!mine || mine.has < 1) return not("hand");
+  if (!kind || !(NATURES as string[]).includes(kind)) return not("plain");
+  const has = moonOf(purse);
+  if (has && has.kind !== kind) return not("other");
+  const room = MOON.holds - (has?.n ?? 0);
+  if (room < 1) return not("brim");
+  const n = Math.min(mine.has, room), left = mine.has - n;
+  return {
+    ok: true, n, kind, can: mine.hand,
+    purse: { ...purse, moon: { kind, n: (has?.n ?? 0) + n }, bag: purse.bag.map((s, i) => (i === mine.slot ? (left > 0 ? { item: mine.hand, n: 1, water: left } : { item: mine.hand, n: 1 }) : s)) },
+  };
+}
+/**
+ * Pour so many bucketfuls of my flask into the well (all it has, when it has fewer), for a pour's stamina. Gives the
+ * purse and the well as they are afterwards, how many were poured (`poured`: what the well takes its nature from,
+ * three times as long, which is the caller's to keep: `pouredIn` with `MOON.times`), and how many the well had room
+ * for (`into`: counted as bucketfuls poured). What it has no room for runs over.
+ */
+export function moonPour<P extends Purse>(purse: P, well: number, n: number, now: number): { ok: true; purse: P; well: number; poured: number; into: number; kind: Nature } | Not {
+  if (!hasThing(purse, "thingMoon")) return not("none");
+  if (!whole(n) || n < 1) return not("amount");
+  const has = moonOf(purse);
+  if (!has) return not("dry");
+  const poured = Math.min(n, has.n), into = Math.max(0, Math.min(poured, WATER.well - well)), left = has.n - poured;
+  const { moon: _was, ...rest } = spend(purse, WATER.costs.pour, now);
+  return { ok: true, poured, into, kind: has.kind, well: well + into, purse: (left > 0 ? { ...rest, moon: { kind: has.kind, n: left } } : rest) as P };
 }

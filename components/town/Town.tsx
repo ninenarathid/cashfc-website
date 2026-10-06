@@ -121,6 +121,7 @@ const TownLine = lazy(() => import("./TownLine"));
 // ── gifts: well ──
 const TownDrink = lazy(() => import("./TownDrink"));
 const TownFrog = lazy(() => import("./TownFrog"));
+const TownMoon = lazy(() => import("./TownMoon"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
@@ -665,6 +666,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const askSky = useCallback(() => { skyLook.current?.(); }, []);
   /** (whose empty bucket gathers the rain in this frame, by who holds it: how full, where the page knows) */
   const gathering = useRef(new Map<string, number | null>());
+  /** (the moon flask's own way of drawing its light at the well, handed over when it has loaded) */
+  const wellGiftDraw = useRef<FarmDraw | null>(null);
+  const registerWellGift = useCallback((draw: FarmDraw | null) => { wellGiftDraw.current = draw; }, []);
   /** Whether I stand still at the farm's well (where a bucket is poured in and a can filled). */
   const [wellHere, setWellHere] = useState(false);
   const wellRef = useRef(false);
@@ -2047,6 +2051,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         sign: (text: string, x: number, y: number) => { signs.push(() => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)")); },
       };
       if (placeRef.current === "farm") farmDraw.current?.(frame);
+      if (placeRef.current === "farm") wellGiftDraw.current?.(frame);   // ── gifts: well ── (the light at the well as a moon flask is poured)
       if (placeRef.current === "forest") forestDraw.current?.(frame);
       bugsDraw.current?.(frame);
       // the pots of food that stand about, wherever they were set down
@@ -3448,6 +3453,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Whether the rain frog follows me: its member's page keeps the sky an hour ahead, and asks for it as the frog comes. */
   const hasFrog = giftsTold.gifts.familiar === "famFrog" && giftsTold.given.includes("famFrog");
   useEffect(() => { skyWant.current = hasFrog ? 60 : 20; if (hasFrog) skyLook.current?.(); }, [hasFrog]);
+  /** Whether I have the moon flask. */
+  const hasMoon = giftsTold.gifts.had.includes("thingMoon") && giftsTold.given.includes("thingMoon");
   /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
   const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
   // A sign that was tapped from far off: asked again now that I have stopped walking.
@@ -3520,11 +3527,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
       </div>
 
-      {/* ── gifts: well ── Under the clock: what the well's gifts show their member (the rain frog's sky) */}
-      {s && game && keeper && (hasFrog) && (
+      {/* ── gifts: well ── Under the clock: what the well's gifts show their member (the rain frog's sky, and what the moon flask keeps) */}
+      {s && game && keeper && (hasFrog || hasMoon) && (
         <div className="pointer-events-none absolute left-3 top-[3.75rem] z-10 flex max-w-[calc(100%-1.5rem)] flex-col items-start gap-1.5" data-well-gifts>
           <Suspense fallback={null}>
             {hasFrog && <TownFrog keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} gauge={rainFull} onWant={askSky} />}
+            {hasMoon && <TownMoon keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} register={registerWellGift}
+                                  at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null}
+                                  bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} />}
           </Suspense>
         </div>
       )}

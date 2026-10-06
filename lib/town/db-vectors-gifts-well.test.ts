@@ -5,7 +5,11 @@ import { WATER } from "./farm";
 import type { ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { newPurse, type Purse } from "./trade";
-import { DRINK, FROG, drinkOffer, drinkTake, hasDrunk, mealHours, rainFill, toastOf } from "./well-gifts";
+import { NATURES, WATERS, pouredIn, type Nature, type WellWater } from "./waters";
+import { DRINK, FROG, MOON, drinkOffer, drinkTake, hasDrunk, mealHours, moonKeep, moonOf, moonPour, rainFill, toastOf } from "./well-gifts";
+
+/** The dry run's own people (the stand-in database's: the well's water is whose doing by their id). */
+const WHO = ["00000000-0000-0000-0000-00000000000a", "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000002"];
 
 /**
  * The cases the database's rules of the well's gifts are held to (v153's part for the well; lib/town/
@@ -130,6 +134,49 @@ export function vectorsGiftsWell(): Vector[] {
     const raining = c.maybe(0.85);
     add("rain_fill", [p, raining, NOW], rainFill(p, raining, NOW));
   }
+
+  // ── the moon flask ──
+  // what a flask keeps, soundly and not
+  const kinds = [...NATURES] as string[], MIN = 60_000;
+  const kept = (): unknown => c.of<() => unknown>([
+    () => undefined, () => undefined, () => ({ kind: c.of(kinds), n: c.int(1, 3) }), () => ({ kind: c.of(kinds), n: c.int(1, 3) }), () => ({ kind: c.of(kinds), n: 3 }),
+    () => null, () => "x", () => ({ kind: "sea", n: 2 }), () => ({ kind: c.of(kinds), n: 0 }), () => ({ kind: c.of(kinds), n: 4 }), () => ({ kind: c.of(kinds), n: 1.5 }), () => ({ kind: c.of(kinds) }), () => ({ n: 2 }), () => ({ kind: 3, n: 2 }), () => ({ kind: c.of(kinds), n: "2" }),
+  ])();
+  const flaskOf = (more: Record<string, unknown> = {}): Purse => {
+    const base = newPurse(), thing = c.of<ItemId>([...BUCKETS, ...BUCKETS, "can"]), water = c.of<number | undefined>([undefined, 0, 1, 1, 2, 3, 4, 6, 0.5, 2.5]), at = c.int(0, 2);
+    const bag = base.bag.map((s, j) => (j === at ? { item: thing, n: 1, ...(water === undefined ? {} : { water }) } : s)) as Purse["bag"];
+    const had = c.of<string[]>([["thingMoon"], ["thingMoon"], ["thingMoon"], ["thingMoon", "famFrog"], ["thingFlask"], []]);
+    const p: Record<string, unknown> = { ...base, bag, stamina: gauge(), gifts: { had, charms: [] }, ...(c.maybe(0.92) ? { hand: thing } : {}) };
+    const m = kept();
+    if (m !== undefined) p.moon = m;
+    for (const [k, v] of Object.entries(more)) if (v !== undefined) p[k] = v;
+    return p as unknown as Purse;
+  };
+  for (let i = 0; i < 200; i++) { const p = flaskOf(); add("moon_of", [p], moonOf(p)); }
+  // kept out of a bucket: every water and none, every flask, every hand
+  for (let i = 0; i < 1100; i++) {
+    const p = flaskOf(), kind = c.of<string | null>([...kinds, ...kinds, ...kinds, null, null, "sea"]);
+    add("moon_keep", [p, kind], moonKeep(p, kind as Nature | null));
+  }
+  // (a flask that has some of the water in the hand already, up to all it holds: what is left to say no is its room)
+  for (let i = 0; i < 160; i++) {
+    const kind = c.of(kinds), p = flaskOf({ moon: { kind, n: c.of([1, 2, 3, 3]) }, gifts: { had: ["thingMoon"], charms: [] } });
+    add("moon_keep", [p, kind], moonKeep(p, kind as Nature));
+  }
+  // poured into the well: a well with room, with little, with none; a bucketful, all, more than there is, and what is no number of them
+  for (let i = 0; i < 900; i++) {
+    const p = flaskOf(c.maybe(0.75) ? { moon: { kind: c.of(kinds), n: c.int(1, 3) }, gifts: { had: ["thingMoon"], charms: [] } } : {});
+    const well = c.of([0, 5, 20, WATER.well - 3, WATER.well - 2, WATER.well - 1, WATER.well]), n = c.of<number | null>([1, 1, 2, 3, 3, 9, 0, -1, 1.5, null]);
+    add("moon_pour", [p, well, n, NOW], moonPour(p, well, n as number, NOW));
+  }
+  // the well's water: a bucket's pour as it always was, over what a flask may have left (longer than a bucket's most); and the flask's own, three times as long
+  for (let i = 0; i < 700; i++) {
+    const now = NOW + c.int(0, 600) * MIN, by = c.of(WHO), kind = c.of<string | null>([...kinds, ...kinds, null]), n = c.of([0, 1, 1, 2, 3, 4, 9]);
+    const was = c.maybe(0.25) ? null : { kind: c.of(kinds), by: c.of(WHO), until: now + c.of([-60 * MIN, -1, 0, 1, 10 * MIN, 30 * MIN, 119 * MIN, 120 * MIN, 150 * MIN, 269 * MIN, 270 * MIN, 359 * MIN, 400 * MIN]) };
+    add("well_poured", [was, kind, n, by, now], pouredIn(was as WellWater | null, kind as Nature | null, n, by, now));
+    const times = c.of([3, 3, 3, 1, 1, 2, 0, -1, 1.5]);
+    add("well_poured_times", [was, kind, n, by, now, times], pouredIn(was as WellWater | null, kind as Nature | null, n, by, now, times));
+  }
   return out;
 }
 
@@ -163,6 +210,27 @@ describe("the cases the database's rules of the well's gifts are held to", () =>
     // (a moment under the time it takes is too soon, and the moment itself is not)
     const soon = of("rain_fill").map((v) => ({ p: v.args[0] as Purse, d: v.want as { ok: boolean; why?: string; n?: number } })).filter((x) => typeof x.p.rained === "number");
     expect(soon.some((x) => x.d.ok && NOW - x.p.rained! === x.d.n! * FROG.fills * 1000) && soon.some((x) => x.d.why === "soon" && x.p.rained! < NOW)).toBe(true);
+    // the moon flask: what it keeps read soundly and as nothing; kept and refused each way; poured and refused each way
+    expect(of("moon_of").filter((v) => v.want !== null).length).toBeGreaterThan(30);
+    expect(of("moon_of").filter((v) => v.want === null).length).toBeGreaterThan(30);
+    expect([...whys("moon_keep")].sort()).toEqual(["brim", "hand", "none", "ok", "other", "plain"]);
+    for (const why of ["brim", "hand", "none", "other", "plain"]) expect(of("moon_keep").filter((v) => (v.want as { why?: string }).why === why).length, why).toBeGreaterThan(15);
+    const keeps = of("moon_keep").map((v) => ({ p: v.args[0] as Purse, d: v.want as { ok: boolean; n?: number; purse?: Purse } })).filter((x) => x.d.ok);
+    // (into an empty flask and onto what it has; all of a bucket's water, and only what the flask has room for)
+    expect(keeps.some((x) => !moonOf(x.p)) && keeps.some((x) => !!moonOf(x.p) && x.d.purse!.moon!.n === moonOf(x.p)!.n + x.d.n!)).toBe(true);
+    expect(keeps.some((x) => x.d.purse!.bag.some((s) => s && (s.water ?? 0) > 0 && s.item === x.p.hand)) && keeps.some((x) => x.d.purse!.moon!.n === MOON.holds)).toBe(true);
+    expect([...whys("moon_pour")].sort()).toEqual(["amount", "dry", "none", "ok"]);
+    for (const why of ["amount", "dry", "none"]) expect(of("moon_pour").filter((v) => (v.want as { why?: string }).why === why).length, why).toBeGreaterThan(15);
+    const pours = of("moon_pour").map((v) => v.want as { ok: boolean; poured?: number; into?: number; purse?: Purse }).filter((d) => d.ok);
+    // (all of it into a well with room; some of it running over; a full well; a flask left with water, and one emptied)
+    expect(pours.some((d) => d.into === d.poured && d.poured === 3) && pours.some((d) => d.into! > 0 && d.into! < d.poured!) && pours.some((d) => d.into === 0)).toBe(true);
+    expect(pours.some((d) => !!d.purse!.moon) && pours.some((d) => !("moon" in d.purse!))).toBe(true);
+    // the well's water: a bucket's pour that would have shortened a flask's hours leaves them; and the flask's lasts three times a bucket's
+    const wells = of("well_poured").map((v) => ({ was: v.args[0] as WellWater | null, kind: v.args[1], now: v.args[4] as number, d: v.want as WellWater | null }));
+    expect(wells.some((x) => !!x.was && !!x.d && x.was.kind === x.kind && x.was.until > x.now + WATERS.most * 60_000 && x.d.until === x.was.until)).toBe(true);
+    expect(wells.some((x) => !!x.was && !!x.d && x.was.kind !== x.kind && x.kind !== null && x.was.until > x.now && x.d.kind === x.kind)).toBe(true);
+    const longs = of("well_poured_times").map((v) => ({ was: v.args[0] as WellWater | null, n: v.args[2] as number, now: v.args[4] as number, times: v.args[5] as number, d: v.want as WellWater | null }));
+    expect(longs.some((x) => !x.was && x.times === 3 && x.n === 1 && x.d?.until === x.now + 3 * WATERS.lasts * 60_000) && longs.some((x) => x.times === 3 && x.d?.until === x.now + 3 * WATERS.most * 60_000)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-well.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

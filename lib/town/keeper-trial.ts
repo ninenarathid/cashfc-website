@@ -13,6 +13,8 @@ import type { ShopAsk } from "./shop";
 import { SKIES } from "./skies";
 import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
 import type { Purse } from "./trade";
+import type { Nature } from "./waters";
+import { atWell } from "./world";
 import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
 
@@ -264,6 +266,16 @@ class TrialKeeper implements Keeper {
     return did;
   }
   async rainFill(): Promise<Did<{ n: number }>> { return this.trial.rainFill(); }
+  carriedKind() { return this.trial.carriedKind(); }
+  moonLook() { /* whose water is what is in this browser already */ }
+  async moonKeep(): Promise<Did<{ n: number; kind: Nature }>> { return this.trial.moonKeep(); }
+  async moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>> {
+    // (at the well, as the database holds a pour to: on one of the tiles about it)
+    if (!at || !atWell(at[0], at[1])) return { ok: false, why: "none" };
+    const did = this.trial.moonPour(n);
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }
