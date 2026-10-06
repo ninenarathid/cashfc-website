@@ -66,7 +66,8 @@ export type Water = "river" | "well" | null;
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
 /** What a strike came to. `what` and `size` are told when something is hooked (the trial knows them even when nothing is). */
 export interface Struck { hooked: boolean; how?: "early" | "missed"; what?: CatchId; size?: number; landed?: boolean; kept?: boolean; record?: boolean }
-export interface Landed { how: FishingEnd; kept: boolean; record: boolean }
+/** (`back`: the bait came back, of a fish that got away in the fight) */
+export interface Landed { how: FishingEnd; kept: boolean; record: boolean; back?: boolean }
 
 export interface Keeper {
   readonly id: string;
@@ -871,7 +872,7 @@ export class DbKeeper implements Keeper {
   async land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null): Promise<Landed> {
     const a = await this.ask("town_land", { p_how: how, p_fight: fight });
     if (!a?.ok) return { how: how === "landed" ? "slipped" : how, kept: false, record: false };
-    return { how: a.how as FishingEnd, kept: !!a.kept, record: !!a.record };
+    return { how: a.how as FishingEnd, kept: !!a.kept, record: !!a.record, ...(a.back ? { back: true } : {}) };
   }
 
   async farmDo(key: string, _name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {

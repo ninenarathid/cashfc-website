@@ -168,6 +168,15 @@ export function hookBait(purse: Purse, bait: BaitId): Done<{ purse: Purse }> {
 export function loseBait(purse: Purse, bait: BaitId): Purse {
   return KEPT_BAITS.includes(bait) && held(purse.bag, bait) ? { ...purse, bag: take(purse.bag, bait, 1) } : purse;
 }
+/**
+ * A fish that was hooked got away in the fight: the bait it took comes back, where the bag has room for it (the owner,
+ * 2026-10-07, of fishing that is over too soon). A bait that is not eaten never left the bag. A strike mistimed and
+ * a line taken up give nothing back: or whoever is told what is coming would let it pass and drop the line again for
+ * nothing.
+ */
+export function backBait(purse: Purse, bait: BaitId): Purse {
+  return KEPT_BAITS.includes(bait) || roomFor(purse.bag, bait) < 1 ? purse : { ...purse, bag: put(purse.bag, bait, 1) };
+}
 /** Land what was caught: into the bag when there is room for it, and, a fish, onto the record when it is the longest of its kind yet. */
 export function landCatch(purse: Purse, what: CatchId, size: number): { purse: Purse; kept: boolean; record: boolean } {
   const kept = roomFor(purse.bag, what) > 0, fish = what in FISH ? (what as FishId) : null;

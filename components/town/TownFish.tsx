@@ -41,7 +41,7 @@ type Phase =
   | { at: "striking" }
   | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
   /** (`from`: when it was shown, by the page's own clock: nothing goes on from it for a moment) */
-  | { at: "result"; from: number; how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean };
+  | { at: "result"; from: number; how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean; back?: boolean };
 type Ended = Omit<Extract<Phase, { at: "result" }>, "at" | "from">;
 
 /** How long a nibble's twitch shows, in seconds. */
@@ -358,7 +358,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
           if (how === "landed") { sfx.play("landed", FISH[phase.fish].tier); onLanded(); if (got.record) window.setTimeout(() => sfx.play("record"), 1100); }
           else sfx.play(how);
           write(how, { kept: got.kept, record: got.record });
-          end({ how, what: phase.fish, size: phase.size, kept: got.kept, record: got.record });
+          end({ how, what: phase.fish, size: phase.size, kept: got.kept, record: got.record, ...(got.back ? { back: true } : {}) });
         });
         return;
       }
@@ -618,8 +618,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             </div>
           ) : (
             <p className="text-read text-[#fff6e3]">
-              {phase.how === "snapped" ? (th ? "สายขาด! ปลาหนีไปพร้อมเหยื่อ" : "The line snapped! It is gone, with the bait.")
-                : phase.how === "slipped" ? (th ? "เบ็ดหลุด ปลาหนีไปแล้ว" : "The hook slipped. It got away.")
+              {phase.how === "snapped" ? (phase.back ? (th ? "สายขาด! ปลาหนีไปแล้ว แต่เหยื่อยังอยู่" : "The line snapped! It is gone, but the bait is yours still.") : (th ? "สายขาด! ปลาหนีไปพร้อมเหยื่อ" : "The line snapped! It is gone, with the bait."))
+                : phase.how === "slipped" ? (phase.back ? (th ? "เบ็ดหลุด ปลาหนีไปแล้ว แต่เหยื่อยังอยู่" : "The hook slipped. It got away, but the bait is yours still.") : (th ? "เบ็ดหลุด ปลาหนีไปแล้ว" : "The hook slipped. It got away."))
                   : phase.how === "early" ? (th ? "ตวัดเร็วไป ปลายังไม่กินเบ็ด มันตกใจหนีไปแล้ว" : "Too soon: it had not taken the hook, and now it has fled.")
                     : (th ? "ช้าไป ปลากินเหยื่อแล้วว่ายหนีไป" : "Too late: it ate the bait and swam off.")}
             </p>

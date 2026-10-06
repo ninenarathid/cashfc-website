@@ -161,7 +161,9 @@ class TrialKeeper implements Keeper {
     if (!o) return { how, kept: false, record: false };
     if (how === "landed") return { how, ...this.trial.land(o.cast.what, o.cast.size) };
     if (how === "snapped") this.trial.lose(o.bait);
-    return { how, kept: false, record: false };
+    // (a fish hooked and lost in the fight gives the bait it took back, where the bag has room)
+    const back = (how === "snapped" || how === "slipped") && this.trial.back(o.bait);
+    return { how, kept: false, record: false, ...(back ? { back: true } : {}) };
   }
 
   async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {

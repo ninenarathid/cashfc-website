@@ -37,10 +37,20 @@
 --     the catalog is 1, which the rule multiplies by as before), and
 --     `town_cast` (v146's, written again but for the lines meant) tells
 --     whoever wears it what is on its way when the line is dropped.
+--   * Fishing lasts longer (the owner, 2026-10-07: "เหยือหมดไวเกินไป สตามิน่า
+--     ก็หมดไว เล่นแปบเดียวก็หมดแล้ว"). A fish that was hooked and got away in
+--     the fight gives its bait back (`town_land`, v108's, written again but
+--     for the lines meant; a strike mistimed and a line taken up give nothing
+--     back). The uncle sells twice the bait: twenty worms and twenty dough a
+--     person a round, and twice as many of each in his stock (catalog row
+--     `goods`; nothing else of his shelf moves). A common fish takes half the
+--     stamina to fight, one at the least (catalog row `fish`).
 --
 -- What it changes: one catalog row written over (`gifts`: three gifts more,
 -- and what is counted; the float's number and the net's), five rules new, three
--- functions written again, two functions a member calls. No table.
+-- functions and `town_land` written again, a rule new for the bait given
+-- back, two functions a member calls; and two catalog rows more written over
+-- (`goods`: the two baits; `fish`: what a common fish's fight costs). No table.
 -- No coins and no thing that can be sold comes of it.
 
 do $$ begin
@@ -53,6 +63,165 @@ insert into public.town_catalog (key, data) values
     "slots": 2,
     "uses": {"famGnome":{"n":10,"per":"meal"}},
     "gifts": {"charmApron":{"kind":"charm","line":"kitchen","rank":1,"by":1.5},"charmGloves":{"kind":"charm","line":"helpers","rank":1,"by":0.5},"charmFloat":{"kind":"charm","line":"fishing","rank":1,"by":1},"charmLamp":{"kind":"charm","line":"forest","rank":1,"by":5},"charmNet":{"kind":"charm","line":"insects","rank":1,"by":1},"charmHoe":{"kind":"charm","line":"farming","rank":1,"by":1.5},"famSquirrel":{"kind":"familiar","line":"forest","rank":2,"by":2},"famButterfly":{"kind":"familiar","line":"insects","rank":2,"by":1},"famGnome":{"kind":"familiar","line":"farming","rank":2,"by":10}}
+  }$town$::jsonb),
+  ('goods', $town${
+    "rod": {"price":60,"stock":6,"each":1},
+    "hoe": {"price":50,"stock":6,"each":1},
+    "can": {"price":40,"stock":6,"each":1},
+    "pot": {"price":80,"stock":4,"each":1},
+    "pan": {"price":70,"stock":4,"each":1},
+    "grill": {"price":60,"stock":4,"each":1},
+    "worm": {"price":2,"stock":240,"each":20},
+    "dough": {"price":3,"stock":160,"each":20},
+    "rice": {"price":3,"stock":100,"each":10},
+    "salt": {"price":2,"stock":100,"each":10},
+    "riceBox": {"price":6,"stock":40,"each":3},
+    "seedKangkong": {"price":4,"stock":100,"each":8},
+    "seedScallion": {"price":5,"stock":100,"each":8},
+    "seedCabbage": {"price":8,"stock":60,"each":6},
+    "seedCarrot": {"price":8,"stock":60,"each":6},
+    "seedChili": {"price":10,"stock":40,"each":4},
+    "seedPumpkin": {"price":25,"stock":20,"each":2},
+    "scrollFriedMinnow": {"price":40,"stock":3,"each":1},
+    "scrollGrilledFish": {"price":40,"stock":3,"each":1},
+    "scrollPestCure": {"price":40,"stock":6,"each":1},
+    "bowl": {"price":5,"stock":60,"each":5},
+    "bucket": {"price":20,"stock":30,"each":4},
+    "bugNet": {"price":35,"stock":6,"each":1},
+    "bucketIron": {"price":70,"stock":6,"each":1},
+    "apron": {"price":120,"stock":4,"each":1},
+    "seedDaikon": {"price":10,"stock":40,"each":4},
+    "seedCorn": {"price":12,"stock":40,"each":4},
+    "seedTomato": {"price":14,"stock":40,"each":4},
+    "seedBasil": {"price":8,"stock":40,"each":4},
+    "seedSweetPotato": {"price":14,"stock":40,"each":4},
+    "seedGarlic": {"price":10,"stock":40,"each":4},
+    "rodTeak": {"price":240,"stock":3,"each":1},
+    "floatQuill": {"price":90,"stock":4,"each":1},
+    "hookSteel": {"price":90,"stock":4,"each":1},
+    "lineBraid": {"price":90,"stock":4,"each":1},
+    "netSmall": {"price":110,"stock":4,"each":1},
+    "hoeIron": {"price":180,"stock":4,"each":1},
+    "canCopper": {"price":150,"stock":4,"each":1},
+    "sickle": {"price":120,"stock":4,"each":1},
+    "krabung": {"price":150,"stock":4,"each":1},
+    "mortar": {"price":130,"stock":4,"each":1},
+    "steamer": {"price":160,"stock":4,"each":1},
+    "cleaver": {"price":130,"stock":4,"each":1},
+    "jar": {"price":110,"stock":6,"each":2},
+    "wok": {"price":190,"stock":4,"each":1},
+    "cricket": {"price":4,"stock":80,"each":10},
+    "branBait": {"price":4,"stock":80,"each":10},
+    "shrimpLive": {"price":6,"stock":60,"each":10},
+    "sugar": {"price":6,"stock":80,"each":10},
+    "oil": {"price":6,"stock":80,"each":10},
+    "tamarind": {"price":5,"stock":80,"each":10},
+    "egg": {"price":6,"stock":60,"each":10},
+    "manure": {"price":8,"stock":60,"each":10},
+    "flour": {"price":7,"stock":80,"each":10},
+    "seaweed": {"price":8,"stock":60,"each":10},
+    "tofu": {"price":7,"stock":60,"each":10},
+    "rollingPin": {"price":90,"stock":4,"each":1},
+    "sushiMat": {"price":100,"stock":4,"each":1},
+    "stoneBowl": {"price":140,"stock":4,"each":1},
+    "seedEggplant": {"price":18,"stock":40,"each":4},
+    "seedCucumber": {"price":16,"stock":40,"each":4},
+    "seedLongBean": {"price":16,"stock":40,"each":4},
+    "seedLemongrass": {"price":20,"stock":40,"each":4},
+    "seedGalangal": {"price":26,"stock":30,"each":4},
+    "seedLime": {"price":70,"stock":12,"each":2},
+    "seedPapaya": {"price":32,"stock":20,"each":2},
+    "scrollSomTam": {"price":90,"stock":3,"each":1},
+    "scrollOmelette": {"price":60,"stock":3,"each":1},
+    "rodMaster": {"price":600,"stock":2,"each":1},
+    "floatBell": {"price":220,"stock":3,"each":1},
+    "hookTwin": {"price":220,"stock":3,"each":1},
+    "lineSilk": {"price":220,"stock":3,"each":1},
+    "netLong": {"price":260,"stock":3,"each":1},
+    "hoeSteel": {"price":420,"stock":3,"each":1},
+    "canBrass": {"price":360,"stock":3,"each":1},
+    "shears": {"price":280,"stock":3,"each":1},
+    "yoke": {"price":300,"stock":3,"each":1},
+    "potBrass": {"price":460,"stock":3,"each":1},
+    "stoveBig": {"price":380,"stock":3,"each":1},
+    "panBrass": {"price":440,"stock":3,"each":1},
+    "steamerBamboo": {"price":330,"stock":3,"each":1},
+    "hotpot": {"price":520,"stock":2,"each":1},
+    "ladle": {"price":50,"stock":10,"each":1},
+    "tok": {"price":150,"stock":6,"each":1},
+    "antEggs": {"price":14,"stock":50,"each":10},
+    "lure": {"price":70,"stock":10,"each":2},
+    "fermentedBait": {"price":12,"stock":50,"each":10},
+    "stickyRice": {"price":7,"stock":80,"each":10},
+    "soy": {"price":12,"stock":60,"each":10},
+    "pepper": {"price":14,"stock":60,"each":10},
+    "bananaLeaf": {"price":5,"stock":80,"each":10},
+    "cheese": {"price":16,"stock":50,"each":10},
+    "milk": {"price":9,"stock":60,"each":10},
+    "oven": {"price":480,"stock":2,"each":1},
+    "seedMango": {"price":95,"stock":10,"each":2},
+    "seedBanana": {"price":60,"stock":12,"each":2},
+    "seedCoconut": {"price":110,"stock":8,"each":2},
+    "seedGinger": {"price":38,"stock":30,"each":4},
+    "seedTurmeric": {"price":38,"stock":30,"each":4},
+    "seedTaro": {"price":42,"stock":30,"each":4},
+    "seedWatermelon": {"price":46,"stock":20,"each":2},
+    "scrollGreenCurry": {"price":160,"stock":2,"each":1},
+    "scrollHoMok": {"price":160,"stock":2,"each":1}
+  }$town$::jsonb),
+  ('fish', $town${
+    "minnow": {"tier":"common","baits":{"worm":1,"dough":1,"caterpillar":1,"moth":1},"hours":[[5,22]],"rain":1,"wait":[3,15],"size":[4,8],"effort":1,"line":0.5},
+    "barb": {"tier":"common","baits":{"dough":1,"corn":1,"worm":0.6,"caterpillar":0.6,"moth":1},"hours":[[6,18]],"rain":1,"wait":[5,25],"size":[12,22],"effort":2,"line":0.8},
+    "tilapia": {"tier":"common","baits":{"dough":1,"corn":0.8,"moth":1},"hours":[[7,17]],"rain":1,"wait":[5,28],"size":[18,32],"effort":2,"line":0.9},
+    "perch": {"tier":"common","baits":{"worm":1,"caterpillar":1},"hours":[[5,20]],"rain":1.3,"wait":[5,25],"size":[10,18],"effort":2,"line":0.8},
+    "catfish": {"tier":"common","baits":{"worm":1,"minnow":0.5,"loach":0.5,"dough":0.3,"caterpillar":1,"moth":0.3,"dragonfly":0.5},"hours":[[18,24],[0,6]],"rain":2,"wait":[8,35],"size":[25,45],"effort":3,"line":1},
+    "pangasius": {"tier":"uncommon","baits":{"dough":1,"corn":1,"moth":1},"hours":[[8,17]],"rain":1,"wait":[10,50],"size":[50,90],"effort":7,"line":1.3},
+    "snakehead": {"tier":"uncommon","baits":{"minnow":1,"worm":0.3,"caterpillar":0.3,"dragonfly":1},"hours":[[5,8],[17,20]],"rain":1.2,"wait":[13,55],"size":[35,70],"effort":7,"line":1.1},
+    "eel": {"tier":"uncommon","baits":{"worm":1,"caterpillar":1},"hours":[[19,24],[0,5]],"rain":2.5,"wait":[13,55],"size":[40,80],"effort":6,"line":1},
+    "prawn": {"tier":"uncommon","baits":{"worm":0.8,"dough":0.6,"caterpillar":0.8,"moth":0.6},"hours":[[17,24]],"rain":1,"wait":[10,45],"size":[14,28],"effort":4,"line":0.7},
+    "featherback": {"tier":"rare","baits":{"minnow":1,"dragonfly":1},"hours":[[19,24],[0,5]],"rain":1,"wait":[18,75],"size":[45,85],"effort":8,"line":1.2},
+    "goby": {"tier":"rare","baits":{"minnow":1,"worm":0.7,"caterpillar":0.7,"dragonfly":1},"hours":[[20,24],[0,4]],"rain":1,"wait":[23,90],"size":[25,50],"effort":8,"line":1.1},
+    "gourami": {"tier":"common","baits":{"branBait":1,"cricket":0.6,"grasshopper":0.6},"hours":[[6,18]],"rain":1,"wait":[5,25],"size":[12,20],"effort":2,"line":0.8},
+    "crab": {"tier":"common","baits":{"shrimpLive":1,"branBait":0.5},"hours":[[17,24],[0,6]],"rain":1.5,"wait":[5,25],"size":[5,9],"effort":1,"line":0.5},
+    "snail": {"tier":"common","baits":{"branBait":1},"hours":[[0,24]],"rain":1.2,"wait":[4,20],"size":[2,4],"effort":1,"line":0.4},
+    "hampala": {"tier":"uncommon","baits":{"cricket":1,"shrimpLive":0.8,"grasshopper":1},"hours":[[5,9],[16,19]],"rain":1,"wait":[10,45],"size":[25,50],"effort":6,"line":0.9},
+    "sheatfish": {"tier":"uncommon","baits":{"shrimpLive":1},"hours":[[19,24],[0,5]],"rain":1.5,"wait":[13,55],"size":[25,45],"effort":6,"line":1},
+    "bagrid": {"tier":"uncommon","baits":{"cricket":1,"branBait":0.4,"grasshopper":1},"hours":[[18,24],[0,5]],"rain":2,"wait":[13,55],"size":[30,60],"effort":7,"line":1.2},
+    "giantGourami": {"tier":"uncommon","baits":{"branBait":1},"hours":[[8,17]],"rain":1,"wait":[13,55],"size":[35,60],"effort":8,"line":1.4},
+    "frog": {"tier":"uncommon","baits":{"cricket":1,"grasshopper":1},"hours":[[18,24],[0,6]],"rain":3,"wait":[10,45],"size":[8,14],"effort":4,"line":0.6},
+    "tigerfish": {"tier":"rare","baits":{"shrimpLive":1},"hours":[[5,8],[17,20]],"rain":1,"wait":[23,90],"size":[20,40],"effort":9,"line":1.1},
+    "wallago": {"tier":"rare","baits":{"shrimpLive":1,"cricket":0.5,"grasshopper":0.5},"hours":[[19,24],[0,5]],"rain":1.5,"wait":[23,90],"size":[60,120],"effort":10,"line":1.5},
+    "croaker": {"tier":"uncommon","baits":{"antEggs":1},"hours":[[19,24],[0,5]],"rain":1,"wait":[13,55],"size":[20,35],"effort":7,"line":1.1},
+    "blackEar": {"tier":"uncommon","baits":{"fermentedBait":1},"hours":[[6,18]],"rain":1,"wait":[13,55],"size":[50,90],"effort":9,"line":1.5},
+    "spinyEel": {"tier":"uncommon","baits":{"antEggs":1},"hours":[[19,24],[0,5]],"rain":2,"wait":[13,55],"size":[25,45],"effort":6,"line":0.9},
+    "puffer": {"tier":"uncommon","baits":{"antEggs":0.8,"lure":0.5},"hours":[[9,16]],"rain":1,"wait":[10,45],"size":[8,15],"effort":4,"line":0.6},
+    "goldenCarp": {"tier":"rare","baits":{"fermentedBait":1},"hours":[[5,8],[16,19]],"rain":1,"wait":[23,90],"size":[50,90],"effort":10,"line":1.6},
+    "giantSnakehead": {"tier":"rare","baits":{"lure":1},"hours":[[5,9],[16,20]],"rain":1.2,"wait":[23,90],"size":[60,110],"effort":11,"line":1.5},
+    "royalFeatherback": {"tier":"rare","baits":{"lure":1},"hours":[[19,24],[0,5]],"rain":1,"wait":[23,90],"size":[50,90],"effort":10,"line":1.4},
+    "arowana": {"tier":"legend","baits":{"lure":1},"hours":[[5,7],[17,19]],"rain":1,"wait":[30,120],"size":[50,90],"effort":13,"line":1.6},
+    "stingray": {"tier":"legend","baits":{"fermentedBait":1},"hours":[[21,24],[0,4]],"rain":1,"wait":[30,120],"size":[100,220],"effort":14,"line":2},
+    "megaCatfish": {"tier":"legend","baits":{"fermentedBait":0.7,"antEggs":0.5},"hours":[[4,7],[18,21]],"rain":1,"wait":[30,120],"size":[120,270],"effort":15,"line":2.2},
+    "koi": {"tier":"legend","baits":{"dough":1,"corn":0.7,"moth":1},"hours":[[5,7],[17,19]],"rain":1,"wait":[30,120],"size":[60,100],"effort":12,"line":1.5},
+    "loach": {"tier":"common","baits":{"worm":1,"dough":0.5,"caterpillar":1,"moth":0.5},"hours":[[0,24]],"rain":3,"wait":[4,20],"size":[8,15],"effort":1,"line":0.5,"water":"bank"},
+    "mosquitofish": {"tier":"common","baits":{"dough":1,"worm":0.5,"caterpillar":0.5,"moth":1},"hours":[[6,18]],"rain":1,"wait":[3,15],"size":[3,6],"effort":1,"line":0.4,"water":"bank"},
+    "mussel": {"tier":"common","baits":{"dough":1,"moth":1},"hours":[[0,24]],"rain":1,"wait":[5,25],"size":[6,12],"effort":1,"line":0.4,"water":"bank"},
+    "crayfish": {"tier":"common","baits":{"worm":1,"minnow":0.5,"caterpillar":1,"dragonfly":0.5},"hours":[[18,24],[0,5]],"rain":1.5,"wait":[5,25],"size":[7,13],"effort":2,"line":0.6,"water":"bank"},
+    "goldfish": {"tier":"common","baits":{"dough":1,"moth":1},"hours":[[8,18]],"rain":1,"wait":[5,25],"size":[6,14],"effort":1,"line":0.5,"water":"bank","needs":["weekend"]},
+    "carp": {"tier":"common","baits":{"corn":1,"dough":0.7,"moth":0.7},"hours":[[6,18]],"rain":1,"wait":[6,28],"size":[25,50],"effort":3,"line":1},
+    "piranha": {"tier":"common","baits":{"minnow":1,"loach":1,"worm":0.4,"caterpillar":0.4,"dragonfly":1},"hours":[[9,17]],"rain":1,"wait":[4,20],"size":[15,30],"effort":2,"line":0.8,"water":"deck"},
+    "herring": {"tier":"uncommon","baits":{"worm":1,"dough":0.6,"caterpillar":1,"moth":0.6},"hours":[[4,8]],"rain":1,"wait":[8,40],"size":[18,32],"effort":4,"line":0.8},
+    "archerfish": {"tier":"uncommon","baits":{"worm":1,"caterpillar":1},"hours":[[8,18]],"rain":0,"wait":[10,45],"size":[10,20],"effort":4,"line":0.7},
+    "pacu": {"tier":"uncommon","baits":{"dough":1,"corn":1,"moth":1},"hours":[[9,16]],"rain":1,"wait":[10,50],"size":[30,60],"effort":7,"line":1.2},
+    "pike": {"tier":"uncommon","baits":{"minnow":1,"loach":1,"dragonfly":1},"hours":[[5,9],[16,19]],"rain":1,"wait":[13,55],"size":[40,90],"effort":7,"line":1.2},
+    "nilePerch": {"tier":"uncommon","baits":{"loach":1,"minnow":0.6,"dragonfly":0.6},"hours":[[10,16]],"rain":0,"wait":[13,55],"size":[50,110],"effort":8,"line":1.4},
+    "salmon": {"tier":"uncommon","baits":{"loach":1,"worm":0.6,"caterpillar":0.6},"hours":[[0,24]],"rain":4,"wait":[10,45],"size":[45,85],"effort":7,"line":1.2,"dry":0},
+    "wels": {"tier":"rare","baits":{"minnow":1,"loach":1,"dragonfly":1},"hours":[[21,24],[0,4]],"rain":2,"wait":[18,75],"size":[80,180],"effort":9,"line":1.5},
+    "gar": {"tier":"rare","baits":{"loach":1,"minnow":0.6,"dragonfly":0.6},"hours":[[17,21]],"rain":1,"wait":[18,75],"size":[70,150],"effort":9,"line":1.4},
+    "arapaima": {"tier":"legend","baits":{"loach":0.3},"hours":[[5,7],[17,19]],"rain":1,"wait":[30,120],"size":[120,250],"effort":13,"line":1.9},
+    "dozyFish": {"tier":"common","baits":{"worm":1,"dough":1,"caterpillar":1,"moth":1},"hours":[[0,24]],"rain":1,"wait":[4,20],"size":[12,24],"effort":1,"line":0.4,"needs":["tired"]},
+    "popotoFish": {"tier":"common","baits":{"worm":1,"dough":1,"caterpillar":1,"moth":1},"hours":[[0,24]],"rain":1,"wait":[5,25],"size":[10,20],"effort":2,"line":0.7,"needs":["crowd"]},
+    "rainbowFish": {"tier":"common","baits":{"dough":1,"worm":1,"caterpillar":1,"moth":1},"hours":[[6,18]],"rain":1,"wait":[5,25],"size":[8,14],"effort":2,"line":0.6,"needs":["after"]},
+    "moonFish": {"tier":"rare","baits":{"dough":1,"worm":0.6,"caterpillar":0.6,"moth":1},"hours":[[19,24],[0,5]],"rain":1,"wait":[18,75],"size":[20,40],"effort":7,"line":1,"needs":["full"]}
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();
 -- </catalog:v152>
@@ -210,6 +379,70 @@ begin
 end;
 $$;
 -- </cast>
+
+-- ─── Fishing that lasts longer ───────────────────────────────────────────
+
+-- A fish that was hooked got away in the fight: the bait it took comes back, where the bag has room for it
+-- (lib/town/fishing's backBait). A bait that is not eaten never left the bag.
+create or replace function town.back_bait(p_purse jsonb, p_bait text)
+returns jsonb language sql stable
+as $$
+  select case when town.cat('fishing')->'kept' ? p_bait or town.room(p_purse->'bag', p_bait) < 1 then p_purse
+    else p_purse || jsonb_build_object('bag', town.put(p_purse->'bag', p_bait, 1)) end
+$$;
+
+-- <land>
+create or replace function public.town_land(p_how text, p_fight jsonb default null)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  purse jsonb := town.purse_of(me, true);
+  now_ bigint := town.now_ms();
+  cat jsonb := town.cat('fishing');
+  line jsonb;
+  fish jsonb;
+  how text := p_how;
+  took bigint;
+  suspect boolean := false;
+  landed jsonb := jsonb_build_object('kept', false, 'record', false);
+  back jsonb;
+begin
+  select l.doc into line from public.town_lines l where l.member_id = me for update;
+  if line is null or how is null or how not in ('landed', 'snapped', 'slipped', 'left') then return town.answer(me, town.no('none')); end if;
+  if line->'struck_at' = 'null'::jsonb then
+    -- nothing was hooked yet: the line can only be pulled up
+    how := 'left';
+    took := 0;
+  else
+    fish := town.cat('fish')->(line->>'what');
+    took := now_ - (line->>'struck_at')::bigint;
+    -- sooner than half the quickest fight there could be with it, it was not landed; nor long after any fight would be over
+    if how = 'landed' and (took < floor((fish->>'line')::double precision / (cat->>'reel')::double precision * (cat->>'least')::double precision * 1000)
+        or took > (cat->>'longest')::bigint * 1000) then
+      how := 'slipped';
+      suspect := true;
+    end if;
+    if how = 'landed' then
+      landed := town.land_catch(purse, line->>'what', (line->>'size')::double precision);
+      perform town.keep_purse(me, landed->'purse');
+    elsif how in ('snapped', 'slipped') and not suspect then
+      back := town.back_bait(case when how = 'snapped' then town.lose_bait(purse, line->>'bait') else purse end, line->>'bait');
+      perform town.keep_purse(me, back);
+    end if;
+  end if;
+  delete from public.town_lines where member_id = me;
+  perform town.record(me, 'fishing', how = 'landed', took / 1000.0, coalesce((line->>'spent')::boolean, false), town.buff_of(purse, now_), jsonb_build_object(
+    'how', how, 'place', case when (line->>'deep')::boolean then 'deck' else 'bank' end, 'tile', jsonb_build_array(line->'x', line->'y'),
+    'bait', line->'bait', 'hour', line->'hour', 'what', line->'what', 'size', line->'size', 'wait', line->'wait',
+    'nibbles', jsonb_array_length(line->'nibbles'), 'kept', landed->'kept', 'record', landed->'record', 'suspect', suspect,
+    'claims', jsonb_build_object('rain', line->'rain', 'reaction', line->'reaction', 'how', p_how, 'fight', town.claims(p_fight))));
+  return town.answer(me, jsonb_build_object('ok', true, 'how', how, 'what', case when line->'struck_at' = 'null'::jsonb then null else line->'what' end,
+    'kept', landed->'kept', 'record', landed->'record',
+    'back', back is not null and town.held(back->'bag', line->>'bait') > town.held(purse->'bag', line->>'bait')));
+end;
+$$;
+-- </land>
 
 -- ─── What a member does ──────────────────────────────────────────────────
 

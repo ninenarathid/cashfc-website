@@ -2,7 +2,7 @@ import { newBox, roomyBox, stow, unstow, type Box } from "./box";
 import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot, type Taste } from "./cooking";
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
-import { hookBait, landCatch, loseBait } from "./fishing";
+import { backBait, hookBait, landCatch, loseBait } from "./fishing";
 import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
 import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
@@ -352,6 +352,8 @@ export class Trial {
   bait(bait: BaitId): Done<{ purse: Purse }> { return this.keep(hookBait(this.purse(), bait)); }
   /** The line snapped: a bait that was not eaten goes with it. */
   lose(bait: BaitId) { this.save(loseBait(this.purse(), bait)); }
+  /** A fish got away in the fight: its bait comes back, where there is room. Says whether it did. */
+  back(bait: BaitId): boolean { const p = this.purse(), q = backBait(p, bait); if (q === p) return false; this.save(q); return true; }
   /** Spend the stamina a fight costs. */
   spend(n: number) { this.save(spend(this.purse(), n, this.now())); }
   /** Land what was caught: into the bag when there is room for it, and, a fish, onto the record when it is the longest of its kind yet. */

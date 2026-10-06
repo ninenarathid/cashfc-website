@@ -54,7 +54,7 @@ const good = (price: number, stock: number, each: number): Good => ({ price, sto
 export const GOODS: Partial<Record<ItemId, Good>> = {
   rod: good(60, 6, 1), hoe: good(50, 6, 1), can: good(40, 6, 1),
   pot: good(80, 4, 1), pan: good(70, 4, 1), grill: good(60, 4, 1),
-  worm: good(2, 120, 10), dough: good(3, 80, 10),
+  worm: good(2, 240, 20), dough: good(3, 160, 20),
   rice: good(3, 100, 10), salt: good(2, 100, 10), riceBox: good(6, 40, 3),
   seedKangkong: good(4, 100, 8), seedScallion: good(5, 100, 8), seedCabbage: good(8, 60, 6),
   seedCarrot: good(8, 60, 6), seedChili: good(10, 40, 4), seedPumpkin: good(25, 20, 2),

@@ -23,6 +23,25 @@ export const CAST = [[
   "    || case when town.wearing(purse, 'charmFloat') then jsonb_build_object('coming', line->>'what') else '{}'::jsonb end));\n",
 ]];
 
+/**
+ * public.town_land (v108's): a fish that was hooked and got away in the fight gives the bait it took back, where the
+ * bag has room (never one that this function itself turned from landed to slipped, for a fight too short to be one).
+ */
+export const LAND = [
+  [
+    "    elsif how = 'snapped' then\n      perform town.keep_purse(me, town.lose_bait(purse, line->>'bait'));\n",
+    "    elsif how in ('snapped', 'slipped') and not suspect then\n" +
+    "      back := town.back_bait(case when how = 'snapped' then town.lose_bait(purse, line->>'bait') else purse end, line->>'bait');\n" +
+    "      perform town.keep_purse(me, back);\n",
+  ],
+  ["  landed jsonb := jsonb_build_object('kept', false, 'record', false);\n", "  landed jsonb := jsonb_build_object('kept', false, 'record', false);\n  back jsonb;\n"],
+  [
+    "    'kept', landed->'kept', 'record', landed->'record'));\nend;",
+    "    'kept', landed->'kept', 'record', landed->'record',\n" +
+    "    'back', back is not null and town.held(back->'bag', line->>'bait') > town.held(purse->'bag', line->>'bait')));\nend;",
+  ],
+];
+
 /** town.work_answer (v151's): it says which gifts are given, so that the page offers those and no other. */
 export const WORK_ANSWER = [[
   "  select jsonb_build_object('now', town.now_ms(), 'gifting', true,\n",

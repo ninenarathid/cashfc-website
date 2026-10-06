@@ -754,8 +754,9 @@ describe("what waiting is worth (the owner, 2026-10-04: every crop twice as many
     };
     // a catfish, the best of the common fish for its stamina: what it pays less a worm, for its fight
     const fish = (ITEMS.catfish.pays - GOODS.worm!.price) / FISH.catfish.fight.effort;
-    expect(fish).toBe(2);
-    expect(perStamina("kangkong")).toBeGreaterThan(fish * 2);
+    // (2026-10-07: a common fish takes half the stamina to fight, so that fishing is not over in a moment; it was 2)
+    expect(fish).toBeCloseTo(10 / 3);
+    expect(perStamina("kangkong")).toBeGreaterThan(fish);
     expect(perStamina("cabbage")).toBeGreaterThan(perStamina("kangkong"));
     expect(perStamina("chili")).toBeGreaterThan(perStamina("cabbage"));
     expect(perStamina("pumpkin")).toBeGreaterThan(perStamina("chili"));

@@ -3,7 +3,7 @@
  *
  * Every file of the town's is replayed as it ran (v104 to v151), then v152 twice. Then:
  *   - the catalog's row is the code's (nine gifts, three of them familiars); no other row is touched;
- *   - the three functions written again (town.gifts_of, town.work_answer, public.town_cast) are each their last text
+ *   - the four functions written again (town.gifts_of, town.work_answer, public.town_cast, public.town_land) are each their last text
  *     but for the lines meant (v152.lines.mjs), and nothing else of the gifts', the farm's, the deck's or the lines' has moved;
  *   - a purse from before the file keeps what it had and wore, and has no familiar;
  *   - the rules: every case made from the code as it is now (what a purse keeps of gifts, a familiar called and sent
@@ -15,6 +15,10 @@
  *     the gnome's weeding used ten times in a meal's hours and no more, each written down, and all of them again in the next;
  *   - a line dropped with the whispering float worn is told what is on its way, and one dropped without it is not;
  *     the strike's moment is as everybody's with it worn;
+ *   - fishing that lasts longer: the uncle's two baits are twice as many and nothing else of his shelf has moved; a
+ *     common fish takes half the stamina to fight and no other fish has moved; a fish lost in the fight gives its bait
+ *     back through town_land, and nothing comes back of a fish landed, a line taken up, a bag with no room, a bait
+ *     that is not eaten, or a landing too quick to be one;
  *   - who may run what, no write without its rows named.
  *
  *   TOWN_VECTORS=<this folder>/now npx vitest run lib/town/db-vectors-gifts.test.ts lib/town/db-vectors-swarm.test.ts      (in the repo, first)
@@ -74,7 +78,7 @@ const deeds = async (what) => (await t.sql(`select member_id, thing, n::int as n
 
 /* ── as things stand before the file ── */
 const UNTOUCHED = ["town.wearing", "town.charm_by", "town.gift_take", "town.charms_wear", "town.eased", "town.gloved", "public.town_gift_take", "public.town_charms_wear",
-  "town.strike_window", "town.tend", "town.see", "town.deed_for", "town.water", "town.hoe", "town.owner_of", "town.spend", "town.stamina_of", "town.purse_of", "town.answer", "town.keep_purse", "town.note",
+  "town.strike_window", "town.tend", "town.lose_bait", "town.hook_bait", "town.land_catch", "town.record", "town.see", "town.deed_for", "town.water", "town.hoe", "town.owner_of", "town.spend", "town.stamina_of", "town.purse_of", "town.answer", "town.keep_purse", "town.note",
   "public.town_tend", "public.town_strike", "town.work_told", "town.work_rank", "public.town_work", "public.town_title_wear"];
 const beforeText = Object.fromEntries(await Promise.all(UNTOUCHED.map(async (name) => [name, await textOf(name)])));
 // a member at the forest's second rank and the insects' first, and nothing of the farm's; a purse each, as the game makes one
@@ -86,6 +90,8 @@ await t.sql(`update public.town_purses set doc = doc || '{"gifts": {"had": ["cha
 const was = {
   answer: await one(`select town.work_answer($1) as a`, [U.m1]).then((r) => r.a),
   row: (await one(`select data from public.town_catalog where key = 'gifts'`)).data,
+  goods: (await one(`select data from public.town_catalog where key = 'goods'`)).data,
+  fish: (await one(`select data from public.town_catalog where key = 'fish'`)).data,
   kept: (await one(`select town.gifts_of(doc) as g from public.town_purses where member_id = $1`, [U.m2])).g,
   early: await call(U.m1, "town_gift_take", "forest", 2),
 };
@@ -102,11 +108,21 @@ const charmsNow = Object.fromEntries(Object.entries(row.data.gifts).filter(([, g
 t.check("the six charms in it are as they were but for the float's number and the net's, which are 1 now; and the places for them",
   same(charmsNow, { ...was.row.gifts, charmFloat: { ...was.row.gifts.charmFloat, by: 1 }, charmNet: { ...was.row.gifts.charmNet, by: 1 } }) && was.row.gifts.charmFloat.by === 1.5 && was.row.gifts.charmNet.by === 1.5
   && row.data.slots === was.row.slots && Object.keys(was.row.gifts).length === 6, { now: charmsNow, was: was.row.gifts });
-const others = await one(`select count(*)::int as n from public.town_catalog where key <> 'gifts' and updated_at > now() - interval '1 hour'`);
+const others = await one(`select count(*)::int as n from public.town_catalog where key not in ('gifts', 'goods', 'fish') and updated_at > now() - interval '1 hour'`);
 t.check("no other row of the catalog is touched", others.n === 0, others);
+const goods = (await one(`select data from public.town_catalog where key = 'goods'`)).data, fishNow = (await one(`select data from public.town_catalog where key = 'fish'`)).data;
+t.check("the uncle sells twice the bait: twenty worms and twenty dough a person a round, twice as many of each in his stock, at the price they were",
+  same(goods, CODE.goods) && same(goods.worm, { ...was.goods.worm, stock: was.goods.worm.stock * 2, each: 20 }) && same(goods.dough, { ...was.goods.dough, stock: was.goods.dough.stock * 2, each: 20 }) && was.goods.worm.each === 10 && was.goods.dough.each === 10,
+  { worm: goods.worm, dough: goods.dough, was: [was.goods.worm, was.goods.dough] });
+t.check("nothing else of his shelf has moved", same({ ...goods, worm: 0, dough: 0 }, { ...was.goods, worm: 0, dough: 0 }) && Object.keys(goods).length === Object.keys(was.goods).length);
+const efforts = Object.entries(fishNow).map(([id, f]) => ({ id, tier: f.tier, now: f.effort, was: was.fish[id]?.effort }));
+t.check("a common fish takes half the stamina to fight, one at the least; no other fish's fight costs otherwise", same(fishNow, CODE.fish) && efforts.length > 20
+  && efforts.every((e) => e.now === (e.tier === "common" ? Math.max(1, Math.ceil(e.was / 2)) : e.was)) && efforts.some((e) => e.tier === "common" && e.now < e.was) && efforts.some((e) => e.tier !== "common"),
+  efforts.filter((e) => e.now !== (e.tier === "common" ? Math.max(1, Math.ceil(e.was / 2)) : e.was)));
+t.check("nothing else of any fish has moved", same(Object.fromEntries(Object.entries(fishNow).map(([id, f]) => [id, { ...f, effort: 0 }])), Object.fromEntries(Object.entries(was.fish).map(([id, f]) => [id, { ...f, effort: 0 }]))));
 
 /* ── written again, and nothing else moved ── */
-t.section("three functions written again, each as it last ran but for the lines meant");
+t.section("four functions written again, each as it last ran but for the lines meant");
 for (const [mark, [n, name]] of Object.entries(AGAIN)) {
   const built = MADE[mark](), inFile = words(FILE, name);
   t.check(`${name} is v${n}'s but for the lines meant`, inFile === built, inFile === null ? "not in the file" : "the file's text is not the built one");
@@ -125,7 +141,7 @@ t.check("(before the file the forest's second rank gave nothing)", was.early?.ok
 /* ── the rules ── */
 const CALL = {
   gifts_of: "town.gifts_of($1::jsonb)", wearing: "to_jsonb(town.wearing($1::jsonb, $2::text))", charm_by: "to_jsonb(town.charm_by($1::jsonb, $2::text, $3::float8))",
-  familiar_wear: "town.familiar_wear($1::jsonb, $2::text)",
+  familiar_wear: "town.familiar_wear($1::jsonb, $2::text)", back_bait: "town.back_bait($1::jsonb, $2::text)",
   gift_works: "to_jsonb(town.gift_works($1::jsonb, $2::text))", used_of: "to_jsonb(town.used_of($1::jsonb, $2::text, $3::bigint))", gift_use: "town.gift_use($1::jsonb, $2::text, $3::bigint)",
   gift_take: "town.gift_take($1::jsonb, $2::jsonb, $3::text, $4::int)", charms_wear: "town.charms_wear($1::jsonb, $2::jsonb)",
   eased: "town.eased($1::jsonb, $2::jsonb, $3::bigint, $4::float8, $5::float8)", gloved: "town.gloved($1::jsonb, $2::jsonb, $3::bigint)",
@@ -155,7 +171,7 @@ const ask = async (cases, title, tag = "") => {
 };
 if (vectors.length) {
   const tally = await ask(vectors, "the rules of the gifts");
-  t.check("every rule was asked", ["gifts_of", "wearing", "charm_by", "familiar_wear", "gift_works", "used_of", "gift_use", "gift_take", "charms_wear", "eased", "gloved", "strike_window", "tend"].every((fn) => tally.has(fn)), [...tally.keys()]);
+  t.check("every rule was asked", ["gifts_of", "wearing", "charm_by", "familiar_wear", "back_bait", "gift_works", "used_of", "gift_use", "gift_take", "charms_wear", "eased", "gloved", "strike_window", "tend"].every((fn) => tally.has(fn)), [...tally.keys()]);
   // (no hour counted and no rain: the sky the farm's cases under it were made with)
   if ((await one(`select to_regclass('public.town_swarms') is not null as there`)).there) await t.sql(`delete from public.town_swarms where true`);
   await ask(FARM, "the farm's own cases under a clear sky, with no gift in any purse: as they were", "the farm's, ");
@@ -265,6 +281,52 @@ await rigged(U.m2, { had: [], charms: [] });
 did = await call(U.m2, "town_cast", "worm", DECK[0], DECK[1], false);
 t.check("with no float, the same: a line is dropped as ever", did?.ok === true && !("coming" in did.line) && !("shade" in did.line) && (await lineOf(U.m2))?.what !== undefined, did?.line);
 t.check("each line dropped is written down as ever", (await deeds("cast")).filter((d) => d.member_id === U.m2).length === 3, await deeds("cast"));
+
+/* ── a fish lost in the fight gives its bait back ── */
+t.section("a fish lost in the fight gives its bait back");
+const worms = async (who, item = "worm") => (await purseOf(who)).bag.reduce((n, s) => n + (s?.item === item ? s.n : 0), 0);
+/** A line dropped by a member and then hooked a minute ago, as the database would have it after a strike. */
+const hooked = async (who, bait = "worm", bag = null, ago = 60000) => {
+  await t.sql(`delete from public.town_lines where member_id = $1`, [who]);
+  await t.sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'rod', 'bag', $2::jsonb, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100), 'gifts', '{"had": [], "charms": []}'::jsonb) where member_id = $1`,
+    [who, JSON.stringify(bag ?? [{ item: "rod", n: 1 }, { item: bait, n: 5 }, null, null, null, null, null, null, null, null])]);
+  const c = await call(who, "town_cast", bait, DECK[0], DECK[1], false);
+  if (!c?.ok) return c;
+  await t.sql(`update public.town_lines set doc = doc || jsonb_build_object('what', 'minnow', 'size', 6, 'struck_at', town.now_ms() - $2::bigint) where member_id = $1`, [who, ago]);
+  return c;
+};
+for (const how of ["slipped", "snapped"]) {
+  await hooked(U.m2);
+  const before = await worms(U.m2);
+  did = await call(U.m2, "town_land", how, null);
+  t.check(`a fish ${how === "slipped" ? "that slips the hook" : "whose line snaps"} gives the worm back: four were left after the cast, five are there again, and the answer says so`,
+    before === 4 && did?.ok === true && did.how === how && did.back === true && (await worms(U.m2)) === 5, { before, did, after: await worms(U.m2) });
+}
+await hooked(U.m2);
+did = await call(U.m2, "town_land", "landed", null);
+t.check("a fish landed has eaten its bait: nothing comes back, and the fish is in the bag", did?.ok === true && did.how === "landed" && did.back === false && (await worms(U.m2)) === 4 && (await worms(U.m2, "minnow")) === 1, did);
+await hooked(U.m2, "worm", null, 0);
+did = await call(U.m2, "town_land", "landed", null);
+t.check("a landing too quick to be one is a fish got away, and gives nothing back", did?.ok === true && did.how === "slipped" && did.back === false && (await worms(U.m2)) === 4, did);
+await hooked(U.m2);
+await t.sql(`update public.town_lines set doc = doc || '{"struck_at": null}'::jsonb where member_id = $1`, [U.m2]);
+did = await call(U.m2, "town_land", "slipped", null);
+t.check("a line taken up with nothing hooked gives nothing back", did?.ok === true && did.how === "left" && did.back === false && (await worms(U.m2)) === 4, did);
+// (a bag with no room for the bait: the last worm went out on the hook, and every slot holds something else)
+await hooked(U.m2, "worm", [{ item: "rod", n: 1 }, { item: "worm", n: 1 }, ...Array(8).fill({ item: "boot", n: 1 })]);
+await t.sql(`update public.town_purses set doc = jsonb_set(doc, '{bag,1}', '{"item": "boot", "n": 1}'::jsonb) where member_id = $1`, [U.m2]);
+did = await call(U.m2, "town_land", "slipped", null);
+t.check("with no room in the bag the bait is lost, and the answer says none came back", did?.ok === true && did.back === false && (await worms(U.m2)) === 0, did);
+// (a bait that is not eaten stays in the bag at the cast; a snapped line takes it, a slipped hook does not)
+await hooked(U.m2, "lure", [{ item: "rod", n: 1 }, { item: "lure", n: 2 }, null, null, null, null, null, null, null, null]);
+const lures = await worms(U.m2, "lure");
+did = await call(U.m2, "town_land", "slipped", null);
+t.check("a bait that is not eaten never left the bag: a slipped hook leaves it as it is", lures === 2 && did?.back === false && (await worms(U.m2, "lure")) === 2, { lures, did });
+await hooked(U.m2, "lure", [{ item: "rod", n: 1 }, { item: "lure", n: 2 }, null, null, null, null, null, null, null, null]);
+did = await call(U.m2, "town_land", "snapped", null);
+t.check("…and a snapped line takes it, as ever", did?.back === false && (await worms(U.m2, "lure")) === 1, did);
+const plays = (await t.sql(`select doc->>'how' as how from public.town_plays where member_id = $1 and game = 'fishing' order by id`, [U.m2])).rows.map((r) => r.how);
+t.check("every go is written down as it was: how it ended", same(plays.slice(-8), ["slipped", "snapped", "landed", "slipped", "left", "slipped", "slipped", "snapped"]), plays);
 
 /* ── closed, and who may run what ── */
 t.section("closed, and who may run what");

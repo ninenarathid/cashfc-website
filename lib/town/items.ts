@@ -725,17 +725,17 @@ export interface Fish {
 const NIGHT: Array<[number, number]> = [[19, 24], [0, 5]];
 export const FISH: Record<FishId, Fish> = {
   minnow: { tier: "common", baits: { worm: 1, dough: 1 }, hours: [[5, 22]], rain: 1, wait: [3, 15], size: [4, 8],
-    fight: { style: "darter", band: 0.22, pull: 0.08, surge: 0.22, every: [2.6, 4.5], line: 0.5, effort: 2, sway: 0.12, pace: 0.11 } },
+    fight: { style: "darter", band: 0.22, pull: 0.08, surge: 0.22, every: [2.6, 4.5], line: 0.5, effort: 1, sway: 0.12, pace: 0.11 } },
   barb: { tier: "common", baits: { dough: 1, corn: 1, worm: 0.6 }, hours: [[6, 18]], rain: 1, wait: [5, 25], size: [12, 22],
-    fight: { style: "steady", band: 0.2, pull: 0.14, surge: 0.32, every: [2.6, 4.6], line: 0.8, effort: 3, sway: 0.15, pace: 0.08 } },
+    fight: { style: "steady", band: 0.2, pull: 0.14, surge: 0.32, every: [2.6, 4.6], line: 0.8, effort: 2, sway: 0.15, pace: 0.08 } },
   tilapia: { tier: "common", baits: { dough: 1, corn: 0.8 }, hours: [[7, 17]], rain: 1, wait: [5, 28], size: [18, 32],
-    fight: { style: "steady", band: 0.19, pull: 0.17, surge: 0.36, every: [2.4, 4.4], line: 0.9, effort: 4, sway: 0.17, pace: 0.09 } },
+    fight: { style: "steady", band: 0.19, pull: 0.17, surge: 0.36, every: [2.4, 4.4], line: 0.9, effort: 2, sway: 0.17, pace: 0.09 } },
   perch: { tier: "common", baits: { worm: 1 }, hours: [[5, 20]], rain: 1.3, wait: [5, 25], size: [10, 18],
-    fight: { style: "darter", band: 0.18, pull: 0.12, surge: 0.42, every: [1.5, 2.8], line: 0.8, effort: 4, sway: 0.17, pace: 0.15 } },
+    fight: { style: "darter", band: 0.18, pull: 0.12, surge: 0.42, every: [1.5, 2.8], line: 0.8, effort: 2, sway: 0.17, pace: 0.15 } },
   // (it takes a loach as it takes a minnow: the bait came on 2026-10-05, and without the catfish a loach dropped at
   // night would bring up a rare fish two bites in five, there being nothing else for it to be)
   catfish: { tier: "common", baits: { worm: 1, minnow: 0.5, loach: 0.5, dough: 0.3 }, hours: [[18, 24], [0, 6]], rain: 2, wait: [8, 35], size: [25, 45],
-    fight: { style: "steady", band: 0.18, pull: 0.24, surge: 0.3, every: [3, 6], line: 1, effort: 5, sway: 0.2, pace: 0.1 } },
+    fight: { style: "steady", band: 0.18, pull: 0.24, surge: 0.3, every: [3, 6], line: 1, effort: 3, sway: 0.2, pace: 0.1 } },
   pangasius: { tier: "uncommon", baits: { dough: 1, corn: 1 }, hours: [[8, 17]], rain: 1, wait: [10, 50], size: [50, 90],
     fight: { style: "steady", band: 0.165, pull: 0.3, surge: 0.34, every: [2.8, 5], line: 1.3, effort: 7, sway: 0.24, pace: 0.12 } },
   snakehead: { tier: "uncommon", baits: { minnow: 1, worm: 0.3 }, hours: [[5, 8], [17, 20]], rain: 1.2, wait: [13, 55], size: [35, 70],
@@ -750,9 +750,9 @@ export const FISH: Record<FishId, Fish> = {
     fight: { style: "sleeper", band: 0.14, pull: 0.1, surge: 0.8, every: [4, 7], line: 1.1, effort: 8, sway: 0.3, pace: 0.15 } },
   // ── the second tier: on a cricket, a ball of bran or small shrimp ──
   gourami: { tier: "common", baits: { branBait: 1, cricket: 0.6 }, hours: [[6, 18]], rain: 1, wait: [5, 25], size: [12, 20],
-    fight: { style: "steady", band: 0.19, pull: 0.14, surge: 0.32, every: [2.6, 4.6], line: 0.8, effort: 3, sway: 0.17, pace: 0.09 } },
+    fight: { style: "steady", band: 0.19, pull: 0.14, surge: 0.32, every: [2.6, 4.6], line: 0.8, effort: 2, sway: 0.17, pace: 0.09 } },
   crab: { tier: "common", baits: { shrimpLive: 1, branBait: 0.5 }, hours: [[17, 24], [0, 6]], rain: 1.5, wait: [5, 25], size: [5, 9],
-    fight: { style: "darter", band: 0.19, pull: 0.1, surge: 0.3, every: [1.6, 3], line: 0.5, effort: 2, sway: 0.15, pace: 0.13 } },
+    fight: { style: "darter", band: 0.19, pull: 0.1, surge: 0.3, every: [1.6, 3], line: 0.5, effort: 1, sway: 0.15, pace: 0.13 } },
   snail: { tier: "common", baits: { branBait: 1 }, hours: [[0, 24]], rain: 1.2, wait: [4, 20], size: [2, 4],
     fight: { style: "sleeper", band: 0.22, pull: 0.05, surge: 0.12, every: [4, 7], line: 0.4, effort: 1, sway: 0.1, pace: 0.06 } },
   hampala: { tier: "uncommon", baits: { cricket: 1, shrimpLive: 0.8 }, hours: [[5, 9], [16, 19]], rain: 1, wait: [10, 45], size: [25, 50],
@@ -798,21 +798,21 @@ export const FISH: Record<FishId, Fish> = {
   //    always were. ──
   // off the bank only: the shallows have fish of their own now
   loach: { tier: "common", baits: { worm: 1, dough: 0.5 }, hours: [[0, 24]], rain: 3, water: "bank", wait: [4, 20], size: [8, 15],
-    fight: { style: "slippery", band: 0.21, pull: 0.06, surge: 0.25, every: [1.8, 3.2], line: 0.5, effort: 2, sway: 0.14, pace: 0.12 } },
+    fight: { style: "slippery", band: 0.21, pull: 0.06, surge: 0.25, every: [1.8, 3.2], line: 0.5, effort: 1, sway: 0.14, pace: 0.12 } },
   mosquitofish: { tier: "common", baits: { dough: 1, worm: 0.5 }, hours: [[6, 18]], rain: 1, water: "bank", wait: [3, 15], size: [3, 6],
     fight: { style: "darter", band: 0.23, pull: 0.05, surge: 0.18, every: [2.6, 4.5], line: 0.4, effort: 1, sway: 0.1, pace: 0.1 } },
   mussel: { tier: "common", baits: { dough: 1 }, hours: [[0, 24]], rain: 1, water: "bank", wait: [5, 25], size: [6, 12],
     fight: { style: "sleeper", band: 0.23, pull: 0.04, surge: 0.1, every: [4, 7], line: 0.4, effort: 1, sway: 0.08, pace: 0.05 } },
   crayfish: { tier: "common", baits: { worm: 1, minnow: 0.5 }, hours: [[18, 24], [0, 5]], rain: 1.5, water: "bank", wait: [5, 25], size: [7, 13],
-    fight: { style: "darter", band: 0.19, pull: 0.1, surge: 0.34, every: [1.5, 2.8], line: 0.6, effort: 3, sway: 0.16, pace: 0.14 } },
+    fight: { style: "darter", band: 0.19, pull: 0.1, surge: 0.34, every: [1.5, 2.8], line: 0.6, effort: 2, sway: 0.16, pace: 0.14 } },
   goldfish: { tier: "common", baits: { dough: 1 }, hours: [[8, 18]], rain: 1, water: "bank", needs: ["weekend"], wait: [5, 25], size: [6, 14],
-    fight: { style: "darter", band: 0.2, pull: 0.07, surge: 0.3, every: [1.6, 3], line: 0.5, effort: 2, sway: 0.16, pace: 0.13 } },
+    fight: { style: "darter", band: 0.2, pull: 0.07, surge: 0.3, every: [1.6, 3], line: 0.5, effort: 1, sway: 0.16, pace: 0.13 } },
   // from anywhere, by day
   carp: { tier: "common", baits: { corn: 1, dough: 0.7 }, hours: [[6, 18]], rain: 1, wait: [6, 28], size: [25, 50],
-    fight: { style: "steady", band: 0.185, pull: 0.2, surge: 0.34, every: [2.6, 4.8], line: 1, effort: 5, sway: 0.18, pace: 0.09 } },
+    fight: { style: "steady", band: 0.185, pull: 0.2, surge: 0.34, every: [2.6, 4.8], line: 1, effort: 3, sway: 0.18, pace: 0.09 } },
   // off the deck: on a fish for bait, mostly
   piranha: { tier: "common", baits: { minnow: 1, loach: 1, worm: 0.4 }, hours: [[9, 17]], rain: 1, water: "deck", wait: [4, 20], size: [15, 30],
-    fight: { style: "darter", band: 0.18, pull: 0.14, surge: 0.48, every: [1.2, 2.2], line: 0.8, effort: 4, sway: 0.2, pace: 0.16 } },
+    fight: { style: "darter", band: 0.18, pull: 0.14, surge: 0.48, every: [1.2, 2.2], line: 0.8, effort: 2, sway: 0.2, pace: 0.16 } },
   herring: { tier: "uncommon", baits: { worm: 1, dough: 0.6 }, hours: [[4, 8]], rain: 1, wait: [8, 40], size: [18, 32],
     fight: { style: "darter", band: 0.16, pull: 0.1, surge: 0.44, every: [1.4, 2.6], line: 0.8, effort: 4, sway: 0.24, pace: 0.15 } },
   archerfish: { tier: "uncommon", baits: { worm: 1 }, hours: [[8, 18]], rain: 0, wait: [10, 45], size: [10, 20],
@@ -838,9 +838,9 @@ export const FISH: Record<FishId, Fish> = {
   dozyFish: { tier: "common", baits: { worm: 1, dough: 1 }, hours: [[0, 24]], rain: 1, needs: ["tired"], wait: [4, 20], size: [12, 24],
     fight: { style: "sleeper", band: 0.25, pull: 0.04, surge: 0.1, every: [5, 8], line: 0.4, effort: 1, sway: 0.08, pace: 0.05 } },
   popotoFish: { tier: "common", baits: { worm: 1, dough: 1 }, hours: [[0, 24]], rain: 1, needs: ["crowd"], wait: [5, 25], size: [10, 20],
-    fight: { style: "steady", band: 0.2, pull: 0.12, surge: 0.28, every: [2.6, 4.6], line: 0.7, effort: 3, sway: 0.15, pace: 0.09 } },
+    fight: { style: "steady", band: 0.2, pull: 0.12, surge: 0.28, every: [2.6, 4.6], line: 0.7, effort: 2, sway: 0.15, pace: 0.09 } },
   rainbowFish: { tier: "common", baits: { dough: 1, worm: 1 }, hours: [[6, 18]], rain: 1, needs: ["after"], wait: [5, 25], size: [8, 14],
-    fight: { style: "darter", band: 0.19, pull: 0.08, surge: 0.36, every: [1.4, 2.6], line: 0.6, effort: 3, sway: 0.18, pace: 0.15 } },
+    fight: { style: "darter", band: 0.19, pull: 0.08, surge: 0.36, every: [1.4, 2.6], line: 0.6, effort: 2, sway: 0.18, pace: 0.15 } },
   moonFish: { tier: "rare", baits: { dough: 1, worm: 0.6 }, hours: [[19, 24], [0, 5]], rain: 1, needs: ["full"], wait: [18, 75], size: [20, 40],
     fight: { style: "slippery", band: 0.145, pull: 0.12, surge: 0.5, every: [2, 3.6], line: 1, effort: 7, sway: 0.3, pace: 0.16 } },
 };

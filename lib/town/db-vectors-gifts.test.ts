@@ -3,9 +3,9 @@ import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { vectorsV147 } from "./db-vectors-swarm.test";
 import { tend, type Bed, type Plot } from "./farm";
-import { strikeWindowOf } from "./fishing";
+import { backBait, strikeWindowOf } from "./fishing";
 import { CHARM_IDS, charmBy, famBy, FAMILIAR_IDS, GIFTS, giftsOf, gloved, stretchOf, takeGift, usedOf, useGift, wearCharms, wearFamiliar, wearing, works, type FamiliarId } from "./gifts";
-import type { ItemId } from "./items";
+import { ITEMS, type ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { dayOf, eased, staminaOf } from "./stamina";
 import { newPurse, put, type Purse } from "./trade";
@@ -26,6 +26,9 @@ import { newPurse, put, type Purse } from "./trade";
  *   float of the bag's;
  * - `tend`: the farm's own cases under a clear sky (lib/town/db-vectors-swarm.test.ts) with the gloves on, owing
  *   nothing and owing half a point: work on somebody else's plant and in somebody else's bed, and on one's own.
+ *
+ * - `back_bait`: a fish lost in the fight gives its bait back: with room in the bag, with a stack of it not yet full,
+ *   with none, and a bait that is not eaten.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts.test.ts
  */
@@ -133,6 +136,17 @@ export function vectorsGifts(): Vector[] {
     add("gloved", [before, after, NOW], gloved(before, after, NOW));
   }
 
+  // a bait given back: an empty bag, a stack of it begun, a stack of it full with and without a slot beside, no room at all; a bait that is not eaten
+  for (const bait of ["worm", "dough", "corn", "lure", "minnow"] as ItemId[]) for (const fill of ["empty", "some", "stackFull", "stackFullAndFree", "full"] as const) {
+    const base = purse(undefined), stack = ITEMS[bait].stack;
+    let bag = base.bag.map(() => null) as Purse["bag"];
+    if (fill === "some") bag = put(bag, bait, Math.max(1, stack - 3));
+    if (fill === "stackFull" || fill === "stackFullAndFree") { bag = put(bag, bait, stack); if (fill === "stackFull") bag = bag.map((slot) => slot ?? { item: "boot" as ItemId, n: 1 }); }
+    if (fill === "full") bag = bag.map(() => ({ item: "boot" as ItemId, n: 1 }));
+    const p = { ...base, bag } as Purse;
+    add("back_bait", [p, bait], backBait(p, bait as Parameters<typeof backBait>[1]));
+  }
+
   // the strike's moment: the float worn and not, a keen eye at every level, with and without stamina, a float in the bag
   const FLOATS = Object.entries(catalogOf().fishing.floats as Record<string, number>).map(([id]) => id as ItemId);
   for (const worn of [undefined, { had: ["charmFloat"], charms: [] }, { had: ["charmFloat"], charms: ["charmFloat"] }, { had: ["charmFloat", "charmHoe"], charms: ["charmHoe", "charmFloat"] }, { had: ["charmHoe"], charms: ["charmHoe"] }]) {
@@ -163,6 +177,10 @@ describe("the cases the database's rules of the gifts are held to", () => {
     expect(JSON.stringify(vectorsGifts())).toBe(JSON.stringify(all));
     const of = (fn: string) => all.filter((v) => v.fn === fn);
     for (const fn of ["gifts_of", "wearing", "charm_by", "fam_by", "familiar_wear", "gift_works", "used_of", "gift_use", "gift_take", "charms_wear", "eased", "gloved", "strike_window", "tend"]) expect(of(fn).length, fn).toBeGreaterThan(40);
+    // a bait given back, and one that is not: for no room, and for a bait that is not eaten
+    const backs = of("back_bait");
+    expect(backs.length).toBe(25);
+    expect(backs.some((v) => JSON.stringify(v.want) !== JSON.stringify(v.args[0])) && backs.some((v) => JSON.stringify(v.want) === JSON.stringify(v.args[0]))).toBe(true);
     // a counted gift used with times left, with none, and refused as nothing to use; a count read as some and as none
     const uses = of("gift_use").map((v) => v.want as { ok: boolean; why?: string; left?: number });
     expect(uses.some((d) => d.ok && d.left === 0) && uses.some((d) => d.ok && (d.left ?? 0) > 5) && uses.some((d) => !d.ok && d.why === "spent") && uses.some((d) => !d.ok && d.why === "none")).toBe(true);
