@@ -85,7 +85,7 @@ export function catalogOf() {
     stamina: {
       max: STAMINA.max, minutes: STAMINA.minutes, together: STAMINA.together, company: STAMINA.company, meals: STAMINA.meals, hours: BUFF_HOURS,
       buffs: Object.fromEntries(Object.entries(BUFFS).map(([id, b]) => [id, b.by])),
-      // (since v145: the helpings a meal's hours take, and what a meal's buff does at each of its levels; `buffs` is
+      // (since v146: the helpings a meal's hours take, and what a meal's buff does at each of its levels; `buffs` is
       // each one's first, as it always was, for whatever still reads it)
       bowls: STAMINA.bowls, levels: BUFF_LEVELS, steps: BUFF_STEPS,
     },
@@ -328,7 +328,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // three helpings to a meal's hours, and a meal's buffs at their levels: the `stamina` row written over
-  v145: { keys: [], over: ["stamina"] },
+  v146: { keys: [], over: ["stamina"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

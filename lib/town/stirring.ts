@@ -37,7 +37,7 @@ export interface Stir { need: number; hits: number; misses: number; turned: numb
 /** Begin a pot wanting so many stirs. */
 export function startStir(need: number, mods: TimingMods): Stir {
   const tired = mods.spent ? mods.tired ?? { zone: 1, speed: 1 } : null;
-  const either = Math.min(STIRRING.pace * 0.8, STIRRING.either * Math.sqrt(mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1));
+  const either = Math.min(STIRRING.pace * 0.8, STIRRING.either * Math.sqrt(mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1));
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, turned: 0, pace: 0, off: 0, out: 0,
     lo: STIRRING.pace - either, hi: STIRRING.pace + either, grace: STIRRING.grace / (tired ? tired.speed : 1), begun: false, t: 0,

@@ -2,14 +2,14 @@
 // pushed: the dev test room kept by the database's keeper (lib/town/keeper.ts), asking a stand-in for the database
 // (scripts/db/town-bench.mjs: every migration replayed into PGlite on a local port). Production is not touched.
 //
-// With v145 in the database: the keeper says a meal's hours take three helpings, three are eaten and a fourth
+// With v146 in the database: the keeper says a meal's hours take three helpings, three are eaten and a fourth
 // refused, the buff is a level higher with each, and the bag shows the helpings and the level. With a database that
-// has not had v145 (the page goes out first): the keeper says one, the bag marks one helping to a meal, and a dish
+// has not had v146 (the page goes out first): the keeper says one, the bag marks one helping to a meal, and a dish
 // is not offered a second time, so nothing is asked that would be refused.
 //
 //   node town-bench.mjs 3197                                   (in a scratch folder, see scripts/db/README.md: the database as it is)
-//   BENCH_EXTRA=v145_draft.sql node town-bench.mjs 3198        (…and with v145's draft run after everything)
-//   node town-meals-db.mjs <base> <outdir> [bench with v145] [bench without]
+//   BENCH_EXTRA=v146_draft.sql node town-bench.mjs 3198        (…and with v146's draft run after everything)
+//   node town-meals-db.mjs <base> <outdir> [bench with v146] [bench without]
 import { mkdirSync } from "node:fs";
 import { browser, sleep, status, until } from "./cdp.mjs";
 
@@ -61,11 +61,11 @@ const BAG = [{ item: "tomYum", n: 5 }, { item: "bowl", n: 1 }, ...Array(8).fill(
 
 const X = await browser("Meals, the database's", { width: 390, height: 844, mobile: true });
 try {
-  // ── a database with v145 ──
+  // ── a database with v146 ──
   await clockTo(BENCH, 11.2);
   await enter(X, "P", BENCH);
   await give(X, "P", BENCH, { bag: BAG });
-  ok("with v145 the keeper says a meal's hours take three helpings", (await X.evaluate(`${K}.helpings()`)) === 3, await purse(X));
+  ok("with v146 the keeper says a meal's hours take three helpings", (await X.evaluate(`${K}.helpings()`)) === 3, await purse(X));
   ok("a first helping is eaten", (await eat(X, BENCH, "tomYum")).ok === true);
   await enter(X, "P", BENCH);
   let p = await purse(X);
@@ -85,7 +85,7 @@ try {
   await clockTo(OLD, 11.2);
   await enter(X, "Q", OLD);
   await give(X, "Q", OLD, { bag: BAG });
-  ok("without v145 the keeper says one helping, as the database counts", (await X.evaluate(`${K}.helpings()`)) === 1, (await purse(X)).meals);
+  ok("without v146 the keeper says one helping, as the database counts", (await X.evaluate(`${K}.helpings()`)) === 1, (await purse(X)).meals);
   ok("a helping is eaten, as ever", (await eat(X, OLD, "tomYum")).ok === true);
   await enter(X, "Q", OLD);
   p = await purse(X);

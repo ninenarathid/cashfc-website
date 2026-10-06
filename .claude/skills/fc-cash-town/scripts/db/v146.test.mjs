@@ -1,7 +1,7 @@
 /*
- * v145 — three helpings to a meal's hours, and a meal's buffs at their levels: dry run in PGlite.
+ * v146 — three helpings to a meal's hours, and a meal's buffs at their levels: dry run in PGlite.
  *
- * Every file of the town's is replayed as it ran (v104 to v144, as town-bench.mjs replays them), then v145 twice.
+ * Every file of the town's is replayed as it ran (v104 to v145, as town-bench.mjs replays them), then v146 twice.
  * Then:
  *   - the rules: every case of stamina and meals, of fishing and of the farm, made from the code as it is now (with
  *     purses that have buffs at levels and meals with helpings counted, and purses from before that have neither),
@@ -12,18 +12,18 @@
  *   - what a purse is told with, the two functions dropped, who may run what, no write without its rows named.
  *
  *   TOWN_VECTORS=<this folder>/now npx vitest run lib/town/db-vectors.test.ts      (in the repo, first)
- *   node v145.test.mjs            (RULES=0 skips the cases; MIGRATION_FILE=<a file> tries that one)
- *   node mutate.mjs <the file> v145.test.mjs v145.mutations.mjs
+ *   node v146.test.mjs            (RULES=0 skips the cases; MIGRATION_FILE=<a file> tries that one)
+ *   node mutate.mjs <the file> v146.test.mjs v146.mutations.mjs
  */
 import { existsSync, readFileSync } from "node:fs";
 import { supabaseLike, migration, U } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
-import { MADE } from "./build-v145.mjs";
+import { MADE } from "./build-v146.mjs";
 import { bareWrites } from "./bare-writes.mjs";
 
 const here = (name) => new URL(`./${name}`, import.meta.url);
 const lf = (s) => s.split("\r\n").join("\n");
-const FILE = lf(process.env.MIGRATION_FILE ? readFileSync(process.env.MIGRATION_FILE, "utf8") : existsSync(here("v145_draft.sql")) ? readFileSync(here("v145_draft.sql"), "utf8") : migration(145));
+const FILE = lf(process.env.MIGRATION_FILE ? readFileSync(process.env.MIGRATION_FILE, "utf8") : existsSync(here("v146_draft.sql")) ? readFileSync(here("v146_draft.sql"), "utf8") : migration(145));
 const DIR = process.env.VECTORS ?? "now";
 const vectors = [];
 for (const n of process.env.RULES === "0" ? [] : [107, 108, 110]) {
@@ -41,7 +41,8 @@ alter table public.gallery_likes enable row level security;
 `;
 const t = await supabaseLike({ extra });
 // (as town-bench.mjs replays them: by number, but v130 after v131, as it ran; v136 is the party finder's)
-const numbers = Array.from({ length: 144 - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136);
+// (v145 is another session's, of the farm: replayed too once it is a file, in supabase/ or in history; skipped while it is neither)
+const numbers = Array.from({ length: 145 - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136);
 numbers.splice(numbers.indexOf(131) + 1, 0, 130);
 for (const n of numbers) { let sql = null; try { sql = migration(n); } catch { /* a number that was never a file */ } if (sql) await t.run(sql, `v${n}`); }
 await t.sql(`update public.town_knobs set value = 1 where key = 'game_open'`);
@@ -52,7 +53,7 @@ const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 const staminaWas = (await one(`select data from public.town_catalog where key = 'stamina'`)).data;
 const luckyWas = (await one(`select town.odds('minnow', 21, false, true, false, '{}') as o`)).o;
 
-await t.runTwice(FILE, "v145");
+await t.runTwice(FILE, "v146");
 
 /* ── the catalog ── */
 t.section("the catalog's row");
@@ -67,7 +68,7 @@ t.check("no other row of the catalog is touched", others.n === 0, others);
 /* ── the rules ── */
 const TEXTS = (n) => `(select coalesce(array_agg(x order by ord), '{}'::text[]) from jsonb_array_elements_text($${n}::jsonb) with ordinality as e(x, ord))`;
 const FLOATS = (n) => `(select array_agg(x::float8 order by ord) from jsonb_array_elements_text($${n}::jsonb) with ordinality as e(x, ord))`;
-// (how each rule is asked is v122's dry run's own list, which has every rule as its arguments stand; and v145's seven more)
+// (how each rule is asked is v122's dry run's own list, which has every rule as its arguments stand; and v146's seven more)
 const v122 = lf(readFileSync(here("v122.test.mjs"), "utf8")), from = v122.indexOf("const CALL = {"), to = v122.indexOf("\n};", from);
 const CALL = new Function("TEXTS", "FLOATS", `${v122.slice(from, to + 3)}\nreturn CALL;`)(TEXTS, FLOATS);
 Object.assign(CALL, {
@@ -106,7 +107,7 @@ if (vectors.length) {
 t.section("each function written again is its last text, but for the lines meant");
 for (const [mark, make] of Object.entries(MADE)) {
   const open = `-- <${mark}>\n`, a = FILE.indexOf(open), b = FILE.indexOf(`-- </${mark}>`);
-  t.check(`${mark}: the file has it as build-v145 makes it`, a >= 0 && b > a && FILE.slice(a + open.length, b) === make() + "\n", a < 0 ? "no marked lines" : "the text between its marks differs");
+  t.check(`${mark}: the file has it as build-v146 makes it`, a >= 0 && b > a && FILE.slice(a + open.length, b) === make() + "\n", a < 0 ? "no marked lines" : "the text between its marks differs");
 }
 const gone = await one(`select to_regprocedure('town.odds(text,integer,boolean,boolean,boolean,text[])') is null as odds, to_regprocedure('town.cast_line(text,integer,boolean,boolean,boolean,text[],double precision[])') is null as cast_`);
 t.check("the two as they were, of six and of seven arguments, are dropped", gone.odds && gone.cast_, gone);
@@ -158,8 +159,8 @@ let sat = await eat(U.m1, "tomYum");
 let p = await kept(U.m1);
 t.check("a first helping is eaten, and counted", sat?.ok === true && same(p.meals.bowls, [0, 1, 0]) && same(p.meals.eaten, [false, true, false]) && p.eating === null, { sat, meals: p.meals });
 t.check("…it leaves its buff at the first level, for three hours; and the one buff a purse always kept, beside it", p.buffs?.length === 1 && p.buffs[0].id === "hearty" && p.buffs[0].level === 1
-  && p.buffs[0].until === p.buff.until && p.buff.id === "hearty" && Math.abs(p.buffs[0].until - (T0 + 5 * MIN + 1000 + 3 * HOUR)) < 5000, { buffs: p.buffs, buff: p.buff });
-const first = p.buffs[0].until;
+  && p.buffs[0].until === p.buff?.until && p.buff?.id === "hearty" && Math.abs(p.buffs[0].until - (T0 + 5 * MIN + 1000 + 3 * HOUR)) < 5000, { buffs: p.buffs, buff: p.buff });
+const first = p.buffs?.[0]?.until;
 sat = await eat(U.m1, "tomYum");
 const third = await eat(U.m1, "tomYum");
 p = await kept(U.m1);
@@ -167,7 +168,7 @@ t.check("a second and a third in the same hours raise it a level each, its hours
   && same(p.buffs, [{ id: "hearty", level: 3, until: first }]), { meals: p.meals, buffs: p.buffs });
 const fourth = await call(U.m1, "town_sit", slotOf(p, "tomYum"), true);
 t.check("a fourth in the same hours is refused, and nothing is lost", fourth?.ok === false && fourth.why === "meal" && (await kept(U.m1)).bag[0].n === 2, fourth);
-t.check("the gauge is never over its hundred", p.stamina.left <= 100 && p.stamina.left > 10, p.stamina);
+t.check("the gauge is never over its hundred", p.stamina?.left <= 100 && p.stamina?.left > 10, p.stamina);
 const at3 = await nowMs();
 const costs = await one(`select town.cost_of($1::jsonb, 20, $2::bigint) as third, town.cost_of($1::jsonb, 20, $3::bigint) as run_out, town.level_of($1::jsonb, $2::bigint, 'hearty') as level`, [JSON.stringify(p), at3, first]);
 t.check("hearty at the third level takes fifty-five in a hundred off; run out, nothing", costs.third === 9 && costs.run_out === 20 && costs.level === 3, costs);
@@ -181,8 +182,8 @@ p = await kept(U.m1);
 t.check("a fifth is still the fourth level: there is none higher", sat?.ok === true && same(p.buffs, [{ id: "hearty", level: 4, until: first }]), p.buffs);
 sat = await eat(U.m1, "friedMinnow");
 p = await kept(U.m1);
-t.check("a helping that leaves another buff is a buff of its own beside it, at the first level, with its own hours", sat?.ok === true && p.buffs.length === 2 && same(p.buffs[0], { id: "hearty", level: 4, until: first })
-  && p.buffs[1].id === "keen" && p.buffs[1].level === 1 && p.buffs[1].until > first && p.buff.id === "keen" && p.buff.until === p.buffs[1].until, { buffs: p.buffs, buff: p.buff });
+t.check("a helping that leaves another buff is a buff of its own beside it, at the first level, with its own hours", sat?.ok === true && p.buffs?.length === 2 && same(p.buffs[0], { id: "hearty", level: 4, until: first })
+  && p.buffs[1].id === "keen" && p.buffs[1].level === 1 && p.buffs[1].until > first && p.buff?.id === "keen" && p.buff?.until === p.buffs[1].until, { buffs: p.buffs, buff: p.buff });
 const at6 = await nowMs();
 const does = await one(`select town.cost_of($1::jsonb, 20, $2::bigint) as cost, town.strike_window($1::jsonb, $2::bigint) as strike, town.strike_window($3::jsonb, $2::bigint) as plain,
   town.has_buff($1::jsonb, $2::bigint, 'keen') as keen, town.has_buff($1::jsonb, $2::bigint, 'lucky') as lucky`, [JSON.stringify(p), at6, JSON.stringify({ ...p, buffs: [], buff: null })]);

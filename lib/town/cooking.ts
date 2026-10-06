@@ -152,7 +152,7 @@ export function helpings(dish: DishId, crew: Array<ItemId | null>, misses: numbe
 export const stirsFor = (things: Array<[ItemId, number]>) => COOKING.stirs + tidy(things).length;
 export const easeOf = (bag: Purse["bag"]) => Math.max(1, ...bag.map((s) => (s ? COOK_EASE[s.item] ?? 1 : 1)));
 /** What the pot's stirring is played with (lib/town/stirring): its own wide pace, wider for what the cook carries, and what having no stamina does to it. */
-export const stirMods = (bag: Purse["bag"], spent: boolean): TimingMods => ({ tool: easeOf(bag), spent, wide: COOKING.stirring.wide, tired: COOKING.stirring.spent });
+export const stirMods = (bag: Purse["bag"], spent: boolean, calm = 1): TimingMods => ({ tool: easeOf(bag), spent, wide: COOKING.stirring.wide, tired: COOKING.stirring.spent, ...(calm > 1 ? { buff: calm } : {}) });
 
 /** How many helpings of the odd dish some things come to: one for every so many of them (never none, never many), less for every stir missed (never under half). */
 export function oddHelpings(things: Array<[ItemId, number]>, misses: number): number {

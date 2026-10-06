@@ -976,8 +976,8 @@ export type MealBuffId = BuffId | "forage" | "net";
  * that reads it understands it.
  */
 export const BUFFS: Record<BuffId, { name: Line; about: Line; icon: string; by: number }> = {
-  calm: { name: { th: "มือนิ่ง", en: "Steady hands" }, about: { th: "ช่วงปลอดภัยของสายเบ็ดกว้างขึ้น", en: "The safe stretch of the line is wider" }, icon: "buffCalm", by: 0.2 },
-  keen: { name: { th: "ตาไว", en: "Keen eye" }, about: { th: "ตวัดเบ็ดได้จังหวะง่ายขึ้น", en: "The strike is easier to time" }, icon: "buffKeen", by: 0.5 },
+  calm: { name: { th: "มือนิ่ง", en: "Steady hands" }, about: { th: "งานที่ต้องประคองมือง่ายขึ้น: สู้ปลา คนหม้อ เทน้ำ ย่าง", en: "What is held steady is easier: a fish fought, a pot stirred, water poured, a roast" }, icon: "buffCalm", by: 0.2 },
+  keen: { name: { th: "ตาไว", en: "Keen eye" }, about: { th: "งานที่ต้องจับจังหวะง่ายขึ้น: ตวัดเบ็ด ฟันจอบ ถอนหญ้า", en: "What is timed is easier: the strike, the hoe, the weeding" }, icon: "buffKeen", by: 0.5 },
   lucky: { name: { th: "โชคดี", en: "Lucky" }, about: { th: "ปลาหายากกินเบ็ดบ่อยขึ้น", en: "Rare fish bite more often" }, icon: "buffLucky", by: 0.5 },
   hearty: { name: { th: "อิ่มทน", en: "Hearty" }, about: { th: "ใช้ stamina น้อยลง", en: "Everything costs less stamina" }, icon: "buffHearty", by: 0.3 },
   green: { name: { th: "มือเย็น", en: "Green fingers" }, about: { th: "รดน้ำแล้วผักโตไวขึ้นอีก", en: "Watering speeds a plant more" }, icon: "buffGreen", by: 0.5 },

@@ -47,7 +47,13 @@ export const TIMING = {
  * stirring): how many times as wide its stretch is at any time (`wide`), and what having no stamina does to it, in
  * place of what it does to the rest (`tired`: how much of the stretch is left, how much faster the marker runs).
  */
-export interface TimingMods { tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number } }
+/**
+ * `buff` is a meal's buff on the hands (since 2026-10-06, when buffs came to reach more than fishing: "บัฟอาหารที่ดีขึ้น
+ * ส่งผลให้เล่นเกมง่ายขึ้นจริง"): so many times as kind (1 and what the buff does at its level, items' byOf). A keen eye
+ * for what is timed (the hoe, the weeding), steady hands for what is held steady (the pouring, the stirring, the
+ * roast). Each game is as kind as it can be and no kinder: its own most still holds.
+ */
+export interface TimingMods { tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number }; buff?: number }
 /** A round as it stands: how many hits are still wanted, the hits and misses so far, how many misses end it (none, when it cannot be lost), how fast the marker runs, where it was and which way it ran when it last changed pace, and where the stretch lies. */
 export interface Round { need: number; hits: number; misses: number; most: number; speed: number; from: number; way: 1 | -1; since: number; lo: number; width: number; seed: number }
 
@@ -61,7 +67,7 @@ function draw(seed: number): [number, number] {
 /** Begin a round wanting so many hits. */
 export function startRound(need: number, mods: TimingMods, seed: number): Round {
   const tired = mods.spent ? mods.tired ?? TIMING.spent : null;
-  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1));
+  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1));
   const [r, next] = draw(seed | 0);
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0,

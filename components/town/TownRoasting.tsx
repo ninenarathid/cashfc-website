@@ -21,14 +21,16 @@ function colourOf(f: number, done: number): string {
  * about it that fills as each face does and is notched where a face is done. A touch anywhere, or the space bar,
  * turns the stick a quarter. The fire's flames are drawn here, so that they can crackle and flare.
  */
-export default function TownRoasting({ th, title, spent, scene, onDone, onCancel, onHit, onTurn, onFlare }: GameProps & {
+export default function TownRoasting({ th, title, spent, calm = 1, scene, onDone, onCancel, onHit, onTurn, onFlare }: GameProps & {
   spent: boolean;
+  /** Steady hands (a meal's buff): so many times as long between the fire's flares. */
+  calm?: number;
   scene: Sprite | null;
   /** Told when the stick is turned, and when the fire crackles before it flares: for their sounds. */
   onTurn?: () => void;
   onFlare?: () => void;
 }) {
-  const roast = useRef<Roast>(startRoast(spent, Math.floor(Math.random() * 2 ** 31)));
+  const roast = useRef<Roast>(startRoast(spent, Math.floor(Math.random() * 2 ** 31), calm));
   const from = useRef(0), ended = useRef(false), turned = useRef(0);
   const [, setShown] = useState(0);
   const canvas = useRef<HTMLCanvasElement>(null), told = useRef<boolean[]>([]), burnt = useRef<boolean[]>([]);

@@ -1,6 +1,6 @@
-// What v145 changes in functions that earlier files wrote: three helpings to a meal's hours, and a meal's buffs held
-// together, each at a level (lib/town/stamina). build-v145.mjs writes each function into the file from its own last
-// text with these lines changed, and v145's dry run holds the file to the same: nothing else in them moves.
+// What v146 changes in functions that earlier files wrote: three helpings to a meal's hours, and a meal's buffs held
+// together, each at a level (lib/town/stamina). build-v146.mjs writes each function into the file from its own last
+// text with these lines changed, and v146's dry run holds the file to the same: nothing else in them moves.
 
 /** town.sit_down (v107's): a meal's hours take so many helpings (the catalog's `bowls`), and each is counted. */
 export const SIT_DOWN = [

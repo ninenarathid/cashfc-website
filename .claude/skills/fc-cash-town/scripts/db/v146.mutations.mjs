@@ -1,5 +1,5 @@
-// The breaks v145.test.mjs must notice, one rule at a time.
-// Run: FC_REPO=<the tree whose code is meant> node mutate.mjs <the file, plain line ends> v145.test.mjs v145.mutations.mjs
+// The breaks v146.test.mjs must notice, one rule at a time.
+// Run: FC_REPO=<the tree whose code is meant> node mutate.mjs <the file, plain line ends> v146.test.mjs v146.mutations.mjs
 //
 // Not on the list: the guard at the file's head (v123 has run); and the rules left to everybody (the file's `revoke`
 // taken out): six of the rules are new, so that one is on the list after all, the last.
@@ -64,7 +64,7 @@ const all = ({ cut, swap }) => [
     ["cast_luck: 900 cases"]],
   ["a member's cast is not told how lucky their meal was",
     swap("array[random(), random(), random(), random(), random(), random()], town.buff_by(purse, now_, 'lucky'));", "array[random(), random(), random(), random(), random(), random()]);"),
-    ["town_cast: the file has it as build-v145 makes it"]],
+    ["town_cast: the file has it as build-v146 makes it"]],
   ["a helping eaten up leaves nothing",
     swap("then town.raised(p_purse, dish->>'buff', p_now) else '{}'::jsonb end;", "then '{}'::jsonb else '{}'::jsonb end;"),
     ["chew: 500 cases", "…it leaves its buff at the first level, for three hours; and the one buff a purse always kept, beside it"]],

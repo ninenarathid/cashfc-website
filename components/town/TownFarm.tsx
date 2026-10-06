@@ -5,7 +5,7 @@ import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, roll, see, typ
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
-import { isSpent } from "@/lib/town/stamina";
+import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
@@ -411,7 +411,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
         const game = working.work === "ditch" ? "pouring" : gameFor(working.work), title = th ? VERB[working.work][0] : VERB[working.work][1];
-        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true };
+        // (a meal's buff on the hands: steady hands for the pouring, a keen eye for the hoe and the weeding; the game of
+        // tired hands is as it is)
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen") };
         const growing = working.key ? seen.current.get(working.key) : undefined;
         const common = {
           th, title,

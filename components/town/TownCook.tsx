@@ -6,7 +6,7 @@ import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/
 import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
 import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
-import { hasBuff, isSpent, mayEat } from "@/lib/town/stamina";
+import { buffBy, hasBuff, isSpent, mayEat } from "@/lib/town/stamina";
 import { handOf, held } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import { KITCHEN, onYard } from "@/lib/town/world";
@@ -347,12 +347,12 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           <BuffAura ids={AT_THE_POT.filter((id) => hasBuff(purse, now, id))} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1" />
           {/* what is cooked on a stick is roasted over the fire, a game of its own; everything else is stirred */}
           {stirring.crew[0] === "skewer" ? (
-            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} scene={art?.("gameFire") ?? null}
+            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={1 + buffBy(purse, now, "calm")} scene={art?.("gameFire") ?? null}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) vfx.add("smoke", null, { lift: 22 }); }}
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           ) : (
-            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent)}
+            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent, 1 + buffBy(purse, now, "calm"))}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           )}

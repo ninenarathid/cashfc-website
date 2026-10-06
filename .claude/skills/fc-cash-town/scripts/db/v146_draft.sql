@@ -1,6 +1,6 @@
--- v145 — three helpings to a meal's hours, and a meal's buffs at their levels
+-- v146 — three helpings to a meal's hours, and a meal's buffs at their levels
 --
--- Run this once in the Supabase SQL editor, after v144 (it stops at its first
+-- Run this once in the Supabase SQL editor, after v145 (it stops at its first
 -- line without v123's fountain). Running it again is safe. **Run it after the
 -- site's own code for it is live**: a page from before goes on as it was (it
 -- reads the one buff and the meal's mark this file still writes, and shows a
@@ -37,8 +37,8 @@
 -- What it changes: one catalog row written over (`stamina`: three entries
 -- more); six rules new (`town.meal_buffs`, `level_of`, `buff_by`,
 -- `bowls_today`, `raised`, `helped`); ten functions written again, each word
--- for word as it last ran but for the lines meant (scripts/db/v145.lines.mjs,
--- build-v145.mjs): `town.sit_down` (v107's), `town.chew` (v111's),
+-- for word as it last ran but for the lines meant (scripts/db/v146.lines.mjs,
+-- build-v146.mjs): `town.sit_down` (v107's), `town.chew` (v111's),
 -- `town.has_buff`, `town.cost_of`, `town.strike_window`, `town.water`,
 -- `town.purse_of` and `public.town_cast` (v123's), `town.odds` and
 -- `town.cast_line` (v122's, each with one more argument at its end, untold
@@ -50,7 +50,7 @@ do $$ begin
   if to_regprocedure('town.has_buff(jsonb, bigint, text)') is null then raise exception 'v123 has not run: the fountain''s rules are not here'; end if;
 end $$;
 
--- <catalog:v145> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
+-- <catalog:v146> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
 insert into public.town_catalog (key, data) values
   ('stamina', $town${
     "max": 100,
@@ -65,7 +65,7 @@ insert into public.town_catalog (key, data) values
     "steps": {"calm":[0.2,0.6,1.2,2],"keen":[0.5,1,1.5,2],"lucky":[0.5,1,1.5,2],"green":[0.5,1,1.5,2],"hearty":[0.3,0.45,0.55,0.67],"forage":[1,2,2,3],"net":[0.5,1,1.5,2]}
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();
--- </catalog:v145>
+-- </catalog:v146>
 
 -- ─── What meals have left, and at what level ─────────────────────────────
 

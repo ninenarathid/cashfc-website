@@ -76,7 +76,7 @@ export function startPatch(need: number, mods: TimingMods, seed: number): Patch 
   const [cells, next] = scatter(things, s);
   return {
     need: weeds, hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0, cells, since: 0,
-    every: (mods.spent ? WEEDING.tiredGust : WEEDING.gust) * Math.sqrt(mods.tool ?? 1), warn: mods.spent ? WEEDING.tiredStir : WEEDING.stir, seed: next,
+    every: (mods.spent ? WEEDING.tiredGust : WEEDING.gust) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1), warn: mods.spent ? WEEDING.tiredStir : WEEDING.stir, seed: next,
   };
 }
 

@@ -642,7 +642,7 @@ export class DbKeeper implements Keeper {
   /* ── what is kept, read at once ── */
   /** My purse; while a meal is on, with what it has given up to this moment (the rule's own count, kept only when the database counts it). */
   purse(): Purse { return this.mine.eating ? chew(this.mine, this.company, this.now()).purse : this.mine; }
-  // (a database that counts helpings says how many each meal has had, in every purse it tells: v145)
+  // (a database that counts helpings says how many each meal has had, in every purse it tells: v146)
   helpings(): number { return this.mine.meals?.bowls ? STAMINA.bowls : 1; }
   stall(): Stall { return this.stall_; }
   prices(): PricesTold { return this.prices_; }

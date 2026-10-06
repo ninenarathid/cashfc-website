@@ -43,9 +43,9 @@ function draw(seed: number): [number, number] {
   return [((t ^ (t >>> 14)) >>> 0) / 4294967296, a];
 }
 
-/** Begin a roast. */
-export function startRoast(spent: boolean, seed: number): Roast {
-  const [lo, hi] = spent ? ROASTING.tiredEvery : ROASTING.flare.every, flares: number[] = [];
+/** Begin a roast. (`calm`: steady hands, so many times as long between the fire's flares: a meal's buff, 1 for none.) */
+export function startRoast(spent: boolean, seed: number, calm = 1): Roast {
+  const [lo, hi] = (spent ? ROASTING.tiredEvery : ROASTING.flare.every).map((s) => s * Math.max(1, calm)), flares: number[] = [];
   let s = seed | 0;
   for (let at = 0; at < ROASTING.longest;) { const [r, s1] = draw(s); s = s1; at += lo + r * (hi - lo); flares.push(Math.round(at * 100) / 100); }
   return { faces: Array<number>(ROASTING.faces).fill(0), down: 0, t: 0, flares, spent, turns: 0 };

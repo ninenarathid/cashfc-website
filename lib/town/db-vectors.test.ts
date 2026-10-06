@@ -50,7 +50,7 @@ function chance(seed: number) {
 }
 
 /**
- * What meals have left a purse, as one of today may have it (v145): now and then nothing more than it had (a purse
+ * What meals have left a purse, as one of today may have it (v146): now and then nothing more than it had (a purse
  * from before buffs had levels), else some of these buffs, each once, at a level, some run out already.
  */
 function leveled(c: ReturnType<typeof chance>, now: number, ids: readonly MealBuffId[]): Pick<Purse, "buffs"> | Record<string, never> {
@@ -217,7 +217,7 @@ export function vectorsV107(): Vector[] {
   const c = chance(20261005), out: Vector[] = [];
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
   const SCROLL_IDS = Object.keys(SCROLLS) as ItemId[], BUFF_IDS: BuffId[] = ["calm", "keen", "lucky", "hearty", "green"];
-  /** A day's meals, with how many helpings each has had: counted (v145), or not (a purse from before: a meal eaten is one). */
+  /** A day's meals, with how many helpings each has had: counted (v146), or not (a purse from before: a meal eaten is one). */
   const helpings = (meals: Purse["meals"]): Purse["meals"] =>
     (c.maybe(0.4) ? meals : { ...meals, bowls: meals.eaten.map((e) => (e ? c.int(1, 3) : 0)) as [number, number, number] });
   /** A purse as it might be with a day's eating behind it. */
@@ -243,7 +243,7 @@ export function vectorsV107(): Vector[] {
     add("stamina_of", [p, now], staminaOf(p, now));
     add("buff_of", [p, now], buffOf(p, now));
     add("eaten_today", [p, now], eatenToday(p, now));
-    // (v145: the helpings a meal has had, what meals have left and at what level, and a buff raised by one more helping)
+    // (v146: the helpings a meal has had, what meals have left and at what level, and a buff raised by one more helping)
     const id = c.of(BUFF_IDS);
     add("bowls_today", [p, now], bowlsToday(p, now));
     add("meal_buffs", [p, now], mealBuffs(p, now));
@@ -261,7 +261,7 @@ export function vectorsV107(): Vector[] {
     add("bowls_back", [p, more], bowlsBack(p, more));
     add("read_scroll", [p, slot], readScroll(p, slot as number));
   }
-  // (v145: a helping begun or refused by how many the meal's hours have had: every count, counted and from before
+  // (v146: a helping begun or refused by how many the meal's hours have had: every count, counted and from before
   // helpings were, with a dish in the hand's reach, seated, and no meal under way)
   for (const now of MOMENTS) for (const had of [0, 1, 2, 3, 4]) for (const counted of [true, false]) {
     const meal = mealOf(now), base = purseOf(c, now, DISH_IDS);
@@ -303,7 +303,7 @@ export function vectorsV108(): Vector[] {
     const rnd = Array.from({ length: 6 }, () => (c.maybe(0.05) ? c.of([0, 0.2999999, 0.3, 0.75, 0.9999999]) : c.next()));
     let k = 0;
     add("cast_line", [bait, hour, rain, lucky, shallow, signs, rnd], castLine(bait, hour, rain, lucky, () => rnd[k++], shallow, signs));
-    // (v145: a lucky meal at a level. The database is told that there is luck, and how much it does)
+    // (v146: a lucky meal at a level. The database is told that there is luck, and how much it does)
     const level = c.int(0, BUFF_LEVELS);
     k = 0;
     add("cast_luck", [bait, hour, rain, level > 0, shallow, signs, rnd, byOf("lucky", level)], castLine(bait, hour, rain, level, () => rnd[k++], shallow, signs));

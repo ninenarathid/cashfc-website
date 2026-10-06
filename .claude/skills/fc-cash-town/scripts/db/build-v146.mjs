@@ -1,12 +1,12 @@
-// Writes v145's ten functions that are written again between the draft's marked lines: each from the file that last
-// wrote it, as it ran, with the lines of v145.lines.mjs changed. v145's dry run holds the file to the same.
-//   node build-v145.mjs [<v145 file>]
+// Writes v146's ten functions that are written again between the draft's marked lines: each from the file that last
+// wrote it, as it ran, with the lines of v146.lines.mjs changed. v146's dry run holds the file to the same.
+//   node build-v146.mjs [<v146 file>]
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { migration } from "./pglite-harness.mjs";
-import { CAST_LINE, CHEW, COST_OF, HAS_BUFF, ODDS, PURSE_OF, SIT_DOWN, STRIKE_WINDOW, TOWN_CAST, WATER } from "./v145.lines.mjs";
+import { CAST_LINE, CHEW, COST_OF, HAS_BUFF, ODDS, PURSE_OF, SIT_DOWN, STRIKE_WINDOW, TOWN_CAST, WATER } from "./v146.lines.mjs";
 
 const here = (name) => new URL(`./${name}`, import.meta.url);
-const file = process.argv[2] ?? here("v145_draft.sql");
+const file = process.argv[2] ?? here("v146_draft.sql");
 const lf = (s) => s.split("\r\n").join("\n");
 const from = new Map();
 const V = (n) => { if (!from.has(n)) from.set(n, lf(migration(n))); return from.get(n); };
@@ -38,5 +38,5 @@ if (existsSync(file) && process.argv[1] && import.meta.url.endsWith(process.argv
     t = t.slice(0, a + open.length) + make() + "\n" + t.slice(b);
   }
   if (t !== lf(was)) { writeFileSync(file, t.split("\n").join(nl)); console.log(`written again: ${Object.values(AGAIN).map(([n, name]) => `${name} (v${n}'s)`).join(", ")}`); }
-  else console.log("it is as it stands already, with what v145 changes");
+  else console.log("it is as it stands already, with what v146 changes");
 }
