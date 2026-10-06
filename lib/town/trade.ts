@@ -188,6 +188,11 @@ export interface Purse {
   wears?: ItemId[];
   /** The gifts of the lines of work somebody has taken, and the charms worn of them, the familiar that follows, and what part of a point of stamina the gloves' half has left owing (lib/town/gifts reads them, and makes them sound): in no slot of the bag. */
   gifts?: { had: string[]; charms: string[]; owed?: number; familiar?: string | null; used?: Record<string, { k: number; n: number }> };
+  // ── gifts: fishing ──
+  /** The sky an orb has lit for its owner, and until when (lib/town/fishing's orbOf reads it, and believes only one that still lasts). */
+  orb?: { sky: string; until: number };
+  /** The lines taken up lately, by their moments, and until when the rare fish have gone from this hand's water for it (lib/town/fishing's tookUp and isWary). */
+  wary?: { ups: number[]; until: number };
   /** The hints bought from the uncle (lib/town/hints), and what else has been made besides dishes (lib/town/cooking): each by the thing it is of. */
   hints?: ItemId[];
   made?: ItemId[];

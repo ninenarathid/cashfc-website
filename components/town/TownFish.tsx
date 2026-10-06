@@ -3,15 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
-import { REST, STEPS, oddsOf, seesOdds, settling, startFight, stepFight, strikeOf, strikeWindow, surging, warning, type Fight, type Strike } from "@/lib/town/fishing";
+import { ORB, PAIR, REST, STEPS, boutsOf, oddsOf, orbOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type OrbSky, type Pair, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
 import { measure, type FishSfx, type FishSound } from "@/lib/town/sfx";
-import { wearing } from "@/lib/town/gifts";
+import { charmBy, numberOf, usesLeft, works } from "@/lib/town/gifts";
 import { buffOf, buffsOf, isSpent, levelOf, staminaOf } from "@/lib/town/stamina";
 import { handOf, held, roomFor } from "@/lib/town/trade";
-import type { Keeper } from "@/lib/town/keeper";
+import type { CastHow, Hooked, Keeper } from "@/lib/town/keeper";
 import type { Fishing } from "@/lib/town/world";
 import { BIG, PixelGround, STAGE } from "./TownGame";
 import { AT_THE_LINE, BuffAura, Twinkle } from "./TownBuffFx";
@@ -37,15 +37,59 @@ type Phase =
   | { at: "casting" }
   /** (`shade`: under the fountain's clear water, how rare a thing is on its way; never which) */
   /** (`coming`: what is on its way, for whoever wears the whispering float: a fish landed before is shown as itself, another as a shade of its tier) */
-  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId }
+  /** (`pair`: two lines are out, on a rod of two lines; `coming2`: what is on its way to the second, told as the first's is; `star`: a stardust bait is on the hook) */
+  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; star?: boolean }
   | { at: "striking" }
-  | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
+  /** (`harder`: how many times as hard the deck's good fish are for me, as the keeper said at the strike; `bout`: which of a legend's fights running this is) */
+  | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number; harder?: number; bout?: number }
+  /** Two fish on a rod of two lines, fought at once (lib/town/fishing's `Pair`). */
+  | { at: "fight2"; fish: [FishId, FishId]; sizes: [number, number]; strike: Strike; reaction: number; harder?: number }
+  /** The otter is driving a fish that got away back to the hook (lib/town/fishing's `driveBack`): a moment's show, then it is fought once more. */
+  | { at: "driven"; fish: FishId; size: number; reaction: number; how: "snapped" | "slipped"; from: number; harder?: number; bout?: number }
   /** (`from`: when it was shown, by the page's own clock: nothing goes on from it for a moment) */
-  | { at: "result"; from: number; how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean; back?: boolean };
-type Ended = Omit<Extract<Phase, { at: "result" }>, "at" | "from">;
+  /** (`also`: what the other line of a rod of two lines came to, shown beside it) */
+  | ({ at: "result"; from: number; also?: Outcome } & Outcome);
+/** What one line came to: how, and what was on it. */
+interface Outcome { how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean; back?: boolean }
+type Ended = Outcome & { also?: Outcome };
 
+/** The two fish of a rod of two lines, each in its own colour: its stretch on the gauge, the glow about it in the water, and its line's bar. */
+const PAIR_LOOK = [
+  { band: "border-[#d6ffe0] bg-[#5cc58d]/60", glow: "drop-shadow(0 0 3px #7dffb4) drop-shadow(0 0 1px #7dffb4)", bar: "bg-[#5cc58d]" },
+  { band: "border-[#ffd9ee] bg-[#e06aa8]/60", glow: "drop-shadow(0 0 3px #ff9ed2) drop-shadow(0 0 1px #ff9ed2)", bar: "bg-[#e06aa8]" },
+] as const;
+/** Why a deed of the deck's gifts was not done, beyond what the bag and the stall refuse for. */
+const WHY_FISH: Record<string, [th: string, en: string]> = {
+  spent: ["วันนี้ใช้ไปแล้ว", "It has been used today"],
+  calm: ["น้ำนิ่งสนิท ไม่มีอะไรขึ้นมาหาแสงดาว", "The water lies still: nothing rises to the starlight."],
+};
+/** The skies of a sky orb, as they are called. */
+const SKY_NAME: Record<OrbSky, [th: string, en: string]> = { night: ["กลางคืน", "Night"], rain: ["ฝน", "Rain"], moon: ["จันทร์เต็มดวง", "Full moon"] };
+/** Where the stars stand on an orb's night water, in hundredths of its width and height. */
+const STARS: Array<[number, number]> = [[8, 18], [21, 62], [33, 30], [47, 74], [58, 14], [69, 48], [81, 26], [92, 66], [14, 84], [75, 82]];
+/** A sky of the orb's as a small picture, drawn: a night of stars, rain from a cloud, a full moon. */
+function SkyArt({ sky, size = 28 }: { sky: OrbSky; size?: number }) {
+  return (
+    <svg aria-hidden width={size} height={Math.round(size * 0.75)} viewBox="0 0 16 12" shapeRendering="crispEdges" className="shrink-0 rounded-[2px] border border-[#2a190d]" data-sky-art={sky}>
+      <rect width="16" height="12" fill={sky === "rain" ? "#5b6f84" : "#111a3d"} />
+      {sky === "rain" ? (
+        <>
+          <rect x="3" y="2" width="9" height="3" fill="#dfe7ef" /><rect x="5" y="1" width="5" height="1" fill="#dfe7ef" /><rect x="2" y="3" width="1" height="2" fill="#dfe7ef" /><rect x="12" y="3" width="1" height="2" fill="#b9c6d3" />
+          {[[4, 6], [7, 7], [10, 6], [5, 9], [8, 10], [11, 9]].map(([x, y], i) => <rect key={i} x={x} y={y} width="1" height="2" fill="#bfe4ff" />)}
+        </>
+      ) : (
+        <>
+          {[[2, 2], [6, 8], [12, 9], [14, 2], [4, 5], [9, 1]].map(([x, y], i) => <rect key={i} x={x} y={y} width="1" height="1" fill="#fff7c2" />)}
+          {sky === "moon" && <><rect x="9" y="3" width="4" height="6" fill="#fff3b0" /><rect x="8" y="4" width="6" height="4" fill="#fff3b0" /><rect x="10" y="5" width="1" height="1" fill="#e6d48a" /><rect x="12" y="6" width="1" height="1" fill="#e6d48a" /></>}
+        </>
+      )}
+    </svg>
+  );
+}
 /** How long a nibble's twitch shows, in seconds. */
 const NIBBLE = 0.55;
+/** How long the otter is watched driving a fish back before it is fought again, in seconds. */
+const DRIVEN = 1.7;
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
 
@@ -113,6 +157,34 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
   const now = keeper.now(), purse = keeper.purse(), hour = bangkokHour(now);
   const stamina = Math.round(staminaOf(purse, now)), spent = isSpent(purse, now);
+  /* ── a sky orb (lib/town/gifts' thingOrb): the sky it has lit for me now, whether I have one, and whether it can be lit today ── */
+  const sky = orbOf(purse, now), orbHad = works(purse, "thingOrb"), orbLeft = orbHad ? usesLeft(purse, "thingOrb", now) : 0;
+  const [orbOpen, setOrbOpen] = useState(false);
+  // (its minutes run down a second at a time while it shines)
+  useEffect(() => {
+    if (!sky) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [sky]);
+  // (its rain falls across the water, where there is no wish for less motion)
+  const root = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (sky !== "rain" || reduced) return;
+    let raf = 0;
+    const fall = (t: number) => {
+      root.current?.querySelectorAll<HTMLElement>("[data-orb-rain]").forEach((el) => { el.style.backgroundPosition = `${-(t / 9) % 24}px ${(t / 3) % 24}px`; });
+      raf = requestAnimationFrame(fall);
+    };
+    raf = requestAnimationFrame(fall);
+    return () => cancelAnimationFrame(raf);
+  }, [sky, reduced]);
+  const light = async (under: OrbSky) => {
+    setOrbOpen(false);
+    sfx.wake();
+    const did = await keeper.orbLight(under);
+    if (did.ok) sfx.play("perfect");
+    else setNote(th ? (WHY_FISH[did.why]?.[0] ?? WHY.none[0]) : (WHY_FISH[did.why]?.[1] ?? WHY.none[1]));
+  };
   // (every buff I have: a meal's, and the fountain's blessings)
   const buffs = buffsOf(purse, now), keen = levelOf(purse, now, "keen"), lucky = levelOf(purse, now, "lucky");
   const have = (b: BaitId) => held(purse.bag, b);
@@ -137,6 +209,11 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const baits = BAITS.filter((b) => have(b) > 0);
   // the bait in hand: the one chosen, or the first there is any of
   const inHand = have(bait) ? bait : baits[0] ?? bait;
+  /* ── stardust bait (lib/town/gifts' thingBait): a bait of its own among the baits, so many a day, that takes none from the bag ── */
+  const [star, setStar] = useState(false);
+  const starHad = works(purse, "thingBait"), starLeft = starHad ? usesLeft(purse, "thingBait", now) : 0;
+  /** Whether it is the bait in hand: chosen, or the only thing there is to put on a hook. */
+  const starOn = starLeft > 0 && (star || !baits.length);
   const shown = seesOdds(me);
   const odds = useMemo(() => (shown ? oddsOf(inHand, hour, rain, lucky, !place.deep).sort((a, b) => b.p - a.p) : []), [shown, inHand, hour, rain, lucky, place.deep]);
 
@@ -151,10 +228,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const afloat = useRef(false);
   /** The fight that is on: how it began, and what the hand has done so far. */
   const bout = useRef<{ seed: number; holds: number[]; steps: number; inside: number; secs: number; strike: Strike; reaction: number } | null>(null);
-  const write = useCallback((how: FishingEnd, more: { reaction?: number | null; strike?: Strike | null; kept?: boolean; record?: boolean; what?: CatchId; size?: number } = {}) => {
+  /** The seconds of a legend's bouts already won in this go: what the fight in hand is told with. */
+  const earlier = useRef(0);
+  /** (`last`: nothing more is on this line. Of a rod of two lines each of the two is written down as a go of its own, and only the second ends the line.) */
+  const write = useCallback((how: FishingEnd, more: { reaction?: number | null; strike?: Strike | null; kept?: boolean; record?: boolean; what?: CatchId; size?: number } = {}, last = true) => {
     const o = out.current, b = bout.current;
-    out.current = null;
-    bout.current = null;
+    if (last) { out.current = null; bout.current = null; }
     // (the database writes every go down itself, as it ends: this log is the trial's, which knows what took the bait)
     const what = more.what ?? o?.what;
     if (!o || !keeper.trial || !what) return;
@@ -179,27 +258,39 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     void keeper.land("left", null).then(() => leaving.current("left"));
   }, [keeper]);
 
+  /** What the other line of a rod of two lines has come to already in this go: shown beside what the last comes to. */
+  const extra = useRef<Outcome | null>(null);
+
   /* ── dropping the line, and waiting ── */
-  const drop = async () => {
-    if (!gear.rod || !baits.length || afloat.current) return;
+  /** (`how`: "pair", both lines of a rod of two lines, for two of the bait: lib/town/fishing's `PAIR`) */
+  const drop = async (asked?: CastHow) => {
+    // (with the stardust bait in hand it is the bait that goes out, on the plain line)
+    const how: CastHow | undefined = asked ?? (starOn ? "star" : undefined);
+    if (!gear.rod || afloat.current || (how !== "star" && !baits.length)) return;
+    if (how === "pair" && have(inHand) < PAIR.lines) return;
     setNote(null);
     sfx.wake();
     sfx.play("cast");
     afloat.current = true;
+    extra.current = null;
     setPhase({ at: "casting" });
     // (how long until the bite, and when the float twitches first: never what is on its way)
-    const cast = await keeper.cast(inHand, place, rain, quick);
+    const cast = await keeper.cast(inHand, place, rain, quick, how);
     if (!cast.ok) {
       afloat.current = false;
-      const w = WHY[cast.why as keyof typeof WHY] ?? WHY.none;
+      const w = WHY_FISH[cast.why] ?? WHY[cast.why as keyof typeof WHY] ?? WHY.none;
       setNote(th ? w[0] : w[1]);
       setPhase({ at: "ready" });
       return;
     }
+    // (the trial's own log knows the baits of the bag: a line dropped with a stardust bait is written down with the bait that was in hand beside it)
     out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
-    setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}) });
+    setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}),
+      ...(cast.pair ? { pair: true } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}), ...(how === "star" ? { star: true } : {}) });
   };
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
+  /** The second line's float and thread, of a rod of two lines. */
+  const float2 = useRef<HTMLSpanElement>(null), thread2 = useRef<SVGLineElement>(null);
   /** The whispering float's own: the ring that runs down to the bite, and the flash at the true bite. */
   const count = useRef<SVGCircleElement>(null), flash = useRef<HTMLSpanElement>(null);
   useEffect(() => {
@@ -225,6 +316,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         float.current.style.opacity = bitten ? "0.35" : "1";
       }
       if (thread.current) thread.current.setAttribute("y2", String(40 + bob + dip));
+      // (a rod of two lines: the second float rides beside the first to its own beat, and goes under with it)
+      if (float2.current) {
+        const bob2 = reduced ? 0 : Math.sin(t / 420 + 1.9) * 2;
+        float2.current.style.transform = `translateY(${bob2 + dip}px) rotate(${bitten ? -14 : nibbling ? 8 : 0}deg)`;
+        float2.current.style.opacity = bitten ? "0.35" : "1";
+        if (thread2.current) thread2.current.setAttribute("y2", String(40 + bob2 + dip));
+      }
       // (the whispering float: its ring runs down to the bite, and it flashes when the bite is the true one)
       if (count.current) count.current.style.strokeDashoffset = String(COUNT_ROUND * Math.min(1, Math.max(0, s / cast.wait)));
       if (flash.current) flash.current.style.opacity = bitten ? String(Math.max(0, 1 - (s - cast.wait) / 0.9)) : "0";
@@ -274,6 +372,34 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     // (taken by the keeper's grace when this hand thought it too soon: a late one's worth)
     const worth: Strike = hit ?? "late";
     if (!hit) sfx.play("strike");
+    /** How many times as hard the deck's good fish are for me (from the fourth rank of the deck: the keeper says). */
+    const harder = did.harder && did.harder > 1 ? { harder: did.harder } : {};
+    earlier.current = 0;
+    // A rod of two lines: both are hooked by the one strike. What is no fish comes in at once (and is shown beside
+    // what the other comes to); one fish is fought as any fish is, two are fought at once.
+    if (did.pair && did.pair.length === 2) {
+      const [a, b] = did.pair, isFish = (h: Hooked) => !h.landed && h.what in FISH;
+      const came = (h: Hooked): Outcome => ({ how: "landed", what: h.what, size: 0, kept: !!h.kept, record: false });
+      for (const h of did.pair) if (!isFish(h)) { onLanded(); window.setTimeout(() => sfx.play("flotsam"), 350); }
+      if (isFish(a) && isFish(b)) {
+        if (out.current) { out.current.what = a.what; out.current.size = a.size; }
+        setPhase({ at: "fight2", fish: [a.what as FishId, b.what as FishId], sizes: [a.size, b.size], strike: worth, reaction, ...harder });
+        return;
+      }
+      if (!isFish(a) && !isFish(b)) {
+        afloat.current = false;
+        write("landed", { reaction, strike: worth, kept: !!a.kept, what: a.what, size: 0 }, false);
+        write("landed", { reaction, strike: worth, kept: !!b.kept, what: b.what, size: 0 });
+        end({ ...came(a), also: came(b) });
+        return;
+      }
+      const fish = isFish(a) ? a : b, other = isFish(a) ? b : a;
+      write("landed", { reaction, strike: worth, kept: !!other.kept, what: other.what, size: 0 }, false);
+      extra.current = came(other);
+      if (out.current) { out.current.what = fish.what; out.current.size = fish.size; }
+      setPhase({ at: "fight", fish: fish.what as FishId, size: fish.size, strike: worth, reaction, ...harder });
+      return;
+    }
     if (did.landed || !did.what || !(did.what in FISH)) {
       // no fish: it comes in with no fight
       afloat.current = false;
@@ -285,26 +411,48 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       return;
     }
     if (out.current) { out.current.what = did.what; out.current.size = did.size ?? 0; }
-    setPhase({ at: "fight", fish: did.what as FishId, size: did.size ?? 0, strike: worth, reaction });
+    setPhase({ at: "fight", fish: did.what as FishId, size: did.size ?? 0, strike: worth, reaction, ...harder });
   }, [phase, keeper, write, sfx, onLanded, end]);
 
   /* ── the fight ── */
   const holding = useRef(false);
   const fight = useRef<Fight | null>(null);
+  /**
+   * A line of dragon silk worn (lib/town/gifts' charmLine), in a fight of one or of two: while what would have lost
+   * the fish is being mended, a count runs down over the water. (The line itself is drawn gold while the silk has its
+   * mending still, and blinks while it mends.) Says what the word under the water is to be meanwhile, if any.
+   */
+  const silk = { box: useRef<HTMLSpanElement>(null), num: useRef<HTMLSpanElement>(null), bar: useRef<HTMLSpanElement>(null) };
+  const silkShown = (mend: Mend | undefined, since: number): string | null => {
+    if (silk.box.current) silk.box.current.style.display = mend ? "flex" : "none";
+    if (mend) {
+      if (silk.num.current) silk.num.current.textContent = String(Math.max(1, Math.ceil(mend.left)));
+      if (silk.bar.current) silk.bar.current.style.width = `${Math.max(0, Math.min(1, mend.left / numberOf("charmLine"))) * 100}%`;
+      return th ? "ใยมังกรยื้อไว้ รีบแก้!" : "The silk holds: mend it!";
+    }
+    return since < 1100 ? (th ? "รอดแล้ว!" : "Saved!") : null;
+  };
+  /** The line's colour and weight: gold with the silk's mending still to come, blinking while it mends, redder as it strains. */
+  const silkLine = (line: SVGLineElement | null, strain: number, has: boolean, mend: Mend | undefined, t: number) => {
+    if (!line) return;
+    line.setAttribute("stroke", mend ? (reduced || Math.floor(t / 130) % 2 ? "#ffb52e" : "#fff4c2") : strain >= 0.75 ? "#ff7a5c" : strain >= 0.4 ? "#ffd27a" : has ? "#ffd86b" : "#f0f0eb");
+    line.setAttribute("stroke-width", mend ? "3.2" : has ? "2.2" : "1.6");
+    line.dataset.silk = mend ? "mend" : has ? "1" : "";
+  };
   const gauge = { needle: useRef<HTMLSpanElement>(null), band: useRef<HTMLSpanElement>(null), line: useRef<HTMLSpanElement>(null),
     strain: useRef<HTMLSpanElement>(null), slack: useRef<HTMLSpanElement>(null), fish: useRef<HTMLSpanElement>(null), word: useRef<HTMLSpanElement>(null),
     swim: useRef<HTMLSpanElement>(null), taut: useRef<SVGLineElement>(null) };
   useEffect(() => {
     if (phase.at !== "fight") return;
     const p = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31);
-    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear }, seed);
+    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear, silk: charmBy(p, "charmLine", 0), harder: phase.harder, bout: phase.bout }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction: phase.reaction };
     bout.current = log;
     // (the fight's stamina was taken as the hook was set: a fight costs it whatever comes of it)
     fight.current = f;
     holding.current = false;
     show("fight");
-    let raf = 0, last = performance.now(), owed = 0, was = false, thrashing = false, creak = 0, due = 0;
+    let raf = 0, last = performance.now(), owed = 0, was = false, thrashing = false, creak = 0, due = 0, mending = false, saved = -1e9;
     const frame = (t: number) => {
       // (no more often than the map is drawn at the most: lib/town/pace; the fight goes by its own steps whatever the frames)
       const after = paced(t, last, due, PACE.most);
@@ -332,8 +480,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (gauge.swim.current) gauge.swim.current.style.left = `${8 + 70 * Math.max(0, Math.min(1, f.line / f.length))}%`;
       if (gauge.taut.current) {
         gauge.taut.current.setAttribute("x2", String(26 + 202 * Math.max(0, Math.min(1, f.line / f.length))));
-        gauge.taut.current.setAttribute("stroke", f.strain >= 0.75 ? "#ff7a5c" : f.strain >= 0.4 ? "#ffd27a" : "#f0f0eb");
       }
+      // (a line of dragon silk: heard as it begins to mend and as it has; drawn gold, and counted down over the water)
+      if (f.mend && !mending) sfx.play("strain");
+      if (!f.mend && mending && !f.over) { sfx.play("perfect"); saved = t; }
+      mending = !!f.mend;
+      silkLine(gauge.taut.current, f.strain, !!f.silk, f.mend, t);
+      const silkWord = silkShown(f.mend, t - saved);
       if (gauge.strain.current) gauge.strain.current.style.width = pct(f.strain);
       if (gauge.slack.current) gauge.slack.current.style.width = pct(f.slack);
       const wild = surging(f), about = warning(f);
@@ -345,20 +498,41 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       creak = straining;
       sfx.reel(holding.current, f.tension >= f.lo && f.tension <= f.hi, f.tension);
       if (gauge.fish.current) gauge.fish.current.style.transform = wild && !reduced ? `translateX(${Math.sin(t / 28) * 5}px) rotate(${Math.sin(t / 40) * 9}deg)` : about && !reduced ? `translateX(${Math.sin(t / 60) * 2}px)` : "";
-      if (gauge.word.current) gauge.word.current.textContent = wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel");
+      // (a legend's second bout: said as it begins)
+      const boutWord = (phase.bout ?? 1) > 1 && f.t < 1.8 ? (th ? "ยังไม่ยอม! ยกที่สอง" : "Not done: a second bout!") : null;
+      if (gauge.word.current) gauge.word.current.textContent = silkWord ?? boutWord ?? (wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel"));
+      if (f.over === "landed" && (phase.bout ?? 1) < boutsOf(phase.fish)) {
+        // A legend is not landed by one fight: it breaks away at once and the next bout begins, with nothing told to
+        // the keeper yet (the fish is one fish: its fight was paid for as the hook was set, and it is one go).
+        earlier.current += f.t;
+        sfx.reel(false, false, 0);
+        sfx.play("surge");
+        setPhase({ ...phase, strike: "good", bout: (phase.bout ?? 1) + 1 });
+        return;
+      }
       if (f.over) {
         // How it ended is told to the keeper, with this hand's account of the fight; the keeper has the last word (a
         // fish landed sooner than any fight could be is one that slipped).
         afloat.current = false;
         sfx.reel(false, false, 0);
-        const told = { seed: log.seed, steps: log.steps, secs: Math.round(log.secs * 10) / 10, inBand: log.steps ? Math.round((log.inside / log.steps) * 1000) / 1000 : 0,
-          strike: log.strike, holds: log.holds.slice(0, 1500) };
+        const told = { seed: log.seed, steps: log.steps, secs: Math.round((earlier.current + log.secs) * 10) / 10, inBand: log.steps ? Math.round((log.inside / log.steps) * 1000) / 1000 : 0,
+          strike: log.strike, holds: log.holds.slice(0, 1500), ...(boutsOf(phase.fish) > 1 ? { bout: phase.bout ?? 1 } : {}) };
         void keeper.land(f.over, told).then((got) => {
+          // (the otter drove it back: the line is out still, nothing of the go is written down yet, and the fish is fought once more)
+          if (got.again && (f.over === "snapped" || f.over === "slipped")) {
+            afloat.current = true;
+            sfx.play("surge");
+            setPhase({ at: "driven", fish: phase.fish, size: phase.size, reaction: phase.reaction, how: f.over, from: performance.now(), ...(phase.harder ? { harder: phase.harder } : {}), ...(phase.bout ? { bout: phase.bout } : {}) });
+            return;
+          }
           const how = got.how === "landed" || got.how === "snapped" ? got.how : "slipped";
           if (how === "landed") { sfx.play("landed", FISH[phase.fish].tier); onLanded(); if (got.record) window.setTimeout(() => sfx.play("record"), 1100); }
           else sfx.play(how);
-          write(how, { kept: got.kept, record: got.record });
-          end({ how, what: phase.fish, size: phase.size, kept: got.kept, record: got.record, ...(got.back ? { back: true } : {}) });
+          write(how, { kept: got.kept, record: got.record, what: phase.fish, size: phase.size });
+          // (with what the other line of a rod of two lines came to, where there was one)
+          const also = extra.current;
+          extra.current = null;
+          end({ how, what: phase.fish, size: phase.size, kept: got.kept, record: got.record, ...(got.back ? { back: true } : {}), ...(also ? { also } : {}) });
         });
         return;
       }
@@ -369,7 +543,137 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     // eslint-disable-next-line react-hooks/exhaustive-deps -- a fight runs from when it begins; the gauge's refs do not change
   }, [phase, keeper, reduced, th, show, write, sfx, onLanded, end]);
 
+  /* ── two fish at once, on a rod of two lines (lib/town/fishing's `Pair`) ── */
+  const pair = useRef<Pair | null>(null);
+  const two = {
+    needle: useRef<HTMLSpanElement>(null), strain: useRef<HTMLSpanElement>(null), slack: useRef<HTMLSpanElement>(null), word: useRef<HTMLSpanElement>(null),
+    band: [useRef<HTMLSpanElement>(null), useRef<HTMLSpanElement>(null)], line: [useRef<HTMLSpanElement>(null), useRef<HTMLSpanElement>(null)],
+    swim: [useRef<HTMLSpanElement>(null), useRef<HTMLSpanElement>(null)], fish: [useRef<HTMLSpanElement>(null), useRef<HTMLSpanElement>(null)],
+    taut: [useRef<SVGLineElement>(null), useRef<SVGLineElement>(null)], mark: [useRef<HTMLSpanElement>(null), useRef<HTMLSpanElement>(null)],
+  };
+  useEffect(() => {
+    if (phase.at !== "fight2") return;
+    const p0 = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31), { fish, sizes, reaction } = phase;
+    let p = startPair(fish, phase.strike, { spent: isSpent(p0, t0), calm: levelOf(p0, t0, "calm"), gear: out.current?.gear, narrow: numberOf("thingRod"), silk: charmBy(p0, "charmLine", 0), harder: phase.harder }, seed);
+    const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction };
+    bout.current = log;
+    pair.current = p;
+    holding.current = false;
+    show("fight");
+    let raf = 0, last = performance.now(), owed = 0, was = false, creak = 0, due = 0, gone = false, mending = false, saved = -1e9;
+    const thrashing = [false, false];
+    /** What each fish ends as is told to the keeper as it ends, one after the other: the keeper has the last word on each. */
+    let asked: Promise<unknown> = Promise.resolve();
+    const finish = (i: 0 | 1, over: "landed" | "snapped" | "slipped", lastOne: boolean) => {
+      const told = { seed: log.seed, steps: log.steps, secs: Math.round(log.secs * 10) / 10, inBand: log.steps ? Math.round((log.inside / log.steps) * 1000) / 1000 : 0, strike: log.strike, holds: log.holds.slice(0, 1500) };
+      if (lastOne) { afloat.current = false; sfx.reel(false, false, 0); }
+      asked = asked.then(() => keeper.land(over, told, lastOne ? undefined : i)).then((got) => {
+        if (gone) return;
+        // (the last of the two got away, and the otter drives it back: it is fought once more, alone)
+        if (lastOne && got.again && over !== "landed") {
+          afloat.current = true;
+          sfx.play("surge");
+          if (out.current) { out.current.what = fish[i]; out.current.size = sizes[i]; }
+          setPhase({ at: "driven", fish: fish[i], size: sizes[i], reaction, how: over, from: performance.now(), ...(phase.harder ? { harder: phase.harder } : {}) });
+          return;
+        }
+        const how = got.how === "landed" || got.how === "snapped" ? got.how : "slipped";
+        if (how === "landed") { sfx.play("landed", FISH[fish[i]].tier); onLanded(); if (got.record) window.setTimeout(() => sfx.play("record"), 1100); }
+        else sfx.play(how);
+        const came: Outcome = { how, what: fish[i], size: sizes[i], kept: got.kept, record: got.record, ...(got.back ? { back: true } : {}) };
+        write(how, { kept: got.kept, record: got.record, what: fish[i], size: sizes[i] }, lastOne);
+        if (!lastOne) { extra.current = came; return; }
+        const also = extra.current;
+        extra.current = null;
+        end({ ...came, ...(also ? { also } : {}) });
+      });
+    };
+    const frame = (t: number) => {
+      const after = paced(t, last, due, PACE.most);
+      if (after === null) { raf = requestAnimationFrame(frame); return; }
+      due = after;
+      owed += Math.min(0.1, (t - last) / 1000);
+      last = t;
+      while (owed >= 1 / STEPS && !(p.ended[0] && p.ended[1])) {
+        const hold = holding.current, before = p.ended;
+        if (hold !== was) { log.holds.push(log.steps); was = hold; }
+        p = stepPair(p, hold, 1 / STEPS);
+        owed -= 1 / STEPS;
+        log.steps++;
+        if (([0, 1] as const).some((i) => !p.ended[i] && p.tension >= p.lo[i] && p.tension <= p.hi[i])) log.inside++;
+        log.secs = p.t;
+        for (const i of [0, 1] as const) if (!before[i] && p.ended[i]) finish(i, p.ended[i]!, !!p.ended[i === 0 ? 1 : 0]);
+      }
+      pair.current = p;
+      const pct = (v: number) => `${Math.max(0, Math.min(1, v)) * 100}%`;
+      const live = ([0, 1] as const).filter((i) => !p.ended[i]), within = (i: 0 | 1) => p.tension >= p.lo[i] && p.tension <= p.hi[i];
+      if (two.needle.current) two.needle.current.style.bottom = pct(p.tension);
+      for (const i of [0, 1] as const) {
+        const f = p.fights[i], on = !p.ended[i], far = Math.max(0, Math.min(1, f.line / f.length)), wild = on && surging(f), about = on && warning(f);
+        const band = two.band[i].current, swim = two.swim[i].current, body = two.fish[i].current, taut = two.taut[i].current, mark = two.mark[i].current;
+        if (band) { band.style.display = on ? "" : "none"; band.style.bottom = pct(p.lo[i]); band.style.height = pct(p.hi[i] - p.lo[i]); band.style.opacity = on && within(i) ? "1" : "0.55"; }
+        if (two.line[i].current) two.line[i].current!.style.width = pct(p.ended[i] === "landed" ? 1 : 1 - f.line / f.length);
+        if (swim) { swim.style.left = `${8 + 66 * (p.ended[i] === "landed" ? 0 : far)}%`; swim.style.opacity = on ? "1" : "0.25"; }
+        if (taut) { taut.setAttribute("x2", String(26 + 190 * far)); taut.style.display = on ? "" : "none"; silkLine(taut, p.strain, p.silk > 0, p.mend, t); }
+        if (body) body.style.transform = wild && !reduced ? `translateX(${Math.sin(t / 28 + i) * 5}px) rotate(${Math.sin(t / 40 + i) * 9}deg)` : about && !reduced ? `translateX(${Math.sin(t / 60) * 2}px)` : "";
+        if (mark) { mark.style.display = p.ended[i] ? "" : "none"; mark.dataset.how = p.ended[i] ?? ""; mark.textContent = p.ended[i] === "landed" ? (th ? "ได้แล้ว" : "In") : p.ended[i] ? (th ? "หลุด" : "Gone") : ""; }
+        if (wild && !thrashing[i]) sfx.play("surge");
+        thrashing[i] = wild;
+      }
+      if (two.strain.current) two.strain.current.style.width = pct(p.strain);
+      if (two.slack.current) two.slack.current.style.width = pct(p.slack);
+      const straining = p.strain >= 0.75 ? 2 : p.strain >= 0.4 ? 1 : 0;
+      if (straining > creak) sfx.play("strain");
+      creak = straining;
+      const inAny = live.some(within), inBoth = live.length === 2 && live.every(within);
+      if (live.length) sfx.reel(holding.current, inAny, p.tension);
+      const top = live.length ? Math.max(...live.map((i) => p.hi[i])) : 1, bottom = live.length ? Math.min(...live.map((i) => p.lo[i])) : 0;
+      // (a line of dragon silk, as in a fight of one)
+      if (p.mend && !mending) sfx.play("strain");
+      if (!p.mend && mending && live.length && !p.silk) { sfx.play("perfect"); saved = t; }
+      mending = !!p.mend;
+      const silkWord = silkShown(p.mend, t - saved);
+      if (two.word.current) {
+        two.word.current.textContent = silkWord ?? (live.some((i) => surging(p.fights[i])) ? (th ? "ปลาดิ้น!" : "It surges!") : p.tension > top ? (th ? "ตึงไป!" : "Too tight!") : p.tension < bottom ? (th ? "หย่อนไป!" : "Too slack!")
+          : inBoth ? (th ? "สาวได้ทั้งคู่!" : "Reeling both!") : inAny ? (th ? "สาวสายได้" : "Reel") : (th ? "อยู่ระหว่างสองตัว" : "Between the two"));
+        two.word.current.dataset.both = inBoth && !silkWord ? "1" : "";
+      }
+      if (p.ended[0] && p.ended[1]) return;
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => { gone = true; cancelAnimationFrame(raf); pair.current = null; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- a fight runs from when it begins; the gauge's refs do not change
+  }, [phase, keeper, reduced, th, show, write, sfx, onLanded, end]);
+
   useEffect(() => { if (phase.at === "ready" || phase.at === "result") show(null); else if (phase.at === "casting") show("wait"); }, [phase, show]);
+
+  /* ── the otter (lib/town/gifts' famOtter): a fish that got away is driven back to the hook, and fought once more ── */
+  const chase = { otter: useRef<HTMLSpanElement>(null), fish: useRef<HTMLSpanElement>(null), wake: useRef<HTMLSpanElement>(null) };
+  useEffect(() => {
+    if (phase.at !== "driven") return;
+    const { from, fish, size, reaction, harder, bout: boutNow } = phase;
+    show("fight");
+    let raf = 0;
+    const ease = (x: number) => x * x * (3 - 2 * x);
+    const frame = (t: number) => {
+      const k = Math.min(1, Math.max(0, (t - from) / (DRIVEN * 1000)));
+      // Out after it for the first two fifths (the fish making off to the right), round behind it, then both back
+      // towards the rod, the fish first. With motion reduced the two are shown where they end.
+      const out = reduced ? 1 : ease(Math.min(1, k / 0.4)), home = reduced ? 1 : ease(Math.max(0, (k - 0.4) / 0.6));
+      const fishAt = 74 + 14 * out - 40 * home, otterAt = out < 1 ? 4 + 88 * out : 92 - 30 * home;
+      const wave = reduced ? 0 : Math.sin(t / 70) * 3;
+      if (chase.fish.current) chase.fish.current.style.transform = `translate(-50%, ${wave}px) scaleX(${home > 0 ? -1 : 1})`;
+      if (chase.fish.current) chase.fish.current.style.left = `${fishAt}%`;
+      if (chase.otter.current) { chase.otter.current.style.left = `${otterAt}%`; chase.otter.current.style.transform = `translate(-50%, ${-wave}px) scaleX(${out < 1 ? 1 : -1})`; }
+      if (chase.wake.current) { chase.wake.current.style.left = `${otterAt}%`; chase.wake.current.style.opacity = String(0.35 + 0.35 * Math.abs(Math.sin(t / 160))); }
+      if (k >= 1) { setPhase({ at: "fight", fish, size, strike: "good", reaction, ...(harder ? { harder } : {}), ...(boutNow ? { bout: boutNow } : {}) }); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the chase runs from when it begins; its refs do not change
+  }, [phase, reduced, show]);
 
   // The hand's rest, as the buttons show it: the strike's is dim while the line settles, and the two under what a go
   // came to for a moment after it shows. (Whether a press is taken is asked of the clock where it is taken.)
@@ -407,7 +711,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (e.key !== " " && e.code !== "Space") return;
       e.preventDefault();
       e.stopPropagation();
-      if (phase.at === "fight") { holding.current = down; if (down) sfx.wake(); return; }
+      if (phase.at === "fight" || phase.at === "fight2") { holding.current = down; if (down) sfx.wake(); return; }
       if (!down || e.repeat) return;
       if (phase.at === "waiting") void strike();
       else if (phase.at === "ready") dropRef.current();
@@ -424,7 +728,11 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
-      phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000, coming: phase.coming ?? null } : null),
+      phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000, coming: phase.coming ?? null, pair: !!phase.pair, coming2: phase.coming2 ?? null } : null),
+      /** Two fish fought at once, on a rod of two lines: the fight as it stands. */
+      pair: () => pair.current,
+      /** Which of a legend's bouts the fight in hand is, and how many times as hard the fish is for me (as the keeper said). */
+      bout: () => (phase.at === "fight" ? phase.bout ?? 1 : null), harder: () => (phase.at === "fight" || phase.at === "fight2" ? phase.harder ?? 1 : null),
       // (a script's strike is taken whenever it comes: the line's rest is for hands, which the checks try by the button and the key)
       fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike: () => strike(true), result: () => (phase.at === "result" ? phase : null),
       quick: (on: boolean) => setQuick(on), place: () => place,
@@ -439,8 +747,111 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const known = (id: CatchId) => !(id in FISH) || purse.best[id as FishId] !== undefined;
   const press = (on: boolean) => (e: ReactPointerEvent) => { e.preventDefault(); holding.current = on; if (on) { sfx.wake(); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); } };
   const hasRod = !!gear.rod;
+  /** What one line came to: the thing landed with what there is to say of it, or how it was lost. */
+  const came = (o: Outcome, key: number) => (
+    o.how === "landed" && o.what ? (
+      <div key={key} className="flex items-center gap-3" data-came={o.how} data-what={o.what}>
+        <ItemIcon id={o.what} size={52} />
+        <div className="min-w-0">
+          <p className="text-read font-semibold text-[#fff6e3]">{th ? `ได้ ${name(o.what)}` : `You landed: ${name(o.what)}`}{o.size ? (th ? ` ยาว ${o.size} ซม.` : `, ${o.size} cm`) : ""}</p>
+          {o.record && <p className="text-ui font-semibold text-[#ffe19a]">{th ? "ตัวยาวที่สุดที่เคยจับได้!" : "Your longest yet!"}</p>}
+          {o.kept === false && <p className="text-meta text-[#ffb09c]">{th ? "กระเป๋าเต็ม เลยปล่อยกลับลงน้ำไป" : "Your bag is full, so it went back in the water."}</p>}
+          <p className="text-meta text-[#e9cfa4]">{th ? ITEMS[o.what].about.th : ITEMS[o.what].about.en}</p>
+        </div>
+      </div>
+    ) : (
+      <p key={key} className="text-read text-[#fff6e3]" data-came={o.how} data-what={o.what ?? ""}>
+        {o.how === "snapped" ? (o.back ? (th ? "สายขาด! ปลาหนีไปแล้ว แต่เหยื่อยังอยู่" : "The line snapped! It is gone, but the bait is yours still.") : (th ? "สายขาด! ปลาหนีไปพร้อมเหยื่อ" : "The line snapped! It is gone, with the bait."))
+          : o.how === "slipped" ? (o.back ? (th ? "เบ็ดหลุด ปลาหนีไปแล้ว แต่เหยื่อยังอยู่" : "The hook slipped. It got away, but the bait is yours still.") : (th ? "เบ็ดหลุด ปลาหนีไปแล้ว" : "The hook slipped. It got away."))
+            : o.how === "early" ? (th ? "ตวัดเร็วไป ปลายังไม่กินเบ็ด มันตกใจหนีไปแล้ว" : "Too soon: it had not taken the hook, and now it has fled.")
+              : (th ? "ช้าไป ปลากินเหยื่อแล้วว่ายหนีไป" : "Too late: it ate the bait and swam off.")}
+      </p>
+    )
+  );
+  /** How long the orb's sky still shines, as minutes and seconds. */
+  const skyLeft = (() => { const secs = sky && purse.orb ? Math.max(0, Math.ceil((purse.orb.until - now) / 1000)) : 0; return `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`; })();
+  /** The orb's sky laid over the water, for me alone: a night of stars (and a full moon on it), or rain falling across it. */
+  const skyOver = sky && (
+    <span aria-hidden className="pointer-events-none absolute inset-0" data-orb={sky}>
+      {sky === "rain" ? (
+        <>
+          <span className="absolute inset-0 bg-[#4a6076]/45" />
+          <span data-orb-rain className="absolute inset-0 opacity-80" style={{ backgroundImage: "repeating-linear-gradient(105deg, rgba(214,238,255,0) 0 9px, rgba(214,238,255,0.8) 9px 10px, rgba(214,238,255,0) 10px 24px)", backgroundSize: "24px 24px" }} />
+        </>
+      ) : (
+        <>
+          <span className="absolute inset-0 bg-[#0a1030]/60" />
+          {STARS.map(([x, y], i) => <span key={i} className="absolute size-[3px] animate-pulse bg-[#fff7c2] motion-reduce:animate-none" style={{ left: `${x}%`, top: `${y}%`, animationDelay: `${i * 0.37}s` }} />)}
+          {sky === "moon" && (
+            <>
+              <span className="absolute right-[13%] top-[12%] size-7 rounded-full bg-[#fff3b0] shadow-[0_0_14px_6px_rgba(255,243,176,0.5)]" data-orb-moon />
+              {[0, 1, 2].map((i) => <span key={i} className="absolute h-[3px] animate-pulse bg-[#fff3b0]/55 motion-reduce:animate-none" style={{ right: `${11 + i * 2}%`, top: `${54 + i * 13}%`, width: `${44 - i * 12}px`, animationDelay: `${i * 0.5}s` }} />)}
+            </>
+          )}
+        </>
+      )}
+    </span>
+  );
+  /** The orb where the line is dropped from: the sky that shines with its minutes; or the orb to light, and the three skies to choose from; or, lit already today, the orb at rest. */
+  const orbRow = orbHad && (
+    <div className="mb-2 flex flex-wrap items-center gap-1.5" data-orb-row={sky ?? (orbLeft ? "ready" : "spent")}>
+      {sky ? (
+        <span className="flex min-h-9 items-center gap-1.5 rounded-md border-2 border-[#2a190d] bg-[#1c2c38] px-2 text-ui text-[#fff6e3]" data-orb-lit={sky}>
+          <TownIcon name="thingOrb" size={22} /><SkyArt sky={sky} />{th ? SKY_NAME[sky][0] : SKY_NAME[sky][1]}
+          <span className="font-data tabular-nums text-[#ffe19a]" data-orb-left>{skyLeft}</span>
+        </span>
+      ) : orbLeft > 0 ? (
+        <>
+          <button type="button" onClick={() => setOrbOpen((o) => !o)} aria-expanded={orbOpen} data-orb-button
+                  className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-2.5 text-ui text-[#fff6e3] ${orbOpen ? "border-[#ffe19a] bg-[#1c2c38]" : "border-[#2a190d] hover:border-[#ffe19a]"}`}>
+            <TownIcon name="thingOrb" size={24} />{th ? "ลูกแก้วฟ้าจำลอง" : "Sky orb"}
+          </button>
+          {orbOpen && (
+            <span role="group" aria-label={th ? "เลือกฟ้า" : "Choose a sky"} className="flex flex-wrap gap-1.5">
+              {ORB.skies.map((under) => (
+                <button key={under} type="button" onClick={() => { void light(under); }} data-orb-sky={under}
+                        className="pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 border-[#2a190d] bg-[#1c2c38] px-2 text-ui text-[#fff6e3] hover:border-[#ffe19a]">
+                  <SkyArt sky={under} />{th ? SKY_NAME[under][0] : SKY_NAME[under][1]}
+                </button>
+              ))}
+            </span>
+          )}
+        </>
+      ) : (
+        <span className="flex min-h-9 items-center opacity-45" title={th ? WHY_FISH.spent[0] : WHY_FISH.spent[1]}><TownIcon name="thingOrb" size={24} /></span>
+      )}
+    </div>
+  );
+  /** A line of dragon silk mending: the seconds left, counted down across the top of the water (shown only while it mends: `silkShown`). */
+  const silkCount = (
+    <span ref={silk.box} className="absolute inset-x-0 top-0 items-center justify-center gap-2 border-b-2 border-[#2a190d] bg-[#ffcf4a] py-0.5 text-[#3a2209]" style={{ display: "none" }} data-fx="silk">
+      <TownIcon name="charmLine" size={20} />
+      <span ref={silk.num} className="w-4 text-center font-data text-read font-bold tabular-nums" />
+      <span className="h-2 w-24 overflow-hidden border-2 border-[#2a190d] bg-[#fff4c2]"><span ref={silk.bar} className="block h-full bg-[#e9573f]" style={{ width: "100%" }} /></span>
+    </span>
+  );
+  /** Whether I have a rod of two lines (lib/town/gifts' thingRod): both lines are then offered beside the plain one. */
+  const rodOfTwo = works(purse, "thingRod");
+  /** What the whispering float tells of a line: a fish landed before as itself with its name, another as a shade of its tier. */
+  const whisper = (what: CatchId, second = false) => {
+    const fish = what in FISH ? (what as FishId) : null, met = !fish || purse.best[fish] !== undefined, tier: Shade = fish ? FISH[fish].tier : "other";
+    return (
+      <span key={second ? 2 : 1} className="flex items-center gap-1.5 rounded-md border border-white/25 bg-black/45 px-1.5 py-1" data-fx={second ? "whisper2" : "whisper"} data-coming={met ? what : ""} data-tier={tier}>
+        {met ? <ItemIcon id={what} size={28} /> : <span style={{ filter: SHADE_LOOK[tier] }}><TownIcon name="fishShadow" size={28} /></span>}
+        <span className="font-data text-label text-white/90">{met ? (th ? ITEMS[what].name.th : ITEMS[what].name.en) : "???"}</span>
+      </span>
+    );
+  };
+  /** The otter, while it follows me: it keeps by the float, with how many fish it will still drive back in this meal's hours beside it. */
+  const otter = works(purse, "famOtter"), otterLeft = otter ? usesLeft(purse, "famOtter", now) : 0;
+  const otterBy = (className: string) => otter && (
+    <span className={`absolute flex items-end gap-0.5 ${className}`} data-fx="otter" data-otter-left={otterLeft}>
+      <span className="animate-bounce motion-reduce:animate-none [animation-duration:1.6s]"><TownIcon name="famOtter" size={30} /></span>
+      <span className="mb-0.5 rounded-[3px] bg-[#2a190d]/75 px-1 font-data text-label tabular-nums text-[#fff6e3]">{otterLeft}</span>
+    </span>
+  );
   return (
-    <section aria-labelledby="town-fish-h" data-town-game data-look="fish"
+    <section ref={root} aria-labelledby="town-fish-h" data-town-game data-look="fish"
              className="rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex items-center gap-2">
         {/* the rod in use, when there is one */}
@@ -463,12 +874,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
       {phase.at === "ready" && (
         <div className="mt-2">
+          {hasRod && orbRow}
           {!hasRod ? (
             <>
               <p className="text-ui text-[#fff6e3]">{th ? "ต้องมีคันเบ็ดก่อน" : "You need a rod first."}</p>
               {process.env.NODE_ENV !== "production" && trial && kitButton(["รับคันเบ็ดกับไส้เดือน 10 ตัว", "Take a rod and ten worms"])}
             </>
-          ) : !baits.length ? (
+          ) : !baits.length && !starLeft ? (
             <>
               <p className="text-ui text-[#fff6e3]">{th ? "ในกระเป๋าไม่มีอะไรที่เกี่ยวเบ็ดได้เลย" : "Nothing in your bag will go on a hook."}</p>
               {process.env.NODE_ENV !== "production" && trial && kitButton(["รับไส้เดือน 10 ตัว", "Take ten worms"])}
@@ -477,11 +889,18 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             <>
               <div role="radiogroup" aria-label={th ? "เหยื่อ" : "Bait"} className="flex flex-wrap gap-1.5">
                 {baits.map((b) => (
-                  <button key={b} type="button" role="radio" aria-checked={inHand === b} onClick={() => setBait(b)}
-                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-3 text-ui ${inHand === b ? "border-[#ffe19a] bg-[#f0c060]/25 font-semibold text-[#fff6e3]" : "border-[#2a190d] text-[#fff6e3] hover:border-[#ffe19a]"}`}>
+                  <button key={b} type="button" role="radio" aria-checked={!starOn && inHand === b} onClick={() => { setBait(b); setStar(false); }}
+                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-3 text-ui ${!starOn && inHand === b ? "border-[#ffe19a] bg-[#f0c060]/25 font-semibold text-[#fff6e3]" : "border-[#2a190d] text-[#fff6e3] hover:border-[#ffe19a]"}`}>
                     <ItemIcon id={b} size={20} />{name(b)}<span className="font-data text-meta text-[#e9cfa4]">×{have(b)}</span>
                   </button>
                 ))}
+                {/* the stardust bait: of the gifts, not of the bag; how many are left today beside it */}
+                {starHad && (
+                  <button type="button" role="radio" aria-checked={starOn} disabled={!starLeft} onClick={() => setStar(true)} data-fish-star={starLeft}
+                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-3 text-ui disabled:opacity-45 ${starOn ? "border-[#bfe4ff] bg-[#1c2c38] font-semibold text-[#fff6e3] shadow-[0_0_10px_2px_rgba(160,215,255,0.55)]" : "border-[#2a190d] text-[#fff6e3] hover:border-[#bfe4ff]"}`}>
+                    <TownIcon name="thingBait" size={22} />{th ? "เหยื่อดาวตก" : "Stardust bait"}<span className="font-data text-meta text-[#bfe4ff]">×{starLeft}</span>
+                  </button>
+                )}
               </div>
               {/* what a bait may bring: shown to nobody for now (lib/town/fishing's seesOdds) */}
               {shown && (
@@ -501,15 +920,23 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                 </>
               )}
               {!roomFor(purse.bag, "minnow") && purse.bag.every(Boolean) && <p className="mt-1.5 text-meta text-[#ffb09c]">{th ? "กระเป๋าเต็ม ปลาชนิดใหม่จะไม่มีที่ใส่" : "Your bag is full: a new kind of fish will have nowhere to go."}</p>}
-              <div className="mt-2 flex items-center gap-2">
+              <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
                 {process.env.NODE_ENV !== "production" && trial && (
-                  <label className="flex min-h-11 items-center gap-1.5 text-meta text-[#e9cfa4]">
+                  <label className="mr-auto flex min-h-11 items-center gap-1.5 text-meta text-[#e9cfa4]">
                     <input type="checkbox" checked={quick} onChange={(e) => setQuick(e.target.checked)} className="size-4 accent-[var(--color-accent)]" />
                     {th ? "โหมดลอง: รอสั้นลงห้าเท่า" : "Trial: a fifth of the wait"}
                   </label>
                 )}
+                {/* a rod of two lines (lib/town/gifts' thingRod), beside the plain line: both lines at once, for two of the bait */}
+                {rodOfTwo && !starOn && (
+                  <button type="button" onClick={() => { void drop("pair"); }} disabled={have(inHand) < PAIR.lines} data-fish-pair
+                          className="pressable flex min-h-11 items-center gap-1.5 rounded-md border-[3px] border-[#2a190d] bg-[#8fd0ea] px-3 text-ui font-semibold text-[#12303f] shadow-[inset_0_-3px_0_#4d9dc0] disabled:opacity-50">
+                    <TownIcon name="thingRod" size={22} />{th ? "หย่อนสองสาย" : "Drop two lines"}
+                    <span className="flex items-center font-data text-meta"><ItemIcon id={inHand} size={16} />×{PAIR.lines}</span>
+                  </button>
+                )}
                 <button type="button" onClick={() => { void drop(); }}
-                        className="pressable ml-auto min-h-11 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-5 text-ui font-semibold text-[#3a2209] shadow-[inset_0_-3px_0_#c98f2f]">
+                        className="pressable min-h-11 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-5 text-ui font-semibold text-[#3a2209] shadow-[inset_0_-3px_0_#c98f2f]">
                   {th ? "หย่อนเบ็ด" : "Drop the line"}<Key />
                 </button>
               </div>
@@ -524,9 +951,11 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         <div className="mt-2">
           <div aria-hidden className={`${STAGE} mx-auto grid h-28 w-full place-items-center`} data-look="float">
             <PixelGround kind="water" w={96} h={28} className="absolute inset-0 size-full" />
+            {skyOver}
             {/* the rod's tip, and the line down to the float */}
             <svg className="absolute inset-0 size-full" viewBox="0 0 288 96" preserveAspectRatio="none">
               <line ref={thread} x1="262" y1="6" x2="144" y2="40" stroke="rgba(240,240,235,0.85)" strokeWidth="1.2" />
+              {phase.at === "waiting" && phase.pair && <line ref={thread2} x1="262" y1="6" x2="184" y2="40" stroke="rgba(190,232,250,0.85)" strokeWidth="1.2" />}
               <line x1="292" y1="-10" x2="262" y2="6" stroke="#3d2913" strokeWidth="6" strokeLinecap="round" />
               <line x1="292" y1="-10" x2="262" y2="6" stroke="#e0ba72" strokeWidth="3" strokeLinecap="round" />
             </svg>
@@ -541,15 +970,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             {phase.at === "waiting" && lucky > 0 && <Twinkle size={20} className="absolute -translate-y-6 translate-x-7" />}
             {/* the whispering float worn as a charm (lib/town/gifts): what is on its way, a ring that runs down to the
                 bite, and a flash at the true bite. A fish landed before is itself; another is a shade of its tier. */}
-            {phase.at === "waiting" && phase.coming && (() => {
-              const what = phase.coming, fish = what in FISH ? (what as FishId) : null, known = !fish || purse.best[fish] !== undefined, tier: Shade = fish ? FISH[fish].tier : "other";
-              return (
-                <span className="absolute left-2 top-2 flex items-center gap-1.5 rounded-md border border-white/25 bg-black/45 px-1.5 py-1" data-fx="whisper" data-coming={known ? what : ""} data-tier={tier}>
-                  {known ? <ItemIcon id={what} size={28} /> : <span style={{ filter: SHADE_LOOK[tier] }}><TownIcon name="fishShadow" size={28} /></span>}
-                  <span className="font-data text-label text-white/90">{known ? (th ? ITEMS[what].name.th : ITEMS[what].name.en) : "???"}</span>
-                </span>
-              );
-            })()}
+            {phase.at === "waiting" && phase.coming && (
+              <span className="absolute left-2 top-2 flex flex-col items-start gap-1">
+                {whisper(phase.coming)}
+                {phase.coming2 && whisper(phase.coming2, true)}
+              </span>
+            )}
             {phase.at === "waiting" && phase.coming && (
               <svg className="absolute size-16" viewBox="0 0 64 64" aria-hidden>
                 <circle cx="32" cy="32" r="28" fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="3" />
@@ -559,6 +985,22 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             {phase.at === "waiting" && phase.coming && <span ref={flash} className="absolute size-14 rounded-full opacity-0" style={{ background: "radial-gradient(circle, rgba(255,246,190,0.95) 0%, rgba(255,236,150,0.5) 45%, rgba(255,236,150,0) 70%)" }} data-fx="flash" />}
             <span ref={ring} className="absolute size-10 rounded-full border-2 border-white/80 opacity-0" />
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
+            {/* a stardust bait on the hook: its light about the float, and sparks of it on the water */}
+            {phase.at === "waiting" && phase.star && (
+              <span className="absolute grid place-items-center" data-fx="star">
+                <span className="size-16 animate-pulse rounded-full motion-reduce:animate-none" style={{ background: "radial-gradient(circle, rgba(190,228,255,0.75) 0%, rgba(150,205,255,0.35) 45%, rgba(150,205,255,0) 70%)" }} />
+                <Twinkle size={18} className="absolute -translate-x-6 -translate-y-5" />
+                <Twinkle size={14} from={2} className="absolute translate-x-7 -translate-y-2" />
+                <Twinkle size={12} from={4} className="absolute translate-x-3 translate-y-6" />
+              </span>
+            )}
+            {/* a rod of two lines: the second float, beside the first */}
+            {phase.at === "waiting" && phase.pair && (
+              <span className="absolute left-[63.9%] top-1/2 -translate-x-1/2 -translate-y-1/2" data-fx="float2">
+                <span ref={float2} className="block transition-opacity duration-150"><TownIcon name="bobber" size={30} /></span>
+              </span>
+            )}
+            {otterBy("bottom-1 left-2")}
           </div>
           {/* (nothing is said of when to strike: the float shows it, and a strike too soon or too late says why it failed) */}
           {/* (dim while the keeper is waited for, and while a line that has only just gone out settles) */}
@@ -583,15 +1025,19 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               {/* the water: the fish out on the line, nearer as the line comes in, thrashing when it surges */}
               <div aria-hidden className={`${STAGE} h-24 w-full`} data-look="fight">
                 <PixelGround kind="water" w={96} h={24} className="absolute inset-0 size-full" />
+                {skyOver}
                 <svg className="absolute inset-0 size-full" viewBox="0 0 260 96" preserveAspectRatio="none">
                   <line ref={gauge.taut} x1="6" y1="8" x2="228" y2="52" stroke="#f0f0eb" strokeWidth="1.6" />
                   <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
                   <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />
                 </svg>
+                {(phase.bout ?? 1) > 1 && <span className="absolute left-1.5 top-1.5 rounded-[3px] border border-[#2a190d] bg-[#e9573f] px-1.5 py-0.5 text-label font-semibold text-[#fff6e3]" data-fx="bout" data-bout={phase.bout}>{th ? "ยกที่สอง" : "Second bout"}</span>}
                 <span ref={gauge.swim} className="absolute top-[30%] block" style={{ left: "78%" }}>
                   <span ref={gauge.fish} className="inline-block"><TownIcon name="fishShadow" size={40} /></span>
                 </span>
                 <span ref={gauge.word} className="absolute bottom-1 right-1.5 rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
+                {otterBy("bottom-0.5 left-1.5")}
+                {silkCount}
               </div>
               <Bar label={th ? "สายที่สาวเข้ามาแล้ว" : "Line in"} bar={gauge.line} tone="bg-[#7cc6e6]" icon="rod" />
               <Bar label={th ? "สายใกล้ขาด" : "Line straining"} bar={gauge.strain} tone="bg-[#e9573f]" icon="warning" />
@@ -605,26 +1051,77 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         </div>
       )}
 
+      {/* two fish at once, on a rod of two lines: one needle across the gauge, a stretch for each fish in its own colour
+          (the first's down the left half, the second's down the right), and line won for each fish whose stretch the
+          needle is in (for both, where the two lie side by side) */}
+      {phase.at === "fight2" && (
+        <div className="mt-2" data-look="fight2">
+          <div className="flex items-stretch gap-2.5">
+            <div aria-hidden className={`${STAGE} h-[min(20rem,44dvh)] w-14 shrink-0 bg-[#1c2c38]`} data-look="tension">
+              <span className="absolute inset-x-0 top-0 h-[2.5%] bg-[#e9573f]" />
+              <span className="absolute inset-y-0 left-1/2 w-px bg-[#2a190d]" />
+              {PAIR_LOOK.map((look, i) => (
+                <span key={i} ref={two.band[i]} data-band={i} className={`absolute w-1/2 border-y-[3px] ${i ? "right-0" : "left-0"} ${look.band}`} style={{ bottom: "42%", height: "12%" }} />
+              ))}
+              <span ref={two.needle} className="absolute inset-x-0 -mb-[2px] h-[5px] bg-[#fff6e3] shadow-[0_0_0_1px_#2a190d]" style={{ bottom: "50%" }} />
+            </div>
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              <div aria-hidden className={`${STAGE} h-24 w-full`} data-look="fight">
+                <PixelGround kind="water" w={96} h={24} className="absolute inset-0 size-full" />
+                {skyOver}
+                <svg className="absolute inset-0 size-full" viewBox="0 0 260 96" preserveAspectRatio="none">
+                  <line ref={two.taut[0]} x1="6" y1="8" x2="216" y2="34" stroke="#f0f0eb" strokeWidth="1.6" />
+                  <line ref={two.taut[1]} x1="6" y1="8" x2="216" y2="68" stroke="#f0f0eb" strokeWidth="1.6" />
+                  <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
+                  <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />
+                </svg>
+                {PAIR_LOOK.map((look, i) => (
+                  <span key={i} ref={two.swim[i]} className={`absolute block ${i ? "top-[50%]" : "top-[12%]"}`} style={{ left: "74%" }} data-fish2={i}>
+                    <span ref={two.fish[i]} className="inline-block" style={{ filter: look.glow }}><TownIcon name="fishShadow" size={34} /></span>
+                    <span ref={two.mark[i]} className="absolute left-full top-1 ml-0.5 whitespace-nowrap rounded-[3px] bg-[#2a190d]/85 px-1 text-label font-semibold text-[#fff6e3]" style={{ display: "none" }} />
+                  </span>
+                ))}
+                <span ref={two.word} className="absolute bottom-1 right-1.5 rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3] data-[both=1]:bg-[#ffe19a] data-[both=1]:text-[#3a2209]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
+                {otterBy("bottom-0.5 left-1.5")}
+                {silkCount}
+              </div>
+              <Bar label={th ? "สายแรกที่สาวเข้ามาแล้ว" : "First line in"} bar={two.line[0]} tone={PAIR_LOOK[0].bar} icon="rod" />
+              <Bar label={th ? "สายที่สองที่สาวเข้ามาแล้ว" : "Second line in"} bar={two.line[1]} tone={PAIR_LOOK[1].bar} icon="rod" />
+              <Bar label={th ? "สายใกล้ขาด" : "Line straining"} bar={two.strain} tone="bg-[#e9573f]" icon="warning" />
+              <Bar label={th ? "เบ็ดใกล้หลุด" : "Hook slipping"} bar={two.slack} tone="bg-[#f0c060]" icon="hook" />
+              <button type="button" onPointerDown={press(true)} onPointerUp={press(false)} onPointerCancel={press(false)} onContextMenu={(e) => e.preventDefault()}
+                      className={`${BIG} mt-auto`}>
+                {th ? "กดค้าง = สาวสาย · ปล่อย = ผ่อน" : "Hold to reel · let go to give line"}<Key />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* the otter's moment: out after the fish that got away, round behind it, and both back to the hook */}
+      {phase.at === "driven" && (
+        <div className="mt-2" data-look="driven">
+          <div aria-hidden className={`${STAGE} h-28 w-full`}>
+            <PixelGround kind="water" w={96} h={28} className="absolute inset-0 size-full" />
+            {skyOver}
+            <svg className="absolute inset-0 size-full" viewBox="0 0 260 112" preserveAspectRatio="none">
+              <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
+              <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />
+            </svg>
+            <span ref={chase.wake} className="absolute top-[52%] -translate-x-1/2 opacity-50" style={{ left: "4%" }}><TownIcon name="fxRipple" size={48} /></span>
+            <span ref={chase.fish} className="absolute top-[30%] block" style={{ left: "74%" }}><TownIcon name="fishShadow" size={40} /></span>
+            <span ref={chase.otter} className="absolute top-[32%] block" style={{ left: "4%" }}><TownIcon name="famOtter" size={40} /></span>
+          </div>
+          <p className="mt-2 text-center text-read font-semibold text-[#ffe19a] [text-shadow:0_2px_0_#2a190d]" aria-live="polite">
+            {th ? "นากต้อนปลากลับมา สู้อีกรอบ!" : "The otter drives it back. Once more!"}
+          </p>
+        </div>
+      )}
+
       {phase.at === "result" && (
         <div className="mt-2" aria-live="polite">
-          {phase.how === "landed" && phase.what ? (
-            <div className="flex items-center gap-3">
-              <ItemIcon id={phase.what} size={52} />
-              <div className="min-w-0">
-                <p className="text-read font-semibold text-[#fff6e3]">{th ? `ได้ ${name(phase.what)}` : `You landed: ${name(phase.what)}`}{phase.size ? (th ? ` ยาว ${phase.size} ซม.` : `, ${phase.size} cm`) : ""}</p>
-                {phase.record && <p className="text-ui font-semibold text-[#ffe19a]">{th ? "ตัวยาวที่สุดที่เคยจับได้!" : "Your longest yet!"}</p>}
-                {phase.kept === false && <p className="text-meta text-[#ffb09c]">{th ? "กระเป๋าเต็ม เลยปล่อยกลับลงน้ำไป" : "Your bag is full, so it went back in the water."}</p>}
-                <p className="text-meta text-[#e9cfa4]">{th ? ITEMS[phase.what].about.th : ITEMS[phase.what].about.en}</p>
-              </div>
-            </div>
-          ) : (
-            <p className="text-read text-[#fff6e3]">
-              {phase.how === "snapped" ? (phase.back ? (th ? "สายขาด! ปลาหนีไปแล้ว แต่เหยื่อยังอยู่" : "The line snapped! It is gone, but the bait is yours still.") : (th ? "สายขาด! ปลาหนีไปพร้อมเหยื่อ" : "The line snapped! It is gone, with the bait."))
-                : phase.how === "slipped" ? (phase.back ? (th ? "เบ็ดหลุด ปลาหนีไปแล้ว แต่เหยื่อยังอยู่" : "The hook slipped. It got away, but the bait is yours still.") : (th ? "เบ็ดหลุด ปลาหนีไปแล้ว" : "The hook slipped. It got away."))
-                  : phase.how === "early" ? (th ? "ตวัดเร็วไป ปลายังไม่กินเบ็ด มันตกใจหนีไปแล้ว" : "Too soon: it had not taken the hook, and now it has fled.")
-                    : (th ? "ช้าไป ปลากินเหยื่อแล้วว่ายหนีไป" : "Too late: it ate the bait and swam off.")}
-            </p>
-          )}
+          {came(phase, 0)}
+          {phase.also && <div className="mt-2 border-t-2 border-[#2a190d]/60 pt-2" data-also>{came(phase.also, 1)}</div>}
           <div className="mt-2 flex justify-end gap-1.5">
             {/* (both lie where the reel's button was a moment ago: neither is pressed until what the go came to has been seen) */}
             <button type="button" onClick={() => { if (seen()) onClose(); }} disabled={resting} className="pressable min-h-11 rounded-full px-3 text-ui text-[#e9cfa4] hover:text-[#fff6e3] disabled:opacity-60">{th ? "พอแล้ว" : "That will do"}</button>

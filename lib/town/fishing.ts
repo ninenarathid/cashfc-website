@@ -1,6 +1,6 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
-import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign } from "./items";
-import { charmBy } from "./gifts";
+import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
+import { charmBy, numberOf, useGift, type GiftRefusal } from "./gifts";
 import { STAMINA, isSpent, levelOf } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
@@ -133,7 +133,10 @@ const APART = 3;
 
 /** Drop a line: everything about what happens to it is decided now. */
 export function castLine(bait: BaitId, hour: number, rain: boolean, lucky: Level, rnd: () => number, shallow = false, signs: readonly Sign[] = []): Cast {
-  const odds = oddsOf(bait, hour, rain, lucky, shallow, signs);
+  return castFrom(oddsOf(bait, hour, rain, lucky, shallow, signs), rnd);
+}
+/** …from what may take it, however that was reckoned (a bait's own odds, or those a gift of the deck's has sifted: below). */
+export function castFrom(odds: ReadonlyArray<{ what: CatchId; p: number }>, rnd: () => number): Cast {
   let roll = rnd(), what = odds[odds.length - 1].what;
   for (const o of odds) { if (roll < o.p) { what = o.what; break; } roll -= o.p; }
   const fish = what in FISH ? FISH[what as FishId] : null;
@@ -326,7 +329,12 @@ export interface Fight {
   /** Where the fight's own run of numbers has got to. */
   seed: number;
   over: null | "landed" | "snapped" | "slipped";
+  /** A line of dragon silk (below): the seconds it gives; and, while what would have lost the fish is being mended, what that was and the seconds left. */
+  silk?: number;
+  mend?: Mend;
 }
+/** What is being mended on a line of dragon silk: the line that would have snapped or the hook that would have slipped, and the seconds left to. */
+export type Mend = { how: "snapped" | "slipped"; left: number } | null;
 
 /** One more number from a fight's run, and where the run is afterwards. */
 function draw(seed: number): [number, number] {
@@ -339,7 +347,16 @@ function draw(seed: number): [number, number] {
 const room = (band: number, middle: number) => Math.min(Math.max(FIGHT.edge + band / 2, 1 - FIGHT.edge - band / 2), Math.max(FIGHT.edge + band / 2, middle));
 
 /** What changes a fight for somebody: no stamina left (much harder), steady hands (a meal's buff: a wider stretch), and their gear (lib/town/gear: a better rod, hook, line and net each make it easier). */
-export interface FightMods { spent?: boolean; calm?: Level; gear?: Pick<Gear, "band" | "pace" | "slip" | "snap" | "line"> }
+export interface FightMods {
+  spent?: boolean; calm?: Level; gear?: Pick<Gear, "band" | "pace" | "slip" | "snap" | "line">;
+  /** (the gifts of the deck's ranks, below) `narrow`: what is left of the safe stretch's width when two fish are fought at once on a rod of two lines. */
+  narrow?: number;
+  /** `silk`: the seconds a line of dragon silk gives to mend what would have lost the fish (none: it is lost at once, as ever). */
+  silk?: number;
+  /** `harder`: how many times as hard the deck's good fish are for whoever fights (lib/town/gifts' harderFor; a common fish is as it is). `bout`: which of a legend's fights running this is (from the second, the fish breaks away at once). */
+  harder?: number;
+  bout?: number;
+}
 
 /**
  * Set the hook: the fight as it begins. A perfect strike leaves less line to
@@ -349,23 +366,26 @@ export interface FightMods { spent?: boolean; calm?: Level; gear?: Pick<Gear, "b
  */
 export function startFight(fish: FishId, strike: Strike, mods: FightMods, seed: number): Fight {
   const f = FISH[fish].fight, kind = STYLE[f.style], spent = STAMINA.spent, gear = mods.gear ?? PLAIN;
-  const band = f.band * (mods.spent ? spent.band : 1) * (1 + byOf("calm", lvl(mods.calm))) * gear.band;
-  const length = f.line * (strike === "perfect" ? FIGHT.perfect : strike === "late" ? FIGHT.late : 1) * gear.line;
+  const band = f.band * (mods.spent ? spent.band : 1) * (1 + byOf("calm", lvl(mods.calm))) * gear.band * (mods.narrow ?? 1);
+  // (harder for the skilled: so many times the pull, the surge and the line to win; and a bout after the first begins as a late strike's fight does, the fish away at once)
+  const k = harderOf(fish, mods.harder ?? 1), away = strike === "late" || (mods.bout ?? 1) > 1;
+  const length = f.line * (strike === "perfect" ? FIGHT.perfect : strike === "late" ? FIGHT.late : 1) * gear.line * k;
   const sway = f.sway * (mods.spent ? spent.sway : 1), pace = f.pace * (mods.spent ? spent.pace : 1) * gear.pace;
   let [r, next] = draw(seed | 0);
-  const from = strike === "late" ? 0 : f.every[0] + (f.every[1] - f.every[0]) * r;
+  const from = away ? 0 : f.every[0] + (f.every[1] - f.every[0]) * r;
   [r, next] = draw(next);
   const rest = FIGHT.settle[0] + (FIGHT.settle[1] - FIGHT.settle[0]) * r;
   const at = room(band, FIGHT.centre);
   // (a late strike's surge is on already: a fish that carries the stretch has thrown it up the gauge)
   let to = at;
-  if (strike === "late" && kind.carries) { [r, next] = draw(next); to = room(band, at + sway * (0.7 + 0.3 * r)); }
+  if (away && kind.carries) { [r, next] = draw(next); to = room(band, at + sway * (0.7 + 0.3 * r)); }
   return {
     fish, t: 0, tension: 0.5, line: length, length, strain: 0, slack: 0, snapIn: FIGHT.snap * gear.snap, slipIn: FIGHT.slip * gear.slip,
     band, lo: at - band / 2, hi: at + band / 2, at, to, speed: pace, rest, sway, pace,
-    pull: f.pull, power: f.surge * (mods.spent ? spent.surge : 1),
+    pull: f.pull * k, power: f.surge * (mods.spent ? spent.surge : 1) * k,
     surge: { from, to: from + kind.surge },
     seed: next, over: null,
+    ...(mods.silk && mods.silk > 0 ? { silk: mods.silk, mend: null } : {}),
   };
 }
 
@@ -377,6 +397,52 @@ export const warning = (f: Fight) => STYLE[FISH[f.fish].fight.style].tells && f.
 /** The fight a moment later, the reel held or not. */
 export function stepFight(f: Fight, holding: boolean, dt: number): Fight {
   if (f.over || !(dt > 0)) return f;
+  const { t, surge, seed, at, to, rest, speed, lo, hi, on, pull } = swayed(f, dt);
+
+  const tension = Math.min(1.05, Math.max(0, f.tension + (holding ? FIGHT.rise + pull * FIGHT.held : pull * FIGHT.loose - FIGHT.fall) * dt));
+  const line = f.line - (holding && tension >= lo && tension <= hi ? FIGHT.reel * dt : 0) + (tension < lo ? FIGHT.run * dt * (on ? 2 : 1) : 0);
+  const strain = tension > hi ? f.strain + dt / f.snapIn : Math.max(0, f.strain - dt / FIGHT.mend);
+  const slack = tension < lo ? f.slack + dt / f.slipIn : Math.max(0, f.slack - dt / FIGHT.mend);
+  const over = line <= 0 ? "landed" : strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 || line > f.length * 1.6 ? "slipped" : null;
+  const next: Fight = { ...f, t, tension, line: Math.max(0, line), strain: Math.min(1, strain), slack: Math.min(1, slack), lo, hi, at, to, speed, rest, surge, seed, over };
+  if (!f.silk || over === "landed") return next;
+  // A line of dragon silk: what would have lost the fish begins a few seconds to mend it in. (A fish that has run
+  // off with too much line is gone all the same: that is no line too taut or too slack, it is a fish never reeled.)
+  const m = mending(f.mend ?? null, f.silk, strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 ? "slipped" : null, tension >= lo && tension <= hi, dt);
+  return { ...next, mend: m.mend, over: line > f.length * 1.6 ? "slipped" : m.lost, strain: m.saved === "snapped" ? SILK.left : next.strain, slack: m.saved === "slipped" ? SILK.left : next.slack,
+    // (mended: the silk has done what it does for this fight)
+    silk: m.saved ? 0 : f.silk };
+}
+/**
+ * A line of dragon silk (the deck's fourth rank, a charm): a line too taut or too slack does not lose the fish at
+ * once. From the moment it would have, there are so many seconds (the charm's number, lib/town/gifts) to bring the
+ * tension back into the safe stretch: brought back, the fish is on still, with so much of that strain or slack left
+ * on it (`left`: it has not begun anew); not brought back, the fish is lost as ever.
+ *
+ * **Once to a fight** (a fight's `silk` is none once it has mended). The owner's rule is that no power takes failing
+ * away, and the made-up hands say what "as often as it comes to that" would do: every one of them, the newcomer too,
+ * lands every fish there is, the legend with the rest (the scratch folder's sim-silk.mjs: 100 in 100 where a
+ * practised hand had landed 36 koi and an average one none). Mending once, a practised hand lands 65 koi in a hundred
+ * for 36, an average one 59 snakeheads for 24 and 12 eels for 4, and a newcomer still next to none of the big ones:
+ * a second chance for whoever nearly had it, and no fish for nothing. (Each time shorter was tried too, three seconds
+ * then two then one: a practised hand then loses only the legend, one in ten.)
+ */
+export const SILK = { left: 0.5 };
+/** A moment of the mending: what is being mended now, and what came of it this moment (the fish lost, or saved). */
+function mending(mend: Mend, silk: number, breaks: "snapped" | "slipped" | null, safe: boolean, dt: number): { mend: Mend; lost: "snapped" | "slipped" | null; saved: "snapped" | "slipped" | null } {
+  if (mend) {
+    if (safe) return { mend: null, lost: null, saved: mend.how };
+    const left = mend.left - dt;
+    return left <= 0 ? { mend: null, lost: mend.how, saved: null } : { mend: { how: mend.how, left }, lost: null, saved: null };
+  }
+  return { mend: breaks ? { how: breaks, left: silk } : null, lost: null, saved: null };
+}
+/**
+ * The fish and its safe stretch a moment later, whatever the hand does: when it surges next, where the stretch is and
+ * is heading, and how hard the fish pulls now (`on`: it is surging). What a fight's step begins from; and what two
+ * fish on a rod of two lines each do by themselves (below).
+ */
+function swayed(f: Fight, dt: number): Pick<Fight, "t" | "surge" | "seed" | "at" | "to" | "rest" | "speed" | "lo" | "hi"> & { on: boolean; pull: number } {
   const fight = FISH[f.fish].fight, kind = STYLE[fight.style], t = f.t + dt;
   let { surge, seed, at, to, rest, speed } = f, r: number;
   if (t >= surge.to) {
@@ -432,13 +498,7 @@ export function stepFight(f: Fight, holding: boolean, dt: number): Fight {
     }
   }
   const lo = at - f.band / 2, hi = at + f.band / 2;
-
-  const tension = Math.min(1.05, Math.max(0, f.tension + (holding ? FIGHT.rise + pull * FIGHT.held : pull * FIGHT.loose - FIGHT.fall) * dt));
-  const line = f.line - (holding && tension >= lo && tension <= hi ? FIGHT.reel * dt : 0) + (tension < lo ? FIGHT.run * dt * (on ? 2 : 1) : 0);
-  const strain = tension > hi ? f.strain + dt / f.snapIn : Math.max(0, f.strain - dt / FIGHT.mend);
-  const slack = tension < lo ? f.slack + dt / f.slipIn : Math.max(0, f.slack - dt / FIGHT.mend);
-  const over = line <= 0 ? "landed" : strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 || line > f.length * 1.6 ? "slipped" : null;
-  return { ...f, t, tension, line: Math.max(0, line), strain: Math.min(1, strain), slack: Math.min(1, slack), lo, hi, at, to, speed, rest, surge, seed, over };
+  return { t, surge, seed, at, to, rest, speed, lo, hi, on, pull };
 }
 
 /** Play a fight through with a way of deciding whether to hold: for trying the numbers, and for tests. Gives how it ended and how long it took. */
@@ -464,3 +524,259 @@ export function replayFight(start: Fight, holds: number[], steps: number): Fight
   }
   return f;
 }
+
+/* ── the gifts of the deck's ranks (lib/town/gifts) ─────────────────────── */
+
+/**
+ * The otter (the deck's second rank, a familiar): a fish that gets away in the fight, the line snapped or the hook
+ * slipped, is driven back for one more fight at once, and nothing is lost by it: no bait, and no more stamina (a
+ * fish's fight is paid for once, as the hook is set). Once to a line (`again`: this line's fish was driven back
+ * already; lost again, it is lost), and so many times to a meal's hours (lib/town/gifts' `USES`): the purse with one
+ * more counted, or why not.
+ *
+ * Of two fish on a rod of two lines it is the last one still on that it drives back: while another is still to be
+ * won the fight has not ended, and the otter is no second hand.
+ */
+export function driveBack<P extends Pick<Purse, "gifts">>(purse: P, how: string, again: boolean, now: number): { ok: true; purse: P; left: number } | { ok: false; why: GiftRefusal } {
+  if (again || (how !== "snapped" && how !== "slipped")) return { ok: false, why: "none" };
+  return useGift(purse, "famOtter", now);
+}
+
+/**
+ * A rod of two lines (the deck's third rank, a thing): two lines dropped at once, for two baits. A second fish takes
+ * the second line, both are hooked by the one strike, and the two are fought at once in one fight; they are lost one
+ * at a time, and a legend never comes as one of a pair (`never`). The safe stretch of each is narrower by the gift's
+ * number (lib/town/gifts: three quarters of itself). `stray` and `alone` are the fight's own (`Pair`, below).
+ */
+export const PAIR = { lines: 2, never: ["legend"] as Tier[], stray: 0.4, alone: 2 };
+/**
+ * What may take a bait, without the fish of some tiers: each share of what is left, of what is left. (What is no fish
+ * is of no tier, and stays: so something is always left of a bait's own odds.)
+ */
+export function sift(odds: ReadonlyArray<{ what: CatchId; p: number }>, tiers: readonly Tier[]): Array<{ what: CatchId; p: number }> {
+  const kept = odds.filter((o) => !(o.what in FISH && tiers.includes(FISH[o.what as FishId].tier)));
+  let total = 0;
+  for (const o of kept) total += o.p;
+  return kept.map((o) => ({ what: o.what, p: o.p / total }));
+}
+/** So many of a bait put on hooks at once: as `hookBait` is for one (a bait that is not eaten stays; there have to be as many in the bag all the same). */
+export function hookBaits(purse: Purse, bait: BaitId, n: number): Done<{ purse: Purse }> {
+  const many = Math.max(1, Math.floor(n) || 1);
+  if (!ROD_IDS.some((r) => held(purse.bag, r))) return no("tool");
+  if (!BAITS.includes(bait) || held(purse.bag, bait) < many) return no("none");
+  return { ok: true, purse: KEPT_BAITS.includes(bait) ? purse : { ...purse, bag: take(purse.bag, bait, many) } };
+}
+
+/**
+ * Two fish fought at once on one reel. Each has a fight of its own for what is its own: its surges, its line to win,
+ * and a safe stretch of its own on the one gauge. The two swim together: the second's stretch keeps about the
+ * first's, straying from it as that fish itself moves (`PAIR.stray`: so much of its own way), so the two stretches
+ * lie over each other, part, and meet again. The line's tension is one, and so is the hand:
+ * - held, the reel wins line for each fish whose stretch the tension is in: for both, where the two lie over each
+ *   other;
+ * - the line strains only above both stretches, and is slack only below both: there the hook works loose and both
+ *   fish take line back, as a fish does from a slack line; between the two nothing is lost;
+ * - they are lost one at a time: strained through, it is the fish of the upper stretch that breaks off; slack too
+ *   long, the fish of the lower one slips; and a fish left until it has run off with too much line is gone. The
+ *   other is still to be won, with its strain and its slack begun anew; left alone, the second fish's stretch goes
+ *   back to moving all its own way (within `PAIR.alone` seconds or so).
+ */
+export interface Pair {
+  fights: [Fight, Fight];
+  /** How each ended, once it has. */
+  ended: [Fight["over"], Fight["over"]];
+  t: number;
+  tension: number;
+  strain: number;
+  slack: number;
+  snapIn: number;
+  slipIn: number;
+  /** Each fish's safe stretch on the gauge now: its two ends. */
+  lo: [number, number];
+  hi: [number, number];
+  /** What the second fish's stretch keeps about, and how much of its own way it goes from there. */
+  about: number;
+  own: number;
+  /** A line of dragon silk: the seconds it gives (none: 0), and what is being mended. */
+  silk: number;
+  mend: Mend;
+}
+/** Where the second fish's stretch is: about a place, so much of its own way from it, never off the gauge. */
+const strayed = (f: Fight, about: number, own: number) => room(f.band, about + (f.at - FIGHT.centre) * own);
+/** Set two hooks at once: both fights as they begin, each stretch narrower (`mods.narrow`), on one line's tension. */
+export function startPair(fish: [FishId, FishId], strike: Strike, mods: FightMods, seed: number): Pair {
+  // (each fish its own run of numbers: the second's from the first's seed, turned)
+  const a = startFight(fish[0], strike, mods, seed), b = startFight(fish[1], strike, mods, (seed ^ 0x5bd1e995) | 0);
+  const at = strayed(b, a.at, PAIR.stray);
+  return {
+    fights: [a, b], ended: [null, null], t: 0, tension: 0.5, strain: 0, slack: 0, snapIn: a.snapIn, slipIn: a.slipIn,
+    lo: [a.lo, at - b.band / 2], hi: [a.hi, at + b.band / 2], about: a.at, own: PAIR.stray, silk: mods.silk && mods.silk > 0 ? mods.silk : 0, mend: null,
+  };
+}
+/** The two a moment later, the reel held or not. */
+export function stepPair(p: Pair, holding: boolean, dt: number): Pair {
+  if (!(dt > 0) || (p.ended[0] && p.ended[1])) return p;
+  const live = ([0, 1] as const).filter((i) => !p.ended[i]), s = p.fights.map((f, i) => (p.ended[i] ? null : swayed(f, dt)));
+  const pull = Math.max(...live.map((i) => s[i]!.pull));
+  const tension = Math.min(1.05, Math.max(0, p.tension + (holding ? FIGHT.rise + pull * FIGHT.held : pull * FIGHT.loose - FIGHT.fall) * dt));
+  // Where each stretch is: the first's own; the second's about the first's while that fish is on, and, once it is
+  // alone, about the gauge's middle and all its own way again, a little more of each with every moment.
+  const near = 1 - Math.exp(-dt * 3 / PAIR.alone);
+  const about = s[0] ? s[0].at : p.about + (FIGHT.centre - p.about) * near, own = s[0] ? PAIR.stray : p.own + (1 - p.own) * near;
+  const lo: [number, number] = [p.lo[0], p.lo[1]], hi: [number, number] = [p.hi[0], p.hi[1]];
+  if (s[0]) { lo[0] = s[0].lo; hi[0] = s[0].hi; }
+  if (s[1]) { const at = strayed({ ...p.fights[1], at: s[1].at }, about, own); lo[1] = at - p.fights[1].band / 2; hi[1] = at + p.fights[1].band / 2; }
+  const top = Math.max(...live.map((i) => hi[i])), bottom = Math.min(...live.map((i) => lo[i]));
+  const fights = p.fights.map((f, i) => {
+    const m = s[i];
+    if (!m) return f;
+    const { on: _on, pull: _pull, ...moved } = m;
+    const line = f.line - (holding && tension >= lo[i] && tension <= hi[i] ? FIGHT.reel * dt : 0) + (tension < bottom ? FIGHT.run * dt * (m.on ? 2 : 1) : 0);
+    return { ...f, ...moved, tension, line: Math.max(0, line) };
+  }) as [Fight, Fight];
+  let strain = tension > top ? p.strain + dt / p.snapIn : Math.max(0, p.strain - dt / FIGHT.mend);
+  let slack = tension < bottom ? p.slack + dt / p.slipIn : Math.max(0, p.slack - dt / FIGHT.mend);
+  const ended: Pair["ended"] = [p.ended[0], p.ended[1]];
+  let mend = p.mend, silk = p.silk;
+  const lose = (i: 0 | 1, how: "snapped" | "slipped") => { ended[i] = how; fights[i] = { ...fights[i], over: how }; strain = 0; slack = 0; mend = null; };
+  for (const i of live) if (fights[i].line <= 0) { ended[i] = "landed"; fights[i] = { ...fights[i], over: "landed" }; }
+  const still = live.filter((i) => !ended[i]);
+  // (one at a time: whichever comes first of the line strained through, the hook slack too long, a fish run off with the line)
+  let lost: "snapped" | "slipped" | null = !still.length ? null : strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 ? "slipped" : null;
+  // (a line of dragon silk: so many seconds to bring the tension back into either stretch before one is lost)
+  if (silk && still.length) {
+    const m = mending(mend, silk, lost, still.some((i) => tension >= lo[i] && tension <= hi[i]), dt);
+    mend = m.mend;
+    lost = m.lost;
+    if (m.saved === "snapped") strain = SILK.left;
+    if (m.saved === "slipped") slack = SILK.left;
+    if (m.saved) silk = 0;
+  }
+  if (lost === "snapped") lose(still.reduce((u, i) => (hi[i] > hi[u] ? i : u)), "snapped");
+  else if (lost === "slipped") lose(still.reduce((u, i) => (lo[i] < lo[u] ? i : u)), "slipped");
+  else { const ran = still.find((i) => fights[i].line > fights[i].length * 1.6); if (ran !== undefined) lose(ran, "slipped"); }
+  return { fights, ended, t: p.t + dt, tension, strain: Math.min(1, strain), slack: Math.min(1, slack), snapIn: p.snapIn, slipIn: p.slipIn, lo, hi, about, own, silk, mend };
+}
+
+/**
+ * A sky orb (the deck's fifth rank, a thing): its owner chooses a sky, and for so many minutes the water answers
+ * THEM as if under it, and bites come sooner (the gift's number, lib/town/gifts: twice as soon). Once a day (its
+ * count). Nobody else's fishing changes and the town's own weather is not touched: the sky is kept in the purse.
+ *
+ * The three skies, and what each is to a line (`underOrb`): `night`, an hour of the night; `rain`, rain (and so no
+ * sky that has just cleared); `moon`, a night of a full moon. What bites by day does not bite under an orb's night,
+ * as it does not at night.
+ */
+export const ORB = { minutes: 30, night: 23, skies: ["night", "rain", "moon"] as const };
+export type OrbSky = (typeof ORB.skies)[number];
+/** The sky an orb has lit for somebody now: one of those there are, while it lasts. */
+export function orbOf(purse: Pick<Purse, "orb">, now: number): OrbSky | null {
+  const o = purse.orb as { sky?: unknown; until?: unknown } | null | undefined;
+  return !!o && typeof o === "object" && !Array.isArray(o) && typeof o.until === "number" && o.until > now && (ORB.skies as readonly unknown[]).includes(o.sky) ? (o.sky as OrbSky) : null;
+}
+/** Light the orb under a sky: one of those there are, by somebody who has it, once a day. (Lit again on a new day while it still shines, the new sky is the one that holds.) */
+export function lightOrb<P extends Pick<Purse, "gifts" | "orb">>(purse: P, sky: string, now: number): { ok: true; purse: P; until: number } | { ok: false; why: GiftRefusal } {
+  if (!(ORB.skies as readonly string[]).includes(sky)) return { ok: false, why: "none" };
+  const used = useGift(purse, "thingOrb", now);
+  if (!used.ok) return used;
+  const until = now + ORB.minutes * 60_000;
+  return { ok: true, until, purse: { ...used.purse, orb: { sky, until } } };
+}
+/** What the water answers under an orb's sky: the hour, the rain and the signs a line is dropped by. With no orb lit, they are as they are. */
+export function underOrb(sky: OrbSky | null, hour: number, rain: boolean, signs: readonly Sign[]): { hour: number; rain: boolean; signs: Sign[] } {
+  return {
+    hour: sky === "night" || sky === "moon" ? ORB.night : hour,
+    rain: sky === "rain" ? true : rain,
+    signs: sky === "rain" ? signs.filter((s) => s !== "after") : sky === "moon" && !signs.includes("full") ? [...signs, "full"] : [...signs],
+  };
+}
+/** How much sooner a bite comes under an orb: the share of the wait that is taken off (lib/town/fountain's `hastened` takes it). */
+export const orbHaste = (): number => 1 - 1 / numberOf("thingOrb");
+
+/**
+ * Stardust bait (the deck's sixth rank, a thing): a bait of its own, so many a day (its count), that takes no bait
+ * from the bag. Whatever takes it is rare or better (`tiers`), whichever bait that fish likes and whatever the hour:
+ * what it cuts out of the game is the bait and the clock. The rest holds: the water (nothing rare lives in the
+ * shallows), the sky (a fish the rain keeps away is kept away), the signs (the moon's fish under a full moon), and
+ * how far the village's shelf has come (`top`: a fish of a later tier than anything the uncle sells yet is not in
+ * the water yet, for this bait as for any). It has to be struck and fought as any fish, and can be lost: lost, the
+ * bait is spent.
+ *
+ * Where nothing rare is in the water at all (the shallows; a member the rare fish have grown wary of, below) the
+ * line is not dropped and the bait is not spent (`calm`): the page says the water lies still, and no more.
+ */
+export const STAR = { tiers: ["rare", "legend"] as Tier[] };
+/** Why a line was not dropped that the bag and the gifts do not refuse for: nothing is there to take it. */
+export type FishRefusal = "calm";
+/** What takes a stardust bait, and how likely each is: every fish of its tiers that is in this water under this sky, by its tier and the sky alone. None, where there is none. */
+export function starOdds(rain: boolean, shallow: boolean, signs: readonly Sign[], top: number): Array<{ what: CatchId; p: number }> {
+  const weights: Array<[CatchId, number]> = [];
+  for (const id of FISH_IDS) {
+    const f = FISH[id];
+    if (!STAR.tiers.includes(f.tier) || ITEMS[id].tier > top) continue;
+    if (f.water ? f.water !== (shallow ? "bank" : "deck") : shallow) continue;
+    if (f.needs && !f.needs.every((s) => signs.includes(s))) continue;
+    const sky = rain ? f.rain : f.dry ?? 1;
+    if (!(sky > 0)) continue;
+    weights.push([id, TIER_WEIGHT[f.tier] * sky]);
+  }
+  let total = 0;
+  for (const [, w] of weights) total += w;
+  return weights.map(([what, w]) => ({ what, p: w / total }));
+}
+/** Put a stardust bait on the hook: a rod has to be in the bag, as for any line; one of the day's is counted, and nothing leaves the bag. */
+export function hookStar<P extends Purse>(purse: P, now: number): { ok: true; purse: P; left: number } | { ok: false; why: "tool" | GiftRefusal } {
+  if (!ROD_IDS.some((r) => held(purse.bag, r))) return { ok: false, why: "tool" };
+  return useGift(purse, "thingBait", now);
+}
+
+/* ── the game made harder to match its gifts (the owner, 2026-10-07: "nearly OP", so the game grows with whoever has them) ── */
+
+/**
+ * Wary fish. The whispering float tells what is on its way, so a line whose fish is not wanted can be taken up and
+ * dropped again until one is. So: whoever takes a line up more than `ups` times within `within` seconds finds the
+ * fish of `tiers` gone from their water for `gone` seconds (the rare and better: what such a hand is after). Nothing
+ * on the screen says so: the water only has no such fish in it for a while.
+ *
+ * What counts as a line taken up (whoever keeps the game counts it, at each): a line pulled up before anything was
+ * hooked; a line dropped over one still out; and, **of a line that told what was on its way**, a strike too soon and
+ * a bite let go by, which are the same thing done with the float's own count (a hand with no float strikes too soon
+ * by mistake, and is not counted for it). Kept in the purse (`wary`): the moments of the lines taken up lately, and
+ * until when the fish are gone.
+ */
+export const WARY = { ups: 3, within: 300, gone: 600, tiers: ["rare", "legend"] as Tier[] };
+/** Whether the rare fish have gone from somebody's water for now. */
+export function isWary(purse: Pick<Purse, "wary">, now: number): boolean {
+  const w = purse.wary as { until?: unknown } | null | undefined;
+  return !!w && typeof w === "object" && !Array.isArray(w) && typeof w.until === "number" && w.until > now;
+}
+/** A line taken up: one more of them counted; with more than there may be lately, the rare fish are gone from now, and the count begins anew. */
+export function tookUp<P extends Pick<Purse, "wary">>(purse: P, now: number): P {
+  const kept = purse.wary as { ups?: unknown; until?: unknown } | null | undefined, sound = !!kept && typeof kept === "object" && !Array.isArray(kept);
+  const lately = (sound && Array.isArray(kept.ups) ? kept.ups : []).filter((t): t is number => typeof t === "number" && t > now - WARY.within * 1000 && t <= now);
+  const until = sound && typeof kept.until === "number" ? kept.until : 0;
+  return lately.length + 1 > WARY.ups ? { ...purse, wary: { ups: [], until: now + WARY.gone * 1000 } } : { ...purse, wary: { ups: [...lately, now], until } };
+}
+
+/**
+ * A legend has a second bout: it is landed only after so many fights running (`BOUTS`), the next beginning as the
+ * one before is won, with the fish breaking away at once. Lost in any of them, it is lost. One fish all the same:
+ * its fight is paid for once, and it is one go on the line of work.
+ */
+export const BOUTS: Partial<Record<Tier, number>> = { legend: 2 };
+export const boutsOf = (fish: FishId): number => BOUTS[FISH[fish].tier] ?? 1;
+
+/**
+ * Good things are harder for the skilled (lib/town/gifts' `harderFor`: from the fourth rank of the deck, 8% a rank).
+ * For a fish that is uncommon or better "harder" is: it pulls and surges so many times as hard, and there is so many
+ * times the line to win (the part whoever keeps the game can hold a landing to: `leastMs`); and it is so many times
+ * as long, to the tenth of a centimetre. A common fish is as it is for everybody.
+ */
+export const harderOf = (fish: CatchId, k: number): number => (fish in FISH && FISH[fish as FishId].tier !== "common" && k > 1 ? k : 1);
+export const biggerBy = (size: number, k: number): number => Math.round(size * k * 10) / 10;
+/**
+ * The least a landing can have taken, in milliseconds: so much (`least`) of the quickest fight there could be with
+ * that fish, by how much harder it is for whoever fought it, for each of its bouts. (Sooner, it was not landed.)
+ */
+export const leastMs = (fish: FishId, harder: number, bouts: number, least: number): number =>
+  Math.floor((FISH[fish].fight.line / FIGHT.reel) * least * harderOf(fish, harder) * bouts * 1000);

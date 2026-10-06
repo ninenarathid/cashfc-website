@@ -1,0 +1,18 @@
+{
+  "drive_back": "town.drive_back($1::jsonb, $2::text, $3::boolean, $4::bigint)",
+  "sift": "town.sift($1::jsonb, array(select jsonb_array_elements_text($2::jsonb)))",
+  "hook_baits": "town.hook_baits($1::jsonb, $2::text, $3::integer)",
+  "cast_from": "town.cast_from($1::jsonb, array(select x::double precision from jsonb_array_elements_text($2::jsonb) x))",
+  "orb_of": "to_jsonb(town.orb_of($1::jsonb, $2::bigint))",
+  "orb_light": "town.orb_light($1::jsonb, $2::text, $3::bigint)",
+  "under_orb": "town.under_orb($1::text, $2::integer, $3::boolean, array(select jsonb_array_elements_text($4::jsonb)))",
+  "star_odds": "town.star_odds($1::boolean, $2::boolean, array(select jsonb_array_elements_text($3::jsonb)), $4::integer)",
+  "hook_star": "town.hook_star($1::jsonb, $2::bigint)",
+  "took_up": "town.took_up($1::jsonb, $2::bigint)",
+  "is_wary": "to_jsonb(town.is_wary($1::jsonb, $2::bigint))",
+  "bouts_of": "to_jsonb(town.bouts_of($1::text))",
+  "harder_of": "to_jsonb(town.harder_of($1::text, $2::double precision))",
+  "bigger": "to_jsonb(town.bigger($1::double precision, $2::double precision))",
+  "least_ms": "to_jsonb(town.least_ms($1::text, $2::double precision, $3::integer))",
+  "cast_line": "town.cast_line($1::text, $2::integer, $3::boolean, $4::boolean, $5::boolean, array(select jsonb_array_elements_text($6::jsonb)), array(select x::double precision from jsonb_array_elements_text($7::jsonb) x))"
+}

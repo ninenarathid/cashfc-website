@@ -7,14 +7,14 @@ import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 // ── gifts: farming ──
 import { ENCORE, HOURGLASS } from "./farm";
-import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
+import { BOUTS, FIGHT, NIBBLES_APART, ORB, PAIR, SIGNS, STAR, STRIKE, WARY } from "./fishing";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
 import { huntRow } from "./hunt";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
 import { HINT_IDS, HINT_PRICE } from "./hints";
-import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR, SCARCE } from "./insects";
+import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE } from "./insects";
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
@@ -129,6 +129,14 @@ export function catalogOf() {
       // what some fish wait for (lib/town/fishing's SIGNS): how many others' lines make a crowd and how lately dropped,
       // the minutes after rain, the days either side of a full moon, the weekend's days
       signs: SIGNS,
+      // ── gifts: fishing ── (v153) a rod of two lines: the tiers that never come as one of a pair
+      pair: { never: PAIR.never },
+      // a sky orb: the minutes it shines, the hour its night is, and the skies there are
+      orb: { minutes: ORB.minutes, night: ORB.night, skies: ORB.skies },
+      // stardust bait: the tiers that take it
+      star: { tiers: STAR.tiers },
+      // the game made harder to match: lines taken up (how many, within how many seconds, the seconds the fish are gone, and which), and the fights running a tier is landed after
+      wary: WARY, bouts: BOUTS,
       // (with the deck finished, whatever is shown where this is asked: lib/town/world's asBuilt)
       places: asBuilt(() => Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
         .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; }))),
@@ -234,7 +242,7 @@ export function catalogOf() {
       // a drop of nectar: within how many seconds an insect comes to it and no sooner than how many, how many it stays, the kinds of haunt a drop calls from, and the maps as boxes of tiles
       nectar: { within: NECTAR.within, soon: NECTAR.soon, stays: NECTAR.stays, at: NECTAR.at, maps: NECTAR_MAPS },
       // the second of a pair (the butterfly-wing cloak): how many milliseconds past its seconds the keeper still takes it
-      pair: { slack: PAIR.slack },
+      pair: { slack: BUG_PAIR.slack },
     },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
     well: {
@@ -382,7 +390,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts", "farming", "well", "forest", "insects"] },
+  v153: { keys: [], over: ["gifts", "farming", "well", "forest", "insects", "fishing"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
