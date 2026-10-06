@@ -89,4 +89,63 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   // who may call it
   const out = await call(U.unver, "town_row", ...xy(mid), {}, null);
   t.check("it is for a proved character of the town", out?.code === "42501", out);
+
+  // ── the garden gnome: a whole bed of its member's watered at once ──
+  t.section("the garden gnome: a whole bed watered at once (town_gnome)");
+  const now = Number((await one(`select town.now_ms() as n`)).n);
+  /** A plant put in a plot as if it had been sown so many hours ago, that no pest comes to. */
+  const planted = async (key, bed, by, crop, hoursAgo, more = {}) => {
+    const [x, y] = xy(key), plant = { by, crop, sown: now - hoursAgo * 3_600_000, boost: 0, watered: 0, fed: 0, guard: now + 999 * 3_600_000, cured: 0, picked: 0, pickedAt: 0, ...more };
+    await t.sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1, $2, $3, 'tilled', $4::jsonb, $5)
+      on conflict (x, y) do update set soil = excluded.soil, plant = excluded.plant, changed = excluded.changed`, [x, y, bed, JSON.stringify(plant), now]);
+    return plant;
+  };
+  const C = row(3, 4), D = row(3, 6);
+  for (const k of C) await planted(k, 3, U.m2, "pumpkin", 5);
+  await planted(D[0], 3, U.m2, "chili", 9, { watered: now - 10 * 60_000, boost: 1_800_000 });   // watered ten minutes ago: wet
+  await planted(D[1], 3, U.m2, "cabbage", 30);                                                    // ripe, and picked once: only waits
+  const first = row(3, 0)[0], thirsty = [first, ...C].sort((a, b) => xy(a)[1] - xy(b)[1] || xy(a)[0] - xy(b)[0]);
+  const waterDeeds = async () => (await deeds("water")).length;
+  const kept = async () => ({ purse: await purseOf(U.m2), waters: await waterDeeds(), gnomes: (await deeds("gnome")).length });
+  await give(U.m2, { had: ["famGnome", "famSquirrel"], charms: [], familiar: "famSquirrel" });
+  await hands(U.m2, "can", 40, ["can", 1, { water: 3 }]);
+  let was = await kept();
+  did = await call(U.m2, "town_gnome", ...xy(C[0]));
+  t.check("with no gnome at heel (another familiar follows): refused, and nothing is done", did?.ok === false && did.why === "none" && same(await kept(), was) && (await plotAt(C[0])).plant.watered === 0, did);
+  await give(U.m2, { had: ["famGnome", "famSquirrel"], charms: [], familiar: "famGnome" });
+  const tendedWas = (await one(`select tended from public.town_beds where bed = 3`)).tended;
+  did = await call(U.m2, "town_gnome", ...xy(D[3]));
+  t.check("sent from any plot of the bed, it waters every plant there that could do with water, down the bed a row at a time", did?.ok === true && same(did.watered, thirsty), did);
+  t.check("…not the one that is wet already, nor the one that only waits to be picked", (await plotAt(D[0])).plant.watered === now - 10 * 60_000 && (await plotAt(D[1])).plant.watered === 0);
+  const after = await Promise.all(thirsty.map(plotAt));
+  t.check("…each has what a plain can would have added, and was watered at that moment", after.every((p) => p.plant.watered === did.now || Math.abs(p.plant.watered - did.now) < 2000) && after.slice(1).every((p) => p.plant.boost === f.water.adds * 60_000)
+    && same(Object.keys(did.plots).sort(), [...thirsty].sort()) && Object.values(did.plots).every((p) => p.plant.boost >= f.water.adds * 60_000), after.map((p) => p.plant));
+  let p2 = await purseOf(U.m2);
+  t.check("…for no stamina and no water out of the can; the purse remembers the round", p2.stamina.left === 40 && p2.bag[0].water === 3 && typeof p2.gnomed?.["3"] === "number" && Object.keys(p2.gnomed).length === 1, p2);
+  noted = await deeds("gnome");
+  t.check("…written down as one line, with how many plants; no watering of a plant is written, and no line of work counts it", noted.length === 1 && noted[0].member_id === U.m2 && noted[0].n === thirsty.length && noted[0].doc.bed === 3
+    && (await waterDeeds()) === was.waters && (await points(U.m2, "helpers")) === 0, noted);
+  t.check("…and it is its owner's tending of the bed", Number((await one(`select tended from public.town_beds where bed = 3`)).tended) >= Number(tendedWas));
+  was = await kept();
+  did = await call(U.m2, "town_gnome", ...xy(D[3]));
+  t.check("a bed rests an hour between two of its rounds: sent again at once, refused, and nothing is done", did?.ok === false && did.why === "wet" && same(await kept(), was), did);
+  // (the hour gone by: the round as if it had been an hour and a minute ago, and its water with it)
+  await patch(U.m2, { gnomed: { 3: now - 61 * 60_000, 9: now - 5 * 3_600_000 } });
+  await t.sql(`update public.town_plots set plant = plant || jsonb_build_object('watered', $1::bigint) where bed = 3 and plant is not null and (plant->>'watered')::bigint > $1::bigint`, [now - 61 * 60_000]);
+  did = await call(U.m2, "town_gnome", ...xy(first));
+  p2 = await purseOf(U.m2);
+  t.check("…the hour gone by, it goes again; a round that no longer counts is forgotten", did?.ok === true && did.watered.length === thirsty.length + 1 && Object.keys(p2.gnomed).join() === "3", { did, gnomed: p2.gnomed });
+  // somebody else's bed, nobody's, off the beds
+  await give(U.m1, { had: ["famGnome"], charms: [], familiar: "famGnome" });
+  was = { waters: await waterDeeds(), gnomes: (await deeds("gnome")).length };
+  did = await call(U.m1, "town_gnome", ...xy(C[0]));
+  t.check("in somebody else's bed: refused (its member's own beds only)", did?.ok === false && did.why === "theirs", did);
+  did = await call(U.m1, "town_gnome", ...xy(A[0]));
+  t.check("in a bed that is nobody's: refused", did?.ok === false && did.why === "theirs", did);
+  did = await call(U.m1, "town_gnome", 0, 0);
+  t.check("off the beds: refused", did?.ok === false && did.why === "none" && (await deeds("gnome")).length === was.gnomes, did);
+  did = await call(U.m1, "town_gift_use", "famGnome");
+  t.check("the gnome is no longer a gift that is counted: nothing of it to use", did?.ok === false && did.why === "none", did);
+  const shut = await call(U.unver, "town_gnome", ...xy(C[0]));
+  t.check("it is for a proved character of the town", shut?.code === "42501", shut);
 }

@@ -34,7 +34,7 @@ import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
 import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 // ── gifts: farming ──
-import { plotKey, rowFor, rowTend, type RowDeed } from "./farm";
+import { gnomeReach, gnomeWater, plotKey, rowFor, rowTend, type RowDeed } from "./farm";
 import { rowOf } from "./world";
 
 /**
@@ -482,6 +482,26 @@ export class Trial {
     }
     this.save(did.purse);
     return { ok: true, deed: did.deed, done: did.each.map((e) => e.key), got: did.got };
+  }
+  /** The plots of the bed a plot is in that the garden gnome would water if it were sent now (lib/town/farm's gnomeReach), in the order it would go. */
+  gnomeAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    return bed < 0 ? [] : gnomeReach(bed, this.bedAt(x, y), this.purse(), this.id, this.now(), this.owners().get(bed)?.by ?? null, this.sky());
+  }
+  /** Send it. (Its water is nobody's, and the plants its member's own: the well's book has nothing to read of it.) */
+  gnomeDo(key: string): { ok: true; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), now = this.now(), plots = this.farm();
+    if (bed < 0) return no("none");
+    const did = gnomeWater(bed, this.bedAt(x, y), this.purse(), this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
+    if (!did.ok) return did;
+    const next = { ...plots }, sky = SKIES.sky(now);
+    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now));
+    this.write(FARM, next);
+    // (its owner's every deed in a bed counts as tending it)
+    const beds = this.beds();
+    if (beds[bed]) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
+    this.save(did.purse);
+    return { ok: true, watered: did.watered };
   }
   /** Whether it is a hot afternoon now (lib/town/heat), by this page's sky. */
   hot(): boolean { const now = this.now(); return hotAt(now, SKIES.sky(now)); }

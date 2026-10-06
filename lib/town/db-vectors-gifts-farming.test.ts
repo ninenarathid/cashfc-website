@@ -1,8 +1,8 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { rowFor, rowTend, type Bed, type Plot } from "./farm";
-import type { ItemId } from "./items";
+import { gnomeWater, rowFor, rowTend, type Bed, type Plant, type Plot } from "./farm";
+import { CROP_IDS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { HOUR, newPurse, put, type Purse } from "./trade";
 import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
@@ -15,6 +15,10 @@ import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
  * - `row_for`, `row_tend`: rows of every sort (weeds, cleared, tilled, with plants, mixed), stood on anywhere along
  *   them and off them, in one's own bed, somebody else's, nobody's and one that has lapsed, with each gift worn and
  *   not, the right thing in the hand and not, stamina and none, and marks of every sort.
+ *
+ * - `gnome_water`: beds with plants of every pace sown at many moments (growing, ripe, bearing again, watered a
+ *   while ago and just now), bare soil and nothing at all; the gnome following, another familiar, none; rounds kept
+ *   for this bed and for others, fresh, old and kept wrongly; one's own bed, somebody else's and nobody's.
  *
  * Under a clear sky (the stand-in's weather is empty for these days).
  *
@@ -71,6 +75,27 @@ export function vectorsFarming(): Vector[] {
     ])();
     add("row_tend", [stood, keys, plots, keeping, rest, holds, p, me, NOW, marks], rowTend(stood, keys, plots, keeping ?? undefined, rest, holds, p, me, NOW, marks));
   }
+  // the gnome sent down a bed
+  for (let i = 0; i < 260; i++) {
+    const bed = c.int(0, BEDS_IN_FARM - 1), [bx, by] = bedCorner(bed), me = c.of([ME, ME, YOU]), plots: Record<string, Plot> = {};
+    const full = c.of([0, 3, 12, 30]);
+    for (let n = 0; n < full; n++) {
+      const key = `${bx + c.int(0, 6)},${by + c.int(0, 6)}`;
+      if (c.maybe(0.15)) { plots[key] = c.of(SOILS); continue; }
+      const crop = c.of(CROP_IDS), sown = NOW - c.int(1, 70) * HOUR - c.int(0, 3_599_999);
+      const plant: Plant = { by: me, crop, sown, boost: c.maybe(0.3) ? c.int(1, 4) * 1_800_000 : 0, watered: c.of([0, 0, NOW - 10 * 60_000, NOW - 59 * 60_000 - 59_999, NOW - HOUR, NOW - 3 * HOUR]),
+        fed: c.maybe(0.2) ? sown + HOUR : 0, guard: c.maybe(0.6) ? NOW + 24 * HOUR : 0, cured: 0, picked: 0, pickedAt: 0 };
+      plots[key] = { soil: "tilled", plant };
+    }
+    const gifts = c.of<Purse["gifts"] | undefined>([{ had: ["famGnome"], charms: [], familiar: "famGnome" }, { had: ["famGnome"], charms: [], familiar: "famGnome" }, { had: ["famGnome", "charmHoe"], charms: ["charmHoe"], familiar: "famGnome" },
+      { had: ["famGnome", "famSquirrel"], charms: [], familiar: "famSquirrel" }, { had: ["famGnome"], charms: [] }, { had: [], charms: [], familiar: "famGnome" }, undefined]);
+    const other = String((bed + 1) % BEDS_IN_FARM);
+    const gnomed = c.of<unknown>([undefined, undefined, undefined, { [bed]: NOW - 10 * 60_000 }, { [bed]: NOW - 59 * 60_000 - 59_999 }, { [bed]: NOW - HOUR }, { [bed]: NOW - 5 * HOUR, [other]: NOW - 60_000 },
+      { [other]: NOW - 60_000 }, { [bed]: "soon", [other]: NOW - 2 * HOUR }, "x", [NOW], { [bed]: null }]);
+    const p = { ...purse(gifts, c.of<ItemId | null>(["can", null]), [["can", 1]], c.of([100, 0])), ...(gnomed === undefined ? {} : { gnomed }) } as Purse;
+    const owner = c.of<string | null>([me, me, me, me === ME ? YOU : ME, null]);
+    add("gnome_water", [bed, plots, p, me, NOW, owner], gnomeWater(bed, plots, p, me, NOW, owner));
+  }
   return out;
 }
 
@@ -95,6 +120,13 @@ describe("the cases the database's rules of the farming line's gifts are held to
     expect(tends.some((t) => t.d.ok && t.d.each!.length > 0 && t.bed?.by === t.me && t.d.bed?.tended === NOW)).toBe(true);
     expect(tends.some((t) => t.d.ok && t.d.each!.length > 0 && !!t.bed && t.bed.by !== t.me && t.d.bed?.by === t.bed.by)).toBe(true);
     expect(tends.some((t) => t.d.ok && t.d.each!.length > 0 && !t.d.bed)).toBe(true);
+    // the gnome: a bed watered whole and in part, and refused each way
+    const gnomes = of("gnome_water").map((v) => ({ plots: v.args[1] as Record<string, Plot>, d: v.want as { ok: boolean; why?: string; watered?: string[]; purse?: Purse } }));
+    const plantsIn = (plots: Record<string, Plot>) => Object.values(plots).filter((x) => x.plant).length;
+    expect(gnomes.some((g) => g.d.ok && g.d.watered!.length > 8) && gnomes.some((g) => g.d.ok && g.d.watered!.length < plantsIn(g.plots))).toBe(true);
+    for (const why of ["none", "theirs", "wet", "soil"]) expect(gnomes.some((g) => !g.d.ok && g.d.why === why), why).toBe(true);
+    // (a round of another bed that still counts is kept beside this one's; one that no longer does is forgotten)
+    expect(gnomes.some((g) => g.d.ok && Object.keys(g.d.purse!.gnomed ?? {}).length === 2) && gnomes.some((g) => g.d.ok && Object.keys(g.d.purse!.gnomed ?? {}).length === 1)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-farming.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

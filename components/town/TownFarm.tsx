@@ -5,7 +5,8 @@ import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, ridCameOf, rol
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
-import { famBy, giftOf, usesLeft, type GiftId } from "@/lib/town/gifts";
+import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
+import { giftOf, type GiftId } from "@/lib/town/gifts";
 import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
@@ -189,6 +190,13 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
   /** What is in the air over the plots: earth, leaves, water, a sparkle. */
   const vfx = useMemo(() => new Vfx(), []);
+  /**
+   * The garden gnome at work (lib/town/farm's gnomeWater): the plots it is going down with its can, in the order it
+   * walks them (to and fro, a row at a time), how long it takes over each, and when it set off (by the map's clock:
+   * known at the first frame it is drawn in). A plot it has not come to yet does not show as watered, though whoever
+   * keeps the game has watered them all at once.
+   */
+  const gnome = useRef<{ path: Array<{ key: string; x: number; y: number }>; step: number; from: number | null; shown: number } | null>(null);
 
   // What every tended plot shows now, whose every bed is, and the well's water: looked at afresh when the farm changes
   // and every few seconds, not every frame.
@@ -244,6 +252,48 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
         ctx.globalAlpha = 1;
       };
+      // the gnome going down a bed: where it is now, the water it leaves over each plot as it comes to it, and the plots still to come
+      const g = gnome.current, later = new Set<string>();
+      if (g) {
+        if (g.from === null) {
+          g.from = t;
+          // (nothing walks where motion is to be little: the bed is watered, and that is seen at once)
+          if (still) { for (const p of g.path) vfx.add("water", { x: p.x + 0.5, y: p.y + 0.5 }); gnome.current = null; }
+          else FAMILIAR_AWAY.until = performance.now() + g.path.length * g.step + 500;
+        }
+        const at = gnome.current ? (t - g.from) / g.step : 0;
+        if (gnome.current) {
+          while (g.shown < g.path.length && g.shown <= at) { const p = g.path[g.shown++]; vfx.add("water", { x: p.x + 0.5, y: p.y + 0.5 }); }
+          for (let i = g.shown; i < g.path.length; i++) later.add(g.path[i].key);
+          if (at >= g.path.length + 1) gnome.current = null;
+          else {
+            const i = Math.max(0, Math.min(g.path.length - 1, Math.floor(at))), a = g.path[i], b = g.path[Math.min(g.path.length - 1, i + 1)], k = Math.min(1, Math.max(0, at - i));
+            const here = { x: a.x + (b.x - a.x) * k + 0.5, y: a.y + (b.y - a.y) * k + 0.5 }, c = project(here);
+            // (which way it looks: the way it goes across the screen, as a familiar at heel does)
+            const right = b.x - a.x - (b.y - a.y) >= 0;
+            if (onScreen(c)) things.push({ depth: here.x - 0.5 + here.y - 0.5 + 0.7, draw: () => {
+              const hop = Math.abs(Math.sin(t / 95)) * 3.5 * s;
+              ctx.fillStyle = "rgba(0,0,0,0.2)";
+              ctx.beginPath();
+              ctx.ellipse(c.x, c.y + 4 * s, 7 * s, 3 * s, 0, 0, Math.PI * 2);
+              ctx.fill();
+              blit("famGnome", c, hop, 1.5 * s, !right);
+              // its can, held out before it and tipped over the plot
+              const cell = ICON_ATLAS.icons.can;
+              if (cell) {
+                const [x, y, w, h] = cell, kc = 0.9 * s, way = right ? 1 : -1;
+                ctx.save();
+                ctx.imageSmoothingEnabled = false;
+                ctx.translate(Math.round(c.x + way * 14 * s), Math.round(c.y - 16 * s - hop));
+                ctx.scale(way, 1);
+                ctx.rotate(0.5 + Math.sin(t / 140) * 0.12);
+                ctx.drawImage(img, x, y, w, h, -(w * kc) / 2, -(h * kc) / 2, w * kc, h * kc);
+                ctx.restore();
+              }
+            } });
+          }
+        }
+      }
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
         const tx = FARM.x + u, ty = FARM.y + v;
         if (!plotAt(tx, ty)) continue;
@@ -256,7 +306,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (!what.crop) return;
           if (what.dead) { blit("plotDead", at); return; }
           blit(growIconOf(what.crop, what.stage), at);
-          if (what.wet) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
+          if (what.wet && !later.has(plotKey(tx, ty))) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           // (a hot afternoon: the air shimmers over a plant that is still growing and has had no water this hour)
           else if (hot.current && !what.ripe) shimmer(at, tx * 3 + ty);
           if (what.pest) blit("plotBug", { x: at.x - 10 * s, y: at.y }, (still ? 0 : Math.sin(t / 160 + tx) * 2 + 14) * s, PLANT * s * 0.5);
@@ -372,16 +422,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
     const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
-    // (the garden gnome that follows me pulls the weeds itself, with no game: so many plots to a meal's hours, counted
-    // by whoever keeps the game. lib/town/gifts)
-    if (need && work === "clear" && key && deed && famBy(keeper.purse(), "famGnome") > 0 && usesLeft(keeper.purse(), "famGnome", keeper.now()) > 0) {
-      void keeper.giftUse("famGnome").then((used) => {
-        // (it has pulled all it will in these hours after all, or the town cannot be reached: the weeds are mine to pull)
-        if (!used.ok) { setWorking({ key, work, need }); return; }
-        void act(key, { hits: need, misses: 0, secs: 0, need }).then(() => setNote(th ? `โนมถอนหญ้าให้แล้ว (มื้อนี้เหลือ ${used.left})` : `The gnome pulled them (${used.left} left these hours)`));
-      });
-      return;
-    }
     if (need) setWorking({ key: key && deed ? key : null, work, need });
     else if (key && deed) void act(key);
     else void carry();
@@ -397,6 +437,21 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const of = Object.keys(marks).length;
     setNote(th ? `ทั้งแถว: เสร็จ ${did.done.length} จาก ${of} ช่อง` : `The row: ${did.done.length} of ${of} plots done`);
   }, [keeper, name, say, sfx, th, vfx]);
+  /** The plots the garden gnome would water if I sent it down the bed I stand in (lib/town/farm's gnomeReach): none, when there is nothing to send it for. */
+  const gnomeHere = key ? keeper.gnomeAt(key) : [];
+  /** Send it. It is seen going down the bed, to and fro a row at a time, with its can. */
+  const sendGnome = useCallback(async () => {
+    if (!key) return;
+    const did = await keeper.gnomeDo(key);
+    if (!did.ok) { say(did.why); return; }
+    sfx?.wake();
+    sfx?.work("water");
+    const rows = new Map<number, Array<{ key: string; x: number; y: number }>>();
+    for (const k of did.watered) { const [x, y] = k.split(",").map(Number); rows.set(y, [...(rows.get(y) ?? []), { key: k, x, y }]); }
+    const path = [...rows.keys()].sort((a, b) => a - b).flatMap((y, i) => { const row = rows.get(y)!.sort((a, b) => a.x - b.x); return i % 2 ? row.reverse() : row; });
+    gnome.current = { path, step: Math.max(900, Math.min(3600, path.length * 110)) / Math.max(1, path.length), from: null, shown: 0 };
+    setNote(th ? `โนมรดน้ำให้แล้ว ${did.watered.length} ต้น` : `The gnome watered ${did.watered.length} plants`);
+  }, [key, keeper, say, sfx, th]);
   /** What a gift of the farming line would do to the whole row from where I stand (lib/town/farm's rowFor), if anything. */
   const rowHere = key ? keeper.rowAt(key) : null;
   /** Begin it: the hoe's row is one game, a beat to a plot, the one stood on first. */
@@ -450,17 +505,20 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note, wellWater: () => keeper.wellWater(),
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
       row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
+      // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
+      gnome: () => (key ? keeper.gnomeAt(key) : []), gnomeSend: sendGnome, gnomeOut: () => (gnome.current ? { shown: gnome.current.shown, of: gnome.current.path.length } : null),
       asking: () => asking,
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
     };
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the plots a bucket would water are told by how many they are
-  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key]);
+  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome]);
 
   /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
   const powers: Array<{ id: GiftId; word: string; go: () => void }> = [];
   if (rowHere && ROW_VERB[rowHere.deed]) powers.push({ id: "charmHoe", word: ROW_VERB[rowHere.deed][th ? 0 : 1], go: beginRow });
+  if (gnomeHere.length) powers.push({ id: "famGnome", word: th ? "ให้โนมรดน้ำทั้งแปลง" : "Send the gnome down the bed", go: () => void sendGnome() });
   if (!working && !offer && !note && !powers.length) return null;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;

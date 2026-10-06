@@ -193,6 +193,9 @@ export interface Purse {
   made?: ItemId[];
   /** How many times something has been cooked that was a recipe's own but for its last thing: by the recipe (lib/town/cooking). */
   tries?: Partial<Record<ItemId, number>>;
+  // ── gifts: farming ──
+  /** When the garden gnome last went down each bed of mine with its can, by the bed's number (lib/town/farm's gnomeWater: a bed rests an hour between two of its rounds). Only rounds that still count are kept. */
+  gnomed?: Record<string, number>;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

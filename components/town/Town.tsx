@@ -45,6 +45,8 @@ import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { FarmDraw } from "./TownFarm";
+// ── gifts: farming ──
+import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
 import type { GroundTap } from "./TownGround";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
@@ -2201,7 +2203,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       }
     }
     if (mine) things.push({ depth: depthOf(mine), draw: () => drawAvatar(ctx, mine, true, names, boxes, false, wall, now, dpr) });
-    const myPet = mine ? petOf(mine, dt) : null;
+    // ── gifts: farming ── (my familiar is not at my heels while it is off at work: the gnome going down a bed, drawn there by the farm's own code)
+    const myPet = mine && performance.now() >= FAMILIAR_AWAY.until ? petOf(mine, dt) : null;
     if (myPet) things.push({ depth: myPet.at.x + myPet.at.y, draw: () => drawPet(ctx, myPet, now) });
     // (a familiar whose member has gone is forgotten)
     if (pets.current.size > (stay?.avatars.size ?? 0) + 1) for (const id of pets.current.keys()) if (id !== mine?.info.id && !stay?.avatars.has(id)) pets.current.delete(id);

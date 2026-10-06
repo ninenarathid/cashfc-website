@@ -30,7 +30,7 @@ import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
 // ── gifts: farming ──
-import { plotKey, rowFor, type RowDeed } from "./farm";
+import { gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
 import { rowOf } from "./world";
 
 /**
@@ -192,6 +192,12 @@ export interface Keeper {
    */
   rowAt(key: string): { deed: RowDeed; plots: string[] } | null;
   rowDo(key: string, name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>>;
+  /**
+   * The garden gnome (lib/town/farm's gnomeWater): the plots of the bed I stand in that it would water if I sent it
+   * now, in the order it would go (none: there is nothing to send it for), and sending it.
+   */
+  gnomeAt(key: string): string[];
+  gnomeDo(key: string): Promise<Did<{ watered: string[] }>>;
 
   /** The forest (lib/town/forest): every place that has something for me now. */
   wild(): Sight[];
@@ -909,6 +915,22 @@ export class DbKeeper implements Keeper {
     const [x, y] = key.split(",").map(Number);
     // (the answer brings every plot it changed, and the bed's keeping: kept as any answer's are)
     const did = await this.deed<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>("town_row", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
+  /** Every plot of a bed that is kept, by its key. */
+  private bedPlots(bed: number): Record<string, Plot> {
+    return Object.fromEntries(Object.entries(this.plots).filter(([k]) => { const [u, v] = k.split(",").map(Number); return bedOf(u, v) === bed; }));
+  }
+  gnomeAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    if (bed < 0 || !this.farmGifts()) return [];
+    return gnomeReach(bed, this.bedPlots(bed), this.mine, this.id, this.now(), this.owners().get(bed)?.by ?? null, this.rains());
+  }
+  async gnomeDo(key: string): Promise<Did<{ watered: string[] }>> {
+    const [x, y] = key.split(",").map(Number);
+    // (the answer brings the plots it watered as they are kept: with what the heat added, if it is hot)
+    const did = await this.deed<{ watered: string[] }>("town_gnome", { p_x: x, p_y: y });
     if (did.ok) this.onDeed?.("farm");
     return did;
   }

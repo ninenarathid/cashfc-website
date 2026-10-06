@@ -1,7 +1,7 @@
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { gloved, wearing } from "./gifts";
+import { famBy, gloved, wearing } from "./gifts";
 import { buffBy, hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -573,6 +573,50 @@ export function rowFor(at: string, keys: readonly string[], plots: Readonly<Reco
   const x0 = xOf(at), row = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
   return row.length > 1 ? { deed, plots: row } : null;
 }
+/**
+ * **The garden gnome** (a familiar, following; the owner, 2026-10-07, in place of the weeding it began with): it goes
+ * down a whole bed of its member's with a can of its own and waters every plant there that could do with water, at
+ * once: no water out of the member's can, no stamina, and what a plain can would have added to each (no better
+ * can's more, no green fingers: the gnome's can is the gnome's). A bed rests an hour between two of its rounds
+ * (`numberOf("famGnome")` minutes: kept in the purse, `gnomed`), so it is best sent when the whole bed is dry.
+ * Its member's own beds only. Rain waters everything already, and a wet plot takes none, as ever.
+ *
+ * `plots` is every plot of the bed that is kept, by its key; `owner` whose the bed is now. The plots it would water,
+ * in the order it goes: down the bed a row at a time (none: there is nothing to send it for).
+ */
+/** The gnome's rounds as a purse keeps them: when it last went down each bed (nothing, of what is kept wrongly). */
+const roundsOf = (purse: Purse): Record<string, unknown> => { const kept: unknown = purse.gnomed; return kept && typeof kept === "object" && !Array.isArray(kept) ? (kept as Record<string, unknown>) : {}; };
+const gnomedAt = (purse: Purse, bed: number): number => { const at = roundsOf(purse)[String(bed)]; return typeof at === "number" ? at : -Infinity; };
+export function gnomeReach(bed: number, plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY): string[] {
+  const rest = famBy(purse, "famGnome") * 60_000;
+  if (!(rest > 0) || owner !== me || now - gnomedAt(purse, bed) < rest) return [];
+  const yx = (key: string) => key.split(",").map(Number);
+  return Object.keys(plots).filter((key) => deedFor(key, plots[key], "can", "", now, null, rains) === "water")
+    .sort((a, b) => yx(a)[1] - yx(b)[1] || yx(a)[0] - yx(b)[0]);
+}
+/**
+ * Send it: the purse (which remembers the round, and is otherwise as it was), the plots it watered as they now are,
+ * and which those are, in the order it went. Refused when no gnome follows (`none`), in a bed that is not mine
+ * (`theirs`), when it has been down this bed within the hour or every plant that grows here is wet already (`wet`),
+ * and where nothing grows that water would help (`soil`).
+ */
+export function gnomeWater(bed: number, plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null, rains: FarmSky = DRY):
+  { ok: true; purse: Purse; plots: Record<string, Plot>; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
+  const rest = famBy(purse, "famGnome") * 60_000;
+  if (!(rest > 0)) return { ok: false, why: "none" };
+  if (owner !== me) return { ok: false, why: "theirs" };
+  const kept = Object.fromEntries(Object.entries(roundsOf(purse)).filter((e): e is [string, number] => typeof e[1] === "number" && now - e[1] < rest));
+  if (now - gnomedAt(purse, bed) < rest) return { ok: false, why: "wet" };
+  const watered = gnomeReach(bed, plots, purse, me, now, owner, rains);
+  if (!watered.length) {
+    const wet = Object.keys(plots).some((key) => { const s = see(key, plots[key], now, rains); return !!plots[key].plant && !s.dead && s.wet; });
+    return { ok: false, why: wet ? "wet" : "soil" };
+  }
+  const next: Record<string, Plot> = {};
+  for (const key of watered) { const p = plots[key].plant!; next[key] = { ...plots[key], plant: { ...p, watered: now, boost: p.boost + FARMING.water.adds * 60_000 } }; }
+  return { ok: true, purse: { ...purse, gnomed: { ...kept, [String(bed)]: now } }, plots: next, watered };
+}
+
 /** A plot a row's deed did: which, what grows or grew there, and how many it came to (a plot hoed is one). */
 export interface RowDone { key: string; crop: CropId | null; n: number }
 /**

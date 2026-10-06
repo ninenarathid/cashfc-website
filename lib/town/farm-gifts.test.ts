@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { FARMING, WILD, rowFor, rowTend, tend, type Bed, type Plot } from "./farm";
+import { FARMING, WILD, gnomeReach, gnomeWater, rowFor, rowTend, see, tend, type Bed, type Plant, type Plot } from "./farm";
 import type { ItemId } from "./items";
 import { dayOf, staminaOf } from "./stamina";
-import { hold, newPurse, put, type Purse } from "./trade";
+import { HOUR, hold, newPurse, put, type Purse } from "./trade";
 import { bedCorner, rowOf } from "./world";
 
 /**
@@ -26,6 +26,9 @@ const holding = (p: Purse, id: ItemId): Purse => {
 const done = <T extends { ok: boolean }>(d: T) => { if (!d.ok) throw new Error(`refused: ${JSON.stringify(d)}`); return d as Extract<T, { ok: true }>; };
 const HOE = { had: ["charmHoe"], charms: ["charmHoe"] };
 const all = (keys: readonly string[], how = true) => Object.fromEntries(keys.map((k) => [k, how]));
+/** A plant of mine, sown five hours before noon, that no pest comes to. */
+const plant = (over: Partial<Plant> = {}): Plant => ({ by: "me", crop: "pumpkin", sown: NOON - 5 * HOUR, boost: 0, watered: 0, fed: 0, guard: NOON + 999 * HOUR, cured: 0, picked: 0, pickedAt: 0, ...over });
+const sown = (over: Partial<Plant> = {}): Plot => ({ soil: "tilled", plant: plant(over) });
 
 describe("the enchanted hoe: a bed's row at a swing", () => {
   const worn = holding(purseWith(HOE, ["hoe", 1]), "hoe");
@@ -107,5 +110,76 @@ describe("the enchanted hoe: a bed's row at a swing", () => {
     // (with the gardener's gloves on beside it, work in somebody else's bed is half the stamina, each plot's as ever)
     const both = holding(purseWith({ had: ["charmHoe", "charmGloves"], charms: ["charmHoe", "charmGloves"] }, ["hoe", 1]), "hoe");
     expect(staminaOf(done(rowTend(MID, KEYS, {}, theirs, 3, 0, both, "me", NOON, all(row))).purse, NOON)).toBe(100 - 7);
+  });
+});
+
+describe("the garden gnome: a whole bed of its member's watered at once", () => {
+  const GNOME = { had: ["famGnome"], charms: [], familiar: "famGnome" };
+  const k = (dx: number, dy: number) => `${BX + dx},${BY + dy}`;
+  /** A bed of mine: two rows of growing plants; one of them watered ten minutes ago; a cabbage that is ripe; bare soil. */
+  const bed = (): Record<string, Plot> => ({
+    [k(0, 0)]: sown(), [k(1, 0)]: sown(), [k(2, 0)]: sown({ watered: NOON - 10 * 60_000, boost: 1_800_000 }), [k(3, 0)]: { soil: "tilled", plant: null },
+    [k(0, 1)]: sown({ crop: "cabbage", sown: NOON - 30 * HOUR }), [k(1, 1)]: sown({ crop: "chili" }), [k(6, 1)]: sown({ crop: "kangkong", sown: NOON - HOUR }), [k(5, 6)]: sown(),
+  });
+  const me = { ...holding(purseWith(GNOME, ["can", 1]), "can"), bag: holding(purseWith(GNOME, ["can", 1]), "can").bag.map((s) => (s?.item === "can" ? { ...s, water: 3 } : s)) };
+
+  it("goes down the bed a row at a time, to every plant that could do with water: not one that is wet, nor one that only waits to be picked", () => {
+    expect(gnomeReach(0, bed(), me, "me", NOON, "me")).toEqual([k(0, 0), k(1, 0), k(1, 1), k(6, 1), k(5, 6)]);
+    const did = done(gnomeWater(0, bed(), me, "me", NOON, "me"));
+    expect(did.watered).toEqual([k(0, 0), k(1, 0), k(1, 1), k(6, 1), k(5, 6)]);
+    expect(Object.keys(did.plots).sort()).toEqual([...did.watered].sort());
+    // each has what a plain can would have added, and is wet for the hour
+    for (const key of did.watered) {
+      expect(did.plots[key].plant).toEqual({ ...bed()[key].plant!, watered: NOON, boost: FARMING.water.adds * 60_000 });
+      expect(see(key, did.plots[key], NOON + 59 * 60_000).wet).toBe(true);
+    }
+  });
+
+  it("takes no water out of the can and no stamina, and adds no more for a better can or green fingers: the gnome's can is the gnome's", () => {
+    const did = done(gnomeWater(0, bed(), me, "me", NOON, "me"));
+    expect(staminaOf(did.purse, NOON)).toBe(100);
+    expect(did.purse.bag).toEqual(me.bag);
+    expect(did.purse.gnomed).toEqual({ "0": NOON });
+    const green: Purse = { ...holding(purseWith(GNOME, ["canBrass", 1]), "canBrass"), buffs: [{ id: "green", level: 4, until: NOON + HOUR }] };
+    expect(done(gnomeWater(0, bed(), green, "me", NOON, "me")).plots[k(0, 0)].plant!.boost).toBe(FARMING.water.adds * 60_000);
+    // (with nothing in the hand at all: it needs no hand)
+    expect(done(gnomeWater(0, bed(), purseWith(GNOME), "me", NOON, "me")).watered.length).toBe(5);
+  });
+
+  it("a bed rests an hour between two of its rounds, whatever has dried meanwhile; another bed of mine does not wait for it", () => {
+    const first = done(gnomeWater(0, bed(), me, "me", NOON, "me")), after = { ...bed(), ...first.plots };
+    // (the plant watered by hand fifty minutes before the round is dry again ten minutes after it: the gnome does not come back for it)
+    const later = NOON + 55 * 60_000;
+    expect(see(k(2, 0), after[k(2, 0)], later).wet).toBe(false);
+    expect(gnomeReach(0, after, first.purse, "me", later, "me")).toEqual([]);
+    expect(gnomeWater(0, after, first.purse, "me", later, "me")).toEqual({ ok: false, why: "wet" });
+    expect(gnomeReach(1, bed(), first.purse, "me", later, "me").length).toBe(6);
+    const other = done(gnomeWater(1, bed(), first.purse, "me", later, "me"));
+    expect(other.purse.gnomed).toEqual({ "0": NOON, "1": later });
+    // the hour gone by, it goes again, to whatever is dry by then; and a round that no longer counts is forgotten
+    const again = done(gnomeWater(0, after, other.purse, "me", NOON + 60 * 60_000, "me"));
+    expect(again.watered).toEqual([k(0, 0), k(1, 0), k(2, 0), k(1, 1), k(6, 1), k(5, 6)]);
+    expect(again.purse.gnomed).toEqual({ "0": NOON + 60 * 60_000, "1": later });
+    expect(done(gnomeWater(0, after, other.purse, "me", NOON + 3 * HOUR, "me")).purse.gnomed).toEqual({ "0": NOON + 3 * HOUR });
+  });
+
+  it("is its member's own beds only, and nothing without the gnome at heel", () => {
+    expect(gnomeReach(0, bed(), me, "me", NOON, "you")).toEqual([]);
+    expect(gnomeWater(0, bed(), me, "me", NOON, "you")).toEqual({ ok: false, why: "theirs" });
+    expect(gnomeWater(0, bed(), me, "me", NOON, null)).toEqual({ ok: false, why: "theirs" });
+    for (const gifts of [undefined, { had: ["famGnome"], charms: [] }, { had: ["famGnome", "famSquirrel"], charms: [], familiar: "famSquirrel" }, { had: [], charms: [], familiar: "famGnome" }]) {
+      expect(gnomeReach(0, bed(), purseWith(gifts), "me", NOON, "me")).toEqual([]);
+      expect(gnomeWater(0, bed(), purseWith(gifts), "me", NOON, "me")).toEqual({ ok: false, why: "none" });
+    }
+  });
+
+  it("has nothing to do where every plant is wet already, in the rain, or where nothing grows that water would help", () => {
+    const wet = Object.fromEntries(Object.entries(bed()).map(([key, plot]) => [key, plot.plant ? { ...plot, plant: { ...plot.plant, watered: NOON - 60_000 } } : plot]));
+    expect(gnomeWater(0, wet, me, "me", NOON, "me")).toEqual({ ok: false, why: "wet" });
+    expect(gnomeWater(0, bed(), me, "me", NOON, "me", [[NOON - HOUR, NOON + HOUR]])).toEqual({ ok: false, why: "wet" });
+    expect(gnomeWater(0, { [k(0, 0)]: { soil: "tilled", plant: null }, [k(0, 1)]: sown({ crop: "cabbage", sown: NOON - 30 * HOUR }) }, me, "me", NOON, "me")).toEqual({ ok: false, why: "soil" });
+    expect(gnomeWater(0, {}, me, "me", NOON, "me")).toEqual({ ok: false, why: "soil" });
+    // (a count of its rounds kept wrongly is no round)
+    expect(done(gnomeWater(0, bed(), { ...me, gnomed: { "0": "soon" } as unknown as Record<string, number> }, "me", NOON, "me")).purse.gnomed).toEqual({ "0": NOON });
   });
 });

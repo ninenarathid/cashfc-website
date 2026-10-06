@@ -7,6 +7,11 @@
 --     (`town.tend`, as it is), from the plot stood on outwards, and leaves each whose beat was missed. Each plot done
 --     is written down as its own go at farming (`town_plays`, which the lines of work count), and the row whole as
 --     one line of `town_deeds` (`row`).
+--   * The garden gnome (a familiar, following) waters its member's whole bed at once: no water out of a can, no
+--     stamina, what a plain can adds; a bed rests so many minutes between two of its rounds (the catalog's gifts row:
+--     the gnome's number), kept in the purse (`gnomed`). `town_gnome(x, y)`; written down as one line (`gnome`:
+--     how many plants). It began as a weeder counted ten times to a meal's hours (v152): that count is gone from the
+--     catalog's row, and `town_gift_use('famGnome')` answers that there is nothing to use.
 
 -- The row of its bed a plot is in: the bed's plots that share its y, as their keys from one end to the other
 -- (lib/town/world's rowOf); none, off the beds.
@@ -90,6 +95,92 @@ begin
     || case when bed is null then '{}'::jsonb else jsonb_build_object('bed', bed) end;
 end;
 $$;
+
+-- The garden gnome sent down a bed (lib/town/farm's gnomeWater). p_plots: every plot of the bed that is kept, by its
+-- key; p_owner: whose the bed is now. Gives the purse (which remembers the round and is otherwise as it was), the
+-- plots it watered as they now are, and which those are, down the bed a row at a time.
+create or replace function town.gnome_water(p_bed integer, p_plots jsonb, p_purse jsonb, p_me text, p_now bigint, p_owner text)
+returns jsonb language plpgsql stable
+as $$
+declare
+  f jsonb := town.cat('farming');
+  rest double precision := case when town.gift_works(p_purse, 'famGnome') then (town.cat('gifts')->'gifts'->'famGnome'->>'by')::double precision * 60000 else 0 end;
+  plots jsonb := case when jsonb_typeof(p_plots) = 'object' then p_plots else '{}'::jsonb end;
+  rounds jsonb := case when jsonb_typeof(p_purse->'gnomed') = 'object' then p_purse->'gnomed' else '{}'::jsonb end;
+  kept jsonb;
+  keys text[];
+  k text;
+  p jsonb;
+  next jsonb := '{}'::jsonb;
+begin
+  if not (rest > 0) then return town.no('none'); end if;
+  if p_owner is distinct from p_me then return town.no('theirs'); end if;
+  -- (a bed rests between two of its rounds, whatever has dried meanwhile)
+  if jsonb_typeof(rounds->(p_bed::text)) = 'number' and p_now - (rounds->>(p_bed::text))::numeric < rest then return town.no('wet'); end if;
+  select array_agg(e.key order by split_part(e.key, ',', 2)::int, split_part(e.key, ',', 1)::int) into keys
+    from jsonb_each(plots) e where town.deed_for(e.key, e.value, 'can', '', p_now, null) = 'water';
+  if keys is null then
+    return town.no(case when exists (
+      select 1 from jsonb_each(plots) e, lateral (select town.see(e.key, e.value, p_now) as s) z
+       where coalesce(e.value->'plant', 'null'::jsonb) <> 'null'::jsonb and not (z.s->>'dead')::boolean and (z.s->>'wet')::boolean) then 'wet' else 'soil' end);
+  end if;
+  foreach k in array keys loop
+    p := plots->k->'plant';
+    next := next || jsonb_build_object(k, (plots->k) || jsonb_build_object('plant', p || jsonb_build_object('watered', p_now,
+      'boost', (p->>'boost')::double precision + (f->'water'->>'adds')::double precision * 60000::double precision)));
+  end loop;
+  -- (only rounds that still count are kept)
+  select coalesce(jsonb_object_agg(e.key, e.value), '{}'::jsonb) into kept
+    from jsonb_each(rounds) e where jsonb_typeof(e.value) = 'number' and p_now - (e.value #>> '{}')::numeric < rest;
+  return jsonb_build_object('ok', true, 'watered', to_jsonb(keys), 'plots', next,
+    'purse', p_purse || jsonb_build_object('gnomed', kept || jsonb_build_object(p_bed::text, p_now)));
+end;
+$$;
+
+-- Send the gnome that follows me down the bed I stand in. One at a time in a bed, as every deed there.
+create or replace function public.town_gnome(p_x integer, p_y integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  purse jsonb := town.purse_of(me, true);
+  now_ bigint := town.now_ms();
+  bed_n integer := town.bed_of(coalesce(p_x, -1), coalesce(p_y, -1));
+  bed jsonb;
+  owner text;
+  did jsonb;
+  k text;
+  v_x integer;
+  v_y integer;
+begin
+  if bed_n < 0 then return town.answer(me, town.no('none')); end if;
+  perform pg_advisory_xact_lock(hashtext('town.bed'), bed_n);
+  select coalesce(jsonb_object_agg(p.x::text || ',' || p.y::text, jsonb_build_object('soil', p.soil, 'plant', coalesce(p.plant, 'null'::jsonb))), '{}'::jsonb)
+    into bed from public.town_plots p where p.bed = bed_n;
+  select town.owner_of(jsonb_build_object('by', b.member_id, 'tended', b.tended, 'empty', b.empty),
+           exists (select 1 from public.town_plots p where p.bed = b.bed and p.plant is not null), now_) into owner
+    from public.town_beds b where b.bed = bed_n;
+  did := town.gnome_water(bed_n, bed, purse, me::text, now_, owner);
+  if not (did->>'ok')::boolean then return town.answer(me, did); end if;
+  perform town.keep_purse(me, did->'purse');
+  -- (one line for the round: the gnome's water is nobody's and the plants its member's own, so the well's book and
+  -- the lines of work have nothing to count of it, plant by plant)
+  perform town.note(me, 'gnome', null, jsonb_array_length(did->'watered'), 0, jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'bed', bed_n));
+  for k in select jsonb_array_elements_text(did->'watered') loop
+    v_x := split_part(k, ',', 1)::integer;
+    v_y := split_part(k, ',', 2)::integer;
+    update public.town_plots p set plant = did->'plots'->k->'plant', changed = now_ where p.x = v_x and p.y = v_y;
+  end loop;
+  -- (its owner's every deed in a bed counts as tending it)
+  update public.town_beds b set tended = now_ where b.bed = bed_n and b.member_id = me;
+  -- (the plots as they are kept: with what the heat and the well's water added, if they did)
+  return town.answer(me, did - 'plots') || jsonb_build_object('plots', (
+    select coalesce(jsonb_object_agg(p.x::text || ',' || p.y::text, jsonb_build_object('soil', p.soil, 'plant', coalesce(p.plant, 'null'::jsonb))), '{}'::jsonb)
+      from public.town_plots p where p.bed = bed_n and did->'watered' ? (p.x::text || ',' || p.y::text)));
+end;
+$$;
+revoke execute on function public.town_gnome(integer, integer) from public, anon;
+grant execute on function public.town_gnome(integer, integer) to authenticated;
 
 -- A row at a time: what a gift of the farming line does to the whole row of the bed from the plot stood on, with
 -- the thing in the hand. One deed, one at a time in a bed (as every deed there).
