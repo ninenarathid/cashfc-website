@@ -113,11 +113,11 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "ขี่ได้ทุกแผนที่ เดินเร็วขึ้น 2 เท่า และเก็บของได้จากบนหลังกวางในระยะ 2 ช่อง", en: "Ridden on every map, twice as fast, and things are gathered from its back within two tiles" } },
   // the insects
   { id: "thingNectar", kind: "thing", line: "insects", rank: 3, name: { th: "หยดน้ำหวานล่อแมลง", en: "A drop of nectar" },
-    does: { th: "หยดลงพื้น ภายใน 10 วินาทีมีแมลงบินมาหา ชนิดตามที่และเวลานั้น วันละ 10 หยด", en: "Dropped on the ground: within ten seconds an insect flies to it, of that place and hour; ten drops a day" } },
+    does: { th: "หยดลงพื้นตรงที่ยืน ภายใน 10 วินาทีมีแมลงบินมาหา ชนิดตามที่และเวลานั้น วันละ 10 หยด (ปุ่มอยู่มุมจอตอนถือสวิง)", en: "Dropped on the ground where you stand: within ten seconds an insect flies to it, of that place and hour; ten drops a day (its button is at the screen's corner while you hold a net)" } },
   { id: "charmWind", kind: "charm", line: "insects", rank: 4, name: { th: "สวิงสายลม", en: "Wind net" },
-    does: { th: "สวิงลงทันทีไม่ต้องรอจังหวะ เล็งตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน", en: "The net falls at once, where it is aimed; it still misses when it is aimed badly" } },
+    does: { th: "สวิงลงทันทีไม่ต้องรอจังหวะ กดค้างเพื่อเล็ง ปล่อยตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน (ตอนหมดแรงเป็นสวิงธรรมดา)", en: "The net falls at once: press to aim, and it comes down where you let go; it still misses when it is aimed badly (with no stamina it is a plain net)" } },
   { id: "thingFlute", kind: "thing", line: "insects", rank: 5, by: 15, name: { th: "ขลุ่ยกล่อมแมลง", en: "Lulling flute" },
-    does: { th: "แมลงทุกตัวบนจอหลับ 15 วินาที ใช้ได้ 5 นาทีครั้ง", en: "Every insect on the screen sleeps fifteen seconds; once in five minutes" } },
+    does: { th: "แมลงทุกตัวบนจอหลับ 15 วินาที ใช้ได้ 5 นาทีครั้ง (ปุ่มอยู่มุมจอตอนถือสวิง)", en: "Every insect on the screen sleeps fifteen seconds; once in five minutes (its button is at the screen's corner while you hold a net)" } },
   { id: "charmCloak", kind: "charm", line: "insects", rank: 6, by: 3, name: { th: "ผ้าคลุมปีกผีเสื้อ", en: "Butterfly-wing cloak" },
     does: { th: "จับได้ทีละคู่: แมลงที่จับได้มีอีกตัวตามมา ต้องสวิงให้ทันใน 3 วินาที และแมลงหายากเฉพาะวันออกมาให้เราเห็นทุกวัน", en: "A pair at a time: an insect caught has another following, to be netted within three seconds; and the rare insects of a day show for you every day" } },
   // the farm
