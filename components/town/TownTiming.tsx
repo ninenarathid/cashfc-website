@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { dropped, finished, markerAt, press, startRound, type Round, type TimingMods } from "@/lib/town/timing";
+import { dropped, finished, markerAt, press, pressRow, rowDone, startRound, startRow, type Round, type RowRound, type TimingMods } from "@/lib/town/timing";
 import TownIcon, { type IconName } from "./TownIcon";
 import { BIG, GameFrame, PixelGround, STAGE, useFrames, useGameHandle, type GameProps, type GameResult } from "./TownGame";
 
@@ -18,15 +18,17 @@ export type TimingResult = GameResult;
  *
  * Nothing on it says how it works: what moves, the stretch and the squares that fill say it.
  */
-export default function TownTiming({ th, title, verb, need, mods, icon = "hoe", onDone, onCancel, onHit }: GameProps & {
+export default function TownTiming({ th, title, verb, need, mods, icon = "hoe", row = false, onDone, onCancel, onHit }: GameProps & {
   /** The word on the button: what a hit is. */
   verb: string;
   need: number;
   mods: TimingMods;
   /** What runs along the strip: the hoe in the hand. */
   icon?: IconName;
+  /** A row's game (the enchanted hoe, lib/town/timing's startRow): `need` beats, a swing to each; a miss leaves its plot undone and the round goes on. */
+  row?: boolean;
 }) {
-  const round = useRef<Round>(startRound(need, mods, Math.floor(Math.random() * 2 ** 31)));
+  const round = useRef<Round | RowRound>(row ? startRow(need, mods, Math.floor(Math.random() * 2 ** 31)) : startRound(need, mods, Math.floor(Math.random() * 2 ** 31)));
   const from = useRef(0);
   const [, setShown] = useState(0);
   /** Where each swing fell along the strip: a furrow is left there. */
@@ -41,7 +43,7 @@ export default function TownTiming({ th, title, verb, need, mods, icon = "hoe", 
 
   const strike = useCallback(() => {
     if (ended.current) return;
-    const t = (performance.now() - from.current) / 1000, was = round.current, now = press(was, t);
+    const t = (performance.now() - from.current) / 1000, was = round.current, now = row ? pressRow(was as RowRound, t) : press(was, t);
     round.current = now;
     const hit = now.hits > was.hits;
     onHit?.(hit);
@@ -53,11 +55,11 @@ export default function TownTiming({ th, title, verb, need, mods, icon = "hoe", 
       setFurrows((f) => [...f, markerAt(was, t)]);
     }
     setShown((n) => n + 1);
-    if (finished(now) || dropped(now)) {
+    if (row ? rowDone(now as RowRound) : finished(now) || dropped(now)) {
       ended.current = true;
-      window.setTimeout(() => onDone({ hits: now.hits, misses: now.misses, secs: Math.round(t * 10) / 10, need: now.need, ...(dropped(now) ? { dropped: true } : {}) }), dropped(now) ? 420 : 220);
+      window.setTimeout(() => onDone({ hits: now.hits, misses: now.misses, secs: Math.round(t * 10) / 10, need: now.need, ...(row ? { marks: (now as RowRound).marks } : dropped(now) ? { dropped: true } : {}) }), !row && dropped(now) ? 420 : 220);
     }
-  }, [onDone, onHit]);
+  }, [onDone, onHit, row]);
 
   // The space bar is the big button; Escape gives the work up. Heard before the town hears them.
   useEffect(() => {
@@ -102,6 +104,14 @@ export default function TownTiming({ th, title, verb, need, mods, icon = "hoe", 
           <span ref={puff} className="absolute -top-3 -ml-[10px] opacity-0"><TownIcon name="plotSoil" size={20} /></span>
         </span>
       </div>
+      {/* a row's beats, each as it went: a plot done, a plot left, and those still to come */}
+      {row && (
+        <ol className="mt-2 flex justify-center gap-1" aria-label={th ? "ช่องในแถว" : "The row's plots"} data-row-marks={(r as RowRound).marks.map((m) => (m ? 1 : 0)).join("")}>
+          {Array.from({ length: r.need }, (_, i) => { const m = (r as RowRound).marks[i]; return (
+            <li key={i} className="size-4 rounded-[2px] border-2 border-[#2a190d]" style={{ backgroundColor: m === undefined ? "rgba(255,246,227,0.18)" : m ? "#7fc46b" : "#c8553d" }} />
+          ); })}
+        </ol>
+      )}
       <button type="button" onPointerDown={(e) => { e.preventDefault(); strike(); }} className={`${BIG} mt-3`}>
         {verb}<kbd aria-hidden className="ml-2 hidden rounded border border-[#3a2209]/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-[#3a2209]/80 sm:inline">Space</kbd>
       </button>

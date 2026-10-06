@@ -4,6 +4,7 @@ import {
   BENCHES, BEYOND, BEYOND_PROPS, BOARD, CAMP, COLS, DROP, FARM, FARM_PROPS, FORDS, FOREST, FOREST_PROPS, GATES, GREAT_TREE, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
   YARD_SEATS, atFire, isBuilt, seenAt, setBuilt, yardSeat, zoneAt, type Zone,
 } from "./world";
+import { rowOf, bedOf, bedCorner } from "./world";
 
 describe("projection", () => {
   it("goes to isometric pixels and back", () => {
@@ -736,5 +737,30 @@ describe("the deck and the cooking yard, finished or building sites", () => {
     }
     expect(fishFrom(deckTile[0], deckTile[1])?.deep).toBe(true);
     expect(walkable(deckTile[0], deckTile[1])).toBe(true);
+  });
+});
+
+describe("a bed's row (the enchanted hoe works one at a swing)", () => {
+  it("is the seven plots of the bed that share a plot's y, from one end to the other, for every plot of every bed", () => {
+    let plots = 0;
+    for (let bed = 0; bed < 24; bed++) {
+      const [bx, by] = bedCorner(bed);
+      for (let dy = 0; dy < 7; dy++) for (let dx = 0; dx < 7; dx++) {
+        const row = rowOf(bx + dx, by + dy);
+        plots++;
+        expect(row.length).toBe(7);
+        expect(row.every(([x, y]) => y === by + dy && bedOf(x, y) === bed && plotAt(x, y))).toBe(true);
+        expect(row.map(([x]) => x)).toEqual([0, 1, 2, 3, 4, 5, 6].map((i) => bx + i));
+      }
+    }
+    expect(plots).toBe(1176);
+  });
+
+  it("is nothing off the beds: a lane, the well, the town", () => {
+    expect(rowOf(FARM.x, FARM.y)).toEqual([]);
+    expect(rowOf(32, 32)).toEqual([]);
+    const [bx, by] = bedCorner(0);
+    expect(rowOf(bx + 7, by)).toEqual([]);
+    expect(rowOf(bx - 1, by)).toEqual([]);
   });
 });

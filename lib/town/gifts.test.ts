@@ -93,8 +93,9 @@ describe("the gifts of the lines of work", () => {
     p = done(wearCharms(p, ["charmHoe", "charmApron"])).purse;
     expect(giftsOf(p).charms).toEqual(["charmHoe", "charmApron"]);
     expect(wearing(p, "charmHoe") && wearing(p, "charmApron") && !wearing(p, "charmNet")).toBe(true);
-    expect(charmBy(p, "charmHoe")).toBe(1.5);
-    expect(charmBy(p, "charmNet")).toBe(1);
+    // (a charm worn gives its number, one not worn what does nothing)
+    expect(charmBy(p, "charmHoe", 0)).toBe(CHARMS.charmHoe);
+    expect(charmBy(p, "charmNet", 0)).toBe(0);
     expect(charmBy(p, "charmLamp", 0)).toBe(0);
     expect(charmBy({ gifts: { had: ["charmLamp"], charms: ["charmLamp"] } }, "charmLamp", 0)).toBe(5);
     p = done(wearCharms(p, ["charmNet"])).purse;
@@ -213,6 +214,7 @@ describe("the gifts of the lines of work", () => {
     expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1 });
     expect(row.gifts.charmNet.by).toBe(1);
     expect(row.gifts.charmApron.by).toBe(1);
+    expect(row.gifts.charmHoe.by).toBe(1);
     expect(row.gifts.charmGloves.by).toBe(0.5);
   });
 });

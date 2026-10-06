@@ -5,12 +5,12 @@ import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, ridCameOf, rol
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
-import { charmBy, famBy, usesLeft } from "@/lib/town/gifts";
+import { famBy, usesLeft, wearing } from "@/lib/town/gifts";
 import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
-import { FARM, WELL, bedCorner, plotAt, type Vec } from "@/lib/town/world";
+import { rowOf, FARM, WELL, bedCorner, plotAt, type Vec } from "@/lib/town/world";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
 import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
@@ -176,7 +176,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }, [keeper]);
   useEffect(() => (near ? keeper.look("farm") : undefined), [near, keeper]);
   /** The work being done by the game of timing: on which plot (none, for carrying water), what, and how many hits it asks for. */
-  const [working, setWorking] = useState<{ key: string | null; work: Work; need: number } | null>(null);
+  /** (`row`: the plots of a bed's row that the enchanted hoe works at one swing, the one stood on first: a beat to each) */
+  const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[] } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
   const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" } | null>(null);
   const leaveIt = useRef<HTMLButtonElement>(null);
@@ -367,6 +368,12 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
     const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
+    // (the enchanted hoe worn as a charm: the whole row of the bed at a swing. Every plot of the row that wants the
+    // same work, the one I stand on first and then outwards; one game, a beat to a plot. lib/town/gifts)
+    if (need && (work === "clear" || work === "till") && key && deed && tile && wearing(keeper.purse(), "charmHoe")) {
+      const row = rowOf(tile[0], tile[1]).map(([x, y]) => ({ k: plotKey(x, y), far: Math.abs(x - tile[0]) })).filter(({ k }) => keeper.deedAt(k) === work).sort((a, b) => a.far - b.far).map(({ k }) => k);
+      if (row.length > 1) { setWorking({ key, work, need, row }); return; }
+    }
     // (the garden gnome that follows me pulls the weeds itself, with no game: so many plots to a meal's hours, counted
     // by whoever keeps the game. lib/town/gifts)
     if (need && work === "clear" && key && deed && famBy(keeper.purse(), "famGnome") > 0 && usesLeft(keeper.purse(), "famGnome", keeper.now()) > 0) {
@@ -443,9 +450,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         const game = working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
         // (a meal's buff on the hands: steady hands for the pouring, a keen eye for the hoe and the weeding; the game of
         // tired hands is as it is)
-        // (and the enchanted hoe worn as a charm: the hoe's swing and the weeding so many times as wide, lib/town/gifts)
-        const charm = game === "steady" || game === "pouring" ? 1 : charmBy(purse, "charmHoe");
-        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: (game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen")) * charm };
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen") };
         const growing = working.key ? seen.current.get(working.key) : undefined;
         const common = {
           th, title,
@@ -459,8 +464,18 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             if (hit) vfx.add(working.work === "clear" ? "leaves" : "soil", { x: x + 0.5, y: y + 0.5 });
           },
           onDone: (result: GameResult) => {
-            const { key: k, work } = working;
+            const { key: k, work, row } = working;
             setWorking(null);
+            // (a row worked at a swing: each plot whose beat was hit is done, one after another, as if each had been
+            // hoed by itself with no miss; a plot whose beat was missed is left as it is)
+            if (row && result.marks) {
+              const done = row.filter((_, i) => result.marks![i]), each = { hits: working.need, misses: 0, secs: Math.round((result.secs / row.length) * 10) / 10, need: working.need };
+              void (async () => {
+                for (const plot of done) await act(plot, each);
+                setNote(th ? `ทั้งแถว: เสร็จ ${done.length} จาก ${row.length} ช่อง` : `The row: ${done.length} of ${row.length} plots done`);
+              })();
+              return;
+            }
             // (a game of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
             if (result.dropped || !hoeing) keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
             // with no stamina left the work is dropped at the third miss: nothing is done
@@ -475,7 +490,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
             {/* the buffs that have a hand in this work, twinkling over the board */}
             <BuffAura ids={working.work === "ditch" ? [] : atPlot(working.work, purse, now)} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1 empty:hidden" />
-            {game === "weeding" ? <TownWeeding {...common} need={working.need} mods={mods} />
+            {working.row ? <TownTiming {...common} title={th ? `${title}ทั้งแถว` : `${title}: the whole row`} verb={th ? "ฟันจอบ" : "Swing"} need={working.row.length} mods={mods} icon={toolIcon(working.work, hand)} row />
+              : game === "weeding" ? <TownWeeding {...common} need={working.need} mods={mods} />
               : game === "pouring" ? <TownPouring {...common} verb={(HOLD[working.work] ?? HOLD.pour!)[th ? 0 : 1]} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} taking={working.work === "draw" || working.work === "fill"} into={(working.work === "water" && growing?.crop ? growIconOf(growing.crop, growing.stage) : INTO[working.work] ?? "plotDrop") as IconName} />
                 : game === "steady" ? <TownSteady {...common} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} over={(growing?.crop ? growIconOf(growing.crop, growing.stage) : "plotSoil") as IconName} />
                   : <TownTiming {...common} verb={th ? "ฟันจอบ" : "Swing"} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} />}

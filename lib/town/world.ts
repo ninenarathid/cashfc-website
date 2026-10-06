@@ -698,6 +698,13 @@ export function bedOf(tx: number, ty: number): number {
   const a = u < 27 ? u - 4 : u - 33, b = v < 19 ? v - 4 : v - 25;
   return ((v < 19 ? 0 : 2) + Math.floor(b / 8)) * 6 + (u < 27 ? 0 : 3) + Math.floor(a / 8);
 }
+/** The row of its bed that a plot is in: the bed's plots that share its y, from one end to the other (none, off the beds). */
+export function rowOf(tx: number, ty: number): Array<[number, number]> {
+  const bed = bedOf(tx, ty);
+  if (bed < 0) return [];
+  const [bx] = bedCorner(bed);
+  return Array.from({ length: 8 }, (_, i): [number, number] => [bx + i, ty]).filter(([x, y]) => bedOf(x, y) === bed);
+}
 /** A bed's corner tile nearest the top of the screen (its smallest x and y). */
 export function bedCorner(bed: number): [number, number] {
   const col = bed % 6, row = Math.floor(bed / 6);

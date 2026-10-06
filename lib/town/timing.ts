@@ -90,6 +90,29 @@ export const finished = (r: Round) => r.hits >= r.need;
 /** Whether the work was dropped: as many misses as tired hands have in them, before it was done. */
 export const dropped = (r: Round) => r.most > 0 && r.misses >= r.most && !finished(r);
 
+/**
+ * A row's round (the enchanted hoe, lib/town/gifts; the owner, 2026-10-07: a power that does many at once has a
+ * longer game of its own, and a miss costs a part, never the whole): so many beats, one swing to each. A swing over
+ * the stretch is that beat's plot done; one off it leaves the plot undone; either way the stretch moves on and the
+ * marker quickens, so the row's last plots are its hardest. It ends when every beat has had its swing, and cannot be
+ * dropped. `marks`: each beat as it went.
+ */
+export interface RowRound extends Round { marks: boolean[] }
+export function startRow(beats: number, mods: TimingMods, seed: number): RowRound {
+  return { ...startRound(beats, { ...mods, drops: false }, seed), most: 0, marks: [] };
+}
+/** Whether every beat of a row has had its swing. */
+export const rowDone = (r: RowRound) => r.marks.length >= r.need;
+/** A swing at a row's next beat. */
+export function pressRow(r: RowRound, t: number): RowRound {
+  if (rowDone(r)) return r;
+  const hit = over(r, t), { at, way } = running(r, t);
+  const [a, s1] = draw(r.seed), room = 1 - 2 * TIMING.edge - r.width;
+  let lo = TIMING.edge + a * room;
+  if (Math.abs(lo - r.lo) < r.width) lo = TIMING.edge + ((a + 0.5) % 1) * room;
+  return { ...r, hits: r.hits + (hit ? 1 : 0), misses: r.misses + (hit ? 0 : 1), marks: [...r.marks, hit], speed: Math.min(TIMING.fastest, r.speed * TIMING.quicken), from: at, way, since: t, lo, seed: s1 };
+}
+
 /** The button pressed at a moment: a hit (the stretch moves, the marker quickens) or a miss. */
 export function press(r: Round, t: number): Round {
   if (finished(r) || dropped(r)) return r;

@@ -5,7 +5,8 @@ import { PACE, paced } from "@/lib/town/pace";
 import type { Sprite } from "@/lib/town/scenery";
 
 /** How a game went: what the game of timing always gave back, and every game gives now. `dropped`: the work was not done (tired hands, and too many misses). */
-export interface GameResult { hits: number; misses: number; secs: number; need: number; dropped?: boolean }
+/** (`marks`: of a game that goes a beat at a time, a row's: how each beat went, in their order) */
+export interface GameResult { hits: number; misses: number; secs: number; need: number; dropped?: boolean; marks?: boolean[] }
 /** What every game is given by whoever opens it. */
 export interface GameProps {
   th: boolean;

@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { COOKING, stirMods } from "./cooking";
 import { FARMING, hitsFor } from "./farm";
 import { seeded } from "./fishing";
-import { TIMING, dropped, finished, markerAt, over, press, startRound, type Round, type TimingMods } from "./timing";
+import { TIMING, dropped, finished, markerAt, over, press, pressRow, rowDone, startRound, startRow, type Round, type TimingMods } from "./timing";
 
 /** The first moment from `from` on at which the marker is over the stretch (or not), found by looking every millisecond. */
 function when(r: Round, from: number, inside: boolean): number {
@@ -187,5 +187,53 @@ describe("work that is kinder than the rest, and work that tired hands find hard
     expect(plays(0.02, tired, need).done).toBeGreaterThan(0.88);
     // a better can widens the stretch for tired hands as a better hoe does
     expect(plays(0.07, { ...tired, tool: 2.2 }, need).done).toBeGreaterThan(plays(0.07, tired, need).done + 0.1);
+  });
+});
+
+describe("a row's round (the enchanted hoe: the owner, 2026-10-07, a power that does many at once has a longer game, and a miss costs a part)", () => {
+  it("has a swing to each beat: a hit is that plot done, a miss leaves it, and either way it goes on to the next", () => {
+    let r = startRow(7, {}, 11);
+    expect(r.need).toBe(7);
+    expect(r.most).toBe(0);
+    let t = 0;
+    const went = [true, false, true, true, false, true, true];
+    for (const hit of went) {
+      const at = when(r, t, hit);
+      const next = pressRow(r, at);
+      expect(next.marks.length).toBe(r.marks.length + 1);
+      expect(next.marks[next.marks.length - 1]).toBe(hit);
+      // the stretch has moved on and the marker runs faster, whether it was hit or not
+      expect(next.lo).not.toBe(r.lo);
+      expect(next.speed).toBeGreaterThanOrEqual(r.speed);
+      expect(rowDone(next)).toBe(next.marks.length === 7);
+      r = next;
+      t = at + 0.05;
+    }
+    expect(r.marks).toEqual(went);
+    expect(r.hits).toBe(5);
+    expect(r.misses).toBe(2);
+    // (nothing more is taken once every beat has had its swing)
+    expect(pressRow(r, t + 1)).toBe(r);
+  });
+
+  it("cannot be dropped, with no stamina either: tired hands leave plots undone, they do not lose the row", () => {
+    let r = startRow(7, { spent: true, drops: true }, 3), t = 0;
+    expect(r.most).toBe(0);
+    expect(r.width).toBeLessThan(startRow(7, {}, 3).width * 0.5);
+    for (let i = 0; i < 7; i++) { const at = when(r, t, false); r = pressRow(r, at); t = at + 0.02; expect(dropped(r)).toBe(false); }
+    expect(rowDone(r)).toBe(true);
+    expect(r.marks).toEqual([false, false, false, false, false, false, false]);
+  });
+
+  it("is harder at its end than at its beginning: the marker quickens with every beat, to the game's fastest", () => {
+    let r = startRow(7, {}, 5), t = 0;
+    const first = r.speed;
+    for (let i = 0; i < 7; i++) { const at = when(r, t, true); r = pressRow(r, at); t = at + 0.02; }
+    expect(r.speed).toBeGreaterThan(first * 1.5);
+    expect(r.speed).toBeLessThanOrEqual(TIMING.fastest);
+    // and a row is as wide and as fast at its first beat as a plot hoed by itself
+    const one = startRound(3, { tool: 2 }, 5), row = startRow(7, { tool: 2 }, 5);
+    expect(row.width).toBe(one.width);
+    expect(row.speed).toBe(one.speed);
   });
 });
