@@ -241,6 +241,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const sungPlots = useRef(new Set<string>());
   sungPlots.current = new Set(Object.entries(plots).flatMap(([k, plot]) => (plot.plant && moreOf(plot.plant) > 0 ? [k] : [])));
   const songs = useRef<Array<{ x: number; y: number; from: number | null }>>([]);
+  /** Whether a gift's deed is with the keeper now: its button pressed twice asks once. */
+  const sent = useRef(false);
 
   // The plots, drawn among everything else on the map.
   useEffect(() => {
@@ -525,7 +527,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult | null) => {
     // (the plots as they stand: which plants the mandrake sang to is read from each as it was and as it is)
     const stood = keeper.farm();
-    const did = await keeper.rowDo(k, name, marks, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined);
+    if (sent.current) return;
+    sent.current = true;
+    const did = await keeper.rowDo(k, name, marks, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined).finally(() => { sent.current = false; });
     if (!did.ok) { say(did.why); return; }
     // (the hoe's row and the sickle's sweep are goes at a game, written down as the hoe's own are; the swings were heard as they were made)
     const hoed = did.deed === "clear" || did.deed === "till", reaped = did.deed === "pick";
@@ -551,8 +555,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const gnomeHere = key ? keeper.gnomeAt(key) : [];
   /** Send it. It is seen going down the bed, to and fro a row at a time, with its can. */
   const sendGnome = useCallback(async () => {
-    if (!key) return;
-    const did = await keeper.gnomeDo(key);
+    if (!key || sent.current) return;
+    sent.current = true;
+    const did = await keeper.gnomeDo(key).finally(() => { sent.current = false; });
     if (!did.ok) { say(did.why); return; }
     sfx?.wake();
     sfx?.work("water");
@@ -566,8 +571,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const glassHere = key ? keeper.glassAt(key) : [];
   /** Turn it: a glint over every plant it quickens, and the sand is seen from then on. */
   const turnGlass = useCallback(async () => {
-    if (!key) return;
-    const did = await keeper.glassDo(key);
+    if (!key || sent.current) return;
+    sent.current = true;
+    const did = await keeper.glassDo(key).finally(() => { sent.current = false; });
     if (!did.ok) { say(did.why); return; }
     sfx?.wake();
     sfx?.work("made");
