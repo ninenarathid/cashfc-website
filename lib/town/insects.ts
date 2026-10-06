@@ -711,10 +711,10 @@ export function poseOf(id: BugId, h: Haunt, seed: number, m: Mind, now: number):
 /** Where a net has to land to take something: the point of the ground its picture is drawn over (a tile of lift is a tile up the screen, which is one back along each of the map's ways). */
 export const aimOf = (p: Pose): Vec => ({ x: p.x - p.lift, y: p.y - p.lift });
 /** The ring a net takes an insect within, in tiles: smaller for the small ones, and for tired hands. */
-export const ringOf = (id: BugId, spent: boolean) => NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1);
+export const ringOf = (id: BugId, spent: boolean, wide = 1) => NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide);
 /** Whether an insect missed so many times is off for good, for whoever missed it: only tired hands lose one so. */
 export const fledBy = (misses: number, spent: boolean) => spent && misses >= NET.tired.misses;
 /** How long a swing takes to land. */
 export const swingMs = (spent: boolean) => (spent ? NET.tired.lands : NET.lands);
 /** Whether a net landing at a point takes an insect as it is then. */
-export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean) => p.open && far(aimOf(p), at) <= ringOf(id, spent);
+export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide);

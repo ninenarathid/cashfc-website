@@ -5,6 +5,7 @@ import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, ridCameOf, rol
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
+import { charmBy } from "@/lib/town/gifts";
 import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
@@ -427,7 +428,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         const game = working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
         // (a meal's buff on the hands: steady hands for the pouring, a keen eye for the hoe and the weeding; the game of
         // tired hands is as it is)
-        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen") };
+        // (and the enchanted hoe worn as a charm: the hoe's swing and the weeding so many times as wide, lib/town/gifts)
+        const charm = game === "steady" || game === "pouring" ? 1 : charmBy(purse, "charmHoe");
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: (game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen")) * charm };
         const growing = working.key ? seen.current.get(working.key) : undefined;
         const common = {
           th, title,

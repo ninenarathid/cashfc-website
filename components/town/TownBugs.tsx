@@ -10,6 +10,7 @@ import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import { WILD_WISHES, softStep } from "@/lib/town/forest-eye";
+import { charmBy } from "@/lib/town/gifts";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
@@ -121,8 +122,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   // (the fountain's soft step: an insect lets me come nearer, lib/town/forest-eye)
   // (the fountain's soft step, or a meal's: the softer at each of the meal's levels, items' byOf; with neither, as ever)
   const soft = softStep(byOf(WILD_WISHES.net, levelOf(purse, keeper.now(), WILD_WISHES.net as WishId)));
-  const live = useRef({ hand, spent, busy, th, name, soft, me: keeper.id });
-  live.current = { hand, spent, busy, th, name, soft, me: keeper.id };
+  // (the silver-web net worn as a charm: the ring so many times as wide, lib/town/gifts)
+  const wide = charmBy(purse, "charmNet");
+  const live = useRef({ hand, spent, busy, th, name, soft, wide, me: keeper.id });
+  live.current = { hand, spent, busy, th, name, soft, wide, me: keeper.id };
 
   /** What each insect has in mind on this screen, how each is this frame, where I am and who is about, and the swing in the air. */
   const minds = useRef(new Map<number, { turn: number; bug: BugId; mind: Mind }>());
@@ -149,7 +152,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         const h = HAUNTS[id], kept = minds.current.get(id);
         if (!h || !kept) continue;
         const key = `${id}:${sight.turn}`;
-        if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent)) {
+        if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent, live.current.wide)) {
           got = true;
           // (a beetle: whoever stands under its tree with something sweet)
           const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[0]) < HABITS.lure.reach) : null;
@@ -333,8 +336,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     if (process.env.NODE_ENV === "production") return;
     const handle = {
       sights: () => seen.current.map((x) => ({ ...x, place: HAUNTS[x.id]?.place, kind: HAUNTS[x.id]?.kind, x: HAUNTS[x.id]?.x, y: HAUNTS[x.id]?.y, perches: HAUNTS[x.id]?.perches })),
-      poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent), mind: minds.current.get(id)?.mind ?? null })),
-      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent),
+      poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, live.current.wide), mind: minds.current.get(id)?.mind ?? null })),
+      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, live.current.wide),
       swing: (x: number, y: number) => { const now = Date.now(); swing.current = { at: { x, y }, began: now, lands: now + swingMs(live.current.spent), done: false }; },
       /** A tap at a point of the map, as the map hands one over: whether it was taken for a swing. */
       tap: (x: number, y: number) => tapRef.current?.({ x, y }) ?? false,

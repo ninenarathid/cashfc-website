@@ -24,6 +24,7 @@ import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
 import { natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
+import type { GiftRefusal } from "./gifts";
 import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
@@ -56,7 +57,7 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
@@ -212,6 +213,15 @@ export interface Keeper {
   linesRead(): void;
   /** Wear a title I have earned under my name, or none (null). */
   titleWear(worn: Worn | null): Promise<Did>;
+  /**
+   * The gifts of ranks (lib/town/gifts). `gifting` says whether whoever keeps the game gives them at all (a database
+   * before their file does not: the page then offers none, and shows no place to wear one). What I have and wear is
+   * in my purse (`giftsOf(purse())`). A gift is taken once, of a rank I have reached; the charms I name are worn and
+   * no others (none: all taken off).
+   */
+  gifting(): boolean;
+  giftTake(line: string, rank: number): Promise<Did<{ gift: string }>>;
+  charmsWear(ids: readonly string[]): Promise<Did>;
   /** Read the book again. */
   wellLook(): Promise<void>;
   /** Take what the well has waiting for me. */
@@ -380,6 +390,7 @@ export class DbKeeper implements Keeper {
   private ranks_: Record<string, number> = {};
   private lines_: LinesTold | null = null;
   private titles_: Record<string, Worn> = {};
+  private gifting_ = false;
   private ranksAgain: ReturnType<typeof setInterval> | null = null;
   private toThank_: Record<string, Array<Helper & { name: string }>> = {};
   private thanks_: ThanksBoard | null = null;
@@ -536,6 +547,7 @@ export class DbKeeper implements Keeper {
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
     if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
+    if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
     if (a.titles && typeof a.titles === "object") {
       this.titles_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
     }
@@ -706,6 +718,9 @@ export class DbKeeper implements Keeper {
   titles(): Record<string, Worn> { return this.titles_; }
   linesRead() { if (this.lines_) void this.ask("town_work"); }
   titleWear(worn: Worn | null) { return this.deed("town_title_wear", { p_line: worn?.line ?? null, p_rank: worn?.rank ?? null }); }
+  gifting() { return this.gifting_; }
+  giftTake(line: string, rank: number) { return this.deed<{ gift: string }>("town_gift_take", { p_line: line, p_rank: rank }); }
+  charmsWear(ids: readonly string[]) { return this.deed("town_charms_wear", { p_charms: [...ids] }); }
   pots(): Pot[] { return this.pots_; }
   found(): ItemId[] { return this.found_; }
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }

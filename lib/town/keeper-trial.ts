@@ -176,6 +176,9 @@ class TrialKeeper implements Keeper {
   titles() { return this.trial.titles(); }
   linesRead() { /* the trial's are read as they are asked for */ }
   async titleWear(worn: Worn | null): Promise<Did> { return this.trial.titleWear(worn); }
+  gifting() { return true; }
+  async giftTake(line: string, rank: number): Promise<Did<{ gift: string }>> { return this.trial.giftTake(line, rank); }
+  async charmsWear(ids: readonly string[]): Promise<Did> { return this.trial.charmsWear(ids); }
   async wellLook() { /* the book is in this browser already */ }
   async wellTake(): Promise<Did<{ gift: ItemId; rank: number }>> { return this.trial.wellTake(); }
   toThank() { return this.trial.toThank(); }
