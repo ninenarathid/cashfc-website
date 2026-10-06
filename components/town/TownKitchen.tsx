@@ -88,8 +88,15 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   onPotDown: () => void;
 }) {
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
-  const tool = crew[0], bare = place === "table" || place === "camp";
+  const tool = crew[0];
   const wares = useMemo(() => cookwareIn(purse.bag), [purse.bag]);
+  // Bare hands are offered at every place (it was the worktable's and the camp's alone, and a stove with no cookware
+  // in the bag read as if cookware were a must: the owner, 2026-10-06, "เอาไอคอน มือเปล่ามาใส่เลย จะได้ดูง่ายๆ"). They are
+  // what one cooks with where nothing else can be (a worktable, the camp, a bag with no cookware) and where one chose
+  // them; at a stove with cookware in the bag one of the two is chosen first, so that a pot's dish is not made by hand
+  // for want of a tap.
+  const [byHand, setByHand] = useState(false);
+  const bare = !tool && (place === "table" || place === "camp" || wares.length === 0 || byHand);
   const laid = useMemo(() => pantry(purse.bag), [purse.bag]);
   const put = (id: ItemId) => things.find(([t]) => t === id)?.[1] ?? 0;
   const total = things.reduce((t, [, n]) => t + n, 0);
@@ -239,21 +246,19 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
             <div className="flex min-h-11 items-center gap-1.5">
               <span className="shrink-0 font-data text-label" style={{ color: CREAM_SOFT }}>{th ? "ทำด้วย" : "With"}</span>
               <div role="radiogroup" aria-label={th ? "เครื่องครัว" : "Cookware"} className="flex min-w-0 items-center gap-1 overflow-x-auto py-0.5">
-                {bare && (
-                  <button type="button" role="radio" aria-checked={!tool} onClick={() => onTool(null)} title={th ? "มือเปล่า" : "Bare hands"} aria-label={th ? "มือเปล่า" : "Bare hands"} data-kitchen-tool="hand"
-                          className={`pressable grid size-10 shrink-0 place-items-center rounded-[4px] border-2 ${!tool ? "border-[#f0c060] bg-[#5a3a1c]" : "border-[#2a190d] bg-[#4a2f18]"}`}>
-                    <TownIcon name="hand" size={22} />
-                  </button>
-                )}
+                <button type="button" role="radio" aria-checked={bare} onClick={() => { setByHand(true); onTool(null); }} title={th ? "มือเปล่า" : "Bare hands"} aria-label={th ? "มือเปล่า" : "Bare hands"} data-kitchen-tool="hand"
+                        className={`pressable grid size-10 shrink-0 place-items-center rounded-[4px] border-2 ${bare ? "border-[#f0c060] bg-[#5a3a1c]" : "border-[#2a190d] bg-[#4a2f18]"}`}>
+                  <TownIcon name="hand" size={22} />
+                </button>
                 {wares.map(({ id, slot }) => (
-                  <button key={id} type="button" role="radio" aria-checked={tool === id} onClick={() => onTool(slot)} title={name(id)} aria-label={name(id)} data-kitchen-tool={id}
+                  <button key={id} type="button" role="radio" aria-checked={tool === id} onClick={() => { setByHand(false); onTool(slot); }} title={name(id)} aria-label={name(id)} data-kitchen-tool={id}
                           className={`pressable grid size-10 shrink-0 place-items-center rounded-[4px] border-2 ${tool === id ? "border-[#f0c060] bg-[#5a3a1c]" : "border-[#2a190d] bg-[#4a2f18]"}`}>
                     <ItemIcon id={id} size={26} />
                   </button>
                 ))}
               </div>
               <span className="min-w-0 flex-1 truncate text-meta font-semibold" style={{ color: tool || bare ? CREAM : "#ffb09c" }} data-kitchen-with>
-                {tool ? name(tool) : bare ? (th ? "มือเปล่า" : "Bare hands") : wares.length ? (th ? "เลือกเครื่องครัวก่อน" : "Choose your cookware") : (th ? "ยังไม่มีเครื่องครัวในกระเป๋า" : "No cookware in your bag yet")}
+                {tool ? name(tool) : bare ? (th ? "มือเปล่า" : "Bare hands") : (th ? "เลือกก่อน: มือเปล่า หรือเครื่องครัว" : "Choose first: bare hands, or cookware")}
               </span>
               {crew.length > 1 && (
                 <span className="flex shrink-0 items-center gap-1" aria-label={th ? `ผู้ช่วย ${crew.length - 1} คน` : `${crew.length - 1} helping`}>
@@ -441,7 +446,7 @@ function Page({ id, told, lines, purse, crew, notes, th, onBack }: {
               </span>
             </span>
           ))}
-          {!told.in.length && <span className="flex items-center gap-1.5"><TownIcon name="hand" size={20} />{th ? "มือเปล่า ที่โต๊ะ" : "Bare hands, at a worktable"}</span>}
+          {!told.in.length && <span className="flex items-center gap-1.5"><TownIcon name="hand" size={20} />{th ? "มือเปล่า" : "Bare hands"}</span>}
         </dd>
         <dt style={{ color: INK_SOFT }}>{th ? "ได้" : "Makes"}</dt>
         <dd className="font-semibold">{d ? (th ? `${told.gives} ที่` : `${told.gives} helping${told.gives === 1 ? "" : "s"}`) : `×${told.gives}`}</dd>

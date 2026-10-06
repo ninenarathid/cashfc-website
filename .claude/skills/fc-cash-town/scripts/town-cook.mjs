@@ -2,7 +2,7 @@
 // only), by two testers in two tabs of one browser, who share its pots and its finds:
 //
 // - the yard is walked into and stood in; cooking is offered only at a stove, a worktable or the fire, with cookware
-//   in the hand (bare hands will do at a worktable);
+//   or bare hands (offered at every place; at a stove with cookware in the bag one of the two is chosen first);
 // - things are picked one by one, never by recipe; the wrong ones, cooked in cookware, are a pot of an odd dish, which
 //   tastes of how near it was to something (one thing not the one; the right things in the wrong amounts); the pot is
 //   the yard's own, and the cook's is still theirs; the right things become a pot of the dish, by stirring it
@@ -125,7 +125,11 @@ try {
   await act(X, "cook");
   await until("the kitchen table is laid", () => X.evaluate(`${C}.open() && !!${K}`), 4000);
   await sleep(600);
-  ok("with no cookware in the hand it asks for some, and will not cook", /เลือกเครื่องครัวก่อน/.test(await X.evaluate(`${K}.querySelector("[data-kitchen-with]").innerText`)) && await X.evaluate(`${K}.querySelector("[data-kitchen-go]").disabled`));
+  ok("at a stove, with cookware in the bag and nothing chosen, it asks which: bare hands or cookware; both are there to tap, and it will not cook yet", /มือเปล่า หรือเครื่องครัว/.test(await X.evaluate(`${K}.querySelector("[data-kitchen-with]").innerText`))
+    && await X.evaluate(`${K}.querySelector("[data-kitchen-go]").disabled && ${K}.querySelector('[data-kitchen-tool="hand"]').getAttribute("aria-checked") === "false" && !!${K}.querySelector('[data-kitchen-tool="pot"]')`));
+  // (bare hands may be chosen at a stove too: the owner, 2026-10-06, "เอาไอคอน มือเปล่ามาใส่เลย จะได้ดูง่ายๆ")
+  await tap(X, '[data-kitchen-tool="hand"]');
+  ok("a tap on the hand chooses bare hands, at a stove as anywhere", (await X.evaluate(`${K}.querySelector("[data-kitchen-with]").innerText`)).trim() === "มือเปล่า" && (await X.evaluate(`${K}.querySelector('[data-kitchen-tool="hand"]').getAttribute("aria-checked")`)) === "true");
   await tap(X, '[data-kitchen-tool="pot"]');
   await until("a tap on the pot takes it up", async () => (await purse(X)).hand === "pot", 4000);
   ok("…and the table says which is held", (await X.evaluate(`${K}.querySelector("[data-kitchen-with]").innerText`)).trim() === "หม้อดิน" && (await X.evaluate(`${K}.querySelector('[data-kitchen-tool="pot"]').getAttribute("aria-checked")`)) === "true");

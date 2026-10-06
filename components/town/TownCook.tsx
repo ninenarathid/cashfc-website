@@ -51,7 +51,7 @@ const JAR_AT = KITCHEN.wash.length
  * - At a stove, a worktable or the fire, the kitchen table is laid
  *   (components/town/TownKitchen; the owner, 2026-10-06: "rework UI การทำอาหารให้
  *   เข้าใจง่ายขึ้น เปิดสูตรที่มีดูคู่กันไปได้"): the cookware is taken up there from
- *   what the bag has (or, at a worktable, bare hands), things from the bag
+ *   what the bag has (or bare hands, offered at every place), things from the bag
  *   are picked one by one and put together (never by recipe: "ทำอาหาร ต้องเลือก
  *   วัตถุดิบเอง ไม่ใช่เลือกเป้นสูตร"), stirred (the game of timing), and become a
  *   pot of a dish, or something else that is made, or an odd dish, or
