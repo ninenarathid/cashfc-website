@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type ItemId, type Sign } from "./items";
 import {
-  ALL_SIGNS, FIGHT, ORB, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, lightOrb, orbHaste, orbOf, underOrb, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
+  ALL_SIGNS, FIGHT, ORB, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, hookStar, lightOrb, orbHaste, orbOf, starOdds, underOrb, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods, type OrbSky, type Pair,
 } from "./fishing";
 import { hastened } from "./fountain";
@@ -1003,5 +1003,49 @@ describe("a sky orb (the owner: \"เลือกฟ้าเอง (กลา�
       expect(soon.nibbles).toEqual(cast.nibbles.map((n) => n / 2));
       expect(soon.what).toBe(cast.what);
     }
+  });
+});
+
+describe("stardust bait (the owner: \"ปลาที่กินเหยื่อนี้เป็นปลาหายากขึ้นไปแน่นอน (ยังต้องสู้ให้ได้เอง) วันละ 3 ชิ้น\")", () => {
+  const tier = (what: CatchId) => (what in FISH ? FISH[what as FishId].tier : null);
+  it("is taken only by what is rare or better, and by nothing that is no fish", () => {
+    for (const rain of [false, true]) for (const signs of [[], ["full"], [...ALL_SIGNS]] as Sign[][]) for (const top of [1, 2, 3]) {
+      const odds = starOdds(rain, false, signs, top);
+      expect(odds.length).toBeGreaterThan(3);
+      expect(odds.every((o) => tier(o.what) === "rare" || tier(o.what) === "legend")).toBe(true);
+      expect(odds.reduce((t, o) => t + o.p, 0)).toBeCloseTo(1, 9);
+    }
+  });
+  it("minds neither the bait a fish likes nor the hour: the night's fish and the dawn's legend are both in it at once", () => {
+    const whats = starOdds(false, false, [], 1).map((o) => o.what);
+    expect(whats).toEqual(expect.arrayContaining(["featherback", "goby", "wels", "gar", "koi", "arapaima"]));
+    // (no hour at which a bait brings all of those: a minnow by night, dough at dawn, a loach at dusk)
+    for (let h = 0; h < 24; h++) for (const bait of BAITS) expect(["featherback", "koi", "gar"].every((w) => oddsOf(bait, h).some((o) => o.what === w))).toBe(false);
+    // a legend is one bite in seven or so, not the next thing to every bite
+    const legends = starOdds(false, false, [], 1).filter((o) => tier(o.what) === "legend").reduce((t, o) => t + o.p, 0);
+    expect(legends).toBeGreaterThan(0.1);
+    expect(legends).toBeLessThan(0.2);
+  });
+  it("still minds the water, the sky, the signs, and how far the uncle's shelf has come", () => {
+    // nothing rare lives in the shallows
+    expect(starOdds(false, true, [...ALL_SIGNS], 3)).toEqual([]);
+    // the moon's fish only under a full moon
+    expect(starOdds(false, false, [], 3).some((o) => o.what === "moonFish")).toBe(false);
+    expect(starOdds(false, false, ["full"], 3).some((o) => o.what === "moonFish")).toBe(true);
+    // rain brings the wels twice as readily
+    const share = (rain: boolean) => { const odds = starOdds(rain, false, [], 1), wels = odds.find((o) => o.what === "wels")!.p, goby = odds.find((o) => o.what === "goby")!.p; return wels / goby; };
+    expect(share(true)).toBeCloseTo(share(false) * 2, 9);
+    // the later tiers' fish only once the shelf has reached them
+    for (const id of FISH_IDS) for (const top of [1, 2, 3]) expect(starOdds(false, false, [...ALL_SIGNS], top).some((o) => o.what === id), `${id} at ${top}`).toBe((tier(id) === "rare" || tier(id) === "legend") && ITEMS[id].tier <= top && FISH[id].water !== "bank");
+    expect(starOdds(false, false, [], 0)).toEqual([]);
+  });
+  it("needs a rod and no bait, three a day, by whoever has it", () => {
+    const bag = put(newPurse().bag, "rod", 1), owner = gifted({ had: ["thingBait"], charms: [] }, { bag });
+    let p = owner;
+    for (const left of [2, 1, 0]) { const did = hookStar(p, NOON); if (!did.ok) throw new Error(did.why); expect(did.left).toBe(left); expect(did.purse.bag).toEqual(bag); p = did.purse; }
+    expect(hookStar(p, NOON)).toEqual({ ok: false, why: "spent" });
+    expect(hookStar(p, NOON + 24 * 3_600_000).ok).toBe(true);
+    expect(hookStar(gifted({ had: ["thingBait"], charms: [] }), NOON)).toEqual({ ok: false, why: "tool" });
+    expect(hookStar(gifted(undefined, { bag }), NOON)).toEqual({ ok: false, why: "none" });
   });
 });

@@ -1,5 +1,5 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
-import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
+import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
 import { charmBy, numberOf, useGift, type GiftRefusal } from "./gifts";
 import { STAMINA, isSpent, levelOf } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
@@ -687,3 +687,40 @@ export function underOrb(sky: OrbSky | null, hour: number, rain: boolean, signs:
 }
 /** How much sooner a bite comes under an orb: the share of the wait that is taken off (lib/town/fountain's `hastened` takes it). */
 export const orbHaste = (): number => 1 - 1 / numberOf("thingOrb");
+
+/**
+ * Stardust bait (the deck's sixth rank, a thing): a bait of its own, so many a day (its count), that takes no bait
+ * from the bag. Whatever takes it is rare or better (`tiers`), whichever bait that fish likes and whatever the hour:
+ * what it cuts out of the game is the bait and the clock. The rest holds: the water (nothing rare lives in the
+ * shallows), the sky (a fish the rain keeps away is kept away), the signs (the moon's fish under a full moon), and
+ * how far the village's shelf has come (`top`: a fish of a later tier than anything the uncle sells yet is not in
+ * the water yet, for this bait as for any). It has to be struck and fought as any fish, and can be lost: lost, the
+ * bait is spent.
+ *
+ * Where nothing rare is in the water at all (the shallows; a member the rare fish have grown wary of, below) the
+ * line is not dropped and the bait is not spent (`calm`): the page says the water lies still, and no more.
+ */
+export const STAR = { tiers: ["rare", "legend"] as Tier[] };
+/** Why a line was not dropped that the bag and the gifts do not refuse for: nothing is there to take it. */
+export type FishRefusal = "calm";
+/** What takes a stardust bait, and how likely each is: every fish of its tiers that is in this water under this sky, by its tier and the sky alone. None, where there is none. */
+export function starOdds(rain: boolean, shallow: boolean, signs: readonly Sign[], top: number): Array<{ what: CatchId; p: number }> {
+  const weights: Array<[CatchId, number]> = [];
+  for (const id of FISH_IDS) {
+    const f = FISH[id];
+    if (!STAR.tiers.includes(f.tier) || ITEMS[id].tier > top) continue;
+    if (f.water ? f.water !== (shallow ? "bank" : "deck") : shallow) continue;
+    if (f.needs && !f.needs.every((s) => signs.includes(s))) continue;
+    const sky = rain ? f.rain : f.dry ?? 1;
+    if (!(sky > 0)) continue;
+    weights.push([id, TIER_WEIGHT[f.tier] * sky]);
+  }
+  let total = 0;
+  for (const [, w] of weights) total += w;
+  return weights.map(([what, w]) => ({ what, p: w / total }));
+}
+/** Put a stardust bait on the hook: a rod has to be in the bag, as for any line; one of the day's is counted, and nothing leaves the bag. */
+export function hookStar<P extends Purse>(purse: P, now: number): { ok: true; purse: P; left: number } | { ok: false; why: "tool" | GiftRefusal } {
+  if (!ROD_IDS.some((r) => held(purse.bag, r))) return { ok: false, why: "tool" };
+  return useGift(purse, "thingBait", now);
+}

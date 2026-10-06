@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { ALL_SIGNS, ORB, PAIR, castFrom, castLine, driveBack, hookBait, hookBaits, lightOrb, oddsOf, orbOf, sift, underOrb, type OrbSky } from "./fishing";
+import { ALL_SIGNS, ORB, PAIR, STAR, castFrom, castLine, driveBack, hookBait, hookBaits, hookStar, lightOrb, oddsOf, orbOf, sift, starOdds, underOrb, type OrbSky } from "./fishing";
 import { stretchOf, USES } from "./gifts";
 import { BAITS, FISH, type BaitId, type CatchId, type FishId, type ItemId, type Sign, type Tier } from "./items";
 import { dayOf } from "./stamina";
@@ -24,6 +24,9 @@ import { newPurse, put, type Purse } from "./trade";
  * - `orb_of`, `orb_light`, `under_orb`: a sky kept and one run out, of each sort, and kept wrongly in every way; the
  *   orb lit under each sky and under none there is, by somebody who has it, who has lit it today already, who has it
  *   not; and the hour, the rain and the signs a line is dropped by under each sky and under none.
+ * - `star_odds`, `hook_star`: what takes a stardust bait under both skies, from the deck and from the bank, with every
+ *   set of signs, at each tier the uncle's shelf may have reached; and the bait put on the hook by somebody with a
+ *   rod and without, who has it and has it not, with each count of the day's kept; and a line dropped from its odds.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-fishing.test.ts
  */
@@ -104,6 +107,22 @@ export function vectorsFishing(): Vector[] {
       add("orb_light", [p, sky, when], lightOrb(p, sky as string, when));
     }
   }
+  // what takes a stardust bait
+  const stars: Odds[] = [];
+  for (const rain of [false, true]) for (const shallow of [false, true]) for (const signs of [[], ["full"], ["tired"], ["after", "weekend"], [...ALL_SIGNS]] as Sign[][]) for (const top of [1, 2, 3, 0]) {
+    const got = starOdds(rain, shallow, signs, top);
+    add("star_odds", [rain, shallow, signs, top], got);
+    if (got.length) stars.push(got);
+  }
+  for (let i = 0; i < 120; i++) { const from = c.of(stars), rnd = Array.from({ length: 6 }, () => c.next()); let k = 0; add("cast_from", [from, rnd], castFrom(from, () => rnd[k++])); }
+  // …put on the hook
+  const dayOfBait = stretchOf(USES.thingBait!, NOW);
+  for (const things of [[], [["rod", 1]], [["rodTeak", 1], ["worm", 3]], [["worm", 9]]] as Array<Array<[ItemId, number]>>) {
+    for (const gifts of [undefined, { had: ["thingBait"], charms: [] }, { had: ["thingOrb"], charms: [] }] as Array<Purse["gifts"] | undefined>) for (const used of [undefined, 0, 1, 2, 3, 4]) for (const dk of [0, -1]) for (const when of [NOW, NOW + 86_400_000]) {
+      const g = gifts && used !== undefined ? { ...gifts, used: { thingBait: { k: dayOfBait + dk, n: used } } } : gifts, p = purse(g, { bag: bag(things) });
+      add("hook_star", [p, when], hookStar(p, when));
+    }
+  }
   // what the water answers under it
   for (const sky of [null, ...ORB.skies] as Array<OrbSky | null>) for (const hour of [0, 6, 12, 23]) for (const rain of [false, true]) for (const signs of [[], ["after"], ["full"], ["tired", "after", "full"], [...ALL_SIGNS]] as Sign[][]) {
     add("under_orb", [sky, hour, rain, signs], underOrb(sky, hour, rain, signs));
@@ -143,6 +162,19 @@ describe("the cases the database's rules of the fishing deck's gifts are held to
     const unders = of("under_orb").map((v) => ({ sky: v.args[0] as string | null, hour: v.args[1] as number, rain: v.args[2] as boolean, signs: v.args[3] as string[], got: v.want as { hour: number; rain: boolean; signs: string[] } }));
     expect(unders.some((u) => u.sky === "night" && u.hour === 12 && u.got.hour === ORB.night) && unders.some((u) => u.sky === "rain" && !u.rain && u.got.rain && u.signs.includes("after") && !u.got.signs.includes("after"))
       && unders.some((u) => u.sky === "moon" && !u.signs.includes("full") && u.got.signs.includes("full") && u.got.hour === ORB.night) && unders.some((u) => u.sky === null && JSON.stringify(u.got) === JSON.stringify({ hour: u.hour, rain: u.rain, signs: u.signs }))).toBe(true);
+    // the stardust bait: only the rare and better ever take it; none in the shallows; the moon's fish under a full moon only; more fish the further the shelf has come
+    const starred = of("star_odds").map((v) => ({ rain: v.args[0] as boolean, shallow: v.args[1] as boolean, signs: v.args[2] as string[], top: v.args[3] as number, odds: v.want as Odds }));
+    for (const x of starred) for (const o of x.odds) expect(STAR.tiers.includes(tierOf(o.what)!), o.what).toBe(true);
+    expect(starred.filter((x) => x.shallow).every((x) => x.odds.length === 0) && starred.filter((x) => x.top === 0).every((x) => x.odds.length === 0)).toBe(true);
+    expect(starred.some((x) => x.odds.some((o) => o.what === "moonFish")) && starred.filter((x) => !x.signs.includes("full")).every((x) => !x.odds.some((o) => o.what === "moonFish"))).toBe(true);
+    const deck = (top: number) => starred.find((x) => !x.rain && !x.shallow && x.signs.length === 0 && x.top === top)!.odds;
+    expect(deck(1).length).toBeGreaterThan(4);
+    expect(deck(2).length).toBeGreaterThan(deck(1).length);
+    expect(deck(3).length).toBeGreaterThan(deck(2).length);
+    expect(deck(1).some((o) => tierOf(o.what) === "legend") && deck(1).some((o) => tierOf(o.what) === "rare")).toBe(true);
+    for (const x of starred) if (x.odds.length) expect(Math.abs(x.odds.reduce((t, o) => t + o.p, 0) - 1)).toBeLessThan(1e-9);
+    const hooks = of("hook_star").map((v) => v.want as { ok: boolean; why?: string; left?: number });
+    expect(hooks.some((h) => h.ok && h.left === 2) && hooks.some((h) => h.ok && h.left === 0) && hooks.some((h) => !h.ok && h.why === "spent") && hooks.some((h) => !h.ok && h.why === "tool") && hooks.some((h) => !h.ok && h.why === "none")).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-fishing.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

@@ -3,11 +3,11 @@
 export default async function ({ t, U, call, purseOf, deeds, one, same, give, CODE }) {
   const DECK = [16, 38];
   const BAG = [{ item: "rod", n: 1 }, { item: "worm", n: 9 }, null, null, null, null, null, null, null, null];
-  /** A member with a rod in the hand, a bag (nine worms, unless told), all their stamina, and these gifts. */
+  /** A member with a rod in the hand, a bag (nine worms, unless told), all their stamina, and these gifts. (A purse nobody has kept yet is begun as the database begins one.) */
   const rigged = async (who, gifts = {}, bag = BAG) => {
     await t.sql(`insert into public.town_purses (member_id) values ($1) on conflict (member_id) do nothing`, [who]);
     await t.sql(`delete from public.town_lines where member_id = $1`, [who]);
-    await t.sql(`update public.town_purses set doc = coalesce(doc, '{}'::jsonb) || jsonb_build_object('hand', 'rod', 'bag', $2::jsonb, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who, JSON.stringify(bag)]);
+    await t.sql(`update public.town_purses set doc = (case when doc ? 'best' then doc else town.fresh() end) || jsonb_build_object('hand', 'rod', 'bag', $2::jsonb, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who, JSON.stringify(bag)]);
     return give(who, gifts);
   };
   const lineOf = async (who) => (await one(`select doc from public.town_lines where member_id = $1`, [who]))?.doc ?? null;
@@ -226,4 +226,60 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
   const moonlit = [];
   for (let i = 0; i < 80; i++) { await call(U.m1, "town_cast", "dough", DECK[0], DECK[1], false); moonlit.push((await lineOf(U.m1)).what); }
   t.check("under a full moon's night the moon's own fish comes to dough, and what bites only by day does not", did?.ok === true && moonlit.includes("moonFish") && !moonlit.includes("tilapia") && !moonlit.includes("barb"), [...new Set(moonlit)].join(" "));
+  /* ── stardust bait ── */
+  t.section("stardust bait: no bait from the bag, and whatever takes it is rare or better");
+  const ROD = [{ item: "rod", n: 1 }, null, null, null, null, null, null, null, null, null];
+  const BANK = Object.entries(CODE.fishing.places).find(([, deep]) => deep === false)[0].split(",").map(Number);
+  const tierOf = (what) => CODE.fish[what]?.tier ?? "other";
+  const bagOf = async (who) => JSON.stringify((await purseOf(who)).bag);
+  await rigged(U.m2, {}, ROD);
+  did = await call(U.m2, "town_cast", "worm", DECK[0], DECK[1], false, "star");
+  t.check("somebody with no stardust bait is refused it", did?.ok === false && did.why === "none" && (await lineOf(U.m2)) === null, did);
+  await rigged(U.m1, { had: ["thingBait"] }, [null, { item: "worm", n: 5 }, null, null, null, null, null, null, null, null]);
+  did = await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
+  t.check("with no rod in the bag it is not dropped, and not counted", did?.ok === false && did.why === "tool" && !(await purseOf(U.m1)).gifts.used.thingBait && (await lineOf(U.m1)) === null, did);
+  await rigged(U.m1, { had: ["thingBait"] }, ROD);
+  did = await call(U.m1, "town_cast", "worm", BANK[0], BANK[1], false, "star");
+  t.check("in the shallows nothing rare lives: the water lies still, the line is not dropped, and the bait is not spent", did?.ok === false && did.why === "calm" && !(await purseOf(U.m1)).gifts.used.thingBait && (await lineOf(U.m1)) === null, { did, bank: BANK });
+  const bagBefore = await bagOf(U.m1), castsWas = (await deeds("cast")).length;
+  did = await call(U.m1, "town_cast", "noBaitAtAll", DECK[0], DECK[1], false, "star");
+  line = await lineOf(U.m1);
+  const starDeed = (await deeds("cast")).at(-1);
+  t.check("from the deck it is dropped with no bait in the bag at all: what is on its way is rare or better, nothing left the bag, and one of the day's three is counted", did?.ok === true && typeof did.line.wait === "number" && ["rare", "legend"].includes(tierOf(line?.what))
+    && line.bait === "thingBait" && (await bagOf(U.m1)) === bagBefore && (await purseOf(U.m1)).gifts.used.thingBait?.n === 1, { did, line });
+  t.check("…written down as a cast of the stardust bait", (await deeds("cast")).length === castsWas + 1 && starDeed.thing === "thingBait" && starDeed.n === 1, starDeed);
+  // what takes it, many times over (the count put back each time): only the rare and better, and of the first shelf's water
+  const took = [];
+  for (let i = 0; i < 60; i++) {
+    await t.sql(`update public.town_purses set doc = doc #- '{gifts,used,thingBait}' where member_id = $1`, [U.m1]);
+    await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
+    took.push((await lineOf(U.m1)).what);
+  }
+  const top = (await one(`select town.shelf_top() as t`)).t;
+  t.check("sixty of them: every one rare or better, a legend among them now and then, and none of a tier the uncle's shelf has not reached", took.every((w) => ["rare", "legend"].includes(tierOf(w))) && took.some((w) => tierOf(w) === "legend") && took.some((w) => tierOf(w) === "rare")
+    && took.every((w) => CODE.items[w].tier <= top) && new Set(took).size >= 4, { top, took: [...new Set(took)].join(" ") });
+  // three a day
+  await rigged(U.m1, { had: ["thingBait"] }, ROD);
+  const three = [];
+  for (let i = 0; i < 4; i++) three.push(await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star"));
+  t.check("three a day: the fourth is refused, and the line of the third is out still", three.slice(0, 3).every((d) => d?.ok === true) && three[3]?.ok === false && three[3].why === "spent" && (await purseOf(U.m1)).gifts.used.thingBait.n === 3 && (await lineOf(U.m1)) !== null, three.map((d) => d?.ok ?? d));
+  // struck and fought as any fish, and lost as any fish: nothing comes back to the bag
+  await rigged(U.m1, { had: ["thingBait"] }, ROD);
+  await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
+  await fated(U.m1, { what: "featherback", size: 60 });
+  did = await call(U.m1, "town_strike", 200);
+  const paidStar = 100 - (await stamina(U.m1));
+  t.check("it is struck as any line, and the fight is paid for as any fish's", did?.ok === true && did.hooked === true && did.what === "featherback" && paidStar === CODE.fish.featherback.effort, { did, paidStar });
+  did = await call(U.m1, "town_land", "snapped", null);
+  t.check("lost in the fight, the bait is spent: nothing comes back, and nothing of it is ever in the bag", did?.ok === true && did.how === "snapped" && did.back === false && same((await purseOf(U.m1)).bag, ROD) && (await purseOf(U.m1)).gifts.used.thingBait.n === 1, { how: did?.how, back: did?.back, bag: await bagOf(U.m1) });
+  await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
+  await fated(U.m1, { what: "featherback", size: 60 });
+  await call(U.m1, "town_strike", 200);
+  await ago(U.m1, 60000);
+  did = await call(U.m1, "town_land", "landed", null);
+  t.check("fought and won, it is landed as any fish: in the bag, and the go written down with the bait it took", did?.ok === true && did.how === "landed" && did.kept === true && (await held(U.m1, "featherback")) === 1 && (await plays(U.m1)).at(-1).doc.bait === "thingBait" && (await plays(U.m1)).at(-1).won === true, did);
+  // it is no pair's
+  await rigged(U.m1, { had: ["thingBait", "thingRod"] }, ROD);
+  did = await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
+  t.check("it goes out on one line, whoever has a rod of two", did?.ok === true && !("pair" in did.line) && (await lineOf(U.m1)).two === undefined, did?.line);
 }

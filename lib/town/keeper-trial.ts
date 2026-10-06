@@ -1,10 +1,10 @@
 import type { Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
-import { ALL_SIGNS, PAIR, SIGNS, castFrom, driveBack, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, underOrb, type Cast, type Strike } from "./fishing";
+import { ALL_SIGNS, PAIR, SIGNS, castFrom, driveBack, hookStar, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, underOrb, type Cast, type Strike } from "./fishing";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
-import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
+import { type CatchId, FISH, ITEMS, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import { wearing, works } from "./gifts";
 import type { CastHow, CastTold, Did, Hooked, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 import type { Worn } from "./lines";
@@ -32,7 +32,8 @@ class TrialKeeper implements Keeper {
   onDeed: ((what: Looked, to?: string) => void) | null = null;
   /** The line that is out: what is on its way, and the bait it took. */
   // ── gifts: fishing ── (`again`: the otter has driven this line's fish back once; `two`: what is on the second line of a rod of two lines, while both are on)
-  private out: { cast: Cast; bait: BaitId; again?: boolean; two?: { what: CatchId; size: number } } | null = null;
+  // (`bait`: none, of a stardust bait: nothing left the bag, and nothing comes back to it)
+  private out: { cast: Cast; bait: BaitId | null; again?: boolean; two?: { what: CatchId; size: number } } | null = null;
   /** For scripts: what the next lines bring, whatever the odds (this keeper is `next dev`'s only). */
   private fated: CatchId[] = [];
   willBite(ids: CatchId[]) { this.fated = [...ids]; }
@@ -124,12 +125,12 @@ class TrialKeeper implements Keeper {
   }
 
   async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false, how?: CastHow): Promise<Did<CastTold>> {
-    // ── gifts: fishing ── (a rod of two lines is its owner's to drop, and takes two of the bait)
-    const pair = how === "pair";
-    if (pair && !works(this.trial.purse(), "thingRod")) return { ok: false, why: "none" };
-    const used = pair ? this.trial.baits(bait, PAIR.lines) : this.trial.bait(bait);
-    if (!used.ok) return used;
+    // ── gifts: fishing ── (a rod of two lines is its owner's to drop, and takes two of the bait; a stardust bait is its owner's too, and takes none)
+    const pair = how === "pair", star = how === "star";
+    if ((pair && !works(this.trial.purse(), "thingRod")) || (star && !works(this.trial.purse(), "thingBait"))) return { ok: false, why: "none" };
     const now = this.trial.now(), p = this.trial.purse();
+    const starred = star ? hookStar(p, now) : null;
+    if (starred && !starred.ok) return starred;
     // What some fish wait for (lib/town/fishing's signs), by this browser's clock, its purse and its sky. The others'
     // lines it cannot know (each tab keeps its own): `&townSigns=crowd` says they are out, and any other sign named
     // there holds as well, so that a fish that waits for the moon need not be waited for.
@@ -139,14 +140,22 @@ class TrialKeeper implements Keeper {
     // (under a sky orb the water answers its owner as if under that sky: the hour, the rain and the signs are the orb's)
     const sky = orbOf(p, now), under = underOrb(sky, bangkokHour(now), rain, signs);
     // (what may take it: the bait's own odds, and, of a pair, never a legend)
-    const own = oddsOf(bait, under.hour, under.rain, levelOf(p, now, "lucky"), !place.deep, under.signs), odds = pair ? sift(own, PAIR.never) : own;
+    // (and a stardust bait's: every rare fish and better of this water and sky that the uncle's shelf has reached)
+    const own = starred ? starOdds(under.rain, !place.deep, under.signs, Math.max(...this.trial.shelf().map((id) => ITEMS[id].tier))) : oddsOf(bait, under.hour, under.rain, levelOf(p, now, "lucky"), !place.deep, under.signs);
+    const odds = pair ? sift(own, PAIR.never) : own;
+    // (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
+    if (!odds.length) return { ok: false, why: "calm" };
+    // (the bait leaves the bag, or the stardust is counted, only now that the line goes out)
+    const used = starred ? { ok: true as const } : pair ? this.trial.baits(bait, PAIR.lines) : this.trial.bait(bait);
+    if (!used.ok) return used;
+    if (starred?.ok) this.trial.fished(starred.purse);
     const draw = () => { const fate = this.fated.shift(); return castFrom(fate ? [{ what: fate, p: 1 }] : odds, rnd); };
     const drawn = draw(), second = pair ? draw() : null;
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
     const blessed = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     // (and under an orb the bite comes sooner still)
     const cast = sky ? hastened(blessed, orbHaste()) : blessed;
-    this.out = { cast, bait, ...(second ? { two: { what: second.what, size: second.size } } : {}) };
+    this.out = { cast, bait: star ? null : bait, ...(second ? { two: { what: second.what, size: second.size } } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
     return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}), ...(wearing(p, "charmFloat") ? { coming: cast.what } : {}),
@@ -198,17 +207,17 @@ class TrialKeeper implements Keeper {
       o.cast = { ...o.cast, ...other };
       o.two = undefined;
       if (how === "landed") return { how, ...this.trial.land(mine.what, mine.size), more: true };
-      if (how === "snapped") this.trial.lose(o.bait);
-      return { how, kept: false, record: false, ...(this.trial.back(o.bait) ? { back: true } : {}), more: true };
+      if (how === "snapped" && o.bait) this.trial.lose(o.bait);
+      return { how, kept: false, record: false, ...(o.bait && this.trial.back(o.bait) ? { back: true } : {}), more: true };
     }
     // ── gifts: fishing ── (the otter drives a fish that got away back, once to a line: the line stays out, and the fight is to be had again)
     const driven = driveBack(this.trial.purse(), how, !!o.again, this.trial.now());
     if (driven.ok) { this.trial.fished(driven.purse); o.again = true; return { how, kept: false, record: false, again: true }; }
     this.out = null;
     if (how === "landed") return { how, ...this.trial.land(o.cast.what, o.cast.size) };
-    if (how === "snapped") this.trial.lose(o.bait);
+    if (how === "snapped" && o.bait) this.trial.lose(o.bait);
     // (a fish hooked and lost in the fight gives the bait it took back, where the bag has room)
-    const back = (how === "snapped" || how === "slipped") && this.trial.back(o.bait);
+    const back = (how === "snapped" || how === "slipped") && !!o.bait && this.trial.back(o.bait);
     return { how, kept: false, record: false, ...(back ? { back: true } : {}) };
   }
 

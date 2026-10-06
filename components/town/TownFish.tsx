@@ -37,8 +37,8 @@ type Phase =
   | { at: "casting" }
   /** (`shade`: under the fountain's clear water, how rare a thing is on its way; never which) */
   /** (`coming`: what is on its way, for whoever wears the whispering float: a fish landed before is shown as itself, another as a shade of its tier) */
-  /** (`pair`: two lines are out, on a rod of two lines; `coming2`: what is on its way to the second, told as the first's is) */
-  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId }
+  /** (`pair`: two lines are out, on a rod of two lines; `coming2`: what is on its way to the second, told as the first's is; `star`: a stardust bait is on the hook) */
+  | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; star?: boolean }
   | { at: "striking" }
   | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
   /** Two fish on a rod of two lines, fought at once (lib/town/fishing's `Pair`). */
@@ -60,7 +60,10 @@ const PAIR_LOOK = [
 /** Why a deed of the deck's gifts was not done, beyond what the bag and the stall refuse for. */
 const WHY_FISH: Record<string, [th: string, en: string]> = {
   spent: ["วันนี้ใช้ไปแล้ว", "It has been used today"],
+  calm: ["น้ำนิ่งสนิท ไม่มีอะไรขึ้นมาหาแสงดาว", "The water lies still: nothing rises to the starlight."],
 };
+/** What a line dropped with a stardust bait is written down as having on its hook (the trial's own log: lib/town/plays knows the baits of the bag). */
+const STAR_BAIT = "thingBait" as BaitId;
 /** The skies of a sky orb, as they are called. */
 const SKY_NAME: Record<OrbSky, [th: string, en: string]> = { night: ["กลางคืน", "Night"], rain: ["ฝน", "Rain"], moon: ["จันทร์เต็มดวง", "Full moon"] };
 /** Where the stars stand on an orb's night water, in hundredths of its width and height. */
@@ -207,6 +210,11 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const baits = BAITS.filter((b) => have(b) > 0);
   // the bait in hand: the one chosen, or the first there is any of
   const inHand = have(bait) ? bait : baits[0] ?? bait;
+  /* ── stardust bait (lib/town/gifts' thingBait): a bait of its own among the baits, so many a day, that takes none from the bag ── */
+  const [star, setStar] = useState(false);
+  const starHad = works(purse, "thingBait"), starLeft = starHad ? usesLeft(purse, "thingBait", now) : 0;
+  /** Whether it is the bait in hand: chosen, or the only thing there is to put on a hook. */
+  const starOn = starLeft > 0 && (star || !baits.length);
   const shown = seesOdds(me);
   const odds = useMemo(() => (shown ? oddsOf(inHand, hour, rain, lucky, !place.deep).sort((a, b) => b.p - a.p) : []), [shown, inHand, hour, rain, lucky, place.deep]);
 
@@ -254,8 +262,10 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
   /* ── dropping the line, and waiting ── */
   /** (`how`: "pair", both lines of a rod of two lines, for two of the bait: lib/town/fishing's `PAIR`) */
-  const drop = async (how?: CastHow) => {
-    if (!gear.rod || !baits.length || afloat.current) return;
+  const drop = async (asked?: CastHow) => {
+    // (with the stardust bait in hand it is the bait that goes out, on the plain line)
+    const how: CastHow | undefined = asked ?? (starOn ? "star" : undefined);
+    if (!gear.rod || afloat.current || (how !== "star" && !baits.length)) return;
     if (how === "pair" && have(inHand) < PAIR.lines) return;
     setNote(null);
     sfx.wake();
@@ -267,14 +277,14 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     const cast = await keeper.cast(inHand, place, rain, quick, how);
     if (!cast.ok) {
       afloat.current = false;
-      const w = WHY[cast.why as keyof typeof WHY] ?? WHY.none;
+      const w = WHY_FISH[cast.why] ?? WHY[cast.why as keyof typeof WHY] ?? WHY.none;
       setNote(th ? w[0] : w[1]);
       setPhase({ at: "ready" });
       return;
     }
-    out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
+    out.current = { bait: how === "star" ? STAR_BAIT : inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
     setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}),
-      ...(cast.pair ? { pair: true } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}) });
+      ...(cast.pair ? { pair: true } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}), ...(how === "star" ? { star: true } : {}) });
   };
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
   /** The second line's float and thread, of a rod of two lines. */
@@ -852,7 +862,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               <p className="text-ui text-[#fff6e3]">{th ? "ต้องมีคันเบ็ดก่อน" : "You need a rod first."}</p>
               {process.env.NODE_ENV !== "production" && trial && kitButton(["รับคันเบ็ดกับไส้เดือน 10 ตัว", "Take a rod and ten worms"])}
             </>
-          ) : !baits.length ? (
+          ) : !baits.length && !starLeft ? (
             <>
               <p className="text-ui text-[#fff6e3]">{th ? "ในกระเป๋าไม่มีอะไรที่เกี่ยวเบ็ดได้เลย" : "Nothing in your bag will go on a hook."}</p>
               {process.env.NODE_ENV !== "production" && trial && kitButton(["รับไส้เดือน 10 ตัว", "Take ten worms"])}
@@ -861,11 +871,18 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             <>
               <div role="radiogroup" aria-label={th ? "เหยื่อ" : "Bait"} className="flex flex-wrap gap-1.5">
                 {baits.map((b) => (
-                  <button key={b} type="button" role="radio" aria-checked={inHand === b} onClick={() => setBait(b)}
-                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-3 text-ui ${inHand === b ? "border-[#ffe19a] bg-[#f0c060]/25 font-semibold text-[#fff6e3]" : "border-[#2a190d] text-[#fff6e3] hover:border-[#ffe19a]"}`}>
+                  <button key={b} type="button" role="radio" aria-checked={!starOn && inHand === b} onClick={() => { setBait(b); setStar(false); }}
+                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-3 text-ui ${!starOn && inHand === b ? "border-[#ffe19a] bg-[#f0c060]/25 font-semibold text-[#fff6e3]" : "border-[#2a190d] text-[#fff6e3] hover:border-[#ffe19a]"}`}>
                     <ItemIcon id={b} size={20} />{name(b)}<span className="font-data text-meta text-[#e9cfa4]">×{have(b)}</span>
                   </button>
                 ))}
+                {/* the stardust bait: of the gifts, not of the bag; how many are left today beside it */}
+                {starHad && (
+                  <button type="button" role="radio" aria-checked={starOn} disabled={!starLeft} onClick={() => setStar(true)} data-fish-star={starLeft}
+                          className={`pressable flex min-h-11 items-center gap-1.5 rounded-md border-2 px-3 text-ui disabled:opacity-45 ${starOn ? "border-[#bfe4ff] bg-[#1c2c38] font-semibold text-[#fff6e3] shadow-[0_0_10px_2px_rgba(160,215,255,0.55)]" : "border-[#2a190d] text-[#fff6e3] hover:border-[#bfe4ff]"}`}>
+                    <TownIcon name="thingBait" size={22} />{th ? "เหยื่อดาวตก" : "Stardust bait"}<span className="font-data text-meta text-[#bfe4ff]">×{starLeft}</span>
+                  </button>
+                )}
               </div>
               {/* what a bait may bring: shown to nobody for now (lib/town/fishing's seesOdds) */}
               {shown && (
@@ -893,7 +910,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                   </label>
                 )}
                 {/* a rod of two lines (lib/town/gifts' thingRod), beside the plain line: both lines at once, for two of the bait */}
-                {rodOfTwo && (
+                {rodOfTwo && !starOn && (
                   <button type="button" onClick={() => { void drop("pair"); }} disabled={have(inHand) < PAIR.lines} data-fish-pair
                           className="pressable flex min-h-11 items-center gap-1.5 rounded-md border-[3px] border-[#2a190d] bg-[#8fd0ea] px-3 text-ui font-semibold text-[#12303f] shadow-[inset_0_-3px_0_#4d9dc0] disabled:opacity-50">
                     <TownIcon name="thingRod" size={22} />{th ? "หย่อนสองสาย" : "Drop two lines"}
@@ -950,6 +967,15 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             {phase.at === "waiting" && phase.coming && <span ref={flash} className="absolute size-14 rounded-full opacity-0" style={{ background: "radial-gradient(circle, rgba(255,246,190,0.95) 0%, rgba(255,236,150,0.5) 45%, rgba(255,236,150,0) 70%)" }} data-fx="flash" />}
             <span ref={ring} className="absolute size-10 rounded-full border-2 border-white/80 opacity-0" />
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
+            {/* a stardust bait on the hook: its light about the float, and sparks of it on the water */}
+            {phase.at === "waiting" && phase.star && (
+              <span className="absolute grid place-items-center" data-fx="star">
+                <span className="size-16 animate-pulse rounded-full motion-reduce:animate-none" style={{ background: "radial-gradient(circle, rgba(190,228,255,0.75) 0%, rgba(150,205,255,0.35) 45%, rgba(150,205,255,0) 70%)" }} />
+                <Twinkle size={18} className="absolute -translate-x-6 -translate-y-5" />
+                <Twinkle size={14} from={2} className="absolute translate-x-7 -translate-y-2" />
+                <Twinkle size={12} from={4} className="absolute translate-x-3 translate-y-6" />
+              </span>
+            )}
             {/* a rod of two lines: the second float, beside the first */}
             {phase.at === "waiting" && phase.pair && (
               <span className="absolute left-[63.9%] top-1/2 -translate-x-1/2 -translate-y-1/2" data-fx="float2">

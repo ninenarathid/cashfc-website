@@ -2,7 +2,7 @@ import type { Box, BoxRefusal } from "./box";
 import { cook, hasMade, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
-import type { Strike } from "./fishing";
+import type { FishRefusal, Strike } from "./fishing";
 import type { ForestRefusal, Outcome, Sight } from "./forest";
 import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
@@ -57,7 +57,9 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal
+  // ── gifts: fishing ──
+  | FishRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
 export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
@@ -70,8 +72,8 @@ export interface Struck { hooked: boolean; how?: "early" | "missed"; what?: Catc
 // ── gifts: fishing ── (`again`: the otter drove the fish back, and it is to be fought once more at once: the go has not ended;
 // `more`: it was one of two on a rod of two lines, and the other is on still)
 export interface Landed { how: FishingEnd; kept: boolean; record: boolean; back?: boolean; again?: boolean; more?: boolean }
-/** How a line is dropped when it is not the plain one: "pair", a rod of two lines (two baits, a second fish on the second line). */
-export type CastHow = "pair";
+/** How a line is dropped when it is not the plain one: "pair", a rod of two lines (two baits, a second fish on the second line); "star", a stardust bait (none from the bag: the bait named is not looked at). */
+export type CastHow = "pair" | "star";
 /** One of the two a rod of two lines hooked: what it is and how long, and (what is no fish) that it came in at once. */
 export interface Hooked { what: CatchId; size: number; landed: boolean; kept?: boolean }
 /** (a strike's answer, of a rod of two lines: the two, in their order) */

@@ -5,7 +5,7 @@ import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } fro
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
-import { FIGHT, NIBBLES_APART, ORB, PAIR, SIGNS, STRIKE } from "./fishing";
+import { FIGHT, NIBBLES_APART, ORB, PAIR, SIGNS, STAR, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
@@ -129,6 +129,8 @@ export function catalogOf() {
       pair: { never: PAIR.never },
       // a sky orb: the minutes it shines, the hour its night is, and the skies there are
       orb: { minutes: ORB.minutes, night: ORB.night, skies: ORB.skies },
+      // stardust bait: the tiers that take it
+      star: { tiers: STAR.tiers },
       // (with the deck finished, whatever is shown where this is asked: lib/town/world's asBuilt)
       places: asBuilt(() => Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
         .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; }))),

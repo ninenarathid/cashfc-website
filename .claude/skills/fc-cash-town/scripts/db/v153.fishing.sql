@@ -251,6 +251,64 @@ as $$
     from (select town.cat('fishing')->'orb' as orb) o
 $$;
 
+-- ─── Stardust bait (thingBait, the sixth rank) ────────────────────────────
+
+-- What takes a stardust bait, and how likely each is (lib/town/fishing's starOdds): every fish of its tiers that is
+-- in this water under this sky and that the village's shelf has reached, by its tier and the sky alone: whichever
+-- bait it likes, whatever the hour. None, where there is none.
+create or replace function town.star_odds(p_rain boolean, p_shallow boolean, p_signs text[], p_top integer)
+returns jsonb language plpgsql stable
+as $$
+declare
+  cat jsonb := town.cat('fishing');
+  fish jsonb := town.cat('fish');
+  items jsonb := town.cat('items');
+  ids text[] := '{}';
+  ws double precision[] := '{}';
+  id text;
+  f jsonb;
+  sky double precision;
+  total double precision := 0;
+  odds jsonb := '[]'::jsonb;
+  i integer;
+begin
+  for id in select jsonb_array_elements_text(cat->'fish') loop
+    f := fish->id;
+    continue when not (cat->'star'->'tiers' ? (f->>'tier')) or (items->id->>'tier')::integer > p_top;
+    continue when case when f ? 'water' then f->>'water' <> (case when p_shallow then 'bank' else 'deck' end) else p_shallow end;
+    continue when f ? 'needs' and exists (select 1 from jsonb_array_elements_text(f->'needs') n where not (n = any(coalesce(p_signs, '{}'::text[]))));
+    sky := case when p_rain then (f->>'rain')::double precision else coalesce((f->>'dry')::double precision, 1::double precision) end;
+    continue when not (sky > 0);
+    ids := ids || id;
+    ws := ws || ((cat->'tiers'->>(f->>'tier'))::double precision * sky);
+  end loop;
+  for i in 1..coalesce(array_length(ws, 1), 0) loop total := total + ws[i]; end loop;
+  for i in 1..coalesce(array_length(ws, 1), 0) loop
+    odds := odds || jsonb_build_array(jsonb_build_object('what', ids[i], 'p', ws[i] / total));
+  end loop;
+  return odds;
+end;
+$$;
+
+-- Put a stardust bait on the hook (lib/town/fishing's hookStar): a rod has to be in the bag, as for any line; one of
+-- the day's is counted, and nothing leaves the bag.
+create or replace function town.hook_star(p_purse jsonb, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+begin
+  if not exists (select 1 from jsonb_array_elements_text(town.cat('fishing')->'rods') r where town.held(p_purse->'bag', r) > 0) then return town.no('tool'); end if;
+  return town.gift_use(p_purse, 'thingBait', p_now);
+end;
+$$;
+
+-- How far the village's shelf has come: the latest tier of anything the uncle sells now.
+create or replace function town.shelf_top()
+returns integer language sql set search_path = public
+as $$
+  select coalesce(max((town.cat('items')->x->>'tier')::integer), 1)
+    from jsonb_array_elements_text(town.shelf_of(coalesce((town.thing('village', false)->>'unlocked')::integer, 0))) x
+$$;
+
 -- ─── What a member does ──────────────────────────────────────────────────
 
 -- Light my sky orb under a sky: for its minutes the water answers me as if under it.
@@ -271,9 +329,10 @@ $$;
 revoke execute on function public.town_orb(text) from public, anon;
 grant execute on function public.town_orb(text) to authenticated;
 
--- public.town_cast: v152's, and how the line is dropped (p_how: 'pair' for a rod of two lines), under the sky an orb
--- has lit. The argument is new, so the function of four arguments goes: a page from before names four, and is
--- answered by this one.
+-- public.town_cast: v152's, and how the line is dropped (p_how: 'pair' for a rod of two lines, 'star' for a
+-- stardust bait, which takes none from the bag: p_bait is not looked at then), under the sky an orb has lit. The
+-- argument is new, so the function of four arguments goes: a page from before names four, and is answered by this
+-- one.
 drop function if exists public.town_cast(text, integer, integer, boolean);
 create or replace function public.town_cast(p_bait text, p_x integer, p_y integer, p_rain boolean DEFAULT false, p_how text DEFAULT NULL::text)
  RETURNS jsonb
@@ -292,15 +351,17 @@ declare
   did jsonb;
   line jsonb;
   pair boolean := coalesce(p_how = 'pair', false);
+  star boolean := coalesce(p_how = 'star', false);
+  bait text := case when coalesce(p_how = 'star', false) then 'thingBait' else p_bait end;
   odds jsonb;
   two jsonb;
   sky text := town.orb_of(purse, now_);
   under jsonb;
 begin
   if p_bait is null or p_bait !~ '^[A-Za-z]{1,24}$' or deep is null then return town.answer(me, town.no('none')); end if;
-  -- (a rod of two lines is its owner's to drop)
-  if p_how is not null and (p_how <> 'pair' or not town.gift_works(purse, 'thingRod')) then return town.answer(me, town.no('none')); end if;
-  did := case when pair then town.hook_baits(purse, p_bait, 2) else town.hook_bait(purse, p_bait) end;
+  -- (a rod of two lines is its owner's to drop, and a stardust bait its owner's)
+  if p_how is not null and not ((pair and town.gift_works(purse, 'thingRod')) or (star and town.gift_works(purse, 'thingBait'))) then return town.answer(me, town.no('none')); end if;
+  did := case when star then town.hook_star(purse, now_) when pair then town.hook_baits(purse, p_bait, 2) else town.hook_bait(purse, p_bait) end;
   if not (did->>'ok')::boolean then return town.answer(me, did); end if;
   -- what some fish wait for: whether I have any stamina left, how many others have dropped a line in the last few
   -- minutes (a line still out, or a fish still fought), the rain of the minutes before, and the clock
@@ -309,10 +370,13 @@ begin
     town.wet_ms(now_ - (sg->>'after')::bigint * 60000, now_), town.raining(now_));
   -- (under a sky orb the water answers its owner as if under that sky: the hour, the rain and the signs are the orb's)
   under := town.under_orb(sky, hour, town.raining(now_), signs);
-  odds := town.odds(p_bait, (under->>'hour')::integer, (under->>'rain')::boolean, town.has_buff(purse, now_, 'lucky'), not deep::boolean,
-    array(select jsonb_array_elements_text(under->'signs')), town.buff_by(purse, now_, 'lucky'));
+  odds := case when star then town.star_odds((under->>'rain')::boolean, not deep::boolean, array(select jsonb_array_elements_text(under->'signs')), town.shelf_top())
+    else town.odds(p_bait, (under->>'hour')::integer, (under->>'rain')::boolean, town.has_buff(purse, now_, 'lucky'), not deep::boolean,
+      array(select jsonb_array_elements_text(under->'signs')), town.buff_by(purse, now_, 'lucky')) end;
   -- (a legend never comes as one of a pair)
   if pair then odds := town.sift(odds, array(select jsonb_array_elements_text(town.cat('fishing')->'pair'->'never'))); end if;
+  -- (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
+  if jsonb_array_length(odds) = 0 then return town.answer(me, town.no('calm')); end if;
   line := town.cast_from(odds, array[random(), random(), random(), random(), random(), random()]);
   -- (the second line's: what takes it and how long it is; both are hooked by the one strike, at the first's bite)
   if pair then
@@ -325,11 +389,11 @@ begin
   if sky is not null then line := town.hastened(line, 1 - 1 / (town.cat('gifts')->'gifts'->'thingOrb'->>'by')::double precision) || jsonb_build_object('orb', sky); end if;
   -- (a line that was still out is given up: its bait went with it when it was dropped)
   insert into public.town_lines (member_id, doc) values (me, line || jsonb_build_object(
-      'bait', p_bait, 'x', p_x, 'y', p_y, 'deep', deep, 'hour', hour, 'rain', town.raining(now_),
+      'bait', bait, 'x', p_x, 'y', p_y, 'deep', deep, 'hour', hour, 'rain', town.raining(now_),
       'cast_at', now_, 'bites_at', now_ + (line->>'wait')::bigint * 1000, 'struck_at', null))
     on conflict (member_id) do update set doc = excluded.doc, updated_at = now();
   perform town.keep_purse(me, did->'purse');
-  perform town.note(me, 'cast', p_bait, case when pair then 2 else 1 end, 0, jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'signs', to_jsonb(signs))
+  perform town.note(me, 'cast', bait, case when pair then 2 else 1 end, 0, jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'signs', to_jsonb(signs))
     || case when pair then jsonb_build_object('pair', true) else '{}'::jsonb end);
   -- (and under its clear water the shade of what is on its way is told: how rare a fish it is, or that it is no fish; never which)
   return town.answer(me, jsonb_build_object('ok', true, 'line', jsonb_build_object('wait', line->'wait', 'nibbles', line->'nibbles')
