@@ -200,6 +200,18 @@ const SHEETS = [
   ["icons-charms-b", ["charmLamp", "charmFirefly"], { range: [10.1, 10.6] }],
   // the familiars that follow their members (lib/town/gifts), each seen from the side and facing right: the first three are given by a second rank, the otter, the piglet and the hearth's sprite by ranks to come
   ["icons-familiars-a", ["famSquirrel", "famButterfly", "famGnome", "famOtter", "famPiglet", "famSprite"], { range: [9.7, 10.3] }],
+  // the gifts of the lines' second to sixth ranks (lib/town/gifts), each with its sparkle: the helpers' anklet and duet bell, the kitchen's
+  // basket and spoon, the farm's seed pouch, the insects' nectar; the rod of two lines, the dragon-silk line, the sky orb, the stardust bait,
+  // the sprite's map, the wind net; the lulling flute, the butterfly-wing cloak, the stardust spice, the phoenix flame, the crescent sickle,
+  // the hourglass; the ring of shared strength, the fae dust, the guardian's cloak, the flask of living water, the moon flask, and the
+  // chest a sprite's map leads to
+  ["icons-gifts-a", ["charmAnklet", "charmBell", "thingBasket", "thingSpoon", "thingPouch", "thingNectar"], { range: [4.5, 4.9], near: true }],
+  ["icons-gifts-b", ["thingRod", "charmLine", "thingOrb", "thingBait", "thingMap", "charmWind"], { range: [5.3, 5.5] }],
+  ["icons-gifts-c", ["thingFlute", "charmCloak", "thingSpice", "thingFlame", "charmSickle", "thingHourglass"], { range: [5.2, 5.5] }],
+  ["icons-gifts-d", ["charmRing", "thingDust", "charmGuard", "thingFlask", "thingMoon", "spriteChest"], { range: [4.6, 4.85] }],
+  // more familiars, seen from the side and facing right as the first are, at the first ones' size: the well's rain frog, the forest's moss
+  // stag, the farm's mandrake; and for ranks to come a little rain cloud, a river dragon's young and a bee
+  ["icons-familiars-b", ["famFrog", "famStag", "famMandrake", "famCloud", "famDragon", "famBee"], { range: [7.9, 8.1] }],
 ];
 
 const pieces = [];
@@ -217,8 +229,15 @@ for (const [sheet, names, opts] of SHEETS) {
   const xs = parts.flatMap((c) => c.mem.map((i) => i % g.GW));
   const x0 = Math.min(...xs), x1 = Math.max(...xs) + 1, col = (x1 - x0) / names.length;
   const figs = names.map(() => new Set());
+  // (with `near`, a small piece goes with the big piece it is nearest to, whichever column its own middle is in:
+  // seeds spilt out of a pouch towards its neighbour are the pouch's)
+  const most = Math.max(...parts.map((c) => c.mem.length));
+  const big = opts?.near ? parts.filter((c) => c.mem.length >= most * 0.15) : [];
+  const midOf = (c) => c.mem.reduce((t, i) => t + (i % g.GW), 0) / c.mem.length;
+  const gap = (a, b) => { let d = Infinity; for (const i of a.mem) for (const j of b.mem) { const dx = (i % g.GW) - (j % g.GW), dy = Math.floor(i / g.GW) - Math.floor(j / g.GW); if (dx * dx + dy * dy < d) d = dx * dx + dy * dy; } return d; };
   for (const c of parts) {
-    const mid = c.mem.reduce((t, i) => t + (i % g.GW), 0) / c.mem.length;
+    const home = big.length && c.mem.length < most * 0.15 ? big.map((o) => [gap(c, o), o]).sort((a, b) => a[0] - b[0])[0][1] : c;
+    const mid = midOf(home);
     // (two that were drawn touching are one piece: with `split`, each cell goes to its own column instead)
     for (const i of c.mem) figs[Math.min(names.length - 1, Math.floor(((opts?.split ? i % g.GW : mid) - x0) / col))].add(i);
   }
