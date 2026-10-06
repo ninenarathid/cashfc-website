@@ -1,4 +1,4 @@
-import { FOREST_EYE } from "./forest-eye";
+import { eyes } from "./forest-eye";
 /**
  * Shaking a tree and catching what falls, as a game of its own: how what hangs in the forest's trees is gathered
  * (lib/town/forest; the owner, 2026-10-05: "การหาของป่าต้องเล่น minigame ด้วย").
@@ -38,9 +38,9 @@ function draw(seed: number): [number, number] {
 }
 
 /** Begin a shaking with so many wanted. */
-export function startShower(need: number, spent: boolean, seed: number, eye = false): Shower {
+export function startShower(need: number, spent: boolean, seed: number, eye: boolean | number = false): Shower {
   // (under the fountain's forest eye, one more falls than is wanted)
-  const want = Math.max(1, Math.floor(need)), n = want + (spent ? CATCHING.tiredSpare : CATCHING.spare) + (eye ? FOREST_EYE : 0);
+  const want = Math.max(1, Math.floor(need)), n = want + (spent ? CATCHING.tiredSpare : CATCHING.spare) + eyes(eye);
   const fall = spent ? CATCHING.tiredFall : CATCHING.fall, gap = spent ? CATCHING.tiredGap : CATCHING.gap;
   let s = seed | 0, last = -1;
   const drops: Drop[] = [];

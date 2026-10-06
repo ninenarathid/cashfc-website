@@ -13,6 +13,12 @@
  */
 /** How many look-alikes fewer, strokes more and fruit more the forest eye is worth. */
 export const FOREST_EYE = 1;
+/**
+ * What the forest eye is worth to somebody: so many (look-alikes fewer, strokes more, fruit more). A yes is the
+ * fountain's blessing, one; a number is what a meal's buff does at its level (items' byOf: the forest's dishes leave
+ * it since 2026-10-06, and a level adds to it). Nothing, with none.
+ */
+export const eyes = (eye: boolean | number | undefined): number => (eye === true ? FOREST_EYE : Math.max(0, Math.floor(eye || 0)));
 /** The share of an insect's senses that reaches somebody with a soft step: half as near again is two thirds as far. */
 export const softStep = (by: number) => 1 / (1 + Math.max(0, by));
 /** The wishes, by the names the fountain knows them by. */

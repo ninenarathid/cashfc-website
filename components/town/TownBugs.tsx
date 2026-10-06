@@ -5,12 +5,12 @@ import {
   BUGS, HABITS, HAUNTS, LURES, NET, aimOf, bugTurnStart, fledBy, mayNet, missed, newMind, poseOf, ringOf, swingMs, taken, think,
   type BugId, type BugSight, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
-import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
+import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import { WILD_WISHES, softStep } from "@/lib/town/forest-eye";
 import { WISH, type WishId } from "@/lib/town/fountain";
-import { hasBuff, isSpent } from "@/lib/town/stamina";
+import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { TILE_H, placeOf, type Vec } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
@@ -98,7 +98,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   seen.current = keeper.bugs().filter((s) => !fled.current?.has(`${s.id}:${s.turn}`));
   const purse = keeper.purse(), hand = handOf(purse), spent = isSpent(purse, keeper.now());
   // (the fountain's soft step: an insect lets me come nearer, lib/town/forest-eye)
-  const soft = hasBuff(purse, keeper.now(), WILD_WISHES.net as WishId) ? softStep((WISH as Record<string, { by: number }>)[WILD_WISHES.net]?.by ?? 0.5) : 1;
+  // (the fountain's soft step, or a meal's: the softer at each of the meal's levels, items' byOf; with neither, as ever)
+  const soft = softStep(byOf(WILD_WISHES.net, levelOf(purse, keeper.now(), WILD_WISHES.net as WishId)));
   const live = useRef({ hand, spent, busy, th, name, soft, me: keeper.id });
   live.current = { hand, spent, busy, th, name, soft, me: keeper.id };
 

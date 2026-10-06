@@ -1,4 +1,4 @@
-import { FOREST_EYE } from "./forest-eye";
+import { eyes } from "./forest-eye";
 /**
  * Digging something up, as a game of its own: how what is buried in the forest is got out (lib/town/forest; the
  * owner, 2026-10-05: "การหาของป่าต้องเล่น minigame ด้วย").
@@ -40,7 +40,7 @@ function draw(seed: number): [number, number] {
 }
 
 /** Begin a mound with something in so many parts under it (two at the least: one would have nothing to find). */
-export function startDig(parts: number, spent: boolean, seed: number, eye = false): Dig {
+export function startDig(parts: number, spent: boolean, seed: number, eye: boolean | number = false): Dig {
   const { cols, rows } = DIGGING, need = Math.max(2, Math.min(cols, Math.floor(parts) + 1));
   let s = seed | 0;
   const next = () => { const [r, s1] = draw(s); s = s1; return r; };
@@ -54,7 +54,7 @@ export function startDig(parts: number, spent: boolean, seed: number, eye = fals
   const cells = Array.from({ length: cols * rows }, (_, i): Clod => ({ earth: least + Math.floor(next() * (most - least + 1)), over: run.includes(i), top: i === top }));
   const needed = run.reduce((t, i) => t + cells[i].earth, 0);
   // (under the fountain's forest eye, a stroke more to spare)
-  return { need, hits: 0, misses: 0, strokes: needed + (spent ? DIGGING.tiredSpare : DIGGING.spare) + (eye ? FOREST_EYE : 0), cells, seen: !spent };
+  return { need, hits: 0, misses: 0, strokes: needed + (spent ? DIGGING.tiredSpare : DIGGING.spare) + eyes(eye), cells, seen: !spent };
 }
 
 /** Whether the digging is over: the whole thing bare, or no stroke left. */

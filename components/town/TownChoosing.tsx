@@ -25,7 +25,7 @@ const likeOf = (icon: IconName): IconName | null => {
  *
  * Each place is a button, so it is played by a finger, the mouse or the keys alike.
  */
-export default function TownChoosing({ th, title, need, spent, eye = false, icon, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean; icon: IconName; scene: Sprite | null }) {
+export default function TownChoosing({ th, title, need, spent, eye = false, icon, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean | number; icon: IconName; scene: Sprite | null }) {
   const like = likeOf(icon);
   const bunch = useRef<Bunch>(startBunch(need, spent, Math.floor(Math.random() * 2 ** 31), eye));
   const from = useRef(0), ended = useRef(false);

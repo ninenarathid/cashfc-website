@@ -217,6 +217,8 @@ export function vectorsV107(): Vector[] {
   const c = chance(20261005), out: Vector[] = [];
   const add = (fn: string, args: unknown[], want: unknown) => out.push({ fn, args, want: want === undefined ? null : JSON.parse(JSON.stringify(want)) });
   const SCROLL_IDS = Object.keys(SCROLLS) as ItemId[], BUFF_IDS: BuffId[] = ["calm", "keen", "lucky", "hearty", "green"];
+  // (and the forest's two, which its dishes leave since v146: no purse from before has one as its one buff)
+  const MEAL_IDS: MealBuffId[] = [...BUFF_IDS, "forage", "net"];
   /** A day's meals, with how many helpings each has had: counted (v146), or not (a purse from before: a meal eaten is one). */
   const helpings = (meals: Purse["meals"]): Purse["meals"] =>
     (c.maybe(0.4) ? meals : { ...meals, bowls: meals.eaten.map((e) => (e ? c.int(1, 3) : 0)) as [number, number, number] });
@@ -229,9 +231,9 @@ export function vectorsV107(): Vector[] {
       meals: c.maybe(0.2) ? p.meals : helpings({ day: c.maybe(0.8) ? today : today - 1, eaten: [c.maybe(0.4), c.maybe(0.4), c.maybe(0.4)] }),
       eating: c.maybe(0.5) ? null : { dish: c.of(DISH_IDS), meal: c.of([0, 1, 2]), from, till: from + c.int(0, Math.max(0, Math.min(now - from, 300_000))), got: c.of([0, 1.5, 12.25]) },
       buff: c.maybe(0.5) ? null : { id: c.of(BUFF_IDS), until: now + c.int(-2, 2) * 3_600_000 + c.int(0, 999) },
-      ...leveled(c, now, BUFF_IDS),
+      ...leveled(c, now, MEAL_IDS),
       // (a blessing of the fountain's beside them, now and then: the same buff from both is the stronger of the two)
-      ...(c.maybe(0.2) ? { blessed: [{ id: c.of(BUFF_IDS), until: now + c.int(-1, 1) * 3_600_000 + c.int(1, 999) }] } : {}),
+      ...(c.maybe(0.2) ? { blessed: [{ id: c.of(MEAL_IDS), until: now + c.int(-1, 1) * 3_600_000 + c.int(1, 999) }] } : {}),
       // (a bowl or two owed from a meal that ended with the bag full; and a bag with no room, now and then)
       ...(c.maybe(0.25) ? { owed: c.int(0, 2) } : {}),
       ...(c.maybe(0.2) ? { bag: p.bag.map((s) => s ?? { item: "driftwood" as ItemId, n: 1 }) } : {}),
@@ -244,7 +246,7 @@ export function vectorsV107(): Vector[] {
     add("buff_of", [p, now], buffOf(p, now));
     add("eaten_today", [p, now], eatenToday(p, now));
     // (v146: the helpings a meal has had, what meals have left and at what level, and a buff raised by one more helping)
-    const id = c.of(BUFF_IDS);
+    const id = c.of(MEAL_IDS);
     add("bowls_today", [p, now], bowlsToday(p, now));
     add("meal_buffs", [p, now], mealBuffs(p, now));
     add("level_of", [p, now, id], levelOf(p, now, id));

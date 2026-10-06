@@ -76,7 +76,12 @@ t.check("the stamina row is written over: three helpings, four levels, and what 
   stamina.fresh && stamina.data.bowls === 3 && stamina.data.levels === 4 && same(stamina.data.steps.hearty, [0.3, 0.45, 0.55, 0.67]) && same(stamina.data.steps.calm, [0.2, 0.6, 1.2, 2]), stamina.data);
 t.check("…and everything it had is as it was", same({ ...stamina.data, bowls: undefined, levels: undefined, steps: undefined }, staminaWas), { was: staminaWas, is: stamina.data });
 t.check("…each buff's first level is what the buff always did", Object.entries(staminaWas.buffs).every(([id, by]) => stamina.data.steps[id][0] === by), stamina.data.steps);
-const others = await one(`select count(*)::int as n from public.town_catalog where key <> 'stamina' and updated_at > now() - interval '1 hour'`);
+const CODE = JSON.parse(readFileSync(here(`${DIR}/catalog.json`), "utf8"));
+const dishes = (await one(`select data from public.town_catalog where key = 'dishes'`)).data;
+const leaves = Object.entries(dishes).filter(([, d]) => d.buff === "forage" || d.buff === "net").map(([id]) => id);
+t.check("the dishes row is written over as the code has it: the forest's dishes leave the forest's two buffs", same(dishes, CODE.dishes) && leaves.length >= 17 && dishes.mushroomSoup.buff === "forage" && dishes.herbTea.buff === "net", leaves);
+t.check("…and the stamina row is the code's too", same(stamina.data, CODE.stamina));
+const others = await one(`select count(*)::int as n from public.town_catalog where key not in ('stamina', 'dishes') and updated_at > now() - interval '1 hour'`);
 t.check("no other row of the catalog is touched", others.n === 0, others);
 
 /* ── the rules ── */
@@ -203,6 +208,16 @@ t.check("hearty at the fourth takes two thirds off, and a keen eye at the first 
 t.check("…what is told of the purse says the same", same((await call(U.m1, "town_me"))?.purse?.buffs, p.buffs) && same((await call(U.m1, "town_me")).purse.meals.bowls, [0, 3, 3]));
 const full = await call(U.m1, "town_sit", slotOf(p, "friedMinnow"), true);
 t.check("dinner's three are eaten too: no more until breakfast", full?.ok === false && full.why === "meal", full);
+
+// a dish of the forest's: its buff is the forest's own, held beside the others, and the one buff a purse always kept is left as it was
+await clockTo(Date.parse("2026-11-03T05:10:00+07:00"));
+await setDoc(U.m1, { ...p, eating: null, bag: [{ item: "mushroomSoup", n: 2 }, ...Array(9).fill(null)] });
+sat = await eat(U.m1, "mushroomSoup");
+const wild = await kept(U.m1);
+t.check("a dish of the forest's leaves the forest eye at the first level, and the one buff a purse always kept is left as it was", sat?.ok === true && wild.buffs?.some((b) => b.id === "forage" && b.level === 1)
+  && same(wild.buff, p.buff), { buffs: wild.buffs, buff: wild.buff });
+sat = await eat(U.m1, "mushroomSoup");
+t.check("…and a second helping raises it, as any buff", (await one(`select town.level_of($1::jsonb, town.now_ms(), 'forage') as l, town.has_buff($1::jsonb, town.now_ms(), 'forage') as has`, [JSON.stringify(await kept(U.m1))])).l === 2);
 
 // a purse from before this file: one buff, a meal marked eaten, nothing counted
 await clockTo(Date.parse("2026-11-03T12:10:00+07:00"));

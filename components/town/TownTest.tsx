@@ -1,5 +1,6 @@
 "use client";
 
+import { WISH } from "@/lib/town/fountain";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import {
   BAITS, BUFFS, CROPS, CROP_IDS, DISHES, FISH, ITEMS, ITEM_IDS, MAKES, SCROLLS, STAGES, STAGE_AT, growIconOf, isDish,
@@ -269,7 +270,7 @@ function Detail({ id, th, have, knows, onConjure, onLearn }: {
   if (isDish(id)) {
     const d = DISHES[id];
     facts.push(["Stamina", `+${d.stamina}`]);
-    if (d.buff) facts.push(["Buff", `${th ? BUFFS[d.buff].name.th : BUFFS[d.buff].name.en}: ${th ? BUFFS[d.buff].about.th : BUFFS[d.buff].about.en}`]);
+    if (d.buff) facts.push(["Buff", `${th ? WISH[d.buff].name.th : WISH[d.buff].name.en}: ${th ? WISH[d.buff].about.th : WISH[d.buff].about.en}`]);
     facts.push([th ? "สูตร" : "Recipe", d.recipe
       ? `${d.recipe.needs.map(([x, n]) => `${name(x)} ×${n}`).join(", ")} → ${d.recipe.in.map((tool) => name(tool)).join(" + ")} · ${th ? `ได้ ${d.recipe.serves} ที่` : `serves ${d.recipe.serves}`}${d.recipe.cooks > 1 ? (th ? ` · ต้อง ${d.recipe.cooks} คน` : ` · ${d.recipe.cooks} cooks`) : ""}`
       : (th ? "ไม่มี (ลุงขาย)" : "none (the uncle sells it)")]);

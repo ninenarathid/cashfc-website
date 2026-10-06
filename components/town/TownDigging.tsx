@@ -18,7 +18,7 @@ const BLIND: IconName = "earthMid";
  *
  * Each place is a button, so it is played by a finger, the mouse or the keys alike.
  */
-export default function TownDigging({ th, title, need, spent, eye = false, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean; scene: Sprite | null }) {
+export default function TownDigging({ th, title, need, spent, eye = false, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean | number; scene: Sprite | null }) {
   const dig = useRef<Dig>(startDig(need, spent, Math.floor(Math.random() * 2 ** 31), eye));
   const from = useRef(0), ended = useRef(false);
   const [, setShown] = useState(0);

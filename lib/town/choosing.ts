@@ -1,4 +1,4 @@
-import { FOREST_EYE } from "./forest-eye";
+import { eyes } from "./forest-eye";
 /**
  * Choosing what to take, as a game of its own: how mushrooms, herbs and berries are gathered in the forest
  * (lib/town/forest; the owner, 2026-10-05: "การหาของป่าต้องเล่น minigame ด้วย", and the day before, of the games there
@@ -39,10 +39,10 @@ function draw(seed: number): [number, number] {
 }
 
 /** Begin a patch with so many good ones in it. */
-export function startBunch(need: number, spent: boolean, seed: number, eye = false): Bunch {
+export function startBunch(need: number, spent: boolean, seed: number, eye: boolean | number = false): Bunch {
   const places = CHOOSING.cols * CHOOSING.rows, good = Math.max(1, Math.min(places - 1, Math.floor(need)));
   // (under the fountain's forest eye, one look-alike fewer: never none)
-  const fakes = Math.max(1, Math.min(places - good, spent ? CHOOSING.tiredFakes : CHOOSING.fakes) - (eye ? FOREST_EYE : 0));
+  const fakes = Math.max(1, Math.min(places - good, spent ? CHOOSING.tiredFakes : CHOOSING.fakes) - eyes(eye));
   let s = seed | 0;
   const things: Array<Plant | null> = [];
   for (let i = 0; i < good + fakes; i++) { const [r, s1] = draw(s); s = s1; things.push({ good: i < good, look: Math.floor(r * 1000), taken: false }); }

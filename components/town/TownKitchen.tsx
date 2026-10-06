@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COOKING, type Taste } from "@/lib/town/cooking";
 import { toldOf, type Told } from "@/lib/town/hints";
-import { BUFFS, DISHES, ITEMS, type BuffId, type DishId, type ItemId } from "@/lib/town/items";
+import { WISH } from "@/lib/town/fountain";
+import { DISHES, ITEMS, type DishId, type ItemId, type MealBuffId } from "@/lib/town/items";
 import { SHELF_WORD, TASTE_WORD, cookwareIn, guessesAt, linesAt, pantry, stocked, toolsAt, type Note } from "@/lib/town/kitchen";
 import type { Keeper } from "@/lib/town/keeper";
 import { loadKitchen, type Sprite } from "@/lib/town/scenery";
@@ -113,7 +114,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   const pinned = book.find((r) => r.id === pin) ?? null;
   const lines = pinned ? linesAt(pinned.told, purse.bag, things) : [];
   const [tab, setTab] = useState<"book" | "notes">("book");
-  const [only, setOnly] = useState<BuffId | "makes" | null>(null);
+  const [only, setOnly] = useState<MealBuffId | "makes" | null>(null);
   /** On a phone the book is folded away until its strip is tapped. */
   const [unfolded, setUnfolded] = useState(false);
 
@@ -331,11 +332,11 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   );
 }
 
-type Entry = { id: ItemId; told: Told; ready: boolean; buff: BuffId | null };
+type Entry = { id: ItemId; told: Told; ready: boolean; buff: MealBuffId | null };
 const SMALL = "font-data text-label";
 
 /** The book's index: every recipe one knows, what can be made of the bag first; by the buff it leaves, if one is asked for. */
-function Index({ book, only, onOnly, th, onPick }: { book: Entry[]; only: BuffId | "makes" | null; onOnly: (b: BuffId | "makes" | null) => void; th: boolean; onPick: (id: ItemId) => void }) {
+function Index({ book, only, onOnly, th, onPick }: { book: Entry[]; only: MealBuffId | "makes" | null; onOnly: (b: MealBuffId | "makes" | null) => void; th: boolean; onPick: (id: ItemId) => void }) {
   const buffs = [...new Set(book.flatMap((r) => (r.buff ? [r.buff] : [])))], makes = book.some((r) => !(r.id in DISHES));
   const shown = book.filter((r) => (only === null ? true : only === "makes" ? !(r.id in DISHES) : r.buff === only))
     .sort((a, b) => Number(b.ready) - Number(a.ready) || Number(!!a.told.last) - Number(!!b.told.last) || (th ? ITEMS[a.id].name.th.localeCompare(ITEMS[b.id].name.th, "th") : ITEMS[a.id].name.en.localeCompare(ITEMS[b.id].name.en)));
@@ -349,7 +350,7 @@ function Index({ book, only, onOnly, th, onPick }: { book: Entry[]; only: BuffId
           {buffs.map((b) => (
             <button key={b} type="button" aria-pressed={only === b} onClick={() => onOnly(only === b ? null : b)} data-kitchen-buff={b}
                     className="pressable flex min-h-8 items-center gap-1 rounded-full pl-1.5 pr-2.5 text-meta font-semibold" style={chip(only === b)}>
-              <TownIcon name={BUFFS[b].icon as IconName} size={18} />{th ? BUFFS[b].name.th : BUFFS[b].name.en}
+              <TownIcon name={WISH[b].icon as IconName} size={18} />{th ? WISH[b].name.th : WISH[b].name.en}
             </button>
           ))}
           {makes && <button type="button" aria-pressed={only === "makes"} onClick={() => onOnly(only === "makes" ? null : "makes")} className="pressable min-h-8 rounded-full px-2.5 text-meta font-semibold" style={chip(only === "makes")}>{th ? "ของใช้" : "Things"}</button>}
@@ -362,7 +363,7 @@ function Index({ book, only, onOnly, th, onPick }: { book: Entry[]; only: BuffId
                     className="pressable flex min-h-11 w-full items-center gap-2 rounded-md px-1.5 text-left hover:bg-[rgba(74,53,32,0.1)]">
               <ItemIcon id={r.id} size={28} className="shrink-0" />
               <span className="min-w-0 flex-1 truncate text-ui font-semibold">{th ? ITEMS[r.id].name.th : ITEMS[r.id].name.en}</span>
-              {r.buff && <TownIcon name={BUFFS[r.buff].icon as IconName} size={18} className="shrink-0" />}
+              {r.buff && <TownIcon name={WISH[r.buff].icon as IconName} size={18} className="shrink-0" />}
               {r.told.last && <TownIcon name="mystery" size={18} className="shrink-0" />}
               {r.ready && <span className={`${SMALL} shrink-0 rounded-full px-1.5 py-0.5 font-semibold text-white`} style={{ backgroundColor: JADE }}>{r.told.last ? (th ? "พร้อมลอง" : "To try") : (th ? "ของครบ" : "Ready")}</span>}
             </button>
@@ -443,7 +444,7 @@ function Page({ id, told, lines, purse, crew, notes, th, onBack }: {
         {d && <><dt style={{ color: INK_SOFT }}>{th ? "กินแล้วได้" : "Gives"}</dt>
           <dd className="flex flex-wrap items-center gap-x-2.5 gap-y-0.5 font-semibold">
             <span className="flex items-center gap-1"><TownIcon name="stamina" size={16} />+{d.stamina}</span>
-            {d.buff && <span className="flex items-center gap-1"><TownIcon name={BUFFS[d.buff].icon as IconName} size={18} />{th ? BUFFS[d.buff].name.th : BUFFS[d.buff].name.en}</span>}
+            {d.buff && <span className="flex items-center gap-1"><TownIcon name={WISH[d.buff].icon as IconName} size={18} />{th ? WISH[d.buff].name.th : WISH[d.buff].name.en}</span>}
           </dd></>}
       </dl>
     </div>

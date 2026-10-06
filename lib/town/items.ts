@@ -1032,7 +1032,7 @@ export type Cookware = "pot" | "pan" | "grill" | "mortar" | "steamer" | "cleaver
  */
 export interface Dish {
   stamina: number;
-  buff?: BuffId;
+  buff?: MealBuffId;
   recipe?: { needs: Array<[ItemId, number]>; in: Cookware[]; serves: number; cooks: number };
 }
 export const DISHES: Record<DishId, Dish> = {
@@ -1134,24 +1134,24 @@ export const DISHES: Record<DishId, Dish> = {
   // ออกแบบเป็น universal เลยครับ"). Four are roasted on a skewer, which is a twig and costs nothing: so that somebody with
   // no coins for a pan can still cook, and sit down to it. The last thing of each is the forest's own, and is the
   // one a found recipe does not name. The rare finds make the best of them: a soup that fills half the gauge.
-  mushroomSoup: { stamina: 26, buff: "calm", recipe: { needs: [["scallion", 1], ["salt", 1], ["shiitake", 3]], in: ["pot"], serves: 3, cooks: 1 } },
-  mushroomSkewer: { stamina: 16, recipe: { needs: [["salt", 1], ["shiitake", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
+  mushroomSoup: { stamina: 26, buff: "forage", recipe: { needs: [["scallion", 1], ["salt", 1], ["shiitake", 3]], in: ["pot"], serves: 3, cooks: 1 } },
+  mushroomSkewer: { stamina: 16, buff: "forage", recipe: { needs: [["salt", 1], ["shiitake", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
   fishOnStick: { stamina: 20, recipe: { needs: [["salt", 1], ["barb", 1]], in: ["skewer"], serves: 2, cooks: 1 } },
-  roastYam: { stamina: 18, recipe: { needs: [["wildYam", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
-  roastedApple: { stamina: 12, recipe: { needs: [["wildApple", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
-  mushroomRisotto: { stamina: 34, buff: "hearty", recipe: { needs: [["rice", 2], ["scallion", 1], ["salt", 1], ["porcini", 1]], in: ["pot"], serves: 4, cooks: 1 } },
-  fernSalad: { stamina: 20, buff: "green", recipe: { needs: [["fiddlehead", 3], ["salt", 1], ["mint", 1]], in: ["pan"], serves: 2, cooks: 1 } },
-  herbTea: { stamina: 12, buff: "calm", recipe: { needs: [["mint", 1], ["chamomile", 2]], in: ["pot"], serves: 3, cooks: 1 } },
-  berryCompote: { stamina: 22, buff: "lucky", recipe: { needs: [["blueberry", 2], ["raspberry", 2], ["wildStrawberry", 1]], in: ["pot"], serves: 3, cooks: 1 } },
-  bakedApple: { stamina: 20, recipe: { needs: [["wildApple", 3], ["chestnut", 1]], in: ["grill"], serves: 3, cooks: 1 } },
-  roastChestnut: { stamina: 16, recipe: { needs: [["salt", 1], ["chestnut", 4]], in: ["pan"], serves: 3, cooks: 1 } },
-  forestStew: { stamina: 38, buff: "hearty", recipe: { needs: [["wildYam", 2], ["shiitake", 1], ["carrot", 1], ["rosemary", 1]], in: ["pot"], serves: 6, cooks: 2 } },
-  bambooShootStir: { stamina: 24, buff: "keen", recipe: { needs: [["chili", 1], ["salt", 1], ["bambooShoot", 2]], in: ["pan"], serves: 3, cooks: 1 } },
-  rosemaryFish: { stamina: 30, buff: "calm", recipe: { needs: [["perch", 1], ["salt", 1], ["rosemary", 1]], in: ["grill"], serves: 2, cooks: 1 } },
-  ginsengSoup: { stamina: 50, buff: "hearty", recipe: { needs: [["shiitake", 2], ["scallion", 1], ["salt", 1], ["ginseng", 1]], in: ["pot"], serves: 4, cooks: 1 } },
-  moonTea: { stamina: 30, buff: "lucky", recipe: { needs: [["chamomile", 1], ["mint", 1], ["moonflower", 1]], in: ["pot"], serves: 4, cooks: 1 } },
-  truffleEggs: { stamina: 44, buff: "lucky", recipe: { needs: [["egg", 2], ["salt", 1], ["truffle", 1]], in: ["pan"], serves: 3, cooks: 1 } },
-  mushroomOmelette: { stamina: 30, buff: "keen", recipe: { needs: [["egg", 2], ["salt", 1], ["chanterelle", 1]], in: ["pan"], serves: 2, cooks: 1 } },
+  roastYam: { stamina: 18, buff: "forage", recipe: { needs: [["wildYam", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
+  roastedApple: { stamina: 12, buff: "net", recipe: { needs: [["wildApple", 2]], in: ["skewer"], serves: 2, cooks: 1 } },
+  mushroomRisotto: { stamina: 34, buff: "forage", recipe: { needs: [["rice", 2], ["scallion", 1], ["salt", 1], ["porcini", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  fernSalad: { stamina: 20, buff: "forage", recipe: { needs: [["fiddlehead", 3], ["salt", 1], ["mint", 1]], in: ["pan"], serves: 2, cooks: 1 } },
+  herbTea: { stamina: 12, buff: "net", recipe: { needs: [["mint", 1], ["chamomile", 2]], in: ["pot"], serves: 3, cooks: 1 } },
+  berryCompote: { stamina: 22, buff: "net", recipe: { needs: [["blueberry", 2], ["raspberry", 2], ["wildStrawberry", 1]], in: ["pot"], serves: 3, cooks: 1 } },
+  bakedApple: { stamina: 20, buff: "net", recipe: { needs: [["wildApple", 3], ["chestnut", 1]], in: ["grill"], serves: 3, cooks: 1 } },
+  roastChestnut: { stamina: 16, buff: "net", recipe: { needs: [["salt", 1], ["chestnut", 4]], in: ["pan"], serves: 3, cooks: 1 } },
+  forestStew: { stamina: 38, buff: "forage", recipe: { needs: [["wildYam", 2], ["shiitake", 1], ["carrot", 1], ["rosemary", 1]], in: ["pot"], serves: 6, cooks: 2 } },
+  bambooShootStir: { stamina: 24, buff: "forage", recipe: { needs: [["chili", 1], ["salt", 1], ["bambooShoot", 2]], in: ["pan"], serves: 3, cooks: 1 } },
+  rosemaryFish: { stamina: 30, buff: "net", recipe: { needs: [["perch", 1], ["salt", 1], ["rosemary", 1]], in: ["grill"], serves: 2, cooks: 1 } },
+  ginsengSoup: { stamina: 50, buff: "forage", recipe: { needs: [["shiitake", 2], ["scallion", 1], ["salt", 1], ["ginseng", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  moonTea: { stamina: 30, buff: "net", recipe: { needs: [["chamomile", 1], ["mint", 1], ["moonflower", 1]], in: ["pot"], serves: 4, cooks: 1 } },
+  truffleEggs: { stamina: 44, buff: "forage", recipe: { needs: [["egg", 2], ["salt", 1], ["truffle", 1]], in: ["pan"], serves: 3, cooks: 1 } },
+  mushroomOmelette: { stamina: 30, buff: "forage", recipe: { needs: [["egg", 2], ["salt", 1], ["chanterelle", 1]], in: ["pan"], serves: 2, cooks: 1 } },
 };
 export const DISH_IDS = Object.keys(DISHES) as DishId[];
 export const isDish = (id: ItemId): id is DishId => id in DISHES;

@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FARMING } from "@/lib/town/farm";
 import { KINDS, SPOTS, gameFor, mayGather, reaches, type Gather, type Sight, type Spot } from "@/lib/town/forest";
-import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
+import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { WILD_WISHES } from "@/lib/town/forest-eye";
 import type { WishId } from "@/lib/town/fountain";
-import { hasBuff, isSpent } from "@/lib/town/stamina";
+import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import type { Vec } from "@/lib/town/world";
 import TownCatching from "./TownCatching";
@@ -124,7 +124,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   // The place I stand at, if it has something for me and my hand can gather it.
   const purse = keeper.purse(), hand = handOf(purse), spent = isSpent(purse, keeper.now());
   // (the fountain's forest eye: each game a little kinder, lib/town/forest-eye)
-  const eye = hasBuff(purse, keeper.now(), WILD_WISHES.forest as WishId);
+  // (and a meal of the forest's own leaves it too, the more at each of its levels: items' byOf)
+  const eye = byOf(WILD_WISHES.forest, levelOf(purse, keeper.now(), WILD_WISHES.forest as WishId));
   const here = tile && near ? seen.current.map((sight) => ({ sight, spot: SPOTS[sight.id] })).filter(({ spot }) => spot && reaches(spot, tile) && mayGather(spot.kind, hand))
     .sort((a, b) => Math.hypot(a.spot.x - tile[0], a.spot.y - tile[1]) - Math.hypot(b.spot.x - tile[0], b.spot.y - tile[1]))[0] ?? null : null;
   const hereId = here?.spot.id ?? -1;

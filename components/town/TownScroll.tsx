@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { toldOf, type Hidden } from "@/lib/town/hints";
-import { BUFFS, DISHES, ITEMS, MAKES, type DishId, type ItemId } from "@/lib/town/items";
+import { WISH } from "@/lib/town/fountain";
+import { DISHES, ITEMS, MAKES, type DishId, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import TownIcon, { type IconName } from "./TownIcon";
 import { ItemIcon } from "./TownTrade";
@@ -133,9 +134,9 @@ export default function TownScroll({ dish, keeper, th, reduced, onClose }: {
                 {d && <p className="mt-1 flex items-center gap-1.5 text-ui font-semibold"><TownIcon name="stamina" size={18} />Stamina +{d.stamina}</p>}
                 {d?.buff && (
                   <p className="mt-1 flex items-start gap-1.5 text-ui">
-                    <TownIcon name={BUFFS[d.buff].icon as IconName} size={20} className="mt-0.5" />
-                    <span><span className="font-semibold">{th ? BUFFS[d.buff].name.th : BUFFS[d.buff].name.en}</span>{" "}
-                      <span style={{ color: INK_SOFT }}>{th ? BUFFS[d.buff].about.th : BUFFS[d.buff].about.en}</span></span>
+                    <TownIcon name={WISH[d.buff].icon as IconName} size={20} className="mt-0.5" />
+                    <span><span className="font-semibold">{th ? WISH[d.buff].name.th : WISH[d.buff].name.en}</span>{" "}
+                      <span style={{ color: INK_SOFT }}>{th ? WISH[d.buff].about.th : WISH[d.buff].about.en}</span></span>
                   </p>
                 )}
 
