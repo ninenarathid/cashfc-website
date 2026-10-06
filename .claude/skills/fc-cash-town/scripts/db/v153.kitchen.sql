@@ -6,20 +6,26 @@
 --   * The whispering spoon (rank 3): asked of what is in the pot, it tells its owner the secret thing of the recipe
 --     the pot is on the way to, three times a day; the recipes it has told are kept in the purse (`whispers`).
 --   * The hearth sprite (rank 4, a familiar): while it follows its member, a recipe they have made before is cooked
---     with no game, its full helpings and one more, three pots to a meal's hours. `town_cook` (v111's, as v121 and
---     v129 left it) is written again but for the lines meant: it is told how the pot was cooked with the game's own
+--     with no game, its full helpings and one more, three pots to a meal's hours. `town_cook` (as the database has
+--     it after v152) is written again but for the lines meant: it is told how the pot was cooked with the game's own
 --     account (`p_timing.sprite`), and cooks by `town.cook_with`, which is `town.cook` with the gifts laid over it.
 --     A pot the sprite cooks is written down as a go at the game won, as ever, so the line counts it as it counts any.
 --   * The stardust spice (rank 5): sprinkled on a bowl as it is begun (out of the bag or the basket), once a day;
 --     eaten up, that bowl's buff is at the fourth level at once. Which meal was sprinkled is kept in the purse
---     (`spiced`, by the moment the meal began). `town.chew` (v146's) is written again but for one line: the buff a
+--     (`spiced`, by the moment the meal began). `town.chew` (as it is after v152) is written again but for one line: the buff a
 --     meal leaves is raised by `town.raised_to`, which is `town.raised` with a level it is at once at the least.
 --   * The phoenix flame in a bottle (rank 6): a stove wherever its owner stands, which is the page's own to offer
 --     (nothing here ever asked where a cook stands); and, where its owner set it to (`p_timing.flame`), things that
 --     are no recipe's come to nothing instead of an odd dish and are all back in the bag, three times a day
 --     (`town.cook_with` again; `town_cook` reads the flag and writes the giving back down).
 --
--- No table. No coins and no thing that can be sold comes of any of it.
+-- Two functions that were there are written again (`public.town_cook`, `town.chew`), each as it was but for the
+-- lines meant; `town.cook`, `town.sit_down`, `town.raised`, `town.get_up` and `town.settle` are as they were. The
+-- game made harder for the skilled (a dish of the second tier or better, from the kitchen's fourth rank) is not here:
+-- the cooking games are played in the browser, which tells the database how many were missed, as it always has.
+--
+-- No table, and no catalog row of the kitchen's own (the gifts' numbers are in `gifts`, which the shared part's file
+-- writes). Nothing here gives coins. The one thing more that comes of it is the sprite's helping more to a pot.
 
 -- ─── The dimension basket ────────────────────────────────────────────────
 
@@ -107,7 +113,7 @@ end;
 $$;
 
 -- A helping of a dish begun now, wherever it was taken from (lib/town/stamina's begun): one more of this meal's
--- hours' helpings, and the meal at hand. (town.sit_down, v146's, has the same written in it, and is as it was.)
+-- hours' helpings, and the meal at hand. (town.sit_down has the same written in it, and is as it was.)
 create or replace function town.begun(p_purse jsonb, p_dish text, p_now bigint)
 returns jsonb language sql stable
 as $$
@@ -265,7 +271,7 @@ begin
 end;
 $$;
 
--- Cooking, as a member asks for it: v129's, written again but for four things: how the pot was cooked is read out
+-- Cooking, as a member asks for it: as the database has it after v152, written again but for four things: how the pot was cooked is read out
 -- of what the browser says of its game (`how`: by the sprite; with the flame set to guard it), the rule is
 -- town.cook_with, a pot the sprite cooked or a go the flame gave back says so in the go that is written down, and
 -- the sprite's cooking and the flame's giving back are each written down as a gift used.
@@ -354,7 +360,7 @@ as $$
 $$;
 
 -- What a purse has of meals' buffs once a helping that leaves p_id is eaten up (lib/town/stamina's raised, with its
--- `to`): town.raised (v146's, as it is), but that the level is p_level at once at the least, never past the last.
+-- `to`): town.raised (which is as it was), but that the level is p_level at once at the least, never past the last.
 create or replace function town.raised_to(p_purse jsonb, p_id text, p_now bigint, p_level integer)
 returns jsonb language plpgsql stable
 as $$
@@ -375,7 +381,7 @@ begin
 end;
 $$;
 
--- A meal counted on (lib/town/stamina's chew): v146's, written again but for one line: the buff it leaves when it
+-- A meal counted on (lib/town/stamina's chew): as it is after v152, written again but for one line: the buff it leaves when it
 -- is eaten up is raised by town.raised_to, to the level a sprinkled bowl's goes to (none, for any other bowl: then
 -- it is raised as it always was).
 create or replace function town.chew(p_purse jsonb, p_company double precision, p_now bigint)
