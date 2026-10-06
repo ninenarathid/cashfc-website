@@ -132,8 +132,8 @@ export function catalogOf() {
     /**
      * The farm's own numbers: what each deed costs in stamina; what a watering adds and how often; how much faster a
      * fed plant grows; the hours the other fertiliser covers, how often each cover that eats pests takes off one
-     * that is there (`rids`), and the hours each cure that keeps pests off afterwards does (`cures`); the pests' hours, their chance and how long they take
-     * to kill; how many swings of the hoe a plot takes; what a dead plant leaves; how far through its hours a plant
+     * that is there (`rids`), and the hours each cure that keeps pests off afterwards does (`cures`); the pests' hours, their chance, how long they take
+     * to kill, and what the farm's own insects add to that chance (`pests.swarm`); how many swings of the hoe a plot takes; what a dead plant leaves; how far through its hours a plant
      * is when each stage begins; what each thing does in the hand, and which vegetable each seed grows; what a
      * better can adds; the blades that pick one more, and how many pickings make a tree; what the cans and buckets
      * hold, and the well; what carrying water costs; how long a bed is kept, and how many one person may hold; and
@@ -333,8 +333,13 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * cure keeps pests off for a day after it has rid a plant (farming: `cures`, new); and there are to be twice as many
  * of the two insects (insects: the ladybird's `weight`, 13 for 6, and the mantis's, 50 for 22), hunted scarce as every
  * insect is.
+ *
+ * v147 writes one over, for what he asked the same day of the pests: in an hour the farm was counted with insects on it
+ * they strike a little oftener (farming: `pests.swarm`, new: how many are some and many, and what each adds).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v147: { keys: [], over: ["farming"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

@@ -166,6 +166,14 @@ export const CHATS: Record<Speaker, Line[][]> = {
       { th: "จากแม่น้ำถึงบ่อที่แปลงผักมันไกลอยู่นะ ส่งกันทอดเดียวไม่ถึงหรอก ต้องมีคนกลางช่วยรับช่วงต่อ", en: "It's a long way from the river to the farm's well. One hand-over won't do: it takes somebody in between." },
       { th: "น้ำผ่านมือใคร สมุดที่บ่อก็จดให้คนนั้นด้วย ไม่มีใครเหนื่อยเปล่าหรอก", en: "And the book at the well writes down every hand the water went through. Nobody works for nothing." },
     ],
+    // That the farm's own insects bring pests on (lib/town/farm's FARMING.pests.swarm; the owner, 2026-10-06). Nothing
+    // on the screen says so, and it is small; by his rule a secret can still be felt for, so the uncle has noticed
+    // something: that it is so, and which insects are no harm, never how much nor when it is counted.
+    [
+      { th: "ลุงสังเกตมานานแล้วนะหลาน ช่วงไหนที่สวนผักมีแมลงบินว่อน ผักก็โดนแมลงกัดกินบ่อยกว่าปกติ", en: "I've watched it for years, kiddo: when the farm's thick with insects, the plants get eaten a little oftener." },
+      { th: "ถ้ามีใครถือสวิงไปไล่จับออกเสียบ้าง ผักก็รอดมากขึ้น", en: "If somebody goes round with a net and thins them out, more of the plants come through." },
+      { th: "แต่เต่าทองกับตั๊กแตนตำข้าวน่ะ ปล่อยมันไว้เถอะ สองตัวนี้กินแต่ศัตรูพืช ไม่กินผัก", en: "But leave the ladybirds and the mantises be. Those two eat what eats the plants, not the plants." },
+    ],
   ],
   banker: [
     [

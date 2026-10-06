@@ -624,6 +624,71 @@ try {
     await X.evaluate(`${T}.clearFarm()`);
     await sleep(300);
   }
+
+  // The farm's own insects bring pests on (the owner, 2026-10-06: "ทำให้ % การโจมตีสูงขึ้นถ้ามี แมลงอยู่ในแมพ ฟาร์ม แต่ถ้าไม่มีเลยก็
+  // เท่าเดิม … สูงขึ้นเล็กน้อยพอ ซัก 1-2 %"). Six hundred pumpkins sown half an hour before an hour of the pests' began: with
+  // that hour counted with no insect, some of them have a pest (three in a hundred); counted with some, a few more;
+  // with many, more again; and every one that had one keeps it.
+  {
+    const B = "window.__townBugs", HOUR = 3600000;
+    // (the hours are the check's to say here: the trial does not count them by itself meanwhile)
+    await X.evaluate(`(${T}.holdSwarm(true), ${T}.empty(), ${T}.setStamina(100), ${T}.setSwarm(null))`);
+    // (an hour of the pests', at least a quarter of an hour in: the clock is put on until it is one)
+    const inHours = (ms) => { const h = Math.floor((((ms + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR); return h >= 8 && h < 18; };
+    let now = await X.evaluate(`${T}.now()`);
+    for (let i = 0; i < 30 && !(inHours(now) && now % HOUR > 15 * 60000 && now % HOUR < 50 * 60000); i++) { await X.evaluate(`${T}.skipHours(${inHours(now) ? 0.4 : 1})`); now = await X.evaluate(`${T}.now()`); }
+    ok("(the clock is in an hour of the pests')", inHours(now), new Date(now).toISOString());
+    const h = Math.floor(now / HOUR), sown = h * HOUR - 30 * 60000;
+    await X.evaluate(`(() => { for (let x = 132; x < 162; x++) for (let y = 4; y < 24; y++) ${T}.setPlot(x + "," + y, { soil: "tilled", plant: { by: "somebody-else", crop: "pumpkin", sown: ${sown} + ((x * 31 + y) % 600) * 1000, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } }); })()`);
+    await sleep(900);
+    // (read once the page has drawn what was last said of the hours, and twice alike: a busy machine draws late)
+    const pests = async () => { let last = ""; for (let i = 0; i < 10; i++) { await sleep(i ? 500 : 1200); const got = JSON.stringify(await X.evaluate(`Object.keys(${F}.plots()).filter((k) => ${F}.seen(k).pest)`)); if (got === last) break; last = got; } return JSON.parse(last); };
+    const planted = Object.keys(await X.evaluate(`${F}.plots()`)).length;
+    const none = await pests();
+    ok("with the hour not counted, a few of the pumpkins have a pest: three in a hundred or so", planted >= 500 && none.length >= 5 && none.length <= planted * 0.07, { planted, none: none.length });
+    await X.evaluate(`${T}.setSwarm(0)`);
+    ok("counted with no insect on the farm, the same ones and no more", JSON.stringify(await pests()) === JSON.stringify(none));
+    await X.evaluate(`${T}.setSwarm(2)`);
+    const some = await pests();
+    await X.evaluate(`${T}.setSwarm(6)`);
+    const many = await pests();
+    ok("counted with some insects, a few more plants have one; with many, more again", some.length > none.length && many.length > some.length, { none: none.length, some: some.length, many: many.length });
+    ok("…every plant that had a pest has it still: the insects only add", none.every((k) => some.includes(k)) && some.every((k) => many.includes(k)));
+    ok("…and only a little: under one plant in twelve even with many", many.length <= planted / 12, { planted, many: many.length });
+    // an hour ago counts for nothing here (these were sown since), nor does an hour to come
+    await X.evaluate(`(${T}.setSwarm(null), ${T}.setSwarm(9, ${(h - 1) * HOUR}), ${T}.setSwarm(9, ${(h + 1) * HOUR}))`);
+    { const beside = await pests(); ok("the hour before and the hour after, counted with many, change nothing of this hour", JSON.stringify(beside) === JSON.stringify(none), { none: none.length, now: beside.length, more: beside.filter((k) => !none.includes(k)).slice(0, 3), swarms: await X.evaluate(`${T}.swarms()`), h, clock: await X.evaluate(`${T}.now()`) }); }
+    // a plant that has a pest only for the insects: a cure is offered there, and takes it off
+    await X.evaluate(`(${T}.setSwarm(null), ${T}.setSwarm(6))`);
+    const lone = many.find((k) => !none.includes(k)), [lx, ly] = lone.split(",").map(Number);
+    await X.evaluate(`${T}.grant("pestCure", 1)`);
+    await hold(X, "pestCure");
+    await warp(X, lx, ly);
+    await until("the cure is offered for it", async () => (await deed(X)) === "cure", 5000);
+    await X.evaluate(`${T}.setSwarm(0)`);
+    await sleep(700);
+    ok("a cure is offered for a plant that has a pest only for the insects, and not when the hour had none", (await deed(X)) === null);
+    await X.evaluate(`${T}.setSwarm(6)`);
+    await until("the cure is offered again", async () => (await deed(X)) === "cure", 5000);
+    await X.evaluate(`${F}.act()`);
+    await sleep(500);
+    ok("…and takes the pest off", (await seen(X, lone)).pest === false && (await has(X, "pestCure")) === 0);
+    // the trial counts an hour as the database does: once, by what is on the farm, less the two that eat pests
+    await X.evaluate(`(${T}.clearFarm(), ${T}.setSwarm(null), ${T}.unsetBugs())`);
+    await sleep(300);
+    const haunts = await X.evaluate(`${B}.haunts().map((x) => ({ id: x.id, place: x.place, kind: x.kind }))`), fields = haunts.filter((x) => x.place === "farm" && x.kind === "field").map((x) => x.id);
+    await X.evaluate(`(${T}.setBug(${fields[0]}, "grasshopper"), ${T}.setBug(${fields[1]}, "ladybird"), ${T}.setBug(${fields[2]}, "mantis"), ${T}.setBug(${fields[3]}, "scarab"))`);
+    const out = await X.evaluate(`${T}.bugs().map((s) => [s.id, s.bug])`);
+    const onFarm = out.filter(([id, bug]) => haunts.find((x) => x.id === id)?.place === "farm" && bug !== "ladybird" && bug !== "mantis").length;
+    await X.evaluate(`${T}.swarmNote(true)`);
+    let kept = await X.evaluate(`${T}.swarms()`);
+    ok("the hour is counted with what is on the farm that nobody has caught, less ladybirds and mantises", kept[h] === onFarm && onFarm >= 2 && out.some(([, bug]) => bug === "ladybird") && out.some(([, bug]) => bug === "mantis"), { kept, onFarm });
+    await X.evaluate(`(${T}.setBug(${fields[4]}, "grasshopper"), ${T}.setBug(${fields[5]}, "grasshopper"), ${T}.swarmNote(true))`);
+    kept = await X.evaluate(`${T}.swarms()`);
+    ok("…once: two more insects come to the farm in the same hour, and it is as it was counted", kept[h] === onFarm && Object.keys(kept).length === 1, kept);
+    await X.evaluate(`(${T}.unsetBugs(), ${T}.setSwarm(null), ${T}.clearFarm(), ${T}.holdSwarm(false))`);
+    await sleep(300);
+  }
   ok("no page errors", X.logs.length === 0 && Y.logs.length === 0, [...X.logs, ...Y.logs]);
 } catch (e) { ok("the run", false, e.message + " " + JSON.stringify(X.logs)); } finally { X.close(); }
 console.log(`\n${pass} passed, ${fail} failed`);

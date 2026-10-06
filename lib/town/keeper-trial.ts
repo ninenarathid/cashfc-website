@@ -36,7 +36,13 @@ class TrialKeeper implements Keeper {
   ready() { return true; }
   open() { return true; }
   watch(fn: () => void) { return this.trial.watch(fn); }
-  look() { return () => {}; }
+  /** Everything is in this browser already; but an hour of the pests' is counted by its first look at the farm, as the database counts it (lib/town/farm's Swarms), and again every so often while it is looked at, for the hour that turns meanwhile. */
+  look(what?: string) {
+    if (what !== "farm") return () => {};
+    this.trial.swarmNote();
+    const t = setInterval(() => this.trial.swarmNote(), 20_000);
+    return () => clearInterval(t);
+  }
   nudged() { /* everything is in this browser already */ }
   now() { return this.trial.now(); }
 
@@ -50,7 +56,7 @@ class TrialKeeper implements Keeper {
   well() { return this.trial.well(); }
   owners() { return this.trial.owners(); }
   deedAt(key: string) { return this.trial.deedAt(key); }
-  rains() { return SKIES.rains(); }
+  rains() { return this.trial.sky(); }
   choreAt(where: Water) { return this.trial.choreAt(where); }
   pots() { return this.trial.pots(); }
   found() { return this.trial.found(); }

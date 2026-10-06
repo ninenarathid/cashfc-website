@@ -1,10 +1,10 @@
 import { newBox, roomyBox, stow, unstow, type Box } from "./box";
 import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot, type Taste } from "./cooking";
-import { WATER, WILD, chore, choreFor, deedFor, ownerOf, tend, type Bed, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
+import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { hookBait, landCatch, loseBait } from "./fishing";
 import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
-import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
+import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
 import * as Shops from "./shop";
@@ -68,6 +68,8 @@ interface KeptNote { id: number; by: string; day: number; wish: WishId; note: st
 /** The forest: the word its rolls hang on, and who has taken from which place in which turn. */
 const WILD_SALT = "cashtown.trial.wild.salt.1", WILD_TOOK = "cashtown.trial.wild.took.1";
 const BUG_TOOK = "cashtown.trial.bugs.took.1", BUG_BOOK = "cashtown.trial.bugs.book.1", BUG_BACK = "cashtown.trial.bugs.back.1";
+/** The hours the farm was counted with insects that eat plants on it (lib/town/farm's Swarms). */
+const SWARMS = "cashtown.trial.farm.swarms.1";
 /** Every insect caught in this browser within the day: what the scarcity of each kind is counted from. */
 const BUG_HUNTS = "cashtown.trial.bugs.hunts.1";
 /** The well's book (lib/town/well): whose water is where, for the whole browser. */
@@ -384,17 +386,42 @@ export class Trial {
     }
     return out;
   }
+  /**
+   * The hours the farm was counted with insects that eat plants on it (lib/town/farm's Swarms): the trial's own count,
+   * one for the browser like the farm itself.
+   */
+  swarms(): Swarms {
+    return this.read<Record<number, number>>(SWARMS, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
+  }
+  /** Count this hour, if it is one of the pests' and has not been counted: the first look at the farm in it, or the first deed there. (Not while a script holds the count, unless it is the script that asks.) */
+  swarmNote(asked = false) {
+    const now = this.now(), h = pestHour(now), kept = this.swarms();
+    if ((this.swarmHeld && !asked) || !inPestHours(now) || h in kept) return;
+    const took = this.netted();
+    const n = farmBugs(this.salt(), now, SKIES.rains(), (haunt, turn) => (took[`${haunt.id}:${turn}`] ?? []).length, this.backs(), this.hunts(), (haunt) => this.swarm(haunt, now));
+    // (a fortnight is kept: no plant looks further back)
+    this.write(SWARMS, { ...Object.fromEntries(Object.entries(kept).filter(([hour]) => Number(hour) > h - 14 * 24)), [h]: n });
+  }
+  /** For scripts trying things out: keep the hours from being counted by themselves, so that what the script says of an hour is all that is said of it (in this tab). */
+  private swarmHeld = false;
+  holdSwarm(held: boolean) { this.swarmHeld = held; }
+  /** For scripts trying things out: how many insects an hour was counted with (the hour a moment is in; this one, when none is said), or null for no hour counted at all. */
+  setSwarm(n: number | null, at = this.now()) { this.write(SWARMS, n === null ? {} : { ...this.swarms(), [pestHour(at)]: n }); this.tell(); }
+  /** What the farm's rules are read under here: the rain, and the hours counted. */
+  sky(): FarmSky { return { rains: SKIES.rains(), swarms: this.swarms() }; }
   /** What the thing in my hand can do to a plot now, if anything. */
   deedAt(key: string): Deed | null {
     const [x, y] = key.split(",").map(Number);
-    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, SKIES.rains());
+    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky());
   }
   /** Do to a plot what the thing in my hand does: clear it, till it, dig its plant out (a living one only when it is `sure`), sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
   farmDo(key: string, name = "", sure = false): { ok: true; deed: Deed; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+    // (somebody is at the farm: its hour is counted, if it has not been)
+    this.swarmNote();
     const p = this.purse(), now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, beds = this.beds();
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
-    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, SKIES.rains(), sure, this.putLuck ?? undefined);
+    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, this.sky(), sure, this.putLuck ?? undefined);
     if (!did.ok) return did;
     const next = { ...plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
@@ -421,13 +448,13 @@ export class Trial {
   /** The plots the bucket in my hand would water, poured over the bed from a plot of it (lib/town/ditch): none, when there is nothing to pour or nothing to pour it on. */
   ditchAt(key: string): string[] {
     const [x, y] = key.split(",").map(Number);
-    return bedOf(x, y) < 0 ? [] : reachOf(this.purse(), this.bedAt(x, y), [x, y], this.now(), SKIES.rains());
+    return bedOf(x, y) < 0 ? [] : reachOf(this.purse(), this.bedAt(x, y), [x, y], this.now(), this.sky());
   }
   /** Pour it. */
   ditchDo(key: string): { ok: true; used: number; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {
     const [x, y] = key.split(",").map(Number), p = this.purse(), now = this.now(), plots = this.farm();
     if (bedOf(x, y) < 0) return no("none");
-    const did = ditch(p, this.bedAt(x, y), [x, y], now, SKIES.rains());
+    const did = ditch(p, this.bedAt(x, y), [x, y], now, this.sky());
     if (!did.ok) return did;
     const next = { ...plots }, sky = SKIES.sky(now), hand = handOf(p) ?? undefined;
     for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now));
@@ -580,7 +607,7 @@ export class Trial {
     const rids = BUGS[has!.bug].rids ? this.ridChance ?? BUGS[has!.bug].rids! : 0;
     if (rids > 0 && Math.random() < rids) {
       const farm = this.farm();
-      rid = pestToRid(farm, now, SKIES.rains(), Math.random());
+      rid = pestToRid(farm, now, this.sky(), Math.random());
       if (rid) this.write(FARM, { ...farm, [rid]: { ...farm[rid], plant: { ...farm[rid].plant!, cured: now } } });
     }
     // caught, it is gone for everybody; and one of a haunt's own comes back somewhere else on that map a little later

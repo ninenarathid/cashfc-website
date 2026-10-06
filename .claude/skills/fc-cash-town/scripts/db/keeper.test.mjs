@@ -18,11 +18,11 @@ const { DbKeeper } = await import("@/lib/town/keeper");
 const { FARM, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
 const { shelfOf } = await import("@/lib/town/orders");
 const { BUGS, HAUNTS } = await import("@/lib/town/insects");
-const { ridCameOf, see } = await import("@/lib/town/farm");
+const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town/farm");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v147"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
 const bench = spawn(process.execPath, [fileURLToPath(new URL("./town-bench.mjs", import.meta.url)), String(PORT)],
@@ -835,6 +835,73 @@ try {
       }
       stop();
     }
+  }
+
+  // (v147: the farm's hours. A database that has not had the file keeps none and tells none; the page's pests are then as they were.)
+  {
+    const v147 = (await sql(`select to_regclass('public.town_swarms') is not null as there`))[0].there;
+    section(v147 ? "the farm's hour is counted by the first look at it, and the page works the pests out by what it is told (v147)"
+      : "the farm's hours (v147): this page, against a database that has not had the file");
+    const HOUR = 3600000;
+    // (an hour of the pests', a little way in: the clock is put on until it is one)
+    let now = Number((await sql(`select town.now_ms() as now`))[0].now);
+    for (let i = 0; i < 30 && !(inPestHours(now) && now % HOUR > 10 * 60000 && now % HOUR < 45 * 60000); i++) { await skip(inPestHours(now) ? 20 * 60000 : HOUR); now = Number((await sql(`select town.now_ms() as now`))[0].now); }
+    ok("(the clock is in an hour of the pests')", inPestHours(now));
+    const h = pestHour(now);
+    if (v147) await sql(`delete from public.town_swarms where true`);
+    await sql(`truncate public.town_plots, public.town_beds`);
+    // a pumpkin sown half an hour before this hour began, in a plot whose roll for the hour is between four and five in a hundred: found by looking
+    const sown = h * HOUR - 30 * 60000, plant = { by: b, crop: "pumpkin", sown, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
+    let key = null;
+    for (let y = FARM.y; y < FARM.y + FARM.h && !key; y++) for (let x = FARM.x; x < FARM.x + FARM.w && !key; x++) {
+      if (!plotAt(x, y)) continue;
+      const r = roll(`${x},${y}`, h, sown);
+      if (r >= 0.04 && r < 0.05) key = [x, y];
+    }
+    ok("(a plot whose roll for this hour falls between four and five in a hundred)", !!key, key);
+    const pkey = `${key[0]},${key[1]}`;
+    await sql(`insert into public.town_plots (x, y, bed, soil, plant, changed) values ($1::int, $2::int, town.bed_of($1::int, $2::int), 'tilled', $3::jsonb, town.now_ms())`, [key[0], key[1], JSON.stringify(plant)]);
+    await purse(a, 0, [{ item: "pestCure", n: 1 }]);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'pestCure', 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [a]);
+    const K = new DbKeeper(a, askAs("A"));
+    await settled(K);
+    const stop = K.look("farm");
+    await sleep(700);
+    const pestNow = () => see(pkey, K.farm()[pkey], K.now(), K.rains()).pest;
+    if (!v147) {
+      ok("a database that has not had v147 tells no hours: the page has none, and the plant no pest", !!K.farm()[pkey]?.plant && JSON.stringify(K.rains().swarms) === "{}" && !pestNow() && K.deedAt(pkey) === null, K.rains().swarms);
+    } else {
+      const rows = await sql(`select hour, bugs, noted from public.town_swarms order by hour`);
+      ok("the keeper's look at the farm counted this hour, once, by the database's clock", rows.length === 1 && Number(rows[0].hour) === h && Number(rows[0].bugs) >= 0 && Math.abs(Number(rows[0].noted) - now) < 60000, rows);
+      const counted = Number(rows[0]?.bugs ?? 0);
+      ok("…and the page was told it, if the farm had any insect: an hour with none is not told", JSON.stringify(K.rains().swarms) === JSON.stringify(counted > 0 ? { [h]: counted } : {}), { told: K.rains().swarms, counted });
+      K.nudged("farm");
+      await sleep(600);
+      ok("another look counts nothing again", (await sql(`select count(*)::int as n from public.town_swarms`))[0].n === 1);
+      // the hour as if it had been counted with many (and counted just now, so that the page is told of it)
+      await sql(`update public.town_swarms set bugs = 6, noted = town.now_ms() where hour = $1`, [h]);
+      ok("(told nothing yet, the page works the plant out by what it has)", pestNow() === (counted >= 4));
+      K.nudged("farm");
+      await sleep(600);
+      ok("told the hour had many insects, the page has it and sees the pest on the plant: its roll is under five in a hundred", K.rains().swarms[h] === 6 && pestNow() === true, K.rains().swarms);
+      ok("…and offers the cure in the hand for it", K.deedAt(pkey) === "cure", K.deedAt(pkey));
+      const did = await K.farmDo(pkey, "Tester A");
+      ok("…which the database takes: it works the pest out by the same hour", did.ok && did.deed === "cure" && K.farm()[pkey]?.plant?.cured > 0 && !pestNow(), did);
+      // the same plant in an hour with none: no pest, for the page and for the database alike
+      await sql(`update public.town_plots set plant = $3::jsonb, changed = town.now_ms() where x = $1 and y = $2`, [key[0], key[1], JSON.stringify(plant)]);
+      await sql(`update public.town_swarms set bugs = 0, noted = town.now_ms() where hour = $1`, [h]);
+      await purse(a, 0, [{ item: "pestCure", n: 1 }]);
+      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'pestCure') where member_id = $1`, [a]);
+      const L = new DbKeeper(a, askAs("A"));
+      await settled(L);
+      const halt = L.look("farm");
+      await sleep(700);
+      const again = await L.farmDo(pkey, "Tester A");
+      ok("a page that comes with the hour counted with none is told no hour, sees no pest, and the database agrees: a cure does nothing there", JSON.stringify(L.rains().swarms) === "{}" && !see(pkey, L.farm()[pkey], L.now(), L.rains()).pest && L.deedAt(pkey) === null && !again.ok && again.why === "soil", { swarms: L.rains().swarms, again });
+      halt(); L.close();
+    }
+    stop(); K.close();
+    await sql(`truncate public.town_plots, public.town_beds`);
   }
 
   if ((await sql(`select to_regprocedure('public.town_ditch(integer, integer)') is not null as there`))[0].there) {

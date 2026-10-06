@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
-  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, cureWords, deedFor, feed, grown, hitsFor, hoe, isTree, ownerOf, pestAt, pick, ridCameOf, ridLuck, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
-  type Bed, type Plant, type Plot,
+  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, cureWords, deedFor, feed, grown, hitsFor, hoe, inPestHours, isTree, ownerOf, pestAt, pestChance, pestHour, pick, ridCameOf, ridLuck, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
+  type Bed, type FarmSky, type Plant, type Plot, type Swarms,
 } from "./farm";
 import atlas from "./icon-atlas.json";
 import { CROPS, CROP_IDS, FISH, ITEMS, STAGES, growIconOf, type ItemId } from "./items";
@@ -439,6 +439,104 @@ describe("pests", () => {
       if (t !== null) expect(t).toBeLessThan(ripeAt);
       else expect(see(key, { soil: "tilled", plant: p }, NIGHT + 30 * 24 * HOUR)).toMatchObject({ ripe: true, dead: false });
     }
+  });
+});
+
+// The owner, 2026-10-06: "ในช่วงที่มีแมลงมาโจมตีพืช ทำให้ % การโจมตีสูงขึ้นถ้ามี แมลงอยู่ในแมพ ฟาร์ม แต่ถ้าไม่มีเลยก็เท่าเดิม", and how
+// much: "สูงขึ้นเล็กน้อยพอ ซัก 1-2 %".
+describe("pests, in an hour the farm has insects on it", () => {
+  const PLOTS = Array.from({ length: 1200 }, (_, i) => `${i},3`), TWO_DAYS = NIGHT + 48 * HOUR;
+  /** Every hour of those two days counted with so many insects. */
+  const every = (n: number): Swarms => Object.fromEntries(Array.from({ length: 49 }, (_, i) => [pestHour(NIGHT) + i, n]));
+  const under = (swarms: Swarms): FarmSky => ({ rains: [], swarms });
+  const struck = (sky: FarmSky) => PLOTS.map((k) => pestAt(k, plant({ crop: "pumpkin" }), TWO_DAYS, sky));
+
+  it("strike a little oftener: three in a hundred with none, four with some, five with many", () => {
+    expect(FARMING.pests).toMatchObject({ chance: 0.03, swarm: { some: 1, many: 4, adds: [0.01, 0.02] } });
+    expect(pestChance(0)).toBe(0.03);
+    for (const n of [1, 2, 3]) expect(pestChance(n)).toBe(0.03 + 0.01);
+    for (const n of [4, 5, 9, 40]) expect(pestChance(n)).toBe(0.03 + 0.02);
+    expect(pestChance(1)).toBeCloseTo(0.04, 12);
+    expect(pestChance(4)).toBeCloseTo(0.05, 12);
+    // an hour is the hour the pests are rolled by, and theirs from eight to six by Bangkok's clock
+    expect(pestHour(at("2026-10-06T09:59:59"))).toBe(pestHour(at("2026-10-06T09:00:00")));
+    expect(pestHour(at("2026-10-06T10:00:00"))).toBe(pestHour(at("2026-10-06T09:00:00")) + 1);
+    expect([7, 8, 12, 17, 18, 23].map((h) => inPestHours(at(`2026-10-06T${String(h).padStart(2, "0")}:30:00`)))).toEqual([false, true, true, true, false, false]);
+  });
+
+  it("with no hour counted, or none with any insect, everything is as it was: a plain list of rain is such a sky", () => {
+    const plain = struck([]);
+    expect(struck(under({}))).toEqual(plain);
+    expect(struck(under(every(0)))).toEqual(plain);
+    // (and the rain is read the same from either: a plant grows by it, and is wet under it)
+    const rains = [[NIGHT, NIGHT + 3 * HOUR]] as const, p = plant();
+    expect(grown(p, NIGHT + 4 * HOUR, { rains, swarms: every(6) })).toBe(grown(p, NIGHT + 4 * HOUR, rains));
+    expect(see("1,1", { soil: "tilled", plant: p }, NIGHT + HOUR, { rains, swarms: {} })).toEqual(see("1,1", { soil: "tilled", plant: p }, NIGHT + HOUR, rains));
+  });
+
+  it("with insects on the farm every hour, more plants are struck, each no later than it would have been, and by about so much", () => {
+    const none = struck([]), some = struck(under(every(2))), many = struck(under(every(6)));
+    const n = (list: Array<number | null>) => list.filter((t) => t !== null).length;
+    // (a pumpkin through its first day and a half of pest hours: thirteen hours at three, four and five in a hundred)
+    expect(n(none)).toBeGreaterThan(300);
+    expect(n(some)).toBeGreaterThan(n(none) + 40);
+    expect(n(many)).toBeGreaterThan(n(some) + 40);
+    expect(n(many)).toBeLessThan(n(none) * 1.8);
+    for (let i = 0; i < PLOTS.length; i++) {
+      // whoever is struck with none is struck with some, and no later; and so on up
+      if (none[i] !== null) { expect(some[i]).not.toBeNull(); expect(some[i]!).toBeLessThanOrEqual(none[i]!); }
+      if (some[i] !== null) { expect(many[i]).not.toBeNull(); expect(many[i]!).toBeLessThanOrEqual(some[i]!); }
+    }
+    // only the hours counted count: one hour with insects, and only strikes of that hour are added
+    const one = pestHour(NIGHT) + 14, lone = struck(under({ [one]: 6 }));
+    for (let i = 0; i < PLOTS.length; i++) {
+      if (lone[i] === none[i]) continue;
+      expect(lone[i]).toBe(one * HOUR);
+      expect(none[i] === null || none[i]! > one * HOUR).toBe(true);
+    }
+    expect(lone.filter((t, i) => t !== none[i]).length).toBeGreaterThan(8);
+    // and an hour outside the pests' own counts for nothing, whatever is said of it
+    const night = pestHour(NIGHT) + 2;
+    expect(inPestHours(night * HOUR)).toBe(false);
+    expect(struck(under({ [night]: 40 }))).toEqual(none);
+  });
+
+  it("is seen by every rule that looks for a pest: what a plot shows, what a hand is offered, a cure, an insect let go", () => {
+    // a plot struck only because the farm had insects on it that hour
+    const none = struck([]), many = struck(under(every(6)));
+    const i = PLOTS.findIndex((_, n) => none[n] === null && many[n] !== null), key = PLOTS[i], t = many[i]!, sky = under(every(6));
+    expect(i).toBeGreaterThanOrEqual(0);
+    const plot: Plot = { soil: "tilled", plant: plant({ crop: "pumpkin" }) }, me = holding(purseWith(["pestCure", 1], ["ladybird", 1]), "pestCure");
+    expect(see(key, plot, t + HOUR).pest).toBe(false);
+    expect(see(key, plot, t + HOUR, sky).pest).toBe(true);
+    expect(deedFor(key, plot, "pestCure", "me", t + HOUR)).toBeNull();
+    expect(deedFor(key, plot, "pestCure", "me", t + HOUR, null, sky)).toBe("cure");
+    expect(cure(key, me, plot, "pestCure", t + HOUR)).toEqual({ ok: false, why: "soil" });
+    expect(done(cure(key, me, plot, "pestCure", t + HOUR, sky)).plot.plant!.cured).toBe(t + HOUR);
+    expect(done(tend(key, plot, undefined, 0, 0, me, "me", t + HOUR, sky)).deed).toBe("cure");
+    // an insect let go on it is tried, under that sky; under a plain one it is only a cover
+    expect(done(feed(key, me, plot, "ladybird", t + HOUR, sky, 0)).plot.plant).toEqual({ ...plot.plant!, cured: t + HOUR });
+    expect(done(feed(key, me, plot, "ladybird", t + HOUR, [], 0)).plot.plant!.guard).toBe(t + HOUR + FARMING.guard * HOUR);
+    // left alone it dies of it six hours on, under that sky and not under the other
+    expect(see(key, plot, t + FARMING.pests.kills * HOUR + 1, sky).dead).toBe(true);
+    expect(see(key, plot, t + FARMING.pests.kills * HOUR + 1).dead).toBe(false);
+  });
+
+  it("and a plant rid of a pest on the very stroke of its hour is rid of it: that hour's roll is the pest it was rid of", () => {
+    const key = PLOTS.find((k) => pestAt(k, plant({ crop: "pumpkin" }), TWO_DAYS) !== null)!, p = plant({ crop: "pumpkin" }), t = pestAt(key, p, TWO_DAYS)!;
+    expect(t % HOUR).toBe(0);
+    const plot: Plot = { soil: "tilled", plant: p };
+    expect(see(key, plot, t).pest).toBe(true);
+    const cured = done(cure(key, purseWith(["archerfish", 1]), plot, "archerfish", t));
+    expect(cured.plot.plant!.cured).toBe(t);
+    expect(see(key, cured.plot, t).pest).toBe(false);
+    expect(pestAt(key, cured.plot.plant!, t + HOUR - 1)).toBeNull();
+    // (the next hour's roll is its own, as ever)
+    const again = pestAt(key, cured.plot.plant!, t + 30 * 24 * HOUR);
+    if (again !== null) expect(again).toBeGreaterThan(t);
+    // an insect that eats it at that moment, the same
+    const ate = done(feed(key, holding(purseWith(["mantis", 1]), "mantis"), plot, "mantis", t, [], 0));
+    expect(see(key, ate.plot, t).pest).toBe(false);
   });
 });
 

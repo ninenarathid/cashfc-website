@@ -1,8 +1,8 @@
-import { FARMING, WATER, deedFor, see, type FarmRefusal, type Plot } from "./farm";
+import { FARMING, WATER, deedFor, see, type FarmRefusal, type FarmSky, type Plot } from "./farm";
 import type { ItemId } from "./items";
 import { spend } from "./stamina";
 import { handOf, type Done, type Purse } from "./trade";
-import { DRY, type Rain } from "./weather";
+import { DRY } from "./weather";
 
 /**
  * A bucket poured over a bed (the owner, 2026-10-05, of the members who carry
@@ -41,7 +41,7 @@ export const DITCH = {
 };
 
 /** Whether the plant in a plot could be watered now, by anybody. (What a can in the hand would be offered there: a can stands for any water.) */
-export const thirsty = (key: string, plot: Plot, now: number, rains: readonly Rain[] = DRY) => deedFor(key, plot, "can", "", now, null, rains) === "water";
+export const thirsty = (key: string, plot: Plot, now: number, rains: FarmSky = DRY) => deedFor(key, plot, "can", "", now, null, rains) === "water";
 
 /** The bucketfuls in the bucket I hold (the first of its kind that has water in it), and which slot it is; none when what I hold carries no water. */
 function held(purse: Purse): { hand: ItemId; slot: number; has: number } | null {
@@ -56,7 +56,7 @@ function held(purse: Purse): { hand: ItemId; slot: number; has: number } | null 
  * (then the one further up the map, then further left), as many as its water reaches. `bed` is every plot of that
  * bed that is not weeds, by its tile.
  */
-export function reachOf(purse: Purse, bed: Record<string, Plot>, tile: [number, number], now: number, rains: readonly Rain[] = DRY): string[] {
+export function reachOf(purse: Purse, bed: Record<string, Plot>, tile: [number, number], now: number, rains: FarmSky = DRY): string[] {
   const mine = held(purse);
   if (!mine) return [];
   return Object.keys(bed).filter((key) => thirsty(key, bed[key], now, rains))
@@ -71,7 +71,7 @@ export function reachOf(purse: Purse, bed: Record<string, Plot>, tile: [number, 
  * none in it (`hand`); and with no plant there that could do with any: `wet` when one is only watered already,
  * `soil` otherwise.
  */
-export function ditch(purse: Purse, bed: Record<string, Plot>, tile: [number, number], now: number, rains: readonly Rain[] = DRY):
+export function ditch(purse: Purse, bed: Record<string, Plot>, tile: [number, number], now: number, rains: FarmSky = DRY):
   Done<{ purse: Purse; plots: Record<string, Plot>; used: number; watered: string[] }> | { ok: false; why: FarmRefusal } {
   const mine = held(purse);
   if (!mine) return { ok: false, why: "hand" };

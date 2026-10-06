@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { inPestHours, pestAt, pestHour, roll, see, type Plant } from "./farm";
 import { HINT_IDS, HINT_PRICE, hintPrice } from "./hints";
 import { DbKeeper, type Ask } from "./keeper";
 import { shelfOf, sourcesAt } from "./orders";
@@ -561,6 +562,57 @@ describe("the database's keeper", () => {
     expect(told).toEqual(["farm"]);
     stop();
     k.close();
+  });
+
+  it("keeps the hours the farm had insects on it as it is told them, each telling laid over the last, and works the pests out by them; none where the database tells none", async () => {
+    // a pumpkin sown at six one morning; a plot whose roll for nine o'clock is between four and five in a hundred, with no pest before: found by looking
+    const HOUR = 3_600_000, NINE = Math.ceil(NOW / (24 * HOUR)) * 24 * HOUR + 2 * HOUR, H = pestHour(NINE), SOWN = NINE - 3 * HOUR;
+    expect(inPestHours(NINE)).toBe(true);
+    const plant: Plant = { by: "me", crop: "pumpkin", sown: SOWN, boost: 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 };
+    let key = "";
+    for (let x = 132; x < 190 && !key; x++) for (let y = 4; y < 40 && !key; y++) {
+      const k = `${x},${y}`, r = roll(k, H, SOWN);
+      if (r >= 0.04 && r < 0.05 && pestAt(k, plant, NINE + HOUR - 1) === null) key = k;
+    }
+    expect(key).not.toBe("");
+    let asked = 0;
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      // (the first look: the plot, and an earlier hour that had some; the second: nine o'clock, with many; the third: nothing new)
+      town_farm: () => { asked++; return { now: NOW + asked, well: 0, plots: asked === 1 ? { [key]: { soil: "tilled", plant } } : {}, beds: {}, swarms: asked === 1 ? { [H - 1]: 2 } : asked === 2 ? { [H]: 6 } : {} }; },
+    });
+    const k = new DbKeeper("me", db.ask);
+    const stop = k.look("farm");
+    await settle();
+    const pest = () => see(key, k.farm()[key], NINE + HOUR - 1, k.rains()).pest;
+    // told only of the hour before, which has nothing for this plot: no pest
+    expect(k.rains()).toMatchObject({ swarms: { [H - 1]: 2 } });
+    expect(pest()).toBe(false);
+    // told of nine o'clock too: both hours are kept, and the plant has had a pest since nine
+    k.nudged("farm");
+    await settle();
+    expect(k.rains()).toMatchObject({ swarms: { [H - 1]: 2, [H]: 6 } });
+    expect(pest()).toBe(true);
+    expect(pestAt(key, plant, NINE + HOUR - 1, k.rains())).toBe(NINE);
+    // told nothing new: what it has, it keeps
+    k.nudged("farm");
+    await settle();
+    expect(asked).toBe(3);
+    expect(pest()).toBe(true);
+    stop();
+    k.close();
+    // a database that tells no hours (it has not had the file): the pests are as they always were
+    const old = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }), town_farm: () => ({ now: NOW + 1, well: 0, plots: { [key]: { soil: "tilled", plant } }, beds: {} }) });
+    const o = new DbKeeper("me", old.ask), halt = o.look("farm");
+    await settle();
+    expect(o.rains()).toMatchObject({ swarms: {} });
+    expect(see(key, o.farm()[key], NINE + HOUR - 1, o.rains()).pest).toBe(false);
+    // …and what is not an hour and a number is not kept
+    const odd = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }), town_farm: () => ({ now: NOW + 1, well: 0, plots: {}, beds: {}, swarms: { [H]: "many", soon: 3, [H + 1]: -2, [H + 2]: 5 } }) });
+    const q = new DbKeeper("me", odd.ask), end = q.look("farm");
+    await settle();
+    expect(q.rains()).toEqual({ rains: SKIES.rains(), swarms: { [H + 2]: 5 } });
+    halt(); end(); o.close(); q.close();
   });
 
   it("looks again in its time while somebody is looking, and not after", async () => {

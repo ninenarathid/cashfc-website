@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
-  BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE, UNHUNTED, aimOf, bugTurn, bugTurnStart, comeback, hereAt, mayNet, missed, nearHaunt, net, newMind, plentyOf, poseOf, ringOf, swarmAt,
+  BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE, UNHUNTED, aimOf, bugTurn, bugTurnStart, comeback, farmBugs, hereAt, mayNet, missed, nearHaunt, net, newMind, plentyOf, poseOf, ringOf, swarmAt,
   swarms, swingMs, taken, think, type BugId, type Comeback, type Haunt, type Hunt, type Mind, type Person, type Swarm, pestToRid, fledBy,
 } from "./insects";
 import { BAITS, BAIT_AS, FISH, FISH_IDS, ITEMS, MAKES, type ItemId } from "./items";
@@ -773,6 +773,52 @@ describe("an insect that is hunted (the owner: \"adapt ไปกับทุก�
       const all = swarms(WORD, t, DRY, none), few = swarms(WORD, t, DRY, none, [], BUG_IDS.flatMap((id) => caught(id, 100, t - 2 * HOUR)));
       expect(few.length).toBeLessThan(all.length * 0.5);
       for (const s of few) expect(all).toContainEqual(s);
+    }
+  });
+});
+
+// The owner, 2026-10-06: "ทำให้ % การโจมตีสูงขึ้นถ้ามี แมลงอยู่ในแมพ ฟาร์ม แต่ถ้าไม่มีเลยก็เท่าเดิม". What an hour of the pests' is
+// counted as (lib/town/farm's Swarms).
+describe("the insects on the farm, counted", () => {
+  const WORD = "a word of the day", none = () => 0;
+  const farm = HAUNTS.filter((h) => h.place === "farm");
+  /** What every haunt of the farm has at a moment, by the rolls. */
+  const out = (now: number) => farm.map((h) => ({ h, has: hereAt(WORD, h, now, DRY, []) })).filter((x) => !!x.has);
+
+  it("are the ones out at the farm's haunts that nobody has caught, less the two that eat pests", () => {
+    let seen = 0, eaters = 0;
+    for (let i = 0; i < 60; i++) {
+      const now = NOON + i * 7 * MINUTE, here = out(now), plain = here.filter((x) => FARMING.rids[x.has!.bug] === undefined);
+      expect(farmBugs(WORD, now, DRY, none)).toBe(plain.length);
+      seen += plain.length; eaters += here.length - plain.length;
+      // one of them caught: one fewer; all of them: none
+      if (plain.length) {
+        const gone = plain[0];
+        expect(farmBugs(WORD, now, DRY, (h, turn) => (h.id === gone.h.id && turn === gone.has!.turn ? 1 : 0))).toBe(plain.length - 1);
+        // (caught in another turn of that haunt's, it is here still)
+        expect(farmBugs(WORD, now, DRY, (h, turn) => (h.id === gone.h.id && turn === gone.has!.turn - 1 ? 1 : 0))).toBe(plain.length);
+      }
+      expect(farmBugs(WORD, now, DRY, () => 1)).toBe(0);
+    }
+    // by day the farm has some six of them out at a time, and now and then a ladybird or a mantis beside them
+    expect(seen / 60).toBeGreaterThan(4);
+    expect(seen / 60).toBeLessThan(9);
+    expect(eaters).toBeGreaterThan(20);
+  });
+
+  it("only the farm's: the town's and the forest's are nothing to its plants; and what a script puts at a haunt is counted as what is there", () => {
+    const now = NOON, town = HAUNTS.find((h) => h.place === "town")!, field = farm.find((h) => h.kind === "field")!;
+    const put = (at: Haunt, bug: BugId) => (h: Haunt) => (h.id === at.id ? swarmOf(h, bug, now) : null);
+    expect(farmBugs(WORD, now, DRY, none, [], UNHUNTED, put(town, "grasshopper"))).toBe(0);
+    expect(farmBugs(WORD, now, DRY, none, [], UNHUNTED, put(field, "grasshopper"))).toBe(1);
+    expect(farmBugs(WORD, now, DRY, none, [], UNHUNTED, put(field, "ladybird"))).toBe(0);
+    expect(farmBugs(WORD, now, DRY, none, [], UNHUNTED, put(field, "mantis"))).toBe(0);
+    expect(farmBugs(WORD, now, DRY, none, [], UNHUNTED, () => null)).toBe(0);
+    // one that came back to a haunt of the farm's after a catch is counted like any
+    const empty = farm.find((h) => h.kind === "field" && !hereAt(WORD, h, now, DRY, []));
+    if (empty) {
+      const back: Comeback = { haunt: empty.id, turn: bugTurn(empty, now), bug: "grasshopper", n: 1, from: now - 1000 };
+      expect(farmBugs(WORD, now, DRY, none, [back])).toBe(farmBugs(WORD, now, DRY, none) + 1);
     }
   });
 });

@@ -1,4 +1,4 @@
-import { roll, see, type Plot } from "./farm";
+import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import type { ItemId } from "./items";
 import { spend } from "./stamina";
@@ -423,6 +423,25 @@ export function swarms(salt: string, now: number, rains: readonly Rain[], took: 
   return out;
 }
 
+/**
+ * How many insects that eat plants are on the farm at a moment: the ones out at the farm's haunts (their own, or come
+ * back there) that nobody has caught, less the kinds that eat pests (lib/town/farm's `FARMING.rids`: a ladybird or a
+ * mantis on the farm harms nothing). What an hour of the pests' is counted as (lib/town/farm's `Swarms`; the owner,
+ * 2026-10-06: "ทำให้ % การโจมตีสูงขึ้นถ้ามี แมลงอยู่ในแมพ ฟาร์ม แต่ถ้าไม่มีเลยก็เท่าเดิม"). `took` says how many have caught a
+ * haunt's insect in a turn; `has`, when given, says what a haunt has (the trial's, whose scripts put insects there).
+ */
+export function farmBugs(salt: string, now: number, rains: readonly Rain[], took: (h: Haunt, turn: number) => number, backs: readonly Comeback[] = [], hunts: readonly Hunt[] = UNHUNTED,
+  has: (h: Haunt) => Swarm | null = (h) => hereAt(salt, h, now, rains, backs, hunts)): number {
+  let n = 0;
+  for (const h of HAUNTS) {
+    if (h.place !== "farm") continue;
+    const out = has(h);
+    if (!out || FARMING.rids[out.bug] !== undefined || took(h, out.turn) >= HAUNT_KINDS[h.kind].shares) continue;
+    n++;
+  }
+  return n;
+}
+
 /* ── a catch ────────────────────────────────────────────────────────────── */
 
 /** Why an insect was not caught, besides what a bag or a hand may lack: had already this turn, the last of them gone to others, stood too far from, or (a beetle) nobody under its tree with something sweet. */
@@ -458,7 +477,7 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
  * (across, then down); null when no plot has one. Whether a catch does this at all is the keeper's roll, against the
  * insect's `rids`; the plot is then cured as a cure in the hand cures it (lib/town/farm: `cured` is that moment).
  */
-export function pestToRid(plots: Readonly<Record<string, Plot>>, now: number, rains: readonly Rain[], pick: number): string | null {
+export function pestToRid(plots: Readonly<Record<string, Plot>>, now: number, rains: FarmSky, pick: number): string | null {
   const at = (key: string) => key.split(",").map(Number);
   const keys = Object.keys(plots).filter((key) => see(key, plots[key], now, rains).pest)
     .sort((a, b) => at(a)[0] - at(b)[0] || at(a)[1] - at(b)[1]);

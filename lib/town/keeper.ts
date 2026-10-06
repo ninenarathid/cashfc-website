@@ -1,7 +1,7 @@
 import type { Box, BoxRefusal } from "./box";
 import { cook, hasMade, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
-import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type Plot } from "./farm";
+import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import type { Strike } from "./fishing";
 import type { ForestRefusal, Outcome, Sight } from "./forest";
 import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
@@ -18,7 +18,6 @@ import type { NoticeRefusal, PinboardTold } from "./notices";
 import { shelfOf, sourcesAt, type Order } from "./orders";
 import type { ShopAsk, ShopRefusal, ShopTold, ShopsTold } from "./shop";
 import { SKIES } from "./skies";
-import type { Rain } from "./weather";
 import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
@@ -102,8 +101,8 @@ export interface Keeper {
   well(): number;
   owners(): Map<number, { by: string; name: string }>;
   deedAt(key: string): Deed | null;
-  /** The stretches of rain the plots have had (lib/town/weather): what the farm's rules are read with. */
-  rains(): readonly Rain[];
+  /** The stretches of rain the plots have had (lib/town/weather), and the hours the farm was counted with insects on it (lib/town/farm's Swarms): what the farm's rules are read with. */
+  rains(): FarmSky;
   choreAt(where: Water): Chore | null;
   pots(): Pot[];
   found(): ItemId[];
@@ -494,6 +493,11 @@ export class DbKeeper implements Keeper {
     if (a.finders && typeof a.finders === "object") this.finders_ = a.finders as Record<string, string>;
     if (a.plots && typeof a.plots === "object") for (const [key, plot] of Object.entries(a.plots as Record<string, Plot>)) this.plot(key, plot);
     if (typeof a.key === "string" && a.plot && typeof a.plot === "object") this.plot(a.key, a.plot as Plot);
+    // (the hours the farm had insects on it, told with the farm: those counted since it was last asked, laid over what is kept)
+    if (a.swarms && typeof a.swarms === "object" && !Array.isArray(a.swarms)) {
+      const told = Object.entries(a.swarms as Record<string, unknown>).filter(([h, n]) => Number.isInteger(Number(h)) && typeof n === "number" && n >= 0);
+      if (told.length) this.swarms_ = { ...this.swarms_, ...Object.fromEntries(told.map(([h, n]) => [Number(h), n as number])) };
+    }
     if (a.beds && typeof a.beds === "object") this.beds = a.beds as Record<string, KeptBed>;
     if (typeof a.key === "string" && "bed" in a) {
       const [x, y] = a.key.split(",").map(Number), n = String(bedOf(x, y)), beds = { ...this.beds };
@@ -666,9 +670,15 @@ export class DbKeeper implements Keeper {
   }
   deedAt(key: string): Deed | null {
     const [x, y] = key.split(",").map(Number);
-    return deedFor(key, this.plots[key] ?? WILD, handOf(this.mine), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, SKIES.rains());
+    return deedFor(key, this.plots[key] ?? WILD, handOf(this.mine), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains());
   }
-  rains(): readonly Rain[] { return SKIES.rains(); }
+  /**
+   * The hours the farm was counted with insects on it, as the database tells them with the farm (v147; none from a
+   * database that has not had the file: pests are then as they always were). The database counts; the page only
+   * works the pests out by what it was told, as it does by the rain.
+   */
+  private swarms_: Swarms = {};
+  rains(): FarmSky { return { rains: SKIES.rains(), swarms: this.swarms_ }; }
   choreAt(where: Water): Chore | null { return choreFor(this.mine, where, this.well_); }
   wellBook(): WellBook | null { return this.wellBook_; }
   ranks(): Record<string, number> { return this.ranks_; }
@@ -903,7 +913,7 @@ export class DbKeeper implements Keeper {
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
     if (bed < 0) return [];
     const plots = Object.fromEntries(Object.entries(this.plots).filter(([k]) => { const [u, v] = k.split(",").map(Number); return bedOf(u, v) === bed; }));
-    return reachOf(this.mine, plots, [x, y], this.now(), SKIES.rains());
+    return reachOf(this.mine, plots, [x, y], this.now(), this.rains());
   }
   async ditchDo(key: string): Promise<Did<{ used: number; watered: string[] }>> {
     const [x, y] = key.split(",").map(Number);
