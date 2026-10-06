@@ -1,10 +1,12 @@
--- v152 — the familiars: one follows its member, for everybody to see
+-- v152 — the familiars, the gifts' counts, the float that tells, and fishing
+-- that lasts longer
 --
 -- Run this once in the Supabase SQL editor, after v151 (it stops at its first
 -- line without v151's gifts). Running it again is safe. **Run it after the
 -- site's own code for it is live**: a page from before asks nothing of it,
 -- and a page with the code and a database without this file offers the six
--- charms as before and no familiar.
+-- charms as before, no familiar, tells nothing of what is on a line, and the
+-- uncle still sells ten of each bait.
 --
 -- Why. The owner, 2026-10-06, of what the lines' ranks give:
 --
@@ -489,9 +491,20 @@ grant execute on function public.town_gift_use(text) to authenticated;
 -- ─── Checking it ─────────────────────────────────────────────────────────
 --
 --   select (select count(*) from jsonb_object_keys(data->'gifts')) as gifts,
---          (select count(*) from jsonb_each(data->'gifts') e where e.value->>'kind' = 'familiar') as familiars
+--          (select count(*) from jsonb_each(data->'gifts') e where e.value->>'kind' = 'familiar') as familiars,
+--          data->'uses' as counted, data->'gifts'->'charmFloat'->>'by' as float
 --     from public.town_catalog where key = 'gifts';
---   -- 9 | 3
+--   -- 9 | 3 | {"famGnome": {"n": 10, "per": "meal"}} | 1
+--
+--   select data->'worm' as worm, data->'dough' as dough from public.town_catalog where key = 'goods';
+--   -- {"each": 20, "price": 2, "stock": 240} | {"each": 20, "price": 3, "stock": 160}
+--
+--   select data->'minnow'->>'effort' as minnow, data->'catfish'->>'effort' as catfish, data->'snakehead'->>'effort' as snakehead from public.town_catalog where key = 'fish';
+--   -- 1 | 3 | 7     (a common fish half of what it was, one at the least; the snakehead, which is no common fish, as it was)
+--
+--   select to_regprocedure('public.town_gift_use(text)') is not null and to_regprocedure('public.town_familiar_wear(text)') is not null
+--      and to_regprocedure('town.back_bait(jsonb, text)') is not null as there;
+--   -- true
 --
 --   select jsonb_array_length(town.work_answer(null)->'gives') as given;
 --   -- 9
@@ -510,6 +523,10 @@ grant execute on function public.town_gift_use(text) to authenticated;
 --
 --   -- what was used of the gifts that are counted, as it was written down
 --   select d.member_id, d.at, d.thing, d.doc->'left' as left from public.town_deeds d where d.what = 'gift_use' order by d.at desc limit 40;
+--
+--   -- fish that got away in the fight, a day at a time: each of them gave its bait back where there was room
+--   select (p.at at time zone 'Asia/Bangkok')::date as day, p.doc->>'how' as how, count(*) from public.town_plays p
+--    where p.game = 'fishing' and p.doc->>'how' in ('landed', 'slipped', 'snapped') group by 1, 2 order by 1 desc, 2 limit 30;
 --
 --   -- a familiar called or sent to rest, as it was written down
 --   select d.member_id, d.at, d.thing from public.town_deeds d where d.what = 'familiar' order by d.at desc limit 40;
