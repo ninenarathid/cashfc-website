@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, inBasket, needsOf, readsAll, spoon, spoonSays, whispersOf } from "./cooking";
+import { COOKING, RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cook, cookWith, inBasket, needsOf, readsAll, spoon, spoonSays, whispersOf } from "./cooking";
 import { USES, numberOf, usesLeft } from "./gifts";
 import { toldOf } from "./hints";
-import { ITEMS, type DishId, type ItemId } from "./items";
+import { DISHES, ITEMS, MAKES, type DishId, type ItemId } from "./items";
 import { STAMINA, chew, sitDown, staminaOf } from "./stamina";
 import { held, newPurse, put, type Purse } from "./trade";
 
@@ -184,5 +184,72 @@ describe("the whispering spoon (the kitchen's third rank)", () => {
   it("reads what a purse keeps of its tellings soundly", () => {
     expect(whispersOf({})).toEqual([]);
     expect(whispersOf({ whispers: ["tomYum", "minnow", "tomYum", 3, null, "fishSauce", "oddDish"] as unknown as Purse["whispers"] })).toEqual(["tomYum", "fishSauce"]);
+  });
+});
+
+describe("the hearth sprite (the kitchen's fourth rank)", () => {
+  const TOMYUM = DISHES.tomYum.recipe!.needs, SERVES = DISHES.tomYum.recipe!.serves, MORE = numberOf("famSprite");
+  /** A purse the sprite follows, with what a tom yum takes and a pot to cook it in; its member has made one before. */
+  const withSprite = (...more: Array<[ItemId, number]>): Purse => {
+    const p = purseWith(["famSprite"], ...TOMYUM, ["pot", 1], ...more);
+    return { ...p, stamina: { day: -1, left: 0 }, made: ["tomYum", "fishSauce"], gifts: { had: ["famSprite"], charms: [], familiar: "famSprite" } };
+  };
+  const pots = (p: Purse) => p.bag.filter((s) => s?.item === "potFull").map((s) => s!.of);
+
+  it("cooks a recipe its member has made before at once: its full helpings and one more, whatever a hand would have missed", () => {
+    expect(MORE).toBe(1);
+    const p = withSprite();
+    const did = done(cookWith(Object.freeze(p) as Purse, TOMYUM, ["pot"], 5, NOON, { sprite: true }));
+    expect(did).toMatchObject({ made: "tomYum", n: SERVES + MORE, sprite: true });
+    expect(pots(did.purse)).toEqual([{ dish: "tomYum", left: SERVES + MORE }]);
+    // by hand, with as many misses, half the pot is all that is left; with none, its full helpings and no more
+    expect(done(cook(p, TOMYUM, ["pot"], 5, NOON)).n).toBe(Math.ceil(SERVES / 2));
+    expect(done(cookWith(p, TOMYUM, ["pot"], 0, NOON)).n).toBe(SERVES);
+    expect(done(cookWith(p, TOMYUM, ["pot"], 0, NOON)).sprite).toBeUndefined();
+    // the things are out of the bag, the stamina is paid, and the pot is counted against this meal's hours
+    for (const [id] of TOMYUM) expect(held(did.purse.bag, id)).toBe(0);
+    expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - COOKING.cost);
+    expect(usesLeft(did.purse, "famSprite", NOON)).toBe(USES.famSprite!.n - 1);
+    // what else the pot would have had, it has too: a ladle's helping more
+    expect(done(cookWith(withSprite(["ladle", 1]), TOMYUM, ["pot"], 0, NOON, { sprite: true })).n).toBe(SERVES + COOKING.ladle + MORE);
+  });
+
+  it("cooks only while it follows, only what was made before, and three pots to a meal's hours", () => {
+    const p = withSprite();
+    // it has to follow: had and resting, it cooks nothing
+    expect(cookWith({ ...p, gifts: { had: ["famSprite"], charms: [], familiar: null } }, TOMYUM, ["pot"], 0, NOON, { sprite: true })).toEqual({ ok: false, why: "none" });
+    expect(cookWith({ ...p, gifts: { had: [], charms: [] } }, TOMYUM, ["pot"], 0, NOON, { sprite: true })).toEqual({ ok: false, why: "none" });
+    // a recipe never made is still a guess, and things that are no recipe's are no pot of the sprite's
+    expect(cookWith({ ...p, made: ["fishSauce"] }, TOMYUM, ["pot"], 0, NOON, { sprite: true })).toEqual({ ok: false, why: "unmade" });
+    expect(cookWith({ ...withSprite(["hyacinth", 2]) }, [["hyacinth", 2]], ["pot"], 0, NOON, { sprite: true })).toEqual({ ok: false, why: "unmade" });
+    // the cookware the recipe takes has to be in the hand, as at any stove: refused, with nothing lost and nothing counted
+    expect(cookWith(p, TOMYUM, [null], 0, NOON, { sprite: true })).toEqual({ ok: false, why: "tool" });
+    const crammed: Purse = { ...p, bag: [...p.bag.filter(Boolean), ...Array<null>(10).fill(null)].slice(0, TOMYUM.length + 1).map((s) => s && (ITEMS[s.item].stack > 1 ? { ...s, n: s.n + 1 } : s)) };
+    expect(cookWith(crammed, TOMYUM, ["pot"], 0, NOON, { sprite: true })).toEqual({ ok: false, why: "full" });
+    // three pots in a meal's hours, and the fourth is the hand's to cook; the next meal's hours, three again
+    let q = withSprite();
+    for (let i = 0; i < 3; i++) {
+      const again = done(cookWith({ ...q, bag: withSprite().bag }, TOMYUM, ["pot"], 0, NOON + i * MIN, { sprite: true }));
+      expect(again.n).toBe(SERVES + MORE);
+      q = again.purse;
+    }
+    expect(cookWith({ ...q, bag: withSprite().bag }, TOMYUM, ["pot"], 0, NOON + 4 * MIN, { sprite: true })).toEqual({ ok: false, why: "spent" });
+    expect(done(cookWith({ ...q, bag: withSprite().bag }, TOMYUM, ["pot"], 0, NOON + 4 * MIN)).n).toBe(SERVES);
+    expect(done(cookWith({ ...q, bag: withSprite().bag }, TOMYUM, ["pot"], 0, at("2026-10-07T17:30:00"), { sprite: true })).n).toBe(SERVES + MORE);
+  });
+
+  it("makes what is made otherwise at its full number, and no more", () => {
+    const needs = MAKES.fishSauce!.needs, p: Purse = { ...withSprite(...needs) };
+    const did = done(cookWith(p, needs, ["pot"], 3, NOON, { sprite: true }));
+    expect(did).toMatchObject({ made: "fishSauce", n: MAKES.fishSauce!.gives, sprite: true });
+    expect(held(did.purse.bag, "fishSauce")).toBe(MAKES.fishSauce!.gives);
+    expect(pots(did.purse)).toEqual([]);
+  });
+
+  it("leaves a pot that was in the bag already as it was", () => {
+    const p = withSprite();
+    const before: Purse = { ...p, bag: p.bag.map((s, i) => (i === 7 ? { item: "potFull" as ItemId, n: 1, of: { dish: "tomYum" as DishId, left: 2 } } : s)) };
+    const did = done(cookWith(before, TOMYUM, ["pot"], 0, NOON, { sprite: true }));
+    expect(pots(did.purse).sort((a, b) => a!.left - b!.left)).toEqual([{ dish: "tomYum", left: 2 }, { dish: "tomYum", left: SERVES + MORE }]);
   });
 });

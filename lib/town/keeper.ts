@@ -30,6 +30,10 @@ import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 // ── gifts: kitchen ──
 import type { KitchenRefusal } from "./cooking";
+/** (how a pot was cooked beyond the game's own account, told with it: by the hearth sprite, with no game) */
+export interface Timing { sprite?: boolean }
+/** What a go at the kitchen came to: `sprite`, the hearth sprite cooked it (its helping more is in `n`). */
+export type Cooked = { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean };
 import { bedOf } from "./world";
 
 /**
@@ -325,7 +329,7 @@ export interface Keeper {
    * they are (the database reads each one's hand itself). `fresh`: the pot took a bucketful of the yard's jar, and has
    * a helping more than `n` says.
    */
-  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>>;
+  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>>;
   potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
   potLadle(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot | null }>>;
   potTake(id: string, at: [number, number] | null): Promise<Did>;
@@ -1016,11 +1020,11 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
-  async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>> {
+  async cookDo(things: Array<[ItemId, number]>, _crew: Array<ItemId | null>, cooks: string[], timing: Timing): Promise<KitchenDid<Cooked>> {
     // (the helpings of each dish in the pots I hold, before: a pot that took the yard's water comes with more than the rule of cooking says)
     const inPots = (dish: ItemId) => this.mine.bag.reduce((t, s) => t + (s?.item === "potFull" && s.of?.dish === dish ? s.of.left : 0), 0);
     const before = Object.fromEntries(this.mine.bag.filter((s) => s?.item === "potFull" && s.of).map((s) => [s!.of!.dish, inPots(s!.of!.dish)]));
-    const did = await this.deed<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });
+    const did = await this.deed<Cooked>("town_cook", { p_things: things, p_crew: cooks, p_timing: timing });
     // a find is everybody's: the list of them is asked for again, by me and by whoever is in the kitchen
     if (did.ok && did.first) { void this.ask("town_kitchen"); this.onDeed?.("kitchen"); }
     if (did.ok && this.yard_ !== null && takesWater(did.made) && inPots(did.made) - (before[did.made] ?? 0) >= did.n + YARD.gives) {

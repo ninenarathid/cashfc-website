@@ -28,7 +28,7 @@ import { bedCorner, bedOf } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 // ── gifts: kitchen ──
-import { basketEat, basketPut, basketTake, spoon } from "./cooking";
+import { basketEat, basketPut, basketTake, cookWith, spoon, type CookHow, type Gifted } from "./cooking";
 import { bookOf, newLog, ranksOf, seen, takeGift, type WaterDeed, type WellBook, type WellLog } from "./well";
 import { ditch, reachOf } from "./ditch";
 import { hotAt } from "./heat";
@@ -789,8 +789,9 @@ export class Trial {
    * the first time anybody made it, which is written down with the name of whoever did. What I have made is written
    * in my purse, and I read all of its recipe from then on. The odd dish is nobody's find.
    */
-  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = ""): Done<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }> {
-    const now = this.now(), did = cook(this.purse(), things, crew, misses, now);
+  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = "", how: CookHow = {}): Gifted<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean }> {
+    // (── gifts: kitchen ── with what the kitchen's gifts change of it: lib/town/cooking's cookWith)
+    const now = this.now(), did = cookWith(this.purse(), things, crew, misses, now, how);
     if (!did.ok) return did;
     const made = isFind(did.made) ? did.made : null, found = this.found(), first = !!made && !found.includes(made);
     // (a pot cooked while the yard's jar has water takes a bucketful of it, and has a helping more: lib/town/yard)

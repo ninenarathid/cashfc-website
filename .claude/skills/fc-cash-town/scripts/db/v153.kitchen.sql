@@ -5,6 +5,11 @@
 --     the bag: put in from the bag, taken back out, eaten straight from it as from the bag.
 --   * The whispering spoon (rank 3): asked of what is in the pot, it tells its owner the secret thing of the recipe
 --     the pot is on the way to, three times a day; the recipes it has told are kept in the purse (`whispers`).
+--   * The hearth sprite (rank 4, a familiar): while it follows its member, a recipe they have made before is cooked
+--     with no game, its full helpings and one more, three pots to a meal's hours. `town_cook` (v111's, as v121 and
+--     v129 left it) is written again but for the lines meant: it is told how the pot was cooked with the game's own
+--     account (`p_timing.sprite`), and cooks by `town.cook_with`, which is `town.cook` with the gifts laid over it.
+--     A pot the sprite cooks is written down as a go at the game won, as ever, so the line counts it as it counts any.
 --
 -- No table. No coins and no thing that can be sold comes of any of it.
 
@@ -202,6 +207,110 @@ begin
   used := town.gift_use(p_purse, 'thingSpoon', p_now);
   if not (used->>'ok')::boolean then return used; end if;
   return says || jsonb_build_object('left', used->'left', 'purse', (used->'purse') || jsonb_build_object('whispers', told || to_jsonb(says->>'of')));
+end;
+$$;
+
+-- ─── The hearth sprite ───────────────────────────────────────────────────
+
+-- Things put together as town.cook does, with what the kitchen's later gifts change of it (lib/town/cooking's
+-- cookWith). p_how.sprite: by the hearth sprite, with no game: only while it follows, only a recipe made before,
+-- counted, as a pot stirred with no miss, and so many helpings more in the pot (the pot that was not in the bag
+-- before). What refuses a pot cooked by hand refuses this one, with nothing lost and nothing counted.
+create or replace function town.cook_with(p_purse jsonb, p_things jsonb, p_crew jsonb, p_misses double precision, p_now bigint, p_how jsonb)
+returns jsonb language plpgsql stable
+as $$
+declare
+  recipe text;
+  used jsonb;
+  did jsonb;
+  more integer;
+  at_ integer;
+begin
+  if p_how->'sprite' is distinct from 'true'::jsonb then return town.cook(p_purse, p_things, p_crew, p_misses, p_now); end if;
+  if not town.gift_works(p_purse, 'famSprite') then return town.no('none'); end if;
+  recipe := town.made_of(p_things);
+  if recipe is null or not (case when jsonb_typeof(p_purse->'made') = 'array' then p_purse->'made' else '[]'::jsonb end) ? recipe then return town.no('unmade'); end if;
+  used := town.gift_use(p_purse, 'famSprite', p_now);
+  if not (used->>'ok')::boolean then return used; end if;
+  did := town.cook(used->'purse', p_things, p_crew, 0, p_now);
+  if not (did->>'ok')::boolean then return did; end if;
+  more := (town.cat('gifts')->'gifts'->'famSprite'->>'by')::integer;
+  select (s.ord - 1)::int into at_ from jsonb_array_elements(did->'purse'->'bag') with ordinality s(v, ord)
+   where s.v->>'item' = 'potFull' and s.v->'of'->>'dish' = did->>'made' and coalesce(p_purse->'bag'->((s.ord - 1)::int)->>'item', '') <> 'potFull'
+   order by s.ord limit 1;
+  if at_ is null then return did || '{"sprite": true}'::jsonb; end if;
+  return did || jsonb_build_object('sprite', true, 'n', (did->>'n')::int + more,
+    'purse', jsonb_set(did->'purse', array['bag', at_::text, 'of', 'left'], to_jsonb((did->'purse'->'bag'->at_->'of'->>'left')::int + more)));
+end;
+$$;
+
+-- Cooking, as a member asks for it: v129's, written again but for four things: how the pot was cooked is read out
+-- of what the browser says of its game (`how`), the rule is town.cook_with, a pot the sprite cooked says so in the
+-- go that is written down, and the sprite's cooking is written down as a gift used.
+create or replace function public.town_cook(p_things jsonb, p_crew uuid[] default '{}', p_timing jsonb default null)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  purse jsonb := town.purse_of(me, true);
+  now_ bigint := town.now_ms();
+  ck jsonb := town.cat('cooking');
+  crew jsonb := jsonb_build_array(town.hand_of(purse));
+  others uuid[];
+  claims jsonb := town.timing_said(p_timing);
+  how jsonb := jsonb_build_object('sprite', coalesce(town.claims(p_timing)->'sprite' = 'true'::jsonb, false));
+  misses integer := least(floor(coalesce((claims->>'misses')::numeric, 0))::int, (ck->>'misses')::int);
+  did jsonb;
+  after jsonb;
+  made text;
+  find boolean;
+  is_first boolean := false;
+  known jsonb;
+begin
+  if p_things is null or jsonb_typeof(p_things) <> 'array' or jsonb_array_length(p_things) > 64
+     or exists (select 1 from jsonb_array_elements(p_things) x
+                 where jsonb_typeof(x) <> 'array' or jsonb_array_length(x) <> 2 or jsonb_typeof(x->0) <> 'string' or jsonb_typeof(x->1) <> 'number'
+                    or x->>0 !~ '^[A-Za-z]{1,24}$' or abs((x->>1)::numeric) > 1000) then
+    return town.answer(me, town.no('none'));
+  end if;
+  -- the other cooks: members of the town, each once, seven at most; what each holds is their own purse's to say
+  select coalesce(array_agg(c.id order by c.id), '{}') into others
+    from (select distinct u.id from unnest(coalesce(p_crew, '{}'::uuid[])) u(id)
+            join public.profiles p on p.id = u.id
+           where u.id <> me and ((p.character_id is not null and p.character_verified_at is not null) or p.is_admin)
+           order by u.id limit 7) c;
+  select crew || coalesce(jsonb_agg(town.hand_of(coalesce(pp.doc, '{}'::jsonb)) order by o.ord), '[]'::jsonb) into crew
+    from unnest(others) with ordinality o(id, ord) left join public.town_purses pp on pp.member_id = o.id;
+  did := town.cook_with(purse, p_things, crew, misses, now_, how);
+  if not (did->>'ok')::boolean then return town.answer(me, did); end if;
+  after := did->'purse';
+  made := did->>'made';
+  -- a recipe found: a dish that has one, or something else that is made. The odd dish is not.
+  find := made is not null and (town.cat('makes') ? made or coalesce(town.cat('dishes')->made->'recipe', 'null'::jsonb) <> 'null'::jsonb);
+  if find then
+    if town.cat('dishes') ? made and not coalesce(after->'recipes', '[]'::jsonb) ? made then
+      after := after || jsonb_build_object('recipes', coalesce(after->'recipes', '[]'::jsonb) || to_jsonb(made));
+    end if;
+    if not coalesce(after->'made', '[]'::jsonb) ? made then
+      after := after || jsonb_build_object('made', coalesce(after->'made', '[]'::jsonb) || to_jsonb(made));
+    end if;
+    known := town.thing('found', true);
+    if not known ? made then
+      is_first := true;
+      perform town.keep_thing('found', known || to_jsonb(made));
+      perform town.keep_thing('finders', town.thing('finders', true) || jsonb_build_object(made, jsonb_build_object('by', me, 'at', now_,
+        'name', (select coalesce(p.character_name, p.display_name, p.discord_username, '') from public.profiles p where p.id = me))));
+    end if;
+  end if;
+  perform town.keep_purse(me, after);
+  perform town.record(me, 'cooking', find, coalesce((claims->>'secs')::double precision, 0), town.stamina_of(purse, now_) <= 0, town.buff_of(purse, now_),
+    jsonb_build_object('what', coalesce(made, 'nothing'), 'need', (ck->>'stirs')::int + jsonb_array_length(town.tidy(p_things)), 'misses', misses,
+      'crew', to_jsonb(others), 'claims', claims) || case when did->'sprite' = 'true'::jsonb then '{"sprite": true}'::jsonb else '{}'::jsonb end);
+  if did->'sprite' = 'true'::jsonb then
+    perform town.note(me, 'gift_use', 'famSprite', 1, 0, jsonb_build_object('made', made, 'n', did->'n',
+      'left', (town.cat('gifts')->'uses'->'famSprite'->>'n')::integer - town.used_of(after, 'famSprite', now_)));
+  end if;
+  return town.answer(me, did) || jsonb_build_object('first', is_first, 'misses', misses);
 end;
 $$;
 

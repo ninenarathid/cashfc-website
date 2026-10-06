@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, needsOf, spoon, spoonSays, whispersOf } from "./cooking";
+import { RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cookWith, needsOf, spoon, spoonSays, takes, whispersOf } from "./cooking";
 import { stretchOf } from "./gifts";
 import { ITEMS, type DishId, type ItemId } from "./items";
 import { begun, dayOf } from "./stamina";
@@ -21,7 +21,10 @@ import { newPurse, put, type Purse } from "./trade";
  * - `whispers_of`, `spoon_says`, `spoon`: pots that are a part of every recipe there is (some of its things, all but
  *   its last, all of it, one too many of a thing, a thing no recipe has with the rest), with recipes read whole
  *   already and not; asked with the spoon and without, of things the bag has and has not, with every count of the
- *   day's answers kept (none, some, all, of another day).
+ *   day's answers kept (none, some, all, of another day);
+ * - `cook_with`: pots cooked by the hearth sprite and by hand: the sprite following, resting and not had; recipes made
+ *   before and not, dishes and what is made otherwise, with one cook and with two; the cookware in the hand and not;
+ *   every count of these hours' pots kept; a ladle, a pot of the same dish in the bag already, a bag with no room.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-kitchen.test.ts
  */
@@ -157,6 +160,29 @@ export function vectorsKitchen(): Vector[] {
     const asked = c.of<() => Array<[ItemId, number]>>([() => pot, () => pot, () => pot, () => [], () => [...pot, ["pot" as ItemId, 1]], () => pot.map(([t, n]): [ItemId, number] => [t, n + 0.5]), () => Array.from({ length: 9 }, (_, j): [ItemId, number] => [(["minnow", "salt", "rice", "chili", "garlic", "corn", "tomato", "basil", "scallion"] as ItemId[])[j], 1])])();
     add("spoon", [p, asked, now], spoon(p, asked, now));
   }
+  // the hearth sprite: pots cooked with no game, and the same pots cooked by hand
+  const kMeal = stretchOf({ n: 3, per: "meal" }, NOON);
+  const POTS: ItemId[] = ["tomYum", "friedMinnow", "fishSauce", "compost", "crabCurry", "grilledCorn", "shabu", "curryPaste"];
+  for (let i = 0; i < 520; i++) {
+    const id = c.of(POTS), needs = needsOf(id), t = takes(id), now = c.of([NOON, NOON, NOON + 6 * HOUR]);
+    // what is put in: the recipe, or (now and then) something that is none
+    const things = c.of<() => Array<[ItemId, number]>>([() => needs, () => needs, () => needs, () => needs, () => needs.slice(0, -1).concat([["hyacinth", 1]]), () => [["hyacinth", 2]], () => [], () => needs.map(([x, n]): [ItemId, number] => [x, n + 1])])();
+    let b = Array<null>(c.of([8, 12])).fill(null) as Purse["bag"];
+    for (const [x, n] of things) if (c.maybe(0.95)) b = put(b, x, Math.min(n + c.of([0, 0, 1]), ITEMS[x].stack));
+    if (c.maybe(0.2)) b = put(b, "ladle", 1);
+    if (c.maybe(0.2)) b = b.map((s, j) => (j === b.length - 1 && !s ? { item: "potFull" as ItemId, n: 1, of: { dish: (id in { tomYum: 1, friedMinnow: 1, crabCurry: 1, grilledCorn: 1, shabu: 1 } ? id : "tomYum") as DishId, left: c.int(1, 4) } } : s));
+    if (c.maybe(0.1)) b = b.map((s) => s ?? { item: "boot" as ItemId, n: 1 });
+    // who cooks with what: the cookware the recipe takes, a cook to a piece; or not all of it
+    const crew = c.of<() => Array<ItemId | null>>([() => (t.in.length ? [...t.in] : [null]), () => (t.in.length ? [...t.in] : [null]), () => (t.in.length ? [...t.in] : [null]), () => [...t.in, null, null], () => [null], () => [t.in[0] ?? "pot"], () => ["pan", "pot", "grill"]])();
+    const fam = c.of<string | null | undefined>(["famSprite", "famSprite", "famSprite", "famSprite", null, undefined, "famGnome"]);
+    const used = c.of<() => unknown>([() => undefined, () => undefined, () => ({ famSprite: { k: kMeal, n: c.int(0, 4) } }), () => ({ famSprite: { k: kMeal, n: 3 } }), () => ({ famSprite: { k: kMeal - 1, n: 3 } }), () => ({ famSprite: { k: kMeal, n: 2 }, thingSpoon: { k: 1, n: 1 } })])();
+    const g = c.maybe(0.1) ? undefined : { had: c.maybe(0.9) ? ["famSprite", "famGnome", "charmApron"] : ["famGnome"], charms: [], ...(fam === undefined ? {} : { familiar: fam }), ...(used === undefined ? {} : { used }) };
+    const made = c.of<() => ItemId[] | undefined>([() => [id], () => [id], () => [id], () => [id, "tomYum"], () => POTS.filter((x) => x !== id), () => [], () => undefined])();
+    const p = { ...newPurse(), stamina: { day: dayOf(NOON), left: c.of([100, 3, 0]) }, bag: b, ...(g ? { gifts: g } : {}), ...(made ? { made } : {}), recipes: [] } as Purse;
+    const how = c.of<Record<string, unknown>>([{ sprite: true }, { sprite: true }, { sprite: true }, { sprite: true }, {}, { sprite: false }, { sprite: "yes" }]);
+    const misses = c.of([0, 0, 1, 3, 9]);
+    add("cook_with", [p, things, crew, misses, now, how], cookWith(p, things, crew, misses, now, how as { sprite?: boolean }));
+  }
   return out;
 }
 
@@ -193,6 +219,16 @@ describe("the cases the database's rules of the kitchen's gifts are held to", ()
     expect(told.every((x) => x.d.purse.whispers!.at(-1) === x.d.of && x.d.purse.whispers!.length === x.before.length + 1)).toBe(true);
     expect(told.some((x) => x.d.left === 0) && told.some((x) => x.d.left === 2) && told.some((x) => x.before.length > 0)).toBe(true);
     expect(of("whispers_of").some((v) => (v.want as unknown[]).length === 2) && of("whispers_of").some((v) => (v.want as unknown[]).length === 0)).toBe(true);
+    // the sprite's pots: a dish with its helping more, something made at its full number, each refusal of its own and of cooking's; and pots by hand
+    const pots = of("cook_with").map((v) => ({ how: v.args[5] as { sprite?: unknown }, misses: v.args[3] as number, d: v.want as { ok: boolean; why?: string; made?: string; n?: number; sprite?: boolean } }));
+    const bySprite = pots.filter((x) => x.how.sprite === true), byHand = pots.filter((x) => x.how.sprite !== true);
+    for (const why of ["none", "unmade", "spent", "crew", "tool", "full"]) expect(bySprite.some((x) => !x.d.ok && x.d.why === why), why).toBe(true);
+    expect(bySprite.every((x) => !x.d.ok || x.d.sprite === true) && byHand.every((x) => x.d.sprite === undefined)).toBe(true);
+    for (const id of ["tomYum", "friedMinnow", "crabCurry", "fishSauce", "compost"]) expect(bySprite.some((x) => x.d.ok && x.d.made === id), id).toBe(true);
+    // (a pot of the sprite's is whole whatever was missed; by hand, the same recipe and the odd dish)
+    expect(bySprite.some((x) => x.d.ok && x.misses >= 3 && x.d.made! in { tomYum: 1, friedMinnow: 1, crabCurry: 1, grilledCorn: 1, shabu: 1 })).toBe(true);
+    expect(byHand.some((x) => x.d.ok && x.d.made === "oddDish")).toBe(true);
+    expect(byHand.some((x) => x.d.ok && x.d.made !== "oddDish" && x.d.made !== null)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-kitchen.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

@@ -8,7 +8,7 @@ import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId,
 import { wearing } from "./gifts";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 // ── gifts: kitchen ──
-import type { KitchenDid } from "./keeper";
+import type { Cooked, KitchenDid } from "./keeper";
 import type { Worn } from "./lines";
 import type { Play } from "./plays";
 import type { ShopAsk } from "./shop";
@@ -245,8 +245,8 @@ class TrialKeeper implements Keeper {
   }
   bugBook() { return this.trial.bugBook(); }
 
-  async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<Did<{ made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean }>> {
-    return this.trial.cookDo(things, crew, timing.misses, name);
+  async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>> {
+    return this.trial.cookDo(things, crew, timing.misses, name, { sprite: !!timing.sprite });
   }
   async potDown(at: [number, number]) { return this.trial.potDown(at); }
   async potLadle(id: string) { return this.trial.potLadle(id); }

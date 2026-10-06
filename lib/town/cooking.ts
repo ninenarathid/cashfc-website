@@ -1,7 +1,7 @@
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { hasThing, numberOf, useGift, usesLeft, type GiftRefusal } from "./gifts";
+import { hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
 import { begun, hasBuff, mayEat, spend } from "./stamina";
 import type { TimingMods } from "./timing";
 import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -329,9 +329,10 @@ export function serve(purse: Purse, slot: number): Done<{ purse: Purse; dish: Di
 
 /**
  * Why a gift of the kitchen's was not used, beyond the trade's reasons and the gifts' own: the spoon has nothing to
- * say of a pot that no recipe has (`astray`), or of one whose every recipe its owner reads whole already (`known`).
+ * say of a pot that no recipe has (`astray`), or of one whose every recipe its owner reads whole already (`known`);
+ * the hearth sprite cooks only what its member has made before (`unmade`).
  */
-export type KitchenRefusal = "astray" | "known";
+export type KitchenRefusal = "astray" | "known" | "unmade";
 /** What a deed with a gift of the kitchen's comes to. */
 export type Gifted<T> = ({ ok: true } & T) | { ok: false; why: Refusal | GiftRefusal | KitchenRefusal };
 /** A no, for a reason of any of the three sorts. */
@@ -443,4 +444,33 @@ export function spoon(purse: Purse, things: Array<[ItemId, number]>, now: number
   const used = useGift(purse, "thingSpoon", now);
   if (!used.ok) return nay(used.why);
   return { ok: true, of: says.of, secret: says.secret, ways: says.ways, left: used.left, purse: { ...used.purse, whispers: [...told, says.of] } };
+}
+
+/** How a pot is cooked beyond the hand's own account of its game: by the hearth sprite, with no game at all. */
+export interface CookHow { sprite?: boolean }
+/**
+ * Put some things together as `cook` does, with what the kitchen's later gifts change of it (`how`).
+ *
+ * **The hearth sprite** (the fourth rank, a familiar): while it follows its member, a recipe they have made before
+ * is cooked at once with no game: as a pot stirred with no miss, and so many helpings more in it (the gift's number;
+ * something that is made otherwise comes as its full number and no more). So many pots to a meal's hours
+ * (lib/town/gifts' USES). Everything else is as ever: the things leave the bag, the stamina is paid, the cooks and
+ * the cookware the recipe takes have to be there (refused with nothing lost, and not counted, when they are not),
+ * and the pot is a pot like any other, which the line counts as it counts one cooked by hand. What its member has
+ * not made is not the sprite's to cook (`unmade`): a guess is still a guess, and a guess can still be wrong.
+ */
+export function cookWith(purse: Purse, things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, now: number, how: CookHow = {}):
+  Gifted<{ purse: Purse; made: ItemId | null; n: number; taste?: Taste; sprite?: boolean }> {
+  if (how.sprite !== true) return cook(purse, things, crew, misses, now);
+  if (!works(purse, "famSprite")) return nay("none");
+  const recipe = madeOf(things);
+  if (!recipe || !hasMade(purse, recipe)) return nay("unmade");
+  const used = useGift(purse, "famSprite", now);
+  if (!used.ok) return nay(used.why);
+  const did = cook(used.purse, things, crew, 0, now);
+  if (!did.ok) return did;
+  // one more to the pot: the pot that was not in the bag before (the yard's pot takes a slot that had no pot in it)
+  const more = numberOf("famSprite"), at = did.purse.bag.findIndex((s, i) => s?.item === "potFull" && s.of?.dish === did.made && purse.bag[i]?.item !== "potFull");
+  if (at < 0) return { ...did, sprite: true };
+  return { ...did, sprite: true, n: did.n + more, purse: { ...did.purse, bag: did.purse.bag.map((s, i) => (i === at && s?.of ? { ...s, of: { dish: s.of.dish, left: s.of.left + more } } : s)) } };
 }
