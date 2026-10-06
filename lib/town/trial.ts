@@ -356,6 +356,9 @@ export class Trial {
   back(bait: BaitId): boolean { const p = this.purse(), q = backBait(p, bait); if (q === p) return false; this.save(q); return true; }
   /** Spend the stamina a fight costs. */
   spend(n: number) { this.save(spend(this.purse(), n, this.now())); }
+  // ── gifts: fishing ──
+  /** My purse as a rule of the deck's gifts left it (lib/town/fishing: the otter's count, the orb's sky, the lines taken up): kept. */
+  fished(purse: Purse) { this.save(purse); }
   /** Land what was caught: into the bag when there is room for it, and, a fish, onto the record when it is the longest of its kind yet. */
   land(what: CatchId, size: number): { kept: boolean; record: boolean } {
     const { purse, kept, record } = landCatch(this.purse(), what, size);

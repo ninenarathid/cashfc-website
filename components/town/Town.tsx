@@ -2309,11 +2309,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * behind its member, catches up when they stand, and is beside them at once after a gate. Nothing of the game hangs
    * on where it is: each page walks the familiars it draws by itself.
    */
-  function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName } | null {
+  function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean } | null {
     const name = a.info.pet;
     if (!name || !name.startsWith("fam") || !(name in ICON_ATLAS.icons) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
     let p = pets.current.get(a.info.id);
     if (!p || Math.hypot(a.pos.x - p.x, a.pos.y - p.y) > 5) { p = { x: a.pos.x - 0.55, y: a.pos.y + 0.3, right: true }; pets.current.set(a.info.id, p); }
+    // ── gifts: fishing ── the otter keeps by its member's float while their line is in the water, swimming round it
+    // (what the room was told: which familiar follows them, and what their rod is doing)
+    const rod = name === "famOtter" ? rodOf(a, a === sessionRef.current?.self) : null;
+    if (rod && rod.state !== "ready") {
+      const turn = reducedRef.current ? 0.6 : performance.now() / 1300 + a.info.id.charCodeAt(0);
+      const tx = rod.float.x - 0.5 + Math.cos(turn) * 0.6 - p.x, ty = rod.float.y - 0.5 + Math.sin(turn) * 0.6 - p.y, far = Math.hypot(tx, ty), go = Math.min(far, 5 * dt);
+      if (far > 0.001) { p.x += (tx / far) * go; p.y += (ty / far) * go; if (Math.abs(tx - ty) > 0.02) p.right = tx - ty > 0; }
+      return { at: { x: p.x, y: p.y }, right: p.right, moving: far > 0.9, name: name as IconName, swims: far <= 0.9 };
+    }
     const dx = a.pos.x - p.x, dy = a.pos.y - p.y, d = Math.hypot(dx, dy), gap = 0.72;
     let moving = false;
     if (d > gap) {
@@ -2326,12 +2335,29 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     return { at: { x: p.x, y: p.y }, right: p.right, moving, name: name as IconName };
   }
   /** A familiar at its place: its picture out of the icons', turned the way it goes, hopping as it runs (a butterfly flies and never lands). */
-  function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName }, now: number) {
+  function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean }, now: number) {
     const img = iconImg.current;
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
     const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = 1.5 * sc, flies = pet.name === "famButterfly", still = reducedRef.current;
+    // ── gifts: fishing ── in the water (the otter by a float): no shadow, a ring going out on the water about it, and
+    // only what is above the water drawn, rocking a little
+    if (pet.swims) {
+      const ring = still ? 0.4 : (now / 1100) % 1, up = 0.6, rock = still ? 0 : Math.sin(now / 240) * 1.2 * sc;
+      ctx.save();
+      ctx.strokeStyle = `rgba(235,248,255,${(0.6 * (1 - ring)).toFixed(3)})`;
+      ctx.lineWidth = Math.max(1, sc);
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, (8 + 7 * ring) * sc, (3.5 + 3 * ring) * sc, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.imageSmoothingEnabled = false;
+      ctx.translate(Math.round(c.x), Math.round(c.y + rock));
+      if (!pet.right) ctx.scale(-1, 1);
+      ctx.drawImage(img, x, y, w, Math.round(h * up), -Math.round((w * k) / 2), -Math.round(h * up * k), Math.round(w * k), Math.round(h * up * k));
+      ctx.restore();
+      return;
+    }
     const bob = still ? 0 : flies ? Math.sin(now / 260) * 3 * sc : pet.moving ? Math.abs(Math.sin(now / 95)) * 3.5 * sc : 0;
     const lift = (flies ? 18 * sc : 0) + bob;
     ctx.fillStyle = "rgba(0,0,0,0.2)";
@@ -3095,6 +3121,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       keepers: () => keeperBoxes.current.map((k) => ({ ...k })),
       /** The place to fish from that I stand at, if it is one: its tile, where its float lands, and whether that is deep water. */
       fishAt: () => fishAtRef.current,
+      // ── gifts: fishing ── where each familiar this page draws is now, by its member (the otter by a float)
+      pets: () => Object.fromEntries([...pets.current].map(([id, p]) => [id, { x: p.x, y: p.y }])),
       /** Whether the deck and the cooking yard are finished on this page, and whether a tile can be stood on. */
       built: () => isBuilt(),
       walkable: (x: number, y: number) => walkable(x, y),

@@ -1,6 +1,6 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
 import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign } from "./items";
-import { charmBy } from "./gifts";
+import { charmBy, useGift, type GiftRefusal } from "./gifts";
 import { STAMINA, isSpent, levelOf } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
@@ -133,7 +133,10 @@ const APART = 3;
 
 /** Drop a line: everything about what happens to it is decided now. */
 export function castLine(bait: BaitId, hour: number, rain: boolean, lucky: Level, rnd: () => number, shallow = false, signs: readonly Sign[] = []): Cast {
-  const odds = oddsOf(bait, hour, rain, lucky, shallow, signs);
+  return castFrom(oddsOf(bait, hour, rain, lucky, shallow, signs), rnd);
+}
+/** …from what may take it, however that was reckoned (a bait's own odds, or those a gift of the deck's has sifted: below). */
+export function castFrom(odds: ReadonlyArray<{ what: CatchId; p: number }>, rnd: () => number): Cast {
   let roll = rnd(), what = odds[odds.length - 1].what;
   for (const o of odds) { if (roll < o.p) { what = o.what; break; } roll -= o.p; }
   const fish = what in FISH ? FISH[what as FishId] : null;
@@ -463,4 +466,21 @@ export function replayFight(start: Fight, holds: number[], steps: number): Fight
     f = stepFight(f, holding, 1 / STEPS);
   }
   return f;
+}
+
+/* ── the gifts of the deck's ranks (lib/town/gifts) ─────────────────────── */
+
+/**
+ * The otter (the deck's second rank, a familiar): a fish that gets away in the fight, the line snapped or the hook
+ * slipped, is driven back for one more fight at once, and nothing is lost by it: no bait, and no more stamina (a
+ * fish's fight is paid for once, as the hook is set). Once to a line (`again`: this line's fish was driven back
+ * already; lost again, it is lost), and so many times to a meal's hours (lib/town/gifts' `USES`): the purse with one
+ * more counted, or why not.
+ *
+ * Of two fish on a rod of two lines it is the last one still on that it drives back: while another is still to be
+ * won the fight has not ended, and the otter is no second hand.
+ */
+export function driveBack<P extends Pick<Purse, "gifts">>(purse: P, how: string, again: boolean, now: number): { ok: true; purse: P; left: number } | { ok: false; why: GiftRefusal } {
+  if (again || (how !== "snapped" && how !== "slipped")) return { ok: false, why: "none" };
+  return useGift(purse, "famOtter", now);
 }

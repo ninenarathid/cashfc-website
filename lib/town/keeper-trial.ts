@@ -1,7 +1,7 @@
 import type { Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
-import { ALL_SIGNS, SIGNS, castLine, seeded, signsOf, type Cast, type Strike } from "./fishing";
+import { ALL_SIGNS, SIGNS, castFrom, castLine, driveBack, seeded, signsOf, type Cast, type Strike } from "./fishing";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
@@ -31,7 +31,11 @@ const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)
 class TrialKeeper implements Keeper {
   onDeed: ((what: Looked, to?: string) => void) | null = null;
   /** The line that is out: what is on its way, and the bait it took. */
-  private out: { cast: Cast; bait: BaitId } | null = null;
+  // ── gifts: fishing ── (`again`: the otter has driven this line's fish back once)
+  private out: { cast: Cast; bait: BaitId; again?: boolean } | null = null;
+  /** For scripts: what the next lines bring, whatever the odds (this keeper is `next dev`'s only). */
+  private fated: CatchId[] = [];
+  willBite(ids: CatchId[]) { this.fated = [...ids]; }
 
   constructor(readonly id: string, readonly trial: Trial) {}
 
@@ -128,7 +132,8 @@ class TrialKeeper implements Keeper {
     // there holds as well, so that a fish that waits for the moon need not be waited for.
     const named = (typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("townSigns") ?? "").split(",").filter((x): x is Sign => ALL_SIGNS.includes(x as Sign));
     const signs = [...new Set([...signsOf({ now, spent: isSpent(p, now), others: 0, wet: wetMs(SKIES.rains(), now - SIGNS.after * 60_000, now) }, rain), ...named])];
-    const drawn = castLine(bait, bangkokHour(now), rain, levelOf(p, now, "lucky"), seeded(Math.floor(Math.random() * 2 ** 31)), !place.deep, signs);
+    const rnd = seeded(Math.floor(Math.random() * 2 ** 31)), fate = this.fated.shift();
+    const drawn = fate ? castFrom([{ what: fate, p: 1 }], rnd) : castLine(bait, bangkokHour(now), rain, levelOf(p, now, "lucky"), rnd, !place.deep, signs);
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
     const cast = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     this.out = { cast, bait };
@@ -157,8 +162,11 @@ class TrialKeeper implements Keeper {
   }
   async land(how: "landed" | "snapped" | "slipped" | "left"): Promise<Landed> {
     const o = this.out;
-    this.out = null;
     if (!o) return { how, kept: false, record: false };
+    // ── gifts: fishing ── (the otter drives a fish that got away back, once to a line: the line stays out, and the fight is to be had again)
+    const driven = driveBack(this.trial.purse(), how, !!o.again, this.trial.now());
+    if (driven.ok) { this.trial.fished(driven.purse); o.again = true; return { how, kept: false, record: false, again: true }; }
+    this.out = null;
     if (how === "landed") return { how, ...this.trial.land(o.cast.what, o.cast.size) };
     if (how === "snapped") this.trial.lose(o.bait);
     // (a fish hooked and lost in the fight gives the bait it took back, where the bag has room)

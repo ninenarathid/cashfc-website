@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type Sign } from "./items";
 import {
-  ALL_SIGNS, FIGHT, REST, SIGNS, STEPS, STRIKE, bangkokDay, castLine, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
+  ALL_SIGNS, FIGHT, REST, SIGNS, STEPS, STRIKE, bangkokDay, castFrom, castLine, driveBack, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods,
 } from "./fishing";
-import { STAMINA } from "./stamina";
+import { USES, usesLeft } from "./gifts";
+import { STAMINA, dayOf } from "./stamina";
+import { newPurse, type Purse } from "./trade";
 
 const share = (odds: Array<{ what: CatchId; p: number }>, what: CatchId) => odds.find((o) => o.what === what)?.p ?? 0;
 /** What takes a bait at an hour where a fish lives, under the sky it bites under, with what it waits for: its own water. */
@@ -639,5 +641,46 @@ describe("a fight written down", () => {
       const other = replayFight(startFight(id, "good", {}, seed), holds.slice(0, Math.floor(holds.length / 8) * 2), STEPS * 120);
       expect(other.over).toBe("slipped");
     }
+  });
+});
+
+/* ── the gifts of the deck's ranks ── */
+const NOON = Date.parse("2026-10-06T12:00:00+07:00");
+/** A purse with all its stamina, and these gifts. */
+const gifted = (gifts: Purse["gifts"] = { had: [], charms: [] }, more: Partial<Purse> = {}): Purse => ({ ...newPurse(), stamina: { day: dayOf(NOON), left: 100 }, gifts, ...more });
+
+describe("a cast from what may take it", () => {
+  it("is the cast a bait's own odds make, and what the odds say it is when they say one thing", () => {
+    for (const seed of [1, 2, 3, 99]) expect(castFrom(oddsOf("worm", 12), seeded(seed))).toEqual(castLine("worm", 12, false, false, seeded(seed)));
+    const koi = castFrom([{ what: "koi", p: 1 }], seeded(5));
+    expect(koi.what).toBe("koi");
+    expect(koi.size).toBeGreaterThanOrEqual(FISH.koi.size[0]);
+    expect(koi.wait).toBeGreaterThanOrEqual(FISH.koi.wait[0]);
+  });
+});
+
+describe("the otter (the owner: \"ปลาหลุดเมื่อไหร่ นากต้อนกลับมาให้สู้ใหม่ทันทีอีกหนึ่งรอบ\")", () => {
+  const follows = gifted({ had: ["famOtter"], charms: [], familiar: "famOtter" });
+  it("drives a fish that got away back: a line snapped or a hook slipped, and counts it", () => {
+    for (const how of ["snapped", "slipped"]) {
+      const did = driveBack(follows, how, false, NOON);
+      expect(did.ok && did.left).toBe(USES.famOtter!.n - 1);
+      expect(did.ok && usesLeft(did.purse, "famOtter", NOON)).toBe(USES.famOtter!.n - 1);
+    }
+  });
+  it("once to a line: lost again, it is lost", () => {
+    expect(driveBack(follows, "slipped", true, NOON)).toEqual({ ok: false, why: "none" });
+  });
+  it("is for a fish lost in the fight, not for one landed, a line taken up or a strike mistimed", () => {
+    for (const how of ["landed", "left", "early", "missed"]) expect(driveBack(follows, how, false, NOON)).toEqual({ ok: false, why: "none" });
+  });
+  it("only while it follows, and so many times to a meal's hours", () => {
+    expect(driveBack(gifted({ had: ["famOtter"], charms: [], familiar: null }), "slipped", false, NOON)).toEqual({ ok: false, why: "none" });
+    expect(driveBack(gifted(), "slipped", false, NOON)).toEqual({ ok: false, why: "none" });
+    let p = follows, n = 0;
+    for (;;) { const did = driveBack(p, "snapped", false, NOON); if (!did.ok) { expect(did.why).toBe("spent"); break; } p = did.purse; n++; }
+    expect(n).toBe(10);
+    // (the next meal's hours begin anew)
+    expect(driveBack(p, "snapped", false, NOON + 6 * 3_600_000).ok).toBe(true);
   });
 });

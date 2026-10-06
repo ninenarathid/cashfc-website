@@ -8,7 +8,7 @@ import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
 import { measure, type FishSfx, type FishSound } from "@/lib/town/sfx";
-import { wearing } from "@/lib/town/gifts";
+import { usesLeft, works } from "@/lib/town/gifts";
 import { buffOf, buffsOf, isSpent, levelOf, staminaOf } from "@/lib/town/stamina";
 import { handOf, held, roomFor } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
@@ -40,12 +40,16 @@ type Phase =
   | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId }
   | { at: "striking" }
   | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
+  /** The otter is driving a fish that got away back to the hook (lib/town/fishing's `driveBack`): a moment's show, then it is fought once more. */
+  | { at: "driven"; fish: FishId; size: number; reaction: number; how: "snapped" | "slipped"; from: number }
   /** (`from`: when it was shown, by the page's own clock: nothing goes on from it for a moment) */
   | { at: "result"; from: number; how: "landed" | "snapped" | "slipped" | "early" | "missed"; what?: CatchId; size?: number; kept?: boolean; record?: boolean; back?: boolean };
 type Ended = Omit<Extract<Phase, { at: "result" }>, "at" | "from">;
 
 /** How long a nibble's twitch shows, in seconds. */
 const NIBBLE = 0.55;
+/** How long the otter is watched driving a fish back before it is fought again, in seconds. */
+const DRIVEN = 1.7;
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
 
@@ -354,6 +358,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         const told = { seed: log.seed, steps: log.steps, secs: Math.round(log.secs * 10) / 10, inBand: log.steps ? Math.round((log.inside / log.steps) * 1000) / 1000 : 0,
           strike: log.strike, holds: log.holds.slice(0, 1500) };
         void keeper.land(f.over, told).then((got) => {
+          // (the otter drove it back: the line is out still, nothing of the go is written down yet, and the fish is fought once more)
+          if (got.again && (f.over === "snapped" || f.over === "slipped")) {
+            afloat.current = true;
+            sfx.play("surge");
+            setPhase({ at: "driven", fish: phase.fish, size: phase.size, reaction: phase.reaction, how: f.over, from: performance.now() });
+            return;
+          }
           const how = got.how === "landed" || got.how === "snapped" ? got.how : "slipped";
           if (how === "landed") { sfx.play("landed", FISH[phase.fish].tier); onLanded(); if (got.record) window.setTimeout(() => sfx.play("record"), 1100); }
           else sfx.play(how);
@@ -370,6 +381,33 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   }, [phase, keeper, reduced, th, show, write, sfx, onLanded, end]);
 
   useEffect(() => { if (phase.at === "ready" || phase.at === "result") show(null); else if (phase.at === "casting") show("wait"); }, [phase, show]);
+
+  /* ── the otter (lib/town/gifts' famOtter): a fish that got away is driven back to the hook, and fought once more ── */
+  const chase = { otter: useRef<HTMLSpanElement>(null), fish: useRef<HTMLSpanElement>(null), wake: useRef<HTMLSpanElement>(null) };
+  useEffect(() => {
+    if (phase.at !== "driven") return;
+    const { from, fish, size, reaction } = phase;
+    show("fight");
+    let raf = 0;
+    const ease = (x: number) => x * x * (3 - 2 * x);
+    const frame = (t: number) => {
+      const k = Math.min(1, Math.max(0, (t - from) / (DRIVEN * 1000)));
+      // Out after it for the first two fifths (the fish making off to the right), round behind it, then both back
+      // towards the rod, the fish first. With motion reduced the two are shown where they end.
+      const out = reduced ? 1 : ease(Math.min(1, k / 0.4)), home = reduced ? 1 : ease(Math.max(0, (k - 0.4) / 0.6));
+      const fishAt = 74 + 14 * out - 40 * home, otterAt = out < 1 ? 4 + 88 * out : 92 - 30 * home;
+      const wave = reduced ? 0 : Math.sin(t / 70) * 3;
+      if (chase.fish.current) chase.fish.current.style.transform = `translate(-50%, ${wave}px) scaleX(${home > 0 ? -1 : 1})`;
+      if (chase.fish.current) chase.fish.current.style.left = `${fishAt}%`;
+      if (chase.otter.current) { chase.otter.current.style.left = `${otterAt}%`; chase.otter.current.style.transform = `translate(-50%, ${-wave}px) scaleX(${out < 1 ? 1 : -1})`; }
+      if (chase.wake.current) { chase.wake.current.style.left = `${otterAt}%`; chase.wake.current.style.opacity = String(0.35 + 0.35 * Math.abs(Math.sin(t / 160))); }
+      if (k >= 1) { setPhase({ at: "fight", fish, size, strike: "good", reaction }); return; }
+      raf = requestAnimationFrame(frame);
+    };
+    raf = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the chase runs from when it begins; its refs do not change
+  }, [phase, reduced, show]);
 
   // The hand's rest, as the buttons show it: the strike's is dim while the line settles, and the two under what a go
   // came to for a moment after it shows. (Whether a press is taken is asked of the clock where it is taken.)
@@ -439,6 +477,14 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const known = (id: CatchId) => !(id in FISH) || purse.best[id as FishId] !== undefined;
   const press = (on: boolean) => (e: ReactPointerEvent) => { e.preventDefault(); holding.current = on; if (on) { sfx.wake(); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); } };
   const hasRod = !!gear.rod;
+  /** The otter, while it follows me: it keeps by the float, with how many fish it will still drive back in this meal's hours beside it. */
+  const otter = works(purse, "famOtter"), otterLeft = otter ? usesLeft(purse, "famOtter", now) : 0;
+  const otterBy = (className: string) => otter && (
+    <span className={`absolute flex items-end gap-0.5 ${className}`} data-fx="otter" data-otter-left={otterLeft}>
+      <span className="animate-bounce motion-reduce:animate-none [animation-duration:1.6s]"><TownIcon name="famOtter" size={30} /></span>
+      <span className="mb-0.5 rounded-[3px] bg-[#2a190d]/75 px-1 font-data text-label tabular-nums text-[#fff6e3]">{otterLeft}</span>
+    </span>
+  );
   return (
     <section aria-labelledby="town-fish-h" data-town-game data-look="fish"
              className="rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
@@ -559,6 +605,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             {phase.at === "waiting" && phase.coming && <span ref={flash} className="absolute size-14 rounded-full opacity-0" style={{ background: "radial-gradient(circle, rgba(255,246,190,0.95) 0%, rgba(255,236,150,0.5) 45%, rgba(255,236,150,0) 70%)" }} data-fx="flash" />}
             <span ref={ring} className="absolute size-10 rounded-full border-2 border-white/80 opacity-0" />
             <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
+            {otterBy("bottom-1 left-2")}
           </div>
           {/* (nothing is said of when to strike: the float shows it, and a strike too soon or too late says why it failed) */}
           {/* (dim while the keeper is waited for, and while a line that has only just gone out settles) */}
@@ -592,6 +639,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                   <span ref={gauge.fish} className="inline-block"><TownIcon name="fishShadow" size={40} /></span>
                 </span>
                 <span ref={gauge.word} className="absolute bottom-1 right-1.5 rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
+                {otterBy("bottom-0.5 left-1.5")}
               </div>
               <Bar label={th ? "สายที่สาวเข้ามาแล้ว" : "Line in"} bar={gauge.line} tone="bg-[#7cc6e6]" icon="rod" />
               <Bar label={th ? "สายใกล้ขาด" : "Line straining"} bar={gauge.strain} tone="bg-[#e9573f]" icon="warning" />
@@ -602,6 +650,25 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* the otter's moment: out after the fish that got away, round behind it, and both back to the hook */}
+      {phase.at === "driven" && (
+        <div className="mt-2" data-look="driven">
+          <div aria-hidden className={`${STAGE} h-28 w-full`}>
+            <PixelGround kind="water" w={96} h={28} className="absolute inset-0 size-full" />
+            <svg className="absolute inset-0 size-full" viewBox="0 0 260 112" preserveAspectRatio="none">
+              <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
+              <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />
+            </svg>
+            <span ref={chase.wake} className="absolute top-[52%] -translate-x-1/2 opacity-50" style={{ left: "4%" }}><TownIcon name="fxRipple" size={48} /></span>
+            <span ref={chase.fish} className="absolute top-[30%] block" style={{ left: "74%" }}><TownIcon name="fishShadow" size={40} /></span>
+            <span ref={chase.otter} className="absolute top-[32%] block" style={{ left: "4%" }}><TownIcon name="famOtter" size={40} /></span>
+          </div>
+          <p className="mt-2 text-center text-read font-semibold text-[#ffe19a] [text-shadow:0_2px_0_#2a190d]" aria-live="polite">
+            {th ? "นากต้อนปลากลับมา สู้อีกรอบ!" : "The otter drives it back. Once more!"}
+          </p>
         </div>
       )}
 
