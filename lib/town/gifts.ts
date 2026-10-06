@@ -282,9 +282,22 @@ export const numberOf = (id: string): number => {
   const g = giftOf(id);
   return g?.by ?? (CHARMS as Record<string, number>)[id] ?? (FAMILIARS as Record<string, number>)[id] ?? 1;
 };
-/** The catalog's row: what the database needs of the gifts to give and to judge them (the places for charms; of each gift its kind, which rank of which line gives it, and its number; and what is counted, so many times to what). */
+/**
+ * The better somebody is at a line, the harder its good things are for them (the owner, 2026-10-07: the gifts are
+ * near to too strong, so the game grows with whoever has them): from the fourth rank of a line, whatever of that line
+ * is uncommon or better is `by` harder a rank (a fish fights so much harder, an insect is so much quicker to know of
+ * one, a patch so much quicker to go dim …; each game says what "harder" is for it, and multiplies or divides by
+ * this). What is common is as it is for everybody. 1 below the fourth rank.
+ */
+export const HARDER = { from: 4, by: 0.08 } as const;
+export const harderAt = (rank: number): number => (rank < HARDER.from ? 1 : 1 + HARDER.by * (Math.min(10, Math.floor(rank)) - HARDER.from + 1));
+/** …for the points somebody has on a line. */
+export const harderFor = (line: LineId, points: number): number => harderAt(rankOf(line, points));
+
+/** The catalog's row: what the database needs of the gifts to give and to judge them (the places for charms; of each gift its kind, which rank of which line gives it, and its number; what is counted, so many times to what; and how much harder a line's good things are from which rank). */
 export const giftsRow = () => ({
   slots: CHARMS.slots,
   uses: USES,
+  harder: HARDER,
   gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: numberOf(g.id) }])),
 });

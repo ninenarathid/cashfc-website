@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FARMING, tend, type Plant, type Plot } from "./farm";
 import { STRIKE, strikeOf, strikeWindowOf } from "./fishing";
-import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, THING_IDS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, numberOf, stretchOf, takeGift, useGift, usedOf, usesLeft, USES, wearCharms, wearFamiliar, wearing, works, type CharmId, type FamiliarId } from "./gifts";
+import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, THING_IDS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, harderAt, harderFor, HARDER, leftOf, numberOf, stretchOf, takeGift, useGift, usedOf, usesLeft, USES, wearCharms, wearFamiliar, wearing, works, type CharmId, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { eased, staminaOf } from "./stamina";
@@ -189,6 +189,19 @@ describe("the gifts of the lines of work", () => {
     // (a thing works for whoever has it: nothing to wear, nothing to call)
     expect(works(p, "thingFlute")).toBe(true);
     expect(works({ gifts: { had: [], charms: [] } }, "thingFlute")).toBe(false);
+  });
+
+  it("a line's good things are harder from its fourth rank, so much a rank, and as they are below it", () => {
+    expect([1, 2, 3].map(harderAt)).toEqual([1, 1, 1]);
+    expect([4, 5, 6, 10].map((r) => +harderAt(r).toFixed(2))).toEqual([1.08, 1.16, 1.24, 1.56]);
+    expect(harderAt(0)).toBe(1);
+    expect(harderAt(99)).toBe(harderAt(10));
+    // (by the points of the line itself)
+    expect(harderFor("fishing", 0)).toBe(1);
+    expect(harderFor("fishing", 699)).toBe(1);
+    expect(harderFor("fishing", 700)).toBe(harderAt(4));
+    expect(harderFor("helpers", 3000)).toBe(harderAt(5));
+    expect(giftsRow().harder).toEqual(HARDER);
   });
 
   it("the catalog's row says the places, and of each gift which rank of which line gives it and its number", () => {

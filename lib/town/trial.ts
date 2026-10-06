@@ -961,9 +961,14 @@ export class Trial {
     this.save(did.purse);
     return { ok: true, gift: did.gift };
   }
-  /** For trying things out: every gift there is in my purse at once, whatever my ranks (or none of them, and nothing worn). */
-  setGifts(all: boolean) {
+  /** For trying things out: every gift there is in my purse at once, whatever my ranks (or none of them, and nothing worn); or only the ones named, what is worn and follows kept where it is still had. */
+  setGifts(all: boolean | readonly string[]) {
     const p = this.purse();
+    if (Array.isArray(all)) {
+      const had = GIFTS.map((g) => g.id).filter((id) => all.includes(id)), was = giftsOf(p);
+      this.save({ ...p, gifts: { ...was, had, charms: was.charms.filter((id) => had.includes(id)), familiar: was.familiar && had.includes(was.familiar) ? was.familiar : null } });
+      return;
+    }
     this.save({ ...p, gifts: all ? { ...giftsOf(p), had: GIFTS.map((g) => g.id) } : { had: [], charms: [] } });
   }
   /** Wear these charms and no others (none: take them all off). */
