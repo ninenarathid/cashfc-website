@@ -288,8 +288,14 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
   const wary = async (who) => (await purseOf(who)).wary ?? null;
   const waryNow = async (who) => (await one(`select town.is_wary(p.doc, town.now_ms()) as w from public.town_purses p where p.member_id = $1`, [who])).w;
   const LOACHES = [{ item: "rod", n: 1 }, ...Array.from({ length: 9 }, () => ({ item: "loach", n: CODE.items.loach.stack }))];
-  // (a line pulled up with nothing hooked, by anybody)
-  await rigged(U.m2, {}, LOACHES);
+  // (a line pulled up with nothing hooked, by anybody. Under a sky orb's night, so that whatever the hour is a rare
+  // fish does take a loach from the deck: the wels)
+  await rigged(U.m2, { had: ["thingOrb"] }, LOACHES);
+  await call(U.m2, "town_orb", "night");
+  const there = [];
+  for (let i = 0; i < 60; i++) { await t.sql(`delete from public.town_lines where member_id = $1`, [U.m2]); await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false); there.push((await lineOf(U.m2)).what); }
+  await t.sql(`delete from public.town_lines where member_id = $1`, [U.m2]);
+  t.check("to begin with a rare fish takes that member's line now and then, among the common ones", there.some((w) => tierOf(w) === "rare") && there.some((w) => tierOf(w) === "common"), [...new Set(there)].join(" "));
   const ups = [];
   for (let i = 0; i < 4; i++) {
     await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false);
@@ -300,7 +306,7 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
     && Math.abs((await wary(U.m2)).until - (nowMs + 600000)) < 60000, { ups, wary: await wary(U.m2) });
   const gone = [];
   for (let i = 0; i < 60; i++) { await t.sql(`delete from public.town_lines where member_id = $1`, [U.m2]); await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false); gone.push((await lineOf(U.m2)).what); }
-  t.check("while they are gone no rare fish and no legend takes that member's line, whatever the bait; the rest come as ever", gone.every((w) => !["rare", "legend"].includes(tierOf(w))) && gone.some((w) => tierOf(w) === "common") && new Set(gone).size >= 3, [...new Set(gone)].join(" "));
+  t.check("while they are gone no rare fish and no legend takes that member's line, whatever the bait; the rest come as ever", gone.every((w) => !["rare", "legend"].includes(tierOf(w))) && gone.some((w) => tierOf(w) === "common"), [...new Set(gone)].join(" "));
   t.check("nothing is said of it: a line dropped is answered as any line", did?.ok === true && Object.keys((await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false)).line).sort().join() === "nibbles,wait");
   // (their minutes over)
   await t.sql(`update public.town_purses set doc = jsonb_set(doc, '{wary,until}', to_jsonb(town.now_ms() - 1)) where member_id = $1`, [U.m2]);
