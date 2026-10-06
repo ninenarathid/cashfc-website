@@ -2,8 +2,8 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { fullMoon } from "./forest";
-import { stretchOf, USES } from "./gifts";
-import { BUGS, HAUNTS, NECTAR, NECTAR_MAPS, UNHUNTED, nectar, nectarHaunt, netMine, tierOf, type BugId, type Lured, type Mine } from "./insects";
+import { stretchOf, USES, wearing } from "./gifts";
+import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, PAIR, UNHUNTED, bugTurnStart, cloakAt, nectar, nectarHaunt, net, netMine, swarmAt, tierOf, type BugId, type Follower, type Lured, type Mine, type Swarm } from "./insects";
 import type { ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { handOf, newPurse, put, type Purse } from "./trade";
@@ -20,8 +20,14 @@ import { placeOf } from "./world";
  * - `nectar`: a drop put down by somebody with no nectar, with drops left and with none, with one out already and
  *   with one long gone; by flowers, water, a field, a light and litter; at noon, at night, at dawn, under a full
  *   moon; with every sort of number for the three of chance;
- * - `net_mine`: the insect of a drop not come yet, there, and gone; a net held and not; from the drop and from too
- *   far; a bag with room and with none; misses of every sort; a word that names no insect of one's own.
+ * - `net_mine`: the insect of a drop not come yet, there, and gone; the one that follows a catch, in time, within the
+ *   keeper's slack and too late; a net held and not; from the place and from too far; a bag with room and with none;
+ *   misses of every sort; a word that names no insect of one's own; the cloak worn and not (a drop's insect caught
+ *   under it has another following, the second of a pair has none);
+ * - `cloak_at`: what every haunt that has an insect with days of its own has for the cloak's wearer alone, at
+ *   moments of day and night over eight days, and at a moment found for each such insect; haunts that have none;
+ * - `net`: v125's own catch (lib/town/db-vectors-wild.test.ts has its cases without the cloak), with the cloak worn,
+ *   had and not worn, and not had: what follows the insect caught is kept in the purse of whoever wears it.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-insects.test.ts
  */
@@ -71,7 +77,9 @@ export function vectorsGiftsInsects(): Vector[] {
     const tile: [number, number] = c.maybe(0.04) ? [-9, c.int(0, 40)] : [Math.floor(p.x) + c.int(-2, 2), Math.floor(p.y) + c.int(-2, 2)];
     const gifts = c.of<() => Purse["gifts"] | undefined>([
       () => undefined, () => ({ had: ["charmNet"], charms: ["charmNet"] }),
-      () => ({ had: ["thingNectar"], charms: [] }), () => ({ had: ["thingNectar"], charms: [] }), () => ({ had: ["thingNectar"], charms: [] }), () => ({ had: ["thingNectar", "thingFlute"], charms: [], used: uses(now, c.int(0, 9)) }),
+      () => ({ had: ["thingNectar"], charms: [] }), () => ({ had: ["thingNectar"], charms: [] }), () => ({ had: ["thingNectar", "charmCloak"], charms: [] }), () => ({ had: ["thingNectar", "thingFlute"], charms: [], used: uses(now, c.int(0, 9)) }),
+      // (the cloak worn: the insects that have days of their own may come on any day)
+      () => ({ had: ["thingNectar", "charmCloak"], charms: ["charmCloak"] }), () => ({ had: ["thingNectar", "charmCloak", "charmNet"], charms: ["charmNet", "charmCloak"], used: uses(now, c.int(0, 9)) }),
       () => ({ had: ["thingNectar"], charms: [], used: uses(now, 9) }), () => ({ had: ["thingNectar"], charms: [], used: uses(now, 10) }), () => ({ had: ["thingNectar"], charms: [], used: uses(now, 14) }),
       // (ten used on another day: today's are all there)
       () => ({ had: ["thingNectar"], charms: [], used: uses(now - 24 * HOUR, 10) }),
@@ -97,7 +105,7 @@ export function vectorsGiftsInsects(): Vector[] {
 
   // the insect of a drop, caught
   const held: Array<ItemId | null> = ["bugNet", "bugNet", "bugNet", "bugNet", null, "hoe"], kinds = Object.keys(BUGS) as BugId[];
-  for (let i = 0; i < 700; i++) {
+  for (let i = 0; i < 1100; i++) {
     const now = START + c.int(0, 200) * HOUR + c.int(0, 59) * MINUTE, bug = c.of(kinds), hand = c.of(held), x = c.int(10, 50), y = c.int(10, 50);
     const lured = c.of<() => Lured | null | undefined>([
       () => undefined, () => null,
@@ -109,11 +117,59 @@ export function vectorsGiftsInsects(): Vector[] {
       () => ({ x, y, haunt: 3, bug: "noSuchBug" as ItemId, n: 1, from: now - 1000, until: now + 60_000, seed: 5 }),
     ])();
     const filler: Array<[ItemId, number]> = c.maybe(0.2) ? Array.from({ length: c.int(8, 10) }, (): [ItemId, number] => [c.of(["rod", "hoe", "can", "pot", "pan"] as ItemId[]), 1]) : [];
+    // (the one that follows a catch: in time, within the keeper's slack, at its very end, too late; kept wrongly)
+    const follower = c.of<() => Follower | null | undefined>([
+      () => undefined, () => undefined, () => null,
+      () => ({ bug, n: c.int(BUGS[bug].n[0], BUGS[bug].n[1]), at: [x, y], until: now + c.int(0, 3000) }),
+      () => ({ bug, n: c.int(BUGS[bug].n[0], BUGS[bug].n[1]), at: [x, y], until: now + c.int(0, 3000) }),
+      () => ({ bug, n: 1, at: [x, y], until: now - c.int(1, PAIR.slack - 1) }),
+      () => ({ bug, n: 1, at: [x, y], until: now - PAIR.slack }),
+      () => ({ bug, n: 1, at: [x, y], until: now - PAIR.slack - c.int(1, 9000) }),
+      () => ({ bug: "noSuchBug" as ItemId, n: 1, at: [x, y], until: now + 2000 }),
+    ])();
+    const gifts = c.of<() => Purse["gifts"] | undefined>([() => undefined, () => undefined, () => ({ had: ["thingNectar"], charms: [] }), () => ({ had: ["thingNectar", "charmCloak"], charms: ["charmCloak"] }), () => ({ had: ["charmCloak"], charms: [] })])();
     const purse: Purse = { ...bagOf([...(hand ? [[hand, 1] as [ItemId, number]] : []), ...filler, ...(c.maybe(0.15) ? [[bug as ItemId, c.int(1, 19)] as [ItemId, number]] : [])]), hand,
-      stamina: { day: dayOf(now), left: c.of([100, 100, 3, 0]) }, ...(lured === undefined ? {} : { lured }), ...(c.maybe(0.3) ? { gifts: { had: ["thingNectar"], charms: [] } } : {}) };
+      stamina: { day: dayOf(now), left: c.of([100, 100, 3, 0]) }, ...(lured === undefined ? {} : { lured }), ...(follower === undefined ? {} : { follower }), ...(gifts === undefined ? {} : { gifts }) };
     const d = c.of([[0, 0], [1, -2], [4, 4], [6, 2], [-6, -2], [5, 4], [6, 3], [7, 0], [0, -7], [12, 9]]), tile: [number, number] = [x + d[0], y + d[1]];
-    const misses = c.of([0, 0, 0, 1, 2, 3, 9, 1.7, -4]), which = c.of(["lured", "lured", "lured", "lured", "lured", "pair", "nothing"]);
+    const misses = c.of([0, 0, 0, 1, 2, 3, 9, 1.7, -4]), which = c.of(["lured", "lured", "lured", "pair", "pair", "pair", "nothing"]);
     add("net_mine", [purse, which, handOf(purse), tile[0], tile[1], misses, now], netMine(purse, which as Mine, handOf(purse), tile, misses, now));
+  }
+
+  // what a haunt has for the cloak's wearer alone: every haunt that has an insect with days of its own, and a few that
+  // have none, at moments of day and night over eight days; and for each such insect a moment at which it is there
+  const swarmAs = (sw: Swarm | null, id: number) => (sw ? { ...sw, until: bugTurnStart(HAUNTS[id], sw.turn + 1) } : null);
+  const dayKinds = BUG_IDS.filter((id) => BUGS[id].day), hosts = HAUNTS.filter((h) => dayKinds.some((id) => BUGS[id].at.includes(h.kind)));
+  const others = HAUNTS.filter((h) => !hosts.includes(h)).filter((_, i) => i % 6 === 0);
+  for (let k = 0; k < 44; k++) {
+    const now = START + k * (4 * HOUR + 23 * MINUTE);
+    for (const h of [...hosts, ...others]) add("cloak_at", [h.id, now, WORD], swarmAs(cloakAt(WORD, h, now, DRY), h.id));
+  }
+  for (const id of dayKinds) {
+    let found = false;
+    for (let t = START; t < START + 60 * 24 * HOUR && !found; t += 10 * MINUTE) for (const h of hosts) {
+      if (!BUGS[id].at.includes(h.kind) || cloakAt(WORD, h, t, DRY)?.bug !== id) continue;
+      add("cloak_at", [h.id, t, WORD], swarmAs(cloakAt(WORD, h, t, DRY), h.id));
+      found = true;
+      break;
+    }
+  }
+  for (const id of [-1, HAUNTS.length, 99999]) add("cloak_at", [id, START, WORD], null);
+
+  // a catch at a haunt with the cloak: v125's rule, the purse of whoever wears it with what follows
+  const nets: Array<ItemId | null> = ["bugNet", "bugNet", "bugNet", "bugNet", null, "hoe"], lures: Array<ItemId | null> = [...LURES, null, "twig"];
+  for (let i = 0; i < 600; i++) {
+    const h = c.of(HAUNTS), fit = BUG_IDS.filter((id) => BUGS[id].at.includes(h.kind)), bug = c.of(fit), now = START + c.int(0, 60) * HOUR + c.int(0, 59) * MINUTE;
+    const has: Swarm | null = c.maybe(0.05) ? null : { turn: c.int(1, 99999), bug, n: c.int(BUGS[bug].n[0], BUGS[bug].n[1]), seed: h.id * 100003 + 7, ...(c.maybe(0.3) ? { cloak: true } : {}) };
+    const hand = c.of(nets), filler: Array<[ItemId, number]> = c.maybe(0.12) ? Array.from({ length: c.int(8, 10) }, (): [ItemId, number] => [c.of(["rod", "hoe", "can", "pot", "pan"] as ItemId[]), 1]) : [];
+    const gifts = c.of<() => Purse["gifts"]>([() => ({ had: ["charmCloak"], charms: ["charmCloak"] }), () => ({ had: ["charmCloak"], charms: ["charmCloak"] }), () => ({ had: ["charmCloak", "charmNet"], charms: ["charmNet", "charmCloak"] }),
+      () => ({ had: ["charmCloak"], charms: [] }), () => ({ had: ["charmNet"], charms: ["charmNet"] })])();
+    const purse: Purse = { ...bagOf([...(hand ? [[hand, 1] as [ItemId, number]] : []), ...filler]), hand, gifts, stamina: { day: dayOf(now), left: c.of([100, 100, 2, 0]) },
+      ...(c.maybe(0.2) ? { follower: { bug: "moth" as ItemId, n: 1, at: [3, 3] as [number, number], until: now - 60_000 } } : {}) };
+    const shares = HAUNT_KINDS[h.kind].shares, taken = c.maybe(0.1) ? shares : 0, mine = c.maybe(0.05);
+    const perch = c.of(h.perches), far = c.maybe(0.1);
+    const tile: [number, number] = far ? [Math.floor(perch.x) + c.int(9, 14), Math.floor(perch.y) + c.int(9, 14)] : [Math.floor(perch.x) + c.int(-3, 3), Math.floor(perch.y) + c.int(-3, 3)];
+    const misses = c.of([0, 0, 1, 2, 5]), lure = BUGS[bug].habit === "lure" ? c.of(lures) : null;
+    add("net", [purse, h.id, has, taken, mine, hand, tile[0], tile[1], misses, now, lure], net(purse, h, has, taken, mine, hand, tile, misses, now, lure));
   }
   return out;
 }
@@ -153,8 +209,37 @@ describe("the cases the database's rules of the insects' gifts are held to", () 
     expect(came.some((x) => x.lured.n === 2) && came.some((x) => x.lured.from - (x.purse.lured!.until - NECTAR.stays * 1000) === 0)).toBe(true);
     for (const x of came) expect(x.purse.lured).toEqual(x.lured);
 
-    // the insect of a drop: caught, and refused each way
+    // the insect of a drop, and the one that follows a catch: caught, and refused each way
     expect(why("net_mine")).toEqual(new Set(["ok", "none", "tool", "far", "full"]));
+    const mine = of("net_mine").map((v) => ({ p: v.args[0] as Purse, which: v.args[1] as string, now: v.args[6] as number, d: v.want as { ok: boolean; why?: string; purse?: Purse } }));
+    // the second of a pair: caught in time, caught within the keeper's slack, refused past it; and it has none following
+    const pairs = mine.filter((x) => x.which === "pair" && x.p.follower && x.p.follower.bug !== ("noSuchBug" as ItemId));
+    expect(pairs.some((x) => x.d.ok && x.p.follower!.until >= x.now) && pairs.some((x) => x.d.ok && x.p.follower!.until < x.now)).toBe(true);
+    expect(pairs.some((x) => !x.d.ok && x.d.why === "none" && x.p.follower!.until + PAIR.slack < x.now)).toBe(true);
+    for (const x of pairs) if (x.d.ok) expect(x.d.purse!.follower).toBeNull();
+    // a drop's insect caught under the cloak has another following; without the cloak it has none
+    const drops = mine.filter((x) => x.which === "lured" && x.d.ok);
+    expect(drops.some((x) => wearing(x.p, "charmCloak") && x.d.purse!.follower?.until === x.now + 3000 && x.d.purse!.follower.bug === x.p.lured!.bug)).toBe(true);
+    for (const x of drops) if (!wearing(x.p, "charmCloak")) expect(x.d.purse!.follower).toEqual(x.p.follower);
+
+    // the cloak's own insects: each of the six that have days of their own, never on a day of its own, and mostly nothing
+    const cloaks = of("cloak_at").map((v) => ({ h: v.args[0] as number, now: v.args[1] as number, sw: v.want as (Swarm & { until: number }) | null }));
+    expect(cloaks.length).toBeGreaterThan(1500);
+    expect(new Set(cloaks.filter((x) => x.sw).map((x) => x.sw!.bug))).toEqual(new Set(["monarch", "morpho", "glassDragonfly", "hawkMoth", "jewelBeetle", "herculesBeetle"]));
+    for (const x of cloaks) if (x.sw) { expect(x.sw.cloak).toBe(true); expect(BUGS[x.sw.bug].day).toBeGreaterThan(0); expect(swarmAt(WORD, HAUNTS[x.h], x.now, DRY)?.bug).not.toBe(x.sw.bug); }
+    expect(cloaks.filter((x) => !x.sw).length).toBeGreaterThan(cloaks.length / 2);
+    // (a nectar drop of somebody who wears it: one of them came that has days of its own)
+    expect(of("nectar").some((v) => { const w = v.want as { ok: boolean; lured?: Lured }; return w.ok && wearing(v.args[0] as Purse, "charmCloak") && !!BUGS[w.lured!.bug as BugId].day; })).toBe(true);
+
+    // a catch at a haunt under the cloak: what follows is kept for whoever wears it, and nobody else
+    expect(why("net")).toEqual(new Set(["ok", "none", "had", "bare", "far", "tool", "full", "lure"]));
+    const caught = of("net").map((v) => ({ p: v.args[0] as Purse, has: v.args[2] as Swarm, now: v.args[9] as number, d: v.want as { ok: boolean; purse?: Purse } })).filter((x) => x.d.ok);
+    expect(caught.filter((x) => wearing(x.p, "charmCloak")).length).toBeGreaterThan(100);
+    for (const x of caught) {
+      if (wearing(x.p, "charmCloak")) expect(x.d.purse!.follower).toMatchObject({ bug: x.has.bug, n: x.has.n, until: x.now + 3000 });
+      else expect(x.d.purse!.follower).toEqual(x.p.follower);
+    }
+    expect(caught.some((x) => !wearing(x.p, "charmCloak"))).toBe(true);
     expect(of("net_mine").some((v) => (v.want as { ok: boolean }).ok && (v.args[5] as number) >= 2) && of("net_mine").some((v) => (v.want as { ok: boolean }).ok && (v.args[0] as Purse).stamina.left === 0)).toBe(true);
 
     const dir = process.env.TOWN_VECTORS;

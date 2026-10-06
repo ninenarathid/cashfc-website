@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { FAMILIARS, GIFTS, USES, harderAt, harderFor, numberOf, useGift, usesLeft } from "./gifts";
+import { isDayOf } from "./forest";
 import {
-  BUGS, BUG_IDS, FLUTE, HABITS, HAUNTS, LURED, NECTAR, NECTAR_MAPS, NET, ROAM, TIERS, UNHUNTED, WIND, againMs, aimAt, aimOf, asleep, harderOn, knows, lulled, luredHaunt, luredNow, nectar, nectarHaunt, nectarMay, netMine, newMind,
-  perchAt, plentyOf, poseOf, ringOf, roams, stealthOf, swingMs, taken, think, tierOf, windy,
+  BUGS, BUG_IDS, FLUTE, HABITS, HAUNTS, HAUNT_KINDS, LURED, NECTAR, NECTAR_MAPS, NET, PAIR, ROAM, TIERS, UNHUNTED, WIND, againMs, aimAt, aimOf, asleep, bugTurn, bugTurnStart, cloakAt, followed, followerNow, followerPose,
+  harderOn, hereAt, hereFor, knows, lulled, luredHaunt, luredNow, nectar, nectarHaunt, nectarMay, net, netMine, newMind,
+  perchAt, plentyOf, poseOf, ringOf, roams, stealthOf, swarmAt, swarms, swingMs, taken, think, tierOf, windy,
   type BugId, type Haunt, type Hunt, type Lured, type Mind, type Person,
 } from "./insects";
 import { ITEMS } from "./items";
@@ -336,6 +338,178 @@ describe("the lulling flute (insects, the fifth rank: every insect on the screen
     expect(awake.open).toBe(true);
     expect(aimOf(zb).x).toBeCloseTo(aimOf(awake).x, 9);
     expect(zb.open).toBe(true);
+  });
+});
+
+describe("the butterfly-wing cloak (insects, the sixth rank): the rare insects of a day, every day", () => {
+  const WORD = "cloak-test", MINUTE = 60_000;
+  const dayKinds = BUG_IDS.filter((id) => BUGS[id].day);
+  /** Every turn of every haunt over so many days: what everybody has, and what the cloak's wearer alone has. */
+  const over = (days: number) => {
+    const out: Array<{ h: Haunt; at: number; all: BugId | null; worn: BugId | null }> = [];
+    for (const h of HAUNTS) {
+      const every = HAUNT_KINDS[h.kind].every * MINUTE;
+      for (let t = bugTurnStart(h, bugTurn(h, NOON)); t < NOON + days * DAY; t += every) out.push({ h, at: t + 1000, all: swarmAt(WORD, h, t + 1000)?.bug ?? null, worn: cloakAt(WORD, h, t + 1000)?.bug ?? null });
+    }
+    return out;
+  };
+
+  it("is a charm of the sixth rank, three seconds for the second of a pair", () => {
+    expect(GIFTS.find((g) => g.id === "charmCloak")).toMatchObject({ kind: "charm", line: "insects", rank: 6, by: 3 });
+    expect(dayKinds.sort()).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "monarch", "morpho"]);
+  });
+
+  it("has for its wearer, at a haunt, only an insect with days of its own on a day that is not one; everywhere else nothing of its own", () => {
+    const turns = over(12), seen = new Set<BugId>();
+    for (const x of turns) {
+      if (!x.worn) continue;
+      seen.add(x.worn);
+      const day = BUGS[x.worn].day!;
+      expect(day).toBeGreaterThan(0);
+      // (never on a day of its own: then everybody has it by everybody's roll, and the cloak adds nothing)
+      expect(isDayOf(WORD, x.worn, day, bugTurnStart(x.h, bugTurn(x.h, x.at)))).toBe(false);
+      expect(BUGS[x.worn].at).toContain(x.h.kind);
+      expect(x.all).not.toBe(x.worn);
+    }
+    expect([...seen].sort()).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "monarch", "morpho"]);
+    // a luna moth waits for the full moon, cloak or no cloak
+    expect(seen.has("lunaMoth")).toBe(false);
+    // and a haunt none of whose insects has a day has nothing for the cloak, ever
+    for (const x of turns) if (!dayKinds.some((id) => BUGS[id].at.includes(x.h.kind))) expect(x.worn).toBeNull();
+  });
+
+  it("shows each of them about as often on any day as everybody has it on a day of its own", () => {
+    const turns = over(40);
+    for (const id of ["monarch", "morpho", "hawkMoth"] as BugId[]) {
+      const day = BUGS[id].day!, own = turns.filter((x) => x.all === id).length, cloak = turns.filter((x) => x.worn === id).length;
+      // (everybody: on the days that are its own; the wearer: on all the others besides. The days are counted, not reckoned)
+      const ownDays = Array.from({ length: 40 }, (_, d) => isDayOf(WORD, id, day, NOON + d * DAY)).filter(Boolean).length;
+      const perOwnDay = own / ownDays, perOtherDay = cloak / (40 - ownDays);
+      expect(ownDays).toBeGreaterThan(2);
+      expect(perOwnDay).toBeGreaterThan(0);
+      expect(perOtherDay / perOwnDay, id).toBeGreaterThan(0.7);
+      expect(perOtherDay / perOwnDay, id).toBeLessThan(1.4);
+    }
+  });
+
+  it("is seen in the place of what everybody has there, by its wearer alone; and whoever nets that haunt's insect first has had its turn's", () => {
+    const x = over(12).find((y) => y.worn === "monarch" && y.all !== null)!, none = () => ({ n: 0, mine: false });
+    expect(x).toBeDefined();
+    expect(hereFor(WORD, x.h, x.at, DRY, [], UNHUNTED, false)?.bug).toBe(x.all);
+    expect(hereFor(WORD, x.h, x.at, DRY, [], UNHUNTED, true)).toMatchObject({ bug: "monarch", cloak: true });
+    expect(hereFor(WORD, x.h, x.at, DRY, [])).toEqual(hereAt(WORD, x.h, x.at, DRY, []));
+    const plain = swarms(WORD, x.at, DRY, none), worn = swarms(WORD, x.at, DRY, none, [], UNHUNTED, true);
+    expect(plain.find((s) => s.id === x.h.id)?.bug).toBe(x.all);
+    expect(worn.find((s) => s.id === x.h.id)?.bug).toBe("monarch");
+    // (the same turn, the same seed: one insect of the haunt's, seen as one or the other)
+    expect(worn.find((s) => s.id === x.h.id)).toMatchObject({ turn: plain.find((s) => s.id === x.h.id)!.turn, seed: plain.find((s) => s.id === x.h.id)!.seed });
+    // every other haunt is the same for both, but where the cloak has its own
+    expect(worn.length).toBeGreaterThanOrEqual(plain.length);
+    for (const s of plain) expect(worn.some((w) => w.id === s.id)).toBe(true);
+    // caught by anybody, it is gone for both
+    const taken_ = (h: Haunt) => ({ n: h.id === x.h.id ? 1 : 0, mine: false });
+    expect(swarms(WORD, x.at, DRY, taken_).some((s) => s.id === x.h.id)).toBe(false);
+    expect(swarms(WORD, x.at, DRY, taken_, [], UNHUNTED, true).some((s) => s.id === x.h.id)).toBe(false);
+    // a kind hunted beyond counting is not there for the cloak either: its wearer has what everybody has
+    const hunts: Hunt[] = [{ bug: "monarch", at: x.at - 3 * HOUR, n: 1_000_000 }];
+    expect(cloakAt(WORD, x.h, x.at, DRY, hunts)).toBeNull();
+    expect(hereFor(WORD, x.h, x.at, DRY, [], hunts, true)?.bug).toBe(swarmAt(WORD, x.h, x.at, DRY, hunts)?.bug);
+  });
+
+  it("brings them to a drop of nectar on any day, too", () => {
+    const lamp = hauntOf("lamp", "town");
+    let off = NIGHT;
+    while (isDayOf(WORD, "hawkMoth", BUGS.hawkMoth.day!, off)) off += DAY;
+    expect(nectarMay(WORD, lamp, off).map(([id]) => id)).not.toContain("hawkMoth");
+    expect(nectarMay(WORD, lamp, off, DRY, UNHUNTED, true).map(([id]) => id)).toContain("hawkMoth");
+    const at: [number, number] = [Math.floor(lamp.perches[0].x), Math.floor(lamp.perches[0].y)];
+    const worn = { ...withGifts(["thingNectar", "charmCloak"], { charms: ["charmCloak"] }) }, bare = withGifts(["thingNectar"]);
+    const kinds = (p: Purse) => { const got = new Set<string>(); for (let r = 0.0005; r < 1; r += 0.001) { const did = nectar(p, at, off, WORD, DRY, UNHUNTED, [r, 0, 0]); if (did.ok) got.add(did.lured.bug); } return got; };
+    if (nectarHaunt(at)?.id === lamp.id) { expect(kinds(worn).has("hawkMoth")).toBe(true); expect(kinds(bare).has("hawkMoth")).toBe(false); }
+  });
+});
+
+describe("the butterfly-wing cloak: a pair at a time (an insect caught has another following, to be netted within three seconds)", () => {
+  const field = hauntOf("field", "farm"), tile: [number, number] = [Math.floor(field.perches[0].x), Math.floor(field.perches[0].y)];
+  const has = { turn: 5, bug: "grasshopper" as BugId, n: 1, seed: 1 };
+  const worn = (more: Partial<Purse> = {}): Purse => ({ ...withGifts(["charmCloak"], { charms: ["charmCloak"] }), bag: put(newPurse().bag, "bugNet", 1), hand: "bugNet", stamina: { day: dayOf(NOON), left: 100 }, ...more });
+
+  it("an insect caught under the cloak leaves another of its kind following, kept in the purse for three seconds; without the cloak, nothing", () => {
+    const did = net(worn(), field, has, 0, false, "bugNet", tile, 0, NOON);
+    if (!did.ok) throw new Error(did.why);
+    expect(did.purse.follower).toEqual({ bug: "grasshopper", n: 1, at: tile, until: NOON + 3000 });
+    expect(followerNow(did.purse, NOON + 3000 + PAIR.slack)).toEqual(did.purse.follower);
+    expect(followerNow(did.purse, NOON + 3000 + PAIR.slack + 1)).toBeNull();
+    const bare = net({ ...worn(), gifts: { had: ["charmCloak"], charms: [] } }, field, has, 0, false, "bugNet", tile, 0, NOON);
+    expect(bare.ok && bare.purse.follower).toBeUndefined();
+    expect(followed(newPurse(), newPurse(), "moth", 1, [1, 1], NOON).follower).toBeUndefined();
+    // a catch that is refused leaves nothing following
+    expect(net(worn(), field, has, 1, false, "bugNet", tile, 0, NOON)).toEqual({ ok: false, why: "bare" });
+  });
+
+  it("the second is netted within its time, as any insect is: for its stamina, with a net, from near; and has none following", () => {
+    const first = net(worn(), field, has, 0, false, "bugNet", tile, 0, NOON);
+    if (!first.ok) throw new Error(first.why);
+    const p = first.purse;
+    expect(netMine(p, "pair", null, tile, 0, NOON + 1000)).toEqual({ ok: false, why: "tool" });
+    expect(netMine(p, "pair", "bugNet", [tile[0] + 7, tile[1]], 0, NOON + 1000)).toEqual({ ok: false, why: "far" });
+    expect(netMine({ ...p, bag: p.bag.map((s) => s ?? { item: "boot" as const, n: 1 }) }, "pair", "bugNet", tile, 0, NOON + 1000).ok).toBe(true);
+    expect(netMine({ ...p, bag: p.bag.map(() => ({ item: "boot" as const, n: 1 })) }, "pair", "bugNet", tile, 0, NOON + 1000)).toEqual({ ok: false, why: "full" });
+    expect(netMine(p, "lured", "bugNet", tile, 0, NOON + 1000)).toEqual({ ok: false, why: "none" });
+    const second = netMine(p, "pair", "bugNet", [tile[0] + 1, tile[1] + 1], 1, NOON + 2500);
+    if (!second.ok) throw new Error(second.why);
+    expect(second.got).toEqual([["grasshopper", 1]]);
+    expect(held(second.purse.bag, "grasshopper")).toBe(2);
+    expect(second.purse.follower).toBeNull();
+    expect(staminaOf(p, NOON) - staminaOf(second.purse, NOON)).toBe(BUGS.grasshopper.cost + 1);
+    expect(netMine(second.purse, "pair", "bugNet", tile, 0, NOON + 2600)).toEqual({ ok: false, why: "none" });
+  });
+
+  it("not netted in time there is only the one: the keeper takes it a little late for the journey, and no later", () => {
+    const first = net(worn(), field, has, 0, false, "bugNet", tile, 0, NOON);
+    if (!first.ok) throw new Error(first.why);
+    expect(numberOf("charmCloak")).toBe(3);
+    expect(netMine(first.purse, "pair", "bugNet", tile, 0, NOON + 3000 + PAIR.slack).ok).toBe(true);
+    expect(netMine(first.purse, "pair", "bugNet", tile, 0, NOON + 3000 + PAIR.slack + 1)).toEqual({ ok: false, why: "none" });
+    expect(held(first.purse.bag, "grasshopper")).toBe(1);
+  });
+
+  it("the insect of a drop of nectar, caught under the cloak, has one following too", () => {
+    const p: Purse = { ...worn(), lured: { x: tile[0], y: tile[1], haunt: field.id, bug: "cricket", n: 2, from: NOON - 1000, until: NOON + 60_000, seed: 3 } };
+    const did = netMine(p, "lured", "bugNet", tile, 0, NOON);
+    if (!did.ok) throw new Error(did.why);
+    expect(did.purse.lured).toBeNull();
+    expect(did.purse.follower).toEqual({ bug: "cricket", n: 2, at: tile, until: NOON + 3000 });
+  });
+
+  it("the one that follows wheels about the place of the catch, on the wing: never far from it, never still, the same when asked again", () => {
+    const at = { x: 40.3, y: 22.7 };
+    for (const bug of ["grasshopper", "morpho", "ladybird"] as BugId[]) for (const seed of [1, 99, 7777]) {
+      const p0 = followerPose(bug, at, seed, NOON, NOON);
+      expect(aimOf(p0).x).toBeCloseTo(at.x, 9);
+      expect(aimOf(p0).y).toBeCloseTo(at.y, 9);
+      let moved = 0, last = aimOf(p0);
+      for (let ms = 100; ms <= 3000; ms += 100) {
+        const p = followerPose(bug, at, seed, NOON, NOON + ms), g = aimOf(p);
+        expect(p).toMatchObject({ flying: true, open: true, seen: true, lift: PAIR.lift });
+        expect(Math.hypot(g.x - at.x, g.y - at.y)).toBeLessThanOrEqual(PAIR.radius * 1.2);
+        moved += Math.hypot(g.x - last.x, g.y - last.y);
+        last = g;
+        expect(followerPose(bug, at, seed, NOON, NOON + ms)).toEqual(p);
+      }
+      // (it covers ground: some three to seven tiles in its three seconds; a quick kind more)
+      expect(moved).toBeGreaterThan(2.5);
+      expect(moved).toBeLessThan(9);
+      // within a net's reach of whoever stood within reach of the first: at the most the reach and its wheel away
+      expect(PAIR.radius).toBeLessThan(NET.reach);
+    }
+    const slow = (bug: BugId) => { let d = 0, last = aimOf(followerPose(bug, at, 5, NOON, NOON)); for (let ms = 50; ms <= 3000; ms += 50) { const g = aimOf(followerPose(bug, at, 5, NOON, NOON + ms)); d += Math.hypot(g.x - last.x, g.y - last.y); last = g; } return d; };
+    expect(slow("morpho")).toBeGreaterThan(slow("grasshopper"));
+    // a swing on it takes it; a good hunter's ring on a good one is narrower
+    const p = followerPose("morpho", at, 5, NOON, NOON + 700);
+    expect(taken("morpho", p, aimOf(p), false)).toBe(true);
+    expect(taken("morpho", p, { x: aimOf(p).x + ringOf("morpho", false) * 0.95, y: aimOf(p).y }, false)).toBe(true);
+    expect(taken("morpho", p, { x: aimOf(p).x + ringOf("morpho", false) * 0.95, y: aimOf(p).y }, false, 1, harderAt(6))).toBe(false);
   });
 });
 

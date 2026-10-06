@@ -11,7 +11,7 @@ import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
 import { HINT_IDS, HINT_PRICE } from "./hints";
-import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, SCARCE } from "./insects";
+import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR, SCARCE } from "./insects";
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
@@ -219,6 +219,8 @@ export function catalogOf() {
       // ── gifts: insects ──
       // a drop of nectar: within how many seconds an insect comes to it and no sooner than how many, how many it stays, the kinds of haunt a drop calls from, and the maps as boxes of tiles
       nectar: { within: NECTAR.within, soon: NECTAR.soon, stays: NECTAR.stays, at: NECTAR.at, maps: NECTAR_MAPS },
+      // the second of a pair (the butterfly-wing cloak): how many milliseconds past its seconds the keeper still takes it
+      pair: { slack: PAIR.slack },
     },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
     well: { ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed },

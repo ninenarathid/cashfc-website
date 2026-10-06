@@ -113,5 +113,100 @@ export default async function ({ t, U, one, call, give, patch, purseOf, deeds, C
   t.check("…and where it is all there is, it comes still", alone === null || alone?.lured?.bug === "stickInsect", alone);
   await t.sql(`delete from public.town_deeds where what = 'net' and doc ? 'scene'`);
 
+  // ── the butterfly-wing cloak ──
+  // (The stand-in's clock is put where a scene needs it, and put back at the end: the database is in memory, and this
+  // run's alone. A moment is looked for, within a day from now, at which a glade has a morpho for the cloak alone:
+  // a day that is not the morpho's, its hours, a turn of the glade's that has anything.)
+  const setNow = (ms) => t.sql(`create or replace function town.now_ms() returns bigint language sql stable as $f$ select ${Math.floor(ms)}::bigint $f$`);
+  const realNow = () => t.sql(`create or replace function town.now_ms() returns bigint language sql stable as $f$ select floor(extract(epoch from now()) * 1000)::bigint $f$`);
+  const entry = (list, haunt) => (list ?? []).find((b) => b[0] === haunt) ?? null;
+  try {
+    t.section("the butterfly-wing cloak: the rare insects of a day, every day (the insects' sixth rank)");
+    t.check("the catalog has the slack the second of a pair is given", INS.pair?.slack === 2500 && CODE.gifts.gifts.charmCloak?.by === 3 && CODE.gifts.gifts.famButterfly?.by === 0.5, { pair: INS.pair, cloak: CODE.gifts.gifts.charmCloak });
+    const base = await now();
+    const found = await one(`select h.i as haunt, s.t as at, town.cloak_at(h.i, s.t) as has
+      from generate_series(0, $1::int - 1) h(i), generate_series($2::bigint, $2::bigint + 86400000, 600000) s(t)
+     where (town.cat('insects')->'haunts'->h.i->>0) = 'glade' and town.cloak_at(h.i, s.t) is not null order by s.t, h.i limit 1`, [haunts.length, base]);
+    t.check("within a day a glade has a morpho for the cloak alone", !!found && found.has?.bug === "morpho" && found.has.cloak === true, found);
+    const G = found.haunt, T = Number(found.at) + 1000, [gx, gy] = tileOf(G);
+    const rule = await one(`select town.bug_for(true, $1::int, $2::bigint, '[]'::jsonb) as worn, town.bug_for(false, $1::int, $2::bigint, '[]'::jsonb) as bare, town.bug_here($1::int, $2::bigint, '[]'::jsonb) as here`, [G, T]);
+    t.check("the rule: for its wearer the glade has the morpho, for anybody else what it has for everybody (nothing)", rule.worn?.bug === "morpho" && rule.worn.cloak === true && rule.bare === null && rule.here === null, rule);
+    await setNow(T);
+    await give(U.m1, { had: ["charmCloak", "thingNectar"], charms: ["charmCloak"] });
+    await patch(U.m1, { bag: bag(["bugNet", 1]), hand: "bugNet", lured: null, follower: null });
+    await patch(U.m2, { bag: bag(["bugNet", 1]), hand: "bugNet", lured: null });
+    await give(U.admin, { had: ["charmCloak"], charms: ["charmCloak"] });
+    await patch(U.admin, { bag: bag(["bugNet", 1]), hand: "bugNet" });
+    const worn = await call(U.m1, "town_bugs"), bare = await call(U.m2, "town_bugs");
+    t.check("worn, the map has the morpho at its glade; for somebody without the cloak the glade has nothing", entry(worn?.bugs, G)?.[1] === "morpho" && entry(bare?.bugs, G) === null, { worn: entry(worn?.bugs, G), bare: entry(bare?.bugs, G) });
+    const everybody = (await t.sql(`select coalesce(jsonb_agg(jsonb_build_array(h.i, b.has->>'bug', (b.has->>'turn')::bigint, (b.has->>'seed')::bigint, (b.has->>'until')::bigint) order by h.i), '[]'::jsonb) as list
+      from generate_series(0, $1::int - 1) h(i), lateral (select town.bug_here(h.i, $2::bigint, town.backs_now($2::bigint)) as has) b
+     where b.has is not null and not exists (select 1 from public.town_takes k where k.what = 'haunt' and k.place = h.i and k.turn = (b.has->>'turn')::bigint)`, [haunts.length, T])).rows[0].list;
+    t.check("without the cloak the map is what it is for everybody, haunt for haunt", JSON.stringify(bare?.bugs) === JSON.stringify(everybody), { bare: bare?.bugs?.length, everybody: everybody?.length });
+    t.check("with it, every haunt has either the cloak's own insect or what everybody has there", (worn?.bugs ?? []).length >= (bare?.bugs ?? []).length
+      && (bare?.bugs ?? []).every((b) => entry(worn.bugs, b[0]) !== null), { worn: worn?.bugs?.length, bare: bare?.bugs?.length });
+    did = await call(U.m2, "town_net", G, gx, gy, 0, null);
+    t.check("somebody without the cloak swings at that glade and has nothing", did?.ok === false && did.why === "none", did);
+    const morphoBefore = (await mine("net", U.m1)).length;
+    did = await call(U.m1, "town_net", G, gx, gy, 0, null);
+    t.check("its wearer nets the morpho there", did?.ok === true && did.got?.[0]?.[0] === "morpho" && did.got[0][1] === 1, did);
+    let deed = (await mine("net", U.m1)).slice(morphoBefore);
+    t.check("the catch is written down, and says it was the cloak's", deed.length === 1 && deed[0].thing === "morpho" && deed[0].doc.cloak === true && deed[0].doc.haunt === G && deed[0].doc.kind === "glade", deed);
+    const takes = await one(`select count(*)::int as n from public.town_takes where what = 'haunt' and place = $1 and turn = $2`, [G, found.has.turn]);
+    const other = await call(U.admin, "town_bugs"), late = await call(U.admin, "town_net", G, gx, gy, 0, null);
+    t.check("it was the glade's one insect of that turn: another wearer no longer has it there, and is told somebody caught it first", takes.n === 1 && entry(other?.bugs, G) === null && late?.ok === false && late.why === "bare", { takes, late });
+
+    t.section("the butterfly-wing cloak: a pair at a time");
+    kept = await purseOf(U.m1);
+    t.check("an insect caught under the cloak has another of its kind following, three seconds long, kept in the purse", kept.follower?.bug === "morpho" && kept.follower.n === 1 && kept.follower.until === T + 3000
+      && kept.follower.at[0] === gx && kept.follower.at[1] === gy, kept.follower);
+    did = await call(U.m2, "town_net_mine", "pair", gx, gy, 0);
+    t.check("nobody else has it to catch", did?.ok === false && did.why === "none", did);
+    // (too late: past its three seconds and the keeper's slack)
+    await setNow(T + 3000 + 2500 + 1);
+    did = await call(U.m1, "town_net_mine", "pair", gx, gy, 0);
+    t.check("past its three seconds and the slack for the journey there is only the one", did?.ok === false && did.why === "none" && count(await purseOf(U.m1), "morpho") === 1, did);
+    // (in time by the page's clock, a little late by the keeper's: within the slack)
+    await setNow(T + 3000 + 2000);
+    await patch(U.m1, { hand: null });
+    did = await call(U.m1, "town_net_mine", "pair", gx, gy, 0);
+    t.check("with no net in the hand it is not caught", did?.ok === false && did.why === "tool", did);
+    await patch(U.m1, { hand: "bugNet" });
+    did = await call(U.m1, "town_net_mine", "pair", gx + 30, gy, 0);
+    t.check("nor from far off", did?.ok === false && did.why === "far", did);
+    const st0 = await staminaOf(U.m1), pl0 = Number((await one(`select town.plenty('morpho', $1::bigint) as p`, [T + 20000])).p);
+    did = await call(U.m1, "town_net_mine", "pair", gx, gy, 2);
+    t.check("netted within its time (and the slack), the second is caught: two of the kind", did?.ok === true && did.got?.[0]?.[0] === "morpho" && count(await purseOf(U.m1), "morpho") === 2, did);
+    kept = await purseOf(U.m1);
+    const st1 = await staminaOf(U.m1), pl1 = Number((await one(`select town.plenty('morpho', $1::bigint) as p`, [T + 20000])).p);
+    t.check("it cost its own stamina and its misses, and counts against its kind as any catch does", Math.abs(st0 - st1 - (INS.bugs.morpho.cost + 2)) < 1e-9 && pl1 < pl0 && pl0 < 1, { st0, st1, pl0, pl1 });
+    t.check("the second of a pair has none following it", kept.follower === null, kept.follower);
+    deed = (await mine("net", U.m1)).filter((d) => d.doc.pair === true);
+    t.check("it is written down as a catch like any, with that it followed one", deed.length === 1 && deed[0].thing === "morpho" && deed[0].n === 1 && deed[0].doc.misses === 2 && deed[0].doc.tile[0] === gx, deed);
+    did = await call(U.m1, "town_net_mine", "pair", gx, gy, 0);
+    t.check("caught once: there is no third", did?.ok === false && did.why === "none", did);
+    // a drop's insect caught under the cloak has another following too
+    await setNow(T + 60000);
+    did = await call(U.m1, "town_nectar", lx, ly);
+    const l2 = did?.lured;
+    await setNow((l2?.from ?? T) + 500);
+    did = await call(U.m1, "town_net_mine", "lured", lx, ly, 0);
+    kept = await purseOf(U.m1);
+    t.check("the insect of a drop, caught under the cloak, has another following", did?.ok === true && kept.lured === null && kept.follower?.bug === l2.bug && kept.follower.until === l2.from + 500 + 3000, { did: did?.ok ?? did, follower: kept.follower });
+    did = await call(U.m1, "town_net_mine", "pair", lx, ly, 0);
+    t.check("…which is caught the same way", did?.ok === true && did.got?.[0]?.[0] === l2.bug && (await purseOf(U.m1)).follower === null, did);
+    // without the cloak a catch leaves nothing following
+    const plain2 = (bare?.bugs ?? []).find((b) => INS.bugs[b[1]].habit !== "lure" && b[0] !== G);
+    if (plain2) {
+      await setNow(T);
+      const [px, py] = tileOf(plain2[0]);
+      did = await call(U.m2, "town_net", plain2[0], px, py, 0, null);
+      const theirs = await purseOf(U.m2);
+      t.check("somebody without the cloak catches an insect as ever, and nothing follows", did?.ok === true && (theirs.follower === undefined || theirs.follower === null) && (await call(U.m2, "town_net_mine", "pair", px, py, 0))?.why === "none", { did: did?.ok ?? did, follower: theirs.follower });
+    } else t.check("(no haunt had an insect for everybody at that moment: the catch without the cloak is the rule cases')", true);
+  } finally { await realNow(); }
+  const back = Math.abs((await now()) - Date.now());
+  t.check("the stand-in's clock is put back", back < 5000, back);
+
   function same5(list) { return JSON.stringify(list) === JSON.stringify(["blooms", "water", "field", "lamp", "litter"]); }
 }

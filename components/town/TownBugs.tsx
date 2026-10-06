@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  BUGS, FLUTE, HABITS, HAUNTS, LURED, LURES, NET, aimAt, aimOf, againMs, asleep, bugTurnStart, fledBy, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
+  BUGS, FLUTE, HABITS, HAUNTS, LURED, LURES, NET, PAIR, aimAt, aimOf, againMs, asleep, bugTurnStart, fledBy, followerPose, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
   type BugId, type BugSight, type Haunt, type Lured, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { FARMING } from "@/lib/town/farm";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
-import { GIFTS, USES, familiarOf, harderFor, hasThing, usesLeft, wearing } from "@/lib/town/gifts";
+import { GIFTS, USES, familiarOf, harderFor, hasThing, numberOf, usesLeft, wearing } from "@/lib/town/gifts";
 import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { TILE_H, placeOf, type Vec } from "@/lib/town/world";
@@ -51,11 +51,19 @@ const WHY_BUGS: Record<string, [string, string]> = {
   drops: ["วันนี้น้ำหวานหมดแล้ว", "No nectar left today"], left: ["แมลงที่มาตอมน้ำหวานบินไปแล้ว", "The insect at your nectar has flown off"],
   // (the lulling flute: nothing on the screen to lull; it has been played and rests)
   hush: ["ตอนนี้บนจอไม่มีแมลงให้กล่อม", "No insect on the screen to lull"], rests: ["ขลุ่ยยังพักอยู่", "The flute is resting"],
+  // (the butterfly-wing cloak: the one that followed was not netted in time)
+  flown: ["ตัวที่ตามมาบินหนีไปแล้ว", "The one that followed has flown"],
 };
+/** What is said beside the second of a pair when it is caught. */
+const PAIR_WORD: [th: string, en: string] = ["ได้ครบคู่", "the pair"];
 /** How long before it is there the insect of a drop is seen flying in, in milliseconds; and from how many tiles off. */
 const ARRIVE = { ms: 1700, from: 7 };
 /** The lulling flute on the screen: how long its notes and the hush going out from its player show, and how long an insect takes to be itself again as it wakes, in milliseconds. */
 const LULL = { notes: 2200, wake: 450 };
+/** The second of a pair on the screen (the butterfly-wing cloak): how long it is there to be netted, the cloak's number of seconds; and how long it takes to be off when it was not, in milliseconds. */
+const PAIRED = { ms: numberOf("charmCloak") * 1000, off: 500 };
+/** The insect that follows one I just caught: its kind, the point of the ground the first was taken over, when it was first seen and when it is off, the seed its wheel follows from, the swings that have missed it, and whether it has been netted or said to be off. */
+interface Following { bug: BugId; at: Vec; began: number; until: number; seed: number; missed: number; done: boolean; said: boolean }
 const giftName = (id: string, th: boolean) => { const g = GIFTS.find((x) => x.id === id); return g ? (th ? g.name.th : g.name.en) : id; };
 /** Where the insects that fled from my tired hands are kept on this device, each until its turn ends: a page opened again does not bring them back. */
 const FLED_KEY = "cashTown:bugsFled";
@@ -255,6 +263,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   if (!lured) luredKept.current = null;
   else if (luredKept.current?.l.from !== lured.from || luredKept.current.l.seed !== lured.seed) luredKept.current = { l: lured, h: luredHaunt(lured) };
   const luredUntil = lured?.until ?? 0;
+  // (the butterfly-wing cloak put on or taken off changes what the haunts have for me: whoever keeps the game is asked again)
+  const cloaked = wearing(purse, "charmCloak"), wasCloaked = useRef(cloaked);
+  useEffect(() => { if (wasCloaked.current !== cloaked) { wasCloaked.current = cloaked; keeper.nudged("bugs"); } }, [keeper, cloaked]);
   // (the wind net worn as a charm, with stamina to swing: the net comes down at once where it is aimed, lib/town/insects' windy)
   const wind = windy(purse, keeper.now());
   // (the lulling flute: once in a span of time, lib/town/gifts' USES; how long until it may be played again)
@@ -290,6 +301,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const swing = useRef<Swing | null>(null), ready = useRef(0);
   /** The wind net held over where it is aimed, while the map is pressed. */
   const aim = useRef<{ at: Vec } | null>(null), aimRef = useRef<BugsAim | null>(null);
+  /** Under the butterfly-wing cloak, the insect that follows the one I just caught, while it is there. */
+  const follow = useRef<Following | null>(null);
   /** The map's own way from a point of it to a point of the screen, as the last frame had it (for scripts). */
   const projectRef = useRef<((t: Vec) => Vec) | null>(null), landedRef = useRef<Swing | null>(null);
   const misses = useRef(new Map<string, number>()), stirred = useRef(new Map<number, boolean>());
@@ -302,10 +315,39 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     const nameOf = (id: ItemId) => (live.current.th ? ITEMS[id].name.th : ITEMS[id].name.en);
     const say = (why: string) => { const w = WHY_BUGS[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (live.current.th ? w[0] : w[1]) : null); };
 
+    /**
+     * Under the butterfly-wing cloak the insect just caught has another of its kind following (the keeper put it in
+     * my purse): it is there on this screen from now, for its three seconds, wheeling about where the first was.
+     */
+    const follows = (spot: Vec) => {
+      const f = keeper.purse().follower, now = Date.now();
+      if (!f || !(f.bug in BUGS) || f.until <= keeper.now()) return;
+      follow.current = { bug: f.bug as BugId, at: spot, began: now, until: now + PAIRED.ms, seed: Math.floor(f.until % 1_000_003), missed: 0, done: false, said: false };
+      vfx.add("sparkle", spot, { lift: 18 });
+    };
     /** The net has come down: whatever is under its ring is caught, and whatever it only came near minds it. */
     const land = (s: Swing, now: number) => {
       const here = me.current, tile: [number, number] | null = here ? [Math.floor(here.x), Math.floor(here.y)] : null;
       let got = false;
+      // the one that follows a catch of mine, while it is there: netted as any insect is, or missed
+      const fo = follow.current;
+      if (fo && !fo.done && tile && now < fo.until) {
+        const p = followerPose(fo.bug, fo.at, fo.seed, fo.began, now);
+        if (taken(fo.bug, p, s.at, live.current.spent, 1, live.current.wary)) {
+          got = true;
+          fo.done = true;
+          const where = { x: p.x, y: p.y };
+          void keeper.netMine("pair", tile, { misses: fo.missed }, live.current.name).then((did) => {
+            if (!did.ok) { say(did.why); return; }
+            caught.current.push({ bug: fo.bug, first: did.first, rid: did.rid ?? null });
+            if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
+            setNote(`${did.got.map(([item, n]) => `${nameOf(item)} ×${n}`).join(" · ")} · ${live.current.th ? PAIR_WORD[0] : PAIR_WORD[1]}`);
+            sfx?.wake();
+            sfx?.work("netted");
+            if (did.got.length) { vfx.add("pop", where, { icon: iconOf(did.got[0][0]) }); vfx.add("sparkle", where, { lift: 18 }); }
+          });
+        } else if (far(aimOf(p), s.at) <= NET.near) fo.missed++;
+      }
       for (const [id, { sight, pose, h }] of poses.current) {
         const kept = minds.current.get(id);
         if (!kept) continue;
@@ -314,7 +356,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           got = true;
           // (a beetle: whoever stands under its tree with something sweet; the tree it is in now, for one that does not stay)
           const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[kept.mind.at] ?? h.perches[0]) < HABITS.lure.reach) : null;
-          const where = { x: pose.x, y: pose.y };
+          const where = { x: pose.x, y: pose.y }, spot = aimOf(pose);
           // (the insect of my drop of nectar is no haunt's: it is caught as mine alone)
           const asked = id === LURED ? keeper.netMine("lured", tile, { misses: misses.current.get(key) ?? 0 }, live.current.name)
             : keeper.netDo(id, tile, { misses: misses.current.get(key) ?? 0, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name);
@@ -331,6 +373,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             sfx?.wake();
             sfx?.work("netted");
             if (did.got.length) vfx.add("pop", where, { icon: iconOf(did.got[0][0]) });
+            follows(spot);
           });
           continue;
         }
@@ -528,6 +571,42 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       lulls.current = calm;
       for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); sleeping.current.delete(id); }
 
+      // under the cloak, the one that follows the insect I just caught: on the wing about where that was for its three
+      // seconds, a ring about it running down; not netted, it is up and away
+      const fo = follow.current;
+      if (fo) {
+        const off = now >= fo.until;
+        if (fo.done || now >= fo.until + PAIRED.off) follow.current = null;
+        else {
+          if (off && !fo.said) { fo.said = true; sfx?.work("flit", 0.8); setNote(live.current.th ? WHY_BUGS.flown[0] : WHY_BUGS.flown[1]); }
+          const p = followerPose(fo.bug, fo.at, fo.seed, fo.began, still ? fo.began : Math.min(now, fo.until)), e = off ? (now - fo.until) / PAIRED.off : 0;
+          const at = project({ x: p.x, y: p.y }), up = (p.lift + e * e * 3.5) * TILE_H * s, icon = iconFor(iconOf(fo.bug));
+          if (onScreen(at)) {
+            things.push({ depth: p.x + p.y + 3.6, draw: () => {
+              // (the dust of the cloak behind it, where it has just been)
+              if (!still && !off) for (let i = 1; i <= 4; i++) {
+                const q = followerPose(fo.bug, fo.at, fo.seed, fo.began, now - i * 70), c = project({ x: q.x, y: q.y }), d = Math.max(2, Math.round(1.6 * s));
+                ctx.fillStyle = i % 2 ? `rgba(170,205,255,${(0.75 - i * 0.15).toFixed(2)})` : `rgba(226,180,255,${(0.75 - i * 0.15).toFixed(2)})`;
+                ctx.fillRect(Math.round(c.x), Math.round(c.y - q.lift * TILE_H * s - 6 * s), d, d);
+              }
+              if (!off) { ctx.fillStyle = "rgba(0,0,0,0.16)"; ctx.beginPath(); ctx.ellipse(at.x, at.y, 4.5 * s, 2.2 * s, 0, 0, Math.PI * 2); ctx.fill(); }
+              blit(icon, at, up, p.right, SIZE * s, still ? 1 : 0.5 + 0.5 * Math.abs(Math.sin(now / 55)), 1 - e);
+            } });
+            // (how long it is still there: a ring about it that runs down)
+            if (!off) frame.over?.(() => {
+              const left = (fo.until - now) / PAIRED.ms, cy = at.y - up - 7 * s;
+              ctx.save();
+              ctx.lineCap = "round";
+              ctx.lineWidth = Math.max(2, 2 * s); ctx.strokeStyle = "rgba(20,24,56,0.55)";
+              ctx.beginPath(); ctx.arc(at.x, cy, 13 * s, 0, Math.PI * 2); ctx.stroke();
+              ctx.lineWidth = Math.max(2, 2 * s); ctx.strokeStyle = left > 0.34 ? "rgba(196,214,255,0.95)" : "rgba(255,196,214,0.95)";
+              ctx.beginPath(); ctx.arc(at.x, cy, 13 * s, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0, left)); ctx.stroke();
+              ctx.restore();
+            });
+          }
+        }
+      }
+
       // my flute just played: its notes go up from my head, and a hush goes out over the ground
       if (now - played.current < LULL.notes && frame.self) {
         const feet = project(frame.self), t = (now - played.current) / LULL.notes;
@@ -594,6 +673,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
 
     /** Whether a point of the map is on an insect within my reach, or just ahead of one: where a swing may be begun. */
     const byInsect = (at: Vec, here: Vec) => {
+      // (the one that follows a catch of mine: wherever it is on its wheel about the place I caught the first at)
+      const fo = follow.current;
+      if (fo && !fo.done && Date.now() < fo.until && far(aimOf(followerPose(fo.bug, fo.at, fo.seed, fo.began, Date.now())), at) <= AIM && far(fo.at, here) <= NET.reach + PAIR.radius) return true;
       let near: Pose | null = null, least = AIM;
       for (const { pose } of poses.current.values()) { const d = far(aimOf(pose), at); if (d <= least) { least = d; near = pose; } }
       return !!near && far(near, here) <= NET.reach;
@@ -677,6 +759,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
+      // (the cloak's pair: the one that follows my last catch while it is there, how it is this moment or so many
+      // milliseconds on, and how long it has left)
+      follower: (ms = 0) => { const fo = follow.current; if (!fo || fo.done || Date.now() >= fo.until) return null; const p = followerPose(fo.bug, fo.at, fo.seed, fo.began, Date.now() + ms); return { bug: fo.bug, left: fo.until - Date.now(), missed: fo.missed, at: fo.at, ...p, aim: aimOf(p), ring: ringOf(fo.bug, live.current.spent, 1, live.current.wary) }; },
       // (the lulling flute: played, and which insects are asleep to it on this screen, each until when)
       playFlute, asleep: () => [...sleeping.current.entries()].filter(([, z]) => Date.now() < z.until).map(([id, z]) => ({ id, until: z.until, ...z.pose })),
       // (my drop of nectar: what is out, and one put down where I stand)

@@ -5,9 +5,9 @@ import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal"
 import { backBait, hookBait, landCatch, loseBait } from "./fishing";
 import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
-import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
+import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, wearing, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
-import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereAt, nectar, net, netMine, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Mine, type Swarm, pestToRid } from "./insects";
+import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereFor, nectar, net, netMine, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Mine, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
 import * as Shops from "./shop";
@@ -584,10 +584,10 @@ export class Trial {
   }
   /** For scripts trying things out: what has been caught, as if it had been (null: nothing has). */
   setHunts(hunts: Hunt[] | null) { this.write(BUG_HUNTS, hunts ?? []); this.tell(); }
-  /** What a haunt has now. */
-  private swarm(h: Haunt, now: number): Swarm | null {
+  /** What a haunt has now (`cloak`: for whoever wears the butterfly-wing cloak, lib/town/insects' hereFor). */
+  private swarm(h: Haunt, now: number, cloak = false): Swarm | null {
     const bug = this.forced.get(h.id);
-    if (!bug) return hereAt(this.salt(), h, now, SKIES.rains(), this.backs(), this.hunts());
+    if (!bug) return hereFor(this.salt(), h, now, SKIES.rains(), this.backs(), this.hunts(), cloak);
     const turn = bugTurn(h, now);
     return { turn, bug, n: BUGS[bug].n[0], seed: h.id * 100003 + turn };
   }
@@ -595,7 +595,7 @@ export class Trial {
   bugs(): BugSight[] {
     const took = this.netted(), now = this.now();
     const mine = (h: Haunt, turn: number) => { const who = took[`${h.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; };
-    const rolled = swarms(this.salt(), now, SKIES.rains(), mine, this.backs(), this.hunts()).filter((s) => !this.forced.has(s.id));
+    const rolled = swarms(this.salt(), now, SKIES.rains(), mine, this.backs(), this.hunts(), wearing(this.purse(), "charmCloak")).filter((s) => !this.forced.has(s.id));
     const told = [...this.forced.keys()].flatMap((id) => {
       const h = HAUNTS[id], has = h ? this.swarm(h, now) : null, t = has ? mine(h, has.turn) : null;
       return has && t && !t.mine && t.n < HAUNT_KINDS[h.kind].shares ? [{ id, bug: has.bug, turn: has.turn, seed: has.seed }] : [];
@@ -608,7 +608,7 @@ export class Trial {
   netDo(id: number, at: [number, number], misses: number, lure: ItemId | null, name: string): { ok: true; got: Array<[ItemId, number]>; first: boolean; rid: string | null } | { ok: false; why: Refusal | BugRefusal } {
     const h = HAUNTS[id];
     if (!h) return no("none");
-    const now = this.now(), has = this.swarm(h, now), took = this.netted(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];
+    const now = this.now(), has = this.swarm(h, now, wearing(this.purse(), "charmCloak")), took = this.netted(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];
     const did = net(this.purse(), h, has, who.length, who.includes(this.id), handOf(this.purse()), at, misses, now, lure);
     if (!did.ok) return did;
     const kept = Object.fromEntries(Object.entries(took).filter(([k]) => { const [s, t] = k.split(":").map(Number); return !!HAUNTS[s] && t >= bugTurn(HAUNTS[s], now); }));
