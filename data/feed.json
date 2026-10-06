@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-06",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-06",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1392,13 +1399,6 @@
    "id": 42976317,
    "name": "Zeadz Stellar",
    "text": "set a new best parse: 95 on Queen Eternal as Whit\u0001 \u0002age"
-  },
-  {
-   "date": "2026-09-26",
-   "type": "ex_clear",
-   "id": 42053180,
-   "name": "Chu'ny On-duty",
-   "text": "cleared Enuo (Extreme)"
   }
  ]
 }

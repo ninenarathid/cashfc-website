@@ -10325,6 +10325,10 @@
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 4,
+      "best": 87
+     },
      "Monk": {
       "kills": 5,
       "best": 66
@@ -30885,6 +30889,10 @@
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
+     "Sage": {
+      "kills": 4,
+      "best": 76
+     },
      "Viper": {
       "kills": 15,
       "best": 77
@@ -72829,7 +72837,7 @@
       "best": 51
      },
      "Paladin": {
-      "kills": 4,
+      "kills": 5,
       "best": 93
      },
      "Gunbreaker": {
@@ -79224,7 +79232,7 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 8,
+      "kills": 9,
       "best": 85
      }
     }
@@ -79238,7 +79246,13 @@
     "best": 80,
     "kills": 4,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 4,
+      "best": 80
+     }
+    }
    }
   ],
   "legacy": [],
@@ -80296,6 +80310,10 @@
      "Pictomancer": {
       "kills": 4,
       "best": 44
+     },
+     "WhiteMage": {
+      "kills": 1,
+      "best": 14
      }
     }
    },
@@ -80308,7 +80326,13 @@
     "best": 62,
     "kills": 4,
     "job": "Pictomancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Pictomancer": {
+      "kills": 4,
+      "best": 62
+     }
+    }
    }
   ],
   "legacy": [],
