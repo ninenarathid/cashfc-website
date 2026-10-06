@@ -34,7 +34,7 @@ export const ROASTING = {
 };
 
 /** A roast: how far each face is cooked, which face is turned to the fire, the moment it stands at, when the fire flares, and whether hands are tired. */
-export interface Roast { faces: number[]; down: number; t: number; flares: number[]; spent: boolean; turns: number }
+export interface Roast { faces: number[]; down: number; t: number; flares: number[]; spent: boolean; turns: number; hard?: number }
 
 function draw(seed: number): [number, number] {
   const a = (seed + 0x6d2b79f5) | 0;
@@ -43,12 +43,18 @@ function draw(seed: number): [number, number] {
   return [((t ^ (t >>> 14)) >>> 0) / 4294967296, a];
 }
 
-/** Begin a roast. (`calm`: steady hands, so many times as long between the fire's flares: a meal's buff, 1 for none.) */
-export function startRoast(spent: boolean, seed: number, calm = 1): Roast {
-  const [lo, hi] = (spent ? ROASTING.tiredEvery : ROASTING.flare.every).map((s) => s * Math.max(1, calm)), flares: number[] = [];
+/**
+ * Begin a roast. (`calm`: steady hands, so many times as long between the fire's flares: a meal's buff, 1 for none.)
+ * `harder`: how many times harder this roast is for whoever turns it (lib/town/cooking's harderCook: the kitchen's
+ * good dishes, for those far up its line; 1 for everybody else): the fire flares so many times oftener, and the
+ * stretch between a face done and a face burnt is so many times narrower (kept in the roast as `hard`).
+ */
+export function startRoast(spent: boolean, seed: number, calm = 1, harder = 1): Roast {
+  const hard = Math.max(1, harder);
+  const [lo, hi] = (spent ? ROASTING.tiredEvery : ROASTING.flare.every).map((s) => (s * Math.max(1, calm)) / hard), flares: number[] = [];
   let s = seed | 0;
   for (let at = 0; at < ROASTING.longest;) { const [r, s1] = draw(s); s = s1; at += lo + r * (hi - lo); flares.push(Math.round(at * 100) / 100); }
-  return { faces: Array<number>(ROASTING.faces).fill(0), down: 0, t: 0, flares, spent, turns: 0 };
+  return { faces: Array<number>(ROASTING.faces).fill(0), down: 0, t: 0, flares, spent, turns: 0, ...(hard > 1 ? { hard } : {}) };
 }
 
 /** The fire at a moment: how many times an ordinary fire it cooks, whether it is flaring, and whether it is about to. */
@@ -58,8 +64,11 @@ export function fireAt(r: Roast, t: number): { by: number; flaring: boolean; cra
   return { by: flaring ? F.by : 1, flaring, crackling };
 }
 
-/** From how far a face counts as done. */
-export const doneFrom = (r: Roast) => (r.spent ? ROASTING.tiredDone : ROASTING.done);
+/** From how far a face counts as done: later, for a roast that is harder (what is left before it burns is so many times less). */
+export const doneFrom = (r: Roast) => {
+  const done = r.spent ? ROASTING.tiredDone : ROASTING.done;
+  return r.hard && r.hard > 1 ? ROASTING.burnt - (ROASTING.burnt - done) / r.hard : done;
+};
 /** Whether every face is done: the roast is over. */
 export const roasted = (r: Roast) => r.faces.every((f) => f >= doneFrom(r)) || r.t >= ROASTING.longest;
 /** How it came out: the faces that are golden, and the ones that are burnt. */

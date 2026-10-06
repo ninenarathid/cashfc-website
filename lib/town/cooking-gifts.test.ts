@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { COOKING, RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cook, cookWith, inBasket, needsOf, readsAll, spiceEat, spoon, spoonSays, whispersOf } from "./cooking";
-import { USES, numberOf, usesLeft } from "./gifts";
+import { COOKING, RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cook, cookWith, harderCook, inBasket, needsOf, readsAll, spiceEat, spoon, spoonSays, stirMods, whispersOf } from "./cooking";
+import { USES, harderAt, numberOf, usesLeft } from "./gifts";
+import { LINES } from "./lines";
+import { ROASTING, doneFrom, startRoast } from "./roasting";
+import { STIRRING, startStir, stir, stirred } from "./stirring";
 import { toldOf } from "./hints";
 import { BUFF_HOURS, BUFF_LEVELS, DISHES, ITEMS, MAKES, type DishId, type ItemId } from "./items";
 import { STAMINA, chew, getUp, levelOf, settle, sitDown, spiceOf, staminaOf } from "./stamina";
@@ -384,5 +387,63 @@ describe("the phoenix flame in a bottle (the kitchen's sixth rank)", () => {
     // what cooking refuses, it refuses: nothing to give back, nothing counted
     expect(cookWith(p, [["minnow", 1]], ["pot"], 0, NOON, { flame: true })).toEqual({ ok: false, why: "none" });
     expect(cookWith(p, [], ["pot"], 0, NOON, { flame: true })).toEqual({ ok: false, why: "amount" });
+  });
+});
+
+describe("good dishes are harder for the skilled (from the kitchen's fourth rank, 8% a rank)", () => {
+  const AT = LINES.kitchen.marks;
+  it("is by the thing's tier and the cook's rank: the simplest are as they are for everybody", () => {
+    expect(ITEMS.tomYum.tier).toBe(1);
+    expect(ITEMS.omelette.tier).toBe(2);
+    expect(ITEMS.greenCurry.tier).toBe(3);
+    for (const points of [0, AT[2], AT[3], AT[9], 99999]) expect(harderCook("tomYum", points)).toBe(1);
+    expect(harderCook("omelette", 0)).toBe(1);
+    expect(harderCook("omelette", AT[3] - 1)).toBe(1);
+    expect(harderCook("omelette", AT[3])).toBeCloseTo(1.08, 10);
+    expect(harderCook("greenCurry", AT[5])).toBeCloseTo(1.24, 10);
+    expect(harderCook("omelette", AT[9])).toBeCloseTo(1.56, 10);
+    // something else that is made counts as a dish does; the odd dish and nothing never
+    expect(ITEMS.curryPaste.tier).toBe(2);
+    expect(harderCook("curryPaste", AT[3])).toBeCloseTo(1.08, 10);
+    expect(harderCook("fishSauce", AT[9])).toBe(1);
+    expect(harderCook("oddDish", AT[9])).toBe(1);
+    expect(harderCook(null, AT[9])).toBe(1);
+    // every thing there is a recipe for has an answer, and none is easier
+    for (const id of RECIPE_IDS) expect(harderCook(id, AT[9])).toBe(ITEMS[id].tier >= 2 ? harderAt(10) : 1);
+  });
+
+  it("in the stirring is a narrower good pace and a slip that costs sooner; plain, the game is as it was", () => {
+    const mods = stirMods([], false), plain = startStir(6, mods);
+    expect(startStir(6, mods, 1)).toEqual(plain);
+    expect(startStir(6, mods, 0.5)).toEqual(plain);
+    for (const rank of [4, 6, 10]) {
+      const h = harderAt(rank), hard = startStir(6, mods, h);
+      expect((hard.hi - hard.lo) * h).toBeCloseTo(plain.hi - plain.lo, 10);
+      expect((hard.hi + hard.lo) / 2).toBeCloseTo(STIRRING.pace, 10);
+      expect(hard.grace * h).toBeCloseTo(plain.grace, 10);
+      expect(hard.need).toBe(plain.need);
+    }
+    // tired hands at the tenth rank still have a pace to keep
+    const tired = startStir(6, stirMods([], true), harderAt(10));
+    expect(tired.hi - tired.lo).toBeGreaterThan(0.3);
+    // a hand that wanders a little keeps the plain pot's pace and loses helpings of the hard one
+    const wander = (s: ReturnType<typeof startStir>) => { let g = s; for (let i = 0; i < 1200 && !stirred(g); i++) g = stir(g, (STIRRING.pace + 0.55 * Math.sin(i / 12)) * 0.05, 0.05); return g; };
+    expect(wander(plain).misses).toBe(0);
+    expect(wander(startStir(6, mods, harderAt(10))).misses).toBeGreaterThan(0);
+  });
+
+  it("in the roast is a fire that flares oftener and a face done nearer to burnt; plain, the game is as it was", () => {
+    expect(startRoast(false, 7, 1, 1)).toEqual(startRoast(false, 7));
+    expect(doneFrom(startRoast(false, 7))).toBe(ROASTING.done);
+    expect(doneFrom(startRoast(true, 7))).toBe(ROASTING.tiredDone);
+    const flares = (h: number) => startRoast(false, 7, 1, h).flares.filter((at) => at <= ROASTING.longest).length;
+    expect(flares(harderAt(4))).toBeGreaterThan(flares(1));
+    expect(flares(harderAt(10))).toBeGreaterThan(flares(harderAt(4)));
+    for (const rank of [4, 10]) {
+      const h = harderAt(rank), r = startRoast(false, 7, 1, h);
+      expect((ROASTING.burnt - doneFrom(r)) * h).toBeCloseTo(ROASTING.burnt - ROASTING.done, 10);
+      expect(doneFrom(r)).toBeLessThan(ROASTING.burnt);
+    }
+    expect(doneFrom(startRoast(true, 7, 1, harderAt(10)))).toBeLessThan(ROASTING.burnt);
   });
 });

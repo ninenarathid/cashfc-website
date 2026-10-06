@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { COOKING, hasMade, isFind, madeOf, mayTake, reachOf, stirMods, stirsFor, type CookHow, type Pot } from "@/lib/town/cooking";
+import { COOKING, harderCook, hasMade, isFind, madeOf, mayTake, reachOf, stirMods, stirsFor, type CookHow, type Pot } from "@/lib/town/cooking";
 import { USES, hasThing, usesLeft, works } from "@/lib/town/gifts";
 import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/town/items";
 import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
@@ -437,6 +437,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   });
 
   const spent = isSpent(purse, now);
+  // (the better I am at the kitchen's line, the harder its good dishes are to cook: lib/town/cooking's harderCook. Nothing says so but the game.)
+  const harder = stirring ? harderCook(madeOf(stirring.things), keeper.lines()?.lines.kitchen.points ?? 0) : 1;
   const table = open && !stirring && atPlace;
   if (!open && !stirring && !offers.length && !note) return null;
   return (
@@ -458,12 +460,12 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           <BuffAura ids={AT_THE_POT.filter((id) => hasBuff(purse, now, id))} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1" />
           {/* what is cooked on a stick is roasted over the fire, a game of its own; everything else is stirred */}
           {stirring.crew[0] === "skewer" ? (
-            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} scene={art?.("gameFire") ?? null}
+            <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} harder={harder} scene={art?.("gameFire") ?? null}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) vfx.add("smoke", null, { lift: 22 }); }}
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           ) : (
-            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm")))}
+            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm")))} harder={harder}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           )}

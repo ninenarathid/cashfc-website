@@ -1,7 +1,7 @@
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
+import { harderFor, hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
 import { begun, hasBuff, mayEat, sitDown, spend } from "./stamina";
 import type { TimingMods } from "./timing";
 import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -508,3 +508,18 @@ export function spiceEat(purse: Purse, from: { slot: number } | { dish: string }
   if (!used.ok) return nay(used.why);
   return { ok: true, dish: sat.dish, purse: { ...used.purse, spiced: { from: now, level: numberOf("thingSpice") } } };
 }
+
+/**
+ * How many times harder the cooking of something is for somebody with so many points on the kitchen's line (the
+ * owner, 2026-10-07: the gifts are near to too strong, so the game grows with whoever has them: lib/town/gifts'
+ * harderFor). From the fourth rank, whatever has a recipe and is of the second tier or better, a dish or something
+ * else that is made, is 8% harder a rank; the simplest things (the early game's), the odd dish and what comes to
+ * nothing are as they are for everybody.
+ *
+ * What harder is, in each cooking game, where its outcome is judged: **stirring** (lib/town/stirring's startStir) is
+ * a good pace so many times narrower and a slip that costs a helping so many times sooner; **roasting**
+ * (lib/town/roasting's startRoast) is a fire that flares so many times oftener and a face done so many times nearer
+ * to burnt. The games are played in the browser, which tells whoever keeps the game how many were missed, as it
+ * always has: so it is the page that begins the game harder, and nothing of it is shown as a rule.
+ */
+export const harderCook = (made: ItemId | null, points: number): number => (isFind(made) && ITEMS[made].tier >= 2 ? harderFor("kitchen", points) : 1);
