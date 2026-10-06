@@ -192,7 +192,7 @@ export const strikeWindowOf = (purse: Purse, now: number) =>
 /** How long after the float goes under a strike still hooks the fish, and how soon it must come to be a good or a perfect one, in seconds. */
 export const STRIKE = { window: 1.6, good: 1.0, perfect: 0.45 };
 export type Strike = "perfect" | "good" | "late";
-/** What stretches or shrinks the strike's moment: a keen eye (a meal's buff) has half as long again, a better float longer too, the whispering float worn as a charm so many times (lib/town/gifts), and somebody with no stamina left far less. */
+/** What stretches or shrinks the strike's moment: a keen eye (a meal's buff) has half as long again, a better float longer too, and a charm's number where one has one (the whispering float's is 1 since 2026-10-07: it tells what is coming and lengthens nothing; lib/town/gifts), and somebody with no stamina left far less. */
 export interface StrikeMods { keen?: Level; spent?: boolean; gear?: Pick<Gear, "strike">; charm?: number }
 const strikeScale = (m: StrikeMods) => (1 + byOf("keen", lvl(m.keen))) * (m.spent ? STAMINA.spent.strike : 1) * (m.gear?.strike ?? 1) * Math.max(1, m.charm ?? 1);
 /** How long after the bite a strike still hooks the fish, for somebody. */
