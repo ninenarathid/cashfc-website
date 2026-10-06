@@ -1,6 +1,7 @@
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
+import { gloved } from "./gifts";
 import { buffBy, hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -478,11 +479,14 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
     : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now, rains)
       : deed === "feed" ? feed(key, purse, plot, hand, now, rains, luck) : deed === "cure" ? cure(key, purse, plot, hand, now, rains) : pick(key, purse, plot, true, hand, now, rains);
   if (!did.ok) return did;
+  // (work in somebody else's bed, or on somebody else's plant, with the gardener's gloves on: half its stamina)
+  const theirs = (owner !== null && owner !== me) || (!!plot.plant && plot.plant.by !== me);
+  const paid = theirs ? gloved(purse, did.purse, now) : did.purse;
   const planted = others > 0 || !!did.plot.plant;
   let next: Bed | undefined = owner === null ? undefined : bed;
   if (deed === "sow" && owner === null) next = { by: me, tended: now, empty: 0 };
   else if (next && owner === me) next = { ...next, tended: now, empty: planted ? 0 : next.empty || now };
-  return { ok: true, deed, purse: did.purse, plot: did.plot, bed: next, got: did.got ?? [] };
+  return { ok: true, deed, purse: paid, plot: did.plot, bed: next, got: did.got ?? [] };
 }
 
 /* ── water: from the river, to the well, to the can ─────────────────────── */

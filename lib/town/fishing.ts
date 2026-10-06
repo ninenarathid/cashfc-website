@@ -1,5 +1,6 @@
 import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
 import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign } from "./items";
+import { charmBy } from "./gifts";
 import { STAMINA, isSpent, levelOf } from "./stamina";
 import { handOf, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
 
@@ -175,16 +176,16 @@ export function landCatch(purse: Purse, what: CatchId, size: number): { purse: P
 }
 /** How long after the bite somebody's strike still hooks the fish, by the meal in them, the stamina left and the float they carry. */
 export const strikeWindowOf = (purse: Purse, now: number) =>
-  strikeWindow({ keen: levelOf(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse)) });
+  strikeWindow({ keen: levelOf(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse)), charm: charmBy(purse, "charmFloat") });
 
 /* ── the strike ─────────────────────────────────────────────────────────── */
 
 /** How long after the float goes under a strike still hooks the fish, and how soon it must come to be a good or a perfect one, in seconds. */
 export const STRIKE = { window: 1.6, good: 1.0, perfect: 0.45 };
 export type Strike = "perfect" | "good" | "late";
-/** What stretches or shrinks the strike's moment: a keen eye (a meal's buff) has half as long again, a better float longer too, and somebody with no stamina left far less. */
-export interface StrikeMods { keen?: Level; spent?: boolean; gear?: Pick<Gear, "strike"> }
-const strikeScale = (m: StrikeMods) => (1 + byOf("keen", lvl(m.keen))) * (m.spent ? STAMINA.spent.strike : 1) * (m.gear?.strike ?? 1);
+/** What stretches or shrinks the strike's moment: a keen eye (a meal's buff) has half as long again, a better float longer too, the whispering float worn as a charm so many times (lib/town/gifts), and somebody with no stamina left far less. */
+export interface StrikeMods { keen?: Level; spent?: boolean; gear?: Pick<Gear, "strike">; charm?: number }
+const strikeScale = (m: StrikeMods) => (1 + byOf("keen", lvl(m.keen))) * (m.spent ? STAMINA.spent.strike : 1) * (m.gear?.strike ?? 1) * Math.max(1, m.charm ?? 1);
 /** How long after the bite a strike still hooks the fish, for somebody. */
 export const strikeWindow = (mods: StrikeMods = {}) => STRIKE.window * strikeScale(mods);
 /** What a strike so long after the bite is worth: nothing when it came before the bite or too late. */

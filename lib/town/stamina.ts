@@ -142,6 +142,17 @@ export const mayEat = (purse: Purse, now: number, most = STAMINA.bowls) => !purs
 
 /** What something costs somebody, in stamina: less after a hearty meal, and less again at each of its levels. */
 export const costOf = (purse: Purse, n: number, now: number) => Math.round(n * (1 - buffBy(purse, now, "hearty")));
+/**
+ * A purse after something was done, with so much of what it cost left to pay (a charm's doing, lib/town/gifts).
+ * Stamina is whole points and farm work costs one or two, so the part is kept exact over time: what a part comes to
+ * is paid in whole points, and the rest of a point is owed to the next time (`owed`, under one). Half of a
+ * watering is so a watering in two.
+ */
+export function eased<P extends Purse>(before: Purse, after: P, now: number, part: number, owed = 0): { purse: P; owed: number } {
+  const cost = Math.max(0, staminaOf(before, now) - staminaOf(after, now));
+  const due = cost * Math.min(1, Math.max(0, part)) + (owed > 0 && owed < 1 ? owed : 0), pay = Math.min(cost, Math.floor(due + 1e-9));
+  return { purse: pay < cost ? { ...after, stamina: { day: dayOf(now), left: staminaOf(after, now) + (cost - pay) } } : after, owed: Math.max(0, due - pay) };
+}
 /** Spend stamina on something: never below none (it is done all the same, the harder way). */
 export function spend(purse: Purse, n: number, now: number): Purse {
   return { ...purse, stamina: { day: dayOf(now), left: Math.max(0, staminaOf(purse, now) - costOf(purse, n, now)) } };
