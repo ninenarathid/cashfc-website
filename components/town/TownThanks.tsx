@@ -74,6 +74,7 @@ export default function TownThanks({ keeper, th, tile, near, bottom, sfx }: {
 
   // (for scripts in `next dev`: whom I have to thank, who thanked me, thanking)
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const handle = { toThank: () => keeper.toThank(), thanked: () => keeper.thanked(), board: () => keeper.thanks(), here: () => helpers.map((h) => h.id), thank, toast: () => toast };
     (window as unknown as { __townThanks?: typeof handle }).__townThanks = handle;
     return () => { delete (window as unknown as { __townThanks?: typeof handle }).__townThanks; };

@@ -101,6 +101,7 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
 
   // (for scripts in `next dev`: the book as it is read, opening it, taking what waits)
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const handle = { book: () => keeper.wellBook(), ranks: () => keeper.ranks(), open: () => setOpen(true), close: () => setOpen(false), isOpen: () => open, take, jar: () => keeper.jar(), thanks: () => keeper.thanks(), give, takeShare };
     (window as unknown as { __townWell?: typeof handle }).__townWell = handle;
     return () => { delete (window as unknown as { __townWell?: typeof handle }).__townWell; };

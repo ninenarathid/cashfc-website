@@ -290,11 +290,12 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
 
   // (for scripts in `next dev`: whom I would hand it to, handing it on, and what was said)
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const handle = {
       can: () => can, next: () => next?.id ?? null, offered: () => offered.map((p) => p.id), lacks: () => (lacks ? { who: lacks.who.id, why: lacks.why } : null),
       act: (id?: string) => begin(id ? offered.find((p) => p.id === id) ?? null : next), note: () => note, toast: () => toast, toWell: (x: number, y: number) => toWell({ x, y }),
       match: () => (match ? { role: match.role, phase: match.phase, with: match.who.id, tired: match.tired } : null),
-      ...(process.env.NODE_ENV === "production" ? {} : { mute: (on = true) => { mute.current = on; } }),
+      mute: (on = true) => { mute.current = on; },
     };
     (window as unknown as { __townLine?: typeof handle }).__townLine = handle;
     return () => { delete (window as unknown as { __townLine?: typeof handle }).__townLine; };

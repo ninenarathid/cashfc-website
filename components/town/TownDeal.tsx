@@ -91,6 +91,7 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
 
   // (for scripts in `next dev`)
   useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
     const handle = { deal: () => keeper.deal(), open: (id: string, other: string) => keeper.dealOpen(id, name, other), lay: (g: Give, c = 0) => keeper.dealLay(g, c), agree: (w = true) => keeper.dealAgree(w), cancel: () => keeper.dealCancel() };
     (window as unknown as { __townDeal?: typeof handle }).__townDeal = handle;
     return () => { delete (window as unknown as { __townDeal?: typeof handle }).__townDeal; };
