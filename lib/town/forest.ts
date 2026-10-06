@@ -1,5 +1,6 @@
 import { HOES, roll } from "./farm";
 import { signsOf } from "./fishing";
+import { works } from "./gifts";
 import type { ItemId } from "./items";
 import { dayOf, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
@@ -139,6 +140,11 @@ export const FORAGING = {
   decoys: 2,
   /** How far apart places are kept, in tiles. */
   apart: 2.5,
+  /**
+   * How near its member's way a squirrel fetches what lies on the ground, in tiles (lib/town/gifts' famSquirrel: it
+   * runs for it, so its member need not stand at the place, and its member's stamina is not what is spent).
+   */
+  squirrel: 2,
 };
 /** Everything the forest may give, whatever the day. */
 export const FINDS: ItemId[] = [...new Set([...SPOT_KINDS.flatMap((k) => KINDS[k].finds.map((f) => f.item)), FORAGING.decoy])];
@@ -283,8 +289,19 @@ export type ForestRefusal = "had" | "bare" | "far";
 /** How a gathering's game went: what was missed (each is one fewer), and among mushrooms how many wrong ones were taken. */
 export interface Outcome { misses: number; wrong: number }
 
-/** Whether somebody on a tile is near enough a place to gather from it. */
-export const reaches = (spot: Spot, at: readonly [number, number]) => Math.max(Math.abs(at[0] - spot.x), Math.abs(at[1] - spot.y)) <= FORAGING.reach;
+/** Whether somebody on a tile is near enough a place to gather from it (`reach`: how far they reach, where it is not a tile). */
+export const reaches = (spot: Pick<Spot, "x" | "y">, at: readonly [number, number], reach: number = FORAGING.reach) => Math.max(Math.abs(at[0] - spot.x), Math.abs(at[1] - spot.y)) <= reach;
+/**
+ * Whether a squirrel fetches a kind of place's thing for somebody (lib/town/gifts' famSquirrel, the forest's second
+ * rank): what lies on the ground, picked up with no game, while it follows them. It runs for it: from as far as it
+ * fetches, and for none of its member's stamina. Everything else of a gathering is as by hand: each place once a
+ * turn, a heap's shares, and room in the bag.
+ */
+export const fetches = (purse: Pick<Purse, "gifts">, how: Gather): boolean => how === "pick" && works(purse, "famSquirrel");
+/** How far somebody reaches a kind of place from, in tiles: a tile; or as far as their squirrel fetches. */
+export const reachOf = (purse: Pick<Purse, "gifts">, how: Gather): number => (fetches(purse, how) ? FORAGING.squirrel : FORAGING.reach);
+/** The stamina a gathering of a kind of place costs somebody: its own; none of theirs when the squirrel fetches it. */
+export const costFor = (purse: Pick<Purse, "gifts">, kind: Kind): number => (fetches(purse, kind.how) ? 0 : kind.cost);
 /** Whether a gathering of a kind is offered with a thing in the hand: digging takes a hoe, the rest only hands. */
 export const mayGather = (kind: SpotKind, hand: ItemId | null) => KINDS[kind].how !== "dig" || (!!hand && HOES.includes(hand));
 
@@ -299,7 +316,7 @@ export function gather(purse: Purse, spot: Spot, has: Held | null, taken: number
   if (!has) return no("none");
   if (mine) return { ok: false, why: "had" };
   if (taken >= kind.shares) return { ok: false, why: "bare" };
-  if (!reaches(spot, at)) return { ok: false, why: "far" };
+  if (!reaches(spot, at, reachOf(purse, kind.how))) return { ok: false, why: "far" };
   if (!mayGather(spot.kind, hand)) return no("tool");
   const n = Math.max(1, has.n - Math.max(0, Math.floor(play.misses)));
   const wrong = spot.kind === "mushrooms" ? Math.min(FORAGING.decoys, Math.max(0, Math.floor(play.wrong))) : 0;
@@ -309,7 +326,7 @@ export function gather(purse: Purse, spot: Spot, has: Held | null, taken: number
     if (roomFor(bag, FORAGING.decoy) < wrong) return no("full");
     bag = put(bag, FORAGING.decoy, wrong);
   }
-  return { ok: true, purse: { ...spend(purse, kind.cost, now), bag }, got: wrong ? [[has.item, n], [FORAGING.decoy, wrong]] : [[has.item, n]] };
+  return { ok: true, purse: { ...spend(purse, costFor(purse, kind), now), bag }, got: wrong ? [[has.item, n], [FORAGING.decoy, wrong]] : [[has.item, n]] };
 }
 
 /** The game a gathering is: one of its own for what is chosen, dug and shaken down; none for what is picked up, but with no stamina left, when it is steadied like the farm's light work. */

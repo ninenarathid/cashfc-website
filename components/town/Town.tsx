@@ -762,6 +762,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const lampRef = useRef(0), lampAt = useRef<Vec | null>(null);
   /** Where each familiar drawn is, by whom it follows: this page's own (lib/town/gifts). */
   const pets = useRef(new Map<string, { x: number; y: number; right: boolean }>());
+  // ── gifts: forest ──
+  /** Where my own familiar has been sent running, and until when (the squirrel fetching what lies on the ground: lib/town/forest). On my screen only. */
+  const petErrand = useRef<{ x: number; y: number; until: number } | null>(null);
+  const sendPet = useCallback((to: Vec) => { petErrand.current = { x: to.x, y: to.y, until: performance.now() + 1100 }; }, []);
   // Everybody's rank at the well (lib/town/well): the keeper's, read as it changes.
   useEffect(() => {
     if (!keeper) { ranksRef.current = { ranks: {}, titles: {}, me: "" }; setLinesTold(null); return; }
@@ -2314,10 +2318,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!name || !name.startsWith("fam") || !(name in ICON_ATLAS.icons) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
     let p = pets.current.get(a.info.id);
     if (!p || Math.hypot(a.pos.x - p.x, a.pos.y - p.y) > 5) { p = { x: a.pos.x - 0.55, y: a.pos.y + 0.3, right: true }; pets.current.set(a.info.id, p); }
-    const dx = a.pos.x - p.x, dy = a.pos.y - p.y, d = Math.hypot(dx, dy), gap = 0.72;
+    // ── gifts: forest ── (my own familiar sent to fetch: it runs to the place, stays a moment, and runs back to my heels)
+    const sent = a.info.id === me.id && petErrand.current && performance.now() < petErrand.current.until ? petErrand.current : null;
+    const goal = sent ?? a.pos;
+    const dx = goal.x - p.x, dy = goal.y - p.y, d = Math.hypot(dx, dy), gap = sent ? 0.08 : 0.72;
+    if (sent && d <= gap + 0.05) sent.until = Math.min(sent.until, performance.now() + 160);
     let moving = false;
     if (d > gap) {
-      const go = Math.min(d - gap, 4.4 * dt);
+      const go = Math.min(d - gap, (sent ? 11 : d > 1.6 ? 9 : 4.4) * dt);
       p.x += (dx / d) * go; p.y += (dy / d) * go;
       moving = go > 0.004;
       // (which way it looks: the way it goes across the screen)
@@ -3896,7 +3904,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownForest keeper={keeper} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onForest} sfx={sfxRef.current} art={boardArt}
-                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerForest} />
+                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerForest} sendPet={sendPet} />
         </Suspense>
       )}
       {/* The insects: out on every map, and caught with a net */}

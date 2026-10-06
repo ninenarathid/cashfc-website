@@ -195,6 +195,8 @@ export function catalogOf() {
       kinds: KINDS,
       spots: SPOTS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]),
       reach: FORAGING.reach, decoy: FORAGING.decoy, decoys: FORAGING.decoys, hoes: HOES, misses: 30,
+      // ── gifts: forest ── (how near its member's way a squirrel fetches what lies on the ground)
+      squirrel: FORAGING.squirrel,
     },
     /**
      * Insects (lib/town/insects): each of them in the order they are weighed (its habit, the haunts it keeps to, how
@@ -355,7 +357,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts"] },
+  v153: { keys: [], over: ["gifts", /* ── gifts: forest ── */ "forest"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

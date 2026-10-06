@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FARMING } from "@/lib/town/farm";
-import { KINDS, SPOTS, gameFor, mayGather, reaches, type Gather, type Sight, type Spot } from "@/lib/town/forest";
+import { FORAGING, KINDS, SPOTS, fetches, gameFor, mayGather, reachOf, reaches, type Gather, type Sight, type Spot } from "@/lib/town/forest";
 import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
@@ -18,7 +18,7 @@ import TownChoosing from "./TownChoosing";
 import TownDigging from "./TownDigging";
 import type { FarmDraw } from "./TownFarm";
 import type { GameResult } from "./TownGame";
-import { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownSteady from "./TownSteady";
 import { WHY } from "./TownTrade";
 import { Vfx, type VfxKind } from "./vfx";
@@ -56,7 +56,7 @@ const iconFor = (item: ItemId | null): IconName => {
  * What is kept is the keeper's (lib/town/keeper): in `next dev`'s test room the browser's trial, one forest for
  * the browser.
  */
-export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, register }: {
+export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, register, sendPet }: {
   keeper: Keeper;
   th: boolean;
   /** The tile I stand still on, when I do. */
@@ -70,6 +70,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   art: (name: string) => Sprite | null;
   /** Hand the map the way to draw the forest's things (and take it back with null). */
   register: (draw: FarmDraw | null) => void;
+  /** Send my familiar running to a tile and back to my heels (the squirrel, fetching: lib/town/gifts). */
+  sendPet?: (to: Vec) => void;
 }) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -82,7 +84,9 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   useEffect(() => (near ? keeper.look("wild") : undefined), [near, keeper]);
   const [working, setWorking] = useState<{ spot: Spot; sight: Sight; game: NonNullable<ReturnType<typeof gameFor>> } | null>(null);
   const [note, setNote] = useState<string | null>(null);
-  useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
+  /** Whose doing the note is of: the squirrel's, when it fetched the thing (its picture goes beside the words). */
+  const [noteBy, setNoteBy] = useState<IconName | null>(null);
+  useEffect(() => { if (!note) return; const t = setTimeout(() => { setNote(null); setNoteBy(null); }, 2600); return () => clearTimeout(t); }, [note]);
   const vfx = useMemo(() => new Vfx(), []);
 
   // What every place has for me now: looked at afresh when something changes and every few seconds, not every frame.
@@ -92,6 +96,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   useEffect(() => {
     register((frame) => {
       const { ctx, things, project, onScreen, s, now: t, img, still, self, dark, over } = frame;
+      // (where I am this frame, walking or not: the squirrel fetches what I pass)
+      selfAt.current = self;
       // (in the dark, what can be gathered within the lamp's light glints: on my own screen, and nothing more is found for it)
       const reach = (dark ?? 0) > 0.3 && self ? lamp.current : 0;
       let lit = 0;
@@ -144,7 +150,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   // (the forest walker's lamp worn as a charm: how far its light reaches about me, in tiles; none without it. lib/town/gifts)
   const lamp = useRef(0), glints = useRef(0);
   lamp.current = charmBy(purse, "charmLamp", 0);
-  const here = tile && near ? seen.current.map((sight) => ({ sight, spot: SPOTS[sight.id] })).filter(({ spot }) => spot && reaches(spot, tile) && mayGather(spot.kind, hand))
+  const here = tile && near ? seen.current.map((sight) => ({ sight, spot: SPOTS[sight.id] })).filter(({ spot }) => spot && reaches(spot, tile, reachOf(purse, KINDS[spot.kind].how)) && mayGather(spot.kind, hand))
     .sort((a, b) => Math.hypot(a.spot.x - tile[0], a.spot.y - tile[1]) - Math.hypot(b.spot.x - tile[0], b.spot.y - tile[1]))[0] ?? null : null;
   const hereId = here?.spot.id ?? -1;
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
@@ -154,6 +160,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   const act = useCallback(async (spot: Spot, at: [number, number], went: { misses: number; wrong: number; secs?: number }) => {
     const did = await keeper.gatherDo(spot.id, at, went);
     if (!did.ok) { say(did.why); return; }
+    setNoteBy(null);
     setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · "));
     const how = KINDS[spot.kind].how, [fx, sound] = FX[how], where = { x: spot.x + 0.5, y: spot.y + 0.5 };
     sfx?.wake();
@@ -165,10 +172,52 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
 
   const begin = useCallback(() => {
     if (!here || !tile) return;
-    const game = gameFor(KINDS[here.spot.kind].how, spent);
+    // (what a squirrel fetches is no work of my hands: no game for it, tired or not)
+    const game = fetches(purse, KINDS[here.spot.kind].how) ? null : gameFor(KINDS[here.spot.kind].how, spent);
     if (game) { setWorking({ ...here, game }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
     else void act(here.spot, tile, { misses: 0, wrong: 0 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse is read when the button is pressed
   }, [here, tile, spent, act, sfx]);
+
+  /**
+   * The squirrel at my heels fetches what lies on the ground as I pass it (lib/town/forest's `fetches`): looked for a
+   * few times a second from where I am, walking or standing; one thing at a time; it runs there and back. A place
+   * that gave nothing (a bag with no room for it, somebody else's last share) is left alone for a while.
+   */
+  const selfAt = useRef<Vec | null>(null), fetching = useRef(false), left = useRef(new Map<number, number>()), fetched = useRef(0);
+  const squirrel = near && fetches(purse, "pick");
+  useEffect(() => {
+    if (!squirrel) return;
+    const look = async () => {
+      const me = selfAt.current;
+      if (!me || fetching.current) return;
+      const at: [number, number] = [Math.floor(me.x), Math.floor(me.y)], now = Date.now();
+      const sight = seen.current.find((x) => { const spot = SPOTS[x.id]; return !!spot && KINDS[spot.kind].how === "pick" && reaches(spot, at, FORAGING.squirrel) && (left.current.get(x.id) ?? 0) < now; });
+      if (!sight) return;
+      const spot = SPOTS[sight.id], where = { x: spot.x + 0.5, y: spot.y + 0.5 };
+      fetching.current = true;
+      sendPet?.({ x: spot.x, y: spot.y });
+      try {
+        const did = await keeper.gatherDo(spot.id, at, { misses: 0, wrong: 0 });
+        if (!did.ok) {
+          // (no room, or nothing there for me after all: not asked again for a while; a full bag is said once)
+          left.current.set(sight.id, now + (did.why === "full" ? 12_000 : 30_000));
+          if (did.why === "full") { setNoteBy("famSquirrel" as IconName); say("full"); }
+          return;
+        }
+        fetched.current++;
+        setNoteBy("famSquirrel" as IconName);
+        setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · "));
+        sfx?.wake();
+        sfx?.work("rustle");
+        vfx.add("leaves", where);
+        if (did.got.length) vfx.add("pop", where, { icon: did.got[0][0] });
+      } finally { fetching.current = false; }
+    };
+    const t = setInterval(() => { void look(); }, 220);
+    return () => clearInterval(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the names are read when the thing is got
+  }, [squirrel, keeper, sendPet, sfx, vfx, say, th]);
 
   // walking off leaves the work
   useEffect(() => { if (working && working.spot.id !== hereId) setWorking(null); }, [working, hereId]);
@@ -194,6 +243,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     const handle = {
       sights: () => seen.current.map((x) => ({ ...x, ...SPOTS[x.id] })), glints: () => glints.current, here: () => (here ? { ...here.sight, kind: here.spot.kind } : null), act: begin,
       game: () => working?.game ?? null,
+      /** How many things the squirrel has fetched since the page came up. */
+      fetched: () => fetched.current,
     };
     (window as unknown as { __townForest?: typeof handle }).__townForest = handle;
     return () => { delete (window as unknown as { __townForest?: typeof handle }).__townForest; };
@@ -202,7 +253,11 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   if (!working && !here && !note) return null;
   return (
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
-      {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
+      {note && (
+        <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-forest-note={noteBy ?? ""} aria-live="polite">
+          {noteBy && <TownIcon name={noteBy} size={20} />}{note}
+        </p>
+      )}
       {working && tile ? (() => {
         const { spot, sight, game } = working, how = KINDS[spot.kind].how, title = th ? VERB[how][0] : VERB[how][1];
         const done = (r: GameResult) => {
