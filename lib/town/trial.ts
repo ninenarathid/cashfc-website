@@ -33,6 +33,9 @@ import { hotAt } from "./heat";
 import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
 import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./waters";
+// ── gifts: farming ──
+import { plotKey, rowFor, rowTend, type RowDeed } from "./farm";
+import { rowOf } from "./world";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -449,6 +452,36 @@ export class Trial {
       ...(!plot.plant && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}),
     } });
     return { ok: true, deed: did.deed, got: did.got };
+  }
+  // ── gifts: farming ──
+  /** The plots of the row of its bed a plot is in, by their keys. */
+  private rowKeys(key: string): string[] { const [x, y] = key.split(",").map(Number); return rowOf(x, y).map(([u, v]) => plotKey(u, v)); }
+  /** What a gift of the farming line would do to the whole row from a plot (lib/town/farm's rowFor), if anything. */
+  rowAt(key: string): { deed: RowDeed; plots: string[] } | null {
+    const [x, y] = key.split(",").map(Number);
+    return rowFor(key, this.rowKeys(key), this.farm(), this.purse(), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky());
+  }
+  /** Do it, whole: one deed. Each plot done is kept, and counted, as if it had been done by itself. */
+  rowDo(key: string, name: string, marks: Record<string, boolean>): { ok: true; deed: RowDeed; done: string[]; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+    this.swarmNote();
+    const p = this.purse(), now = this.now(), plots = this.farm(), beds = this.beds(), keys = this.rowKeys(key);
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
+    const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
+    const did = rowTend(key, keys, plots, beds[bed], (planted.get(bed) ?? 0) - keys.filter((k) => !!plots[k]?.plant).length, holds, p, this.id, now, marks, this.sky());
+    if (!did.ok) return did;
+    const next = { ...plots }, sky = SKIES.sky(now);
+    for (const [k, plot] of Object.entries(did.plots)) { if (plot.soil === "wild" && !plot.plant) delete next[k]; else next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now)); }
+    this.write(FARM, next);
+    const kept = { ...beds };
+    if (!did.bed) delete kept[bed];
+    else kept[bed] = { ...did.bed, name: (did.bed.by === beds[bed]?.by && beds[bed]?.name) || name || did.bed.by };
+    this.write(BEDS, kept);
+    for (const e of did.each) {
+      const was = plots[e.key]?.plant;
+      this.counted({ from: "deed", what: did.deed, thing: e.crop, n: 1, doc: { ...(was && was.by !== this.id ? { whose: was.by } : {}), ...(!was && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}) } });
+    }
+    this.save(did.purse);
+    return { ok: true, deed: did.deed, done: did.each.map((e) => e.key), got: did.got };
   }
   /** Whether it is a hot afternoon now (lib/town/heat), by this page's sky. */
   hot(): boolean { const now = this.now(); return hotAt(now, SKIES.sky(now)); }

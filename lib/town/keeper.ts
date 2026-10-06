@@ -29,6 +29,9 @@ import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
+// ── gifts: farming ──
+import { plotKey, rowFor, type RowDeed } from "./farm";
+import { rowOf } from "./world";
 
 /**
  * Who keeps the game.
@@ -180,6 +183,15 @@ export interface Keeper {
   /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
   farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>>;
   choreDo(where: Water, at: [number, number] | null): Promise<Did<{ chore: Chore }>>;
+  // ── gifts: farming ──
+  /**
+   * A row at a time (lib/town/farm's rowFor): what a gift of the farming line would do to the whole row of the bed
+   * from the plot I stand on, with the thing in my hand: which work, and the plots, the one stood on first. Null:
+   * nothing to offer (and never, where whoever keeps the game knows of no rows). Doing it is one deed: `marks` says
+   * how each plot's beat went, by its key; `done` is the plots it did, in the order it did them.
+   */
+  rowAt(key: string): { deed: RowDeed; plots: string[] } | null;
+  rowDo(key: string, name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>>;
 
   /** The forest (lib/town/forest): every place that has something for me now. */
   wild(): Sight[];
@@ -883,6 +895,21 @@ export class DbKeeper implements Keeper {
     if (did.ok) this.onDeed?.("farm");
     // (a watering on a hot afternoon, or while the well's water has a nature, is kept with more than this answer says: the plot is read again)
     if (did.ok && did.deed === "water" && (this.hot() || this.wellWater())) this.fetch("farm");
+    return did;
+  }
+  // ── gifts: farming ──
+  /** Whether the database knows of the farming line's later gifts (v153): it says so by giving them, the seed pouch among them. A page out before the file offers none of what they do. */
+  private farmGifts(): boolean { return this.gives("thingPouch"); }
+  rowAt(key: string): { deed: RowDeed; plots: string[] } | null {
+    if (!this.farmGifts()) return null;
+    const [x, y] = key.split(",").map(Number);
+    return rowFor(key, rowOf(x, y).map(([u, v]) => plotKey(u, v)), this.plots, this.mine, this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains());
+  }
+  async rowDo(key: string, _name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>> {
+    const [x, y] = key.split(",").map(Number);
+    // (the answer brings every plot it changed, and the bed's keeping: kept as any answer's are)
+    const did = await this.deed<{ deed: RowDeed; done: string[]; got: Array<[ItemId, number]> }>("town_row", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
+    if (did.ok) this.onDeed?.("farm");
     return did;
   }
   /**

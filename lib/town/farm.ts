@@ -1,7 +1,7 @@
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
-import { gloved } from "./gifts";
+import { gloved, wearing } from "./gifts";
 import { buffBy, hasBuff, spend } from "./stamina";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { BANGKOK, DAY, HOUR, handOf, held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
@@ -538,3 +538,64 @@ export function chore(purse: Purse, where: "river" | "well" | null, well: number
 
 /** Every vegetable's seed is a thing, and so is what it grows (a check the tests make). */
 export const SEEDS: ItemId[] = CROP_IDS.map((c) => CROPS[c].seed).filter((s) => ITEMS[s].kind === "seed");
+
+/* ── the gifts of the farming line (lib/town/gifts) ──────────────────────── */
+
+/**
+ * A row at a time (the owner, 2026-10-07: a rank's gift cuts a whole rule of its line out, and a power that does many
+ * at once has a longer, harder game of its own, in which a miss costs a part of what it would have given, never the
+ * whole). A bed is seven plots by seven; a row of it is the plots that share a y. Standing on a plot, a gift of the
+ * farming line does to the whole row what the thing in the hand does to that plot, at once:
+ *
+ * - **the enchanted hoe** (a charm, worn): weeds or tills every plot of the row that wants the same work, by one game
+ *   of a beat to a plot (lib/town/timing's `startRow`); a beat missed leaves its plot undone.
+ *
+ * It is **one deed** for whoever keeps the game, judged whole (`rowTend`): told how each plot's beat went, it does
+ * each plot as `tend` would have done it by itself, one after another from the plot stood on outwards, so that the
+ * stamina, the bed's keeping, the gloves and what is written down are each plot's own, as ever. A row of one plot is
+ * no row: that is the plain deed.
+ */
+export type RowDeed = "clear" | "till";
+/** What a plot's place in its row is: its x. */
+const xOf = (key: string) => Number(key.split(",")[0]);
+/**
+ * What a gift of the farming line would do to the row from the plot stood on (`at`), if anything: which work, and the
+ * plots of the row it would do it to, the one stood on first and then outwards (of two as near, the one further left).
+ * `keys` are the row's plots (lib/town/world's `rowOf`), `plots` those of them that are kept (one that is not is
+ * weeds), `owner` whose the bed is now.
+ */
+export function rowFor(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, purse: Purse, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY):
+  { deed: RowDeed; plots: string[] } | null {
+  if (!keys.includes(at)) return null;
+  const hand = handOf(purse), want = (key: string) => deedFor(key, plots[key] ?? WILD, hand, me, now, owner, rains);
+  const deed = want(at);
+  if (!((deed === "clear" || deed === "till") && wearing(purse, "charmHoe"))) return null;
+  const x0 = xOf(at), row = keys.filter((key) => want(key) === deed).sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
+  return row.length > 1 ? { deed, plots: row } : null;
+}
+/** A plot a row's deed did: which, what grows or grew there, and how many it came to (a plot hoed is one). */
+export interface RowDone { key: string; crop: CropId | null; n: number }
+/**
+ * Do a row's deed, whole. `marks` says how each plot's beat went, by its key (a plot it says nothing of was not in
+ * the game, and is left). `rest` is how many plots of the bed outside this row have a plant, and `holds` how many
+ * other beds are mine, as `tend` is told them. Gives the purse, the plots that changed and the bed's keeping as they
+ * are afterwards, and each plot done in the order it was done. With nothing a row's power can do here: `none`.
+ */
+export function rowTend(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, bed: Bed | undefined, rest: number, holds: number, purse: Purse, me: string, now: number,
+  marks: Readonly<Record<string, boolean>>, rains: FarmSky = DRY):
+  { ok: true; deed: RowDeed; purse: Purse; plots: Record<string, Plot>; bed: Bed | undefined; each: RowDone[]; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+  const planted = (state: Readonly<Record<string, Plot>>, but: string) => rest + keys.filter((k) => k !== but && !!state[k]?.plant).length;
+  const found = rowFor(at, keys, plots, purse, me, now, ownerOf(bed, planted(plots, "") > 0, now), rains);
+  if (!found) return { ok: false, why: "none" };
+  const state: Record<string, Plot> = {}, each: RowDone[] = [];
+  let mine = purse, keeping = bed;
+  for (const key of found.plots) {
+    // (a beat missed leaves its plot undone)
+    if (marks[key] !== true) continue;
+    const plot = state[key] ?? plots[key] ?? WILD, did = tend(key, plot, keeping, planted({ ...plots, ...state }, key), holds, mine, me, now, rains);
+    if (!did.ok || did.deed !== found.deed) { if (!each.length && !did.ok) return did; break; }
+    mine = did.purse; keeping = did.bed; state[key] = did.plot;
+    each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 });
+  }
+  return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [] };
+}

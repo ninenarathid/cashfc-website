@@ -5,13 +5,13 @@ import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, ridCameOf, rol
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
-import { famBy, usesLeft, wearing } from "@/lib/town/gifts";
+import { famBy, giftOf, usesLeft, type GiftId } from "@/lib/town/gifts";
 import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
-import { rowOf, FARM, WELL, bedCorner, plotAt, type Vec } from "@/lib/town/world";
-import { ICON_ATLAS, type IconName } from "./TownIcon";
+import { FARM, WELL, bedCorner, plotAt, type Vec } from "@/lib/town/world";
+import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
 import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
@@ -88,6 +88,10 @@ const DEED_FX: Record<Deed, [VfxKind, WorkSound]> = {
 const CHORE_FX: Record<Chore, [VfxKind, WorkSound]> = { draw: ["splash", "dip"], pour: ["splash", "pour"], fill: ["water", "pour"] };
 /** The light about the well while its water has a nature (lib/town/waters): the dew's gold, the rain's blue, the moon's silver. */
 const NATURE_GLOW: Record<Nature, string> = { dawn: "#ffd98a", rain: "#9fd0ff", moon: "#e8ecff" };
+/** What a row's work is called on its button and its board, whole (lib/town/farm's rowFor). */
+const ROW_VERB: Record<string, [th: string, en: string]> = { clear: ["ถางหญ้าทั้งแถว", "Clear the whole row"], till: ["พรวนดินทั้งแถว", "Till the whole row"] };
+/** The button of a gift's power, beside the plain deed's: the town's own wood and gold, with the gift's picture (the plain one stays the page's accent, and the space bar's). */
+const GIFT_BTN = "pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border-2 border-[#f0c060] bg-[#3a2513]/95 py-1 pl-2 pr-4 text-ui font-semibold text-[#ffeccb] shadow-xl shadow-black/40";
 /** How big a plant is drawn: screen pixels to one of its picture's, at the map's own scale 1. */
 const PLANT = 0.62;
 
@@ -368,12 +372,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
     const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
-    // (the enchanted hoe worn as a charm: the whole row of the bed at a swing. Every plot of the row that wants the
-    // same work, the one I stand on first and then outwards; one game, a beat to a plot. lib/town/gifts)
-    if (need && (work === "clear" || work === "till") && key && deed && tile && wearing(keeper.purse(), "charmHoe")) {
-      const row = rowOf(tile[0], tile[1]).map(([x, y]) => ({ k: plotKey(x, y), far: Math.abs(x - tile[0]) })).filter(({ k }) => keeper.deedAt(k) === work).sort((a, b) => a.far - b.far).map(({ k }) => k);
-      if (row.length > 1) { setWorking({ key, work, need, row }); return; }
-    }
     // (the garden gnome that follows me pulls the weeds itself, with no game: so many plots to a meal's hours, counted
     // by whoever keeps the game. lib/town/gifts)
     if (need && work === "clear" && key && deed && famBy(keeper.purse(), "famGnome") > 0 && usesLeft(keeper.purse(), "famGnome", keeper.now()) > 0) {
@@ -388,6 +386,25 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     else if (key && deed) void act(key);
     else void carry();
   }, [key, deed, chore, pours, act, carry, pourOver, keeper, th]);
+  /** A row's deed, done whole by whoever keeps the game: what flies up over each plot it did, and a word of how many those were. */
+  const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult) => {
+    const did = await keeper.rowDo(k, name, marks, { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need });
+    if (!did.ok) { say(did.why); return; }
+    keeper.record({ game: "farming", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
+    const [fx] = DEED_FX[did.deed];
+    sfx?.wake();
+    did.done.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => vfx.add(fx, { x: x + 0.5, y: y + 0.5 }), i * 70); });
+    const of = Object.keys(marks).length;
+    setNote(th ? `ทั้งแถว: เสร็จ ${did.done.length} จาก ${of} ช่อง` : `The row: ${did.done.length} of ${of} plots done`);
+  }, [keeper, name, say, sfx, th, vfx]);
+  /** What a gift of the farming line would do to the whole row from where I stand (lib/town/farm's rowFor), if anything. */
+  const rowHere = key ? keeper.rowAt(key) : null;
+  /** Begin it: the hoe's row is one game, a beat to a plot, the one stood on first. */
+  const beginRow = useCallback(() => {
+    const row = key ? keeper.rowAt(key) : null;
+    if (!key || !row) return;
+    setWorking({ key, work: row.deed, need: row.plots.length, row: row.plots });
+  }, [key, keeper]);
   // walking off the plot, or away from the water, leaves the work
   useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
@@ -431,15 +448,20 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const handle = {
       seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now(), keeper.rains()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
       offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note, wellWater: () => keeper.wellWater(),
+      // (the gifts of the farming line: what a row's power would do here, and beginning it)
+      row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
       asking: () => asking,
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
     };
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the plots a bucket would water are told by how many they are
-  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking]);
+  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key]);
 
-  if (!working && !offer && !note) return null;
+  /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
+  const powers: Array<{ id: GiftId; word: string; go: () => void }> = [];
+  if (rowHere && ROW_VERB[rowHere.deed]) powers.push({ id: "charmHoe", word: ROW_VERB[rowHere.deed][th ? 0 : 1], go: beginRow });
+  if (!working && !offer && !note && !powers.length) return null;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
@@ -466,14 +488,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           onDone: (result: GameResult) => {
             const { key: k, work, row } = working;
             setWorking(null);
-            // (a row worked at a swing: each plot whose beat was hit is done, one after another, as if each had been
-            // hoed by itself with no miss; a plot whose beat was missed is left as it is)
-            if (row && result.marks) {
-              const done = row.filter((_, i) => result.marks![i]), each = { hits: working.need, misses: 0, secs: Math.round((result.secs / row.length) * 10) / 10, need: working.need };
-              void (async () => {
-                for (const plot of done) await act(plot, each);
-                setNote(th ? `ทั้งแถว: เสร็จ ${done.length} จาก ${row.length} ช่อง` : `The row: ${done.length} of ${row.length} plots done`);
-              })();
+            // (a row worked at a swing is one deed, the keeper's to judge whole: told how each plot's beat went, it does
+            // each plot whose beat was hit as if it had been hoed by itself, and leaves each whose beat was missed)
+            if (row && k) {
+              void doRow(k, Object.fromEntries(row.map((plot, i) => [plot, !!result.marks?.[i]])), result);
               return;
             }
             // (a game of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
@@ -490,7 +508,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
             {/* the buffs that have a hand in this work, twinkling over the board */}
             <BuffAura ids={working.work === "ditch" ? [] : atPlot(working.work, purse, now)} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1 empty:hidden" />
-            {working.row ? <TownTiming {...common} title={th ? `${title}ทั้งแถว` : `${title}: the whole row`} verb={th ? "ฟันจอบ" : "Swing"} need={working.row.length} mods={mods} icon={toolIcon(working.work, hand)} row />
+            {working.row ? <TownTiming {...common} title={(ROW_VERB[working.work] ?? VERB[working.work])[th ? 0 : 1]} verb={th ? "ฟันจอบ" : "Swing"} need={working.row.length} mods={mods} icon={toolIcon(working.work, hand)} row />
               : game === "weeding" ? <TownWeeding {...common} need={working.need} mods={mods} />
               : game === "pouring" ? <TownPouring {...common} verb={(HOLD[working.work] ?? HOLD.pour!)[th ? 0 : 1]} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} taking={working.work === "draw" || working.work === "fill"} into={(working.work === "water" && growing?.crop ? growIconOf(growing.crop, growing.stage) : INTO[working.work] ?? "plotDrop") as IconName} />
                 : game === "steady" ? <TownSteady {...common} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} over={(growing?.crop ? growIconOf(growing.crop, growing.stage) : "plotSoil") as IconName} />
@@ -523,12 +541,24 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             </button>
           </div>
         </div>
-      ) : offer && (
-        <button type="button" onClick={begin} data-farm-offer={offer}
-                className="pop-in pressable pointer-events-auto mb-14 flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">
-          {verbOf(offer, hand)[th ? 0 : 1]}
-          <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
-        </button>
+      ) : (offer || powers.length > 0) && (
+        <div className="mb-14 flex max-w-full flex-wrap items-center justify-center gap-2">
+          {offer && (
+            <button type="button" onClick={begin} data-farm-offer={offer}
+                    className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">
+              {verbOf(offer, hand)[th ? 0 : 1]}
+              <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
+            </button>
+          )}
+          {/* what a gift of the farming line does here, beside the plain deed: never in its place */}
+          {powers.map((p) => (
+            <button key={p.id} type="button" onClick={p.go} data-farm-gift={p.id} data-state="open" className={GIFT_BTN}
+                    title={(() => { const g = giftOf(p.id); return g ? g.name[th ? "th" : "en"] : undefined; })()}>
+              <span aria-hidden className="grid size-9 place-items-center rounded-full border-2 border-[#2a190d] bg-[#6b4424]"><TownIcon name={p.id as IconName} size={26} /></span>
+              {p.word}
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );

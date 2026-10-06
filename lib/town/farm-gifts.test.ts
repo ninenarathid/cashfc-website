@@ -1,0 +1,111 @@
+import { describe, expect, it } from "vitest";
+import { FARMING, WILD, rowFor, rowTend, tend, type Bed, type Plot } from "./farm";
+import type { ItemId } from "./items";
+import { dayOf, staminaOf } from "./stamina";
+import { hold, newPurse, put, type Purse } from "./trade";
+import { bedCorner, rowOf } from "./world";
+
+/**
+ * The gifts of the farming line (lib/town/gifts; the rules are lib/town/farm's): a row at a time. Each gift's own
+ * tests are under its name.
+ */
+const at = (s: string) => Date.parse(`${s}+07:00`);
+const NOON = at("2026-10-07T12:00:00");
+const [BX, BY] = bedCorner(0);
+/** The fourth row of the first bed: its seven plots, by their keys, and the one in its middle. */
+const KEYS = rowOf(BX + 3, BY + 3).map(([x, y]) => `${x},${y}`), MID = KEYS[3];
+const purseWith = (gifts: Purse["gifts"], ...items: Array<[ItemId, number]>): Purse => {
+  const p = newPurse();
+  return { ...p, stamina: { day: dayOf(NOON), left: 100 }, bag: items.reduce((bag, [id, n]) => put(bag, id, n), Array<null>(20).fill(null) as Purse["bag"]), ...(gifts ? { gifts } : {}) };
+};
+const holding = (p: Purse, id: ItemId): Purse => {
+  const d = hold(p, p.bag.findIndex((s) => s?.item === id));
+  if (!d.ok) throw new Error("nothing to hold");
+  return d.purse;
+};
+const done = <T extends { ok: boolean }>(d: T) => { if (!d.ok) throw new Error(`refused: ${JSON.stringify(d)}`); return d as Extract<T, { ok: true }>; };
+const HOE = { had: ["charmHoe"], charms: ["charmHoe"] };
+const all = (keys: readonly string[], how = true) => Object.fromEntries(keys.map((k) => [k, how]));
+
+describe("the enchanted hoe: a bed's row at a swing", () => {
+  const worn = holding(purseWith(HOE, ["hoe", 1]), "hoe");
+
+  it("is the seven plots of the row that want the same work, the one stood on first and then outwards", () => {
+    expect(KEYS.length).toBe(7);
+    const row = rowFor(MID, KEYS, {}, worn, "me", NOON);
+    expect(row).toEqual({ deed: "clear", plots: [KEYS[3], KEYS[2], KEYS[4], KEYS[1], KEYS[5], KEYS[0], KEYS[6]] });
+    // from an end of the row it goes one way
+    expect(rowFor(KEYS[0], KEYS, {}, worn, "me", NOON)!.plots).toEqual(KEYS);
+    expect(rowFor(KEYS[6], KEYS, {}, worn, "me", NOON)!.plots).toEqual([...KEYS].reverse());
+    // only the plots that want what the one stood on wants: cleared ground is tilled, and the weeds beside it are not its row
+    const some: Record<string, Plot> = { [KEYS[2]]: { soil: "cleared", plant: null }, [KEYS[3]]: { soil: "cleared", plant: null }, [KEYS[6]]: { soil: "cleared", plant: null }, [KEYS[5]]: { soil: "tilled", plant: null } };
+    expect(rowFor(MID, KEYS, some, worn, "me", NOON)).toEqual({ deed: "till", plots: [KEYS[3], KEYS[2], KEYS[6]] });
+    expect(rowFor(KEYS[0], KEYS, some, worn, "me", NOON)).toEqual({ deed: "clear", plots: [KEYS[0], KEYS[1], KEYS[4]] });
+  });
+
+  it("is nothing without the charm worn, without a hoe in the hand, off the row, or where one plot alone wants the work", () => {
+    expect(rowFor(MID, KEYS, {}, holding(purseWith({ had: ["charmHoe"], charms: [] }, ["hoe", 1]), "hoe"), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, {}, holding(purseWith(undefined, ["hoe", 1]), "hoe"), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, {}, purseWith(HOE, ["hoe", 1]), "me", NOON)).toBeNull();
+    expect(rowFor(MID, KEYS, {}, holding(purseWith(HOE, ["can", 1]), "can"), "me", NOON)).toBeNull();
+    expect(rowFor("1,1", KEYS, {}, worn, "me", NOON)).toBeNull();
+    const one = Object.fromEntries(KEYS.filter((k) => k !== MID).map((k) => [k, { soil: "tilled", plant: null } as Plot]));
+    expect(rowFor(MID, KEYS, one, worn, "me", NOON)).toBeNull();
+    // (tilled soil is no work of the hoe's: nothing to offer on it)
+    expect(rowFor(KEYS[0], KEYS, one, worn, "me", NOON)).toBeNull();
+  });
+
+  it("does each plot whose beat was hit and leaves each whose beat was missed: the stamina of each plot done, and no more", () => {
+    const row = rowFor(MID, KEYS, {}, worn, "me", NOON)!.plots, went = [true, true, false, true, false, true, true];
+    const did = done(rowTend(MID, KEYS, {}, undefined, 0, 0, worn, "me", NOON, Object.fromEntries(row.map((k, i) => [k, went[i]]))));
+    expect(did.deed).toBe("clear");
+    expect(did.each.map((e) => e.key)).toEqual(row.filter((_, i) => went[i]));
+    expect(Object.keys(did.plots).sort()).toEqual(row.filter((_, i) => went[i]).sort());
+    for (const plot of Object.values(did.plots)) expect(plot).toEqual({ soil: "cleared", plant: null });
+    expect(staminaOf(did.purse, NOON)).toBe(100 - 5 * FARMING.costs.clear);
+    expect(did.got).toEqual([]);
+    // what is left of the row is a row of its own, of two; and then one plot alone is none
+    const left = rowFor(row[2], KEYS, did.plots, did.purse, "me", NOON)!;
+    expect(left).toEqual({ deed: "clear", plots: [row[2], row[4]].sort((a, b) => Math.abs(Number(a.split(",")[0]) - Number(row[2].split(",")[0])) - Math.abs(Number(b.split(",")[0]) - Number(row[2].split(",")[0]))) });
+    const more = done(rowTend(row[2], KEYS, did.plots, undefined, 0, 0, did.purse, "me", NOON, { [row[2]]: true, [row[4]]: false }));
+    expect(more.each.map((e) => e.key)).toEqual([row[2]]);
+    expect(rowFor(row[4], KEYS, { ...did.plots, ...more.plots }, more.purse, "me", NOON)).toBeNull();
+  });
+
+  it("is each plot as the hoe would have done it by itself: the same purse and plots as seven deeds one after another", () => {
+    const row = rowFor(MID, KEYS, {}, worn, "me", NOON)!.plots;
+    const whole = done(rowTend(MID, KEYS, {}, undefined, 0, 0, worn, "me", NOON, all(row)));
+    let p = worn;
+    for (const key of row) { const d = done(tend(key, WILD, undefined, 0, 0, p, "me", NOON)); p = d.purse; expect(whole.plots[key]).toEqual(d.plot); }
+    expect(whole.purse).toEqual(p);
+    expect(whole.each.length).toBe(7);
+    // …and tilled the same way afterwards
+    const tilled = done(rowTend(MID, KEYS, whole.plots, undefined, 0, 0, whole.purse, "me", NOON, all(row)));
+    expect(tilled.deed).toBe("till");
+    for (const key of KEYS) expect(tilled.plots[key]).toEqual({ soil: "tilled", plant: null });
+    expect(staminaOf(tilled.purse, NOON)).toBe(100 - 7 * (FARMING.costs.clear + FARMING.costs.till));
+  });
+
+  it("with every beat missed nothing is done and nothing paid; a plot the marks say nothing of is left; with no row to work it is refused", () => {
+    const row = rowFor(MID, KEYS, {}, worn, "me", NOON)!.plots;
+    const none = done(rowTend(MID, KEYS, {}, undefined, 0, 0, worn, "me", NOON, all(row, false)));
+    expect(none.each).toEqual([]);
+    expect(none.plots).toEqual({});
+    expect(none.purse).toEqual(worn);
+    const two = done(rowTend(MID, KEYS, {}, undefined, 0, 0, worn, "me", NOON, { [row[0]]: true, [row[6]]: true, "1,1": true }));
+    expect(two.each.map((e) => e.key)).toEqual([row[0], row[6]]);
+    expect(rowTend(MID, KEYS, {}, undefined, 0, 0, holding(purseWith(undefined, ["hoe", 1]), "hoe"), "me", NOON, all(row))).toEqual({ ok: false, why: "none" });
+  });
+
+  it("works in anybody's bed, as a hoe does: the bed stays its owner's, and the owner's own row tends it", () => {
+    const theirs: Bed = { by: "you", tended: NOON - 3_600_000, empty: 0 }, row = rowFor(MID, KEYS, {}, worn, "me", NOON, "you")!.plots;
+    const did = done(rowTend(MID, KEYS, {}, theirs, 3, 0, worn, "me", NOON, all(row)));
+    expect(did.each.length).toBe(7);
+    expect(did.bed).toEqual(theirs);
+    const mine: Bed = { by: "me", tended: NOON - 3_600_000, empty: 0 };
+    expect(done(rowTend(MID, KEYS, {}, mine, 3, 0, worn, "me", NOON, all(row))).bed).toEqual({ ...mine, tended: NOON });
+    // (with the gardener's gloves on beside it, work in somebody else's bed is half the stamina, each plot's as ever)
+    const both = holding(purseWith({ had: ["charmHoe", "charmGloves"], charms: ["charmHoe", "charmGloves"] }, ["hoe", 1]), "hoe");
+    expect(staminaOf(done(rowTend(MID, KEYS, {}, theirs, 3, 0, both, "me", NOON, all(row))).purse, NOON)).toBe(100 - 7);
+  });
+});
