@@ -2,17 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  BUGS, HABITS, HAUNTS, LURES, NET, aimOf, bugTurnStart, fledBy, mayNet, missed, newMind, poseOf, ringOf, swingMs, taken, think,
+  BUGS, HABITS, HAUNTS, LURES, NET, aimOf, bugTurnStart, fledBy, lulled, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think,
   type BugId, type BugSight, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { FARMING } from "@/lib/town/farm";
-import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
+import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
-import { WILD_WISHES, softStep } from "@/lib/town/forest-eye";
-import { famBy, wearing } from "@/lib/town/gifts";
-import { WISH, type WishId } from "@/lib/town/fountain";
-import { isSpent, levelOf } from "@/lib/town/stamina";
+import { familiarOf, harderFor, wearing } from "@/lib/town/gifts";
+import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { TILE_H, placeOf, type Vec } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
@@ -119,17 +117,20 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const seen = useRef<BugSight[]>([]);
   seen.current = keeper.bugs().filter((s) => !fled.current?.has(`${s.id}:${s.turn}`));
   const purse = keeper.purse(), hand = handOf(purse), spent = isSpent(purse, keeper.now());
-  // (the fountain's soft step: an insect lets me come nearer, lib/town/forest-eye)
-  // (the fountain's soft step, or a meal's: the softer at each of the meal's levels, items' byOf; with neither, as ever)
-  // (and the lucky butterfly that follows me is a step more of it, lib/town/gifts)
-  const soft = softStep(byOf(WILD_WISHES.net, levelOf(purse, keeper.now(), WILD_WISHES.net as WishId)) + famBy(purse, "famButterfly"));
+  // (the fountain's soft step, or a meal's: an insect lets me come nearer, the nearer at each of the meal's levels;
+  // and with the lucky butterfly following, the distance at which one startles is halved again: lib/town/insects'
+  // stealthOf. With neither, as ever)
+  const soft = stealthOf(purse, keeper.now()), flutter = familiarOf(purse) === "famButterfly";
+  // (good at the line, the good insects are harder for me: they know of me from further off, and the ring on them is
+  // narrower. lib/town/gifts' harderFor; nothing on the screen says so)
+  const wary = harderFor("insects", keeper.lines()?.lines.insects.points ?? 0);
   // (the silver-web net worn as a charm: every insect that is out on the map I am on glints silver where it is, the
   // hidden ones too, on my own screen. Where, never how it is caught. lib/town/gifts)
   const sees = wearing(purse, "charmNet");
-  const live = useRef({ hand, spent, busy, th, name, soft, sees, me: keeper.id });
-  live.current = { hand, spent, busy, th, name, soft, sees, me: keeper.id };
-  /** How many insects glinted in the last frame drawn (for scripts). */
-  const glints = useRef(0);
+  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, me: keeper.id });
+  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, me: keeper.id };
+  /** How many insects glinted in the last frame drawn, and how many my butterfly kept from knowing of me (for scripts). */
+  const glints = useRef(0), lulls = useRef(0);
 
   /** What each insect has in mind on this screen, how each is this frame, where I am and who is about, and the swing in the air. */
   const minds = useRef(new Map<number, { turn: number; bug: BugId; mind: Mind }>());
@@ -156,10 +157,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         const h = HAUNTS[id], kept = minds.current.get(id);
         if (!h || !kept) continue;
         const key = `${id}:${sight.turn}`;
-        if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent)) {
+        if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent, 1, live.current.wary)) {
           got = true;
-          // (a beetle: whoever stands under its tree with something sweet)
-          const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[0]) < HABITS.lure.reach) : null;
+          // (a beetle: whoever stands under its tree with something sweet; the tree it is in now, for one that does not stay)
+          const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[kept.mind.at] ?? h.perches[0]) < HABITS.lure.reach) : null;
           const where = { x: pose.x, y: pose.y };
           void keeper.netDo(id, tile, { misses: misses.current.get(key) ?? 0, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name).then((did) => {
             if (!did.ok) { say(did.why); return; }
@@ -204,7 +205,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       vfx.draw(frame);
       me.current = frame.self;
       // (everybody about, myself first: the map lists me first, and only my own blessing is known here)
-      about.current = (frame.people?.() ?? []).map((p, i) => (i === 0 && live.current.soft < 1 ? { ...p, soft: live.current.soft } : p));
+      // (and only of me is it known how good I am at the line: the good insects are warier of me by that much)
+      about.current = (frame.people?.() ?? []).map((p, i) => (i === 0 && (live.current.soft < 1 || live.current.wary > 1) ? { ...p, soft: live.current.soft, wary: live.current.wary } : p));
       const here = frame.self ? placeOf(Math.floor(frame.self.x), Math.floor(frame.self.y)) : null;
       const blit = (name: IconName | null, c: Vec, lift: number, flip: boolean, k: number, wide = 1, alpha = 1) => {
         ctx.save();
@@ -223,7 +225,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         ctx.restore();
       };
       const shown = new Set<number>();
-      let lit = 0;
+      let lit = 0, calm = 0;
       for (const sight of seen.current) {
         const h = HAUNTS[sight.id];
         if (!h || h.place !== here) continue;
@@ -280,6 +282,24 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             }
           });
         }
+        // my butterfly keeps it from knowing of me: with all its senses it would have. A little of the butterfly's
+        // dust comes down over it, for as long as that is so (a state: nothing says why)
+        if (live.current.flutter && about.current[0] && frame.self && lulled(sight.bug, h, mind, about.current[0])) {
+          calm++;
+          frame.over?.(() => {
+            const top = at.y - pose.lift * TILE_H * s;
+            for (let i = 0; i < 6; i++) {
+              const t = still ? (i + 1) / 7 : (now / 1300 + i / 6 + h.id * 0.13) % 1, d = Math.max(3, Math.round(2 * s)), a = Math.sin(Math.PI * t);
+              const x = Math.round(at.x + Math.sin(i * 2.1 + h.id) * 9 * s + (still ? 0 : Math.sin(now / 260 + i) * 2 * s)), y = Math.round(top - 24 * s + t * 22 * s);
+              // (a speck with a dark edge, so that it shows over grass in full day; every other one a little cross)
+              ctx.fillStyle = `rgba(60,40,10,${(0.45 * a).toFixed(3)})`;
+              ctx.fillRect(x - 1, y - 1, d + 2, d + 2);
+              ctx.fillStyle = `rgba(255,232,150,${(0.95 * a).toFixed(3)})`;
+              ctx.fillRect(x, y, d, d);
+              if (i % 2 === 0) { ctx.fillRect(x - d, y, 3 * d, d); ctx.fillRect(x, y - d, d, 3 * d); }
+            }
+          });
+        }
         // what it is taken for lies at its other perches
         if (bug.like) h.perches.forEach((p, i) => {
           if (i === mind.at) return;
@@ -317,6 +337,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         } });
       }
       glints.current = lit;
+      lulls.current = calm;
       for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); }
 
       // a ladybird took a pest off some plant with it: said over my head, a little while
@@ -379,8 +400,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     if (process.env.NODE_ENV === "production") return;
     const handle = {
       sights: () => seen.current.map((x) => ({ ...x, place: HAUNTS[x.id]?.place, kind: HAUNTS[x.id]?.kind, x: HAUNTS[x.id]?.x, y: HAUNTS[x.id]?.y, perches: HAUNTS[x.id]?.perches })),
-      poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent), mind: minds.current.get(id)?.mind ?? null })),
-      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent), glints: () => glints.current,
+      poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, 1, live.current.wary), mind: minds.current.get(id)?.mind ?? null })),
+      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, 1, live.current.wary), glints: () => glints.current, lulls: () => lulls.current,
+      soft: () => live.current.soft, wary: () => live.current.wary,
       swing: (x: number, y: number) => { const now = Date.now(); swing.current = { at: { x, y }, began: now, lands: now + swingMs(live.current.spent), done: false }; },
       /** A tap at a point of the map, as the map hands one over: whether it was taken for a swing. */
       tap: (x: number, y: number) => tapRef.current?.({ x, y }) ?? false,

@@ -61,7 +61,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "famSquirrel", kind: "familiar", line: "forest", rank: 2, name: { th: "กระรอกคู่ใจ", en: "A squirrel" },
     does: { th: "ตอนเขย่าต้นไม้ กระรอกช่วยรับลูกไม้ที่เราพลาดให้ ต้นละ 2 ลูก", en: "When a tree is shaken it catches two of the fruit you miss" } },
   { id: "famButterfly", kind: "familiar", line: "insects", rank: 2, name: { th: "ผีเสื้อนำโชค", en: "A lucky butterfly" },
-    does: { th: "แมลงตื่นตัวช้าลง เข้าใกล้ได้มากขึ้นก่อนมันหนี", en: "Insects are slower to startle: you come nearer before they flee" } },
+    does: { th: "แมลงรู้ตัวช้าลงมาก ระยะที่มันจะตกใจหนีเหลือครึ่งเดียว แต่ถ้าเข้าหาผิดวิธีมันก็ยังหนีอยู่ดี", en: "Insects are far slower to know of you: the distance at which one startles is halved; come at it the wrong way and it flees all the same" } },
   { id: "famGnome", kind: "familiar", line: "farming", rank: 2, name: { th: "โนมสวน", en: "A garden gnome" },
     does: { th: "โนมถอนหญ้าให้เองโดยไม่ต้องเล่นมินิเกม มื้อละ 10 ช่อง", en: "It pulls the weeds for you with no game, ten plots to a meal's hours" } },
 
@@ -147,11 +147,12 @@ export const GIFTS: readonly Gift[] = [
  */
 export const CHARMS = { slots: 2, charmApron: 1, charmGloves: 0.5, charmFloat: 1, charmLamp: 5, charmNet: 1, charmHoe: 1.5 } as const;
 /**
- * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly is so many
- * steps of softness about an insect (lib/town/forest-eye's softStep); the gnome weeds so many plots to a meal's hours
+ * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly leaves so
+ * much of the distance at which an insect startles (lib/town/insects' stealthOf: a half, since 2026-10-07; it was a
+ * step of softness added to a meal's, lib/town/forest-eye's softStep); the gnome weeds so many plots to a meal's hours
  * with no game. All three are the page's own to read: their games are played in the browser.
  */
-export const FAMILIARS = { famSquirrel: 2, famButterfly: 1, famGnome: 10 } as const;
+export const FAMILIARS = { famSquirrel: 2, famButterfly: 0.5, famGnome: 10 } as const;
 /**
  * What a gift does only so many times: to a day (from dawn, as the stamina's day is) or to a meal's hours. Counted in
  * the purse (`gifts.used`) by whoever keeps the game, so that the count is the same on every device a member plays on.

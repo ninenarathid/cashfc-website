@@ -1,7 +1,9 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
-import type { ItemId } from "./items";
-import { spend } from "./stamina";
+import { softStep } from "./forest-eye";
+import { famBy } from "./gifts";
+import { ITEMS, type ItemId } from "./items";
+import { buffBy, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
 import { CAMP, FARM, FOREST, FOREST_PROPS, GATES, PROPS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
@@ -144,6 +146,23 @@ export const BUGS: Record<BugId, Bug> = {
 };
 export const BUG_IDS = Object.keys(BUGS) as BugId[];
 export const isBug = (id: string | null | undefined): id is BugId => !!id && id in BUGS;
+
+/**
+ * What an insect is among the others: common, uncommon or rare, by what the relatives pay for one (so many coins and
+ * more; the rare ones' mark is the one a catch counts eight points from, lib/town/line-points). Nine are common
+ * (the white butterfly, the monarch, the dragonfly, the grasshopper, the cricket, the moth, the ladybird, the scarab,
+ * the caterpillar), seven uncommon, eight rare. **The marks are mine.**
+ */
+export type BugTier = "common" | "uncommon" | "rare";
+export const TIERS = { uncommon: 4, rare: 20 } as const;
+export const tierOf = (id: BugId): BugTier => { const pays = ITEMS[id].pays; return pays >= TIERS.rare ? "rare" : pays >= TIERS.uncommon ? "uncommon" : "common"; };
+/**
+ * How much harder an insect is for somebody who is good at the line (lib/town/gifts' `harderFor("insects", points)`:
+ * from the line's fourth rank, 8% a rank): nothing for a common one, whoever catches it. What harder is, for an
+ * insect: **it knows of them from that much further off** (`sensed`), and **the net's ring on it is that much
+ * narrower** (`ringOf`). Both are judged where a catch is: on the page, as the ring and the fright always were.
+ */
+export const harderOn = (id: BugId, harder = 1): number => (tierOf(id) === "common" ? 1 : Math.max(1, harder || 1));
 
 /**
  * A kind of haunt: how many minutes its turn lasts, the chance a turn has an insect, and how many people may catch it
@@ -509,17 +528,51 @@ export const HABITS = {
 
 /**
  * Somebody on the map: where, whether they are walking, and what they hold; and, for somebody under the fountain's
- * soft step (lib/town/forest-eye), the share of an insect's senses that reaches them.
+ * soft step (lib/town/forest-eye) or with the lucky butterfly following (`stealthOf`), the share of an insect's
+ * senses that reaches them; and, for somebody good at the line, how much further off the good insects know of them
+ * (`wary`: lib/town/gifts' harderFor, which a common insect does not mind: `harderOn`).
  */
-export interface Person { x: number; y: number; moving: boolean; hold: ItemId | null; soft?: number }
+export interface Person { x: number; y: number; moving: boolean; hold: ItemId | null; soft?: number; wary?: number }
 /** How far something an insect sees or hears by reaches a person. */
-const sensed = (reach: number, p: Person) => reach * (p.soft ?? 1);
+const sensed = (reach: number, p: Person, id: BugId) => reach * (p.soft ?? 1) * harderOn(id, p.wary);
+/**
+ * The share of an insect's senses that reaches somebody: all of them (1), less under a soft step (the fountain's, or
+ * a meal's at its level: lib/town/forest-eye's softStep), and **half of that again with the lucky butterfly
+ * following** (lib/town/gifts' famButterfly, its number: the distance at which an insect startles is halved). The
+ * butterfly was a step more of softness added to the meal's before 2026-10-07 (`softStep(by + 1)`: a half by
+ * itself, but two fifths where a meal's first level alone gives two thirds); it is a share of its own now, which
+ * multiplies whatever else there is (a third with that meal). Whoever comes at an insect the wrong way for its kind,
+ * within what is left, sets it off all the same.
+ */
+export const stealthOf = (purse: Purse, now: number): number => softStep(buffBy(purse, now, "net")) * Math.min(1, Math.max(0, famBy(purse, "famButterfly", 1)));
+/**
+ * A rare insect does not stay (the owner's ladder of 2026-10-07: "a rare insect moves perch every 20 s"): one that
+ * would sit at its perch for good (among what it looks like, up its tree, where it sings or looks about) is at
+ * another perch of its haunt every so many milliseconds, for everybody: which perch follows from its seed and the
+ * clock alone (`perchAt`), so every screen has it at the same one, and the silver-web net's glint shows it moving
+ * about. The rare ones that never stop by themselves (round a flower bed, round a lamp, darting from hover to hover)
+ * are as they are.
+ */
+export const ROAM = { every: 20_000 } as const;
+const STAYS: readonly Habit[] = ["look", "lure", "sound", "behind"];
+export const roams = (id: BugId, h: Haunt): boolean =>
+  tierOf(id) === "rare" && h.perches.length >= 2 && STAYS.includes(BUGS[id].habit) && (BUGS[id].habit !== "look" || !!BUGS[id].like);
+/**
+ * The perch a roaming insect is at in a stretch of its clock (`epoch`: the moment over `ROAM.every`, rounded down):
+ * one of the even perches in an even stretch and of the odd ones in an odd, so that it is never the one before.
+ */
+export function perchAt(seed: number, n: number, epoch: number): number {
+  if (n < 2) return 0;
+  const odd = ((epoch % 2) + 2) % 2, some = odd ? Math.floor(n / 2) : Math.ceil(n / 2);
+  return 2 * Math.min(some - 1, Math.floor(roll("roam", seed, epoch) * some)) + odd;
+}
 /**
  * What an insect has in mind, on one screen: the perch it is at or bound for, the one it left and when, when it
  * comes (or came) there, how many it has been to, until when it keeps quiet, which way it faces across the screen,
- * the last time it looked about, and (a beetle) since when something sweet has been held under it and when last.
+ * the last time it looked about, and (a beetle) since when something sweet has been held under it and when last;
+ * and (one that does not stay: `ROAM`) the stretch of its clock it was last moved in.
  */
-export interface Mind { at: number; from: number; left: number; land: number; visit: number; hush: number; face: 1 | -1; looked: number; lured: number; last: number }
+export interface Mind { at: number; from: number; left: number; land: number; visit: number; hush: number; face: 1 | -1; looked: number; lured: number; last: number; roam?: number }
 /** How an insect is at a moment: where on the ground, how high above it, which way it faces, and what of it shows. */
 export interface Pose {
   x: number; y: number; lift: number; right: boolean;
@@ -566,15 +619,48 @@ const next = (h: Haunt, seed: number, m: Mind) => (h.perches.length < 2 ? m.at :
 const songOf = (seed: number, visit: number) => ({ song: mix(HABITS.sound.song, roll("song", seed, visit)), rest: mix(HABITS.sound.rest, roll("rest", seed, visit)) });
 
 /**
+ * Whether an insect at its perch knows of somebody as they are now: what hovers or sings, of whoever walks within
+ * its hearing; what sees, of whoever is within its sight on that side of it. The others mind nobody. How far its
+ * senses reach somebody is theirs to shorten and to lengthen (`sensed`).
+ */
+export function knows(id: BugId, h: Haunt, m: Mind, p: Person): boolean {
+  const here = h.perches[m.at];
+  switch (BUGS[id].habit) {
+    case "spot": return p.moving && far(p, here) < sensed(HABITS.spot.notice, p, id);
+    case "behind": return far(p, here) < sensed(side(here, p) === m.face ? HABITS.behind.ahead : HABITS.behind.back, p, id);
+    case "sound": return p.moving && far(p, here) < sensed(HABITS.sound.notice, p, id);
+    default: return false;
+  }
+}
+/**
+ * Whether it is only somebody's soft step or their butterfly that keeps an insect from knowing of them: with all its
+ * senses it would, and it does not. A state the page may show (a little dust over the insect), never a rule.
+ */
+export const lulled = (id: BugId, h: Haunt, m: Mind, p: Person): boolean => (p.soft ?? 1) < 1 && !knows(id, h, m, p) && knows(id, h, m, { ...p, soft: 1 });
+
+/**
  * What an insect makes of the moment: whoever is about, and the clock. Gives back the same mind when nothing
  * changes. (A butterfly, a moth and whatever only walks mind nobody: where they are follows from the clock alone.)
  */
-export function think(id: BugId, h: Haunt, seed: number, m: Mind, now: number, people: readonly Person[]): Mind {
-  const bug = BUGS[id], quick = bug.quick ?? 1, here = h.perches[m.at];
+export function think(id: BugId, h: Haunt, seed: number, was: Mind, now: number, people: readonly Person[]): Mind {
+  const bug = BUGS[id], quick = bug.quick ?? 1;
+  let m = was;
+  // one that does not stay is at another perch in each stretch of its clock: among what it looks like, up another
+  // trunk (where nothing has brought it down yet), or off to it in a hop
+  if (roams(id, h)) {
+    const epoch = Math.floor(now / ROAM.every);
+    if (m.roam !== epoch) {
+      const to = perchAt(seed, h.perches.length, epoch);
+      if (to === m.at || now < m.land) m = { ...m, roam: epoch };
+      else if (bug.habit === "behind" || bug.habit === "sound") return { ...off(h, seed, m, to, now, bug.shy === "flight" ? HABITS.sound.fly : HABITS.behind.hop), roam: epoch };
+      else m = { ...m, at: to, from: -1, land: now, visit: m.visit + 1, lured: 0, last: 0, roam: epoch };
+    }
+  }
+  const here = h.perches[m.at];
   if (now < m.land && bug.habit !== "lure") return m;
   switch (bug.habit) {
     case "spot": {
-      const H = HABITS.spot, scare = people.find((p) => p.moving && far(p, here) < sensed(H.notice, p));
+      const H = HABITS.spot, scare = people.find((p) => knows(id, h, m, p));
       if (scare) return off(h, seed, m, away(h, m.at, scare), now, H.dart);
       if (now < m.land + mix(H.hover, roll("hover", seed, m.visit)) / quick) return m;
       return off(h, seed, m, next(h, seed, m), now, H.dart);
@@ -591,11 +677,11 @@ export function think(id: BugId, h: Haunt, seed: number, m: Mind, now: number, p
         }
         mind = { ...m, looked: look, face };
       }
-      const seenBy = people.find((p) => far(p, here) < sensed(side(here, p) === mind.face ? H.ahead : H.back, p));
+      const seenBy = people.find((p) => knows(id, h, mind, p));
       return seenBy ? off(h, seed, mind, away(h, mind.at, seenBy), now, H.hop) : mind;
     }
     case "sound": {
-      const H = HABITS.sound, mover = people.find((p) => p.moving && far(p, here) < sensed(H.notice, p));
+      const H = HABITS.sound, mover = people.find((p) => knows(id, h, m, p));
       if (!mover) return m;
       if (bug.shy === "flight") {
         const { song, rest } = songOf(seed, m.visit), t = (now - m.land) % (song + rest);
@@ -710,11 +796,11 @@ export function poseOf(id: BugId, h: Haunt, seed: number, m: Mind, now: number):
 
 /** Where a net has to land to take something: the point of the ground its picture is drawn over (a tile of lift is a tile up the screen, which is one back along each of the map's ways). */
 export const aimOf = (p: Pose): Vec => ({ x: p.x - p.lift, y: p.y - p.lift });
-/** The ring a net takes an insect within, in tiles: smaller for the small ones, and for tired hands. */
-export const ringOf = (id: BugId, spent: boolean, wide = 1) => NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide);
+/** The ring a net takes an insect within, in tiles: smaller for the small ones, and for tired hands; and narrower on a good insect for whoever is good at the line (`harderOn`). */
+export const ringOf = (id: BugId, spent: boolean, wide = 1, harder = 1) => (NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide)) / harderOn(id, harder);
 /** Whether an insect missed so many times is off for good, for whoever missed it: only tired hands lose one so. */
 export const fledBy = (misses: number, spent: boolean) => spent && misses >= NET.tired.misses;
 /** How long a swing takes to land. */
 export const swingMs = (spent: boolean) => (spent ? NET.tired.lands : NET.lands);
 /** Whether a net landing at a point takes an insect as it is then. */
-export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide);
+export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1, harder = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide, harder);
