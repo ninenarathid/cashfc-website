@@ -1,4 +1,5 @@
 import { BOX } from "./box";
+import { linesRow } from "./line-points";
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
@@ -238,6 +239,8 @@ export function catalogOf() {
     waters: { dawn: WATERS.dawn, night: WATERS.night, lasts: WATERS.lasts, most: WATERS.most, adds: WATERS.adds, guards: WATERS.guards },
     /** The storage box in the plaza (lib/town/box): the slots a member's has for nothing, how near it one stands to use it, and the tile it stands on. */
     box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y] },
+    /** The lines of work (lib/town/lines, line-points): every ladder's marks and day's bound, and what each thing is worth on its line. */
+    work: linesRow(),
     /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
   };
@@ -337,7 +340,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v147 (ran 2026-10-06, 20:16) wrote one over, for what he asked the same day of the pests: in an hour the farm was counted with insects on it
  * they strike a little oftener (farming: `pests.swarm`, new: how many are some and many, and what each adds).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // the lines of work: a row of their own
+  v149: { keys: ["work"], over: [] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

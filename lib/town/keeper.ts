@@ -450,8 +450,8 @@ export class DbKeeper implements Keeper {
     if (this.read && !this.shut && !this.ranksAgain) {
       void this.ask("town_well_ranks");
       // (and my lines of work with everybody's worn title, in the same breath: a database with no lines answers nothing)
-      void this.ask("town_lines");
-      this.ranksAgain = setInterval(() => { void this.ask("town_well_ranks"); void this.ask("town_lines"); }, RANKS_MS);
+      void this.ask("town_work");
+      this.ranksAgain = setInterval(() => { void this.ask("town_well_ranks"); void this.ask("town_work"); }, RANKS_MS);
     }
     if (this.read || this.opened === false || this.shut) return;
     // The town could not be reached: asked again in a while, a little later each time. (On a timer, not here: what
@@ -704,7 +704,7 @@ export class DbKeeper implements Keeper {
   ranks(): Record<string, number> { return this.ranks_; }
   lines(): LinesTold | null { return this.lines_; }
   titles(): Record<string, Worn> { return this.titles_; }
-  linesRead() { if (this.lines_) void this.ask("town_lines"); }
+  linesRead() { if (this.lines_) void this.ask("town_work"); }
   titleWear(worn: Worn | null) { return this.deed("town_title_wear", { p_line: worn?.line ?? null, p_rank: worn?.rank ?? null }); }
   pots(): Pot[] { return this.pots_; }
   found(): ItemId[] { return this.found_; }

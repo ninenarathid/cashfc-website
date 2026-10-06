@@ -1,7 +1,8 @@
 import { KINDS } from "./forest";
 import { BUGS } from "./insects";
 import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
-import { countedOn, type LineId } from "./lines";
+import { LINES, LINE_IDS, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
+import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 
 /**
  * What counts for the points of a line (lib/town/lines), read off what is written down anyway: a deed (the
@@ -35,6 +36,29 @@ export const POINTS = {
   insects: { plain: 1, way: 3, rare: 8, pays: 20 },
   farming: { every: 12 },
 };
+
+/**
+ * The lines as the database is to read them (its catalog's `lines` row): every ladder's marks and day's bound, and
+ * what each thing is worth already worked out, thing by thing, so that the database only looks a number up and has
+ * no rule of its own to drift from this one. A fish, a dish, an insect or a crop added later is a row to write over.
+ */
+export function linesRow() {
+  const insects = Object.fromEntries(Object.keys(BUGS).map((id) => [id, bugPoints(id)]));
+  return {
+    ids: [...LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
+    marks: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].marks])),
+    day: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].day])),
+    kitchen: {
+      ladled: POINTS.kitchen.ladled, pots: POINTS.kitchen.pots, ladling: POINTS.kitchen.ladling,
+      pot: Object.fromEntries([...DISH_IDS.flatMap((id) => (DISHES[id].recipe ? [[id, DISHES[id].recipe!.serves] as [string, number]] : [])), ...MAKE_IDS.map((id) => [id, POINTS.kitchen.made] as [string, number])]),
+    },
+    helpers: POINTS.helpers,
+    fishing: Object.fromEntries(FISH_IDS.map((id) => [id, POINTS.fishing[FISH[id].tier] ?? 0])),
+    forest: { how: { pick: POINTS.forest.pick, choose: POINTS.forest.choose, shake: POINTS.forest.shake, dig: POINTS.forest.dig }, rare: POINTS.forest.rare, rares: [...RARE_WILD].sort() },
+    insects,
+    farming: Object.fromEntries(CROP_IDS.map((id) => [id, Math.max(1, Math.floor(CROPS[id].hours / POINTS.farming.every))])),
+  };
+}
 
 /** Something done, as it is written down: a deed, or a go at a game. */
 export interface Done {
@@ -92,7 +116,8 @@ export function countsOf(d: Done, doer: string): Counts[] {
       return (Array.isArray(d.doc.to) ? d.doc.to : []).filter((id): id is string => typeof id === "string" && id !== doer)
         .map((id) => ({ to: id, line: "helpers" as const, raw: POINTS.helpers.thanked }));
     case "gather": {
-      const how = POINTS.forest[String(d.doc.how ?? "")];
+      // (one of the four ways there are of having a thing of the forest's, and no other word)
+      const way = String(d.doc.how ?? ""), how = ["pick", "choose", "shake", "dig"].includes(way) ? POINTS.forest[way] : 0;
       return how ? [{ to: null, line: "forest", raw: how + (RARE_WILD.has(thing) ? POINTS.forest.rare : 0), first: `forest:${thing}` }] : [];
     }
     case "net": {
