@@ -103,7 +103,7 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
           <h4 className="mt-3 text-meta font-semibold" style={{ color: CREAM }}>{th ? "เครื่องรางที่มี" : "Charms you have"}</h4>
           {spare.length === 0 ? (
             <p className="mt-1 text-label" style={{ color: CREAM_SOFT }} data-me-none>
-              {gifts.had.length === 0 ? (th ? "ยังไม่มีเครื่องราง ขั้นแรกของแต่ละสายมีของให้" : "None yet. The first rank of a line gives one.") : (th ? "ใส่ครบทุกชิ้นที่มีแล้ว" : "Every one you have is worn.")}
+              {!gifts.had.some((id) => giftOf(id)?.kind === "charm") ? (th ? "ยังไม่มีเครื่องราง ขั้นแรกของแต่ละสายมีของให้" : "None yet. The first rank of a line gives one.") : (th ? "ใส่ครบทุกชิ้นที่มีแล้ว" : "Every one you have is worn.")}
             </p>
           ) : (
             <ul className="mt-1.5 grid grid-cols-1 gap-1.5 min-[520px]:grid-cols-2">
