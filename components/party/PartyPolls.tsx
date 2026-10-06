@@ -193,6 +193,7 @@ function PollCard(
   const answered = pollAnswered(poll);
   const mine = myPicks(poll, userId);
   const canPress = mayAnswer && !closed;
+  const canAdd = canAsk && !closed && !!onAddChoice && poll.choices.length < POLL_CHOICES_MAX;
   const extraProblem = extra != null && extra.trim() ? choiceProblem(poll, extra) : null;
 
   /** Today's name where the roster has one; the name they answered under otherwise. */
@@ -310,33 +311,50 @@ function PollCard(
             </li>
           );
         })}
+        {/* One more choice, where the next one would be written: the last row
+            of the list, shaped like a choice that is not there yet. It used
+            to be a small grey link beside "close" and "delete" under the
+            card, and a lead whose question already had answers took the list
+            for settled. It never was: the database adds a choice for as long
+            as the question is open, and nobody's answer moves. */}
+        {canAdd && (
+          <li>
+            {extra == null ? (
+              <button type="button" onClick={() => setExtra("")}
+                      className="w-full rounded-lg border border-dashed border-line-strong px-3 py-2 text-left text-read text-accent transition-colors hover:border-accent/70 hover:bg-accent/10">
+                + {t("pf.pollAddChoice")}
+              </button>
+            ) : (
+              <form className="flex flex-col gap-1.5"
+                    onSubmit={(e) => { e.preventDefault(); void addChoice(); }}>
+                <div className="flex items-center gap-2">
+                  <input value={extra} autoFocus maxLength={POLL_CHOICE_MAX}
+                         onChange={(e) => setExtra(e.target.value)}
+                         aria-label={t("pf.pollAddChoice")}
+                         placeholder={t("pf.pollChoiceN", { n: poll.choices.length + 1 })}
+                         className="min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-read text-ink placeholder:text-muted" />
+                  <button type="submit" disabled={busy || !extra.trim() || !!extraProblem}
+                          className="shrink-0 rounded-lg border border-accent/60 bg-accent/15 px-3 py-2 text-read text-accent hover:bg-accent/25 disabled:opacity-50">
+                    {t("pf.pollAdd")}
+                  </button>
+                  <button type="button" disabled={busy} onClick={() => setExtra(null)}
+                          className="shrink-0 py-2 text-read text-muted hover:text-ink">
+                    {t("common.cancel")}
+                  </button>
+                </div>
+                {extraProblem ? (
+                  <p className="text-ui text-gold">
+                    {t(PROBLEM[extraProblem], { n: extraProblem === "long" ? POLL_CHOICE_MAX : POLL_CHOICES_MAX })}
+                  </p>
+                ) : answered > 0 && (
+                  // What a lead wonders at this moment, with answers already in.
+                  <p className="text-ui leading-relaxed text-muted">{t("pf.pollAddKeeps")}</p>
+                )}
+              </form>
+            )}
+          </li>
+        )}
       </ul>
-
-      {extra != null && (
-        <form className="flex flex-col gap-1.5"
-              onSubmit={(e) => { e.preventDefault(); void addChoice(); }}>
-          <div className="flex items-center gap-2">
-            <input value={extra} autoFocus maxLength={POLL_CHOICE_MAX}
-                   onChange={(e) => setExtra(e.target.value)}
-                   aria-label={t("pf.pollAddChoice")}
-                   placeholder={t("pf.pollChoiceN", { n: poll.choices.length + 1 })}
-                   className="min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 py-2 text-read text-ink placeholder:text-muted" />
-            <button type="submit" disabled={busy || !extra.trim() || !!extraProblem}
-                    className="shrink-0 rounded-lg border border-accent/60 bg-accent/15 px-3 py-2 text-read text-accent hover:bg-accent/25 disabled:opacity-50">
-              {t("pf.pollAdd")}
-            </button>
-            <button type="button" disabled={busy} onClick={() => setExtra(null)}
-                    className="shrink-0 py-2 text-read text-muted hover:text-ink">
-              {t("common.cancel")}
-            </button>
-          </div>
-          {extraProblem && (
-            <p className="text-ui text-gold">
-              {t(PROBLEM[extraProblem], { n: extraProblem === "long" ? POLL_CHOICE_MAX : POLL_CHOICES_MAX })}
-            </p>
-          )}
-        </form>
-      )}
 
       <footer className="flex flex-wrap items-center gap-x-3 gap-y-1">
         {/* What pressing does, or why it does nothing. Said once, under the
@@ -358,13 +376,6 @@ function PollCard(
           )}
           {canAsk && (
             <>
-              {!closed && extra == null && onAddChoice
-                && poll.choices.length < POLL_CHOICES_MAX && (
-                <button type="button" onClick={() => setExtra("")}
-                        className="py-1 text-ui text-muted hover:text-ink">
-                  + {t("pf.pollAddChoice")}
-                </button>
-              )}
               {onClose && (
                 <button type="button" onClick={() => onClose(!closed)}
                         className="py-1 text-ui text-muted hover:text-ink">

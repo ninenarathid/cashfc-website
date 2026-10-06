@@ -3449,6 +3449,10 @@ const DICT = {
   "pf.pollChoiceN": { en: "Choice {n}", th: "ตัวเลือกที่ {n}" },
   "pf.pollAddChoice": { en: "Add a choice", th: "เพิ่มตัวเลือก" },
   "pf.pollAdd": { en: "Add", th: "เพิ่ม" },
+  "pf.pollAddKeeps": {
+    en: "Answers already given stay as they are. Anyone can move to the new choice.",
+    th: "คำตอบที่มีอยู่ไม่หายไปไหน ใครอยากย้ายมาข้อใหม่ก็กดเลือกได้เลย",
+  },
   "pf.pollRemoveChoice": { en: "Remove this choice", th: "เอาตัวเลือกนี้ออก" },
   "pf.pollMultiple": {
     en: "Let people pick more than one",
