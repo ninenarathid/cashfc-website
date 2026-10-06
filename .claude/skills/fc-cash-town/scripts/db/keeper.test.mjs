@@ -22,7 +22,7 @@ const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v151"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -1194,6 +1194,21 @@ try {
     A.linesRead();
     await settled(A);
     ok("…and a keeper is told its own, all seven", Object.keys(A.lines()?.lines ?? {}).length === 7, A.lines());
+    // (v151, a draft or run: the gifts of ranks. A database before it gives none, and the keeper says so)
+    if ((await sql(`select to_regprocedure('public.town_gift_take(text, integer)') is not null as there`))[0].there) {
+      ok("where gifts are given the keeper says so", A.gifting() === true);
+      await sql(`insert into public.town_work (member_id, line, kept) values ($1, 'farming', town.work_new() || '{"points": 60}'::jsonb) on conflict (member_id, line) do update set kept = excluded.kept`, [a]);
+      const early = await A.giftTake("forest", 1);
+      ok("a gift of a rank not reached is refused, and the purse has none", !early.ok && early.why === "rank" && !(A.purse().gifts?.had?.length > 0), early);
+      const took = await A.giftTake("farming", 1);
+      ok("a gift of a rank reached is taken through the keeper: named, and in the purse it keeps at once", took.ok && took.gift === "charmHoe" && A.purse().gifts?.had?.join() === "charmHoe", { took, gifts: A.purse().gifts });
+      const wore = await A.charmsWear(["charmHoe"]);
+      ok("…and worn", wore.ok && A.purse().gifts.charms.join() === "charmHoe", { wore, gifts: A.purse().gifts });
+      const third = await A.charmsWear(["charmHoe", "charmNet"]);
+      ok("a charm not had is refused, and what is worn stays", !third.ok && third.why === "none" && A.purse().gifts.charms.join() === "charmHoe", third);
+      await A.buy("worm", 1);
+      ok("a purse keeps its gifts through whatever else is done", A.purse().gifts?.had?.join() === "charmHoe" && A.purse().gifts.charms.join() === "charmHoe", A.purse().gifts);
+    } else ok("a database that gives no gifts: the keeper says so", A.gifting() === false);
   }
   A.close(); B.close();
   const after = asked.length;
