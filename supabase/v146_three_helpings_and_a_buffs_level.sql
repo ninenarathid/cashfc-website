@@ -1,8 +1,10 @@
 -- v146 — three helpings to a meal's hours, and a meal's buffs at their levels
 --
--- Run this once in the Supabase SQL editor, after v145 (it stops at its first
--- line without v123's fountain). Running it again is safe. **Run it after the
--- site's own code for it is live**: a page from before goes on as it was (it
+-- Run this once in the Supabase SQL editor, after v144 (it stops at its first
+-- line without v123's fountain). Running it again is safe. v145 is another
+-- file of the same day (an insect let go on a plant with a pest): neither
+-- stands on the other, and the two may run in either order. **Run it after
+-- the site's own code for it is live**: a page from before goes on as it was (it
 -- reads the one buff and the meal's mark this file still writes, and shows a
 -- meal as eaten after its first helping), and a page with the code and a
 -- database without this file asks its keeper how many helpings a meal takes
