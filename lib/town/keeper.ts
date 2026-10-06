@@ -76,8 +76,8 @@ export interface Landed { how: FishingEnd; kept: boolean; record: boolean; back?
 export type CastHow = "pair" | "star";
 /** One of the two a rod of two lines hooked: what it is and how long, and (what is no fish) that it came in at once. */
 export interface Hooked { what: CatchId; size: number; landed: boolean; kept?: boolean }
-/** (a strike's answer, of a rod of two lines: the two, in their order) */
-export interface Struck { pair?: Hooked[] }
+/** (a strike's answer, of a rod of two lines: the two, in their order; and `harder`: how many times as hard the deck's good fish are for me, where they are: lib/town/gifts' harderFor) */
+export interface Struck { pair?: Hooked[]; harder?: number }
 /** What a line dropped is told of: how long until the bite and when the float twitches; and, where it is told, a shade or the thing itself of what is on its way (`coming2`: of the second line's), and that two lines are out. */
 export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId };
 
@@ -880,7 +880,7 @@ export class DbKeeper implements Keeper {
     return { ok: true, hooked: !!a.hooked, how: a.how as Struck["how"], what: a.what as CatchId | undefined, size: a.size as number | undefined,
       landed: !!a.landed, kept: a.kept as boolean | undefined, record: false,
       // ── gifts: fishing ──
-      ...(Array.isArray(a.pair) ? { pair: a.pair as Hooked[] } : {}) };
+      ...(Array.isArray(a.pair) ? { pair: a.pair as Hooked[] } : {}), ...(typeof a.harder === "number" && a.harder > 1 ? { harder: a.harder } : {}) };
   }
   async missed(): Promise<{ what?: CatchId; size?: number }> {
     // Told when the database, too, counts the bite as gone: it gives a late strike a moment's grace, and one sent
@@ -889,7 +889,11 @@ export class DbKeeper implements Keeper {
     this.line = this.line.then(() => new Promise((done) => setTimeout(done, LATE_MS)));
     const a = await this.ask("town_strike", { p_reaction: null });
     // (still hooked, by clocks that disagree: let it go)
-    if (a?.ok && a.hooked && !a.landed) await this.ask("town_land", { p_how: "slipped", p_fight: null });
+    if (a?.ok && a.hooked && !a.landed) {
+      const let1 = await this.ask("town_land", { p_how: "slipped", p_fight: null });
+      // ── gifts: fishing ── (two fish on a rod of two lines: the other is let go too)
+      if (let1?.more) await this.ask("town_land", { p_how: "slipped", p_fight: null });
+    }
     return {};
   }
   async land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed> {

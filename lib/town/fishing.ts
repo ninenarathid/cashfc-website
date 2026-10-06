@@ -353,6 +353,9 @@ export interface FightMods {
   narrow?: number;
   /** `silk`: the seconds a line of dragon silk gives to mend what would have lost the fish (none: it is lost at once, as ever). */
   silk?: number;
+  /** `harder`: how many times as hard the deck's good fish are for whoever fights (lib/town/gifts' harderFor; a common fish is as it is). `bout`: which of a legend's fights running this is (from the second, the fish breaks away at once). */
+  harder?: number;
+  bout?: number;
 }
 
 /**
@@ -364,20 +367,22 @@ export interface FightMods {
 export function startFight(fish: FishId, strike: Strike, mods: FightMods, seed: number): Fight {
   const f = FISH[fish].fight, kind = STYLE[f.style], spent = STAMINA.spent, gear = mods.gear ?? PLAIN;
   const band = f.band * (mods.spent ? spent.band : 1) * (1 + byOf("calm", lvl(mods.calm))) * gear.band * (mods.narrow ?? 1);
-  const length = f.line * (strike === "perfect" ? FIGHT.perfect : strike === "late" ? FIGHT.late : 1) * gear.line;
+  // (harder for the skilled: so many times the pull, the surge and the line to win; and a bout after the first begins as a late strike's fight does, the fish away at once)
+  const k = harderOf(fish, mods.harder ?? 1), away = strike === "late" || (mods.bout ?? 1) > 1;
+  const length = f.line * (strike === "perfect" ? FIGHT.perfect : strike === "late" ? FIGHT.late : 1) * gear.line * k;
   const sway = f.sway * (mods.spent ? spent.sway : 1), pace = f.pace * (mods.spent ? spent.pace : 1) * gear.pace;
   let [r, next] = draw(seed | 0);
-  const from = strike === "late" ? 0 : f.every[0] + (f.every[1] - f.every[0]) * r;
+  const from = away ? 0 : f.every[0] + (f.every[1] - f.every[0]) * r;
   [r, next] = draw(next);
   const rest = FIGHT.settle[0] + (FIGHT.settle[1] - FIGHT.settle[0]) * r;
   const at = room(band, FIGHT.centre);
   // (a late strike's surge is on already: a fish that carries the stretch has thrown it up the gauge)
   let to = at;
-  if (strike === "late" && kind.carries) { [r, next] = draw(next); to = room(band, at + sway * (0.7 + 0.3 * r)); }
+  if (away && kind.carries) { [r, next] = draw(next); to = room(band, at + sway * (0.7 + 0.3 * r)); }
   return {
     fish, t: 0, tension: 0.5, line: length, length, strain: 0, slack: 0, snapIn: FIGHT.snap * gear.snap, slipIn: FIGHT.slip * gear.slip,
     band, lo: at - band / 2, hi: at + band / 2, at, to, speed: pace, rest, sway, pace,
-    pull: f.pull, power: f.surge * (mods.spent ? spent.surge : 1),
+    pull: f.pull * k, power: f.surge * (mods.spent ? spent.surge : 1) * k,
     surge: { from, to: from + kind.surge },
     seed: next, over: null,
     ...(mods.silk && mods.silk > 0 ? { silk: mods.silk, mend: null } : {}),
@@ -724,3 +729,54 @@ export function hookStar<P extends Purse>(purse: P, now: number): { ok: true; pu
   if (!ROD_IDS.some((r) => held(purse.bag, r))) return { ok: false, why: "tool" };
   return useGift(purse, "thingBait", now);
 }
+
+/* ── the game made harder to match its gifts (the owner, 2026-10-07: "nearly OP", so the game grows with whoever has them) ── */
+
+/**
+ * Wary fish. The whispering float tells what is on its way, so a line whose fish is not wanted can be taken up and
+ * dropped again until one is. So: whoever takes a line up more than `ups` times within `within` seconds finds the
+ * fish of `tiers` gone from their water for `gone` seconds (the rare and better: what such a hand is after). Nothing
+ * on the screen says so: the water only has no such fish in it for a while.
+ *
+ * What counts as a line taken up (whoever keeps the game counts it, at each): a line pulled up before anything was
+ * hooked; a line dropped over one still out; and, **of a line that told what was on its way**, a strike too soon and
+ * a bite let go by, which are the same thing done with the float's own count (a hand with no float strikes too soon
+ * by mistake, and is not counted for it). Kept in the purse (`wary`): the moments of the lines taken up lately, and
+ * until when the fish are gone.
+ */
+export const WARY = { ups: 3, within: 300, gone: 600, tiers: ["rare", "legend"] as Tier[] };
+/** Whether the rare fish have gone from somebody's water for now. */
+export function isWary(purse: Pick<Purse, "wary">, now: number): boolean {
+  const w = purse.wary as { until?: unknown } | null | undefined;
+  return !!w && typeof w === "object" && !Array.isArray(w) && typeof w.until === "number" && w.until > now;
+}
+/** A line taken up: one more of them counted; with more than there may be lately, the rare fish are gone from now, and the count begins anew. */
+export function tookUp<P extends Pick<Purse, "wary">>(purse: P, now: number): P {
+  const kept = purse.wary as { ups?: unknown; until?: unknown } | null | undefined, sound = !!kept && typeof kept === "object" && !Array.isArray(kept);
+  const lately = (sound && Array.isArray(kept.ups) ? kept.ups : []).filter((t): t is number => typeof t === "number" && t > now - WARY.within * 1000 && t <= now);
+  const until = sound && typeof kept.until === "number" ? kept.until : 0;
+  return lately.length + 1 > WARY.ups ? { ...purse, wary: { ups: [], until: now + WARY.gone * 1000 } } : { ...purse, wary: { ups: [...lately, now], until } };
+}
+
+/**
+ * A legend has a second bout: it is landed only after so many fights running (`BOUTS`), the next beginning as the
+ * one before is won, with the fish breaking away at once. Lost in any of them, it is lost. One fish all the same:
+ * its fight is paid for once, and it is one go on the line of work.
+ */
+export const BOUTS: Partial<Record<Tier, number>> = { legend: 2 };
+export const boutsOf = (fish: FishId): number => BOUTS[FISH[fish].tier] ?? 1;
+
+/**
+ * Good things are harder for the skilled (lib/town/gifts' `harderFor`: from the fourth rank of the deck, 8% a rank).
+ * For a fish that is uncommon or better "harder" is: it pulls and surges so many times as hard, and there is so many
+ * times the line to win (the part whoever keeps the game can hold a landing to: `leastMs`); and it is so many times
+ * as long, to the tenth of a centimetre. A common fish is as it is for everybody.
+ */
+export const harderOf = (fish: CatchId, k: number): number => (fish in FISH && FISH[fish as FishId].tier !== "common" && k > 1 ? k : 1);
+export const biggerBy = (size: number, k: number): number => Math.round(size * k * 10) / 10;
+/**
+ * The least a landing can have taken, in milliseconds: so much (`least`) of the quickest fight there could be with
+ * that fish, by how much harder it is for whoever fought it, for each of its bouts. (Sooner, it was not landed.)
+ */
+export const leastMs = (fish: FishId, harder: number, bouts: number, least: number): number =>
+  Math.floor((FISH[fish].fight.line / FIGHT.reel) * least * harderOf(fish, harder) * bouts * 1000);

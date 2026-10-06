@@ -2,7 +2,7 @@ import { newBox, roomyBox, stow, unstow, type Box } from "./box";
 import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot, type Taste } from "./cooking";
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
-import { backBait, hookBait, hookBaits, landCatch, loseBait } from "./fishing";
+import { backBait, hookBait, landCatch, loseBait } from "./fishing";
 import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
 import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
@@ -357,10 +357,8 @@ export class Trial {
   /** Spend the stamina a fight costs. */
   spend(n: number) { this.save(spend(this.purse(), n, this.now())); }
   // ── gifts: fishing ──
-  /** My purse as a rule of the deck's gifts left it (lib/town/fishing: the otter's count, the orb's sky, the lines taken up): kept. */
+  /** My purse as a rule of the deck's gifts left it (lib/town/fishing: baits hooked, the otter's count, the orb's sky, the lines taken up): kept. */
   fished(purse: Purse) { this.save(purse); }
-  /** So many of a bait put on hooks at once: a rod of two lines takes two. */
-  baits(bait: BaitId, n: number): Done<{ purse: Purse }> { return this.keep(hookBaits(this.purse(), bait, n)); }
   /** Land what was caught: into the bag when there is room for it, and, a fish, onto the record when it is the longest of its kind yet. */
   land(what: CatchId, size: number): { kept: boolean; record: boolean } {
     const { purse, kept, record } = landCatch(this.purse(), what, size);

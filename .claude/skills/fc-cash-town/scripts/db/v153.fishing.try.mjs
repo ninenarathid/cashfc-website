@@ -1,13 +1,13 @@
 // Scenes of the fishing deck's gifts, played through the functions a member calls (try-line.mjs runs this after the
 // line's SQL is in and its rule cases have been asked).
-export default async function ({ t, U, call, purseOf, deeds, one, same, give, CODE }) {
+export default async function ({ t, U, call, purseOf, deeds, one, same, give, CODE, rank }) {
   const DECK = [16, 38];
   const BAG = [{ item: "rod", n: 1 }, { item: "worm", n: 9 }, null, null, null, null, null, null, null, null];
-  /** A member with a rod in the hand, a bag (nine worms, unless told), all their stamina, and these gifts. (A purse nobody has kept yet is begun as the database begins one.) */
+  /** A member with a rod in the hand, a bag (nine worms, unless told), all their stamina, and these gifts. (A purse nobody has kept yet is begun as the database begins one; no sky is lit, and no line has been taken up lately.) */
   const rigged = async (who, gifts = {}, bag = BAG) => {
     await t.sql(`insert into public.town_purses (member_id) values ($1) on conflict (member_id) do nothing`, [who]);
     await t.sql(`delete from public.town_lines where member_id = $1`, [who]);
-    await t.sql(`update public.town_purses set doc = (case when doc ? 'best' then doc else town.fresh() end) || jsonb_build_object('hand', 'rod', 'bag', $2::jsonb, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who, JSON.stringify(bag)]);
+    await t.sql(`update public.town_purses set doc = ((case when doc ? 'best' then doc else town.fresh() end) - 'wary' - 'orb') || jsonb_build_object('hand', 'rod', 'bag', $2::jsonb, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [who, JSON.stringify(bag)]);
     return give(who, gifts);
   };
   const lineOf = async (who) => (await one(`select doc from public.town_lines where member_id = $1`, [who]))?.doc ?? null;
@@ -188,7 +188,7 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
   /** So many lines dropped one after the other, each as the database kept it. */
   const dropped = async (who, n) => {
     const all = [];
-    for (let i = 0; i < n; i++) { const c = await call(who, "town_cast", "loach", DECK[0], DECK[1], false); if (!c?.ok) return c; all.push(await lineOf(who)); }
+    for (let i = 0; i < n; i++) { await t.sql(`delete from public.town_lines where member_id = $1`, [who]); const c = await call(who, "town_cast", "loach", DECK[0], DECK[1], false); if (!c?.ok) return c; all.push(await lineOf(who)); }
     return all;
   };
   const longest = (what) => (CODE.fish[what] ?? CODE.flotsam[what]).wait[1];
@@ -221,11 +221,11 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
   const after = await dropped(U.m1, 12);
   t.check("its minutes over, the water is the town's own again", Array.isArray(after) && after.every((l) => l.orb === undefined) && (raining || !after.some((l) => l.what === "salmon")), Array.isArray(after) ? after.map((l) => l.what).join(" ") : after);
   // a night of a full moon: the moon's own fish comes to dough (whatever the hour is, and whatever the moon)
-  await rigged(U.m1, { had: ["thingOrb"] }, [{ item: "rod", n: 1 }, { item: "dough", n: CODE.items.dough.stack }, { item: "dough", n: CODE.items.dough.stack }, { item: "dough", n: CODE.items.dough.stack }, null, null, null, null, null, null]);
+  await rigged(U.m1, { had: ["thingOrb"] }, [{ item: "rod", n: 1 }, ...Array.from({ length: 9 }, () => ({ item: "dough", n: CODE.items.dough.stack }))]);
   did = await call(U.m1, "town_orb", "moon");
   const moonlit = [];
-  for (let i = 0; i < 80; i++) { await call(U.m1, "town_cast", "dough", DECK[0], DECK[1], false); moonlit.push((await lineOf(U.m1)).what); }
-  t.check("under a full moon's night the moon's own fish comes to dough, and what bites only by day does not", did?.ok === true && moonlit.includes("moonFish") && !moonlit.includes("tilapia") && !moonlit.includes("barb"), [...new Set(moonlit)].join(" "));
+  for (let i = 0; i < 80; i++) { await t.sql(`delete from public.town_lines where member_id = $1`, [U.m1]); await call(U.m1, "town_cast", "dough", DECK[0], DECK[1], false); moonlit.push((await lineOf(U.m1))?.what ?? "(no line)"); }
+  t.check("under a full moon's night the moon's own fish comes to dough, and what bites only by day does not", did?.ok === true && moonlit.includes("moonFish") && !moonlit.includes("tilapia") && !moonlit.includes("barb") && !moonlit.includes("(no line)"), [...new Set(moonlit)].join(" "));
   /* ── stardust bait ── */
   t.section("stardust bait: no bait from the bag, and whatever takes it is rare or better");
   const ROD = [{ item: "rod", n: 1 }, null, null, null, null, null, null, null, null, null];
@@ -251,6 +251,7 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
   // what takes it, many times over (the count put back each time): only the rare and better, and of the first shelf's water
   const took = [];
   for (let i = 0; i < 60; i++) {
+    await t.sql(`delete from public.town_lines where member_id = $1`, [U.m1]);
     await t.sql(`update public.town_purses set doc = doc #- '{gifts,used,thingBait}' where member_id = $1`, [U.m1]);
     await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
     took.push((await lineOf(U.m1)).what);
@@ -261,7 +262,7 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
   // three a day
   await rigged(U.m1, { had: ["thingBait"] }, ROD);
   const three = [];
-  for (let i = 0; i < 4; i++) three.push(await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star"));
+  for (let i = 0; i < 4; i++) { if (i < 3) await t.sql(`delete from public.town_lines where member_id = $1`, [U.m1]); three.push(await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star")); }
   t.check("three a day: the fourth is refused, and the line of the third is out still", three.slice(0, 3).every((d) => d?.ok === true) && three[3]?.ok === false && three[3].why === "spent" && (await purseOf(U.m1)).gifts.used.thingBait.n === 3 && (await lineOf(U.m1)) !== null, three.map((d) => d?.ok ?? d));
   // struck and fought as any fish, and lost as any fish: nothing comes back to the bag
   await rigged(U.m1, { had: ["thingBait"] }, ROD);
@@ -282,4 +283,113 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, CO
   await rigged(U.m1, { had: ["thingBait", "thingRod"] }, ROD);
   did = await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
   t.check("it goes out on one line, whoever has a rod of two", did?.ok === true && !("pair" in did.line) && (await lineOf(U.m1)).two === undefined, did?.line);
+  /* ── the game made harder to match ── */
+  t.section("wary fish: lines taken up again and again, and the rare fish are gone a while");
+  const wary = async (who) => (await purseOf(who)).wary ?? null;
+  const waryNow = async (who) => (await one(`select town.is_wary(p.doc, town.now_ms()) as w from public.town_purses p where p.member_id = $1`, [who])).w;
+  const LOACHES = [{ item: "rod", n: 1 }, ...Array.from({ length: 9 }, () => ({ item: "loach", n: CODE.items.loach.stack }))];
+  // (a line pulled up with nothing hooked, by anybody)
+  await rigged(U.m2, {}, LOACHES);
+  const ups = [];
+  for (let i = 0; i < 4; i++) {
+    await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false);
+    did = await call(U.m2, "town_land", "left", null);
+    ups.push([(await wary(U.m2))?.ups.length, await waryNow(U.m2)]);
+  }
+  t.check("a line pulled up with nothing hooked is counted: three of them and the water is as it was; the fourth within five minutes, and the rare fish are gone for ten", same(ups, [[1, false], [2, false], [3, false], [0, true]])
+    && Math.abs((await wary(U.m2)).until - (nowMs + 600000)) < 60000, { ups, wary: await wary(U.m2) });
+  const gone = [];
+  for (let i = 0; i < 60; i++) { await t.sql(`delete from public.town_lines where member_id = $1`, [U.m2]); await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false); gone.push((await lineOf(U.m2)).what); }
+  t.check("while they are gone no rare fish and no legend takes that member's line, whatever the bait; the rest come as ever", gone.every((w) => !["rare", "legend"].includes(tierOf(w))) && gone.some((w) => tierOf(w) === "common") && new Set(gone).size >= 3, [...new Set(gone)].join(" "));
+  t.check("nothing is said of it: a line dropped is answered as any line", did?.ok === true && Object.keys((await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false)).line).sort().join() === "nibbles,wait");
+  // (their minutes over)
+  await t.sql(`update public.town_purses set doc = jsonb_set(doc, '{wary,until}', to_jsonb(town.now_ms() - 1)) where member_id = $1`, [U.m2]);
+  t.check("ten minutes on, the rare fish are back", (await waryNow(U.m2)) === false);
+  // (ups long ago do not count)
+  await t.sql(`update public.town_purses set doc = jsonb_set(doc, '{wary}', jsonb_build_object('ups', jsonb_build_array(town.now_ms() - 400000, town.now_ms() - 350000, town.now_ms() - 310000), 'until', 0)) where member_id = $1`, [U.m2]);
+  await t.sql(`delete from public.town_lines where member_id = $1`, [U.m2]);
+  await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false);
+  await call(U.m2, "town_land", "left", null);
+  t.check("three lines taken up more than five minutes ago do not count against a fourth", (await waryNow(U.m2)) === false && (await wary(U.m2)).ups.length === 1, await wary(U.m2));
+  // a line dropped over one still out
+  await rigged(U.m2, {}, LOACHES);
+  for (let i = 0; i < 5; i++) await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false);
+  t.check("a line dropped over one still out is a line taken up too: the fifth dropped so, and the rare fish are gone", (await waryNow(U.m2)) === true, await wary(U.m2));
+  // with no float: a strike too soon and a bite let go by are mistakes, and are not counted
+  await rigged(U.m2, {}, LOACHES);
+  for (let i = 0; i < 5; i++) { await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false); await call(U.m2, "town_strike", -3000); }
+  for (let i = 0; i < 3; i++) { await call(U.m2, "town_cast", "loach", DECK[0], DECK[1], false); await t.sql(`update public.town_lines set doc = doc || jsonb_build_object('bites_at', town.now_ms() - 60000) where member_id = $1`, [U.m2]); did = await call(U.m2, "town_strike", null); }
+  t.check("with no float a strike too soon and a bite let go by are not counted: eight of them, and the water is as it was", did?.how === "missed" && (await wary(U.m2)) === null && (await waryNow(U.m2)) === false, { did: did?.how, wary: await wary(U.m2) });
+  // with the float: they are the same as taking the line up
+  await rigged(U.m1, { had: ["charmFloat"], charms: ["charmFloat"] }, LOACHES);
+  const told = [];
+  for (let i = 0; i < 2; i++) { did = await call(U.m1, "town_cast", "loach", DECK[0], DECK[1], false); told.push((await lineOf(U.m1)).told); await call(U.m1, "town_strike", -3000); }
+  for (let i = 0; i < 2; i++) { await call(U.m1, "town_cast", "loach", DECK[0], DECK[1], false); await t.sql(`update public.town_lines set doc = doc || jsonb_build_object('bites_at', town.now_ms() - 60000) where member_id = $1`, [U.m1]); did = await call(U.m1, "town_strike", null); }
+  t.check("with the whispering float worn the line told what was on its way, so a strike too soon and a bite let go by are lines taken up: two and two, and the rare fish are gone", told.every((x) => x === true) && did?.how === "missed" && (await waryNow(U.m1)) === true, { told, wary: await wary(U.m1) });
+  // a fish hooked, fought, lost or landed is no line taken up
+  await rigged(U.m1, { had: ["charmFloat"], charms: ["charmFloat"] }, BAG);
+  for (let i = 0; i < 5; i++) { await hooked(U.m1, "minnow", 6); await call(U.m1, "town_land", i % 2 ? "slipped" : "snapped", null); }
+  t.check("a fish hooked and lost in the fight is no line taken up: five of them, and nothing is counted", (await wary(U.m1)) === null && (await waryNow(U.m1)) === false, await wary(U.m1));
+  // the stardust bait finds still water
+  await rigged(U.m1, { had: ["thingBait"] }, ROD);
+  await t.sql(`update public.town_purses set doc = doc || jsonb_build_object('wary', jsonb_build_object('ups', '[]'::jsonb, 'until', town.now_ms() + 600000)) where member_id = $1`, [U.m1]);
+  did = await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "star");
+  t.check("for a hand the rare fish are wary of a stardust bait finds the water still, and is not spent", did?.ok === false && did.why === "calm" && !(await purseOf(U.m1)).gifts.used.thingBait, did);
+
+  t.section("good fish harder for the skilled, and a legend's second bout");
+  const least = (what, k = 1, bouts = 1) => Math.floor((CODE.fish[what].line / CODE.fishing.reel) * CODE.fishing.least * k * bouts * 1000);
+  /** A fight a member is in, made to have begun so long ago, landed: how it is answered. */
+  const landedAfter = async (who, ms) => { await ago(who, ms); return call(who, "town_land", "landed", null); };
+  // below the fourth rank nothing is harder
+  await rigged(U.m1, {}, BAG);
+  await rank(U.m1, "fishing", 0);
+  did = await hooked(U.m1, "snakehead", 50);
+  line = await lineOf(U.m1);
+  t.check("below the fourth rank of the deck a fish is as it is for everybody: nothing is said of harder, and its length is its own", did?.ok === true && !("harder" in did) && line.harder === undefined && line.size === 50, { did, line });
+  did = await landedAfter(U.m1, least("snakehead") + 300);
+  t.check("…and landed after half its quickest fight it is landed", did?.how === "landed", did);
+  // at the fourth rank: 8% harder, and bigger
+  const r4 = await rank(U.m1, "fishing", 700);
+  // (what is rare or better by a stardust bait, whatever the hour is; what is common on a worm, which some common fish takes at every hour)
+  const sizes = [];
+  for (let i = 0; i < 50; i++) {
+    await rigged(U.m1, { had: ["thingBait"] }, BAG);
+    await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, ...(i < 30 ? ["star"] : []));
+    const l = await lineOf(U.m1);
+    sizes.push([l.what, l.size, l.harder]);
+  }
+  const span = (what) => CODE.fish[what]?.size ?? [0, 0];
+  t.check("at the fourth rank every line remembers the fish are 8% harder; an uncommon fish or better is 8% longer than its kind's own lengths, a common one as long as ever", r4 === 4 && sizes.every(([, , h]) => Math.abs(h - 1.08) < 1e-9)
+    && sizes.filter(([w]) => tierOf(w) === "common").every(([w, s]) => s >= span(w)[0] && s <= span(w)[1]) && sizes.filter(([w]) => ["uncommon", "rare", "legend"].includes(tierOf(w))).every(([w, s]) => s >= Math.round(span(w)[0] * 1.08 * 10) / 10 - 1e-9 && s <= Math.round(span(w)[1] * 1.08 * 10) / 10 + 1e-9)
+    && sizes.filter(([w]) => ["rare", "legend"].includes(tierOf(w))).length >= 30 && sizes.some(([w]) => tierOf(w) === "common"), sizes.filter((x, i) => i % 5 === 0));
+  await rigged(U.m1, {}, BAG);
+  did = await hooked(U.m1, "snakehead", 50);
+  t.check("the strike's answer says how much harder, for the page to fight it by", did?.ok === true && Math.abs(did.harder - 1.08) < 1e-9, did);
+  did = await landedAfter(U.m1, least("snakehead") + 100);
+  t.check("an uncommon fish landed as soon as it could be by somebody of no rank is not landed by somebody of the fourth: its fight is 8% longer", did?.how === "slipped", { did: did?.how, least: [least("snakehead"), least("snakehead", 1.08)] });
+  await hooked(U.m1, "snakehead", 50);
+  did = await landedAfter(U.m1, least("snakehead", 1.08) + 300);
+  t.check("…landed after 8% longer, it is", did?.how === "landed", did);
+  await hooked(U.m1, "barb", 20);
+  did = await landedAfter(U.m1, least("barb") + 300);
+  t.check("a common fish is as it is for the skilled too", did?.how === "landed" && did.what === "barb", did);
+  await rank(U.m1, "fishing", 0);
+  // a legend: two bouts
+  await rigged(U.m1, {}, BAG);
+  did = await hooked(U.m1, "koi", 80);
+  const paidKoi = 100 - (await stamina(U.m1));
+  did = await landedAfter(U.m1, least("koi") + 300);
+  t.check("a legend landed after the time of one fight is not landed: it has a second bout", did?.how === "slipped", { how: did?.how, least: [least("koi"), least("koi", 1, 2)] });
+  await hooked(U.m1, "koi", 80);
+  did = await landedAfter(U.m1, least("koi", 1, 2) + 300);
+  const koiPlay = (await plays(U.m1)).at(-1);
+  t.check("…after the time of two it is: one fish, its fight paid for once, one go written down", did?.how === "landed" && did.what === "koi" && paidKoi === CODE.fish.koi.effort && 100 - (await stamina(U.m1)) === 2 * CODE.fish.koi.effort && koiPlay.won === true && koiPlay.doc.what === "koi", { did: did?.how, paidKoi });
+  // a legend the otter drove back is fought once more: one bout's time from then
+  await rigged(U.m1, { had: ["famOtter"], familiar: "famOtter" }, BAG);
+  await hooked(U.m1, "koi", 80);
+  did = await call(U.m1, "town_land", "slipped", { bout: 2 });
+  const drove = did?.again === true;
+  did = await landedAfter(U.m1, least("koi") + 300);
+  t.check("a legend lost in a bout and driven back by the otter is fought once more, and landed after that one fight's time", drove && did?.how === "landed", did);
+  t.check("the catalog carries the harder game's numbers", same((await one(`select town.cat('fishing')->'wary' as w, town.cat('fishing')->'bouts' as b`)), { w: { ups: 3, within: 300, gone: 600, tiers: ["rare", "legend"] }, b: { legend: 2 } }));
 }

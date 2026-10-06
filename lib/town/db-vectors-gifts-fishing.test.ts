@@ -1,9 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { ALL_SIGNS, ORB, PAIR, STAR, castFrom, castLine, driveBack, hookBait, hookBaits, hookStar, lightOrb, oddsOf, orbOf, sift, starOdds, underOrb, type OrbSky } from "./fishing";
+import { ALL_SIGNS, ORB, PAIR, STAR, WARY, biggerBy, boutsOf, castFrom, castLine, driveBack, harderOf, hookBait, hookBaits, hookStar, isWary, leastMs, lightOrb, oddsOf, orbOf, sift, starOdds, tookUp, underOrb, type OrbSky } from "./fishing";
+import { harderAt } from "./gifts";
 import { stretchOf, USES } from "./gifts";
-import { BAITS, FISH, type BaitId, type CatchId, type FishId, type ItemId, type Sign, type Tier } from "./items";
+import { BAITS, FISH, FISH_IDS, FLOTSAM_IDS, type BaitId, type CatchId, type FishId, type ItemId, type Sign, type Tier } from "./items";
 import { dayOf } from "./stamina";
 import { newPurse, put, type Purse } from "./trade";
 
@@ -27,6 +28,10 @@ import { newPurse, put, type Purse } from "./trade";
  * - `star_odds`, `hook_star`: what takes a stardust bait under both skies, from the deck and from the bank, with every
  *   set of signs, at each tier the uncle's shelf may have reached; and the bait put on the hook by somebody with a
  *   rod and without, who has it and has it not, with each count of the day's kept; and a line dropped from its odds.
+ * - `took_up`, `is_wary`: a line taken up with none, some, the most and more taken up lately, with old ones among
+ *   them, with the fish gone already and back again, and with what is kept of it kept wrongly in every way.
+ * - `bouts_of`, `harder_of`, `bigger`, `least_ms`: every fish and what is no fish, at every rank's measure of
+ *   harder; lengths made longer; and the least a landing can have taken, by the fish, the rank and the bouts.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-fishing.test.ts
  */
@@ -123,6 +128,26 @@ export function vectorsFishing(): Vector[] {
       add("hook_star", [p, when], hookStar(p, when));
     }
   }
+  // lines taken up: what is kept of them of every sort, and kept wrongly
+  const UPS: unknown[] = [undefined, null, {}, { ups: [], until: 0 }, { ups: [NOW - 1000], until: 0 }, { ups: [NOW - 200_000, NOW - 5000], until: 0 }, { ups: [NOW - 250_000, NOW - 100_000, NOW - 1], until: 0 },
+    { ups: [NOW - 400_000, NOW - 299_000, NOW - 100_000, NOW - 5], until: 5 }, { ups: [NOW - 400_000, NOW - 350_000, NOW - 301_000], until: NOW - 9 }, { ups: [NOW - 3, NOW - 2, NOW - 1, NOW], until: NOW + 60_000 },
+    { ups: [NOW + 5000, NOW - 5], until: NOW + 600_000 }, { ups: "x", until: "soon" }, { ups: [1, "2", null, NOW - 9, { a: 1 }], until: null }, "wary", [NOW], { until: NOW + 1 }, { ups: [NOW - 300_000, NOW - 299_999] }];
+  for (const wary of UPS) for (const when of [NOW, NOW + 200_000, NOW + 700_000]) {
+    const p = purse(undefined, (wary === undefined ? {} : { wary }) as Partial<Purse>);
+    add("took_up", [p, when], tookUp(p, when));
+    add("is_wary", [p, when], isWary(p, when));
+  }
+  // (taken up four times running, a second apart)
+  { let p = purse(undefined); for (let i = 0; i < 9; i++) { add("took_up", [p, NOW + i * 1000], tookUp(p, NOW + i * 1000)); p = tookUp(p, NOW + i * 1000); add("is_wary", [p, NOW + i * 1000 + 1], isWary(p, NOW + i * 1000 + 1)); } }
+  // harder, bigger, and the least a landing takes
+  const KS = [1, ...[4, 5, 6, 7, 8, 9, 10].map(harderAt), 0.5, null];
+  for (const what of [...FISH_IDS, ...FLOTSAM_IDS, "noSuchFish"]) {
+    add("bouts_of", [what], what in FISH ? boutsOf(what as FishId) : 1);
+    for (const k of KS) add("harder_of", [what, k], harderOf(what as CatchId, k ?? 1));
+  }
+  for (const size of [0, 4, 8.5, 12.3, 44.4, 119.9, 270]) for (const k of KS.filter((x): x is number => typeof x === "number")) add("bigger", [size, k], biggerBy(size, k));
+  const least = catalogOf().fishing.least;
+  for (const id of FISH_IDS) for (const k of [1, harderAt(4), harderAt(6), harderAt(10)]) for (const bouts of [1, 2]) add("least_ms", [id, k, bouts], leastMs(id, k, bouts, least));
   // what the water answers under it
   for (const sky of [null, ...ORB.skies] as Array<OrbSky | null>) for (const hour of [0, 6, 12, 23]) for (const rain of [false, true]) for (const signs of [[], ["after"], ["full"], ["tired", "after", "full"], [...ALL_SIGNS]] as Sign[][]) {
     add("under_orb", [sky, hour, rain, signs], underOrb(sky, hour, rain, signs));
@@ -175,6 +200,14 @@ describe("the cases the database's rules of the fishing deck's gifts are held to
     for (const x of starred) if (x.odds.length) expect(Math.abs(x.odds.reduce((t, o) => t + o.p, 0) - 1)).toBeLessThan(1e-9);
     const hooks = of("hook_star").map((v) => v.want as { ok: boolean; why?: string; left?: number });
     expect(hooks.some((h) => h.ok && h.left === 2) && hooks.some((h) => h.ok && h.left === 0) && hooks.some((h) => !h.ok && h.why === "spent") && hooks.some((h) => !h.ok && h.why === "tool") && hooks.some((h) => !h.ok && h.why === "none")).toBe(true);
+    // the harder game: a line taken up counted, the fish gone at the fourth, old ones forgotten; a legend's two bouts; a common fish no harder, another 8% a rank
+    const taken = of("took_up").map((v) => ({ before: (v.args[0] as Purse).wary, when: v.args[1] as number, after: (v.want as Purse).wary! }));
+    expect(taken.some((x) => x.after.ups.length === 1 && x.after.until === 0) && taken.some((x) => x.after.ups.length === 3) && taken.some((x) => x.after.ups.length === 0 && x.after.until === x.when + WARY.gone * 1000)).toBe(true);
+    expect(of("is_wary").some((v) => v.want === true) && of("is_wary").some((v) => v.want === false)).toBe(true);
+    expect(of("bouts_of").filter((v) => v.want === 2).length).toBe(FISH_IDS.filter((id) => FISH[id].tier === "legend").length);
+    const harders = of("harder_of").map((v) => ({ what: v.args[0] as string, k: v.args[1] as number | null, got: v.want as number }));
+    expect(harders.filter((h) => tierOf(h.what as CatchId) === "common" || !(h.what in FISH)).every((h) => h.got === 1) && harders.some((h) => h.got === harderAt(4)) && harders.some((h) => h.got === harderAt(10))).toBe(true);
+    expect(of("least_ms").some((v) => v.args[2] === 2 && v.args[0] === "koi") && of("least_ms").every((v) => (v.want as number) > 0)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-fishing.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

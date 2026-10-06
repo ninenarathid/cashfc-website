@@ -1,6 +1,20 @@
 -- v153, the fishing deck's part: the gifts of its second to sixth ranks, and the game made harder to match.
 -- Tried on top of v153.shared.sql (try-line.mjs); the rules are lib/town/fishing.ts again, held to it by the cases
 -- of lib/town/db-vectors-gifts-fishing.test.ts. Safe to run twice.
+--
+-- It needs two catalog rows as the code has them now: `gifts` (every line's) and `fishing` (new keys: pair, orb,
+-- star, wary, bouts; nothing that was there is changed).
+--
+-- New (schema town): drive_back, sift, hook_baits, cast_from, strike_two, land_one, orb_of, orb_light, under_orb,
+--   star_odds, hook_star, shelf_top, is_wary, took_up, bouts_of, harder_of, bigger, least_ms.
+-- New (what a member calls): public.town_orb(text).
+-- Written again, each from its text in live/functions-v152.sql:
+--   town.cast_line     its body is town.cast_from's now, which is handed the odds; it hands that a bait's own.
+--   public.town_cast   a fifth argument, p_how ('pair', 'star'); the function of four arguments is dropped.
+--   public.town_strike a rod of two lines, a told line let go by counted, and `harder` said to the page.
+--   public.town_land   the otter, one of two fish ended, a line pulled up counted, a landing held to town.least_ms.
+-- No table, no column: what the gifts keep is in the purse's document (orb, wary) and in the line's (two, again,
+-- told, harder, orb). No coins and no thing that can be sold comes of any of it.
 
 -- ─── The rules ───────────────────────────────────────────────────────────
 
@@ -161,7 +175,8 @@ begin
      where member_id = p_member;
   end if;
   return jsonb_build_object('ok', true, 'hooked', true, 'what', told->0->'what', 'size', told->0->'size',
-    'landed', jsonb_array_length(onhook) = 0, 'kept', told->0->'kept', 'pair', told);
+    'landed', jsonb_array_length(onhook) = 0, 'kept', told->0->'kept', 'pair', told)
+    || case when p_line ? 'harder' then jsonb_build_object('harder', p_line->'harder') else '{}'::jsonb end;
 end;
 $$;
 
@@ -184,7 +199,7 @@ declare
   landed jsonb := jsonb_build_object('kept', false, 'record', false);
   back jsonb;
 begin
-  if how = 'landed' and (took < floor((fish->>'line')::double precision / (cat->>'reel')::double precision * (cat->>'least')::double precision * 1000)
+  if how = 'landed' and (took < town.least_ms(mine->>'what', coalesce((p_line->>'harder')::double precision, 1), town.bouts_of(mine->>'what'))
       or took > (cat->>'longest')::bigint * 1000) then
     how := 'slipped';
     suspect := true;
@@ -309,6 +324,66 @@ as $$
     from jsonb_array_elements_text(town.shelf_of(coalesce((town.thing('village', false)->>'unlocked')::integer, 0))) x
 $$;
 
+-- ─── The game made harder to match ───────────────────────────────────────
+
+-- Whether the rare fish have gone from somebody's water for now (lib/town/fishing's isWary).
+create or replace function town.is_wary(p_purse jsonb, p_now bigint)
+returns boolean language sql stable
+as $$
+  select coalesce(case when jsonb_typeof(p_purse->'wary') = 'object' and jsonb_typeof(p_purse->'wary'->'until') = 'number'
+    then (p_purse->'wary'->>'until')::numeric > p_now end, false)
+$$;
+
+-- A line taken up (lib/town/fishing's tookUp): one more of them counted; with more than there may be lately, the
+-- rare fish are gone from now, and the count begins anew.
+create or replace function town.took_up(p_purse jsonb, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  w jsonb := town.cat('fishing')->'wary';
+  kept jsonb := case when jsonb_typeof(p_purse->'wary') = 'object' then p_purse->'wary' else '{}'::jsonb end;
+  lately jsonb;
+begin
+  select coalesce(jsonb_agg(e.x order by e.ord), '[]'::jsonb) into lately
+    from jsonb_array_elements(case when jsonb_typeof(kept->'ups') = 'array' then kept->'ups' else '[]'::jsonb end) with ordinality e(x, ord)
+   where case when jsonb_typeof(e.x) = 'number' then (e.x #>> '{}')::numeric > p_now - (w->>'within')::numeric * 1000 and (e.x #>> '{}')::numeric <= p_now else false end;
+  if jsonb_array_length(lately) + 1 > (w->>'ups')::integer then
+    return p_purse || jsonb_build_object('wary', jsonb_build_object('ups', '[]'::jsonb, 'until', p_now + (w->>'gone')::bigint * 1000));
+  end if;
+  return p_purse || jsonb_build_object('wary', jsonb_build_object('ups', lately || to_jsonb(p_now),
+    'until', case when jsonb_typeof(kept->'until') = 'number' then kept->'until' else '0'::jsonb end));
+end;
+$$;
+
+-- How many fights running a fish is landed after (lib/town/fishing's boutsOf): a legend's two.
+create or replace function town.bouts_of(p_what text)
+returns integer language sql stable
+as $$ select coalesce((town.cat('fishing')->'bouts'->>(town.cat('fish')->p_what->>'tier'))::integer, 1) $$;
+
+-- How much harder a thing on a line is for somebody the deck's good things are so much harder for (lib/town/fishing's
+-- harderOf): a fish that is uncommon or better, so much; a common fish, and what is no fish, as it is.
+create or replace function town.harder_of(p_what text, p_k double precision)
+returns double precision language sql stable
+as $$
+  select case when f.tier is not null and f.tier <> 'common' and coalesce(p_k, 1) > 1 then p_k else 1::double precision end
+    from (select town.cat('fish')->p_what->>'tier' as tier) f
+$$;
+
+-- A length so many times as long, to the tenth (lib/town/fishing's biggerBy).
+create or replace function town.bigger(p_size double precision, p_k double precision)
+returns double precision language sql immutable
+as $$ select floor(p_size * p_k * 10 + 0.5::double precision) / 10::double precision $$;
+
+-- The least a landing can have taken, in milliseconds (lib/town/fishing's leastMs): so much of the quickest fight
+-- there could be with that fish, by how much harder it is for whoever fought it, for each of its bouts.
+create or replace function town.least_ms(p_what text, p_harder double precision, p_bouts integer)
+returns bigint language sql stable
+as $$
+  select floor((c.fish->>'line')::double precision / (c.cat->>'reel')::double precision * (c.cat->>'least')::double precision
+      * town.harder_of(p_what, p_harder) * p_bouts * 1000)::bigint
+    from (select town.cat('fish')->p_what as fish, town.cat('fishing') as cat) c
+$$;
+
 -- ─── What a member does ──────────────────────────────────────────────────
 
 -- Light my sky orb under a sky: for its minutes the water answers me as if under it.
@@ -330,9 +405,10 @@ revoke execute on function public.town_orb(text) from public, anon;
 grant execute on function public.town_orb(text) to authenticated;
 
 -- public.town_cast: v152's, and how the line is dropped (p_how: 'pair' for a rod of two lines, 'star' for a
--- stardust bait, which takes none from the bag: p_bait is not looked at then), under the sky an orb has lit. The
--- argument is new, so the function of four arguments goes: a page from before names four, and is answered by this
--- one.
+-- stardust bait, which takes none from the bag: p_bait is not looked at then), under the sky an orb has lit; and the
+-- game made harder (a line dropped over one still out is a line taken up; no rare fish for a hand they are wary of;
+-- bigger, harder fish from the deck's fourth rank). The argument is new, so the function of four arguments goes: a
+-- page from before names four, and is answered by this one.
 drop function if exists public.town_cast(text, integer, integer, boolean);
 create or replace function public.town_cast(p_bait text, p_x integer, p_y integer, p_rain boolean DEFAULT false, p_how text DEFAULT NULL::text)
  RETURNS jsonb
@@ -357,10 +433,15 @@ declare
   two jsonb;
   sky text := town.orb_of(purse, now_);
   under jsonb;
+  k double precision := town.harder_for(me, 'fishing');
+  old jsonb;
 begin
   if p_bait is null or p_bait !~ '^[A-Za-z]{1,24}$' or deep is null then return town.answer(me, town.no('none')); end if;
   -- (a rod of two lines is its owner's to drop, and a stardust bait its owner's)
   if p_how is not null and not ((pair and town.gift_works(purse, 'thingRod')) or (star and town.gift_works(purse, 'thingBait'))) then return town.answer(me, town.no('none')); end if;
+  -- (a line still out with nothing hooked, dropped over: that is a line taken up, and counted so)
+  select l.doc into old from public.town_lines l where l.member_id = me;
+  if old is not null and old->'struck_at' = 'null'::jsonb then purse := town.took_up(purse, now_); end if;
   did := case when star then town.hook_star(purse, now_) when pair then town.hook_baits(purse, p_bait, 2) else town.hook_bait(purse, p_bait) end;
   if not (did->>'ok')::boolean then return town.answer(me, did); end if;
   -- what some fish wait for: whether I have any stamina left, how many others have dropped a line in the last few
@@ -375,13 +456,18 @@ begin
       array(select jsonb_array_elements_text(under->'signs')), town.buff_by(purse, now_, 'lucky')) end;
   -- (a legend never comes as one of a pair)
   if pair then odds := town.sift(odds, array(select jsonb_array_elements_text(town.cat('fishing')->'pair'->'never'))); end if;
+  -- (for a hand that takes lines up again and again the rare fish and better are gone a while)
+  if town.is_wary(purse, now_) then odds := town.sift(odds, array(select jsonb_array_elements_text(town.cat('fishing')->'wary'->'tiers'))); end if;
   -- (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
   if jsonb_array_length(odds) = 0 then return town.answer(me, town.no('calm')); end if;
   line := town.cast_from(odds, array[random(), random(), random(), random(), random(), random()]);
+  -- (from the fourth rank of the deck what is uncommon or better is bigger, and fights harder: the line remembers by how much)
+  if k > 1 then line := line || jsonb_build_object('harder', k, 'size', town.bigger((line->>'size')::double precision, town.harder_of(line->>'what', k))); end if;
   -- (the second line's: what takes it and how long it is; both are hooked by the one strike, at the first's bite)
   if pair then
     two := town.cast_from(odds, array[random(), random(), random(), random(), random(), random()]);
-    line := line || jsonb_build_object('two', jsonb_build_object('what', two->'what', 'size', two->'size'));
+    line := line || jsonb_build_object('two', jsonb_build_object('what', two->'what', 'size',
+      case when k > 1 then town.bigger((two->>'size')::double precision, town.harder_of(two->>'what', k)) else (two->>'size')::double precision end));
   end if;
   -- (under the fountain's swift blessing the bite comes sooner)
   if town.has_buff(purse, now_, 'swift') then line := town.hastened(line, (town.wishing()->>'swift')::double precision); end if;
@@ -390,7 +476,7 @@ begin
   -- (a line that was still out is given up: its bait went with it when it was dropped)
   insert into public.town_lines (member_id, doc) values (me, line || jsonb_build_object(
       'bait', bait, 'x', p_x, 'y', p_y, 'deep', deep, 'hour', hour, 'rain', town.raining(now_),
-      'cast_at', now_, 'bites_at', now_ + (line->>'wait')::bigint * 1000, 'struck_at', null))
+      'cast_at', now_, 'bites_at', now_ + (line->>'wait')::bigint * 1000, 'struck_at', null, 'told', town.wearing(purse, 'charmFloat')))
     on conflict (member_id) do update set doc = excluded.doc, updated_at = now();
   perform town.keep_purse(me, did->'purse');
   perform town.note(me, 'cast', bait, case when pair then 2 else 1 end, 0, jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'signs', to_jsonb(signs))
@@ -406,7 +492,8 @@ $function$;
 revoke execute on function public.town_cast(text, integer, integer, boolean, text) from public, anon;
 grant execute on function public.town_cast(text, integer, integer, boolean, text) to authenticated;
 
--- public.town_strike(p_reaction integer): v120's, and a rod of two lines (town.strike_two).
+-- public.town_strike(p_reaction integer): v120's, a rod of two lines (town.strike_two), a line that told what was on
+-- its way let go by counted as a line taken up, and how much harder the fish is said to the page that fights it.
 CREATE OR REPLACE FUNCTION public.town_strike(p_reaction integer DEFAULT NULL::integer)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -436,6 +523,8 @@ begin
     end;
   if how is not null then
     delete from public.town_lines where member_id = me;
+    -- (of a line that told what was on its way, a strike too soon and a bite let go by are a line taken up)
+    if coalesce((line->>'told')::boolean, false) then perform town.keep_purse(me, town.took_up(purse, now_)); end if;
     perform town.record(me, 'fishing', false, 0, spent, town.buff_of(purse, now_), play || jsonb_build_object('how', how, 'kept', false, 'record', false));
     return town.answer(me, jsonb_build_object('ok', true, 'hooked', false, 'how', how));
   end if;
@@ -452,11 +541,14 @@ begin
   -- a fight costs its stamina whatever comes of it
   perform town.keep_purse(me, town.spend(purse, (fish->>'effort')::double precision, now_));
   update public.town_lines set doc = line || jsonb_build_object('struck_at', now_, 'reaction', p_reaction, 'spent', spent), updated_at = now() where member_id = me;
-  return town.answer(me, jsonb_build_object('ok', true, 'hooked', true, 'what', line->'what', 'size', line->'size', 'landed', false));
+  return town.answer(me, jsonb_build_object('ok', true, 'hooked', true, 'what', line->'what', 'size', line->'size', 'landed', false)
+    || case when line ? 'harder' then jsonb_build_object('harder', line->'harder') else '{}'::jsonb end);
 end;
 $function$;
 
--- public.town_land(p_how text, p_fight jsonb): v152's, the otter, and a rod of two lines (town.land_one).
+-- public.town_land(p_how text, p_fight jsonb): v152's, the otter, a rod of two lines (town.land_one), a line pulled
+-- up with nothing hooked counted as a line taken up, and a landing held to how hard the fish was (town.least_ms: by
+-- the member's rank, and a legend's two bouts).
 CREATE OR REPLACE FUNCTION public.town_land(p_how text, p_fight jsonb DEFAULT NULL::jsonb)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -485,11 +577,14 @@ begin
     -- nothing was hooked yet: the line can only be pulled up
     how := 'left';
     took := 0;
+    perform town.keep_purse(me, town.took_up(purse, now_));
   else
     fish := town.cat('fish')->(line->>'what');
     took := now_ - (line->>'struck_at')::bigint;
     -- sooner than half the quickest fight there could be with it, it was not landed; nor long after any fight would be over
-    if how = 'landed' and (took < floor((fish->>'line')::double precision / (cat->>'reel')::double precision * (cat->>'least')::double precision * 1000)
+    -- (by how much harder the fish was for this member; and a legend takes its bouts, but for one the otter drove back, which is fought once more)
+    if how = 'landed' and (took < town.least_ms(line->>'what', coalesce((line->>'harder')::double precision, 1),
+          case when coalesce((line->>'again')::boolean, false) then 1 else town.bouts_of(line->>'what') end)
         or took > (cat->>'longest')::bigint * 1000) then
       how := 'slipped';
       suspect := true;

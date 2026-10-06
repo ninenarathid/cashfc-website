@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
-import { ORB, PAIR, REST, STEPS, oddsOf, orbOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type OrbSky, type Pair, type Strike } from "@/lib/town/fishing";
+import { ORB, PAIR, REST, STEPS, boutsOf, oddsOf, orbOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type OrbSky, type Pair, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
@@ -40,11 +40,12 @@ type Phase =
   /** (`pair`: two lines are out, on a rod of two lines; `coming2`: what is on its way to the second, told as the first's is; `star`: a stardust bait is on the hook) */
   | { at: "waiting"; wait: number; nibbles: number[]; from: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; star?: boolean }
   | { at: "striking" }
-  | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number }
+  /** (`harder`: how many times as hard the deck's good fish are for me, as the keeper said at the strike; `bout`: which of a legend's fights running this is) */
+  | { at: "fight"; fish: FishId; size: number; strike: Strike; reaction: number; harder?: number; bout?: number }
   /** Two fish on a rod of two lines, fought at once (lib/town/fishing's `Pair`). */
-  | { at: "fight2"; fish: [FishId, FishId]; sizes: [number, number]; strike: Strike; reaction: number }
+  | { at: "fight2"; fish: [FishId, FishId]; sizes: [number, number]; strike: Strike; reaction: number; harder?: number }
   /** The otter is driving a fish that got away back to the hook (lib/town/fishing's `driveBack`): a moment's show, then it is fought once more. */
-  | { at: "driven"; fish: FishId; size: number; reaction: number; how: "snapped" | "slipped"; from: number }
+  | { at: "driven"; fish: FishId; size: number; reaction: number; how: "snapped" | "slipped"; from: number; harder?: number; bout?: number }
   /** (`from`: when it was shown, by the page's own clock: nothing goes on from it for a moment) */
   /** (`also`: what the other line of a rod of two lines came to, shown beside it) */
   | ({ at: "result"; from: number; also?: Outcome } & Outcome);
@@ -62,8 +63,6 @@ const WHY_FISH: Record<string, [th: string, en: string]> = {
   spent: ["วันนี้ใช้ไปแล้ว", "It has been used today"],
   calm: ["น้ำนิ่งสนิท ไม่มีอะไรขึ้นมาหาแสงดาว", "The water lies still: nothing rises to the starlight."],
 };
-/** What a line dropped with a stardust bait is written down as having on its hook (the trial's own log: lib/town/plays knows the baits of the bag). */
-const STAR_BAIT = "thingBait" as BaitId;
 /** The skies of a sky orb, as they are called. */
 const SKY_NAME: Record<OrbSky, [th: string, en: string]> = { night: ["กลางคืน", "Night"], rain: ["ฝน", "Rain"], moon: ["จันทร์เต็มดวง", "Full moon"] };
 /** Where the stars stand on an orb's night water, in hundredths of its width and height. */
@@ -229,6 +228,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const afloat = useRef(false);
   /** The fight that is on: how it began, and what the hand has done so far. */
   const bout = useRef<{ seed: number; holds: number[]; steps: number; inside: number; secs: number; strike: Strike; reaction: number } | null>(null);
+  /** The seconds of a legend's bouts already won in this go: what the fight in hand is told with. */
+  const earlier = useRef(0);
   /** (`last`: nothing more is on this line. Of a rod of two lines each of the two is written down as a go of its own, and only the second ends the line.) */
   const write = useCallback((how: FishingEnd, more: { reaction?: number | null; strike?: Strike | null; kept?: boolean; record?: boolean; what?: CatchId; size?: number } = {}, last = true) => {
     const o = out.current, b = bout.current;
@@ -282,7 +283,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       setPhase({ at: "ready" });
       return;
     }
-    out.current = { bait: how === "star" ? STAR_BAIT : inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
+    // (the trial's own log knows the baits of the bag: a line dropped with a stardust bait is written down with the bait that was in hand beside it)
+    out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
     setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}),
       ...(cast.pair ? { pair: true } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}), ...(how === "star" ? { star: true } : {}) });
   };
@@ -370,6 +372,9 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     // (taken by the keeper's grace when this hand thought it too soon: a late one's worth)
     const worth: Strike = hit ?? "late";
     if (!hit) sfx.play("strike");
+    /** How many times as hard the deck's good fish are for me (from the fourth rank of the deck: the keeper says). */
+    const harder = did.harder && did.harder > 1 ? { harder: did.harder } : {};
+    earlier.current = 0;
     // A rod of two lines: both are hooked by the one strike. What is no fish comes in at once (and is shown beside
     // what the other comes to); one fish is fought as any fish is, two are fought at once.
     if (did.pair && did.pair.length === 2) {
@@ -378,7 +383,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       for (const h of did.pair) if (!isFish(h)) { onLanded(); window.setTimeout(() => sfx.play("flotsam"), 350); }
       if (isFish(a) && isFish(b)) {
         if (out.current) { out.current.what = a.what; out.current.size = a.size; }
-        setPhase({ at: "fight2", fish: [a.what as FishId, b.what as FishId], sizes: [a.size, b.size], strike: worth, reaction });
+        setPhase({ at: "fight2", fish: [a.what as FishId, b.what as FishId], sizes: [a.size, b.size], strike: worth, reaction, ...harder });
         return;
       }
       if (!isFish(a) && !isFish(b)) {
@@ -392,7 +397,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       write("landed", { reaction, strike: worth, kept: !!other.kept, what: other.what, size: 0 }, false);
       extra.current = came(other);
       if (out.current) { out.current.what = fish.what; out.current.size = fish.size; }
-      setPhase({ at: "fight", fish: fish.what as FishId, size: fish.size, strike: worth, reaction });
+      setPhase({ at: "fight", fish: fish.what as FishId, size: fish.size, strike: worth, reaction, ...harder });
       return;
     }
     if (did.landed || !did.what || !(did.what in FISH)) {
@@ -406,7 +411,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       return;
     }
     if (out.current) { out.current.what = did.what; out.current.size = did.size ?? 0; }
-    setPhase({ at: "fight", fish: did.what as FishId, size: did.size ?? 0, strike: worth, reaction });
+    setPhase({ at: "fight", fish: did.what as FishId, size: did.size ?? 0, strike: worth, reaction, ...harder });
   }, [phase, keeper, write, sfx, onLanded, end]);
 
   /* ── the fight ── */
@@ -440,7 +445,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "fight") return;
     const p = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31);
-    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear, silk: charmBy(p, "charmLine", 0) }, seed);
+    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear, silk: charmBy(p, "charmLine", 0), harder: phase.harder, bout: phase.bout }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction: phase.reaction };
     bout.current = log;
     // (the fight's stamina was taken as the hook was set: a fight costs it whatever comes of it)
@@ -493,20 +498,31 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       creak = straining;
       sfx.reel(holding.current, f.tension >= f.lo && f.tension <= f.hi, f.tension);
       if (gauge.fish.current) gauge.fish.current.style.transform = wild && !reduced ? `translateX(${Math.sin(t / 28) * 5}px) rotate(${Math.sin(t / 40) * 9}deg)` : about && !reduced ? `translateX(${Math.sin(t / 60) * 2}px)` : "";
-      if (gauge.word.current) gauge.word.current.textContent = silkWord ?? (wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel"));
+      // (a legend's second bout: said as it begins)
+      const boutWord = (phase.bout ?? 1) > 1 && f.t < 1.8 ? (th ? "ยังไม่ยอม! ยกที่สอง" : "Not done: a second bout!") : null;
+      if (gauge.word.current) gauge.word.current.textContent = silkWord ?? boutWord ?? (wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel"));
+      if (f.over === "landed" && (phase.bout ?? 1) < boutsOf(phase.fish)) {
+        // A legend is not landed by one fight: it breaks away at once and the next bout begins, with nothing told to
+        // the keeper yet (the fish is one fish: its fight was paid for as the hook was set, and it is one go).
+        earlier.current += f.t;
+        sfx.reel(false, false, 0);
+        sfx.play("surge");
+        setPhase({ ...phase, strike: "good", bout: (phase.bout ?? 1) + 1 });
+        return;
+      }
       if (f.over) {
         // How it ended is told to the keeper, with this hand's account of the fight; the keeper has the last word (a
         // fish landed sooner than any fight could be is one that slipped).
         afloat.current = false;
         sfx.reel(false, false, 0);
-        const told = { seed: log.seed, steps: log.steps, secs: Math.round(log.secs * 10) / 10, inBand: log.steps ? Math.round((log.inside / log.steps) * 1000) / 1000 : 0,
-          strike: log.strike, holds: log.holds.slice(0, 1500) };
+        const told = { seed: log.seed, steps: log.steps, secs: Math.round((earlier.current + log.secs) * 10) / 10, inBand: log.steps ? Math.round((log.inside / log.steps) * 1000) / 1000 : 0,
+          strike: log.strike, holds: log.holds.slice(0, 1500), ...(boutsOf(phase.fish) > 1 ? { bout: phase.bout ?? 1 } : {}) };
         void keeper.land(f.over, told).then((got) => {
           // (the otter drove it back: the line is out still, nothing of the go is written down yet, and the fish is fought once more)
           if (got.again && (f.over === "snapped" || f.over === "slipped")) {
             afloat.current = true;
             sfx.play("surge");
-            setPhase({ at: "driven", fish: phase.fish, size: phase.size, reaction: phase.reaction, how: f.over, from: performance.now() });
+            setPhase({ at: "driven", fish: phase.fish, size: phase.size, reaction: phase.reaction, how: f.over, from: performance.now(), ...(phase.harder ? { harder: phase.harder } : {}), ...(phase.bout ? { bout: phase.bout } : {}) });
             return;
           }
           const how = got.how === "landed" || got.how === "snapped" ? got.how : "slipped";
@@ -538,7 +554,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "fight2") return;
     const p0 = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31), { fish, sizes, reaction } = phase;
-    let p = startPair(fish, phase.strike, { spent: isSpent(p0, t0), calm: levelOf(p0, t0, "calm"), gear: out.current?.gear, narrow: numberOf("thingRod"), silk: charmBy(p0, "charmLine", 0) }, seed);
+    let p = startPair(fish, phase.strike, { spent: isSpent(p0, t0), calm: levelOf(p0, t0, "calm"), gear: out.current?.gear, narrow: numberOf("thingRod"), silk: charmBy(p0, "charmLine", 0), harder: phase.harder }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction };
     bout.current = log;
     pair.current = p;
@@ -558,7 +574,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
           afloat.current = true;
           sfx.play("surge");
           if (out.current) { out.current.what = fish[i]; out.current.size = sizes[i]; }
-          setPhase({ at: "driven", fish: fish[i], size: sizes[i], reaction, how: over, from: performance.now() });
+          setPhase({ at: "driven", fish: fish[i], size: sizes[i], reaction, how: over, from: performance.now(), ...(phase.harder ? { harder: phase.harder } : {}) });
           return;
         }
         const how = got.how === "landed" || got.how === "snapped" ? got.how : "slipped";
@@ -636,7 +652,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const chase = { otter: useRef<HTMLSpanElement>(null), fish: useRef<HTMLSpanElement>(null), wake: useRef<HTMLSpanElement>(null) };
   useEffect(() => {
     if (phase.at !== "driven") return;
-    const { from, fish, size, reaction } = phase;
+    const { from, fish, size, reaction, harder, bout: boutNow } = phase;
     show("fight");
     let raf = 0;
     const ease = (x: number) => x * x * (3 - 2 * x);
@@ -651,7 +667,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (chase.fish.current) chase.fish.current.style.left = `${fishAt}%`;
       if (chase.otter.current) { chase.otter.current.style.left = `${otterAt}%`; chase.otter.current.style.transform = `translate(-50%, ${-wave}px) scaleX(${out < 1 ? 1 : -1})`; }
       if (chase.wake.current) { chase.wake.current.style.left = `${otterAt}%`; chase.wake.current.style.opacity = String(0.35 + 0.35 * Math.abs(Math.sin(t / 160))); }
-      if (k >= 1) { setPhase({ at: "fight", fish, size, strike: "good", reaction }); return; }
+      if (k >= 1) { setPhase({ at: "fight", fish, size, strike: "good", reaction, ...(harder ? { harder } : {}), ...(boutNow ? { bout: boutNow } : {}) }); return; }
       raf = requestAnimationFrame(frame);
     };
     raf = requestAnimationFrame(frame);
@@ -715,6 +731,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       phase: () => phase.at, cast: () => (phase.at === "waiting" ? { wait: phase.wait, nibbles: phase.nibbles, since: (performance.now() - phase.from) / 1000, coming: phase.coming ?? null, pair: !!phase.pair, coming2: phase.coming2 ?? null } : null),
       /** Two fish fought at once, on a rod of two lines: the fight as it stands. */
       pair: () => pair.current,
+      /** Which of a legend's bouts the fight in hand is, and how many times as hard the fish is for me (as the keeper said). */
+      bout: () => (phase.at === "fight" ? phase.bout ?? 1 : null), harder: () => (phase.at === "fight" || phase.at === "fight2" ? phase.harder ?? 1 : null),
       // (a script's strike is taken whenever it comes: the line's rest is for hands, which the checks try by the button and the key)
       fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike: () => strike(true), result: () => (phase.at === "result" ? phase : null),
       quick: (on: boolean) => setQuick(on), place: () => place,
@@ -1013,6 +1031,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                   <line x1="-12" y1="-6" x2="8" y2="9" stroke="#3d2913" strokeWidth="7" strokeLinecap="round" />
                   <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />
                 </svg>
+                {(phase.bout ?? 1) > 1 && <span className="absolute left-1.5 top-1.5 rounded-[3px] border border-[#2a190d] bg-[#e9573f] px-1.5 py-0.5 text-label font-semibold text-[#fff6e3]" data-fx="bout" data-bout={phase.bout}>{th ? "ยกที่สอง" : "Second bout"}</span>}
                 <span ref={gauge.swim} className="absolute top-[30%] block" style={{ left: "78%" }}>
                   <span ref={gauge.fish} className="inline-block"><TownIcon name="fishShadow" size={40} /></span>
                 </span>

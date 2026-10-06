@@ -191,6 +191,8 @@ export interface Purse {
   // ── gifts: fishing ──
   /** The sky an orb has lit for its owner, and until when (lib/town/fishing's orbOf reads it, and believes only one that still lasts). */
   orb?: { sky: string; until: number };
+  /** The lines taken up lately, by their moments, and until when the rare fish have gone from this hand's water for it (lib/town/fishing's tookUp and isWary). */
+  wary?: { ups: number[]; until: number };
   /** The hints bought from the uncle (lib/town/hints), and what else has been made besides dishes (lib/town/cooking): each by the thing it is of. */
   hints?: ItemId[];
   made?: ItemId[];

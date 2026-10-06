@@ -18,10 +18,12 @@ const RARE = ["featherback", "goby", "wels", "gar", "moonFish", "koi", "arapaima
 const starButton = (X) => X.evaluate(`(() => { const b = ${PANEL}?.querySelector("[data-fish-star]"); return b ? { left: Number(b.dataset.fishStar), on: b.getAttribute("aria-checked") === "true", disabled: b.disabled, text: b.innerText.replace(/\\s+/g, " ").trim() } : null; })()`);
 const used = async (X) => (await purse(X)).gifts.used?.thingBait?.n ?? 0;
 const bag = async (X) => JSON.stringify((await purse(X)).bag);
+/** (A line pulled up with nothing hooked is counted against whoever does it again and again: lib/town/fishing's wary fish, which town-wary.mjs tries. Here the count is put back each time.) */
+const CALM = `const calm = () => { const q = { ...${T}.purse() }; delete q.wary; ${T}.fished(q); };`;
 /** So many stardust baits dropped straight through the keeper and taken up again, the day's count put back each time: what each brought. */
-const many = (X, n) => X.evaluate(`(async () => { const place = ${V}.fishAt(), all = []; for (let i = 0; i < ${n}; i++) {
+const many = (X, n) => X.evaluate(`(async () => { ${CALM} const place = ${V}.fishAt(), all = []; for (let i = 0; i < ${n}; i++) {
   const p = ${T}.purse(); ${T}.fished({ ...p, gifts: { ...p.gifts, used: {} } });
-  const c = await ${K}.cast("worm", place, false, true, "star"); if (!c.ok) return c; all.push(c.coming); await ${K}.land("left", null); } return all; })()`);
+  const c = await ${K}.cast("worm", place, false, true, "star"); if (!c.ok) return c; all.push(c.coming); await ${K}.land("left", null); calm(); } return all; })()`);
 
 const X = await browser("Stardust", { width: 1280, height: 860 });
 let code = 1;
@@ -64,7 +66,7 @@ try {
 
   // ── three a day ──
   await X.evaluate(`(() => { const p = ${T}.purse(); ${T}.fished({ ...p, gifts: { ...p.gifts, used: {} } }); })()`);
-  const three = await X.evaluate(`(async () => { const place = ${V}.fishAt(), all = []; for (let i = 0; i < 4; i++) { const c = await ${K}.cast("worm", place, false, true, "star"); all.push(c.ok ? "ok" : c.why); if (c.ok) await ${K}.land("left", null); } return all; })()`);
+  const three = await X.evaluate(`(async () => { ${CALM} const place = ${V}.fishAt(), all = []; for (let i = 0; i < 4; i++) { const c = await ${K}.cast("worm", place, false, true, "star"); all.push(c.ok ? "ok" : c.why); if (c.ok) { await ${K}.land("left", null); calm(); } } return all; })()`);
   await sleep(300);
   b = await starButton(X);
   ok("three a day: the fourth is refused, and the bait is shown spent, the worms in hand again", three.join() === "ok,ok,ok,spent" && b.left === 0 && b.disabled === true && b.on === false && /×0/.test(b.text), { three, b });

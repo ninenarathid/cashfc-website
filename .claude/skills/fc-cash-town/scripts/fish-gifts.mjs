@@ -90,6 +90,8 @@ export const hand = (X, how) => X.evaluate(`(() => {
       return h.hold(p.tension < a + (b - a) * (wild ? 0.25 : 0.5));
     }
     if (!f) return;
+    // (a legend's bouts: the first won, the second let go slack)
+    if (${JSON.stringify(how)} === "winThenSlack" && (h.bout?.() ?? 1) > 1) return h.hold(false);
     if (${JSON.stringify(how)} === "slack") return h.hold(false);
     if (${JSON.stringify(how)} === "taut") return h.hold(true);
     // (a line of dragon silk: only reeled until it begins to mend, let go at once so that it is mended in time, and

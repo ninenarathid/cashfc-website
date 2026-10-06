@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type ItemId, type Sign } from "./items";
 import {
-  ALL_SIGNS, FIGHT, ORB, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, hookStar, lightOrb, orbHaste, orbOf, starOdds, underOrb, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
+  ALL_SIGNS, FIGHT, ORB, REST, SIGNS, SILK, STEPS, STRIKE, bangkokDay, PAIR, WARY, biggerBy, boutsOf, harderOf, hookStar, isWary, leastMs, lightOrb, orbHaste, orbOf, starOdds, tookUp, underOrb, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
   type Fight, type FightMods, type OrbSky, type Pair,
 } from "./fishing";
 import { hastened } from "./fountain";
-import { USES, numberOf, usesLeft } from "./gifts";
+import { USES, harderAt, numberOf, usesLeft } from "./gifts";
 import { STAMINA, dayOf } from "./stamina";
 import { held, newPurse, put, type Purse } from "./trade";
 
@@ -1047,5 +1047,103 @@ describe("stardust bait (the owner: \"ปลาที่กินเหยื่
     expect(hookStar(p, NOON + 24 * 3_600_000).ok).toBe(true);
     expect(hookStar(gifted({ had: ["thingBait"], charms: [] }), NOON)).toEqual({ ok: false, why: "tool" });
     expect(hookStar(gifted(undefined, { bag }), NOON)).toEqual({ ok: false, why: "none" });
+  });
+});
+
+describe("wary fish: lines taken up again and again, and the rare fish are gone a while", () => {
+  it("counts a line taken up, and at the fourth within five minutes the rare fish are gone for ten", () => {
+    expect(WARY).toEqual({ ups: 3, within: 300, gone: 600, tiers: ["rare", "legend"] });
+    let p = gifted();
+    expect(isWary(p, NOON)).toBe(false);
+    for (let i = 0; i < 3; i++) { p = tookUp(p, NOON + i * 60_000); expect(isWary(p, NOON + i * 60_000)).toBe(false); expect(p.wary!.ups.length).toBe(i + 1); }
+    p = tookUp(p, NOON + 200_000);
+    expect(isWary(p, NOON + 200_000)).toBe(true);
+    expect(p.wary).toEqual({ ups: [], until: NOON + 200_000 + 600_000 });
+    expect(isWary(p, NOON + 200_000 + 599_999)).toBe(true);
+    expect(isWary(p, NOON + 200_000 + 600_000)).toBe(false);
+  });
+  it("forgets the lines taken up more than five minutes ago, and begins the count anew once the fish are gone", () => {
+    let p = gifted();
+    for (const at of [0, 100_000, 200_000]) p = tookUp(p, NOON + at);
+    // (the first is five minutes old by now: three are counted still, and the water is as it was)
+    p = tookUp(p, NOON + 300_000);
+    expect(isWary(p, NOON + 300_000)).toBe(false);
+    expect(p.wary!.ups).toEqual([NOON + 100_000, NOON + 200_000, NOON + 300_000]);
+    p = tookUp(p, NOON + 310_000);
+    expect(isWary(p, NOON + 310_000)).toBe(true);
+    // gone already, three more are needed before they are gone for longer
+    const until = p.wary!.until;
+    for (const at of [320_000, 330_000, 340_000]) { p = tookUp(p, NOON + at); expect(p.wary!.until).toBe(until); }
+    p = tookUp(p, NOON + 350_000);
+    expect(p.wary!.until).toBe(NOON + 350_000 + 600_000);
+  });
+  it("leaves a purse kept wrongly sound, and what is sifted of the rare and better is what a wary water has", () => {
+    for (const wary of [null, "x", [1, 2], { ups: "x" }, { ups: [NOON - 1, "2", null], until: "soon" }]) {
+      const p = tookUp({ wary } as unknown as Purse, NOON);
+      expect(p.wary!.ups.at(-1)).toBe(NOON);
+      expect(p.wary!.ups.every((t) => typeof t === "number")).toBe(true);
+      expect(isWary({ wary } as unknown as Purse, NOON)).toBe(false);
+    }
+    const left = sift(oddsOf("minnow", 23), WARY.tiers);
+    expect(oddsOf("minnow", 23).some((o) => o.what === "featherback")).toBe(true);
+    expect(left.every((o) => !(o.what in FISH) || !WARY.tiers.includes(FISH[o.what as FishId].tier))).toBe(true);
+    expect(left.length).toBeGreaterThan(0);
+    // (and a stardust bait finds nothing there at all)
+    expect(sift(starOdds(false, false, [], 3), WARY.tiers)).toEqual([]);
+  });
+});
+
+describe("a legend's second bout, and good fish harder for the skilled", () => {
+  it("is two fights running for a legend, one for every other fish", () => {
+    for (const id of FISH_IDS) expect(boutsOf(id), id).toBe(FISH[id].tier === "legend" ? 2 : 1);
+  });
+  it("begins the second with the fish away at once, and the whole of its line to win", () => {
+    const first = startFight("koi", "good", {}, 9), second = startFight("koi", "good", { bout: 2 }, 9);
+    expect(second.surge.from).toBe(0);
+    expect(first.surge.from).toBeGreaterThan(0);
+    expect(second.length).toBe(first.length);
+    // (a fish that carries the stretch has thrown it up the gauge already)
+    expect(second.to).toBeGreaterThan(second.at);
+    // a first bout is as it was
+    expect(startFight("koi", "good", { bout: 1 }, 9)).toEqual(first);
+  });
+  it("makes a legend far harder to land: both bouts have to be won", () => {
+    const both = (hand: [number, number], many = 60) => { let won = 0; for (let i = 0; i < many; i++) if (human(hand[0], hand[1], 77 + i)(startFight("koi", "good", {}, 1000 + i * 7919)) === "landed" && human(hand[0], hand[1], 177 + i)(startFight("koi", "good", { bout: 2 }, 5000 + i * 7919)) === "landed") won++; return won / many; };
+    expect(both(MASTER)).toBeLessThan(lands("koi", MASTER) - 0.1);
+    expect(both(MASTER)).toBeGreaterThan(0.35);
+    expect(both(SKILLED)).toBeLessThan(0.25);
+  });
+
+  it("is harder for the skilled by what gifts says: nothing below the fourth rank, 8% a rank from it, for what is uncommon or better", () => {
+    expect(harderOf("minnow", harderAt(6))).toBe(1);
+    expect(harderOf("boot", harderAt(6))).toBe(1);
+    expect(harderOf("snakehead", harderAt(3))).toBe(1);
+    expect(harderOf("snakehead", harderAt(4))).toBeCloseTo(1.08, 9);
+    expect(harderOf("koi", harderAt(10))).toBeCloseTo(1.56, 9);
+    for (const id of FISH_IDS) expect(harderOf(id, 1.24), id).toBe(FISH[id].tier === "common" ? 1 : 1.24);
+  });
+  it("makes such a fish pull and surge so many times as hard, with so many times the line to win; a common fish is as it is", () => {
+    const plain = startFight("snakehead", "good", {}, 4), hard = startFight("snakehead", "good", { harder: 1.24 }, 4);
+    expect(hard.pull).toBeCloseTo(plain.pull * 1.24, 9);
+    expect(hard.power).toBeCloseTo(plain.power * 1.24, 9);
+    expect(hard.length).toBeCloseTo(plain.length * 1.24, 9);
+    expect(hard.hi - hard.lo).toBe(plain.hi - plain.lo);
+    expect(startFight("barb", "good", { harder: 1.24 }, 4)).toEqual(startFight("barb", "good", {}, 4));
+    expect(startFight("snakehead", "good", { harder: 1 }, 4)).toEqual(plain);
+    // it can still be won by a steady hand, and the made-up hands land fewer of it the higher the rank
+    expect(playFight(startFight("snakehead", "good", { harder: harderAt(10) }, 4), steady).over).toBe("landed");
+    expect(lands("snakehead", SKILLED, { harder: harderAt(6) })).toBeLessThan(lands("snakehead", SKILLED));
+    expect(lands("snakehead", SKILLED, { harder: harderAt(10) })).toBeLessThan(lands("snakehead", SKILLED, { harder: harderAt(6) }) + 0.05);
+    expect(lands("snakehead", MASTER, { harder: harderAt(10) })).toBeGreaterThan(0.5);
+  });
+  it("makes it longer with it, to the tenth; and holds a landing to the longer fight", () => {
+    expect(biggerBy(50, 1.08)).toBe(54);
+    expect(biggerBy(12.3, 1.24)).toBe(15.3);
+    expect(biggerBy(12.3, 1)).toBe(12.3);
+    const least = 0.5;
+    expect(leastMs("snakehead", 1, 1, least)).toBe(Math.floor((FISH.snakehead.fight.line / FIGHT.reel) * least * 1000));
+    expect(leastMs("snakehead", 1.08, 1, least)).toBeGreaterThan(leastMs("snakehead", 1, 1, least) * 1.07);
+    expect(leastMs("barb", 1.56, 1, least)).toBe(leastMs("barb", 1, 1, least));
+    expect(leastMs("koi", 1, 2, least)).toBeGreaterThanOrEqual(leastMs("koi", 1, 1, least) * 2 - 1);
   });
 });
