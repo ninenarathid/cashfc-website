@@ -219,6 +219,11 @@ export interface Purse {
    * and how many chests I have dug up (lib/town/hunt).
    */
   forest?: { secrets?: number[]; hunt?: { k: number; n: number; digs: number } | null; chests?: number };
+  // ── gifts: insects ──
+  /** The drop of nectar I have out and what it brings (lib/town/insects' Lured): the tile it lies on, the haunt it called from, the insect and how many a catch gives, from when it is there and until when, and the seed its ways follow from. Mine alone. */
+  lured?: { x: number; y: number; haunt: number; bug: ItemId; n: number; from: number; until: number; seed: number } | null;
+  /** The insect following one I caught under the butterfly-wing cloak (lib/town/insects' Follower): its kind, how many a catch gives, the tile I stood on, and the moment it is off. Mine alone. */
+  follower?: { bug: ItemId; n: number; at: [number, number]; until: number } | null;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

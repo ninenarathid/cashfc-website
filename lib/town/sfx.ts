@@ -41,11 +41,11 @@ export type WorkSound =
   | "hoe" | "knock" | "sow" | "water" | "feed" | "spray" | "pick" | "pull" | "dip" | "pour"
   | "stir" | "clang" | "cooked" | "odd" | "nothing" | "made" | "ladle" | "down" | "soak" | "scrub" | "squeak" | "clean"
   | "rustle" | "pluck" | "wrong" | "brush" | "bruise" | "shake" | "basket" | "thud"
-  | "swish" | "netted" | "flit" | "chirp" | "cicada"
+  | "swish" | "netted" | "flit" | "chirp" | "cicada" | "drip" | "gust" | "lull"
   | "crackle" | "sizzle" | "turn" | "charred";
 export const WORK_SOUNDS: WorkSound[] = ["hoe", "knock", "sow", "water", "feed", "spray", "pick", "pull", "dip", "pour",
   "stir", "clang", "cooked", "odd", "nothing", "made", "ladle", "down", "soak", "scrub", "squeak", "clean",
-  "rustle", "pluck", "wrong", "brush", "bruise", "shake", "basket", "thud", "swish", "netted", "flit", "chirp", "cicada", "crackle", "sizzle", "turn", "charred"];
+  "rustle", "pluck", "wrong", "brush", "bruise", "shake", "basket", "thud", "swish", "netted", "flit", "chirp", "cicada", "drip", "gust", "lull", "crackle", "sizzle", "turn", "charred"];
 
 const KEY = "cashtown.sfx.off";
 /** Another's fishing: how loud it is beside them, as a share of one's own, and how many tiles off it is last heard. */
@@ -412,6 +412,26 @@ function makeWork(b: Bench, name: WorkSound, t: number) {
       // a cicada: a dry buzz that swells and falls away
       tone(b, t, "sawtooth", 3100, 3250, 0.85, 0.045, 0.3, { hz: 88, by: 420 });
       hiss(b, t, "bandpass", 5600, 5200, 6, 0.85, 0.11, 0.3);
+      break;
+    /* ── the gifts of the insects' ranks (lib/town/gifts) ── */
+    case "drip":
+      // a drop of nectar let fall: one round plip, and a sweet note that hangs a moment
+      tone(b, t, "sine", 1180, 620, 0.09, 0.2, 0.002);
+      bell(b, t + 0.07, 1318.51, 0.07, 0.5);
+      break;
+    case "gust":
+      // the wind net: a breath of air that comes down all at once
+      hiss(b, t, "bandpass", 420, 2600, 0.8, 0.2, 0.34, 0.012);
+      hiss(b, t + 0.03, "highpass", 2400, 5200, 0.7, 0.16, 0.16, 0.01);
+      tone(b, t, "sine", 240, 110, 0.12, 0.16, 0.003);
+      break;
+    case "lull":
+      // the lulling flute: five slow breathy notes going down to sleep, each with a little air in it
+      for (const [hz, at, len] of [[783.99, 0, 0.42], [659.25, 0.34, 0.42], [587.33, 0.68, 0.42], [659.25, 1.02, 0.36], [523.25, 1.34, 0.9]]) {
+        tone(b, t + at, "sine", hz, hz, len, 0.2, 0.06, { hz: 5.2, by: hz * 0.006 });
+        tone(b, t + at, "triangle", hz * 2, hz * 2, len * 0.8, 0.03, 0.08);
+        hiss(b, t + at, "bandpass", hz * 2, hz * 2, 3, len * 0.7, 0.03, 0.05);
+      }
       break;
 
     /* ── the camp's fire ── */

@@ -61,7 +61,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "famSquirrel", kind: "familiar", line: "forest", rank: 2, name: { th: "กระรอกคู่ใจ", en: "A squirrel" },
     does: { th: "ของที่วางอยู่บนพื้นในป่า กระรอกวิ่งไปเก็บมาให้เองตอนเราเดินผ่าน ไม่เสียแรง และตอนเขย่าต้นไม้ช่วยรับลูกไม้ที่เราพลาดให้ ต้นละ 2 ลูก", en: "It runs to fetch what lies on the forest's ground as you walk past, for no stamina; and when a tree is shaken it catches two of the fruit you miss" } },
   { id: "famButterfly", kind: "familiar", line: "insects", rank: 2, name: { th: "ผีเสื้อนำโชค", en: "A lucky butterfly" },
-    does: { th: "แมลงตื่นตัวช้าลง เข้าใกล้ได้มากขึ้นก่อนมันหนี", en: "Insects are slower to startle: you come nearer before they flee" } },
+    does: { th: "แมลงรู้ตัวช้าลงมาก ระยะที่มันจะตกใจหนีเหลือครึ่งเดียว แต่ถ้าเข้าหาผิดวิธีมันก็ยังหนีอยู่ดี", en: "Insects are far slower to know of you: the distance at which one startles is halved; come at it the wrong way and it flees all the same" } },
   { id: "famGnome", kind: "familiar", line: "farming", rank: 2, name: { th: "โนมสวน", en: "A garden gnome" },
     does: { th: "โนมรดน้ำให้ทั้งแปลงของเราในครั้งเดียว ไม่ใช้น้ำในบัว ไม่เสียแรง แปลงละชั่วโมงละครั้ง", en: "It waters a whole bed of yours at once, with no water out of the can and for no stamina, once an hour a bed" } },
 
@@ -113,11 +113,11 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "ขี่ได้ทุกแผนที่ เดินเร็วขึ้น 2 เท่า และเก็บของได้จากบนหลังกวางในระยะ 2 ช่อง", en: "Ridden on every map, twice as fast, and things are gathered from its back within two tiles" } },
   // the insects
   { id: "thingNectar", kind: "thing", line: "insects", rank: 3, name: { th: "หยดน้ำหวานล่อแมลง", en: "A drop of nectar" },
-    does: { th: "หยดลงพื้น ภายใน 10 วินาทีมีแมลงบินมาหา ชนิดตามที่และเวลานั้น วันละ 10 หยด", en: "Dropped on the ground: within ten seconds an insect flies to it, of that place and hour; ten drops a day" } },
+    does: { th: "หยดลงพื้นตรงที่ยืน ภายใน 10 วินาทีมีแมลงบินมาหา ชนิดตามที่และเวลานั้น วันละ 10 หยด (ปุ่มอยู่มุมจอตอนถือสวิง)", en: "Dropped on the ground where you stand: within ten seconds an insect flies to it, of that place and hour; ten drops a day (its button is at the screen's corner while you hold a net)" } },
   { id: "charmWind", kind: "charm", line: "insects", rank: 4, name: { th: "สวิงสายลม", en: "Wind net" },
-    does: { th: "สวิงลงทันทีไม่ต้องรอจังหวะ เล็งตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน", en: "The net falls at once, where it is aimed; it still misses when it is aimed badly" } },
+    does: { th: "สวิงลงทันทีไม่ต้องรอจังหวะ กดค้างเพื่อเล็ง ปล่อยตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน (ตอนหมดแรงเป็นสวิงธรรมดา)", en: "The net falls at once: press to aim, and it comes down where you let go; it still misses when it is aimed badly (with no stamina it is a plain net)" } },
   { id: "thingFlute", kind: "thing", line: "insects", rank: 5, by: 15, name: { th: "ขลุ่ยกล่อมแมลง", en: "Lulling flute" },
-    does: { th: "แมลงทุกตัวบนจอหลับ 15 วินาที ใช้ได้ 5 นาทีครั้ง", en: "Every insect on the screen sleeps fifteen seconds; once in five minutes" } },
+    does: { th: "แมลงทุกตัวบนจอหลับ 15 วินาที ใช้ได้ 5 นาทีครั้ง (ปุ่มอยู่มุมจอตอนถือสวิง)", en: "Every insect on the screen sleeps fifteen seconds; once in five minutes (its button is at the screen's corner while you hold a net)" } },
   { id: "charmCloak", kind: "charm", line: "insects", rank: 6, by: 3, name: { th: "ผ้าคลุมปีกผีเสื้อ", en: "Butterfly-wing cloak" },
     does: { th: "จับได้ทีละคู่: แมลงที่จับได้มีอีกตัวตามมา ต้องสวิงให้ทันใน 3 วินาที และแมลงหายากเฉพาะวันออกมาให้เราเห็นทุกวัน", en: "A pair at a time: an insect caught has another following, to be netted within three seconds; and the rare insects of a day show for you every day" } },
   // the farm
@@ -147,13 +147,14 @@ export const GIFTS: readonly Gift[] = [
  */
 export const CHARMS = { slots: 2, charmApron: 1, charmGloves: 0.5, charmFloat: 1, charmLamp: 5, charmNet: 1, charmHoe: 1 } as const;
 /**
- * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly is so many
- * steps of softness about an insect (lib/town/forest-eye's softStep); the gnome waters a whole bed of its member's
+ * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly leaves so
+ * much of the distance at which an insect startles (lib/town/insects' stealthOf: a half, since 2026-10-07; it was a
+ * step of softness added to a meal's, lib/town/forest-eye's softStep); the gnome waters a whole bed of its member's
  * at once, and a bed rests so many minutes between two of its rounds (lib/town/farm's gnomeWater: the owner,
  * 2026-10-07, in place of the weeding it began with). The first two are the page's own to read: their games are
  * played in the browser. The gnome's round is a deed, judged by whoever keeps the game.
  */
-export const FAMILIARS = { famSquirrel: 2, famButterfly: 1, famGnome: 60 } as const;
+export const FAMILIARS = { famSquirrel: 2, famButterfly: 0.5, famGnome: 60 } as const;
 /**
  * What a gift does only so many times: to a day (from dawn, as the stamina's day is) or to a meal's hours. Counted in
  * the purse (`gifts.used`) by whoever keeps the game, so that the count is the same on every device a member plays on.

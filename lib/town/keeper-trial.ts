@@ -6,6 +6,7 @@ import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import { wearing } from "./gifts";
+import type { Mine } from "./insects";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 // ── gifts: kitchen ──
 import type { Cooked, KitchenDid } from "./keeper";
@@ -259,6 +260,11 @@ class TrialKeeper implements Keeper {
     return this.trial.netDo(haunt, at, went.misses, went.lure ?? null, name);
   }
   bugBook() { return this.trial.bugBook(); }
+  // ── gifts: insects ──
+  async nectarDrop(at: [number, number]): Promise<Did<{ left: number }>> { return this.trial.nectarDrop(at); }
+  async netMine(which: Mine, at: [number, number], went: { misses: number }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>> {
+    return this.trial.netMine(which, at, went.misses, name);
+  }
 
   async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>> {
     return this.trial.cookDo(things, crew, timing.misses, name, { sprite: !!timing.sprite, flame: !!timing.flame });

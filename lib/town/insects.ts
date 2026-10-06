@@ -1,10 +1,12 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
-import type { ItemId } from "./items";
-import { spend } from "./stamina";
+import { softStep } from "./forest-eye";
+import { famBy, numberOf, useGift, wearing, type GiftRefusal } from "./gifts";
+import { ITEMS, type ItemId } from "./items";
+import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { CAMP, FARM, FOREST, FOREST_PROPS, GATES, PROPS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { CAMP, COLS, FARM, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 
 /**
  * Catching insects, as rules (the owner, 2026-10-05: "จับแมลง ในทุกแมพในเกม แมพกลางเมือง
@@ -144,6 +146,23 @@ export const BUGS: Record<BugId, Bug> = {
 };
 export const BUG_IDS = Object.keys(BUGS) as BugId[];
 export const isBug = (id: string | null | undefined): id is BugId => !!id && id in BUGS;
+
+/**
+ * What an insect is among the others: common, uncommon or rare, by what the relatives pay for one (so many coins and
+ * more; the rare ones' mark is the one a catch counts eight points from, lib/town/line-points). Nine are common
+ * (the white butterfly, the monarch, the dragonfly, the grasshopper, the cricket, the moth, the ladybird, the scarab,
+ * the caterpillar), seven uncommon, eight rare. **The marks are mine.**
+ */
+export type BugTier = "common" | "uncommon" | "rare";
+export const TIERS = { uncommon: 4, rare: 20 } as const;
+export const tierOf = (id: BugId): BugTier => { const pays = ITEMS[id].pays; return pays >= TIERS.rare ? "rare" : pays >= TIERS.uncommon ? "uncommon" : "common"; };
+/**
+ * How much harder an insect is for somebody who is good at the line (lib/town/gifts' `harderFor("insects", points)`:
+ * from the line's fourth rank, 8% a rank): nothing for a common one, whoever catches it. What harder is, for an
+ * insect: **it knows of them from that much further off** (`sensed`), and **the net's ring on it is that much
+ * narrower** (`ringOf`). Both are judged where a catch is: on the page, as the ring and the fright always were.
+ */
+export const harderOn = (id: BugId, harder = 1): number => (tierOf(id) === "common" ? 1 : Math.max(1, harder || 1));
 
 /**
  * A kind of haunt: how many minutes its turn lasts, the chance a turn has an insect, and how many people may catch it
@@ -314,20 +333,20 @@ const phaseOf = (h: Haunt) => Math.floor(roll("bugphase", h.id) * HAUNT_KINDS[h.
 export const bugTurn = (h: Haunt, now: number) => Math.floor((now + phaseOf(h)) / (HAUNT_KINDS[h.kind].every * MINUTE));
 export const bugTurnStart = (h: Haunt, turn: number) => turn * HAUNT_KINDS[h.kind].every * MINUTE - phaseOf(h);
 
-/** Whether an insect may be at a haunt in the turn that begins at a moment. */
-function fits(b: Bug, id: BugId, h: Haunt, at: number, salt: string, rains: readonly Rain[]): boolean {
+/** Whether an insect may be at a haunt in the turn that begins at a moment (`always`: whatever day it is, for one that has days of its own). */
+function fits(b: Bug, id: BugId, h: Haunt, at: number, salt: string, rains: readonly Rain[], always = false): boolean {
   if (!b.at.includes(h.kind)) return false;
   if (b.places && !b.places.includes(h.place)) return false;
   if (b.zones && (!h.zone || !b.zones.includes(h.zone))) return false;
   if (b.hours) { const hr = ((((at + BANGKOK) % DAY) + DAY) % DAY) / HOUR; if (!b.hours.some(([a, z]) => hr >= a && hr < z)) return false; }
   if (b.dry && wetMs(rains, at - HOUR / 2, at) > 0) return false;
-  if (b.day && !isDayOf(salt, id, b.day, at)) return false;
+  if (b.day && !always && !isDayOf(salt, id, b.day, at)) return false;
   if (b.moon && !fullMoon(at)) return false;
   return true;
 }
 
-/** What a haunt has in a turn: the turn, the insect, how many a catch gives, and the seed its ways follow from (no secret: it only says how it moves); and whether it is one that came back there after a catch elsewhere. */
-export interface Swarm { turn: number; bug: BugId; n: number; seed: number; back?: boolean }
+/** What a haunt has in a turn: the turn, the insect, how many a catch gives, and the seed its ways follow from (no secret: it only says how it moves); whether it is one that came back there after a catch elsewhere; and whether it is there only for whoever wears the butterfly-wing cloak (`cloakAt`). */
+export interface Swarm { turn: number; bug: BugId; n: number; seed: number; back?: boolean; cloak?: boolean }
 /** An insect that comes back: at which haunt, in which turn of its, which insect and how many a catch gives, and from what moment it is there. */
 export interface Comeback { haunt: number; turn: number; bug: BugId; n: number; from: number }
 
@@ -384,6 +403,32 @@ export function hereAt(salt: string, h: Haunt, now: number, rains: readonly Rain
 }
 
 /**
+ * The butterfly-wing cloak (lib/town/gifts' charmCloak, the insects' sixth rank), its second half: "the rare insects
+ * that are out only on some days are out for its wearer every day". What a haunt has in a turn **for whoever wears
+ * the cloak and for nobody else**: the turn rolled as it is for everybody (the same numbers: whether anything is out,
+ * which insect by the weights, how many), but with every insect that has days of its own counted in whatever day it
+ * is. Where that roll lands on such an insect on a day that is not its own (and it is plentiful enough), the wearer
+ * has it there, in the place of whatever everybody has; where it lands on anything else, there is no such insect,
+ * and the wearer has what everybody has (`hereFor`). So a wearer sees a monarch, a morpho, a glass dragonfly, a hawk
+ * moth, a jewel beetle or a Hercules beetle as often on any day as everybody does on a day of its own; what waits
+ * for a full moon still waits for it. **It adds no insect to the world**: a haunt has one insect a turn for the whole
+ * village, and whoever nets it first has had that turn's, whichever of the two they saw there.
+ */
+export function cloakAt(salt: string, h: Haunt, now: number, rains: readonly Rain[] = DRY, hunts: readonly Hunt[] = UNHUNTED): Swarm | null {
+  const kind = HAUNT_KINDS[h.kind], turn = bugTurn(h, now), at = bugTurnStart(h, turn);
+  if (roll(`${salt}:bug`, h.id, turn) >= kind.chance) return null;
+  const one = whichOf(BUG_IDS.filter((id) => fits(BUGS[id], id, h, at, salt, rains, true)), roll(`${salt}:which`, h.id, turn));
+  const day = one ? BUGS[one.bug].day : undefined;
+  if (!one || !day || isDayOf(salt, one.bug, day, at)) return null;
+  if (one.within >= plentyOf(hunts, one.bug, at)) return null;
+  const [lo, hi] = BUGS[one.bug].n;
+  return { turn, bug: one.bug, n: lo + Math.floor(roll(`${salt}:bugs`, h.id, turn) * (hi - lo + 1)), seed: h.id * 100003 + turn, cloak: true };
+}
+/** What a haunt has now for somebody: with the cloak, the insect that is there for its wearers alone, where there is one; else what it has for everybody. */
+export const hereFor = (salt: string, h: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], hunts: readonly Hunt[] = UNHUNTED, cloak = false): Swarm | null =>
+  (cloak ? cloakAt(salt, h, now, rains, hunts) : null) ?? hereAt(salt, h, now, rains, backs, hunts);
+
+/**
  * Where the insect caught at a haunt comes back, and as what: at another haunt of the same map that has nothing in the
  * turn it will be in then (none of its own, none come back to it already), with enough of that turn left, picked by a
  * number from 0 up to 1 among them in the order of their numbers; the insect by that haunt's own weights at that hour
@@ -410,11 +455,11 @@ export function comeback(salt: string, from: Haunt, now: number, rains: readonly
 
 /** A haunt as somebody sees it now: which, its insect, and what its ways follow from. */
 export interface BugSight { id: number; bug: BugId; turn: number; seed: number }
-/** Every haunt that has an insect for me now: one out this turn (its own, or come back to it), that nobody has caught. */
-export function swarms(salt: string, now: number, rains: readonly Rain[], took: (h: Haunt, turn: number) => { n: number; mine: boolean }, backs: readonly Comeback[] = [], hunts: readonly Hunt[] = UNHUNTED): BugSight[] {
+/** Every haunt that has an insect for me now: one out this turn (its own, or come back to it; with the cloak, the one that is there for its wearers), that nobody has caught. */
+export function swarms(salt: string, now: number, rains: readonly Rain[], took: (h: Haunt, turn: number) => { n: number; mine: boolean }, backs: readonly Comeback[] = [], hunts: readonly Hunt[] = UNHUNTED, cloak = false): BugSight[] {
   const out: BugSight[] = [];
   for (const h of HAUNTS) {
-    const has = hereAt(salt, h, now, rains, backs, hunts);
+    const has = hereFor(salt, h, now, rains, backs, hunts, cloak);
     if (!has) continue;
     const t = took(h, has.turn);
     if (t.mine || t.n >= HAUNT_KINDS[h.kind].shares) continue;
@@ -445,7 +490,9 @@ export function farmBugs(salt: string, now: number, rains: readonly Rain[], took
 /* ── a catch ────────────────────────────────────────────────────────────── */
 
 /** Why an insect was not caught, besides what a bag or a hand may lack: had already this turn, the last of them gone to others, stood too far from, or (a beetle) nobody under its tree with something sweet. */
-export type BugRefusal = "had" | "bare" | "far" | "lure";
+export type BugRefusal = "had" | "bare" | "far" | "lure"
+  | "out"    // a drop of nectar of mine is out already
+  | "quiet"; // no insect is about this place at this hour for a drop to call
 
 /** Whether somebody on a tile is near enough a haunt to have caught what is there. */
 export const nearHaunt = (h: Haunt, at: readonly [number, number]) => h.perches.some((p) => Math.hypot(p.x - at[0] - 0.5, p.y - at[1] - 0.5) <= NET.reach + NET.far);
@@ -466,7 +513,164 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   if (bug.habit === "lure" && !(lure && LURES.includes(lure))) return { ok: false, why: "lure" };
   if (roomFor(purse.bag, has.bug) < has.n) return no("full");
   const cost = bug.cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
-  return { ok: true, purse: { ...spend(purse, cost, now), bag: put(purse.bag, has.bug, has.n) }, got: [[has.bug, has.n]] };
+  return { ok: true, purse: followed(purse, { ...spend(purse, cost, now), bag: put(purse.bag, has.bug, has.n) }, has.bug, has.n, at, now), got: [[has.bug, has.n]] };
+}
+
+/* ── the butterfly-wing cloak's pair (lib/town/gifts' charmCloak, the insects' sixth rank) ── */
+
+/**
+ * "A pair at a time: an insect caught has another following, to be netted within three seconds" (the owner's ladder
+ * of 2026-10-07; and of what makes the game harder to match: "the cloak's pair (the second within 3 s)"). With the
+ * cloak worn, every insect caught (a haunt's, or the one of a drop of nectar) leaves another of its kind in the air
+ * where it was, its wearer's alone: kept in the purse (`follower`) with the moment it is off, so many seconds on
+ * (the cloak's number). It wheels about the place of the catch (`followerPose`) and is netted there as any insect is:
+ * the ring is its kind's, a good one's is narrower for a good hunter, and aimed badly the net misses. Not netted in
+ * time there is only the one. The second of a pair has none following it.
+ *
+ * It is a catch like any (a `net` deed: its stamina, its kind's scarcity, the line's points), and the keeper judges
+ * its time: so long past the three seconds it still takes the catch for the journey there and back (`slack`).
+ * How it flies is mine: a figure of eight through the place of the catch, so far out at the most, so many turns of
+ * its measure a second, quicker for the kinds that are quick.
+ */
+export const PAIR = { slack: 2500, radius: 0.9, turn: 1.7, lift: 0.5 };
+/** The insect that follows one just caught: its kind, how many a catch gives, the tile its catcher stood on, and the moment it is off. */
+export type Follower = NonNullable<Purse["follower"]>;
+/** A purse after a catch, with what follows the insect caught when the cloak is worn (as the purse was before the catch); without it, the purse as it is. */
+export function followed<P extends Purse>(before: Purse, after: P, bug: BugId, n: number, at: readonly [number, number], now: number): P {
+  return wearing(before, "charmCloak") ? { ...after, follower: { bug, n, at: [at[0], at[1]], until: now + numberOf("charmCloak") * 1000 } } : after;
+}
+/** The insect that follows one I caught, while the keeper still takes it. */
+export const followerNow = (purse: Purse, now: number): Follower | null => {
+  const f = purse.follower;
+  return f && isBug(f.bug) && typeof f.until === "number" && Array.isArray(f.at) && now <= f.until + PAIR.slack ? f : null;
+};
+/**
+ * How the one that follows is at a moment: on the wing in a figure of eight through the place of the catch (`at`: the
+ * point of the ground the first was taken over), begun when it was seen (`began`), turned and handed by its seed.
+ */
+export function followerPose(bug: BugId, at: Vec, seed: number, began: number, now: number): Pose {
+  const u = (Math.max(0, now - began) / 1000) * PAIR.turn * (BUGS[bug].quick ?? 1), tilt = roll("pairtilt", seed) * Math.PI * 2, way = roll("pairway", seed) < 0.5 ? 1 : -1;
+  const a = PAIR.radius * Math.sin(u), b = PAIR.radius * 0.6 * Math.sin(2 * u) * way, da = Math.cos(u), db = 1.2 * Math.cos(2 * u) * way;
+  const gx = at.x + a * Math.cos(tilt) - b * Math.sin(tilt), gy = at.y + a * Math.sin(tilt) + b * Math.cos(tilt);
+  const vx = da * Math.cos(tilt) - db * Math.sin(tilt), vy = da * Math.sin(tilt) + db * Math.cos(tilt);
+  return { ...POSE, x: gx + PAIR.lift, y: gy + PAIR.lift, lift: PAIR.lift, right: vx - vy >= 0, flying: true };
+}
+
+/* ── a drop of nectar (lib/town/gifts' thingNectar, the insects' third rank) ─ */
+
+/**
+ * A drop of nectar put on the ground where its owner stands (the owner's ladder of 2026-10-07: "หยดลงพื้น ภายใน 10
+ * วินาทีมีแมลงบินมาหา ชนิดตามที่และเวลานั้น วันละ 10 หยด"). Within `within` seconds (and no sooner than `soon`) an insect
+ * flies to it, and stays `stays` seconds; then it is to be come up to and netted as any other. Ten drops a day
+ * (lib/town/gifts' USES). Every number here is mine.
+ *
+ * - **Which insect, the keeper says**: one of the kinds the nearest haunt of that map would have at that moment (its
+ *   place, its part of the forest, the hour, the sky, the moon, a day of its own), by their weights there, each
+ *   weighed down by how scarce its kind has been hunted (`plentyOf`): a scarce kind comes seldom, and something
+ *   always comes while anything may. When nothing may (flowers at night, a dry kind in the rain), the drop is not
+ *   put down and none is used up (`quiet`).
+ * - **The haunts a drop calls from are the ones insects pass by often** (`at`): flowers, the water's edge, a field,
+ *   a light, the litter under trees. Not a tree (what is in one comes down only to something sweet held by a hand
+ *   that then cannot hold a net: two people still), nor a glade or the fall, whose one insect is rare by how seldom
+ *   its haunt has anything at all: a drop that brought one every time would be ten of the rarest a day. The rare
+ *   ones a drop can bring are as rare as their weights beside the others make them (an orchid mantis two in a
+ *   hundred and sixty at the forest's flowers; a hawk moth four in a hundred on a day of its own).
+ * - **It is its owner's alone**, kept in their purse (`lured`), one at a time: nobody else sees it or can net it.
+ *   Caught, it is a catch like any (a `net` deed: it counts towards its kind's scarcity, the line's points, the
+ *   village's book).
+ */
+export const NECTAR = { within: 10, soon: 3, stays: 120, at: ["blooms", "water", "field", "lamp", "litter"] as HauntKind[] };
+/** The maps, each as its name and the box of its tiles: what the database is told, which knows no tile's map (lib/town/world's placeOf is the code's). */
+export const NECTAR_MAPS: Array<[Place, number, number, number, number]> = [["town", 0, 0, COLS, ROWS], ["farm", FARM.x, FARM.y, FARM.w, FARM.h], ["forest", FOREST.x, FOREST.y, FOREST.w, FOREST.h]];
+/** A drop that is out and what it brings: the tile it lies on, the haunt it called from, the insect and how many a catch gives, from when it is there and until when, and the seed its ways follow from. */
+export type Lured = NonNullable<Purse["lured"]>;
+/** The haunt a drop on a tile calls from: of the map the tile is on, among the kinds a drop calls from, the one a perch of which is nearest (the lower number, of two as near). None off the maps. */
+export function nectarHaunt(at: readonly [number, number]): Haunt | null {
+  const place = placeOf(at[0], at[1]);
+  let best: Haunt | null = null, least = Infinity;
+  if (!place) return null;
+  for (const h of HAUNTS) {
+    if (h.place !== place || !NECTAR.at.includes(h.kind)) continue;
+    for (const p of h.perches) {
+      const dx = p.x - at[0] - 0.5, dy = p.y - at[1] - 0.5, d = dx * dx + dy * dy;
+      if (d < least) { least = d; best = h; }
+    }
+  }
+  return best;
+}
+/**
+ * The insects a drop may bring at a haunt at a moment, in the order they are weighed, each with its weight there less
+ * what its kind is hunted. `always`: for whoever wears the butterfly-wing cloak, for whom the insects that have days
+ * of their own are out every day (`cloakAt`): at a drop too.
+ */
+export function nectarMay(salt: string, h: Haunt, now: number, rains: readonly Rain[] = DRY, hunts: readonly Hunt[] = UNHUNTED, always = false): Array<[BugId, number]> {
+  return BUG_IDS.filter((id) => fits(BUGS[id], id, h, now, salt, rains, always)).map((id): [BugId, number] => [id, BUGS[id].weight * plentyOf(hunts, id, now)]);
+}
+const share = (x: number) => Math.min(0.999999, Math.max(0, x || 0));
+/**
+ * Put a drop down where I stand: the purse with a drop used and what it brings kept, or why not (no nectar to my
+ * name, none left today, one out already, nothing about to call). `r` is three numbers of chance from 0 up to 1:
+ * which insect, how many a catch gives, and how soon it comes.
+ */
+export function nectar(purse: Purse, at: readonly [number, number], now: number, salt: string, rains: readonly Rain[], hunts: readonly Hunt[], r: readonly [number, number, number]):
+  { ok: true; purse: Purse; lured: Lured; left: number } | { ok: false; why: BugRefusal | GiftRefusal } {
+  const used = useGift(purse, "thingNectar", now);
+  if (!used.ok) return used;
+  if (purse.lured && typeof purse.lured.until === "number" && purse.lured.until > now) return { ok: false, why: "out" };
+  const h = nectarHaunt(at), may = h ? nectarMay(salt, h, now, rains, hunts, wearing(purse, "charmCloak")) : [];
+  let total = 0;
+  for (const [, w] of may) total += w;
+  if (!h || !(total > 0)) return { ok: false, why: "quiet" };
+  let left = share(r[0]) * total, bug = may[may.length - 1][0];
+  for (const [id, w] of may) { left -= w; if (left < 0) { bug = id; break; } }
+  const [lo, hi] = BUGS[bug].n, n = lo + Math.min(hi - lo, Math.max(0, Math.floor(share(r[1]) * (hi - lo + 1))));
+  const from = now + Math.floor((NECTAR.soon + share(r[2]) * (NECTAR.within - NECTAR.soon)) * 1000);
+  const lured: Lured = { x: at[0], y: at[1], haunt: h.id, bug, n, from, until: from + NECTAR.stays * 1000, seed: (h.id * 100003 + Math.floor(now / 1000)) % 2147483647 };
+  return { ok: true, purse: { ...used.purse, lured }, lured, left: used.left };
+}
+/** The insect that has come to my drop, at a moment: there from when it came until it is off again. */
+export const luredNow = (purse: Purse, now: number): Lured | null => {
+  const l = purse.lured;
+  return l && isBug(l.bug) && typeof l.from === "number" && typeof l.until === "number" && l.from <= now && now < l.until ? l : null;
+};
+/** The number the page knows a drop's insect by, where a haunt's is known by its haunt's: no haunt has it. */
+export const LURED = -1;
+/**
+ * The place a drop's insect keeps to, as a haunt of its own for the page to move it about (`think`, `poseOf`): a few
+ * perches round the drop, a step or two out, in an order and at distances that follow from its seed (what goes round
+ * a light goes round the drop itself). Of the kind and the part of the forest of the haunt it was called from.
+ */
+export function luredHaunt(l: Lured): Haunt {
+  const from = HAUNTS[l.haunt], c = { x: l.x + 0.5, y: l.y + 0.5 };
+  const round = isBug(l.bug) && BUGS[l.bug].habit === "lamp";
+  const perches = round ? [c] : Array.from({ length: 5 }, (_, i) => {
+    const ang = ((i + roll("luredturn", l.seed)) / 5) * Math.PI * 2, r = 1.2 + 0.6 * roll("luredout", l.seed, i);
+    return { x: Math.round((c.x + Math.cos(ang) * r) * 100) / 100, y: Math.round((c.y + Math.sin(ang) * r) * 100) / 100 };
+  });
+  return { id: LURED, kind: from?.kind ?? "blooms", place: from?.place ?? "town", zone: from?.zone ?? null, x: c.x, y: c.y, perches };
+}
+
+/** An insect that is mine alone and no haunt's: the one come to my drop of nectar, or the one following an insect I caught under the butterfly-wing cloak. */
+export type Mine = "lured" | "pair";
+/**
+ * Catch an insect that is mine alone, from the tile I stand on, after so many swings that missed: the one come to my
+ * drop (there from when it came until it is off), or the one following an insect I caught (until its seconds are up,
+ * and the keeper's slack). As a haunt's is caught (`net`): with a net in the hand, from near enough the drop or the
+ * place of the first catch, with room in the bag, for its stamina and a point a miss up to so many. The drop is done
+ * with, and under the cloak its insect has another following; the one that followed is gone, and has none.
+ */
+export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: readonly [number, number], misses: number, now: number):
+  Done<{ purse: Purse; got: Array<[ItemId, number]> }> | { ok: false; why: BugRefusal } {
+  const l = which === "lured" ? luredNow(purse, now) : null, f = which === "pair" ? followerNow(purse, now) : null;
+  const one = l ? { bug: l.bug as BugId, n: l.n, x: l.x, y: l.y } : f ? { bug: f.bug as BugId, n: f.n, x: f.at[0], y: f.at[1] } : null;
+  if (!one) return no("none");
+  const id = one.bug, reach = NET.reach + NET.far, dx = one.x - at[0], dy = one.y - at[1];
+  if (!mayNet(hand)) return no("tool");
+  if (dx * dx + dy * dy > reach * reach) return { ok: false, why: "far" };
+  if (roomFor(purse.bag, id) < one.n) return no("full");
+  const cost = BUGS[id].cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
+  const after = { ...spend(purse, cost, now), bag: put(purse.bag, id, one.n) };
+  return { ok: true, purse: l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, got: [[id, one.n]] };
 }
 
 /* ── a ladybird's doing ─────────────────────────────────────────────────── */
@@ -509,17 +713,51 @@ export const HABITS = {
 
 /**
  * Somebody on the map: where, whether they are walking, and what they hold; and, for somebody under the fountain's
- * soft step (lib/town/forest-eye), the share of an insect's senses that reaches them.
+ * soft step (lib/town/forest-eye) or with the lucky butterfly following (`stealthOf`), the share of an insect's
+ * senses that reaches them; and, for somebody good at the line, how much further off the good insects know of them
+ * (`wary`: lib/town/gifts' harderFor, which a common insect does not mind: `harderOn`).
  */
-export interface Person { x: number; y: number; moving: boolean; hold: ItemId | null; soft?: number }
+export interface Person { x: number; y: number; moving: boolean; hold: ItemId | null; soft?: number; wary?: number }
 /** How far something an insect sees or hears by reaches a person. */
-const sensed = (reach: number, p: Person) => reach * (p.soft ?? 1);
+const sensed = (reach: number, p: Person, id: BugId) => reach * (p.soft ?? 1) * harderOn(id, p.wary);
+/**
+ * The share of an insect's senses that reaches somebody: all of them (1), less under a soft step (the fountain's, or
+ * a meal's at its level: lib/town/forest-eye's softStep), and **half of that again with the lucky butterfly
+ * following** (lib/town/gifts' famButterfly, its number: the distance at which an insect startles is halved). The
+ * butterfly was a step more of softness added to the meal's before 2026-10-07 (`softStep(by + 1)`: a half by
+ * itself, but two fifths where a meal's first level alone gives two thirds); it is a share of its own now, which
+ * multiplies whatever else there is (a third with that meal). Whoever comes at an insect the wrong way for its kind,
+ * within what is left, sets it off all the same.
+ */
+export const stealthOf = (purse: Purse, now: number): number => softStep(buffBy(purse, now, "net")) * Math.min(1, Math.max(0, famBy(purse, "famButterfly", 1)));
+/**
+ * A rare insect does not stay (the owner's ladder of 2026-10-07: "a rare insect moves perch every 20 s"): one that
+ * would sit at its perch for good (among what it looks like, up its tree, where it sings or looks about) is at
+ * another perch of its haunt every so many milliseconds, for everybody: which perch follows from its seed and the
+ * clock alone (`perchAt`), so every screen has it at the same one, and the silver-web net's glint shows it moving
+ * about. The rare ones that never stop by themselves (round a flower bed, round a lamp, darting from hover to hover)
+ * are as they are.
+ */
+export const ROAM = { every: 20_000 } as const;
+const STAYS: readonly Habit[] = ["look", "lure", "sound", "behind"];
+export const roams = (id: BugId, h: Haunt): boolean =>
+  tierOf(id) === "rare" && h.perches.length >= 2 && STAYS.includes(BUGS[id].habit) && (BUGS[id].habit !== "look" || !!BUGS[id].like);
+/**
+ * The perch a roaming insect is at in a stretch of its clock (`epoch`: the moment over `ROAM.every`, rounded down):
+ * one of the even perches in an even stretch and of the odd ones in an odd, so that it is never the one before.
+ */
+export function perchAt(seed: number, n: number, epoch: number): number {
+  if (n < 2) return 0;
+  const odd = ((epoch % 2) + 2) % 2, some = odd ? Math.floor(n / 2) : Math.ceil(n / 2);
+  return 2 * Math.min(some - 1, Math.floor(roll("roam", seed, epoch) * some)) + odd;
+}
 /**
  * What an insect has in mind, on one screen: the perch it is at or bound for, the one it left and when, when it
  * comes (or came) there, how many it has been to, until when it keeps quiet, which way it faces across the screen,
- * the last time it looked about, and (a beetle) since when something sweet has been held under it and when last.
+ * the last time it looked about, and (a beetle) since when something sweet has been held under it and when last;
+ * and (one that does not stay: `ROAM`) the stretch of its clock it was last moved in.
  */
-export interface Mind { at: number; from: number; left: number; land: number; visit: number; hush: number; face: 1 | -1; looked: number; lured: number; last: number }
+export interface Mind { at: number; from: number; left: number; land: number; visit: number; hush: number; face: 1 | -1; looked: number; lured: number; last: number; roam?: number }
 /** How an insect is at a moment: where on the ground, how high above it, which way it faces, and what of it shows. */
 export interface Pose {
   x: number; y: number; lift: number; right: boolean;
@@ -566,15 +804,48 @@ const next = (h: Haunt, seed: number, m: Mind) => (h.perches.length < 2 ? m.at :
 const songOf = (seed: number, visit: number) => ({ song: mix(HABITS.sound.song, roll("song", seed, visit)), rest: mix(HABITS.sound.rest, roll("rest", seed, visit)) });
 
 /**
+ * Whether an insect at its perch knows of somebody as they are now: what hovers or sings, of whoever walks within
+ * its hearing; what sees, of whoever is within its sight on that side of it. The others mind nobody. How far its
+ * senses reach somebody is theirs to shorten and to lengthen (`sensed`).
+ */
+export function knows(id: BugId, h: Haunt, m: Mind, p: Person): boolean {
+  const here = h.perches[m.at];
+  switch (BUGS[id].habit) {
+    case "spot": return p.moving && far(p, here) < sensed(HABITS.spot.notice, p, id);
+    case "behind": return far(p, here) < sensed(side(here, p) === m.face ? HABITS.behind.ahead : HABITS.behind.back, p, id);
+    case "sound": return p.moving && far(p, here) < sensed(HABITS.sound.notice, p, id);
+    default: return false;
+  }
+}
+/**
+ * Whether it is only somebody's soft step or their butterfly that keeps an insect from knowing of them: with all its
+ * senses it would, and it does not. A state the page may show (a little dust over the insect), never a rule.
+ */
+export const lulled = (id: BugId, h: Haunt, m: Mind, p: Person): boolean => (p.soft ?? 1) < 1 && !knows(id, h, m, p) && knows(id, h, m, { ...p, soft: 1 });
+
+/**
  * What an insect makes of the moment: whoever is about, and the clock. Gives back the same mind when nothing
  * changes. (A butterfly, a moth and whatever only walks mind nobody: where they are follows from the clock alone.)
  */
-export function think(id: BugId, h: Haunt, seed: number, m: Mind, now: number, people: readonly Person[]): Mind {
-  const bug = BUGS[id], quick = bug.quick ?? 1, here = h.perches[m.at];
+export function think(id: BugId, h: Haunt, seed: number, was: Mind, now: number, people: readonly Person[]): Mind {
+  const bug = BUGS[id], quick = bug.quick ?? 1;
+  let m = was;
+  // one that does not stay is at another perch in each stretch of its clock: among what it looks like, up another
+  // trunk (where nothing has brought it down yet), or off to it in a hop
+  if (roams(id, h)) {
+    const epoch = Math.floor(now / ROAM.every);
+    if (m.roam !== epoch) {
+      const to = perchAt(seed, h.perches.length, epoch);
+      if (to === m.at || now < m.land) m = { ...m, roam: epoch };
+      else if (bug.habit === "behind" || bug.habit === "sound") return { ...off(h, seed, m, to, now, bug.shy === "flight" ? HABITS.sound.fly : HABITS.behind.hop), roam: epoch };
+      else m = { ...m, at: to, from: -1, land: now, visit: m.visit + 1, lured: 0, last: 0, roam: epoch };
+    }
+  }
+  const here = h.perches[m.at];
   if (now < m.land && bug.habit !== "lure") return m;
   switch (bug.habit) {
     case "spot": {
-      const H = HABITS.spot, scare = people.find((p) => p.moving && far(p, here) < sensed(H.notice, p));
+      const H = HABITS.spot, scare = people.find((p) => knows(id, h, m, p));
       if (scare) return off(h, seed, m, away(h, m.at, scare), now, H.dart);
       if (now < m.land + mix(H.hover, roll("hover", seed, m.visit)) / quick) return m;
       return off(h, seed, m, next(h, seed, m), now, H.dart);
@@ -591,11 +862,11 @@ export function think(id: BugId, h: Haunt, seed: number, m: Mind, now: number, p
         }
         mind = { ...m, looked: look, face };
       }
-      const seenBy = people.find((p) => far(p, here) < sensed(side(here, p) === mind.face ? H.ahead : H.back, p));
+      const seenBy = people.find((p) => knows(id, h, mind, p));
       return seenBy ? off(h, seed, mind, away(h, mind.at, seenBy), now, H.hop) : mind;
     }
     case "sound": {
-      const H = HABITS.sound, mover = people.find((p) => p.moving && far(p, here) < sensed(H.notice, p));
+      const H = HABITS.sound, mover = people.find((p) => knows(id, h, m, p));
       if (!mover) return m;
       if (bug.shy === "flight") {
         const { song, rest } = songOf(seed, m.visit), t = (now - m.land) % (song + rest);
@@ -708,13 +979,53 @@ export function poseOf(id: BugId, h: Haunt, seed: number, m: Mind, now: number):
   }
 }
 
+/**
+ * The lulling flute (lib/town/gifts' thingFlute, the insects' fifth rank; the owner's ladder of 2026-10-07: "แมลงทุกตัว
+ * บนจอหลับ 15 วินาที ใช้ได้ 5 นาทีครั้ง"). Played, every insect its owner can see on the screen sleeps so many seconds:
+ * asleep it is still where it was, shows itself (what hides, what only glows now and then), minds nobody (it does
+ * not startle, nor at a net that comes down beside it), and is still to be netted: the ring is as ever, and a net
+ * aimed badly misses. Once in five minutes (lib/town/gifts' USES, a span). **On its owner's screen only**: where an
+ * insect is has always been each screen's own, so nobody else has it asleep, and nobody else catches for it.
+ */
+export const FLUTE = { secs: numberOf("thingFlute") };
+/**
+ * An insect as it sleeps from a moment on: where it was then (one in a hop or a dart, where it lands), come down to
+ * the ground under its picture, still and in plain sight. Null for one a net could not take there (a beetle still up
+ * its tree): it is out of the flute's hearing.
+ */
+export function asleep(id: BugId, h: Haunt, seed: number, m: Mind, at: number): Pose | null {
+  const habit = BUGS[id].habit, p = poseOf(id, h, seed, m, habit === "spot" || habit === "behind" || habit === "sound" ? Math.max(at, m.land) : at);
+  if (!p.open) return null;
+  return { ...POSE, x: p.x - p.lift, y: p.y - p.lift, lift: 0, right: p.right, glow: habit === "look" && !BUGS[id].like ? 1 : 0 };
+}
+
 /** Where a net has to land to take something: the point of the ground its picture is drawn over (a tile of lift is a tile up the screen, which is one back along each of the map's ways). */
 export const aimOf = (p: Pose): Vec => ({ x: p.x - p.lift, y: p.y - p.lift });
-/** The ring a net takes an insect within, in tiles: smaller for the small ones, and for tired hands. */
-export const ringOf = (id: BugId, spent: boolean, wide = 1) => NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide);
+/** The ring a net takes an insect within, in tiles: smaller for the small ones, and for tired hands; and narrower on a good insect for whoever is good at the line (`harderOn`). */
+export const ringOf = (id: BugId, spent: boolean, wide = 1, harder = 1) => (NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide)) / harderOn(id, harder);
 /** Whether an insect missed so many times is off for good, for whoever missed it: only tired hands lose one so. */
 export const fledBy = (misses: number, spent: boolean) => spent && misses >= NET.tired.misses;
-/** How long a swing takes to land. */
-export const swingMs = (spent: boolean) => (spent ? NET.tired.lands : NET.lands);
+/**
+ * The wind net (lib/town/gifts' charmWind, the insects' fourth rank; the owner's ladder of 2026-10-07: "สวิงลงทันทีไม่ต้อง
+ * รอจังหวะ เล็งตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน"). Worn, the net does not take its moment to come down: it is aimed
+ * for as long as the map is pressed and falls where it is aimed the moment it is let go, so nothing has to be met
+ * where it will be. Its ring is anybody's, and aimed badly it misses as any net does; a miss is minded and counted as
+ * ever. Another gust can be loosed only `again` milliseconds on: as long as a plain swing and its rest take together,
+ * so that it is no quicker to swing over and over. **With no stamina there is no gust**: tired hands have the plain
+ * net as they have it (slower, a small ring, an insect off at the second miss), which no gift of this line changes.
+ * Mine: `again`, and that tired hands have none.
+ */
+export const WIND = { again: NET.lands + NET.again };
+/** Whether somebody's net is the wind's now: the charm worn, and stamina to swing with. */
+export const windy = (purse: Purse, now: number): boolean => wearing(purse, "charmWind") && !isSpent(purse, now);
+/** How long a swing takes to land: no time at all for the wind's. */
+export const swingMs = (spent: boolean, wind = false) => (spent ? NET.tired.lands : wind ? 0 : NET.lands);
+/** How soon after one swing is begun another may be. */
+export const againMs = (spent: boolean, wind = false) => (!spent && wind ? WIND.again : swingMs(spent) + NET.again);
+/** Where a net aimed at a point comes down: there, or as near it as the reach of whoever swings allows. */
+export function aimAt(me: Vec, at: Vec, reach = NET.reach): Vec {
+  const d = far(me, at);
+  return d <= reach || d === 0 ? { x: at.x, y: at.y } : { x: me.x + ((at.x - me.x) * reach) / d, y: me.y + ((at.y - me.y) * reach) / d };
+}
 /** Whether a net landing at a point takes an insect as it is then. */
-export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide);
+export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1, harder = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide, harder);

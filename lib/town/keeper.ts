@@ -5,7 +5,7 @@ import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefus
 import type { Strike } from "./fishing";
 import type { ForestRefusal, Outcome, Sight } from "./forest";
 import type { HuntTold } from "./hunt";
-import { BUGS, type BugId, type BugRefusal, type BugSight } from "./insects";
+import { BUGS, type BugId, type BugRefusal, type BugSight, type Mine } from "./insects";
 import type { FountainTold, Shade, WishId } from "./fountain";
 import type { Dropped, GroundRefusal } from "./ground";
 import { hintPrice } from "./hints";
@@ -245,6 +245,14 @@ export interface Keeper {
   netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>>;
   /** The village's book of insects: who first caught each kind that has been caught. */
   bugBook(): Record<string, string>;
+  // ── gifts: insects ──
+  /**
+   * A drop of nectar put down on the tile I stand on (lib/town/insects' nectar): what it brings is the keeper's to
+   * say and is in my purse from then (`lured`); `left` is how many drops the day still has. And catching an insect
+   * that is mine alone and no haunt's (the one come to my drop), as a haunt's is caught.
+   */
+  nectarDrop(at: [number, number]): Promise<Did<{ left: number }>>;
+  netMine(which: Mine, at: [number, number], went: { misses: number }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>>;
 
   /**
    * The well's book (lib/town/well): what came of the water I carried, who carried today, my rank and whether the
@@ -1059,6 +1067,15 @@ export class DbKeeper implements Keeper {
     return did;
   }
   bugBook(): Record<string, string> { return this.book_; }
+  // ── gifts: insects ──
+  nectarDrop(at: [number, number]) { return this.deed<{ left: number }>("town_nectar", { p_x: at[0], p_y: at[1] }); }
+  async netMine(which: Mine, at: [number, number], went: { misses: number }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>> {
+    const did = await this.deed<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null; ridPlot?: Plot }>("town_net_mine", { p_which: which, p_x: at[0], p_y: at[1], p_misses: went.misses });
+    // (a ladybird took a pest off some plant with it, as one of a haunt's does)
+    if (did.ok && did.rid && did.ridPlot) { this.plot(did.rid, did.ridPlot); this.onDeed?.("farm"); }
+    if (did.ok && did.first && did.got[0]) { this.book_ = { ...this.book_, [did.got[0][0]]: name }; this.tell(); }
+    return did;
+  }
 
   async choreDo(_where: Water, at: [number, number] | null): Promise<Did<{ chore: Chore }>> {
     if (!at) return { ok: false, why: "none" };
