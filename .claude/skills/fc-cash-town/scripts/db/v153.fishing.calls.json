@@ -1,3 +1,7 @@
 {
-  "drive_back": "town.drive_back($1::jsonb, $2::text, $3::boolean, $4::bigint)"
+  "drive_back": "town.drive_back($1::jsonb, $2::text, $3::boolean, $4::bigint)",
+  "sift": "town.sift($1::jsonb, array(select jsonb_array_elements_text($2::jsonb)))",
+  "hook_baits": "town.hook_baits($1::jsonb, $2::text, $3::integer)",
+  "cast_from": "town.cast_from($1::jsonb, array(select x::double precision from jsonb_array_elements_text($2::jsonb) x))",
+  "cast_line": "town.cast_line($1::text, $2::integer, $3::boolean, $4::boolean, $5::boolean, array(select jsonb_array_elements_text($6::jsonb)), array(select x::double precision from jsonb_array_elements_text($7::jsonb) x))"
 }

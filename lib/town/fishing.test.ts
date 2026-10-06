@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type Sign } from "./items";
+import { BAITS, DISHES, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, type BaitId, type CatchId, type FishId, type ItemId, type Sign } from "./items";
 import {
-  ALL_SIGNS, FIGHT, REST, SIGNS, STEPS, STRIKE, bangkokDay, castFrom, castLine, driveBack, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, strikeOf, strikeWindow, surging, warning,
-  type Fight, type FightMods,
+  ALL_SIGNS, FIGHT, REST, SIGNS, STEPS, STRIKE, bangkokDay, PAIR, castFrom, castLine, driveBack, hookBait, hookBaits, moonAge, oddsOf, playFight, replayFight, seeded, seesOdds, settling, signsOf, startFight, stepFight, sift, startPair, stepPair, strikeOf, strikeWindow, surging, warning,
+  type Fight, type FightMods, type Pair,
 } from "./fishing";
-import { USES, usesLeft } from "./gifts";
+import { USES, numberOf, usesLeft } from "./gifts";
 import { STAMINA, dayOf } from "./stamina";
-import { newPurse, type Purse } from "./trade";
+import { held, newPurse, put, type Purse } from "./trade";
 
 const share = (odds: Array<{ what: CatchId; p: number }>, what: CatchId) => odds.find((o) => o.what === what)?.p ?? 0;
 /** What takes a bait at an hour where a fish lives, under the sky it bites under, with what it waits for: its own water. */
@@ -682,5 +682,162 @@ describe("the otter (the owner: \"ปลาหลุดเมื่อไหร�
     expect(n).toBe(10);
     // (the next meal's hours begin anew)
     expect(driveBack(p, "snapped", false, NOON + 6 * 3_600_000).ok).toBe(true);
+  });
+});
+
+describe("a rod of two lines (the owner: \"ตกได้ทีละคู่: ปลาอีกตัวติดสายที่สองมาด้วย ต้องสู้สองตัวพร้อมกัน\")", () => {
+  const NARROW = { narrow: numberOf("thingRod") };
+  /** A hand that keeps the needle where the two stretches lie over each other, when they do; else in the upper one. */
+  const meet = (p: Pair) => {
+    const live = ([0, 1] as const).filter((i) => !p.ended[i]), lo = Math.max(...live.map((i) => p.lo[i])), hi = Math.min(...live.map((i) => p.hi[i]));
+    const u = live.reduce((a, i) => (p.hi[i] > p.hi[a] ? i : a)), [a, b] = hi > lo ? [lo, hi] : [p.lo[u], p.hi[u]];
+    return p.tension < a + (b - a) * (live.some((i) => surging(p.fights[i]) || warning(p.fights[i])) ? 0.25 : 0.5);
+  };
+  const play = (p: Pair, hold: (p: Pair) => boolean, limit = 240) => {
+    const order: Array<[number, string]> = [];
+    while (!(p.ended[0] && p.ended[1]) && p.t < limit) {
+      const before = p.ended;
+      p = stepPair(p, hold(p), 1 / 60);
+      for (const i of [0, 1] as const) if (!before[i] && p.ended[i]) order.push([i, p.ended[i]!]);
+    }
+    return { p, order };
+  };
+
+  it("never brings a legend as one of a pair: what may take the bait is sifted of them, and still adds up", () => {
+    expect(PAIR.never).toEqual(["legend"]);
+    for (const [bait, hour] of [["dough", 6], ["dough", 18], ["loach", 6], ["worm", 12], ["minnow", 23]] as Array<[BaitId, number]>) {
+      const own = oddsOf(bait, hour), left = sift(own, PAIR.never);
+      expect(left.every((o) => !(o.what in FISH) || FISH[o.what as FishId].tier !== "legend")).toBe(true);
+      expect(left.reduce((t, o) => t + o.p, 0)).toBeCloseTo(1, 9);
+      // (what is left keeps its order and its shares beside each other)
+      expect(left.map((o) => o.what)).toEqual(own.filter((o) => !(o.what in FISH) || FISH[o.what as FishId].tier !== "legend").map((o) => o.what));
+      if (left.length > 1) expect(left[0].p / left[1].p).toBeCloseTo(own.find((o) => o.what === left[0].what)!.p / own.find((o) => o.what === left[1].what)!.p, 9);
+    }
+    // (dough at dawn does bring the koi to a single line: it is the pair that never does)
+    expect(oddsOf("dough", 6).some((o) => o.what === "koi")).toBe(true);
+    expect(sift(oddsOf("dough", 6), PAIR.never).some((o) => o.what === "koi")).toBe(false);
+    // (sifted of nothing, the odds are as they were)
+    expect(sift(oddsOf("worm", 12), [])).toEqual(oddsOf("worm", 12));
+  });
+
+  it("takes two of the bait: as many have to be in the bag, a bait that is not eaten stays, and a rod is needed as ever", () => {
+    const bag = (things: Array<[ItemId, number]>) => things.reduce((b, [id, n]) => put(b, id, n), newPurse().bag);
+    const p = gifted(undefined, { bag: bag([["rod", 1], ["worm", 5], ["lure", 2]]) });
+    const two = hookBaits(p, "worm", 2);
+    expect(two.ok && held(two.purse.bag, "worm")).toBe(3);
+    expect(hookBaits(gifted(undefined, { bag: bag([["rod", 1], ["worm", 1]]) }), "worm", 2)).toEqual({ ok: false, why: "none" });
+    expect(hookBaits(gifted(undefined, { bag: bag([["worm", 5]]) }), "worm", 2)).toEqual({ ok: false, why: "tool" });
+    const lures = hookBaits(p, "lure", 2);
+    expect(lures.ok && held(lures.purse.bag, "lure")).toBe(2);
+    expect(hookBaits(gifted(undefined, { bag: bag([["rod", 1], ["lure", 1]]) }), "lure", 2)).toEqual({ ok: false, why: "none" });
+    // (one is the plain line's)
+    expect(hookBaits(p, "worm", 1)).toEqual(hookBait(p, "worm"));
+  });
+
+  it("begins with both on one line's tension, each in a stretch of its own a quarter narrower, lying over each other", () => {
+    const p = startPair(["barb", "tilapia"], "good", NARROW, 5), alone = startFight("barb", "good", {}, 5);
+    expect(NARROW.narrow).toBe(0.75);
+    expect(p.hi[0] - p.lo[0]).toBeCloseTo((alone.hi - alone.lo) * 0.75, 9);
+    expect(p.hi[1] - p.lo[1]).toBeCloseTo(FISH.tilapia.fight.band * 0.75, 9);
+    expect(p.tension).toBe(0.5);
+    expect(p.ended).toEqual([null, null]);
+    expect(Math.min(p.hi[0], p.hi[1]) - Math.max(p.lo[0], p.lo[1])).toBeGreaterThan(0);
+    for (const i of [0, 1] as const) expect(p.fights[i].line).toBe(p.fights[i].length);
+  });
+
+  it("wins line for each fish whose stretch the tension is in: for both where the two lie over each other, for one where they part", () => {
+    // (held to a place by hand: the tension put where it is wanted, a step taken with the reel held)
+    const p = startPair(["barb", "tilapia"], "good", NARROW, 5);
+    const lo = Math.max(p.lo[0], p.lo[1]), hi = Math.min(p.hi[0], p.hi[1]);
+    const both = stepPair({ ...p, tension: (lo + hi) / 2 - 0.004 }, true, 1 / 60);
+    expect(both.fights[0].line).toBeLessThan(p.fights[0].line);
+    expect(both.fights[1].line).toBeLessThan(p.fights[1].line);
+    // parted: the first fish high on the gauge and the second as far below it as it strays (two narrow stretches, of
+    // two fish that keep still and do not surge meanwhile)
+    const q = startPair(["eel", "prawn"], "good", NARROW, 5), still = { rest: 99, surge: { from: 99, to: 100 } };
+    const parted: Pair = { ...q, fights: [{ ...q.fights[0], at: 0.8, to: 0.8, ...still }, { ...q.fights[1], at: 0.12, to: 0.12, ...still }] };
+    const upper = stepPair({ ...parted, tension: 0.8 }, true, 1 / 60);
+    expect(upper.lo[0]).toBeGreaterThan(upper.hi[1]);
+    expect(upper.fights[0].line).toBeLessThan(parted.fights[0].line);
+    expect(upper.fights[1].line).toBe(parted.fights[1].line);
+    // between the two nothing is won, and nothing strains or goes slack
+    const gap = (upper.lo[0] + upper.hi[1]) / 2, between = stepPair({ ...parted, tension: gap + 0.003, strain: 0.3, slack: 0.3 }, false, 1 / 60);
+    expect(between.tension).toBeGreaterThan(between.hi[1]);
+    expect(between.tension).toBeLessThan(between.lo[0]);
+    expect(between.fights[0].line).toBe(parted.fights[0].line);
+    expect(between.fights[1].line).toBe(parted.fights[1].line);
+    expect(between.strain).toBeLessThan(0.3);
+    expect(between.slack).toBeLessThan(0.3);
+    // above both the line strains; below both the hook works loose and both take line back
+    expect(stepPair({ ...parted, tension: 0.95 }, true, 1 / 60).strain).toBeGreaterThan(0);
+    const under = stepPair({ ...parted, tension: 0.3 }, false, 1 / 60);
+    expect(under.slack).toBeGreaterThan(0);
+    expect(under.fights[0].line).toBeGreaterThan(parted.fights[0].line);
+    expect(under.fights[1].line).toBeGreaterThan(parted.fights[1].line);
+  });
+
+  it("loses them one at a time: only reeling snaps one line and then the other; never reeling slips one hook and then the other", () => {
+    for (const seed of [3, 11, 29]) {
+      const taut = play(startPair(["catfish", "carp"], "good", NARROW, seed), () => true), slack = play(startPair(["catfish", "carp"], "good", NARROW, seed), () => false);
+      expect(taut.order.map(([, how]) => how)).toEqual(["snapped", "snapped"]);
+      expect(slack.order.map(([, how]) => how)).toEqual(["slipped", "slipped"]);
+      // (one and then the other: never both in the same moment, and the second's meters begin anew)
+      expect(taut.order[0][0]).not.toBe(taut.order[1][0]);
+    }
+    const p = startPair(["catfish", "carp"], "good", NARROW, 3);
+    let q = p, first = -1;
+    while (!q.ended[0] && !q.ended[1]) q = stepPair(q, true, 1 / 60);
+    first = q.ended[0] ? 0 : 1;
+    expect(q.ended[first === 0 ? 1 : 0]).toBeNull();
+    expect(q.strain).toBe(0);
+    expect(q.slack).toBe(0);
+  });
+
+  it("can be won, both of them, by a hand that keeps where the two meet; and a fish landed leaves the other to be won alone", () => {
+    let both = 0, any = 0;
+    for (let seed = 1; seed <= 30; seed++) {
+      const { p, order } = play(startPair(["minnow", "barb"], "good", NARROW, seed * 7919), meet);
+      const n = p.ended.filter((e) => e === "landed").length;
+      if (n === 2) both++;
+      if (n >= 1) any++;
+      expect(order.length).toBe(2);
+    }
+    expect(both).toBeGreaterThan(22);
+    expect(any).toBe(30);
+    // alone again, the second fish's stretch goes back to moving all its own way
+    let p = startPair(["minnow", "pangasius"], "good", NARROW, 77);
+    expect(p.own).toBe(PAIR.stray);
+    while (!p.ended[0] && p.t < 120) p = stepPair(p, meet(p), 1 / 60);
+    expect(p.ended[0]).not.toBeNull();
+    const at = p.t;
+    while (!p.ended[1] && p.t < at + PAIR.alone * 3) p = stepPair(p, meet(p), 1 / 60);
+    if (!p.ended[1]) { expect(p.own).toBeGreaterThan(0.95); expect(Math.abs(p.about - FIGHT.centre)).toBeLessThan(0.03); }
+  });
+
+  it("is harder than either alone, and quicker than one after the other for a hand that can", () => {
+    const hand = (delay: number, lapses: number, seed: number, fish: [FishId, FishId]) => {
+      const rnd = seeded(seed), dt = 1 / 60, lag = Math.round(delay / dt), seen: Pair[] = [];
+      let p = startPair(fish, "good", NARROW, 1000 + seed * 7919), hold = false, frozen = 0;
+      while (!(p.ended[0] && p.ended[1]) && p.t < 240) {
+        seen.push(p);
+        if (frozen > 0) frozen -= dt; else { if (rnd() < lapses * dt) frozen = 0.5; hold = meet(seen[Math.max(0, seen.length - 1 - lag)]); }
+        p = stepPair(p, hold, dt);
+      }
+      return p;
+    };
+    const many = 60, of = (who: [number, number], fish: [FishId, FishId]) => { let n = 0, secs = 0; for (let i = 0; i < many; i++) { const p = hand(who[0], who[1], 77 + i, fish); n += p.ended.filter((e) => e === "landed").length; secs += p.t; } return { landed: n / many, secs: secs / many }; };
+    const small: [FishId, FishId] = ["minnow", "barb"], skilled = of(SKILLED, small), average = of(AVERAGE, small), fresh = of(NEW, small);
+    // a practised hand lands most of two small fish; an average one fewer; a newcomer about one of the two
+    expect(skilled.landed).toBeGreaterThan(1.6);
+    expect(average.landed).toBeGreaterThan(1.2);
+    expect(average.landed).toBeLessThan(skilled.landed);
+    expect(fresh.landed).toBeLessThan(average.landed);
+    // …and fewer than the same hand lands of the two one after the other
+    expect(skilled.landed).toBeLessThan(lands("minnow", SKILLED) + lands("barb", SKILLED));
+    expect(average.landed).toBeLessThan(lands("minnow", AVERAGE) + lands("barb", AVERAGE));
+    // two fish that are hard alone are far harder together
+    const hard = of(SKILLED, ["snakehead", "eel"]);
+    expect(hard.landed).toBeLessThan(lands("snakehead", SKILLED) + lands("eel", SKILLED) - 0.1);
+    expect(of(MASTER, ["snakehead", "eel"]).landed).toBeGreaterThan(1.3);
   });
 });

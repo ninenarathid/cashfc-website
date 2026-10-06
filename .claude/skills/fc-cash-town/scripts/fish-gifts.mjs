@@ -75,7 +75,19 @@ export async function strike(X) {
 export const hand = (X, how) => X.evaluate(`(() => {
   clearInterval(window.__fishHand);
   window.__fishHand = setInterval(() => {
-    const h = window.__townFish, f = h?.fight?.();
+    const h = window.__townFish, f = h?.fight?.(), p = h?.pair?.();
+    // (two fish at once: the needle kept where the two stretches lie over each other, when they do; else in the
+    // upper one. "loseOne": the reel left alone until one of the two is gone, then the other is won.)
+    if (p) {
+      const live = [0, 1].filter((i) => !p.ended[i]);
+      if (!live.length) return;
+      if (${JSON.stringify(how)} === "slack" || (${JSON.stringify(how)} === "loseOne" && live.length === 2)) return h.hold(false);
+      if (${JSON.stringify(how)} === "taut") return h.hold(true);
+      const lo = Math.max(...live.map((i) => p.lo[i])), hi = Math.min(...live.map((i) => p.hi[i]));
+      const u = live.reduce((a, i) => (p.hi[i] > p.hi[a] ? i : a)), [a, b] = hi > lo ? [lo, hi] : [p.lo[u], p.hi[u]];
+      const wild = live.some((i) => { const g = p.fights[i]; return g.t >= g.surge.from - 0.3 && g.t < g.surge.to; });
+      return h.hold(p.tension < a + (b - a) * (wild ? 0.25 : 0.5));
+    }
     if (!f) return;
     if (${JSON.stringify(how)} === "slack") return h.hold(false);
     if (${JSON.stringify(how)} === "taut") return h.hold(true);

@@ -67,8 +67,17 @@ export interface Timing { hits: number; misses: number; secs: number; need?: num
 /** What a strike came to. `what` and `size` are told when something is hooked (the trial knows them even when nothing is). */
 export interface Struck { hooked: boolean; how?: "early" | "missed"; what?: CatchId; size?: number; landed?: boolean; kept?: boolean; record?: boolean }
 /** (`back`: the bait came back, of a fish that got away in the fight) */
-// ── gifts: fishing ── (`again`: the otter drove the fish back, and it is to be fought once more at once: the go has not ended)
-export interface Landed { how: FishingEnd; kept: boolean; record: boolean; back?: boolean; again?: boolean }
+// ── gifts: fishing ── (`again`: the otter drove the fish back, and it is to be fought once more at once: the go has not ended;
+// `more`: it was one of two on a rod of two lines, and the other is on still)
+export interface Landed { how: FishingEnd; kept: boolean; record: boolean; back?: boolean; again?: boolean; more?: boolean }
+/** How a line is dropped when it is not the plain one: "pair", a rod of two lines (two baits, a second fish on the second line). */
+export type CastHow = "pair";
+/** One of the two a rod of two lines hooked: what it is and how long, and (what is no fish) that it came in at once. */
+export interface Hooked { what: CatchId; size: number; landed: boolean; kept?: boolean }
+/** (a strike's answer, of a rod of two lines: the two, in their order) */
+export interface Struck { pair?: Hooked[] }
+/** What a line dropped is told of: how long until the bite and when the float twitches; and, where it is told, a shade or the thing itself of what is on its way (`coming2`: of the second line's), and that two lines are out. */
+export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId };
 
 export interface Keeper {
   readonly id: string;
@@ -173,10 +182,11 @@ export interface Keeper {
    * how the fight ended, with the hand's own account of it.
    */
   /** (`coming`: what is on its way, told only to whoever wears the whispering float, lib/town/gifts) */
-  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId }>>;
+  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean, how?: CastHow): Promise<Did<CastTold>>;
   strike(reaction: number, how: Strike | null): Promise<Did<Struck>>;
   missed(): Promise<{ what?: CatchId; size?: number }>;
-  land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null): Promise<Landed>;
+  /** (`which`: of two fish still on a rod of two lines, the one that has ended: the first, or 1 for the second) */
+  land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed>;
 
   /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
   farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>>;
@@ -845,20 +855,25 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
-  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean): Promise<Did<{ wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId }>> {
-    const sent = Date.now(), a = await this.ask("town_cast", { p_bait: bait, p_x: place.tile[0], p_y: place.tile[1], p_rain: rain });
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, _quick?: boolean, how?: CastHow): Promise<Did<CastTold>> {
+    // (how the line is dropped is said only when it is not the plain way: a database that has not had v153 knows no such argument)
+    const sent = Date.now(), a = await this.ask("town_cast", { p_bait: bait, p_x: place.tile[0], p_y: place.tile[1], p_rain: rain, ...(how ? { p_how: how } : {}) });
     if (!a) return AWAY;
     if (!a.ok) return { ok: false, why: (a.why as Why) ?? "none" };
     // (under clear water the database tells the shade of what is on its way, and nothing more of it)
-    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade; coming?: CatchId };
-    return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000), ...(line.shade ? { shade: line.shade } : {}), ...(typeof line.coming === "string" ? { coming: line.coming } : {}) };
+    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId };
+    return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000), ...(line.shade ? { shade: line.shade } : {}), ...(typeof line.coming === "string" ? { coming: line.coming } : {}),
+      // ── gifts: fishing ──
+      ...(line.pair ? { pair: true } : {}), ...(typeof line.coming2 === "string" ? { coming2: line.coming2 } : {}) };
   }
   async strike(reaction: number): Promise<Did<Struck>> {
     const a = await this.ask("town_strike", { p_reaction: Math.round(reaction * 1000) });
     if (!a) return AWAY;
     if (!a.ok) return { ok: false, why: (a.why as Why) ?? "none" };
     return { ok: true, hooked: !!a.hooked, how: a.how as Struck["how"], what: a.what as CatchId | undefined, size: a.size as number | undefined,
-      landed: !!a.landed, kept: a.kept as boolean | undefined, record: false };
+      landed: !!a.landed, kept: a.kept as boolean | undefined, record: false,
+      // ── gifts: fishing ──
+      ...(Array.isArray(a.pair) ? { pair: a.pair as Hooked[] } : {}) };
   }
   async missed(): Promise<{ what?: CatchId; size?: number }> {
     // Told when the database, too, counts the bite as gone: it gives a late strike a moment's grace, and one sent
@@ -870,12 +885,12 @@ export class DbKeeper implements Keeper {
     if (a?.ok && a.hooked && !a.landed) await this.ask("town_land", { p_how: "slipped", p_fight: null });
     return {};
   }
-  async land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null): Promise<Landed> {
-    const a = await this.ask("town_land", { p_how: how, p_fight: fight });
+  async land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed> {
+    const a = await this.ask("town_land", { p_how: how, p_fight: which === undefined ? fight : { ...(fight ?? {}), which } });
     if (!a?.ok) return { how: how === "landed" ? "slipped" : how, kept: false, record: false };
     return { how: a.how as FishingEnd, kept: !!a.kept, record: !!a.record, ...(a.back ? { back: true } : {}),
       // ── gifts: fishing ──
-      ...(a.again ? { again: true } : {}) };
+      ...(a.again ? { again: true } : {}), ...(a.more ? { more: true } : {}) };
   }
 
   async farmDo(key: string, _name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {

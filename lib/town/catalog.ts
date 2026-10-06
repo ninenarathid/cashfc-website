@@ -5,7 +5,7 @@ import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } fro
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
-import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
+import { FIGHT, NIBBLES_APART, PAIR, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
@@ -125,6 +125,8 @@ export function catalogOf() {
       // what some fish wait for (lib/town/fishing's SIGNS): how many others' lines make a crowd and how lately dropped,
       // the minutes after rain, the days either side of a full moon, the weekend's days
       signs: SIGNS,
+      // ── gifts: fishing ── (v153) a rod of two lines: the tiers that never come as one of a pair
+      pair: { never: PAIR.never },
       // (with the deck finished, whatever is shown where this is asked: lib/town/world's asBuilt)
       places: asBuilt(() => Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
         .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; }))),
@@ -357,6 +359,9 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
   v153: { keys: [], over: ["gifts"] },
 };
+// ── gifts: fishing ── v153 writes `fishing` over too: what the deck's gifts and its harder game are judged by (said
+// here in a line of its own, so that each line's rows are added apart)
+CATALOG_KEYS.v153.over.push("fishing");
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

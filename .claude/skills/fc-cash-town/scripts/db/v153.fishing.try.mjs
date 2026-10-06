@@ -77,4 +77,108 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give }) 
   const w2 = await held(U.m2);
   did = await call(U.m2, "town_land", "slipped", null);
   t.check("somebody with no otter is as before: the fish is lost, the bait comes back", did?.ok === true && !did.again && did.how === "slipped" && did.back === true && w2 === 8 && (await held(U.m2)) === 9 && (await lineOf(U.m2)) === null, did);
+  /* ── a rod of two lines ── */
+  t.section("a rod of two lines: two baits, two fish, lost one at a time");
+  const lines = async (who) => (await t.sql(`select count(*)::int as n from public.town_lines where member_id = $1`, [who])).rows[0].n;
+  const points = async (who) => Number((await one(`select coalesce((kept->>'points')::numeric, 0) as p from public.town_work where member_id = $1 and line = 'fishing'`, [who]))?.p ?? 0);
+  /** Two lines dropped, made to be these two, and struck. */
+  const hookedTwo = async (who, first, second) => {
+    const c = await call(who, "town_cast", "worm", DECK[0], DECK[1], false, "pair");
+    if (!c?.ok) return c;
+    await fated(who, { what: first[0], size: first[1], two: { what: second[0], size: second[1] } });
+    return call(who, "town_strike", 200);
+  };
+  t.check("the catalog says which tiers never come as one of a pair", same((await one(`select town.cat('fishing')->'pair'->'never' as never`)).never, ["legend"]));
+  await rigged(U.m2, {});
+  did = await call(U.m2, "town_cast", "worm", DECK[0], DECK[1], false, "pair");
+  t.check("somebody with no rod of two lines is refused the pair, and nothing leaves the bag", did?.ok === false && did.why === "none" && (await held(U.m2)) === 9 && (await lines(U.m2)) === 0, did);
+  did = await call(U.m2, "town_cast", "worm", DECK[0], DECK[1], false, "noSuchWay");
+  t.check("a way of dropping a line there is none of is refused", did?.ok === false && did.why === "none" && (await held(U.m2)) === 9, did);
+  did = await call(U.m2, "town_cast", "worm", DECK[0], DECK[1]);
+  t.check("the plain line is dropped as ever, by a page that names four things and by one that names five", did?.ok === true && !("pair" in did.line) && (await held(U.m2)) === 8
+    && (await call(U.m2, "town_cast", "worm", DECK[0], DECK[1], false, null))?.ok === true && (await lineOf(U.m2))?.two === undefined, did);
+  await rigged(U.m1, { had: ["thingRod"] }, [{ item: "rod", n: 1 }, { item: "worm", n: 1 }, null, null, null, null, null, null, null, null]);
+  did = await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "pair");
+  t.check("with one worm two lines cannot be dropped, and the worm stays", did?.ok === false && did.why === "none" && (await held(U.m1)) === 1, did);
+  await rigged(U.m1, { had: ["thingRod"] });
+  const castsBefore = (await deeds("cast")).length;
+  did = await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "pair");
+  line = await lineOf(U.m1);
+  const castDeed = (await deeds("cast")).at(-1);
+  t.check("with the rod two lines go out for two worms: the line has a second thing on it, and the answer says two are out and nothing of what", did?.ok === true && did.line.pair === true && !("coming" in did.line) && !("coming2" in did.line)
+    && (await held(U.m1)) === 7 && typeof line?.two?.what === "string" && typeof line.two.size === "number" && line.struck_at === null, { did, line });
+  t.check("…written down as one cast of two baits", (await deeds("cast")).length === castsBefore + 1 && castDeed.thing === "worm" && castDeed.n === 2 && castDeed.doc.pair === true, castDeed);
+  const tiers = (await t.sql(`select coalesce(town.cat('fish')->(l.doc->>'what')->>'tier', 'other') as a, coalesce(town.cat('fish')->(l.doc->'two'->>'what')->>'tier', 'other') as b from public.town_lines l where member_id = $1`, [U.m1])).rows[0];
+  t.check("neither of the two is a legend", tiers.a !== "legend" && tiers.b !== "legend", tiers);
+  await rigged(U.m1, { had: ["thingRod", "charmFloat"], charms: ["charmFloat"] });
+  did = await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "pair");
+  line = await lineOf(U.m1);
+  t.check("with the whispering float worn both are told: the very things the two lines have", did?.ok === true && did.line.coming === line.what && did.line.coming2 === line.two.what, { told: did?.line, line });
+
+  // two fish: both hooked by the one strike, each fight paid for, ended one at a time
+  await rigged(U.m1, { had: ["thingRod"] });
+  let was = await points(U.m1), had = (await plays(U.m1)).length;
+  did = await hookedTwo(U.m1, ["barb", 20], ["tilapia", 25]);
+  line = await lineOf(U.m1);
+  t.check("one strike hooks both: the answer names the two, each fight is paid for (2 and 2), and both are on the line", did?.ok === true && did.hooked === true && did.landed === false
+    && same(did.pair, [{ what: "barb", size: 20, landed: false }, { what: "tilapia", size: 25, landed: false }]) && (await stamina(U.m1)) === 96 && line.what === "barb" && line.two?.what === "tilapia" && line.struck_at !== null, { did, line });
+  did = await call(U.m1, "town_land", "landed", { which: 1 });
+  t.check("one of the two reeled in at once is no landing: it got away, and the other is on still", did?.ok === true && did.how === "slipped" && did.what === "tilapia" && did.more === true && (await lineOf(U.m1))?.what === "barb" && (await lineOf(U.m1)).two === undefined, did);
+  did = await hookedTwo(U.m1, ["barb", 20], ["tilapia", 25]);
+  await ago(U.m1, 60000);
+  did = await call(U.m1, "town_land", "landed", { which: 1, secs: 9 });
+  line = await lineOf(U.m1);
+  t.check("the second of the two is landed first: in the bag, written down as a go of its own, and the first is on still, on a line as any other", did?.ok === true && did.how === "landed" && did.what === "tilapia" && did.kept === true && did.more === true
+    && (await held(U.m1, "tilapia")) === 1 && line?.what === "barb" && line.size === 20 && line.two === undefined && (await plays(U.m1)).at(-1).won === true && (await plays(U.m1)).at(-1).doc.what === "tilapia" && (await plays(U.m1)).at(-1).doc.pair === 1, { did, line });
+  const wormsMid = await held(U.m1);
+  did = await call(U.m1, "town_land", "slipped", null);
+  t.check("the other is lost after it: one fish lost, one bait back, the line gone, and its own go written down", did?.ok === true && did.how === "slipped" && did.what === "barb" && !did.more && did.back === true && (await held(U.m1)) === wormsMid + 1
+    && (await lineOf(U.m1)) === null && (await plays(U.m1)).at(-1).doc.what === "barb" && (await plays(U.m1)).at(-1).won === false, { did, worms: [wormsMid, await held(U.m1)] });
+  did = await hookedTwo(U.m1, ["barb", 20], ["tilapia", 25]);
+  const wormsOut2 = await held(U.m1);
+  did = await call(U.m1, "town_land", "snapped", { which: 0 });
+  t.check("the first of the two lost while the second is on: its bait comes back, and the second is still to be won", did?.ok === true && did.how === "snapped" && did.what === "barb" && did.more === true && did.back === true && (await held(U.m1)) === wormsOut2 + 1 && (await lineOf(U.m1))?.what === "tilapia", did);
+  await ago(U.m1, 60000);
+  did = await call(U.m1, "town_land", "landed", null);
+  t.check("…and is won: landed, the line gone", did?.ok === true && did.how === "landed" && did.what === "tilapia" && !did.more && (await lineOf(U.m1)) === null && (await held(U.m1, "tilapia")) === 2, did);
+  did = await hookedTwo(U.m1, ["barb", 20], ["tilapia", 25]);
+  await ago(U.m1, 60000);
+  const a = await call(U.m1, "town_land", "landed", { which: 0 }), b = await call(U.m1, "town_land", "landed", null);
+  const won = (await plays(U.m1)).slice(-2);
+  t.check("both landed: two fish in the bag, two goes won, each counted on the line of work by itself", a?.how === "landed" && a.what === "barb" && a.more === true && b?.how === "landed" && b.what === "tilapia" && !b.more
+    && (await held(U.m1, "barb")) === 1 && (await held(U.m1, "tilapia")) === 3 && won.every((p) => p.won) && same(won.map((p) => p.doc.what), ["barb", "tilapia"]) && (await points(U.m1)) >= was + 4, { a, b, won, points: [was, await points(U.m1)] });
+  t.check("…and every one of these goes was written down: seven of them (the fish left on a line when the next was dropped is given up, as ever)", (await plays(U.m1)).length === had + 7, { had, now: (await plays(U.m1)).length });
+
+  // what is no fish comes in at once
+  await rigged(U.m1, { had: ["thingRod"] });
+  had = (await plays(U.m1)).length;
+  did = await hookedTwo(U.m1, ["boot", 0], ["minnow", 6]);
+  line = await lineOf(U.m1);
+  t.check("an old boot and a minnow: the boot is in the bag at once and written down, the minnow is to be fought alone and only its fight is paid for", did?.ok === true && same(did.pair, [{ what: "boot", size: 0, landed: true, kept: true }, { what: "minnow", size: 6, landed: false }])
+    && (await held(U.m1, "boot")) === 1 && line?.what === "minnow" && line.two === undefined && line.struck_at !== null && (await stamina(U.m1)) === 99 && (await plays(U.m1)).length === had + 1 && (await plays(U.m1)).at(-1).doc.what === "boot", { did, line });
+  await ago(U.m1, 60000);
+  did = await call(U.m1, "town_land", "landed", null);
+  t.check("…and landed as any fish", did?.ok === true && did.how === "landed" && did.what === "minnow" && (await held(U.m1, "minnow")) === 1, did);
+  did = await hookedTwo(U.m1, ["hyacinth", 0], ["boot", 0]);
+  t.check("two things that are no fish both come in at once: no fight, the line gone, both written down", did?.ok === true && did.landed === true && did.pair.every((h) => h.landed && h.kept) && (await lineOf(U.m1)) === null
+    && (await held(U.m1, "hyacinth")) === 1 && (await held(U.m1, "boot")) === 2 && (await stamina(U.m1)) === 99, did);
+
+  // a strike mistimed, and a line taken up
+  await rigged(U.m1, { had: ["thingRod"] });
+  await call(U.m1, "town_cast", "worm", DECK[0], DECK[1], false, "pair");
+  did = await call(U.m1, "town_strike", -3000);
+  t.check("a strike too soon loses both lines' bait, as it loses one's", did?.ok === true && did.hooked === false && did.how === "early" && (await held(U.m1)) === 7 && (await lineOf(U.m1)) === null, did);
+  await hookedTwo(U.m1, ["barb", 20], ["tilapia", 25]);
+  did = await call(U.m1, "town_land", "left", null);
+  t.check("two lines taken up with both fish on: both are let go, nothing comes back", did?.ok === true && did.how === "left" && !did.more && (await lineOf(U.m1)) === null && (await held(U.m1)) === 5, did);
+
+  // the otter and the pair: it drives back the last fish still on, not one of two
+  await rigged(U.m1, { had: ["thingRod", "famOtter"], familiar: "famOtter" });
+  await hookedTwo(U.m1, ["barb", 20], ["tilapia", 25]);
+  did = await call(U.m1, "town_land", "slipped", { which: 0 });
+  const firstLost = did;
+  did = await call(U.m1, "town_land", "slipped", null);
+  line = await lineOf(U.m1);
+  t.check("with the otter, one of two that gets away is lost (the other is on still); the last one on is driven back", firstLost?.how === "slipped" && firstLost.more === true && !firstLost.again && did?.again === true && line?.what === "tilapia" && line.again === true
+    && (await purseOf(U.m1)).gifts.used.famOtter.n === 1, { firstLost, did, line });
 }
