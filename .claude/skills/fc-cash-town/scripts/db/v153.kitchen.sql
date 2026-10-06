@@ -14,6 +14,10 @@
 --     eaten up, that bowl's buff is at the fourth level at once. Which meal was sprinkled is kept in the purse
 --     (`spiced`, by the moment the meal began). `town.chew` (v146's) is written again but for one line: the buff a
 --     meal leaves is raised by `town.raised_to`, which is `town.raised` with a level it is at once at the least.
+--   * The phoenix flame in a bottle (rank 6): a stove wherever its owner stands, which is the page's own to offer
+--     (nothing here ever asked where a cook stands); and, where its owner set it to (`p_timing.flame`), things that
+--     are no recipe's come to nothing instead of an odd dish and are all back in the bag, three times a day
+--     (`town.cook_with` again; `town_cook` reads the flag and writes the giving back down).
 --
 -- No table. No coins and no thing that can be sold comes of any of it.
 
@@ -220,6 +224,9 @@ $$;
 -- cookWith). p_how.sprite: by the hearth sprite, with no game: only while it follows, only a recipe made before,
 -- counted, as a pot stirred with no miss, and so many helpings more in the pot (the pot that was not in the bag
 -- before). What refuses a pot cooked by hand refuses this one, with nothing lost and nothing counted.
+-- p_how.flame: cooked by hand with the phoenix flame set to guard the pot: where what came of it is the odd dish, or
+-- nothing (bare hands), and the flame has one of the day's left, every thing is back in the bag (`back`): the bag as
+-- it was, the stamina paid and a miss by a recipe's last thing counted as the go itself did.
 create or replace function town.cook_with(p_purse jsonb, p_things jsonb, p_crew jsonb, p_misses double precision, p_now bigint, p_how jsonb)
 returns jsonb language plpgsql stable
 as $$
@@ -230,7 +237,17 @@ declare
   more integer;
   at_ integer;
 begin
-  if p_how->'sprite' is distinct from 'true'::jsonb then return town.cook(p_purse, p_things, p_crew, p_misses, p_now); end if;
+  if p_how->'sprite' is distinct from 'true'::jsonb then
+    did := town.cook(p_purse, p_things, p_crew, p_misses, p_now);
+    if not (did->>'ok')::boolean or p_how->'flame' is distinct from 'true'::jsonb
+       or (did->>'made' is not null and did->>'made' <> town.cat('cooking')->>'oddDish') or not town.gift_works(p_purse, 'thingFlame') then return did; end if;
+    used := town.gift_use(p_purse, 'thingFlame', p_now);
+    if not (used->>'ok')::boolean then return did; end if;
+    return jsonb_build_object('ok', true, 'made', null, 'n', 0, 'back', true,
+        'purse', (used->'purse') || jsonb_build_object('stamina', did->'purse'->'stamina')
+          || case when did->'purse' ? 'tries' then jsonb_build_object('tries', did->'purse'->'tries') else '{}'::jsonb end)
+      || case when did ? 'taste' then jsonb_build_object('taste', did->'taste') else '{}'::jsonb end;
+  end if;
   if not town.gift_works(p_purse, 'famSprite') then return town.no('none'); end if;
   recipe := town.made_of(p_things);
   if recipe is null or not (case when jsonb_typeof(p_purse->'made') = 'array' then p_purse->'made' else '[]'::jsonb end) ? recipe then return town.no('unmade'); end if;
@@ -249,8 +266,9 @@ end;
 $$;
 
 -- Cooking, as a member asks for it: v129's, written again but for four things: how the pot was cooked is read out
--- of what the browser says of its game (`how`), the rule is town.cook_with, a pot the sprite cooked says so in the
--- go that is written down, and the sprite's cooking is written down as a gift used.
+-- of what the browser says of its game (`how`: by the sprite; with the flame set to guard it), the rule is
+-- town.cook_with, a pot the sprite cooked or a go the flame gave back says so in the go that is written down, and
+-- the sprite's cooking and the flame's giving back are each written down as a gift used.
 create or replace function public.town_cook(p_things jsonb, p_crew uuid[] default '{}', p_timing jsonb default null)
 returns jsonb language plpgsql security definer set search_path = public
 as $$
@@ -262,7 +280,7 @@ declare
   crew jsonb := jsonb_build_array(town.hand_of(purse));
   others uuid[];
   claims jsonb := town.timing_said(p_timing);
-  how jsonb := jsonb_build_object('sprite', coalesce(town.claims(p_timing)->'sprite' = 'true'::jsonb, false));
+  how jsonb := jsonb_build_object('sprite', coalesce(town.claims(p_timing)->'sprite' = 'true'::jsonb, false), 'flame', coalesce(town.claims(p_timing)->'flame' = 'true'::jsonb, false));
   misses integer := least(floor(coalesce((claims->>'misses')::numeric, 0))::int, (ck->>'misses')::int);
   did jsonb;
   after jsonb;
@@ -309,10 +327,14 @@ begin
   perform town.keep_purse(me, after);
   perform town.record(me, 'cooking', find, coalesce((claims->>'secs')::double precision, 0), town.stamina_of(purse, now_) <= 0, town.buff_of(purse, now_),
     jsonb_build_object('what', coalesce(made, 'nothing'), 'need', (ck->>'stirs')::int + jsonb_array_length(town.tidy(p_things)), 'misses', misses,
-      'crew', to_jsonb(others), 'claims', claims) || case when did->'sprite' = 'true'::jsonb then '{"sprite": true}'::jsonb else '{}'::jsonb end);
+      'crew', to_jsonb(others), 'claims', claims) || case when did->'sprite' = 'true'::jsonb then '{"sprite": true}'::jsonb when did->'back' = 'true'::jsonb then '{"back": true}'::jsonb else '{}'::jsonb end);
   if did->'sprite' = 'true'::jsonb then
     perform town.note(me, 'gift_use', 'famSprite', 1, 0, jsonb_build_object('made', made, 'n', did->'n',
       'left', (town.cat('gifts')->'uses'->'famSprite'->>'n')::integer - town.used_of(after, 'famSprite', now_)));
+  end if;
+  if did->'back' = 'true'::jsonb then
+    perform town.note(me, 'gift_use', 'thingFlame', 1, 0, jsonb_build_object('things', town.tidy(p_things), 'taste', did->'taste',
+      'left', (town.cat('gifts')->'uses'->'thingFlame'->>'n')::integer - town.used_of(after, 'thingFlame', now_)));
   end if;
   return town.answer(me, did) || jsonb_build_object('first', is_first, 'misses', misses);
 end;

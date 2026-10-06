@@ -446,8 +446,8 @@ export function spoon(purse: Purse, things: Array<[ItemId, number]>, now: number
   return { ok: true, of: says.of, secret: says.secret, ways: says.ways, left: used.left, purse: { ...used.purse, whispers: [...told, says.of] } };
 }
 
-/** How a pot is cooked beyond the hand's own account of its game: by the hearth sprite, with no game at all. */
-export interface CookHow { sprite?: boolean }
+/** How a pot is cooked beyond the hand's own account of its game: by the hearth sprite, with no game at all; and with the phoenix flame set to take back what comes to nothing. */
+export interface CookHow { sprite?: boolean; flame?: boolean }
 /**
  * Put some things together as `cook` does, with what the kitchen's later gifts change of it (`how`).
  *
@@ -458,10 +458,24 @@ export interface CookHow { sprite?: boolean }
  * the cookware the recipe takes have to be there (refused with nothing lost, and not counted, when they are not),
  * and the pot is a pot like any other, which the line counts as it counts one cooked by hand. What its member has
  * not made is not the sprite's to cook (`unmade`): a guess is still a guess, and a guess can still be wrong.
+ *
+ * **The phoenix flame in a bottle** (the sixth rank, a thing). It is a stove anywhere, which is the page's to offer:
+ * nothing here ever asked where a cook stands. And where its owner set it to (`how.flame`), things that are no
+ * recipe's come to nothing at all instead of an odd dish (or, put together by hand, instead of being lost): **every
+ * one of them is back in the bag** (`back`), so many times a day (USES counts the giving back). The guess is still
+ * a guess: its stamina is paid, its taste is told, and a miss by a recipe's last thing alone is counted as ever.
+ * With none of the day's left, what came of it is as it always was.
  */
 export function cookWith(purse: Purse, things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, now: number, how: CookHow = {}):
-  Gifted<{ purse: Purse; made: ItemId | null; n: number; taste?: Taste; sprite?: boolean }> {
-  if (how.sprite !== true) return cook(purse, things, crew, misses, now);
+  Gifted<{ purse: Purse; made: ItemId | null; n: number; taste?: Taste; sprite?: boolean; back?: boolean }> {
+  if (how.sprite !== true) {
+    const did = cook(purse, things, crew, misses, now);
+    if (!did.ok || how.flame !== true || (did.made !== null && did.made !== ODD) || !hasThing(purse, "thingFlame")) return did;
+    const kept = useGift(purse, "thingFlame", now);
+    if (!kept.ok) return did;
+    // the bag as it was before anything left it; what the go cost and what it taught are the go's own
+    return { ok: true, made: null, n: 0, ...(did.taste ? { taste: did.taste } : {}), back: true, purse: { ...kept.purse, stamina: did.purse.stamina, ...(did.purse.tries ? { tries: did.purse.tries } : {}) } };
+  }
   if (!works(purse, "famSprite")) return nay("none");
   const recipe = madeOf(things);
   if (!recipe || !hasMade(purse, recipe)) return nay("unmade");

@@ -246,7 +246,7 @@ class TrialKeeper implements Keeper {
   bugBook() { return this.trial.bugBook(); }
 
   async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>> {
-    return this.trial.cookDo(things, crew, timing.misses, name, { sprite: !!timing.sprite });
+    return this.trial.cookDo(things, crew, timing.misses, name, { sprite: !!timing.sprite, flame: !!timing.flame });
   }
   async potDown(at: [number, number]) { return this.trial.potDown(at); }
   async potLadle(id: string) { return this.trial.potLadle(id); }

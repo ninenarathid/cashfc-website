@@ -201,4 +201,46 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, pa
   await call(U.m1, "town_sit", 0, true);
   await finish(U.m1);
   t.check("a meal of somebody without the spice leaves what it always left", same(levels(await purseOf(U.m1)), [["hearty", 1]]), (await purseOf(U.m1)).buffs);
+
+  t.section("the phoenix flame in a bottle (rank 6)");
+  const WRONG = [["snakehead", 1], ["tomato", 2], ["chili", 2], ["hyacinth", 1]];
+  const shelf = () => [{ item: "snakehead", n: 3 }, { item: "tomato", n: 6 }, { item: "chili", n: 6 }, { item: "scallion", n: 1 }, { item: "hyacinth", n: 6 }, { item: "pot", n: 1 }, ...Array.from({ length: 8 }, () => null)];
+  const GUARDED = { hits: 6, misses: 0, secs: 9, need: 6, flame: true }, PLAIN = { hits: 6, misses: 0, secs: 9, need: 6 };
+  const start = { ...fresh, bag: shelf(), hand: "pot", made: [], tries: {}, stamina: { day, left: 100 } };
+  await patch(U.m1, start);
+  await give(U.m1, { had: [] });
+  did = await call(U.m1, "town_cook", WRONG, "{}", GUARDED);
+  p = await purseOf(U.m1);
+  t.check("without the flame, asking for it changes nothing: an odd dish, and the things are gone", did?.ok === true && did.made === "oddDish" && did.back === undefined && p.bag[0].n === 2 && p.bag[4].n === 5, { ...did, purse: undefined });
+  await patch(U.m1, start);
+  await give(U.m1, { had: ["thingFlame"] });
+  did = await call(U.m1, "town_cook", WRONG, "{}", PLAIN);
+  t.check("with it but not set to guard the pot, an odd dish as ever, and none of the day's three used", did?.made === "oddDish" && did.back === undefined && !(await purseOf(U.m1)).gifts.used?.thingFlame, { ...did, purse: undefined });
+  await patch(U.m1, start);
+  const n1 = await plays(U.m1);
+  did = await call(U.m1, "town_cook", WRONG, "{}", GUARDED);
+  p = await purseOf(U.m1);
+  t.check("set to guard the pot: things that are no recipe's come to nothing, and every one of them is back in the bag", did?.ok === true && did.made === null && did.n === 0 && did.back === true && same(p.bag, shelf()), { ...did, purse: undefined, bag: p.bag });
+  t.check("…the guess is still a guess: its taste is told, its stamina paid, the miss by the recipe's last thing counted; one of the day's three is used",
+    did.taste === "swap" && p.stamina.left === 96 && p.tries?.tomYum === 1 && p.gifts.used.thingFlame.n === 1, { taste: did.taste, stamina: p.stamina, tries: p.tries, used: p.gifts.used });
+  play = await lastPlay(U.m1);
+  t.check("the go is written down as one that came to nothing, saying the flame gave it back", (await plays(U.m1)) === n1 + 1 && play.game === "cooking" && play.won === false && play.doc.what === "nothing" && play.doc.back === true, play);
+  written = (await deeds("gift_use")).filter((d) => d.thing === "thingFlame");
+  t.check("and the giving back is written down: the things, the taste, how many are left today", written.length === 1 && written[0].member_id === U.m1 && same(written[0].doc.things, [["chili", 2], ["hyacinth", 1], ["snakehead", 1], ["tomato", 2]]) && written[0].doc.taste === "swap" && written[0].doc.left === 2 && written[0].coins === 0, written);
+  did = await call(U.m1, "town_cook", TOMYUM, "{}", GUARDED);
+  t.check("a real recipe is cooked as ever under the guard, and costs none of the three", did?.made === "tomYum" && did.n === 4 && did.back === undefined && (await purseOf(U.m1)).gifts.used.thingFlame.n === 1, { ...did, purse: undefined });
+  // bare hands: what would have been lost is back too (and no compost is left for it)
+  await patch(U.m1, { ...start, gifts: (await purseOf(U.m1)).gifts, hand: null });
+  did = await call(U.m1, "town_cook", [["hyacinth", 2]], "{}", GUARDED);
+  p = await purseOf(U.m1);
+  t.check("put together by hand, what would have been lost is back too", did?.back === true && did.made === null && same(p.bag, shelf()) && p.gifts.used.thingFlame.n === 2, { ...did, purse: undefined, bag: p.bag });
+  await patch(U.m1, { hand: "pot" });
+  const third2 = await call(U.m1, "town_cook", [["hyacinth", 2]], "{}", GUARDED), fourth2 = await call(U.m1, "town_cook", [["hyacinth", 2]], "{}", GUARDED);
+  p = await purseOf(U.m1);
+  t.check("three times a day: the fourth guess is an odd dish as ever, its things gone", third2?.back === true && fourth2?.ok === true && fourth2.made === "oddDish" && fourth2.back === undefined && p.bag[4].n === 4 && p.gifts.used.thingFlame.n === 3
+    && (await deeds("gift_use")).filter((d) => d.thing === "thingFlame").length === 3, { third2: { ...third2, purse: undefined }, fourth2: { ...fourth2, purse: undefined } });
+  await patch(U.m2, { ...start });
+  await give(U.m2, { had: ["thingSpice"] });
+  did = await call(U.m2, "town_cook", WRONG, "{}", GUARDED);
+  t.check("somebody without the flame cooks as before", did?.made === "oddDish" && did.back === undefined && (await purseOf(U.m2)).bag[0].n === 2, { ...did, purse: undefined });
 }

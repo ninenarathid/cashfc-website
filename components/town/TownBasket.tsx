@@ -27,10 +27,13 @@ export const takesSpice = (id: ItemId): boolean => isDish(id) && !!DISHES[id].bu
  * - **The stardust spice** (the fifth rank): held over the next bowl (`spice`, the panel's own: the bag's "eat" and
  *   the basket's both read it), and sprinkled as that bowl is begun. It says where it is: over the next bowl, on the
  *   bowl being eaten, or used for today.
+ * - **The phoenix flame in a bottle** (the sixth rank): its stove is set where I stand from here (`onStove`: the bag
+ *   is put away and the kitchen table laid over the flame), and it says how many times more today it gives back what
+ *   comes to nothing.
  *
  * It draws and asks; what is kept is the keeper's. Nothing of a gift is there for somebody who has it not.
  */
-export default function TownBasket({ keeper, purse, now, th, seated, helpings, say, spice, onSpice }: {
+export default function TownBasket({ keeper, purse, now, th, seated, helpings, say, spice, onSpice, onStove }: {
   keeper: Keeper;
   purse: Purse;
   now: number;
@@ -44,11 +47,14 @@ export default function TownBasket({ keeper, purse, now, th, seated, helpings, s
   /** Whether the spice is held over the next bowl; and holding it there, or putting it away. */
   spice: boolean;
   onSpice: (on: boolean) => void;
+  /** Set the phoenix flame's stove where I stand: the bag is put away, and the kitchen table laid there. */
+  onStove: () => void;
 }) {
-  const basket = hasThing(purse, "thingBasket"), jar = hasThing(purse, "thingSpice");
+  const basket = hasThing(purse, "thingBasket"), jar = hasThing(purse, "thingSpice"), bottle = hasThing(purse, "thingFlame");
   const [picked, setPicked] = useState<DishId | null>(null);
   const [busy, setBusy] = useState(false);
-  if (!basket && !jar) return null;
+  if (!basket && !jar && !bottle) return null;
+  const flameLeft = bottle ? usesLeft(purse, "thingFlame", now) : 0;
   const mine = basketOf(purse), holds = numberOf("thingBasket"), room = basketRoom(purse), n = holds - room;
   const cells: Array<DishId | null> = [...mine.flatMap(([d, k]) => Array<DishId>(k).fill(d)), ...Array<null>(Math.max(0, room)).fill(null)];
   const taken = picked && mine.find(([d]) => d === picked) ? picked : null, count = taken ? mine.find(([d]) => d === taken)![1] : 0;
@@ -98,7 +104,9 @@ export default function TownBasket({ keeper, purse, now, th, seated, helpings, s
         .tb-swirl { animation: tb-swirl 38s linear infinite }
         .tb-fall { animation: tb-fall 1.1s ease-in infinite }
         .tb-tilt { animation: tb-tilt 1.6s ease-in-out infinite; transform-origin: 60% 80% }
-        @media (prefers-reduced-motion: reduce) { .tb-pop, .tb-star, .tb-swirl, .tb-tilt { animation: none } .tb-fall { animation: none; opacity: .9 } }
+        @keyframes tb-flame { 0%, 100% { transform: scale(1) } 35% { transform: scale(1.06, 1.12) } 70% { transform: scale(.97, 1.04) } }
+        .tb-flame { animation: tb-flame 900ms steps(4) infinite; transform-origin: 50% 100% }
+        @media (prefers-reduced-motion: reduce) { .tb-pop, .tb-star, .tb-swirl, .tb-tilt, .tb-flame { animation: none } .tb-fall { animation: none; opacity: .9 } }
       `}</style>
 
       {basket && (
@@ -194,6 +202,27 @@ export default function TownBasket({ keeper, purse, now, th, seated, helpings, s
           <button type="button" disabled={spiceLeft < 1 || !!purse.eating} aria-pressed={armed} onClick={() => onSpice(!armed)} data-spice-hold
                   className={`pressable min-h-11 shrink-0 rounded-full px-3 text-ui font-semibold disabled:opacity-40 ${armed ? "border border-[#f2c14e] text-[#ffe9a6]" : "bg-[#f2c14e] text-[#2a1f0a]"}`}>
             {armed ? (th ? "เก็บ" : "Put away") : (th ? "โรยถ้วยถัดไป" : "Sprinkle next")}
+          </button>
+        </section>
+      )}
+
+      {/* the phoenix flame in a bottle: its stove set where I stand, and how many times more today it gives back what comes to nothing */}
+      {bottle && (
+        <section aria-label={th ? "เปลวฟีนิกซ์ในขวด" : "Phoenix flame in a bottle"} data-town-flame data-left={flameLeft}
+                 className="relative flex min-h-14 items-center gap-2.5 overflow-hidden rounded-xl border-2 border-[#7a3a12] px-2.5 py-1.5" style={{ background: "radial-gradient(120% 140% at 0% 100%, rgba(255,140,50,0.28), transparent 60%), #24140e" }}>
+          <span className="grid size-11 shrink-0 place-items-center"><span className="tb-flame block"><TownIcon name={"thingFlame" as IconName} size={36} /></span></span>
+          <span className="min-w-0 flex-1">
+            <span className="flex items-center gap-1.5 text-ui font-semibold text-[#ffe6cc]">
+              <span className="truncate">{th ? "เปลวฟีนิกซ์ในขวด" : "Phoenix flame"}</span>
+              <span aria-hidden className="flex shrink-0 gap-0.5">
+                {Array.from({ length: USES.thingFlame?.n ?? 3 }, (_, i) => <span key={i} className={`size-1.5 rounded-full border border-[#ff9a3c] ${i < flameLeft ? "bg-[#ff9a3c]" : "bg-transparent"}`} />)}
+              </span>
+            </span>
+            <span className="block truncate text-meta text-[#e0a878]">{th ? `คืนวัตถุดิบได้อีก ${flameLeft} ครั้งวันนี้` : `Gives things back ${flameLeft} more time${flameLeft === 1 ? "" : "s"} today`}</span>
+          </span>
+          <button type="button" onClick={onStove} data-flame-stove
+                  className="pressable min-h-11 shrink-0 rounded-full bg-[#ff9a3c] px-3 text-ui font-semibold text-[#2a1206]">
+            {th ? "ตั้งเตาตรงนี้" : "Set the stove here"}
           </button>
         </section>
       )}

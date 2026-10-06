@@ -279,7 +279,8 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
         {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
-                                kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn} />}
+                                kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
+                                                     onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
                                 sprinkles={sprinkles}
                                 onWear={(slot) => tried(keeper.wear(slot), ["สะพายแล้ว", "On your back."])}
                                 onTakeOff={(item) => tried(keeper.takeOff(item), ["ถอดเก็บแล้ว", "Taken off."])}

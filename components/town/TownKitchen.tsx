@@ -17,9 +17,11 @@ import { Secret } from "./TownScroll";
 import { ItemIcon } from "./TownTrade";
 
 /** Where the table is laid: one of the yard's places, or the forest camp's fire. */
-export type KitchenPlace = "stove" | "table" | "fire" | "camp";
+export type KitchenPlace = "stove" | "table" | "fire" | "camp" | "flame";
 /** What came of the cooking, for the card that says so. */
-export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean }
+export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean }
+/** The phoenix flame at the table (lib/town/gifts): how many times more today it gives back what comes to nothing, of how many, and whether it is set to for this pot. */
+export interface FlameAt { left: number; most: number; armed: boolean }
 /**
  * The hearth sprite at the table (lib/town/gifts), while it follows its member: how many pots more it cooks in this
  * meal's hours, of how many; whether what is in the pot is its to cook (a recipe its member has made, with the cooks
@@ -36,6 +38,7 @@ const WOOD_DARK = "#2a190d", CREAM = "#ffeccb", CREAM_SOFT = "#e9cfa4", HOLLOW =
 const PAPER = "#f0dfb6", PAPER_EDGE = "#d9bf85", INK = "#4a3520", INK_SOFT = "#7a5f3c", JADE = "#2f7d4f", CHILI = "#b23a26";
 const PLACE_WORD: Record<KitchenPlace, [string, string]> = {
   stove: ["ที่เตา", "At a stove"], table: ["ที่โต๊ะเตรียมของ", "At a worktable"], fire: ["ที่กองไฟ", "At the fire"], camp: ["ที่กองไฟแคมป์", "At the camp fire"],
+  flame: ["บนเปลวฟีนิกซ์", "Over the phoenix flame"],
 };
 /**
  * What the cookware stands on at each place: a picture of the cooking screen's own sheet (or the forest's fire, at
@@ -44,6 +47,8 @@ const PLACE_WORD: Record<KitchenPlace, [string, string]> = {
 const SCENE: Record<KitchenPlace, { art: string; foot: string; fire: boolean }> = {
   stove: { art: "gameKitchen", foot: "44%", fire: true }, fire: { art: "gameKitchen", foot: "44%", fire: true },
   table: { art: "gameWorktable", foot: "37%", fire: false }, camp: { art: "gameKitchen", foot: "26%", fire: true },
+  // (the phoenix flame's own stove, wherever its owner stands: no picture of a place, the bottle and its fire drawn here)
+  flame: { art: "", foot: "40%", fire: true },
 };
 /** Where a thing put in is laid: four to a row, two on each side of the cookware. */
 const COLS = [1, 2, 4, 5];
@@ -66,7 +71,7 @@ const PIN_KEY = "cashtown.kitchen.pin";
  * It draws and asks; what is cooked is the keeper's to say (components/town/TownCook holds this open and plays the
  * game). On a phone the book folds into a strip above the hearth. With `reduced` nothing moves.
  */
-export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown, spoon = null, onSpoon, onSpoonShut, fam = null, onFam }: {
+export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown, spoon = null, onSpoon, onSpoonShut, fam = null, onFam, flame = null, onFlame }: {
   /** The whispering spoon, for whoever has it (null: nothing of it is shown); asking it of what is in the pot, and putting away what it told. */
   spoon?: SpoonAt | null;
   onSpoon?: () => void;
@@ -74,6 +79,9 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   /** The hearth sprite, while it follows me (null: nothing of it is shown); and having it cook what is in the pot. */
   fam?: SpriteAt | null;
   onFam?: () => void;
+  /** The phoenix flame, for whoever has it (null: nothing of it is shown); and setting it to guard this pot, or not. */
+  flame?: FlameAt | null;
+  onFlame?: (armed: boolean) => void;
   th: boolean;
   reduced: boolean;
   place: KitchenPlace;
@@ -124,7 +132,8 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   // the screen's own pictures: fetched the first time it is opened
   const [art, setArt] = useState<((name: string) => Sprite | null) | null>(null);
   useEffect(() => { let on = true; loadKitchen().then((a) => { if (on) setArt(() => a); }).catch(() => {}); return () => { on = false; }; }, []);
-  const scene = SCENE[place], sprite = place === "camp" && fire ? fire : art?.(scene.art) ?? null;
+  const scene = SCENE[place], sprite = place === "camp" && fire ? fire : scene.art ? art?.(scene.art) ?? null : null;
+  const guarded = !!flame && flame.armed && flame.left > 0;
 
   /* ── the book ── */
   // (a recipe whose secret thing the spoon has told is read whole, as one that was made is)
@@ -191,6 +200,9 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
         @keyframes kt-spark { 0% { transform: translate(0, 0) scale(1); opacity: 1 } 100% { transform: translate(var(--dx), var(--dy)) scale(.4); opacity: 0 } }
         @keyframes kt-shake { 0%, 100% { transform: rotate(0) } 25% { transform: rotate(-3deg) } 75% { transform: rotate(3deg) } }
         @keyframes kt-flare { 0%, 100% { opacity: .55; transform: scale(1) } 50% { opacity: 1; transform: scale(1.25) } }
+        @keyframes kt-phoenix { 0%, 100% { transform: scale(1) } 35% { transform: scale(1.05, 1.1) } 70% { transform: scale(.97, 1.04) } }
+        .kt-phoenix { animation: kt-phoenix 900ms steps(4) infinite; transform-origin: 50% 100% }
+        [data-town-kitchen][data-still] .kt-phoenix { animation: none }
         .kt-bob { animation: kt-bob 1.4s steps(4) infinite }
         .kt-leap { animation: kt-leap 1500ms cubic-bezier(.3, .7, .3, 1) }
         .kt-spark { animation: kt-spark 620ms ease-out infinite }
@@ -262,6 +274,17 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
           <div className="order-2 flex min-w-0 flex-col gap-1.5">
             <div className={`${STAGE} h-[clamp(7.25rem,21dvh,11rem)] w-full min-[900px]:aspect-[3/2] min-[900px]:h-auto`} data-kitchen-stage={place}>
               <GameScene sprite={sprite} className="absolute inset-0 size-full" />
+              {/* the phoenix flame's stove: the bottle on the ground where its owner stands, its fire under the cookware */}
+              {place === "flame" && (
+                <>
+                  <span aria-hidden className="absolute inset-0" style={{ background: "radial-gradient(58% 64% at 50% 80%, rgba(255,160,70,0.6), rgba(150,50,25,0.28) 46%, transparent 76%), linear-gradient(#1a1230, #2a1622 68%, #3a2513)" }} />
+                  <span aria-hidden className="kt-ember absolute left-[30%] top-[52%] h-[40%] w-[40%] rounded-[50%] bg-[#ff9a3c] mix-blend-screen blur-[8px]" />
+                  <span aria-hidden className="absolute bottom-[3%] left-1/2 -translate-x-1/2" data-kitchen-phoenix><span className="kt-phoenix block"><TownIcon name={"thingFlame" as IconName} size={50} /></span></span>
+                  {[[-28, 0], [26, -0.9], [-8, -1.7]].map(([dx, at], i) => (
+                    <span key={i} aria-hidden className="kt-steam absolute bottom-[34%] left-1/2 size-1 bg-[#ffd36b]" style={{ marginLeft: dx, animationDelay: `${at}s` }} />
+                  ))}
+                </>
+              )}
               {scene.fire && place !== "camp" && <span aria-hidden className="kt-ember absolute left-[38%] top-[74%] h-[22%] w-[24%] rounded-[50%] bg-[#ff9a3c] mix-blend-screen blur-[6px]" />}
               {/* (the sprite at work: the fire under the cookware flares) */}
               {fam?.cooking && <span aria-hidden className="kt-flare absolute left-[34%] top-[66%] h-[30%] w-[32%] rounded-[50%] bg-[#ffb347] mix-blend-screen blur-[5px]" />}
@@ -294,6 +317,18 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
                   <TownIcon name={"thingSpoon" as IconName} size={28} />
                   <span aria-hidden className="flex gap-0.5">
                     {Array.from({ length: spoon.most }, (_, i) => <span key={i} className={`size-1.5 rounded-full border border-[#2a190d] ${i < spoon.left ? "bg-[#48d6c4]" : "bg-[#2a190d]"}`} />)}
+                  </span>
+                </button>
+              )}
+              {/* the phoenix flame, set to guard this pot or not: where things come to nothing, every one of them comes back */}
+              {flame && (
+                <button type="button" disabled={flame.left < 1} aria-pressed={guarded} onClick={() => onFlame?.(!flame.armed)} data-kitchen-flame data-left={flame.left} data-armed={guarded ? "" : undefined}
+                        title={guarded ? (th ? "เปลวฟีนิกซ์คุ้มหม้อนี้อยู่" : "The phoenix flame guards this pot") : (th ? "ให้เปลวฟีนิกซ์คุ้มหม้อนี้" : "Have the phoenix flame guard this pot")}
+                        aria-label={th ? `เปลวฟีนิกซ์คุ้มหม้อ เหลือ ${flame.left} ครั้ง` : `The phoenix flame guards the pot: ${flame.left} left`}
+                        className={`pressable absolute bottom-1 right-1 z-[1] flex min-h-11 min-w-11 flex-col items-center justify-center gap-0.5 rounded-[6px] border-2 px-1 pb-1 pt-0.5 disabled:opacity-60 ${guarded ? "border-[#ff9a3c] bg-[#5a2a12] shadow-[0_0_10px_rgba(255,154,60,0.75)]" : "border-[#2a190d] bg-[#4a2f18]"}`}>
+                  <TownIcon name={"thingFlame" as IconName} size={28} className={guarded ? "" : "opacity-60 grayscale"} />
+                  <span aria-hidden className="flex gap-0.5">
+                    {Array.from({ length: flame.most }, (_, i) => <span key={i} className={`size-1.5 rounded-full border border-[#2a190d] ${i < flame.left ? "bg-[#ff9a3c]" : "bg-[#2a190d]"}`} />)}
                   </span>
                 </button>
               )}
@@ -614,18 +649,18 @@ function Came({ result, th, eat, why, onAgain, onEat, onPotDown, onClose }: {
   result: KitchenResult; th: boolean; eat: { bowl: boolean; meal: boolean }; why: string | null; onAgain: () => void; onEat: () => void; onPotDown: () => void; onClose: () => void;
 }) {
   const { made, n, first, taste } = result;
-  const pot = !!made && made in DISHES, found = !!made && !taste;
+  const pot = !!made && made in DISHES, found = !!made && !taste, back = !!result.back;
   const first1 = useRef<HTMLButtonElement>(null);
   useEffect(() => { first1.current?.focus(); }, []);
-  const title = !made ? (th ? "ไม่ได้อะไรเลย" : "Nothing came of it") : th ? ITEMS[made].name.th : ITEMS[made].name.en;
+  const title = back ? (th ? "เปลวฟีนิกซ์คืนของให้ครบ" : "The phoenix flame gave everything back") : !made ? (th ? "ไม่ได้อะไรเลย" : "Nothing came of it") : th ? ITEMS[made].name.th : ITEMS[made].name.en;
   const plain = "pressable min-h-11 rounded-md border-2 px-3 text-ui font-semibold disabled:opacity-45";
   return (
-    <div className="absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#1c0f06]/80 p-3 min-[900px]:rounded-[5px]" data-kitchen-came={found ? "found" : made ? "odd" : "nothing"}>
+    <div className="absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#1c0f06]/80 p-3 min-[900px]:rounded-[5px]" data-kitchen-came={found ? "found" : back ? "back" : made ? "odd" : "nothing"}>
       <div role="alertdialog" aria-labelledby="town-kitchen-came-h" className="kt-rise w-full max-w-[21rem] rounded-lg border-[3px] border-[#2a190d] px-4 pb-4 pt-3 text-center shadow-[0_14px_28px_rgba(0,0,0,0.5)]" style={{ backgroundColor: PAPER, color: INK }}>
         {first && found && <p className="mx-auto mb-1 w-fit rounded-full px-3 py-0.5 text-meta font-semibold text-white" style={{ backgroundColor: CHILI }}>{th ? "พบสูตรใหม่!" : "A new recipe!"}</p>}
         <div className="relative mx-auto grid size-28 place-items-center">
-          {first && found && <span aria-hidden className="kt-rays absolute inset-0 rounded-full opacity-60" style={{ background: "repeating-conic-gradient(rgba(240,192,96,0.9) 0 12deg, transparent 12deg 30deg)", maskImage: "radial-gradient(circle, #000 30%, transparent 70%)", WebkitMaskImage: "radial-gradient(circle, #000 30%, transparent 70%)" }} />}
-          {made ? <ItemIcon id={made} size={80} className="relative" /> : <TownIcon name="potEmpty" size={72} className="relative opacity-80" />}
+          {((first && found) || back) && <span aria-hidden className="kt-rays absolute inset-0 rounded-full opacity-60" style={{ background: back ? "repeating-conic-gradient(rgba(255,154,60,0.9) 0 12deg, transparent 12deg 30deg)" : "repeating-conic-gradient(rgba(240,192,96,0.9) 0 12deg, transparent 12deg 30deg)", maskImage: "radial-gradient(circle, #000 30%, transparent 70%)", WebkitMaskImage: "radial-gradient(circle, #000 30%, transparent 70%)" }} />}
+          {made ? <ItemIcon id={made} size={80} className="relative" /> : back ? <span className="kt-phoenix relative block"><TownIcon name={"thingFlame" as IconName} size={76} /></span> : <TownIcon name="potEmpty" size={72} className="relative opacity-80" />}
           {pot && found && <span aria-hidden className="pointer-events-none absolute -top-1 left-1/2 -translate-x-1/2"><TownIcon name="fxSteam" size={22} className="kt-steam" /></span>}
         </div>
         <h3 id="town-kitchen-came-h" className="font-display text-title font-semibold leading-tight">{title}</h3>

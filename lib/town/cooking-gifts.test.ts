@@ -328,3 +328,61 @@ describe("the stardust spice (the kitchen's fifth rank)", () => {
     expect(spiceEat(p, { dish: "tomYum" }, true, NOON)).toEqual({ ok: false, why: "none" });
   });
 });
+
+describe("the phoenix flame in a bottle (the kitchen's sixth rank)", () => {
+  const WRONG: Array<[ItemId, number]> = [["snakehead", 1], ["tomato", 2], ["chili", 2], ["hyacinth", 1]];
+  const withFlame = (...more: Array<[ItemId, number]>) => purseWith(["thingFlame"], ...WRONG, ["pot", 1], ...more);
+  it("gives every ingredient back where things come to an odd dish: the stamina is paid, the taste is told, the miss is counted", () => {
+    const p = withFlame();
+    // without it (or with it not set to), a pot of the odd dish, and the things are gone
+    const odd = done(cookWith(p, WRONG, ["pot"], 0, NOON));
+    expect(odd.made).toBe("oddDish");
+    expect(held(odd.purse.bag, "snakehead")).toBe(0);
+    expect(done(cookWith(purseWith([], ...WRONG, ["pot", 1]), WRONG, ["pot"], 0, NOON, { flame: true })).made).toBe("oddDish");
+    const back = done(cookWith(Object.freeze(p) as Purse, WRONG, ["pot"], 2, NOON, { flame: true }));
+    expect(back).toMatchObject({ made: null, n: 0, back: true, taste: odd.taste });
+    expect(back.taste).toBe("swap");
+    expect(back.purse.bag).toEqual(p.bag);
+    expect(staminaOf(back.purse, NOON)).toBe(STAMINA.max - COOKING.cost);
+    // one thing off, and that thing the recipe's last: a try at the tom yum, as ever
+    expect(back.purse.tries).toEqual({ tomYum: 1 });
+    expect(back.purse.tries).toEqual(odd.purse.tries);
+    expect(usesLeft(back.purse, "thingFlame", NOON)).toBe(USES.thingFlame!.n - 1);
+  });
+
+  it("gives back what bare hands would have lost, too", () => {
+    const p = withFlame();
+    const lost = done(cookWith(p, WRONG, [null], 0, NOON));
+    expect(lost).toMatchObject({ made: null, n: 0 });
+    expect(held(lost.purse.bag, "snakehead")).toBe(0);
+    expect(held(lost.purse.bag, "compost")).toBe(1);
+    const back = done(cookWith(p, WRONG, [null], 0, NOON, { flame: true }));
+    expect(back).toMatchObject({ made: null, n: 0, back: true });
+    expect(back.purse.bag).toEqual(p.bag);
+  });
+
+  it("is not spent on what is a recipe, three times a day on what is not, and then things are as they always were", () => {
+    const TOMYUM = DISHES.tomYum.recipe!.needs;
+    const p = purseWith(["thingFlame"], ...TOMYUM, ["hyacinth", 9], ["pot", 1]);
+    const real = done(cookWith(p, TOMYUM, ["pot"], 0, NOON, { flame: true }));
+    expect(real).toMatchObject({ made: "tomYum", n: DISHES.tomYum.recipe!.serves });
+    expect(real.back).toBeUndefined();
+    expect(usesLeft(real.purse, "thingFlame", NOON)).toBe(3);
+    let q = p;
+    for (let i = 0; i < 3; i++) {
+      const back = done(cookWith(q, [["hyacinth", 2]], ["pot"], 0, NOON + i * MIN, { flame: true }));
+      expect(back.back).toBe(true);
+      expect(held(back.purse.bag, "hyacinth")).toBe(9);
+      q = back.purse;
+    }
+    const fourth = done(cookWith(q, [["hyacinth", 2]], ["pot"], 0, NOON + 5 * MIN, { flame: true }));
+    expect(fourth).toMatchObject({ made: "oddDish" });
+    expect(fourth.back).toBeUndefined();
+    expect(held(fourth.purse.bag, "hyacinth")).toBe(7);
+    // tomorrow, three more
+    expect(done(cookWith(q, [["hyacinth", 2]], ["pot"], 0, NOON + 24 * 60 * MIN, { flame: true })).back).toBe(true);
+    // what cooking refuses, it refuses: nothing to give back, nothing counted
+    expect(cookWith(p, [["minnow", 1]], ["pot"], 0, NOON, { flame: true })).toEqual({ ok: false, why: "none" });
+    expect(cookWith(p, [], ["pot"], 0, NOON, { flame: true })).toEqual({ ok: false, why: "amount" });
+  });
+});

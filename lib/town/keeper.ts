@@ -30,10 +30,10 @@ import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 // ── gifts: kitchen ──
 import type { KitchenRefusal } from "./cooking";
-/** (how a pot was cooked beyond the game's own account, told with it: by the hearth sprite, with no game) */
-export interface Timing { sprite?: boolean }
-/** What a go at the kitchen came to: `sprite`, the hearth sprite cooked it (its helping more is in `n`). */
-export type Cooked = { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean };
+/** (how a pot was cooked beyond the game's own account, told with it: by the hearth sprite, with no game; with the phoenix flame set to give back what comes to nothing) */
+export interface Timing { sprite?: boolean; flame?: boolean }
+/** What a go at the kitchen came to: `sprite`, the hearth sprite cooked it (its helping more is in `n`); `back`, it came to nothing and the phoenix flame gave every thing back. */
+export type Cooked = { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean };
 import { bedOf } from "./world";
 
 /**

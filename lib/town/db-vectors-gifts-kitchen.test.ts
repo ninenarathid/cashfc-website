@@ -25,6 +25,8 @@ import { newPurse, put, type Purse } from "./trade";
  * - `cook_with`: pots cooked by the hearth sprite and by hand: the sprite following, resting and not had; recipes made
  *   before and not, dishes and what is made otherwise, with one cook and with two; the cookware in the hand and not;
  *   every count of these hours' pots kept; a ladle, a pot of the same dish in the bag already, a bag with no room;
+ *   and pots cooked by hand with the phoenix flame set to guard them and not, by its owner and by somebody without
+ *   it, with every count of the day's givings back kept: recipes, the odd dish, and what bare hands lose;
  * - `spice_of`, `raised_to`, `chew`, `spice_eat`: a sprinkling of the meal at hand, of another meal, kept wrongly and
  *   not at all; a buff had at every level, run out, and not had, raised with a level and with none; meals counted on
  *   before, at and after their end, sprinkled and plain, of dishes that leave a buff and that leave none; and bowls
@@ -167,7 +169,7 @@ export function vectorsKitchen(): Vector[] {
   // the hearth sprite: pots cooked with no game, and the same pots cooked by hand
   const kMeal = stretchOf({ n: 3, per: "meal" }, NOON);
   const POTS: ItemId[] = ["tomYum", "friedMinnow", "fishSauce", "compost", "crabCurry", "grilledCorn", "shabu", "curryPaste"];
-  for (let i = 0; i < 520; i++) {
+  for (let i = 0; i < 900; i++) {
     const id = c.of(POTS), needs = needsOf(id), t = takes(id), now = c.of([NOON, NOON, NOON + 6 * HOUR]);
     // what is put in: the recipe, or (now and then) something that is none
     const things = c.of<() => Array<[ItemId, number]>>([() => needs, () => needs, () => needs, () => needs, () => needs.slice(0, -1).concat([["hyacinth", 1]]), () => [["hyacinth", 2]], () => [], () => needs.map(([x, n]): [ItemId, number] => [x, n + 1])])();
@@ -180,12 +182,23 @@ export function vectorsKitchen(): Vector[] {
     const crew = c.of<() => Array<ItemId | null>>([() => (t.in.length ? [...t.in] : [null]), () => (t.in.length ? [...t.in] : [null]), () => (t.in.length ? [...t.in] : [null]), () => [...t.in, null, null], () => [null], () => [t.in[0] ?? "pot"], () => ["pan", "pot", "grill"]])();
     const fam = c.of<string | null | undefined>(["famSprite", "famSprite", "famSprite", "famSprite", null, undefined, "famGnome"]);
     const used = c.of<() => unknown>([() => undefined, () => undefined, () => ({ famSprite: { k: kMeal, n: c.int(0, 4) } }), () => ({ famSprite: { k: kMeal, n: 3 } }), () => ({ famSprite: { k: kMeal - 1, n: 3 } }), () => ({ famSprite: { k: kMeal, n: 2 }, thingSpoon: { k: 1, n: 1 } })])();
-    const g = c.maybe(0.1) ? undefined : { had: c.maybe(0.9) ? ["famSprite", "famGnome", "charmApron"] : ["famGnome"], charms: [], ...(fam === undefined ? {} : { familiar: fam }), ...(used === undefined ? {} : { used }) };
+    const flamed = c.of<() => unknown>([() => undefined, () => undefined, () => ({ k: stretchOf({ n: 3, per: "day" }, now), n: c.int(0, 4) }), () => ({ k: stretchOf({ n: 3, per: "day" }, now), n: 3 }), () => ({ k: stretchOf({ n: 3, per: "day" }, now) - 1, n: 3 })])();
+    const usedAll = used === undefined && flamed === undefined ? undefined : { ...((used as object | undefined) ?? {}), ...(flamed === undefined ? {} : { thingFlame: flamed }) };
+    const g = c.maybe(0.1) ? undefined : { had: [...(c.maybe(0.9) ? ["famSprite", "famGnome", "charmApron"] : ["famGnome"]), ...(c.maybe(0.7) ? ["thingFlame"] : [])], charms: [], ...(fam === undefined ? {} : { familiar: fam }), ...(usedAll === undefined ? {} : { used: usedAll }) };
     const made = c.of<() => ItemId[] | undefined>([() => [id], () => [id], () => [id], () => [id, "tomYum"], () => POTS.filter((x) => x !== id), () => [], () => undefined])();
-    const p = { ...newPurse(), stamina: { day: dayOf(NOON), left: c.of([100, 3, 0]) }, bag: b, ...(g ? { gifts: g } : {}), ...(made ? { made } : {}), recipes: [] } as Purse;
-    const how = c.of<Record<string, unknown>>([{ sprite: true }, { sprite: true }, { sprite: true }, { sprite: true }, {}, { sprite: false }, { sprite: "yes" }]);
+    const p = { ...newPurse(), stamina: { day: dayOf(NOON), left: c.of([100, 3, 0]) }, bag: b, ...(g ? { gifts: g } : {}), ...(made ? { made } : {}), recipes: [], ...(c.maybe(0.2) ? { tries: { tomYum: 2 } } : {}) } as Purse;
+    const how = c.of<Record<string, unknown>>([{ sprite: true }, { sprite: true }, { sprite: true }, { sprite: true, flame: true }, {}, { sprite: false }, { sprite: "yes" }, { flame: true }, { flame: true }, { flame: true }, { flame: true }, { sprite: false, flame: true }, { flame: "yes" }]);
     const misses = c.of([0, 0, 1, 3, 9]);
-    add("cook_with", [p, things, crew, misses, now, how], cookWith(p, things, crew, misses, now, how as { sprite?: boolean }));
+    add("cook_with", [p, things, crew, misses, now, how], cookWith(p, things, crew, misses, now, how as { sprite?: boolean; flame?: boolean }));
+  }
+  // (a bag with no slot for the pot once the things are out of it: each of them one more than the recipe takes, and nothing else free)
+  for (const how of [{ sprite: true }, { flame: true }, {}]) for (const slots of [4, 5]) {
+    const needs = needsOf("tomYum");
+    let b = Array<null>(slots).fill(null) as Purse["bag"];
+    for (const [x, n] of needs) b = put(b, x, n + 1);
+    b = b.map((s) => s ?? { item: "boot" as ItemId, n: 1 });
+    const p = { ...newPurse(), stamina: { day: dayOf(NOON), left: 100 }, bag: b, made: ["tomYum"], gifts: { had: ["famSprite", "thingFlame"], charms: [], familiar: "famSprite" } } as Purse;
+    add("cook_with", [p, needs, ["pot"], 0, NOON, how], cookWith(p, needs, ["pot"], 0, NOON, how));
   }
   // the stardust spice: which meal is sprinkled, what a sprinkled bowl leaves, and the sprinkling itself
   const MEAL = STAMINA.minutes * 60_000, BUFFS: MealBuffId[] = ["calm", "keen", "lucky", "hearty", "green", "forage", "net"];
@@ -256,7 +269,15 @@ describe("the cases the database's rules of the kitchen's gifts are held to", ()
     expect(told.some((x) => x.d.left === 0) && told.some((x) => x.d.left === 2) && told.some((x) => x.before.length > 0)).toBe(true);
     expect(of("whispers_of").some((v) => (v.want as unknown[]).length === 2) && of("whispers_of").some((v) => (v.want as unknown[]).length === 0)).toBe(true);
     // the sprite's pots: a dish with its helping more, something made at its full number, each refusal of its own and of cooking's; and pots by hand
-    const pots = of("cook_with").map((v) => ({ how: v.args[5] as { sprite?: unknown }, misses: v.args[3] as number, d: v.want as { ok: boolean; why?: string; made?: string; n?: number; sprite?: boolean } }));
+    const pots = of("cook_with").map((v) => ({ before: v.args[0] as Purse, how: v.args[5] as { sprite?: unknown; flame?: unknown }, misses: v.args[3] as number, d: v.want as { ok: boolean; why?: string; made?: string | null; n?: number; sprite?: boolean; back?: boolean; taste?: string; purse?: Purse } }));
+    // the flame: every thing given back (the bag as it was, the stamina paid) of the odd dish and of what bare hands lose; not of a recipe; not past the day's three; not for whoever has none
+    const guarded = pots.filter((x) => x.how.flame === true && x.how.sprite !== true && x.d.ok);
+    const backs = guarded.filter((x) => x.d.back === true);
+    expect(backs.length).toBeGreaterThan(8);
+    expect(backs.every((x) => x.d.made === null && x.d.n === 0 && typeof x.d.taste === "string" && JSON.stringify(x.d.purse!.bag) === JSON.stringify(x.before.bag))).toBe(true);
+    expect(backs.some((x) => x.d.purse!.stamina.left < x.before.stamina.left) && backs.some((x) => x.d.purse!.tries !== undefined)).toBe(true);
+    expect(guarded.some((x) => !x.d.back && x.d.made === "oddDish") && guarded.some((x) => !x.d.back && x.d.made !== null && x.d.made !== "oddDish")).toBe(true);
+    expect(pots.filter((x) => x.how.flame !== true).every((x) => x.d.back === undefined)).toBe(true);
     const bySprite = pots.filter((x) => x.how.sprite === true), byHand = pots.filter((x) => x.how.sprite !== true);
     for (const why of ["none", "unmade", "spent", "crew", "tool", "full"]) expect(bySprite.some((x) => !x.d.ok && x.d.why === why), why).toBe(true);
     expect(bySprite.every((x) => !x.d.ok || x.d.sprite === true) && byHand.every((x) => x.d.sprite === undefined)).toBe(true);

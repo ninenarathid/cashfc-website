@@ -789,7 +789,7 @@ export class Trial {
    * the first time anybody made it, which is written down with the name of whoever did. What I have made is written
    * in my purse, and I read all of its recipe from then on. The odd dish is nobody's find.
    */
-  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = "", how: CookHow = {}): Gifted<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean }> {
+  cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = "", how: CookHow = {}): Gifted<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean }> {
     // (── gifts: kitchen ── with what the kitchen's gifts change of it: lib/town/cooking's cookWith)
     const now = this.now(), did = cookWith(this.purse(), things, crew, misses, now, how);
     if (!did.ok) return did;
