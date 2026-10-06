@@ -60,9 +60,9 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     const due = await X.evaluate(`[...${M}.querySelectorAll("[data-me-due]")].map((li) => ({ id: li.dataset.meDue, text: li.innerText.replace(/\\s+/g, " ") }))`);
     ok(`[${label}] what waits is listed by its line and rank, not by its name: the deck's, the insects' two ranks and the farm's`, due.map((d) => d.id).join() === "charmFloat,charmNet,famButterfly,charmHoe" && due.every((d) => !/ทุ่น|สวิง|จอบ|ผีเสื้อ/.test(d.text)), due);
     for (const id of ["charmFloat", "charmNet", "famButterfly", "charmHoe"]) await click(X, `[data-me-take="${id}"]`, 600);
-    ok(`[${label}] each is taken there; nothing more waits, the dot is gone, and the count says five of nine`, (await gifts(X)).had.length === 5 && (await X.evaluate(`${M}.querySelectorAll("[data-me-due]").length`)) === 0
-      && (await X.evaluate(`document.querySelector("[data-town-lines-button]").dataset.due === undefined`)) && (await X.evaluate(`${M}.querySelector("[data-me-count]").dataset.meCount`)) === "5/9", await gifts(X));
-    ok(`[${label}] what is still to get is a number and no name`, await X.evaluate(`/อีก 4 ชิ้น/.test(${M}.querySelector("[data-me-count]").innerText) && !/ถุงมือ|ตะเกียง|กระรอก|โนม/.test(${M}.innerText)`));
+    ok(`[${label}] each is taken there; nothing more waits, the dot is gone, and the count says five of however many there are to be given`, (await gifts(X)).had.length === 5 && (await X.evaluate(`${M}.querySelectorAll("[data-me-due]").length`)) === 0
+      && (await X.evaluate(`document.querySelector("[data-town-lines-button]").dataset.due === undefined`)) && /^5\/(9|[1-9]\d+)$/.test(await X.evaluate(`${M}.querySelector("[data-me-count]").dataset.meCount`)), await gifts(X));
+    ok(`[${label}] what is still to get is a number and no name`, await X.evaluate(`(() => { const c = ${M}.querySelector("[data-me-count]"), all = Number(c.dataset.meCount.split("/")[1]); return c.innerText.includes("อีก " + (all - 5) + " ชิ้น") && !/ถุงมือ|ตะเกียง|กระรอก|โนม/.test(${M}.innerText); })()`));
 
     // ── a familiar ──
     ok(`[${label}] a familiar taken follows nobody until it is called: its place is empty, and it is there to call`, await X.evaluate(`${M}.querySelector('[data-me-fam]').dataset.meFam === "" && !!${M}.querySelector('[data-me-call="famButterfly"]')`));
