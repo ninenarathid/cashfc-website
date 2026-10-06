@@ -29,7 +29,7 @@ import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
  *     `hi` and the two messages that connect two microphones. Sent to the
  *     room, each would be delivered to everybody. And what two people tell
  *     each other while they play a game together (`pg`: lib/town/handing),
- *     a few times a second for a few seconds.
+ *     five words a go.
  *
  * Nothing in any of it is stored. The room's name comes from the database
  * (town_topic), which tells it only to verified members, and the channels are
@@ -69,6 +69,8 @@ export interface Doing {
   hold?: string;
   /** Whether the bucket held in the hand has water in it; missing from a browser older than that, and then nothing is known of it. */
   wet?: boolean;
+  /** Whether they have no stamina left; missing from a browser older than that, and then nothing is known of it. (Water handed on is a game only where somebody has none: lib/town/handing.) */
+  spent?: boolean;
   /** Fishing: 1 with a rod in hand, 2 with a line in the water, 3 with a fish on, 4 for a moment when one has just been landed; 0 or missing when not. Where the float is follows from where they stand (lib/town/world's fishFrom). */
   fish?: number;
   /** The sign held up over their head (lib/town/sign: a chat room, or a stall), "" when none; missing from a browser older than signs. */
@@ -167,6 +169,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (typeof p.hold === "string" && /^[A-Za-z]{0,24}$/.test(p.hold)) d.hold = p.hold;
   const wet = bool(p.wet);
   if (wet !== undefined) d.wet = wet;
+  const spent = bool(p.spent);
+  if (spent !== undefined) d.spent = spent;
   if (p.fish === 0 || p.fish === 1 || p.fish === 2 || p.fish === 3 || p.fish === 4) d.fish = p.fish;
   // (a sign is written again from what was read of it: its title is somebody's own words, cleaned like a line of chat)
   if (typeof p.sign === "string") { const sign = decodeSign(p.sign); d.sign = sign ? encodeSign(sign) : ""; }

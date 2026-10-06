@@ -254,7 +254,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "" };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "" };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -881,7 +881,7 @@ export class TownSession {
           // (everything heard of them before the room listed them: what they hold, eat and do with a rod too, which
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
-            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
+            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
             ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
         });
@@ -1005,6 +1005,10 @@ export class TownSession {
   setHolding(item: string | null, wet = false) {
     if ((this.self.info.hold ?? "") !== (item ?? "") || (this.self.info.wet ?? false) !== wet) this.tell({ hold: item ?? "", wet });
   }
+  /** Tell the room whether I have no stamina left: handing water on is a game only where somebody has none (lib/town/handing). */
+  setSpent(spent: boolean) {
+    if ((this.self.info.spent ?? false) !== spent) this.tell({ spent });
+  }
   /** Tell the room what I am doing with a rod: 0 nothing, 1 it is in my hand, 2 my line is in the water, 3 a fish is on, 4 one is landed this moment. */
   setFishing(n: 0 | 1 | 2 | 3 | 4) {
     if ((this.self.info.fish ?? 0) !== n) this.tell({ fish: n });
@@ -1113,6 +1117,7 @@ export class TownSession {
         fish: a.info.fish ?? 0,
         hold: a.info.hold ?? "",
         wet: a.info.wet ?? null,
+        spent: a.info.spent ?? null,
         going: a.goneAt !== undefined,
         sign: a.info.sign ?? "",
         circle: a.info.circle ?? "",

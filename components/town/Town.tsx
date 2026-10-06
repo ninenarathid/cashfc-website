@@ -684,7 +684,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const standers = useCallback((): Stander[] => {
     const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
     return (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
-      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null), wet: a.info.wet, away: a.info.away }));
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null), wet: a.info.wet, away: a.info.away, spent: a.info.spent }));
   }, []);
   /** Whether I am on the forest's map (what it has is looked at while I am), and its own way of drawing what lies and grows there. */
   const [onForest, setOnForest] = useState(false);
@@ -3213,6 +3213,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (slot >= 0) void keeper.sitDown(slot, true);
   }, [satNow, keeper]);
   useEffect(() => { sessionRef.current?.setHolding(purse.hand, purse.wet); }, [purse.hand, purse.wet]);
+  // (whether I have no stamina left: handing water on is a game only where somebody has none, lib/town/handing)
+  const spentNow = purse.stamina <= 0;
+  useEffect(() => { sessionRef.current?.setSpent(spentNow); }, [spentNow]);
   const landedAt = useRef(0);
   const onLine = useCallback((state: LineState | null) => {
     lineRef.current = state;
