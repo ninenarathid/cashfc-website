@@ -10,7 +10,7 @@ import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import { WILD_WISHES, softStep } from "@/lib/town/forest-eye";
-import { charmBy, famBy } from "@/lib/town/gifts";
+import { famBy, wearing } from "@/lib/town/gifts";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
@@ -123,10 +123,13 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   // (the fountain's soft step, or a meal's: the softer at each of the meal's levels, items' byOf; with neither, as ever)
   // (and the lucky butterfly that follows me is a step more of it, lib/town/gifts)
   const soft = softStep(byOf(WILD_WISHES.net, levelOf(purse, keeper.now(), WILD_WISHES.net as WishId)) + famBy(purse, "famButterfly"));
-  // (the silver-web net worn as a charm: the ring so many times as wide, lib/town/gifts)
-  const wide = charmBy(purse, "charmNet");
-  const live = useRef({ hand, spent, busy, th, name, soft, wide, me: keeper.id });
-  live.current = { hand, spent, busy, th, name, soft, wide, me: keeper.id };
+  // (the silver-web net worn as a charm: every insect that is out on the map I am on glints silver where it is, the
+  // hidden ones too, on my own screen. Where, never how it is caught. lib/town/gifts)
+  const sees = wearing(purse, "charmNet");
+  const live = useRef({ hand, spent, busy, th, name, soft, sees, me: keeper.id });
+  live.current = { hand, spent, busy, th, name, soft, sees, me: keeper.id };
+  /** How many insects glinted in the last frame drawn (for scripts). */
+  const glints = useRef(0);
 
   /** What each insect has in mind on this screen, how each is this frame, where I am and who is about, and the swing in the air. */
   const minds = useRef(new Map<number, { turn: number; bug: BugId; mind: Mind }>());
@@ -153,7 +156,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         const h = HAUNTS[id], kept = minds.current.get(id);
         if (!h || !kept) continue;
         const key = `${id}:${sight.turn}`;
-        if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent, live.current.wide)) {
+        if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent)) {
           got = true;
           // (a beetle: whoever stands under its tree with something sweet)
           const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[0]) < HABITS.lure.reach) : null;
@@ -220,6 +223,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         ctx.restore();
       };
       const shown = new Set<number>();
+      let lit = 0;
       for (const sight of seen.current) {
         const h = HAUNTS[sight.id];
         if (!h || h.place !== here) continue;
@@ -239,6 +243,43 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         }
         poses.current.set(h.id, { sight, pose });
         const k = SIZE * s, icon = iconFor(iconOf(sight.bug)), mind = kept.mind;
+        // the net's silver glint over it, whether it shows itself or not; one off the screen is pointed to from the edge
+        if (live.current.sees) {
+          lit++;
+          frame.over?.(() => {
+            const W = ctx.canvas.width, H = ctx.canvas.height, m = Math.max(22, 12 * s), top = at.y - pose.lift * TILE_H * s - 18 * s;
+            const on = at.x >= m && at.x <= W - m && top >= m && top <= H - m;
+            const gx = Math.round(Math.min(W - m, Math.max(m, at.x))), gy = Math.round(Math.min(H - m, Math.max(m, top)));
+            const d = Math.max(3, Math.round(2.8 * s)), a = still ? 1 : 0.7 + 0.3 * Math.sin(now / 300 + h.id * 1.3);
+            const silver = (k: number) => `rgba(232,244,255,${(a * k).toFixed(3)})`, edge = `rgba(26,44,78,${(a * 0.7).toFixed(3)})`;
+            if (on) {
+              // a ring of silver going out from where it is, over and over
+              if (!still) for (const lag of [0, 0.5]) {
+                const t = (now / 1100 + lag + h.id * 0.29) % 1;
+                ctx.strokeStyle = `rgba(232,244,255,${(0.7 * (1 - t)).toFixed(3)})`;
+                ctx.lineWidth = Math.max(1.5, 1.2 * s);
+                ctx.beginPath(); ctx.ellipse(at.x, at.y - pose.lift * TILE_H * s - 3 * s, (5 + 13 * t) * s, (2.5 + 6.5 * t) * s, 0, 0, Math.PI * 2); ctx.stroke();
+              }
+              // the star: four points, with a dark edge so that it shows on grass in full day
+              ctx.fillStyle = edge;
+              ctx.fillRect(gx - 2 * d - 1, gy - 1, 5 * d + 2, d + 2);
+              ctx.fillRect(gx - 1, gy - 2 * d - 1, d + 2, 5 * d + 2);
+              ctx.fillStyle = silver(1);
+              ctx.fillRect(gx - 2 * d, gy, 5 * d, d);
+              ctx.fillRect(gx, gy - 2 * d, d, 5 * d);
+            } else {
+              // an arrowhead at the edge, turned towards where it is
+              const turn = Math.atan2(top - gy, at.x - gx), r = Math.max(13, 7.5 * s);
+              ctx.save();
+              ctx.translate(gx, gy);
+              ctx.rotate(turn);
+              ctx.beginPath(); ctx.moveTo(r, 0); ctx.lineTo(-r * 0.7, -r * 0.62); ctx.lineTo(-r * 0.35, 0); ctx.lineTo(-r * 0.7, r * 0.62); ctx.closePath();
+              ctx.fillStyle = silver(0.95); ctx.fill();
+              ctx.lineWidth = Math.max(1.5, s); ctx.strokeStyle = edge; ctx.stroke();
+              ctx.restore();
+            }
+          });
+        }
         // what it is taken for lies at its other perches
         if (bug.like) h.perches.forEach((p, i) => {
           if (i === mind.at) return;
@@ -275,6 +316,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           blit(icon, { x: at.x + (pose.twitch ? s : 0), y: at.y }, up, pose.right, k, flap);
         } });
       }
+      glints.current = lit;
       for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); }
 
       // a ladybird took a pest off some plant with it: said over my head, a little while
@@ -337,8 +379,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     if (process.env.NODE_ENV === "production") return;
     const handle = {
       sights: () => seen.current.map((x) => ({ ...x, place: HAUNTS[x.id]?.place, kind: HAUNTS[x.id]?.kind, x: HAUNTS[x.id]?.x, y: HAUNTS[x.id]?.y, perches: HAUNTS[x.id]?.perches })),
-      poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, live.current.wide), mind: minds.current.get(id)?.mind ?? null })),
-      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, live.current.wide),
+      poses: () => [...poses.current.entries()].map(([id, { sight, pose }]) => ({ id, bug: sight.bug, ...pose, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent), mind: minds.current.get(id)?.mind ?? null })),
+      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent), glints: () => glints.current,
       swing: (x: number, y: number) => { const now = Date.now(); swing.current = { at: { x, y }, began: now, lands: now + swingMs(live.current.spent), done: false }; },
       /** A tap at a point of the map, as the map hands one over: whether it was taken for a swing. */
       tap: (x: number, y: number) => tapRef.current?.({ x, y }) ?? false,

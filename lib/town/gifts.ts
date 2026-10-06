@@ -44,7 +44,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "charmLamp", kind: "charm", line: "forest", rank: 1, name: { th: "ตะเกียงผู้เดินป่า", en: "Forest walker's lamp" },
     does: { th: "ในป่าตอนมืด รอบตัวเราสว่างขึ้น และของที่เก็บได้ในวงแสงมีประกาย (เห็นเฉพาะจอเรา)", en: "In the forest's dark, a light about you, and what can be gathered in it glints (on your own screen)" } },
   { id: "charmNet", kind: "charm", line: "insects", rank: 1, name: { th: "สวิงใยเงิน", en: "Silver-web net" },
-    does: { th: "วงสวิงกว้างขึ้นครึ่งเท่า", en: "The net's ring is half as wide again" } },
+    does: { th: "เห็นแมลงทุกตัวที่ออกมาตอนนี้ทั้งแผนที่ มีประกายเงินบอกว่าอยู่ตรงไหน แม้ตัวที่ซ่อน (เห็นเฉพาะจอเรา)", en: "Every insect that is out on the map glints silver where it is, the hidden ones too (on your own screen)" } },
   { id: "charmHoe", kind: "charm", line: "farming", rank: 1, name: { th: "จอบต้องมนตร์", en: "Enchanted hoe" },
     does: { th: "ถอนหญ้าและพรวนดิน จังหวะกว้างขึ้นครึ่งเท่า", en: "Weeding and tilling are half as forgiving again" } },
   // the second rank: the first familiars
