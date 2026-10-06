@@ -546,7 +546,7 @@ export class Trial {
     return sights(this.salt(), this.now(), SKIES.rains(), (spot, turn) => { const who = took[`${spot.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; });
   }
   /** Gather what a place has, from the tile I stand on, with how its game went. Says what came of it, or why not. */
-  gatherDo(id: number, at: [number, number], went: Outcome): { ok: true; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | ForestRefusal } {
+  gatherDo(id: number, at: [number, number], went: Outcome): { ok: true; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | ForestRefusal | GiftRefusal } {
     const spot = SPOTS[id];
     if (!spot) return no("none");
     const now = this.now(), has = holds(this.salt(), spot, now, SKIES.rains()), took = this.took(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];

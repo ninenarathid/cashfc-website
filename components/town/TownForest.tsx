@@ -2,14 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FARMING } from "@/lib/town/farm";
-import { FORAGING, KINDS, SPOTS, fetches, gameFor, mayGather, reachOf, reaches, type Gather, type Sight, type Spot } from "@/lib/town/forest";
+import { FORAGING, KINDS, SPOTS, fetches, gameFor, mayGather, pigletDigs, reachOf, reaches, type Gather, type Sight, type Spot } from "@/lib/town/forest";
 import { ITEMS, byOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { WILD_WISHES } from "@/lib/town/forest-eye";
 import type { WishId } from "@/lib/town/fountain";
-import { charmBy, famBy } from "@/lib/town/gifts";
+import { charmBy, famBy, usesLeft } from "@/lib/town/gifts";
 import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import type { Vec } from "@/lib/town/world";
@@ -31,6 +31,7 @@ const WHY_FOREST: Record<string, [string, string]> = {
   had: ["เก็บจากตรงนี้ไปแล้ว", "You have gathered here already"], bare: ["ไม่เหลือแล้ว", "There is none left"], far: ["ยืนไกลเกินไป", "Too far to reach"],
   none: ["ไม่มีอะไรแล้ว", "Nothing is here any more"], tool: ["ของในมือขุดไม่ได้", "What you hold does not dig"],
   shaky: ["หมดแรง มือสั่นจนเก็บไม่ขึ้น", "Too tired: your hands shake, and it comes to nothing"],
+  spent: ["หมูน้อยเหนื่อยแล้ว ขอพักก่อน", "The piglet is worn out for now"],
 };
 /** What flies up at each way of gathering, and what it sounds like. */
 const FX: Record<Gather, [VfxKind, WorkSound]> = { pick: ["leaves", "rustle"], choose: ["leaves", "pick"], dig: ["soil", "pull"], shake: ["leaves", "pick"] };
@@ -82,7 +83,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   }, [keeper, near]);
   // (what the forest has is asked for while I am in it)
   useEffect(() => (near ? keeper.look("wild") : undefined), [near, keeper]);
-  const [working, setWorking] = useState<{ spot: Spot; sight: Sight; game: NonNullable<ReturnType<typeof gameFor>> } | null>(null);
+  const [working, setWorking] = useState<{ spot: Spot; sight: Sight; game: NonNullable<ReturnType<typeof gameFor>>; pig?: boolean } | null>(null);
   const [note, setNote] = useState<string | null>(null);
   /** Whose doing the note is of: the squirrel's, when it fetched the thing (its picture goes beside the words). */
   const [noteBy, setNoteBy] = useState<IconName | null>(null);
@@ -150,17 +151,22 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   // (the forest walker's lamp worn as a charm: how far its light reaches about me, in tiles; none without it. lib/town/gifts)
   const lamp = useRef(0), glints = useRef(0);
   lamp.current = charmBy(purse, "charmLamp", 0);
-  const here = tile && near ? seen.current.map((sight) => ({ sight, spot: SPOTS[sight.id] })).filter(({ spot }) => spot && reaches(spot, tile, reachOf(purse, KINDS[spot.kind].how)) && mayGather(spot.kind, hand))
+  // (a truffle piglet at my heels digs with no hoe held, so many holes to these hours: lib/town/forest's pigletDigs)
+  const piglet = pigletDigs(purse, keeper.now());
+  const here = tile && near ? seen.current.map((sight) => ({ sight, spot: SPOTS[sight.id] }))
+    .filter(({ spot }) => spot && reaches(spot, tile, reachOf(purse, KINDS[spot.kind].how)) && (mayGather(spot.kind, hand) || (piglet && KINDS[spot.kind].how === "dig")))
     .sort((a, b) => Math.hypot(a.spot.x - tile[0], a.spot.y - tile[1]) - Math.hypot(b.spot.x - tile[0], b.spot.y - tile[1]))[0] ?? null : null;
   const hereId = here?.spot.id ?? -1;
+  /** Of what is offered here: whether my own hands can do it, and whether the piglet can. */
+  const byHand = !!here && mayGather(here.spot.kind, hand), byPig = !!here && piglet && KINDS[here.spot.kind].how === "dig";
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const say = useCallback((why: string) => { const w = WHY_FOREST[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
   /** Gather from a place, and say what came of it. */
-  const act = useCallback(async (spot: Spot, at: [number, number], went: { misses: number; wrong: number; secs?: number }) => {
+  const act = useCallback(async (spot: Spot, at: [number, number], went: { misses: number; wrong: number; secs?: number; with?: string }) => {
     const did = await keeper.gatherDo(spot.id, at, went);
     if (!did.ok) { say(did.why); return; }
-    setNoteBy(null);
+    setNoteBy(went.with === "famPiglet" ? ("famPiglet" as IconName) : null);
     setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · "));
     const how = KINDS[spot.kind].how, [fx, sound] = FX[how], where = { x: spot.x + 0.5, y: spot.y + 0.5 };
     sfx?.wake();
@@ -170,14 +176,18 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the names are read when the thing is got
   }, [keeper, th, sfx, say, vfx]);
 
-  const begin = useCallback(() => {
+  /** Begin what is offered here: by my own hands, or (`pig`) by the piglet, where it is the piglet's to do. */
+  const begin = useCallback((pig = false) => {
     if (!here || !tile) return;
+    // (with no hoe in the hand the piglet's way is the only one)
+    const withPig = byPig && (pig || !byHand);
+    if (!withPig && !byHand) return;
     // (what a squirrel fetches is no work of my hands: no game for it, tired or not)
     const game = fetches(purse, KINDS[here.spot.kind].how) ? null : gameFor(KINDS[here.spot.kind].how, spent);
-    if (game) { setWorking({ ...here, game }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
+    if (game) { setWorking({ ...here, game, pig: withPig }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
     else void act(here.spot, tile, { misses: 0, wrong: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse is read when the button is pressed
-  }, [here, tile, spent, act, sfx]);
+  }, [here, tile, spent, act, sfx, byHand, byPig]);
 
   /**
    * The squirrel at my heels fetches what lies on the ground as I pass it (lib/town/forest's `fetches`): looked for a
@@ -241,14 +251,16 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
-      sights: () => seen.current.map((x) => ({ ...x, ...SPOTS[x.id] })), glints: () => glints.current, here: () => (here ? { ...here.sight, kind: here.spot.kind } : null), act: begin,
+      sights: () => seen.current.map((x) => ({ ...x, ...SPOTS[x.id] })), glints: () => glints.current, here: () => (here ? { ...here.sight, kind: here.spot.kind } : null), act: () => begin(),
       game: () => working?.game ?? null,
+      /** What is offered where I stand: by my own hands, by the piglet; and the way to have the piglet do it. */
+      offers: () => ({ hand: byHand, piglet: byPig }), actPiglet: () => begin(true),
       /** How many things the squirrel has fetched since the page came up. */
       fetched: () => fetched.current,
     };
     (window as unknown as { __townForest?: typeof handle }).__townForest = handle;
     return () => { delete (window as unknown as { __townForest?: typeof handle }).__townForest; };
-  }, [here, begin, working]);
+  }, [here, begin, working, byHand, byPig]);
 
   if (!working && !here && !note) return null;
   return (
@@ -259,30 +271,44 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
         </p>
       )}
       {working && tile ? (() => {
-        const { spot, sight, game } = working, how = KINDS[spot.kind].how, title = th ? VERB[how][0] : VERB[how][1];
+        const { spot, sight, game, pig } = working, how = KINDS[spot.kind].how, title = pig ? (th ? "หมูน้อยขุด" : "The piglet digs") : th ? VERB[how][0] : VERB[how][1];
         const done = (r: GameResult) => {
           setWorking(null);
           // (tired hands that let it fall have gathered nothing, and lost nothing)
           if (r.dropped) { say("shaky"); return; }
           // among mushrooms a look-alike taken is a toadstool; among anything else, one fewer
           const wrong = game === "choosing" ? r.misses : 0;
-          void act(spot, tile, { misses: game === "choosing" ? (spot.kind === "mushrooms" ? 0 : wrong) : r.misses, wrong, secs: r.secs });
+          void act(spot, tile, { misses: game === "choosing" ? (spot.kind === "mushrooms" ? 0 : wrong) : r.misses, wrong, secs: r.secs, ...(pig ? { with: "famPiglet" } : {}) });
         };
         const common = { th, title, onDone: done, onCancel: () => setWorking(null), onHit: (hit: boolean) => { sfx?.wake(); sfx?.work(GAME_FX[game][hit ? 0 : 1]); } };
         return (
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
             {game === "choosing" ? <TownChoosing {...common} need={sight.n} spent={spent} eye={eye} icon={iconFor(sight.item)} scene={art("gameFloor")} />
-              : game === "digging" ? <TownDigging {...common} need={sight.n} spent={spent} eye={eye} scene={art("gameMound")} />
+              : game === "digging" ? <TownDigging {...common} need={sight.n} spent={spent} eye={eye} how={{ gentle: !!pig }} scene={art("gameMound")} />
                 : game === "catching" ? <TownCatching {...common} need={sight.n} spent={spent} eye={eye + famBy(purse, "famSquirrel")} icon={iconFor(sight.item)} scene={art("gameCrown")} />
                   : <TownSteady {...common} need={FARMING.tired} mods={{ spent: true, drops: true }} icon="hand" over={iconFor(sight.item)} />}
           </div>
         );
       })() : here && (
-        <button type="button" onClick={begin} data-forest-offer={KINDS[here.spot.kind].how} data-state="open"
-                className="pop-in pressable pointer-events-auto mb-14 flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40">
-          {th ? VERB[KINDS[here.spot.kind].how][0] : VERB[KINDS[here.spot.kind].how][1]}
-          <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
-        </button>
+        <div className="pointer-events-none mb-14 flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
+          {byHand && (
+            <button type="button" onClick={() => begin()} data-forest-offer={KINDS[here.spot.kind].how} data-state="open"
+                    className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40">
+              {th ? VERB[KINDS[here.spot.kind].how][0] : VERB[KINDS[here.spot.kind].how][1]}
+              <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>
+            </button>
+          )}
+          {/* the piglet's way, beside the hoe's where there is a hoe: its picture, and the holes it has left to these hours */}
+          {byPig && (
+            <button type="button" onClick={() => begin(true)} data-forest-offer="piglet" data-left={usesLeft(purse, "famPiglet", keeper.now())} data-state="open"
+                    className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-gold py-1 pl-2 pr-4 text-read font-semibold text-bg shadow-xl shadow-black/40">
+              <span className="grid size-10 place-items-center rounded-full bg-bg/25"><TownIcon name={"famPiglet" as IconName} size={30} /></span>
+              {th ? "ให้หมูน้อยขุด" : "Let the piglet dig"}
+              <span className="rounded-full bg-bg/25 px-2 py-px font-data text-meta tabular-nums">{usesLeft(purse, "famPiglet", keeper.now())}</span>
+              {!byHand && <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>}
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

@@ -1,6 +1,6 @@
 import { HOES, roll } from "./farm";
 import { signsOf } from "./fishing";
-import { works } from "./gifts";
+import { numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
 import type { ItemId } from "./items";
 import { dayOf, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
@@ -286,8 +286,12 @@ export function sights(salt: string, now: number, rains: readonly Rain[], took: 
 
 /** Why something of the forest's was not gathered, besides what a bag or a hand may lack: taken from already this turn, the last of it gone to others, or stood too far from. */
 export type ForestRefusal = "had" | "bare" | "far";
-/** How a gathering's game went: what was missed (each is one fewer), and among mushrooms how many wrong ones were taken. */
-export interface Outcome { misses: number; wrong: number }
+/**
+ * How a gathering's game went: what was missed (each is one fewer), and among mushrooms how many wrong ones were
+ * taken. `with`: the gift it was asked to be done with, where the plain way was there to choose too (the piglet's
+ * digging, "famPiglet").
+ */
+export interface Outcome { misses: number; wrong: number; with?: string | null }
 
 /** Whether somebody on a tile is near enough a place to gather from it (`reach`: how far they reach, where it is not a tile). */
 export const reaches = (spot: Pick<Spot, "x" | "y">, at: readonly [number, number], reach: number = FORAGING.reach) => Math.max(Math.abs(at[0] - spot.x), Math.abs(at[1] - spot.y)) <= reach;
@@ -302,6 +306,12 @@ export const fetches = (purse: Pick<Purse, "gifts">, how: Gather): boolean => ho
 export const reachOf = (purse: Pick<Purse, "gifts">, how: Gather): number => (fetches(purse, how) ? FORAGING.squirrel : FORAGING.reach);
 /** The stamina a gathering of a kind of place costs somebody: its own; none of theirs when the squirrel fetches it. */
 export const costFor = (purse: Pick<Purse, "gifts">, kind: Kind): number => (fetches(purse, kind.how) ? 0 : kind.cost);
+/**
+ * Whether a truffle piglet may dig for somebody now (lib/town/gifts' famPiglet, the forest's third rank): it follows
+ * them, and has a hole left of its count to these hours. Its digging takes no hoe, bruises nothing (the game's own:
+ * lib/town/digging's `gentle`), and one more comes out of the hole. Past its count, digging is as for anybody.
+ */
+export const pigletDigs = (purse: Pick<Purse, "gifts">, now: number): boolean => works(purse, "famPiglet") && usesLeft(purse, "famPiglet", now) > 0;
 /** Whether a gathering of a kind is offered with a thing in the hand: digging takes a hoe, the rest only hands. */
 export const mayGather = (kind: SpotKind, hand: ItemId | null) => KINDS[kind].how !== "dig" || (!!hand && HOES.includes(hand));
 
@@ -309,16 +319,26 @@ export const mayGather = (kind: SpotKind, hand: ItemId | null) => KINDS[kind].ho
  * Gather what a place has. `taken` is how many have taken from it this turn, `mine` whether I am one of them; `at`
  * is the tile I stand on. What comes of it is what the place has, less one for every miss (never none); among
  * mushrooms every wrong one taken is a toadstool besides, up to so many. All of it has to fit in the bag.
+ *
+ * Asked of the piglet (`play.with`), what is buried is dug with no hoe held and one more comes out of the hole; it is
+ * one of the piglet's holes of these hours, and refused when it has none left or does not follow (nothing is lost:
+ * the hoe's way is still there).
  */
 export function gather(purse: Purse, spot: Spot, has: Held | null, taken: number, mine: boolean, hand: ItemId | null, at: readonly [number, number], play: Outcome, now: number):
-  Done<{ purse: Purse; got: Array<[ItemId, number]> }> | { ok: false; why: ForestRefusal } {
+  Done<{ purse: Purse; got: Array<[ItemId, number]> }> | { ok: false; why: ForestRefusal | GiftRefusal } {
   const kind = KINDS[spot.kind];
   if (!has) return no("none");
   if (mine) return { ok: false, why: "had" };
   if (taken >= kind.shares) return { ok: false, why: "bare" };
   if (!reaches(spot, at, reachOf(purse, kind.how))) return { ok: false, why: "far" };
-  if (!mayGather(spot.kind, hand)) return no("tool");
-  const n = Math.max(1, has.n - Math.max(0, Math.floor(play.misses)));
+  const piglet = kind.how === "dig" && play.with === "famPiglet";
+  let mine_ = purse;
+  if (piglet) {
+    const used = useGift(purse, "famPiglet", now);
+    if (!used.ok) return { ok: false, why: used.why };
+    mine_ = used.purse;
+  } else if (!mayGather(spot.kind, hand)) return no("tool");
+  const n = Math.max(1, has.n - Math.max(0, Math.floor(play.misses))) + (piglet ? numberOf("famPiglet") : 0);
   const wrong = spot.kind === "mushrooms" ? Math.min(FORAGING.decoys, Math.max(0, Math.floor(play.wrong))) : 0;
   if (roomFor(purse.bag, has.item) < n) return no("full");
   let bag = put(purse.bag, has.item, n);
@@ -326,7 +346,7 @@ export function gather(purse: Purse, spot: Spot, has: Held | null, taken: number
     if (roomFor(bag, FORAGING.decoy) < wrong) return no("full");
     bag = put(bag, FORAGING.decoy, wrong);
   }
-  return { ok: true, purse: { ...spend(purse, costFor(purse, kind), now), bag }, got: wrong ? [[has.item, n], [FORAGING.decoy, wrong]] : [[has.item, n]] };
+  return { ok: true, purse: { ...spend(mine_, costFor(purse, kind), now), bag }, got: wrong ? [[has.item, n], [FORAGING.decoy, wrong]] : [[has.item, n]] };
 }
 
 /** The game a gathering is: one of its own for what is chosen, dug and shaken down; none for what is picked up, but with no stamina left, when it is steadied like the farm's light work. */

@@ -68,4 +68,64 @@ export default async function ({ t, U, call, purseOf, deeds, one, give, patch, r
   for (const who of [U.admin, U.m1, U.guest, U.unver].slice(0, shares)) await t.sql(`insert into public.town_takes (what, place, turn, member_id, at) values ('spot', $1, $2, $3, now())`, [d.id, d.turn, who]);
   did = await call(U.m2, "town_gather", d.id, d.x + 2, d.y, { misses: 0, wrong: 0 });
   t.check("the last of a heap gone to others, the squirrel comes back with nothing", did?.ok === false && did.why === "bare", did);
+
+  // ── the truffle piglet ──
+  t.section("the truffle piglet: no hoe, one more from every hole, ten holes to a meal's hours");
+  const mounds = some("dig", 5), [h1, h2, h3, h4, h5] = mounds;
+  t.check("the stand-in's forest has five mounds with something under them", mounds.length === 5, mounds.length);
+  const most = CODE.gifts.uses.famPiglet.n, more = CODE.gifts.gifts.famPiglet.by;
+  const used = async (who) => (await purseOf(who))?.gifts?.used?.famPiglet?.n ?? 0;
+  await give(U.m1, {}); await patch(U.m1, { bag: Array(10).fill(null), hand: null, stamina: { day, left: 100 } });
+  await give(U.m2, { had: ["famPiglet"], familiar: "famPiglet" }); await patch(U.m2, { bag: Array(10).fill(null), hand: null, stamina: { day, left: 100 } });
+  // without the gift: as before
+  did = await call(U.m1, "town_gather", h1.id, h1.x, h1.y, { misses: 0, wrong: 0 });
+  t.check("without a piglet, bare hands dig nothing", did?.ok === false && did.why === "tool", did);
+  did = await call(U.m1, "town_gather", h1.id, h1.x, h1.y, { misses: 0, wrong: 0, with: "famPiglet" });
+  t.check("…and asking for a piglet one has not got is refused, with nothing kept or counted", did?.ok === false && did.why === "none" && (await bagN(U.m1, h1.item)) === 0 && (await stamina(U.m1)) === 100, did);
+  await patch(U.m1, { bag: [{ item: "hoe", n: 1 }, ...Array(9).fill(null)], hand: "hoe" });
+  did = await call(U.m1, "town_gather", h1.id, h1.x, h1.y, { misses: 0, wrong: 0 });
+  t.check("…with a hoe in the hand it is dug as ever: what the mound has, for its stamina", did?.ok === true && did.got?.[0]?.[1] === h1.n && (await stamina(U.m1)) === 100 - F.kinds.mound.cost, { got: did?.got ?? did, has: h1.n });
+  deed = await lastDeed("gather");
+  t.check("…written down as dug by hand", deed?.member_id === U.m1 && deed.doc.how === "dig" && !("by" in deed.doc) && deed.doc.hand === "hoe", deed);
+  // with it, and no hoe
+  did = await call(U.m2, "town_gather", h1.id, h1.x, h1.y, { misses: 0, wrong: 0, with: "famPiglet" });
+  t.check("with a piglet at the heels and no hoe, it is dug, and one more comes out of the hole", did?.ok === true && did.got?.[0]?.[0] === h1.item && did.got[0][1] === h1.n + more && (await bagN(U.m2, h1.item)) === h1.n + more, { got: did?.got ?? did, has: h1.n });
+  t.check("…for the stamina digging costs, and one of its holes of these hours", (await stamina(U.m2)) === 100 - F.kinds.mound.cost && (await used(U.m2)) === 1, { left: await stamina(U.m2), used: await used(U.m2) });
+  deed = await lastDeed("gather");
+  t.check("…written down as the piglet's, with how many came out", deed?.member_id === U.m2 && deed.thing === h1.item && deed.n === h1.n + more && deed.doc.by === "famPiglet" && deed.doc.how === "dig" && deed.doc.hand === null && deed.coins === 0, deed);
+  did = await call(U.m2, "town_gather", h1.id, h1.x, h1.y, { misses: 0, wrong: 0, with: "famPiglet" });
+  t.check("the same mound has nothing more for its member this turn, and no hole is counted for asking", did?.ok === false && did.why === "had" && (await used(U.m2)) === 1, did);
+  // badly dug: what was left under the earth is still left, the one more besides
+  did = await call(U.m2, "town_gather", h2.id, h2.x, h2.y, { misses: 9, wrong: 0, with: "famPiglet" });
+  t.check("dug badly, what was left behind is still left: one of the thing, and the one more", did?.ok === true && did.got?.[0]?.[1] === 1 + more && (await used(U.m2)) === 2, did?.got ?? did);
+  // not asked: with no hoe nothing digs, and no hole is counted
+  did = await call(U.m2, "town_gather", h3.id, h3.x, h3.y, { misses: 0, wrong: 0 });
+  t.check("not asked of the piglet, bare hands dig nothing and no hole is counted", did?.ok === false && did.why === "tool" && (await used(U.m2)) === 2, did);
+  // a hoe in the hand and the piglet at the heels: the plain way is as for anybody
+  await patch(U.m2, { bag: [{ item: "hoe", n: 1 }, ...Array(9).fill(null)], hand: "hoe" });
+  did = await call(U.m2, "town_gather", h3.id, h3.x, h3.y, { misses: 0, wrong: 0 });
+  t.check("with a hoe in the hand too, the hoe's way gives what the mound has and counts no hole", did?.ok === true && did.got?.[0]?.[1] === h3.n && (await used(U.m2)) === 2, { got: did?.got ?? did, has: h3.n });
+  // at rest, and past its count
+  await give(U.m2, { had: ["famPiglet"], familiar: null, used: (await purseOf(U.m2)).gifts.used });
+  await patch(U.m2, { hand: null });
+  did = await call(U.m2, "town_gather", h4.id, h4.x, h4.y, { misses: 0, wrong: 0, with: "famPiglet" });
+  t.check("a piglet at rest digs nothing", did?.ok === false && did.why === "none", did);
+  const k = (await purseOf(U.m2)).gifts.used.famPiglet.k;
+  await give(U.m2, { had: ["famPiglet"], familiar: "famPiglet", used: { famPiglet: { k, n: most - 1 } } });
+  did = await call(U.m2, "town_gather", h4.id, h4.x, h4.y, { misses: 0, wrong: 0, with: "famPiglet" });
+  t.check("its last hole of these hours is dug", did?.ok === true && (await used(U.m2)) === most, { did: did?.got ?? did, used: await used(U.m2) });
+  const before = { left: await stamina(U.m2), n: await bagN(U.m2, h5.item) };
+  did = await call(U.m2, "town_gather", h5.id, h5.x, h5.y, { misses: 0, wrong: 0, with: "famPiglet" });
+  t.check("past its count it is refused, and nothing is spent, kept or taken", did?.ok === false && did.why === "spent" && (await stamina(U.m2)) === before.left && (await bagN(U.m2, h5.item)) === before.n && (await used(U.m2)) === most
+    && (await one(`select count(*)::int as n from public.town_takes where what = 'spot' and place = $1 and member_id = $2`, [h5.id, U.m2])).n === 0, did);
+  await patch(U.m2, { hand: "hoe" });
+  did = await call(U.m2, "town_gather", h5.id, h5.x, h5.y, { misses: 0, wrong: 0 });
+  t.check("…and digging is as for anybody then: with the hoe, what the mound has", did?.ok === true && did.got?.[0]?.[1] === h5.n, { got: did?.got ?? did, has: h5.n });
+  // (a count of other hours is no count)
+  await give(U.m2, { had: ["famPiglet"], familiar: "famPiglet", used: { famPiglet: { k: k - 1, n: most } } });
+  const digs = await one(`select town.piglet_digs((select doc from public.town_purses where member_id = $1), town.now_ms()) as ok`, [U.m2]);
+  t.check("a count of the hours before is no count of these", digs.ok === true, digs);
+  // nothing here gives coins
+  const coins = await one(`select coalesce(sum(coins), 0)::int as c from public.town_deeds where what = 'gather'`);
+  t.check("no gathering gave a coin", coins.c === 0, coins);
 }

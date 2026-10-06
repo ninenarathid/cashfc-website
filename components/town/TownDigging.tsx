@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DIGGING, dug, dugUp, startDig, strike, type Dig } from "@/lib/town/digging";
+import { DIGGING, dug, dugUp, startDig, strike, type Dig, type DigHow } from "@/lib/town/digging";
 import type { Sprite } from "@/lib/town/scenery";
 import TownIcon, { type IconName } from "./TownIcon";
 import { GameFrame, GameScene, PixelGround, STAGE, useGameHandle, type GameProps } from "./TownGame";
@@ -17,12 +17,17 @@ const BLIND: IconName = "earthMid";
  * part by part; a part struck again is bruised. The strokes left are counted on the board.
  *
  * Each place is a button, so it is played by a finger, the mouse or the keys alike.
+ *
+ * Dug by a truffle piglet (`how.gentle`, lib/town/gifts' famPiglet), the piglet is on the board: it trots to the place
+ * touched and roots there, and nothing it roots at twice is bruised.
  */
-export default function TownDigging({ th, title, need, spent, eye = false, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean | number; scene: Sprite | null }) {
-  const dig = useRef<Dig>(startDig(need, spent, Math.floor(Math.random() * 2 ** 31), eye));
+export default function TownDigging({ th, title, need, spent, eye = false, how, scene, onDone, onCancel, onHit }: GameProps & { need: number; spent: boolean; eye?: boolean | number; how?: DigHow; scene: Sprite | null }) {
+  const dig = useRef<Dig>(startDig(need, spent, Math.floor(Math.random() * 2 ** 31), eye, how));
   const from = useRef(0), ended = useRef(false);
   const [, setShown] = useState(0);
-  const stage = useRef<HTMLDivElement>(null);
+  const stage = useRef<HTMLDivElement>(null), pig = useRef<HTMLSpanElement>(null);
+  /** Where the piglet roots: the place last touched (at first, by the top that shows). */
+  const [snout, setSnout] = useState(() => Math.max(0, dig.current.cells.findIndex((c) => c.top)));
   const now = () => (performance.now() - from.current) / 1000;
   useEffect(() => { from.current = performance.now(); }, []);
 
@@ -33,6 +38,10 @@ export default function TownDigging({ th, title, need, spent, eye = false, scene
     dig.current = next;
     const bruised = next.misses > was.misses;
     onHit?.(!bruised);
+    if (was.gentle) {
+      setSnout(place);
+      if (!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) pig.current?.animate([{ transform: "translate(-50%, -78%)" }, { transform: "translate(-50%, -96%)" }, { transform: "translate(-50%, -78%)" }], { duration: 170 });
+    }
     if (bruised) stage.current?.animate([{ transform: "translateX(-5px)" }, { transform: "translateX(5px)" }, { transform: "translateX(-2px)" }, { transform: "translateX(0)" }], { duration: 180 });
     setShown((n) => n + 1);
     if (dug(next)) {
@@ -54,8 +63,8 @@ export default function TownDigging({ th, title, need, spent, eye = false, scene
   const d = dig.current;
   return (
     <GameFrame th={th} title={title} need={d.need} hits={d.hits} misses={d.misses} most={0} onCancel={onCancel}
-               word={th ? `เหลือ ${d.strokes} จอบ` : `${d.strokes} strokes left`}>
-      <div ref={stage} className={`${STAGE} mt-2 aspect-[3/2] w-full`} data-look="digging" data-strokes={d.strokes}>
+               word={d.gentle ? (th ? `หมูน้อยคุ้ยได้อีก ${d.strokes} ที` : `${d.strokes} more roots of the snout`) : th ? `เหลือ ${d.strokes} จอบ` : `${d.strokes} strokes left`}>
+      <div ref={stage} className={`${STAGE} mt-2 aspect-[3/2] w-full`} data-look="digging" data-strokes={d.strokes} data-gentle={d.gentle ? "1" : "0"}>
         {scene ? <GameScene sprite={scene} className="absolute inset-0 size-full" /> : <PixelGround kind="soil" className="absolute inset-0 size-full" />}
         <div className="absolute inset-[9%] grid" style={{ gridTemplateColumns: `repeat(${DIGGING.cols}, 1fr)`, gridTemplateRows: `repeat(${DIGGING.rows}, 1fr)` }}>
           {d.cells.map((c, i) => {
@@ -73,6 +82,14 @@ export default function TownDigging({ th, title, need, spent, eye = false, scene
             );
           })}
         </div>
+        {/* the piglet, over the place it roots at */}
+        {d.gentle && (
+          <span ref={pig} aria-hidden data-dig-piglet={snout}
+                className="pointer-events-none absolute z-10 transition-[left,top] duration-150 ease-out motion-reduce:transition-none [filter:drop-shadow(0_2px_0_rgba(0,0,0,0.45))]"
+                style={{ left: `${9 + (((snout % DIGGING.cols) + 0.5) / DIGGING.cols) * 82}%`, top: `${9 + ((Math.floor(snout / DIGGING.cols) + 0.5) / DIGGING.rows) * 82}%`, transform: "translate(-50%, -78%)" }}>
+            <TownIcon name={"famPiglet" as IconName} size={44} />
+          </span>
+        )}
       </div>
     </GameFrame>
   );
