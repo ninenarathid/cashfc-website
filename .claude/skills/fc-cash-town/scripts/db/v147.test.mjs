@@ -32,7 +32,7 @@ import { PEST_AT, TOWN_FARM } from "./v147.lines.mjs";
 
 const repo = process.env.FC_REPO ?? "E:/NinenineProject/fcnext";
 const here = (name) => new URL(`./${name}`, import.meta.url);
-// (a draft beside this file while there is one and supabase/ has none; then supabase/; then history, once it has run)
+// (a draft beside this file while there is one and supabase/ has none; then supabase/; then history: it ran on 2026-10-06)
 const inRepo = readdirSync(`${repo}/supabase`).find((f) => f.startsWith("v147_"));
 const FILE = process.env.MIGRATION_FILE ? readFileSync(process.env.MIGRATION_FILE, "utf8") : !inRepo && existsSync(here("v147_draft.sql")) ? readFileSync(here("v147_draft.sql"), "utf8") : migration(147);
 const read = (name) => JSON.parse(readFileSync(here(`now/${name}`), "utf8"));

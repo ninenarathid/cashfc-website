@@ -334,12 +334,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * of the two insects (insects: the ladybird's `weight`, 13 for 6, and the mantis's, 50 for 22), hunted scarce as every
  * insect is.
  *
- * v147 writes one over, for what he asked the same day of the pests: in an hour the farm was counted with insects on it
+ * v147 (ran 2026-10-06, 20:16) wrote one over, for what he asked the same day of the pests: in an hour the farm was counted with insects on it
  * they strike a little oftener (farming: `pests.swarm`, new: how many are some and many, and what each adds).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v147: { keys: [], over: ["farming"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
