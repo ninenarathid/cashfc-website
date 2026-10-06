@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { BEDS, FARMING, HOURGLASS, WILD, glassReach, glassTurn, gnomeReach, gnomeWater, grown, growing, hardFor, pestAt, pouchPlots, pouchSeeds, quickMs, quickUntil, rowFor, rowTend, see, tend, yieldOf, type Bed, type Plant, type Plot } from "./farm";
+import {
+  BEDS, ENCORE, FARMING, HOURGLASS, WILD, encoreHours, glassReach, glassTurn, gnomeReach, gnomeWater, grown, growing, hardFor, moreOf, pestAt, pick, pouchPlots, pouchSeeds, quickMs, quickUntil, rowFor, rowTend, see, sungTo, tend, yieldOf,
+  type Bed, type Plant, type Plot,
+} from "./farm";
 import { USES, harderAt, usesLeft } from "./gifts";
 import { CROPS, CROP_IDS, ITEMS } from "./items";
 import { LINES } from "./lines";
@@ -481,5 +484,105 @@ describe("the hourglass of seasons: a bed grows three times as fast for three ho
     // (a morning glory takes six hours: with the glass it has grown six in two)
     expect(see("1,1", plain, NOON + 2 * HOUR)).toMatchObject({ stage: 3, ripe: false });
     expect(see("1,1", quick, NOON + 2 * HOUR)).toMatchObject({ stage: 5, ripe: true });
+  });
+});
+
+describe("the mandrake sprout: it sings as a plant is picked, and that plant bears once more", () => {
+  const MANDRAKE = { had: ["famMandrake"], charms: [], familiar: "famMandrake" };
+  const me = purseWith(MANDRAKE);
+  /** A pumpkin that is ripe (picked once and gone, by its kind), and a morning glory at its third and last picking. */
+  const pumpkin = (over: Partial<Plant> = {}): Plot => sown({ crop: "pumpkin", sown: NOON - 150 * HOUR, ...over });
+  const lastGlory = (): Plot => sown({ crop: "kangkong", sown: NOON - 40 * HOUR, picked: 2, pickedAt: NOON - 13 * HOUR });
+
+  it("a crop that is picked only once is not gone at its picking: it stays, sung to, and is ripe again after half its hours", () => {
+    expect(USES.famMandrake).toEqual({ n: 7, per: "day" });
+    expect(encoreHours("pumpkin")).toBe(CROPS.pumpkin.hours * ENCORE);
+    const did = done(pick("1,1", me, pumpkin(), true, null, NOON));
+    expect(did.got).toEqual([["pumpkin", 2]]);
+    expect(did.plot.plant).toEqual({ ...pumpkin().plant!, picked: 1, pickedAt: NOON, watered: 0, more: 1 });
+    expect(usesLeft(did.purse, "famMandrake", NOON)).toBe(6);
+    expect(staminaOf(did.purse, NOON)).toBe(100 - FARMING.costs.pick);
+    expect(sungTo(pumpkin(), did.plot)).toBe(true);
+    // it waits as a plant that bears again waits: a stage back, and ripe after seventy-two hours
+    const p = did.plot.plant!;
+    expect(growing(p, NOON + HOUR)).toEqual({ stage: 4, ripe: false, spent: false });
+    expect(growing(p, NOON + 72 * HOUR - 1).ripe).toBe(false);
+    expect(growing(p, NOON + 72 * HOUR)).toEqual({ stage: 5, ripe: true, spent: false });
+    expect(see("1,1", did.plot, NOON + 73 * HOUR)).toMatchObject({ stage: 5, ripe: true, pest: false, dead: false });
+    // picked that once more it is gone, song or no song: a plant is sung to once
+    const again = done(pick("1,1", did.purse, did.plot, true, null, NOON + 73 * HOUR));
+    expect(again.plot).toEqual({ soil: "cleared", plant: null });
+    expect(usesLeft(again.purse, "famMandrake", NOON + 73 * HOUR)).toBe(usesLeft(did.purse, "famMandrake", NOON + 73 * HOUR));
+    expect(sungTo(did.plot, again.plot)).toBe(false);
+    // (what it gives the second time is rolled afresh, as each picking of a plant that bears again is)
+    expect(again.got![0][1]).toBe(yieldOf("1,1", p, null));
+  });
+
+  it("a plant that bears again is sung to at its last picking, not before: one more bearing after its kind's own while", () => {
+    const early = done(pick("1,1", me, sown({ crop: "kangkong", sown: NOON - 9 * HOUR }), true, null, NOON));
+    expect(early.plot.plant).toMatchObject({ picked: 1 });
+    expect(early.plot.plant!.more).toBeUndefined();
+    expect(usesLeft(early.purse, "famMandrake", NOON)).toBe(7);
+    const did = done(pick("1,1", me, lastGlory(), true, null, NOON));
+    expect(did.plot.plant).toMatchObject({ crop: "kangkong", picked: 3, pickedAt: NOON, more: 1 });
+    expect(usesLeft(did.purse, "famMandrake", NOON)).toBe(6);
+    expect(growing(did.plot.plant!, NOON + CROPS.kangkong.again! * HOUR - 1).ripe).toBe(false);
+    expect(growing(did.plot.plant!, NOON + CROPS.kangkong.again! * HOUR).ripe).toBe(true);
+    expect(done(pick("1,1", did.purse, did.plot, true, null, NOON + 13 * HOUR)).plot.plant).toBeNull();
+  });
+
+  it("only while it follows, and seven plants a day: the eighth is gone as ever, and tomorrow it sings again", () => {
+    for (const gifts of [undefined, { had: ["famMandrake"], charms: [] }, { had: ["famMandrake", "famGnome"], charms: [], familiar: "famGnome" }, { had: [], charms: [], familiar: "famMandrake" }]) {
+      const did = done(pick("1,1", purseWith(gifts), pumpkin(), true, null, NOON));
+      expect(did.plot).toEqual({ soil: "cleared", plant: null });
+      expect(did.purse.gifts).toEqual(purseWith(gifts).gifts);
+    }
+    let p = me;
+    for (let i = 0; i < 7; i++) { const d = done(pick(`${i},1`, p, pumpkin(), true, null, NOON + i)); expect(d.plot.plant?.more).toBe(1); p = { ...d.purse, bag: me.bag }; }
+    expect(usesLeft(p, "famMandrake", NOON)).toBe(0);
+    expect(done(pick("9,1", p, pumpkin(), true, null, NOON + 9)).plot).toEqual({ soil: "cleared", plant: null });
+    expect(done(pick("9,1", p, pumpkin(), true, null, NOON + 24 * HOUR)).plot.plant?.more).toBe(1);
+  });
+
+  it("is as a picking by hand in everything else: the same yield, the same stamina, refused the same ways, and nothing sung for a picking refused", () => {
+    const plain = done(pick("1,1", purseWith(undefined), pumpkin(), true, null, NOON)), sung = done(pick("1,1", me, pumpkin(), true, null, NOON));
+    expect(sung.got).toEqual(plain.got);
+    expect({ ...sung.purse, gifts: null }).toEqual({ ...plain.purse, gifts: null });
+    expect(pick("1,1", me, pumpkin(), false, null, NOON)).toEqual({ ok: false, why: "theirs" });
+    expect(pick("1,1", me, sown(), true, null, NOON)).toEqual({ ok: false, why: "unripe" });
+    const full: Purse = { ...me, bag: me.bag.map(() => ({ item: "hoe" as ItemId, n: 1 })) };
+    expect(pick("1,1", full, pumpkin(), true, null, NOON)).toEqual({ ok: false, why: "full" });
+  });
+
+  it("through the farm's own deed and the sickle's row it is the same song: the bed keeps its plants, and is not left empty", () => {
+    const mine: Bed = { by: "me", tended: NOON - HOUR, empty: 0 };
+    const byDeed = done(tend("1,1", pumpkin(), mine, 0, 0, me, "me", NOON));
+    expect(byDeed.deed).toBe("pick");
+    expect(byDeed.plot.plant?.more).toBe(1);
+    expect(byDeed.bed).toEqual({ ...mine, tended: NOON });
+    // a row of seven pumpkins swept with the sickle, the mandrake at heel: all seven sung to, and every plot keeps its plant
+    const both = purseWith({ had: ["famMandrake", "charmSickle"], charms: ["charmSickle"], familiar: "famMandrake" });
+    const row = Object.fromEntries(KEYS.map((key) => [key, pumpkin()]));
+    const did = done(rowTend(MID, KEYS, row, mine, 0, 0, both, "me", NOON, all(KEYS)));
+    expect(did.each.length).toBe(7);
+    expect(did.got).toEqual([["pumpkin", 21]]);
+    for (const key of KEYS) expect(sungTo(row[key], did.plots[key])).toBe(true);
+    expect(usesLeft(did.purse, "famMandrake", NOON)).toBe(0);
+    expect(did.bed).toEqual({ ...mine, tended: NOON });
+  });
+
+  it("the hourglass hastens the bearing more as it does any wait; a pest may come to it while it waits, as to any plant that is not ripe", () => {
+    const waits = plant({ crop: "pumpkin", sown: NOON - 150 * HOUR, picked: 1, pickedAt: NOON, more: 1, guard: NOON + 999 * HOUR });
+    expect(growing({ ...waits, fast: [NOON + HOUR] }, NOON + 66 * HOUR - 1).ripe).toBe(false);
+    expect(growing({ ...waits, fast: [NOON + HOUR] }, NOON + 66 * HOUR).ripe).toBe(true);
+    // (unguarded, over three days of waiting, some plot's pumpkin is struck; ripe again, none is)
+    const struck = Array.from({ length: 49 }, (_, i) => pestAt(`${BX + (i % 7)},${BY + Math.floor(i / 7)}`, { ...waits, guard: 0 }, NOON + 71 * HOUR)).filter((t) => t !== null);
+    expect(struck.length).toBeGreaterThan(5);
+    expect(struck.every((t) => t! >= NOON && t! < NOON + 72 * HOUR)).toBe(true);
+    // (and a plant never sung to, picked as often as its kind is, is spent: nothing of this touches it)
+    expect(growing(plant({ crop: "pumpkin", sown: NOON - 150 * HOUR, picked: 1, pickedAt: NOON }), NOON + 99 * HOUR)).toEqual({ stage: 5, ripe: false, spent: true });
+    expect(moreOf(plant())).toBe(0);
+    expect(moreOf(plant({ more: 1 }))).toBe(1);
+    expect(moreOf({ ...plant(), more: "1" as unknown as number })).toBe(0);
   });
 });

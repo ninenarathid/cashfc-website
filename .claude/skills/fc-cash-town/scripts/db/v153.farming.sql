@@ -21,6 +21,12 @@
 --     (v118's), `town.growing` (v110's) and `town.pest_at` (v147's) are written again, each as it ran but for the
 --     hourglass's term (`town.quick_ms`, which is nothing for a plant no hourglass was turned over: such a plant is
 --     as it always was, to the millisecond). Written down as one line (`hourglass`: how many plants).
+--   * The mandrake sprout (a familiar, following): it sings as its member picks a plant for what would be the last
+--     time, and that plant bears once more, any crop (so many plants a day: the catalog's count). The plant keeps
+--     that (`more`, in its own document), waits its kind's own while to bear again, or, of a kind picked only once,
+--     a part of its hours (`farming.gifted.encore`), and is picked once more. `town.pick` (v110's) is written again
+--     for the song, and `town.growing` and `town.pest_at` (above) know of the bearing more. A plant never sung to
+--     has no such mark and is as it always was.
 --   * The garden gnome (a familiar, following) waters its member's whole bed at once: no water out of a can, no
 --     stamina, what a plain can adds; a bed rests so many minutes between two of its rounds (the catalog's gifts row:
 --     the gnome's number), kept in the purse (`gnomed`). `town_gnome(x, y)`; written down as one line (`gnome`:
@@ -40,6 +46,11 @@ as $$
     from (select (town.cat('farming')->'gifted'->'glass'->>'hours')::numeric * 3600000 as span,
                  (town.cat('gifts')->'gifts'->'thingHourglass'->>'by')::double precision as by) k
 $$;
+
+-- How many bearings more than its kind a plant has (lib/town/farm's moreOf): none, but for one the mandrake sang to.
+create or replace function town.more_of(p_plant jsonb)
+returns integer language sql immutable
+as $$ select case when jsonb_typeof(p_plant->'more') = 'number' and (p_plant->>'more')::numeric > 0 then floor((p_plant->>'more')::numeric)::integer else 0 end $$;
 
 -- The hours a plant has grown by a moment (v118's, with what an hourglass turned over its bed did).
 create or replace function town.grown(p_plant jsonb, p_now bigint)
@@ -61,9 +72,17 @@ $$;
 create or replace function town.growing(p_plant jsonb, p_now bigint)
 returns jsonb language sql stable
 as $$
-  select town.growth(p_plant->>'crop', town.grown(p_plant, p_now), (p_plant->>'picked')::int,
-    ((p_now - (p_plant->>'pickedAt')::bigint)::double precision
-      + case when (p_plant->>'picked')::int > 0 then town.quick_ms(p_plant, (p_plant->>'pickedAt')::bigint, p_now) else 0::double precision end) / 3600000::double precision)
+  -- (a plant the mandrake sang to has a bearing more than its kind, and waits for it as one that bears again waits)
+  select case when m.more > 0 and m.picked >= m.picks and m.picked < m.picks + m.more
+      then jsonb_build_object('stage', case when m.since >= m.encore then 5 else 4 end, 'ripe', m.since >= m.encore, 'spent', false)
+      else town.growth(p_plant->>'crop', town.grown(p_plant, p_now), m.picked, m.since) end
+    from (
+      select (p_plant->>'picked')::int as picked, town.more_of(p_plant) as more, (c.crop->>'picks')::int as picks,
+             coalesce((c.crop->>'again')::double precision, (c.crop->>'hours')::double precision * (town.cat('farming')->'gifted'->>'encore')::double precision) as encore,
+             ((p_now - (p_plant->>'pickedAt')::bigint)::double precision
+               + case when (p_plant->>'picked')::int > 0 then town.quick_ms(p_plant, (p_plant->>'pickedAt')::bigint, p_now) else 0::double precision end) / 3600000::double precision as since
+        from (select town.cat('crops')->(p_plant->>'crop') as crop) c
+    ) m
 $$;
 
 -- When a pest struck a plant, if one has and it has not been cured since (v147's, with the hourglass in what is
@@ -100,6 +119,9 @@ declare
   bugs integer;
   -- (whether an hourglass was ever turned over it: its term is asked for only then)
   quick boolean := coalesce(jsonb_typeof(p_plant->'fast') = 'array' and jsonb_array_length(p_plant->'fast') > 0, false);
+  -- (the bearing more of a plant the mandrake sang to, and the hours it waits for it)
+  more integer := town.more_of(p_plant);
+  encore double precision := coalesce((c->>'again')::double precision, (c->>'hours')::double precision * (f->'gifted'->>'encore')::double precision);
 begin
   select coalesce(jsonb_object_agg(s.hour::text, s.bugs), '{}'::jsonb) into counted
     from public.town_swarms s where s.hour >= h and s.hour * 3600000 <= p_now and s.bugs > 0;
@@ -110,7 +132,9 @@ begin
     if hour >= from_ and hour < to_ and t >= guard and t > (p_plant->>'cured')::bigint then
       -- (a ripe plant is safe: it only waits to be picked)
       ripe := case
-        when picked >= picks then false
+        when picked >= picks + more then false
+        when picked >= picks then ((t - picked_at)::double precision
+          + case when quick then town.quick_ms(p_plant, picked_at, t) else 0::double precision end) / 3600000::double precision >= encore
         when picked > 0 then again is not null and ((t - picked_at)::double precision
           + case when quick then town.quick_ms(p_plant, picked_at, t) else 0::double precision end) / 3600000::double precision >= again
         else ((greatest(0, t - sown))::double precision
@@ -128,6 +152,43 @@ begin
     h := h + 1;
   end loop;
   return null;
+end;
+$$;
+
+-- Pick a ripe plant into the bag (v110's, with the mandrake's song: picked for what would be the last time by a
+-- member the mandrake follows, with a song left to the day, the plant is not spent: it bears once more).
+create or replace function town.pick(p_key text, p_purse jsonb, p_plot jsonb, p_may boolean, p_hand text, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  f jsonb := town.cat('farming');
+  p jsonb := coalesce(p_plot->'plant', 'null'::jsonb);
+  seen jsonb;
+  n integer;
+  picked integer;
+  last_ boolean;
+  sung jsonb;
+  mine jsonb := p_purse;
+begin
+  if p = 'null'::jsonb then return town.no('soil'); end if;
+  seen := town.see(p_key, p_plot, p_now);
+  if (seen->>'dead')::boolean then return town.no('soil'); end if;
+  if not coalesce(p_may, false) then return town.no('theirs'); end if;
+  if not (seen->>'ripe')::boolean then return town.no('unripe'); end if;
+  n := town.yield_of(p_key, p, case when town.held(p_purse->'bag', p_hand) > 0 then p_hand end);
+  if town.room(p_purse->'bag', p->>'crop') < n then return town.no('full'); end if;
+  picked := (p->>'picked')::int + 1;
+  last_ := picked >= (town.cat('crops')->(p->>'crop')->>'picks')::int + town.more_of(p);
+  -- (a plant it has sung to is not sung to again)
+  if last_ and town.more_of(p) = 0 then
+    sung := town.gift_use(p_purse, 'famMandrake', p_now);
+    if (sung->>'ok')::boolean then mine := sung->'purse'; last_ := false; else sung := null; end if;
+  end if;
+  return jsonb_build_object('ok', true, 'got', jsonb_build_array(jsonb_build_array(p->>'crop', n)),
+    'plot', case when last_ then '{"soil": "cleared", "plant": null}'::jsonb
+      else p_plot || jsonb_build_object('plant', p || jsonb_build_object('picked', picked, 'pickedAt', p_now, 'watered', 0)
+        || case when sung is not null then jsonb_build_object('more', (town.cat('gifts')->'gifts'->'famMandrake'->'by')) else '{}'::jsonb end) end,
+    'purse', town.spend(mine, (f->'costs'->>'pick')::double precision, p_now) || jsonb_build_object('bag', town.put(mine->'bag', p->>'crop', n)));
 end;
 $$;
 

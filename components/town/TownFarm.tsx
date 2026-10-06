@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, hardFor, hitsFor, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, hardFor, hitsFor, moreOf, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
@@ -233,6 +233,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   for (const [k, until] of sand.current) { const [x, y] = k.split(",").map(Number), bed = bedOf(x, y); sandBeds.current.set(bed, Math.max(until, sandBeds.current.get(bed) ?? 0)); }
   const clock = useRef(() => keeper.now());
   clock.current = () => keeper.now();
+  /**
+   * The mandrake's song (lib/town/farm's pick): the plots whose plant it has sung to and that have their bearing more
+   * still to give (a small note stays over each, for everybody at the farm); and the songs being sung this moment,
+   * each where its plant stands (notes going up from it: on my own screen, as I pick).
+   */
+  const sungPlots = useRef(new Set<string>());
+  sungPlots.current = new Set(Object.entries(plots).flatMap(([k, plot]) => (plot.plant && moreOf(plot.plant) > 0 ? [k] : [])));
+  const songs = useRef<Array<{ x: number; y: number; from: number | null }>>([]);
 
   // The plots, drawn among everything else on the map.
   useEffect(() => {
@@ -330,6 +338,31 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         }
         ctx.globalAlpha = 1;
       };
+      // a note of music, in the town's big pixels: a head, a stem and a flag, light on a dark edge
+      const note = (x: number, y: number, alpha: number, tint = "#d9f7a1") => {
+        const u = Math.max(2, Math.round(1.5 * s));
+        for (const [dx, dy, colour] of [[u / 2, u / 2, "#2a190d"], [0, 0, tint]] as Array<[number, number, string]>) {
+          ctx.globalAlpha = alpha * (colour === tint ? 1 : 0.8);
+          ctx.fillStyle = colour;
+          ctx.fillRect(Math.round(x + dx), Math.round(y + dy), 2 * u, 2 * u);
+          ctx.fillRect(Math.round(x + dx + u), Math.round(y + dy - 4 * u), u, 5 * u);
+          ctx.fillRect(Math.round(x + dx + 2 * u), Math.round(y + dy - 4 * u), 2 * u, u);
+        }
+        ctx.globalAlpha = 1;
+      };
+      // the mandrake's songs being sung: three notes going up from each plant, one after another, swaying as they go
+      songs.current = songs.current.filter((song) => song.from === null || t - song.from < 2100);
+      for (const song of songs.current) {
+        if (song.from === null) song.from = t;
+        const at = project({ x: song.x + 0.5, y: song.y + 0.5 }), since = t - song.from;
+        if (onScreen(at)) above(() => {
+          for (let i = 0; i < 3; i++) {
+            const part = still ? 0.45 : (since - i * 320) / 1300;
+            if (part <= 0 || part >= 1) continue;
+            note(at.x + (i - 1) * 9 * s + Math.sin(part * 5 + i * 2) * 5 * s, at.y - (26 + part * 44) * s, Math.sin(part * Math.PI), i === 1 ? "#fff1c4" : "#d9f7a1");
+          }
+        });
+      }
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
         const tx = FARM.x + u, ty = FARM.y + v;
         if (!plotAt(tx, ty)) continue;
@@ -346,6 +379,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (what.wet && !later.has(plotKey(tx, ty))) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           // (a hot afternoon: the air shimmers over a plant that is still growing and has had no water this hour)
           else if (hot.current && !what.ripe) shimmer(at, tx * 3 + ty);
+          // (a plant the mandrake sang to, with its bearing more still to give: a small note stays over it)
+          if (sungPlots.current.has(plotKey(tx, ty))) note(at.x - 16 * s, at.y - (24 + (still ? 0 : Math.sin(t / 520 + tx + ty) * 2)) * s, 0.9);
           if (what.pest) blit("plotBug", { x: at.x - 10 * s, y: at.y }, (still ? 0 : Math.sin(t / 160 + tx) * 2 + 14) * s, PLANT * s * 0.5);
           else if (what.ripe && (still || Math.floor(t / 420 + tx + ty) % 3 !== 0)) blit("plotShine", { x: at.x + 9 * s, y: at.y }, 20 * s, PLANT * s * 0.5);
         } });
@@ -422,7 +457,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (timing) keeper.record({ game: "farming", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(purse, now), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
     // an insect that eats pests, let go on a plant that had one: it ate it, or it is off with the pest still there (lib/town/farm's FARMING.rids)
     const rid = did.deed === "feed" && held ? ridCameOf(k, stood, keeper.farm()[k] ?? WILD, held, began, keeper.rains()) : null;
-    setNote(did.got.length ? did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")
+    // the mandrake that follows me sang to the plant as I picked it: it stays in its plot, and bears once more (lib/town/farm's pick)
+    const sang = did.deed === "pick" && sungTo(stood, keeper.farm()[k]);
+    setNote(did.got.length ? `${did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")}${sang ? (th ? " · แมนเดรกร้องเพลง ต้นนี้จะออกผลอีกรอบ" : " · the mandrake sang: it will bear once more") : ""}`
       : rid === null || !held ? null
         : th ? `${nameOf(held)}${rid ? "กินศัตรูพืชหมดแล้ว" : "บินหนีไปแล้ว ศัตรูพืชยังอยู่"}`
           : `The ${nameOf(held).toLowerCase()} ${rid ? "ate the pest" : "flew off, and the pest is still there"}`);
@@ -435,6 +472,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (rid) vfx.add("sparkle", at);
     for (const id of seenAtPlot(did.deed, mine, began)) vfx.add("bless", at, { icon: BURST[id], lift: 8 });
     if (did.got.length) vfx.add("pop", at, { icon: did.got[0][0] });
+    if (sang) { songs.current.push({ x, y, from: null }); sfx?.work("cooked", 0.7); }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
   }, [keeper, th, sfx, name, say, vfx]);
   /** Draw a bucket of water, pour it into the well, or fill the can. */
@@ -485,6 +523,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }, [key, deed, chore, pours, act, carry, pourOver, keeper, th]);
   /** A row's deed, done whole by whoever keeps the game: what flies up over each plot it did, and a word of how many those were. */
   const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult | null) => {
+    // (the plots as they stand: which plants the mandrake sang to is read from each as it was and as it is)
+    const stood = keeper.farm();
     const did = await keeper.rowDo(k, name, marks, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined);
     if (!did.ok) { say(did.why); return; }
     // (the hoe's row and the sickle's sweep are goes at a game, written down as the hoe's own are; the swings were heard as they were made)
@@ -499,7 +539,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       window.setTimeout(() => { vfx.add(fx, at); if (reaped && marks[plot] && did.got[0]) vfx.add("pop", at, { icon: did.got[0][0] }); }, i * 70);
     });
     const of = Object.keys(marks).length, n = did.done.length, well = did.done.filter((plot) => marks[plot]).length;
-    setNote(reaped ? `${did.got.map(([id, m]) => `${nameOf(id)} ×${m}`).join(" · ")} · ${th ? `ตวัดคม ${well}/${n}` : `${well} of ${n} cut clean`}`
+    // (the mandrake sang to every plant of the row that was picked for the last time, while it had songs left)
+    const after = keeper.farm(), sung = reaped ? did.done.filter((plot) => sungTo(stood[plot], after[plot])) : [];
+    sung.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => songs.current.push({ x, y, from: null }), 200 + i * 90); });
+    if (sung.length) sfx?.work("cooked", 0.7);
+    setNote(reaped ? `${did.got.map(([id, m]) => `${nameOf(id)} ×${m}`).join(" · ")} · ${th ? `ตวัดคม ${well}/${n}` : `${well} of ${n} cut clean`}${sung.length ? (th ? ` · แมนเดรกร้องเพลง ${sung.length} ต้น` : ` · the mandrake sang to ${sung.length}`) : ""}`
       : did.deed === "sow" ? (th ? `หว่านทั้งแถว ${n} ช่อง ใช้ ${did.seeds ?? n} เมล็ด` : `${n} plots sown for ${did.seeds ?? n} seeds`)
       : th ? `ทั้งแถว: เสร็จ ${n} จาก ${of} ช่อง` : `The row: ${n} of ${of} plots done`);
   }, [keeper, name, say, sfx, th, vfx]);
@@ -602,6 +646,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
       // (the hourglass: the plots it would quicken here, turning it, and the plots the sand runs over now with when it runs out)
       glass: () => (key ? keeper.glassAt(key) : []), glassTurn: turnGlass, sand: () => Object.fromEntries(sand.current),
+      // (the mandrake: the plots whose plant has a bearing more still to give, and how many songs are being sung on this screen now)
+      sung: () => [...sungPlots.current], singing: () => songs.current.length,
       gnome: () => (key ? keeper.gnomeAt(key) : []), gnomeSend: sendGnome, gnomeOut: () => (gnome.current ? { shown: gnome.current.shown, of: gnome.current.path.length } : null),
       asking: () => asking,
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),

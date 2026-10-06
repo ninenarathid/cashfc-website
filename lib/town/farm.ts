@@ -160,6 +160,8 @@ export interface Plant {
   /** How many times it has been picked, and when last. */
   picked: number;
   pickedAt: number;
+  /** How many bearings more than its kind has: one, of a plant the mandrake sang to as it was picked for what would have been the last time (lib/town/gifts' famMandrake). Missing from every other plant. */
+  more?: number;
   /** The moments an hourglass of seasons was turned over its bed while it stood there (lib/town/gifts' thingHourglass): from each, for `HOURGLASS.hours`, it grows so many times as fast (`quickMs`). Missing from a plant no hourglass was turned over. */
   fast?: number[];
 }
@@ -275,8 +277,21 @@ export function grown(p: Plant, now: number, rains: FarmSky = DRY): number {
   const wet = rainsIn(rains), rained = wet.length ? wetMs(wet, p.sown, now) * FARMING.water.adds / FARMING.water.every : 0;
   return (Math.max(0, now - p.sown) + fed + p.boost + rained + quickMs(p, p.sown, now)) / HOUR;
 }
-/** Where a plant is in its growing, pests left out. (One that was picked and bears again waits by the clock, and by the hourglass with it.) */
-export const growing = (p: Plant, now: number, rains: FarmSky = DRY) => growth(p.crop, grown(p, now, rains), p.picked, (now - p.pickedAt + (p.picked > 0 ? quickMs(p, p.pickedAt, now) : 0)) / HOUR);
+/**
+ * The mandrake's song (lib/town/gifts' famMandrake, the farming line's sixth rank): what part of its hours a crop
+ * that is picked only once takes to bear the once more (one that bears again takes its own while, as ever).
+ */
+export const ENCORE = 0.5;
+/** How many bearings more than its kind a plant has (none, but for one the mandrake sang to). */
+export const moreOf = (p: Plant): number => (typeof p.more === "number" && p.more > 0 ? Math.floor(p.more) : 0);
+/** The hours a plant waits to bear its one more: its kind's own while between two pickings, or, of a kind that is picked once, a part of its hours. */
+export const encoreHours = (crop: CropId): number => CROPS[crop].again ?? CROPS[crop].hours * ENCORE;
+/** Where a plant is in its growing, pests left out. (One that was picked and bears again waits by the clock, and by the hourglass with it; one the mandrake sang to has a bearing more than its kind, and waits for it the same way.) */
+export function growing(p: Plant, now: number, rains: FarmSky = DRY): ReturnType<typeof growth> {
+  const since = (now - p.pickedAt + (p.picked > 0 ? quickMs(p, p.pickedAt, now) : 0)) / HOUR, picks = CROPS[p.crop].picks ?? 1, more = moreOf(p);
+  if (more > 0 && p.picked >= picks && p.picked < picks + more) { const ripe = since >= encoreHours(p.crop); return { stage: ripe ? 5 : 4, ripe, spent: false }; }
+  return growth(p.crop, grown(p, now, rains), p.picked, since);
+}
 
 /**
  * When a pest struck a plant, if one has and it has not been cured since: the
@@ -450,11 +465,15 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   if (!seen.ripe) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
   if (roomFor(purse.bag, p.crop) < n) return no("full");
-  const picked = p.picked + 1, spent = picked >= (CROPS[p.crop].picks ?? 1);
+  const picked = p.picked + 1, last = picked >= (CROPS[p.crop].picks ?? 1) + moreOf(p);
+  // (the mandrake that follows whoever picks sings as a plant is picked for what would be the last time, and the plant
+  // bears once more: any crop, one that is picked only once too; so many plants a day, lib/town/gifts' USES; a plant
+  // it has sung to is not sung to again)
+  const sung = last && !moreOf(p) ? useGift(purse, "famMandrake", now) : null, mine = sung?.ok ? sung.purse : purse, spent = last && !sung?.ok;
   return {
     ok: true, got: [[p.crop, n]],
-    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0 } },
-    purse: { ...spend(purse, FARMING.costs.pick, now), bag: put(purse.bag, p.crop, n) },
+    plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0, ...(sung?.ok ? { more: numberOf("famMandrake") } : {}) } },
+    purse: { ...spend(mine, FARMING.costs.pick, now), bag: put(mine.bag, p.crop, n) },
   };
 }
 
@@ -708,6 +727,9 @@ export function glassTurn(plots: Readonly<Record<string, Plot>>, purse: Purse, m
   for (const key of live) { const p = plots[key].plant!; next[key] = { ...plots[key], plant: { ...p, fast: [...(Array.isArray(p.fast) ? p.fast.filter((f) => typeof f === "number") : []), now].slice(-HOURGLASS.kept) } }; }
   return { ok: true, purse: used.purse, plots: next, quickened: live, until: now + HOURGLASS.hours * HOUR };
 }
+
+/** Whether the mandrake sang to the plant in a plot as it was picked: read from the plot as it was and as it is, for the page, which shows it. */
+export const sungTo = (was: Plot | undefined, is: Plot | undefined): boolean => !!was?.plant && !!is?.plant && moreOf(is.plant) > moreOf(was.plant);
 
 /** A plot a row's deed did: which, what grows or grew there, and how many it came to (a plot hoed or sown is one; a plant picked, how many were picked, the sickle's one more among them where it was `well` cut). */
 export interface RowDone { key: string; crop: CropId | null; n: number; well?: boolean }

@@ -305,4 +305,64 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   // a plant with no hourglass is as it always was: the farm's own deeds on one
   const plainPlant = (await living(2)).find((r) => !r.plant.fast)?.plant;
   t.check("a plant no hourglass was turned over has no mark of one, and grows by the clock as ever", !!plainPlant && Math.abs((await grownAt(plainPlant, plainPlant.sown + 10 * HOUR)) - 10 - plainPlant.boost / HOUR) < 1e-9, plainPlant);
+
+  // ── the mandrake sprout: it sings as a plant is picked, and that plant bears once more ──
+  t.section("the mandrake sprout: a plant picked for the last time bears once more (town_tend, town_row)");
+  const songs = CODE.gifts.uses.famMandrake.n, encore = CODE.farming.gifted.encore, pumpkinHours = CODE.crops.pumpkin.hours;
+  const M = row(7, 4);
+  for (const k of M) await planted(k, 7, U.m1, "pumpkin", 150);
+  const usedSongs = async (who) => (await purseOf(who)).gifts.used?.famMandrake?.n ?? 0;
+  // not following: a pumpkin is picked once and gone, as ever
+  await give(U.m1, { had: ["famMandrake", "charmSickle"], charms: ["charmSickle"], familiar: null });
+  await hands(U.m1, null, 100);
+  did = await call(U.m1, "town_tend", ...xy(M[0]), null);
+  t.check("with the mandrake had but not following: a pumpkin is picked once and gone, as ever, and nothing is counted", did?.ok === true && did.deed === "pick" && did.plot.plant === null && (await plotAt(M[0])).plant === null && (await usedSongs(U.m1)) === 0, did);
+  await give(U.m1, { had: ["famMandrake", "charmSickle"], charms: ["charmSickle"], familiar: "famMandrake" });
+  const picksBefore = (await pickDeeds(U.m1)).length;
+  did = await call(U.m1, "town_tend", ...xy(M[1]), null);
+  const sungPlant = (await plotAt(M[1])).plant;
+  t.check("following: the plant is picked as ever (what it gives, the stamina of a picking, its line of the deeds)", did?.ok === true && did.deed === "pick" && same(did.got, [["pumpkin", 2]]) && (await staminaOf(U.m1)) === 100 - 2 * f.costs.pick
+    && (await pickDeeds(U.m1)).length === picksBefore + 1, did);
+  t.check("…and is not gone: it stays in its plot, picked once and sung to, and the day's song is counted", sungPlant?.crop === "pumpkin" && sungPlant.picked === 1 && sungPlant.more === 1 && same(did.plot.plant, sungPlant) && (await usedSongs(U.m1)) === 1, sungPlant);
+  const seenAt = async (plant, at) => (await one(`select town.see('1,1', $1::jsonb, $2::bigint) as s`, [JSON.stringify({ soil: "tilled", plant }), at])).s;
+  const half = pumpkinHours * encore * HOUR;
+  t.check(`…it waits half its hours to bear the once more (${pumpkinHours * encore} hours): a stage back until then, ripe from then on`,
+    same([(await seenAt(sungPlant, sungPlant.pickedAt + half - 1)).ripe, (await seenAt(sungPlant, sungPlant.pickedAt + half - 1)).stage, (await seenAt(sungPlant, sungPlant.pickedAt + half)).ripe], [false, 4, true]), await seenAt(sungPlant, sungPlant.pickedAt + half));
+  did = await call(U.m1, "town_tend", ...xy(M[1]), null);
+  t.check("…until then it is not picked", did?.ok === false && did.why === "soil" || did?.why === "unripe", did);
+  // (as if it had been picked that long ago: ripe for its bearing more)
+  await t.sql(`update public.town_plots set plant = plant || jsonb_build_object('pickedAt', (plant->>'pickedAt')::bigint - $3::bigint) where x = $1 and y = $2`, [...xy(M[1]), half + HOUR]);
+  did = await call(U.m1, "town_tend", ...xy(M[1]), null);
+  t.check("its wait over, it is picked the once more, and then it is gone: a plant is sung to once", did?.ok === true && did.deed === "pick" && did.got[0][0] === "pumpkin" && did.plot.plant === null && (await plotAt(M[1])).plant === null && (await usedSongs(U.m1)) === 1, did);
+  // the sickle's row with the mandrake at heel: every plant swept is sung to, while songs last
+  await hands(U.m1, null, 100);
+  did = await call(U.m1, "town_row", ...xy(M[4]), Object.fromEntries(M.slice(2).map((k) => [k, true])), { hits: 5, misses: 0, secs: 3 });
+  const rowAfter = await Promise.all(M.slice(2).map(plotAt));
+  t.check("a row swept with the sickle, the mandrake at heel: five plants picked, three each, and every one sung to and standing", did?.ok === true && did.done.length === 5 && same(did.got, [["pumpkin", 15]])
+    && rowAfter.every((p) => p.plant?.more === 1 && p.plant.picked === 1) && (await usedSongs(U.m1)) === 6, { did, rowAfter: rowAfter.map((p) => p.plant) });
+  // seven plants a day: the eighth is gone as ever
+  const N = row(7, 5);
+  for (const k of N.slice(0, 3)) await planted(k, 7, U.m1, "pumpkin", 150);
+  await call(U.m1, "town_tend", ...xy(N[0]), null);
+  t.check(`the day's ${songs}th plant is sung to`, (await plotAt(N[0])).plant?.more === 1 && (await usedSongs(U.m1)) === songs, await usedSongs(U.m1));
+  did = await call(U.m1, "town_tend", ...xy(N[1]), null);
+  t.check("…and the next is picked and gone: no song is left to the day", did?.ok === true && did.plot.plant === null && (await usedSongs(U.m1)) === songs, did);
+  // (the count as if it had been yesterday's: it sings again)
+  await give(U.m1, { had: ["famMandrake", "charmSickle"], charms: ["charmSickle"], familiar: "famMandrake", used: { famMandrake: { k: day - 1, n: songs } } });
+  did = await call(U.m1, "town_tend", ...xy(N[2]), null);
+  t.check("a new day: it sings again", did?.ok === true && did.plot.plant?.more === 1 && (await usedSongs(U.m1)) === 1 && (await purseOf(U.m1)).gifts.used.famMandrake.k === day, did);
+  // a plant that bears again: sung to at its last picking only
+  const G = row(7, 6), kang = CODE.crops.kangkong;
+  await planted(G[0], 7, U.m1, "kangkong", 40);
+  await planted(G[1], 7, U.m1, "kangkong", 60, { picked: kang.picks - 1, pickedAt: now - (kang.again + 1) * HOUR });
+  did = await call(U.m1, "town_tend", ...xy(G[0]), null);
+  t.check("a plant that bears again, at its first picking: not sung to, it has pickings of its own left", did?.ok === true && did.plot.plant?.picked === 1 && did.plot.plant.more === undefined && (await usedSongs(U.m1)) === 1, did?.plot);
+  did = await call(U.m1, "town_tend", ...xy(G[1]), null);
+  t.check("…at its last: sung to, and it waits its own while to bear the once more", did?.ok === true && did.plot.plant?.picked === kang.picks && did.plot.plant.more === 1 && (await usedSongs(U.m1)) === 2
+    && (await seenAt(did.plot.plant, did.plot.plant.pickedAt + kang.again * HOUR)).ripe === true && (await seenAt(did.plot.plant, did.plot.plant.pickedAt + kang.again * HOUR - 1)).ripe === false, did?.plot);
+  // somebody without it is as before
+  await planted(row(3, 3)[0], 3, U.m2, "pumpkin", 150);
+  await hands(U.m2, null, 100);
+  did = await call(U.m2, "town_tend", ...xy(row(3, 3)[0]), null);
+  t.check("somebody with no mandrake picks a pumpkin once and it is gone, as ever", did?.ok === true && did.deed === "pick" && did.plot.plant === null && !(await purseOf(U.m2)).gifts.used?.famMandrake, did);
 }

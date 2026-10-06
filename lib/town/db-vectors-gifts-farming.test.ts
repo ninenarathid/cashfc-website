@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { vectorsV110 } from "./db-vectors.test";
 import { vectorsV147 } from "./db-vectors-swarm.test";
-import { BEDS, HOURGLASS, glassTurn, gnomeWater, growing, grown, pestAt, pouchPlots, pouchSeeds, quickMs, rowFor, rowTend, see, type Bed, type Plant, type Plot } from "./farm";
+import { BEDS, HOURGLASS, encoreHours, glassTurn, gnomeWater, growing, grown, moreOf, pestAt, pick, pouchPlots, pouchSeeds, quickMs, rowFor, rowTend, see, tend, type Bed, type Plant, type Plot } from "./farm";
 import { usedOf } from "./gifts";
 import { CROPS, CROP_IDS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
@@ -33,6 +33,9 @@ import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
  * - the hourglass: `quick_ms` between moments either side of every stretch; `grown`, `growing`, `pest_at` and
  *   `see` of plants it was turned over once, twice, long ago and just now, growing, picked and bearing again;
  *   `glass_turn` over beds of every sort, had and not, used today and yesterday, running and not, mine and not.
+ * - the mandrake: `more_of`; `pick` and `tend` of plants at a first picking, a last one, one that was sung to and
+ *   waits, one that is ripe for its bearing more, and one past it, with the mandrake following and not, songs left
+ *   and none, a count of today and of yesterday; and `growing`, `pest_at`, `see` of the same plants.
  * - `gnome_water`: beds with plants of every pace sown at many moments (growing, ripe, bearing again, watered a
  *   while ago and just now), bare soil and nothing at all; the gnome following, another familiar, none; rounds kept
  *   for this bed and for others, fresh, old and kept wrongly; one's own bed, somebody else's and nobody's.
@@ -163,6 +166,33 @@ export function vectorsFarming(): Vector[] {
     const owner = c.of<string | null>([me, me, me, me, me === ME ? YOU : ME, null]);
     add("glass_turn", [plots, p, me, NOW, owner], glassTurn(plots, p, me, NOW, owner));
   }
+  // the mandrake's song: a plant at each of its pickings, sung to and not
+  for (let i = 0; i < 460; i++) {
+    const [bx, by] = bedCorner(c.int(0, BEDS_IN_FARM - 1)), key = `${bx + c.int(0, 6)},${by + c.int(0, 6)}`, me = c.of([ME, ME, YOU]);
+    const crop = c.of(CROP_IDS), k = CROPS[crop], picks = k.picks ?? 1, wait = encoreHours(crop);
+    const state = c.of(["first", "last", "last", "last", "waiting", "encore", "encore", "over"]);
+    const plant: Plant = { by: me, crop, sown: NOW - Math.ceil(k.hours * 1.3) * HOUR - c.int(0, 3_599_999) - (picks + 2) * Math.ceil(wait) * HOUR, boost: 0, watered: 0, fed: 0, guard: c.maybe(0.8) ? NOW + 999 * HOUR : 0, cured: 0, picked: 0, pickedAt: 0 };
+    if (state === "last" && picks > 1) { plant.picked = picks - 1; plant.pickedAt = NOW - Math.ceil((k.again ?? 1) * c.of([1.2, 1.2, 0.4])) * HOUR; }
+    if (state === "waiting") { plant.picked = picks; plant.pickedAt = NOW - Math.floor(wait * c.of([0.2, 0.5, 0.99]) * HOUR); plant.more = 1; }
+    if (state === "encore") { plant.picked = picks; plant.pickedAt = NOW - Math.ceil(wait * 1.1) * HOUR; (plant as { more?: unknown }).more = c.of<unknown>([1, 1, 1, 1, 2, "1", 0, 2.5, -1]); }
+    if (state === "over") { plant.picked = picks + 1; plant.pickedAt = NOW - 5 * HOUR; plant.more = 1; }
+    const plot: Plot = { soil: "tilled", plant }, day = dayOf(NOW);
+    const used = c.of<unknown>([undefined, undefined, { famMandrake: { k: day, n: c.of([0, 3, 6]) } }, { famMandrake: { k: day, n: c.of([7, 9]) } }, { famMandrake: { k: day - 1, n: 7 } }, { famMandrake: "7" }]);
+    const gifts = c.of<Purse["gifts"] | undefined>([{ had: ["famMandrake"], charms: [], familiar: "famMandrake" }, { had: ["famMandrake"], charms: [], familiar: "famMandrake" }, { had: ["famMandrake", "charmSickle"], charms: ["charmSickle"], familiar: "famMandrake" },
+      { had: ["famMandrake", "famGnome"], charms: [], familiar: "famGnome" }, { had: ["famMandrake"], charms: [] }, undefined]);
+    const hand = c.of<ItemId | null>([null, null, "sickle", "shears"]);
+    const p = purse(gifts && used !== undefined ? ({ ...gifts, used } as Purse["gifts"]) : gifts, hand, [["sickle", 1], ["shears", 1]], c.of([100, 100, 1, 0]));
+    add("more_of", [plant], moreOf(plant));
+    for (const now of [NOW, NOW + c.int(1, Math.ceil(wait * 1.5)) * HOUR + c.int(0, 3_599_999)]) {
+      add("growing", [plant, now], growing(plant, now));
+      add("pest_at", [key, plant, now], pestAt(key, plant, now));
+      add("see", [key, plot, now], see(key, plot, now));
+    }
+    const may = c.maybe(0.92);
+    add("pick", [key, p, plot, may, hand, NOW], pick(key, p, plot, may, hand, NOW));
+    const bed: Bed | null = c.maybe(0.85) ? { by: me, tended: NOW - HOUR, empty: 0 } : null, others = c.of([0, 0, 3]);
+    add("tend", [key, plot, bed, others, 0, p, me, NOW], tend(key, plot, bed ?? undefined, others, 0, p, me, NOW));
+  }
   // the pouch: what a row takes of it, and how far so many seeds reach
   for (const side of [7, 5, 1]) for (let n = 0; n <= 9; n++) { add("pouch_seeds", [n, side], pouchSeeds(n, side)); add("pouch_plots", [n, side], pouchPlots(n, side)); }
   // …and rows sown from it
@@ -202,7 +232,7 @@ export function vectorsFarming(): Vector[] {
       plots[key] = { soil: "tilled", plant };
     }
     const keeping: Bed | null = whose === null ? null : { by: whose, tended: NOW - c.of([1, 1, 30, 97]) * HOUR, empty: 0 };
-    const gifts = c.of<Purse["gifts"] | undefined>([{ had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle", "charmHoe"], charms: ["charmHoe", "charmSickle"] },
+    const gifts = c.of<Purse["gifts"] | undefined>([{ had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle"], charms: ["charmSickle"] }, { had: ["charmSickle", "famMandrake"], charms: ["charmSickle"], familiar: "famMandrake" }, { had: ["charmSickle", "charmHoe"], charms: ["charmHoe", "charmSickle"] },
       { had: ["charmSickle"], charms: [] }, undefined]);
     const hand = c.of<ItemId | null>([null, null, null, null, "sickle", "sickle", "shears", "can", "hoe"]);
     const base = purse(gifts, hand, [["sickle", 1], ["shears", 1], ["can", 1], ["hoe", 1]], c.of([100, 100, 5, 0]));
@@ -274,6 +304,18 @@ describe("the cases the database's rules of the farming line's gifts are held to
     for (const why of ["none", "spent", "theirs", "running", "soil"]) expect(turned.some((x) => !x.d.ok && x.d.why === why), why).toBe(true);
     expect(turned.every((x) => !x.d.ok || usedOf(x.d.purse!, "thingHourglass", x.now) === 1)).toBe(true);
     expect(turned.some((x) => x.d.ok && (x.purse.gifts?.used as Record<string, { k: number }> | undefined)?.thingHourglass?.k === dayOf(x.now) - 1)).toBe(true);
+    // the mandrake: a plant sung to at its last picking (one picked once, and one that bears again), not sung to before its last, nor twice, nor without the mandrake, nor with no song left
+    const sang = (v: Vector) => { const was = (v.args[2] as Plot).plant!, d = v.want as { ok: boolean; plot?: Plot }; return d.ok && !!d.plot!.plant && moreOf(d.plot!.plant) > moreOf(was); };
+    const picks = of("pick"), lastOf = (v: Vector) => { const pl = (v.args[2] as Plot).plant!; return pl.picked + 1 >= (CROPS[pl.crop].picks ?? 1) + moreOf(pl); };
+    expect(picks.filter(sang).length).toBeGreaterThan(20);
+    expect(picks.some((v) => sang(v) && (CROPS[(v.args[2] as Plot).plant!.crop].picks ?? 1) === 1) && picks.some((v) => sang(v) && (CROPS[(v.args[2] as Plot).plant!.crop].picks ?? 1) > 1)).toBe(true);
+    expect(picks.every((v) => !sang(v) || (lastOf(v) && usedOf((v.want as { purse: Purse }).purse, "famMandrake", v.args[5] as number) === usedOf(v.args[1] as Purse, "famMandrake", v.args[5] as number) + 1))).toBe(true);
+    const gone = picks.filter((v) => (v.want as { ok: boolean; plot?: Plot }).ok && (v.want as { plot: Plot }).plot.plant === null);
+    expect(gone.some((v) => usedOf(v.args[1] as Purse, "famMandrake", v.args[5] as number) >= 7) && gone.some((v) => moreOf((v.args[2] as Plot).plant!) > 0) && gone.some((v) => !(v.args[1] as Purse).gifts)).toBe(true);
+    expect(of("tend").some((v) => (v.want as { ok: boolean; deed?: string; plot?: Plot }).ok && (v.want as { deed: string }).deed === "pick" && moreOf((v.want as { plot: Plot }).plot.plant ?? ({} as Plant)) > moreOf((v.args[1] as Plot).plant ?? ({} as Plant)))).toBe(true);
+    // (a plant that waits for its bearing more is not ripe, and one whose wait is over is; one past it is spent)
+    const sung = of("growing").filter((v) => moreOf(v.args[0] as Plant) > 0).map((v) => v.want as { ripe: boolean; spent: boolean });
+    expect(sung.some((g) => g.ripe) && sung.some((g) => !g.ripe && !g.spent) && sung.some((g) => g.spent)).toBe(true);
     // the gnome: a bed watered whole and in part, and refused each way
     const gnomes = of("gnome_water").map((v) => ({ plots: v.args[1] as Record<string, Plot>, d: v.want as { ok: boolean; why?: string; watered?: string[]; purse?: Purse } }));
     const plantsIn = (plots: Record<string, Plot>) => Object.values(plots).filter((x) => x.plant).length;

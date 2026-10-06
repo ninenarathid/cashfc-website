@@ -6,7 +6,7 @@ import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 // ── gifts: farming ──
-import { HOURGLASS } from "./farm";
+import { ENCORE, HOURGLASS } from "./farm";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
 import { HEAT } from "./heat";
@@ -154,8 +154,9 @@ export function catalogOf() {
       cans: WATER.cans, buckets: WATER.buckets, well: WATER.well, chores: WATER.costs, beds: BEDS,
       bedsAt: Array.from({ length: BEDS_IN_FARM }, (_, bed) => bedCorner(bed)), side: bedSide(), wellAt: [WELL.x, WELL.y],
       misses: 30,
-      // ── gifts: farming ── what the farming line's gifts go by, beyond each one's own number (the gifts' row): the hours an hourglass runs, and how many turnings a plant remembers
-      gifted: { glass: { hours: HOURGLASS.hours, kept: HOURGLASS.kept } },
+      // ── gifts: farming ── what the farming line's gifts go by, beyond each one's own number (the gifts' row): the hours an hourglass runs, and how many turnings a plant
+      // remembers; and what part of its hours a crop that is picked once takes to bear the once more the mandrake sang it to
+      gifted: { glass: { hours: HOURGLASS.hours, kept: HOURGLASS.kept }, encore: ENCORE },
     },
     /** What else is made, at the yard or by hand: what goes in, in what, and how many come of it. */
     makes: MAKES,

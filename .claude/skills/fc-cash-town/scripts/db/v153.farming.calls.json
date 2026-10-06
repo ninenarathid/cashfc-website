@@ -1,4 +1,5 @@
 {
+  "more_of": "to_jsonb(town.more_of($1::jsonb))",
   "quick_ms": "to_jsonb(town.quick_ms($1::jsonb, $2::bigint, $3::bigint))",
   "grown": "to_jsonb(town.grown($1::jsonb, $2::bigint))",
   "growing": "town.growing($1::jsonb, $2::bigint)",
