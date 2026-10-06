@@ -657,6 +657,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       gnome: () => (key ? keeper.gnomeAt(key) : []), gnomeSend: sendGnome, gnomeOut: () => (gnome.current ? { shown: gnome.current.shown, of: gnome.current.path.length } : null),
       asking: () => asking,
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
+      // (whether a tile is a plot at all: a script that lays plots of its own over the farm lays some on the grass between the beds)
+      isPlot: (x: number, y: number) => plotAt(x, y),
     };
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };

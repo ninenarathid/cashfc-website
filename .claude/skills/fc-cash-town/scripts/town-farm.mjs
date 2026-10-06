@@ -660,7 +660,11 @@ try {
     { const beside = await pests(); ok("the hour before and the hour after, counted with many, change nothing of this hour", JSON.stringify(beside) === JSON.stringify(none), { none: none.length, now: beside.length, more: beside.filter((k) => !none.includes(k)).slice(0, 3), swarms: await X.evaluate(`${T}.swarms()`), h, clock: await X.evaluate(`${T}.now()`) }); }
     // a plant that has a pest only for the insects: a cure is offered there, and takes it off
     await X.evaluate(`(${T}.setSwarm(null), ${T}.setSwarm(6))`);
-    const lone = many.find((k) => !none.includes(k)), [lx, ly] = lone.split(",").map(Number);
+    // (one that is a real plot: the made-up field lies over the grass between the beds too, where nobody is offered anything)
+    let lone = null;
+    for (const k of many) if (!none.includes(k) && await X.evaluate(`${F}.isPlot(${k})`)) { lone = k; break; }
+    ok("(one of the plants with a pest only for the insects stands on a real plot)", lone !== null, many.filter((k) => !none.includes(k)));
+    const [lx, ly] = lone.split(",").map(Number);
     await X.evaluate(`${T}.grant("pestCure", 1)`);
     await hold(X, "pestCure");
     await warp(X, lx, ly);
