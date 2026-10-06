@@ -8,6 +8,7 @@
   "wild_secret": "to_jsonb(town.wild_secret(town.cat('forest'), $1::integer))",
   "wild_holds": "town.wild_holds($1::integer, $2::bigint, null, $3::text)",
   "gather": "town.gather($1::jsonb, $2::integer, $3::jsonb, $4::integer, $5::boolean, $6::text, $7::integer, $8::integer, $9::double precision, $10::double precision, $11::bigint, $12::text, $13::boolean)",
+  "gather_as_it_was": "town.gather($1::jsonb, $2::integer, $3::jsonb, $4::integer, $5::boolean, $6::text, $7::integer, $8::integer, $9::double precision, $10::double precision, $11::bigint)",
   "hunt_of": "town.hunt_of($1::jsonb, $2::bigint)",
   "hunt_site": "town.hunt_site($1::text, $2::text, $3::jsonb)",
   "hunt_area": "town.hunt_area($1::text, $2::text, $3::jsonb)",

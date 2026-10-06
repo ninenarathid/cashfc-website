@@ -1,6 +1,7 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
+import { vectorsV125 } from "./db-vectors-wild.test";
 import { HOES } from "./farm";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS, costFor, fetches, gamesOf, gather, holds, isSecret, lanternLit, pigletDigs, placeAt, reachOf, ruleOf, turnStart, type Held, type Place } from "./forest";
 import { GIFTS, USES, stretchOf, usedOf } from "./gifts";
@@ -32,7 +33,9 @@ import { newPurse, put, type Purse } from "./trade";
  * - `map_use`, `map_dig`: the thing had and not, every count of the day's maps, a hunt on already; digs on the chest
  *   and off it, a bag with no room, no hunt on, a count of chests kept and kept wrongly;
  * - `wild_reach` and `gather` from a moss stag's back: the stag following, at rest, another familiar at the heels;
- *   every kind of place and the secret ones, from on the place to three tiles off.
+ *   every kind of place and the secret ones, from on the place to three tiles off;
+ * - `gather_as_it_was`: the forest's own cases of gathering from before there were gifts (v125's, lib/town/db-vectors-wild.test.ts),
+ *   asked as they always were, with the eleven arguments the function had: somebody with no gift is as before.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-forest.test.ts     writes vectors-gifts-forest.json
  */
@@ -211,6 +214,9 @@ export function vectorsForest(): Vector[] {
     const tile: [number, number] = c.maybe(0.5) ? [s.x + far * c.of([-1, 1]), s.y + c.int(-far, far)] : [s.x + c.int(-far, far), s.y + far * c.of([-1, 1])];
     add("gather", [p, s.id, has, 0, false, hand, tile[0], tile[1], 0, 0, now, null, false], gather(p, s, has, 0, false, hand, tile, clean, now));
   }
+
+  // gathering as it was before there were gifts: v125's own cases, by the function's old eleven arguments
+  for (const v of vectorsV125()) if (v.fn === "gather") out.push({ fn: "gather_as_it_was", args: v.args, want: JSON.parse(JSON.stringify(v.want)) });
   return out;
 }
 
@@ -306,6 +312,8 @@ describe("the cases the database's rules of the forest's gifts are held to", () 
     for (const how of ["pick", "choose", "dig", "shake"]) expect(stagged.some((g) => riding(g) && off(g) === 2 && g.did.ok && ruleOf(g.spot).how === how), how).toBe(true);
     expect(stagged.some((g) => riding(g) && off(g) === 2 && g.did.ok && isSecret(g.id)) && stagged.some((g) => riding(g) && off(g) === 3 && !g.did.ok && g.did.why === "far")
       && stagged.some((g) => !riding(g) && off(g) === 2 && !g.did.ok && g.did.why === "far") && stagged.some((g) => riding(g) && off(g) === 2 && g.did.ok && g.p.stamina.left - g.did.purse!.stamina.left >= 2)).toBe(true);
+    expect(of("gather_as_it_was").length).toBe(1400);
+    expect(of("gather_as_it_was").every((v) => v.args.length === 11)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-forest.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

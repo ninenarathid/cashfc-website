@@ -41,12 +41,12 @@ $$;
 -- places themselves), and their numbers go on from the last of `spots`: so `town_takes` keeps who took from them as
 -- it does of every place, and what one holds is rolled by the same rule from the same word.
 -- A place of a number, one everybody has or a secret one (lib/town/forest's placeAt); null for what is no place's.
+-- (The places everybody has are looked at first and by their number alone: the forest is listed place by place.)
 create or replace function town.wild_place(p_f jsonb, p_spot integer)
 returns jsonb language sql immutable
 as $$
   select case when p_spot is null or p_spot < 0 then null
-    when p_spot < jsonb_array_length(p_f->'spots') then p_f->'spots'->p_spot
-    else p_f->'secret'->'spots'->(p_spot - jsonb_array_length(p_f->'spots')) end
+    else coalesce(p_f->'spots'->p_spot, p_f->'secret'->'spots'->(p_spot - jsonb_array_length(p_f->'spots'))) end
 $$;
 
 -- What a kind of place is, as rules (lib/town/forest's ruleOf): a kind everybody has, or a secret place's.
@@ -62,7 +62,8 @@ as $$
     and p_spot < jsonb_array_length(p_f->'spots') + jsonb_array_length(coalesce(p_f->'secret'->'spots', '[]'::jsonb)), false)
 $$;
 
--- town.wild_holds: v125's. Changed: the place and its kind are looked up among the secret places too (two lines).
+-- town.wild_holds: v125's. Changed: the place and its kind are looked up among the secret places too (two lines;
+-- written out there and not asked of the two rules above, since the forest is listed by asking this of every place).
 CREATE OR REPLACE FUNCTION town.wild_holds(p_spot integer, p_now bigint, p_cat jsonb DEFAULT NULL::jsonb, p_word text DEFAULT NULL::text)
  RETURNS jsonb
  LANGUAGE plpgsql
@@ -70,8 +71,8 @@ CREATE OR REPLACE FUNCTION town.wild_holds(p_spot integer, p_now bigint, p_cat j
 AS $function$
 declare
   f jsonb := coalesce(p_cat, town.cat('forest'));
-  spot jsonb := town.wild_place(f, p_spot);
-  kind jsonb := town.wild_rule(f, spot->>0);
+  spot jsonb := coalesce(f->'spots'->p_spot, f->'secret'->'spots'->(p_spot - jsonb_array_length(f->'spots')));
+  kind jsonb := coalesce(f->'kinds'->(spot->>0), f->'secret'->'kinds'->(spot->>0));
   word text := coalesce(p_word, town.word());
   every bigint;
   phase bigint;
@@ -434,7 +435,7 @@ begin
   for i in 0..jsonb_array_length(f->'spots') - 1 + case when lit then jsonb_array_length(coalesce(f->'secret'->'spots', '[]'::jsonb)) else 0 end loop
     has := town.wild_holds(i, now_, f, word);
     continue when has is null;
-    kind := town.wild_rule(f, town.wild_place(f, i)->>0);
+    kind := coalesce(f->'kinds'->(f->'spots'->i->>0), f->'secret'->'kinds'->(f->'secret'->'spots'->(i - jsonb_array_length(f->'spots'))->>0));
     t := took->(i::text || ':' || (has->>'turn'));
     continue when t is not null and ((t->>'mine')::boolean or (t->>'n')::int >= (kind->>'shares')::int);
     out_ := out_ || jsonb_build_array(jsonb_build_array(i, case when kind->>'how' = 'dig' and not lit then null else has->>'item' end, (has->>'n')::int, (has->>'until')::bigint));
