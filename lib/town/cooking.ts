@@ -2,7 +2,7 @@ import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
 import { hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
-import { begun, hasBuff, mayEat, spend } from "./stamina";
+import { begun, hasBuff, mayEat, sitDown, spend } from "./stamina";
 import type { TimingMods } from "./timing";
 import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -473,4 +473,24 @@ export function cookWith(purse: Purse, things: Array<[ItemId, number]>, crew: Ar
   const more = numberOf("famSprite"), at = did.purse.bag.findIndex((s, i) => s?.item === "potFull" && s.of?.dish === did.made && purse.bag[i]?.item !== "potFull");
   if (at < 0) return { ...did, sprite: true };
   return { ...did, sprite: true, n: did.n + more, purse: { ...did.purse, bag: did.purse.bag.map((s, i) => (i === at && s?.of ? { ...s, of: { dish: s.of.dish, left: s.of.left + more } } : s)) } };
+}
+
+/**
+ * The stardust spice (the kitchen's fifth rank): sprinkled on a bowl about to be eaten, out of the bag or out of the
+ * basket. The meal is begun as ever, and when it is eaten up its buff is at the spice's level at once (the gift's
+ * number: the last), whatever it was: lib/town/stamina's `spiceOf` and `raised`. Its hours are as they would have
+ * been: a buff one has runs on as it ran, one that is new lasts as any new one. So many times a day
+ * (lib/town/gifts' USES), counted as it is sprinkled.
+ *
+ * It can still come to nothing: getting up before the bowl is eaten forfeits its buff as ever, and the sprinkling
+ * with it. A dish that leaves no buff has nothing for it to raise: it is not sprinkled, and not counted.
+ */
+export function spiceEat(purse: Purse, from: { slot: number } | { dish: string }, seated: boolean, now: number): Gifted<{ purse: Purse; dish: DishId }> {
+  if (!hasThing(purse, "thingSpice")) return nay("none");
+  const sat = "dish" in from ? basketEat(purse, from.dish, seated, now) : sitDown(purse, from.slot, seated, now);
+  if (!sat.ok) return sat;
+  if (!DISHES[sat.dish].buff) return nay("none");
+  const used = useGift(sat.purse, "thingSpice", now);
+  if (!used.ok) return nay(used.why);
+  return { ok: true, dish: sat.dish, purse: { ...used.purse, spiced: { from: now, level: numberOf("thingSpice") } } };
 }

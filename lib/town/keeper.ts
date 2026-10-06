@@ -348,6 +348,11 @@ export interface Keeper {
    * more it will answer today. Me alone: nothing of it goes to the room.
    */
   spoonAsk(things: Array<[ItemId, number]>): Promise<KitchenDid<{ of: ItemId; secret: ItemId; ways: number; left: number }>>;
+  /**
+   * The stardust spice (lib/town/cooking): sitting down to a helping out of a slot of my bag, or out of the basket,
+   * with the spice sprinkled on it: eaten up, its buff is at the last level at once. Once a day.
+   */
+  spiceEat(from: { slot: number } | { dish: DishId }, seated: boolean): Promise<KitchenDid<{ dish: DishId }>>;
 
   dealOpen(other: string, myName: string, otherName: string): Promise<Did>;
   dealLay(give: Give, coins?: number): Promise<Did>;
@@ -1062,6 +1067,9 @@ export class DbKeeper implements Keeper {
   basketTake(dish: DishId, n: number) { return this.deed<{ dish: DishId; n: number }>("town_basket_take", { p_dish: dish, p_n: n }); }
   basketEat(dish: DishId, seated: boolean) { return this.deed<{ dish: DishId }>("town_basket_eat", { p_dish: dish, p_seated: seated }); }
   spoonAsk(things: Array<[ItemId, number]>) { return this.deed<{ of: ItemId; secret: ItemId; ways: number; left: number }>("town_spoon", { p_things: things }); }
+  spiceEat(from: { slot: number } | { dish: DishId }, seated: boolean) {
+    return this.deed<{ dish: DishId }>("town_spice_eat", { p_slot: "slot" in from ? from.slot : null, p_dish: "dish" in from ? from.dish : null, p_seated: seated });
+  }
 
   async dealOpen(other: string): Promise<Did> {
     const did = await this.deed("town_deal_open", { p_other: other });

@@ -8,5 +8,9 @@
   "whispers_of": "town.whispers_of($1::jsonb)",
   "spoon_says": "town.spoon_says($1::jsonb, $2::jsonb)",
   "spoon": "town.spoon($1::jsonb, $2::jsonb, $3::bigint)",
-  "cook_with": "town.cook_with($1::jsonb, $2::jsonb, $3::jsonb, $4::double precision, $5::bigint, $6::jsonb)"
+  "cook_with": "town.cook_with($1::jsonb, $2::jsonb, $3::jsonb, $4::double precision, $5::bigint, $6::jsonb)",
+  "spice_of": "to_jsonb(town.spice_of($1::jsonb))",
+  "raised_to": "town.raised_to($1::jsonb, $2::text, $3::bigint, $4::integer)",
+  "chew": "town.chew($1::jsonb, $2::double precision, $3::bigint)",
+  "spice_eat": "town.spice_eat($1::jsonb, $2::integer, $3::text, $4::boolean, $5::bigint)"
 }

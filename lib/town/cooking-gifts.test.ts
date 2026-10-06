@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { COOKING, RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cook, cookWith, inBasket, needsOf, readsAll, spoon, spoonSays, whispersOf } from "./cooking";
+import { COOKING, RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cook, cookWith, inBasket, needsOf, readsAll, spiceEat, spoon, spoonSays, whispersOf } from "./cooking";
 import { USES, numberOf, usesLeft } from "./gifts";
 import { toldOf } from "./hints";
-import { DISHES, ITEMS, MAKES, type DishId, type ItemId } from "./items";
-import { STAMINA, chew, sitDown, staminaOf } from "./stamina";
+import { BUFF_HOURS, BUFF_LEVELS, DISHES, ITEMS, MAKES, type DishId, type ItemId } from "./items";
+import { STAMINA, chew, getUp, levelOf, settle, sitDown, spiceOf, staminaOf } from "./stamina";
 import { held, newPurse, put, type Purse } from "./trade";
 
 /** The gifts of the kitchen's ranks (lib/town/gifts), as rules: the second rank's basket to the sixth's flame. */
@@ -251,5 +251,80 @@ describe("the hearth sprite (the kitchen's fourth rank)", () => {
     const before: Purse = { ...p, bag: p.bag.map((s, i) => (i === 7 ? { item: "potFull" as ItemId, n: 1, of: { dish: "tomYum" as DishId, left: 2 } } : s)) };
     const did = done(cookWith(before, TOMYUM, ["pot"], 0, NOON, { sprite: true }));
     expect(pots(did.purse).sort((a, b) => a!.left - b!.left)).toEqual([{ dish: "tomYum", left: 2 }, { dish: "tomYum", left: SERVES + MORE }]);
+  });
+});
+
+describe("the stardust spice (the kitchen's fifth rank)", () => {
+  const MEAL = STAMINA.minutes * MIN, HOURS = BUFF_HOURS * 60 * MIN, TOP = numberOf("thingSpice");
+  const withSpice = (...items: Array<[ItemId, number]>) => purseWith(["thingSpice"], ...items);
+  it("sprinkled on a bowl about to be eaten: eaten up, its buff is at the last level at once", () => {
+    expect(TOP).toBe(BUFF_LEVELS);
+    const p = withSpice(["tomYum", 2]);
+    const sat = done(spiceEat(Object.freeze(p) as Purse, { slot: 0 }, true, NOON));
+    // the meal is begun as ever, and the sprinkling is of that meal
+    expect(sat.purse.eating).toEqual(done(sitDown(p, 0, true, NOON)).purse.eating);
+    expect(sat.purse.meals).toEqual(done(sitDown(p, 0, true, NOON)).purse.meals);
+    expect(sat.purse.spiced).toEqual({ from: NOON, level: TOP });
+    expect(spiceOf(sat.purse)).toBe(TOP);
+    expect(usesLeft(sat.purse, "thingSpice", NOON)).toBe(0);
+    // half eaten, nothing yet; eaten up, the fourth level, for a new buff's hours
+    expect(levelOf(chew(sat.purse, 0, NOON + MEAL / 2).purse, NOON + MEAL / 2, "hearty")).toBe(0);
+    const eaten = chew(sat.purse, 0, NOON + MEAL);
+    expect(eaten.done).toBe(true);
+    expect(eaten.purse.buffs).toEqual([{ id: "hearty", level: TOP, until: NOON + MEAL + HOURS }]);
+    expect(eaten.purse.buff).toEqual({ id: "hearty", until: NOON + MEAL + HOURS });
+    // …where a plain bowl leaves the first
+    expect(chew(done(sitDown(p, 0, true, NOON)).purse, 0, NOON + MEAL).purse.buffs).toEqual([{ id: "hearty", level: 1, until: NOON + MEAL + HOURS }]);
+    // a tab closed at the table: the meal that ran out is settled the same
+    expect(settle(sat.purse, NOON + 30 * MIN).buffs).toEqual([{ id: "hearty", level: TOP, until: NOON + MEAL + HOURS }]);
+  });
+
+  it("raises a buff one has to the last level with its hours as they run, and never past the last", () => {
+    for (const level of [1, 2, 3, 4]) {
+      const p: Purse = { ...withSpice(["tomYum", 1]), buffs: [{ id: "hearty", level, until: NOON + 40 * MIN }, { id: "keen", level: 2, until: NOON + 90 * MIN }] };
+      const eaten = chew(done(spiceEat(p, { slot: 0 }, true, NOON)).purse, 0, NOON + MEAL).purse;
+      expect(eaten.buffs).toEqual([{ id: "hearty", level: TOP, until: NOON + 40 * MIN }, { id: "keen", level: 2, until: NOON + 90 * MIN }]);
+    }
+  });
+
+  it("is once a day, counted as it is sprinkled; and can still come to nothing", () => {
+    const p = withSpice(["tomYum", 3]);
+    const sat = done(spiceEat(p, { slot: 0 }, true, NOON));
+    // getting up before the bowl is eaten forfeits its buff as ever, and the sprinkling with it
+    const up = getUp(sat.purse, 0, NOON + 2 * MIN);
+    expect(up.eating).toBeNull();
+    expect(up.buffs ?? []).toEqual([]);
+    expect(usesLeft(up, "thingSpice", NOON + 2 * MIN)).toBe(0);
+    // no second sprinkling today: refused, and no meal is begun for it
+    expect(spiceEat(up, { slot: 0 }, true, NOON + 3 * MIN)).toEqual({ ok: false, why: "spent" });
+    // the next bowl, eaten plain, is plain: a sprinkling is of its own meal and no other
+    const plain = done(sitDown(up, 0, true, NOON + 3 * MIN));
+    expect(spiceOf(plain.purse)).toBe(0);
+    expect(chew(plain.purse, 0, NOON + 3 * MIN + MEAL).purse.buffs).toEqual([{ id: "hearty", level: 1, until: NOON + 3 * MIN + MEAL + HOURS }]);
+    // tomorrow, once more
+    const next = NOON + 24 * 60 * MIN;
+    expect(done(spiceEat({ ...up, meals: { day: -1, eaten: [false, false, false] } }, { slot: 0 }, true, next)).purse.spiced).toEqual({ from: next, level: TOP });
+  });
+
+  it("is refused as the meal itself would be, and where there is nothing for it to raise: nothing begun, nothing counted", () => {
+    const p = withSpice(["tomYum", 1], ["grilledCorn", 1], ["minnow", 1]);
+    expect(spiceEat(purseWith([], ["tomYum", 1]), { slot: 0 }, true, NOON)).toEqual({ ok: false, why: "none" });
+    expect(spiceEat(p, { slot: 0 }, false, NOON)).toEqual({ ok: false, why: "stand" });
+    expect(spiceEat(p, { slot: 2 }, true, NOON)).toEqual({ ok: false, why: "none" });
+    expect(spiceEat(p, { slot: 7 }, true, NOON)).toEqual({ ok: false, why: "none" });
+    // a dish that leaves no buff
+    expect(DISHES.grilledCorn.buff).toBeUndefined();
+    expect(spiceEat(p, { slot: 1 }, true, NOON)).toEqual({ ok: false, why: "none" });
+    const full: Purse = { ...p, meals: { day: Math.floor((NOON + 2 * 3_600_000) / 86_400_000), eaten: [false, true, false], bowls: [0, 3, 0] } };
+    expect(spiceEat(full, { slot: 0 }, true, NOON)).toEqual({ ok: false, why: "meal" });
+  });
+
+  it("is sprinkled on a bowl out of the basket as on one out of the bag", () => {
+    const p: Purse = { ...purseWith(["thingSpice", "thingBasket"]), basket: [["friedMinnow", 2]] };
+    const sat = done(spiceEat(p, { dish: "friedMinnow" }, true, NOON));
+    expect(sat.purse.basket).toEqual([["friedMinnow", 1]]);
+    expect(chew(sat.purse, 0, NOON + MEAL).purse.buffs).toEqual([{ id: "keen", level: TOP, until: NOON + MEAL + HOURS }]);
+    expect(spiceEat({ ...p, gifts: { had: ["thingSpice"], charms: [] } }, { dish: "friedMinnow" }, true, NOON)).toEqual({ ok: false, why: "none" });
+    expect(spiceEat(p, { dish: "tomYum" }, true, NOON)).toEqual({ ok: false, why: "none" });
   });
 });

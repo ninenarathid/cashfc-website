@@ -256,6 +256,7 @@ class TrialKeeper implements Keeper {
   async basketTake(dish: DishId, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketTake(dish, n); }
   async basketEat(dish: DishId, seated: boolean): Promise<KitchenDid<{ dish: DishId }>> { return this.trial.basketEat(dish, seated); }
   async spoonAsk(things: Array<[ItemId, number]>): Promise<KitchenDid<{ of: ItemId; secret: ItemId; ways: number; left: number }>> { return this.trial.spoonAsk(things); }
+  async spiceEat(from: { slot: number } | { dish: DishId }, seated: boolean): Promise<KitchenDid<{ dish: DishId }>> { return this.trial.spiceEat(from, seated); }
 
   async dealOpen(other: string, myName: string, otherName: string): Promise<Did> { return this.trial.dealOpen(other, myName, otherName); }
   async dealLay(give: Give, coins = 0): Promise<Did> { return this.trial.dealLay(give, coins); }

@@ -1,10 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cookWith, needsOf, spoon, spoonSays, takes, whispersOf } from "./cooking";
+import { RECIPE_IDS, basketEat, basketOf, basketPut, basketRoom, basketTake, cookWith, needsOf, spiceEat, spoon, spoonSays, takes, whispersOf } from "./cooking";
 import { stretchOf } from "./gifts";
-import { ITEMS, type DishId, type ItemId } from "./items";
-import { begun, dayOf } from "./stamina";
+import { ITEMS, type DishId, type ItemId, type MealBuffId } from "./items";
+import { STAMINA, begun, chew, dayOf, raised, spiceOf } from "./stamina";
 import { newPurse, put, type Purse } from "./trade";
 
 /**
@@ -24,7 +24,11 @@ import { newPurse, put, type Purse } from "./trade";
  *   day's answers kept (none, some, all, of another day);
  * - `cook_with`: pots cooked by the hearth sprite and by hand: the sprite following, resting and not had; recipes made
  *   before and not, dishes and what is made otherwise, with one cook and with two; the cookware in the hand and not;
- *   every count of these hours' pots kept; a ladle, a pot of the same dish in the bag already, a bag with no room.
+ *   every count of these hours' pots kept; a ladle, a pot of the same dish in the bag already, a bag with no room;
+ * - `spice_of`, `raised_to`, `chew`, `spice_eat`: a sprinkling of the meal at hand, of another meal, kept wrongly and
+ *   not at all; a buff had at every level, run out, and not had, raised with a level and with none; meals counted on
+ *   before, at and after their end, sprinkled and plain, of dishes that leave a buff and that leave none; and bowls
+ *   sprinkled out of the bag and the basket, sitting and not, with the day's one sprinkling had and not.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-gifts-kitchen.test.ts
  */
@@ -183,6 +187,38 @@ export function vectorsKitchen(): Vector[] {
     const misses = c.of([0, 0, 1, 3, 9]);
     add("cook_with", [p, things, crew, misses, now, how], cookWith(p, things, crew, misses, now, how as { sprite?: boolean }));
   }
+  // the stardust spice: which meal is sprinkled, what a sprinkled bowl leaves, and the sprinkling itself
+  const MEAL = STAMINA.minutes * 60_000, BUFFS: MealBuffId[] = ["calm", "keen", "lucky", "hearty", "green", "forage", "net"];
+  const buffsKept = (now: number) => c.of<() => Purse["buffs"] | undefined>([() => undefined, () => [], () => [{ id: c.of(BUFFS), level: c.int(1, 4), until: now + c.int(1, 170) * 60_000 }],
+    () => [{ id: "hearty", level: c.int(1, 4), until: now + 40 * 60_000 }, { id: "keen", level: 2, until: now + 90 * 60_000 }], () => [{ id: "hearty", level: 3, until: now - 60_000 }], () => [{ id: "calm", level: 4, until: now + 5 * 60_000 }, { id: "forage", level: 1, until: now + 60_000 }]])();
+  const sprinkling = (from: number) => c.of<() => unknown>([() => undefined, () => undefined, () => ({ from, level: 4 }), () => ({ from, level: 4 }), () => ({ from, level: 4 }), () => ({ from: from - 1, level: 4 }), () => ({ from, level: 0 }), () => ({ from, level: 2.5 }),
+    () => ({ from, level: "4" }), () => ({ level: 4 }), () => "yes", () => null, () => ({ from: String(from), level: 4 }), () => ({ from, level: 9 })])();
+  for (let i = 0; i < 300; i++) {
+    const from = NOON - c.of([0, 60_000, MEAL - 1, MEAL, MEAL + 60_000]), dish = c.of<DishId>(["tomYum", "friedMinnow", "grilledCorn", "riceBox", "oddDish", "moonTea", "mushroomSoup"]);
+    const eating = c.maybe(0.12) ? null : { dish, meal: 1 as const, from, till: from + c.of([0, 30_000, 120_000]), got: c.of([0, 3.5]) };
+    const sp = sprinkling(from), bf = buffsKept(NOON);
+    const p = { ...newPurse(), stamina: { day: dayOf(NOON), left: c.of([0, 40, 99.5]) }, meals: { day: dayOf(NOON), eaten: [false, true, false], bowls: [0, 1, 0] }, eating, bag: put(newPurse().bag, "boot", c.of([0, 1])),
+      ...(sp === undefined ? {} : { spiced: sp }), ...(bf === undefined ? {} : { buffs: bf }), ...(c.maybe(0.3) ? { owed: 1 } : {}) } as Purse;
+    add("spice_of", [p], spiceOf(p));
+    add("chew", [p, c.of([0, 0, 2, 7]), NOON], chew(p, c.of([0]), NOON));
+    const id = c.of(BUFFS), to = c.of([0, 0, 1, 2, 4, 4, 5]);
+    add("raised_to", [p, id, NOON, to], raised(p, id, NOON, to));
+  }
+  // (chew's company was drawn twice above: answered again as it was asked)
+  for (const v of out) if (v.fn === "chew") v.want = JSON.parse(JSON.stringify(chew(v.args[0] as Purse, v.args[1] as number, v.args[2] as number)));
+  const kDay2 = stretchOf({ n: 1, per: "day" }, NOON);
+  for (let i = 0; i < 360; i++) {
+    const now = c.of(WHENS), day = dayOf(now);
+    const g = c.of<() => Purse["gifts"] | undefined>([() => undefined, () => ({ had: ["thingBasket"], charms: [] }), () => ({ had: ["thingSpice"], charms: [] }), () => ({ had: ["thingSpice", "thingBasket"], charms: [] }), () => ({ had: ["thingSpice", "thingBasket"], charms: [] }),
+      () => ({ had: ["thingSpice", "thingBasket"], charms: [], used: { thingSpice: { k: stretchOf({ n: 1, per: "day" }, now), n: 1 } } }), () => ({ had: ["thingSpice"], charms: [], used: { thingSpice: { k: kDay2 - 3, n: 1 } } })])();
+    const meals = c.of<() => Purse["meals"]>([() => ({ day: -1, eaten: [false, false, false] }), () => ({ day, eaten: [false, false, false], bowls: [0, 0, 0] }), () => ({ day, eaten: [true, true, true], bowls: [3, 3, 3] }), () => ({ day, eaten: [true, true, true], bowls: [c.int(0, 2), c.int(0, 2), c.int(0, 2)] })])();
+    const p = { ...newPurse(), stamina: { day, left: 50 }, meals, eating: c.maybe(0.1) ? { dish: "riceBox" as DishId, meal: 1 as const, from: now - 60_000, till: now - 60_000, got: 0 } : null,
+      bag: bag(8, c.of([0.5, 0.9])), ...(g ? { gifts: g } : {}), ...(c.maybe(0.6) ? { basket: basket() as Purse["basket"] } : {}), ...(c.maybe(0.3) ? { spiced: { from: now - 999, level: 4 } } : {}) } as Purse;
+    const mine = basketOf(p), fromBasket = c.maybe(0.4);
+    const slot = c.of([c.int(0, 7), c.int(0, 7), -1, 99]), dish = c.of<string>([mine[0]?.[0] ?? "tomYum", mine[mine.length - 1]?.[0] ?? "grilledCorn", "grilledCorn", "minnow"]);
+    const seated = c.of<boolean | null>([true, true, true, true, false, null]);
+    add("spice_eat", [p, fromBasket ? null : slot, fromBasket ? dish : null, seated, now], spiceEat(p, fromBasket ? { dish } : { slot }, seated as boolean, now));
+  }
   return out;
 }
 
@@ -229,6 +265,19 @@ describe("the cases the database's rules of the kitchen's gifts are held to", ()
     expect(bySprite.some((x) => x.d.ok && x.misses >= 3 && x.d.made! in { tomYum: 1, friedMinnow: 1, crabCurry: 1, grilledCorn: 1, shabu: 1 })).toBe(true);
     expect(byHand.some((x) => x.d.ok && x.d.made === "oddDish")).toBe(true);
     expect(byHand.some((x) => x.d.ok && x.d.made !== "oddDish" && x.d.made !== null)).toBe(true);
+    // the spice: a sprinkling that is this meal's and one that is not; a buff raised to the last level, new and had; meals ended sprinkled and plain
+    expect(new Set(of("spice_of").map((v) => v.want)).size).toBeGreaterThan(2);
+    expect(of("spice_of").some((v) => v.want === 4) && of("spice_of").some((v) => v.want === 0 && (v.args[0] as Purse).spiced !== undefined)).toBe(true);
+    const ended = of("chew").map((v) => ({ before: v.args[0] as Purse, d: v.want as { done: boolean; purse: Purse } })).filter((x) => x.d.done);
+    const top = (x: (typeof ended)[number]) => (x.d.purse.buffs ?? []).some((b) => b.level === 4 && !(x.before.buffs ?? []).some((w) => w.id === b.id && w.level >= 3));
+    expect(ended.some((x) => spiceOf(x.before) === 4 && top(x)) && ended.some((x) => spiceOf(x.before) === 0 && (x.d.purse.buffs ?? []).some((b) => b.level === 1))).toBe(true);
+    expect(ended.every((x) => spiceOf(x.before) > 0 || !top(x))).toBe(true);
+    expect(of("chew").some((v) => !(v.want as { done: boolean }).done)).toBe(true);
+    const raises = of("raised_to").map((v) => ({ to: v.args[3] as number, d: v.want as { buffs: Array<{ id: string; level: number }> }, id: v.args[1] as string }));
+    expect(raises.some((x) => x.to === 4 && x.d.buffs.find((b) => b.id === x.id)!.level === 4) && raises.some((x) => x.to === 0 && x.d.buffs.find((b) => b.id === x.id)!.level === 1) && raises.every((x) => x.d.buffs.every((b) => b.level <= 4))).toBe(true);
+    expect([...whys("spice_eat")].sort()).toEqual(["meal", "none", "ok", "spent", "stand"]);
+    const sprinkled = of("spice_eat").filter((v) => (v.want as { ok: boolean }).ok).map((v) => ({ fromBasket: v.args[2] !== null, now: v.args[4] as number, p: (v.want as { purse: Purse }).purse }));
+    expect(sprinkled.some((x) => x.fromBasket) && sprinkled.some((x) => !x.fromBasket) && sprinkled.every((x) => x.p.spiced!.from === x.now && x.p.spiced!.level === 4 && x.p.eating!.from === x.now)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-kitchen.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

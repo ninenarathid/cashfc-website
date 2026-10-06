@@ -22,7 +22,8 @@ import type { Sprite } from "@/lib/town/scenery";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownNotices from "./TownNotices";
 // ── gifts: kitchen ──
-import TownBasket from "./TownBasket";
+import TownBasket, { takesSpice } from "./TownBasket";
+import { hasThing, usesLeft } from "@/lib/town/gifts";
 import { Delta, PriceGraph, PriceNow } from "./TownPrice";
 
 /** What of the trade is open on the screen: the uncle's stall (buying, leaving things to be sold, or the notice board beside it, where members sell to one another), the bank, or my own bag. */
@@ -214,6 +215,17 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
     void doing.then((done) => { if (done.ok) say(...thanks); else say(...why(done.why)); });
   };
 
+  // ── gifts: kitchen ── (the stardust spice held over the next bowl, by the bag's own "eat" and the basket's: lib/town/cooking's spiceEat)
+  const [spiceOn, setSpiceOn] = useState(false);
+  const sprinkles = (item: ItemId) => spiceOn && !purse.eating && takesSpice(item) && hasThing(purse, "thingSpice") && usesLeft(purse, "thingSpice", now) > 0;
+  const eatFrom = async (slot: number): Promise<Did> => {
+    const item = purse.bag[slot]?.item;
+    if (!item || !sprinkles(item)) return keeper.sitDown(slot, seated);
+    const did = await keeper.spiceEat({ slot }, seated);
+    if (did.ok) setSpiceOn(false);
+    return did as Did;
+  };
+
   if (!view) return null;
   const uncle = atStall, order = keeper.order(), board = keeper.notices();
   const title = uncle ? (th ? "แผงของลุง" : "The uncle's stall") : view === "bank" ? (th ? "ธนาคาร Popoto" : "The Popoto Bank") : (th ? "กระเป๋าของฉัน" : "My bag");
@@ -267,11 +279,12 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
         {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
-                                kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} />}
+                                kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn} />}
+                                sprinkles={sprinkles}
                                 onWear={(slot) => tried(keeper.wear(slot), ["สะพายแล้ว", "On your back."])}
                                 onTakeOff={(item) => tried(keeper.takeOff(item), ["ถอดเก็บแล้ว", "Taken off."])}
                                 onServe={async (slot) => { const did = await keeper.serve(slot); if (did.ok) say("ตักใส่ถ้วยแล้ว", "A helping, in your bowl."); else say(...(did.why === "tool" ? (["ไม่มีถ้วย", "No bowl"] as [string, string]) : why(did.why))); }}
-                                onEat={(slot) => tried(keeper.sitDown(slot, seated), ["เริ่มกินแล้ว", "Tucking in."])}
+                                onEat={(slot) => tried(eatFrom(slot), ["เริ่มกินแล้ว", "Tucking in."])}
                                 onGetUp={() => { void keeper.getUp(company).then(() => say("ลุกจากมื้ออาหารแล้ว", "You left the meal.")); }}
                                 onRead={async (slot) => {
                                   const item = purse.bag[slot]?.item, dish = item ? SCROLLS[item] : undefined;
@@ -570,10 +583,11 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen }: {
+function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles }: {
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
-  // ── gifts: kitchen ── (what the kitchen's gifts show in the bag's panel, under how I am)
+  // ── gifts: kitchen ── (what the kitchen's gifts show in the bag's panel, under how I am; and whether "eat" will sprinkle the stardust spice on a thing)
   kitchen?: React.ReactNode;
+  sprinkles?: (item: ItemId) => boolean;
   /** How many helpings a meal's hours take with whoever keeps the game (the keeper's `helpings`). */
   helpings: number;
   /** Whether anything can be dropped (onto the ground, where somebody may pick it up); otherwise only what is worth nothing, which is thrown away. And what I dropped that still lies there. */
@@ -712,9 +726,10 @@ function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAl
                     </button>
                   )}
                   {dish && (
-                    <button type="button" disabled={!mayEat || !seated} onClick={() => onEat(slot!)}
-                            className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
-                      {th ? "กิน" : "Eat"}
+                    <button type="button" disabled={!mayEat || !seated} onClick={() => onEat(slot!)} data-bag-eat data-spiced={sprinkles?.(inHand.item) ? "" : undefined}
+                            aria-label={sprinkles?.(inHand.item) ? (th ? "โรยเครื่องเทศแล้วกิน" : "Sprinkle the spice and eat") : undefined}
+                            className="pressable flex min-h-11 shrink-0 items-center gap-1 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
+                      {sprinkles?.(inHand.item) && <TownIcon name={"thingSpice" as IconName} size={18} />}{th ? "กิน" : "Eat"}
                     </button>
                   )}
                   {scroll && (

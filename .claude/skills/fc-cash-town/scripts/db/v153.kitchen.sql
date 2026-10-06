@@ -10,6 +10,10 @@
 --     v129 left it) is written again but for the lines meant: it is told how the pot was cooked with the game's own
 --     account (`p_timing.sprite`), and cooks by `town.cook_with`, which is `town.cook` with the gifts laid over it.
 --     A pot the sprite cooks is written down as a go at the game won, as ever, so the line counts it as it counts any.
+--   * The stardust spice (rank 5): sprinkled on a bowl as it is begun (out of the bag or the basket), once a day;
+--     eaten up, that bowl's buff is at the fourth level at once. Which meal was sprinkled is kept in the purse
+--     (`spiced`, by the moment the meal began). `town.chew` (v146's) is written again but for one line: the buff a
+--     meal leaves is raised by `town.raised_to`, which is `town.raised` with a level it is at once at the least.
 --
 -- No table. No coins and no thing that can be sold comes of any of it.
 
@@ -314,6 +318,98 @@ begin
 end;
 $$;
 
+-- ─── The stardust spice ──────────────────────────────────────────────────
+
+-- The level the buff of the meal being eaten goes to at once when it is eaten up (lib/town/stamina's spiceOf): the
+-- sprinkling's own, where it is of this meal (by the moment the meal began); none (0) otherwise.
+create or replace function town.spice_of(p_purse jsonb)
+returns integer language sql immutable
+as $$
+  select case when coalesce(p_purse->'eating', 'null'::jsonb) <> 'null'::jsonb and jsonb_typeof(p_purse->'spiced') = 'object'
+               and jsonb_typeof(p_purse->'spiced'->'from') = 'number' and p_purse->'spiced'->'from' = p_purse->'eating'->'from'
+               and jsonb_typeof(p_purse->'spiced'->'level') = 'number' and (p_purse->'spiced'->>'level')::numeric > 0
+    then floor((p_purse->'spiced'->>'level')::numeric)::integer else 0 end
+$$;
+
+-- What a purse has of meals' buffs once a helping that leaves p_id is eaten up (lib/town/stamina's raised, with its
+-- `to`): town.raised (v146's, as it is), but that the level is p_level at once at the least, never past the last.
+create or replace function town.raised_to(p_purse jsonb, p_id text, p_now bigint, p_level integer)
+returns jsonb language plpgsql stable
+as $$
+declare
+  st jsonb := town.cat('stamina');
+  live jsonb := town.meal_buffs(p_purse, p_now);
+  at_ integer := (select (e.ord - 1)::int from jsonb_array_elements(live) with ordinality as e(b, ord) where e.b->>'id' = p_id order by e.ord limit 1);
+  buffs jsonb;
+begin
+  if at_ is null then
+    buffs := live || jsonb_build_array(jsonb_build_object('id', p_id, 'level', least((st->>'levels')::int, greatest(1, coalesce(p_level, 0))), 'until', p_now + (st->>'hours')::bigint * 3600000));
+    at_ := jsonb_array_length(buffs) - 1;
+  else
+    buffs := jsonb_set(live, array[at_::text, 'level'], to_jsonb(least((st->>'levels')::int, greatest((live->at_->>'level')::int + 1, coalesce(p_level, 0)))));
+  end if;
+  return jsonb_build_object('buffs', buffs,
+    'buff', case when st->'buffs' ? p_id then jsonb_build_object('id', p_id, 'until', buffs->at_->'until') else coalesce(p_purse->'buff', 'null'::jsonb) end);
+end;
+$$;
+
+-- A meal counted on (lib/town/stamina's chew): v146's, written again but for one line: the buff it leaves when it
+-- is eaten up is raised by town.raised_to, to the level a sprinkled bowl's goes to (none, for any other bowl: then
+-- it is raised as it always was).
+create or replace function town.chew(p_purse jsonb, p_company double precision, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  e jsonb := coalesce(p_purse->'eating', 'null'::jsonb);
+  st jsonb := town.cat('stamina');
+  whole bigint;
+  ends bigint;
+  till bigint;
+  dish jsonb;
+  gain double precision;
+  done boolean;
+  after jsonb;
+begin
+  if e = 'null'::jsonb then return jsonb_build_object('purse', p_purse, 'done', false); end if;
+  whole := (st->>'minutes')::bigint * 60000;
+  ends := (e->>'from')::bigint + whole;
+  till := least(p_now, ends);
+  dish := town.cat('dishes')->(e->>'dish');
+  gain := (dish->>'stamina')::double precision
+    * (greatest(0, till - (e->>'till')::bigint)::double precision / whole::double precision)
+    * (1::double precision + (st->>'together')::double precision * least((st->>'company')::int, greatest(0, floor(p_company)::int)));
+  done := p_now >= ends;
+  after := p_purse || jsonb_build_object(
+    'stamina', jsonb_build_object('day', town.day_of(p_now), 'left', least((st->>'max')::double precision, town.stamina_of(p_purse, p_now) + gain)),
+    'eating', case when done then 'null'::jsonb else e || jsonb_build_object('till', till, 'got', (e->>'got')::double precision + gain) end)
+    || case when done and coalesce(dish->'buff', 'null'::jsonb) <> 'null'::jsonb then town.raised_to(p_purse, dish->>'buff', p_now, town.spice_of(p_purse)) else '{}'::jsonb end;
+  if not done then return jsonb_build_object('done', false, 'purse', after); end if;
+  return jsonb_build_object('done', true, 'purse',
+    town.bowls_back(after, case when town.cat('cooking')->'bowled' ? (e->>'dish') then 1 else 0 end));
+end;
+$$;
+
+-- Sitting down to a helping with the spice sprinkled on it (lib/town/cooking's spiceEat): out of a slot of the bag,
+-- or (p_dish) out of the basket. The meal is begun as ever; a dish that leaves no buff is not sprinkled; counted as
+-- it is sprinkled.
+create or replace function town.spice_eat(p_purse jsonb, p_slot integer, p_dish text, p_seated boolean, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  sat jsonb;
+  used jsonb;
+begin
+  if not town.gift_works(p_purse, 'thingSpice') then return town.no('none'); end if;
+  sat := case when p_dish is not null then town.basket_eat(p_purse, p_dish, p_seated, p_now) else town.sit_down(p_purse, p_slot, p_seated, p_now) end;
+  if not (sat->>'ok')::boolean then return sat; end if;
+  if coalesce(town.cat('dishes')->(sat->>'dish')->'buff', 'null'::jsonb) = 'null'::jsonb then return town.no('none'); end if;
+  used := town.gift_use(sat->'purse', 'thingSpice', p_now);
+  if not (used->>'ok')::boolean then return used; end if;
+  return jsonb_build_object('ok', true, 'dish', sat->'dish', 'purse', (used->'purse') || jsonb_build_object('spiced',
+    jsonb_build_object('from', p_now, 'level', (town.cat('gifts')->'gifts'->'thingSpice'->>'by')::integer)));
+end;
+$$;
+
 -- ─── What a member does ──────────────────────────────────────────────────
 
 create or replace function public.town_basket_put(p_slot integer, p_n integer)
@@ -385,6 +481,27 @@ begin
 end;
 $$;
 
+-- (a meal begun, written down as `eat` with where the helping was and that it was sprinkled; and the gift used)
+create or replace function public.town_spice_eat(p_slot integer, p_dish text, p_seated boolean)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  now_ bigint := town.now_ms();
+  did jsonb := town.spice_eat(town.purse_of(me, true), p_slot, p_dish, p_seated, now_);
+begin
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'purse');
+    perform town.note(me, 'eat', did->>'dish', 1, 0, jsonb_build_object('from', case when p_dish is not null then 'basket' else 'bag' end, 'spice', true));
+    perform town.note(me, 'gift_use', 'thingSpice', 1, 0, jsonb_build_object('dish', did->'dish',
+      'left', (town.cat('gifts')->'uses'->'thingSpice'->>'n')::integer - town.used_of(did->'purse', 'thingSpice', now_)));
+  end if;
+  return town.answer(me, did);
+end;
+$$;
+
+revoke execute on function public.town_spice_eat(integer, text, boolean) from public, anon;
+grant execute on function public.town_spice_eat(integer, text, boolean) to authenticated;
 revoke execute on function public.town_spoon(jsonb) from public, anon;
 grant execute on function public.town_spoon(jsonb) to authenticated;
 revoke execute on function public.town_basket_put(integer, integer) from public, anon;

@@ -143,4 +143,62 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, give, pa
   await patch(U.m2, { bag: larder(), hand: "pot", made: ["tomYum"], stamina: { day, left: 100 } });
   did = await call(U.m2, "town_cook", TOMYUM, "{}", BY_SPRITE);
   t.check("another member's sprite is no sprite of mine", did?.why === "none" && (await purseOf(U.m2)).bag[0].n === 6, did);
+
+  t.section("the stardust spice (rank 5)");
+  const fresh = { eating: null, buffs: [], buff: null, spiced: null, meals: { day, eaten: [false, false, false], bowls: [0, 0, 0] } };
+  /** The meal at hand put back six minutes, and its sprinkling with it (a sprinkling is of its meal, by the moment that meal began), then counted on: it is over. */
+  const finish = async (who) => {
+    const q = await purseOf(who), back = 6 * 60000;
+    await patch(who, { eating: { ...q.eating, from: q.eating.from - back, till: q.eating.till - back }, ...(q.spiced ? { spiced: { ...q.spiced, from: q.spiced.from - back } } : {}) });
+    return call(who, "town_chew", 0);
+  };
+  const levels = (q) => (q.buffs ?? []).map((b) => [b.id, b.level]);
+  await patch(U.m2, { ...fresh, bag: bag({ item: "tomYum", n: 4 }, { item: "grilledCorn", n: 1 }, { item: "minnow", n: 1 }), basket: [["friedMinnow", 2]] });
+  await give(U.m2, { had: ["thingBasket"] });
+  did = await call(U.m2, "town_spice_eat", 0, null, true);
+  t.check("without the gift no bowl is sprinkled, and no meal is begun for the asking", did?.why === "none" && (await purseOf(U.m2)).eating === null && (await purseOf(U.m2)).bag[0].n === 4, did);
+  await give(U.m2, { had: ["thingBasket", "thingSpice"] });
+  const standing = await call(U.m2, "town_spice_eat", 0, null, false), corn = await call(U.m2, "town_spice_eat", 1, null, true), fishy = await call(U.m2, "town_spice_eat", 2, null, true), gone = await call(U.m2, "town_spice_eat", null, "shabu", true);
+  p = await purseOf(U.m2);
+  t.check("refused, with nothing begun and nothing counted: standing, a dish that leaves no buff, what is no dish, a dish the basket has not",
+    standing?.why === "stand" && corn?.why === "none" && fishy?.why === "none" && gone?.why === "none" && p.eating === null && !p.gifts.used?.thingSpice && p.bag[1].n === 1, [standing, corn, fishy, gone].map((d) => d?.why ?? d));
+  const eatsBefore = (await deeds("eat")).length;
+  did = await call(U.m2, "town_spice_eat", 0, null, true);
+  p = await purseOf(U.m2);
+  t.check("sprinkled on a bowl out of the bag: the meal is begun as ever, the sprinkling is of that meal, and the day's one is counted",
+    did?.ok === true && did.dish === "tomYum" && p.eating?.dish === "tomYum" && p.spiced?.from === p.eating.from && p.spiced.level === 4 && p.gifts.used.thingSpice.n === 1 && p.bag[0].n === 3 && p.meals.bowls[meal] === 1, { ...did, purse: undefined, spiced: p.spiced, eating: p.eating });
+  written = await deeds("eat");
+  const usedSpice = (await deeds("gift_use")).filter((d) => d.thing === "thingSpice");
+  t.check("…written down: a meal begun out of the bag with the spice on it, and the gift used", written.length === eatsBefore + 1 && written.at(-1).thing === "tomYum" && written.at(-1).doc.spice === true && written.at(-1).doc.from === "bag"
+    && usedSpice.length === 1 && usedSpice[0].member_id === U.m2 && usedSpice[0].doc.dish === "tomYum" && usedSpice[0].doc.left === 0, { eat: written.at(-1), usedSpice });
+  let chewedUp = await finish(U.m2);
+  p = await purseOf(U.m2);
+  t.check("eaten up, its buff is at the fourth level at once, for a new buff's three hours", chewedUp?.done === true && same(levels(p), [["hearty", 4]]) && p.buffs[0].until - (await one(`select town.now_ms() as n`)).n > 2.9 * 3600000, { buffs: p.buffs });
+  did = await call(U.m2, "town_spice_eat", 0, null, true);
+  t.check("a second sprinkling today is refused, and begins no meal", did?.why === "spent" && (await purseOf(U.m2)).eating === null && (await purseOf(U.m2)).bag[0].n === 3, did);
+  // out of the basket, on another day's count; a buff had at the first level goes to the fourth with its hours as they run
+  await patch(U.m2, { ...fresh, buffs: [{ id: "keen", level: 1, until: (await one(`select town.now_ms() as n`)).n + 40 * 60000 }] });
+  await give(U.m2, { had: ["thingBasket", "thingSpice"] });
+  const keenUntil = (await purseOf(U.m2)).buffs[0].until;
+  did = await call(U.m2, "town_spice_eat", null, "friedMinnow", true);
+  p = await purseOf(U.m2);
+  t.check("sprinkled on a bowl out of the basket the same", did?.ok === true && did.dish === "friedMinnow" && same(p.basket, [["friedMinnow", 1]]) && p.spiced.level === 4 && (await deeds("eat")).at(-1).doc.from === "basket" && (await deeds("eat")).at(-1).doc.spice === true, { ...did, purse: undefined });
+  await finish(U.m2);
+  p = await purseOf(U.m2);
+  t.check("…and a buff one has goes to the fourth level with its hours as they ran", same(levels(p), [["keen", 4]]) && p.buffs[0].until === keenUntil, p.buffs);
+  // a bowl left before it is eaten: the buff is forfeit as ever, and the sprinkling with it; the next bowl is plain
+  await patch(U.m2, { ...fresh });
+  await give(U.m2, { had: ["thingBasket", "thingSpice"] });
+  await call(U.m2, "town_spice_eat", 0, null, true);
+  await call(U.m2, "town_get_up", 0);
+  p = await purseOf(U.m2);
+  const plain = await call(U.m2, "town_sit", 0, true);
+  await finish(U.m2);
+  const after = await purseOf(U.m2);
+  t.check("a bowl left before it is eaten up forfeits its buff and the sprinkling; the next bowl, eaten plain, leaves the first level", p.eating === null && same(levels(p), []) && p.gifts.used.thingSpice.n === 1 && plain?.ok === true && same(levels(after), [["hearty", 1]]), { left: levels(p), after: levels(after) });
+  // somebody without the spice eats as ever
+  await patch(U.m1, { ...fresh, bag: bag({ item: "tomYum", n: 1 }) });
+  await call(U.m1, "town_sit", 0, true);
+  await finish(U.m1);
+  t.check("a meal of somebody without the spice leaves what it always left", same(levels(await purseOf(U.m1)), [["hearty", 1]]), (await purseOf(U.m1)).buffs);
 }
