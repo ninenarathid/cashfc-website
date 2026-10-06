@@ -5,7 +5,7 @@ import { BLADES, FARMING, WATER, WILD, gameFor, hitsFor, plotKey, ridCameOf, rol
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
-import { FAMILIARS, charmBy, famBy, useOne, usedNow } from "@/lib/town/gifts";
+import { charmBy, famBy, usesLeft } from "@/lib/town/gifts";
 import { buffBy, isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
@@ -368,17 +368,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
     const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
     // (the garden gnome that follows me pulls the weeds itself, with no game: so many plots to a meal's hours, counted
-    // on this device. lib/town/gifts)
-    if (need && work === "clear" && key && deed && famBy(keeper.purse(), "famGnome") > 0) {
-      const at = `cashtown.gnome.${keeper.id}`;
-      let kept: unknown = null;
-      try { kept = JSON.parse(window.localStorage.getItem(at) ?? "null"); } catch { /* nothing kept, or nothing can be */ }
-      const left = FAMILIARS.famGnome - usedNow(kept, keeper.now());
-      if (left > 0) {
-        try { window.localStorage.setItem(at, JSON.stringify(useOne(kept, keeper.now()))); } catch { /* it weeds all the same */ }
-        void act(key, { hits: need, misses: 0, secs: 0, need }).then(() => setNote(th ? `โนมถอนหญ้าให้แล้ว (มื้อนี้เหลือ ${left - 1})` : `The gnome pulled them (${left - 1} left these hours)`));
-        return;
-      }
+    // by whoever keeps the game. lib/town/gifts)
+    if (need && work === "clear" && key && deed && famBy(keeper.purse(), "famGnome") > 0 && usesLeft(keeper.purse(), "famGnome", keeper.now()) > 0) {
+      void keeper.giftUse("famGnome").then((used) => {
+        // (it has pulled all it will in these hours after all, or the town cannot be reached: the weeds are mine to pull)
+        if (!used.ok) { setWorking({ key, work, need }); return; }
+        void act(key, { hits: need, misses: 0, secs: 0, need }).then(() => setNote(th ? `โนมถอนหญ้าให้แล้ว (มื้อนี้เหลือ ${used.left})` : `The gnome pulled them (${used.left} left these hours)`));
+      });
+      return;
     }
     if (need) setWorking({ key: key && deed ? key : null, work, need });
     else if (key && deed) void act(key);

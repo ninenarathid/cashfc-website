@@ -26,7 +26,6 @@ try {
   await enter(X, "E");
   await X.evaluate(`(${T}.reset(), ${T}.forget())`);
   await sleep(400);
-  await X.evaluate(`localStorage.removeItem("cashtown.gnome." + ${K}.id)`);
   await enter(X, "E");
   const me = await X.evaluate(`window.__cashTown.me().id`);
   const Y = await X.tab("FamiliarB");
@@ -81,8 +80,8 @@ try {
   await until("the plot is cleared", async () => (await X.evaluate(`${F}.seen("133,5").soil`)) === "cleared", 6000);
   ok("with the gnome the weeds are pulled at once, with no game", !(await gameUp(X)));
   ok("…for the stamina clearing takes, and no miss", (await X.evaluate(`${T}.purse().stamina.left`)) === stamina - 2, { before: stamina, after: await X.evaluate(`${T}.purse().stamina.left`) });
-  ok("…the page says the gnome did it and how many are left to these hours, and counts it on this device", (await X.evaluate(`[...document.querySelectorAll("p")].some((p) => /โนมถอนหญ้าให้แล้ว \\(มื้อนี้เหลือ 9\\)/.test(p.innerText))`))
-    && (await X.evaluate(`JSON.parse(localStorage.getItem("cashtown.gnome." + ${K}.id)).n`)) === 1);
+  ok("…the page says the gnome did it and how many are left to these hours, and the keeper has counted it", (await X.evaluate(`[...document.querySelectorAll("p")].some((p) => /โนมถอนหญ้าให้แล้ว \\(มื้อนี้เหลือ 9\\)/.test(p.innerText))`))
+    && (await X.evaluate(`${T}.purse().gifts.used.famGnome.n`)) === 1);
   // (tilling is the hoe's own game still: the gnome pulls weeds and no more)
   await until("the hoe is offered the soil", async () => (await X.evaluate(`${F}.deed()`)) === "till", 6000);
   await X.evaluate(`${F}.act()`);

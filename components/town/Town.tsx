@@ -687,7 +687,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [linesTold, setLinesTold] = useState<LinesTold | null>(null);
   const [linesOpen, setLinesOpen] = useState<false | "lines" | "me">(false);
   /** What I have of the gifts of my ranks and wear of them, and whether whoever keeps the game gives any (lib/town/gifts). */
-  const [giftsTold, setGiftsTold] = useState<{ gifting: boolean; given: string[]; gifts: Gifts }>({ gifting: false, given: [], gifts: { had: [], charms: [], owed: 0, familiar: null } });
+  const [giftsTold, setGiftsTold] = useState<{ gifting: boolean; given: string[]; gifts: Gifts }>({ gifting: false, given: [], gifts: { had: [], charms: [], owed: 0, familiar: null, used: {} } });
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
   /** Everybody on the map now, as this screen has them (the bucket line asks who stands within sight: lib/town/line). */

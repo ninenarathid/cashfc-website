@@ -187,7 +187,7 @@ export interface Purse {
   /** What is worn to carry more (a basket, a carrying basket, a carrying pole): each makes the bag bigger, and is no longer in it. */
   wears?: ItemId[];
   /** The gifts of the lines of work somebody has taken, and the charms worn of them, the familiar that follows, and what part of a point of stamina the gloves' half has left owing (lib/town/gifts reads them, and makes them sound): in no slot of the bag. */
-  gifts?: { had: string[]; charms: string[]; owed?: number; familiar?: string | null };
+  gifts?: { had: string[]; charms: string[]; owed?: number; familiar?: string | null; used?: Record<string, { k: number; n: number }> };
   /** The hints bought from the uncle (lib/town/hints), and what else has been made besides dishes (lib/town/cooking): each by the thing it is of. */
   hints?: ItemId[];
   made?: ItemId[];

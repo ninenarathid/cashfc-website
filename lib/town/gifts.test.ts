@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { FARMING, tend, type Plant, type Plot } from "./farm";
 import { STRIKE, strikeOf, strikeWindowOf } from "./fishing";
-import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, takeGift, useOne, usedNow, wearCharms, wearFamiliar, wearing, type CharmId, type FamiliarId } from "./gifts";
+import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, leftOf, stretchOf, takeGift, useGift, usedOf, usesLeft, USES, wearCharms, wearFamiliar, wearing, works, type CharmId, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { eased, staminaOf } from "./stamina";
@@ -32,13 +32,13 @@ describe("the gifts of the lines of work", () => {
   });
 
   it("a purse from before has none, and what is kept is made sound", () => {
-    expect(giftsOf(newPurse())).toEqual({ had: [], charms: [], owed: 0, familiar: null });
-    expect(giftsOf({ gifts: { had: ["charmHoe", "charmHoe", "noSuch", 3 as unknown as string], charms: ["charmHoe", "charmNet", "charmHoe"], owed: 7 } })).toEqual({ had: ["charmHoe"], charms: ["charmHoe"], owed: 0, familiar: null });
+    expect(giftsOf(newPurse())).toEqual({ had: [], charms: [], owed: 0, familiar: null, used: {} });
+    expect(giftsOf({ gifts: { had: ["charmHoe", "charmHoe", "noSuch", 3 as unknown as string], charms: ["charmHoe", "charmNet", "charmHoe"], owed: 7 } })).toEqual({ had: ["charmHoe"], charms: ["charmHoe"], owed: 0, familiar: null, used: {} });
     // (no more worn than there are places)
     expect(giftsOf({ gifts: { had: [...CHARM_IDS], charms: ["charmHoe", "charmNet", "charmApron"] } }).charms).toEqual(["charmHoe", "charmNet"]);
-    expect(giftsOf({ gifts: null as unknown as Purse["gifts"] })).toEqual({ had: [], charms: [], owed: 0, familiar: null });
+    expect(giftsOf({ gifts: null as unknown as Purse["gifts"] })).toEqual({ had: [], charms: [], owed: 0, familiar: null, used: {} });
     // (a familiar follows only if it was taken and is one; a charm is no familiar, and a familiar is in no place for charms)
-    expect(giftsOf({ gifts: { had: ["famGnome", "charmHoe"], charms: ["famGnome", "charmHoe"], familiar: "famGnome" } })).toEqual({ had: ["famGnome", "charmHoe"], charms: ["charmHoe"], owed: 0, familiar: "famGnome" });
+    expect(giftsOf({ gifts: { had: ["famGnome", "charmHoe"], charms: ["famGnome", "charmHoe"], familiar: "famGnome" } })).toEqual({ had: ["famGnome", "charmHoe"], charms: ["charmHoe"], owed: 0, familiar: "famGnome", used: {} });
     expect(giftsOf({ gifts: { had: ["charmHoe"], charms: [], familiar: "famGnome" } }).familiar).toBeNull();
     expect(giftsOf({ gifts: { had: ["charmHoe"], charms: [], familiar: "charmHoe" } }).familiar).toBeNull();
     expect(giftsOf({ gifts: { had: [], charms: [], owed: 0.5 } }).owed).toBe(0.5);
@@ -52,7 +52,7 @@ describe("the gifts of the lines of work", () => {
     expect(takeGift(p, { well: 99999 }, "well", 1)).toEqual({ ok: false, why: "none" });
     const took = done(takeGift(p, { kitchen: first("kitchen") }, "kitchen", 1));
     expect(took.gift).toBe("charmApron");
-    expect(took.purse.gifts).toEqual({ had: ["charmApron"], charms: [], owed: 0, familiar: null });
+    expect(took.purse.gifts).toEqual({ had: ["charmApron"], charms: [], owed: 0, familiar: null, used: {} });
     expect(took.purse.bag).toEqual(p.bag);
     expect(takeGift(took.purse, { kitchen: 99999 }, "kitchen", 1)).toEqual({ ok: false, why: "had" });
     // (points of one line are no rank of another)
@@ -86,7 +86,7 @@ describe("the gifts of the lines of work", () => {
     p = done(wearCharms(p, ["charmNet"])).purse;
     expect(giftsOf(p).charms).toEqual(["charmNet"]);
     p = done(wearCharms(p, [])).purse;
-    expect(giftsOf(p)).toEqual({ had: ["charmApron", "charmHoe", "charmNet"], charms: [], owed: 0, familiar: null });
+    expect(giftsOf(p)).toEqual({ had: ["charmApron", "charmHoe", "charmNet"], charms: [], owed: 0, familiar: null, used: {} });
   });
 
   it("one familiar follows at a time: one had, changed as often as one likes, or none; and it does its work only while it follows", () => {
@@ -112,20 +112,53 @@ describe("the gifts of the lines of work", () => {
     expect(wearCharms(p, ["famGnome"])).toEqual({ ok: false, why: "none" });
   });
 
-  it("what a familiar does so many times to a meal's hours is counted by the day and the meal, and begins again with each", () => {
+  it("a gift works for whoever has it: a charm when it is worn, a familiar when it follows", () => {
+    const p = { gifts: { had: ["charmHoe", "charmNet", "famGnome", "famSquirrel"], charms: ["charmHoe"], familiar: "famGnome" } };
+    expect(works(p, "charmHoe")).toBe(true);
+    expect(works(p, "charmNet")).toBe(false);
+    expect(works(p, "famGnome")).toBe(true);
+    expect(works(p, "famSquirrel")).toBe(false);
+    expect(works(p, "famButterfly")).toBe(false);
+    expect(works(p, "noSuchGift")).toBe(false);
+    expect(works({}, "charmHoe")).toBe(false);
+  });
+
+  it("what a gift does so many times is counted in the purse, by the stretch of time it is of, and begins again with each", () => {
     const morning = at("2026-10-06T08:00:00"), noon = at("2026-10-06T12:00:00"), next = at("2026-10-07T08:00:00");
-    expect(usedNow(null, morning)).toBe(0);
-    let kept = useOne(null, morning);
-    kept = useOne(kept, morning + 60_000);
-    expect(usedNow(kept, morning + 120_000)).toBe(2);
-    // (another meal's hours, and another day's same hours: none used yet)
-    expect(usedNow(kept, noon)).toBe(0);
-    expect(usedNow(kept, next)).toBe(0);
-    expect(useOne(kept, noon).n).toBe(1);
-    // (what is kept wrongly counts for nothing)
-    expect(usedNow("x", morning)).toBe(0);
-    expect(usedNow({ day: kept.day, meal: kept.meal, n: "3" }, morning)).toBe(0);
-    expect(usedNow({ day: kept.day, meal: kept.meal, n: -4 }, morning)).toBe(0);
+    const rule = USES.famGnome!;
+    expect(rule).toEqual({ n: FAMILIARS.famGnome, per: "meal" });
+    // (a day is from dawn; a meal's hours are a third of it)
+    expect(stretchOf("day", morning)).toBe(stretchOf("day", noon));
+    expect(stretchOf("meal", morning)).not.toBe(stretchOf("meal", noon));
+    expect(stretchOf("day", at("2026-10-07T04:00:00"))).toBe(stretchOf("day", morning));
+    expect(stretchOf("meal", at("2026-10-07T04:00:00"))).toBe(stretchOf("meal", at("2026-10-06T19:00:00")));
+    let p: Pick<Purse, "gifts"> = { gifts: { had: ["famGnome", "charmHoe"], charms: ["charmHoe"], familiar: "famGnome" } };
+    expect(usesLeft(p, "famGnome", morning)).toBe(rule.n);
+    for (let i = 1; i <= rule.n; i++) {
+      const did = useGift(p, "famGnome", morning + i * 1000);
+      expect(did.ok && did.left).toBe(rule.n - i);
+      if (did.ok) p = did.purse;
+    }
+    expect(usedOf(p, "famGnome", morning)).toBe(rule.n);
+    // (no more in these hours; what I wear and what follows me is as it was)
+    expect(useGift(p, "famGnome", morning)).toEqual({ ok: false, why: "spent" });
+    expect(giftsOf(p)).toMatchObject({ had: ["famGnome", "charmHoe"], charms: ["charmHoe"], familiar: "famGnome" });
+    // (another meal's hours, and another day's same hours: all of them again)
+    expect(usesLeft(p, "famGnome", noon)).toBe(rule.n);
+    expect(usesLeft(p, "famGnome", next)).toBe(rule.n);
+    const again = useGift(p, "famGnome", noon);
+    expect(again.ok && again.left).toBe(rule.n - 1);
+    // (one that does not follow me, one I have not, one that is not counted, and what is no gift: nothing to use)
+    expect(useGift({ gifts: { had: ["famGnome"], charms: [] } }, "famGnome", morning)).toEqual({ ok: false, why: "none" });
+    expect(useGift({ gifts: { had: [], charms: [], familiar: "famGnome" } }, "famGnome", morning)).toEqual({ ok: false, why: "none" });
+    expect(useGift(p, "charmHoe", morning)).toEqual({ ok: false, why: "none" });
+    expect(useGift(p, "noSuchGift", morning)).toEqual({ ok: false, why: "none" });
+    expect(usesLeft(p, "charmHoe", morning)).toBe(0);
+    // (a count kept wrongly counts for nothing)
+    const k = stretchOf("meal", morning), bad = (used: unknown) => ({ gifts: { had: ["famGnome"], charms: [], familiar: "famGnome", used } }) as Pick<Purse, "gifts">;
+    for (const used of ["x", [1], { famGnome: "3" }, { famGnome: { k, n: "3" } }, { famGnome: { k: k + 1, n: 3 } }, { famGnome: { k, n: -4 } }, { famGnome: null }]) expect(usedOf(bad(used), "famGnome", morning)).toBe(0);
+    expect(usedOf(bad({ famGnome: { k, n: 3.7 } }), "famGnome", morning)).toBe(3);
+    expect(usesLeft(bad({ famGnome: { k, n: 99 } }), "famGnome", morning)).toBe(0);
   });
 
   it("the catalog's row says the places, and of each gift which rank of which line gives it and its number", () => {

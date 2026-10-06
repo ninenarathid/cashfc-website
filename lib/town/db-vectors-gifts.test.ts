@@ -4,7 +4,7 @@ import { catalogOf } from "./catalog";
 import { vectorsV147 } from "./db-vectors-swarm.test";
 import { tend, type Bed, type Plot } from "./farm";
 import { strikeWindowOf } from "./fishing";
-import { CHARM_IDS, FAMILIAR_IDS, GIFTS, charmBy, famBy, giftsOf, gloved, takeGift, wearCharms, wearFamiliar, wearing, type FamiliarId } from "./gifts";
+import { CHARM_IDS, charmBy, famBy, FAMILIAR_IDS, GIFTS, giftsOf, gloved, stretchOf, takeGift, usedOf, useGift, wearCharms, wearFamiliar, wearing, works, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
 import { dayOf, eased, staminaOf } from "./stamina";
@@ -17,6 +17,8 @@ import { newPurse, put, type Purse } from "./trade";
  * - `gifts_of`, `wearing`, `charm_by`: purses with gifts kept soundly and not (a gift there is none of, one twice,
  *   a charm worn that was never taken, more worn than there are places, an owing that is no part of a point);
  * - `familiar_wear`, `fam_by`: one had, one not had, a charm, none, what is no gift; and what a familiar does only while it follows;
+ * - `gift_works`, `used_of`, `gift_use`: a counted gift used with every count kept (none, some, all, too many, kept
+ *   wrongly), in the stretch it was kept in and in another; one that does not follow, one not had, one not counted;
  * - `gift_take`: every line and rank, with points either side of the rank's mark, taken and not;
  * - `charms_wear`: none, one, two, three, the same twice, one not had, something that is no gift;
  * - `eased`, `gloved`: costs of none to seven points, parts and owings of every sort, purses near no stamina;
@@ -49,7 +51,11 @@ export function vectorsGifts(): Vector[] {
     const had = some(c.int(0, ids.length)), worn = had.filter(() => c.maybe(0.5)).slice(0, c.int(0, 3));
     // (a familiar that follows: one had, one not had, a charm, something that is none, or nothing said of one)
     const fam = c.of<() => string | null | undefined>([() => undefined, () => undefined, () => null, () => had.find((x) => fams.includes(x)) ?? c.of(fams), () => c.of(fams), () => c.of([...CHARM_IDS]), () => "noSuchGift"])();
-    const and = <T extends object>(g: T) => (fam === undefined ? g : { ...g, familiar: fam });
+    // (what was used of a counted gift: nothing said, a sound count of these hours or of others, and counts kept wrongly)
+    const k = stretchOf("meal", NOW);
+    const used = c.of<() => unknown>([() => undefined, () => undefined, () => undefined, () => ({ famGnome: { k, n: c.int(0, 12) } }), () => ({ famGnome: { k: k - 1, n: 4 } }), () => "x", () => [1, 2],
+      () => ({ famGnome: "3" }), () => ({ famGnome: { k, n: 2.5 } }), () => ({ noSuchGift: { k: 1, n: 1 }, famGnome: { k, n: -3 } })])();
+    const and = <T extends object>(g: T) => ({ ...g, ...(fam === undefined ? {} : { familiar: fam }), ...(used === undefined ? {} : { used }) }) as T;
     return c.of<() => Purse["gifts"] | undefined | null>([
       () => undefined, () => null, () => and({ had, charms: worn }), () => and({ had, charms: worn, owed: 0.5 }), () => and({ had, charms: worn.slice(0, 2), owed: 0 }),
       () => ({ had: [...had, had[0] ?? "charmHoe", "noSuchGift"], charms: [...worn, "charmNet", "noSuchGift"] }),
@@ -73,6 +79,20 @@ export function vectorsGifts(): Vector[] {
     add("fam_by", [p, fid, else_], famBy(p, fid, else_));
     const want = c.of<string | null>([null, c.of(fams), c.of(fams), c.of([...CHARM_IDS]), "noSuchGift"]);
     add("familiar_wear", [p, want], wearFamiliar(p, want));
+    const gid = c.of([...ids, "noSuchGift"]), when = c.of([NOW, NOW + 7 * 3_600_000, NOW + 86_400_000, NOW - 5 * 3_600_000]);
+    add("gift_works", [p, gid], works(p, gid));
+    add("used_of", [p, gid, when], usedOf(p, gid, when));
+    add("gift_use", [p, gid, when], useGift(p, gid, when));
+  }
+  // a counted gift used: the gnome following and not, with every count kept, in the stretch kept and in another
+  // (and something else kept beside it of what was used, which a use leaves as it is)
+  for (const fam of ["famGnome", "famSquirrel", null, undefined]) for (const n of [undefined, 0, 1, 9, 10, 11, 3.5, -2, "4"]) for (const dk of [0, 1, -1]) for (const when of [NOW, NOW + 7 * 3_600_000, NOW + 86_400_000]) {
+    const p = purse({ had: ["famGnome", "famSquirrel", "charmHoe"], charms: ["charmHoe"], ...(fam === undefined ? {} : { familiar: fam }), ...(n === undefined ? {} : { used: { famGnome: { k: stretchOf("meal", NOW) + dk, n }, ...(dk === 0 ? { famSquirrel: { k: 7, n: 2 } } : {}) } }) } as Purse["gifts"]);
+    for (const id of ["famGnome", "famSquirrel", "charmHoe"]) {
+      add("gift_works", [p, id], works(p, id));
+      add("used_of", [p, id, when], usedOf(p, id, when));
+      add("gift_use", [p, id, when], useGift(p, id, when));
+    }
   }
   // (charm_by's last argument was drawn twice above: answered again as it was asked)
   for (const v of out) if (v.fn === "charm_by") v.want = charmBy(v.args[0] as Purse, v.args[1] as (typeof CHARM_IDS)[number], v.args[2] as number);
@@ -142,7 +162,11 @@ describe("the cases the database's rules of the gifts are held to", () => {
     const all = vectorsGifts();
     expect(JSON.stringify(vectorsGifts())).toBe(JSON.stringify(all));
     const of = (fn: string) => all.filter((v) => v.fn === fn);
-    for (const fn of ["gifts_of", "wearing", "charm_by", "fam_by", "familiar_wear", "gift_take", "charms_wear", "eased", "gloved", "strike_window", "tend"]) expect(of(fn).length, fn).toBeGreaterThan(40);
+    for (const fn of ["gifts_of", "wearing", "charm_by", "fam_by", "familiar_wear", "gift_works", "used_of", "gift_use", "gift_take", "charms_wear", "eased", "gloved", "strike_window", "tend"]) expect(of(fn).length, fn).toBeGreaterThan(40);
+    // a counted gift used with times left, with none, and refused as nothing to use; a count read as some and as none
+    const uses = of("gift_use").map((v) => v.want as { ok: boolean; why?: string; left?: number });
+    expect(uses.some((d) => d.ok && d.left === 0) && uses.some((d) => d.ok && (d.left ?? 0) > 5) && uses.some((d) => !d.ok && d.why === "spent") && uses.some((d) => !d.ok && d.why === "none")).toBe(true);
+    expect(of("used_of").some((v) => (v.want as number) > 0) && of("gift_works").some((v) => v.want === true) && of("gift_works").some((v) => v.want === false)).toBe(true);
     // a familiar set to follow, taken off, and refused; and one that follows among the purses asked about
     const fams = of("familiar_wear").map((v) => ({ id: v.args[1], d: v.want as { ok: boolean; why?: string } }));
     expect(fams.some((x) => x.d.ok && x.id !== null) && fams.some((x) => x.d.ok && x.id === null) && fams.some((x) => !x.d.ok && x.d.why === "none")).toBe(true);

@@ -2,13 +2,14 @@
 // build-v152.mjs writes each function into the file from its own last text with these lines changed, and v152's dry
 // run holds the file to the same: nothing else in them moves.
 
-/** town.gifts_of (v151's): a purse's gifts say which familiar follows, if it is one that was taken and is a familiar. */
+/** town.gifts_of (v151's): a purse's gifts say which familiar follows, if it is one that was taken and is a familiar; and keep what was used of the gifts that are counted. */
 export const GIFTS_OF = [
   ["  owed double precision := 0;\n", "  owed double precision := 0;\n  fam text;\n"],
   [
     "  return jsonb_build_object('had', had, 'charms', charms, 'owed', owed);\n",
     "  if jsonb_typeof(kept->'familiar') = 'string' and had ? (kept->>'familiar') and g->'gifts'->(kept->>'familiar')->>'kind' = 'familiar' then fam := kept->>'familiar'; end if;\n" +
-    "  return jsonb_build_object('had', had, 'charms', charms, 'owed', owed, 'familiar', fam);\n",
+    "  return jsonb_build_object('had', had, 'charms', charms, 'owed', owed, 'familiar', fam,\n" +
+    "    'used', case when jsonb_typeof(kept->'used') = 'object' then kept->'used' else '{}'::jsonb end);\n",
   ],
 ];
 

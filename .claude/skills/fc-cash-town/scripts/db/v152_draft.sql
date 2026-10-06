@@ -25,11 +25,16 @@
 --     that is told through the room, not through the database.
 --   * What these three do is the page's own to read (their games are played
 --     in the browser): no rule of the game is judged otherwise here.
+--   * What a gift does only so many times (the gnome weeds ten plots to a
+--     meal's hours) is counted in the purse (`gifts.used`), here, so that the
+--     count is the same on every device: `town_gift_use(id)` uses one, for
+--     what the page itself then does.
 --   * `town.work_answer` (v151's) says which gifts are given, so that a page
 --     offers those and no other.
 --
--- What it changes: one catalog row written over (`gifts`: three gifts more),
--- one rule new, two written again, one function a member calls. No table.
+-- What it changes: one catalog row written over (`gifts`: three gifts more,
+-- and what is counted), five rules new, two written again, two functions a
+-- member calls. No table.
 -- No coins and no thing that can be sold comes of it.
 
 do $$ begin
@@ -40,6 +45,7 @@ end $$;
 insert into public.town_catalog (key, data) values
   ('gifts', $town${
     "slots": 2,
+    "uses": {"famGnome":{"n":10,"per":"meal"}},
     "gifts": {"charmApron":{"kind":"charm","line":"kitchen","rank":1,"by":1.5},"charmGloves":{"kind":"charm","line":"helpers","rank":1,"by":0.5},"charmFloat":{"kind":"charm","line":"fishing","rank":1,"by":1.5},"charmLamp":{"kind":"charm","line":"forest","rank":1,"by":5},"charmNet":{"kind":"charm","line":"insects","rank":1,"by":1.5},"charmHoe":{"kind":"charm","line":"farming","rank":1,"by":1.5},"famSquirrel":{"kind":"familiar","line":"forest","rank":2,"by":2},"famButterfly":{"kind":"familiar","line":"insects","rank":2,"by":1},"famGnome":{"kind":"familiar","line":"farming","rank":2,"by":10}}
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();
@@ -74,7 +80,8 @@ begin
   end if;
   if jsonb_typeof(kept->'owed') = 'number' and (kept->>'owed')::double precision > 0 and (kept->>'owed')::double precision < 1 then owed := (kept->>'owed')::double precision; end if;
   if jsonb_typeof(kept->'familiar') = 'string' and had ? (kept->>'familiar') and g->'gifts'->(kept->>'familiar')->>'kind' = 'familiar' then fam := kept->>'familiar'; end if;
-  return jsonb_build_object('had', had, 'charms', charms, 'owed', owed, 'familiar', fam);
+  return jsonb_build_object('had', had, 'charms', charms, 'owed', owed, 'familiar', fam,
+    'used', case when jsonb_typeof(kept->'used') = 'object' then kept->'used' else '{}'::jsonb end);
 end;
 $$;
 -- </gifts_of>
@@ -89,6 +96,54 @@ declare
 begin
   if p_id is not null and (not (mine->'had' ? p_id) or g->'gifts'->p_id->>'kind' is distinct from 'familiar') then return town.no('none'); end if;
   return jsonb_build_object('ok', true, 'purse', p_purse || jsonb_build_object('gifts', mine || jsonb_build_object('familiar', p_id)));
+end;
+$$;
+
+-- Whether a gift works for somebody now (lib/town/gifts' works): one they have; and a charm is worn, a familiar follows.
+create or replace function town.gift_works(p_purse jsonb, p_id text)
+returns boolean language sql stable
+as $$
+  select coalesce(m.g->'had' ? p_id and case town.cat('gifts')->'gifts'->p_id->>'kind'
+      when 'charm' then m.g->'charms' ? p_id when 'familiar' then m.g->>'familiar' = p_id else true end, false)
+    from (select town.gifts_of(p_purse) as g) m
+$$;
+
+-- The stretch of time a count is of, as one number (lib/town/gifts' stretchOf): the day, or the day and which meal's hours of it.
+create or replace function town.stretch_of(p_per text, p_now bigint)
+returns bigint language sql stable
+as $$ select case when p_per = 'day' then town.day_of(p_now)::bigint else town.day_of(p_now)::bigint * 3 + town.meal_of(p_now) end $$;
+
+-- How many times a counted gift has been used in the stretch p_now is in (lib/town/gifts' usedOf): none, of a count
+-- kept wrongly or of another stretch.
+create or replace function town.used_of(p_purse jsonb, p_id text, p_now bigint)
+returns integer language plpgsql stable
+as $$
+declare
+  rule jsonb := town.cat('gifts')->'uses'->p_id;
+  u jsonb := town.gifts_of(p_purse)->'used'->p_id;
+begin
+  if rule is null or u is null or jsonb_typeof(u) <> 'object' or jsonb_typeof(u->'k') is distinct from 'number' or jsonb_typeof(u->'n') is distinct from 'number'
+     or (u->>'k')::numeric <> town.stretch_of(rule->>'per', p_now) then return 0; end if;
+  return greatest(0, floor((u->>'n')::numeric))::integer;
+end;
+$$;
+
+-- Use a counted gift once (lib/town/gifts' useGift): it has to work for me now, and to have a time left in this stretch.
+create or replace function town.gift_use(p_purse jsonb, p_id text, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  rule jsonb := town.cat('gifts')->'uses'->p_id;
+  mine jsonb;
+  n integer;
+begin
+  if rule is null or not town.gift_works(p_purse, p_id) then return town.no('none'); end if;
+  n := town.used_of(p_purse, p_id, p_now);
+  if n >= (rule->>'n')::integer then return town.no('spent'); end if;
+  mine := town.gifts_of(p_purse);
+  return jsonb_build_object('ok', true, 'left', (rule->>'n')::integer - n - 1,
+    'purse', p_purse || jsonb_build_object('gifts', mine || jsonb_build_object('used',
+      (mine->'used') || jsonb_build_object(p_id, jsonb_build_object('k', town.stretch_of(rule->>'per', p_now), 'n', n + 1)))));
 end;
 $$;
 
@@ -124,9 +179,27 @@ begin
 end;
 $$;
 
+-- Use a gift of mine that is counted, once: for what the page itself then does (the gnome's weeding).
+create or replace function public.town_gift_use(p_id text)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  did jsonb := town.gift_use(town.purse_of(me, true), p_id, town.now_ms());
+begin
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'purse');
+    perform town.note(me, 'gift_use', p_id, 1, 0, jsonb_build_object('left', did->'left'));
+  end if;
+  return town.answer(me, did);
+end;
+$$;
+
 revoke execute on all functions in schema town from public, anon, authenticated;
 revoke execute on function public.town_familiar_wear(text) from public, anon;
 grant execute on function public.town_familiar_wear(text) to authenticated;
+revoke execute on function public.town_gift_use(text) from public, anon;
+grant execute on function public.town_gift_use(text) to authenticated;
 
 -- ─── Checking it ─────────────────────────────────────────────────────────
 --
@@ -149,6 +222,9 @@ grant execute on function public.town_familiar_wear(text) to authenticated;
 --
 --   -- whom which familiar follows
 --   select p.member_id, p.doc->'gifts'->>'familiar' as follows from public.town_purses p where p.doc->'gifts'->>'familiar' is not null order by 1 limit 80;
+--
+--   -- what was used of the gifts that are counted, as it was written down
+--   select d.member_id, d.at, d.thing, d.doc->'left' as left from public.town_deeds d where d.what = 'gift_use' order by d.at desc limit 40;
 --
 --   -- a familiar called or sent to rest, as it was written down
 --   select d.member_id, d.at, d.thing from public.town_deeds d where d.what = 'familiar' order by d.at desc limit 40;

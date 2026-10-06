@@ -1219,6 +1219,9 @@ try {
           gnome.ok && gnome.gift === "famGnome" && called.ok && A.purse().gifts.familiar === "famGnome" && A.purse().gifts.charms.join() === "charmHoe", { gnome, called, gifts: A.purse().gifts });
         await A.buy("worm", 1);
         ok("…it follows through whatever else is done", A.purse().gifts.familiar === "famGnome", A.purse().gifts);
+        const used = await A.giftUse("famGnome"), other = await A.giftUse("charmHoe");
+        ok("a counted gift is used through the keeper: told how many are left, counted in the purse it keeps at once; one that is not counted is refused",
+          used.ok && used.left === 9 && A.purse().gifts.used?.famGnome?.n === 1 && !other.ok && other.why === "none", { used, other, gifts: A.purse().gifts });
         const rest = await A.familiarWear(null);
         ok("…and is sent to rest", rest.ok && A.purse().gifts.familiar === null && A.purse().gifts.had.join() === "charmHoe,famGnome", { rest, gifts: A.purse().gifts });
       } else ok("a database with charms and no familiars: the keeper offers the charms and no familiar", A.gives("charmHoe") && !A.gives("famGnome"));

@@ -228,6 +228,8 @@ export interface Keeper {
    */
   gives(id: string): boolean;
   familiarWear(id: string | null): Promise<Did>;
+  /** Use a gift that is counted once (lib/town/gifts' `USES`): refused when it does not work for me now or has no time left in this stretch. Says how many are left. */
+  giftUse(id: string): Promise<Did<{ left: number }>>;
   /** Read the book again. */
   wellLook(): Promise<void>;
   /** Take what the well has waiting for me. */
@@ -732,6 +734,7 @@ export class DbKeeper implements Keeper {
   charmsWear(ids: readonly string[]) { return this.deed("town_charms_wear", { p_charms: [...ids] }); }
   gives(id: string) { return this.gifting_ && this.gives_.includes(id); }
   familiarWear(id: string | null) { return this.deed("town_familiar_wear", { p_id: id }); }
+  giftUse(id: string) { return this.deed<{ left: number }>("town_gift_use", { p_id: id }); }
   pots(): Pot[] { return this.pots_; }
   found(): ItemId[] { return this.found_; }
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }

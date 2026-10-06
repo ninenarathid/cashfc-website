@@ -70,10 +70,20 @@ export const CHARMS = { slots: 2, charmApron: 1.5, charmGloves: 0.5, charmFloat:
  * with no game. All three are the page's own to read: their games are played in the browser.
  */
 export const FAMILIARS = { famSquirrel: 2, famButterfly: 1, famGnome: 10 } as const;
+/**
+ * What a gift does only so many times: to a day (from dawn, as the stamina's day is) or to a meal's hours. Counted in
+ * the purse (`gifts.used`) by whoever keeps the game, so that the count is the same on every device a member plays on.
+ */
+export type Per = "day" | "meal";
+export const USES: Partial<Record<GiftId, { n: number; per: Per }>> = {
+  famGnome: { n: FAMILIARS.famGnome, per: "meal" },
+};
+/** The stretch of time a count is of, as one number: the day, or the day and which meal's hours of it. */
+export const stretchOf = (per: Per, now: number): number => (per === "day" ? dayOf(now) : dayOf(now) * 3 + mealOf(now));
 
 /** What a member has of the gifts: those taken, the charms worn of them, the familiar that follows, and what part of a point the gloves' half has left owing (lib/town/stamina's eased). */
-export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number; familiar: FamiliarId | null }
-export type GiftRefusal = "none" | "rank" | "had" | "slots";
+export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number; familiar: FamiliarId | null; used: Record<string, { k: number; n: number }> }
+export type GiftRefusal = "none" | "rank" | "had" | "slots" | "spent";
 
 const isGift = (id: unknown): id is GiftId => typeof id === "string" && GIFTS.some((g) => g.id === id);
 export const giftOf = (id: string): Gift | null => GIFTS.find((g) => g.id === id) ?? null;
@@ -90,7 +100,9 @@ export function giftsOf(purse: Pick<Purse, "gifts">): Gifts {
   }
   const fam = kept?.familiar, familiar = isGift(fam) && had.includes(fam) && giftOf(fam)!.kind === "familiar" ? (fam as FamiliarId) : null;
   const owed = typeof kept?.owed === "number" && kept.owed > 0 && kept.owed < 1 ? kept.owed : 0;
-  return { had, charms, owed, familiar };
+  // (what was used is kept as it is, and read by `usedOf`, which believes only a count of the stretch it is asked about)
+  const used = kept?.used && typeof kept.used === "object" && !Array.isArray(kept.used) ? kept.used : {};
+  return { had, charms, owed, familiar, used };
 }
 /** The familiar that follows somebody now, if one does; and what it does for them: its number, or what does nothing. */
 export const familiarOf = (purse: Pick<Purse, "gifts">): FamiliarId | null => giftsOf(purse).familiar;
@@ -101,16 +113,31 @@ export function wearFamiliar<P extends Pick<Purse, "gifts">>(purse: P, id: strin
   if (id !== null && !(isGift(id) && mine.had.includes(id) && giftOf(id)!.kind === "familiar")) return { ok: false, why: "none" };
   return { ok: true, purse: { ...purse, gifts: { ...mine, familiar: id as FamiliarId | null } } };
 }
-/**
- * What a familiar has done of what it does so many times to a meal's hours (the gnome's weeding): the day, which
- * meal's hours, and how many. Kept by the page, on the device: the game it spares is the page's own to play.
- */
-export interface Used { day: number; meal: number; n: number }
-export const usedNow = (kept: unknown, now: number): number => {
-  const k = kept as Partial<Used> | null;
-  return k && typeof k === "object" && k.day === dayOf(now) && k.meal === mealOf(now) && typeof k.n === "number" && Number.isFinite(k.n) ? Math.max(0, Math.floor(k.n)) : 0;
+/** Whether a gift works for somebody now: one they have; and a charm is worn, a familiar follows. */
+export function works(purse: Pick<Purse, "gifts">, id: string): boolean {
+  const mine = giftsOf(purse), g = giftOf(id);
+  return !!g && mine.had.includes(g.id) && (g.kind === "charm" ? mine.charms.includes(g.id as CharmId) : g.kind === "familiar" ? mine.familiar === g.id : true);
+}
+/** How many times a gift that is counted has been used in the stretch `now` is in (none, of a count kept wrongly or of another stretch). */
+export function usedOf(purse: Pick<Purse, "gifts">, id: string, now: number): number {
+  const rule = isGift(id) ? USES[id] : undefined, u = giftsOf(purse).used[id] as { k?: unknown; n?: unknown } | undefined;
+  if (!rule || !u || typeof u !== "object" || u.k !== stretchOf(rule.per, now) || typeof u.n !== "number" || !Number.isFinite(u.n)) return 0;
+  return Math.max(0, Math.floor(u.n));
+}
+/** How many times more it may be used in this stretch (none, of a gift that is not counted). */
+export const usesLeft = (purse: Pick<Purse, "gifts">, id: string, now: number): number => {
+  const rule = isGift(id) ? USES[id] : undefined;
+  return rule ? Math.max(0, rule.n - usedOf(purse, id, now)) : 0;
 };
-export const useOne = (kept: unknown, now: number): Used => ({ day: dayOf(now), meal: mealOf(now), n: usedNow(kept, now) + 1 });
+/** Use a counted gift once: it has to work for me now, and to have a time left in this stretch. */
+export function useGift<P extends Pick<Purse, "gifts">>(purse: P, id: string, now: number): { ok: true; purse: P; left: number } | { ok: false; why: GiftRefusal } {
+  const rule = isGift(id) ? USES[id] : undefined;
+  if (!rule || !works(purse, id)) return { ok: false, why: "none" };
+  const n = usedOf(purse, id, now);
+  if (n >= rule.n) return { ok: false, why: "spent" };
+  const mine = giftsOf(purse);
+  return { ok: true, left: rule.n - n - 1, purse: { ...purse, gifts: { ...mine, used: { ...mine.used, [id]: { k: stretchOf(rule.per, now), n: n + 1 } } } } };
+}
 /** Whether somebody wears a charm now. */
 export const wearing = (purse: Pick<Purse, "gifts">, id: CharmId): boolean => giftsOf(purse).charms.includes(id);
 /** What a charm does for whoever wears it: its number, or what does nothing (`else_`: 1 for something multiplied, 0 for something added). */
@@ -152,8 +179,9 @@ export function wearCharms<P extends Pick<Purse, "gifts">>(purse: P, ids: readon
   return { ok: true, purse: { ...purse, gifts: { ...mine, charms: ids as CharmId[] } } };
 }
 
-/** The catalog's row: what the database needs of the gifts to give and to judge them (the places for charms; and of each gift its kind, which rank of which line gives it, and its number). */
+/** The catalog's row: what the database needs of the gifts to give and to judge them (the places for charms; of each gift its kind, which rank of which line gives it, and its number; and what is counted, so many times to what). */
 export const giftsRow = () => ({
   slots: CHARMS.slots,
+  uses: USES,
   gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: g.kind === "charm" ? CHARMS[g.id as CharmId] : FAMILIARS[g.id as FamiliarId] }])),
 });

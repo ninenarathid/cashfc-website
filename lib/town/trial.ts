@@ -5,7 +5,7 @@ import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal"
 import { hookBait, landCatch, loseBait } from "./fishing";
 import { KINDS, SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
-import { GIFTS, giftsOf, takeGift as takeRankGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
+import { GIFTS, giftsOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
 import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
@@ -977,6 +977,13 @@ export class Trial {
     if (!did.ok) return did;
     this.save(did.purse);
     return { ok: true };
+  }
+  /** Use a counted gift once (lib/town/gifts): it has to work for me now, and to have a time left in this stretch. */
+  giftUse(id: string): { ok: true; left: number } | { ok: false; why: GiftRefusal } {
+    const did = useGift(this.purse(), id, this.now());
+    if (!did.ok) return did;
+    this.save(did.purse);
+    return { ok: true, left: did.left };
   }
   /** The title everybody wears who chose one, by member: for the names over heads. */
   titles(): Record<string, Worn> { return this.worn(); }
