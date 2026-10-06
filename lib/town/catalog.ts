@@ -326,11 +326,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v139 (ran 2026-10-05, 19:42) wrote it over again, for what he asked of every insect the same afternoon: the more of a kind are caught the
  * scarcer it is, and a day on it is as it was (insects: `scarce`, new).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // three helpings to a meal's hours, and a meal's buffs at their levels: the `stamina` row written over; and
-  // `dishes`, for the forest's dishes, which leave the forest's two buffs now
-  v146: { keys: [], over: ["stamina", "dishes"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
