@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { FARMING, pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
 import { giftOf } from "./gifts";
-import { HELPING, bridged, chime, runOf, timesAt } from "./helping";
+import { HEAT } from "./heat";
+import { HELPING, bridged, chime, pouredAs, runOf, timesAt } from "./helping";
+import { WATERS, keptAs, type Nature } from "./waters";
 import type { ItemId } from "./items";
 import { dayOf, staminaOf } from "./stamina";
 import { HOUR, hold, newPurse, put, type Purse } from "./trade";
@@ -157,5 +159,56 @@ describe("the garden fae anklet: another's plant its wearer waters grows the mor
     expect(bridged({ ...worn, chime: { n: 3, at: NOON } }, 9999, NOON + 60000).chime).toEqual({ n: 3, at: NOON + HELPING.anklet.long * 1000 });
     expect(bridged({ ...worn, chime: { n: 3, at: NOON } }, 5, NOON + 2000).chime).toEqual({ n: 3, at: NOON + 2000 });
     expect(bridged(purse(GLOVES), 5, NOON)).toEqual(purse(GLOVES));
+  });
+});
+
+describe("a watering as it is kept: the gifts, the heat and the well's water in one sum, never past three times", () => {
+  // (one in the afternoon: an hour the heat may be in)
+  const T = NOON + 3 * HOUR, ADDS = FARMING.water.adds * 60_000, was = sown({ boost: 900_000, guard: T + HOUR }), next: Plot = { soil: "tilled", plant: { ...was.plant!, watered: T, boost: 900_000 + ADDS } };
+  const KINDS: Array<Nature | null> = [null, "dawn", "rain", "moon"];
+
+  it("with no gift in it, is kept as it always was under every sky and water; and the plant remembers whose watering it was", () => {
+    for (const hot of [false, true]) for (const kind of KINDS) {
+      const kept = pouredAs(was, next, T, hot, kind, "me");
+      const { pour, ...plain } = kept.plant!;
+      expect(plain).toEqual(keptAs(was, next, T, hot ? "clear" : "cloudy", kind).plant);
+      expect(pour).toEqual({ by: "me", at: T, base: ADDS, x: 1 + (hot ? HEAT.by : 0) + (kind ? WATERS.adds[kind] : 0) });
+    }
+  });
+
+  it("the anklet's twice and three times are of what the watering added", () => {
+    expect(pouredAs(was, next, T, false, null, "me", 2).plant!.boost).toBe(900_000 + 2 * ADDS);
+    expect(pouredAs(was, next, T, false, null, "me", 3).plant!.boost).toBe(900_000 + 3 * ADDS);
+    expect(pouredAs(was, next, T, false, null, "me", 2).plant!.pour).toEqual({ by: "me", at: T, base: ADDS, x: 2 });
+  });
+
+  it("with whatever else makes a watering the more, the whole is never more than three times", () => {
+    const x = (hot: boolean, kind: Nature | null, times: number) => pouredAs(was, next, T, hot, kind, "me", times).plant!.pour!.x;
+    expect([x(true, null, 2), x(false, "dawn", 2), x(false, "rain", 2), x(true, "rain", 2), x(true, "dawn", 3), x(false, "moon", 2), x(false, "moon", 3)]).toEqual([3, 3, 3, 3, 3, 2, 3]);
+    expect(HELPING.most).toBe(3);
+    expect(pouredAs(was, next, T, true, "dawn", "me", 3).plant!.boost).toBe(900_000 + 3 * ADDS);
+    // (the moon's water keeps the plant from pests as ever, whatever the gifts)
+    expect(pouredAs(was, next, T, false, "moon", "me", 2).plant!.guard).toBe(T + WATERS.guards.moon * HOUR);
+  });
+
+  it("marks a watering by whoever wore the duet bell in a bed not their own, and leaves what is no watering as it is", () => {
+    expect(pouredAs(was, next, T, false, null, "me", 1, true).plant!.pour).toEqual({ by: "me", at: T, base: ADDS, x: 1, worn: true });
+    for (const other of [{ soil: "tilled", plant: { ...next.plant!, watered: T - 1 } }, { soil: "tilled", plant: { ...next.plant!, sown: 5 } }, { soil: "tilled", plant: { ...next.plant!, boost: 900_000 } }, { soil: "cleared", plant: null }] as Plot[]) {
+      expect(pouredAs(was, other, T, true, "dawn", "me", 3)).toBe(other);
+    }
+    expect(pouredAs(undefined, next, T, false, null, "me", 2)).toBe(next);
+    expect(pouredAs({ soil: "tilled", plant: { ...was.plant!, watered: T } }, next, T, false, null, "me", 2)).toBe(next);
+  });
+});
+
+describe("the anklet's tune: a note a plant, climbing", () => {
+  it("climbs a step with every plant of a run, to its twentieth note, and stays there", async () => {
+    const { chimeHz } = await import("./sfx");
+    const notes = Array.from({ length: 20 }, (_, i) => chimeHz(i + 1));
+    for (let i = 1; i < notes.length; i++) expect(notes[i]).toBeGreaterThan(notes[i - 1]);
+    expect(notes[5] / notes[0]).toBeCloseTo(2, 9);
+    expect([chimeHz(21), chimeHz(99), chimeHz(0)]).toEqual([notes[19], notes[19], notes[0]]);
+    // (no higher than a small bell: it is to be quiet)
+    expect(notes[19]).toBeLessThan(3000);
   });
 });

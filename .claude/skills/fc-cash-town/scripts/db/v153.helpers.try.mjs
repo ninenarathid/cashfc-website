@@ -88,4 +88,63 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   t.check("with no can in the hand: refused", did?.ok === false && did.why === "none", did);
   const out = await call(U.unver, "town_longpour", ...xy(C[3]), {}, null);
   t.check("it is for a proved character of the town", out?.code === "42501", out);
+
+  // ── the garden fae anklet: another's plant watered grows the more, and a run of them more still ──
+  t.section("the garden fae anklet: another's plant its wearer waters grows twice as much, three times after twenty in a row (town_tend, town_longpour)");
+  const ADDS = f.water.adds * 60_000, an = f.helping.anklet, D = row(4, 1), E = row(4, 2), G = row(4, 3), H = row(4, 4);
+  await bedOf(4, U.m2);
+  for (const k of [...D, ...E, ...G, ...H]) await planted(k, 4, U.m2);
+  await give(U.m1, { had: ["charmGloves", "charmAnklet"], charms: ["charmGloves"] });
+  await hands(U.m1, "can", 50, ["can", 1, { water: 8 }]);
+  await patch(U.m1, { chime: null });
+  did = await call(U.m1, "town_tend", ...xy(D[0]), null);
+  let kept = (await plotAt(D[0])).plant;
+  t.check("had and not worn: a neighbour's plant is watered once over, as ever, and no run is kept", did?.ok === true && kept.boost === ADDS && did.times === undefined && !(await purseOf(U.m1)).chime, { did, kept });
+  t.check("…the plant remembers the watering: whose, when, what it added, once over", kept.pour?.by === U.m1 && kept.pour.at === kept.watered && kept.pour.base === ADDS && kept.pour.x === 1 && same(did.plot.plant, kept), kept.pour);
+  await give(U.m1, { had: ["charmGloves", "charmAnklet"], charms: ["charmGloves", "charmAnklet"] });
+  did = await call(U.m1, "town_tend", ...xy(D[1]), null);
+  kept = (await plotAt(D[1])).plant;
+  t.check("worn: the neighbour's plant grows twice as much from the watering, at once", did?.ok === true && did.times === 2 && kept.boost === 2 * ADDS && kept.pour.x === 2 && kept.pour.base === ADDS && same(did.plot.plant, kept), { did, kept });
+  t.check("…and a run is begun, kept in the purse", same((await purseOf(U.m1)).chime, { n: 1, at: kept.watered }), (await purseOf(U.m1)).chime);
+  did = await call(U.m1, "town_tend", ...xy(D[2]), null);
+  t.check("the next plant within eight seconds is of the run", (await purseOf(U.m1)).chime.n === 2 && did.times === 2, (await purseOf(U.m1)).chime);
+  // (as if the last had been nine seconds ago: the gap has passed)
+  await patch(U.m1, { chime: { n: 2, at: now - (an.gap + 1) * 1000 } });
+  did = await call(U.m1, "town_tend", ...xy(D[3]), null);
+  t.check("…more than eight seconds after the last, the run begins anew", (await purseOf(U.m1)).chime.n === 1 && did.times === 2, (await purseOf(U.m1)).chime);
+  // (as if nineteen had been watered a second ago: the twentieth)
+  await patch(U.m1, { chime: { n: an.run - 1, at: now - 1000 } });
+  did = await call(U.m1, "town_tend", ...xy(D[4]), null);
+  kept = (await plotAt(D[4])).plant;
+  t.check("the twentieth of a run grows three times as much, and those after it", did?.ok === true && did.times === an.top && kept.boost === an.top * ADDS && (await purseOf(U.m1)).chime.n === an.run, { did, kept });
+  // one's own plant: as ever, and the run is not touched
+  await hands(U.m1, "can", 50, ["can", 1, { water: 8 }]);
+  const runWas = (await purseOf(U.m1)).chime;
+  did = await call(U.m1, "town_tend", ...xy(own[1]), null);
+  kept = (await plotAt(own[1])).plant;
+  t.check("one's own plant is watered once over, and is not of the run", did?.ok === true && kept.boost === ADDS && kept.pour.x === 1 && did.times === undefined && same((await purseOf(U.m1)).chime, runWas), kept);
+  // the long pour with the anklet on: each plant twice over, each of the run; the pour's own seconds not counted against it
+  await patch(U.m1, { chime: { n: 3, at: now - 10_000 } });
+  did = await call(U.m1, "town_longpour", ...xy(E[2]), all(E), { hits: 7, misses: 0, secs: 3.5 });
+  const poured = await Promise.all(E.map(plotAt));
+  t.check("a row poured with the anklet on: every plant twice over, and each is of the run, which the pour's own seconds did not break", did?.ok === true && did.done.length === 7 && poured.every((p) => p.plant.boost === 2 * ADDS && p.plant.pour.x === 2)
+    && (await purseOf(U.m1)).chime.n === 10, { run: (await purseOf(U.m1)).chime, boosts: poured.map((p) => p.plant.boost) });
+  t.check("…the answer brings the plots as they are kept", Object.values(did.plots).every((p) => p.plant.boost === 2 * ADDS && p.plant.pour.by === U.m1), did.plots);
+  // with the well's water the whole is never more than three times
+  await t.sql(`insert into public.town_things (key, doc) values ('well_water', $1::jsonb) on conflict (key) do update set doc = excluded.doc`, [JSON.stringify({ kind: "dawn", until: now + HOUR, by: U.m2 })]);
+  const dew = 1 + CODE.waters.adds.dawn;
+  await hands(U.m1, "can", 50, ["can", 1, { water: 8 }]);
+  did = await call(U.m1, "town_tend", ...xy(G[0]), null);
+  kept = (await plotAt(G[0])).plant;
+  t.check(`while the well has the dew's water (a watering ${dew} times over by itself) the anklet's twice makes it ${f.helping.most} times, not ${2 * dew}`, did?.ok === true && did.times === 2 && kept.pour.x === f.helping.most && kept.boost === f.helping.most * ADDS && dew * 2 > f.helping.most, kept);
+  await give(U.m1, { had: ["charmGloves", "charmAnklet"], charms: ["charmGloves"] });
+  did = await call(U.m1, "town_tend", ...xy(G[1]), null);
+  kept = (await plotAt(G[1])).plant;
+  t.check("…and somebody with no anklet has the dew's water as ever: what the watering added, and as much again", did?.ok === true && kept.boost === dew * ADDS && kept.pour.x === dew, kept);
+  // (a bucket poured over the bed leaves no mark of a can's watering, and is made the more by the trigger, as ever)
+  await hands(U.m1, "bucket", 50, ["bucket", 1, { water: 1 }]);
+  did = await call(U.m1, "town_ditch", ...xy(H[3]));
+  const ditched = await Promise.all((did?.watered ?? []).map(plotAt));
+  t.check("a bucket poured over a bed is kept by the trigger as it always was: the dew's water doubles it, and no can's mark is left", did?.ok === true && ditched.length === CODE.ditch.plants && ditched.every((p) => p.plant.boost === dew * ADDS && !p.plant.pour), ditched.map((p) => p.plant));
+  await t.sql(`update public.town_things set doc = 'null'::jsonb where key = 'well_water'`);
 }

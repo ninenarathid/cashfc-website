@@ -4,7 +4,8 @@ import { catalogOf } from "./catalog";
 import { vectorsFarming } from "./db-vectors-gifts-farming.test";
 import { pourFor, pourRow, tend, theirsAt, type Bed, type Plant, type Plot } from "./farm";
 import { wearing } from "./gifts";
-import { HELPING, bridged, chime, runOf } from "./helping";
+import { HELPING, bridged, chime, pouredAs, runOf } from "./helping";
+import type { Nature } from "./waters";
 import { CROP_IDS, type ItemId } from "./items";
 import { dayOf, staminaOf } from "./stamina";
 import { HOUR, newPurse, put, type Purse } from "./trade";
@@ -25,6 +26,9 @@ import { BEDS_IN_FARM, bedCorner, rowOf } from "./world";
  * - `pour_for`, `pour_row`: rows of every sort (thirsty, wet, ripe, bare, mixed; mine, another's, both), stood on
  *   anywhere along them and off them, the gloves worn and not, a can with much water, little and none, another thing
  *   in the hand, marks of every sort, and seconds told and not.
+ * - `poured_as`: waterings of every size kept under every sky and water (hot and not; the dew's, the rain's, the
+ *   moon's and none), once, twice and three times over, by a wearer of the bell and not; and what is no watering (a
+ *   plant watered before, another plant, no plant, nothing added).
  *
  * Under a clear sky (the stand-in's weather is empty for these days).
  *
@@ -112,6 +116,19 @@ export function vectorsHelpers(): Vector[] {
     const secs = c.of([0, 0, 3.4, 4.1, 12, 30]);
     add("pour_row", [stood, keys, plots, keeping, rest, 0, p, ME, NOW, marks, secs], pourRow(stood, keys, plots, keeping ?? undefined, rest, 0, p, ME, NOW, marks, secs));
   }
+  // a watering as it is kept
+  for (let i = 0; i < 320; i++) {
+    const p = plant(c.of([YOU, ME]), { watered: c.of([0, 0, 0, NOW - HOUR, NOW - 61 * 60_000]), guard: c.of([0, NOW + 3 * HOUR, NOW + 30 * HOUR]) }), was: Plot = { soil: "tilled", plant: p };
+    const base = c.of([1_800_000, 1_800_000, 2_700_000, 3_960_000, 1_800_000 * 1.5 * 1.15, 0.1 + 0.2, 0, -5]);
+    const next: Plot = c.of<() => Plot>([
+      () => ({ soil: "tilled", plant: { ...p, watered: NOW, boost: p.boost + base } }), () => ({ soil: "tilled", plant: { ...p, watered: NOW, boost: p.boost + base } }), () => ({ soil: "tilled", plant: { ...p, watered: NOW, boost: p.boost + base } }),
+      () => ({ soil: "tilled", plant: { ...p, watered: NOW - 1, boost: p.boost + base } }), () => ({ soil: "tilled", plant: { ...p, sown: p.sown + 1, watered: NOW, boost: p.boost + base } }),
+      () => ({ soil: "cleared", plant: null }), () => ({ soil: "tilled", plant: { ...p, fed: NOW } }),
+    ])();
+    const before = c.of<Plot | null>([was, was, was, was, { soil: "tilled", plant: { ...p, watered: NOW } }, { soil: "tilled", plant: null }, null]);
+    const hot = c.maybe(0.35), kind = c.of<Nature | null>([null, null, null, "dawn", "rain", "moon"]), times = c.of([1, 1, 2, 2, 3]), worn = c.maybe(0.3);
+    add("poured_as", [before, next, NOW, hot, kind, ME, times, worn], pouredAs(before ?? undefined, next, NOW, hot, kind, ME, times, worn));
+  }
   // (and rows poured one after another by a wearer of both, whatever chance gave above: the run kept alive by the pours' own seconds, crossing twenty, and begun anew)
   {
     const [bx, by] = bedCorner(4), keys = rowOf(bx, by + 2).map(([u, v]) => `${u},${v}`), keeping: Bed = { by: YOU, tended: NOW - HOUR, empty: 0 };
@@ -159,6 +176,13 @@ describe("the cases the database's rules of the helpers' line's gifts are held t
     expect(pours.some((x) => x.d.ok && x.d.each!.length > 1 && staminaOf(x.p, NOW) >= 2 && staminaOf(x.d.purse!, NOW) === staminaOf(x.p, NOW))).toBe(true);
     expect(pours.some((x) => x.d.ok && x.d.each!.some((e) => e.times === 2) && x.d.each!.some((e) => e.times === 3)) && pours.some((x) => x.d.ok && x.d.each!.length > 0 && x.d.each!.every((e) => e.times === 1))).toBe(true);
     expect(pours.some((x) => x.d.ok && x.d.each!.length > 0 && x.secs > 0 && runOf(x.p, x.now) === 0 && x.d.purse!.chime!.n > x.d.each!.length)).toBe(true);
+    // a watering kept: once, twice, three times over; made the more by the sky and bound at three with a gift in it; with the moon's guard; and what is no watering left as it is
+    const kept = of("poured_as").map((v) => ({ next: v.args[1] as Plot, times: v.args[6] as number, d: v.want as Plot }));
+    const xs = kept.flatMap((k) => (k.d.plant?.pour && k.d.plant.pour.at === NOW ? [{ x: k.d.plant.pour.x, times: k.times }] : []));
+    for (const x of [1, 1.5, 2, 2.5, 3]) expect(xs.some((k) => k.x === x), String(x)).toBe(true);
+    expect(xs.every((k) => k.x <= HELPING.most) && xs.some((k) => k.x === 3 && k.times === 2) && xs.some((k) => k.x === 2 && k.times === 2) && xs.some((k) => k.x === 2 && k.times === 1)).toBe(true);
+    expect(kept.some((k) => k.d.plant?.pour?.worn === true) && kept.some((k) => !!k.d.plant?.pour && k.d.plant.guard > (k.next.plant?.guard ?? 0))).toBe(true);
+    expect(kept.filter((k) => JSON.stringify(k.d) === JSON.stringify(k.next)).length).toBeGreaterThan(60);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-gifts-helpers.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
   });

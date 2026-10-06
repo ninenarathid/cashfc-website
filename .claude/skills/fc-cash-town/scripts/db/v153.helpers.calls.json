@@ -23,5 +23,6 @@
   "chime": "town.chime($1::jsonb, $2::bigint)",
   "bridged": "town.bridged($1::jsonb, $2::double precision, $3::bigint)",
   "pour_for": "town.pour_for($1::text, $2::jsonb, $3::jsonb, $4::jsonb, $5::text, $6::bigint, $7::text)",
-  "pour_row": "town.pour_row($1::text, $2::jsonb, $3::jsonb, $4::jsonb, $5::integer, $6::integer, $7::jsonb, $8::text, $9::bigint, $10::jsonb, $11::double precision)"
+  "pour_row": "town.pour_row($1::text, $2::jsonb, $3::jsonb, $4::jsonb, $5::integer, $6::integer, $7::jsonb, $8::text, $9::bigint, $10::jsonb, $11::double precision)",
+  "poured_as": "town.poured_as($1::jsonb, $2::jsonb, $3::bigint, $4::boolean, $5::text, $6::text, $7::double precision, $8::boolean)"
 }

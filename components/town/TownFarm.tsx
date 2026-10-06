@@ -20,6 +20,9 @@ import TownSteady from "./TownSteady";
 import TownSweep from "./TownSweep";
 // ── gifts: helpers ──
 import TownLongPour from "./TownLongPour";
+import { AnkletRun } from "./TownHelping";
+import { wearing } from "@/lib/town/gifts";
+import { HELPING, runOf } from "@/lib/town/helping";
 import TownTiming from "./TownTiming";
 import TownWeeding from "./TownWeeding";
 import { WHY } from "./TownTrade";
@@ -247,6 +250,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const songs = useRef<Array<{ x: number; y: number; from: number | null }>>([]);
   /** Whether a gift's deed is with the keeper now: its button pressed twice asks once. */
   const sent = useRef(false);
+  // ── gifts: helpers ──
+  /**
+   * The anklet's tune, seen (lib/town/helping's chime): a note going up from each plant as it is watered, the higher
+   * the longer the run, gold once the run is at its most (on my own screen, as I water); and the notes of it played
+   * so far, for a script to hear by.
+   */
+  const chimes = useRef<Array<{ x: number; y: number; step: number; top: boolean; from: number | null }>>([]), tune = useRef<number[]>([]);
+  const chimeAt = useCallback((plot: string, step: number, wait = 0) => {
+    const [x, y] = plot.split(",").map(Number), top = step >= HELPING.anklet.run;
+    window.setTimeout(() => { chimes.current.push({ x, y, step, top, from: null }); tune.current = [...tune.current.slice(-39), step]; sfx?.wake(); sfx?.chime(step, top); }, wait);
+  }, [sfx]);
 
   // The plots, drawn among everything else on the map.
   useEffect(() => {
@@ -345,8 +359,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         ctx.globalAlpha = 1;
       };
       // a note of music, in the town's big pixels: a head, a stem and a flag, light on a dark edge
-      const note = (x: number, y: number, alpha: number, tint = "#d9f7a1") => {
-        const u = Math.max(2, Math.round(1.5 * s));
+      const note = (x: number, y: number, alpha: number, tint = "#d9f7a1", big = 1) => {
+        const u = Math.max(2, Math.round(1.5 * s * big));
         for (const [dx, dy, colour] of [[u / 2, u / 2, "#2a190d"], [0, 0, tint]] as Array<[number, number, string]>) {
           ctx.globalAlpha = alpha * (colour === tint ? 1 : 0.8);
           ctx.fillStyle = colour;
@@ -367,6 +381,25 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             if (part <= 0 || part >= 1) continue;
             note(at.x + (i - 1) * 9 * s + Math.sin(part * 5 + i * 2) * 5 * s, at.y - (26 + part * 44) * s, Math.sin(part * Math.PI), i === 1 ? "#fff1c4" : "#d9f7a1");
           }
+        });
+      }
+      // the anklet's tune, seen: a note going up from each plant as it is watered, the higher the longer the run
+      chimes.current = chimes.current.filter((c) => c.from === null || t - c.from < 1400);
+      for (const c of chimes.current) {
+        if (c.from === null) c.from = t;
+        const at = project({ x: c.x + 0.5, y: c.y + 0.5 }), part = still ? 0.4 : (t - c.from) / 1300;
+        if (part >= 1 || !onScreen(at)) continue;
+        const tint = c.top ? "#ffd98a" : "#cfe9ff";
+        above(() => {
+          // (a ring going out at the plant's foot, and the note over it)
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = Math.max(2, 2 * s);
+          ctx.globalAlpha = (1 - part) * 0.8;
+          ctx.beginPath();
+          ctx.ellipse(at.x, at.y + 2 * s, (8 + part * 16) * s, (3.5 + part * 7) * s, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          note(at.x + 10 * s + Math.sin(part * 6 + c.x) * 4 * s, at.y - (26 + part * (26 + Math.min(20, c.step) * 1.4)) * s, Math.sin(Math.min(1, part) * Math.PI), tint, 1.7);
         });
       }
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
@@ -479,8 +512,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     for (const id of seenAtPlot(did.deed, mine, began)) vfx.add("bless", at, { icon: BURST[id], lift: 8 });
     if (did.got.length) vfx.add("pop", at, { icon: did.got[0][0] });
     if (sang) { songs.current.push({ x, y, from: null }); sfx?.work("cooked", 0.7); }
+    // (somebody else's plant watered with the anklet on: the run's next note)
+    const rung = keeper.purse().chime;
+    if (did.deed === "water" && rung && rung.at !== mine.chime?.at && wearing(mine, "charmAnklet")) chimeAt(k, rung.n);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
-  }, [keeper, th, sfx, name, say, vfx]);
+  }, [keeper, th, sfx, name, say, vfx, chimeAt]);
   /** Draw a bucket of water, pour it into the well, or fill the can. */
   const carry = useCallback(async () => {
     const mine = keeper.purse(), began = keeper.now();
@@ -614,15 +650,19 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const doLong = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult) => {
     if (sent.current) return;
     sent.current = true;
+    const ran = keeper.purse().chime?.at;
     const did = await keeper.pourDo(k, name, marks, { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need }).finally(() => { sent.current = false; });
     if (!did.ok) { say(did.why); return; }
+    // (with the anklet on each plant of the row is of the run: a note each, one after another)
+    const rung = keeper.purse().chime;
+    if (rung && rung.at !== ran && wearing(keeper.purse(), "charmAnklet")) did.done.forEach((plot, i) => chimeAt(plot, rung.n - did.done.length + 1 + i, 120 + i * 110));
     keeper.record({ game: "farming", at: keeper.now(), won: did.done.length > 0, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "water", need: timing.need, hits: timing.hits, misses: timing.misses });
     sfx?.wake();
     if (did.done.length) sfx?.work("water");
     did.done.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => vfx.add("water", { x: x + 0.5, y: y + 0.5 }), i * 60); });
     const of = Object.keys(marks).length, n = did.done.length;
     setNote(th ? `เทยาวทั้งแถว: ได้น้ำ ${n} จาก ${of} ต้น` : `The long pour: ${n} of ${of} plants watered`);
-  }, [keeper, name, say, sfx, th, vfx]);
+  }, [keeper, name, say, sfx, th, vfx, chimeAt]);
   /** Begin it: one pour along the row from its head, whichever plant of it I stand on. */
   const beginLong = useCallback(() => {
     const row = key ? keeper.pourAt(key) : [];
@@ -676,6 +716,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note, wellWater: () => keeper.wellWater(),
       // (the gifts of the helpers' line: the plants the long pour would water here, and beginning it)
       pour: () => (key ? keeper.pourAt(key) : []), pourAct: beginLong,
+      // (the anklet: the run as it stands, the notes of its tune played so far, and how many are in the air)
+      run: () => runOf(keeper.purse(), keeper.now()), tune: () => [...tune.current], chimes: () => chimes.current.length,
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
       row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
       // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
@@ -704,11 +746,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   if (glassHere.length) powers.push({ id: "thingHourglass", word: th ? "พลิกนาฬิกาทราย" : "Turn the hourglass", go: () => void turnGlass(), more: th ? `${glassHere.length} ต้น` : `${glassHere.length} plants` });
   // ── gifts: helpers ── what the gifts of the helpers' line offer here, the same way
   if (pourHere.length > 1) powers.push({ id: "charmGloves", word: th ? "เทยาวรดทั้งแถว" : "One long pour down the row", go: beginLong, more: th ? `${pourHere.length} ต้น` : `${pourHere.length} plants` });
-  if (!working && !offer && !note && !powers.length) return null;
+  /** Whether a run of the anklet's is going: it is shown while it lasts, whatever else is. */
+  const running = wearing(purse, "charmAnklet") && runOf(purse, now) > 0;
+  if (!working && !offer && !note && !powers.length && !running) return null;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+      {running && <AnkletRun keeper={keeper} />}
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things

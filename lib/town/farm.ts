@@ -166,6 +166,14 @@ export interface Plant {
   more?: number;
   /** The moments an hourglass of seasons was turned over its bed while it stood there (lib/town/gifts' thingHourglass): from each, for `HOURGLASS.hours`, it grows so many times as fast (`quickMs`). Missing from a plant no hourglass was turned over. */
   fast?: number[];
+  // ── gifts: helpers ──
+  /**
+   * Its last watering with a can, as it was kept (lib/town/helping's pouredAs): whose it was, when, what it added
+   * before anything made it the more, and how many times over it was kept in all; whether its waterer wore the duet
+   * bell in a bed not their own (`worn`), and whether a bell has rung for it (`bell`). Missing from a plant no can has
+   * watered since.
+   */
+  pour?: { by: string; at: number; base: number; x: number; worn?: boolean; bell?: boolean };
 }
 export interface Plot { soil: Soil; plant: Plant | null }
 export const WILD: Plot = { soil: "wild", plant: null };

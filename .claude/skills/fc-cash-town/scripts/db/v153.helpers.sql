@@ -15,7 +15,14 @@
 --     watering (its number), and more (`farming.helping.anklet.top`) from the twentieth of a run of them with no
 --     more than eight seconds between two. The run is kept in the purse (`chime`); `town.tend` (v151's) is written
 --     again to count it and to say how many times over the watering is (`times`, only where it is more than once:
---     nobody without the anklet gets an answer that differs).
+--     nobody without the anklet gets an answer that differs). The plot `town.tend` answers with is as any watering
+--     leaves it: whoever keeps it makes it the more (`town.poured_as`), with the heat and the well's water, never to
+--     more than `farming.helping.most` times what the watering added where a gift has a hand in it. `town_tend`
+--     (v145's) is written again to keep a watering so, and v133's trigger on `town_plots` (`town.plot_heat`) to
+--     leave alone a watering that was reckoned already: the plant says so (`pour`: whose its last watering with a
+--     can was, when, what it added before anything made it the more, and how many times over it was kept in all).
+--     Every watering with a can leaves that mark now, whoever waters and with whatever gifts: growth by it is as it
+--     always was for somebody with no gift.
 
 -- Whether work on a plot is work for somebody else (lib/town/farm's theirsAt): in a bed that is another's, or on a
 -- plant another sowed.
@@ -197,6 +204,169 @@ begin
 end;
 $$;
 
+-- A plot as it is kept after a watering with a can (lib/town/helping's pouredAs), written at p_now over what it
+-- was: what the watering added is made the more by the gifts of whoever watered (p_times) and by the heat and the
+-- well's water (p_hot, p_kind), never to more than the catalog's `most` times where a gift has a hand in it; under
+-- the moon's water the plant is kept from pests, as ever; and the plant remembers the watering (`pour`). What is no
+-- watering is given back as it is.
+create or replace function town.poured_as(p_was jsonb, p_next jsonb, p_now bigint, p_hot boolean, p_kind text, p_by text, p_times double precision default 1, p_worn boolean default false)
+returns jsonb language plpgsql stable
+as $$
+declare
+  a jsonb := coalesce(p_was->'plant', 'null'::jsonb);
+  b jsonb := coalesce(p_next->'plant', 'null'::jsonb);
+  k jsonb := town.cat('waters');
+  base double precision;
+  more double precision;
+  x double precision;
+  hours double precision;
+begin
+  if jsonb_typeof(a) is distinct from 'object' or jsonb_typeof(b) is distinct from 'object' then return p_next; end if;
+  if (a->'sown') is distinct from (b->'sown') or (b->>'watered')::numeric <> p_now or (a->>'watered')::numeric >= p_now then return p_next; end if;
+  base := (b->>'boost')::double precision - (a->>'boost')::double precision;
+  if not coalesce(base > 0, false) then return p_next; end if;
+  more := (case when coalesce(p_hot, false) then (town.cat('heat')->>'by')::double precision else 0 end) + coalesce((k->'adds'->>p_kind)::double precision, 0);
+  x := case when coalesce(p_times, 1) > 1
+    then greatest(1 + more, least((town.cat('farming')->'helping'->>'most')::double precision, p_times * (1 + more))) else 1 + more end;
+  hours := coalesce((k->'guards'->>p_kind)::double precision, 0);
+  return p_next || jsonb_build_object('plant', b || jsonb_build_object(
+    -- (with no gift in it the sum is the heat's own: what was added, and so much of it again)
+    'boost', case when coalesce(p_times, 1) > 1 then to_jsonb((a->>'boost')::double precision + base * x)
+                  when more <> 0 then to_jsonb((b->>'boost')::double precision + base * more) else b->'boost' end,
+    'guard', case when hours > 0 then to_jsonb(greatest((b->>'guard')::bigint, p_now + (hours * 3600000)::bigint)) else b->'guard' end,
+    'pour', jsonb_build_object('by', p_by, 'at', p_now, 'base', base, 'x', x) || case when coalesce(p_worn, false) then '{"worn": true}'::jsonb else '{}'::jsonb end));
+end;
+$$;
+
+-- The nature the well's water has at a moment, if it has one (lib/town/waters): its word, for `town.poured_as`.
+create or replace function town.well_kind(p_now bigint)
+returns text language sql stable set search_path = public
+as $$ select case when jsonb_typeof(w.doc) = 'object' then w.doc->>'kind' end from (select town.well_water_told(p_now) as doc) w $$;
+
+-- The heat and the well's water, as a plot is kept (v133's trigger on town_plots). A watering that whoever watered
+-- has reckoned already (v153: `town.poured_as`, the plant's `pour` is of this very moment) is left as it is; any
+-- other (a bucket over a bed, the gnome's can) is made the more here, as it always was.
+create or replace function town.plot_heat()
+returns trigger language plpgsql security definer set search_path = public
+as $$
+declare
+  added double precision;
+  more double precision := 0;
+  w jsonb;
+  k jsonb;
+  hours double precision;
+begin
+  begin
+    if new.plant is not null and old.plant is not null and jsonb_typeof(new.plant) = 'object' and jsonb_typeof(old.plant) = 'object'
+       and (new.plant->>'sown') = (old.plant->>'sown')
+       and (new.plant->>'watered')::bigint = new.changed and (old.plant->>'watered')::bigint < new.changed
+       and (new.plant->'pour'->>'at') is distinct from new.changed::text then
+      added := (new.plant->>'boost')::double precision - (old.plant->>'boost')::double precision;
+      if added > 0 then
+        if town.hot(new.changed) then more := more + (town.cat('heat')->>'by')::double precision; end if;
+        w := town.well_water_told(new.changed);
+        if jsonb_typeof(w) = 'object' then
+          k := town.cat('waters');
+          more := more + coalesce((k->'adds'->>(w->>'kind'))::double precision, 0);
+          hours := coalesce((k->'guards'->>(w->>'kind'))::double precision, 0);
+          if hours > 0 then
+            new.plant := new.plant || jsonb_build_object('guard', greatest((new.plant->>'guard')::bigint, new.changed + (hours * 3600000)::bigint));
+          end if;
+        end if;
+        if more > 0 then
+          new.plant := new.plant || jsonb_build_object('boost', (new.plant->>'boost')::double precision + added * more);
+        end if;
+      end if;
+    end if;
+  exception when others then
+    raise warning 'the heat and the well''s water missed plot %,%: %', new.x, new.y, sqlerrm;
+  end;
+  return new;
+end;
+$$;
+
+-- Do to the plot I stand on what the thing in my hand does (v145's, with a watering kept as `town.poured_as` keeps
+-- it: the gifts of whoever waters, the heat and the well's water in one sum under their bound, and the plant's own
+-- mark of it).
+create or replace function public.town_tend(p_x integer, p_y integer, p_timing jsonb default null, p_sure boolean default false)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  purse jsonb := town.purse_of(me, true);
+  now_ bigint := town.now_ms();
+  f jsonb := town.cat('farming');
+  bed_n integer := town.bed_of(coalesce(p_x, -1), coalesce(p_y, -1));
+  key text := p_x::text || ',' || p_y::text;
+  plot jsonb;
+  keeping jsonb;
+  others integer;
+  holds integer;
+  did jsonb;
+  after jsonb;
+  said jsonb := town.claims(p_timing);
+  claims jsonb;
+  misses integer := 0;
+begin
+  if bed_n < 0 then return town.answer(me, town.no('none')); end if;
+  -- one at a time in a bed: of two who sow in a free one at once, only the first owns it
+  perform pg_advisory_xact_lock(hashtext('town.bed'), bed_n);
+  select jsonb_build_object('soil', p.soil, 'plant', coalesce(p.plant, 'null'::jsonb)) into plot from public.town_plots p where p.x = p_x and p.y = p_y;
+  plot := coalesce(plot, '{"soil": "wild", "plant": null}'::jsonb);
+  select jsonb_build_object('by', b.member_id, 'tended', b.tended, 'empty', b.empty) into keeping from public.town_beds b where b.bed = bed_n;
+  select count(*)::int into others from public.town_plots p where p.bed = bed_n and p.plant is not null and not (p.x = p_x and p.y = p_y);
+  select count(*)::int into holds from public.town_beds b
+   where b.member_id = me and b.bed <> bed_n
+     and town.owner_of(jsonb_build_object('by', b.member_id, 'tended', b.tended, 'empty', b.empty),
+           exists (select 1 from public.town_plots p where p.bed = b.bed and p.plant is not null), now_) is not null;
+  did := town.tend(key, plot, keeping, others, holds, purse, me::text, now_, coalesce(p_sure, false));
+  if not (did->>'ok')::boolean then
+    return town.answer(me, did) || jsonb_build_object('key', key, 'plot', plot, 'bed', town.bed_told(bed_n));
+  end if;
+  after := did->'purse';
+  if did->>'deed' in ('clear', 'till') then
+    -- what the browser says of its game is kept as three numbers and no more
+    claims := jsonb_build_object(
+      'hits', case when jsonb_typeof(said->'hits') = 'number' then least(greatest((said->>'hits')::numeric, 0), 1000) end,
+      'misses', case when jsonb_typeof(said->'misses') = 'number' then least(greatest((said->>'misses')::numeric, 0), 1000) end,
+      'secs', case when jsonb_typeof(said->'secs') = 'number' then least(greatest((said->>'secs')::numeric, 0), 3600) end);
+    -- every miss of the hoe is a little more stamina gone
+    misses := least(floor(coalesce((claims->>'misses')::numeric, 0))::int, (f->>'misses')::int);
+    if misses > 0 then after := town.spend(after, misses, now_); end if;
+    perform town.record(me, 'farming', true, coalesce((claims->>'secs')::double precision, 0), town.stamina_of(purse, now_) <= 0, town.buff_of(purse, now_),
+      jsonb_build_object('what', did->>'deed', 'tile', jsonb_build_array(p_x, p_y), 'need', (f->'swings'->>(did->>'deed'))::int, 'misses', misses, 'claims', claims));
+  else
+    -- (clearing and tilling are written down with their game, above; everything else here: the plant it was
+    -- done to, how many were picked, the tile, the thing in the hand, and whose plant it was when not one's own)
+    perform town.note(me, did->>'deed', coalesce(plot->'plant'->>'crop', did->'plot'->'plant'->>'crop'),
+      case when did->>'deed' = 'pick' then (did->'got'->0->>1)::numeric else 1 end, 0,
+      jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'with', town.hand_of(purse))
+        || case when plot->'plant'->>'by' <> me::text then jsonb_build_object('whose', plot->'plant'->>'by') else '{}'::jsonb end
+        -- (an insect that eats pests, let go on a plant that had one: whether it ate it, or was off with the pest still there)
+        || case when did->>'deed' = 'feed' and f->'rids'->>town.hand_of(purse) is not null and (town.see(key, plot, now_)->>'pest')::boolean
+             then jsonb_build_object('rid', (did->'plot'->'plant'->>'cured')::bigint > (plot->'plant'->>'cured')::bigint) else '{}'::jsonb end);
+  end if;
+  -- (a watering with a can: kept with what the gifts of whoever watered, the heat and the well's water make of it)
+  if did->>'deed' = 'water' then
+    did := did || jsonb_build_object('plot', town.poured_as(plot, did->'plot', now_, town.hot(now_), town.well_kind(now_), me::text, coalesce((did->>'times')::double precision, 1), false));
+  end if;
+  perform town.keep_purse(me, after);
+  insert into public.town_plots (x, y, bed, soil, plant, changed)
+    values (p_x, p_y, bed_n, did->'plot'->>'soil', nullif(did->'plot'->'plant', 'null'::jsonb), now_)
+    on conflict (x, y) do update set soil = excluded.soil, plant = excluded.plant, changed = excluded.changed;
+  if did ? 'bed' then
+    insert into public.town_beds (bed, member_id, tended, empty)
+      values (bed_n, (did->'bed'->>'by')::uuid, (did->'bed'->>'tended')::bigint, (did->'bed'->>'empty')::bigint)
+      on conflict (bed) do update set member_id = excluded.member_id, tended = excluded.tended, empty = excluded.empty;
+  else
+    delete from public.town_beds b where b.bed = bed_n;
+  end if;
+  return town.answer(me, did - 'plot' - 'bed') || jsonb_build_object('key', key, 'plot', did->'plot', 'bed', town.bed_told(bed_n), 'misses', misses);
+end;
+$$;
+revoke execute on function public.town_tend(integer, integer, jsonb, boolean) from public, anon;
+grant execute on function public.town_tend(integer, integer, jsonb, boolean) to authenticated;
+
 -- One long pour along the row of somebody else's bed I stand in, with the can in my hand. One deed, one at a time in
 -- a bed (as every deed there).
 create or replace function public.town_longpour(p_x integer, p_y integer, p_marks jsonb default null, p_timing jsonb default null)
@@ -222,6 +392,8 @@ declare
   was jsonb;
   v_x integer;
   v_y integer;
+  hot boolean := town.hot(now_);
+  kind text := town.well_kind(now_);
 begin
   if bed_n < 0 then return town.answer(me, town.no('none')); end if;
   perform pg_advisory_xact_lock(hashtext('town.bed'), bed_n);
@@ -246,7 +418,10 @@ begin
     perform town.note(me, 'water', e->>'crop', 1, 0,
       jsonb_build_object('tile', jsonb_build_array(v_x, v_y), 'with', hand, 'row', true)
         || case when was->>'by' <> me::text then jsonb_build_object('whose', was->>'by') else '{}'::jsonb end);
-    update public.town_plots p set plant = did->'plots'->(e->>'key')->'plant', changed = now_ where p.x = v_x and p.y = v_y;
+    -- (kept with what my gifts, the heat and the well's water make of the watering, under their bound)
+    update public.town_plots p
+       set plant = town.poured_as(plots->(e->>'key'), did->'plots'->(e->>'key'), now_, hot, kind, me::text, (e->>'times')::double precision, false)->'plant', changed = now_
+     where p.x = v_x and p.y = v_y;
   end loop;
   if n > 0 then
     perform town.keep_purse(me, did->'purse');
@@ -258,7 +433,7 @@ begin
       delete from public.town_beds b where b.bed = bed_n;
     end if;
   end if;
-  -- (the plots as they are kept: with what the heat and the well's water added, if they did)
+  -- (the plots as they are kept: with what my gifts, the heat and the well's water made of each watering)
   return town.answer(me, did - 'plots' - 'bed' - 'each')
     || jsonb_build_object('key', key, 'bed', town.bed_told(bed_n),
          'done', (select coalesce(jsonb_agg(t.x->'key' order by t.ord), '[]'::jsonb) from jsonb_array_elements(did->'each') with ordinality as t(x, ord)),

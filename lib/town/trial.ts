@@ -38,6 +38,7 @@ import { glassReach, glassTurn, gnomeReach, gnomeWater, plotKey, rowFor, rowTend
 import { rowOf } from "./world";
 // ── gifts: helpers ──
 import { pourFor, pourRow } from "./farm";
+import { pouredAs } from "./helping";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -437,7 +438,7 @@ export class Trial {
     if (!did.ok) return did;
     const next = { ...plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
-    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = keptAs(plot, did.plot, now, SKIES.sky(now), this.natureNow(now));
+    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0);
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -525,6 +526,14 @@ export class Trial {
     return { ok: true, watered: did.watered };
   }
   // ── gifts: helpers ──
+  /**
+   * A plot as it is kept after a deed: a watering with a can so many `times` over (what `tend` said: 1, with no gift
+   * of the helpers' line in it) is kept by lib/town/helping's pouredAs, with the heat and the well's water and never
+   * past the bound of them all, and the plant remembers it; anything else (`times` 0) as it always was.
+   */
+  private poured(was: Plot | undefined, next: Plot, now: number, times: number, worn = false): Plot {
+    return times > 0 ? pouredAs(was, next, now, hotAt(now, SKIES.sky(now)), this.natureNow(now), this.id, times, worn) : keptAs(was, next, now, SKIES.sky(now), this.natureNow(now));
+  }
   /** The plants of the row the long pour of the gardener's gloves would water from a plot (lib/town/farm's pourFor): none, when there is no row to pour along. */
   pourAt(key: string): string[] {
     const [x, y] = key.split(",").map(Number);
@@ -538,8 +547,8 @@ export class Trial {
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
     const did = pourRow(key, keys, plots, beds[bed], (planted.get(bed) ?? 0) - keys.filter((k) => !!plots[k]?.plant).length, holds, p, this.id, now, marks, secs, this.sky());
     if (!did.ok) return did;
-    const next = { ...plots }, sky = SKIES.sky(now), hand = handOf(p) ?? undefined;
-    for (const [k, plot] of Object.entries(did.plots)) next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now));
+    const next = { ...plots }, hand = handOf(p) ?? undefined;
+    for (const e of did.each) next[e.key] = this.poured(plots[e.key], did.plots[e.key], now, e.times);
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
