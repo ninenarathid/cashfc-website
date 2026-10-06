@@ -1271,7 +1271,7 @@
   },
   {
    "date": "2026-10-06",
-   "total": 512,
+   "total": 510,
    "tags": {
     "veteran": 155,
     "extreme": 146,
@@ -1285,18 +1285,19 @@
     "goldsaucer": 7,
     "seasonal": 12,
     "pvp": 19,
-    "private": 226,
+    "private": 223,
     "casual": 30,
     "prog": 23,
+    "unknown": 1,
     "oldtimer": 1
    },
    "raider": 65,
    "ultimate": 119,
    "extreme": 146,
-   "unknown": 0,
+   "unknown": 1,
    "final_boss": 42,
-   "active": 167,
-   "vacation": 345,
+   "active": 168,
+   "vacation": 342,
    "guests": 14
   }
  ]
