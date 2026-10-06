@@ -194,6 +194,8 @@ const SHEETS = [
   // the carriers' later rounds (2026-10-05): the cart with water in it (a bucket's picture when it holds water is its name and Full), the three
   // waters that differ (lib/town/waters: the dew's, the rain's, the moon's), the cooking yard's jar, and a bucket handed on
   ["icons-well-c", ["waterCartFull", "waterDawn", "waterRain", "waterMoon", "yardJar", "lineHands"]],
+  // the charms of each line of work's first rank (lib/town/gifts): an apron, gardener's gloves, a float, a vine basket, a net, a hoe, each with its sparkle
+  ["icons-charms-a", ["charmApron", "charmGloves", "charmFloat", "charmBasket", "charmNet", "charmHoe"], { range: [4.9, 5.2] }],
 ];
 
 const pieces = [];

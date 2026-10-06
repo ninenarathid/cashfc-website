@@ -37,7 +37,8 @@ import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
-import { RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
+import { dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
+import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { BOX } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
@@ -684,7 +685,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const ranksRef = useRef<{ ranks: Record<string, number>; titles: Record<string, Worn>; me: string }>({ ranks: {}, titles: {}, me: "" });
   /** My lines of work as the keeper tells them (lib/town/lines): null where it knows of none, and then nothing of them is shown. And whether their screen is open. */
   const [linesTold, setLinesTold] = useState<LinesTold | null>(null);
-  const [linesOpen, setLinesOpen] = useState(false);
+  const [linesOpen, setLinesOpen] = useState<false | "lines" | "me">(false);
+  /** What I have of the gifts of my ranks and wear of them, and whether whoever keeps the game gives any (lib/town/gifts). */
+  const [giftsTold, setGiftsTold] = useState<{ gifting: boolean; gifts: Gifts }>({ gifting: false, gifts: { had: [], charms: [], owed: 0 } });
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
   /** Everybody on the map now, as this screen has them (the bucket line asks who stands within sight: lib/town/line). */
@@ -763,6 +766,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       // (my lines, kept only as they change: the keeper tells of every little thing)
       const next = keeper.lines();
       setLinesTold((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next));
+      const mine = { gifting: keeper.gifting(), gifts: giftsOf(keeper.purse()) };
+      setGiftsTold((was) => (JSON.stringify(was) === JSON.stringify(mine) ? was : mine));
     };
     read();
     return keeper.watch(read);
@@ -3307,6 +3312,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   // The card's person, if they are still here.
   const cardWho = card && s ? (card.id === me.id ? s.self : s.avatars.get(card.id) ?? null) : null;
+  /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
+  const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).length > 0;
   // A sign that was tapped from far off: asked again now that I have stopped walking.
   useEffect(() => {
     const id = signWant.current;
@@ -3502,6 +3509,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               <button type="button" onClick={() => walkOver(cardWho)}
                       className="pressable rounded-lg bg-accent/15 px-3 py-1.5 text-ui text-accent hover:bg-accent/25"><span className="flex items-center gap-1.5"><TownIcon name="walk" size={16} />{w.walkTo}</span></button>
             )}
+            {/* what I wear of my ranks' gifts: where whoever keeps the game gives them */}
+            {card.id === me.id && game && keeper && linesTold && giftsTold.gifting && (
+              <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen("me"); }} data-town-me-button
+                      className="pressable rounded-lg bg-gold/15 px-3 py-1.5 text-ui text-gold hover:bg-gold/25"><span className="flex items-center gap-1.5"><TownIcon name="rosette" size={16} />{w.th ? "ตัวฉัน" : "Me"}</span></button>
+            )}
             {/* a deal, with somebody who stands near (the trial's) */}
             {game && card.id !== me.id && s && Math.hypot(cardWho.pos.x - s.self.pos.x, cardWho.pos.y - s.self.pos.y) <= DEAL_NEAR && (
               <button type="button" onClick={() => { openDeal.current?.(cardWho.info.id, cardWho.info.name); setCard(null); }}
@@ -3666,10 +3678,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           )}
           {/* The lines of work and their ladders: where whoever keeps the game has them */}
           {game && keeper && linesTold && (
-            <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => !o); }}
-                    aria-expanded={linesOpen} title={w.th ? "สายอาชีพ" : "Lines of work"} data-town-lines-button
-                    className="pressable grid size-10 place-items-center rounded-full border border-line-strong bg-bg/80 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
+            <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => (o ? false : "lines")); }}
+                    aria-expanded={!!linesOpen} title={w.th ? "สายอาชีพ" : "Lines of work"} data-town-lines-button data-due={giftDue ? "" : undefined}
+                    className="pressable relative grid size-10 place-items-center rounded-full border border-line-strong bg-bg/80 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
               <TownIcon name="rosette" size={22} /><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
+              {/* (a gift of a rank reached waits to be taken) */}
+              {giftDue && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-bg bg-gold" />}
             </button>
           )}
           {/* My bag, and my Popoto coins beside it */}
@@ -3885,7 +3899,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* The lines of work and their ladders: a board over the map */}
       {s && game && keeper && linesTold && linesOpen && (
         <Suspense fallback={null}>
-          <TownLines keeper={keeper} told={linesTold} th={w.th} reduced={reducedRef.current} called={me.name}
+          <TownLines keeper={keeper} told={linesTold} gifts={giftsTold.gifts} gifting={giftsTold.gifting} leaf={linesOpen} th={w.th} reduced={reducedRef.current} called={me.name}
                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} onClose={() => setLinesOpen(false)} />
         </Suspense>
       )}

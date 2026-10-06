@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { giftAt, type Gifts } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
 import { LINES, LINE_IDS, RANKS, ladderOf, pastBound, rankOf, titleOf, towards, type LineId, type LinesTold, type Worn } from "@/lib/town/lines";
 import TownIcon, { type IconName } from "./TownIcon";
+import TownMe from "./TownMe";
 
 /** The board's wood and what is written on it; a ladder's paper and its ink (the kitchen table's own). */
 const CREAM = "#ffeccb", CREAM_SOFT = "#e9cfa4", HOLLOW = "#3a2513";
@@ -24,11 +26,20 @@ const fmt = (n: number) => Math.floor(n).toLocaleString("en-US");
  *   what is not unlocked is not in what the screen is given, so nothing of it can show).
  * - **The title worn**, at the head: any rank of any line one has, or none.
  *
+ * - **A rank's gift** (lib/town/gifts), where whoever keeps the game gives them: on the rung of a rank one has, a
+ *   button to take it, and its name once taken. Nothing of a gift shows on a rung not reached.
+ * - **A second leaf, "ตัวฉัน"** (TownMe): the charms worn of what was taken. The map opens the board at either leaf.
+ *
  * It says what is, never how points are come by: that is found by doing. With `reduced` nothing moves.
  */
-export default function TownLines({ keeper, told, th, reduced, called, bottom, onClose }: {
+export default function TownLines({ keeper, told, gifts, gifting, leaf, th, reduced, called, bottom, onClose }: {
   keeper: Keeper;
   told: LinesTold;
+  /** What I have of the gifts and wear of them, and whether whoever keeps the game gives any (else nothing of them shows). */
+  gifts: Gifts;
+  gifting: boolean;
+  /** Which leaf the board opens at. */
+  leaf: "lines" | "me";
   th: boolean;
   reduced: boolean;
   /** What I am called: the title is shown under it as it will be on the map. */
@@ -38,6 +49,7 @@ export default function TownLines({ keeper, told, th, reduced, called, bottom, o
 }) {
   const [picked, setPicked] = useState<LineId>(() => [...LINE_IDS].sort((a, b) => told.lines[b].points - told.lines[a].points)[0]);
   const [busy, setBusy] = useState(false);
+  const [at, setAt] = useState<"lines" | "me">(gifting ? leaf : "lines");
   const board = useRef<HTMLElement>(null);
   useEffect(() => { board.current?.focus(); keeper.linesRead(); }, [keeper]);
   useEffect(() => {
@@ -46,6 +58,7 @@ export default function TownLines({ keeper, told, th, reduced, called, bottom, o
     return () => window.removeEventListener("keydown", down, true);
   }, [onClose]);
   const wear = async (worn: Worn | null) => { if (busy) return; setBusy(true); await keeper.titleWear(worn); setBusy(false); };
+  const take = async (rank: number) => { if (busy) return; setBusy(true); await keeper.giftTake(picked, rank); setBusy(false); };
   const worn = told.worn, wornTitle = worn ? titleOf(worn.line, worn.rank) : null;
   const line = LINES[picked], mine = told.lines[picked], ladder = ladderOf(picked, mine.points);
 
@@ -61,7 +74,15 @@ export default function TownLines({ keeper, told, th, reduced, called, bottom, o
                className="relative flex size-full max-w-[60rem] select-none flex-col border-[#2a190d] bg-[#6b4424] shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)] min-[900px]:h-auto min-[900px]:max-h-full min-[900px]:rounded-lg min-[900px]:border-[3px]">
         <header className="flex min-h-11 shrink-0 items-center gap-2 px-3 pt-1">
           <TownIcon name="rosette" size={24} />
-          <h2 id="town-lines-h" className="font-display text-title font-semibold [text-shadow:0_2px_0_#2a190d]" style={{ color: CREAM }}>{th ? "สายอาชีพ" : "Lines of work"}</h2>
+          <h2 id="town-lines-h" className={gifting ? "sr-only" : "font-display text-title font-semibold [text-shadow:0_2px_0_#2a190d]"} style={{ color: CREAM }}>{at === "me" ? (th ? "ตัวฉัน" : "Me") : (th ? "สายอาชีพ" : "Lines of work")}</h2>
+          {gifting && (
+            <div role="tablist" aria-label={th ? "หน้า" : "Leaves"} className="flex gap-1">
+              {([["lines", th ? "สายอาชีพ" : "Lines of work"], ["me", th ? "ตัวฉัน" : "Me"]] as const).map(([id, name]) => (
+                <button key={id} type="button" role="tab" aria-selected={at === id} onClick={() => setAt(id)} data-lines-leaf={id}
+                        className={`pressable min-h-9 rounded-md border-2 px-3 font-display text-ui font-semibold ${at === id ? "border-[#f0c060] bg-[#5a3a1c]" : "border-[#2a190d] bg-[#4a2f18] hover:bg-[#523520]"}`} style={{ color: CREAM }}>{name}</button>
+              ))}
+            </div>
+          )}
           <button type="button" onClick={onClose} className="pressable ml-auto min-h-9 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta hover:bg-[#5a3a1c]" style={{ color: CREAM }}>{th ? "ปิด" : "Close"}</button>
         </header>
 
@@ -77,6 +98,7 @@ export default function TownLines({ keeper, told, th, reduced, called, bottom, o
           {worn && <button type="button" disabled={busy} onClick={() => wear(null)} data-lines-bare className="pressable min-h-10 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta disabled:opacity-50" style={{ color: CREAM }}>{th ? "ถอดฉายา" : "Wear none"}</button>}
         </div>
 
+        {at === "me" ? <TownMe keeper={keeper} told={told} gifts={gifts} th={th} /> : (
         <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-2 p-2 min-[900px]:grid-cols-[minmax(0,1fr)_22rem] min-[900px]:grid-rows-[minmax(0,1fr)]">
           {/* ── the seven lines ── */}
           <ul className="flex gap-1.5 overflow-x-auto pb-1 min-[900px]:max-h-[30rem] min-[900px]:flex-col min-[900px]:overflow-y-auto min-[900px]:overflow-x-hidden min-[900px]:pb-0 min-[900px]:pr-1 [scrollbar-color:#6b4a2a_transparent] [scrollbar-width:thin]" aria-label={th ? "สายทั้งหมด" : "The lines"}>
@@ -125,6 +147,7 @@ export default function TownLines({ keeper, told, th, reduced, called, bottom, o
             <ol className="min-h-0 flex-1 overflow-y-auto px-2.5 py-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]">
               {ladder.map((r) => {
                 const isWorn = worn?.line === picked && worn.rank === r.rank;
+                const gift = gifting && r.state === "had" ? giftAt(picked, r.rank) : null, has = !!gift && gifts.had.includes(gift.id);
                 return (
                   <li key={r.rank} data-lines-rank={r.rank} data-state={r.state} className="flex items-center gap-2.5 py-1.5" style={{ opacity: r.state === "far" ? 0.55 : 1 }}>
                     <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 font-data text-ui font-semibold tabular-nums"
@@ -134,6 +157,13 @@ export default function TownLines({ keeper, told, th, reduced, called, bottom, o
                         <>
                           <span className="block truncate text-ui font-semibold">{th ? r.title.th : r.title.en}</span>
                           <span className="block font-data text-label tabular-nums" style={{ color: JADE }}>{th ? `ถึงแล้ว · ${fmt(r.at)} แต้ม` : `reached · ${fmt(r.at)} points`}</span>
+                          {gift && has && (
+                            <span className="mt-0.5 flex items-center gap-1 text-label" data-lines-gift={gift.id}><TownIcon name={gift.id as IconName} size={16} /><span className="truncate">{th ? gift.name.th : gift.name.en}</span></span>
+                          )}
+                          {gift && !has && (
+                            <button type="button" disabled={busy} onClick={() => take(r.rank)} data-lines-take={r.rank}
+                                    className="pressable mt-1 min-h-8 rounded-md border-2 px-2.5 text-label font-semibold disabled:opacity-50" style={{ borderColor: "#8a5a12", backgroundColor: "#f0c060", color: "#3a2513" }}>{th ? "รับของขั้นนี้" : "Take this rank's gift"}</button>
+                          )}
                         </>
                       ) : (
                         <>
@@ -155,6 +185,7 @@ export default function TownLines({ keeper, told, th, reduced, called, bottom, o
             </ol>
           </section>
         </div>
+        )}
       </section>
     </div>
   );
