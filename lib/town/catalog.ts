@@ -5,6 +5,8 @@ import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } fro
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
+// ── gifts: farming ──
+import { HOURGLASS } from "./farm";
 import { FIGHT, NIBBLES_APART, SIGNS, STRIKE } from "./fishing";
 import { FORAGING, KINDS, SPOTS } from "./forest";
 import { HEAT } from "./heat";
@@ -152,6 +154,8 @@ export function catalogOf() {
       cans: WATER.cans, buckets: WATER.buckets, well: WATER.well, chores: WATER.costs, beds: BEDS,
       bedsAt: Array.from({ length: BEDS_IN_FARM }, (_, bed) => bedCorner(bed)), side: bedSide(), wellAt: [WELL.x, WELL.y],
       misses: 30,
+      // ── gifts: farming ── what the farming line's gifts go by, beyond each one's own number (the gifts' row): the hours an hourglass runs, and how many turnings a plant remembers
+      gifted: { glass: { hours: HOURGLASS.hours, kept: HOURGLASS.kept } },
     },
     /** What else is made, at the yard or by hand: what goes in, in what, and how many come of it. */
     makes: MAKES,
@@ -355,7 +359,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts"] },
+  v153: { keys: [], over: ["gifts", "farming"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

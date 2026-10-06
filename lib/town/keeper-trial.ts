@@ -180,6 +180,8 @@ class TrialKeeper implements Keeper {
   async rowDo(key: string, name: string, marks: Record<string, boolean>): Promise<Did<RowDid>> { return this.trial.rowDo(key, name, marks); }
   gnomeAt(key: string) { return this.trial.gnomeAt(key); }
   async gnomeDo(key: string): Promise<Did<{ watered: string[] }>> { return this.trial.gnomeDo(key); }
+  glassAt(key: string) { return this.trial.glassAt(key); }
+  async glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>> { return this.trial.glassDo(key); }
   wellBook() { return this.trial.wellBook(); }
   ranks() { return this.trial.ranks(); }
   lines() { return this.trial.lines(); }

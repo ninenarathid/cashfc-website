@@ -34,7 +34,7 @@ import { canPour, freshen, pourIn } from "./yard";
 import { carried, pass, type PassRefusal } from "./line";
 import { keptAs, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 // ── gifts: farming ──
-import { gnomeReach, gnomeWater, plotKey, rowFor, rowTend, type RowDeed } from "./farm";
+import { glassReach, glassTurn, gnomeReach, gnomeWater, plotKey, rowFor, rowTend, type RowDeed } from "./farm";
 import { rowOf } from "./world";
 
 /**
@@ -489,6 +489,23 @@ export class Trial {
   gnomeAt(key: string): string[] {
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
     return bed < 0 ? [] : gnomeReach(bed, this.bedAt(x, y), this.purse(), this.id, this.now(), this.owners().get(bed)?.by ?? null, this.sky());
+  }
+  /** The plots of the bed a plot is in that my hourglass of seasons would quicken if I turned it now (lib/town/farm's glassReach). */
+  glassAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    return bed < 0 ? [] : glassReach(this.bedAt(x, y), this.purse(), this.id, this.now(), this.owners().get(bed)?.by ?? null, this.sky());
+  }
+  /** Turn it over that bed. */
+  glassDo(key: string): { ok: true; quickened: string[]; until: number } | { ok: false; why: Refusal | FarmRefusal | GiftRefusal } {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), now = this.now();
+    if (bed < 0) return no("none");
+    const did = glassTurn(this.bedAt(x, y), this.purse(), this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
+    if (!did.ok) return did;
+    this.write(FARM, { ...this.farm(), ...did.plots });
+    const beds = this.beds();
+    if (beds[bed]) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
+    this.save(did.purse);
+    return { ok: true, quickened: did.quickened, until: did.until };
   }
   /** Send it. (Its water is nobody's, and the plants its member's own: the well's book has nothing to read of it.) */
   gnomeDo(key: string): { ok: true; watered: string[] } | { ok: false; why: Refusal | FarmRefusal } {

@@ -1,7 +1,10 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
-import { BEDS, gnomeWater, pouchPlots, pouchSeeds, rowFor, rowTend, type Bed, type Plant, type Plot } from "./farm";
+import { vectorsV110 } from "./db-vectors.test";
+import { vectorsV147 } from "./db-vectors-swarm.test";
+import { BEDS, HOURGLASS, glassTurn, gnomeWater, growing, grown, pestAt, pouchPlots, pouchSeeds, quickMs, rowFor, rowTend, see, type Bed, type Plant, type Plot } from "./farm";
+import { usedOf } from "./gifts";
 import { CROPS, CROP_IDS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { HOUR, held, newPurse, put, type Purse } from "./trade";
@@ -22,6 +25,14 @@ import { BEDS_IN_FARM, FARM, bedCorner, bedOf, rowOf } from "./world";
  * - rows reaped with the sickle (`row_for`, `row_tend` again): ripe plants of every pace, some bearing again, some
  *   not ripe, plots with none; one's own bed, somebody else's and nobody's; the charm worn and not; nothing in the
  *   hand, a blade, and a thing with a deed of its own; marks of every sort; bags with room, with little, with none.
+ * - **the farm as it was**: every case the farm's own rules were held to under a clear sky when their files ran
+ *   (lib/town/db-vectors.test.ts's v110 cases, lib/town/db-vectors-swarm.test.ts's v147 cases with no insect
+ *   counted), asked again of the functions v153 writes again and of those that stand on them (`grown`, `pest_at`,
+ *   `see`, `water`, `pick`, `feed`, `cure`, `deed_for`, `tend`): no plant of them has a gift's mark, and each
+ *   answers as it did.
+ * - the hourglass: `quick_ms` between moments either side of every stretch; `grown`, `growing`, `pest_at` and
+ *   `see` of plants it was turned over once, twice, long ago and just now, growing, picked and bearing again;
+ *   `glass_turn` over beds of every sort, had and not, used today and yesterday, running and not, mine and not.
  * - `gnome_water`: beds with plants of every pace sown at many moments (growing, ripe, bearing again, watered a
  *   while ago and just now), bare soil and nothing at all; the gnome following, another familiar, none; rounds kept
  *   for this bed and for others, fresh, old and kept wrongly; one's own bed, somebody else's and nobody's.
@@ -101,6 +112,56 @@ export function vectorsFarming(): Vector[] {
     const p = { ...purse(gifts, c.of<ItemId | null>(["can", null]), [["can", 1]], c.of([100, 0])), ...(gnomed === undefined ? {} : { gnomed }) } as Purse;
     const owner = c.of<string | null>([me, me, me, me === ME ? YOU : ME, null]);
     add("gnome_water", [bed, plots, p, me, NOW, owner], gnomeWater(bed, plots, p, me, NOW, owner));
+  }
+  // the farm as it was: its own cases under a clear sky, asked again of what is written again and of what stands on it
+  const AS_IT_WAS = new Set(["grown", "pest_at", "see", "water", "pick", "feed", "cure", "deed_for", "tend"]);
+  for (const v of vectorsV110()) if (AS_IT_WAS.has(v.fn)) add(v.fn, v.args, v.want);
+  for (const v of vectorsV147().cases) if (v.sky === 0 && AS_IT_WAS.has(v.fn)) add(v.fn, v.args, v.want);
+
+  // the hourglass: the growth it adds, and every clock that counts it
+  const SPAN = HOURGLASS.hours * HOUR;
+  for (let i = 0; i < 220; i++) {
+    const [bx, by] = bedCorner(c.int(0, BEDS_IN_FARM - 1)), key = `${bx + c.int(0, 6)},${by + c.int(0, 6)}`;
+    const crop = c.of(CROP_IDS), k = CROPS[crop], sown = NOW - c.int(1, Math.ceil(k.hours * 1.2)) * HOUR - c.int(0, 3_599_999);
+    // turned once, twice, three times: long ago, lately, at this very moment, and (kept wrongly) not a moment at all
+    const turns = () => c.of([sown + c.int(0, 30) * HOUR, NOW - c.int(0, 5) * HOUR - c.int(0, 3_599_999), NOW - SPAN, NOW, sown - HOUR]);
+    const fast = c.of<() => unknown>([() => [turns()], () => [turns()], () => [turns(), turns()].sort((a, b) => a - b), () => [turns(), turns(), turns()].sort((a, b) => a - b), () => [], () => [turns(), "x", null]])();
+    const plant = { by: c.of([ME, YOU]), crop, sown, boost: c.maybe(0.3) ? c.int(1, 4) * 1_800_000 : 0, watered: 0, fed: c.maybe(0.2) ? sown + HOUR : 0, guard: c.maybe(0.5) ? NOW + 99 * HOUR : 0,
+      cured: 0, picked: 0, pickedAt: 0, fast } as Plant;
+    if (k.again && c.maybe(0.4)) { plant.picked = 1; plant.pickedAt = Math.max(sown + 1, NOW - c.int(0, Math.ceil(k.again * 1.3)) * HOUR - c.int(0, 3_599_999)); }
+    const plot: Plot = { soil: "tilled", plant };
+    for (const now of [NOW, NOW - c.int(1, 6) * HOUR, NOW + c.int(1, 40) * HOUR + c.int(0, 3_599_999)]) {
+      add("quick_ms", [plant, sown, now], quickMs(plant, sown, now));
+      add("quick_ms", [plant, now - c.int(1, 9) * HOUR, now], quickMs(plant, now - c.int(1, 9) * HOUR, now));
+      add("grown", [plant, now], grown(plant, now));
+      add("growing", [plant, now], growing(plant, now));
+      add("pest_at", [key, plant, now], pestAt(key, plant, now));
+      add("see", [key, plot, now], see(key, plot, now));
+    }
+  }
+  // (quick_ms was asked with a moment of its own above: answered again as it was asked)
+  for (const v of out) if (v.fn === "quick_ms") v.want = quickMs(v.args[0] as Plant, v.args[1] as number, v.args[2] as number);
+  // …and turned over a bed
+  for (let i = 0; i < 260; i++) {
+    const bed = c.int(0, BEDS_IN_FARM - 1), [bx, by] = bedCorner(bed), me = c.of([ME, ME, YOU]), plots: Record<string, Plot> = {};
+    const full = c.of([0, 1, 4, 12, 25]), sort = c.of(["growing", "growing", "growing", "mixed", "ripe"]);
+    // (whether an hourglass was ever turned over this bed: never, long ago, or so lately that it still runs)
+    const turnedAt = c.of(["never", "never", "never", "never", "old", "old", "running"]);
+    for (let n = 0; n < full; n++) {
+      const key = `${bx + c.int(0, 6)},${by + c.int(0, 6)}`;
+      if (c.maybe(0.1)) { plots[key] = c.of(SOILS); continue; }
+      const crop = c.of(CROP_IDS), k = CROPS[crop], part = sort === "ripe" ? 1.2 : sort === "mixed" ? c.of([0.3, 1.2]) : c.of([0.1, 0.5, 0.9]);
+      const sown = NOW - Math.ceil(k.hours * part) * HOUR - c.int(0, 3_599_999);
+      const plant: Plant = { by: me, crop, sown, boost: 0, watered: 0, fed: 0, guard: c.maybe(0.7) ? NOW + 99 * HOUR : 0, cured: 0, picked: 0, pickedAt: 0,
+        ...(turnedAt !== "never" && c.maybe(0.6) ? { fast: turnedAt === "old" ? c.of([[NOW - 30 * HOUR], [NOW - 30 * HOUR, NOW - SPAN]]) : c.of([[NOW - HOUR], [NOW - SPAN + 1], [NOW - 30 * HOUR, NOW]]) } : {}) };
+      plots[key] = { soil: "tilled", plant };
+    }
+    const day = dayOf(NOW);
+    const used = c.of<unknown>([undefined, undefined, undefined, undefined, { thingHourglass: { k: day, n: 1 } }, { thingHourglass: { k: day - 1, n: 1 } }, { thingHourglass: { k: day, n: 0 }, famMandrake: { k: day, n: 3 } }]);
+    const gifts = c.of<Purse["gifts"] | undefined>([{ had: ["thingHourglass"], charms: [] }, { had: ["thingHourglass"], charms: [] }, { had: ["thingHourglass", "charmHoe"], charms: ["charmHoe"] }, { had: ["charmHoe"], charms: [] }, undefined]);
+    const p = purse(gifts && used !== undefined ? ({ ...gifts, used } as Purse["gifts"]) : gifts, null, [["can", 1]], c.of([100, 0]));
+    const owner = c.of<string | null>([me, me, me, me, me === ME ? YOU : ME, null]);
+    add("glass_turn", [plots, p, me, NOW, owner], glassTurn(plots, p, me, NOW, owner));
   }
   // the pouch: what a row takes of it, and how far so many seeds reach
   for (const side of [7, 5, 1]) for (let n = 0; n <= 9; n++) { add("pouch_seeds", [n, side], pouchSeeds(n, side)); add("pouch_plots", [n, side], pouchPlots(n, side)); }
@@ -199,6 +260,20 @@ describe("the cases the database's rules of the farming line's gifts are held to
     expect(reaps.some((x) => !x.d.ok && x.d.why === "full") && reaps.some((x) => x.d.ok && x.d.each!.length === 0)).toBe(true);
     // (a plant picked for the last time leaves its plot bare; one that bears again stays, picked once more)
     expect(picked.some((x) => Object.values(x.d.plots!).some((pl) => pl.plant === null)) && picked.some((x) => Object.values(x.d.plots!).some((pl) => (pl.plant?.picked ?? 0) > 0))).toBe(true);
+    // the farm as it was: its own cases are among them, by the hundred
+    for (const fn of ["grown", "pest_at", "see", "water", "pick", "feed", "cure", "deed_for", "tend"]) expect(of(fn).length, fn).toBeGreaterThan(100);
+    // the hourglass: growth added in part and in whole, none for a plant it was not turned over; a plant ripe for it that would not have been
+    const quick = of("quick_ms").map((v) => v.want as number);
+    expect(quick.some((q) => q === 0) && quick.some((q) => q === 2 * HOURGLASS.hours * HOUR) && quick.some((q) => q > 0 && q < 2 * HOURGLASS.hours * HOUR) && quick.some((q) => q > 2 * HOURGLASS.hours * HOUR)).toBe(true);
+    const ripeFor = of("growing").filter((v) => { const pl = v.args[0] as Plant; return Array.isArray(pl.fast) && (v.want as { ripe: boolean }).ripe && !growing({ ...pl, fast: [] }, v.args[1] as number).ripe; });
+    expect(ripeFor.length).toBeGreaterThan(3);
+    expect(ripeFor.some((v) => (v.args[0] as Plant).picked > 0) && ripeFor.some((v) => (v.args[0] as Plant).picked === 0)).toBe(true);
+    // …turned, and refused each way; a turning counted, and one of yesterday's that no longer counts
+    const turned = of("glass_turn").map((v) => ({ purse: v.args[1] as Purse, now: v.args[3] as number, d: v.want as { ok: boolean; why?: string; quickened?: string[]; purse?: Purse } }));
+    expect(turned.filter((x) => x.d.ok).length).toBeGreaterThan(25);
+    for (const why of ["none", "spent", "theirs", "running", "soil"]) expect(turned.some((x) => !x.d.ok && x.d.why === why), why).toBe(true);
+    expect(turned.every((x) => !x.d.ok || usedOf(x.d.purse!, "thingHourglass", x.now) === 1)).toBe(true);
+    expect(turned.some((x) => x.d.ok && (x.purse.gifts?.used as Record<string, { k: number }> | undefined)?.thingHourglass?.k === dayOf(x.now) - 1)).toBe(true);
     // the gnome: a bed watered whole and in part, and refused each way
     const gnomes = of("gnome_water").map((v) => ({ plots: v.args[1] as Record<string, Plot>, d: v.want as { ok: boolean; why?: string; watered?: string[]; purse?: Purse } }));
     const plantsIn = (plots: Record<string, Plot>) => Object.values(plots).filter((x) => x.plant).length;

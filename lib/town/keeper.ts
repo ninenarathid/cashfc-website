@@ -30,7 +30,7 @@ import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 import { bedOf } from "./world";
 // ── gifts: farming ──
-import { gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
+import { glassReach, gnomeReach, plotKey, rowFor, type RowDeed } from "./farm";
 /** What a row's deed came to (lib/town/farm's rowTend), as a panel is told it. */
 export interface RowDid { deed: RowDeed; done: string[]; got: Array<[ItemId, number]>; seeds?: number }
 import { rowOf } from "./world";
@@ -201,6 +201,13 @@ export interface Keeper {
    */
   gnomeAt(key: string): string[];
   gnomeDo(key: string): Promise<Did<{ watered: string[] }>>;
+  /**
+   * The hourglass of seasons (lib/town/farm's glassTurn): the plots of the bed I stand in that it would quicken if I
+   * turned it now (none: there is nothing to turn it for), and turning it: which plots it quickened, and until when
+   * the sand runs.
+   */
+  glassAt(key: string): string[];
+  glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>>;
 
   /** The forest (lib/town/forest): every place that has something for me now. */
   wild(): Sight[];
@@ -929,6 +936,17 @@ export class DbKeeper implements Keeper {
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
     if (bed < 0 || !this.farmGifts()) return [];
     return gnomeReach(bed, this.bedPlots(bed), this.mine, this.id, this.now(), this.owners().get(bed)?.by ?? null, this.rains());
+  }
+  glassAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
+    if (bed < 0 || !this.farmGifts()) return [];
+    return glassReach(this.bedPlots(bed), this.mine, this.id, this.now(), this.owners().get(bed)?.by ?? null, this.rains());
+  }
+  async glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>> {
+    const [x, y] = key.split(",").map(Number);
+    const did = await this.deed<{ quickened: string[]; until: number }>("town_hourglass", { p_x: x, p_y: y });
+    if (did.ok) this.onDeed?.("farm");
+    return did;
   }
   async gnomeDo(key: string): Promise<Did<{ watered: string[] }>> {
     const [x, y] = key.split(",").map(Number);

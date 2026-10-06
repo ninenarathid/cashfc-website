@@ -255,4 +255,54 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   await hands(U.m2, null, 0);
   did = await call(U.m2, "town_row", ...xy(R3[0]), Object.fromEntries(R3.map((k, i) => [k, i % 2 === 0])), { hits: 4, misses: 3, secs: 2.4 });
   t.check("its owner reaps it, with no stamina too: seven plants, four of them with one more", did?.ok === true && did.done.length === 7 && same(did.got, [["pumpkin", 7 * 2 + 4]]), did);
+
+  // ── the hourglass of seasons: a bed grows three times as fast for three hours ──
+  t.section("the hourglass of seasons: a bed three times as fast for three hours (town_hourglass)");
+  const glass = CODE.farming.gifted.glass, by = CODE.gifts.gifts.thingHourglass.by, HOUR = 3_600_000;
+  const living = async (bed) => (await t.sql(`select x, y, plant from public.town_plots where bed = $1 and plant is not null order by y, x`, [bed])).rows;
+  const grownAt = async (plant, at) => Number((await one(`select town.grown($1::jsonb, $2::bigint) as h`, [JSON.stringify(plant), at])).h);
+  await give(U.m2, { had: ["charmSickle"], charms: ["charmSickle"] });
+  const before3 = await living(3);
+  did = await call(U.m2, "town_hourglass", ...xy(C[0]));
+  t.check("without the hourglass: refused, and no plant is touched", did?.ok === false && did.why === "none" && same(await living(3), before3) && before3.length >= 9, did);
+  await give(U.m2, { had: ["charmSickle", "thingHourglass"], charms: ["charmSickle"] });
+  const tended3 = Number((await one(`select tended from public.town_beds where bed = 3`)).tended);
+  did = await call(U.m2, "town_hourglass", ...xy(C[0]));
+  const after3 = await living(3);
+  t.check("turned over my bed from any plot of it: every plant that lives there, down the bed a row at a time", did?.ok === true && same(did.quickened, before3.map((r) => `${r.x},${r.y}`)) && Math.abs(did.until - did.now - glass.hours * HOUR) < 2000, did);
+  t.check("…each remembers the turning, and is otherwise as it was", after3.every((r, i) => same({ ...r.plant, fast: null }, { ...before3[i].plant, fast: null }) && r.plant.fast.length === 1 && r.plant.fast[0] === did.until - glass.hours * HOUR), after3.map((r) => r.plant.fast));
+  const one3 = after3.find((r) => r.plant.crop === "pumpkin" && r.plant.picked === 0).plant, plain3 = { ...one3, fast: [] }, t0 = one3.fast[0];
+  const gain = async (dt) => (await grownAt(one3, t0 + dt * HOUR)) - (await grownAt(plain3, t0 + dt * HOUR));
+  t.check(`…and grows ${by} times as fast for ${glass.hours} hours from that moment: an hour in, ${by - 1} hours ahead; at the end and ever after, ${(by - 1) * glass.hours}`,
+    Math.abs((await gain(1)) - (by - 1)) < 1e-9 && Math.abs((await gain(glass.hours)) - (by - 1) * glass.hours) < 1e-9 && Math.abs((await gain(50)) - (by - 1) * glass.hours) < 1e-9 && (await gain(0)) === 0, [await gain(1), await gain(3), await gain(50)]);
+  p2 = await purseOf(U.m2);
+  noted = await deeds("hourglass");
+  t.check("…the day's turning is counted in the purse, and the deed written down once: how many plants, and until when", p2.gifts.used.thingHourglass.n === 1 && p2.gifts.used.thingHourglass.k === day
+    && noted.length === 1 && noted[0].member_id === U.m2 && noted[0].n === before3.length && noted[0].doc.bed === 3 && noted[0].doc.until === did.until, { used: p2.gifts.used, noted });
+  t.check("…it is its owner's tending of the bed, and costs no stamina", Number((await one(`select tended from public.town_beds where bed = 3`)).tended) >= tended3 && p2.stamina.left === 0);
+  const told = await call(U.m2, "town_farm", 0);
+  t.check("…everybody's page is told of it with the farm: the plants come with their turning", Object.values(told.plots).filter((p) => p.plant?.fast?.length === 1).length === before3.length, Object.keys(told.plots).length);
+  did = await call(U.m2, "town_hourglass", ...xy(C[0]));
+  t.check("once a day: turned again, refused, and nothing changes", did?.ok === false && did.why === "spent" && same(await living(3), after3) && (await deeds("hourglass")).length === 1, did);
+  // (the count as if it had been yesterday's: the sand still runs over these plants)
+  await give(U.m2, { had: ["charmSickle", "thingHourglass"], charms: ["charmSickle"], used: { thingHourglass: { k: day - 1, n: 1 } } });
+  did = await call(U.m2, "town_hourglass", ...xy(C[0]));
+  t.check("while the sand still runs over the bed it is not turned again", did?.ok === false && did.why === "running" && same(await living(3), after3), did);
+  // (…and as if it had been turned four hours ago: over, and turned anew; the plants remember both)
+  await t.sql(`update public.town_plots set plant = plant || jsonb_build_object('fast', jsonb_build_array((plant->'fast'->>0)::bigint - 4 * 3600000)) where bed = 3 and plant ? 'fast'`);
+  did = await call(U.m2, "town_hourglass", ...xy(C[0]));
+  t.check("the sand run out and a new day's turning to hand: turned anew, and the plants remember both", did?.ok === true && (await living(3)).every((r) => r.plant.fast.length === 2 && r.plant.fast[1] - r.plant.fast[0] >= 4 * HOUR), did);
+  // somebody else's bed, nobody's, off the beds
+  await give(U.m1, { had: ["thingHourglass"], charms: [] });
+  did = await call(U.m1, "town_hourglass", ...xy(C[0]));
+  t.check("over somebody else's bed: refused (one bed of its owner's)", did?.ok === false && did.why === "theirs", did);
+  did = await call(U.m1, "town_hourglass", ...xy(row(11, 0)[0]));
+  t.check("over a bed that is nobody's: refused", did?.ok === false && did.why === "theirs", did);
+  did = await call(U.m1, "town_hourglass", 0, 0);
+  t.check("off the beds: refused, and the day's turning is not counted", did?.ok === false && did.why === "none" && !(await purseOf(U.m1)).gifts.used?.thingHourglass, did);
+  const shut2 = await call(U.unver, "town_hourglass", ...xy(C[0]));
+  t.check("it is for a proved character of the town", shut2?.code === "42501", shut2);
+  // a plant with no hourglass is as it always was: the farm's own deeds on one
+  const plainPlant = (await living(2)).find((r) => !r.plant.fast)?.plant;
+  t.check("a plant no hourglass was turned over has no mark of one, and grows by the clock as ever", !!plainPlant && Math.abs((await grownAt(plainPlant, plainPlant.sown + 10 * HOUR)) - 10 - plainPlant.boost / HOUR) < 1e-9, plainPlant);
 }

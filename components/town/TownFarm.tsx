@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, hardFor, hitsFor, plotKey, pouchSeeds, ridCameOf, roll, see, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, hardFor, hitsFor, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
@@ -69,6 +69,8 @@ const WHY_FARM: Record<string, [string, string]> = {
   // (the page thought the plant dead and asked about a dead one; it lives: somebody cured it just now)
   sure: ["ต้นนี้ยังไม่ตาย ถ้าจะขุดออกให้กดอีกครั้ง", "It is alive after all: ask again to dig it out"],
   tired: ["หมดแรง จอบหลุดมือ", "Too tired: the hoe slips from your hands"],
+  // (the gifts of the farming line: what each is refused for, where the plain words do not say it)
+  running: ["ทรายยังไหลอยู่", "The sand is still running here"], spent: ["วันนี้ใช้ไปแล้ว", "Used already today"],
   shaky: ["หมดแรง มือสั่นจนทำไม่สำเร็จ", "Too tired: your hands shake, and it comes to nothing"],
 };
 /** What water is poured into (or onto, or taken from) in each piece of work that is done with it: the picture beside the thing in the hand. */
@@ -220,6 +222,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The nature the well's water has now, if any. */
   const nature = useRef<Nature | null>(null);
   nature.current = keeper.wellWater()?.kind ?? null;
+  /**
+   * The hourglass of seasons (lib/town/farm's glassTurn): the plants the sand runs over now, each with the moment it
+   * runs out, and of each bed that has any the latest of those. Read off the plants themselves, so everybody at the
+   * farm sees it, whoever turned it. And the keeper's clock, for the frames to tell how long is left by.
+   */
+  const sand = useRef(new Map<string, number>()), sandBeds = useRef(new Map<number, number>());
+  sand.current = new Map(Object.entries(plots).flatMap(([k, plot]) => { const until = quickUntil(plot.plant, now); return until === null ? [] : [[k, until] as [string, number]]; }));
+  sandBeds.current = new Map();
+  for (const [k, until] of sand.current) { const [x, y] = k.split(",").map(Number), bed = bedOf(x, y); sandBeds.current.set(bed, Math.max(until, sandBeds.current.get(bed) ?? 0)); }
+  const clock = useRef(() => keeper.now());
+  clock.current = () => keeper.now();
 
   // The plots, drawn among everything else on the map.
   useEffect(() => {
@@ -299,12 +312,31 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           }
         }
       }
+      // the hourglass's sand over a plant it quickens: a warm light at its foot, and grains falling past it, each in its own time.
+      // Drawn over the night's dark, as a lamp's light is: it is seen from across the farm.
+      const game = clock.current(), above = frame.over ?? ((draw: () => void) => draw());
+      const grains = (at: Vec, seed: number) => {
+        const px = Math.max(2, Math.round(1.6 * s));
+        ctx.fillStyle = "#ffd98a";
+        ctx.globalAlpha = still ? 0.2 : 0.14 + 0.09 * Math.sin(t / 420 + seed);
+        ctx.beginPath();
+        ctx.ellipse(at.x, at.y + 2 * s, 16 * s, 6.5 * s, 0, 0, Math.PI * 2);
+        ctx.fill();
+        for (let i = 0; i < 5; i++) {
+          const fall = still ? (i + 0.5) / 5 : (t / 1100 + seed * 0.37 + i * 0.23) % 1;
+          ctx.globalAlpha = 0.95 * Math.sin(fall * Math.PI);
+          ctx.fillStyle = i % 2 ? "#f0c060" : "#fff1c4";
+          ctx.fillRect(Math.round(at.x + (((i * 7 + seed * 3) % 23) - 11) * s), Math.round(at.y - (34 - fall * 32) * s), px, px);
+        }
+        ctx.globalAlpha = 1;
+      };
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
         const tx = FARM.x + u, ty = FARM.y + v;
         if (!plotAt(tx, ty)) continue;
         const at = project({ x: tx + 0.5, y: ty + 0.5 });
         if (!onScreen(at)) continue;
         const what = seen.current.get(plotKey(tx, ty));
+        if ((sand.current.get(plotKey(tx, ty)) ?? 0) > game && what?.crop && !what.dead) above(() => grains(at, tx * 5 + ty * 3));
         things.push({ depth: tx + ty + 0.6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled") blit("plotSoil", at, 0, PLANT * s * 0.9);
@@ -322,6 +354,26 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       for (const [bed, who] of owners.current) {
         const [bx, by] = bedCorner(bed), at = project({ x: bx, y: by });
         if (onScreen(at)) sign(thai ? `แปลงของ ${who.name}` : `${who.name}'s bed`, at.x, at.y - 6 * s);
+      }
+      // a bed the sand runs over: the hourglass itself over its far corner, turning now and then, and how long is left
+      for (const [bed, until] of sandBeds.current) {
+        if (until <= game) continue;
+        const [bx, by] = bedCorner(bed), at = project({ x: bx, y: by });
+        if (!onScreen(at)) continue;
+        const left = Math.max(0, until - game), h = Math.floor(left / 3_600_000), m = Math.floor((left % 3_600_000) / 60_000);
+        sign(`${h}:${String(m).padStart(2, "0")}`, at.x, at.y - 82 * s);
+        above(() => {
+          const cell = ICON_ATLAS.icons["thingHourglass" as IconName];
+          if (!cell) return;
+          const [x, y, w, hh] = cell, k = 0.85 * s, turn = still ? 0 : (t / 5200 + bed * 0.31) % 1;
+          ctx.save();
+          ctx.imageSmoothingEnabled = false;
+          ctx.translate(Math.round(at.x), Math.round(at.y - (46 + (still ? 0 : Math.sin(t / 600 + bed) * 2)) * s));
+          // (it is turned over every few seconds, as an hourglass that never runs out would be)
+          if (turn < 0.09) ctx.rotate((turn / 0.09) * Math.PI);
+          ctx.drawImage(img, x, y, w, hh, -(w * k) / 2, -(hh * k) / 2, w * k, hh * k);
+          ctx.restore();
+        });
       }
       const top = project({ x: WELL.x + 0.5, y: WELL.y + 0.5 });
       const kind = nature.current;
@@ -466,6 +518,18 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     gnome.current = { path, step: Math.max(900, Math.min(3600, path.length * 110)) / Math.max(1, path.length), from: null, shown: 0 };
     setNote(th ? `โนมรดน้ำให้แล้ว ${did.watered.length} ต้น` : `The gnome watered ${did.watered.length} plants`);
   }, [key, keeper, say, sfx, th]);
+  /** The plots my hourglass of seasons would quicken if I turned it over the bed I stand in (lib/town/farm's glassReach): none, when there is nothing to turn it for. */
+  const glassHere = key ? keeper.glassAt(key) : [];
+  /** Turn it: a glint over every plant it quickens, and the sand is seen from then on. */
+  const turnGlass = useCallback(async () => {
+    if (!key) return;
+    const did = await keeper.glassDo(key);
+    if (!did.ok) { say(did.why); return; }
+    sfx?.wake();
+    sfx?.work("made");
+    did.quickened.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => vfx.add("sparkle", { x: x + 0.5, y: y + 0.5 }), i * 45); });
+    setNote(th ? "ทรายเริ่มไหลแล้ว" : "The sand is running");
+  }, [key, keeper, say, sfx, th, vfx]);
   /** What a gift of the farming line would do to the whole row from where I stand (lib/town/farm's rowFor), if anything. */
   const rowHere = key ? keeper.rowAt(key) : null;
   /**
@@ -536,6 +600,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
       row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
       // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
+      // (the hourglass: the plots it would quicken here, turning it, and the plots the sand runs over now with when it runs out)
+      glass: () => (key ? keeper.glassAt(key) : []), glassTurn: turnGlass, sand: () => Object.fromEntries(sand.current),
       gnome: () => (key ? keeper.gnomeAt(key) : []), gnomeSend: sendGnome, gnomeOut: () => (gnome.current ? { shown: gnome.current.shown, of: gnome.current.path.length } : null),
       asking: () => asking,
       well: () => keeper.well(), owners: () => [...keeper.owners()].map(([bed, who]) => ({ bed, ...who })), weeds: (x: number, y: number) => weedsOf(x, y).map((w) => w.name),
@@ -543,7 +609,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the plots a bucket would water are told by how many they are
-  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome]);
+  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass]);
 
   /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
   const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void }> = [];
@@ -554,6 +620,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       more: rowHere.deed === "sow" ? (th ? `${n} ช่อง · ${seeds} เมล็ด` : `${n} plots · ${seeds} seeds`) : th ? `${n} ช่อง` : `${n} plots` });
   }
   if (gnomeHere.length) powers.push({ id: "famGnome", word: th ? "ให้โนมรดน้ำทั้งแปลง" : "Send the gnome down the bed", go: () => void sendGnome() });
+  if (glassHere.length) powers.push({ id: "thingHourglass", word: th ? "พลิกนาฬิกาทราย" : "Turn the hourglass", go: () => void turnGlass(), more: th ? `${glassHere.length} ต้น` : `${glassHere.length} plants` });
   if (!working && !offer && !note && !powers.length) return null;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;

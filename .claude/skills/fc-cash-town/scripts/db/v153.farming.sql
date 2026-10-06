@@ -14,11 +14,212 @@
 --     their own bed, each as `town.pick` picks it by hand; one cut well gives one more (the catalog's gifts row: the
 --     sickle's number), where the bag has room. Each plant is written down as its own picking (`pick`, which earns
 --     its points on the farming line as ever), with how it was cut.
+--   * The hourglass of seasons (a thing, had): turned over one bed of its owner's (`town_hourglass(x, y)`, once a
+--     day: the catalog's count), everything growing there grows so many times as fast (its number) for so many hours
+--     (`farming.gifted.glass`, new in the catalog's row). Each plant of the bed remembers the turning (`fast`, a
+--     list of moments in the plant's own document), and the clocks growth is reckoned by count it: `town.grown`
+--     (v118's), `town.growing` (v110's) and `town.pest_at` (v147's) are written again, each as it ran but for the
+--     hourglass's term (`town.quick_ms`, which is nothing for a plant no hourglass was turned over: such a plant is
+--     as it always was, to the millisecond). Written down as one line (`hourglass`: how many plants).
 --   * The garden gnome (a familiar, following) waters its member's whole bed at once: no water out of a can, no
 --     stamina, what a plain can adds; a bed rests so many minutes between two of its rounds (the catalog's gifts row:
 --     the gnome's number), kept in the purse (`gnomed`). `town_gnome(x, y)`; written down as one line (`gnome`:
 --     how many plants). It began as a weeder counted ten times to a meal's hours (v152): that count is gone from the
 --     catalog's row, and `town_gift_use('famGnome')` answers that there is nothing to use.
+
+-- The growth an hourglass of seasons has added to a plant between two moments, in milliseconds (lib/town/farm's
+-- quickMs): for every stretch it ran over the plant's bed, the part of it between them, so many times over again
+-- (three times as fast is twice more). Nothing, for a plant no hourglass was turned over.
+create or replace function town.quick_ms(p_plant jsonb, p_from bigint, p_to bigint)
+returns double precision language sql stable
+as $$
+  select case when jsonb_typeof(p_plant->'fast') = 'array' and jsonb_array_length(p_plant->'fast') > 0 then
+      coalesce((select sum(greatest(0, least(p_to::numeric, (f.at #>> '{}')::numeric + k.span) - greatest(p_from::numeric, (f.at #>> '{}')::numeric)))
+                  from jsonb_array_elements(p_plant->'fast') as f(at) where jsonb_typeof(f.at) = 'number'), 0)::double precision * (k.by - 1::double precision)
+    else 0::double precision end
+    from (select (town.cat('farming')->'gifted'->'glass'->>'hours')::numeric * 3600000 as span,
+                 (town.cat('gifts')->'gifts'->'thingHourglass'->>'by')::double precision as by) k
+$$;
+
+-- The hours a plant has grown by a moment (v118's, with what an hourglass turned over its bed did).
+create or replace function town.grown(p_plant jsonb, p_now bigint)
+returns double precision language sql stable
+as $$
+  select ((greatest(0, p_now - p.sown))::double precision
+      + (case when p.fed <> 0
+           then (greatest(0, p_now - greatest(p.fed, p.sown)))::double precision * ((town.cat('farming')->>'feed')::double precision - 1::double precision)
+           else 0::double precision end)
+      + p.boost
+      + town.wet_ms(p.sown, p_now)::double precision * (w.f->>'adds')::double precision / (w.f->>'every')::double precision
+      + town.quick_ms(p_plant, p.sown, p_now)) / 3600000::double precision
+    from (select (p_plant->>'sown')::bigint as sown, (p_plant->>'fed')::bigint as fed, (p_plant->>'boost')::double precision as boost) p,
+         (select town.cat('farming')->'water' as f) w
+$$;
+
+-- Where a plant is in its growing, pests left out (v110's; one that was picked and bears again waits by the clock,
+-- and by the hourglass with it).
+create or replace function town.growing(p_plant jsonb, p_now bigint)
+returns jsonb language sql stable
+as $$
+  select town.growth(p_plant->>'crop', town.grown(p_plant, p_now), (p_plant->>'picked')::int,
+    ((p_now - (p_plant->>'pickedAt')::bigint)::double precision
+      + case when (p_plant->>'picked')::int > 0 then town.quick_ms(p_plant, (p_plant->>'pickedAt')::bigint, p_now) else 0::double precision end) / 3600000::double precision)
+$$;
+
+-- When a pest struck a plant, if one has and it has not been cured since (v147's, with the hourglass in what is
+-- ripe: a ripe plant is safe).
+create or replace function town.pest_at(p_key text, p_plant jsonb, p_now bigint)
+returns bigint language plpgsql stable
+as $$
+declare
+  f jsonb := town.cat('farming');
+  c jsonb := town.cat('crops')->(p_plant->>'crop');
+  from_ integer := (f->'pests'->>'from')::int;
+  to_ integer := (f->'pests'->>'to')::int;
+  chance double precision := (f->'pests'->>'chance')::double precision;
+  faster double precision := (f->>'feed')::double precision - 1::double precision;
+  hours double precision := (c->>'hours')::double precision;
+  again double precision := (c->>'again')::double precision;
+  picks integer := (c->>'picks')::int;
+  sown bigint := (p_plant->>'sown')::bigint;
+  fed bigint := (p_plant->>'fed')::bigint;
+  boost double precision := (p_plant->>'boost')::double precision;
+  picked integer := (p_plant->>'picked')::int;
+  picked_at bigint := (p_plant->>'pickedAt')::bigint;
+  guard bigint := (p_plant->>'guard')::bigint;
+  adds double precision := (f->'water'->>'adds')::double precision;
+  every double precision := (f->'water'->>'every')::double precision;
+  h bigint := ceil(greatest(sown, (p_plant->>'cured')::bigint, picked_at)::numeric / 3600000)::bigint;
+  t bigint;
+  hour integer;
+  ripe boolean;
+  -- what the farm's own insects add to the chance (`farming.pests.swarm`), and the hours the farm was counted with
+  -- some, from this plant's first hour on (lib/town/farm.ts's Swarms: an hour with no word had none)
+  swarm jsonb := f->'pests'->'swarm';
+  counted jsonb;
+  bugs integer;
+  -- (whether an hourglass was ever turned over it: its term is asked for only then)
+  quick boolean := coalesce(jsonb_typeof(p_plant->'fast') = 'array' and jsonb_array_length(p_plant->'fast') > 0, false);
+begin
+  select coalesce(jsonb_object_agg(s.hour::text, s.bugs), '{}'::jsonb) into counted
+    from public.town_swarms s where s.hour >= h and s.hour * 3600000 <= p_now and s.bugs > 0;
+  loop
+    t := h * 3600000;
+    exit when t > p_now;
+    hour := ((((t + 25200000) % 86400000) + 86400000) % 86400000 / 3600000)::int;
+    if hour >= from_ and hour < to_ and t >= guard and t > (p_plant->>'cured')::bigint then
+      -- (a ripe plant is safe: it only waits to be picked)
+      ripe := case
+        when picked >= picks then false
+        when picked > 0 then again is not null and ((t - picked_at)::double precision
+          + case when quick then town.quick_ms(p_plant, picked_at, t) else 0::double precision end) / 3600000::double precision >= again
+        else ((greatest(0, t - sown))::double precision
+          + (case when fed <> 0 then (greatest(0, t - greatest(fed, sown)))::double precision * faster else 0::double precision end)
+          + boost
+          + town.wet_ms(sown, t)::double precision * adds / every
+          + case when quick then town.quick_ms(p_plant, sown, t) else 0::double precision end) / 3600000::double precision >= hours end;
+      if ripe then return null; end if;
+      -- (the sum in brackets: an IF's condition ends at the first THEN that is not inside any)
+      bugs := coalesce((counted->>(h::text))::int, 0);
+      if town.roll(p_key, h, sown) < (chance + case when bugs >= (swarm->>'many')::int then (swarm->'adds'->>1)::double precision
+                                                  when bugs >= (swarm->>'some')::int then (swarm->'adds'->>0)::double precision
+                                                  else 0::double precision end) then return t; end if;
+    end if;
+    h := h + 1;
+  end loop;
+  return null;
+end;
+$$;
+
+-- The hourglass turned over a bed (lib/town/farm's glassTurn). p_plots: every plot of the bed that is kept, by its
+-- key; p_owner: whose the bed is now. Gives the purse with the day's turning counted, the plots it quickened as they
+-- now are (each plant that lives remembers the turning), which those are, and until when the sand runs.
+create or replace function town.glass_turn(p_plots jsonb, p_purse jsonb, p_me text, p_now bigint, p_owner text)
+returns jsonb language plpgsql stable
+as $$
+declare
+  k jsonb := town.cat('farming')->'gifted'->'glass';
+  span numeric := (k->>'hours')::numeric * 3600000;
+  plots jsonb := case when jsonb_typeof(p_plots) = 'object' then p_plots else '{}'::jsonb end;
+  live text[];
+  used jsonb;
+  key text;
+  p jsonb;
+  fast jsonb;
+  next jsonb := '{}'::jsonb;
+begin
+  if not town.gift_works(p_purse, 'thingHourglass') then return town.no('none'); end if;
+  if town.used_of(p_purse, 'thingHourglass', p_now) >= (town.cat('gifts')->'uses'->'thingHourglass'->>'n')::integer then return town.no('spent'); end if;
+  if p_owner is distinct from p_me then return town.no('theirs'); end if;
+  select coalesce(array_agg(e.key order by split_part(e.key, ',', 2)::int, split_part(e.key, ',', 1)::int), '{}'::text[]) into live
+    from jsonb_each(plots) e
+   where coalesce(e.value->'plant', 'null'::jsonb) <> 'null'::jsonb and not (town.see(e.key, e.value, p_now)->>'dead')::boolean;
+  -- (while the sand still runs over a plant of the bed it is not turned again)
+  if exists (
+    select 1 from unnest(live) as l(key_),
+           jsonb_array_elements(case when jsonb_typeof(plots->l.key_->'plant'->'fast') = 'array' then plots->l.key_->'plant'->'fast' else '[]'::jsonb end) as f(at)
+     where jsonb_typeof(f.at) = 'number' and (f.at #>> '{}')::numeric <= p_now and p_now < (f.at #>> '{}')::numeric + span) then return town.no('running'); end if;
+  -- (it is turned for what is still on its way: a bed of plants that only wait to be picked has nothing to gain)
+  if not exists (select 1 from unnest(live) as l(key_) where not (town.see(l.key_, plots->l.key_, p_now)->>'ripe')::boolean) then return town.no('soil'); end if;
+  used := town.gift_use(p_purse, 'thingHourglass', p_now);
+  if not (used->>'ok')::boolean then return town.no(case when used->>'why' = 'spent' then 'spent' else 'none' end); end if;
+  foreach key in array live loop
+    p := plots->key->'plant';
+    -- (the turnings it remembers, this one last: the newest so many)
+    select coalesce(jsonb_agg(q.at order by q.ord), '[]'::jsonb) into fast
+      from (
+        select t.at, t.ord
+          from (select f.at, f.ord from jsonb_array_elements(case when jsonb_typeof(p->'fast') = 'array' then p->'fast' else '[]'::jsonb end) with ordinality as f(at, ord)
+                 where jsonb_typeof(f.at) = 'number'
+                union all select to_jsonb(p_now), 9223372036854775807) t
+         order by t.ord desc limit (k->>'kept')::int
+      ) q;
+    next := next || jsonb_build_object(key, (plots->key) || jsonb_build_object('plant', p || jsonb_build_object('fast', fast)));
+  end loop;
+  return jsonb_build_object('ok', true, 'purse', used->'purse', 'plots', next, 'quickened', to_jsonb(live), 'until', p_now + span::bigint);
+end;
+$$;
+
+-- Turn my hourglass over the bed I stand in. One at a time in a bed, as every deed there.
+create or replace function public.town_hourglass(p_x integer, p_y integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.member();
+  purse jsonb := town.purse_of(me, true);
+  now_ bigint := town.now_ms();
+  bed_n integer := town.bed_of(coalesce(p_x, -1), coalesce(p_y, -1));
+  bed jsonb;
+  owner text;
+  did jsonb;
+  k text;
+  v_x integer;
+  v_y integer;
+begin
+  if bed_n < 0 then return town.answer(me, town.no('none')); end if;
+  perform pg_advisory_xact_lock(hashtext('town.bed'), bed_n);
+  select coalesce(jsonb_object_agg(p.x::text || ',' || p.y::text, jsonb_build_object('soil', p.soil, 'plant', coalesce(p.plant, 'null'::jsonb))), '{}'::jsonb)
+    into bed from public.town_plots p where p.bed = bed_n;
+  select town.owner_of(jsonb_build_object('by', b.member_id, 'tended', b.tended, 'empty', b.empty),
+           exists (select 1 from public.town_plots p where p.bed = b.bed and p.plant is not null), now_) into owner
+    from public.town_beds b where b.bed = bed_n;
+  did := town.glass_turn(bed, purse, me::text, now_, owner);
+  if not (did->>'ok')::boolean then return town.answer(me, did); end if;
+  perform town.keep_purse(me, did->'purse');
+  perform town.note(me, 'hourglass', null, jsonb_array_length(did->'quickened'), 0,
+    jsonb_build_object('tile', jsonb_build_array(p_x, p_y), 'bed', bed_n, 'until', did->'until'));
+  for k in select jsonb_array_elements_text(did->'quickened') loop
+    v_x := split_part(k, ',', 1)::integer;
+    v_y := split_part(k, ',', 2)::integer;
+    update public.town_plots p set plant = did->'plots'->k->'plant', changed = now_ where p.x = v_x and p.y = v_y;
+  end loop;
+  -- (its owner's every deed in a bed counts as tending it)
+  update public.town_beds b set tended = now_ where b.bed = bed_n and b.member_id = me;
+  return town.answer(me, did);
+end;
+$$;
+revoke execute on function public.town_hourglass(integer, integer) from public, anon;
+grant execute on function public.town_hourglass(integer, integer) to authenticated;
 
 -- The row of its bed a plot is in: the bed's plots that share its y, as their keys from one end to the other
 -- (lib/town/world's rowOf); none, off the beds.

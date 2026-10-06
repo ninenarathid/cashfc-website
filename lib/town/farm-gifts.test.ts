@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { BEDS, FARMING, WILD, gnomeReach, gnomeWater, hardFor, pouchPlots, pouchSeeds, rowFor, rowTend, see, tend, yieldOf, type Bed, type Plant, type Plot } from "./farm";
-import { harderAt } from "./gifts";
+import { BEDS, FARMING, HOURGLASS, WILD, glassReach, glassTurn, gnomeReach, gnomeWater, grown, growing, hardFor, pestAt, pouchPlots, pouchSeeds, quickMs, quickUntil, rowFor, rowTend, see, tend, yieldOf, type Bed, type Plant, type Plot } from "./farm";
+import { USES, harderAt, usesLeft } from "./gifts";
 import { CROPS, CROP_IDS, ITEMS } from "./items";
 import { LINES } from "./lines";
 import type { ItemId } from "./items";
@@ -363,5 +363,123 @@ describe("good things are harder for the skilled on the farm: a crop of the seco
     expect(hardFor(null, marks[9])).toBe(1);
     // (what a crop is of is its thing's own tier: the second tier's begin at the eggplant, the third's at the mango)
     expect(ITEMS[CROPS.eggplant.seed].tier).toBe(2);
+  });
+});
+
+describe("the hourglass of seasons: a bed grows three times as fast for three hours", () => {
+  const GLASS = { had: ["thingHourglass"], charms: [] };
+  const k = (dx: number, dy: number) => `${BX + dx},${BY + dy}`;
+  const me = purseWith(GLASS), SPAN = HOURGLASS.hours * HOUR;
+  /** A bed of mine: growing plants, a morning glory picked an hour ago and bearing again, a ripe cabbage, bare soil. */
+  const bed = (): Record<string, Plot> => ({
+    [k(0, 0)]: sown(), [k(1, 0)]: sown({ crop: "chili" }), [k(3, 0)]: { soil: "tilled", plant: null },
+    [k(0, 2)]: sown({ crop: "kangkong", sown: NOON - 20 * HOUR, picked: 1, pickedAt: NOON - HOUR }), [k(4, 2)]: sown({ crop: "cabbage", sown: NOON - 30 * HOUR }),
+  });
+
+  it("adds twice a stretch's length to the growth of a plant it ran over, by the part of it gone by: nothing before it, all of it after", () => {
+    const p = plant({ fast: [NOON] });
+    expect(quickMs(p, p.sown, NOON)).toBe(0);
+    expect(quickMs(p, p.sown, NOON + HOUR)).toBe(2 * HOUR);
+    expect(quickMs(p, p.sown, NOON + SPAN)).toBe(2 * SPAN);
+    expect(quickMs(p, p.sown, NOON + 9 * HOUR)).toBe(2 * SPAN);
+    // (only the part between the two moments; two turnings add up; a plant no hourglass was turned over has nothing)
+    expect(quickMs(p, NOON + 2 * HOUR, NOON + 9 * HOUR)).toBe(2 * HOUR);
+    expect(quickMs(plant({ fast: [NOON, NOON + 30 * HOUR] }), 0, NOON + 31 * HOUR)).toBe(2 * SPAN + 2 * HOUR);
+    expect(quickMs(plant(), 0, NOON + 99 * HOUR)).toBe(0);
+    expect(quickMs(plant({ fast: [] }), 0, NOON + 99 * HOUR)).toBe(0);
+    expect(quickUntil(p, NOON + HOUR)).toBe(NOON + SPAN);
+    expect(quickUntil(p, NOON + SPAN)).toBeNull();
+    expect(quickUntil(p, NOON - 1)).toBeNull();
+    expect(quickUntil(plant(), NOON)).toBeNull();
+  });
+
+  it("so a plant has grown three hours in one of them, and is ripe six hours sooner for a whole stretch; one with no hourglass is as it always was", () => {
+    const plain = plant(), quick = plant({ fast: [NOON] });
+    for (const dt of [0, 0.5, 1, 3, 5, 200]) {
+      expect(grown(plain, NOON + dt * HOUR)).toBe(5 + dt);
+      expect(grown(quick, NOON + dt * HOUR)).toBe(5 + dt + 2 * Math.min(dt, HOURGLASS.hours));
+    }
+    // a pumpkin takes 144 hours: ripe at 139 hours after noon without it, at 133 with
+    expect(growing(plain, NOON + 139 * HOUR - 1).ripe).toBe(false);
+    expect(growing(plain, NOON + 139 * HOUR).ripe).toBe(true);
+    expect(growing(quick, NOON + 133 * HOUR - 1).ripe).toBe(false);
+    expect(growing(quick, NOON + 133 * HOUR).ripe).toBe(true);
+    // (water, fertiliser and rain are added beside it, each as it was)
+    const both = plant({ fast: [NOON], boost: 1_800_000, fed: NOON });
+    expect(grown(both, NOON + 4 * HOUR)).toBe(5 + 4 + 0.5 + 4 * (FARMING.feed - 1) + 6);
+  });
+
+  it("a plant that waits to bear again waits a third as long through it", () => {
+    // a morning glory bears again twelve hours after a picking: picked at noon, the glass turned an hour later
+    const waits = plant({ crop: "kangkong", sown: NOON - 20 * HOUR, picked: 1, pickedAt: NOON }), quick = { ...waits, fast: [NOON + HOUR] };
+    expect(growing(waits, NOON + 12 * HOUR - 1).ripe).toBe(false);
+    expect(growing(waits, NOON + 12 * HOUR).ripe).toBe(true);
+    expect(growing(quick, NOON + 6 * HOUR - 1).ripe).toBe(false);
+    expect(growing(quick, NOON + 6 * HOUR).ripe).toBe(true);
+    // (a turning before it was picked counts for nothing in the wait but the part since the picking: an hour of it here)
+    const before = { ...waits, fast: [NOON - 2 * HOUR] };
+    expect(growing(before, NOON + 10 * HOUR - 1).ripe).toBe(false);
+    expect(growing(before, NOON + 10 * HOUR).ripe).toBe(true);
+  });
+
+  it("a plant ripe sooner is safe from pests sooner: nothing strikes one that only waits to be picked", () => {
+    // found by looking: a plot whose pumpkin, unguarded, is struck in the hours before it would have been ripe
+    let found: { key: string; p: Plant; t: number } | null = null;
+    for (let i = 0; i < 4000 && !found; i++) {
+      const key = `${BX + (i % 7)},${BY + (Math.floor(i / 7) % 7)}`, p = plant({ guard: 0, sown: NOON - 144 * HOUR + 3 * HOUR + i * 1000, cured: NOON - HOUR });
+      const t = pestAt(key, p, NOON + 4 * HOUR);
+      if (t !== null && t > NOON) found = { key, p, t };
+    }
+    expect(found).not.toBeNull();
+    const { key, p, t } = found!;
+    // (with the glass turned twenty hours before, it was ripe by then, and is not struck)
+    expect(pestAt(key, { ...p, fast: [NOON - 20 * HOUR] }, NOON + 4 * HOUR)).toBeNull();
+    expect(pestAt(key, { ...p, fast: [t + HOUR] }, NOON + 4 * HOUR)).toBe(t);
+  });
+
+  it("turned over a bed of mine, every plant that lives there remembers it: three hours from that moment, once a day", () => {
+    expect(USES.thingHourglass).toEqual({ n: 1, per: "day" });
+    expect(glassReach(bed(), me, "me", NOON, "me")).toEqual([k(0, 0), k(1, 0), k(0, 2), k(4, 2)]);
+    const did = done(glassTurn(bed(), me, "me", NOON, "me"));
+    expect(did.quickened).toEqual([k(0, 0), k(1, 0), k(0, 2), k(4, 2)]);
+    expect(did.until).toBe(NOON + SPAN);
+    for (const key of did.quickened) expect(did.plots[key].plant).toEqual({ ...bed()[key].plant!, fast: [NOON] });
+    expect(Object.keys(did.plots).length).toBe(4);
+    expect(usesLeft(did.purse, "thingHourglass", NOON)).toBe(0);
+    expect({ ...did.purse, gifts: null }).toEqual({ ...me, gifts: null });
+    // no more today, in this bed or another; tomorrow again
+    const after = { ...bed(), ...did.plots };
+    expect(glassTurn(after, did.purse, "me", NOON + HOUR, "me")).toEqual({ ok: false, why: "spent" });
+    expect(glassTurn(bed(), did.purse, "me", NOON + 5 * HOUR, "me")).toEqual({ ok: false, why: "spent" });
+    expect(glassReach(bed(), did.purse, "me", NOON + 5 * HOUR, "me")).toEqual([]);
+    const next = done(glassTurn(after, did.purse, "me", NOON + 24 * HOUR, "me"));
+    expect(next.plots[k(0, 0)].plant!.fast).toEqual([NOON, NOON + 24 * HOUR]);
+    // (a plant remembers so many turnings and no more: the newest)
+    const old = { [k(0, 0)]: sown({ fast: Array.from({ length: HOURGLASS.kept + 3 }, (_, i) => NOON - (60 - i) * 24 * HOUR) }) };
+    const kept = done(glassTurn(old, me, "me", NOON, "me")).plots[k(0, 0)].plant!.fast!;
+    expect(kept.length).toBe(HOURGLASS.kept);
+    expect(kept.at(-1)).toBe(NOON);
+  });
+
+  it("is refused without the hourglass, in a bed that is not mine, while the sand still runs there, and where nothing grows that it would help", () => {
+    expect(glassTurn(bed(), purseWith(undefined), "me", NOON, "me")).toEqual({ ok: false, why: "none" });
+    expect(glassTurn(bed(), purseWith({ had: [], charms: [] }), "me", NOON, "me")).toEqual({ ok: false, why: "none" });
+    expect(glassTurn(bed(), me, "me", NOON, "you")).toEqual({ ok: false, why: "theirs" });
+    expect(glassTurn(bed(), me, "me", NOON, null)).toEqual({ ok: false, why: "theirs" });
+    // (a turning of an hour ago, counted on the day before across its beginning: still running over these plants)
+    const running = { ...bed(), [k(0, 0)]: sown({ fast: [NOON - HOUR] }) };
+    expect(glassTurn(running, me, "me", NOON, "me")).toEqual({ ok: false, why: "running" });
+    expect(done(glassTurn(running, me, "me", NOON + 2 * HOUR, "me")).quickened.length).toBe(4);
+    expect(glassTurn({}, me, "me", NOON, "me")).toEqual({ ok: false, why: "soil" });
+    expect(glassTurn({ [k(3, 0)]: { soil: "tilled", plant: null }, [k(4, 2)]: sown({ crop: "cabbage", sown: NOON - 30 * HOUR }) }, me, "me", NOON, "me")).toEqual({ ok: false, why: "soil" });
+    // (nothing is counted of a turning that was refused)
+    expect(usesLeft(me, "thingHourglass", NOON)).toBe(1);
+  });
+
+  it("what a plot shows follows it: a stage sooner, ripe sooner", () => {
+    const quick = sown({ crop: "kangkong", sown: NOON, fast: [NOON] }), plain = sown({ crop: "kangkong", sown: NOON });
+    // (a morning glory takes six hours: with the glass it has grown six in two)
+    expect(see("1,1", plain, NOON + 2 * HOUR)).toMatchObject({ stage: 3, ripe: false });
+    expect(see("1,1", quick, NOON + 2 * HOUR)).toMatchObject({ stage: 5, ripe: true });
   });
 });
