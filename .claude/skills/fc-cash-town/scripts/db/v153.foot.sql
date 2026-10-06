@@ -1,0 +1,54 @@
+-- ─── Checking it ─────────────────────────────────────────────────────────
+--
+--   select (select count(*) from jsonb_object_keys(data->'gifts')) as gifts,
+--          (select count(*) from jsonb_each(data->'gifts') e where e.value->>'kind' = 'thing') as things,
+--          (select count(*) from jsonb_object_keys(data->'uses')) as counted,
+--          data->'harder' as harder, data->'uses' ? 'famGnome' as gnome_counted
+--     from public.town_catalog where key = 'gifts';
+--   -- 39 | 15 | 15 | {"by": 0.08, "from": 4} | false
+--
+--   select town.harder_at(3) as third, town.harder_at(4) as fourth, town.harder_at(10) as tenth;
+--   -- 1 | 1.08 | 1.56
+--
+--   select to_regprocedure('public.town_cast(text, integer, integer, boolean)') is null as old_cast_gone,
+--          to_regprocedure('public.town_cast(text, integer, integer, boolean, text)') is not null as cast_there,
+--          to_regprocedure('town.stretch_of(text, bigint)') is null as old_stretch_gone,
+--          to_regprocedure('public.town_row(integer, integer, jsonb, jsonb)') is not null
+--            and to_regprocedure('public.town_spoon(jsonb)') is not null
+--            and to_regprocedure('public.town_drink_take(uuid, integer, integer)') is not null
+--            and to_regprocedure('public.town_map_dig(integer, integer)') is not null
+--            and to_regprocedure('public.town_net_mine(text, integer, integer, numeric)') is not null
+--            and to_regprocedure('public.town_orb(text)') is not null as new_there;
+--   -- true | true | true | true
+--
+--   select jsonb_array_length(town.work_answer(null)->'gives') as given;
+--   -- 39
+--
+--   select town.deed_th('row') as row_, town.deed_th('nectar') as nectar, town.deed_th('buy') as buy;
+--   -- ทำงานทั้งแถวในครั้งเดียว | หยดน้ำหวานล่อแมลง | ซื้อของจากลุง
+--
+--   select count(*) from pg_proc p where p.pronamespace = 'town'::regnamespace
+--      and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'));
+--   -- 0
+--
+-- ─── Reading it ──────────────────────────────────────────────────────────
+--
+--   -- which gifts have been taken, by how many members
+--   select g.id, count(*) from public.town_purses p, jsonb_array_elements_text(coalesce(p.doc->'gifts'->'had', '[]'::jsonb)) g(id) group by 1 order by 2 desc, 1;
+--
+--   -- the new deeds, a day at a time (each is written down with coins 0)
+--   select (d.at at time zone 'Asia/Bangkok')::date as day, d.what, count(*), sum(d.n) as n, sum(d.coins) as coins
+--     from public.town_deeds d
+--    where d.what in ('row', 'gnome', 'hourglass', 'basket_put', 'basket_take', 'drink', 'drink_gave', 'rain_fill', 'moon_keep', 'moon_pour',
+--                     'slip', 'map_use', 'map_dig', 'chest', 'nectar', 'gift_use')
+--    group by 1, 2 order by 1 desc, 2 limit 80;
+--
+--   -- what was gathered, netted and landed by a gift's doing (the squirrel, the piglet, a secret place, nectar, a pair, the cloak)
+--   select d.what, coalesce(d.doc->>'by', case when d.doc ? 'secret' then 'secret' when d.doc ? 'nectar' then 'nectar' when d.doc ? 'pair' then 'pair' when d.doc ? 'cloak' then 'cloak' end) as how,
+--          count(*), sum(d.n) as n
+--     from public.town_deeds d where d.what in ('gather', 'net') and d.at > now() - interval '2 days'
+--    group by 1, 2 order by 1, 3 desc;
+--
+--   -- stamina given between members by the flask, a day at a time
+--   select (d.at at time zone 'Asia/Bangkok')::date as day, count(*) as drinks, count(distinct d.member_id) as drinkers
+--     from public.town_deeds d where d.what = 'drink' group by 1 order by 1 desc limit 14;

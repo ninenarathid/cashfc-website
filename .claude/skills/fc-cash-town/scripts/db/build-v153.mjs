@@ -32,6 +32,7 @@ export function build(lines = linesHere()) {
     ...lines.flatMap((l) => [bar(ABOUT[l]), part(l), ""]),
     bar("Nobody calls a rule of schema town"),
     "revoke execute on all functions in schema town from public, anon, authenticated;", "",
+    ...(existsSync(here("v153.foot.sql")) ? [lf(readFileSync(here("v153.foot.sql"), "utf8")).trimEnd(), ""] : []),
   ].join("\n");
 }
 

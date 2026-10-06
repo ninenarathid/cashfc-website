@@ -16,7 +16,8 @@ import { join } from "node:path";
 
 const [root, out, ...LINES] = process.argv.slice(2);
 const N = Number(process.env.N ?? 10), AT_ONCE = Number(process.env.AT_ONCE ?? 6);
-const ALL = (process.env.WITH ?? LINES.join(",")).split(",");
+// (the lines every run is of; "shared" is no line of try-all's, it is run before them always: breaking it is SUB=shared=…)
+const ALL = (process.env.WITH ?? LINES.join(",")).split(",").filter((l) => l !== "shared");
 mkdirSync(out, { recursive: true });
 const lf = (s) => s.split("\r\n").join("\n");
 const SWAPS = [
