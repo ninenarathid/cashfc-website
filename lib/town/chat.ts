@@ -40,7 +40,7 @@ const word = typeof Intl !== "undefined" && "Segmenter" in Intl
   ? new Intl.Segmenter("th", { granularity: "word" }) : null;
 
 /** Letters as a person sees them: a Thai vowel or tone mark stays with its consonant. */
-function letters(text: string): string[] {
+export function letters(text: string): string[] {
   return grapheme ? Array.from(grapheme.segment(text), (s) => s.segment) : Array.from(text);
 }
 

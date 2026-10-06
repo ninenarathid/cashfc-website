@@ -16,6 +16,7 @@ import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } fr
 import { NO_PRICES, type PricesTold } from "./market";
 import type { NoticeRefusal, PinboardTold } from "./notices";
 import { shelfOf, sourcesAt, type Order } from "./orders";
+import type { ShopAsk, ShopRefusal, ShopTold, ShopsTold } from "./shop";
 import { SKIES } from "./skies";
 import type { Rain } from "./weather";
 import type { FishingEnd, Play } from "./plays";
@@ -55,10 +56,10 @@ import { bedOf } from "./world";
  *   did.
  */
 
-export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal;
+export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -257,6 +258,28 @@ export interface Keeper {
   boxTake(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>>;
 
   /**
+   * A stall of one's own (lib/town/shop), under a sign held up (lib/town/sign). What I am told of stalls: mine, when
+   * I have one open; the things that may be wanted; the rules' numbers. Null until it has been read, and for as long
+   * as whoever keeps the game knows of no stalls. Opening one on the tile I stand on, and shutting it.
+   * `shopBeater` gives the way my stall's keeper is told I am still here: a thing of its own, which goes on working
+   * after this keeper is closed (the town's page gone and the stay going on: lib/town/session).
+   */
+  shops(): ShopsTold | null;
+  shopLook(): Promise<void>;
+  shopOpen(ask: ShopAsk, at: [number, number]): Promise<Did>;
+  shopClose(): Promise<void>;
+  shopBeater(): () => void;
+  /**
+   * Somebody else's stall: looking at it (null: no longer), which reads it now and again whenever the room says a
+   * stall changed; what was last read of it (`told` null: they have none open); and buying from it or bringing to
+   * it, from the tile I stand on. Its keeper is told through the room (`shop`).
+   */
+  shopVisit(who: string | null): Promise<void>;
+  shopSeen(): { who: string; told: ShopTold | null } | null;
+  shopBuy(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>>;
+  shopSell(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>>;
+
+  /**
    * Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who
    * they are (the database reads each one's hand itself). `fresh`: the pot took a bucketful of the yard's jar, and has
    * a helping more than `n` says.
@@ -287,7 +310,7 @@ export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknow
 type Answer = Record<string, unknown>;
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -353,6 +376,9 @@ export class DbKeeper implements Keeper {
   private box_: Box | null = null;
   /** What lies on the ground, as the database last told it: null until one that keeps a ground has said. */
   private ground_: Dropped[] | null = null;
+  /** What the database last told of stalls (null until one that keeps stalls has said), and whose stall I am looking at, as last read. */
+  private shops_: ShopsTold | null = null;
+  private visit_: { who: string; told: ShopTold | null } | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -397,6 +423,9 @@ export class DbKeeper implements Keeper {
     // (and whether things can be dropped on the ground, with what lies about now: asked once as the game begins; a
     // database that keeps no ground answers nothing, and a thing is only thrown away, as it was)
     if (this.read && !this.shut) void this.ask("town_ground");
+    // (and whether a stall can be opened under a sign, with mine if one is still open: asked once as the game begins;
+    // a database that keeps no stalls answers nothing, and a sign is only a chat room's)
+    if (this.read && !this.shut) void this.ask("town_shop");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
@@ -490,6 +519,15 @@ export class DbKeeper implements Keeper {
     if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
     // (what lies on the ground; a thing this page was built before is left out: it could not be drawn)
     if (Array.isArray(a.ground)) { this.ground_ = (a.ground as Dropped[]).filter((d) => !!d && !!d.stack && d.stack.item in ITEMS && Array.isArray(d.at)); this.groundDue(); }
+    // (stalls: what I am told of them, and the one I am looking at; a line of a thing this page was built before is left out)
+    if (a.shops && typeof a.shops === "object" && Array.isArray((a.shops as ShopsTold).seen)) {
+      const s = a.shops as ShopsTold;
+      this.shops_ = { ...s, seen: s.seen.filter((id) => id in ITEMS), mine: s.mine ? { ...s.mine, lines: s.mine.lines.filter((l) => l.item in ITEMS) } : null };
+    }
+    if (typeof a.shopWho === "string" && this.visit_?.who === a.shopWho) {
+      const t = a.shopTold && typeof a.shopTold === "object" && Array.isArray((a.shopTold as ShopTold).lines) ? (a.shopTold as ShopTold) : null;
+      this.visit_ = { who: a.shopWho, told: t ? { ...t, lines: t.lines.filter((l) => l.item in ITEMS) } : null };
+    }
     if (a.wellBook && typeof a.wellBook === "object") {
       this.wellBook_ = a.wellBook as WellBook;
       // (my own rank is in my book: it need not wait for everybody's to be asked for again)
@@ -563,6 +601,12 @@ export class DbKeeper implements Keeper {
     if (what === "line") { void this.ask("town_me"); return; }
     // (somebody dropped a thing, or picked one up: asked for, wherever I am in town; not of a database with no ground)
     if (what === "ground") { if (this.ground_) void this.ask("town_ground"); return; }
+    // (somebody bought at a stall or brought to one: mine is read again with my purse, and so is the one I am looking at)
+    if (what === "shop") {
+      if (this.shops_?.mine) void this.ask("town_shop");
+      if (this.visit_) void this.ask("town_shop_look", { p_who: this.visit_.who });
+      return;
+    }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
     if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
     if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what);
@@ -580,6 +624,7 @@ export class DbKeeper implements Keeper {
       : what === "bugs" ? this.ask("town_bugs")
       : what === "line" ? this.ask("town_me")
       : what === "ground" ? this.ask("town_ground")
+      : what === "shop" ? this.ask("town_shop")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -815,6 +860,29 @@ export class DbKeeper implements Keeper {
   jar(): JarTold | null { return this.jar_; }
   jarDrop(what: { coins: number } | { slot: number; n: number }) { return this.deed("town_jar_drop", "coins" in what ? { p_coins: what.coins } : { p_slot: what.slot, p_n: what.n }); }
   jarTake() { return this.deed<{ coins: number; things: Array<[ItemId, number]> }>("town_jar_take"); }
+  shops(): ShopsTold | null { return this.shops_; }
+  async shopLook() { if (this.shops_) await this.ask("town_shop"); }
+  shopOpen(ask: ShopAsk, at: [number, number]) { return this.deed("town_shop_open", { p_lines: ask, p_x: at[0], p_y: at[1] }); }
+  async shopClose() { if (this.shops_) await this.ask("town_shop_close"); }
+  // (asked past the line of this keeper's own asking, and after it is closed: only that the database hears it matters)
+  shopBeater(): () => void { const rpc = this.rpc; return () => { void rpc("town_shop_beat").catch(() => null); }; }
+  async shopVisit(who: string | null) {
+    this.visit_ = who ? { who, told: this.visit_?.who === who ? this.visit_.told : null } : null;
+    if (who && this.shops_) await this.ask("town_shop_look", { p_who: who });
+    else this.tell();
+  }
+  shopSeen() { return this.visit_; }
+  async shopBuy(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
+    const did = await this.deed<{ coins: number }>("town_shop_buy", { p_who: who, p_item: item, p_n: n, p_x: at[0], p_y: at[1] });
+    if (did.ok) this.onDeed?.("shop", who);
+    return did;
+  }
+  async shopSell(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
+    const did = await this.deed<{ coins: number }>("town_shop_sell", { p_who: who, p_item: item, p_n: n, p_x: at[0], p_y: at[1] });
+    if (did.ok) this.onDeed?.("shop", who);
+    return did;
+  }
+
   box(): Box | null { return this.box_; }
   async boxLook() { await this.ask("town_box"); }
   boxPut(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_put", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }

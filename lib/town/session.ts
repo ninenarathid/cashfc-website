@@ -4,8 +4,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 import { rememberTown, setTownActive } from "./active";
 import { Flood, LOG_MAX, chatEvery, cleanChat } from "./chat";
+import { admit, fromRoom, hears, listed, newCircle, readWord, without, type Circle, type CircleWord } from "./circle";
 import { defaultLook, encodeLook, saveLook, savedLook, type Look } from "./look";
 import { joinTown, townClient, type Doing, type Identity, type Room, type RoomStatus } from "./room";
+import { SHOP } from "./shop";
+import { SIGN, decodeSign, encodeSign, inReach, mayRaise, tidyTitle, type Sign } from "./sign";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import { CART, cartPace } from "./cart";
 import {
@@ -112,6 +115,15 @@ export function loadFace(url: string | null): HTMLImageElement | null {
   return img;
 }
 
+/** Why somebody cannot walk just now: they hold a sign up, are in a chat room, or look at somebody's stall. */
+export type Stuck = "sign" | "room" | "stall";
+/** Why a sign was not held up, or a chat room not come into. */
+export type SignRefusal = "walking" | "here" | "far" | "gone" | "busy";
+/** What a chat room last said to me that the page should say once: not let in (full, or let go before), let go, the room over, or its holder not answering. */
+export type CircleNote = "full" | "out" | "end" | "quiet";
+/** How long somebody asked to be let into a room is waited for. */
+const ASK_MS = 6_000;
+
 /** The least time between two nudges of the same kind from one person: every one is delivered to everybody in the room. */
 const NUDGE_MS = 4000;
 
@@ -132,6 +144,18 @@ export class TownSession {
   readonly chat: ChatLine[] = [];
   /** Lines from others that arrived while no town page was showing them. */
   unread = 0;
+  /**
+   * The chat room I am in, or hold under my sign (lib/town/circle): who is in it, as its holder lists them; what was
+   * typed in it while this tab was in it (gone with the room); how many of its lines nobody here has read; whom I
+   * have asked to be let in by; and what it last said that the page should say once.
+   */
+  circle: Circle | null = null;
+  readonly circleChat: ChatLine[] = [];
+  circleUnread = 0;
+  circleAsked: { host: string; at: number } | null = null;
+  circleNote: CircleNote | null = null;
+  /** Told when my sign comes down, however it does (walked off, let down): whoever keeps my stall shuts it. */
+  onSignDown: ((kind: Sign["kind"]) => void) | null = null;
   closed = false;
   /** Bumped on every change the panels should show (for useSyncExternalStore). */
   version = 0;
@@ -158,6 +182,9 @@ export class TownSession {
   private lastMoveAt = 0;
   private seenAt = 0;
   private readonly flood = new Flood();
+  /** How the keeper of my stall is told I am still here (lib/town/shop), and when it last was. It outlives the town's page: a stall stays open while I look at another page of the site. */
+  private shopBeat: (() => void) | null = null;
+  private beatAt = 0;
   private lastChatAt = 0;
   private chatKey = 0;
   private lookTimer: ReturnType<typeof setTimeout> | null = null;
@@ -186,6 +213,8 @@ export class TownSession {
     // The keep-alive says when the line has gone quiet before the channel does.
     this.client = townClient(createClient(), (beat) => {
       if ((beat === "timeout" || beat === "error") && this.status === "ready") this.report("reconnecting");
+      // (the keep-alive comes from a worker, which a hidden tab does not slow: my stall is kept open by it too)
+      else this.beatShop();
     });
     this.voice = new VoiceMesh(me.id, (to, s) => this.current?.signal(to, s), this.notify);
 
@@ -224,7 +253,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, fish: i.fish ?? 0 };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "" };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -289,6 +318,10 @@ export class TownSession {
   /** Walk to a tile, if there is a way there. */
   walkTo(tile: Vec): boolean {
     if (this.closed) return false;
+    // Whoever holds a sign up, is in a chat room or looks at a stall stays where they are (the owner, 2026-10-06:
+    // "ตอนอยุ่ในระหว่างชูป้าย หรือ คนที่เข้ามาดูช่วยทำให้คลิกเดินไม่ได้ด้วย"): each is left by its own button, never by
+    // a slip of the finger on the map.
+    if (this.stuck()) return false;
     const a = this.self;
     const goal = { x: Math.floor(tile.x) + 0.5, y: Math.floor(tile.y) + 0.5 };
     const path = findPath(a.pos, goal);
@@ -312,6 +345,9 @@ export class TownSession {
     const a = this.self;
     this.sitWhenThere = null;
     if ((a.info.sit ?? -1) !== -1) this.tell({ sit: -1 });
+    // (stood somewhere else at once, which no tap on the map does while a sign is up: the sign comes down, and a chat room out of reach is left)
+    if (a.info.sign) this.lowerSign();
+    this.leaveIfFar(to);
     a.pos = { x: to.x, y: to.y };
     a.path = [];
     a.info = { ...a.info, x: to.x, y: to.y };
@@ -362,6 +398,257 @@ export class TownSession {
     if (!this.walkTo({ x: b.x + f.x, y: b.y + f.y })) return false;
     this.sitWhenThere = bench;
     return true;
+  }
+
+  /* ── a sign held up, and the chat room under one (lib/town/sign, lib/town/circle) ── */
+
+  /** The sign I hold up, if any. */
+  get sign(): Sign | null { return decodeSign(this.self.info.sign); }
+  /**
+   * Why I cannot walk just now, if I cannot: I hold a sign up, I am in a chat room, or I am looking at somebody's
+   * stall (which its panel says while it is open: `setBrowsing`). Taking the sign down, leaving the room or closing
+   * the stall's panel is the way to walk again.
+   */
+  stuck(): Stuck | null {
+    if (this.self.info.sign) return "sign";
+    if (this.circle) return "room";
+    return this.browsing ? "stall" : null;
+  }
+  private browsing = false;
+  setBrowsing(on: boolean) { this.browsing = on; }
+  /** Whether a sign can be held up now: standing still (or sitting), on ground a sign may stand on. */
+  canRaise(): SignRefusal | null {
+    if (this.closed) return "gone";
+    if (this.self.path.length) return "walking";
+    return mayRaise(this.self.pos) ? null : "here";
+  }
+
+  /** Hold up a sign that is a chat room: I am its holder, and the first in it. Any room I was in is left. */
+  raiseChat(title: string): SignRefusal | null {
+    const no = this.canRaise();
+    if (no) return no;
+    if (this.self.info.sign) this.lowerSign();
+    this.leaveCircle();
+    this.setCircle(newCircle(this.me.id));
+    this.tell({ sign: encodeSign({ kind: "chat", title: tidyTitle(title), n: 1, sells: false, buys: false }), circle: this.me.id });
+    this.syncVoice();
+    return null;
+  }
+
+  /**
+   * Hold up a sign that is a stall (lib/town/shop: whoever keeps the game has opened it already). `beat` tells the
+   * stall's keeper I am still here; it is called every so often for as long as the sign is up, on whatever page.
+   */
+  raiseShop(title: string, sells: boolean, buys: boolean, beat: (() => void) | null): SignRefusal | null {
+    const no = this.canRaise();
+    if (no) return no;
+    if (this.self.info.sign) this.lowerSign();
+    this.shopBeat = beat;
+    this.beatAt = Date.now();
+    this.tell({ sign: encodeSign({ kind: "shop", title: tidyTitle(title), n: 0, sells, buys }) });
+    return null;
+  }
+
+  /** What my stall's sign says it does, changed as its lines sell out (the title stays). */
+  setShopSign(sells: boolean, buys: boolean) {
+    const s = this.sign;
+    if (s?.kind === "shop" && (s.sells !== sells || s.buys !== buys)) this.tell({ sign: encodeSign({ ...s, sells, buys }) });
+  }
+
+  /** Take my sign down. A chat room under it is over for everybody in it. */
+  lowerSign() {
+    const s = this.sign;
+    if (!s) return;
+    if (s.kind === "chat" && this.circle?.host === this.me.id) {
+      for (const id of this.circle.members) if (id !== this.me.id) this.word(id, { k: "end" });
+      this.setCircle(null);
+      this.tell({ sign: "", circle: "" });
+      this.syncVoice();
+    } else {
+      this.shopBeat = null;
+      this.tell({ sign: "" });
+    }
+    this.onSignDown?.(s.kind);
+  }
+
+  /** Ask to be let into the chat room somebody holds a sign up for. Its holder's page answers; until it does, nothing changes. */
+  askIn(host: string): SignRefusal | null {
+    if (this.closed) return "gone";
+    const a = this.avatars.get(host);
+    if (!a || a.byeAt !== undefined || decodeSign(a.info.sign)?.kind !== "chat") return "gone";
+    if (this.circle?.host === host) return null;
+    // (holding a sign of my own, I am where it stands and at what it is for)
+    if (this.self.info.sign) return "busy";
+    if (!inReach(this.self.pos, a.pos)) return "far";
+    this.circleAsked = { host, at: Date.now() };
+    this.circleNote = null;
+    this.word(host, { k: "ask" });
+    this.notify();
+    return null;
+  }
+
+  /** Leave the chat room I am in (not my own: that one ends when my sign comes down). */
+  leaveCircle() {
+    const c = this.circle;
+    if (!c || c.host === this.me.id) return;
+    this.word(c.host, { k: "bye" });
+    this.setCircle(null);
+    this.tell({ circle: "" });
+    this.syncVoice();
+  }
+
+  /** Its holder lets somebody go from the room: they are not let back into it. */
+  letGo(id: string) {
+    const c = this.circle;
+    if (!c || c.host !== this.me.id || id === this.me.id || !c.members.includes(id)) return;
+    this.word(id, { k: "out" });
+    this.roomIs(without(c, id, true));
+  }
+
+  /** Type a line to the chat room I am in: to each of the others by name, and to nobody else. */
+  sayCircle(raw: string): ChatResult {
+    const c = this.circle;
+    if (this.closed || !c) return "offline";
+    const text = cleanChat(raw);
+    if (!text) return "empty";
+    const now = Date.now();
+    if (now - this.lastChatAt < chatEvery(c.members.length)) return "slow";
+    if (this.status !== "ready" || !this.current) return "offline";
+    for (const id of c.members) if (id !== this.me.id) this.word(id, { k: "ln", t: text });
+    this.lastChatAt = now;
+    // (no bubble over my head, nor over anybody's in the room: what is said in a room is read in the room's own
+    // panel. The owner, 2026-10-06: "พิมพ์คุยในห้องไม่ควรขึ้น toast บนหัวตัวละครแบบนี้".)
+    this.addCircleLine(this.me.id, this.me.name, text, true, now);
+    this.notify();
+    return "sent";
+  }
+
+  /** Somebody is looking at the room's lines: nothing of it is waiting to be read. And what it last said has been said. */
+  readCircle() {
+    if (!this.circleUnread) return;
+    this.circleUnread = 0;
+    this.notify();
+  }
+  clearCircleNote() {
+    if (this.circleNote === null) return;
+    this.circleNote = null;
+    this.notify();
+  }
+
+  private word(to: string, w: CircleWord) { this.current?.circle(to, w as unknown as Record<string, unknown>); }
+  private setCircle(c: Circle | null) {
+    const was = this.circle;
+    this.circle = c;
+    // (a room's lines are its own: gone with it, as the town's are with the town)
+    if (!c || c.host !== was?.host) { this.circleChat.length = 0; this.circleUnread = 0; }
+    this.circleAsked = null;
+  }
+  /** My own room is this now: everybody in it is told who is, and my sign says how many. */
+  private roomIs(c: Circle) {
+    this.circle = c;
+    for (const id of c.members) if (id !== this.me.id) this.word(id, { k: "in", m: c.members });
+    const s = this.sign;
+    if (s?.kind === "chat" && s.n !== c.members.length) this.tell({ sign: encodeSign({ ...s, n: c.members.length }) });
+    this.syncVoice();
+    this.notify();
+  }
+  /** Walking (or stepping through a gate) to somewhere out of the reach of the room I am in is leaving it. */
+  private leaveIfFar(to: Vec) {
+    const c = this.circle;
+    if (!c || c.host === this.me.id) return;
+    const host = this.avatars.get(c.host);
+    if (!host || !inReach(to, host.pos)) this.leaveCircle();
+  }
+  private addCircleLine(from: string, name: string, text: string, mine: boolean, at: number) {
+    this.circleChat.push({ key: ++this.chatKey, from, name, text, at, mine });
+    if (this.circleChat.length > LOG_MAX) this.circleChat.splice(0, this.circleChat.length - LOG_MAX);
+  }
+
+  /** A word of a chat room, in my letterbox. Believed only from whom it can come from: a room's holder about the room, somebody in it about a line. */
+  private onCircle(from: string, raw: unknown) {
+    const w = readWord(raw), c = this.circle, mine = c?.host === this.me.id;
+    if (!w || from === this.me.id) return;
+    const a = this.avatars.get(from);
+    switch (w.k) {
+      case "ask": {
+        // (only my own room is mine to let anybody into, and only somebody the town lists)
+        if (!c || !mine || !a || a.byeAt !== undefined || !this.listed.has(from)) return;
+        const did = admit(c, from);
+        if (did.ok) this.roomIs(did.circle); else this.word(from, { k: "no", why: did.why });
+        return;
+      }
+      case "bye":
+        if (c && mine && c.members.includes(from)) this.roomIs(without(c, from));
+        return;
+      case "in": {
+        if (this.circleAsked?.host !== from && c?.host !== from) return;
+        const next = listed(from, this.me.id, w.m);
+        if (!next) { if (c?.host === from) this.put("out"); return; }
+        if (c?.host === from) this.circle = next; else this.setCircle(next);
+        this.circleAsked = null;
+        if ((this.self.info.circle ?? "") !== from) this.tell({ circle: from });
+        this.syncVoice();
+        this.notify();
+        return;
+      }
+      case "no":
+        if (this.circleAsked?.host === from) { this.circleAsked = null; this.circleNote = w.why; this.notify(); }
+        return;
+      case "out": case "end":
+        if (c?.host === from && !mine) this.put(w.k);
+        return;
+      case "ln": {
+        if (!fromRoom(c, from) || !a || a.byeAt !== undefined) return;
+        const now = Date.now();
+        if (!this.flood.allow(from, now)) return;
+        this.addCircleLine(from, a.info.name, w.t, false, now);
+        this.circleUnread++;
+        this.notify();
+        return;
+      }
+    }
+  }
+  /** I am out of the room I was in, by its holder's doing or because it is over. */
+  private put(why: CircleNote) {
+    this.setCircle(null);
+    this.circleNote = why;
+    if (this.self.info.circle) this.tell({ circle: "" });
+    this.syncVoice();
+    this.notify();
+  }
+  /**
+   * Once a second: my own room loses whoever has gone from the town or walked out of its reach; a room I am in is
+   * over when its holder is gone or holds it up no longer; and somebody asked who does not answer is given up on.
+   */
+  private tendCircle(now: number) {
+    const c = this.circle;
+    if (this.circleAsked && now - this.circleAsked.at > ASK_MS) { this.circleAsked = null; this.circleNote = "quiet"; this.notify(); }
+    if (!c) return;
+    if (c.host === this.me.id) {
+      let next = c;
+      for (const id of c.members) {
+        if (id === this.me.id) continue;
+        const a = this.avatars.get(id);
+        if (!a || a.byeAt !== undefined || !inReach(a.pos, this.self.pos, SIGN.reach + 2)) next = without(next, id);
+      }
+      if (next !== c) this.roomIs(next);
+      return;
+    }
+    const host = this.avatars.get(c.host);
+    if (!host || host.byeAt !== undefined || decodeSign(host.info.sign)?.kind !== "chat") this.put("end");
+  }
+
+  /** Whether there is, or may be, a voice line between somebody and me: the same chat room, or none on both sides. */
+  private hearsNow(id: string): boolean {
+    return hears(this.circle, id, this.avatars.get(id)?.info.circle);
+  }
+  /** Tell whoever keeps my stall that I am still here, if it is time to. */
+  private beatShop() {
+    if (this.closed || !this.shopBeat || this.sign?.kind !== "shop") return;
+    const now = Date.now();
+    if (now - this.beatAt < SHOP.every * 1000) return;
+    this.beatAt = now;
+    this.shopBeat();
   }
 
   /**
@@ -484,6 +771,10 @@ export class TownSession {
     window.removeEventListener("online", this.onWake);
     document.removeEventListener("pointerdown", this.onTap, true);
     this.voice.stop();
+    // (a chat room of mine is over, and one I am in is left; a stall's keeper stops hearing from me)
+    if (this.circle) for (const id of this.circle.host === this.me.id ? this.circle.members : [this.circle.host]) if (id !== this.me.id) this.word(id, this.circle.host === this.me.id ? { k: "end" } : { k: "bye" });
+    this.circle = null;
+    this.shopBeat = null;
     const r = this.current;
     this.current = null;
     this.gen++;
@@ -534,7 +825,9 @@ export class TownSession {
       onBye: (id) => { if (live()) this.onBye(id); },
       onChat: (id, text) => { if (live()) this.onChat(id, text); },
       onNudge: (_id, what) => { if (live() && typeof what === "string" && what.length <= 12) this.onNudge?.(what); },
-      onSignal: (from, data) => { if (mine === this.gen) void this.voice.receive(from, data as Signal); },
+      // (a voice line only with whoever I may hear: lib/town/circle. A page built before there were chat rooms asks everybody.)
+      onSignal: (from, data) => { if (mine === this.gen && this.hearsNow(from)) void this.voice.receive(from, data as Signal); },
+      onCircle: (from, word) => { if (live()) this.onCircle(from, word); },
     }, { testTopic: this.testTopic, cancelled: () => !live(), doing: () => this.doing() });
     if (!r) return;
     if (!live()) { void r.leave(); return; }
@@ -571,7 +864,8 @@ export class TownSession {
           // (everything heard of them before the room listed them: what they hold, eat and do with a rod too, which
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
-            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}) },
+            ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
+            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
         });
       } else {
@@ -604,9 +898,13 @@ export class TownSession {
         else a.path = findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
       }
     }
-    const voiceChanged = d.voice !== undefined && d.voice !== a.info.voice;
+    // (whom I hear changes with who is in the voice, and with who is in which chat room)
+    const voiceChanged = (d.voice !== undefined && d.voice !== a.info.voice) || (d.circle !== undefined && d.circle !== (a.info.circle ?? ""));
     if (d.typing) a.typingAt = Date.now();
+    // (somebody who had said they were in my room and now says otherwise has left it: their page was loaded again, say)
+    const leftMine = this.circle?.host === this.me.id && d.circle !== undefined && d.circle !== this.me.id && a.info.circle === this.me.id && this.circle.members.includes(id);
     a.info = { ...a.info, ...d };
+    if (leftMine && this.circle) this.roomIs(without(this.circle, id));
     if (voiceChanged) this.syncVoice();
     this.notify();
   }
@@ -642,8 +940,9 @@ export class TownSession {
   /** A line to everybody I should hear (everybody in voice, for now). */
   private syncVoice() {
     if (!this.voice.active) return;
+    // (a chat room has its own voice: those in it hear each other and nobody else, and nobody else hears them)
     const others = [...this.avatars.values()]
-      .filter((a) => a.info.voice)
+      .filter((a) => a.info.voice && this.hearsNow(a.info.id))
       .map((a) => ({ id: a.info.id, pos: a.pos }));
     this.voice.sync(pickLines(this.self.pos, others, this.voice.lines));
   }
@@ -761,6 +1060,8 @@ export class TownSession {
       }
     }
     if (changed) this.notify();
+    this.tendCircle(now);
+    this.beatShop();
     this.syncVoice();
     if (now - this.seenAt > SEEN_EVERY_MS) this.remember();
     if (this.status === "ready") {
@@ -796,7 +1097,27 @@ export class TownSession {
         hold: a.info.hold ?? "",
         wet: a.info.wet ?? null,
         going: a.goneAt !== undefined,
+        sign: a.info.sign ?? "",
+        circle: a.info.circle ?? "",
+        said: a.said?.text ?? null,
       })),
+      /** What is in the bubble over my own head, if I have said anything to the town. */
+      said: () => this.self.said?.text ?? null,
+      sign: () => this.sign,
+      raiseChat: (title: string) => this.raiseChat(title),
+      lowerSign: () => this.lowerSign(),
+      askIn: (host: string) => this.askIn(host),
+      leaveCircle: () => this.leaveCircle(),
+      letGo: (id: string) => this.letGo(id),
+      circle: () => (this.circle ? { host: this.circle.host, members: [...this.circle.members] } : null),
+      circleNote: () => this.circleNote,
+      sayCircle: (text: string) => this.sayCircle(text),
+      circleLog: () => this.circleChat.map((l) => ({ name: l.name, text: l.text, mine: l.mine })),
+      joinVoice: () => this.joinVoice(),
+      leaveVoice: () => this.leaveVoice(),
+      hears: (id: string) => this.hearsNow(id),
+      stuck: () => this.stuck(),
+      lineTo: () => [...this.voice.lines],
       voice: () => this.voice.stats(),
       lines: () => this.voice.lines.size,
       walkTo: (x: number, y: number) => this.walkTo({ x, y }),

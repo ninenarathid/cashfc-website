@@ -42,7 +42,7 @@ describe("the database's keeper", () => {
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
     // whether the chest in the plaza is a storage box, with what I keep in it; whether things can be dropped on the
     // ground, with what lies about; and everybody's rank at the well, for the names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_well_ranks"]);
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_shop", "town_well_ranks"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -68,14 +68,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_well_ranks"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_shop", "town_well_ranks"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(8);
+    expect(db.asked).toHaveLength(9);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -402,7 +402,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_ground" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_ground" || fn === "town_shop" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);
@@ -622,6 +622,78 @@ describe("the database's keeper", () => {
     k.nudged("deal");
     await settle();
     expect(k.deal()).toBeNull();
+    k.close();
+  });
+
+  it("knows of stalls only where the database does; reads its own again when somebody comes to it; and is heard from after it is closed", async () => {
+    const mine = { at: [30, 40], lines: [{ kind: "sell", item: "kangkong", n: 10, left: 10, price: 4 }, { kind: "sell", item: "notAThingOfThisPage", n: 1, left: 1, price: 1 }], since: NOW, took: 0, paid: 0 };
+    const told = (open: boolean, took = 0) => ({ mine: open ? { ...mine, took } : null, seen: ["kangkong", "minnow", "notAThingOfThisPage"], lines: 6, reach: 3, most: 200, cap: 10, capless: 500, every: 50 });
+    let open = false, took = 0, beats = 0;
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse({ coins: 7 }) }),
+      town_shop: () => ({ now: NOW, shops: told(open, took), purse: purse({ coins: 7 + took }) }),
+      town_shop_open: (a) => { open = true; return { ok: true, now: NOW, shops: told(true), asked: a }; },
+      town_shop_close: () => { open = false; return { ok: true, now: NOW, shops: told(false) }; },
+      town_shop_beat: () => { beats++; return { ok: true }; },
+      town_shop_look: (a) => ({ now: NOW, shopWho: a.p_who, shopTold: { by: a.p_who, at: [30, 40], lines: [{ kind: "buy", item: "minnow", price: 6, can: 2 }, { kind: "sell", item: "notAThingOfThisPage", price: 1, can: 1 }] } }),
+      town_shop_buy: (a) => ({ ok: true, coins: 8, now: NOW, purse: purse({ coins: 1 }), shopWho: a.p_who, shopTold: null }),
+    });
+    const nudges: Array<[string, string | undefined]> = [];
+    const k = new DbKeeper("me", db.ask);
+    k.onDeed = (what, to) => { nudges.push([what, to]); };
+    expect(k.shops()).toBeNull();
+    await settle();
+    // asked for once as the game begins; a thing this page was built before is left out of what may be wanted
+    expect(k.shops()).toMatchObject({ mine: null, seen: ["kangkong", "minnow"], lines: 6 });
+    // with no stall of mine open, the room's word asks nothing
+    const quiet = db.asked.filter((f) => f === "town_shop").length;
+    k.nudged("shop");
+    await settle();
+    expect(db.asked.filter((f) => f === "town_shop").length).toBe(quiet);
+    // opening one: its lines and the tile I stand on
+    const did = k.shopOpen([{ kind: "sell", item: "kangkong" as never, n: 10, price: 4 }], [30, 40]);
+    await settle();
+    expect(await did).toMatchObject({ ok: true, asked: { p_lines: [{ kind: "sell", item: "kangkong", n: 10, price: 4 }], p_x: 30, p_y: 40 } });
+    expect(k.shops()?.mine?.lines).toHaveLength(1);
+    // somebody came to it: read again, with my purse
+    took = 12;
+    k.nudged("shop");
+    await settle();
+    expect(k.shops()?.mine?.took).toBe(12);
+    expect(k.purse().coins).toBe(19);
+    // somebody else's: read as it is looked at, and again at the room's word; bought at, and its keeper told
+    await k.shopVisit("them");
+    expect(k.shopSeen()).toEqual({ who: "them", told: { by: "them", at: [30, 40], lines: [{ kind: "buy", item: "minnow", price: 6, can: 2 }] } });
+    const looks = db.asked.filter((f) => f === "town_shop_look").length;
+    k.nudged("shop");
+    await settle();
+    expect(db.asked.filter((f) => f === "town_shop_look").length).toBe(looks + 1);
+    const bought = k.shopBuy("them", "kangkong" as never, 2, [31, 40]);
+    await settle();
+    expect(await bought).toMatchObject({ ok: true, coins: 8 });
+    expect(nudges).toContainEqual(["shop", "them"]);
+    expect(k.shopSeen()).toEqual({ who: "them", told: null });
+    await k.shopVisit(null);
+    expect(k.shopSeen()).toBeNull();
+    // the way my stall's keeper hears I am still here goes on working when this keeper is closed (the town's page gone, the stay going on)
+    const beat = k.shopBeater();
+    k.close();
+    beat();
+    await settle();
+    expect(beats).toBe(1);
+  });
+
+  it("offers no stall where the database keeps none: nothing is asked of it afterwards", async () => {
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.shops()).toBeNull();
+    const n = db.asked.length;
+    await k.shopLook();
+    await k.shopClose();
+    await k.shopVisit("them");
+    expect(db.asked.length).toBe(n);
+    expect(k.shopSeen()).toEqual({ who: "them", told: null });
     k.close();
   });
 });

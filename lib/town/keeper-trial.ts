@@ -7,6 +7,7 @@ import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { FISH, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
 import type { Did, Keeper, Landed, Looked, Struck, Timing, Water } from "./keeper";
 import type { Play } from "./plays";
+import type { ShopAsk } from "./shop";
 import { SKIES } from "./skies";
 import { hasBuff, isSpent } from "./stamina";
 import type { Purse } from "./trade";
@@ -192,6 +193,26 @@ class TrialKeeper implements Keeper {
   async boxLook() { /* the box is in this browser already */ }
   async boxPut(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxPut(slot, n, at); }
   async boxTake(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxTake(slot, n, at); }
+
+  shops() { return this.trial.shops(); }
+  async shopLook() { /* stalls are in this browser already */ }
+  async shopOpen(ask: ShopAsk, at: [number, number]): Promise<Did> { return this.trial.shopOpen(ask, at); }
+  async shopClose() { this.trial.shopClose(); }
+  shopBeater() { const trial = this.trial; return () => trial.shopBeat(); }
+  private visit: string | null = null;
+  async shopVisit(who: string | null) { this.visit = who; }
+  shopSeen() { return this.visit ? { who: this.visit, told: this.trial.shopOf(this.visit) } : null; }
+  // (the stall's keeper is in another tab: told through the room, as the database's keeper tells them)
+  async shopBuy(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
+    const did = this.trial.shopBuy(who, item, n, at);
+    if (did.ok) this.onDeed?.("shop", who);
+    return did;
+  }
+  async shopSell(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
+    const did = this.trial.shopSell(who, item, n, at);
+    if (did.ok) this.onDeed?.("shop", who);
+    return did;
+  }
 
   wild() { return this.trial.wild(); }
   async gatherDo(spot: number, at: [number, number], went: Outcome): Promise<Did<{ got: Array<[ItemId, number]> }>> { return this.trial.gatherDo(spot, at, went); }

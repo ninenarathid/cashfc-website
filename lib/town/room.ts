@@ -4,6 +4,7 @@ import { createClient as createSupabase, type RealtimeChannel, type SupabaseClie
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { cleanChat } from "./chat";
 import { decodeLook } from "./look";
+import { decodeSign, encodeSign } from "./sign";
 import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
 
 /**
@@ -68,6 +69,10 @@ export interface Doing {
   wet?: boolean;
   /** Fishing: 1 with a rod in hand, 2 with a line in the water, 3 with a fish on, 4 for a moment when one has just been landed; 0 or missing when not. Where the float is follows from where they stand (lib/town/world's fishFrom). */
   fish?: number;
+  /** The sign held up over their head (lib/town/sign: a chat room, or a stall), "" when none; missing from a browser older than signs. */
+  sign?: string;
+  /** The chat room they are in (lib/town/circle): its holder's id, their own when they hold it, "" when none; missing from a browser older than that. */
+  circle?: string;
 }
 
 /**
@@ -89,6 +94,8 @@ export interface RoomHandlers {
   /** Somebody typed a line (raw: clean it before showing it). */
   onChat(id: string, text: unknown): void;
   onSignal(from: string, data: unknown): void;
+  /** A word of a chat room, into my letterbox (raw: lib/town/circle reads it). */
+  onCircle(from: string, word: unknown): void;
   /** Somebody did something the others will want to see (raw: a word for what, never the change itself, which each asks the database for). */
   onNudge(id: string, what: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
@@ -102,6 +109,8 @@ export interface Room {
   /** Type a line to everybody in the room; false when not connected (nothing was sent). */
   chat(text: string): boolean;
   signal(to: string, data: unknown): void;
+  /** A word of a chat room (lib/town/circle), into one person's letterbox: never to the room. */
+  circle(to: string, word: Record<string, unknown>): void;
   /** Say that something of the town's game changed (the farm, the kitchen), to everybody; or, into one letterbox, that a deal with them did. */
   nudge(what: string, to?: string): void;
   bye(): void;
@@ -153,6 +162,9 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   const wet = bool(p.wet);
   if (wet !== undefined) d.wet = wet;
   if (p.fish === 0 || p.fish === 1 || p.fish === 2 || p.fish === 3 || p.fish === 4) d.fish = p.fish;
+  // (a sign is written again from what was read of it: its title is somebody's own words, cleaned like a line of chat)
+  if (typeof p.sign === "string") { const sign = decodeSign(p.sign); d.sign = sign ? encodeSign(sign) : ""; }
+  if (typeof p.circle === "string" && /^[A-Za-z0-9_-]{0,64}$/.test(p.circle)) d.circle = p.circle;
   return d;
 }
 
@@ -264,6 +276,10 @@ export async function joinTown(
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
   });
+  box.on("broadcast", { event: "cr" }, ({ payload }) => {
+    const p = payload as { from?: unknown; w?: unknown };
+    if (typeof p?.from === "string" && p.from !== me.id) h.onCircle(p.from, p.w);
+  });
   box.on("broadcast", { event: "rtc" }, ({ payload }) => {
     const p = payload as { from?: unknown; data?: unknown };
     if (typeof p?.from === "string" && p.from !== me.id) h.onSignal(p.from, p.data);
@@ -331,6 +347,7 @@ export async function joinTown(
     tell(to, d) { post(to, "st", { id: me.id, ...d }); },
     chat(text) { return cast("chat", { id: me.id, t: text }); },
     signal(to, data) { post(to, "rtc", { from: me.id, data }); },
+    circle(to, word) { post(to, "cr", { from: me.id, w: word }); },
     nudge(what, to) { if (to) post(to, "nd", { id: me.id, w: what }); else cast("nd", { id: me.id, w: what }); },
     bye() { cast("bye", { id: me.id }); },
     check() {

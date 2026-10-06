@@ -7,6 +7,7 @@ import { SPOTS, gather, holds, sights, turnOf, type ForestRefusal, type Outcome,
 import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, hereAt, net, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
+import * as Shops from "./shop";
 import { buyHint, hintPrice, hintsLeft } from "./hints";
 import * as Notices from "./notices";
 import { MARKET, counted, factorOf, factsOf, newMarket, pricesTold, rolled, type Logged, type Market, type PricesTold } from "./market";
@@ -75,6 +76,8 @@ const WELL_LOG = "cashtown.trial.welllog.1";
 const THANKS = "cashtown.trial.thanks.1", JAR = "cashtown.trial.jar.1";
 /** The bucketfuls in the cooking yard's water jar (lib/town/yard): the whole browser's. */
 const YARD_JAR = "cashtown.trial.yardjar.1";
+/** The stalls under signs (lib/town/shop): the whole browser's, each by its keeper, so that one tester buys at another's. */
+const SHOPS = "cashtown.trial.shops.1";
 /** What lies on the ground (lib/town/ground): the whole browser's, so that one tester picks up what another dropped. */
 const GROUND_AT = "cashtown.trial.ground.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
@@ -862,6 +865,48 @@ export class Trial {
   tally(): Tally {
     return this.read<Tally>(tallyKey(this.id), newTally, (v) => { const t = v as Partial<Tally> | null; return !!t && !!t.games && !!t.fishing?.caught && !!t.fishing.places; });
   }
+  /* ── a stall under a sign: the whole browser's; both purses are here, so a sale is one go ── */
+  private shopsKept(): Record<string, Shops.Shop> { return this.read<Record<string, Shops.Shop>>(SHOPS, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v)); }
+  /** What I am told of stalls: mine if it is open, and what may be wanted. */
+  shops(): Shops.ShopsTold { return Shops.told(this.shopsKept()[this.id], this.now(), this.seen()); }
+  /** Open a stall where I stand (one that was open is opened anew). */
+  shopOpen(ask: Shops.ShopAsk, at: [number, number]) {
+    const did = Shops.open(this.purse(), this.id, ask, at, this.now(), this.seen());
+    if (did.ok) { this.write(SHOPS, { ...this.shopsKept(), [this.id]: did.shop }); this.tell(); }
+    return did;
+  }
+  shopClose() {
+    const all = { ...this.shopsKept() };
+    if (!(this.id in all)) return;
+    delete all[this.id];
+    this.write(SHOPS, all);
+    this.tell();
+  }
+  /** I am still here. */
+  shopBeat() {
+    const all = this.shopsKept(), mine = all[this.id];
+    if (mine && Shops.alive(mine, this.now())) this.write(SHOPS, { ...all, [this.id]: Shops.beat(mine, this.now()) });
+  }
+  /** Somebody's stall as a comer is told it; null when they have none open. */
+  shopOf(who: string): Shops.ShopTold | null {
+    const raw = this.get(purseKey(who));
+    return raw === null ? null : Shops.toldOf(this.shopsKept()[who], JSON.parse(raw) as Purse, this.now());
+  }
+  private shopDeal(who: string, item: ItemId, n: number, at: [number, number], how: typeof Shops.buy) {
+    const all = this.shopsKept(), raw = this.get(purseKey(who));
+    if (raw === null) return { ok: false as const, why: "shut" as const };
+    const did = how(this.purse(), JSON.parse(raw) as Purse, all[who], this.id, item, n, at, this.now());
+    if (!did.ok) return did;
+    // (the other's purse is in this browser too: both are written here)
+    this.write(purseKey(who), did.theirs);
+    this.write(SHOPS, { ...all, [who]: did.shop });
+    this.save(did.mine);
+    return { ok: true as const, coins: did.coins };
+  }
+  /** Buy at somebody's stall, or bring it what it wants, from the tile I stand on. */
+  shopBuy(who: string, item: ItemId, n: number, at: [number, number]) { return this.shopDeal(who, item, n, at, Shops.buy); }
+  shopSell(who: string, item: ItemId, n: number, at: [number, number]) { return this.shopDeal(who, item, n, at, Shops.sell); }
+
   /* ── things dropped on the ground: the whole browser's, like the farm ── */
   /** What lies about now. */
   ground(): Dropped[] { return lying(this.read<Dropped[]>(GROUND_AT, () => [], Array.isArray), this.now()); }
@@ -926,7 +971,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

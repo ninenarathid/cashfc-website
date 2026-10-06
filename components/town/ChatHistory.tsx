@@ -14,10 +14,12 @@ import TownIcon from "./TownIcon";
  * where you are while you read back up: new lines then wait under a "↓ new"
  * button rather than pulling the list away from what you were reading.
  */
-export default function ChatHistory({ lines, th, className = "" }: {
+export default function ChatHistory({ lines, th, className = "", note }: {
   lines: ChatLine[];
   th: boolean;
   className?: string;
+  /** What the top of the list says, where the lines are not the town's own (a chat room's: lib/town/circle). */
+  note?: string;
 }) {
   const box = useRef<HTMLDivElement>(null);
   const atBottom = useRef(true);
@@ -71,7 +73,7 @@ export default function ChatHistory({ lines, th, className = "" }: {
            aria-label={th ? "ประวัติแชท" : "Chat history"}
            className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2 text-ui leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent/60">
         <p className="mb-1 text-label text-muted">
-          {th ? "แชทไม่ถูกเก็บไว้ที่ไหน เห็นแค่ที่พิมพ์ตั้งแต่คุณเข้าเมือง" : "Chat isn't saved anywhere: you see what was said since you came in."}
+          {note ?? (th ? "แชทไม่ถูกเก็บไว้ที่ไหน เห็นแค่ที่พิมพ์ตั้งแต่คุณเข้าเมือง" : "Chat isn't saved anywhere: you see what was said since you came in.")}
         </p>
         {lines.length === 0 ? (
           <p className="text-muted">{th ? "ยังไม่มีใครพิมพ์อะไร ทักก่อนเลย" : "Nobody has typed yet. Say hi!"}</p>

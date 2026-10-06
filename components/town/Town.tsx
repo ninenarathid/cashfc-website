@@ -13,6 +13,8 @@ import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScr
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
 import { PUDDLE_SIZES, RING_MS, Rain, ageOf, drawPicture, puddleRing, puddleRingsFor, puddlesFor, ringsFor, type Pictures } from "@/lib/town/rain";
 import { keepMotion, keptMotion } from "@/lib/town/motion";
+import { SHOP as STALL_RULES } from "@/lib/town/shop";
+import { SIGN, decodeSign, inReach, type Sign } from "@/lib/town/sign";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
@@ -42,6 +44,9 @@ import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { FarmDraw } from "./TownFarm";
 import type { GroundTap } from "./TownGround";
+import SignIcon from "./SignIcon";
+import type { SignView } from "./TownSign";
+import type { Stuck } from "@/lib/town/session";
 import type { Standing } from "./TownCook";
 import type { Stander } from "./TownLine";
 import type { OpenDeal } from "./TownDeal";
@@ -103,6 +108,8 @@ const TownBugs = lazy(() => import("./TownBugs"));
 const TownWell = lazy(() => import("./TownWell"));
 const TownBox = lazy(() => import("./TownBox"));
 const TownGround = lazy(() => import("./TownGround"));
+const TownSign = lazy(() => import("./TownSign"));
+const TownCircle = lazy(() => import("./TownCircle"));
 const TownThanks = lazy(() => import("./TownThanks"));
 const TownLine = lazy(() => import("./TownLine"));
 const TownCook = lazy(() => import("./TownCook"));
@@ -110,11 +117,21 @@ const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground"];
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** How near somebody has to stand for a deal to be opened with them, in tiles: lib/town/deal's own number, kept apart so that the catalog stays out of the map's code (a test holds the two together). */
 const DEAL_NEAR = 3;
+/** A sign as it was read, kept by what was told: the map reads everybody's every frame (lib/town/sign). */
+const SIGNS_READ = new Map<string, Sign | null>();
+function signOf(raw: string | undefined): Sign | null {
+  if (!raw) return null;
+  let s = SIGNS_READ.get(raw);
+  if (s === undefined) { if (SIGNS_READ.size > 300) SIGNS_READ.clear(); s = decodeSign(raw); SIGNS_READ.set(raw, s); }
+  return s;
+}
+/** The two marks of a stall's board, and a chat room's count: the board's own inks (TownSign's panels use the same). */
+const SIGN_INK = { sell: "#a8452a", buy: "#2f6f8f", dark: "#3d2913", pale: "#f3e3c3", text: "#2b1a0c" };
 /** How near somebody sits to be eating with me, in tiles. */
 const EAT_NEAR = 3;
 /** The river's moving parts, laid out once: streaks of current, glints, fish, and what drifts by. */
@@ -626,6 +643,28 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [boxAsk, setBoxAsk] = useState(0);
   const boxShown = useRef(false);
   const onBoxShown = useCallback((open: boolean) => { boxShown.current = open; }, []);
+  /**
+   * A sign held up (lib/town/sign): where each one's board is on the screen this frame (a tap on one is for what it
+   * is for); which of its panels is open (holding one up, my own, somebody's stall); a sign tapped from too far off,
+   * which is walked up to first; and how many times I have come to a stop (when that sign is asked again).
+   */
+  const signBoxes = useRef<Array<{ id: string; x0: number; y0: number; x1: number; y1: number }>>([]);
+  const [signView, setSignView] = useState<SignView | null>(null);
+  const signWant = useRef<string | null>(null);
+  const [stops, setStops] = useState(0);
+  const stoppedRef = useRef(true);
+  /**
+   * Why a tap did not walk me (lib/town/session's `stuck`: I hold a sign up, am in a chat room, or look at a stall),
+   * said for a moment: the way to walk again is that thing's own button.
+   */
+  const [stuckNote, setStuckNote] = useState<string | null>(null);
+  const sayStuck = useCallback((why: Stuck) => {
+    const th = words.current.th;
+    setStuckNote(why === "sign" ? (th ? "กำลังชูป้ายอยู่ เก็บป้ายก่อนถึงจะเดินได้" : "You are holding a sign up: take it down to walk")
+      : why === "room" ? (th ? "อยู่ในห้องแชท ออกจากห้องก่อนถึงจะเดินได้" : "You are in a chat room: leave it to walk")
+      : (th ? "กำลังดูร้านอยู่ ปิดหน้าร้านก่อนถึงจะเดินได้" : "You are at a stall: close it to walk"));
+  }, []);
+  useEffect(() => { if (!stuckNote) return; const id = setTimeout(() => setStuckNote(null), 3000); return () => clearTimeout(id); }, [stuckNote]);
   useEffect(() => { if (boxHere && boxWant.current) { boxWant.current = false; setBoxAsk((n) => n + 1); } }, [boxHere]);
   /** Everybody's rank at the well, and who I am to whoever keeps the game: for the names over heads. */
   const ranksRef = useRef<{ ranks: Record<string, number>; me: string }>({ ranks: {}, me: "" });
@@ -1598,6 +1637,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (onPlot !== plotRef.current) { plotRef.current = onPlot; setPlotHere(onPlot ? [tx, ty] : null); }
       const byWell = !mine.path.length && atWell(tx, ty);
       if (byWell !== wellRef.current) { wellRef.current = byWell; setWellHere(byWell); }
+      const stopped = !mine.path.length;
+      if (stopped !== stoppedRef.current) { stoppedRef.current = stopped; if (stopped) setStops((n) => n + 1); }
       const byBox = !mine.path.length && (mine.info.sit ?? -1) === -1 && byStorebox(tx, ty, BOX.reach);
       if (byBox !== boxHereRef.current) { boxHereRef.current = byBox; setBoxHere(byBox); }
       const farming = tx >= FARM.x - 2 && ty >= FARM.y - 2 && tx < FARM.x + FARM.w + 2 && ty < FARM.y + FARM.h + 2;
@@ -1699,6 +1740,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const signs: Array<() => void> = [];
     const names: Array<() => void> = [];
     const boxes: typeof hits.current = [];
+    signBoxes.current = [];
     // While I am not connected, nobody can see me, so the others are drawn
     // faded: what I see of them is no longer live.
     const live = stay?.status === "ready";
@@ -2480,6 +2522,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const name = isMe ? `${a.info.name} (${words.current.you})` : a.info.name;
     const said = a.said && wall - a.said.at < BUBBLE_MS ? a.said : null;
     const typing = !said && (isMe ? !!a.info.typing : !!sessionRef.current?.isTyping(a));
+    const sign = signOf(a.info.sign);
     names.push(() => {
       ctx.save();
       if (faded || away) ctx.globalAlpha = 0.6;
@@ -2488,10 +2531,107 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const rank = ranksRef.current.ranks[isMe ? ranksRef.current.me : a.info.id] ?? 0;
       if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, p.y + 31, RANK_INK[rank - 1]);
       ctx.restore();
+      // The sign they hold up: its pole in their hand, its board over their head; what they say goes over the board.
+      const over = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
       // What they just typed, over their head; it fades in its last moment.
-      if (said) bubble(ctx, said.text, p.x, top - 2, Math.min(1, (BUBBLE_MS - (wall - said.at)) / 800));
-      else if (typing) dots(ctx, p.x, top - 2, now);
+      if (said) bubble(ctx, said.text, p.x, over - 2, Math.min(1, (BUBBLE_MS - (wall - said.at)) / 800));
+      else if (typing) dots(ctx, p.x, over - 2, now);
     });
+  }
+
+  /**
+   * A sign held up (lib/town/sign; the owner, 2026-10-06: "อยากให้เหมือนกำลังชูป้ายอยู่"): a pole in the fist, raised
+   * beside the head, and a wooden board over the head that says what it is: a chat room (and how many are in it), or
+   * a stall (whether it sells, buys, or both), then its title. It sways a little, each on their own beat. Where the
+   * board is on the screen is kept, for a tap on it. Returns the board's top, for whatever else goes over a head.
+   */
+  function drawSign(ctx: CanvasRenderingContext2D, a: Avatar, p: Vec, h: number, top: number, sign: Sign, side: 1 | -1, look: Look, isMe: boolean, faded: boolean, now: number): number {
+    const th = words.current.th, px = Math.max(1, Math.round(cam.current.s));
+    const sway = reducedRef.current ? 0 : Math.sin(now / 560 + a.info.id.charCodeAt(0) * 1.7) * 1.6;
+    const marks: Array<{ text: string; ink: string }> = sign.kind === "chat" ? [] : [
+      ...(sign.sells ? [{ text: th ? "ขาย" : "SELL", ink: SIGN_INK.sell }] : []), ...(sign.buys ? [{ text: th ? "รับซื้อ" : "BUY", ink: SIGN_INK.buy }] : []),
+    ];
+    const title = sign.title || (sign.kind === "chat" ? (th ? "ห้องแชท" : "Chat room") : marks.length ? "" : (th ? "ร้าน" : "Stall"));
+    const count = sign.kind === "chat" ? `${sign.n}/${SIGN.cap}` : "";
+    const small = `700 10px ${fontRef.current}`, big = `700 12px ${fontRef.current}`;
+    ctx.save();
+    if (faded) ctx.globalAlpha = 0.45;
+    ctx.textBaseline = "middle";
+    ctx.font = small;
+    const markW = marks.map((m) => Math.ceil(ctx.measureText(m.text).width) + 8), countW = count ? Math.ceil(ctx.measureText(count).width) + 8 : 0;
+    ctx.font = big;
+    const titleW = title ? Math.ceil(ctx.measureText(title).width) : 0, badge = sign.kind === "chat" ? 16 : 0;
+    const parts = [badge, ...markW, titleW, countW].filter((n) => n > 0), gap = 5, pad = 8, bh = 24;
+    const w = parts.reduce((t, n) => t + n, 0) + gap * (parts.length - 1) + pad * 2;
+    const bx = Math.round(p.x + sway - w / 2), by = Math.round(top - 10 - bh);
+    // the pole: from their fist, raised beside their head, up to the board
+    const hx = Math.round(p.x + side * h * 0.3), hy = Math.round(p.y - h * 0.5), tx = Math.round(p.x + sway + side * 5), ty = by + bh;
+    for (const [ink, wide] of [["#2a1b12", 3 + 2 * px], ["#9a6b3c", 1 + px]] as const) {
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = wide;
+      ctx.beginPath();
+      ctx.moveTo(hx, hy + 5);
+      ctx.lineTo(tx, ty);
+      ctx.stroke();
+    }
+    // the fist that holds it: a few pixels of their own skin, edged dark
+    ctx.fillStyle = "#2a1b12";
+    ctx.fillRect(hx - 2 * px, hy - px, 4 * px, 4 * px);
+    ctx.fillStyle = SKINS[look.skin]?.hex ?? "#e8b98f";
+    ctx.fillRect(hx - px, hy, 2 * px, 2 * px);
+    // the board: a dark edge, planks with a seam between them, a light top and a shaded foot, a nail at each corner
+    ctx.fillStyle = "#2a1b12";
+    ctx.fillRect(bx - 2, by - 2, w + 4, bh + 4);
+    ctx.fillStyle = isMe ? "#d9aa63" : "#c8975a";
+    ctx.fillRect(bx, by, w, bh);
+    ctx.fillStyle = "#e9c78b";
+    ctx.fillRect(bx, by, w, 2);
+    ctx.fillStyle = "#a47238";
+    ctx.fillRect(bx, by + bh - 3, w, 3);
+    ctx.fillStyle = "rgba(90,58,28,0.3)";
+    ctx.fillRect(bx, by + 12, w, 1);
+    ctx.fillStyle = "#5b3a1c";
+    for (const [nx, ny] of [[bx + 2, by + 3], [bx + w - 4, by + 3], [bx + 2, by + bh - 6], [bx + w - 4, by + bh - 6]]) ctx.fillRect(nx, ny, 2, 2);
+    // what it says, left to right
+    let x = bx + pad;
+    const cy = by + bh / 2;
+    if (badge) {
+      ctx.fillStyle = SIGN_INK.dark;
+      ctx.beginPath();
+      ctx.arc(x + badge / 2, cy, badge / 2, 0, Math.PI * 2);
+      ctx.fill();
+      drawIcon(ctx, iconImg.current, "chat", x + badge / 2, cy, 11);
+      x += badge + gap;
+    }
+    ctx.textAlign = "center";
+    ctx.font = small;
+    marks.forEach((m, i) => {
+      ctx.fillStyle = m.ink;
+      roundRect(ctx, x, cy - 7, markW[i], 14, 3);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.fillText(m.text, x + markW[i] / 2, cy + 0.5);
+      x += markW[i] + gap;
+    });
+    if (title) {
+      ctx.font = big;
+      ctx.textAlign = "left";
+      ctx.fillStyle = SIGN_INK.text;
+      ctx.fillText(title, x, cy + 0.5);
+      x += titleW + gap;
+    }
+    if (count) {
+      ctx.font = small;
+      ctx.textAlign = "center";
+      ctx.fillStyle = SIGN_INK.dark;
+      roundRect(ctx, x, cy - 7, countW, 14, 3);
+      ctx.fill();
+      ctx.fillStyle = SIGN_INK.pale;
+      ctx.fillText(count, x + countW / 2, cy + 0.5);
+    }
+    ctx.restore();
+    signBoxes.current.push({ id: a.info.id, x0: bx - 2, y0: by - 2, x1: bx + w + 2, y1: by + bh + 2 });
+    return by - 2;
   }
 
   /** "…" over somebody typing: a small bubble, its three dots rising one after another. */
@@ -2667,6 +2807,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     setHint(false);
     setHistoryOpen(false);
     boxWant.current = false;
+    signWant.current = null;
+    // a sign held up: what it is for (its board is over a head, and over whatever is behind it)
+    const board = signBoxes.current.find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
+    if (board) { setPopover(null); setCard(null); openSign(board.id); return; }
     const who = personAt(x, y);
     // (a thing lying at somebody's feet is drawn over them: a tap on it is for the thing, not for who stands there)
     const atFeet = !!who && gameRef.current && !!groundTap.current?.(x, y, true);
@@ -2682,6 +2826,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // a shopkeeper: a talk; a gateway: walk to it, and through
     const keeper = keeperBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (keeper) { setPopover(null); openTalk(keeper.id); return; }
+    // Whoever holds a sign up, is in a chat room or looks at a stall stays where they are: a tap that would walk
+    // them (to a gate, a bench, a thing, the chest, a tile) says why instead, and nothing is put down by a slip.
+    const stuck = sessionRef.current?.stuck();
+    if (stuck) { setPopover(null); setPeopleOpen(false); sayStuck(stuck); return; }
     const gate = gateBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (gate) {
       setPopover(null); setPeopleOpen(false);
@@ -2754,6 +2902,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         const seat = !someone && (benchUnder(p.x, p.y) >= 0 || benchAt(t.x, t.y) >= 0);
         const sb = gameRef.current && boxKnown() ? storeBox.current : null;
         const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
+          || signBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1)
           || (!!sb && p.x >= sb.x0 && p.x <= sb.x1 && p.y >= sb.y0 && p.y <= sb.y1)
           || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1);
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
@@ -2859,6 +3008,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       board: () => (boardBox.current ? { x: (boardBox.current.x0 + boardBox.current.x1) / 2, y: (boardBox.current.y0 + boardBox.current.y1) / 2 } : null),
       /** The fountain's middle on the screen, if it is drawn. */
       fountain: () => (fountainBox.current ? { x: (fountainBox.current.x0 + fountainBox.current.x1) / 2, y: (fountainBox.current.y0 + fountainBox.current.y1) / 2 } : null),
+      /** Why I cannot walk just now, if I cannot; and what a tap that would have walked me said instead. */
+      stuck: () => sessionRef.current?.stuck() ?? null,
+      /** The signs held up, each board's middle on the screen this frame, with whose it is. */
+      signs: () => signBoxes.current.map((b) => ({ id: b.id, x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2, w: b.x1 - b.x0, h: b.y1 - b.y0 })),
       /** The storage box's middle on the screen, if it is drawn; and whether its lid is drawn up. */
       storebox: () => (storeBox.current ? { x: (storeBox.current.x0 + storeBox.current.x1) / 2, y: (storeBox.current.y0 + storeBox.current.y1) / 2, open: boxShown.current } : null),
     };
@@ -2887,6 +3040,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (!step || !stay || stay.closed) return;
       e.preventDefault();
       boxWant.current = false;
+      const held = stay.stuck();
+      if (held) { sayStuck(held); return; }
       const a = stay.self;
       const from = a.path.length ? a.path[a.path.length - 1] : a.pos;
       const next = { x: Math.floor(from.x) + step[0], y: Math.floor(from.y) + step[1] };
@@ -2940,6 +3095,50 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       .filter((t) => walkable(t.x, t.y)).sort((a, b) => far(a) - far(b));
     for (const t of beside) if (stay.walkTo(t)) { boxWant.current = true; cam.current.follow = true; break; }
     return true;
+  };
+
+  /**
+   * A sign was tapped (lib/town/sign). My own: its panel. Somebody's chat room: I ask to be let in, from within its
+   * reach; somebody's stall: its panel, from beside it. From further off they are walked up to first, and the sign is
+   * asked again when I get there (`arrived`: no second walk).
+   */
+  const openSign = (id: string, arrived = false) => {
+    const stay = sessionRef.current;
+    if (!stay) return;
+    if (wardrobeOpenRef.current) closeWardrobe();
+    setCard(null); setPeopleOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setBoardOpen(false); setFishing(false);
+    if (id === me.id) { if (stay.sign) setSignView("mine"); return; }
+    const a = stay.avatars.get(id), sign = signOf(a?.info.sign);
+    if (!a || a.byeAt !== undefined || !sign) return;
+    // (whoever holds a sign of their own, or is in another room, is at what that is for: put down or left first)
+    const stuck = stay.stuck();
+    if (stuck === "sign" || (stuck === "room" && stay.circle?.host !== id)) { sayStuck(stuck); return; }
+    const from = stay.self.pos;
+    const near = sign.kind === "chat" ? inReach(from, a.pos)
+      : placeOf(from.x, from.y) === placeOf(a.pos.x, a.pos.y) && Math.max(Math.abs(Math.floor(from.x) - Math.floor(a.pos.x)), Math.abs(Math.floor(from.y) - Math.floor(a.pos.y))) <= STALL_RULES.reach;
+    if (near) {
+      if (sign.kind === "shop") { if (gameRef.current) setSignView({ who: id, name: a.info.name }); return; }
+      // (a stall I was looking at is left for the room)
+      setSignView((v) => (v && typeof v === "object" ? null : v));
+      stay.askIn(id);
+      return;
+    }
+    if (arrived) return;
+    // (looking at a stall, I stay by it: another sign further off is walked to once its panel is closed)
+    if (stuck) { sayStuck(stuck); return; }
+    const tx = Math.floor(a.pos.x), ty = Math.floor(a.pos.y), far = (t: Vec) => Math.hypot(t.x + 0.5 - from.x, t.y + 0.5 - from.y);
+    const beside: Vec[] = [];
+    for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (dx || dy) beside.push({ x: tx + dx, y: ty + dy });
+    beside.sort((p, q) => far(p) - far(q));
+    for (const t of beside) if (walkable(t.x, t.y) && stay.walkTo(t)) { signWant.current = id; cam.current.follow = true; break; }
+  };
+  /** The emote window's own way to a sign: mine if I hold one up, or the panel that holds one up. */
+  const openSignPanel = () => {
+    const stay = sessionRef.current;
+    if (!stay) return;
+    if (wardrobeOpenRef.current) closeWardrobe();
+    setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setBoardOpen(false); setFishing(false);
+    setSignView(stay.sign ? "mine" : "setup");
   };
 
   /**
@@ -3056,6 +3255,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   // The card's person, if they are still here.
   const cardWho = card && s ? (card.id === me.id ? s.self : s.avatars.get(card.id) ?? null) : null;
+  // A sign that was tapped from far off: asked again now that I have stopped walking.
+  useEffect(() => {
+    const id = signWant.current;
+    if (!id || !stops) return;
+    signWant.current = null;
+    openSign(id, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stops]);
+  // My sign has come down (I walked off, or took it down): a stall under it is shut with whoever keeps it.
+  useEffect(() => {
+    if (!session) return;
+    session.onSignDown = (kind) => { if (kind === "shop") void keeper?.shopClose(); };
+    return () => { session.onSignDown = null; };
+  }, [session, keeper]);
+
   const cardNote = (a: Avatar) => noted([
     a.info.voice ? (a.info.muted ? ["muted", w.mutedNote] : ["mic", w.inVoice]) : null,
     a.info.id !== me.id && a.info.away ? ["away", w.away] : null,
@@ -3065,6 +3279,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const walkOver = (a: Avatar) => {
     const stay = sessionRef.current;
     if (!stay) return;
+    const held = stay.stuck();
+    if (held) { sayStuck(held); setCard(null); return; }
     const tx = Math.floor(a.info.x), ty = Math.floor(a.info.y);
     const spots: Vec[] = [];
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) spots.push({ x: tx + dx, y: ty + dy });
@@ -3239,6 +3455,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               <button type="button" onClick={() => { openDeal.current?.(cardWho.info.id, cardWho.info.name); setCard(null); }}
                       className="pressable rounded-lg bg-gold/15 px-3 py-1.5 text-ui text-gold hover:bg-gold/25"><span className="flex items-center gap-1.5"><TownIcon name="handshake" size={16} />{w.th ? "แลกของ" : "Trade"}</span></button>
             )}
+            {/* the sign they hold up: their chat room, or their stall */}
+            {card.id !== me.id && signOf(cardWho.info.sign) && (
+              <button type="button" onClick={() => { const id = cardWho.info.id; setCard(null); openSign(id); }}
+                      className="pressable rounded-lg bg-gold/15 px-3 py-1.5 text-ui text-gold hover:bg-gold/25"><span className="flex items-center gap-1.5"><SignIcon size={16} />{signOf(cardWho.info.sign)?.kind === "chat" ? (w.th ? "เข้าห้อง" : "Join") : (w.th ? "ดูร้าน" : "Stall")}</span></button>
+            )}
             <button type="button" onClick={() => setCard(null)} className="ml-auto px-2 py-1.5 text-ui text-muted hover:text-ink">{w.close}</button>
           </div>
         </div>
@@ -3373,6 +3594,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
                         className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
                   <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
+                </button>
+                {/* a sign held up over my head: a chat room, or a stall (the owner, 2026-10-06) */}
+                <button type="button" role="menuitem" onClick={() => { setEmoteOpen(false); openSignPanel(); }} data-emote-sign
+                        className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
+                  <SignIcon size={30} />{s.self.info.sign ? (w.th ? "ป้ายของฉัน" : "My sign") : (w.th ? "ชูป้าย" : "Sign")}
                 </button>
               </div>
             );
@@ -3542,6 +3768,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownLine keeper={keeper} me={keeper.id} th={w.th} people={standers}
                     here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? standing?.tile ?? null : null}
                     bottom={phone && tabbar ? "calc(15.5rem + env(safe-area-inset-bottom))" : "11.5rem"} sfx={sfxRef.current} />
+        </Suspense>
+      )}
+      {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall */}
+      {s && stuckNote && (
+        <div className="pointer-events-none absolute inset-x-0 z-30 flex justify-center px-2" style={{ bottom: phone && tabbar ? "calc(11.5rem + env(safe-area-inset-bottom))" : "7.5rem" }}>
+          <p role="status" data-stuck-note className="pop-in flex min-h-10 items-center gap-2 rounded-full border border-gold/60 bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/40 backdrop-blur-sm">
+            <SignIcon size={18} />{stuckNote}
+          </p>
+        </div>
+      )}
+      {/* A sign held up: holding one up, my own, somebody's stall; and the chat room under one, for whoever is in it */}
+      {s && (
+        <Suspense fallback={null}>
+          <TownSign keeper={game ? keeper : null} session={s} th={w.th} phone={phone} tabbar={tabbar} view={signView} onView={setSignView} where={whereAmI} sfx={sfxRef.current}
+                    hidden={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
+                    bottom={phone && tabbar ? "calc(8.25rem + env(safe-area-inset-bottom))" : "4.25rem"} />
+          <TownCircle session={s} th={w.th} phone={phone} tabbar={tabbar} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && (testOpen || !!signView || chatOpen))} />
         </Suspense>
       )}
       {/* The storage box in the plaza: offered to whoever stands by it; a tap on the chest walks up to it and opens it */}
