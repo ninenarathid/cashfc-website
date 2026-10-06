@@ -212,6 +212,18 @@ const SHEETS = [
   // more familiars, seen from the side and facing right as the first are, at the first ones' size: the well's rain frog, the forest's moss
   // stag, the farm's mandrake; and for ranks to come a little rain cloud, a river dragon's young and a bee
   ["icons-familiars-b", ["famFrog", "famStag", "famMandrake", "famCloud", "famDragon", "famBee"], { range: [7.9, 8.1] }],
+  // the gifts of the seventh to tenth ranks, a line's four together (and each tenth rank's golden mark, `gold…`): fishing's shoal flute,
+  // lotus boat, contest pennant and golden scale; the forest's fairy rings, beekeeper's mask, star net, world tree's seed and golden
+  // crown; the insects' beetle arena, moon lantern, breeding jar, sceptre and golden butterfly; the kitchen's feast cloth, phoenix
+  // feather, feast bell, cauldron and golden toque; the farm's giant seed, bees, festival banner, magic bean and golden ear; the
+  // helpers' fae flower, thread of kindness, phoenix tear, golden hour's bell and golden wings; the well's shell horn, staff, rain
+  // sceptre and golden drop; and three things those gifts bring: a star's shard, a jar of honey, a hybrid seed
+  ["icons-gifts-e", ["thingShoal", "thingBoat", "thingPennant", "goldScale", "thingRings", "thingMask"], { range: [3.9, 4.1] }],
+  ["icons-gifts-f", ["thingStarNet", "thingSeed", "goldCrown", "thingArena", "thingLantern", "thingJar"], { range: [3.9, 4.1] }],
+  ["icons-gifts-g", ["thingSceptre", "goldButterfly", "thingCloth", "thingFeather", "thingFeastBell", "thingCauldron"], { range: [3.9, 4.1] }],
+  ["icons-gifts-h", ["goldToque", "thingGiant", "thingBees", "thingBanner", "thingBean", "goldEar"], { range: [5.5, 5.7], near: true }],
+  ["icons-gifts-i", ["thingFlower", "thingThread", "thingTear", "thingHourBell", "goldWings", "thingHorn"], { range: [3.9, 4.1] }],
+  ["icons-gifts-j", ["thingStaff", "thingRain", "goldDrop", "shardBig", "honeyJar", "hybridSeed"], { range: [3.9, 4.1] }],
 ];
 
 const pieces = [];
