@@ -349,7 +349,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v151 (ran 2026-10-06, about 23:38) seeded one row, new, for the gifts of those ranks: the places for charms, and of
  * each gift its kind, the rank that gives it, and its number (`gifts`).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = { v152: { keys: [], over: ["gifts"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
