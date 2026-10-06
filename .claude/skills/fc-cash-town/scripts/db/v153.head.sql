@@ -1,0 +1,100 @@
+-- v153 — the gifts of the lines' ranks, the first to the sixth of every line
+--
+-- Run this once in the Supabase SQL editor, after v152 (it stops at its first
+-- line without v152's counted gifts). Running it again is safe. **Run it after
+-- the site's own code for it is live**: a page from before asks nothing new of
+-- it, and a page with the code and a database without this file offers the
+-- nine gifts of v152 and none of the new deeds (the squirrel fetches nothing,
+-- a second line is not dropped, no row is worked at a swing). Two gifts of
+-- before do nothing in between: the enchanted hoe and the garden gnome, whose
+-- old powers the new page no longer has and whose new ones are this file's.
+-- A page left open since before the code went live should be loaded again.
+--
+-- Why. The owner, 2026-10-07, of what a rank's gift should be:
+--
+--   "เอาให้ทุกคนร้องว้าวเหมือนตอนเข้าป่าแล้วมีตะเกียง"
+--   "ที่เกือบจะเข้าขั้น OP ของแต่ละสาย"
+--   and of a power that could never be failed: "แรงไป แบบนี้จะไม่มีการ fail เกิดขึ้นเลย"
+--   then, of the ladder laid out anew: "เอาตามที่คุณออกแบบมาทุกอย่างเลย", "เอาจนจบ 1-6 เลย"
+--
+-- So each rank's gift cuts a whole rule of its line out, each rank more than
+-- the last; none takes failing away (one that is always on can still be
+-- failed, one that skips a game is counted to a day or a meal's hours); and
+-- the game grows with whoever has them: a power that does many at once has a
+-- longer, harder game of its own, and from a line's fourth rank its good
+-- things are 8% a rank harder for that member.
+--
+-- What it does, a line at a time (the rules are lib/town's, each held to its
+-- twin here case by case):
+--
+--   * What every line stands on. A count is reckoned by its whole rule
+--     (`town.stretch_at`: a day, a meal's hours, a span of minutes), where
+--     v152's took the word alone (`town.stretch_of`, dropped; `town.used_of`
+--     and `town.gift_use` written again for it). `town.harder_at`,
+--     `town.rank_on`, `town.harder_for`: how much harder a line's good things
+--     are at a rank. `town.deed_th`: a Thai word for every new deed, and for
+--     those written down since v144 that had none.
+--   * The kitchen. A dimension basket of twelve helpings in no slot of the
+--     bag (`town_basket_put`, `_take`, `_eat`); a whispering spoon that tells
+--     the secret thing of the recipe the pot is on the way to, three a day
+--     (`town_spoon`); a hearth sprite that cooks a recipe made before with no
+--     game and a helping more, three pots a meal's hours, and a phoenix flame
+--     that gives back what comes to nothing, three a day (both through
+--     `town_cook`, written again for a few lines); a stardust spice that puts
+--     a bowl's buff at the fourth level, once a day (`town_spice_eat`;
+--     `town.chew` written again for one line).
+--   * The farm. A bed's row worked at one swing: the enchanted hoe's, the
+--     seed pouch's (seven plots for five seeds) and the crescent sickle's (one
+--     more from a plant cut well), one deed with each plot's own line written
+--     down (`town_row`); the garden gnome waters its member's whole bed, a bed
+--     once an hour (`town_gnome`; its weeding, and that weeding's count, are
+--     gone); the hourglass of seasons makes one bed grow three times as fast
+--     for three hours, once a day (`town_hourglass`); the mandrake sprout has
+--     a plant picked for the last time bear once more, seven a day.
+--     `town.grown`, `town.growing`, `town.pest_at` and `town.pick` are written
+--     again for the hourglass's hours and the mandrake's encore; a plant with
+--     neither grows, sickens and is picked as it was.
+--   * The well. A flask of living water: a drink held out to a friend near,
+--     who takes it (thirty stamina to them, ten to its owner; a drinker once
+--     in a meal's hours: `town_drink_offer`, `town_drink_take`); a rain frog
+--     under whose rain an empty bucket in the hand fills by itself
+--     (`town_rain_fill`); a moon flask that keeps three bucketfuls of dew,
+--     rain or moon water, which poured into the well works three times as
+--     long (`town_moon`, `town_moon_keep`, `town_moon_pour`). `town.well_poured`
+--     is written again for one line: more of the same water never shortens
+--     what the well has.
+--   * The deck. An otter that drives a fish that got away back for one more
+--     fight, ten to a meal's hours; a rod of two lines (two baits, two fish
+--     fought at once and lost one at a time); a sky orb (a night, rain or a
+--     full moon over its owner's water for thirty minutes, once a day:
+--     `town_orb`); stardust bait, three a day, that only rare fish and better
+--     take. And the water grows wiser: a line taken up and dropped again more
+--     than three times in five minutes, and the rare fish are gone from that
+--     member's water for ten; a legend is landed in no less than two fights'
+--     time; from the fourth rank an uncommon fish and better pulls harder and
+--     is bigger. `town_cast` takes a fifth word (how the line is dropped: its
+--     four-word form is dropped, and a page from before is answered by the
+--     new one), and `town_strike`, `town_land` and `town.cast_line` are
+--     written again for these.
+--   * The forest. The squirrel fetches what lies on the ground from two tiles
+--     off for no stamina; the truffle piglet digs with no hoe and bruises
+--     nothing, one more a hole, ten holes a meal's hours; the firefly lantern
+--     shows what every place holds, and six secret places of the deep woods
+--     that take two games running; a sprite's treasure map, three a day
+--     (`town_map_use`, `town_map_dig`: where the chest lies is never kept and
+--     never told); the moss stag gathers from two tiles off. `town_wild`,
+--     `town_gather`, `town.wild_holds` and `town.gather` (two words more: its
+--     eleven-word form is dropped) are written again for these.
+--   * The insects. A drop of nectar brings an insect of that place and hour,
+--     ten a day (`town_nectar`), its owner's alone to net (`town_net_mine`);
+--     the butterfly-wing cloak leaves another of its kind following a catch
+--     for three seconds, and has the day-rare insects out for its wearer every
+--     day. `town_bugs`, `town_net` and `town.net` are written again for a line
+--     or two each. (The butterfly's halved distance, the wind net and the
+--     lulling flute are the page's own; the flute is counted by v152's
+--     `town_gift_use`.)
+--
+-- No table, and no column. No coins come of any of it: every new deed writes
+-- coins 0. What a gift gives more of is things, stamina between two members
+-- (the flask), growth and water.
+

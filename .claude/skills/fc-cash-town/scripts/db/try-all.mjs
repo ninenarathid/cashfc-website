@@ -31,7 +31,12 @@ const CODE = JSON.parse(readFileSync(here("catalog.json"), "utf8"));
 const settle = (v) => (Array.isArray(v) ? v.map(settle) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, settle(v[k])])) : v);
 const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 const param = (v) => (v === null ? null : typeof v === "object" ? JSON.stringify(v) : v);
-const FILES = [["shared", read("v153.shared.sql")], ...LINES.map((l) => [l, read(`v153.${l}.sql`)])];
+// (SUB=<line>=<file>: that line's SQL read from another file, a broken copy say; CASES=<line>: that line's rule cases alone;
+//  DRAFT=<file>: the whole draft as one file in the parts' place, to prove the file put together and not only its parts)
+const SUB = (process.env.SUB ?? "").split("=");
+const part = (l) => (SUB[0] === l ? lf(readFileSync(SUB.slice(1).join("="), "utf8")) : read(`v153.${l}.sql`));
+const FILES = process.env.DRAFT ? [["draft", lf(readFileSync(process.env.DRAFT, "utf8"))]] : [["shared", part("shared")], ...LINES.map((l) => [l, part(l)])];
+const CASES = process.env.CASES ?? "";
 // (in any case: a function written again from the database's own wording has its head in capitals)
 const madeIn = (sql) => [...new Set([...sql.matchAll(/create or replace function ((?:public|town)\.[a-z0-9_]+)\s*\(/gi)].map((m) => m[1].toLowerCase()))];
 
@@ -103,6 +108,7 @@ const ask = async (title, vectors, CALL) => {
   for (const [fn, r] of tally) t.check(`${fn}: ${r.n} cases`, r.bad === 0, r.bad ? `${r.bad} differ; the first: ${JSON.stringify(r.first).slice(0, 2000)}` : "");
 };
 for (const l of LINES) {
+  if (CASES && CASES !== l) continue;
   if (!existsSync(here(`vectors-gifts-${l}.json`))) { console.log(`  (no vectors-gifts-${l}.json)`); continue; }
   await ask(`${l}'s rule cases`, JSON.parse(readFileSync(here(`vectors-gifts-${l}.json`), "utf8")), existsSync(db(`v153.${l}.calls.json`)) ? JSON.parse(readFileSync(db(`v153.${l}.calls.json`), "utf8")) : {});
 }
@@ -117,7 +123,7 @@ const OLD = {
   tend: "town.tend($1::text, $2::jsonb, $3::jsonb, $4::int, $5::int, $6::jsonb, $7::text, $8::bigint)",
   ...(existsSync(db("v153.old.calls.json")) ? JSON.parse(readFileSync(db("v153.old.calls.json"), "utf8")) : {}),
 };
-if (existsSync(here("vectors-gifts.json"))) await ask("the older cases of the gifts", JSON.parse(readFileSync(here("vectors-gifts.json"), "utf8")).filter((v) => v.fn !== "fam_by"), OLD);
+if (existsSync(here("vectors-gifts.json")) && (!CASES || CASES === "shared")) await ask("the older cases of the gifts", JSON.parse(readFileSync(here("vectors-gifts.json"), "utf8")).filter((v) => v.fn !== "fam_by"), OLD);
 
 if (process.env.SCENES !== "0") for (const l of ["shared", ...LINES]) {
   if (process.env.ONLY && process.env.ONLY !== l) continue;
