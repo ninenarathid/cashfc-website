@@ -399,11 +399,11 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * places, the squirrel's and the stag's reach and the treasure hunt (`forest`); twice as many insects, the nectar and
  * the pair (`insects`); the pair, the orb, the stardust bait, the wary water and a legend's two bouts (`fishing`); and
  * what fae dust sprinkled on somebody else's plant is worth on the helpers' line (`work`).
+ *
+ * v154 (ran 2026-10-07, about 10:32) wrote one over: the squirrel's count, twenty fetches to a meal's hours
+ * (`gifts.uses.famSquirrel`), nothing else of the row.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // the squirrel's count: twenty fetches to a meal's hours (`gifts.uses.famSquirrel`)
-  v154: { keys: [], over: ["gifts"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
