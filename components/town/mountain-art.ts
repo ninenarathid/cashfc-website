@@ -233,6 +233,10 @@ export class MountainArt {
       /** The places `&townAt=` knows, and going to one now. */
       places: () => Object.keys(this.places()),
       go: (name: string) => this.go(name),
+      /** Where things are, for whoever checks: a cave floor's ladders today, the mountain's own, the bridge, the blacksmith. */
+      spots: (n: number) => caveSpots(n),
+      rocks: (n: number) => caveRocks(n),
+      world: () => ({ mountain: MOUNTAIN, at: MOUNTAIN_AT, cave: CAVE, bridge: { foot: BRIDGE.foot, tiles: BRIDGE.tiles }, smith: SMITH }),
       setTreeLook, setTreeLooks, setRockStands, setCaveRockStands, setCaveLight, setTorches, setKnownWhole, setSample, registerTap,
     };
   }
