@@ -152,6 +152,10 @@ const FOREST = [
 // mouth and the lookout: each was drawn again with something tall beside it, a standing stone and a flag pole, which
 // keeps the rest at the dolls' scale. The first of each is kept as <sheet>.first.png.)
 const ROCKS = ["scene-rocks", ["menhir", "mrock0", "mrock1", "mrock2", "mcrystal"]];
+// (a mine's lift, a torch set down, and the rubble a broken rock leaves: the cave's, and the rubble the mountain's too)
+const MINE = ["scene-cave-b", ["lift", "torch", "rubble"]];
+// (the forest camp's own sheet: a fire's stones and the logs to sit on, for the camp in the foot yard and for a resting floor's fire)
+const CAMP = ["scene-forest-b", ["log", "stump", "boulder", "campfire", "logseat", "tent"], undefined, undefined, [10.5, 13.5]];
 const MOUNTAIN = [
   ["scene-mountain-a", ["mt1_0", "mt1_1", "mt1_2", "mt1_3"]],
   ["scene-mountain-b", ["mt2_0", "mt2_1", "mt2_2", "mt2_3"]],
@@ -159,14 +163,17 @@ const MOUNTAIN = [
   ["scene-mountain-d", ["ancient"], "whole"],
   ["scene-mountain-e", ["mouth", "lookout", "msign", "flagpole"]],
   ROCKS,
+  MINE,
   ["scene-peaks", ["peak1", "peak2"]],
-  ["scene-forest-b", ["log", "stump", "boulder", "campfire", "logseat", "tent"], undefined, undefined, [10.5, 13.5]],
+  CAMP,
 ];
-// The cave under it: the ladder one comes down by with its lamp, the way down, a stalagmite and a mine cart, and the
-// same rocks.
+// The cave under it: the ladder one comes down by with its lamp, the way down, a stalagmite and a mine cart, the same
+// rocks, and what a resting floor has (every tenth floor: a lift, and a fire with logs to sit by).
 const CAVE = [
   ["scene-cave-a", ["ladderUp", "ladderDown", "stalagmite", "minecart"]],
   ROCKS,
+  MINE,
+  CAMP,
 ];
 // The cooking screen's own (the owner, 2026-10-06: "UI แบบใหม่ gen ภาพมาใหม่ได้ เพื่อให้มี theme เหมือนทำอาหาร"): what the
 // cookware stands on while things are put in it, seen from the front, a scene each filling its canvas. A stove's

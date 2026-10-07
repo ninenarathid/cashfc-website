@@ -409,7 +409,7 @@ export function setBridge(spans: number, open = true) {
 export const SMITH = {
   id: "smith" as const,
   stand: { x: 50.2, y: 24.1 }, at: { x: 51.1, y: 23.7 }, board: { x: 51.97, y: 22.6 }, sign: { x: 50.54, y: 23.26 },
-  fire: [-22, 22] as [number, number],
+  fire: [-19, 30] as [number, number],
   tiles: (PREVIEW ? [[50, 24], [49, 24], [50, 23], [51, 23], [51, 22]] : []) as Array<[number, number]>,
 };
 const smithAt = new Set(SMITH.tiles.map(([x, y]) => `${x},${y}`));
