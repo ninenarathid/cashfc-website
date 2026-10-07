@@ -3832,12 +3832,12 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "RedMage": "expert",
-   "Reaper": "legendary",
    "Summoner": "legendary",
-   "Bard": "expert",
-   "Gunbreaker": "expert",
+   "RedMage": "expert",
    "DarkKnight": "master",
+   "Gunbreaker": "expert",
+   "Reaper": "legendary",
+   "Bard": "expert",
    "Dancer": "expert",
    "Machinist": "legendary"
   },
