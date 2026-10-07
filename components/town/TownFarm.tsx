@@ -12,7 +12,7 @@ import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
-import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
 import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
@@ -344,9 +344,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
               const hop = Math.abs(Math.sin(t / 95)) * 3.5 * s;
               ctx.fillStyle = "rgba(0,0,0,0.2)";
               ctx.beginPath();
-              ctx.ellipse(c.x, c.y + 4 * s, 7 * s, 3 * s, 0, 0, Math.PI * 2);
+              ctx.ellipse(c.x, c.y + 4 * s, 5 * s, 2.2 * s, 0, 0, Math.PI * 2);
               ctx.fill();
-              blit("famGnome", c, hop, 1.5 * s, !right);
+              // (as large as it is at its member's heels)
+              blit("famGnome", c, hop, petScale("famGnome") * s, !right);
               // its can, held out before it and tipped over the plot
               const cell = ICON_ATLAS.icons.can;
               if (cell) {

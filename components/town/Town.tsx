@@ -66,7 +66,7 @@ import { isRod, type RodId } from "@/lib/town/gear";
 import { FishSfx, heard } from "@/lib/town/sfx";
 import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
-import TownIcon, { ICON_ATLAS, drawIcon, type IconName } from "./TownIcon";
+import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
 
 /**
  * Cash Town's page: the map, who is here, the microphone and the wardrobe.
@@ -2409,7 +2409,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
-    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = 1.5 * sc, flies = pet.name === "famButterfly", still = reducedRef.current;
+    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = petScale(pet.name) * sc, flies = pet.name === "famButterfly", still = reducedRef.current;
     // ── gifts: fishing ── in the water (the otter by a float): no shadow, a ring going out on the water about it, and
     // only what is above the water drawn, rocking a little
     if (pet.swims) {
@@ -2430,10 +2430,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const bob = still ? 0 : flies ? Math.sin(now / 260) * 3 * sc : pet.moving ? Math.abs(Math.sin(now / 95)) * 3.5 * sc : 0;
     // ── gifts: well ── (a frog hops: long hops as it follows, a small glad one in the rain; components/town/frog-art)
     const frog = pet.name === "famFrog", hop = frog && !still ? frogHop(now, pet.moving, SKIES.raining()) * sc : null;
-    const lift = (flies ? 18 * sc : 0) + (hop ?? bob);
+    const lift = (flies ? 14 * sc : 0) + (hop ?? bob);
     ctx.fillStyle = "rgba(0,0,0,0.2)";
     ctx.beginPath();
-    ctx.ellipse(c.x, c.y, (flies ? 5 : 7) * sc, (flies ? 2 : 3) * sc, 0, 0, Math.PI * 2);
+    // (its shadow as wide as it is drawn)
+    ctx.ellipse(c.x, c.y, w * k * (flies ? 0.22 : 0.32), w * k * (flies ? 0.09 : 0.13), 0, 0, Math.PI * 2);
     ctx.fill();
     ctx.save();
     ctx.imageSmoothingEnabled = false;

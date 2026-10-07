@@ -39,6 +39,20 @@ export default function TownIcon({ name, size = 20, className = "" }: {
 }
 
 /** Draw an icon on a canvas, centred on (cx, cy), its longer side `size` canvas units. */
+/**
+ * How large a familiar is drawn on the map: so many screen pixels to one of its picture's, before the map's own
+ * zoom. The pictures are not of one size (a squirrel is 24 by 26 of its pixels, a stag 29 by 47), and drawn each at
+ * the same scale the later ones stood nearly as tall as their member. So each is brought to much the same size, by
+ * the ground it covers: about `PET_SIZE` pixels a side, a small thing at the heels (the owner, 2026-10-07: smaller).
+ * A stag that is ridden is the map's own to size.
+ */
+export const PET_SIZE = 25;
+export function petScale(name: IconName): number {
+  const cell = ICON_ATLAS.icons[name];
+  if (!cell) return 1;
+  return Math.max(0.6, Math.min(1.25, PET_SIZE / Math.sqrt(cell[2] * cell[3])));
+}
+
 export function drawIcon(ctx: CanvasRenderingContext2D, img: HTMLImageElement | null, name: IconName, cx: number, cy: number, size: number) {
   if (!img?.complete || !img.naturalWidth) return false;
   const [x, y, w, h] = ICON_ATLAS.icons[name];
