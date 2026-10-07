@@ -152,7 +152,7 @@ describe("the garden gnome: a whole bed of its member's watered at once", () => 
     expect(done(gnomeWater(0, bed(), purseWith(GNOME), "me", NOON, "me")).watered.length).toBe(5);
   });
 
-  it("a bed rests an hour between two of its rounds, whatever has dried meanwhile; another bed of mine does not wait for it", () => {
+  it("a bed rests an hour and a half between two of its rounds, whatever has dried meanwhile; another bed of mine does not wait for it", () => {
     const first = done(gnomeWater(0, bed(), me, "me", NOON, "me")), after = { ...bed(), ...first.plots };
     // (the plant watered by hand fifty minutes before the round is dry again ten minutes after it: the gnome does not come back for it)
     const later = NOON + 55 * 60_000;
@@ -163,9 +163,9 @@ describe("the garden gnome: a whole bed of its member's watered at once", () => 
     const other = done(gnomeWater(1, bed(), first.purse, "me", later, "me"));
     expect(other.purse.gnomed).toEqual({ "0": NOON, "1": later });
     // the hour gone by, it goes again, to whatever is dry by then; and a round that no longer counts is forgotten
-    const again = done(gnomeWater(0, after, other.purse, "me", NOON + 60 * 60_000, "me"));
+    const again = done(gnomeWater(0, after, other.purse, "me", NOON + 90 * 60_000, "me"));
     expect(again.watered).toEqual([k(0, 0), k(1, 0), k(2, 0), k(1, 1), k(6, 1), k(5, 6)]);
-    expect(again.purse.gnomed).toEqual({ "0": NOON + 60 * 60_000, "1": later });
+    expect(again.purse.gnomed).toEqual({ "0": NOON + 90 * 60_000, "1": later });
     expect(done(gnomeWater(0, after, other.purse, "me", NOON + 3 * HOUR, "me")).purse.gnomed).toEqual({ "0": NOON + 3 * HOUR });
   });
 

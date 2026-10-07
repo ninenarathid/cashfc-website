@@ -118,7 +118,7 @@ describe("the gifts of the lines of work", () => {
     expect(giftsOf(p).charms).toEqual(["charmHoe"]);
     p = done(wearFamiliar(p, "famGnome")).purse;
     expect(familiarOf(p)).toBe("famGnome");
-    expect(famBy(p, "famGnome")).toBe(60);
+    expect(famBy(p, "famGnome")).toBe(90);
     expect(famBy(p, "famSquirrel", 0)).toBe(0);
     p = done(wearFamiliar(p, null)).purse;
     expect(familiarOf(p)).toBeNull();
@@ -209,7 +209,7 @@ describe("the gifts of the lines of work", () => {
     const row = giftsRow();
     expect(row.slots).toBe(2);
     expect(Object.keys(row.gifts).sort()).toEqual([...CHARM_IDS, ...FAMILIAR_IDS, ...THING_IDS].sort());
-    expect(row.gifts.famGnome).toEqual({ kind: "familiar", line: "farming", rank: 2, by: 60 });
+    expect(row.gifts.famGnome).toEqual({ kind: "familiar", line: "farming", rank: 2, by: 90 });
     // (the float and the net do something that is no number: theirs is 1, which does nothing where a rule multiplies by it)
     expect(row.gifts.charmFloat).toEqual({ kind: "charm", line: "fishing", rank: 1, by: 1 });
     expect(row.gifts.charmNet.by).toBe(1);

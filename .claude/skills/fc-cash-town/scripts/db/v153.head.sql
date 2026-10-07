@@ -48,7 +48,7 @@
 --     seed pouch's (seven plots for five seeds) and the crescent sickle's (one
 --     more from a plant cut well), one deed with each plot's own line written
 --     down (`town_row`); the garden gnome waters its member's whole bed, a bed
---     once an hour (`town_gnome`; its weeding, and that weeding's count, are
+--     once in an hour and a half (`town_gnome`; its weeding, and that weeding's count, are
 --     gone); the hourglass of seasons makes one bed grow three times as fast
 --     for three hours, once a day (`town_hourglass`); the mandrake sprout has
 --     a plant picked for the last time bear once more, seven a day.

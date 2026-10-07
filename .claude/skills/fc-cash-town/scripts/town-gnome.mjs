@@ -86,10 +86,11 @@ try {
   await until("the second round is over", async () => (await X.evaluate(`${F}.gnomeOut()`)) === null, 9000, 100);
   await X.send("Emulation.setDeviceMetricsOverride", { width: 1280, height: 860, deviceScaleFactor: 1, mobile: false });
   await warp(X, 153, 15);
-  await X.evaluate(`${T}.skipHours(1.02)`);
-  await until("an hour on, the first bed is offered again", () => has(X, BTN), 8000);
+  // (a bed rests ninety minutes since 2026-10-07; sixty before)
+  await X.evaluate(`${T}.skipHours(1.52)`);
+  await until("its rest over, the first bed is offered again", () => has(X, BTN), 8000);
   const dry = await X.evaluate(`${F}.gnome().length`);
-  ok("an hour on the bed is dry, and the gnome goes again", dry === reach.length || dry > 20, { dry, was: reach.length });
+  ok("an hour and a half on the bed is dry, and the gnome goes again", dry === reach.length || dry > 20, { dry, was: reach.length });
   // in the rain everything is wet: nothing to send it for
   await X.goto(`${BASE}/town?townTest=G&townRoom=check&townHour=10&townWeather=rain`);
   await until("ready in the rain", async () => (await status(X)) === "ready", 240000);

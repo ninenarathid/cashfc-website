@@ -128,9 +128,9 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, gi
   t.check("…and it is its owner's tending of the bed", Number((await one(`select tended from public.town_beds where bed = 3`)).tended) >= Number(tendedWas));
   was = await kept();
   did = await call(U.m2, "town_gnome", ...xy(D[3]));
-  t.check("a bed rests an hour between two of its rounds: sent again at once, refused, and nothing is done", did?.ok === false && did.why === "wet" && same(await kept(), was), did);
-  // (the hour gone by: the round as if it had been an hour and a minute ago, and its water with it)
-  await patch(U.m2, { gnomed: { 3: now - 61 * 60_000, 9: now - 5 * 3_600_000 } });
+  t.check("a bed rests between two of its rounds: sent again at once, refused, and nothing is done", did?.ok === false && did.why === "wet" && same(await kept(), was), did);
+  // (its rest gone by: the round as if it had been a minute longer ago than a bed rests, and its water with it)
+  await patch(U.m2, { gnomed: { 3: now - (CODE.gifts.gifts.famGnome.by + 1) * 60_000, 9: now - 5 * 3_600_000 } });
   await t.sql(`update public.town_plots set plant = plant || jsonb_build_object('watered', $1::bigint) where bed = 3 and plant is not null and (plant->>'watered')::bigint > $1::bigint`, [now - 61 * 60_000]);
   did = await call(U.m2, "town_gnome", ...xy(first));
   p2 = await purseOf(U.m2);

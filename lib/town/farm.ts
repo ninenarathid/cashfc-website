@@ -674,7 +674,7 @@ export function rowFor(at: string, keys: readonly string[], plots: Readonly<Reco
  * **The garden gnome** (a familiar, following; the owner, 2026-10-07, in place of the weeding it began with): it goes
  * down a whole bed of its member's with a can of its own and waters every plant there that could do with water, at
  * once: no water out of the member's can, no stamina, and what a plain can would have added to each (no better
- * can's more, no green fingers: the gnome's can is the gnome's). A bed rests an hour between two of its rounds
+ * can's more, no green fingers: the gnome's can is the gnome's). A bed rests an hour and a half (the gift's number, in minutes) between two of its rounds
  * (`numberOf("famGnome")` minutes: kept in the purse, `gnomed`), so it is best sent when the whole bed is dry.
  * Its member's own beds only. Rain waters everything already, and a wet plot takes none, as ever.
  *
