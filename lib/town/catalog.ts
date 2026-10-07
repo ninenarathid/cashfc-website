@@ -402,11 +402,12 @@ export type Catalog = ReturnType<typeof catalogOf>;
  *
  * v154 (ran 2026-10-07, about 10:32) wrote one over: the squirrel's count, twenty fetches to a meal's hours
  * (`gifts.uses.famSquirrel`), nothing else of the row.
+ *
+ * v156 (ran 2026-10-07, about 11:41) wrote one over: the fae anklet's gap, forty-five seconds between two waterings
+ * of a run where it was eight (`farming.helping.anklet.gap`), nothing else of the row. (v155, between them, is the
+ * market's knobs and no row of the catalog.)
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // the fae anklet's gap: forty-five seconds, where it was eight (`farming.helping.anklet.gap`)
-  v156: { keys: [], over: ["farming"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
