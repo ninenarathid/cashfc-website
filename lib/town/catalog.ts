@@ -391,12 +391,16 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v152 (ran 2026-10-07, about 01:58) wrote three over: the three familiars of the lines' second rank, what of a gift
  * is counted and the first charms' numbers as they were laid out anew (`gifts`); twice the uncle's two baits, a member's
  * share and his stock (`goods`: worm and dough, nothing else); and half the stamina a common fish's fight takes (`fish`).
+ *
+ * v153 (ran 2026-10-07, about 10:08) wrote seven over, for the gifts of the lines' ranks to the sixth and three things
+ * the owner asked for as he tried them: every gift there is, what of each is counted, and how much harder a line's
+ * good things are from its fourth rank (`gifts`); a well of a hundred bucketfuls, a can's filling of two, and the
+ * numbers of the farm's and the helpers' gifts (`farming`); the flask, the frog and the moon flask (`well`); the secret
+ * places, the squirrel's and the stag's reach and the treasure hunt (`forest`); twice as many insects, the nectar and
+ * the pair (`insects`); the pair, the orb, the stardust bait, the wary water and a legend's two bouts (`fishing`); and
+ * what fae dust sprinkled on somebody else's plant is worth on the helpers' line (`work`).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  // (`work`: what fae dust sprinkled on somebody else's plant is worth on the helpers' line)
-  v153: { keys: [], over: ["gifts", "farming", "well", "forest", "insects", "fishing", "work"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

@@ -22,7 +22,7 @@ import { supabaseLike, migration } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
 
 /** The last file of the town's that has run (town-bench.mjs has the same number). */
-export const RAN = 152;
+export const RAN = 153;
 const here = (name) => new URL(`./${name}`, import.meta.url);
 const SNAP = here(`snap-v${RAN}.tar`);
 const extra = `${KUDOS}
