@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-07",
+   "type": "parse_up",
+   "id": 58199536,
+   "name": "Areeya Lovekin",
+   "text": "set a new best parse: 63 on Valigarmanda as Summoner"
+  },
+  {
+   "date": "2026-10-07",
    "type": "level_100",
    "id": 5294880,
    "name": "Mithra Muses",
@@ -1392,13 +1399,6 @@
    "id": 60852230,
    "name": "Lucienvt Yenslayer",
    "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-09-26",
-   "type": "level_100",
-   "id": 25506828,
-   "name": "Kururuki Tzuzaku",
-   "text": "reached level 100 on Paladin!"
   }
  ]
 }

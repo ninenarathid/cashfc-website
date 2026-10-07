@@ -9547,8 +9547,8 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 71,
-    "kills": 11,
-    "job": "Sage",
+    "kills": 14,
+    "job": "Monk",
     "cleared": true,
     "job_kills": {
      "Monk": {
@@ -18426,7 +18426,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 96,
-    "kills": 62,
+    "kills": 71,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -28697,7 +28697,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 27,
+    "pulls": 13,
     "last": "2026-09-29",
     "last_ts": 1790690223
    }
@@ -33611,7 +33611,7 @@
     "state": "learning",
     "pct": 22.88,
     "phase": 3,
-    "pulls": 76,
+    "pulls": 57,
     "last": "2026-09-30",
     "last_ts": 1790788041
    }
@@ -65634,8 +65634,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 43,
-    "kills": 30,
+    "best": 77,
+    "kills": 42,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -80512,9 +80512,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 44,
-    "kills": 8,
-    "job": "Pictomancer",
+    "best": 63,
+    "kills": 20,
+    "job": "Summoner",
     "cleared": true,
     "job_kills": {
      "Viper": {
