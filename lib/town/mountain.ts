@@ -125,7 +125,7 @@ export function mountainGround(u: number, v: number): MountainGround {
   // the upper terrace: stony, with grass between the stones
   if (t === 2) return patch(u, v, 3) > 0.56 ? "grass" : "rock";
   // the summit: snow, bare rock showing through it here and there and about the lookout
-  return patch(u, v, 4) > 0.72 || inBox(u, v, LOOKOUT, 1.2) ? "rock" : "snow";
+  return patch(u, v, 4) > 0.72 || Math.hypot(u - LOOKOUT.u - LOOKOUT.w / 2, v - LOOKOUT.v - LOOKOUT.h / 2) < 3.3 + 0.4 * Math.sin(Math.atan2(v - LOOKOUT.v, u - LOOKOUT.u) * 5) ? "rock" : "snow";
 }
 
 /**

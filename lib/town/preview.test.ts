@@ -347,10 +347,11 @@ describe("what is to come, in next dev only", () => {
     const foot = W.groundTone("cliff", top + CLIFF - 0.1, M.y + 20.5)![0], mid = W.groundTone("cliff", top + CLIFF / 2, M.y + 20.5)![0], lip = W.groundTone("cliff", top + 0.1, M.y + 20.5)![0];
     expect(foot).toBeLessThan(mid);
     expect(mid).toBeLessThan(lip);
-    // a stair has light treads and dark risers, three steps to a tile
-    const steps = Array.from({ length: 30 }, (_, i) => W.groundTone("stair", M.x + 54 + i / 30, M.y + 14)![0]);
-    expect(new Set(steps).size).toBe(2);
-    expect(steps.filter((k, i) => i > 0 && k !== steps[i - 1]).length).toBeGreaterThanOrEqual(5);
+    // a stair has light treads and dark risers, two steps to a tile
+    const steps = Array.from({ length: 40 }, (_, i) => W.groundTone("stair", M.x + 54 + i / 40, M.y + 14)![0]);
+    expect(Math.min(...steps)).toBeLessThan(0.6);
+    expect(Math.max(...steps)).toBeGreaterThan(1.1);
+    expect(steps.filter((k, i) => i > 0 && k < 0.6 && steps[i - 1] > 1).length).toBe(2);
     // bare rock and snow are as their textures are
     expect(W.groundTone("rock", M.x + 20, M.y + 20)).toBeNull();
     // the cave's earth: as its texture is on the first ten floors, colder on the next ten, redder below
