@@ -81,9 +81,10 @@ export function vectorsHelpers(): Vector[] {
     { had: ["charmGloves", "charmAnklet"], charms: [] }, { had: ["charmAnklet", "charmHoe"], charms: ["charmHoe", "charmAnklet"] }, undefined,
   ];
   /** A run as a purse may keep it: none, short, at the gap's end, past it, near twenty, long, and kept wrongly. */
-  const runs = (): unknown => c.of<unknown>([undefined, undefined, { n: 1, at: NOW - 1000 }, { n: c.int(2, 17), at: NOW - c.int(0, 8000) }, { n: 5, at: NOW - 8000 }, { n: 5, at: NOW - 8001 }, { n: 18, at: NOW - 500 },
-    { n: 19, at: NOW - 500 }, { n: 20, at: NOW }, { n: 31, at: NOW - 7999 }, { n: 12, at: NOW - 60000 }, { n: 9999, at: NOW - 1 }, { n: 3.7, at: NOW - 2 }, { n: 0, at: NOW }, { n: -2, at: NOW }, { n: 4, at: NOW + 500 },
-    { n: "4", at: NOW }, { n: 4 }, "x", null, [3, NOW], { n: 6, at: NOW - 12000 }, { n: 6, at: NOW - 19000 }, { n: 6, at: NOW - 21000 }]);
+  const G = HELPING.anklet.gap * 1000;
+  const runs = (): unknown => c.of<unknown>([undefined, undefined, { n: 1, at: NOW - 1000 }, { n: c.int(2, 17), at: NOW - c.int(0, G) }, { n: 5, at: NOW - G }, { n: 5, at: NOW - G - 1 }, { n: 18, at: NOW - 500 },
+    { n: 19, at: NOW - 500 }, { n: 20, at: NOW }, { n: 31, at: NOW - G + 1 }, { n: 12, at: NOW - 5 * G }, { n: 9999, at: NOW - 1 }, { n: 3.7, at: NOW - 2 }, { n: 0, at: NOW }, { n: -2, at: NOW }, { n: 4, at: NOW + 500 },
+    { n: "4", at: NOW }, { n: 4 }, "x", null, [3, NOW], { n: 6, at: NOW - G - 4000 }, { n: 6, at: NOW - G - 11000 }, { n: 6, at: NOW - G - 13000 }]);
   const plant = (by: string, over: Partial<Plant> = {}): Plant => ({ by, crop: c.of(CROP_IDS), sown: NOW - c.int(2, 30) * HOUR - c.int(0, 3_599_999), boost: c.maybe(0.3) ? c.int(1, 4) * 1_800_000 : 0, watered: 0, fed: 0, guard: NOW + 999 * HOUR, cured: 0, picked: 0, pickedAt: 0, ...over });
 
   // whose a plot's work is

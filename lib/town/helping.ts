@@ -15,7 +15,7 @@ import { WATERS, type Nature } from "./waters";
  * 1. **The gardener's gloves** (a charm): work for somebody else takes no stamina at all, and a row of theirs is
  *    watered at one long pour (lib/town/farm's pourFor and pourRow; the game is lib/town/longpour).
  * 2. **The garden fae anklet** (a charm): another's plant its wearer waters grows twice as much from that watering;
- *    twenty watered in a row with no more than eight seconds between two, and it is three times (`chime`, below: the
+ *    twenty watered in a row with no more than forty-five seconds between two, and it is three times (`chime`, below: the
  *    run is kept in the purse). A tune that climbs a note a plant tells the run (the page's). With whatever else
  *    makes a watering the more (a hot afternoon, the well's water) the whole is never more than three times what
  *    the watering added (`pouredAs`).
@@ -48,7 +48,13 @@ import { WATERS, type Nature } from "./waters";
  * lib/town/farm under "the gifts of the helpers' line".
  *
  * Pure. The database does the same (v153). **Every number here is mine, not the owner's**, but the ones his words
- * for each gift say (twice and three times, twenty in a row, eight seconds).
+ * for each gift say (twice and three times, twenty in a row, forty-five seconds).
+ *
+ * The anklet's gap was eight seconds when it went out, the morning of 2026-10-07, and the owner saw the same morning
+ * that its twenty could not be reached: "เราจะ stack ถึง 20 ได้ยังไง ในเมื่อบัวรดน้ำมันเก็บได้แค่ 8". A can holds eight
+ * waterings (twelve, eighteen), and the well is six to seventeen seconds' walk there and back from a bed. So the gap is
+ * long enough to fill the can and come back (forty-five is mine; "แก้เลย" was his word on it): a plain can filled
+ * three times reaches the twentieth plant.
  */
 export const HELPING = {
   /** How many times what a watering added it may come to at the most, whatever makes it the more: the gifts of this line, the heat, the well's water. */
@@ -58,7 +64,7 @@ export const HELPING = {
    * times over a watering is from then on (below that it is the gift's own number), and the most seconds of a long
    * pour that are not counted against the run (a row is a few seconds in the pouring: lib/town/longpour).
    */
-  anklet: { run: 20, gap: 8, top: 3, long: LONG.longest },
+  anklet: { run: 20, gap: 45, top: 3, long: LONG.longest },
   /**
    * The bell: the seconds two members' waterings in a bed may be apart, the stamina a plant of them gives back, and
    * how many plants a day give any back to one member (the doubling itself has no such bound: only the stamina, of

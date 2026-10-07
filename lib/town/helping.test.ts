@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FARMING, dust, guardBy, hardIn, pestAt, pourFor, pourRow, see, tend, theirsAt, tiredAt, type Bed, type Plant, type Plot } from "./farm";
+import { FARMING, WATER, dust, guardBy, hardIn, pestAt, pourFor, pourRow, see, tend, theirsAt, tiredAt, type Bed, type Plant, type Plot } from "./farm";
 import { USES, giftOf, harderAt, numberOf, usesLeft } from "./gifts";
 import { HEAT } from "./heat";
 import { HELPING, aided, aidsOf, belled, bridged, chime, diesAt, dustUntil, pouredAs, ring, runOf, share, timesAt } from "./helping";
@@ -126,12 +126,24 @@ describe("the garden fae anklet: another's plant its wearer waters grows the mor
     expect([bare.times, bare.purse.chime]).toEqual([undefined, undefined]);
   });
 
-  it("the run grows while no more than eight seconds lie between two waterings, and begins anew after", () => {
+  it("the run grows while no more than forty-five seconds lie between two waterings, and begins anew after", () => {
+    // (eight seconds when it went out: too few to fill a can of eight waterings at the well and come back; the owner, 2026-10-07)
+    expect(HELPING.anklet.gap).toBe(45);
+    const G = HELPING.anklet.gap * 1000;
     let p = worn;
-    for (let i = 0; i < 5; i++) p = chime(p, NOON + i * 8000).purse;
-    expect(p.chime).toEqual({ n: 5, at: NOON + 32000 });
-    expect([runOf(p, NOON + 40000), runOf(p, NOON + 40001), runOf(p, NOON + 31999)]).toEqual([5, 0, 0]);
-    expect(chime(p, NOON + 40001).purse.chime).toEqual({ n: 1, at: NOON + 40001 });
+    for (let i = 0; i < 5; i++) p = chime(p, NOON + i * G).purse;
+    expect(p.chime).toEqual({ n: 5, at: NOON + 4 * G });
+    expect([runOf(p, NOON + 5 * G), runOf(p, NOON + 5 * G + 1), runOf(p, NOON + 4 * G - 1)]).toEqual([5, 0, 0]);
+    expect(chime(p, NOON + 5 * G + 1).purse.chime).toEqual({ n: 1, at: NOON + 5 * G + 1 });
+  });
+
+  it("a plain can of eight, filled at the well and brought back three times over, reaches the twentieth plant", () => {
+    // (a can's worth a second apart, then seventeen seconds to the well and back from the farthest bed, and a few more)
+    let p = worn, at = NOON; const times: number[] = [];
+    for (let i = 0; i < 20; i++) { at += i > 0 && i % WATER.cans.can! === 0 ? 25_000 : 1000; const c = chime(p, at); times.push(c.times); p = c.purse; }
+    expect(WATER.cans.can).toBe(8);
+    expect(p.chime).toEqual({ n: 20, at });
+    expect(times).toEqual([...Array<number>(19).fill(2), 3]);
   });
 
   it("twenty in a row, and it is three times from then on", () => {
@@ -151,8 +163,8 @@ describe("the garden fae anklet: another's plant its wearer waters grows the mor
     const full = row(() => sown());
     const first = done(pourRow(MID, KEYS, full, THEIRS, 3, 0, worn, "me", NOON, all(KEYS), 4));
     expect([first.each.map((e) => e.times), first.purse.chime]).toEqual([Array<number>(7).fill(2), { n: 7, at: NOON }]);
-    // the next row eleven seconds later, four of them in the pouring: the run goes on
-    const later = NOON + 11000, second = done(pourRow(MID, KEYS, full, THEIRS, 3, 0, first.purse, "me", later, all(KEYS), 4));
+    // the next row three seconds past the gap later, four of them in the pouring: the run goes on
+    const later = NOON + HELPING.anklet.gap * 1000 + 3000, second = done(pourRow(MID, KEYS, full, THEIRS, 3, 0, first.purse, "me", later, all(KEYS), 4));
     expect(second.purse.chime).toEqual({ n: 14, at: later });
     // …with nothing said of the pouring it had been too long, and begins anew
     expect(done(pourRow(MID, KEYS, full, THEIRS, 3, 0, first.purse, "me", later, all(KEYS))).purse.chime).toEqual({ n: 7, at: later });

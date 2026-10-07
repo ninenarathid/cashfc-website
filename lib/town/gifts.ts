@@ -82,7 +82,7 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "ตั้งเตาได้ทุกที่ และถ้าออกมาเป็นอาหารแปลก ได้วัตถุดิบคืนทั้งหมด วันละ 3 ครั้ง", en: "A stove anywhere; and an odd dish gives every ingredient back, three times a day" } },
   // the helpers
   { id: "charmAnklet", kind: "charm", line: "helpers", rank: 2, by: 2, name: { th: "กระพรวนภูตสวน", en: "Garden fae anklet" },
-    does: { th: "ต้นของคนอื่นที่เรารดโตเพิ่ม 2 เท่าทันที รดต่อเนื่องครบ 20 ต้นเป็น 3 เท่า (เว้นเกิน 8 วินาทีนับใหม่)", en: "Another's plant you water grows twice as much at once; twenty in a row, three times (a gap over eight seconds begins again)" } },
+    does: { th: "ต้นของคนอื่นที่เรารดโตเพิ่ม 2 เท่าทันที รดต่อเนื่องครบ 20 ต้นเป็น 3 เท่า (เว้นเกิน 45 วินาทีนับใหม่ ไปเติมน้ำที่บ่อแล้วกลับมารดต่อได้)", en: "Another's plant you water grows twice as much at once; twenty in a row, three times (a gap over forty-five seconds begins again: time enough to fill the can at the well)" } },
   { id: "charmBell", kind: "charm", line: "helpers", rank: 3, by: 2, name: { th: "ระฆังคู่หู", en: "Duet bell" },
     does: { th: "รดน้ำแปลงเดียวกับเพื่อนห่างกันไม่เกิน 10 วินาที การรดของทั้งคู่นับ 2 เท่า และได้แรงคืนต้นละ 2", en: "Water the same bed as a friend within ten seconds of each other: both waterings count double, and each gets two stamina back a plant" } },
   { id: "charmRing", kind: "charm", line: "helpers", rank: 4, by: 30, name: { th: "แหวนแบ่งแรง", en: "Ring of shared strength" },

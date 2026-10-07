@@ -15,7 +15,7 @@ import TownIcon, { type IconName } from "./TownIcon";
 
 /**
  * The anklet's run, while it lasts: a pip for each plant of it, up to the twenty that make the most of it, what a
- * watering is worth now, and how much of the eight seconds is left before it begins anew. It says nothing of how:
+ * watering is worth now, and how much of the gap's seconds is left before it begins anew. It says nothing of how:
  * the pips and the time say it.
  */
 export function AnkletRun({ keeper }: { keeper: Keeper }) {

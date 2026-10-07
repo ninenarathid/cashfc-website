@@ -68,13 +68,17 @@ try {
   ok("…a run is begun: shown as a pip and what a watering is worth, with a note going up from the plant", (await chip(X)).times === 2 && (await X.evaluate(`${F}.chimes()`)) === 1 && (await X.evaluate(`${F}.tune().join()`)) === "1", { chip: await chip(X), tune: await X.evaluate(`${F}.tune()`) });
   await X.shot(`${OUT}/anklet-first.png`);
   for (const x of [134, 135, 136]) await waterAt(X, x, 5);
-  ok("each plant watered within eight seconds is of the run, and the tune climbs a note a plant", (await chip(X))?.run === 4 && (await X.evaluate(`${F}.tune().join()`)) === "1,2,3,4" && (await X.evaluate(`document.querySelectorAll("[data-anklet-run] .grid > span.bg-\\\\[\\\\#cfe9ff\\\\]").length`)) === 4,
+  ok("each plant watered within the gap is of the run, and the tune climbs a note a plant", (await chip(X))?.run === 4 && (await X.evaluate(`${F}.tune().join()`)) === "1,2,3,4" && (await X.evaluate(`document.querySelectorAll("[data-anklet-run] .grid > span.bg-\\\\[\\\\#cfe9ff\\\\]").length`)) === 4,
     { chip: await chip(X), tune: await X.evaluate(`${F}.tune()`) });
   await X.shot(`${OUT}/anklet-run.png`);
   ok("…for no stamina (the gloves are on)", (await X.evaluate(`${T}.purse().stamina.left`)) === 99);
   // the gap
-  await until("the run is over once eight seconds have gone by", async () => (await chip(X)) === null, 12000, 200);
-  ok("more than eight seconds after the last plant the run is over, and is shown no more", (await X.evaluate(`${F}.run()`)) === 0);
+  // (forty-five seconds since 2026-10-07, where it was eight: long enough to fill the can at the well and come back)
+  await sleep(9000);
+  ok("nine seconds after the last plant the run is still on, and still shown (it was over at eight until 2026-10-07)", (await chip(X))?.run === 4 && (await X.evaluate(`${F}.run()`)) === 4, await chip(X));
+  await X.evaluate(`${T}.skipHours(40 / 3600)`);
+  await until("the run is over once forty-five seconds have gone by", async () => (await chip(X)) === null, 6000, 200);
+  ok("more than forty-five seconds after the last plant the run is over, and is shown no more", (await X.evaluate(`${F}.run()`)) === 0);
   await waterAt(X, 137, 5);
   ok("…and the next plant begins a new one, at the first note again", (await chip(X))?.run === 1 && (await X.evaluate(`${F}.tune().at(-1)`)) === 1 && (await boost(X, "137,5")) === 2 * ADDS, await chip(X));
 
