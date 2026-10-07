@@ -164,7 +164,7 @@ try {
   {
     // how it is used is said under what was caught (the owner, 2026-10-06: "พร้อมเขียนบอกวิธีใช้ตอนได้แมลงไปเลย"): for the two that eat pests, and no other
     const tip = await A.evaluate(`${B}.tip()`), said = await A.evaluate(`document.querySelector("[data-bug-tip]")?.innerText ?? null`);
-    ok("caught, the page says how a ladybird is used: let go on a plant that has a pest, it eats it about half the time, or flies off", got && /วิธีใช้/.test(tip ?? "") && /เต่าทอง/.test(tip) && /ต้นที่มีศัตรูพืช/.test(tip) && /ราวครึ่งหนึ่ง/.test(tip) && /บินหนี/.test(tip) && said === tip, { tip, said });
+    ok("caught, the page says how a ladybird is used: let go on a plant that has a pest, it eats it 50% of the time, or flies off", got && /วิธีใช้/.test(tip ?? "") && /เต่าทอง/.test(tip) && /ต้นที่มีศัตรูพืช/.test(tip) && /มีโอกาส 50%/.test(tip) && /บินหนี/.test(tip) && said === tip, { tip, said });
     await A.shot(`${OUT}/bugs-4a-how-to.png`);
   }
   {

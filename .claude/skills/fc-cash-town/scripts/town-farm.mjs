@@ -611,7 +611,7 @@ try {
     plot = (await X.evaluate(`${F}.plots()`))[PEST];
     ok("an archerfish rids it and covers nothing, as ever", (await seen(X, PEST)).pest === false && plot.plant.cured > 0 && plot.plant.guard === 0, plot);
     // the cure says what it does, in the bag
-    await X.evaluate(`${T}.grant("pestCure", 1)`);
+    await X.evaluate(`(${T}.grant("pestCure", 1), ${T}.grant("ladybird", 1), ${T}.grant("mantis", 1))`);
     await X.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า").click()`);
     await sleep(700);
     const bag = await X.evaluate(`document.querySelector('[aria-labelledby="town-trade-h"]')?.innerText ?? ""`);
@@ -619,6 +619,8 @@ try {
     await sleep(500);
     const card = await X.evaluate(`document.querySelector('[aria-labelledby="town-trade-h"]')?.innerText ?? ""`);
     ok("the pest cure's own line in the bag says what it does: rids a plant of its pest, and keeps pests off for 24 hours", /ป้องกันศัตรูพืชต่ออีก 24 ชม\./.test(bag + card), (bag + card).slice(0, 400));
+    // and so do the two insects that eat pests, with how often as a number (the owner, 2026-10-07: "แก้ในเกมเลย")
+    ok("a ladybird's and a mantis's own lines in the bag say what they do, and how often: 50% and 70%", /เต่าทอง[^]*?สรรพคุณ: ปล่อยบนต้นที่มีศัตรูพืช มีโอกาส 50% ที่จะกินศัตรูพืชให้/.test(bag) && /ตั๊กแตนตำข้าว[^]*?สรรพคุณ: ปล่อยบนต้นที่มีศัตรูพืช มีโอกาส 70% ที่จะกินศัตรูพืชให้/.test(bag) && /ไม่ป้องกันศัตรูพืชต่อ/.test(bag), bag.slice(0, 600));
     await X.shot(`${OUT}/farm-cure-line.png`);
     await X.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า")?.click()`);
     await sleep(400);

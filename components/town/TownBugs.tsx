@@ -5,7 +5,7 @@ import {
   BUGS, FLUTE, HABITS, HAUNTS, LURED, LURES, NET, PAIR, aimAt, aimOf, againMs, asleep, bugTurnStart, fledBy, followerPose, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
   type BugId, type BugSight, type Haunt, type Lured, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
-import { FARMING } from "@/lib/town/farm";
+import { ridWords } from "@/lib/town/farm";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
@@ -28,18 +28,13 @@ const RID_MS = 6000;
 /**
  * How an insect that eats pests is used, said under what was caught when one is (the owner, 2026-10-06, when he had
  * the two work again: "พร้อมเขียนบอกวิธีใช้ตอนได้แมลงไปเลย"): the one thing of the town's that is told what it is for, by his
- * word. How sure it is, is said in words that follow its number (lib/town/farm's FARMING.rids), never the number; and
- * how long it stays, in milliseconds.
+ * word. How sure it is, is said as its number (the owner, 2026-10-07; until then in round words that followed it), in
+ * the words its line in the bag has (lib/town/farm's `ridWords`); and how long it stays, in milliseconds.
  */
-const SURE = (often: number): [th: string, en: string] =>
-  (often >= 0.9 ? ["สำเร็จแทบทุกครั้ง", "nearly every time"] : often >= 0.65 ? ["สำเร็จเป็นส่วนใหญ่", "more often than not"]
-    : often >= 0.4 ? ["สำเร็จราวครึ่งหนึ่ง", "about half the time"] : ["นานๆ จะสำเร็จสักครั้ง", "only now and then"]);
 function howTo(id: ItemId, th: boolean): string | null {
-  const often = FARMING.rids[id];
-  if (often === undefined) return null;
-  const name = th ? ITEMS[id].name.th : ITEMS[id].name.en, sure = SURE(often)[th ? 0 : 1];
-  return th ? `วิธีใช้: ถือ${name}ไว้ในมือ แล้วปล่อยบนต้นที่มีศัตรูพืช มันจะกินศัตรูพืชให้ (${sure}) ถ้าไม่สำเร็จมันจะบินหนีไป`
-    : `Hold the ${name.toLowerCase()} and let it go on a plant that has a pest: it eats the pest (${sure}), or else it flies off.`;
+  const does = ridWords(id);
+  if (!does) return null;
+  return th ? `วิธีใช้: ถือ${ITEMS[id].name.th}ไว้ในมือ แล้ว${does.th}` : `Hold the ${ITEMS[id].name.en.toLowerCase()} in your hand. ${does.en}`;
 }
 const TIP_MS = 9000;
 const WHY_BUGS: Record<string, [string, string]> = {

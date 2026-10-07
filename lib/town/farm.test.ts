@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, cureWords, deedFor, feed, grown, hitsFor, hoe, inPestHours, isTree, ownerOf, pestAt, pestChance, pestHour, pick, ridCameOf, ridLuck, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
+  BEDS, FARMING, PUT_ON, WATER, WILD, chore, choreFor, cropOf, cure, cureWords, deedFor, feed, grown, hitsFor, hoe, inPestHours, isTree, ownerOf, pestAt, pestChance, pestHour, pick, ridCameOf, ridLuck, ridWords, see, sow, tend, toolOf, uproot, water, waterIn, yieldOf,
   type Bed, type FarmSky, type Plant, type Plot, type Swarms,
 } from "./farm";
 import atlas from "./icon-atlas.json";
@@ -386,6 +386,11 @@ describe("pests", () => {
       const theirs = done(tend(key, plot, { by: "you", tended: now, empty: 0 }, 0, 0, me, "me", now, [], false, 0));
       expect(theirs.deed, id).toBe("feed");
       expect(theirs.bed, id).toEqual({ by: "you", tended: now, empty: 0 });
+      // (and it says so, with how often as a number, on its own line in the bag: the owner, 2026-10-07, "แก้ในเกมเลย")
+      const says = ridWords(id)!, pct = `${Math.round(often * 100)}%`;
+      expect(says.th.includes(pct) && says.en.includes(pct), id).toBe(true);
+      expect(ITEMS[id].about.th.endsWith(`สรรพคุณ: ${says.th}`), id).toBe(true);
+      expect(ITEMS[id].about.en.endsWith(says.en), id).toBe(true);
       // on a plant with no pest it is a cover as ever, whatever the number: nothing is tried
       expect(done(feed(key, me, plot, id, t - 1, [], 0.99)).plot.plant!.guard, id).toBe(t - 1 + FARMING.guard * HOUR);
       expect(ridCameOf(key, plot, done(feed(key, me, plot, id, t - 1)).plot, id, t - 1), id).toBeNull();

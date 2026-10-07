@@ -464,6 +464,22 @@ export const cureWords = (id: ItemId): { th: string; en: string } | null => {
   const hours = FARMING.cures[id];
   return hours ? { th: `กำจัดศัตรูพืชบนต้น และป้องกันศัตรูพืชต่ออีก ${hours} ชม.`, en: `Rids a plant of its pest, and keeps pests off it for ${hours} hours after.` } : null;
 };
+/**
+ * What an insect that eats pests is said to do, in a line, with how often as a number (the owner, 2026-10-07, shown
+ * a ladybird's card in the bag, which said only what it looks like: "แก้ในเกมเลย"; until then how sure each is was
+ * said in round words at the catch and nowhere else). Its own line in the bag ends with the same words (lib/town/items,
+ * which a test holds to this), and what is said under one that is caught has them too (TownBugs' `howTo`). Of a plant
+ * with no pest, which it covers for a day, nothing is said.
+ */
+export const ridWords = (id: ItemId): { th: string; en: string } | null => {
+  const often = FARMING.rids[id];
+  if (often === undefined) return null;
+  const pct = Math.round(often * 100);
+  return {
+    th: `ปล่อยบนต้นที่มีศัตรูพืช มีโอกาส ${pct}% ที่จะกินศัตรูพืชให้ ถ้าไม่สำเร็จจะบินหนีไป กินแล้วไม่ป้องกันศัตรูพืชต่อ`,
+    en: `Let go on a plant that has a pest, it eats the pest ${pct}% of the time, or else flies off. It keeps no pests off afterwards.`,
+  };
+};
 
 /** Whether a vegetable is a tree or a bush that bears for a season (picked five times and more): shears are for those, a sickle for the rest. */
 export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;

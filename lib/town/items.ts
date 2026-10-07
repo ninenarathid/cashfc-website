@@ -134,7 +134,7 @@ export const ITEMS = {
   compost: it("goods", "ปุ๋ยหมัก", "Compost", "เนื้อร่วนสีดำ กลิ่นเหมือนดินหลังฝน", "Dark and crumbly, smelling of earth after rain", 20, 4),
   growFert: it("goods", "ปุ๋ยเร่งโต", "Growth fertiliser", "ผงสีเขียวอ่อนในถุงผ้า", "A pale green powder in a cloth bag", 20, 10),
   guardFert: it("goods", "ปุ๋ยกันแมลง", "Pest-proof fertiliser", "ผงสีน้ำตาลแดงในถุงผ้า กลิ่นฉุน", "A red-brown powder in a cloth bag. It smells sharp.", 20, 12),
-  // (the one thing whose line says what it is for, by the owner's word, 2026-10-06: "เขียนบอกสรรพคุณด้วยว่า ป้องกันแมลงได้ 24 ชม".
+  // (the first thing whose line says what it is for, by the owner's word, 2026-10-06: "เขียนบอกสรรพคุณด้วยว่า ป้องกันแมลงได้ 24 ชม".
   // The words are lib/town/farm's cureWords, and its hours FARMING.cures': a test holds this line to them.)
   pestCure: it("goods", "ยาไล่แมลง", "Pest cure", "น้ำสีเขียวเข้มในขวดเล็ก กลิ่นสมุนไพรฉุนจัด สรรพคุณ: กำจัดศัตรูพืชบนต้น และป้องกันศัตรูพืชต่ออีก 24 ชม.", "A dark green liquid in a small bottle, smelling of bitter herbs. Rids a plant of its pest, and keeps pests off it for 24 hours after.", 10, 10),
   basket: it("goods", "ตะกร้าสาน", "Woven basket", "ตะกร้าสานจากก้านพืชแห้งสีน้ำตาลอ่อน มีหูหิ้ว", "A basket woven of dried, pale brown stalks, with a handle", 1, 0),
@@ -329,7 +329,9 @@ export const ITEMS = {
   damselfly: it("bug", "แมลงปอเข็ม", "Damselfly", "ตัวเรียวเล็กเท่าเข็ม สีฟ้าสด ปีกใสหุบแนบลำตัว", "A body as thin as a needle, bright blue, with clear wings folded along it", 20, 5),
   glassDragonfly: it("bug", "แมลงปอแก้ว", "Glass dragonfly", "ทั้งตัวใสเหมือนแก้ว เห็นเพียงขอบสีรุ้งเมื่อต้องแสง", "Clear as glass all over, seen only by the rainbow edge the light gives it", 5, 60),
   grasshopper: it("bug", "ตั๊กแตน", "Grasshopper", "ตัวสีเขียว ขาหลังยาวพับงอ หนวดสั้น", "Green, with long folded hind legs and short feelers", 20, 2, 2),
-  mantis: it("bug", "ตั๊กแตนตำข้าว", "Praying mantis", "ตัวสีเขียวเรียวยาว หัวสามเหลี่ยม ขาหน้าพับเหมือนพนมมือ", "Long and green, with a three-cornered head and forelegs folded as if in prayer", 10, 7),
+  // (it and the ladybird say what they are for, with how often, by the owner's word, 2026-10-07. The words are
+  // lib/town/farm's ridWords, and the number FARMING.rids': a test holds both lines to them.)
+  mantis: it("bug", "ตั๊กแตนตำข้าว", "Praying mantis", "ตัวสีเขียวเรียวยาว หัวสามเหลี่ยม ขาหน้าพับเหมือนพนมมือ สรรพคุณ: ปล่อยบนต้นที่มีศัตรูพืช มีโอกาส 70% ที่จะกินศัตรูพืชให้ ถ้าไม่สำเร็จจะบินหนีไป กินแล้วไม่ป้องกันศัตรูพืชต่อ", "Long and green, with a three-cornered head and forelegs folded as if in prayer. Let go on a plant that has a pest, it eats the pest 70% of the time, or else flies off. It keeps no pests off afterwards.", 10, 7),
   cicada: it("bug", "จักจั่น", "Cicada", "ตัวป้อมสีน้ำตาลเข้ม ตาห่าง ปีกใสมีเส้นลาย", "Stout and dark brown, with wide-set eyes and clear, veined wings", 20, 5),
   stickInsect: it("bug", "ตั๊กแตนกิ่งไม้", "Stick insect", "ตัวยาวสีน้ำตาล ผอมเหมือนกิ่งไม้แห้ง ขายาวหกขา", "Long, brown and as thin as a dry twig, on six long legs", 10, 5),
   leafInsect: it("bug", "แมลงใบไม้", "Leaf insect", "ตัวแบนสีเขียว มีเส้นลายเหมือนใบไม้ ขอบหยัก", "Flat and green, veined like a leaf, with ragged edges", 10, 6),
@@ -342,7 +344,7 @@ export const ITEMS = {
   stagBeetle: it("bug", "ด้วงคีม", "Stag beetle", "ตัวสีดำเป็นมัน มีเขี้ยวใหญ่สองข้างเหมือนคีม", "Glossy black, with two great jaws like a pair of tongs", 5, 25),
   jewelBeetle: it("bug", "ด้วงอัญมณี", "Jewel beetle", "ตัวรีสีเขียวเหลือบทอง เป็นเงาเหมือนโลหะ", "Oval, green shot with gold, shining like metal", 5, 40),
   herculesBeetle: it("bug", "ด้วงเฮอร์คิวลีส", "Hercules beetle", "ตัวใหญ่ ปีกสีเหลืองมะกอกแต้มจุดดำ เขายาวกว่าลำตัว", "Very large, with olive-yellow wing cases spotted black and a horn longer than its body", 5, 150),
-  ladybird: it("bug", "เต่าทอง", "Ladybird", "ตัวกลมเล็กสีแดง มีจุดดำเจ็ดจุด", "Small, round and red, with seven black spots", 20, 2),
+  ladybird: it("bug", "เต่าทอง", "Ladybird", "ตัวกลมเล็กสีแดง มีจุดดำเจ็ดจุด สรรพคุณ: ปล่อยบนต้นที่มีศัตรูพืช มีโอกาส 50% ที่จะกินศัตรูพืชให้ ถ้าไม่สำเร็จจะบินหนีไป กินแล้วไม่ป้องกันศัตรูพืชต่อ", "Small, round and red, with seven black spots. Let go on a plant that has a pest, it eats the pest 50% of the time, or else flies off. It keeps no pests off afterwards.", 20, 2),
   scarab: it("bug", "ด้วงสคารับ", "Scarab beetle", "ตัวสีดำเหลือบเขียว ขาหน้าแบนเหมือนพลั่ว", "Black with a green sheen, its forelegs flat like spades", 20, 3),
   caterpillar: it("bug", "หนอนผีเสื้อ", "Caterpillar", "ตัวอ้วนสีเขียว เป็นปล้อง มีจุดเหลืองข้างตัว", "Plump, green and ringed, with yellow spots along its sides", 20, 2),
 
