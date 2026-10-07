@@ -59,12 +59,13 @@ const PREVIEW = process.env.NODE_ENV === "development";
 /**
  * ── to come ── (the preview, `next dev` only) The mountain's and the cave's own kinds of ground come after the
  * town's: none of them in a production build, where this is the town's list. Each is laid in the path's earth until
- * its own picture has come (loadMore); a stair has no texture of its own and is laid in the mountain's bare rock.
+ * its own picture has come (components/town/mountain-art's loadMore); a stair has no texture of its own and is laid in
+ * the plaza's cobbles, which its steps are then shaded over.
  */
 type Kind = Ground | MoreGround;
 const KINDS: readonly Kind[] = [...TOWN_KINDS, ...MORE_GROUND];
 /** What a kind is laid in while its own texture is missing. */
-const STAND_IN: Partial<Record<Kind, (typeof TOWN_KINDS)[number]>> = { field: "road", wood: "grass" };
+const STAND_IN: Partial<Record<Kind, (typeof TOWN_KINDS)[number]>> = { field: "road", wood: "grass", ...(PREVIEW ? { stair: "plaza" as const } : {}) };
 /** The maps, each with its own grid of remembered kinds: the town's, the farm's, the forest's; and the woods seen beyond the town's north gate and the forest's own (ground to look at, on no map). */
 const MAPS = [{ x: 0, y: 0, w: COLS, h: ROWS }, FARM, FOREST, BEYOND.north, BEYOND.south,
   // ── to come ── (the preview) the mountain's foot, each floor of the cave the preview has, and what is seen beyond the town's west gate and beyond the mountain's map
@@ -126,8 +127,6 @@ export class SceneryKit {
       const t = json.textures[k];
       if (t) this.tex[k] = { w: t[2], h: t[3], d: sg.getImageData(t[0], t[1], t[2], t[3]).data };
     }
-    // ── to come ── (a stair is cut in the mountain's own bare rock)
-    if (PREVIEW && json.textures.rock) this.tex.stair = this.tex.rock;
     this.chunks.clear();
     this.parts.clear();
   }

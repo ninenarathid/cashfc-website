@@ -125,7 +125,7 @@ export function mountainGround(u: number, v: number): MountainGround {
   // the upper terrace: stony, with grass between the stones
   if (t === 2) return patch(u, v, 3) > 0.56 ? "grass" : "rock";
   // the summit: snow, bare rock showing through it here and there and about the lookout
-  return patch(u, v, 4) > 0.72 || inBox(u, v, LOOKOUT, 1.2) ? "rock" : "snow";
+  return patch(u, v, 4) > 0.72 || Math.hypot(u - LOOKOUT.u - LOOKOUT.w / 2, v - LOOKOUT.v - LOOKOUT.h / 2) < 3.3 + 0.4 * Math.sin(Math.atan2(v - LOOKOUT.v, u - LOOKOUT.u) * 5) ? "rock" : "snow";
 }
 
 /**
@@ -219,6 +219,8 @@ export function layMountain(): MountainProp[] {
   // mountain's three kinds of tree: those are counted, and each is one that will be felled
   for (let v = 0; v < MOUNTAIN_H; v++) for (let u = 0; u < MOUNTAIN_W; u++) {
     if (!isRim(u, v) || (u + v) % 2 || used.has(`${u},${v}`) || hard(u, v)) continue;
+    // (nothing beside the gate: its gateway stands there, and whoever comes in is not to arrive behind a tree)
+    if (u === MOUNTAIN_W - 1 && Math.abs(v - 29.5) < 3) continue;
     const t = terraceAt(u + 0.5, v + 0.5), k = rnd();
     put(t === 0 ? { kind: k < 0.7 ? "tree" : "boulder", u, v, solid: true }
       : t === 3 || k < 0.45 ? { kind: "boulder", u, v, solid: true } : { kind: "pine", u, v, solid: true });
