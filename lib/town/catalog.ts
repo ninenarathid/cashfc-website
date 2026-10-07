@@ -410,13 +410,12 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * of a run where it was eight (`farming.helping.anklet.gap`), nothing else of the row. (v155, between them, is the
  * market's knobs and no row of the catalog.)
  *
- * v159 writes one over: `cooking`, for the feast table (`pots`, two on the ground where it was six; and `feast`: how
- * many pots of one member's the table takes, the minutes a pot stands on the ground first, the tile a pot on the table
- * is said to stand on, and the yard's floor, from which the table is reached).
+ * v159 (ran 2026-10-08, about 02:06) wrote one over: `cooking`, for the feast table (`pots`, two on the ground where it
+ * was six; and `feast`: how many pots of one member's the table takes, the minutes a pot stands on the ground first, the
+ * tile a pot on the table is said to stand on, and the yard's floor, from which the table is reached). And one number
+ * of `items` by itself, not the row: `bowl.stack`, three where it was one.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v159: { keys: [], over: ["cooking"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
