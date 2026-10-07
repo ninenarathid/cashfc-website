@@ -169,15 +169,25 @@ export const harderOn = (id: BugId, harder = 1): number => (tierOf(id) === "comm
  * in a turn. One, since 2026-10-05 (three before): an insect caught is gone for everybody (the owner: "เมื่อจับแมลงแล้ว
  * ช่วยทำให้หายไปจากแมพ ในหน้าจอคนอื่นด้วย").
  */
+// **Twice as many insects since 2026-10-07** (the owner, trying the gifts: "เพิ่มปริมาณแมลง … เป็นสองเท่า", and of the forest's
+// things, "เท่าเดิม"). Every kind of haunt rolls an insect twice as often as it did, to the number, by both of its
+// numbers: a turn is shorter (7 minutes where it was 10, 14 where it was 20; a glade's 30 where it was 60, the falls'
+// 15 where it was 30) and, at the common haunts, likelier to have one (about seven or eight turns in ten where it was
+// five or six). Both, because each alone falls short: a haunt holds one insect a turn, its own or one that came back
+// after a catch elsewhere (COMEBACK), so the turns bound what a map hunted hard can give, and the chance what is seen
+// at a glance. So about 1.4 times as many are out at any moment, a map hunted hard can give 1.4 times (2 at the glades
+// and the falls) what it could, and twice as many are rolled in a day. (Before: blooms 10 / 0.55, water 10 / 0.5,
+// field 10 / 0.55, lamp 10 / 0.6, tree 20 / 0.5, litter 20 / 0.5, glade 60 / 0.25, falls 30 / 0.3. The database reads
+// these from the catalog's row: nothing of its rules changes.)
 export const HAUNT_KINDS: Record<HauntKind, { every: number; chance: number; shares: number }> = {
-  blooms: { every: 10, chance: 0.55, shares: 1 },
-  water: { every: 10, chance: 0.5, shares: 1 },
-  field: { every: 10, chance: 0.55, shares: 1 },
-  lamp: { every: 10, chance: 0.6, shares: 1 },
-  tree: { every: 20, chance: 0.5, shares: 1 },
-  litter: { every: 20, chance: 0.5, shares: 1 },
-  glade: { every: 60, chance: 0.25, shares: 1 },
-  falls: { every: 30, chance: 0.3, shares: 1 },
+  blooms: { every: 7, chance: 0.77, shares: 1 },
+  water: { every: 7, chance: 0.7, shares: 1 },
+  field: { every: 7, chance: 0.77, shares: 1 },
+  lamp: { every: 7, chance: 0.84, shares: 1 },
+  tree: { every: 14, chance: 0.7, shares: 1 },
+  litter: { every: 14, chance: 0.7, shares: 1 },
+  glade: { every: 30, chance: 0.25, shares: 1 },
+  falls: { every: 15, chance: 0.3, shares: 1 },
 };
 /**
  * An insect caught comes back somewhere else (the owner, the same day: "หลังจากนั้น จะมี delay เล็กน้อยก่อนสุ่มเกิดที่ใหม่"):

@@ -324,7 +324,8 @@ describe("the cases the database's scarcity is held to", () => {
     expect(lost).toBeGreaterThan(150);
     expect(kept).toBeGreaterThan(400);
     // in the burst, haunts whose turn began before it have their butterfly still, though by the moment of asking the kind is all but gone
-    const mid = BURST + 6 * MINUTE;
+    // (four minutes in: with turns of seven minutes some haunts' turns began before the burst and are still under way)
+    const mid = BURST + 4 * MINUTE;
     expect(plentyOf(HUNTS, "butterflyWhite", BURST)).toBeGreaterThan(0.5);
     expect(plentyOf(HUNTS, "butterflyWhite", mid)).toBeLessThan(0.12);
     expect(at_.filter((v) => v.keep && v.args[1] === mid && (v.want as Swarm | null)?.bug === "butterflyWhite").length).toBeGreaterThanOrEqual(2);

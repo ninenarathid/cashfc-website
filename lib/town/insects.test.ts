@@ -64,14 +64,14 @@ describe("insects (the owner: \"จับแมลง ในทุกแมพ�
   });
 
   it("are out by the keeper's word: the same for everybody who looks, another with another word", () => {
-    const h = hauntOf("blooms", "town");
-    const a = Array.from({ length: 60 }, (_, i) => swarmAt("one", h, NOON + i * 10 * MINUTE)?.bug ?? null);
-    expect(Array.from({ length: 60 }, (_, i) => swarmAt("one", h, NOON + i * 10 * MINUTE)?.bug ?? null)).toEqual(a);
-    expect(Array.from({ length: 60 }, (_, i) => swarmAt("two", h, NOON + i * 10 * MINUTE)?.bug ?? null)).not.toEqual(a);
-    // a turn is one insect, the whole turn long
+    const h = hauntOf("blooms", "town"), turnMs = HAUNT_KINDS[h.kind].every * MINUTE;
+    const a = Array.from({ length: 60 }, (_, i) => swarmAt("one", h, NOON + i * turnMs)?.bug ?? null);
+    expect(Array.from({ length: 60 }, (_, i) => swarmAt("one", h, NOON + i * turnMs)?.bug ?? null)).toEqual(a);
+    expect(Array.from({ length: 60 }, (_, i) => swarmAt("two", h, NOON + i * turnMs)?.bug ?? null)).not.toEqual(a);
+    // a turn is one insect, the whole turn long (seven minutes at the flowers since 2026-10-07, ten before)
     const start = bugTurnStart(h, bugTurn(h, NOON));
-    expect(swarmAt("one", h, start)).toEqual(swarmAt("one", h, start + 9 * MINUTE));
-    expect(bugTurn(h, start + 10 * MINUTE)).toBe(bugTurn(h, start) + 1);
+    expect(swarmAt("one", h, start)).toEqual(swarmAt("one", h, start + turnMs - MINUTE));
+    expect(bugTurn(h, start + turnMs)).toBe(bugTurn(h, start) + 1);
   });
 
   it("keep to their hours, their sky and their days: every one of them is out some time in a month, the rare ones seldom", () => {
@@ -87,11 +87,12 @@ describe("insects (the owner: \"จับแมลง ในทุกแมพ�
     const wet = outOver("check", NOON, 2, ALWAYS_RAIN);
     for (const id of ["butterflyWhite", "monarch", "morpho", "moth", "cicada", "firefly"] as BugId[]) expect(wet.get(id) ?? 0, id).toBe(0);
     expect(wet.get("dragonfly") ?? 0).toBeGreaterThan(0);
-    // the rare ones: a handful of each a day over the whole map, taking one day with another
+    // the rare ones: a handful of each a day over the whole map, taking one day with another (twice what it was since
+    // 2026-10-07, when the owner had every insect twice as plentiful: under 32 a day where it was under 16)
     for (const id of ["glassDragonfly", "orchidMantis", "lunaMoth", "hawkMoth", "stagBeetle", "jewelBeetle", "herculesBeetle", "morpho"] as BugId[]) {
-      expect((month.get(id) ?? 0) / 30, id).toBeLessThan(16);
+      expect((month.get(id) ?? 0) / 30, id).toBeLessThan(32);
     }
-    expect((month.get("herculesBeetle") ?? 0) / 30).toBeLessThan(2);
+    expect((month.get("herculesBeetle") ?? 0) / 30).toBeLessThan(4);
   });
 
   it("pay no more than the forest does for a point of stamina, the common ones", () => {
@@ -508,14 +509,15 @@ describe("a ladybird caught (the owner: \"จะสุ่มโอกาศเ�
         if (bug === "mantis") { mantises++; expect(h.place).toBe("farm"); }
       }
     }
-    // (an hour of the twelve it is out in, a monarch's days among them: it was 1.3, 1.1 and 1.7 an hour, and is 2.6, 2.0 and 3.4)
-    for (const [place, least, most] of [["town", 1.9, 3.4], ["farm", 1.4, 2.7], ["forest", 2.6, 4.3]] as const) {
+    // (an hour of the twelve it is out in, a monarch's days among them: it was 1.3, 1.1 and 1.7 an hour, then 2.6, 2.0 and
+    // 3.4; and twice that since 2026-10-07, with every insect twice as plentiful)
+    for (const [place, least, most] of [["town", 3.8, 6.8], ["farm", 2.8, 5.4], ["forest", 5.2, 8.6]] as const) {
       expect(by[place] / (days * 12), place).toBeGreaterThan(least);
       expect(by[place] / (days * 12), place).toBeLessThan(most);
     }
     // (the mantis, on the farm alone: it was 3.9 an hour and is 7.9)
-    expect(mantises / (days * 12)).toBeGreaterThan(6.9);
-    expect(mantises / (days * 12)).toBeLessThan(8.9);
+    expect(mantises / (days * 12)).toBeGreaterThan(13.8);
+    expect(mantises / (days * 12)).toBeLessThan(17.8);
     // hunted, each grows scarce as every insect does: twenty caught in a day and it is out half as often
     expect(SCARCE).toEqual({ day: 24, half: 20 });
   });
@@ -596,7 +598,8 @@ describe("an insect caught (the owner: \"เมื่อจับแมลงแ
     expect(COMEBACK).toEqual({ after: 30, least: 120 });
     for (const place of ["town", "farm", "forest"] as const) {
       const from = withOne(place, NOON), { at, ids } = freeOf(from, NOON);
-      expect(ids.length, place).toBeGreaterThanOrEqual(3);
+      // (one at the least: fewer haunts stand empty since 2026-10-07, when seven or eight turns in ten came to have an insect)
+      expect(ids.length, place).toBeGreaterThanOrEqual(1);
       for (const id of ids) {
         const h = HAUNTS[id];
         expect(h.place, place).toBe(place);
@@ -659,7 +662,7 @@ describe("an insect caught (the owner: \"เมื่อจับแมลงแ
       expect(backs.some((x) => x.haunt === b.haunt && x.turn === b.turn)).toBe(false);
       backs.push(b);
     }
-    expect(backs.length).toBeGreaterThanOrEqual(3);
+    expect(backs.length).toBeGreaterThanOrEqual(1);
     expect(backs.length).toBeLessThan(HAUNTS.filter((h) => h.place === "town").length);
     expect(comeback(WORD, from, NOON, DRY, backs, [0.5, 0.5, 0.5])).toBeNull();
     expect(new Set(backs.map((b) => b.haunt)).size).toBe(backs.length);
