@@ -1,0 +1,11 @@
+The first attached picture is the mascot: a cute round potato creature called popoto, with a light brown body, a happy little face and pink cheeks. The second attached picture is a pixel art sprite sheet of that popoto as a village shopkeeper: it shows the pixel art style, the chunky square pixel size and the size of a popoto to use.
+
+Draw a pixel art sprite sheet of that popoto as a sturdy village blacksmith, the same size as the popoto in the second picture, in the same style, seen from the same three-quarter top-down angle, facing the viewer. It keeps its round potato body, little face and pink cheeks, with no hat. It wears a thick dark brown leather apron with a pocket, a red cloth headband tied round its head, and thick tan leather gloves; it has strong dark eyebrows and a smudge of black soot on one cheek, and it holds a blacksmith's hammer with a wooden handle and a heavy grey iron head.
+
+Four frames in one row, the same popoto, the same size, evenly spaced, standing on the same ground line, not overlapping:
+1) standing, the hammer resting on its shoulder, smiling;
+2) the hammer raised high above its head in one hand, mouth set, about to strike;
+3) the hammer swung down low in front of it, a few small yellow sparks flying from where it lands;
+4) wiping its brow with the back of one glove, eyes closed, the hammer held down at its side.
+
+Crisp pixel art with hard square pixel edges, the same thick dark outline, flat shading with a few tones, no anti-aliasing, no blur, no gradients. Transparent background, no ground, no shadows, no text, no labels.
