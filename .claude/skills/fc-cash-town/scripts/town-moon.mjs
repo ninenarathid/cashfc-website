@@ -116,7 +116,7 @@ try {
 
   // ── at the well ──
   ok("away from the well nothing is offered to pour, and whoever keeps the game refuses", !(await there(X, "[data-moon-pour]")) && (await X.evaluate(`${K}.moonPour(1, [17, 42])`)).why === "none" && (await purse(X)).moon.n === 3, await X.evaluate(`${M}.canPour()`));
-  await X.evaluate(`${T}.setWell(36)`);
+  await X.evaluate(`${T}.setWell(96)`);
   await warp(X, ...WELL);
   await until("pouring the flask is offered", () => there(X, '[data-moon-pour="1"]'), 8000, 100);
   await until("the farm's own code has come", () => X.evaluate(`!!${F}`), 30000);
@@ -130,7 +130,7 @@ try {
   await sleep(350);
   await X.shot(`${OUT}/moon-poured.png`);
   let w = await wellWater(X);
-  ok("a bucketful of the flask: the well has one more, the flask one fewer, for a pour's stamina", (await X.evaluate(`${K}.well()`)) === 37 && (await purse(X)).moon.n === 2 && (await stamina(X)) === st - 1 && (await pips(X)).join() === "true,true,false", [await X.evaluate(`${K}.well()`), await stamina(X)]);
+  ok("a bucketful of the flask: the well has one more, the flask one fewer, for a pour's stamina", (await X.evaluate(`${K}.well()`)) === 97 && (await purse(X)).moon.n === 2 && (await stamina(X)) === st - 1 && (await pips(X)).join() === "true,true,false", [await X.evaluate(`${K}.well()`), await stamina(X)]);
   ok("the well has the rain's nature for an hour and a half of that one bucketful, where a bucket's gives half an hour", w?.kind === "rain" && w.mins > 89 && w.mins <= 90, w);
   ok("a light goes up out of the well, and the plate says what the well's water is and for how long", lit?.kind === "rain" && lit.n === 1 && /น้ำในบ่อเป็นน้ำฝนแล้ว · อีก 1 ชม. 30 นาที/.test((await textOf(X, "[data-moon-note]")) ?? ""), [lit, await textOf(X, "[data-moon-note]")]);
   ok("it is a bucketful poured in the well's book, like any", (await X.evaluate(`${K}.wellBook()?.buckets ?? 0`)) === book + 1, [book, await X.evaluate(`${K}.wellBook()?.buckets`)]);
@@ -138,12 +138,12 @@ try {
   await clickOn(X, '[data-moon-pour="all"]');
   await until("it is all poured", async () => !("moon" in (await purse(X))), 6000, 30);
   w = await wellWater(X);
-  ok("all of it: two more into the well, the flask empty, three hours more of the rain's nature", (await X.evaluate(`${K}.well()`)) === 39 && (await pips(X)).join() === "false,false,false" && !(await there(X, "[data-moon-pour]")) && w.kind === "rain" && w.mins > 265 && w.mins <= 270, [await X.evaluate(`${K}.well()`), w]);
+  ok("all of it: two more into the well, the flask empty, three hours more of the rain's nature", (await X.evaluate(`${K}.well()`)) === 99 && (await pips(X)).join() === "false,false,false" && !(await there(X, "[data-moon-pour]")) && w.kind === "rain" && w.mins > 265 && w.mins <= 270, [await X.evaluate(`${K}.well()`), w]);
   // a bucket of the same water poured after the flask: nothing is shortened
   await chore(X, "pour");
   await until("the yoke is poured", async () => (await waterOf(X, "waterYokeGreat")) === 0, 6000, 50);
   const after = await wellWater(X);
-  ok("a bucket of the same water poured after it shortens nothing (a bucket's most alone is two hours)", (await X.evaluate(`${K}.well()`)) === 40 && after.kind === "rain" && after.mins > w.mins - 1, [w, after]);
+  ok("a bucket of the same water poured after it shortens nothing (a bucket's most alone is two hours)", (await X.evaluate(`${K}.well()`)) === 100 && after.kind === "rain" && after.mins > w.mins - 1, [w, after]);
   // into a full well
   await X.evaluate(`${T}.setMoon("moon", 2)`);
   await until("pouring the flask is offered", () => there(X, '[data-moon-pour="all"]'), 8000, 100);
@@ -151,7 +151,7 @@ try {
   await clickOn(X, '[data-moon-pour="all"]');
   await until("it is poured", async () => !("moon" in (await purse(X))), 6000, 30);
   w = await wellWater(X);
-  ok("into a full well: the water runs over and nothing is counted, and the well takes the nature all the same (another takes the first one's place)", (await X.evaluate(`${K}.well()`)) === 40 && w.kind === "moon" && w.mins > 175 && w.mins <= 180 && (await X.evaluate(`${K}.wellBook()?.buckets ?? 0`)) === full, [w, full]);
+  ok("into a full well: the water runs over and nothing is counted, and the well takes the nature all the same (another takes the first one's place)", (await X.evaluate(`${K}.well()`)) === 100 && w.kind === "moon" && w.mins > 175 && w.mins <= 180 && (await X.evaluate(`${K}.wellBook()?.buckets ?? 0`)) === full, [w, full]);
   await sleep(700);
   await X.shot(`${OUT}/moon-full-well.png`);
 

@@ -165,7 +165,8 @@ try {
   await X.evaluate(`${F}.act()`);
   await sleep(500);
   const filled = await waterOf(X, "can");
-  ok("the can is filled at the well, with a bucket of its water: five to ten waterings", filled >= 5 && filled <= 10 && (await X.evaluate(`${F}.well()`)) === 0 && (await chore(X)) === null, { filled });
+  // (a filling takes two bucketfuls since 2026-10-07, where it took one: the one there is gives half a can, and the well is dry)
+  ok("the can takes the well's water: the one bucketful there is gives it half a filling, four waterings, and leaves the well dry", filled === 4 && (await X.evaluate(`${F}.well()`)) === 0, { filled });
   await X.shot(`${OUT}/farm-well.png`);
   await warp(X, 133, 5);
   await until("the can is offered the plant again", async () => (await deed(X)) === "water", 5000);

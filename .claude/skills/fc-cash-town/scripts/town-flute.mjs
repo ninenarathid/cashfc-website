@@ -136,6 +136,8 @@ try {
   ok("five minutes on the flute is ready again", !!f && f.ready === true && f.disabled === false, f);
   const O = await X.tab("FluteOther");
   await begin(O, "G", false);
+  // (the same cricket at the same haunt in the other tab: what a script puts at a haunt is its tab's own)
+  await O.evaluate(`${T}.setBug(${trio.b.id}, "cricket")`);
   const me = await X.evaluate(`${V}.self()`);
   await warp(O, Math.floor(me.x) + 1, Math.floor(me.y) + 1);
   await until("the other tab has the cricket", () => poseOf(O, trio.b.id), 10000, 100);
