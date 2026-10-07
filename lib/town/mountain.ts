@@ -219,6 +219,8 @@ export function layMountain(): MountainProp[] {
   // mountain's three kinds of tree: those are counted, and each is one that will be felled
   for (let v = 0; v < MOUNTAIN_H; v++) for (let u = 0; u < MOUNTAIN_W; u++) {
     if (!isRim(u, v) || (u + v) % 2 || used.has(`${u},${v}`) || hard(u, v)) continue;
+    // (nothing beside the gate: its gateway stands there, and whoever comes in is not to arrive behind a tree)
+    if (u === MOUNTAIN_W - 1 && Math.abs(v - 29.5) < 3) continue;
     const t = terraceAt(u + 0.5, v + 0.5), k = rnd();
     put(t === 0 ? { kind: k < 0.7 ? "tree" : "boulder", u, v, solid: true }
       : t === 3 || k < 0.45 ? { kind: "boulder", u, v, solid: true } : { kind: "pine", u, v, solid: true });

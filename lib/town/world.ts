@@ -401,16 +401,16 @@ export function setBridge(spans: number, open = true) {
  * The blacksmith: a third popoto keeping shop, beyond the banker in the row before the Popoto Shop. He will smelt
  * ore, forge tools and set gems; for now he only talks (lib/town/smith). `stand` is where his forge stands (the
  * furnace, the anvil, the tub and the rack, one picture facing the viewer as the stall and the counter do), `at`
- * where he does, before it and to its right, by the anvil; `board` and `sign` are the notice board beside him and the post his sign hangs from, behind the forge;
+ * where he does, before it and to its right, by the anvil; `board` is the notice board, before the forge on its other side, and `sign` the post his sign hangs from, behind it;
  * `fire` is the furnace's mouth, from the forge's ground point in its picture's own pixels (across, up), which glows.
  * `tiles` are the ones they close. Not one of KEEPERS yet: he keeps no shop, and nothing of the town's was laid out
  * round him.
  */
 export const SMITH = {
   id: "smith" as const,
-  stand: { x: 50.2, y: 24.1 }, at: { x: 51.1, y: 23.7 }, board: { x: 52.94, y: 23.25 }, sign: { x: 50.54, y: 23.26 },
+  stand: { x: 50.2, y: 24.1 }, at: { x: 51.42, y: 23.51 }, board: { x: 50.2, y: 26.6 }, sign: { x: 50.54, y: 23.26 },
   fire: [-19, 30] as [number, number],
-  tiles: (PREVIEW ? [[50, 24], [49, 24], [50, 23], [51, 23], [52, 23]] : []) as Array<[number, number]>,
+  tiles: (PREVIEW ? [[50, 24], [49, 24], [50, 23], [51, 23], [50, 26]] : []) as Array<[number, number]>,
 };
 const smithAt = new Set(SMITH.tiles.map(([x, y]) => `${x},${y}`));
 
@@ -1288,7 +1288,7 @@ export function groundTone(kind: MoreGround, x: number, y: number): readonly [nu
     return k === 1 && tint === CAVE_TINTS[0] ? null : [tint[0] * k, tint[1] * k, tint[2] * k];
   }
   if (kind === "cliff") { const r = faceRise(x, y) ?? 0.5, k = r > 0.9 ? 1.28 : 0.66 + 0.42 * r; return [k, k, k]; }
-  if (kind === "stair") { const step = (((x - MOUNTAIN.x) * 2) % 1 + 1) % 1, k = step < 0.34 ? 0.5 : step < 0.42 ? 1.3 : 1.12; return [k, k, k]; }
+  if (kind === "stair") { const step = (((x - MOUNTAIN.x) * 2) % 1 + 1) % 1, k = step < 0.34 ? 0.5 : step < 0.42 ? 1.16 : 0.98; return [k, k, k]; }
   return null;
 }
 /** A tile's own number from 0 to 1: the same on every screen. */
