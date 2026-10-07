@@ -119,6 +119,32 @@ try {
   await until("room made, it is fetched", async () => (await heldOf(X, four.item)) > h4, 20000).catch(() => null);
   ok("room made, the squirrel goes back for it", (await heldOf(X, four.item)) === h4 + four.n, { held: await heldOf(X, four.item), h4, four });
 
+  // ── twenty fetches to a meal's hours (the owner, 2026-10-07): the last one, and what is after it ──
+  await X.evaluate(`(${T}.empty(), ${T}.setUsed("famSquirrel", 19))`);
+  all = await sights(X);
+  const last = await lonely(X, all, (s) => PICKS.includes(s.kind));
+  if (last) {
+    const nl = await X.evaluate(`${F}.fetched()`);
+    await X.evaluate(`${V}.warp(${last.x + 2}, ${last.y})`);
+    await until("the last fetch of these hours", async () => (await X.evaluate(`${F}.fetched()`)) === nl + 1, 6000).catch(() => null);
+    const used = await X.evaluate(`${T}.purse().gifts.used.famSquirrel?.n`);
+    ok("the twentieth of these hours is fetched and counted, and the page says the squirrel rests", (await X.evaluate(`${F}.fetched()`)) === nl + 1 && used === 20
+      && /พัก|rests/.test(await X.evaluate(`document.querySelector('[data-forest-note="famSquirrel"]')?.textContent ?? ""`)), { used, note: await X.evaluate(`document.querySelector('[data-forest-note]')?.textContent ?? ""`) });
+    all = await sights(X);
+    const past = await lonely(X, all, (s) => PICKS.includes(s.kind));
+    if (past) {
+      const hp = await heldOf(X, past.item), sp = await left(X);
+      await X.evaluate(`${V}.warp(${past.x + 2}, ${past.y})`);
+      await sleep(1800);
+      ok("past the count nothing is fetched, from two tiles off nothing is offered, and no stamina is taken", (await X.evaluate(`${F}.fetched()`)) === nl + 1 && (await heldOf(X, past.item)) === hp && (await X.evaluate(`${F}.here()`)) === null && (await left(X)) === sp,
+        { fetched: await X.evaluate(`${F}.fetched()`), here: await X.evaluate(`${F}.here()`) });
+      await X.evaluate(`${V}.warp(${past.x + 1}, ${past.y})`);
+      await sleep(1500);
+      ok("…and from beside it the place is offered to my own hands, and still not taken by itself", (await X.evaluate(`${F}.here()?.id`)) === past.id && (await heldOf(X, past.item)) === hp && (await left(X)) === sp, { here: await X.evaluate(`${F}.here()`) });
+    }
+    await X.evaluate(`${T}.setUsed("famSquirrel", 0)`);
+  }
+
   // ── sent to rest: nothing more is fetched ──
   await X.evaluate(`${K}.familiarWear(null)`);
   all = await sights(X);

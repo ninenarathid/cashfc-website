@@ -12,7 +12,7 @@ import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { WILD_WISHES } from "@/lib/town/forest-eye";
 import type { WishId } from "@/lib/town/fountain";
-import { charmBy, famBy, hasThing, usesLeft } from "@/lib/town/gifts";
+import { charmBy, famBy, hasThing, usedOf, usesLeft } from "@/lib/town/gifts";
 import type { HuntTold } from "@/lib/town/hunt";
 import { isSpent, levelOf } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
@@ -292,7 +292,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
    * both); until then a squirrel is what it was.
    */
   const fetchKept = keeper.gives("famPiglet");
-  const reachFor = (how: Gather) => (!fetchKept && fetches(purse, how) ? FORAGING.reach : reachOf(purse, how));
+  const reachFor = (how: Gather) => (!fetchKept && fetches(purse, how, keeper.now()) ? FORAGING.reach : reachOf(purse, how, keeper.now()));
   const here = tile && near ? seen.current.flatMap((sight) => { const spot = placeAt(sight.id); return spot ? [{ sight, spot }] : []; })
     .filter(({ spot }) => reaches(spot, tile, reachFor(ruleOf(spot).how)) && (isSecret(spot.id) || mayGather(spot.kind as SpotKind, hand) || (piglet && ruleOf(spot).how === "dig")))
     .sort((a, b) => Math.hypot(a.spot.x - tile[0], a.spot.y - tile[1]) - Math.hypot(b.spot.x - tile[0], b.spot.y - tile[1]))[0] ?? null : null;
@@ -335,7 +335,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     const withPig = byPig && (pig || !byHand);
     if (!withPig && !byHand) return;
     // (what a squirrel fetches is no work of my hands: no game for it, tired or not)
-    const game = fetchKept && fetches(purse, hereHow) ? null : gameFor(hereHow, spent);
+    const game = fetchKept && fetches(purse, hereHow, keeper.now()) ? null : gameFor(hereHow, spent);
     if (game) { setWorking({ ...here, game, from: tile, pig: withPig, ...(hereSecret ? { stage: 0 as const } : {}) }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
     else void act(here.spot, tile, { misses: 0, wrong: 0 });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse is read when the button is pressed
@@ -344,10 +344,12 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   /**
    * The squirrel at my heels fetches what lies on the ground as I pass it (lib/town/forest's `fetches`): looked for a
    * few times a second from where I am, walking or standing; one thing at a time; it runs there and back. A place
-   * that gave nothing (a bag with no room for it, somebody else's last share) is left alone for a while.
+   * that gave nothing (a bag with no room for it, somebody else's last share) is left alone for a while. It fetches
+   * so many times to a meal's hours (lib/town/gifts' USES); with none left it rests, and what lies on the ground is
+   * picked up by hand until the next hours.
    */
   const selfAt = useRef<Vec | null>(null), fetching = useRef(false), left = useRef(new Map<number, number>()), fetched = useRef(0);
-  const squirrel = near && fetchKept && fetches(purse, "pick");
+  const squirrel = near && fetchKept && fetches(purse, "pick", keeper.now());
   useEffect(() => {
     if (!squirrel) return;
     const look = async () => {
@@ -370,7 +372,10 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
         }
         fetched.current++;
         setNoteBy("famSquirrel" as IconName);
-        setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · "));
+        // (how many fetches these hours have left, once whoever keeps the game counts them: a database from before the count never does)
+        const mine = keeper.purse(), at_ = keeper.now(), counted = usedOf(mine, "famSquirrel", at_) > 0, more = usesLeft(mine, "famSquirrel", at_);
+        setNote(did.got.map(([id, n]) => `${nameOf(id)} ×${n}`).join(" · ")
+          + (!counted ? "" : more > 0 ? (th ? ` · เหลือ ${more}` : ` · ${more} left`) : (th ? " · กระรอกขอพักแล้ว มื้อหน้าเก็บให้ใหม่" : " · the squirrel rests till the next meal's hours")));
         sfx?.wake();
         sfx?.work("rustle");
         vfx.add("leaves", where);

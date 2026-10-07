@@ -400,7 +400,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * the pair (`insects`); the pair, the orb, the stardust bait, the wary water and a legend's two bouts (`fishing`); and
  * what fae dust sprinkled on somebody else's plant is worth on the helpers' line (`work`).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // the squirrel's count: twenty fetches to a meal's hours (`gifts.uses.famSquirrel`)
+  v154: { keys: [], over: ["gifts"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

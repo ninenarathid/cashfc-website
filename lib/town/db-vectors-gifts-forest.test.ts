@@ -69,25 +69,35 @@ export function vectorsForest(): Vector[] {
     for (const [id, n] of items) p = { ...p, bag: put(p.bag, id, n) };
     return { ...p, hand, ...(gifts === undefined ? {} : { gifts }) } as Purse;
   };
-  /** What a purse may keep of the squirrel: following, at rest, never taken, another at the heels, nothing said, said wrongly. */
+  /**
+   * What a purse may keep of the squirrel: following, at rest, never taken, another at the heels, nothing said, said
+   * wrongly; and of its count to a meal's hours (v154): one fetch left, none, more than there are, a count of other
+   * hours, a count kept wrongly.
+   */
+  const sq = stretchOf(USES.famSquirrel!, NOON), top = USES.famSquirrel!.n, follows = { had: ["famSquirrel"], charms: [], familiar: "famSquirrel" };
   const squirrels: Array<Purse["gifts"] | undefined> = [
     undefined, { had: [], charms: [] }, { had: ["famSquirrel"], charms: [], familiar: "famSquirrel" }, { had: ["famSquirrel"], charms: [] },
     { had: ["famSquirrel", "famGnome"], charms: [], familiar: "famGnome" }, { had: [], charms: [], familiar: "famSquirrel" },
     { had: [...ids], charms: ["charmLamp"], familiar: "famSquirrel" }, { had: ["famSquirrel"], charms: [], familiar: null }, { had: "famSquirrel" as unknown as string[], charms: [], familiar: "famSquirrel" },
+    { ...follows, used: { famSquirrel: { k: sq, n: top - 1 } } }, { ...follows, used: { famSquirrel: { k: sq, n: top } } }, { ...follows, used: { famSquirrel: { k: sq, n: top } } },
+    { ...follows, used: { famSquirrel: { k: sq, n: top + 5 } } }, { ...follows, used: { famSquirrel: { k: sq - 1, n: top } } }, { ...follows, used: { famSquirrel: { k: sq + 1, n: top } } },
+    { ...follows, used: { famSquirrel: { k: sq, n: 3.5 } } }, { ...follows, used: { famSquirrel: "many" } } as unknown as Purse["gifts"], { had: ["famSquirrel"], charms: [], used: { famSquirrel: { k: sq, n: 2 } } },
   ];
 
   // the squirrel: whether it fetches, from how far, for what
-  for (const g of squirrels) for (const how of [...HOWS, "sing", null]) {
+  // (at noon, an hour on in the same meal's hours, and in the next ones)
+  for (const g of squirrels) for (const how of [...HOWS, "sing", null]) for (const when of [NOON, NOON + HOUR, NOON + 6 * HOUR]) {
     const p = purseOf(g);
-    add("wild_fetches", [p, how], fetches(p, how as (typeof HOWS)[number]));
-    add("wild_reach", [p, how], reachOf(p, how as (typeof HOWS)[number]));
+    add("wild_fetches", [p, how, when], fetches(p, how as (typeof HOWS)[number], when));
+    add("wild_reach", [p, how, when], reachOf(p, how as (typeof HOWS)[number], when));
   }
-  for (const g of squirrels) for (const k of Object.keys(KINDS) as Array<keyof typeof KINDS>) add("wild_cost", [purseOf(g), KINDS[k]], costFor(purseOf(g), KINDS[k]));
+  for (const g of squirrels) for (const k of Object.keys(KINDS) as Array<keyof typeof KINDS>) for (const when of [NOON, NOON + 6 * HOUR]) add("wild_cost", [purseOf(g), KINDS[k], when], costFor(purseOf(g), KINDS[k], when));
 
   // gathering with a squirrel at the heels, and without: every kind of place, every distance, every way it ends
   const hands: Array<ItemId | null> = [null, ...HOES, "rod"];
   for (let i = 0; i < 900; i++) {
-    const s = c.of(SPOTS), kind = KINDS[s.kind], find = c.of(kind.finds), now = NOON + c.int(0, 40) * HOUR;
+    // (four in ten at noon's own hours, where the counts kept are of now)
+    const s = c.of(SPOTS), kind = KINDS[s.kind], find = c.of(kind.finds), later = c.int(0, 40), now = NOON + (later % 5 < 2 ? later % 4 : later) * HOUR;
     const has: Held | null = c.maybe(0.05) ? null : { turn: c.int(1, 99999), item: find.item, n: c.int(find.n[0], find.n[1]) };
     const hand = kind.how === "dig" && c.maybe(0.7) ? c.of(HOES) : c.of(hands);
     const filler: Array<[ItemId, number]> = c.maybe(0.15) ? Array.from({ length: c.int(8, 10) }, (): [ItemId, number] => [c.of(["rod", "hoe", "can", "pot", "pan"] as ItemId[]), 1]) : [];
@@ -204,7 +214,7 @@ export function vectorsForest(): Vector[] {
     { had: ["famStag"], charms: [], familiar: "famStag" }, { had: ["famStag"], charms: [], familiar: "famStag" }, { had: ["famStag"], charms: [] }, { had: [], charms: [], familiar: "famStag" },
     { had: ["famStag", "famSquirrel"], charms: [], familiar: "famSquirrel" }, { had: ["famStag", "charmFirefly"], charms: ["charmFirefly"], familiar: "famStag" }, { had: ["famStag", "famPiglet"], charms: [], familiar: "famPiglet" },
   ];
-  for (const g of stags) for (const how of [...HOWS, null]) add("wild_reach", [purseOf(g), how], reachOf(purseOf(g), how as (typeof HOWS)[number]));
+  for (const g of stags) for (const how of [...HOWS, null]) add("wild_reach", [purseOf(g), how, NOON], reachOf(purseOf(g), how as (typeof HOWS)[number], NOON));
   for (let i = 0; i < 500; i++) {
     const s: Place = c.maybe(0.2) ? c.of(SECRETS) : c.of(SPOTS), kind = ruleOf(s), find = c.of(kind.finds), now = NOON + c.int(0, 20) * HOUR;
     const has: Held = { turn: c.int(1, 99999), item: find.item, n: c.int(find.n[0], find.n[1]) };
@@ -240,11 +250,21 @@ describe("the cases the database's rules of the forest's gifts are held to", () 
     expect(new Set(gathered.map((g) => (g.did.ok ? "ok" : g.did.why)))).toEqual(new Set(["ok", "none", "had", "bare", "far", "tool", "full", "spent"]));
     const dist = (g: (typeof gathered)[number]) => Math.max(Math.abs(g.x - g.spot.x), Math.abs(g.y - g.spot.y));
     const paid = (g: (typeof gathered)[number]) => g.p.stamina.left - g.did.purse!.stamina.left;
-    expect(gathered.some((g) => g.did.ok && dist(g) === FORAGING.squirrel && fetches(g.p, KINDS[g.spot.kind].how) && paid(g) === 0 && g.p.stamina.left > 0)).toBe(true);
-    expect(gathered.some((g) => !g.did.ok && g.did.why === "far" && dist(g) === FORAGING.squirrel && !fetches(g.p, KINDS[g.spot.kind].how))).toBe(true);
-    expect(gathered.some((g) => !g.did.ok && g.did.why === "far" && dist(g) === FORAGING.squirrel + 1 && fetches(g.p, KINDS[g.spot.kind].how))).toBe(true);
-    expect(gathered.some((g) => g.did.ok && KINDS[g.spot.kind].how === "pick" && !fetches(g.p, "pick") && paid(g) === 1)).toBe(true);
-    expect(gathered.some((g) => g.did.ok && KINDS[g.spot.kind].how !== "pick" && fetches(g.p, "pick") && paid(g) >= 2)).toBe(true);
+    expect(gathered.some((g) => g.did.ok && dist(g) === FORAGING.squirrel && fetches(g.p, KINDS[g.spot.kind].how, g.now) && paid(g) === 0 && g.p.stamina.left > 0)).toBe(true);
+    expect(gathered.some((g) => !g.did.ok && g.did.why === "far" && dist(g) === FORAGING.squirrel && !fetches(g.p, KINDS[g.spot.kind].how, g.now))).toBe(true);
+    expect(gathered.some((g) => !g.did.ok && g.did.why === "far" && dist(g) === FORAGING.squirrel + 1 && fetches(g.p, KINDS[g.spot.kind].how, g.now))).toBe(true);
+    expect(gathered.some((g) => g.did.ok && KINDS[g.spot.kind].how === "pick" && !fetches(g.p, "pick", g.now) && paid(g) === 1)).toBe(true);
+    expect(gathered.some((g) => g.did.ok && KINDS[g.spot.kind].how !== "pick" && fetches(g.p, "pick", g.now) && paid(g) >= 2)).toBe(true);
+    // the squirrel's count (v154): a fetch is counted, the last one too; past it the thing is too far from where it ran, and picked up
+    // by hand from beside it for its stamina with nothing more counted; and a count of other hours is no count
+    const count = (p: Purse | undefined, now: number) => usedOf(p ?? {}, "famSquirrel", now), follows = (g: (typeof gathered)[number]) => g.p.gifts?.familiar === "famSquirrel" && g.p.gifts.had?.includes?.("famSquirrel");
+    const picked = gathered.filter((g) => KINDS[g.spot.kind].how === "pick" && follows(g));
+    expect(picked.some((g) => g.did.ok && count(g.p, g.now) === 0 && count(g.did.purse, g.now) === 1 && paid(g) === 0)).toBe(true);
+    expect(picked.some((g) => g.did.ok && count(g.p, g.now) === USES.famSquirrel!.n - 1 && count(g.did.purse, g.now) === USES.famSquirrel!.n && paid(g) === 0)).toBe(true);
+    expect(picked.some((g) => !g.did.ok && g.did.why === "far" && dist(g) === FORAGING.squirrel && count(g.p, g.now) >= USES.famSquirrel!.n)).toBe(true);
+    expect(picked.some((g) => g.did.ok && dist(g) <= FORAGING.reach && count(g.p, g.now) >= USES.famSquirrel!.n && paid(g) === 1 && count(g.did.purse, g.now) === count(g.p, g.now))).toBe(true);
+    expect(picked.some((g) => g.did.ok && (g.p.gifts!.used as Record<string, { k: number }> | undefined)?.famSquirrel?.k !== undefined && count(g.p, g.now) === 0 && count(g.did.purse, g.now) === 1)).toBe(true);
+    expect(gathered.some((g) => g.did.ok && KINDS[g.spot.kind].how !== "pick" && follows(g) && count(g.did.purse, g.now) === count(g.p, g.now))).toBe(true);
     // the piglet may dig, and may not; asked of it: dug with no hoe for one more and a hole counted, the last hole, refused
     // past its count and when it does not follow, as ever with a hoe and no asking, and no hole counted where nothing is dug
     expect(new Set(of("piglet_digs").map((v) => v.want))).toEqual(new Set([true, false]));

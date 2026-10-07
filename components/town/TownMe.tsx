@@ -146,6 +146,7 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-ui font-semibold">{th ? fam.name.th : fam.name.en}</span>
                   <span className="block text-label leading-snug" style={{ color: INK_SOFT }}>{th ? fam.does.th : fam.does.en}</span>
+                  {USES[fam.id] && (() => { const n = usesLeft(keeper.purse(), fam.id, keeper.now()); return <span className="mt-0.5 block font-data text-label tabular-nums" style={{ color: n ? JADE : "#b0452f" }} data-me-fam-left={n}>{th ? `${stretch(fam.id)}เหลือ ${n}/${USES[fam.id]!.n}` : `${n}/${USES[fam.id]!.n} left ${stretch(fam.id)}`}</span>; })()}
                   <span className="mt-0.5 block font-data text-label" style={{ color: JADE }}>{th ? "เดินตามอยู่ · แตะเพื่อให้พัก" : "Following you · tap to send it to rest"}</span>
                 </span>
               </button>

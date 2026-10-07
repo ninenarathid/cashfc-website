@@ -410,15 +410,17 @@ export interface Outcome { misses: number; wrong: number; with?: string | null; 
 export const reaches = (spot: Pick<Place, "x" | "y">, at: readonly [number, number], reach: number = FORAGING.reach) => Math.max(Math.abs(at[0] - spot.x), Math.abs(at[1] - spot.y)) <= reach;
 /**
  * Whether a squirrel fetches a kind of place's thing for somebody (lib/town/gifts' famSquirrel, the forest's second
- * rank): what lies on the ground, picked up with no game, while it follows them. It runs for it: from as far as it
+ * rank): what lies on the ground, picked up with no game, while it follows them and has a fetch left of its count to
+ * these hours (lib/town/gifts' USES: twenty to a meal's hours, the owner's number). It runs for it: from as far as it
  * fetches, and for none of its member's stamina. Everything else of a gathering is as by hand: each place once a
- * turn, a heap's shares, and room in the bag.
+ * turn, a heap's shares, and room in the bag. Past its count what lies on the ground is picked up by hand, as by
+ * anybody: from a tile off, for its stamina, steadied when there is none.
  */
-export const fetches = (purse: Pick<Purse, "gifts">, how: Gather): boolean => how === "pick" && works(purse, "famSquirrel");
+export const fetches = (purse: Pick<Purse, "gifts">, how: Gather, now: number): boolean => how === "pick" && works(purse, "famSquirrel") && usesLeft(purse, "famSquirrel", now) > 0;
 /** How far somebody reaches a kind of place from, in tiles: a tile; as far as their squirrel fetches; or, whatever the place, as far as is reached from a moss stag's back. */
-export const reachOf = (purse: Pick<Purse, "gifts">, how: Gather): number => (fetches(purse, how) ? FORAGING.squirrel : works(purse, "famStag") ? FORAGING.stag : FORAGING.reach);
+export const reachOf = (purse: Pick<Purse, "gifts">, how: Gather, now: number): number => (fetches(purse, how, now) ? FORAGING.squirrel : works(purse, "famStag") ? FORAGING.stag : FORAGING.reach);
 /** The stamina a gathering of a kind of place costs somebody: its own; none of theirs when the squirrel fetches it. */
-export const costFor = (purse: Pick<Purse, "gifts">, kind: Kind): number => (fetches(purse, kind.how) ? 0 : kind.cost);
+export const costFor = (purse: Pick<Purse, "gifts">, kind: Kind, now: number): number => (fetches(purse, kind.how, now) ? 0 : kind.cost);
 /**
  * Whether a truffle piglet may dig for somebody now (lib/town/gifts' famPiglet, the forest's third rank): it follows
  * them, and has a hole left of its count to these hours. Its digging takes no hoe, bruises nothing (the game's own:
@@ -437,6 +439,8 @@ export const mayGather = (kind: SpotKind, hand: ItemId | null) => KINDS[kind].ho
  * one of the piglet's holes of these hours, and refused when it has none left or does not follow (nothing is lost:
  * the hoe's way is still there).
  *
+ * What the squirrel fetches (`fetches`) is one of its fetches of these hours, counted when the thing is in the bag.
+ *
  * A secret place is there only for whoever wears the firefly lantern. Its two games won with not one miss, it gives
  * all it has, and the place is in the record of those I have gathered from (`purse.forest.secrets`); anything else
  * (`lost`) and my turn at it is spent for its stamina, with nothing got. It takes no hoe.
@@ -447,7 +451,7 @@ export function gather(purse: Purse, spot: Place, has: Held | null, taken: numbe
   if (!has || (secret && !lanternLit(purse))) return no("none");
   if (mine) return { ok: false, why: "had" };
   if (taken >= kind.shares) return { ok: false, why: "bare" };
-  if (!reaches(spot, at, reachOf(purse, kind.how))) return { ok: false, why: "far" };
+  if (!reaches(spot, at, reachOf(purse, kind.how, now))) return { ok: false, why: "far" };
   if (secret) {
     const spent = spend(purse, kind.cost, now);
     if (play.lost || Math.floor(play.misses) > 0 || Math.floor(play.wrong) > 0) return { ok: true, purse: spent, got: [], lost: true };
@@ -470,7 +474,10 @@ export function gather(purse: Purse, spot: Place, has: Held | null, taken: numbe
     if (roomFor(bag, FORAGING.decoy) < wrong) return no("full");
     bag = put(bag, FORAGING.decoy, wrong);
   }
-  return { ok: true, purse: { ...spend(mine_, costFor(purse, kind), now), bag }, got: wrong ? [[has.item, n], [FORAGING.decoy, wrong]] : [[has.item, n]] };
+  // (fetched by the squirrel: one of its fetches of these hours)
+  const fetched = fetches(purse, kind.how, now) ? useGift(mine_, "famSquirrel", now) : null;
+  if (fetched?.ok) mine_ = fetched.purse;
+  return { ok: true, purse: { ...spend(mine_, costFor(purse, kind, now), now), bag }, got: wrong ? [[has.item, n], [FORAGING.decoy, wrong]] : [[has.item, n]] };
 }
 
 /** The game a gathering is: one of its own for what is chosen, dug and shaken down; none for what is picked up, but with no stamina left, when it is steadied like the farm's light work. */

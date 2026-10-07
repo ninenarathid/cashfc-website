@@ -37,9 +37,9 @@ describe("the moss stag (the forest's sixth rank): ridden on every map, twice as
   it("from its back whatever is within two tiles is gathered: what grows, hangs, lies buried or lies about", () => {
     const stag = withGifts(["famStag"], "famStag"), bare = withGifts(["famStag"]);
     expect(FORAGING.stag).toBe(2);
-    for (const how of ["pick", "choose", "dig", "shake"] as const) { expect(reachOf(stag, how)).toBe(FORAGING.stag); expect(reachOf(bare, how)).toBe(FORAGING.reach); }
+    for (const how of ["pick", "choose", "dig", "shake"] as const) { expect(reachOf(stag, how, NOON)).toBe(FORAGING.stag); expect(reachOf(bare, how, NOON)).toBe(FORAGING.reach); }
     // (another familiar at the heels: no further than a hand, but for what a squirrel fetches)
-    expect(reachOf(withGifts(["famStag", "famPiglet"], "famPiglet"), "dig")).toBe(FORAGING.reach);
+    expect(reachOf(withGifts(["famStag", "famPiglet"], "famPiglet"), "dig", NOON)).toBe(FORAGING.reach);
     const shrooms = SPOTS.find((s) => s.kind === "mushrooms")!, has: Held = { turn: 1, item: "shiitake", n: 2 }, two: [number, number] = [shrooms.x + 2, shrooms.y - 2];
     expect(gather(bare, shrooms, has, 0, false, null, two, clean, NOON)).toEqual({ ok: false, why: "far" });
     const did = gather(stag, shrooms, has, 0, false, null, two, clean, NOON);

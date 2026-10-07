@@ -33,22 +33,22 @@ describe("the squirrel (the forest's second rank): it fetches what lies on the g
   const squirrel = withGifts(["famSquirrel"], "famSquirrel"), bare = withGifts([]);
 
   it("fetches only what is picked up with no game, and only while it follows", () => {
-    expect(fetches(squirrel, "pick")).toBe(true);
-    for (const how of ["choose", "dig", "shake"] as const) expect(fetches(squirrel, how)).toBe(false);
-    expect(fetches(bare, "pick")).toBe(false);
+    expect(fetches(squirrel, "pick", NOON)).toBe(true);
+    for (const how of ["choose", "dig", "shake"] as const) expect(fetches(squirrel, how, NOON)).toBe(false);
+    expect(fetches(bare, "pick", NOON)).toBe(false);
     // (had, and at rest: nothing)
-    expect(fetches(withGifts(["famSquirrel"]), "pick")).toBe(false);
+    expect(fetches(withGifts(["famSquirrel"]), "pick", NOON)).toBe(false);
     // (another familiar at the heels: nothing)
-    expect(fetches(withGifts(["famSquirrel", "famGnome"], "famGnome"), "pick")).toBe(false);
+    expect(fetches(withGifts(["famSquirrel", "famGnome"], "famGnome"), "pick", NOON)).toBe(false);
     // (said to follow, and never taken: nothing)
-    expect(fetches(withGifts([], "famSquirrel"), "pick")).toBe(false);
-    expect(reachOf(squirrel, "pick")).toBe(FORAGING.squirrel);
-    expect(reachOf(squirrel, "choose")).toBe(FORAGING.reach);
-    expect(reachOf(bare, "pick")).toBe(FORAGING.reach);
+    expect(fetches(withGifts([], "famSquirrel"), "pick", NOON)).toBe(false);
+    expect(reachOf(squirrel, "pick", NOON)).toBe(FORAGING.squirrel);
+    expect(reachOf(squirrel, "choose", NOON)).toBe(FORAGING.reach);
+    expect(reachOf(bare, "pick", NOON)).toBe(FORAGING.reach);
     expect(FORAGING.squirrel).toBeGreaterThan(FORAGING.reach);
-    expect(costFor(squirrel, KINDS.sticks)).toBe(0);
-    expect(costFor(squirrel, KINDS.mushrooms)).toBe(KINDS.mushrooms.cost);
-    expect(costFor(bare, KINDS.sticks)).toBe(KINDS.sticks.cost);
+    expect(costFor(squirrel, KINDS.sticks, NOON)).toBe(0);
+    expect(costFor(squirrel, KINDS.mushrooms, NOON)).toBe(KINDS.mushrooms.cost);
+    expect(costFor(bare, KINDS.sticks, NOON)).toBe(KINDS.sticks.cost);
   });
 
   it("from as far as it runs, for none of its member's stamina", () => {
@@ -91,10 +91,46 @@ describe("the squirrel (the forest's second rank): it fetches what lies on the g
     expect(did.ok && staminaOf(did.purse, NOON)).toBe(100 - KINDS.mushrooms.cost);
   });
 
+  it("twenty times to a meal's hours, then its member's own hands until the next", () => {
+    const most = USES.famSquirrel!.n, far: [number, number] = [sticks.x + FORAGING.squirrel, sticks.y];
+    expect(USES.famSquirrel).toEqual({ n: 20, per: "meal" });
+    let p = squirrel;
+    for (let i = 0; i < most; i++) {
+      expect(usesLeft(p, "famSquirrel", NOON)).toBe(most - i);
+      const did = gather({ ...p, bag: squirrel.bag }, sticks, twigs, 0, false, null, far, clean, NOON);
+      if (!did.ok) throw new Error(`the fetch ${i + 1} was refused: ${did.why}`);
+      expect(staminaOf(did.purse, NOON)).toBe(100);
+      p = did.purse;
+    }
+    expect(usesLeft(p, "famSquirrel", NOON)).toBe(0);
+    expect(fetches(p, "pick", NOON)).toBe(false);
+    expect(reachOf(p, "pick", NOON)).toBe(FORAGING.reach);
+    expect(costFor(p, KINDS.sticks, NOON)).toBe(KINDS.sticks.cost);
+    // past the count: too far from where it ran, and by hand from beside it, for the stamina, with nothing more counted
+    const spent = { ...p, bag: squirrel.bag };
+    expect(gather(spent, sticks, twigs, 0, false, null, far, clean, NOON)).toEqual({ ok: false, why: "far" });
+    const hand = gather(spent, sticks, twigs, 0, false, null, [sticks.x + 1, sticks.y], clean, NOON);
+    expect(hand.ok && staminaOf(hand.purse, NOON)).toBe(100 - KINDS.sticks.cost);
+    expect(hand.ok && usedOf(hand.purse, "famSquirrel", NOON)).toBe(most);
+    // a fetch refused counts nothing (no room in the bag)
+    const full = { ...squirrel, bag: squirrel.bag.map(() => ({ item: "rod" as ItemId, n: 1 })) };
+    expect(gather(full, sticks, twigs, 0, false, null, far, clean, NOON)).toEqual({ ok: false, why: "full" });
+    // the next meal's hours (from 17:00): it fetches again
+    const EVENING = NOON + 6 * 3_600_000;
+    expect(fetches(spent, "pick", EVENING)).toBe(true);
+    const again = gather(spent, sticks, twigs, 0, false, null, far, clean, EVENING);
+    expect(again.ok && usedOf(again.purse, "famSquirrel", EVENING)).toBe(1);
+    // what is not picked up with no game counts nothing
+    const shrooms = spotOf("mushrooms"), did = gather(squirrel, shrooms, { turn: 1, item: "shiitake", n: 2 }, 0, false, null, [shrooms.x, shrooms.y], clean, NOON);
+    expect(did.ok && usedOf(did.purse, "famSquirrel", NOON)).toBe(0);
+  });
+
   it("is said on the gift in both languages", () => {
     const g = giftOf("famSquirrel")!;
     expect(g.does.th).toMatch(/เก็บ/);
+    expect(g.does.th).toMatch(/20/);
     expect(g.does.en).toMatch(/fetch/);
+    expect(g.does.en).toMatch(/twenty/);
   });
 });
 
