@@ -44,6 +44,8 @@ import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGif
 // ── gifts: helpers ──
 import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
+// ── forging ──
+import { FORGE, toolKindOf } from "./tools";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -1384,6 +1386,14 @@ export class Trial {
   setUsed(id: GiftId, n: number) {
     const p = this.purse(), mine = giftsOf(p), rule = USES[id];
     if (rule) this.save({ ...p, gifts: { ...mine, used: { ...mine.used, [id]: { k: stretchOf(rule, this.now()), n: Math.max(0, Math.floor(n)) } } } });
+  }
+  /** (forging) The tool in a slot as if it had been forged: its plus, its options in the order of their milestones, its gems by their elements. To try what each does without the smith. */
+  setTool(slot: number, plus: number, opts: string[] = [], gems: string[] = []): boolean {
+    const p = this.purse(), s = p.bag[slot];
+    if (!s || !toolKindOf(s.item)) return false;
+    const { plus: _p, opts: _o, gems: _g, ...bare } = s;
+    this.save({ ...p, bag: p.bag.map((b, i) => (i !== slot ? b : { ...bare, ...(plus > 0 ? { plus: Math.min(FORGE.top, Math.floor(plus)) } : {}), ...(opts.length ? { opts: [...opts] } : {}), ...(gems.length ? { gems: [...gems] } : {}) })) });
+    return true;
   }
   /** A bag of so many slots. One that is growing keeps everything; one that is shrinking keeps what fits in front, and says no when a slot to go is full. */
   resize(slots: number): boolean {

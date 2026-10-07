@@ -212,6 +212,27 @@ export const poolOf = (kind: ToolKind, pool: 1 | 2): OptionId[] => OPTION_IDS.fi
 /** One of an option's own numbers (nothing, of a number it has not). */
 export const optN = (id: OptionId, key: string): number => (OPTIONS[id].n as Readonly<Record<string, number>>)[key] ?? 0;
 
+/**
+ * What is built: the options and the elements whose doing a game really reads, by the kind of tool. The smith draws
+ * only an option that is here, and sets only a gem whose element is here for that tool: nothing is offered that does
+ * nothing. One line a kind, each its builder's to fill (so that branches come together cleanly).
+ */
+export const BUILT: Record<ToolKind, { opts: readonly OptionId[]; gems: readonly Element[] }> = {
+  pick: { opts: ["pkPeek", "pkCrumb", "pkSteady", "pkLoose", "pkFresh", "pkCutter", "pkQuake", "pkTwin", "pkDrill", "pkGleam"], gems: ELEMENTS },
+  axe: { opts: ["axGrain", "axDust", "axKeen", "axResin", "axFresh", "axDry", "axOne", "axDouble", "axRoot", "axElder"], gems: ELEMENTS },
+  rod: { opts: [], gems: [] },
+  hoe: { opts: [], gems: [] },
+  can: { opts: [], gems: [] },
+  bugNet: { opts: [], gems: [] },
+  pot: { opts: [], gems: [] },
+  pan: { opts: [], gems: [] },
+  grill: { opts: [], gems: [] },
+};
+/** The options of a pool that may be drawn for a kind of tool now: those of its pool that are built. */
+export const drawable = (kind: ToolKind, pool: 1 | 2): OptionId[] => poolOf(kind, pool).filter((id) => BUILT[kind].opts.includes(id));
+/** Whether a gem of an element may be set in a kind of tool now: its doing is built. */
+export const settable = (kind: ToolKind, element: Element): boolean => BUILT[kind].gems.includes(element);
+
 /* ── what a gem does ────────────────────────────────────────────────────── */
 
 /** The levels a gem's element works at: a tool of the first tier reaches the first, and the second at the top. */
