@@ -693,7 +693,7 @@ export class Trial {
     this.write(WELL, did.well);
     // (the well's book: so many bucketfuls poured, and out of which bucket; a can filled; a bucket drawn, with nobody's hands on its water yet)
     if (did.chore === "pour") this.wellSeen({ by: this.id, at: now, what: "pour", n: did.well - well, can: handOf(p) ?? undefined });
-    else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", can: handOf(p) ?? undefined });
+    else if (did.chore === "fill") this.wellSeen({ by: this.id, at: now, what: "fill", n: well - did.well, can: handOf(p) ?? undefined });
     else this.wellSeen({ by: this.id, at: now, what: "draw", can: handOf(p) ?? undefined, kind: natureAt(now, SKIES.raining(now)) ?? undefined });
     this.save(did.purse);
     return { ok: true, chore: did.chore };

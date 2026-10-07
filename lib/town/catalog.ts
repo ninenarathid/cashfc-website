@@ -163,7 +163,7 @@ export function catalogOf() {
       tools: Object.fromEntries(ITEM_IDS.flatMap((id) => { const kind = toolOf(id); return kind ? [[id, kind] as [ItemId, string]] : []; })),
       seeds: Object.fromEntries(CROP_IDS.map((id) => [CROPS[id].seed, id])),
       field: FIELD, blades: BLADES, tree: TREE_PICKS,
-      cans: WATER.cans, buckets: WATER.buckets, well: WATER.well, chores: WATER.costs, beds: BEDS,
+      cans: WATER.cans, buckets: WATER.buckets, well: WATER.well, fill: WATER.fill, chores: WATER.costs, beds: BEDS,
       bedsAt: Array.from({ length: BEDS_IN_FARM }, (_, bed) => bedCorner(bed)), side: bedSide(), wellAt: [WELL.x, WELL.y],
       misses: 30,
       // ── gifts: farming ── what the farming line's gifts go by, beyond each one's own number (the gifts' row): the hours an hourglass runs, and how many turnings a plant

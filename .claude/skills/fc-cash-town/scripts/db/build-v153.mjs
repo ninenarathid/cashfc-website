@@ -13,8 +13,8 @@ import { fileURLToPath } from "node:url";
 
 const here = (name) => new URL(`./${name}`, import.meta.url);
 const lf = (s) => s.split("\r\n").join("\n");
-export const ORDER = ["kitchen", "farming", "helpers", "well", "fishing", "forest", "insects"];
-const ABOUT = { kitchen: "The kitchen", farming: "The farm", helpers: "The helpers (on the farm's)", well: "The well", fishing: "The deck", forest: "The forest", insects: "The insects" };
+export const ORDER = ["kitchen", "farming", "helpers", "well", "water", "fishing", "forest", "insects"];
+const ABOUT = { kitchen: "The kitchen", farming: "The farm", helpers: "The helpers (on the farm's)", well: "The well", water: "The farm's well holds more, and a can takes two bucketfuls of it", fishing: "The deck", forest: "The forest", insects: "The insects" };
 export const linesHere = () => ORDER.filter((l) => existsSync(here(`v153.${l}.sql`)));
 
 export function build(lines = linesHere()) {

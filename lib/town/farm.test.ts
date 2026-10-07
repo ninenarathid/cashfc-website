@@ -695,12 +695,23 @@ describe("water", () => {
     expect(poured.well).toBe(1);
     expect(waterIn(poured.purse.bag, "bucket")).toBe(0);
     me = poured.purse; well = poured.well;
-    // the can, at the well: a bucket of the well's water fills it
+    // the can, at the well: a filling takes two bucketfuls of the well's water (the owner, 2026-10-07: a bucketful goes
+    // half as far as it did), so the one that is there gives half a can, and the well is dry
     me = holding(me, "can");
     expect(choreFor(me, "river", well)).toBeNull();
     expect(choreFor(me, "well", well)).toBe("fill");
-    const filled = done(chore(me, "well", well, NIGHT));
-    expect(filled.well).toBe(0);
+    const half = done(chore(me, "well", well, NIGHT));
+    expect(WATER.fill).toBe(2);
+    expect(half.well).toBe(0);
+    expect(waterIn(half.purse.bag, "can")).toBe(WATER.cans.can! / 2);
+    expect(chore(half.purse, "well", 0, NIGHT)).toEqual({ ok: false, why: "dry" });
+    // …another bucketful tops it up by half a can more, and never over its brim
+    const topped = done(chore(half.purse, "well", 1, NIGHT));
+    expect(waterIn(topped.purse.bag, "can")).toBe(WATER.cans.can);
+    expect(waterIn(done(chore(holding(withWater("can", 7), "can"), "well", 1, NIGHT)).purse.bag, "can")).toBe(WATER.cans.can);
+    // with two or more in the well a filling takes two and fills the can, however much was left in it
+    const filled = done(chore(holding(withWater("can", 3), "can"), "well", 5, NIGHT));
+    expect(filled.well).toBe(3);
     expect(waterIn(filled.purse.bag, "can")).toBe(WATER.cans.can);
     // a full can is not filled again, and an empty well fills nothing
     expect(choreFor(filled.purse, "well", 5)).toBeNull();
@@ -714,10 +725,14 @@ describe("water", () => {
     expect(choreFor(holding(purseWith(["hoe", 1]), "hoe"), "river", 0)).toBeNull();
     expect(choreFor(purseWith(["bucket", 1]), "river", 0)).toBeNull();
     expect(chore(purseWith(["bucket", 1]), "river", 0, NIGHT)).toEqual({ ok: false, why: "none" });
-    // a better can takes one bucket too, and waters more with it
+    // (the well holds a hundred bucketfuls, where it held forty until 2026-10-07)
+    expect(WATER.well).toBe(100);
+    // a better can takes its two bucketfuls too, and waters more with them
     const brass = done(chore(holding(purseWith(["canBrass", 1]), "canBrass"), "well", 3, NIGHT));
-    expect(brass.well).toBe(2);
+    expect(brass.well).toBe(1);
     expect(waterIn(brass.purse.bag, "canBrass")).toBe(WATER.cans.canBrass);
+    // (of an odd can, half is rounded down: none here, the three cans hold 8, 12 and 18)
+    expect(Object.values(WATER.cans).every((n) => n! % WATER.fill === 0)).toBe(true);
   });
 
   it("has its well where the farm's lanes cross, with room to stand round it", () => {

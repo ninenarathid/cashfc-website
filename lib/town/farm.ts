@@ -135,7 +135,10 @@ export const TREE_PICKS = 5;
 export const WATER = {
   cans: { can: 8, canCopper: 12, canBrass: 18 } as Partial<Record<ItemId, number>>,
   buckets: { bucket: 1, bucketIron: 2, waterYoke: 2, waterYokeGreat: 4, waterCart: 6 } as Partial<Record<ItemId, number>>,
-  well: 40,
+  // (the owner, 2026-10-07: 100 where it held 40; and a bucketful of it goes half as far in a can)
+  well: 100,
+  /** How many of the well's bucketfuls a can's filling takes (one until 2026-10-07): so a bucketful is four waterings of a plain can, six of a copper one, nine of a brass one. */
+  fill: 2,
   costs: { draw: 2, pour: 1, fill: 1 },
 };
 /**
@@ -592,10 +595,13 @@ export function chore(purse: Purse, where: "river" | "well" | null, well: number
     const slot = purse.bag.findIndex((s) => s?.item === hand && s.water), has = purse.bag[slot]!.water!, pours = Math.min(has, WATER.well - well);
     return { ok: true, chore: what, well: well + pours, purse: { ...spend(purse, WATER.costs.pour, now), bag: setStack(purse.bag, slot, has > pours ? { item: hand, n: 1, water: has - pours } : { item: hand, n: 1 }) } };
   }
-  // a can takes one bucket of the well's water, however much was left in it
+  // a can's filling takes so many bucketfuls of the well's water (WATER.fill), however much was left in the can. A well
+  // that has fewer gives what it has, and the can so much of a filling more (half a can for one bucketful of two)
   if (well < 1) return no("dry");
   const slot = purse.bag.findIndex((s) => s?.item === hand && (s.water ?? 0) < WATER.cans[hand]!);
-  return { ok: true, chore: what, well: well - 1, purse: { ...spend(purse, WATER.costs.fill, now), bag: setStack(purse.bag, slot, { item: hand, n: 1, water: WATER.cans[hand]! }) } };
+  const cap = WATER.cans[hand]!, take = Math.min(WATER.fill, well), had = purse.bag[slot]!.water ?? 0;
+  const water = take >= WATER.fill ? cap : Math.min(cap, had + Math.floor((cap * take) / WATER.fill));
+  return { ok: true, chore: what, well: well - take, purse: { ...spend(purse, WATER.costs.fill, now), bag: setStack(purse.bag, slot, { item: hand, n: 1, water }) } };
 }
 
 /** Every vegetable's seed is a thing, and so is what it grows (a check the tests make). */

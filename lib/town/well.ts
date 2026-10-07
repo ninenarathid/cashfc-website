@@ -79,7 +79,7 @@ export interface WaterDeed {
   by: string;
   at: number;
   what: "pour" | "fill" | "water" | "sow" | "ditch" | "yard" | "fresh" | "draw" | "pass";
-  /** Poured: how many bucketfuls went in (or over the bed). */
+  /** Poured: how many bucketfuls went in (or over the bed). Filled: how many the can took of the well. */
   n?: number;
   /** Poured over a bed: how many plants it watered. */
   plants?: number;
@@ -226,9 +226,12 @@ export function seen(log: WellLog, d: WaterDeed): WellLog {
   }
   if (d.what === "fill") {
     if (!d.can) return log;
-    // a bucketful of the oldest water there is; of nobody's, when the book knows of none
-    const [first, ...rest] = log.water;
-    const water = !first ? log.water : first.left > 1 ? [{ ...first, left: first.left - 1 }, ...rest] : rest;
+    // so many bucketfuls of the oldest water there is: as many as the filling took of the well (`n`; one where the deed
+    // says none: a filling took one until 2026-10-07). The can's water is of whoever carried the oldest of them; of
+    // nobody's, when the book knows of none
+    const first = log.water[0];
+    let water = log.water;
+    for (let n = Math.max(1, Math.floor(d.n ?? 1)); n > 0 && water.length; n--) { const [head, ...rest] = water; water = head.left > 1 ? [{ ...head, left: head.left - 1 }, ...rest] : rest; }
     return { ...log, water, cans: { ...log.cans, [canKey(d.by, d.can)]: { by: first?.by ?? null, left: WATER.cans[d.can as ItemId] ?? 0 } } };
   }
   // a plant watered: with whose water, and whose plant
