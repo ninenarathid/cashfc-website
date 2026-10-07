@@ -1309,9 +1309,9 @@ function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k:
 }
 /** What stands there: pines thinning into rocks towards the peaks, beyond the town; the town's own trees in the low country; rocks beyond the summit. */
 export const BEYOND_MORE_PROPS = PREVIEW ? {
-  west: beyondMore(BEYOND_MORE.west, (k, x) => (x > -10 ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : k < 0.1 ? "rock" : null)),
+  west: beyondMore(BEYOND_MORE.west, (k, x) => (x > -9 ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : null)),
   low: beyondMore(BEYOND_MORE.low, (k, x) => (x < MOUNTAIN.x + MOUNTAIN.w + 1 ? null : k < 0.16 ? "tree" : k < 0.27 ? "pine" : k < 0.34 ? "bush" : null)),
-  high: beyondMore(BEYOND_MORE.high, (k) => (k < 0.1 ? "mrock" : null)),
+  high: beyondMore(BEYOND_MORE.high, (k, x) => (x >= MOUNTAIN.x - 5 && k < 0.12 ? "mrock" : null)),
 } : { west: [], low: [], high: [] };
 /**
  * The peaks themselves, far off: where each one's foot is, which of the two pictures, and how many times its
