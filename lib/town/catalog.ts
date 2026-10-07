@@ -7,6 +7,8 @@ import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 // ── gifts: farming ──
 import { ENCORE, HOURGLASS } from "./farm";
+// ── gifts: helpers ──
+import { HELPING } from "./helping";
 import { BOUTS, FIGHT, NIBBLES_APART, ORB, PAIR, SIGNS, STAR, STRIKE, WARY } from "./fishing";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
 import { huntRow } from "./hunt";
@@ -167,6 +169,8 @@ export function catalogOf() {
       // ── gifts: farming ── what the farming line's gifts go by, beyond each one's own number (the gifts' row): the hours an hourglass runs, and how many turnings a plant
       // remembers; and what part of its hours a crop that is picked once takes to bear the once more the mandrake sang it to
       gifted: { glass: { hours: HOURGLASS.hours, kept: HOURGLASS.kept }, encore: ENCORE },
+      // ── gifts: helpers ── what the helpers' line's gifts go by, beyond each one's own number (lib/town/helping)
+      helping: HELPING,
     },
     /** What else is made, at the yard or by hand: what goes in, in what, and how many come of it. */
     makes: MAKES,
@@ -390,7 +394,8 @@ export type Catalog = ReturnType<typeof catalogOf>;
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // the gifts of ranks 1 to 6, as each line's are built (every row a line's rules change is named here when its file is put together)
-  v153: { keys: [], over: ["gifts", "farming", "well", "forest", "insects", "fishing"] },
+  // (`work`: what fae dust sprinkled on somebody else's plant is worth on the helpers' line)
+  v153: { keys: [], over: ["gifts", "farming", "well", "forest", "insects", "fishing", "work"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

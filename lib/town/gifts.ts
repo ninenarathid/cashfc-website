@@ -48,7 +48,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "charmApron", kind: "charm", line: "kitchen", rank: 1, name: { th: "ผ้ากันเปื้อนต้องมนตร์", en: "Enchanted apron" },
     does: { th: "หม้อบอกเองว่าใส่ถูกไหม: ของที่ใส่เรืองเขียวถ้ายังไปเป็นสูตรจริงได้ เรืองแดงถ้าไม่มีสูตรไหนใช้แบบนี้", en: "The pot tells you: what you put in glows green while it can still become a real recipe, red when no recipe has it so" } },
   { id: "charmGloves", kind: "charm", line: "helpers", rank: 1, name: { th: "ถุงมือชาวสวนต้องมนตร์", en: "Enchanted gardener's gloves" },
-    does: { th: "งานในแปลงของคนอื่นใช้แรงครึ่งเดียว", en: "Work in somebody else's bed takes half the stamina" } },
+    does: { th: "งานในแปลงของคนอื่นไม่เสียแรงเลย และรดน้ำแปลงคนอื่นได้ทั้งแถวด้วยการเทยาวครั้งเดียว เทพลาด ต้นท้ายแถวไม่ได้น้ำ", en: "Work in somebody else's bed takes no stamina at all; and a row of theirs is watered at one long pour: poured badly, the row's last plants get none" } },
   { id: "charmFloat", kind: "charm", line: "fishing", rank: 1, name: { th: "ทุ่นกระซิบ", en: "Whispering float" },
     does: { th: "พอลงเบ็ดจะรู้ว่าปลาอะไรกำลังมา มีวงนับถอยหลังถึงตอนกิน และทุ่นสว่างวาบตอนปลากินจริง", en: "Once the line is out you know what is coming, a ring runs down to the bite, and the float flashes at the true bite" } },
   { id: "charmLamp", kind: "charm", line: "forest", rank: 1, name: { th: "ตะเกียงผู้เดินป่า", en: "Forest walker's lamp" },
@@ -145,7 +145,8 @@ export const GIFTS: readonly Gift[] = [
  * lights so many tiles about its wearer in the forest's dark, on their own screen (the owner, 2026-10-06, of an early
  * gift of the forest's: "ของที่ช่วยให้ป่าสว่างเวลากลางคืน เอาแค่พอให้ตัวเองเล่นง่ายขึ้น": it finds nothing more, it only shows).
  */
-export const CHARMS = { slots: 2, charmApron: 1, charmGloves: 0.5, charmFloat: 1, charmLamp: 5, charmNet: 1, charmHoe: 1 } as const;
+// ── gifts: helpers ── (the gloves' number is what is left to pay of the cost of work in somebody else's bed: nothing, since the ladder was laid out anew; it was a half)
+export const CHARMS = { slots: 2, charmApron: 1, charmGloves: 0, charmFloat: 1, charmLamp: 5, charmNet: 1, charmHoe: 1 } as const;
 /**
  * What each familiar does: the squirrel catches so many of the fruit one misses at a tree; the butterfly leaves so
  * much of the distance at which an insect startles (lib/town/insects' stealthOf: a half, since 2026-10-07; it was a

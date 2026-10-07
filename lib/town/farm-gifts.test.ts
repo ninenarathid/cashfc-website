@@ -113,9 +113,9 @@ describe("the enchanted hoe: a bed's row at a swing", () => {
     expect(did.bed).toEqual(theirs);
     const mine: Bed = { by: "me", tended: NOON - 3_600_000, empty: 0 };
     expect(done(rowTend(MID, KEYS, {}, mine, 3, 0, worn, "me", NOON, all(row))).bed).toEqual({ ...mine, tended: NOON });
-    // (with the gardener's gloves on beside it, work in somebody else's bed is half the stamina, each plot's as ever)
+    // (with the gardener's gloves on beside it, work in somebody else's bed takes no stamina, each plot's as ever)
     const both = holding(purseWith({ had: ["charmHoe", "charmGloves"], charms: ["charmHoe", "charmGloves"] }, ["hoe", 1]), "hoe");
-    expect(staminaOf(done(rowTend(MID, KEYS, {}, theirs, 3, 0, both, "me", NOON, all(row))).purse, NOON)).toBe(100 - 7);
+    expect(staminaOf(done(rowTend(MID, KEYS, {}, theirs, 3, 0, both, "me", NOON, all(row))).purse, NOON)).toBe(100);
   });
 });
 

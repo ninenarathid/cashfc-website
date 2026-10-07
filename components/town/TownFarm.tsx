@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, hardFor, hitsFor, moreOf, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
+import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
@@ -18,6 +18,13 @@ import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
 import TownSteady from "./TownSteady";
 import TownSweep from "./TownSweep";
+// ── gifts: helpers ──
+import TownLongPour from "./TownLongPour";
+import { AnkletRun, HelpNews, RingOffer } from "./TownHelping";
+import type { Stander } from "@/lib/town/line";
+import type { Aid } from "@/lib/town/helping";
+import { usesLeft, wearing } from "@/lib/town/gifts";
+import { HELPING, dustUntil, runOf } from "@/lib/town/helping";
 import TownTiming from "./TownTiming";
 import TownWeeding from "./TownWeeding";
 import { WHY } from "./TownTrade";
@@ -160,7 +167,7 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * one farm for the whole town; in `next dev`'s test room the browser's trial,
  * one farm for the browser.
  */
-export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register }: {
+export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register, here = null, people }: {
   keeper: Keeper;
   /** What I am called, for the name plate of a bed I take. */
   name: string;
@@ -177,6 +184,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   bottom: string;
   /** Hand the map the way to draw the plots (and take it back with null). */
   register: (draw: FarmDraw | null) => void;
+  // ── gifts: helpers ──
+  /** Where I stand still, anywhere in town (null while walking, or while something else is open); and everybody on the map now, as the map has them: for the ring of shared strength, which is for a friend standing near, wherever that is. */
+  here?: [number, number] | null;
+  people?: () => Stander[];
 }) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -189,7 +200,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** (`row`: the plots of a bed's row that the enchanted hoe works at one swing, the one stood on first: a beat to each) */
   /** (`whole`: tired hands steadying themselves for a row's deed that has no game of its own, the pouch's sowing: done, the whole row is sown) */
   /** (`sweep`: the ripe plants of a row that the crescent sickle sweeps along once, from one end to the other: where each stands in the row, what it is, and how much harder it is for me) */
-  const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }> } | null>(null);
+  /** (`long`: the plants of a row of somebody else's that the gardener's gloves water at one long pour, from the row's head: where each stands in the row and what it is; `hard`: how much harder the row is for me) */
+  const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
+    long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
   const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" } | null>(null);
   const leaveIt = useRef<HTMLButtonElement>(null);
@@ -243,6 +256,34 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const songs = useRef<Array<{ x: number; y: number; from: number | null }>>([]);
   /** Whether a gift's deed is with the keeper now: its button pressed twice asks once. */
   const sent = useRef(false);
+  /** The plants garden fae dust lies on now (lib/town/helping's dustUntil), each with the moment it is gone: read off the plants themselves, so everybody at the farm sees it. */
+  const dusted = useRef(new Map<string, number>());
+  dusted.current = new Map(Object.entries(plots).flatMap(([k, plot]) => { const until = plot.plant ? dustUntil(plot.plant, now) : null; return until === null ? [] : [[k, until] as [string, number]]; }));
+  // ── gifts: helpers ──
+  /**
+   * The anklet's tune, seen (lib/town/helping's chime): a note going up from each plant as it is watered, the higher
+   * the longer the run, gold once the run is at its most (on my own screen, as I water); and the notes of it played
+   * so far, for a script to hear by.
+   */
+  const chimes = useRef<Array<{ x: number; y: number; step: number; top: boolean; from: number | null }>>([]), tune = useRef<number[]>([]);
+  /**
+   * What friends' gifts did, shown on the map where it happened (components/town/TownHelping tells of each once): a
+   * bell over each of the two it rang for.
+   */
+  const bellsUp = useRef<Array<{ ids: string[]; from: number | null }>>([]);
+  /** Strength a ring shared, on its way: from whom to whom. */
+  const beams = useRef<Array<{ from: string; to: string; born: number | null }>>([]);
+  const onAid = useCallback((aid: Aid) => {
+    if (aid.what === "bell") bellsUp.current.push({ ids: [keeper.id, aid.by], from: null });
+    if (aid.what === "ring") beams.current.push({ from: aid.by, to: keeper.id, born: null });
+    if (aid.what === "dust" && aid.key) { const [x, y] = aid.key.split(",").map(Number); vfx.add("sparkle", { x: x + 0.5, y: y + 0.5 }); }
+  }, [keeper, vfx]);
+  const onGave = useCallback((to: string) => { beams.current.push({ from: keeper.id, to, born: null }); }, [keeper]);
+  const calledOf = useCallback((id: string) => people?.().find((p) => p.id === id)?.name ?? null, [people]);
+  const chimeAt = useCallback((plot: string, step: number, wait = 0) => {
+    const [x, y] = plot.split(",").map(Number), top = step >= HELPING.anklet.run;
+    window.setTimeout(() => { chimes.current.push({ x, y, step, top, from: null }); tune.current = [...tune.current.slice(-39), step]; sfx?.wake(); sfx?.chime(step, top); }, wait);
+  }, [sfx]);
 
   // The plots, drawn among everything else on the map.
   useEffect(() => {
@@ -341,8 +382,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         ctx.globalAlpha = 1;
       };
       // a note of music, in the town's big pixels: a head, a stem and a flag, light on a dark edge
-      const note = (x: number, y: number, alpha: number, tint = "#d9f7a1") => {
-        const u = Math.max(2, Math.round(1.5 * s));
+      const note = (x: number, y: number, alpha: number, tint = "#d9f7a1", big = 1) => {
+        const u = Math.max(2, Math.round(1.5 * s * big));
         for (const [dx, dy, colour] of [[u / 2, u / 2, "#2a190d"], [0, 0, tint]] as Array<[number, number, string]>) {
           ctx.globalAlpha = alpha * (colour === tint ? 1 : 0.8);
           ctx.fillStyle = colour;
@@ -365,6 +406,93 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           }
         });
       }
+      // the anklet's tune, seen: a note going up from each plant as it is watered, the higher the longer the run
+      chimes.current = chimes.current.filter((c) => c.from === null || t - c.from < 1400);
+      for (const c of chimes.current) {
+        if (c.from === null) c.from = t;
+        const at = project({ x: c.x + 0.5, y: c.y + 0.5 }), part = still ? 0.4 : (t - c.from) / 1300;
+        if (part >= 1 || !onScreen(at)) continue;
+        const tint = c.top ? "#ffd98a" : "#cfe9ff";
+        above(() => {
+          // (a ring going out at the plant's foot, and the note over it)
+          ctx.strokeStyle = tint;
+          ctx.lineWidth = Math.max(2, 2 * s);
+          ctx.globalAlpha = (1 - part) * 0.8;
+          ctx.beginPath();
+          ctx.ellipse(at.x, at.y + 2 * s, (8 + part * 16) * s, (3.5 + part * 7) * s, 0, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+          note(at.x + 10 * s + Math.sin(part * 6 + c.x) * 4 * s, at.y - (26 + part * (26 + Math.min(20, c.step) * 1.4)) * s, Math.sin(Math.min(1, part) * Math.PI), tint, 1.7);
+        });
+      }
+      // strength a ring shared: motes of light going over from the giver to the friend, and a glow about the friend as they come
+      beams.current = beams.current.filter((b) => b.born === null || t - b.born < 1900);
+      for (const b of beams.current) {
+        if (b.born === null) b.born = t;
+        const all = frame.people?.() ?? [], giver = all.find((p) => p.id === b.from), friend = all.find((p) => p.id === b.to);
+        if (!friend) continue;
+        const to = project({ x: friend.x, y: friend.y }), from = giver ? project({ x: giver.x, y: giver.y }) : { x: to.x, y: to.y - 70 * s }, since = t - b.born;
+        if (!onScreen(to)) continue;
+        above(() => {
+          const px = Math.max(2, Math.round(2.2 * s));
+          for (let i = 0; i < 10; i++) {
+            const part = still ? (i + 0.5) / 10 : (since - i * 80) / 900;
+            if (part <= 0 || part >= 1) continue;
+            const x = Math.round(from.x + (to.x - from.x) * part), y = Math.round(from.y - 34 * s + (to.y - from.y) * part - Math.sin(part * Math.PI) * 26 * s);
+            ctx.fillStyle = i % 2 ? "#ffe19a" : "#b8f28a";
+            ctx.globalAlpha = Math.sin(part * Math.PI);
+            ctx.fillRect(x, y, px, px);
+            ctx.globalAlpha *= 0.5;
+            ctx.fillRect(x - px, y, px * 3, px);
+            ctx.fillRect(x, y - px, px, px * 3);
+          }
+          const glow = Math.max(0, Math.min(1, (since - 700) / 400)) * Math.max(0, Math.min(1, (1900 - since) / 500));
+          if (glow > 0) {
+            ctx.globalAlpha = glow * 0.35;
+            ctx.fillStyle = "#b8f28a";
+            ctx.beginPath();
+            ctx.ellipse(to.x, to.y - 24 * s, 20 * s, 30 * s, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        });
+      }
+      // a duet bell that rang: over each of the two a bell swings, and rings of its sound go out from it
+      bellsUp.current = bellsUp.current.filter((b) => b.from === null || t - b.from < 2300);
+      for (const b of bellsUp.current) {
+        if (b.from === null) b.from = t;
+        const since = t - b.from, all = frame.people?.() ?? [];
+        for (const id of b.ids) {
+          const who = all.find((p) => p.id === id);
+          if (!who) continue;
+          const at = project({ x: who.x, y: who.y });
+          if (!onScreen(at)) continue;
+          above(() => {
+            const head = at.y - 64 * s, fade = Math.min(1, since / 200) * Math.min(1, (2300 - since) / 500);
+            ctx.strokeStyle = "#ffe19a";
+            ctx.lineWidth = Math.max(2, 2 * s);
+            for (let i = 0; i < 3; i++) {
+              const part = still ? (i + 1) / 4 : ((since / 900 + i / 3) % 1);
+              ctx.globalAlpha = fade * (1 - part) * 0.85;
+              ctx.beginPath();
+              ctx.ellipse(at.x, head, (10 + part * 26) * s, (6 + part * 15) * s, 0, 0, Math.PI * 2);
+              ctx.stroke();
+            }
+            const cell = ICON_ATLAS.icons["charmBell" as IconName];
+            ctx.globalAlpha = fade;
+            if (cell) {
+              const [x, y, w, h] = cell, k = 0.8 * s;
+              ctx.save();
+              ctx.imageSmoothingEnabled = false;
+              ctx.translate(Math.round(at.x), Math.round(head - (h * k) / 2));
+              ctx.rotate(still ? 0 : Math.sin(since / 85) * 0.38 * Math.max(0, 1 - since / 2000));
+              ctx.drawImage(img, x, y, w, h, -(w * k) / 2, 0, w * k, h * k);
+              ctx.restore();
+            }
+            ctx.globalAlpha = 1;
+          });
+        }
+      }
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
         const tx = FARM.x + u, ty = FARM.y + v;
         if (!plotAt(tx, ty)) continue;
@@ -372,6 +500,21 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         if (!onScreen(at)) continue;
         const what = seen.current.get(plotKey(tx, ty));
         if ((sand.current.get(plotKey(tx, ty)) ?? 0) > game && what?.crop && !what.dead) above(() => grains(at, tx * 5 + ty * 3));
+        // (fae dust on a plant: motes of it twinkling round the plant, each in its own time, for as long as it holds)
+        if ((dusted.current.get(plotKey(tx, ty)) ?? 0) > game && what?.crop && !what.dead) above(() => {
+          const px = Math.max(2, Math.round(1.8 * s)), seed = tx * 7 + ty * 3;
+          for (let i = 0; i < 6; i++) {
+            const turn = (still ? 0 : t / 2600) + i * 1.047 + seed, blink = still ? 0.75 : 0.5 + 0.5 * Math.sin(t / 310 + i * 2.1 + seed);
+            const x = Math.round(at.x + Math.cos(turn) * (11 + (i % 2) * 5) * s), y = Math.round(at.y - (10 + (i % 3) * 9 + Math.sin(turn * 1.3) * 3) * s);
+            ctx.fillStyle = i % 2 ? "#ffe19a" : "#d9ffe8";
+            ctx.globalAlpha = 0.25 + 0.7 * blink;
+            ctx.fillRect(x, y, px, px);
+            ctx.globalAlpha *= 0.5;
+            ctx.fillRect(x - px, y, px * 3, px);
+            ctx.fillRect(x, y - px, px, px * 3);
+          }
+          ctx.globalAlpha = 1;
+        });
         things.push({ depth: tx + ty + 0.6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled") blit("plotSoil", at, 0, PLANT * s * 0.9);
@@ -447,6 +590,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const say = useCallback((why: string) => { const w = WHY_FARM[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
+  /** Whether work on a plot is work for somebody else (lib/town/farm's theirsAt): what the helpers' line counts, and what the guardian's cloak is for. */
+  const theirsOn = useCallback((k: string | null) => {
+    if (!k) return false;
+    const [x, y] = k.split(",").map(Number);
+    return theirsAt(keeper.farm()[k], keeper.owners().get(bedOf(x, y))?.by ?? null, keeper.id);
+  }, [keeper]);
+  /** Whether my hands are tired for work on a plot: with no stamina, but never under the guardian's cloak where the work is for somebody else. */
+  const tiredOn = useCallback((k: string | null) => tiredAt(keeper.purse(), isSpent(keeper.purse(), keeper.now()), theirsOn(k)), [keeper, theirsOn]);
   /** Do the deed, and say what came of it. `sure`: a living plant is meant to be dug out (asked twice, and answered). */
   const act = useCallback(async (k: string, timing?: GameResult, sure = false) => {
     // (the buffs I have as the work begins: a blessing that had a hand in it shows over the plot when it is done)
@@ -475,8 +626,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     for (const id of seenAtPlot(did.deed, mine, began)) vfx.add("bless", at, { icon: BURST[id], lift: 8 });
     if (did.got.length) vfx.add("pop", at, { icon: did.got[0][0] });
     if (sang) { songs.current.push({ x, y, from: null }); sfx?.work("cooked", 0.7); }
+    // (somebody else's plant watered with the anklet on: the run's next note)
+    const rung = keeper.purse().chime;
+    if (did.deed === "water" && rung && rung.at !== mine.chime?.at && wearing(mine, "charmAnklet")) chimeAt(k, rung.n);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
-  }, [keeper, th, sfx, name, say, vfx]);
+  }, [keeper, th, sfx, name, say, vfx, chimeAt]);
   /** Draw a bucket of water, pour it into the well, or fill the can. */
   const carry = useCallback(async () => {
     const mine = keeper.purse(), began = keeper.now();
@@ -511,18 +665,19 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (!work) return;
     if (work === "ditch") {
       // (no game with stamina; with none it is poured like any water, a short round)
-      if (isSpent(keeper.purse(), keeper.now())) setWorking({ key, work, need: FARMING.tired });
+      if (tiredOn(key)) setWorking({ key, work, need: FARMING.tired });
       else void pourOver(key!);
       return;
     }
     // digging a plant out is asked for a second time, and is no game
     if (key && (deed === "pull" || deed === "uproot")) { setAsking({ key, deed }); return; }
     // the hoe's work is the game of timing; with no stamina left so is everything else, a short round of it
-    const need = hitsFor(work, isSpent(keeper.purse(), keeper.now()));
+    // (under the guardian's cloak, work for somebody else is as with stamina: what is done at once is done at once)
+    const need = hitsFor(work, key && deed ? tiredOn(key) : isSpent(keeper.purse(), keeper.now()));
     if (need) setWorking({ key: key && deed ? key : null, work, need });
     else if (key && deed) void act(key);
     else void carry();
-  }, [key, deed, chore, pours, act, carry, pourOver, keeper, th]);
+  }, [key, deed, chore, pours, act, carry, pourOver, keeper, th, tiredOn]);
   /** A row's deed, done whole by whoever keeps the game: what flies up over each plot it did, and a word of how many those were. */
   const doRow = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult | null) => {
     // (the plots as they stand: which plants the mandrake sang to is read from each as it was and as it is)
@@ -604,6 +759,54 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     }
     setWorking({ key, work: row.deed, need: row.plots.length, row: row.plots });
   }, [key, keeper, doRow]);
+  /** What the gardener's gloves offer here: the plants of this row of somebody else's that one long pour would water (lib/town/farm's pourFor). */
+  const pourHere = key ? keeper.pourAt(key) : [];
+  /** The long pour, done whole by whoever keeps the game: water over each plant it reached, and a word of how many those were. */
+  const doLong = useCallback(async (k: string, marks: Record<string, boolean>, timing: GameResult) => {
+    if (sent.current) return;
+    sent.current = true;
+    const ran = keeper.purse().chime?.at;
+    const did = await keeper.pourDo(k, name, marks, { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need }).finally(() => { sent.current = false; });
+    if (!did.ok) { say(did.why); return; }
+    // (with the anklet on each plant of the row is of the run: a note each, one after another)
+    const rung = keeper.purse().chime;
+    if (rung && rung.at !== ran && wearing(keeper.purse(), "charmAnklet")) did.done.forEach((plot, i) => chimeAt(plot, rung.n - did.done.length + 1 + i, 120 + i * 110));
+    keeper.record({ game: "farming", at: keeper.now(), won: did.done.length > 0, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "water", need: timing.need, hits: timing.hits, misses: timing.misses });
+    sfx?.wake();
+    if (did.done.length) sfx?.work("water");
+    did.done.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => vfx.add("water", { x: x + 0.5, y: y + 0.5 }), i * 60); });
+    const of = Object.keys(marks).length, n = did.done.length;
+    setNote(th ? `เทยาวทั้งแถว: ได้น้ำ ${n} จาก ${of} ต้น` : `The long pour: ${n} of ${of} plants watered`);
+  }, [keeper, name, say, sfx, th, vfx, chimeAt]);
+  /** Whether my fae dust could be sprinkled on the plant I stand on (lib/town/farm's dust): another's, with a pest, no dust on it yet, and one left to my day. */
+  const dustHere = key ? keeper.dustAt(key) : false;
+  /** Sprinkle it: a glitter over the plant, and until when it holds. */
+  const sprinkle = useCallback(async () => {
+    if (!key || sent.current) return;
+    sent.current = true;
+    const did = await keeper.dustDo(key, name).finally(() => { sent.current = false; });
+    if (!did.ok) {
+      const w = ({ own: ["ผงภูตสวนใช้กับต้นของคนอื่นเท่านั้น", "The dust is for somebody else's plant"], running: ["ผงภูตสวนยังคุ้มครองต้นนี้อยู่", "The dust still holds here"] } as Record<string, [string, string]>)[did.why];
+      if (w) setNote(th ? w[0] : w[1]); else say(did.why);
+      return;
+    }
+    sfx?.wake();
+    sfx?.work("feed");
+    const [x, y] = key.split(",").map(Number);
+    for (let i = 0; i < 3; i++) window.setTimeout(() => vfx.add("sparkle", { x: x + 0.5, y: y + 0.5 }, { lift: i * 7 }), i * 140);
+    const till = new Date(did.until + 7 * 3_600_000), clock = `${String(till.getUTCHours()).padStart(2, "0")}:${String(till.getUTCMinutes()).padStart(2, "0")}`;
+    setNote(th ? `ผงภูตสวนคุ้มครองต้นนี้ถึง ${clock} น.` : `The dust holds here until ${clock}`);
+  }, [key, keeper, name, say, sfx, th, vfx]);
+  /** Begin it: one pour along the row from its head, whichever plant of it I stand on. */
+  const beginLong = useCallback(() => {
+    const row = key ? keeper.pourAt(key) : [];
+    if (!key || row.length < 2) return;
+    const [x0, y0] = key.split(",").map(Number), [bx] = bedCorner(bedOf(x0, y0)), farm = keeper.farm();
+    const long = row.flatMap((k) => { const crop = farm[k]?.plant?.crop; return crop ? [{ key: k, place: Number(k.split(",")[0]) - bx, crop }] : []; }).sort((a, b) => a.place - b.place);
+    // (a row is as hard as its hardest crop is for me: somebody else's, so by my rank on the helpers' line)
+    const told = keeper.lines()?.lines, hard = Math.max(1, ...long.map((p) => hardIn(p.crop, true, told?.farming.points ?? 0, told?.helpers.points ?? 0)));
+    if (long.length > 1) setWorking({ key, work: "water", need: long.length, long, hard });
+  }, [key, keeper]);
   // walking off the plot, or away from the water, leaves the work
   useEffect(() => { if (working && (working.key ? working.key !== key : working.work !== chore)) setWorking(null); }, [working, key, chore]);
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
@@ -647,6 +850,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const handle = {
       seen: (k: string) => seen.current.get(k) ?? see(k, WILD, keeper.now(), keeper.rains()), deed: () => deed, chore: () => chore, act: begin, plots: () => keeper.farm(),
       offer: () => offer, flood: () => flood, hot: () => keeper.hot(), note: () => note, wellWater: () => keeper.wellWater(),
+      // (the gifts of the helpers' line: the plants the long pour would water here, and beginning it)
+      pour: () => (key ? keeper.pourAt(key) : []), pourAct: beginLong,
+      // (the anklet: the run as it stands, the notes of its tune played so far, and how many are in the air)
+      run: () => runOf(keeper.purse(), keeper.now()), tune: () => [...tune.current], chimes: () => chimes.current.length,
+      // (the dust: whether it could be sprinkled here, sprinkling it, and the plants it lies on now with when it is gone)
+      dust: () => dustHere, dustAct: sprinkle, dusted: () => Object.fromEntries(dusted.current),
+      // (the bells swinging over heads on this screen now)
+      bells: () => bellsUp.current.map((b) => b.ids), beams: () => beams.current.map((b) => [b.from, b.to]),
       // (the gifts of the farming line: what a row's power would do here, and beginning it)
       row: () => (key ? keeper.rowAt(key) : null), rowAct: beginRow,
       // (the gnome: the plots it would water here, sending it, and where it is on its round: how many plots it has come to of how many; null when it is not out)
@@ -663,7 +874,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     (window as unknown as { __townFarm?: typeof handle }).__townFarm = handle;
     return () => { delete (window as unknown as { __townFarm?: typeof handle }).__townFarm; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the plots a bucket would water are told by how many they are
-  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass]);
+  }, [deed, chore, offer, flood.join("|"), note, begin, keeper, asking, beginRow, key, sendGnome, turnGlass, beginLong, dustHere, sprinkle]);
 
   /** What the gifts of the farming line offer here, beside the plain deed: each a button of its own, with the gift's picture. */
   const powers: Array<{ id: GiftId; word: string; more?: string; go: () => void }> = [];
@@ -675,23 +886,40 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }
   if (gnomeHere.length) powers.push({ id: "famGnome", word: th ? "ให้โนมรดน้ำทั้งแปลง" : "Send the gnome down the bed", go: () => void sendGnome() });
   if (glassHere.length) powers.push({ id: "thingHourglass", word: th ? "พลิกนาฬิกาทราย" : "Turn the hourglass", go: () => void turnGlass(), more: th ? `${glassHere.length} ต้น` : `${glassHere.length} plants` });
-  if (!working && !offer && !note && !powers.length) return null;
+  // ── gifts: helpers ── what the gifts of the helpers' line offer here, the same way
+  if (dustHere) { const left = usesLeft(purse, "thingDust", now); powers.push({ id: "thingDust", word: th ? "โรยผงภูตสวน" : "Sprinkle fae dust", go: () => void sprinkle(), more: th ? `วันนี้เหลือ ${left}` : `${left} left today` }); }
+  if (pourHere.length > 1) powers.push({ id: "charmGloves", word: th ? "เทยาวรดทั้งแถว" : "One long pour down the row", go: beginLong, more: th ? `${pourHere.length} ต้น` : `${pourHere.length} plants` });
+  /** Whether a run of the anklet's is going: it is shown while it lasts, whatever else is. */
+  const running = wearing(purse, "charmAnklet") && runOf(purse, now) > 0;
+  /** What friends' gifts did for me: told wherever I stand, whatever else is shown. */
+  const news = <HelpNews keeper={keeper} th={th} sfx={sfx} onAid={onAid} nameOf={calledOf} />;
+  /** The ring of shared strength, for a friend standing near: wherever I stand still. */
+  const ringOffer = people ? <RingOffer keeper={keeper} th={th} here={here} people={people} name={name} sfx={sfx} bottom={bottom} onGave={onGave} /> : null;
+  // (it keeps its place whatever else is shown: so what it is telling of is not lost when a button comes or goes)
+  const bare = !working && !offer && !note && !powers.length && !running;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
+    <>{news}{ringOffer}{bare ? null : (
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+      {running && <AnkletRun keeper={keeper} />}
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
-        const game = working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
+        const game = working.long ? "longpour" : working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
         // (a meal's buff on the hands: steady hands for the pouring, a keen eye for the hoe and the weeding; the game of
         // tired hands is as it is)
         const growing = working.key ? seen.current.get(working.key) : undefined;
         // (and what is worked on: a crop of the second tier or better is harder for whoever is far up the farming line,
         // lib/town/farm's hardFor: a narrower mark, in whichever game it is. Bare ground and water are as they are)
         const worked = working.work === "sow" ? cropOf(hand) : working.key && working.work !== "clear" && working.work !== "till" && working.work !== "ditch" ? growing?.crop ?? null : null;
-        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: isSpent(purse, now), drops: true, buff: game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen"),
-          hard: hardFor(worked, keeper.lines()?.lines.farming.points ?? 0) };
+        // (and whose it is: work for somebody else is harder by my rank on the helpers' line, not the farming one; and under
+        // the guardian's cloak tired hands meet nothing there, and its games are twice as wide: the swing's stretch, the
+        // time between the weeding's gusts, the long pour's marks)
+        const theirs = theirsOn(working.key), wide = guardBy(purse, theirs), told = keeper.lines()?.lines;
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: tiredAt(purse, isSpent(purse, now), theirs), drops: true, wide,
+          buff: (game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen")) * (game === "weeding" ? wide : 1),
+          hard: theirs ? hardIn(worked, true, told?.farming.points ?? 0, told?.helpers.points ?? 0) : hardFor(worked, told?.farming.points ?? 0) };
         const common = {
           th, title,
           onHit: (hit: boolean) => {
@@ -712,6 +940,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
               void doRow(k, Object.fromEntries(row.map((plot, i) => [plot, !!result.marks?.[i]])), result);
               return;
             }
+            // (the long pour of the gardener's gloves: each plant the water reached is watered, and the rest are left)
+            if (working.long && k) { void doLong(k, Object.fromEntries(working.long.map((p, i) => [p.key, !!result.marks?.[i]])), result); return; }
             // (a game of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
             if (result.dropped || !hoeing) keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
             // with no stamina left the work is dropped at the third miss: nothing is done
@@ -730,7 +960,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>
             {/* the buffs that have a hand in this work, twinkling over the board */}
             <BuffAura ids={working.work === "ditch" ? [] : atPlot(working.work, purse, now)} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1 empty:hidden" />
-            {working.sweep ? <TownSweep {...common} title={ROW_VERB.pick[th ? 0 : 1]} verb={th ? "ตวัดเคียว" : "Swing"} mods={{ spent: mods.spent, buff: 1 + buffBy(purse, now, "keen") }}
+            {working.long ? <TownLongPour {...common} title={th ? "เทยาวทั้งแถว" : "The long pour"} verb={th ? "กดค้างเท" : "Hold to pour"} hard={working.hard ?? 1} icon={toolIcon("water", hand)}
+                mods={{ tool: mods.tool, spent: mods.spent, buff: 1 + buffBy(purse, now, "calm"), wide: mods.wide }}
+                onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "water" : "knock", hit ? 0.5 : 1); }}
+                plants={working.long.map((p) => ({ place: p.place, icon: growIconOf(p.crop, seen.current.get(p.key)?.stage ?? 3) as IconName }))} />
+              : working.sweep ? <TownSweep {...common} title={ROW_VERB.pick[th ? 0 : 1]} verb={th ? "ตวัดเคียว" : "Swing"} mods={{ spent: mods.spent, buff: 1 + buffBy(purse, now, "keen") }}
                 onHit={(well) => { sfx?.wake(); sfx?.work(well ? "pick" : "swish"); }}
                 plants={working.sweep.map((p) => ({ place: p.place, icon: growIconOf(p.crop, 5) as IconName, hard: p.hard }))} />
               : working.row ? <TownTiming {...common} title={(ROW_VERB[working.work as RowDeed] ?? VERB[working.work])[th ? 0 : 1]} verb={th ? "ฟันจอบ" : "Swing"} need={working.row.length} mods={mods} icon={toolIcon(working.work, hand)} row />
@@ -788,6 +1022,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ))}
         </div>
       )}
-    </div>
+    </div>)}
+    </>
   );
 }

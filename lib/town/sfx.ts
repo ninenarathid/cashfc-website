@@ -467,6 +467,17 @@ function tick(b: Bench, t: number, winning: boolean, n: number) {
   tone(b, t, "square", winning ? 1900 : 1100, winning ? 1700 : 1000, 0.016, winning ? 0.09 : 0.06, 0.001);
 }
 
+// ── gifts: helpers ──
+/**
+ * The pitch of the so-manieth note of the anklet's tune (lib/town/helping: a note a plant watered, of a run): a
+ * five-note scale climbing a step a plant, an octave every five, no higher than its twentieth note, where the run is
+ * at its most.
+ */
+export const chimeHz = (step: number): number => {
+  const i = Math.max(0, Math.min(19, Math.floor(step) - 1));
+  return 196 * 2 ** (([0, 2, 4, 7, 9][i % 5] + 12 * Math.floor(i / 5)) / 12);
+};
+
 export class FishSfx {
   private bench: Bench | null = null;
   private off = false;
@@ -515,6 +526,25 @@ export class FishSfx {
     quiet.gain.value = loud;
     quiet.connect(b.out);
     makeWork({ ...b, out: quiet }, name, b.ctx.currentTime + 0.01);
+  }
+  // ── gifts: helpers ──
+  /** A note of the anklet's tune (lib/town/helping): the so-manieth of a run, quiet; at the run's most it has its fifth over it. */
+  chime(step: number, top = false) {
+    const b = this.bench;
+    if (this.off || !b || (b.ctx as AudioContext).state !== "running") return;
+    const t = b.ctx.currentTime + 0.01, hz = chimeHz(step);
+    bell(b, t, hz, 0.11, 0.5);
+    if (top) bell(b, t + 0.08, hz * 1.5, 0.08, 0.6);
+  }
+  /** The duet bell (lib/town/helping): two bells a fifth apart, the second a breath after the first, and once more, softer. */
+  duet() {
+    const b = this.bench;
+    if (this.off || !b || (b.ctx as AudioContext).state !== "running") return;
+    const t = b.ctx.currentTime + 0.01;
+    bell(b, t, 659.25, 0.17, 0.9);
+    bell(b, t + 0.13, 987.77, 0.14, 1.1);
+    bell(b, t + 0.55, 659.25, 0.07, 0.7);
+    bell(b, t + 0.68, 987.77, 0.06, 0.9);
   }
   /** The reel, counted on each frame of a fight: ticks while it is held, at the pace its line is coming in. */
   reel(holding: boolean, winning: boolean, tension: number) {

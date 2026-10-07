@@ -41,6 +41,9 @@ import { glassReach, glassTurn, gnomeReach, gnomeWater, plotKey, rowFor, rowTend
 import { rowOf } from "./world";
 // ── gifts: well ──
 import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGiftRefusal } from "./well-gifts";
+// ── gifts: helpers ──
+import { dust, pourFor, pourRow } from "./farm";
+import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -443,7 +446,7 @@ export class Trial {
     if (!did.ok) return did;
     const next = { ...plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
-    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = keptAs(plot, did.plot, now, SKIES.sky(now), this.natureNow(now));
+    if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed));
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -454,6 +457,8 @@ export class Trial {
     // (a plant watered is a line of the well's book: with which can, and whose plant when not my own)
     if (did.deed === "water") this.wellSeen({ by: this.id, at: now, what: "water", can: handOf(p) ?? undefined, tile: [x, y], ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}) });
     this.save(did.purse);
+    // ── gifts: helpers ── (a friend watered in this bed a moment ago: the duet bell, lib/town/helping)
+    if (did.deed === "water") this.bell(bed, [key], name);
     // (and it counts on a line, if it is one that does: help in somebody else's bed, a picking of one's own plant)
     this.counted({ from: "deed", what: did.deed, thing: plot.plant?.crop ?? null, n: 1, doc: {
       ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}),
@@ -529,6 +534,90 @@ export class Trial {
     if (beds[bed]) this.write(BEDS, { ...beds, [bed]: { ...beds[bed], tended: now } });
     this.save(did.purse);
     return { ok: true, watered: did.watered };
+  }
+  // ── gifts: helpers ──
+  /**
+   * A plot as it is kept after a deed: a watering with a can so many `times` over (what `tend` said: 1, with no gift
+   * of the helpers' line in it) is kept by lib/town/helping's pouredAs, with the heat and the well's water and never
+   * past the bound of them all, and the plant remembers it; anything else (`times` 0) as it always was.
+   */
+  private poured(was: Plot | undefined, next: Plot, now: number, times: number, worn = false): Plot {
+    return times > 0 ? pouredAs(was, next, now, hotAt(now, SKIES.sky(now)), this.natureNow(now), this.id, times, worn) : keptAs(was, next, now, SKIES.sky(now), this.natureNow(now));
+  }
+  /** The plants of the row the long pour of the gardener's gloves would water from a plot (lib/town/farm's pourFor): none, when there is no row to pour along. */
+  pourAt(key: string): string[] {
+    const [x, y] = key.split(",").map(Number);
+    return pourFor(key, this.rowKeys(key), this.farm(), this.purse(), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky());
+  }
+  /** Pour, whole: one deed. Each plant watered is kept, written in the well's book and counted, as if it had been watered by itself. */
+  pourDo(key: string, name: string, marks: Record<string, boolean>, secs = 0): { ok: true; done: string[] } | { ok: false; why: Refusal | FarmRefusal } {
+    this.swarmNote();
+    const p = this.purse(), now = this.now(), plots = this.farm(), beds = this.beds(), keys = this.rowKeys(key);
+    const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
+    const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
+    const did = pourRow(key, keys, plots, beds[bed], (planted.get(bed) ?? 0) - keys.filter((k) => !!plots[k]?.plant).length, holds, p, this.id, now, marks, secs, this.sky());
+    if (!did.ok) return did;
+    const next = { ...plots }, hand = handOf(p) ?? undefined;
+    for (const e of did.each) next[e.key] = this.poured(plots[e.key], did.plots[e.key], now, e.times, this.bellWorn(bed));
+    this.write(FARM, next);
+    const kept = { ...beds };
+    if (!did.bed) delete kept[bed];
+    else kept[bed] = { ...did.bed, name: (did.bed.by === beds[bed]?.by && beds[bed]?.name) || name || did.bed.by };
+    this.write(BEDS, kept);
+    for (const e of did.each) {
+      const by = plots[e.key].plant!.by, [u, v] = e.key.split(",").map(Number);
+      this.wellSeen({ by: this.id, at: now, what: "water", can: hand, tile: [u, v], ...(by !== this.id ? { whose: by } : {}) });
+      this.counted({ from: "deed", what: "water", thing: e.crop, n: 1, doc: by !== this.id ? { whose: by } : {} });
+    }
+    this.save(did.purse);
+    this.bell(bed, did.each.map((e) => e.key), name);
+    return { ok: true, done: did.each.map((e) => e.key) };
+  }
+  /** The ring of shared strength (lib/town/helping's share): give another tester of this browser stamina of mine; both purses are here. */
+  ringTo(to: string, far: number, name: string): { ok: true; gave: number; paid: number; left: number } | { ok: false; why: HelpRefusal } {
+    if (!to || to === this.id) return { ok: false, why: "none" };
+    const other = trialFor(to), did = share(this.purse(), other.purse(), this.id, name || this.id, far, this.now());
+    if (!did.ok) return did;
+    other.save(did.theirs);
+    this.save(did.mine);
+    return { ok: true, gave: did.gave, paid: did.paid, left: did.left };
+  }
+  /** Garden fae dust (lib/town/farm's dust): whether I could sprinkle it on the plant in a plot now, and sprinkling it. */
+  dustAt(key: string): boolean { return dust(key, this.purse(), this.farm()[key] ?? WILD, this.id, this.now(), this.sky()).ok; }
+  dustDo(key: string, name: string): { ok: true; left: number; until: number } | { ok: false; why: HelpRefusal } {
+    const now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, did = dust(key, this.purse(), plot, this.id, now, this.sky());
+    if (!did.ok) return did;
+    const whose = plot.plant!.by, log = this.wellLog(), was = log.help[key]?.owner === whose ? log.help[key] : { owner: whose, by: {} };
+    this.write(FARM, { ...plots, [key]: did.plot });
+    // (the plant's owner is told who did it, in their own purse, which is in this browser too; and has me among those to thank at the picking)
+    const other = trialFor(whose);
+    other.save(aided(other.purse(), { what: "dust", by: this.id, name: name || this.id, n: 1, at: now, key }));
+    this.write(WELL_LOG, { ...log, help: { ...log.help, [key]: { owner: whose, by: { ...was.by, [this.id]: was.by[this.id] ?? { water: 0, carry: 0 } } } } });
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "dust", thing: plot.plant!.crop, n: 1, doc: { whose } });
+    return { ok: true, left: did.left, until: did.until };
+  }
+  /** Whether I wear the duet bell in a bed that is not my own (lib/town/helping): what a watering of mine there is marked with. */
+  private bellWorn(bed: number): boolean { return wearing(this.purse(), "charmBell") && (this.owners().get(bed)?.by ?? null) !== this.id; }
+  /**
+   * The duet bell, after a watering of mine in a bed (lib/town/helping's ring): when a friend watered there within
+   * the ten seconds and one of us wears the bell, both waterings are doubled as they are kept, each of us has the
+   * stamina it gives back, is told of it (the friend's purse is in this browser too), and is counted the points.
+   */
+  private bell(bed: number, watered: string[], name: string) {
+    const now = this.now(), plots = this.farm(), [bx, by] = bedCorner(bed);
+    const rang = ring(this.bedAt(bx, by), watered, this.id, this.bellWorn(bed), now);
+    if (!rang) return;
+    this.write(FARM, { ...plots, ...rang.plots });
+    const others = (who: string, keys: string[]) => keys.filter((k) => plots[k].plant!.by !== who).length, pals = Object.keys(rang.pals), called = this.nameOf();
+    const mine = belled(this.purse(), rang.mine.length, now);
+    this.save(aided(mine.purse, { what: "bell", by: rang.near[0], name: called(rang.near[0]), n: rang.mine.length, at: now, back: mine.back }));
+    this.counted({ from: "deed", what: "bell", thing: null, n: others(this.id, rang.mine), doc: {} });
+    for (const pal of pals) {
+      const other = trialFor(pal), theirs = belled(other.purse(), rang.pals[pal].length, now);
+      other.save(aided(theirs.purse, { what: "bell", by: this.id, name: name || this.id, n: rang.pals[pal].length, at: now, back: theirs.back }));
+      other.counted({ from: "deed", what: "bell", thing: null, n: others(pal, rang.pals[pal]), doc: {} });
+    }
   }
   /** Whether it is a hot afternoon now (lib/town/heat), by this page's sky. */
   hot(): boolean { const now = this.now(); return hotAt(now, SKIES.sky(now)); }

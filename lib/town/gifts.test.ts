@@ -215,7 +215,8 @@ describe("the gifts of the lines of work", () => {
     expect(row.gifts.charmNet.by).toBe(1);
     expect(row.gifts.charmApron.by).toBe(1);
     expect(row.gifts.charmHoe.by).toBe(1);
-    expect(row.gifts.charmGloves.by).toBe(0.5);
+    // (the gloves: nothing of the cost is left to pay, since the ladder was laid out anew; it was a half)
+    expect(row.gifts.charmGloves.by).toBe(0);
   });
 });
 
@@ -262,15 +263,19 @@ describe("what the charms the database judges do", () => {
     const full = FARMING.costs.water, bare = can(newPurse()), gloves = can(worn("charmGloves"));
     expect(full).toBe(1);
     expect(cost(bare, water(bare, "you", "you"))).toBe(1);
-    // (four waterings of somebody else's plants: two points, where they were four)
+    // (four waterings of somebody else's plants: no point at all, where they were four, and two with the half the gloves began with)
     let p = gloves; const paid: number[] = [];
     for (let i = 0; i < 4; i++) { const q = water(p, "you", "you"); paid.push(cost(p, q)); p = q; }
-    expect(paid).toEqual([0, 1, 0, 1]);
+    expect(paid).toEqual([0, 0, 0, 0]);
     expect(giftsOf(p).owed).toBe(0);
     // (one's own plant: the whole, and nothing owed for it; a plant of somebody else's in a bed that is mine: theirs still)
     expect(cost(gloves, water(gloves, "me", "me"))).toBe(1);
     expect(giftsOf(water(gloves, "me", "me")).owed).toBe(0);
-    expect(giftsOf(water(gloves, "you", "me")).owed).toBe(0.5);
+    expect(giftsOf(water(gloves, "you", "me")).owed).toBe(0);
+    expect(cost(gloves, water(gloves, "you", "me"))).toBe(0);
+    // (a half left owing from when the gloves took one is never asked for: it stays as it was kept)
+    const owing = { ...gloves, gifts: { ...gloves.gifts!, owed: 0.5 } };
+    expect([cost(owing, water(owing, "you", "you")), giftsOf(water(owing, "you", "you")).owed]).toEqual([0, 0.5]);
     // (the gloves had and not worn do nothing)
     const off = can({ ...newPurse(), gifts: { had: ["charmGloves"], charms: [] } });
     expect(cost(off, water(off, "you", "you"))).toBe(1);

@@ -43,6 +43,9 @@ export interface RowDid { deed: RowDeed; done: string[]; got: Array<[ItemId, num
 import { rowOf } from "./world";
 // ── gifts: well ──
 import type { WellGiftRefusal } from "./well-gifts";
+// ── gifts: helpers ──
+import { dust, pourFor } from "./farm";
+import type { HelpRefusal } from "./helping";
 
 /**
  * Who keeps the game.
@@ -235,6 +238,28 @@ export interface Keeper {
    */
   glassAt(key: string): string[];
   glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>>;
+  // ── gifts: helpers ──
+  /**
+   * The long pour of the gardener's gloves (lib/town/farm's pourFor): the plants of the row of somebody else's bed
+   * that it would water from the plot I stand on, with the can in my hand, from the row's head (none: there is no
+   * row to pour along, and never where whoever keeps the game knows of no such pour). Pouring is one deed: `marks`
+   * says which plants the water reached, by their keys; `done` is the plots it watered.
+   */
+  pourAt(key: string): string[];
+  pourDo(key: string, name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ done: string[] }>>;
+  /**
+   * The ring of shared strength (lib/town/helping's share): give somebody standing near thirty stamina of mine, for
+   * half of it. `far`: how many tiles off they stand, as the map has them (who stands where is the page's to say).
+   * `name`: what I am called, for the friend to be told by. Whoever was given it is told through the room.
+   */
+  ringTo(to: string, far: number, name: string): Promise<{ ok: true; gave: number; paid: number; left: number } | { ok: false; why: Why | HelpRefusal }>;
+  /**
+   * Garden fae dust (lib/town/farm's dust): whether I could sprinkle it on the plant in the plot I stand on (another
+   * member's, with a pest, no dust on it yet, and one left to my day), and sprinkling it: how many the day has left,
+   * and until when it holds. The plant's owner is told through the room, and reads who did it in their own purse.
+   */
+  dustAt(key: string): boolean;
+  dustDo(key: string, name: string): Promise<{ ok: true; left: number; until: number } | { ok: false; why: Why | HelpRefusal }>;
 
   /** The forest (lib/town/forest): every place that has something for me now. */
   wild(): Sight[];
@@ -1018,6 +1043,8 @@ export class DbKeeper implements Keeper {
     // other deed is to go on being done there)
     const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]> }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null, ...(sure ? { p_sure: true } : {}) });
     if (did.ok) this.onDeed?.("farm");
+    // ── gifts: helpers ── (a duet bell rang: whoever it rang with has stamina back and is told of it, in their own purse, which they read again)
+    if (did.ok) this.rangWith(did);
     // (a watering on a hot afternoon, or while the well's water has a nature, is kept with more than this answer says: the plot is read again)
     if (did.ok && did.deed === "water" && (this.hot() || this.wellWater())) this.fetch("farm");
     return did;
@@ -1062,6 +1089,42 @@ export class DbKeeper implements Keeper {
     // (the answer brings the plots it watered as they are kept: with what the heat added, if it is hot)
     const did = await this.deed<{ watered: string[] }>("town_gnome", { p_x: x, p_y: y });
     if (did.ok) this.onDeed?.("farm");
+    return did;
+  }
+  // ── gifts: helpers ──
+  /** Whether the database knows of the helpers' line's later gifts (v153): it says so by giving them, the anklet among them. A page out before the file offers none of what they do. */
+  private helpGifts(): boolean { return this.gives("charmAnklet"); }
+  /** After a watering of mine: whoever the duet bell rang with (the answer's `bell.with`) is told through the room that their purse changed. */
+  private rangWith(did: unknown) {
+    const pals = (did as { bell?: { with?: unknown } }).bell?.with;
+    if (Array.isArray(pals)) for (const pal of pals) if (typeof pal === "string") this.onDeed?.("line", pal);
+  }
+  pourAt(key: string): string[] {
+    if (!this.helpGifts()) return [];
+    const [x, y] = key.split(",").map(Number);
+    return pourFor(key, rowOf(x, y).map(([u, v]) => plotKey(u, v)), this.plots, this.mine, this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains());
+  }
+  async pourDo(key: string, _name: string, marks: Record<string, boolean>, timing?: Timing): Promise<Did<{ done: string[] }>> {
+    const [x, y] = key.split(",").map(Number);
+    // (the answer brings every plot it watered as it is kept, with what the heat and the well's water added)
+    const did = await this.deed<{ done: string[] }>("town_longpour", { p_x: x, p_y: y, p_marks: marks, p_timing: timing ?? null });
+    if (did.ok) { this.onDeed?.("farm"); this.rangWith(did); }
+    return did;
+  }
+  dustAt(key: string): boolean {
+    return this.helpGifts() && dust(key, this.mine, this.plots[key] ?? WILD, this.id, this.now(), this.rains()).ok;
+  }
+  async dustDo(key: string, _name: string): Promise<{ ok: true; left: number; until: number } | { ok: false; why: Why | HelpRefusal }> {
+    const [x, y] = key.split(",").map(Number), whose = this.plots[key]?.plant?.by;
+    const did = await this.deed<{ left: number; until: number }>("town_dust", { p_x: x, p_y: y }) as { ok: true; left: number; until: number } | { ok: false; why: Why | HelpRefusal };
+    if (did.ok) { this.onDeed?.("farm"); if (whose) this.onDeed?.("line", whose); }
+    return did;
+  }
+  async ringTo(to: string, far: number, _name: string): Promise<{ ok: true; gave: number; paid: number; left: number } | { ok: false; why: Why | HelpRefusal }> {
+    if (!this.helpGifts()) return { ok: false, why: "none" };
+    // (what I am called is the database's own to say: it knows me)
+    const did = await this.deed<{ gave: number; paid: number; left: number }>("town_ring", { p_to: to, p_far: far }) as { ok: true; gave: number; paid: number; left: number } | { ok: false; why: Why | HelpRefusal };
+    if (did.ok) this.onDeed?.("line", to);
     return did;
   }
   /**
