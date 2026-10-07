@@ -18,6 +18,9 @@ function pixelFor(want: number): number {
   return Math.max(1, Math.round(want * dpr)) / dpr;
 }
 
+/** Who a talk is with, where it is somebody lib/town/talk does not know yet (the blacksmith, in `next dev`): the name over the box, what they do, and their portrait in the scenery, quiet and talking. */
+export interface TalkAs { name: Line; job: Line; art: [quiet: string, talking: string] }
+
 /** Something to choose at the end of a talk: what it is called, and a small note beside it (how much is waiting, say). */
 export interface TalkChoice { id: string; label: string; note?: string }
 
@@ -37,8 +40,10 @@ export interface TalkChoice { id: string; label: string; note?: string }
  * being written. With reduced motion the line is there at once and the mouth
  * stays shut.
  */
-export default function TownTalk({ who, lines, choices, onPick, th, phone, reduced, art, onClose }: {
-  who: Speaker;
+export default function TownTalk({ who, as, lines, choices, onPick, th, phone, reduced, art, onClose }: {
+  who: Speaker | "smith";
+  /** Their name and portrait, for somebody `who` does not name. */
+  as?: TalkAs;
   lines: Line[];
   choices?: TalkChoice[];
   onPick?: (id: string) => void;
@@ -96,7 +101,7 @@ export default function TownTalk({ who, lines, choices, onPick, th, phone, reduc
     return () => window.removeEventListener("keydown", onKey, true);
   }, [onClose, go, choosing, choices, onPick]);
 
-  const w = WHO[who];
+  const w = as ?? WHO[who as Speaker];
   return (
     <section ref={box} aria-labelledby="town-talk-h"
              className="relative flex items-end gap-3 rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm"

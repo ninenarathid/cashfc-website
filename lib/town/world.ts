@@ -408,9 +408,9 @@ export function setBridge(spans: number, open = true) {
  */
 export const SMITH = {
   id: "smith" as const,
-  stand: { x: 50.2, y: 24.1 }, at: { x: 51.1, y: 23.7 }, board: { x: 51.97, y: 22.6 }, sign: { x: 50.54, y: 23.26 },
+  stand: { x: 50.2, y: 24.1 }, at: { x: 51.1, y: 23.7 }, board: { x: 52.94, y: 23.25 }, sign: { x: 50.54, y: 23.26 },
   fire: [-19, 30] as [number, number],
-  tiles: (PREVIEW ? [[50, 24], [49, 24], [50, 23], [51, 23], [51, 22]] : []) as Array<[number, number]>,
+  tiles: (PREVIEW ? [[50, 24], [49, 24], [50, 23], [51, 23], [52, 23]] : []) as Array<[number, number]>,
 };
 const smithAt = new Set(SMITH.tiles.map(([x, y]) => `${x},${y}`));
 
@@ -1276,7 +1276,7 @@ const CAVE_TINTS: ReadonlyArray<readonly [number, number, number]> = [[1, 1, 1],
 /**
  * How the ground of what is to come is shaded at a point, over its texture: red, green and blue, each a share of
  * what the texture has there. A cliff's face is dark at its foot and lighter up it, with a bright lip where the
- * terrace above begins; a stair is its steps, three to a tile, each a light tread and a dark riser; a cave's earth
+ * terrace above begins; a stair is its steps, two to a tile, each a light tread with a bright edge and a dark riser; a cave's earth
  * and rock take the colour of their depth, its walls are lit at the floor and go dark above, and the top of its rock
  * is all but black. Null where the texture is left as it is.
  */
@@ -1288,7 +1288,7 @@ export function groundTone(kind: MoreGround, x: number, y: number): readonly [nu
     return k === 1 && tint === CAVE_TINTS[0] ? null : [tint[0] * k, tint[1] * k, tint[2] * k];
   }
   if (kind === "cliff") { const r = faceRise(x, y) ?? 0.5, k = r > 0.9 ? 1.28 : 0.66 + 0.42 * r; return [k, k, k]; }
-  if (kind === "stair") { const step = (((x - MOUNTAIN.x) * 3) % 1 + 1) % 1, k = step < 0.28 ? 0.6 : 1.1; return [k, k, k]; }
+  if (kind === "stair") { const step = (((x - MOUNTAIN.x) * 2) % 1 + 1) % 1, k = step < 0.34 ? 0.5 : step < 0.42 ? 1.3 : 1.12; return [k, k, k]; }
   return null;
 }
 /** A tile's own number from 0 to 1: the same on every screen. */
@@ -1297,11 +1297,11 @@ function tileChance(x: number, y: number): number {
   h = Math.imul(h ^ (h >>> 13), 1274126177);
   return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
 }
-/** What stands in one of those strips: from each tile's own number, so the same for everybody; nothing on the path or right beside it. */
+/** What stands in one of those strips: from each tile's own number, so the same for everybody; nothing on the path or within three tiles of it (a gateway stands there, and what is beyond it is before it on the screen). */
 function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k: number, x: number, y: number) => Prop["kind"] | null): Prop[] {
   const out: Prop[] = [];
   for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) {
-    if ([-1, 0, 1].some((d) => moreLook(x + 0.5, y + d + 0.5) === "road")) continue;
+    if ([-3, -2, -1, 0, 1, 2, 3].some((d) => moreLook(x + 0.5, y + d + 0.5) === "road")) continue;
     const kind = what(tileChance(x, y), x, y);
     if (kind) out.push({ kind, x, y, solid: true });
   }
@@ -1310,7 +1310,7 @@ function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k:
 /** What stands there: pines thinning into rocks towards the peaks, beyond the town; the town's own trees in the low country; rocks beyond the summit. */
 export const BEYOND_MORE_PROPS = PREVIEW ? {
   west: beyondMore(BEYOND_MORE.west, (k, x) => (x > -10 ? (k < 0.24 ? "pine" : k < 0.3 ? "rock" : k < 0.34 ? "bush" : null) : k < 0.1 ? "rock" : null)),
-  low: beyondMore(BEYOND_MORE.low, (k) => (k < 0.2 ? "tree" : k < 0.34 ? "pine" : k < 0.42 ? "bush" : null)),
+  low: beyondMore(BEYOND_MORE.low, (k, x) => (x < MOUNTAIN.x + MOUNTAIN.w + 1 ? null : k < 0.16 ? "tree" : k < 0.27 ? "pine" : k < 0.34 ? "bush" : null)),
   high: beyondMore(BEYOND_MORE.high, (k) => (k < 0.1 ? "mrock" : null)),
 } : { west: [], low: [], high: [] };
 /**
