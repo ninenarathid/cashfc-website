@@ -82977,9 +82977,9 @@
     "state": "learning",
     "pct": 44.76,
     "phase": 4,
-    "pulls": 63,
-    "last": "2026-10-02",
-    "last_ts": 1790952819
+    "pulls": 72,
+    "last": "2026-10-06",
+    "last_ts": 1791298571
    }
   ]
  },
@@ -85253,20 +85253,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 53,
-    "last": "2026-09-29",
-    "last_ts": 1790690223
-   }
-  ]
+  "_status": "ok"
  },
  "48097900": {
   "current": {
@@ -87412,7 +87399,7 @@
     "encounter_id": 1076,
     "name": "Dragonsong's Reprise",
     "best": 65,
-    "kills": 3,
+    "kills": 5,
     "job": "DarkKnight",
     "cleared": true
    }
@@ -88983,9 +88970,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 43,
-    "kills": 4,
-    "job": "Paladin",
+    "best": 50,
+    "kills": 7,
+    "job": "Pictomancer",
     "cleared": true
    },
    {
