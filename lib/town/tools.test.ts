@@ -9,7 +9,7 @@ import { powerLeft, powerRule, powerUsed, usePower } from "./powers";
 import { dayOf } from "./stamina";
 import {
   ELEMENTS, FELLED, FORGE, GEMS, GEM_FX, LEVELS, MINED, OPTIONS, OPTION_IDS, ORES, SMELTS, TOOL_KINDS, WOODEN,
-  axeAhead, axeBarPace, axeBarSlow, axeChops, capEase, drawnOf, elementOfChip, elementOfGem, gemBy, gemLevel, gemsOf, glowOf, glowWord, has, isWooden, levelOf, modsOf,
+  TOOL_WORD, WIND_WALK, axeAhead, axeBarPace, axeBarSlow, axeChops, capEase, drawnOf, elementOfChip, elementOfGem, gemBy, gemLevel, gemsOf, glowOf, has, isWooden, levelOf, modsOf, readToolWord, toolWord, walkPace,
   optN, pickPower, pickSwings, poolOf, ramp, smeltedOf, toolKindOf, veinStrikes, type OptionId, type ToolKind,
 } from "./tools";
 import { GOODS, HOUR, forged, leave, newPurse, plainStack, put, wholeStack, type Purse, type Stack } from "./trade";
@@ -331,14 +331,34 @@ describe("what a tool carries, read as it works now", () => {
     expect(modsOf(tool("rod", 9)).glow).toBe(1);
     expect(modsOf(tool("rod", 10)).glow).toBe(2);
     expect(modsOf(tool("rod", 10, [], ["ice"])).hue).toBe(GEMS.ice.hue);
-    expect(glowWord(tool("rod", 6, [], ["ice"]))).toBe("");
-    expect(glowWord(tool("rod", 7))).toBe("1");
-    expect(glowWord(tool("rod", 10, [], ["ice"]))).toBe("2i");
-    expect(glowOf("2i")).toEqual({ glow: 2, hue: GEMS.ice.hue });
+    // what the room is told: how it glows, and its gem's letter and level; nothing of a tool with nothing to tell
+    expect(toolWord(tool("rod", 6))).toBe("");
+    expect(toolWord(tool("rod", 6, [], ["ice"]))).toBe("0i1");
+    expect(toolWord(tool("rod", 7))).toBe("1");
+    expect(toolWord(tool("rod", 10, [], ["ice"]))).toBe("2i2");
+    expect(toolWord({ item: "minnow", n: 1, plus: 10 })).toBe("");
+    expect(toolWord(null)).toBe("");
+    expect(glowOf("2i2")).toEqual({ glow: 2, hue: GEMS.ice.hue });
     expect(glowOf("1")).toEqual({ glow: 1, hue: "#ffd98a" });
+    expect(glowOf("0i1")).toBeNull();
+    expect(readToolWord("0i1")).toEqual({ glow: 0, element: "ice", level: 1, hue: GEMS.ice.hue });
     // every element comes back as itself
-    for (const e of ELEMENTS) expect(glowOf(glowWord(tool("pick", 10, [], [e])))).toEqual({ glow: 2, hue: GEMS[e].hue });
-    for (const bad of ["", "3", "1q", "2ii", "x", null, 7, undefined]) expect(glowOf(bad)).toBeNull();
+    for (const e of ELEMENTS) {
+      expect(glowOf(toolWord(tool("pick", 10, [], [e])))).toEqual({ glow: 2, hue: GEMS[e].hue });
+      expect(readToolWord(toolWord(tool("pick", 0, [], [e])))).toEqual({ glow: 0, element: e, level: 1, hue: GEMS[e].hue });
+      expect(toolWord(tool("pick", 10, [], [e]))).toMatch(TOOL_WORD);
+    }
+    for (const bad of ["", "3", "1q", "2ii", "x", "1i", "1i5", "2q1", null, 7, undefined]) expect(readToolWord(bad)).toBeNull();
+  });
+  it("the wind in a tool walks its holder faster, by what the room is told: the same on every page", () => {
+    expect(walkPace("")).toBe(1);
+    expect(walkPace(undefined)).toBe(1);
+    expect(walkPace("2f2")).toBe(1);
+    expect(walkPace(toolWord(tool("hoe", 0, [], ["wind"])))).toBeCloseTo(1.1);
+    expect(walkPace(toolWord(tool("pick", 10, [], ["wind"])))).toBeCloseTo(1.15);
+    expect(walkPace("0a4")).toBeCloseTo(1.25);
+    expect([...GEM_FX.wind.pick.walk]).toEqual([...WIND_WALK]);
+    expect([...GEM_FX.wind.axe.walk]).toEqual([...WIND_WALK]);
   });
 });
 

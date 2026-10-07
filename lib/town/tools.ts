@@ -360,17 +360,37 @@ export const axeBarSlow = (stack: Stack | null | undefined): number => 1 - axeBa
 
 /** Each element's letter, for what the room is told of a tool that glows. */
 const LETTER: Record<Element, string> = { fire: "f", water: "w", ice: "i", earth: "e", lightning: "z", wind: "a", light: "l", dark: "d" };
-/** What is told of a held tool to the room, in two letters at the most: how strongly it glows, and its gem's element (lib/town/room's `Doing`). Nothing, of a tool that does not glow. */
-export function glowWord(stack: Stack | null | undefined): string {
-  const m = modsOf(stack);
-  if (!m.glow) return "";
-  const e = gemsOf(stack)[0];
-  return `${m.glow}${e ? LETTER[e] : ""}`;
+/**
+ * What the room is told of the tool in somebody's hand (lib/town/room's `Doing.tool`), in three characters at the
+ * most: how it glows (0 to 2), and, of a tool with a gem, its element's letter and the level that works at. Nothing,
+ * of a tool with nothing to tell (no glow, no gem) and of a thing that is no tool. It is what every page draws the
+ * glow from, and what every page walks its holder by: a pace has to be the same on every page.
+ */
+export function toolWord(stack: Stack | null | undefined): string {
+  const m = modsOf(stack), e = gemsOf(stack)[0];
+  if (!m.glow && !e) return "";
+  return `${m.glow}${e ? `${LETTER[e]}${m.gems[e]}` : ""}`;
 }
-/** A glow read back from its word: how strong, and in what colour (null for no word, or one that says nothing). */
-export function glowOf(word: unknown): { glow: 1 | 2; hue: string } | null {
-  if (typeof word !== "string" || !/^[12][a-z]?$/.test(word)) return null;
-  const e = ELEMENTS.find((x) => LETTER[x] === word[1]);
+export const TOOL_WORD = /^[0-2](?:[a-z][1-4])?$/;
+/** The word read back: how it glows, its gem's element and level if it has one, and the colour of its glow. Null for no word, or one that says nothing. */
+export function readToolWord(word: unknown): { glow: 0 | 1 | 2; element: Element | null; level: number; hue: string } | null {
+  if (typeof word !== "string" || !TOOL_WORD.test(word)) return null;
+  const e = word.length > 1 ? ELEMENTS.find((x) => LETTER[x] === word[1]) ?? null : null;
   if (word.length > 1 && !e) return null;
-  return { glow: word[0] === "2" ? 2 : 1, hue: e ? GEMS[e].hue : PLAIN_HUE };
+  return { glow: Number(word[0]) as 0 | 1 | 2, element: e, level: e ? Number(word[2]) : 0, hue: e ? GEMS[e].hue : PLAIN_HUE };
+}
+/** The glow a word tells of: how strong, and in what colour (null for no word, and for a tool that does not glow). */
+export function glowOf(word: unknown): { glow: 1 | 2; hue: string } | null {
+  const t = readToolWord(word);
+  return t && t.glow ? { glow: t.glow, hue: t.hue } : null;
+}
+/** How fast the wind in a tool walks its holder, at its levels: so much faster (the same for every kind of tool). */
+export const WIND_WALK = WALK;
+/**
+ * How many times as fast somebody walks for the tool in their hand, from what the room is told of it: faster with
+ * the wind in it, as anybody otherwise. One rule for every page (lib/town/session's step).
+ */
+export function walkPace(word: unknown): number {
+  const t = readToolWord(word);
+  return t && t.element === "wind" && t.level >= 1 ? 1 + WIND_WALK[Math.min(WIND_WALK.length, t.level) - 1] : 1;
 }
