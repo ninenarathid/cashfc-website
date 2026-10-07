@@ -61,10 +61,11 @@ export function terraceAt(u: number, v: number): Terrace {
 }
 /** Where the first cliff's foot is in a row: the first tile of the foot yard there. */
 const yardEdge = (row: number) => Math.ceil(cliffTop(0, row + 0.5) + CLIFF - 0.5);
-/** The mine's mouth: the two tiles of the first cliff's lowest row that are open, in its face. Whoever stops there is in the mine. */
-export const MOUTH: ReadonlyArray<readonly [number, number]> = MOUTH_ROWS.map((row) => [yardEdge(row) - 1, row] as const);
-/** Where the mouth's picture stands: at the cliff's foot, between its two rows. */
-export const MOUTH_AT = { u: Math.max(...MOUTH.map(([u]) => u)) + 1, v: MOUTH_ROWS[1] };
+/** The mine's mouth: two tiles side by side at the first cliff's foot, in its face (one is cut out of the cliff where the cliff's foot is a tile further out). Whoever stops there is in the mine. */
+const MOUTH_U = Math.max(...MOUTH_ROWS.map(yardEdge)) - 1;
+export const MOUTH: ReadonlyArray<readonly [number, number]> = MOUTH_ROWS.map((row) => [MOUTH_U, row] as const);
+/** Where the mouth's picture stands: before those two tiles, between their rows. */
+export const MOUTH_AT = { u: MOUTH_U + 1, v: MOUTH_ROWS[1] };
 const inMouth = (u: number, v: number) => MOUTH.some(([mu, mv]) => Math.floor(u) === mu && Math.floor(v) === mv);
 
 /** The trails, as lines from point to point: from the gate to the mouth and to every stair, and on to the lookout. */
@@ -124,11 +125,26 @@ export function mountainGround(u: number, v: number): MountainGround {
   return patch(u, v, 4) > 0.72 || inBox(u, v, LOOKOUT, 1.2) ? "rock" : "snow";
 }
 
-/** Something standing on the mountain, in the mountain's own tiles. A tree has its kind (1 pine, 2 ironwood, 3 moonwood) and its age (0 a stump, 1 a sprout, 2 a young tree, 3 grown); a rock, which of its looks. */
+/**
+ * Something standing on the mountain, in the mountain's own tiles. A tree has its kind (`tier`: 1 a pine, 2 an
+ * ironwood, 3 a moonwood); a rock, which of its looks. Each tree and each rock that will be worked has a number of
+ * its own (`id`): its place among the mountain's trees, or among its rocks, in the order the seed laid them. It is
+ * the same on every screen and stays so for as long as the layout is as it is (mountain.test.ts holds a few by name).
+ * How a tree looks just now (a stump, a sprout, a young tree, grown) and whether a rock still stands are not the
+ * layout's to say: whoever keeps the game says, and the map draws that.
+ */
 export interface MountainProp {
-  kind: "mtree" | "mrock" | "ancient" | "campfire" | "logseat" | "storebox" | "bench" | "lookout" | "msign" | "tree" | "bush" | "flowers" | "boulder" | "log";
-  u: number; v: number; solid: boolean; facing?: Facing; tier?: 1 | 2 | 3; age?: 0 | 1 | 2 | 3; look?: number;
+  kind: "mtree" | "mrock" | "campfire" | "logseat" | "storebox" | "bench" | "msign" | "tree" | "pine" | "bush" | "flowers" | "boulder" | "log";
+  u: number; v: number; solid: boolean; facing?: Facing; tier?: 1 | 2 | 3; look?: number; id?: number;
 }
+/** A tree's four looks, by its age: a stump, a sprout, a young tree, grown. */
+export type TreeAge = 0 | 1 | 2 | 3;
+/**
+ * An age for a tree to be shown at where nobody keeps the game yet, so that all four looks can be seen (the preview
+ * asks for it; left alone, every tree is grown): of every eleven trees of a kind, by their numbers, one is a stump,
+ * one a sprout and one a young tree.
+ */
+export const sampleAge = (id: number): TreeAge => (id % 11 === 3 ? 0 : id % 11 === 6 ? 1 : id % 11 === 8 ? 2 : 3);
 
 /** Whether a tile is the map's rim: its outermost ring, but for the two rows the gate is in. */
 const isRim = (u: number, v: number) => u === 0 || v === 0 || v === MOUNTAIN_H - 1 || (u === MOUNTAIN_W - 1 && !(GATE_ROWS as readonly number[]).includes(v));
@@ -145,7 +161,13 @@ export const shut = (u: number, v: number) =>
 export function layMountain(): MountainProp[] {
   const out: MountainProp[] = [];
   const solid = new Set<string>(), used = new Set<string>();
-  const put = (p: MountainProp) => { out.push(p); used.add(`${p.u},${p.v}`); if (p.solid) solid.add(`${p.u},${p.v}`); };
+  let trees = 0, rocks = 0;
+  const put = (p: MountainProp) => {
+    // (a tree and a rock are numbered as they are laid, each kind from nought)
+    out.push(p.kind === "mtree" ? { ...p, id: trees++ } : p.kind === "mrock" ? { ...p, id: rocks++ } : p);
+    used.add(`${p.u},${p.v}`);
+    if (p.solid) solid.add(`${p.u},${p.v}`);
+  };
   const ground = (u: number, v: number) => mountainGround(u + 0.5, v + 0.5);
   // the camp: its fire, four logs to sit on along its two far sides (each facing the fire and whoever looks on), and
   // the storage chest beside it
@@ -177,27 +199,27 @@ export function layMountain(): MountainProp[] {
       placed++;
     }
   };
-  /** A tree's age: mostly grown, with a few young ones, sprouts and stumps among them. */
-  const ageOf = (k: number): 0 | 1 | 2 | 3 => (k < 0.09 ? 0 : k < 0.18 ? 1 : k < 0.3 ? 2 : 3);
-  // the slope: sixty pines, forty plain rocks
-  grow(60, 1, (k) => ({ kind: "mtree", tier: 1, age: ageOf(k), solid: true }));
+  // the slope: sixty pines (trees 0 to 59), forty plain rocks (rocks 0 to 39)
+  grow(60, 1, () => ({ kind: "mtree", tier: 1, solid: true }));
   grow(40, 1, (k) => ({ kind: "mrock", look: Math.floor(k * 3), solid: true }));
-  // the upper terrace: forty ironwoods, and a few rocks
-  grow(40, 2, (k) => ({ kind: "mtree", tier: 2, age: ageOf(k), solid: true }));
+  // the upper terrace: forty ironwoods (trees 60 to 99), and a few rocks
+  grow(40, 2, () => ({ kind: "mtree", tier: 2, solid: true }));
   grow(8, 2, (k) => ({ kind: "mrock", look: Math.floor(k * 3), solid: true }));
-  // the summit: twenty moonwoods
-  grow(20, 3, (k) => ({ kind: "mtree", tier: 3, age: ageOf(k), solid: true }));
+  // the summit: twenty moonwoods (trees 100 to 119), and a few rocks
+  grow(20, 3, () => ({ kind: "mtree", tier: 3, solid: true }));
   grow(6, 3, (k) => ({ kind: "mrock", look: Math.floor(k * 3), solid: true }));
   // the foot yard: a few of the town's own trees and bushes, a boulder or two, a fallen log
   grow(14, 0, (k) => ({ kind: k < 0.6 ? "tree" : k < 0.8 ? "bush" : k < 0.93 ? "boulder" : "log", solid: true }));
   // flowers underfoot, on the grass of the yard and the slope's glades
   for (const terrace of [0, 1, 2] as const) grow(terrace === 0 ? 26 : 10, terrace, () => ({ kind: "flowers", solid: false }));
-  // the rim: rocks and trees on every other tile of the map's edge (all of it is closed), so that the world ends behind something
+  // the rim: something on every other tile of the map's edge (all of it is closed), so that the world ends behind it:
+  // the town's own trees about the yard, its pines and rocks higher up, and only rocks on the summit. None of the
+  // mountain's three kinds of tree: those are counted, and each is one that will be felled
   for (let v = 0; v < MOUNTAIN_H; v++) for (let u = 0; u < MOUNTAIN_W; u++) {
     if (!isRim(u, v) || (u + v) % 2 || used.has(`${u},${v}`) || hard(u, v)) continue;
     const t = terraceAt(u + 0.5, v + 0.5), k = rnd();
     put(t === 0 ? { kind: k < 0.7 ? "tree" : "boulder", u, v, solid: true }
-      : k < 0.45 ? { kind: "mrock", look: Math.floor(k * 6.6), u, v, solid: true } : { kind: "mtree", tier: Math.min(3, t) as 1 | 2 | 3, age: 3, u, v, solid: true });
+      : t === 3 || k < 0.45 ? { kind: "boulder", u, v, solid: true } : { kind: "pine", u, v, solid: true });
   }
   return out;
 }
