@@ -1059,7 +1059,7 @@ const mountainShut = PREVIEW ? closedOf(mountainLaid) : new Set<string>();
 /**
  * Its great things, in the world's tiles: the ancient cedar's three tiles by three; the lookout's deck at the
  * summit's far end, which is walked on; where the mine's mouth stands at the foot of the first cliff, and the two
- * tiles in that cliff's face that are the way into the cave.
+ * tiles of the yard before it that are its threshold, the way into the cave.
  */
 export const MOUNTAIN_AT = {
   cedar: { x: MOUNTAIN.x + CEDAR.u, y: MOUNTAIN.y + CEDAR.v, w: CEDAR.w, h: CEDAR.h },
@@ -1168,7 +1168,7 @@ function moreGate(tx: number, ty: number): Vec | null | undefined {
   if (!n) return null;
   const f = caveToday(n), c = floorCorner(n), u = tx - c.x, v = ty - c.y;
   if (u === f.up[0] && v === f.up[1]) {
-    if (n === 1) return { x: MOUNTAIN_AT.mouth.x + 1.5, y: MOUNTAIN_AT.mouth.y - 0.5 };
+    if (n === 1) return { x: MOUNTAIN_AT.mouth.x + 2.5, y: MOUNTAIN_AT.mouth.y - 0.5 };
     if (!CAVE.laid.includes(n - 1)) return null;
     const above = caveToday(n - 1);
     return inCave(n - 1, [above.down[0] + 1, above.down[1] + 1]);

@@ -78,10 +78,8 @@ describe("the mountain's foot, laid out", () => {
       // (the rows beside a stair are cliff)
       for (const v of [s - 1, s + 2]) for (let u = 0; u < MOUNTAIN_W; u++) if (cliffAt(u + 0.5, v + 0.5)?.k === k) expect(open(u, v)).toBe(false);
     }
-    // every tile of a cliff that is neither a stair nor the mine's mouth is shut
-    for (let v = 0; v < MOUNTAIN_H; v++) for (let u = 0; u < MOUNTAIN_W; u++) {
-      if (cliffAt(u + 0.5, v + 0.5) && !isStair(u, v) && !MOUTH.some(([mu, mv]) => mu === u && mv === v)) expect(open(u, v), key(u, v)).toBe(false);
-    }
+    // every tile of a cliff that is not a stair is shut
+    for (let v = 0; v < MOUNTAIN_H; v++) for (let u = 0; u < MOUNTAIN_W; u++) if (cliffAt(u + 0.5, v + 0.5) && !isStair(u, v)) expect(open(u, v), key(u, v)).toBe(false);
     const highest = (seen: Set<string>) => Math.max(...[...seen].map((k) => { const [u, v] = k.split(",").map(Number); return cliffAt(u + 0.5, v + 0.5) ? 0 : terraceOfTile(u, v); }));
     // with every stair shut, nobody leaves the foot yard
     expect(highest(walked(START, isStair))).toBe(0);
@@ -108,18 +106,20 @@ describe("the mountain's foot, laid out", () => {
     for (let u = 0; u < MOUNTAIN_W; u++) { expect(shut(u, 0)).toBe(true); expect(shut(u, MOUNTAIN_H - 1)).toBe(true); }
   });
 
-  it("has the mine's mouth in the first cliff's face, open, with the yard before it", () => {
+  it("has the mine's mouth at the first cliff's foot: its threshold two tiles of the yard, the cliff's face behind them", () => {
     expect(MOUTH.length).toBe(2);
+    expect(MOUTH[0][0]).toBe(MOUTH[1][0]);
     for (const [u, v] of MOUTH) {
+      // a tile of the foot yard, open, with more yard before it
       expect(open(u, v)).toBe(true);
-      // the foot yard is the next tile out, and the cliff the next tile in
+      expect(cliffAt(u + 0.5, v + 0.5)).toBeNull();
+      expect(terraceOfTile(u, v)).toBe(0);
       expect(open(u + 1, v)).toBe(true);
-      expect(terraceOfTile(u + 1, v)).toBe(0);
-      expect(cliffAt(u - 0.5, v + 0.5)?.k).toBe(0);
-      expect(open(u - 1, v)).toBe(false);
     }
-    expect(cliffAt(MOUTH[0][0] + 0.5, MOUTH[0][1] + 0.5)?.k).toBe(0);
-    expect(MOUTH_AT).toEqual({ u: MOUTH[0][0] + 1, v: MOUTH[1][1] });
+    // the cliff is right behind them: its face, shut
+    expect(MOUTH.some(([u, v]) => cliffAt(u - 0.5, v + 0.5)?.k === 0 && !open(u - 1, v))).toBe(true);
+    for (const [u, v] of MOUTH) expect(cliffAt(u - 1.5, v + 0.5)?.k).toBe(0);
+    expect(MOUTH_AT).toEqual({ u: MOUTH[0][0], v: MOUTH[1][1] });
     // it faces the gate: in the gate's own rows
     expect(MOUTH.map(([, v]) => v)).toEqual([...GATE_ROWS]);
   });

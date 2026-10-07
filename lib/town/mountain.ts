@@ -61,12 +61,15 @@ export function terraceAt(u: number, v: number): Terrace {
 }
 /** Where the first cliff's foot is in a row: the first tile of the foot yard there. */
 const yardEdge = (row: number) => Math.ceil(cliffTop(0, row + 0.5) + CLIFF - 0.5);
-/** The mine's mouth: two tiles side by side at the first cliff's foot, in its face (one is cut out of the cliff where the cliff's foot is a tile further out). Whoever stops there is in the mine. */
-const MOUTH_U = Math.max(...MOUTH_ROWS.map(yardEdge)) - 1;
+/**
+ * The mine's mouth: the two tiles of the foot yard at the first cliff's foot that are its threshold, side by side.
+ * Whoever stops on one is in the mine. (The mouth itself is a picture on the cliff's face behind them: nobody stands
+ * in it, so nobody is ever half hidden by it.)
+ */
+const MOUTH_U = Math.max(...MOUTH_ROWS.map(yardEdge));
 export const MOUTH: ReadonlyArray<readonly [number, number]> = MOUTH_ROWS.map((row) => [MOUTH_U, row] as const);
-/** Where the mouth's picture stands: before those two tiles, between their rows. */
-export const MOUTH_AT = { u: MOUTH_U + 1, v: MOUTH_ROWS[1] };
-const inMouth = (u: number, v: number) => MOUTH.some(([mu, mv]) => Math.floor(u) === mu && Math.floor(v) === mv);
+/** Where the mouth's picture stands: at the cliff's foot behind those two tiles, between their rows. */
+export const MOUTH_AT = { u: MOUTH_U, v: MOUTH_ROWS[1] };
 
 /** The trails, as lines from point to point: from the gate to the mouth and to every stair, and on to the lookout. */
 const TRAILS: Array<Array<[number, number]>> = [
@@ -148,9 +151,8 @@ export const sampleAge = (id: number): TreeAge => (id % 11 === 3 ? 0 : id % 11 =
 
 /** Whether a tile is the map's rim: its outermost ring, but for the two rows the gate is in. */
 const isRim = (u: number, v: number) => u === 0 || v === 0 || v === MOUNTAIN_H - 1 || (u === MOUNTAIN_W - 1 && !(GATE_ROWS as readonly number[]).includes(v));
-/** Whether a tile is closed by the ground itself: a cliff's face (but for its stairs and the mine's mouth), or the rim. */
-export const shut = (u: number, v: number) =>
-  isRim(u, v) || (!!cliffAt(u + 0.5, v + 0.5) && !stairAt(u + 0.5, v + 0.5) && !inMouth(u, v));
+/** Whether a tile is closed by the ground itself: a cliff's face (but for its stairs), or the rim. */
+export const shut = (u: number, v: number) => isRim(u, v) || (!!cliffAt(u + 0.5, v + 0.5) && !stairAt(u + 0.5, v + 0.5));
 
 /**
  * What stands about the mountain, laid out by a fixed seed like the town and the forest: the same on every screen.
@@ -180,7 +182,7 @@ export function layMountain(): MountainProp[] {
   put({ kind: "bench", u: LOOKOUT.u + 2, v: LOOKOUT.v + 1, solid: true, facing: "NW" });
   // kept clear: the cedar's own tiles and a step round them, the lookout, the camp, the way in and the mouth's front
   const kept = (u: number, v: number) => inBox(u, v, ANCIENT, 1) || inBox(u, v, LOOKOUT, 1) || Math.hypot(u - CAMP.u, v - CAMP.v) < 4.6
-    || (u >= MOUNTAIN_W - 6 && Math.abs(v + 0.5 - 30) < 3) || Math.hypot(u + 0.5 - MOUTH_AT.u, v + 0.5 - MOUTH_AT.v) < 3.6;
+    || (u >= MOUNTAIN_W - 6 && Math.abs(v + 0.5 - 30) < 3) || Math.hypot(u + 0.5 - MOUTH_AT.u - 1, v + 0.5 - MOUTH_AT.v) < 4.2;
   let a = 20261008;
   const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const around = (u: number, v: number, is: (x: number, y: number) => boolean) => {
