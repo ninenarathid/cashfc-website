@@ -348,7 +348,7 @@ describe("what is to come, in next dev only", () => {
     expect(foot).toBeLessThan(mid);
     expect(mid).toBeLessThan(lip);
     // a stair has light treads and dark risers, two steps to a tile
-    const steps = Array.from({ length: 40 }, (_, i) => W.groundTone("stair", M.x + 54 + i / 40, M.y + 14)![0]);
+    const steps = Array.from({ length: 40 }, (_, i) => W.groundTone("stair", M.x + 54.1 + i / 40, M.y + 14)![0]);
     expect(Math.min(...steps)).toBeLessThan(0.6);
     expect(Math.max(...steps)).toBeGreaterThan(1.1);
     expect(steps.filter((k, i) => i > 0 && k < 0.6 && steps[i - 1] > 1).length).toBe(2);
