@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+import { madeOf, tasteOf } from "./cooking";
 import { toldOf } from "./hints";
 import { ITEMS, type ItemId } from "./items";
-import { NOTES, SHELVES, cookwareIn, guessesAt, keepNote, linesAt, pantry, readNotes, shelfOf, stocked, toolsAt, type Note } from "./kitchen";
+import { NOTES, SHELVES, TASTE_WORD, cookwareIn, guessesAt, keepNote, linesAt, missedBy, missedWords, pantry, readNotes, shelfOf, stocked, toolsAt, type Note } from "./kitchen";
 import type { Purse } from "./trade";
 
 const bag = (...things: Array<[ItemId, number] | null>): Purse["bag"] => things.map((t) => (t ? { item: t[0], n: t[1] } : null));
@@ -94,5 +95,44 @@ describe("the kitchen's notebook", () => {
     ]);
     // a recipe read whole hides nothing, and has no guesses
     expect(guessesAt(toldOf("tomYum", true), notes)).toEqual([]);
+  });
+});
+
+describe("a miss, read beside the recipe that is open", () => {
+  const name = (id: ItemId) => ITEMS[id].name.th, said = (...a: Parameters<typeof missedBy>) => missedWords(missedBy(...a), name, true);
+  const tomYum = toldOf("tomYum"), lines: Array<[ItemId, number]> = [["snakehead", 1], ["tomato", 2], ["chili", 2]];
+  it("says of two minnows put in for a bowl that a minnow is not its secret thing, though they taste of another recipe that is one thing short", () => {
+    // (the owner, 2026-10-07: the card said only the taste, and it was read as said of the bowl)
+    const bowl = toldOf("bowl");
+    expect(bowl.needs).toEqual([]);
+    expect(tasteOf([["minnow", 2]], [null])).toEqual({ taste: "less", of: "growFert", lacks: "compost" });
+    expect(missedBy(bowl, [["minnow", 2]], [null])).toEqual({ lacks: [], amounts: [], strays: [["minnow", 2]], secret: { n: 2, how: "guess" }, tools: [], cooks: null, wrong: "minnow" });
+    expect(said(bowl, [["minnow", 2]], [null])).toEqual(["ปลาซิว ไม่ใช่ชิ้นลับของสูตรนี้"]);
+    expect(missedWords(missedBy(bowl, [["minnow", 2]], [null]), (id) => ITEMS[id].name.en, false)).toEqual(["Minnow is not its secret thing"]);
+    // whoever has made a bowl reads all of it: what was not put in, and what is no thing of it
+    expect(said(toldOf("bowl", true), [["minnow", 2]], [null])).toEqual([`ยังไม่ได้ใส่ ${name("mussel")} ×2`, "ปลาซิว ไม่อยู่ในสูตรนี้"]);
+  });
+  it("says what of its lines is not in or is in another amount, and then nothing of a guess", () => {
+    expect(said(tomYum, [["snakehead", 1], ["tomato", 1], ["garlic", 1]], ["pot"])).toEqual([`ยังไม่ได้ใส่ ${name("chili")} ×2`, `${name("tomato")} ต้องใส่ ×2 (ใส่ไป ×1)`]);
+  });
+  it("says of its secret thing only what its page tells: one kind, so many, and a guess that was not it once all the rest is right", () => {
+    expect(said(tomYum, lines, ["pot"])).toEqual(["ยังไม่ได้ใส่ชิ้นลับ (ต้องใส่ ×1)"]);
+    expect(said(tomYum, [...lines, ["garlic", 1], ["salt", 1]], ["pot"])).toEqual(["ชิ้นลับมีอย่างเดียว แต่ใส่ของนอกสูตรมา 2 อย่าง"]);
+    expect(said(tomYum, [...lines, ["garlic", 2]], ["pot"])).toEqual([`ชิ้นลับต้องใส่ ×1 (ใส่ ${name("garlic")} ไป ×2)`]);
+    expect(said(tomYum, [...lines, ["garlic", 1]], ["pot"])).toEqual([`${name("garlic")} ไม่ใช่ชิ้นลับของสูตรนี้`]);
+    // in the wrong cookware the guess may have been right: only the cookware is said
+    expect(said(tomYum, [...lines, ["garlic", 1]], ["pan"])).toEqual([`ไม่ได้ทำใน ${name("pot")}`]);
+    expect(missedBy(tomYum, [...lines, ["scallion", 1]], ["pan"]).wrong).toBeNull();
+    // (with the thing itself in its cookware there is no miss to read: it is the dish)
+    expect(madeOf([...lines, ["scallion", 1]])).toBe("tomYum");
+  });
+  it("says how many cooks it takes when there were fewer, and has nothing to say of a try that is the recipe's", () => {
+    const crab = toldOf("crabCurry", true);
+    expect(said(crab, crab.needs, [crab.in[0]])).toEqual([`ไม่ได้ทำใน ${name(crab.in[1])}`, "ต้องช่วยกันทำ 2 คน"]);
+    expect(said(crab, crab.needs, [crab.in[0], crab.in[1]])).toEqual([]);
+  });
+  it("words every taste as said of a recipe, never of the one the cook has in mind", () => {
+    for (const t of ["some", "less", "more", "swap", "amounts", "way"] as const) { expect(TASTE_WORD[t].th).toContain("สูตรหนึ่ง"); expect(TASTE_WORD[t].en).toMatch(/\ba recipe\b/i); }
+    expect(TASTE_WORD.far.th).toContain("สูตรไหน");
   });
 });

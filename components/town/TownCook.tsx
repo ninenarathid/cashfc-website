@@ -299,7 +299,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     setThings([]);
     setRefusal(null);
     jot({ at: keeper.now(), things: job.things, tool: job.crew[0], cooks: job.crew.length, made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), ...(did.taste ? { taste: did.taste } : {}), ...(did.first ? { first: true } : {}) });
-    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(did.taste ? { taste: did.taste } : {}), ...(did.sprite ? { sprite: true } : {}), ...(did.back ? { back: true } : {}) });
+    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(did.taste ? { taste: did.taste, things: job.things, crew: job.crew } : {}), ...(did.sprite ? { sprite: true } : {}), ...(did.back ? { back: true } : {}) });
     // what comes off the pot, and what it sounds like: a dish, something made, an odd dish, or nothing
     const odd = !right && !!did.made, cooked = right && did.made! in DISHES;
     sfx?.wake();

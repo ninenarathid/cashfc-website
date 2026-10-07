@@ -6,7 +6,7 @@ import { wearing } from "@/lib/town/gifts";
 import { toldOf, type Told } from "@/lib/town/hints";
 import { WISH } from "@/lib/town/fountain";
 import { DISHES, ITEMS, type DishId, type ItemId, type MealBuffId } from "@/lib/town/items";
-import { SHELF_WORD, TASTE_WORD, cookwareIn, guessesAt, linesAt, pantry, stocked, toolsAt, type Note } from "@/lib/town/kitchen";
+import { SHELF_WORD, TASTE_OF, TASTE_WORD, cookwareIn, guessesAt, linesAt, missedBy, missedWords, pantry, stocked, toolsAt, type Note } from "@/lib/town/kitchen";
 import type { Keeper } from "@/lib/town/keeper";
 import { loadKitchen, type Sprite } from "@/lib/town/scenery";
 import { staminaOf } from "@/lib/town/stamina";
@@ -18,8 +18,8 @@ import { ItemIcon } from "./TownTrade";
 
 /** Where the table is laid: one of the yard's places, or the forest camp's fire. */
 export type KitchenPlace = "stove" | "table" | "fire" | "camp" | "flame";
-/** What came of the cooking, for the card that says so. */
-export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean }
+/** What came of the cooking, for the card that says so; with a taste, what went in and what the cooks held, to be read beside the recipe that is open. */
+export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; things?: Array<[ItemId, number]>; crew?: Array<ItemId | null>; fresh?: boolean; sprite?: boolean; back?: boolean }
 /** The phoenix flame at the table (lib/town/gifts): how many times more today it gives back what comes to nothing, of how many, and whether it is set to for this pot. */
 export interface FlameAt { left: number; most: number; armed: boolean }
 /**
@@ -454,7 +454,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
         ))}
         {/* (while the sprite is at it, nothing else at the table is touched) */}
         {fam?.cooking && <div className="absolute inset-0 z-[15]" data-kitchen-busy />}
-        {result && <Came result={result} th={th} eat={eat} why={why} onAgain={onAgain} onEat={onEat} onPotDown={onPotDown} onClose={onClose} />}
+        {result && <Came result={result} open={pinned} th={th} eat={eat} why={why} onAgain={onAgain} onEat={onEat} onPotDown={onPotDown} onClose={onClose} />}
       </section>
     </div>
   );
@@ -644,12 +644,18 @@ function Tried({ notes, th, whispers = [], known = [] }: { notes: Note[]; th: bo
   );
 }
 
-/** What came of the cooking, on a card over the table: and where to go from there. */
-function Came({ result, th, eat, why, onAgain, onEat, onPotDown, onClose }: {
-  result: KitchenResult; th: boolean; eat: { bowl: boolean; meal: boolean }; why: string | null; onAgain: () => void; onEat: () => void; onPotDown: () => void; onClose: () => void;
+/**
+ * What came of the cooking, on a card over the table: and where to go from there. A miss is said twice over: first
+ * of the recipe that is open beside the pot (`open`), by what its own page tells (lib/town/kitchen's missedBy), and
+ * then by its taste, which is of the nearest recipe of all and says so.
+ */
+function Came({ result, open, th, eat, why, onAgain, onEat, onPotDown, onClose }: {
+  result: KitchenResult; open: Entry | null; th: boolean; eat: { bowl: boolean; meal: boolean }; why: string | null; onAgain: () => void; onEat: () => void; onPotDown: () => void; onClose: () => void;
 }) {
   const { made, n, first, taste } = result;
   const pot = !!made && made in DISHES, found = !!made && !taste, back = !!result.back;
+  const name = (t: ItemId) => (th ? ITEMS[t].name.th : ITEMS[t].name.en);
+  const missed = taste && open && result.things ? missedWords(missedBy(open.told, result.things, result.crew ?? []), name, th) : [];
   const first1 = useRef<HTMLButtonElement>(null);
   useEffect(() => { first1.current?.focus(); }, []);
   const title = back ? (th ? "เปลวฟีนิกซ์คืนของให้ครบ" : "The phoenix flame gave everything back") : !made ? (th ? "ไม่ได้อะไรเลย" : "Nothing came of it") : th ? ITEMS[made].name.th : ITEMS[made].name.en;
@@ -658,14 +664,26 @@ function Came({ result, th, eat, why, onAgain, onEat, onPotDown, onClose }: {
     <div className="absolute inset-0 z-20 grid place-items-center overflow-y-auto bg-[#1c0f06]/80 p-3 min-[900px]:rounded-[5px]" data-kitchen-came={found ? "found" : back ? "back" : made ? "odd" : "nothing"}>
       <div role="alertdialog" aria-labelledby="town-kitchen-came-h" className="kt-rise w-full max-w-[21rem] rounded-lg border-[3px] border-[#2a190d] px-4 pb-4 pt-3 text-center shadow-[0_14px_28px_rgba(0,0,0,0.5)]" style={{ backgroundColor: PAPER, color: INK }}>
         {first && found && <p className="mx-auto mb-1 w-fit rounded-full px-3 py-0.5 text-meta font-semibold text-white" style={{ backgroundColor: CHILI }}>{th ? "พบสูตรใหม่!" : "A new recipe!"}</p>}
-        <div className="relative mx-auto grid size-28 place-items-center">
+        {/* (a miss has more to read under it, and no rays about it: its picture stands in less room) */}
+        <div className={`relative mx-auto grid place-items-center ${taste && !back ? "size-20" : "size-28"}`}>
           {((first && found) || back) && <span aria-hidden className="kt-rays absolute inset-0 rounded-full opacity-60" style={{ background: back ? "repeating-conic-gradient(rgba(255,154,60,0.9) 0 12deg, transparent 12deg 30deg)" : "repeating-conic-gradient(rgba(240,192,96,0.9) 0 12deg, transparent 12deg 30deg)", maskImage: "radial-gradient(circle, #000 30%, transparent 70%)", WebkitMaskImage: "radial-gradient(circle, #000 30%, transparent 70%)" }} />}
           {made ? <ItemIcon id={made} size={80} className="relative" /> : back ? <span className="kt-phoenix relative block"><TownIcon name={"thingFlame" as IconName} size={76} /></span> : <TownIcon name="potEmpty" size={72} className="relative opacity-80" />}
           {pot && found && <span aria-hidden className="pointer-events-none absolute -top-1 left-1/2 -translate-x-1/2"><TownIcon name="fxSteam" size={22} className="kt-steam" /></span>}
         </div>
         <h3 id="town-kitchen-came-h" className="font-display text-title font-semibold leading-tight">{title}</h3>
         {made && <p className="font-data text-ui tabular-nums" style={{ color: INK_SOFT }}>{pot ? (th ? `${n} ที่` : `${n} helping${n === 1 ? "" : "s"}`) : `×${n}`}</p>}
-        {taste && <p className="mt-1.5 rounded-md px-2 py-1.5 text-ui font-semibold" style={{ backgroundColor: "rgba(74,53,32,0.1)" }} data-kitchen-taste={taste}>{th ? TASTE_WORD[taste].th : TASTE_WORD[taste].en}</p>}
+        {open && missed.length > 0 && (
+          <div className="mt-1.5 rounded-md px-2 py-1.5 text-left" style={{ backgroundColor: "rgba(178,58,38,0.12)" }} data-kitchen-missed={open.id}>
+            <p className="flex items-center gap-1 text-meta font-semibold" style={{ color: CHILI }}><ItemIcon id={open.id} size={18} className="shrink-0" />{th ? `ไม่ตรงกับสูตรที่เปิดอยู่: ${name(open.id)}` : `Not the open recipe: ${name(open.id)}`}</p>
+            <ul className="mt-0.5 flex flex-col gap-0.5 text-ui font-semibold leading-snug">{missed.map((line) => <li key={line}>{line}</li>)}</ul>
+          </div>
+        )}
+        {taste && (
+          <div className="mt-1.5 rounded-md px-2 py-1.5" style={{ backgroundColor: "rgba(74,53,32,0.1)" }}>
+            <p className="text-ui font-semibold leading-snug" data-kitchen-taste={taste}>{th ? TASTE_WORD[taste].th : TASTE_WORD[taste].en}</p>
+            {taste !== "far" && <p className="mt-0.5 text-label leading-snug" style={{ color: INK_SOFT }}>{th ? TASTE_OF.th : TASTE_OF.en}</p>}
+          </div>
+        )}
         {result.sprite && (
           <p className="mx-auto mt-1.5 flex w-fit items-center gap-1.5 rounded-full px-3 py-0.5 text-meta font-semibold" style={{ backgroundColor: "#ff9a3c", color: "#3a1a06" }} data-kitchen-by-sprite>
             <TownIcon name={"famSprite" as IconName} size={18} />{pot ? (th ? "ภูตเตาไฟทำให้ · แถมอีก 1 ที่" : "Cooked by the hearth sprite · one helping more") : (th ? "ภูตเตาไฟทำให้" : "Made by the hearth sprite")}

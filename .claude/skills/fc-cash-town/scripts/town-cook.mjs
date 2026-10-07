@@ -178,7 +178,7 @@ try {
     && !(await X.evaluate(`${C}.found()`)).includes("oddDish") && p.recipes.length === 0 && (await shown(X, "/อาหารแปลกๆ/")), p.bag);
   ok("the pot it came in is the yard's: the cook's own is still theirs", (await has(X, "pot")) === 1 && p.bag.filter((s) => s?.item === "potFull").length === 1, p.bag);
   // (minnows and rice: rice alone is nearly something, so the minnows are one thing too many)
-  ok("it tastes of how near it was: one thing too many", await shown(X, "/มีของเกินมาอย่างหนึ่ง/"));
+  ok("it tastes of how near it was: one thing too many", await shown(X, "/สูตรนั้นไม่ใช้ของ 1 อย่างที่ใส่ไป/"));
   let came = await cameOf(X);
   ok("a card on the table says what came of it and how it tasted, and offers another go", came?.kind === "odd" && came.taste === "more" && /อาหารแปลกๆ/.test(came.text) && /ลองใหม่/.test(came.text), came);
   let jotted = await X.evaluate(`${C}.notes()`);
@@ -189,7 +189,7 @@ try {
   ok("the right things in the wrong amounts are stirred too", await make(X, [["snakehead", 2], ["tomato", 2], ["chili", 2], ["scallion", 1]]));
   p = await purse(X);
   ok("…and are another odd dish, which tastes of the wrong amounts", p.bag.filter((s) => s?.item === "potFull" && s.of.dish === "oddDish").length === 2 && (await has(X, "snakehead")) === 1
-    && !(await X.evaluate(`${C}.found()`)).length && (await shown(X, "/สัดส่วนยังไม่ใช่/")), p.bag);
+    && !(await X.evaluate(`${C}.found()`)).length && (await shown(X, "/จำนวนยังไม่ตรง/")), p.bag);
   await X.evaluate(`${T}.serve(${T}.purse().bag.findIndex((s) => s?.item === "potFull" && s.of.left > 1))`);
   await sleep(300);
   ok("it is ladled like any dish, into the bowl, which goes with it", (await has(X, "oddDish")) === 1 && (await has(X, "bowl")) === 0);
@@ -296,7 +296,7 @@ try {
   await cookAgain(X);
   ok("a dish for two, cooked alone, is an odd dish like any other", (await make(X, CRAB)) === true && (await has(X, "crab")) === 3
     && (await purse(X)).bag.some((s) => s?.item === "potFull" && s.of.dish === "oddDish") && !(await shown(X, "/คนยังไม่ครบ/")), (await purse(X)).bag);
-  ok("…which tastes of everything being right but the way it was cooked", await shown(X, "/วิธีทำยังไม่ใช่/"));
+  ok("…which tastes of everything being right but the way it was cooked", await shown(X, "/เครื่องครัวหรือจำนวนคนทำยังไม่ใช่/"));
   await dropOdd(X);
   await grant(Y, [["mortar", 1]]);
   await hold(Y, "mortar");
@@ -361,9 +361,20 @@ try {
   await sleep(500);
   page = await pageOf(Y, "tomYum");
   ok("read beside the pot, a recipe hides its last thing as its scroll does, and lists the guesses that has had",
-    page?.secret === "3" && page.lines.length === 3 && page.lines.every(([, state]) => state === "have") && /กระเทียม ×1/.test(page.guesses ?? "") && /มีของอย่างหนึ่งที่ไม่ใช่/.test(page.guesses), page);
+    page?.secret === "3" && page.lines.length === 3 && page.lines.every(([, state]) => state === "have") && /กระเทียม ×1/.test(page.guesses ?? "") && /สูตรนั้นใช้ของอื่นแทน 1 อย่างที่ใส่ไป/.test(page.guesses), page);
   ok("…the same miss thrice is one line of the notebook", (await Y.evaluate(`${C}.notes()`)).length === 1 && page.buttons === 1, await Y.evaluate(`${C}.notes()`));
   await Y.shot(`${OUT}/cook-table-guess.png`);
+  // a miss with a recipe open beside the pot is said of that recipe first, by what its own page tells; the taste under
+  // it says that it is of the nearest recipe of all (the owner, 2026-10-07, of a bowl answered with a fertiliser's taste)
+  await grant(Y, [["snakehead", 1], ["tomato", 2], ["chili", 2], ["garlic", 1]]);
+  await make(Y, [["snakehead", 1], ["tomato", 2], ["chili", 2], ["garlic", 1]]);
+  came = await cameOf(Y);
+  const missed = await Y.evaluate(`document.querySelector("[data-kitchen-missed]")?.innerText.replace(/\s+/g, " ") ?? null`);
+  ok("a miss with the recipe open is said of that recipe: the guess was not its secret thing, which is still not named",
+    came?.taste === "swap" && /สูตรที่เปิดอยู่: ต้มยำปลาช่อน/.test(missed ?? "") && /กระเทียม ไม่ใช่ชิ้นลับของสูตรนี้/.test(missed) && !/ต้นหอม/.test(came.text), { came, missed });
+  ok("…and the taste under it says whose it is: the nearest recipe's, which need not be the one meant", /ใกล้กับสูตรหนึ่ง/.test(came.text) && /อาจไม่ใช่สูตรที่ตั้งใจทำ/.test(came.text), came);
+  await cookAgain(Y, "pot");
+  await dropOdd(Y);
   for (const [id, n] of TOMYUM) for (let i = 0; i < n; i++) await tap(Y, `[data-kitchen-thing="${id}"]`);
   page = await pageOf(Y, "tomYum");
   ok("put in by hand, each line it tells says it is in", JSON.stringify(await Y.evaluate(`${C}.things()`)) === JSON.stringify(TOMYUM) && page.lines.every(([, state]) => state === "in"), page);

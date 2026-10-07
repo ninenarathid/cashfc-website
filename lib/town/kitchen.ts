@@ -104,10 +104,59 @@ export function guessesAt(told: Told, notes: Note[]): Guess[] {
     .map((n) => ({ at: n.at, put: n.things.filter(([t]) => !lines.has(t)), tool: n.tool, ...(n.taste ? { taste: n.taste } : {}) }));
 }
 
-/** What the wrong things taste of: how near they came to something (lib/town/cooking's tasteOf). */
+/**
+ * What the wrong things taste of: how near they came to something (lib/town/cooking's tasteOf). Each says that it is
+ * said of "a recipe": the nearest of all there are, which need not be the one the cook was after (the owner,
+ * 2026-10-07: two minnows put in for a bowl were answered "nearly: one thing is missing", which was the taste of a
+ * fertiliser and read as said of the bowl: "ระบบจะบอกว่ายังขาดของอีกอย่างนึง ทั้งๆที่ไม่ได้ขาด แต่ใส่ผิดประเภท ช่วยเขียนให้เข้าใจง่ายกว่านี้").
+ */
 export const TASTE_WORD: Record<Taste, Line> = {
-  far: { th: "ไม่เข้ากันเลยสักอย่าง", en: "None of it goes together" }, some: { th: "มีบางอย่างที่เข้ากันอยู่", en: "Some of it belongs together" },
-  less: { th: "เกือบแล้ว ยังขาดของอีกอย่างหนึ่ง", en: "Nearly: one thing is missing" }, more: { th: "เกือบแล้ว มีของเกินมาอย่างหนึ่ง", en: "Nearly: one thing too many" },
-  swap: { th: "เกือบแล้ว มีของอย่างหนึ่งที่ไม่ใช่", en: "Nearly: one thing is not the one" }, amounts: { th: "ของใช่ทุกอย่างแล้ว แต่สัดส่วนยังไม่ใช่", en: "The right things, in the wrong amounts" },
-  way: { th: "ของครบ สัดส่วนก็ใช่ แต่วิธีทำยังไม่ใช่", en: "Everything is right but the way it was cooked" },
+  far: { th: "ไม่ใกล้เคียงกับสูตรไหนเลย", en: "Not close to any recipe" }, some: { th: "มีของบางอย่างตรงกับสูตรหนึ่ง", en: "Some of it is what a recipe takes" },
+  less: { th: "ใกล้กับสูตรหนึ่ง: สูตรนั้นต้องใช้ของอีก 1 อย่าง", en: "Close to a recipe: that one takes one more thing" },
+  more: { th: "ใกล้กับสูตรหนึ่ง: สูตรนั้นไม่ใช้ของ 1 อย่างที่ใส่ไป", en: "Close to a recipe: that one does not take one of these" },
+  swap: { th: "ใกล้กับสูตรหนึ่ง: สูตรนั้นใช้ของอื่นแทน 1 อย่างที่ใส่ไป", en: "Close to a recipe: that one takes something else for one of these" },
+  amounts: { th: "ของตรงกับสูตรหนึ่งครบทุกอย่าง แต่จำนวนยังไม่ตรง", en: "Every thing a recipe takes, in other amounts" },
+  way: { th: "ของและจำนวนตรงกับสูตรหนึ่งแล้ว แต่เครื่องครัวหรือจำนวนคนทำยังไม่ใช่", en: "A recipe's things and amounts, but not its cookware or its number of cooks" },
 };
+/** Under a taste, on the card of what came of it: which recipe it is said of. */
+export const TASTE_OF: Line = { th: "“สูตรหนึ่ง” คือสูตรที่ใกล้กับของที่ใส่ไปที่สุด อาจไม่ใช่สูตรที่ตั้งใจทำ", en: "“A recipe” is whichever is nearest to what went in: maybe not the one you meant" };
+
+/**
+ * How a try missed the recipe that is open beside the pot, by what that recipe's own page tells and nothing more.
+ * The taste is of the nearest recipe of all; this is of the one being read, and is said before it.
+ *
+ * - `lacks`: lines it tells that were not put in; `amounts`: lines put in in another amount (what it takes, what went in);
+ * - `strays`: what went in that is no line of it. A recipe read whole takes none. One that hides its last thing
+ *   takes one kind, so many of it (`secret`): `none` went in, `many` kinds did, one in another `amount`, or a `guess`;
+ * - `tools`, `cooks`: cookware of its that no cook held, and how many cooks it takes when there were fewer;
+ * - `wrong`: a guess that was not the thing. Said only when all the rest is as the recipe tells, which is when the
+ *   cook could have worked it out: nothing here reads what a recipe hides.
+ */
+export interface Missed {
+  lacks: Array<[ItemId, number]>; amounts: Array<[ItemId, number, number]>; strays: Array<[ItemId, number]>;
+  secret: { n: number; how: "none" | "many" | "amount" | "guess" } | null; tools: Cookware[]; cooks: number | null; wrong: ItemId | null;
+}
+export function missedBy(told: Told, things: Array<[ItemId, number]>, crew: Array<ItemId | null>): Missed {
+  const put = new Map(things);
+  const lacks = told.needs.filter(([id]) => !put.has(id));
+  const amounts = told.needs.flatMap(([id, n]): Array<[ItemId, number, number]> => (put.has(id) && put.get(id) !== n ? [[id, n, put.get(id)!]] : []));
+  const strays = things.filter(([id]) => !told.needs.some(([t]) => t === id));
+  const secret = told.last ? { n: told.last.n, how: !strays.length ? "none" as const : strays.length > 1 ? "many" as const : strays[0][1] !== told.last.n ? "amount" as const : "guess" as const } : null;
+  const tools = toolsAt(told, [], crew).filter((t) => t.state !== "held").map((t) => t.id), cooks = crew.length < told.cooks ? told.cooks : null;
+  const rest = !lacks.length && !amounts.length && !tools.length && cooks === null;
+  return { lacks, amounts, strays, secret, tools, cooks, wrong: secret?.how === "guess" && rest ? strays[0][0] : null };
+}
+/** The same, in lines for the card, in the order a recipe's page tells itself: its things, its secret thing, what it is made in and by how many. */
+export function missedWords(m: Missed, name: (id: ItemId) => string, th: boolean): string[] {
+  const out: string[] = [], list = (ids: ItemId[]) => ids.map(name).join(", ");
+  if (m.lacks.length) out.push(`${th ? "ยังไม่ได้ใส่" : "Not put in:"} ${m.lacks.map(([id, n]) => `${name(id)} ×${n}`).join(", ")}`);
+  for (const [id, need, n] of m.amounts) out.push(th ? `${name(id)} ต้องใส่ ×${need} (ใส่ไป ×${n})` : `${name(id)} takes ×${need} (×${n} went in)`);
+  if (!m.secret && m.strays.length) out.push(th ? `${list(m.strays.map(([id]) => id))} ไม่อยู่ในสูตรนี้` : `Not in this recipe: ${list(m.strays.map(([id]) => id))}`);
+  if (m.secret?.how === "none") out.push(th ? `ยังไม่ได้ใส่ชิ้นลับ (ต้องใส่ ×${m.secret.n})` : `Its secret thing (×${m.secret.n}) was not put in`);
+  if (m.secret?.how === "many") out.push(th ? `ชิ้นลับมีอย่างเดียว แต่ใส่ของนอกสูตรมา ${m.strays.length} อย่าง` : `It has one secret thing, and ${m.strays.length} things it does not tell went in`);
+  if (m.secret?.how === "amount") out.push(th ? `ชิ้นลับต้องใส่ ×${m.secret.n} (ใส่ ${name(m.strays[0][0])} ไป ×${m.strays[0][1]})` : `Its secret thing takes ×${m.secret.n} (×${m.strays[0][1]} of ${name(m.strays[0][0])} went in)`);
+  if (m.wrong) out.push(th ? `${name(m.wrong)} ไม่ใช่ชิ้นลับของสูตรนี้` : `${name(m.wrong)} is not its secret thing`);
+  if (m.tools.length) out.push(th ? `ไม่ได้ทำใน ${list(m.tools)}` : `Not cooked in: ${list(m.tools)}`);
+  if (m.cooks !== null) out.push(th ? `ต้องช่วยกันทำ ${m.cooks} คน` : `Takes ${m.cooks} cooks together`);
+  return out;
+}
