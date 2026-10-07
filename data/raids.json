@@ -3796,7 +3796,25 @@
      "best": 96,
      "median": 61,
      "kills": 10,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 7,
+       "best": 96
+      },
+      "Summoner": {
+       "kills": 1,
+       "best": 79
+      },
+      "RedMage": {
+       "kills": 1,
+       "best": 46
+      },
+      "Paladin": {
+       "kills": 1,
+       "best": 28
+      }
+     }
     },
     {
      "label": "M10S",
@@ -3805,7 +3823,25 @@
      "best": 83,
      "median": 46,
      "kills": 10,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Summoner": {
+       "kills": 2,
+       "best": 74
+      },
+      "Viper": {
+       "kills": 6,
+       "best": 83
+      },
+      "Pictomancer": {
+       "kills": 1,
+       "best": 26
+      },
+      "Paladin": {
+       "kills": 1,
+       "best": 15
+      }
+     }
     },
     {
      "label": "M11S",
@@ -3814,7 +3850,13 @@
      "best": 77,
      "median": 73,
      "kills": 6,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 6,
+       "best": 77
+      }
+     }
     },
     {
      "label": "M12S-1",
@@ -3823,7 +3865,13 @@
      "best": 69,
      "median": 45,
      "kills": 10,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 10,
+       "best": 69
+      }
+     }
     },
     {
      "label": "M12S-2",
@@ -3832,7 +3880,13 @@
      "best": 68,
      "median": 47,
      "kills": 5,
-     "job": "Viper"
+     "job": "Viper",
+     "job_kills": {
+      "Viper": {
+       "kills": 5,
+       "best": 68
+      }
+     }
     }
    ],
    "clears": [
@@ -3853,7 +3907,13 @@
     "best": 78,
     "kills": 7,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 7,
+      "best": 78
+     }
+    }
    },
    {
     "zone": "The Omega Protocol",
@@ -3900,7 +3960,33 @@
     "best": 64,
     "kills": 36,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 4,
+      "best": 64
+     },
+     "RedMage": {
+      "kills": 10,
+      "best": 49
+     },
+     "DarkKnight": {
+      "kills": 1,
+      "best": 16
+     },
+     "Gunbreaker": {
+      "kills": 1,
+      "best": 27
+     },
+     "Scholar": {
+      "kills": 12,
+      "best": 47
+     },
+     "Sage": {
+      "kills": 8,
+      "best": 53
+     }
+    }
    },
    {
     "zone": "Trials III (Extreme)",
@@ -3911,7 +3997,25 @@
     "best": 43,
     "kills": 10,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 4,
+      "best": 43
+     },
+     "RedMage": {
+      "kills": 2,
+      "best": 26
+     },
+     "Summoner": {
+      "kills": 1,
+      "best": 23
+     },
+     "Paladin": {
+      "kills": 3,
+      "best": 39
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -3922,7 +4026,13 @@
     "best": 80,
     "kills": 33,
     "job": "RedMage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "RedMage": {
+      "kills": 33,
+      "best": 80
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -3933,7 +4043,25 @@
     "best": 60,
     "kills": 14,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 9,
+      "best": 60
+     },
+     "BlackMage": {
+      "kills": 1,
+      "best": 17
+     },
+     "DarkKnight": {
+      "kills": 2,
+      "best": 31
+     },
+     "Scholar": {
+      "kills": 2,
+      "best": 19
+     }
+    }
    },
    {
     "zone": "Trials II (Extreme)",
@@ -3944,7 +4072,17 @@
     "best": 77,
     "kills": 11,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "RedMage": {
+      "kills": 2,
+      "best": 38
+     },
+     "Ninja": {
+      "kills": 9,
+      "best": 77
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -3955,7 +4093,33 @@
     "best": 72,
     "kills": 13,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 2,
+      "best": 72
+     },
+     "Viper": {
+      "kills": 1,
+      "best": 63
+     },
+     "Paladin": {
+      "kills": 6,
+      "best": 63
+     },
+     "Summoner": {
+      "kills": 2,
+      "best": 45
+     },
+     "Gunbreaker": {
+      "kills": 1,
+      "best": 11
+     },
+     "DarkKnight": {
+      "kills": 1,
+      "best": 4
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -3966,7 +4130,29 @@
     "best": 96,
     "kills": 47,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 23,
+      "best": 96
+     },
+     "Viper": {
+      "kills": 4,
+      "best": 86
+     },
+     "Summoner": {
+      "kills": 2,
+      "best": 54
+     },
+     "Scholar": {
+      "kills": 4,
+      "best": 44
+     },
+     "Paladin": {
+      "kills": 14,
+      "best": 57
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -3977,7 +4163,25 @@
     "best": 94,
     "kills": 45,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 15,
+      "best": 94
+     },
+     "Reaper": {
+      "kills": 26,
+      "best": 94
+     },
+     "Summoner": {
+      "kills": 1,
+      "best": 13
+     },
+     "Paladin": {
+      "kills": 3,
+      "best": 25
+     }
+    }
    }
   ],
   "legacy": [
@@ -10325,6 +10529,10 @@
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
+     "Samurai": {
+      "kills": 4,
+      "best": 87
+     },
      "Monk": {
       "kills": 5,
       "best": 66
@@ -18730,7 +18938,7 @@
       "best": 75
      },
      "Warrior": {
-      "kills": 14,
+      "kills": 15,
       "best": 78
      },
      "DarkKnight": {
@@ -30885,6 +31093,10 @@
     "job": "Gunbreaker",
     "cleared": true,
     "job_kills": {
+     "Sage": {
+      "kills": 4,
+      "best": 76
+     },
      "Viper": {
       "kills": 15,
       "best": 77
@@ -42796,7 +43008,21 @@
     "best": 82,
     "kills": 4,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 2,
+      "best": 82
+     },
+     "DarkKnight": {
+      "kills": 1,
+      "best": 50
+     },
+     "Paladin": {
+      "kills": 1,
+      "best": 25
+     }
+    }
    }
   ],
   "legacy": [
@@ -72829,7 +73055,7 @@
       "best": 51
      },
      "Paladin": {
-      "kills": 4,
+      "kills": 5,
       "best": 93
      },
      "Gunbreaker": {
@@ -72957,7 +73183,7 @@
       "best": 64
      },
      "Scholar": {
-      "kills": 12,
+      "kills": 14,
       "best": 67
      }
     }
@@ -72982,7 +73208,7 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 34,
+      "kills": 37,
       "best": 79
      },
      "WhiteMage": {
@@ -79224,7 +79450,7 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 8,
+      "kills": 9,
       "best": 85
      }
     }
@@ -79238,7 +79464,13 @@
     "best": 80,
     "kills": 4,
     "job": "Machinist",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Machinist": {
+      "kills": 4,
+      "best": 80
+     }
+    }
    }
   ],
   "legacy": [],
@@ -80296,6 +80528,10 @@
      "Pictomancer": {
       "kills": 4,
       "best": 44
+     },
+     "WhiteMage": {
+      "kills": 1,
+      "best": 14
      }
     }
    },
@@ -80308,7 +80544,13 @@
     "best": 62,
     "kills": 4,
     "job": "Pictomancer",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Pictomancer": {
+      "kills": 4,
+      "best": 62
+     }
+    }
    }
   ],
   "legacy": [],
@@ -82735,9 +82977,9 @@
     "state": "learning",
     "pct": 44.76,
     "phase": 4,
-    "pulls": 63,
-    "last": "2026-10-02",
-    "last_ts": 1790952819
+    "pulls": 72,
+    "last": "2026-10-06",
+    "last_ts": 1791298571
    }
   ]
  },
@@ -85011,20 +85253,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 53,
-    "last": "2026-09-29",
-    "last_ts": 1790690223
-   }
-  ]
+  "_status": "ok"
  },
  "48097900": {
   "current": {
@@ -87170,7 +87399,7 @@
     "encounter_id": 1076,
     "name": "Dragonsong's Reprise",
     "best": 65,
-    "kills": 3,
+    "kills": 5,
     "job": "DarkKnight",
     "cleared": true
    }
@@ -88741,9 +88970,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 43,
-    "kills": 4,
-    "job": "Paladin",
+    "best": 50,
+    "kills": 7,
+    "job": "Pictomancer",
     "cleared": true
    },
    {

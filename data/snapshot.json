@@ -2291,7 +2291,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 25,
-  "level": 91,
+  "level": 95,
   "cc": [
    true,
    true,
@@ -2512,7 +2512,7 @@
   "mounts": 115,
   "minions": 255,
   "rare": 11,
-  "level": 100,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -2539,7 +2539,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-05"
+  "chg": "2026-10-06"
  },
  "57375278": {
   "name": "Komi Kona",
@@ -3832,12 +3832,12 @@
   "tiers": {},
   "jobs": {
    "Viper": "legendary",
-   "RedMage": "expert",
-   "Reaper": "legendary",
    "Summoner": "legendary",
-   "Bard": "expert",
-   "Gunbreaker": "expert",
+   "RedMage": "expert",
    "DarkKnight": "master",
+   "Gunbreaker": "expert",
+   "Reaper": "legendary",
+   "Bard": "expert",
    "Dancer": "expert",
    "Machinist": "legendary"
   },
@@ -4876,7 +4876,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 290,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5006,7 +5006,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-06"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -5360,7 +5360,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -5384,7 +5384,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-02"
+  "chg": "2026-10-06"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -8588,7 +8588,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 90,
   "cc": [
    false,
    false,
@@ -8601,7 +8601,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-06"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8632,7 +8632,7 @@
   "mounts": 33,
   "minions": 173,
   "rare": 3,
-  "level": 79,
+  "level": 100,
   "cc": [
    false,
    false,
