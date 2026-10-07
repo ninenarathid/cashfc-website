@@ -228,6 +228,9 @@ export interface Go {
   points: number;
   /** A counted power: one swing for every rock within a step of the member. */
   quake?: boolean;
+  /** For a keeper that is a trial (scripts): what a rock holds, held in the roll's place; and the number the chance of a neighbour's breaking is tried by. */
+  fate?: (rock: number) => Holds | null;
+  chain?: number | null;
 }
 export interface Mined {
   ok: true; purse: Purse;
@@ -261,7 +264,8 @@ export function mine(purse: Purse, go: Go): Mined | { ok: false; why: MineRefusa
   if (!rock) return no("none");
   if (!go.standing(rock.id)) return no("gone");
   if (!near(go.at, rock, MINING.reach)) return no("far");
-  const holds = holdsOf(go.salt, go.floor, rock.id, turn, go.today, pick);
+  const holdsAt = (id: number): Holds => go.fate?.(id) ?? holdsOf(go.salt, go.floor, id, turn, go.today, pick);
+  const holds = holdsAt(rock.id);
   if (holds.kind === "crystal" && levelOf(pick) < MINING.crystal.plus) return no("weak");
   const spent = isSpent(purse, go.now), quake = !!go.quake;
   if (quake && !mayPower(purse, pick, "pkQuake", go.now)) return no("spent");
@@ -271,7 +275,7 @@ export function mine(purse: Purse, go: Go): Mined | { ok: false; why: MineRefusa
 
   // which rocks break: the one struck; with a quake, every plain rock within a step of the member; and now and then a neighbour
   const breaks: Array<{ rock: RockAt; holds: Holds }> = [{ rock, holds }];
-  const plainAt = (r: RockAt) => { const h = holdsOf(go.salt, go.floor, r.id, turn, go.today, pick); return h.kind === "stone" ? h : null; };
+  const plainAt = (r: RockAt) => { const h = holdsAt(r.id); return h.kind === "stone" ? h : null; };
   if (quake) {
     for (const r of go.rocks) {
       if (r.id === rock.id || !go.standing(r.id) || !near(go.at, r, optN("pkQuake", "reach"))) continue;
@@ -281,7 +285,7 @@ export function mine(purse: Purse, go: Go): Mined | { ok: false; why: MineRefusa
   }
   let chained: number | null = null;
   const chance = gemBy(pick, "lightning", GEM_FX.lightning.pick.chain);
-  if (chance > 0 && roll(`${go.salt}:chain`, go.floor, rock.id, turn) < chance) {
+  if (chance > 0 && (go.chain ?? roll(`${go.salt}:chain`, go.floor, rock.id, turn)) < chance) {
     const next = go.rocks.filter((r) => go.standing(r.id) && !breaks.some((b) => b.rock.id === r.id) && near(rock, r, MINING.touch) && plainAt(r))
       .sort((a, b) => Math.hypot(a.x - rock.x, a.y - rock.y) - Math.hypot(b.x - rock.x, b.y - rock.y) || a.id - b.id)[0];
     if (next) { breaks.push({ rock: next, holds: plainAt(next)! }); chained = next.id; }

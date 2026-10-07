@@ -1,5 +1,5 @@
 import { CAVE_SIZE, caveFloor, isRest } from "./cave";
-import { MINING, turnOf, type RockAt } from "./mining";
+import { MINING, turnOf, type PendingVein, type RockAt } from "./mining";
 import { dayOf } from "./stamina";
 
 /**
@@ -91,11 +91,41 @@ export const boardOf = (state: CaveState): { floor: number; by: string; name: st
 /** When what a page was told of the cave next changes by itself: the rocks' next turn, or the first torch to burn out. */
 export const changesAt = (state: CaveState, now: number): number => Math.min((turnOf(now) + 1) * MINING.turn, ...state.torches.filter((t) => t.until > now).map((t) => t.until));
 
+/**
+ * What a member is told of the cave by whoever keeps the game: what the village shares (the rocks gone by place, the
+ * ways down open with where each is, the torches burning, the deepest floor reached today), and their own (the
+ * lift's stops, a vein opened and not played out, the rocks loosened for them, the rocks that glint for them on the
+ * floor they are on, and the day's crystal rock where they may know of it). Never what a rock holds.
+ */
+export interface CaveTold {
+  day: number; turn: number;
+  /** When this next changes by itself: a page asks again then. */
+  again: number;
+  gone: Record<string, number[]>;
+  ways: Record<string, { x: number; y: number; rock: number | null; name: string }>;
+  torches: Torch[];
+  deepest: { floor: number; by: string; name: string; at: number } | null;
+  rests: number[];
+  vein: PendingVein | null;
+  loose: { floor: number; ids: number[] } | null;
+  glints: number[];
+  /** The day's crystal rock while it stands: its floor and its number to whoever is on that floor; its floor alone to a pick that knows it. */
+  crystal: { floor: number; rock: number | null } | null;
+}
+
 /* ── where things are, in the world's tiles ─────────────────────────────── */
 
 /** Where the cave's floors lie in the world (lib/town/world's CAVE, said here so that the rules need nothing of the map's): the first floor's corner, how many to a row, and how far apart. */
 export const CAVE_AT = { x: 0, y: 320, across: 4, apart: 64 };
 export const cornerOf = (floor: number): { x: number; y: number } => ({ x: CAVE_AT.x + ((floor - 1) % CAVE_AT.across) * CAVE_AT.apart, y: CAVE_AT.y + Math.floor((floor - 1) / CAVE_AT.across) * CAVE_AT.apart });
+/** Which floor of the cave a tile of the world is on (0: none). */
+export function floorAtTile(x: number, y: number): number {
+  if (x < CAVE_AT.x || y < CAVE_AT.y) return 0;
+  const col = Math.floor((x - CAVE_AT.x) / CAVE_AT.apart), row = Math.floor((y - CAVE_AT.y) / CAVE_AT.apart);
+  if (col >= CAVE_AT.across || x - CAVE_AT.x - col * CAVE_AT.apart >= CAVE_SIZE || y - CAVE_AT.y - row * CAVE_AT.apart >= CAVE_SIZE) return 0;
+  const n = row * CAVE_AT.across + col + 1;
+  return n <= MINING.floors ? n : 0;
+}
 /** A floor's rocks as they are laid on a day, in the world's tiles (none on a resting floor). */
 export function floorRocks(floor: number, day: number): RockAt[] {
   if (floor < 1 || floor > MINING.floors) return [];

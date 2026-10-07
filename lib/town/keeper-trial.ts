@@ -22,6 +22,9 @@ import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
 import type { RowDid } from "./keeper";
+// ── mining ──
+import type { MineDid, MineDone, VeinDid } from "./keeper";
+import type { Peek } from "./mining";
 
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
@@ -300,6 +303,34 @@ class TrialKeeper implements Keeper {
     if (did.ok) this.onDeed?.("line", to);
     return did;
   }
+  // ── mining ── (the cave is in this browser already: what I am told is worked out as it is asked for, by where I last said I was)
+  private caveAt: { floor: number; at: [number, number] | null } = { floor: 0, at: null };
+  cave() { return this.trial.cave(this.caveAt.floor, this.caveAt.at); }
+  async caveLook(floor: number, at: [number, number] | null) { this.caveAt = { floor, at }; }
+  async mineDo(floor: number, rock: number, at: [number, number], swings: number, name: string, how?: "quake"): Promise<MineDone<MineDid>> {
+    const did = this.trial.mineDo(floor, rock, at, swings, name, how);
+    if (did.ok) this.onDeed?.("cave");
+    return did;
+  }
+  async minePeek(floor: number, rock: number): Promise<MineDone<{ peek: Peek }>> { return this.trial.minePeek(floor, rock); }
+  async veinDo(strikes: Array<[number, number]>): Promise<MineDone<VeinDid>> { return this.trial.veinDo(strikes); }
+  async caveReach(floor: number) { this.trial.caveReach(floor); }
+  async liftRide(to: number): Promise<MineDone<{ at: [number, number] | null }>> { return this.trial.liftRide(to); }
+  async torchDown(at: [number, number]): Promise<MineDone<{ until: number }>> {
+    const did = this.trial.torchDown(at);
+    if (did.ok) this.onDeed?.("cave");
+    return did;
+  }
+  async drillDo(at: [number, number], name: string): Promise<MineDone<{ at: [number, number]; left: number }>> {
+    const did = this.trial.drillDo(at, name);
+    if (did.ok) this.onDeed?.("cave");
+    return did;
+  }
+  caveBoard() { return this.trial.caveBoard(); }
+  async pouchOut(gift: string, slot: number): Promise<MineDone<{ n: number }>> { return this.trial.pouchOut(gift, slot); }
+  async pouchIn(slot: number): Promise<MineDone<{ n: number }>> { return this.trial.pouchIn(slot); }
+  // ── end: mining ──
+
   box() { return this.trial.box(); }
   async boxLook() { /* the box is in this browser already */ }
   async boxPut(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxPut(slot, n, at); }
