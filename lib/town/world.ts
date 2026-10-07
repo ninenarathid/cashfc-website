@@ -13,6 +13,10 @@
  * y down to the left; the isometric diamond is 2:1.
  */
 
+// ── to come (a look-only preview, `next dev` only: see PREVIEW below) ── the mountain's foot and the cave, each laid out in its own file
+import { CAVE_SIZE, caveFloor, hollowAt, type CaveFloor } from "./cave";
+import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
+
 export const COLS = 64;
 export const ROWS = 64;
 /** One tile on screen, before the town is scaled to fit. */
@@ -347,6 +351,68 @@ export const KEEPERS: Keeper[] = [
   { id: "uncle", stand: { x: 45.5, y: 27.6 }, at: { x: 45.0, y: 28.5 }, tiles: [[45, 27], [46, 26], [44, 28], [45, 28]] },
   { id: "banker", stand: { x: 47.5, y: 25.6 }, at: { x: 47.3, y: 26.5 }, tiles: [[47, 25], [48, 24], [47, 26]] },
 ];
+
+/* ── to come: a look-only preview, in `next dev` only ───────────────────── */
+
+/**
+ * Whether what is to come is here: the bridge over the river, the blacksmith, the mountain's foot and the cave
+ * under it (the owner, 2026-10-08: he wants to see the maps and their pictures before any game is built on them).
+ * In `next dev` only. A production build has none of it, and neither has a test, where the town is as its members
+ * have it: what is to come is tested by a test that says so (lib/town/preview.test.ts).
+ */
+export const PREVIEW = process.env.NODE_ENV === "development";
+/**
+ * Whether something is being laid out as the town was before any of this (see asBuilt): the bridge is not walked
+ * on then and the blacksmith closes no tile, so that what the database keeps a copy of (the insects' haunts, the
+ * places to fish from) comes out as it always did.
+ */
+let asWas = false;
+/**
+ * The bridge over the river, where the west path meets the water. The river runs straight down the screen there
+ * and the path's two ends face each other across it, so the bridge lies straight across the screen: along tiles
+ * whose x + y is the same.
+ *
+ * The village builds it, a span at a time, from the town's bank outwards (a deed of its own, not built here):
+ * `spans` is how many are laid, 0 for none and 6 for the whole of it. It is walked on only once it is whole and
+ * `open` says so: that it is drawn does not open it, and until then the gate beyond it leads nowhere. Whole and open
+ * in the preview (`setBridge`, and `&townBridge=` in `next dev`, show the rest).
+ *
+ * `tiles` are its six spans' tiles, the town's first: each span the tile on the bridge's middle line with the one
+ * behind it and the one before it as the screen sees them (the floor is three rows of tiles deep, so that a walker
+ * crosses it in one straight line). Ten of the eighteen are water: the first span stands on the town's bank and the
+ * last on the far one. `foot` is the tile of the town's bank the first span is laid from. `ends` are the middles of
+ * its floor's two ends, the town's first: the picture is stood between them.
+ */
+export const BRIDGE = {
+  spans: 6, open: true,
+  foot: [11, 27] as [number, number],
+  tiles: PREVIEW ? Array.from({ length: 6 }, (_, i): Array<[number, number]> => [[10 - i, 28 + i], [9 - i, 28 + i], [10 - i, 29 + i]]) : [],
+  ends: [{ x: 11, y: 28 }, { x: 5, y: 34 }] as [Vec, Vec],
+};
+const bridgeAt = new Set(BRIDGE.tiles.flat().map(([x, y]) => `${x},${y}`));
+/** Whether the bridge is walked on here now: whole, and opened. */
+export const bridgeOpen = () => PREVIEW && !asWas && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length;
+/** How much of the bridge there is, and whether it is opened (it cannot be, short of whole). Each page works out where one may walk from this, as from setBuilt. */
+export function setBridge(spans: number, open = true) {
+  BRIDGE.spans = Math.max(0, Math.min(BRIDGE.tiles.length, Math.floor(spans)));
+  BRIDGE.open = open && BRIDGE.spans >= BRIDGE.tiles.length;
+}
+/**
+ * The blacksmith: a third popoto keeping shop, beyond the banker in the row before the Popoto Shop. He will smelt
+ * ore, forge tools and set gems; for now he only talks (lib/town/smith). `stand` is where his forge stands (the
+ * furnace, the anvil, the tub and the rack, one picture facing the viewer as the stall and the counter do), `at`
+ * where he does, before it; `board` and `sign` are the notice board beside him and the post his sign hangs from;
+ * `fire` is the furnace's mouth, from the forge's ground point in its picture's own pixels (across, up), which glows.
+ * `tiles` are the ones they close. Not one of KEEPERS yet: he keeps no shop, and nothing of the town's was laid out
+ * round him.
+ */
+export const SMITH = {
+  id: "smith" as const,
+  stand: { x: 50.2, y: 24.1 }, at: { x: 49.75, y: 25.0 }, board: { x: 52.4, y: 22.8 }, sign: { x: 51.5, y: 22.2 },
+  fire: [-22, 22] as [number, number],
+  tiles: (PREVIEW ? [[50, 24], [51, 23], [49, 25], [52, 22]] : []) as Array<[number, number]>,
+};
+const smithAt = new Set(SMITH.tiles.map(([x, y]) => `${x},${y}`));
 
 /**
  * A river round the left of the map (the owner's call, 2026-10-02: "แม่น้ำขนาด
