@@ -4,7 +4,7 @@ import { HINT_IDS, HINT_PRICE, hintPrice } from "./hints";
 import { DbKeeper, type Ask } from "./keeper";
 import { shelfOf, sourcesAt } from "./orders";
 import { SKIES } from "./skies";
-import { newPurse, type Purse } from "./trade";
+import { newPurse, type Purse, type Stack } from "./trade";
 import { bedOf } from "./world";
 
 /**
@@ -386,6 +386,65 @@ describe("the database's keeper", () => {
     expect(k.wellWater()).toBeNull();
     k.close();
     raining.mockRestore();
+  });
+
+  it("holds a pot of food by the slot it was taken up from and sets that one down, saying the slot only when it is not the first pot there is", async () => {
+    const pot = (left: number): Stack => ({ item: "potFull", n: 1, of: { dish: "friedMinnow", left } });
+    let mine = purse({ bag: [pot(4), { item: "salt", n: 1 }, pot(3), pot(2), null, null, null, null, null, null] });
+    const sent: Array<Record<string, unknown>> = [];
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }),
+      town_hold: ({ p_slot }) => {
+        const s = p_slot === null ? null : mine.bag[p_slot as number];
+        if (p_slot !== null && !s) return { ok: false, why: "none", now: NOW, purse: mine };
+        mine = { ...mine, hand: s?.item ?? null };
+        return { ok: true, now: NOW, purse: mine };
+      },
+      // (as v158's: the slot that is said, or with none the first pot of the bag)
+      town_pot_down: (args) => {
+        sent.push(args);
+        const slot = "p_slot" in args ? (args.p_slot as number) : mine.bag.findIndex((s) => s?.item === "potFull"), s = mine.bag[slot];
+        if (s?.item !== "potFull" || !s.of) return { ok: false, why: "none", now: NOW, purse: mine };
+        mine = { ...mine, bag: mine.bag.map((b, i) => (i === slot ? null : b)) };
+        return { ok: true, now: NOW, purse: mine, pot: { id: String(sent.length), by: "me", dish: s.of.dish, left: s.of.left, at: [args.p_x, args.p_y] } };
+      },
+    });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.handSlot()).toBe(-1);
+    // taken up from a slot: that slot is the hand's, and whoever watches is told once it is
+    const seen: number[] = [];
+    const stop = k.watch(() => { seen.push(k.handSlot()); });
+    expect(await k.hold(3)).toMatchObject({ ok: true });
+    expect(k.handSlot()).toBe(3);
+    expect(seen.at(-1)).toBe(3);
+    // an empty slot taken up is refused, and the hand is where it was
+    expect(await k.hold(5)).toMatchObject({ ok: false });
+    expect(k.handSlot()).toBe(3);
+    // set down: the pot of that slot, said by its slot
+    expect(await k.potDown([20, 20], k.handSlot())).toMatchObject({ ok: true, pot: { left: 2 } });
+    expect(sent.at(-1)).toEqual({ p_x: 20, p_y: 20, p_slot: 3 });
+    expect(k.purse().bag.map((s) => s?.of?.left ?? null).slice(0, 4)).toEqual([4, null, 3, null]);
+    // its slot is empty now: the hand's pot is the first there is, which is asked for as it always was (a database that has not had v158 answers that)
+    expect(k.handSlot()).toBe(0);
+    expect(await k.potDown([24, 20], k.handSlot())).toMatchObject({ ok: true, pot: { left: 4 } });
+    expect(sent.at(-1)).toEqual({ p_x: 24, p_y: 20 });
+    // with no slot said at all, as a page from before: the first there is
+    expect(await k.potDown([28, 20])).toMatchObject({ ok: true, pot: { left: 3 } });
+    expect(sent.at(-1)).toEqual({ p_x: 28, p_y: 20 });
+    expect(k.handSlot()).toBe(-1);
+    // a page loaded again knows no slot: it holds the first pot there is
+    mine = purse({ bag: [null, pot(5), pot(6), null, null, null, null, null, null, null], hand: "potFull" });
+    const again = new DbKeeper("me", db.ask);
+    await settle();
+    expect(again.handSlot()).toBe(1);
+    // …until one is taken up; and put away, there is none
+    await again.hold(2);
+    expect(again.handSlot()).toBe(2);
+    await again.hold(null);
+    expect(again.handSlot()).toBe(-1);
+    stop();
+    k.close(); again.close();
   });
 
   it("offers no book where the database has none yet: nothing is kept of an answer that never came", async () => {

@@ -18,8 +18,8 @@ import { ItemIcon } from "./TownTrade";
 
 /** Where the table is laid: one of the yard's places, or the forest camp's fire. */
 export type KitchenPlace = "stove" | "table" | "fire" | "camp" | "flame";
-/** What came of the cooking, for the card that says so; with a taste, what went in and what the cooks held, to be read beside the recipe that is open. */
-export interface KitchenResult { made: ItemId | null; n: number; first: boolean; taste?: Taste; things?: Array<[ItemId, number]>; crew?: Array<ItemId | null>; fresh?: boolean; sprite?: boolean; back?: boolean }
+/** What came of the cooking, for the card that says so; with a taste, what went in and what the cooks held, to be read beside the recipe that is open; with a pot, the slot of the bag it is in (the card's helping and its setting down are of that pot, whatever others the bag has). */
+export interface KitchenResult { made: ItemId | null; n: number; first: boolean; slot?: number; taste?: Taste; things?: Array<[ItemId, number]>; crew?: Array<ItemId | null>; fresh?: boolean; sprite?: boolean; back?: boolean }
 /** The phoenix flame at the table (lib/town/gifts): how many times more today it gives back what comes to nothing, of how many, and whether it is set to for this pot. */
 export interface FlameAt { left: number; most: number; armed: boolean }
 /**

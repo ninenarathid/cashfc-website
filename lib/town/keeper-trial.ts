@@ -15,7 +15,7 @@ import type { Play } from "./plays";
 import type { ShopAsk } from "./shop";
 import { SKIES } from "./skies";
 import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
-import type { Purse } from "./trade";
+import { handSlot, type Purse } from "./trade";
 import type { Nature } from "./waters";
 import { atWell } from "./world";
 import { trialFor, type Trial } from "./trial";
@@ -44,6 +44,8 @@ class TrialKeeper implements Keeper {
   /** For scripts: what the next lines bring, whatever the odds (this keeper is `next dev`'s only). */
   private fated: CatchId[] = [];
   willBite(ids: CatchId[]) { this.fated = [...ids]; }
+  /** The slot the thing in the hand was taken up from, on this page. */
+  private taken: number | null = null;
 
   constructor(readonly id: string, readonly trial: Trial) {}
 
@@ -111,9 +113,12 @@ class TrialKeeper implements Keeper {
   async readScroll(slot: number): Promise<Did<{ dish: ItemId }>> { return this.trial.readScroll(slot); }
   async openThing(slot: number): Promise<Did<{ found: ItemId | null }>> { return this.trial.openThing(slot); }
   async hold(slot: number | null): Promise<Did> {
+    // (kept before the trial tells whoever watches; an empty slot holds nothing, and is no slot of the hand's)
+    this.taken = slot;
     if (slot === null) { this.trial.letGo(); return { ok: true }; }
     return this.trial.hold(slot);
   }
+  handSlot() { return handSlot(this.trial.purse(), this.taken); }
   async wear(slot: number): Promise<Did> { return this.trial.wear(slot); }
   async takeOff(item: ItemId): Promise<Did> { return this.trial.takeOff(item); }
   async serve(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.serve(slot); }
@@ -339,7 +344,7 @@ class TrialKeeper implements Keeper {
   async cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, _cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>> {
     return this.trial.cookDo(things, crew, timing.misses, name, { sprite: !!timing.sprite, flame: !!timing.flame });
   }
-  async potDown(at: [number, number]) { return this.trial.potDown(at); }
+  async potDown(at: [number, number], slot?: number) { return this.trial.potDown(at, slot); }
   async potLadle(id: string) { return this.trial.potLadle(id); }
   async potTake(id: string): Promise<Did> { return this.trial.potTake(id); }
   // ── gifts: kitchen ──

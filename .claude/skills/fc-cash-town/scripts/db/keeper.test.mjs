@@ -366,6 +366,33 @@ try {
   await settled(A);
   ok("…for its owner too, when they look", A.pots().length === 0, A.pots());
   stopKitchenA(); stopKitchenB();
+  {
+    // several pots of food in one bag (a member, 2026-10-07: the one set down was never the one meant): the one taken
+    // up is the one held and the one set down, by its slot (v158); the first there is, is asked for as it always was
+    const full = (left) => ({ item: "potFull", n: 1, of: { dish: "friedMinnow", left } });
+    await purse(a, 0, [full(2), { item: "salt", n: 1 }, full(1), full(3)]);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'potFull') where member_id = $1`, [a]);
+    await settled(A);
+    const slotted = (await sql(`select to_regprocedure('public.town_pot_down(integer, integer, integer)') is not null as there`))[0].there;
+    const lefts = () => A.purse().bag.slice(0, 4).map((s) => s?.of?.left ?? null).join();
+    const asks = () => sent.filter((s) => s.as === "A" && s.fn === "town_pot_down");
+    ok("of three pots of food, a page that has taken none of them up holds the first", A.handSlot() === 0, A.handSlot());
+    await A.hold(3);
+    ok("…and the one it takes up is the one held", A.handSlot() === 3, A.handSlot());
+    const meant = await A.potDown([30, 20], A.handSlot());
+    if (slotted) {
+      ok("set down by its slot: the pot that was taken up, with the other two still in the bag", meant.ok && meant.pot.left === 3 && lefts() === "2,,1," && asks().at(-1).args.p_slot === 3, { meant, bag: lefts(), args: asks().at(-1).args });
+      ok("…and with its slot empty the hand is on the first pot there is", A.handSlot() === 0, A.handSlot());
+    } else {
+      ok("a database that has not had v158 knows no slot: nothing is set down, and never the wrong pot", !meant.ok && meant.why === "away" && lefts() === "2,,1,3", { meant, bag: lefts() });
+    }
+    await A.hold(0);
+    const first = await A.potDown([34, 20], A.handSlot());
+    ok("the first pot there is, is asked for as it always was, with no slot said: which any database answers", first.ok && first.pot.left === 2 && !("p_slot" in asks().at(-1).args), { first, args: asks().at(-1).args });
+    // (taken up again, so that nothing of this stands about for what comes after)
+    for (const o of A.pots().filter((p) => p.by === a)) await A.potTake(o.id, o.at);
+    ok("…and its pots taken up again, none stands about", A.pots().length === 0 && (await sql(`select count(*)::int as n from public.town_pots`))[0].n === 0, A.pots());
+  }
 
   section("a deal between two");
   await purse(a, 40, [{ item: "worm", n: 3 }]);

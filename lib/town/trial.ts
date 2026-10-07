@@ -1072,12 +1072,12 @@ export class Trial {
     this.save(purse);
     return { ...did, purse, first, ...(watered.fresh ? { fresh: true } : {}) };
   }
-  /** Set the pot of food I hold down where I stand, if nothing stands there and I have not left too many about already. */
-  potDown(at: [number, number]): Done<{ purse: Purse; pot: Pot }> {
+  /** Set a pot of food down where I stand (the one in `slot`, or the first there is), if nothing stands there and I have not left too many about already. */
+  potDown(at: [number, number], slot?: number): Done<{ purse: Purse; pot: Pot }> {
     const p = this.purse(), pots = this.pots();
     if (pots.some((o) => Math.abs(o.at[0] - at[0]) <= 1 && Math.abs(o.at[1] - at[1]) <= 1)) return no("taken");
     if (pots.filter((o) => o.by === this.id).length >= COOKING.pots) return no("many");
-    const did = setDown(p, p.bag.findIndex((s) => s?.item === "potFull"), this.id, at, `${this.id}-${this.now()}`);
+    const did = setDown(p, slot ?? p.bag.findIndex((s) => s?.item === "potFull"), this.id, at, `${this.id}-${this.now()}`);
     if (!did.ok) return did;
     this.write(POTS, [...pots, did.pot]);
     this.save(did.purse);

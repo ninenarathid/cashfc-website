@@ -277,7 +277,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && <Bag purse={purse} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
+        {view === "bag" && <Bag purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
                                 kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
                                                      onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
@@ -584,8 +584,10 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles }: {
+function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles }: {
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
+  /** The slot the thing in the hand is in (the keeper's handSlot): of several pots of food, which is the one held. */
+  held: number;
   // ── gifts: kitchen ── (what the kitchen's gifts show in the bag's panel, under how I am; and whether "eat" will sprinkle the stardust spice on a thing)
   kitchen?: React.ReactNode;
   sprinkles?: (item: ItemId) => boolean;
@@ -618,6 +620,8 @@ function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAl
   const it = inHand ? ITEMS[inHand.item] : null, dish = !!inHand && isDish(inHand.item), scroll = inHand ? SCROLLS[inHand.item] : undefined;
   const mayEat = dish && mayEatNow(purse, now, helpings);
   const full = purse.bag.filter(Boolean).length, hand = handOf(purse);
+  // (a pot of food is held by its slot: every pot is the same kind of thing, with a dish of its own)
+  const holding = !!inHand && hand === inHand.item && (!inHand.of || slot === held);
   return (
     <>
       <div className="rounded-xl border border-line bg-card/60 px-3 py-2.5">
@@ -696,7 +700,7 @@ function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAl
               </ul>
             )}
             {lying}
-            <Pockets bag={purse.bag} th={th} picked={slot} hand={hand} onPick={(i) => setPicked(i === slot || !purse.bag[i] ? null : { slot: i, item: purse.bag[i]!.item })} />
+            <Pockets bag={purse.bag} th={th} picked={slot} hand={hand} held={held} onPick={(i) => setPicked(i === slot || !purse.bag[i] ? null : { slot: i, item: purse.bag[i]!.item })} />
             <div className="mt-2.5 min-h-[4.25rem] rounded-xl border border-[#4a341f] bg-[#2a1e13]/80 px-2.5 py-2" aria-live="polite">
               {inHand && it ? (
                 <div className="flex items-center gap-2.5">
@@ -710,9 +714,9 @@ function Bag({ purse, now, th, seated, company, helpings, recipes, book, dropsAl
                     {dish && mayEat && !seated && <p className="text-meta text-chili">{th ? WHY.stand[0] : WHY.stand[1]}</p>}
                   </div>
                   {/* anything can be held in the hand, for the town to see (the owner: "ของทุกชิ้นสามารถ กดใส่เพื่อถือในมือได้") */}
-                  <button type="button" onClick={() => onHold(hand === inHand.item ? null : slot!)} aria-pressed={hand === inHand.item}
-                          className={`pressable min-h-11 shrink-0 rounded-full border px-3 text-ui ${hand === inHand.item ? "border-gold bg-gold/15 font-semibold text-gold" : "border-[#6b4a2a] text-[#f3e3c3] hover:border-gold"}`}>
-                    {hand === inHand.item ? (th ? "เก็บ" : "Put away") : (th ? "ถือ" : "Hold")}
+                  <button type="button" onClick={() => onHold(holding ? null : slot!)} aria-pressed={holding}
+                          className={`pressable min-h-11 shrink-0 rounded-full border px-3 text-ui ${holding ? "border-gold bg-gold/15 font-semibold text-gold" : "border-[#6b4a2a] text-[#f3e3c3] hover:border-gold"}`}>
+                    {holding ? (th ? "เก็บ" : "Put away") : (th ? "ถือ" : "Hold")}
                   </button>
                   {inHand.item in CARRIES && (
                     <button type="button" onClick={() => onWear(slot!)}
@@ -872,9 +876,13 @@ export function holdsOf(s: Stack, th: boolean): string | null {
   return null;
 }
 
-/** The bag's pockets, five to a row: what is in each, and how many. A thing's card shows over it; a tap takes it up. Small, it is a strip at a panel's foot, to look at only. */
-function Pockets({ bag, th, picked = null, hand = null, onPick, small = false }: {
-  bag: Purse["bag"]; th: boolean; picked?: number | null; hand?: ItemId | null; onPick?: (slot: number) => void; small?: boolean;
+/**
+ * The bag's pockets, five to a row: what is in each, and how many. A thing's card shows over it; a tap takes it up.
+ * Small, it is a strip at a panel's foot, to look at only. What is in the hand is marked wherever the bag has it; of
+ * pots of food, only the one in the slot `held` (they are one kind of thing, and only one of them is in the hand).
+ */
+function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small = false }: {
+  bag: Purse["bag"]; th: boolean; picked?: number | null; hand?: ItemId | null; held?: number; onPick?: (slot: number) => void; small?: boolean;
 }) {
   return (
     <ul className="grid grid-cols-5 gap-1.5" aria-label={th ? "กระเป๋า" : "Bag"}>
@@ -891,7 +899,7 @@ function Pockets({ bag, th, picked = null, hand = null, onPick, small = false }:
             {(s.of || (s.water !== undefined && !(s.item in WATER.buckets))) && (
               <span className={`absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums [text-shadow:0_1px_2px_#000,0_0_2px_#000] ${s.of ? "text-[#f3e3c3]" : "text-[#8fd0ff]"}`}>{s.of ? s.of.left : s.water}</span>
             )}
-            {hand === s.item && <span className="absolute left-0.5 top-0.5 rounded-full bg-gold px-1 font-data text-[9px] font-semibold uppercase leading-4 text-bg">{th ? "ถือ" : "held"}</span>}
+            {hand === s.item && (!s.of || i === held) && <span data-bag-held className="absolute left-0.5 top-0.5 rounded-full bg-gold px-1 font-data text-[9px] font-semibold uppercase leading-4 text-bg">{th ? "ถือ" : "held"}</span>}
             <ItemCard id={s.item} n={s.n} th={th} at={((i % 5) + 0.5) / 5} holds={holdsOf(s, th)} />
           </>
         );

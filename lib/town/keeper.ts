@@ -22,7 +22,7 @@ import { SKIES } from "./skies";
 import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
-import { handOf, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
+import { handOf, handSlot, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
 import { NATURES, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
 import { CHARM_IDS, type GiftRefusal } from "./gifts";
@@ -182,6 +182,12 @@ export interface Keeper {
   openThing(slot: number): Promise<Did<{ found: ItemId | null }>>;
   /** Take up the thing in a slot, to hold it; null puts away what is held. */
   hold(slot: number | null): Promise<Did>;
+  /**
+   * The slot the thing in my hand is in (lib/town/trade's handSlot; -1 with nothing held): of two pots of food, which
+   * is the one held. The slot it was taken up from is the page's own to remember: a purse says only what kind of
+   * thing is held, so a page loaded again holds the first there is.
+   */
+  handSlot(): number;
   wear(slot: number): Promise<Did>;
   takeOff(item: ItemId): Promise<Did>;
   serve(slot: number): Promise<Did<{ dish: DishId }>>;
@@ -420,7 +426,8 @@ export interface Keeper {
    * a helping more than `n` says.
    */
   cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, cooks: string[], timing: Timing, name: string): Promise<KitchenDid<Cooked>>;
-  potDown(at: [number, number]): Promise<Did<{ pot: Pot }>>;
+  /** Set a pot of food in my bag down where I stand: the one in `slot`, or with none said the first there is. */
+  potDown(at: [number, number], slot?: number): Promise<Did<{ pot: Pot }>>;
   potLadle(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot | null }>>;
   potTake(id: string, at: [number, number] | null): Promise<Did>;
   // ── gifts: kitchen ──
@@ -518,6 +525,8 @@ export class DbKeeper implements Keeper {
 
   private skew = 0;
   private mine: Purse = newPurse();
+  /** The slot the thing in the hand was taken up from, on this page. */
+  private taken: number | null = null;
   private read = false;
   private opened: boolean | null = null;
   private stall_: Stall = newStall();
@@ -973,7 +982,13 @@ export class DbKeeper implements Keeper {
   readScroll(slot: number) { return this.deed<{ dish: ItemId }>("town_read", { p_slot: slot }); }
   /** (Its answer's `found` is what was inside, one thing or none: not the list of what has been found, which is a list and so is not mistaken for it.) */
   openThing(slot: number) { return this.deed<{ found: ItemId | null }>("town_open", { p_slot: slot }); }
-  hold(slot: number | null) { return this.deed("town_hold", { p_slot: slot }); }
+  async hold(slot: number | null) {
+    const did = await this.deed("town_hold", { p_slot: slot });
+    // (told again: the purse was told of before the slot was kept)
+    if (did.ok) { this.taken = slot; this.tell(); }
+    return did;
+  }
+  handSlot() { return handSlot(this.mine, this.taken); }
   wear(slot: number) { return this.deed("town_wear", { p_slot: slot }); }
   takeOff(item: ItemId) { return this.deed("town_take_off", { p_item: item }); }
   serve(slot: number) { return this.deed<{ dish: DishId }>("town_serve", { p_slot: slot }); }
@@ -1267,8 +1282,11 @@ export class DbKeeper implements Keeper {
     }
     return did;
   }
-  async potDown(at: [number, number]): Promise<Did<{ pot: Pot }>> {
-    const did = await this.deed<{ pot: Pot }>("town_pot_down", { p_x: at[0], p_y: at[1] });
+  async potDown(at: [number, number], slot?: number): Promise<Did<{ pot: Pot }>> {
+    // (the first pot there is, is what the database takes when no slot is said: it is asked for so, which a database
+    // that has not had v158 yet answers too; any other pot waits for v158, and is refused until then, never mistaken)
+    const first = this.mine.bag.findIndex((s) => s?.item === "potFull");
+    const did = await this.deed<{ pot: Pot }>("town_pot_down", { p_x: at[0], p_y: at[1], ...(slot === undefined || slot === first ? {} : { p_slot: slot }) });
     if (did.ok) { this.pots_ = [...this.pots_.filter((o) => o.id !== did.pot.id), did.pot]; this.tell(); this.onDeed?.("kitchen"); }
     else if (did.why === "taken") this.fetch("kitchen");
     return did;

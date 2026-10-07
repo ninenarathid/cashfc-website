@@ -331,6 +331,17 @@ export function hold(purse: Purse, slot: number): Done<{ purse: Purse }> {
 }
 /** Put away what is held. */
 export const letGo = (purse: Purse): Purse => ({ ...purse, hand: null });
+/**
+ * Which slot of the bag the thing in the hand is in: the one it was taken up from (`taken`) while that still has one
+ * of it, or else the first that has (-1 with nothing held). The hand is a kind of thing, and two pots of food are of
+ * one kind with a dish each: which of them is held is the slot's to say (a member, 2026-10-07: with three pots in the
+ * bag all three read as held, and the one set down was never the one meant).
+ */
+export const handSlot = (purse: Purse, taken: number | null = null): number => {
+  const hand = handOf(purse);
+  if (!hand) return -1;
+  return taken !== null && purse.bag[taken]?.item === hand ? taken : purse.bag.findIndex((s) => s?.item === hand);
+};
 
 /* ── what is worn to carry more ─────────────────────────────────────────── */
 

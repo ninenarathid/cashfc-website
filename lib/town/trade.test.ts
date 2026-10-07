@@ -3,7 +3,7 @@ import { oddsOf } from "./fishing";
 import { FISH, FLOTSAM_IDS } from "./items";
 import { INSIDE, foundScrolls } from "./scrolls";
 import {
-  GOODS, ITEMS, RULES, SHELF, buy, change, collect, handOf, held, hold, leave, letGo, mayBuy, mayChange, newPurse, newStall, nextRoundAt, onShelf,
+  GOODS, ITEMS, RULES, SHELF, buy, change, collect, handOf, handSlot, held, hold, leave, letGo, mayBuy, mayChange, newPurse, newStall, nextRoundAt, onShelf,
   leftOf, roomFor, roomy, roundOf, roundStart, takeBack, waiting, weekOf, type Purse, type Stall,
 } from "./trade";
 
@@ -338,6 +338,26 @@ describe("the hand", () => {
     expect(none.ok && handOf(none.purse)).toBeNull();
     // and a purse from before there were hands has none
     expect(handOf(newPurse())).toBeNull();
+  });
+
+  it("is on one slot of the bag: the one the thing was taken up from while that still has it, or else the first that has (a member, 2026-10-07: three pots of food, all three read as held)", () => {
+    const pot = (left: number) => ({ item: "potFull" as const, n: 1, of: { dish: "friedMinnow" as const, left } });
+    const purse = withBag([pot(4), { item: "salt", n: 1 }, pot(3), pot(2), null]);
+    // nothing held: no slot
+    expect(handSlot(purse)).toBe(-1);
+    expect(handSlot(purse, 3)).toBe(-1);
+    const taken = hold(purse, 3);
+    if (!taken.ok) throw new Error("not held");
+    expect(handSlot(taken.purse, 3)).toBe(3);
+    expect(handSlot(taken.purse, 2)).toBe(2);
+    // a page that does not know which it was taken up from: the first there is
+    expect(handSlot(taken.purse)).toBe(0);
+    expect(handSlot(taken.purse, null)).toBe(0);
+    // a slot that has something else, nothing, or is not there: the first there is
+    for (const slot of [1, 4, 99, -1]) expect(handSlot(taken.purse, slot)).toBe(0);
+    // the pot it was has left the bag: the first of those that are left; the last of them gone: no slot
+    expect(handSlot({ ...taken.purse, bag: taken.purse.bag.map((s, i) => (i === 3 || i === 0 ? null : s)) }, 3)).toBe(2);
+    expect(handSlot({ ...taken.purse, bag: taken.purse.bag.map((s) => (s?.item === "potFull" ? null : s)) }, 3)).toBe(-1);
   });
 });
 

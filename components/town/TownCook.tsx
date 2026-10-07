@@ -291,15 +291,18 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   }, [keeper, things, cooks, say]);
   /** What a go came to, however it was cooked (`how`: by hand, with the game's account; by the hearth sprite, with none): told, written down, shown. */
   const cooked = useCallback(async (job: { things: Array<[ItemId, number]>; crew: Array<ItemId | null> }, result: GameResult, how: CookHow = {}) => {
+    const before = keeper.purse().bag;
     const did = await keeper.cookDo(job.things, job.crew, others, { hits: result.hits, misses: result.misses, secs: result.secs, need: result.need, ...(how.sprite ? { sprite: true } : {}), ...(how.flame ? { flame: true } : {}) }, called);
     if (!did.ok) { say(did.why); return; }
+    // (the pot that came of it stands in a slot that had no pot before: the card's helping and its setting down are of that one, whatever other pots the bag has)
+    const slot = did.made ? keeper.purse().bag.findIndex((s, i) => s?.item === "potFull" && s.of?.dish === did.made && before[i]?.item !== "potFull") : -1;
     // (a recipe's dish is a go won; the odd dish, and nothing, are not)
     const right = isFind(did.made);
     keeper.record({ game: "cooking", at: keeper.now(), won: right, secs: result.secs, spent: isSpent(purse, now), buff: null, what: did.made ?? "nothing", need: result.need, hits: result.hits, misses: result.misses });
     setThings([]);
     setRefusal(null);
     jot({ at: keeper.now(), things: job.things, tool: job.crew[0], cooks: job.crew.length, made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), ...(did.taste ? { taste: did.taste } : {}), ...(did.first ? { first: true } : {}) });
-    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(did.taste ? { taste: did.taste, things: job.things, crew: job.crew } : {}), ...(did.sprite ? { sprite: true } : {}), ...(did.back ? { back: true } : {}) });
+    setResult({ made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), first: did.first, ...(slot >= 0 ? { slot } : {}), ...(did.taste ? { taste: did.taste, things: job.things, crew: job.crew } : {}), ...(did.sprite ? { sprite: true } : {}), ...(did.back ? { back: true } : {}) });
     // what comes off the pot, and what it sounds like: a dish, something made, an odd dish, or nothing
     const odd = !right && !!did.made, cooked = right && did.made! in DISHES;
     sfx?.wake();
@@ -355,11 +358,15 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   }, [spriting, spriteMay, spriteLeft, things, cooks, sfx, vfx, cooked, reduced]);
 
   /* ── from the card of what came of it ── */
+  /** Where the pot just cooked is in the bag: the slot it was put in while it is still there, or else the first pot of its dish (-1: none). */
+  const cookedPot = useCallback(() => {
+    const bag = keeper.purse().bag, is = (i: number) => bag[i]?.item === "potFull" && bag[i]?.of?.dish === result?.made;
+    if (!result?.made) return -1;
+    return result.slot !== undefined && is(result.slot) ? result.slot : bag.findIndex((_, i) => is(i));
+  }, [keeper, result]);
   /** A helping of the pot just cooked, into a bowl, and off to eat it: the map finds somewhere to sit. */
   const eatNow = useCallback(async () => {
-    const dish = result?.made;
-    if (!dish) return;
-    const slot = keeper.purse().bag.findIndex((b) => b?.item === "potFull" && b.of?.dish === dish);
+    const slot = cookedPot();
     if (slot < 0) { say("none"); return; }
     const did = await keeper.serve(slot);
     if (!did.ok) { say(did.why === "tool" ? "bowl" : did.why); return; }
@@ -367,19 +374,23 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     setResult(null);
     setOpen(false);
     onEatNow?.(did.dish);
-  }, [result, keeper, say, sfx, onEatNow]);
-  /** The pot just cooked, set down where I stand, for whoever comes with a bowl. */
+  }, [cookedPot, keeper, say, sfx, onEatNow]);
+  /** The pot just cooked, set down where I stand, for whoever comes with a bowl: that pot, and no other the bag has. */
   const potDown = useCallback(async () => {
     if (!here) return;
-    const did = await keeper.potDown(here.tile);
+    const slot = cookedPot();
+    if (slot < 0) { say("none"); return; }
+    const did = await keeper.potDown(here.tile, slot);
     if (!did.ok) { say(did.why); return; }
     sfx?.wake(); sfx?.work("down");
     vfx.add("dust", null, { lift: 2 });
     setResult(null);
     setOpen(false);
-  }, [here, keeper, say, sfx, vfx]);
+  }, [here, cookedPot, keeper, say, sfx, vfx]);
 
   /* ── pots ── */
+  /** The pot of food in my hand: of several in the bag, the one that was taken up (the keeper's handSlot), which is the one set down. */
+  const heldSlot = hand === "potFull" ? keeper.handSlot() : -1, heldPot = heldSlot < 0 ? null : purse.bag[heldSlot]?.of ?? null;
   const act = useCallback(async (offer: Offer) => {
     if (offer === "cook") { setResult(null); setOpen(true); return; }
     if (offer === "water") {
@@ -391,7 +402,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       setNote(`${th ? "โอ่งน้ำ" : "Water jar"} ${keeper.yardJar() ?? 0}/${YARD.holds}`);
       return;
     }
-    const did = offer === "down" ? (here ? await keeper.potDown(here.tile) : null)
+    const did = offer === "down" ? (here ? await keeper.potDown(here.tile, heldSlot < 0 ? undefined : heldSlot) : null)
       : offer === "ladle" ? (near ? await keeper.potLadle(near.id, here?.tile ?? null) : null) : (near ? await keeper.potTake(near.id, here?.tile ?? null) : null);
     if (!did) return;
     if (!did.ok) { say(offer === "ladle" && did.why === "tool" ? "bowl" : did.why); return; }
@@ -400,7 +411,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (offer === "ladle" && near) vfx.add("steam", { x: near.at[0] + 0.8, y: near.at[1] + 0.8 }, { lift: 16 });
     else vfx.add("dust", null, { lift: 2 });
     if (offer === "ladle" && near) setNote(`${name(near.dish)} ×1`);
-  }, [keeper, here, near, sfx, name, say, vfx]);
+  }, [keeper, here, near, heldSlot, sfx, name, say, vfx]);
 
   // The space bar is the first thing on offer (while a game or the cooking panel is up it is theirs).
   const first = offers[0];
@@ -475,7 +486,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           {offers.map((o, i) => (
             <button key={o} type="button" onClick={() => act(o)}
                     className={`pop-in pressable flex min-h-12 items-center gap-2 rounded-full px-6 text-read font-semibold shadow-xl shadow-black/40 ${i ? "border border-line-lit bg-surface/95 text-ink" : "bg-accent text-bg"}`} data-state="open">
-              {th ? VERB[o][0] : VERB[o][1]}
+              {/* (which pot it is, is said: there may be several in the bag) */}
+              {o === "down" && heldPot ? (th ? `วางหม้อ${ITEMS[heldPot.dish].name.th}` : `Set down the pot of ${ITEMS[heldPot.dish].name.en.toLowerCase()}`) : th ? VERB[o][0] : VERB[o][1]}
               {!i && <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>}
             </button>
           ))}
