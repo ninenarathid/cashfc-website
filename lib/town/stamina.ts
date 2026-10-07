@@ -24,7 +24,8 @@ import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./t
  *   ถ้วยค่อยกลับมา", 2026-10-04): the bowl left the bag when the helping was
  *   ladled (lib/town/cooking), and is back when the meal ends, eaten up or left
  *   half eaten. A bag with no room for it then is owed it, and has it as soon
- *   as there is room: no bowl is lost to a full bag.
+ *   as there is room: no bowl is lost to a full bag. (A helping eaten at the
+ *   feast table out of the table's own bowl, `lent`, gives none back.)
  * - **Eaten together it gives more**: each other person eating beside one adds
  *   a tenth of the dish's stamina, up to five of them. Alone it gives all the
  *   dish says, so nobody is the worse for eating alone.
@@ -242,7 +243,8 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
     eating: done ? null : { ...e, till, got: e.got + gain },
     ...(done && dish.buff ? raised(purse, dish.buff, now, spiceOf(purse)) : {}),
   };
-  return { done, purse: done ? bowlsBack(after, inBowl(e.dish) ? 1 : 0) : after };
+  // (a helping out of one of the feast table's own bowls gives none back: the bowl was never the eater's)
+  return { done, purse: done ? bowlsBack(after, inBowl(e.dish) && !e.lent ? 1 : 0) : after };
 }
 
 /**
@@ -264,7 +266,7 @@ export function getUp(purse: Purse, company: number, now: number): Purse {
   const counted = chew(purse, company, now).purse;
   const up: Purse = { ...counted, eating: null, ...(counted.eating ? { buff: purse.buff, ...(purse.buffs ? { buffs: purse.buffs } : {}) } : {}) };
   // (a meal that ran out as it was counted gave its bowl back already)
-  return counted.eating && inBowl(purse.eating.dish) ? bowlsBack(up, 1) : up;
+  return counted.eating && inBowl(purse.eating.dish) && !purse.eating.lent ? bowlsBack(up, 1) : up;
 }
 
 /** Read the scroll in a slot of the bag: its recipe is known from now on, and the scroll is used up. */

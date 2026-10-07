@@ -204,15 +204,16 @@ try {
   ok("its recipe is found, in the book, under the finder's name", (await X.evaluate(`${C}.found()`)).includes("tomYum") && p.recipes.includes("tomYum") && (p.made ?? []).includes("tomYum")
     && /K/.test((await X.evaluate(`${T}.finder("tomYum")`)) ?? "") && (await shown(X, "/พบสูตรใหม่/")), await X.evaluate(`${T}.finders()`));
   came = await cameOf(X);
-  ok("the card says a new recipe is found, and offers a helping at once or the pot set down", came?.kind === "found" && came.taste === null && /พบสูตรใหม่/.test(came.text) && /ต้มยำปลาช่อน/.test(came.text) && /4 ที่/.test(came.text)
-    && /ตักกินเลย/.test(came.text) && /วางหม้อให้เพื่อน/.test(came.text), came);
+  ok("the card says a new recipe is found, and offers a helping at once or the pot set on the feast table", came?.kind === "found" && came.taste === null && /พบสูตรใหม่/.test(came.text) && /ต้มยำปลาช่อน/.test(came.text) && /4 ที่/.test(came.text)
+    && /ตักกินเลย/.test(came.text) && /วางบนโต๊ะเลี้ยง/.test(came.text), came);
   await sleep(400);
   await X.shot(`${OUT}/cook-made.png`);
-  // from the card, the pot set down where the cook stands
+  // from the card, the pot set on the feast table (the cook stands in the yard: town-feast.mjs tries the table itself)
   await X.evaluate(`document.querySelector("[data-kitchen-down]").click()`);
-  await until("from the card the pot is set down where the cook stands, and the table is cleared away", async () => (await X.evaluate(`${C}.pots()`)).length === 1 && !(await X.evaluate(`${C}.open()`)), 5000);
-  await until("…and its owner may take it up again", async () => (await offers(X)).includes("take"), 5000);
-  await act(X, "take");
+  await until("from the card the pot is set on the feast table, and the kitchen table is cleared away", async () => { const o = await X.evaluate(`${C}.pots()`); return o.length === 1 && o[0].feast === true && !(await X.evaluate(`${C}.open()`)); }, 5000);
+  await until("…and its owner is offered the table", async () => (await offers(X)).includes("feast"), 5000);
+  await X.evaluate(`${C}.feastDo("take", ${C}.pots()[0])`);
+  await sleep(450);
   ok("taken up, it is in the bag as it was", (await X.evaluate(`${C}.pots()`)).length === 0 && (await purse(X)).bag.find((s) => s?.item === "potFull")?.of?.left === 4, (await purse(X)).bag);
   // having made it, the cook is told what is missing, and loses nothing
   await grant(X, TOMYUM);
@@ -247,8 +248,9 @@ try {
   const again = await X.evaluate(`${T}.serve(${await slotOf(X, "potFull")})`);
   ok("…and with no bowl left, no second one", again.ok === false && again.why === "tool" && (await has(X, "tomYum")) === 1, again);
 
-  // set down, for the other
-  await warp(X, open);
+  // set down, for the other: on the ground outside the yard (in the yard a dish goes onto the feast table)
+  const outside = [30, 38];
+  await warp(X, outside);
   ok("a pot in the bag is not set down", !(await offers(X)).includes("down"));
   await hold(X, "potFull");
   await until("a pot held in the hand is offered the ground", async () => (await offers(X)).includes("down"), 5000);
@@ -261,7 +263,7 @@ try {
   const Y = await X.tab("CookB");
   await enter(Y, "B");
   await Y.evaluate(`${T}.resize(20)`);
-  await warp(Y, [open[0] + 1, open[1]]);
+  await warp(Y, [outside[0] + 1, outside[1]]);
   await until("the other tester, beside it, is offered a helping", async () => (await offers(Y)).includes("ladle"), 6000);
   ok("…but may not take the pot up", !(await offers(Y)).includes("take"));
   await act(Y, "ladle");

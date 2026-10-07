@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  COOKING, ODD, RECIPE_IDS, cook, dishOf, easeOf, goesIn, hasMade, helpings, isCookware, isFind, ladle, madeOf, mayTake, oddHelpings, potSays, reachOf, serve, setDown, stirsFor, takeUp, takes, tasteOf, tidy,
+  COOKING, ODD, RECIPE_IDS, cook, dishOf, easeOf, feastEat, feastEnds, goesIn, hasMade, helpings, isCookware, isFind, ladle, madeOf, mayLeave, mayTake, oddHelpings, potNow, potSays, reachOf, reaches, serve, setDown, stirsFor, takeUp, takes, tasteOf, tidied, tidy,
   type Pot,
 } from "./cooking";
 import atlas from "./icon-atlas.json";
@@ -8,7 +8,7 @@ import { WATER } from "./farm";
 import { toldOf } from "./hints";
 import { DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, SCROLLS, potIconOf, type DishId, type ItemId } from "./items";
 import { BASIC, sourcesAt } from "./orders";
-import { staminaOf } from "./stamina";
+import { STAMINA, chew, getUp, mealOf, nextMealAt, staminaOf } from "./stamina";
 import { GOODS, held, newPurse, put, type Purse } from "./trade";
 
 const NOW = Date.parse("2026-10-03T12:00:00+07:00"), MIN = 60_000;
@@ -305,8 +305,9 @@ describe("a pot of food", () => {
     expect(takeUp(newPurse(), pot, "you")).toEqual({ ok: false, why: "none" });
     const full: Purse = { ...newPurse(), bag: newPurse().bag.map(() => ({ item: "boot" as ItemId, n: 1 })) };
     expect(takeUp(full, pot, "me")).toEqual({ ok: false, why: "full" });
-    // one person leaves only so many standing about
-    expect(COOKING.pots).toBeGreaterThanOrEqual(3);
+    // one person leaves only so many standing on the ground, and more than that on the feast table
+    expect(COOKING.pots).toBeGreaterThanOrEqual(1);
+    expect(COOKING.feast.pots).toBeGreaterThan(COOKING.pots);
   });
 
   it("feeds its own cook too, a helping at a time, each into a bowl; its last helping out, the pot is gone", () => {
@@ -338,11 +339,11 @@ describe("a pot of food", () => {
 });
 
 describe("the things themselves", () => {
-  it("are a pot of food, which nobody buys, a pot to cook in, and a bowl: one to a slot", () => {
+  it("are a pot of food, which nobody buys, a pot to cook in, and a bowl: one to a slot, but three bowls", () => {
     expect(ITEMS.potFull.pays).toBe(0);
     // (nothing makes a pot any more, so the uncle's relatives buy one again)
     expect(ITEMS.pot.pays).toBeGreaterThan(0);
-    for (const id of ["potFull", "pot", "bowl"] as const) { expect(ITEMS[id].stack).toBe(1); expect(ITEMS[id].tier).toBe(1); }
+    for (const id of ["potFull", "pot", "bowl"] as const) { expect(ITEMS[id].stack).toBe(id === "bowl" ? 3 : 1); expect(ITEMS[id].tier).toBe(1); }
     // there is no dirty pot, and nothing to wash one with
     for (const id of ["potDirty", "scrubber", "brush", "ash", "soap"]) expect(id in ITEMS).toBe(false);
   });
@@ -460,5 +461,180 @@ describe("what the pot says to whoever wears the enchanted apron (the owner, 202
     const said = potSays(needsOf(RECIPE_IDS[0]));
     expect(Object.keys(said).sort()).toEqual(["fits", "whole", "wrong"]);
     expect(said).toEqual({ fits: true, whole: true, wrong: [] });
+  });
+});
+
+describe("bowls, three to a slot (the owner, 2026-10-08: \"ช่วยแก้ให้ถ้วย stack ได้ด้วย ซัก 3 ใบ\")", () => {
+  const pot: Pot = { id: "p1", by: "me", dish: "tomYum", left: 9, at: [45, 47] };
+  it("sit three to a slot, and a fourth takes another", () => {
+    expect(ITEMS.bowl.stack).toBe(3);
+    expect(put(newPurse().bag, "bowl", 3).filter(Boolean)).toEqual([{ item: "bowl", n: 3 }]);
+    expect(put(newPurse().bag, "bowl", 4).filter(Boolean)).toEqual([{ item: "bowl", n: 3 }, { item: "bowl", n: 1 }]);
+  });
+
+  it("leave a helping each, the slot of bowls a bowl the less and the helpings together in another", () => {
+    let purse: Purse = { ...newPurse(), bag: put(newPurse().bag, "bowl", 3) }, from: Pot | null = pot;
+    for (let i = 0; i < 3; i++) { const d: { purse: Purse; pot: Pot | null } = done(ladle(purse, from!)); purse = d.purse; from = d.pot; }
+    expect(purse.bag.filter(Boolean)).toEqual([{ item: "tomYum", n: 3 }]);
+    expect(from!.left).toBe(6);
+    expect(ladle(purse, from!)).toEqual({ ok: false, why: "tool" });
+  });
+
+  it("with no slot to spare and more than one bowl in theirs, a helping has nowhere to go: full (the last bowl of a slot gives the helping its place, as one bowl always did)", () => {
+    const boots = (n: number) => Array.from({ length: n }, () => ({ item: "boot" as ItemId, n: 5 }));
+    const crowded: Purse = { ...newPurse(), bag: [{ item: "bowl", n: 2 }, ...boots(newPurse().bag.length - 1)] };
+    expect(ladle(crowded, pot)).toEqual({ ok: false, why: "full" });
+    const last: Purse = { ...newPurse(), bag: [{ item: "bowl", n: 1 }, ...boots(newPurse().bag.length - 1)] };
+    expect(done(ladle(last, pot)).purse.bag[0]).toEqual({ item: "tomYum", n: 1 });
+    // (and with a helping of that dish in the bag already, the next sits with it)
+    const begun: Purse = { ...newPurse(), bag: [{ item: "bowl", n: 2 }, { item: "tomYum", n: 1 }, ...boots(newPurse().bag.length - 2)] };
+    expect(done(ladle(begun, pot)).purse.bag.slice(0, 2)).toEqual([{ item: "bowl", n: 1 }, { item: "tomYum", n: 2 }]);
+  });
+});
+
+describe("the feast table (the owner, 2026-10-07: pots stood all over the town for good)", () => {
+  const HOUR = 60 * MIN, TILE: [number, number] = [48, 47], GROUND = COOKING.feast.ground * MIN;
+  const pot = (more: Partial<Pot> = {}): Pot => ({ id: "p1", by: "me", dish: "tomYum", left: 4, at: [20, 20], set: NOW, ...more });
+  const purseOf = () => done(cook(ready("tomYum", ["bowl", 1]), DISHES.tomYum.recipe!.needs, ["pot"], 0, NOW)).purse;
+  const slotOf = (p: Purse) => p.bag.findIndex((b) => b?.item === "potFull");
+
+  it("clears what came to it when the meal's hours after the ones it came in are over", () => {
+    // noon is lunch's hours (11 to 17): dinner's are the next, and end at five the next morning
+    expect(mealOf(NOW)).toBe(1);
+    expect(feastEnds(NOW)).toBe(Date.parse("2026-10-04T05:00:00+07:00"));
+    // late at night is still dinner's hours: breakfast's are the next, and end at eleven
+    expect(feastEnds(Date.parse("2026-10-04T02:00:00+07:00"))).toBe(Date.parse("2026-10-04T11:00:00+07:00"));
+    expect(feastEnds(Date.parse("2026-10-04T06:00:00+07:00"))).toBe(Date.parse("2026-10-04T17:00:00+07:00"));
+    // never sooner than a whole meal's hours, never later than two
+    for (let h = 0; h < 48; h++) {
+      const at = NOW + h * HOUR + 7 * MIN, left = feastEnds(at) - at;
+      expect(feastEnds(at)).toBe(nextMealAt(nextMealAt(at)));
+      expect(left).toBeGreaterThan(6 * HOUR - 8 * MIN);
+      expect(left).toBeLessThanOrEqual(18 * HOUR);
+    }
+  });
+
+  it("has a pot set down on the ground stand there an hour, then on the table, then nowhere", () => {
+    const p = pot();
+    expect(potNow(p, NOW)).toEqual({ feast: false, from: NOW, until: NOW + GROUND });
+    expect(potNow(p, NOW + GROUND - 1)).toEqual({ feast: false, from: NOW, until: NOW + GROUND });
+    // as its hour ends it is on the table, as if set there then
+    const onTable = { feast: true, from: NOW + GROUND, until: feastEnds(NOW + GROUND) };
+    expect(potNow(p, NOW + GROUND)).toEqual(onTable);
+    expect(potNow(p, onTable.until - 1)).toEqual(onTable);
+    expect(potNow(p, onTable.until)).toBeNull();
+    // one set on the table is there from the first
+    const f = pot({ feast: true });
+    expect(potNow(f, NOW)).toEqual({ feast: true, from: NOW, until: feastEnds(NOW) });
+    expect(potNow(f, feastEnds(NOW))).toBeNull();
+    // whoever keeps the game says how long the hour is
+    expect(potNow(p, NOW + 10 * MIN, 5)).toEqual({ feast: true, from: NOW + 5 * MIN, until: feastEnds(NOW + 5 * MIN) });
+  });
+
+  it("never takes the odd dish: it is gone with its hour on the ground (the owner: \"คนชอบทิ้ง อาหารแปลกๆ ที่ได้จากการใช้สูตรผิด\")", () => {
+    const odd = pot({ dish: ODD });
+    expect(potNow(odd, NOW + GROUND - 1)?.feast).toBe(false);
+    expect(potNow(odd, NOW + GROUND)).toBeNull();
+  });
+
+  it("leaves a pot told by a keeper from before the table where it was set, for good", () => {
+    const old: Pot = { id: "p0", by: "me", dish: "tomYum", left: 2, at: [5, 5] };
+    expect(potNow(old, NOW + 400 * HOUR)).toEqual({ feast: false, from: 0, until: Infinity });
+    expect(tidied([old], NOW + 400 * HOUR, TILE)).toEqual({ pots: [old], gone: [] });
+  });
+
+  it("tidies the pots that stand about: the hour's end takes one to the table's tile and off its rattan table, the table's end takes it away", () => {
+    const a = pot({ id: "a", tok: true }), b = pot({ id: "b", dish: ODD }), c = pot({ id: "c", feast: true, at: TILE }), d = pot({ id: "d", set: NOW + 30 * MIN });
+    expect(tidied([a, b, c, d], NOW + 10 * MIN, TILE)).toEqual({ pots: [a, b, c, d], gone: [] });
+    const later = tidied([a, b, c, d], NOW + GROUND, TILE);
+    expect(later.gone).toEqual([b]);
+    expect(later.pots).toEqual([{ id: "a", by: "me", dish: "tomYum", left: 4, at: TILE, feast: true, set: NOW + GROUND }, c, d]);
+    // tidied again a moment on, it is as it was: the moment it came to the table is kept
+    expect(tidied(later.pots, NOW + GROUND + MIN, TILE).pots).toEqual(later.pots);
+    // and when the table is cleared, everything that was on it is gone
+    const end = tidied(later.pots, feastEnds(NOW + GROUND + 30 * MIN), TILE);
+    expect(end.pots).toEqual([]);
+    expect(end.gone.map((o) => o.id)).toEqual(["a", "c", "d"]);
+  });
+
+  it("takes a dish set down in the cooking yard at once, and leaves anything else on the ground", () => {
+    const p = purseOf(), slot = slotOf(p);
+    // in the yard: on the table, said to stand on the table's tile, on no rattan table
+    const inYard = done(setDown({ ...p, bag: put(p.bag, "tok", 1) }, slot, "me", [47, 49], "p1", { now: NOW, yard: true, tile: TILE }));
+    expect(inYard.pot).toEqual({ id: "p1", by: "me", dish: "tomYum", left: 4, at: TILE, feast: true, set: NOW });
+    // anywhere else: on the ground where it was set, with the moment
+    expect(done(setDown(p, slot, "me", [20, 20], "p2", { now: NOW, yard: false, tile: TILE })).pot).toEqual({ id: "p2", by: "me", dish: "tomYum", left: 4, at: [20, 20], set: NOW });
+    // the odd dish stays on the ground even in the yard
+    const odd: Purse = { ...p, bag: p.bag.map((b, i) => (i === slot ? { item: "potFull" as ItemId, n: 1, of: { dish: ODD, left: 2 } } : b)) };
+    expect(done(setDown(odd, slot, "me", [47, 49], "p3", { now: NOW, yard: true, tile: TILE })).pot).toEqual({ id: "p3", by: "me", dish: ODD, left: 2, at: [47, 49], set: NOW });
+    // (a keeper from before says nothing of a table: the pot as it always was)
+    expect(done(setDown(p, slot, "me", [47, 49], "p4")).pot).toEqual({ id: "p4", by: "me", dish: "tomYum", left: 4, at: [47, 49] });
+  });
+
+  it("lets one person leave two on the ground and six on the table, each counted by itself", () => {
+    const ground = (n: number, by = "me") => Array.from({ length: n }, (_, i) => pot({ id: `g${by}${i}`, by }));
+    const table = (n: number, by = "me") => Array.from({ length: n }, (_, i) => pot({ id: `t${by}${i}`, by, feast: true }));
+    expect([COOKING.pots, COOKING.feast.pots, COOKING.feast.ground]).toEqual([2, 6, 60]);
+    expect(mayLeave(ground(1), "me", false)).toBe(true);
+    expect(mayLeave(ground(2), "me", false)).toBe(false);
+    expect(mayLeave([...ground(2), ...table(5)], "me", true)).toBe(true);
+    expect(mayLeave(table(6), "me", true)).toBe(false);
+    expect(mayLeave(table(6), "me", false)).toBe(true);
+    // other people's are no count of mine
+    expect(mayLeave([...ground(2, "you"), ...table(6, "you")], "me", false)).toBe(true);
+    expect(mayLeave([...ground(2, "you"), ...table(6, "you")], "me", true)).toBe(true);
+  });
+
+  it("is reached from anywhere on the yard's floor, and a pot on the ground from beside it", () => {
+    const f = pot({ feast: true, at: TILE }), g = pot(), t = pot({ tok: true });
+    expect(reaches(f, [10, 10], true)).toBe(true);
+    expect(reaches(f, TILE, false)).toBe(false);
+    expect(reaches(g, [21, 21], false)).toBe(true);
+    expect(reaches(g, [22, 21], true)).toBe(false);
+    expect(reaches(t, [22, 21], false)).toBe(true);
+    expect(reachOf(t)).toBeGreaterThan(reachOf(g));
+  });
+
+  it("feeds somebody sitting down out of its own bowl: a helping begun at once, nothing in the bag, and no bowl back", () => {
+    const f = pot({ feast: true, at: TILE, left: 2 }), empty = newPurse();
+    const one = done(feastEat(empty, f, true, NOW));
+    expect(one.dish).toBe("tomYum");
+    expect(one.pot).toEqual({ ...f, left: 1 });
+    expect(one.purse.bag).toEqual(empty.bag);
+    expect(one.purse.eating).toEqual({ dish: "tomYum", meal: 1, from: NOW, till: NOW, got: 0, lent: true });
+    expect(one.purse.meals.bowls).toEqual([0, 1, 0]);
+    // its last helping out, the pot is gone
+    expect(done(feastEat(empty, { ...f, left: 1 }, true, NOW)).pot).toBeNull();
+    // eaten up, it gives its stamina and its buff as any helping does, and no bowl
+    const tired: Purse = { ...one.purse, stamina: { day: one.purse.meals.day, left: 10 } };
+    const ate = chew(tired, 0, NOW + STAMINA.minutes * MIN);
+    expect(ate.done).toBe(true);
+    expect(staminaOf(ate.purse, NOW + STAMINA.minutes * MIN)).toBe(Math.min(STAMINA.max, 10 + DISHES.tomYum.stamina));
+    expect(held(ate.purse.bag, "bowl")).toBe(0);
+    expect(ate.purse.owed).toBeUndefined();
+    // left half eaten, no bowl either
+    const up = getUp(tired, 0, NOW + 2 * MIN);
+    expect(up.eating).toBeNull();
+    expect(held(up.bag, "bowl")).toBe(0);
+    expect(up.owed).toBeUndefined();
+    // (the same helping out of a bowl of one's own gives its bowl back, eaten up or left)
+    const own: Purse = { ...tired, eating: { ...tired.eating!, lent: undefined } };
+    expect(held(chew(own, 0, NOW + STAMINA.minutes * MIN).purse.bag, "bowl")).toBe(1);
+    expect(held(getUp(own, 0, NOW + 2 * MIN).bag, "bowl")).toBe(1);
+  });
+
+  it("feeds nobody standing, nobody at a meal, nobody who has had this meal's helpings, and from no pot on the ground", () => {
+    const f = pot({ feast: true, at: TILE });
+    expect(feastEat(newPurse(), f, false, NOW)).toEqual({ ok: false, why: "stand" });
+    expect(feastEat(newPurse(), pot(), true, NOW)).toEqual({ ok: false, why: "none" });
+    expect(feastEat(newPurse(), { ...f, left: 0 }, true, NOW)).toEqual({ ok: false, why: "none" });
+    const eating = done(feastEat(newPurse(), f, true, NOW)).purse;
+    expect(feastEat(eating, f, true, NOW + MIN)).toEqual({ ok: false, why: "meal" });
+    // three helpings in a meal's hours, the table's among them
+    let p = newPurse();
+    for (let i = 0; i < STAMINA.bowls; i++) p = chew(done(feastEat(p, f, true, NOW + i * 6 * MIN)).purse, 0, NOW + i * 6 * MIN + STAMINA.minutes * MIN).purse;
+    expect(feastEat(p, f, true, NOW + 30 * MIN)).toEqual({ ok: false, why: "meal" });
+    // (a keeper that still counts a meal once)
+    expect(feastEat(chew(done(feastEat(newPurse(), f, true, NOW)).purse, 0, NOW + 6 * MIN).purse, f, true, NOW + 7 * MIN, 1)).toEqual({ ok: false, why: "meal" });
   });
 });

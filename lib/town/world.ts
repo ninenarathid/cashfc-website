@@ -289,18 +289,36 @@ export const KITCHEN = (() => {
   // before it, and from behind the table it would be a jump over the table). `tops` are the tables' own tops, drawn
   // again over whoever sits behind them.
   //
-  // The near benches are not sat on for now (the owner, 2026-10-04, of somebody sitting there with their back to the
-  // viewer: "นั่งมุมนี้ ถอดออกไปก่อน ทำให้นั่งไม่ได้ก่อน เราจะค่อยแก้ทีหลัง"): only the far ones are places. Everything a near
-  // place needs is still here (its point, its floor tile, the pose seen from behind): put `true` back in SIDES when
-  // that pose is right.
-  const SIDES = [false];
-  const seats = [[-270, -214, -158], [141, 197, 253]].flatMap((xs, table) => SIDES.flatMap((back) => xs.map((x) => {
+  // The near benches were not sat on for three days (the owner, 2026-10-04, of somebody sitting there with their back
+  // to the viewer: "นั่งมุมนี้ ถอดออกไปก่อน ทำให้นั่งไม่ได้ก่อน เราจะค่อยแก้ทีหลัง"), and are again since 2026-10-07 ("ต้องทำให้
+  // เก้าอี้ด้านล่างกลับมานั่งได้ ช่วยแก้บั๊คที่ขาตัวละครบั๊คตอนนั่งหันหลังด้วย": whoever sits there is drawn as lib/town/pixeldoll's
+  // `perch`). The far benches' places come first, as they were numbered while they were the only ones: a page built
+  // before the near ones knows the same six by the same numbers, and takes anybody on a near one to be standing.
+  const SIDES = [false, true];
+  const seats = SIDES.flatMap((back) => [[-270, -214, -158], [141, 197, 253]].flatMap((xs, table) => xs.map((x) => {
     const p = { x, y: back ? -64 : -131 };
     const stand = floor.map((tile) => { const c = px(tile[0] + 0.5, tile[1] + 0.5); return { tile, c, far: Math.hypot(c.x - p.x, c.y - p.y) }; })
       .filter(({ c }) => !back || (c.y > -96 && c.y < -40)).sort((a, b) => a.far - b.far)[0].tile;
     return { at: at(p.x, p.y), px: p.x, py: p.y, back, table, stand };
   })));
   const tops: Array<[number, number, number, number]> = [[-309, -127, -116, -84], [95, -127, 299, -84]];
+  // The feast table (the owner, 2026-10-07, of pots of food left standing all over the town: lib/town/cooking). The
+  // two dining tables are one table to the village: what is set on it is reached from anywhere on the yard's floor.
+  // `served` is where a pot is drawn on a top, in the picture's pixels, a place of the left table and then one of the
+  // right, so that both fill alike, the middle of a top before its ends. `tile` is a tile of the floor between the two tables: where such a pot is said to
+  // stand to a page built before there was a feast table, which draws and reaches every pot by its tile.
+  // `over` is the middle of each top, for the few words over it; `door` a point over the house's doorway, for the same
+  // words where the yard is seen from outside, under its roof.
+  const served = [1, 2, 0, 3].flatMap((i) => tops.map(([x0, y0, x1], table) => {
+    const p = { px: Math.round(x0 + 30 + (i * (x1 - x0 - 60)) / 3), py: y0 + 26 };
+    return { ...p, at: at(p.px, p.py), table };
+  }));
+  const feast = {
+    served,
+    over: tops.map(([x0, y0, x1]) => at((x0 + x1) / 2, y0)),
+    door: at(1, -98),
+    tile: floor.map((tile) => { const c = px(tile[0] + 0.5, tile[1] + 0.5); return { tile, far: Math.hypot(c.x + 10, c.y + 78) }; }).sort((a, b) => a.far - b.far)[0].tile,
+  };
   // What burns and what glows (the owner, 2026-10-03: "ไฟตรงกลางลานอาหาร ช่วยทำให้มี อนิเมชัน และส่องสว่างได้จริงๆ ให้ บรรยากาศ cozy ใน
   // ตอนค่ำๆ"), in the picture's pixels: the camp fire's foot and the stoves' mouths, in the yard; and, of the house it is
   // from outside, its two lanterns, its two windows and its doorway.
@@ -311,7 +329,7 @@ export const KITCHEN = (() => {
     windows: [[-248, -127, -172, -68], [172, -127, 249, -68]] as Array<[number, number, number, number]>,
     door: [-46, -93, 49, -34] as [number, number, number, number],
   };
-  return { stage: process.env.NODE_ENV !== "production" ? 2 : 1, foot, tiles, near, ways, way, floor, stands, posts, places, wash, seats, tops, lights };
+  return { stage: process.env.NODE_ENV !== "production" ? 2 : 1, foot, tiles, near, ways, way, floor, stands, posts, places, wash, seats, tops, feast, lights };
 })();
 /** A place at one of the cooking yard's tables is told to the room as this much more than its number (a bench of the town's is told by its own number). */
 export const YARD_SEATS = 500;
@@ -462,6 +480,8 @@ const isKitchen = (x: number, y: number) => kitchenAt.has(`${x},${y}`);
 const yardAt = new Set(KITCHEN.floor.map(([x, y]) => `${x},${y}`)), yardWay = new Set(KITCHEN.way.map(([x, y]) => `${x},${y}`));
 /** Whether a tile is the finished cooking yard's floor (never, while it is being built). */
 export const onYard = (x: number, y: number) => KITCHEN.stage === 2 && yardAt.has(`${x},${y}`);
+/** Whether a tile is of the yard's floor as it is when finished, whatever this page shows of it: what a rule that whoever keeps the game holds to asks (the database has the same tiles: the catalog's `cooking.feast.floor`). */
+export const yardFloor = (x: number, y: number) => yardAt.has(`${x},${y}`);
 /** Whether a step from one tile to the next crosses the yard's kerb: allowed only by one of its two ways in. */
 const overKerb = (ax: number, ay: number, bx: number, by: number) =>
   onYard(ax, ay) !== onYard(bx, by) && !yardWay.has(onYard(ax, ay) ? `${ax},${ay}` : `${bx},${by}`);

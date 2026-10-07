@@ -73,6 +73,14 @@ export interface DrawState {
   talk?: boolean;
   /** Sitting (on a bench): drawn with its seat at (x, y). */
   sit?: boolean;
+  /**
+   * Sitting with their back to the viewer on a bench that has a table before it (the cooking yard's near benches):
+   * the legs are under the table, on the far side of the body. The sitting body the dolls have is of somebody on the
+   * ground, its legs out to one side, which on a bench lay along the seat (the owner, 2026-10-04: "นั่งมุมนี้ ถอดออกไปก่อน";
+   * 2026-10-07: "ขาตัวละครบั๊คตอนนั่งหันหลัง"). So: the standing body seen from behind, down to its hips and no further, set
+   * on the seat with the head where the sitting body has it, so nobody is taller or shorter for it.
+   */
+  perch?: boolean;
 }
 
 /** How tall a standing Lalafell is in its picture's pixels: the measure the other races are sized by. */
@@ -334,7 +342,10 @@ export class PixelKit {
     const A = this.atlas;
     const g = (GENDERS[look.gender]?.id ?? "f") as G;
     const steps = A.walk[g][view];
-    const step = (state.sit && A.sit?.[g]?.[view]) || steps[state.step === undefined ? STAND : ((state.step % 4) + 4) % 4];
+    const sat = state.sit ? A.sit?.[g]?.[view] : undefined;
+    // (how much of the standing body is legs: what the head comes down by when the same doll sits)
+    const perch = state.perch && view === "back" && sat ? Math.max(0, sat.hy - steps[STAND].hy) : 0;
+    const step = perch ? steps[STAND] : sat || steps[state.step === undefined ? STAND : ((state.step % 4) + 4) % 4];
     const faceName = view === "back" ? (A.face[g].back ?? A.face.back!) : (A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round);
     const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.[view];
     const faces = this.face(faceName, look);
@@ -351,10 +362,11 @@ export class PixelKit {
     ctx.save();
     ctx.imageSmoothingEnabled = kb * px < 1;
     ctx.scale(kb, kb);
-    const [, , , , box, boy] = A.frames[step.body];
-    ctx.drawImage(this.body(step.body, look), box, boy);
+    const [, , bw, bh, box, boy] = A.frames[step.body];
+    if (perch) ctx.drawImage(this.body(step.body, look), 0, 0, bw, bh - perch, box, boy + perch, bw, bh - perch);
+    else ctx.drawImage(this.body(step.body, look), box, boy);
     ctx.restore();
-    ctx.translate(step.hx * kb, step.hy * kb);
+    ctx.translate(step.hx * kb, (step.hy + perch) * kb);
     ctx.imageSmoothingEnabled = kh * px < 1;
     ctx.scale(kh, kh);
     const [, , , , fox, foy] = A.frames[faceName];

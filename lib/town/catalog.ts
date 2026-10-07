@@ -194,6 +194,9 @@ export function catalogOf() {
       inside: Object.fromEntries((Object.keys(INSIDE) as ItemId[]).map((id) => [id, { chance: INSIDE[id]!.chance, scrolls: insideOf(id) }])),
       map: { town: [COLS, ROWS], farm: [FARM.x, FARM.y, FARM.w, FARM.h] },
       misses: 30,
+      // (the feast table, lib/town/cooking: how many pots of one member's it takes, the minutes a pot stands on the
+      // ground before it is on it, the tile a pot on it is said to stand on, and the yard's floor, from which it is reached)
+      feast: { pots: COOKING.feast.pots, ground: COOKING.feast.ground, tile: KITCHEN.feast.tile, floor: KITCHEN.floor },
     },
     /**
      * Deals between two members: how many kinds of thing one side may lay out, and how near the two stand to open one
@@ -406,8 +409,14 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v156 (ran 2026-10-07, about 11:41) wrote one over: the fae anklet's gap, forty-five seconds between two waterings
  * of a run where it was eight (`farming.helping.anklet.gap`), nothing else of the row. (v155, between them, is the
  * market's knobs and no row of the catalog.)
+ *
+ * v159 writes one over: `cooking`, for the feast table (`pots`, two on the ground where it was six; and `feast`: how
+ * many pots of one member's the table takes, the minutes a pot stands on the ground first, the tile a pot on the table
+ * is said to stand on, and the yard's floor, from which the table is reached).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v159: { keys: [], over: ["cooking"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

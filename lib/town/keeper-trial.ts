@@ -1,4 +1,4 @@
-import type { Taste } from "./cooking";
+import { COOKING, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
@@ -17,7 +17,7 @@ import { SKIES } from "./skies";
 import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
 import { handSlot, type Purse } from "./trade";
 import type { Nature } from "./waters";
-import { atWell } from "./world";
+import { KITCHEN, atWell } from "./world";
 import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
@@ -75,6 +75,7 @@ class TrialKeeper implements Keeper {
   rains() { return this.trial.sky(); }
   choreAt(where: Water) { return this.trial.choreAt(where); }
   pots() { return this.trial.pots(); }
+  feast() { return { pots: COOKING.feast.pots, ground: COOKING.feast.ground, tile: KITCHEN.feast.tile }; }
   found() { return this.trial.found(); }
   finder(id: ItemId) { return this.trial.finder(id); }
   madeBefore(id: ItemId) { return this.trial.madeBefore(id); }
@@ -347,6 +348,7 @@ class TrialKeeper implements Keeper {
   async potDown(at: [number, number], slot?: number) { return this.trial.potDown(at, slot); }
   async potLadle(id: string) { return this.trial.potLadle(id); }
   async potTake(id: string): Promise<Did> { return this.trial.potTake(id); }
+  async feastEat(id: string, _at: [number, number] | null, seated: boolean): Promise<Did<{ dish: DishId }>> { return this.trial.feastEat(id, seated); }
   // ── gifts: kitchen ──
   async basketPut(slot: number, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketPut(slot, n); }
   async basketTake(dish: DishId, n: number): Promise<KitchenDid<{ dish: DishId; n: number }>> { return this.trial.basketTake(dish, n); }

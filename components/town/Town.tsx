@@ -2695,7 +2695,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
-      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, sit: sitting(a) || riding }, dpr);
+      kit.draw(ctx, look, face.view, face.mirror, p.x, p.y, k, { step, blink, talk, sit: sitting(a) || riding, perch: !!tableSeatOf(a)?.back }, dpr);
     } else {
       // Until the dolls arrive: a simple figure.
       ctx.fillStyle = "#6aa9e0";
@@ -3429,11 +3429,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // "Ladle one and eat", from the kitchen table (TownCook): the helping is in the bag already. I walk to the nearest
   // place to sit (the ground where I stand, if none is near), and the meal begins when I am sat. Forgotten if I am
   // not sat within a while: I went somewhere else.
-  const eatWhenSat = useRef<{ dish: DishId; till: number } | null>(null);
-  const eatNow = useCallback((dish: DishId) => {
+  // And a helping of a pot on the feast table, out of the table's own bowl (lib/town/cooking's feastEat): there is
+  // nothing in the bag; once I am sat the keeper is asked for it, by the pot and the tile I stand on.
+  const eatWhenSat = useRef<{ dish: DishId; till: number; pot?: string } | null>(null);
+  const eatNow = useCallback((dish: DishId, pot?: string) => {
     const sess = sessionRef.current;
     if (!sess) return;
-    eatWhenSat.current = { dish, till: Date.now() + 30_000 };
+    eatWhenSat.current = { dish, till: Date.now() + 30_000, ...(pot ? { pot } : {}) };
     const seat = seatNear(sess.self.pos);
     if (seat === null || !sess.sitOn(seat)) sess.sitHere();
     cam.current.follow = true;
@@ -3444,6 +3446,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!want || !satNow || !keeper) return;
     eatWhenSat.current = null;
     if (Date.now() > want.till) return;
+    if (want.pot) {
+      const at = sessionRef.current?.self.pos;
+      void keeper.feastEat(want.pot, at ? [Math.floor(at.x), Math.floor(at.y)] : null, true).then((did) => {
+        if (!did.ok) window.dispatchEvent(new CustomEvent("cashtown:feast-refused", { detail: did.why }));
+      });
+      return;
+    }
     const slot = keeper.purse().bag.findIndex((b) => b?.item === want.dish);
     if (slot >= 0) void keeper.sitDown(slot, true);
   }, [satNow, keeper]);
@@ -4146,7 +4155,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} art={boardArt} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} phone={phone} tabbar={tabbar} />
         </Suspense>
       )}
       {/* A deal with somebody: what each lays out, and their word */}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { potSays, whispersOf, needsOf, COOKING, type Taste } from "@/lib/town/cooking";
+import { potSays, whispersOf, needsOf, COOKING, ODD, type Taste } from "@/lib/town/cooking";
 import { wearing } from "@/lib/town/gifts";
 import { toldOf, type Told } from "@/lib/town/hints";
 import { WISH } from "@/lib/town/fountain";
@@ -71,7 +71,7 @@ const PIN_KEY = "cashtown.kitchen.pin";
  * It draws and asks; what is cooked is the keeper's to say (components/town/TownCook holds this open and plays the
  * game). On a phone the book folds into a strip above the hearth. With `reduced` nothing moves.
  */
-export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown, spoon = null, onSpoon, onSpoonShut, fam = null, onFam, flame = null, onFlame }: {
+export default function TownKitchen({ th, reduced, place, keeper, purse, now, crew, things, notes, result, why, bottom, fire, eat, onAdd, onDrop, onClear, onTool, onGo, onClose, onAgain, onEat, onPotDown, feast = false, onPour, spoon = null, onSpoon, onSpoonShut, fam = null, onFam, flame = null, onFlame }: {
   /** The whispering spoon, for whoever has it (null: nothing of it is shown); asking it of what is in the pot, and putting away what it told. */
   spoon?: SpoonAt | null;
   onSpoon?: () => void;
@@ -112,6 +112,10 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   onAgain: () => void;
   onEat: () => void;
   onPotDown: () => void;
+  /** Whether a dish set down here goes onto the feast table (lib/town/cooking: the cook stands in the yard, and whoever keeps the game has a table). */
+  feast?: boolean;
+  /** Throw the pot just cooked away (offered for the odd dish, which the table does not take): where whoever keeps the game lets a thing be dropped. */
+  onPour?: () => void;
 }) {
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const tool = crew[0];
@@ -454,7 +458,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
         ))}
         {/* (while the sprite is at it, nothing else at the table is touched) */}
         {fam?.cooking && <div className="absolute inset-0 z-[15]" data-kitchen-busy />}
-        {result && <Came result={result} open={pinned} th={th} eat={eat} why={why} onAgain={onAgain} onEat={onEat} onPotDown={onPotDown} onClose={onClose} />}
+        {result && <Came result={result} open={pinned} th={th} eat={eat} why={why} onAgain={onAgain} onEat={onEat} onPotDown={onPotDown} feast={feast} onPour={onPour} onClose={onClose} />}
       </section>
     </div>
   );
@@ -649,8 +653,9 @@ function Tried({ notes, th, whispers = [], known = [] }: { notes: Note[]; th: bo
  * of the recipe that is open beside the pot (`open`), by what its own page tells (lib/town/kitchen's missedBy), and
  * then by its taste, which is of the nearest recipe of all and says so.
  */
-function Came({ result, open, th, eat, why, onAgain, onEat, onPotDown, onClose }: {
-  result: KitchenResult; open: Entry | null; th: boolean; eat: { bowl: boolean; meal: boolean }; why: string | null; onAgain: () => void; onEat: () => void; onPotDown: () => void; onClose: () => void;
+function Came({ result, open, th, eat, why, onAgain, onEat, onPotDown, feast, onPour, onClose }: {
+  result: KitchenResult; open: Entry | null; th: boolean; eat: { bowl: boolean; meal: boolean }; why: string | null; onAgain: () => void; onEat: () => void; onPotDown: () => void;
+  feast: boolean; onPour?: () => void; onClose: () => void;
 }) {
   const { made, n, first, taste } = result;
   const pot = !!made && made in DISHES, found = !!made && !taste, back = !!result.back;
@@ -700,8 +705,14 @@ function Came({ result, open, th, eat, why, onAgain, onEat, onPotDown, onClose }
               </button>
               {(!eat.bowl || !eat.meal) && <p className="-mt-0.5 text-meta" style={{ color: CHILI }}>{!eat.meal ? (th ? "มื้อนี้กินครบแล้ว" : "This meal's helpings are eaten") : (th ? "ไม่มีถ้วยว่าง" : "No bowl to spare")}</p>}
               <button type="button" onClick={onPotDown} data-kitchen-down className={`${plain} flex items-center justify-center gap-1.5`} style={{ borderColor: INK_SOFT }}>
-                <TownIcon name="potFull" size={20} />{th ? "วางหม้อให้เพื่อน" : "Set the pot down for company"}
+                {/* (a dish set down in the yard is on the feast table; the odd dish stands on the ground its hour, and is gone) */}
+                <TownIcon name="potFull" size={20} />{feast && made !== ODD ? (th ? "วางบนโต๊ะเลี้ยง" : "Set it on the feast table") : th ? "วางหม้อให้เพื่อน" : "Set the pot down for company"}
               </button>
+              {made === ODD && onPour && (
+                <button type="button" onClick={onPour} data-kitchen-pour className={`${plain} flex items-center justify-center gap-1.5`} style={{ borderColor: INK_SOFT }}>
+                  <TownIcon name="potEmpty" size={20} />{th ? "เททิ้ง" : "Throw it away"}
+                </button>
+              )}
             </>
           )}
           <div className="flex gap-1.5">

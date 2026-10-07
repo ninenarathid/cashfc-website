@@ -827,10 +827,10 @@ describe("the cases the database's rules are held to", () => {
     const whys = (fn: string) => [...new Set(of<{ ok?: boolean; why?: string } | null>(fn).map((w) => (w?.ok ? "ok" : w?.why)))].sort();
     expect(whys("cook")).toEqual(["amount", "crew", "full", "none", "ok", "tool"]);
     expect(whys("set_down")).toEqual(["none", "ok"]);
-    // (a helping always fits: it sits where its bowl sat)
-    expect(whys("ladle")).toEqual(["none", "ok", "tool"]);
+    // (a helping sits where its bowl sat when that was the slot's last bowl; with more bowls in the slot, three since 2026-10-08, and no room elsewhere it has nowhere to go)
+    expect(whys("ladle")).toEqual(["full", "none", "ok", "tool"]);
     expect(whys("take_up")).toEqual(["full", "none", "ok"]);
-    expect(whys("serve")).toEqual(["none", "ok", "tool"]);
+    expect(whys("serve")).toEqual(["full", "none", "ok", "tool"]);
     // a pot ladled empty is gone, and one with more in it is not
     const ladled = of<{ ok: boolean; pot?: Pot | null }>("ladle").filter((w) => w.ok);
     expect(ladled.filter((w) => w.pot === null).length).toBeGreaterThan(30);

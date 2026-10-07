@@ -93,8 +93,9 @@ async function run(label, size) {
     ok("…and the two older pots are still in the bag, where they were", JSON.stringify(await potsIn(X)) === JSON.stringify(older), await potsIn(X));
     await X.shot(`${OUT}/pots-down-${label}.png`);
     // (taken up again: three in the bag once more)
-    await until("the pot can be taken up", async () => (await X.evaluate(`${C}.offers()`)).includes("take"), 5000);
-    await X.evaluate(`${C}.act("take")`);
+    // (set down in the yard, a dish is on the feast table: it is taken back from the table, as its panel takes one)
+    await until("the pot is on the feast table", async () => (await X.evaluate(`${C}.feast().pots.length`)) === 1, 5000);
+    await X.evaluate(`${C}.feastDo("take", ${C}.feast().pots[0])`);
     await until("it is in the bag again", async () => (await potsIn(X)).length === 3, 5000);
     pots = await potsIn(X);
 

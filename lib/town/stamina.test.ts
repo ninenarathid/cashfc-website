@@ -262,10 +262,13 @@ describe("meals", () => {
     const back = settle(room, NOON + 6 * MIN);
     expect(back.bag[4]).toEqual({ item: "bowl", n: 1 });
     expect("owed" in back).toBe(false);
-    // two owed and one slot: one comes back, one is still owed
+    // four owed and one slot: three come back (a slot takes three bowls since 2026-10-08), one is still owed
     const two = bowlsBack({ ...room, owed: 1 }, 1);
-    expect(held(two.bag, "bowl")).toBe(1);
-    expect(two.owed).toBe(1);
+    expect(two.bag[4]).toEqual({ item: "bowl", n: 2 });
+    expect("owed" in two).toBe(false);
+    const four = bowlsBack({ ...room, owed: 3 }, 1);
+    expect(four.bag[4]).toEqual({ item: "bowl", n: 3 });
+    expect(four.owed).toBe(1);
     expect(bowlsBack(newPurse())).toEqual(newPurse());
   });
 });

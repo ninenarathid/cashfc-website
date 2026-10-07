@@ -1,0 +1,221 @@
+// The breaks v159.test.mjs must notice, one at a time.
+// Run: node mutate.mjs <the draft> v159.test.mjs v159.mutations.mjs      (FROM=<n> TO=<m> runs a slice of them)
+//      node check-anchors.mjs <the draft> v159.mutations.mjs <a log of the dry run>   first: every anchor, every check's name
+//
+// By what the file does: where a pot goes when it is set down, how many one member leaves, the hour on the ground and
+// the table's end, the tidying before each thing that is asked, who reaches what, the table's bowl and the bowl that
+// does not come back, what is told to a page, the pots that stood about as it ran, the catalog's row, and who may.
+
+/** The n-th place a line is at in the file (from 1): several functions have the same line, and one of them is meant. */
+const nth = (from, to, n) => (s) => {
+  let at = -1;
+  for (let i = 0; i < n; i++) { at = s.indexOf(from, at + 1); if (at < 0) throw new Error(`mutation anchor missing (${i + 1} of ${n}): ${from}`); }
+  return s.slice(0, at) + to + s.slice(at + from.length);
+};
+const TIDY = "  perform town.pots_tidy(town.now_ms());\n";
+const AGAIN = (name) => `${name} is the one it replaces, word for word`;
+
+export default ({ swap, cut }) => [
+  // ── where a pot goes when it is set down
+  ["the odd dish goes onto the table from the yard",
+    swap("feast_ := town.on_yard(p_x, p_y) and did->'pot'->>'dish' <> ck->>'oddDish';", "feast_ := town.on_yard(p_x, p_y);"),
+    [AGAIN("public.town_pot_down"), "the odd dish set down in the yard stands on the ground"]],
+  ["a dish set down in the yard stays on the ground",
+    swap("feast_ := town.on_yard(p_x, p_y) and did->'pot'->>'dish' <> ck->>'oddDish';", "feast_ := false;"),
+    [AGAIN("public.town_pot_down"), "a dish set down on the yard's floor is on the table"]],
+  ["a pot on the ground is in the way of the table",
+    swap("if not feast_ and exists (select 1 from public.town_pots o where not o.feast and", "if exists (select 1 from public.town_pots o where not o.feast and"),
+    [AGAIN("public.town_pot_down"), "a dish goes onto the table from the very tile a pot stands on"]],
+  ["what is on the table is in the way of the ground",
+    swap("from public.town_pots o where not o.feast and abs(o.x - p_x) <= 1", "from public.town_pots o where abs(o.x - p_x) <= 1"),
+    [AGAIN("public.town_pot_down"), "…and not on the tile the table's pots are said to stand on"]],
+  ["the ground's pots and the table's are counted together",
+    swap("where o.member_id = me and o.feast = feast_)", "where o.member_id = me)"),
+    [AGAIN("public.town_pot_down"), "…and 6 on the table beside them"]],
+  ["the table takes as few of one member's as the ground",
+    swap("(case when feast_ then ck->'feast'->>'pots' else ck->>'pots' end)::int", "(ck->>'pots')::int"),
+    [AGAIN("public.town_pot_down"), "…and 6 on the table beside them"]],
+  ["a pot on the table keeps its rattan table",
+    swap("not feast_ and coalesce((did->'pot'->>'tok')::boolean, false), town.now_ms(), feast_)", "coalesce((did->'pot'->>'tok')::boolean, false), town.now_ms(), feast_)"),
+    [AGAIN("public.town_pot_down"), "a dish set down on the yard's floor is on the table"]],
+  ["a pot on the table is kept as standing where its cook stood",
+    swap("case when feast_ then (ck->'feast'->'tile'->>0)::int else p_x end, case when feast_ then (ck->'feast'->'tile'->>1)::int else p_y end,", "p_x, p_y,"),
+    [AGAIN("public.town_pot_down"), "a dish set down on the yard's floor is on the table"]],
+  ["it is not written down that it went onto the table",
+    swap(" || case when feast_ then '{\"feast\": true}'::jsonb else '{}'::jsonb end);", ");"),
+    [AGAIN("public.town_pot_down"), "…out of the bag, and written down with the tile stood on"]],
+
+  // ── the tidying before each thing that is asked
+  ["a look at the kitchen does not tidy first", nth(TIDY, "", 1), [AGAIN("public.town_kitchen"), "as its hour ends a dish is on the table", "…and the odd dish is gone with its hour"]],
+  ["setting a pot down does not tidy first", nth(TIDY, "", 2), [AGAIN("public.town_pot_down"), "town_pot_down, the first thing asked after a pot's hour ended"]],
+  ["ladling does not tidy first", nth(TIDY, "", 3), [AGAIN("public.town_pot_ladle"), "town_pot_ladle, the first thing asked after a pot's hour ended"]],
+  ["taking a pot up does not tidy first", nth(TIDY, "", 4), [AGAIN("public.town_pot_take"), "town_pot_take, the first thing asked after a pot's hour ended"]],
+  ["the table's bowl does not tidy first", nth(TIDY, "", 5), ["town_feast_eat, the first thing asked after a pot's hour ended"]],
+
+  // ── the hour on the ground, and the table's end
+  ["a pot's hour on the ground never ends",
+    swap(" where not p.feast and p_now >= p.set_at + ground;", " where false;"),
+    ["as its hour ends a dish is on the table"]],
+  ["a pot come to the table keeps the moment it was set down on the ground",
+    swap("set_at = p.set_at + ground, x = (tile->>0)::smallint", "set_at = p.set_at, x = (tile->>0)::smallint"),
+    ["as its hour ends a dish is on the table"]],
+  ["a pot come to the table keeps its rattan table",
+    swap("update public.town_pots p set feast = true, tok = false, set_at = p.set_at + ground,", "update public.town_pots p set feast = true, set_at = p.set_at + ground,"),
+    ["as its hour ends a dish is on the table"]],
+  ["a pot come to the table is told where it stood",
+    swap("set_at = p.set_at + ground, x = (tile->>0)::smallint, y = (tile->>1)::smallint", "set_at = p.set_at + ground"),
+    ["as its hour ends a dish is on the table"]],
+  ["nothing is ever cleared away",
+    swap("for o in delete from public.town_pots p where town.pot_now(p.feast, p.dish, p.set_at, p_now) is null", "for o in delete from public.town_pots p where false"),
+    ["…and the odd dish is gone with its hour", "as they end the table is cleared of it"]],
+  ["what is cleared away is written down as from nowhere",
+    swap("jsonb_build_object('pot', o.id, 'from', case when o.feast then 'table' else 'ground' end));", "jsonb_build_object('pot', o.id));"),
+    ["…and the odd dish is gone with its hour", "…written down in its cook's name with what was left, off the table"]],
+  ["the odd dish comes to the table when its hour ends",
+    swap("if p_dish <> ck->>'oddDish' and p_now < town.feast_ends(moved)", "if p_now < town.feast_ends(moved)"),
+    ["town.pot_now says where a pot is", "…and the odd dish is gone with its hour"]],
+  ["a pot's hour on the ground is a minute",
+    swap("moved := p_set + (ck->'feast'->>'ground')::bigint * 60000;", "moved := p_set + (ck->'feast'->>'ground')::bigint * 1000;"),
+    ["town.pot_now says where a pot is", "a millisecond short of its hour"]],
+  ["a pot on the table is never cleared",
+    swap("    if p_now < town.feast_ends(p_set) then return", "    if true then return"),
+    ["town.pot_now says where a pot is", "as they end the table is cleared of it"]],
+  ["the table is cleared a meal early",
+    swap("select town.next_meal_at(town.next_meal_at(p_from))", "select town.next_meal_at(p_from)"),
+    ["town.next_meal_at and town.feast_ends answer every moment"]],
+  ["tomorrow's breakfast is no meal",
+    swap("union all select d.start_ + 86400000 + (d.meals->>0)::bigint * 3600000) t", ") t"),
+    ["town.next_meal_at and town.feast_ends answer every moment"]],
+  ["a meal that begins this moment is the next",
+    swap("where t.at > d.local_)", "where t.at >= d.local_)"),
+    ["town.next_meal_at and town.feast_ends answer every moment"]],
+  ["the meals are by another clock than Bangkok's",
+    swap("select p_now + 7 * 3600000::bigint as local_,", "select p_now + 0 * 3600000::bigint as local_,"),
+    ["town.next_meal_at and town.feast_ends answer every moment"]],
+
+  // ── who reaches what
+  ["a tile turned about counts as the yard's floor",
+    swap("where (f->>0)::int = p_x and (f->>1)::int = p_y)", "where (f->>0)::int in (p_x, p_y) and (f->>1)::int in (p_x, p_y))"),
+    ["town.on_yard is the yard's floor tile by tile"]],
+  ["a pot on the table is reached only from beside its tile",
+    swap("case when coalesce((p_pot->>'feast')::boolean, false) then town.on_yard(p_x, p_y)", "case when false then town.on_yard(p_x, p_y)"),
+    ["town.reaches is the code's", "from anywhere on the yard's floor it is"]],
+  ["a pot on the table is reached from anywhere",
+    swap("case when coalesce((p_pot->>'feast')::boolean, false) then town.on_yard(p_x, p_y)", "case when coalesce((p_pot->>'feast')::boolean, false) then true"),
+    ["town.reaches is the code's", "a pot on the table is not reached from outside the yard", "outside the yard, nobody is fed"]],
+  ["the table's bowl is reached from anywhere",
+    nth("  if not town.reaches(pot, p_x, p_y) then return town.answer(me, town.no('none')); end if;\n", "", 3),
+    ["outside the yard, nobody is fed"]],
+
+  // ── the table's bowl
+  ["nobody need sit down",
+    swap("  if not coalesce(p_seated, false) then return town.no('stand'); end if;\n", ""),
+    ["town.feast_eat is the code's", "standing, nobody is fed"]],
+  ["a fourth helping in a meal's hours",
+    swap(">= (town.cat('stamina')->>'bowls')::int then return town.no('meal'); end if;\n  meal :=", ">= 99 then return town.no('meal'); end if;\n  meal :="),
+    ["town.feast_eat is the code's", "3 helpings in a meal's hours"]],
+  ["a second helping while the first is being eaten",
+    swap("  if coalesce(p_purse->'eating', 'null'::jsonb) <> 'null'::jsonb\n     or (town.bowls_today", "  if false\n     or (town.bowls_today"),
+    ["town.feast_eat is the code's", "at a meal already, nobody begins another"]],
+  ["a helping out of the table's bowl is not marked as lent",
+    swap(" || '{\"lent\": true}'::jsonb));", "));"),
+    ["town.feast_eat is the code's", "sitting down in the yard with no bowl at all", "five minutes on it is eaten up"]],
+  ["a pot on the ground has the table's bowls",
+    swap("if not coalesce((p_pot->>'feast')::boolean, false) or left_ < 1 then return town.no('none'); end if;", "if left_ < 1 then return town.no('none'); end if;"),
+    ["town.feast_eat is the code's", "a pot on the ground has no bowls of its own"]],
+  ["an empty pot feeds",
+    swap("if not coalesce((p_pot->>'feast')::boolean, false) or left_ < 1 then return town.no('none'); end if;", "if not coalesce((p_pot->>'feast')::boolean, false) then return town.no('none'); end if;"),
+    ["town.feast_eat is the code's"]],
+  ["the pot is no helping the less",
+    nth("  else update public.town_pots o set helpings = (did->'pot'->>'left')::int where o.id = p_id; end if;\n", "  end if;\n", 2),
+    ["…nothing of it is in the bag, and the answer has the purse as it stands", "3 helpings in a meal's hours"]],
+  ["its last helping out, the pot stays",
+    nth("  if did->'pot' = 'null'::jsonb then delete from public.town_pots o where o.id = p_id;\n", "  if did->'pot' = 'null'::jsonb then null;\n", 2),
+    ["the pot's last helping out, the pot is gone from the table"]],
+  ["the eater's purse is not kept",
+    nth("  perform town.keep_purse(me, did->'purse');\n", "", 4),
+    ["sitting down in the yard with no bowl at all"]],
+  ["the eating is not written down",
+    swap("  perform town.note(me, 'eat', pot->>'dish', 1, 0, jsonb_build_object('pot', p_id, 'bowl', 'table'));\n", ""),
+    ["…written down as the two deeds it is"]],
+  ["the ladling is not written down as out of the table's bowl",
+    swap("jsonb_build_object('pot', p_id, 'bowl', 'table') || case when pot->>'by' <> me::text", "jsonb_build_object('pot', p_id) || case when pot->>'by' <> me::text"),
+    ["…written down as the two deeds it is"]],
+  ["a bowl comes back when a lent helping is eaten up",
+    swap(" and not coalesce((e->>'lent')::boolean, false) then 1 else 0 end));", " then 1 else 0 end));"),
+    [AGAIN("town.chew"), "town.chew and town.get_up give no bowl back", "five minutes on it is eaten up"]],
+  ["a bowl comes back when a lent helping is left half eaten",
+    swap("     and not coalesce((p_purse->'eating'->>'lent')::boolean, false) then return town.bowls_back(up, 1); end if;", "     then return town.bowls_back(up, 1); end if;"),
+    [AGAIN("town.get_up"), "town.chew and town.get_up give no bowl back", "left half eaten, no bowl either"]],
+
+  // ── what a page is told
+  ["the table is not told with the pots",
+    swap("    'feast', (town.cat('cooking')->'feast') - 'floor',\n", ""),
+    [AGAIN("public.town_kitchen"), "…and the table is told with them"]],
+  ["the floor's every tile is told with the pots",
+    swap("'feast', (town.cat('cooking')->'feast') - 'floor',", "'feast', (town.cat('cooking')->'feast'),"),
+    [AGAIN("public.town_kitchen"), "…and the table is told with them"]],
+  ["a pot is told without the moment it was set",
+    swap("'at', jsonb_build_array(o.x, o.y), 'set', o.set_at,", "'at', jsonb_build_array(o.x, o.y),"),
+    ["a dish set down on the ground stands there, with the moment"]],
+  ["a pot on the table is not told as one",
+    swap("           || case when o.feast then '{\"feast\": true}'::jsonb else '{}'::jsonb end\n", ""),
+    ["a dish set down on the yard's floor is on the table"]],
+  ["a pot is told without its cook's name",
+    swap("'name', coalesce((select coalesce(p.character_name, p.display_name, p.discord_username, '') from public.profiles p where p.id = o.member_id), ''))", "'name', '')"),
+    ["a dish set down on the yard's floor is on the table"]],
+
+  // ── the pots that stood about as it ran
+  ["the odd pots that stood about are left standing",
+    swap("for o in delete from public.town_pots p where p.dish = ck->>'oddDish' returning", "for o in delete from public.town_pots p where false returning"),
+    ["every pot of the odd dish that stood about is gone"]],
+  ["the odd pots that went are not written down",
+    swap("    perform town.note(o.member_id, 'pot_gone', o.dish, o.helpings, 0, jsonb_build_object('pot', o.id, 'from', 'ground'));\n", "    null;\n"),
+    ["the odd pots are written down as gone"]],
+  ["the dishes that stood about keep the moment they were set down, days ago",
+    swap("set feast = true, tok = false, set_at = town.now_ms(), x", "set feast = true, tok = false, set_at = p.set_at, x"),
+    ["every dish that stood about is on the table"]],
+  ["what stands about is tidied again each time the file runs",
+    swap("  if exists (select 1 from information_schema.columns c where c.table_schema = 'public' and c.table_name = 'town_pots' and c.column_name = 'feast') then return; end if;\n"
+       + "  alter table public.town_pots add column feast boolean not null default false;\n"
+       + "  alter table public.town_pots drop constraint if exists town_pots_x_y_key;\n"
+       + "  create unique index town_pots_ground on public.town_pots (x, y) where not feast;\n",
+         "  alter table public.town_pots add column if not exists feast boolean not null default false;\n"
+       + "  alter table public.town_pots drop constraint if exists town_pots_x_y_key;\n"
+       + "  create unique index if not exists town_pots_ground on public.town_pots (x, y) where not feast;\n"),
+    ["run a third time, ten minutes on"]],
+  ["one pot to a tile is no rule any more",
+    swap("  create unique index town_pots_ground on public.town_pots (x, y) where not feast;\n", ""),
+    ["one pot to a tile is the rule of pots on the ground alone"]],
+
+  // ── the catalog's row
+  ["six on the ground, as before",
+    swap("    \"pots\": 2,\n", "    \"pots\": 6,\n"),
+    ["the catalog's `cooking` row differs from what it was by `pots` and `feast`", "…and is the code's row", "2 on the ground, and the next is refused"]],
+  ["five minutes on the ground",
+    swap("\"feast\": {\"pots\":6,\"ground\":60,", "\"feast\": {\"pots\":6,\"ground\":5,"),
+    ["…and is the code's row", "…two on the ground, six on the table, sixty minutes"]],
+
+  // ── bowls, three to a slot
+  ["a bowl sits one to a slot, as before",
+    swap("jsonb_set(c.data, '{bowl,stack}', '3'::jsonb)", "jsonb_set(c.data, '{bowl,stack}', '1'::jsonb)"),
+    ["the catalog's `items` row differs from what it was by the bowl's stack alone", "town.put and town.room lay bowls three to a slot", "town.bowls_back gives three bowls back"]],
+  ["every thing sits three to a slot",
+    swap("jsonb_set(c.data, '{bowl,stack}', '3'::jsonb)", "(select jsonb_object_agg(e.key, e.value || '{\"stack\": 3}'::jsonb) from jsonb_each(c.data) e)"),
+    ["the catalog's `items` row differs from what it was by the bowl's stack alone"]],
+
+  // ── who may, and what it stands on
+  ["whoever is signed out may eat at the table",
+    swap("revoke execute on function public.town_feast_eat(bigint, integer, integer, boolean) from public, anon;\n", ""),
+    ["the table's bowl is one function of four words", "somebody signed out is refused the table's bowl"]],
+  ["the rules are a browser's to call",
+    swap("revoke execute on all functions in schema town from public, anon, authenticated;\n", ""),
+    ["no rule of the schema `town` is anybody's to call from a browser"]],
+  ["the table's bowl is not security definer",
+    swap("create or replace function public.town_feast_eat(p_id bigint, p_x integer, p_y integer, p_seated boolean)\nreturns jsonb language plpgsql security definer set search_path = public as $$",
+         "create or replace function public.town_feast_eat(p_id bigint, p_x integer, p_y integer, p_seated boolean)\nreturns jsonb language plpgsql set search_path = public as $$"),
+    ["the table's bowl is one function of four words"]],
+  ["it does not look for v158's pot before it begins",
+    cut("do $$ begin\n  if to_regprocedure('public.town_pot_down(integer, integer, integer)') is null", "-- ─── The catalog"),
+    ["where what it stands on is not there, it stops at its first line and says why"]],
+];

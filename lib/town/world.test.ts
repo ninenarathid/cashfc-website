@@ -4,7 +4,7 @@ import {
   BENCHES, BEYOND, BEYOND_PROPS, BOARD, CAMP, COLS, DROP, FARM, FARM_PROPS, FORDS, FOREST, FOREST_PROPS, GATES, GREAT_TREE, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
   YARD_SEATS, atFire, isBuilt, seenAt, setBuilt, yardSeat, zoneAt, type Zone,
 } from "./world";
-import { rowOf, bedOf, bedCorner, FARM_PUMPKINS } from "./world";
+import { rowOf, bedOf, bedCorner, FARM_PUMPKINS, yardFloor } from "./world";
 
 describe("projection", () => {
   it("goes to isometric pixels and back", () => {
@@ -766,5 +766,49 @@ describe("a bed's row (the enchanted hoe works one at a swing)", () => {
     const [bx, by] = bedCorner(0);
     expect(rowOf(bx + 7, by)).toEqual([]);
     expect(rowOf(bx - 1, by)).toEqual([]);
+  });
+});
+
+describe("the cooking yard's two tables", () => {
+  it("have a bench on each long side, three places each: the far ones numbered as they were while they were the only ones", () => {
+    expect(KITCHEN.seats).toHaveLength(12);
+    // (a page built before the near benches knows these six by these numbers)
+    expect(KITCHEN.seats.slice(0, 6).map((p) => [p.table, p.back, p.px, p.py])).toEqual([
+      [0, false, -270, -131], [0, false, -214, -131], [0, false, -158, -131], [1, false, 141, -131], [1, false, 197, -131], [1, false, 253, -131],
+    ]);
+    expect(KITCHEN.seats.slice(6).map((p) => [p.table, p.back, p.px, p.py])).toEqual([
+      [0, true, -270, -64], [0, true, -214, -64], [0, true, -158, -64], [1, true, 141, -64], [1, true, 197, -64], [1, true, 253, -64],
+    ]);
+    for (let i = 0; i < 12; i++) expect(yardSeat(YARD_SEATS + i)).toBe(KITCHEN.seats[i]);
+    expect(yardSeat(YARD_SEATS + 12)).toBeUndefined();
+  });
+
+  it("are walked up to over the yard's floor: each place from a tile of it, a near bench's from beside the bench", () => {
+    for (const p of KITCHEN.seats) {
+      expect(yardFloor(p.stand[0], p.stand[1])).toBe(true);
+      expect(findPath({ x: KITCHEN.way[0][0] + 0.5, y: KITCHEN.way[0][1] + 0.5 }, { x: p.stand[0] + 0.5, y: p.stand[1] + 0.5 })?.length ?? 0).toBeGreaterThan(0);
+    }
+  });
+
+  it("are the village's feast table: pots stand on their tops, a place of the left and then of the right, and the tile said of them is of the floor between the two", () => {
+    const { served, tile } = KITCHEN.feast;
+    expect(served).toHaveLength(8);
+    expect(served.map((p) => p.table)).toEqual([0, 1, 0, 1, 0, 1, 0, 1]);
+    for (const p of served) {
+      const [x0, y0, x1, y1] = KITCHEN.tops[p.table];
+      expect(p.px).toBeGreaterThan(x0 + 12);
+      expect(p.px).toBeLessThan(x1 - 12);
+      expect(p.py).toBeGreaterThan(y0);
+      expect(p.py).toBeLessThan(y1);
+    }
+    expect(yardFloor(tile[0], tile[1])).toBe(true);
+    expect(KITCHEN.floor.some(([x, y]) => x === tile[0] && y === tile[1])).toBe(true);
+    // (whoever stands within a pot's reach of it, as a page from before reaches a pot, stands on the yard's floor or cannot stand there at all)
+    for (let dx = -2; dx <= 2; dx++) for (let dy = -2; dy <= 2; dy++) {
+      if (Math.hypot(dx, dy) > 1.8) continue;
+      const [x, y] = [tile[0] + dx, tile[1] + dy];
+      expect(yardFloor(x, y) || !walkable(x, y)).toBe(true);
+    }
+    expect(yardFloor(0, 0)).toBe(false);
   });
 });

@@ -1,5 +1,5 @@
 import type { Box, BoxRefusal } from "./box";
-import { cook, hasMade, type Pot, type Taste } from "./cooking";
+import { cook, hasMade, tidied, type FeastTold, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import type { FishRefusal, Strike } from "./fishing";
@@ -430,6 +430,13 @@ export interface Keeper {
   potDown(at: [number, number], slot?: number): Promise<Did<{ pot: Pot }>>;
   potLadle(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot | null }>>;
   potTake(id: string, at: [number, number] | null): Promise<Did>;
+  /**
+   * The feast table (lib/town/cooking), where whoever keeps the game has one: null from a database that has not had
+   * v159, whose pots stand where they were set and whose page offers nothing of a table.
+   */
+  feast(): FeastTold | null;
+  /** Eat a helping of a pot on the feast table out of one of the table's own bowls: sitting down in the yard, with no bowl of mine, and nothing carried off. */
+  feastEat(id: string, at: [number, number] | null, seated: boolean): Promise<Did<{ dish: DishId }>>;
   // ── gifts: kitchen ──
   /**
    * The dimension basket (lib/town/cooking): so many helpings of the dish in a slot of my bag put into it; so many of
@@ -541,6 +548,7 @@ export class DbKeeper implements Keeper {
   private well_ = 0;
   private farmAt = 0;
   private pots_: Pot[] = [];
+  private feast_: FeastTold | null = null;
   private deal_: KeptDeal | null = null;
   private fountain_: FountainTold | null = null;
   private notices_: PinboardTold | null = null;
@@ -699,6 +707,8 @@ export class DbKeeper implements Keeper {
     }
     if (typeof a.well === "number") this.well_ = a.well;
     if (Array.isArray(a.pots)) this.pots_ = a.pots as Pot[];
+    // (told with the pots by a database that has a feast table)
+    if (a.feast && typeof a.feast === "object" && Array.isArray((a.feast as FeastTold).tile)) this.feast_ = a.feast as FeastTold;
     if (a.fountain && typeof a.fountain === "object") this.fountain_ = a.fountain as FountainTold;
     if (a.notices && typeof a.notices === "object" && Array.isArray((a.notices as PinboardTold).notices)) this.notices_ = a.notices as PinboardTold;
     // (a thing or an insect this page was built before is left out: it could not be drawn)
@@ -895,7 +905,9 @@ export class DbKeeper implements Keeper {
   gives(id: string) { return this.gifting_ && this.gives_.includes(id); }
   familiarWear(id: string | null) { return this.deed("town_familiar_wear", { p_id: id }); }
   giftUse(id: string) { return this.deed<{ left: number }>("town_gift_use", { p_id: id }); }
-  pots(): Pot[] { return this.pots_; }
+  // (as they stand at this moment: between two tellings a pot's hour on the ground may end, or the table be cleared of it)
+  pots(): Pot[] { return this.feast_ ? tidied(this.pots_, this.now(), this.feast_.tile, this.feast_.ground).pots : this.pots_; }
+  feast(): FeastTold | null { return this.feast_; }
   found(): ItemId[] { return this.found_; }
   finder(id: ItemId): string | null { return this.finders_[id] ?? null; }
   madeBefore(id: ItemId): boolean { return hasMade(this.mine, id); }
@@ -1293,6 +1305,16 @@ export class DbKeeper implements Keeper {
   }
   async potLadle(id: string, at: [number, number] | null): Promise<Did<{ pot: Pot | null }>> {
     const did = await this.deed<{ pot: Pot | null }>("town_pot_ladle", { p_id: id, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null });
+    if (did.ok) {
+      const left = did.pot;
+      this.pots_ = left ? this.pots_.map((o) => (o.id === id ? left : o)) : this.pots_.filter((o) => o.id !== id);
+      this.tell();
+      this.onDeed?.("kitchen");
+    } else if (did.why === "gone") { this.pots_ = this.pots_.filter((o) => o.id !== id); this.tell(); }
+    return did;
+  }
+  async feastEat(id: string, at: [number, number] | null, seated: boolean): Promise<Did<{ dish: DishId }>> {
+    const did = await this.deed<{ dish: DishId; pot: Pot | null }>("town_feast_eat", { p_id: id, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null, p_seated: seated });
     if (did.ok) {
       const left = did.pot;
       this.pots_ = left ? this.pots_.map((o) => (o.id === id ? left : o)) : this.pots_.filter((o) => o.id !== id);

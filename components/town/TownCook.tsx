@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { COOKING, harderCook, hasMade, isFind, madeOf, mayTake, reachOf, stirMods, stirsFor, type CookHow, type Pot } from "@/lib/town/cooking";
+import { COOKING, ODD, harderCook, hasMade, isFind, madeOf, mayTake, potNow, reachOf, stirMods, stirsFor, type CookHow, type Pot } from "@/lib/town/cooking";
 import { USES, hasThing, usesLeft, works } from "@/lib/town/gifts";
 import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/town/items";
 import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
@@ -10,12 +10,13 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { buffBy, hasBuff, isSpent, mayEat } from "@/lib/town/stamina";
 import { handOf, held } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
-import { KITCHEN, onYard } from "@/lib/town/world";
+import { KITCHEN, TILE_H, onYard } from "@/lib/town/world";
 import { YARD } from "@/lib/town/yard";
 import type { FarmDraw } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { GameResult } from "./TownGame";
 import { AT_THE_POT, BURST, BuffAura } from "./TownBuffFx";
+import TownFeast, { clockOf } from "./TownFeast";
 import TownKitchen, { type KitchenResult, type Whisper } from "./TownKitchen";
 import TownRoasting from "./TownRoasting";
 import TownStirring from "./TownStirring";
@@ -38,13 +39,17 @@ const WHY_COOK: Record<string, [string, string]> = {
   // (the hearth sprite's: lib/town/cooking's cookWith)
   unmade: ["ภูตทำได้แต่สูตรที่เราเคยทำเอง", "The sprite cooks only what you have made yourself"],
   bowl:["ไม่มีถ้วยว่าง", "No bowl to spare"],
+  // (the feast table's, lib/town/cooking: a pot that was eaten up or cleared away meanwhile; as many of one's own as the ground or the table takes)
+  gone: ["หม้อนี้ไม่อยู่แล้ว", "That pot is gone"],
+  manyGround: [`วางบนพื้นได้ทีละ ${COOKING.pots} หม้อ เก็บหม้อเก่าก่อน หรือเอาไปวางที่โต๊ะเลี้ยงในลานทำอาหาร`, `${COOKING.pots} pots on the ground at a time: take one up first, or set it on the feast table in the cooking yard`],
+  manyTable: [`โต๊ะเลี้ยงรับได้คนละ ${COOKING.feast.pots} หม้อ เก็บหม้อเก่าก่อน`, `The feast table takes ${COOKING.feast.pots} pots each: take one of yours back first`],
 };
 /** Where the kitchen's notebook is kept, a member: what was tried and what came of it (lib/town/kitchen). */
 const NOTES_KEY = "cashtown.kitchen.notes";
-type Offer = "cook" | "down" | "ladle" | "take" | "water";
+type Offer = "cook" | "down" | "ladle" | "take" | "water" | "feast";
 const VERB: Record<Offer, [string, string]> = {
   cook: ["ทำอาหาร", "Cook"], down: ["วางหม้อ", "Set the pot down"], ladle: ["ตักใส่ถ้วย", "Ladle a helping"], take: ["เก็บหม้อ", "Take the pot"],
-  water: ["เทน้ำใส่โอ่ง", "Pour it into the jar"],
+  water: ["เทน้ำใส่โอ่ง", "Pour it into the jar"], feast: ["โต๊ะเลี้ยง", "The feast table"],
 };
 /** Where the yard's water jar stands, for the few words over it: the middle of the tiles beside it. */
 const JAR_AT = KITCHEN.wash.length
@@ -76,12 +81,21 @@ const JAR_AT = KITCHEN.wash.length
  *   a bucketful and has a helping more: nothing says so but the pot itself,
  *   and the jar, which is a bucketful the less.
  *
+ * - **The feast table** (lib/town/cooking; the owner, 2026-10-07): a dish set
+ *   down in the yard is on the yard's two dining tables, drawn on their tops,
+ *   and whoever stands on the yard's floor is offered the table
+ *   (components/town/TownFeast): to eat a helping there out of the table's own
+ *   bowl, to ladle one into a bowl of their own, to set a pot of theirs on it
+ *   or take one back. A pot on the ground stands there an hour and is then on
+ *   the table; the odd dish is gone with its hour. Setting one down says until
+ *   when it stands there.
+ *
  * Nothing says what makes what. It also draws the pots that stand about, and
  * how much water the jar has.
  * What is kept is the keeper's (lib/town/keeper): the database's for a member,
  * the browser's trial in `next dev`'s test room.
  */
-export default function TownCook({ me, keeper, called, th, here, crew, cooks: others, sfx, bottom, register, onOpen, art, reduced = false, onEatNow }: {
+export default function TownCook({ me, keeper, called, th, here, crew, cooks: others, sfx, bottom, register, onOpen, art, reduced = false, onEatNow, onFeastEat, phone = false, tabbar = false }: {
   /** A picture out of the town's scenery, by its name: the scene a roast is played on (the forest's own sheet has it). */
   art?: (name: string) => Sprite | null;
   me: string;
@@ -104,6 +118,10 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   reduced?: boolean;
   /** A helping of this dish is in my bag, to be eaten now: the map finds me somewhere to sit and the meal begins there. */
   onEatNow?: (dish: DishId) => void;
+  /** A helping of a pot on the feast table is to be eaten out of the table's own bowl: the map finds me a place at the tables, and asks the keeper for it once I am sat. */
+  onFeastEat?: (dish: DishId, pot: string) => void;
+  phone?: boolean;
+  tabbar?: boolean;
 }) {
   const [, setTick] = useState(0);
   const purse = keeper.purse(), now = keeper.now(), hand = handOf(purse);
@@ -126,6 +144,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   // The pots that stand about, drawn among everything else on the map.
   const pots = keeper.pots(), potsRef = useRef<Pot[]>(pots);
   potsRef.current = pots;
+  /** The feast table, where whoever keeps the game has one; and what is on it. */
+  const feast = keeper.feast(), served = useMemo(() => pots.filter((o) => o.feast), [pots]);
   /** The bucketfuls in the yard's jar: null where whoever keeps the game knows of no jar. */
   const jar = keeper.yardJar(), jarRef = useRef<number | null>(jar);
   jarRef.current = jar;
@@ -142,7 +162,30 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
         ctx.imageSmoothingEnabled = false;
         ctx.drawImage(img, sx, sy, w, h, Math.round(x - wide / 2), Math.round(y - h * k), wide, h * k);
       };
+      // what is on the feast table: a pot at each place of the two tops, as many as there are places, and a few words
+      // over each table; from outside, under the roof, the same words over the house's doorway
+      const onTable = potsRef.current.filter((o) => o.feast);
+      if (onTable.length) {
+        const dishes = new Set(onTable.map((o) => o.dish)).size;
+        const words = thai ? `โต๊ะเลี้ยง · ${dishes} อย่าง` : `Feast table · ${dishes} dish${dishes === 1 ? "" : "es"}`;
+        if (indoors) {
+          onTable.slice(0, KITCHEN.feast.served.length).forEach((pot, i) => {
+            const place = KITCHEN.feast.served[i], at = project(place.at);
+            if (!onScreen(at)) return;
+            things.push({ depth: KITCHEN.foot.x + KITCHEN.foot.y + KITCHEN.tops[place.table][1] / (TILE_H / 2) + 0.04, draw: () =>
+              blit(potIconOf(pot.dish), at.x, at.y + (still ? 0 : Math.sin(t / 520 + i) * 0.5 * s), 24 * s) });
+          });
+          KITCHEN.feast.over.forEach((over, table) => {
+            const at = project(over);
+            if (onScreen(at) && (table === 0 || onTable.length > 1)) sign(words, at.x, at.y - 30 * s);
+          });
+        } else {
+          const at = project(KITCHEN.feast.door);
+          if (onScreen(at)) sign(words, at.x, at.y);
+        }
+      }
       for (const pot of potsRef.current) {
+        if (pot.feast) continue;
         // (a pot in the cooking yard is under its roof for whoever is outside)
         if (!indoors && onYard(pot.at[0], pot.at[1])) continue;
         // a little before whoever stands on its tile
@@ -184,12 +227,16 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (!here) return null;
     let best: Pot | null = null, far = Infinity;
     for (const pot of pots) {
+      // (what is on the feast table is the table's panel's, from anywhere in the yard)
+      if (pot.feast) continue;
       const d = Math.hypot(pot.at[0] - here.tile[0], pot.at[1] - here.tile[1]);
       if (d <= reachOf(pot) && d < far) { best = pot; far = d; }
     }
     return best;
   }, [here, pots]);
   const atYard = here?.place === "stove" || here?.place === "table" || here?.place === "fire" || here?.place === "camp";
+  /** Whether I stand on the cooking yard's floor: from where the feast table is reached, and where a dish set down goes onto it. */
+  const inYard = !!here && onYard(here.tile[0], here.tile[1]);
   // The phoenix flame in a bottle (lib/town/gifts): a stove wherever its owner stands still, on any map. It is set from
   // the bag's panel (a word sent to this page, since the bag knows nothing of the kitchen), stays while I stand there,
   // and is gone when I walk off. Nothing that keeps the game asks where a cook stands: this is the page's own.
@@ -216,6 +263,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (near && mayTake(near, me)) offers.push("take");
     // (by the water jar, with a bucket that has water in it)
     if (here.place === "wash" && keeper.yardCanPour()) offers.push("water");
+    // (on the yard's floor: the feast table, while there is anything on it or a pot of mine to set there)
+    if (feast && inYard && (served.length > 0 || purse.bag.some((s) => s?.item === "potFull" && s.of?.dish !== ODD))) offers.push("feast");
   }
 
   /* ── cooking ── */
@@ -357,6 +406,48 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     }, reduced ? 200 : 1500);
   }, [spriting, spriteMay, spriteLeft, things, cooks, sfx, vfx, cooked, reduced]);
 
+  /* ── the feast table (lib/town/cooking) ── */
+  /** What is said of a pot just set down: where it is, and until when (nothing, where whoever keeps the game has no feast table: it stands until it is empty). */
+  const stood = useCallback((pot: Pot) => {
+    const is = feast ? potNow(pot, keeper.now(), feast.ground) : null;
+    if (!is || !Number.isFinite(is.until)) return null;
+    const till = clockOf(is.until);
+    return is.feast ? (th ? `วางบนโต๊ะเลี้ยงแล้ว อยู่ถึง ${till} น.` : `On the feast table until ${till}`)
+      : pot.dish === ODD ? (th ? `วางไว้ตรงนี้ถึง ${till} น. แล้วจะถูกเก็บทิ้ง` : `It stands here until ${till}, and is then cleared away`)
+      : (th ? `วางไว้ตรงนี้ถึง ${till} น. แล้วจะย้ายไปโต๊ะเลี้ยงในลานทำอาหาร` : `It stands here until ${till}, and is then on the feast table in the cooking yard`);
+  }, [feast, keeper, th]);
+  /** Why a pot was not set down, in the words for where it would have gone: as many of one's own as the ground or the table takes. */
+  const whyDown = useCallback((why: string, dish: DishId | undefined) => (why === "many" && feast ? (inYard && dish !== ODD ? "manyTable" : "manyGround") : why), [feast, inYard]);
+  const [feastOpen, setFeastOpen] = useState(false);
+  const [feastSaid, setFeastSaid] = useState<string | null>(null);
+  const [feastBusy, setFeastBusy] = useState(false);
+  // (walking off the yard's floor, or anything else opening over the map, puts the table's panel away)
+  useEffect(() => { if (!inYard) setFeastOpen(false); }, [inYard]);
+  useEffect(() => { if (feastOpen) setFeastSaid(null); }, [feastOpen]);
+  const wordsOf = useCallback((why: string) => { const w = WHY_COOK[why] ?? WHY[why as keyof typeof WHY]; return w ? (th ? w[0] : w[1]) : why; }, [th]);
+  /** At the table's panel: a helping into a bowl of mine, a pot of mine taken back, or the pot in a slot of my bag set on the table. */
+  const feastDo = useCallback(async (what: "ladle" | "take" | "set", pot: Pot | null, slot = -1) => {
+    if (!here || feastBusy) return;
+    setFeastBusy(true);
+    const set = what === "set" ? await keeper.potDown(here.tile, slot) : null;
+    const did = set ?? (what === "ladle" ? await keeper.potLadle(pot!.id, here.tile) : await keeper.potTake(pot!.id, here.tile));
+    setFeastBusy(false);
+    if (!did.ok) { setFeastSaid(wordsOf(what === "ladle" && did.why === "tool" ? "bowl" : what === "set" && did.why === "many" ? "manyTable" : did.why)); return; }
+    sfx?.wake();
+    sfx?.work(what === "ladle" ? "ladle" : "down");
+    setFeastSaid(what === "ladle" ? (th ? `ตัก${name(pot!.dish)}ใส่ถ้วยแล้ว` : `A helping of ${name(pot!.dish).toLowerCase()} is in your bowl`)
+      : what === "take" ? (th ? "เก็บหม้อคืนเข้ากระเป๋าแล้ว" : "The pot is back in your bag")
+      : (set?.ok ? stood(set.pot) : null) ?? (th ? "วางบนโต๊ะแล้ว" : "Set on the table"));
+  }, [here, feastBusy, keeper, wordsOf, sfx, th, name, stood]);
+  /** A helping of a pot on the table, out of the table's own bowl: the map finds me a place to sit, and the keeper is asked once I am sat. */
+  const feastEat = useCallback((pot: Pot) => { setFeastOpen(false); sfx?.wake(); onFeastEat?.(pot.dish, pot.id); }, [onFeastEat, sfx]);
+  // (what the keeper refused once I was sat: the map asked it, and says so here)
+  useEffect(() => {
+    const said = (e: Event) => { const why = String((e as CustomEvent<string>).detail ?? "gone"); say(why === "none" ? "gone" : why); };
+    window.addEventListener("cashtown:feast-refused", said);
+    return () => window.removeEventListener("cashtown:feast-refused", said);
+  }, [say]);
+
   /* ── from the card of what came of it ── */
   /** Where the pot just cooked is in the bag: the slot it was put in while it is still there, or else the first pot of its dish (-1: none). */
   const cookedPot = useCallback(() => {
@@ -381,6 +472,20 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     const slot = cookedPot();
     if (slot < 0) { say("none"); return; }
     const did = await keeper.potDown(here.tile, slot);
+    if (!did.ok) { say(whyDown(did.why, keeper.purse().bag[slot]?.of?.dish)); return; }
+    sfx?.wake(); sfx?.work("down");
+    vfx.add("dust", null, { lift: 2 });
+    setResult(null);
+    setOpen(false);
+    const words = stood(did.pot);
+    if (words) setNote(words);
+  }, [here, cookedPot, keeper, say, sfx, vfx, whyDown, stood]);
+  /** The pot just cooked thrown away, as the bag throws a thing away: it lies where I stand ten seconds, and is gone (offered for the odd dish, which the feast table does not take). */
+  const pour = useCallback(async () => {
+    if (!here) return;
+    const slot = cookedPot();
+    if (slot < 0) { say("none"); return; }
+    const did = await keeper.groundDrop(slot, here.tile);
     if (!did.ok) { say(did.why); return; }
     sfx?.wake(); sfx?.work("down");
     vfx.add("dust", null, { lift: 2 });
@@ -393,6 +498,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   const heldSlot = hand === "potFull" ? keeper.handSlot() : -1, heldPot = heldSlot < 0 ? null : purse.bag[heldSlot]?.of ?? null;
   const act = useCallback(async (offer: Offer) => {
     if (offer === "cook") { setResult(null); setOpen(true); return; }
+    if (offer === "feast") { setFeastOpen(true); return; }
     if (offer === "water") {
       const poured = await keeper.yardPour(here?.tile ?? null);
       if (!poured.ok) { say(poured.why); return; }
@@ -402,21 +508,25 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       setNote(`${th ? "โอ่งน้ำ" : "Water jar"} ${keeper.yardJar() ?? 0}/${YARD.holds}`);
       return;
     }
-    const did = offer === "down" ? (here ? await keeper.potDown(here.tile, heldSlot < 0 ? undefined : heldSlot) : null)
+    const down = offer === "down" && here ? await keeper.potDown(here.tile, heldSlot < 0 ? undefined : heldSlot) : null;
+    const did = offer === "down" ? down
       : offer === "ladle" ? (near ? await keeper.potLadle(near.id, here?.tile ?? null) : null) : (near ? await keeper.potTake(near.id, here?.tile ?? null) : null);
     if (!did) return;
-    if (!did.ok) { say(offer === "ladle" && did.why === "tool" ? "bowl" : did.why); return; }
+    if (!did.ok) { say(offer === "ladle" && did.why === "tool" ? "bowl" : offer === "down" ? whyDown(did.why, heldPot?.dish) : did.why); return; }
     sfx?.wake();
     sfx?.work(offer === "ladle" ? "ladle" : "down");
     if (offer === "ladle" && near) vfx.add("steam", { x: near.at[0] + 0.8, y: near.at[1] + 0.8 }, { lift: 16 });
     else vfx.add("dust", null, { lift: 2 });
     if (offer === "ladle" && near) setNote(`${name(near.dish)} ×1`);
-  }, [keeper, here, near, heldSlot, sfx, name, say, vfx]);
+    // (a pot set down says where it is and until when)
+    const words = down?.ok ? stood(down.pot) : null;
+    if (words) setNote(words);
+  }, [keeper, here, near, heldSlot, heldPot, sfx, name, say, vfx, whyDown, stood]);
 
   // The space bar is the first thing on offer (while a game or the cooking panel is up it is theirs).
   const first = offers[0];
   useEffect(() => {
-    if (open || stirring || !first) return;
+    if (open || stirring || feastOpen || !first) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
@@ -427,7 +537,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     };
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
-  }, [open, stirring, first, act]);
+  }, [open, stirring, feastOpen, first, act]);
 
   // (for scripts in `next dev`)
   useEffect(() => {
@@ -439,6 +549,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       result: () => result, again: () => setResult(null), eatNow, potDown, notes: () => notes, tool: takeUp, shut: () => { setResult(null); setOpen(false); },
       places: () => KITCHEN.places, floor: () => KITCHEN.floor, note: () => note,
       wash: () => KITCHEN.wash, jar: () => keeper.yardJar(),
+      // (the feast table: whether whoever keeps the game has one, what is on it, its panel, and its deeds)
+      feast: () => ({ told: feast, pots: served, open: feastOpen, said: feastSaid, inYard }), feastShow: (on: boolean) => setFeastOpen(on), feastDo, feastEat, pour,
       // (the kitchen's gifts)
       spoon: askSpoon, whisper: () => whisper, sprite: goSprite, spriteMay: () => spriteMay, spriting: () => spriting,
       stove: () => window.dispatchEvent(new CustomEvent("cashtown:stove")), stoveSet: () => stove, flame: (on: boolean) => setFlameOn(on), flameOn: () => flameOn,
@@ -451,7 +563,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   // (the better I am at the kitchen's line, the harder its good dishes are to cook: lib/town/cooking's harderCook. Nothing says so but the game.)
   const harder = stirring ? harderCook(madeOf(stirring.things), keeper.lines()?.lines.kitchen.points ?? 0) : 1;
   const table = open && !stirring && atPlace;
-  if (!open && !stirring && !offers.length && !note) return null;
+  if (!open && !stirring && !feastOpen && !offers.length && !note) return null;
   return (
     <>
     {table && (
@@ -459,13 +571,17 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
                    result={result} why={refusal} bottom={bottom} fire={art?.("gameFire") ?? null}
                    eat={{ bowl: held(purse.bag, BOWL) > 0, meal: mayEat(purse, now, keeper.helpings()) }}
                    onAdd={add} onDrop={drop} onClear={() => setThings([])} onTool={takeUp} onGo={go} onClose={() => { setResult(null); setOpen(false); }}
-                   onAgain={() => setResult(null)} onEat={eatNow} onPotDown={potDown}
+                   onAgain={() => setResult(null)} onEat={eatNow} onPotDown={potDown} feast={!!feast && inYard} onPour={keeper.ground() ? pour : undefined}
                    spoon={hasThing(purse, "thingSpoon") ? { left: usesLeft(purse, "thingSpoon", now), most: USES.thingSpoon?.n ?? 0, told: whisper, busy: asking } : null} onSpoon={askSpoon} onSpoonShut={() => setWhisper(null)}
                    fam={spriteOn ? { left: spriteLeft, most: USES.famSprite?.n ?? 0, may: spriteMay, cooking: spriting } : null} onFam={goSprite}
                    flame={flameHad ? { left: flameLeft, most: USES.thingFlame?.n ?? 0, armed: flameOn } : null} onFlame={setFlameOn} />
     )}
+    {feastOpen && feast && inYard && !open && !stirring && (
+      <TownFeast th={th} phone={phone} tabbar={tabbar} me={me} pots={served} purse={purse} now={now} most={keeper.helpings()} feast={feast} said={feastSaid} busy={feastBusy}
+                 onEat={feastEat} onLadle={(pot) => void feastDo("ladle", pot)} onTake={(pot) => void feastDo("take", pot)} onSet={(slot) => void feastDo("set", null, slot)} onClose={() => setFeastOpen(false)} />
+    )}
     <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
-      {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
+      {note && !feastOpen && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {stirring ? (
         <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
           <BuffAura ids={AT_THE_POT.filter((id) => hasBuff(purse, now, id))} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1" />
@@ -481,13 +597,17 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
                           onDone={finish} onCancel={() => setStirring(null)} />
           )}
         </div>
-      ) : open ? null : (
+      ) : open || feastOpen ? null : (
         <div className="pointer-events-auto mb-14 flex flex-wrap items-center justify-center gap-2">
           {offers.map((o, i) => (
-            <button key={o} type="button" onClick={() => act(o)}
+            <button key={o} type="button" onClick={() => act(o)} data-cook-offer={o}
                     className={`pop-in pressable flex min-h-12 items-center gap-2 rounded-full px-6 text-read font-semibold shadow-xl shadow-black/40 ${i ? "border border-line-lit bg-surface/95 text-ink" : "bg-accent text-bg"}`} data-state="open">
-              {/* (which pot it is, is said: there may be several in the bag) */}
-              {o === "down" && heldPot ? (th ? `วางหม้อ${ITEMS[heldPot.dish].name.th}` : `Set down the pot of ${ITEMS[heldPot.dish].name.en.toLowerCase()}`) : th ? VERB[o][0] : VERB[o][1]}
+              {/* (which pot it is, is said: there may be several in the bag; and where it goes, when that is the feast table) */}
+              {o === "down" && heldPot ? (feast && inYard && heldPot.dish !== ODD
+                  ? (th ? `วางหม้อ${ITEMS[heldPot.dish].name.th}บนโต๊ะเลี้ยง` : `Set the pot of ${ITEMS[heldPot.dish].name.en.toLowerCase()} on the feast table`)
+                  : th ? `วางหม้อ${ITEMS[heldPot.dish].name.th}` : `Set down the pot of ${ITEMS[heldPot.dish].name.en.toLowerCase()}`)
+                : th ? VERB[o][0] : VERB[o][1]}
+              {o === "feast" && served.length > 0 && <span className="font-data text-ui font-normal tabular-nums opacity-80">{served.length}</span>}
               {!i && <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>}
             </button>
           ))}

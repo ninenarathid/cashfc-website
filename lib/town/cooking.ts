@@ -2,7 +2,7 @@ import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
 import { harderFor, hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
-import { begun, hasBuff, mayEat, sitDown, spend } from "./stamina";
+import { STAMINA, begun, hasBuff, mayEat, nextMealAt, sitDown, spend } from "./stamina";
 import type { TimingMods } from "./timing";
 import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
@@ -85,8 +85,26 @@ export const COOKING = {
   tok: 3.2,
   /** The helpings more a pot gives when whoever cooks has a ladle. */
   ladle: 1,
-  /** How many pots of food one person may leave standing about at a time. */
-  pots: 6,
+  /** How many pots of food one person may leave standing on the ground at a time (six, until there was a feast table). */
+  pots: 2,
+  /**
+   * The feast table (the owner, 2026-10-07, of a member's "ต้องมีโต๊ะวางอาหารเป็นหลักแหล่งแล้ว ตอนนี้เกลื่อนเมือง": a pot set
+   * down stood where it was until its last helping was out, six a member, and far more was cooked than eaten). The
+   * cooking yard's two dining tables are the village's table:
+   * - a pot of a dish set down on the yard's floor goes onto it, and is reached from anywhere on that floor;
+   * - a pot set down anywhere else stands there `ground` minutes, a picnic for whoever is about, and is then on the
+   *   table too ("ยังให้วางพื้นได้ไหม: ได้ตามที่คุณแนะนำ");
+   * - what is on the table is cleared away when the meal's hours after the ones it came there in are over, whatever
+   *   is left of it ("ของเหลือหมดเวลาแล้วไปไหน: หายไปเลย");
+   * - **the odd dish never comes to the table** ("คนชอบทิ้ง อาหารแปลกๆ ที่ได้จากการใช้สูตรผิด"): set down anywhere, the
+   *   yard too, it stands its time on the ground and is gone;
+   * - `pots` is how many one person may have on the table at a time, of those they set there themselves;
+   * - **the table has bowls of its own** ("ถ้วยของโต๊ะ: เอา"): somebody sitting down in the yard eats a helping
+   *   straight from a pot of the table with no bowl of theirs, and carries nothing away (`feastEat`). Ladled into a
+   *   bowl of one's own it goes into the bag, as from any pot.
+   * The minutes and the two counts are mine, not his.
+   */
+  feast: { pots: 6, ground: 60 },
   /** The odd dish: a helping for every so many things put in, never fewer than one or more than so many. */
   odd: { per: 2, most: 4 },
   /**
@@ -281,17 +299,82 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
   return { ok: true, made, n, purse: { ...spent, bag: put(bag, made, n) } };
 }
 
-/** A pot set down in the world: whose, what is in it, how many helpings are left, where it stands, and whether it stands on a rattan table. */
-export interface Pot { id: string; by: string; dish: DishId; left: number; at: [number, number]; tok?: boolean }
-/** How near one has to stand to a pot to ladle from it. */
+/**
+ * A pot set down in the world: whose, what is in it, how many helpings are left, where it stands, and whether it
+ * stands on a rattan table. Since the feast table: the moment it came to where it is (`set`), whether that is the
+ * table (`feast`; `at` is then the tile a page from before is to take it to stand on), and what its cook is called.
+ * One told by a keeper from before the table has no `set`, and stands where it was set until it is empty.
+ */
+export interface Pot { id: string; by: string; dish: DishId; left: number; at: [number, number]; tok?: boolean; set?: number; feast?: boolean; name?: string }
+/** How near one has to stand to a pot on the ground to ladle from it. */
 export const reachOf = (pot: Pot) => (pot.tok ? COOKING.tok : COOKING.reach);
+/** Whether somebody standing on a tile reaches a pot: beside it, for one on the ground; anywhere on the yard's floor (`yard`: whether their tile is of it), for one on the feast table. */
+export const reaches = (pot: Pot, at: [number, number], yard: boolean) =>
+  (pot.feast ? yard : Math.hypot(pot.at[0] - at[0], pot.at[1] - at[1]) <= reachOf(pot));
 
-/** Set the pot of food in a slot of the bag down on a tile. (On a rattan table, when one is carried: more can gather round it.) */
-export function setDown(purse: Purse, slot: number, me: string, at: [number, number], id: string): Done<{ purse: Purse; pot: Pot }> {
+/** When what came to the feast table at a moment is cleared away: as the meal's hours after the ones it came in end. */
+export const feastEnds = (from: number) => nextMealAt(nextMealAt(from));
+/**
+ * Where a pot is at a moment, and until when: on the ground where it was set, for its hour; then on the feast table,
+ * as if it had been set there as that hour ended (never the odd dish, which is gone with its hour); nowhere (null)
+ * once the table has been cleared of it. One that has no `set` stands as it was told, for good. (`ground`: the
+ * minutes of that hour, as whoever keeps the game counts them.)
+ */
+export function potNow(pot: Pot, now: number, ground = COOKING.feast.ground): { feast: boolean; from: number; until: number } | null {
+  if (pot.set === undefined) return { feast: !!pot.feast, from: 0, until: Infinity };
+  if (pot.feast) return now < feastEnds(pot.set) ? { feast: true, from: pot.set, until: feastEnds(pot.set) } : null;
+  const moved = pot.set + ground * 60_000;
+  if (now < moved) return { feast: false, from: pot.set, until: moved };
+  return pot.dish !== ODD && now < feastEnds(moved) ? { feast: true, from: moved, until: feastEnds(moved) } : null;
+}
+/**
+ * The pots as they stand at a moment (whoever keeps them does this before anything is asked of them): those whose
+ * time is up are gone, and those whose hour on the ground is up are on the feast table, said to stand on `tile`,
+ * on no rattan table of anybody's.
+ */
+export function tidied(pots: Pot[], now: number, tile: [number, number], ground = COOKING.feast.ground): { pots: Pot[]; gone: Pot[] } {
+  const out: Pot[] = [], gone: Pot[] = [];
+  for (const pot of pots) {
+    const is = potNow(pot, now, ground);
+    if (!is) { gone.push(pot); continue; }
+    if (!is.feast || pot.feast) { out.push(pot); continue; }
+    const { tok: _, ...rest } = pot;
+    out.push({ ...rest, feast: true, set: is.from, at: tile });
+  }
+  return { pots: out, gone };
+}
+/** Whether somebody may set one more pot down, on the ground or on the feast table: fewer of their own stand there than one person may leave. */
+export const mayLeave = (pots: Pot[], me: string, feast: boolean) =>
+  pots.filter((o) => o.by === me && !!o.feast === feast).length < (feast ? COOKING.feast.pots : COOKING.pots);
+/** The feast table as whoever keeps the game tells a page of it: how many pots of one member's it takes, the minutes a pot stands on the ground first, and the tile a pot on it is said to stand on. */
+export interface FeastTold { pots: number; ground: number; tile: [number, number] }
+
+/**
+ * Set the pot of food in a slot of the bag down on a tile. (On a rattan table, when one is carried: more can gather
+ * round it.) `how`, where whoever keeps the game has a feast table: the moment, whether the tile is of the cooking
+ * yard's floor, and the tile a pot on the table is said to stand on. A dish set down in the yard is on the table;
+ * the odd dish, and anything set down elsewhere, is on the ground where it was set.
+ */
+export function setDown(purse: Purse, slot: number, me: string, at: [number, number], id: string, how?: { now: number; yard: boolean; tile: [number, number] }): Done<{ purse: Purse; pot: Pot }> {
   const s = purse.bag[slot];
   if (!s || s.item !== "potFull" || !s.of) return no("none");
-  const tok = held(purse.bag, "tok") > 0;
-  return { ok: true, pot: { id, by: me, dish: s.of.dish, left: s.of.left, at, ...(tok ? { tok } : {}) }, purse: { ...purse, bag: purse.bag.map((b, i) => (i === slot ? null : b)) } };
+  const tok = held(purse.bag, "tok") > 0, feast = !!how?.yard && s.of.dish !== ODD;
+  const pot: Pot = feast ? { id, by: me, dish: s.of.dish, left: s.of.left, at: how!.tile, feast: true, set: how!.now }
+    : { id, by: me, dish: s.of.dish, left: s.of.left, at, ...(tok ? { tok } : {}), ...(how ? { set: how.now } : {}) };
+  return { ok: true, pot, purse: { ...purse, bag: purse.bag.map((b, i) => (i === slot ? null : b)) } };
+}
+/**
+ * A helping eaten at the feast table, out of one of the table's own bowls (the owner, 2026-10-07: "ถ้วยของโต๊ะ: เอา"):
+ * for somebody sitting down, who may begin a helping now (lib/town/stamina's `mayEat`). It is begun at once and is
+ * never in the bag: nothing of the table's is carried off, and no bowl comes back when it is eaten (`lent`). Gives
+ * the pot as it is afterwards: null when that was its last helping.
+ */
+export function feastEat(purse: Purse, pot: Pot, seated: boolean, now: number, most = STAMINA.bowls): Done<{ purse: Purse; pot: Pot | null; dish: DishId }> {
+  if (!pot.feast || pot.left < 1) return no("none");
+  if (!seated) return no("stand");
+  if (!mayEat(purse, now, most)) return no("meal");
+  const meal = begun(purse, pot.dish, now);
+  return { ok: true, dish: pot.dish, pot: pot.left > 1 ? { ...pot, left: pot.left - 1 } : null, purse: { ...purse, ...meal, eating: { ...meal.eating!, lent: true } } };
 }
 /**
  * Ladle a helping out of a pot that is set down, into a bowl of one's own: the bowl leaves the bag, and the helping

@@ -15,14 +15,14 @@ import { existsSync, readdirSync } from "node:fs";
 
 await import("./repo-ts-town.mjs");
 const { DbKeeper } = await import("@/lib/town/keeper");
-const { FARM, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
+const { FARM, KITCHEN, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
 const { shelfOf } = await import("@/lib/town/orders");
 const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town/farm");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v159"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -392,6 +392,49 @@ try {
     // (taken up again, so that nothing of this stands about for what comes after)
     for (const o of A.pots().filter((p) => p.by === a)) await A.potTake(o.id, o.at);
     ok("…and its pots taken up again, none stands about", A.pots().length === 0 && (await sql(`select count(*)::int as n from public.town_pots`))[0].n === 0, A.pots());
+  }
+  {
+    // the feast table (v159): the keeper is told of the table with the pots; a dish set down on the yard's floor is on
+    // it, kept at once; the table's bowl is asked for by the pot, the tile and that one sits, and what it answers is kept
+    const feasting = (await sql(`select to_regprocedure('public.town_feast_eat(bigint, integer, integer, boolean)') is not null as there`))[0].there;
+    const full = (left) => ({ item: "potFull", n: 1, of: { dish: "friedMinnow", left } });
+    const yard = KITCHEN.floor[12], seat = KITCHEN.floor[20];
+    const stopA = A.look("kitchen"), stopB = B.look("kitchen");
+    await purse(a, 0, [full(2)]);
+    await purse(b, 0, []);
+    await settled(A); await settled(B);
+    if (feasting) {
+      ok("the keeper is told of the feast table with the pots: how many, how long on the ground, its tile", A.feast()?.pots === 6 && A.feast().ground === 60 && A.feast().tile?.join() === KITCHEN.feast.tile.join() && !("floor" in A.feast()), A.feast());
+      const set = await A.potDown(yard, 0);
+      ok("a dish set down on the yard's floor is on the table: kept here at once, said to stand on the table's tile, with its cook's name",
+        set.ok && set.pot.feast === true && A.pots().length === 1 && A.pots()[0].feast === true && A.pots()[0].at.join() === KITCHEN.feast.tile.join() && typeof A.pots()[0].set === "number" && typeof A.pots()[0].name === "string", { set, pots: A.pots() });
+      B.nudged("kitchen");
+      await settled(B);
+      const standing = await B.feastEat(B.pots()[0]?.id, seat, false);
+      ok("standing, the table's bowl feeds nobody, and the keeper says why", !standing.ok && standing.why === "stand" && !B.purse().eating, standing);
+      const ate = await B.feastEat(B.pots()[0]?.id, seat, true);
+      const asked = sent.filter((x) => x.as === "B" && x.fn === "town_feast_eat").at(-1)?.args;
+      ok("sitting down in the yard with an empty bag: a helping begun out of the table's bowl, kept here at once, and the pot a helping the less", ate.ok && ate.dish === "friedMinnow"
+        && B.purse().eating?.dish === "friedMinnow" && B.purse().eating.lent === true && B.purse().bag.every((x) => !x) && B.pots()[0]?.left === 1, { ate, eating: B.purse().eating, pots: B.pots() });
+      ok("…asked for by the pot, the tile stood on and that one sits", !!asked && String(asked.p_id) === String(A.pots()[0].id) && asked.p_x === seat[0] && asked.p_y === seat[1] && asked.p_seated === true, asked);
+      const gone = await B.feastEat("999999", seat, true);
+      ok("a pot that is not there: gone, and nothing kept of it", !gone.ok && gone.why === "gone", gone);
+      A.nudged("kitchen");
+      await settled(A);
+      const back = await A.potTake(A.pots()[0]?.id, yard);
+      ok("its cook takes it back from the yard's floor, with what is left", back.ok && A.pots().length === 0 && A.purse().bag[0]?.of?.left === 1, { back, bag: A.purse().bag.filter(Boolean) });
+    } else {
+      ok("a database that has not had v159 tells of no feast table: the page offers none", A.feast() === null, A.feast());
+      const set = await A.potDown(yard, 0);
+      ok("…and a pot set down in the yard stands where it was set, as it always did", set.ok && !set.pot.feast && set.pot.at.join() === yard.join() && A.pots().length === 1, { set, pots: A.pots() });
+      const ate = await B.feastEat(A.pots()[0]?.id, seat, true);
+      ok("…and the table's bowl, were it asked for, is not there to answer: nothing is begun", !ate.ok && !B.purse().eating, ate);
+      await A.potTake(A.pots()[0]?.id, yard);
+    }
+    stopA(); stopB();
+    await sql(`delete from public.town_pots`);
+    await purse(a, 0, []); await purse(b, 0, []);
+    await settled(A); await settled(B);
   }
 
   section("a deal between two");

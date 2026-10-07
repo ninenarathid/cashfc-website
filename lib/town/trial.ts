@@ -1,5 +1,5 @@
 import { newBox, roomyBox, stow, unstow, type Box } from "./box";
-import { COOKING, cook, hasMade, isFind, ladle, serve, setDown, takeUp, type Pot, type Taste } from "./cooking";
+import { cook, feastEat, hasMade, isFind, ladle, mayLeave, serve, setDown, takeUp, tidied, type Pot, type Taste } from "./cooking";
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
 import { backBait, hookBait, landCatch, loseBait } from "./fishing";
@@ -25,7 +25,7 @@ import {
   RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, roundOf, takeBack, takeOff, wear,
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
-import { bedCorner, bedOf } from "./world";
+import { KITCHEN, bedCorner, bedOf, yardFloor } from "./world";
 import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 // ── gifts: kitchen ──
@@ -1030,8 +1030,8 @@ export class Trial {
   clearFarm() { this.set(FARM, null); this.set(BEDS, null); this.tell(); }
 
   /* ── the kitchen: the pots set down and what has been found are the browser's, like the farm ── */
-  /** The pots of food that stand about, for anybody with a bowl. */
-  pots(): Pot[] { return this.read<Pot[]>(POTS, () => [], Array.isArray); }
+  /** The pots of food that stand about, for anybody with a bowl: as they stand now (lib/town/cooking's tidied: an hour on the ground, then the feast table, then gone). */
+  pots(): Pot[] { return tidied(this.read<Pot[]>(POTS, () => [], Array.isArray), this.now(), KITCHEN.feast.tile).pots; }
   /** Everything anybody in this browser has made at least once: a find is everybody's (the owner: "เจอ 1 คน เท่ากับ ทุกคนรู้สูตร"). */
   found(): ItemId[] { return this.read<ItemId[]>(FOUND, () => [], Array.isArray); }
   /** Who found each of them first, as they were called then. */
@@ -1072,13 +1072,19 @@ export class Trial {
     this.save(purse);
     return { ...did, purse, first, ...(watered.fresh ? { fresh: true } : {}) };
   }
-  /** Set a pot of food down where I stand (the one in `slot`, or the first there is), if nothing stands there and I have not left too many about already. */
+  /**
+   * Set a pot of food down where I stand (the one in `slot`, or the first there is): on the feast table, for a dish
+   * set down in the cooking yard; else on the ground, if nothing stands there. Refused when I have left as many
+   * there already as one person may.
+   */
   potDown(at: [number, number], slot?: number): Done<{ purse: Purse; pot: Pot }> {
-    const p = this.purse(), pots = this.pots();
-    if (pots.some((o) => Math.abs(o.at[0] - at[0]) <= 1 && Math.abs(o.at[1] - at[1]) <= 1)) return no("taken");
-    if (pots.filter((o) => o.by === this.id).length >= COOKING.pots) return no("many");
-    const did = setDown(p, slot ?? p.bag.findIndex((s) => s?.item === "potFull"), this.id, at, `${this.id}-${this.now()}`);
+    const p = this.purse(), pots = this.pots(), now = this.now();
+    const did = setDown(p, slot ?? p.bag.findIndex((s) => s?.item === "potFull"), this.id, at, `${this.id}-${now}`, { now, yard: yardFloor(at[0], at[1]), tile: KITCHEN.feast.tile });
     if (!did.ok) return did;
+    if (!did.pot.feast && pots.some((o) => !o.feast && Math.abs(o.at[0] - at[0]) <= 1 && Math.abs(o.at[1] - at[1]) <= 1)) return no("taken");
+    if (!mayLeave(pots, this.id, !!did.pot.feast)) return no("many");
+    // (told with what its cook is called, as the database tells a pot)
+    did.pot.name = this.nameOf()(this.id);
     this.write(POTS, [...pots, did.pot]);
     this.save(did.purse);
     return did;
@@ -1093,6 +1099,18 @@ export class Trial {
     this.write(POTS, left ? pots.map((o) => (o.id === id ? left : o)) : pots.filter((o) => o.id !== id));
     this.save(did.purse);
     this.counted({ from: "deed", what: "ladle", thing: pot.dish, n: 1, doc: { pot: id, ...(pot.by !== this.id ? { whose: pot.by } : {}) } });
+    return did;
+  }
+  /** Eat a helping at the feast table, out of one of the table's own bowls: begun at once, never in my bag. */
+  feastEat(id: string, seated: boolean): Done<{ purse: Purse; pot: Pot | null; dish: DishId }> {
+    const pots = this.pots(), pot = pots.find((o) => o.id === id);
+    if (!pot) return no("gone");
+    const did = feastEat(this.purse(), pot, seated, this.now());
+    if (!did.ok) return did;
+    const left = did.pot;
+    this.write(POTS, left ? pots.map((o) => (o.id === id ? left : o)) : pots.filter((o) => o.id !== id));
+    this.save(did.purse);
+    this.counted({ from: "deed", what: "ladle", thing: pot.dish, n: 1, doc: { pot: id, bowl: "table", ...(pot.by !== this.id ? { whose: pot.by } : {}) } });
     return did;
   }
   /** Take my pot of food up again. */

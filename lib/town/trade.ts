@@ -169,8 +169,12 @@ export interface Purse {
    * the most (lib/town/stamina). A purse from before helpings were counted has no `bowls`: a meal it ate is one.
    */
   meals: { day: number; eaten: [boolean, boolean, boolean]; bowls?: [number, number, number] };
-  /** The meal being eaten: the dish, which meal of the day it is, when it was begun, how far it had been counted, and the stamina it has given so far. */
-  eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number } | null;
+  /**
+   * The meal being eaten: the dish, which meal of the day it is, when it was begun, how far it had been counted, and
+   * the stamina it has given so far. `lent`: it is eaten at the feast table out of one of the table's bowls
+   * (lib/town/cooking's feastEat), so no bowl comes back to the bag when it ends.
+   */
+  eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number; lent?: boolean } | null;
   /** The buff of the last helping eaten, as it was kept before buffs had levels: still written, for a page that knows no better. */
   buff: { id: BuffId; until: number } | null;
   /** What meals have left, each while it lasts: held together, each at its level (lib/town/stamina's mealBuffs reads them; a purse from before has only `buff`). */

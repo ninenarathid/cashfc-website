@@ -30,8 +30,8 @@ describe("what the stall has", () => {
       expect(g.stock).toBeGreaterThanOrEqual(g.each);
       expect(it.stack).toBeGreaterThanOrEqual(1);
     }
-    // a tool is one to a slot
-    for (const id of SHELF) if (ITEMS[id].kind === "tool") expect(ITEMS[id].stack).toBe(1);
+    // a tool is one to a slot, but for the bowl (three, since 2026-10-08)
+    for (const id of SHELF) if (ITEMS[id].kind === "tool") expect(ITEMS[id].stack).toBe(id === "bowl" ? 3 : 1);
     // what the stall does not sell cannot be bought
     expect(buy(rich(), newStall(), "koi", 1, NOW)).toEqual({ ok: false, why: "none" });
   });

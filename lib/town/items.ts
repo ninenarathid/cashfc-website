@@ -370,7 +370,8 @@ export const ITEMS = {
   sushiMat: it("tool", "มู่ลี่ไม้ไผ่", "Bamboo mat", "ซี่ไม้ไผ่เล็กๆ ร้อยด้วยเชือกเป็นแผ่น ม้วนได้", "Thin bamboo slats strung together into a mat that rolls up", 1, 50, 2),
   stoneBowl: it("tool", "ชามหิน", "Stone bowl", "ชามหินสีดำหนาหนัก ผิวด้าน มีฐานไม้รอง", "A thick, heavy bowl of dull black stone on a wooden stand", 1, 70, 2),
   // for a pot of food set down for others: a helping is ladled into a bowl, which leaves the bag with it and is back when it has been eaten (the owner, 2026-10-04)
-  bowl: it("tool", "ถ้วย", "Bowl", "ถ้วยเคลือบสีขาวนวล ขอบสีน้ำเงิน", "A glazed, cream-white bowl with a blue rim", 1, 3),
+  // (three to a slot, the one tool that is not one to a slot: the owner, 2026-10-08, "ช่วยแก้ให้ถ้วย stack ได้ด้วย ซัก 3 ใบ": a meal's hours take three helpings, and three bowls took three of a bag's ten slots)
+  bowl: it("tool", "ถ้วย", "Bowl", "ถ้วยเคลือบสีขาวนวล ขอบสีน้ำเงิน", "A glazed, cream-white bowl with a blue rim", 3, 3),
   // a bigger pail for the water, and something to cook in
   bucketIron: it("tool", "ถังสังกะสี", "Tin pail", "ถังสังกะสีใบใหญ่สีเทาเงา มีหูหิ้วเหล็ก", "A big, shiny grey tin pail with an iron handle", 1, 30, 2),
   apron: it("tool", "ผ้ากันเปื้อน", "Apron", "ผ้าผืนสีขาวมีสายผูกเอว เปื้อนคราบเล็กน้อย", "A white cloth with ties at the waist, a little stained", 1, 40, 2),
