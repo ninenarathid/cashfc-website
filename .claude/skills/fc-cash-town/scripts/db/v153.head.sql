@@ -1,4 +1,5 @@
--- v153 — the gifts of the lines' ranks, the first to the sixth of every line
+-- v153 — the gifts of the lines' ranks, the first to the sixth of every line;
+-- a bigger well, and twice as many insects
 --
 -- Run this once in the Supabase SQL editor, after v152 (it stops at its first
 -- line without v152's counted gifts). Running it again is safe. **Run it after
@@ -114,6 +115,26 @@
 --     or two each. (The butterfly's halved distance, the wind net and the
 --     lulling flute are the page's own; the flute is counted by v152's
 --     `town_gift_use`.)
+--
+-- And three things the owner asked for on 2026-10-07, trying the gifts:
+--
+--   * The farm's well holds a hundred bucketfuls where it held forty
+--     ("บ่อน้ำเปลี่ยนจาก เต็ม 40 เป็น 100"), and a bucketful of it goes half as far
+--     in a can ("ลดลงมาครึ่งนึง"): a can's filling takes two bucketfuls where
+--     it took one (`farming.fill`), so a bucketful is four waterings of a
+--     plain can, six of a copper one, nine of a brass one; a well with one
+--     left gives half a can. `town.chore`, `town_chore` and `town.well_seen`
+--     are written again for it: a filling is written down with the
+--     bucketfuls it took, and the well's book takes as many of its oldest
+--     water. What is in the well when this runs stays in it.
+--   * Twice as many insects ("เพิ่มปริมาณแมลง … เป็นสองเท่า"; the forest's things
+--     as they were): every kind of haunt rolls one twice as often, by a
+--     shorter turn and, at the common haunts, a likelier one (the catalog's
+--     `insects` row, which the rules read: none of them changes). Each
+--     haunt's turns begin anew with the row, so what is out at the moment the
+--     file runs changes at once.
+--   * (The page's alone, with the code: no scarecrow stands on the farm, and
+--     a familiar at its member's heels is drawn smaller.)
 --
 -- No table, and no column. No coins come of any of it: every new deed writes
 -- coins 0. What a gift gives more of is things, growth and water, and

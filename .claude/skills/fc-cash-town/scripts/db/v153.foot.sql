@@ -7,6 +7,12 @@
 --     from public.town_catalog where key = 'gifts';
 --   -- 39 | 15 | 15 | {"by": 0.08, "from": 4} | false
 --
+--   select (data->>'well')::int as well_holds, (data->>'fill')::int as a_can_takes, data->'cans' as cans from public.town_catalog where key = 'farming';
+--   -- 100 | 2 | {"can": 8, "canBrass": 18, "canCopper": 12}
+--
+--   select data->'kinds'->'blooms' as blooms, data->'kinds'->'tree' as tree, data->'kinds'->'glade' as glade from public.town_catalog where key = 'insects';
+--   -- {"every": 7, "chance": 0.77, "shares": 1} | {"every": 14, "chance": 0.7, "shares": 1} | {"every": 30, "chance": 0.25, "shares": 1}
+--
 --   select town.harder_at(3) as third, town.harder_at(4) as fourth, town.harder_at(10) as tenth;
 --   -- 1 | 1.08 | 1.56
 --
