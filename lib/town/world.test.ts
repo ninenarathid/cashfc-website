@@ -4,7 +4,7 @@ import {
   BENCHES, BEYOND, BEYOND_PROPS, BOARD, CAMP, COLS, DROP, FARM, FARM_PROPS, FORDS, FOREST, FOREST_PROPS, GATES, GREAT_TREE, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
   YARD_SEATS, atFire, isBuilt, seenAt, setBuilt, yardSeat, zoneAt, type Zone,
 } from "./world";
-import { rowOf, bedOf, bedCorner } from "./world";
+import { rowOf, bedOf, bedCorner, FARM_PUMPKINS } from "./world";
 
 describe("projection", () => {
   it("goes to isometric pixels and back", () => {
@@ -368,7 +368,11 @@ describe("walking", () => {
       expect(plotAt(p.x, p.y)).toBe(false);
       expect(groundAt(p.x, p.y)).toBe("grass");
     }
-    expect(FARM_PROPS.filter((p) => p.kind === "scarecrow").length).toBe(4);
+    // (no scarecrow stands on the farm any more: the owner, 2026-10-07; the four tiles they stood on are closed still,
+    // for the great pumpkins, so that nothing laid out from the open tiles moved)
+    expect(FARM_PROPS.filter((p) => p.kind === "scarecrow").length).toBe(0);
+    expect(FARM_PUMPKINS.length).toBe(4);
+    for (const [u, v] of FARM_PUMPKINS) { expect(walkable(FARM.x + u, FARM.y + v)).toBe(false); expect(plotAt(FARM.x + u, FARM.y + v)).toBe(false); }
     // no walking between the maps
     const [town, farm] = GATES;
     expect(findPath({ x: 32.5, y: 31.5 }, farm.to)).not.toBeNull();

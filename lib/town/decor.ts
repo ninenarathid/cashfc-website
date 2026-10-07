@@ -1,4 +1,4 @@
-import { FARM, KEEPERS, NORTH_WOOD, TOWN, placeOf, type Place, type Prop } from "./world";
+import { FARM, FARM_PUMPKINS, KEEPERS, NORTH_WOOD, TOWN, placeOf, type Place, type Prop } from "./world";
 
 /**
  * What Cash Town has only to look at, from pixel art that came drawn (the
@@ -75,7 +75,10 @@ export const FACES: Record<"jacko" | "jacko2", [number, number]> = { jacko: [15,
  * to one side of what stands there: nobody walks through one, and no tile
  * opens or closes for it (decor.test.ts holds every one to that). Carved ones
  * about the town, by the plaza's four lamps and the two shopkeepers; great ones
- * on the farm all year, by its scarecrows and by the hay at its gate.
+ * on the farm all year: one in each quarter, in the middle of the tile a
+ * scarecrow stood on until the owner had those taken away (2026-10-07; the
+ * tile is closed for the pumpkin now, lib/town/world's FARM_PUMPKINS), and by
+ * the hay at its gate.
  */
 export const DECOR: Decor[] = [
   { art: "jacko", x: 26.8, y: 26.72, carved: true },
@@ -84,7 +87,7 @@ export const DECOR: Decor[] = [
   { art: "jacko", x: 37.8, y: 37.72, carved: true, mirror: true },
   { art: "jacko", x: KEEPERS[0].tiles[1][0] + 0.8, y: KEEPERS[0].tiles[1][1] + 0.85, carved: true },
   { art: "jacko2", x: KEEPERS[1].tiles[1][0] + 0.8, y: KEEPERS[1].tiles[1][1] + 0.85, carved: true, mirror: true },
-  ...([[11, 11], [48, 11], [19, 32], [40, 32]] as const).map(([u, v], i): Decor => ({ art: i % 2 ? "pumpkin2" : "pumpkin", x: FARM.x + u + 0.84, y: FARM.y + v + 0.74, mirror: i > 1 })),
+  ...FARM_PUMPKINS.map(([u, v], i): Decor => ({ art: i % 2 ? "pumpkin2" : "pumpkin", x: FARM.x + u + 0.55, y: FARM.y + v + 0.6, mirror: i > 1 })),
   ...([[3, 20], [2, 24]] as const).map(([u, v], i): Decor => ({ art: i % 2 ? "pumpkin" : "pumpkin2", x: FARM.x + u + 0.88, y: FARM.y + v + 0.86 })),
 ];
 

@@ -726,10 +726,18 @@ function farmGround(u: number, v: number): "road" | "field" | "grass" {
 /**
  * What stands about the farm, laid out by a fixed seed like the town: a fence
  * along the edge the lane comes in by (the gateway over the lane is GATES'),
- * the tool shed and hay by the gate, a well where the lanes cross, a scarecrow
- * in each quarter, and woods along the other three sides. A fence is three
- * tiles long, and the shed three across (as the screen sees it).
+ * the tool shed and hay by the gate, a well where the lanes cross, and woods
+ * along the other three sides. A fence is three tiles long, and the shed three
+ * across (as the screen sees it). (A scarecrow stood in each quarter until
+ * 2026-10-07, when the owner had them taken off the map: "เอาหุ่นไล่กาออกจากแมพฟาร์มไปเลย".
+ * Its tile stays closed, for the great pumpkin that sat at its foot and sits
+ * in the middle of the tile now: `FARM_PUMPKINS`. Had the four tiles opened,
+ * everything laid out from the tiles one can walk on would have moved: the
+ * insects' haunts above all, which the database keeps a copy of and holds a
+ * catch to. The scarecrow's picture stays in the scenery, used by nothing.)
  */
+/** The four tiles of the farm a great pumpkin sits on, one in each quarter (counted from the farm's corner): closed, as they were under the scarecrows. */
+export const FARM_PUMPKINS: Array<[u: number, v: number]> = [[11, 11], [48, 11], [19, 32], [40, 32]];
 export const FARM_PROPS: Prop[] = (() => {
   const out: Prop[] = [];
   const put = (kind: PropKind, u: number, v: number, solid = true) => { out.push({ kind, x: FARM.x + u, y: FARM.y + v, solid }); };
@@ -737,7 +745,6 @@ export const FARM_PROPS: Prop[] = (() => {
   put("shed", 2, 18);
   for (const [u, v] of [[3, 20], [2, 24], [27, 20], [32, 24]]) put("hay", u, v);
   put("well", 28, 23); // (WELL)
-  for (const [u, v] of [[11, 11], [48, 11], [19, 32], [40, 32]]) put("scarecrow", u, v);
   let a = 20261003;
   const rnd = () => { a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
   const taken = new Set<string>();
@@ -751,7 +758,7 @@ export const FARM_PROPS: Prop[] = (() => {
   return out;
 })();
 /** The farm's tiles that stop a walker: what stands on them, a fence's three, the shed's three, and the gateway's two posts either side of the lane. */
-const farmSolid = new Set([`${FARM.x + 1},${FARM.y + 20}`, `${FARM.x + 1},${FARM.y + 23}`, ...FARM_PROPS.flatMap((p) => {
+const farmSolid = new Set([`${FARM.x + 1},${FARM.y + 20}`, `${FARM.x + 1},${FARM.y + 23}`, ...FARM_PUMPKINS.map(([u, v]) => `${FARM.x + u},${FARM.y + v}`), ...FARM_PROPS.flatMap((p) => {
   const at = (dx: number, dy: number) => `${p.x + dx},${p.y + dy}`;
   if (p.kind === "fence") return [at(0, -1), at(0, 0), at(0, 1)];
   if (p.kind === "shed") return [at(-1, 1), at(0, 0), at(1, -1)];
