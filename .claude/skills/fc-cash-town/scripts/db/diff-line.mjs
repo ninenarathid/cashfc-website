@@ -21,6 +21,8 @@ const tables = async () => Object.fromEntries((await t.sql(`select c.relname as 
   from pg_class c join pg_namespace n on n.oid = c.relnamespace join pg_attribute a on a.attrelid = c.oid and a.attnum > 0 and not a.attisdropped
   where n.nspname = 'public' and c.relkind = 'r' and c.relname like 'town\\_%' group by 1`)).rows.map((r) => [r.name, r.cols]));
 if (line !== "shared") await t.db.exec(lf(readFileSync(db("v153.shared.sql"), "utf8")));
+// (a line that stands on another's is shown against that one's: the helpers' against the farm's)
+for (const b of { helpers: ["farming"] }[line] ?? []) await t.db.exec(lf(readFileSync(db(`v153.${b}.sql`), "utf8")));
 const was = await defs(), wasT = await tables();
 if (!existsSync(db(`v153.${line}.sql`))) { console.log(`no v153.${line}.sql`); process.exit(2); }
 await t.db.exec(lf(readFileSync(db(`v153.${line}.sql`), "utf8")));

@@ -54,6 +54,27 @@
 --     `town.grown`, `town.growing`, `town.pest_at` and `town.pick` are written
 --     again for the hourglass's hours and the mandrake's encore; a plant with
 --     neither grows, sickens and is picked as it was.
+--   * The helpers (on the farm's rules, for work in somebody else's bed). The
+--     gardener's gloves leave nothing of that work's stamina to pay (the
+--     catalog's number: a half until now), and water a row of somebody
+--     else's at one long pour (`town_longpour`: let go too soon or spilt, the
+--     row's last plants get none). The fae anklet has another's plant its
+--     wearer waters grow twice as much, three times from the twentieth of a
+--     run with no more than eight seconds between; the duet bell doubles two
+--     members' waterings in one bed within ten seconds of each other and
+--     gives each two stamina back a plant, of twenty-five plants a day.
+--     Whatever multiplies a watering (these two, the heat, the well's water)
+--     is one sum, never more than three times (`town.poured_as`; v133's
+--     trigger on town_plots, `town.plot_heat`, leaves a watering kept so
+--     alone). The ring of shared strength gives a friend near thirty stamina
+--     for fifteen of its wearer's, three a day (`town_ring`: how far the
+--     friend stands is the page's to say). Fae dust stops the dying clock of
+--     another's plant that has pests for twelve hours, five a day
+--     (`town_dust`; `town.see` and `town.rid_pick` reckon the death by
+--     `town.dies_at`). `town.tend`, `town_tend` and `town.work_counts_of`
+--     (the dust and the bell count on the helpers' line) are written again
+--     for these. (The guardian's cloak is the page's own: the tired games of
+--     that work.)
 --   * The well. A flask of living water: a drink held out to a friend near,
 --     who takes it (thirty stamina to them, ten to its owner; a drinker once
 --     in a meal's hours: `town_drink_offer`, `town_drink_take`); a rain frog
@@ -95,6 +116,10 @@
 --     `town_gift_use`.)
 --
 -- No table, and no column. No coins come of any of it: every new deed writes
--- coins 0. What a gift gives more of is things, stamina between two members
--- (the flask), growth and water.
+-- coins 0. What a gift gives more of is things, growth and water, and
+-- stamina in three places: the flask (thirty to a friend, ten to its owner),
+-- the ring (thirty to a friend for fifteen) and the bell (two a plant, of
+-- twenty-five plants a day); and the gloves take the stamina of work in
+-- somebody else's bed away. Seven catalog rows are written over: `gifts`,
+-- `farming`, `well`, `forest`, `insects`, `fishing`, `work`.
 

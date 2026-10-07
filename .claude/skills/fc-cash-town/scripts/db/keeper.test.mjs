@@ -1271,6 +1271,10 @@ try {
           await A.missed();
           await ask("cast (stardust)", () => A.cast("worm", { tile: deck, deep: true }, false, false, "star"));
           await A.missed();
+          // the helpers (in somebody else's bed)
+          await ask("pourDo", () => A.pourDo(key, "Tester A", { [key]: true }));
+          await ask("ringTo", () => A.ringTo(b, 1, "Tester A"));
+          await ask("dustDo", () => A.dustDo(key, "Tester A"));
           const lost = tried.filter(([, r]) => !reached(r));
           ok(`each new deed of the gifts reaches the database and is answered by its rule (${tried.length} deeds)`, lost.length === 0, lost);
           const done = tried.filter(([, r]) => r?.ok === true).map(([n]) => n);
