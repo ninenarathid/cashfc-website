@@ -123,9 +123,16 @@ export const ODD: DishId = "oddDish";
 /** Whether a thing is cookware: something a dish, or anything else, is made in. */
 export const isCookware = (id: ItemId | null | undefined): id is Cookware => !!id && COOKWARE.has(id);
 /** The kinds of thing that are never put in: a tool, a scroll, a dish already. */
-export const NOT_PUT_IN = ["tool", "scroll", "dish", "bug"];
+export const NOT_PUT_IN = ["tool", "scroll", "dish", "bug",
+  // (woodcutting and mining, 2026-10-08: what a rock or a tree leaves. A pot of stones is only a way to lose them.)
+  "mineral", "wood"];
+/**
+ * (woodcutting and mining) The things that go in whatever their kind, and those that never do whatever theirs: fine
+ * timber is what a torch is made of, by hand; a torch is made, and is nothing to cook.
+ */
+export const PUT_IN: { also: ItemId[]; never: ItemId[] } = { also: ["timber"], never: ["torch"] };
 /** Whether a thing can be put in. */
-export const goesIn = (id: ItemId) => !NOT_PUT_IN.includes(ITEMS[id].kind);
+export const goesIn = (id: ItemId) => !PUT_IN.never.includes(id) && (PUT_IN.also.includes(id) || !NOT_PUT_IN.includes(ITEMS[id].kind));
 
 /** Things, tidied: each kind once with how many of it, kinds in order. */
 export function tidy(things: Array<[ItemId, number]>): Array<[ItemId, number]> {

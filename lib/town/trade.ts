@@ -207,6 +207,8 @@ export interface Purse {
   recipes: ItemId[];
   /** The thing taken up to hold in the hand, for everybody to see (handOf says whether it is still held). Missing from a purse older than hands. */
   hand?: ItemId | null;
+  /** (forging) The slot it was taken up from: of two tools of a kind, which is held (handSlot believes it only while that slot still has the thing). */
+  handAt?: number;
   /** Bowls a meal has done with that the bag had no room for when it ended: they come back as soon as there is room (lib/town/stamina). */
   owed?: number;
   /** What is worn to carry more (a basket, a carrying basket, a carrying pole): each makes the bag bigger, and is no longer in it. */
@@ -355,7 +357,8 @@ export const handOf = (purse: Purse): ItemId | null => (purse.hand && held(purse
 export function hold(purse: Purse, slot: number): Done<{ purse: Purse }> {
   const s = purse.bag[slot];
   if (!s) return no("none");
-  return { ok: true, purse: { ...purse, hand: s.item } };
+  // (forging: the slot is kept too, so that of two tools of a kind the one taken up is the one that works)
+  return { ok: true, purse: { ...purse, hand: s.item, handAt: slot } };
 }
 /** Put away what is held. */
 export const letGo = (purse: Purse): Purse => ({ ...purse, hand: null });
@@ -369,6 +372,16 @@ export const handSlot = (purse: Purse, taken: number | null = null): number => {
   const hand = handOf(purse);
   if (!hand) return -1;
   return taken !== null && purse.bag[taken]?.item === hand ? taken : purse.bag.findIndex((s) => s?.item === hand);
+};
+// ── forging ──
+/**
+ * The thing in the hand as the stack it is, with what it carries of its own (lib/town/tools reads it): null with
+ * nothing held. Of two tools of a kind it is the one taken up: the slot said (`taken`), or the one the purse itself
+ * remembers (`handAt`), while that slot still has the thing; or else the first of the kind.
+ */
+export const heldStack = (purse: Purse, taken: number | null = null): Stack | null => {
+  const i = handSlot(purse, taken ?? (Number.isInteger(purse.handAt) ? (purse.handAt as number) : null));
+  return i < 0 ? null : purse.bag[i];
 };
 
 /* ── what is worn to carry more ─────────────────────────────────────────── */

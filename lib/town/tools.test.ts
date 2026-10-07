@@ -4,6 +4,7 @@ import { plain as plainIn, takePlain } from "./notices";
 import { mayDrop } from "./jar";
 import { push } from "./deal";
 import { fits } from "./box";
+import { cook, goesIn } from "./cooking";
 import { powerLeft, powerRule, powerUsed, usePower } from "./powers";
 import { dayOf } from "./stamina";
 import {
@@ -51,6 +52,25 @@ describe("the twenty-eight things of woodcutting and mining", () => {
   });
   it("say what a thing looks like, never a number of what it does", () => {
     for (const id of NEW) expect(`${ITEMS[id].about.th} ${ITEMS[id].about.en}`).not.toMatch(/\d/);
+  });
+});
+
+describe("what a rock or a tree leaves is not cooked", () => {
+  it("no stone, ore, gem or log goes in a pot, nor a torch; fine timber does, for a torch is made of it by hand", () => {
+    for (const id of MINED) expect(goesIn(id)).toBe(false);
+    for (const id of Object.keys(SMELTS) as ItemId[]) expect(goesIn(id)).toBe(false);
+    expect(goesIn("log")).toBe(false);
+    expect(goesIn("torch")).toBe(false);
+    expect(goesIn("timber")).toBe(true);
+    expect(goesIn("resin")).toBe(true);
+    // and by hand, of one fine timber and one resin, two torches
+    const purse: Purse = { ...newPurse(), stamina: { day: dayOf(NOW), left: 50 }, bag: put(put(newPurse().bag, "timber", 1), "resin", 1) };
+    const made = cook(purse, [["timber", 1], ["resin", 1]], [null], 0, NOW);
+    expect(made.ok && made.made).toBe("torch");
+    expect(made.ok && made.n).toBe(2);
+    // what went in as it always did still does
+    for (const id of ["minnow", "kangkong", "twig", "clay", "rice", "fishSauce"] as const) expect(goesIn(id)).toBe(true);
+    for (const id of ["rod", "scrollFriedMinnow", "tomYum", "monarch"] as const) expect(goesIn(id)).toBe(false);
   });
 });
 
