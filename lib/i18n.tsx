@@ -3639,6 +3639,53 @@ const DICT = {
   /* The game's own words, in both languages, like "Send popoto" beside it. */
   "tell.send": { en: "Send in-game tell", th: "Send in-game tell" },
 
+  /* ── How to reach somebody (v157) ──────────────────────────────────
+     A Discord name and a Facebook that an admin types in by hand. The FC
+     reads the Discord and only admins the Facebook, and every place an
+     admin meets either one says which. */
+  "contact.copy": { en: "Copy this", th: "คัดลอกข้อความนี้" },
+  "contact.copyDiscord": { en: "Copy the Discord name {name}", th: "คัดลอกชื่อ Discord {name}" },
+  "contact.copyFacebook": { en: "Copy the Facebook {name}", th: "คัดลอก Facebook {name}" },
+  "contact.openFacebook": { en: "Open {name}'s Facebook", th: "เปิด Facebook ของ {name}" },
+  "contact.fcOnly": { en: "FC members see this", th: "สมาชิก FC เห็น" },
+  "contact.adminOnly": { en: "admins only", th: "เฉพาะแอดมิน" },
+  "contact.adminTag": { en: "admins", th: "แอดมิน" },
+  "contact.add": { en: "+ Discord / Facebook", th: "+ Discord / Facebook" },
+  "contact.edit": { en: "Edit contact", th: "แก้ช่องทางติดต่อ" },
+  "contact.title": { en: "How to reach {name}", th: "ช่องทางติดต่อของ {name}" },
+  "contact.discordPh": { en: "Discord name", th: "ชื่อ Discord" },
+  "contact.facebookPh": { en: "facebook.com/… or a name", th: "facebook.com/… หรือชื่อ" },
+  "contact.discordHint": {
+    en: "FC members with a verified character see this on the member's page.",
+    th: "สมาชิก FC ที่ยืนยันตัวละครแล้วจะเห็นในหน้าของสมาชิกคนนี้",
+  },
+  "contact.facebookHint": {
+    en: "Only admins ever see this. A profile link or a name, either is fine.",
+    th: "เห็นเฉพาะแอดมินเท่านั้น ใส่ลิงก์โปรไฟล์หรือชื่อก็ได้",
+  },
+  "contact.blankRemoves": { en: "Leave both blank to remove them.", th: "เว้นว่างทั้งสองช่องเพื่อลบออก" },
+  "contact.removed": { en: "Removed", th: "ลบออกแล้ว" },
+  /* The list on Aqua's page, where they are typed in. */
+  "contact.listTitle": { en: "Members' Discord and Facebook", th: "Discord / Facebook ของสมาชิก" },
+  "contact.listCount": { en: "{n} of {all} on file", th: "ใส่แล้ว {n} จาก {all} คน" },
+  "contact.listHint": {
+    en: "A Discord name and a Facebook for each member, typed in by hand. FC members with a verified character see the Discord on that member's page. The Facebook is for admins only.",
+    th: "Discord กับ Facebook ของสมาชิกแต่ละคน กรอกเองทีละคนนะ Discord จะขึ้นในหน้าของสมาชิกคนนั้น ให้คนใน FC ที่ยืนยันตัวละครแล้วเห็น ส่วน Facebook เห็นเฉพาะแอดมิน",
+  },
+  "contact.search": { en: "Search a name, a Discord or a Facebook…", th: "ค้นหาชื่อ, Discord หรือ Facebook…" },
+  "contact.all": { en: "Everyone ({n})", th: "ทุกคน ({n})" },
+  "contact.filled": { en: "On file ({n})", th: "ใส่แล้ว ({n})" },
+  "contact.empty": { en: "Not yet ({n})", th: "ยังไม่ใส่ ({n})" },
+  "contact.none": { en: "Nobody in this list", th: "ไม่มีใครในรายการนี้" },
+  "contact.more": { en: "Show {n} more", th: "แสดงอีก {n} คน" },
+  "contact.gone": { en: "no longer on the roster", th: "ไม่อยู่ในรายชื่อแล้ว" },
+  "contact.notYet": {
+    en: "Not ready yet: the database needs v157 first.",
+    th: "ยังใช้ไม่ได้ ต้องรัน v157 ในฐานข้อมูลก่อน",
+  },
+  "contact.savedFor": { en: "Saved for {name}", th: "บันทึกของ {name} แล้ว" },
+  "contact.removedFor": { en: "Removed for {name}", th: "ลบของ {name} ออกแล้ว" },
+
   /* ── The glamour contest ───────────────────────────────────────────
      Aqua's, one per festival. "Glamour", "popoto" and "mod" stay in
      English in both languages: they are what the FC says out loud. */

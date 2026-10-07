@@ -42,6 +42,7 @@ import { parseColor } from "@/lib/parse";
 import { markEntry } from "@/lib/evercold";
 import { todayUtc } from "@/lib/kudos";
 import TellButton from "@/components/TellButton";
+import MemberContacts from "@/components/MemberContacts";
 
 /**
  * The wash behind a member's name, built from the one colour they picked.
@@ -723,6 +724,12 @@ export default function MemberView({
                 other half of that press, and it disappears the same way if the
                 accent is dark. */}
             {kudosMsg && <div className="mt-1.5 text-ui text-ink/75">{kudosMsg}</div>}
+            {/* How to reach them outside the game, where an admin has typed
+                it in: a Discord name for the FC, a Facebook for admins. Under
+                the buttons and not among them, because nothing here is a
+                thing to do to somebody. It draws nothing for a reader with
+                nothing to be shown, which is nearly everybody. */}
+            <MemberContacts characterId={m.id} name={m.name} viewer={user?.id ?? null} />
             {/* The rare popoto they chose to show, for everybody. They choose on
                 their own edit-profile page; see RareInventory. */}
             {shelfDemo

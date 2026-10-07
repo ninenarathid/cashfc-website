@@ -7,6 +7,7 @@ import { useLang } from "@/lib/i18n";
 import { loadAqua, summarize, type AquaRaw } from "@/lib/aqua";
 import AdminSwitch from "@/components/AdminSwitch";
 import AquaView from "@/components/AquaView";
+import AquaContacts, { type ContactPerson } from "@/components/aqua/AquaContacts";
 
 /**
  * Aqua's page: who may see it, and reading what it shows.
@@ -19,7 +20,12 @@ import AquaView from "@/components/AquaView";
 
 const SPANS = [7, 14, 30] as const;
 
-export default function AquaDesk() {
+export default function AquaDesk(
+  { people }: {
+    /** Everybody with a page, for the list of how each is reached (v157). */
+    people: ContactPerson[];
+  },
+) {
   const { t } = useLang();
   const { realAdmin, isAdmin, ready } = useAdmin();
   const [supabase] = useState(createClient);
@@ -97,9 +103,15 @@ export default function AquaDesk() {
     return (
       <main className="pt-7">
         {failed ? (
-          <div className="rounded-lg border border-chili/40 bg-chili/10 p-3 text-ui text-chili">
-            {t("adm.pcFailed", { why: failed })}
-          </div>
+          <>
+            <div className="rounded-lg border border-chili/40 bg-chili/10 p-3 text-ui text-chili">
+              {t("adm.pcFailed", { why: failed })}
+            </div>
+            {/* The gil could not be read; the list of contacts does not need
+                it, and is no reason to be sent away empty-handed twice. */}
+            <AquaContacts people={people}
+                          className="mt-4 rounded-xl border border-line bg-card p-4 sm:p-5" />
+          </>
         ) : (
           <div className="rounded-xl border border-dashed border-line p-10 text-center text-ui text-muted">
             {t("adm.pcLoading")}
@@ -111,6 +123,7 @@ export default function AquaDesk() {
 
   return (
     <AquaView s={summary} raw={raw} supabase={supabase} me={me} onReload={reload}
+              people={people}
               span={span} spans={SPANS} onSpan={setSpan}
               onRefresh={() => void load(span, true)}
               busy={busy} failed={failed} loadedAt={loadedAt} />

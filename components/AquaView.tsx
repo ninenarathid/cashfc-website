@@ -11,6 +11,7 @@ import { useLang, type Key, type Lang } from "@/lib/i18n";
 import { AQUA } from "@/components/ui/WalletToast";
 import AquaControls from "@/components/aqua/AquaControls";
 import AquaQueue from "@/components/aqua/AquaQueue";
+import AquaContacts, { type ContactPerson } from "@/components/aqua/AquaContacts";
 import ContestDesk from "@/components/contest/ContestDesk";
 import { fmtGil } from "@/lib/wallet";
 import { EVENT_FROM, EVENT_OPENS, EVENT_SHUTS, EVENT_TO } from "@/lib/evercold";
@@ -26,7 +27,9 @@ import {
  * Then who is waiting to be met, which is the only part with a person at the
  * other end of it. Then the settings that decide how much there will be, with
  * what a day will cost worked out as she types. Then the events. Then the
- * charts, for the "why did yesterday cost a million" questions.
+ * members' Discord and Facebook, which she types in by hand and which wait
+ * folded until she comes to do that. Then the charts, for the "why did
+ * yesterday cost a million" questions.
  */
 
 /**
@@ -177,7 +180,7 @@ function evercold(now: number): { key: Key; n?: number } {
 }
 
 export default function AquaView(
-  { s, raw, supabase, me, onReload, span, spans, onSpan, onRefresh, busy, failed, loadedAt }: {
+  { s, raw, supabase, me, onReload, span, spans, onSpan, onRefresh, busy, failed, loadedAt, people }: {
     s: AquaSummary;
     raw: AquaRaw;
     supabase: SupabaseClient;
@@ -191,6 +194,8 @@ export default function AquaView(
     busy: boolean;
     failed: string | null;
     loadedAt: Date | null;
+    /** Everybody with a page, for the list of how each is reached. */
+    people: ContactPerson[];
   },
 ) {
   const { t, lang } = useLang();
@@ -432,6 +437,10 @@ export default function AquaView(
         </div>
       </section>
 
+      {/* ── How each member is reached ───────────────────────────────────── */}
+      {/* Hers to type in, so it is on her page. Under the things with a date
+          or a person waiting on them, above the things that are only read. */}
+      <AquaContacts people={people} className={card} />
 
       {/* ── Which days ───────────────────────────────────────────────────── */}
       <h2 className="mt-8 font-display text-head font-semibold">{t("aqua.statsTitle")}</h2>
