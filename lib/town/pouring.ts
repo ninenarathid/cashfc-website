@@ -1,4 +1,5 @@
-import { TIMING, narrowed, type TimingMods } from "./timing";
+import { partOf, slowPartOf } from "./forged";
+import { TIMING, narrowed, sparedOf, type TimingMods } from "./timing";
 
 /**
  * Pouring water, as a game of its own: what tired hands play when they water a plant, draw a bucket at the river,
@@ -35,7 +36,11 @@ export const POURING = {
  * the upper one is above it, how fast the water rises (of the way to the brim, a second), and the seed of what
  * comes next.
  */
-export interface Pour { need: number; hits: number; misses: number; most: number; level: number; held: boolean; spilt: boolean; lo: number; width: number; rate: number; seed: number }
+export interface Pour {
+  need: number; hits: number; misses: number; most: number; level: number; held: boolean; spilt: boolean; lo: number; width: number; rate: number; seed: number;
+  // ── forging: old tools ── (misses still forgiven, and the pace the water rises at, as so many times its own: neither is there in a pouring with a plain can)
+  spare?: number; pace?: number;
+}
 
 function draw(seed: number): [number, number] {
   const a = (seed + 0x6d2b79f5) | 0;
@@ -51,8 +56,12 @@ function next(width: number, seed: number): { lo: number; rate: number; seed: nu
 
 /** Begin a pouring wanting so many good pours. */
 export function startPour(need: number, mods: TimingMods, seed: number): Pour {
-  const width = Math.min(0.4, (mods.spent ? POURING.tired : POURING.marks) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1) * narrowed(mods));
-  return { need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0, level: 0, held: false, spilt: false, width, ...next(width, seed | 0) };
+  const width = Math.min(0.4, (mods.spent ? POURING.tired : POURING.marks) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1) * narrowed(mods)
+    // ── forging: old tools ──
+    * partOf(Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1), mods.forged ?? 1));
+  const pace = slowPartOf(1, mods.pace ?? 1);
+  return { need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0, level: 0, held: false, spilt: false, width, ...next(width, seed | 0),
+    ...(sparedOf(mods) ? { spare: sparedOf(mods) } : {}), ...(pace !== 1 ? { pace } : {}) };
 }
 
 /** Whether the work is done. */
@@ -67,13 +76,14 @@ export function pour(p: Pour, hold: boolean, dt: number): Pour {
   if (poured(p) || dropped(p)) return p;
   if (p.spilt) return hold ? p : { ...p, spilt: false, held: false };
   if (hold) {
-    const level = p.level + p.rate * Math.max(0, dt);
+    const level = p.level + p.rate * (p.pace ?? 1) * Math.max(0, dt);
     // over the brim: spilt, and the hand has to let go before it pours again
-    if (level >= 1) return { ...p, level: 0, held: false, spilt: true, misses: p.misses + 1 };
+    // ── forging: old tools ── (a miss the can forgives is not counted: here, and of a pour let go off the marks)
+    if (level >= 1) return { ...p, level: 0, held: false, spilt: true, ...((p.spare ?? 0) > 0 ? { spare: p.spare! - 1 } : { misses: p.misses + 1 }) };
     return { ...p, level, held: true };
   }
   if (!p.held) return p;
   // let go: a good pour between the marks (and the marks move), a miss anywhere else
-  if (!between(p)) return { ...p, level: 0, held: false, misses: p.misses + 1 };
+  if (!between(p)) return { ...p, level: 0, held: false, ...((p.spare ?? 0) > 0 ? { spare: p.spare! - 1 } : { misses: p.misses + 1 }) };
   return { ...p, level: 0, held: false, hits: p.hits + 1, ...next(p.width, p.seed) };
 }

@@ -1,4 +1,5 @@
-import { TIMING, type TimingMods } from "./timing";
+import { partOf } from "./forged";
+import { TIMING, sparedOf, type TimingMods } from "./timing";
 
 /**
  * Pulling weeds, as a game of its own (the owner, 2026-10-04: "ช่วยทำให้แต่ละ mini game แตกต่างกันด้วย การกดตามจังหว่ะ ดูจะ
@@ -39,7 +40,11 @@ export interface Tuft { kind: "weed" | "stone"; look: number; id: number }
  * it (none, when it cannot be lost), what stands in each place (row by row), when the wind last went through it
  * (seconds since it began), how long between gusts, how long before one the patch stirs, and the seed of what comes next.
  */
-export interface Patch { need: number; hits: number; misses: number; most: number; cells: Array<Tuft | null>; since: number; every: number; warn: number; seed: number }
+export interface Patch {
+  need: number; hits: number; misses: number; most: number; cells: Array<Tuft | null>; since: number; every: number; warn: number; seed: number;
+  // ── forging: old tools ── (misses still forgiven: not there in a patch worked with a plain hoe)
+  spare?: number;
+}
 
 function draw(seed: number): [number, number] {
   const a = (seed + 0x6d2b79f5) | 0;
@@ -67,7 +72,8 @@ function scatter(cells: Array<Tuft | null>, seed: number): [Array<Tuft | null>, 
 /** Begin a patch with so many weeds to pull. */
 export function startPatch(need: number, mods: TimingMods, seed: number): Patch {
   const places = WEEDING.cols * WEEDING.rows, weeds = Math.max(1, Math.min(places - 1, Math.floor(need)));
-  const stones = Math.min(places - weeds - 1, mods.spent ? WEEDING.tiredStones : WEEDING.stones);
+  // ── forging: old tools ── (`mods.stones`: so many stones fewer; nothing said, as many as ever)
+  const stones = Math.max(0, Math.min(places - weeds - 1, mods.spent ? WEEDING.tiredStones : WEEDING.stones) - Math.max(0, Math.floor(mods.stones ?? 0)));
   let s = seed | 0;
   const things: Array<Tuft | null> = [];
   for (let i = 0; i < weeds; i++) { const [r, s1] = draw(s); s = s1; things.push({ kind: "weed", look: Math.floor(r * 1000), id: i }); }
@@ -76,7 +82,11 @@ export function startPatch(need: number, mods: TimingMods, seed: number): Patch 
   const [cells, next] = scatter(things, s);
   return {
     need: weeds, hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0, cells, since: 0,
-    every: (mods.spent ? WEEDING.tiredGust : WEEDING.gust) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1), warn: mods.spent ? WEEDING.tiredStir : WEEDING.stir, seed: next,
+    every: (mods.spent ? WEEDING.tiredGust : WEEDING.gust) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1)
+      // ── forging: old tools ── (gusts at so many times their pace: so many times as long between them, with the rest of what spaces them and never past the cap)
+      * partOf(Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1), 1 / (mods.pace ?? 1)),
+    warn: mods.spent ? WEEDING.tiredStir : WEEDING.stir, seed: next,
+    ...(sparedOf(mods) ? { spare: sparedOf(mods) } : {}),
   };
 }
 
@@ -102,6 +112,8 @@ export function patchAt(p: Patch, t: number): Patch {
 export function touch(p: Patch, t: number, place: number): Patch {
   const now = patchAt(p, t);
   if (cleared(now) || dropped(now) || place < 0 || place >= now.cells.length) return now;
+  // ── forging: old tools ── (a miss the hoe forgives is not counted)
+  if (now.cells[place]?.kind !== "weed" && (now.spare ?? 0) > 0) return { ...now, spare: now.spare! - 1 };
   if (now.cells[place]?.kind !== "weed") return { ...now, misses: now.misses + 1 };
   return { ...now, hits: now.hits + 1, cells: now.cells.map((c, i) => (i === place ? null : c)) };
 }

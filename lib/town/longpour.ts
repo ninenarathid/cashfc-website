@@ -1,3 +1,4 @@
+import { partOf, slowPartOf } from "./forged";
 import { TIMING, narrowed, type TimingMods } from "./timing";
 
 /**
@@ -45,8 +46,10 @@ export interface LongPour { places: number[]; from: number; end: number; zone: n
 
 /** Begin one over the plants at these places of a row (`hard`: how much harder the row is for whoever pours, 1 where it is not; `seed`: where its wavering begins). */
 export function startLong(places: readonly number[], mods: TimingMods = {}, hard = 1, seed = 0): LongPour {
-  const at = [...places].map((p) => Math.floor(p)).sort((a, b) => a - b), tired = mods.spent ? mods.tired ?? TIMING.spent : null, k = tired ? tired.speed : 1;
-  const zone = Math.min(LONG.most, LONG.zone * (tired ? tired.zone : 1) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1) * (mods.wide ?? 1) * narrowed({ hard }));
+  // ── forging: old tools ── (the can's own: its water runs at so many times its pace, and its marks are so many times as wide, with the rest of what widens them and never past the cap)
+  const at = [...places].map((p) => Math.floor(p)).sort((a, b) => a - b), tired = mods.spent ? mods.tired ?? TIMING.spent : null, k = (tired ? tired.speed : 1) * slowPartOf(1, mods.pace ?? 1);
+  const zone = Math.min(LONG.most, LONG.zone * (tired ? tired.zone : 1) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1) * (mods.wide ?? 1) * narrowed({ hard })
+    * partOf(Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1) * (mods.wide ?? 1), mods.forged ?? 1));
   const part = ((Math.imul(seed | 0, 2654435761) >>> 0) % 1000) / 1000;
   return { places: at, from: (at[0] ?? 0) - LONG.lead, end: (at[at.length - 1] ?? 0) + 0.5, zone, speed: LONG.speed * k, gain: LONG.gain * k, sway: LONG.sway * k, phase: part * Math.PI * 2, t: 0, held: false, at: null, spilt: false };
 }

@@ -189,7 +189,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const buffs = buffsOf(purse, now), keen = levelOf(purse, now, "keen"), lucky = levelOf(purse, now, "lucky");
   const have = (b: BaitId) => held(purse.bag, b);
   /** What I fish with: the rod in my hand, and the best of each kind of tackle in my bag (lib/town/gear). */
-  const gear = gearOf(purse.bag, handOf(purse));
+  // ── forging: old tools ── (the slot the rod was taken up from: of two rods of a kind, the one held is the one whose forging counts)
+  const gear = gearOf(purse.bag, handOf(purse), keeper.handSlot());
   /** The trial hands out a rod and worms for the asking (the owner: "ช่วย Add คันเบ็ดให้ผมหน่อย เฉพาะใน DEV"): as much of them as the bag has room for. */
   const kit = () => {
     if (!trial) return;

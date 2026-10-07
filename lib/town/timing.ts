@@ -1,3 +1,5 @@
+import { partOf, slowPartOf } from "./forged";
+
 /**
  * A small game of timing, for work done by hand (the owner, 2026-10-03:
  * "มินิเกมทุกอย่างอยากให้ทำให้ยากระดับหนึ่ง", and for washing a pot "มินิเกมล้างให้เล่น
@@ -58,11 +60,32 @@ export const TIMING = {
  * lib/town/farm's hardFor: a crop of the second tier or better, from the farming line's fourth rank): the stretch,
  * the marks or the ring is so many times as narrow. 1, or nothing said: as it is for everybody.
  */
-export interface TimingMods { tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number }; buff?: number; hard?: number }
+export interface TimingMods {
+  tool?: number; spent?: boolean; drops?: boolean; wide?: number; tired?: { zone: number; speed: number }; buff?: number; hard?: number;
+  // ── forging: old tools ── (what the tool in the hand carries of its own, as its game reads it: lib/town/forged. Nothing said: a plain tool.)
+  /** The stretch (the marks, the good pace) so many times as wide: taken with the rest of what widens it, never past the cap. */
+  forged?: number;
+  /** What moves (the marker, the gusts, the water) goes at so many times its pace: under 1, slower. */
+  pace?: number;
+  /** So many of the first misses are not counted. */
+  spare?: number;
+  /** The marker keeps its pace after a hit. */
+  even?: boolean;
+  /** So many stones fewer among the weeds. */
+  stones?: number;
+  /** A slip of the ladle may last so many times as long before it costs. */
+  grace?: number;
+}
+/** How many misses a game begun so forgives: none, unless a tool's forging says so. */
+export const sparedOf = (mods: TimingMods): number => Math.max(0, Math.floor(mods.spare ?? 0));
 /** What `hard` leaves of a width: its own part, never more than the whole. */
 export const narrowed = (mods: TimingMods): number => 1 / Math.max(1, mods.hard ?? 1);
 /** A round as it stands: how many hits are still wanted, the hits and misses so far, how many misses end it (none, when it cannot be lost), how fast the marker runs, where it was and which way it ran when it last changed pace, and where the stretch lies. */
-export interface Round { need: number; hits: number; misses: number; most: number; speed: number; from: number; way: 1 | -1; since: number; lo: number; width: number; seed: number }
+export interface Round {
+  need: number; hits: number; misses: number; most: number; speed: number; from: number; way: 1 | -1; since: number; lo: number; width: number; seed: number;
+  // ── forging: old tools ── (misses still forgiven, and whether the marker keeps its pace: neither is there in a round with a plain tool)
+  spare?: number; even?: boolean;
+}
 
 function draw(seed: number): [number, number] {
   const a = (seed + 0x6d2b79f5) | 0;
@@ -74,12 +97,15 @@ function draw(seed: number): [number, number] {
 /** Begin a round wanting so many hits. */
 export function startRound(need: number, mods: TimingMods, seed: number): Round {
   const tired = mods.spent ? mods.tired ?? TIMING.spent : null;
-  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1) * narrowed(mods));
+  const width = Math.min(0.5, TIMING.zone * (mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1) * narrowed(mods)
+    // ── forging: old tools ──
+    * partOf((mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1), mods.forged ?? 1));
   const [r, next] = draw(seed | 0);
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, most: mods.spent && mods.drops ? TIMING.spent.misses : 0,
-    speed: TIMING.speed * (tired ? tired.speed : 1),
+    speed: TIMING.speed * (tired ? tired.speed : 1) * slowPartOf(1, mods.pace ?? 1),
     from: 0, way: 1, since: 0, lo: TIMING.edge + r * (1 - 2 * TIMING.edge - width), width, seed: next,
+    ...(sparedOf(mods) ? { spare: sparedOf(mods) } : {}), ...(mods.even ? { even: true } : {}),
   };
 }
 
@@ -117,12 +143,14 @@ export function pressRow(r: RowRound, t: number): RowRound {
   const [a, s1] = draw(r.seed), room = 1 - 2 * TIMING.edge - r.width;
   let lo = TIMING.edge + a * room;
   if (Math.abs(lo - r.lo) < r.width) lo = TIMING.edge + ((a + 0.5) % 1) * room;
-  return { ...r, hits: r.hits + (hit ? 1 : 0), misses: r.misses + (hit ? 0 : 1), marks: [...r.marks, hit], speed: Math.min(TIMING.fastest, r.speed * TIMING.quicken), from: at, way, since: t, lo, seed: s1 };
+  return { ...r, hits: r.hits + (hit ? 1 : 0), misses: r.misses + (hit ? 0 : 1), marks: [...r.marks, hit], speed: r.even ? r.speed : Math.min(TIMING.fastest, r.speed * TIMING.quicken), from: at, way, since: t, lo, seed: s1 };
 }
 
 /** The button pressed at a moment: a hit (the stretch moves, the marker quickens) or a miss. */
 export function press(r: Round, t: number): Round {
   if (finished(r) || dropped(r)) return r;
+  // ── forging: old tools ── (a miss the tool forgives is not counted: the round goes on as if it had not been)
+  if (!over(r, t) && (r.spare ?? 0) > 0) return { ...r, spare: r.spare! - 1 };
   if (!over(r, t)) return { ...r, misses: r.misses + 1 };
   // (it carries on from where it is, the way it was running)
   const { at, way } = running(r, t);
@@ -130,5 +158,5 @@ export function press(r: Round, t: number): Round {
   // the stretch goes somewhere else: not where it was
   let lo = TIMING.edge + a * room;
   if (Math.abs(lo - r.lo) < r.width) lo = TIMING.edge + ((a + 0.5) % 1) * room;
-  return { ...r, hits: r.hits + 1, speed: Math.min(TIMING.fastest, r.speed * TIMING.quicken), from: at, way, since: t, lo, seed: s1 };
+  return { ...r, hits: r.hits + 1, speed: r.even ? r.speed : Math.min(TIMING.fastest, r.speed * TIMING.quicken), from: at, way, since: t, lo, seed: s1 };
 }

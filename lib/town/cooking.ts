@@ -1,10 +1,12 @@
+import { cookFx } from "./forged";
+import { toolPaid } from "./forged-keep";
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
 import { harderFor, hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
 import { STAMINA, begun, hasBuff, mayEat, nextMealAt, sitDown, spend } from "./stamina";
 import type { TimingMods } from "./timing";
-import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
+import { held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -287,7 +289,9 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
   // (the pot it comes in is the yard's: it takes a slot of the bag, and nothing else of the cook's)
   const pot = dish ? bag.findIndex((s) => !s) : -1;
   if (dish && pot < 0) return no("full");
-  let spent = spend(purse, COOKING.cost, now);
+  // ── forging: old tools ── (a pot begun with forged cookware in the hand: what its forging takes off the stamina, lib/town/forged-keep)
+  const tool = heldStack(purse), mine = tool && tool.item === crew[0] ? tool : null;
+  let spent = toolPaid(purse, spend(purse, COOKING.cost, now), now, mine, cookFx(mine), "ckFresh");
   // what is no recipe's has a taste; and a miss by a recipe's last thing alone is one more try at that recipe
   const near = made ? null : tasteOf(all, crew);
   if (near?.of && near.lacks && (near.taste === "swap" || near.taste === "less") && near.lacks === needsOf(near.of).at(-1)?.[0]) {

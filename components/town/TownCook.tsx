@@ -8,7 +8,8 @@ import { TASTE_WORD, keepNote, readNotes, type Note } from "@/lib/town/kitchen";
 import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { buffBy, hasBuff, isSpent, mayEat } from "@/lib/town/stamina";
-import { handOf, held } from "@/lib/town/trade";
+import { cookFx, stirsWith } from "@/lib/town/forged";
+import { handOf, held, heldStack } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import { KITCHEN, TILE_H, onYard } from "@/lib/town/world";
 import { YARD } from "@/lib/town/yard";
@@ -574,6 +575,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   const spent = isSpent(purse, now);
   // (the better I am at the kitchen's line, the harder its good dishes are to cook: lib/town/cooking's harderCook. Nothing says so but the game.)
   const harder = stirring ? harderCook(madeOf(stirring.things), keeper.lines()?.lines.kitchen.points ?? 0) : 1;
+  // ── forging: old tools ── (what the cookware in my hand carries of its own, as the stirring reads it: lib/town/forged. Plain cookware: nothing.)
+  const cfx = cookFx(heldStack(purse, keeper.handSlot()));
   const table = open && !stirring && atPlace;
   if (!open && !stirring && !feastOpen && !offers.length && !note) return null;
   return (
@@ -604,7 +607,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           ) : (
-            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm")))} harder={harder}
+            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsWith(stirsFor(stirring.things), cfx)} mods={{ ...stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm"))), forged: cfx.band, spare: cfx.spared, grace: cfx.grace }} harder={harder}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           )}

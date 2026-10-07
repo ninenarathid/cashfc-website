@@ -2,13 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
+import { canFx, hitsWith, hoeFx } from "@/lib/town/forged";
 import { FIELD } from "@/lib/town/gear";
 import { ITEMS, growIconOf, iconOf, type CropId, type ItemId } from "@/lib/town/items";
 import type { FishSfx, WorkSound } from "@/lib/town/sfx";
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
 import { giftOf, type GiftId } from "@/lib/town/gifts";
 import { buffBy, isSpent } from "@/lib/town/stamina";
-import { handOf } from "@/lib/town/trade";
+import { handOf, heldStack } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
@@ -918,9 +919,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         // the guardian's cloak tired hands meet nothing there, and its games are twice as wide: the swing's stretch, the
         // time between the weeding's gusts, the long pour's marks)
         const theirs = theirsOn(working.key), wide = guardBy(purse, theirs), told = keeper.lines()?.lines;
+        // ── forging: old tools ── (what the hoe or the can in my hand carries of its own, as its game reads it: lib/town/forged.
+        // Of a plain tool, and of anything else in the hand, every number is the one that changes nothing.)
+        const held = heldStack(purse, keeper.handSlot()), hfx = hoeFx(held), cfx = canFx(held);
+        const need = hoeing && !working.row ? hitsWith(working.need, hfx) : working.need;
         const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: tiredAt(purse, isSpent(purse, now), theirs), drops: true, wide,
           buff: (game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen")) * (game === "weeding" ? wide : 1),
-          hard: theirs ? hardIn(worked, true, told?.farming.points ?? 0, told?.helpers.points ?? 0) : hardFor(worked, told?.farming.points ?? 0) };
+          hard: theirs ? hardIn(worked, true, told?.farming.points ?? 0, told?.helpers.points ?? 0) : hardFor(worked, told?.farming.points ?? 0),
+          ...(game === "steady" ? {} : { forged: hfx.band * cfx.marks, pace: hfx.pace * cfx.pace, spare: hfx.spared + cfx.spared, even: hfx.even, stones: hfx.stones }) };
         const common = {
           th, title,
           onHit: (hit: boolean) => {
@@ -962,17 +968,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             {/* the buffs that have a hand in this work, twinkling over the board */}
             <BuffAura ids={working.work === "ditch" ? [] : atPlot(working.work, purse, now)} th={th} className="mb-1 justify-end rounded-md bg-[#2a190d]/70 px-2 py-1 empty:hidden" />
             {working.long ? <TownLongPour {...common} title={th ? "เทยาวทั้งแถว" : "The long pour"} verb={th ? "กดค้างเท" : "Hold to pour"} hard={working.hard ?? 1} icon={toolIcon("water", hand)}
-                mods={{ tool: mods.tool, spent: mods.spent, buff: 1 + buffBy(purse, now, "calm"), wide: mods.wide }}
+                mods={{ tool: mods.tool, spent: mods.spent, buff: 1 + buffBy(purse, now, "calm"), wide: mods.wide, forged: cfx.marks, pace: cfx.pace }}
                 onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "water" : "knock", hit ? 0.5 : 1); }}
                 plants={working.long.map((p) => ({ place: p.place, icon: growIconOf(p.crop, seen.current.get(p.key)?.stage ?? 3) as IconName }))} />
               : working.sweep ? <TownSweep {...common} title={ROW_VERB.pick[th ? 0 : 1]} verb={th ? "ตวัดเคียว" : "Swing"} mods={{ spent: mods.spent, buff: 1 + buffBy(purse, now, "keen") }}
                 onHit={(well) => { sfx?.wake(); sfx?.work(well ? "pick" : "swish"); }}
                 plants={working.sweep.map((p) => ({ place: p.place, icon: growIconOf(p.crop, 5) as IconName, hard: p.hard }))} />
               : working.row ? <TownTiming {...common} title={(ROW_VERB[working.work as RowDeed] ?? VERB[working.work])[th ? 0 : 1]} verb={th ? "ฟันจอบ" : "Swing"} need={working.row.length} mods={mods} icon={toolIcon(working.work, hand)} row />
-              : game === "weeding" ? <TownWeeding {...common} need={working.need} mods={mods} />
+              : game === "weeding" ? <TownWeeding {...common} need={need} mods={mods} glow={hfx.glow} />
               : game === "pouring" ? <TownPouring {...common} verb={(HOLD[working.work] ?? HOLD.pour!)[th ? 0 : 1]} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} taking={working.work === "draw" || working.work === "fill"} into={(working.work === "water" && growing?.crop ? growIconOf(growing.crop, growing.stage) : INTO[working.work] ?? "plotDrop") as IconName} />
                 : game === "steady" ? <TownSteady {...common} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} over={(growing?.crop ? growIconOf(growing.crop, growing.stage) : "plotSoil") as IconName} />
-                  : <TownTiming {...common} verb={th ? "ฟันจอบ" : "Swing"} need={working.need} mods={mods} icon={toolIcon(working.work, hand)} />}
+                  : <TownTiming {...common} verb={th ? "ฟันจอบ" : "Swing"} need={need} mods={mods} icon={toolIcon(working.work, hand)} />}
           </div>
         );
       })() : asking ? (

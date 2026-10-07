@@ -261,6 +261,9 @@ export interface Purse {
   chime?: { n: number; at: number };
   /** The plants the duet bell has given stamina back for today (lib/town/helping's belled): the day, and how many. */
   rung?: { day: number; n: number };
+  // ── forging: old tools ──
+  /** What part of a point of stamina a forged tool's share has left owing, to be paid with the next deed (lib/town/forged-keep's toolPaid): under one. */
+  toolOwed?: number;
   /** What friends' gifts of the helpers' line did for me lately, to be told of once (lib/town/helping's Aid): the newest few. */
   aided?: Array<{ what: string; by: string; name: string; n: number; at: number; back?: number; key?: string }>;
   // ── forging ──
