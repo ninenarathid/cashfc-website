@@ -8370,7 +8370,7 @@
   "mounts": 8,
   "minions": 18,
   "rare": null,
-  "level": 64,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -8385,7 +8385,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-07"
  },
  "42845691": {
   "name": "Yuukizuz Akino",

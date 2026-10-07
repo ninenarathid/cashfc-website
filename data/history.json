@@ -1299,6 +1299,36 @@
    "active": 168,
    "vacation": 342,
    "guests": 14
+  },
+  {
+   "date": "2026-10-07",
+   "total": 510,
+   "tags": {
+    "veteran": 155,
+    "extreme": 146,
+    "ultimate": 119,
+    "tier-clear": 42,
+    "gatherer": 11,
+    "crafter": 16,
+    "relic": 27,
+    "explorer": 19,
+    "treasure": 16,
+    "goldsaucer": 7,
+    "seasonal": 12,
+    "pvp": 19,
+    "private": 224,
+    "casual": 30,
+    "prog": 23,
+    "oldtimer": 1
+   },
+   "raider": 65,
+   "ultimate": 119,
+   "extreme": 146,
+   "unknown": 0,
+   "final_boss": 42,
+   "active": 168,
+   "vacation": 342,
+   "guests": 14
   }
  ]
 }
