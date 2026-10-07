@@ -60,10 +60,17 @@ export const MARKET = {
   lately: 14,
   /**
    * The usual amount of a thing, in coins' worth a head a round, by its kind. A kind not here has one price.
-   * (An insect's was 10 until v131, 2026-10-05: what the common insects fetch was cut by a third then, and 7 keeps
+   * (An insect's was 10 until v131, 2026-10-05: what the common insects fetch was cut by a third then, and 7 kept
    * their usual number of things where it was, 7/2 against 10/3, so that the cut is a third however many are sold.)
+   *
+   * Every one of them was twice this until v155 (2026-10-07: 30, 15, 10, 15, 15, 15, 7). Two days on, 245 of the
+   * 253 things stood over their usual price, the four vegetables the whole village sells among them (kangkong, some
+   * six hundred a day, at 130): a head is anybody who has done anything in the town lately, half of whom sell
+   * nothing in a round, and nobody sells every thing, so hardly anything was ever "sold more than usual". The
+   * owner: "การปรับราคาสินค้าขาย ช่วยทำให้ติดลบได้ ถ้ามีการขายสิ่งนั้นมากเกินไป". At half, what the village sold that
+   * day puts those four and some fifteen things of the forest under their usual price, and leaves the rest over it.
    */
-  usual: { crop: 30, fish: 15, catch: 10, dish: 15, goods: 15, wild: 15, bug: 7 } as Partial<Record<ItemKind, number>>,
+  usual: { crop: 15, fish: 8, catch: 5, dish: 8, goods: 8, wild: 8, bug: 4 } as Partial<Record<ItemKind, number>>,
 };
 export type MarketKnobs = typeof MARKET;
 

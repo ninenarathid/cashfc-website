@@ -96,14 +96,14 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     await X.evaluate(`${T}.grant("kangkong", 21)`);
     await sleep(400);
     veg = await row(X, "ผักบุ้ง");
-    ok("a round on, one fetches less: 83 hundredths of three coins, and the row says how far under usual", !!veg && veg.f === 83 && veg.delta === -17 && /ได้ชิ้นละ 2\.49/.test(veg.text) && /▼\s*17%/.test(veg.text), veg);
+    ok("a round on, one fetches less: 75 hundredths of three coins, and the row says how far under usual", !!veg && veg.f === 75 && veg.delta === -25 && /ได้ชิ้นละ 2\.25/.test(veg.text) && /▼\s*25%/.test(veg.text), veg);
     await X.evaluate(`${TRADE}.querySelector('button[data-price-graph="kangkong"]').click()`);
     await until("the graph opens", () => X.evaluate(`!!${GRAPH}`), 3000);
     await sleep(200);
     const table = () => X.evaluate(`[...${GRAPH}.querySelectorAll("tbody tr")].map((tr) => [...tr.children].map((c) => c.textContent.trim()))`);
     let rows = await table();
-    ok("the graph says this round's price, and its table has this round and the one that ended: 160 left at the usual price", /รอบนี้/.test(await readout(X)) && /2\.49/.test(await readout(X))
-      && rows.length === 2 && rows[0][0] === "รอบนี้" && rows[0][1] === "2.49" && rows[0][2] === "83%" && rows[1][1] === "3" && rows[1][2] === "100%" && rows[1][3] === "160", [await readout(X), rows]);
+    ok("the graph says this round's price, and its table has this round and the one that ended: 160 left at the usual price", /รอบนี้/.test(await readout(X)) && /2\.25/.test(await readout(X))
+      && rows.length === 2 && rows[0][0] === "รอบนี้" && rows[0][1] === "2.25" && rows[0][2] === "75%" && rows[1][1] === "3" && rows[1][2] === "100%" && rows[1][3] === "160", [await readout(X), rows]);
     await X.evaluate(`${GRAPH}.scrollIntoView({ block: "center" })`); await sleep(200);
     await X.shot(`${OUT}/price-${label}-fallen.png`);
 
@@ -111,13 +111,13 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     await leaveAll(X, "ผักบุ้ง");
     p = await purse(X); left = await lots(X);
     const coming = await X.evaluate(`document.querySelector("[data-next-round]").innerText.replace(/\\s+/g, " ")`);
-    ok("twenty-one left at 83 hundredths: fifty-two coins to come, the odd part lost, and the lot says how far under usual it was left", p.left.length === 1 && p.left[0].f === 83 && p.left[0].n === 21
-      && left.some((l) => /ผักบุ้ง/.test(l) && /▼\s*17%/.test(l) && /\b52\b/.test(l)) && /จะได้ 52/.test(coming), [p.left, left, coming]);
+    ok("twenty-one left at 75 hundredths: forty-seven coins to come, the odd part lost, and the lot says how far under usual it was left", p.left.length === 1 && p.left[0].f === 75 && p.left[0].n === 21
+      && left.some((l) => /ผักบุ้ง/.test(l) && /▼\s*25%/.test(l) && /\b47\b/.test(l)) && /จะได้ 47/.test(coming), [p.left, left, coming]);
     ok("…and what is left with the uncle still has its price told, for its lot", !!(await prices(X)).things.kangkong);
     await press(X, "ข้ามไปรอบถัดไป", TRADE); await sleep(1300);
     await press(X, "รับเงิน", TRADE); await sleep(300);
     p = await purse(X);
-    ok("…and fifty-two is what the relatives pay", p.coins === 532, p.coins);
+    ok("…and forty-seven is what the relatives pay", p.coins === 527, p.coins);
 
     // nothing left for some rounds: the price climbs back, a tenth of itself a round at the most, to the most it is ever
     for (let i = 0; i < 9; i++) { await X.evaluate(`${T}.skipRound()`); await sleep(120); await X.evaluate(`${T}.prices()`); }

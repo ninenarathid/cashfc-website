@@ -32,7 +32,7 @@ describe("a thing whose price moves", () => {
     for (const id of moving) { const t = thingOf(id, c)!; expect(ITEMS[id as keyof typeof ITEMS].pays).toBeGreaterThan(0); expect(t.floor).toBeLessThanOrEqual(100); expect(t.ceil).toBeGreaterThan(100); }
   });
   it("never falls under its cost and half as much again, nor under two fifths; what is cooked or made does not fall", () => {
-    expect(thingOf("kangkong", c)).toEqual({ usual: 10, floor: 40, ceil: 150 });
+    expect(thingOf("kangkong", c)).toEqual({ usual: 5, floor: 40, ceil: 150 });
     expect(thingOf("pumpkin", c)!.floor).toBe(40);
     // a minnow takes a worm that costs most of what it fetches: its price cannot fall
     expect(thingOf("minnow", c)!.floor).toBe(100);
@@ -128,9 +128,9 @@ describe("the market kept by the village", () => {
     const first = rolled(counted(newMarket(R), "kangkong", 5_000), R + 1, heads, c).market;
     const { market, log } = rolled(first, R + 4, heads, c);
     expect(log.map(([round]) => round)).toEqual([R + 1, R + 2, R + 3]);
-    // the great sale is forgotten by halves: the price falls on for two rounds, more slowly, and then turns
-    expect(log.map(([, things]) => things.kangkong[0])).toEqual([75, 56, 51]);
-    expect(factorOf(market, "kangkong")).toBe(56);
+    // the great sale is forgotten by halves: the price falls on for two rounds, a quarter of itself in each, and then turns
+    expect(log.map(([, things]) => things.kangkong[0])).toEqual([75, 56, 42]);
+    expect(factorOf(market, "kangkong")).toBe(46);
     // (what nobody sold has risen a tenth a round, four rounds running)
     expect(factorOf(market, "carrot")).toBe(146);
   });
@@ -141,7 +141,7 @@ describe("the market kept by the village", () => {
     for (const id of movingOf(c)) expect(factorOf(market, id)).toBe(thingOf(id, c)!.ceil);
   });
   it("more heads make the usual amount more: the same selling sinks a price less in a bigger village", () => {
-    const sale = counted(newMarket(R), "kangkong", 600);
+    const sale = counted(newMarket(R), "kangkong", 300);
     expect(factorOf(rolled(sale, R + 1, 10, c).market, "kangkong")).toBeLessThan(factorOf(rolled(sale, R + 1, 60, c).market, "kangkong"));
   });
 });
@@ -172,5 +172,21 @@ describe("a week of the farm filling up", () => {
     expect(factorOf(m, "chili")).toBeLessThan(80);
     expect(factorOf(m, "cabbage")).toBe(150);
     expect(factorOf(m, "catfish")).toBe(150);
+  });
+});
+
+describe("what the whole village sells", () => {
+  // (the owner, 2026-10-07: "การปรับราคาสินค้าขาย ช่วยทำให้ติดลบได้ ถ้ามีการขายสิ่งนั้นมากเกินไป". The village as it was that
+  // morning: 38 heads, some 300 kangkong and 70 cabbages left a round, and of chili hardly any.)
+  it("stands under its usual price when that is more than its usual amount, and over it when less", () => {
+    const heads = 38, m = played(8, heads, () => ({ kangkong: 300, cabbage: 70, chili: 25 }));
+    expect(thingOf("kangkong", c)!.usual * heads).toBe(190);
+    expect(factorOf(m, "kangkong")).toBe(73);
+    expect(factorOf(m, "cabbage")).toBe(53);
+    expect(factorOf(m, "chili")).toBe(150);
+  });
+  it("…and at its usual price when it is just that", () => {
+    const heads = 38, m = played(8, heads, () => ({ kangkong: 190 }));
+    expect(factorOf(m, "kangkong")).toBe(100);
   });
 });

@@ -60,14 +60,15 @@ function chance(seed) {
 const cat = Object.fromEntries((await t.sql(`select key, data from public.town_catalog`)).rows.map((r) => [r.key, r.data]));
 const facts = { items: cat.items, goods: cat.goods, fish: cat.fish, flotsam: cat.flotsam, crops: cat.crops, baits: cat.fishing.baits, kept: cat.fishing.kept };
 const K = (await one(`select town.market_knobs() as k`)).k;
-const moving = M.movingOf(facts);
+const moving = M.movingOf(facts, K);
 
 t.section("the rules, as the site's own code answers them over this database's catalog");
-// (an insect's usual amount is seeded at 10 here; v131 turned it to 7, and the code's number with it)
-t.check("the knobs come to the numbers the site's code has", same(K, { ...M.MARKET, usual: { ...M.MARKET.usual, bug: 10 } }), K);
+// (the usual amounts are seeded here as v124 gave them; v131 turned an insect's to 7 and v155 halved them all, and the
+// code's numbers with them: so the code's rule is asked with this database's knobs below, as the page's keeper is)
+t.check("the knobs come to the numbers the site's code has, with the usual amounts as v124 gave them", same(K, { ...M.MARKET, usual: { crop: 30, fish: 15, catch: 10, dish: 15, goods: 15, wild: 15, bug: 10 } }), K);
 {
   const things = (await one(`select town.market_things($1::jsonb) as r`, [JSON.stringify(K)])).r;
-  const want = Object.fromEntries(moving.map((id) => { const x = M.thingOf(id, facts); return [id, [x.usual, x.floor, x.ceil]]; }));
+  const want = Object.fromEntries(moving.map((id) => { const x = M.thingOf(id, facts, K); return [id, [x.usual, x.floor, x.ceil]]; }));
   const differ = [...new Set([...Object.keys(things), ...moving])].filter((id) => !same(things[id], want[id]));
   t.check(`every thing whose price moves (${moving.length}), with its usual amount, its floor and its ceiling`, moving.length > 100 && differ.length === 0, differ.slice(0, 6).map((id) => [id, things[id], want[id]]));
   t.check("what the uncle sells, a tool, a seed and a scroll have one price", ["worm", "rod", "seedKangkong", "rice", "scrollFriedMinnow", "bowl"].every((id) => !(id in things)), Object.keys(things).filter((id) => id in cat.goods));
@@ -101,7 +102,7 @@ t.check("the knobs come to the numbers the site's code has", same(K, { ...M.MARK
     for (let step = 0; step < 10; step++) {
       for (let i = 0, n = c.int(0, 8); i < n; i++) market = M.counted(market, c.of(moving), c.int(1, 900));
       round += c.of([1, 1, 1, 2, 5, 40]);
-      const want = M.rolled(market, round, heads, facts);
+      const want = M.rolled(market, round, heads, facts, K);
       const got = (await t.db.query(`select town.market_rolled($1::jsonb, $2::int, $3::int, $4::jsonb, $5::jsonb) as r`, [JSON.stringify(market), round, heads, JSON.stringify(things), JSON.stringify(K)])).rows[0].r;
       cases++;
       if (!same(got.market, want.market) || !same(got.log, want.log)) { bad++; first ??= { round, heads, sold: market.sold, want: JSON.stringify(want).slice(0, 500), got: JSON.stringify(got).slice(0, 500) }; }
@@ -205,7 +206,7 @@ const R0 = T.roundOf(NOON);
 const asTheSiteTells = async (who, prices) => {
   const doc = (await one(`select doc from public.town_purses where member_id = $1`, [who])).doc;
   const held = [...doc.bag.filter(Boolean).map((x) => x.item), ...(doc.left ?? []).map((x) => x.item)];
-  const want = M.pricesTold(await market(), (await logs()).map((x) => [x.round, x.doc]), held, facts);
+  const want = M.pricesTold(await market(), (await logs()).map((x) => [x.round, x.doc]), held, facts, K);
   return { ok: held.length > 0 && same(prices, want), got: prices, want };
 };
 
@@ -235,7 +236,7 @@ let l = await logs();
 t.check("the round that ended is written down: what was sold, at the price it had", l.length === 1 && l[0].round === R0 && same(l[0].doc, { kangkong: [100, 160] }), l);
 t.check("the market is of the new round, with nothing sold in it yet", (await market()).round === R0 + 1 && same((await market()).sold, {}));
 {
-  const m = await market(), want = M.rolled({ round: R0, at: {}, sold: { kangkong: 160 } }, R0 + 1, 10, facts).market;
+  const m = await market(), want = M.rolled({ round: R0, at: {}, sold: { kangkong: 160 } }, R0 + 1, 10, facts, K).market;
   t.check("…and stands where the site's own rule puts it, the village counted as ten", same(m, want), Object.keys(want.at).filter((id) => !same(m.at[id], want.at[id])).slice(0, 5));
 }
 r = await call(U.m2, "town_leave", 0, 20);

@@ -89,7 +89,7 @@ t.section("the rows, and the relatives' usual amount");
   const knob = async () => Number((await t.sql(`select value from public.town_knobs where key = 'market_bug'`)).rows[0].value);
   t.check("the relatives' usual amount of an insect is 7 coins a head a round, where it was 10", (await knob()) === 7, await knob());
   const K = (await t.sql(`select town.market_knobs() as k`)).rows[0].k;
-  t.check("which is the number the site's own code has, as every other knob of the market's is", MARKET.usual.bug === 7 && same(K, MARKET), { code: MARKET.usual, knobs: K.usual });
+  t.check("which is the number the site's own code has, as every other knob of the market's is", K.usual.bug === 7 && same(K, { ...MARKET, usual: { crop: 30, fish: 15, catch: 10, dish: 15, goods: 15, wild: 15, bug: 7 } }), { code: MARKET.usual, knobs: K.usual });
   await t.sql(`update public.town_knobs set value = 12 where key = 'market_bug'`);
   await t.db.exec(FILE);
   t.check("one an admin has turned stays turned when the file runs again", (await knob()) === 12, await knob());

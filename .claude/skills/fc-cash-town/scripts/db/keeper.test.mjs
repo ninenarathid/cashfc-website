@@ -22,7 +22,7 @@ const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v155"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -475,7 +475,7 @@ try {
   }
 
   if ((await sql(`select to_regprocedure('town.prices_told(uuid)') is not null as there`))[0].there) {
-    section("the relatives' price: told at the stall, and with a thing left or taken back (v124)");
+    section("the relatives' price: told at the stall, and with a thing left or taken back (v124; the usual amounts are v155's)");
     const P = new DbKeeper(a, askAs("A"));
     await purse(a, 0, [...Array(8).fill({ item: "kangkong", n: 20 }), { item: "worm", n: 3 }]);
     await settled(P);
@@ -491,11 +491,11 @@ try {
     const stopQ = B.look("stall");
     await sleep(500);
     const now = B.prices().things.kangkong;
-    ok("a round on, somebody else is told the lower price, with the round that ended behind it", now?.f === 83 && now.was.length === 1 && now.was[0][1] === 100 && now.was[0][2] === 160 && now.floor === 40 && now.ceil === 150, B.prices());
+    ok("a round on, somebody else is told the lower price, with the round that ended behind it", now?.f === 75 && now.was.length === 1 && now.was[0][1] === 100 && now.was[0][2] === 160 && now.floor === 40 && now.ceil === 150, B.prices());
     did = await B.leave(0, 20);
-    ok("…and a lot left then keeps it", did.ok && B.purse().left.at(-1).f === 83 && B.prices().things.kangkong?.f === 83, [B.purse().left, B.prices()]);
+    ok("…and a lot left then keeps it", did.ok && B.purse().left.at(-1).f === 75 && B.prices().things.kangkong?.f === 75, [B.purse().left, B.prices()]);
     did = await B.takeBack(B.purse().left.length - 1);
-    ok("taken back, it is in the bag again, and its price is told with the answer", did.ok && B.purse().bag[0]?.n === 20 && B.prices().things.kangkong?.f === 83, [B.purse().bag[0], B.prices()]);
+    ok("taken back, it is in the bag again, and its price is told with the answer", did.ok && B.purse().bag[0]?.n === 20 && B.prices().things.kangkong?.f === 75, [B.purse().bag[0], B.prices()]);
     stopP(); stopQ(); P.close();
   }
 
