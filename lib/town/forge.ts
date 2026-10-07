@@ -112,7 +112,7 @@ export type SmithRefusal =
   | "idle"     // nothing smelting there now
   | "tired"    // helped that queue as often as one may this hour
   | "away";    // the town's books could not be reached
-export type Did<T> = ({ ok: true } & T) | { ok: false; why: SmithRefusal };
+export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: SmithRefusal };
 const no = (why: SmithRefusal): { ok: false; why: SmithRefusal } => ({ ok: false, why });
 const whole = (n: number) => Number.isInteger(n) && n > 0;
 

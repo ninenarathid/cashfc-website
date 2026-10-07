@@ -18,6 +18,9 @@ import type { FishingPlay, Play, Tally, WorkPlay } from "@/lib/town/plays";
 import { STAMINA, staminaOf } from "@/lib/town/stamina";
 import { GOODS, handOf, held, roomFor } from "@/lib/town/trade";
 import { trialFor } from "@/lib/town/trial";
+// ── forging ──
+import { drawnOf, gemsOf, levelOf, toolKindOf } from "@/lib/town/tools";
+import { handSlot } from "@/lib/town/trade";
 import { WELL } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { Coins, ItemCard, ItemIcon } from "./TownTrade";
@@ -186,6 +189,19 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
           <Row label={th ? "นาฬิกาของโหมดลอง" : "The trial's clock"} value={<span className="font-data text-ink">{clock(now)}</span>}>
             {[1, 3, 6, 12].map((h) => <Do key={h} onClick={() => trial.skipHours(h)}>+{h} {th ? "ชม." : "h"}</Do>)}
           </Row>
+          {/* ── forging ── the blacksmith: his screen (until he stands in town, this is the way in), what trying him out takes, and the tool in the hand forged as far as one likes */}
+          {(() => {
+            const at = handSlot(purse, Number.isInteger(purse.handAt) ? (purse.handAt as number) : null), tool = at >= 0 ? purse.bag[at] : null, kind = tool ? toolKindOf(tool.item) : null;
+            const open = (view: string) => (window as unknown as { __townSmith?: { open: (view: string) => void } }).__townSmith?.open(view);
+            return (
+              <Row label={th ? "ช่างตีเหล็ก" : "The blacksmith"} value={<span className="font-data text-meta tabular-nums text-ink" data-test-smith>{tool && kind ? `${th ? ITEMS[tool.item].name.th : ITEMS[tool.item].name.en} +${levelOf(tool)}` : th ? "ถือเครื่องมือไว้ก่อน" : "hold a tool first"}</span>}>
+                <Do onClick={() => { onClose(); open("forge"); }}>{th ? "เปิดหน้าช่าง" : "Open his screen"}</Do>
+                <Do onClick={() => { trial.grantSmith(); setSaid(th ? "ได้ไม้ เศษแร่ แร่ก้อน พลอย และเหรียญแล้ว (กระเป๋า 20 ช่อง)" : "Timber, fragments, ore, gems and coins are in the bag (twenty slots)"); }}>{th ? "เสกวัตถุดิบ" : "Materials"}</Do>
+                {[0, 3, 6, 7, 10].map((n) => <Do key={n} on={!!tool && !!kind && levelOf(tool) === n} onClick={() => { if (tool && kind) trial.setTool(at, n, drawnOf(tool).map((o) => o ?? ""), gemsOf(tool)); }}>+{n}</Do>)}
+                <Do onClick={() => trial.skipHours(0.1)}>+6 {th ? "นาที" : "min"}</Do>
+              </Row>
+            );
+          })()}
           {/* the lines of work and the gifts of their ranks: points to reach a rank, every charm at once, and what is worn */}
           <Row label={th ? "แต้มสายอาชีพ" : "Points on the lines"} value={<span className="font-data text-meta tabular-nums text-ink">{LINE_IDS.map((id) => `${th ? LINES[id].name.th.replace("สาย", "") : LINES[id].name.en.replace("The ", "")} ${rankOf(id, trial.lines().lines[id].points)}`).join(" · ")}</span>}>
             {[0, 60, 400, 12000].map((n) => <Do key={n} onClick={() => { for (const id of LINE_IDS) if (id !== "well") trial.setLine(id, n); setSaid(th ? `ตั้งทุกสายเป็น ${n} แต้มแล้ว (ยกเว้นหาบน้ำ ซึ่งนับเป็นถัง)` : `Every line set to ${n} points (but the well's, which counts buckets)`); }}>{n}</Do>)}

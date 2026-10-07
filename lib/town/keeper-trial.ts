@@ -119,7 +119,8 @@ class TrialKeeper implements Keeper {
     if (slot === null) { this.trial.letGo(); return { ok: true }; }
     return this.trial.hold(slot);
   }
-  handSlot() { return handSlot(this.trial.purse(), this.taken); }
+  // (forging: with no slot of this page's, the one the purse itself remembers: of two tools of a kind, the one taken up)
+  handSlot() { const p = this.trial.purse(); return handSlot(p, this.taken ?? (Number.isInteger(p.handAt) ? (p.handAt as number) : null)); }
   async wear(slot: number): Promise<Did> { return this.trial.wear(slot); }
   async takeOff(item: ItemId): Promise<Did> { return this.trial.takeOff(item); }
   async serve(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.serve(slot); }
@@ -380,6 +381,25 @@ class TrialKeeper implements Keeper {
     if (did.ok) this.onDeed?.("farm");
     return did;
   }
+
+  // ── forging ── (lib/town/forge: the trial keeps what each tester has at the smith, and draws the chance itself)
+  smith() { return this.trial.smith(); }
+  smithLook() { /* it is in this browser already */ }
+  async smithSmelt(piece: ItemId, n: number) { return this.trial.smithSmelt(piece, n); }
+  async smithTake() { return this.trial.smithTake(); }
+  async smithWiden() { return this.trial.smithWiden(); }
+  async smithNear(ids: string[]) { return this.trial.smithNear(ids); }
+  async smithBellows(whose: string) {
+    const did = this.trial.smithBellows(whose);
+    // (whoever's queue it was is in another tab: told through the room, as the database's keeper tells them)
+    if (did.ok) this.onDeed?.("line", whose);
+    return did;
+  }
+  async smithTry(slot: number, name: string) { return this.trial.smithTry(slot, name); }
+  async smithDraw(slot: number) { return this.trial.smithDraw(slot); }
+  async smithChoose(slot: number, pick: string, name: string) { return this.trial.smithChoose(slot, pick, name); }
+  async smithRedraw(slot: number, at: number, gem: ItemId) { return this.trial.smithRedraw(slot, at, gem); }
+  async smithGem(slot: number, gem: ItemId) { return this.trial.smithGem(slot, gem); }
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

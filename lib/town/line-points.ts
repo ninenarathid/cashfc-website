@@ -30,7 +30,8 @@ export const POINTS = {
   first: 10,
   kitchen: { made: 1, ladled: 1, pots: 3, ladling: 9 },
   // ── gifts: helpers ── (`dust`: fae dust sprinkled on somebody else's plant, lib/town/farm's dust: as much as feeding one)
-  helpers: { water: 1, clear: 2, till: 2, feed: 2, cure: 5, thanked: 3, dust: 2 } as Record<string, number>,
+  // ── forging ── (`bellows`: the bellows worked for somebody else's piece at the smith, lib/town/forge)
+  helpers: { water: 1, clear: 2, till: 2, feed: 2, cure: 5, thanked: 3, dust: 2, bellows: 2 } as Record<string, number>,
   fishing: { common: 1, uncommon: 3, rare: 8, legend: 30 } as Record<string, number>,
   forest: { pick: 1, choose: 2, shake: 2, dig: 3, rare: 10 } as Record<string, number>,
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
@@ -117,6 +118,9 @@ export function countsOf(d: Done, doer: string): Counts[] {
     // somebody else's plants it rang over for them: each is a watering's worth more)
     case "bell":
       return d.n > 0 ? [{ to: null, line: "helpers", raw: POINTS.helpers.water * Math.floor(d.n) }] : [];
+    // ── forging ── (the bellows worked at the smith for somebody else's piece)
+    case "bellows":
+      return typeof d.doc.whose === "string" && d.doc.whose !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers.bellows }] : [];
     case "thank":
       return (Array.isArray(d.doc.to) ? d.doc.to : []).filter((id): id is string => typeof id === "string" && id !== doer)
         .map((id) => ({ to: id, line: "helpers" as const, raw: POINTS.helpers.thanked }));

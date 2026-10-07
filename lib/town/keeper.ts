@@ -47,6 +47,9 @@ import type { WellGiftRefusal } from "./well-gifts";
 // ── gifts: helpers ──
 import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
+// ── forging ──
+import { newBoard, soundSmithy, type Did as SmithDid, type Outcome as ForgeOutcome, type Pending, type SmithBoard, type Smelting, type Smithy } from "./forge";
+import type { Element, OptionId } from "./tools";
 
 /**
  * Who keeps the game.
@@ -489,11 +492,38 @@ export interface Keeper {
   moonKeep(): Promise<Did<{ n: number; kind: Nature }>>;
   moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>>;
 
+  // ── forging ── (lib/town/forge: the blacksmith)
+  /**
+   * What I have at the smith and the village's board there: null from a database that has not had the file, and the
+   * page then offers nothing of a smith (no screen, no choice in his talk).
+   */
+  smith(): SmithTold | null;
+  /** Ask what I have at the smith again (the database's; the trial's is in the browser already). */
+  smithLook(): void;
+  /** Put so many pieces of one kind in to smelt; take what is done; widen the queue. */
+  smithSmelt(piece: ItemId, n: number): Promise<SmithDid<{ timber: number; fee: number }>>;
+  smithTake(): Promise<SmithDid<{ got: Array<[ItemId, number]> }>>;
+  smithWiden(): Promise<SmithDid>;
+  /** Who of these members has a piece smelting now (those standing by the forge with me), and working the bellows for one of them. */
+  smithNear(ids: string[]): Promise<Array<{ id: string; piece: Smelting; left: number }>>;
+  smithBellows(whose: string): Promise<SmithDid<{ off: number }>>;
+  /** A try at the tool in a slot of my bag: whoever keeps the game draws how it goes. `name` is mine, for the board. */
+  smithTry(slot: number, name: string): Promise<SmithDid<{ out: ForgeOutcome; from: number; level: number; owed: number }>>;
+  /** The draw the tool in a slot is owed, laid out (the same one, if it waits already); one of it chosen; and a milestone's option drawn again for a gem. */
+  smithDraw(slot: number): Promise<SmithDid<{ pending: Pending }>>;
+  smithChoose(slot: number, pick: string, name: string): Promise<SmithDid<{ opt: OptionId; kept: boolean }>>;
+  smithRedraw(slot: number, at: number, gem: ItemId): Promise<SmithDid<{ pending: Pending }>>;
+  /** Set a gem of my bag into the tool in a slot. */
+  smithGem(slot: number, gem: ItemId): Promise<SmithDid<{ element: Element; over: Element | null }>>;
+
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
   record(play: Play): void;
   /** Stop every timer: the member has left the town. */
   close(): void;
 }
+// ── forging ──
+/** What a keeper tells of the smith: what the member has there, and the village's board. */
+export interface SmithTold { smithy: Smithy; board: SmithBoard }
 
 /**
  * One function of the town's, asked of the database: its answer as it came, or
@@ -564,6 +594,8 @@ export class DbKeeper implements Keeper {
   private lines_: LinesTold | null = null;
   private titles_: Record<string, Worn> = {};
   private gifting_ = false;
+  // ── forging ── (nothing, until the database tells of a smith)
+  private smith_: SmithTold | null = null;
   /** The gifts the database gives, as it last said; until it says (v151 said only that it gives some), the first round's six charms. */
   private gives_: readonly string[] = CHARM_IDS;
   private ranksAgain: ReturnType<typeof setInterval> | null = null;
@@ -727,6 +759,12 @@ export class DbKeeper implements Keeper {
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
     if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
     if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
+    // ── forging ── (what I have at the smith, and the board: told by a database that has one, with my purse and with every deed there)
+    if (a.smith && typeof a.smith === "object" && typeof (a.smith as { smithy?: unknown }).smithy === "object") {
+      const told = a.smith as { smithy: unknown; board?: Partial<SmithBoard> | null };
+      const board = told.board && typeof told.board === "object" ? told.board : this.smith_?.board ?? newBoard();
+      this.smith_ = { smithy: soundSmithy(told.smithy), board: { tops: board.tops ?? {}, found: board.found ?? {} } };
+    }
     if (Array.isArray(a.gives)) this.gives_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string");
     if (a.titles && typeof a.titles === "object") {
       this.titles_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
@@ -1006,7 +1044,8 @@ export class DbKeeper implements Keeper {
     if (did.ok) { this.taken = slot; this.tell(); }
     return did;
   }
-  handSlot() { return handSlot(this.mine, this.taken); }
+  // (forging: with no slot of this page's, the one the purse itself remembers: of two tools of a kind, the one taken up)
+  handSlot() { return handSlot(this.mine, this.taken ?? (Number.isInteger(this.mine.handAt) ? (this.mine.handAt as number) : null)); }
   wear(slot: number) { return this.deed("town_wear", { p_slot: slot }); }
   takeOff(item: ItemId) { return this.deed("town_take_off", { p_item: item }); }
   serve(slot: number) { return this.deed<{ dish: DishId }>("town_serve", { p_slot: slot }); }
@@ -1400,4 +1439,31 @@ export class DbKeeper implements Keeper {
     if (this.ranksAgain) clearInterval(this.ranksAgain);
     this.heard.clear();
   }
+
+  // ── forging ── (lib/town/forge: every outcome is the database's, and each answer brings my purse and what I have at the smith)
+  smith(): SmithTold | null { return this.smith_; }
+  smithLook() { if (this.smith_) void this.ask("town_smith"); }
+  private async smithDeed<T>(fn: string, args: Record<string, unknown> = {}): Promise<SmithDid<T>> {
+    if (!this.smith_) return { ok: false, why: "away" };
+    return (await this.deed<T>(fn, args)) as SmithDid<T>;
+  }
+  smithSmelt(piece: ItemId, n: number) { return this.smithDeed<{ timber: number; fee: number }>("town_smith_smelt", { p_piece: piece, p_n: n }); }
+  smithTake() { return this.smithDeed<{ got: Array<[ItemId, number]> }>("town_smith_take"); }
+  smithWiden() { return this.smithDeed("town_smith_widen"); }
+  async smithNear(ids: string[]): Promise<Array<{ id: string; piece: Smelting; left: number }>> {
+    if (!this.smith_ || !ids.length) return [];
+    const a = await this.ask("town_smith_near", { p_ids: ids });
+    return a && Array.isArray(a.near) ? (a.near as Array<{ id: string; piece: Smelting; left: number }>).filter((x) => !!x && typeof x.id === "string" && !!x.piece && x.piece.piece in ITEMS) : [];
+  }
+  async smithBellows(whose: string) {
+    const did = await this.smithDeed<{ off: number }>("town_smith_bellows", { p_whose: whose });
+    // (whoever's queue it was is told through the room: their piece is done sooner)
+    if (did.ok) this.onDeed?.("line", whose);
+    return did;
+  }
+  smithTry(slot: number) { return this.smithDeed<{ out: ForgeOutcome; from: number; level: number; owed: number }>("town_smith_try", { p_slot: slot }); }
+  smithDraw(slot: number) { return this.smithDeed<{ pending: Pending }>("town_smith_draw", { p_slot: slot }); }
+  smithChoose(slot: number, pick: string) { return this.smithDeed<{ opt: OptionId; kept: boolean }>("town_smith_choose", { p_slot: slot, p_pick: pick }); }
+  smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithDeed<{ pending: Pending }>("town_smith_redraw", { p_slot: slot, p_at: at, p_gem: gem }); }
+  smithGem(slot: number, gem: ItemId) { return this.smithDeed<{ element: Element; over: Element | null }>("town_smith_gem", { p_slot: slot, p_gem: gem }); }
 }

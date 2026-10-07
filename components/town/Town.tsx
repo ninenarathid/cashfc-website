@@ -45,6 +45,8 @@ import { BOX } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
+import type { SmithView } from "./TownSmith";
+import { glowOf } from "@/lib/town/tools";
 import type { FarmDraw } from "./TownFarm";
 // ── gifts: farming ──
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
@@ -131,6 +133,8 @@ const TownDeal = lazy(() => import("./TownDeal"));
 const TownScroll = lazy(() => import("./TownScroll"));
 const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
+// ── forging ── (the blacksmith's screen: asked for only where whoever keeps the game has a smith)
+const TownSmith = lazy(() => import("./TownSmith"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
 const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
@@ -586,6 +590,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** The trade's panel that is open (the uncle's stall, the bank, my bag), and what the map shows of my purse. */
   const [trade, setTrade] = useState<TradeView | null>(null);
   const [purse, setPurse] = useState<TradeSummary>({ hand: null, wet: false, coins: 0, waiting: 0, stamina: 100, buff: null, eating: null });
+  // ── forging ── (the blacksmith's screen, and which of its leaves is open: lib/town/forge, TownSmith. His talk opens
+  // it with `openSmith`, as the uncle's opens his stall; until he stands in town, `next dev` opens it by its handle.)
+  const [smith, setSmith] = useState<SmithView | null>(null);
   /**
    * Who keeps the game for me (lib/town/keeper), and whether it is open to me: the database for a member (which
    * answers whether it is), the browser's trial in `next dev`'s test room. With `&townDb=<address>` the test room is
@@ -2710,8 +2717,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const rod = rodOf(a, isMe), held = !rod ? a.info.hold || null : null;
     const handSide = (face.view === "back") !== face.mirror ? -1 : 1;
     const fishesWith: RodId = isRod(a.info.hold) ? a.info.hold : "rod";
-    if (rod && face.view === "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
-    if (held && face.view === "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
+    // ── forging ── (a tool forged far enough glows in the hand, in its gem's colour; fully at the top, where it
+    // breathes a little while the town moves. From what the room is told of it: everybody sees it.)
+    const glow = a.info.hold ? glowOf(a.info.tool) : null;
+    const lit = (draw: () => void) => {
+      if (!glow) { draw(); return; }
+      ctx.save();
+      ctx.shadowColor = glow.hue;
+      ctx.shadowBlur = (glow.glow === 2 ? 11 + (reducedRef.current ? 0 : 3 * Math.sin(now / 320 + a.info.id.charCodeAt(0))) : 6) * dpr;
+      draw();
+      if (glow.glow === 2) draw();
+      ctx.restore();
+    };
+    if (rod && face.view === "back") lit(() => drawRod(ctx, p, h, rod, a.info.id, now, fishesWith));
+    if (held && face.view === "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet));
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -2726,8 +2745,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.arc(p.x, p.y - h * 0.72 - bob, h * 0.24, 0, Math.PI * 2);
       ctx.fill();
     }
-    if (rod && face.view !== "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
-    if (held && face.view !== "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
+    if (rod && face.view !== "back") lit(() => drawRod(ctx, p, h, rod, a.info.id, now, fishesWith));
+    if (held && face.view !== "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet));
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
@@ -3535,6 +3554,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satNow, keeper]);
   useEffect(() => { sessionRef.current?.setHolding(purse.hand, purse.wet); }, [purse.hand, purse.wet]);
+  // ── forging ── (what the tool in my hand carries: everybody's page draws its glow, and walks me by the wind in it)
+  useEffect(() => { sessionRef.current?.setTool(purse.hand ? purse.tool ?? "" : ""); }, [purse.hand, purse.tool]);
   // (whether I have no stamina left: handing water on is a game only where somebody has none, lib/town/handing)
   const spentNow = purse.stamina <= 0;
   useEffect(() => { sessionRef.current?.setSpent(spentNow); }, [spentNow]);
@@ -3561,6 +3582,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     setTrade(view);
   };
   /** What was chosen at the end of a talk: a chat (their next one, in turn), or one of the trade's panels. */
+  // ── forging ── (open the blacksmith's screen at one of its leaves, over whatever else was open; for his talk's
+  // choices (TownSmith's smithChoices) and, in `next dev`, for scripts and the test window)
+  const openSmith = (view: SmithView | null) => {
+    if (view) { if (wardrobeOpenRef.current) closeWardrobe(); setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setBoardOpen(false); setFishing(false); }
+    setSmith(view);
+  };
+  const openSmithRef = useRef(openSmith);
+  useEffect(() => { openSmithRef.current = openSmith; });
+  useEffect(() => {
+    if (process.env.NODE_ENV === "production") return;
+    const w = window as unknown as { __townSmith?: unknown };
+    w.__townSmith = { open: (view: SmithView = "smelt") => openSmithRef.current(view), close: () => openSmithRef.current(null) };
+    return () => { delete w.__townSmith; };
+  }, []);
+  /** Who stands by the forge with me: within a few tiles, on their feet, here and not on another page. */
+  const smithNear = useCallback(() => {
+    const all = standers(), mine = all.find((p) => p.id === me.id);
+    return mine ? all.filter((p) => p.id !== me.id && !p.away && Math.hypot(p.x - mine.x, p.y - mine.y) <= 6).map((p) => ({ id: p.id, name: p.name })) : [];
+  }, [standers, me.id]);
   const pickTalk = (who: Speaker, id: string) => {
     if (id === "chat") setTalk({ who, n: ++talks.current, lines: chatFor(who, talkTurns.current[who]++) });
     else openTrade(id === "order" ? "sell" : (id as TradeView));
@@ -4268,6 +4308,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownLines keeper={keeper} told={linesTold} gifts={giftsTold.gifts} gifting={giftsTold.gifting} given={giftsTold.given} leaf={linesOpen} th={w.th} reduced={reducedRef.current} called={me.name}
                      bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} onClose={() => setLinesOpen(false)} />
+        </Suspense>
+      )}
+      {/* ── forging ── The blacksmith's screen: only where whoever keeps the game has a smith */}
+      {s && game && keeper && smith && keeper.smith() && (
+        <Suspense fallback={null}>
+          <TownSmith keeper={keeper} th={w.th} view={smith} onView={setSmith} onClose={() => setSmith(null)} phone={phone} tabbar={tabbar} reduced={!moving} sfx={sfxRef.current} name={me.name} near={smithNear} />
         </Suspense>
       )}
       {/* A recipe unrolled to be read: over everything */}
