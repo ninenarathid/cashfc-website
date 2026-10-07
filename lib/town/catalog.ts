@@ -15,6 +15,7 @@ import { huntRow } from "./hunt";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
+import { BRIDGE } from "./bridge";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE } from "./insects";
 import { JAR } from "./jar";
@@ -288,6 +289,18 @@ export function catalogOf() {
     gifts: giftsRow(),
     /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
+    // ── the bridge built by hand ── (lib/town/bridge; v160)
+    /**
+     * The bridge and its stones: the work and the thing it is built of; how many it takes and in how many spans (the
+     * table of what a work needs is seeded from `need`, and is what the giving reads from then on); what lifting and
+     * laying cost; how far a stone is handed (the page's to hold to), how near the pile and the foot one stands, the
+     * paces of whoever holds one (the page's), how many hands are remembered, what a stone laid is worth on the
+     * helpers' line; and the two tiles.
+     */
+    bridge: {
+      work: BRIDGE.work, thing: BRIDGE.thing, need: BRIDGE.need, spans: BRIDGE.spans, costs: BRIDGE.costs, reach: BRIDGE.reach, near: BRIDGE.near, paces: BRIDGE.paces, hands: BRIDGE.hands, point: BRIDGE.point,
+      pile: [BRIDGE.pile.x, BRIDGE.pile.y], foot: [BRIDGE.foot.x, BRIDGE.foot.y],
+    },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -414,8 +427,13 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * was six; and `feast`: how many pots of one member's the table takes, the minutes a pot stands on the ground first, the
  * tile a pot on the table is said to stand on, and the yard's floor, from which the table is reached). And one number
  * of `items` by itself, not the row: `bowl.stack`, three where it was one.
+ *
+ * v160 (a draft, not run) seeds one, new: `bridge`, for the bridge built by hand and the village's works.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // ── the bridge built by hand ── (v160, a draft: one row, new)
+  v160: { keys: ["bridge"], over: [] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
