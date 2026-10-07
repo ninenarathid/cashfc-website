@@ -20,7 +20,13 @@ import type { Line } from "./talk";
  * Pure: every number is a knob, and nothing here knows who did what.
  */
 export const LINE_IDS = ["kitchen", "well", "helpers", "fishing", "forest", "insects", "farming"] as const;
-export type LineId = (typeof LINE_IDS)[number];
+// ── lines to come (woodcutting and mining, 2026-10-08) ── The seven above are the ones every keeper of the game knows.
+// A later line is one only where whoever keeps the game gives it (`LinesTold.given`): a database from before it says
+// nothing of it, and the board then has no card for it.
+export const MORE_LINE_IDS = ["felling"] as const;
+export const ALL_LINE_IDS = [...LINE_IDS, ...MORE_LINE_IDS] as const;
+export type LineId = (typeof ALL_LINE_IDS)[number];
+// ── end: lines to come ──
 /** How many ranks a ladder has. */
 export const RANKS = 10;
 /** What a point past the day's bound counts for. */
@@ -99,6 +105,16 @@ export const LINES: Record<LineId, LineDef> = {
       ["เจ้าแห่งเทศกาลเก็บเกี่ยว", "Lord of the harvest festival"], ["ผู้ปลูกต้นถั่ววิเศษ", "Grower of the magic beanstalk"],
     ],
   },
+  // ── lines to come: felling ──
+  felling: {
+    name: { th: "สายตัดไม้", en: "The woodcutters" }, icon: "axe", marks: MARKS, day: 150,
+    titles: [
+      ["เด็กเก็บฟืน", "Kindling child"], ["ลูกมือโรงไม้", "Sawmill hand"], ["คนตัดไม้", "Woodcutter"], ["นักอ่านลายไม้", "Grain reader"],
+      ["สหายภูตไม้", "Wood-sprite's friend"], ["ผู้เฝ้าป่าสน", "Keeper of the pines"], ["จอมขวานแห่งขุนเขา", "Axe-lord of the heights"], ["ผู้ปลุกไม้เก่าแก่", "Waker of the old wood"],
+      ["เจ้าแห่งพงไพร", "Lord of the wildwood"], ["ตำนานแห่งพงไพร", "Legend of the wildwood"],
+    ],
+  },
+  // ── end: felling ──
 };
 
 /** The title somebody wears under their name: of which line, and which rank of it. */
@@ -107,22 +123,30 @@ export interface Worn { line: LineId; rank: number }
  * Somebody's lines as they are told them: on each, the points they have, all told, and what today's deeds were worth
  * before the day's bound; and the title they wear, if they chose one.
  */
-export interface LinesTold { lines: Record<LineId, { points: number; today: number }>; worn: Worn | null }
+export interface LinesTold {
+  lines: Record<LineId, { points: number; today: number }>; worn: Worn | null;
+  /** (lines to come) The later lines whoever keeps the game gives: none, from a keeper that says nothing of them. */
+  given?: LineId[];
+}
+/** (lines to come) The lines somebody is shown: the seven, and the later ones their keeper gives. */
+export const linesShown = (told: Pick<LinesTold, "given"> | null | undefined): LineId[] => [...LINE_IDS, ...MORE_LINE_IDS.filter((id) => !!told?.given?.includes(id))];
 /** Lines with nothing on them yet. */
-export const noLines = (): LinesTold => ({ lines: Object.fromEntries(LINE_IDS.map((id) => [id, { points: 0, today: 0 }])) as LinesTold["lines"], worn: null });
+export const noLines = (): LinesTold => ({ lines: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, { points: 0, today: 0 }])) as LinesTold["lines"], worn: null });
 /** Lines as a keeper is told them, made sound: every line there is, with numbers that are numbers. */
 export function linesOf(v: unknown, worn: unknown = null): LinesTold {
   const told = noLines(), got = (v && typeof v === "object" ? v : {}) as Record<string, { points?: unknown; today?: unknown } | undefined>;
-  for (const id of LINE_IDS) {
+  for (const id of ALL_LINE_IDS) {
     const l = got[id], points = Number(l?.points), today = Number(l?.today);
     told.lines[id] = { points: Number.isFinite(points) && points > 0 ? points : 0, today: Number.isFinite(today) && today > 0 ? today : 0 };
   }
-  return { ...told, worn: wornOf(worn) };
+  // (lines to come: a later line is given where the answer has a key for it; today's database has none)
+  const given = MORE_LINE_IDS.filter((id) => !!got[id] && typeof got[id] === "object");
+  return { ...told, worn: wornOf(worn), ...(given.length ? { given: [...given] } : {}) };
 }
 /** A title as it may be told of somebody, if it is one there is: a line there is and a rank of the ten. */
 export const wornOf = (v: unknown): Worn | null => {
   const w = v as Partial<Worn> | null;
-  return w && (LINE_IDS as readonly string[]).includes(String(w.line)) && Number.isInteger(w.rank) && w.rank! >= 1 && w.rank! <= RANKS ? { line: w.line as LineId, rank: w.rank! } : null;
+  return w && (ALL_LINE_IDS as readonly string[]).includes(String(w.line)) && Number.isInteger(w.rank) && w.rank! >= 1 && w.rank! <= RANKS ? { line: w.line as LineId, rank: w.rank! } : null;
 };
 
 /** The rank so many points are: none (0) to the tenth. */
@@ -171,8 +195,8 @@ export function ladderOf(line: LineId, points: number): RankTold[] {
 
 /** Every title somebody has earned, line by line and rank by rank: what there is to choose from to wear under one's name. */
 export function titlesOf(points: Partial<Record<LineId, number>>): Array<{ line: LineId; rank: number; title: Line }> {
-  return LINE_IDS.flatMap((line) => Array.from({ length: rankOf(line, points[line] ?? 0) }, (_, i) => ({ line, rank: i + 1, title: titleOf(line, i + 1)! })));
+  return ALL_LINE_IDS.flatMap((line) => Array.from({ length: rankOf(line, points[line] ?? 0) }, (_, i) => ({ line, rank: i + 1, title: titleOf(line, i + 1)! })));
 }
 /** Whether a title is somebody's to wear: of a line there is, and of a rank they have. */
 export const mayWear = (points: Partial<Record<LineId, number>>, line: string, rank: number): boolean =>
-  (LINE_IDS as readonly string[]).includes(line) && Number.isInteger(rank) && rank >= 1 && rank <= rankOf(line as LineId, points[line as LineId] ?? 0);
+  (ALL_LINE_IDS as readonly string[]).includes(line) && Number.isInteger(rank) && rank >= 1 && rank <= rankOf(line as LineId, points[line as LineId] ?? 0);

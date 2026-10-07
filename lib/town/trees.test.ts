@@ -1,0 +1,426 @@
+import { describe, expect, it, vi } from "vitest";
+import { FELLING, leastSecs } from "./felling";
+import { countsOf, POINTS } from "./line-points";
+import { powerLeft } from "./powers";
+import { STAMINA, dayOf, staminaOf } from "./stamina";
+import { GEM_FX, LEVELS, OPTIONS, axeChops } from "./tools";
+import { held, newPurse, type Purse, type Stack } from "./trade";
+import {
+  TREES, ageOf, begin, bringHome, chopsFor, farFrom, fell, fellingOf, groupOf, grownAt, kindOf, lookAt, lookOf, newGrove, rootBack, rootable, tidied, timberFor, toldOf, treeOf, woodOf,
+  type FellLuck, type Grove, type Standing,
+} from "./trees";
+
+const MIN = 60_000, HOUR = 3_600_000;
+/** 2026-10-08 12:00 in Bangkok: a moment in the middle of a day and of a meal's hours. */
+const NOON = Date.UTC(2026, 9, 8, 5, 0, 0);
+/** A made-up wood: three pines in a row two tiles apart, one far off, an ironwood, a moonwood, and the ancient tree. */
+const WOOD: Standing[] = woodOf(
+  [{ id: 0, x: 10, y: 10, tier: 1 }, { id: 1, x: 12, y: 10, tier: 1 }, { id: 2, x: 10, y: 12, tier: 1 }, { id: 3, x: 30, y: 30, tier: 1 }, { id: 60, x: 40, y: 10, tier: 2 }, { id: 100, x: 50, y: 10, tier: 3 }, { id: 4, x: 13, y: 12, tier: 1 }],
+  { x: 20, y: 20, w: 3 },
+);
+const BESIDE: Record<number, [number, number]> = { 0: [10, 11], 1: [12, 11], 2: [11, 12], 3: [30, 31], 60: [40, 11], 100: [50, 11], 4: [13, 13], 900: [23, 21] };
+/** A purse with an axe in the hand (as it was forged), full of stamina. */
+function woodcutter(axe: Partial<Stack> = {}, more: Partial<Purse> = {}): Purse {
+  const p = newPurse();
+  return { ...p, bag: [{ item: "axe", n: 1, ...axe }, ...p.bag.slice(1)], hand: "axe", handAt: 0, stamina: { day: dayOf(NOON), left: STAMINA.max }, ...more };
+}
+const LUCKLESS: FellLuck = { dark: 0.99, scent: 0.99, which: 0.99, chain: 0.99 };
+const lucky = (n: number, l: Partial<FellLuck> = {}) => Array.from({ length: n }, () => ({ ...LUCKLESS, ...l }));
+/** One tree felled by the purse's axe, with so many misses, in time enough. */
+function cut(p: Purse, g: Grove, id: number, misses = 0, more: { luck?: Partial<FellLuck>; one?: boolean; twice?: boolean; now?: number } = {}) {
+  return fell(p, g, "me", { tree: id, trees: [{ id, felled: true, misses }], secs: 6, one: more.one, twice: more.twice }, BESIDE[id], more.now ?? NOON, lucky(1, more.luck), WOOD);
+}
+const opts3 = (id: string) => ({ plus: 3, opts: [id] }), top = (id?: string) => ({ plus: 10, opts: id ? ["", "", id] : [] });
+
+describe("a tree, by the clock", () => {
+  it("is a stump, a sprout, a young tree and grown at the shares of its forty minutes", () => {
+    const from = NOON, until = grownAt({}, from);
+    expect(until - from).toBe(TREES.regrow * MIN);
+    expect(TREES.regrow).toBe(40);
+    expect(lookAt(from, until, from)).toBe(0);
+    expect(lookAt(from, until, from + 9.9 * MIN)).toBe(0);
+    expect(lookAt(from, until, from + 10 * MIN)).toBe(1);
+    expect(lookAt(from, until, from + 23.9 * MIN)).toBe(1);
+    expect(lookAt(from, until, from + 24 * MIN)).toBe(2);
+    expect(lookAt(from, until, from + 39.9 * MIN)).toBe(2);
+    expect(lookAt(from, until, from + 40 * MIN)).toBe(3);
+  });
+
+  it("the ancient tree is grown once a day, from dawn in Bangkok, and a stump until then", () => {
+    const elder = treeOf(TREES.elder.id, WOOD)!;
+    // felled at noon: back at five the next morning (22:00 UTC of the same day)
+    expect(grownAt(elder, NOON)).toBe(Date.UTC(2026, 9, 8, 22, 0, 0));
+    // felled a minute before dawn: back a minute later; a minute after: a day on
+    const dawn = Date.UTC(2026, 9, 7, 22, 0, 0);
+    expect(grownAt(elder, dawn - MIN)).toBe(dawn);
+    expect(grownAt(elder, dawn + MIN)).toBe(dawn + 24 * HOUR);
+    const g: Grove = { down: { [TREES.elder.id]: { at: NOON, by: "me" } }, half: [] };
+    expect(ageOf(g, elder, NOON + 10 * HOUR)).toBe(0);
+    expect(ageOf(g, elder, Date.UTC(2026, 9, 8, 22, 0, 0))).toBe(3);
+  });
+
+  it("what has grown again is forgotten, and a page reads each tree's look from what it is told", () => {
+    const g: Grove = { down: { 0: { at: NOON, by: "a" }, 1: { at: NOON - 50 * MIN, by: "b" } }, half: [2, 0] };
+    expect(Object.keys(tidied(g, NOON, WOOD).down)).toEqual(["0"]);
+    const told = toldOf(g, woodcutter(), NOON + 12 * MIN, WOOD);
+    expect(told).toEqual({ down: [{ id: 0, at: NOON, until: NOON + 40 * MIN }], half: [2] });
+    expect(lookOf(told, 0, NOON + 12 * MIN)).toBe(1);
+    expect(lookOf(told, 0, NOON + 41 * MIN)).toBe(3);
+    expect(lookOf(told, 1, NOON)).toBe(3);
+    expect(lookOf(null, 5, NOON)).toBe(3);
+  });
+});
+
+describe("walking up to a tree with an axe", () => {
+  it("is a game of twelve chops with a plain axe, branches seen three up, at the plain pace", () => {
+    const did = begin(woodcutter(), newGrove(), 3, BESIDE[3], NOON, 77, WOOD);
+    expect(did).toMatchObject({ ok: true, trees: [3], elder: false, ask: { ahead: 3, pace: 1, spared: 0, spent: false } });
+    if (did.ok) expect(did.ask.trees).toEqual([{ id: 3, chops: 12, seed: did.ask.trees[0].seed }]);
+  });
+
+  it("refuses, each for its own state: no axe held, too far, an axe that will not bite, a stump, a full bag", () => {
+    const p = woodcutter(), g = newGrove();
+    expect(begin({ ...p, hand: null }, g, 3, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "tool" });
+    expect(begin({ ...p, bag: [{ item: "hoe", n: 1 }], hand: "hoe" }, g, 3, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "tool" });
+    expect(begin(p, g, 3, [30, 33], NOON, 1, WOOD)).toEqual({ ok: false, why: "far" });
+    expect(begin(p, g, 60, BESIDE[60], NOON, 1, WOOD)).toEqual({ ok: false, why: "bite" });
+    expect(begin(woodcutter({ plus: 10 }), g, 100, BESIDE[100], NOON, 1, WOOD)).toEqual({ ok: false, why: "bite" });
+    expect(begin(p, { down: { 3: { at: NOON - 39 * MIN, by: "x" } }, half: [] }, 3, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "stump" });
+    expect(begin(p, { down: { 3: { at: NOON - 40 * MIN, by: "x" } }, half: [] }, 3, BESIDE[3], NOON, 1, WOOD).ok).toBe(true);
+    expect(begin(p, g, 999, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "none" });
+    const full = { ...p, bag: p.bag.map((s) => s ?? { item: "stone" as const, n: 50 }) };
+    expect(begin(full, g, 3, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "full" });
+  });
+
+  it("the ancient tree is refused under the top plus, and at it is a longer game, by itself", () => {
+    const g = newGrove();
+    for (const plus of [0, 5, 9]) expect(begin(woodcutter({ plus }), g, TREES.elder.id, BESIDE[900], NOON, 1, WOOD)).toEqual({ ok: false, why: "plus" });
+    const did = begin(woodcutter({ plus: 10 }), g, TREES.elder.id, BESIDE[900], NOON, 1, WOOD);
+    expect(did).toMatchObject({ ok: true, elder: true, trees: [TREES.elder.id] });
+    if (did.ok) {
+      expect(did.ask.trees[0].chops).toBe(axeChops({ item: "axe", n: 1, plus: 10 }, TREES.elderChops));
+      expect(did.ask.trees[0].chops).toBe(2 * LEVELS.axe.chops[10]);
+    }
+    // reached from any tile beside its three by three
+    const elder = treeOf(TREES.elder.id, WOOD)!;
+    expect(farFrom(elder, [19, 19])).toBe(1);
+    expect(farFrom(elder, [21, 21])).toBe(0);
+    expect(farFrom(elder, [24, 22])).toBe(2);
+  });
+
+  it("with no stamina the game is the tired one", () => {
+    const did = begin(woodcutter({}, { stamina: { day: dayOf(NOON), left: 0 } }), newGrove(), 3, BESIDE[3], NOON, 1, WOOD);
+    expect(did).toMatchObject({ ok: true, ask: { spent: true } });
+  });
+});
+
+describe("a tree felled", () => {
+  it("gives two logs always, and fine timber by the misses: two with none, one with one or two, none with more", () => {
+    expect([0, 1, 2, 3, 9].map(timberFor)).toEqual([2, 1, 1, 0, 0]);
+    for (const [misses, timber] of [[0, 2], [1, 1], [2, 1], [3, 0]] as const) {
+      const did = cut(woodcutter(), newGrove(), 3, misses);
+      expect(did.ok).toBe(true);
+      if (!did.ok) continue;
+      expect(held(did.purse.bag, "log")).toBe(2);
+      expect(held(did.purse.bag, "timber")).toBe(timber);
+      expect(did.got).toEqual(timber ? [["log", 2], ["timber", timber]] : [["log", 2]]);
+      expect(did.felled).toMatchObject([{ id: 3, kind: "pine", misses, chained: null, free: false, twice: false }]);
+    }
+  });
+
+  it("costs two stamina a tree, and is a stump for everybody from then on, with who felled it and when", () => {
+    const p = woodcutter(), did = cut(p, newGrove(), 3);
+    expect(did.ok).toBe(true);
+    if (!did.ok) return;
+    expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - TREES.cost);
+    expect(did.grove.down[3]).toEqual({ at: NOON, by: "me" });
+    // somebody else, with another purse, is told the same
+    expect(toldOf(did.grove, newPurse(), NOON, WOOD).down).toEqual([{ id: 3, at: NOON, until: NOON + 40 * MIN }]);
+    // and nobody fells it again until it is grown
+    expect(cut(did.purse, did.grove, 3, 0, { now: NOON + 39 * MIN })).toEqual({ ok: false, why: "stump" });
+    expect(cut(did.purse, did.grove, 3, 0, { now: NOON + 40 * MIN }).ok).toBe(true);
+  });
+
+  it("a go in which nothing fell changes nothing: no stamina, no stump, nothing lost", () => {
+    const p = woodcutter(), g = newGrove();
+    const did = fell(p, g, "me", { tree: 3, trees: [{ id: 3, felled: false, misses: 3 }], secs: 2 }, BESIDE[3], NOON, lucky(1), WOOD);
+    expect(did).toMatchObject({ ok: true, felled: [], got: [] });
+    if (did.ok) { expect(did.purse).toEqual(p); expect(did.grove.down).toEqual({}); }
+  });
+
+  it("with no stamina it costs nothing more, and gives as it gives anybody", () => {
+    const p = woodcutter({}, { stamina: { day: dayOf(NOON), left: 0 } }), did = cut(p, newGrove(), 3, 2);
+    expect(did.ok).toBe(true);
+    if (did.ok) { expect(staminaOf(did.purse, NOON)).toBe(0); expect(did.got).toEqual([["log", 2], ["timber", 1]]); }
+  });
+
+  it("is held to what was walked up to, to an axe that bites, and to what a hand can do", () => {
+    const p = woodcutter(), g = newGrove();
+    expect(fell(p, g, "me", { tree: 3, trees: [{ id: 3, felled: true, misses: 0 }], secs: 6 }, [30, 33], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "far" });
+    expect(fell({ ...p, hand: null }, g, "me", { tree: 3, trees: [{ id: 3, felled: true, misses: 0 }], secs: 6 }, BESIDE[3], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "tool" });
+    expect(fell(p, g, "me", { tree: 60, trees: [{ id: 60, felled: true, misses: 0 }], secs: 6 }, BESIDE[60], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "bite" });
+    // twelve chops in half a second were not chopped
+    expect(leastSecs([12])).toBeGreaterThan(0.5);
+    expect(fell(p, g, "me", { tree: 3, trees: [{ id: 3, felled: true, misses: 0 }], secs: 0.5 }, BESIDE[3], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "none" });
+    // a tree that was no part of the game does not fall with it
+    const other = fell(p, g, "me", { tree: 3, trees: [{ id: 3, felled: true, misses: 0 }, { id: 0, felled: true, misses: 0 }], secs: 12 }, BESIDE[3], NOON, lucky(2), WOOD);
+    expect(other.ok && other.felled.map((f) => f.id)).toEqual([3]);
+    // and the same tree named twice is no go
+    expect(fell(p, g, "me", { tree: 3, trees: [{ id: 3, felled: true, misses: 0 }, { id: 3, felled: true, misses: 0 }], secs: 12 }, BESIDE[3], NOON, lucky(2), WOOD)).toEqual({ ok: false, why: "none" });
+  });
+
+  it("the ancient tree, to an axe at the top: fifteen fine timber and three resin, whatever the misses, and gone until dawn", () => {
+    const did = cut(woodcutter({ plus: 10 }), newGrove(), TREES.elder.id, 4);
+    expect(did.ok).toBe(true);
+    if (!did.ok) return;
+    expect(did.got).toEqual([["timber", 15], ["resin", 3]]);
+    expect(did.felled[0].kind).toBe("elder");
+    expect(cut(did.purse, did.grove, TREES.elder.id, 0, { now: NOON + 5 * HOUR })).toEqual({ ok: false, why: "stump" });
+    expect(cut(did.purse, did.grove, TREES.elder.id, 0, { now: NOON + 17 * HOUR }).ok).toBe(true);
+    expect(cut(woodcutter({ plus: 9 }), newGrove(), TREES.elder.id)).toEqual({ ok: false, why: "plus" });
+    // when it is grown again is told only to whoever holds an axe that knows
+    expect(toldOf(did.grove, woodcutter({ plus: 10 }), NOON, WOOD).down).toEqual([{ id: TREES.elder.id, at: NOON }]);
+  });
+
+  it("is two points on the line, ten for the ancient tree, and ten more the first of each kind", () => {
+    expect(countsOf({ from: "deed", what: "fell", thing: kindOf(treeOf(3, WOOD)!), n: 1, doc: {} }, "me")).toEqual([{ to: null, line: "felling", raw: 2, first: "felling:pine" }]);
+    expect(countsOf({ from: "deed", what: "fell", thing: kindOf(treeOf(TREES.elder.id, WOOD)!), n: 1, doc: {} }, "me")).toEqual([{ to: null, line: "felling", raw: 10, first: "felling:elder" }]);
+    expect(countsOf({ from: "deed", what: "fell", thing: "oak", n: 1, doc: {} }, "me")).toEqual([]);
+    expect(POINTS.first).toBe(10);
+  });
+
+  it("goes into the bag whole or not at all", () => {
+    const p = woodcutter();
+    expect(bringHome(p, [["log", 2], ["timber", 2]])?.bag.filter(Boolean).length).toBe(3);
+    const tight = { ...p, bag: p.bag.map((s, i) => s ?? (i < 9 ? { item: "stone" as const, n: 50 } : null)) };
+    expect(bringHome(tight, [["log", 2]])).not.toBe(null);
+    expect(bringHome(tight, [["log", 2], ["timber", 2]])).toBe(null);
+  });
+});
+
+describe("the echo axe (felling's first rank): one game for the trees standing close", () => {
+  const worn = { gifts: { had: ["charmEchoAxe"], charms: ["charmEchoAxe"] } };
+
+  it("takes up to three grown trees within two tiles of the first, the nearest first; never the ancient tree, never a stump, and only when worn", () => {
+    const p = woodcutter({}, worn), axe = p.bag[0]!, first = treeOf(0, WOOD)!;
+    expect(groupOf(p, newGrove(), first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0, 1, 2]);
+    expect(groupOf(woodcutter(), newGrove(), first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0]);
+    expect(groupOf(woodcutter({}, { gifts: { had: ["charmEchoAxe"], charms: [] } }), newGrove(), first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0]);
+    expect(groupOf(p, { down: { 1: { at: NOON, by: "x" } }, half: [] }, first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0, 2]);
+    expect(groupOf(p, newGrove(), treeOf(3, WOOD)!, axe, NOON, WOOD).map((t) => t.id)).toEqual([3]);
+    expect(groupOf(woodcutter({ plus: 10 }, worn), newGrove(), treeOf(TREES.elder.id, WOOD)!, axe, NOON, WOOD).map((t) => t.id)).toEqual([TREES.elder.id]);
+    const did = begin(p, newGrove(), 0, BESIDE[0], NOON, 5, WOOD);
+    expect(did.ok && did.trees).toEqual([0, 1, 2]);
+    expect(did.ok && new Set(did.ask.trees.map((t) => t.seed)).size).toBe(3);
+  });
+
+  it("pays stamina for each tree that falls, and leaves standing the tree whose stretch was lost", () => {
+    const p = woodcutter({}, worn);
+    const did = fell(p, newGrove(), "me", { tree: 0, trees: [{ id: 0, felled: true, misses: 0 }, { id: 1, felled: false, misses: 1 }, { id: 2, felled: true, misses: 3 }], secs: 14 }, BESIDE[0], NOON, lucky(3), WOOD);
+    expect(did.ok).toBe(true);
+    if (!did.ok) return;
+    expect(did.felled.map((f) => f.id)).toEqual([0, 2]);
+    expect(Object.keys(did.grove.down)).toEqual(["0", "2"]);
+    expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - 2 * TREES.cost);
+    expect(did.got).toEqual([["log", 4], ["timber", 2]]);
+  });
+});
+
+describe("the woodpecker (felling's second rank)", () => {
+  it("forgives one branch a tree, while it follows", () => {
+    const following = woodcutter({}, { gifts: { had: ["famWoodpecker"], charms: [], familiar: "famWoodpecker" } });
+    const resting = woodcutter({}, { gifts: { had: ["famWoodpecker"], charms: [], familiar: null } });
+    const a = begin(following, newGrove(), 3, BESIDE[3], NOON, 1, WOOD), b = begin(resting, newGrove(), 3, BESIDE[3], NOON, 1, WOOD);
+    expect(a.ok && a.ask.spared).toBe(TREES.pecks);
+    expect(b.ok && b.ask.spared).toBe(0);
+  });
+});
+
+describe("what an axe's plus, options and gems change", () => {
+  const ask = (axe: Partial<Stack>, grove = newGrove()) => { const did = begin(woodcutter(axe), grove, 3, BESIDE[3], NOON, 1, WOOD); if (!did.ok) throw new Error(did.why); return did.ask; };
+
+  it("a plus: fewer chops, branches seen further, a slower bar; never more wood", () => {
+    expect([0, 4, 7, 10].map((plus) => ask({ plus }).trees[0].chops)).toEqual([12, 10, 7, 4]);
+    expect([0, 6, 10].map((plus) => ask({ plus }).ahead)).toEqual([3, 4, 5]);
+    expect([0, 4, 10].map((plus) => ask({ plus }).pace)).toEqual([1, 0.9, 0.5]);
+    const did = cut(woodcutter({ plus: 10 }), newGrove(), 3);
+    expect(did.ok && did.got).toEqual([["log", 2], ["timber", 2]]);
+    expect(did.ok && staminaOf(did.purse, NOON)).toBe(STAMINA.max - TREES.cost);
+  });
+
+  it("the keen edge and the grain-reader, awake from the plus they were drawn at", () => {
+    expect(ask(opts3("axKeen")).trees[0].chops).toBe(LEVELS.axe.chops[3] - OPTIONS.axKeen.n.chops);
+    expect(ask({ plus: 2, opts: ["axKeen"] }).trees[0].chops).toBe(LEVELS.axe.chops[2]);
+    expect(ask(opts3("axGrain")).ahead).toBe(LEVELS.axe.ahead[3] + OPTIONS.axGrain.n.ahead);
+  });
+
+  it("the offcut: every fifth tree a log more, counted in the purse", () => {
+    let p = woodcutter(opts3("axDust")), g = newGrove();
+    const logs: number[] = [];
+    for (let i = 0; i < 10; i++) {
+      const did = cut(p, g, 3, 0, { now: NOON + i * 41 * MIN });
+      if (!did.ok) throw new Error(did.why);
+      logs.push(did.got.find(([id]) => id === "log")![1]);
+      p = { ...did.purse, bag: woodcutter(opts3("axDust")).bag, stamina: { day: dayOf(NOON + i * 41 * MIN), left: STAMINA.max } };
+      g = did.grove;
+    }
+    expect(logs).toEqual([2, 2, 2, 2, 3, 2, 2, 2, 2, 3]);
+    expect(fellingOf(p).dust).toBe(0);
+    // and a plain axe counts nothing
+    const plain = cut(woodcutter(), newGrove(), 3);
+    expect(plain.ok && fellingOf(plain.purse).dust).toBe(0);
+  });
+
+  it("the resin-scent: one tree in four, a resin or a pine cone", () => {
+    const of = (scent: number, which: number) => { const did = cut(woodcutter(opts3("axResin")), newGrove(), 3, 0, { luck: { scent, which } }); return did.ok ? did.got : null; };
+    expect(of(0.24, 0.1)).toEqual([["log", 2], ["timber", 2], ["resin", 1]]);
+    expect(of(0.24, 0.9)).toEqual([["log", 2], ["timber", 2], ["pineCone", 1]]);
+    expect(of(0.26, 0.1)).toEqual([["log", 2], ["timber", 2]]);
+    const plain = cut(woodcutter(), newGrove(), 3, 0, { luck: { scent: 0, which: 0 } });
+    expect(plain.ok && plain.got).toEqual([["log", 2], ["timber", 2]]);
+  });
+
+  it("the woodcutter's wind: the first five trees of a meal's hours cost no stamina, the sixth does, and the next meal's begin again", () => {
+    let p = woodcutter(opts3("axFresh")), g = newGrove();
+    const left: number[] = [];
+    for (let i = 0; i < 6; i++) {
+      const did = fell(p, g, "me", { tree: 3, trees: [{ id: 3, felled: true, misses: 0 }], secs: 6 }, BESIDE[3], NOON, lucky(1), WOOD);
+      if (!did.ok) throw new Error(did.why);
+      left.push(staminaOf(did.purse, NOON));
+      expect(did.felled[0].free).toBe(i < 5);
+      p = { ...did.purse, bag: woodcutter(opts3("axFresh")).bag };
+      g = newGrove();
+    }
+    expect(left).toEqual([100, 100, 100, 100, 100, 98]);
+    expect(powerLeft(p, "axFresh", NOON)).toBe(0);
+    expect(powerLeft(p, "axFresh", NOON + 7 * HOUR)).toBe(5);
+  });
+
+  it("fire: fewer chops; ice: a slower bar; water: branches forgiven; dark: a faster bar, and now and then a log more", () => {
+    expect(ask({ gems: ["fire"] }).trees[0].chops).toBe(Math.ceil(12 * (1 - GEM_FX.fire.axe.fewer[0])));
+    expect(ask({ plus: 10, gems: ["fire"] }).trees[0].chops).toBe(Math.ceil(4 * (1 - GEM_FX.fire.axe.fewer[1])));
+    expect(ask({ gems: ["ice"] }).pace).toBeCloseTo(1 - GEM_FX.ice.axe.slow[0]);
+    expect(ask({ gems: ["water"] }).spared).toBe(1);
+    expect(ask({ plus: 10, gems: ["water"] }).spared).toBe(2);
+    expect(ask({ gems: ["dark"] }).pace).toBeCloseTo(1 + GEM_FX.dark.axe.faster[0]);
+    const dark = (luck: number, plus = 0) => { const did = cut(woodcutter({ plus, gems: ["dark"] }), newGrove(), 3, 0, { luck: { dark: luck } }); return did.ok ? did.got[0] : null; };
+    expect(dark(0.09)).toEqual(["log", 3]);
+    expect(dark(0.11)).toEqual(["log", 2]);
+    expect(dark(0.19, 10)).toEqual(["log", 3]);
+  });
+
+  it("earth: a tree costs so much less stamina, what is left of a point owed on to the next", () => {
+    let p = woodcutter({ gems: ["earth"] });
+    for (let i = 0; i < 20; i++) {
+      const did = cut(p, newGrove(), 3);
+      if (!did.ok) throw new Error(did.why);
+      p = did.purse;
+    }
+    // twenty trees at 1.7 each
+    expect(STAMINA.max - staminaOf(p, NOON)).toBe(Math.round(20 * TREES.cost * (1 - GEM_FX.earth.axe.stamina[0])));
+    expect(fellingOf(p).owed).toBeLessThan(1);
+  });
+
+  it("lightning: now and then the nearest grown tree is left half cut, for whoever fells it next", () => {
+    const struck = cut(woodcutter({ gems: ["lightning"] }), newGrove(), 0, 0, { luck: { chain: 0.09 } });
+    expect(struck.ok && struck.felled[0].chained).toBe(1);
+    if (!struck.ok) return;
+    expect(struck.grove.half).toEqual([1]);
+    const p = woodcutter(), half = begin(p, struck.grove, 1, BESIDE[1], NOON, 1, WOOD);
+    expect(half.ok && half.ask.trees[0].chops).toBe(6);
+    expect(chopsFor(p.bag[0]!, treeOf(1, WOOD)!, true)).toBe(6);
+    // felled, it is whole again when it grows back
+    const next = cut(p, struck.grove, 1);
+    expect(next.ok && next.grove.half).toEqual([]);
+    // no luck, no neighbour; and never a tree out of reach
+    const none = cut(woodcutter({ gems: ["lightning"] }), newGrove(), 0, 0, { luck: { chain: 0.11 } });
+    expect(none.ok && none.grove.half).toEqual([]);
+    const far = cut(woodcutter({ gems: ["lightning"] }), newGrove(), 3, 0, { luck: { chain: 0 } });
+    expect(far.ok && far.felled[0].chained).toBe(null);
+  });
+});
+
+describe("the powers of an axe at the top, counted by the day", () => {
+  it("one stroke: the tree falls with no game, ten a day, never the ancient tree", () => {
+    let p = woodcutter(top("axOne")), g = newGrove();
+    for (let i = 0; i < 10; i++) {
+      const did = fell(p, g, "me", { tree: 3, trees: [], secs: 0, one: true }, BESIDE[3], NOON, lucky(1), WOOD);
+      expect(did).toMatchObject({ ok: true, one: true, felled: [{ id: 3, misses: 0 }], got: [["log", 2], ["timber", 2]] });
+      if (did.ok) p = did.purse;
+    }
+    expect(powerLeft(p, "axOne", NOON)).toBe(0);
+    expect(fell(p, g, "me", { tree: 3, trees: [], secs: 0, one: true }, BESIDE[3], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "spent" });
+    expect(powerLeft(p, "axOne", NOON + 24 * HOUR)).toBe(10);
+    expect(fell(woodcutter(top("axOne")), g, "me", { tree: TREES.elder.id, trees: [], secs: 0, one: true }, BESIDE[900], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "none" });
+    // an axe without it has no such stroke
+    expect(fell(woodcutter({ plus: 10 }), g, "me", { tree: 3, trees: [], secs: 0, one: true }, BESIDE[3], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "none" });
+  });
+
+  it("a double haul: twice the wood of a tree, ten a day, and plain after", () => {
+    let p = woodcutter(top("axDouble"));
+    const first = cut(p, newGrove(), 3, 1, { twice: true });
+    expect(first.ok && first.got).toEqual([["log", 4], ["timber", 2]]);
+    expect(first.ok && first.felled[0].twice).toBe(true);
+    if (first.ok) p = first.purse;
+    expect(powerLeft(p, "axDouble", NOON)).toBe(9);
+    // not asked for, not used
+    const plain = cut(p, newGrove(), 3, 0);
+    expect(plain.ok && plain.got).toEqual([["log", 2], ["timber", 2]]);
+    expect(plain.ok && powerLeft(plain.purse, "axDouble", NOON)).toBe(9);
+    // used up: a plain tree
+    const spent = { ...p, powers: { axDouble: { k: dayOf(NOON), n: 10 } } };
+    const after = cut(spent, newGrove(), 3, 0, { twice: true });
+    expect(after.ok && after.got).toEqual([["log", 2], ["timber", 2]]);
+  });
+
+  it("the quickening root: the stump I just made grows back for everybody, three a day; never another's, never an old one, never the ancient tree's", () => {
+    const p = woodcutter(top("axRoot")), did = cut(p, newGrove(), 3);
+    if (!did.ok) throw new Error(did.why);
+    expect(rootable(did.purse, did.grove, "me", NOON + 5000, WOOD)).toBe(3);
+    expect(rootable(did.purse, did.grove, "you", NOON + 5000, WOOD)).toBe(null);
+    expect(rootBack(did.purse, did.grove, "you", 3, NOON + 5000, WOOD)).toEqual({ ok: false, why: "none" });
+    expect(rootBack(did.purse, did.grove, "me", 3, NOON + (TREES.root.within + 1) * 1000, WOOD)).toEqual({ ok: false, why: "none" });
+    const back = rootBack(did.purse, did.grove, "me", 3, NOON + 5000, WOOD);
+    expect(back).toMatchObject({ ok: true, left: 2 });
+    if (back.ok) { expect(back.grove.down).toEqual({}); expect(cut(back.purse, back.grove, 3, 0, { now: NOON + 6000 }).ok).toBe(true); }
+    const spent = { ...did.purse, powers: { axRoot: { k: dayOf(NOON), n: 3 } } };
+    expect(rootBack(spent, did.grove, "me", 3, NOON + 5000, WOOD)).toEqual({ ok: false, why: "spent" });
+    expect(rootable(spent, did.grove, "me", NOON + 5000, WOOD)).toBe(null);
+    const elder = cut(woodcutter(top("axRoot")), newGrove(), TREES.elder.id);
+    expect(elder.ok && rootBack(elder.purse, elder.grove, "me", TREES.elder.id, NOON + 1000, WOOD)).toEqual({ ok: false, why: "none" });
+  });
+
+  it("the elder's friend: half as much again from the ancient tree, and told when it is grown", () => {
+    const p = woodcutter(top("axElder")), did = cut(p, newGrove(), TREES.elder.id);
+    expect(did.ok && did.got).toEqual([["timber", 23], ["resin", 5]]);
+    if (!did.ok) return;
+    expect(toldOf(did.grove, did.purse, NOON, WOOD).down).toEqual([{ id: TREES.elder.id, at: NOON, until: Date.UTC(2026, 9, 8, 22, 0, 0) }]);
+    // a plain tree is as anybody's
+    const plain = cut(p, newGrove(), 3);
+    expect(plain.ok && plain.got).toEqual([["log", 2], ["timber", 2]]);
+  });
+});
+
+describe("the mountain as it is laid out (the preview)", () => {
+  it("has a hundred and twenty numbered trees and the ancient one, and most pines have another within the echo's reach", async () => {
+    vi.stubEnv("NODE_ENV", "development");
+    vi.resetModules();
+    const live = await import("./trees");
+    vi.unstubAllEnvs();
+    expect(live.WOOD.length).toBe(121);
+    expect(live.WOOD.filter((t) => t.elder).map((t) => t.id)).toEqual([live.TREES.elder.id]);
+    expect(live.WOOD.every((t) => t.elder || t.id < live.TREES.elder.id)).toBe(true);
+    const pines = live.WOOD.filter((t) => t.tier === 1 && !t.elder);
+    expect(pines.length).toBe(60);
+    const near = pines.filter((t) => pines.some((o) => o.id !== t.id && Math.max(Math.abs(o.x - t.x), Math.abs(o.y - t.y)) <= live.TREES.echo.reach));
+    expect(near.length).toBeGreaterThan(40);
+  });
+
+  it("is no wood at all outside the preview: nothing to fell on today's site", async () => {
+    vi.unstubAllEnvs();
+    vi.resetModules();
+    const { WOOD: none } = await import("./trees");
+    expect(none).toEqual([]);
+    expect(FELLING.tired.misses).toBe(3);
+  });
+});

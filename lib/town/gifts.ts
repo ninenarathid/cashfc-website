@@ -1,4 +1,4 @@
-import { LINE_IDS, rankOf, type LineId } from "./lines";
+import { ALL_LINE_IDS, rankOf, type LineId } from "./lines";
 import { dayOf, eased, mealOf } from "./stamina";
 import type { Purse } from "./trade";
 
@@ -24,20 +24,27 @@ import type { Purse } from "./trade";
 export const CHARM_IDS = ["charmApron", "charmGloves", "charmFloat", "charmLamp", "charmNet", "charmHoe",
   // the later ranks' (the ladder laid out anew, 2026-10-07)
   "charmAnklet", "charmBell", "charmLine", "charmFirefly", "charmWind", "charmSickle", "charmRing", "charmCloak", "charmGuard"] as const;
-export type CharmId = (typeof CHARM_IDS)[number];
+export type CharmId = (typeof CHARM_IDS)[number] | (typeof MORE_CHARM_IDS)[number];
 /**
  * The familiars: a creature that follows its member wherever they go, for everybody to see (the owner, 2026-10-06:
  * "ใส่ ภูติ หรือ สัตว์เดินตามได้ 1 ชนิด"; changed "อิสระ"). One at a time. It needs no hand: the hand stays free.
  */
 export const FAMILIAR_IDS = ["famSquirrel", "famButterfly", "famGnome", "famOtter", "famPiglet", "famSprite", "famFrog", "famStag", "famMandrake"] as const;
-export type FamiliarId = (typeof FAMILIAR_IDS)[number];
+export type FamiliarId = (typeof FAMILIAR_IDS)[number] | (typeof MORE_FAMILIAR_IDS)[number];
 /**
  * The things: a gift that is neither worn nor follows. It takes no place: once had it works by itself, or is there to
  * be used (so many times to a day or a meal's hours, where it is counted: `USES`).
  */
 export const THING_IDS = ["thingBasket", "thingSpoon", "thingSpice", "thingFlame", "thingRod", "thingOrb", "thingBait", "thingMap", "thingNectar", "thingFlute",
   "thingPouch", "thingHourglass", "thingDust", "thingFlask", "thingMoon"] as const;
-export type ThingId = (typeof THING_IDS)[number];
+export type ThingId = (typeof THING_IDS)[number] | (typeof MORE_THING_IDS)[number];
+// ── gifts to come (woodcutting and mining, 2026-10-08) ── The lists above are the gifts every keeper of the game
+// knows. A later line's gifts are in lists of their own, and are offered only where whoever keeps the game gives them
+// (the keeper's `gives`), as every round of gifts has gone out.
+export const MORE_CHARM_IDS = ["charmEchoAxe"] as const;
+export const MORE_FAMILIAR_IDS = ["famWoodpecker"] as const;
+export const MORE_THING_IDS = ["thingBundle"] as const;
+// ── end: gifts to come ──
 export type GiftId = CharmId | FamiliarId | ThingId;
 export type GiftKind = "charm" | "familiar" | "thing";
 
@@ -138,6 +145,19 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "เก็บน้ำค้าง น้ำฝน หรือน้ำจันทร์ไว้ได้ 3 ถัง เทตอนไหนก็ได้ และออกฤทธิ์ในบ่อนาน 3 เท่า", en: "Keeps three bucketfuls of dew, rain or moon water to pour when you like, and it works three times as long in the well" } },
 ];
 
+// ── gifts to come: felling ── (what each does is read by lib/town/trees and the map; the bundle's slots are lib/town/pouches')
+export const MORE_GIFTS: readonly Gift[] = [
+  { id: "charmEchoAxe", kind: "charm", line: "felling", rank: 1, by: 3, name: { th: "ขวานสะท้อนป่า", en: "Echoing axe" },
+    does: { th: "เกมเดียวโค่นได้ถึง 3 ต้นที่ยืนใกล้กัน: ต้นละช่วง แต่ละช่วงเร็วขึ้นนิดหน่อย ช่วงไหนไม่ทัน ต้นนั้นยังยืนอยู่ เสียแรงตามจำนวนต้นที่ล้ม", en: "One game fells up to three trees standing close together: a stretch a tree, each a little faster; a stretch lost leaves its tree standing, and stamina is paid for each tree that falls" } },
+  { id: "famWoodpecker", kind: "familiar", line: "felling", rank: 2, by: 1, name: { th: "นกหัวขวานคู่ใจ", en: "A woodpecker" },
+    does: { th: "บินไปเกาะต้นไม้ที่โตแล้วที่ใกล้ที่สุด บอกเหนือตอไม้ว่าอีกนานแค่ไหนจะโต และจิกกิ่งทิ้งให้ต้นละ 1 กิ่ง (กิ่งแรกที่โดนไม่นับพลาด)", en: "It flies to the nearest grown tree, shows over each stump how long until it is grown, and pecks one branch away a tree (the first branch that strikes you is no miss)" } },
+  { id: "thingBundle", kind: "thing", line: "felling", rank: 3, by: 3, name: { th: "เชือกมัดฟืน", en: "Firewood cord" },
+    does: { th: "ช่องเก็บของเพิ่ม 3 ช่อง ใส่ได้เฉพาะไม้: ท่อนไม้ และไม้เนื้อดี", en: "Three more slots that hold only wood: logs and fine timber" } },
+];
+// ── end: felling ──
+/** (gifts to come) Every gift there is: the ones every keeper knows, and the later lines'. */
+export const ALL_GIFTS: readonly Gift[] = [...GIFTS, ...MORE_GIFTS];
+
 /**
  * How many charms are worn at once, and what each does: the apron, the net and the hoe widen their games so many
  * times; the float lengthens the strike's moment so many times; the gloves leave so much of the cost of work in
@@ -186,10 +206,10 @@ export const stretchOf = (rule: Use, now: number): number =>
 export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number; familiar: FamiliarId | null; used: Record<string, { k: number; n: number }> }
 export type GiftRefusal = "none" | "rank" | "had" | "slots" | "spent";
 
-const isGift = (id: unknown): id is GiftId => typeof id === "string" && GIFTS.some((g) => g.id === id);
-export const giftOf = (id: string): Gift | null => GIFTS.find((g) => g.id === id) ?? null;
+const isGift = (id: unknown): id is GiftId => typeof id === "string" && ALL_GIFTS.some((g) => g.id === id);
+export const giftOf = (id: string): Gift | null => ALL_GIFTS.find((g) => g.id === id) ?? null;
 /** The gift of a rank of a line, if that rank gives one. */
-export const giftAt = (line: string, rank: number): Gift | null => GIFTS.find((g) => g.line === line && g.rank === rank) ?? null;
+export const giftAt = (line: string, rank: number): Gift | null => ALL_GIFTS.find((g) => g.line === line && g.rank === rank) ?? null;
 
 /** A purse's gifts, made sound: only gifts there are, each once; the charms worn are ones had, each once, no more than the places for them. */
 export function giftsOf(purse: Pick<Purse, "gifts">): Gifts {
@@ -259,10 +279,10 @@ export function gloved<P extends Purse>(before: Purse, after: P, now: number): P
 /** The gifts somebody may take now: of ranks they have reached, not taken yet, the lines in their order and the lowest rank first. */
 export function dueOf(points: Partial<Record<LineId, number>>, purse: Pick<Purse, "gifts">): Gift[] {
   const had = giftsOf(purse).had;
-  return LINE_IDS.flatMap((line) => GIFTS.filter((g) => g.line === line && g.rank <= rankOf(line, points[line] ?? 0) && !had.includes(g.id)).sort((a, b) => a.rank - b.rank));
+  return ALL_LINE_IDS.flatMap((line) => ALL_GIFTS.filter((g) => g.line === line && g.rank <= rankOf(line, points[line] ?? 0) && !had.includes(g.id)).sort((a, b) => a.rank - b.rank));
 }
 /** How many gifts there are that somebody has not got: all the page says of them. */
-export const leftOf = (purse: Pick<Purse, "gifts">): number => GIFTS.length - giftsOf(purse).had.length;
+export const leftOf = (purse: Pick<Purse, "gifts">): number => GIFTS.length - giftsOf(purse).had.filter((id) => GIFTS.some((g) => g.id === id)).length;
 
 /** Take the gift of a rank one has reached: once. It goes into no bag. */
 export function takeGift<P extends Pick<Purse, "gifts">>(purse: P, points: Partial<Record<LineId, number>>, line: string, rank: number):
@@ -306,3 +326,5 @@ export const giftsRow = () => ({
   harder: HARDER,
   gifts: Object.fromEntries(GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: numberOf(g.id) }])),
 });
+/** (gifts to come) The same row with the later lines' gifts in it: what a database that gives them keeps. */
+export const giftsRowAll = () => ({ ...giftsRow(), gifts: Object.fromEntries(ALL_GIFTS.map((g) => [g.id, { kind: g.kind, line: g.line, rank: g.rank, by: numberOf(g.id) }])) });

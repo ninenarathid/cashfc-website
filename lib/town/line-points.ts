@@ -1,7 +1,7 @@
 import { KINDS } from "./forest";
 import { BUGS } from "./insects";
 import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
-import { LINES, LINE_IDS, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
+import { ALL_LINE_IDS, LINES, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 
 /**
@@ -20,6 +20,7 @@ import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
  * - **Forest**: what is picked up 1, chosen or shaken down 2, dug 3; ten more for a rare thing on a day of its own.
  * - **Insects**: one in plain sight 1, one caught by its own way 3, a rare one or a beetle 8.
  * - **Farming**: a picking of a plant one sowed, a point for every twelve hours its crop takes (one at the least).
+ * - **Felling** (lines to come): a tree felled 2, the ancient tree 10.
  * - **The first of its kind** (a fish, a forest thing, an insect, a crop, a recipe) is ten more, once ever.
  * - **The well** is not here: its count is the bucketfuls poured, which the well's own book keeps (lib/town/well).
  *
@@ -36,6 +37,9 @@ export const POINTS = {
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
   insects: { plain: 1, way: 3, rare: 8, pays: 20 },
   farming: { every: 12 },
+  // ── felling ── (a tree felled, by its kind: lib/town/trees' kindOf; the ancient tree its own)
+  felling: { pine: 2, ironwood: 2, moonwood: 2, elder: 10 } as Record<string, number>,
+  // ── end: felling ──
 };
 
 /**
@@ -46,9 +50,9 @@ export const POINTS = {
 export function linesRow() {
   const insects = Object.fromEntries(Object.keys(BUGS).map((id) => [id, bugPoints(id)]));
   return {
-    ids: [...LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
-    marks: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].marks])),
-    day: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].day])),
+    ids: [...ALL_LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
+    marks: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].marks])),
+    day: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].day])),
     kitchen: {
       ladled: POINTS.kitchen.ladled, pots: POINTS.kitchen.pots, ladling: POINTS.kitchen.ladling,
       pot: Object.fromEntries([...DISH_IDS.flatMap((id) => (DISHES[id].recipe ? [[id, DISHES[id].recipe!.serves] as [string, number]] : [])), ...MAKE_IDS.map((id) => [id, POINTS.kitchen.made] as [string, number])]),
@@ -58,6 +62,9 @@ export function linesRow() {
     forest: { how: { pick: POINTS.forest.pick, choose: POINTS.forest.choose, shake: POINTS.forest.shake, dig: POINTS.forest.dig }, rare: POINTS.forest.rare, rares: [...RARE_WILD].sort() },
     insects,
     farming: Object.fromEntries(CROP_IDS.map((id) => [id, Math.max(1, Math.floor(CROPS[id].hours / POINTS.farming.every))])),
+    // ── felling ──
+    felling: POINTS.felling,
+    // ── end: felling ──
   };
 }
 
@@ -134,6 +141,12 @@ export function countsOf(d: Done, doer: string): Counts[] {
       const hours = CROPS[thing as CropId]?.hours;
       return hours && !other ? [{ to: null, line: "farming", raw: Math.max(1, Math.floor(hours / POINTS.farming.every)), first: `farming:${thing}` }] : [];
     }
+    // ── felling ── (a tree felled: its kind is the deed's thing)
+    case "fell": {
+      const raw = POINTS.felling[thing] ?? 0;
+      return raw ? [{ to: null, line: "felling", raw, first: `felling:${thing}` }] : [];
+    }
+    // ── end: felling ──
     default:
       return [];
   }

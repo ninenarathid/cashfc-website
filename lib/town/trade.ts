@@ -266,6 +266,10 @@ export interface Purse {
   // ── forging ──
   /** What a tool's option does only so many times (lib/town/powers): how many times each has been used in its stretch, by the option. Counted for the member, whichever tool it was used with. */
   powers?: Record<string, { k: number; n: number }>;
+  // ── felling ──
+  /** A woodcutter's own (lib/town/trees reads it, and makes it sound): the part of a point of stamina an axe's easing has left owing, and how many trees have fallen towards the next one that gives a log more. */
+  felling?: { owed?: number; dust?: number };
+  // ── end: felling ──
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }
