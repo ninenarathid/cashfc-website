@@ -1,6 +1,6 @@
 "use client";
 
-import { BEYOND, COLS, FARM, FOREST, ROWS, TILE_H, TILE_W, fromIso, groundLook, seenAt } from "./world";
+import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM, FOREST, MORE_GROUND, MOUNTAIN, ROWS, TILE_H, TILE_W, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
 
 /**
  * Cash Town's scenery in pixel art: the ground and what stands on it (trees,
@@ -42,7 +42,7 @@ interface SceneryJson {
    * `field` (the farm's plots) is missing from a picture built before the farm: its plots are then laid in the path's
    * earth. `wood` (the forest's floor) is the forest picture's: until that has come it is laid in grass.
    */
-  textures: Partial<Record<(typeof KINDS)[number], [x: number, y: number, w: number, h: number]>>;
+  textures: Partial<Record<Kind, [x: number, y: number, w: number, h: number]>>;
 }
 
 /** Texture pixels along a tile's side: a 64×32 diamond holds as many pixels as a 32×32 square. */
@@ -53,11 +53,22 @@ const CHUNKS_KEPT = 24;
 const LAY_PER_FRAME = 2;
 /** The ground's kind is worked out once per eighth of a tile, then remembered. */
 const SUB = 8;
-const KINDS = ["grass", "plaza", "road", "water", "sand", "field", "wood"] as const;
+const TOWN_KINDS = ["grass", "plaza", "road", "water", "sand", "field", "wood"] as const;
+/** ── to come ── Whether what is to come is here (lib/town/world's PREVIEW; said again in this file, so that a production build drops what hangs on it). */
+const PREVIEW = process.env.NODE_ENV === "development";
+/**
+ * ── to come ── (the preview, `next dev` only) The mountain's and the cave's own kinds of ground come after the
+ * town's: none of them in a production build, where this is the town's list. Each is laid in the path's earth until
+ * its own picture has come (loadMore); a stair has no texture of its own and is laid in the mountain's bare rock.
+ */
+type Kind = Ground | MoreGround;
+const KINDS: readonly Kind[] = [...TOWN_KINDS, ...MORE_GROUND];
 /** What a kind is laid in while its own texture is missing. */
-const STAND_IN: Partial<Record<(typeof KINDS)[number], (typeof KINDS)[number]>> = { field: "road", wood: "grass" };
+const STAND_IN: Partial<Record<Kind, (typeof TOWN_KINDS)[number]>> = { field: "road", wood: "grass" };
 /** The maps, each with its own grid of remembered kinds: the town's, the farm's, the forest's; and the woods seen beyond the town's north gate and the forest's own (ground to look at, on no map). */
-const MAPS = [{ x: 0, y: 0, w: COLS, h: ROWS }, FARM, FOREST, BEYOND.north, BEYOND.south];
+const MAPS = [{ x: 0, y: 0, w: COLS, h: ROWS }, FARM, FOREST, BEYOND.north, BEYOND.south,
+  // ── to come ── (the preview) the mountain's foot, each floor of the cave the preview has, and what is seen beyond the town's west gate and beyond the mountain's map
+  ...(PREVIEW ? [MOUNTAIN, ...CAVE.laid.map((n) => ({ ...floorCorner(n), w: CAVE.size, h: CAVE.size })), BEYOND_MORE.west, BEYOND_MORE.low, BEYOND_MORE.high] : [])];
 /** How dark the rim of a plot is laid: the ridge of earth between one plot and the next. */
 const RIDGE = 0.085;
 
@@ -78,11 +89,13 @@ export class SceneryKit {
   private readonly more: Array<{ json: SceneryJson; img: HTMLImageElement }> = [];
   /** The fountain, its water a step further along in each. */
   private readonly fountain: HTMLCanvasElement[] = [];
-  private readonly tex: Record<(typeof KINDS)[number], { w: number; h: number; d: Uint8ClampedArray }>;
+  private readonly tex: Record<Kind, { w: number; h: number; d: Uint8ClampedArray }>;
   /** The kind at each eighth of a tile, as 1 + its index in KINDS; 0 not worked out yet. A grid to a map (MAPS). */
   private readonly kinds = MAPS.map((m) => new Uint8Array(m.w * SUB * m.h * SUB));
   /** The ground is laid in square chunks, each when it first comes into view, a few kept. */
   private readonly chunks = new Map<string, HTMLCanvasElement>();
+  /** ── to come ── Which of MAPS the last point asked about was on (kindAt). */
+  private lastMap = 0;
 
   constructor(readonly json: SceneryJson, img: HTMLImageElement) {
     this.img = img;
@@ -113,6 +126,8 @@ export class SceneryKit {
       const t = json.textures[k];
       if (t) this.tex[k] = { w: t[2], h: t[3], d: sg.getImageData(t[0], t[1], t[2], t[3]).data };
     }
+    // ── to come ── (a stair is cut in the mountain's own bare rock)
+    if (PREVIEW && json.textures.rock) this.tex.stair = this.tex.rock;
     this.chunks.clear();
     this.parts.clear();
   }
@@ -125,14 +140,18 @@ export class SceneryKit {
     return null;
   }
 
-  private kindAt(x: number, y: number): (typeof KINDS)[number] {
+  private kindAt(x: number, y: number): Kind {
     // Each map's points are remembered apart: on its own grid, from its own corner. (A point of no map is asked
     // only as the neighbour of one at a map's edge: it is taken for the edge's.)
     let n = -1;
+    // ── to come ── (the preview has three times the maps to look through, and a chunk asks this a million times:
+    // the map the last point was on is tried first. No two maps share a point, so the answer is the same)
+    if (PREVIEW) { const m = MAPS[this.lastMap]; if (x >= m.x && y >= m.y && x < m.x + m.w && y < m.y + m.h) n = this.lastMap; }
     // (a point is its own map's first: only one that is in none is given to the map it is beside)
     for (let i = 0; i < MAPS.length && n < 0; i++) if (x >= MAPS[i].x && y >= MAPS[i].y && x < MAPS[i].x + MAPS[i].w && y < MAPS[i].y + MAPS[i].h) n = i;
     for (let i = 0; i < MAPS.length && n < 0; i++) if (x >= MAPS[i].x - 1 && y >= MAPS[i].y - 1 && x < MAPS[i].x + MAPS[i].w + 1 && y < MAPS[i].y + MAPS[i].h + 1) n = i;
     if (n < 0) n = 0;
+    this.lastMap = n;
     const { x: ox, y: oy, w: cols, h: rows } = MAPS[n], kinds = this.kinds[n];
     const sx = Math.min(cols * SUB - 1, Math.max(0, Math.floor((x - ox) * SUB))), sy = Math.min(rows * SUB - 1, Math.max(0, Math.floor((y - oy) * SUB)));
     const k = sy * cols * SUB + sx;
@@ -164,6 +183,15 @@ export class SceneryKit {
       const fx = t.x - Math.floor(t.x), fy = t.y - Math.floor(t.y);
       const ridge = kind === "field" && (fx < RIDGE || fx > 1 - RIDGE || fy < RIDGE || fy > 1 - RIDGE);
       const k = edge ? 0.8 : ridge ? 0.7 : 1;
+      // ── to come ── (the preview's own kinds of ground: a cliff's face is seen from the front, so its texture is laid
+      // straight up the screen and not along the ground; and each is shaded as lib/town/world says, a cliff by its
+      // height, a stair by its steps, a cave by its depth)
+      if (PREVIEW && (MORE_GROUND as readonly Kind[]).includes(kind)) {
+        const up = kind === "cliff", ix = Math.floor(this.origin.x + cx * CHUNK + px), iy = Math.floor(this.origin.y + cy * CHUNK + py);
+        const sj = up ? ((((iy % T.h) + T.h) % T.h) * T.w + (((ix % T.w) + T.w) % T.w)) * 4 : si, tone = groundTone(kind as MoreGround, t.x, t.y);
+        o[di] = T.d[sj] * k * (tone ? tone[0] : 1); o[di + 1] = T.d[sj + 1] * k * (tone ? tone[1] : 1); o[di + 2] = T.d[sj + 2] * k * (tone ? tone[2] : 1); o[di + 3] = 255;
+        continue;
+      }
       o[di] = T.d[si] * k; o[di + 1] = T.d[si + 1] * k; o[di + 2] = T.d[si + 2] * k; o[di + 3] = 255;
     }
     g.putImageData(out, 0, 0);
