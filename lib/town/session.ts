@@ -255,7 +255,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "" };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "" };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -306,7 +306,7 @@ export class TownSession {
     if (this.sitWhenThere !== null && !this.self.path.length) {
       const bench = this.sitWhenThere;
       this.sitWhenThere = null;
-      this.tell({ sit: bench });
+      this.tell({ sit: bench, turn: 0 });
     }
     // Each voice as loud as the town's rules say (all the same, for now).
     if (this.voice.active) {
@@ -331,7 +331,7 @@ export class TownSession {
     if (!path) return false;
     // Walking anywhere gets up from a bench, or forgets the one I was heading for.
     this.sitWhenThere = null;
-    if ((a.info.sit ?? -1) !== -1) this.tell({ sit: -1 });
+    if ((a.info.sit ?? -1) !== -1) this.tell({ sit: -1, turn: 0 });
     a.path = path;
     a.info = { ...a.info, x: goal.x, y: goal.y };
     this.announceMove();
@@ -372,14 +372,27 @@ export class TownSession {
       if (place >= 0 && this.sitOn(place)) return true;
     }
     if (this.self.path.length) { this.sitWhenThere = SIT_HERE; return true; }
-    if ((this.self.info.sit ?? -1) !== SIT_HERE) this.tell({ sit: SIT_HERE });
+    if ((this.self.info.sit ?? -1) !== SIT_HERE) this.tell({ sit: SIT_HERE, turn: 0 });
+    return true;
+  }
+
+  /** Whether I sit now: on a bench, at a table, or on the ground (not while I walk to a seat). */
+  get seated(): boolean { return !this.closed && (this.self.info.sit ?? -1) !== -1 && !this.self.path.length; }
+  /**
+   * Turn to one side where I sit (the owner, 2026-10-08: "ช่วยทำให้การนั่งแล้วคลิกเป็นการหันหน้าก็พอ": a tap on the map by
+   * somebody who sits no longer walks them off their seat, and out of their meal). Nothing, for whoever does not sit.
+   */
+  turnTo(left: boolean): boolean {
+    if (!this.seated) return false;
+    const turn = left ? 2 : 1;
+    if ((this.self.info.turn ?? 0) !== turn) this.tell({ turn });
     return true;
   }
 
   /** Get up, from a bench or the ground, and stay where I am. */
   standUp() {
     this.sitWhenThere = null;
-    if (!this.closed && (this.self.info.sit ?? -1) !== -1) this.tell({ sit: -1 });
+    if (!this.closed && (this.self.info.sit ?? -1) !== -1) this.tell({ sit: -1, turn: 0 });
   }
 
   /** Walk to the tile in front of a bench (an index into BENCHES), then sit on it. */
@@ -1117,7 +1130,7 @@ export class TownSession {
       status: () => this.status,
       me: () => ({ ...this.self.info, pos: this.self.pos }),
       people: () => this.people.map((a) => ({
-        id: a.info.id, name: a.info.name, voice: a.info.voice, away: a.info.away, pos: a.pos, look: a.info.look, sit: a.info.sit ?? -1,
+        id: a.info.id, name: a.info.name, voice: a.info.voice, away: a.info.away, pos: a.pos, look: a.info.look, sit: a.info.sit ?? -1, turn: a.info.turn ?? 0,
         typing: this.isTyping(a),
         eat: a.info.eat ?? "",
         fish: a.info.fish ?? 0,

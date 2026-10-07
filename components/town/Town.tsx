@@ -425,6 +425,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const roofRef = useRef(1);
   /** The roof as the last frame drew it (none at all where there is no house to draw), for the lights that follow it. */
   const roofSeen = useRef(0);
+  /**
+   * The tops of the cooking yard's two dining tables on the screen, as drawn this frame, while the yard's roof is off:
+   * a tap on one is for the feast table (lib/town/cooking), as a tap on the chest is for the box.
+   */
+  const feastBoxes = useRef<Array<{ table: number; x0: number; y0: number; x1: number; y1: number }>>([]);
+  /** A table tapped from outside the yard: walked up to first, and its panel asked for on arriving. And how many times the panel was asked for. */
+  const feastWant = useRef(false);
+  const [feastAsk, setFeastAsk] = useState(0);
   const benchUnder = (x: number, y: number) => {
     let best: { i: number; depth: number } | null = null;
     for (const b of benchBoxes.current) if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1 && (!best || b.depth > best.depth)) best = b;
@@ -652,6 +660,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const plotRef = useRef<string>("");
   /** The kitchen: where I stand still, and what of the cooking yard that is; what the others at the yard's places hold; and its own way of drawing the pots that stand about. */
   const [standing, setStanding] = useState<Standing | null>(null);
+  /** The tile I am on while I am still on the cooking yard's floor, standing or sitting: from where the feast table is reached (lib/town/cooking). */
+  const [yardTile, setYardTile] = useState<[number, number] | null>(null);
+  const yardRef = useRef("");
   const standRef = useRef("");
   const [crew, setCrew] = useState<string[]>([]);
   const crewRef = useRef("");
@@ -1714,6 +1725,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.fillRect(0, 0, cw, ch);
 
     benchBoxes.current = [];
+    feastBoxes.current = [];
     storeBox.current = null;
     keeperBoxes.current = [];
     gateBoxes.current = [];
@@ -1749,6 +1761,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (farming !== onFarmRef.current) { onFarmRef.current = farming; setOnFarm(farming); }
       const foraging = placeOf(tx, ty) === "forest";
       if (foraging !== onForestRef.current) { onForestRef.current = foraging; setOnForest(foraging); }
+      const inYard = !mine.path.length && onYard(tx, ty) ? `${tx},${ty}` : "";
+      if (inYard !== yardRef.current) { yardRef.current = inYard; setYardTile(inYard ? [tx, ty] : null); }
       // where I stand still (not sitting), for the kitchen; and what the others at the yard's places hold
       const spot = !mine.path.length && (mine.info.sit ?? -1) === -1 ? `${tx},${ty}` : "";
       // (beside the forest camp's fire is a place to cook at too: with a skewer or a pot in the hand, or by hand)
@@ -2000,6 +2014,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         for (const post of KITCHEN.posts) things.push({ depth: down - 0.7, draw: () => scenery.drawPart(ctx, kitchenArt, feet.x, feet.y, v.s, dpr, post) });
         // each dining table's own top again, over whoever sits on the bench behind it
         for (const top of KITCHEN.tops) things.push({ depth: down + top[1] / (TILE_H / 2) + 0.03, draw: () => scenery.drawPart(ctx, kitchenArt, feet.x, feet.y, v.s, dpr, top) });
+        // and each table's top, for a tap that opens the feast table
+        if (roof < 0.5) KITCHEN.tops.forEach((top, table) => feastBoxes.current.push({ table, x0: feet.x + top[0] * v.s, y0: feet.y + top[1] * v.s, x1: feet.x + top[2] * v.s, y1: feet.y + top[3] * v.s }));
         // and each place at a table, for a tap to sit down at it
         if (roof < 0.5) KITCHEN.seats.forEach((seat, i) => {
           const c = project(seat.at);
@@ -2597,13 +2613,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
     const rod = rodOf(a, isMe);
     if (rod) return facingFor(rod.float.x - a.pos.x, rod.float.y - a.pos.y);
+    // (whoever sits and has turned to a side, lib/town/session's turnTo, faces that side, whatever their seat)
+    const turned = (f: { view: View; mirror: boolean }) => (a.info.turn === 1 || a.info.turn === 2 ? { view: f.view, mirror: a.info.turn === 2 } : f);
     // Eating on the ground: towards the viewer, the way they last faced.
-    if (a.info.eat && (a.info.sit ?? -1) === SIT_HERE && !a.path.length) return { view: "front", mirror: facings.current.get(a.info.id)?.mirror ?? false };
+    if (a.info.eat && (a.info.sit ?? -1) === SIT_HERE && !a.path.length) return turned({ view: "front", mirror: facings.current.get(a.info.id)?.mirror ?? false });
     const seat = seatOf(a);
-    if (seat?.facing) return FACINGS[seat.facing];
+    if (seat?.facing) return turned(FACINGS[seat.facing]);
     // at a table: towards it, and a little towards the fire in the middle of the yard
     const place = tableSeatOf(a);
-    if (place) return { view: place.back ? "back" : "front", mirror: place.table === 1 };
+    if (place) return turned({ view: place.back ? "back" : "front", mirror: place.table === 1 });
+    // on the ground: as they last faced, and to the side they have turned to
+    if ((a.info.sit ?? -1) === SIT_HERE && !a.path.length && a.info.turn) return turned({ view: facings.current.get(a.info.id)?.view ?? "front", mirror: false });
     const id = a.info.id;
     let f = facings.current.get(id);
     if (a.path.length) {
@@ -3043,6 +3063,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     setHint(false);
     setHistoryOpen(false);
     boxWant.current = false;
+    feastWant.current = false;
     signWant.current = null;
     // a sign held up: what it is for (its board is over a head, and over whatever is behind it)
     const board = signBoxes.current.find((b) => x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1);
@@ -3066,6 +3087,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // them (to a gate, a bench, a thing, the chest, a tile) says why instead, and nothing is put down by a slip.
     const stuck = sessionRef.current?.stuck();
     if (stuck) { setPopover(null); setPeopleOpen(false); sayStuck(stuck); return; }
+    // Whoever sits stays sat (the owner, 2026-10-08: a slip of the finger on the map walked somebody off their seat and
+    // out of their meal: "ช่วยทำให้การนั่งแล้วคลิกเป็นการหันหน้าก็พอ"): a tap that would have walked them turns them to
+    // that side. They get up by the key or by the button that is there while they sit. A dining table's top still
+    // opens the feast table from one's place at it.
+    const sat = sessionRef.current;
+    if (sat?.seated) {
+      setPopover(null); setPeopleOpen(false);
+      const table = gameRef.current ? feastBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1) : null;
+      if (table && openFeast(table.table)) return;
+      sat.turnTo(x < spotOf(sat.self).x);
+      return;
+    }
     const gate = gateBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1);
     if (gate) {
       setPopover(null); setPeopleOpen(false);
@@ -3092,6 +3125,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
     if (gameRef.current && sb && x >= sb.x0 && x <= sb.x1 && y >= sb.y0 && y <= sb.y1 && openBox()) return;
+    // a top of the yard's dining tables: the feast table's panel, from where I stand in the yard, or walked up to first
+    // (a place at a bench was asked before this: its box is over the top's edge)
+    const top = gameRef.current ? feastBoxes.current.find((k) => x >= k.x0 && x <= k.x1 && y >= k.y0 && y <= k.y1) : null;
+    if (top && openFeast(top.table)) return;
     const t = tileAt(x, y);
     if (walkable(t.x, t.y) && sessionRef.current?.walkTo(t)) cam.current.follow = true;
     // A bench: walk up to it and sit down.
@@ -3143,6 +3180,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         const clickable = !!b || someone || (!!bb && p.x >= bb.x0 && p.x <= bb.x1 && p.y >= bb.y0 && p.y <= bb.y1)
           || signBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1)
           || (!!sb && p.x >= sb.x0 && p.x <= sb.x1 && p.y >= sb.y0 && p.y <= sb.y1)
+          || (!!gameRef.current && !!keeper?.feast() && feastBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1))
           || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1);
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
@@ -3243,6 +3281,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       outings: () => outingsNow(Date.now(), forcedPopoto.current).map((o) => ({ activity: o.activity, at: o.spots?.[0] ?? alongRoute(o, Date.now())?.pos })),
       /** The benches on the screen this frame, and what the mouse cursor shows now. */
       benches: () => benchBoxes.current.map((b) => ({ ...b })),
+      /** The tops of the yard's dining tables on the screen this frame (a tap on one is for the feast table). */
+      tables: () => feastBoxes.current.map((k) => ({ ...k })),
       cursor: () => mouse.current?.mode ?? null,
       /** The leaves now: how many of each kind, and how many lie on the ground. */
       leaves: () => ({ fall: leaves.current.filter((l) => l.kind === "fall").length, wind: leaves.current.filter((l) => l.kind === "wind").length, gust: leaves.current.filter((l) => l.kind === "gust").length, down: leaves.current.filter((l) => l.landed > 0).length }),
@@ -3283,6 +3323,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomBy(1.25); return; }
       if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomBy(1 / 1.25); return; }
       if (e.key === "0") { e.preventDefault(); cam.current.follow = true; return; }
+      // X (or Insert) sits down where I am, on the nearest seat if one is beside me, and gets up again (by the key's
+      // place on the keyboard, so that it is the same key with a Thai layout)
+      if ((e.code === "KeyX" || e.key === "Insert") && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+        const me_ = sessionRef.current;
+        if (!me_ || me_.closed) return;
+        e.preventDefault();
+        if ((me_.self.info.sit ?? -1) !== -1) me_.standUp(); else me_.sitHere();
+        return;
+      }
       const step = KEYS[e.key];
       const stay = sessionRef.current;
       if (!step || !stay || stay.closed) return;
@@ -3290,6 +3339,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       boxWant.current = false;
       const held = stay.stuck();
       if (held) { sayStuck(held); return; }
+      // (whoever sits stays sat: left and right turn them, up and down do nothing)
+      if (stay.seated) { if (step[0] !== step[1]) stay.turnTo(step[0] < step[1]); return; }
       const a = stay.self;
       const from = a.path.length ? a.path[a.path.length - 1] : a.pos;
       const next = { x: Math.floor(from.x) + step[0], y: Math.floor(from.y) + step[1] };
@@ -3328,6 +3379,23 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   /** Whether whoever keeps the game knows of a storage box (the database before v134 does not). */
   const boxKnown = () => !!keeper?.box();
+  /**
+   * The feast table (lib/town/cooking): its panel, if I stand still on the yard's floor; otherwise I walk to the
+   * nearest place one stands at to sit at that table, and the panel is asked for on arriving. False where whoever
+   * keeps the game has no feast table: the tables are then only tables.
+   */
+  const openFeast = (table: number): boolean => {
+    const stay = sessionRef.current;
+    if (!stay || !keeper?.feast()) return false;
+    if (wardrobeOpenRef.current) closeWardrobe();
+    setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setBoardOpen(false); setFishing(false);
+    const at = stay.self.pos;
+    if (!stay.self.path.length && onYard(Math.floor(at.x), Math.floor(at.y))) { setFeastAsk((n) => n + 1); return true; }
+    const far = (t: [number, number]) => Math.hypot(t[0] + 0.5 - at.x, t[1] + 0.5 - at.y);
+    const stands = KITCHEN.seats.filter((seat) => seat.table === table).map((seat) => seat.stand).sort((a, b) => far(a) - far(b));
+    for (const t of stands) if (stay.walkTo({ x: t[0], y: t[1] })) { feastWant.current = true; cam.current.follow = true; break; }
+    return true;
+  };
   /**
    * The storage box: open its panel if I stand by it; otherwise walk up to it (the nearest tile beside it that can
    * be stood on) and open it on arriving. False when there is no box to open.
@@ -3432,20 +3500,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // And a helping of a pot on the feast table, out of the table's own bowl (lib/town/cooking's feastEat): there is
   // nothing in the bag; once I am sat the keeper is asked for it, by the pot and the tile I stand on.
   const eatWhenSat = useRef<{ dish: DishId; till: number; pot?: string } | null>(null);
-  const eatNow = useCallback((dish: DishId, pot?: string) => {
-    const sess = sessionRef.current;
-    if (!sess) return;
-    eatWhenSat.current = { dish, till: Date.now() + 30_000, ...(pot ? { pot } : {}) };
-    const seat = seatNear(sess.self.pos);
-    if (seat === null || !sess.sitOn(seat)) sess.sitHere();
-    cam.current.follow = true;
-  }, []);
-  const satNow = (s?.self.info.sit ?? -1) !== -1;
-  useEffect(() => {
+  /** The meal I sat down to begins: the helping in my bag, or one out of the feast table's own bowl. */
+  const beginMeal = useCallback(() => {
     const want = eatWhenSat.current;
-    if (!want || !satNow || !keeper) return;
     eatWhenSat.current = null;
-    if (Date.now() > want.till) return;
+    if (!want || !keeper || Date.now() > want.till) return;
     if (want.pot) {
       const at = sessionRef.current?.self.pos;
       void keeper.feastEat(want.pot, at ? [Math.floor(at.x), Math.floor(at.y)] : null, true).then((did) => {
@@ -3455,6 +3514,25 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     const slot = keeper.purse().bag.findIndex((b) => b?.item === want.dish);
     if (slot >= 0) void keeper.sitDown(slot, true);
+  }, [keeper]);
+  const eatNow = useCallback((dish: DishId, pot?: string) => {
+    const sess = sessionRef.current;
+    if (!sess) return;
+    eatWhenSat.current = { dish, till: Date.now() + 30_000, ...(pot ? { pot } : {}) };
+    // (sat already, at the table whose panel this came from or anywhere else: the meal begins where I sit)
+    if (sess.seated) { beginMeal(); return; }
+    const seat = seatNear(sess.self.pos);
+    if (seat === null || !sess.sitOn(seat)) sess.sitHere();
+    cam.current.follow = true;
+  }, [beginMeal]);
+  const satNow = (s?.self.info.sit ?? -1) !== -1, satAt = s?.self.info.sit ?? -1;
+  useEffect(() => {
+    if (!satNow || !keeper) return;
+    if (eatWhenSat.current) { beginMeal(); return; }
+    // Sat down at one of the yard's tables with food on the feast table and no meal of mine begun: the table's
+    // panel comes up by itself (the owner, 2026-10-08: "เมื่อนั่งที่โต๊ะ แล้วถ้ามีอาหารให้หน้าจอขึ้นมาเลย").
+    if (yardSeat(satAt) && keeper.feast() && !keeper.purse().eating && keeper.pots().some((o) => o.feast)) setFeastAsk((n) => n + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [satNow, keeper]);
   useEffect(() => { sessionRef.current?.setHolding(purse.hand, purse.wet); }, [purse.hand, purse.wet]);
   // (whether I have no stamina left: handing water on is a game only where somebody has none, lib/town/handing)
@@ -3557,6 +3635,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const hasMoon = giftsTold.gifts.had.includes("thingMoon") && giftsTold.given.includes("thingMoon");
   /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
   const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
+  // A dining table that was tapped from outside the yard: its panel is asked for now that I have stopped in it.
+  useEffect(() => {
+    if (!feastWant.current || !stops) return;
+    feastWant.current = false;
+    const at = sessionRef.current?.self.pos;
+    if (at && onYard(Math.floor(at.x), Math.floor(at.y))) setFeastAsk((n) => n + 1);
+  }, [stops]);
   // A sign that was tapped from far off: asked again now that I have stopped walking.
   useEffect(() => {
     const id = signWant.current;
@@ -3918,6 +4003,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
                         className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
                   <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
+                  <kbd aria-hidden className="hidden rounded border border-line-strong px-1 font-data text-[0.625rem] leading-4 text-muted sm:inline">X</kbd>
                 </button>
                 {/* a sign held up over my head: a chat room, or a stall (the owner, 2026-10-06) */}
                 <button type="button" role="menuitem" onClick={() => { setEmoteOpen(false); openSignPanel(); }} data-emote-sign
@@ -4113,6 +4199,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                      here={!fishing && !signView ? standing?.tile ?? null : null} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || (phone && testOpen)} />
         </Suspense>
       )}
+      {/* While I sit: the way to get up (a tap on the map only turns me). At a meal it says what getting up costs. */}
+      {s && satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && (
+        <div className="pointer-events-none absolute left-3 z-20" style={{ bottom: phone && tabbar ? "calc(8.25rem + env(safe-area-inset-bottom))" : "4.25rem" }}>
+          <button type="button" data-stand-up onClick={() => s.standUp()}
+                  className="pop-in pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
+            <TownIcon name="standUp" size={22} />
+            {purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}
+            <kbd aria-hidden className="hidden rounded border border-line-strong px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-muted sm:inline">X</kbd>
+          </button>
+        </div>
+      )}
       {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall */}
       {s && stuckNote && (
         <div className="pointer-events-none absolute inset-x-0 z-30 flex justify-center px-2" style={{ bottom: phone && tabbar ? "calc(11.5rem + env(safe-area-inset-bottom))" : "7.5rem" }}>
@@ -4155,7 +4252,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} art={boardArt} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} phone={phone} tabbar={tabbar} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} feastAsk={feastAsk} phone={phone} tabbar={tabbar}
+                    yard={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? yardTile : null} />
         </Suspense>
       )}
       {/* A deal with somebody: what each lays out, and their word */}

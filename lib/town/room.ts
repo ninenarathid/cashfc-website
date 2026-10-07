@@ -61,6 +61,12 @@ export interface Doing {
   look?: string;
   /** The bench sat on, an index into BENCHES, SIT_HERE on the ground, or −1; missing from a browser older than the benches. */
   sit?: number;
+  /**
+   * Which way somebody who sits has turned: 1 to the right of the screen, 2 to the left, 0 or missing as their seat
+   * has them (the owner, 2026-10-08: whoever sits stays sat, and a tap only turns them). Missing from a browser older
+   * than that, which draws everybody as their seat has them.
+   */
+  turn?: number;
   /** Typing a chat line now ("…" over their head); missing from a browser older than that. */
   typing?: boolean;
   /** The dish being eaten (its name in lib/town/items), "" when none; missing from a browser older than meals. */
@@ -165,6 +171,7 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   const sit = num(p.sit);
   // (a bench of the town's, the ground, or a place at one of the cooking yard's tables)
   if (sit !== undefined && Number.isInteger(sit) && ((sit >= SIT_HERE && sit < BENCHES.length) || (sit >= YARD_SEATS && sit < YARD_SEATS + KITCHEN.seats.length))) d.sit = sit;
+  if (p.turn === 0 || p.turn === 1 || p.turn === 2) d.turn = p.turn;
   const typing = bool(p.typing);
   if (typing !== undefined) d.typing = typing;
   if (typeof p.eat === "string" && /^[A-Za-z]{0,24}$/.test(p.eat)) d.eat = p.eat;

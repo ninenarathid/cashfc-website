@@ -43,6 +43,34 @@ const openTable = async (X) => {
   await until("the table's panel is up", () => panel(X), 4000);
   await sleep(350);
 };
+/** A real tap on the map, at a point of the canvas. */
+async function tapAt(X, mx, my) {
+  const at = await X.evaluate(`(() => { const r = document.querySelector("canvas").getBoundingClientRect(); return { x: r.left, y: r.top }; })()`), x = mx + at.x, y = my + at.y;
+  await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
+  for (const type of ["mousePressed", "mouseReleased"]) await X.send("Input.dispatchMouseEvent", { type, x, y, button: "left", clickCount: 1 });
+  await sleep(400);
+}
+/** The middle of a dining table's top on the screen, once it is drawn and still: of whichever table is on the screen with nothing of the page over that point. */
+async function tableTop(X) {
+  let at = null;
+  await until("a table's top is drawn on the screen, and still", async () => {
+    const now = await X.evaluate(`(() => {
+      const r = document.querySelector("canvas").getBoundingClientRect();
+      for (const k of window.__townView.tables()) {
+        const x = (k.x0 + k.x1) / 2, y = (k.y0 + k.y1) / 2;
+        if (x > 8 && y > 8 && x < r.width - 8 && y < r.height - 8 && document.elementFromPoint(x + r.left, y + r.top)?.tagName === "CANVAS") return { x, y, table: k.table };
+      }
+      return null;
+    })()`);
+    const still = !!now && !!at && now.table === at.table && Math.abs(now.x - at.x) < 0.5 && Math.abs(now.y - at.y) < 0.5;
+    at = now;
+    return still;
+  }, 20000, 400);
+  return at;
+}
+/** The X key, as a keyboard gives it. */
+const pressX = async (X) => { for (const type of ["keyDown", "keyUp"]) await X.send("Input.dispatchKeyEvent", { type, key: "x", code: "KeyX", windowsVirtualKeyCode: 88, nativeVirtualKeyCode: 88 }); await sleep(500); };
+const meOf = (X) => X.evaluate("window.__cashTown.me()");
 const shut = async (X) => { if (await panel(X)) { await X.evaluate(`${P}.querySelector("[data-feast-close]").click()`); await sleep(300); } };
 /** A pot of a dish (or of the odd dish) into the bag, by the rule of cooking itself. */
 const cooked = async (X, things, name) => {
@@ -95,22 +123,51 @@ try {
   await shut(A);
   await sleep(600);
   await A.shot(`${OUT}/feast-table.png`);
+  let top = await tableTop(A);
+  await tapAt(A, top.x, top.y);
+  await until("the panel is up", () => panel(A), 6000).catch(() => {});
+  ok("a tap on a table's top, standing in the yard, opens the table's panel where one stands", (await panel(A)) && (await lines(A)).length === 1 && !(await A.evaluate("window.__townView.self().moving")), await lines(A));
+  await shut(A);
 
   console.log("\n── another member eats at the table, out of the table's own bowl ──");
   const B = await A.tab("Feast-B");
   await enter(B, "G");
   await B.evaluate(`(${T}.setGifts(false), ${T}.setStamina(10))`);
   ok("somebody with an empty bag stands in the plaza: the table is not theirs to open from there", !(await offers(B)).includes("feast") && (await purse(B)).bag.every((s) => !s), await offers(B));
-  await warp(B, FLOOR[9]);
-  await openTable(B);
+  // (a tap on a table from just inside the yard's way in: the way in is of the yard's floor, so the panel opens there. From outside the yard is a house, and its tables are not to be tapped.)
+  await warp(B, KITCHEN.way[0]);
+  await sleep(1500);
+  top = await tableTop(B);
+  await tapAt(B, top.x, top.y);
+  await until("the panel is up", () => panel(B), 20000).catch(() => {});
+  const stoodAt = await B.evaluate("window.__townView.self()");
+  ok("a tap on a table's top from the yard's way in opens the table's panel for whoever stands there, with an empty bag too", (await panel(B)) && !stoodAt.moving && yardFloor(Math.floor(stoodAt.x), Math.floor(stoodAt.y)), stoodAt);
   list = await lines(B);
   ok("on the yard's floor they are offered the table, and read the pot with its cook's name", list.length === 1 && /โดย/.test(list[0].words) && !list[0].take && list[0].eat && !list[0].ladle, list);
-  const meId = (await B.evaluate(`window.__cashTown.me()`)).id;
+  await shut(B);
+  // sat down at a place of a table (the middle of a near bench: their back to the viewer) with food on the table
+  const NEAR = KITCHEN.seats.findIndex((x) => x.back && x.table === 0) + 1, meId = (await meOf(B)).id;
+  await B.evaluate(`window.__cashTown.sitOn(${YARD_SEATS + NEAR})`);
+  await until("they sit there", async () => (await meOf(B)).sit === YARD_SEATS + NEAR && !(await B.evaluate("window.__townView.self().moving")), 20000);
+  await until("the panel is up", () => panel(B), 6000).catch(() => {});
+  ok("sitting down at a table that has food on it brings the table's panel up by itself", (await panel(B)) && (await lines(B)).length === 1 && (await lines(B))[0].eat, await lines(B));
+  ok("…and while one sits there is a button to get up by", await B.evaluate(`!!document.querySelector("[data-stand-up]")`));
   await B.evaluate(`${P}.querySelector("[data-feast-eat]").click()`);
-  await until("they are sat at one of the yard's tables", async () => ((await B.evaluate(`window.__cashTown.me()`)).sit ?? -1) >= YARD_SEATS, 20000);
   await until("the meal has begun", async () => !!(await purse(B)).eating, 8000);
   let p = await purse(B);
-  ok("\"eat at the table\" walks them to a place at the tables and the helping is begun there, out of the table's bowl", p.eating?.dish === "friedMinnow" && p.eating.lent === true && !(await panel(B)), p.eating);
+  ok("\"eat at the table\", already sat: the helping is begun where they sit, out of the table's bowl, with no walk", p.eating?.dish === "friedMinnow" && p.eating.lent === true && !(await panel(B))
+    && (await meOf(B)).sit === YARD_SEATS + NEAR, { eating: p.eating, sit: (await meOf(B)).sit });
+  // a slip of the finger on the map at a meal: nobody is walked off their seat or out of their meal, they only turn that way
+  // (where they are drawn is their place at the table, not the floor tile they walked to: the taps are to either side of the place)
+  const seatBox = (await B.evaluate("window.__townView.benches()")).find((k) => k.i === YARD_SEATS + NEAR), at = { x: (seatBox.x0 + seatBox.x1) / 2, y: seatBox.y1 };
+  await tapAt(B, at.x - 150, at.y + 60);
+  let now = await meOf(B);
+  ok("a tap on the ground to the left of somebody sat at a meal walks them nowhere: still sat, still eating, turned to the left", now.sit === YARD_SEATS + NEAR && now.turn === 2 && !!(await purse(B)).eating && !(await B.evaluate("window.__townView.self().moving")), now);
+  await tapAt(B, at.x + 150, at.y + 60);
+  now = await meOf(B);
+  ok("…and one to the right turns them to the right", now.sit === YARD_SEATS + NEAR && now.turn === 1 && !!(await purse(B)).eating, now);
+  ok("…which the other page is told", (await until("the other page", async () => (await A.evaluate(`window.__cashTown.people().find((x) => x.id === ${JSON.stringify(meId)})?.turn`)) === 1, 8000).catch(() => false)) === true,
+    await A.evaluate(`window.__cashTown.people().find((x) => x.id === ${JSON.stringify(meId)})`));
   ok("…with nothing in the bag: no helping, no bowl", p.bag.every((s) => !s), p.bag.filter(Boolean));
   ok("…and the pot a helping the less, for both", (await pots(B))[0]?.left === dish.n - 1 && (await until("the cook's page knows", async () => (await pots(A))[0]?.left === dish.n - 1, 8000)) === true, { b: await pots(B), a: await pots(A) });
   await sleep(700);
@@ -119,6 +176,17 @@ try {
   await until("the meal is eaten up", async () => !(await purse(B)).eating, 15000);
   p = await purse(B);
   ok("eaten up: its stamina had, and no bowl in the bag nor owed", p.stamina.left > 10 && p.bag.every((s) => !s) && !p.owed, { stamina: p.stamina, owed: p.owed, bag: p.bag.filter(Boolean) });
+  // the key to get up and to sit down, and the button
+  await pressX(B);
+  ok("the X key gets somebody who sits up", (await meOf(B)).sit === -1 && !(await B.evaluate(`!!document.querySelector("[data-stand-up]")`)), await meOf(B));
+  await pressX(B);
+  await until("sat again", async () => ((await meOf(B)).sit ?? -1) !== -1, 15000).catch(() => {});
+  ok("…and sits them down again, on the nearest seat", ((await meOf(B)).sit ?? -1) !== -1 && ((await meOf(B)).turn ?? 0) === 0, await meOf(B));
+  await sleep(500);
+  await B.evaluate(`document.querySelector("[data-stand-up]")?.click()`);
+  await sleep(400);
+  ok("the button that is there while one sits gets them up too", (await meOf(B)).sit === -1, await meOf(B));
+  await shut(B);
 
   console.log("\n── bowls of one's own, three to a slot ──");
   await B.evaluate(`${T}.grant("bowl", 3)`);
@@ -173,8 +241,9 @@ try {
   ok("with a pot of a dish in the hand in the yard, the offer says it goes on the feast table", /บนโต๊ะเลี้ยง/.test(word), word);
   await A.evaluate(`document.querySelector('[data-cook-offer="down"]').click()`);
   await until("it is on the table", async () => (await pots(A)).filter((o) => o.feast).length === 2, 5000);
-  const note = await A.evaluate(`${C}.note()`);
-  ok("…and once it is set there, how long it stands is said", /โต๊ะเลี้ยง/.test(note ?? "") && /05:00/.test(note ?? ""), note);
+  await until("the panel is up", () => panel(A), 5000).catch(() => {});
+  const note = await said(A);
+  ok("…and once it is set there the table's panel opens with it on it, and says how long it stands", (await panel(A)) && (await lines(A)).length === 2 && /โต๊ะเลี้ยง/.test(note ?? "") && /05:00/.test(note ?? ""), note);
   await sleep(500);
   await A.shot(`${OUT}/feast-two.png`);
   // from outside the yard, under its roof: a few words over the house say there is food
@@ -216,9 +285,13 @@ try {
   await A.shot(`${OUT}/feast-card.png`);
   await A.evaluate(`${K}.querySelector("[data-kitchen-down]").click()`);
   await until("the kitchen table is put away", () => A.evaluate(`!${K}`), 5000);
-  await sleep(300);
+  await until("the feast table's panel is up", () => panel(A), 5000).catch(() => {});
   stand = await pots(A);
-  ok("…and does: the pot just cooked is on the table", stand.length === 1 && stand[0].feast && stand[0].dish === "friedMinnow", stand);
+  list = await lines(A);
+  ok("…and does: the pot just cooked is on the table, and the table's panel opens with it, to eat from at once", stand.length === 1 && stand[0].feast && stand[0].dish === "friedMinnow"
+    && list.length === 1 && list[0].eat && /โต๊ะเลี้ยง/.test((await said(A)) ?? ""), { stand, list, said: await said(A) });
+  await A.shot(`${OUT}/feast-after-card.png`);
+  await shut(A);
   await cookAt(WRONG);
   card = await A.evaluate(`({ came: ${K}.querySelector("[data-kitchen-came]")?.dataset.kitchenCame, down: ${K}.querySelector("[data-kitchen-down]")?.innerText.trim(), pour: ${K}.querySelector("[data-kitchen-pour]")?.innerText.trim() })`);
   ok("the card of the odd dish offers no table: to set it down, or to throw it away", card.came === "odd" && !/โต๊ะเลี้ยง/.test(card.down ?? "x") && /ทิ้ง/.test(card.pour ?? ""), card);
