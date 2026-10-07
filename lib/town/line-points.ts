@@ -1,7 +1,7 @@
 import { KINDS } from "./forest";
 import { BUGS } from "./insects";
 import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
-import { LINES, LINE_IDS, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
+import { ALL_LINE_IDS, LINES, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 
 /**
@@ -46,9 +46,9 @@ export const POINTS = {
 export function linesRow() {
   const insects = Object.fromEntries(Object.keys(BUGS).map((id) => [id, bugPoints(id)]));
   return {
-    ids: [...LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
-    marks: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].marks])),
-    day: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].day])),
+    ids: [...ALL_LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
+    marks: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].marks])),
+    day: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].day])),
     kitchen: {
       ladled: POINTS.kitchen.ladled, pots: POINTS.kitchen.pots, ladling: POINTS.kitchen.ladling,
       pot: Object.fromEntries([...DISH_IDS.flatMap((id) => (DISHES[id].recipe ? [[id, DISHES[id].recipe!.serves] as [string, number]] : [])), ...MAKE_IDS.map((id) => [id, POINTS.kitchen.made] as [string, number])]),
