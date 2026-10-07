@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "./items";
-import { held, no, put, roomFor, type Done, type Purse, type Stack } from "./trade";
+import { held, no, put, roomFor, wholeStack, type Done, type Purse, type Stack } from "./trade";
 
 /**
  * Trading between two members, as rules (the owner, 2026-10-03: "ช่วยทำระบบ เทรด
@@ -94,7 +94,7 @@ export function pull(bag: Purse["bag"], give: Give): { bag: Purse["bag"]; stacks
 export function push(bag: Purse["bag"], stacks: Stack[]): Purse["bag"] | null {
   let out = bag.map((s) => (s ? { ...s } : null));
   for (const s of stacks) {
-    if (s.of || s.water !== undefined) {
+    if (wholeStack(s)) {
       const slot = out.findIndex((b) => !b);
       if (slot < 0) return null;
       out[slot] = { ...s };

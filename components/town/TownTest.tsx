@@ -25,6 +25,7 @@ import { Coins, ItemCard, ItemIcon } from "./TownTrade";
 const KINDS: Array<[ItemKind | "all", string, string]> = [
   ["all", "ทั้งหมด", "All"], ["tool", "เครื่องมือ", "Tools"], ["bait", "เหยื่อ", "Bait"], ["staple", "ของคู่ครัว", "Staples"], ["seed", "เมล็ด", "Seeds"],
   ["crop", "ผัก", "Vegetables"], ["fish", "ปลา", "Fish"], ["catch", "ของจากน้ำ", "Flotsam"], ["wild", "ของป่า", "Forest"], ["bug", "แมลง", "Insects"], ["goods", "ของแปรรูป", "Goods"], ["dish", "อาหาร", "Dishes"], ["scroll", "ม้วนสูตร", "Scrolls"],
+  ["wood", "ไม้", "Wood"], ["mineral", "หินและแร่", "Stone and ore"],
 ];
 type View = "things" | "plants" | "me" | "plays";
 /** What each stage of a plant's growing is called. */

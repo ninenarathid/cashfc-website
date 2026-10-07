@@ -17,6 +17,7 @@ import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } fr
 import { NO_PRICES, type PricesTold } from "./market";
 import type { NoticeRefusal, PinboardTold } from "./notices";
 import { shelfOf, sourcesAt, type Order } from "./orders";
+import { ofMountain } from "./uses";
 import type { ShopAsk, ShopRefusal, ShopTold, ShopsTold } from "./shop";
 import { SKIES } from "./skies";
 import type { FishingEnd, Play } from "./plays";
@@ -865,7 +866,12 @@ export class DbKeeper implements Keeper {
   prices(): PricesTold { return this.prices_; }
   shelf(): ItemId[] { return this.shelf_; }
   order(): Order | null { return this.order_; }
-  hintPrice(): number | null { const at = sourcesAt(this.unlocked, true); return hintPrice(this.mine, this.found_, (id) => at.has(id)); }
+  hintPrice(): number | null {
+    const at = sourcesAt(this.unlocked, true);
+    // ── forging ── (a recipe of the mountain's things is hinted at only by a database whose shelf sells the tools for them: one from before has no such hint to sell)
+    const mountain = this.shelf_.includes("axe") && this.shelf_.includes("pick");
+    return hintPrice(this.mine, this.found_, (id) => at.has(id) && (mountain || !ofMountain(id)));
+  }
   farm(): Record<string, Plot> { return this.plots; }
   well(): number { return this.well_; }
   owners(): Map<number, { by: string; name: string }> {

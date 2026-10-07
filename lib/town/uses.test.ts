@@ -8,6 +8,7 @@ import { mayNet } from "./insects";
 import { CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { GOODS, RULES, hold, newPurse, put, takeOff, wear, type Purse } from "./trade";
 import { idle, missing, sources, usesOf } from "./uses";
+import { ELEMENTS, FELLED, GEMS, MINED, ORES, SMELTS, axeChops, pickSwings, toolKindOf, veinStrikes } from "./tools";
 
 const NOW = Date.parse("2026-10-03T12:00:00+07:00");
 const purseWith = (...items: Array<[ItemId, number]>): Purse => {
@@ -63,6 +64,9 @@ describe("every piece of gear (the owner: \"make sure ว่า อุปกร�
         expect(ladle(newPurse(), pot).ok).toBe(false);
       }
       if (use === "net") expect(mayNet(id)).toBe(true);
+      // (woodcutting and mining: each read as the tool it is by lib/town/tools, whose numbers the lines' games play by)
+      if (use === "pick") { expect(toolKindOf(id)).toBe("pick"); expect(pickSwings({ item: id, n: 1 }, 12)).toBe(4); expect(veinStrikes({ item: id, n: 1 })).toBe(6); }
+      if (use === "axe") { expect(toolKindOf(id)).toBe("axe"); expect(axeChops({ item: id, n: 1 })).toBe(12); }
       if (use === "serve" && id === "ladle") expect(helpings("tomYum", ["pot"], 0, bag)).toBeGreaterThan(helpings("tomYum", ["pot"], 0));
     }
     // a hoe, a can and a seed are told apart by the hand
@@ -111,6 +115,33 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
     for (const id of Object.keys(GOODS) as ItemId[]) expect(["fish", "catch", "crop"]).not.toContain(ITEMS[id].kind);
     // every seed is sold, so every vegetable can be grown
     for (const c of CROP_IDS) expect(GOODS[CROPS[c].seed]).toBeDefined();
+  });
+
+  it("woodcutting and mining: an axe and a pick from the uncle bring everything of the mountain, and the smith smelts the rest", () => {
+    expect(usesOf("pick")).toEqual(["pick"]);
+    expect(usesOf("axe")).toEqual(["axe"]);
+    const from = sources();
+    expect(from.get("pick")).toBe("shop");
+    expect(from.get("axe")).toBe("shop");
+    for (const id of FELLED) expect(from.get(id)).toBe("mountain");
+    for (const id of MINED) expect(from.get(id)).toBe("mountain");
+    for (const o of ORES) expect(from.get(o.ore)).toBe("smith");
+    for (const e of ELEMENTS) expect(from.get(GEMS[e].gem)).toBe("smith");
+    // a torch is made by hand of fine timber and the forest's resin
+    expect(from.get("torch")).toBe("kitchen");
+    expect(MAKES.torch).toEqual({ needs: [["timber", 1], ["resin", 1]], in: [], gives: 2 });
+    // with no axe there is no wood, and so nothing is smelted and no torch made; with no pick, nothing of the rock
+    const noAxe = sources((Object.keys(GOODS) as ItemId[]).filter((id) => id !== "axe"));
+    for (const id of [...FELLED, "torch", ...Object.keys(SMELTS)] as ItemId[]) expect(noAxe.has(id)).toBe(false);
+    for (const id of MINED) expect(noAxe.get(id)).toBe("mountain");
+    const noPick = sources((Object.keys(GOODS) as ItemId[]).filter((id) => id !== "pick"));
+    for (const id of [...MINED, ...Object.keys(SMELTS)] as ItemId[]) expect(noPick.has(id)).toBe(false);
+    for (const id of FELLED) expect(noPick.get(id)).toBe("mountain");
+    // none of it is what the uncle may ask for or hint at: that never hangs on what somebody goes out and finds
+    const tame = sources(Object.keys(GOODS) as ItemId[], false);
+    for (const id of [...FELLED, ...MINED, "torch", ...Object.keys(SMELTS)] as ItemId[]) expect(tame.has(id)).toBe(false);
+    // and the relatives take none of it: wood, ore and gems change hands between members
+    for (const id of [...FELLED, ...MINED, "torch", ...Object.keys(SMELTS)] as ItemId[]) expect(ITEMS[id].pays).toBe(0);
   });
 
   it("can be found: there is a hint for every dish that is cooked and everything that is made", () => {

@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
-import { HOUR, no as refuse, put, roomFor, type Purse, type Refusal } from "./trade";
+import { HOUR, no as refuse, plainStack, put, roomFor, type Purse, type Refusal } from "./trade";
 
 /**
  * The notice board beside the uncle's stall, where members sell to one another
@@ -79,13 +79,13 @@ export function capOf(item: ItemId, k: NoticeKnobs = NOTICES): number {
   return pays > 0 ? pays * k.cap : k.capless;
 }
 /** How many of a thing are in a bag as plain things: a stack that holds something is not counted. */
-export const plain = (bag: Purse["bag"], id: ItemId) => bag.reduce((t, s) => t + (s && s.item === id && !s.of && !s.water ? s.n : 0), 0);
+export const plain = (bag: Purse["bag"], id: ItemId) => bag.reduce((t, s) => t + (s && s.item === id && plainStack(s) ? s.n : 0), 0);
 /** A bag with so many plain ones of a thing out of it, from its last stacks first. (It must hold as many.) */
 export function takePlain(bag: Purse["bag"], id: ItemId, n: number): Purse["bag"] {
   const out = bag.map((s) => (s ? { ...s } : null));
   for (let i = out.length - 1; i >= 0 && n > 0; i--) {
     const s = out[i];
-    if (!s || s.item !== id || s.of || s.water) continue;
+    if (!s || s.item !== id || !plainStack(s)) continue;
     const less = Math.min(n, s.n);
     n -= less;
     out[i] = s.n === less ? null : { ...s, n: s.n - less };

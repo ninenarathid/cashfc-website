@@ -224,6 +224,14 @@ const SHEETS = [
   ["icons-gifts-h", ["goldToque", "thingGiant", "thingBees", "thingBanner", "thingBean", "goldEar"], { range: [5.5, 5.7], near: true }],
   ["icons-gifts-i", ["thingFlower", "thingThread", "thingTear", "thingHourBell", "goldWings", "thingHorn"], { range: [3.9, 4.1] }],
   ["icons-gifts-j", ["thingStaff", "thingRain", "goldDrop", "shardBig", "honeyJar", "hybridSeed"], { range: [3.9, 4.1] }],
+  // woodcutting and mining (2026-10-08; lib/town/items, lib/town/tools): the two tools, what a tree and a rock leave and a
+  // torch; ore in fragments and smelted; the eight gems in fragments and cut; and, for the smith's screen, an empty
+  // setting and a pair of bellows
+  ["icons-ore-a", ["pick", "axe", "stone", "log", "timber", "torch"]],
+  ["icons-ore-b", ["shardCopper", "shardIron", "shardSilver", "oreCopper", "oreIron", "oreSilver"]],
+  ["icons-ore-c", ["chipRuby", "chipSapphire", "chipAquamarine", "chipAmber", "chipTopaz", "chipEmerald"]],
+  ["icons-ore-d", ["chipDiamond", "chipOnyx", "gemDiamond", "gemOnyx", "smithSocket", "smithBellows"]],
+  ["icons-ore-e", ["gemRuby", "gemSapphire", "gemAquamarine", "gemAmber", "gemTopaz", "gemEmerald"]],
 ];
 
 const pieces = [];

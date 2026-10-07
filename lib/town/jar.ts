@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "./items";
-import { no, put, roomFor, roundOf, type Done, type Purse } from "./trade";
+import { no, plainStack, put, roomFor, roundOf, type Done, type Purse } from "./trade";
 import type { WellLog } from "./well";
 
 /**
@@ -36,7 +36,7 @@ export const newJar = (round: number): Jar => ({ round, coins: 0, things: [] });
 export interface JarTold extends Jar { next: number; mine: Owed[string] | null }
 
 /** Whether a stack may be dropped in: a plain thing of a kind the jar takes (not a pot of food, not a bucket of water). */
-export const mayDrop = (s: Purse["bag"][number]): boolean => !!s && JAR.kinds.includes(ITEMS[s.item].kind) && !s.of && !s.water;
+export const mayDrop = (s: Purse["bag"][number]): boolean => !!s && JAR.kinds.includes(ITEMS[s.item].kind) && plainStack(s);
 
 const whole = (n: number) => Number.isInteger(n) && n > 0;
 const add = (things: Array<[ItemId, number]>, id: ItemId, n: number): Array<[ItemId, number]> =>

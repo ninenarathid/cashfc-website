@@ -46,6 +46,8 @@ export const BASIC: ItemId[] = [
   "rod", "hoe", "can", "pot", "pan", "grill", "worm", "dough", "rice", "salt", "riceBox",
   "seedKangkong", "seedScallion", "seedCabbage", "seedCarrot", "seedChili", "seedPumpkin",
   "scrollFriedMinnow", "scrollGrilledFish", "scrollPestCure", "bowl", "bucket", "bugNet",
+  // (woodcutting and mining, 2026-10-08)
+  "pick", "axe",
 ];
 /**
  * What the orders open, in this order, one for each day filled: the early

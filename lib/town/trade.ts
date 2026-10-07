@@ -65,6 +65,8 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   bowl: good(5, 60, 5), bucket: good(20, 30, 4),
   // (a net for insects, from the first day: lib/town/insects. It can be made of what the forest gives, too.)
   bugNet: good(35, 6, 1),
+  // (woodcutting and mining, 2026-10-08: the two lines' first tools, from the first day, stocked as the hoe is)
+  pick: good(50, 6, 1), axe: good(50, 6, 1),
   bucketIron: good(70, 6, 1), apron: good(120, 4, 1),
   // The early seeds that were to be found in the wild: sold here until foraging opens (it does not, today), since
   // without them half the early dishes could not be cooked at all.
@@ -136,7 +138,26 @@ export function weekOf(now: number): number {
  * So many of a thing in one slot. A few things hold something: a pot of food its dish and the helpings left (`of`,
  * lib/town/cooking), a watering can the waterings left in it and a bucket whether it is full (`water`, lib/town/farm).
  */
-export interface Stack { item: ItemId; n: number; of?: { dish: DishId; left: number }; water?: number }
+export interface Stack {
+  item: ItemId; n: number; of?: { dish: DishId; left: number }; water?: number;
+  // ── forging (lib/town/tools reads these, and makes them sound) ──
+  /** A tool's own: how far it has been forged (1 to 10; none, of a tool as it was bought), */
+  plus?: number;
+  /** the options drawn for it at its milestones, in the order they were drawn, */
+  opts?: string[];
+  /** and the gems set in it, by their elements: one for each socket filled. */
+  gems?: string[];
+}
+// ── forging ──
+/** Whether a tool carries something of its own: a plus, an option drawn for it, a gem set in it. */
+export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus ?? 0) > 0 || !!s.opts?.length || !!s.gems?.length);
+/**
+ * A plain thing: one that holds nothing (no dish, no water) and carries nothing of its own. Only plain things are
+ * counted, bought and sold by number (a stall, the notice board, the yard's jar): one of them is like any other.
+ */
+export const plainStack = (s: Stack | null | undefined): boolean => !!s && !s.of && !s.water && !forged(s);
+/** A thing that is moved whole, slot to slot, and never laid on another of its kind: one that holds something, or a tool that carries something of its own (a deal, the storage box, the ground). */
+export const wholeStack = (s: Stack | null | undefined): boolean => !!s && (!!s.of || s.water !== undefined || forged(s));
 /**
  * Some of one thing left with the uncle to be sold: what each fetches at the usual price, the round it was left in,
  * and the round's price it was left at, in hundredths of the usual one (lib/town/market; left out when it is the
@@ -240,6 +261,9 @@ export interface Purse {
   rung?: { day: number; n: number };
   /** What friends' gifts of the helpers' line did for me lately, to be told of once (lib/town/helping's Aid): the newest few. */
   aided?: Array<{ what: string; by: string; name: string; n: number; at: number; back?: number; key?: string }>;
+  // ── forging ──
+  /** What a tool's option does only so many times (lib/town/powers): how many times each has been used in its stretch, by the option. Counted for the member, whichever tool it was used with. */
+  powers?: Record<string, { k: number; n: number }>;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }
@@ -424,6 +448,8 @@ export function leave(purse: Purse, slot: number, n: number, now: number, f = 10
   if (!s || s.n < n) return no("none");
   const round = roundOf(now), pays = ITEMS[s.item].pays;
   if (!pays) return no("unwanted");
+  // (forging: a tool that carries something of its own is not left to be sold as one of its kind: what it carries would be lost with it)
+  if (forged(s)) return no("unwanted");
   const bag = purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { item: s.item, n: s.n - n }));
   const same = purse.left.findIndex((l) => l.item === s.item && l.round === round && l.pays === pays && (l.f ?? 100) === f);
   const left = same < 0 ? [...purse.left, { item: s.item, n, pays, round, ...(f === 100 ? {} : { f }) }]
