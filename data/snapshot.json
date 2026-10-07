@@ -3245,7 +3245,7 @@
   "mounts": 104,
   "minions": 250,
   "rare": 35,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3466,7 +3466,7 @@
   "mounts": 187,
   "minions": 436,
   "rare": 141,
-  "level": 98,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4281,7 +4281,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 100,
+  "level": 50,
   "cc": null,
   "rare_ids": [
    847,
@@ -5615,7 +5615,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7257,7 +7257,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 55,
-  "level": 68,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -8296,7 +8296,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -8309,7 +8309,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-07"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8445,7 +8445,7 @@
   "mounts": 107,
   "minions": 307,
   "rare": 19,
-  "level": 31,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8589,7 +8589,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 92,
+  "level": 99,
   "cc": [
    false,
    false,

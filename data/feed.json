@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-07",
+   "type": "level_100",
+   "id": 5294880,
+   "name": "Mithra Muses",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-10-07",
+   "type": "level_100",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-07",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on White Mage!"
+  },
+  {
+   "date": "2026-10-07",
+   "type": "level_100",
+   "id": 15932791,
+   "name": "Yuziris Andra'nov",
+   "text": "reached level 100 on Summoner!"
+  },
+  {
+   "date": "2026-10-07",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1371,34 +1399,6 @@
    "id": 25506828,
    "name": "Kururuki Tzuzaku",
    "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-26",
-   "type": "level_100",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-26",
-   "type": "level_100",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "reached level 100 on Viper!"
-  },
-  {
-   "date": "2026-09-26",
-   "type": "new_member",
-   "id": 62539607,
-   "name": "Kross Astra",
-   "text": "joined the FC — welcome!"
-  },
-  {
-   "date": "2026-09-26",
-   "type": "level_100",
-   "id": 28679378,
-   "name": "Tong Topspeed",
-   "text": "reached level 100 on Summoner!"
   }
  ]
 }
