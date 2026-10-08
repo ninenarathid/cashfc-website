@@ -1411,12 +1411,12 @@ export class Trial {
   smithSmelt(piece: ItemId, n: number) { return this.smithKeep(smelt(this.purse(), this.smithy(), piece, n, this.now())); }
   smithTake() { return this.smithKeep(collectSmelted(this.purse(), this.smithy(), this.now())); }
   smithWiden() { return this.smithKeep(widen(this.purse(), this.smithy())); }
-  /** Who of these testers has a piece smelting now, and how many times more I may work their bellows this hour. */
+  /** Who of these testers has a piece smelting now, and how many presses of the bellows that piece may still take. */
   smithNear(ids: string[]) {
     const now = this.now();
     return ids.filter((id) => id !== this.id).flatMap((id) => {
       const theirs = trialFor(id).smithy(), piece = smithView(theirs, now).now;
-      return piece ? [{ id, piece, left: bellowsLeft(theirs, this.id, now) }] : [];
+      return piece ? [{ id, piece, left: bellowsLeft(theirs, now) }] : [];
     });
   }
   smithBellows(whose: string): SmithDid<{ off: number }> {

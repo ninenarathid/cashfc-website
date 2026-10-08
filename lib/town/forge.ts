@@ -3,14 +3,15 @@ import {
   FORGE, GEMS, SMELTING, SMELTS, drawable, drawnOf, elementOfGem, gemsOf, has, isWooden, levelOf, makerName, makersOf, settable, toolKindOf,
   type Element, type OptionId, type ToolKind,
 } from "./tools";
-import { HOUR, held, put, roomFor, take, type Purse, type Stack } from "./trade";
+import { held, put, roomFor, take, type Purse, type Stack } from "./trade";
 
 /**
  * The blacksmith's rules (2026-10-08): smelting, a forging try, the options drawn at a tool's milestones, a gem set.
  *
  * - **Smelting** turns fragments into a piece (big ore, or a gem): so many fragments, fine timber and a fee a piece.
  *   A member has a queue of a few places; the pieces smelt one after another by the clock, also while the member is
- *   away, and wait at the smith until they are taken: nothing is lost by being away. A friend may work the bellows.
+ *   away, and wait at the smith until they are taken: nothing is lost by being away. A friend may work the bellows:
+ *   each press takes a share of the piece's whole time off it, and a piece takes only so many presses.
  * - **A forging try** spends its materials and its fee whether it takes or not (the table is the owner's). What
  *   comes of it is read from a number of chance that whoever keeps the game draws: nothing here draws one.
  * - **At a milestone** two options are drawn and one is chosen; an option can be drawn again for a gem and coins,
@@ -26,8 +27,12 @@ export const SMITH = {
   places: 3,
   wider: 3,
   more: [{ timber: 20, coins: 200 }, { timber: 40, coins: 500 }] as ReadonlyArray<{ timber: number; coins: number }>,
-  /** A friend at the bellows: so many milliseconds off the piece now smelting; one member helps the same queue so many times an hour; and so many points on the helpers' line. */
-  bellows: { off: 30_000, each: 3, per: HOUR, points: 2 },
+  /**
+   * A friend at the bellows (the owner, 2026-10-08: help that matters, given by pressing): each press takes so great a
+   * share of the piece's whole time off the piece now smelting; a piece takes so many presses at the most, whoever
+   * presses; and each press is so many points on the helpers' line.
+   */
+  bellows: { share: 0.1, each: 3, points: 2 },
   /** Setting a gem: the mount, and the fee. */
   gem: { mount: "oreCopper" as ItemId, mounts: 1, fee: 50 },
   /** Drawing a milestone's option again: so many gems of any element, and the fee. */
@@ -65,29 +70,28 @@ export const tryOdds = (to: number): { take: number; stay: number; down: number 
 
 /* ── what is kept ───────────────────────────────────────────────────────── */
 
-/** A piece in the queue: what comes out, and from when until when it smelts. */
-export interface Smelting { piece: ItemId; from: number; till: number }
+/** A piece in the queue: what comes out, from when until when it smelts, and how many presses of the bellows friends have given it (none: left out). */
+export interface Smelting { piece: ItemId; from: number; till: number; blown?: number }
 /** A draw that waits to be chosen: for which kind of tool, which milestone (0, 1, 2), the options laid out, and (of a draw made again) the one the tool has, which may be kept. */
 export interface Pending { item: ToolKind; at: number; offer: OptionId[]; old?: OptionId }
 /**
  * What a member has at the smith: the queue in its order (pieces that are done stay in it until they are taken); how
- * many times it was widened; how many pieces a timber already burned still smelts; who worked the bellows lately;
- * and a draw that waits.
+ * many times it was widened; how many pieces a timber already burned still smelts; and a draw that waits.
  */
-export interface Smithy { queue: Smelting[]; more: number; ember: number; helps: Array<{ by: string; at: number }>; pending: Pending | null }
-export const newSmithy = (): Smithy => ({ queue: [], more: 0, ember: 0, helps: [], pending: null });
+export interface Smithy { queue: Smelting[]; more: number; ember: number; pending: Pending | null }
+export const newSmithy = (): Smithy => ({ queue: [], more: 0, ember: 0, pending: null });
 const num = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 /** A smithy made sound, whatever was kept: only pieces that are smelted, in order of their ends; counts within their bounds. */
 export function soundSmithy(kept: unknown): Smithy {
   const k = (kept && typeof kept === "object" ? kept : {}) as Partial<Record<keyof Smithy, unknown>>;
   const queue = (Array.isArray(k.queue) ? k.queue : []).filter((q): q is Smelting => !!q && typeof q === "object" && typeof (q as Smelting).piece === "string" && (q as Smelting).piece in SMELTS && num((q as Smelting).from) && num((q as Smelting).till) && (q as Smelting).till >= (q as Smelting).from)
-    .map((q) => ({ piece: q.piece, from: q.from, till: q.till })).sort((a, b) => a.till - b.till);
-  const helps = (Array.isArray(k.helps) ? k.helps : []).filter((h): h is { by: string; at: number } => !!h && typeof h === "object" && typeof (h as { by: unknown }).by === "string" && num((h as { at: unknown }).at)).map((h) => ({ by: h.by, at: h.at }));
+    .map((q) => { const blown = num(q.blown) ? Math.max(0, Math.min(SMITH.bellows.each, Math.floor(q.blown))) : 0; return { piece: q.piece, from: q.from, till: q.till, ...(blown > 0 ? { blown } : {}) }; })
+    .sort((a, b) => a.till - b.till);
   const p = k.pending as Partial<Pending> | null | undefined;
   const pending = p && typeof p === "object" && toolKindOf(p.item) && Number.isInteger(p.at) && (p.at as number) >= 0 && (p.at as number) < FORGE.milestones.length && Array.isArray(p.offer) && p.offer.every((o) => typeof o === "string")
     ? { item: p.item as ToolKind, at: p.at as number, offer: [...p.offer] as OptionId[], ...(typeof p.old === "string" ? { old: p.old as OptionId } : {}) } : null;
   return {
-    queue, helps, pending,
+    queue, pending,
     more: num(k.more) ? Math.max(0, Math.min(SMITH.more.length, Math.floor(k.more))) : 0,
     ember: num(k.ember) ? Math.max(0, Math.floor(k.ember)) : 0,
   };
@@ -109,7 +113,7 @@ export type SmithRefusal =
   | "owed"     // a draw waits to be chosen first
   | "self"     // one's own bellows
   | "idle"     // nothing smelting there now
-  | "tired"    // helped that queue as often as one may this hour
+  | "tired"    // the piece smelting has had all the presses of the bellows a piece takes
   | "away";    // the town's books could not be reached
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: SmithRefusal };
 const no = (why: SmithRefusal): { ok: false; why: SmithRefusal } => ({ ok: false, why });
@@ -183,18 +187,27 @@ export function collect(purse: Purse, s: Smithy, now: number): Did<{ purse: Purs
   if (!got.size) return no("full");
   return { ok: true, purse: { ...purse, bag }, smithy: { ...s, queue: [...left, ...s.queue.filter((q) => q.till > now)] }, got: [...got] };
 }
-/** How many times more somebody may work the bellows of a queue this hour. */
-export const bellowsLeft = (s: Smithy, by: string, now: number): number => Math.max(0, SMITH.bellows.each - s.helps.filter((h) => h.by === by && now - h.at < SMITH.bellows.per).length);
-/** Work the bellows of somebody's queue: so much off the piece smelting now, and off everything behind it. Never one's own. */
+/** How many presses of the bellows the piece smelting now may still take, whoever presses: none, with nothing smelting. */
+export const bellowsLeft = (s: Smithy, now: number): number => {
+  const cur = smithView(s, now).now;
+  return cur ? Math.max(0, SMITH.bellows.each - (cur.blown ?? 0)) : 0;
+};
+/** What one press of the bellows takes off a piece, in milliseconds: its share of the piece's whole time (the time a piece of its kind smelts). */
+export const bellowsOff = (piece: ItemId): number => Math.round((SMELTS[piece]?.mins ?? 0) * 60_000 * SMITH.bellows.share);
+/**
+ * Press the bellows of somebody's queue: a share of its whole time off the piece smelting now (never past its end),
+ * and as much off everything behind it. The press is counted on the piece: a piece takes so many, whoever gives
+ * them. Never one's own.
+ */
 export function bellows(s: Smithy, owner: string, by: string, now: number): Did<{ smithy: Smithy; off: number }> {
   if (by === owner) return no("self");
   const cur = smithView(s, now).now;
   if (!cur) return no("idle");
-  if (bellowsLeft(s, by, now) < 1) return no("tired");
-  const off = Math.min(SMITH.bellows.off, cur.till - now);
+  if ((cur.blown ?? 0) >= SMITH.bellows.each) return no("tired");
+  const off = Math.min(bellowsOff(cur.piece), cur.till - now);
   // (the piece smelting ends sooner; whatever waits behind it begins and ends as much sooner)
-  const queue = s.queue.map((q) => (q.till <= now ? q : q === cur ? { ...q, till: q.till - off } : { ...q, from: q.from - off, till: q.till - off }));
-  return { ok: true, off, smithy: { ...s, queue, helps: [...s.helps.filter((h) => now - h.at < SMITH.bellows.per), { by, at: now }] } };
+  const queue = s.queue.map((q): Smelting => (q.till <= now ? q : q === cur ? { ...q, till: q.till - off, blown: (q.blown ?? 0) + 1 } : { ...q, from: q.from - off, till: q.till - off }));
+  return { ok: true, off, smithy: { ...s, queue } };
 }
 /** What the next widening of the queue takes: null when it is as wide as it gets. */
 export const widerCost = (s: Smithy): { timber: number; coins: number } | null => SMITH.more[s.more] ?? null;

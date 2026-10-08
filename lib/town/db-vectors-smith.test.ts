@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { vectorsLines } from "./db-vectors-lines.test";
 import {
-  SMITH, TRIES, bellows, bellowsLeft, candidates, choose, collect, draw, dryOf, forgeTry, markFound, markTop, newBoard, newSmithy, outcomeOf, owedOf, pendingSlot, pickOffer,
+  SMITH, TRIES, bellows, bellowsLeft, bellowsOff, candidates, choose, collect, draw, dryOf, forgeTry, markFound, markTop, newBoard, newSmithy, outcomeOf, owedOf, pendingSlot, pickOffer,
   redraw, setGem, smelt, smithView, soundSmithy, timberFor, tryCost, tryOdds, widen, type Pending, type SmithBoard, type Smithy,
 } from "./forge";
 import { ITEMS, type ItemId } from "./items";
@@ -31,8 +31,9 @@ import { held, newPurse, put, type Purse, type Stack } from "./trade";
  * - smelting: `smith_dry`, `smith_timber`; `smelt` with every piece and what is no piece, numbers of every sort,
  *   places free and not, fragments, timber and coins enough and one short, a timber already burning, an axe of
  *   seasoned wood awake and asleep; `smith_collect` with nothing done, some done and a bag with room for all, some
- *   and none of it; `bellows_left` and `bellows` by the owner and by another, with a piece smelting and none, helped
- *   none to three times within the hour and before it; `smith_widen` at each width, with enough and one short;
+ *   and none of it; `bellows_left` and `bellows` by the owner and by another, with a piece smelting and none, a piece
+ *   that has had none to three presses (and one kept with more), every piece's own share, and a piece with less
+ *   than a press's worth left; `smith_widen` at each width, with enough and one short;
  * - a try: `forge_candidates`, `forge_owed`; `forge_try` of every kind at every level with chance of every sort, with
  *   ore, timber and coins enough and one short, of a tool owed a draw, of what is no tool, of no slot;
  * - the options: `pick_offer` from none to six options with chance at both ends; `pending_slot`; `forge_draw` with no
@@ -140,24 +141,20 @@ export function vectorsSmith(): Vector[] {
   }
 
   /* ── what is kept ── */
-  /** A queue: pieces done, the one smelting, those waiting, by the moment; one after another, as they are put in. */
-  const queueAt = (now: number, done: number, running: boolean, waiting: number): Smithy["queue"] => {
+  /** A queue: pieces done, the one smelting (`blown`: the presses of the bellows it has had), those waiting, by the moment; one after another, as they are put in. */
+  const queueAt = (now: number, done: number, running: boolean, waiting: number, blown = 0): Smithy["queue"] => {
     const q: Smithy["queue"] = [];
     let from = now - done * 20 * MIN - (running ? c.int(1, 4) * MIN : -c.int(0, 1) * MIN);
     for (let i = 0; i < done + (running ? 1 : 0) + waiting; i++) {
       const piece = c.of(PIECES), mins = i < done ? c.int(5, 11) : SMELTS[piece]!.mins, till = i < done ? Math.min(now - (done - i - 1) * MIN, from + mins * MIN) : from + mins * MIN;
-      q.push({ piece, from: Math.min(from, till), till });
+      q.push({ piece, from: Math.min(from, till), till, ...(running && i === done && blown > 0 ? { blown } : {}) });
       from = till;
     }
     return q;
   };
-  const helpsAt = (now: number, mine: number, old = 0): Smithy["helps"] => [
-    ...Array.from({ length: old }, () => ({ by: ME, at: now - HOUR - c.int(0, 30) * MIN })), ...Array.from({ length: mine }, () => ({ by: ME, at: now - c.int(1, 59) * MIN })),
-    ...Array.from({ length: c.int(0, 3) }, () => ({ by: c.of([HIM, HER]), at: now - c.int(1, 90) * MIN })),
-  ];
   const smithyAt = (now: number, how: Partial<{ done: number; running: boolean; waiting: number; more: number; ember: number; helped: number; pending: Pending | null }> = {}): Smithy => ({
-    queue: queueAt(now, how.done ?? c.int(0, 2), how.running ?? c.maybe(0.6), how.waiting ?? c.int(0, 2)), more: how.more ?? c.of([0, 0, 1, 2]), ember: how.ember ?? c.of([0, 0, 0, 1]),
-    helps: helpsAt(now, how.helped ?? c.int(0, 3), c.int(0, 2)), pending: how.pending ?? null,
+    queue: queueAt(now, how.done ?? c.int(0, 2), how.running ?? c.maybe(0.6), how.waiting ?? c.int(0, 2), how.helped ?? c.int(0, 3)), more: how.more ?? c.of([0, 0, 1, 2]), ember: how.ember ?? c.of([0, 0, 0, 1]),
+    pending: how.pending ?? null,
   });
   const kepts: unknown[] = [
     undefined, null, "smithy", 7, [], {}, newSmithy(),
@@ -165,6 +162,7 @@ export function vectorsSmith(): Vector[] {
     { queue: [{ piece: "oreCopper", from: 5, till: 9 }, { piece: "oreIron", from: 9, till: 7 }, { piece: "noSuchPiece", from: 1, till: 2 }, { piece: "shardCopper", from: 1, till: 2 }, null, 3, { piece: "gemRuby", from: "1", till: 2 }, { piece: "gemOnyx", from: 2, till: 2, extra: true }, { from: 1, till: 2 }], more: 1.9, ember: 2.5 },
     { queue: [{ piece: "oreSilver", from: 50, till: 90 }, { piece: "oreCopper", from: 10, till: 40 }, { piece: "oreIron", from: 40, till: 50 }, { piece: "gemRuby", from: 20, till: 40 }], more: 7, ember: 0 },
     { more: -1, ember: 3, helps: [{ by: ME, at: 5 }, { by: 3, at: 5 }, { by: HER }, null, "x", { by: HIM, at: "7" }, { by: HER, at: 9, more: 1 }] },
+    { queue: [{ piece: "oreIron", from: 5, till: 9, blown: 2 }, { piece: "oreCopper", from: 9, till: 12, blown: 9 }, { piece: "gemRuby", from: 12, till: 15, blown: -1 }, { piece: "gemOnyx", from: 15, till: 18, blown: "2" }, { piece: "oreSilver", from: 18, till: 21, blown: 1.9 }] },
     { pending: { item: "pick", at: 0, offer: ["pkPeek", "pkCrumb"] } }, { pending: { item: "axe", at: 2, offer: ["axOne"], old: "axRoot" } }, { pending: { item: "pick", at: 1, offer: [], old: 5 } },
     { pending: { item: "rodTeak", at: 0, offer: ["rdBait"] } }, { pending: { item: "pick", at: 3, offer: ["pkPeek"] } }, { pending: { item: "pick", at: -1, offer: ["pkPeek"] } }, { pending: { item: "pick", at: 1.5, offer: ["pkPeek"] } },
     { pending: { item: "pick", at: 0, offer: ["pkPeek", 3] } }, { pending: { item: "pick", at: 0, offer: "pkPeek" } }, { pending: { item: "pick", at: 0 } }, { pending: "pick" }, { pending: null }, { pending: { item: "pick", at: "0", offer: [] } },
@@ -211,13 +209,13 @@ export function vectorsSmith(): Vector[] {
   }
   for (let i = 0; i < 520; i++) {
     const s = smithyAt(NOW, { running: c.maybe(0.75), helped: c.of([0, 0, 1, 2, 3, 4]) }), owner = c.of([HER, HER, HER, ME]), now = c.of([NOW, NOW, NOW + 30_000, NOW + 2 * MIN]);
-    add("bellows_left", [s, ME, now], bellowsLeft(s, ME, now));
+    add("bellows_left", [s, now], bellowsLeft(s, now));
     add("bellows", [s, owner, ME, now], bellows(s, owner, ME, now));
   }
-  // (a piece with less than the bellows' worth left; and the hour's edge, to the millisecond)
-  for (const left of [1, 1000, SMITH.bellows.off - 1, SMITH.bellows.off, SMITH.bellows.off + 1, 5 * MIN]) for (const ago of [SMITH.bellows.per - 1, SMITH.bellows.per, SMITH.bellows.per + 1, 0]) {
-    const s: Smithy = { ...newSmithy(), queue: [{ piece: "oreIron", from: NOW - MIN, till: NOW + left }, { piece: "gemRuby", from: NOW + left, till: NOW + left + 10 * MIN }], helps: [{ by: ME, at: NOW - ago }, { by: ME, at: NOW - ago }, { by: ME, at: NOW - 5 }] };
-    add("bellows_left", [s, ME, NOW], bellowsLeft(s, ME, NOW));
+  // (every piece's own share, with less than a press's worth left and with more; and a piece that has had each number of presses)
+  for (const piece of PIECES) for (const left of [1, 1000, bellowsOff(piece) - 1, bellowsOff(piece), bellowsOff(piece) + 1, 4 * MIN]) for (const blown of [0, 1, 2, 3]) {
+    const s: Smithy = { ...newSmithy(), queue: [{ piece, from: NOW - MIN, till: NOW + left, ...(blown ? { blown } : {}) }, { piece: "gemRuby", from: NOW + left, till: NOW + left + 10 * MIN }] };
+    add("bellows_left", [s, NOW], bellowsLeft(s, NOW));
     add("bellows", [s, HER, ME, NOW], bellows(s, HER, ME, NOW));
   }
   for (const more of [0, 1, 2, 3]) for (const short of ["nothing", "timber", "coins"] as const) for (const extra of [0, 7]) {
@@ -357,7 +355,7 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     for (const t of TRIES) for (const out of ["taken", "stays", "down"] as const) expect(of("outcome_of").some((v) => v.args[0] === t.to && v.want === out), `${t.to} ${out}`).toBe(t[out === "taken" ? "take" : out === "stays" ? "stay" : "down"] > 0);
 
     // what is kept, made sound; a queue seen at every part of it
-    const empty = (s: Smithy) => !s.queue.length && !s.helps.length && s.pending === null && s.more === 0 && s.ember === 0;
+    const empty = (s: Smithy) => !s.queue.length && s.pending === null && s.more === 0 && s.ember === 0;
     expect(of("smithy_sound").some((v) => empty(v.want as Smithy)) && of("smithy_sound").some((v) => (v.want as Smithy).pending?.old !== undefined)).toBe(true);
     expect(of("smithy_sound").some((v) => { const k = v.args[0] as { queue?: unknown[] } | null; return Array.isArray(k?.queue) && (v.want as Smithy).queue.length > 0 && (v.want as Smithy).queue.length < k!.queue!.length; })).toBe(true);
     const views = of("smith_view").map((v) => v.want as ReturnType<typeof smithView>);
@@ -375,7 +373,12 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     expect(got.some((x) => x.d.smithy.queue.some((q) => q.till <= x.now)) && got.some((x) => x.d.got.length > 1) && got.every((x) => x.d.got.reduce((n, g) => n + g[1], 0) === x.s.queue.length - x.d.smithy.queue.length)).toBe(true);
     expect(whys("bellows")).toEqual(["idle", "ok", "self", "tired"]);
     const blows = of("bellows").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { off: number });
-    expect(blows.some((b) => b.off === SMITH.bellows.off) && blows.some((b) => b.off > 0 && b.off < SMITH.bellows.off)).toBe(true);
+    // (a press takes the piece's own share off it, or what is left of the piece where that is less)
+    const shares = new Set(PIECES.map((piece) => bellowsOff(piece)));
+    expect(shares.size).toBeGreaterThan(1);
+    for (const share of shares) expect(blows.some((b) => b.off === share), String(share)).toBe(true);
+    expect(blows.some((b) => b.off > 0 && b.off < Math.min(...shares))).toBe(true);
+    expect(of("bellows").filter((v) => (v.want as { ok: boolean }).ok).every((v) => (v.want as { smithy: Smithy }).smithy.queue.some((q) => (q.blown ?? 0) >= 1 && (q.blown ?? 0) <= SMITH.bellows.each))).toBe(true);
     expect(new Set(of("bellows_left").map((v) => v.want))).toEqual(new Set([0, 1, 2, 3]));
     expect(whys("smith_widen")).toEqual(["coins", "ok", "timber", "top"]);
 

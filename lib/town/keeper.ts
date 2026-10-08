@@ -504,7 +504,7 @@ export interface Keeper {
   smithSmelt(piece: ItemId, n: number): Promise<SmithDid<{ timber: number; fee: number }>>;
   smithTake(): Promise<SmithDid<{ got: Array<[ItemId, number]> }>>;
   smithWiden(): Promise<SmithDid>;
-  /** Who of these members has a piece smelting now (those standing by the forge with me), and working the bellows for one of them. */
+  /** Who of these members has a piece smelting now (those standing by the forge with me), each with how many presses of the bellows that piece may still take (`left`); and a press of the bellows for one of them. */
   smithNear(ids: string[]): Promise<Array<{ id: string; piece: Smelting; left: number }>>;
   smithBellows(whose: string): Promise<SmithDid<{ off: number }>>;
   /** A try at the tool in a slot of my bag: whoever keeps the game draws how it goes. `name` is mine, for the board. */

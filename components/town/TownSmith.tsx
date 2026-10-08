@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-  SMITH, candidates, gemsIn, maySmelt, owedOf, pendingSlot, smeltCost, smithView, timberFor, dryOf, toolsIn, tryCost, tryLacks, tryOdds, widerCost,
+  SMITH, bellowsOff, candidates, gemsIn, maySmelt, owedOf, pendingSlot, smeltCost, smithView, timberFor, dryOf, toolsIn, tryCost, tryLacks, tryOdds, widerCost,
   type Outcome, type SmithRefusal, type Smelting,
 } from "@/lib/town/forge";
 import { ITEMS, type ItemId } from "@/lib/town/items";
@@ -52,7 +52,7 @@ const WHY: Record<SmithRefusal, [th: string, en: string]> = {
   owed: ["ต้องเลือกออปชันที่รออยู่ก่อน", "Choose the option that waits first"],
   self: ["สูบลมให้เตาของตัวเองไม่ได้", "Not one's own bellows"],
   idle: ["ตอนนี้ไม่มีอะไรหลอมอยู่", "Nothing is smelting there now"],
-  tired: ["ชั่วโมงนี้ช่วยเตานี้ครบแล้ว", "You have helped that fire all you may this hour"],
+  tired: ["ชิ้นนี้สูบลมครบแล้ว", "This piece has had all the bellows it takes"],
   away: ["ติดต่อสมุดของเมืองไม่ได้ ลองใหม่อีกครั้ง", "The town's books could not be reached. Try again."],
 };
 const KIND_WORD: Record<ToolKind, [th: string, en: string]> = {
@@ -462,6 +462,12 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                           <ItemIcon id={piece.piece} size={26} className={on ? "" : "opacity-60"} />
                           <span className={`font-data text-label tabular-nums ${on ? "font-semibold text-[#ffd9a0]" : "text-[#c9a877]"}`}>{on ? clock(piece.till - now) : t("รอคิว", "Waiting")}</span>
                           {on && <span aria-hidden className="absolute inset-x-0 bottom-0 h-1 bg-[#2a190d]"><span className="block h-full bg-[#e8893a]" style={{ width: `${share * 100}%` }} /></span>}
+                          {/* the presses of the bellows friends have given this piece: a pip each, of as many as a piece takes */}
+                          {on && (piece.blown ?? 0) > 0 && (
+                            <span role="img" className="absolute right-1 top-1 flex items-center gap-0.5" data-smith-blown={piece.blown} aria-label={t(`เพื่อนสูบลมให้ชิ้นนี้ ${piece.blown} ครั้ง`, `Friends have worked the bellows ${piece.blown} times for this piece`)}>
+                              {Array.from({ length: SMITH.bellows.each }, (_, k) => <span key={k} aria-hidden className={`size-1.5 rounded-full ${k < (piece.blown ?? 0) ? "bg-[#ffd9a0]" : "bg-[#ffd9a0]/25"}`} />)}
+                            </span>
+                          )}
                         </li>
                       );
                     })}
@@ -501,13 +507,17 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     <ul className="space-y-1.5" data-smith-fires>
                       {fires.map((f) => (
                         <li key={f.id} className="flex items-center gap-2 rounded-xl border border-[#6b4a2a] bg-[#2a1d12] px-2.5 py-2" data-smith-fire={f.id}>
-                          <ItemIcon id={f.piece.piece} size={24} />
-                          <span className="min-w-0 flex-1 truncate text-ui text-[#f3e3c3]">{f.name}</span>
-                          <span className="font-data text-meta tabular-nums text-[#ffd9a0]">{clock(f.piece.till - now)}</span>
-                          <button type="button" onClick={() => void blow(f.id)} disabled={busy || f.left < 1 || f.piece.till <= now} data-smith-blow={f.id} data-left={f.left}
-                                  className="pressable flex min-h-9 items-center gap-1.5 rounded-full bg-[#e8893a] px-3 text-meta font-bold text-[#2a190d] disabled:bg-[#4a341f] disabled:text-[#8f7655]">
+                          <ItemIcon id={f.piece.piece} size={24} className="shrink-0" />
+                          <span className="min-w-0 flex-1">
+                            <span className="block truncate text-ui text-[#f3e3c3]">{f.name}</span>
+                            <span className="block truncate font-data text-label tabular-nums text-[#ffd9a0]">{itemName(f.piece.piece, th)} · {clock(f.piece.till - now)}</span>
+                          </span>
+                          {/* a press: what it takes off this piece is on the button, and the pips are the presses this piece may still take, whoever gives them */}
+                          <button type="button" onClick={() => void blow(f.id)} disabled={busy || f.left < 1 || f.piece.till <= now} data-smith-blow={f.id} data-left={f.left} data-off={bellowsOff(f.piece.piece)}
+                                  className="pressable flex min-h-10 shrink-0 items-center gap-1.5 rounded-full bg-[#e8893a] px-3 text-meta font-bold text-[#2a190d] disabled:bg-[#4a341f] disabled:text-[#8f7655]">
                             <TownIcon name="smithBellows" size={16} />{t("สูบลม", "Bellows")}
-                            <span className="flex gap-0.5" aria-label={t(`เหลือ ${f.left} ครั้ง`, `${f.left} left`)}>{Array.from({ length: SMITH.bellows.each }, (_, i) => <span key={i} aria-hidden className={`size-1.5 rounded-full ${i < f.left ? "bg-[#2a190d]" : "bg-[#2a190d]/25"}`} />)}</span>
+                            {f.left > 0 && f.piece.till > now && <span className="font-data tabular-nums">−{clock(Math.min(bellowsOff(f.piece.piece), f.piece.till - now))}</span>}
+                            <span role="img" className="flex gap-0.5" aria-label={t(`ชิ้นนี้สูบได้อีก ${f.left} ครั้ง`, `${f.left} presses left for this piece`)}>{Array.from({ length: SMITH.bellows.each }, (_, i) => <span key={i} aria-hidden className={`size-1.5 rounded-full ${i < f.left ? "bg-[#2a190d]" : "bg-[#2a190d]/25"}`} />)}</span>
                           </button>
                         </li>
                       ))}

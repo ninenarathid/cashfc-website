@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  SMITH, TRIES, bellows, bellowsLeft, candidates, choose, collect, draw, dryOf, forgeTry, gemsIn, markFound, markTop, maySmelt, newBoard, newSmithy, outcomeOf, owedOf,
+  SMITH, TRIES, bellows, bellowsLeft, bellowsOff, candidates, choose, collect, draw, dryOf, forgeTry, gemsIn, markFound, markTop, maySmelt, newBoard, newSmithy, outcomeOf, owedOf,
   pendingSlot, pickOffer, placesOf, redraw, setGem, smelt, smeltCost, smithView, soundSmithy, timberFor, toolsIn, tryCost, tryLacks, tryOdds, widen, widerCost, withMaker, type Smithy,
 } from "./forge";
 import type { ItemId } from "./items";
@@ -98,28 +98,34 @@ describe("smelting", () => {
     expect(widerCost(b.smithy)).toBeNull();
     expect(widen(purseWith(9999, [["timber", 50]]), b.smithy)).toEqual({ ok: false, why: "top" });
   });
-  it("a friend at the bellows takes half a minute off the piece smelting, and off what waits behind it: three times an hour, never one's own", () => {
+  it("a friend at the bellows takes a tenth of the piece's whole time off the piece smelting, and off what waits behind it: three presses a piece, whoever presses, never one's own", () => {
     const a = ok(smelt(purseWith(100, [["shardCopper", 20], ["timber", 2]]), newSmithy(), "oreCopper", 2, NOW));
     expect(bellows(a.smithy, "me", "me", NOW + MIN)).toEqual({ ok: false, why: "self" });
+    expect([bellowsOff("oreCopper"), bellowsOff("oreIron"), bellowsOff("oreSilver"), bellowsOff("gemRuby")]).toEqual([30_000, 48_000, 66_000, 60_000]);
     let s = a.smithy;
     for (let i = 0; i < 3; i++) {
-      expect(bellowsLeft(s, "pal", NOW + MIN)).toBe(3 - i);
-      const d = ok(bellows(s, "me", "pal", NOW + MIN));
+      expect(bellowsLeft(s, NOW + MIN)).toBe(3 - i);
+      // (any friend's press counts: the three are the piece's, not the presser's)
+      const d = ok(bellows(s, "me", i === 1 ? "other" : "pal", NOW + MIN));
       expect(d.off).toBe(30_000);
       s = d.smithy;
     }
-    expect(s.queue).toEqual([{ piece: "oreCopper", from: NOW, till: NOW + 5 * MIN - 90_000 }, { piece: "oreCopper", from: NOW + 5 * MIN - 90_000, till: NOW + 10 * MIN - 90_000 }]);
+    expect(s.queue).toEqual([{ piece: "oreCopper", from: NOW, till: NOW + 5 * MIN - 90_000, blown: 3 }, { piece: "oreCopper", from: NOW + 5 * MIN - 90_000, till: NOW + 10 * MIN - 90_000 }]);
+    expect(bellowsLeft(s, NOW + MIN)).toBe(0);
     expect(bellows(s, "me", "pal", NOW + MIN)).toEqual({ ok: false, why: "tired" });
-    // somebody else may still help, and the first may again an hour on
-    expect(ok(bellows(s, "me", "other", NOW + MIN)).off).toBe(30_000);
-    expect(bellowsLeft(s, "pal", NOW + 62 * MIN)).toBe(3);
+    expect(bellows(s, "me", "other", NOW + MIN)).toEqual({ ok: false, why: "tired" });
+    // the piece behind it has its own three, once it is the one smelting
+    const next = NOW + 5 * MIN - 90_000 + 1000;
+    expect(bellowsLeft(s, next)).toBe(3);
+    expect(ok(bellows(s, "me", "pal", next)).smithy.queue[1]).toEqual({ piece: "oreCopper", from: NOW + 5 * MIN - 90_000, till: NOW + 10 * MIN - 120_000, blown: 1 });
+    expect(bellowsLeft(newSmithy(), NOW)).toBe(0);
     // never past the piece's end; and nothing to blow on when nothing smelts
     const near = ok(bellows(a.smithy, "me", "pal", NOW + 5 * MIN - 10_000));
     expect(near.off).toBe(10_000);
     expect(near.smithy.queue[0].till).toBe(NOW + 5 * MIN - 10_000);
     expect(bellows(a.smithy, "me", "pal", NOW + 60 * MIN)).toEqual({ ok: false, why: "idle" });
     expect(bellows(newSmithy(), "me", "pal", NOW)).toEqual({ ok: false, why: "idle" });
-    expect(SMITH.bellows.points).toBe(2);
+    expect(SMITH.bellows).toEqual({ share: 0.1, each: 3, points: 2 });
   });
   it("with seasoned wood on an axe in the bag, one timber smelts two pieces, however they are put in", () => {
     const dry = tool("axe", 3, ["axDry"]), low = tool("axe", 2, ["axDry"]);
@@ -144,7 +150,9 @@ describe("smelting", () => {
   it("is kept soundly, whatever was written", () => {
     expect(soundSmithy(null)).toEqual(newSmithy());
     expect(soundSmithy({ queue: [{ piece: "stone", from: 1, till: 2 }, { piece: "oreIron", from: 5, till: 9 }, { piece: "oreIron", from: 9, till: 3 }, "x"], more: 7, ember: -2, helps: [{ by: 3, at: 1 }, { by: "a", at: 2 }], pending: { item: "minnow", at: 0, offer: [] } }))
-      .toEqual({ queue: [{ piece: "oreIron", from: 5, till: 9 }], more: 2, ember: 0, helps: [{ by: "a", at: 2 }], pending: null });
+      .toEqual({ queue: [{ piece: "oreIron", from: 5, till: 9 }], more: 2, ember: 0, pending: null });
+    // (a piece's presses of the bellows: a whole number up to as many as a piece takes; nothing kept of none)
+    expect(soundSmithy({ queue: [{ piece: "oreIron", from: 5, till: 9, blown: 2 }, { piece: "oreIron", from: 9, till: 12, blown: 7 }, { piece: "oreIron", from: 12, till: 15, blown: -1 }, { piece: "oreIron", from: 15, till: 18, blown: "2" }] }).queue.map((q) => q.blown)).toEqual([2, 3, undefined, undefined]);
     const p = { item: "pick", at: 1, offer: ["pkPeek", "pkCrumb"], old: "pkSteady" };
     expect(soundSmithy({ pending: p }).pending).toEqual(p);
   });
