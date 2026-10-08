@@ -714,13 +714,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const stoppedRef = useRef(true);
   /**
    * Why a tap did not walk me (lib/town/session's `stuck`: I hold a sign up, am in a chat room, or look at a stall),
-   * said for a moment: the way to walk again is that thing's own button.
+   * said for a moment: the way to walk again is that thing's own button. And "seat", for whoever sits and asks by a
+   * button to be walked somewhere (`staysSat`).
    */
   const [stuckNote, setStuckNote] = useState<string | null>(null);
-  const sayStuck = useCallback((why: Stuck) => {
+  const sayStuck = useCallback((why: Stuck | "seat") => {
     const th = words.current.th;
     setStuckNote(why === "sign" ? (th ? "กำลังชูป้ายอยู่ เก็บป้ายก่อนถึงจะเดินได้" : "You are holding a sign up: take it down to walk")
       : why === "room" ? (th ? "อยู่ในห้องแชท ออกจากห้องก่อนถึงจะเดินได้" : "You are in a chat room: leave it to walk")
+      : why === "seat" ? (th ? "กำลังนั่งอยู่ ลุกก่อนถึงจะเดินได้" : "You are sitting: get up to walk")
       : (th ? "กำลังดูร้านอยู่ ปิดหน้าร้านก่อนถึงจะเดินได้" : "You are at a stall: close it to walk"));
   }, []);
   useEffect(() => { if (!stuckNote) return; const id = setTimeout(() => setStuckNote(null), 3000); return () => clearTimeout(id); }, [stuckNote]);
@@ -3418,6 +3420,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * reach; somebody's stall: its panel, from beside it. From further off they are walked up to first, and the sign is
    * asked again when I get there (`arrived`: no second walk).
    */
+  /**
+   * Whoever sits stays sat, whatever asks them to walk (`tap` holds the map's taps to that; this is for what is not
+   * a tap on the ground: a sign out of reach, tapped or asked for from its holder's card, and the card's walk over,
+   * each of which walked somebody off their seat and out of their meal). They turn to whom they asked for and are
+   * told to get up first. True when they sit.
+   */
+  const staysSat = (to: Avatar): boolean => {
+    const stay = sessionRef.current;
+    if (!stay?.seated) return false;
+    stay.turnTo(spotOf(to).x < spotOf(stay.self).x);
+    sayStuck("seat");
+    return true;
+  };
   const openSign = (id: string, arrived = false) => {
     const stay = sessionRef.current;
     if (!stay) return;
@@ -3442,6 +3457,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (arrived) return;
     // (looking at a stall, I stay by it: another sign further off is walked to once its panel is closed)
     if (stuck) { sayStuck(stuck); return; }
+    if (staysSat(a)) return;
     const tx = Math.floor(a.pos.x), ty = Math.floor(a.pos.y), far = (t: Vec) => Math.hypot(t.x + 0.5 - from.x, t.y + 0.5 - from.y);
     const beside: Vec[] = [];
     for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (dx || dy) beside.push({ x: tx + dx, y: ty + dy });
@@ -3668,6 +3684,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!stay) return;
     const held = stay.stuck();
     if (held) { sayStuck(held); setCard(null); return; }
+    if (staysSat(a)) { setCard(null); return; }
     const tx = Math.floor(a.info.x), ty = Math.floor(a.info.y);
     const spots: Vec[] = [];
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) spots.push({ x: tx + dx, y: ty + dy });
