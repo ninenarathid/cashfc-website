@@ -343,14 +343,16 @@ describe("what a tool carries, read as it works now", () => {
     expect(glowOf("2i2")).toEqual({ glow: 2, hue: GEMS.ice.hue });
     expect(glowOf("1")).toEqual({ glow: 1, hue: "#ffd98a" });
     expect(glowOf("0i1")).toBeNull();
-    expect(readToolWord("0i1")).toEqual({ glow: 0, element: "ice", level: 1, hue: GEMS.ice.hue });
+    expect(readToolWord("0i1")).toEqual({ glow: 0, gems: ["ice"], element: "ice", level: 1, hue: GEMS.ice.hue });
     // every element comes back as itself
     for (const e of ELEMENTS) {
       expect(glowOf(toolWord(tool("pick", 10, [], [e])))).toEqual({ glow: 2, hue: GEMS[e].hue });
-      expect(readToolWord(toolWord(tool("pick", 0, [], [e])))).toEqual({ glow: 0, element: e, level: 1, hue: GEMS[e].hue });
+      expect(readToolWord(toolWord(tool("pick", 0, [], [e])))).toEqual({ glow: 0, gems: [e], element: e, level: 1, hue: GEMS[e].hue });
       expect(toolWord(tool("pick", 10, [], [e]))).toMatch(TOOL_WORD);
     }
-    for (const bad of ["", "3", "1q", "2ii", "x", "1i", "1i5", "2q1", null, 7, undefined]) expect(readToolWord(bad)).toBeNull();
+    for (const bad of ["", "3", "1q", "2ii", "x", "1i", "1i5", null, 7, undefined]) expect(readToolWord(bad)).toBeNull();
+    // (a letter this page has no element for is passed over: the tool is read with the gems it knows)
+    expect(readToolWord("2q1")).toEqual({ glow: 2, gems: [], element: null, level: 0, hue: "#ffd98a" });
   });
   it("the wind in a tool walks its holder faster, by what the room is told: the same on every page", () => {
     expect(walkPace("")).toBe(1);

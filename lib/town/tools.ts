@@ -341,7 +341,7 @@ export function modsOf(stack: Stack | null | undefined): ToolMods {
   if (!stack || !kind) return NOTHING;
   const level = levelOf(stack), opts = drawnOf(stack).filter((id): id is OptionId => !!id);
   const set = gemsOf(stack), gems: Partial<Record<Element, number>> = {};
-  for (const e of set) gems[e] = Math.min(GEM_LEVELS, 1 + (level >= FORGE.top ? FORGE.gemAtTop : 0));
+  for (const e of set) gems[e] = worksAt(level);
   return { kind, level, opts, asleep: [], gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
 }
 /** Whether a tool has an option: drawn for it at one of its milestones, whatever its level is now. */
@@ -389,27 +389,54 @@ export function axeBarPace(stack: Stack | null | undefined): number {
 /** How much slower the time bar runs with an axe, as a share of its plain pace (under nothing, with an axe that quickens it): one less `axeBarPace`. */
 export const axeBarSlow = (stack: Stack | null | undefined): number => 1 - axeBarPace(stack);
 
-/** Each element's letter, for what the room is told of a tool that glows. */
+/** Each element's letter, for what the room is told of the tool in a hand. */
 const LETTER: Record<Element, string> = { fire: "f", water: "w", ice: "i", earth: "e", lightning: "z", wind: "a", light: "l", dark: "d" };
+/** The level a gem works at in a tool of some plus: the first, and one more at the top. */
+const worksAt = (level: number): number => Math.min(GEM_LEVELS, 1 + (level >= FORGE.top ? FORGE.gemAtTop : 0));
+/** The most gems a tool is shown with: a tool of the third tier has three sockets (one, in this round). */
+export const GEMS_SHOWN = 3;
 /**
- * What the room is told of the tool in somebody's hand (lib/town/room's `Doing.tool`), in three characters at the
- * most: how it glows (0 to 2), and, of a tool with a gem, its element's letter and the level that works at. Nothing,
- * of a tool with nothing to tell (no glow, no gem) and of a thing that is no tool. It is what every page draws the
- * glow from, and what every page walks its holder by: a pace has to be the same on every page.
+ * The gems set in a tool as they are SHOWN on it in the hand, one for each that is set, in their sockets' order:
+ * every one of them, so many at the most. In the game they are `gemsOf`'s (nothing is set where there is no socket);
+ * the dev Test window sets more than a tool of this round has sockets for, to look at what two and three will be.
+ * The rules never read this.
+ */
+export function gemsShown(stack: Stack | null | undefined): Element[] {
+  if (!stack || !toolKindOf(stack.item) || !Array.isArray(stack.gems)) return [];
+  return stack.gems.filter(isElement).slice(0, GEMS_SHOWN);
+}
+/**
+ * What the room is told of the tool in somebody's hand (lib/town/room's `Doing.tool`): how it glows (0 to 2), and,
+ * of a tool with gems, a letter for each gem in its sockets' order and the level a gem works at. `1` a plain tool at
+ * +7, `0i1` one gem of ice, `2ffw2` two of fire and one of water at the top. Nothing, of a tool with nothing to tell
+ * (no glow, no gem) and of a thing that is no tool. It is what every page draws the glow and the gems' elements
+ * from, and what every page walks its holder by: a pace has to be the same on every page.
+ *
+ * **A word of one gem is the word it always was** (three characters), so a page built before reads every tool this
+ * round can make as it did. A longer word it does not know it leaves out (its `TOOL_WORD` says no: the tool is drawn
+ * plain there). From here on a word may grow without that: so many letters are let through as no tool has sockets
+ * for yet, and a letter this page has no element for is passed over.
  */
 export function toolWord(stack: Stack | null | undefined): string {
-  const m = modsOf(stack), e = gemsOf(stack)[0];
-  if (!m.glow && !e) return "";
-  return `${m.glow}${e ? `${LETTER[e]}${m.gems[e]}` : ""}`;
+  const m = modsOf(stack), set = gemsShown(stack);
+  if (!m.glow && !set.length) return "";
+  return `${m.glow}${set.length ? `${set.map((e) => LETTER[e]).join("")}${worksAt(m.level)}` : ""}`;
 }
-export const TOOL_WORD = /^[0-2](?:[a-z][1-4])?$/;
-/** The word read back: how it glows, its gem's element and level if it has one, and the colour of its glow. Null for no word, or one that says nothing. */
-export function readToolWord(word: unknown): { glow: 0 | 1 | 2; element: Element | null; level: number; hue: string } | null {
+export const TOOL_WORD = /^[0-2](?:[a-z]{1,8}[1-4])?$/;
+/** What a word tells of a tool: how it glows; its gems as they are shown, in their order; the first of them and the level a gem works at; and the colour of its glow. */
+export interface ToolLook { glow: 0 | 1 | 2; gems: Element[]; element: Element | null; level: number; hue: string }
+/** The word read back. Null for no word, or one that says nothing. */
+export function readToolWord(word: unknown): ToolLook | null {
   if (typeof word !== "string" || !TOOL_WORD.test(word)) return null;
-  const e = word.length > 1 ? ELEMENTS.find((x) => LETTER[x] === word[1]) ?? null : null;
-  if (word.length > 1 && !e) return null;
-  return { glow: Number(word[0]) as 0 | 1 | 2, element: e, level: e ? Number(word[2]) : 0, hue: e ? GEMS[e].hue : PLAIN_HUE };
+  const gems = [...word.slice(1, -1)].map((c) => ELEMENTS.find((x) => LETTER[x] === c)).filter((e): e is Element => !!e).slice(0, GEMS_SHOWN);
+  const e = gems[0] ?? null;
+  return { glow: Number(word[0]) as 0 | 1 | 2, gems, element: e, level: e ? Number(word[word.length - 1]) : 0, hue: e ? GEMS[e].hue : PLAIN_HUE };
 }
+/**
+ * How strongly a tool's gems show on it in the hand, 1 to 4 (0 with no gem): one for each gem, and one more at the
+ * top, where a gem counts a level stronger. How it LOOKS only (components/town/held): no rule reads it.
+ */
+export const gemShow = (look: ToolLook | null): number => (look && look.gems.length ? Math.min(4, look.gems.length + (look.glow === 2 ? 1 : 0)) : 0);
 /** The glow a word tells of: how strong, and in what colour (null for no word, and for a tool that does not glow). */
 export function glowOf(word: unknown): { glow: 1 | 2; hue: string } | null {
   const t = readToolWord(word);
@@ -423,5 +450,6 @@ export const WIND_WALK = WALK;
  */
 export function walkPace(word: unknown): number {
   const t = readToolWord(word);
-  return t && t.element === "wind" && t.level >= 1 ? 1 + WIND_WALK[Math.min(WIND_WALK.length, t.level) - 1] : 1;
+  // (the gems that work are those a socket holds: the first so many of what is shown)
+  return t && t.level >= 1 && t.gems.slice(0, FORGE.sockets).includes("wind") ? 1 + WIND_WALK[Math.min(WIND_WALK.length, t.level) - 1] : 1;
 }

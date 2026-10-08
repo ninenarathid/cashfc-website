@@ -89,7 +89,11 @@ export interface Doing {
   sign?: string;
   /** The chat room they are in (lib/town/circle): its holder's id, their own when they hold it, "" when none; missing from a browser older than that. */
   circle?: string;
-  /** (forging) What the tool in their hand carries, in three characters at the most (lib/town/tools' toolWord: how it glows, its gem's letter and level); "" for a plain one, missing from a browser older than forging. Every page draws the glow from it and walks its holder by it. */
+  /**
+   * (forging) What the tool in their hand carries (lib/town/tools' toolWord: how it glows, a letter for each gem set
+   * in it, the level a gem works at): a few characters, `1`, `0i1`, `2ffw2`; "" for a plain one, missing from a
+   * browser older than forging. Every page draws the glow and the gems' elements from it and walks its holder by it.
+   */
   tool?: string;
   // ── felling ──
   /**
