@@ -41,6 +41,7 @@ import { CHARMS, GIFTS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { rides } from "@/lib/town/riding";
 import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
+import { companyOf, type Beside } from "@/lib/town/company";
 import { BOX } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
 import TownTalk, { type TalkChoice } from "./TownTalk";
@@ -769,6 +770,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** How many are eating beside me (sitting within a few tiles, a dish before them), and whether it is raining: told to the page when they change. */
   const [company, setCompany] = useState(0);
   const companyRef = useRef(0);
+  /**
+   * Who has eaten beside me this helping, each at which sitting of theirs (lib/town/company): they go on counting
+   * while they stay seated there. It is one helping's: `ateFor` is the helping it is of (the moment it began: a second
+   * helping of the same dish may begin with no moment between). Both, and the sitting, found by Codex's checks.
+   */
+  const ateWith = useRef<ReadonlyMap<string, number>>(new Map()), ateFor = useRef(0), helping = useRef(0);
   /** How many others a meal begun where I stand would be eaten with (the feast table says so): counted as `company` is. */
   const [yardFolk, setYardFolk] = useState(0);
   const yardFolkRef = useRef(0);
@@ -1754,15 +1761,26 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       // Whoever eats in the cooking yard eats with everybody else who is eating in it, at whichever table and however
       // far along it (the owner, 2026-10-08: "ถ้ากินในห้องอาหาร จะนับทุกคนในห้องอาหารว่าเป็นคนที่กินอาหารร่วมกันด้วย",
       // and of who counts: "เฉพาะคนที่กำลังกิน"); anywhere else, with whoever sits eating within a few tiles, as before.
-      // (One count for both: what the table says a meal would have of company is what the meal then has. Whoever is
-      // on their way out is nobody's company.)
-      const dining = inDiningYard(mine.info.sit, mine.pos.x, mine.pos.y);
+      // (What the table says a meal would have of company is who is eating now. Whoever is on their way out is nobody's
+      // company.) And once my helping is begun, whoever was eating beside me goes on counting until it ends, for as
+      // long as they stay seated there (the owner, the same day, of a member's "อยากให้ stack ยังอยู่ ถ้าคนที่กินเสร็จก่อน
+      // กินหมดแล้ว": lib/town/company).
+      const dining = inDiningYard(mine.info.sit, mine.pos.x, mine.pos.y), eating = !!mine.info.eat;
       let folk = 0;
+      const by: Beside[] | null = eating ? [] : null;
       for (const a of sessionRef.current?.avatars.values() ?? []) {
-        if (!a.info.eat || (a.info.sit ?? -1) === -1 || a.byeAt !== undefined) continue;
-        if ((dining && inDiningYard(a.info.sit, a.pos.x, a.pos.y)) || Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR) folk++;
+        if ((a.info.sit ?? -1) === -1 || a.byeAt !== undefined) continue;
+        const near = (dining && inDiningYard(a.info.sit, a.pos.x, a.pos.y)) || Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR;
+        if (a.info.eat && near) folk++;
+        by?.push({ id: a.info.id, eating: !!a.info.eat, seated: true, near, sat: a.sat ?? 0 });
       }
-      const beside = mine.info.eat ? folk : 0;
+      let beside = 0;
+      if (by) {
+        if (helping.current !== ateFor.current) { ateFor.current = helping.current; if (ateWith.current.size) ateWith.current = new Map(); }
+        const met = companyOf(by, ateWith.current, true);
+        ateWith.current = met.ate;
+        beside = met.n;
+      } else if (ateWith.current.size) ateWith.current = new Map();
       if (beside !== companyRef.current) { companyRef.current = beside; setCompany(beside); }
       if (folk !== yardFolkRef.current) { yardFolkRef.current = folk; setYardFolk(folk); }
       // (whether it rains is the database's to say: what it keeps of the weather, not what is drawn here)
@@ -3621,6 +3639,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null);
     setTrade(view);
   };
+  // (which helping I am at, for the frame that counts my company: the moment it began)
+  helping.current = purse.eating?.from ?? 0;
   // (the I key's: my bag opened or shut, where the game is open to me. Said anew at every render, so that the key is
   // never a step behind what is on the screen.)
   bagKey.current = game && keeper ? () => (trade === "bag" ? setTrade(null) : openTrade("bag")) : null;
