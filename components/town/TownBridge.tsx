@@ -1,21 +1,38 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BRIDGE, bridgeSpans, bridgeWhole, carrying, nearTile, takers, type Hand, type Lack } from "@/lib/town/bridge";
+import { BRIDGE, SIGN_AT, bridgeSpans, bridgeWhole, byBoard, carrying, nearTile, readStoneTold, stoneTold, takers, type Hand, type Lack, type StoneTold } from "@/lib/town/bridge";
+import type { Told } from "@/lib/town/handing";
 import type { Keeper } from "@/lib/town/keeper";
+import { between } from "@/lib/town/line";
 import type { SceneryKit, Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
+import { isSpent } from "@/lib/town/stamina";
 import { handOf } from "@/lib/town/trade";
 import { walkable, type Vec } from "@/lib/town/world";
 import { loadWorksArt } from "@/lib/town/works-art";
 import type { FarmDraw } from "./TownFarm";
+import TownHanding, { newOtherHand, type HandingResult, type OtherHand } from "./TownHanding";
 
 export type { Hand };
 /** What a tap on the map came to here: nothing of the bridge's (null), or the pile's or the sign's: done where I stand, or to be walked to. With `peek` nothing is done. */
 export type BridgeTap = (x: number, y: number, peek?: boolean) => { walk: Vec | null } | null;
+/** The room's way for two pages to tell each other of a stone handed on by tired hands (lib/town/session's `pair`): into one letterbox, never the room; the words in the stone's own envelope (lib/town/bridge). */
+export interface StonePairing { send: (to: string, told: StoneTold) => void; hear: (fn: ((from: string, data: unknown) => void) | null) => void }
 
-/** Where the sign stands: beside the foot, away from the water (one tile to the right of it on the screen), wherever the foot is. */
-const SIGN: Vec = { x: BRIDGE.foot.x + 1, y: BRIDGE.foot.y - 1 };
+/**
+ * A handing-over that is a game (somebody has no stamina), as this page has it (as the bucket line has its own:
+ * components/town/TownLine): which one, whether I throw (`from`) or take (`to`), who the other is, whether they have
+ * answered yet, whose hands are tired, the seed the two share, and whether it is settled already.
+ */
+interface Match { id: string; role: "from" | "to"; who: { id: string; name: string }; phase: "asking" | "playing"; tired: { from: boolean; to: boolean }; seed: number; over?: boolean }
+/** How long an answer is waited for (it comes in a fifth of a second). None by then: nobody is there to play, and the stone goes over at once. */
+const ASK_MS = 2000;
+/** How long somebody whose handing-over I gave up is not answered yes again: a board is not to come up over and over on a page that does not want it. */
+const SHY_MS = 8000;
+
+/** Where the sign stands: beside the foot, away from the water (one tile to the right of it on the screen), wherever the foot is (lib/town/bridge says where it may not). */
+const SIGN: Vec = SIGN_AT;
 /** How near the sign one stands to read it, in tiles. */
 const READ = 3;
 /** How large the pile and the sign are drawn, as shares of their pictures' own size. */
@@ -32,7 +49,12 @@ const WHY_MINE: Record<string, [th: string, en: string]> = {
 const WHY_PASS: Record<string, [th: string, en: string]> = {
   ...WHY_MINE, hand: ["อีกฝ่ายถือของอยู่ ยังรับหินไม่ได้", "They have a thing in their hand"], held: ["อีกฝ่ายถือหินอยู่แล้ว", "They hold a stone already"],
   none: ["ไม่มีใครรับหิน", "Nobody is there to take it"],
+  // (of the board of tired hands: it was not caught; the other is not ready, or stopped)
+  missed: ["รับไม่ทัน หินยังอยู่ที่เดิม ลองอีกครั้ง", "It was not caught: the stone is where it was. Try again"],
+  notReady: ["อีกฝ่ายยังไม่พร้อมรับหิน", "They are not ready to take it"], left: ["อีกฝ่ายเลิกกลางคัน", "They stopped"],
 };
+/** Why the other's page said no to the board, in those words (lib/town/bridge: `bare` is a thing in the hand, `full` a stone held already). */
+const NO = { busy: "notReady", away: "notReady", bare: "hand", full: "held" } as const;
 /** What somebody close by lacks to be handed a stone, said of them by name. */
 const LACKS: Record<Lack, [(name: string) => string, (name: string) => string]> = {
   walking: [(n) => `${n} ต้องยืนนิ่งก่อน ถึงจะรับหินได้`, (n) => `${n} has to stand still to take the stone`],
@@ -82,6 +104,13 @@ function Steps({ th, at, wide = false }: { th: boolean; at: number; wide?: boole
  * their hands. With nobody to offer, whoever stands close by is named with what they lack. At the foot a button lays
  * it. It can be let go of anywhere (two presses: it is gone for good).
  *
+ * **With no stamina on either side handing it on is the handing game's easy board** (lib/town/handing, TownHanding
+ * with a stone's picture and words; lib/town/bridge's `byBoard`): the same press puts a board up and asks the other's
+ * page, where one comes up by itself and waits for their Ready; whoever has the stone presses Toss, and whoever takes
+ * it presses the side it flies to. Caught, it is in their hands; not, the stone is where it was. The two pages talk
+ * through the room's letterboxes (`pair`); where the other is not there to play (another page of the site, a page
+ * that does not answer) the stone goes over at once, as it does with stamina: nothing is refused to tired hands.
+ *
  * **How it is done is said in three steps, the one to do now lit**: over the buttons at the pile and while a stone is
  * held, and on the sign. The sign stands at the foot; a tap on it (it is walked up to first) opens its panel: the
  * village's bar, so many of six hundred and which span of six; the three steps; everybody who has helped, in the
@@ -94,7 +123,7 @@ function Steps({ th, at, wide = false }: { th: boolean; at: number; wide?: boole
  * A keeper that knows of no works (the database before v160) shows nothing; a bridge that is not open shows only its
  * pile under the cloth.
  */
-export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, phone, tabbar, register, registerTap, carry }: {
+export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, phone, tabbar, register, registerTap, carry, pair = null }: {
   keeper: Keeper;
   me: string;
   th: boolean;
@@ -112,6 +141,8 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
   registerTap: (tap: BridgeTap | null) => void;
   /** Tell the room what I carry in my hands (a stone), or that they are free of it. */
   carry: (thing: string | null) => void;
+  /** How this page and another tell each other of a stone handed on by tired hands (null: nobody to tell, and it goes over at once). */
+  pair?: StonePairing | null;
 }) {
   const [, setTick] = useState(0);
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
@@ -189,7 +220,7 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
     else if (did.span) setToast(th ? `ต่อสะพานได้อีกช่วงแล้ว! (ช่วงที่ ${did.spans} จาก ${BRIDGE.spans})` : `Another span is laid! (${did.spans} of ${BRIDGE.spans})`);
     else setNote(th ? "วางหินแล้ว" : "The stone is laid");
   }, [keeper, sfx, say, th]);
-  const passTo = useCallback(async (to: Hand) => {
+  const passTo = useCallback(async (to: { id: string; name: string }) => {
     if (busyRef.current) return;
     busyRef.current = true; setBusy(true);
     const did = await keeper.stonePass(to.id);
@@ -249,6 +280,116 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
     if (w === "pile" && nearTile(at, BRIDGE.pile)) { want.current = null; void lift(); }
     else if (w === "sign" && nearTile(at, SIGN, READ)) { want.current = null; setPanel(true); }
   }, [hereKey, lift]);
+
+  // ── tired hands: the handing game's board, for a stone (lib/town/bridge's `byBoard`; as the bucket line's, components/town/TownLine) ──
+  const [match, setMatch] = useState<Match | null>(null);
+  const matchRef = useRef<Match | null>(null), other = useRef<OtherHand>(newOtherHand()), asking = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const put = useCallback((m: Match | null) => {
+    if (asking.current && m?.phase !== "asking") { clearTimeout(asking.current); asking.current = null; }
+    matchRef.current = m;
+    setMatch(m);
+  }, []);
+  /** Whose handing-over I gave up, and until when they are not answered yes again. */
+  const shy = useRef(new Map<string, number>());
+  /** (for scripts in `next dev`: a page that asks nobody, as one that does not answer does) */
+  const mute = useRef(false);
+  /** Whether nothing of mine is in the way of a board coming up: nothing being done, the sign's panel shut. */
+  const idle = useRef(true);
+  useEffect(() => { idle.current = !busyRef.current && !panel; });
+  const send = useCallback((to: string, told: Told) => pair?.send(to, stoneTold(told)), [pair]);
+
+  /** Hand the stone on to somebody: at once with stamina on both sides; with none on either, by the board, where the other is there to play. */
+  const begin = useCallback((to: Hand) => {
+    if (busyRef.current || matchRef.current) return;
+    const tired = isSpent(keeper.purse(), keeper.now());
+    if (!byBoard(tired, to.spent) || !pair || to.away) { void passTo(to); return; }
+    const id = Math.random().toString(36).slice(2, 10).padEnd(8, "0"), seed = Math.floor(Math.random() * 2 ** 31);
+    other.current = newOtherHand();
+    put({ id, role: "from", who: { id: to.id, name: to.name }, phase: "asking", tired: { from: tired, to: to.spent === true }, seed });
+    if (!mute.current) send(to.id, { k: "ask", m: id, s: tired, z: seed });
+    asking.current = setTimeout(() => {
+      asking.current = null;
+      const m = matchRef.current;
+      if (!m || m.id !== id || m.phase !== "asking") return;
+      // (no answer: nobody there to play it with, and the stone goes over as it does with stamina)
+      put(null);
+      void passTo(to);
+    }, ASK_MS);
+  }, [keeper, pair, passTo, put, send]);
+
+  /** What another page said of a stone handed on: asked to take one, or a word of the handing-over that is on. */
+  const heard = useCallback((from: string, raw: unknown) => {
+    const told = readStoneTold(raw);
+    if (!told || !pair) return;
+    const m = matchRef.current;
+    if (told.k === "ask") {
+      // (only from somebody the room has with a stone in their hands, and only where a bridge is being built)
+      const who = people().find((p) => p.id === from), at = hereRef.current, works = worksRef.current;
+      if (!who || !who.carry || !works?.works[BRIDGE.work]?.open) return;
+      const no = (w: keyof typeof NO) => send(from, { k: "no", m: told.m, w });
+      if (m || !idle.current || !at || between({ x: at[0] + 0.5, y: at[1] + 0.5 }, who) > BRIDGE.reach || (shy.current.get(from) ?? 0) > performance.now()) return no("busy");
+      if (handOf(keeper.purse())) return no("bare");
+      if (carrying(works)) return no("full");
+      // yes: a board comes up here, and nothing is thrown until I say I am ready
+      const tired = isSpent(keeper.purse(), keeper.now());
+      other.current = newOtherHand();
+      put({ id: told.m, role: "to", who: { id: from, name: who.name }, phase: "playing", tired: { from: told.s, to: tired }, seed: told.z });
+      send(from, { k: "ok", m: told.m, s: tired });
+      return;
+    }
+    if (!m || m.id !== told.m || m.who.id !== from) {
+      // (a yes that comes after I have stopped waiting for it: their board is up for nothing, and is told so)
+      if (told.k === "ok") send(from, { k: "bye", m: told.m });
+      return;
+    }
+    if (m.over) return;
+    const o = other.current;
+    if (told.k === "ok") { if (m.role === "from" && m.phase === "asking") put({ ...m, phase: "playing", tired: { ...m.tired, to: told.s } }); }
+    else if (told.k === "no") {
+      if (m.role !== "from" || m.phase !== "asking") return;
+      put(null);
+      say(WHY_PASS, NO[told.w]);
+    }
+    else if (told.k === "r") { if (m.role === "from") o.ready = true; }
+    else if (told.k === "p") { if (m.role === "from") o.put = told.d; }
+    else if (told.k === "th") { if (m.role === "to" && o.thrown === null) o.thrown = performance.now(); }
+    else if (told.k === "end") { if (m.role === "from") o.verdict = told.c; }
+    else if (told.k === "bye") { put(null); say(WHY_PASS, "left"); }
+  }, [pair, people, keeper, put, say, send]);
+  useEffect(() => { if (!pair) return; pair.hear(heard); return () => pair.hear(null); }, [pair, heard]);
+
+  /** Giving it up: the other is told (and, having taken no stone from them, I am not asked again at once). */
+  const stop = useCallback(() => {
+    const m = matchRef.current;
+    if (!m) return;
+    // (one that is settled already is only shut)
+    if (!m.over) {
+      send(m.who.id, { k: "bye", m: m.id });
+      if (m.role === "to") shy.current.set(m.who.id, performance.now() + SHY_MS);
+    }
+    put(null);
+  }, [send, put]);
+  // walking off, or something else opening, leaves it; and so does leaving the town
+  useEffect(() => { if (match && (!here || panel)) stop(); }, [match, here, panel, stop]);
+  useEffect(() => () => {
+    const m = matchRef.current;
+    if (m && !m.over) pair?.send(m.who.id, stoneTold({ k: "bye", m: m.id }));
+    if (asking.current) clearTimeout(asking.current);
+  }, [pair]);
+  /**
+   * Settled: caught, whoever threw it hands the stone on at that moment (whoever took it is told by the keeper, as
+   * ever); not caught, the stone is where it was, and that is said. The board is up a blink longer, and shut by itself.
+   */
+  const played = useCallback((r: HandingResult) => {
+    const m = matchRef.current;
+    if (!m || m.over) return;
+    put({ ...m, over: true });
+    const mine = m.role === "from";
+    keeper.record({ game: "farming", at: keeper.now(), won: r.won, secs: r.secs, spent: mine ? m.tired.from : m.tired.to, buff: null, what: mine ? "stoneHand" : "stoneTake", need: 1, hits: r.won ? 1 : 0, misses: r.won ? 0 : 1 });
+    if (!r.won) { say(WHY_PASS, "missed"); return; }
+    if (mine) void passTo(m.who);
+  }, [keeper, put, say, passTo]);
+  const shut = useCallback(() => { if (matchRef.current?.over) put(null); }, [put]);
 
   // The map draws the pile and the sign, and asks here whether a tap was on one of them.
   const boxes = useRef<{ pile: Box | null; sign: Box | null }>({ pile: null, sign: null });
@@ -320,7 +461,8 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
       works: () => keeper.works(), spans: () => bridgeSpans(keeper.works()), whole: () => bridgeWhole(keeper.works()), held: () => carrying(keeper.works()),
       open: (on = true) => keeper.trial?.worksOpen(on), have: (n: number) => keeper.trial?.worksHave(n), anew: () => keeper.trial?.worksAnew(),
       here: () => hereRef.current, atPile: () => atPile, atFoot: () => atFoot, offered: () => offered.map((p) => p.id), lacks: () => (lacks ? { who: lacks.who.id, why: lacks.why } : null),
-      lift, lay, drop: async () => keeper.stoneDrop(), pass: (id: string) => { const to = offered.find((p) => p.id === id); return to ? passTo(to) : Promise.resolve(); },
+      lift, lay, drop: async () => keeper.stoneDrop(), pass: (id: string) => { const to = offered.find((p) => p.id === id); if (to) begin(to); },
+      match: () => (match ? { role: match.role, phase: match.phase, with: match.who.id, tired: match.tired } : null), mute: (on = true) => { mute.current = on; },
       note: () => note, toast: () => toast, panel: (on = true) => setPanel(on), isPanel: () => panel, boxes: () => boxes.current, drawn: () => drawn,
       pile: BRIDGE.pile, foot: BRIDGE.foot, sign: SIGN, reach: BRIDGE.reach, near: BRIDGE.near, need: BRIDGE.need,
     };
@@ -346,10 +488,18 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
           </p>
         </div>
       )}
-      {(offering || note) && !panel && (
+      {(offering || note || match) && !panel && (
         <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
           {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-bridge-note>{note}</p>}
-          {offering && (
+          {match ? (
+            // (tired hands: the handing game's own board, with a stone. Whoever asks has it from the press, before the
+            // other has answered; whoever is asked has it come up by itself, and nothing is thrown until they say ready.)
+            <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game="handing">
+              <TownHanding key={match.id} thing="stone" stone={stone} th={th} role={match.role} m={match.id} waiting={match.phase === "asking"} seed={match.seed} tired={match.tired} other={other} sfx={sfx}
+                           names={match.role === "from" ? { from: "", to: match.who.name } : { from: match.who.name, to: "" }}
+                           tell={(told) => send(match.who.id, told)} onDone={played} onClose={shut} onCancel={stop} />
+            </div>
+          ) : offering && (
             <div className="pop-in pointer-events-auto w-full max-w-[26rem] rounded-2xl border border-line-lit bg-surface/92 p-2 shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-bridge-card={held ? "held" : "pile"}>
               {/* how it is done: three steps, the one to do now lit */}
               <Steps th={th} at={step} />
@@ -377,7 +527,7 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
                     )}
                     {/* one for each of those it may go to, the likeliest first and named in full */}
                     {offered.map((p, i) => (
-                      <button key={p.id} type="button" onClick={() => void passTo(p)} disabled={busy} data-bridge-chip={p.id} className={`${pill} border-line-lit hover:border-accent`}>
+                      <button key={p.id} type="button" onClick={() => begin(p)} disabled={busy} data-bridge-chip={p.id} className={`${pill} border-line-lit hover:border-accent`}>
                         <Art sprite={stone} box={20} />
                         <span className="min-w-0 truncate">{i === 0 ? (th ? `ส่งหินต่อให้ ${p.name || "เพื่อน"}` : `Hand it on to ${p.name || "them"}`) : th ? `หรือ ${p.name || "เพื่อน"}` : `or ${p.name || "them"}`}</span>
                       </button>

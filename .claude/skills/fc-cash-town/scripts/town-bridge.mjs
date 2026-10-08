@@ -13,8 +13,12 @@
 // - laid at the foot for one stamina: the bar is one more, all three are counted one stone and a helpers' point;
 // - the sign's panel: the bar, the three steps, the names in the order they came with no numbers, my count for me;
 // - the hundredth stone is a span, the six-hundredth makes it whole, and nothing more is lifted;
-// - with no stamina: lifted and laid all the same, a quarter of the pace, and handed on;
-// - let go of with two presses; and a phone's card and panel within its screen.
+// - with no stamina: lifted and laid all the same, a quarter of the pace; and handed on by the handing game's board,
+//   with a stone's picture and words: nothing thrown before the other is ready, a real press on Ready and on Toss
+//   while the button is lit, steady hands to the side the arrow shows, the stone in the other's hands; the wrong side is a
+//   miss with nothing lost and both told; Escape gives it up and the other is told; a page that does not answer is
+//   handed the stone at once; with stamina on both sides there is never a board;
+// - let go of with two presses; and a phone's card, its board and the sign's panel within its screen.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
@@ -53,6 +57,39 @@ const mapTap = async (X, box) => {
   const at = await X.evaluate(`(() => { const r = document.querySelector("canvas").getBoundingClientRect(); return { x: r.left, y: r.top }; })()`);
   await press(X, at.x + (box.x0 + box.x1) / 2, at.y + box.y0 + (box.y1 - box.y0) * 0.3);
 };
+/** A real press on what a selector finds, with no wait after it: for what has to be pressed in time. */
+const quick = async (X, sel) => {
+  const at = await X.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+  if (!at) return false;
+  await press(X, at.x, at.y);
+  return true;
+};
+/** The board of tired hands that is up on a page (components/town/TownHanding), if one is: how it stands. */
+const G = "window.__townGame";
+const board = (X) => X.evaluate(`${G}?.kind === "handing" ? { ...${G}.state(), thing: document.querySelector('[data-look="handing"]')?.dataset.thing ?? null, title: document.querySelector("[data-town-game]")?.innerText.split("\\n")[0] ?? "" } : null`);
+const boardSteps = (X) => X.evaluate(`(() => { const o = document.querySelector("[data-handing-steps]"); return o ? { at: Number(o.dataset.handingSteps), text: [...o.querySelectorAll("li")].map((l) => l.innerText.replace(/\\s+/g, " ").trim()) } : null; })()`);
+const boardGone = (X, ms = 6000) => until("the board is gone", async () => (await X.evaluate(`${G}?.kind ?? null`)) === null, ms, 40);
+/**
+ * A stone tossed from one page to another, the two boards being up already: a real press on Ready on the taker's and
+ * on Toss on the thrower's while its button is lit; and the taker's hands put to a side: the side the arrow shows the
+ * moment it shows, by steady hands (`__townGame.auto()`, as town-handing.mjs plays tired hands: the arrow of tired
+ * hands is up for less than half a second, which a press sent from outside the page does not always make), or, with
+ * `wrong`, to the other side by a real press beforehand. Says how it went on each page.
+ */
+async function toss(From, To, to = "steady") {
+  await until("the button to be ready", () => there(To, "[data-handing-ready]"), 6000, 40);
+  await quick(To, "[data-handing-ready]");
+  await until("whoever throws is told they are ready", async () => (await board(From))?.ready === true, 6000, 30);
+  const side = (await board(From)).side;
+  if (to === "wrong") { await quick(To, `[data-handing-side="${-side}"]`); await sleep(120); }
+  else await To.evaluate(`${G}.auto(true)`);
+  await until("the button to toss is lit", () => there(From, '[data-handing-throw="lit"]'), 6000, 6);
+  await quick(From, "[data-handing-throw]");
+  const over = await until("it is settled on both pages", async () => { const [a, b] = [await board(From), await board(To)]; return (!a || a.over) && (!b || b.over) ? { from: a?.over ?? null, to: b?.over ?? null } : null; }, 8000, 30).catch(() => null);
+  await boardGone(From).catch(() => {});
+  await boardGone(To).catch(() => {});
+  return { side, over };
+}
 const TOUCH = `window.dispatchEvent(new Event("pointermove"))`;
 /** Walk to a tile and say how long it took on my own page, in milliseconds (town-cart.mjs says why it is begun so). */
 const walk = (X, x, y) => X.evaluate(`(async () => {
@@ -167,6 +204,7 @@ try {
   await tap(X, "[data-bridge-chip]");
   await until("the stone has gone over", async () => (await held(Y)) === "stone", 8000);
   ok("a press, and the stone is in their hands at once: mine are empty, and it cost neither of us anything", (await held(X)) === null && (await stamina(X)) === 99 && (await stamina(Y)) === 100 && /ส่งหินให้/.test((await X.evaluate(`${B}.note()`)) ?? ""), { x: await held(X), note: await X.evaluate(`${B}.note()`) });
+  ok("…with stamina on both sides there is no board, on either page", (await board(X)) === null && (await board(Y)) === null && !(await there(X, "[data-game='handing']")) && !(await there(Y, "[data-game='handing']")));
   await until("the taker is told", () => there(Y, "[data-bridge-toast]"), 8000).catch(() => {});
   ok("whoever takes it is told so on their map, and their strip says what to do next", /มีคนส่งหินมาให้/.test((await textOf(Y, "[data-bridge-toast]")) ?? "") && (await Y.evaluate(`document.querySelector("[data-bridge-steps]")?.dataset.bridgeSteps`)) === "1", await textOf(Y, "[data-bridge-toast]"));
   await until("each page is told who carries it now", async () => (await carriedBy(X, b)) === "stone" && (await carriedBy(Y, a)) === "", 10000).catch(() => {});
@@ -221,7 +259,8 @@ try {
     return { have: p.querySelector("[data-bridge-have]")?.innerText, spans: p.querySelectorAll("[data-span]").length, steps: p.querySelectorAll("[data-bridge-steps] li").length,
       names: [...p.querySelectorAll("[data-bridge-names] li")].map((e) => [e.dataset.id, e.innerText.trim()]), mine: p.querySelector("[data-bridge-mine]")?.dataset.bridgeMine, text: p.innerText }; })()`);
   ok("a tap on it opens its panel: the village's bar, so many of six hundred, in six spans, and the three steps", !!panel && panel.have.replace(/\s/g, "") === `1/${NEED}` && panel.spans === 6 && panel.steps === 3 && /ช่วงที่ 1 จาก 6/.test(panel.text), panel);
-  ok("…everybody who has helped, in the order they came (the first to lift, then who it was handed to), by name and with no number", !!panel && same(panel.names.map(([id]) => id), [a, b, c]) && panel.names.every(([, name]) => name.length > 0 && !/\d/.test(name.replace(/ทดสอบ|test/gi, ""))), panel?.names);
+  // (all three came by one stone, at one moment: such are listed by their ids. Who came at different moments is in the order they came: the last part of this check.)
+  ok("…everybody who has helped by that stone, by name and with no number", !!panel && same(panel.names.map(([id]) => id), [a, b, c].sort()) && panel.names.every(([, name]) => name.length > 0 && !/\d/.test(name.replace(/ทดสอบ|test/gi, ""))), panel?.names);
   ok("…and my own count, shown to me", panel?.mine === "1" && /ผ่านมือฉัน/.test(panel.text), panel?.mine);
   await Z.shot(`${OUT}/bridge-panel.png`);
   await Z.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
@@ -293,11 +332,60 @@ try {
   await Y.evaluate(`${V}.lookAt(${ROAD[0] + 2}, ${ROAD[1]})`);
   const weary = [await seen(ROAD_END), await seen(ROAD)], crawl = quickest(...weary.map((s) => s.mine)), crawlSeen = quickest(...weary.map((s) => s.theirs));
   ok("…and walked at a quarter of the pace, on my page and on another's", crawl / plain > 3.6 && crawl / plain < 4.5 && crawlSeen / plain > 3.4 && crawlSeen / plain < 4.6, { plain, crawl, crawlSeen });
+  // ── tired hands hand it on by the handing game's board, with a stone's picture and words
   await warp(Z, ROAD[0] - 3, ROAD[1]);
   await until("the tired one is offered the other tired one", async () => same(await X.evaluate(`${B}.offered()`), [c]), 12000).catch(() => {});
+  await until("the room has told each page that the other is tired", async () => (await X.evaluate(`${S}.people().find((q) => q.id === ${JSON.stringify(c)})?.spent`)) === true && (await Z.evaluate(`${S}.people().find((q) => q.id === ${JSON.stringify(a)})?.spent`)) === true, 10000).catch(() => {});
   await tap(X, "[data-bridge-chip]");
-  await until("tired hands hand it on", async () => (await held(Z)) === "stone", 8000).catch(() => {});
-  ok("tired hands hand it on to tired hands", (await held(Z)) === "stone" && (await held(X)) === null && (await stamina(X)) === 0 && (await stamina(Z)) === 0, { z: await held(Z), x: await held(X) });
+  await until("a board is up on both pages", async () => (await board(X))?.phase === "wait" && !!(await board(Z)), 8000, 40).catch(() => {});
+  const [bx, bz, sx, sz] = [await board(X), await board(Z), await boardSteps(X), await boardSteps(Z)];
+  ok("with no stamina on either side the same press puts a board up on both pages, of a stone: whoever has it is to throw, whoever takes it has it come up by itself",
+    bx?.thing === "stone" && bz?.thing === "stone" && /โยนหินส่งต่อ/.test(bx.title) && /รับหินที่โยนมา/.test(bz.title) && bx.tired.from === true && bx.tired.to === true && (await held(X)) === "stone" && (await held(Z)) === null, { bx, bz });
+  ok("…each board says in two steps what to press, the one to do now lit: wait for Ready and then Toss; Ready and then the side the arrow shows",
+    sx?.at === 0 && /รอเพื่อนกด/.test(sx.text[0]) && /โยน!/.test(sx.text[1]) && sz?.at === 0 && /พร้อมรับ/.test(sz.text[0]) && /ลูกศร/.test(sz.text[1]), { sx, sz });
+  await Z.shot(`${OUT}/bridge-board-take.png`);
+  await quick(X, "[data-handing-throw]");
+  await sleep(350);
+  ok("nothing is thrown at somebody who has not said ready: a press on Toss does nothing, and the stone is still in the hands", (await board(X))?.flew === null && (await board(X))?.phase === "wait" && (await held(X)) === "stone", await board(X));
+  const first = await toss(X, Z);
+  await X.shot(`${OUT}/bridge-board-thrown.png`);
+  await until("tired hands have handed it on", async () => (await held(Z)) === "stone", 8000).catch(() => {});
+  ok("a press on Ready, a press on Toss while the button is lit, the hands put to the side the arrow shows: caught, and the stone is in the other's hands, for no stamina on either side",
+    first.over?.from?.won === true && first.over?.to?.won === true && (await held(Z)) === "stone" && (await held(X)) === null && (await stamina(X)) === 0 && (await stamina(Z)) === 0, { first, z: await held(Z), x: await held(X) });
+  await until("the taker is told", () => there(Z, "[data-bridge-toast]"), 6000).catch(() => {});
+  ok("…and both are told: whoever threw that it is handed on, whoever took it that a stone came", /ส่งหินให้/.test((await X.evaluate(`${B}.note()`)) ?? "") && /มีคนส่งหินมาให้/.test((await textOf(Z, "[data-bridge-toast]")) ?? ""), { note: await X.evaluate(`${B}.note()`), toast: await textOf(Z, "[data-bridge-toast]") });
+  // back again, the bucket put to the wrong side: a miss, nothing lost, both told
+  await until("the one who took it is offered the one who threw", async () => same(await Z.evaluate(`${B}.offered()`), [a]), 12000).catch(() => {});
+  await sleep(3200);
+  await tap(Z, "[data-bridge-chip]");
+  await until("a board is up on both pages again", async () => (await board(Z))?.phase === "wait" && !!(await board(X)), 8000, 40).catch(() => {});
+  const missed = await toss(Z, X, "wrong");
+  await sleep(400);
+  ok("the hands put to the wrong side: not caught, the stone is where it was, and both pages say so", missed.over?.from?.won === false && missed.over?.to?.won === false && (await held(Z)) === "stone" && (await held(X)) === null
+    && /รับไม่ทัน/.test((await Z.evaluate(`${B}.note()`)) ?? "") && /รับไม่ทัน/.test((await X.evaluate(`${B}.note()`)) ?? ""), { missed, z: await Z.evaluate(`${B}.note()`), x: await X.evaluate(`${B}.note()`) });
+  // given up with Escape: the other is told, and the stone stays
+  await sleep(3200);
+  await tap(Z, "[data-bridge-chip]");
+  await until("a board is up on both pages a third time", async () => (await board(Z))?.phase === "wait" && !!(await board(X)), 8000, 40).catch(() => {});
+  await X.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await until("both boards are gone", async () => (await board(X)) === null && (await board(Z)) === null, 6000, 40).catch(() => {});
+  ok("Escape gives it up: the board is gone from both pages, whoever has the stone is told the other stopped, and still has it", (await board(X)) === null && (await board(Z)) === null && /เลิกกลางคัน/.test((await Z.evaluate(`${B}.note()`)) ?? "") && (await held(Z)) === "stone", await Z.evaluate(`${B}.note()`));
+  // a page that asks nobody (as one whose other does not answer): the stone goes over at once all the same
+  await Z.evaluate(`${B}.mute()`);
+  await sleep(3200);
+  await tap(Z, "[data-bridge-chip]");
+  const began = Date.now();
+  await until("with nobody answering, the stone goes over by itself", async () => (await held(X)) === "stone", 8000, 50).catch(() => {});
+  const waited = Date.now() - began;
+  ok(`where the other does not answer, tired hands hand it on at once all the same (after ${(waited / 1000).toFixed(1)} s of asking): nothing is refused`, (await held(X)) === "stone" && (await held(Z)) === null && (await board(X)) === null && waited < 6000, { waited, x: await held(X) });
+  await Z.evaluate(`${B}.mute(false)`);
+  // (and on to the one at the foot's end of the row, by the board once more, to be laid)
+  await until("offered the other again", async () => same(await X.evaluate(`${B}.offered()`), [c]), 12000).catch(() => {});
+  await tap(X, "[data-bridge-chip]");
+  await until("a board is up on both pages", async () => (await board(X))?.phase === "wait" && !!(await board(Z)), 8000, 40).catch(() => {});
+  const again = await toss(X, Z);
+  await until("tired hands have handed it on", async () => (await held(Z)) === "stone", 8000).catch(() => {});
+  ok("tired hands hand it on to tired hands", again.over?.to?.won === true && (await held(Z)) === "stone" && (await held(X)) === null && (await stamina(X)) === 0 && (await stamina(Z)) === 0, { again, z: await held(Z), x: await held(X) });
   await warp(Z, ...BY_FOOT);
   await until("the button to lay it", () => there(Z, "[data-bridge-lay]"), 8000);
   await tap(Z, "[data-bridge-lay]");
@@ -326,6 +414,18 @@ try {
   const card = await within("[data-bridge-card]");
   ok("on a phone the strip and its buttons are within the screen, with nothing wider than it", !!card && card.left >= 0 && card.right <= card.w && card.bottom <= card.h && card.top >= 0 && card.scroll <= card.w, card);
   await P.shot(`${OUT}/bridge-phone-card.png`);
+  // the board of tired hands on a phone: asked for from the phone, of the first tester, who stands on the road with empty hands
+  await P.evaluate(`${T}.spend(500)`);
+  await until("the phone is offered the one standing by", async () => (await P.evaluate(`${B}.offered()`)).includes(a), 12000).catch(() => {});
+  await tap(P, `[data-bridge-chip="${a}"]`);
+  await until("the phone's board is up, and the other's", async () => !!(await board(P)) && !!(await board(X)), 8000, 40).catch(() => {});
+  await sleep(500);
+  const game = await within("[data-town-game]"), toss2 = await within("[data-handing-throw]");
+  ok("on a phone the board of tired hands and its button are within the screen", !!game && !!toss2 && game.left >= 0 && game.right <= game.w && game.top >= 0 && game.bottom <= game.h && toss2.bottom <= toss2.h && game.scroll <= game.w, { game, toss2 });
+  await P.shot(`${OUT}/bridge-phone-board.png`);
+  await P.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await until("the phone's board is gone", async () => (await board(P)) === null, 6000, 40).catch(() => {});
+  await boardGone(X).catch(() => {});
   await warp(P, ...BY_FOOT);
   await sleep(700);
   const psign = await P.evaluate(`${B}.boxes().sign`);

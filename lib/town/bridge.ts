@@ -1,4 +1,5 @@
 import { CARRY, carryPace } from "./carry";
+import { readTold, type Told } from "./handing";
 import { between } from "./line";
 import { spend } from "./stamina";
 import { handOf, held, take, type Purse } from "./trade";
@@ -55,6 +56,13 @@ export const BRIDGE = {
 
 /** What is the page's alone, as the bucket line's is: how near somebody has to stand to be named with what they lack, and how many are offered at once. */
 export const OFFER = { beside: 4, most: 3 };
+/**
+ * Where the sign with the village's bar stands, the page's alone too (it is only drawn): **beside the foot, away
+ * from the water; never on the foot's own tile, on a tile of the bridge's, or where a fishing line's float lies**
+ * (the mountain's layout: lib/town/bridge.test holds it to those tiles). Like the pile it stops nobody: no tile's
+ * walking changes for it.
+ */
+export const SIGN_AT: Vec = { x: BRIDGE.foot.x + 1, y: BRIDGE.foot.y - 1 };
 
 /** What a work needs of a thing (null: it takes any amount), and how many it has. */
 export interface Need { need: number | null; have: number }
@@ -237,6 +245,30 @@ export function bridgeWhole(works: WorksTold | null): boolean {
 }
 /** Whether I hold a stone, from what the keeper reads of the works. */
 export const carrying = (works: WorksTold | null): string | null => works?.carried?.thing ?? null;
+
+/* ── tired hands: the handing game's board, for a stone ──────────────────── */
+
+/**
+ * **With no stamina on either side a stone is handed on by the handing game's easy board** (lib/town/handing: whoever
+ * takes it presses ready, whoever has it throws, and whoever takes it presses the side it flies to), as water is;
+ * with stamina on both it is in the other's hands at once. Caught, it is handed on; not, nothing is and nothing is
+ * lost. Where the other is not there to play (another page of the site, a page that does not answer) it goes over
+ * at once all the same: with no stamina a thing is harder, never refused.
+ */
+export const byBoard = (mineSpent: boolean, theirsSpent: boolean | null | undefined): boolean => mineSpent || theirsSpent === true;
+
+/**
+ * What the two pages tell each other of it: that game's own words (lib/town/handing's `Told`), **in an envelope of
+ * the stone's**, so that the bucket line's board, which hears the same letterboxes, takes none of them for water. In
+ * a `no`, `bare` is a thing in the hand and `full` a stone in the hands already.
+ */
+export interface StoneTold { k: "st"; t: Told }
+export const stoneTold = (t: Told): StoneTold => ({ k: "st", t });
+/** What another browser said of a stone handed on, if it is that and every part of it is what it should be; null otherwise. */
+export function readStoneTold(raw: unknown): Told | null {
+  const d = raw as { k?: unknown; t?: unknown } | null;
+  return d && typeof d === "object" && d.k === "st" ? readTold(d.t) : null;
+}
 
 /* ── whom a page offers ──────────────────────────────────────────────────── */
 

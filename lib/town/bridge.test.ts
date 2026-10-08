@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { BRIDGE, OFFER, bridgeSpans, bridgeWhole, carryPace, carrying, counted, drop, give, lay, lift, nearTile, newWorks, pass, spansOf, takers, toFoot, told, wants, workOf, worksOf, type Carried, type Hand, type Work, type WorksKept } from "./bridge";
+import { BRIDGE, OFFER, SIGN_AT, bridgeSpans, bridgeWhole, byBoard, readStoneTold, stoneTold, carryPace, carrying, counted, drop, give, lay, lift, nearTile, newWorks, pass, spansOf, takers, toFoot, told, wants, workOf, worksOf, type Carried, type Hand, type Work, type WorksKept } from "./bridge";
 import { CART } from "./cart";
+import { readTold, type Told } from "./handing";
 import { catalogOf } from "./catalog";
 import { ITEMS } from "./items";
 import { countsOf } from "./line-points";
@@ -25,6 +26,30 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
     expect(BRIDGE.hands).toBe(8);
     // the catalog's row is these numbers, and the tiles as the database reads them
     expect(catalogOf().bridge).toEqual({ work: "bridge", thing: "stone", need: 600, spans: 6, costs: { lift: 1, lay: 1 }, reach: 6, near: 2, paces: { held: 0.5, spent: 0.25 }, hands: 8, point: 1, pile: [BRIDGE.pile.x, BRIDGE.pile.y], foot: [BRIDGE.foot.x, BRIDGE.foot.y] });
+  });
+
+  it("stands its sign beside the foot: never on the foot's tile, on a tile of the bridge's or on a fishing float's, and stopping nobody", () => {
+    // the bridge's eighteen tiles as the mountain's layout has them (span i of six, from the town's bank outwards),
+    // and the three fishing floats by it (the mountain's session, 2026-10-08)
+    const spans = Array.from({ length: BRIDGE.spans }, (_, i) => [[10 - i, 28 + i], [9 - i, 28 + i], [10 - i, 29 + i]]).flat();
+    const floats = [[9, 28], [10, 29], [11, 29]];
+    const taken = new Set([...spans, ...floats, [BRIDGE.foot.x, BRIDGE.foot.y]].map(([x, y]) => `${x},${y}`));
+    expect(spans.length).toBe(18);
+    expect(taken.has(`${SIGN_AT.x},${SIGN_AT.y}`)).toBe(false);
+    expect(taken.has(`${BRIDGE.pile.x},${BRIDGE.pile.y}`)).toBe(false);
+    // beside the foot, and on a tile of the town's where one walks as before (the sign is only drawn)
+    expect(nearTile([SIGN_AT.x, SIGN_AT.y], BRIDGE.foot, 1)).toBe(true);
+    expect(walkable(SIGN_AT.x, SIGN_AT.y)).toBe(true);
+    expect(placeOf(SIGN_AT.x, SIGN_AT.y)).toBe("town");
+    expect(fishFrom(SIGN_AT.x, SIGN_AT.y)).toBeFalsy();
+    // the foot is on the bank, not on the bridge: its first span begins beside it, and its far end is out of the foot's reach
+    expect(spans.some(([x, y]) => x === BRIDGE.foot.x && y === BRIDGE.foot.y)).toBe(false);
+    expect(nearTile([spans[0][0], spans[0][1]], BRIDGE.foot, 1)).toBe(true);
+    expect(nearTile([spans[17][0], spans[17][1]], BRIDGE.foot)).toBe(false);
+    // a stone is laid from the town's side: every tile within reach of the foot where one may stand is the town's
+    for (let x = BRIDGE.foot.x - BRIDGE.near; x <= BRIDGE.foot.x + BRIDGE.near; x++)
+      for (let y = BRIDGE.foot.y - BRIDGE.near; y <= BRIDGE.foot.y + BRIDGE.near; y++)
+        if (walkable(x, y)) expect(placeOf(x, y)).toBe("town");
   });
 
   it("is no thing of the bag: a stone is nowhere among the things, and nothing new can be sold", () => {
@@ -249,5 +274,29 @@ describe("whom a stone is offered to", () => {
   it("reaches nobody on another map", () => {
     expect(nearTile([BRIDGE.pile.x, BRIDGE.pile.y], BRIDGE.pile)).toBe(true);
     expect(takers("me", me, [one("farm", 140.5, 10.5)]).offered.length).toBe(0);
+  });
+});
+
+describe("tired hands at the bridge: a stone handed on by the handing game's board", () => {
+  it("is by the board when either of the two has no stamina left, and at once when both have some", () => {
+    expect(byBoard(false, false)).toBe(false);
+    // (a page built before the room said who is tired says nothing of it: taken to have some)
+    expect(byBoard(false, undefined)).toBe(false);
+    expect(byBoard(false, null)).toBe(false);
+    expect(byBoard(true, false)).toBe(true);
+    expect(byBoard(false, true)).toBe(true);
+    expect(byBoard(true, true)).toBe(true);
+  });
+  it("tells the other page in the handing game's own words, in an envelope of the stone's that the bucket line does not take for water", () => {
+    const ask: Told = { k: "ask", m: "abcd1234", s: true, z: 12345 };
+    expect(stoneTold(ask)).toEqual({ k: "st", t: ask });
+    expect(readStoneTold(stoneTold(ask))).toEqual(ask);
+    expect(readStoneTold(JSON.parse(JSON.stringify(stoneTold({ k: "end", m: "abcd1234", c: true }))))).toEqual({ k: "end", m: "abcd1234", c: true });
+    // the bucket line's reader takes nothing of an envelope, and the stone's nothing of water's bare words
+    expect(readTold(stoneTold(ask))).toBe(null);
+    expect(readStoneTold(ask)).toBe(null);
+    // and nothing that is not whole: no envelope, another's, a word of the game's that is not sound
+    for (const bad of [null, undefined, 7, "st", {}, { k: "st" }, { k: "st", t: null }, { k: "st", t: { k: "ask", m: "x", s: true, z: 1 } }, { k: "st", t: { k: "p", m: "abcd1234", d: 2 } }, { k: "dr", t: ask }])
+      expect(readStoneTold(bad)).toBe(null);
   });
 });

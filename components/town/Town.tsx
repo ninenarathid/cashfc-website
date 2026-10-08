@@ -50,7 +50,7 @@ import type { FarmDraw } from "./TownFarm";
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
 import type { BugsAim } from "./TownBugs";
 import type { GroundTap } from "./TownGround";
-import type { BridgeTap, Hand } from "./TownBridge";
+import type { BridgeTap, Hand, StonePairing } from "./TownBridge";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import type { Stuck } from "@/lib/town/session";
@@ -813,12 +813,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // room's letterboxes, from one to the other and to nobody else.
   // ── gifts: well ── (a drink held out goes by the same letterboxes: each of the two hears every word, and takes its own)
   const pairHears = useRef<{ line: ((from: string, data: unknown) => void) | null; drink: ((from: string, data: unknown) => void) | null }>({ line: null, drink: null });
+  // ── the bridge built by hand ── (a stone handed on by tired hands goes by the same letterboxes too, its words in an envelope of its own: lib/town/bridge)
+  const stoneHears = useRef<((from: string, data: unknown) => void) | null>(null);
   const pairWire = useCallback((s: TownSession) => {
-    const { line, drink } = pairHears.current;
-    s.onPair = line || drink ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); } : null;
+    const { line, drink } = pairHears.current, stone = stoneHears.current;
+    s.onPair = line || drink || stone ? (from, data) => { pairHears.current.line?.(from, data); pairHears.current.drink?.(from, data); stoneHears.current?.(from, data); } : null;
   }, []);
   const pairing = useMemo<Pairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.line = fn; pairWire(session); } } : null), [session, pairWire]);
   const drinking = useMemo<DrinkPairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { pairHears.current.drink = fn; pairWire(session); } } : null), [session, pairWire]);
+  const stoning = useMemo<StonePairing | null>(() => (session ? { send: (to, told) => session.pair(to, told), hear: (fn) => { stoneHears.current = fn; pairWire(session); } } : null), [session, pairWire]);   // ── the bridge built by hand ──
   // The room says when something of the game's changed, and the keeper asks the database for it; my own deeds are
   // said the same way. Only the word for what: never the change.
   useEffect(() => {
@@ -4297,7 +4300,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownBridge keeper={keeper} me={me.id} th={w.th} people={hands}
                       here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                       bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} phone={phone} tabbar={tabbar}
-                      register={registerBridge} registerTap={registerBridgeTap} carry={carryTold} />
+                      register={registerBridge} registerTap={registerBridgeTap} carry={carryTold} pair={stoning} />
         </Suspense>
       )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}
