@@ -36,8 +36,9 @@ export const POINTS = {
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
   insects: { plain: 1, way: 3, rare: 8, pays: 20 },
   farming: { every: 12 },
-  // ── mining ── (a rock broken, a vein played out, a way down found, the day's crystal rock; the first of each kind of fragment is the "first")
-  mining: { rock: 1, vein: 3, way: 5, crystal: 10 },
+  // ── mining ── (a rock broken, a vein played out, a way down found, the day's crystal rock; the first of each kind of fragment is the "first".
+  // `lent`, `lending`: a hand lent to a rock somebody else struck first, on the mining line and on the helpers')
+  mining: { rock: 1, vein: 3, way: 5, crystal: 10, lent: 1, lending: 1 },
 };
 
 /**
@@ -144,6 +145,10 @@ export function countsOf(d: Done, doer: string): Counts[] {
       ];
     case "delve":
       return [{ to: null, line: "mining", raw: POINTS.mining.way }];
+    // (a rock somebody else struck first, broken with my swings in it: a point on this line and one on the helpers')
+    case "hew":
+      return typeof d.doc.whose === "string" && d.doc.whose !== doer
+        ? [{ to: null, line: "mining", raw: POINTS.mining.lent }, { to: null, line: "helpers", raw: POINTS.mining.lending }] : [];
     case "crystal":
       return [
         { to: null, line: "mining", raw: POINTS.mining.crystal, ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) },

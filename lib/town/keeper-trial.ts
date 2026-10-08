@@ -310,6 +310,7 @@ class TrialKeeper implements Keeper {
   async mineDo(floor: number, rock: number, at: [number, number], swings: number, name: string, how?: "quake"): Promise<MineDone<MineDid>> {
     const did = this.trial.mineDo(floor, rock, at, swings, name, how);
     if (did.ok) this.onDeed?.("cave");
+    if (did.ok && typeof did.paid === "string") this.onDeed?.("line", did.paid);
     return did;
   }
   async minePeek(floor: number, rock: number): Promise<MineDone<{ peek: Peek }>> { return this.trial.minePeek(floor, rock); }

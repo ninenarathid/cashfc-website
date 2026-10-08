@@ -19,6 +19,8 @@ import { VEIN, faceOf, play, veinMods, yieldOf, type Cell, type VeinMods } from 
  *   public), and is never told before it breaks.
  * - **A rock broken is gone for everybody** and back at the next turn. One rock a floor hides the way down: found by
  *   anybody, it is open to everybody until the day turns.
+ * - **Several picks on one rock add up** (the owner, 2026-10-08 evening): what a rock leaves is for whoever struck it
+ *   first, whoever strikes the last of it away; the others are counted as its helpers and pay nothing.
  * - **With no stamina it is harder and never refused.**
  *
  * Pure, like the rest: every function is given the moment and what it needs, and gives back new things. Every number
@@ -135,6 +137,8 @@ export const peekOf = (h: Holds): Peek => (h.kind === "vein" ? "vein" : h.kind !
 
 /** A vein opened and not yet played out: where its rock stood, the seed of its face, the gem it is of (or none), what it is played with, and whether this is its second go. */
 export interface PendingVein { f: number; rock: number; turn: number; seed: number; gem: Element | null; mods: VeinMods; more: number; again?: boolean }
+/** A rock I struck first that somebody else broke for me: when, where, what it left me, and who it was (their name). The newest only: my page says so once. */
+export interface Paid { at: number; f: number; rock: number; got: Array<[ItemId, number]>; way: boolean; crystal: boolean; vein: boolean; by: string }
 /** What a member keeps of the mine, in their purse (`mine`). */
 export interface MineKept {
   /** Stamina still to pay, under a point (an earth gem's share is kept exact over time, as the gloves' was). */
@@ -146,8 +150,10 @@ export interface MineKept {
   vein: PendingVein | null;
   /** The resting floors reached: the lift's stops. */
   rests: number[];
-  /** When a rock was last broken. */
+  /** When a rock was last struck (the last swings believed). */
   last: number;
+  /** The last rock of mine that somebody else broke for me. */
+  paid: Paid | null;
 }
 const isCell = (c: unknown): c is Cell => Array.isArray(c) && c.length === 2 && Number.isInteger(c[0]) && Number.isInteger(c[1]);
 function veinOf(v: unknown): PendingVein | null {
@@ -159,6 +165,12 @@ function veinOf(v: unknown): PendingVein | null {
     more: Math.max(0, Math.floor(Number(p.more) || 0)), ...(p.again ? { again: true } : {}),
   };
 }
+function paidOf(v: unknown): Paid | null {
+  const p = v as Partial<Paid> | null;
+  if (!p || typeof p !== "object" || typeof p.at !== "number" || !Number.isInteger(p.f) || !Number.isInteger(p.rock) || !Array.isArray(p.got)) return null;
+  const got = p.got.filter((g) => Array.isArray(g) && typeof g[0] === "string" && typeof g[1] === "number").map((g): [ItemId, number] => [g[0], g[1]]);
+  return { at: p.at, f: p.f!, rock: p.rock!, got, way: !!p.way, crystal: !!p.crystal, vein: !!p.vein, by: typeof p.by === "string" ? p.by : "" };
+}
 /** What a purse keeps of the mine, made sound. */
 export function mineOf(purse: Pick<Purse, "mine">): MineKept {
   const k = purse.mine && typeof purse.mine === "object" ? purse.mine : {};
@@ -169,10 +181,19 @@ export function mineOf(purse: Pick<Purse, "mine">): MineKept {
     loose, vein: veinOf(k.vein),
     rests: [...new Set((Array.isArray(k.rests) ? k.rests : []).filter((n) => Number.isInteger(n) && isRest(n) && n <= MINING.floors))].sort((a, b) => a - b),
     last: typeof k.last === "number" && Number.isFinite(k.last) ? k.last : 0,
+    paid: paidOf(k.paid),
   };
 }
 /** The pick in the hand: null when what is held is no pick. */
 export const pickOf = (purse: Purse): Stack | null => { const s = heldStack(purse); return s && toolKindOf(s.item) === "pick" ? s : null; };
+/** The pick somebody is paid by for a rock another broke for them: the one in the hand, or, the hand being on something else by now, the best in the bag. */
+export function anyPick(purse: Purse): Stack | null {
+  const held = pickOf(purse);
+  if (held) return held;
+  let best: Stack | null = null;
+  for (const s of purse.bag) if (s && toolKindOf(s.item) === "pick" && (!best || levelOf(s) > levelOf(best))) best = s;
+  return best;
+}
 /** Whether a rock is loosened for somebody in a place and a turn. */
 export const isLoose = (purse: Pick<Purse, "mine">, floor: number, turn: number, rock: number): boolean => { const l = mineOf(purse).loose; return l.k === `${floor}:${turn}` && l.ids.includes(rock); };
 /**
@@ -198,14 +219,15 @@ export type MineRefusal =
   | "none"   // no such rock, or no such place
   | "gone"   // it stands no longer this turn
   | "far"    // out of reach
-  | "more"   // it takes more swings than that
+  | "more"   // no swing at all was made
   | "weak"   // this pick will not bite (the crystal rock)
   | "full"   // no room for what it leaves
   | "soon"   // quicker than a hand swings
   | "vein"   // a vein is open and not played out
   | "spent"  // a counted power has no time left in its stretch
   | "open"   // the way down is open already
-  | "here";  // nothing can be opened or set down on this tile
+  | "here"   // nothing can be opened or set down on this tile
+  | "wait";  // the rock is struck whole away, and whoever struck it first cannot take what it leaves just now
 /** What a go is, as whoever keeps the game has it. */
 export interface Go {
   now: number;
@@ -214,8 +236,12 @@ export interface Go {
   rock: number;
   /** Where the member stands. */
   at: readonly [number, number];
-  /** The swings the page made. */
+  /** The swings the page made since it last said (not all it ever made at this rock: they add up with whoever keeps the game). */
   swings: number;
+  /** Who strikes, and their name. (With neither said: somebody alone.) */
+  who?: string; name?: string;
+  /** What has been struck away of a rock of the place this turn, by anybody (nothing said: nothing has). */
+  struck?: (rock: number) => Struck | null;
   /** The place's rocks as they are laid today, and whether each still stands. */
   rocks: readonly RockAt[];
   standing: (id: number) => boolean;
@@ -232,8 +258,37 @@ export interface Go {
   fate?: (rock: number) => Holds | null;
   chain?: number | null;
 }
+/**
+ * A rock being broken, as whoever keeps the game has it: who struck it first (and their name, for what the others
+ * are told), when, and how much of it each member has struck away. A swing takes off a share of the whole rock that
+ * is the swinger's own (one over the swings their own pick would take alone, tired or not, the rock loosened for them
+ * or not): everybody's shares add up, and the rock breaks when they come to one.
+ */
+export interface Struck { first: string; name: string; at: number; by: Record<string, number> }
+/** (Shares are fractions added up: so near to one is one.) */
+const WHOLE = 1 - 1e-6;
+/** How much of a rock is struck away, none (0) to all of it (1). */
+export const partOf = (s: Struck | null | undefined): number => (s ? Math.min(1, Object.values(s.by).reduce((t, n) => t + (n > 0 ? n : 0), 0)) : 0);
+export const isWhole = (s: Struck | null | undefined): boolean => partOf(s) >= WHOLE;
+/** Whoever struck some of a rock away besides the one who struck it first: its helpers. */
+export const helpersOf = (s: Struck): string[] => Object.keys(s.by).filter((id) => id !== s.first && s.by[id] > 0).sort();
+/** A rock's tally as it is kept, made sound: null for what is none. */
+export function struckOf(v: unknown): Struck | null {
+  const s = v as Partial<Struck> | null;
+  if (!s || typeof s !== "object" || typeof s.first !== "string" || !s.by || typeof s.by !== "object") return null;
+  const by: Record<string, number> = {};
+  for (const [id, n] of Object.entries(s.by)) if (typeof n === "number" && n > 0 && Number.isFinite(n)) by[id] = Math.min(1, n);
+  return Object.keys(by).length ? { first: s.first, name: typeof s.name === "string" ? s.name : "", at: typeof s.at === "number" ? s.at : 0, by } : null;
+}
+
+/** Swings that went into a rock which still stands: the rock's tally after them, and how much of it is struck away. */
+export interface Swung { ok: true; done: false; purse: Purse; struck: Struck; part: number }
+/** Swings that struck the last away of a rock somebody else struck first: it is theirs to be paid for (`payFirst`, with their purse). */
+export interface Theirs { ok: true; done: "theirs"; purse: Purse; struck: Struck }
 export interface Mined {
-  ok: true; purse: Purse;
+  ok: true; done: true; purse: Purse;
+  /** The rock's tally as it broke: who struck it first, and who helped. */
+  struck: Struck;
   /** The rocks that broke, the one struck first; and of them the one a neighbour's breaking took with it. */
   broke: number[]; chained: number | null;
   got: Array<[ItemId, number]>;
@@ -251,31 +306,70 @@ export interface Mined {
 const add = (got: Array<[ItemId, number]>, id: ItemId, n: number) => { if (n <= 0) return; const had = got.find((g) => g[0] === id); if (had) had[1] += n; else got.push([id, n]); };
 
 /**
- * A rock struck for the last time: it breaks, and the purse has what it left. Refused with nothing changed when
- * there is no pick in the hand, the rock is gone or too far, the swings are too few, the pick is too weak for a
- * crystal, or there is no room for what it leaves.
+ * A rock struck: the swings made since the page last said go into it, as the striker's own share of it. Three ways
+ * it may come out:
+ *
+ * - the rock still stands (`done` false): the tally is kept, and nothing else has changed;
+ * - it is struck whole away and the striker struck it first (`done` true): it breaks, and their purse has what it
+ *   left, for the stamina a rock costs;
+ * - it is struck whole away and somebody else struck it first (`done` "theirs"): it is that member's to be paid
+ *   for, with their purse (`payFirst`), and the striker is one of its helpers.
+ *
+ * Refused with nothing changed when there is no pick in the hand, a vein is open, the rock is gone or too far, the
+ * pick is too weak for a crystal, no swing was made or they came quicker than a hand swings, or (striking the last
+ * of one's own rock away) there is no room for what it leaves.
  */
-export function mine(purse: Purse, go: Go): Mined | { ok: false; why: MineRefusal } {
+export function mine(purse: Purse, go: Go): Mined | Swung | Theirs | { ok: false; why: MineRefusal } {
   const no = (why: MineRefusal) => ({ ok: false as const, why });
-  const pick = pickOf(purse), kept = mineOf(purse), turn = turnOf(go.now);
+  const pick = pickOf(purse), kept = mineOf(purse), turn = turnOf(go.now), who = go.who ?? "";
   if (!pick) return no("tool");
   if (kept.vein) return no("vein");
   const rock = go.rocks.find((r) => r.id === go.rock);
   if (!rock) return no("none");
   if (!go.standing(rock.id)) return no("gone");
   if (!near(go.at, rock, MINING.reach)) return no("far");
+  if ((go.fate?.(rock.id) ?? holdsOf(go.salt, go.floor, rock.id, turn, go.today, pick)).kind === "crystal" && levelOf(pick) < MINING.crystal.plus) return no("weak");
+  // (the earthshaker's one swing is for a rock nobody else has begun: on somebody else's rock the pick swings as any other)
+  const had = go.struck?.(rock.id) ?? null, own = !had || had.first === who;
+  const spent = isSpent(purse, go.now), quake = !!go.quake && own;
+  if (quake && !mayPower(purse, pick, "pkQuake", go.now)) return no("spent");
+  if (!Number.isFinite(go.swings) || go.swings < 1) return no("more");
+  // the swings that count: no more than what is left of the rock takes of this pick, and none quicker than a hand swings
+  const need = quake ? 1 : swingsFor(pick, go.floor, spent, isLoose(purse, go.floor, turn, rock.id), go.points);
+  const left = Math.max(0, 1 - partOf(had)), counted = Math.min(Math.floor(go.swings), Math.ceil(left * need - 1e-6));
+  if (go.now >= kept.last && go.now - kept.last < counted * MINING.swing.least) return no("soon");
+  const mine_ = Math.min(left, counted / need);
+  const struck: Struck = { first: had?.first ?? who, name: had ? had.name : go.name ?? "", at: had?.at ?? go.now, by: { ...(had?.by ?? {}), ...(mine_ > 0 ? { [who]: (had?.by[who] ?? 0) + mine_ } : {}) } };
+  const swung: Purse = { ...purse, mine: { ...kept, last: go.now } };
+  if (!isWhole(struck)) return { ok: true, done: false, purse: swung, struck, part: partOf(struck) };
+  if (struck.first !== who) return { ok: true, done: "theirs", purse: swung, struck };
+  return pay(purse, go, rock, struck, quake, true);
+}
+/**
+ * A rock that somebody else struck the last of away, paid to whoever struck it first as if they had broken it: with
+ * their purse, wherever they stand and whatever they hold now (the pick in their hand, or the best in their bag).
+ * `go` is the go that broke it, with the first striker's points; its `name` is who broke it. Refused with nothing
+ * changed when there is no room for what it leaves, or it hides a vein and they have one open already: the rock then
+ * waits for them, whole (nobody is paid, and nobody's swings are lost).
+ */
+export function payFirst(purse: Purse, go: Go, struck: Struck): Mined | { ok: false; why: MineRefusal } {
+  const rock = go.rocks.find((r) => r.id === go.rock);
+  if (!rock) return { ok: false, why: "none" };
+  if (!go.standing(rock.id)) return { ok: false, why: "gone" };
+  return pay(purse, go, rock, struck, false, false);
+}
+/** A rock struck whole away breaks, and whoever struck it first has what it left. `own`: it is they who struck the last of it away. */
+function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean, own: boolean): Mined | { ok: false; why: MineRefusal } {
+  const no = (why: MineRefusal) => ({ ok: false as const, why });
+  const pick = own ? pickOf(purse) : anyPick(purse), kept = mineOf(purse), turn = turnOf(go.now), spent = isSpent(purse, go.now);
   const holdsAt = (id: number): Holds => go.fate?.(id) ?? holdsOf(go.salt, go.floor, id, turn, go.today, pick);
   const holds = holdsAt(rock.id);
-  if (holds.kind === "crystal" && levelOf(pick) < MINING.crystal.plus) return no("weak");
-  const spent = isSpent(purse, go.now), quake = !!go.quake;
-  if (quake && !mayPower(purse, pick, "pkQuake", go.now)) return no("spent");
-  const needed = quake ? 1 : swingsFor(pick, go.floor, spent, isLoose(purse, go.floor, turn, rock.id), go.points);
-  if (!Number.isFinite(go.swings) || go.swings < needed) return no("more");
-  if (go.now >= kept.last && go.now - kept.last < needed * MINING.swing.least) return no("soon");
+  if (holds.kind === "vein" && kept.vein) return no("vein");
 
-  // which rocks break: the one struck; with a quake, every plain rock within a step of the member; and now and then a neighbour
+  // which rocks break: the one struck; with a quake, every plain rock within a step of the member; and now and then a
+  // neighbour. (Never a rock somebody else has begun: that one is theirs.)
   const breaks: Array<{ rock: RockAt; holds: Holds }> = [{ rock, holds }];
-  const plainAt = (r: RockAt) => { const h = holdsAt(r.id); return h.kind === "stone" ? h : null; };
+  const plainAt = (r: RockAt) => { const begun = go.struck?.(r.id); if (begun && begun.first !== struck.first) return null; const h = holdsAt(r.id); return h.kind === "stone" ? h : null; };
   if (quake) {
     for (const r of go.rocks) {
       if (r.id === rock.id || !go.standing(r.id) || !near(go.at, r, optN("pkQuake", "reach"))) continue;
@@ -340,8 +434,10 @@ export function mine(purse: Purse, go: Go): Mined | { ok: false; why: MineRefusa
     for (const r of go.rocks) if (!gone.includes(r.id) && !loose.includes(r.id) && go.standing(r.id) && breaks.some((b) => near(b.rock, r, MINING.touch))) loose.push(r.id);
     loose = loose.sort((a, b) => a - b);
   }
-  after = { ...after, mine: { ...kept, owed, crumb, loose: { k, ids: loose }, vein, last: go.now } };
-  return { ok: true, purse: after, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each };
+  // (broken for them by somebody else: their page is to say so once, with what it left and who it was)
+  const paid: Paid | null = own ? kept.paid : { at: go.now, f: go.floor, rock: rock.id, got: got.map(([id, n]): [ItemId, number] => [id, n]), way: way !== null, crystal, vein: !!vein, by: go.name ?? "" };
+  after = { ...after, mine: { ...kept, owed, crumb, loose: { k, ids: loose }, vein, last: own ? go.now : kept.last, paid } };
+  return { ok: true, done: true, purse: after, struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each };
 }
 
 /* ── a vein played out ──────────────────────────────────────────────────── */

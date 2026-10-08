@@ -46,7 +46,7 @@ function layAll() {
 }
 
 const WHY_MINE: Record<string, [th: string, en: string]> = {
-  tool: ["ต้องถืออีเต้อไว้ในมือ", "Hold a pickaxe"], none: ["ไม่มีหินก้อนนั้นแล้ว", "That rock is not there"], gone: ["มีคนทุบไปก่อนแล้ว", "Somebody broke it first"],
+  tool: ["ต้องถืออีเต้อไว้ในมือ", "Hold a pickaxe"], none: ["ไม่มีหินก้อนนั้นแล้ว", "That rock is not there"], gone: ["หินก้อนนี้แตกไปแล้ว", "This rock is broken already"],
   far: ["อยู่ไกลเกินไป", "Too far away"], weak: ["อีเต้อเล่มนี้ยังกัดผลึกไม่เข้า", "This pickaxe will not bite the crystal"],
   full: WHY.full, vein: ["ยังมีสายแร่ที่เปิดค้างไว้", "A vein is still open"], spent: ["วันนี้ใช้ไปครบแล้ว", "Used up for today"],
   open: ["ทางลงชั้นนี้เปิดอยู่แล้ว", "The way down is open already"], here: ["ตรงนี้ทำไม่ได้", "Not on this spot"], away: WHY.away,
@@ -58,8 +58,11 @@ const PEEK_ICON = (peek: Peek, floor: number): string => (peek === "vein" ? "vei
 const CARD_MS = 3200, NOTE_MS = 2600;
 /** A swing as it is seen: how long the pick takes to come down. */
 const SWING_MS = 190;
+/** A hand that has not swung for so long has rested: the swings it made and has not told yet are told (milliseconds). */
+const REST_MS = 900;
 
-interface Came { key: number; got: Array<[ItemId, number]>; way: boolean; crystal: boolean; vein: boolean }
+/** What a rock left, on its card: `by`, somebody else struck the last of my rock away (their name); `helped`, it was somebody else's rock (their name) and I lent a hand. */
+interface Came { key: number; got: Array<[ItemId, number]>; way: boolean; crystal: boolean; vein: boolean; by?: string; helped?: string }
 /** A line of words over the map for a moment: with the picture of the thing it wants, where it wants one. */
 interface Note { text: string; icon?: IconName }
 /**
@@ -210,8 +213,16 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
   useEffect(() => { tellLight(lamp); }, [tellLight, lamp]);
 
   // ── a rock struck ──
-  /** The swings I have made at each rock this turn, by "floor:rock:turn"; when the last one was; and whether a break is being asked. */
-  const swings = useRef(new Map<string, number>()), lastSwing = useRef(0), asking = useRef(false);
+  // Swings add up with whoever keeps the game, mine and anybody's (lib/town/mining): the page counts the ones it has
+  // not told yet, and tells them when they would strike the last of the rock away (as far as it knows), at my first
+  // swing at a rock while anybody else is about (so that who struck it first is whoever did), at every swing at a rock
+  // somebody else began (so that a hand lent is never a hand unseen), and when my hand has rested a moment. What the
+  // rock leaves is for whoever struck it first.
+  /** My swings at each rock not yet told, by "floor:rock:turn", with what telling them takes; how much of each rock whoever keeps the game last said was struck away; the swings I have made at each this turn, all told. */
+  const unsent = useRef(new Map<string, { n: number; floor: number; rock: number; at: [number, number]; tile: [number, number] }>());
+  const known = useRef(new Map<string, number>()), made = useRef(new Map<string, number>());
+  /** When my last swing was; whether whoever keeps the game is being asked; whether anybody else is about (on my floor, or on the mountain with me); and the rocks of somebody else's I have been told are theirs. */
+  const lastSwing = useRef(0), asking = useRef(false), company = useRef(false), whoseSaid = useRef(new Set<string>());
   /** A swing as it is seen, for a moment; what my peeks have said this turn; and whether the next swing is the earthshaker's. */
   const swung = useRef<{ at: number; tile: [number, number]; from: Vec } | null>(null);
   const peeks = useRef(new Map<string, Peek>());
@@ -229,6 +240,68 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     const p = keeper.purse(), t = keeper.cave(), loose = !!t?.loose && t.loose.floor === floor && t.loose.ids.includes(rock);
     return swingsFor(pickOf(p), floor, isSpent(p, keeper.now()), loose, points);
   }, [keeper, points]);
+  /** How much of a rock of the place I am in is struck away, as far as this page knows: what was told of it, or what whoever keeps the game last answered me, whichever is more. */
+  const partOf = useCallback((floor: number, rock: number, k: string): number => {
+    const t = keeper.cave(), said = t && t.place === floor ? t.struck?.[String(rock)]?.part ?? 0 : 0;
+    return Math.max(said, known.current.get(k) ?? 0);
+  }, [keeper]);
+
+  /** Tell whoever keeps the game the swings I have made at a rock and not told yet; and what comes of it. */
+  const send = useCallback((k: string, armed = false) => {
+    const mine = unsent.current.get(k);
+    if (!mine || mine.n < 1 || asking.current) return;
+    // (swings at a rock of a turn gone by are swings at a rock that is no more)
+    if (Number(k.split(":")[2]) !== turnOf(keeper.now())) { unsent.current.delete(k); return; }
+    const { n, floor, rock, at, tile } = mine;
+    asking.current = true;
+    unsent.current.delete(k);
+    void keeper.mineDo(floor, rock, at, n, name, armed ? "quake" : undefined).then((did) => {
+      asking.current = false;
+      if (armed) setQuake(false);
+      if (!did.ok) {
+        // (quicker than a hand swings, or whoever keeps the game was not heard from, or wants a rock's swings all at once: they
+        // are told again with the next; a rock that broke meanwhile is plainly gone, and whoever struck it first has been
+        // paid for it)
+        if (did.why === "soon" || did.why === "away" || did.why === "more") { const more = unsent.current.get(k); unsent.current.set(k, { n: n + (more?.n ?? 0), floor, rock, at, tile }); }
+        else { known.current.delete(k); made.current.delete(k); if (did.why !== "gone") say(did.why); if (did.why === "weak") sfx?.work("clink"); }
+        again();
+        return;
+      }
+      const part = did.part ?? (did.broke.length ? 1 : 0), theirs = did.whose ?? null;
+      if (!did.broke.length) {
+        // it still stands, so much of it struck away
+        known.current.set(k, part);
+        if (did.waits && theirs) setNote({ text: th ? `หินก้อนนี้รอ ${theirs} มาเก็บ (กระเป๋าเขายังรับไม่ได้)` : `This rock waits for ${theirs}: they cannot take what it leaves yet` });
+        else if (theirs && !whoseSaid.current.has(k)) { whoseSaid.current.add(k); setNote({ text: th ? `หินก้อนนี้ ${theirs} เริ่มทุบไว้` : `${theirs} began this rock` }); }
+        again();
+        return;
+      }
+      known.current.delete(k); made.current.delete(k); unsent.current.delete(k);
+      sfx?.work(did.crystal ? "crystalRing" : "rockBreak");
+      vfx.add("dust", { x: tile[0] + 0.5, y: tile[1] + 0.5 }, { lift: 4 });
+      if (did.got[0]) vfx.add("pop", { x: tile[0] + 0.5, y: tile[1] + 0.5 }, { icon: iconOf(did.got[did.got.length - 1][0]), lift: 26 });
+      // (a rock somebody else struck first: what it left is theirs, and I lent a hand)
+      if (did.helped) setCame({ key: Date.now(), got: [], way: did.way, crystal: did.crystal, vein: false, helped: theirs ?? "" });
+      else setCame({ key: Date.now(), got: did.got, way: did.way, crystal: did.crystal, vein: !!did.vein });
+      if (did.vein) { const v = did.vein; setTimeout(() => setVein(v), reduced ? 150 : 650); }
+      void keeper.caveLook(floor, at).then(again);
+      again();
+    });
+  }, [keeper, name, th, sfx, vfx, say, again, reduced]);
+  // (my hand has rested: what it had struck and not told is told, a rock at a time)
+  const rest = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const tellRest = useCallback(() => {
+    if (rest.current) clearTimeout(rest.current);
+    rest.current = setTimeout(function tellNow() {
+      rest.current = null;
+      const next = [...unsent.current.keys()][0];
+      if (next === undefined) return;
+      if (asking.current || performance.now() - lastSwing.current < REST_MS) { rest.current = setTimeout(tellNow, 300); return; }
+      send(next);
+      if (unsent.current.size) rest.current = setTimeout(tellNow, 300);
+    }, REST_MS);
+  }, [send]);
+  useEffect(() => () => { if (rest.current) clearTimeout(rest.current); }, []);
 
   const strikeRock = useCallback((tap: Pick<Tapped, "floor" | "id" | "tile">): boolean => {
     const p = keeper.purse(), held = pickOf(p), me = here(), t = keeper.cave();
@@ -260,35 +333,41 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     swung.current = { at: tick, tile: tap.tile, from: me };
     // the day's crystal rock, and a pick that is not at the top: it rings off
     if (t.crystal && t.crystal.floor === floor && t.crystal.rock === rock && levelOf(held) < MINING.crystal.plus) { sfx?.work("clink"); say("weak"); again(); return true; }
-    const n = (swings.current.get(k) ?? 0) + 1, armed = quake && has(held, "pkQuake");
-    swings.current.set(k, n);
+    // (a rock somebody else has begun is theirs: said once; and the earthshaker's one swing is not for it)
+    const begun = t.place === floor ? t.struck?.[String(rock)] : undefined, theirs = !!begun && !begun.mine;
+    if (theirs && begun.by && !whoseSaid.current.has(k)) { whoseSaid.current.add(k); setNote({ text: th ? `หินก้อนนี้ ${begun.by} เริ่มทุบไว้` : `${begun.by} began this rock` }); }
+    const n = (unsent.current.get(k)?.n ?? 0) + 1, armed = quake && has(held, "pkQuake") && !theirs;
+    unsent.current.set(k, { n, floor, rock, at, tile: tap.tile });
+    made.current.set(k, (made.current.get(k) ?? 0) + 1);
     sfx?.work("pickHit");
     vfx.add("dust", { x: tap.tile[0] + 0.5, y: tap.tile[1] + 0.5 }, { lift: 10 });
-    if (n >= (armed ? 1 : needOf(floor, rock))) {
-      asking.current = true;
-      void keeper.mineDo(floor, rock, at, n, name, armed ? "quake" : undefined).then((did) => {
-        asking.current = false;
-        if (armed) setQuake(false);
-        if (!did.ok) {
-          // (more swings than the page thought: it goes on; quicker than a hand: the next tap asks again)
-          if (did.why !== "more" && did.why !== "soon") { swings.current.delete(k); say(did.why); if (did.why === "weak") sfx?.work("clink"); }
-          else if (did.why === "soon") swings.current.set(k, n - 1);
-          again();
-          return;
-        }
-        swings.current.delete(k);
-        sfx?.work(did.crystal ? "crystalRing" : "rockBreak");
-        vfx.add("dust", { x: tap.tile[0] + 0.5, y: tap.tile[1] + 0.5 }, { lift: 4 });
-        if (did.got[0]) vfx.add("pop", { x: tap.tile[0] + 0.5, y: tap.tile[1] + 0.5 }, { icon: iconOf(did.got[did.got.length - 1][0]), lift: 26 });
-        setCame({ key: Date.now(), got: did.got, way: did.way, crystal: did.crystal, vein: !!did.vein });
-        if (did.vein) { const v = did.vein; setTimeout(() => setVein(v), reduced ? 150 : 650); }
-        void keeper.caveLook(floor, at).then(again);
-        again();
-      });
-    }
+    // told at once: the swing that strikes the last of it away, as far as I know; every swing at somebody else's rock;
+    // and my first at a rock nobody is known to have begun, while anybody else is about. Otherwise when my hand rests.
+    const first = n === 1 && !begun && !known.current.has(k);
+    if (armed || theirs || partOf(floor, rock, k) + n / needOf(floor, rock) >= 1 - 1e-6 || (first && company.current)) send(k, armed);
+    else tellRest();
     again();
     return true;
-  }, [keeper, here, walk, vein, quake, needOf, name, sfx, vfx, say, again, reduced]);
+  }, [keeper, here, walk, vein, quake, needOf, partOf, send, tellRest, th, sfx, vfx, say, again]);
+
+  // (a rock I struck first, broken for me by somebody else: what it left me is said once, with who it was. What was
+  // paid before this page came up is not said again.)
+  const paid = told?.paid ?? null, paidSeen = useRef<number | null>(null);
+  useEffect(() => {
+    if (!told) return;
+    const at = paid?.at ?? 0;
+    if (paidSeen.current === null) { paidSeen.current = at; return; }
+    if (!paid || at <= paidSeen.current) return;
+    paidSeen.current = at;
+    sfx?.work(paid.crystal ? "crystalRing" : "rockBreak");
+    setCame({ key: at, got: paid.got, way: paid.way, crystal: paid.crystal, vein: paid.vein, by: paid.by });
+  }, [!!told, paid?.at]); // eslint-disable-line react-hooks/exhaustive-deps
+  // (a new turn: every rock is back whole, and what this page kept of the last turn's rocks is dropped)
+  useEffect(() => {
+    const turn = String(told?.turn ?? ""), old = (k: string) => k.split(":")[2] !== turn;
+    for (const m of [unsent.current, known.current, made.current, peeks.current] as Array<Map<string, unknown>>) for (const k of [...m.keys()]) if (old(k)) m.delete(k);
+    for (const k of [...whoseSaid.current]) if (old(k)) whoseSaid.current.delete(k);
+  }, [told?.turn]);
 
   // ── a press held on a rock: the pick keeps swinging, a swing at the swing's own time (the map's frame drives it) ──
   const hold = useRef<Held | null>(null), strikeRef = useRef(strikeRock);
@@ -367,8 +446,12 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       const want = liftWant.current;
       if (want && me && Math.max(Math.abs(Math.floor(me.x) - want.tile[0]), Math.abs(Math.floor(me.y) - want.tile[1])) <= 1) { liftWant.current = null; setLift({ at: want.at }); }
       if (!floor && !mountain) return;
-      // everybody's light, for the dark: by what each holds
-      if (floor && frame.people) { lights.current.clear(); for (const p of frame.people()) if (p.hold === MINING.mushroom) lights.current.set(p.id, MINING.light.mushroom); }
+      // everybody's light, for the dark: by what each holds; and whether anybody else is about (on my floor, or on the mountain with me)
+      if (frame.people) {
+        const all = frame.people();
+        if (floor) { lights.current.clear(); for (const p of all) if (p.hold === MINING.mushroom) lights.current.set(p.id, MINING.light.mushroom); }
+        company.current = all.some((p) => p.id !== keeper.id && (floor ? floorAtTile(Math.floor(p.x), Math.floor(p.y)) === floor : p.x >= MOUNTAIN.x && p.y >= MOUNTAIN.y && p.x < MOUNTAIN.x + MOUNTAIN.w && p.y < MOUNTAIN.y + MOUNTAIN.h));
+      }
       const t = keeper.cave(), turn = turnOf(keeper.now()), art = cracks(), s = frame.s;
       if (!t) return;
       const rocks = floor ? World.caveRocks(floor) : World.MOUNTAIN_ROCKS, gone = t.gone[String(floor)] ?? [];
@@ -400,12 +483,14 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       }
       for (const r of rocks) {
         if (gone.includes(r.id)) continue;
-        const k = `${floor}:${r.id}:${turn}`, n = swings.current.get(k) ?? 0, peek = peeks.current.get(k);
-        if (!n && !peek && !loose.includes(r.id)) continue;
+        const k = `${floor}:${r.id}:${turn}`, n = unsent.current.get(k)?.n ?? 0, peek = peeks.current.get(k);
+        // (how much of it is struck away: what whoever keeps the game says, mine and anybody's, and my swings not told yet)
+        const said = Math.max(t.place === floor ? t.struck?.[String(r.id)]?.part ?? 0 : 0, known.current.get(k) ?? 0);
+        if (!n && !said && !peek && !loose.includes(r.id)) continue;
         const c = frame.project({ x: r.x + 0.5, y: r.y + 0.5 });
         if (!frame.onScreen(c)) continue;
         // the cracks: by how far through it I am (a rock loosened shows the first of them)
-        const need = Math.max(1, needOf(floor, r.id)), stage = n ? Math.min(2, Math.floor((n / need) * 3)) : loose.includes(r.id) ? 0 : -1;
+        const part = Math.min(1, said + (n ? n / Math.max(1, needOf(floor, r.id)) : 0)), stage = part > 0 ? Math.min(2, Math.floor(part * 3)) : loose.includes(r.id) ? 0 : -1;
         if (stage >= 0) frame.things.push({ depth: r.x + r.y + 1.02, draw: () => {
           const w = art[stage].width * s, h = art[stage].height * s;
           frame.ctx.imageSmoothingEnabled = false;
@@ -470,7 +555,13 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       where: () => whereRef.current,
       told: () => keeper.cave(),
       need: (floor: number, rock: number) => needOf(floor, rock),
-      swings: (floor: number, rock: number) => swings.current.get(`${floor}:${rock}:${turnOf(keeper.now())}`) ?? 0,
+      /** The swings I have made at a rock this turn; those of them not told yet; and how much of the rock is struck away, as far as this page knows. */
+      swings: (floor: number, rock: number) => made.current.get(`${floor}:${rock}:${turnOf(keeper.now())}`) ?? 0,
+      unsent: (floor: number, rock: number) => unsent.current.get(`${floor}:${rock}:${turnOf(keeper.now())}`)?.n ?? 0,
+      part: (floor: number, rock: number) => partOf(floor, rock, `${floor}:${rock}:${turnOf(keeper.now())}`),
+      /** Tell what is not told yet, now (a script that will not wait for the hand to rest). */
+      flush: () => { for (const k of [...unsent.current.keys()]) send(k); },
+      company: () => company.current,
       /** A tap on a rock, as the map hands one over (its tile looked up). */
       hit: (floor: number, rock: number) => { const r = (floor ? World.caveRocks(floor) : World.MOUNTAIN_ROCKS).find((x) => x.id === rock); return r ? strikeRock({ floor, id: rock, tile: [r.x, r.y] }) : false; },
       rocks: (floor: number) => (floor ? World.caveRocks(floor) : World.MOUNTAIN_ROCKS),
@@ -483,7 +574,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       ride: (to: number) => ride(to),
     };
     return () => { delete (window as unknown as { __townMine?: unknown }).__townMine; };
-  }, [keeper, needOf, strikeRock, myLight, ride]);
+  }, [keeper, needOf, strikeRock, myLight, ride, partOf, send]);
 
   if (!told) return null;
   const floor = where.floor, itemName = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
@@ -508,7 +599,10 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
         <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2 pb-14" style={{ bottom }}>
           {came && (
             <div key={came.key} className={`${reduced ? "" : "pop-in"} flex max-w-[22rem] flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-4 py-2 text-[#ffeccb] shadow-[inset_0_0_0_2px_#9c6b3d,0_10px_20px_rgba(0,0,0,0.45)]`}
-                 data-state="open" data-mine-came={came.crystal ? "crystal" : came.way ? "way" : came.vein ? "vein" : "rock"} aria-live="polite">
+                 data-state="open" data-mine-came={came.crystal ? "crystal" : came.way ? "way" : came.vein ? "vein" : "rock"} data-mine-by={came.by ?? ""} data-mine-helped={came.helped ?? ""} aria-live="polite">
+              {/* somebody else struck the last of my rock away; or it was somebody else's rock, and I lent a hand */}
+              {came.by !== undefined && <span className="basis-full text-center text-ui text-[#f6e3bd]">{th ? `${came.by || "เพื่อน"} ช่วยทุบก้อนที่เราเริ่มไว้จนแตก` : `${came.by || "A friend"} struck the last of your rock away`}</span>}
+              {came.helped !== undefined && <span className="basis-full text-center text-ui text-[#f6e3bd]">{th ? `ช่วย ${came.helped || "เพื่อน"} ทุบหินแตกแล้ว` : `You helped ${came.helped || "a friend"} break their rock`}</span>}
               {came.got.map(([id, n]) => (
                 <span key={id} className="flex items-center gap-1.5 text-ui" data-mine-got={id} data-n={n}><TownIcon name={iconOf(id) as IconName} size={24} /><span>{itemName(id)}</span><span className="font-data font-semibold tabular-nums">×{n}</span></span>
               ))}

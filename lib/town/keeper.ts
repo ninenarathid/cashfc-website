@@ -41,8 +41,16 @@ import { bedOf } from "./world";
 import type { CaveTold } from "./cave-state";
 import type { MineRefusal, Peek, PendingVein } from "./mining";
 import type { PouchRefusal } from "./pouches";
-/** What a rock broken came to: what it left, the rocks that broke, whether the way down was under it, the vein it opened, whether it was the crystal, the neighbour it took with it, and its stamina. */
-export interface MineDid { got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number }
+/**
+ * What a go at a rock came to. Swings add up, mine and anybody's (lib/town/mining): `part` is how much of the rock
+ * is struck away after this go, and `broke` is empty while it still stands. Once it broke: what it left me, the rocks
+ * that broke, whether the way down was under it, the vein it opened, whether it was the crystal, the neighbour it took
+ * with it, and its stamina. A rock somebody else struck first is theirs: `helped`, it broke and left me nothing
+ * (`whose`: their name; `paid`: who they are, for the room to tell them that their purse changed); `waits`, it is
+ * struck whole away and they cannot take what it leaves just now. (`part` and the rest are missing from a keeper
+ * older than several picks on one rock: a rock then breaks at one go or not at all.)
+ */
+export interface MineDid { got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean }
 /** What a vein played out came to: what it gave, how many glinting cells of how many, and whether the same face is to be played once more. */
 export interface VeinDid { got: Array<[ItemId, number]>; passed: number; of: number; again: boolean }
 export type MineDone<T> = ({ ok: true } & T) | { ok: false; why: Why | MineRefusal | PouchRefusal };
@@ -509,7 +517,7 @@ export interface Keeper {
    */
   cave(): CaveTold | null;
   caveLook(floor: number, at: [number, number] | null): Promise<void>;
-  /** Break a rock of a place (0: the mountain's foot) from the tile I stand on, with the swings I made. `how` "quake": a counted power, one swing for every rock within a step. */
+  /** Strike a rock of a place (0: the mountain's foot) from the tile I stand on, with the swings I have made since I last said: they add up with anybody's, and the rock breaks when it is struck whole away. `how` "quake": a counted power, one swing for every rock within a step. */
   mineDo(floor: number, rock: number, at: [number, number], swings: number, name: string, how?: "quake"): Promise<MineDone<MineDid>>;
   /** What a rock holds, for a pick that sees into it. */
   minePeek(floor: number, rock: number): Promise<MineDone<{ peek: Peek }>>;
@@ -1297,6 +1305,8 @@ export class DbKeeper implements Keeper {
   async mineDo(floor: number, rock: number, at: [number, number], swings: number, _name: string, how?: "quake") {
     const did = await this.deed<MineDid>("town_mine", { p_floor: floor, p_rock: rock, p_x: at[0], p_y: at[1], p_swings: swings, ...(how ? { p_how: how } : {}) }) as MineDone<MineDid>;
     if (did.ok || did.why === "gone") this.onDeed?.("cave");
+    // (my swings broke a rock somebody else struck first: it is they who are paid, and told through the room that their purse changed)
+    if (did.ok && typeof did.paid === "string") this.onDeed?.("line", did.paid);
     return did;
   }
   minePeek(floor: number, rock: number) { return this.deed<{ peek: Peek }>("town_mine_peek", { p_floor: floor, p_rock: rock }) as Promise<MineDone<{ peek: Peek }>>; }

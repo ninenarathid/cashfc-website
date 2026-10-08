@@ -25,7 +25,7 @@ describe("the mining line", () => {
     expect(mayWear({ mining: 400 }, "mining", 4)).toBe(false);
     expect(titlesOf({ mining: 150 }).map((t) => t.title.en)).toEqual(["Lantern child", "Mine hand"]);
     expect(linesRow().ids).toContain("mining");
-    expect(linesRow().mining).toEqual({ rock: 1, vein: 3, way: 5, crystal: 10 });
+    expect(linesRow().mining).toEqual({ rock: 1, vein: 3, way: 5, crystal: 10, lent: 1, lending: 1 });
   });
   it("has the marks of the other ladders, a day's bound of 150, and ten titles in both languages", () => {
     const l = LINES.mining;
@@ -49,7 +49,10 @@ describe("the mining line", () => {
     expect(countsOf(deed("delve", null, { floor: 3 }), "me")).toEqual([{ to: null, line: "mining", raw: 5 }]);
     expect(countsOf(deed("crystal", "stone", { got: "shardSilver", chip: "chipOnyx" }), "me")).toEqual([{ to: null, line: "mining", raw: 10, first: "mining:shardSilver" }, { to: null, line: "mining", raw: 0, first: "mining:chipOnyx" }]);
     for (const what of ["torch", "lift", "drill"]) expect(countsOf(deed(what, null), "me")).toEqual([]);
-    expect(POINTS.mining).toEqual({ rock: 1, vein: 3, way: 5, crystal: 10 });
+    expect(POINTS.mining).toEqual({ rock: 1, vein: 3, way: 5, crystal: 10, lent: 1, lending: 1 });
+    // (a hand lent to a rock somebody else struck first: a point on the mining line and one on the helpers'; nothing for one's own)
+    expect(countsOf(deed("hew", "stone", { floor: 3, rock: 4, whose: "you" }), "me")).toEqual([{ to: null, line: "mining", raw: 1 }, { to: null, line: "helpers", raw: 1 }]);
+    expect(countsOf(deed("hew", "stone", { floor: 3, rock: 4, whose: "me" }), "me")).toEqual([]);
     // kept: a first is ten more, once
     let kept = newLine();
     for (const c of countsOf(deed("mine", "stone", { got: "shardCopper" }), "me")) kept = count(kept, c, 1);

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { caveFloor, isRest } from "./cave";
 import { floorRocks } from "./cave-state";
-import { MINING, crystalOf, drill, elementOf, hardnessOf, holdsOf, isDug, liftStops, lightOf, mayRide, mine, mineOf, nextTurnAt, oreOf, peekOf, reachRest, swingsFor, torchDown, turnOf, veinEnd, wayRockOf, type Go, type Holds, type Mined, type RockAt } from "./mining";
+import { MINING, anyPick, crystalOf, drill, elementOf, hardnessOf, helpersOf, holdsOf, isDug, isWhole, liftStops, lightOf, mayRide, mine, mineOf, nextTurnAt, oreOf, partOf, payFirst, peekOf, reachRest, struckOf, swingsFor, torchDown, turnOf, veinEnd, wayRockOf, type Go, type Holds, type Mined, type RockAt, type Struck } from "./mining";
 import { powerLeft } from "./powers";
 import { dayOf, staminaOf } from "./stamina";
 import { ELEMENTS, GEMS, LEVELS } from "./tools";
@@ -24,7 +24,7 @@ const go = (over: Partial<Go> = {}): Go => {
   const r = ROCKS.find((x) => x.id === (over.rock ?? 0));
   return { now: NOON, floor: 5, rock: 0, at: r ? [r.x + 1, r.y] : [0, 0], swings: 99, rocks: ROCKS, standing: () => true, salt: SALT, day: dayOf(NOON), today: NONE, element: "fire", points: 0, ...over };
 };
-const done = (d: ReturnType<typeof mine>): Mined => { if (!d.ok) throw new Error(`refused: ${d.why}`); return d; };
+const done = (d: ReturnType<typeof mine>): Mined => { if (!d.ok) throw new Error(`refused: ${d.why}`); if (d.done !== true) throw new Error(`not broken: ${String(d.done)}`); return d; };
 /** A rock and a turn of a floor where the rolls come out some way, with the tests' word. */
 function where(floor: number, want: (h: Holds) => boolean, pick: Stack | null = null): { rock: number; now: number } {
   for (let t = 0; t < 400; t++) for (const r of ROCKS) {
@@ -146,7 +146,7 @@ describe("mining: when, and what a place is", () => {
 });
 
 describe("mining: a rock struck", () => {
-  it("is refused with nothing changed: no pick, no such rock, gone, too far, too few swings, no room, quicker than a hand", () => {
+  it("is refused with nothing changed: no pick, no such rock, gone, too far, no room, quicker than a hand; too few swings leave it standing, so much of it struck away", () => {
     const p = miner();
     expect(mine({ ...p, hand: "stone" }, go())).toEqual({ ok: false, why: "tool" });
     expect(mine({ ...p, hand: null }, go())).toEqual({ ok: false, why: "tool" });
@@ -154,10 +154,11 @@ describe("mining: a rock struck", () => {
     expect(mine(p, go({ standing: (id) => id !== 0 }))).toEqual({ ok: false, why: "gone" });
     expect(mine(p, go({ at: [12, 12] }))).toEqual({ ok: false, why: "far" });
     expect(mine(p, go({ at: [11.9, 11.9] })).ok).toBe(true);
-    expect(mine(p, go({ swings: 3 }))).toEqual({ ok: false, why: "more" });
-    expect(mine(p, go({ swings: 4 })).ok).toBe(true);
-    expect(mine({ ...p, stamina: { day: dayOf(NOON), left: 0 } }, go({ swings: 7 }))).toEqual({ ok: false, why: "more" });
-    expect(mine({ ...p, stamina: { day: dayOf(NOON), left: 0 } }, go({ swings: 8 })).ok).toBe(true);
+    expect(mine(p, go({ swings: 0 }))).toEqual({ ok: false, why: "more" });
+    expect(mine(p, go({ swings: 3 }))).toMatchObject({ ok: true, done: false, part: 0.75 });
+    expect(mine(p, go({ swings: 4 }))).toMatchObject({ ok: true, done: true });
+    expect(mine({ ...p, stamina: { day: dayOf(NOON), left: 0 } }, go({ swings: 7 }))).toMatchObject({ ok: true, done: false, part: 0.875 });
+    expect(mine({ ...p, stamina: { day: dayOf(NOON), left: 0 } }, go({ swings: 8 }))).toMatchObject({ ok: true, done: true });
     const full: Purse = { ...p, bag: p.bag.map((s, i) => (i === 0 ? s : { item: "minnow", n: 1 })) };
     expect(mine(full, go())).toEqual({ ok: false, why: "full" });
     expect(mine({ ...p, mine: { last: NOON - 100 } }, go())).toEqual({ ok: false, why: "soon" });
@@ -261,11 +262,11 @@ describe("mining: a rock struck", () => {
     if (touching.length) {
       const next = touching[0], h = holdsOf(SALT, 5, next, turnOf(s.now), NONE, pick);
       if (h.kind === "stone") {
-        expect(mine(d.purse, go({ now: s.now + 5000, rock: next, swings: 2, standing: (id) => id !== r.id }))).toEqual({ ok: false, why: "more" });
-        expect(mine(d.purse, go({ now: s.now + 5000, rock: next, swings: 3, standing: (id) => id !== r.id })).ok).toBe(true);
+        expect(mine(d.purse, go({ now: s.now + 5000, rock: next, swings: 2, standing: (id) => id !== r.id }))).toMatchObject({ ok: true, done: false });
+        expect(mine(d.purse, go({ now: s.now + 5000, rock: next, swings: 3, standing: (id) => id !== r.id }))).toMatchObject({ ok: true, done: true });
       }
-      // (at the next turn it is as hard as ever)
-      expect(mine(d.purse, go({ now: s.now + MINING.turn, rock: next, swings: 3 })).ok).toBe(false);
+      // (at the next turn it is as hard as ever: three swings leave it standing)
+      expect(mine(d.purse, go({ now: s.now + MINING.turn, rock: next, swings: 3 }))).toMatchObject({ ok: true, done: false });
     }
     expect(done(mine(miner(), go({ ...where(5, (h) => h.kind === "stone") }))).loose).toEqual([]);
   });
@@ -308,6 +309,71 @@ describe("mining: a rock struck", () => {
       const q = done(mine(miner(pick), go({ now: v.now, rock: vr.id - 1, at: [vr.x - 1, 10], swings: 1, quake: true })));
       expect(q.broke).not.toContain(vr.id);
     }
+  });
+});
+
+// (written with the rule and never run: the owner's word that evening was to build and not to test yet)
+describe("mining: several picks on one rock", () => {
+  const tally = (t: Struck | null) => () => t;
+  const still = (d: ReturnType<typeof mine>) => { if (!d.ok || d.done !== false) throw new Error("the rock should still stand"); return d; };
+  it("swings add up, a member's own share a swing; what the rock leaves is for whoever struck it first, and a helper pays nothing", () => {
+    const s = where(5, (h) => h.kind === "stone" && h.shards === 0);
+    const a = still(mine(miner(), go({ ...s, swings: 2, who: "a", name: "Aqua" })));
+    expect(a.part).toBeCloseTo(0.5, 5);
+    expect(a.struck).toMatchObject({ first: "a", name: "Aqua", at: s.now });
+    expect(isWhole(a.struck)).toBe(false);
+    expect(staminaOf(a.purse, s.now)).toBe(50);
+    expect(count(a.purse, "stone")).toBe(0);
+    // more of one's own, told later: they add to what was told before
+    const more = still(mine(a.purse, go({ ...s, now: s.now + 2000, swings: 1, who: "a", name: "Aqua", struck: tally(a.struck) })));
+    expect(more.part).toBeCloseTo(0.75, 5);
+    // somebody else strikes the rest away: the rock is the first's to be paid for, and the helper's purse is as it was
+    const later = s.now + 4000;
+    const b = mine(miner(), go({ ...s, now: later, swings: 2, who: "b", name: "Bo", struck: tally(a.struck) }));
+    if (!b.ok || b.done !== "theirs") throw new Error("the rock should be the first's");
+    expect(partOf(b.struck)).toBeCloseTo(1, 5);
+    expect(helpersOf(b.struck)).toEqual(["b"]);
+    expect(staminaOf(b.purse, later)).toBe(50);
+    expect(count(b.purse, "stone")).toBe(0);
+    const paid = payFirst(a.purse, go({ ...s, now: later, who: "b", name: "Bo", struck: tally(b.struck) }), b.struck);
+    if (!paid.ok) throw new Error(`refused: ${paid.why}`);
+    expect(paid.got).toEqual([["stone", 1]]);
+    expect(paid.broke).toEqual([s.rock]);
+    expect(staminaOf(paid.purse, later)).toBe(49);
+    expect(mineOf(paid.purse).paid).toMatchObject({ at: later, f: 5, rock: s.rock, by: "Bo", got: [["stone", 1]], way: false, crystal: false, vein: false });
+    // the first, striking the last of it away themselves, is paid as ever, and told of nobody
+    const own = done(mine(a.purse, go({ ...s, now: later, swings: 2, who: "a", name: "Aqua", struck: tally(a.struck) })));
+    expect(own.got).toEqual([["stone", 1]]);
+    expect(mineOf(own.purse).paid).toBeNull();
+  });
+  it("a tired hand's swing is half a share; the first is paid wherever they stand, with the best pick they have; a full bag makes the rock wait", () => {
+    const s = where(5, (h) => h.kind === "stone" && h.shards === 0);
+    expect(still(mine(miner(pickAt(), 0), go({ ...s, swings: 2, who: "t" }))).part).toBeCloseTo(0.25, 5);
+    const begun: Struck = { first: "a", name: "Aqua", at: s.now, by: { a: 0.5, b: 0.5 } };
+    // (the first has put the pick away since, and stands far off)
+    const away: Purse = { ...miner(pickAt(4)), hand: null, handAt: undefined };
+    expect(anyPick(away)).toMatchObject({ item: "pick", plus: 4 });
+    const paid = payFirst(away, go({ ...s, at: [0, 0], who: "b", name: "Bo", struck: tally(begun) }), begun);
+    expect(paid.ok && paid.got).toEqual([["stone", 1]]);
+    const full: Purse = { ...away, bag: away.bag.map((x, i) => (i === 0 ? x : { item: "minnow", n: 1 })) };
+    expect(payFirst(full, go({ ...s, who: "b", name: "Bo", struck: tally(begun) }), begun)).toEqual({ ok: false, why: "full" });
+  });
+  it("the earthshaker leaves a rock somebody else has begun standing, and on such a rock a swing is a swing", () => {
+    const pick = pickAt(10, ["pkPeek", "pkCrumb", "pkQuake"]);
+    const s = (() => { for (let t = 0; t < 400; t++) { const now = NOON + t * MINING.turn, turn = turnOf(now); if ([3, 4].every((r) => holdsOf(SALT, 5, r, turn, NONE, pick).kind === "stone")) return now; } throw new Error("none"); })();
+    const theirs: Struck = { first: "b", name: "Bo", at: s, by: { b: 0.25 } };
+    const d = done(mine(miner(pick), go({ now: s, rock: 3, at: [17, 10], swings: 1, quake: true, who: "a", struck: (id) => (id === 4 ? theirs : null) })));
+    expect(d.broke).toEqual([3]);
+    // (aimed at theirs: no power is used, and one swing of a pick at the top strikes the rest of it away for them)
+    const on = mine(miner(pick), go({ now: s, rock: 4, at: [17, 10], swings: 1, quake: true, who: "a", struck: (id) => (id === 4 ? theirs : null) }));
+    expect(on).toMatchObject({ ok: true, done: "theirs" });
+    expect(on.ok && powerLeft(on.purse, "pkQuake", s)).toBe(10);
+  });
+  it("a tally is kept sound", () => {
+    expect(struckOf(null)).toBeNull();
+    expect(struckOf({ first: "a", by: {} })).toBeNull();
+    expect(struckOf({ first: "a", name: "Aqua", at: 5, by: { a: 0.5, b: "x", c: -1, d: 7 } })).toEqual({ first: "a", name: "Aqua", at: 5, by: { a: 0.5, d: 1 } });
+    expect(partOf(null)).toBe(0);
   });
 });
 
