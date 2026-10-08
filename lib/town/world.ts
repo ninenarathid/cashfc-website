@@ -1051,24 +1051,32 @@ BENCHES.push(...FOREST_PROPS.filter((p) => p.kind === "logseat"));
  * is the way x falls: its gate back to the town is in its east edge.
  */
 export const MOUNTAIN = { x: 0, y: 208, w: MOUNTAIN_W, h: MOUNTAIN_H };
-const mountainLaid = PREVIEW ? layMountain() : [];
+/**
+ * What this file asks of the two that lay the mountain and the cave out, in one place and in a branch a production
+ * build drops as it is built: so that nothing of theirs is asked for there, and the build leaves their code out.
+ * (Asked for by name wherever it is used, the build kept them: it does not follow `PREVIEW` through. Found by
+ * building, 2026-10-08.) Everything below goes by these two.
+ */
+const MT = process.env.NODE_ENV === "development" ? { layMountain, closedOf, mountainGround, cliffAt, GATE_ROWS, CEDAR, LOOKOUT_AT, MOUTH_AT, MINE_MOUTH } : null;
+const CV = process.env.NODE_ENV === "development" ? { caveFloor, hollowAt, depthOf } : null;
+const mountainLaid = MT ? MT.layMountain() : [];
 /** What stands about it, in the world's own tiles (nothing at all, outside the preview). */
-export const MOUNTAIN_PROPS: Prop[] = mountainLaid.map(({ u, v, ...p }) => ({ ...p, x: MOUNTAIN.x + u, y: MOUNTAIN.y + v }));
+export const MOUNTAIN_PROPS: Prop[] = MT ? mountainLaid.map(({ u, v, ...p }) => ({ ...p, x: MOUNTAIN.x + u, y: MOUNTAIN.y + v })) : [];
 /** Its tiles that stop a walker, by their place from its own corner: the cliffs, the rim, what stands there. */
-const mountainShut = PREVIEW ? closedOf(mountainLaid) : new Set<string>();
+const mountainShut = MT ? MT.closedOf(mountainLaid) : new Set<string>();
 /**
  * Its great things, in the world's tiles: the ancient cedar's three tiles by three; the lookout's deck at the
  * summit's far end, which is walked on; where the mine's mouth stands at the foot of the first cliff, and the two
  * tiles of the yard before it that are its threshold, the way into the cave.
  */
-export const MOUNTAIN_AT = {
-  cedar: { x: MOUNTAIN.x + CEDAR.u, y: MOUNTAIN.y + CEDAR.v, w: CEDAR.w, h: CEDAR.h },
-  lookout: { x: MOUNTAIN.x + LOOKOUT_AT.u, y: MOUNTAIN.y + LOOKOUT_AT.v, w: LOOKOUT_AT.w, h: LOOKOUT_AT.h },
-  mouth: { x: MOUNTAIN.x + MOUTH_AT.u, y: MOUNTAIN.y + MOUTH_AT.v },
-  mouthTiles: MINE_MOUTH.map(([u, v]): [number, number] => [MOUNTAIN.x + u, MOUNTAIN.y + v]),
-};
+export const MOUNTAIN_AT = MT ? {
+  cedar: { x: MOUNTAIN.x + MT.CEDAR.u, y: MOUNTAIN.y + MT.CEDAR.v, w: MT.CEDAR.w, h: MT.CEDAR.h },
+  lookout: { x: MOUNTAIN.x + MT.LOOKOUT_AT.u, y: MOUNTAIN.y + MT.LOOKOUT_AT.v, w: MT.LOOKOUT_AT.w, h: MT.LOOKOUT_AT.h },
+  mouth: { x: MOUNTAIN.x + MT.MOUTH_AT.u, y: MOUNTAIN.y + MT.MOUTH_AT.v },
+  mouthTiles: MT.MINE_MOUTH.map(([u, v]): [number, number] => [MOUNTAIN.x + u, MOUNTAIN.y + v]),
+} : { cedar: { x: 0, y: 0, w: 0, h: 0 }, lookout: { x: 0, y: 0, w: 0, h: 0 }, mouth: { x: 0, y: 0 }, mouthTiles: [] as Array<[number, number]> };
 // (the camp's logs and the lookout's bench are sat on: added after the forest's, so that no bench before them has another number)
-BENCHES.push(...MOUNTAIN_PROPS.filter((p) => p.kind === "logseat" || p.kind === "bench"));
+if (PREVIEW) BENCHES.push(...MOUNTAIN_PROPS.filter((p) => p.kind === "logseat" || p.kind === "bench"));
 /**
  * The mountain's trees, each with the number that is its own (its place in this list: 0 to 59 are the slope's pines,
  * 60 to 99 the upper terrace's ironwoods, 100 to 119 the summit's moonwoods), its tile and its kind. And its rocks
@@ -1078,8 +1086,8 @@ BENCHES.push(...MOUNTAIN_PROPS.filter((p) => p.kind === "logseat" || p.kind === 
  */
 export interface MountainTree { id: number; x: number; y: number; tier: 1 | 2 | 3 }
 export interface MountainRock { id: number; x: number; y: number; look: number }
-export const MOUNTAIN_TREES: MountainTree[] = MOUNTAIN_PROPS.filter((p) => p.kind === "mtree").map((p) => ({ id: p.id!, x: p.x, y: p.y, tier: p.tier! }));
-export const MOUNTAIN_ROCKS: MountainRock[] = MOUNTAIN_PROPS.filter((p) => p.kind === "mrock").map((p) => ({ id: p.id!, x: p.x, y: p.y, look: p.look! }));
+export const MOUNTAIN_TREES: MountainTree[] = PREVIEW ? MOUNTAIN_PROPS.filter((p) => p.kind === "mtree").map((p) => ({ id: p.id!, x: p.x, y: p.y, tier: p.tier! })) : [];
+export const MOUNTAIN_ROCKS: MountainRock[] = PREVIEW ? MOUNTAIN_PROPS.filter((p) => p.kind === "mrock").map((p) => ({ id: p.id!, x: p.x, y: p.y, look: p.look! })) : [];
 
 /**
  * The cave (lib/town/cave makes its floors, each from its number and the day's). Its floors lie side by side in the
@@ -1087,12 +1095,10 @@ export const MOUNTAIN_ROCKS: MountainRock[] = MOUNTAIN_PROPS.filter((p) => p.kin
  * no floor is ever on the screen with another. So which floor somebody is on is where they stand (`floorOf`), as
  * which map is: nothing more is told to the room.
  *
- * `laid` are the floors the preview has: the first three are walked down to, each by the one before's ladder; the
- * three resting floors (10, 20, 30), and the floors under the first two of them (11, 21), which with them show the
- * earth of the cave's two deeper thirds. A ladder leads on only where the next floor is laid: from 10 to 11 and
- * from 20 to 21, and back; nothing leads down to 10, 20 or 30 yet.
+ * `laid` are the floors there are: all thirty (every tenth a resting floor), each walked down to by the one
+ * before's way down. A ladder leads on only where the next floor is laid: the thirtieth's way down leads nowhere.
  */
-export const CAVE = { x: 0, y: 320, across: 4, apart: 64, size: CAVE_SIZE, laid: (PREVIEW ? [1, 2, 3, 10, 11, 20, 21, 30] : []) as number[] };
+export const CAVE = { x: 0, y: 320, across: 4, apart: 64, size: CAVE_SIZE, laid: (PREVIEW ? Array.from({ length: 30 }, (_, i) => i + 1) : []) as number[] };
 /** The top corner of a floor's square. */
 export const floorCorner = (n: number): Vec => ({ x: CAVE.x + ((n - 1) % CAVE.across) * CAVE.apart, y: CAVE.y + Math.floor((n - 1) / CAVE.across) * CAVE.apart });
 /** Which floor of the cave a point is on (1 is the first under the mouth), or 0 for none: where it is says. */
@@ -1118,11 +1124,28 @@ export const caveDayNow = () => caveDay;
 /** A floor of the cave as it is today (kept once made). */
 export function caveToday(n: number): CaveFloor {
   let f = caveFloors.get(n);
-  if (!f) { f = caveFloor(n, caveDay); caveFloors.set(n, f); }
+  if (!f) { f = CV!.caveFloor(n, caveDay); caveFloors.set(n, f); }
   return f;
 }
 /** A tile of a floor, from the floor's own corner, as a point of the world: its middle. */
 const inCave = (n: number, [u, v]: readonly [number, number]): Vec => { const c = floorCorner(n); return { x: c.x + u + 0.5, y: c.y + v + 0.5 }; };
+const caveWays = new Map<number, [number, number] | null>();
+/**
+ * Where a floor's way down is, as whoever keeps the game says (in the world's tiles): the game hides it until it is
+ * found, and it stands where its rock stood. A tile: the way down is there (that tile is the gate to the floor
+ * below, and is stood on though a rock's tile is otherwise shut; coming up from below puts one beside it). `null`:
+ * there is none on that floor yet, no gate at all. `undefined` (as it is with nothing said, and nobody keeping the
+ * game): the layout's own `down`, standing open. A resting floor's is always the layout's own.
+ */
+export function setCaveWay(floor: number, tile: [number, number] | null | undefined) {
+  if (tile === undefined) caveWays.delete(floor); else caveWays.set(floor, tile ? [tile[0], tile[1]] : null);
+}
+/** A floor's way down as it is now, in the world's tiles; null where there is none yet. */
+export function caveWay(floor: number): [number, number] | null {
+  const f = caveToday(floor), c = floorCorner(floor);
+  if (f.rest || !caveWays.has(floor)) return [c.x + f.down[0], c.y + f.down[1]];
+  return caveWays.get(floor) ?? null;
+}
 /** A rock of a floor of the cave as it is today, in the world's tiles: its number on that floor (lib/town/cave), its tile, and which of its looks it has (3 has crystals in it). */
 export interface CaveRockAt { id: number; x: number; y: number; look: number }
 export function caveRocks(n: number): CaveRockAt[] {
@@ -1138,24 +1161,28 @@ export function caveSpots(n: number): { up: [number, number]; arrive: [number, n
   return { up: at(f.up), arrive: at(f.arrive), down: at(f.down), ...(f.rest ? { lift: at(f.rest.lift), liftAt: at([f.rest.lift[0] + 1, f.rest.lift[1] + 1]), fire: at(f.rest.fire) } : {}) };
 }
 /** The logs round each resting floor's fire: benches, like the forest camp's (a resting floor is the same every day, so they are where they are for good). */
-export const CAVE_SEATS: Prop[] = CAVE.laid.filter((n) => caveFloor(n, 0).rest).flatMap((n) => {
+export const CAVE_SEATS: Prop[] = CV ? CAVE.laid.filter((n) => n % 10 === 0 && CV.caveFloor(n, 0).rest).flatMap((n) => {
   const c = floorCorner(n);
-  return caveFloor(n, 0).rest!.seats.map((s): Prop => ({ kind: "logseat", x: c.x + s.u, y: c.y + s.v, solid: true, facing: s.facing }));
-});
-BENCHES.push(...CAVE_SEATS);
+  return CV.caveFloor(n, 0).rest!.seats.map((s): Prop => ({ kind: "logseat", x: c.x + s.u, y: c.y + s.v, solid: true, facing: s.facing }));
+}) : [];
+if (PREVIEW) BENCHES.push(...CAVE_SEATS);
 /** Whether a tile of the mountain or of the cave stops a walker: a cliff, the rim, what stands there; rock, and a rock. */
 function moreShut(tx: number, ty: number): boolean {
   if (within(tx, ty, MOUNTAIN)) return mountainShut.has(`${tx - MOUNTAIN.x},${ty - MOUNTAIN.y}`);
   const n = floorOf(tx, ty);
   if (!n) return true;
+  // (the way down is stood on wherever it is: where a rock stood, its tile is shut in the layout)
+  const way = caveWays.get(n);
+  if (way && way[0] === tx && way[1] === ty && !caveToday(n).rest) return false;
   const c = floorCorner(n);
   return caveToday(n).open[(ty - c.y) * CAVE_SIZE + tx - c.x] !== 1;
 }
 /**
  * The gates of what is to come that are not in GATES, because they are made anew with the cave each day: the mine's
  * mouth, which puts one beside the first floor's ladder, and every floor's two ladders (the one come down by goes
- * back up, to stand beside the ladder down of the floor above, or before the mouth; the ladder down goes on, where
- * the floor below is laid). And the gate beyond the bridge, which leads nowhere until the bridge is open. Gives the
+ * back up, to stand beside the way down of the floor above, or before the mouth; the way down goes on, where the
+ * floor below is laid and where there is a way down at all: `caveWay`). And the gate beyond the bridge, which leads
+ * nowhere until the bridge is open. Gives the
  * place a gate leads to, null where what looks like one leads nowhere, and nothing where this has no say.
  */
 function moreGate(tx: number, ty: number): Vec | null | undefined {
@@ -1170,10 +1197,13 @@ function moreGate(tx: number, ty: number): Vec | null | undefined {
   if (u === f.up[0] && v === f.up[1]) {
     if (n === 1) return { x: MOUNTAIN_AT.mouth.x + 2.5, y: MOUNTAIN_AT.mouth.y - 0.5 };
     if (!CAVE.laid.includes(n - 1)) return null;
-    const above = caveToday(n - 1);
-    return inCave(n - 1, [above.down[0] + 1, above.down[1] + 1]);
+    // beside the way down of the floor above, wherever that is (beside the layout's own, should there be none: one came down somehow)
+    const above = caveToday(n - 1), up = floorCorner(n - 1), way = caveWay(n - 1) ?? [up.x + above.down[0], up.y + above.down[1]];
+    for (const [dx, dy] of [[1, 1], [1, 0], [0, 1], [-1, 1], [1, -1], [-1, 0], [0, -1], [-1, -1]]) if (walkable(way[0] + dx, way[1] + dy)) return { x: way[0] + dx + 0.5, y: way[1] + dy + 0.5 };
+    return inCave(n - 1, above.arrive);
   }
-  if (u === f.down[0] && v === f.down[1]) return CAVE.laid.includes(n + 1) ? inCave(n + 1, caveToday(n + 1).arrive) : null;
+  const way = caveWay(n);
+  if (way && tx === way[0] && ty === way[1]) return CAVE.laid.includes(n + 1) ? inCave(n + 1, caveToday(n + 1).arrive) : null;
   return null;
 }
 /** The ground of what is to come, beyond the town's own kinds: bare stony earth, a cliff's face (a cave's wall is one too), a stair, snow, a cave's floor and the top of its rock. */
@@ -1183,7 +1213,7 @@ export const MORE_GROUND: MoreGround[] = PREVIEW ? ["rock", "cliff", "stair", "s
 /** How far down the screen from a point of a cave's rock its floor begins, in tiles (a point is down the screen from another when both its x and its y are greater), as far as a wall stands tall; more than that where there is none so near. */
 const CAVE_WALL = 1.3;
 function wallOver(f: CaveFloor, u: number, v: number): number {
-  for (let t = 0.125; t <= CAVE_WALL; t += 0.125) if (hollowAt(f, u + t, v + t)) return t;
+  for (let t = 0.125; t <= CAVE_WALL; t += 0.125) if (CV!.hollowAt(f, u + t, v + t)) return t;
   return 9;
 }
 
@@ -1239,11 +1269,11 @@ const WEST_SEED = ARMS.find((a) => a.dir === "W")!.seed;
 /** The ground of what is to come at a point, for drawing: the mountain's, a cave floor's, and what lies beyond their edges; and the dirt the bridge's two ends stand on. Null where this has no say. */
 function moreLook(x: number, y: number): Ground | MoreGround | null {
   if (y >= BEYOND_MORE.low.y) {
-    if (within(x, y, MOUNTAIN)) return mountainGround(x - MOUNTAIN.x, y - MOUNTAIN.y);
+    if (within(x, y, MOUNTAIN)) return MT!.mountainGround(x - MOUNTAIN.x, y - MOUNTAIN.y);
     const n = floorOf(x, y);
     if (n) {
       const f = caveToday(n), c = floorCorner(n), u = x - c.x, v = y - c.y;
-      return hollowAt(f, u, v) ? "cavefloor" : wallOver(f, u, v) <= CAVE_WALL ? "cliff" : "cavewall";
+      return CV!.hollowAt(f, u, v) ? "cavefloor" : wallOver(f, u, v) <= CAVE_WALL ? "cliff" : "cavewall";
     }
     // the low country: grass, and the trail running on down through it
     if (within(x, y, BEYOND_MORE.low)) return Math.abs(y - MOUNTAIN.y - 30 - 0.5 * Math.sin(x / 2.4)) < 0.95 ? "road" : "grass";
@@ -1265,7 +1295,7 @@ function moreLook(x: number, y: number): Ground | MoreGround | null {
 /** How far up a cliff's face a point is, 0 at its foot and 1 at its top: the mountain's cliffs, and a cave's walls. Null off them. */
 export function faceRise(x: number, y: number): number | null {
   if (!PREVIEW) return null;
-  if (within(x, y, MOUNTAIN)) return cliffAt(x - MOUNTAIN.x, y - MOUNTAIN.y)?.rise ?? null;
+  if (within(x, y, MOUNTAIN)) return MT!.cliffAt(x - MOUNTAIN.x, y - MOUNTAIN.y)?.rise ?? null;
   const n = floorOf(x, y);
   if (!n) return null;
   const c = floorCorner(n), over = wallOver(caveToday(n), x - c.x, y - c.y);
@@ -1284,7 +1314,7 @@ export function groundTone(kind: MoreGround, x: number, y: number): readonly [nu
   if (!PREVIEW || kind === "rock" || kind === "snow") return null;
   const n = floorOf(x, y);
   if (n) {
-    const tint = CAVE_TINTS[depthOf(n)], k = kind === "cavefloor" ? 1 : kind === "cavewall" ? 0.5 : 0.92 - 0.5 * (faceRise(x, y) ?? 1);
+    const tint = CAVE_TINTS[CV!.depthOf(n)], k = kind === "cavefloor" ? 1 : kind === "cavewall" ? 0.5 : 0.92 - 0.5 * (faceRise(x, y) ?? 1);
     return k === 1 && tint === CAVE_TINTS[0] ? null : [tint[0] * k, tint[1] * k, tint[2] * k];
   }
   if (kind === "cliff") { const r = faceRise(x, y) ?? 0.5, k = r > 0.9 ? 1.28 : 0.66 + 0.42 * r; return [k, k, k]; }
@@ -1365,18 +1395,18 @@ export const GATES: Array<{ from: Place; leads: Place; tiles: Array<[number, num
   // of the town's west path, on the far bank of the river, and the mountain's own gate back in its east edge. The
   // first leads nowhere until the bridge is open (gateAt). The mine's mouth and the cave's ladders are gates too, made
   // anew with the cave each day: gateAt knows them, and they are not listed here.
-  ...(PREVIEW ? [
+  ...(MT ? [
     {
       from: "town" as const, leads: "mountain" as const,
       tiles: [0, 1].flatMap((x) => [...Array(ROWS).keys()].filter((y) => isRoad(x, y)).map((y): [number, number] => [x, y])),
-      to: { x: MOUNTAIN.x + MOUNTAIN.w - 3.5, y: MOUNTAIN.y + GATE_ROWS[0] + 0.5 },
+      to: { x: MOUNTAIN.x + MOUNTAIN.w - 3.5, y: MOUNTAIN.y + MT.GATE_ROWS[0] + 0.5 },
       arch: { x: 1.5, y: pathMiddle(1.5, PLAZA.x - 1.5, WEST_SEED) },
     },
     {
       from: "mountain" as const, leads: "town" as const,
-      tiles: GATE_ROWS.map((v): [number, number] => [MOUNTAIN.x + MOUNTAIN.w - 1, MOUNTAIN.y + v]),
+      tiles: MT.GATE_ROWS.map((v): [number, number] => [MOUNTAIN.x + MOUNTAIN.w - 1, MOUNTAIN.y + v]),
       to: { x: 3.5, y: [...Array(ROWS).keys()].find((y) => isRoad(3, y))! + 0.5 },
-      arch: { x: MOUNTAIN.x + MOUNTAIN.w - 1.5, y: MOUNTAIN.y + GATE_ROWS[1] },
+      arch: { x: MOUNTAIN.x + MOUNTAIN.w - 1.5, y: MOUNTAIN.y + MT.GATE_ROWS[1] },
     },
   ] : []),
 ];

@@ -8,7 +8,7 @@ import { SMITH_WHO, smithTalk } from "@/lib/town/smith";
 import type { Line } from "@/lib/town/talk";
 import {
   BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, TILE_H, TILE_W,
-  caveRocks, caveSpots, caveToday, floorCorner, floorOf, setBridge, setCaveDay, walkable, type Place, type Prop, type Vec,
+  caveRocks, caveSpots, caveToday, caveWay, floorCorner, floorOf, setBridge, setCaveDay, setCaveWay, walkable, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 
 /**
@@ -40,6 +40,8 @@ const torches = new Map<number, CaveLight[]>(), knownWhole = new Set<number>(), 
 let lightOf: (member: string) => number = () => CAVE_LIGHT.walker;
 let sample = false;
 let ancientLook: 0 | 3 = 3;
+/** The one rock that has crystals in it, once whoever keeps the game has said (or that there is none): until then, every rock the layout gave crystals. */
+let crystal: { floor: number; id: number } | null | undefined;
 
 /** How a tree of the mountain looks (lib/town/world's MOUNTAIN_TREES, by its number): 0 a stump, 1 a sprout, 2 a young tree, 3 grown. Grown until it is said otherwise. */
 export function setTreeLook(id: number, look: TreeAge) { if (look === 3) treeLooks.delete(id); else treeLooks.set(id, look); }
@@ -61,6 +63,15 @@ export function setCaveRockStands(floor: number, id: number, stands: boolean) {
 }
 export function setCaveRocksDown(floor: number, ids: Iterable<number>) { caveDown.set(floor, new Set(ids)); }
 export const caveRockStands = (floor: number, id: number) => !caveDown.get(floor)?.has(id);
+/**
+ * The cave's one crystal rock (there is one a day, not one a floor): once this has been called at all, only that
+ * rock of that floor is drawn with crystals, and blue on the small map, and every other rock the layout gave
+ * crystals is a plain one (`null`: none anywhere). Never called, every such rock has them, as the layout says.
+ */
+export function setCrystalRock(floor: number, id: number | null) { crystal = id === null ? null : { floor, id }; }
+/** Whether a rock of a floor is drawn with crystals; and the plain look of one that the layout gave crystals and that has none. */
+const hasCrystals = (floor: number, r: { id: number; look: number }) => (crystal === undefined ? r.look === 3 : !!crystal && crystal.floor === floor && crystal.id === r.id);
+const plainLook = (r: { id: number; look: number }) => (r.look === 3 ? r.id % 3 : r.look);
 /** How far a member's own light reaches in the cave, in tiles: asked of this for everybody drawn there. Two tiles with nothing said (null puts that back). */
 export function setCaveLight(reach: ((member: string) => number) | null) { lightOf = reach ?? (() => CAVE_LIGHT.walker); }
 /** The lights set down on a floor (a torch: four tiles, for everybody), each where it stands in the world's tiles and how far it reaches. */
@@ -206,7 +217,7 @@ const HOLE_WIDER = 1.3;
 
 export class MountainArt {
   /** What can be tapped on the screen this frame: where, how far forward, and what it is. */
-  private hits: Array<{ x0: number; y0: number; x1: number; y1: number; depth: number; tap: Tapped }> = [];
+  private hits: Array<{ x0: number; y0: number; x1: number; y1: number; depth: number; tap: Tapped; art: string }> = [];
   /** The floor of the cave I am on (0 off it), and the day whose cave it is. */
   private floor = 0;
   /** What of each floor I have seen, for its small map; and the small map's picture, with what it was made from. */
@@ -233,7 +244,7 @@ export class MountainArt {
       /** Where I am, as this sees it; how much of the bridge there is; and what the dark last left lit. */
       state: () => ({ floor: this.floor, bridge: { spans: BRIDGE.spans, open: BRIDGE.open }, lit: { ...this.litLast }, seen: Object.fromEntries([...this.seen].map(([n, tiles]) => [n, tiles.reduce((sum, t) => sum + t, 0)])) }),
       /** What can be tapped on the screen this frame, each with its middle. */
-      hits: () => this.hits.map((h) => ({ ...h.tap, x: (h.x0 + h.x1) / 2, y: (h.y0 + h.y1) / 2 })),
+      hits: () => this.hits.map((h) => ({ ...h.tap, art: h.art, x: (h.x0 + h.x1) / 2, y: (h.y0 + h.y1) / 2, foot: h.y1 })),
       /** The places `&townAt=` knows, and going to one now. */
       places: () => Object.keys(this.places()),
       go: (name: string) => this.go(name),
@@ -241,7 +252,8 @@ export class MountainArt {
       spots: (n: number) => caveSpots(n),
       rocks: (n: number) => caveRocks(n),
       world: () => ({ mountain: MOUNTAIN, at: MOUNTAIN_AT, cave: CAVE, bridge: { foot: BRIDGE.foot, tiles: BRIDGE.tiles }, smith: SMITH }),
-      setTreeLook, setTreeLooks, setAncientLook, setRockStands, setCaveRockStands, setCaveLight, setTorches, setKnownWhole, setSample, registerTap,
+      setTreeLook, setTreeLooks, setAncientLook, setRockStands, setCaveRockStands, setCaveLight, setTorches, setKnownWhole, setSample, registerTap, setCrystalRock, setCaveWay,
+      way: (n: number) => caveWay(n),
     };
   }
 
@@ -314,7 +326,7 @@ export class MountainArt {
       if (more?.tap) {
         // (the lower part of a tall thing: a tap on a tree's crown is for what stands behind it)
         const [wide, tall] = more.hit ?? [1, 1], left = more.mirror ? c.x - (w - ax) * k : c.x - ax * k, bottom = c.y + (h - ay) * k;
-        this.hits.push({ x0: left + (w * k * (1 - wide)) / 2, x1: left + w * k - (w * k * (1 - wide)) / 2, y0: bottom - h * k * tall, y1: bottom, depth, tap: more.tap });
+        this.hits.push({ x0: left + (w * k * (1 - wide)) / 2, x1: left + w * k - (w * k * (1 - wide)) / 2, y0: bottom - h * k * tall, y1: bottom, depth, tap: more.tap, art: name });
       }
     } });
   }
@@ -459,13 +471,17 @@ export class MountainArt {
     const n = f.me ? floorOf(f.me.x, f.me.y) : 0;
     if (!n) return;
     const spots = caveSpots(n), floor = caveToday(n), { s } = f, mid = ([x, y]: [number, number]): Vec => ({ x: x + 0.5, y: y + 0.62 });
+    // the way down, where whoever keeps the game says it is (the layout's own with nothing said; none at all until it is found)
+    const way = caveWay(n);
     for (const r of caveRocks(n)) {
+      // (the way down stands where its rock stood: neither that rock nor its rubble is under the ladder)
+      if (way && way[0] === r.x && way[1] === r.y) continue;
       const stands = caveRockStands(n, r.id);
-      this.stand(f, stands ? (r.look === 3 ? "mcrystal" : `mrock${r.look}`) : "rubble", mid([r.x, r.y]), r.x + r.y + 1, stands ? { tap: { kind: "caveRock", id: r.id, floor: n, tile: [r.x, r.y] } } : undefined);
+      this.stand(f, stands ? (hasCrystals(n, r) ? "mcrystal" : `mrock${plainLook(r)}`) : "rubble", mid([r.x, r.y]), r.x + r.y + 1, stands ? { tap: { kind: "caveRock", id: r.id, floor: n, tile: [r.x, r.y] } } : undefined);
     }
     // the ladder one came down by, against the rock at the back of its chamber (whoever steps to it is drawn before it), and the way down
     this.stand(f, "ladderUp", { x: spots.up[0] + 0.35, y: spots.up[1] + 0.35 }, spots.up[0] + spots.up[1] + 0.2, { tap: { kind: "ladderUp", id: -1, floor: n, tile: spots.up } });
-    this.stand(f, "ladderDown", { x: spots.down[0] + 0.5, y: spots.down[1] + 0.8 }, spots.down[0] + spots.down[1] + 0.1, { tap: { kind: "ladderDown", id: -1, floor: n, tile: spots.down } });
+    if (way) this.stand(f, "ladderDown", { x: way[0] + 0.5, y: way[1] + 0.8 }, way[0] + way[1] + 0.1, { tap: { kind: "ladderDown", id: -1, floor: n, tile: way } });
     // a resting floor: its fire, the logs round it, and its lift
     if (floor.rest && spots.fire && spots.lift) {
       this.stand(f, "campfire", mid(spots.fire), spots.fire[0] + spots.fire[1] + 1, { after: (c) => f.flames(c.x, c.y - 7 * s, s) });
@@ -589,7 +605,8 @@ export class MountainArt {
     const floor = caveToday(n), whole = knownWhole.has(n), cell = 4, W = CAVE_SIZE * cell * 2, H = CAVE_SIZE * cell;
     let count = 0;
     for (let i = 0; i < seen.length; i++) count += seen[i];
-    const key = `${n}:${floor.day}:${whole ? "all" : count}:${caveDown.get(n)?.size ?? 0}`;
+    const way = caveWay(n), corner = floorCorner(n), down: [number, number] | null = way ? [way[0] - corner.x, way[1] - corner.y] : null;
+    const key = `${n}:${floor.day}:${whole ? "all" : count}:${caveDown.get(n)?.size ?? 0}:${down?.join(",") ?? "none"}:${crystal === undefined ? "" : crystal ? `${crystal.floor}.${crystal.id}` : "-"}`;
     if (!this.mapArt || this.mapArt.key !== key) {
       const canvas = this.mapArt?.canvas ?? document.createElement("canvas");
       canvas.width = W; canvas.height = H + cell;
@@ -608,10 +625,10 @@ export class MountainArt {
           put(u, v, kind === 0 ? "#3a3340" : "#b4946a");
         }
         const shown = (at: readonly [number, number]) => whole || seen[at[1] * CAVE_SIZE + at[0]] === 1;
-        for (const r of floor.rocks) if (shown([r.u, r.v]) && caveRockStands(n, r.id)) put(r.u, r.v, r.look === 3 ? "#9db8ff" : "#6f6a70", 0.7);
+        for (const r of floor.rocks) if (shown([r.u, r.v]) && caveRockStands(n, r.id) && !(down && down[0] === r.u && down[1] === r.v)) put(r.u, r.v, hasCrystals(n, r) ? "#9db8ff" : "#6f6a70", 0.7);
         if (floor.rest) { if (shown(floor.rest.fire)) put(floor.rest.fire[0], floor.rest.fire[1], "#ff9a3c"); if (shown(floor.rest.lift)) put(floor.rest.lift[0], floor.rest.lift[1], "#d9c08a"); }
         if (shown(floor.up)) put(floor.up[0], floor.up[1], "#ffe08a", 1.2);
-        if (shown(floor.down)) put(floor.down[0], floor.down[1], "#1b1620", 1.2);
+        if (down && shown(down)) put(down[0], down[1], "#1b1620", 1.2);
       }
       this.mapArt = { canvas, key };
     }

@@ -192,6 +192,84 @@ try {
   const back = await until("A back on the first floor", async () => (await A.evaluate(`${M}.state().floor`)) === 1 && (await me(A)), 15000).catch((e) => e.message);
   ok("the ladder A came down by goes back up, to beside the first floor's ladder down", !!back.x && Math.max(Math.abs(Math.floor(back.x) - one.down[0]), Math.abs(Math.floor(back.y) - one.down[1])) === 1, back);
 
+  // ── what whoever keeps the game sets: taps, the way down hidden under a rock, the one crystal rock, the cedar felled ──
+  await A.evaluate(`${M}.go("cave3")`);
+  await until("A on the third floor", async () => (await A.evaluate(`${M}.state().floor`)) === 3, 15000);
+  const three = await A.evaluate(`${M}.spots(3)`), rocks3 = await A.evaluate(`${M}.rocks(3)`);
+  // (the rock nearest where A stands, and A beside it: to its right on the screen, so that A's own doll is not over it.
+  // A tap on somebody is for them, whatever stands behind)
+  const near = [...rocks3].sort((p, q) => Math.hypot(p.x - three.arrive[0], p.y - three.arrive[1]) - Math.hypot(q.x - three.arrive[0], q.y - three.arrive[1]))[0];
+  const beside = [near.x + 1, near.y - 1];
+  await A.evaluate(`${V}.warp(${beside[0]}, ${beside[1]})`);
+  await sleep(1200);
+  const hitOf = (kind, id) => A.evaluate(`${M}.hits().find((h) => h.kind === "${kind}" && (${id} < 0 || h.id === ${id})) ?? null`);
+  const rockHit = await until("the rock on the screen", () => hitOf("caveRock", near.id), 6000);
+  // with nobody asking for taps on a rock, a tap on one is a step like any other: at its foot that is its own tile, which
+  // nobody walks to, so nothing happens (higher up its picture it is the tile behind it, and one walks there)
+  const still = await me(A);
+  await tap(A, rockHit.x, rockHit.foot - 6);
+  await sleep(500);
+  ok("with nobody asking, a tap on a rock is only a tap on a tile nobody stands on", Math.hypot((await me(A)).x - still.x, (await me(A)).y - still.y) < 0.01);
+  await A.evaluate(`(window.__taps = [], window.__off = ${M}.registerTap("caveRock", (t) => { window.__taps.push(t); }))`);
+  await tap(A, rockHit.x, rockHit.foot - 6);
+  await sleep(300);
+  const got = await A.evaluate(`window.__taps`);
+  ok("a tap on a rock reaches whoever asked for taps on rocks, with the rock's number, its floor and its tile", got.length === 1 && got[0].kind === "caveRock" && got[0].id === near.id && got[0].floor === 3 && got[0].tile[0] === near.x && got[0].tile[1] === near.y, got);
+  await A.evaluate(`window.__off()`);
+  // the rock broken: its rubble, and no tap
+  await A.evaluate(`${M}.setCaveRockStands(3, ${near.id}, false)`);
+  await sleep(400);
+  ok("a rock that no longer stands is not tapped", (await hitOf("caveRock", near.id)) === null);
+  // the way down: none until it is found, then where its rock stood
+  await A.evaluate(`${M}.setCaveWay(3, null)`);
+  await sleep(400);
+  ok("with no way down yet there is no ladder down to see, and no gate", (await A.evaluate(`${M}.way(3)`)) === null && (await A.evaluate(`${M}.hits().every((h) => h.kind !== "ladderDown")`)) === true);
+  await A.evaluate(`${M}.setCaveWay(3, [${near.x}, ${near.y}])`);
+  await sleep(500);
+  const ladder = await hitOf("ladderDown", -1);
+  ok("found, the way down stands where its rock stood, and nothing else is on that tile", !!ladder && ladder.tile[0] === near.x && ladder.tile[1] === near.y && (await A.evaluate(`${M}.hits().filter((h) => h.tile[0] === ${near.x} && h.tile[1] === ${near.y}).length`)) === 1, ladder);
+  await A.shot(`${OUT}/cave-way-down-found.png`);
+  await A.evaluate(`${V}.walk(${near.x}, ${near.y})`);
+  const in4 = await until("A on the fourth floor", async () => (await A.evaluate(`${M}.state().floor`)) === 4 && (await me(A)), 15000).catch((e) => e.message);
+  ok("stopping on it goes down a floor", !!in4.x, in4);
+  const four = await A.evaluate(`${M}.spots(4)`);
+  await A.evaluate(`${V}.walk(${four.up[0]}, ${four.up[1]})`);
+  const up3 = await until("A back on the third floor", async () => (await A.evaluate(`${M}.state().floor`)) === 3 && (await me(A)), 15000).catch((e) => e.message);
+  ok("and coming back up puts A beside it, not beside the layout's own way down", !!up3.x && Math.max(Math.abs(Math.floor(up3.x) - near.x), Math.abs(Math.floor(up3.y) - near.y)) === 1, { up3, near });
+  // one crystal rock, not one a floor
+  const withCrystals = () => A.evaluate(`${M}.hits().filter((h) => h.art === "mcrystal").map((h) => h.id)`);
+  await A.evaluate(`(${M}.setKnownWhole(3, true), ${V}.lookAt(${three.down[0]}, ${three.down[1]}))`);
+  await sleep(900);
+  const before3 = rocks3.filter((r) => r.look === 3).map((r) => r.id);
+  await A.evaluate(`${M}.setCrystalRock(7, 0)`);
+  await sleep(500);
+  ok("once the keeper names the one crystal rock, a floor that is not its floor has none", before3.length >= 1 && (await withCrystals()).length === 0, { before3, now: await withCrystals() });
+  const plain = rocks3.find((r) => r.look !== 3 && r.id !== near.id);
+  await A.evaluate(`(${M}.setCrystalRock(3, ${plain.id}), ${V}.lookAt(${plain.x}, ${plain.y}))`);
+  await sleep(700);
+  ok("and on its floor only that rock has crystals", JSON.stringify(await withCrystals()) === JSON.stringify([plain.id]), await withCrystals());
+  // the ancient cedar: tapped like a tree, and felled
+  await A.evaluate(`${M}.go("cedar")`);
+  await sleep(600);
+  { const side = await open(A, W.at.cedar.x + 6, W.at.cedar.y); await A.evaluate(`${V}.warp(${side[0]}, ${side[1]})`); }
+  await sleep(1500);
+  const cedar = await until("the cedar on the screen", () => hitOf("ancient", -1), 8000);
+  await A.evaluate(`(window.__taps = [], window.__off = ${M}.registerTap("ancient", (t) => { window.__taps.push(t); }))`);
+  await tap(A, cedar.x, cedar.y);
+  await sleep(300);
+  ok("a tap on the ancient cedar reaches whoever asked for it", (await A.evaluate(`window.__taps.length === 1 && window.__taps[0].kind === "ancient"`)) === true && cedar.art === "ancient");
+  await A.evaluate(`(window.__off(), ${M}.setAncientLook(0))`);
+  await sleep(600);
+  ok("felled, its great stump stands in its place", (await hitOf("ancient", -1))?.art === "ancientStump");
+  await A.shot(`${OUT}/cedar-felled.png`);
+  await A.evaluate(`${M}.setAncientLook(3)`);
+  // a tree's look is what the keeper says: a stump is not the grown tree's picture
+  const tree = await until("a pine on the screen", () => hitOf("tree", -1), 6000);
+  await A.evaluate(`${M}.setTreeLook(${tree.id}, 0)`);
+  await sleep(500);
+  ok("a tree is drawn as it is said to look: grown until then, a stump once felled", tree.art === "mt1_3" && (await hitOf("tree", tree.id))?.art === "mt1_0", { was: tree.art, now: (await hitOf("tree", tree.id))?.art });
+  await A.evaluate(`${M}.setTreeLook(${tree.id}, 3)`);
+
   // ── a resting floor, and the town at night ──
   await A.evaluate(`${M}.go("cave10")`);
   await until("A on a resting floor", async () => (await A.evaluate(`${M}.state().floor`)) === 10, 15000);

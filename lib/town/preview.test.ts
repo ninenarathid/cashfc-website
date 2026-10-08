@@ -195,10 +195,11 @@ describe("what is to come, in next dev only", () => {
       expect(W.floorOf(c.x + W.CAVE.size, c.y)).toBe(0);
       expect(W.placeOf(c.x + W.CAVE.size, c.y)).toBeNull();
     }
-    expect(W.CAVE.laid).toEqual([1, 2, 3, 10, 11, 20, 21, 30]);
+    // all thirty floors are laid
+    expect(W.CAVE.laid).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
     // (a floor that is not laid is nowhere)
-    const four = W.floorCorner(4);
-    expect(W.floorOf(four.x + 5, four.y + 5)).toBe(0);
+    const beyond = W.floorCorner(31);
+    expect(W.floorOf(beyond.x + 5, beyond.y + 5)).toBe(0);
     expect(W.floorOf(32.5, 31.5)).toBe(0);
   });
 
@@ -286,7 +287,7 @@ describe("what is to come, in next dev only", () => {
       expect(W.gateAt(out.x, out.y)).toBeNull();
       expect(Math.hypot(out.x - mx, out.y - my)).toBeLessThan(3.5);
       // each ladder down puts one beside the next floor's ladder up, and that one beside the ladder down it came from
-      for (const [n, next] of [[1, 2], [2, 3], [10, 11], [20, 21]]) {
+      for (const [n, next] of [[1, 2], [2, 3], [9, 10], [10, 11], [20, 21], [29, 30]]) {
         const here = W.caveSpots(n), there = W.caveSpots(next);
         const down = W.gateAt(here.down[0] + 0.5, here.down[1] + 0.5)!, up = W.gateAt(there.up[0] + 0.5, there.up[1] + 0.5)!;
         expect(down).toEqual({ x: there.arrive[0] + 0.5, y: there.arrive[1] + 0.5 });
@@ -294,15 +295,16 @@ describe("what is to come, in next dev only", () => {
         expect(Math.max(Math.abs(up.x - 0.5 - here.down[0]), Math.abs(up.y - 0.5 - here.down[1]))).toBe(1);
         for (const to of [down, up]) { expect(W.walkable(Math.floor(to.x), Math.floor(to.y))).toBe(true); expect(W.gateAt(to.x, to.y)).toBeNull(); }
       }
-      // where the next floor is not laid a ladder leads nowhere: down from 3, 11, 21 and 30; up from 10, 20 and 30
-      for (const n of [3, 11, 21, 30]) { const s = W.caveSpots(n); expect(W.gateAt(s.down[0] + 0.5, s.down[1] + 0.5)).toBeNull(); }
-      for (const n of [10, 20, 30]) { const s = W.caveSpots(n); expect(W.gateAt(s.up[0] + 0.5, s.up[1] + 0.5)).toBeNull(); }
+      // the thirtieth floor's way down is there, and leads nowhere: there is no floor under it
+      { const s = W.caveSpots(30); expect(W.caveWay(30)).toEqual(s.down); expect(W.gateAt(s.down[0] + 0.5, s.down[1] + 0.5)).toBeNull(); }
       // every floor: walked from where one arrives to its ladder down by the map's own way of finding a path, and nobody walks into its rock
       for (const n of W.CAVE.laid) {
         const s = W.caveSpots(n), c = W.floorCorner(n);
         expect(W.findPath({ x: s.arrive[0] + 0.5, y: s.arrive[1] + 0.5 }, { x: s.down[0] + 0.5, y: s.down[1] + 0.5 }), `floor ${n}, day ${day}`).not.toBeNull();
         expect(W.walkable(c.x, c.y)).toBe(false);
-        expect(W.groundLook(c.x + 0.5, c.y + 0.5)).toBe("cavewall");
+        // (its corner is rock: the top of it, or its face where a chamber comes close)
+        expect(["cavewall", "cliff"]).toContain(W.groundLook(c.x + 0.5, c.y + 0.5));
+        expect(W.groundLook(c.x + 27.5, c.y + 27.5)).toBe("cavewall");
         expect(W.groundLook(s.arrive[0] + 0.5, s.arrive[1] + 0.5)).toBe("cavefloor");
         // its rocks, in the world's tiles, each with its number on that floor; nobody walks on one
         const rocks = W.caveRocks(n);
@@ -325,6 +327,57 @@ describe("what is to come, in next dev only", () => {
     expect(W.CAVE_SEATS.length).toBe(12);
     expect(W.BENCHES.slice(-12)).toEqual(W.CAVE_SEATS);
     for (const b of W.CAVE_SEATS) { expect(W.placeOf(b.x, b.y)).toBe("cave"); expect(W.walkable(b.x + W.FRONT[b.facing!].x, b.y + W.FRONT[b.facing!].y)).toBe(true); }
+  });
+
+  it("hides a floor's way down until whoever keeps the game says where it is, which is where its rock stood", async () => {
+    const W = await made("development");
+    W.setCaveDay(20369);
+    const one = W.caveSpots(1), two = W.caveSpots(2), below = { x: two.arrive[0] + 0.5, y: two.arrive[1] + 0.5 }, mid = (t: readonly [number, number]) => [t[0] + 0.5, t[1] + 0.5] as const;
+    // with nothing said (nobody keeping the game): the layout's own way down, standing open
+    expect(W.caveWay(1)).toEqual(one.down);
+    expect(W.gateAt(...mid(one.down))).toEqual(below);
+    // none yet: no gate anywhere on the floor, the layout's own least of all
+    W.setCaveWay(1, null);
+    expect(W.caveWay(1)).toBeNull();
+    expect(W.gateAt(...mid(one.down))).toBeNull();
+    for (const r of W.caveRocks(1)) expect(W.gateAt(...mid([r.x, r.y]))).toBeNull();
+    // (the way back up from the floor below still puts one on the first floor, beside where the layout's own is)
+    const lost = W.gateAt(...mid(two.up))!;
+    expect(W.floorOf(lost.x, lost.y)).toBe(1);
+    expect(W.walkable(Math.floor(lost.x), Math.floor(lost.y))).toBe(true);
+    // found under a rock: the way down is on that rock's tile, which is stood on now, and it is the gate
+    const rock = W.caveRocks(1)[5], at: [number, number] = [rock.x, rock.y];
+    expect(W.walkable(rock.x, rock.y)).toBe(false);
+    W.setCaveWay(1, at);
+    expect(W.caveWay(1)).toEqual(at);
+    expect(W.walkable(rock.x, rock.y)).toBe(true);
+    expect(W.gateAt(...mid(at))).toEqual(below);
+    expect(W.gateAt(...mid(one.down))).toBeNull();
+    expect(W.findPath({ x: one.arrive[0] + 0.5, y: one.arrive[1] + 0.5 }, { x: rock.x + 0.5, y: rock.y + 0.5 })).not.toBeNull();
+    // every other rock is as shut as it was
+    for (const r of W.caveRocks(1)) if (r.id !== rock.id) expect(W.walkable(r.x, r.y)).toBe(false);
+    // coming up from the floor below puts one beside that tile, on a tile one can stand on that is no gate
+    const up = W.gateAt(...mid(two.up))!;
+    expect(Math.max(Math.abs(Math.floor(up.x) - rock.x), Math.abs(Math.floor(up.y) - rock.y))).toBe(1);
+    expect(W.walkable(Math.floor(up.x), Math.floor(up.y))).toBe(true);
+    expect(W.gateAt(up.x, up.y)).toBeNull();
+    // or on a plain tile of the floor
+    const plain: [number, number] = [one.arrive[0] + 1, one.arrive[1] + 1];
+    W.setCaveWay(1, plain);
+    expect(W.gateAt(...mid(plain))).toEqual(below);
+    expect(W.walkable(rock.x, rock.y)).toBe(false);
+    // said no more, it is the layout's own again
+    W.setCaveWay(1, undefined);
+    expect(W.caveWay(1)).toEqual(one.down);
+    expect(W.gateAt(...mid(one.down))).toEqual(below);
+    // a resting floor keeps the layout's own, whatever is said of it
+    const ten = W.caveSpots(10);
+    W.setCaveWay(10, null);
+    expect(W.caveWay(10)).toEqual(ten.down);
+    expect(W.gateAt(...mid(ten.down))).not.toBeNull();
+    W.setCaveWay(10, [ten.fire![0], ten.fire![1]]);
+    expect(W.caveWay(10)).toEqual(ten.down);
+    expect(W.walkable(ten.fire![0], ten.fire![1])).toBe(false);
   });
 
   it("stands somebody told to go to another floor there at once: between floors there is no walking", async () => {

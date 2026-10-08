@@ -568,16 +568,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // and knows no more of it)
   const moreArt = useRef<MountainArt | null>(null);
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") return;
     let gone = false, made: MountainArt | null = null;
-    void import("./mountain-art").then((m) => {
-      if (gone) return;
-      made = moreArt.current = m.openMore({
-        warp: (x, y) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
-        walk: (x, y) => sessionRef.current?.walkTo({ x, y }) ?? false,
-        me: () => { const a = sessionRef.current?.self; return a ? { id: a.info.id, x: a.pos.x, y: a.pos.y } : null; },
+    // (the asking itself sits in a branch a production build drops, as the test window's does: written as an early
+    // return, the build made the module's chunk all the same, though nothing asked for it. Found 2026-10-08, by looking)
+    if (process.env.NODE_ENV === "development") {
+      void import("./mountain-art").then((m) => {
+        if (gone) return;
+        made = moreArt.current = m.openMore({
+          warp: (x, y) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
+          walk: (x, y) => sessionRef.current?.walkTo({ x, y }) ?? false,
+          me: () => { const a = sessionRef.current?.self; return a ? { id: a.info.id, x: a.pos.x, y: a.pos.y } : null; },
+        });
       });
-    });
+    }
     return () => { gone = true; made?.close(); moreArt.current = null; };
   }, []);
   const [popover, setPopover] = useState<{ b: Building; x: number; y: number } | null>(null);
@@ -3186,11 +3189,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const thing = groundTap.current(x, y);
       if (thing) { if (thing.walk && sessionRef.current?.walkTo(thing.walk)) cam.current.follow = true; return; }
     }
-    // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
-    // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     // ── to come ── (a tree, a rock, a ladder, a lift, the mine's mouth, the yard's chest: whoever has asked the preview's
     // module for taps on one has this one. With nobody asking, it is a step, as anywhere)
     if (process.env.NODE_ENV === "development" && moreArt.current?.tap(x, y)) return;
+    // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
+    // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
     if (gameRef.current && sb && x >= sb.x0 && x <= sb.x1 && y >= sb.y0 && y <= sb.y1 && openBox()) return;
     // a top of the yard's dining tables: the feast table's panel, from where I stand in the yard, or walked up to first
