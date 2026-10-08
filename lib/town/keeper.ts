@@ -49,9 +49,14 @@ import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
 // ── felling ──
 import type { FellingAsk } from "./felling";
-import type { FellOne, FellWent, TreeRefusal, TreesTold } from "./trees";
-/** What a go at felling came to, as a panel is told it: every tree that fell with what it gave, all it brought home, and whether it was the axe's one chop. */
-export interface FellDid { felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean }
+import type { FellOne, FellWent, KeepsakeId, TreeRefusal, TreesTold } from "./trees";
+/**
+ * What a go at felling came to, as a panel is told it: every tree that fell with what it gave, and all it brought
+ * home; whether it was the axe's one chop, or the plain way; whether the trunk was cut through; whether the tree
+ * stands after all (the ancient tree, of a go that was lost); the keepsakes found, each with whether it is the first
+ * the village has; and who braced the trunk.
+ */
+export interface FellDid { felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean; plain: boolean; through: boolean; stood: boolean; found: Array<{ id: KeepsakeId; first: boolean }>; braced: string | null }
 // ── end: felling ──
 
 /**
@@ -504,8 +509,10 @@ export interface Keeper {
   trees(): TreesTold | null;
   /** Walk up to a tree with an axe in the hand, from the tile I stand on: the game that fells it (the trees it is for, and what the game is made from), or the state that refuses it. */
   fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>>;
-  /** A go at felling as it was played, from the tile I stand on: what it brought home. A go in which nothing fell is told too, and changes nothing. */
+  /** A go at felling as it was played, or the plain way, from the tile I stand on: what it brought home (the tree comes down however a go went). `name`: mine, for the book of the pines. */
   fellDo(went: FellWent, at: [number, number], name: string): Promise<Did<FellDid>>;
+  /** Brace the trunk of somebody's go that is open, from the tile I stand on: the tree it is at. Paid when their go is over. */
+  fellBrace(feller: string, at: [number, number]): Promise<Did<{ tree: number }>>;
   /** The stump I just made grown again at once, for everybody (an axe's own, counted by the day): how many times are left. */
   fellRoot(tree: number): Promise<Did<{ left: number }>>;
   // ── end: felling ──
@@ -749,7 +756,7 @@ export class DbKeeper implements Keeper {
     if (typeof a.bugsAgain === "number") this.bugsDue(a.bugsAgain);
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
     // ── felling ── (the trees that are not grown, told with every answer that touched one)
-    if (a.trees && typeof a.trees === "object" && Array.isArray((a.trees as TreesTold).down)) this.trees_ = { down: (a.trees as TreesTold).down, half: Array.isArray((a.trees as TreesTold).half) ? (a.trees as TreesTold).half : [] };
+    if (a.trees && typeof a.trees === "object" && Array.isArray((a.trees as TreesTold).down)) this.trees_ = { down: (a.trees as TreesTold).down, half: Array.isArray((a.trees as TreesTold).half) ? (a.trees as TreesTold).half : [], ...(Array.isArray((a.trees as TreesTold).book) ? { book: (a.trees as TreesTold).book } : {}) };
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
     if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
     if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
@@ -949,7 +956,16 @@ export class DbKeeper implements Keeper {
     const felled = (Array.isArray(a.felled) ? a.felled : []) as FellOne[];
     if (felled.length) this.onDeed?.("trees");
     this.tell();
-    return { ok: true, felled, got: (Array.isArray(a.got) ? a.got : []) as Array<[ItemId, number]>, one: !!a.one };
+    return {
+      ok: true, felled, got: (Array.isArray(a.got) ? a.got : []) as Array<[ItemId, number]>, one: !!a.one, plain: !!a.plain, through: !!a.through, stood: !!a.stood,
+      found: (Array.isArray(a.found) ? a.found : []) as FellDid["found"], braced: typeof a.braced === "string" ? a.braced : null,
+    };
+  }
+  async fellBrace(feller: string, at: [number, number]): Promise<Did<{ tree: number }>> {
+    if (!this.trees_) return { ok: false, why: "none" };
+    const a = await this.ask("town_fell_brace", { p_feller: feller, p_x: at[0], p_y: at[1] });
+    if (!a) return AWAY;
+    return a.ok === true ? { ok: true, tree: Number(a.tree) || 0 } : { ok: false, why: (a.why as Why) ?? "none" };
   }
   async fellRoot(tree: number): Promise<Did<{ left: number }>> {
     if (!this.trees_) return { ok: false, why: "none" };

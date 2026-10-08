@@ -1,10 +1,10 @@
-import { FELLING, leastSecs, type FellingAsk } from "./felling";
+import { FELLING, leastSecs, timberOf, type Family, type FellTree, type FellingAsk, type Girth } from "./felling";
 import { works } from "./gifts";
 import type { ItemId } from "./items";
 import type { TreeAge } from "./mountain";
 import { mayPower, usePower } from "./powers";
 import { dayOf, eased, isSpent, spend } from "./stamina";
-import { ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
+import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
 import { heldStack, put, roomFor, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
 
@@ -15,11 +15,22 @@ import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
  * - **A tree is everybody's.** Felled, it is a stump on every screen, and grows back by the clock through four looks
  *   (a stump, a sprout, a young tree, grown). Who felled which and when is kept by whoever keeps the game
  *   (`Grove`); a page is told only what is not grown, and draws that.
+ * - **A tree always falls, and always gives its logs** (the owner, 2026-10-08, evening). With an axe in the hand
+ *   there are two ways: the plain one fells it at once, for its logs; the board (lib/town/felling) is played for the
+ *   fine timber besides, and a go that is lost there still fells the tree for its logs. Nobody leaves a tree with
+ *   nothing. Only the ancient tree stands when its go is lost: it is felled on the board or not at all.
+ * - **A pine has a girth**: slender, plain or stout, its own from its number. A slender one is a short game with a
+ *   kind bar and one fine timber at the most; a stout one a long game with a tight bar and three.
+ * - **A go is one's own from the moment its board is open**: a tree somebody else fells meanwhile still pays whoever
+ *   was at it.
  * - **The ancient tree** is one, grown once a day from dawn, and falls only to an axe forged to the top.
  * - **The trees of the upper terraces** are for better axes than there are yet: an axe of the first tier is refused.
  * - **The game** is lib/town/felling's; this file puts one together from the axe in the hand (lib/town/tools reads
- *   what the axe carries), from tired hands, and from the two gifts that change it; and says what a go that was
- *   played brings home.
+ *   what the axe carries), from the tree's girth, from tired hands, and from the two gifts that change it; and says
+ *   what a go that was played brings home.
+ * - **A keepsake** falls out of a tree now and then: a small thing that is no thing of the bag and fetches nothing,
+ *   kept in the book of the pines, the village's, with who found each first.
+ * - **A friend may brace the trunk** of a go that is open: the feller's bar runs slower, and the friend has a log.
  *
  * Nothing here is told to the players: what an axe's option or gem does is theirs to find. Every number is a knob,
  * and they are all in `TREES`. Pure: every function is given the moment it is asked at and the numbers of chance it
@@ -30,12 +41,32 @@ export const TREES = {
   regrow: 40, looks: [0, 0.25, 0.6, 1] as readonly number[],
   /** The stamina a tree felled costs; how near one stands to fell it, in tiles; and the tier of the axes there are. */
   cost: 2, reach: 1, axeTier: 1,
-  /** What a tree gives: so many logs always, and fine timber by the misses (none: `clean`; up to `fair` of them: `some`; more: nothing). */
-  logs: 2, timber: { clean: 2, fair: 2, some: 1 },
-  /** The chops a plain tree and the ancient tree take with a plain axe (lib/town/tools' own table begins at the first). */
-  chops: LEVELS.axe.chops[0], elderChops: 24,
+  /** What a tree gives whatever the hand does: so many logs. */
+  logs: 2,
+  /**
+   * A pine's girths: slender, plain, stout. Each: the chops it takes with a plain axe (lib/town/tools' own table is
+   * the plain one's); how fast its bar runs for a rested hand and for one with no stamina (so many times the plain
+   * pace); the family its branches come in (lib/town/felling); and its fine timber, one for each number, each won by
+   * a trunk cut through with no more misses than that number.
+   * (Fitted 2026-10-08 with made-up hands: lib/town/felling.test.ts says what each made of them.)
+   */
+  girths: [
+    { chops: 8, pace: 0.8, spent: 1.6, family: "alternate", timber: [2] },
+    { chops: LEVELS.axe.chops[0], pace: 1, spent: 1.22, family: "pairs", timber: [2, 0] },
+    { chops: 16, pace: 1.05, spent: 1.2, family: "run", timber: [3, 1, 0] },
+  ] as ReadonlyArray<{ chops: number; pace: number; spent: number; family: Family; timber: readonly number[] }>,
+  /** Which girth a pine is of is worked out from its number and this (a third of the slope's pines each); the trees of the upper terraces are all of one girth. */
+  girthSeed: 2627, girthAbove: 2 as Girth,
+  /** The chops the ancient tree takes with a plain axe; how fast its bar runs, rested and with no stamina; and the family of its branches. */
+  elderChops: 24, elderPace: 1, elderSpent: 1.6, elderFamily: "noise" as Family,
   /** The ancient tree: its number among the trees, the plus an axe has to have, and what it gives. */
   elder: { id: 900, plus: FORGE.top, timber: 15, resin: 3 },
+  /** A go is one's own for so many minutes from the moment its board is open: what somebody else fells of it meanwhile still pays. */
+  go: { mins: 10 },
+  /** A friend braces a trunk from within so many tiles of it; and has so many logs for it, their own. */
+  brace: { reach: 2, logs: 1 },
+  /** A keepsake falls out of one tree in so many. */
+  keepsake: { in: 6 },
   /** A tree's kinds, by its tier; and what the ancient tree is called in what is written down. */
   kinds: ["pine", "ironwood", "moonwood"] as readonly string[], elderKind: "elder",
   /** What the resin-scent turns up besides the wood: one of these, as likely each. */
@@ -61,6 +92,24 @@ export const WOOD: Standing[] = woodOf(MOUNTAIN_TREES, MOUNTAIN_AT.cedar);
 export const treeOf = (id: number, wood: readonly Standing[] = WOOD): Standing | null => wood.find((t) => t.id === id) ?? null;
 /** What a tree is called in what is written down, and what its kind is counted as on the line: by its tier, or the ancient tree's own. */
 export const kindOf = (t: Standing): string => (t.elder ? TREES.elderKind : TREES.kinds[t.tier - 1]);
+/**
+ * A tree's girth: its own from its number, the same on every screen and for as long as the knob stands. The ancient
+ * tree is a great one; the trees of the upper terraces are all alike.
+ */
+export function girthOf(t: Pick<Standing, "id" | "tier" | "elder">): Girth {
+  if (t.elder) return 3;
+  if (t.tier !== 1) return TREES.girthAbove;
+  let h = Math.imul(t.id + 1, 0x9e3779b1) ^ TREES.girthSeed;
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b);
+  h ^= h >>> 13;
+  return (1 + ((h >>> 0) % 3)) as Girth;
+}
+/** What a tree's girth makes of its game: the knobs of its girth (the ancient tree's are its own). */
+const girthKnobs = (t: Pick<Standing, "id" | "tier" | "elder">) => (t.elder
+  ? { chops: TREES.elderChops, pace: TREES.elderPace, spent: TREES.elderSpent, family: TREES.elderFamily, timber: [ALL] as readonly number[] }
+  : TREES.girths[girthOf(t) - 1]);
+/** The misses each of a tree's fine timbers bears (lib/town/felling's timberOf); the ancient tree's one prize bears them all. */
+export const bearsOf = (t: Pick<Standing, "id" | "tier" | "elder">): readonly number[] => girthKnobs(t).timber;
 /** How far a tile is from a tree, in tiles (from the nearest of the tiles it stands on). */
 export function farFrom(t: Standing, at: readonly [number, number]): number {
   const size = t.size ?? 1, dx = Math.max(t.x - at[0], 0, at[0] - (t.x + size - 1)), dy = Math.max(t.y - at[1], 0, at[1] - (t.y + size - 1));
@@ -73,8 +122,14 @@ const apart = (a: Standing, b: Standing) => Math.max(Math.abs(a.x - b.x), Math.a
 
 /** A tree that was felled: when, and by whom. */
 export interface Felled { at: number; by: string }
-/** The trees as they are kept, the village's: those felled and not yet grown again, by their numbers; and those an axe's lightning has left half cut. */
-export interface Grove { down: Record<string, Felled>; half: number[] }
+/** A go that is open: the trees it is for (the one walked up to first), when its board was opened, and who braces its trunk, if anybody. */
+export interface Go { trees: number[]; at: number; braced?: string }
+/**
+ * The trees as they are kept, the village's: those felled and not yet grown again, by their numbers; those an axe's
+ * lightning has left half cut; the goes that are open, by whose they are; and the book of the pines, each keepsake
+ * that was ever found with who found it first and when.
+ */
+export interface Grove { down: Record<string, Felled>; half: number[]; goes?: Record<string, Go>; book?: Record<string, { by: string; at: number }> }
 export const newGrove = (): Grove => ({ down: {}, half: [] });
 /** A grove as it is kept, made sound. */
 export function groveOf(v: unknown): Grove {
@@ -82,7 +137,19 @@ export function groveOf(v: unknown): Grove {
   for (const [id, f] of Object.entries(g.down && typeof g.down === "object" ? g.down : {})) {
     if (f && typeof f.at === "number" && Number.isFinite(f.at) && typeof f.by === "string") down[id] = { at: f.at, by: f.by };
   }
-  return { down, half: Array.isArray(g.half) ? [...new Set(g.half.filter((n): n is number => Number.isInteger(n)))] : [] };
+  const goes: Record<string, Go> = {}, book: Record<string, { by: string; at: number }> = {};
+  for (const [who, go] of Object.entries(g.goes && typeof g.goes === "object" ? g.goes : {})) {
+    if (go && Array.isArray(go.trees) && go.trees.length && go.trees.every((n) => Number.isInteger(n)) && typeof go.at === "number" && Number.isFinite(go.at)) {
+      goes[who] = { trees: [...go.trees], at: go.at, ...(typeof go.braced === "string" && go.braced && go.braced !== who ? { braced: go.braced } : {}) };
+    }
+  }
+  for (const [id, f] of Object.entries(g.book && typeof g.book === "object" ? g.book : {})) {
+    if (isKeepsake(id) && f && typeof f.by === "string" && typeof f.at === "number" && Number.isFinite(f.at)) book[id] = { by: f.by, at: f.at };
+  }
+  return {
+    down, half: Array.isArray(g.half) ? [...new Set(g.half.filter((n): n is number => Number.isInteger(n)))] : [],
+    ...(Object.keys(goes).length ? { goes } : {}), ...(Object.keys(book).length ? { book } : {}),
+  };
 }
 
 const MIN = 60_000;
@@ -108,18 +175,25 @@ export function ageOf(grove: Grove, t: Standing, now: number): TreeAge {
   return f ? lookAt(f.at, grownAt(t, f.at), now, !!t.elder) : 3;
 }
 export const isGrown = (grove: Grove, t: Standing, now: number): boolean => ageOf(grove, t, now) === 3;
-/** A grove with what has grown again forgotten: only what still shows is kept. */
+/** Whether a go is still its owner's: opened no longer ago than a go is held. */
+const goHolds = (go: Go | undefined, now: number): go is Go => !!go && now - go.at <= TREES.go.mins * MIN && now >= go.at;
+/** A grove with what has grown again forgotten, and the goes that are held no longer: only what still counts is kept. */
 export function tidied(grove: Grove, now: number, wood: readonly Standing[] = WOOD): Grove {
   const down = Object.fromEntries(Object.entries(grove.down).filter(([id, f]) => { const t = treeOf(Number(id), wood); return !!t && now < grownAt(t, f.at); }));
-  return Object.keys(down).length === Object.keys(grove.down).length ? grove : { ...grove, down };
+  const goes = Object.fromEntries(Object.entries(grove.goes ?? {}).filter(([, go]) => goHolds(go, now)));
+  const same = Object.keys(down).length === Object.keys(grove.down).length && Object.keys(goes).length === Object.keys(grove.goes ?? {}).length;
+  if (same) return grove;
+  const { goes: _was, ...rest } = grove;
+  return { ...rest, down, ...(Object.keys(goes).length ? { goes } : {}) };
 }
 
 /**
  * The trees as a page is told them: every tree that is not grown, with when it fell and when it is grown again (a
  * page draws its look from the two, by the clock); and the trees half cut. Of the ancient tree only that it is down:
- * when it is grown again is told to whoever holds an axe that knows it.
+ * when it is grown again is told to whoever holds an axe that knows it. And the book of the pines, where anything
+ * has been found: each keepsake with who found it first.
  */
-export interface TreesTold { down: Array<{ id: number; at: number; until?: number }>; half: number[] }
+export interface TreesTold { down: Array<{ id: number; at: number; until?: number }>; half: number[]; book?: Array<[id: string, by: string]> }
 export function toldOf(grove: Grove, purse: Purse, now: number, wood: readonly Standing[] = WOOD): TreesTold {
   const knows = has(heldStack(purse), "axElder"), down: TreesTold["down"] = [];
   for (const [id, f] of Object.entries(grove.down)) {
@@ -128,7 +202,8 @@ export function toldOf(grove: Grove, purse: Purse, now: number, wood: readonly S
     const until = grownAt(t, f.at);
     if (now < until) down.push({ id: t.id, at: f.at, ...(t.elder && !knows ? {} : { until }) });
   }
-  return { down: down.sort((a, b) => a.id - b.id), half: grove.half.filter((id) => !grove.down[id]).sort((a, b) => a - b) };
+  const book = KEEPSAKE_IDS.filter((id) => grove.book?.[id]).map((id): [string, string] => [id, grove.book![id].by]);
+  return { down: down.sort((a, b) => a.id - b.id), half: grove.half.filter((id) => !grove.down[id]).sort((a, b) => a - b), ...(book.length ? { book } : {}) };
 }
 /** A tree's look as a page reads it from what it was told: grown, with nothing told of it. */
 export function lookOf(told: TreesTold | null, id: number, now: number): TreeAge {
@@ -137,15 +212,62 @@ export function lookOf(told: TreesTold | null, id: number, now: number): TreeAge
   return d.until === undefined ? 0 : lookAt(d.at, d.until, now, id === TREES.elder.id);
 }
 
+/* ── keepsakes ──────────────────────────────────────────────────────────── */
+
+/**
+ * What a pine lets fall now and then. A keepsake is no thing of the bag: it is not carried, not dealt in, and
+ * fetches nothing. Each has its name and a line of what it looks like; how often it is the one that falls
+ * (`weight`, among those a tree may let fall); and whether only a stout tree has it.
+ */
+export interface Keepsake { name: { th: string; en: string }; line: { th: string; en: string }; weight: number; stout?: boolean }
+export const KEEPSAKES = {
+  nest: { name: { th: "รังนกเปล่า", en: "An empty nest" }, line: { th: "กิ่งไม้เล็กๆ สานเป็นถ้วย มีขนอ่อนติดอยู่ก้นรัง", en: "Twigs woven into a cup, a wisp of down still in the bottom." }, weight: 10 },
+  feather: { name: { th: "ขนนกลายขวาง", en: "A barred feather" }, line: { th: "ขนนกสีน้ำตาล มีลายขวางสีเข้ม ปลายขาว", en: "Brown, with dark bars and a white tip." }, weight: 10 },
+  twinCones: { name: { th: "ลูกสนแฝด", en: "Twin cones" }, line: { th: "ลูกสนสองลูกโตติดกันบนขั้วเดียว", en: "Two cones grown from the one stem." }, weight: 10 },
+  cicada: { name: { th: "คราบจักจั่น", en: "A cicada's shell" }, line: { th: "คราบใสสีน้ำตาลอ่อน ยังเกาะเปลือกไม้ท่าเดิม", en: "A pale brown husk, still gripping the bark as it did." }, weight: 10 },
+  pellet: { name: { th: "ก้อนสำรอกนกฮูก", en: "An owl's pellet" }, line: { th: "ก้อนขนสีเทาอัดแน่น มีกระดูกชิ้นจิ๋วโผล่ออกมา", en: "A grey wad of fur packed tight, tiny bones showing." }, weight: 10 },
+  initials: { name: { th: "รอยสลักอักษรย่อ", en: "Carved initials" }, line: { th: "เปลือกไม้แผ่นหนึ่ง มีตัวอักษรสองตัวกับปีที่เลือนจนอ่านไม่ออก", en: "A slab of bark with two letters and a year worn past reading." }, weight: 6 },
+  heartKnot: { name: { th: "ตาไม้รูปหัวใจ", en: "A heart-shaped knot" }, line: { th: "ตาไม้สีเข้ม ขอบโค้งเป็นรูปหัวใจพอดี", en: "A dark knot whose edge curls into a heart." }, weight: 6 },
+  amber: { name: { th: "ลูกปัดอำพัน", en: "An amber bead" }, line: { th: "ยางไม้แข็งสีน้ำผึ้ง กลมเท่าปลายนิ้ว มีฟองอากาศอยู่ข้างใน", en: "Honey-coloured resin gone hard, round as a fingertip, a bubble inside." }, weight: 6 },
+  ribbon: { name: { th: "ริบบิ้นสีซีด", en: "A faded ribbon" }, line: { th: "ริบบิ้นผ้าผูกเป็นโบว์ สีซีดจนเกือบขาว", en: "A cloth ribbon tied in a bow, faded almost white." }, weight: 6 },
+  rustKey: { name: { th: "กุญแจขึ้นสนิม", en: "A rusted key" }, line: { th: "กุญแจเหล็กดอกเล็ก เนื้อไม้โตหุ้มไว้ครึ่งดอก", en: "A small iron key, the wood grown half around it." }, weight: 4, stout: true },
+  silverRing: { name: { th: "วงปีสีเงิน", en: "A silver ring of grain" }, line: { th: "แว่นไม้บางๆ มีวงปีวงหนึ่งเป็นสีเงิน", en: "A thin round of wood with one growth ring gone silver." }, weight: 3, stout: true },
+  carvedBird: { name: { th: "นกไม้แกะตัวจิ๋ว", en: "A tiny carved bird" }, line: { th: "นกไม้แกะสลักตัวเท่าหัวแม่มือ ปีกข้างหนึ่งบิ่น", en: "A wooden bird no bigger than a thumb, one wing chipped." }, weight: 2, stout: true },
+} as const satisfies Record<string, Keepsake>;
+export type KeepsakeId = keyof typeof KEEPSAKES;
+export const KEEPSAKE_IDS = Object.keys(KEEPSAKES) as KeepsakeId[];
+export const isKeepsake = (id: unknown): id is KeepsakeId => typeof id === "string" && Object.prototype.hasOwnProperty.call(KEEPSAKES, id);
+/** The keepsakes a tree of a girth may let fall. */
+export const keepsakesOf = (girth: Girth): KeepsakeId[] => KEEPSAKE_IDS.filter((id) => girth === 3 || !(KEEPSAKES[id] as Keepsake).stout);
+/**
+ * What a felled tree lets fall, if anything: from two numbers of chance (whether; and which, by the weights of those
+ * its girth may have). Nothing, from the ancient tree and from the trees above the first tier.
+ */
+export function keepsakeFor(t: Pick<Standing, "id" | "tier" | "elder">, whether: number, which: number): KeepsakeId | null {
+  if (t.elder || t.tier !== 1 || !(whether < 1 / TREES.keepsake.in)) return null;
+  const may = keepsakesOf(girthOf(t)), all = may.reduce((n, id) => n + KEEPSAKES[id].weight, 0);
+  let at = Math.max(0, Math.min(0.999999, which)) * all;
+  for (const id of may) { at -= KEEPSAKES[id].weight; if (at < 0) return id; }
+  return may[may.length - 1] ?? null;
+}
+
 /* ── the purse's own ────────────────────────────────────────────────────── */
 
-/** What a woodcutter's purse keeps of the line: the part of a point of stamina left owing by an axe's earth (lib/town/stamina's eased), and how many trees have fallen towards the next offcut. */
-export interface FellingKept { owed: number; dust: number }
+/**
+ * What a woodcutter's purse keeps of the line: the part of a point of stamina left owing by an axe's earth
+ * (lib/town/stamina's eased); how many trees have fallen towards the next offcut; and the keepsakes found, how many
+ * of each (they are kept here and nowhere else: never in the bag).
+ */
+export interface FellingKept { owed: number; dust: number; keeps: Partial<Record<KeepsakeId, number>> }
 export function fellingOf(purse: Pick<Purse, "felling">): FellingKept {
   const k = purse.felling, owed = typeof k?.owed === "number" && k.owed > 0 && k.owed < 1 ? k.owed : 0;
   const dust = typeof k?.dust === "number" && Number.isInteger(k.dust) && k.dust > 0 ? k.dust : 0;
-  return { owed, dust };
+  const keeps: Partial<Record<KeepsakeId, number>> = {};
+  for (const [id, n] of Object.entries(k?.keeps && typeof k.keeps === "object" ? k.keeps : {})) if (isKeepsake(id) && typeof n === "number" && Number.isInteger(n) && n > 0) keeps[id] = n;
+  return { owed, dust, keeps };
 }
+/** A woodcutter's own as it is written into a purse: nothing of what is empty. */
+const keptOut = (k: FellingKept): NonNullable<Purse["felling"]> => ({ owed: k.owed, dust: k.dust, ...(Object.keys(k.keeps).length ? { keeps: k.keeps } : {}) });
 
 /**
  * The wood a go brings home, into the bag: the purse with every thing in it, or null when the bag has not the room
@@ -172,14 +294,22 @@ const no = (why: No["why"]): No => ({ ok: false, why });
 /** The axe in the hand, if it is one. */
 export const axeOf = (purse: Purse): Stack | null => { const s = heldStack(purse); return s && toolKindOf(s.item) === "axe" ? s : null; };
 /** Whether this axe may fell that tree at all, and why not: its tier, and the ancient tree's own asking. */
-function bites(axe: Stack, t: Standing): TreeRefusal | null {
+export function bites(axe: Stack, t: Standing): TreeRefusal | null {
   if (t.tier > TREES.axeTier) return "bite";
   if (t.elder && levelOf(axe) < TREES.elder.plus) return "plus";
   return null;
 }
-/** The chops a tree takes with an axe: the axe's own all told, and half of that of a tree half cut. */
+/**
+ * The axe a tree wants, of an axe it refuses: the tier it has to be of, or the plus (a page shows it as a picture).
+ * Nothing, of a tree any axe fells.
+ */
+export function wantsOf(t: Pick<Standing, "tier" | "elder">): { tier: number; plus: number } | null {
+  if (t.tier > TREES.axeTier) return { tier: t.tier, plus: 0 };
+  return t.elder ? { tier: TREES.axeTier, plus: TREES.elder.plus } : null;
+}
+/** The chops a tree takes with an axe: the axe's own all told, of a trunk of the tree's girth; and half of that of a tree half cut. */
 export function chopsFor(axe: Stack, t: Standing, half: boolean): number {
-  const whole = axeChops(axe, t.elder ? TREES.elderChops : TREES.chops);
+  const whole = axeChops(axe, girthKnobs(t).chops);
   return half ? Math.max(1, Math.ceil(whole * TREES.chain.left)) : whole;
 }
 /**
@@ -193,6 +323,8 @@ export function groupOf(purse: Purse, grove: Grove, first: Standing, axe: Stack,
     .sort((a, b) => apart(a, first) - apart(b, first) || a.id - b.id);
   return [first, ...more.slice(0, TREES.echo.trees - 1)];
 }
+/** The fine timber a tree gives at the most: one for each number of its girth's (the ancient tree's is its own). */
+export const mostTimber = (t: Pick<Standing, "id" | "tier" | "elder">): number => (t.elder ? TREES.elder.timber : bearsOf(t).length);
 /**
  * The most a go at these trees can bring home: what the bag has to have room for before the axe is swung (where the
  * axe's scent may turn up one of two things, room for either of them a tree).
@@ -203,7 +335,7 @@ export function mostOf(axe: Stack, trees: readonly Standing[]): Array<[ItemId, n
   for (const t of trees) {
     if (t.elder) { timber += Math.ceil(TREES.elder.timber * elder); resin += Math.ceil(TREES.elder.resin * elder); continue; }
     logs += (TREES.logs + (gemBy(axe, "dark", GEM_FX.dark.axe.log) > 0 ? 1 : 0) + (has(axe, "axDust") ? optN("axDust", "more") : 0)) * twice;
-    timber += TREES.timber.clean * twice;
+    timber += mostTimber(t) * twice;
     if (has(axe, "axResin")) scent++;
   }
   const out: Array<[ItemId, number]> = [["log", logs], ["timber", timber], ...TREES.scent.map((id): [ItemId, number] => [id, scent + (id === "resin" ? resin : 0)])];
@@ -211,13 +343,21 @@ export function mostOf(axe: Stack, trees: readonly Standing[]): Array<[ItemId, n
   return out.filter(([, n]) => n > 0);
 }
 const hasRoom = (purse: Purse, axe: Stack, trees: readonly Standing[]): boolean => !!bringHome(purse, mostOf(axe, trees));
+/**
+ * The trunk a game is played on, of the trees it fells: the hardest of them (the most chops with this axe; of two
+ * alike, the stouter). One game is one trunk, whatever comes down with it.
+ */
+function trunkOf(axe: Stack, grove: Grove, trees: readonly Standing[]): { t: Standing; chops: number } {
+  return trees.map((t) => ({ t, chops: chopsFor(axe, t, grove.half.includes(t.id)) })).sort((a, b) => b.chops - a.chops || girthOf(b.t) - girthOf(a.t))[0];
+}
 
 /** What a tree walked up to comes to before the game: the trees it is played for, and the game to play (lib/town/felling makes it from `ask`). */
 export interface Begun { trees: number[]; ask: FellingAsk; elder: boolean }
 /**
  * Walk up to a tree with an axe in the hand: whether it can be felled now, and the game that fells it. `seed`: a
- * number of chance, from which each trunk is made. Refused: no axe in the hand; too far; an axe that will not bite;
+ * number of chance, from which the trunk is made. Refused: no axe in the hand; too far; an axe that will not bite;
  * the ancient tree to an axe that is not at the top; a tree that is not grown; a bag with no room for what it may give.
+ * (Whoever keeps the game writes the go down as open, with `opened`, when a board is put up for it.)
  */
 export function begin(purse: Purse, grove: Grove, id: number, at: readonly [number, number], now: number, seed: number, wood: readonly Standing[] = WOOD): ({ ok: true } & Begun) | No {
   const t = treeOf(id, wood), axe = axeOf(purse);
@@ -229,34 +369,73 @@ export function begin(purse: Purse, grove: Grove, id: number, at: readonly [numb
   if (!isGrown(grove, t, now)) return no("stump");
   const trees = groupOf(purse, grove, t, axe, now, wood);
   if (!hasRoom(purse, axe, trees)) return no("full");
+  const trunk = trunkOf(axe, grove, trees), knobs = girthKnobs(trunk.t), spent = isSpent(purse, now);
   return {
     ok: true, trees: trees.map((x) => x.id), elder: !!t.elder,
     ask: {
-      trees: trees.map((x, i) => ({ id: x.id, chops: chopsFor(axe, x, grove.half.includes(x.id)), seed: (Math.imul(seed | 0, 31) + Math.imul(x.id + 1, 7919) + i) | 0 })),
-      ahead: axeAhead(axe), pace: axeBarPace(axe),
+      trees: trees.map((x): FellTree => ({ id: x.id, girth: girthOf(x), timber: [...bearsOf(x)] })),
+      chops: trunk.chops, seed: (Math.imul(seed | 0, 31) + Math.imul(t.id + 1, 7919)) | 0, girth: girthOf(trunk.t), family: knobs.family,
+      ahead: axeAhead(axe), pace: axeBarPace(axe) * (spent ? knobs.spent : knobs.pace),
       spared: gemBy(axe, "water", GEM_FX.water.axe.spared) + (works(purse, "famWoodpecker") ? TREES.pecks : 0),
-      spent: isSpent(purse, now),
+      spent,
     },
   };
+}
+/** A board is put up for a go: it is its owner's from now, whatever anybody else does to its trees meanwhile (one go a member: an older one is forgotten). */
+export function opened(grove: Grove, me: string, trees: readonly number[], now: number): Grove {
+  return { ...grove, goes: { ...(grove.goes ?? {}), [me]: { trees: [...trees], at: now } } };
+}
+/**
+ * A friend braces the trunk of somebody's open go, from the tile they stand on: whoever it is stands near its first
+ * tree, is not the feller, and nobody braces it yet. It is written on the go, and paid when the go is over.
+ */
+export function braceGo(grove: Grove, me: string, feller: string, at: readonly [number, number], now: number, wood: readonly Standing[] = WOOD): { ok: true; grove: Grove; tree: number } | No {
+  const go = grove.goes?.[feller];
+  if (me === feller || !goHolds(go, now)) return no("none");
+  const t = treeOf(go.trees[0], wood);
+  if (!t) return no("none");
+  if (farFrom(t, at) > TREES.brace.reach) return no("far");
+  if (go.braced) return no("none");
+  return { ok: true, tree: t.id, grove: { ...grove, goes: { ...grove.goes, [feller]: { ...go, braced: me } } } };
+}
+/** What a friend who braced a trunk has for it, into their own bag: so many logs, where there is room (and nothing lost where there is none). */
+export function bracePay<P extends Purse>(purse: P): { purse: P; got: Array<[ItemId, number]> } {
+  const home = bringHome(purse, [["log", TREES.brace.logs]]);
+  return home ? { purse: home, got: [["log", TREES.brace.logs]] } : { purse, got: [] };
 }
 
 /* ── a go, brought home ─────────────────────────────────────────────────── */
 
 /**
- * How a go went, as the page played it: the tree walked up to; of every tree of the game whether it fell and with
- * how many misses; the seconds played by hand; and what was asked of the axe's counted powers (`one`: the tree to fall
- * at one chop, with no game; `twice`: twice the wood).
+ * How a go went, as the page played it: the tree walked up to; whether the trunk was cut through, and with how many
+ * misses; the seconds played by hand. Or the plain way (`plain`: the tree felled at once, with no board). And what
+ * was asked of the axe's counted powers (`one`: the tree to fall at one chop, with no game; `twice`: twice the wood).
  */
-export interface FellWent { tree: number; trees: Array<{ id: number; felled: boolean; misses: number }>; secs: number; one?: boolean; twice?: boolean }
-/** The numbers of chance a go may need, each from 0 to 1, a set a tree: whether the axe's dark turns up a log more, whether its scent turns something up and what, whether its lightning half cuts a neighbour. */
-export interface FellLuck { dark: number; scent: number; which: number; chain: number }
-/** One tree that fell: its number and kind, the misses it fell with, what it gave, and the neighbour its fall left half cut, if any. */
-export interface FellOne { id: number; kind: string; misses: number; got: Array<[ItemId, number]>; chained: number | null; free: boolean; twice: boolean }
-/** What a go came to: the purse and the grove after it, every tree that fell, all it brought home, and whether it was the one chop of the axe's own. */
-export interface Fell { purse: Purse; grove: Grove; felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean }
+export interface FellWent { tree: number; through?: boolean; misses?: number; secs: number; plain?: boolean; one?: boolean; twice?: boolean }
+/**
+ * The numbers of chance a go may need, each from 0 to 1, a set a tree: whether the axe's dark turns up a log more,
+ * whether its scent turns something up and what, whether its lightning half cuts a neighbour, and whether the tree
+ * lets a keepsake fall and which (none, where the last two are not given).
+ */
+export interface FellLuck { dark: number; scent: number; which: number; chain: number; keep?: number; kind?: number }
+/**
+ * One tree that fell: its number, kind and girth; the misses it fell with; what it gave; the fine timber among that
+ * and the most it could have given; the neighbour its fall left half cut, if any; and the keepsake it let fall.
+ */
+export interface FellOne { id: number; kind: string; girth: Girth; misses: number; got: Array<[ItemId, number]>; timber: number; most: number; chained: number | null; free: boolean; twice: boolean; keepsake?: KeepsakeId }
+/**
+ * What a go came to: the purse and the grove after it; every tree that fell; all it brought home; whether it was the
+ * one chop of the axe's own, or the plain way; whether the trunk was cut through; whether the tree stands after all
+ * (the ancient tree, of a go that was lost); the keepsakes found, each with whether nobody had found one before; and
+ * who braced the trunk, to be paid for it.
+ */
+export interface Fell {
+  purse: Purse; grove: Grove; felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean; plain: boolean; through: boolean; stood: boolean;
+  found: Array<{ id: KeepsakeId; first: boolean }>; braced: string | null;
+}
 
-/** The fine timber a plain tree gives, by the misses it fell with. */
-export const timberFor = (misses: number): number => (misses <= 0 ? TREES.timber.clean : misses <= TREES.timber.fair ? TREES.timber.some : 0);
+/** The fine timber a tree of a girth gives, cut through with so many misses (the plain girth's, where none is named). */
+export const timberFor = (misses: number, girth: Girth = 2): number => timberOf(TREES.girths[girth - 1].timber, Math.max(0, misses));
 /** Things, summed: each kind once, in the order it first came. */
 function summed(all: Array<Array<[ItemId, number]>>): Array<[ItemId, number]> {
   const out: Array<[ItemId, number]> = [];
@@ -265,51 +444,66 @@ function summed(all: Array<Array<[ItemId, number]>>): Array<[ItemId, number]> {
 }
 
 /**
- * A go at felling, as it is judged by whoever keeps the game. The trees named have to be the ones the game was for
- * (the one walked up to, and with the echo axe those near it), still grown, and reached with an axe that bites; a go
- * that says it was played faster than a hand can chop is no go. Every tree that fell is a stump for everybody from
- * now, and gives its wood; the stamina is paid a tree felled. A go in which nothing fell changes nothing.
- * `luck`: a set of numbers of chance for each tree named, in their order.
+ * A go at felling, as it is judged by whoever keeps the game. The tree named has to be reached with an axe that
+ * bites. Every tree of the go comes down, however it went, and gives its logs; the fine timber is the board's: a
+ * trunk cut through gives each tree its own by the misses, and a go that says it was played faster than a hand can
+ * chop is no go. The plain way fells the one tree walked up to, for its logs alone.
+ *
+ * The trees of a go are those its board was opened for (`opened`), while it holds: each still grown, or felled
+ * since by somebody else, whose stump it stays, and who takes nothing from whoever was at it. Of a go that was
+ * never written down they are worked out afresh, and have to be grown. Only the ancient tree stands when its go is
+ * lost: then nothing changes. Every tree that falls is a stump for everybody from now; the stamina is paid a tree.
+ * `luck`: a set of numbers of chance for each tree, in their order. `who`: the name the book of the pines writes
+ * beside what was never found before.
  */
-export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at: readonly [number, number], now: number, luck: readonly FellLuck[], wood: readonly Standing[] = WOOD): ({ ok: true } & Fell) | No {
+export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at: readonly [number, number], now: number, luck: readonly FellLuck[], wood: readonly Standing[] = WOOD, who: string = me): ({ ok: true } & Fell) | No {
   const first = treeOf(went.tree, wood), axe = axeOf(purse);
   if (!first) return no("none");
   if (!axe) return no("tool");
   if (farFrom(first, at) > TREES.reach) return no("far");
   const refused = bites(axe, first);
   if (refused) return no(refused);
-  const group = groupOf(purse, grove, first, axe, now, wood);
   let mine = purse;
-  // the axe's one chop: the tree walked up to falls with no game (never the ancient tree), and nothing else does
-  const one = !!went.one;
-  if (one) {
+  const one = !!went.one, plain = !one && !!went.plain, board = !one && !plain;
+  // the axe's one chop, and the plain way: the tree walked up to and nothing else, there and then (never the ancient tree)
+  if (!board) {
     if (first.elder) return no("none");
     if (!isGrown(grove, first, now)) return no("stump");
+  }
+  if (one) {
     const used = usePower(mine, axe, "axOne", now);
     if (!used.ok) return no(used.why);
     mine = used.purse;
   }
-  const named = one ? [{ id: first.id, felled: true, misses: 0 }] : went.trees;
-  if (!Array.isArray(named) || new Set(named.map((n) => n.id)).size !== named.length) return no("none");
-  const fallen: Array<{ t: Standing; misses: number; i: number }> = [];
-  named.forEach((n, i) => {
-    const t = group.find((g) => g.id === n.id);
-    if (n.felled && t && isGrown(grove, t, now)) fallen.push({ t, misses: Math.max(0, Math.floor(Number(n.misses) || 0)), i });
-  });
-  // (the tree walked up to was felled by somebody else meanwhile, and nothing of the game's stands any more: told as the stump it is)
-  if (!fallen.length && named.some((n) => n.felled)) return no("stump");
-  if (!one && !(Number(went.secs) + 0.05 >= leastSecs(fallen.map((f) => chopsFor(axe, f.t, grove.half.includes(f.t.id)))))) return no("none");
+  // the trees of the go: those its board was opened for, still grown or felled meanwhile by another; or worked out afresh
+  const go = grove.goes?.[me], held = board && goHolds(go, now) && go.trees[0] === first.id ? go : null;
+  const theirs = (t: Standing): boolean => { const f = grove.down[t.id]; return !!held && !!f && f.by !== me && f.at >= held.at && now < grownAt(t, f.at); };
+  const trees = !board ? [first]
+    : held ? held.trees.map((id) => treeOf(id, wood)).filter((t): t is Standing => !!t && !bites(axe, t) && (isGrown(grove, t, now) || theirs(t)))
+    : groupOf(purse, grove, first, axe, now, wood).filter((t) => isGrown(grove, t, now));
+  if (!trees.length) return no("stump");
+  const through = !board || !!went.through, misses = board ? Math.max(0, Math.floor(Number(went.misses) || 0)) : 0;
+  if (board && through && !(Number(went.secs) + 0.05 >= leastSecs([trunkOf(axe, grove, trees).chops]))) return no("none");
+  const goes = { ...(grove.goes ?? {}) };
+  if (board) delete goes[me];
+  const closed = (g: Grove): Grove => { const { goes: _was, ...rest } = g; return { ...rest, ...(Object.keys(goes).length ? { goes } : {}) }; };
+  // the ancient tree, of a go that was lost: it stands, and nothing is changed but that the go is over
+  if (first.elder && !through) return { ok: true, purse, grove: closed(grove), felled: [], got: [], one, plain, through, stood: true, found: [], braced: null };
 
   let down = { ...grove.down }, half = grove.half.slice(), kept = fellingOf(mine);
+  const book = { ...(grove.book ?? {}) }, found: Fell["found"] = [];
   const felled: FellOne[] = [];
-  for (const { t, misses, i } of fallen) {
+  trees.forEach((t, i) => {
     const l = luck[i] ?? { dark: 1, scent: 1, which: 1, chain: 1 }, got: Array<[ItemId, number]> = [];
-    let twice = false, free = false;
+    let twice = false, free = false, timber = 0;
     if (t.elder) {
       const by = has(axe, "axElder") ? optN("axElder", "by") : 1;
-      got.push(["timber", Math.ceil(TREES.elder.timber * by)], ["resin", Math.ceil(TREES.elder.resin * by)]);
+      timber = Math.ceil(TREES.elder.timber * by);
+      got.push(["timber", timber], ["resin", Math.ceil(TREES.elder.resin * by)]);
     } else {
-      let logs = TREES.logs, timber = timberFor(misses);
+      let logs = TREES.logs;
+      // the fine timber: the board's, by the misses; all of it at the axe's one chop; none the plain way
+      timber = one ? mostTimber(t) : plain || !through ? 0 : timberOf(bearsOf(t), misses);
       if (l.dark < gemBy(axe, "dark", GEM_FX.dark.axe.log)) logs++;
       if (has(axe, "axDust")) {
         kept = { ...kept, dust: kept.dust + 1 };
@@ -332,23 +526,31 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
       mine = paid.purse;
       kept = { ...kept, owed: paid.owed };
     }
-    down[t.id] = { at: now, by: me };
+    // (a tree somebody else felled meanwhile stays their stump)
+    if (!down[t.id] || now >= grownAt(t, down[t.id].at)) down[t.id] = { at: now, by: me };
     half = half.filter((id) => id !== t.id);
     // the axe's lightning: the nearest grown tree that is not falling in this go is left half cut
     let chained: number | null = null;
     if (!t.elder && l.chain < gemBy(axe, "lightning", GEM_FX.lightning.axe.chain)) {
-      const near = wood.filter((o) => !o.elder && o.id !== t.id && !bites(axe, o) && !half.includes(o.id) && !down[o.id] && apart(o, t) <= TREES.chain.reach && !fallen.some((f) => f.t.id === o.id))
+      const near = wood.filter((o) => !o.elder && o.id !== t.id && !bites(axe, o) && !half.includes(o.id) && !down[o.id] && apart(o, t) <= TREES.chain.reach && !trees.some((f) => f.id === o.id))
         .sort((a, b) => apart(a, t) - apart(b, t) || a.id - b.id)[0];
       if (near) { half.push(near.id); chained = near.id; }
     }
-    felled.push({ id: t.id, kind: kindOf(t), misses, got, chained, free, twice });
-  }
+    // what the tree lets fall besides: kept by whoever felled it, and written in the village's book the first time
+    const keepsake = keepsakeFor(t, l.keep ?? 1, l.kind ?? 1);
+    if (keepsake) {
+      kept = { ...kept, keeps: { ...kept.keeps, [keepsake]: (kept.keeps[keepsake] ?? 0) + 1 } };
+      found.push({ id: keepsake, first: !book[keepsake] });
+      book[keepsake] ??= { by: who, at: now };
+    }
+    felled.push({ id: t.id, kind: kindOf(t), girth: girthOf(t), misses, got, timber, most: mostTimber(t), chained, free, twice, ...(keepsake ? { keepsake } : {}) });
+  });
   const got = summed(felled.map((f) => f.got)), home = bringHome(mine, got);
   if (!home) return no("full");
   // (what has grown again is forgotten as the grove is written)
   for (const id of Object.keys(down)) { const t = treeOf(Number(id), wood); if (!t || now >= grownAt(t, down[id].at)) delete down[id]; }
-  const keptNow = felled.length ? { felling: kept } : {};
-  return { ok: true, purse: { ...home, ...keptNow }, grove: { down, half }, felled, got, one };
+  const after: Grove = { ...closed(grove), down, half, ...(Object.keys(book).length ? { book } : {}) };
+  return { ok: true, purse: { ...home, felling: keptOut(kept) }, grove: after, felled, got, one, plain, through, stood: false, found, braced: board && held?.braced && held.braced !== me ? held.braced : null };
 }
 
 /**
@@ -376,16 +578,19 @@ export function rootable(purse: Purse, grove: Grove, me: string, now: number, wo
 
 /**
  * The catalog's row: what the database needs of the trees to keep them and to judge a go. Every knob; the least a
- * chop takes; the axe as the game reads it (what each plus is, each option of the axe's with its pool, its numbers and
- * its count, what each gem does: lib/town/tools' own numbers, copied here so that the trees' rules in the database
- * stand on no other part); and every tree there is, as [number, x, y, tier, tiles across].
+ * chop takes, and what tired hands and a brace change; the axe as the game reads it (what each plus is, each option
+ * of the axe's with its pool, its numbers and its count, what each gem does: lib/town/tools' own numbers, copied here
+ * so that the trees' rules in the database stand on no other part); the keepsakes, each with its weight and whether
+ * only a stout tree has it; and every tree there is, as [number, x, y, tier, tiles across, girth].
  * (The trees are the mountain's, which is laid out only in `next dev`: the row a database is given has to be made
  * there, or it has no tree in it.)
  */
 export const treesRow = () => ({
-  regrow: TREES.regrow, cost: TREES.cost, reach: TREES.reach, axeTier: TREES.axeTier, logs: TREES.logs, timber: TREES.timber,
-  chops: TREES.chops, elderChops: TREES.elderChops, elder: TREES.elder, kinds: TREES.kinds, elderKind: TREES.elderKind, scent: TREES.scent,
-  echo: TREES.echo, chain: TREES.chain, pecks: TREES.pecks, root: TREES.root, quickest: FELLING.quickest,
+  regrow: TREES.regrow, cost: TREES.cost, reach: TREES.reach, axeTier: TREES.axeTier, logs: TREES.logs, girths: TREES.girths, girthSeed: TREES.girthSeed, girthAbove: TREES.girthAbove,
+  elderChops: TREES.elderChops, elderPace: TREES.elderPace, elderSpent: TREES.elderSpent, elderFamily: TREES.elderFamily, elder: TREES.elder, kinds: TREES.kinds, elderKind: TREES.elderKind, scent: TREES.scent,
+  echo: TREES.echo, chain: TREES.chain, pecks: TREES.pecks, root: TREES.root, go: TREES.go, brace: TREES.brace, keepsake: TREES.keepsake,
+  quickest: FELLING.quickest, tired: FELLING.tired, braced: FELLING.brace,
+  keepsakes: Object.fromEntries(KEEPSAKE_IDS.map((id) => [id, { weight: KEEPSAKES[id].weight, stout: !!(KEEPSAKES[id] as Keepsake).stout }])),
   axe: {
     top: FORGE.top, milestones: FORGE.milestones, pools: FORGE.pools, sockets: FORGE.sockets, gemAtTop: FORGE.gemAtTop, gemLevels: GEM_LEVELS, cap: FORGE.cap,
     chops: LEVELS.axe.chops, ahead: LEVELS.axe.ahead, slow: LEVELS.axe.slow, elements: ELEMENTS,
@@ -395,5 +600,5 @@ export const treesRow = () => ({
     })),
     gems: Object.fromEntries(ELEMENTS.map((e) => [e, GEM_FX[e].axe])),
   },
-  wood: WOOD.map((t) => [t.id, t.x, t.y, t.tier, t.size ?? 1]),
+  wood: WOOD.map((t) => [t.id, t.x, t.y, t.tier, t.size ?? 1, girthOf(t)]),
 });

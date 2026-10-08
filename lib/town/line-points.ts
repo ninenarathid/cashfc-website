@@ -37,8 +37,10 @@ export const POINTS = {
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
   insects: { plain: 1, way: 3, rare: 8, pays: 20 },
   farming: { every: 12 },
-  // ── felling ── (a tree felled, by its kind: lib/town/trees' kindOf; the ancient tree its own)
+  // ── felling ── (a tree felled, by its kind: lib/town/trees' kindOf; the ancient tree its own; and, on the helpers'
+  // line, a trunk braced for somebody else's go)
   felling: { pine: 2, ironwood: 2, moonwood: 2, elder: 10 } as Record<string, number>,
+  braced: 1,
   // ── end: felling ──
 };
 
@@ -63,7 +65,7 @@ export function linesRow() {
     insects,
     farming: Object.fromEntries(CROP_IDS.map((id) => [id, Math.max(1, Math.floor(CROPS[id].hours / POINTS.farming.every))])),
     // ── felling ──
-    felling: POINTS.felling,
+    felling: POINTS.felling, braced: POINTS.braced,
     // ── end: felling ──
   };
 }
@@ -141,10 +143,12 @@ export function countsOf(d: Done, doer: string): Counts[] {
       const hours = CROPS[thing as CropId]?.hours;
       return hours && !other ? [{ to: null, line: "farming", raw: Math.max(1, Math.floor(hours / POINTS.farming.every)), first: `farming:${thing}` }] : [];
     }
-    // ── felling ── (a tree felled: its kind is the deed's thing)
+    // ── felling ── (a tree felled: its kind is the deed's thing; and whoever braced its trunk, if anybody, has a point
+    // of the helpers')
     case "fell": {
-      const raw = POINTS.felling[thing] ?? 0;
-      return raw ? [{ to: null, line: "felling", raw, first: `felling:${thing}` }] : [];
+      const raw = POINTS.felling[thing] ?? 0, by = d.doc.braced;
+      if (!raw) return [];
+      return [{ to: null, line: "felling", raw, first: `felling:${thing}` }, ...(typeof by === "string" && by && by !== doer ? [{ to: by, line: "helpers" as const, raw: POINTS.braced }] : [])];
     }
     // ── end: felling ──
     default:

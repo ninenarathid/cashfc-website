@@ -30,6 +30,11 @@ import { TREES, axeOf, begin, fell, grownAt, rootBack, toldOf, type FellLuck, ty
  * The trees are the mountain's, which is laid out only in `next dev`: the cases are made with the layout as it is
  * there, and the catalog's `trees` row written with them is that one.
  *
+ * (2026-10-08, evening: the rules changed after v164's felling part was written: a tree always falls, a pine has a
+ * girth, one game is one trunk, a go is its owner's once its board is open, keepsakes, a friend's brace. The cases
+ * below are made from the rules as they are now; the database's part is to be written again to them, and the cases
+ * of what is new there, `opened`, `braceGo`, `bracePay`, are to be added with it.)
+ *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-felling.test.ts
  */
 interface Vector { fn: string; args: unknown[]; want: unknown }
@@ -118,12 +123,12 @@ export async function vectorsFelling(): Promise<{ all: Vector[]; trees: unknown;
   };
   const beside = (t: Standing): [number, number] => { const n = t.size ?? 1; return c.of([[t.x - 1, t.y], [t.x + n, t.y], [t.x, t.y + n], [t.x + n, t.y + n], [t.x - 1, t.y - 1]] as Array<[number, number]>); };
   const which = (): Standing => (c.maybe(0.25) ? c.of(trio) : c.maybe(0.12) ? elder : c.maybe(0.1) ? c.of(upper) : c.of(pines));
-  const luck = (): FellLuck => ({ dark: c.maybe(0.3) ? c.next() * 0.2 : c.next(), scent: c.maybe(0.4) ? c.next() * 0.25 : c.next(), which: c.next(), chain: c.maybe(0.4) ? c.next() * 0.2 : c.next() });
+  const luck = (): FellLuck => ({ dark: c.maybe(0.3) ? c.next() * 0.2 : c.next(), scent: c.maybe(0.4) ? c.next() * 0.25 : c.next(), which: c.next(), chain: c.maybe(0.4) ? c.next() * 0.2 : c.next(), keep: c.maybe(0.4) ? c.next() * 0.16 : c.next(), kind: c.next() });
 
   // the axe as the game reads it
   for (let i = 0; i < 400; i++) {
     const s = axe();
-    const base = i % 2 ? TREES.chops : TREES.elderChops;
+    const base = i % 4 === 3 ? TREES.elderChops : TREES.girths[i % 3].chops;
     add("axe_chops", [s, base], axeChops(s, base));
     add("axe_ahead", [s], axeAhead(s));
     add("axe_pace", [s], axeBarPace(s));
@@ -145,14 +150,10 @@ export async function vectorsFelling(): Promise<{ all: Vector[]; trees: unknown;
     const id = c.maybe(0.03) ? 9999 : t.id, where = c.maybe(0.9) ? beside(t) : ([t.x + 4, t.y + 3] as [number, number]), seed = c.int(0, 2 ** 31 - 1);
     const b = begin(p, g, id, where, now, seed, wood);
     add("fell_begin", [p, g, id, where[0], where[1], now, seed], b);
-    // the go: of what was begun, mostly; now and then of something else
-    const group = b.ok ? b.trees : [id];
-    let named = group.map((tree) => ({ id: tree, felled: c.maybe(0.85), misses: c.of([0, 0, 0, 1, 1, 2, 3, 5]) }));
-    if (c.maybe(0.05)) named = [...named, { id: c.of(pines).id, felled: true, misses: 0 }];
-    if (c.maybe(0.03) && named.length) named = [...named, named[0]];
-    const chops = b.ok ? b.ask.trees.reduce((n, x) => n + x.chops, 0) : 12;
-    const went: FellWent = { tree: id, trees: named, secs: c.maybe(0.08) ? c.of([0, 0.1, 0.3]) : Math.round((chops * (0.2 + c.next() * 0.5)) * 10) / 10, ...(c.maybe(0.15) ? { one: true } : {}), ...(c.maybe(0.3) ? { twice: true } : {}) };
-    const lucks = named.map(() => luck());
+    // the go: cut through, mostly; now and then lost; now and then the plain way
+    const chops = b.ok ? b.ask.chops : 12;
+    const went: FellWent = { tree: id, through: c.maybe(0.85), misses: c.of([0, 0, 0, 1, 1, 2, 3, 5]), secs: c.maybe(0.08) ? c.of([0, 0.1, 0.3]) : Math.round((chops * (0.2 + c.next() * 0.5)) * 10) / 10, ...(c.maybe(0.12) ? { plain: true } : {}), ...(c.maybe(0.15) ? { one: true } : {}), ...(c.maybe(0.3) ? { twice: true } : {}) };
+    const lucks = Array.from({ length: TREES.echo.trees }, () => luck());
     add("fell", [p, g, ME, went, where[0], where[1], now, lucks], fell(p, g, ME, went, where, now, lucks, wood));
   }
   // the powers of an axe at the top, with some of each left, one left, and none
@@ -165,9 +166,8 @@ export async function vectorsFelling(): Promise<{ all: Vector[]; trees: unknown;
     p.powers = { axOne: { k: dayOf(now), n: c.of([0, 9, 10]) }, axDouble: { k: dayOf(now), n: c.of([0, 9, 10]) }, axRoot: { k: dayOf(now), n: c.of([0, 2, 3]) }, axFresh: { k: dayOf(now) * 3 + mealOf(now), n: c.of([0, 4, 5]) } };
     const b = begin(p, g, t.id, where, now, i, wood);
     add("fell_begin", [p, g, t.id, where[0], where[1], now, i], b);
-    const named = (b.ok ? b.trees : [t.id]).map((tree) => ({ id: tree, felled: true, misses: c.of([0, 1, 3]) }));
-    const went: FellWent = { tree: t.id, trees: named, secs: 9, ...(c.maybe(0.5) ? { one: true } : {}), ...(c.maybe(0.5) ? { twice: true } : {}) };
-    const lucks = named.map(() => luck());
+    const went: FellWent = { tree: t.id, through: true, misses: c.of([0, 1, 3]), secs: 9, ...(c.maybe(0.5) ? { one: true } : {}), ...(c.maybe(0.5) ? { twice: true } : {}) };
+    const lucks = Array.from({ length: TREES.echo.trees }, () => luck());
     add("fell", [p, g, ME, went, where[0], where[1], now, lucks], fell(p, g, ME, went, where, now, lucks, wood));
     const mine: Grove = { down: { ...g.down, [t.id]: { at: now - c.of([1, 60, 119, 121]) * 1000, by: c.maybe(0.85) ? ME : HER } }, half: g.half };
     add("fell_root", [p, mine, ME, t.id, now], rootBack(p, mine, ME, t.id, now, wood));
@@ -198,9 +198,9 @@ describe("the cases the database's rules of woodcutting are held to", () => {
     expect(whys("fell_begin")).toEqual(["bite", "far", "full", "none", "ok", "plus", "stump", "tool"]);
     expect(whys("fell")).toEqual(["bite", "far", "full", "none", "ok", "plus", "spent", "stump", "tool"]);
     expect(whys("fell_root")).toEqual(["none", "ok", "spent", "tool"]);
-    const begun = of("fell_begin").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { trees: number[]; elder: boolean; ask: { trees: Array<{ chops: number }>; spared: number; spent: boolean; ahead: number; pace: number } });
+    const begun = of("fell_begin").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { trees: number[]; elder: boolean; ask: { chops: number; spared: number; spent: boolean; ahead: number; pace: number } });
     expect(begun.some((b) => b.trees.length === 3) && begun.some((b) => b.trees.length === 2) && begun.some((b) => b.elder) && begun.some((b) => b.ask.spent) && begun.some((b) => b.ask.spared >= 2)).toBe(true);
-    expect(new Set(begun.map((b) => b.ask.trees[0].chops)).size).toBeGreaterThan(8);
+    expect(new Set(begun.map((b) => b.ask.chops)).size).toBeGreaterThan(8);
     expect(new Set(begun.map((b) => b.ask.pace)).size).toBeGreaterThan(8);
     const felled = of("fell").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { felled: Array<{ id: number; kind: string; got: Array<[string, number]>; chained: number | null; free: boolean; twice: boolean }>; one: boolean; purse: Purse });
     expect(felled.some((f) => f.felled.length === 0) && felled.some((f) => f.felled.length === 3) && felled.some((f) => f.one) && felled.some((f) => f.felled.some((x) => x.kind === "elder"))).toBe(true);
