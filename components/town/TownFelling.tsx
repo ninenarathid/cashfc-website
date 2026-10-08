@@ -402,13 +402,14 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
           <span ref={gain} aria-hidden className="absolute inset-y-0 block bg-[#f4ffd9] opacity-0" data-felling-gain />
         </span>
         {/* where the go stands: the fine timber it is heading for, a pip each (a group a tree), and the chops made */}
-        <div className="pointer-events-none absolute inset-x-2 top-7 flex items-start gap-1.5">
+        <div className="pointer-events-none absolute inset-x-2 top-7 flex flex-wrap items-start gap-1.5">
           <span className="flex items-center gap-1 rounded-full border-2 border-[#2a190d] bg-[#4a2f18]/90 px-1.5 py-0.5 font-data text-label tabular-nums text-[#ffeccb]" data-felling-cut={p.cut} data-felling-chops={game.chops}
                 data-hits={p.end === "through" ? game.chops : p.cut} data-need={game.chops}>
             <TownIcon name={"axe" as IconName} size={16} />{p.end === "through" ? game.chops : p.cut}/{game.chops}
           </span>
           <span className="flex flex-wrap items-center gap-1.5 rounded-full border-2 border-[#2a190d] bg-[#4a2f18]/90 px-1.5 py-0.5" data-felling-pips={heading.join(",")} data-edge={edge ? "" : undefined}
                 role="img" aria-label={th ? `ไม้เนื้อดีที่กำลังจะได้ ${heading.reduce((a, b) => a + b, 0)}` : `Fine timber in reach: ${heading.reduce((a, b) => a + b, 0)}`}>
+            {!many && !elder && <span className="pl-0.5 text-label text-[#ffeccb]">{th ? "ไม้เนื้อดี" : "Fine timber"}</span>}
             {game.trees.map((t, i) => (
               <span key={t.id} className="flex gap-0.5">
                 {t.timber.map((_, j) => {
