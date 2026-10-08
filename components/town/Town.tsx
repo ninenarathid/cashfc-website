@@ -51,6 +51,7 @@ import type { FarmDraw } from "./TownFarm";
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
 import type { BugsAim } from "./TownBugs";
 import type { GroundTap } from "./TownGround";
+import type { BridgeTap, Hand } from "./TownBridge";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import type { Stuck } from "@/lib/town/session";
@@ -122,6 +123,7 @@ const TownBugs = lazy(() => import("./TownBugs"));
 const TownWell = lazy(() => import("./TownWell"));
 const TownBox = lazy(() => import("./TownBox"));
 const TownGround = lazy(() => import("./TownGround"));
+const TownBridge = lazy(() => import("./TownBridge"));
 const TownSign = lazy(() => import("./TownSign"));
 const TownCircle = lazy(() => import("./TownCircle"));
 const TownThanks = lazy(() => import("./TownThanks"));
@@ -137,7 +139,7 @@ const TownScroll = lazy(() => import("./TownScroll"));
 const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop"];
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", "works"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** What a worn title is written in, by its rank (components/town/TownLines' own, kept here so that the map does not load that screen to draw a name): bronze, silver, gold, and the last rank's own. */
@@ -781,6 +783,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const groundDraw = useRef<FarmDraw | null>(null), groundTap = useRef<GroundTap | null>(null);
   const registerGround = useCallback((draw: FarmDraw | null) => { groundDraw.current = draw; }, []);
   const registerGroundTap = useCallback((tap: GroundTap | null) => { groundTap.current = tap; }, []);
+  // ── the bridge built by hand ── (lib/town/bridge, TownBridge): its own way of drawing the pile of stone and the sign,
+  // and of saying whether a tap was on one of them; everybody on the map as its offering needs them (what each carries
+  // in their hands among it); and the room told what I carry
+  const bridgeDraw = useRef<FarmDraw | null>(null), bridgeTap = useRef<BridgeTap | null>(null);
+  const registerBridge = useCallback((draw: FarmDraw | null) => { bridgeDraw.current = draw; }, []);
+  const registerBridgeTap = useCallback((tap: BridgeTap | null) => { bridgeTap.current = tap; }, []);
+  const hands = useCallback((): Hand[] => {
+    const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
+    return (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: a.info.hold || null, carry: a.info.carry || null, away: a.info.away, spent: a.info.spent }));
+  }, []);
+  const carryTold = useCallback((thing: string | null) => { session?.setCarrying(thing); }, [session]);
   /** The tile I am on, walking or not: where a thing I drop comes to lie. */
   const whereAmI = useCallback((): [number, number] | null => { const a = sessionRef.current?.self; return a ? [Math.floor(a.pos.x), Math.floor(a.pos.y)] : null; }, []);
   /** The test window (the owner's, in the trial): every thing there is, to look at and to conjure. */
@@ -2145,6 +2159,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       cookDraw.current?.(frame);
       // what has been dropped on the ground, on whichever map
       groundDraw.current?.(frame);
+      // ── the bridge built by hand ── (the pile of stone by the uncle's shop, and the sign at the bridge's foot)
+      bridgeDraw.current?.(frame);
     }
     if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
@@ -2663,6 +2679,31 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     ctx.restore();
   }
 
+  /**
+   * ── the bridge built by hand ── What somebody carries in both hands (a stone: lib/town/bridge): its own picture
+   * held before them, a fist on either side of it (`fists`: not of somebody seen from behind, whose body hides
+   * most of it); it dips a little at every other step, for its weight. (The picture is the works' own,
+   * lib/town/works-art: until it has come, nothing is drawn.)
+   */
+  function drawCarried(ctx: CanvasRenderingContext2D, p: Vec, h: number, look: Look, id: string, now: number, walking: boolean, px: number, fists: boolean) {
+    const art = sceneryRef.current;
+    if (!art?.has("stoneHeld")) return;
+    const v = cam.current, unit = Math.max(1, v.s), snap = (n: number) => Math.round(n / unit) * unit;
+    const dip = walking && !reducedRef.current ? (Math.floor(now / 280 + id.charCodeAt(0)) % 2) * unit : 0;
+    const x = snap(p.x), y = snap(p.y - h * 0.22 + dip);
+    art.drawProp(ctx, "stoneHeld", x, y, v.s * 0.85, px);
+    if (!fists) return;
+    ctx.save();
+    for (const side of [-1, 1]) {
+      const fx = x + side * 7 * unit;
+      ctx.fillStyle = "#2a1b12";
+      ctx.fillRect(fx - 2 * unit, y - 7 * unit, 4 * unit, 4 * unit);
+      ctx.fillStyle = SKINS[look.skin]?.hex ?? "#e8b98f";
+      ctx.fillRect(fx - unit, y - 6 * unit, 2 * unit, 2 * unit);
+    }
+    ctx.restore();
+  }
+
   /** Which way somebody faces: the way they walk; after standing a while, towards you; with a rod out, towards their float. */
   function facingOf(a: Avatar, isMe: boolean, now: number): { view: View; mirror: boolean } {
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
@@ -2767,6 +2808,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const fishesWith: RodId = isRod(a.info.hold) ? a.info.hold : "rod";
     if (rod && face.view === "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
     if (held && face.view === "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
+    // ── the bridge built by hand ── (a stone carried in both hands: before them, so behind whoever faces away)
+    if (a.info.carry && face.view === "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, false);
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -2783,6 +2826,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     if (rod && face.view !== "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
     if (held && face.view !== "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
+    if (a.info.carry && face.view !== "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, true);
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
@@ -3185,6 +3229,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const thing = groundTap.current(x, y);
       if (thing) { if (thing.walk && sessionRef.current?.walkTo(thing.walk)) cam.current.follow = true; return; }
     }
+    // ── the bridge built by hand ── (its pile and its sign: done from where I stand, or walked up to first)
+    if (gameRef.current && bridgeTap.current) {
+      const hit = bridgeTap.current(x, y);
+      if (hit) { if (hit.walk && sessionRef.current?.walkTo(hit.walk)) cam.current.follow = true; return; }
+    }
     // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
     // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
@@ -3247,7 +3296,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           || signBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1)
           || (!!sb && p.x >= sb.x0 && p.x <= sb.x1 && p.y >= sb.y0 && p.y <= sb.y1)
           || (!!gameRef.current && !!keeper?.feast() && feastBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1))
-          || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1);
+          || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1)
+          || (!!gameRef.current && !!bridgeTap.current?.(p.x, p.y, true));   // ── the bridge built by hand ── (its pile and its sign)
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
       return;
@@ -4518,6 +4568,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownGround keeper={keeper} th={w.th} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? standing?.tile ?? null : null}
                       bottom={phone && tabbar ? "calc(12rem + env(safe-area-inset-bottom))" : "8rem"} sfx={sfxRef.current} register={registerGround} registerTap={registerGroundTap} />
+        </Suspense>
+      )}
+      {/* ── the bridge built by hand ── a stone lifted at the pile, handed on, laid at the foot; and the sign's panel */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownBridge keeper={keeper} me={me.id} th={w.th} people={hands}
+                      here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
+                      sfx={sfxRef.current} phone={phone} tabbar={tabbar} register={registerBridge} registerTap={registerBridgeTap} carry={carryTold} />
         </Suspense>
       )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}

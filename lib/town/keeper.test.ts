@@ -43,9 +43,9 @@ describe("the database's keeper", () => {
     await settle();
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
     // whether the chest in the plaza is a storage box, with what I keep in it; whether a bag can be put in order;
-    // whether things can be dropped on the ground, with what lies about; and everybody's rank at the well, for the
-    // names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
+    // whether things can be dropped on the ground, with what lies about; whether the village has works, with what I
+    // carry in my hands; and everybody's rank at the well, for the names over heads)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_well_ranks", "town_work"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -71,14 +71,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_well_ranks", "town_work"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(11);
+    expect(db.asked).toHaveLength(12);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -553,7 +553,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_works_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);
@@ -602,6 +602,96 @@ describe("the database's keeper", () => {
     await settle();
     expect(await none).toEqual({ ok: false, why: "away" });
     expect(o.box()).toBeNull();
+    o.close();
+  });
+
+  // ── the bridge built by hand ── (lib/town/bridge; v160)
+  it("keeps the village's works as it is told them, tells the taker of a stone and everybody of every stone laid, and knows of none where the database has none", async () => {
+    // (the spans' hands and what was found in the stones come with it, once a stone is laid)
+    const bridge = (have: number, mine: number, helpers: string[] = []) => ({ open: true, done: null, needs: { stone: { need: 600, have } }, helpers: helpers.map((id) => ({ id, name: id })), mine: mine ? { stone: mine } : {},
+      built: helpers.length ? { 1: helpers.map((id) => ({ id, name: id })) } : {}, finds: have >= 100 ? [{ kind: "pearl", at: NOW, span: 1, hands: helpers.map((id) => ({ id, name: id })) }] : [] });
+    let told: unknown = { works: { bridge: bridge(98, 0) }, carried: null };
+    const sent: Array<[string, Record<string, unknown>]> = [], nudges: Array<[string, string | undefined]> = [];
+    const answer = (more: Record<string, unknown> = {}) => ({ now: NOW, purse: purse(), works: told, ...more });
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_works_read: () => ({ now: NOW, works: told }),
+      town_stone_lift: (a) => { sent.push(["lift", a]); told = { works: { bridge: bridge(98, 0) }, carried: { work: "bridge", thing: "stone" } }; return answer({ ok: true }); },
+      town_stone_pass: (a) => { sent.push(["pass", a]); told = { works: { bridge: bridge(98, 0) }, carried: null }; return answer({ ok: true }); },
+      town_stone_lay: (a) => {
+        sent.push(["lay", a]);
+        const have = ((told as { works: { bridge: { needs: { stone: { have: number } } } } }).works.bridge.needs.stone.have) + 1;
+        told = { works: { bridge: bridge(have, 1, ["me"]) }, carried: null };
+        return answer({ ok: true, have, spans: Math.floor(have / 100), span: have % 100 === 0, whole: false, into: 1, find: have === 100 ? "pearl" : null });
+      },
+      town_stone_drop: () => { sent.push(["drop", {}]); return answer({ ok: false, why: "none" }); },
+    });
+    const k = new DbKeeper("me", db.ask);
+    k.onDeed = (what, to) => { nudges.push([what, to]); };
+    expect(k.works()).toBeNull();
+    await settle();
+    // asked for once as the game begins: the bridge is known before its pile is walked up to
+    expect(k.works()?.works.bridge).toMatchObject({ open: true, needs: { stone: { need: 600, have: 98 } } });
+    expect(k.works()?.carried).toBeNull();
+    // lifting: the tile I stand on; the answer brings what I carry, and nobody else is told through the room
+    const lift = k.stoneLift([41, 28]);
+    await settle();
+    expect(await lift).toMatchObject({ ok: true });
+    expect(sent[0]).toEqual(["lift", { p_x: 41, p_y: 28 }]);
+    expect(k.works()?.carried).toEqual({ work: "bridge", thing: "stone" });
+    expect(nudges).toEqual([]);
+    // handing on: to whom; whoever takes it is told through the room, and my hands are empty
+    const pass = k.stonePass("them");
+    await settle();
+    expect(await pass).toMatchObject({ ok: true });
+    expect(sent[1]).toEqual(["pass", { p_to: "them" }]);
+    expect(k.works()?.carried).toBeNull();
+    expect(nudges).toEqual([["works", "them"]]);
+    // laying: the tile; every stone laid is told to everybody (each page shows whoever had a hand in it what it earned), the one that finishes a span like any other
+    const one = k.stoneLay([12, 28]);
+    await settle();
+    expect(await one).toMatchObject({ ok: true, have: 99, span: false, into: 1, find: null });
+    expect(sent[2]).toEqual(["lay", { p_x: 12, p_y: 28 }]);
+    expect(nudges).toEqual([["works", "them"], ["works", undefined]]);
+    expect(k.works()?.works.bridge).toMatchObject({ built: { 1: [{ id: "me", name: "me" }] }, finds: [] });
+    const span = k.stoneLay([12, 28]);
+    await settle();
+    expect(await span).toMatchObject({ ok: true, have: 100, spans: 1, span: true, find: "pearl" });
+    expect(nudges[2]).toEqual(["works", undefined]);
+    expect(k.works()?.works.bridge).toMatchObject({ needs: { stone: { have: 100 } }, mine: { stone: 1 }, helpers: [{ id: "me", name: "me" }], finds: [{ kind: "pearl", at: NOW, span: 1, hands: [{ id: "me", name: "me" }] }] });
+    // a refusal is the rule's own word, and what is kept is as it was told
+    const none = k.stoneDrop();
+    await settle();
+    expect(await none).toEqual({ ok: false, why: "none" });
+    // the room says the works changed (a stone handed to me, a span laid by somebody): asked for again, wherever I am
+    told = { works: { bridge: bridge(100, 1, ["me"]) }, carried: { work: "bridge", thing: "stone" } };
+    const before = db.asked.filter((fn) => fn === "town_works_read").length;
+    k.nudged("works");
+    await settle();
+    expect(db.asked.filter((fn) => fn === "town_works_read").length).toBe(before + 1);
+    expect(k.works()?.carried).toEqual({ work: "bridge", thing: "stone" });
+    // a bridge that is not open is told as that and nothing more, whatever came with it
+    told = { works: { bridge: { open: false, done: null, needs: { stone: { need: 600, have: 5 } }, helpers: [{ id: "me", name: "me" }], mine: { stone: 1 } } }, carried: null };
+    await k.worksLook();
+    expect(k.works()?.works.bridge).toEqual({ open: false, done: null, needs: {}, helpers: [], mine: {}, built: {}, finds: [] });
+    k.close();
+
+    // a database that has no works yet answers nothing: nothing of them is shown, nothing is asked for when the room
+    // says so, and a stone asked for all the same could not be reached
+    const old = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const o = new DbKeeper("me", old.ask);
+    await settle();
+    expect(old.asked).toContain("town_works_read");
+    expect(o.works()).toBeNull();
+    const asked = old.asked.length;
+    o.nudged("works");
+    await o.worksLook();
+    await settle();
+    expect(old.asked).toHaveLength(asked);
+    const away = o.stoneLift([41, 28]);
+    await settle();
+    expect(await away).toEqual({ ok: false, why: "away" });
+    expect(o.works()).toBeNull();
     o.close();
   });
 

@@ -5,6 +5,8 @@
 //                                               forest.json): fetched only by whoever goes there (lib/town/scenery.ts)
 //   node build-scenery.mjs --set kitchen        what the cooking screen is laid on (kitchen-<hash>.png + kitchen.json):
 //                                               fetched only by whoever opens it (components/town/TownKitchen)
+//   node build-scenery.mjs --set works          the village's works' things (works-<hash>.png + works.json): the bridge's
+//                                               pile of stone, a stone, its sign (lib/town/works-art.ts)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -30,7 +32,7 @@ fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
 /** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (SET !== "scenery" && SET !== "forest" && SET !== "kitchen") throw new Error(`no such set: ${SET}`);
+if (SET !== "scenery" && SET !== "forest" && SET !== "kitchen" && SET !== "works") throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -134,6 +136,22 @@ const KITCHEN = [
   ["scene-town-game-kitchen", ["gameKitchen"], "scene"],
   ["scene-town-game-worktable", ["gameWorktable"], "scene"],
 ];
+// The village's works' own (lib/town/bridge; the owner, 2026-10-08: "สะพานจากมือชาวบ้าน"): the pile of stone by the
+// uncle's shop, the same pile under its cloth while the bridge is not open, one stone as it is carried in two hands,
+// and the sign at the bridge's foot. A picture of their own, so that the town's picture is as it was. Their pixels
+// are about six and a half of the sheet's: measured freely the build takes two of them for one (13.8), and at 6.9 or
+// 8 the little bridge carved on the sign comes out broken, so the range says where to look.
+// And what the building is seen by (the owner, 2026-10-08 evening: every picture the piece names, "อย่าไปคิดเรื่องต้นทุนรูป"):
+// the mark on the road where a row would stand and the banner at the foot; three stones of the course that grows at
+// the foot, with the scaffold, the hoist with its rope and the arch's wooden form that are put up as a span comes on;
+// the six things a stone may have in it, and a glint; and the feast of a span laid: bunting, a lantern, confetti, a wreath.
+const WORKS = [
+  ["scene-bridge-works", ["stonePile", "stonePileCloth", "stoneHeld", "bridgeSign"], undefined, undefined, [6.5, 6.7]],
+  ["scene-bridge-road", ["standMark", "bridgeBanner"]],
+  ["scene-bridge-course", ["courseA", "courseB", "courseC", "siteScaffold", "siteHoist", "siteArch"]],
+  ["scene-bridge-finds", ["findShell", "findCoin", "findRune", "findPearl", "findStar", "findLeaf", "glint"]],
+  ["scene-bridge-feast", ["feastBunting", "feastLantern", "feastConfetti", "feastWreath"]],
+];
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
 // like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist
 // liked. [file, name, the size of its own pixel, how]. `twice` doubles one that is to stand as tall as the town's own
@@ -164,6 +182,7 @@ const READY = {
     ["woodlog1", "logShort", 4, { twice: true, drop: ["a7a9a4", "a4a09e"], foot: [0.5, 0.86] }],
   ],
   kitchen: [],
+  works: [],
 };
 // Ground that came drawn (the same folder's pack of textures; the ones used are in work/oatto/tex, with the pack's
 // licence: free to use and to change, not to be handed on as files, which is one more reason they stay out of the
@@ -179,6 +198,7 @@ const READY_TEX = {
   },
   forest: {},
   kitchen: {},
+  works: {},
 };
 /** The mean of each colour of a picture's pixels, and how far its light and dark spread about their mean. */
 function colourOf(buf) {
@@ -235,7 +255,7 @@ function twice(im) {
 }
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
-const TEXTURES = SET === "forest" ? ["wood"] : SET === "kitchen" ? [] : ["grass", "plaza", "road", "water", "sand", "field"];
+const TEXTURES = SET === "forest" ? ["wood"] : SET === "kitchen" || SET === "works" ? [] : ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
 /** Whole sheets as gridded, for a later sheet to stand where an earlier one does: its cells and its ground point. */
@@ -257,7 +277,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST : SET === "kitchen" ? KITCHEN : SHEETS) {
+for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST : SET === "kitchen" ? KITCHEN : SET === "works" ? WORKS : SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop

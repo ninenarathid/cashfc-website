@@ -400,6 +400,22 @@ class TrialKeeper implements Keeper {
     return did;
   }
 
+  // ── the bridge built by hand ── (whoever takes a stone is in another tab: told through the room, as the database's keeper tells them)
+  works() { return this.trial.works(); }
+  async worksLook() { /* the works are in this browser already */ }
+  async stoneLift(at: [number, number]): Promise<Did> { return this.trial.stoneLift(at); }
+  async stonePass(to: string): Promise<Did> {
+    const did = this.trial.stonePass(to);
+    if (did.ok) this.onDeed?.("works", to);
+    return did;
+  }
+  async stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null }>> {
+    const did = this.trial.stoneLay(at);
+    if (did.ok) this.onDeed?.("works");
+    return did;
+  }
+  async stoneDrop(): Promise<Did> { return this.trial.stoneDrop(); }
+
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }
 }

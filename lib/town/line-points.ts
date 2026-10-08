@@ -3,6 +3,7 @@ import { BUGS } from "./insects";
 import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
 import { LINES, LINE_IDS, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
+import { BRIDGE } from "./bridge";
 
 /**
  * What counts for the points of a line (lib/town/lines), read off what is written down anyway: a deed (the
@@ -21,6 +22,7 @@ import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
  * - **Insects**: one in plain sight 1, one caught by its own way 3, a rare one or a beetle 8.
  * - **Farming**: a picking of a plant one sowed, a point for every twelve hours its crop takes (one at the least).
  * - **The first of its kind** (a fish, a forest thing, an insect, a crop, a recipe) is ten more, once ever.
+ * - **A stone laid for the bridge** (lib/town/bridge) is a helpers' point to everybody whose hands it went through.
  * - **The well** is not here: its count is the bucketfuls poured, which the well's own book keeps (lib/town/well).
  *
  * The numbers are knobs (mine, to be set from what the members really do before the lines open). A day's bound is
@@ -134,6 +136,10 @@ export function countsOf(d: Done, doer: string): Counts[] {
       const hours = CROPS[thing as CropId]?.hours;
       return hours && !other ? [{ to: null, line: "farming", raw: Math.max(1, Math.floor(hours / POINTS.farming.every)), first: `farming:${thing}` }] : [];
     }
+    // ── the bridge built by hand ── (lib/town/bridge: a stone laid counts for everybody whose hands it went through,
+    // whoever laid it and each of the others, a line of the deeds for each; what it is worth is the bridge's own number)
+    case "stone_lay": case "stone_hand":
+      return [{ to: null, line: "helpers", raw: BRIDGE.point }];
     default:
       return [];
   }

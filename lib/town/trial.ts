@@ -45,6 +45,8 @@ import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGif
 // ── gifts: helpers ──
 import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
+// ── the bridge built by hand ──
+import { BRIDGE, drop as stoneDrop, laid as stoneLaid, lay as stoneLay, lift as stoneLift, luckFor, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -91,6 +93,8 @@ const BUG_HUNTS = "cashtown.trial.bugs.hunts.1";
 const WELL_LOG = "cashtown.trial.welllog.1";
 // Everybody's lines of work as they are kept, by member and by line (lib/town/line-points), and the title each wears.
 const LINES_AT = "cashtown.trial.lines.1", TITLES = "cashtown.trial.titles.1";
+/** The village's works (lib/town/bridge): the whole browser's, so that one tester hands a stone to another and all build one bridge. */
+const WORKS_AT = "cashtown.trial.works.1";
 /** The thanks given (lib/town/thanks), and the jar at the well with what waits at it for each (lib/town/jar): the whole browser's. */
 const THANKS = "cashtown.trial.thanks.1", JAR = "cashtown.trial.jar.1";
 /** The bucketfuls in the cooking yard's water jar (lib/town/yard): the whole browser's. */
@@ -687,6 +691,71 @@ export class Trial {
     this.save(did.from);
     return { ok: true, n: did.n };
   }
+  /* ── the bridge built by hand (lib/town/bridge): the works are everybody's, a stone is in one tester's hands ── */
+  private worksKept(): WorksKept {
+    return this.read<WorksKept>(WORKS_AT, newWorks, (v) => { const k = v as Partial<WorksKept> | null; return !!k && !!k.works && typeof k.works === "object" && !!k.works[BRIDGE.work] && !!k.carried && typeof k.carried === "object"; });
+  }
+  /** The works as I am told them (a tester has no name here: the page calls each by what the room calls them). */
+  works(): WorksTold { return worksTold(this.worksKept(), this.id, () => ""); }
+  /** For scripts: what the next stone I lift has in it (a kind, or null for a plain one), whatever its moment would draw. Once. */
+  private marked: string | null | undefined;
+  worksMark(kind: string | null) { this.marked = kind; }
+  stoneLift(at: [number, number]): { ok: true } | { ok: false; why: BridgeRefusal } {
+    const kept = this.worksKept(), now = this.now();
+    const did = this.marked === undefined ? stoneLift(this.purse(), kept.carried[this.id] ?? null, workOf(kept, BRIDGE.work), at, this.id, now)
+      : stoneLift(this.purse(), kept.carried[this.id] ?? null, workOf(kept, BRIDGE.work), at, this.id, now, luckFor(this.marked));
+    if (!did.ok) return did;
+    this.marked = undefined;
+    this.write(WORKS_AT, { ...kept, carried: { ...kept.carried, [this.id]: did.carried } });
+    this.save(did.purse);
+    return { ok: true };
+  }
+  /** Hand the stone I hold on to another tester of this browser. */
+  stonePass(to: string): { ok: true } | { ok: false; why: BridgeRefusal } {
+    if (!to || to === this.id) return { ok: false, why: "none" };
+    const kept = this.worksKept(), mine = kept.carried[this.id] ?? null;
+    const did = stonePass(mine, to, trialFor(to).purse(), kept.carried[to] ?? null, workOf(kept, mine?.work ?? BRIDGE.work));
+    if (!did.ok) return did;
+    const carried = { ...kept.carried, [to]: did.carried };
+    delete carried[this.id];
+    this.write(WORKS_AT, { ...kept, carried });
+    this.tell();
+    return { ok: true };
+  }
+  /** Lay it at the foot: everybody whose hands it went through is counted it, is one of that span's hands, and has a helpers' point for it; and what was in the stone is set in the bridge. */
+  stoneLay(at: [number, number]): { ok: true; have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null } | { ok: false; why: BridgeRefusal } {
+    const kept = this.worksKept(), now = this.now(), mine = kept.carried[this.id] ?? null, did = stoneLay(this.purse(), mine, workOf(kept, mine?.work ?? BRIDGE.work), at, now);
+    if (!did.ok) return did;
+    const carried = { ...kept.carried };
+    delete carried[this.id];
+    this.write(WORKS_AT, stoneLaid({ ...kept, carried }, mine!.work, mine!.thing, did.hands, did.into, did.find, now));
+    for (const h of did.hands) (h === this.id ? this : trialFor(h)).counted({ from: "deed", what: h === this.id ? "stone_lay" : "stone_hand", thing: mine!.thing, n: 1, doc: {} });
+    this.save(did.purse);
+    return { ok: true, have: did.have, spans: did.spans, span: did.span, whole: did.whole, into: did.into, find: did.find };
+  }
+  stoneDrop(): { ok: true } | { ok: false; why: BridgeRefusal } {
+    const kept = this.worksKept(), mine = kept.carried[this.id] ?? null, did = stoneDrop(mine, workOf(kept, mine?.work ?? BRIDGE.work));
+    if (!did.ok) return did;
+    const carried = { ...kept.carried };
+    delete carried[this.id];
+    this.write(WORKS_AT, { ...kept, carried });
+    this.tell();
+    return { ok: true };
+  }
+  /** For scripts and the test window: the bridge opened (as its owner opens it, with one line) or closed again; and so many stones laid already (nobody's). */
+  worksOpen(open = true) {
+    const kept = this.worksKept(), w = kept.works[BRIDGE.work];
+    this.write(WORKS_AT, { ...kept, works: { ...kept.works, [BRIDGE.work]: { ...w, opened: open ? w.opened ?? this.now() : null } } });
+    this.tell();
+  }
+  worksHave(have: number) {
+    const kept = this.worksKept(), w = kept.works[BRIDGE.work], need = w.needs[BRIDGE.thing], n = Math.max(0, Math.floor(have));
+    this.write(WORKS_AT, { ...kept, works: { ...kept.works, [BRIDGE.work]: { ...w, done: need.need !== null && n >= need.need ? w.done ?? this.now() : null, needs: { ...w.needs, [BRIDGE.thing]: { ...need, have: n } } } } });
+    this.tell();
+  }
+  /** For scripts and the test window: the bridge as it was at first: closed, no stone laid, nobody counted, nobody holding one. */
+  worksAnew() { this.set(WORKS_AT, null); this.tell(); }
+
   /** For scripts and the test window: so many bucketfuls in the yard's jar (nobody's water). */
   setYardJar(buckets: number) { this.write(YARD_JAR, Math.max(0, Math.floor(buckets))); this.tell(); }
   /** What the thing in my hand can do with water where I stand (by the river, or at the well), if anything; and doing it. */
@@ -1422,7 +1491,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT]) this.set(key, null);
     this.tell();
   }
 }
