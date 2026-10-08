@@ -220,13 +220,13 @@ export const optN = (id: OptionId, key: string): number => (OPTIONS[id].n as Rea
 export const BUILT: Record<ToolKind, { opts: readonly OptionId[]; gems: readonly Element[] }> = {
   pick: { opts: ["pkPeek", "pkCrumb", "pkSteady", "pkLoose", "pkFresh", "pkCutter", "pkQuake", "pkTwin", "pkDrill", "pkGleam"], gems: ELEMENTS },
   axe: { opts: ["axGrain", "axDust", "axKeen", "axResin", "axFresh", "axDry", "axOne", "axDouble", "axRoot", "axElder"], gems: ELEMENTS },
-  rod: { opts: [], gems: [] },
-  hoe: { opts: [], gems: [] },
-  can: { opts: [], gems: [] },
-  bugNet: { opts: [], gems: [] },
-  pot: { opts: [], gems: [] },
-  pan: { opts: [], gems: [] },
-  grill: { opts: [], gems: [] },
+  rod: { opts: ["rdCalm"], gems: ["fire", "ice", "wind"] },
+  hoe: { opts: ["hoClear", "hoFirst", "hoFresh", "hoLight"], gems: ["fire", "water", "ice", "earth", "wind", "light"] },
+  can: { opts: ["cnDrop", "cnThrift", "cnFresh"], gems: ["fire", "water", "ice", "earth", "wind", "dark"] },
+  bugNet: { opts: ["ntAgain", "ntMesh", "ntFresh", "ntLong"], gems: ["fire", "water", "earth", "wind"] },
+  pot: { opts: ["ckBase", "ckFresh", "ckBrisk"], gems: ["fire", "water", "ice", "earth", "wind"] },
+  pan: { opts: ["ckBase", "ckFresh", "ckBrisk"], gems: ["fire", "water", "ice", "earth", "wind"] },
+  grill: { opts: ["ckBase", "ckFresh", "ckBrisk"], gems: ["fire", "water", "ice", "earth", "wind"] },
 };
 /** The options of a pool that may be drawn for a kind of tool now: those of its pool that are built. */
 export const drawable = (kind: ToolKind, pool: 1 | 2): OptionId[] => poolOf(kind, pool).filter((id) => BUILT[kind].opts.includes(id));

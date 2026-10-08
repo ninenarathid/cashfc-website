@@ -469,6 +469,10 @@ describe("the stamina a forged tool takes off (whoever keeps the game)", () => {
     let n = 0;
     for (let i = 0; i < 8; i++) { const w = done(tend(`${i},1`, sown(), undefined, 0, 0, p, "me", NOW)); p = w.purse; n++; }
     expect([n, staminaOf(p, NOW), p.bag[0]?.water]).toEqual([8, 100 - 6, 1]);
+    // and a can whose first waterings of a meal's hours are free
+    const fresh = done(tend("1,1", sown(), undefined, 0, 0, purseOf({ ...tool("can", 3, drawn("cnFresh")), water: 5 }), "me", NOW));
+    expect([fresh.deed, staminaOf(fresh.purse, NOW), powerUsed(fresh.purse, "cnFresh", NOW), fresh.purse.bag[0]?.water]).toEqual(["water", 100, 1, 4]);
+    expect(staminaOf(done(tend("1,1", sown(), undefined, 0, 0, purseOf({ ...tool("can"), water: 5 }), "me", NOW)).purse, NOW)).toBe(100 - FARMING.costs.water);
     // a catch with a forged net: ten free catches a meal's hours
     const h = HAUNTS[0], has: Swarm = { turn: 1, bug: "ladybird", n: 1, seed: 1 }, at: [number, number] = [Math.floor(h.perches[0].x), Math.floor(h.perches[0].y)];
     const netted = done(net(purseOf(tool("bugNet", 3, drawn("ntFresh"))), h, has, 0, false, "bugNet", at, 2, NOW));
@@ -499,5 +503,19 @@ describe("what is built", () => {
     // the pot, the pan and the grill are forged alike
     expect(BUILT.pan).toEqual(BUILT.pot);
     expect(BUILT.grill).toEqual(BUILT.pot);
+    // (and the wind is every tool's: lib/town/tools walks whoever holds it)
+    for (const kind of OLD) expect(BUILT[kind].gems).toContain("wind");
+  });
+  it("is, of each tool's options and elements, those a reader of this file gives something for", () => {
+    const stack = (kind: ToolKind, opt: OptionId | null, gem: string | null): Stack => {
+      const pool = opt ? OPTIONS[opt].pool : 1;
+      return tool(kind as ItemId, 10, opt ? (pool === 1 ? drawn(opt) : drawn(null, null, opt)) : [], gem ? [gem] : []);
+    };
+    const read = (kind: ToolKind, s: Stack) => JSON.stringify(kind === "rod" ? rodFx(s) : kind === "hoe" ? hoeFx(s) : kind === "can" ? canFx(s) : kind === "bugNet" ? netFx(s) : cookFx(s));
+    for (const kind of OLD) {
+      const bare = read(kind, stack(kind, null, null));
+      for (const id of BUILT[kind].opts) expect(read(kind, stack(kind, id, null)), `${kind} ${id}`).not.toBe(bare);
+      for (const e of BUILT[kind].gems) if (e !== "wind") expect(read(kind, stack(kind, null, e)), `${kind} ${e}`).not.toBe(bare);
+    }
   });
 });
