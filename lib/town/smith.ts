@@ -53,6 +53,11 @@ export const SMITH_TALKS: Line[][] = [
   ],
 ];
 
+/** What he asks, where his forge is open: said before what one came for is chosen (as the uncle's and the banker's ASK). */
+export const SMITH_ASK: Line = { th: "วันนี้จะให้ข้าทำอะไรให้ล่ะ", en: "What shall I do for you today?" };
+/** The lines of a talk at an open forge: the greeting for the hour, then what he asks. */
+export const smithAsk = (hour: number): Line[] => [smithHello(hour), SMITH_ASK];
+
 /** The lines of one talk: the greeting for the hour, then his conversation number `turn` (they go round). */
 export function smithTalk(hour: number, turn: number): Line[] {
   const n = ((Math.floor(turn) % SMITH_TALKS.length) + SMITH_TALKS.length) % SMITH_TALKS.length;

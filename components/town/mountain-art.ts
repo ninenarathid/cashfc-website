@@ -4,7 +4,7 @@ import { BOUNDS, floorBounds } from "@/lib/town/camera";
 import { CAVE_LIGHT, CAVE_SIZE, lightsOf, reveal, type CaveLight } from "@/lib/town/cave";
 import { sampleAge, type TreeAge } from "@/lib/town/mountain";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
-import { SMITH_WHO, smithTalk } from "@/lib/town/smith";
+import { SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
 import type { Line } from "@/lib/town/talk";
 import {
   BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, TILE_H, TILE_W,
@@ -670,6 +670,10 @@ export class MountainArt {
   /** The blacksmith's next talk: his name and portrait, and what he says at this hour. */
   talk(hour: number): { as: { name: Line; job: Line; art: [string, string] }; lines: Line[] } {
     return { as: SMITH_WHO, lines: smithTalk(hour, this.smithTurn++) };
+  }
+  /** His talk where his forge is open (whoever keeps the game has a smith): the greeting, and what he asks; the choices are the map's to add. */
+  ask(hour: number): { as: { name: Line; job: Line; art: [string, string] }; lines: Line[] } {
+    return { as: SMITH_WHO, lines: smithAsk(hour) };
   }
 }
 

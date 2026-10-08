@@ -3687,8 +3687,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // ── to come ── (the blacksmith, in the preview: his lines, his name and his portrait are the preview's module's; he
     // only talks, whether the game is open or not)
     if (process.env.NODE_ENV === "development" && asked === "smith") {
-      const told = moreArt.current?.talk(hour);
-      if (told) setTalk({ who: asked, n, ...told });
+      const art = moreArt.current;
+      if (!art) return;
+      // ── forging ── (where the game is open and whoever keeps it has a smith, he asks what one came for and offers
+      // his screen's leaves (TownSmith's smithChoices; the screen's own module is asked for here, as it is about to be
+      // opened); with no smith kept, he only talks, as before)
+      if (gameRef.current && keeper?.smith()) {
+        void import("./TownSmith").then(({ smithChoices }) => {
+          if (talks.current !== n) return;
+          const choices = smithChoices(keeper, th);
+          setTalk(choices.length ? { who: asked, n, ...art.ask(hour), choices } : { who: asked, n, ...art.talk(hour) });
+        });
+        return;
+      }
+      setTalk({ who: asked, n, ...art.talk(hour) });
       return;
     }
     const who = asked as Speaker;
@@ -3815,7 +3827,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const all = standers(), mine = all.find((p) => p.id === me.id);
     return mine ? all.filter((p) => p.id !== me.id && !p.away && Math.hypot(p.x - mine.x, p.y - mine.y) <= 6).map((p) => ({ id: p.id, name: p.name })) : [];
   }, [standers, me.id]);
-  const pickTalk = (who: Speaker, id: string) => {
+  const pickTalk = (who: Speaker | "smith", id: string) => {
+    // ── forging ── (the blacksmith's choices are his screen's leaves)
+    if (who === "smith") { openSmith(id as SmithView); return; }
     if (id === "chat") setTalk({ who, n: ++talks.current, lines: chatFor(who, talkTurns.current[who]++) });
     else openTrade(id === "order" ? "sell" : (id as TradeView));
   };
@@ -4439,7 +4453,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2"
              style={{ bottom: phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem" }}>
           <div className="pop-in pointer-events-auto w-full max-w-[44rem]" data-state="open">
-            <TownTalk key={talk.n} who={talk.who} as={talk.as} lines={talk.lines} choices={talk.choices} onPick={(id) => pickTalk(talk.who as Speaker, id)}
+            <TownTalk key={talk.n} who={talk.who} as={talk.as} lines={talk.lines} choices={talk.choices} onPick={(id) => pickTalk(talk.who, id)}
                       th={w.th} phone={phone} reduced={reducedRef.current} art={boardArt} onClose={() => setTalk(null)} />
           </div>
         </div>
