@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { countWords, gemDoes, optionDoes, setGemWords } from "./tool-words";
-import { ELEMENTS, GEM_FX, OPTIONS, OPTION_IDS, TOOL_KINDS, optN } from "./tools";
+import { describe, expect, it } from "vitest";
+import { OLD_FX } from "./forged";
+import { countWords, gemDoes, optionDoes } from "./tool-words";
+import { BUILT, ELEMENTS, GEM_FX, OPTIONS, OPTION_IDS, TOOL_KINDS, optN } from "./tools";
 
 describe("what an option does, in a line (the smith's cards)", () => {
   it("every option has a line in both languages, and no two say the same", () => {
@@ -36,7 +37,6 @@ describe("what an option does, in a line (the smith's cards)", () => {
 });
 
 describe("what a gem does in a tool, in a line (said only on the card of a tool it is set in)", () => {
-  afterEach(() => setGemWords(() => null));
   it("the pick and the axe: every element at every level, each level saying more than the last or the same", () => {
     for (const kind of ["pick", "axe"] as const) for (const e of ELEMENTS) {
       const lines = [1, 2, 3, 4].map((l) => gemDoes(kind, e, l));
@@ -56,12 +56,20 @@ describe("what a gem does in a tool, in a line (said only on the card of a tool 
   it("with no gem set there is nothing to say", () => {
     for (const kind of TOOL_KINDS) for (const e of ELEMENTS) expect(gemDoes(kind, e, 0)).toBeNull();
   });
-  it("the older tools: the wind's line is the same for every tool; the rest is said by whoever builds what they do", () => {
+  it("the older tools: every gem the smith will set in one has a line, at both levels a first-tier tool reaches, from the numbers its game reads", () => {
+    for (const kind of TOOL_KINDS) for (const e of BUILT[kind].gems) for (const level of [1, 2]) {
+      const w = gemDoes(kind, e, level);
+      expect(w, `${kind} ${e} ${level}`).not.toBeNull();
+      expect(w!.th.length).toBeGreaterThan(6);
+      expect(w!.en.length).toBeGreaterThan(6);
+      expect(`${w!.th} ${w!.en}`).not.toMatch(/undefined|NaN/);
+    }
     expect(gemDoes("rod", "wind", 1)).toEqual(gemDoes("pick", "wind", 1));
     expect(gemDoes("hoe", "wind", 2)!.en).toContain("15%");
-    setGemWords((kind, element, level) => (kind === "rod" && element === "fire" ? { th: `ไฟ ${level}`, en: `fire ${level}` } : null));
-    expect(gemDoes("rod", "fire", 2)).toEqual({ th: "ไฟ 2", en: "fire 2" });
-    expect(gemDoes("hoe", "fire", 2)).toBeNull();
-    expect(gemDoes("pick", "fire", 1)!.en).toMatch(/swings/);
+    expect(gemDoes("rod", "fire", 1)!.en).toContain(String(Math.round(OLD_FX.fire.rod.tires[0] * 100)));
+    expect(gemDoes("can", "fire", 2)!.en).toContain(String(OLD_FX.fire.can.more[1]));
+    expect(gemDoes("bugNet", "light", 1)!.en).toContain(String(OLD_FX.light.bugNet.seen[0]));
+    // the pot, the pan and the grill say the same
+    for (const e of BUILT.pot.gems) expect(gemDoes("pan", e, 1)).toEqual(gemDoes("pot", e, 1));
   });
 });
