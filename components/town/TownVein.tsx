@@ -5,7 +5,7 @@ import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import { oreOf, type MineRefusal, type PendingVein } from "@/lib/town/mining";
 import type { FishSfx } from "@/lib/town/sfx";
 import { GEMS } from "@/lib/town/tools";
-import { VEIN, begin, faceOf, headOf, iceOf, mayStrike, over, strike, yieldOf, type Cell, type Crack } from "@/lib/town/vein";
+import { VEIN, begin, bestRoute, faceOf, headOf, iceOf, mayStrike, over, strike, yieldOf, type Cell, type Crack, type Family } from "@/lib/town/vein";
 import { STAGE } from "./TownGame";
 import TownIcon, { type IconName } from "./TownIcon";
 
@@ -19,6 +19,10 @@ import TownIcon, { type IconName } from "./TownIcon";
  *
  * A vein opened with no stamina left waits: its board says how many strikes there are and that what glints is to be
  * remembered, and the moment in which it shows begins only at the press of "ready".
+ *
+ * A face comes of a family (a seam, a cluster, a ring, a scatter), and says which: by its name, and by a pale mark
+ * where the family lies. Once a go is over the face stays in sight, with the best go there was on it drawn faintly
+ * beside the one that was played, and how many each passed.
  */
 const SCENE = "/town/mine-vein-a4dbff6321.png";
 /** How long after its last strike a go is sent, and how long a strike's own look lasts (milliseconds). */
@@ -31,6 +35,13 @@ const HOW: [th: string, en: string] = [
   "แตะช่องแนวเดียวกับปลายรอยร้าว รอยร้าววิ่งไปทางนั้นได้ครั้งละ 2 ช่อง พาผ่านแร่ให้มากที่สุดก่อนทุบหมด ก้อนดำกั้นทางไว้",
   "Tap a cell in line with the crack's end: it runs up to 2 cells that way. Pass as much ore as you can before your strikes run out. Dark knots stop it.",
 ];
+/** What a face is called, by its family: of ore, and of a gem. */
+const FAMILY: Record<Family, { ore: [th: string, en: string]; gem: [th: string, en: string] }> = {
+  seam: { ore: ["สายแร่แนวยาว", "A seam of ore"], gem: ["สายพลอยแนวยาว", "A seam of gems"] },
+  cluster: { ore: ["สายแร่เป็นกระจุก", "A cluster of ore"], gem: ["สายพลอยเป็นกระจุก", "A cluster of gems"] },
+  ring: { ore: ["สายแร่วงแหวน", "A ring of ore"], gem: ["สายพลอยวงแหวน", "A ring of gems"] },
+  scatter: { ore: ["สายแร่กระจาย", "Scattered ore"], gem: ["สายพลอยกระจาย", "Scattered gems"] },
+};
 /** A crack is no ruled line: each stretch of it is bent a little to one side, the same every time for the same two cells. */
 function bent(a: readonly [number, number], b: readonly [number, number]): string {
   const k = (((a[0] * 7 + a[1] * 13 + b[0] * 17 + b[1] * 29) % 5) - 2) * 0.055, mx = (a[0] + b[0]) / 2 + 0.5, my = (a[1] + b[1]) / 2 + 0.5;
@@ -128,25 +139,31 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
     return () => window.removeEventListener("keydown", key);
   }, [hit, hx, hy, phase, send, onClose]);
 
+  // once a go is over and kept: the best go there was on this face with what this one was played with, to hold against it
+  const best = useMemo(() => (phase === "came" ? bestRoute(face, mods) : null), [phase, face, mods]);
+
   // for scripts in `next dev`
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     (window as unknown as { __townVein?: unknown }).__townVein = {
-      state: () => ({ face, ice, head: [hx, hy], left: crack.left, back: crack.back, got: [...crack.got], path: crack.path, phase, seen, round, gem: vein.gem, mods, came }),
+      state: () => ({ face, ice, head: [hx, hy], left: crack.left, back: crack.back, got: [...crack.got], path: crack.path, phase, seen, round, gem: vein.gem, mods, came, family: face.family, best }),
       strike: (cell: [number, number]) => hit(cell),
       enough: () => { if (phase === "play") void send(); },
       ready: () => { if (phase === "ready") ready(); },
     };
     return () => { delete (window as unknown as { __townVein?: unknown }).__townVein; };
-  }, [face, ice, hx, hy, crack, phase, seen, round, vein.gem, mods, came, hit, send, ready]);
+  }, [face, ice, hx, hy, crack, phase, seen, round, vein.gem, mods, came, hit, send, ready, best]);
 
-  const size = face.size, title = vein.gem ? (th ? "สายแร่พลอย" : "A gem vein") : (th ? "สายแร่พิเศษ" : "A special vein");
+  const size = face.size, title = FAMILY[face.family][vein.gem ? "gem" : "ore"][th ? 0 : 1];
+  // (the best go there was: straight from cell to cell, and set a little aside, so that it is seen beside the crack where the two run together)
+  const bestPath = best ? best.path.map((p, i) => `${i ? "L" : "M"}${(p[0] + 0.62).toFixed(2)} ${(p[1] + 0.62).toFixed(2)}`).join(" ") : "";
+  const [lx0, ly0, lx1, ly1] = face.lie;
   const path = `M${(crack.path[0][0] + 0.5).toFixed(3)} ${(crack.path[0][1] + 0.5).toFixed(3)} ${crack.path.slice(1).map((p, i) => bent(crack.path[i], p)).join(" ")}`;
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const fresh = !!last && !reduced;
 
   return (
-    <section aria-label={title} data-town-vein data-phase={phase} data-round={round} data-left={crack.left} data-got={crack.got.length} data-of={face.points.length}
+    <section aria-label={title} data-town-vein data-phase={phase} data-round={round} data-left={crack.left} data-got={crack.got.length} data-of={face.points.length} data-family={face.family}
              className="w-full max-w-[26rem] select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex min-h-9 items-center gap-2">
         <h2 className="font-display text-title font-semibold text-[#ffeccb] [text-shadow:0_2px_0_#2a190d]">{title}</h2>
@@ -173,6 +190,15 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
           </span>
         )}
         <div ref={gridRef} className="absolute left-[5%] top-[8.5%] grid w-[90%] grid-cols-6" style={{ aspectRatio: "1 / 1" }} role="grid" aria-label={title}>
+          {/* where the face's family lies: a pale mark under its cells (a scatter has none: it lies anywhere) */}
+          {face.family !== "scatter" && (
+            <svg aria-hidden viewBox={`0 0 ${size} ${size}`} className="pointer-events-none absolute inset-0 size-full" shapeRendering="crispEdges" data-vein-lie={face.lie.join(",")}>
+              {face.family === "ring"
+                ? <path fillRule="evenodd" fill="rgba(255,223,154,0.13)" stroke="rgba(255,223,154,0.5)" strokeWidth={0.04} strokeDasharray="0.16 0.12"
+                        d={`M${lx0 + 0.08} ${ly0 + 0.08}H${lx1 + 0.92}V${ly1 + 0.92}H${lx0 + 0.08}Z M${lx0 + 1.08} ${ly0 + 1.08}H${lx1 - 0.08}V${ly1 - 0.08}H${lx0 + 1.08}Z`} />
+                : <rect x={lx0 + 0.08} y={ly0 + 0.08} width={lx1 - lx0 + 0.84} height={ly1 - ly0 + 0.84} fill="rgba(255,223,154,0.13)" stroke="rgba(255,223,154,0.5)" strokeWidth={0.04} strokeDasharray="0.16 0.12" />}
+            </svg>
+          )}
           {Array.from({ length: size * size }, (_, i) => {
             const x = i % size, y = Math.floor(i / size);
             const p = face.points.findIndex((q) => q.x === x && q.y === y), point = p >= 0 ? face.points[p] : null, got = p >= 0 && crack.got.includes(p);
@@ -206,6 +232,14 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
           })}
           {/* the crack: drawn once over the whole face, a dark groove with a pale line of dust in it */}
           <svg aria-hidden viewBox={`0 0 ${size} ${size}`} className="pointer-events-none absolute inset-0 size-full overflow-visible" shapeRendering="crispEdges" data-vein-crack={crack.path.length}>
+            {/* the best go there was, faintly, under the one that was played: a broken pale line, and a ring on what it passes */}
+            {best && bestPath && (
+              <g data-vein-best={best.passed} opacity={0.75}>
+                <path d={bestPath} fill="none" stroke="#0b1a24" strokeWidth={0.13} strokeLinejoin="miter" />
+                <path d={bestPath} fill="none" stroke="#a9e6ff" strokeWidth={0.07} strokeLinejoin="miter" strokeDasharray="0.2 0.14" />
+                {best.got.map((p) => <rect key={p} x={face.points[p].x + 0.1} y={face.points[p].y + 0.1} width={0.8} height={0.8} fill="none" stroke="#a9e6ff" strokeWidth={0.05} strokeDasharray="0.12 0.1" />)}
+              </g>
+            )}
             <path d={path} fill="none" stroke="#150b06" strokeWidth={0.2} strokeLinejoin="miter" strokeLinecap="square" />
             <path d={path} fill="none" stroke="#ffdf9a" strokeWidth={0.07} strokeLinejoin="miter" strokeLinecap="square" />
             <rect x={hx + 0.5 - 0.13} y={hy + 0.5 - 0.13} width={0.26} height={0.26} fill="#fff3c9" stroke="#150b06" strokeWidth={0.06} transform={`rotate(45 ${hx + 0.5} ${hy + 0.5})`} />
@@ -232,25 +266,9 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
           </div>
         )}
 
-        {/* what it came to, over the face */}
-        {(phase === "came" || phase === "full" || phase === "lost") && (
+        {/* waiting for room in the bag, or gone: said over the face */}
+        {(phase === "full" || phase === "lost") && (
           <div className={`absolute inset-x-[7%] bottom-[7%] rounded-md border-[3px] border-[#2a190d] bg-[#f6e3bd] px-3 py-2.5 text-[#3a2209] shadow-[0_6px_0_rgba(0,0,0,0.35)] ${reduced ? "" : "pop-in"}`} data-state="open" data-vein-came={phase} aria-live="polite">
-            {phase === "came" && came && (
-              <>
-                <p className="text-ui font-semibold">{came.got.length ? (th ? `รอยร้าวผ่านแร่ ${came.passed} จาก ${came.of} จุด` : `The crack passed ${came.passed} of ${came.of}`) : (th ? "รอยร้าวไม่ผ่านแร่เลย" : "The crack passed no ore")}</p>
-                {came.got.length > 0 && (
-                  <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
-                    {came.got.map(([id, n]) => (
-                      <li key={id} className="flex items-center gap-1.5 text-ui" data-vein-got={id} data-n={n}><TownIcon name={iconOf(id) as IconName} size={24} /><span>{name(id)}</span><span className="font-data font-semibold tabular-nums">×{n}</span></li>
-                    ))}
-                  </ul>
-                )}
-                <button type="button" onClick={onClose} data-vein-next autoFocus
-                        className="pressable mt-2.5 min-h-11 w-full rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] text-read font-semibold text-[#3a2209] shadow-[inset_0_-4px_0_#c98f2f,inset_0_2px_0_#ffe19a] active:translate-y-px">
-                  {came.again ? (th ? "สายแร่แฝด: ทุบอีกรอบ" : "Twin vein: once more") : (th ? "เก็บใส่กระเป๋าแล้ว" : "In the bag")}
-                </button>
-              </>
-            )}
             {phase === "full" && (
               <>
                 <p className="text-ui font-semibold">{th ? "กระเป๋าเต็ม ของยังรออยู่ในสายแร่" : "Your bag is full: it waits in the vein"}</p>
@@ -262,6 +280,32 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
           </div>
         )}
       </div>
+
+      {/* what it came to: under the face, which stays in sight with the go that was played and the best go there was */}
+      {phase === "came" && came && (
+        <div className={`mt-2 rounded-md border-[3px] border-[#2a190d] bg-[#f6e3bd] px-3 py-2.5 text-[#3a2209] shadow-[0_6px_0_rgba(0,0,0,0.35)] ${reduced ? "" : "pop-in"}`} data-state="open" data-vein-came={phase} data-vein-passed={came.passed} data-vein-could={best?.passed ?? ""} aria-live="polite">
+          <p className="text-ui font-semibold">{came.passed > 0 ? (th ? `รอยร้าวผ่านแร่ ${came.passed} จาก ${came.of} จุด` : `The crack passed ${came.passed} of ${came.of}`) : (th ? "รอยร้าวไม่ผ่านแร่เลย" : "The crack passed no ore")}</p>
+          {best && (
+            <p className="mt-0.5 flex items-center gap-2 text-ui" data-vein-against={best.passed > came.passed ? "more" : "best"}>
+              <svg aria-hidden viewBox="0 0 26 8" className="h-2 w-[1.625rem] shrink-0"><path d="M1 4H25" fill="none" stroke="#0b1a24" strokeWidth={4} /><path d="M1 4H25" fill="none" stroke="#a9e6ff" strokeWidth={2} strokeDasharray="5 3" /></svg>
+              <span>{best.passed > came.passed
+                ? (th ? `เส้นทางที่ดีที่สุดผ่านได้ ${best.passed} จุด` : `The best route passes ${best.passed}`)
+                : (th ? "เส้นทางนี้ดีที่สุดเท่าที่ทำได้แล้ว" : "No route passes more than yours")}</span>
+            </p>
+          )}
+          {came.got.length > 0 && (
+            <ul className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
+              {came.got.map(([id, n]) => (
+                <li key={id} className="flex items-center gap-1.5 text-ui" data-vein-got={id} data-n={n}><TownIcon name={iconOf(id) as IconName} size={24} /><span>{name(id)}</span><span className="font-data font-semibold tabular-nums">×{n}</span></li>
+              ))}
+            </ul>
+          )}
+          <button type="button" onClick={onClose} data-vein-next autoFocus
+                  className="pressable mt-2.5 min-h-11 w-full rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] text-read font-semibold text-[#3a2209] shadow-[inset_0_-4px_0_#c98f2f,inset_0_2px_0_#ffe19a] active:translate-y-px">
+            {came.again ? (th ? "สายแร่แฝด: ทุบอีกรอบ" : "Twin vein: once more") : (th ? "เก็บใส่กระเป๋าแล้ว" : "In the bag")}
+          </button>
+        </div>
+      )}
 
       {/* the strikes left, what a knot still gives back, and what the crack has passed so far */}
       <div className="mt-2 flex min-h-8 flex-wrap items-center gap-x-3 gap-y-1 text-[#ffeccb]">

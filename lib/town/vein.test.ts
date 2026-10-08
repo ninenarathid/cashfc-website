@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { Stack } from "./trade";
-import { VEIN, begin, bestOf, faceOf, headOf, iceOf, mayStrike, over, play, stops, strike, veinMods, yieldOf, type Face, type VeinMods } from "./vein";
+import { FAMILIES, VEIN, begin, bestOf, bestRoute, faceOf, familyOf, headOf, iceOf, mayStrike, over, play, stops, strike, veinMods, yieldOf, type Face, type VeinMods } from "./vein";
 
 const pickAt = (plus = 0, opts: string[] = [], gems: string[] = []): Stack => ({ item: "pick", n: 1, ...(plus ? { plus } : {}), ...(opts.length ? { opts } : {}), ...(gems.length ? { gems } : {}) });
 const PLAIN: VeinMods = { strikes: 6, back: 0, cross: 0, spent: false };
 /** A face laid by hand: the crack starts at the left of the top row; a knot two cells along it. */
-const FACE: Face = { size: 6, start: [0, 0], points: [{ x: 1, y: 0, gem: 0 }, { x: 0, y: 2, gem: 2 }, { x: 4, y: 2, gem: 0 }, { x: 5, y: 5, gem: 0 }], knots: [[3, 0], [2, 2], [0, 4]] };
+const FACE: Face = { size: 6, start: [0, 0], points: [{ x: 1, y: 0, gem: 0 }, { x: 0, y: 2, gem: 2 }, { x: 4, y: 2, gem: 0 }, { x: 5, y: 5, gem: 0 }], knots: [[3, 0], [2, 2], [0, 4]], family: "scatter", lie: [0, 0, 5, 5] };
 
 describe("the vein's face", () => {
   it("is six by six, the same for the same seed, with four to six glinting cells and four to six knots, the crack starting at an edge", () => {
@@ -50,6 +50,38 @@ describe("the vein's face", () => {
     // (of what glints, the best go there is passes well over half, and seldom all: there is something to weigh)
     expect(best / all).toBeGreaterThan(0.6);
     expect(best / all).toBeLessThan(0.98);
+  });
+});
+
+// (written with the rule; what they state was looked at by a loop over the rules, and the suite itself was not run:
+// the owner's word that evening was to build and not to test yet)
+describe("the vein's families, and the best go there is", () => {
+  it("a face comes of a family the seed fixes, and says where it lies: a seam on or beside a line, a cluster in a block, a ring round a middle", () => {
+    const seen = new Set<string>();
+    for (let seed = 1; seed <= 600; seed++) {
+      const f = faceOf(seed * 7919), [x0, y0, x1, y1] = f.lie, within = (p: { x: number; y: number }) => p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1;
+      expect(f.family).toBe(familyOf(seed * 7919));
+      seen.add(f.family);
+      if (f.family === "cluster" || f.family === "ring") { expect([x1 - x0, y1 - y0]).toEqual([2, 2]); expect(f.points.every(within)).toBe(true); }
+      if (f.family === "ring") expect(f.points.some((p) => p.x === x0 + 1 && p.y === y0 + 1)).toBe(false);
+      if (f.family === "seam") { const flat = y0 === y1; expect(flat || x0 === x1).toBe(true); expect(f.points.every((p) => Math.abs(flat ? p.y - y0 : p.x - x0) <= 1)).toBe(true); }
+      if (f.family === "scatter") expect(f.lie).toEqual([0, 0, 5, 5]);
+    }
+    expect([...seen].sort()).toEqual([...FAMILIES].sort());
+  });
+  it("the best go passes as many as any go can, in no more strikes than there are; and even the shortest go there is finds two", () => {
+    for (let seed = 1; seed <= 120; seed++) {
+      const f = faceOf(seed * 31337), r = bestRoute(f, PLAIN);
+      expect(r.strikes.length).toBeLessThanOrEqual(PLAIN.strikes);
+      expect(play(f, PLAIN, r.strikes).got.length).toBe(r.passed);
+      expect(r.passed).toBe(bestOf(f, PLAIN));
+      expect(bestRoute(f, veinMods(null, true)).passed).toBeGreaterThanOrEqual(VEIN.least);
+    }
+    // on the face laid by hand: of the goes that pass the most, the one of the fewest strikes
+    expect(bestRoute(FACE, { ...PLAIN, strikes: 2 })).toEqual({ passed: 1, strikes: [[1, 0]], path: [[0, 0], [1, 0]], got: [0] });
+    expect(bestRoute(FACE, { ...PLAIN, strikes: 3 }).passed).toBe(2);
+    expect(bestRoute(FACE, PLAIN)).toMatchObject({ passed: 3, got: [0, 2, 3] });
+    expect(bestRoute(FACE, { ...PLAIN, strikes: 0 })).toEqual({ passed: 0, strikes: [], path: [[0, 0]], got: [] });
   });
 });
 
