@@ -176,7 +176,10 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
   const [vein, setVein] = useState<PendingVein | null>(null);
   // (a vein opened before and not played out: its board comes up again; one put aside with the bag full stays put
   // aside until a rock is struck)
-  const aside = useRef<number | null>(null), pending = told?.vein ?? null;
+  const aside = useRef<number | null>(null), pending = told?.vein ?? null, veinSent = useRef(false);
+  // (a board whose vein whoever keeps the game no longer has, and that was never sent: put away)
+  useEffect(() => { if (vein && !pending && !veinSent.current) setVein(null); }, [vein, pending]);
+  useEffect(() => { veinSent.current = false; }, [vein]);
   useEffect(() => { if (pending && !vein && pending.seed !== aside.current) setVein(pending); }, [pending?.seed, pending?.again, vein]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const needOf = useCallback((floor: number, rock: number): number => {
@@ -504,10 +507,10 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
 
       {/* a vein opened: its board, over the map */}
       {vein && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center overflow-y-auto bg-black/45 p-2 sm:p-4" data-mine-vein>
+        <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-2 sm:items-center sm:p-4" style={{ paddingBottom: bottom }} data-mine-vein>
           <Suspense fallback={null}>
             <TownVein vein={vein} th={th} reduced={reduced} sfx={sfx}
-                      onEnd={async (strikes) => { const did = await keeper.veinDo(strikes); again(); return did.ok ? did : { ok: false, why: did.why }; }}
+                      onEnd={async (strikes) => { veinSent.current = true; const did = await keeper.veinDo(strikes); again(); return did.ok ? did : { ok: false, why: did.why }; }}
                       onClose={() => { const next = keeper.cave()?.vein ?? null; aside.current = next && !(next.again && !vein.again) ? next.seed : null; setVein(next && next.again && !vein.again ? next : null); again(); }} />
           </Suspense>
         </div>

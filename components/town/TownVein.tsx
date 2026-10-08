@@ -25,8 +25,8 @@ export interface VeinCame { got: Array<[ItemId, number]>; passed: number; of: nu
 type Sent = ({ ok: true } & VeinCame) | { ok: false; why: MineRefusal | string };
 
 const HOW: [th: string, en: string] = [
-  "แตะช่องที่อยู่แนวเดียวกับปลายรอยร้าว รอยร้าวจะวิ่งไปทางนั้นครั้งละไม่เกิน 2 ช่อง พาผ่านแร่ให้มากที่สุดก่อนหมดจำนวนทุบ ก้อนดำกั้นรอยร้าวไว้",
-  "Tap a cell in line with the crack's end: it runs up to 2 cells that way. Lead it through as much ore as you can before your strikes run out. Dark knots stop it.",
+  "แตะช่องแนวเดียวกับปลายรอยร้าว รอยร้าววิ่งไปทางนั้นได้ครั้งละ 2 ช่อง พาผ่านแร่ให้มากที่สุดก่อนทุบหมด ก้อนดำกั้นทางไว้",
+  "Tap a cell in line with the crack's end: it runs up to 2 cells that way. Pass as much ore as you can before your strikes run out. Dark knots stop it.",
 ];
 /** A crack is no ruled line: each stretch of it is bent a little to one side, the same every time for the same two cells. */
 function bent(a: readonly [number, number], b: readonly [number, number]): string {
@@ -152,7 +152,7 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
           {phase === "play" ? (th ? "พอแค่นี้" : "Enough") : (th ? "ปิด" : "Close")}
         </button>
       </div>
-      <p className="-mt-0.5 mb-2 text-label leading-relaxed text-[#f3dcb4]" data-vein-how>{th ? HOW[0] : HOW[1]}</p>
+      <p className="-mt-0.5 mb-2 text-meta leading-relaxed text-[#f6e3bd]" data-vein-how>{th ? HOW[0] : HOW[1]}</p>
 
       <div className={`${STAGE} aspect-[25/27] w-full`} style={{ backgroundImage: `url(${SCENE})`, backgroundSize: "auto 118%", backgroundPosition: "center top", imageRendering: "pixelated" }}>
         {/* with no stamina: how long what glints is still to be seen */}
