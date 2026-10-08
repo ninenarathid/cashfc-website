@@ -125,7 +125,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   /** A tap on a tree: with an axe in the hand it is walked up to and begun; with none it is a step, as anywhere. */
   const tapped = useCallback((id: number): boolean => {
     const t = WOOD.find((x) => x.id === id);
-    if (!t || !axeRef.current || busyRef.current) return false;
+    // (where whoever keeps the game keeps no trees, a tree is only a tree: the tap is a step)
+    if (!t || !axeRef.current || busyRef.current || !toldRef.current) return false;
     const from = tileRef.current;
     if (from && farFrom(t, from) <= TREES.reach) { void begin(id); return true; }
     // the nearest tile beside it that can be stood on
@@ -151,7 +152,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   }, [tile, begin]);
 
   // The grown tree I stand beside, if I hold an axe: offered by one button (the nearest; the ancient tree before a pine).
-  const here: Standing | null = near && tile && axe && !busy && !working
+  const here: Standing | null = near && tile && axe && !busy && !working && told
     ? WOOD.filter((t) => farFrom(t, tile) <= TREES.reach && lookOf(told, t.id, now) === 3)
       .sort((a, b) => Number(!!b.elder) - Number(!!a.elder) || Math.hypot(a.x - tile[0], a.y - tile[1]) - Math.hypot(b.x - tile[0], b.y - tile[1]))[0] ?? null
     : null;
