@@ -10,6 +10,8 @@ import { ENCORE, HOURGLASS } from "./farm";
 // ── gifts: helpers ──
 import { HELPING } from "./helping";
 import { BOUTS, FIGHT, NIBBLES_APART, ORB, PAIR, SIGNS, STAR, STRIKE, WARY } from "./fishing";
+// ── forging ──
+import { forgeRow } from "./forge-row";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
 import { huntRow } from "./hunt";
 import { HEAT } from "./heat";
@@ -288,6 +290,9 @@ export function catalogOf() {
     gifts: giftsRow(),
     /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
+    // ── forging ──
+    /** The blacksmith (lib/town/forge, lib/town/tools): the kinds of tool that are forged, the table of tries, his knobs, the options and what is built of them, the gems, and what is smelted of what (lib/town/forge-row says each part). */
+    forge: forgeRow(),
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
