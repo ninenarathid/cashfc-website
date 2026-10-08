@@ -9,9 +9,9 @@ import { ITEMS, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import ART from "@/lib/town/smith-art.json";
-import { gemDoes, optionDoes } from "@/lib/town/tool-words";
+import { cardOf, gemDoes, nextOf, optionDoes } from "@/lib/town/tool-words";
 import {
-  BUILT, FORGE, GEMS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, drawnOf, gemsOf, modsOf, settable,
+  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, drawnOf, gemsOf, modsOf, settable,
   type OptionId, type ToolKind,
 } from "@/lib/town/tools";
 import { held } from "@/lib/town/trade";
@@ -76,8 +76,9 @@ const spot = (at: number[]) => ({ left: `${at[0] * 100}%`, top: `${((at[1] - STA
  * new one would cost and take the place of), and the board (the village's firsts).
  *
  * It shows states and refusals and never a rule: what is lacking is marked where it is lacking. What an option does
- * is said on its own card, to whoever has it laid out before them or on their tool; what a gem does is said only on
- * the card of a tool it is set in.
+ * is said on its own card, to whoever has it laid out before them or on their tool. A tool's card has the tool's own
+ * numbers as it works now (lib/town/tool-words' `cardOf`), and before a try the forging leaf shows which of them the
+ * level tried for changes, from what to what (`nextOf`): nobody pays for a level blind (the owner, 2026-10-08).
  *
  * What is kept is the keeper's: for a member the database's, in `next dev`'s test room the browser's trial. A keeper
  * that knows of no smith offers none of this (`keeper.smith()` is null, and the map never opens this).
@@ -248,6 +249,11 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   const glow = mods.glow ? { filter: `drop-shadow(0 0 ${mods.glow === 2 ? 7 : 4}px ${mods.hue}) drop-shadow(0 0 ${mods.glow === 2 ? 14 : 6}px ${mods.hue}${mods.glow === 2 ? "" : "88"})` } : undefined;
   const cost = kind && level < FORGE.top ? tryCost(kind, level + 1) : null, odds = level < FORGE.top ? tryOdds(level + 1) : null, lacks = slot >= 0 ? tryLacks(purse, slot) : [];
   const setElement = stack ? gemsOf(stack)[0] ?? null : null;
+  // (what the next level changes for this tool: the numbers of its card that would read otherwise, and what else comes with that level)
+  const changes = nextOf(stack), nextAt = FORGE.milestones.indexOf(level + 1);
+  const drawComes = !!stack && nextAt >= 0 && !drawnOf(stack)[nextAt] && candidates(stack, nextAt).length > 0;
+  const gemComes = kind && setElement && level + 1 === FORGE.top ? gemDoes(kind, setElement, Math.min(GEM_LEVELS, (mods.gems[setElement] ?? 1) + FORGE.gemAtTop)) : null;
+  const glowComes = level + 1 === FORGE.glow.full ? 2 : level + 1 === FORGE.glow.from ? 1 : 0;
 
   /** The tools of the bag, to put one on the anvil. */
   const rack = (
@@ -286,6 +292,15 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
           return <li key={i} aria-hidden className={`${mile ? "size-3 rotate-45 rounded-[3px]" : "h-2 flex-1 rounded-full"} border ${on ? "border-[#f0c46a] bg-[#f0c46a]" : "border-[#6b4a2a] bg-[#33251a]"}`} />;
         })}
       </ol>
+      {/* the tool's own numbers, as it works now: its level's, with what its options and its gem add to them */}
+      <dl className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 rounded-xl border border-[#4a341f] bg-[#241a10] px-2.5 py-2" data-smith-lines>
+        {cardOf(stack).map((line) => (
+          <div key={line.key} className="contents" data-smith-line={line.key} data-value={line.value.en}>
+            <dt className="min-w-0 text-meta leading-relaxed text-[#c9a877]">{th ? line.name.th : line.name.en}</dt>
+            <dd className="text-right font-data text-meta font-semibold tabular-nums leading-relaxed text-[#f3e3c3]">{th ? line.value.th : line.value.en}</dd>
+          </div>
+        ))}
+      </dl>
       <ul className="mt-3 space-y-2">
         {drawnOf(stack).map((id, i) => {
           const awake = level >= FORGE.milestones[i];
@@ -516,6 +531,39 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     <p className="flex items-center gap-2 font-display text-lead font-semibold text-[#f3e3c3]">
                       <span>{itemName(stack.item, th)}</span><span className="tabular-nums">+{level}</span><TownIcon name="chevron" size={12} className="-rotate-90" /><span className="tabular-nums text-[#f0c46a]">+{level + 1}</span>
                     </p>
+                    {/* before and after: the numbers of this tool's card that the level tried for changes, and what else comes with it */}
+                    {(changes.length > 0 || drawComes || !!gemComes || glowComes > 0) && (
+                      <div className="mt-2 rounded-xl border border-[#4a341f] bg-[#241a10] px-2.5 py-2" data-smith-next>
+                        <p className="mb-1 font-data text-label uppercase text-[#c9a877]">{t("ถ้าตีติด", "If it takes")}</p>
+                        <ul className="space-y-1">
+                          {changes.map((c) => (
+                            <li key={c.key} className="flex flex-wrap items-baseline gap-x-2 text-meta leading-relaxed" data-smith-change={c.key} data-from={c.from.en} data-to={c.to.en}>
+                              <span className="min-w-0 flex-1 basis-28 text-[#d9c39b]">{th ? c.name.th : c.name.en}</span>
+                              <span className="ml-auto flex items-baseline gap-1.5 whitespace-nowrap font-data tabular-nums">
+                                <span className="text-[#a88d5e]">{th ? c.from.th : c.from.en}</span>
+                                <TownIcon name="chevron" size={10} className="-rotate-90 self-center opacity-70" />
+                                <span className="font-semibold text-[#f0c46a]">{th ? c.to.th : c.to.en}</span>
+                              </span>
+                            </li>
+                          ))}
+                          {drawComes && (
+                            <li className="flex items-center gap-2 text-meta leading-relaxed text-[#f3e3c3]" data-smith-next-draw>
+                              <span aria-hidden className="mx-0.5 size-2.5 shrink-0 rotate-45 rounded-[2px] bg-[#f0c46a]" />{t("ได้เลือกออปชัน 1 อย่าง", "An option to choose")}
+                            </li>
+                          )}
+                          {gemComes && setElement && (
+                            <li className="flex items-start gap-2 text-meta leading-relaxed text-[#f3e3c3]" data-smith-next-gem={setElement}>
+                              <ItemIcon id={GEMS[setElement].gem} size={14} className="mt-0.5 shrink-0" /><span>{th ? gemComes.th : gemComes.en}</span>
+                            </li>
+                          )}
+                          {glowComes > 0 && (
+                            <li className="flex items-center gap-2 text-meta leading-relaxed text-[#f3e3c3]" data-smith-next-glow={glowComes}>
+                              <TownIcon name={"fxSpark1" as IconName} size={12} className="shrink-0" />{glowComes === 2 ? t("เรืองแสงเต็มที่ในมือ", "It glows fully in the hand") : t("เริ่มเรืองแสงในมือ", "It begins to glow in the hand")}
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Need id={cost.ore} have={held(purse.bag, cost.ore)} want={cost.n} th={th} />
                       <Need id="timber" have={held(purse.bag, "timber")} want={cost.timber} th={th} />
