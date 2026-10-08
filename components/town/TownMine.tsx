@@ -17,6 +17,7 @@ import { MOUNTAIN, MOUNTAIN_AT, setCaveDay, walkable, type Vec } from "@/lib/tow
 import * as Art from "./mountain-art";
 import { registerTap, setCaveLight, setCaveRocksDown, setGlows, setKnownWhole, setRocksDown, setTorches, type Tapped } from "./mountain-art";
 import type { FarmDraw, FarmFrame } from "./TownFarm";
+import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
@@ -126,7 +127,7 @@ function cracks(): HTMLCanvasElement[] {
   return CRACKS;
 }
 
-export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced, register, here, warp, walk, openChest, tellLight, lightOfOther, registerHold }: {
+export default function TownMine({ keeper, th, name, sfx, busy, reduced, register, here, warp, walk, openChest, tellLight, lightOfOther, registerHold }: {
   keeper: Keeper;
   th: boolean;
   /** My name, for whoever opened a way down. */
@@ -134,8 +135,6 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
   sfx: FishSfx | null;
   /** Whether something else has the screen (a talk, the bag, a board): no swing begins then. */
   busy: boolean;
-  /** How far up from the foot of the map what is said sits. */
-  bottom: string;
   /** The map's own motion switch. */
   reduced: boolean;
   /** Hand the map the way to draw what is the mine's own (and take it back with null). */
@@ -666,8 +665,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
         ))}
       </div>
 
+      {/* (the pieces at the foot are placed by its grid, components/town/TownFoot: none keeps a distance of its own) */}
       {(note || came) && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2 pb-14" style={{ bottom }}>
+        <TownFoot rank="note" order={7}>
           {came && (
             <div key={came.key} className={`${reduced ? "" : "pop-in"} flex max-w-[22rem] flex-wrap items-center justify-center gap-x-4 gap-y-1 rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-4 py-2 text-[#ffeccb] shadow-[inset_0_0_0_2px_#9c6b3d,0_10px_20px_rgba(0,0,0,0.45)]`}
                  data-state="open" data-mine-came={came.crystal ? "crystal" : came.way ? "way" : came.vein ? "vein" : "rock"} data-mine-by={came.by ?? ""} data-mine-helped={came.helped ?? ""} aria-live="polite">
@@ -688,23 +688,24 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
               {note.icon && <TownIcon name={note.icon} size={22} />}{note.text}
             </p>
           )}
-        </div>
+        </TownFoot>
       )}
 
       {/* a torch in the hand, in the cave: set it down */}
       {torchHere && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2" style={{ bottom }}>
+        <TownFoot rank="chip" order={38}>
           <button type="button" data-mine-torch
                   onClick={() => { const at = tile(); if (at) void keeper.torchDown(at).then((did) => { if (!did.ok) say(did.why); again(); }); }}
                   className="pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 py-2 text-ui font-medium text-ink shadow-lg shadow-black/40 backdrop-blur-sm">
             <TownIcon name={"torch" as IconName} size={22} />{th ? "ปักคบไฟตรงนี้" : "Set the torch down"}
           </button>
-        </div>
+        </TownFoot>
       )}
 
       {/* what a pick's counted powers are used from, while such a pick is held here */}
       {(canQuake || canDrill || gleams) && !vein && (
-        <div className="pointer-events-none absolute left-2 z-20 flex flex-col gap-2 sm:left-3" style={{ bottom: `calc(${bottom} + 3.75rem)` }} data-mine-belt>
+        <TownFoot rank="side">
+        <div className="pointer-events-none flex flex-wrap items-center gap-2" data-mine-belt>
           {gleams && (
             <span className="pointer-events-auto flex items-center gap-1.5 rounded-full border-2 border-[#5f7fb8] bg-[#101a2b]/90 px-3 py-1.5 font-data text-meta text-[#dbe9ff] shadow-lg shadow-black/40" data-mine-gleam={told.crystal?.floor ?? 0}>
               <TownIcon name={"veinCrystal" as IconName} size={20} />{told.crystal ? (th ? `ชั้น ${told.crystal.floor}` : `Floor ${told.crystal.floor}`) : (th ? "แตกไปแล้ว" : "Broken")}
@@ -729,6 +730,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
             </button>
           )}
         </div>
+        </TownFoot>
       )}
 
       {/* the lift: where it goes, as states */}
@@ -777,7 +779,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
 
       {/* a vein opened: its board, over the map */}
       {vein && (
-        <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-2 sm:items-center sm:p-4" style={{ paddingBottom: bottom }} data-mine-vein>
+        <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-2 sm:items-center sm:p-4" style={{ paddingBottom: "var(--hud-b)" }} data-mine-vein>
           <Suspense fallback={null}>
             <TownVein vein={vein} th={th} reduced={reduced} sfx={sfx}
                       onEnd={async (strikes) => { veinSent.current = true; const did = await keeper.veinDo(strikes); again(); return did.ok ? did : { ok: false, why: did.why }; }}

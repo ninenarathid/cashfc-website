@@ -17,6 +17,7 @@ import { walkable, type Vec } from "@/lib/town/world";
 import { registerTap, setAncientLook, setTreeLooks, setTreeScales } from "./mountain-art";
 import type { FarmDraw } from "./TownFarm";
 import TownFelling, { GIRTH_NAME } from "./TownFelling";
+import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownPinesBook, { keepsakeIcon } from "./TownPinesBook";
 import { WHY } from "./TownTrade";
@@ -95,7 +96,7 @@ function Pips({ most, got, size = 16 }: { most: number; got: number; size?: numb
  * for it. Who has a board up where, and who braces which trunk, is told through the room in a few letters with the
  * rest of what one does (lib/town/room's `fell`); whoever keeps the game writes the brace down and pays it.
  */
-export default function TownTrees({ keeper, th, name, tile, near, look, reduced, sfx, bottom, busy, walk, register, registerPerch, tell, others }: {
+export default function TownTrees({ keeper, th, name, tile, near, look, reduced, sfx, busy, walk, register, registerPerch, tell, others }: {
   keeper: Keeper;
   th: boolean;
   name: string;
@@ -106,7 +107,6 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   look: Look | null;
   reduced: boolean;
   sfx: FishSfx | null;
-  bottom: string;
   /** Something else has the screen: nothing is offered. */
   busy: boolean;
   /** Walk me to a tile. */
@@ -502,8 +502,10 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     const nth = NTH[Math.min(NTH.length - 1, near.got)];
     return th ? `พลาดน้อยกว่านี้ ${near.misses} ครั้ง ก็ได้ไม้เนื้อดี${nth[0]}` : `${near.misses === 1 ? "One miss" : `${near.misses} misses`} from ${nth[1]} fine timber`;
   };
+  // (placed by the foot's grid, components/town/TownFoot: the board, or the book, has the foot while it is up; what
+  // the tree stood by is for is lowest otherwise. Nothing here keeps a distance of its own.)
   return (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+    <TownFoot rank={working || book ? "board" : "main"} order={61}>
       {note && (
         <p className="pop-in flex items-center gap-2 rounded-full bg-bg/85 py-1.5 pl-2 pr-4 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-trees-note aria-live="polite">
           {note.wants && <Wanted wants={note.wants} />}
@@ -531,7 +533,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       {/* what the go gave: a small card of the town's wood */}
       {card && !working && !book && (
         <section aria-label={th ? "ได้ไม้" : "Wood brought home"} data-trees-card data-state="open" data-through={card.out ? String(card.out.through) : undefined}
-                 className="pop-in pointer-events-auto w-full max-w-[20rem] rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-2.5 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
+                 className="pop-in pointer-events-auto w-[20rem] max-w-full rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-2.5 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
           <div className="flex items-center gap-2">
             <h2 className="font-display text-title font-semibold text-[#ffeccb] [text-shadow:0_2px_0_#2a190d]">{th ? (card.did.felled.length > 1 ? `ล้ม ${card.did.felled.length} ต้น` : "ล้มแล้ว") : card.did.felled.length > 1 ? `${card.did.felled.length} trees felled` : "Timber"}</h2>
             <button type="button" onClick={() => setCard(null)} className="pressable -mr-1 ml-auto rounded-md px-2.5 py-1.5 text-meta text-[#e9cfa4] hover:text-[#fff6e3]">{th ? "ปิด" : "Close"}</button>
@@ -586,7 +588,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
                        onDone={(out, how) => void done(working, out, how)} onCancel={() => setWorking(null)} />
         </div>
       ) : here && !card && !book && (
-        <div className="pointer-events-none mb-14 flex flex-col items-center gap-1.5" data-trees-here={here.id} data-girth={hereGirth ?? undefined}>
+        <div className="pointer-events-none flex flex-col items-center gap-1.5" data-trees-here={here.id} data-girth={hereGirth ?? undefined}>
           {/* what stands here: the pine's girth, with the fine timber it has at the most; and the book of the pines */}
           {hereGirth && !refused && (
             <div className="flex items-center gap-1.5">
@@ -630,6 +632,6 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           )}
         </div>
       )}
-    </div>
+    </TownFoot>
   );
 }

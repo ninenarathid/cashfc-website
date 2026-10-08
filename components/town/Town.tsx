@@ -4513,7 +4513,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownTrees keeper={keeper} th={w.th} name={me.name} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onMountain}
                      look={myLook} reduced={reducedRef.current} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
-                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} walk={walkToTile} register={registerTrees} registerPerch={registerPerch} tell={tellFelling} others={fellers} />
+                     walk={walkToTile} register={registerTrees} registerPerch={registerPerch} tell={tellFelling} others={fellers} />
         </Suspense>
       )}
       {/* The insects: out on every map, and caught with a net */}
@@ -4527,7 +4527,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && TownMine && (
         <Suspense fallback={null}>
           <TownMine keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)} reduced={reducedRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} tellLight={mineLit} lightOfOther={mineLitOf} registerHold={registerMineHold} />
+                    register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} tellLight={mineLit} lightOfOther={mineLitOf} registerHold={registerMineHold} />
         </Suspense>
       )}
       {/* The well's book: offered to whoever stands at the farm's well */}
