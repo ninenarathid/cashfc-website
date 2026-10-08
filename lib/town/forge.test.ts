@@ -122,9 +122,10 @@ describe("smelting", () => {
     expect(SMITH.bellows.points).toBe(2);
   });
   it("with seasoned wood on an axe in the bag, one timber smelts two pieces, however they are put in", () => {
-    const dry = tool("axe", 3, ["axDry"]), asleep = tool("axe", 2, ["axDry"]);
+    const dry = tool("axe", 3, ["axDry"]), low = tool("axe", 2, ["axDry"]);
     expect(dryOf([dry])).toBe(2);
-    expect(dryOf([asleep])).toBe(1);
+    // (an option once drawn works whatever the level)
+    expect(dryOf([low])).toBe(2);
     expect(dryOf([tool("axe", 3, ["axKeen"])])).toBe(1);
     expect(timberFor(newSmithy(), 3, 2)).toEqual({ timber: 2, ember: 1 });
     expect(timberFor(newSmithy(), 3, 1)).toEqual({ timber: 3, ember: 0 });
@@ -307,12 +308,13 @@ describe("the options drawn at a milestone", () => {
     const c = ok(choose(at10, laid.smithy, 0, laid.pending.offer[0]));
     expect(drawnOf(c.purse.bag[0]).filter(Boolean).length).toBe(3);
   });
-  it("an option sleeps while the level is under its milestone, wakes when it is back, and is never drawn again by a level regained", () => {
+  it("an option stays the tool's and goes on working when the level falls under its milestone, and is never drawn again by a level regained", () => {
     const p = rich(tool("pick", 6, ["pkPeek", "pkSteady"]));
     const fell = ok(forgeTry(p, newSmithy(), 0, 0.999999));
     expect(fell.level).toBe(5);
-    expect(modsOf(fell.purse.bag[0]).opts).toEqual(["pkPeek"]);
-    expect(modsOf(fell.purse.bag[0]).asleep).toEqual(["pkSteady"]);
+    expect(modsOf(fell.purse.bag[0]).opts).toEqual(["pkPeek", "pkSteady"]);
+    expect(modsOf(fell.purse.bag[0]).asleep).toEqual([]);
+    expect(has(fell.purse.bag[0], "pkSteady")).toBe(true);
     expect(fell.owed).toBe(-1);
     const back = ok(forgeTry(fell.purse, newSmithy(), 0, 0));
     expect(back.level).toBe(6);
@@ -335,13 +337,17 @@ describe("the options drawn at a milestone", () => {
     const taken = ok(choose(d.purse, d.smithy, 0, "pkSteady"));
     expect(taken.kept).toBe(false);
     expect(taken.purse.bag[0]).toEqual({ item: "pick", n: 1, plus: 4, opts: ["pkSteady"] });
-    // refused: with no gem, too few coins, a milestone with nothing drawn, a sleeping option, a draw that waits
+    // refused: with no gem, too few coins, a milestone with nothing drawn, a draw that waits
     expect(redraw(rich(tool("pick", 4, ["pkPeek"])), newSmithy(), 0, 0, "gemOnyx", 0, 0)).toEqual({ ok: false, why: "gem" });
     expect(redraw(p, newSmithy(), 0, 0, "stone", 0, 0)).toEqual({ ok: false, why: "gem" });
     expect(redraw({ ...p, coins: 99 }, newSmithy(), 0, 0, "gemOnyx", 0, 0)).toEqual({ ok: false, why: "coins" });
     expect(redraw(p, newSmithy(), 0, 1, "gemOnyx", 0, 0)).toEqual({ ok: false, why: "none" });
-    expect(redraw(rich(tool("pick", 5, ["pkPeek", "pkSteady"]), [["gemOnyx", 1]]), newSmithy(), 0, 1, "gemOnyx", 0, 0)).toEqual({ ok: false, why: "asleep" });
     expect(redraw(d.purse, d.smithy, 0, 0, "gemOnyx", 0, 0)).toEqual({ ok: false, why: "owed" });
+    // (an option whose level has fallen under its milestone is made again like any other, and the draw that waits is still that tool's)
+    const fallen = rich(tool("pick", 5, ["pkPeek", "pkSteady"]), [["gemOnyx", 1]]), again = ok(redraw(fallen, newSmithy(), 0, 1, "gemOnyx", 0, 0));
+    expect(again.pending.old).toBe("pkSteady");
+    expect(pendingSlot(again.purse, again.pending)).toBe(0);
+    expect(ok(choose(again.purse, again.smithy, 0, again.pending.offer[0])).purse.bag[0]?.opts).toEqual(["pkPeek", again.pending.offer[0]]);
   });
   it("only what is built is ever laid out: for every kind of tool, at every milestone", () => {
     for (const k of TOOL_KINDS) for (let at = 0; at < 3; at++) {

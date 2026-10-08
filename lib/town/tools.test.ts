@@ -252,21 +252,18 @@ describe("options", () => {
 });
 
 describe("what a tool carries, read as it works now", () => {
-  it("an option is awake from its milestone: the first two of the first pool, the third of the second", () => {
+  it("an option once drawn works whatever the level has fallen to: none sleeps (the owner, 2026-10-08)", () => {
     expect([...FORGE.milestones]).toEqual([3, 6, 10]);
     const t = (plus: number) => modsOf(tool("pick", plus, ["pkSteady", "pkLoose", "pkQuake"]));
-    expect(t(10).opts).toEqual(["pkSteady", "pkLoose", "pkQuake"]);
-    expect(t(10).asleep).toEqual([]);
-    expect(t(9).opts).toEqual(["pkSteady", "pkLoose"]);
-    expect(t(9).asleep).toEqual(["pkQuake"]);
-    expect(t(6).opts).toEqual(["pkSteady", "pkLoose"]);
-    // (a level lost: the +6 option sleeps while the level is under it, and wakes when it is back)
-    expect(t(5).opts).toEqual(["pkSteady"]);
-    expect(t(5).asleep).toEqual(["pkLoose", "pkQuake"]);
-    expect(t(4).opts).toEqual(["pkSteady"]);
-    expect(has(tool("pick", 5, ["pkSteady", "pkLoose"]), "pkLoose")).toBe(false);
+    for (const plus of [10, 9, 6, 5, 4]) {
+      expect(t(plus).opts).toEqual(["pkSteady", "pkLoose", "pkQuake"]);
+      expect(t(plus).asleep).toEqual([]);
+    }
+    // (a level lost to a failed try: the +6 option is still the tool's, and still works)
+    expect(has(tool("pick", 5, ["pkSteady", "pkLoose"]), "pkLoose")).toBe(true);
     expect(has(tool("pick", 6, ["pkSteady", "pkLoose"]), "pkLoose")).toBe(true);
     expect(has(tool("pick", 6, ["pkSteady", "pkLoose"]), "pkSteady")).toBe(true);
+    expect(has(tool("pick", 6, ["pkSteady"]), "pkLoose")).toBe(false);
     expect(has(null, "pkSteady")).toBe(false);
   });
   it("is read soundly: only this tool's options, each at the milestone its pool is drawn at, each once", () => {
@@ -307,7 +304,7 @@ describe("what a tool carries, read as it works now", () => {
   it("the pick's and the axe's own numbers, all told", () => {
     expect(veinStrikes(tool("pick", 10))).toBe(10);
     expect(veinStrikes(tool("pick", 3, ["pkSteady"]))).toBe(9);
-    expect(veinStrikes(tool("pick", 2, ["pkSteady"]))).toBe(6);
+    expect(veinStrikes(tool("pick", 2, ["pkSteady"]))).toBe(8);
     // fire: so much fewer, rounded up; dark: a swing more
     expect(pickSwings(tool("pick", 0, [], ["fire"]), 24)).toBe(7);
     expect(pickSwings(tool("pick", 10, [], ["fire"]), 24)).toBe(2);
@@ -449,9 +446,9 @@ describe("what an option does only so many times", () => {
     expect(usePower(purse, fresh, "pkFresh", NOW)).toEqual({ ok: false, why: "spent" });
     expect(powerLeft(purse, "pkFresh", NOW + 6 * HOUR)).toBe(10);
   });
-  it("is refused of a tool that has not the option, has it asleep, or of an option that is not counted", () => {
+  it("is refused of a tool that has not the option, or of an option that is not counted", () => {
     expect(usePower({}, tool("pick", 10), "pkQuake", NOW)).toEqual({ ok: false, why: "none" });
-    expect(usePower({}, tool("pick", 9, ["pkPeek", "pkCrumb", "pkQuake"]), "pkQuake", NOW)).toEqual({ ok: false, why: "none" });
+    expect(usePower({}, tool("pick", 10, ["pkPeek", "pkCrumb", "pkTwin"]), "pkQuake", NOW)).toEqual({ ok: false, why: "none" });
     expect(usePower({}, tool("pick", 3, ["pkPeek"]), "pkPeek", NOW)).toEqual({ ok: false, why: "none" });
     expect(usePower({}, null, "pkQuake", NOW)).toEqual({ ok: false, why: "none" });
     expect(powerLeft({}, "pkPeek", NOW)).toBe(0);

@@ -279,9 +279,10 @@ export function vectorsSmith(): Vector[] {
     // throws on the stack that is not there. The database answers "tool" there, as for any slot that is none.)
     if (!(slot === -1 && pending && pendingSlot(p, pending, -1) === -1)) add("forge_choose", [p, s, slot, pick], choose(p, s, slot as number, pick as string));
   }
-  // (an option made again, with everything it takes: awake at each milestone, with a gem of each element; and each thing short by itself)
-  for (const kind of BUILT_KINDS) for (const m of [0, 1, 2]) for (const short of ["nothing", "gem", "coins", "asleep", "owed"] as const) {
-    const level = short === "asleep" ? FORGE.milestones[m] - 1 : FORGE.top, stack = soundTool(kind, FORGE.top, { gem: null }), gem = c.of(GEM_IDS);
+  // (an option made again, with everything it takes: at each milestone, with a gem of each element, of a tool at the top and of one whose
+  // level has fallen under that milestone, which is made again like any other; and each thing short by itself)
+  for (const kind of BUILT_KINDS) for (const m of [0, 1, 2]) for (const short of ["nothing", "gem", "coins", "under", "owed"] as const) {
+    const level = short === "under" ? FORGE.milestones[m] - 1 : FORGE.top, stack = soundTool(kind, FORGE.top, { gem: null }), gem = c.of(GEM_IDS);
     const p = purseWith(short === "coins" ? SMITH.redraw.fee - 1 : SMITH.redraw.fee + 5, [{ ...stack, plus: level }], short === "gem" ? [] : [[gem, 1]]);
     const s: Smithy = { ...newSmithy(), pending: short === "owed" ? waiting(kind, m, drawnOf(stack)[m]!) : null }, r1 = c.next(), r2 = c.next();
     add("forge_redraw", [p, s, 0, m, gem, r1, r2], redraw(p, s, 0, m, gem, r1, r2));
@@ -342,7 +343,9 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     expect(new Set(of("tool_level").map((v) => v.want)).size).toBe(FORGE.top + 1);
     expect(of("tool_drawn").some((v) => (v.want as unknown[]).every((o) => o === null)) && of("tool_drawn").some((v) => (v.want as unknown[]).every((o) => o !== null))).toBe(true);
     expect(of("tool_drawn").some((v) => { const s = v.args[0] as Stack | null; return !!s && Array.isArray(s.opts) && s.opts.length > 0 && (v.want as unknown[]).filter(Boolean).length < s.opts.filter(Boolean).length; })).toBe(true);
-    expect(of("tool_has").some((v) => v.want === true) && of("tool_has").some((v) => v.want === false && drawnOf(v.args[0] as Stack).includes(v.args[1] as OptionId))).toBe(true);
+    // (an option once drawn works whatever the level: a tool has exactly the options drawn for it)
+    expect(of("tool_has").some((v) => v.want === true) && of("tool_has").some((v) => v.want === false)).toBe(true);
+    expect(of("tool_has").every((v) => v.want === drawnOf(v.args[0] as Stack).includes(v.args[1] as OptionId))).toBe(true);
     expect(of("tool_gems").some((v) => (v.want as unknown[]).length === 1) && of("tool_gems").every((v) => (v.want as unknown[]).length <= FORGE.sockets)).toBe(true);
     expect(new Set(of("forge_owed").map((v) => v.want))).toEqual(new Set([-1, 0, 1, 2]));
     expect(of("forge_drawable").some((v) => (v.want as unknown[]).length >= 4) && of("forge_drawable").some((v) => (v.want as unknown[]).length === 0)).toBe(true);
@@ -395,7 +398,7 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     expect(draws.some((x) => x.d.fresh && !x.s.pending) && draws.some((x) => x.d.fresh && !!x.s.pending) && draws.some((x) => !x.d.fresh && JSON.stringify(x.d.pending) === JSON.stringify(x.s.pending))).toBe(true);
     for (const m of [0, 1, 2]) expect(draws.some((x) => x.d.fresh && x.d.pending.at === m && x.d.pending.offer.length === 2), `milestone ${m}`).toBe(true);
     expect(new Set(of("pending_slot").map((v) => v.want)).size).toBeGreaterThan(2);
-    expect(whys("forge_redraw")).toEqual(["asleep", "coins", "gem", "none", "ok", "owed", "tool", "unbuilt"]);
+    expect(whys("forge_redraw")).toEqual(["coins", "gem", "none", "ok", "owed", "tool", "unbuilt"]);
     expect(whys("forge_choose")).toEqual(["none", "ok", "tool"]);
     const chosen = of("forge_choose").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { kept: boolean; at: number; opt: string; smithy: Smithy });
     expect(chosen.some((x) => x.kept) && chosen.some((x) => !x.kept) && chosen.every((x) => x.smithy.pending === null)).toBe(true);

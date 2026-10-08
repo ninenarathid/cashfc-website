@@ -280,9 +280,12 @@ export interface ToolMods {
   kind: ToolKind | null;
   /** Its plus, 0 to 10. */
   level: number;
-  /** The options that are awake: each drawn at a milestone the level has reached. */
+  /**
+   * The options it has, in the order of their milestones. An option once drawn is the tool's for good and works
+   * whatever the level has since fallen to (the owner, 2026-10-08: a failed try takes a level, never a choice made).
+   */
   opts: OptionId[];
-  /** The options that sleep: drawn at a milestone the level has since fallen under. They wake when it is back. */
+  /** Always empty: no option sleeps any more. (Kept so that what reads a tool's mods keeps its shape.) */
   asleep: OptionId[];
   /** The level each element works at, of the gems set in it (one more at the top). */
   gems: Partial<Record<Element, number>>;
@@ -299,7 +302,7 @@ export function levelOf(stack: Stack | null | undefined): number {
 }
 /**
  * The options a tool has, by the milestone each was drawn at (null where none was drawn, or what is kept there is no
- * option of this tool's and that milestone's pool): made sound, whether awake or not.
+ * option of this tool's and that milestone's pool): made sound.
  */
 export function drawnOf(stack: Stack | null | undefined): Array<OptionId | null> {
   const kind = stack ? toolKindOf(stack.item) : null, kept = stack && Array.isArray(stack.opts) ? stack.opts : [];
@@ -317,13 +320,12 @@ export function gemsOf(stack: Stack | null | undefined): Element[] {
 export function modsOf(stack: Stack | null | undefined): ToolMods {
   const kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return NOTHING;
-  const level = levelOf(stack), drawn = drawnOf(stack), opts: OptionId[] = [], asleep: OptionId[] = [];
-  drawn.forEach((id, i) => { if (id) (level >= FORGE.milestones[i] ? opts : asleep).push(id); });
+  const level = levelOf(stack), opts = drawnOf(stack).filter((id): id is OptionId => !!id);
   const set = gemsOf(stack), gems: Partial<Record<Element, number>> = {};
   for (const e of set) gems[e] = Math.min(GEM_LEVELS, 1 + (level >= FORGE.top ? FORGE.gemAtTop : 0));
-  return { kind, level, opts, asleep, gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
+  return { kind, level, opts, asleep: [], gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
 }
-/** Whether a tool has an option, awake. */
+/** Whether a tool has an option: drawn for it at one of its milestones, whatever its level is now. */
 export const has = (stack: Stack | null | undefined, id: OptionId): boolean => modsOf(stack).opts.includes(id);
 /** The level an element works at in a tool: 0 with no gem of it set. */
 export const gemLevel = (stack: Stack | null | undefined, element: Element): number => modsOf(stack).gems[element] ?? 0;

@@ -50,7 +50,6 @@ const WHY: Record<SmithRefusal, [th: string, en: string]> = {
   same: ["เครื่องมือชิ้นนี้ฝังพลอยธาตุนี้อยู่แล้ว", "That element is set in it already"],
   unbuilt: ["ช่างยังทำอย่างนั้นกับเครื่องมือชิ้นนี้ไม่ได้", "The smith cannot do that for this tool yet"],
   owed: ["ต้องเลือกออปชันที่รออยู่ก่อน", "Choose the option that waits first"],
-  asleep: ["ออปชันนี้หลับอยู่", "That option is asleep"],
   self: ["สูบลมให้เตาของตัวเองไม่ได้", "Not one's own bellows"],
   idle: ["ตอนนี้ไม่มีอะไรหลอมอยู่", "Nothing is smelting there now"],
   tired: ["ชั่วโมงนี้ช่วยเตานี้ครบแล้ว", "You have helped that fire all you may this hour"],
@@ -108,7 +107,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   const told = keeper.smith(), purse = keeper.purse(), now = keeper.now();
   const [said, setSaid] = useState<{ text: string; tone: "good" | "bad" | "plain" } | null>(null);
   const [busy, setBusy] = useState(false);
-  const refuse = (why: SmithRefusal) => { setSaid({ text: th ? WHY[why][0] : WHY[why][1], tone: "bad" }); sfx?.work("nothing"); };
+  // (a reason this page has no words for, from a keeper whose rules are older or newer than the page's: said as the books not reached)
+  const refuse = (why: SmithRefusal) => { const words = WHY[why] ?? WHY.away; setSaid({ text: th ? words[0] : words[1], tone: "bad" }); sfx?.work("nothing"); };
 
   // ── the tool on the anvil: the one chosen, while it is still in that slot; or else the first there is ──
   const tools = toolsIn(purse.bag);
@@ -279,7 +279,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
       ) : <p className="rounded-xl border border-dashed border-[#6b4a2a] px-3 py-4 text-center text-ui text-[#c9a877]" data-smith-none>{t("ในกระเป๋าไม่มีเครื่องมือที่ตีบวกได้", "There is no tool in the bag that can be forged")}</p>}
     </div>
   );
-  /** The tool's own card: its plus, its options awake and asleep, its gem. */
+  /** The tool's own card: its plus, its numbers, its options, its gem. (An option once drawn works whatever the level has fallen to: none sleeps.) */
   const card = stack && kind && (
     <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-card data-item={stack.item} data-plus={level}>
       <div className="flex items-center gap-2">
@@ -303,18 +303,16 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
       </dl>
       <ul className="mt-3 space-y-2">
         {drawnOf(stack).map((id, i) => {
-          const awake = level >= FORGE.milestones[i];
           if (!id) return level >= FORGE.milestones[i] || !BUILT[kind].opts.length ? null : (
             <li key={i} className="flex items-center gap-2 text-meta text-[#8f7655]"><TownIcon name="lock" size={12} />{t(`ออปชันขั้น +${FORGE.milestones[i]}`, `The option of +${FORGE.milestones[i]}`)}</li>
           );
           const o = OPTIONS[id], does = optionDoes(id);
           return (
-            <li key={i} className={`rounded-xl border px-2.5 py-2 ${awake ? "border-[#6b4a2a] bg-[#2a1d12]" : "border-dashed border-[#4a341f] bg-[#1d140c] opacity-70"}`} data-smith-opt={id} data-awake={awake}>
+            <li key={i} className="rounded-xl border border-[#6b4a2a] bg-[#2a1d12] px-2.5 py-2" data-smith-opt={id}>
               <div className="flex items-center gap-2">
                 <span className="font-data text-label text-[#c9a877]">+{FORGE.milestones[i]}</span>
                 <span className="min-w-0 flex-1 truncate text-ui font-semibold text-[#f3e3c3]">{th ? o.name.th : o.name.en}</span>
-                {!awake && <span className="rounded-full border border-[#6b4a2a] px-2 text-label text-[#c9a877]">{t("หลับอยู่", "Asleep")}</span>}
-                {awake && view === "forge" && !laid && candidates(stack, i).length > 0 && (
+                {view === "forge" && !laid && candidates(stack, i).length > 0 && (
                   <button type="button" onClick={() => setAgain(again === i ? null : i)} disabled={busy} aria-expanded={again === i} data-smith-again={i}
                           className="pressable min-h-8 rounded-full border border-[#6b4a2a] px-2.5 text-label font-semibold text-[#c9a877] hover:border-[#c9a877] hover:text-[#f3e3c3]">{t("สุ่มใหม่", "Draw again")}</button>
                 )}

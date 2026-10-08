@@ -26,9 +26,9 @@ export const powerLeft = (purse: Pick<Purse, "powers">, id: string, now: number)
   const rule = powerRule(id);
   return rule ? Math.max(0, rule.n - powerUsed(purse, id, now)) : 0;
 };
-/** Whether a tool's counted option can be used now: the tool has it, awake, and it has a time left in this stretch. */
+/** Whether a tool's counted option can be used now: the tool has it, and it has a time left in this stretch. */
 export const mayPower = (purse: Pick<Purse, "powers">, tool: Stack | null | undefined, id: OptionId, now: number): boolean => has(tool, id) && powerLeft(purse, id, now) > 0;
-/** Use a tool's counted option once: the tool has to have it, awake, and it has to have a time left in this stretch. */
+/** Use a tool's counted option once: the tool has to have it, and it has to have a time left in this stretch. */
 export function usePower<P extends Pick<Purse, "powers">>(purse: P, tool: Stack | null | undefined, id: OptionId, now: number): { ok: true; purse: P; left: number } | { ok: false; why: PowerRefusal } {
   const rule = powerRule(id);
   if (!rule || !has(tool, id)) return { ok: false, why: "none" };

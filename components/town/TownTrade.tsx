@@ -890,7 +890,7 @@ export function holdsOf(s: Stack, th: boolean): string | null {
   if (!forged(s)) return holds;
   const m = modsOf(s), gem = gemsOf(s)[0];
   return [m.level > 0 ? `+${m.level}` : null, gem ? (th ? ITEMS[GEMS[gem].gem].name.th : ITEMS[GEMS[gem].gem].name.en) : null,
-    ...[...m.opts, ...m.asleep].map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)), holds].filter(Boolean).join(" · ") || null;
+    ...m.opts.map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)), holds].filter(Boolean).join(" · ") || null;
 }
 function heldIn(s: Stack, th: boolean): string | null {
   if (s.of) return `${th ? ITEMS[s.of.dish].name.th : ITEMS[s.of.dish].name.en} · ${s.of.left}`;

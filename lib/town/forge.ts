@@ -107,7 +107,6 @@ export type SmithRefusal =
   | "same"     // that element is set in it already
   | "unbuilt"  // nothing to draw, or that element does nothing for this tool yet
   | "owed"     // a draw waits to be chosen first
-  | "asleep"   // that milestone's option sleeps: the level is under it
   | "self"     // one's own bellows
   | "idle"     // nothing smelting there now
   | "tired"    // helped that queue as often as one may this hour
@@ -218,7 +217,7 @@ function withState(s: Stack, plus: number, opts: Array<OptionId | null>, gems: E
   return { ...bare, ...(plus > 0 ? { plus } : {}), ...(last >= 0 ? { opts: opts.slice(0, last + 1).map((o) => o ?? "") } : {}), ...(gems.length ? { gems } : {}) };
 }
 const setSlot = (purse: Purse, slot: number, s: Stack): Purse => ({ ...purse, bag: purse.bag.map((b, i) => (i === slot ? s : b)) });
-/** The options a draw for a milestone may lay out for a tool: those of the milestone's pool that are built, less every one the tool has (awake or not). */
+/** The options a draw for a milestone may lay out for a tool: those of the milestone's pool that are built, less every one the tool has. */
 export function candidates(stack: Stack | null | undefined, at: number): OptionId[] {
   const kind = stack ? toolKindOf(stack.item) : null, pool = FORGE.pools[at];
   if (!kind || !pool) return [];
@@ -227,7 +226,7 @@ export function candidates(stack: Stack | null | undefined, at: number): OptionI
 }
 /**
  * The milestone a tool is owed a draw at: the first its level has reached that has no option yet and something to
- * draw. -1 when it is owed none. (A level regained is owed nothing: the option drawn there is still the tool's.)
+ * draw. -1 when it is owed none. (A level regained is owed nothing: the option drawn there never left the tool.)
  */
 export function owedOf(stack: Stack | null | undefined): number {
   const level = levelOf(stack), mine = drawnOf(stack);
@@ -286,7 +285,8 @@ export function pickOffer(from: readonly OptionId[], r1: number, r2: number, n =
 /** The slot of the tool a waiting draw is for: the one said, if it fits; or else the first in the bag that does. -1 when no tool in the bag fits it. */
 export function pendingSlot(purse: Purse, p: Pending | null, slot = -1): number {
   if (!p) return -1;
-  const fits = (s: Stack | null | undefined) => !!s && toolKindOf(s.item) === p.item && levelOf(s) >= FORGE.milestones[p.at] && (p.old ? drawnOf(s)[p.at] === p.old : !drawnOf(s)[p.at]);
+  // (a draw made again is for the tool that has the old option, whatever its level has fallen to since: what was paid for it is not lost with a level)
+  const fits = (s: Stack | null | undefined) => !!s && toolKindOf(s.item) === p.item && (p.old ? drawnOf(s)[p.at] === p.old : levelOf(s) >= FORGE.milestones[p.at] && !drawnOf(s)[p.at]);
   return fits(purse.bag[slot]) ? slot : purse.bag.findIndex(fits);
 }
 /**
@@ -305,7 +305,7 @@ export function draw(purse: Purse, s: Smithy, slot: number, r1: number, r2: numb
 }
 /**
  * Draw the option of a milestone again, for a gem of any element and a fee: two are laid out, and the old one may
- * be kept. Only of an option that is awake.
+ * be kept. Of any option the tool has: one drawn stays the tool's whatever its level has fallen to.
  */
 export function redraw(purse: Purse, s: Smithy, slot: number, at: number, gem: ItemId, r1: number, r2: number): Did<{ purse: Purse; smithy: Smithy; pending: Pending }> {
   if (s.pending && pendingSlot(purse, s.pending, slot) >= 0) return no("owed");
@@ -313,7 +313,6 @@ export function redraw(purse: Purse, s: Smithy, slot: number, at: number, gem: I
   if (!stack || !kind) return no("tool");
   const old = drawnOf(stack)[at];
   if (!old) return no("none");
-  if (levelOf(stack) < FORGE.milestones[at]) return no("asleep");
   if (!elementOfGem(gem) || held(purse.bag, gem) < SMITH.redraw.gems) return no("gem");
   if (purse.coins < SMITH.redraw.fee) return no("coins");
   const from = candidates(stack, at);

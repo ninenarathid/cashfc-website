@@ -90,9 +90,9 @@ describe("a plain tool reads as nothing", () => {
     expect(PLAIN_NET).toEqual({ ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0 });
     expect(PLAIN_COOK).toEqual({ band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0 });
   });
-  it("an option sleeps under its milestone, and a gem works one level stronger at the top", () => {
+  it("an option works whatever the level has fallen to, and a gem works one level stronger at the top", () => {
     expect(hoeFx(tool("hoe", 3, drawn("hoLight"))).even).toBe(true);
-    expect(hoeFx(tool("hoe", 2, drawn("hoLight"))).even).toBe(false);
+    expect(hoeFx(tool("hoe", 2, drawn("hoLight"))).even).toBe(true);
     expect(netFx(tool("bugNet", 1, [], ["earth"])).stamina).toBe(OLD_FX.earth.stamina[0]);
     expect(netFx(tool("bugNet", 10, [], ["earth"])).stamina).toBe(OLD_FX.earth.stamina[1]);
   });
@@ -164,7 +164,7 @@ describe("a forged rod", () => {
     expect(fx(tool("rod", 10, [], ["water"]))?.spared).toBe(2);
     expect(fx(tool("rod", 3, drawn("rdBait")))?.spared).toBe(1);
     expect(fx(tool("rod", 10, drawn("rdBait"), ["water"]))?.spared).toBe(3);
-    expect(fx(tool("rod", 2, drawn("rdBait")))?.spared).toBe(0);
+    expect(fx(tool("rod", 2, drawn("rdBait")))?.spared).toBe(1);
     expect(fx(tool("rod", 0, [], ["light"]))?.shimmer).toBe(OLD_FX.light.rod.early[0]);
     expect(fx(tool("rod", 10, [], ["light"]))?.shimmer).toBe(OLD_FX.light.rod.early[1]);
     expect(fx(tool("rod", 5))?.shimmer).toBe(0);
@@ -509,9 +509,9 @@ describe("the stamina a forged tool takes off (whoever keeps the game)", () => {
     // (a deed that cost nothing is not counted: tired hands, or a gift that paid for it)
     const tired = { ...purseOf(s), stamina: { day: dayOf(NOW), left: 0 } };
     expect(powerUsed(paid(tired, 2, s, hoeFx(s), "hoFresh"), "hoFresh", NOW)).toBe(0);
-    // (asleep under its milestone, it frees nothing)
+    // (under its milestone it frees as much: an option once drawn works whatever the level)
     const low = tool("hoe", 2, drawn("hoFresh"));
-    expect(staminaOf(paid(purseOf(low), 2, low, hoeFx(low), "hoFresh"), NOW)).toBe(98);
+    expect(staminaOf(paid(purseOf(low), 2, low, hoeFx(low), "hoFresh"), NOW)).toBe(100);
   });
   it("is paid where the deed is judged: the hoe's work, a watering, a catch, a pot", () => {
     // the hoe: ten free plots, with the tool in the hand
@@ -608,7 +608,7 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     for (let i = 0; i < 10; i++) { const q = called(p, NOW); expect(q).not.toBeNull(); p = q!; }
     expect([powerUsed(p, "rdCall", NOW), called(p, NOW)]).toEqual([10, null]);
     expect(called(purseOf(tool("rod", 10)), NOW)).toBeNull();
-    expect(called(purseOf(tool("rod", 9, drawn(null, null, "rdCall"))), NOW)).toBeNull();
+    expect(called(purseOf(tool("rod", 9, drawn(null, null, "rdCall"))), NOW)).not.toBeNull();
     expect(calledCast({ what: "minnow", wait: 40, nibbles: [9, 20], size: 5 })).toEqual({ what: "minnow", wait: 1, nibbles: [], size: 5 });
     // (the next day: ten again)
     expect(called(p, NOW + 24 * HOUR)).not.toBeNull();
@@ -640,9 +640,9 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     expect(done(water("3,1", filled, sown(), "can", NOW + 32 * 60_000)).purse.bag[0]?.water).toBe(15);
     // (when they are over the can is dry, and the day has no more)
     expect(water("3,1", p, sown(), "can", NOW + 32 * 60_000)).toEqual({ ok: false, why: "dry" });
-    // (a plain can that is dry is dry, as ever; and one below the top has no such option awake)
+    // (a plain can that is dry is dry, as ever; and so is a forged one with no such option)
     expect(water("1,1", purseOf(tool("can")), sown(), "can", NOW)).toEqual({ ok: false, why: "dry" });
-    expect(water("1,1", purseOf(tool("can", 9, drawn(null, null, "cnFull"))), sown(), "can", NOW)).toEqual({ ok: false, why: "dry" });
+    expect(water("1,1", purseOf(tool("can", 10, drawn("cnDrop", "cnThrift"))), sown(), "can", NOW)).toEqual({ ok: false, why: "dry" });
     // (stamina is paid for each as ever)
     expect(staminaOf(w.purse, NOW + 1000)).toBe(100 - 2 * FARMING.costs.water);
   });
