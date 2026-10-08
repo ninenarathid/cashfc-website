@@ -85,13 +85,13 @@ export function optionDoes(id: OptionId): Words {
     case "ntFreeze": return w(`แมลงที่เล็งไว้อยู่นิ่ง ${n("secs")} วินาทีตั้งแต่เริ่มตวัด · วันละ ${u} ครั้ง`, `The insect a swing is aimed at holds still for ${n("secs")} s from the moment it begins · ${u} a day`);
     case "ntNest": return w("จุดแมลงที่เราจับจนว่าง บอกเวลาที่ตัวใหม่อาจมาอีก", "A haunt you have emptied says when another may come there");
     // ── cookware ──
-    case "ckFire": return w("ไฟลุกพรึ่บน้อยลงครึ่งหนึ่ง และจังหวะคนไม่เปลี่ยนความเร็ว", "The roast flares half as often, and the stir's pace does not change speed");
+    case "ckFire": return w(`จังหวะคนนิ่งขึ้น ${n("steady")} เท่า: มือสะดุดนิดหน่อยยังไม่หลุดจังหวะ`, `The stirring's pace is ${n("steady")} times as steady: a hand that wobbles is not off it so soon`);
     case "ckBase": return w("พลาดครั้งแรกของแต่ละหม้อไม่เสียที่", "The first miss of a pot loses no helping");
     case "ckFresh": return w("หม้อแรกของแต่ละมื้อไม่เสีย stamina", "The first pot of a meal's hours costs no stamina");
     case "ckBrisk": return w(`การคนและการย่างสั้นลง ${pct(n("shorter"))}%`, `The stirring and the roast are ${pct(n("shorter"))}% shorter`);
     case "ckBig": return w(`หม้อนี้ได้เพิ่ม ${n("more")} ที่ · วันละ ${u} หม้อ`, `A pot gives ${n("more")} more helpings · ${u} pots a day`);
-    case "ckWarm": return w(`บัฟของอาหารจากหม้อนี้นานขึ้น ${n("hours")} ชั่วโมง · วันละ ${u} หม้อ`, `The buff of a dish from this pot lasts ${n("hours")} hour longer · ${u} pots a day`);
-    case "ckScent": return w(`ทุกคนที่กินจากหม้อนี้ได้ stamina เพิ่ม ${n("stamina")} · วันละ ${u} หม้อ`, `Everybody who eats from this pot has ${n("stamina")} more stamina · ${u} pots a day`);
+    case "ckWarm": return w(`ทุกคนที่กินจากหม้อนี้ที่โต๊ะเลี้ยง บัฟของอาหารนานขึ้น ${n("hours")} ชั่วโมง · วันละ ${u} หม้อ`, `For everybody who eats from this pot at the feast table, the dish's buff lasts ${n("hours")} ${n("hours") === 1 ? "hour" : "hours"} longer · ${u} pots a day`);
+    case "ckScent": return w(`ทุกคนที่กินจากหม้อนี้ที่โต๊ะเลี้ยง ได้ stamina เพิ่ม ${n("stamina")} ต่อที่ · วันละ ${u} หม้อ`, `Everybody who eats from this pot at the feast table has ${n("stamina")} more stamina a helping · ${u} pots a day`);
   }
 }
 
@@ -178,7 +178,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
       if (fam === "hoe") return w("ก้อนหินตอนถอนวัชพืชเรืองแสงให้เห็น", "The weeding's stones glow");
       if (fam === "can") { const n = step(F.light.can.glint, level); return n >= ALL ? w("ต้นที่รดได้ตอนนี้ส่องประกายทั้งแปลง", "Plants that can be watered now glint over the whole bed") : w(`ต้นที่รดได้ตอนนี้ส่องประกายในระยะ ${n} ช่อง`, `Plants that can be watered now glint within ${n} tiles`); }
       if (fam === "bugNet") { const n = step(F.light.bugNet.seen, level); return w(`แมลงในระยะ ${n} ช่องมีประกาย แม้ตัวที่ซ่อนอยู่`, `Insects within ${n} tiles glint, the hidden ones too`); }
-      return null;
+      return w("มีแสงวนรอบหม้อตามจังหวะที่ดี ให้ทัพพีวนตาม", "A light goes round the pot at the good pace, for the ladle to keep with");
     case "dark":
       if (fam === "rod") { const x = step(F.dark.rod.rare, level), f = pct(F.dark.rod.fiercer); return w(`ปลาหายากมาบ่อยขึ้น ${x} เท่า แต่ปลาทุกตัวดึงแรงขึ้น ${f}%`, `Rare fish ${x} times as often; every fish pulls ${f}% harder`); }
       if (fam === "hoe") { const p = pct(step(F.dark.hoe.worm, level)), f = pct(F.dark.hoe.faster); return w(`${p}% ที่พรวนแล้วเจอไส้เดือน แต่ตัวชี้เร็วขึ้น ${f}%`, `${p}% that a tilled plot turns up a worm; the marker ${f}% faster`); }

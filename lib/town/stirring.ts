@@ -37,6 +37,8 @@ export interface Stir {
   need: number; hits: number; misses: number; turned: number; pace: number; off: -1 | 0 | 1; out: number; lo: number; hi: number; grace: number; begun: boolean; t: number;
   // ── forging: old tools ── (misses still forgiven: not there in a pot stirred with plain cookware)
   spare?: number;
+  /** (and how many times as slowly the pace kept follows the hand: not there in a pot stirred with plain cookware) */
+  smooth?: number;
 }
 
 /**
@@ -55,6 +57,8 @@ export function startStir(need: number, mods: TimingMods, harder = 1): Stir {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, turned: 0, pace: 0, off: 0, out: 0,
     lo: STIRRING.pace - either, hi: STIRRING.pace + either, grace: (STIRRING.grace / (tired ? tired.speed : 1) / hard) * partOf(1, mods.grace ?? 1), begun: false, t: 0,
     ...(sparedOf(mods) ? { spare: sparedOf(mods) } : {}),
+    // ── forging: old tools ── (an even flame: the pace kept is smoothed over so many times as long, never past the cap)
+    ...(partOf(1, mods.steady ?? 1) > 1 ? { smooth: partOf(1, mods.steady ?? 1) } : {}),
   };
 }
 
@@ -67,7 +71,7 @@ export function stir(s: Stir, turns: number, dt: number): Stir {
   const moved = Math.abs(turns);
   if (!s.begun && moved === 0) return s;
   // the pace kept is the hand's, smoothed: a finger does not go round evenly
-  const k = 1 - Math.exp(-dt / STIRRING.smooth), pace = s.pace + (moved / dt - s.pace) * k, t = s.begun ? s.t + dt : dt;
+  const k = 1 - Math.exp(-dt / (STIRRING.smooth * (s.smooth ?? 1))), pace = s.pace + (moved / dt - s.pace) * k, t = s.begun ? s.t + dt : dt;
   const off: -1 | 0 | 1 = pace < s.lo ? -1 : pace > s.hi ? 1 : 0;
   let { turned, hits, misses, out } = s, spare = s.spare ?? 0;
   if (off === 0) {

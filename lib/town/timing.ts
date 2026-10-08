@@ -75,6 +75,8 @@ export interface TimingMods {
   stones?: number;
   /** A slip of the ladle may last so many times as long before it costs. */
   grace?: number;
+  /** The pace that is kept follows the hand so many times as slowly (the stirring's): a hand that wobbles is not off it so soon. */
+  steady?: number;
 }
 /** How many misses a game begun so forgives: none, unless a tool's forging says so. */
 export const sparedOf = (mods: TimingMods): number => Math.max(0, Math.floor(mods.spare ?? 0));

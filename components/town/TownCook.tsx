@@ -607,7 +607,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           ) : (
-            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsWith(stirsFor(stirring.things), cfx)} mods={{ ...stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm"))), forged: cfx.band, spare: cfx.spared, grace: cfx.grace }} harder={harder}
+            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsWith(stirsFor(stirring.things), cfx)} mods={{ ...stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm"))), forged: cfx.band, spare: cfx.spared, grace: cfx.grace, steady: cfx.steady }} harder={harder} guide={cfx.guide}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                           onDone={finish} onCancel={() => setStirring(null)} />
           )}

@@ -186,7 +186,7 @@ export const OPTIONS = {
   ntMesh: opt(1, ["bugNet"], "ตาข่ายถี่", "Fine mesh", { misses: 1 }),
   ntFresh: opt(1, ["bugNet"], "แรงนักจับแมลง", "Catcher's wind", {}, meal(10)),
   ntLong: opt(1, ["bugNet"], "ด้ามยาว", "Long handle", { reach: 1 }),
-  ckFire: opt(1, COOK, "ไฟนิ่ง", "Even flame", { flares: 0.5 }),
+  ckFire: opt(1, COOK, "ไฟนิ่ง", "Even flame", { steady: 2 }),
   ckBase: opt(1, COOK, "ก้นหนา", "Thick base", { misses: 1 }),
   ckFresh: opt(1, COOK, "แรงคนครัว", "Cook's wind", {}, meal(1)),
   ckBrisk: opt(1, COOK, "ไฟแรง", "Brisk fire", { shorter: 0.25 }),
@@ -212,8 +212,8 @@ export const OPTIONS = {
   ntFreeze: opt(2, ["bugNet"], "นิ่งไว้ก่อน", "Hold still", { secs: 2 }, day(10)),
   ntNest: opt(2, ["bugNet"], "รู้รัง", "Nest-wise"),
   ckBig: opt(2, COOK, "หม้อใหญ่", "Big pot", { more: 2 }, day(3)),
-  ckWarm: opt(2, COOK, "อุ่นนาน", "Long warmth", { hours: 1 }, day(3)),
-  ckScent: opt(2, COOK, "หอมทั้งลาน", "Scent of the yard", { stamina: 5 }, day(3)),
+  ckWarm: opt(2, COOK, "อุ่นนาน", "Long warmth", { hours: 2 }, day(3)),
+  ckScent: opt(2, COOK, "หอมทั้งลาน", "Scent of the yard", { stamina: 10 }, day(3)),
 } as const satisfies Record<string, Option>;
 export type OptionId = keyof typeof OPTIONS;
 export const OPTION_IDS = Object.keys(OPTIONS) as OptionId[];
@@ -236,9 +236,9 @@ export const BUILT: Record<ToolKind, { opts: readonly OptionId[]; gems: readonly
   hoe: { opts: ["hoClear", "hoFirst", "hoFresh", "hoLight", "hoBoth", "hoGrip", "hoWet"], gems: ELEMENTS },
   can: { opts: ["cnDrop", "cnThrift", "cnFresh", "cnKind", "cnRain", "cnFull", "cnTwice"], gems: ELEMENTS },
   bugNet: { opts: ["ntAgain", "ntMesh", "ntFresh", "ntLong", "ntWide", "ntFreeze", "ntNest"], gems: ELEMENTS },
-  pot: { opts: ["ckBase", "ckFresh", "ckBrisk", "ckBig"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "dark"] },
-  pan: { opts: ["ckBase", "ckFresh", "ckBrisk", "ckBig"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "dark"] },
-  grill: { opts: ["ckBase", "ckFresh", "ckBrisk", "ckBig"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "dark"] },
+  pot: { opts: ["ckFire", "ckBase", "ckFresh", "ckBrisk", "ckBig", "ckWarm", "ckScent"], gems: ELEMENTS },
+  pan: { opts: ["ckFire", "ckBase", "ckFresh", "ckBrisk", "ckBig", "ckWarm", "ckScent"], gems: ELEMENTS },
+  grill: { opts: ["ckFire", "ckBase", "ckFresh", "ckBrisk", "ckBig", "ckWarm", "ckScent"], gems: ELEMENTS },
 };
 /** The options of a pool that may be drawn for a kind of tool now: those of its pool that are built. */
 export const drawable = (kind: ToolKind, pool: 1 | 2): OptionId[] => poolOf(kind, pool).filter((id) => BUILT[kind].opts.includes(id));

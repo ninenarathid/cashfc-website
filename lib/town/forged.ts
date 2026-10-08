@@ -63,7 +63,8 @@ const SHARE = [0.15, 0.25, 0.35, 0.45], COUNT = [1, 2, 3, 4], CHANCE = [0.1, 0.2
  * - lightning, how likely the deed does its neighbour too: the bait is not used up, the next plot is done, another
  *   insect comes with the one caught, a pot has a helping more.
  * - light, what is worth having shows: the float shimmers so many seconds before the bite; the weeding's stones glow;
- *   plants that want water glint within so many tiles; insects that hide are seen within so many.
+ *   plants that want water glint within so many tiles; insects that hide are seen within so many; a light goes
+ *   round a pot at the good pace.
  * - dark, the rarer thing for a harder game: rare fish so many times as often and every fish so much fiercer; how
  *   likely a tilled plot turns up a worm, and the marker so much faster; a watering adds so much more and uses so
  *   many; the net's ring so much smaller; how likely a pot has a helping more, and its good pace so much narrower.
@@ -335,8 +336,15 @@ export interface CookFx {
   helping: number;
   /** Helpings more in a pot of a dish (the counted option: so many pots a day); none: 0. */
   big: number;
+  /** How many times as slowly the pace that is kept follows the hand: a hand that wobbles is not off the good pace so soon (1: as ever). */
+  steady: number;
+  /** Whether a light goes round the pot at the good pace, for the ladle to keep with. */
+  guide: boolean;
+  /** What a pot of a dish is given for whoever eats from it at the feast table: so many hours more of its buff; so much more stamina a helping (the counted options: so many pots a day, each); none: 0. */
+  warm: number;
+  scent: number;
 }
-export const PLAIN_COOK: CookFx = { band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0 };
+export const PLAIN_COOK: CookFx = { band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0, steady: 1, guide: false, warm: 0, scent: 0 };
 export const COOK_KINDS: readonly ToolKind[] = ["pot", "pan", "grill"];
 export function cookFx(stack: Held): CookFx {
   const s = of(stack, ...COOK_KINDS);
@@ -351,6 +359,10 @@ export function cookFx(stack: Held): CookFx {
     fresh: has(s, "ckFresh"),
     helping: Math.max(gemBy(s, "lightning", OLD_FX.lightning.chance), dark),
     big: has(s, "ckBig") ? optN("ckBig", "more") : 0,
+    steady: has(s, "ckFire") ? optN("ckFire", "steady") : 1,
+    guide: gemBy(s, "light", COUNT) > 0,
+    warm: has(s, "ckWarm") ? optN("ckWarm", "hours") : 0,
+    scent: has(s, "ckScent") ? optN("ckScent", "stamina") : 0,
   };
 }
 /** How many stirs a pot wants with a piece of cookware, of the stirs it plainly wants: so much fewer, rounded up, never under one. */

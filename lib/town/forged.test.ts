@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { COOKING, cook, stirMods } from "./cooking";
+import { COOKING, cook, feastEat, setDown, stirMods, takeUp } from "./cooking";
 import { FARMING, WATER, WILD, beside, canFullNow, canHolds, chore, choreFor, deedFor, mayTwice, see, sow, tend, water, type Plant, type Plot } from "./farm";
 import { FIGHT, LULL, STRIKE, baitKept, called, calledCast, fightPaid, goldStrike, goldWindowOf, livelyOf, lullNow, lulled, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
 import {
@@ -12,7 +12,7 @@ import { FISH, FISH_IDS, type ItemId } from "./items";
 import { LONG, startLong } from "./longpour";
 import { POURING, pour, startPour } from "./pouring";
 import { powerLeft, powerUsed } from "./powers";
-import { dayOf, spend, staminaOf } from "./stamina";
+import { STAMINA, chew, dayOf, spend, staminaOf } from "./stamina";
 import { STIRRING, startStir, stir } from "./stirring";
 import { TIMING, over, press, pressRow, startRound, startRow, type Round } from "./timing";
 import { BUILT, ELEMENTS, FORGE, LEVELS, OPTIONS, drawable, poolOf, settable, type OptionId, type ToolKind } from "./tools";
@@ -88,7 +88,7 @@ describe("a plain tool reads as nothing", () => {
     expect(PLAIN_HOE).toEqual({ band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false, both: false, wet: false });
     expect(PLAIN_CAN).toEqual({ more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0, rain: false, twice: false });
     expect(PLAIN_NET).toEqual({ ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0, rare: 1, wide: 0, freeze: 0, nest: false });
-    expect(PLAIN_COOK).toEqual({ band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0 });
+    expect(PLAIN_COOK).toEqual({ band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0, steady: 1, guide: false, warm: 0, scent: 0 });
   });
   it("an option works whatever the level has fallen to, and a gem works one level stronger at the top", () => {
     expect(hoeFx(tool("hoe", 3, drawn("hoLight"))).even).toBe(true);
@@ -696,6 +696,32 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     const odd: Array<[ItemId, number]> = [["chili", 2]], fresh = { ...purseOf(top("pot", "ckBig")), bag: put(purseOf(top("pot", "ckBig")).bag, "chili", 2) };
     const mess = done(cook(fresh, odd, ["pot"], 0, NOW));
     expect([mess.made, powerUsed(mess.purse, "ckBig", NOW)]).toEqual(["oddDish", 0]);
+  });
+  it("a pot for the table: cooked in cookware that carries as much it is marked, and a helping eaten out of it at the feast table has what it carries", () => {
+    const things: Array<[ItemId, number]> = [["barb", 2], ["daikon", 1], ["cabbage", 1], ["chili", 1]];
+    const stocked = (q: Purse) => { for (const [id, k] of things) q = { ...q, bag: put(q.bag.map((b) => (b?.item === "potFull" ? null : b)), id, k) }; return q; };
+    const potOf = (q: Purse) => q.bag.find((s) => s?.item === "potFull")!, slotOf = (q: Purse) => q.bag.findIndex((s) => s?.item === "potFull");
+    const scented = done(cook(stocked(purseOf(top("pot", "ckScent"))), things, ["pot"], 0, NOW)), warm = done(cook(stocked(purseOf(top("pot", "ckWarm"))), things, ["pot"], 0, NOW));
+    expect([potOf(scented.purse).scent, potOf(scented.purse).warm, powerUsed(scented.purse, "ckScent", NOW)]).toEqual([OPTIONS.ckScent.n.stamina, undefined, 1]);
+    expect([potOf(warm.purse).warm, potOf(warm.purse).scent, powerUsed(warm.purse, "ckWarm", NOW)]).toEqual([OPTIONS.ckWarm.n.hours, undefined, 1]);
+    // (plain cookware: a pot as it always was, with nothing more kept on it)
+    expect(Object.keys(potOf(done(cook(stocked(purseOf(tool("pot"))), things, ["pot"], 0, NOW)).purse)).sort()).toEqual(["item", "n", "of"]);
+    // (set down on the table and taken up again, it keeps what it carries)
+    const down = done(setDown(scented.purse, slotOf(scented.purse), "me", [1, 1], "p1", { now: NOW, yard: true, tile: [2, 2] }));
+    expect([down.pot.scent, down.pot.feast]).toEqual([OPTIONS.ckScent.n.stamina, true]);
+    expect(potOf(done(takeUp(down.purse, down.pot, "me")).purse).scent).toBe(OPTIONS.ckScent.n.stamina);
+    // eaten at the table: by the time the helping is eaten up it has given so much more stamina
+    const hungry: Purse = { ...newPurse(), stamina: { day: dayOf(NOW), left: 10 } }, end = NOW + STAMINA.minutes * 60_000;
+    const ate = chew(done(feastEat(hungry, down.pot, true, NOW)).purse, 0, end).purse, bare = chew(done(feastEat(hungry, { ...down.pot, scent: undefined }, true, NOW)).purse, 0, end).purse;
+    expect(staminaOf(ate, end) - staminaOf(bare, end)).toBeCloseTo(OPTIONS.ckScent.n.stamina, 6);
+    // a warm pot: the buff its dish leaves lasts so many hours more
+    const wdown = done(setDown(warm.purse, slotOf(warm.purse), "me", [1, 1], "p2", { now: NOW, yard: true, tile: [2, 2] }));
+    const fed = chew(done(feastEat(hungry, wdown.pot, true, NOW)).purse, 0, end).purse, plainly = chew(done(feastEat(hungry, { ...wdown.pot, warm: undefined }, true, NOW)).purse, 0, end).purse;
+    expect(fed.buffs![0].until - plainly.buffs![0].until).toBe(OPTIONS.ckWarm.n.hours * HOUR);
+  });
+  it("an even flame steadies the stirring's pace, and light in the cookware lights the way round the pot", () => {
+    expect([startStir(5, { steady: cookFx(tool("pot", 3, drawn("ckFire"))).steady }).smooth, startStir(5, {}).smooth]).toEqual([OPTIONS.ckFire.n.steady, undefined]);
+    expect([cookFx(tool("pan", 1, [], ["light"])).guide, cookFx(tool("pan", 1)).guide]).toEqual([true, false]);
   });
 });
 
