@@ -25,6 +25,7 @@ import { AnkletRun, HelpNews, RingOffer } from "./TownHelping";
 import type { Stander } from "@/lib/town/line";
 import type { Aid } from "@/lib/town/helping";
 import { usesLeft, wearing } from "@/lib/town/gifts";
+import { powerLeft } from "@/lib/town/powers";
 import { HELPING, dustUntil, runOf } from "@/lib/town/helping";
 import TownTiming from "./TownTiming";
 import TownWeeding from "./TownWeeding";
@@ -923,7 +924,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         // Of a plain tool, and of anything else in the hand, every number is the one that changes nothing.)
         const held = heldStack(purse, keeper.handSlot()), hfx = hoeFx(held), cfx = canFx(held);
         const need = hoeing && !working.row ? hitsWith(working.need, hfx) : working.need;
-        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: tiredAt(purse, isSpent(purse, now), theirs), drops: true, wide,
+        // (and a hoe that tired hands keep hold of is not dropped, while the day still has such plots: whoever keeps the game counts them)
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: tiredAt(purse, isSpent(purse, now), theirs), drops: !(hoeing && hfx.grip && powerLeft(purse, "hoGrip", now) > 0), wide,
           buff: (game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen")) * (game === "weeding" ? wide : 1),
           hard: theirs ? hardIn(worked, true, told?.farming.points ?? 0, told?.helpers.points ?? 0) : hardFor(worked, told?.farming.points ?? 0),
           ...(game === "steady" ? {} : { forged: hfx.band * cfx.marks, pace: hfx.pace * cfx.pace, spare: hfx.spared + cfx.spared, even: hfx.even, stones: hfx.stones }) };

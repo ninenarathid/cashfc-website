@@ -119,8 +119,10 @@ export interface RodFx {
   /** How likely a bait is not used up; and rare fish so many times as often. */
   keeps: number;
   rare: number;
+  /** Whether a line dropped is bitten at once (the counted option: so many a day). */
+  call: boolean;
 }
-export const PLAIN_ROD: RodFx = { band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1 };
+export const PLAIN_ROD: RodFx = { band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false };
 export function rodFx(stack: Held): RodFx {
   const s = of(stack, "rod");
   if (!s) return PLAIN_ROD;
@@ -139,6 +141,7 @@ export function rodFx(stack: Held): RodFx {
     quick: has(s, "rdQuick") ? optN("rdQuick", "shorter") : 0,
     keeps: gemBy(s, "lightning", OLD_FX.lightning.chance),
     rare: gemBy(s, "dark", OLD_FX.dark.rod.rare, 1),
+    call: has(s, "rdCall"),
   };
 }
 
@@ -165,8 +168,10 @@ export interface HoeFx {
   /** How likely the next plot of the row is done too; and how likely a tilled plot turns up a worm. */
   next: number;
   worm: number;
+  /** Whether tired hands keep hold of it however often they miss (the counted option: so many plots a day). */
+  grip: boolean;
 }
-export const PLAIN_HOE: HoeFx = { band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0 };
+export const PLAIN_HOE: HoeFx = { band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false };
 export function hoeFx(stack: Held): HoeFx {
   const s = of(stack, "hoe");
   if (!s) return PLAIN_HOE;
@@ -183,6 +188,7 @@ export function hoeFx(stack: Held): HoeFx {
     fresh: has(s, "hoFresh"),
     next: gemBy(s, "lightning", OLD_FX.lightning.chance),
     worm,
+    grip: has(s, "hoGrip"),
   };
 }
 
@@ -212,8 +218,10 @@ export interface CanFx {
   uses: number;
   /** Within how many tiles plants that want water glint (none: 0). */
   glint: number;
+  /** For how many minutes it waters with no water in it once it has run dry (the counted option: so often a day); none: 0. */
+  full: number;
 }
-export const PLAIN_CAN: CanFx = { more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0 };
+export const PLAIN_CAN: CanFx = { more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0 };
 export function canFx(stack: Held): CanFx {
   const s = of(stack, "can");
   if (!s) return PLAIN_CAN;
@@ -231,6 +239,7 @@ export function canFx(stack: Held): CanFx {
     rich,
     uses: rich > 0 ? OLD_FX.dark.can.uses : 1,
     glint: gemBy(s, "light", OLD_FX.light.can.glint),
+    full: has(s, "cnFull") ? optN("cnFull", "mins") : 0,
   };
 }
 
@@ -294,8 +303,10 @@ export interface CookFx {
   fresh: boolean;
   /** How likely a pot has a helping more. */
   helping: number;
+  /** Helpings more in a pot of a dish (the counted option: so many pots a day); none: 0. */
+  big: number;
 }
-export const PLAIN_COOK: CookFx = { band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0 };
+export const PLAIN_COOK: CookFx = { band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0 };
 export const COOK_KINDS: readonly ToolKind[] = ["pot", "pan", "grill"];
 export function cookFx(stack: Held): CookFx {
   const s = of(stack, ...COOK_KINDS);
@@ -309,6 +320,7 @@ export function cookFx(stack: Held): CookFx {
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
     fresh: has(s, "ckFresh"),
     helping: Math.max(gemBy(s, "lightning", OLD_FX.lightning.chance), dark),
+    big: has(s, "ckBig") ? optN("ckBig", "more") : 0,
   };
 }
 /** How many stirs a pot wants with a piece of cookware, of the stirs it plainly wants: so much fewer, rounded up, never under one. */

@@ -1,5 +1,6 @@
 import { partOf, rodFx, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
+import { usePower } from "./powers";
 import { PLAIN, ROD_IDS, gearOf, rodStack, type Gear } from "./gear";
 import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
 import { charmBy, numberOf, useGift, type GiftRefusal } from "./gifts";
@@ -216,6 +217,16 @@ export function rarer(odds: ReadonlyArray<{ what: CatchId; p: number }>, k: numb
  * together they never leave under one part in the cap of the plain wait.
  */
 export const rodHaste = (rest: number, quick: number): number => (quick > 0 ? 1 - slowPartOf(Math.min(1, Math.max(0.01, rest)), 1 - quick) : 0);
+/**
+ * A line dropped with a rod that calls the fish: it is bitten at once, so many times a day (the counted option). The
+ * purse with one more counted; or null, where the line waits as ever (no such rod, or the day's are spent).
+ */
+export function called<P extends Purse>(purse: P, now: number, slot: number | null = null): P | null {
+  const used = usePower(purse, rodOf(purse, slot), "rdCall", now);
+  return used.ok ? used.purse : null;
+}
+/** The line of a rod that called: bitten at once (a second: whoever keeps the game gives the float its moment to be watched), with no nibble first. */
+export const calledCast = <T extends { wait: number; nibbles: number[] }>(cast: T): T => ({ ...cast, wait: 1, nibbles: [] });
 /** Whether a bait comes back from a fish that was landed, with a rod that spares it so often (`luck`: a number of chance, of whoever keeps the game). */
 export const baitKept = (purse: Purse, luck: number, slot: number | null = null): boolean => luck < rodFx(rodOf(purse, slot)).keeps;
 

@@ -3,7 +3,7 @@ import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
 // ── forging: old tools ──
-import { baitKept, fightPaid, rarer, rodHaste, rodOf } from "./fishing";
+import { baitKept, called, calledCast, fightPaid, rarer, rodHaste, rodOf } from "./fishing";
 import { rodFx } from "./forged";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
@@ -177,7 +177,10 @@ class TrialKeeper implements Keeper {
     const blessed = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     // (and under an orb the bite comes sooner still)
     const sooner = sky ? hastened(blessed, orbHaste()) : blessed, haste = rodHaste(sooner.wait / Math.max(1, drawn.wait), rod.quick);
-    const cast = haste > 0 ? hastened(sooner, haste) : sooner, told = wearing(p, "charmFloat");
+    // (and a line dropped with a rod that calls the fish is bitten at once, so many times a day)
+    const call = called(this.trial.purse(), now, this.handSlot());
+    if (call) this.trial.fished(call);
+    const cast = call ? calledCast(sooner) : haste > 0 ? hastened(sooner, haste) : sooner, told = wearing(p, "charmFloat");
     this.out = { cast, bait: star ? null : bait, told, harder, ...(second ? { two: { what: second.what, size: second.size } } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);

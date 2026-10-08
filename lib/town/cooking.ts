@@ -1,5 +1,6 @@
 import { cookFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
+import { usePower } from "./powers";
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
@@ -298,10 +299,13 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
     spent = { ...spent, tries: { ...spent.tries, [near.of]: (spent.tries?.[near.of] ?? 0) + 1 } };
   }
   if (dish) {
+    // ── forging: old tools ── (a dish cooked in cookware that carries as much: so many helpings more, so many pots a day, counted by the option)
+    const big = made && cookFx(mine).big > 0 ? usePower(spent, mine, "ckBig", now) : null;
+    if (big?.ok) spent = big.purse;
     // (under the fountain's big pot, a helping more: lib/town/fountain)
     const left = (made ? helpings(dish, crew, misses, purse.bag) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0)
       // ── forging: old tools ── (a pot cooked in cookware that carries as much has a helping more, so often)
-      + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0);
+      + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0) + (big?.ok ? cookFx(mine).big : 0);
     return { ok: true, made: dish, n: left, ...(near ? { taste: near.taste } : {}), purse: { ...spent, bag: bag.map((s, i) => (i === pot ? { item: "potFull" as ItemId, n: 1, of: { dish, left } } : s)) } };
   }
   // put together with bare hands, things that make nothing are lost

@@ -1,10 +1,11 @@
 import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
+import { usePower } from "./powers";
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
 import { famBy, gloved, harderFor, hasThing, numberOf, useGift, usesLeft, wearing } from "./gifts";
-import { buffBy, hasBuff, spend } from "./stamina";
+import { buffBy, hasBuff, isSpent, spend } from "./stamina";
 // ── gifts: helpers ──
 import { HELPING, bridged, chime, diesAt, dustUntil, dustsOf, type HelpRefusal } from "./helping";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
@@ -397,6 +398,8 @@ export const waterIn = (bag: Purse["bag"], id: ItemId | null) => bag.reduce((t, 
 /** A bag with one stack changed. */
 const setStack = (bag: Purse["bag"], slot: number, to: Stack) => bag.map((s, i) => (i === slot ? to : s));
 // ── forging: old tools ──
+/** Whether a can that waters with no water in it is doing so now: its minutes have begun and are not over. */
+export const canFullNow = (purse: Pick<Purse, "canFull">, now: number): boolean => typeof purse.canFull === "number" && purse.canFull > now;
 /** How many waterings a can holds when full, as the stack it is: its kind's, and what its own forging adds (lib/town/forged). None, of what is no can. */
 export const canHolds = (s: Stack | null | undefined): number => (s && s.item in WATER.cans ? WATER.cans[s.item]! + canFx(s).more : 0);
 /**
@@ -414,14 +417,18 @@ export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null
   const seen = see(key, plot, now, rains), p = plot.plant;
   if (!p || seen.dead || (seen.ripe && !CROPS[p.crop].again) || growing(p, now, rains).spent) return not("soil");
   if (seen.wet) return not("wet");
-  const slot = canSlot(purse, hand, (s) => (s.water ?? 0) > 0);
-  if (slot < 0) return no("dry");
-  const can = purse.bag[slot]!, green = 1 + buffBy(purse, now, "green");
-  // ── forging: old tools ── (a can that carries as much adds a share more, and uses so many of its waterings at once: what it has, of a can with fewer)
-  const fx = canFx(can);
+  // ── forging: old tools ── (a can that waters with no water in it: once it has run dry it goes on for its minutes, so often a day, counted by the
+  // option; while they last no watering uses any water. The can is the one in the hand.)
+  const wet = canSlot(purse, hand, (s) => (s.water ?? 0) > 0), mine = heldStack(purse), runs = canFullNow(purse, now);
+  const begun = wet < 0 && !runs && mine?.item === hand && canFx(mine).full > 0 ? usePower(purse, mine, "cnFull", now) : null;
+  const slot = wet >= 0 ? wet : runs || begun?.ok ? handSlot(purse, purse.handAt ?? null) : -1;
+  if (slot < 0 || purse.bag[slot]?.item !== hand) return no("dry");
+  const can = purse.bag[slot]!, green = 1 + buffBy(purse, now, "green"), from: Purse = begun?.ok ? { ...begun.purse, canFull: now + canFx(mine).full * 60_000 } : purse;
+  // (a can that carries as much adds a share more, and uses so many of its waterings at once: what it has, of a can with fewer)
+  const fx = canFx(can), free = hasBuff(purse, now, "spring") || runs || !!begun?.ok;
   return {
     ok: true, plot: { ...plot, plant: { ...p, watered: now, boost: p.boost + FARMING.water.adds * 60_000 * (FIELD[hand!] ?? 1) * green * (1 + fx.rich) } },
-    purse: { ...spend(purse, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: can.water! - (hasBuff(purse, now, "spring") ? 0 : Math.min(can.water!, fx.uses)) }) },
+    purse: { ...spend(from, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: (can.water ?? 0) - (free ? 0 : Math.min(can.water!, fx.uses)) }) },
   };
 }
 
@@ -582,7 +589,10 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
   const rung = deed === "water" && theirs ? chime(eased, now) : { purse: eased, times: 1 };
   // ── forging: old tools ── (the hoe's work with a forged hoe in the hand, a watering with a forged can: what its forging takes off the stamina, lib/town/forged-keep)
   const tool = heldStack(purse);
-  const paid = deed === "clear" || deed === "till" ? toolPaid(purse, rung.purse, now, tool, hoeFx(tool), "hoFresh") : deed === "water" ? toolPaid(purse, rung.purse, now, tool, canFx(tool), "cnFresh") : rung.purse;
+  const eased2 = deed === "clear" || deed === "till" ? toolPaid(purse, rung.purse, now, tool, hoeFx(tool), "hoFresh") : deed === "water" ? toolPaid(purse, rung.purse, now, tool, canFx(tool), "cnFresh") : rung.purse;
+  // (a plot hoed by tired hands with a hoe they keep hold of: one of the day's is counted, by the option)
+  const gripped = (deed === "clear" || deed === "till") && isSpent(purse, now) && hoeFx(tool).grip ? usePower(eased2, tool, "hoGrip", now) : null;
+  const paid = gripped?.ok ? gripped.purse : eased2;
   const planted = others > 0 || !!did.plot.plant;
   let next: Bed | undefined = owner === null ? undefined : bed;
   if (deed === "sow" && owner === null) next = { by: me, tended: now, empty: 0 };
@@ -853,7 +863,7 @@ export function pourFor(at: string, keys: readonly string[], plots: Readonly<Rec
   const hand = handOf(purse), want = (key: string) => theirsAt(plots[key], owner, me) && deedFor(key, plots[key] ?? WILD, hand, me, now, owner, rains) === "water";
   if (!want(at)) return [];
   // (each plant takes a watering out of the can, as ever: but under the fountain's blessing, which spares the can)
-  const reach = hasBuff(purse, now, "spring") ? keys.length : Math.floor(waterIn(purse.bag, hand));
+  const reach = hasBuff(purse, now, "spring") || canFullNow(purse, now) ? keys.length : Math.floor(waterIn(purse.bag, hand));
   const row = keys.filter(want).sort((a, b) => xOf(a) - xOf(b)).slice(0, Math.max(0, reach));
   return row.length > 1 ? row : [];
 }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { COOKING, cook, stirMods } from "./cooking";
-import { FARMING, WATER, WILD, canHolds, chore, choreFor, tend, water, type Plant, type Plot } from "./farm";
-import { FIGHT, STRIKE, baitKept, fightPaid, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
+import { FARMING, WATER, WILD, canFullNow, canHolds, chore, choreFor, tend, water, type Plant, type Plot } from "./farm";
+import { FIGHT, STRIKE, baitKept, called, calledCast, fightPaid, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
 import {
   COOK_KINDS, OLD_FX, PLAIN_CAN, PLAIN_COOK, PLAIN_HOE, PLAIN_NET, PLAIN_ROD, canFx, cookFx, easedBy, hitsWith, hoeFx, luckOf, missesWith, netFx, partOf, rodFx, slowPartOf, slowedBy, stirsWith,
 } from "./forged";
@@ -84,11 +84,11 @@ describe("a plain tool reads as nothing", () => {
     for (const s of [null, tool("pot"), tool("pan"), tool("grill"), tool("potBrass", 10), tool("hoe", 10)]) expect(cookFx(s)).toBe(PLAIN_COOK);
   });
   it("and the plain objects are the numbers that change nothing", () => {
-    expect(PLAIN_ROD).toEqual({ band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1 });
-    expect(PLAIN_HOE).toEqual({ band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0 });
-    expect(PLAIN_CAN).toEqual({ more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0 });
+    expect(PLAIN_ROD).toEqual({ band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false });
+    expect(PLAIN_HOE).toEqual({ band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false });
+    expect(PLAIN_CAN).toEqual({ more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0 });
     expect(PLAIN_NET).toEqual({ ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0 });
-    expect(PLAIN_COOK).toEqual({ band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0 });
+    expect(PLAIN_COOK).toEqual({ band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0 });
   });
   it("an option sleeps under its milestone, and a gem works one level stronger at the top", () => {
     expect(hoeFx(tool("hoe", 3, drawn("hoLight"))).even).toBe(true);
@@ -600,6 +600,68 @@ describe("what a forged tool does by chance (whoever keeps the game)", () => {
   });
 });
 
+describe("what a tool forged to the top does so many times a day (whoever keeps the game)", () => {
+  /** A tool at the top with an option of the second pool. */
+  const top = (item: ItemId, opt: OptionId): Stack => tool(item, 10, drawn(null, null, opt));
+  it("a line dropped with a rod that calls is bitten at once, ten times a day; then it waits as ever", () => {
+    let p = purseOf(top("rod", "rdCall"));
+    for (let i = 0; i < 10; i++) { const q = called(p, NOW); expect(q).not.toBeNull(); p = q!; }
+    expect([powerUsed(p, "rdCall", NOW), called(p, NOW)]).toEqual([10, null]);
+    expect(called(purseOf(tool("rod", 10)), NOW)).toBeNull();
+    expect(called(purseOf(tool("rod", 9, drawn(null, null, "rdCall"))), NOW)).toBeNull();
+    expect(calledCast({ what: "minnow", wait: 40, nibbles: [9, 20], size: 5 })).toEqual({ what: "minnow", wait: 1, nibbles: [], size: 5 });
+    // (the next day: ten again)
+    expect(called(p, NOW + 24 * HOUR)).not.toBeNull();
+  });
+  it("tired hands keep hold of a hoe with an iron grip, ten plots a day, each counted as it is hoed", () => {
+    const s = top("hoe", "hoGrip"), tired = { ...purseOf(s), stamina: { day: dayOf(NOW), left: 0 } };
+    expect(hoeFx(s).grip).toBe(true);
+    const did = done(tend("1,1", WILD, undefined, 0, 0, tired, "me", NOW));
+    expect([did.deed, powerUsed(did.purse, "hoGrip", NOW), powerLeft(did.purse, "hoGrip", NOW)]).toEqual(["clear", 1, 9]);
+    // (with stamina it is not asked for, and not counted; nor with a plain hoe)
+    expect(powerUsed(done(tend("1,1", WILD, undefined, 0, 0, purseOf(s), "me", NOW)).purse, "hoGrip", NOW)).toBe(0);
+    expect(done(tend("1,1", WILD, undefined, 0, 0, { ...purseOf(tool("hoe")), stamina: { day: dayOf(NOW), left: 0 } }, "me", NOW)).purse.powers).toBeUndefined();
+  });
+  it("a bottomless can waters on for its minutes once it has run dry, once a day, and uses no water while they last", () => {
+    const s = top("can", "cnFull");
+    let p = purseOf({ ...s, water: 1 });
+    let w = done(water("1,1", p, sown(), "can", NOW));
+    // (the last watering in it: used as ever, and nothing begun)
+    expect([w.purse.bag[0]?.water, canFullNow(w.purse, NOW), powerUsed(w.purse, "cnFull", NOW)]).toEqual([0, false, 0]);
+    p = w.purse;
+    w = done(water("2,1", p, sown(), "can", NOW + 1000));
+    expect([w.purse.bag[0]?.water, canFullNow(w.purse, NOW + 1000), powerUsed(w.purse, "cnFull", NOW), w.purse.canFull]).toEqual([0, true, 1, NOW + 1000 + 30 * 60_000]);
+    expect(w.plot.plant!.watered).toBe(NOW + 1000);
+    p = w.purse;
+    // (while they last: watered with nothing in it; and filled meanwhile, none of its water is used)
+    expect(done(water("3,1", p, sown(), "can", NOW + 29 * 60_000)).purse.bag[0]?.water).toBe(0);
+    const filled = { ...p, bag: p.bag.map((b, i) => (i === 0 ? { ...b!, water: 16 } : b)) };
+    expect(done(water("3,1", filled, sown(), "can", NOW + 29 * 60_000)).purse.bag[0]?.water).toBe(16);
+    expect(done(water("3,1", filled, sown(), "can", NOW + 32 * 60_000)).purse.bag[0]?.water).toBe(15);
+    // (when they are over the can is dry, and the day has no more)
+    expect(water("3,1", p, sown(), "can", NOW + 32 * 60_000)).toEqual({ ok: false, why: "dry" });
+    // (a plain can that is dry is dry, as ever; and one below the top has no such option awake)
+    expect(water("1,1", purseOf(tool("can")), sown(), "can", NOW)).toEqual({ ok: false, why: "dry" });
+    expect(water("1,1", purseOf(tool("can", 9, drawn(null, null, "cnFull"))), sown(), "can", NOW)).toEqual({ ok: false, why: "dry" });
+    // (stamina is paid for each as ever)
+    expect(staminaOf(w.purse, NOW + 1000)).toBe(100 - 2 * FARMING.costs.water);
+  });
+  it("a big pot gives two helpings more, three pots of a dish a day", () => {
+    const things: Array<[ItemId, number]> = [["barb", 2], ["daikon", 1], ["cabbage", 1], ["chili", 1]];
+    const stocked = (q: Purse) => { for (const [id, k] of things) q = { ...q, bag: put(q.bag.map((b) => (b?.item === "potFull" ? null : b)), id, k) }; return q; };
+    const plain = done(cook(stocked(purseOf(tool("pot"))), things, ["pot"], 0, NOW)).n;
+    let p = purseOf(top("pot", "ckBig"));
+    const got: number[] = [];
+    for (let i = 0; i < 4; i++) { const did = done(cook(stocked(p), things, ["pot"], 0, NOW)); got.push(did.n); p = did.purse; }
+    expect(got).toEqual([plain + 2, plain + 2, plain + 2, plain]);
+    expect(powerLeft(p, "ckBig", NOW)).toBe(0);
+    // (what is no recipe's is not counted, and has no more)
+    const odd: Array<[ItemId, number]> = [["chili", 2]], fresh = { ...purseOf(top("pot", "ckBig")), bag: put(purseOf(top("pot", "ckBig")).bag, "chili", 2) };
+    const mess = done(cook(fresh, odd, ["pot"], 0, NOW));
+    expect([mess.made, powerUsed(mess.purse, "ckBig", NOW)]).toEqual(["oddDish", 0]);
+  });
+});
+
 describe("what is built", () => {
   it("lists, for each of the old tools, only options that are its own and elements there are", () => {
     for (const kind of OLD) {
@@ -622,6 +684,9 @@ describe("what is built", () => {
       return tool(kind as ItemId, 10, opt ? (pool === 1 ? drawn(opt) : drawn(null, null, opt)) : [], gem ? [gem] : []);
     };
     const read = (kind: ToolKind, s: Stack) => JSON.stringify(kind === "rod" ? rodFx(s) : kind === "hoe" ? hoeFx(s) : kind === "can" ? canFx(s) : kind === "bugNet" ? netFx(s) : cookFx(s));
+    // (and every kind has something to draw at each of its milestones, or the smith says which have none)
+    expect(OLD.filter((kind) => drawable(kind, 1).length < 2)).toEqual([]);
+    expect(OLD.filter((kind) => drawable(kind, 2).length === 0)).toEqual(["bugNet"]);
     for (const kind of OLD) {
       const bare = read(kind, stack(kind, null, null));
       for (const id of BUILT[kind].opts) expect(read(kind, stack(kind, id, null)), `${kind} ${id}`).not.toBe(bare);

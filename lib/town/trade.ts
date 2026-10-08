@@ -264,6 +264,8 @@ export interface Purse {
   // ── forging: old tools ──
   /** What part of a point of stamina a forged tool's share has left owing, to be paid with the next deed (lib/town/forged-keep's toolPaid): under one. */
   toolOwed?: number;
+  /** Until when a can that waters with no water in it does so (lib/town/farm's water): the moment its minutes end. */
+  canFull?: number;
   /** What friends' gifts of the helpers' line did for me lately, to be told of once (lib/town/helping's Aid): the newest few. */
   aided?: Array<{ what: string; by: string; name: string; n: number; at: number; back?: number; key?: string }>;
   // ── forging ──
