@@ -44,17 +44,21 @@ create table if not exists public.town_trees (
 alter table public.town_trees enable row level security;
 revoke all on public.town_trees from anon, authenticated;
 
--- A go at a tree is a game like the others: `town_plays` keeps it. Whatever games it keeps already, it keeps still.
+-- A go at a tree is a game like the others: `town_plays` keeps it. Whatever games it keeps already, it keeps still
+-- (the check is read as it stands, and written again with one game more, in the form it had).
 do $$
 declare
   def text;
   games text[];
 begin
   select pg_get_constraintdef(c.oid) into def from pg_constraint c where c.conrelid = 'public.town_plays'::regclass and c.conname = 'town_plays_game_check';
-  if def is not null and position('''felling''' in def) = 0 then
-    select array_agg(m[1] order by ord) into games from regexp_matches(def, '''([a-z_]+)''', 'g') with ordinality as t(m, ord);
+  if def is null then return; end if;
+  select array_agg(m[1] order by ord) into games from regexp_matches(def, '''([a-z_]+)''::text', 'g') with ordinality as t(m, ord);
+  if games is null or array_length(games, 1) < 3 then raise exception 'the check on the games of town_plays is not worded as it was (%): the woodcutters'' game is not added to it blind', def; end if;
+  if not ('felling' = any (games)) then
     alter table public.town_plays drop constraint town_plays_game_check;
-    execute format('alter table public.town_plays add constraint town_plays_game_check check (game = any (%L::text[]))', games || 'felling'::text);
+    execute format('alter table public.town_plays add constraint town_plays_game_check check (game = any (array[%s]))',
+      (select string_agg(quote_literal(g) || '::text', ', ' order by ord) from unnest(games || 'felling'::text) with ordinality as u(g, ord)));
   end if;
 end $$;
 
