@@ -131,8 +131,8 @@ try {
   await sleep(500);
   ok("left alone it goes out after five seconds: that is said, the room is told, and nothing is lost", /ไฟดับ|went out/.test((await note(X)) ?? "") && (await X.evaluate(`${S}.me().flame`)) === 0 && (await stamina(X)) === 100 && same(await litOf(X), []), { note: await note(X), room: await X.evaluate(`${S}.me().flame`) });
 
-  // ── alone: the nearest post (the fourth of the farm's, ten tiles east along the lane)
-  const NEAREST = 4, was = await points(X);
+  // ── alone: a post near the fire (the first of the south arm's, seven tiles down the lane)
+  const NEAREST = 10, was = await points(X);
   await sleep(600);
   await takeFlame(X);
   const box4 = await postBox(X, NEAREST);
@@ -153,7 +153,7 @@ try {
   if (lit4) await mapTap(X, lit4);
   await sleep(500);
   ok("a tap on a lit post says it is lit", /ติดแล้ว|Lit tonight|is lit/.test((await note(X)) ?? ""), await note(X));
-  await warp(X, POSTS.farm[10][0] + 1, POSTS.farm[10][1]);
+  await warp(X, POSTS.farm[0][0] + 1, POSTS.farm[0][1]);
   await sleep(500);
   ok("by a dark post with no flame the card says where to get one, and offers nothing to press", (await there(X, "[data-lamps-card='post']")) && !(await there(X, "[data-lamps-take]")) && !(await there(X, "[data-lamps-light]")), await textOf(X, "[data-lamps-card]"));
 
@@ -162,7 +162,7 @@ try {
   await enter(Y, "q");
   await fresh(Y);
   const b = await Y.evaluate(`${T}.id`);
-  const MEET = [FIRE[0] + 8, FIRE[1] - 1], FAR = 5;
+  const MEET = [FIRE[0] + 8, FIRE[1] - 2], FAR = 4;
   await warp(X, ...BY_FIRE);
   await warp(Y, MEET[0] + 1, MEET[1]);
   await until("each page has the other", async () => !!(await X.evaluate(`${V}.at(${JSON.stringify(b)})`)) && !!(await Y.evaluate(`${V}.at(${JSON.stringify(a)})`)), 15000);
@@ -197,16 +197,17 @@ try {
 
   // ── tired hands: the button is held
   await X.evaluate(`${T}.setStamina(0)`);
-  await warp(X, POSTS.farm[8][0] + 1, POSTS.farm[8][1] + 1);
+  const TIRED = 7;
+  await warp(X, POSTS.farm[TIRED][0] + 1, POSTS.farm[TIRED][1] + 1);
   await X.evaluate(`${L}.give(30)`);
   await until("the held button comes up", () => there(X, "[data-lamps-light='hold']"), 6000);
   ok("with no stamina the post is lit by a button that is held, 1.2 seconds, and the card says so", (await X.evaluate(`document.querySelector("[data-lamps-light='hold']")?.dataset.hold`)) === "1.2" && (await X.evaluate(`${L}.hold()`)) === 1.2 && /กดปุ่มค้าง|hold the button/i.test((await textOf(X, "[data-lamps-said]")) ?? ""), await textOf(X, "[data-lamps-card]"));
   await tap(X, "[data-lamps-light='hold']", 300);
   await sleep(400);
-  ok("let go of early, nothing is done and nothing is lost: the post is dark, the flame is still mine, and that is said", !(await litOf(X)).includes(8) && (await left(X)) > 0 && /กดค้าง|Keep it held/.test((await note(X)) ?? ""), { lit: await litOf(X), note: await note(X) });
+  ok("let go of early, nothing is done and nothing is lost: the post is dark, the flame is still mine, and that is said", !(await litOf(X)).includes(TIRED) && (await left(X)) > 0 && /กดค้าง|Keep it held/.test((await note(X)) ?? ""), { lit: await litOf(X), note: await note(X) });
   await tap(X, "[data-lamps-light='hold']", 1500);
-  await until("the post is lit", async () => (await litOf(X)).includes(8), 5000).catch(() => {});
-  ok("held to the end the post is lit, with no stamina, and no board came up on either page", (await litOf(X)).includes(8) && (await stamina(X)) === 0 && !(await board(X)) && !(await board(Y)), { lit: await litOf(X), stamina: await stamina(X) });
+  await until("the post is lit", async () => (await litOf(X)).includes(TIRED), 5000).catch(() => {});
+  ok("held to the end the post is lit, with no stamina, and no board came up on either page", (await litOf(X)).includes(TIRED) && (await stamina(X)) === 0 && !(await board(X)) && !(await board(Y)), { lit: await litOf(X), stamina: await stamina(X) });
   await X.evaluate(`${T}.setStamina(100)`);
 
   // ── the board by the fire
@@ -220,6 +221,7 @@ try {
     && (await X.evaluate(`document.querySelectorAll("[data-pip]").length`)) === 12 && (await X.evaluate(`document.querySelectorAll("[data-pip][data-lit='true']").length`)) === 3, await textOf(X, "[data-lamps-tonight]"));
   ok("…the three steps and the three lines said beforehand, the night's lighters in the order they came with no numbers, and the nights counted", (await X.evaluate(`document.querySelectorAll("[data-lamps-panel] [data-lamps-steps] li").length`)) === 3
     && (await X.evaluate(`document.querySelectorAll("[data-lamps-rules] li").length`)) === 3 && same(lighters, [a, b]) && (await X.evaluate(`document.querySelector("[data-lamps-nights]")?.dataset.lampsNights`)) === "0", { lighters, names: await textOf(X, "[data-lamps-names]") });
+  await sleep(700);
   await X.shot(`${OUT}/lamps-panel.png`);
   await tap(X, "[data-lamps-close]");
 
@@ -243,6 +245,7 @@ try {
   ok("the last lamp of the map is a celebration with the names of the night's lighters", (await there(X, "[data-lamps-fete='farm']")) && (await there(X, "[data-lamps-fete-names]")) && (await X.evaluate(`${L}.tier()`)) === 3, await textOf(X, "[data-lamps-fete]"));
   await until("the other page celebrates too", () => there(Y, "[data-lamps-fete='farm']"), 8000).catch(() => {});
   ok("…on every page that is on the map", await there(Y, "[data-lamps-fete='farm']"), await Y.evaluate(`${L}.fete()`));
+  await sleep(1300);
   await X.shot(`${OUT}/lamps-farm-fete.png`);
   await warp(X, ...BY_FIRE);
   if (await there(X, "[data-lamps-fete]")) await tap(X, "[data-lamps-fete]");
@@ -290,11 +293,14 @@ try {
   ok("…and so is the card of a flame borne", inside(await within(P, "[data-lamps-card='flame']")), await within(P, "[data-lamps-card]"));
   await P.shot(`${OUT}/lamps-phone-flame.png`);
   await sleep(5400);
-  const pboard = await P.evaluate(`${L}.boxes().board`);
-  if (pboard) await mapTap(P, pboard);
+  // (on a phone the fire's card lies over the board itself: the card's own button reads it, and says how many are lit)
+  await until("the card's button for the board is there", () => there(P, "[data-lamps-board]"), 6000).catch(() => {});
+  ok("on a phone the fire's card says how many are lit tonight, on a button that reads the board", (await P.evaluate(`document.querySelector("[data-lamps-board]")?.dataset.lampsBoard`)) === "3" && inside(await within(P, "[data-lamps-board]")), await within(P, "[data-lamps-board]"));
+  if (await there(P, "[data-lamps-board]")) await tap(P, "[data-lamps-board]");
   await until("the phone's panel opens", () => there(P, "[data-lamps-panel]"), 8000).catch(() => {});
   const sheet = await within(P, "[data-lamps-panel]"), shut = await within(P, "[data-lamps-close]");
   ok("…and the board's panel, its button to shut it too", inside(sheet) && !!shut && shut.right <= shut.w && shut.top >= 0, { sheet, shut });
+  await sleep(700);
   await P.shot(`${OUT}/lamps-phone-panel.png`);
   if (await there(P, "[data-lamps-close]")) await tap(P, "[data-lamps-close]");
   await P.evaluate(`${L}.lit("farm", 11)`);
@@ -302,6 +308,7 @@ try {
   await P.evaluate(`${L}.lit("farm", 12)`);
   await until("the phone celebrates", () => there(P, "[data-lamps-fete]"), 8000).catch(() => {});
   ok("…and the night every lamp is lit", inside(await within(P, "[data-lamps-fete]")), await within(P, "[data-lamps-fete]"));
+  await sleep(1300);
   await P.shot(`${OUT}/lamps-phone-fete.png`);
   const errors = [...X.errors(), ...Y.errors(), ...P.errors()];
   ok("no page threw anything", errors.length === 0, errors.slice(0, 4));

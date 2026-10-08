@@ -42,7 +42,7 @@ const READ = 3;
 /** How many times smaller than the screen the picture of the night's dark is made (it is soft: laid back over the map smoothed). */
 const DARK_K = 6;
 /** How large each picture is drawn on the map, as a share of its own size (the sheets came at pixels of several sizes). */
-const POST_K = 0.9, FIRE_K = 0.95, BOARD_K = 0.85, BLOOM_K = 0.55, SHROOM_K = 0.62, ONE_K = 0.7, MOTH_K = 0.26, FLY_K = 0.3, SKY_K = 0.42, WISP_K = 0.8, HELD_K = 0.5, EMBER_K = 0.4, MARK_K = 0.55;
+const POST_K = 0.9, FIRE_K = 0.95, BOARD_K = 0.85, BLOOM_K = 0.55, SHROOM_K = 0.62, ONE_K = 0.7, MOTH_K = 0.26, FLY_K = 0.3, SKY_K = 0.42, WISP_K = 0.8, HELD_K = 0.5, EMBER_K = 0.56, MARK_K = 0.55;
 /** Where a post's foot and its lantern are in its picture, in the picture's own pixels from its left and from its foot (the post stands at the left of it, the lantern hangs from its arm). */
 const POST = { foot: 9.4, lantern: 26, up: 44 };
 /** The light a lamp throws, a fire's, and the cool light of the forest's own things: red, green, blue. */
@@ -118,14 +118,19 @@ function Art({ sprite, box, wide = false, shadow = false }: { sprite: Sprite | n
   );
 }
 
-/** The three steps, the one to do now lit and those done ticked (`at`: 0 to 2). */
+/**
+ * The three steps, the one to do now lit and those done ticked (`at`: 0 to 2). Over the buttons, on a narrow screen,
+ * only the step to do now is written out and the other two are their numbers (three columns of wrapped words stood as
+ * tall as the map there); the board's panel (`wide`) writes all three, one under the other.
+ */
 function Steps({ th, at, wide = false }: { th: boolean; at: number; wide?: boolean }) {
   return (
-    <ol className={`grid gap-1.5 ${wide ? "grid-cols-1" : "grid-cols-3"}`} data-lamps-steps={at}>
+    <ol className={wide ? "grid grid-cols-1 gap-1.5" : "flex gap-1.5"} data-lamps-steps={at}>
       {STEPS.map((s, i) => (
-        <li key={i} data-now={i === at} className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-label leading-snug ${i === at ? "border-gold/70 bg-gold/15 font-semibold text-ink" : i < at ? "border-line bg-bg/60 text-jade" : "border-line bg-bg/60 text-muted"}`}>
+        <li key={i} data-now={i === at} aria-label={th ? s[0] : s[1]}
+            className={`flex items-center gap-1.5 rounded-lg border px-2 py-1.5 text-label leading-snug ${wide || i === at ? "min-w-0 flex-1" : "shrink-0 sm:min-w-0 sm:flex-1"} ${i === at ? "border-gold/70 bg-gold/15 font-semibold text-ink" : i < at ? "border-line bg-bg/60 text-jade" : "border-line bg-bg/60 text-muted"}`}>
           <span aria-hidden className={`grid size-5 shrink-0 place-items-center rounded-full font-data tabular-nums ${i === at ? "bg-gold text-bg" : "bg-surface text-muted"}`}>{i < at ? "✓" : i + 1}</span>
-          <span className="min-w-0">{th ? s[0] : s[1]}</span>
+          <span className={`min-w-0 ${wide || i === at ? "" : "hidden sm:inline"}`}>{th ? s[0] : s[1]}</span>
         </li>
       ))}
     </ol>
@@ -257,7 +262,7 @@ function waysOf(map: LampMap): Ways {
  * เขียนวิธีเล่นไว้คร่าวๆด้วย").
  *
  * From half past five in the evening until five in the morning the farm and the forest each have a fire (a brazier
- * across the lane from the farm's well; the forest's camp fire) and twelve lamp posts along their ways. Standing by
+ * beside the farm's well; the forest's camp fire) and twelve lamp posts along their ways. Standing by
  * the fire with empty hands, a button takes a flame (a tap on the brazier walks up to it and takes one). The flame
  * is seen in my hands by everybody, with a ring of ten embers round my feet that go out one by one: five seconds.
  * A tap on a dark post walks to it and lights it on arriving; standing by one, a button lights it. Whoever stands
@@ -276,7 +281,9 @@ function waysOf(map: LampMap): Ways {
  * - **Every hand sees what it earned**: when a post is lit by a flame that went through my hands, wherever I stand,
  *   "+3 helpers' points" and how many of the map's lamps are lit; a tap on a lit post says whose hands lit it.
  * - **The board by each fire**: the three steps, how many are lit tonight of twelve, the night's lighters in the
- *   order they came (no numbers, no ranking), and how many nights the village has lit every lamp of this map.
+ *   order they came (no numbers, no ranking), and how many nights the village has lit every lamp of this map. A tap
+ *   on the board opens it, and so does a button on the fire's card, which says how many are lit (on a phone the card
+ *   lies over the board itself).
  *
  * **What a lit lamp does, and what the night becomes** (all drawn from prepared pictures, slowly, nothing that
  * flickers; what moves stands still for whoever asked for less motion):
@@ -392,6 +399,8 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
     const did = await keeper.flameTake(map, at);
     busyRef.current = false; setBusy(false);
     if (!did.ok) { taking.current = false; say(WHY, did.why); return; }
+    // (whatever was being said is of before the flame)
+    setNote(null);
     sfx?.wake();
     sfx?.work("pick", 0.7);
   }, [keeper, sfx, say]);
@@ -469,7 +478,9 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
   /** What a tap asked for and I am walking to: the brazier (a flame is taken on arriving), a board (its panel opens), or a post (it is lit). */
   const want = useRef<"fire" | "board" | { post: number } | null>(null);
   const byBoard = !!here && !!place && byTile(here, BOARD_AT[place], READ);
-  useEffect(() => { if (!byBoard) setPanel(false); }, [byBoard]);
+  // (it is read from by the board, and from by the fire: the fire's card has a button for it, since on a phone the card lies over the board itself)
+  const mayRead = byBoard || (!!here && !!place && byTile(here, LAMPS.maps[place].fire));
+  useEffect(() => { if (!mayRead) setPanel(false); }, [mayRead]);
   useEffect(() => { if (panel) void keeper.lampsLook(); }, [panel, keeper]);
   useEffect(() => {
     if (!panel) return;
@@ -737,8 +748,14 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         if (inSight(fall, 160 * s, 200 * s)) {
           const beat = still ? 0.9 : 0.78 + 0.22 * Math.sin(t / 2400);
           ctx.globalCompositeOperation = "lighter";
-          lay(ctx, soft(PALE), fall.x, fall.y - 60 * s, 60 * s, 110 * s, 0.34 * lum * beat);
-          lay(ctx, soft(COOL), fall.x, fall.y + 10 * s, 130 * s, 64 * s, 0.24 * lum * beat);
+          lay(ctx, soft(PALE), fall.x, fall.y - 60 * s, 64 * s, 116 * s, 0.68 * lum * beat);
+          lay(ctx, soft(COOL), fall.x, fall.y + 14 * s, 150 * s, 72 * s, 0.38 * lum * beat);
+          ctx.globalCompositeOperation = "source-over";
+          if (k.has("twinkle")) for (let g = 0; g < 5; g++) {
+            ctx.globalAlpha = (still ? 0.7 : Math.max(0, Math.sin(t / 1400 + g * 1.9))) * 0.9;
+            k.drawProp(ctx, "twinkle", fall.x + (g - 2) * 22 * s + Math.sin(g * 7.1) * 9 * s, fall.y + (20 + ((g * 37) % 30)) * s, s * 0.36, px);
+          }
+          ctx.globalAlpha = 1;
         }
         ctx.restore();
       });
@@ -827,7 +844,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       if (layer !== "hands") {
         // the ring round their feet: ten embers, going out one by one from the last
         const [, eh] = k.sizeOf("ember"), ez = s * EMBER_K;
-        const each = (i: number): [number, number, number, number] => { const a = -Math.PI / 2 + (i + 0.5) * ((2 * Math.PI) / RING); return [p.x + Math.cos(a) * 21 * s, p.y + Math.sin(a) * 9 * s + (eh / 2) * ez, Math.cos(a), Math.sin(a)]; };
+        const each = (i: number): [number, number, number, number] => { const a = -Math.PI / 2 + (i + 0.5) * ((2 * Math.PI) / RING); return [p.x + Math.cos(a) * 25 * s, p.y + Math.sin(a) * 11 * s + (eh / 2) * ez, Math.cos(a), Math.sin(a)]; };
         for (let i = 0; i < RING; i++) { const [x, y] = each(i); k.drawProp(ctx, i < glowing ? "ember" : "emberOut", x, y, ez, px); }
         late.push(() => {
           // (the embers that still glow are seen in the dark; not those behind the legs)
@@ -837,7 +854,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
             if (sy < 0 && Math.abs(cx) < 0.6) continue;
             k.drawProp(ctx, "ember", x, y, ez, px);
             ctx.globalCompositeOperation = "lighter";
-            lay(ctx, lightPicture(WARMER), x, y - (eh / 2) * ez, 6 * s, 6 * s, 0.4);
+            lay(ctx, lightPicture(WARMER), x, y - (eh / 2) * ez, 8 * s, 8 * s, 0.5);
             ctx.globalCompositeOperation = "source-over";
           }
           ctx.restore();
@@ -961,6 +978,15 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
                 <p className="mt-1.5 px-1 text-center text-label leading-snug text-muted" data-lamps-hint>{atFire ? (th ? LIVES[0] : LIVES[1]) : th ? "โคมต้นนี้ยังมืด: รับไฟที่กองไฟกลางแมพ แล้วพามาจุด หลายคนช่วยกันส่งต่อจะไปได้ไกล" : "This lamp is dark: take a flame at the fire in the middle of the map and bring it here. Handed from friend to friend it goes far"}</p>
               )}
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                {!bearing && atFire && (
+                  // (how many are lit tonight, and the way to the board's panel: the board itself may lie under this card on a small screen)
+                  <button type="button" onClick={() => setPanel(true)} data-lamps-board={litHere.length} aria-label={th ? `คืนนี้ติด ${litHere.length} จาก ${of} ดูป้าย` : `${litHere.length} of ${of} lit tonight: read the board`}
+                          className="pressable pointer-events-auto order-last flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-bg/70 px-3 text-meta text-muted transition-colors hover:text-ink">
+                    <Art sprite={art("lampBoard")} box={20} />
+                    <span className="font-data tabular-nums text-ink">{litHere.length}/{of}</span>
+                    {th ? "ดูป้าย" : "The board"}
+                  </button>
+                )}
                 {!bearing ? (
                   atFire && (hand ? (
                     // (a thing in the hand: it is put away with one press, and then the flame can be taken)

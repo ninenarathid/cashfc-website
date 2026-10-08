@@ -10,7 +10,7 @@ import { CAMP, FARM, FOREST, type Vec } from "./world";
  * forest, which are dark at night, to be lighter and easier to play in then).
  *
  * From half past five in the evening (Bangkok) until five in the morning, the farm and the forest each have twelve
- * lamp posts along their ways, and one fire in their middle: the forest's camp fire, and a brazier by the farm's well.
+ * lamp posts along their ways, and one fire in their middle: the forest's camp fire, and a brazier beside the farm's well.
  *
  * - **A flame is taken at the fire with empty hands**: it is in the hands, never in the bag, and it lives **five
  *   seconds** there (about seventeen tiles of walking), by the clock of whoever keeps the game.
@@ -61,8 +61,9 @@ export const LAMPS = {
   /** At how many lit posts of a map more of the night comes out, before all of them (the page's). */
   more: [4, 8],
   /**
-   * Each map's fire and its twelve posts, by their tiles. The farm's: a brazier across the lane from the well, and
-   * posts along its two lanes, four to the west, four to the east, two north, two south. The forest's: the camp
+   * Each map's fire and its twelve posts, by their tiles. The farm's: a brazier beside the well, and posts along its
+   * two lanes: three to the west, four to the east, one where the lanes cross (it lights the well and the brazier)
+   * and two more north of it, two south. The forest's: the camp
    * fire, and posts along the trail to the gate, the trail to the great tree and the trail to the waterfall, four
    * each. **They are only drawn: no tile's walking changes for a post or for the brazier**, and none stands on a way,
    * on a plot, where something else stands, or behind a tree as the screen sees it (lib/town/lamps.test holds them to
@@ -70,8 +71,8 @@ export const LAMPS = {
    */
   maps: {
     farm: {
-      fire: F(31, 23),
-      posts: [F(20, 20), F(13, 23), F(8, 20), F(3, 23), F(41, 23), F(48, 20), F(52, 23), F(56, 20), F(31, 13), F(28, 5), F(28, 32), F(31, 39)],
+      fire: F(27, 24),
+      posts: [F(18, 23), F(8, 20), F(3, 23), F(38, 23), F(44, 20), F(50, 23), F(56, 20), F(31, 20), F(28, 10), F(31, 3), F(28, 31), F(31, 39)],
     },
     forest: {
       fire: [CAMP.fire.x, CAMP.fire.y] as [number, number],
@@ -90,8 +91,8 @@ export const isLampMap = (v: unknown): v is LampMap => v === "farm" || v === "fo
  * tonight, the night's lighters); and which posts follow one another out from the fire along one way (`ARMS`: what
  * goes along the way between two lit posts goes by these).
  */
-export const BOARD_AT: Record<LampMap, [number, number]> = { farm: F(33, 23), forest: W(51, 48) };
-export const ARMS: Record<LampMap, number[][]> = { farm: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9], [10, 11]], forest: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]] };
+export const BOARD_AT: Record<LampMap, [number, number]> = { farm: F(27, 26), forest: W(51, 48) };
+export const ARMS: Record<LampMap, number[][]> = { farm: [[0, 1, 2], [3, 4, 5, 6], [7, 8, 9], [10, 11]], forest: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]] };
 /** As the bucket line's and the bridge's: how near somebody has to stand to be named with what they lack, and how many are offered at once. */
 export const OFFER = { beside: 4, most: 3 };
 /** In how many embers the ring round a flame's bearer shows what is left of it. */

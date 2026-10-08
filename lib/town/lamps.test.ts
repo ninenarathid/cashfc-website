@@ -323,8 +323,9 @@ describe("where the fires, the boards and the posts stand", () => {
     // (five seconds at the walking pace is seventeen and a half tiles)
     const near = Object.fromEntries(LAMP_MAPS.map((map) => [map, far[map].filter((d) => d <= 17).length]));
     expect(near.forest).toBe(3);
-    // (the farm is the smaller map: its lanes end twenty-nine tiles from the brazier at the furthest)
-    expect(near.farm).toBe(5);
+    // (the farm is the smaller map: its lanes end some thirty tiles from the brazier at the furthest, and one of its
+    // posts stands where the lanes cross, by the well and the brazier, so that the middle of the farm is lit)
+    expect(near.farm).toBe(6);
   });
   it("has the far ones out of one member's reach: they take two or three in a relay", () => {
     // (alone: five seconds' walk, and the two tiles' reach at the fire and at the post)
@@ -343,7 +344,7 @@ describe("where the fires, the boards and the posts stand", () => {
   it("measures from a fire as the path goes", () => {
     const [x, y] = LAMPS.maps.farm.posts[0];
     expect(toFire({ x: x + 0.5, y: y + 0.5 }, "farm")).toBeCloseTo(Math.hypot(x - FIRE[0], y - FIRE[1]), 5);
-    expect(FARM.x + 31).toBe(FIRE[0]);
+    expect(FARM.x + 27).toBe(FIRE[0]);
     expect(FOREST.x + 49).toBe(LAMPS.maps.forest.fire[0]);
   });
 });
