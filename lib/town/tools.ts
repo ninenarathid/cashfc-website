@@ -139,7 +139,8 @@ export const LEVELS = {
 } as const satisfies Record<ToolKind, Record<string, readonly number[]>>;
 /**
  * How hard a rock is at the cave's three depths (the shallowest is the mountain's foot's too): what a pick's card
- * counts its swings by. The rocks themselves are lib/town/mining's, which has the same three of its own.
+ * counts its swings by. The one table of it: the rocks themselves are lib/town/mining's, whose `MINING.hardness.depth`
+ * reads this.
  */
 export const ROCKS: readonly number[] = [12, 18, 24];
 

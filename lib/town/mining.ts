@@ -5,7 +5,7 @@ import type { ItemId } from "./items";
 import { stowAll } from "./pouches";
 import { mayPower, usePower } from "./powers";
 import { eased, isSpent, spend, staminaOf } from "./stamina";
-import { ELEMENTS, GEMS, GEM_FX, ORES, gemBy, has, levelOf, optN, pickSwings, toolKindOf, type Element } from "./tools";
+import { ELEMENTS, GEMS, GEM_FX, ORES, ROCKS, gemBy, has, levelOf, optN, pickSwings, toolKindOf, type Element } from "./tools";
 import { handOf, heldStack, held, take, type Purse, type Stack } from "./trade";
 import { VEIN, faceOf, play, veinMods, yieldOf, type Cell, type VeinMods } from "./vein";
 
@@ -34,8 +34,8 @@ export const MINING = {
   floors: 30,
   /** From how many tiles off a rock is struck (a king's move). */
   reach: 1,
-  /** How hard a rock is: on the mountain's foot, and in each of the cave's three depths. */
-  hardness: { foot: 12, depth: [12, 18, 24] as readonly number[] },
+  /** How hard a rock is: on the mountain's foot, and in each of the cave's three depths (lib/town/tools' ROCKS: the one table, which a pick's card counts by too). */
+  hardness: { foot: 12, depth: ROCKS },
   /** From which floor a line's better rocks are harder for the skilled (lib/town/gifts' HARDER). */
   harderFrom: 11,
   /** The stamina a rock costs, whatever the swings. */

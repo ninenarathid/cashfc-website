@@ -22,6 +22,8 @@ export interface Pouch {
 export const POUCHES: readonly Pouch[] = [
   // ── mining ── (the mine's things: stone, ore fragments, gem fragments, big ore and gems)
   { gift: "thingSack", slots: 5, holds: [...MINED, ...ORES.map((o): ItemId => o.ore), ...ELEMENTS.map((e) => GEMS[e].gem)] },
+  // ── felling ── (wood: logs and fine timber)
+  { gift: "thingBundle", slots: 3, holds: ["log", "timber"] },
 ];
 export const pouchOf = (gift: string): Pouch | null => POUCHES.find((p) => p.gift === gift) ?? null;
 

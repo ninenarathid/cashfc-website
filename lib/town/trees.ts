@@ -2,10 +2,11 @@ import { FELLING, leastSecs, timberOf, type Family, type FellTree, type FellingA
 import { works } from "./gifts";
 import type { ItemId } from "./items";
 import type { TreeAge } from "./mountain";
+import { stowAll } from "./pouches";
 import { mayPower, usePower } from "./powers";
 import { dayOf, eased, isSpent, spend } from "./stamina";
 import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
-import { heldStack, put, roomFor, type Purse, type Stack } from "./trade";
+import { heldStack, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
 
 /**
@@ -270,18 +271,12 @@ export function fellingOf(purse: Pick<Purse, "felling">): FellingKept {
 const keptOut = (k: FellingKept): NonNullable<Purse["felling"]> => ({ owed: k.owed, dust: k.dust, ...(Object.keys(k.keeps).length ? { keeps: k.keeps } : {}) });
 
 /**
- * The wood a go brings home, into the bag: the purse with every thing in it, or null when the bag has not the room
- * for all of it. (The one place things from a tree go into a bag: whatever holds wood besides the bag is to be
- * reached from here.)
+ * The wood a go brings home: the purse with every thing in it, or null when there is not the room for all of it.
+ * Into the pouches that take wood first (the firewood cord's slots, for whoever has it), then the bag: lib/town/pouches'
+ * `stowAll`, as the mine's haul goes. (The one place things from a tree are put away.)
  */
 export function bringHome<P extends Purse>(purse: P, things: ReadonlyArray<readonly [ItemId, number]>): P | null {
-  let bag = purse.bag;
-  for (const [item, n] of things) {
-    if (n <= 0) continue;
-    if (roomFor(bag, item) < n) return null;
-    bag = put(bag, item, n);
-  }
-  return { ...purse, bag };
+  return stowAll(purse, things);
 }
 
 /* ── a game, put together ───────────────────────────────────────────────── */
