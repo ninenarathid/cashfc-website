@@ -216,6 +216,27 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
               );
             })}
           </Row>
+          {/* ── mining ── (the mountain and the cave are `next dev`'s only: a pick to hold, as forged as one likes; and going there at once) */}
+          {process.env.NODE_ENV === "development" && (
+            <Row label={th ? "เหมือง" : "The mine"} value={<span className="font-data text-meta tabular-nums text-ink">{(() => { const i = purse.bag.findIndex((s) => s?.item === "pick"), s = i >= 0 ? purse.bag[i] : null; return s ? `+${s.plus ?? 0}${s.opts?.length ? ` · ${s.opts.join(" ")}` : ""}${s.gems?.length ? ` · ${s.gems.join(" ")}` : ""}` : "–"; })()}</span>}>
+              {([[0, [], []], [5, ["pkPeek"], []], [10, ["pkLoose", "pkSteady", "pkQuake"], ["fire"]], [10, ["pkCrumb", "pkCutter", "pkDrill"], ["light"]], [10, ["pkFresh", "pkPeek", "pkTwin"], ["water"]], [10, ["pkSteady", "pkLoose", "pkGleam"], ["ice"]]] as Array<[number, string[], string[]]>).map(([plus, opts, gems], k) => (
+                <Do key={k} onClick={() => {
+                  let i = trial.purse().bag.findIndex((s) => s?.item === "pick");
+                  if (i < 0) { trial.grant("pick", 1); i = trial.purse().bag.findIndex((s) => s?.item === "pick"); }
+                  if (i < 0) { setSaid(th ? "กระเป๋าเต็ม" : "The bag is full"); return; }
+                  trial.setTool(i, plus, opts, gems); trial.hold(i);
+                  setSaid(th ? `ถืออีเต้อ +${plus} แล้ว` : `A pick at +${plus} is in your hand`);
+                }}>{`+${plus}${opts[2] ? ` ${opts[2].slice(2)}` : ""}${gems[0] ? ` ${gems[0]}` : ""}`}</Do>
+              ))}
+              <Do onClick={() => { trial.grant("torch", 5); trial.grant("glowMushroom", 1); setSaid(th ? "ได้คบไฟและเห็ดเรืองแสงแล้ว" : "Torches and a glowing mushroom"); }}>{th ? "คบไฟ เห็ด" : "Torches"}</Do>
+              {["foot", "mouth", "cave1", "cave9", "cave10", "cave28"].map((to) => (
+                <Do key={to} onClick={() => { const more = (window as unknown as { __townMore?: { go: (name: string) => boolean } }).__townMore; if (!more?.go(to)) setSaid(th ? "ไปไม่ได้" : "Cannot go there"); }}>{to}</Do>
+              ))}
+              <Do onClick={() => { trial.setRests([10, 20, 30]); setSaid(th ? "ลิฟต์ไปได้ทุกชั้นพัก" : "The lift stops at every resting floor"); }}>{th ? "ลิฟต์ครบ" : "Lift: all"}</Do>
+              <Do onClick={() => { trial.skipMinutes(20); setSaid(th ? "เลื่อนเวลา 20 นาที" : "Twenty minutes on"); }}>+20m</Do>
+              <Do onClick={() => { trial.caveReset(); setSaid(th ? "ล้างถ้ำแล้ว" : "The cave as nobody had been in it"); }}>{th ? "ล้างถ้ำ" : "Reset"}</Do>
+            </Row>
+          )}
           <Row label={th ? "ถืออยู่ในมือ" : "In the hand"} value={<span className="text-ink">{handOf(purse) ? name(handOf(purse)!) : "–"}</span>}>
             <Do onClick={() => trial.letGo()}>{th ? "เก็บ" : "Put away"}</Do>
           </Row>
