@@ -1,0 +1,9 @@
+The attached picture is a broad flat wooden bridge over a river, built in six equal spans on seven piers of grey stone, from a cozy 2D town game. Redraw the same bridge as it looked before its floor was laid: only its frame, in exactly the same place on the canvas and at the same size: the same view from the front and a little from above, the same straight horizontal far edge and near edge, the same seven stone piers where they are now, the same wood colours, thick dark outline and chunky pixel size. Do not draw any characters.
+
+What is different, because it is not finished:
+- there are no floor planks anywhere: along the whole length only the bare frame shows, the long beam along the far edge, the long beam along the near edge, and evenly spaced cross joists between them, with empty gaps between the joists that one can see through;
+- there are no handrails and no lanterns;
+- the seven stone piers and the thick beam under the near edge are exactly as they are in the attached picture;
+- nothing lies on it: no planks, no tools, no rope.
+
+The whole frame sits in the middle of the canvas with empty space all around it, and nothing is cropped. Use the same pixel size as the attached picture: do not make the pixels smaller or larger. Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients. Transparent background, no water, no ground under it, no shadows, no text, no labels.

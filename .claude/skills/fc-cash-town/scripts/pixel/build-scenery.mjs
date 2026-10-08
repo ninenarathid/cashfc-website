@@ -5,6 +5,9 @@
 //                                               forest.json): fetched only by whoever goes there (lib/town/scenery.ts)
 //   node build-scenery.mjs --set kitchen        what the cooking screen is laid on (kitchen-<hash>.png + kitchen.json):
 //                                               fetched only by whoever opens it (components/town/TownKitchen)
+//   node build-scenery.mjs --set mountain       the mountain's foot (mountain-<hash>.png + mountain.json) and
+//   node build-scenery.mjs --set cave           the cave under it (cave-<hash>.png + cave.json): each fetched only by
+//                                               whoever goes there (a look-only preview in `next dev`, 2026-10-08)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -30,7 +33,7 @@ fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
 /** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (SET !== "scenery" && SET !== "forest" && SET !== "kitchen") throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave"].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -109,6 +112,20 @@ const SHEETS = [
   // เป็นแบบเล่นพร้อมกัน"): a lane by the river seen from the side, a scene filling its canvas, as the forest's games have.
   // It is the town's and not the forest's: water is handed on in the town and on the farm
   ["scene-town-game-handing", ["gameHanding"], "scene"],
+  // What is to come in the town, for the preview of the mountain (the owner, 2026-10-08; drawn in `next dev` only).
+  // The bridge over the river at the west path, lying straight across the screen as the cooking yard does: whole, and
+  // as its bare frame on the same seven stone piers (an edit of the first, stood where the first stands). It is built
+  // span by span from the town's bank: the map draws so many spans of the whole one and the next of the frame.
+  ["scene-bridge-2", ["bridge"], "whole"],
+  ["scene-bridge-1", ["bridgeFrame"], "whole", "scene-bridge-2"],
+  // the blacksmith, a third popoto keeping shop: four frames (standing, the hammer up, the hammer down, wiping its
+  // brow), what it works at (the furnace with its anvil, its tub and its rack: one piece), the notice board beside
+  // it and the post its sign hangs from; and its portrait for the talk box, as the uncle's and the banker's. (The
+  // forge alone with its board came out with pixels twice the size, and stood chunky beside the stall: drawn again
+  // with the tall post beside them they are the stall's own. The first is kept as scene-forge.first.png.)
+  ["popoto-smith", ["sm_stand", "sm_up", "sm_hit", "sm_wipe"], "body"],
+  ["scene-forge", ["forge", "smithboard", "smithsign"]],
+  ["talk-smith", ["tk_smith", "tk_smith_o"], "talk", undefined, [7.5, 13]],
 ];
 // The forest's own (the owner, 2026-10-05: "หาของป่า จะมี map ใหม่ เป็นป่าใหญ่ๆ"): its trees and what grows and lies under them,
 // the camp's things, the great tree of the deep woods, and the waterfall on its cliff.
@@ -126,6 +143,40 @@ const FOREST = [
   ["scene-forest-game-mound", ["gameMound"], "scene"],
   // (and the camp's fire seen close, for what is roasted on a stick: components/town/TownRoasting)
   ["scene-forest-game-fire", ["gameFire"], "scene"],
+];
+// The mountain's foot (the owner, 2026-10-08: a look-only preview): its three kinds of tree, each at four ages (a stump,
+// a sprout, a young tree, grown: `mt<kind>_<age>`), the ancient cedar of the slope, the mine's mouth, the lookout's
+// deck and a signpost, rocks (three plain looks and one with crystals in it, the cave's too), and the far peaks seen
+// beyond the map's edge and beyond the town's west gate. The camp's fire and its logs are the forest's own sheet.
+// (Four rocks alone on a sheet came out with pixels twice the size, as the forest's second sheet did, and so did the
+// mouth and the lookout: each was drawn again with something tall beside it, a standing stone and a flag pole, which
+// keeps the rest at the dolls' scale. The first of each is kept as <sheet>.first.png.)
+const ROCKS = ["scene-rocks", ["menhir", "mrock0", "mrock1", "mrock2", "mcrystal"]];
+// (a mine's lift, a torch set down, and the rubble a broken rock leaves: the cave's, and the rubble the mountain's too)
+const MINE = ["scene-cave-b", ["lift", "torch", "rubble"]];
+// (the forest camp's own sheet: a fire's stones and the logs to sit on, for the camp in the foot yard and for a resting floor's fire)
+const CAMP = ["scene-forest-b", ["log", "stump", "boulder", "campfire", "logseat", "tent"], undefined, undefined, [10.5, 13.5]];
+const MOUNTAIN = [
+  ["scene-mountain-a", ["mt1_0", "mt1_1", "mt1_2", "mt1_3"]],
+  ["scene-mountain-b", ["mt2_0", "mt2_1", "mt2_2", "mt2_3"]],
+  ["scene-mountain-c", ["mt3_0", "mt3_1", "mt3_2", "mt3_3"]],
+  ["scene-mountain-d", ["ancient"], "whole"],
+  // (the cedar felled: its great stump, an edit of the tree's own sheet. The model drew it a little larger and lower on the
+  // canvas than the tree's own foot, so it is not laid on the tree: it stands on its own lowest row, as a prop does)
+  ["scene-mountain-d-stump", ["ancientStump"], "whole"],
+  ["scene-mountain-e", ["mouth", "lookout", "msign", "flagpole"]],
+  ROCKS,
+  MINE,
+  ["scene-peaks", ["peak1", "peak2"]],
+  CAMP,
+];
+// The cave under it: the ladder one comes down by with its lamp, the way down, a stalagmite and a mine cart, the same
+// rocks, and what a resting floor has (every tenth floor: a lift, and a fire with logs to sit by).
+const CAVE = [
+  ["scene-cave-a", ["ladderUp", "ladderDown", "stalagmite", "minecart"]],
+  ROCKS,
+  MINE,
+  CAMP,
 ];
 // The cooking screen's own (the owner, 2026-10-06: "UI แบบใหม่ gen ภาพมาใหม่ได้ เพื่อให้มี theme เหมือนทำอาหาร"): what the
 // cookware stands on while things are put in it, seen from the front, a scene each filling its canvas. A stove's
@@ -164,6 +215,8 @@ const READY = {
     ["woodlog1", "logShort", 4, { twice: true, drop: ["a7a9a4", "a4a09e"], foot: [0.5, 0.86] }],
   ],
   kitchen: [],
+  mountain: [],
+  cave: [],
 };
 // Ground that came drawn (the same folder's pack of textures; the ones used are in work/oatto/tex, with the pack's
 // licence: free to use and to change, not to be handed on as files, which is one more reason they stay out of the
@@ -179,6 +232,8 @@ const READY_TEX = {
   },
   forest: {},
   kitchen: {},
+  mountain: {},
+  cave: {},
 };
 /** The mean of each colour of a picture's pixels, and how far its light and dark spread about their mean. */
 function colourOf(buf) {
@@ -235,7 +290,10 @@ function twice(im) {
 }
 const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 510;
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
-const TEXTURES = SET === "forest" ? ["wood"] : SET === "kitchen" ? [] : ["grass", "plaza", "road", "water", "sand", "field"];
+// (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
+// pines; the cave's: its floor, the top of its rock, and the same face for its walls)
+const TEXTURES = { forest: ["wood"], kitchen: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+  ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
 /** Whole sheets as gridded, for a later sheet to stand where an earlier one does: its cells and its ground point. */
@@ -257,7 +315,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of SET === "forest" ? FOREST : SET === "kitchen" ? KITCHEN : SHEETS) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE }[SET] ?? SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop

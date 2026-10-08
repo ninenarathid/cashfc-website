@@ -44,7 +44,7 @@ import { CART } from "@/lib/town/cart";
 import { companyOf, type Beside } from "@/lib/town/company";
 import { BOX } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
-import TownTalk, { type TalkChoice } from "./TownTalk";
+import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { FarmDraw } from "./TownFarm";
 // ── gifts: farming ──
@@ -69,6 +69,8 @@ import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
 import TownFoot, { FOOT_CSS, TownFootContext, type FootPlaces } from "./TownFoot";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
+// ── to come ── (the preview of the mountain and the cave: only its types here; the module itself is asked for in `next dev` alone)
+import type { MoreFrame, MountainArt } from "./mountain-art";
 
 /**
  * Cash Town's page: the map, who is here, the microphone and the wardrobe.
@@ -463,7 +465,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Where the fountain's picture is on the screen: a tap on it opens the wishing panel, once the game is open. */
   const fountainBox = useRef<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
   /** The shopkeepers and the gateways on the screen this frame, for taps and the cursor: who, or the tile a gateway leads to. */
-  const keeperBoxes = useRef<Array<{ id: Keeper["id"]; x0: number; y0: number; x1: number; y1: number }>>([]);
+  const keeperBoxes = useRef<Array<{ id: Keeper["id"] | "smith"; x0: number; y0: number; x1: number; y1: number }>>([]);
   const gateBoxes = useRef<Array<{ to: [number, number]; x0: number; y0: number; x1: number; y1: number }>>([]);
   const boardNews = useRef(false);
   useEffect(() => {
@@ -562,6 +564,26 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   const [session, setSession] = useState<TownSession | null>(null);
   const sessionRef = useRef<TownSession | null>(null);
+  // ── to come ── (the preview of the bridge, the blacksmith, the mountain's foot and the cave, `next dev` only: all
+  // of its drawing is a module of its own, asked for here and never in a production build. The map hands it a frame,
+  // and knows no more of it)
+  const moreArt = useRef<MountainArt | null>(null);
+  useEffect(() => {
+    let gone = false, made: MountainArt | null = null;
+    // (the asking itself sits in a branch a production build drops, as the test window's does: written as an early
+    // return, the build made the module's chunk all the same, though nothing asked for it. Found 2026-10-08, by looking)
+    if (process.env.NODE_ENV === "development") {
+      void import("./mountain-art").then((m) => {
+        if (gone) return;
+        made = moreArt.current = m.openMore({
+          warp: (x, y) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
+          walk: (x, y) => sessionRef.current?.walkTo({ x, y }) ?? false,
+          me: () => { const a = sessionRef.current?.self; return a ? { id: a.info.id, x: a.pos.x, y: a.pos.y } : null; },
+        });
+      });
+    }
+    return () => { gone = true; made?.close(); moreArt.current = null; };
+  }, []);
   const [popover, setPopover] = useState<{ b: Building; x: number; y: number } | null>(null);
   const [card, setCard] = useState<Card | null>(null);
   const [peopleOpen, setPeopleOpen] = useState(false);
@@ -582,7 +604,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** The wishing fountain's panel: it takes the board's place while it is open (so whatever makes way for the board makes way for it). */
   const [fountainOpen, setFountainOpen] = useState(false);
   /** A talk with a shopkeeper: who, what they say, and what there is to choose at its end. Each has a number of its own, so a new one starts at its first line. */
-  const [talk, setTalk] = useState<{ who: Speaker; n: number; lines: Line[]; choices?: TalkChoice[] } | null>(null);
+  const [talk, setTalk] = useState<{ who: Speaker | "smith"; n: number; lines: Line[]; choices?: TalkChoice[]; as?: TalkAs } | null>(null);
   /** Which of their conversations comes next (they go round, tap after tap), and how many talks there have been. */
   const talkTurns = useRef<Record<Speaker, number>>({ uncle: 0, banker: 0 });
   const talks = useRef(0);
@@ -1259,6 +1281,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * stays.
    */
   function drawWeather(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number, dt: number) {
+    // ── to come ── (there is no weather under the ground)
+    if (process.env.NODE_ENV === "development" && placeRef.current === "cave") return;
     // (`dt` is seconds, as everywhere here. Until 2026-10-03 this took it for milliseconds: the rain hung in the
     // air, no leaf ever reached the ground, and a change in the weather took hours to come on.)
     const sec = Math.min(dt, 0.1);
@@ -1654,6 +1678,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }
 
   function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number) {
+    // ── to come ── (nor any sky: the cave's dark is its own, laid by the preview's module)
+    if (process.env.NODE_ENV === "development" && placeRef.current === "cave") return;
     const day = skyNow();
     const [r, g, b] = day.tint;
     if (r < 255 || g < 255 || b < 255) {
@@ -1724,6 +1750,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!forestHere.current && mine && now - forestAsked.current > FOREST_AGAIN_MS && (place === "forest" || (place === "town" && mine.pos.y < 14))) {
       forestAsked.current = now;
       loadForest().then(() => { forestHere.current = true; }).catch(() => { /* its trees are the town's until it comes */ });
+    }
+    // ── to come ── (another floor of the cave is another map to the camera: it is put on me at once, and the floor comes up out of the dark)
+    if (process.env.NODE_ENV === "development" && moreArt.current?.moved(mine ? mine.pos : null) && mine) {
+      const iso = toIso(mine.pos.x, mine.pos.y);
+      v.cx = iso.x; v.cy = iso.y - dollH(mine) * 0.45;
+      v.follow = true;
+      setCam(camNow());
+      warpedAt.current = now;
     }
     if (v.follow && mine) {
       const iso = toIso(mine.pos.x, mine.pos.y);
@@ -2102,7 +2136,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         const [gw, gh] = scenery.sizeOf(arch);
         gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (gw / 2) * v.s, y0: c.y - gh * v.s, x1: c.x + (gw / 2) * v.s, y1: c.y });
         const th = words.current.th;
-        const leads = g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest") : (th ? "กลับเข้าเมือง" : "Back to town");
+        // ── to come ── (a gateway of the preview's own maps is named by the preview's module)
+        const more = process.env.NODE_ENV === "development" ? moreArt.current?.gateName(g, th) : null;
+        const leads = more ?? (g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest") : (th ? "กลับเข้าเมือง" : "Back to town"));
         signs.push(() => label(ctx, leads, c.x, c.y - (gh + 4) * v.s, "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
     }
@@ -2314,14 +2350,32 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (mine && myPet?.name === "famFrog" && rainGathers(mine) && rainFull.current !== null) gathering.current.set(mine.info.id, rainFull.current);
     // (a familiar whose member has gone is forgotten)
     if (pets.current.size > (stay?.avatars.size ?? 0) + 1) for (const id of pets.current.keys()) if (id !== mine?.info.id && !stay?.avatars.has(id)) pets.current.delete(id);
+    // ── to come ── (what stands on the preview's maps: its own module adds it to what is drawn, back to front with the rest)
+    const more = process.env.NODE_ENV === "development" ? moreArt.current : null;
+    const moreFrame: MoreFrame | null = more ? {
+      ctx, things, signs, project, onScreen, s: v.s, cw, ch, dpr, now, scenery: scenery ?? null, still: reducedRef.current, th: words.current.th, place: placeRef.current,
+      me: mine ? { id: mine.info.id, x: mine.pos.x, y: mine.pos.y } : null,
+      others: stay ? [...stay.avatars.values()].filter((a) => a.byeAt === undefined).map((a) => ({ id: a.info.id, x: a.pos.x, y: a.pos.y })) : [],
+      lamps: skyNow().lamps,
+      label: (text, x, y, icon) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", icon ? popotoImg.current : null),
+      flames: (x, y, k) => drawFlames(ctx, x, y, k, now),
+      glow: (x, y, r, rgb, alpha, flat) => glowAt(ctx, x, y, r, rgb, alpha, flat),
+      sway: (p) => swayOf(p, now),
+      benches: benchBoxes.current, benchOf: (p) => benchIndex.get(p) ?? -1, keepers: keeperBoxes.current,
+    } : null;
+    if (more && moreFrame) more.things(moreFrame);
     things.sort((a, b) => a.depth - b.depth);
     for (const t of things) t.draw();
     // The weather (lib/town/weather), then the time of day: the town multiplied by the
     // sky's colour, then the lamps' light.
     drawWeather(ctx, cw, ch, now, dt);
     drawDaylight(ctx, cw, ch, now);
+    // ── to come ── (the preview's own lights, after the sky has had its say)
+    if (more && moreFrame) more.lights(moreFrame);
     for (const sign of signs) sign();
     for (const n of names) n();
+    // ── to come ── (and the cave's dark, over everything: names too)
+    if (more && moreFrame) more.darkness(moreFrame);
     hits.current = boxes;
     // Through a gate: the other map comes up out of the dark.
     const since = now - warpedAt.current;
@@ -3167,6 +3221,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const thing = groundTap.current(x, y);
       if (thing) { if (thing.walk && sessionRef.current?.walkTo(thing.walk)) cam.current.follow = true; return; }
     }
+    // ── to come ── (a tree, a rock, a ladder, a lift, the mine's mouth, the yard's chest: whoever has asked the preview's
+    // module for taps on one has this one. With nobody asking, it is a step, as anywhere)
+    if (process.env.NODE_ENV === "development" && moreArt.current?.tap(x, y)) return;
     // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
     // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
@@ -3538,11 +3595,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * Talk to a shopkeeper. While their stall or counter is closed: a greeting, and their next conversation, in turn.
    * Open (the trial): a greeting, what they ask, and what one came for to choose from.
    */
-  const openTalk = (who: Speaker) => {
+  const openTalk = (asked: Speaker | "smith") => {
     if (wardrobeOpenRef.current) closeWardrobe();
     setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTrade(null);
     setFishing(false);
     const hour = Math.floor(bangkokMinute(new Date()) / 60), n = ++talks.current, th = words.current.th;
+    // ── to come ── (the blacksmith, in the preview: his lines, his name and his portrait are the preview's module's; he
+    // only talks, whether the game is open or not)
+    if (process.env.NODE_ENV === "development" && asked === "smith") {
+      const told = moreArt.current?.talk(hour);
+      if (told) setTalk({ who: asked, n, ...told });
+      return;
+    }
+    const who = asked as Speaker;
     if (!gameRef.current) { setTalk({ who, n, lines: talkFor(who, hour, talkTurns.current[who]++) }); return; }
     const chat: TalkChoice = { id: "chat", label: th ? "คุยเล่น" : "Just chatting" };
     const buy: TalkChoice = { id: "buy", label: th ? "ซื้อของ" : "Buy" };
@@ -4269,7 +4334,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2"
              style={{ bottom: phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem" }}>
           <div className="pop-in pointer-events-auto w-full max-w-[44rem]" data-state="open">
-            <TownTalk key={talk.n} who={talk.who} lines={talk.lines} choices={talk.choices} onPick={(id) => pickTalk(talk.who, id)}
+            <TownTalk key={talk.n} who={talk.who} as={talk.as} lines={talk.lines} choices={talk.choices} onPick={(id) => pickTalk(talk.who as Speaker, id)}
                       th={w.th} phone={phone} reduced={reducedRef.current} art={boardArt} onClose={() => setTalk(null)} />
           </div>
         </div>
