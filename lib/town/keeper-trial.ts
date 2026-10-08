@@ -22,6 +22,10 @@ import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
 import type { RowDid } from "./keeper";
+// ── felling ──
+import type { FellDid } from "./keeper";
+import type { FellingAsk } from "./felling";
+import type { FellWent } from "./trees";
 
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
@@ -380,6 +384,21 @@ class TrialKeeper implements Keeper {
     if (did.ok) this.onDeed?.("farm");
     return did;
   }
+
+  // ── felling ── (whoever else is on the mountain is in another tab: told through the room, as the database's keeper tells them)
+  trees() { return this.trial.trees(); }
+  async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { return this.trial.fellBegin(tree, at); }
+  async fellDo(went: FellWent, at: [number, number]): Promise<Did<FellDid>> {
+    const did = this.trial.fellDo(went, at);
+    if (did.ok && did.felled.length) this.onDeed?.("trees");
+    return did;
+  }
+  async fellRoot(tree: number): Promise<Did<{ left: number }>> {
+    const did = this.trial.fellRoot(tree);
+    if (did.ok) this.onDeed?.("trees");
+    return did;
+  }
+  // ── end: felling ──
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

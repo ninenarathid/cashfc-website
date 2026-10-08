@@ -46,6 +46,11 @@ import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
 // ── forging ──
 import { FORGE, toolKindOf } from "./tools";
+// ── felling ──
+import { ALL_LINE_IDS, MORE_LINE_IDS } from "./lines";
+import { begin as fellBegin, fell, groveOf, newGrove, rootBack, tidied as treesTidied, toldOf as treesTold, type FellLuck, type FellOne, type FellWent, type Grove, type TreeRefusal, type TreesTold } from "./trees";
+import type { FellingAsk } from "./felling";
+// ── end: felling ──
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -100,6 +105,8 @@ const YARD_JAR = "cashtown.trial.yardjar.1";
 const SHOPS = "cashtown.trial.shops.1";
 /** What lies on the ground (lib/town/ground): the whole browser's, so that one tester picks up what another dropped. */
 const GROUND_AT = "cashtown.trial.ground.1";
+// ── felling ── (the mountain's trees, lib/town/trees: the whole browser's, so that one tester sees the stump another made)
+const TREES_AT = "cashtown.trial.trees.1";
 const POTS = "cashtown.trial.pots.1", FOUND = "cashtown.trial.found.1", FINDERS = "cashtown.trial.finders.1", DEALS = "cashtown.trial.deals.1", VILLAGE = "cashtown.trial.village.1";
 /** The beds the test window plants as a show garden: the four round the well. */
 const SHOW_BEDS = [8, 9, 14, 15];
@@ -1238,16 +1245,17 @@ export class Trial {
    */
   lines(): LinesTold {
     const told = noLines(), mine = this.linesAll()[this.id] ?? {}, day = dayOf(this.now()), log = this.wellLog();
-    for (const id of LINE_IDS) { const k = mine[id]; if (k) told.lines[id] = { points: k.points, today: k.day === day ? k.today : 0 }; }
+    // (lines to come: the trial keeps every line there is, and gives the later ones)
+    for (const id of ALL_LINE_IDS) { const k = mine[id]; if (k) told.lines[id] = { points: k.points, today: k.day === day ? k.today : 0 }; }
     told.lines.well = { points: log.carriers[this.id]?.buckets ?? 0, today: log.days[String(day)]?.[this.id]?.buckets ?? 0 };
-    return { ...told, worn: this.worn()[this.id] ?? null };
+    return { ...told, worn: this.worn()[this.id] ?? null, given: [...MORE_LINE_IDS] };
   }
   /** Wear a title I have earned under my name, or none (null). */
   titleWear(worn: Worn | null): { ok: true } | { ok: false; why: Refusal } {
     const all = { ...this.worn() };
     if (worn === null) delete all[this.id];
     else {
-      const points = Object.fromEntries(LINE_IDS.map((id) => [id, this.lines().lines[id].points]));
+      const points = Object.fromEntries(ALL_LINE_IDS.map((id) => [id, this.lines().lines[id].points]));
       if (!mayWear(points, worn.line, worn.rank)) return no("none");
       all[this.id] = { line: worn.line, rank: worn.rank };
     }
@@ -1257,7 +1265,7 @@ export class Trial {
   }
   /** Take the gift of a rank I have reached on a line (lib/town/gifts): once, into no bag. */
   giftTake(line: string, rank: number): { ok: true; gift: GiftId } | { ok: false; why: GiftRefusal } {
-    const points = Object.fromEntries(LINE_IDS.map((id) => [id, this.lines().lines[id].points]));
+    const points = Object.fromEntries(ALL_LINE_IDS.map((id) => [id, this.lines().lines[id].points]));
     const did = takeRankGift(this.purse(), points, line, rank);
     if (!did.ok) return did;
     this.save(did.purse);
@@ -1369,6 +1377,51 @@ export class Trial {
     if (did.ok) { this.write(GROUND_AT, all.filter((d) => d.id !== id)); this.save(did.purse); }
     return did;
   }
+  /* ── felling: the mountain's trees are everybody's, so the browser's ── */
+  // ── felling ──
+  private grove(): Grove { return treesTidied(groveOf(this.read<unknown>(TREES_AT, newGrove, (v) => !!v && typeof v === "object")), this.now()); }
+  /** The trees as I am told them: every one that is not grown, and those half cut. */
+  trees(): TreesTold { return treesTold(this.grove(), this.purse(), this.now()); }
+  /** Walk up to a tree with an axe in the hand: the game that fells it, or the state that refuses it. */
+  fellBegin(tree: number, at: [number, number]): { ok: true; trees: number[]; ask: FellingAsk; elder: boolean } | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
+    return fellBegin(this.purse(), this.grove(), tree, at, this.now(), this.fellSeed ?? Math.floor(Math.random() * 2 ** 31));
+  }
+  /** A go at felling as it was played: every tree that fell is a stump for the whole browser, and its wood is in my bag. */
+  fellDo(went: FellWent, at: [number, number]): { ok: true; felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean } | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
+    const n = Math.max(1, Array.isArray(went.trees) ? went.trees.length : 1);
+    const luck = Array.from({ length: n }, (): FellLuck => this.fellLuck ?? { dark: Math.random(), scent: Math.random(), which: Math.random(), chain: Math.random() });
+    const did = fell(this.purse(), this.grove(), this.id, went, at, this.now(), luck);
+    if (!did.ok) return did;
+    if (did.felled.length) this.write(TREES_AT, did.grove);
+    this.save(did.purse);
+    for (const f of did.felled) this.counted({ from: "deed", what: "fell", thing: f.kind, n: 1, doc: { tree: f.id, misses: f.misses } });
+    return { ok: true, felled: did.felled, got: did.got, one: did.one };
+  }
+  /** The stump I just made, grown again at once for the whole browser (an axe's own, counted by the day). */
+  fellRoot(tree: number): { ok: true; left: number } | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
+    const did = rootBack(this.purse(), this.grove(), this.id, tree, this.now());
+    if (!did.ok) return did;
+    this.write(TREES_AT, did.grove);
+    this.save(did.purse);
+    return { ok: true, left: did.left };
+  }
+  /** For scripts trying things out: a tree as if it had been felled so many minutes ago by somebody (null: grown again); every tree grown again; a tree left half cut or whole. */
+  setTree(id: number, minutesAgo: number | null, by = "somebody") {
+    const g = this.grove(), down = { ...g.down };
+    if (minutesAgo === null) delete down[id]; else down[id] = { at: this.now() - minutesAgo * 60_000, by };
+    this.write(TREES_AT, { ...g, down });
+    this.tell();
+  }
+  setTrees(grove: Grove | null) { this.write(TREES_AT, grove ?? newGrove()); this.tell(); }
+  setHalf(id: number, half: boolean) { const g = this.grove(); this.write(TREES_AT, { ...g, half: half ? [...new Set([...g.half, id])] : g.half.filter((x) => x !== id) }); this.tell(); }
+  /** For scripts: the numbers of chance a go is judged by, and the seed its trunks are made from, in place of chance (in this tab; null: chance again). */
+  private fellLuck: FellLuck | null = null;
+  private fellSeed: number | null = null;
+  setFellLuck(luck: FellLuck | null) { this.fellLuck = luck; }
+  setFellSeed(seed: number | null) { this.fellSeed = seed; }
+  /** For scripts: so many uses of a tool's counted option made already in a stretch (lib/town/powers). */
+  setPower(id: string, n: number, k: number) { const p = this.purse(); this.save({ ...p, powers: { ...(p.powers ?? {}), [id]: { k, n: Math.max(0, Math.floor(n)) } } }); }
+  // ── end: felling ──
   /** Throw away what is in a slot (to make room). */
   drop(slot: number) { const p = this.purse(); this.save({ ...p, bag: p.bag.map((b, i) => (i === slot ? null : b)) }); }
   /** For scripts trying things out: put something in the bag, as much of it as fits, and coins in the purse. */
@@ -1428,7 +1481,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), /* felling */ TREES_AT, GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
     this.tell();
   }
 }

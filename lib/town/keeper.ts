@@ -47,6 +47,12 @@ import type { WellGiftRefusal } from "./well-gifts";
 // ── gifts: helpers ──
 import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
+// ── felling ──
+import type { FellingAsk } from "./felling";
+import type { FellOne, FellWent, TreeRefusal, TreesTold } from "./trees";
+/** What a go at felling came to, as a panel is told it: every tree that fell with what it gave, all it brought home, and whether it was the axe's one chop. */
+export interface FellDid { felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean }
+// ── end: felling ──
 
 /**
  * Who keeps the game.
@@ -77,12 +83,16 @@ import type { HelpRefusal } from "./helping";
 
 export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal | /* gifts: well */ WellGiftRefusal
   // ── gifts: fishing ──
-  | FishRefusal;
+  | FishRefusal
+  // ── felling ──
+  | TreeRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 // ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop"
+  // ── felling ── (the mountain's trees: who felled which is everybody's)
+  | "trees";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -489,6 +499,17 @@ export interface Keeper {
   moonKeep(): Promise<Did<{ n: number; kind: Nature }>>;
   moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>>;
 
+  // ── felling ── (lib/town/trees, lib/town/felling)
+  /** The mountain's trees as I am told them: every one that is not grown, and those half cut. Null where whoever keeps the game keeps no trees (then nothing is felled, and every tree is drawn grown). */
+  trees(): TreesTold | null;
+  /** Walk up to a tree with an axe in the hand, from the tile I stand on: the game that fells it (the trees it is for, and what the game is made from), or the state that refuses it. */
+  fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>>;
+  /** A go at felling as it was played, from the tile I stand on: what it brought home. A go in which nothing fell is told too, and changes nothing. */
+  fellDo(went: FellWent, at: [number, number], name: string): Promise<Did<FellDid>>;
+  /** The stump I just made grown again at once, for everybody (an axe's own, counted by the day): how many times are left. */
+  fellRoot(tree: number): Promise<Did<{ left: number }>>;
+  // ── end: felling ──
+
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
   record(play: Play): void;
   /** Stop every timer: the member has left the town. */
@@ -505,7 +526,7 @@ export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknow
 type Answer = Record<string, unknown>;
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -631,6 +652,9 @@ export class DbKeeper implements Keeper {
     // (and whether a stall can be opened under a sign, with mine if one is still open: asked once as the game begins;
     // a database that keeps no stalls answers nothing, and a sign is only a chat room's)
     if (this.read && !this.shut) void this.ask("town_shop");
+    // ── felling ── (and whether the mountain's trees are kept, with those that are not grown: asked once as the game
+    // begins, and only where there is a mountain to fell them on, `next dev`; a database that keeps none answers nothing)
+    if (process.env.NODE_ENV === "development" && this.read && !this.shut) void this.ask("town_trees");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
@@ -724,6 +748,8 @@ export class DbKeeper implements Keeper {
     // (an insect comes back somewhere at that moment, v131: what is out is asked for again then)
     if (typeof a.bugsAgain === "number") this.bugsDue(a.bugsAgain);
     if (a.book && typeof a.book === "object") this.book_ = a.book as Record<string, string>;
+    // ── felling ── (the trees that are not grown, told with every answer that touched one)
+    if (a.trees && typeof a.trees === "object" && Array.isArray((a.trees as TreesTold).down)) this.trees_ = { down: (a.trees as TreesTold).down, half: Array.isArray((a.trees as TreesTold).half) ? (a.trees as TreesTold).half : [] };
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
     if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
     if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
@@ -849,6 +875,8 @@ export class DbKeeper implements Keeper {
       : what === "line" ? this.ask("town_me")
       : what === "ground" ? this.ask("town_ground")
       : what === "shop" ? this.ask("town_shop")
+      // ── felling ── (not asked of a database that keeps no trees)
+      : what === "trees" ? (this.trees_ ? this.ask("town_trees") : Promise.resolve(null))
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -903,6 +931,36 @@ export class DbKeeper implements Keeper {
   ranks(): Record<string, number> { return this.ranks_; }
   lines(): LinesTold | null { return this.lines_; }
   titles(): Record<string, Worn> { return this.titles_; }
+  // ── felling ──
+  /** The trees as the database last told them: null until one that keeps trees has said. */
+  private trees_: TreesTold | null = null;
+  trees(): TreesTold | null { return this.trees_; }
+  async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> {
+    if (!this.trees_) return { ok: false, why: "none" };
+    const a = await this.ask("town_fell_begin", { p_tree: tree, p_x: at[0], p_y: at[1] });
+    if (!a) return AWAY;
+    return a.ok === true ? { ok: true, trees: a.group as number[], ask: a.ask as FellingAsk, elder: !!a.elder } : { ok: false, why: (a.why as Why) ?? "none" };
+  }
+  async fellDo(went: FellWent, at: [number, number], _name: string): Promise<Did<FellDid>> {
+    if (!this.trees_) return { ok: false, why: "none" };
+    const a = await this.ask("town_fell", { p_went: went, p_x: at[0], p_y: at[1] });
+    if (!a) return AWAY;
+    if (a.ok !== true) return { ok: false, why: (a.why as Why) ?? "none" };
+    const felled = (Array.isArray(a.felled) ? a.felled : []) as FellOne[];
+    if (felled.length) this.onDeed?.("trees");
+    this.tell();
+    return { ok: true, felled, got: (Array.isArray(a.got) ? a.got : []) as Array<[ItemId, number]>, one: !!a.one };
+  }
+  async fellRoot(tree: number): Promise<Did<{ left: number }>> {
+    if (!this.trees_) return { ok: false, why: "none" };
+    const a = await this.ask("town_fell_root", { p_tree: tree });
+    if (!a) return AWAY;
+    if (a.ok !== true) return { ok: false, why: (a.why as Why) ?? "none" };
+    this.onDeed?.("trees");
+    this.tell();
+    return { ok: true, left: Number(a.left) || 0 };
+  }
+  // ── end: felling ──
   linesRead() { if (this.lines_) void this.ask("town_work"); }
   titleWear(worn: Worn | null) { return this.deed("town_title_wear", { p_line: worn?.line ?? null, p_rank: worn?.rank ?? null }); }
   gifting() { return this.gifting_; }
