@@ -221,11 +221,11 @@ try {
   ok("with nothing set, the card says the socket is empty and nothing of any gem", (await attr(A, "[data-smith-gem]", "data-smith-gem")) === "" && !(await there(A, "[data-smith-gem-does]")));
   const j0 = await purse(A);
   await click(A, '[data-smith-pick-gem="gemRuby"]', 400);
-  ok("a gem chosen is said to take itself, a mount of copper and fifty coins; and nothing is to be lost", (await attr(A, '[data-smith-setting] [data-smith-need="oreCopper"]', "data-want")) === "1" && (await attr(A, '[data-smith-setting] [data-smith-need="coins"]', "data-want")) === "50" && !(await there(A, "[data-smith-warn]")));
+  ok("a gem chosen is said to take itself, a mount of five fine timber and fifty coins; and nothing is to be lost", (await attr(A, '[data-smith-setting] [data-smith-need="timber"]', "data-want")) === "5" && (await attr(A, '[data-smith-setting] [data-smith-need="coins"]', "data-want")) === "50" && !(await there(A, "[data-smith-warn]")));
   ok("what the gem would do is not said before it is set", !(await there(A, "[data-smith-gem-does]")) && !/ฟันน้อยลง/.test(await textOf(A, "[data-smith-gems]")));
   await click(A, "[data-smith-set]", 600);
   const j1 = await purse(A);
-  ok("set: the ruby is in the axe, and a ruby, a copper and fifty coins are gone", JSON.stringify((await toolOf(A, "axe")).gems) === JSON.stringify(["fire"]) && count(j0.bag, "gemRuby") - count(j1.bag, "gemRuby") === 1 && count(j0.bag, "oreCopper") - count(j1.bag, "oreCopper") === 1 && j0.coins - j1.coins === 50);
+  ok("set: the ruby is in the axe, and a ruby, five fine timber and fifty coins are gone", JSON.stringify((await toolOf(A, "axe")).gems) === JSON.stringify(["fire"]) && count(j0.bag, "gemRuby") - count(j1.bag, "gemRuby") === 1 && count(j0.bag, "timber") - count(j1.bag, "timber") === 5 && j0.coins - j1.coins === 50);
   ok("once set, the tool's own card says what it does", (await attr(A, "[data-smith-gem]", "data-smith-gem")) === "fire" && ((await textOf(A, "[data-smith-gem-does]")) ?? "").length > 4, await textOf(A, "[data-smith-gem-does]"));
   await until("the other sees its colour", async () => (await seen()).tool === "1f1", 8000);
   ok("the glow is its gem's colour now, for the other tester too", (await seen()).tool === "1f1");

@@ -295,10 +295,11 @@ export function vectorsSmith(): Vector[] {
   }
 
   /* ── a gem ── */
+  // (the mount by the number it takes: enough for one, for four, none, and one short of each; copper ore, which was the mount, lies beside it and is not taken)
   for (let i = 0; i < 700; i++) {
     const kind = c.maybe(0.75) ? c.of(BUILT_KINDS) : c.of(KINDS), stack = c.maybe(0.08) ? anyTool(kind) : soundTool(kind, c.int(0, 10)), was = gemsOf(stack)[0];
     const gem = c.of<string | null>([c.of(GEM_IDS), c.of(GEM_IDS), c.of(GEM_IDS), c.of(GEM_IDS), was ? GEMS[was].gem : c.of(GEM_IDS), "chipRuby", "oreCopper", "noSuchThing", null]);
-    const p = purseWith(SMITH.gem.fee + c.of([0, 0, 0, 30, -1, -SMITH.gem.fee]), [notTool(), stack], [...(gem && gem in ITEMS && c.maybe(0.88) ? [[gem as ItemId, c.int(1, 3)] as [ItemId, number]] : []), [SMITH.gem.mount, c.of([1, 1, 1, 4, 0])], ["timber", 2]]);
+    const p = purseWith(SMITH.gem.fee + c.of([0, 0, 0, 30, -1, -SMITH.gem.fee]), [notTool(), stack], [...(gem && gem in ITEMS && c.maybe(0.88) ? [[gem as ItemId, c.int(1, 3)] as [ItemId, number]] : []), [SMITH.gem.mount, c.of([1, 1, 1, 4, 0]) * SMITH.gem.mounts - c.of([0, 0, 0, 1])], ["oreCopper", 2]]);
     const slot = c.maybe(0.88) ? 1 : c.of<number | null>([0, -1, 30, null]);
     add("gem_set", [p, slot, gem], setGem(p, slot as number, gem as ItemId));
   }

@@ -17,7 +17,7 @@ import { type Purse, type Stack } from "./trade";
  *   comes of it is read from a number of chance that whoever keeps the game draws: nothing here draws one.
  * - **At a milestone** two options are drawn and one is chosen; an option can be drawn again for a gem and coins,
  *   the old one kept if wished. A draw waits until it is chosen: it cannot be had again by walking away.
- * - **A gem** is set into a tool's socket with a mount of copper; one set over another replaces it.
+ * - **A gem** is set into a tool's socket with a mount of fine timber; one set over another replaces it.
  *
  * **What the smith is given may be in a pouch as well as in the bag** (lib/town/pouches: ore and gems in a miner's
  * sack, timber in a woodcutter's bundle): every count here is of the two together (`heldIn`), what is spent leaves
@@ -39,8 +39,8 @@ export const SMITH = {
    * presses; and each press is so many points on the helpers' line.
    */
   bellows: { share: 0.1, each: 3, points: 2 },
-  /** Setting a gem: the mount, and the fee. */
-  gem: { mount: "oreCopper" as ItemId, mounts: 1, fee: 50 },
+  /** Setting a gem: the mount (fine timber since 2026-10-09, so that woodcutters are wanted; copper ore before), how many of it, and the fee. */
+  gem: { mount: "timber" as ItemId, mounts: 5, fee: 50 },
   /** Drawing a milestone's option again: so many gems of any element, and the fee. */
   redraw: { gems: 1, fee: 100 },
   /** How many options a draw lays out to choose from. */
@@ -108,8 +108,8 @@ export type SmithRefusal =
   | "amount"   // not a whole number above nothing
   | "tool"     // what is in that slot is no tool that is forged
   | "top"      // it is at the top already; the queue cannot be widened further
-  | "ore"      // not enough fragments, ore or the mount
-  | "timber"   // not enough fine timber
+  | "ore"      // not enough fragments or ore
+  | "timber"   // not enough fine timber (a try's, a widening's, a gem's mount)
   | "coins"    // not enough coins
   | "places"   // no place free in the queue
   | "full"     // no room in the bag
@@ -367,7 +367,9 @@ export function choose(purse: Purse, s: Smithy, slot: number, pick: string): Did
 
 /* ── a gem ──────────────────────────────────────────────────────────────── */
 
-/** Set a gem into the tool in a slot: a gem, a mount and a fee. It always takes; a gem already there is gone. */
+/** What is said of too little of a thing the smith takes: of fine timber its own word, of anything else the ore's. */
+const lacking = (id: ItemId): SmithRefusal => (id === "timber" ? "timber" : "ore");
+/** Set a gem into the tool in a slot: a gem, its mount (bag and pouches together) and a fee. It always takes; a gem already there is gone. */
 export function setGem(purse: Purse, slot: number, gem: ItemId): Did<{ purse: Purse; item: ToolKind; element: Element; over: Element | null }> {
   const stack = purse.bag[slot], kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return no("tool");
@@ -376,7 +378,7 @@ export function setGem(purse: Purse, slot: number, gem: ItemId): Did<{ purse: Pu
   if (!settable(kind, element)) return no("unbuilt");
   const over = gemsOf(stack)[0] ?? null;
   if (over === element) return no("same");
-  if (heldIn(purse, SMITH.gem.mount) < SMITH.gem.mounts) return no("ore");
+  if (heldIn(purse, SMITH.gem.mount) < SMITH.gem.mounts) return no(lacking(SMITH.gem.mount));
   if (purse.coins < SMITH.gem.fee) return no("coins");
   const spent = takeOut(takeOut(purse, gem, 1), SMITH.gem.mount, SMITH.gem.mounts), bag = spent.bag;
   const next = setSlot({ ...spent, coins: purse.coins - SMITH.gem.fee }, slot, withState(bag[slot] ?? stack, levelOf(stack), drawnOf(stack), [element]));
