@@ -4,7 +4,9 @@
 //
 // By what the file does: what is kept and how it is seeded, each rule's refusals and numbers, what is counted and
 // marked, what a page is told, the helpers' line and the tally's words, and what each function a member calls does
-// beside its rule; and who may.
+// beside its rule; who may; and (the third leg's) what a stone has in it, each span's hands, and what is found.
+// (The third leg's breaks have not been run one by one: their anchors and the checks they name are held by
+// check-anchors.mjs, and the assembly runs them.)
 
 /** The n-th place a line is at in the file (from 1): several functions have the same line, and one of them is meant. */
 const nth = (from, to, n) => (s) => {
@@ -15,20 +17,26 @@ const nth = (from, to, n) => (s) => {
 const CASES = {
   lift: "a stone lifted:", pass: "a stone handed on:", lay: "a stone laid:", drop: "a stone let go of:", give: "a thing given to a work out of the bag:", wants: "whether a work still wants a thing:",
   spans: "how many spans so many stones make:", near: "who stands by the pile and by the foot:", counts: "what a deed of the bridge's counts for on the lines:",
+  into: "which span a stone goes into:", mark: "what a stone has in it by its number:",
 };
 const END = "…and at each end what is kept", LINE = "…and where each stands on the helpers' line";
 const KEEP = "    perform town.keep_purse(me, did->'purse');\n", GONE = "    delete from public.town_work_carried c where c.member_id = me;\n";
 const SHUT = "  if not coalesce((p_work->>'open')::boolean, false) then return town.no('closed'); end if;\n";
 const COUNTED = "on conflict (work, member_id, thing) do update set n = public.town_work_hands.n + excluded.n;";
-const LAID = "perform town.works_counted(work_, carried->>'thing', hands, 1, 1, now_);";
+const LAID = "perform town.works_laid(work_, carried->>'thing', hands, (did->>'into')::integer, did->>'find', now_);";
+const MARKED = "lifted at a moment that marks it", CARRIED_ON = "handed on, what it has in it goes with it", FOUND = "laid, it is found", SET = "…set in the bridge for good";
 
 export default ({ swap, cut }) => {
   const all = [
     // ── what is kept, and how it is seeded
     ["the works' table is left open to its rows", cut("alter table public.town_works enable row level security;\n", "alter table public.town_work_needs enable"), ["…each closed: row security on"]],
     ["what is carried is left granted to a browser",
-      swap("revoke all on public.town_works, public.town_work_needs, public.town_work_hands, public.town_work_carried from anon, authenticated;", "revoke all on public.town_works, public.town_work_needs, public.town_work_hands from anon, authenticated;"),
-      ["…each closed: row security on", "the four tables are nobody's to read from a browser", "…nor to write"]],
+      swap("revoke all on public.town_works, public.town_work_needs, public.town_work_hands, public.town_work_carried, public.town_work_built, public.town_work_finds from anon, authenticated;", "revoke all on public.town_works, public.town_work_needs, public.town_work_hands, public.town_work_built, public.town_work_finds from anon, authenticated;"),
+      ["…each closed: row security on", "the six tables are nobody's to read from a browser", "…nor to write"]],
+    ["the finds' table is left open to its rows", cut("alter table public.town_work_finds enable row level security;\n", "revoke all on public.town_works, public.town_work_needs"), ["…each closed: row security on"]],
+    ["what was found is left granted to a browser",
+      swap("public.town_work_carried, public.town_work_built, public.town_work_finds from anon, authenticated;", "public.town_work_carried, public.town_work_built from anon, authenticated;"),
+      ["…each closed: row security on", "the six tables are nobody's to read from a browser", "…nor to write"]],
     ["the bridge is seeded open", swap("insert into public.town_works (id) select town.cat('bridge')->>'work' on conflict (id) do nothing;", "insert into public.town_works (id, opened_at) select town.cat('bridge')->>'work', now() on conflict (id) do nothing;"),
       ["one work, the bridge: closed"]],
     ["run again, the file writes over what the bridge needs and has", swap("  on conflict (work, thing) do nothing;", "  on conflict (work, thing) do update set need = excluded.need, have = 0;"), ["run again, it leaves what the bridge needs and has"]],
@@ -54,7 +62,20 @@ export default ({ swap, cut }) => {
       cut("  if not town.stone_near(p_x, p_y, 'pile') then return town.no('far'); end if;\n", "  return jsonb_build_object('ok', true,\n    'purse', town.spend(p_purse, (b->'costs'->>'lift')"), [CASES.lift, "a stone is lifted only from a tile by the pile: far"]],
     ["a stone is lifted at the foot", swap("town.stone_near(p_x, p_y, 'pile')", "town.stone_near(p_x, p_y, 'foot')"), [CASES.lift, "lifted at the pile with empty hands"]],
     ["lifting costs nothing", swap("town.spend(p_purse, (b->'costs'->>'lift')::double precision, p_now)", "town.spend(p_purse, 0::double precision, p_now)"), [CASES.lift, "lifted at the pile with empty hands"]],
-    ["a stone lifted begins with nobody's hands on it", swap("'hands', jsonb_build_array(p_me)));", "'hands', '[]'::jsonb));"), [CASES.lift]],
+    ["a stone lifted begins with nobody's hands on it", swap("'hands', jsonb_build_array(p_me), 'mark',", "'hands', '[]'::jsonb, 'mark',"), [CASES.lift]],
+    // ── what a stone has in it
+    ["every stone has something in it", swap("or p_luck * (m.k->>'one')::double precision >= 1 then null", "or false then null"), [CASES.mark, CASES.lift, "a plain stone has nothing in it"]],
+    ["a stone has the first kind in it whatever its number", swap("floor(p_luck * (m.k->>'one')::double precision * jsonb_array_length(m.k->'kinds'))::integer) end", "0) end"), [CASES.mark, "over twenty thousand moments"]],
+    ["one stone in fifty has something in it", swap("p_luck * (m.k->>'one')::double precision >= 1 then null", "p_luck * (m.k->>'one')::double precision >= 0.5 then null"), [CASES.mark, "over twenty thousand moments"]],
+    ["what a stone has in it is drawn by the moment alone, whoever lifts it", swap("town.stone_mark(town.roll('stone|' || p_me, p_now))", "town.stone_mark(town.roll('stone|', p_now))"), [CASES.lift, MARKED]],
+    ["a stone's mark is not kept as it is lifted", swap("array[me], did->'carried'->>'mark', to_timestamp(now_ / 1000.0));", "array[me], null, to_timestamp(now_ / 1000.0));"), [MARKED, END]],
+    ["a stone's mark is lost as it is handed on", swap("order by x.ord), did->'carried'->>'mark', to_timestamp(now_ / 1000.0));", "order by x.ord), null, to_timestamp(now_ / 1000.0));"), [CARRIED_ON, END]],
+    ["the rules are not told what a stone has in it", swap("'hands', to_jsonb(c.hands), 'mark', c.mark) from public.town_work_carried c", "'hands', to_jsonb(c.hands)) from public.town_work_carried c"), [FOUND]],
+    ["whoever holds a stone is told what it has in it",
+      swap("    'carried', (select jsonb_build_object('work', c.work, 'thing', c.thing)\n", "    'carried', (select jsonb_build_object('work', c.work, 'thing', c.thing, 'mark', c.mark)\n"), ["…and nobody is told: not the lifter's answer", CARRIED_ON]],
+    ["the laying does not say what was found", swap("'into', town.stone_into(have, need), 'find', coalesce(p_carried->'mark', 'null'::jsonb));", "'into', town.stone_into(have, need), 'find', 'null'::jsonb);"), [CASES.lay, FOUND]],
+    ["a stone goes into the span after the one in hand", swap("town.stone_spans(p_have - 1, p_need) + 1) end", "town.stone_spans(p_have, p_need) + 1) end"), [CASES.into, CASES.lay, "the hundredth stone went into the first span"]],
+    ["a stone goes into a span the bridge has not", swap("else least((town.cat('bridge')->>'spans')::integer, town.stone_spans(p_have - 1, p_need) + 1) end", "else town.stone_spans(p_have - 1, p_need) + 1 end"), [CASES.into]],
     ["a stone is handed on in a work that is not open", nth(SHUT, "", 1), [CASES.pass]],
     ["a stone is handed to somebody who holds one",
       cut("  if coalesce(jsonb_typeof(p_their_carried), '') = 'object' then return town.no('held'); end if;\n", "  if town.hand_of(p_theirs)"), [CASES.pass]],
@@ -69,7 +90,7 @@ export default ({ swap, cut }) => {
     ["laying costs nothing", swap("town.spend(p_purse, (b->'costs'->>'lay')::double precision, p_now)", "town.spend(p_purse, 0::double precision, p_now)"), [CASES.lay, "laid at the foot: one stamina"]],
     ["a stone laid is two", swap("  have := have + 1;\n", "  have := have + 2;\n"), [CASES.lay]],
     ["no stone finishes a span", swap("'span', town.stone_spans(have, need) > town.stone_spans(have - 1, need),", "'span', false,"), [CASES.lay, "the ninety-ninth is no span, the hundredth is the first"]],
-    ["a bridge that takes any amount is whole at once", swap("    'whole', need is not null and have >= need);", "    'whole', need is null or have >= need);"), [CASES.lay]],
+    ["a bridge that takes any amount is whole at once", swap("    'whole', need is not null and have >= need,\n", "    'whole', need is null or have >= need,\n"), [CASES.lay]],
     ["empty hands let go of a stone",
       cut("              when coalesce(jsonb_typeof(p_carried), '') <> 'object' then town.no('none')\n", "              else jsonb_build_object('ok', true) end"), [CASES.drop, "with no stone there is nothing to hand on, to lay or to let go of: none"]],
     ["a work takes more than it needs",
@@ -87,13 +108,26 @@ export default ({ swap, cut }) => {
     ["a work that has all it needs is not marked",
       swap("   where w.id = p_work and w.done_at is null\n", "   where false and w.done_at is null\n"), [END, "the six-hundredth stone makes the bridge whole", "the last it needs makes it whole"]],
     ["a work that takes any amount is marked whole", swap("where n.work = w.id and (n.need is null or n.have < n.need));", "where n.work = w.id and n.have < n.need);"), ["…and a work with a need that has no number is not marked whole"]],
+    // ── each span's hands, and what is found
+    ["a span's hands are not kept", swap("  if p_into > 0 then\n", "  if false then\n"), [END, "each span keeps whose hands built it"]],
+    ["when somebody first came to a span moves with every stone", swap("on conflict (work, span, member_id) do nothing;", "on conflict (work, span, member_id) do update set first_at = excluded.first_at;"), [END, "…who comes to a span later is named after who came before"]],
+    ["everybody of a stone is of the first span", swap("      select p_work, p_into, h.id, to_timestamp(p_now / 1000.0)\n", "      select p_work, 1, h.id, to_timestamp(p_now / 1000.0)\n"), [END, "the hundredth stone went into the first span"]],
+    ["a find is not set in the bridge", swap("  if p_mark is not null then\n", "  if false then\n"), [SET, END]],
+    ["a find is set with nobody's hands", swap("values (p_work, p_thing, p_mark, coalesce(p_into, 0), p_who, to_timestamp(p_now / 1000.0));", "values (p_work, p_thing, p_mark, coalesce(p_into, 0), '{}', to_timestamp(p_now / 1000.0));"), [SET, END]],
+    ["a find is set in no span", swap("values (p_work, p_thing, p_mark, coalesce(p_into, 0), p_who,", "values (p_work, p_thing, p_mark, 0, p_who,"), [SET, END]],
     // ── what a page is told
     ["a page is told a closed work's numbers",
       swap("select jsonb_object_agg(w.id, case when w.opened_at is null\n", "select jsonb_object_agg(w.id, case when false\n"), ["a page is told only that the bridge is not open", "…and each tells the page again that it is not open"]],
     ["a stone is told of while the bridge is closed",
       swap("                 where c.member_id = p_member and w.opened_at is not null))", "                 where c.member_id = p_member))"), ["a page is told only that the bridge is not open", "closed again, whoever held a stone is told of none"]],
     ["everybody's count is told to everybody",
-      swap("from public.town_work_hands h where h.work = w.id and h.member_id = p_member), '{}'::jsonb)) end)", "from public.town_work_hands h where h.work = w.id), '{}'::jsonb)) end)"), ["my own count is told to me alone"]],
+      swap("from public.town_work_hands h where h.work = w.id and h.member_id = p_member), '{}'::jsonb),\n          'built'", "from public.town_work_hands h where h.work = w.id), '{}'::jsonb),\n          'built'"), ["my own count is told to me alone"]],
+    ["a span's hands are told in the order of their ids", swap("order by b.first_at, b.member_id::text collate \"C\") as hands", "order by b.member_id::text collate \"C\") as hands"), ["…and the last span's hands in the order they came to it"]],
+    ["a span's hands are told with when each came",
+      swap("select b.span, jsonb_agg(jsonb_build_object('id', b.member_id, 'name', coalesce(pr.character_name, pr.display_name, pr.discord_username, ''))\n", "select b.span, jsonb_agg(jsonb_build_object('id', b.member_id, 'n', b.first_at, 'name', coalesce(pr.character_name, pr.display_name, pr.discord_username, ''))\n"),
+      ["…and nobody's count but mine is in what I am told", "each span keeps whose hands built it"]],
+    ["the finds of every work are told of each", swap("              from public.town_work_finds f where f.work = w.id), '[]'::jsonb)) end)", "              from public.town_work_finds f), '[]'::jsonb)) end)"), ["the finds are the work's own"]],
+    ["a find's hands are told in no order", swap("'name', coalesce(pr.character_name, pr.display_name, pr.discord_username, '')) order by x.ord)", "'name', coalesce(pr.character_name, pr.display_name, pr.discord_username, '')) order by x.id::text desc)"), ["…told to every page with its hands' names"]],
     ["the names are in the order of their ids", swap("order by q.first_at, q.id_text)", "order by q.id_text)"), ["…and the names stay on the sign in the order they came"]],
     ["the names are told with when each came",
       swap("select jsonb_agg(jsonb_build_object('id', q.member_id, 'name', q.name) order by", "select jsonb_agg(jsonb_build_object('id', q.member_id, 'name', q.name, 'n', q.first_at) order by"), ["…and nobody's count but mine is in what I am told"]],
@@ -113,7 +147,7 @@ export default ({ swap, cut }) => {
     ["the six words have no mark at their top", swap("    -- ── the bridge built by hand (v160), and the village's works ──\n", ""), ["town.deed_th is the one it replaces"]],
     // ── what a member calls
     ["the rules are left to a browser",
-      cut("revoke execute on all functions in schema town from public, anon, authenticated;\n", "/* ── what a browser calls"), ["the twelve rules are no browser's to call"]],
+      cut("revoke execute on all functions in schema town from public, anon, authenticated;\n", "/* ── what a browser calls"), ["the fifteen rules are no browser's to call"]],
     // (asked from outside they are refused all the same: the schema itself is no browser's to use, as the dry run's last check holds)
     ["the works are read by somebody signed out",
       cut("revoke execute on function public.town_works_read() from public, anon;\n", "revoke execute on function public.town_stone_lift"), ["the six a browser calls are a member's to call", "somebody signed out is refused all six"]],
@@ -133,8 +167,10 @@ export default ({ swap, cut }) => {
     ["handing on is not written down", cut("    perform town.note(me, 'stone_pass',", "  end if;\n  return town.answer(me, (did - 'carried')"), ["every deed is written down"]],
     ["a stone laid stays in the hands", nth(GONE, "", 2), ["laid at the foot: one stamina"]],
     ["laying does not keep the purse", nth(KEEP, "", 2), ["laid at the foot: one stamina"]],
-    ["only whoever lays a stone is counted it", swap(LAID, "perform town.works_counted(work_, carried->>'thing', array[me], 1, 1, now_);"), [END, "all three whose hands it went through are counted one stone"]],
-    ["everybody a stone came by is counted two", swap(LAID, "perform town.works_counted(work_, carried->>'thing', hands, 2, 1, now_);"), [END, "all three whose hands it went through are counted one stone"]],
+    ["only whoever lays a stone is counted it", swap(LAID, "perform town.works_laid(work_, carried->>'thing', array[me], (did->>'into')::integer, did->>'find', now_);"), [END, "all three whose hands it went through are counted one stone"]],
+    ["everybody a stone came by is counted two", swap("  perform town.works_counted(p_work, p_thing, p_who, 1, 1, p_now);", "  perform town.works_counted(p_work, p_thing, p_who, 2, 1, p_now);"), [END, "all three whose hands it went through are counted one stone"]],
+    ["the laying of a marked stone does not write what was found", swap("        || case when did->>'find' is not null then jsonb_build_object('find', did->'find') else '{}'::jsonb end);", "        );"), ["…and written with the laying"]],
+    ["the laying of every stone writes a find", swap("        || case when did->>'find' is not null then jsonb_build_object('find', did->'find') else '{}'::jsonb end);", "        || jsonb_build_object('find', did->'find'));"), ["a plain stone has nothing in it"]],
     ["the others a stone came by have no line of the deeds",
       cut("    -- (a line of the deeds for each of the others it came by", "  end if;\n  return town.answer(me, (did - 'purse' - 'hands')"), [LINE, "…and each has a point on the helpers' line", "every deed is written down"]],
     ["whoever lays a stone has a second line of the deeds", swap("       where h.id <> me\n", ""), [LINE, "…and each has a point on the helpers' line", "every deed is written down"]],

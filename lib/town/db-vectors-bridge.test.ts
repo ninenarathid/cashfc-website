@@ -201,6 +201,8 @@ describe("the cases the database's rules of the bridge built by hand are held to
     expect(passed.some(([was, d]) => was.hands.includes(d.carried.hands.at(-1)!) && d.carried.hands.length === was.hands.length)).toBe(true);
     // what a stone has in it goes with it from hand to hand, and is found when it is laid; a stone lifted is marked now and then
     expect(passed.some(([was, d]) => !!was.mark && d.carried.mark === was.mark) && passed.some(([was, d]) => was.mark === null && d.carried.mark === null) && passed.some(([was, d]) => !("mark" in was) && !("mark" in d.carried))).toBe(true);
+    const lifted = all.rules.filter((v) => v.fn === "lift" && (v.want as { ok: boolean }).ok).map((v) => (v.want as { carried: Carried }).carried.mark);
+    expect(lifted.some((m) => m === null) && lifted.some((m) => !!m)).toBe(true);
     const found = all.rules.filter((v) => v.fn === "lay" && (v.want as { ok: boolean }).ok).map((v) => (v.want as { find: string | null }).find);
     expect(found.some((f) => f === null) && new Set(found.filter(Boolean)).size >= 3).toBe(true);
     expect(new Set(all.rules.filter((v) => v.fn === "mark").map((v) => v.want))).toEqual(new Set([null, ...MARKS]));
