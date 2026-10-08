@@ -247,7 +247,7 @@ try {
   ok("a press lays it for one stamina: the bridge has one more, and the hands are empty", (await held(Z)) === null && (await stamina(Z)) === 99 && (await have(Z)) === 1, { stamina: await stamina(Z), have: await have(Z) });
   await until("each of the three is told what it earned", async () => (await there(X, "[data-bridge-earned]")) && (await there(Y, "[data-bridge-earned]")) && (await there(Z, "[data-bridge-earned]")), 8000).catch(() => {});
   const earned = [await textOf(X, "[data-bridge-earned]"), await textOf(Y, "[data-bridge-earned]"), await textOf(Z, "[data-bridge-earned]")];
-  ok("whoever lifted it and whoever was the middle hand, far from the foot, each see what it earned them: +1 stone, 1/100 of this span, and a helpers' point", earned.slice(0, 2).every((t) => /\+1 ก้อน/.test(t ?? "") && /1\/100 ของช่วงนี้/.test(t ?? "") && /\+1 แต้มผู้ช่วย/.test(t ?? "")), earned);
+  ok("whoever lifted it and whoever was the middle hand, far from the foot, each see what it earned them: +1 stone, 1/100 of this span, and a helpers' point", earned.slice(0, 2).every((t) => /\+1 ก้อน/.test(t ?? "") && /1\/100 ของช่วงนี้/.test(t ?? "") && /ได้แต้มผู้ช่วย/.test(t ?? "")), earned);
   ok("…and so does whoever laid it", /\+1 ก้อน/.test(earned[2] ?? "") && /1\/100/.test(earned[2] ?? ""), earned[2]);
   await Y.shot(`${OUT}/bridge-earned.png`);
   await until("every page has it", async () => (await have(X)) === 1 && (await have(Y)) === 1, 8000).catch(() => {});

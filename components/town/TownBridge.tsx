@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { BANNER_AT, BRIDGE, COURSE_AT, MARKS, SIGN_AT, bridgeSpans, bridgeWhole, carrying, course, holdFor, inSpan, nearTile, stands, takers, toFoot, type FindTold, type Hand, type Lack, type Named } from "@/lib/town/bridge";
 import type { Keeper } from "@/lib/town/keeper";
-import { PAST_BOUND, pastBound } from "@/lib/town/lines";
 import type { SceneryKit, Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
@@ -62,6 +61,8 @@ const WHY_PASS: Record<string, [th: string, en: string]> = {
   none: ["ไม่มีใครรับหิน หินยังอยู่กับเรา", "Nobody is there to take it: the stone is still yours"],
   // (the button of tired hands let go of before it was full: nothing is done, and nothing is lost)
   early: ["กดค้างไว้จนแถบเต็ม หินถึงจะไปถึงมือเพื่อน", "Keep it held until the bar is full"],
+  // (they walked on, took a thing up or went out of reach between the offer and the press: nothing is done)
+  moved: ["เพื่อนขยับไปแล้วหรืออยู่ไกลเกินไป หินยังอยู่กับเรา", "They have moved or are too far now: the stone is still yours"],
 };
 /** What somebody close by lacks to be handed a stone, said of them by name. */
 const LACKS: Record<Lack, [(name: string) => string, (name: string) => string]> = {
@@ -302,6 +303,11 @@ export default function TownBridge({ keeper, me, th, here, people, sfx, phone, t
   /** Hand the stone on to somebody: it is in their hands, and they are told through the room. Refused (they took a thing up meanwhile), the stone is where it was, and why is said. */
   const passTo = useCallback(async (to: { id: string; name: string }) => {
     if (busyRef.current) return;
+    // (who may be handed a stone is looked at twice a second, and a held button takes longer than that: so whether
+    // they still stand still, with empty hands and within reach, is looked at again at the moment it is handed on.
+    // Nobody who keeps the game knows where anybody stands, so this is the only place it can be held to.)
+    const at = hereRef.current;
+    if (!at || !takers(me, { x: at[0] + 0.5, y: at[1] + 0.5 }, people()).offered.some((p) => p.id === to.id)) { say(WHY_PASS, "moved"); return; }
     busyRef.current = true; setBusy(true);
     const did = await keeper.stonePass(to.id);
     busyRef.current = false; setBusy(false);
@@ -309,7 +315,7 @@ export default function TownBridge({ keeper, me, th, here, people, sfx, phone, t
     sfx?.wake();
     sfx?.work("pick", 0.6);
     setNote(th ? `ส่งหินให้ ${to.name || "เพื่อน"} แล้ว` : `Handed to ${to.name || "them"}`);
-  }, [keeper, sfx, say, th]);
+  }, [keeper, sfx, say, th, me, people]);
   const early = useCallback(() => say(WHY_PASS, "early"), [say]);
   /** Letting go takes two presses: a stone let go of is gone for good. */
   const [sure, setSure] = useState(false);
@@ -330,7 +336,7 @@ export default function TownBridge({ keeper, me, th, here, people, sfx, phone, t
   // A stone that came into my hands by somebody's hand; a stone I had a hand in, laid (wherever I stand); something
   // found in a stone (to its hands wherever they are, and to whoever is near the foot); a span laid, or the bridge
   // whole (to every page of the town).
-  const [earned, setEarned] = useState<{ n: number; at: number; of: number; past: boolean } | null>(null);
+  const [earned, setEarned] = useState<{ n: number; at: number; of: number } | null>(null);
   useEffect(() => { if (!earned) return; const t = setTimeout(() => setEarned(null), EARNED_MS); return () => clearTimeout(t); }, [earned]);
   const [dug, setDug] = useState<{ find: FindTold; mine: boolean } | null>(null);
   useEffect(() => { if (!dug) return; const t = setTimeout(() => setDug(null), FOUND_MS); return () => clearTimeout(t); }, [dug]);
@@ -352,7 +358,7 @@ export default function TownBridge({ keeper, me, th, here, people, sfx, phone, t
     if (mine > before.mine && fresh) {
       const into = inSpan(have, need?.need ?? null);
       // (a helpers' point; past the day's bound of theirs a point counts a quarter: lib/town/lines)
-      setEarned({ n: mine - before.mine, at: into?.n ?? have, of: into?.of ?? 0, past: pastBound("helpers", keeper.lines()?.lines.helpers.today ?? 0) });
+      setEarned({ n: mine - before.mine, at: into?.n ?? have, of: into?.of ?? 0 });
     }
     if (finds.length > before.finds && fresh) {
       const find = finds[finds.length - 1], had = find.hands.some((h) => h.id === me || h.id === keeper.id);
@@ -570,8 +576,9 @@ export default function TownBridge({ keeper, me, th, here, people, sfx, phone, t
               <span className="font-data tabular-nums text-gold">+{earned.n}</span>
               <span>{th ? "ก้อน" : earned.n === 1 ? "stone" : "stones"}</span>
               {earned.of > 0 && <span className="font-normal text-muted">· <span className="font-data tabular-nums text-ink">{earned.at}/{earned.of}</span> {th ? "ของช่วงนี้" : "of this span"}</span>}
+              {/* (no number: how much a stone counts on the helpers' line hangs on the day's bound, which this page may know late; the ladder says the points) */}
               <span className="rounded-full bg-jade/15 px-2 py-0.5 text-meta font-semibold text-jade" data-bridge-point>
-                +{earned.past ? earned.n * PAST_BOUND : earned.n} {th ? "แต้มผู้ช่วย" : earned.n === 1 && !earned.past ? "helpers' point" : "helpers' points"}
+                {th ? "ได้แต้มผู้ช่วย" : "counts on the helpers' line"}
               </span>
             </p>
           )}
