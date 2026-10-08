@@ -47,8 +47,12 @@ const POST_K = 0.9, FIRE_K = 0.95, BOARD_K = 0.85, BLOOM_K = 0.55, SHROOM_K = 0.
 const POST = { foot: 9.4, lantern: 26, up: 44 };
 /** The light a lamp throws, a fire's, and the cool light of the forest's own things: red, green, blue. */
 const WARM = "255,206,138", WARMER = "255,170,96", COOL = "120,232,226", PALE = "196,232,255", LEAF = "214,246,150";
-/** What the night's dark is lifted to in a lamp's ring: as by day, a little warm. */
-const LIFT = "255,240,214";
+/**
+ * What the night's dark is lifted to in a lamp's ring: nothing at all, the day's own colours (the coordinator's ruling,
+ * 2026-10-08: a lit ring is real daylight, the tint itself taken away, not a glow over a scene that is still dark).
+ * And how much wider than the lamp's six tiles its picture is laid, for the soft edge to end beyond them.
+ */
+const LIFT = "255,255,255", EDGE = 1.1;
 /** Flowers and mushrooms round a post, in tiles from its foot: close by it, on its own tile. */
 const ROUND: Array<[dx: number, dy: number]> = [[-0.42, 0.22], [0.36, 0.4], [0.44, -0.32]];
 
@@ -165,8 +169,8 @@ function HoldButton({ secs, onDone, onEarly, disabled, className, children }: { 
 const lights = new Map<string, HTMLCanvasElement>();
 /**
  * A round light of a colour, as a picture made once and laid at whatever size and strength it is wanted (as the map's
- * own lights are): `soft` fades from its heart to nothing at its rim; `ring` is whole to half its width and fades
- * from there, which is what lifts the night's dark round a lamp.
+ * own lights are): `soft` fades from its heart to nothing at its rim; `ring` is whole to most of its width and has
+ * a soft edge, which is what takes the night's tint away round a lamp.
  */
 function lightPicture(rgb: string, kind: "soft" | "ring" = "soft"): HTMLCanvasElement {
   const key = `${kind}|${rgb}`;
@@ -177,7 +181,7 @@ function lightPicture(rgb: string, kind: "soft" | "ring" = "soft"): HTMLCanvasEl
   const g = c.getContext("2d");
   if (g) {
     const fill = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-    const stops: Array<[number, number]> = kind === "ring" ? [[0, 1], [0.5, 1], [0.72, 0.62], [0.9, 0.18], [1, 0]] : [[0, 1], [0.22, 0.72], [0.5, 0.3], [0.78, 0.08], [1, 0]];
+    const stops: Array<[number, number]> = kind === "ring" ? [[0, 1], [0.78, 1], [0.88, 0.7], [0.95, 0.3], [1, 0]] : [[0, 1], [0.22, 0.72], [0.5, 0.3], [0.78, 0.08], [1, 0]];
     for (const [at, a] of stops) fill.addColorStop(at, `rgba(${rgb},${a})`);
     g.fillStyle = fill;
     g.fillRect(0, 0, 128, 128);
@@ -276,9 +280,12 @@ function waysOf(map: LampMap): Ways {
  *
  * **What a lit lamp does, and what the night becomes** (all drawn from prepared pictures, slowly, nothing that
  * flickers; what moves stands still for whoever asked for less motion):
- * - every lit post lifts the night's dark for six tiles round it, for everybody (`dark`: the hour's tint is laid
- *   from a small picture of its own with a ring cut in it for each lamp in sight), with a warm pool of light that
- *   comes up over three seconds; the flowers round a farm post open and moths circle its lantern; the mushrooms
+ * - every lit post **takes the night's tint away for six tiles round it**, for everybody: real daylight, not a glow
+ *   over the dark (`dark`: the hour's tint is laid from a small picture of its own in which each lamp in sight has a
+ *   ring of no tint at all, whole to most of the six tiles and soft at its edge), coming up over three seconds, with
+ *   a faint warmth of the lamp's own on it. **Outside the rings the dark is laid exactly as the map lays it, and
+ *   nothing is seen less than before. A ring only shows: what the forest gives by night, what the firefly lantern
+ *   finds and how far the forest walker's lamp reaches are their own rules', which this never asks or changes**; the flowers round a farm post open and moths circle its lantern; the mushrooms
  *   round a forest post glow and a warm light stands in the branches over it;
  * - from four lit: fireflies along the farm's lane between lit posts; fireflies over the forest's stream;
  * - from eight: the farm's four great pumpkins glow from within; glowing mushrooms line the forest's trail;
@@ -487,7 +494,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
   const boxes = useRef<{ fire: Box | null; board: Box | null; posts: Array<[number, Box]> }>({ fire: null, board: null, posts: [] });
   /** The rings of the lamps in sight this frame, for the night's dark to be lifted in: where on the screen, how wide and high, how far up its light has come. */
   const rings = useRef<Array<{ x: number; y: number; rx: number; ry: number; k: number }>>([]);
-  const shade = useRef<HTMLCanvasElement | null>(null);
+  const shade = useRef<HTMLCanvasElement | null>(null), tintWas = useRef<readonly [number, number, number] | null>(null);
   /** The map's scale and whether it stands still, as the last frame had them: what a bearer's flame is drawn by. */
   const view = useRef({ s: 1, still: false, dark: 0 });
   useEffect(() => {
@@ -517,20 +524,15 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         boxes.current.fire = boxOf(name, fire, z, 4);
         things.push({ depth: fx + fy + 1, draw: () => k.drawProp(ctx, name, fire.x, fire.y, z, px) });
       }
-      if (isNight) {
-        // (a fire lights what is about it too: the dark lifted for three tiles, and its own warm light on the ground)
-        const [rx, ry] = ringOf(3);
-        if (inSight(fire, rx, ry)) {
-          rings.current.push({ x: fire.x, y: fire.y, rx, ry, k: 0.85 });
-          if (map === "farm") over(() => {
-            ctx.save();
-            ctx.globalCompositeOperation = "lighter";
-            lay(ctx, soft(WARMER), fire.x, fire.y - 22 * s, 46 * s, 46 * s, 0.5 * lum * breath);
-            lay(ctx, soft(WARMER), fire.x, fire.y + 4 * s, 150 * s, 75 * s, 0.22 * lum * breath);
-            ctx.restore();
-          });
-        }
-      }
+      // (the brazier's own warm light on the ground, as the camp's fire has the map's: added over the dark, which it
+      // does not lift. **Only a lit post takes the night's tint away**: the dark about a fire is as it was)
+      if (isNight && map === "farm" && inSight(fire, 160 * s, 120 * s)) over(() => {
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+        lay(ctx, soft(WARMER), fire.x, fire.y - 22 * s, 46 * s, 46 * s, 0.5 * lum * breath);
+        lay(ctx, soft(WARMER), fire.x, fire.y + 4 * s, 150 * s, 75 * s, 0.22 * lum * breath);
+        ctx.restore();
+      });
       const [bx, by] = BOARD_AT[map], board = tile(bx, by);
       if (k.has("lampBoard") && inSight(board, 60 * s, 90 * s)) {
         const z = s * BOARD_K;
@@ -539,7 +541,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       }
 
       // ── the posts: dark or lit, each with what grows round it
-      const z = s * POST_K, [ringX, ringY] = ringOf(LAMPS.light);
+      const z = s * POST_K, [ringX, ringY] = ringOf(LAMPS.light * EDGE);
       const round = map === "farm" ? ["bloomShut", "bloomOpen", BLOOM_K] as const : ["shroom", "shroomGlow", SHROOM_K] as const;
       LAMPS.maps[map].posts.forEach(([x, y], i) => {
         const at = tile(x, y), l = lit.get(i) ?? null;
@@ -575,8 +577,9 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
         over(() => {
           ctx.save();
           ctx.globalCompositeOperation = "lighter";
-          // a warm pool on the ground as far as the lamp reaches, and a heart at the lantern
-          lay(ctx, soft(WARM), at.x, at.y - 2 * s, ringX * 0.92, ringY * 0.92, 0.26 * lum * rise * breath);
+          // (the ring itself is the day come back, laid by `dark`: this is only the lamp's own warmth on it, faint,
+          // and a heart at the lantern)
+          lay(ctx, soft(WARM), at.x, at.y - 2 * s, ringX * 0.7, ringY * 0.7, 0.12 * lum * rise * breath);
           lay(ctx, soft(WARM), lantern.x, lantern.y, 30 * s, 30 * s, 0.6 * lum * rise * breath);
           // (the forest's lamps stand under trees: a warm light in the branches over them)
           if (map === "forest") lay(ctx, soft(WARMER), at.x, at.y - 84 * s, 110 * s, 70 * s, 0.16 * lum * rise * breath);
@@ -794,6 +797,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
 
     const dark: LampsHooks["dark"] = (ctx, cw, ch, [r, g, b]) => {
       const list = rings.current;
+      tintWas.current = [r, g, b];
       if (!list.length) return false;
       const w = Math.max(1, Math.ceil(cw / DARK_K)), h = Math.max(1, Math.ceil(ch / DARK_K));
       const c = (shade.current ??= document.createElement("canvas"));
@@ -869,6 +873,9 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
       take, light, pass: (id: string) => { const to = offered.find((p) => p.id === id); if (to) void passTo(to); },
       idle: () => ({ busy: busyRef.current, panel }), note: () => note, gift: () => gift, earned: () => earned, fete: () => (fete ? { map: fete.map, names: fete.names.map((h) => h.id), nights: fete.nights } : null),
       tier: () => (placeRef.current ? tierOf(litHere.length, postsOf(placeRef.current)) : 0), rings: () => rings.current.length, boxes: () => boxes.current, drawn: () => drawn,
+      // (the picture the night's dark was last laid from: the hour's tint, and what it is at a point of the screen: the tint itself outside every ring, no tint at all in a ring's middle)
+      tint: () => tintWas.current, shadeAt: (x: number, y: number) => { const c = shade.current, g = c?.getContext("2d"); if (!c || !g || !rings.current.length) return null; const d = g.getImageData(Math.max(0, Math.min(c.width - 1, Math.floor(x / DARK_K))), Math.max(0, Math.min(c.height - 1, Math.floor(y / DARK_K))), 1, 1).data; return [d[0], d[1], d[2]]; },
+      ringsAt: () => rings.current.map((o) => ({ ...o })),
       panel: (on = true) => setPanel(on), isPanel: () => panel, ways: (map: LampMap) => { const w = waysOf(map); return { arms: w.arms.map((a) => a.length), shrooms: w.shrooms.length, stream: w.stream.length }; },
       fires: { farm: LAMPS.maps.farm.fire, forest: LAMPS.maps.forest.fire }, posts: { farm: LAMPS.maps.farm.posts, forest: LAMPS.maps.forest.posts }, boards: BOARD_AT,
       life: LAMPS.life, reach: LAMPS.reach, near: LAMPS.near, light_: LAMPS.light,
