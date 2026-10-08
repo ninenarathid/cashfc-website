@@ -1,0 +1,14 @@
+{
+  "axe_of": "town.axe_of($1::jsonb)",
+  "axe_has": "town.axe_has($1::jsonb, $2::text)",
+  "axe_gem": "town.axe_gem($1::jsonb, $2::text)",
+  "axe_chops": "town.axe_chops($1::jsonb, $2::float8)",
+  "axe_ahead": "town.axe_ahead($1::jsonb)",
+  "axe_pace": "town.axe_pace($1::jsonb)",
+  "tree_until": "town.tree_until($1::boolean, $2::bigint)",
+  "trees_told": "town.trees_told($1::jsonb, $2::jsonb, $3::bigint)",
+  "fell_begin": "town.fell_begin($1::jsonb, $2::jsonb, $3::int, $4::int, $5::int, $6::bigint, $7::bigint)",
+  "fell": "town.fell($1::jsonb, $2::jsonb, $3::text, $4::jsonb, $5::int, $6::int, $7::bigint, $8::jsonb)",
+  "fell_root": "town.fell_root($1::jsonb, $2::jsonb, $3::text, $4::int, $5::bigint)",
+  "counts_of": "town.work_counts_of($1::jsonb, $2::text)"
+}
