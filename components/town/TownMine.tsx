@@ -453,8 +453,12 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
         if (tap.floor >= MINING.floors) { setSign(true); return true; }
         // (where the layout cannot be told that a way is shut: its ladder stands, and takes nobody down until the way is found)
         if (!setCaveWay && isDug(tap.floor) && !keeper.cave()?.ways[String(tap.floor)]) { say("shut"); return true; }
-        return false;
+        // (walked to, as the ladder up is: a press on its picture is not always a press on its tile)
+        return walk(tap.tile[0], tap.tile[1]);
       }),
+      // the ladder come down by: it stands against the rock, so a press on its picture lands on rock nobody can step
+      // on; its own tile is walked to, and stepping on that goes up (lib/town/world's gate)
+      registerTap("ladderUp", (tap) => walk(tap.tile[0], tap.tile[1])),
     ];
     return () => { for (const stop of stops) stop(); };
   }, [!!told, strikeRock, openChest, openLift, keeper, say, walk]); // eslint-disable-line react-hooks/exhaustive-deps
