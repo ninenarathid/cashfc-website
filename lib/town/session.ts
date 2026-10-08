@@ -267,7 +267,9 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", /* mining */ ...(i.lit ? { lit: i.lit } : {}), /* felling */ fell: i.fell ?? "",
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", /* mining */ ...(i.lit ? { lit: i.lit } : {}),
+      // (felling: said only by somebody who has had a board up at a tree or braced a trunk, and from then on, so that it is heard to be over; a room where nobody has hears nothing new)
+      ...(i.fell !== undefined ? { fell: i.fell } : {}),
       // (forging: said only by somebody who has held a tool with something to tell, and from then on, so that it is heard to be put away; a room where nobody has one hears nothing new)
       ...(i.tool !== undefined ? { tool: i.tool } : {}) };
   }
