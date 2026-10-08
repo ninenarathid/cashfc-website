@@ -104,7 +104,6 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
         <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-2 p-2 min-[900px]:grid-cols-[minmax(0,1fr)_22rem] min-[900px]:grid-rows-[minmax(0,1fr)]">
           {/* ── the seven lines ── */}
           <ul className="flex gap-1.5 overflow-x-auto pb-1 min-[900px]:max-h-[30rem] min-[900px]:flex-col min-[900px]:overflow-y-auto min-[900px]:overflow-x-hidden min-[900px]:pb-0 min-[900px]:pr-1 [scrollbar-color:#6b4a2a_transparent] [scrollbar-width:thin]" aria-label={th ? "สายทั้งหมด" : "The lines"}>
-            {/* (lines to come: a later line has a card only where whoever keeps the game gives it) */}
             {linesShown(told).map((id) => {
               const l = LINES[id], has = told.lines[id], at = towards(id, has.points), title = titleOf(id, at.rank), on = id === picked;
               return (
