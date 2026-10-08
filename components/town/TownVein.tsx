@@ -50,6 +50,18 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
   const mods = vein.mods, ice = useMemo(() => iceOf(face, mods), [face, mods]);
   const [crack, setCrack] = useState<Crack>(() => begin(face, mods));
   const strikes = useRef<Array<[number, number]>>([]);
+  /** A cell's side on the screen, for the pictures in it. */
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [cellPx, setCellPx] = useState(52);
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const measure = () => setCellPx(Math.max(28, el.clientWidth / face.size));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [face.size]);
   /** What the board is at: being played, its go sent, what it came to shown, or waiting for room in the bag. */
   const [phase, setPhase] = useState<"play" | "sent" | "came" | "full" | "lost">("play");
   const [came, setCame] = useState<VeinCame | null>(null);
@@ -149,7 +161,7 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
             <span className="block h-full origin-left bg-[#ffd15c]" style={reduced ? { transform: seen ? "none" : "scaleX(0)" } : { animation: `vein-drain ${VEIN.tired.shows}ms linear forwards` }} />
           </span>
         )}
-        <div className="absolute left-[5%] top-[8.5%] grid w-[90%] grid-cols-6" style={{ aspectRatio: "1 / 1" }} role="grid" aria-label={title}>
+        <div ref={gridRef} className="absolute left-[5%] top-[8.5%] grid w-[90%] grid-cols-6" style={{ aspectRatio: "1 / 1" }} role="grid" aria-label={title}>
           {Array.from({ length: size * size }, (_, i) => {
             const x = i % size, y = Math.floor(i / size);
             const p = face.points.findIndex((q) => q.x === x && q.y === y), point = p >= 0 ? face.points[p] : null, got = p >= 0 && crack.got.includes(p);
@@ -166,14 +178,13 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
                       className={`relative grid aspect-square place-items-center border border-[#1c110a]/55 outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-[#ffeccb] ${may ? "cursor-pointer bg-[#ffe7b0]/[0.16]" : "cursor-default"} ${may && far === VEIN.reach ? "shadow-[inset_0_0_0_2px_rgba(255,231,176,0.55)]" : ""}`}>
                 {/* a cell that can be struck says which way the crack would run */}
                 {may && !knot && !shown && (
-                  <span aria-hidden className={`size-2 rotate-45 border-r-2 border-t-2 border-[#ffeccb]/80 ${fresh ? "" : ""}`}
-                        style={{ transform: `rotate(${x > hx ? 45 : x < hx ? 225 : y > hy ? 135 : -45}deg)` }} />
+                  <span aria-hidden className="size-2 border-r-2 border-t-2 border-[#ffeccb]/80" style={{ transform: `rotate(${x > hx ? 45 : x < hx ? 225 : y > hy ? 135 : -45}deg)` }} />
                 )}
-                {knot && <TownIcon name={"veinKnot" as IconName} size={34} className={`h-[70%] w-auto ${icy ? "opacity-80 [filter:hue-rotate(160deg)_saturate(2.2)_brightness(1.9)]" : ""}`} />}
+                {knot && <TownIcon name={"veinKnot" as IconName} size={Math.round(cellPx * 0.72)} className={icy ? "opacity-80 [filter:hue-rotate(160deg)_saturate(2.2)_brightness(1.9)]" : ""} />}
                 {icy && <span aria-hidden className="absolute inset-[14%] rounded-sm border-2 border-[#bfeaff]/80 bg-[#8fdcff]/25" />}
                 {shown && point && (
                   <span className={`relative grid place-items-center ${got ? "opacity-35 grayscale" : reduced ? "" : "animate-[vein-glint_1.8s_ease-in-out_infinite]"}`} style={got || reduced ? undefined : { animationDelay: `${(p * 310) % 1500}ms` }}>
-                    <TownIcon name={(kind === "gem" && chip ? iconOf(chip) : "veinOre") as IconName} size={36} />
+                    <TownIcon name={(kind === "gem" && chip ? iconOf(chip) : "veinOre") as IconName} size={Math.round(cellPx * 0.7)} />
                   </span>
                 )}
                 {got && <span aria-hidden className="absolute bottom-0.5 right-1 font-data text-label font-semibold text-[#ffe9a8] [text-shadow:0_1px_0_#1c110a,0_-1px_0_#1c110a,1px_0_0_#1c110a,-1px_0_0_#1c110a]">+{point && point.gem > 0 && chip ? point.gem : VEIN.ore}</span>}

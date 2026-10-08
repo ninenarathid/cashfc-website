@@ -41,7 +41,7 @@ import { CHARMS, GIFTS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { rides } from "@/lib/town/riding";
 import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
-import { BOX } from "@/lib/town/box";
+import { BOX, byMoreChest } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
 import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
@@ -117,6 +117,8 @@ const TownTest = process.env.NODE_ENV !== "production" ? lazy(() => import("./To
 const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
+// ── mining ── (the mountain's rocks and the cave: `next dev` only, as the maps they are on; a production build has neither the layer nor its file)
+const TownMine = process.env.NODE_ENV === "development" ? lazy(() => import("./TownMine")) : null;
 const TownWell = lazy(() => import("./TownWell"));
 const TownBox = lazy(() => import("./TownBox"));
 const TownGround = lazy(() => import("./TownGround"));
@@ -768,6 +770,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec) => boolean) | null>(null);
   const registerBugs = useCallback((draw: FarmDraw | null) => { bugsDraw.current = draw; }, []);
   const registerBugsTap = useCallback((tap: ((at: Vec) => boolean) | null) => { bugsTap.current = tap; }, []);
+  // ── mining ── (components/town/TownMine: what it draws over the rocks, and what it asks of the map: where I am, to
+  // stand me somewhere at once (the lift), to walk me to a tile, and to open my box at the foot yard's chest)
+  const mineDraw = useRef<FarmDraw | null>(null);
+  const registerMine = useCallback((draw: FarmDraw | null) => { mineDraw.current = draw; }, []);
+  const mineHere = useCallback((): Vec | null => { const a = sessionRef.current?.self; return a ? { x: a.pos.x, y: a.pos.y } : null; }, []);
+  const mineWarp = useCallback((x: number, y: number) => { cam.current.follow = true; return sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false; }, []);
+  const mineWalk = useCallback((x: number, y: number) => { cam.current.follow = true; return sessionRef.current?.walkTo({ x, y }) ?? false; }, []);
+  const openBoxRef = useRef<((chest?: { x: number; y: number }) => boolean) | null>(null);
+  const mineChest = useCallback((tile: [number, number]) => { openBoxRef.current?.({ x: tile[0], y: tile[1] }); }, []);
   // ── gifts: insects ── (the wind net is aimed for as long as the map is pressed and falls where it is let go: TownBugs
   // says whether a press begins such an aim, and is told where it is dragged to and where it is let go)
   const bugsAim = useRef<BugsAim | null>(null), bugsAimOn = useRef(false);
@@ -1786,7 +1797,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (byWell !== wellRef.current) { wellRef.current = byWell; setWellHere(byWell); }
       const stopped = !mine.path.length;
       if (stopped !== stoppedRef.current) { stoppedRef.current = stopped; if (stopped) setStops((n) => n + 1); }
-      const byBox = !mine.path.length && (mine.info.sit ?? -1) === -1 && byStorebox(tx, ty, BOX.reach);
+      const byBox = !mine.path.length && (mine.info.sit ?? -1) === -1 && (byStorebox(tx, ty, BOX.reach) || /* mining: the foot yard's chest */ byMoreChest(tx, ty));
       if (byBox !== boxHereRef.current) { boxHereRef.current = byBox; setBoxHere(byBox); }
       const farming = tx >= FARM.x - 2 && ty >= FARM.y - 2 && tx < FARM.x + FARM.w + 2 && ty < FARM.y + FARM.h + 2;
       if (farming !== onFarmRef.current) { onFarmRef.current = farming; setOnFarm(farming); }
@@ -2119,6 +2130,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (placeRef.current === "farm") wellGiftDraw.current?.(frame);   // ── gifts: well ── (the light at the well as a moon flask is poured)
       if (placeRef.current === "forest") forestDraw.current?.(frame);
       bugsDraw.current?.(frame);
+      mineDraw.current?.(frame);   // ── mining ── (cracks on a rock being struck, a swing, what a peek said)
       // the pots of food that stand about, wherever they were set down
       cookDraw.current?.(frame);
       // what has been dropped on the ground, on whichever map
@@ -3454,18 +3466,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * The storage box: open its panel if I stand by it; otherwise walk up to it (the nearest tile beside it that can
    * be stood on) and open it on arriving. False when there is no box to open.
    */
-  const openBox = (): boolean => {
+  const openBox = (chest: { x: number; y: number } = STOREBOX): boolean => {   // (mining: or the chest in the mountain's foot yard, the same box's second door)
     const stay = sessionRef.current;
     if (!stay || !boxKnown()) return false;
     if (wardrobeOpenRef.current) closeWardrobe();
     setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setBoardOpen(false); setFishing(false);
     if (boxHereRef.current) { setBoxAsk((n) => n + 1); return true; }
     const from = stay.self.pos, far = (t: Vec) => Math.hypot(t.x + 0.5 - from.x, t.y + 0.5 - from.y);
-    const beside = [[1, 1], [1, 0], [0, 1], [-1, 1], [1, -1], [-1, 0], [0, -1], [-1, -1]].map(([dx, dy]) => ({ x: STOREBOX.x + dx, y: STOREBOX.y + dy }))
+    const beside = [[1, 1], [1, 0], [0, 1], [-1, 1], [1, -1], [-1, 0], [0, -1], [-1, -1]].map(([dx, dy]) => ({ x: chest.x + dx, y: chest.y + dy }))
       .filter((t) => walkable(t.x, t.y)).sort((a, b) => far(a) - far(b));
     for (const t of beside) if (stay.walkTo(t)) { boxWant.current = true; cam.current.follow = true; break; }
     return true;
   };
+  openBoxRef.current = openBox;   // ── mining ──
 
   /**
    * A sign was tapped (lib/town/sign). My own: its panel. Somebody's chat room: I ask to be let in, from within its
@@ -4237,6 +4250,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownBugs keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerBugs} registerTap={registerBugsTap} registerAim={registerBugsAim} />
+        </Suspense>
+      )}
+      {/* ── mining ── the mountain's rocks and the cave: struck on the map, with a pick (`next dev` only) */}
+      {s && game && keeper && TownMine && (
+        <Suspense fallback={null}>
+          <TownMine keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)} reduced={reducedRef.current}
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} />
         </Suspense>
       )}
       {/* The well's book: offered to whoever stands at the farm's well */}

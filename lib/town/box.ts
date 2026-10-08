@@ -1,7 +1,7 @@
 import { push } from "./deal";
 import type { ItemId } from "./items";
 import { no, roomFor, wholeStack, type Done, type Purse, type Stack } from "./trade";
-import { byStorebox } from "./world";
+import { MOUNTAIN_PROPS, byStorebox } from "./world";
 
 /**
  * The storage box in the plaza (the owner, 2026-10-05: "ช่วยทำ กล่องเก็บของ มาตั้ง
@@ -45,8 +45,15 @@ export function roomyBox(box: Box): Box {
   return box.things.length >= want ? box : { ...box, things: [...box.things, ...Array<null>(want - box.things.length).fill(null)] };
 }
 
+// ── mining ── (the second door: the chest in the mountain's foot yard opens the same box. Its tile is the layout's,
+  // and there is none where the mountain is not laid)
+/** The chests that open a member's box beyond the plaza's: each a tile. */
+export const MORE_CHESTS: ReadonlyArray<{ x: number; y: number }> = MOUNTAIN_PROPS.filter((p) => p.kind === "storebox").map((p) => ({ x: p.x, y: p.y }));
+/** Whether a tile is by one of them (and is not the chest itself). */
+export const byMoreChest = (tx: number, ty: number, reach: number = BOX.reach) => MORE_CHESTS.some((c) => { const far = Math.max(Math.abs(tx - c.x), Math.abs(ty - c.y)); return far >= 1 && far <= reach; });
+// ── end: mining ──
 /** Whether somebody on a tile stands by the box. */
-export const nearBox = (at: readonly [number, number]) => byStorebox(at[0], at[1], BOX.reach);
+export const nearBox = (at: readonly [number, number]) => byStorebox(at[0], at[1], BOX.reach) || byMoreChest(at[0], at[1]);
 
 /** How many of what is in a stack some slots have room for: a thing that holds something takes an empty slot of its own; the rest go onto their own kind first. */
 export function fits(into: Array<Stack | null>, s: Stack): number {
