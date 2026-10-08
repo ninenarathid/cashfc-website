@@ -10,7 +10,8 @@
 //   before the try; to +4 every try takes; from the try to +5 the chance is held by this script: taken, stays, down
 //   by one, and never under +4; whatever came of it, the materials and the fee are spent, and every try is written;
 // - both draws of the first pool: two options laid out, one chosen; the second never offers the first; nothing is
-//   forged while a draw waits; an option sleeps under its level and wakes when the level is back, with no new draw;
+//   forged while a draw waits; an option stays on its card when the level falls under it, and no new draw is laid
+//   out when the level is back (NOT RUN since this was rewritten, 2026-10-08 evening: no option sleeps any more);
 // - a gem set, what it does said on the tool's card only then; another set over it with a warning, the first gone;
 // - an option drawn again for a gem and coins, the old one kept;
 // - a tool that carries something is refused by the notice board and by a stall, and a deal carries it whole;
@@ -168,7 +169,7 @@ try {
   ok("shut and opened again, it is the same two", JSON.stringify((await offered(A)).map((c) => c.id)) === JSON.stringify(cards.map((c) => c.id)), await offered(A));
   const first = cards[0].id;
   await click(A, `[data-smith-choose="${first}"]`, 600);
-  ok("one is chosen, and is the axe's from then on", (await toolOf(A, "axe")).opts?.[0] === first && !(await there(A, "[data-smith-offer]")) && (await attr(A, `[data-smith-opt="${first}"]`, "data-awake")) === "true", await toolOf(A, "axe"));
+  ok("one is chosen, and is the axe's from then on", (await toolOf(A, "axe")).opts?.[0] === first && !(await there(A, "[data-smith-offer]")) && (await there(A, `[data-smith-opt="${first}"]`)), await toolOf(A, "axe"));
   did = await strike(A, "axe", [0.999]);
   ok("to +4, still for certain", did.out === "taken" && did.tool.plus === 4, did);
 
@@ -187,7 +188,7 @@ try {
   ok("a try that fails and lowers: down by one, to +4", did.out === "down" && did.tool.plus === 4 && /\+4/.test(did.said), did);
   did = await strike(A, "axe", [0.999999]);
   ok("at +4 the worst of luck only stays: never under +4", did.out === "stays" && did.tool.plus === 4, did);
-  ok("the option had at +3 is still the axe's, and awake", (await toolOf(A, "axe")).opts?.[0] === first && (await attr(A, `[data-smith-opt="${first}"]`, "data-awake")) === "true");
+  ok("the option had at +3 is still the axe's", (await toolOf(A, "axe")).opts?.[0] === first && (await there(A, `[data-smith-opt="${first}"]`)));
   did = await strike(A, "axe", [0]);
   did = await strike(A, "axe", [0, 0.1, 0.9]);
   ok("to +6", did.out === "taken" && did.tool.plus === 6, did);
@@ -198,13 +199,13 @@ try {
   await click(A, `[data-smith-choose="${second}"]`, 600);
   ok("the second is chosen", JSON.stringify((await toolOf(A, "axe")).opts) === JSON.stringify([first, second]));
 
-  // ── an option sleeps under its level, and wakes ──
+  // ── an option stays the tool's when the level falls under it (nothing sleeps: the owner, 2026-10-08) ──
   did = await strike(A, "axe", [0.999]);
   ok("a try to +7 that lowers: +5", did.out === "down" && did.tool.plus === 5, did);
-  ok("the option of +6 sleeps, and its card says so; the option of +3 does not", (await attr(A, `[data-smith-opt="${second}"]`, "data-awake")) === "false" && /หลับอยู่/.test(await textOf(A, `[data-smith-opt="${second}"]`)) && (await attr(A, `[data-smith-opt="${first}"]`, "data-awake")) === "true");
+  ok("the option of +6 is on the card still, and nothing says it sleeps; so is the option of +3", (await there(A, `[data-smith-opt="${second}"]`)) && !/หลับอยู่/.test(await textOf(A, `[data-smith-opt="${second}"]`)) && (await there(A, `[data-smith-opt="${first}"]`)));
   did = await strike(A, "axe", [0]);
   await sleep(1500);
-  ok("back at +6 it is awake again, the same option, and no new draw is laid out", did.tool.plus === 6 && (await attr(A, `[data-smith-opt="${second}"]`, "data-awake")) === "true" && !(await there(A, "[data-smith-offer]")) && JSON.stringify((await toolOf(A, "axe")).opts) === JSON.stringify([first, second]));
+  ok("back at +6 it is the same option, and no new draw is laid out", did.tool.plus === 6 && (await there(A, `[data-smith-opt="${second}"]`)) && !(await there(A, "[data-smith-offer]")) && JSON.stringify((await toolOf(A, "axe")).opts) === JSON.stringify([first, second]));
 
   // ── the glow, seen by the other ──
   await A.evaluate(`${T}.hold(${axeSlot})`);
