@@ -29,7 +29,8 @@ const comeOut = (still: boolean) => (el: HTMLSpanElement | null) => {
  *
  * Each place is a button, so it is played by a finger, the mouse or the keys alike.
  */
-export default function TownWeeding({ th, title, need, mods, onDone, onCancel, onHit }: GameProps & { need: number; mods: TimingMods }) {
+// ── forging: old tools ── (`glow`: the stones stand out in a light of their own, with a hoe that carries as much)
+export default function TownWeeding({ th, title, need, mods, onDone, onCancel, onHit, glow = false }: GameProps & { need: number; mods: TimingMods; glow?: boolean }) {
   const patch = useRef<Patch>(startPatch(need, mods, Math.floor(Math.random() * 2 ** 31)));
   const from = useRef(0), ended = useRef(false);
   const [, setShown] = useState(0);
@@ -100,7 +101,8 @@ export default function TownWeeding({ th, title, need, mods, onDone, onCancel, o
           {p.cells.map((c, i) => c && (
             <span key={c.id} className={`absolute -translate-x-1/2 -translate-y-[62%] ${still ? "" : "transition-[left,top] duration-150 ease-out"}`}
                   style={{ left: `${spot(i).x * 100}%`, top: `${spot(i).y * 100}%` }}>
-              <span className="block" style={{ transform: c.look % 2 ? "scaleX(-1)" : undefined }}><TownIcon name={iconOf(c)} size={c.kind === "stone" ? 44 : 54} /></span>
+              <span className="block" data-glow={glow && c.kind === "stone" ? "" : undefined}
+                    style={{ transform: c.look % 2 ? "scaleX(-1)" : undefined, filter: glow && c.kind === "stone" ? "drop-shadow(0 0 2px #fff6d8) drop-shadow(0 0 6px #fff6d8)" : undefined }}><TownIcon name={iconOf(c)} size={c.kind === "stone" ? 44 : 54} /></span>
             </span>
           ))}
           {/* a weed pulled: up out of the ground, and gone */}

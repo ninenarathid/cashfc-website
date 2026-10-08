@@ -1,4 +1,5 @@
-import type { TimingMods } from "./timing";
+import { partOf } from "./forged";
+import { sparedOf, type TimingMods } from "./timing";
 
 /**
  * Stirring a pot, as a game of its own (the owner, 2026-10-04: every mini-game was the game of timing, "การกดตามจังหว่ะ
@@ -32,7 +33,11 @@ export const STIRRING = {
  * fast, 0 good), how long it has been off, the good pace's two ends, how long a slip may last, whether the ladle
  * has been moved at all yet, and how long it has been since it first was.
  */
-export interface Stir { need: number; hits: number; misses: number; turned: number; pace: number; off: -1 | 0 | 1; out: number; lo: number; hi: number; grace: number; begun: boolean; t: number }
+export interface Stir {
+  need: number; hits: number; misses: number; turned: number; pace: number; off: -1 | 0 | 1; out: number; lo: number; hi: number; grace: number; begun: boolean; t: number;
+  // ── forging: old tools ── (misses still forgiven: not there in a pot stirred with plain cookware)
+  spare?: number;
+}
 
 /**
  * Begin a pot wanting so many stirs. `harder`: how many times harder this pot is for whoever stirs it (the better
@@ -43,10 +48,13 @@ export interface Stir { need: number; hits: number; misses: number; turned: numb
  */
 export function startStir(need: number, mods: TimingMods, harder = 1): Stir {
   const tired = mods.spent ? mods.tired ?? { zone: 1, speed: 1 } : null, hard = Math.max(1, harder);
-  const either = Math.min(STIRRING.pace * 0.8, STIRRING.either * Math.sqrt(mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1)) / hard;
+  const either = Math.min(STIRRING.pace * 0.8, STIRRING.either * Math.sqrt(mods.wide ?? 1) * Math.sqrt(mods.tool ?? 1) * (tired ? tired.zone : 1) * (mods.buff ?? 1)
+    // ── forging: old tools ── (the cookware's own: with what the cook carries and a meal's buff, never past the cap; the game's own width is no part of that)
+    * partOf(Math.sqrt(mods.tool ?? 1) * (mods.buff ?? 1), mods.forged ?? 1)) / hard;
   return {
     need: Math.max(1, Math.floor(need)), hits: 0, misses: 0, turned: 0, pace: 0, off: 0, out: 0,
-    lo: STIRRING.pace - either, hi: STIRRING.pace + either, grace: STIRRING.grace / (tired ? tired.speed : 1) / hard, begun: false, t: 0,
+    lo: STIRRING.pace - either, hi: STIRRING.pace + either, grace: (STIRRING.grace / (tired ? tired.speed : 1) / hard) * partOf(1, mods.grace ?? 1), begun: false, t: 0,
+    ...(sparedOf(mods) ? { spare: sparedOf(mods) } : {}),
   };
 }
 
@@ -61,14 +69,15 @@ export function stir(s: Stir, turns: number, dt: number): Stir {
   // the pace kept is the hand's, smoothed: a finger does not go round evenly
   const k = 1 - Math.exp(-dt / STIRRING.smooth), pace = s.pace + (moved / dt - s.pace) * k, t = s.begun ? s.t + dt : dt;
   const off: -1 | 0 | 1 = pace < s.lo ? -1 : pace > s.hi ? 1 : 0;
-  let { turned, hits, misses, out } = s;
+  let { turned, hits, misses, out } = s, spare = s.spare ?? 0;
   if (off === 0) {
     out = 0;
     turned += moved;
     while (turned >= 1 && hits < s.need) { turned -= 1; hits++; }
   } else if (t > STIRRING.lead) {
     out += dt;
-    if (out >= s.grace) { misses++; out = 0; }
+    // ── forging: old tools ── (a slip the cookware forgives costs nothing: it is counted afresh all the same)
+    if (out >= s.grace) { if (spare > 0) spare--; else misses++; out = 0; }
   }
-  return { ...s, begun: true, t, pace, off, turned: hits >= s.need ? 0 : turned, hits, misses, out };
+  return { ...s, begun: true, t, pace, off, turned: hits >= s.need ? 0 : turned, hits, misses, out, ...(s.spare !== undefined ? { spare } : {}) };
 }

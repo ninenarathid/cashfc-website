@@ -1,10 +1,12 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
+import { luckOf, netFx, partOf, slowPartOf } from "./forged";
+import { toolPaid } from "./forged-keep";
 import { softStep } from "./forest-eye";
 import { famBy, numberOf, useGift, wearing, type GiftRefusal } from "./gifts";
 import { ITEMS, type ItemId } from "./items";
 import { buffBy, isSpent, spend } from "./stamina";
-import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
+import { BANGKOK, DAY, HOUR, heldStack, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
 import { CAMP, COLS, FARM, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 
@@ -523,7 +525,11 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   if (bug.habit === "lure" && !(lure && LURES.includes(lure))) return { ok: false, why: "lure" };
   if (roomFor(purse.bag, has.bug) < has.n) return no("full");
   const cost = bug.cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
-  return { ok: true, purse: followed(purse, { ...spend(purse, cost, now), bag: put(purse.bag, has.bug, has.n) }, has.bug, has.n, at, now), got: [[has.bug, has.n]] };
+  // ── forging: old tools ── (a catch with a forged net in the hand: what its forging takes off the stamina, lib/town/forged-keep)
+  const tool = heldStack(purse), paid = toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh");
+  // (and with a net that carries as much, another of its kind comes with the one caught so often, where the bag has room for it)
+  const n = has.n + (luckOf("twin", h.id, has.turn, now) < netFx(tool).twin && roomFor(purse.bag, has.bug) > has.n ? 1 : 0);
+  return { ok: true, purse: followed(purse, { ...paid, bag: put(purse.bag, has.bug, n) }, has.bug, has.n, at, now), got: [[has.bug, n]] };
 }
 
 /* ── the butterfly-wing cloak's pair (lib/town/gifts' charmCloak, the insects' sixth rank) ── */
@@ -679,8 +685,10 @@ export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: read
   if (dx * dx + dy * dy > reach * reach) return { ok: false, why: "far" };
   if (roomFor(purse.bag, id) < one.n) return no("full");
   const cost = BUGS[id].cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
-  const after = { ...spend(purse, cost, now), bag: put(purse.bag, id, one.n) };
-  return { ok: true, purse: l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, got: [[id, one.n]] };
+  // ── forging: old tools ── (as a haunt's catch is paid for)
+  const tool = heldStack(purse), more = one.n + (luckOf("twin", one.x, one.y, now) < netFx(tool).twin && roomFor(purse.bag, id) > one.n ? 1 : 0);
+  const after = { ...toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh"), bag: put(purse.bag, id, more) };
+  return { ok: true, purse: l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, got: [[id, more]] };
 }
 
 /* ── a ladybird's doing ─────────────────────────────────────────────────── */
@@ -1012,9 +1020,10 @@ export function asleep(id: BugId, h: Haunt, seed: number, m: Mind, at: number): 
 /** Where a net has to land to take something: the point of the ground its picture is drawn over (a tile of lift is a tile up the screen, which is one back along each of the map's ways). */
 export const aimOf = (p: Pose): Vec => ({ x: p.x - p.lift, y: p.y - p.lift });
 /** The ring a net takes an insect within, in tiles: smaller for the small ones, and for tired hands; and narrower on a good insect for whoever is good at the line (`harderOn`). */
-export const ringOf = (id: BugId, spent: boolean, wide = 1, harder = 1) => (NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide)) / harderOn(id, harder);
-/** Whether an insect missed so many times is off for good, for whoever missed it: only tired hands lose one so. */
-export const fledBy = (misses: number, spent: boolean) => spent && misses >= NET.tired.misses;
+// ── forging: old tools ── (`forged`: the net's own forging, so many times the ring: taken with the rest of what widens it, never past the cap; nothing said, a plain net)
+export const ringOf = (id: BugId, spent: boolean, wide = 1, harder = 1, forged = 1) => ((NET.radius * BUGS[id].size * (spent ? NET.tired.radius : 1) * Math.max(1, wide)) / harderOn(id, harder)) * partOf(Math.max(1, wide), forged);
+/** Whether an insect missed so many times is off for good, for whoever missed it: only tired hands lose one so. (`bears`: so many misses more, with a net that carries as much.) */
+export const fledBy = (misses: number, spent: boolean, bears = 0) => spent && misses >= NET.tired.misses + Math.max(0, bears);
 /**
  * The wind net (lib/town/gifts' charmWind, the insects' fourth rank; the owner's ladder of 2026-10-07: "สวิงลงทันทีไม่ต้อง
  * รอจังหวะ เล็งตรงไหนลงตรงนั้น ยังพลาดได้ถ้าเล็งไม่โดน"). Worn, the net does not take its moment to come down: it is aimed
@@ -1029,13 +1038,14 @@ export const WIND = { again: NET.lands + NET.again };
 /** Whether somebody's net is the wind's now: the charm worn, and stamina to swing with. */
 export const windy = (purse: Purse, now: number): boolean => wearing(purse, "charmWind") && !isSpent(purse, now);
 /** How long a swing takes to land: no time at all for the wind's. */
-export const swingMs = (spent: boolean, wind = false) => (spent ? NET.tired.lands : wind ? 0 : NET.lands);
-/** How soon after one swing is begun another may be. */
-export const againMs = (spent: boolean, wind = false) => (!spent && wind ? WIND.again : swingMs(spent) + NET.again);
+// ── forging: old tools ── (`quick`: a forged net's swing takes so many times as long, never under one part in the cap; `rest`: its rest before the next, so many times)
+export const swingMs = (spent: boolean, wind = false, quick = 1) => Math.round((spent ? NET.tired.lands : wind ? 0 : NET.lands) * slowPartOf(1, quick));
+/** How soon after one swing is begun another may be. (The wind's gust waits as long as a plain swing and its rest take together: with a forged net, as long as that net's.) */
+export const againMs = (spent: boolean, wind = false, quick = 1, rest = 1) => (!spent && wind && quick === 1 && rest === 1 ? WIND.again : swingMs(spent, false, quick) + Math.round(NET.again * rest));
 /** Where a net aimed at a point comes down: there, or as near it as the reach of whoever swings allows. */
 export function aimAt(me: Vec, at: Vec, reach = NET.reach): Vec {
   const d = far(me, at);
   return d <= reach || d === 0 ? { x: at.x, y: at.y } : { x: me.x + ((at.x - me.x) * reach) / d, y: me.y + ((at.y - me.y) * reach) / d };
 }
 /** Whether a net landing at a point takes an insect as it is then. */
-export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1, harder = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide, harder);
+export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1, harder = 1, forged = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide, harder, forged);

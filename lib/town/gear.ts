@@ -1,5 +1,6 @@
+import { PLAIN_ROD, rodFx, type RodFx } from "./forged";
 import type { ItemId } from "./items";
-import type { Purse } from "./trade";
+import type { Purse, Stack } from "./trade";
 
 /**
  * Better gear makes things easier (the owner, 2026-10-03: "อุปกรณ์ ที่ดีขึ้น (ทำให้
@@ -41,14 +42,39 @@ export const TACKLE: Partial<Record<ItemId, { strike?: number; slip?: number; sn
 };
 
 /** What somebody fishes with, all told: the rod, and what it and the tackle in the bag multiply. */
-export interface Gear { rod: RodId | null; band: number; pace: number; strike: number; slip: number; snap: number; line: number }
+export interface Gear {
+  rod: RodId | null; band: number; pace: number; strike: number; slip: number; snap: number; line: number;
+  // ── forging: old tools ── (what the rod's own forging is to a line and a fight: lib/town/forged; left out of a rod that carries nothing)
+  fx?: RodFx;
+}
 export const PLAIN: Gear = { rod: null, band: 1, pace: 1, strike: 1, slip: 1, snap: 1, line: 1 };
 
-/** The gear somebody has to hand: the rod they hold (or, holding none, the best in the bag), and the best of each kind of tackle in the bag. */
-export function gearOf(bag: Purse["bag"], hand: ItemId | null): Gear {
+// ── forging: old tools ──
+/**
+ * The rod somebody fishes with, as the stack it is: the one in the hand (`slot`: the slot it was taken up from, of
+ * two of a kind), or, of a rod that is only in the bag, the one of its kind forged furthest. What it carries of its
+ * own is that stack's and no other's.
+ */
+export function rodStack(bag: Purse["bag"], rod: RodId | null, slot: number | null = null): Stack | null {
+  if (!rod) return null;
+  const held = slot !== null && slot >= 0 ? bag[slot] : null;
+  if (held?.item === rod) return held;
+  let best: Stack | null = null;
+  for (const s of bag) if (s?.item === rod && (!best || (s.plus ?? 0) > (best.plus ?? 0))) best = s;
+  return best;
+}
+
+/**
+ * The gear somebody has to hand: the rod they hold (or, holding none, the best in the bag), and the best of each kind of tackle in the bag.
+ * (`slot`: the slot the thing in the hand was taken up from, where that is known: which of two rods of a kind is held.)
+ */
+export function gearOf(bag: Purse["bag"], hand: ItemId | null, slot: number | null = null): Gear {
   const has = (id: ItemId) => bag.some((s) => s?.item === id);
   const rod = isRod(hand) && has(hand) ? hand : [...ROD_IDS].reverse().find(has) ?? null;
   const gear: Gear = { ...PLAIN, rod, ...(rod ? RODS[rod] : {}) };
+  // ── forging: old tools ──
+  const fx = rodFx(rodStack(bag, rod, rod === hand ? slot : null));
+  if (fx !== PLAIN_ROD) gear.fx = fx;
   for (const s of bag) {
     const t = s ? TACKLE[s.item] : undefined;
     if (!t) continue;
