@@ -1299,7 +1299,7 @@ try {
 
   // ── the bridge built by hand ── (v160, a draft or run: a database before it has no works, and the keeper knows of none)
   if ((await sql(`select to_regprocedure('public.town_works_read()') is not null as there`))[0].there) {
-    section("the bridge built by hand: built closed, opened by one line, a stone through three keepers (v160)");
+    section("the bridge built by hand: built closed, opened by one line, a stone through three keepers, a marked stone, each span's hands (v160)");
     const { BRIDGE, bridgeSpans, bridgeWhole, carrying } = await import("@/lib/town/bridge");
     const PILE = [BRIDGE.pile.x - 1, BRIDGE.pile.y + 1], FOOT = [BRIDGE.foot.x + 1, BRIDGE.foot.y + 1];
     const c = await member("C", "Tester C");
@@ -1310,8 +1310,12 @@ try {
     const staminaOf = async (id) => Number((await sql(`select town.stamina_of(town.purse_kept($1, false), town.now_ms()) as n`, [id]))[0].n);
     const pointsOf = async (id) => Number((await sql(`select coalesce((select (w.kept->>'points')::float8 from public.town_work w where w.member_id = $1 and w.line = 'helpers'), 0) as p`, [id]))[0].p);
     const have = (n) => sql(`update public.town_work_needs set have = $1 where work = 'bridge' and thing = 'stone'`, [n]);
+    // (what a stone has in it is the database's draw as it is lifted, one in twenty-five: set here to what a check needs, as the draw would have)
+    const mark = (id, kind) => sql(`update public.town_work_carried set mark = $2 where member_id = $1`, [id, kind]);
     await sql(`delete from public.town_work_carried where true`);
     await sql(`delete from public.town_work_hands where true`);
+    await sql(`delete from public.town_work_built where true`);
+    await sql(`delete from public.town_work_finds where true`);
     await sql(`update public.town_works set opened_at = null, done_at = null where id = 'bridge'`);
     await have(0);
     for (const id of [a, b, c]) await hands(id);
@@ -1331,6 +1335,7 @@ try {
     ok("a stone is not lifted from far off: the tile is the page's word, held to the pile's", !did.ok && did.why === "far", did);
     did = await I.stoneLift(PILE);
     ok("lifted at the pile: in the hands the keeper has at once, for one stamina, nothing in the bag, and nobody told through the room", did.ok && carrying(I.works()) === "stone" && (await staminaOf(a)) === 100 - BRIDGE.costs.lift && I.purse().bag.every((x) => !x) && told.length === 0, { did, works: I.works(), told });
+    await mark(a, null);
     did = await I.stoneLift(PILE);
     ok("no second stone while one is held", !did.ok && did.why === "held", did);
     const before = [await pointsOf(a), await pointsOf(b), await pointsOf(c)];
@@ -1348,9 +1353,13 @@ try {
     await settled(K);
     ok("handed on again, to the third", did.ok && carrying(K.works()) === "stone" && carrying(J.works()) === null, did);
     did = await K.stoneLay(FOOT);
-    ok("laid at the foot by the third: one stamina, the bridge has one, no span yet, and nobody is told through the room for a stone among a hundred",
-      did.ok && did.have === 1 && did.spans === 0 && did.span === false && did.whole === false && carrying(K.works()) === null && (await staminaOf(c)) === 99 && K.works().works.bridge.needs.stone.have === 1 && told.length === 1, { did, told });
-    await I.worksLook(); await J.worksLook();
+    ok("laid at the foot by the third: one stamina, the bridge has one, no span yet, the stone went into the first span with nothing in it, and everybody is to be told through the room",
+      did.ok && did.have === 1 && did.spans === 0 && did.span === false && did.whole === false && did.into === 1 && did.find === null && carrying(K.works()) === null && (await staminaOf(c)) === 99 && K.works().works.bridge.needs.stone.have === 1
+        && told.length === 2 && told[1] === "works undefined", { did, told });
+    ok("the keepers of the two who only handed it on know nothing of it yet", [I, J].every((k) => JSON.stringify(k.works().works.bridge.mine) === "{}"));
+    // (the room's word, as the map would hand it on: each reads the works again, and its page shows what the stone earned)
+    I.nudged("works"); J.nudged("works");
+    await settled(I); await settled(J);
     ok("all three whose hands it went through are counted one stone, each told their own count and nobody else's",
       [I, J, K].every((k) => JSON.stringify(k.works().works.bridge.mine) === JSON.stringify({ stone: 1 })) && !/"n":/.test(JSON.stringify(I.works())), [I.works().works.bridge.mine, J.works().works.bridge.mine, K.works().works.bridge.mine]);
     // (the three came by one stone, at one moment: such are listed by their ids; the dry run holds the order of those who came at different moments)
@@ -1359,11 +1368,32 @@ try {
     ok("…and each has a point more on the helpers' line", after.every((p, i) => Math.abs(p - before[i] - BRIDGE.point) < 1e-9), { before, after });
     const lines = (await sql(`select d.what, d.member_id as by from public.town_deeds d where d.what like 'stone%' order by d.id`)).map((d) => `${d.what} ${d.by === a ? "A" : d.by === b ? "B" : "C"}`);
     ok("each deed is written down: the lifting, the two handings on, the laying, and a line for each of the others it came by", lines.join() === "stone_lift A,stone_pass A,stone_pass B,stone_lay C,stone_hand A,stone_hand B", lines);
+    ok("all three are of the first span's hands, by name and with no number", JSON.stringify(Object.keys(I.works().works.bridge.built)) === '["1"]' && JSON.stringify(I.works().works.bridge.built[1].map((h) => h.id)) === JSON.stringify([a, b, c].sort())
+      && I.works().works.bridge.built[1].every((h) => /^Tester [ABC]$/.test(h.name) && Object.keys(h).sort().join() === "id,name") && I.works().works.bridge.finds.length === 0, I.works().works.bridge.built);
+    // a marked stone: nobody is told while it is carried; laid, it is found and set in the bridge
+    did = await I.stoneLift(PILE);
+    await mark(a, "pearl");
+    await I.worksLook();
+    ok("a stone with something in it: its holder's keeper is told that it carries a stone, and nothing of what is in it", did.ok && JSON.stringify(I.works().carried) === JSON.stringify({ work: "bridge", thing: "stone" }) && !/pearl|mark/.test(JSON.stringify(I.works())), I.works().carried);
+    did = await I.stonePass(c);
+    K.nudged("works");
+    await settled(K);
+    ok("…nor is whoever takes it", did.ok && carrying(K.works()) === "stone" && !/pearl|mark/.test(JSON.stringify(K.works())) && !/pearl|mark/.test(JSON.stringify(did)), K.works().carried);
+    did = await K.stoneLay(FOOT);
+    ok("laid, it is found: the answer says what was in it, and the keeper has it set in the bridge with the hands it came by, in the order it went through them",
+      did.ok && did.find === "pearl" && did.into === 1 && did.have === 2 && JSON.stringify(K.works().works.bridge.finds.map((f) => [f.kind, f.span, f.hands.map((h) => h.id)])) === JSON.stringify([["pearl", 1, [a, c]]])
+        && K.works().works.bridge.finds[0].hands.every((h) => /^Tester [AC]$/.test(h.name)) && typeof K.works().works.bridge.finds[0].at === "number", { did, finds: K.works().works.bridge.finds });
+    I.nudged("works"); J.nudged("works");
+    await settled(I); await settled(J);
+    ok("…every keeper the room tells has the find, whoever had no hand in it too; and it is one point of the stone's to each hand, none of the pearl's",
+      [I, J].every((k) => k.works().works.bridge.finds.length === 1) && Math.abs((await pointsOf(a)) - after[0] - BRIDGE.point) < 1e-9 && Math.abs((await pointsOf(b)) - after[1]) < 1e-9 && I.purse().bag.every((x) => !x), [await pointsOf(a), await pointsOf(b)]);
+    ok("…and the laying is written with what was found", (await sql(`select d.doc->>'find' as find from public.town_deeds d where d.what = 'stone_lay' order by d.id desc limit 1`))[0].find === "pearl");
     // the hundredth stone is a span: everybody is told through the room, and reads it
     await have(99);
     did = await K.stoneLift(PILE);
+    await mark(c, null);
     did = did.ok ? await K.stoneLay(FOOT) : did;
-    ok("the hundredth stone is a span: said in the answer, and everybody is to be told through the room", did.ok && did.have === 100 && did.spans === 1 && did.span === true && did.whole === false && bridgeSpans(K.works()) === 1 && told[told.length - 1] === "works undefined", { did, told });
+    ok("the hundredth stone is a span: said in the answer, the first span's own, and everybody is to be told through the room", did.ok && did.have === 100 && did.spans === 1 && did.span === true && did.whole === false && did.into === 1 && bridgeSpans(K.works()) === 1 && told[told.length - 1] === "works undefined", { did, told });
     ok("another keeper still has none", bridgeSpans(I.works()) === 0);
     I.nudged("works");
     await settled(I);
@@ -1372,15 +1402,17 @@ try {
     await have(BRIDGE.need - 1);
     await K.stoneLift(PILE);
     await I.stoneLift(PILE);
+    await mark(c, null); await mark(a, null);
     did = await K.stoneLay(FOOT);
+    ok("the six-hundredth is the last span's: its hands are kept apart from the first's", did.ok && did.into === BRIDGE.spans && JSON.stringify(Object.keys(K.works().works.bridge.built).sort()) === JSON.stringify(["1", String(BRIDGE.spans)]) && JSON.stringify(K.works().works.bridge.built[BRIDGE.spans].map((h) => h.id)) === JSON.stringify([c]), K.works().works.bridge.built);
     ok("the six-hundredth stone makes the bridge whole: six spans, and the moment marked", did.ok && did.whole === true && did.spans === BRIDGE.spans && bridgeWhole(K.works()) && bridgeSpans(K.works()) === BRIDGE.spans && typeof K.works().works.bridge.done === "number", { did, bridge: K.works().works.bridge });
     did = await I.stoneLay(FOOT);
     const more = await K.stoneLift(PILE);
     ok("whole: a stone that came too late is not laid, and nothing more is lifted", !did.ok && did.why === "whole" && !more.ok && more.why === "whole" && carrying(I.works()) === "stone", { did, more });
     did = await I.stoneDrop();
     const again = await I.stoneDrop();
-    ok("the stone that came too late is let go of: gone, nothing back; and with none there is nothing to let go of", did.ok && carrying(I.works()) === null && (await staminaOf(a)) === 98 && !again.ok && again.why === "none", { did, again });
-    ok("the names stay on the sign of a bridge that is whole", K.works().works.bridge.helpers.length === 3 && K.works().works.bridge.mine.stone === 3, K.works().works.bridge);
+    ok("the stone that came too late is let go of: gone, nothing back; and with none there is nothing to let go of", did.ok && carrying(I.works()) === null && (await staminaOf(a)) === 97 && !again.ok && again.why === "none", { did, again });
+    ok("the names stay on the sign of a bridge that is whole, with what was found", K.works().works.bridge.helpers.length === 3 && K.works().works.bridge.mine.stone === 4 && K.works().works.bridge.finds.length === 1, K.works().works.bridge);
     // a thing in the hand; and tired hands, which nothing is refused
     await have(10);
     await sql(`update public.town_works set done_at = null where id = 'bridge'`);
@@ -1389,6 +1421,7 @@ try {
     did = await I.stoneLift(PILE);
     ok("with a thing in the hand no stone is lifted: hand", !did.ok && did.why === "hand", did);
     did = await J.stoneLift(PILE);
+    await mark(b, null);
     const handed = did.ok ? await J.stonePass(a) : did;
     ok("tired hands lift a stone all the same, at none; and it is not handed to somebody with a thing in the hand", did.ok && (await staminaOf(b)) === 0 && !handed.ok && handed.why === "hand" && carrying(J.works()) === "stone", { did, handed });
     did = await J.stoneLay(FOOT);
