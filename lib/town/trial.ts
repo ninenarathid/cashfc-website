@@ -1563,6 +1563,11 @@ export class Trial {
   /** (for scripts) Which rock of a floor hides the way down today, the day's crystal rock, a floor's element, and the cave as it is kept. */
   wayRock(floor: number): number | null { const s = this.caveKept(); return this.todayAt(floor, { ...s, ways: {} }).way; }
   crystalRock() { return this.crystalToday(this.caveKept().day); }
+  /** (for scripts) What a rock holds now, for the pick in my hand: so that a script may choose one that is plain by the roll. Never asked by the page. */
+  rockHolds(floor: number, rock: number): Holds {
+    const s = this.caveKept(), today = this.todayAt(floor, s), pick = pickOf(this.purse()), turn = mineTurn(this.now());
+    return this.fateAt(floor, turn, today, pick)(rock) ?? holdsOf(this.salt(), floor, rock, turn, today, pick);
+  }
   elementAt(floor: number) { return elementOf(this.salt(), floor, this.caveKept().day); }
   caveState(): CaveState { return this.caveKept(); }
   /** (for scripts) The lift's stops as if these resting floors had been reached; and the cave as nobody had been in it. */

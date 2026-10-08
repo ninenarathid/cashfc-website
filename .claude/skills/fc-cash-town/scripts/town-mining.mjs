@@ -90,12 +90,20 @@ async function strike(X, floor, rock, most = 40) {
   await sleep(250);
   return n;
 }
-/** The rocks of a floor that still stand and hide nothing a section minds (not the way down's, not the crystal), nearest X first. */
+/** The rocks of a floor that still stand and are plain by the roll (no vein, not the way down's, not the crystal), nearest X first. */
 async function plain(X, floor) {
   const at = await me(X), t = await told(X), way = await X.evaluate(`${K}.wayRock(${floor})`), c = await X.evaluate(`${K}.crystalRock()`);
-  return (await X.evaluate(`${N}.rocks(${floor})`)).filter((r) => r.id !== way && !(c && c.floor === floor && c.rock === r.id) && !(t.gone[String(floor)] ?? []).includes(r.id))
+  const kinds = await X.evaluate(`Object.fromEntries(${N}.rocks(${floor}).map((r) => [r.id, ${K}.rockHolds(${floor}, r.id).kind]))`);
+  return (await X.evaluate(`${N}.rocks(${floor})`)).filter((r) => r.id !== way && kinds[r.id] === "stone" && !(c && c.floor === floor && c.rock === r.id) && !(t.gone[String(floor)] ?? []).includes(r.id))
     .map((r) => ({ ...r, far: Math.hypot(r.x + 0.5 - at.x, r.y + 0.5 - at.y) })).sort((a, b) => a.far - b.far);
 }
+/** How much of the small map is drawn: the pixels of its corner of the canvas that are no part of the dark. */
+const mapInk = (X) => X.evaluate(`(() => {
+  const c = document.querySelector("canvas"), k = c.width / c.getBoundingClientRect().width, d = c.getContext("2d").getImageData(0, Math.round(100 * k), Math.round(280 * k), Math.round(190 * k)).data;
+  let n = 0;
+  for (let i = 0; i < d.length; i += 4) if (d[i] + d[i + 1] + d[i + 2] > 170) n++;
+  return Math.round(n / (k * k));
+})()`);
 const card = (X) => X.evaluate(`(() => { const el = document.querySelector("[data-mine-came]"); return el ? { kind: el.dataset.mineCame, got: Object.fromEntries([...el.querySelectorAll("[data-mine-got]")].map((g) => [g.dataset.mineGot, Number(g.dataset.n)])) } : null; })()`);
 const note = (X) => X.evaluate(`document.querySelector("[data-mine-note]")?.textContent ?? null`);
 const lit = (X) => X.evaluate(`${M}.state().lit`);
@@ -386,6 +394,9 @@ try {
     ok("whoever has reached no resting floor is asked nothing at the mouth: they walk in", (await where(B)).floor === 1 && !(await B.evaluate(`!!document.querySelector("[data-mine-lift]")`)), await where(B));
     // the last floor: a sign at its way down
     await go(A, "cave30", 30);
+    const s30 = await A.evaluate(`${M}.spots(30)`);
+    await walk(A, s30.down[0] + 1, s30.down[1] + 2);
+    await sleep(700);
     const last = (await A.evaluate(`${M}.hits()`)).find((x) => x.kind === "ladderDown");
     if (last) await tap(A, last.x, last.y);
     await sleep(600);
@@ -409,10 +420,12 @@ try {
     await A.evaluate(`${K}.setMineLuck(null)`);
     await A.shot(`${OUT}/mining-foot.png`);
     // the yard's chest: a second door to the same box
+    await go(A, "camp");
     const chest = (await A.evaluate(`${M}.hits()`)).find((x) => x.kind === "chest");
     ok("the chest in the foot yard is on the screen", !!chest, await A.evaluate(`${M}.hits().map((h) => h.kind)`));
     if (chest) await tap(A, chest.x, chest.y);
     await until("the box's panel", () => A.evaluate(`!!document.querySelector("[data-box-panel]")`), 20000).catch(() => {});
+    await sleep(400);
     ok("a tap on it walks up to it and opens my own storage box", await A.evaluate(`!!document.querySelector("[data-box-panel]")`));
     const at = await me(A), put = await A.evaluate(`${K}.boxPut(${K}.purse().bag.findIndex((s) => s && s.item === "stone"), 1, [${Math.floor(at.x)}, ${Math.floor(at.y)}])`);
     ok("…and what is put away there is in the same box as the plaza's", put?.ok === true && (await A.evaluate(`${K}.box().things.some((s) => s && s.item === "stone")`)), put);
@@ -448,7 +461,7 @@ try {
     } else ok("(no two rocks of this floor touch today: the loosened stone is held by the unit tests)", true);
     // ── the earthshaker: one swing for every rock within a step ──
     await A.evaluate(`${K}.unsetRocks()`);
-    await kit(A, { plus: 10, opts: ["pkPeek", "pkCrumb", "pkQuake"] });
+    await kit(A, { plus: 10, opts: ["pkCrumb", "pkSteady", "pkQuake"] });
     let shaken = null;
     for (const f of [4, 5, 6, 7, 8]) {
       const rs = await A.evaluate(`${N}.rocks(${f})`);
@@ -545,14 +558,15 @@ try {
     await kit(A);
     await go(A, "cave4", 4);
     await sleep(1200);
-    const few = (await A.evaluate(`${M}.state().seen`))[4] ?? 0;
+    const few = await mapInk(A);
+    await A.shot(`${OUT}/mining-map-walked.png`);
     await A.evaluate(`(${K}.setGifts(["charmMinerLamp", "famBat", "thingSack"]), ${K}.familiarWear("famBat"))`);
     await go(A, "cave5", 5);
-    await sleep(1500);
-    const whole = (await A.evaluate(`${M}.state().seen`))[5] ?? 0;
-    ok("with the guiding bat following, a floor's small map is known whole on coming to it", (await A.evaluate(`${V}.pets().length`)) >= 1, await A.evaluate(`${V}.pets()`));
+    await sleep(1800);
+    const whole = await mapInk(A);
+    ok("the guiding bat follows its member, for everybody to see", Object.keys(await A.evaluate(`${V}.pets()`)).length >= 1 && (await B.evaluate(`${T}.people().find((p) => p.name === ${JSON.stringify(nameA)})?.pet`)) === "famBat", await A.evaluate(`${V}.pets()`));
+    ok("…and with it a floor's small map is known whole on coming to it", whole > few * 2.5, { few, whole });
     await A.shot(`${OUT}/mining-bat.png`);
-    console.log(`  (seen of floor 4 without the bat: ${few} tiles; of floor 5 with it: ${whole})`);
     // the sack: what a rock leaves goes into it before the bag
     await A.evaluate(`${K}.setMineLuck(0)`);
     const r = (await plain(A, 5))[0];
@@ -560,8 +574,9 @@ try {
     const purse = await A.evaluate(`${K}.purse()`);
     ok("with the miner's sack, what a rock leaves goes into the sack and not the bag", (purse.pouches?.thingSack ?? []).filter(Boolean).length === 2 && purse.bag.filter((s) => s && s.item !== "pick").length === 0, purse.pouches);
     await A.evaluate(`${K}.setMineLuck(null)`);
-    await click(A, "[data-town-bag], [data-town-bag-button]");
-    await sleep(900);
+    await A.evaluate(`document.querySelector('button[title="กระเป๋า"]')?.click()`);
+    await until("the bag", () => A.evaluate(`!!document.querySelector('section[aria-labelledby="town-trade-h"]')`), 6000).catch(() => {});
+    await sleep(500);
     const row = await A.evaluate(`(() => { const el = document.querySelector('[data-pouch="thingSack"]'); return el ? [...el.querySelectorAll("[data-pouch-slot]")].map((s) => s.dataset.item ?? null) : null; })()`);
     if (row) {
       ok("the bag's panel shows the sack as a row of its own, five slots", row.length === 5 && row.filter(Boolean).length === 2, row);
@@ -589,7 +604,7 @@ try {
     await kit(A, { plus: 10, gems: ["earth"] });
     await A.evaluate(`${K}.setMineLuck(1)`);
     const four = (await plain(A, 6)).slice(0, 4), st = await stamina(A);
-    for (const r of four) await strike(A, 6, r.id);
+    for (const r of four) { await strike(A, 6, r.id); await sleep(250); }
     ok("an earth gem at the top: four rocks for three points of stamina", four.length === 4 && st - (await stamina(A)) === 3, st - (await stamina(A)));
     // water and ice, in a vein
     await kit(A, { gems: ["water"] });

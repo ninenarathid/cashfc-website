@@ -290,8 +290,8 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       registerTap("caveRock", (tap) => strikeRock(tap)),
       registerTap("chest", (tap) => { openChest(tap.tile); return true; }),
       registerTap("lift", (tap) => openLift(tap.floor, tap.tile)),
-      // the mine's mouth: whoever has reached a resting floor is asked where to; anybody else walks in
-      registerTap("mouth", (tap) => ((keeper.cave()?.rests.length ?? 0) > 0 ? openLift(0, tap.tile) : false)),
+      // the mine's mouth: whoever has reached a resting floor is asked where to; anybody else walks in, by its threshold
+      registerTap("mouth", (tap) => ((keeper.cave()?.rests.length ?? 0) > 0 ? openLift(0, tap.tile) : walk(tap.tile[0], tap.tile[1]))),
       registerTap("ladderDown", (tap) => {
         if (tap.floor >= MINING.floors) { setSign(true); return true; }
         // (where the layout cannot be told that a way is shut: its ladder stands, and takes nobody down until the way is found)
@@ -300,7 +300,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       }),
     ];
     return () => { for (const stop of stops) stop(); };
-  }, [!!told, strikeRock, openChest, openLift, keeper, say]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [!!told, strikeRock, openChest, openLift, keeper, say, walk]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ── what is the mine's own on the map: drawn each frame ──
   const glintBox = useRef<HTMLDivElement>(null);
