@@ -24,7 +24,9 @@ import { KUDOS } from "./kudos-stub.mjs";
 /** The last file of the town's that has run (town-bench.mjs has the same number). */
 export const RAN = 166;
 const here = (name) => new URL(`./${name}`, import.meta.url);
-const SNAP = here(`snap-v${RAN}.tar`);
+// (v160 and v163 ran after v166, and the snapshot named for v166 alone was built before them: while RAN is 166 the
+// one that has the two is under a name of its own, so that no folder goes on reading the older one for this code)
+const SNAP = here(`snap-v${RAN}${RAN === 166 ? "-with-160-163" : ""}.tar`);
 const extra = `${KUDOS}
 create table public.gallery_posts (id bigint generated always as identity primary key, author_id uuid not null references public.profiles (id) on delete cascade, caption text, created_at timestamptz not null default now());
 alter table public.gallery_posts enable row level security;
@@ -37,9 +39,11 @@ alter table public.gallery_likes enable row level security;
 async function build() {
   const t = await supabaseLike({ extra });
   // (by number, but v130 after v131, as it ran; v136 is the party finder's and v157 the members' contacts'; a number that was never a file is passed over:
-  // v160 to v164 are other rounds' numbers, not files yet when v165 and v166 ran, and none of them stands on those two or they on them)
-  const numbers = Array.from({ length: RAN - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157);
+  // v160 to v164 were other rounds' numbers, not files yet when v165 and v166 ran; **v160 (the bridge built by hand) and v163 (the lamp relay) ran after
+  // v166, on 2026-10-09, and are replayed there, as they ran**; v161, v162 and v164 never were files)
+  const numbers = Array.from({ length: RAN - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157 && n !== 160 && n !== 163);
   numbers.splice(numbers.indexOf(131) + 1, 0, 130);
+  numbers.splice(numbers.indexOf(166) + 1, 0, 160, 163);
   for (const n of numbers) { let sql = null; try { sql = migration(n); } catch { /* never a file */ } if (sql) await t.run(sql, `v${n}`); }
   await t.sql(`update public.town_knobs set value = 1 where key = 'game_open'`);
   await t.sql(`update public.town_catalog set updated_at = now() - interval '3 hours'`);

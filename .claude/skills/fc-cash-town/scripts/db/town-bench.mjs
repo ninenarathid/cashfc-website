@@ -40,8 +40,13 @@ const newest = Math.max(RAN, ...pending);
 // is the later one's, v130's, which has the water cart: so v130 is replayed after v131, as it ran.)
 // (and not every number is the town's: v136 is the party finder's polls and v157 the members' contacts, whose tables are not here)
 const OTHERS = [136, 157];
-const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n));
+// (and two ran late: v160, the bridge built by hand, and v163, the lamp relay, went out on 2026-10-09 after v166 had run, before the rounds numbered
+// between them. Both write `town.work_counts_of` and `town.deed_th` again; no file from v161 to v166 does, so the order changes no row and no rule:
+// they are replayed after v166 all the same, as they ran.)
+const LATE = [160, 163];
+const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n) && !LATE.includes(n));
 numbers.splice(numbers.indexOf(131) + 1, 0, 130);
+numbers.splice(numbers.indexOf(166) + 1, 0, ...LATE);
 for (const n of numbers) {
   let sql = null;
   try { sql = migration(n); } catch { /* a number that was never a file */ }
