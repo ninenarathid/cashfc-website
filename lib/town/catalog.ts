@@ -1,6 +1,7 @@
 import { BOX } from "./box";
 import { giftsRow } from "./gifts";
 import { linesRow } from "./line-points";
+import { treesRow } from "./trees";
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, PUT_IN, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
@@ -293,6 +294,10 @@ export function catalogOf() {
     // ── forging ──
     /** The blacksmith (lib/town/forge, lib/town/tools): the kinds of tool that are forged, the table of tries, his knobs, the options and what is built of them, the gems, and what is smelted of what (lib/town/forge-row says each part). */
     forge: forgeRow(),
+    // ── felling ──
+    /** The mountain's trees (lib/town/trees, lib/town/felling): every knob of the woodcutters', the axe as their game reads it, and every tree there is (none, outside `next dev`). */
+    trees: treesRow(),
+    // ── end: felling ──
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;

@@ -30,6 +30,10 @@ import type { RowDid } from "./keeper";
 // ── mining ──
 import type { MineDid, MineDone, VeinDid } from "./keeper";
 import type { Peek } from "./mining";
+// ── felling ──
+import type { FellDid } from "./keeper";
+import type { FellingAsk } from "./felling";
+import type { FellWent } from "./trees";
 
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
@@ -470,6 +474,21 @@ class TrialKeeper implements Keeper {
   async smithChoose(slot: number, pick: string, name: string) { return this.trial.smithChoose(slot, pick, name); }
   async smithRedraw(slot: number, at: number, gem: ItemId) { return this.trial.smithRedraw(slot, at, gem); }
   async smithGem(slot: number, gem: ItemId) { return this.trial.smithGem(slot, gem); }
+  // ── felling ── (whoever else is on the mountain is in another tab: told through the room, as the database's keeper tells them)
+  trees() { return this.trial.trees(); }
+  async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { return this.trial.fellBegin(tree, at); }
+  async fellDo(went: FellWent, at: [number, number], name: string): Promise<Did<FellDid>> {
+    const did = this.trial.fellDo(went, at, name);
+    if (did.ok && did.felled.length) this.onDeed?.("trees");
+    return did;
+  }
+  async fellBrace(feller: string, at: [number, number]): Promise<Did<{ tree: number }>> { return this.trial.fellBrace(feller, at); }
+  async fellRoot(tree: number): Promise<Did<{ left: number }>> {
+    const did = this.trial.fellRoot(tree);
+    if (did.ok) this.onDeed?.("trees");
+    return did;
+  }
+  // ── end: felling ──
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

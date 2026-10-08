@@ -23,7 +23,7 @@ export const LINE_IDS = ["kitchen", "well", "helpers", "fishing", "forest", "ins
 // ── lines to come (woodcutting and mining, 2026-10-08) ── The seven above are the ones every keeper of the game knows.
 // A later line is one only where whoever keeps the game gives it (`LinesTold.given`): a database from before it says
 // nothing of it, and the board then has no card for it.
-export const MORE_LINE_IDS = ["mining"] as const;
+export const MORE_LINE_IDS = ["felling", "mining"] as const;
 export const ALL_LINE_IDS = [...LINE_IDS, ...MORE_LINE_IDS] as const;
 export type LineId = (typeof ALL_LINE_IDS)[number];
 // ── end: lines to come ──
@@ -105,6 +105,16 @@ export const LINES: Record<LineId, LineDef> = {
       ["เจ้าแห่งเทศกาลเก็บเกี่ยว", "Lord of the harvest festival"], ["ผู้ปลูกต้นถั่ววิเศษ", "Grower of the magic beanstalk"],
     ],
   },
+  // ── lines to come: felling ──
+  felling: {
+    name: { th: "สายตัดไม้", en: "The woodcutters" }, icon: "axe", marks: MARKS, day: 150,
+    titles: [
+      ["เด็กเก็บฟืน", "Kindling child"], ["ลูกมือโรงไม้", "Sawmill hand"], ["คนตัดไม้", "Woodcutter"], ["นักอ่านลายไม้", "Grain reader"],
+      ["สหายภูตไม้", "Wood-sprite's friend"], ["ผู้เฝ้าป่าสน", "Keeper of the pines"], ["จอมขวานแห่งขุนเขา", "Axe-lord of the heights"], ["ผู้ปลุกไม้เก่าแก่", "Waker of the old wood"],
+      ["เจ้าแห่งพงไพร", "Lord of the wildwood"], ["ตำนานแห่งพงไพร", "Legend of the wildwood"],
+    ],
+  },
+  // ── end: felling ──
   // ── lines to come: mining ──
   mining: {
     name: { th: "สายเหมือง", en: "The mine" }, icon: "pick", marks: MARKS, day: 150,

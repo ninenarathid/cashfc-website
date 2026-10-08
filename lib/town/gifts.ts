@@ -41,9 +41,9 @@ export type ThingId = (typeof THING_IDS)[number] | (typeof MORE_THING_IDS)[numbe
 // ── gifts to come (woodcutting and mining, 2026-10-08) ── The lists above are the gifts every keeper of the game
 // knows. A later line's gifts are in lists of their own, and are offered only where whoever keeps the game gives them
 // (the keeper's `gives`), as every round of gifts has gone out.
-export const MORE_CHARM_IDS = ["charmMinerLamp"] as const;
-export const MORE_FAMILIAR_IDS = ["famBat"] as const;
-export const MORE_THING_IDS = ["thingSack"] as const;
+export const MORE_CHARM_IDS = ["charmEchoAxe", "charmMinerLamp"] as const;
+export const MORE_FAMILIAR_IDS = ["famWoodpecker", "famBat"] as const;
+export const MORE_THING_IDS = ["thingBundle", "thingSack"] as const;
 // ── end: gifts to come ──
 export type GiftId = CharmId | FamiliarId | ThingId;
 export type GiftKind = "charm" | "familiar" | "thing";
@@ -145,8 +145,16 @@ export const GIFTS: readonly Gift[] = [
     does: { th: "เก็บน้ำค้าง น้ำฝน หรือน้ำจันทร์ไว้ได้ 3 ถัง เทตอนไหนก็ได้ และออกฤทธิ์ในบ่อนาน 3 เท่า", en: "Keeps three bucketfuls of dew, rain or moon water to pour when you like, and it works three times as long in the well" } },
 ];
 
-// ── gifts to come: mining ── (what each does is read by lib/town/mining and the map; the sack's slots are lib/town/pouches')
+// ── gifts to come: felling, mining ── (what each does is read by lib/town/trees, lib/town/mining and the map; the bundle's and the sack's slots are lib/town/pouches')
 export const MORE_GIFTS: readonly Gift[] = [
+  // ── felling ──
+  { id: "charmEchoAxe", kind: "charm", line: "felling", rank: 1, by: 3, name: { th: "ขวานสะท้อนป่า", en: "Echoing axe" },
+    does: { th: "เกมเดียวโค่นได้ถึง 3 ต้นที่ยืนใกล้กัน: ต้นละช่วง แต่ละช่วงเร็วขึ้นนิดหน่อย ช่วงไหนไม่ทัน ต้นนั้นยังยืนอยู่ เสียแรงตามจำนวนต้นที่ล้ม", en: "One game fells up to three trees standing close together: a stretch a tree, each a little faster; a stretch lost leaves its tree standing, and stamina is paid for each tree that falls" } },
+  { id: "famWoodpecker", kind: "familiar", line: "felling", rank: 2, by: 1, name: { th: "นกหัวขวานคู่ใจ", en: "A woodpecker" },
+    does: { th: "บินไปเกาะต้นไม้ที่โตแล้วที่ใกล้ที่สุด บอกเหนือตอไม้ว่าอีกนานแค่ไหนจะโต และจิกกิ่งทิ้งให้ต้นละ 1 กิ่ง (กิ่งแรกที่โดนไม่นับพลาด)", en: "It flies to the nearest grown tree, shows over each stump how long until it is grown, and pecks one branch away a tree (the first branch that strikes you is no miss)" } },
+  { id: "thingBundle", kind: "thing", line: "felling", rank: 3, by: 3, name: { th: "เชือกมัดฟืน", en: "Firewood cord" },
+    does: { th: "ช่องเก็บของเพิ่ม 3 ช่อง ใส่ได้เฉพาะไม้: ท่อนไม้ และไม้เนื้อดี", en: "Three more slots that hold only wood: logs and fine timber" } },
+  // ── mining ──
   { id: "charmMinerLamp", kind: "charm", line: "mining", rank: 1, by: 4, name: { th: "ตะเกียงคนเหมือง", en: "Miner's lamp" },
     does: { th: "ในถ้ำ รอบตัวเราสว่าง 4 ช่อง และคนที่อยู่ใกล้ก็เห็นด้วยแสงนี้", en: "In the cave, four tiles of light about you, and those near see by it" } },
   { id: "famBat", kind: "familiar", line: "mining", rank: 2, by: 1, name: { th: "ค้างคาวนำทาง", en: "A guiding bat" },
@@ -154,7 +162,7 @@ export const MORE_GIFTS: readonly Gift[] = [
   { id: "thingSack", kind: "thing", line: "mining", rank: 3, by: 5, name: { th: "กระสอบคนเหมือง", en: "Miner's sack" },
     does: { th: "ช่องเก็บของเพิ่ม 5 ช่อง ใส่ได้เฉพาะของจากเหมือง: หิน เศษแร่ เศษพลอย แร่ก้อน และพลอย", en: "Five more slots that hold only the mine's things: stone, ore fragments, gem fragments, big ore and gems" } },
 ];
-// ── end: mining ──
+// ── end: felling, mining ──
 /** (gifts to come) Every gift there is: the ones every keeper knows, and the later lines'. */
 export const ALL_GIFTS: readonly Gift[] = [...GIFTS, ...MORE_GIFTS];
 

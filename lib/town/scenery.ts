@@ -440,6 +440,33 @@ export function loadForest(): Promise<void> {
   return forest;
 }
 
+// ── felling ──
+let felling: Promise<{ art: (name: string) => Sprite | null; img: HTMLImageElement }> | null = null;
+/**
+ * The felling board's own pictures (public/town/felling.json, the scenery script's `--set felling`): the clearing a
+ * tree is felled in, the boughs over it and the trunk's parts. Fetched once per tab by whoever fells a tree, and
+ * kept apart from the scenery: nothing of them is drawn on the map. Gives a way to ask for one by its name, and the
+ * picture itself, which the board draws from.
+ */
+export function loadFelling(): Promise<{ art: (name: string) => Sprite | null; img: HTMLImageElement }> {
+  felling ??= (async () => {
+    const r = await fetch("/town/felling.json");
+    if (!r.ok) throw new Error(`felling.json ${r.status}`);
+    const json = await r.json() as SceneryJson;
+    const img = await new Promise<HTMLImageElement>((ok, no) => {
+      const i = new Image();
+      i.decoding = "async";
+      i.onload = () => ok(i);
+      i.onerror = () => no(new Error(`${json.image} did not load`));
+      i.src = `/town/${json.image}`;
+    });
+    return { img, art: (name: string) => { const p = json.props[name]; return p ? { src: `/town/${json.image}`, sheet: json.size, at: [p[0], p[1], p[2], p[3]] } : null; } };
+  })();
+  felling.catch(() => { felling = null; });
+  return felling;
+}
+// ── end: felling ──
+
 let kitchen: Promise<(name: string) => Sprite | null> | null = null;
 /**
  * The cooking screen's own pictures (public/town/kitchen.json, the same script's `--set kitchen`): what the

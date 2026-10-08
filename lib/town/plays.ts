@@ -25,7 +25,9 @@ import type { Strike } from "./fishing";
  */
 
 /** The games there are: fishing, so far (cooking and farming as they are built). */
-export type GameId = "fishing" | "farming" | "cooking";
+export type GameId = "fishing" | "farming" | "cooking"
+  // ── felling ── (a go at a tree: what it was at is the tree's kind, its hits the chops made)
+  | "felling";
 
 interface PlayBase {
   game: GameId;
@@ -72,7 +74,7 @@ export interface FishingPlay extends PlayBase {
  * worked at (a plot's deed, a dish), how many hits it wanted, and the hits and misses it took.
  */
 export interface WorkPlay extends PlayBase {
-  game: "farming" | "cooking";
+  game: "farming" | "cooking" | /* felling */ "felling";
   what: string;
   need: number;
   hits: number;

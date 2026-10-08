@@ -91,6 +91,14 @@ export interface Doing {
   circle?: string;
   /** (forging) What the tool in their hand carries, in three characters at the most (lib/town/tools' toolWord: how it glows, its gem's letter and level); "" for a plain one, missing from a browser older than forging. Every page draws the glow from it and walks its holder by it. */
   tool?: string;
+  // ── felling ──
+  /**
+   * What they do at a tree of the mountain's (lib/town/trees): "f" and the tree's number while their board is up at
+   * it, "b" and its number while they brace its trunk for somebody, "" when neither; missing from a browser older
+   * than that.
+   */
+  fell?: string;
+  // ── end: felling ──
 }
 
 /**
@@ -194,6 +202,9 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (typeof p.circle === "string" && /^[A-Za-z0-9_-]{0,64}$/.test(p.circle)) d.circle = p.circle;
   // (forging)
   if (typeof p.tool === "string" && (p.tool === "" || TOOL_WORD.test(p.tool))) d.tool = p.tool;
+  // ── felling ──
+  if (typeof p.fell === "string" && /^([fb]\d{1,4})?$/.test(p.fell)) d.fell = p.fell;
+  // ── end: felling ──
   return d;
 }
 

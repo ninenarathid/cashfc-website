@@ -44,11 +44,14 @@ export type WorkSound =
   | "swish" | "netted" | "flit" | "chirp" | "cicada" | "drip" | "gust" | "lull"
   | "crackle" | "sizzle" | "turn" | "charred"
   // ── mining ── (a pick on stone, a rock giving way, a pick that will not bite, the crystal's ring, the lift, ore passed in a vein)
-  | "pickHit" | "rockBreak" | "clink" | "crystalRing" | "liftRun" | "veinGlint";
+  | "pickHit" | "rockBreak" | "clink" | "crystalRing" | "liftRun" | "veinGlint"
+  // ── felling ── (an axe into a trunk, a branch that strikes, a tree coming down)
+  | "chop" | "crack" | "timber";
 export const WORK_SOUNDS: WorkSound[] = ["hoe", "knock", "sow", "water", "feed", "spray", "pick", "pull", "dip", "pour",
   "stir", "clang", "cooked", "odd", "nothing", "made", "ladle", "down", "soak", "scrub", "squeak", "clean",
   "rustle", "pluck", "wrong", "brush", "bruise", "shake", "basket", "thud", "swish", "netted", "flit", "chirp", "cicada", "drip", "gust", "lull", "crackle", "sizzle", "turn", "charred",
-  /* mining */ "pickHit", "rockBreak", "clink", "crystalRing", "liftRun", "veinGlint"];
+  /* mining */ "pickHit", "rockBreak", "clink", "crystalRing", "liftRun", "veinGlint",
+  /* felling */ "chop", "crack", "timber"];
 
 const KEY = "cashtown.sfx.off";
 /** Another's fishing: how loud it is beside them, as a share of one's own, and how many tiles off it is last heard. */
@@ -500,6 +503,26 @@ function makeWork(b: Bench, name: WorkSound, t: number) {
       // ore laid bare: two small bright notes
       bell(b, t, 1568, 0.13, 0.22);
       bell(b, t + 0.07, 2093, 0.11, 0.3);
+      break;
+    /* ── felling ── */
+    case "chop":
+      // the axe's bite: a short hard knock on wood, and the chips flying
+      tone(b, t, "triangle", 210, 96, 0.07, 0.4, 0.001);
+      hiss(b, t, "bandpass", 1900, 700, 1.4, 0.06, 0.26, 0.001);
+      hiss(b, t + 0.03, "highpass", 4200, 2600, 0.7, 0.05, 0.07, 0.004);
+      break;
+    case "crack":
+      // a branch that comes down on one: dry wood snapping, and a dull knock after it
+      hiss(b, t, "bandpass", 2600, 900, 2.2, 0.05, 0.34, 0.001);
+      hiss(b, t + 0.045, "bandpass", 1700, 600, 2, 0.06, 0.24, 0.001);
+      tone(b, t + 0.05, "sine", 150, 80, 0.12, 0.3, 0.002);
+      break;
+    case "timber":
+      // the trunk going over: a long creak falling in pitch, the rush of its boughs, and the ground taking it
+      tone(b, t, "sawtooth", 190, 70, 0.55, 0.1, 0.03);
+      hiss(b, t + 0.12, "bandpass", 700, 2400, 0.8, 0.5, 0.22, 0.12);
+      tone(b, t + 0.6, "sine", 96, 44, 0.3, 0.5, 0.004);
+      hiss(b, t + 0.6, "lowpass", 520, 180, 0.7, 0.26, 0.3, 0.004);
       break;
   }
 }
