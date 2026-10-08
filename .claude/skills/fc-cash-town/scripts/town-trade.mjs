@@ -72,8 +72,9 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     ok("the stall says when the relatives come next, and how long until then", !!first && /รอบถัดไป/.test(first.text) && /(07|19):00 น\./.test(first.text) && /อีก \d/.test(first.text) && !/จะได้/.test(first.text), first);
     ok("the shelf is laid out by kind, tools first", ["เครื่องมือ", "เหยื่อ", "ของครัว", "เมล็ดพันธุ์"].every((k) => kinds.includes(k)) && !(await X.evaluate(`${TRADE}.innerText.includes("ไส้เดือน")`)), kinds);
     ok("only the basic things are on it at first: no better rod yet", (await X.evaluate(`${TRADE}.innerText.includes("คันเบ็ดไม้ไผ่")`)) && !(await X.evaluate(`${TRADE}.innerText.includes("คันเบ็ดไม้สัก")`))
-      && (await X.evaluate(`window.__townTrade.shelf().length`)) === 23);
-    // (twenty-one, and the scroll of the cure for pests: the owner, 2026-10-04; and a net for insects, 2026-10-05)
+      && (await X.evaluate(`window.__townTrade.shelf().length`)) === 25);
+    // (twenty-one, and the scroll of the cure for pests: the owner, 2026-10-04; and a net for insects, 2026-10-05;
+    // and a pick and an axe, 2026-10-08)
     const tab = (name) => X.evaluate(`[...${TRADE}.querySelectorAll('[role="tablist"] [role="tab"]')].find((b) => b.innerText.trim() === ${JSON.stringify(name)})?.click()`);
     await tab("สูตรและคำใบ้"); await sleep(250);
     const scrolls = await X.evaluate(`[...${TRADE}.querySelectorAll("li")].map((li) => li.innerText.replace(/\\s+/g, " ").trim())`);
