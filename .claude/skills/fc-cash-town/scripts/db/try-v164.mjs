@@ -1,20 +1,23 @@
 /*
  * One part of a file to come, tried against the stand-in database as it is after the last file that ran (a snapshot,
  * loaded in a second, in memory: nothing is written anywhere, and several may run at once). try-line.mjs made general:
- * the version and the part are arguments, and a part may write functions again that earlier files wrote.
+ * the version and the part are arguments, a part may make a table, and a part may add lines to functions that earlier
+ * files wrote, without pasting them.
  *
  *   node try-v164.mjs <the worktree's root> <version> <part>          e.g.  node try-v164.mjs E:/…/fcnext-wt-x v164 smith
  *
  * It reads, in <root>/.claude/skills/fc-cash-town/scripts/db/:
  *   <version>.shared.sql          optional: what every part stands on (run first; not a part's to change)
- *   <version>.<part>.sql          the part's tables and functions (it must run, twice over, and write to no table with
- *                                 no WHERE). A line `-- stands on: <part>, <part>` in its head names the parts whose SQL
- *                                 is run before it, as it will be in the file put together.
- *   <version>.<part>.calls.json   optional: { "<case fn>": "town.x($1::jsonb, $2::text)" } for the part's rule cases
+ *   <version>.<part>.sql          the part's tables and NEW functions (it must run, twice over, and write to no table
+ *                                 with no WHERE). A line `-- stands on: <part>, <part>` in its head names the parts whose
+ *                                 SQL is run before it, as it will be in the file put together.
  *   <version>.<part>.lines.mjs    optional: `export const AGAIN = [[mark, "schema.fn(arg types)", [[from, to], …]], …]`:
- *                                 the functions of earlier files that the part writes again, each with the lines meant.
- *                                 Each is held to the one it replaces: word for word, but for those lines.
- *                                 (build-v164.mjs writes them into the part's file, between `-- <mark>` and `-- </mark>`.)
+ *                                 the functions of earlier files that the part adds lines to. THE PART NEVER PASTES
+ *                                 THEM (a file that runs in between may write them again): its file has an empty place
+ *                                 for each, `-- <mark>` / `-- </mark>`, and each statement is built here from the
+ *                                 function's own text as the database has it, with the lines in place (build-v164.mjs).
+ *                                 A part that writes a function that was there before in its own file fails.
+ *   <version>.<part>.calls.json   optional: { "<case fn>": "town.x($1::jsonb, $2::text)" } for the part's rule cases
  *   <version>.<part>.try.mjs      optional: `export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, give, patch, rank, root }) { … }`
  * and, in ./<version>/ beside this file (write them first, in the worktree:
  *   TOWN_VECTORS=<this folder>/<version> npx vitest run lib/town/db-vectors-<part>.test.ts ):
@@ -35,6 +38,7 @@ import { standIn } from "./stand-in.mjs";
 import { U } from "./pglite-harness.mjs";
 import { bareWrites } from "./bare-writes.mjs";
 import { changed } from "./build-v159.mjs";
+import { againOf, defsOf, filled, linesOf, pasted } from "./build-v164.mjs";
 
 const [root, version, part] = process.argv.slice(2);
 if (!root || !/^v\d+$/.test(version ?? "") || !part) { console.log("node try-v164.mjs <the worktree's root> <version> <part>"); process.exit(2); }
@@ -50,7 +54,7 @@ const settle = (v) => (Array.isArray(v) ? v.map(settle) : v && typeof v === "obj
 const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 const param = (v) => (v === null ? null : typeof v === "object" ? JSON.stringify(v) : v);
 /** The parts a part's SQL says it stands on (`-- stands on: a, b` in its head), in the order they are named. */
-const standsOn = (sql) => (sql.split("\n").slice(0, 40).map((l) => /^-- stands on:\s*(.+)$/.exec(l)?.[1]).find(Boolean) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+const standsOn = (sql) => (sql.split("\n").slice(0, 60).map((l) => /^-- stands on:\s*(.+)$/.exec(l)?.[1]).find(Boolean) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
 const t0 = Date.now();
 const t = await standIn();
@@ -80,10 +84,9 @@ const patch = async (who, fields) => {
   if (coins !== undefined) await t.sql(`update public.town_purses set coins = $2 where member_id = $1`, [who, coins]);
   return purseOf(who);
 };
-/** Every function of the town's as the database words it now: by its name and argument types. */
-const defs = async () => Object.fromEntries((await t.sql(`select n.nspname || '.' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' as name,
-    n.nspname || '.' || p.proname || '(' || oidvectortypes(p.proargtypes) || ')' as sig, pg_get_functiondef(p.oid) as def
-  from pg_proc p join pg_namespace n on n.oid = p.pronamespace where (n.nspname = 'town' or (n.nspname = 'public' and p.proname like 'town\\_%')) and p.prokind = 'f'`)).rows.map((r) => [r.sig, r.def]));
+const defs = () => defsOf((q) => t.sql(q).then((r) => r.rows));
+/** A part as it is run: its own file, with each function it adds lines to built from the database's text as it is at that moment. */
+const ready = async (p) => filled(lf(readFileSync(db(file(p)), "utf8")), againOf(await defs(), await linesOf(db(`${version}.${p}.lines.mjs`))));
 
 t.section(`the catalog as the code has it: ${Object.keys(CODE).length} rows`);
 const before = Object.fromEntries((await t.sql(`select key, data from public.town_catalog`)).rows.map((r) => [r.key, r.data]));
@@ -94,16 +97,21 @@ console.log(`  rows that differ from what the database had: ${moved.length ? mov
 t.section(`${existsSync(db(file("shared"))) ? `${file("shared")}, then ` : ""}the part's own`);
 if (existsSync(db(file("shared"))) && part !== "shared") await t.runTwice(lf(readFileSync(db(file("shared")), "utf8")), file("shared"));
 // (a part that stands on another's: that one's SQL is run first, as it will be in the file put together)
-for (const b of standsOn(FILE)) await t.runTwice(lf(readFileSync(db(file(b)), "utf8")), `${file(b)} (what ${part} stands on)`);
-// (the functions the part writes again, as they are before it)
-const AGAIN = existsSync(db(`${version}.${part}.lines.mjs`)) ? (await import(pathToFileURL(db(`${version}.${part}.lines.mjs`)).href)).AGAIN ?? [] : [];
+for (const b of standsOn(FILE)) await t.runTwice(await ready(b), `${file(b)} (what ${part} stands on)`);
+// (the functions the part adds lines to, as they are before it; and nothing of them pasted into its file)
+const AGAIN = await linesOf(db(`${version}.${part}.lines.mjs`));
 const OLD = await defs();
-await t.runTwice(FILE, file(part));
+const copies = pasted(FILE, OLD);
+t.check("the part's own file writes no function that was there before (such a one is built from its lines, never pasted)", copies.length === 0, copies);
+let RUN = FILE;
+try { RUN = filled(FILE, againOf(OLD, AGAIN)); t.check(`${AGAIN.length} function${AGAIN.length === 1 ? "" : "s"} of earlier files built from the database's own text, each with the part's lines in place`, true); }
+catch (e) { t.check("the functions of earlier files are built from the database's own text with the part's lines in place", false, e.message); }
+await t.runTwice(RUN, file(part));
 const NOW = await defs();
 const bare = await bareWrites((q) => t.sql(q).then((r) => r.rows));
 t.check("no function writes to a table with no WHERE", bare.length === 0, bare);
 // (in any case: a function written again from the database's own wording has its head in capitals)
-const inFile = [...new Set([...FILE.matchAll(/create or replace function ((?:public|town)\.[a-z0-9_]+)\s*\(/gi)].map((m) => m[1].toLowerCase()))];
+const inFile = [...new Set([...RUN.matchAll(/create or replace function ((?:public|town)\.[a-z0-9_]+)\s*\(/gi)].map((m) => m[1].toLowerCase()))];
 // (what a member may call is granted to the signed in and to nobody else)
 for (const fn of inFile.filter((f) => f.startsWith("public.town_"))) {
   const g = await one(`select has_function_privilege('authenticated', p.oid, 'execute') as member, has_function_privilege('anon', p.oid, 'execute') as anon, p.prosecdef as definer
@@ -121,7 +129,7 @@ for (const table of [...new Set([...FILE.matchAll(/create table if not exists (p
   t.check(`${table}: row level security on, nothing granted to a browser, no policy that opens it`, c?.closed === true && c.grants === 0 && c.policies === 0, c);
 }
 
-// A function of an earlier file's that the part writes again is the one it replaces, but for the lines meant; and
+// A function of an earlier file's that the part adds lines to is the one it replaces, but for those lines; and
 // nothing else that was there before is changed by the part.
 const sigs = new Set(AGAIN.map(([, sig]) => sig));
 for (const [mark, sig, lines] of AGAIN) {
@@ -131,7 +139,7 @@ for (const [mark, sig, lines] of AGAIN) {
 }
 const others = Object.keys(OLD).filter((k) => !sigs.has(k) && NOW[k] !== OLD[k]);
 t.check("no other function that was there before is changed (or gone)", others.length === 0, others);
-console.log(`  new functions: ${Object.keys(NOW).filter((k) => !(k in OLD)).length}; written again: ${AGAIN.length}`);
+console.log(`  new functions: ${Object.keys(NOW).filter((k) => !(k in OLD)).length}; with lines more: ${AGAIN.length}`);
 
 if (existsSync(here(`vectors-${part}.json`))) {
   const vectors = JSON.parse(readFileSync(here(`vectors-${part}.json`), "utf8"));

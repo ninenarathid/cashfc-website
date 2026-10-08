@@ -18,9 +18,11 @@
 -- Every number is the catalog's (`forge`, made by lib/town/forge-row.ts; and `work` for what the bellows are worth):
 -- no rule here has one of its own. Coins paid to the smith leave the game: they go nowhere.
 --
--- Three functions that were there are written again, each as it was but for the lines meant (v164.smith.lines.mjs):
--- `public.town_me` (the smith told with the purse), `town.work_counts_of` (the bellows count for the helpers' line),
--- `town.deed_th` (a word for each deed here).
+-- Three functions that were there have a small marked block more each: `public.town_me` (the smith told with the
+-- purse), `town.work_counts_of` (the bellows count for the helpers' line), `town.deed_th` (a word for each deed here).
+-- NOTHING OF THEM IS PASTED HERE: v164.smith.lines.mjs says the lines, and build-v164.mjs builds each statement from
+-- the function's own text as the database then has it (a file that runs before v164 may have written it again), into
+-- the empty places marked below.
 --
 -- The first section (what a tool carries) is lib/town/tools' readers: the other parts of this file that read a
 -- forged tool (the pick, the axe, and later the older tools) stand on them too.
@@ -707,147 +709,18 @@ create or replace function town.smith_answer(p_member uuid, p_did jsonb)
 returns jsonb language sql set search_path = public
 as $$ select town.answer(p_member, p_did - 'smithy') || jsonb_build_object('smith', town.smith_told(p_member)) $$;
 
--- ─── Functions of earlier files, written again ───────────────────────────
--- (each as the database has it, but for the lines of v164.smith.lines.mjs; build-v164.mjs writes them here)
+-- ─── Functions of earlier files, each with a block more ──────────────────
+-- (empty places: build-v164.mjs puts each function here as the database has it, with the lines of
+-- v164.smith.lines.mjs in place. Left empty in this file on purpose: a pasted copy would undo whatever a file that
+-- runs before v164 wrote into the same function.)
 
 -- <public.town_me>
-create or replace function public.town_me()
- RETURNS jsonb
- LANGUAGE plpgsql
- SECURITY DEFINER
- SET search_path TO 'public'
-AS $$
-declare
-  me uuid := town.member();
-begin
-  -- (forging: what I have at the smith is told with my purse, which is how a page knows there is a smith at all;
-  -- his board is told when he is looked at, and with every deed at his forge)
-  return jsonb_build_object('purse', town.purse_of(me, false), 'now', town.now_ms(), 'smith', jsonb_build_object('smithy', town.smithy_read(me)));
-end;
-$$;
 -- </public.town_me>
 
 -- <town.work_counts_of>
-create or replace function town.work_counts_of(p_done jsonb, p_doer text)
- RETURNS jsonb
- LANGUAGE plpgsql
- STABLE
-AS $$
-declare
-  l jsonb := town.cat('work');
-  what text := p_done->>'what';
-  thing text := coalesce(p_done->>'thing', '');
-  doc jsonb := coalesce(p_done->'doc', '{}'::jsonb);
-  other text := coalesce(doc->>'whose', doc->>'owner');
-  raw double precision;
-begin
-  if p_done->>'from' = 'play' then
-    if not coalesce((p_done->>'won')::boolean, false) then return '[]'::jsonb; end if;
-    if what = 'fishing' and l->'fishing' ? thing then
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'fishing', 'raw', l->'fishing'->thing, 'first', 'fishing:' || thing));
-    end if;
-    if what = 'cooking' and l->'kitchen'->'pot' ? thing then
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'kitchen', 'raw', l->'kitchen'->'pot'->thing, 'first', 'kitchen:' || thing,
-        'held', jsonb_build_object('key', 'pot:' || thing, 'most', l->'kitchen'->'pots')));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  if what = 'ladle' then
-    if jsonb_typeof(doc->'whose') = 'string' and doc->>'whose' <> p_doer then
-      return jsonb_build_array(jsonb_build_object('to', doc->>'whose', 'line', 'kitchen', 'raw', l->'kitchen'->'ladled',
-        'held', jsonb_build_object('key', 'ladle:' || p_doer, 'most', l->'kitchen'->'ladling')));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  if what in ('water', 'clear', 'till', 'feed', 'cure', 'dust') then
-    if other is not null and other <> '' and other <> p_doer then
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', l->'helpers'->what));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  if what = 'bell' then
-    if coalesce((p_done->>'n')::double precision, 0) > 0 then
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', (l->'helpers'->>'water')::double precision * floor((p_done->>'n')::double precision)));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  -- (forging: the bellows worked at the smith for somebody else's piece)
-  if what = 'bellows' then
-    if jsonb_typeof(doc->'whose') = 'string' and doc->>'whose' <> p_doer then
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', l->'helpers'->'bellows'));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  if what = 'thank' then
-    return coalesce((select jsonb_agg(jsonb_build_object('to', t.id #>> '{}', 'line', 'helpers', 'raw', l->'helpers'->'thanked') order by t.ord)
-      from jsonb_array_elements(case when jsonb_typeof(doc->'to') = 'array' then doc->'to' else '[]'::jsonb end) with ordinality as t(id, ord)
-     where jsonb_typeof(t.id) = 'string' and t.id #>> '{}' <> p_doer), '[]'::jsonb);
-  end if;
-  if what = 'gather' then
-    if l->'forest'->'how' ? coalesce(doc->>'how', '') then
-      raw := (l->'forest'->'how'->>(doc->>'how'))::double precision + case when l->'forest'->'rares' ? thing then (l->'forest'->>'rare')::double precision else 0 end;
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'forest', 'raw', raw, 'first', 'forest:' || thing));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  if what = 'net' then
-    if l->'insects' ? thing then
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'insects', 'raw', l->'insects'->thing, 'first', 'insects:' || thing));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  if what = 'pick' then
-    if l->'farming' ? thing and (other is null or other = '') then
-      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'farming', 'raw', l->'farming'->thing, 'first', 'farming:' || thing));
-    end if;
-    return '[]'::jsonb;
-  end if;
-  return '[]'::jsonb;
-end;
-$$;
 -- </town.work_counts_of>
 
 -- <town.deed_th>
-create or replace function town.deed_th(p_what text)
- RETURNS text
- LANGUAGE sql
- IMMUTABLE
-AS $$
-  select case p_what
-    when 'buy' then 'ซื้อของจากลุง' when 'leave' then 'ฝากลุงขาย' when 'take_back' then 'เอาของที่ฝากคืน'
-    when 'collect' then 'รับเงินค่าของที่ฝากขาย' when 'give' then 'ส่งของตามออเดอร์ลุง' when 'hint' then 'ซื้อคำใบ้'
-    when 'hold' then 'หยิบของมาถือ' when 'put_away' then 'เก็บของที่ถือ' when 'wear' then 'สวมตะกร้า' when 'take_off' then 'ถอดตะกร้า'
-    when 'drop' then 'ทิ้งของ' when 'eat' then 'นั่งกินข้าว' when 'get_up' then 'ลุกจากมื้ออาหาร' when 'read' then 'อ่านคัมภีร์'
-    when 'cast' then 'หย่อนเบ็ด' when 'fish_landed' then 'ตกได้' when 'fish_early' then 'ดึงเบ็ดเร็วไป' when 'fish_missed' then 'ดึงเบ็ดไม่ทัน'
-    when 'fish_slipped' then 'ปลาหลุด' when 'fish_snapped' then 'สายขาด' when 'fish_left' then 'เก็บเบ็ด'
-    when 'draw' then 'ตักน้ำจากแม่น้ำ' when 'pour' then 'เทน้ำลงบ่อ' when 'fill' then 'เติมบัวรดน้ำที่บ่อ'
-    when 'clear' then 'ถางหญ้า' when 'till' then 'พรวนดิน' when 'sow' then 'หว่านเมล็ด' when 'water' then 'รดน้ำ' when 'feed' then 'ใส่ปุ๋ย'
-    when 'cure' then 'ไล่แมลง' when 'pick' then 'เก็บเกี่ยว' when 'pull' then 'ขุดต้นที่ตายออก' when 'uproot' then 'ขุดต้นที่ยังเป็นออก'
-    when 'cook' then 'ทำอาหาร' when 'pot_down' then 'วางหม้อ' when 'ladle' then 'ตักจากหม้อที่วางไว้' when 'pot_take' then 'เก็บหม้อคืน'
-    when 'serve' then 'ตักจากหม้อในกระเป๋า' when 'open' then 'เปิดของที่ตกได้'
-    when 'toss' then 'โยนเหรียญลงน้ำพุ' when 'report' then 'รายงานคำอธิษฐาน'
-    when 'gather' then 'เก็บของป่า' when 'net' then 'จับแมลง'
-    when 'exchange' then 'แลก popoto เป็นเหรียญ' when 'deal' then 'แลกของกับสมาชิก'
-    when 'gift' then 'รับของที่บ่อน้ำฝากไว้ให้' when 'thank' then 'ขอบคุณคนที่ช่วยดูแลผัก' when 'jar_drop' then 'หยอดกระปุกที่บ่อน้ำ' when 'jar_take' then 'รับส่วนแบ่งจากกระปุก' when 'ditch' then 'เทน้ำรดทั้งแปลง' when 'yard' then 'เทน้ำใส่โอ่งที่ลานครัว' when 'fresh' then 'หม้อได้น้ำจากโอ่ง' when 'pass' then 'ส่งถังน้ำต่อให้คนถัดไป' when 'line' then 'น้ำที่ช่วยกันส่งต่อมาถึงที่' when 'box_put' then 'เก็บของเข้ากล่อง' when 'box_take' then 'หยิบของออกจากกล่อง' when 'ground_drop' then 'ทิ้งของลงพื้น' when 'ground_take' then 'เก็บของจากพื้น' when 'shop_open' then 'ชูป้ายเปิดร้าน' when 'shop_close' then 'เก็บป้ายปิดร้าน' when 'shop_buy' then 'ซื้อของจากร้านสมาชิก' when 'shop_sold' then 'ร้านขายของได้' when 'shop_sell' then 'ขายของให้ร้านสมาชิก' when 'shop_bought' then 'ร้านรับซื้อของ'
-    -- the gifts of the lines' ranks, the titles and the notice board (written down since v144 to v152, with no word until now)
-    when 'charms' then 'เปลี่ยนเครื่องรางที่ใส่' when 'familiar' then 'เรียกสัตว์คู่ใจ' when 'gift_use' then 'ใช้พลังของวิเศษ' when 'title' then 'เลือกฉายา' when 'notice_post' then 'ติดประกาศที่ป้าย' when 'notice_buy' then 'ซื้อของจากประกาศ' when 'notice_fill' then 'ขายของให้ประกาศรับซื้อ' when 'notice_collect' then 'รับเงินจากป้ายประกาศ' when 'notice_down' then 'ปลดประกาศ' when 'notice_fetch' then 'รับของจากป้ายประกาศ' when 'notice_slot' then 'เพิ่มช่องประกาศ'
-    -- the kitchen's gifts
-    when 'basket_put' then 'เก็บอาหารใส่ตะกร้ามิติ' when 'basket_take' then 'หยิบอาหารออกจากตะกร้ามิติ'
-    -- the farm's gifts
-    when 'row' then 'ทำงานทั้งแถวในครั้งเดียว' when 'gnome' then 'โนมรดน้ำทั้งแปลง' when 'hourglass' then 'พลิกนาฬิกาทรายแห่งฤดู'
-    -- the well's gifts
-    when 'drink_offer' then 'ยื่นน้ำพุแห่งชีวิตให้เพื่อน' when 'drink' then 'ดื่มน้ำพุแห่งชีวิตที่เพื่อนยื่นให้' when 'drink_gave' then 'เพื่อนดื่มน้ำพุแห่งชีวิตที่ยื่นให้' when 'rain_fill' then 'กบเรียกฝนเติมถังให้' when 'moon_keep' then 'เก็บน้ำใส่ขวดแก้วจันทรา' when 'moon_pour' then 'เทน้ำจากขวดแก้วจันทราลงบ่อ'
-    -- the forest's gifts
-    when 'slip' then 'พลาดที่จุดลับในป่า' when 'map_use' then 'คลี่ลายแทงของภูตป่า' when 'map_dig' then 'ขุดหาหีบของภูต' when 'chest' then 'ขุดเจอหีบของภูต'
-    -- the insects' gifts
-    when 'nectar' then 'หยดน้ำหวานล่อแมลง'
-    -- the helpers' gifts
-    when 'longpour' then 'รดน้ำทั้งแถวให้เพื่อนในรวดเดียว' when 'bell' then 'ระฆังคู่หูดังกับเพื่อน' when 'ring' then 'แบ่งแรงให้เพื่อนด้วยแหวน' when 'ring_had' then 'ได้แรงจากแหวนของเพื่อน' when 'dust' then 'โรยผงภูตสวนให้ต้นของเพื่อน'
-    -- the smith's
-    when 'smelt' then 'ฝากช่างตีเหล็กหลอม' when 'smelted' then 'รับของที่หลอมเสร็จ' when 'smith_wider' then 'ขยายเตาหลอม' when 'bellows' then 'สูบลมช่วยเพื่อนหลอม'
-    when 'forge' then 'ตีบวกเครื่องมือ' when 'forge_draw' then 'ช่างเปิดออปชันให้เลือก' when 'forge_choose' then 'เลือกออปชันของเครื่องมือ' when 'forge_redraw' then 'สุ่มออปชันใหม่' when 'gem_set' then 'ฝังพลอยลงเครื่องมือ'
-    else p_what end
-$$;
 -- </town.deed_th>
 
 -- ─── What a member does ──────────────────────────────────────────────────
@@ -1089,7 +962,6 @@ revoke execute on function public.town_smith_draw(integer) from public, anon;
 revoke execute on function public.town_smith_choose(integer, text) from public, anon;
 revoke execute on function public.town_smith_redraw(integer, integer, text) from public, anon;
 revoke execute on function public.town_smith_gem(integer, text) from public, anon;
-revoke execute on function public.town_me() from public, anon;
 grant execute on function public.town_smith() to authenticated;
 grant execute on function public.town_smith_smelt(text, integer) to authenticated;
 grant execute on function public.town_smith_take() to authenticated;
@@ -1101,7 +973,6 @@ grant execute on function public.town_smith_draw(integer) to authenticated;
 grant execute on function public.town_smith_choose(integer, text) to authenticated;
 grant execute on function public.town_smith_redraw(integer, integer, text) to authenticated;
 grant execute on function public.town_smith_gem(integer, text) to authenticated;
-grant execute on function public.town_me() to authenticated;
 
 -- ─── Reading it (for whoever puts the file together: these go at its foot) ──
 --
