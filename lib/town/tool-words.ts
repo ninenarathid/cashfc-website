@@ -132,7 +132,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
   const F = OLD_FX;
   switch (element) {
     case "fire":
-      if (fam === "rod") { const p = pct(step(F.fire.rod.tires, level)); return w(`ปลาเหลือสายให้สู้น้อยลง ${p}%`, `The fish has ${p}% less line to be won`); }
+      if (fam === "rod") { const p = pct(step(F.fire.rod.tires, level)); return w(`ปลาหมดแรงเร็วขึ้น ${p}%`, `The fish tires ${p}% sooner`); }
       if (fam === "hoe") { const n = step(F.fire.hoe.fewer, level); return w(`แต่ละแปลงตีน้อยลง ${n} ครั้ง`, `${n} ${plural(n, "hit", "hits")} fewer a plot`); }
       if (fam === "can") { const n = step(F.fire.can.more, level); return w(`เติมน้ำครั้งหนึ่งรดได้เพิ่ม ${n} ครั้ง`, `${n} more ${plural(n, "watering", "waterings")} a filling`); }
       if (fam === "bugNet") { const p = pct(step(F.fire.bugNet.sooner, level)); return w(`สวิงลงถึงตัวเร็วขึ้น ${p}%`, `The swing lands ${p}% sooner`); }
@@ -147,9 +147,9 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
     }
     case "ice": {
       const p = pct(step(F.ice.slow, level));
-      if (fam === "rod") return w(`ช่วงของปลาขยับช้าลง ${p}%`, `The fish's stretch moves ${p}% slower`);
+      if (fam === "rod") return w(`แถบปลอดภัยขยับช้าลง ${p}%`, `The safe stretch moves ${p}% slower`);
       if (fam === "hoe") return w(`ตัวชี้และลมตอนถอนวัชพืชช้าลง ${p}%`, `The marker and the weeding's gusts are ${p}% slower`);
-      if (fam === "can") return w(`น้ำตอนรดไหลช้าลง ${p}%`, `The pour's water runs ${p}% slower`);
+      if (fam === "can") return w(`น้ำในเกมรดขึ้นช้าลง ${p}%`, `The pour's water rises ${p}% slower`);
       if (fam === "bugNet") return w(`แมลงหนีช้าลง ${p}%`, `An insect makes off ${p}% slower`);
       return w(`หลุดจังหวะได้นานขึ้นก่อนจะเสีย (ช้าลง ${p}%)`, `A slip may last longer before it costs (${p}% slower)`);
     }
@@ -160,21 +160,21 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
     }
     case "lightning": {
       const p = pct(step(F.lightning.chance, level));
-      if (fam === "rod") return w(`${p}% ที่เหยื่อไม่หมดไป`, `${p}% that the bait is not used up`);
+      if (fam === "rod") return w(`ตกปลาได้แล้วมีโอกาส ${p}% ได้เหยื่อคืน`, `${p}% that a fish landed gives its bait back`);
       if (fam === "hoe") return w(`${p}% ที่แปลงถัดไปในแถวเสร็จไปด้วย`, `${p}% that the next plot of the row is done too`);
       if (fam === "can") return w(`${p}% ที่แปลงถัดไปได้น้ำไปด้วย`, `${p}% that the next plot is watered too`);
-      if (fam === "bugNet") return w(`${p}% ที่ได้แมลงอีกตัวติดมาด้วย`, `${p}% that another insect comes with the one caught`);
+      if (fam === "bugNet") return w(`จับได้แล้วมีโอกาส ${p}% ได้เพิ่มอีกตัว`, `${p}% that a catch brings one more`);
       return w(`${p}% ที่หม้อได้เพิ่ม 1 ที่`, `${p}% that a pot has one more helping`);
     }
     case "wind": return windWords(level);
     case "light":
-      if (fam === "rod") { const s = step(F.light.rod.early, level); return w(`ทุ่นระยิบก่อนปลากิน ${s} วินาที`, `The float shimmers ${s} s before the bite`); }
+      if (fam === "rod") { const s = step(F.light.rod.early, level); return w(`ทุ่นเรืองแสงก่อนปลากิน ${s} วินาที`, `The float glows ${s} s before the bite`); }
       if (fam === "hoe") return w("ก้อนหินตอนถอนวัชพืชเรืองแสงให้เห็น", "The weeding's stones glow");
       if (fam === "can") { const n = step(F.light.can.glint, level); return n >= ALL ? w("ต้นที่รดได้ตอนนี้ส่องประกายทั้งแปลง", "Plants that can be watered now glint over the whole bed") : w(`ต้นที่รดได้ตอนนี้ส่องประกายในระยะ ${n} ช่อง`, `Plants that can be watered now glint within ${n} tiles`); }
-      if (fam === "bugNet") { const n = step(F.light.bugNet.seen, level); return w(`เห็นแมลงที่ซ่อนอยู่ในระยะ ${n} ช่อง`, `Insects that hide are seen within ${n} tiles`); }
+      if (fam === "bugNet") { const n = step(F.light.bugNet.seen, level); return w(`แมลงในระยะ ${n} ช่องมีประกาย แม้ตัวที่ซ่อนอยู่`, `Insects within ${n} tiles glint, the hidden ones too`); }
       return null;
     case "dark":
-      if (fam === "rod") { const x = step(F.dark.rod.rare, level), f = pct(F.dark.rod.fiercer); return w(`ปลาหายากมาบ่อยขึ้น ${x} เท่า แต่ปลาทุกตัวดุขึ้น ${f}%`, `Rare fish ${x} times as often; every fish ${f}% fiercer`); }
+      if (fam === "rod") { const x = step(F.dark.rod.rare, level), f = pct(F.dark.rod.fiercer); return w(`ปลาหายากมาบ่อยขึ้น ${x} เท่า แต่ปลาทุกตัวดึงแรงขึ้น ${f}%`, `Rare fish ${x} times as often; every fish pulls ${f}% harder`); }
       if (fam === "hoe") { const p = pct(step(F.dark.hoe.worm, level)), f = pct(F.dark.hoe.faster); return w(`${p}% ที่พรวนแล้วเจอไส้เดือน แต่ตัวชี้เร็วขึ้น ${f}%`, `${p}% that a tilled plot turns up a worm; the marker ${f}% faster`); }
       if (fam === "can") { const p = pct(step(F.dark.can.more, level)), k = F.dark.can.uses; return w(`รดครั้งหนึ่งต้นโตเพิ่ม ${p}% แต่ใช้น้ำ ${k} ครั้ง`, `A watering adds ${p}% more growth, and uses ${k}`); }
       if (fam === "bugNet") { const x = step(F.dark.bugNet.rare, level), f = pct(F.dark.bugNet.smaller); return w(`แมลงหายากมาบ่อยขึ้น ${x} เท่า แต่วงสวิงเล็กลง ${f}%`, `Rare insects ${x} times as often; the ring ${f}% smaller`); }

@@ -67,6 +67,7 @@ describe("what a gem does in a tool, in a line (said only on the card of a tool 
     expect(gemDoes("rod", "wind", 1)).toEqual(gemDoes("pick", "wind", 1));
     expect(gemDoes("hoe", "wind", 2)!.en).toContain("15%");
     expect(gemDoes("rod", "fire", 1)!.en).toContain(String(Math.round(OLD_FX.fire.rod.tires[0] * 100)));
+    expect(gemDoes("rod", "fire", 1)!.en).toMatch(/tires/);
     expect(gemDoes("can", "fire", 2)!.en).toContain(String(OLD_FX.fire.can.more[1]));
     expect(gemDoes("bugNet", "light", 1)!.en).toContain(String(OLD_FX.light.bugNet.seen[0]));
     // the pot, the pan and the grill say the same
