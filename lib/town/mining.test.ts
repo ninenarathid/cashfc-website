@@ -313,6 +313,24 @@ describe("mining: a rock struck", () => {
 });
 
 // (written with the rule and never run: the owner's word that evening was to build and not to test yet)
+describe("mining: glowing moss", () => {
+  it("about one plain rock in ten of the cave lets some out as it breaks, never a rock of the mountain's foot nor one that hides a vein", () => {
+    let stone = 0, moss = 0;
+    for (let turn = 0; turn < 600; turn++) for (let rock = 0; rock < 24; rock++) {
+      const h = holdsOf(SALT, 7, rock, turn, NONE);
+      if (h.kind === "stone") { stone++; if (h.moss) moss++; } else expect(h).not.toHaveProperty("moss");
+      expect(holdsOf(SALT, 0, rock, turn, NONE)).not.toHaveProperty("moss");
+    }
+    expect(moss / stone).toBeGreaterThan(0.08); expect(moss / stone).toBeLessThan(0.12);
+    const m = where(5, (h) => h.kind === "stone" && !!h.moss), d = done(mine(miner(), go({ ...m })));
+    expect(d.moss).toEqual([m.rock]);
+    expect(d.got[0]).toEqual(["stone", 1]);
+    expect(done(mine(miner(), go({ ...where(5, (h) => h.kind === "stone" && !h.moss) }))).moss).toEqual([]);
+    expect(MINING.moss).toEqual({ chance: 0.1, glows: 60_000 });
+  });
+});
+
+// (written with the rule and never run: the owner's word that evening was to build and not to test yet)
 describe("mining: several picks on one rock", () => {
   const tally = (t: Struck | null) => () => t;
   const still = (d: ReturnType<typeof mine>) => { if (!d.ok || d.done !== false) throw new Error("the rock should still stand"); return d; };

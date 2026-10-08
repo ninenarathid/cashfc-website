@@ -47,7 +47,7 @@ import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helpin
 // ── forging ──
 import { FORGE, toolKindOf } from "./tools";
 // ── mining ──
-import { boardOf as caveBoardOf, breakRocks, caveAt, changesAt, crystalBroken, floorAtTile, floorRocks, floorSpots, floorTile, goneAt, openWay, setTorch, stands, strikeRock, struckAt, struckTold, wayOpen, type CaveState, type CaveTold } from "./cave-state";
+import { boardOf as caveBoardOf, breakRocks, caveAt, changesAt, crystalBroken, floorAtTile, floorRocks, floorSpots, floorTile, goneAt, openWay, setMoss, setTorch, stands, strikeRock, struckAt, struckTold, wayOpen, type CaveState, type CaveTold } from "./cave-state";
 import { MINING, anyPick, crystalOf, drill, elementOf, helpersOf, holdsOf, mayRide, mine, mineOf, oreOf, payFirst, peekOf, pickOf, reachRest, torchDown, turnOf as mineTurn, veinEnd, wayRockOf, type Go as MineGo, type Holds, type Mined, type MineRefusal, type Peek, type PendingVein, type PlaceToday, type RockAt } from "./mining";
 import { bagToPouch, pouchToBag, type PouchRefusal } from "./pouches";
 import { ALL, GEMS, GEM_FX, ORES, gemBy, has as toolHas } from "./tools";
@@ -58,7 +58,7 @@ import { MOUNTAIN_ROCKS } from "./world";
 const CAVE_KEPT = "cashtown.trial.cave.1", MINE_FATE = "cashtown.trial.mine.fate.1", MINE_LUCK = "cashtown.trial.mine.luck.1";
 const mineDeedsKey = (id: string) => `cashtown.trial.mine.deeds.1.${id}`;
 /** What a script may have a rock hold. */
-export type RockFate = "stone" | "shards" | "vein" | "gem" | "way" | "crystal";
+export type RockFate = "stone" | "shards" | "moss" | "vein" | "gem" | "way" | "crystal";
 export interface MineDeed { what: string; thing: string | null; n: number; doc: Record<string, unknown>; at: number }
 // ── end: mining ──
 
@@ -1414,12 +1414,12 @@ export class Trial {
       const said = fates[`${floor}:${rock}`];
       if (said) {
         const [what, seed] = said.split(":"), n = Number(seed) || 20261008;
-        return what === "stone" ? { kind: "stone", shards: 0 } : what === "shards" ? { kind: "stone", shards: 2 } : what === "vein" ? { kind: "vein", gem: false, seed: n }
+        return what === "stone" ? { kind: "stone", shards: 0 } : what === "shards" ? { kind: "stone", shards: 2 } : what === "moss" ? { kind: "stone", shards: 0, moss: true } : what === "vein" ? { kind: "vein", gem: false, seed: n }
           : what === "gem" ? { kind: "vein", gem: true, seed: n } : what === "way" ? { kind: "way", shards: 0 } : what === "crystal" ? { kind: "crystal" } : null;
       }
       if (typeof luck !== "number") return null;
       const h = holdsOf(this.salt(), floor, rock, turn, today, pick), odds = floor > 0 ? MINING.cave : MINING.foot;
-      return h.kind === "stone" ? { kind: "stone", shards: luck < odds.shard ? odds.n[1] : 0 } : h;
+      return h.kind === "stone" ? { kind: "stone", shards: luck < odds.shard ? odds.n[1] : 0, ...(h.moss ? { moss: true } : {}) } : h;
     };
   }
   /** A deed at the mine written down (the trial keeps its newest hundred, for scripts), and counted on its line. */
@@ -1467,7 +1467,7 @@ export class Trial {
     return {
       day: s.day, turn, again: changesAt(s, now), gone,
       ways: Object.fromEntries(Object.entries(s.ways).map(([f, w]) => [f, { x: w.x, y: w.y, rock: w.rock, name: w.name }])),
-      torches: s.torches.filter((t) => t.until > now), deepest: caveBoardOf(s),
+      torches: s.torches.filter((t) => t.until > now), moss: s.moss.filter((m) => m.until > now), deepest: caveBoardOf(s),
       rests: kept.rests, vein: kept.vein, loose: lt === turn && kept.loose.ids.length ? { floor: lf, ids: kept.loose.ids } : null, glints,
       place: floor, struck: struckTold(s, floor, this.id, now), paid: kept.paid,
       crystal: !c || s.crystal ? null : floor === c.floor ? { floor: c.floor, rock: c.rock } : pick && toolHas(pick, "pkGleam") ? { floor: c.floor, rock: null } : null,
@@ -1480,7 +1480,7 @@ export class Trial {
    * whoever else struck some of it away is written down as having lent a hand.
    */
   mineDo(floor: number, rock: number, at: [number, number], swings: number, name: string, how?: "quake"):
-    { ok: true; got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean } | { ok: false; why: MineRefusal } {
+    { ok: true; got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean; moss?: boolean } | { ok: false; why: MineRefusal } {
     const now = this.now(), s = this.caveKept(), rocks = this.rocksAt(floor, s.day), today = this.todayAt(floor, s), before = this.purse(), pick = pickOf(before);
     const c = this.crystalToday(s.day), crystal = c && c.floor === floor ? c.rock : null, element = elementOf(this.salt(), floor, s.day);
     const go: MineGo = {
@@ -1516,6 +1516,8 @@ export class Trial {
     const way = paid.way;
     if (way !== null) { const r = rocks.find((x) => x.id === way)!; next = openWay(next, floor, { rock: r.id, x: r.x, y: r.y, by: first, name: did.struck.name || first, at: now }); }
     if (paid.crystal) next = crystalBroken(next, { by: first, name: did.struck.name || first, at: now });
+    // (moss let out of a rock glows where the rock stood, for everybody)
+    for (const id of paid.moss) { const r = rocks.find((x) => x.id === id); if (r && floor > 0) next = setMoss(next, floor, r.x, r.y, first, now); }
     this.write(CAVE_KEPT, next);
     this.save(did.purse);
     const helpers = helpersOf(did.struck);
@@ -1525,14 +1527,14 @@ export class Trial {
         ...(e.rock === rock && first !== this.id ? { by: this.id } : {}), ...(e.rock === rock && helpers.length ? { with: helpers } : {}),
       };
       if (e.kind === "crystal") this.mineDeedFor(first, "crystal", "stone", 1, { ...doc, got: ORES[ORES.length - 1].shard, chip: GEMS[element].chip });
-      else this.mineDeedFor(first, "mine", "stone", 1, { ...doc, ...(e.shards ? { got: oreOf(floor), shards: e.shards } : {}), ...(e.kind === "vein" ? { vein: true } : {}) });
+      else this.mineDeedFor(first, "mine", "stone", 1, { ...doc, ...(e.shards ? { got: oreOf(floor), shards: e.shards } : {}), ...(e.kind === "vein" ? { vein: true } : {}), ...(paid.moss.includes(e.rock) ? { moss: true } : {}) });
     }
     if (way !== null) this.mineDeedFor(first, "delve", null, 1, { floor, rock: way });
     for (const id of helpers) this.mineDeedFor(id, "hew", "stone", 1, { floor, rock, whose: first });
     this.tell();
     return first === this.id
-      ? { ok: true, got: paid.got, broke: paid.broke, way: way !== null, vein: paid.vein, crystal: paid.crystal, chained: paid.chained, cost: paid.cost, part: 1 }
-      : { ok: true, ...nothing, broke: paid.broke, way: way !== null, crystal: paid.crystal, chained: paid.chained, part: 1, helped: true, whose: theirs, paid: first };
+      ? { ok: true, got: paid.got, broke: paid.broke, way: way !== null, vein: paid.vein, crystal: paid.crystal, chained: paid.chained, cost: paid.cost, part: 1, moss: paid.moss.length > 0 }
+      : { ok: true, ...nothing, broke: paid.broke, way: way !== null, crystal: paid.crystal, chained: paid.chained, part: 1, helped: true, whose: theirs, paid: first, moss: paid.moss.length > 0 };
   }
   /** What a rock holds, for a pick that sees it. */
   minePeek(floor: number, rock: number): { ok: true; peek: Peek } | { ok: false; why: MineRefusal } {

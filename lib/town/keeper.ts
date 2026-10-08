@@ -48,9 +48,10 @@ import type { PouchRefusal } from "./pouches";
  * with it, and its stamina. A rock somebody else struck first is theirs: `helped`, it broke and left me nothing
  * (`whose`: their name; `paid`: who they are, for the room to tell them that their purse changed); `waits`, it is
  * struck whole away and they cannot take what it leaves just now. (`part` and the rest are missing from a keeper
- * older than several picks on one rock: a rock then breaks at one go or not at all.)
+ * older than several picks on one rock: a rock then breaks at one go or not at all.) `moss`: a rock that broke let
+ * glowing moss out.
  */
-export interface MineDid { got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean }
+export interface MineDid { got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean; moss?: boolean }
 /** What a vein played out came to: what it gave, how many glinting cells of how many, and whether the same face is to be played once more. */
 export interface VeinDid { got: Array<[ItemId, number]>; passed: number; of: number; again: boolean }
 export type MineDone<T> = ({ ok: true } & T) | { ok: false; why: Why | MineRefusal | PouchRefusal };

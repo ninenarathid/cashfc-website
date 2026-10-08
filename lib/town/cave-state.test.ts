@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { caveFloor, isRest } from "./cave";
-import { boardOf, breakRocks, caveAt, caveDay, changesAt, cornerOf, crystalBroken, floorRocks, floorSpots, floorTile, goneAt, newCave, openWay, setTorch, stands, torchesAt, wayOpen } from "./cave-state";
+import { boardOf, breakRocks, caveAt, caveDay, chamberOf, changesAt, cornerOf, crystalBroken, floorRocks, floorSpots, floorTile, goneAt, mossAt, newCave, openWay, setMoss, setTorch, stands, strikeRock, struckAt, struckTold, torchesAt, wayOpen } from "./cave-state";
 import { MINING } from "./mining";
 import { pouchToBag, bagToPouch, heldIn, pouchesOf, roomIn, stow, stowAll, takeOut, POUCHES } from "./pouches";
 import { newPurse, type Purse } from "./trade";
@@ -78,6 +78,40 @@ describe("what the village shares of the cave", () => {
     // what a page was told changes by itself at the first torch out, or the rocks' next turn
     expect(changesAt(s, NOON + 60_000)).toBe(NOON + 5 * 60_000);
     expect(changesAt(caveAt(null, NOON), NOON + 60_000)).toBe(NOON + MINING.turn);
+  });
+  // (the two below were written with their rules and never run: the owner's word that evening was to build and not to test yet)
+  it("what is struck away of a rock is kept for its turn, for everybody, and is no more once the rock breaks", () => {
+    let s = caveAt(null, NOON);
+    expect(struckAt(s, 3, 4, NOON)).toBeNull();
+    s = strikeRock(s, 3, 4, { first: "a", name: "Aqua", at: NOON, by: { a: 0.5 } }, NOON);
+    s = strikeRock(s, 3, 4, { first: "a", name: "Aqua", at: NOON, by: { a: 0.5, b: 0.25 } }, NOON + 1000);
+    s = strikeRock(s, 3, 9, { first: "b", name: "Bo", at: NOON, by: { b: 0.25 } }, NOON + 2000);
+    expect(struckAt(s, 3, 4, NOON + 5000)).toMatchObject({ first: "a", by: { a: 0.5, b: 0.25 } });
+    expect(struckTold(s, 3, "b", NOON + 5000)).toEqual({ 4: { part: 0.75, own: 0.25, by: "Aqua", mine: false }, 9: { part: 0.25, own: 0.25, by: "Bo", mine: true } });
+    expect(struckTold(s, 4, "b", NOON + 5000)).toEqual({});
+    // kept as it is read again; gone with its rock, and with its turn
+    expect(struckAt(caveAt(JSON.parse(JSON.stringify(s)), NOON + 5000), 3, 4, NOON + 5000)).toMatchObject({ first: "a", name: "Aqua" });
+    expect(struckAt(breakRocks(s, 3, [4], NOON + 6000), 3, 4, NOON + 6000)).toBeNull();
+    expect(struckAt(breakRocks(s, 3, [4], NOON + 6000), 3, 9, NOON + 6000)).toMatchObject({ first: "b" });
+    expect(struckAt(s, 3, 4, NOON + MINING.turn)).toBeNull();
+    expect(caveAt(s, NOON + MINING.turn).struck).toEqual({});
+  });
+  it("moss let out of a rock glows a minute where the rock stood, for everybody; and the chamber it lights is the one its rock stood in", () => {
+    let s = caveAt(null, NOON);
+    s = setMoss(s, 3, 140, 400, "me", NOON);
+    expect(mossAt(s, 3, NOON + 59_000)).toEqual([{ f: 3, x: 140, y: 400, until: NOON + 60_000, by: "me" }]);
+    expect(mossAt(s, 3, NOON + 60_000)).toEqual([]);
+    expect(mossAt(s, 4, NOON)).toEqual([]);
+    expect(changesAt(s, NOON)).toBe(NOON + 60_000);
+    expect(caveAt(s, NOON + 61_000).moss).toEqual([]);
+    expect(caveAt(s, DAWN).moss).toEqual([]);
+    const day = caveDay(NOON), corner = cornerOf(3);
+    for (const r of floorRocks(3, day)) {
+      const c = chamberOf(3, day, r.x, r.y)!;
+      expect(c.x).toBeGreaterThan(corner.x); expect(c.y).toBeGreaterThan(corner.y);
+      expect(Math.hypot(r.x + 0.5 - c.x, r.y + 0.5 - c.y)).toBeLessThan(c.r + 4);
+    }
+    expect(chamberOf(0, day, 1, 1)).toBeNull();
   });
   it("what is kept wrongly is read as nothing", () => {
     expect(caveAt("nonsense", NOON)).toEqual(newCave(caveDay(NOON)));

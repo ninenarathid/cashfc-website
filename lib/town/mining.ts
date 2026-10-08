@@ -60,6 +60,8 @@ export const MINING = {
   light: { walker: 2, mushroom: 3, lamp: 4, torch: 4, burns: 5 * MINUTE },
   /** What is held as a weak light, and what is set down as a strong one. */
   mushroom: "glowMushroom" as ItemId, torch: "torch" as ItemId,
+  /** Glowing moss: how likely a plain rock of the cave lets some out as it breaks (never one that hides a vein, the way down or the crystal), and how long it glows. Nothing for the bag: it lights the chamber its rock stood in, for everybody. */
+  moss: { chance: 0.1, glows: MINUTE },
 };
 
 /* ── when ───────────────────────────────────────────────────────────────── */
@@ -107,9 +109,9 @@ export function wayRockOf(salt: string, floor: number, day: number, rocks: reado
   return of.length ? of[Math.floor(roll(`${salt}:way`, floor, day) * of.length)].id : null;
 }
 
-/** What a rock holds: plain stone with so many fragments (often none), a vein (a gem's or not, with the seed its face is made of), the way down, or the day's crystal. */
+/** What a rock holds: plain stone with so many fragments (often none; `moss`, in the cave: it lets glowing moss out as it breaks), a vein (a gem's or not, with the seed its face is made of), the way down, or the day's crystal. */
 export type Holds =
-  | { kind: "stone"; shards: number }
+  | { kind: "stone"; shards: number; moss?: boolean }
   | { kind: "vein"; gem: boolean; seed: number }
   | { kind: "way"; shards: number }
   | { kind: "crystal" };
@@ -127,7 +129,7 @@ export function holdsOf(salt: string, floor: number, rock: number, turn: number,
   if (floor > 0 && roll(`${salt}:vein`, floor, rock, turn) < MINING.cave.vein * gemBy(pick, "dark", GEM_FX.dark.pick.veins, 1)) {
     return { kind: "vein", gem: roll(`${salt}:gem`, floor, rock, turn) < MINING.cave.gem, seed: Math.floor(roll(`${salt}:face`, floor, rock, turn) * 4294967296) };
   }
-  return { kind: "stone", shards };
+  return floor > 0 && roll(`${salt}:moss`, floor, rock, turn) < MINING.moss.chance ? { kind: "stone", shards, moss: true } : { kind: "stone", shards };
 }
 /** What a peek says of a rock: stone, fragments, or a vein. (The way down and the crystal are no peek's to tell: each says what it would hold besides.) */
 export type Peek = "stone" | "shards" | "vein";
@@ -302,6 +304,8 @@ export interface Mined {
   cost: number; spent: boolean;
   /** What each broken rock left, for the deeds: the rock, its fragments (if any), whether it was a plain one. */
   each: Array<{ rock: number; kind: Holds["kind"]; shards: number }>;
+  /** The rocks of them that let glowing moss out. */
+  moss: number[];
 }
 const add = (got: Array<[ItemId, number]>, id: ItemId, n: number) => { if (n <= 0) return; const had = got.find((g) => g[0] === id); if (had) had[1] += n; else got.push([id, n]); };
 
@@ -386,7 +390,7 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   }
 
   // what they leave
-  const got: Array<[ItemId, number]> = [], ore = oreOf(go.floor), each: Mined["each"] = [];
+  const got: Array<[ItemId, number]> = [], ore = oreOf(go.floor), each: Mined["each"] = [], moss: number[] = [];
   let crumb = kept.crumb, way: number | null = null, crystal = false, vein: PendingVein | null = null;
   for (const b of breaks) {
     add(got, "stone", MINING.stone);
@@ -396,6 +400,7 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
       shards = h.shards;
       if (h.kind === "way") way = b.rock.id;
       else if (has(pick, "pkCrumb") && ++crumb >= optN("pkCrumb", "every")) { crumb = 0; shards += optN("pkCrumb", "more"); }
+      if (h.kind === "stone" && h.moss) moss.push(b.rock.id);
       add(got, ore, shards);
     } else if (h.kind === "crystal") {
       crystal = true;
@@ -437,7 +442,7 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   // (broken for them by somebody else: their page is to say so once, with what it left and who it was)
   const paid: Paid | null = own ? kept.paid : { at: go.now, f: go.floor, rock: rock.id, got: got.map(([id, n]): [ItemId, number] => [id, n]), way: way !== null, crystal, vein: !!vein, by: go.name ?? "" };
   after = { ...after, mine: { ...kept, owed, crumb, loose: { k, ids: loose }, vein, last: own ? go.now : kept.last, paid } };
-  return { ok: true, done: true, purse: after, struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each };
+  return { ok: true, done: true, purse: after, struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each, moss };
 }
 
 /* ── a vein played out ──────────────────────────────────────────────────── */

@@ -1,4 +1,4 @@
-import { CAVE_SIZE, caveFloor, isRest } from "./cave";
+import { CAVE_SIZE, caveFloor, isRest, type Chamber } from "./cave";
 import { MINING, partOf, struckOf, turnOf, type Paid, type PendingVein, type RockAt, type Struck } from "./mining";
 import { dayOf } from "./stamina";
 
@@ -16,6 +16,8 @@ import { dayOf } from "./stamina";
 export interface WayOpen { rock: number | null; x: number; y: number; by: string; name: string; at: number }
 /** A torch set down: on which floor, on which tile, until when it burns, and whose it was. */
 export interface Torch { f: number; x: number; y: number; until: number; by: string }
+/** Glowing moss let out of a rock: on which floor, where the rock stood, until when it glows, and whose rock it was. It lights the chamber it is in, for everybody. */
+export interface Moss { f: number; x: number; y: number; until: number; by: string }
 /** Who did something the village's board tells of, and when. */
 export interface ByWhom { by: string; name: string; at: number }
 export interface CaveState {
@@ -33,11 +35,13 @@ export interface CaveState {
   deepest: (ByWhom & { floor: number }) | null;
   /** The torches that burn. */
   torches: Torch[];
+  /** The moss that glows. */
+  moss: Moss[];
 }
 
 /** The cave's day a moment is in: it turns at 05:00 in Bangkok, as the stamina's does. */
 export const caveDay = (now: number): number => dayOf(now);
-export const newCave = (day: number): CaveState => ({ day, ways: {}, broken: {}, struck: {}, crystal: null, deepest: null, torches: [] });
+export const newCave = (day: number): CaveState => ({ day, ways: {}, broken: {}, struck: {}, crystal: null, deepest: null, torches: [], moss: [] });
 const isBy = (v: unknown): v is ByWhom => !!v && typeof v === "object" && typeof (v as ByWhom).by === "string" && typeof (v as ByWhom).name === "string" && typeof (v as ByWhom).at === "number";
 /** A state as it is kept, made sound, and as it is at a moment: a new day has no way open, its crystal whole and nothing reached; a torch burnt out is gone; rocks of a turn gone by are back, whole. */
 export function caveAt(kept: unknown, now: number): CaveState {
@@ -63,7 +67,10 @@ export function caveAt(kept: unknown, now: number): CaveState {
   const deepest = same && isBy(k.deepest) && Number.isInteger(k.deepest.floor) ? { floor: k.deepest.floor, by: k.deepest.by, name: k.deepest.name, at: k.deepest.at } : null;
   const torches = (Array.isArray(k.torches) ? k.torches : []).filter((t) => t && Number.isInteger(t.f) && Number.isInteger(t.x) && Number.isInteger(t.y) && typeof t.until === "number" && t.until > now && typeof t.by === "string")
     .map((t) => ({ f: t.f, x: t.x, y: t.y, until: t.until, by: t.by }));
-  return { day, ways, broken, struck, crystal: same && isBy(k.crystal) ? { by: k.crystal.by, name: k.crystal.name, at: k.crystal.at } : null, deepest, torches };
+  // (moss is of the day's own floors: none is carried over a day's turn)
+  const moss = (same && Array.isArray(k.moss) ? k.moss : []).filter((m) => m && Number.isInteger(m.f) && Number.isInteger(m.x) && Number.isInteger(m.y) && typeof m.until === "number" && m.until > now && typeof m.by === "string")
+    .map((m) => ({ f: m.f, x: m.x, y: m.y, until: m.until, by: m.by }));
+  return { day, ways, broken, struck, crystal: same && isBy(k.crystal) ? { by: k.crystal.by, name: k.crystal.name, at: k.crystal.at } : null, deepest, torches, moss };
 }
 
 /** The rocks of a place that are gone at a moment: those broken this turn, and the one the open way down was found under. */
@@ -114,10 +121,29 @@ export function setTorch(state: CaveState, floor: number, x: number, y: number, 
   return { ...state, torches: [...state.torches.filter((t) => t.until > now && !(t.f === floor && t.x === x && t.y === y)), { f: floor, x, y, until: now + MINING.light.burns, by }] };
 }
 export const torchesAt = (state: CaveState, floor: number, now: number): Torch[] => state.torches.filter((t) => t.f === floor && t.until > now);
+/** Moss let out of a rock that stood on a tile: it glows from now, for everybody. One to a tile: more of it there glows anew. */
+export function setMoss(state: CaveState, floor: number, x: number, y: number, by: string, now: number): CaveState {
+  return { ...state, moss: [...(state.moss ?? []).filter((m) => m.until > now && !(m.f === floor && m.x === x && m.y === y)), { f: floor, x, y, until: now + MINING.moss.glows, by }] };
+}
+export const mossAt = (state: CaveState, floor: number, now: number): Moss[] => (state.moss ?? []).filter((m) => m.f === floor && m.until > now);
+/** (A chamber's wall is uneven: at the most so many times as far from its middle as the chamber says. lib/town/cave's own waves.) */
+const WALL = 1.21;
+/**
+ * The chamber of a floor that a tile is in, or is nearest to (a rock may stand in a tunnel's mouth): its middle, in
+ * the world's tiles, and how far from it the furthest of its wall is. What glowing moss lights is this.
+ */
+export function chamberOf(floor: number, day: number, x: number, y: number): { x: number; y: number; r: number } | null {
+  if (floor < 1 || floor > MINING.floors) return null;
+  const c = cornerOf(floor), u = x - c.x + 0.5, v = y - c.y + 0.5;
+  let best: Chamber | null = null, least = Infinity;
+  for (const ch of caveFloor(floor, day).chambers) { const d = Math.hypot(u - ch.u, (v - ch.v) * ch.long) / ch.r; if (d < least) { least = d; best = ch; } }
+  return best ? { x: c.x + best.u, y: c.y + best.v, r: (best.r * WALL) / Math.min(1, best.long) } : null;
+}
 /** What the village's board tells: the deepest floor reached today and who opened the way to it; nothing, before anybody has. */
 export const boardOf = (state: CaveState): { floor: number; by: string; name: string; at: number } | null => (state.deepest ? { ...state.deepest } : null);
-/** When what a page was told of the cave next changes by itself: the rocks' next turn, or the first torch to burn out. */
-export const changesAt = (state: CaveState, now: number): number => Math.min((turnOf(now) + 1) * MINING.turn, ...state.torches.filter((t) => t.until > now).map((t) => t.until));
+/** When what a page was told of the cave next changes by itself: the rocks' next turn, the first torch to burn out, or the first moss to stop glowing. */
+export const changesAt = (state: CaveState, now: number): number =>
+  Math.min((turnOf(now) + 1) * MINING.turn, ...state.torches.filter((t) => t.until > now).map((t) => t.until), ...(state.moss ?? []).filter((m) => m.until > now).map((m) => m.until));
 
 /**
  * What a member is told of the cave by whoever keeps the game: what the village shares (the rocks gone by place, the
@@ -148,6 +174,8 @@ export interface CaveTold {
   struck?: Record<string, StruckTold>;
   /** The last rock I struck first that somebody else broke for me. */
   paid?: Paid | null;
+  /** The moss that glows, anywhere in the cave. (Missing from a keeper older than it.) */
+  moss?: Moss[];
 }
 
 /* ── where things are, in the world's tiles ─────────────────────────────── */
