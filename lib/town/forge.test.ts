@@ -203,22 +203,26 @@ describe("a forging try (the table is the owner's)", () => {
   });
   it("up to +4 always takes; from the try to +5 on it may fail, and never leaves a tool under +4", () => {
     let purse = purseWith(100_000, [["shardCopper", 99], ["shardIron", 99], ["oreIron", 20], ["oreSilver", 20], ["timber", 50]], [tool("can")]);
+    let smithy = newSmithy();
     for (let to = 1; to <= 4; to++) {
-      const d = ok(forgeTry(purse, newSmithy(), 0, 0.999999));
+      const d = ok(forgeTry(purse, smithy, 0, 0.999999));
       expect(d.out).toBe("taken");
       expect(d.level).toBe(to);
       purse = d.purse;
+      // (the draw a milestone owes is chosen before the tool is forged further)
+      if (d.owed >= 0) { const laid = ok(draw(purse, smithy, 0, 0, 0)), c = ok(choose(purse, laid.smithy, 0, laid.pending.offer[0])); purse = c.purse; smithy = c.smithy; }
     }
     // the worst of luck at +4: it stays (the try to +5 never lowers)
-    const at4 = ok(forgeTry(purse, newSmithy(), 0, 0.999999));
+    const at4 = ok(forgeTry(purse, smithy, 0, 0.999999));
     expect(at4.out).toBe("stays");
     expect(at4.level).toBe(4);
     // from +5 the worst of luck lowers it by one, and from there never under +4
-    const at5 = ok(forgeTry({ ...purse, bag: purse.bag.map((s, i) => (i === 0 ? tool("can", 5) : s)) }, newSmithy(), 0, 0.999999));
+    const two = drawable("can", 1).slice(0, 2);
+    const at5 = ok(forgeTry({ ...purse, bag: purse.bag.map((s, i) => (i === 0 ? tool("can", 5, two) : s)) }, newSmithy(), 0, 0.999999));
     expect(at5.out).toBe("down");
     expect(at5.level).toBe(4);
     for (let from = 5; from <= 9; from++) {
-      const d = ok(forgeTry({ ...purse, bag: purse.bag.map((s, i) => (i === 0 ? tool("can", from) : s)) }, newSmithy(), 0, 0.999999));
+      const d = ok(forgeTry({ ...purse, bag: purse.bag.map((s, i) => (i === 0 ? tool("can", from, two) : s)) }, newSmithy(), 0, 0.999999));
       expect(d.level).toBe(from - 1);
       expect(d.level).toBeGreaterThanOrEqual(FORGE.floor);
       expect(d.purse.bag[0]?.item).toBe("can");
