@@ -235,6 +235,10 @@ const SHEETS = [
   // ── felling ── (the woodcutters' three gifts: the echo axe, the woodpecker seen from the side as the other familiars
   // are, the firewood cord; and a pine, a stump and a branch for the felling board's own words)
   ["icons-felling-a", ["charmEchoAxe", "famWoodpecker", "thingBundle", "pineTree", "treeStump", "pineBranch"]],
+  // (what a pine lets fall now and then, for the book of the pines: lib/town/trees' KEEPSAKES, each `keep_` and its id;
+  // the first sheet came out with pixels half the size of the second's, 8 of the canvas's against 15: finer pictures)
+  ["icons-felling-b", ["keep_nest", "keep_feather", "keep_twinCones", "keep_cicada", "keep_pellet", "keep_initials"], { range: [7.5, 8.5] }],
+  ["icons-felling-c", ["keep_heartKnot", "keep_amber", "keep_ribbon", "keep_rustKey", "keep_silverRing", "keep_carvedBird"]],
   // ── end: felling ──
 ];
 

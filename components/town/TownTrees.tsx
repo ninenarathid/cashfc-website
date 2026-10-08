@@ -12,12 +12,13 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { ALL, GEM_FX, gemBy, has } from "@/lib/town/tools";
 import { held } from "@/lib/town/trade";
-import { KEEPSAKES, TREES, WOOD, axeOf, bearsOf, bites, farFrom, girthOf, lookOf, wantsOf, type FellOne, type Standing, type TreesTold } from "@/lib/town/trees";
+import { KEEPSAKES, TREES, WOOD, axeOf, bearsOf, bites, farFrom, fellingOf, girthOf, lookOf, wantsOf, type FellOne, type KeepsakeId, type Standing, type TreesTold } from "@/lib/town/trees";
 import { walkable, type Vec } from "@/lib/town/world";
 import { registerTap, setAncientLook, setTreeLooks } from "./mountain-art";
 import type { FarmDraw } from "./TownFarm";
 import TownFelling, { GIRTH_NAME } from "./TownFelling";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownPinesBook, { keepsakeIcon } from "./TownPinesBook";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
 
@@ -134,6 +135,9 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   const [note, setNote] = useState<Note | null>(null);
   /** The tree I tapped: the one the two presses are for, while I stand beside it. */
   const [picked, setPicked] = useState<number | null>(null);
+  /** The book of the pines, open (at a leaf, or at its first), or shut. */
+  const [book, setBook] = useState<{ at: KeepsakeId | null } | null>(null);
+  useEffect(() => { if (!near || working) setBook(null); }, [near, working]);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), GOT_MS); return () => clearTimeout(t); }, [note]);
   useEffect(() => { if (!card) return; const t = setTimeout(() => setCard(null), CARD_MS); return () => clearTimeout(t); }, [card]);
   const vfx = useMemo(() => new Vfx(), []);
@@ -474,6 +478,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       here: () => hereId, tap: (id: number) => tapped(id), begin: (id: number) => begin(id), plain: (id: number) => plain(id),
       working: () => (working ? { id: working.id, trees: working.trees, elder: working.elder, ask: working.ask } : null),
       card: () => (card ? { ...card.did, out: card.out } : null),
+      /** The book of the pines: open it (at a leaf), shut it, and whether it is open. */
+      book: (at?: KeepsakeId | null) => setBook(at === undefined ? null : { at }), bookOpen: () => !!book,
       note: () => note, root: () => root(), rootable: () => rootId,
       /** A friend at the trunk: the others at a tree, the go I may brace, the press, the trunk I hold, and who braces mine. */
       folk: () => folk, open: () => (open?.t ? { feller: open.o.id, tree: open.t.id } : null), brace: () => (open ? braceIt(open.o) : undefined), bracing: () => bracing, bracer: () => bracer?.id ?? null,
@@ -483,11 +489,11 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     (window as unknown as { __townTrees?: typeof handle }).__townTrees = handle;
     return () => { delete (window as unknown as { __townTrees?: typeof handle }).__townTrees; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the go I may brace is known by who and where
-  }, [hereId, tapped, begin, plain, working, card, note, root, rootId, looks, folk, open?.o.id, open?.t?.id, braceIt, bracing, bracer?.id]);
+  }, [hereId, tapped, begin, plain, working, card, note, root, rootId, looks, folk, open?.o.id, open?.t?.id, braceIt, bracing, bracer?.id, book]);
 
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const powers = axe ? { one: has(axe, "axOne") ? powerLeft(purse, "axOne", now) : 0, twice: has(axe, "axDouble") ? powerLeft(purse, "axDouble", now) : 0 } : undefined;
-  if (!working && !here && !note && !card && !open && !bracing) return null;
+  if (!working && !here && !note && !card && !open && !bracing && !book) return null;
   const hereGirth: Girth | null = here && !here.elder ? girthOf(here) : null;
   /** How near the go was to more, in a few words: a state, of the tree walked up to. */
   const nearWord = (c: Card): string | null => {
@@ -524,8 +530,12 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           <TownIcon name={"handshake" as IconName} size={22} /><span className="truncate">{th ? `กำลังค้ำต้นไม้ให้ ${bracing.name}` : `Bracing the trunk for ${bracing.name}`}</span>
         </p>
       )}
+      {/* the book of the pines: what the village has found of what a pine lets fall */}
+      {book && !working && (
+        <TownPinesBook key={book.at ?? ""} th={th} book={told?.book ?? []} mine={fellingOf(purse).keeps} first={book.at} onClose={() => setBook(null)} />
+      )}
       {/* what the go gave: a small card of the town's wood */}
-      {card && !working && (
+      {card && !working && !book && (
         <section aria-label={th ? "ได้ไม้" : "Wood brought home"} data-trees-card data-state="open" data-through={card.out ? String(card.out.through) : undefined}
                  className="pop-in pointer-events-auto w-full max-w-[20rem] rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-2.5 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
           <div className="flex items-center gap-2">
@@ -557,13 +567,15 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           )}
           {/* what the tree let fall besides: a keepsake, kept in the book of the pines and never in the bag */}
           {card.did.found.map((k) => (
-            <p key={k.id} className="mt-1.5 flex items-start gap-2 rounded-[4px] border-2 border-[#2a190d] bg-[#3a2513] px-2 py-1.5 text-label text-[#e9cfa4]" data-trees-keepsake={k.id} data-first={k.first ? "" : undefined}>
-              <span className="mt-0.5 shrink-0"><TownIcon name={(`keep_${k.id}` in ICON_ATLAS.icons ? `keep_${k.id}` : "pineBranch") as IconName} size={30} /></span>
-              <span className="flex flex-col">
+            <button key={k.id} type="button" onClick={() => setBook({ at: k.id })} data-trees-keepsake={k.id} data-first={k.first ? "" : undefined}
+                    className="pressable mt-1.5 flex w-full items-start gap-2 rounded-[4px] border-2 border-[#2a190d] bg-[#3a2513] px-2 py-1.5 text-left text-label text-[#e9cfa4]">
+              <span className="mt-0.5 shrink-0"><TownIcon name={keepsakeIcon(k.id)} size={32} /></span>
+              <span className="flex min-w-0 flex-col">
                 <span className="text-ui font-semibold text-[#ffeccb]">{th ? KEEPSAKES[k.id].name.th : KEEPSAKES[k.id].name.en}{k.first && <span className="ml-1.5 rounded-full bg-[#f0c060] px-1.5 py-px text-label font-semibold text-[#3a2209]">{th ? "คนแรกของหมู่บ้าน" : "The village's first"}</span>}</span>
                 <span>{th ? KEEPSAKES[k.id].line.th : KEEPSAKES[k.id].line.en}</span>
+                <span className="mt-0.5 flex items-center gap-1 text-[#ffe19a]"><TownIcon name={"wellBook" as IconName} size={14} />{th ? "เก็บเข้าสมุดป่าสนแล้ว" : "Kept in the book of the pines"}</span>
               </span>
-            </p>
+            </button>
           ))}
           {rootId !== null && (
             <button type="button" onClick={() => void root()} data-trees-root data-left={powerLeft(purse, "axRoot", now)}
@@ -579,14 +591,20 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           <TownFelling th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers} braced={bracer?.name ?? null}
                        onDone={(out, how) => void done(working, out, how)} onCancel={() => setWorking(null)} />
         </div>
-      ) : here && !card && (
+      ) : here && !card && !book && (
         <div className="pointer-events-none mb-14 flex flex-col items-center gap-1.5" data-trees-here={here.id} data-girth={hereGirth ?? undefined}>
-          {/* what stands here: the pine's girth, with the fine timber it has at the most */}
+          {/* what stands here: the pine's girth, with the fine timber it has at the most; and the book of the pines */}
           {hereGirth && !refused && (
-            <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 py-1 pl-2 pr-3 text-meta text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
-              <TownIcon name={"pineTree" as IconName} size={20} />{th ? GIRTH_NAME[hereGirth - 1][0] : GIRTH_NAME[hereGirth - 1][1]}
-              <Pips most={bearsOf(here).length} got={bearsOf(here).length} />
-            </p>
+            <div className="flex items-center gap-1.5">
+              <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 py-1 pl-2 pr-3 text-meta text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
+                <TownIcon name={"pineTree" as IconName} size={20} />{th ? GIRTH_NAME[hereGirth - 1][0] : GIRTH_NAME[hereGirth - 1][1]}
+                <Pips most={bearsOf(here).length} got={bearsOf(here).length} />
+              </p>
+              <button type="button" onClick={() => setBook({ at: null })} data-trees-book data-state="open" aria-label={th ? "สมุดป่าสน" : "The book of the pines"} title={th ? "สมุดป่าสน" : "The book of the pines"}
+                      className="pop-in pressable pointer-events-auto grid size-11 place-items-center rounded-full bg-bg/85 shadow-lg shadow-black/30 backdrop-blur-sm">
+                <TownIcon name={"wellBook" as IconName} size={24} />
+              </button>
+            </div>
           )}
           {refused ? (
             // a tree this axe cannot fell: the axe it wants, as a picture
