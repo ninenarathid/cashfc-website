@@ -179,7 +179,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     const inSight = Math.max(5, Math.min(ROWS, game.ahead + 2)), cx = W / 2, ground = H * 0.9;
     const rh = Math.min((ground - H * 0.07) / (inSight + 0.75), W * 0.2), base = ground - rh * 0.7;
     const trunk = elder ? "fellElder" : "fellTrunk", limb = elder ? "fellElderBranch" : "fellBranch";
-    const [tw0, th0] = sizeOf(trunk), tw = rh * (tw0 / th0) * 1.12, [bw0, bh0] = sizeOf(limb), bw = rh * 1.55, bh = bw * (bh0 / bw0);
+    const [tw0, th0] = sizeOf(trunk), tw = rh * (tw0 / th0) * (elder ? 1.7 : 1.12), [bw0, bh0] = sizeOf(limb), bw = rh * 1.55, bh = bw * (bh0 / bw0);
     // (the trunk comes down a segment after a chop: for a moment it is still on its way)
     const since = now - f.chopAt, falling = reduced || over ? 0 : Math.max(0, 1 - since / DROP) * rh;
     const rows = seen(game, p, ROWS), standing = !over || p.ends[game.stretches.length - 1] !== "felled" || p.dropped;
@@ -239,6 +239,13 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
       doll.draw(ctx, look, "front", side > 0, at + shake, ground, scale, {}, dpr);
       ctx.globalAlpha = 1;
     }
+    // (a branch that has come level on my side is on me: drawn over the doll, and the stage flushes red for a moment)
+    const level = rows[0], on = !felledAll && (level === 1 || level === -1) && level === side && !f.gone.has(`${p.at}:${p.cut}`);
+    if (on) {
+      const y = base - rh - falling + (rh - bh) / 2;
+      if (level === 1) blit(limb, cx + tw * 0.36, y, bw, bh); else blit(limb, cx - tw * 0.36 - bw, y, bw, bh, true);
+    }
+    if (blow < 140) { ctx.fillStyle = `rgba(233,87,63,${(0.22 * (1 - blow / 140)).toFixed(3)})`; ctx.fillRect(0, 0, W, H); }
     const ic = icons.current, cell = ICON_ATLAS.icons["axe" as IconName];
     if (ic?.complete && ic.naturalWidth && cell && !p.dropped) {
       const swing = reduced ? 1 : Math.min(1, since / SWING), bite = swing < 0.45 ? swing / 0.45 : 1 - (swing - 0.45) / 0.55;
