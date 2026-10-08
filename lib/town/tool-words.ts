@@ -56,8 +56,9 @@ export function optionDoes(id: OptionId): Words {
     case "rdCalm": return w(`ช่วงปลอดภัยไม่ขยับในวินาทีแรกของการสู้ปลา`, `The safe stretch does not move in a fight's first ${n("secs") === 1 ? "second" : `${n("secs")} seconds`}`);
     case "rdFresh": return w(`สู้ปลา ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} fights of a meal's hours cost no stamina`);
     case "rdQuick": return w(`รอปลากินเหยื่อสั้นลง ${pct(n("shorter"))}%`, `The wait for a bite is ${pct(n("shorter"))}% shorter`);
-    case "rdGold": return w(`ตวัดติดแน่นอนถ้าตวัดภายใน ${n("secs")} วินาทีหลังปลากิน · วันละ ${u} ครั้ง`, `A strike takes if made within ${n("secs")} s of the bite · ${u} a day`);
-    case "rdStill": return w(`ปลาทุกตัวคึกน้อยลงครึ่งหนึ่ง นาน ${n("mins")} นาที · วันละ ${u} ครั้ง`, `Every fish half as lively for ${n("mins")} minutes · ${u} a day`);
+    case "rdGold": return w(`ตวัดช้าไปก็ยังติด ถ้าตวัดภายใน ${n("secs")} วินาทีหลังปลากิน · วันละ ${u} ครั้ง`, `A strike that comes too late still takes, if made within ${n("secs")} s of the bite · ${u} a day`);
+    case "rdStill": return w(`เมื่อปลาที่ดีกว่าปลาธรรมดาติดเบ็ด สายน้ำจะหลับ ${n("mins")} นาที: ปลาทุกตัวคึกน้อยลง ${pct(1 - n("by"))}% · วันละ ${u} ครั้ง`,
+      `When a fish better than a common one is hooked the water sleeps for ${n("mins")} minutes: every fish ${pct(1 - n("by"))}% less lively · ${u} a day`);
     case "rdCall": return w(`เหวี่ยงเบ็ดแล้วปลากินทันที · วันละ ${u} ครั้ง`, `A line dropped is bitten at once · ${u} a day`);
     // ── the hoe ──
     case "hoClear": return w(`ถอนวัชพืชมีก้อนหินน้อยลง ${n("stones")} ก้อน`, `The weeding has ${n("stones")} stones fewer`);

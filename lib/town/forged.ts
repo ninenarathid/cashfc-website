@@ -121,8 +121,13 @@ export interface RodFx {
   rare: number;
   /** Whether a line dropped is bitten at once (the counted option: so many a day). */
   call: boolean;
+  /** For how many seconds after the bite a strike still takes, once the moment itself has passed (the counted option: so many a day); none: 0. */
+  gold: number;
+  /** How lively a fish is while the water sleeps, as so many times its own (1: no such rod), and for how many minutes it sleeps (the counted option: so often a day). */
+  lull: number;
+  lullMins: number;
 }
-export const PLAIN_ROD: RodFx = { band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false };
+export const PLAIN_ROD: RodFx = { band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false, gold: 0, lull: 1, lullMins: 0 };
 export function rodFx(stack: Held): RodFx {
   const s = of(stack, "rod");
   if (!s) return PLAIN_ROD;
@@ -142,6 +147,9 @@ export function rodFx(stack: Held): RodFx {
     keeps: gemBy(s, "lightning", OLD_FX.lightning.chance),
     rare: gemBy(s, "dark", OLD_FX.dark.rod.rare, 1),
     call: has(s, "rdCall"),
+    gold: has(s, "rdGold") ? optN("rdGold", "secs") : 0,
+    lull: has(s, "rdStill") ? optN("rdStill", "by") : 1,
+    lullMins: has(s, "rdStill") ? optN("rdStill", "mins") : 0,
   };
 }
 

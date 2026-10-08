@@ -3,7 +3,7 @@ import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
 // ── forging: old tools ──
-import { baitKept, called, calledCast, fightPaid, rarer, rodHaste, rodOf } from "./fishing";
+import { baitKept, called, calledCast, fightPaid, goldStrike, lulled, rarer, rodHaste, rodOf } from "./fishing";
 import { rodFx } from "./forged";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
@@ -197,10 +197,13 @@ class TrialKeeper implements Keeper {
   }
   /** A line that told what was on its way, ended with nothing hooked (a strike too soon, a bite let go by): a line taken up. */
   private letBy(o: { told?: boolean }) { if (o.told) this.trial.fished(tookUp(this.trial.purse(), this.trial.now())); }
-  async strike(_reaction: number, how: Strike | null): Promise<Did<Struck>> {
+  async strike(reaction: number, struck: Strike | null): Promise<Did<Struck>> {
     const o = this.out;
     if (!o) return { ok: false, why: "none" };
     const { what, size } = o.cast, harder = o.harder && o.harder > 1 ? { harder: o.harder } : {};
+    // ── forging: old tools ── (a strike that came after the moment had passed is taken all the same by a rod of the golden moment, so many a day: as a late one)
+    let how = struck;
+    if (!how && reaction >= 0) { const gold = goldStrike(this.trial.purse(), reaction, this.trial.now(), this.handSlot()); if (gold) { this.trial.fished(gold); how = "late"; } }
     if (!how) { this.out = null; this.letBy(o); return { ok: true, hooked: false, how: "early", what, size }; }
     o.hooked = true;
     // ── gifts: fishing ── (a rod of two lines: both are hooked by the one strike; what is no fish comes in at once, a fish's fight is paid for, each its own)
@@ -208,7 +211,7 @@ class TrialKeeper implements Keeper {
       const told: Hooked[] = [], onhook: Array<{ what: CatchId; size: number }> = [];
       for (const thing of [{ what, size }, o.two]) {
         if (!(thing.what in FISH)) told.push({ what: thing.what, size: 0, landed: true, kept: this.trial.land(thing.what, 0).kept });
-        else { this.trial.fished(fightPaid(this.trial.purse(), FISH[thing.what as FishId].fight.effort, this.trial.now(), this.handSlot())); onhook.push(thing); told.push({ ...thing, landed: false }); }
+        else { this.trial.fished(lulled(fightPaid(this.trial.purse(), FISH[thing.what as FishId].fight.effort, this.trial.now(), this.handSlot()), thing.what, this.trial.now(), this.handSlot())); onhook.push(thing); told.push({ ...thing, landed: false }); }
       }
       if (!onhook.length) this.out = null;
       else { o.cast = { ...o.cast, ...onhook[0] }; o.two = onhook[1]; }
@@ -221,7 +224,8 @@ class TrialKeeper implements Keeper {
     }
     // a fight costs its stamina whatever comes of it
     // ── forging: old tools ── (less of it, or none, with what the rod carries: lib/town/fishing's fightPaid)
-    this.trial.fished(fightPaid(this.trial.purse(), FISH[what as FishId].fight.effort, this.trial.now(), this.handSlot()));
+    // (and a fish better than a common one puts the water to sleep for a rod that lulls it, so often a day: lib/town/fishing's lulled)
+    this.trial.fished(lulled(fightPaid(this.trial.purse(), FISH[what as FishId].fight.effort, this.trial.now(), this.handSlot()), what, this.trial.now(), this.handSlot()));
     return { ok: true, hooked: true, what, size, landed: false, ...harder };
   }
   async missed() {

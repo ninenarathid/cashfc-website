@@ -268,6 +268,8 @@ export interface Purse {
   toolOwed?: number;
   /** Until when a can that waters with no water in it does so (lib/town/farm's water): the moment its minutes end. */
   canFull?: number;
+  /** Until when the water sleeps for a rod that lulls it (lib/town/fishing's lulled): the moment its minutes end. */
+  rodStill?: number;
   /** What friends' gifts of the helpers' line did for me lately, to be told of once (lib/town/helping's Aid): the newest few. */
   aided?: Array<{ what: string; by: string; name: string; n: number; at: number; back?: number; key?: string }>;
   // ── forging ──

@@ -1,6 +1,6 @@
 import { partOf, rodFx, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
-import { usePower } from "./powers";
+import { powerLeft, usePower } from "./powers";
 import { PLAIN, ROD_IDS, gearOf, rodStack, type Gear } from "./gear";
 import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
 import { charmBy, numberOf, useGift, type GiftRefusal } from "./gifts";
@@ -229,6 +229,43 @@ export function called<P extends Purse>(purse: P, now: number, slot: number | nu
 export const calledCast = <T extends { wait: number; nibbles: number[] }>(cast: T): T => ({ ...cast, wait: 1, nibbles: [] });
 /** Whether a bait comes back from a fish that was landed, with a rod that spares it so often (`luck`: a number of chance, of whoever keeps the game). */
 export const baitKept = (purse: Purse, luck: number, slot: number | null = null): boolean => luck < rodFx(rodOf(purse, slot)).keeps;
+/**
+ * For how many seconds after the bite the float stays under for somebody with a rod of the golden moment: its
+ * seconds while the day still has one, or nothing. (The page keeps the bite open so long; whether a strike in that
+ * time takes is `goldStrike`'s, whoever keeps the game.)
+ */
+export const goldWindowOf = (purse: Purse, now: number, slot: number | null = null): number => {
+  const secs = rodFx(rodOf(purse, slot)).gold;
+  return secs > 0 && powerLeft(purse, "rdGold", now) > 0 ? secs : 0;
+};
+/**
+ * A strike that came after the moment had passed, taken all the same by a rod of the golden moment: within its
+ * seconds of the bite, so many a day, counted by the option (a strike in the moment itself is never counted). The
+ * purse with one more counted; or null, where the fish is gone as ever. It hooks as a late strike does.
+ */
+export function goldStrike<P extends Purse>(purse: P, reaction: number, now: number, slot: number | null = null): P | null {
+  const rod = rodOf(purse, slot), secs = rodFx(rod).gold;
+  if (!(secs > 0) || !(reaction >= 0) || reaction > secs) return null;
+  const used = usePower(purse, rod, "rdGold", now);
+  return used.ok ? used.purse : null;
+}
+/** The fish that put the water to sleep for a rod that lulls it: every fish that is better than a common one. */
+export const LULL: { tiers: readonly Tier[] } = { tiers: ["uncommon", "rare", "legend"] };
+/** Whether the water sleeps for somebody now: a rod's lull has begun and is not over. */
+export const lullNow = (purse: Pick<Purse, "rodStill">, now: number): boolean => typeof purse.rodStill === "number" && purse.rodStill > now;
+/**
+ * A fish hooked with a rod that lulls the water: where the water does not sleep already and the fish is one that
+ * puts it to sleep, it sleeps from now for the rod's minutes, so often a day (counted by the option). The purse as
+ * it is afterwards: the same one, where nothing begins. It begins by itself and is never spent on a common fish.
+ */
+export function lulled<P extends Purse>(purse: P, what: CatchId, now: number, slot: number | null = null): P {
+  const rod = rodOf(purse, slot), fx = rodFx(rod);
+  if (!(fx.lull < 1) || !(fx.lullMins > 0) || lullNow(purse, now) || !(what in FISH) || !LULL.tiers.includes(FISH[what as FishId].tier)) return purse;
+  const used = usePower(purse, rod, "rdStill", now);
+  return used.ok ? { ...used.purse, rodStill: now + fx.lullMins * 60_000 } : purse;
+}
+/** How lively a fish is for somebody now, as so many times its own: less while the water sleeps for the rod they fish with; 1 otherwise. */
+export const livelyOf = (purse: Purse, now: number, slot: number | null = null): number => (lullNow(purse, now) ? rodFx(rodOf(purse, slot)).lull : 1);
 
 /* ── the strike ─────────────────────────────────────────────────────────── */
 
@@ -398,6 +435,8 @@ export interface FightMods {
   /** `harder`: how many times as hard the deck's good fish are for whoever fights (lib/town/gifts' harderFor; a common fish is as it is). `bout`: which of a legend's fights running this is (from the second, the fish breaks away at once). */
   harder?: number;
   bout?: number;
+  // ── forging: old tools ── (`lively`: how lively the fish is, as so many times its own: how far its safe stretch goes and how fast. Nothing said, or 1: as it is.)
+  lively?: number;
 }
 
 /**
@@ -414,7 +453,9 @@ export function startFight(fish: FishId, strike: Strike, mods: FightMods, seed: 
   // (harder for the skilled: so many times the pull, the surge and the line to win; and a bout after the first begins as a late strike's fight does, the fish away at once)
   const k = harderOf(fish, mods.harder ?? 1), away = strike === "late" || (mods.bout ?? 1) > 1;
   const length = f.line * (strike === "perfect" ? FIGHT.perfect : strike === "late" ? FIGHT.late : 1) * gear.line * k * slowPartOf(gear.line, fx?.line ?? 1);
-  const sway = f.sway * (mods.spent ? spent.sway : 1), pace = f.pace * (mods.spent ? spent.pace : 1) * gear.pace * slowPartOf(gear.pace, fx?.pace ?? 1);
+  // (while the water sleeps the fish is less lively: its stretch goes so much less far, and so much slower, with the rest of what slows it and never past the cap)
+  const lively = mods.lively !== undefined && mods.lively > 0 && mods.lively < 1 ? mods.lively : 1;
+  const sway = f.sway * (mods.spent ? spent.sway : 1) * slowPartOf(1, lively), pace = f.pace * (mods.spent ? spent.pace : 1) * gear.pace * slowPartOf(gear.pace, (fx?.pace ?? 1) * lively);
   let [r, next] = draw(seed | 0);
   const from = away ? 0 : f.every[0] + (f.every[1] - f.every[0]) * r;
   [r, next] = draw(next);

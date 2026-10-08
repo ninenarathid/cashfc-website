@@ -1,14 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { COOKING, cook, stirMods } from "./cooking";
 import { FARMING, WATER, WILD, canFullNow, canHolds, chore, choreFor, tend, water, type Plant, type Plot } from "./farm";
-import { FIGHT, STRIKE, baitKept, called, calledCast, fightPaid, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
+import { FIGHT, LULL, STRIKE, baitKept, called, calledCast, fightPaid, goldStrike, goldWindowOf, livelyOf, lullNow, lulled, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
 import {
   COOK_KINDS, OLD_FX, PLAIN_CAN, PLAIN_COOK, PLAIN_HOE, PLAIN_NET, PLAIN_ROD, canFx, cookFx, easedBy, hitsWith, hoeFx, luckOf, missesWith, netFx, partOf, rodFx, slowPartOf, slowedBy, stirsWith,
 } from "./forged";
 import { toolOwed, toolPaid } from "./forged-keep";
 import { PLAIN, RODS, gearOf, rodStack } from "./gear";
 import { HAUNTS, NET, againMs, aimAt, fledBy, net, ringOf, swingMs, taken, type Swarm } from "./insects";
-import { FISH, type ItemId } from "./items";
+import { FISH, FISH_IDS, type ItemId } from "./items";
 import { LONG, startLong } from "./longpour";
 import { POURING, pour, startPour } from "./pouring";
 import { powerLeft, powerUsed } from "./powers";
@@ -84,7 +84,7 @@ describe("a plain tool reads as nothing", () => {
     for (const s of [null, tool("pot"), tool("pan"), tool("grill"), tool("potBrass", 10), tool("hoe", 10)]) expect(cookFx(s)).toBe(PLAIN_COOK);
   });
   it("and the plain objects are the numbers that change nothing", () => {
-    expect(PLAIN_ROD).toEqual({ band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false });
+    expect(PLAIN_ROD).toEqual({ band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false, gold: 0, lull: 1, lullMins: 0 });
     expect(PLAIN_HOE).toEqual({ band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false });
     expect(PLAIN_CAN).toEqual({ more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0 });
     expect(PLAIN_NET).toEqual({ ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0 });
@@ -612,6 +612,43 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     expect(calledCast({ what: "minnow", wait: 40, nibbles: [9, 20], size: 5 })).toEqual({ what: "minnow", wait: 1, nibbles: [], size: 5 });
     // (the next day: ten again)
     expect(called(p, NOW + 24 * HOUR)).not.toBeNull();
+  });
+  it("a rod of the golden moment takes a strike that came too late, within its seconds of the bite, ten times a day; a strike in the moment is never counted", () => {
+    let p = purseOf(top("rod", "rdGold"));
+    const secs = OPTIONS.rdGold.n.secs;
+    expect(goldWindowOf(p, NOW)).toBe(secs);
+    expect(goldWindowOf(purseOf(tool("rod", 10)), NOW)).toBe(0);
+    // (too soon, and past its seconds: the fish is gone as ever)
+    expect(goldStrike(p, -0.2, NOW)).toBeNull();
+    expect(goldStrike(p, secs + 0.01, NOW)).toBeNull();
+    expect(goldStrike(purseOf(tool("rod", 10)), 2, NOW)).toBeNull();
+    for (let i = 0; i < 10; i++) { const q = goldStrike(p, secs, NOW); expect(q).not.toBeNull(); p = q!; }
+    expect([powerUsed(p, "rdGold", NOW), goldStrike(p, 2, NOW), goldWindowOf(p, NOW)]).toEqual([10, null, 0]);
+    expect(goldWindowOf(p, NOW + 24 * HOUR)).toBe(secs);
+  });
+  it("a rod that lulls the water: a fish better than a common one puts it to sleep for its minutes, twice a day, and every fish is half as lively while it sleeps", () => {
+    const s = top("rod", "rdStill"), mins = OPTIONS.rdStill.n.mins, good = FISH_IDS.find((id) => LULL.tiers.includes(FISH[id].tier))!, plainFish = FISH_IDS.find((id) => FISH[id].tier === "common")!;
+    let p = purseOf(s);
+    // (a common fish begins nothing, and nothing is counted)
+    expect(lulled(p, plainFish, NOW)).toBe(p);
+    expect(livelyOf(p, NOW)).toBe(1);
+    p = lulled(p, good, NOW);
+    expect([p.rodStill, powerUsed(p, "rdStill", NOW), lullNow(p, NOW), livelyOf(p, NOW)]).toEqual([NOW + mins * 60_000, 1, true, OPTIONS.rdStill.n.by]);
+    // (while it sleeps another good fish begins nothing anew; when it is over the next one does, and the day has no third)
+    expect(lulled(p, good, NOW + 60_000)).toBe(p);
+    expect(lullNow(p, NOW + mins * 60_000)).toBe(false);
+    const again = lulled(p, good, NOW + mins * 60_000 + 1);
+    expect(powerUsed(again, "rdStill", NOW)).toBe(2);
+    expect(lulled(again, good, NOW + 3 * mins * 60_000)).toBe(again);
+    // (a plain rod is lulled by nothing; and with another rod in the hand the water that sleeps does nothing)
+    expect(lulled(purseOf(tool("rod")), good, NOW)).toEqual(purseOf(tool("rod")));
+    expect(livelyOf({ ...purseOf(tool("rod")), rodStill: NOW + 60_000 }, NOW)).toBe(1);
+    // the fight: the stretch goes half as far and half as fast
+    const gear = (q: Purse) => gearOf(q.bag, "rod", 0), awake = startFight(good, "good", { gear: gear(p) }, 7), asleep = startFight(good, "good", { gear: gear(p), lively: livelyOf(p, NOW) }, 7);
+    expect([asleep.sway / awake.sway, asleep.pace / awake.pace]).toEqual([0.5, 0.5].map((x) => expect.closeTo(x, 10)));
+    expect([asleep.band, asleep.length, asleep.pull, asleep.power]).toEqual([awake.band, awake.length, awake.pull, awake.power]);
+    // (said as nothing, or as 1, a fight is the fight it was)
+    expect(startFight(good, "good", { gear: gear(p), lively: 1 }, 7)).toEqual(awake);
   });
   it("tired hands keep hold of a hoe with an iron grip, ten plots a day, each counted as it is hoed", () => {
     const s = top("hoe", "hoGrip"), tired = { ...purseOf(s), stamina: { day: dayOf(NOW), left: 0 } };
