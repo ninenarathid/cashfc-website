@@ -409,6 +409,7 @@ describe("a forged net", () => {
     const top = netFx(tool("bugNet", 10)).ring, between = { x: 5 + (ringOf(bug, false) + ringOf(bug, false, 1, 1, top)) / 2, y: 5, lift: 0, right: true, open: true } as never;
     expect(taken(bug, between, { x: 5, y: 5 }, false, 1, 1, top)).toBe(true);
     expect(taken(bug, between, { x: 5, y: 5 }, false)).toBe(false);
+    expect([netFx(tool("bugNet", 0, [], ["light"])).seen, netFx(tool("bugNet", 10, [], ["light"])).seen, netFx(tool("bugNet", 10)).seen]).toEqual([OLD_FX.light.bugNet.seen[0], OLD_FX.light.bugNet.seen[1], 0]);
     expect(missesWith(3, netFx(tool("bugNet", 1, [], ["water"])).spared)).toBe(2);
     expect(missesWith(1, 2)).toBe(0);
     expect(missesWith(2, 0)).toBe(2);

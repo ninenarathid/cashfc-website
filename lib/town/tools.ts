@@ -223,7 +223,7 @@ export const BUILT: Record<ToolKind, { opts: readonly OptionId[]; gems: readonly
   rod: { opts: ["rdBait", "rdCalm", "rdFresh", "rdQuick"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "light", "dark"] },
   hoe: { opts: ["hoClear", "hoFirst", "hoFresh", "hoLight"], gems: ["fire", "water", "ice", "earth", "wind", "light", "dark"] },
   can: { opts: ["cnDrop", "cnThrift", "cnFresh"], gems: ["fire", "water", "ice", "earth", "wind", "dark"] },
-  bugNet: { opts: ["ntAgain", "ntMesh", "ntFresh", "ntLong"], gems: ["fire", "water", "earth", "lightning", "wind"] },
+  bugNet: { opts: ["ntAgain", "ntMesh", "ntFresh", "ntLong"], gems: ["fire", "water", "earth", "lightning", "wind", "light"] },
   pot: { opts: ["ckBase", "ckFresh", "ckBrisk"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "dark"] },
   pan: { opts: ["ckBase", "ckFresh", "ckBrisk"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "dark"] },
   grill: { opts: ["ckBase", "ckFresh", "ckBrisk"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "dark"] },

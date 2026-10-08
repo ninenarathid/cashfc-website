@@ -477,7 +477,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         const k = SIZE * s, icon = iconFor(iconOf(sight.bug)), mind = kept.mind;
         if (dozing && onScreen(at)) frame.over?.(() => drawSleep(ctx, at.x, at.y - pose.lift * TILE_H * s, s, now, still, h.id));
         // the net's silver glint over it, whether it shows itself or not; one off the screen is pointed to from the edge
-        if (live.current.sees) {
+        // ── forging: old tools ── (and with light in the net in my hand, over every insect within so many tiles of me)
+        const near = live.current.fx.seen > 0 && !!me.current && far(aimOf(pose), me.current) <= live.current.fx.seen;
+        if (live.current.sees || near) {
           lit++;
           frame.over?.(() => {
             const W = ctx.canvas.width, H = ctx.canvas.height, m = Math.max(22, 12 * s), top = at.y - pose.lift * TILE_H * s - 18 * s;
