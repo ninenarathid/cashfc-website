@@ -46,10 +46,13 @@
 -- the page's to hold to; the tile somebody lifts or lays from is the page's
 -- word, held to the catalog's two tiles, as it is at the storage box.
 --
--- **One function of the game's is given one branch more, from its own text as
--- it stands**, whoever wrote it last: `town.work_counts_of` (v149's, v153's),
--- for the two deeds of a stone laid. `town.deed_th` is given six words the
--- same way. Nothing else is written again. The rules are lib/town/bridge.ts
+-- **Two functions that were there are written again, each main's text exactly
+-- as it is live after v159 (v153's) with one block of this file's, marked with
+-- a comment at its top and at its end**: `town.work_counts_of`, for the two
+-- deeds of a stone laid, and `town.deed_th`, for six words. Nothing else in
+-- them is changed, not even the layout, and nothing else that was there is
+-- written again. **A file after this one that writes either again carries
+-- this file's block with its own.** The rules are lib/town/bridge.ts
 -- written again (`town.stone_lift`, `stone_pass`, `stone_lay`, `stone_drop`,
 -- `works_give`), held to the code case by case by the dry run; the numbers are
 -- the catalog's row `bridge`.
@@ -336,39 +339,125 @@ $$;
 
 /* ── the helpers' line counts a stone laid; the tally's words ─────────────── */
 
--- `town.work_counts_of` as it stands, with one branch more: a stone laid is a
--- point on the helpers' line for the one who laid it and for each of the
--- others it came by (what it is worth is the bridge's own number).
-do $$
+-- `town.work_counts_of`: **main's text of it exactly as it is live after v159** (v153's, which no file since has
+-- written), with one block more, marked at its top and its end: a stone laid is a point on the helpers' line for the
+-- one who laid it and for each of the others it came by (what it is worth is the bridge's own number, the catalog's
+-- `bridge.point`). Nothing else in it is changed, not even its layout: a file after this one that writes it again
+-- carries this block with its own.
+create or replace function town.work_counts_of(p_done jsonb, p_doer text)
+returns jsonb language plpgsql stable
+as $$
 declare
-  def text;
-  mark constant text := E'  if what = ''pick'' then\n';
+  l jsonb := town.cat('work');
+  what text := p_done->>'what';
+  thing text := coalesce(p_done->>'thing', '');
+  doc jsonb := coalesce(p_done->'doc', '{}'::jsonb);
+  other text := coalesce(doc->>'whose', doc->>'owner');
+  raw double precision;
 begin
-  def := pg_get_functiondef('town.work_counts_of(jsonb, text)'::regprocedure);
-  if position('''stone_lay''' in def) = 0 then
-    if position(mark in def) = 0 then raise exception 'town.work_counts_of is not as v153 left it: its picking is gone'; end if;
-    execute replace(def, mark,
-         E'  if what in (''stone_lay'', ''stone_hand'') then\n'
-      || E'    return jsonb_build_array(jsonb_build_object(''to'', null, ''line'', ''helpers'', ''raw'', town.cat(''bridge'')->''point''));\n'
-      || E'  end if;\n' || mark);
+  if p_done->>'from' = 'play' then
+    if not coalesce((p_done->>'won')::boolean, false) then return '[]'::jsonb; end if;
+    if what = 'fishing' and l->'fishing' ? thing then
+      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'fishing', 'raw', l->'fishing'->thing, 'first', 'fishing:' || thing));
+    end if;
+    if what = 'cooking' and l->'kitchen'->'pot' ? thing then
+      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'kitchen', 'raw', l->'kitchen'->'pot'->thing, 'first', 'kitchen:' || thing,
+        'held', jsonb_build_object('key', 'pot:' || thing, 'most', l->'kitchen'->'pots')));
+    end if;
+    return '[]'::jsonb;
   end if;
-end $$;
+  if what = 'ladle' then
+    if jsonb_typeof(doc->'whose') = 'string' and doc->>'whose' <> p_doer then
+      return jsonb_build_array(jsonb_build_object('to', doc->>'whose', 'line', 'kitchen', 'raw', l->'kitchen'->'ladled',
+        'held', jsonb_build_object('key', 'ladle:' || p_doer, 'most', l->'kitchen'->'ladling')));
+    end if;
+    return '[]'::jsonb;
+  end if;
+  if what in ('water', 'clear', 'till', 'feed', 'cure', 'dust') then
+    if other is not null and other <> '' and other <> p_doer then
+      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', l->'helpers'->what));
+    end if;
+    return '[]'::jsonb;
+  end if;
+  if what = 'bell' then
+    if coalesce((p_done->>'n')::double precision, 0) > 0 then
+      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', (l->'helpers'->>'water')::double precision * floor((p_done->>'n')::double precision)));
+    end if;
+    return '[]'::jsonb;
+  end if;
+  if what = 'thank' then
+    return coalesce((select jsonb_agg(jsonb_build_object('to', t.id #>> '{}', 'line', 'helpers', 'raw', l->'helpers'->'thanked') order by t.ord)
+      from jsonb_array_elements(case when jsonb_typeof(doc->'to') = 'array' then doc->'to' else '[]'::jsonb end) with ordinality as t(id, ord)
+     where jsonb_typeof(t.id) = 'string' and t.id #>> '{}' <> p_doer), '[]'::jsonb);
+  end if;
+  if what = 'gather' then
+    if l->'forest'->'how' ? coalesce(doc->>'how', '') then
+      raw := (l->'forest'->'how'->>(doc->>'how'))::double precision + case when l->'forest'->'rares' ? thing then (l->'forest'->>'rare')::double precision else 0 end;
+      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'forest', 'raw', raw, 'first', 'forest:' || thing));
+    end if;
+    return '[]'::jsonb;
+  end if;
+  if what = 'net' then
+    if l->'insects' ? thing then
+      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'insects', 'raw', l->'insects'->thing, 'first', 'insects:' || thing));
+    end if;
+    return '[]'::jsonb;
+  end if;
+  if what = 'pick' then
+    if l->'farming' ? thing and (other is null or other = '') then
+      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'farming', 'raw', l->'farming'->thing, 'first', 'farming:' || thing));
+    end if;
+    return '[]'::jsonb;
+  end if;
+  -- ── the bridge built by hand (v160): a stone laid is a point on the helpers' line to whoever laid it and to each of the others it came by ──
+  if what in ('stone_lay', 'stone_hand') then
+    return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', town.cat('bridge')->'point'));
+  end if;
+  -- ── the bridge built by hand (v160): its end ──
+  return '[]'::jsonb;
+end;
+$$;
 
--- `town.deed_th` as it stands, with six `when`s more.
-do $$
-declare
-  def text;
-begin
-  if town.deed_th('stone_lay') = 'stone_lay' then
-    def := pg_get_functiondef('town.deed_th(text)'::regprocedure);
-    if position('else p_what end' in def) = 0 then raise exception 'town.deed_th is not as v121 wrote it: its last line is gone'; end if;
-    execute replace(def, 'else p_what end',
-      '-- the bridge built by hand, and the village''s works' || E'\n'
-      || '    when ''stone_lift'' then ''ยกหินจากกองหิน'' when ''stone_pass'' then ''ส่งหินต่อให้คนถัดไป'' when ''stone_lay'' then ''วางหินที่เชิงสะพาน'' '
-      || 'when ''stone_hand'' then ''หินที่ช่วยกันส่งต่อมาถึงเชิงสะพาน'' when ''stone_drop'' then ''ปล่อยหินทิ้ง'' when ''work_give'' then ''มอบของให้งานของหมู่บ้าน''' || E'\n'
-      || '    else p_what end');
-  end if;
-end $$;
+-- `town.deed_th`: main's text of it exactly as it is live after v159 (v153's), with one block more, marked the
+-- same way: six words, for the bridge's five deeds and the works' giving.
+create or replace function town.deed_th(p_what text)
+returns text language sql immutable
+as $$
+  select case p_what
+    when 'buy' then 'ซื้อของจากลุง' when 'leave' then 'ฝากลุงขาย' when 'take_back' then 'เอาของที่ฝากคืน'
+    when 'collect' then 'รับเงินค่าของที่ฝากขาย' when 'give' then 'ส่งของตามออเดอร์ลุง' when 'hint' then 'ซื้อคำใบ้'
+    when 'hold' then 'หยิบของมาถือ' when 'put_away' then 'เก็บของที่ถือ' when 'wear' then 'สวมตะกร้า' when 'take_off' then 'ถอดตะกร้า'
+    when 'drop' then 'ทิ้งของ' when 'eat' then 'นั่งกินข้าว' when 'get_up' then 'ลุกจากมื้ออาหาร' when 'read' then 'อ่านคัมภีร์'
+    when 'cast' then 'หย่อนเบ็ด' when 'fish_landed' then 'ตกได้' when 'fish_early' then 'ดึงเบ็ดเร็วไป' when 'fish_missed' then 'ดึงเบ็ดไม่ทัน'
+    when 'fish_slipped' then 'ปลาหลุด' when 'fish_snapped' then 'สายขาด' when 'fish_left' then 'เก็บเบ็ด'
+    when 'draw' then 'ตักน้ำจากแม่น้ำ' when 'pour' then 'เทน้ำลงบ่อ' when 'fill' then 'เติมบัวรดน้ำที่บ่อ'
+    when 'clear' then 'ถางหญ้า' when 'till' then 'พรวนดิน' when 'sow' then 'หว่านเมล็ด' when 'water' then 'รดน้ำ' when 'feed' then 'ใส่ปุ๋ย'
+    when 'cure' then 'ไล่แมลง' when 'pick' then 'เก็บเกี่ยว' when 'pull' then 'ขุดต้นที่ตายออก' when 'uproot' then 'ขุดต้นที่ยังเป็นออก'
+    when 'cook' then 'ทำอาหาร' when 'pot_down' then 'วางหม้อ' when 'ladle' then 'ตักจากหม้อที่วางไว้' when 'pot_take' then 'เก็บหม้อคืน'
+    when 'serve' then 'ตักจากหม้อในกระเป๋า' when 'open' then 'เปิดของที่ตกได้'
+    when 'toss' then 'โยนเหรียญลงน้ำพุ' when 'report' then 'รายงานคำอธิษฐาน'
+    when 'gather' then 'เก็บของป่า' when 'net' then 'จับแมลง'
+    when 'exchange' then 'แลก popoto เป็นเหรียญ' when 'deal' then 'แลกของกับสมาชิก'
+    when 'gift' then 'รับของที่บ่อน้ำฝากไว้ให้' when 'thank' then 'ขอบคุณคนที่ช่วยดูแลผัก' when 'jar_drop' then 'หยอดกระปุกที่บ่อน้ำ' when 'jar_take' then 'รับส่วนแบ่งจากกระปุก' when 'ditch' then 'เทน้ำรดทั้งแปลง' when 'yard' then 'เทน้ำใส่โอ่งที่ลานครัว' when 'fresh' then 'หม้อได้น้ำจากโอ่ง' when 'pass' then 'ส่งถังน้ำต่อให้คนถัดไป' when 'line' then 'น้ำที่ช่วยกันส่งต่อมาถึงที่' when 'box_put' then 'เก็บของเข้ากล่อง' when 'box_take' then 'หยิบของออกจากกล่อง' when 'ground_drop' then 'ทิ้งของลงพื้น' when 'ground_take' then 'เก็บของจากพื้น' when 'shop_open' then 'ชูป้ายเปิดร้าน' when 'shop_close' then 'เก็บป้ายปิดร้าน' when 'shop_buy' then 'ซื้อของจากร้านสมาชิก' when 'shop_sold' then 'ร้านขายของได้' when 'shop_sell' then 'ขายของให้ร้านสมาชิก' when 'shop_bought' then 'ร้านรับซื้อของ'
+    -- the gifts of the lines' ranks, the titles and the notice board (written down since v144 to v152, with no word until now)
+    when 'charms' then 'เปลี่ยนเครื่องรางที่ใส่' when 'familiar' then 'เรียกสัตว์คู่ใจ' when 'gift_use' then 'ใช้พลังของวิเศษ' when 'title' then 'เลือกฉายา' when 'notice_post' then 'ติดประกาศที่ป้าย' when 'notice_buy' then 'ซื้อของจากประกาศ' when 'notice_fill' then 'ขายของให้ประกาศรับซื้อ' when 'notice_collect' then 'รับเงินจากป้ายประกาศ' when 'notice_down' then 'ปลดประกาศ' when 'notice_fetch' then 'รับของจากป้ายประกาศ' when 'notice_slot' then 'เพิ่มช่องประกาศ'
+    -- the kitchen's gifts
+    when 'basket_put' then 'เก็บอาหารใส่ตะกร้ามิติ' when 'basket_take' then 'หยิบอาหารออกจากตะกร้ามิติ'
+    -- the farm's gifts
+    when 'row' then 'ทำงานทั้งแถวในครั้งเดียว' when 'gnome' then 'โนมรดน้ำทั้งแปลง' when 'hourglass' then 'พลิกนาฬิกาทรายแห่งฤดู'
+    -- the well's gifts
+    when 'drink_offer' then 'ยื่นน้ำพุแห่งชีวิตให้เพื่อน' when 'drink' then 'ดื่มน้ำพุแห่งชีวิตที่เพื่อนยื่นให้' when 'drink_gave' then 'เพื่อนดื่มน้ำพุแห่งชีวิตที่ยื่นให้' when 'rain_fill' then 'กบเรียกฝนเติมถังให้' when 'moon_keep' then 'เก็บน้ำใส่ขวดแก้วจันทรา' when 'moon_pour' then 'เทน้ำจากขวดแก้วจันทราลงบ่อ'
+    -- the forest's gifts
+    when 'slip' then 'พลาดที่จุดลับในป่า' when 'map_use' then 'คลี่ลายแทงของภูตป่า' when 'map_dig' then 'ขุดหาหีบของภูต' when 'chest' then 'ขุดเจอหีบของภูต'
+    -- the insects' gifts
+    when 'nectar' then 'หยดน้ำหวานล่อแมลง'
+    -- the helpers' gifts
+    when 'longpour' then 'รดน้ำทั้งแถวให้เพื่อนในรวดเดียว' when 'bell' then 'ระฆังคู่หูดังกับเพื่อน' when 'ring' then 'แบ่งแรงให้เพื่อนด้วยแหวน' when 'ring_had' then 'ได้แรงจากแหวนของเพื่อน' when 'dust' then 'โรยผงภูตสวนให้ต้นของเพื่อน'
+    -- ── the bridge built by hand (v160), and the village's works ──
+    when 'stone_lift' then 'ยกหินจากกองหิน' when 'stone_pass' then 'ส่งหินต่อให้คนถัดไป' when 'stone_lay' then 'วางหินที่เชิงสะพาน' when 'stone_hand' then 'หินที่ช่วยกันส่งต่อมาถึงเชิงสะพาน' when 'stone_drop' then 'ปล่อยหินทิ้ง' when 'work_give' then 'มอบของให้งานของหมู่บ้าน'
+    -- ── the bridge built by hand (v160): its end ──
+    else p_what end
+$$;
 
 revoke execute on all functions in schema town from public, anon, authenticated;
 

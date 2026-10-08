@@ -99,13 +99,18 @@ export default ({ swap, cut }) => {
       swap("select jsonb_agg(jsonb_build_object('id', q.member_id, 'name', q.name) order by", "select jsonb_agg(jsonb_build_object('id', q.member_id, 'name', q.name, 'n', q.first_at) order by"), ["…and nobody's count but mine is in what I am told"]],
     // ── the helpers' line, and the tally's words
     ["a stone laid counts on no line",
-      cut("-- `town.work_counts_of` as it stands, with one branch more", "-- `town.deed_th` as it stands, with six"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE, "…and each has a point on the helpers' line"]],
+      cut("  -- ── the bridge built by hand (v160): a stone laid is a point", "  return '[]'::jsonb;\nend;\n$$;\n\n-- `town.deed_th`"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE, "…and each has a point on the helpers' line"]],
     ["only whoever lays a stone has a point",
-      swap("E'  if what in (''stone_lay'', ''stone_hand'') then\\n'", "E'  if what in (''stone_lay'') then\\n'"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE, "…and each has a point on the helpers' line"]],
-    ["a stone is two points", swap("''raw'', town.cat(''bridge'')->''point''));\\n'", "''raw'', to_jsonb(2)));\\n'"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE]],
+      swap("  if what in ('stone_lay', 'stone_hand') then\n", "  if what in ('stone_lay') then\n"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE, "…and each has a point on the helpers' line"]],
+    ["a stone is two points", swap("'raw', town.cat('bridge')->'point'));\n", "'raw', to_jsonb(2)));\n"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE]],
     ["a stone lifted is a point too",
-      swap("E'  if what in (''stone_lay'', ''stone_hand'') then\\n'", "E'  if what in (''stone_lay'', ''stone_hand'', ''stone_lift'') then\\n'"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE]],
-    ["letting go has no word", swap("when ''stone_drop'' then ''ปล่อยหินทิ้ง'' ", ""), ["town.deed_th is the one it replaces", "each deed of the bridge's and the works' has its word in Thai"]],
+      swap("  if what in ('stone_lay', 'stone_hand') then\n", "  if what in ('stone_lay', 'stone_hand', 'stone_lift') then\n"), ["town.work_counts_of is the one it replaces", CASES.counts, LINE]],
+    ["letting go has no word", swap("when 'stone_drop' then 'ปล่อยหินทิ้ง' ", ""), ["town.deed_th is the one it replaces", "each deed of the bridge's and the works' has its word in Thai"]],
+    // (the two are main's text with one block more: anything else changed in them is caught, a line of another's and a mark of the block's own)
+    ["another line of the lines' counting is changed with it", swap("'raw', l->'helpers'->'thanked') order by t.ord)", "'raw', l->'helpers'->'water') order by t.ord)"), ["town.work_counts_of is the one it replaces"]],
+    ["the block for a stone laid has no mark at its end", swap("  end if;\n  -- ── the bridge built by hand (v160): its end ──\n  return '[]'::jsonb;\nend;", "  end if;\n  return '[]'::jsonb;\nend;"), ["town.work_counts_of is the one it replaces"]],
+    ["a word from before is lost with it", swap("when 'toss' then 'โยนเหรียญลงน้ำพุ' ", ""), ["town.deed_th is the one it replaces"]],
+    ["the six words have no mark at their top", swap("    -- ── the bridge built by hand (v160), and the village's works ──\n", ""), ["town.deed_th is the one it replaces"]],
     // ── what a member calls
     ["the rules are left to a browser",
       cut("revoke execute on all functions in schema town from public, anon, authenticated;\n", "/* ── what a browser calls"), ["the twelve rules are no browser's to call"]],

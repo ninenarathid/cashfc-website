@@ -148,14 +148,16 @@ t.check("run again, it leaves what the bridge needs and has as it finds them", s
 await anew({ open: false });
 
 t.section("the two functions given lines are the ones they replace");
-const MARK = "  if what = 'pick' then\n";
-const BRANCH = "  if what in ('stone_lay', 'stone_hand') then\n    return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', town.cat('bridge')->'point'));\n  end if;\n";
+// (each is main's text as it is live, with one block of the file's before its last line, marked at its top and its end)
+const TOP = "the bridge built by hand (v160)", END = "the bridge built by hand (v160): its end";
+const MARK = "  return '[]'::jsonb;\nend;\n";
+const BRANCH = `  -- ── ${TOP}: a stone laid is a point on the helpers' line to whoever laid it and to each of the others it came by ──\n  if what in ('stone_lay', 'stone_hand') then\n    return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', town.cat('bridge')->'point'));\n  end if;\n  -- ── ${END} ──\n`;
 const countsNow = await defOf(AGAIN[0]);
-t.check("town.work_counts_of is the one it replaces, word for word, but for the branch for a stone laid", OLD[AGAIN[0]].split(MARK).length === 2 && countsNow === OLD[AGAIN[0]].replace(MARK, BRANCH + MARK), countsNow?.length);
+t.check("town.work_counts_of is the one it replaces, word for word, but for the one block for a stone laid, marked at its top and its end", OLD[AGAIN[0]].split(MARK).length === 2 && countsNow === OLD[AGAIN[0]].replace(MARK, () => BRANCH + MARK), countsNow?.length);
 const WORDS = { stone_lift: "ยกหินจากกองหิน", stone_pass: "ส่งหินต่อให้คนถัดไป", stone_lay: "วางหินที่เชิงสะพาน", stone_hand: "หินที่ช่วยกันส่งต่อมาถึงเชิงสะพาน", stone_drop: "ปล่อยหินทิ้ง", work_give: "มอบของให้งานของหมู่บ้าน" };
 const thNow = await defOf(AGAIN[1]);
-const thMeant = OLD[AGAIN[1]].replace("else p_what end", `-- the bridge built by hand, and the village's works\n    ${Object.entries(WORDS).map(([k, v]) => `when '${k}' then '${v}'`).join(" ")}\n    else p_what end`);
-t.check("town.deed_th is the one it replaces, word for word, but for six words more", thNow === thMeant, thNow?.slice(-420));
+const thMeant = OLD[AGAIN[1]].replace("else p_what end", () => `-- ── ${TOP}, and the village's works ──\n    ${Object.entries(WORDS).map(([k, v]) => `when '${k}' then '${v}'`).join(" ")}\n    -- ── ${END} ──\n    else p_what end`);
+t.check("town.deed_th is the one it replaces, word for word, but for the one block of six words, marked at its top and its end", OLD[AGAIN[1]].split("else p_what end").length === 2 && thNow === thMeant, thNow?.slice(-520));
 const said = Object.fromEntries(await Promise.all(Object.keys(WORDS).map(async (k) => [k, (await one(`select town.deed_th($1) as w`, [k])).w])));
 t.check("each deed of the bridge's and the works' has its word in Thai, and a deed from before has the word it had", same(said, WORDS) && (await one(`select town.deed_th('pass') as w`)).w === "ส่งถังน้ำต่อให้คนถัดไป" && (await one(`select town.deed_th('no such') as w`)).w === "no such", said);
 const privs = await rows(`select p.oid::regprocedure::text as name, has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as member from pg_proc p where p.oid = any($1::regprocedure[])`, [AGAIN]);
