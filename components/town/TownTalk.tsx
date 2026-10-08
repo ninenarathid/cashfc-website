@@ -86,6 +86,12 @@ export default function TownTalk({ who, lines, choices, onPick, th, phone, reduc
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
       if (e.key === "Escape") { e.preventDefault(); onClose(); return; }
+      // (a number picks that choice, while the choices are there: nothing else has the numbers during a talk)
+      if (choosing && /^Digit[1-9]$/.test(e.code) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const c = choices![Number(e.code.slice(5)) - 1];
+        if (c) { e.preventDefault(); e.stopPropagation(); onPick?.(c.id); }
+        return;
+      }
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault(); e.stopPropagation();
       if (!choosing) { go(); return; }
@@ -123,7 +129,7 @@ export default function TownTalk({ who, lines, choices, onPick, th, phone, reduc
           {choices!.map((c, i) => (
             <button key={c.id} ref={i === 0 ? first : undefined} type="button" onClick={() => onPick?.(c.id)}
                     className={`pressable tk ${i === 0 ? "tk-btn" : "tk-btn-wood"} flex min-h-11 items-center justify-center gap-1.5 px-3 py-1.5 text-center font-display text-ui font-medium leading-tight`}>
-              {c.label}{c.note && <span className="font-data text-meta text-gold">{c.note}</span>}
+              {!phone && <kbd aria-hidden className="tk-key">{i + 1}</kbd>}{c.label}{c.note && <span className="font-data text-meta text-gold">{c.note}</span>}
             </button>
           ))}
           <button type="button" onClick={onClose}

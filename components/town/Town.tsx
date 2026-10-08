@@ -3311,6 +3311,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const wardrobeOpenRef = useRef(false);
   /** What the I key does now (my bag, opened or shut): null while there is no bag to open. */
   const bagKey = useRef<(() => void) | null>(null);
+  // (C's deed, and whether anything lies open over the map: both said anew at every render, read by the keys)
+  const meKey = useRef<(() => void) | null>(null);
+  const openRef = useRef(false);
   useEffect(() => { wardrobeOpenRef.current = wardrobeOpen; }, [wardrobeOpen]);
 
   // For the test scripts (fc-cash-town's town-e2e and friends): where somebody
@@ -3382,7 +3385,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
-      if (e.key === "Escape") { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTrade(null); setMenuOpen(false); setVoiceTray(false); return; }
+      // Escape shuts whatever lies open; with nothing open it opens the menu, as F2 does at any time.
+      if (e.key === "Escape") {
+        const was = openRef.current || !!document.querySelector('[data-foot="board"], [role="dialog"], [aria-modal="true"], [aria-labelledby^="town-"]');
+        setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTrade(null); setVoiceTray(false); setEmoteOpen(false); setMenuOpen(!was);
+        return;
+      }
+      if (e.key === "F2") { e.preventDefault(); setMenuOpen((o) => !o); return; }
       // Enter starts typing, as in a game; Esc in the box gives the keys back to walking.
       if (e.key === "Enter" && !(target && /^(BUTTON|A)$/.test(target.tagName))) {
         e.preventDefault();
@@ -3404,6 +3413,32 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         if (playing && !playing.closest('[aria-labelledby="town-fish-h"]')) return;
         e.preventDefault();
         bagKey.current();
+        return;
+      }
+      // E does what the place offers: its deed, or else the first other thing to do here. The button itself is
+      // pressed, so whatever it would refuse it refuses. Not while a board, a talk or a sheet has the keys.
+      if (e.code === "KeyE" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+        if (document.querySelector('[data-foot="board"], [aria-labelledby^="town-"]')) return;
+        const dock = document.querySelector("[data-foot-dock]");
+        const offer = dock?.querySelector<HTMLButtonElement>('[data-foot="main"] button:not(:disabled)')
+          ?? [...(dock?.querySelectorAll<HTMLButtonElement>('[data-foot="chip"] button:not(:disabled)') ?? [])].find((b) => !b.closest("[data-town-hand]"));
+        if (!offer) return;
+        e.preventDefault();
+        offer.click();
+        return;
+      }
+      // C opens "ตัวฉัน" and shuts it. M is mute and unmute, and only while in voice: no key opens a microphone.
+      if (e.code === "KeyC" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+        if (!meKey.current) return;
+        e.preventDefault();
+        meKey.current();
+        return;
+      }
+      if (e.code === "KeyM" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+        const mic = document.querySelector<HTMLButtonElement>('[data-town-mic="live"], [data-town-mic="muted"]');
+        if (!mic) return;
+        e.preventDefault();
+        mic.click();
         return;
       }
       if ((e.code === "KeyX" || e.key === "Insert") && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
@@ -3785,6 +3820,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const tabbar = phone && !covered;
   const hudBottom = tabbar ? "calc(4.5rem + env(safe-area-inset-bottom) + 0.75rem)" : "calc(env(safe-area-inset-bottom) + 0.75rem)";
   const chatBottom = lift > 40 ? `${lift + 8}px` : hudBottom;
+  meKey.current = game && keeper && linesTold ? () => { setCard(null); setPopover(null); setPeopleOpen(false); setMenuOpen(false); setLinesOpen((o) => (o === "me" ? false : "me")); } : null;
+  openRef.current = !!(card || popover || peopleOpen || historyOpen || trade || talk || wardrobeOpen || linesOpen || testOpen || boardOpen || signView || scroll || menuOpen || voiceTray || emoteOpen || statsOpen);
   // A button of the HUD's: a dark well in a wooden rim (./TownSkin), forty-eight pixels a side.
   const hudBtn = "pressable tk tk-slot grid size-12 shrink-0 place-items-center text-read max-[22.49rem]:size-11";
   /** A button of the menu's, with its word under it. */
@@ -3863,6 +3900,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
              <span aria-hidden className="flex h-4 w-5 flex-col justify-between">
                {[0, 1, 2].map((i) => <i key={i} className="block h-1 bg-[#f5dab7] shadow-[0_2px_0_#1a0e06]" />)}
              </span>
+             {!phone && <kbd aria-hidden className="tk-key absolute -bottom-2 -left-2">Esc</kbd>}
            </button>
            <div hidden={!menuOpen} data-town-menu-panel role="group" aria-label={w.th ? "เมนู" : "Menu"}
                 className="tk tk-window absolute right-0 top-full z-30 mt-2 w-[18rem] max-w-[calc(100vw-1.5rem)] p-4">
@@ -3905,6 +3943,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                    <TownIcon name="test" size={18} /><span className="sr-only">Test</span>
                  </button>)}
              </div>
+             {!phone && (
+               <ul aria-label={w.th ? "ปุ่มลัด" : "Keys"} data-town-keys className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t-2 border-line pt-3 text-[0.6875rem] leading-tight text-muted">
+                 {([["E", w.th ? "ทำสิ่งที่ตรงนี้ให้ทำ" : "Do what this place offers"], ["Space", w.th ? "งานของที่ตรงนี้" : "This place's work"], ["I", w.th ? "กระเป๋า" : "Bag"], ["C", w.th ? "ตัวฉัน" : "Me"],
+                    ["Q · 1–9", w.th ? "ของในมือ" : "In the hand"], ["X", w.th ? "นั่ง / ลุก" : "Sit / get up"], ["Enter", w.th ? "แชท" : "Chat"], ["M", w.th ? "ปิด/เปิดเสียงตัวเอง" : "Mute / unmute"],
+                    ["Esc · F2", w.th ? "ปิด / เมนู" : "Close / menu"], ["+ − 0", w.th ? "ซูม / กลับมาที่ตัวเรา" : "Zoom / back to me"]] as const).map(([k, what]) => (
+                   <li key={k} className="flex items-center gap-1.5"><kbd className="tk-key shrink-0">{k}</kbd><span className="min-w-0">{what}</span></li>
+                 ))}
+               </ul>
+             )}
              <div className="mt-3 flex flex-col gap-2 border-t-2 border-line pt-3">
                {/* The site's own header and tab bar: put away while in town (the owner, 2026-10-09: "ได้ครับ"), and
                    back for whoever wants them here. */}
@@ -4133,6 +4180,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                       aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
                       className={muted ? hudBtn : hudBtn.replace("tk-slot", "tk-slot-on")}>
                 <TownIcon name={muted ? "muted" : "mic"} size={22} />
+                {!phone && <kbd aria-hidden className="tk-key absolute -bottom-2 -left-2">M</kbd>}
               </button>
             )}
             {PROXIMITY && voiceOn && <div className="tk tk-plate absolute bottom-full left-0 mb-2 whitespace-nowrap px-3 py-1 text-meta text-muted">{w.near}</div>}
@@ -4306,6 +4354,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                       <TownIcon name="rosette" size={22} /><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
                       {/* (a gift of a rank reached waits to be taken) */}
                       {giftDue && <span aria-hidden className="tk-dot" />}
+                      {!phone && <kbd aria-hidden className="tk-key absolute -bottom-2 -left-2">C</kbd>}
                     </button>
                   )}
                   {/* My bag: how many of its slots are taken (the coins and the stamina are at the top left now) */}
