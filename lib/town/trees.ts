@@ -1,10 +1,10 @@
-import { leastSecs, type FellingAsk } from "./felling";
+import { FELLING, leastSecs, type FellingAsk } from "./felling";
 import { works } from "./gifts";
 import type { ItemId } from "./items";
 import type { TreeAge } from "./mountain";
 import { mayPower, usePower } from "./powers";
 import { dayOf, eased, isSpent, spend } from "./stamina";
-import { FORGE, GEM_FX, LEVELS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf } from "./tools";
+import { ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
 import { heldStack, put, roomFor, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
 
@@ -373,3 +373,27 @@ export function rootable(purse: Purse, grove: Grove, me: string, now: number, wo
   const mine = Object.entries(grove.down).filter(([id, f]) => { const t = treeOf(Number(id), wood); return !!t && !t.elder && f.by === me && now - f.at <= TREES.root.within * 1000; }).sort((a, b) => b[1].at - a[1].at)[0];
   return mine ? Number(mine[0]) : null;
 }
+
+/**
+ * The catalog's row: what the database needs of the trees to keep them and to judge a go. Every knob; the least a
+ * chop takes; the axe as the game reads it (what each plus is, each option of the axe's with its pool, its numbers and
+ * its count, what each gem does: lib/town/tools' own numbers, copied here so that the trees' rules in the database
+ * stand on no other part); and every tree there is, as [number, x, y, tier, tiles across].
+ * (The trees are the mountain's, which is laid out only in `next dev`: the row a database is given has to be made
+ * there, or it has no tree in it.)
+ */
+export const treesRow = () => ({
+  regrow: TREES.regrow, cost: TREES.cost, reach: TREES.reach, axeTier: TREES.axeTier, logs: TREES.logs, timber: TREES.timber,
+  chops: TREES.chops, elderChops: TREES.elderChops, elder: TREES.elder, kinds: TREES.kinds, elderKind: TREES.elderKind, scent: TREES.scent,
+  echo: TREES.echo, chain: TREES.chain, pecks: TREES.pecks, root: TREES.root, quickest: FELLING.quickest,
+  axe: {
+    top: FORGE.top, milestones: FORGE.milestones, pools: FORGE.pools, sockets: FORGE.sockets, gemAtTop: FORGE.gemAtTop, gemLevels: GEM_LEVELS, cap: FORGE.cap,
+    chops: LEVELS.axe.chops, ahead: LEVELS.axe.ahead, slow: LEVELS.axe.slow, elements: ELEMENTS,
+    opts: Object.fromEntries(OPTION_IDS.filter((id) => (OPTIONS[id].tools as readonly string[]).includes("axe")).map((id) => {
+      const o = OPTIONS[id] as { pool: number; n: Readonly<Record<string, number>>; use?: OptionUse };
+      return [id, { pool: o.pool, n: o.n, ...(o.use ? { use: o.use } : {}) }];
+    })),
+    gems: Object.fromEntries(ELEMENTS.map((e) => [e, GEM_FX[e].axe])),
+  },
+  wood: WOOD.map((t) => [t.id, t.x, t.y, t.tier, t.size ?? 1]),
+});
