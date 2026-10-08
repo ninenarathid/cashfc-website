@@ -180,6 +180,14 @@ export function begun(purse: Purse, dish: DishId, now: number): Pick<Purse, "mea
   return { meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0) as [boolean, boolean, boolean], bowls }, eating: { dish, meal, from: now, till: now, got: 0 } };
 }
 
+/**
+ * The stamina a helping of a dish gives when eaten through, with so many others eating with one. What a board says
+ * before one sits down; `chew` is what counts it out.
+ */
+export function helpingGives(dish: DishId, company: number): number {
+  return DISHES[dish].stamina * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
+}
+
 /** Sit down to the dish in a slot of the bag: one of this meal's hours' helpings begins, and leaves the bag. */
 export function sitDown(purse: Purse, slot: number, seated: boolean, now: number): Done<{ purse: Purse; dish: DishId }> {
   const s = purse.bag[slot];

@@ -663,7 +663,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
             <div aria-hidden className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line">
               <div className="h-full rounded-full bg-gold" style={{ width: `${Math.round(mealProgress(purse, now) * 100)}%` }} />
             </div>
-            {company > 0 && <p className="mt-1 text-meta text-muted">{th ? `กินด้วยกัน ${company + 1} คน` : `${company + 1} eating together`}</p>}
+            {company > 0 && <p className="mt-1 text-meta text-muted">{th ? `กินด้วยกัน ${company + 1} คน · stamina +${Math.round(STAMINA.together * 100) * Math.min(STAMINA.company, company)}%` : `${company + 1} eating together · stamina +${Math.round(STAMINA.together * 100) * Math.min(STAMINA.company, company)}%`}</p>}
           </div>
         )}
       </div>

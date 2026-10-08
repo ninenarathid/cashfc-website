@@ -480,6 +480,12 @@ const isKitchen = (x: number, y: number) => kitchenAt.has(`${x},${y}`);
 const yardAt = new Set(KITCHEN.floor.map(([x, y]) => `${x},${y}`)), yardWay = new Set(KITCHEN.way.map(([x, y]) => `${x},${y}`));
 /** Whether a tile is the finished cooking yard's floor (never, while it is being built). */
 export const onYard = (x: number, y: number) => KITCHEN.stage === 2 && yardAt.has(`${x},${y}`);
+/**
+ * Whether somebody is in the cooking yard: sat at a place at one of its tables, or standing anywhere on its floor.
+ * Whoever eats there eats with everybody else who is eating in it (the owner, 2026-10-08: "ถ้ากินในห้องอาหาร จะนับ
+ * ทุกคนในห้องอาหารว่าเป็นคนที่กินอาหารร่วมกันด้วย", "เฉพาะคนที่กำลังกิน").
+ */
+export const inDiningYard = (sit: number | undefined, x: number, y: number) => !!yardSeat(sit) || onYard(Math.floor(x), Math.floor(y));
 /** Whether a tile is of the yard's floor as it is when finished, whatever this page shows of it: what a rule that whoever keeps the game holds to asks (the database has the same tiles: the catalog's `cooking.feast.floor`). */
 export const yardFloor = (x: number, y: number) => yardAt.has(`${x},${y}`);
 /** Whether a step from one tile to the next crosses the yard's kerb: allowed only by one of its two ways in. */

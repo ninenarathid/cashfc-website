@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
@@ -61,7 +61,7 @@ import type { DrinkPairing, OfferDrink } from "./TownDrink";
 import { croaksAt, drinkNear, isBucket } from "@/lib/town/well-gifts";
 import { drawCroak, drawRainGather, frogHop } from "./frog-art";
 import type { FishPlace, LineState } from "./TownFish";
-import type { DishId, ItemId } from "@/lib/town/items";
+import { DISHES, type DishId, type ItemId } from "@/lib/town/items";
 import { isRod, type RodId } from "@/lib/town/gear";
 import { FishSfx, heard } from "@/lib/town/sfx";
 import TownMusicButton from "./TownMusicButton";
@@ -767,6 +767,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** How many are eating beside me (sitting within a few tiles, a dish before them), and whether it is raining: told to the page when they change. */
   const [company, setCompany] = useState(0);
   const companyRef = useRef(0);
+  /** How many others a meal begun where I stand would be eaten with (the feast table says so): counted as `company` is. */
+  const [yardFolk, setYardFolk] = useState(0);
+  const yardFolkRef = useRef(0);
   const [raining, setRaining] = useState(false);
   const rainRef = useRef(false);
   /** The recipe unrolled to be read. */
@@ -1740,14 +1743,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         fishAtRef.current = can ? { ...can, tile: [tx, ty] } : null;
         setFishAt(fishAtRef.current);
       }
-      let beside = 0;
-      if (mine.info.eat) for (const a of sessionRef.current?.avatars.values() ?? []) {
-        // beside me, or at my table in the cooking yard, on whichever of its benches
-        const table = yardSeat(a.info.sit)?.table;
-        if (a.info.eat && (a.info.sit ?? -1) !== -1
-          && (Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR || (table !== undefined && table === yardSeat(mine.info.sit)?.table))) beside++;
+      // Whoever eats in the cooking yard eats with everybody else who is eating in it, at whichever table and however
+      // far along it (the owner, 2026-10-08: "ถ้ากินในห้องอาหาร จะนับทุกคนในห้องอาหารว่าเป็นคนที่กินอาหารร่วมกันด้วย",
+      // and of who counts: "เฉพาะคนที่กำลังกิน"); anywhere else, with whoever sits eating within a few tiles, as before.
+      // (One count for both: what the table says a meal would have of company is what the meal then has. Whoever is
+      // on their way out is nobody's company.)
+      const dining = inDiningYard(mine.info.sit, mine.pos.x, mine.pos.y);
+      let folk = 0;
+      for (const a of sessionRef.current?.avatars.values() ?? []) {
+        if (!a.info.eat || (a.info.sit ?? -1) === -1 || a.byeAt !== undefined) continue;
+        if ((dining && inDiningYard(a.info.sit, a.pos.x, a.pos.y)) || Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR) folk++;
       }
+      const beside = mine.info.eat ? folk : 0;
       if (beside !== companyRef.current) { companyRef.current = beside; setCompany(beside); }
+      if (folk !== yardFolkRef.current) { yardFolkRef.current = folk; setYardFolk(folk); }
       // (whether it rains is the database's to say: what it keeps of the weather, not what is drawn here)
       const wet = SKIES.raining();
       if (wet !== rainRef.current) { rainRef.current = wet; setRaining(wet); }
@@ -4222,7 +4231,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <button type="button" data-stand-up onClick={() => s.standUp()}
                   className="pop-in pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
             <TownIcon name="standUp" size={22} />
-            {purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}
+            <span className="flex flex-col items-start leading-tight">
+              <span>{purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}</span>
+              {purse.eating && purse.eating.progress < 1 && (
+                <span className="text-meta font-normal text-muted" data-stand-cost>
+                  {DISHES[purse.eating.dish].buff ? (w.th ? "ได้ stamina เท่าที่กินไป ไม่ได้บัฟ" : "Keeps the stamina so far, no buff") : (w.th ? "ได้ stamina เท่าที่กินไป" : "Keeps the stamina so far")}
+                </span>
+              )}
+            </span>
             <kbd aria-hidden className="hidden rounded border border-line-strong px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-muted sm:inline">X</kbd>
           </button>
         </div>
@@ -4269,7 +4285,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} art={boardArt} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} feastAsk={feastAsk} phone={phone} tabbar={tabbar}
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} folk={yardFolk} feastAsk={feastAsk} phone={phone} tabbar={tabbar}
                     yard={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? yardTile : null} />
         </Suspense>
       )}
