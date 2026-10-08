@@ -117,7 +117,7 @@ try {
   ok("a tap sets the dish on the table: out of the bag, on the table, said to stand on the table's tile", stand.length === 1 && stand[0].feast && stand[0].dish === "friedMinnow" && stand[0].left === dish.n && stand[0].at.join() === TILE.join() && (await holds(A, "potFull")) === 2, stand);
   ok("…and the panel says until when it stands there: five the next morning", /โต๊ะเลี้ยง/.test(await said(A)) && /05:00/.test(await said(A)), await said(A));
   let list = await lines(A);
-  ok("the pot is a line of the table's: its dish, its helpings, mine, until when, and mine to take back", list.length === 1 && list[0].dish === "friedMinnow" && list[0].left === dish.n && /ของฉัน/.test(list[0].words) && /05:00/.test(list[0].words) && list[0].take, list);
+  ok("the pot is a line of the table's: its dish, its helpings, mine, until when, and mine to take back", list.length === 1 && list[0].dish === "friedMinnow" && list[0].left === dish.n && /ฝีมือฉันเอง/.test(list[0].words) && /05:00/.test(list[0].words) && list[0].take, list);
   ok("…with no bowl of my own it can be eaten at the table, and not ladled", list[0].eat === true && list[0].ladle === false, list[0]);
   await A.shot(`${OUT}/feast-panel.png`);
   await shut(A);
@@ -143,7 +143,7 @@ try {
   const stoodAt = await B.evaluate("window.__townView.self()");
   ok("a tap on a table's top from the yard's way in opens the table's panel for whoever stands there, with an empty bag too", (await panel(B)) && !stoodAt.moving && yardFloor(Math.floor(stoodAt.x), Math.floor(stoodAt.y)), stoodAt);
   list = await lines(B);
-  ok("on the yard's floor they are offered the table, and read the pot with its cook's name", list.length === 1 && /โดย/.test(list[0].words) && !list[0].take && list[0].eat && !list[0].ladle, list);
+  ok("on the yard's floor they are offered the table, and read the pot with its cook's name and what a helping of it gives", list.length === 1 && /ฝีมือ /.test(list[0].words) && /5 นาที · stamina \+\d+/.test(list[0].words) && !list[0].take && list[0].eat && !list[0].ladle, list);
   await shut(B);
   // sat down at a place of a table (the middle of a near bench: their back to the viewer) with food on the table
   const NEAR = KITCHEN.seats.findIndex((x) => x.back && x.table === 0) + 1, meId = (await meOf(B)).id;

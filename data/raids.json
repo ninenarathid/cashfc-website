@@ -9547,8 +9547,8 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 71,
-    "kills": 11,
-    "job": "Sage",
+    "kills": 14,
+    "job": "Monk",
     "cleared": true,
     "job_kills": {
      "Monk": {
@@ -18426,7 +18426,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 96,
-    "kills": 62,
+    "kills": 71,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -28697,7 +28697,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 27,
+    "pulls": 13,
     "last": "2026-09-29",
     "last_ts": 1790690223
    }
@@ -33611,7 +33611,7 @@
     "state": "learning",
     "pct": 22.88,
     "phase": 3,
-    "pulls": 76,
+    "pulls": 57,
     "last": "2026-09-30",
     "last_ts": 1790788041
    }
@@ -65634,8 +65634,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 43,
-    "kills": 30,
+    "best": 77,
+    "kills": 42,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73195,7 +73195,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 57,
+    "kills": 60,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73315,7 +73315,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 32,
+    "kills": 44,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -76544,8 +76544,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 29,
-    "kills": 1,
+    "best": 70,
+    "kills": 4,
     "job": "Viper",
     "cleared": true
    }
@@ -80512,22 +80512,26 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 44,
-    "kills": 8,
-    "job": "Pictomancer",
+    "best": 63,
+    "kills": 20,
+    "job": "Summoner",
     "cleared": true,
     "job_kills": {
+     "Summoner": {
+      "kills": 5,
+      "best": 63
+     },
      "Viper": {
       "kills": 1,
       "best": 35
      },
+     "Pictomancer": {
+      "kills": 11,
+      "best": 60
+     },
      "Reaper": {
       "kills": 2,
       "best": 32
-     },
-     "Pictomancer": {
-      "kills": 4,
-      "best": 44
      },
      "WhiteMage": {
       "kills": 1,
@@ -81438,8 +81442,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 4,
-    "kills": 5,
+    "best": 5,
+    "kills": 11,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
@@ -81618,9 +81622,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 4,
-    "kills": 23,
-    "job": "Paladin",
+    "best": 11,
+    "kills": 35,
+    "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
      "Dragoon": {
@@ -82977,9 +82981,9 @@
     "state": "learning",
     "pct": 44.76,
     "phase": 4,
-    "pulls": 72,
-    "last": "2026-10-06",
-    "last_ts": 1791298571
+    "pulls": 71,
+    "last": "2026-10-07",
+    "last_ts": 1791385140
    }
   ]
  },
@@ -83178,6 +83182,23 @@
     "kills": 1,
     "job": "Monk",
     "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 95,
+    "kills": 2,
+    "job": "Sage",
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 2,
+      "best": 95
+     }
+    }
    },
    {
     "zone": "The Omega Protocol",
@@ -86056,7 +86077,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 27,
+    "pulls": 13,
     "last": "2026-09-29",
     "last_ts": 1790690223
    }
@@ -86243,6 +86264,17 @@
     "best": 38,
     "kills": 1,
     "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 84,
+    "kills": 2,
+    "job": "Gunbreaker",
     "cleared": true
    },
    {
@@ -87400,6 +87432,17 @@
     "name": "Dragonsong's Reprise",
     "best": 65,
     "kills": 5,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 78,
+    "kills": 2,
     "job": "DarkKnight",
     "cleared": true
    }

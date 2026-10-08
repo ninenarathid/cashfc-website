@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BUFFS, BUFF_HOURS, BUFF_LEVELS, BUFF_STEPS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, SCROLLS, STAGES, STAGE_AT, byOf, growth, iconOf, isDish, type BuffId, type DishId, type ItemId, type MealBuffId } from "./items";
-import { STAMINA, bowlsBack, bowlsToday, buffBy, buffOf, buffsOf, chew, costOf, dayOf, eatenToday, getUp, hasBuff, levelOf, mayEat, mealBuffs, mealOf, mealProgress, nextMealAt, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
+import { STAMINA, helpingGives, bowlsBack, bowlsToday, buffBy, buffOf, buffsOf, chew, costOf, dayOf, eatenToday, getUp, hasBuff, levelOf, mayEat, mealBuffs, mealOf, mealProgress, nextMealAt, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
 import { GOODS, held, newPurse, put, type Purse } from "./trade";
 import atlas from "./icon-atlas.json";
 
@@ -408,5 +408,15 @@ describe("a recipe scroll", () => {
     expect(read.ok && read.purse.recipes).toEqual(["grilledFish", "pestCure"]);
     expect(read.ok && read.purse.bag[0]).toBeNull();
     expect(iconOf("scrollPestCure")).toBe("scroll");
+  });
+});
+
+describe("what a board says a helping gives", () => {
+  it("is the dish's stamina eaten through, and a tenth more for each of up to five others", () => {
+    const dish = DISH_IDS.find((d) => DISHES[d].stamina >= 10)!, whole = DISHES[dish].stamina;
+    expect(helpingGives(dish, 0)).toBeCloseTo(whole);
+    expect(helpingGives(dish, 2)).toBeCloseTo(whole * 1.2);
+    expect(helpingGives(dish, 9)).toBeCloseTo(whole * (1 + STAMINA.together * STAMINA.company));
+    expect(helpingGives(dish, -1)).toBeCloseTo(whole);
   });
 });

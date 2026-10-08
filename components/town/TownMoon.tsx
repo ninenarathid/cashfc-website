@@ -12,6 +12,7 @@ import { MOON, moonOf } from "@/lib/town/well-gifts";
 import { WELL } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import TownPouring from "./TownPouring";
 import { FLASK_LIGHT_MS, drawFlaskLight } from "./moon-art";
 
@@ -193,9 +194,9 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
         )}
         {note && <p className="mt-1 flex max-w-[17rem] items-start gap-1 px-0.5 text-label font-semibold text-ink" aria-live="polite" data-moon-note>{note}</p>}
       </div>
-      {/* tired hands: the short pour, as of any water (fixed to the map's foot: this plate lives under the clock) */}
+      {/* tired hands: the short pour, as of any water (in the map's foot, though this plate lives under the clock) */}
       {working !== null && canPour && (
-        <div className="pointer-events-none fixed inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+        <TownFoot rank="board">
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game="pouring">
             <TownPouring th={th} title={th ? "เทน้ำจากขวดลงบ่อ" : "Pour the flask into the well"} verb={th ? "กดค้างเท" : "Hold to pour"} need={FARMING.tired} mods={{ tool: 1, spent: true, drops: true }}
                          icon={FLASK} taking={false} into={"well" as IconName}
@@ -209,7 +210,7 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
                          }}
                          onCancel={() => setWorking(null)} />
           </div>
-        </div>
+        </TownFoot>
       )}
     </>
   );

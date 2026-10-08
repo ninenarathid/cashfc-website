@@ -22,7 +22,8 @@ export default function TownClock({ th, compact }: { th: boolean; compact: boole
   return (
     <span role="timer" aria-label={`${th ? "เวลาในเมือง" : "Town time"} ${clockText(now)} · ${th ? phase.th : phase.en}`}
           className="pointer-events-auto flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-line-strong bg-bg/80 px-3 shadow-lg shadow-black/30 backdrop-blur-sm">
-      <TownIcon name={daylight(now).phase} size={20} />
+      {/* (on the narrowest phones, under 22.5rem, the hour alone: the top row has no room for the sky's picture) */}
+      <TownIcon name={daylight(now).phase} size={20} className={compact ? "max-[22.49rem]:hidden" : undefined} />
       <span className="font-data text-ui font-semibold tabular-nums text-ink">{clockText(now)}</span>
       {!compact && <span className="text-label text-muted">{th ? phase.th : phase.en}</span>}
     </span>

@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import { ODD, ladle, potNow, type FeastTold, type Pot } from "@/lib/town/cooking";
-import { BOWL, ITEMS, potIconOf, type ItemId } from "@/lib/town/items";
-import { bowlsToday, mealOf } from "@/lib/town/stamina";
+import { BOWL, DISHES, ITEMS, potIconOf, type DishId, type ItemId } from "@/lib/town/items";
+import { STAMINA, bowlsToday, helpingGives, mealOf } from "@/lib/town/stamina";
 import { held, type Purse } from "@/lib/town/trade";
 import TownIcon, { type IconName } from "./TownIcon";
 
@@ -30,7 +30,7 @@ export const clockOf = (ms: number) => {
  * What is kept is the keeper's (lib/town/keeper); TownCook asks it. A keeper
  * that knows of no feast table (the database before v159) is offered none.
  */
-export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, most, feast, said, busy, onEat, onLadle, onTake, onSet, onClose }: {
+export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, most, feast, said, busy, folk, onEat, onLadle, onTake, onSet, onClose }: {
   th: boolean;
   phone: boolean;
   tabbar: boolean;
@@ -45,6 +45,8 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
   /** What was last done or refused here, in a few words. */
   said: string | null;
   busy: boolean;
+  /** How many others a meal begun here now would be eaten with: whoever is eating in the yard (or right beside me). */
+  folk: number;
   onEat: (pot: Pot) => void;
   onLadle: (pot: Pot) => void;
   onTake: (pot: Pot) => void;
@@ -69,6 +71,10 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
   const helpings = pots.reduce((n, o) => n + o.left, 0);
   const title = th ? "โต๊ะเลี้ยง" : "The feast table";
   const chip = "pressable flex min-h-11 items-center justify-center gap-1.5 rounded-lg px-3 text-ui font-semibold disabled:opacity-45";
+  // What a helping would give me now, with whoever is eating in the yard: said on the button before I sit down (the
+  // owner, 2026-10-08: the table said nothing of the five minutes, of what a meal gives, or of what company adds).
+  const each = Math.round(STAMINA.together * 100), bonus = each * Math.min(STAMINA.company, folk);
+  const gives = (dish: DishId) => { const n = Math.max(1, Math.round(helpingGives(dish, folk))); return th ? `${STAMINA.minutes} นาที · stamina +${n}` : `${STAMINA.minutes} min · stamina +${n}`; };
   return (
     <div className={`pop-in pointer-events-auto absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
            ? "inset-x-0 h-[min(84%,42rem)] rounded-t-2xl" : "right-3 top-16 w-[25rem] rounded-2xl"}`}
@@ -93,6 +99,12 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
           <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-meta text-muted">
             <span className="flex items-center gap-1" data-feast-meal={eaten}><TownIcon name="meal" size={16} />{th ? `มื้อนี้กินแล้ว ${Math.min(eaten, most)}/${most}` : `This meal: ${Math.min(eaten, most)} of ${most}`}</span>
             <span className="flex items-center gap-1" data-feast-bowls={bowls}><TownIcon name={BOWL as IconName} size={16} />{th ? `ถ้วยของฉัน ${bowls}` : `My bowls: ${bowls}`}</span>
+          </p>
+          {/* who a meal here is eaten with: everybody eating in the yard, and what each of them adds */}
+          <p className="mt-1.5 text-meta text-ink" data-feast-folk={folk}>
+            {folk > 0
+              ? (th ? `ตอนนี้มีอีก ${folk} คนกำลังกินอยู่ · กินด้วยกัน stamina +${bonus}%` : `${folk} other${folk === 1 ? " is" : "s are"} eating now · eating together: stamina +${bonus}%`)
+              : (th ? `กินพร้อมคนอื่นในห้องอาหาร ได้ stamina เพิ่มคนละ ${each}% (นับสูงสุด ${STAMINA.company} คน)` : `Each other person eating in the yard adds ${each}% stamina (up to ${STAMINA.company})`)}
           </p>
 
           {/* the pots of food in my bag, each set on the table with a tap */}
@@ -121,11 +133,11 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
 
           {/* what is on the table */}
           {lines.length === 0 ? (
-            <p className="mt-6 text-center text-ui text-muted" data-feast-empty>{th ? "ใครทำอาหารเสร็จ วางไว้บนโต๊ะนี้ได้เลย" : "Whoever has cooked may set a pot here."}</p>
+            <p className="mt-6 text-center text-ui text-muted" data-feast-empty>{th ? "โต๊ะยังว่างอยู่ ใครทำอาหารเสร็จ วางหม้อไว้ให้ทุกคนกินด้วยกันได้เลย" : "The table is empty. Whoever has cooked may set a pot here for everybody."}</p>
           ) : (
             <ul className="mt-3 flex flex-col gap-2" data-feast-list>
               {lines.map(({ pot, until }) => {
-                const own = pot.by === me, fits = ladle(purse, pot).ok;
+                const own = pot.by === me, fits = ladle(purse, pot).ok, buff = !!DISHES[pot.dish].buff;
                 return (
                   <li key={pot.id} className="rounded-xl border border-line bg-bg/40 p-2.5" data-feast-pot={pot.id} data-dish={pot.dish} data-left={pot.left}>
                     <div className="flex items-center gap-2.5">
@@ -133,7 +145,7 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-ui font-semibold text-ink">{name(pot.dish)} <span className="font-data font-normal tabular-nums text-muted">×{pot.left}</span></p>
                         <p className="truncate text-meta text-muted">
-                          {own ? (th ? "ของฉัน" : "Mine") : pot.name ? (th ? `โดย ${pot.name}` : `By ${pot.name}`) : ""}
+                          <span className="font-semibold text-ink" data-feast-cook>{own ? (th ? "ฝีมือฉันเอง" : "Cooked by me") : pot.name ? (th ? `ฝีมือ ${pot.name}` : `Cooked by ${pot.name}`) : ""}</span>
                           {Number.isFinite(until) && <span className="font-data tabular-nums">{own || pot.name ? " · " : ""}{th ? `ถึง ${clockOf(until)} น.` : `until ${clockOf(until)}`}</span>}
                         </p>
                       </div>
@@ -144,8 +156,12 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                       )}
                     </div>
                     <div className="mt-2 grid grid-cols-2 gap-1.5">
-                      <button type="button" disabled={busy || !mayEat} onClick={() => onEat(pot)} data-feast-eat className={`${chip} bg-accent text-bg`}>
-                        <TownIcon name="meal" size={18} />{th ? "นั่งกินที่โต๊ะ" : "Eat at the table"}
+                      <button type="button" disabled={busy || !mayEat} onClick={() => onEat(pot)} data-feast-eat className={`${chip} bg-accent py-1.5 text-bg`}>
+                        <TownIcon name="meal" size={18} />
+                        <span className="flex min-w-0 flex-col items-start text-left leading-tight">
+                          <span>{th ? "นั่งกินที่โต๊ะ" : "Eat at the table"}</span>
+                          <span className="font-data text-meta font-normal tabular-nums" data-feast-gives>{gives(pot.dish)}{buff ? (th ? " · ได้บัฟ" : " · a buff") : ""}</span>
+                        </span>
                       </button>
                       <button type="button" disabled={busy || !fits} onClick={() => onLadle(pot)} data-feast-ladle className={`${chip} border border-line-lit bg-surface text-ink`}>
                         <TownIcon name={BOWL as IconName} size={18} />{th ? "ตักใส่ถ้วยฉัน" : "Into my bowl"}

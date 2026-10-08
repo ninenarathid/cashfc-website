@@ -15,6 +15,7 @@ import { handOf } from "@/lib/town/trade";
 import { TILE_H, placeOf, type Vec } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
 
@@ -799,13 +800,14 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   return (
     <>
       {(note || tip) && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2 pb-14" style={{ bottom }}>
+        <TownFoot rank="note" order={6}>
           {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
           {tip && <p className="pop-in max-w-[24rem] rounded-2xl bg-bg/85 px-4 py-2 text-center text-ui leading-relaxed text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-bug-tip aria-live="polite">{tip}</p>}
-        </div>
+        </TownFoot>
       )}
       {belt && (
-        <div className="pointer-events-none absolute left-2 z-20 flex flex-col gap-2 sm:left-3" style={{ bottom: `calc(${bottom} + 3.75rem)` }} data-bug-belt>
+        <TownFoot rank="side">
+        <div className="pointer-events-none flex gap-2" data-bug-belt>
           {hasNectar && (
             <button type="button" onClick={dropNectar} disabled={!!lured || drops <= 0} data-bug-nectar data-left={drops} data-out={lured ? "1" : "0"}
                     title={giftName("thingNectar", th)} aria-label={`${giftName("thingNectar", th)} ${drops}`}
@@ -825,6 +827,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             </button>
           )}
         </div>
+        </TownFoot>
       )}
     </>
   );

@@ -2,7 +2,7 @@ import {
   describe, expect, it, vi } from "vitest";
 import {
   BENCHES, BEYOND, BEYOND_PROPS, BOARD, CAMP, COLS, DROP, FARM, FARM_PROPS, FORDS, FOREST, FOREST_PROPS, GATES, GREAT_TREE, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
-  YARD_SEATS, atFire, isBuilt, seenAt, setBuilt, yardSeat, zoneAt, type Zone,
+  YARD_SEATS, inDiningYard, atFire, isBuilt, seenAt, setBuilt, yardSeat, zoneAt, type Zone,
 } from "./world";
 import { rowOf, bedOf, bedCorner, FARM_PUMPKINS, yardFloor } from "./world";
 
@@ -810,5 +810,16 @@ describe("the cooking yard's two tables", () => {
       expect(yardFloor(x, y) || !walkable(x, y)).toBe(true);
     }
     expect(yardFloor(0, 0)).toBe(false);
+  });
+});
+
+describe("who is in the cooking yard", () => {
+  it("is whoever sits at one of its tables or stands on its floor, and nobody else", () => {
+    const [fx, fy] = KITCHEN.floor[0];
+    expect(inDiningYard(YARD_SEATS, 0, 0)).toBe(KITCHEN.stage === 2);
+    expect(inDiningYard(-1, fx + 0.5, fy + 0.5)).toBe(KITCHEN.stage === 2);
+    expect(inDiningYard(undefined, fx + 0.5, fy + 0.5)).toBe(KITCHEN.stage === 2);
+    expect(inDiningYard(-1, 0, 0)).toBe(false);
+    expect(inDiningYard(3, 0, 0)).toBe(false);
   });
 });

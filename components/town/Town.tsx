@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
@@ -62,11 +62,12 @@ import type { DrinkPairing, OfferDrink } from "./TownDrink";
 import { croaksAt, drinkNear, isBucket } from "@/lib/town/well-gifts";
 import { drawCroak, drawRainGather, frogHop } from "./frog-art";
 import type { FishPlace, LineState } from "./TownFish";
-import type { DishId, ItemId } from "@/lib/town/items";
+import { DISHES, type DishId, type ItemId } from "@/lib/town/items";
 import { isRod, type RodId } from "@/lib/town/gear";
 import { FishSfx, heard } from "@/lib/town/sfx";
 import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
+import TownFoot, { FOOT_CSS, TownFootContext, type FootPlaces } from "./TownFoot";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
 
 /**
@@ -716,13 +717,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const stoppedRef = useRef(true);
   /**
    * Why a tap did not walk me (lib/town/session's `stuck`: I hold a sign up, am in a chat room, or look at a stall),
-   * said for a moment: the way to walk again is that thing's own button.
+   * said for a moment: the way to walk again is that thing's own button. And "seat", for whoever sits and asks by a
+   * button to be walked somewhere (`staysSat`).
    */
   const [stuckNote, setStuckNote] = useState<string | null>(null);
-  const sayStuck = useCallback((why: Stuck) => {
+  const sayStuck = useCallback((why: Stuck | "seat") => {
     const th = words.current.th;
     setStuckNote(why === "sign" ? (th ? "กำลังชูป้ายอยู่ เก็บป้ายก่อนถึงจะเดินได้" : "You are holding a sign up: take it down to walk")
       : why === "room" ? (th ? "อยู่ในห้องแชท ออกจากห้องก่อนถึงจะเดินได้" : "You are in a chat room: leave it to walk")
+      : why === "seat" ? (th ? "กำลังนั่งอยู่ ลุกก่อนถึงจะเดินได้" : "You are sitting: get up to walk")
       : (th ? "กำลังดูร้านอยู่ ปิดหน้าร้านก่อนถึงจะเดินได้" : "You are at a stall: close it to walk"));
   }, []);
   useEffect(() => { if (!stuckNote) return; const id = setTimeout(() => setStuckNote(null), 3000); return () => clearTimeout(id); }, [stuckNote]);
@@ -779,6 +782,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** How many are eating beside me (sitting within a few tiles, a dish before them), and whether it is raining: told to the page when they change. */
   const [company, setCompany] = useState(0);
   const companyRef = useRef(0);
+  /** How many others a meal begun where I stand would be eaten with (the feast table says so): counted as `company` is. */
+  const [yardFolk, setYardFolk] = useState(0);
+  const yardFolkRef = useRef(0);
   const [raining, setRaining] = useState(false);
   const rainRef = useRef(false);
   /** The recipe unrolled to be read. */
@@ -797,6 +803,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** How tall the part of the screen above a phone's keyboard is. */
   const [visibleH, setVisibleH] = useState(0);
   const chatRef = useRef<HTMLInputElement>(null);
+  /** The foot of the map (./TownFoot): the column whatever the town offers at the bottom is put into, and the place beside the chat. */
+  const [footDock, setFootDock] = useState<HTMLElement | null>(null);
+  const [footSide, setFootSide] = useState<HTMLElement | null>(null);
+  const [footHead, setFootHead] = useState<HTMLElement | null>(null);
+  const [footCorner, setFootCorner] = useState<HTMLElement | null>(null);
+  const footPlaces = useMemo<FootPlaces>(() => ({ dock: footDock, side: footSide, head: footHead, corner: footCorner }), [footDock, footSide, footHead, footCorner]);
 
   /** The stay already going in this tab, or a new one (resumed, after a reload). */
   const enter = useCallback(() => {
@@ -1755,14 +1767,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         fishAtRef.current = can ? { ...can, tile: [tx, ty] } : null;
         setFishAt(fishAtRef.current);
       }
-      let beside = 0;
-      if (mine.info.eat) for (const a of sessionRef.current?.avatars.values() ?? []) {
-        // beside me, or at my table in the cooking yard, on whichever of its benches
-        const table = yardSeat(a.info.sit)?.table;
-        if (a.info.eat && (a.info.sit ?? -1) !== -1
-          && (Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR || (table !== undefined && table === yardSeat(mine.info.sit)?.table))) beside++;
+      // Whoever eats in the cooking yard eats with everybody else who is eating in it, at whichever table and however
+      // far along it (the owner, 2026-10-08: "ถ้ากินในห้องอาหาร จะนับทุกคนในห้องอาหารว่าเป็นคนที่กินอาหารร่วมกันด้วย",
+      // and of who counts: "เฉพาะคนที่กำลังกิน"); anywhere else, with whoever sits eating within a few tiles, as before.
+      // (One count for both: what the table says a meal would have of company is what the meal then has. Whoever is
+      // on their way out is nobody's company.)
+      const dining = inDiningYard(mine.info.sit, mine.pos.x, mine.pos.y);
+      let folk = 0;
+      for (const a of sessionRef.current?.avatars.values() ?? []) {
+        if (!a.info.eat || (a.info.sit ?? -1) === -1 || a.byeAt !== undefined) continue;
+        if ((dining && inDiningYard(a.info.sit, a.pos.x, a.pos.y)) || Math.hypot(a.pos.x - mine.pos.x, a.pos.y - mine.pos.y) <= EAT_NEAR) folk++;
       }
+      const beside = mine.info.eat ? folk : 0;
       if (beside !== companyRef.current) { companyRef.current = beside; setCompany(beside); }
+      if (folk !== yardFolkRef.current) { yardFolkRef.current = folk; setYardFolk(folk); }
       // (whether it rains is the database's to say: what it keeps of the weather, not what is drawn here)
       const wet = SKIES.raining();
       if (wet !== rainRef.current) { rainRef.current = wet; setRaining(wet); }
@@ -3471,6 +3489,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * reach; somebody's stall: its panel, from beside it. From further off they are walked up to first, and the sign is
    * asked again when I get there (`arrived`: no second walk).
    */
+  /**
+   * Whoever sits stays sat, whatever asks them to walk (`tap` holds the map's taps to that; this is for what is not
+   * a tap on the ground: a sign out of reach, tapped or asked for from its holder's card, and the card's walk over,
+   * each of which walked somebody off their seat and out of their meal). They turn to whom they asked for and are
+   * told to get up first. True when they sit.
+   */
+  const staysSat = (to: Avatar): boolean => {
+    const stay = sessionRef.current;
+    if (!stay?.seated) return false;
+    stay.turnTo(spotOf(to).x < spotOf(stay.self).x);
+    sayStuck("seat");
+    return true;
+  };
   const openSign = (id: string, arrived = false) => {
     const stay = sessionRef.current;
     if (!stay) return;
@@ -3495,6 +3526,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (arrived) return;
     // (looking at a stall, I stay by it: another sign further off is walked to once its panel is closed)
     if (stuck) { sayStuck(stuck); return; }
+    if (staysSat(a)) return;
     const tx = Math.floor(a.pos.x), ty = Math.floor(a.pos.y), far = (t: Vec) => Math.hypot(t.x + 0.5 - from.x, t.y + 0.5 - from.y);
     const beside: Vec[] = [];
     for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) if (dx || dy) beside.push({ x: tx + dx, y: ty + dy });
@@ -3721,6 +3753,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!stay) return;
     const held = stay.stuck();
     if (held) { sayStuck(held); setCard(null); return; }
+    if (staysSat(a)) { setCard(null); return; }
     const tx = Math.floor(a.info.x), ty = Math.floor(a.info.y);
     const spots: Vec[] = [];
     for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (dx || dy) spots.push({ x: tx + dx, y: ty + dy });
@@ -3739,6 +3772,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     <div ref={stageRef}
          style={{ ["--hud-b" as string]: hudBottom }}
          className={`${immersive ? "fixed inset-0 z-[55]" : "fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30]"} overflow-hidden overscroll-none bg-[#0b1016]`}>
+     <TownFootContext.Provider value={footPlaces}>
       {/* The town: above the page (z-30), under the header (40) and the phone's
           tab bar (50); in fullscreen at 55, over both and under every dialog (60+). */}
       <canvas ref={canvasRef} role="img" aria-label={w.canvasLabel}
@@ -3747,77 +3781,55 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
               onPointerLeave={() => { hover.current = null; if (mouse.current) mouse.current.inside = false; }} />
 
-      {/* Top left: where this is, whether we are connected, and who is here (a tap lists them) */}
-      <div className="pointer-events-none absolute left-3 top-3 flex max-w-[calc(100%-11.5rem)] items-center gap-1.5">
+      {/* The top of the map, one row: on the left where this is, whether we are connected and who is here (a tap lists
+          them), on the right the buttons. One row, so that the left gives way to the right and neither lies on the
+          other (until 2026-10-08 each was placed by itself, and on a phone the clock lay under the wardrobe's button). */}
+      <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-1.5">
+       <div className="flex min-w-0 items-center gap-1.5">
         <button type="button" onClick={() => { setPeopleOpen((o) => !o); setCard(null); setStatsOpen(false); }}
                 aria-expanded={peopleOpen} disabled={!s} aria-label={`Cash Town · ${w.peopleBtn(others.length + 1)}`}
-                className="pressable pointer-events-auto flex h-10 min-w-0 items-center gap-2 rounded-full border border-line-strong bg-bg/80 px-3 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
+                className="pressable pointer-events-auto flex h-10 min-w-0 items-center gap-2 overflow-hidden rounded-full border border-line-strong bg-bg/80 px-3 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent max-[29.99rem]:gap-1.5 max-[29.99rem]:px-2.5">
           <span aria-hidden className={`size-2 shrink-0 rounded-full ${live ? "bg-jade" : "bg-gold"}`} />
-          <span className="truncate font-display text-ui font-semibold text-ink">Cash Town</span>
+          {/* (the words only where there is room for them: under 30rem the dot and the count are the button) */}
+          <span className="truncate font-display text-ui font-semibold text-ink max-[29.99rem]:hidden">Cash Town</span>
           {!phone && <span className="font-data text-label uppercase tracking-wider text-accent">{w.beta}</span>}
-          {testTopic && <span className="font-data text-label uppercase tracking-wider text-gold">dev</span>}
-          <span className="flex shrink-0 items-center gap-1 text-ui text-muted"><TownIcon name="people" size={16} />{others.length + 1}</span>
+          {testTopic && <span className="font-data text-label uppercase tracking-wider text-gold max-[29.99rem]:hidden">dev</span>}
+          <span className="flex shrink-0 items-center gap-1 text-ui text-muted"><TownIcon name="people" size={16} className="max-[22.49rem]:hidden" />{others.length + 1}</span>
         </button>
-        <TownClock th={w.th} compact={phone} />
+        {/* (on a phone there is room for the clock or for the word that we are reconnecting, not both) */}
+        {!(phone && s && everReady && !live) && <TownClock th={w.th} compact={phone} />}
         {s && everReady && !live && (
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-bg/80 px-2 py-0.5 text-label text-gold"><TownIcon name="signal" size={13} className="animate-pulse" />{w.reconnecting}</span>
+          <span className={`flex shrink-0 items-center gap-1 rounded-full bg-bg/80 text-label text-gold ${phone ? "h-10 px-2.5" : "px-2 py-0.5"}`}><TownIcon name="signal" size={13} className="animate-pulse" />{w.reconnecting}</span>
         )}
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
+       </div>
+       {/* on the right: the wardrobe, the music, the settings, the numbers, fullscreen, the way out */}
+       {s && (
+         <div className="flex shrink-0 items-center gap-1.5 max-[23.49rem]:gap-1 [&>*]:pointer-events-auto">
+           {/* the icon alone, like the buttons beside it: the word took too much room (the owner, 2026-10-02) */}
+           <button type="button" onClick={() => (wardrobeOpen ? closeWardrobe() : openWardrobe())} aria-pressed={wardrobeOpen} title={w.wardrobe}
+                   className={wardrobeOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
+             <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
+           </button>
+           <TownMusicButton th={w.th} hour={forcedHour.current} className={hudBtn} />
+           {/* (here on a wide screen only, like the numbers: a phone's corner has no room for one more, and its cog is
+               at the foot of the screen, beside the chat) */}
+           {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} className={hudBtn} />}
+           {!phone && (
+             <button type="button" onClick={() => setStatsOpen((o) => !o)} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
+               <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>
+             </button>
+           )}
+           <button type="button" onClick={() => void toggleImmersive()} aria-pressed={immersive}
+                   title={immersive ? w.exitFullscreen : w.fullscreen} className={hudBtn}>
+             <TownIcon name={immersive ? "exitFullscreen" : "fullscreen"} size={18} /><span className="sr-only">{immersive ? w.exitFullscreen : w.fullscreen}</span>
+           </button>
+           <button type="button" onClick={() => s.close()} title={w.leaveTown} className={hudBtn}>
+             <TownIcon name="leave" size={20} /><span className="sr-only">{w.leaveTown}</span>
+           </button>
+         </div>
+       )}
       </div>
-
-      {/* ── gifts: well ── Under the clock: what the well's gifts show their member (the rain frog's sky, and what the moon flask keeps) */}
-      {s && game && keeper && (hasFrog || hasMoon) && (
-        <div className="pointer-events-none absolute left-3 top-[3.75rem] z-10 flex max-w-[calc(100%-1.5rem)] flex-col items-start gap-1.5" data-well-gifts>
-          <Suspense fallback={null}>
-            {hasFrog && <TownFrog keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} gauge={rainFull} onWant={askSky} />}
-            {hasMoon && <TownMoon keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} register={registerWellGift}
-                                  at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null}
-                                  bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} />}
-          </Suspense>
-        </div>
-      )}
-
-      {/* Top right: the wardrobe, the music, the settings, the numbers, fullscreen, the way out */}
-      {s && (
-        <div className="absolute right-3 top-3 flex items-center gap-1.5">
-          {/* the icon alone, like the buttons beside it: the word took too much room (the owner, 2026-10-02) */}
-          <button type="button" onClick={() => (wardrobeOpen ? closeWardrobe() : openWardrobe())} aria-pressed={wardrobeOpen} title={w.wardrobe}
-                  className={wardrobeOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
-            <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
-          </button>
-          <TownMusicButton th={w.th} hour={forcedHour.current} className={hudBtn} />
-          {/* (here on a wide screen only, like the numbers: a phone's corner has no room for one more, and its cog is
-              at the foot of the screen, beside the chat) */}
-          {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} className={hudBtn} />}
-          {!phone && (
-            <button type="button" onClick={() => setStatsOpen((o) => !o)} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
-              <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>
-            </button>
-          )}
-          <button type="button" onClick={() => void toggleImmersive()} aria-pressed={immersive}
-                  title={immersive ? w.exitFullscreen : w.fullscreen} className={hudBtn}>
-            <TownIcon name={immersive ? "exitFullscreen" : "fullscreen"} size={18} /><span className="sr-only">{immersive ? w.exitFullscreen : w.fullscreen}</span>
-          </button>
-          <button type="button" onClick={() => s.close()} title={w.leaveTown} className={hudBtn}>
-            <TownIcon name="leave" size={20} /><span className="sr-only">{w.leaveTown}</span>
-          </button>
-        </div>
-      )}
-
-      {/* Right edge: the zoom */}
-      {s && !wardrobeOpen && !boardOpen && (
-        <div className="absolute right-3 top-1/2 flex -translate-y-1/2 flex-col gap-1.5">
-          <button type="button" onClick={() => zoomBy(1.25)} title={w.zoomIn} className={hudBtn}>
-            <TownIcon name="zoomIn" size={20} /><span className="sr-only">{w.zoomIn}</span>
-          </button>
-          <button type="button" onClick={() => zoomBy(1 / 1.25)} title={w.zoomOut} className={hudBtn}>
-            <TownIcon name="zoomOut" size={20} /><span className="sr-only">{w.zoomOut}</span>
-          </button>
-          <button type="button" onClick={recenter} title={w.recenter} className={hudBtn}>
-            <TownIcon name="recenter" size={20} /><span className="sr-only">{w.recenter}</span>
-          </button>
-        </div>
-      )}
 
       {/* Who is here: names only; a tap shows them on the map */}
       {s && peopleOpen && (
@@ -3959,16 +3971,22 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       )}
 
       {/* How to play, until you have played */}
-      {s && hint && !wardrobeOpen && !boardOpen && (
-        <div className="pointer-events-none absolute inset-x-0 top-16 mx-auto w-fit max-w-[90%] rounded-full bg-bg/80 px-3 py-1 text-center text-meta text-muted backdrop-blur-sm">
-          {phone ? w.hintPhone : w.hintDesk}
-        </div>
+      {s && hint && !wardrobeOpen && !boardOpen && !trade && !talk && !signView && !testOpen && (
+        <TownFoot rank="toast" order={1}>
+          <div className="pointer-events-none w-fit max-w-full rounded-full bg-bg/80 px-3 py-1 text-center text-meta text-muted backdrop-blur-sm">
+            {phone ? w.hintPhone : w.hintDesk}
+          </div>
+        </TownFoot>
       )}
 
-      {/* Bottom left: the chat. A slim bar on a wide screen, with its history a
-          tap away; a button on a phone, opening the history and the box. While
-          the history is shut, the last few lines show over the map. */}
-      {s && !wardrobeOpen && !(phone && (boardOpen || !!trade)) && (() => {
+      {/* Everything under the top row, as one grid (./TownFoot, where the layout is said): at the head what stays under
+          the clock and what is told for a moment; at the foot the chat's lines, what the town offers where I stand,
+          what is under the left thumb, and the buttons on the right. One grid, so that each takes the room it needs
+          and none lies on another (until 2026-10-08 each stood at a height of its own, and "get up" lay on the
+          chat's lines, the zoom under the lines of work's button, a long line of chat under the bag). */}
+      <style href="town-foot" precedence="medium">{FOOT_CSS}</style>
+      {s && (() => {
+        const chatShown = !wardrobeOpen && !(phone && (boardOpen || !!trade));
         const showHistory = phone ? chatOpen : historyOpen;
         // A phone's history fits between the top bar and the box over the keyboard.
         const screenH = visibleH || cam.current.ch;
@@ -3978,164 +3996,241 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           else setHistoryOpen(true);
         };
         return (
-          <div className="pointer-events-none absolute left-3 flex w-[min(26rem,calc(100%-1.5rem))] flex-col gap-1"
+          <div className="town-foot pointer-events-none absolute inset-x-3 top-[3.75rem]" data-typing={phone && chatOpen ? "" : undefined}
                style={{ bottom: chatOpen || !phone ? chatBottom : "var(--hud-b)" }}>
-            {showHistory ? (
-              <div className={`pop-in pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
-                   style={room ? { maxHeight: room } : undefined} data-state="open">
-                <div className="flex items-center gap-2 border-b border-line py-1 pl-3 pr-1">
-                  <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {s.chat.length}</span></span>
-                  <button type="button" onClick={() => { if (phone) setChatOpen(false); else setHistoryOpen(false); }}
-                          aria-label={w.historyClose} title={w.historyClose}
-                          className="pressable ml-auto grid size-8 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink"><TownIcon name="chevron" size={14} /></button>
+            {/* The head, under the top row: on the left what stays under the clock, and in the middle what the town tells me
+                for a moment, each under the last (until 2026-10-08 each stood at a height of its own: three of them at
+                the same one). The corner is under the list of who is here (z-10); what is told is over every sheet
+                (z-20), so that it is seen whatever is open. */}
+            <div data-head-corner className="z-[5] flex min-w-0 max-w-full flex-col items-start gap-1.5 pb-1.5">
+              {/* ── gifts: well ── Under the clock: what the well's gifts show their member (the rain frog's sky, and what the moon flask keeps) */}
+              {game && keeper && (hasFrog || hasMoon) && (
+                <div className="pointer-events-none flex max-w-full flex-col items-start gap-1.5" data-well-gifts>
+                  <Suspense fallback={null}>
+                    {hasFrog && <TownFrog keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} gauge={rainFull} onWant={askSky} />}
+                    {hasMoon && <TownMoon keeper={keeper} th={w.th} compact={phone} reduced={!moving} sfx={sfxRef.current} register={registerWellGift}
+                                          at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null}
+                                          bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} />}
+                  </Suspense>
                 </div>
-                <ChatHistory lines={s.chat} th={w.th} className="min-h-0 flex-1" />
-              </div>
-            ) : recent.length > 0 && (
-              <ul aria-label={w.chatLog} title={w.historyOpen}
-                  className={`pointer-events-auto flex max-w-full cursor-pointer flex-col items-start gap-0.5 ${phone ? "max-w-[70%]" : ""}`}
-                  onClick={openHistory}>
-                {recent.map((l) => (
-                  <li key={l.key} className="max-w-full truncate rounded-lg bg-bg/75 px-2 py-0.5 text-meta backdrop-blur-sm">
-                    <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
-                    <span className="text-muted">: </span>
-                    <span className="text-ink">{l.text}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {chatNote && <div role="status" className="w-fit rounded-full bg-bg/85 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
-            {phone && !chatOpen ? (
-              // (and a phone's settings beside it: whoever the town's motion makes dizzy has to be able to turn it
-              // off on a phone too, and the top corner is full; the panel opens upwards from this row's left)
-              <div className="pointer-events-auto relative flex w-fit items-center gap-1.5">
-                <button type="button" onClick={openHistory}
-                        aria-label={w.chat} className={`${hudBtn} size-11`}><TownIcon name="chat" size={22} /></button>
-                <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} low className={`${hudBtn} size-11`} />
-              </div>
-            ) : (
-              <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
-                {!phone && (
-                  <button type="button" onClick={() => setHistoryOpen((o) => !o)} aria-pressed={historyOpen}
-                          title={historyOpen ? w.historyClose : w.history}
-                          className={`pressable grid size-10 shrink-0 place-items-center rounded-full border backdrop-blur-sm transition-colors ${historyOpen
-                            ? "border-accent bg-accent/20 text-accent" : "border-line-strong bg-bg/85 text-ink hover:border-accent"}`}>
-                    <TownIcon name="history" size={20} /><span className="sr-only">{historyOpen ? w.historyClose : w.history}</span>
-                  </button>
-                )}
-                <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
-                       onChange={(e) => { setDraft(e.target.value); setChatNote(null); s.setTyping(e.target.value.trim().length > 0); }}
-                       onKeyDown={(e) => { if (e.key === "Escape") { e.currentTarget.blur(); setHistoryOpen(false); if (phone) setChatOpen(false); } }}
-                       onBlur={(e) => {
-                         s.setTyping(false);
-                         // On a phone the open chat closes with the keyboard, unless the
-                         // tap that took the focus was in the history (to scroll it).
-                         const next = e.relatedTarget as HTMLElement | null;
-                         if (phone && !draft && !next?.closest("[role=log]")) setChatOpen(false);
-                       }}
-                       placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
-                       className="h-10 min-w-0 flex-1 rounded-full border border-line-strong bg-bg/85 px-4 text-read text-ink outline-none backdrop-blur-sm placeholder:text-muted focus:border-accent" />
-                <button type="submit" className="pressable h-10 shrink-0 rounded-full bg-accent/25 px-4 text-ui font-semibold text-accent backdrop-blur-sm hover:bg-accent/35">
-                  {w.send}
+              )}
+              {/* (and whatever else stays there puts itself here: a chat room folded away) */}
+              <div ref={setFootCorner} className="contents" />
+            </div>
+            <div ref={setFootHead} data-head-toast className="z-30 flex min-w-0 flex-col items-center gap-2 pb-1.5 empty:hidden" />
+            {/* What is used by hand, over the chat: the hunter's belt (it puts itself here), and while I sit the way to
+                get up (a tap on the map only turns me; at a meal it says what getting up costs). Over the chat and not
+                inside it (the owner, 2026-10-08, of "get up" between the chat's history and its box: "ปุ่มลุกขึ้นควรจะอยู่
+                ด้านบนแชทนะครับ"): the chat's lines and its box are one thing. */}
+            <div data-foot-hand className="flex w-full max-w-[26rem] flex-col items-start">
+              <div ref={setFootSide} className={`flex flex-col items-start gap-2 pb-2 empty:hidden ${phone && chatOpen ? "hidden" : ""}`} />
+              {satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && (
+                <button type="button" data-stand-up onClick={() => s.standUp()}
+                        className="pop-in pressable pointer-events-auto mb-2 flex min-h-11 max-w-full items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-left text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
+                  <TownIcon name="standUp" size={22} />
+                  <span className="flex min-w-0 flex-col items-start leading-tight">
+                    <span>{purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}</span>
+                    {purse.eating && purse.eating.progress < 1 && (
+                      <span className="text-meta font-normal text-muted" data-stand-cost>
+                        {DISHES[purse.eating.dish].buff ? (w.th ? "ได้ stamina เท่าที่กินไป ไม่ได้บัฟ" : "Keeps the stamina so far, no buff") : (w.th ? "ได้ stamina เท่าที่กินไป" : "Keeps the stamina so far")}
+                      </span>
+                    )}
+                  </span>
+                  <kbd aria-hidden className="hidden rounded border border-line-strong px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-muted sm:inline">X</kbd>
                 </button>
-              </form>
-            )}
+              )}
+            </div>
+            {/* The chat's lines: its history, or while that is shut the last few said, over the map. */}
+            <div data-foot-said className="flex w-full max-w-[26rem] flex-col items-start gap-1 pb-1 empty:hidden">
+              {!chatShown ? null : showHistory ? (
+                <div className={`pop-in pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
+                     style={room ? { maxHeight: room } : undefined} data-state="open">
+                  <div className="flex items-center gap-2 border-b border-line py-1 pl-3 pr-1">
+                    <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {s.chat.length}</span></span>
+                    <button type="button" onClick={() => { if (phone) setChatOpen(false); else setHistoryOpen(false); }}
+                            aria-label={w.historyClose} title={w.historyClose}
+                            className="pressable ml-auto grid size-8 place-items-center rounded-full text-read text-muted hover:bg-card hover:text-ink"><TownIcon name="chevron" size={14} /></button>
+                  </div>
+                  <ChatHistory lines={s.chat} th={w.th} className="min-h-0 flex-1" />
+                </div>
+              ) : recent.length > 0 && (
+                <ul aria-label={w.chatLog} title={w.historyOpen}
+                    className="pointer-events-auto flex max-w-full cursor-pointer flex-col items-start gap-0.5"
+                    onClick={openHistory}>
+                  {recent.map((l) => (
+                    <li key={l.key} className="max-w-full truncate rounded-lg bg-bg/75 px-2 py-0.5 text-meta backdrop-blur-sm">
+                      <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
+                      <span className="text-muted">: </span>
+                      <span className="text-ink">{l.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            {/* What the town offers where I stand: each piece puts itself here (TownFoot). Over somebody's card (z-10),
+                under every panel (z-20). */}
+            <div ref={setFootDock} data-foot-dock className="z-[15] flex min-w-0 flex-col items-center gap-2 empty:hidden max-lg:pb-2" />
+            {/* The chat's box, under the left thumb. */}
+            <div data-foot-ctrl className="flex w-full max-w-[26rem] flex-col items-start gap-2">
+              {chatShown && (
+                <div className="flex w-full flex-col gap-1">
+                  {chatNote && <div role="status" className="w-fit rounded-full bg-bg/85 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
+                  {phone && !chatOpen ? (
+                    // (and a phone's settings beside it: whoever the town's motion makes dizzy has to be able to turn it
+                    // off on a phone too, and the top corner is full; the panel opens upwards from this row's left)
+                    <div className="pointer-events-auto relative flex w-fit items-center gap-1.5">
+                      <button type="button" onClick={openHistory}
+                              aria-label={w.chat} className={`${hudBtn} size-11`}><TownIcon name="chat" size={22} /></button>
+                      <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} low className={`${hudBtn} size-11`} />
+                    </div>
+                  ) : (
+                    <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
+                      {!phone && (
+                        <button type="button" onClick={() => setHistoryOpen((o) => !o)} aria-pressed={historyOpen}
+                                title={historyOpen ? w.historyClose : w.history}
+                                className={`pressable grid size-10 shrink-0 place-items-center rounded-full border backdrop-blur-sm transition-colors ${historyOpen
+                                  ? "border-accent bg-accent/20 text-accent" : "border-line-strong bg-bg/85 text-ink hover:border-accent"}`}>
+                          <TownIcon name="history" size={20} /><span className="sr-only">{historyOpen ? w.historyClose : w.history}</span>
+                        </button>
+                      )}
+                      <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
+                             onChange={(e) => { setDraft(e.target.value); setChatNote(null); s.setTyping(e.target.value.trim().length > 0); }}
+                             onKeyDown={(e) => { if (e.key === "Escape") { e.currentTarget.blur(); setHistoryOpen(false); if (phone) setChatOpen(false); } }}
+                             onBlur={(e) => {
+                               s.setTyping(false);
+                               // On a phone the open chat closes with the keyboard, unless the
+                               // tap that took the focus was in the history (to scroll it).
+                               const next = e.relatedTarget as HTMLElement | null;
+                               if (phone && !draft && !next?.closest("[role=log]")) setChatOpen(false);
+                             }}
+                             placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
+                             className="h-10 min-w-0 flex-1 rounded-full border border-line-strong bg-bg/85 px-4 text-read text-ink outline-none backdrop-blur-sm placeholder:text-muted focus:border-accent" />
+                      <button type="submit" className="pressable h-10 shrink-0 rounded-full bg-accent/25 px-4 text-ui font-semibold text-accent backdrop-blur-sm hover:bg-accent/35">
+                        {w.send}
+                      </button>
+                    </form>
+                  )}
+                </div>
+              )}
+            </div>
+            {/* On the right: the zoom, in the middle of what room there is over the rest; then the lines of work, the
+                bag, the emotes and the microphone. */}
+            <div data-foot-right className="flex min-h-0 flex-col items-end justify-end gap-1.5 [&>*]:pointer-events-auto">
+              {!wardrobeOpen && !boardOpen && (
+                <div className="my-auto flex flex-col gap-1.5 [@media(max-height:34rem)]:hidden">
+                  <button type="button" onClick={() => zoomBy(1.25)} title={w.zoomIn} className={hudBtn}>
+                    <TownIcon name="zoomIn" size={20} /><span className="sr-only">{w.zoomIn}</span>
+                  </button>
+                  <button type="button" onClick={() => zoomBy(1 / 1.25)} title={w.zoomOut} className={hudBtn}>
+                    <TownIcon name="zoomOut" size={20} /><span className="sr-only">{w.zoomOut}</span>
+                  </button>
+                  <button type="button" onClick={recenter} title={w.recenter} className={hudBtn}>
+                    <TownIcon name="recenter" size={20} /><span className="sr-only">{w.recenter}</span>
+                  </button>
+                </div>
+              )}
+              {!wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || testOpen)) && (
+                <>
+                  {/* The test window's button (the trial's, in `next dev` only): look at every thing there is, and conjure it */}
+                  {TownTest && keeper?.trial && (
+                    <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setTestOpen((o) => !o); }}
+                            aria-expanded={testOpen} title={w.th ? "หน้าต่างทดสอบ: ดูและเสกของทุกอย่าง" : "The test window: look at everything, and conjure it"}
+                            className={`pressable flex h-8 items-center rounded-full border px-3 font-data text-label font-semibold uppercase tracking-wider shadow-lg shadow-black/30 backdrop-blur-sm transition-colors ${testOpen
+                              ? "border-gold bg-gold text-bg" : "border-gold/60 bg-bg/80 text-gold hover:border-gold"}`}>
+                      <TownIcon name="test" size={16} className="mr-1" />Test
+                    </button>
+                  )}
+                  {/* The lines of work and their ladders: where whoever keeps the game has them */}
+                  {game && keeper && linesTold && (
+                    <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => (o ? false : "lines")); }}
+                            aria-expanded={!!linesOpen} title={w.th ? "สายอาชีพ" : "Lines of work"} data-town-lines-button data-due={giftDue ? "" : undefined}
+                            className="pressable relative grid size-10 place-items-center rounded-full border border-line-strong bg-bg/80 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
+                      <TownIcon name="rosette" size={22} /><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
+                      {/* (a gift of a rank reached waits to be taken) */}
+                      {giftDue && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-bg bg-gold" />}
+                    </button>
+                  )}
+                  {/* My bag, and my Popoto coins beside it */}
+                  {game && (
+                    <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"}
+                            className={`pressable flex items-center gap-1.5 border border-line-strong bg-bg/80 pl-2.5 pr-3 text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent ${phone ? "h-11 rounded-2xl text-meta" : "h-10 rounded-full text-ui"}`}>
+                      <TownIcon name="bag" size={20} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
+                      {/* (on a phone the two numbers stand one over the other: side by side they made this the widest
+                          thing on the right, and the chat's lines ran under it) */}
+                      <span className={phone ? "flex flex-col gap-0.5 leading-none" : "contents"}>
+                        <span className="flex items-center gap-1.5"><TownIcon name="coin" size={phone ? 12 : 14} /><span className="font-data tabular-nums text-gold">{purse.coins}</span></span>
+                        <span className="flex items-center gap-1.5"><TownIcon name="stamina" size={phone ? 12 : 14} /><span className={`font-data tabular-nums ${purse.stamina ? "text-ink" : "text-chili"}`}>{purse.stamina}</span></span>
+                      </span>
+                      <span className="sr-only">stamina</span>
+                    </button>
+                  )}
+                  {/* The meal I am at: how far through it I am */}
+                  {game && purse.eating && (
+                    <span className="flex h-8 items-center gap-1.5 rounded-full border border-gold/60 bg-bg/85 pl-2 pr-3 text-meta text-ink shadow-lg shadow-black/30 backdrop-blur-sm">
+                      <TownIcon name="meal" size={16} /><span className={phone ? "sr-only" : undefined}>{w.th ? "กำลังกิน" : "Eating"}</span>
+                      <span aria-hidden className={`h-1.5 overflow-hidden rounded-full bg-line ${phone ? "w-10" : "w-14"}`}><span className="block h-full rounded-full bg-gold" style={{ width: `${Math.round(purse.eating.progress * 100)}%` }} /></span>
+                      {company > 0 && <span className="font-data text-gold">+{company}</span>}
+                    </span>
+                  )}
+                  <div className="relative">
+                    {/* The emote window (the owner, 2026-10-02: "ช่วยทำหน้าต่าง Emote ให้สามารถกดท่านั่งได้"): sit down on
+                        the ground where I stand, or get up; walking anywhere gets up too. It hangs over its own button (and over
+                        the buttons above that, while it is open), so that opening it moves nothing else. */}
+                    {emoteOpen && (() => {
+                      const down = (s.self.info.sit ?? -1) !== -1;
+                      return (
+                        <div role="menu" aria-label={w.emote} className="pop-in absolute bottom-full right-0 z-20 mb-1.5 flex gap-1.5 rounded-2xl border border-line-lit bg-surface/95 p-1.5 shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">
+                          <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
+                                  className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
+                            <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
+                            <kbd aria-hidden className="hidden rounded border border-line-strong px-1 font-data text-[0.625rem] leading-4 text-muted sm:inline">X</kbd>
+                          </button>
+                          {/* a sign held up over my head: a chat room, or a stall (the owner, 2026-10-06) */}
+                          <button type="button" role="menuitem" onClick={() => { setEmoteOpen(false); openSignPanel(); }} data-emote-sign
+                                  className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
+                            <SignIcon size={30} />{s.self.info.sign ? (w.th ? "ป้ายของฉัน" : "My sign") : (w.th ? "ชูป้าย" : "Sign")}
+                          </button>
+                        </div>
+                      );
+                    })()}
+                    <button type="button" onClick={() => setEmoteOpen((o) => !o)} aria-expanded={emoteOpen} title={w.emote}
+                            className={emoteOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
+                      <TownIcon name="emote" size={22} /><span className="sr-only">{w.emote}</span>
+                    </button>
+                  </div>
+                  {micProblem && <div className="max-w-[16rem] rounded-lg max-sm:max-w-[9.5rem] bg-chili/25 px-3 py-1.5 text-right text-ui text-ink backdrop-blur-sm">{micProblem}</div>}
+                  {voiceOn && s.voice.audioBlocked && (
+                    <button type="button" onClick={() => s.voice.resumeAudio()}
+                            className="pressable flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-ui font-semibold text-bg shadow-lg">
+                      <TownIcon name="speaker" size={18} />{w.tapToHear}
+                    </button>
+                  )}
+                  {!voiceOn ? (
+                    <button type="button" onClick={() => void s.joinVoice()} disabled={!everReady || status === "full"}
+                            title={w.joinLong}
+                            className="pressable flex h-11 items-center gap-1.5 rounded-full bg-jade px-4 text-read font-semibold text-bg shadow-lg shadow-black/30 disabled:opacity-40">
+                      <TownIcon name="mic" size={20} />{w.join}
+                    </button>
+                  ) : (
+                    <div className="flex items-center gap-1.5">
+                      <button type="button" onClick={() => s.leaveVoice()} title={w.leave}
+                              className="pressable h-11 rounded-full border border-line-strong bg-bg/85 px-3 text-ui text-muted shadow-lg shadow-black/30 backdrop-blur-sm hover:text-ink">
+                        {w.leave}
+                      </button>
+                      <button type="button" onClick={() => s.toggleMute()} aria-pressed={muted}
+                              aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
+                              className={`pressable grid size-12 place-items-center rounded-full text-lead shadow-lg shadow-black/30 ${muted ? "bg-chili text-ink" : "bg-jade text-bg"}`}>
+                        <TownIcon name={muted ? "muted" : "mic"} size={24} />
+                      </button>
+                    </div>
+                  )}
+                  {PROXIMITY && voiceOn && <div className="rounded-full bg-bg/70 px-3 py-1 text-meta text-muted">{w.near}</div>}
+                </>
+              )}
+            </div>
           </div>
         );
       })()}
-
-      {/* Bottom right: the emotes, and the microphone */}
-      {s && !wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || testOpen)) && (
-        <div className="absolute right-3 flex flex-col items-end gap-1.5" style={{ bottom: "var(--hud-b)" }}>
-          {/* The emote window (the owner, 2026-10-02: "ช่วยทำหน้าต่าง Emote ให้สามารถกดท่านั่งได้"): sit down on
-              the ground where I stand, or get up; walking anywhere gets up too */}
-          {emoteOpen && (() => {
-            const down = (s.self.info.sit ?? -1) !== -1;
-            return (
-              <div role="menu" aria-label={w.emote} className="pop-in flex gap-1.5 rounded-2xl border border-line-lit bg-surface/95 p-1.5 shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">
-                <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
-                        className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
-                  <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
-                  <kbd aria-hidden className="hidden rounded border border-line-strong px-1 font-data text-[0.625rem] leading-4 text-muted sm:inline">X</kbd>
-                </button>
-                {/* a sign held up over my head: a chat room, or a stall (the owner, 2026-10-06) */}
-                <button type="button" role="menuitem" onClick={() => { setEmoteOpen(false); openSignPanel(); }} data-emote-sign
-                        className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
-                  <SignIcon size={30} />{s.self.info.sign ? (w.th ? "ป้ายของฉัน" : "My sign") : (w.th ? "ชูป้าย" : "Sign")}
-                </button>
-              </div>
-            );
-          })()}
-          {/* The test window's button (the trial's, in `next dev` only): look at every thing there is, and conjure it */}
-          {TownTest && keeper?.trial && (
-            <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setTestOpen((o) => !o); }}
-                    aria-expanded={testOpen} title={w.th ? "หน้าต่างทดสอบ: ดูและเสกของทุกอย่าง" : "The test window: look at everything, and conjure it"}
-                    className={`pressable flex h-8 items-center rounded-full border px-3 font-data text-label font-semibold uppercase tracking-wider shadow-lg shadow-black/30 backdrop-blur-sm transition-colors ${testOpen
-                      ? "border-gold bg-gold text-bg" : "border-gold/60 bg-bg/80 text-gold hover:border-gold"}`}>
-              <TownIcon name="test" size={16} className="mr-1" />Test
-            </button>
-          )}
-          {/* The lines of work and their ladders: where whoever keeps the game has them */}
-          {game && keeper && linesTold && (
-            <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => (o ? false : "lines")); }}
-                    aria-expanded={!!linesOpen} title={w.th ? "สายอาชีพ" : "Lines of work"} data-town-lines-button data-due={giftDue ? "" : undefined}
-                    className="pressable relative grid size-10 place-items-center rounded-full border border-line-strong bg-bg/80 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
-              <TownIcon name="rosette" size={22} /><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
-              {/* (a gift of a rank reached waits to be taken) */}
-              {giftDue && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-bg bg-gold" />}
-            </button>
-          )}
-          {/* My bag, and my Popoto coins beside it */}
-          {game && (
-            <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"}
-                    className="pressable flex h-10 items-center gap-1.5 rounded-full border border-line-strong bg-bg/80 pl-2.5 pr-3 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
-              <TownIcon name="bag" size={20} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
-              <TownIcon name="coin" size={14} /><span className="font-data tabular-nums text-gold">{purse.coins}</span>
-              <TownIcon name="stamina" size={14} /><span className={`font-data tabular-nums ${purse.stamina ? "text-ink" : "text-chili"}`}>{purse.stamina}</span>
-              <span className="sr-only">stamina</span>
-            </button>
-          )}
-          {/* The meal I am at: how far through it I am */}
-          {game && purse.eating && (
-            <span className="flex h-8 items-center gap-1.5 rounded-full border border-gold/60 bg-bg/85 pl-2 pr-3 text-meta text-ink shadow-lg shadow-black/30 backdrop-blur-sm">
-              <TownIcon name="meal" size={16} />{w.th ? "กำลังกิน" : "Eating"}
-              <span aria-hidden className="h-1.5 w-14 overflow-hidden rounded-full bg-line"><span className="block h-full rounded-full bg-gold" style={{ width: `${Math.round(purse.eating.progress * 100)}%` }} /></span>
-              {company > 0 && <span className="font-data text-gold">+{company}</span>}
-            </span>
-          )}
-          <button type="button" onClick={() => setEmoteOpen((o) => !o)} aria-expanded={emoteOpen} title={w.emote}
-                  className={emoteOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
-            <TownIcon name="emote" size={22} /><span className="sr-only">{w.emote}</span>
-          </button>
-          {micProblem && <div className="max-w-[16rem] rounded-lg bg-chili/25 px-3 py-1.5 text-right text-ui text-ink backdrop-blur-sm">{micProblem}</div>}
-          {voiceOn && s.voice.audioBlocked && (
-            <button type="button" onClick={() => s.voice.resumeAudio()}
-                    className="pressable flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-ui font-semibold text-bg shadow-lg">
-              <TownIcon name="speaker" size={18} />{w.tapToHear}
-            </button>
-          )}
-          {!voiceOn ? (
-            <button type="button" onClick={() => void s.joinVoice()} disabled={!everReady || status === "full"}
-                    title={w.joinLong}
-                    className="pressable flex h-11 items-center gap-1.5 rounded-full bg-jade px-4 text-read font-semibold text-bg shadow-lg shadow-black/30 disabled:opacity-40">
-              <TownIcon name="mic" size={20} />{w.join}
-            </button>
-          ) : (
-            <div className="flex items-center gap-1.5">
-              <button type="button" onClick={() => s.leaveVoice()} title={w.leave}
-                      className="pressable h-11 rounded-full border border-line-strong bg-bg/85 px-3 text-ui text-muted shadow-lg shadow-black/30 backdrop-blur-sm hover:text-ink">
-                {w.leave}
-              </button>
-              <button type="button" onClick={() => s.toggleMute()} aria-pressed={muted}
-                      aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
-                      className={`pressable grid size-12 place-items-center rounded-full text-lead shadow-lg shadow-black/30 ${muted ? "bg-chili text-ink" : "bg-jade text-bg"}`}>
-                <TownIcon name={muted ? "muted" : "mic"} size={24} />
-              </button>
-            </div>
-          )}
-          {PROXIMITY && voiceOn && <div className="rounded-full bg-bg/70 px-3 py-1 text-meta text-muted">{w.near}</div>}
-        </div>
-      )}
 
       {/* The wardrobe: a panel at the side, or a sheet from the bottom on a phone */}
       {s && wardrobeOpen && (
@@ -4176,8 +4271,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           (the owner: "ตกปลาตรงนี้ ช่วยทำให้ขึ้นมาเฉพาะตอนถือเบ็ดตกปลา"): the way to begin, and then the rod's own panel, across
           the foot of the map */}
       {s && game && keeper && fishAt && rodInHand && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2"
-             style={{ bottom: phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem" }}>
+        <TownFoot rank={fishing ? "board" : "main"} wide>
           {fishing ? (
             <div className="pop-in pointer-events-auto w-full max-w-[30rem]" data-state="open">
               <Suspense fallback={null}>
@@ -4186,11 +4280,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             </div>
           ) : (
             <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setFishing(true); }}
-                    className="pop-in pressable pointer-events-auto mb-14 flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">
+                    className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">
               <TownIcon name="hook" size={20} />{w.th ? "ตกปลาตรงนี้" : "Fish here"}
             </button>
           )}
-        </div>
+        </TownFoot>
       )}
       {/* The test window (the trial's, the owner's): every thing there is, to look at and to conjure. On the left, so
           that the bag can be open beside it. */}
@@ -4252,24 +4346,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                      here={!fishing && !signView ? standing?.tile ?? null : null} hidden={!!talk || !!trade || boardOpen || wardrobeOpen || (phone && testOpen)} />
         </Suspense>
       )}
-      {/* While I sit: the way to get up (a tap on the map only turns me). At a meal it says what getting up costs. */}
-      {s && satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && (
-        <div className="pointer-events-none absolute left-3 z-20" style={{ bottom: phone && tabbar ? "calc(8.25rem + env(safe-area-inset-bottom))" : "4.25rem" }}>
-          <button type="button" data-stand-up onClick={() => s.standUp()}
-                  className="pop-in pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
-            <TownIcon name="standUp" size={22} />
-            {purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}
-            <kbd aria-hidden className="hidden rounded border border-line-strong px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-muted sm:inline">X</kbd>
-          </button>
-        </div>
-      )}
-      {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall */}
+      {/* Why a tap did not walk me: I hold a sign up, am in a chat room, or look at a stall. Among what is told at the
+          head: that is over every sheet, and a stall's panel is one */}
       {s && stuckNote && (
-        <div className="pointer-events-none absolute inset-x-0 z-30 flex justify-center px-2" style={{ bottom: phone && tabbar ? "calc(11.5rem + env(safe-area-inset-bottom))" : "7.5rem" }}>
+        <TownFoot rank="toast" order={2}>
           <p role="status" data-stuck-note className="pop-in flex min-h-10 items-center gap-2 rounded-full border border-gold/60 bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/40 backdrop-blur-sm">
             <SignIcon size={18} />{stuckNote}
           </p>
-        </div>
+        </TownFoot>
       )}
       {/* A sign held up: holding one up, my own, somebody's stall; and the chat room under one, for whoever is in it */}
       {s && (
@@ -4314,7 +4398,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} art={boardArt} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} feastAsk={feastAsk} phone={phone} tabbar={tabbar}
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} folk={yardFolk} feastAsk={feastAsk} phone={phone} tabbar={tabbar}
                     yard={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? yardTile : null} />
         </Suspense>
       )}
@@ -4339,10 +4423,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         </Suspense>
       )}
       {/* The uncle's stall, the bank and my bag: where the wardrobe goes. It is always there while I am in town, so
-          that my coins show on the map and the uncle knows when money is waiting; hidden until one is opened. */}
+          that my coins show on the map and the uncle knows when money is waiting; hidden until one is opened. On a
+          phone the stall's and the bank's sheet is as tall as it can be under the top row (the owner, 2026-10-08, of
+          the stall there: "มองไม่เห็นเมนูที่จะขายเลย"); the bag's own stays lower, the map being looked at with it. */}
       {s && game && keeper && (
         <div className={trade ? `pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
-               ? "inset-x-0 h-[min(72%,40rem)] rounded-t-2xl"
+               ? `inset-x-0 rounded-t-2xl ${trade === "bag" ? "h-[min(72%,40rem)]" : "h-[min(84%,42rem,calc(100%-8.5rem))]"}`
                : "right-3 top-16 w-[24rem] rounded-2xl"}` : "hidden"}
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
              data-state="open">
@@ -4352,6 +4438,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           </Suspense>
         </div>
       )}
+     </TownFootContext.Provider>
     </div>
   );
 }

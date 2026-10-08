@@ -395,7 +395,7 @@
  },
  "58199536": {
   "name": "Areeya Lovekin",
-  "parse": 62,
+  "parse": 63,
   "ult": 0,
   "mounts": 70,
   "minions": 196,
@@ -519,7 +519,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-07"
  },
  "24186600": {
   "name": "Dumb Bunny",
@@ -2548,7 +2548,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -2561,7 +2561,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-01"
+  "chg": "2026-10-08"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -3245,7 +3245,7 @@
   "mounts": 104,
   "minions": 250,
   "rare": 35,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -3466,7 +3466,7 @@
   "mounts": 187,
   "minions": 436,
   "rare": 141,
-  "level": 98,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4281,7 +4281,7 @@
   "mounts": 265,
   "minions": 338,
   "rare": 535,
-  "level": 100,
+  "level": 50,
   "cc": null,
   "rare_ids": [
    847,
@@ -5360,7 +5360,7 @@
   "mounts": 199,
   "minions": 462,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5384,7 +5384,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-08"
  },
  "29090821": {
   "name": "Amber Levana",
@@ -5615,7 +5615,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 90,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6914,7 +6914,7 @@
  },
  "60852230": {
   "name": "Lucienvt Yenslayer",
-  "parse": 5,
+  "parse": 11,
   "ult": 0,
   "mounts": 30,
   "minions": 58,
@@ -6936,7 +6936,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-08"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7252,12 +7252,12 @@
  },
  "46243891": {
   "name": "Marin Elysium",
-  "parse": 29,
+  "parse": 70,
   "ult": 0,
   "mounts": 70,
   "minions": 104,
   "rare": 55,
-  "level": 68,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -7331,7 +7331,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-08"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7950,7 +7950,7 @@
  },
  "60211788": {
   "name": "Shikihara Catlover",
-  "parse": 4,
+  "parse": 5,
   "ult": 0,
   "mounts": 11,
   "minions": 20,
@@ -7971,7 +7971,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-14"
+  "chg": "2026-10-08"
  },
  "8713004": {
   "name": "Shoe Bite",
@@ -8296,7 +8296,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 90,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -8309,7 +8309,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-07"
  },
  "33608576": {
   "name": "Verles Eisner",
@@ -8445,7 +8445,7 @@
   "mounts": 107,
   "minions": 307,
   "rare": 19,
-  "level": 31,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8589,7 +8589,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 92,
+  "level": 99,
   "cc": [
    false,
    false,

@@ -6,6 +6,7 @@ import { SIGN, decodeSign } from "@/lib/town/sign";
 import ChatHistory from "./ChatHistory";
 import SignIcon from "./SignIcon";
 import TownIcon from "./TownIcon";
+import TownFoot from "./TownFoot";
 
 const NOTE: Record<CircleNote, [th: string, en: string]> = {
   full: ["ห้องเต็มแล้ว", "The room is full"],
@@ -67,11 +68,11 @@ export default function TownCircle({ session, th, phone, tabbar, hidden }: {
   }, [shown, folded]);
 
   const word = !c && (session.circleAsked || last) && !hidden && (
-    <div className="pointer-events-none absolute inset-x-0 top-16 z-20 flex justify-center px-2">
+    <TownFoot rank="toast" order={10}>
       <p role="status" data-circle-word className="pop-in flex min-h-9 items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm">
         <TownIcon name="chat" size={16} />{last ? (th ? NOTE[last][0] : NOTE[last][1]) : t("กำลังขอเข้าห้อง…", "Asking to come in…")}
       </p>
-    </div>
+    </TownFoot>
   );
   if (!c) return word || null;
 
@@ -92,14 +93,15 @@ export default function TownCircle({ session, th, phone, tabbar, hidden }: {
 
   if (!shown) {
     return (
+      <TownFoot rank="corner">
       <button type="button" onClick={() => setFolded(false)} disabled={hidden} data-circle-chip
-              className={`pop-in pressable absolute left-3 z-20 flex min-h-10 max-w-[70%] items-center gap-2 border-2 border-[#2a1b12] bg-[#c8975a] px-3 text-ui font-bold text-[#2b1a0c] shadow-[inset_0_2px_0_#e9c78b,inset_0_-3px_0_#a47238] ${hidden ? "opacity-0" : ""}`}
-              style={{ top: "4rem" }}>
+              className={`pop-in pressable pointer-events-auto flex min-h-10 max-w-full items-center gap-2 border-2 border-[#2a1b12] bg-[#c8975a] px-3 text-ui font-bold text-[#2b1a0c] shadow-[inset_0_2px_0_#e9c78b,inset_0_-3px_0_#a47238] ${hidden ? "hidden" : ""}`}>
         <span className="grid size-5 shrink-0 place-items-center rounded-full bg-[#3d2913]"><TownIcon name="chat" size={12} /></span>
         <span className="truncate">{title}</span>
         <span className="rounded bg-[#3d2913] px-1.5 py-px font-data text-label tabular-nums text-[#f3e3c3]">{c.members.length}/{SIGN.cap}</span>
         {session.circleUnread > 0 && <span className="rounded-full bg-chili px-1.5 font-data text-label tabular-nums text-white" data-circle-unread>{session.circleUnread}</span>}
       </button>
+      </TownFoot>
     );
   }
   return (

@@ -14,6 +14,7 @@ import { KITCHEN, TILE_H, onYard } from "@/lib/town/world";
 import { YARD } from "@/lib/town/yard";
 import type { FarmDraw } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import type { GameResult } from "./TownGame";
 import { AT_THE_POT, BURST, BuffAura } from "./TownBuffFx";
 import TownFeast, { clockOf } from "./TownFeast";
@@ -95,7 +96,7 @@ const JAR_AT = KITCHEN.wash.length
  * What is kept is the keeper's (lib/town/keeper): the database's for a member,
  * the browser's trial in `next dev`'s test room.
  */
-export default function TownCook({ me, keeper, called, th, here, crew, cooks: others, sfx, bottom, register, onOpen, art, reduced = false, onEatNow, onFeastEat, feastAsk = 0, yard = null, phone = false, tabbar = false }: {
+export default function TownCook({ me, keeper, called, th, here, crew, cooks: others, sfx, bottom, register, onOpen, art, reduced = false, onEatNow, onFeastEat, feastAsk = 0, folk = 0, yard = null, phone = false, tabbar = false }: {
   /** A picture out of the town's scenery, by its name: the scene a roast is played on (the forest's own sheet has it). */
   art?: (name: string) => Sprite | null;
   me: string;
@@ -120,6 +121,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   onEatNow?: (dish: DishId) => void;
   /** A helping of a pot on the feast table is to be eaten out of the table's own bowl: the map finds me a place at the tables, and asks the keeper for it once I am sat. */
   onFeastEat?: (dish: DishId, pot: string) => void;
+  /** How many others a meal begun where I stand would be eaten with. */
+  folk?: number;
   /** Goes up each time a dining table's top was tapped and I stand in the yard: the feast table's panel opens. */
   feastAsk?: number;
   /** The tile I am on while I am still on the cooking yard's floor, standing or sitting, and nothing else is open: from where the feast table is reached. */
@@ -589,10 +592,10 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
                    flame={flameHad ? { left: flameLeft, most: USES.thingFlame?.n ?? 0, armed: flameOn } : null} onFlame={setFlameOn} />
     )}
     {feastOpen && feast && inYard && !open && !stirring && (
-      <TownFeast th={th} phone={phone} tabbar={tabbar} me={me} pots={served} purse={purse} now={now} most={keeper.helpings()} feast={feast} said={feastSaid} busy={feastBusy}
+      <TownFeast th={th} phone={phone} tabbar={tabbar} me={me} pots={served} purse={purse} now={now} most={keeper.helpings()} feast={feast} said={feastSaid} busy={feastBusy} folk={folk}
                  onEat={feastEat} onLadle={(pot) => void feastDo("ladle", pot)} onTake={(pot) => void feastDo("take", pot)} onSet={(slot) => void feastDo("set", null, slot)} onClose={() => setFeastOpen(false)} />
     )}
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+    <TownFoot rank={stirring ? "board" : "main"}>
       {note && !feastOpen && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {stirring ? (
         <div className="pop-in pointer-events-auto w-full max-w-[26rem]" data-state="open">
@@ -610,7 +613,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           )}
         </div>
       ) : open || feastOpen ? null : (
-        <div className="pointer-events-auto mb-14 flex flex-wrap items-center justify-center gap-2">
+        <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
           {offers.map((o, i) => (
             <button key={o} type="button" onClick={() => act(o)} data-cook-offer={o}
                     className={`pop-in pressable flex min-h-12 items-center gap-2 rounded-full px-6 text-read font-semibold shadow-xl shadow-black/40 ${i ? "border border-line-lit bg-surface/95 text-ink" : "bg-accent text-bg"}`} data-state="open">
@@ -625,7 +628,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           ))}
         </div>
       )}
-    </div>
+    </TownFoot>
     </>
   );
 }

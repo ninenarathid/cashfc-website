@@ -13,6 +13,7 @@ import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import type { GameResult } from "./TownGame";
 import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
@@ -902,7 +903,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
     <>{news}{ringOffer}{bare ? null : (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+    <TownFoot rank={working || asking ? "board" : "main"} order={62}>
       {running && <AnkletRun keeper={keeper} />}
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {working ? (() => {
@@ -977,7 +978,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         );
       })() : asking ? (
         <div role="alertdialog" aria-labelledby="farm-ask-h" aria-describedby="farm-ask-p" data-state="open" data-farm-ask={asking.deed}
-             className="pop-in pointer-events-auto mb-14 w-full max-w-[22rem] rounded-2xl border border-line-lit bg-surface/97 p-4 shadow-xl shadow-black/40 backdrop-blur-sm">
+             className="pop-in pointer-events-auto w-full max-w-[22rem] rounded-2xl border border-line-lit bg-surface/97 p-4 shadow-xl shadow-black/40 backdrop-blur-sm">
           <p id="farm-ask-h" className="text-read font-semibold text-ink">
             {asking.deed === "pull"
               ? (th ? "ถอนต้นที่ตายแล้วออกจากแปลง?" : "Pull the dead plant up?")
@@ -1002,7 +1003,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           </div>
         </div>
       ) : (offer || powers.length > 0) && (
-        <div className="mb-14 flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap">
+        <div className="flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap">
           {offer && (
             <button type="button" onClick={begin} data-farm-offer={offer}
                     className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent px-6 text-read font-semibold text-bg shadow-xl shadow-black/40" data-state="open">
@@ -1023,7 +1024,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ))}
         </div>
       )}
-    </div>)}
+    </TownFoot>)}
     </>
   );
 }
