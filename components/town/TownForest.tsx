@@ -300,6 +300,11 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   const hereId = here?.spot.id ?? -1, hereSecret = !!here && isSecret(here.spot.id), hereHow = here ? ruleOf(here.spot).how : "pick";
   /** Of what is offered here: whether my own hands can do it, and whether the piglet can. (A secret place is for the hands alone.) */
   const byHand = !!here && (hereSecret || mayGather(here.spot.kind as SpotKind, hand)), byPig = !!here && !hereSecret && piglet && hereHow === "dig";
+  /**
+   * A mound within my reach that nothing here can dig: no hoe in the hand, and no piglet with a hole left. No button is
+   * offered for it, so what it wants is said (the owner, 2026-10-08: "ถ้า … ต้องใช้จอบขุด ช่วยทำให้เข้าใจง่ายกว่านี้หน่อย").
+   */
+  const wantsHoe = !!tile && near && !piglet && seen.current.some((sight) => { const spot = placeAt(sight.id); return !!spot && !isSecret(spot.id) && !mayGather(spot.kind as SpotKind, hand) && reaches(spot, tile, reachFor(ruleOf(spot).how)); });
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const say = useCallback((why: string) => { const w = WHY_FOREST[why] ?? WHY[why as keyof typeof WHY]; setNote(w ? (th ? w[0] : w[1]) : null); }, [th]);
 
@@ -510,7 +515,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
             </section>
           </div>
         ))}
-      {(working || here || note || digHere) && (
+      {(working || here || note || digHere || wantsHoe) && (
         <TownFoot rank={working && tile ? "board" : "main"}>
           {note && (
             <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-forest-note={noteBy ?? ""} aria-live="polite">
@@ -548,7 +553,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
                       : <TownSteady {...common} need={FARMING.tired} mods={{ spent: true, drops: true }} icon="hand" over={iconFor(sight.item)} />}
               </div>
             );
-          })() : (here || digHere) && (
+          })() : (here || digHere || wantsHoe) && (
             <div className="pointer-events-none flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
               {here && byHand && (hereSecret ? (
                 // a secret place of the deep woods: its own button, with a mark for each of its two games
@@ -584,6 +589,12 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
                   <span className="rounded-full bg-bg/25 px-2 py-px font-data text-meta tabular-nums">{usesLeft(purse, "famPiglet", keeper.now())}</span>
                   {!byHand && <kbd aria-hidden className="hidden rounded border border-bg/40 px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-bg/80 sm:inline">Space</kbd>}
                 </button>
+              )}
+              {/* a mound, and nothing here to dig it with: what it wants */}
+              {wantsHoe && (
+                <p data-forest-wants="hoe" data-state="open" className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 py-1.5 pl-3 pr-4 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm">
+                  <TownIcon name={"hoe" as IconName} size={20} />{th ? "ต้องถือจอบจึงจะขุดตรงนี้ได้" : "Hold a hoe to dig here"}
+                </p>
               )}
             </div>
           )}

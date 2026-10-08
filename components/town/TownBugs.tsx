@@ -49,6 +49,8 @@ const WHY_BUGS: Record<string, [string, string]> = {
   hush: ["ตอนนี้บนจอไม่มีแมลงให้กล่อม", "No insect on the screen to lull"], rests: ["ขลุ่ยยังพักอยู่", "The flute is resting"],
   // (the butterfly-wing cloak: the one that followed was not netted in time)
   flown: ["ตัวที่ตามมาบินหนีไปแล้ว", "The one that followed has flown"],
+  // (the silver-web net's mark over one that does not show itself, tapped with no net in the hand: what it is a mark of, and what the hand lacks)
+  netless: ["ประกายเงินคือแมลงที่ซ่อนอยู่ · ต้องถือสวิงจึงจะจับได้", "The silver mark is a hidden insect · hold a net to catch it"],
 };
 /** What is said beside the second of a pair when it is caught. */
 const PAIR_WORD: [th: string, en: string] = ["ได้ครบคู่", "the pair"];
@@ -76,6 +78,8 @@ function keepFled(fled: Map<string, number>) {
 const SIZE = 0.66;
 /** How near an insect a tap has to be to be a swing at it, and not a step: in tiles. */
 const AIM = 1.5;
+/** How near the silver-web net's mark over an insect that does not show itself a tap has to be to be a tap on it: in tiles. */
+const MARK = 0.9;
 /** The colour an insect is drawn in while its picture is not there. */
 const DOT = "#f4e9c9";
 const far = (a: Vec, b: Vec) => Math.hypot(a.x - b.x, a.y - b.y);
@@ -99,6 +103,20 @@ function specks(ctx: CanvasRenderingContext2D, cells: ReadonlyArray<readonly [nu
 }
 const ZED: ReadonlyArray<readonly [number, number]> = [[0, 0], [1, 0], [2, 0], [3, 0], [2, 1], [1, 2], [0, 3], [1, 3], [2, 3], [3, 3]];
 const QUAVER: ReadonlyArray<readonly [number, number]> = [[2, 0], [3, 0], [4, 1], [2, 1], [2, 2], [2, 3], [2, 4], [0, 4], [1, 4], [0, 5], [1, 5], [2, 5]];
+/** An insect from above, seven cells across and down: two feelers, a body, three legs a side. */
+const HIDER: ReadonlyArray<readonly [number, number]> = [
+  [1, 0], [5, 0], [2, 1], [3, 1], [4, 1], [0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [2, 3], [3, 3], [4, 3],
+  [0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [2, 5], [3, 5], [4, 5], [1, 6], [5, 6],
+];
+/**
+ * Whether the silver-web net marks an insect with a little insect of silver in its place, and not with the star it has
+ * over the others: one that does not show itself where it is (a cricket in the grass, a beetle still up its tree), and
+ * a firefly on the wing, which shows only the moment it glows (the same mark lit or not: one that changed at every
+ * blink would flicker; asleep to the flute it lies in plain sight, and has the star). A star over bare ground said
+ * nothing of what it was a mark of (the owner, 2026-10-08, of one in the forest at night, which was taken for a place
+ * to dig), and it stood a net's miss above where the insect was.
+ */
+const hides = (id: BugId, pose: Pose) => !pose.seen || (BUGS[id].habit === "look" && !BUGS[id].like && pose.flying);
 /** An insect asleep: three small letters going up from it, one after another. */
 function drawSleep(ctx: CanvasRenderingContext2D, x: number, top: number, s: number, now: number, still: boolean, seed: number) {
   for (let i = 0; i < 3; i++) {
@@ -476,7 +494,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         if (live.current.sees) {
           lit++;
           frame.over?.(() => {
-            const W = ctx.canvas.width, H = ctx.canvas.height, m = Math.max(22, 12 * s), top = at.y - pose.lift * TILE_H * s - 18 * s;
+            const W = ctx.canvas.width, H = ctx.canvas.height, m = Math.max(22, 12 * s), hid = hides(sight.bug, pose), top = at.y - pose.lift * TILE_H * s - (hid ? 3 : 18) * s;
             const on = at.x >= m && at.x <= W - m && top >= m && top <= H - m;
             const gx = Math.round(Math.min(W - m, Math.max(m, at.x))), gy = Math.round(Math.min(H - m, Math.max(m, top)));
             const d = Math.max(3, Math.round(2.8 * s)), a = still ? 1 : 0.7 + 0.3 * Math.sin(now / 300 + h.id * 1.3);
@@ -489,6 +507,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
                 ctx.lineWidth = Math.max(1.5, 1.2 * s);
                 ctx.beginPath(); ctx.ellipse(at.x, at.y - pose.lift * TILE_H * s - 3 * s, (5 + 13 * t) * s, (2.5 + 6.5 * t) * s, 0, 0, Math.PI * 2); ctx.stroke();
               }
+              // one that does not show itself: a little insect of silver where it is, which is where a net has to come down
+              if (hid) { const u = Math.max(3, Math.round(2.2 * s)); specks(ctx, HIDER, gx - 3.5 * u, gy - 3.5 * u, u, silver(1), edge); return; }
               // the star: four points, with a dark edge so that it shows on grass in full day
               ctx.fillStyle = edge;
               ctx.fillRect(gx - 2 * d - 1, gy - 1, 5 * d + 2, d + 2);
@@ -689,7 +709,13 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     // only for an insect there, and a swing still in the air does not take a tap that is for a person)
     const tap = (at: Vec, only = false) => {
       const l = live.current, here = me.current, now = Date.now();
-      if (l.busy || !here || !mayNet(l.hand)) return false;
+      if (l.busy || !here) return false;
+      if (!mayNet(l.hand)) {
+        // (the silver mark of one that does not show itself, tapped with no net in the hand: what it is a mark of is
+        // said, and what the hand lacks; the tap is a step as ever)
+        if (l.sees && !only && [...poses.current.values()].some(({ sight, pose }) => hides(sight.bug, pose) && far(aimOf(pose), at) <= MARK)) say("netless");
+        return false;
+      }
       if (only && !byInsect(at, here)) return false;
       if (swing.current && !swing.current.done) return true;
       // a tap on an insect within reach, or just ahead of it, is a swing; anywhere else it is a step, as ever
