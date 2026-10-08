@@ -2286,7 +2286,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 99,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -2541,7 +2541,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7240,7 +7240,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 69,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8280,7 +8280,7 @@
   "mounts": 41,
   "minions": 85,
   "rare": null,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -8293,7 +8293,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-08"
  },
  "33608576": {
   "name": "Verles Eisner",

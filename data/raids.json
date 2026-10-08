@@ -76567,7 +76567,13 @@
     "best": 70,
     "kills": 4,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 4,
+      "best": 70
+     }
+    }
    }
   ],
   "legacy": [],
@@ -81479,8 +81485,8 @@
     "cleared": true,
     "job_kills": {
      "Ninja": {
-      "kills": 5,
-      "best": 4
+      "kills": 11,
+      "best": 5
      }
     }
    }
@@ -81658,17 +81664,17 @@
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
+     "DarkKnight": {
+      "kills": 8,
+      "best": 11
+     },
      "Dragoon": {
       "kills": 6,
       "best": 3
      },
-     "DarkKnight": {
-      "kills": 3,
-      "best": 4
-     },
      "Paladin": {
-      "kills": 14,
-      "best": 4
+      "kills": 21,
+      "best": 8
      }
     }
    },
@@ -81924,7 +81930,7 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 8,
+      "kills": 11,
       "best": 16
      }
     }
@@ -90478,7 +90484,21 @@
     "best": 48,
     "kills": 13,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 1,
+      "best": 48
+     },
+     "Dancer": {
+      "kills": 9,
+      "best": 43
+     },
+     "WhiteMage": {
+      "kills": 3,
+      "best": 29
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -90545,7 +90565,17 @@
     "best": 22,
     "kills": 12,
     "job": "Sage",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 9,
+      "best": 22
+     },
+     "Scholar": {
+      "kills": 3,
+      "best": 12
+     }
+    }
    }
   ],
   "legacy": [],
