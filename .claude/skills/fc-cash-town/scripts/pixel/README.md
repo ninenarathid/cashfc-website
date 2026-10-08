@@ -52,15 +52,18 @@ The owner: "ช่วยทำให้ codex review prompt ก่อนนำ�
 - **Unread on purpose:** `NO_REVIEW="<why>"` before the command, and the ledger keeps the reason (`noReview`): a trial of settings, a batch whose template was read as one of its calls.
 - **What the read is told decides much of what it says.** Told that a scene had been drawn before and not kept, it found two faults in the prompt; told the same scene was in the game and nothing was wrong with it, it passed the same words unchanged. Say in `--for` only what is so.
 
-**What a setting buys** (measured that day, one draw of each, 1536×1024 with one reference; `work/ab/compare-kitchen.png`, `compare-pots.png`):
+**What a setting buys** (measured that day on the cooking game's scene, 1536×1024 with one reference; `work/ab/compare-draws.png`, `compare-kitchen.png`, `compare-pots.png`):
 
 | Quality | Picture tokens out | A call | After the builder's cut |
 |---|---|---|---|
-| low | 158 | $0.0195 | the cooking game's scene: 279×185 cells, 58% of its edges on the grid |
-| medium | 343 | $0.0250 | more texture (floor tiles, grain), and a busier wall where the prompt asked for a quiet one; 51% |
-| high | 1,372 | $0.0559 | a coarser grid (205×137 cells) and softer cells; 34% |
+| low | 158 | $0.0195 | five draws of the one call: 270 to 288 cells across, 57–63% of their edges on the grid; four with upright planks, one with lying ones. The draw of three days before, which is in the game: 218 across, 42% |
+| medium | 343 | $0.0250 | one draw: 282 across, 51%; floor tiles and lying planks, which a low draw showed as well |
+| high | 1,372 | $0.0559 | one draw: a coarser grid (205 across) and softer cells, 34% |
 
-Six pots at medium came out more painted and less crisp than the low sheet that is in the game. A reference cut to hard pixels first (one colour a cell, nothing half see-through) made nothing crisper, on the scene or on the pots. So low stays the setting for a sheet that is cut to a grid; medium is a matter of taste for a large scene, and the owner's to choose; high bought nothing. The older figure for a picture at medium and high ($0.041, $0.165, from the price list) was not what the account paid.
+- **One draw differs from the next as much as low does from medium**, so nothing here says that medium buys what a member would see after the cut, and high bought nothing. The older figures for a picture at medium and high ($0.041, $0.165, from the price list) were not what the account paid.
+- **Where a picture is seen large, draw several at low and choose**: three cost what one at high does. `N=3` before a `gen.mjs` command draws three in one call (`<name>-1.png` …); each is charged as a call of its own, the reference with it, so it saves time and no credit. Lay them side by side with `checks/cut-look.mjs` and copy the chosen one to `<name>.png`.
+- Six pots at medium came out more painted and less crisp than the low sheet that is in the game. A reference cut to hard pixels first (one colour a cell, nothing half see-through) made nothing crisper, on the scene or on the pots.
+- **Codex's two sentences did not show.** Of that scene's prompt it said the light's direction and the pixel size were left to the model. The call with its words added and the call as written, drawn again, came out alike. What the read is for is a new prompt's faults that this file already names (a sheet of four icons, a front described on a back view), not a prompt that already works.
 
 `node checks/cut-look.mjs <out.png> 4.5-7.5 "<label>=<sheet.png>" …` lays sheets side by side as the game will show them (each cut the builders' way), with each one's pixel size, how many cells it has and how clean it was before the cut: for choosing between two drawings of one thing.
 

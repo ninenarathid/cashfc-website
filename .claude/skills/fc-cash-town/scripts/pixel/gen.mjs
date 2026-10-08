@@ -8,6 +8,8 @@
 // settings and its references' names together.
 //   CALLS=<file>      lists the call in that file and draws nothing, so that a batch script's calls are read at once
 //   NO_REVIEW="<why>" draws it unread; the ledger keeps the reason
+//   N=3               draws three of it in one call, to choose from (<name>-1.png …); each is charged as a call
+//                     of its own, the reference with it (measured 2026-10-09), so it saves time and no credit
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
@@ -20,12 +22,13 @@ const RATE = { text: 5, image: 8, out: 30 };
 
 const [outName, model, quality, size, promptFile, ...refs] = process.argv.slice(2);
 const bg = process.env.BG ?? "transparent";
+const n = Math.max(1, Math.min(4, Math.round(+(process.env.N ?? 1)) || 1));
 if (process.env.CALLS) {
   fs.appendFileSync(process.env.CALLS, JSON.stringify({ bg, argv: [outName, model, quality, size, path.resolve(promptFile), ...refs.map(r => path.resolve(r))] }) + "\n");
   console.log(`listed ${outName} in ${process.env.CALLS}, not drawn`);
   process.exit(0);
 }
-const key =fs.readFileSync(ENV, "utf8").match(/^OPENAI_API_KEY=(.+)$/m)[1].trim();
+const key = fs.readFileSync(ENV, "utf8").match(/^OPENAI_API_KEY=(.+)$/m)[1].trim();
 const ledger = path.join(HERE, "work", "ledger.jsonl");
 const spent = fs.existsSync(ledger)
   ? fs.readFileSync(ledger, "utf8").trim().split("\n").filter(Boolean).reduce((s, l) => s + JSON.parse(l).cost, 0)
@@ -52,6 +55,7 @@ form.append("quality", quality);
 form.append("size", size);
 form.append("background", bg);
 form.append("output_format", "png");
+if (n > 1) form.append("n", String(n));
 for (const r of refs) form.append("image[]", new Blob([fs.readFileSync(r)], { type: "image/png" }), path.basename(r));
 
 const t0 = Date.now();
@@ -62,7 +66,7 @@ res = await fetch(refs.length ? "https://api.openai.com/v1/images/edits" : "http
   refs.length
     ? { method: "POST", headers: { Authorization: `Bearer ${key}` }, body: form }
     : { method: "POST", headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ model, prompt, quality, size, background: bg, output_format: "png" }) });
+        body: JSON.stringify({ model, prompt, quality, size, background: bg, output_format: "png", ...(n > 1 ? { n } : {}) }) });
 j = await res.json();
 if (res.status === 429 && attempt < 8) {
   const wait = +(/try again in ([d.]+)s/.exec(j.error?.message ?? "")?.[1] ?? 15) + 2;
@@ -78,9 +82,10 @@ const d = u.input_tokens_details ?? {};
 const cost = ((d.text_tokens ?? 0) * RATE.text + (d.image_tokens ?? 0) * RATE.image + (u.output_tokens ?? 0) * RATE.out) / 1e6;
 const file = path.join(HERE, "work", "out", `${outName}.png`);
 fs.mkdirSync(path.dirname(file), { recursive: true });
-fs.writeFileSync(file, Buffer.from(j.data[0].b64_json, "base64"));
+const files = j.data.map((_, i) => j.data.length > 1 ? file.replace(/\.png$/, `-${i + 1}.png`) : file);
+j.data.forEach((d, i) => fs.writeFileSync(files[i], Buffer.from(d.b64_json, "base64")));
 const row = { t: new Date().toISOString(), name: outName, model, quality, size, refs: refs.map(r => path.basename(r)),
-  usage: u, cost: +cost.toFixed(4), secs: Math.round((Date.now() - t0) / 1000), ...(review ? { review: stamp } : { noReview: process.env.NO_REVIEW }) };
+  usage: u, cost: +cost.toFixed(4), secs: Math.round((Date.now() - t0) / 1000), ...(n > 1 ? { n: j.data.length } : {}), ...(review ? { review: stamp } : { noReview: process.env.NO_REVIEW }) };
 fs.appendFileSync(ledger, JSON.stringify(row) + "\n");
-console.log(`saved work/out/${outName}.png  $${cost.toFixed(4)}  (${row.secs}s)  total $${(spent + cost).toFixed(3)} of $${BUDGET}`);
+console.log(`saved ${files.map(f => `work/out/${outName}${path.basename(f).slice(path.basename(file).length - 4)}`).join(", ")}  $${cost.toFixed(4)}  (${row.secs}s)  total $${(spent + cost).toFixed(3)} of $${BUDGET}`);
 console.log("usage", JSON.stringify(u));
