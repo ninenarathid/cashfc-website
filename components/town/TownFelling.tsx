@@ -71,9 +71,36 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     window.setTimeout(() => onDone(out, asked), how.one ? 0 : REST);
   }, [game, onDone]);
 
+  /**
+   * Time goes by, up to a moment: the bar runs down by the clock itself, not by the frames drawn (a page that is
+   * drawn seldom, behind another window, has no slower a bar; and a chop is judged with the bar as it is at that
+   * moment). Run out, the tree stands, and the next begins or the game is over.
+   */
+  const clock = useRef<number | null>(null);
+  const advance = useCallback((now: number) => {
+    const last = clock.current ?? now, was = play.current;
+    clock.current = now;
+    if (ended.current || isOver(game, was)) return;
+    const next = tick(game, was, Math.min(10, Math.max(0, (now - last) / 1000)));
+    if (next === was) return;
+    play.current = next;
+    if (next.at === was.at && !isOver(game, next)) return;
+    // the bar ran out: this tree stands
+    sfx?.wake(); sfx?.work("nothing");
+    const more = !isOver(game, next);
+    setBanner(more ? (th ? `ไม่ทัน ต้นนี้ยังยืนอยู่ · ต้นต่อไป ${next.at + 1}/${game.stretches.length}` : `Out of time: it stands. Next tree ${next.at + 1}/${game.stretches.length}`) : (th ? "ไม่ทัน ต้นไม้ยังยืนอยู่" : "Out of time: the tree stands"));
+    fx.current.restUntil = now + REST;
+    fx.current.side = 0;
+    if (more) window.setTimeout(() => setBanner(null), REST);
+    setShown((n) => n + 1);
+    if (!more) finish();
+  }, [game, sfx, th, finish]);
+
   /** A chop from a side. */
   const press = useCallback((side: Side) => {
-    const now = performance.now(), f = fx.current, was = play.current;
+    const now = performance.now(), f = fx.current;
+    advance(now);
+    const was = play.current;
     if (ended.current || isOver(game, was) || now < f.restUntil) return;
     const did = chop(game, was, side);
     if (!did.what) return;
@@ -96,26 +123,11 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     }
     setShown((n) => n + 1);
     if (isOver(game, did.play)) finish();
-  }, [game, reduced, sfx, th, finish]);
+  }, [game, reduced, sfx, th, finish, advance]);
 
-  useFrames((dt, now) => {
-    const was = play.current;
-    if (!ended.current && !isOver(game, was)) {
-      const next = tick(game, was, dt);
-      if (next !== was) {
-        play.current = next;
-        if (next.at !== was.at || isOver(game, next)) {
-          // the bar ran out: this tree stands
-          sfx?.wake(); sfx?.work("nothing");
-          const more = !isOver(game, next);
-          setBanner(more ? (th ? `ไม่ทัน ต้นนี้ยังยืนอยู่ · ต้นต่อไป ${next.at + 1}/${game.stretches.length}` : `Out of time: it stands. Next tree ${next.at + 1}/${game.stretches.length}`) : (th ? "ไม่ทัน ต้นไม้ยังยืนอยู่" : "Out of time: the tree stands"));
-          fx.current.restUntil = now + REST;
-          fx.current.side = 0;
-          if (more) window.setTimeout(() => setBanner(null), REST);
-          setShown((n) => n + 1);
-          if (!more) finish();
-        }
-      }
+  useFrames((_dt, now) => {
+    advance(now);
+    if (!ended.current && !isOver(game, play.current)) {
       // (for scripts: a hand that plays by itself, from the side no branch comes down on)
       const a = auto.current, p = play.current;
       if (a.on && now >= a.due && now >= fx.current.restUntil && !isOver(game, p)) {
