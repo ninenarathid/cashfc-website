@@ -101,6 +101,8 @@ async function rpc(name, args, as) {
     if (k === "p_other" && typeof v === "string") v = await who(v);
     if (k === "p_crew" && Array.isArray(v)) v = await Promise.all(v.map((x) => who(String(x))));
     if (k === "p_member" && typeof v === "string") v = await who(v);
+    // ── the bridge built by hand ── (whoever a stone is handed to: a tester as the member they are here, a member's own id as it is)
+    if (k === "p_to" && name === "town_stone_pass" && typeof v === "string") v = await who(v);
     const type = fn.types[k];
     values.push(v === null || v === undefined ? null
       : type === "jsonb" || type === "json" ? JSON.stringify(v)

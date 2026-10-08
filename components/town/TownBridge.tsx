@@ -30,6 +30,8 @@ interface Match { id: string; role: "from" | "to"; who: { id: string; name: stri
 const ASK_MS = 2000;
 /** How long somebody whose handing-over I gave up is not answered yes again: a board is not to come up over and over on a page that does not want it. */
 const SHY_MS = 8000;
+/** How often a bridge that is not open yet is asked after, in milliseconds (the game itself is asked after every five minutes while it is shut). */
+const CLOSED_AGAIN = 5 * 60_000;
 
 /** Where the sign stands: beside the foot, away from the water (one tile to the right of it on the screen), wherever the foot is (lib/town/bridge says where it may not). */
 const SIGN: Vec = SIGN_AT;
@@ -167,6 +169,13 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
   // While the bridge is being built it is read again now and then (a stone handed to me is told through the room at
   // once; this is for a word the room lost, and for the bar).
   useEffect(() => (open && !whole ? keeper.look("works") : undefined), [keeper, open, whole]);
+  // While it is not open yet it is asked after seldom: so that the pile is uncovered on a page that was here already
+  // when its owner opened it, with nothing loaded again (as the game itself opens: lib/town/keeper).
+  useEffect(() => {
+    if (!known || open) return;
+    const again = setInterval(() => void keeper.worksLook(), CLOSED_AGAIN);
+    return () => clearInterval(again);
+  }, [keeper, known, open]);
 
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 3000); return () => clearTimeout(t); }, [note]);
@@ -462,7 +471,7 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
       open: (on = true) => keeper.trial?.worksOpen(on), have: (n: number) => keeper.trial?.worksHave(n), anew: () => keeper.trial?.worksAnew(),
       here: () => hereRef.current, atPile: () => atPile, atFoot: () => atFoot, offered: () => offered.map((p) => p.id), lacks: () => (lacks ? { who: lacks.who.id, why: lacks.why } : null),
       lift, lay, drop: async () => keeper.stoneDrop(), pass: (id: string) => { const to = offered.find((p) => p.id === id); if (to) begin(to); },
-      match: () => (match ? { role: match.role, phase: match.phase, with: match.who.id, tired: match.tired } : null), mute: (on = true) => { mute.current = on; },
+      match: () => (match ? { role: match.role, phase: match.phase, with: match.who.id, tired: match.tired } : null), mute: (on = true) => { mute.current = on; }, idle: () => ({ idle: idle.current, busy: busyRef.current, panel }),
       note: () => note, toast: () => toast, panel: (on = true) => setPanel(on), isPanel: () => panel, boxes: () => boxes.current, drawn: () => drawn,
       pile: BRIDGE.pile, foot: BRIDGE.foot, sign: SIGN, reach: BRIDGE.reach, near: BRIDGE.near, need: BRIDGE.need,
     };
