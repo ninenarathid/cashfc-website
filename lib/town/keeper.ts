@@ -46,6 +46,8 @@ import type { WellGiftRefusal } from "./well-gifts";
 // ── gifts: helpers ──
 import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
+// ── the bridge built by hand ──
+import { worksOf, type BridgeRefusal, type WorksTold } from "./bridge";
 
 /**
  * Who keeps the game.
@@ -76,12 +78,14 @@ import type { HelpRefusal } from "./helping";
 
 export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRefusal | PassRefusal | BoxRefusal | GroundRefusal | ShopRefusal | GiftRefusal | /* gifts: well */ WellGiftRefusal
   // ── gifts: fishing ──
-  | FishRefusal;
+  | FishRefusal
+  // ── the bridge built by hand ──
+  | BridgeRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 // ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop" | /* the bridge built by hand */ "works";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -488,6 +492,27 @@ export interface Keeper {
   moonKeep(): Promise<Did<{ n: number; kind: Nature }>>;
   moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>>;
 
+  // ── the bridge built by hand ── (lib/town/bridge)
+  /**
+   * The village's works: what I am told of them (of the bridge: whether it is open, how many stones it has of how
+   * many, everybody who has helped in the order they came, my own count) and what I carry in my hands. Null until it
+   * has been read, and for as long as whoever keeps the game knows of no works (a database before v160: the page then
+   * shows nothing of them). `worksLook` reads it again. **What the map draws of the bridge is read off this**:
+   * `bridgeSpans(keeper.works())`, none to six, and `bridgeWhole(keeper.works())`.
+   */
+  works(): WorksTold | null;
+  worksLook(): Promise<void>;
+  /**
+   * A stone lifted at the pile, from the tile I stand on; the one I hold handed on to somebody (who is told through
+   * the room, `works`: nothing that keeps the game knows where anybody stands, so who is near enough is the page's to
+   * say); laid at the bridge's foot, from the tile I stand on (how many the bridge has then, how many spans, whether
+   * this stone finished one, and whether it is whole); and let go of.
+   */
+  stoneLift(at: [number, number]): Promise<Did>;
+  stonePass(to: string): Promise<Did>;
+  stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean }>>;
+  stoneDrop(): Promise<Did>;
+
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
   record(play: Play): void;
   /** Stop every timer: the member has left the town. */
@@ -504,7 +529,7 @@ export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknow
 type Answer = Record<string, unknown>;
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, works: 45_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -583,6 +608,8 @@ export class DbKeeper implements Keeper {
   /** What the database last told of stalls (null until one that keeps stalls has said), and whose stall I am looking at, as last read. */
   private shops_: ShopsTold | null = null;
   private visit_: { who: string; told: ShopTold | null } | null = null;
+  // ── the bridge built by hand ── (the village's works as the database last told them: null until one that has works has said)
+  private works_: WorksTold | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -630,6 +657,9 @@ export class DbKeeper implements Keeper {
     // (and whether a stall can be opened under a sign, with mine if one is still open: asked once as the game begins;
     // a database that keeps no stalls answers nothing, and a sign is only a chat room's)
     if (this.read && !this.shut) void this.ask("town_shop");
+    // ── the bridge built by hand ── (and whether the village has works, with what I carry in my hands: asked once as
+    // the game begins; a database without them answers nothing, and nothing of them is shown)
+    if (this.read && !this.shut) void this.ask("town_works_read");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
@@ -758,6 +788,8 @@ export class DbKeeper implements Keeper {
       delete others[this.id];
       this.ranks_ = this.wellBook_.rank > 0 ? { ...others, [this.id]: this.wellBook_.rank } : others;
     }
+    // ── the bridge built by hand ── (the works, told when they are asked for and with every deed of theirs)
+    if (a.works && typeof a.works === "object") { const works = worksOf(a.works); if (works) this.works_ = works; }
     if ("deal" in a) this.dealt(a.deal as (KeptDeal & { end?: string | null }) | null, !!a.purse);
     this.tell();
   }
@@ -830,6 +862,8 @@ export class DbKeeper implements Keeper {
       if (this.visit_) void this.ask("town_shop_look", { p_who: this.visit_.who });
       return;
     }
+    // ── the bridge built by hand ── (a stone was handed to me, or a span was laid: asked for wherever I am; not of a database with no works)
+    if (what === "works") { if (this.works_) void this.ask("town_works_read"); return; }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
     if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
     if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what);
@@ -848,6 +882,7 @@ export class DbKeeper implements Keeper {
       : what === "line" ? this.ask("town_me")
       : what === "ground" ? this.ask("town_ground")
       : what === "shop" ? this.ask("town_shop")
+      : what === "works" ? this.ask("town_works_read")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -1381,6 +1416,25 @@ export class DbKeeper implements Keeper {
     if (did.ok) { this.onDeed?.("farm"); if (this.wellBook_) void this.ask("town_well"); void this.ask("town_well_ranks"); }
     return did;
   }
+
+  // ── the bridge built by hand ──
+  works(): WorksTold | null { return this.works_; }
+  async worksLook() { if (this.works_) await this.ask("town_works_read"); }
+  stoneLift(at: [number, number]) { return this.deed("town_stone_lift", { p_x: at[0], p_y: at[1] }); }
+  async stonePass(to: string): Promise<Did> {
+    const did = await this.deed("town_stone_pass", { p_to: to });
+    // (whoever took it reads the works again, and finds the stone in their hands)
+    if (did.ok) this.onDeed?.("works", to);
+    return did;
+  }
+  async stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean }>> {
+    const did = await this.deed<{ have: number; spans: number; span: boolean; whole: boolean }>("town_stone_lay", { p_x: at[0], p_y: at[1] });
+    // (a span more, or the bridge whole: everybody's map shows it, so everybody is told; a stone among a hundred is
+    // only read by whoever looks at the sign, in its own time)
+    if (did.ok && (did.span || did.whole)) this.onDeed?.("works");
+    return did;
+  }
+  stoneDrop() { return this.deed("town_stone_drop"); }
 
   record() { /* the database writes every go down itself, as the deed is done */ }
   close() {

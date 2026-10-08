@@ -85,6 +85,8 @@ export interface Doing {
   sign?: string;
   /** The chat room they are in (lib/town/circle): its holder's id, their own when they hold it, "" when none; missing from a browser older than that. */
   circle?: string;
+  /** What they carry in both hands that is no thing of the bag (a stone for the bridge: lib/town/bridge), "" when nothing; missing from a browser older than that. Whoever carries something walks slower, on every page that walks them (lib/town/carry). */
+  carry?: string;
 }
 
 /**
@@ -185,6 +187,7 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   // (a sign is written again from what was read of it: its title is somebody's own words, cleaned like a line of chat)
   if (typeof p.sign === "string") { const sign = decodeSign(p.sign); d.sign = sign ? encodeSign(sign) : ""; }
   if (typeof p.circle === "string" && /^[A-Za-z0-9_-]{0,64}$/.test(p.circle)) d.circle = p.circle;
+  if (typeof p.carry === "string" && /^[a-z]{0,24}$/.test(p.carry)) d.carry = p.carry;
   return d;
 }
 
