@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import type { Shade } from "@/lib/town/fountain";
 import { BAITS, BUFFS, FISH, ITEMS, type BaitId, type CatchId, type FishId, type ItemId } from "@/lib/town/items";
-import { ORB, PAIR, REST, STEPS, boutsOf, oddsOf, orbOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type OrbSky, type Pair, type Strike } from "@/lib/town/fishing";
+import { ORB, PAIR, REST, STEPS, boutsOf, goldWindowOf, livelyOf, lullNow, oddsOf, orbOf, seesOdds, settling, startFight, startPair, stepFight, stepPair, strikeOf, strikeWindow, surging, warning, type Fight, type Mend, type OrbSky, type Pair, type Strike } from "@/lib/town/fishing";
 import { gearOf, type Gear } from "@/lib/town/gear";
 import { PACE, paced } from "@/lib/town/pace";
 import type { FishingEnd, FishingPlay } from "@/lib/town/plays";
@@ -166,6 +166,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     const id = window.setInterval(() => setTick((n) => n + 1), 1000);
     return () => window.clearInterval(id);
   }, [sky]);
+  // ── forging: old tools ── (the water asleep for a rod that lulls it: until when, counted down a second at a time while it lasts)
+  const lull = lullNow(purse, now) ? Math.max(0, (purse.rodStill ?? 0) - now) : 0;
+  useEffect(() => {
+    if (!lull) return;
+    const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+    return () => window.clearInterval(id);
+  }, [lull > 0]); // eslint-disable-line react-hooks/exhaustive-deps
   // (its rain falls across the water, where there is no wish for less motion)
   const root = useRef<HTMLElement>(null);
   useEffect(() => {
@@ -189,7 +196,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const buffs = buffsOf(purse, now), keen = levelOf(purse, now, "keen"), lucky = levelOf(purse, now, "lucky");
   const have = (b: BaitId) => held(purse.bag, b);
   /** What I fish with: the rod in my hand, and the best of each kind of tackle in my bag (lib/town/gear). */
-  const gear = gearOf(purse.bag, handOf(purse));
+  // ── forging: old tools ── (the slot the rod was taken up from: of two rods of a kind, the one held is the one whose forging counts)
+  const gear = gearOf(purse.bag, handOf(purse), keeper.handSlot());
   /** The trial hands out a rod and worms for the asking (the owner: "ช่วย Add คันเบ็ดให้ผมหน่อย เฉพาะใน DEV"): as much of them as the bag has room for. */
   const kit = () => {
     if (!trial) return;
@@ -285,17 +293,24 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     }
     // (the trial's own log knows the baits of the bag: a line dropped with a stardust bait is written down with the bait that was in hand beside it)
     out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
+    forgiven.current = 0;
     setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}),
       ...(cast.pair ? { pair: true } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}), ...(how === "star" ? { star: true } : {}) });
   };
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
+  // ── forging: old tools ── (how many strikes too soon this cast has been forgiven by the rod it went out with: lib/town/forged)
+  const forgiven = useRef(0);
+  /** (for scripts) What I fish with as it is now, and the strike's moment with it. */
+  const mine = useRef({ gear, keen, spent });
+  mine.current = { gear, keen, spent };
   /** The second line's float and thread, of a rod of two lines. */
   const float2 = useRef<HTMLSpanElement>(null), thread2 = useRef<SVGLineElement>(null);
   /** The whispering float's own: the ring that runs down to the bite, and the flash at the true bite. */
   const count = useRef<SVGCircleElement>(null), flash = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (phase.at !== "waiting") return;
-    const { from } = phase, cast = phase, grace = strikeWindow({ keen, spent, gear: out.current?.gear });
+    // ── forging: old tools ── (`gold`: with a rod of the golden moment that has one left today, the bite stays open so many seconds: lib/town/fishing)
+    const { from } = phase, cast = phase, plainGrace = strikeWindow({ keen, spent, gear: out.current?.gear }), gold = goldWindowOf(keeper.purse(), keeper.now(), keeper.handSlot()), grace = Math.max(plainGrace, gold);
     let raf = 0, heard = -1, under = false, drawn = 0, due = 0;
     const frame = (t: number) => {
       // (no more often than the map is drawn at the most: lib/town/pace)
@@ -316,6 +331,16 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         float.current.style.opacity = bitten ? "0.35" : "1";
       }
       if (thread.current) thread.current.setAttribute("y2", String(40 + bob + dip));
+      // ── forging: old tools ── (a rod with light in it: the float glows a moment before the bite)
+      const early = out.current?.gear.fx?.shimmer ?? 0;
+      if ((early > 0 || gold > plainGrace) && float.current) {
+        // (and a rod of the golden moment: the float under shows gold for as long as a strike still takes, once the moment itself has passed)
+        const lit = early > 0 && !bitten && s >= cast.wait - early, golden = gold > plainGrace && s > cast.wait + plainGrace && s <= cast.wait + gold;
+        float.current.style.filter = golden ? "drop-shadow(0 0 2px #ffd98a) drop-shadow(0 0 8px #f0c46a)" : lit ? "drop-shadow(0 0 2px #fff6d8) drop-shadow(0 0 7px #fff6d8)" : "";
+        if (golden) float.current.style.opacity = "0.85";
+        float.current.toggleAttribute("data-shimmer", lit);
+        float.current.toggleAttribute("data-golden", golden);
+      }
       // (a rod of two lines: the second float rides beside the first to its own beat, and goes under with it)
       if (float2.current) {
         const bob2 = reduced ? 0 : Math.sin(t / 420 + 1.9) * 2;
@@ -357,8 +382,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     // How good a strike it was is this hand's to say, and heard at once; whether anything is on the hook, and what,
     // is the keeper's (its clock gives a moment's grace either way).
     const hit = strikeOf(reaction, { keen: levelOf(p, t, "keen"), spent: isSpent(p, t), gear: out.current?.gear });
+    // ── forging: old tools ── (a strike too soon that the rod forgives: the line stays out with its bait on, and nobody is asked anything)
+    if (!hit && reaction < 0 && forgiven.current < (out.current?.gear.fx?.spared ?? 0)) { forgiven.current++; sfx.wake(); sfx.play("nibble"); return; }
+    // (a strike after the moment, within a golden rod's seconds: it is whoever keeps the game's to take, and it is heard as a strike, not as one too soon)
+    const golden = !hit && reaction >= 0 && reaction <= goldWindowOf(p, t, keeper.handSlot());
     sfx.wake();
-    sfx.play(!hit ? "early" : hit === "perfect" ? "perfect" : "strike");
+    sfx.play(golden ? "strike" : !hit ? "early" : hit === "perfect" ? "perfect" : "strike");
     setPhase({ at: "striking" });
     const did = await keeper.strike(reaction, hit);
     if (!did.ok || !did.hooked) {
@@ -371,7 +400,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     }
     // (taken by the keeper's grace when this hand thought it too soon: a late one's worth)
     const worth: Strike = hit ?? "late";
-    if (!hit) sfx.play("strike");
+    if (!hit && !golden) sfx.play("strike");
     /** How many times as hard the deck's good fish are for me (from the fourth rank of the deck: the keeper says). */
     const harder = did.harder && did.harder > 1 ? { harder: did.harder } : {};
     earlier.current = 0;
@@ -445,7 +474,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "fight") return;
     const p = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31);
-    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear, silk: charmBy(p, "charmLine", 0), harder: phase.harder, bout: phase.bout }, seed);
+    let f = startFight(phase.fish, phase.strike, { spent: isSpent(p, t0), calm: levelOf(p, t0, "calm"), gear: out.current?.gear, silk: charmBy(p, "charmLine", 0), harder: phase.harder, bout: phase.bout, lively: livelyOf(p, t0, keeper.handSlot()) }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction: phase.reaction };
     bout.current = log;
     // (the fight's stamina was taken as the hook was set: a fight costs it whatever comes of it)
@@ -554,7 +583,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   useEffect(() => {
     if (phase.at !== "fight2") return;
     const p0 = keeper.purse(), t0 = keeper.now(), seed = Math.floor(Math.random() * 2 ** 31), { fish, sizes, reaction } = phase;
-    let p = startPair(fish, phase.strike, { spent: isSpent(p0, t0), calm: levelOf(p0, t0, "calm"), gear: out.current?.gear, narrow: numberOf("thingRod"), silk: charmBy(p0, "charmLine", 0), harder: phase.harder }, seed);
+    let p = startPair(fish, phase.strike, { spent: isSpent(p0, t0), calm: levelOf(p0, t0, "calm"), gear: out.current?.gear, narrow: numberOf("thingRod"), silk: charmBy(p0, "charmLine", 0), harder: phase.harder, lively: livelyOf(p0, t0, keeper.handSlot()) }, seed);
     const log = { seed, holds: [] as number[], steps: 0, inside: 0, secs: 0, strike: phase.strike, reaction };
     bout.current = log;
     pair.current = p;
@@ -736,6 +765,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       // (a script's strike is taken whenever it comes: the line's rest is for hands, which the checks try by the button and the key)
       fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike: () => strike(true), result: () => (phase.at === "result" ? phase : null),
       quick: (on: boolean) => setQuick(on), place: () => place,
+      /** (forging) The gear the line in the water went out with, or what I have to hand; and how many strikes too soon this cast has been forgiven. */
+      gear: () => mine.current.gear, forgiven: () => forgiven.current, window: () => strikeWindow({ keen: mine.current.keen, spent: mine.current.spent, gear: mine.current.gear }),
       /** A sound made where nobody hears it, and measured. */
       sound: (name: FishSound | "tick", tier?: Parameters<typeof measure>[1]) => measure(name, tier),
     };
@@ -862,6 +893,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
           <TownIcon name="stamina" size={16} />{stamina}
         </span>
         <BuffAura ids={AT_THE_LINE.filter((b) => buffs.includes(b))} th={th} size={18} />
+        {/* ── forging: old tools ── (the water asleep for my rod: a state, with the time it has left) */}
+        {lull > 0 && (
+          <span className="flex items-center gap-1 rounded-[3px] bg-[#1d3140] px-1.5 py-0.5 font-data text-label tabular-nums text-[#bfe8fa]" data-fish-lull={Math.ceil(lull / 1000)} title={th ? "สายน้ำหลับ" : "The water sleeps"}>
+            <TownIcon name={"fxRipple" as IconName} size={12} /><span className="sr-only">{th ? "สายน้ำหลับ เหลือ" : "The water sleeps for"} </span>{Math.floor(Math.ceil(lull / 1000) / 60)}:{String(Math.ceil(lull / 1000) % 60).padStart(2, "0")}
+          </span>
+        )}
         <button type="button" onClick={() => { const on = !sound; sfx.setOn(on); setSound(on); if (on) { sfx.wake(); sfx.play("nibble"); } }} aria-pressed={sound}
                 title={th ? (sound ? "ปิดเสียงตกปลา" : "เปิดเสียงตกปลา") : (sound ? "Turn the fishing sounds off" : "Turn the fishing sounds on")}
                 className={`pressable grid size-8 place-items-center rounded-full border ${sound ? "border-[#2a190d]" : "border-[#2a190d] opacity-50"}`}>

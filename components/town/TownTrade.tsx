@@ -10,13 +10,14 @@ import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
+import { GEMS, OPTIONS, gemsOf, makersOf, modsOf, toolWord } from "@/lib/town/tools";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { carried } from "@/lib/town/line";
 import type { PricesTold } from "@/lib/town/market";
 import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
-  GOODS, RULES, SHELF, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
+  GOODS, RULES, SHELF, forged, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
   type Purse, type Refusal, type Stack, type Stall,
 } from "@/lib/town/trade";
 import type { Did, Keeper } from "@/lib/town/keeper";
@@ -40,6 +41,8 @@ export interface TradeSummary {
   buff: WishId | null;
   /** (`from`: the moment this helping began, which tells one helping from the next of the same dish) */
   eating: { dish: DishId; progress: number; from: number } | null;
+  /** (forging) What the tool in my hand carries, as the room is told it (lib/town/tools' toolWord): "" for a plain one or an empty hand. */
+  tool?: string;
 }
 
 type Kind = keyof Purse["popoto"];
@@ -107,7 +110,17 @@ const MEAL_NAME: Array<[th: string, en: string]> = [["มื้อเช้า",
 /** The picture of what is in a slot: the thing's own, but a pot of food is its dish's pot, and a bucket with water in it is full. */
 export function StackIcon({ stack, size, className }: { stack: Stack; size: number; className?: string }) {
   const name = stack.of ? potIconOf(stack.of.dish) : stack.water && stack.item in WATER.buckets ? `${stack.item}Full` : iconOf(stack.item);
-  return <TownIcon name={name as IconName} size={size} className={className} />;
+  const icon = <TownIcon name={name as IconName} size={size} className={className} />;
+  // ── forging ── (a tool that carries something says so wherever it is drawn: its plus at a corner, a dot of its gem's colour at another)
+  if (!forged(stack)) return icon;
+  const m = modsOf(stack), gem = gemsOf(stack)[0];
+  return (
+    <span className="relative inline-block align-middle" data-plus={m.level} data-gem={gem ?? ""}>
+      {icon}
+      {m.level > 0 && <span className="absolute -right-1.5 -top-1.5 rounded-full border border-[#2a190d] bg-[#f0c46a] px-1 font-data text-label font-bold leading-4 text-[#2a190d]">+{m.level}</span>}
+      {gem && <span aria-hidden className="absolute -bottom-0.5 -left-0.5 size-2.5 rounded-full border border-[#2a190d]" style={{ background: GEMS[gem].hue }} />}
+    </span>
+  );
 }
 
 /** A thing's picture, by its name in lib/town/items. */
@@ -193,10 +206,12 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   const now = keeper.now(), purse = keeper.purse(), stall = keeper.stall();
   const due = waiting(purse, now), stamina = staminaOf(purse, now), buff = buffsOf(purse, now)[0] ?? null;
   const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now), from: purse.eating.from } : null, hand = handOf(purse), wet = !!carried(purse);
+  // (forging: what the tool in my hand carries, for the room)
+  const heldAt = keeper.handSlot(), tool = toolWord(heldAt >= 0 ? purse.bag[heldAt] : null);
   useEffect(() => {
-    onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating });
+    onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating, tool });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the meal is told by its dish and how far through it is
-  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating?.from, eating && Math.round(eating.progress * 100)]);
+  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating?.from, eating && Math.round(eating.progress * 100), tool]);
 
   // A meal is counted on every second while I sit at it; getting up leaves it.
   const sitting = useRef(seated), beside = useRef(company);
@@ -907,6 +922,16 @@ export function ItemCard({ id, n, th, at, holds }: { id: ItemId; n?: number; th:
 }
 /** What a thing in the bag holds, in words: the dish in a pot and its helpings, the water in a can or a bucket. Nothing, for a thing that holds nothing. */
 export function holdsOf(s: Stack, th: boolean): string | null {
+  const holds = heldIn(s, th);
+  // ── forging ── (and what a tool carries of its own: its plus, its gem, its options by their names; what each does is the smith's card's to say)
+  if (!forged(s)) return holds;
+  const m = modsOf(s), gem = gemsOf(s)[0];
+  // (and who forged it, each name once: a tool's history goes with it into whoever's bag it comes)
+  const makers = [...new Set(makersOf(s).filter((x): x is string => !!x))];
+  return [m.level > 0 ? `+${m.level}` : null, gem ? (th ? ITEMS[GEMS[gem].gem].name.th : ITEMS[GEMS[gem].gem].name.en) : null,
+    ...m.opts.map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)), makers.length ? `${th ? "ตีโดย" : "forged by"} ${makers.join(", ")}` : null, holds].filter(Boolean).join(" · ") || null;
+}
+function heldIn(s: Stack, th: boolean): string | null {
   if (s.of) return `${th ? ITEMS[s.of.dish].name.th : ITEMS[s.of.dish].name.en} · ${s.of.left}`;
   if (s.item in WATER.buckets) return s.water ? (th ? "มีน้ำเต็ม" : "Full of water") : (th ? "ว่างเปล่า" : "Empty");
   if (s.water !== undefined || s.item in WATER.cans) return s.water ? (th ? `มีน้ำ ${s.water}` : `Water: ${s.water}`) : (th ? "ไม่มีน้ำ" : "No water in it");

@@ -1,4 +1,4 @@
-import { goesIn, isCookware } from "./cooking";
+import { goesIn, isCookware, needsOf } from "./cooking";
 import { WATER, toolOf } from "./farm";
 import { ALL_SIGNS, oddsOf } from "./fishing";
 import { FORAGING, KINDS, SPOT_KINDS } from "./forest";
@@ -6,6 +6,7 @@ import { BUGS, BUG_IDS, LURES, NETS } from "./insects";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE } from "./gear";
 import { BAITS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { INSIDE, foundScrolls } from "./scrolls";
+import { FELLED, MINED, SMELTING, SMELTS, toolKindOf } from "./tools";
 import { GOODS } from "./trade";
 import { WELL_BOOK } from "./well";
 
@@ -31,7 +32,9 @@ export type Use =
   | "carry"     // worn, makes the bag bigger
   | "serve"     // ladles a helping, or is ladled from
   | "table"     // lets more gather round a pot
-  | "net";      // catches insects, held in the hand
+  | "net"       // catches insects, held in the hand
+  | "pick"      // breaks a rock, held in the hand (lib/town/tools)
+  | "axe";      // fells a tree, held in the hand
 
 /** The uses of a thing, as the rules have them. Empty for a thing that is only ever an ingredient, a bait, a seed, something to eat or to sell. */
 export function usesOf(id: ItemId): Use[] {
@@ -49,17 +52,21 @@ export function usesOf(id: ItemId): Use[] {
   if (id === "bowl" || id === "ladle" || id === "potFull") uses.push("serve");
   if (id === "tok") uses.push("table");
   if (NETS.includes(id)) uses.push("net");
+  if (toolKindOf(id) === "pick") uses.push("pick");
+  if (toolKindOf(id) === "axe") uses.push("axe");
   return uses;
 }
 
 /** Where a thing comes from. */
-export type Source = "shop" | "river" | "farm" | "kitchen" | "forest" | "net" | "well";
+export type Source = "shop" | "river" | "farm" | "kitchen" | "forest" | "net" | "well" | "mountain" | "smith";
 
 /**
  * Everything that can be had in the game, and from where: bought from the
  * uncle; caught on a bait that can itself be had; grown from a seed that can;
  * cooked or made of things that can, in cookware that can; given by the well
- * to whoever has carried enough water to it (lib/town/well). Worked out to the
+ * to whoever has carried enough water to it (lib/town/well); felled with an axe
+ * or broken out of rock with a pick, across the bridge; smelted by the smith of
+ * fragments and fine timber that can be had (lib/town/tools). Worked out to the
  * end: what is made of what is made is here too. `shelf` is what the uncle
  * sells: everything he ever will, or only what his orders have opened so far
  * (lib/town/orders). `wild` is whether what the forest gives is counted: it
@@ -97,6 +104,14 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // insects (lib/town/insects): with a net, whatever is out at whatever hour and under whatever sky; a beetle only
     // when somebody has something sweet to hold under its tree
     if (wild && NETS.some(has)) for (const id of BUG_IDS) if (BUGS[id].habit !== "lure" || LURES.some(has)) add(id, "net");
+    // the mountain (lib/town/tools): with an axe, what a felled tree leaves; with a pick, what a broken rock leaves,
+    // on the mountain's foot and down the cave. Like the forest's, it is what somebody goes out and finds.
+    if (wild) {
+      if (ITEM_IDS.some((id) => toolKindOf(id) === "axe" && has(id))) for (const id of FELLED) add(id, "mountain");
+      if (ITEM_IDS.some((id) => toolKindOf(id) === "pick" && has(id))) for (const id of MINED) add(id, "mountain");
+    }
+    // the smith: big ore and gems, each of its own fragments and a piece of fine timber
+    for (const id of Object.keys(SMELTS) as ItemId[]) if (has(SMELTS[id]!.of) && (SMELTING.timber <= 0 || has("timber"))) add(id, "smith");
     // the well: what it has for its carriers, once there is something to carry water in
     if ((Object.keys(WATER.buckets) as ItemId[]).some((b) => has(b) && !WELL_BOOK.gifts.some(([, gift]) => gift === b))) for (const [, gift] of WELL_BOOK.gifts) add(gift, "well");
     // the kitchen: a dish (in a pot of the yard's), and what else is made
@@ -114,6 +129,12 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
   return from;
 }
 
+/**
+ * Whether a recipe takes something of the mountain's (what an axe or a pick brings, or what is smelted of it): such a
+ * recipe can be made only where the shelf sells those tools. (A keeper asks before it offers a hint of one: a
+ * database from before woodcutting and mining sells neither tool, and has no such hint to sell.)
+ */
+export const ofMountain = (id: ItemId): boolean => needsOf(id).some(([n]) => FELLED.includes(n) || MINED.includes(n) || n in SMELTS);
 /** The things nobody can have yet: none, when the game is whole. */
 export const missing = (): ItemId[] => { const from = sources(); return ITEM_IDS.filter((id) => !from.has(id)); };
 /** The tools nothing reads: none, when every piece of gear does something. */

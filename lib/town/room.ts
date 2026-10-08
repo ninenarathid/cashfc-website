@@ -5,6 +5,7 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { cleanChat } from "./chat";
 import { decodeLook } from "./look";
 import { decodeSign, encodeSign } from "./sign";
+import { TOOL_WORD } from "./tools";
 import { BENCHES, KITCHEN, SIT_HERE, YARD_SEATS } from "./world";
 
 /**
@@ -85,6 +86,8 @@ export interface Doing {
   sign?: string;
   /** The chat room they are in (lib/town/circle): its holder's id, their own when they hold it, "" when none; missing from a browser older than that. */
   circle?: string;
+  /** (forging) What the tool in their hand carries, in three characters at the most (lib/town/tools' toolWord: how it glows, its gem's letter and level); "" for a plain one, missing from a browser older than forging. Every page draws the glow from it and walks its holder by it. */
+  tool?: string;
 }
 
 /**
@@ -185,6 +188,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   // (a sign is written again from what was read of it: its title is somebody's own words, cleaned like a line of chat)
   if (typeof p.sign === "string") { const sign = decodeSign(p.sign); d.sign = sign ? encodeSign(sign) : ""; }
   if (typeof p.circle === "string" && /^[A-Za-z0-9_-]{0,64}$/.test(p.circle)) d.circle = p.circle;
+  // (forging)
+  if (typeof p.tool === "string" && (p.tool === "" || TOOL_WORD.test(p.tool))) d.tool = p.tool;
   return d;
 }
 

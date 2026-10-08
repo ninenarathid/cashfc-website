@@ -144,6 +144,26 @@ describe("the database's keeper", () => {
     k.close();
   });
 
+  // ── forging ──
+  it("has no hint of the mountain's things to sell while the database's shelf sells neither an axe nor a pick", async () => {
+    // somebody who has every hint there is but the torch's, which is made of what an axe brings
+    const all = HINT_IDS.filter((id) => sourcesAt(999, true).has(id)), mine = purse({ hints: all.filter((id) => id !== "torch") });
+    expect(all).toContain("torch");
+    const before = shelfOf(999).filter((id) => id !== "axe" && id !== "pick");
+    const db = (shelf: string[]) => database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }),
+      town_stall: () => ({ now: NOW, stall: { round: 3, sold: {} }, shelf, unlocked: 999, found: [], order: null }),
+    });
+    const old = new DbKeeper("me", db(before).ask), stopOld = old.look("stall");
+    await settle();
+    expect(old.hintPrice()).toBeNull();
+    stopOld(); old.close();
+    const now = new DbKeeper("me", db(shelfOf(999)).ask), stopNow = now.look("stall");
+    await settle();
+    expect(now.hintPrice()).toBe(HINT_PRICE[1]);
+    stopNow(); now.close();
+  });
+
   it("keeps the well's book and everybody's rank: asked for at the beginning and now and then, the book when it is looked at", async () => {
     const book = (more: Record<string, unknown> = {}) => ({ buckets: 12, rank: 0, towards: 0.24, gift: false, today: { buckets: 2, waterings: 5, plants: 3, people: 2, watered: 0, helped: 0 }, carriers: [], ...more });
     let poured = 12;

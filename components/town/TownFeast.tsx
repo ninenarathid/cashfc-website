@@ -144,6 +144,13 @@ export default function TownFeast({ th, phone, tabbar, me, pots, purse, now, mos
                       <TownIcon name={potIconOf(pot.dish) as IconName} size={34} />
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-ui font-semibold text-ink">{name(pot.dish)} <span className="font-data font-normal tabular-nums text-muted">×{pot.left}</span></p>
+                        {/* ── forging: old tools ── what this pot has from the cookware it was cooked in, for whoever eats out of it here: a state of the pot */}
+                        {(!!pot.scent || !!pot.warm) && (
+                          <p className="mt-0.5 flex flex-wrap gap-1 text-label text-gold" data-feast-marks>
+                            {!!pot.scent && <span className="rounded-full border border-line px-1.5 py-px font-data tabular-nums" data-feast-scent={pot.scent}>{th ? `หอมทั้งลาน · stamina +${pot.scent}` : `Fragrant · +${pot.scent} stamina`}</span>}
+                            {!!pot.warm && <span className="rounded-full border border-line px-1.5 py-px font-data tabular-nums" data-feast-warm={pot.warm}>{th ? `อุ่นนาน · บัฟ +${pot.warm} ชม.` : `Warm · buff +${pot.warm} h`}</span>}
+                          </p>
+                        )}
                         <p className="truncate text-meta text-muted">
                           <span className="font-semibold text-ink" data-feast-cook>{own ? (th ? "ฝีมือฉันเอง" : "Cooked by me") : pot.name ? (th ? `ฝีมือ ${pot.name}` : `Cooked by ${pot.name}`) : ""}</span>
                           {Number.isFinite(until) && <span className="font-data tabular-nums">{own || pot.name ? " · " : ""}{th ? `ถึง ${clockOf(until)} น.` : `until ${clockOf(until)}`}</span>}

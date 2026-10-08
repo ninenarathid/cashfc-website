@@ -1,10 +1,13 @@
+import { cookFx, luckOf } from "./forged";
+import { toolPaid } from "./forged-keep";
+import { usePower } from "./powers";
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
 import { harderFor, hasThing, numberOf, useGift, usesLeft, works, type GiftRefusal } from "./gifts";
 import { STAMINA, begun, hasBuff, mayEat, nextMealAt, sitDown, spend } from "./stamina";
 import type { TimingMods } from "./timing";
-import { held, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
+import { held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
  * Cooking and serving, as rules (the owner, 2026-10-03, and the bowls of 2026-10-04).
@@ -123,9 +126,16 @@ export const ODD: DishId = "oddDish";
 /** Whether a thing is cookware: something a dish, or anything else, is made in. */
 export const isCookware = (id: ItemId | null | undefined): id is Cookware => !!id && COOKWARE.has(id);
 /** The kinds of thing that are never put in: a tool, a scroll, a dish already. */
-export const NOT_PUT_IN = ["tool", "scroll", "dish", "bug"];
+export const NOT_PUT_IN = ["tool", "scroll", "dish", "bug",
+  // (woodcutting and mining, 2026-10-08: what a rock or a tree leaves. A pot of stones is only a way to lose them.)
+  "mineral", "wood"];
+/**
+ * (woodcutting and mining) The things that go in whatever their kind, and those that never do whatever theirs: fine
+ * timber is what a torch is made of, by hand; a torch is made, and is nothing to cook.
+ */
+export const PUT_IN: { also: ItemId[]; never: ItemId[] } = { also: ["timber"], never: ["torch"] };
 /** Whether a thing can be put in. */
-export const goesIn = (id: ItemId) => !NOT_PUT_IN.includes(ITEMS[id].kind);
+export const goesIn = (id: ItemId) => !PUT_IN.never.includes(id) && (PUT_IN.also.includes(id) || !NOT_PUT_IN.includes(ITEMS[id].kind));
 
 /** Things, tidied: each kind once with how many of it, kinds in order. */
 export function tidy(things: Array<[ItemId, number]>): Array<[ItemId, number]> {
@@ -280,16 +290,30 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
   // (the pot it comes in is the yard's: it takes a slot of the bag, and nothing else of the cook's)
   const pot = dish ? bag.findIndex((s) => !s) : -1;
   if (dish && pot < 0) return no("full");
-  let spent = spend(purse, COOKING.cost, now);
+  // ── forging: old tools ── (a pot begun with forged cookware in the hand: what its forging takes off the stamina, lib/town/forged-keep)
+  const tool = heldStack(purse), mine = tool && tool.item === crew[0] ? tool : null;
+  let spent = toolPaid(purse, spend(purse, COOKING.cost, now), now, mine, cookFx(mine), "ckFresh");
   // what is no recipe's has a taste; and a miss by a recipe's last thing alone is one more try at that recipe
   const near = made ? null : tasteOf(all, crew);
   if (near?.of && near.lacks && (near.taste === "swap" || near.taste === "less") && near.lacks === needsOf(near.of).at(-1)?.[0]) {
     spent = { ...spent, tries: { ...spent.tries, [near.of]: (spent.tries?.[near.of] ?? 0) + 1 } };
   }
   if (dish) {
+    // ── forging: old tools ── (a dish cooked in cookware that carries as much: so many helpings more, so many pots a day, counted by the option)
+    const big = made && cookFx(mine).big > 0 ? usePower(spent, mine, "ckBig", now) : null;
+    if (big?.ok) spent = big.purse;
     // (under the fountain's big pot, a helping more: lib/town/fountain)
-    const left = (made ? helpings(dish, crew, misses, purse.bag) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0);
-    return { ok: true, made: dish, n: left, ...(near ? { taste: near.taste } : {}), purse: { ...spent, bag: bag.map((s, i) => (i === pot ? { item: "potFull" as ItemId, n: 1, of: { dish, left } } : s)) } };
+    const left = (made ? helpings(dish, crew, misses, purse.bag) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0)
+      // ── forging: old tools ── (a pot cooked in cookware that carries as much has a helping more, so often)
+      + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0) + (big?.ok ? cookFx(mine).big : 0);
+    // ── forging: old tools ── (a dish cooked in cookware whose pots are for the table: whoever eats out of this one at the feast table has
+    // so many hours more of its buff, or so much more stamina; so many pots a day, each counted by its option)
+    const warm = made && cookFx(mine).warm > 0 ? usePower(spent, mine, "ckWarm", now) : null;
+    if (warm?.ok) spent = warm.purse;
+    const scent = made && cookFx(mine).scent > 0 ? usePower(spent, mine, "ckScent", now) : null;
+    if (scent?.ok) spent = scent.purse;
+    const marks = potMarks({ warm: warm?.ok ? cookFx(mine).warm : 0, scent: scent?.ok ? cookFx(mine).scent : 0 });
+    return { ok: true, made: dish, n: left, ...(near ? { taste: near.taste } : {}), purse: { ...spent, bag: bag.map((s, i) => (i === pot ? { item: "potFull" as ItemId, n: 1, of: { dish, left }, ...marks } : s)) } };
   }
   // put together with bare hands, things that make nothing are lost
   if (!made) return { ok: true, made: null, n: 0, taste: near!.taste, purse: { ...spent, bag: roomFor(bag, "compost") > 0 ? put(bag, "compost", 1) : bag } };
@@ -305,7 +329,15 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
  * table (`feast`; `at` is then the tile a page from before is to take it to stand on), and what its cook is called.
  * One told by a keeper from before the table has no `set`, and stands where it was set until it is empty.
  */
-export interface Pot { id: string; by: string; dish: DishId; left: number; at: [number, number]; tok?: boolean; set?: number; feast?: boolean; name?: string }
+export interface Pot {
+  id: string; by: string; dish: DishId; left: number; at: [number, number]; tok?: boolean; set?: number; feast?: boolean; name?: string;
+  // ── forging: old tools ── (what the cookware it was cooked in gave it: a helping eaten out of it at the feast table has so many hours more of its buff, so much more stamina)
+  warm?: number; scent?: number;
+}
+// ── forging: old tools ──
+/** What a pot of food carries from its cookware, as it is kept on a pot and on a slot of the bag alike: nothing kept that says nothing. */
+const potMarks = (from: { warm?: number; scent?: number }): { warm?: number; scent?: number } =>
+  ({ ...(typeof from.warm === "number" && from.warm > 0 ? { warm: from.warm } : {}), ...(typeof from.scent === "number" && from.scent > 0 ? { scent: from.scent } : {}) });
 /** How near one has to stand to a pot on the ground to ladle from it. */
 export const reachOf = (pot: Pot) => (pot.tok ? COOKING.tok : COOKING.reach);
 /** Whether somebody standing on a tile reaches a pot: beside it, for one on the ground; anywhere on the yard's floor (`yard`: whether their tile is of it), for one on the feast table. */
@@ -359,8 +391,8 @@ export function setDown(purse: Purse, slot: number, me: string, at: [number, num
   const s = purse.bag[slot];
   if (!s || s.item !== "potFull" || !s.of) return no("none");
   const tok = held(purse.bag, "tok") > 0, feast = !!how?.yard && s.of.dish !== ODD;
-  const pot: Pot = feast ? { id, by: me, dish: s.of.dish, left: s.of.left, at: how!.tile, feast: true, set: how!.now }
-    : { id, by: me, dish: s.of.dish, left: s.of.left, at, ...(tok ? { tok } : {}), ...(how ? { set: how.now } : {}) };
+  const pot: Pot = feast ? { id, by: me, dish: s.of.dish, left: s.of.left, at: how!.tile, feast: true, set: how!.now, ...potMarks(s) }
+    : { id, by: me, dish: s.of.dish, left: s.of.left, at, ...(tok ? { tok } : {}), ...(how ? { set: how.now } : {}), ...potMarks(s) };
   return { ok: true, pot, purse: { ...purse, bag: purse.bag.map((b, i) => (i === slot ? null : b)) } };
 }
 /**
@@ -374,7 +406,8 @@ export function feastEat(purse: Purse, pot: Pot, seated: boolean, now: number, m
   if (!seated) return no("stand");
   if (!mayEat(purse, now, most)) return no("meal");
   const meal = begun(purse, pot.dish, now);
-  return { ok: true, dish: pot.dish, pot: pot.left > 1 ? { ...pot, left: pot.left - 1 } : null, purse: { ...purse, ...meal, eating: { ...meal.eating!, lent: true } } };
+  // ── forging: old tools ── (and what the pot carries from its cookware goes with the helping: lib/town/stamina's chew gives it)
+  return { ok: true, dish: pot.dish, pot: pot.left > 1 ? { ...pot, left: pot.left - 1 } : null, purse: { ...purse, ...meal, eating: { ...meal.eating!, lent: true, ...potMarks(pot) } } };
 }
 /**
  * Ladle a helping out of a pot that is set down, into a bowl of one's own: the bowl leaves the bag, and the helping
@@ -394,7 +427,7 @@ export function takeUp(purse: Purse, pot: Pot, me: string): Done<{ purse: Purse 
   if (!mayTake(pot, me) || pot.left < 1) return no("none");
   const slot = purse.bag.findIndex((s) => !s);
   if (slot < 0) return no("full");
-  const stack: Stack = { item: "potFull", n: 1, of: { dish: pot.dish, left: pot.left } };
+  const stack: Stack = { item: "potFull", n: 1, of: { dish: pot.dish, left: pot.left }, ...potMarks(pot) };
   return { ok: true, purse: { ...purse, bag: purse.bag.map((b, i) => (i === slot ? stack : b)) } };
 }
 /** Ladle a helping out of the pot of food in a slot of one's own bag, into a bowl. Its last helping out, the pot is gone. */

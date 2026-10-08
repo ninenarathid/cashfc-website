@@ -28,7 +28,9 @@ export type ItemKind =
   | "bug"     // an insect, caught with a net (lib/town/insects)
   | "goods"   // things made from other things
   | "dish"
-  | "scroll"; // a recipe written out, to be read
+  | "scroll"  // a recipe written out, to be read
+  | "wood"    // what a felled tree leaves (lib/town/tools)
+  | "mineral"; // what a broken rock leaves, and what is smelted of it (lib/town/tools)
 
 export interface Item {
   kind: ItemKind;
@@ -602,6 +604,40 @@ export const ITEMS = {
   scrollNaan: it("scroll", "ม้วนสูตร นาน", "Recipe scroll: naan", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 35, 3),
   scrollBiryani: it("scroll", "ม้วนสูตร ข้าวหมกบริยานี", "Recipe scroll: biryani", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 35, 3),
   scrollLassi: it("scroll", "ม้วนสูตร มะม่วงลาสซี่", "Recipe scroll: mango lassi", "กระดาษม้วนผูกเชือกแดง มีตัวหนังสือเขียนอยู่ข้างใน", "A roll of paper tied with red string. Something is written inside.", 1, 35, 3),
+
+  // ── woodcutting and mining (2026-10-08): twenty-eight things, all of the early game ──
+  // Two tools from the uncle's first shelf; what a tree and a rock leave; what is dug out in fragments and what the
+  // fragments become; and a light to carry down. The uncle's relatives take none of it but the two tools (the owner:
+  // wood, ore and gems change hands between members, or go into tools). What each is for is lib/town/tools' and the
+  // lines' own: nothing says so here.
+  pick: it("tool", "อีเต้อ", "Pickaxe", "ด้ามไม้สั้นแข็งแรง หัวเหล็กโค้ง ปลายแหลมทั้งสองข้าง", "A short, sturdy wooden haft with a curved iron head, pointed at both ends", 1, 25),
+  axe: it("tool", "ขวาน", "Axe", "ด้ามไม้โค้งเล็กน้อย หัวเหล็กหนา คมด้านเดียว", "A slightly curved wooden haft with a thick iron head, sharp along one edge", 1, 25),
+  stone: it("mineral", "หิน", "Stone", "ก้อนหินสีเทา เหลี่ยมคม หนักมือ", "A grey lump of rock with sharp corners, heavy in the hand", 50, 0),
+  log: it("wood", "ท่อนไม้", "Log", "ท่อนไม้กลมสั้น เปลือกหยาบสีน้ำตาล เห็นวงปีที่หน้าตัด", "A short round length of wood in rough brown bark, its rings showing at the cut end", 50, 0),
+  timber: it("wood", "ไม้เนื้อดี", "Fine timber", "ไม้ผ่าเหลี่ยมสีน้ำผึ้ง ลายตรงเรียบ กลิ่นหอมอ่อนๆ", "A squared, honey-coloured length of wood with a straight, even grain and a faint sweet smell", 50, 0),
+  shardCopper: it("mineral", "เศษแร่ทองแดง", "Copper ore fragment", "เศษหินก้อนเล็ก มีสายสีส้มแดงวาวแทรกอยู่", "A small chip of rock veined with shiny orange-red", 99, 0),
+  shardIron: it("mineral", "เศษแร่เหล็ก", "Iron ore fragment", "เศษหินสีเทาเข้ม หนักกว่าที่เห็น มีคราบสีน้ำตาลแดงเกาะ", "A dark grey chip of rock, heavier than it looks, stained red-brown", 99, 0),
+  shardSilver: it("mineral", "เศษแร่เงิน", "Silver ore fragment", "เศษหินสีซีด มีเกล็ดสีขาวเงินระยิบ", "A pale chip of rock flecked with glittering silver-white", 99, 0),
+  oreCopper: it("mineral", "แร่ทองแดง", "Copper ore", "ก้อนใหญ่สีส้มแดงวาว เนื้อแน่น หนัก", "A large, dense lump that shines orange-red", 20, 0),
+  oreIron: it("mineral", "แร่เหล็ก", "Iron ore", "ก้อนใหญ่สีเทาเข้มอมน้ำเงิน เนื้อแน่น หนักมาก", "A large, dense lump of blue-grey, very heavy", 20, 0),
+  oreSilver: it("mineral", "แร่เงิน", "Silver ore", "ก้อนใหญ่สีขาวเงิน วาวเหมือนกระจก", "A large lump of silver-white, bright as a mirror", 20, 0),
+  chipRuby: it("mineral", "เศษทับทิม", "Ruby fragment", "เศษผลึกสีแดงเข้ม เล็กเท่าเมล็ดข้าว ขอบคม", "A splinter of deep red crystal no bigger than a grain of rice, sharp-edged", 99, 0),
+  chipSapphire: it("mineral", "เศษไพลิน", "Sapphire fragment", "เศษผลึกสีน้ำเงินเข้ม ขุ่น ขอบคม", "A splinter of deep blue crystal, cloudy and sharp-edged", 99, 0),
+  chipAquamarine: it("mineral", "เศษอะความารีน", "Aquamarine fragment", "เศษผลึกสีฟ้าอ่อนใส จับแล้วเย็น", "A splinter of clear, pale blue crystal, cool to the touch", 99, 0),
+  chipAmber: it("mineral", "เศษอำพันทอง", "Golden amber fragment", "เศษสีน้ำผึ้งเข้ม ทึบ มีริ้วสีน้ำตาลเป็นชั้น", "A chip of deep, cloudy honey-gold, banded with brown", 99, 0),
+  chipTopaz: it("mineral", "เศษบุษราคัม", "Topaz fragment", "เศษผลึกสีเหลืองสด ใส แตกเป็นแฉก", "A jagged splinter of bright, clear yellow crystal", 99, 0),
+  chipEmerald: it("mineral", "เศษมรกต", "Emerald fragment", "เศษผลึกสีเขียวสด มีรอยร้าวอยู่ข้างใน", "A splinter of vivid green crystal, flawed within", 99, 0),
+  chipDiamond: it("mineral", "เศษเพชร", "Diamond fragment", "เศษผลึกใสไร้สี เล่นแสงเป็นสีรุ้ง", "A colourless splinter of crystal that throws the light back in rainbows", 99, 0),
+  chipOnyx: it("mineral", "เศษนิล", "Onyx fragment", "เศษหินสีดำสนิท ผิวมันเหมือนแก้ว", "A chip of jet-black stone, glossy as glass", 99, 0),
+  gemRuby: it("mineral", "ทับทิม", "Ruby", "พลอยสีแดงเข้ม เจียระไนเหลี่ยม ข้างในวาวเหมือนถ่านติดไฟ", "A faceted, deep red stone that glows within like a live coal", 20, 0),
+  gemSapphire: it("mineral", "ไพลิน", "Sapphire", "พลอยสีน้ำเงินเข้ม เจียระไนมน มองข้างในเหมือนน้ำลึก", "A deep blue stone cut round, like deep water to look into", 20, 0),
+  gemAquamarine: it("mineral", "อะความารีน", "Aquamarine", "พลอยสีฟ้าอ่อนใส เจียระไนเหลี่ยม จับแล้วเย็นเฉียบ", "A clear, pale blue faceted stone, ice-cold to hold", 20, 0),
+  gemAmber: it("mineral", "อำพันทอง", "Golden amber", "พลอยสีน้ำผึ้งเข้ม ขัดมน หนักกว่าที่เห็น", "A deep honey-gold stone polished smooth, heavier than it looks", 20, 0),
+  gemTopaz: it("mineral", "บุษราคัม", "Topaz", "พลอยสีเหลืองสด เจียระไนปลายแหลม มีประกายแปลบปลาบอยู่ข้างใน", "A bright yellow stone cut to sharp points, with a flickering spark inside it", 20, 0),
+  gemEmerald: it("mineral", "มรกต", "Emerald", "พลอยสีเขียวสด เจียระไนเหลี่ยม เบาจนแทบไม่รู้สึก", "A vivid green faceted stone, so light it is hardly felt", 20, 0),
+  gemDiamond: it("mineral", "เพชร", "Diamond", "พลอยใสไร้สี เจียระไนหลายเหลี่ยม สว่างจ้าแม้อยู่ในร่ม", "A colourless, many-faceted stone, bright even in the shade", 20, 0),
+  gemOnyx: it("mineral", "นิล", "Onyx", "พลอยสีดำสนิท ขัดมน เหมือนดูดแสงรอบตัวเข้าไป", "A jet-black stone polished smooth, that seems to drink the light about it", 20, 0),
+  torch: it("goods", "คบไฟ", "Torch", "ท่อนไม้ ปลายพันผ้าชุบยางไม้", "A length of wood with a resin-soaked rag bound round its end", 10, 0),
 } satisfies Record<string, Item>;
 
 export type ItemId = keyof typeof ITEMS;
@@ -1199,6 +1235,8 @@ export const MAKES: Partial<Record<ItemId, Make>> = {
   lavenderSachet: { needs: [["vine", 1], ["lavender", 3]], in: [], gives: 2 },
   // (and a net for insects, for whoever would sooner walk to the forest than pay the uncle for one)
   bugNet: { needs: [["bambooCane", 1], ["vine", 2]], in: [], gives: 1 },
+  // (woodcutting and mining, 2026-10-08: a light, of a felled tree's finer wood and the forest's resin, by hand)
+  torch: { needs: [["timber", 1], ["resin", 1]], in: [], gives: 2 },
   // the second tier
   driedFish: { needs: [["barb", 2], ["salt", 1]], in: ["grill"], gives: 2 },
   saltedFish: { needs: [["tilapia", 1], ["salt", 3]], in: ["jar"], gives: 2 },
@@ -1226,4 +1264,6 @@ export const MAKE_IDS = Object.keys(MAKES) as ItemId[];
 export const LATER_MADE: ItemId[] = ["fishChips", "ukha", "thieboudienne", "piranhaSoup", "crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast", "hookScale", "floatGlow", "bowl",
   // (and what is made of the forest's things, which came the same day)
   "mushroomSoup", "mushroomSkewer", "fishOnStick", "roastYam", "roastedApple", "mushroomRisotto", "fernSalad", "herbTea", "berryCompote", "bakedApple", "roastChestnut", "forestStew", "bambooShootStir", "rosemaryFish", "ginsengSoup", "moonTea", "truffleEggs", "mushroomOmelette",
-  "skewer", "floatFeather", "lineSpun", "mulch", "lavenderSachet", "bugNet"];
+  "skewer", "floatFeather", "lineSpun", "mulch", "lavenderSachet", "bugNet",
+  // (and the torch, 2026-10-08)
+  "torch"];

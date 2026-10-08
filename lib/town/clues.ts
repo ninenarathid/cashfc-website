@@ -48,6 +48,8 @@ export const KIND_WORD: Record<ItemKind, Line> = {
   goods: { th: "ของแปรรูปสักอย่าง", en: "something that is made" },
   dish: { th: "อาหารสักอย่าง", en: "some dish" },
   scroll: { th: "ม้วนกระดาษสักม้วน", en: "some scroll" },
+  wood: { th: "ไม้สักอย่าง", en: "some wood" },
+  mineral: { th: "หินหรือแร่สักอย่าง", en: "some stone or ore" },
 };
 
 const line = (th: string, en: string): Line => ({ th, en });

@@ -45,6 +45,21 @@ import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGif
 // ── gifts: helpers ──
 import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
+// ── forging ──
+import { FORGE, toolKindOf, type OptionId, type ToolKind } from "./tools";
+import { beside, mayTwice } from "./farm";
+import { canFx, netFx } from "./forged";
+import { usePower } from "./powers";
+import { heldStack as toolInHand } from "./trade";
+import {
+  bellows, bellowsLeft, choose as chooseOption, collect as collectSmelted, draw as drawOptions, forgeTry, markFound, markTop, newBoard, newSmithy, redraw as redrawOption, setGem, smelt, smithView, soundSmithy, widen,
+  type Did as SmithDid, type Outcome as ForgeOutcome, type SmithBoard, type Smithy,
+} from "./forge";
+/** What each tester has at the smith (lib/town/forge), the village's board there, and every try that was made: the whole browser's. */
+const smithKey = (id: string) => `cashtown.trial.smith.1.${id}`;
+const SMITH_BOARD = "cashtown.trial.smith.board.1", SMITH_LOG = "cashtown.trial.smith.log.1";
+/** A try as it is written down: who, at which tool, from which level for which, and how it went. */
+export interface TryLogged { by: string; name: string; item: ToolKind; from: number; to: number; out: ForgeOutcome; level: number; at: number }
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -437,10 +452,11 @@ export class Trial {
   /** What the thing in my hand can do to a plot now, if anything. */
   deedAt(key: string): Deed | null {
     const [x, y] = key.split(",").map(Number);
-    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky());
+    // (forging: a can that waters twice in an hour is offered a plant that is wet from one watering)
+    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky(), mayTwice(this.purse(), this.now()));
   }
   /** Do to a plot what the thing in my hand does: clear it, till it, dig its plant out (a living one only when it is `sure`), sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
-  farmDo(key: string, name = "", sure = false): { ok: true; deed: Deed; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+  farmDo(key: string, name = "", sure = false): { ok: true; deed: Deed; got: Array<[ItemId, number]>; also?: string[] } | { ok: false; why: Refusal | FarmRefusal } {
     // (somebody is at the farm: its hour is counted, if it has not been)
     this.swarmNote();
     const p = this.purse(), now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, beds = this.beds();
@@ -451,6 +467,10 @@ export class Trial {
     const next = { ...plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
     if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed));
+    // ── forging: old tools ── (what the deed did to the plots beside it, with lightning in the tool or a can that rains: lib/town/farm's beside.
+    // Each is kept as the one done was kept, and none of them is counted on a line: they are the tool's doing.)
+    const more = beside(key, this.rowKeys(key), plots, did.deed, p, did.purse, this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
+    for (const [k, beside2] of Object.entries(more.plots)) next[k] = did.deed === "water" && plots[k] ? this.poured(plots[k], beside2, now, 1, this.bellWorn(bed)) : beside2;
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -460,15 +480,19 @@ export class Trial {
     if (did.deed === "sow") this.wellSeen({ by: this.id, at: now, what: "sow", tile: [x, y] });
     // (a plant watered is a line of the well's book: with which can, and whose plant when not my own)
     if (did.deed === "water") this.wellSeen({ by: this.id, at: now, what: "water", can: handOf(p) ?? undefined, tile: [x, y], ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}) });
-    this.save(did.purse);
+    this.save(more.purse);
     // ── gifts: helpers ── (a friend watered in this bed a moment ago: the duet bell, lib/town/helping)
     if (did.deed === "water") this.bell(bed, [key], name);
     // (and it counts on a line, if it is one that does: help in somebody else's bed, a picking of one's own plant)
+    // (forging: `kind`, somebody else's plant watered with a can of kind hands: so many points more, lib/town/line-points)
+    const kind = did.deed === "water" && plot.plant && plot.plant.by !== this.id ? canFx(toolInHand(p)).kind : 0;
     this.counted({ from: "deed", what: did.deed, thing: plot.plant?.crop ?? null, n: 1, doc: {
       ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}),
       ...(!plot.plant && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}),
+      ...(kind > 0 ? { kind } : {}),
     } });
-    return { ok: true, deed: did.deed, got: did.got };
+    const also = Object.keys(more.plots);
+    return { ok: true, deed: did.deed, got: did.got, ...(also.length ? { also } : {}) };
   }
   // ── gifts: farming ──
   /** The plots of the row of its bed a plot is in, by their keys. */
@@ -821,7 +845,8 @@ export class Trial {
       // been caught where the rolls had none, and nothing comes back to such a haunt)
       let back: Comeback | null = null;
       for (let i = 0; i < 12 && !back; i++) {
-        const b = comeback(this.salt(), h, now, SKIES.rains(), backs, [Math.random(), Math.random(), Math.random()], hunts);
+        // (forging: with a net that carries as much, the one that comes back is of the rare kinds so many times as often)
+        const b = comeback(this.salt(), h, now, SKIES.rains(), backs, [Math.random(), Math.random(), Math.random()], hunts, netFx(toolInHand(this.purse())).rare);
         if (!b) break;
         if (!took[`${b.haunt}:${b.turn}`]?.length) back = b;
       }
@@ -1379,6 +1404,67 @@ export class Trial {
     this.save({ ...p, coins: p.coins + coins, bag: put(p.bag, item, Math.min(n, roomFor(p.bag, item))) });
   }
 
+  /* ── forging: the smith (lib/town/forge). What each tester has there is kept by tester; the board and the log are the browser's. ── */
+  private smithLuck: number[] | null = null;
+  /** For scripts trying things out: the numbers of chance the next tries and draws are read from, each used once and the last for good (in this tab; null: by chance). */
+  setSmithLuck(luck: number[] | null) { this.smithLuck = luck && luck.length ? [...luck] : null; }
+  private smithChance(): number { const l = this.smithLuck; return l ? (l.length > 1 ? l.shift()! : l[0]) : Math.random(); }
+  smithy(): Smithy { return soundSmithy(this.read<unknown>(smithKey(this.id), newSmithy, (v) => !!v && typeof v === "object")); }
+  smithBoard(): SmithBoard {
+    const b = this.read<Partial<SmithBoard>>(SMITH_BOARD, newBoard, (v) => !!v && typeof v === "object" && !Array.isArray(v));
+    return { tops: b.tops ?? {}, found: b.found ?? {} };
+  }
+  /** Every try made in this browser, the newest last: the failed ones too. */
+  smithLog(): TryLogged[] { return this.read<TryLogged[]>(SMITH_LOG, () => [], Array.isArray); }
+  smith() { return { smithy: this.smithy(), board: this.smithBoard() }; }
+  /** Keep what a deed at the smith gave back: my purse and what I have there, whichever it changed. */
+  private smithKeep<T extends { ok: boolean; purse?: Purse; smithy?: Smithy }>(did: T): T {
+    if (did.ok) {
+      if (did.smithy) this.write(smithKey(this.id), did.smithy);
+      if (did.purse) this.write(purseKey(this.id), did.purse);
+      this.tell();
+    }
+    return did;
+  }
+  smithSmelt(piece: ItemId, n: number) { return this.smithKeep(smelt(this.purse(), this.smithy(), piece, n, this.now())); }
+  smithTake() { return this.smithKeep(collectSmelted(this.purse(), this.smithy(), this.now())); }
+  smithWiden() { return this.smithKeep(widen(this.purse(), this.smithy())); }
+  /** Who of these testers has a piece smelting now, and how many presses of the bellows that piece may still take. */
+  smithNear(ids: string[]) {
+    const now = this.now();
+    return ids.filter((id) => id !== this.id).flatMap((id) => {
+      const theirs = trialFor(id).smithy(), piece = smithView(theirs, now).now;
+      return piece ? [{ id, piece, left: bellowsLeft(theirs, now) }] : [];
+    });
+  }
+  smithBellows(whose: string): SmithDid<{ off: number }> {
+    const did = bellows(trialFor(whose).smithy(), whose, this.id, this.now());
+    if (!did.ok) return did;
+    this.write(smithKey(whose), did.smithy);
+    this.counted({ from: "deed", what: "bellows", thing: null, n: 1, doc: { whose } });
+    this.tell();
+    return { ok: true, off: did.off };
+  }
+  smithTry(slot: number, name: string) {
+    const did = this.smithKeep(forgeTry(this.purse(), this.smithy(), slot, this.smithChance(), name));
+    if (did.ok) {
+      // (every try is written down, whatever came of it; and the first of a kind at the top goes on the board)
+      const now = this.now();
+      this.write(SMITH_LOG, [...this.smithLog(), { by: this.id, name, item: did.item, from: did.from, to: did.from + 1, out: did.out, level: did.level, at: now }].slice(-500));
+      if (did.level >= FORGE.top) this.write(SMITH_BOARD, markTop(this.smithBoard(), did.item, { id: this.id, name }, now));
+      this.tell();
+    }
+    return did;
+  }
+  smithDraw(slot: number) { return this.smithKeep(drawOptions(this.purse(), this.smithy(), slot, this.smithChance(), this.smithChance())); }
+  smithChoose(slot: number, pick: string, name: string) {
+    const did = this.smithKeep(chooseOption(this.purse(), this.smithy(), slot, pick));
+    if (did.ok) { this.write(SMITH_BOARD, markFound(this.smithBoard(), did.opt as OptionId, { id: this.id, name }, this.now())); this.tell(); }
+    return did;
+  }
+  smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithKeep(redrawOption(this.purse(), this.smithy(), slot, at, gem, this.smithChance(), this.smithChance())); }
+  smithGem(slot: number, gem: ItemId) { return this.smithKeep(setGem(this.purse(), slot, gem)); }
+
   /* ── for the test window (TownTest), which is the owner's way to look at everything and try anything ── */
   /** So much stamina left today: none, to try how much harder everything is without it. */
   setStamina(left: number) {
@@ -1388,6 +1474,34 @@ export class Trial {
   setUsed(id: GiftId, n: number) {
     const p = this.purse(), mine = giftsOf(p), rule = USES[id];
     if (rule) this.save({ ...p, gifts: { ...mine, used: { ...mine.used, [id]: { k: stretchOf(rule, this.now()), n: Math.max(0, Math.floor(n)) } } } });
+  }
+  /**
+   * (forging) Use a counted option of the tool in my hand once (lib/town/powers): what its game does with it is the
+   * page's to show (an insect held still, a net that sweeps); that it is counted, so many a day, is kept here.
+   */
+  toolPower(id: OptionId): { ok: true; left: number } | { ok: false; why: Refusal } {
+    const p = this.purse(), used = usePower(p, toolInHand(p), id, this.now());
+    if (!used.ok) return no("none");
+    this.save(used.purse);
+    return { ok: true, left: used.left };
+  }
+  /** (forging) The tool in a slot as if it had been forged: its plus, its options in the order of their milestones, its gems by their elements. To try what each does without the smith. */
+  setTool(slot: number, plus: number, opts: string[] = [], gems: string[] = []): boolean {
+    const p = this.purse(), s = p.bag[slot];
+    if (!s || !toolKindOf(s.item)) return false;
+    const { plus: _p, opts: _o, gems: _g, makers: _m, ...bare } = s;
+    this.save({ ...p, bag: p.bag.map((b, i) => (i !== slot ? b : { ...bare, ...(plus > 0 ? { plus: Math.min(FORGE.top, Math.floor(plus)) } : {}), ...(opts.length ? { opts: [...opts] } : {}), ...(gems.length ? { gems: [...gems] } : {}) })) });
+    return true;
+  }
+  /** (forging) What trying the smith out takes, all at once: a bag of twenty slots, coins, fine timber, fragments, ore and a few gems. */
+  grantSmith() {
+    if (this.purse().bag.length < 20) this.resize(20);
+    const p = this.purse();
+    let bag = p.bag;
+    for (const [id, n] of [["timber", 50], ["shardCopper", 60], ["shardIron", 40], ["oreCopper", 6], ["oreIron", 10], ["oreSilver", 20], ["chipRuby", 20], ["gemRuby", 2], ["gemSapphire", 2], ["gemEmerald", 2]] as Array<[ItemId, number]>) {
+      bag = put(bag, id, Math.min(n, roomFor(bag, id)));
+    }
+    this.save({ ...p, coins: p.coins + 20_000, bag });
   }
   /** A bag of so many slots. One that is growing keeps everything; one that is shrinking keeps what fits in front, and says no when a slot to go is full. */
   resize(slots: number): boolean {
@@ -1423,6 +1537,8 @@ export class Trial {
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
     for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE]) this.set(key, null);
+    // ── forging ──
+    for (const key of [smithKey(this.id), SMITH_BOARD, SMITH_LOG]) this.set(key, null);
     this.tell();
   }
 }

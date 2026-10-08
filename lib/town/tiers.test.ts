@@ -26,7 +26,9 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (and the insects, the same day: a net and twenty-two of them; the cricket was there, and the grasshopper is of
     // the second tier, as the cricket it goes on a hook for is)
     // (and the two yokes the well gives whoever carries water to it, 2026-10-05; and the cart it has between them)
-    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8 + 35 + 5 + 16 + 16 + 1 + 22 + 2 + 1);
+    // (and woodcutting and mining, 2026-10-08: a pick and an axe, stone, two woods, three ores in fragments and
+    // smelted, eight gems in fragments and cut, and a torch: twenty-eight)
+    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8 + 35 + 5 + 16 + 16 + 1 + 22 + 2 + 1 + 28);
     expect(ITEM_IDS.filter((id) => ITEMS[id].kind === "bug").length).toBe(23);
     expect(by(1).filter((id) => ITEMS[id].kind === "wild").length).toBe(35);
     // the later tiers were twice what the early game was when he asked, seventy-two each; then came the dishes of five

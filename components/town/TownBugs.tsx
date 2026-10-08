@@ -2,16 +2,18 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  BUGS, FLUTE, HABITS, HAUNTS, LURED, LURES, NET, PAIR, aimAt, aimOf, againMs, asleep, bugTurnStart, fledBy, followerPose, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
+  BUGS, FLUTE, HABITS, HAUNTS, LURED, LURES, NET, PAIR, aimAt, aimOf, againMs, asleep, bugTurn, bugTurnStart, fledBy, followerPose, lulled, luredHaunt, mayNet, missed, newMind, poseOf, ringOf, stealthOf, swingMs, taken, think, windy,
   type BugId, type BugSight, type Haunt, type Lured, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { ridWords } from "@/lib/town/farm";
+import { missesWith, netFx, partOf, slowPartOf } from "@/lib/town/forged";
+import { powerLeft } from "@/lib/town/powers";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import { GIFTS, USES, familiarOf, harderFor, hasThing, numberOf, usesLeft, wearing } from "@/lib/town/gifts";
 import { isSpent } from "@/lib/town/stamina";
-import { handOf } from "@/lib/town/trade";
+import { handOf, heldStack } from "@/lib/town/trade";
 import { TILE_H, placeOf, type Vec } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -146,15 +148,41 @@ function rising(from: Pose, to: Pose, t: number): Pose {
   const e = t * t * (3 - 2 * t), gx = from.x - from.lift + (to.x - to.lift - (from.x - from.lift)) * e, gy = from.y - from.lift + (to.y - to.lift - (from.y - from.lift)) * e, lift = to.lift * e;
   return { ...to, x: gx + lift, y: gy + lift, lift };
 }
+// ── forging: old tools ──
+/** How long an insect held still by a net takes to be itself again when it is let go, in milliseconds; how near where a swing is aimed the insect it holds has to be, in tiles. */
+const HELD = { thaw: 350, near: 1.3 };
+/** An insect let go by the net that held it: from where it was held to where it would be, `t` of the way (0 to 1), in the air as it was. */
+function eased(from: Pose, to: Pose, t: number): Pose {
+  const e = Math.min(1, Math.max(0, t)), k = e * e * (3 - 2 * e);
+  return { ...to, x: from.x + (to.x - from.x) * k, y: from.y + (to.y - from.y) * k, lift: from.lift + (to.lift - from.lift) * k };
+}
+/** An insect held still by the net that is coming down on it: a ring of frost about it, running down with the time it has left (`left`: 1 to 0), and four specks of ice. */
+function drawHeld(ctx: CanvasRenderingContext2D, x: number, y: number, s: number, left: number, now: number, still: boolean) {
+  const cy = y - 6 * s, d = Math.max(2, Math.round(1.8 * s));
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineWidth = Math.max(2, 2 * s); ctx.strokeStyle = "rgba(18,40,66,0.55)";
+  ctx.beginPath(); ctx.arc(x, cy, 12 * s, 0, Math.PI * 2); ctx.stroke();
+  ctx.strokeStyle = "rgba(190,236,255,0.95)";
+  ctx.beginPath(); ctx.arc(x, cy, 12 * s, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * Math.max(0, Math.min(1, left))); ctx.stroke();
+  for (let i = 0; i < 4; i++) {
+    const a = (i * Math.PI) / 2 + Math.PI / 4, blink = still ? 1 : 0.6 + 0.4 * Math.sin(now / 170 + i * 1.9);
+    const px = Math.round(x + Math.cos(a) * 15 * s), py = Math.round(cy + Math.sin(a) * 15 * s);
+    ctx.fillStyle = `rgba(226,246,255,${blink.toFixed(3)})`;
+    ctx.fillRect(px - d, py, 3 * d, d);
+    ctx.fillRect(px, py - d, d, 3 * d);
+  }
+  ctx.restore();
+}
 /** A ring of the ground about a point of the screen, so many tiles across its half: half as high as it is wide, as the map's tiles are. */
 const groundRing = (ctx: CanvasRenderingContext2D, c: Vec, tiles: number, s: number) => { ctx.beginPath(); ctx.ellipse(c.x, c.y, tiles * 45 * s, tiles * 22.5 * s, 0, 0, Math.PI * 2); };
 /** The wind net held over where it is aimed: how far it reaches about me, faintly, and the gust turning over its ring. */
-function drawAim(ctx: CanvasRenderingContext2D, me: Vec, c: Vec, r: number, s: number, now: number, still: boolean) {
+function drawAim(ctx: CanvasRenderingContext2D, me: Vec, c: Vec, r: number, s: number, now: number, still: boolean, reach = NET.reach) {
   ctx.save();
   ctx.lineWidth = Math.max(1, s);
   ctx.setLineDash([5 * s, 6 * s]);
   ctx.strokeStyle = "rgba(205,238,255,0.4)";
-  groundRing(ctx, me, NET.reach, s); ctx.stroke();
+  groundRing(ctx, me, reach, s); ctx.stroke();
   ctx.setLineDash([]);
   ctx.fillStyle = "rgba(205,238,255,0.14)"; ctx.strokeStyle = "rgba(225,246,255,0.95)"; ctx.lineWidth = Math.max(1.5, 1.6 * s);
   groundRing(ctx, c, r, s); ctx.fill(); ctx.stroke();
@@ -290,8 +318,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     const t = setTimeout(() => setTick((n) => n + 1), fluteWait + 80);
     return () => clearTimeout(t);
   }, [fluteWait]);
-  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id });
-  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id };
+  // ── forging: old tools ── (what the net in my hand carries of its own, as the catching reads it: lib/town/forged. A plain net: nothing.)
+  const fx = netFx(mayNet(hand) ? heldStack(purse, keeper.handSlot()) : null);
+  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id, fx });
+  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id, fx };
   useEffect(() => {
     if (!luredUntil) return;
     // (it is off again at its time: said once, where I had not caught it; and the belt is looked at afresh)
@@ -309,6 +339,13 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const poses = useRef(new Map<number, { sight: BugSight; pose: Pose; h: Haunt; on: boolean }>());
   /** The insects asleep to my flute on this screen: each where it fell asleep, until when, and which insect it is (by its turn); and when the flute was last played. */
   const sleeping = useRef(new Map<number, { turn: number; until: number; pose: Pose }>()), played = useRef(0);
+  // ── forging: old tools ── (what the net in my hand does on this screen alone, as the flute's sleep is this screen's:
+  // `frozen`, the insects a swing of mine holds still: each where it was, from when until when, and which insect it is;
+  // `nests`, the haunts I have emptied with a net that knows them: they say when another may come there;
+  // `slow`, the insects' own clock: with ice in the net it runs slower than the wall's, and this is how far behind it has fallen, and when that was last reckoned)
+  const frozen = useRef(new Map<number, { turn: number; from: number; until: number; pose: Pose }>());
+  const nests = useRef(new Set<number>());
+  const slow = useRef({ at: 0, lag: 0 });
   const me = useRef<Vec | null>(null), about = useRef<Array<Person & { id: string }>>([]);
   /** When each singer was last heard. */
   const sang = useRef(new Map<number, number>());
@@ -343,15 +380,20 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     const land = (s: Swing, now: number) => {
       const here = me.current, tile: [number, number] | null = here ? [Math.floor(here.x), Math.floor(here.y)] : null;
       let got = false;
+      // ── forging: old tools ── (a sweeping net: where two insects or more that a net could take are within its reach of where it
+      // lands, it takes every one of them, so many a day. Whoever keeps the game counts it; each insect is caught, and paid for, as any is.)
+      const l = live.current, sweep = l.fx.wide > 0 && !!tile && powerLeft(keeper.purse(), "ntWide", keeper.now()) > 0
+        && [...poses.current.values()].filter(({ pose }) => pose.open && far(aimOf(pose), s.at) <= l.fx.wide).length >= 2;
+      if (sweep) { void keeper.toolPower("ntWide"); vfx.add("leaves", { x: s.at.x, y: s.at.y }, { lift: 6 }); sfx?.work("gust", 0.6); }
       // the one that follows a catch of mine, while it is there: netted as any insect is, or missed
       const fo = follow.current;
       if (fo && !fo.done && tile && now < fo.until) {
         const p = followerPose(fo.bug, fo.at, fo.seed, fo.began, now);
-        if (taken(fo.bug, p, s.at, live.current.spent, 1, live.current.wary)) {
+        if (taken(fo.bug, p, s.at, live.current.spent, 1, live.current.wary, live.current.fx.ring)) {
           got = true;
           fo.done = true;
           const where = { x: p.x, y: p.y };
-          void keeper.netMine("pair", tile, { misses: fo.missed }, live.current.name).then((did) => {
+          void keeper.netMine("pair", tile, { misses: missesWith(fo.missed, live.current.fx.spared) }, live.current.name).then((did) => {
             if (!did.ok) { say(did.why); return; }
             caught.current.push({ bug: fo.bug, first: did.first, rid: did.rid ?? null });
             if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
@@ -366,17 +408,21 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         const kept = minds.current.get(id);
         if (!kept) continue;
         const key = `${id}:${sight.turn}`;
-        if (!got && tile && taken(sight.bug, pose, s.at, live.current.spent, 1, live.current.wary)) {
+        if (tile && (sweep ? pose.open && far(aimOf(pose), s.at) <= l.fx.wide : !got && taken(sight.bug, pose, s.at, live.current.spent, 1, live.current.wary, live.current.fx.ring))) {
           got = true;
           // (a beetle: whoever stands under its tree with something sweet; the tree it is in now, for one that does not stay)
           const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[kept.mind.at] ?? h.perches[0]) < HABITS.lure.reach) : null;
           const where = { x: pose.x, y: pose.y }, spot = aimOf(pose);
           // (the insect of my drop of nectar is no haunt's: it is caught as mine alone)
-          const asked = id === LURED ? keeper.netMine("lured", tile, { misses: misses.current.get(key) ?? 0 }, live.current.name)
-            : keeper.netDo(id, tile, { misses: misses.current.get(key) ?? 0, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name);
+          // ── forging: old tools ── (the misses the net forgives are not told of: nothing is paid for them)
+          const missedBy = missesWith(misses.current.get(key) ?? 0, live.current.fx.spared);
+          const asked = id === LURED ? keeper.netMine("lured", tile, { misses: missedBy }, live.current.name)
+            : keeper.netDo(id, tile, { misses: missedBy, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name);
           void asked.then((did) => {
             if (!did.ok) { say(did.why); return; }
             misses.current.delete(key);
+            // ── forging: old tools ── (a haunt emptied with a net that knows them: from now it says when another may come there)
+            if (id !== LURED && live.current.fx.nest) nests.current.add(id);
             caught.current.push({ bug: sight.bug, first: did.first, rid: did.rid ?? null });
             if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
             const what = did.got.map(([item, n]) => `${nameOf(item)} ×${n}`).join(" · ");
@@ -394,7 +440,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         if (far(aimOf(pose), s.at) <= NET.near) {
           misses.current.set(key, (misses.current.get(key) ?? 0) + 1);
           // tired hands lose it at the second miss: it is off, and is not seen here again this turn
-          if (fledBy(misses.current.get(key) ?? 0, live.current.spent)) {
+          if (fledBy(missesWith(misses.current.get(key) ?? 0, live.current.fx.spared), live.current.spent, live.current.fx.bears)) {
             const gone = fled.current ?? new Map<string, number>();
             gone.set(key, (id === LURED ? live.current.lured?.l.until ?? keeper.now() : bugTurnStart(h, sight.turn + 1)) - keeper.now() + Date.now());
             fled.current = gone;
@@ -408,8 +454,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           // (one asleep to my flute sleeps on: the miss is counted, and it has not minded it)
           const z = sleeping.current.get(id);
           if (z && z.turn === sight.turn && now < z.until) continue;
+          // ── forging: old tools ── (and so does one my net holds still)
+          const fz = frozen.current.get(id);
+          if (fz && fz.turn === sight.turn && now < fz.until) continue;
           const was = kept.mind;
-          kept.mind = missed(sight.bug, h, sight.seed, kept.mind, now, here ?? s.at);
+          // (by the insects' own clock: lib/town/forged's flight)
+          kept.mind = missed(sight.bug, h, sight.seed, kept.mind, now - slow.current.lag, here ?? s.at);
           if (kept.mind !== was && pose.seen) sfx?.work("flit", 0.7);
         }
       }
@@ -418,6 +468,14 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
 
     register((frame) => {
       const { ctx, things, project, onScreen, s, img, still } = frame, now = Date.now();
+      // ── forging: old tools ── (the insects' own clock: with ice in the net in my hand it runs at so many times the wall's pace, never under one
+      // part in the cap, and `tick` is what it reads now: everything an insect does by the clock is done by this one. With a plain net and no
+      // insect on the screen it is the wall's again.)
+      const rate = Math.min(1, slowPartOf(1, live.current.fx.flight));
+      if (slow.current.at && rate < 1) slow.current.lag += Math.min(1000, Math.max(0, now - slow.current.at)) * (1 - rate);
+      else if (rate === 1 && !minds.current.size) slow.current.lag = 0;
+      slow.current.at = now;
+      const tick = now - slow.current.lag;
       vfx.draw(frame);
       me.current = frame.self;
       projectRef.current = project;
@@ -469,17 +527,22 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         if (!h || h.place !== here) continue;
         shown.add(h.id);
         // (the insect of my drop: its mind begins the moment it came)
-        if (born !== undefined && minds.current.get(h.id)?.turn !== sight.turn) minds.current.set(h.id, { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, born) });
+        // (a mind's moments are the insects' own clock's: one that begins now begins as far behind the wall's clock as that clock is)
+        if (born !== undefined && minds.current.get(h.id)?.turn !== sight.turn) minds.current.set(h.id, { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, born - slow.current.lag) });
         let kept = minds.current.get(h.id);
         // (a mind is one insect's: another at the same haunt, in the same turn or the next, begins with its own)
-        if (!kept || kept.turn !== sight.turn || kept.bug !== sight.bug) { kept = { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, bugTurnStart(h, sight.turn)) }; minds.current.set(h.id, kept); }
+        if (!kept || kept.turn !== sight.turn || kept.bug !== sight.bug) { kept = { turn: sight.turn, bug: sight.bug, mind: newMind(sight.bug, h, sight.seed, bugTurnStart(h, sight.turn) - slow.current.lag) }; minds.current.set(h.id, kept); }
         const before = kept.mind;
         // (asleep to my flute: it is where it fell asleep and minds nobody; waking, it is a moment getting back to itself)
         const z = sleeping.current.get(h.id), slept = !!z && z.turn === sight.turn, dozing = slept && now < z!.until, waking = slept && !dozing && now < z!.until + LULL.wake;
         if (z && !dozing && !waking) sleeping.current.delete(h.id);
-        if (!still && !dozing) kept.mind = think(sight.bug, h, sight.seed, kept.mind, now, about.current);
-        const awake = poseOf(sight.bug, h, sight.seed, kept.mind, now);
-        const pose = dozing ? z!.pose : waking && !still ? rising(z!.pose, awake, (now - z!.until) / LULL.wake) : awake, bug = BUGS[sight.bug], at = project({ x: pose.x, y: pose.y });
+        // ── forging: old tools ── (held still by my net: it is where it was when the swing began and minds nobody, for its seconds; let go, it is a moment getting back to where it would be)
+        const fz = frozen.current.get(h.id), iced = !!fz && fz.turn === sight.turn && !dozing, holding = iced && now < fz!.until, thawing = iced && !holding && now < fz!.until + HELD.thaw;
+        if (fz && !holding && !thawing) frozen.current.delete(h.id);
+        if (!still && !dozing && !holding) kept.mind = think(sight.bug, h, sight.seed, kept.mind, tick, about.current);
+        const awake = poseOf(sight.bug, h, sight.seed, kept.mind, tick);
+        const pose = dozing ? z!.pose : holding ? fz!.pose : thawing && !still ? eased(fz!.pose, awake, (now - fz!.until) / HELD.thaw) : waking && !still ? rising(z!.pose, awake, (now - z!.until) / LULL.wake) : awake, bug = BUGS[sight.bug], at = project({ x: pose.x, y: pose.y });
+        if (holding && onScreen(at)) frame.over?.(() => drawHeld(ctx, at.x, at.y - pose.lift * TILE_H * s, s, (fz!.until - now) / Math.max(1, fz!.until - fz!.from), now, still));
         // heard: off in a fright from somebody; and what sings, over and over, softer from further off
         const away = frame.self ? far(frame.self, pose) : 99;
         if (kept.mind.visit !== before.visit && bug.habit !== "spot" && away < 9) sfx?.work("flit", Math.max(0.15, 1 - away / 9) * 0.6);
@@ -491,7 +554,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         const k = SIZE * s, icon = iconFor(iconOf(sight.bug)), mind = kept.mind;
         if (dozing && onScreen(at)) frame.over?.(() => drawSleep(ctx, at.x, at.y - pose.lift * TILE_H * s, s, now, still, h.id));
         // the net's silver glint over it, whether it shows itself or not; one off the screen is pointed to from the edge
-        if (live.current.sees) {
+        // ── forging: old tools ── (and with light in the net in my hand, over every insect within so many tiles of me)
+        const near = live.current.fx.seen > 0 && !!me.current && far(aimOf(pose), me.current) <= live.current.fx.seen;
+        if (live.current.sees || near) {
           lit++;
           frame.over?.(() => {
             const W = ctx.canvas.width, H = ctx.canvas.height, m = Math.max(22, 12 * s), hid = hides(sight.bug, pose), top = at.y - pose.lift * TILE_H * s - (hid ? 3 : 18) * s;
@@ -585,7 +650,17 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       }
       glints.current = lit;
       lulls.current = calm;
-      for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); sleeping.current.delete(id); }
+      for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); sleeping.current.delete(id); frozen.current.delete(id); }
+      // ── forging: old tools ── (a haunt I have emptied, with a net that knows them in my hand: while nothing is there, it says over its
+      // place how long until another may come: the moment its next turn begins, which is no promise that anything will)
+      if (live.current.fx.nest) for (const id of nests.current) {
+        const h = HAUNTS[id];
+        if (!h || h.place !== here || shown.has(id)) continue;
+        const c = project(h.perches[0]);
+        if (!onScreen(c)) continue;
+        const at = keeper.now(), secs = Math.ceil(Math.max(0, bugTurnStart(h, bugTurn(h, at) + 1) - at) / 1000), clock = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
+        frame.sign(live.current.th ? `อีก ${clock}` : `in ${clock}`, c.x, c.y - 14 * s);
+      }
 
       // under the cloak, the one that follows the insect I just caught: on the wing about where that was for its three
       // seconds, a ring about it running down; not netted, it is up and away
@@ -639,7 +714,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       const held = aim.current;
       if (held && frame.self) {
         const mine = project(frame.self), c = project(held.at);
-        frame.over?.(() => drawAim(ctx, mine, c, NET.radius, s, now, still));
+        frame.over?.(() => drawAim(ctx, mine, c, NET.radius * partOf(1, live.current.fx.ring), s, now, still, NET.reach + live.current.fx.reach));
       }
 
       // the swing: the ring it will take, and the net coming down on it
@@ -665,7 +740,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           }
         } });
         else things.push({ depth: sw.at.x + sw.at.y + 3, draw: () => {
-          const r = NET.radius * (live.current.spent ? NET.tired.radius : 1);
+          const r = NET.radius * (live.current.spent ? NET.tired.radius : 1) * partOf(1, live.current.fx.ring);
           // (a ring of the ground, as wide as the net: half as high as it is wide, as the map's tiles are)
           ctx.save();
           ctx.strokeStyle = `rgba(255,255,255,${0.35 + 0.5 * t})`;
@@ -691,19 +766,36 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     const byInsect = (at: Vec, here: Vec) => {
       // (the one that follows a catch of mine: wherever it is on its wheel about the place I caught the first at)
       const fo = follow.current;
-      if (fo && !fo.done && Date.now() < fo.until && far(aimOf(followerPose(fo.bug, fo.at, fo.seed, fo.began, Date.now())), at) <= AIM && far(fo.at, here) <= NET.reach + PAIR.radius) return true;
+      if (fo && !fo.done && Date.now() < fo.until && far(aimOf(followerPose(fo.bug, fo.at, fo.seed, fo.began, Date.now())), at) <= AIM && far(fo.at, here) <= NET.reach + live.current.fx.reach + PAIR.radius) return true;
       let near: Pose | null = null, least = AIM;
       for (const { pose } of poses.current.values()) { const d = far(aimOf(pose), at); if (d <= least) { least = d; near = pose; } }
-      return !!near && far(near, here) <= NET.reach;
+      return !!near && far(near, here) <= NET.reach + live.current.fx.reach;
     };
     /** The wind net comes down, at once, where it is aimed (or as near that as I reach). */
     const gust = (at: Vec, here: Vec, now: number) => {
-      const lands = aimAt(here, at);
+      const lands = aimAt(here, at, NET.reach + live.current.fx.reach);
       swing.current = { at: lands, began: now, lands: now, done: false, wind: true };
-      ready.current = now + againMs(false, true);
+      ready.current = now + againMs(false, true, live.current.fx.lands, live.current.fx.again);
       sfx?.wake();
       sfx?.work("gust");
       vfx.add("leaves", lands, { lift: 6 });
+    };
+    // ── forging: old tools ── (a net that holds still what it is swung at: the insect nearest where the swing is aimed, of those a net
+    // could take, stays as it is for the net's seconds, on this screen. So many a day: whoever keeps the game counts each.)
+    const hold = (at: Vec, now: number) => {
+      const l = live.current;
+      if (!(l.fx.freeze > 0) || powerLeft(keeper.purse(), "ntFreeze", keeper.now()) < 1) return;
+      let best: number | null = null, least = HELD.near;
+      for (const [id, { pose, sight }] of poses.current) {
+        const d = far(aimOf(pose), at), z = sleeping.current.get(id);
+        if (!pose.open || d > least || frozen.current.has(id) || (z && z.turn === sight.turn && now < z.until)) continue;
+        least = d; best = id;
+      }
+      const one = best === null ? null : poses.current.get(best);
+      if (best === null || !one) return;
+      frozen.current.set(best, { turn: one.sight.turn, from: now, until: now + l.fx.freeze * 1000, pose: one.pose });
+      void keeper.toolPower("ntFreeze");
+      vfx.add("sparkle", { x: one.pose.x, y: one.pose.y }, { lift: 18 });
     };
     // (`only`: asked before whoever stands under the tap (the map does, where somebody does): then it is the net's
     // only for an insect there, and a swing still in the air does not take a tap that is for a person)
@@ -723,8 +815,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       if (now < ready.current) return true;
       // (the wind's: it is down as the tap is)
       if (l.wind) { gust(at, here, now); return true; }
-      swing.current = { at, began: now, lands: now + swingMs(l.spent), done: false };
-      ready.current = now + swingMs(l.spent) + NET.again;
+      swing.current = { at, began: now, lands: now + swingMs(l.spent, false, l.fx.lands), done: false };
+      hold(at, now);
+      ready.current = now + againMs(l.spent, false, l.fx.lands, l.fx.again);
       sfx?.wake();
       sfx?.work("swish");
       return true;
@@ -735,10 +828,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       press: (at) => {
         const l = live.current, here = me.current;
         if (!l.wind || l.busy || !here || !mayNet(l.hand) || Date.now() < ready.current || (swing.current && !swing.current.done) || !byInsect(at, here)) return false;
-        aim.current = { at: aimAt(here, at) };
+        aim.current = { at: aimAt(here, at, NET.reach + l.fx.reach) };
         return true;
       },
-      move: (at) => { const here = me.current; if (aim.current && here) aim.current = { at: aimAt(here, at) }; },
+      move: (at) => { const here = me.current; if (aim.current && here) aim.current = { at: aimAt(here, at, NET.reach + live.current.fx.reach) }; },
       loose: (at) => {
         const held = aim.current, here = me.current;
         aim.current = null;
@@ -765,13 +858,14 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
 
   /** Play the lulling flute: every insect on the screen that a net could take where it is sleeps, on this screen. Kept for another time when there is none to lull. */
   const playFlute = useCallback(() => {
-    const hear = () => [...poses.current.entries()].filter(([id, p]) => p.on && !!minds.current.get(id) && !!asleep(p.sight.bug, p.h, p.sight.seed, minds.current.get(id)!.mind, Date.now()));
+    // (by the insects' own clock, which a net with ice in it slows: lib/town/forged's flight)
+    const hear = () => [...poses.current.entries()].filter(([id, p]) => p.on && !!minds.current.get(id) && !!asleep(p.sight.bug, p.h, p.sight.seed, minds.current.get(id)!.mind, Date.now() - slow.current.lag));
     if (!hear().length) { setNote(live.current.th ? WHY_BUGS.hush[0] : WHY_BUGS.hush[1]); return; }
     void keeper.giftUse("thingFlute").then((did) => {
       if (!did.ok) { const w = did.why === "spent" ? WHY_BUGS.rests : WHY[did.why as keyof typeof WHY]; setNote(w ? (live.current.th ? w[0] : w[1]) : null); return; }
       const now = Date.now(), until = now + FLUTE.secs * 1000;
       for (const [id, p] of hear()) {
-        const pose = asleep(p.sight.bug, p.h, p.sight.seed, minds.current.get(id)!.mind, now);
+        const pose = asleep(p.sight.bug, p.h, p.sight.seed, minds.current.get(id)!.mind, now - slow.current.lag);
         if (pose) sleeping.current.set(id, { turn: p.sight.turn, until, pose });
       }
       played.current = now;
@@ -786,7 +880,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     const handle = {
       // (the cloak's pair: the one that follows my last catch while it is there, how it is this moment or so many
       // milliseconds on, and how long it has left)
-      follower: (ms = 0) => { const fo = follow.current; if (!fo || fo.done || Date.now() >= fo.until) return null; const p = followerPose(fo.bug, fo.at, fo.seed, fo.began, Date.now() + ms); return { bug: fo.bug, left: fo.until - Date.now(), missed: fo.missed, at: fo.at, ...p, aim: aimOf(p), ring: ringOf(fo.bug, live.current.spent, 1, live.current.wary) }; },
+      follower: (ms = 0) => { const fo = follow.current; if (!fo || fo.done || Date.now() >= fo.until) return null; const p = followerPose(fo.bug, fo.at, fo.seed, fo.began, Date.now() + ms); return { bug: fo.bug, left: fo.until - Date.now(), missed: fo.missed, at: fo.at, ...p, aim: aimOf(p), ring: ringOf(fo.bug, live.current.spent, 1, live.current.wary, live.current.fx.ring) }; },
       // (the lulling flute: played, and which insects are asleep to it on this screen, each until when)
       playFlute, asleep: () => [...sleeping.current.entries()].filter(([, z]) => Date.now() < z.until).map(([id, z]) => ({ id, until: z.until, ...z.pose })),
       // (my drop of nectar: what is out, and one put down where I stand)
@@ -799,23 +893,27 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       /** Where a point of the map is on the map's canvas, in its own pixels, as the last frame had it. */
       project: (x: number, y: number) => projectRef.current?.({ x, y }) ?? null,
       sights: () => seen.current.map((x) => ({ ...x, place: HAUNTS[x.id]?.place, kind: HAUNTS[x.id]?.kind, x: HAUNTS[x.id]?.x, y: HAUNTS[x.id]?.y, perches: HAUNTS[x.id]?.perches })),
-      poses: () => [...poses.current.entries()].map(([id, { sight, pose, on }]) => ({ id, bug: sight.bug, ...pose, on, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, 1, live.current.wary), mind: minds.current.get(id)?.mind ?? null })),
-      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, 1, live.current.wary), glints: () => glints.current, lulls: () => lulls.current,
+      poses: () => [...poses.current.entries()].map(([id, { sight, pose, on }]) => ({ id, bug: sight.bug, ...pose, on, aim: aimOf(pose), ring: ringOf(sight.bug, live.current.spent, 1, live.current.wary, live.current.fx.ring), mind: minds.current.get(id)?.mind ?? null })),
+      me: () => me.current, people: () => about.current, haunts: () => HAUNTS, ringOf: (bug: BugId) => ringOf(bug, live.current.spent, 1, live.current.wary, live.current.fx.ring), glints: () => glints.current, lulls: () => lulls.current,
       soft: () => live.current.soft, wary: () => live.current.wary,
-      swing: (x: number, y: number) => { const now = Date.now(); swing.current = { at: { x, y }, began: now, lands: now + swingMs(live.current.spent), done: false }; },
+      swing: (x: number, y: number) => { const now = Date.now(); swing.current = { at: { x, y }, began: now, lands: now + swingMs(live.current.spent, false, live.current.fx.lands), done: false }; },
       /** A tap at a point of the map, as the map hands one over: whether it was taken for a swing. */
       tap: (x: number, y: number) => tapRef.current?.({ x, y }) ?? false,
       swinging: () => !!swing.current && !swing.current.done,
       caught: () => caught.current, note: () => note, tip: () => tip, ridShown: () => Date.now() < ridUntil.current, fled: () => [...(fled.current?.keys() ?? [])],
       // (how many swings have missed each insect, by "haunt:turn"; how an insect will be so many milliseconds on, as far
       // as the clock alone says; how long my swing takes; and every insect that fled from me forgotten)
-      misses: () => Object.fromEntries(misses.current), swingMs: () => swingMs(live.current.spent, live.current.wind),
+      misses: () => Object.fromEntries(misses.current), swingMs: () => swingMs(live.current.spent, live.current.wind, live.current.fx.lands), againMs: () => againMs(live.current.spent, live.current.wind, live.current.fx.lands, live.current.fx.again), fx: () => live.current.fx, reach: () => NET.reach + live.current.fx.reach,
       poseAt: (id: number, ms: number) => {
         const at = poses.current.get(id), kept = minds.current.get(id);
         if (!at || !kept) return null;
-        const p = poseOf(at.sight.bug, at.h, at.sight.seed, kept.mind, Date.now() + ms);
+        // (so many milliseconds of the wall's clock on: of the insects' own, as many times its pace less)
+        const p = poseOf(at.sight.bug, at.h, at.sight.seed, kept.mind, Date.now() - slow.current.lag + ms * Math.min(1, slowPartOf(1, live.current.fx.flight)));
         return { ...p, aim: aimOf(p) };
       },
+      /** (forging) What my net does on this screen: the insects it holds still, the haunts it has emptied, and how far behind the wall's the insects' clock runs. */
+      frozen: () => [...frozen.current.entries()].filter(([, f]) => Date.now() < f.until).map(([id, f]) => ({ id, until: f.until, ...f.pose })),
+      nests: () => [...nests.current], slowBy: () => slow.current.lag,
       forget: () => { fled.current = new Map(); keepFled(fled.current); setTick((n) => n + 1); },
     };
     (window as unknown as { __townBugs?: typeof handle }).__townBugs = handle;

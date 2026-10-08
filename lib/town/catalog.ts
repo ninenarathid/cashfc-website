@@ -1,7 +1,7 @@
 import { BOX } from "./box";
 import { giftsRow } from "./gifts";
 import { linesRow } from "./line-points";
-import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, RECIPE_IDS, needsOf, tidy } from "./cooking";
+import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, PUT_IN, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
 import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
@@ -10,6 +10,8 @@ import { ENCORE, HOURGLASS } from "./farm";
 // ── gifts: helpers ──
 import { HELPING } from "./helping";
 import { BOUTS, FIGHT, NIBBLES_APART, ORB, PAIR, SIGNS, STAR, STRIKE, WARY } from "./fishing";
+// ── forging ──
+import { forgeRow } from "./forge-row";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
 import { huntRow } from "./hunt";
 import { HEAT } from "./heat";
@@ -189,7 +191,7 @@ export function catalogOf() {
     cooking: {
       cost: COOKING.cost, stirs: COOKING.stirs, kinds: COOKING.kinds, ladle: COOKING.ladle, pots: COOKING.pots, reach: COOKING.reach, tok: COOKING.tok,
       odd: COOKING.odd, oddDish: ODD, clue: COOKING.clue,
-      recipes: RECIPE_IDS, needs: Object.fromEntries(RECIPE_IDS.map((id) => [id, Object.fromEntries(tidy(needsOf(id)))])), cookware: COOKWARE_IDS, gear: KITCHEN_GEAR, never: NOT_PUT_IN, bowl: BOWL, bowled: DISH_IDS.filter(inBowl),
+      recipes: RECIPE_IDS, needs: Object.fromEntries(RECIPE_IDS.map((id) => [id, Object.fromEntries(tidy(needsOf(id)))])), cookware: COOKWARE_IDS, gear: KITCHEN_GEAR, never: NOT_PUT_IN, putIn: PUT_IN, bowl: BOWL, bowled: DISH_IDS.filter(inBowl),
       // (`scrolls` is what may be inside, whatever it is: a fish's belly may hold a seed)
       inside: Object.fromEntries((Object.keys(INSIDE) as ItemId[]).map((id) => [id, { chance: INSIDE[id]!.chance, scrolls: insideOf(id) }])),
       map: { town: [COLS, ROWS], farm: [FARM.x, FARM.y, FARM.w, FARM.h] },
@@ -288,6 +290,9 @@ export function catalogOf() {
     gifts: giftsRow(),
     /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
+    // ── forging ──
+    /** The blacksmith (lib/town/forge, lib/town/tools): the kinds of tool that are forged, the table of tries, his knobs, the options and what is built of them, the gems, and what is smelted of what (lib/town/forge-row says each part). */
+    forge: forgeRow(),
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;

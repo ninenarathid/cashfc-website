@@ -65,6 +65,8 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   bowl: good(5, 60, 5), bucket: good(20, 30, 4),
   // (a net for insects, from the first day: lib/town/insects. It can be made of what the forest gives, too.)
   bugNet: good(35, 6, 1),
+  // (woodcutting and mining, 2026-10-08: the two lines' first tools, from the first day, stocked as the hoe is)
+  pick: good(50, 6, 1), axe: good(50, 6, 1),
   bucketIron: good(70, 6, 1), apron: good(120, 4, 1),
   // The early seeds that were to be found in the wild: sold here until foraging opens (it does not, today), since
   // without them half the early dishes could not be cooked at all.
@@ -136,7 +138,35 @@ export function weekOf(now: number): number {
  * So many of a thing in one slot. A few things hold something: a pot of food its dish and the helpings left (`of`,
  * lib/town/cooking), a watering can the waterings left in it and a bucket whether it is full (`water`, lib/town/farm).
  */
-export interface Stack { item: ItemId; n: number; of?: { dish: DishId; left: number }; water?: number }
+export interface Stack {
+  item: ItemId; n: number; of?: { dish: DishId; left: number }; water?: number;
+  // ── forging (lib/town/tools reads these, and makes them sound) ──
+  /** A tool's own: how far it has been forged (1 to 10; none, of a tool as it was bought), */
+  plus?: number;
+  /** the options drawn for it at its milestones, in the order they were drawn, */
+  opts?: string[];
+  /** and the gems set in it, by their elements: one for each socket filled. */
+  gems?: string[];
+  /** Who forged it to each of its milestones, by name, in the milestones' order ("" where nobody is written): a tool's history, which goes with it wherever it goes. */
+  makers?: string[];
+  /**
+   * (a pot of food cooked in forged cookware that carries as much, lib/town/cooking) What a helping eaten out of it at
+   * the feast table has more than its dish gives: so many hours of its buff, so much stamina. It goes with the pot
+   * when it is set down and taken up; a helping ladled into a bowl is a plain helping.
+   */
+  warm?: number;
+  scent?: number;
+}
+// ── forging ──
+/** Whether a tool carries something of its own: a plus, an option drawn for it, a gem set in it. */
+export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus ?? 0) > 0 || !!s.opts?.length || !!s.gems?.length);
+/**
+ * A plain thing: one that holds nothing (no dish, no water) and carries nothing of its own. Only plain things are
+ * counted, bought and sold by number (a stall, the notice board, the yard's jar): one of them is like any other.
+ */
+export const plainStack = (s: Stack | null | undefined): boolean => !!s && !s.of && !s.water && !forged(s);
+/** A thing that is moved whole, slot to slot, and never laid on another of its kind: one that holds something, or a tool that carries something of its own (a deal, the storage box, the ground). */
+export const wholeStack = (s: Stack | null | undefined): boolean => !!s && (!!s.of || s.water !== undefined || forged(s));
 /**
  * Some of one thing left with the uncle to be sold: what each fetches at the usual price, the round it was left in,
  * and the round's price it was left at, in hundredths of the usual one (lib/town/market; left out when it is the
@@ -174,7 +204,7 @@ export interface Purse {
    * the stamina it has given so far. `lent`: it is eaten at the feast table out of one of the table's bowls
    * (lib/town/cooking's feastEat), so no bowl comes back to the bag when it ends.
    */
-  eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number; lent?: boolean } | null;
+  eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number } | null;
   /** The buff of the last helping eaten, as it was kept before buffs had levels: still written, for a page that knows no better. */
   buff: { id: BuffId; until: number } | null;
   /** What meals have left, each while it lasts: held together, each at its level (lib/town/stamina's mealBuffs reads them; a purse from before has only `buff`). */
@@ -186,6 +216,8 @@ export interface Purse {
   recipes: ItemId[];
   /** The thing taken up to hold in the hand, for everybody to see (handOf says whether it is still held). Missing from a purse older than hands. */
   hand?: ItemId | null;
+  /** (forging) The slot it was taken up from: of two tools of a kind, which is held (handSlot believes it only while that slot still has the thing). */
+  handAt?: number;
   /** Bowls a meal has done with that the bag had no room for when it ended: they come back as soon as there is room (lib/town/stamina). */
   owed?: number;
   /** What is worn to carry more (a basket, a carrying basket, a carrying pole): each makes the bag bigger, and is no longer in it. */
@@ -238,8 +270,18 @@ export interface Purse {
   chime?: { n: number; at: number };
   /** The plants the duet bell has given stamina back for today (lib/town/helping's belled): the day, and how many. */
   rung?: { day: number; n: number };
+  // ── forging: old tools ──
+  /** What part of a point of stamina a forged tool's share has left owing, to be paid with the next deed (lib/town/forged-keep's toolPaid): under one. */
+  toolOwed?: number;
+  /** Until when a can that waters with no water in it does so (lib/town/farm's water): the moment its minutes end. */
+  canFull?: number;
+  /** Until when the water sleeps for a rod that lulls it (lib/town/fishing's lulled): the moment its minutes end. */
+  rodStill?: number;
   /** What friends' gifts of the helpers' line did for me lately, to be told of once (lib/town/helping's Aid): the newest few. */
   aided?: Array<{ what: string; by: string; name: string; n: number; at: number; back?: number; key?: string }>;
+  // ── forging ──
+  /** What a tool's option does only so many times (lib/town/powers): how many times each has been used in its stretch, by the option. Counted for the member, whichever tool it was used with. */
+  powers?: Record<string, { k: number; n: number }>;
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }
@@ -331,7 +373,8 @@ export const handOf = (purse: Purse): ItemId | null => (purse.hand && held(purse
 export function hold(purse: Purse, slot: number): Done<{ purse: Purse }> {
   const s = purse.bag[slot];
   if (!s) return no("none");
-  return { ok: true, purse: { ...purse, hand: s.item } };
+  // (forging: the slot is kept too, so that of two tools of a kind the one taken up is the one that works)
+  return { ok: true, purse: { ...purse, hand: s.item, handAt: slot } };
 }
 /** Put away what is held. */
 export const letGo = (purse: Purse): Purse => ({ ...purse, hand: null });
@@ -345,6 +388,16 @@ export const handSlot = (purse: Purse, taken: number | null = null): number => {
   const hand = handOf(purse);
   if (!hand) return -1;
   return taken !== null && purse.bag[taken]?.item === hand ? taken : purse.bag.findIndex((s) => s?.item === hand);
+};
+// ── forging ──
+/**
+ * The thing in the hand as the stack it is, with what it carries of its own (lib/town/tools reads it): null with
+ * nothing held. Of two tools of a kind it is the one taken up: the slot said (`taken`), or the one the purse itself
+ * remembers (`handAt`), while that slot still has the thing; or else the first of the kind.
+ */
+export const heldStack = (purse: Purse, taken: number | null = null): Stack | null => {
+  const i = handSlot(purse, taken ?? (Number.isInteger(purse.handAt) ? (purse.handAt as number) : null));
+  return i < 0 ? null : purse.bag[i];
 };
 
 /* ── what is worn to carry more ─────────────────────────────────────────── */
@@ -424,6 +477,8 @@ export function leave(purse: Purse, slot: number, n: number, now: number, f = 10
   if (!s || s.n < n) return no("none");
   const round = roundOf(now), pays = ITEMS[s.item].pays;
   if (!pays) return no("unwanted");
+  // (forging: a tool that carries something of its own is not left to be sold as one of its kind: what it carries would be lost with it)
+  if (forged(s)) return no("unwanted");
   const bag = purse.bag.map((b, i) => (i !== slot ? b : s.n === n ? null : { item: s.item, n: s.n - n }));
   const same = purse.left.findIndex((l) => l.item === s.item && l.round === round && l.pays === pays && (l.f ?? 100) === f);
   const left = same < 0 ? [...purse.left, { item: s.item, n, pays, round, ...(f === 100 ? {} : { f }) }]

@@ -2,6 +2,7 @@ import { KINDS } from "./forest";
 import { BUGS } from "./insects";
 import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
 import { LINES, LINE_IDS, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
+import { optN } from "./tools";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 
 /**
@@ -30,7 +31,8 @@ export const POINTS = {
   first: 10,
   kitchen: { made: 1, ladled: 1, pots: 3, ladling: 9 },
   // ── gifts: helpers ── (`dust`: fae dust sprinkled on somebody else's plant, lib/town/farm's dust: as much as feeding one)
-  helpers: { water: 1, clear: 2, till: 2, feed: 2, cure: 5, thanked: 3, dust: 2 } as Record<string, number>,
+  // ── forging ── (`bellows`: the bellows worked for somebody else's piece at the smith, lib/town/forge)
+  helpers: { water: 1, clear: 2, till: 2, feed: 2, cure: 5, thanked: 3, dust: 2, bellows: 2 } as Record<string, number>,
   fishing: { common: 1, uncommon: 3, rare: 8, legend: 30 } as Record<string, number>,
   forest: { pick: 1, choose: 2, shake: 2, dig: 3, rare: 10 } as Record<string, number>,
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
@@ -112,11 +114,15 @@ export function countsOf(d: Done, doer: string): Counts[] {
       return typeof d.doc.whose === "string" && d.doc.whose !== doer
         ? [{ to: d.doc.whose, line: "kitchen", raw: POINTS.kitchen.ladled, held: { key: `ladle:${doer}`, most: POINTS.kitchen.ladling } }] : [];
     case "water": case "clear": case "till": case "feed": case "cure": case "dust":
-      return other && other !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers[d.what] }] : [];
+      // ── forging: old tools ── (`kind`: somebody else's plant watered with a can of kind hands is so many points more, never more than the option's own number: lib/town/forged's canFx)
+      return other && other !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers[d.what] + (d.what === "water" && typeof d.doc.kind === "number" && d.doc.kind > 0 ? Math.min(optN("cnKind", "points"), Math.floor(d.doc.kind)) : 0) }] : [];
     // ── gifts: helpers ── (a duet bell that rang, lib/town/helping: written down for each of the two, with how many of
     // somebody else's plants it rang over for them: each is a watering's worth more)
     case "bell":
       return d.n > 0 ? [{ to: null, line: "helpers", raw: POINTS.helpers.water * Math.floor(d.n) }] : [];
+    // ── forging ── (the bellows worked at the smith for somebody else's piece)
+    case "bellows":
+      return typeof d.doc.whose === "string" && d.doc.whose !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers.bellows }] : [];
     case "thank":
       return (Array.isArray(d.doc.to) ? d.doc.to : []).filter((id): id is string => typeof id === "string" && id !== doer)
         .map((id) => ({ to: id, line: "helpers" as const, raw: POINTS.helpers.thanked }));

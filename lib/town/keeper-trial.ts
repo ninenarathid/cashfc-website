@@ -2,6 +2,10 @@ import { COOKING, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
+// ── forging: old tools ──
+import { baitKept, called, calledCast, fightPaid, goldStrike, lulled, rarer, rodHaste, rodOf } from "./fishing";
+import { rodFx } from "./forged";
+import type { OptionId } from "./tools";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, ITEMS, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
@@ -120,7 +124,8 @@ class TrialKeeper implements Keeper {
     if (slot === null) { this.trial.letGo(); return { ok: true }; }
     return this.trial.hold(slot);
   }
-  handSlot() { return handSlot(this.trial.purse(), this.taken); }
+  // (forging: with no slot of this page's, the one the purse itself remembers: of two tools of a kind, the one taken up)
+  handSlot() { const p = this.trial.purse(); return handSlot(p, this.taken ?? (Number.isInteger(p.handAt) ? (p.handAt as number) : null)); }
   bagTidy() { return true; }
   async bagMove(from: number, to: number): Promise<Did> {
     // (the slot the hand's thing is in goes where that thing goes: read by the bag as it is, since a page loaded again
@@ -178,6 +183,9 @@ class TrialKeeper implements Keeper {
     let odds = star ? starOdds(under.rain, !place.deep, under.signs, Math.max(...this.trial.shelf().map((id) => ITEMS[id].tier))) : oddsOf(bait, under.hour, under.rain, levelOf(p, now, "lucky"), !place.deep, under.signs);
     if (pair) odds = sift(odds, PAIR.never);
     if (isWary(p, now)) odds = sift(odds, WARY.tiers);
+    // ── forging: old tools ── (what the rod carries of its own: rare fish oftener with one, a bite sooner with another)
+    const rod = rodFx(rodOf(p, this.handSlot()));
+    if (rod.rare > 1) odds = rarer(odds, rod.rare);
     // (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
     if (!odds.length) return { ok: false, why: "calm" };
     // (the line goes out: the bait has left the bag, or the stardust is counted)
@@ -189,7 +197,11 @@ class TrialKeeper implements Keeper {
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
     const blessed = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     // (and under an orb the bite comes sooner still)
-    const cast = sky ? hastened(blessed, orbHaste()) : blessed, told = wearing(p, "charmFloat");
+    const sooner = sky ? hastened(blessed, orbHaste()) : blessed, haste = rodHaste(sooner.wait / Math.max(1, drawn.wait), rod.quick);
+    // (and a line dropped with a rod that calls the fish is bitten at once, so many times a day)
+    const call = called(this.trial.purse(), now, this.handSlot());
+    if (call) this.trial.fished(call);
+    const cast = call ? calledCast(sooner) : haste > 0 ? hastened(sooner, haste) : sooner, told = wearing(p, "charmFloat");
     this.out = { cast, bait: star ? null : bait, told, harder, ...(second ? { two: { what: second.what, size: second.size } } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
@@ -205,10 +217,13 @@ class TrialKeeper implements Keeper {
   }
   /** A line that told what was on its way, ended with nothing hooked (a strike too soon, a bite let go by): a line taken up. */
   private letBy(o: { told?: boolean }) { if (o.told) this.trial.fished(tookUp(this.trial.purse(), this.trial.now())); }
-  async strike(_reaction: number, how: Strike | null): Promise<Did<Struck>> {
+  async strike(reaction: number, struck: Strike | null): Promise<Did<Struck>> {
     const o = this.out;
     if (!o) return { ok: false, why: "none" };
     const { what, size } = o.cast, harder = o.harder && o.harder > 1 ? { harder: o.harder } : {};
+    // ── forging: old tools ── (a strike that came after the moment had passed is taken all the same by a rod of the golden moment, so many a day: as a late one)
+    let how = struck;
+    if (!how && reaction >= 0) { const gold = goldStrike(this.trial.purse(), reaction, this.trial.now(), this.handSlot()); if (gold) { this.trial.fished(gold); how = "late"; } }
     if (!how) { this.out = null; this.letBy(o); return { ok: true, hooked: false, how: "early", what, size }; }
     o.hooked = true;
     // ── gifts: fishing ── (a rod of two lines: both are hooked by the one strike; what is no fish comes in at once, a fish's fight is paid for, each its own)
@@ -216,7 +231,7 @@ class TrialKeeper implements Keeper {
       const told: Hooked[] = [], onhook: Array<{ what: CatchId; size: number }> = [];
       for (const thing of [{ what, size }, o.two]) {
         if (!(thing.what in FISH)) told.push({ what: thing.what, size: 0, landed: true, kept: this.trial.land(thing.what, 0).kept });
-        else { this.trial.spend(FISH[thing.what as FishId].fight.effort); onhook.push(thing); told.push({ ...thing, landed: false }); }
+        else { this.trial.fished(lulled(fightPaid(this.trial.purse(), FISH[thing.what as FishId].fight.effort, this.trial.now(), this.handSlot()), thing.what, this.trial.now(), this.handSlot())); onhook.push(thing); told.push({ ...thing, landed: false }); }
       }
       if (!onhook.length) this.out = null;
       else { o.cast = { ...o.cast, ...onhook[0] }; o.two = onhook[1]; }
@@ -228,7 +243,9 @@ class TrialKeeper implements Keeper {
       return { ok: true, hooked: true, what, size: 0, landed: true, ...this.trial.land(what, 0) };
     }
     // a fight costs its stamina whatever comes of it
-    this.trial.spend(FISH[what as FishId].fight.effort);
+    // ── forging: old tools ── (less of it, or none, with what the rod carries: lib/town/fishing's fightPaid)
+    // (and a fish better than a common one puts the water to sleep for a rod that lulls it, so often a day: lib/town/fishing's lulled)
+    this.trial.fished(lulled(fightPaid(this.trial.purse(), FISH[what as FishId].fight.effort, this.trial.now(), this.handSlot()), what, this.trial.now(), this.handSlot()));
     return { ok: true, hooked: true, what, size, landed: false, ...harder };
   }
   async missed() {
@@ -255,6 +272,8 @@ class TrialKeeper implements Keeper {
     const driven = driveBack(this.trial.purse(), how, !!o.again, this.trial.now());
     if (driven.ok) { this.trial.fished(driven.purse); o.again = true; return { how, kept: false, record: false, again: true }; }
     this.out = null;
+    // ── forging: old tools ── (a fish landed with a rod that spares the bait so often: the bait is back in the bag, where there is room)
+    if (how === "landed" && o.bait && o.cast.what in FISH && baitKept(this.trial.purse(), Math.random(), this.handSlot())) return { how, ...this.trial.land(o.cast.what, o.cast.size), ...(this.trial.back(o.bait) ? { back: true } : {}) };
     if (how === "landed") return { how, ...this.trial.land(o.cast.what, o.cast.size) };
     if (how === "snapped" && o.bait) this.trial.lose(o.bait);
     // (a fish hooked and lost in the fight gives the bait it took back, where the bag has room)
@@ -262,7 +281,7 @@ class TrialKeeper implements Keeper {
     return { how, kept: false, record: false, ...(back ? { back: true } : {}) };
   }
 
-  async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {
+  async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
     const did = this.trial.farmDo(key, name, sure);
     // every miss of the hoe is a little more stamina gone
     if (did.ok && timing?.misses) this.trial.spend(timing.misses);
@@ -399,6 +418,26 @@ class TrialKeeper implements Keeper {
     if (did.ok) this.onDeed?.("farm");
     return did;
   }
+
+  // ── forging ── (lib/town/forge: the trial keeps what each tester has at the smith, and draws the chance itself)
+  async toolPower(id: OptionId): Promise<Did<{ left: number }>> { return this.trial.toolPower(id); }
+  smith() { return this.trial.smith(); }
+  smithLook() { /* it is in this browser already */ }
+  async smithSmelt(piece: ItemId, n: number) { return this.trial.smithSmelt(piece, n); }
+  async smithTake() { return this.trial.smithTake(); }
+  async smithWiden() { return this.trial.smithWiden(); }
+  async smithNear(ids: string[]) { return this.trial.smithNear(ids); }
+  async smithBellows(whose: string) {
+    const did = this.trial.smithBellows(whose);
+    // (whoever's queue it was is in another tab: told through the room, as the database's keeper tells them)
+    if (did.ok) this.onDeed?.("line", whose);
+    return did;
+  }
+  async smithTry(slot: number, name: string) { return this.trial.smithTry(slot, name); }
+  async smithDraw(slot: number) { return this.trial.smithDraw(slot); }
+  async smithChoose(slot: number, pick: string, name: string) { return this.trial.smithChoose(slot, pick, name); }
+  async smithRedraw(slot: number, at: number, gem: ItemId) { return this.trial.smithRedraw(slot, at, gem); }
+  async smithGem(slot: number, gem: ItemId) { return this.trial.smithGem(slot, gem); }
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

@@ -9,7 +9,7 @@ import type { TownSession } from "@/lib/town/session";
 import type { FishSfx } from "@/lib/town/sfx";
 import { capOf, type ShopAsk, type ShopLine, type ShopLineTold } from "@/lib/town/shop";
 import { SIGN, decodeSign, tidyTitle, type Sign } from "@/lib/town/sign";
-import { roomFor } from "@/lib/town/trade";
+import { plainStack, roomFor } from "@/lib/town/trade";
 import SignIcon from "./SignIcon";
 import TownIcon from "./TownIcon";
 import TownNumber from "./TownNumber";
@@ -306,7 +306,7 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                       </div>
                     )}
                     {pick === "sell" && (() => {
-                      const mine = [...new Set(purse.bag.flatMap((s) => (s && !s.of && !s.water && s.item in ITEMS ? [s.item] : [])))].filter((id) => !onLine.has(id));
+                      const mine = [...new Set(purse.bag.flatMap((s) => (s && plainStack(s) && s.item in ITEMS ? [s.item] : [])))].filter((id) => !onLine.has(id));
                       return (
                         <Picker th={th} ids={mine} empty={t("ไม่มีของในกระเป๋าที่ลงขายได้", "Nothing in the bag to put up")}
                                 count={(id) => plain(purse.bag, id)}

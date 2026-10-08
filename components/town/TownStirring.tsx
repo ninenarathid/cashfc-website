@@ -20,10 +20,12 @@ const HUB = 0.16;
  *
  * Played by a finger or the mouse: there is no going round a pot with a key.
  */
-export default function TownStirring({ th, title, need, mods, harder = 1, onDone, onCancel, onHit }: GameProps & {
+export default function TownStirring({ th, title, need, mods, harder = 1, guide = false, onDone, onCancel, onHit }: GameProps & {
   need: number; mods: TimingMods;
   /** How many times harder this pot is for whoever stirs it (lib/town/cooking's harderCook): nothing of it is shown but the game itself. */
   harder?: number;
+  // ── forging: old tools ── (cookware with light in it: a light goes round the pot at the middle of the good pace, the way the ladle is going, for the hand to keep with)
+  guide?: boolean;
 }) {
   const game = useRef<Stir>(startStir(need, mods, harder));
   const ended = useRef(false);
@@ -37,6 +39,8 @@ export default function TownStirring({ th, title, need, mods, harder = 1, onDone
   const drag = useRef<{ id: number; angle: number | null } | null>(null);
   /** How far round the ladle has been taken since the last frame, in turns; and, for a script, a pace to stir at by itself. */
   const moved = useRef(0), driven = useRef<number | null>(null), angle = useRef(-Math.PI / 2);
+  // ── forging: old tools ── (the guiding light: where on the rim it is, and which way round the ladle last went)
+  const lead = useRef<HTMLSpanElement>(null), led = useRef(-Math.PI / 2), way = useRef<1 | -1>(1);
 
   const angleOf = (e: { clientX: number; clientY: number }): number | null => {
     const r = stage.current?.getBoundingClientRect();
@@ -58,6 +62,7 @@ export default function TownStirring({ th, title, need, mods, harder = 1, onDone
       let by = a - d.angle;
       if (by > Math.PI) by -= 2 * Math.PI; else if (by < -Math.PI) by += 2 * Math.PI;
       moved.current += Math.abs(by) / (2 * Math.PI);
+      if (by !== 0) way.current = by > 0 ? 1 : -1;
     }
     if (a !== null) angle.current = a;
     d.angle = a;
@@ -78,6 +83,11 @@ export default function TownStirring({ th, title, need, mods, harder = 1, onDone
     }
     // what is drawn every frame is set straight on the page: the ladle, the ring of the turn being made, the pace
     if (ladle.current) ladle.current.style.transform = `rotate(${angle.current + Math.PI / 2}rad)`;
+    // ── forging: old tools ── (the guiding light keeps the middle of the good pace, whatever the hand does)
+    if (guide && lead.current) {
+      led.current += way.current * ((now.lo + now.hi) / 2) * dt * 2 * Math.PI;
+      lead.current.style.transform = `rotate(${led.current + Math.PI / 2}rad)`;
+    }
     if (ring.current) ring.current.style.background = `conic-gradient(#ffe19a 0deg ${now.turned * 360}deg, transparent ${now.turned * 360}deg)`;
     if (needle.current) needle.current.style.left = `${Math.min(1, now.pace / (now.hi * 1.5)) * 100}%`;
     // the pot shows what is wrong once it has been wrong a moment (not at every wobble of the hand)
@@ -111,6 +121,12 @@ export default function TownStirring({ th, title, need, mods, harder = 1, onDone
         <span ref={ring} aria-hidden className="pointer-events-none absolute inset-2 rounded-full"
               style={{ WebkitMask: "radial-gradient(farthest-side, transparent 91%, #000 92%)", mask: "radial-gradient(farthest-side, transparent 91%, #000 92%)" }} />
         <span ref={picture} aria-hidden className="pointer-events-none block"><TownIcon name={pot} size={POT} /></span>
+        {/* ── forging: old tools ── the guiding light, going round the rim at the good pace */}
+        {guide && (
+          <span ref={lead} aria-hidden className="pointer-events-none absolute inset-0" style={{ transform: "rotate(0rad)" }} data-stir-guide>
+            <span className="absolute left-1/2 top-[5px] -ml-[4px] block size-2 bg-[#fff6d8] shadow-[0_0_0_2px_rgba(255,246,216,0.35),0_0_10px_4px_rgba(255,246,216,0.6)]" />
+          </span>
+        )}
         {/* the ladle, where the finger is */}
         <span ref={ladle} aria-hidden className="pointer-events-none absolute inset-0" style={{ transform: "rotate(0rad)" }}>
           <span className="absolute left-1/2 top-[30px] -ml-[17px] block"><TownIcon name="ladle" size={44} /></span>

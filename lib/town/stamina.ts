@@ -232,6 +232,19 @@ export function raised(purse: Purse, id: MealBuffId, now: number, to = 0): Pick<
   return { buffs, buff: id in BUFFS ? { id: id as BuffId, until: mine.until } : purse.buff };
 }
 
+// ── forging: old tools ──
+/**
+ * A meal's buffs with one of them lasting so many hours more (a helping out of a pot whose cookware keeps it warm:
+ * lib/town/cooking's feastEat): the buff the dish leaves runs so much longer, never past a new one's hours and those
+ * hours more from now. With no hours more, what it was given.
+ */
+export function warmed(up: Pick<Purse, "buff" | "buffs">, id: MealBuffId, hours: number, now: number, was: Purse["buff"]): Pick<Purse, "buff" | "buffs"> {
+  if (!(hours > 0)) return up;
+  const most = now + (BUFF_HOURS + hours) * HOUR, buffs = (up.buffs ?? []).map((b) => (b.id === id ? { ...b, until: Math.min(most, b.until + hours * HOUR) } : b));
+  const mine = buffs.find((b) => b.id === id);
+  return { buffs, buff: mine && id in BUFFS ? { id: id as BuffId, until: mine.until } : up.buff ?? was };
+}
+
 /**
  * Count a meal on to now, with so many others eating beside one: the stamina
  * for the minutes since it was last counted, and, when its time is up, its end:
@@ -242,14 +255,16 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
   if (!e) return { purse, done: false };
   const whole = STAMINA.minutes * 60_000, end = e.from + whole, till = Math.min(now, end);
   const dish = DISHES[e.dish];
-  const gain = dish.stamina * (Math.max(0, till - e.till) / whole) * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
+  // ── forging: old tools ── (`scent`: so much more stamina in a helping out of a pot whose cookware gave it as much: lib/town/cooking's feastEat)
+  const scent = typeof e.scent === "number" && e.scent > 0 ? e.scent : 0;
+  const gain = (dish.stamina + scent) * (Math.max(0, till - e.till) / whole) * (1 + STAMINA.together * Math.min(STAMINA.company, Math.max(0, Math.floor(company))));
   const left = Math.min(STAMINA.max, staminaOf(purse, now) + gain);
   const done = now >= end;
   const after: Purse = {
     ...purse,
     stamina: { day: dayOf(now), left },
     eating: done ? null : { ...e, till, got: e.got + gain },
-    ...(done && dish.buff ? raised(purse, dish.buff, now, spiceOf(purse)) : {}),
+    ...(done && dish.buff ? warmed(raised(purse, dish.buff, now, spiceOf(purse)), dish.buff, typeof e.warm === "number" ? e.warm : 0, now, purse.buff) : {}),
   };
   // (a helping out of one of the feast table's own bowls gives none back: the bowl was never the eater's)
   return { done, purse: done ? bowlsBack(after, inBowl(e.dish) && !e.lent ? 1 : 0) : after };
