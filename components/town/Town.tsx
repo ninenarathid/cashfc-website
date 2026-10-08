@@ -566,16 +566,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // and knows no more of it)
   const moreArt = useRef<MountainArt | null>(null);
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development") return;
     let gone = false, made: MountainArt | null = null;
-    void import("./mountain-art").then((m) => {
-      if (gone) return;
-      made = moreArt.current = m.openMore({
-        warp: (x, y) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
-        walk: (x, y) => sessionRef.current?.walkTo({ x, y }) ?? false,
-        me: () => { const a = sessionRef.current?.self; return a ? { id: a.info.id, x: a.pos.x, y: a.pos.y } : null; },
+    // (the asking itself sits in a branch a production build drops, as the test window's does: written as an early
+    // return, the build made the module's chunk all the same, though nothing asked for it. Found 2026-10-08, by looking)
+    if (process.env.NODE_ENV === "development") {
+      void import("./mountain-art").then((m) => {
+        if (gone) return;
+        made = moreArt.current = m.openMore({
+          warp: (x, y) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
+          walk: (x, y) => sessionRef.current?.walkTo({ x, y }) ?? false,
+          me: () => { const a = sessionRef.current?.self; return a ? { id: a.info.id, x: a.pos.x, y: a.pos.y } : null; },
+        });
       });
-    });
+    }
     return () => { gone = true; made?.close(); moreArt.current = null; };
   }, []);
   const [popover, setPopover] = useState<{ b: Building; x: number; y: number } | null>(null);
