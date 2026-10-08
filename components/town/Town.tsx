@@ -3175,11 +3175,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const thing = groundTap.current(x, y);
       if (thing) { if (thing.walk && sessionRef.current?.walkTo(thing.walk)) cam.current.follow = true; return; }
     }
-    // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
-    // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     // ── to come ── (a tree, a rock, a ladder, a lift, the mine's mouth, the yard's chest: whoever has asked the preview's
     // module for taps on one has this one. With nobody asking, it is a step, as anywhere)
     if (process.env.NODE_ENV === "development" && moreArt.current?.tap(x, y)) return;
+    // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
+    // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
     if (gameRef.current && sb && x >= sb.x0 && x <= sb.x1 && y >= sb.y0 && y <= sb.y1 && openBox()) return;
     // a top of the yard's dining tables: the feast table's panel, from where I stand in the yard, or walked up to first

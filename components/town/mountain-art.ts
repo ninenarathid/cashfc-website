@@ -217,7 +217,7 @@ const HOLE_WIDER = 1.3;
 
 export class MountainArt {
   /** What can be tapped on the screen this frame: where, how far forward, and what it is. */
-  private hits: Array<{ x0: number; y0: number; x1: number; y1: number; depth: number; tap: Tapped }> = [];
+  private hits: Array<{ x0: number; y0: number; x1: number; y1: number; depth: number; tap: Tapped; art: string }> = [];
   /** The floor of the cave I am on (0 off it), and the day whose cave it is. */
   private floor = 0;
   /** What of each floor I have seen, for its small map; and the small map's picture, with what it was made from. */
@@ -244,7 +244,7 @@ export class MountainArt {
       /** Where I am, as this sees it; how much of the bridge there is; and what the dark last left lit. */
       state: () => ({ floor: this.floor, bridge: { spans: BRIDGE.spans, open: BRIDGE.open }, lit: { ...this.litLast }, seen: Object.fromEntries([...this.seen].map(([n, tiles]) => [n, tiles.reduce((sum, t) => sum + t, 0)])) }),
       /** What can be tapped on the screen this frame, each with its middle. */
-      hits: () => this.hits.map((h) => ({ ...h.tap, x: (h.x0 + h.x1) / 2, y: (h.y0 + h.y1) / 2 })),
+      hits: () => this.hits.map((h) => ({ ...h.tap, art: h.art, x: (h.x0 + h.x1) / 2, y: (h.y0 + h.y1) / 2, foot: h.y1 })),
       /** The places `&townAt=` knows, and going to one now. */
       places: () => Object.keys(this.places()),
       go: (name: string) => this.go(name),
@@ -326,7 +326,7 @@ export class MountainArt {
       if (more?.tap) {
         // (the lower part of a tall thing: a tap on a tree's crown is for what stands behind it)
         const [wide, tall] = more.hit ?? [1, 1], left = more.mirror ? c.x - (w - ax) * k : c.x - ax * k, bottom = c.y + (h - ay) * k;
-        this.hits.push({ x0: left + (w * k * (1 - wide)) / 2, x1: left + w * k - (w * k * (1 - wide)) / 2, y0: bottom - h * k * tall, y1: bottom, depth, tap: more.tap });
+        this.hits.push({ x0: left + (w * k * (1 - wide)) / 2, x1: left + w * k - (w * k * (1 - wide)) / 2, y0: bottom - h * k * tall, y1: bottom, depth, tap: more.tap, art: name });
       }
     } });
   }
