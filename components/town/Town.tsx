@@ -779,6 +779,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const mineWalk = useCallback((x: number, y: number) => { cam.current.follow = true; return sessionRef.current?.walkTo({ x, y }) ?? false; }, []);
   const openBoxRef = useRef<((chest?: { x: number; y: number }) => boolean) | null>(null);
   const mineChest = useCallback((tile: [number, number]) => { openBoxRef.current?.({ x: tile[0], y: tile[1] }); }, []);
+  const mineLit = useCallback((tiles: number) => { sessionRef.current?.setLit(tiles); }, []);
+  const mineLitOf = useCallback((id: string) => sessionRef.current?.avatars.get(id)?.info.lit ?? 0, []);
   // ── gifts: insects ── (the wind net is aimed for as long as the map is pressed and falls where it is let go: TownBugs
   // says whether a press begins such an aim, and is told where it is dragged to and where it is let go)
   const bugsAim = useRef<BugsAim | null>(null), bugsAimOn = useRef(false);
@@ -2488,7 +2490,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
-    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = petScale(pet.name) * sc, flies = pet.name === "famButterfly", still = reducedRef.current;
+    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = petScale(pet.name) * sc, flies = pet.name === "famButterfly" || /* mining */ pet.name === "famBat", still = reducedRef.current;
     // ── gifts: fishing ── in the water (the otter by a float): no shadow, a ring going out on the water about it, and
     // only what is above the water drawn, rocking a little
     if (pet.swims) {
@@ -4256,7 +4258,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && TownMine && (
         <Suspense fallback={null}>
           <TownMine keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)} reduced={reducedRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} tellLight={mineLit} lightOfOther={mineLitOf} />
         </Suspense>
       )}
       {/* The well's book: offered to whoever stands at the farm's well */}

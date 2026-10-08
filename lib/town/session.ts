@@ -255,7 +255,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "" };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", /* mining */ ...(i.lit ? { lit: i.lit } : {}) };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -897,7 +897,7 @@ export class TownSession {
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
             ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
-            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}) },
+            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), /* mining */ ...(d.lit !== undefined ? { lit: d.lit } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
         });
       } else {
@@ -1028,6 +1028,12 @@ export class TownSession {
   setPet(id: string | null) {
     if ((this.self.info.pet ?? "") !== (id ?? "")) this.tell({ pet: id ?? "" });
   }
+  // ── mining ──
+  /** Tell the room how far my own light reaches in the cave, when what I wear lights more than a walker's own (lib/town/mining), or 0 that nothing does. */
+  setLit(tiles: number) {
+    const n = Number.isInteger(tiles) && tiles > 0 && tiles <= 9 ? tiles : 0;
+    if ((this.self.info.lit ?? 0) !== n) this.tell({ lit: n });
+  }
   /** Tell the room what I am doing with a rod: 0 nothing, 1 it is in my hand, 2 my line is in the water, 3 a fish is on, 4 one is landed this moment. */
   setFishing(n: 0 | 1 | 2 | 3 | 4) {
     if ((this.self.info.fish ?? 0) !== n) this.tell({ fish: n });
@@ -1138,6 +1144,7 @@ export class TownSession {
         wet: a.info.wet ?? null,
         spent: a.info.spent ?? null,
         pet: a.info.pet ?? "",
+        lit: a.info.lit ?? 0,   // ── mining ──
         going: a.goneAt !== undefined,
         sign: a.info.sign ?? "",
         circle: a.info.circle ?? "",

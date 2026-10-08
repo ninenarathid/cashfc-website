@@ -79,6 +79,9 @@ export interface Doing {
   spent?: boolean;
   /** The familiar that follows them (its name in lib/town/gifts), "" when none; missing from a browser older than familiars. Drawn at their heels by everybody's page; it does nothing here. */
   pet?: string;
+  // ── mining ──
+  /** How far their own light reaches in the cave when something they wear lights more than a walker's own does (a miner's lamp: 4), 0 or missing otherwise. Missing from a browser older than the cave. Every page lights their ground by it; it does nothing else. */
+  lit?: number;
   /** Fishing: 1 with a rod in hand, 2 with a line in the water, 3 with a fish on, 4 for a moment when one has just been landed; 0 or missing when not. Where the float is follows from where they stand (lib/town/world's fishFrom). */
   fish?: number;
   /** The sign held up over their head (lib/town/sign: a chat room, or a stall), "" when none; missing from a browser older than signs. */
@@ -181,6 +184,7 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   const spent = bool(p.spent);
   if (spent !== undefined) d.spent = spent;
   if (typeof p.pet === "string" && /^[A-Za-z]{0,24}$/.test(p.pet)) d.pet = p.pet;
+  if (typeof p.lit === "number" && Number.isInteger(p.lit) && p.lit >= 0 && p.lit <= 9) d.lit = p.lit;   // ── mining ──
   if (p.fish === 0 || p.fish === 1 || p.fish === 2 || p.fish === 3 || p.fish === 4) d.fish = p.fish;
   // (a sign is written again from what was read of it: its title is somebody's own words, cleaned like a line of chat)
   if (typeof p.sign === "string") { const sign = decodeSign(p.sign); d.sign = sign ? encodeSign(sign) : ""; }

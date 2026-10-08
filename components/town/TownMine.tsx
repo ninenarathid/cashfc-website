@@ -3,7 +3,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isRest } from "@/lib/town/cave";
 import { floorAtTile } from "@/lib/town/cave-state";
-import { familiarOf } from "@/lib/town/gifts";
+import { familiarOf, wearing } from "@/lib/town/gifts";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import { MINING, hasBelow, isDug, lightOf, oreOf, pickOf, swingsFor, turnOf, type Peek, type PendingVein } from "@/lib/town/mining";
@@ -84,7 +84,7 @@ function cracks(): HTMLCanvasElement[] {
   return CRACKS;
 }
 
-export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced, register, here, warp, walk, openChest }: {
+export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced, register, here, warp, walk, openChest, tellLight, lightOfOther }: {
   keeper: Keeper;
   th: boolean;
   /** My name, for whoever opened a way down. */
@@ -104,6 +104,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
   walk: (x: number, y: number) => boolean;
   /** Open my storage box at a chest (walking up to it first). */
   openChest: (tile: [number, number]) => void;
+  /** Tell the room how far my own light reaches when what I wear lights more than a walker's own (0: nothing does); and how far somebody else's was told to reach. */
+  tellLight: (tiles: number) => void;
+  lightOfOther: (id: string) => number;
 }) {
   const [, setTick] = useState(0);
   const again = useCallback(() => setTick((n) => n + 1), []);
@@ -162,9 +165,12 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
   const lights = useRef(new Map<string, number>());
   const myLight = lightOf(purse);
   useEffect(() => {
-    setCaveLight((id) => (id === keeper.id ? myLight : lights.current.get(id) ?? MINING.light.walker));
+    setCaveLight((id) => (id === keeper.id ? myLight : Math.max(lights.current.get(id) ?? MINING.light.walker, lightOfOther(id))));
     return () => setCaveLight(null);
-  }, [keeper.id, myLight]);
+  }, [keeper.id, myLight, lightOfOther]);
+  // (a lamp worn is told to the room, so that those near see by it; what is held is told already)
+  const lamp = keeper.gives("charmMinerLamp") && wearing(purse, "charmMinerLamp") ? MINING.light.lamp : 0;
+  useEffect(() => { tellLight(lamp); }, [tellLight, lamp]);
 
   // ── a rock struck ──
   /** The swings I have made at each rock this turn, by "floor:rock:turn"; when the last one was; and whether a break is being asked. */
