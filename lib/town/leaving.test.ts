@@ -15,10 +15,10 @@ describe("a board that was shut", () => {
     expect(told).toEqual([]);
     vi.advanceTimersByTime(1);
     expect(told).toEqual(["pouring"]);
-    // (and once only)
+    // (and once only, with no timer left behind)
     vi.advanceTimersByTime(5000);
-    l.flush();
     expect(told).toEqual(["pouring"]);
+    expect(vi.getTimerCount()).toBe(0);
   });
 
   it("is not told of at all when its own end comes in that moment, however long what follows the end takes", () => {
@@ -56,14 +56,15 @@ describe("a board that was shut", () => {
     expect(told).toEqual(["choosing", "weeding", "timing", "steady"]);
   });
 
-  it("is told of at once when the page goes, and leaves no timer behind", () => {
+  it("is its own go at a board opened twice: two shut one after the other in the same moment are two", () => {
+    // (the moon flask's board: shut, opened again and shut again before the first was told of)
     const told: string[] = [], l = new Leaving((p) => told.push(p.board ?? ""));
-    l.left({}, play("pouring"));
-    l.left({}, play("steady"));
-    l.flush();
-    expect(told).toEqual(["pouring", "steady"]);
-    expect(vi.getTimerCount()).toBe(0);
-    vi.advanceTimersByTime(60_000);
-    expect(told).toEqual(["pouring", "steady"]);
+    let go = {};
+    l.left(go, play("pouring"));
+    vi.advanceTimersByTime(200);
+    go = {};
+    l.left(go, play("pouring"));
+    vi.advanceTimersByTime(LEFT_MS);
+    expect(told).toEqual(["pouring", "pouring"]);
   });
 });

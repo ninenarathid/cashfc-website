@@ -78,6 +78,8 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
   const say = useCallback((why: string) => { const w = WHY[why] ?? WHY.amount; setNote(th ? w[0] : w[1]); }, [th]);
   /** The pour that tired hands are at: how many bucketfuls. */
   const leaving = useLeaving(keeper);
+  /** What stands for the go at the flask's board that is up: a new one each time the board opens. */
+  const flaskGo = useRef<object>({});
   const [working, setWorking] = useState<number | null>(null);
   useEffect(() => { if (working !== null && !canPour) setWorking(null); }, [working, canPour]);
 
@@ -125,7 +127,7 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
   /** A pour begun: at once with stamina; with none, the short game of tired hands first. */
   const begin = useCallback((n: number) => {
     if (busy || working !== null) return;
-    if (isSpent(keeper.purse(), keeper.now())) setWorking(n); else void pour(n);
+    if (isSpent(keeper.purse(), keeper.now())) { flaskGo.current = {}; setWorking(n); } else void pour(n);
   }, [keeper, busy, working, pour]);
 
   // (for scripts in `next dev`: what the flask keeps, what is offered, and the two deeds)
@@ -205,14 +207,14 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
                          onHit={(hit) => { sfx?.wake(); if (!hit) sfx?.work("knock"); }}
                          onDone={(result) => {
                            const n = working;
-                           leaving.ended("flask");
+                           leaving.ended(flaskGo.current);
                            setWorking(null);
                            keeper.record({ game: "farming", board: "pouring", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: "flask", need: result.need, hits: result.hits, misses: result.misses });
                            if (result.dropped) { say("shaky"); return; }
                            void pour(n);
                          }}
                          onCancel={() => {
-                           leaving.left("flask", { game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "flask", need: 0, hits: 0, misses: 0 });
+                           leaving.left(flaskGo.current, { game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "flask", need: 0, hits: 0, misses: 0 });
                            setWorking(null);
                          }} />
           </div>

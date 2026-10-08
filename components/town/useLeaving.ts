@@ -4,12 +4,12 @@ import { Leaving } from "@/lib/town/leaving";
 
 /**
  * The goes at this page's boards that were shut by their member (lib/town/leaving): each is written down as left a
- * moment later, unless its board's own end comes first; whatever still waits when the page goes is written down then.
+ * moment later, unless its board's own end comes first. One that still waits when the page goes is left to its
+ * moment: a board's end can come after its page has gone, and still strikes its go off.
  */
 export function useLeaving(keeper: Keeper): Leaving {
   const to = useRef(keeper);
   useEffect(() => { to.current = keeper; }, [keeper]);
   const [leaving] = useState(() => new Leaving((play) => to.current.record(play)));
-  useEffect(() => () => leaving.flush(), [leaving]);
   return leaving;
 }

@@ -15,7 +15,7 @@ export class Leaving {
   private readonly waits = new Map<unknown, { play: WorkPlay; timer: ReturnType<typeof setTimeout> }>();
   constructor(private readonly tell: (play: WorkPlay) => void, private readonly ms = LEFT_MS) {}
 
-  /** The go was shut: told of as left in a moment, unless it ends first. */
+  /** The go was shut: told of as left in a moment, unless it ends first. (A go shut twice is one go, told of once.) */
   left(go: unknown, play: WorkPlay) {
     this.ended(go);
     this.waits.set(go, { play, timer: setTimeout(() => { this.waits.delete(go); this.tell(play); }, this.ms) });
@@ -26,10 +26,5 @@ export class Leaving {
     if (!w) return;
     clearTimeout(w.timer);
     this.waits.delete(go);
-  }
-  /** Whatever still waits is told of now (the page is going). */
-  flush() {
-    for (const w of this.waits.values()) { clearTimeout(w.timer); this.tell(w.play); }
-    this.waits.clear();
   }
 }
