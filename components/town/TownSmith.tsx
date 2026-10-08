@@ -535,9 +535,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
             {view === "gems" && (
               <div data-smith-gems>
                 {rack}
-                {card}
                 {stack && kind && (
-                  <div className="mt-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]">
+                  <div className="mb-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]">
                     <p className="mb-2 font-data text-label uppercase text-[#c9a877]">{t("พลอยในกระเป๋า", "Gems in the bag")}</p>
                     {gems.length ? (
                       <ul className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={t("พลอยในกระเป๋า", "Gems in the bag")}>
@@ -571,6 +570,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     )}
                   </div>
                 )}
+                {card}
               </div>
             )}
 
