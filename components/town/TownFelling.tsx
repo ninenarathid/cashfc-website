@@ -163,7 +163,9 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
 
     const p = play.current, f = fx.current, over = isOver(game, p);
     const st = game.stretches[Math.min(p.at, game.stretches.length - 1)];
-    const rh = Math.min(H * 0.1, W * 0.14), cx = W / 2, ground = H * 0.9, base = ground - rh * 0.7;
+    // (a segment is as tall as the stage allows with every segment whose branch is seen in sight, and one more for the boughs)
+    const inSight = Math.max(5, Math.min(ROWS, game.ahead + 2)), cx = W / 2, ground = H * 0.9;
+    const rh = Math.min((ground - H * 0.07) / (inSight + 0.75), W * 0.2), base = ground - rh * 0.7;
     const trunk = elder ? "fellElder" : "fellTrunk", limb = elder ? "fellElderBranch" : "fellBranch";
     const [tw0, th0] = sizeOf(trunk), tw = rh * (tw0 / th0) * 1.12, [bw0, bh0] = sizeOf(limb), bw = rh * 1.55, bh = bw * (bh0 / bw0);
     // (the trunk comes down a segment after a chop: for a moment it is still on its way)
@@ -215,7 +217,9 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     }
 
     // my own doll at the trunk, on the side it last chopped from (before the first chop: the left), and the axe
-    const side: Side = p.side || -1, doll = kit.current, tall = rh * 2.05, at = cx + side * (tw / 2 + rh * 0.78);
+    // (before the first chop of a tree: on the side the lowest branch in sight is not on)
+    const first = rows.find((r, j) => j > 0 && (r === 1 || r === -1));
+    const side: Side = p.running && p.side ? p.side : first === -1 ? 1 : first === 1 ? -1 : p.side || -1, doll = kit.current, tall = rh * 2.05, at = cx + side * (tw / 2 + rh * 0.78);
     const blow = now - f.hitAt, shake = !reduced && blow < BLOW ? Math.sin(blow / 22) * rh * 0.08 * (1 - blow / BLOW) : 0;
     if (doll && look) {
       const stands = doll.heightOf(look) ?? 77, scale = Math.min(tall / 77, (rh * 3.1) / stands);
@@ -226,7 +230,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     const ic = icons.current, cell = ICON_ATLAS.icons["axe" as IconName];
     if (ic?.complete && ic.naturalWidth && cell && !p.dropped) {
       const swing = reduced ? 1 : Math.min(1, since / SWING), bite = swing < 0.45 ? swing / 0.45 : 1 - (swing - 0.45) / 0.55;
-      const size = rh * 1.25, ax = cx + side * (tw / 2 + rh * 0.34), ay = ground - tall * 0.52;
+      const size = rh * 0.95, ax = cx + side * (tw / 2 + rh * 0.36), ay = ground - tall * 0.4;
       ctx.save();
       ctx.translate(Math.round(ax + shake), Math.round(ay));
       // (the icon stands at a slant, its blade up and to the right: raised over the shoulder, and brought down into the trunk)
@@ -281,19 +285,19 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
   return (
     <GameFrame th={th} title={title} need={st.chops} hits={isOver(game, p) && p.ends[game.stretches.length - 1] === "felled" ? st.chops : p.cut} misses={missesOf(p)} most={game.most} onCancel={onCancel}>
       {/* how it is played, in three marks */}
-      <ul className="mb-1.5 grid grid-cols-3 gap-1 text-label leading-tight text-[#ffeccb]" data-felling-how>
-        <li className="flex items-center gap-1.5 rounded-[4px] border-2 border-[#2a190d] bg-[#4a2f18] px-1.5 py-1">
-          <span aria-hidden className="flex shrink-0 gap-0.5 font-data text-meta font-semibold text-[#3a2209]"><kbd className="rounded-[3px] bg-[#f0c060] px-1">←</kbd><kbd className="rounded-[3px] bg-[#f0c060] px-1">→</kbd></span>
-          <span>{th ? "ฟันจากซ้ายหรือขวา (หรือแตะฝั่งนั้น)" : "Chop from the left or right (or tap that side)"}</span>
-        </li>
-        <li className="flex items-center gap-1.5 rounded-[4px] border-2 border-[#2a190d] bg-[#4a2f18] px-1.5 py-1">
-          <TownIcon name={"pineBranch" as IconName} size={22} />
-          <span>{th ? "อย่ายืนใต้กิ่งไม้ตอนต้นไม้ทรุดลง" : "Never stand under a branch as the trunk comes down"}</span>
-        </li>
-        <li className="flex items-center gap-1.5 rounded-[4px] border-2 border-[#2a190d] bg-[#4a2f18] px-1.5 py-1">
-          <span aria-hidden className="block h-2.5 w-6 shrink-0 border-2 border-[#2a190d] bg-[#2a190d]"><span className="block h-full w-2/3 bg-[#8fd45f]" /></span>
-          <span>{th ? "ฟันให้ล้มก่อนแถบเวลาหมด" : "Fell it before the bar runs out"}</span>
-        </li>
+      <ul className="mb-1.5 grid grid-cols-3 gap-1 text-[#ffeccb]" data-felling-how>
+        {([
+          [<span key="k" aria-hidden className="flex shrink-0 gap-0.5 font-data text-meta font-semibold text-[#3a2209]"><kbd className="rounded-[3px] bg-[#f0c060] px-1">←</kbd><kbd className="rounded-[3px] bg-[#f0c060] px-1">→</kbd></span>,
+            th ? "ฟันซ้ายหรือขวา" : "Chop left or right", th ? "หรือแตะฝั่งนั้น" : "or tap that side"],
+          [<TownIcon key="b" name={"pineBranch" as IconName} size={24} />, th ? "ระวังกิ่งไม้" : "Mind the branches", th ? "อย่ายืนใต้กิ่ง" : "never stand under one"],
+          [<span key="t" aria-hidden className="block h-3 w-7 shrink-0 border-2 border-[#2a190d] bg-[#2a190d]"><span className="block h-full w-2/3 bg-[#8fd45f]" /></span>,
+            th ? "โค่นให้ทันเวลา" : "Beat the bar", th ? "แถบหมด ต้นไม้ไม่ล้ม" : "out of time, it stands"],
+        ] as const).map(([mark, what, more], i) => (
+          <li key={i} className="flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-[4px] border-2 border-[#2a190d] bg-[#4a2f18] px-1 py-1 text-center">
+            {mark}
+            <span className="flex flex-col leading-tight"><span className="text-meta font-semibold">{what}</span><span className="text-label text-[#e9cfa4]">{more}</span></span>
+          </li>
+        ))}
       </ul>
       <div className={`${STAGE} aspect-[5/6] w-full touch-none sm:aspect-square`} data-look="felling" data-felling-stage data-ready={ready ? "" : undefined} onPointerDown={point}>
         <canvas ref={canvas} aria-hidden className="absolute inset-0 size-full" />
@@ -310,7 +314,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
           </span>
         )}
         {(banner || ready) && (
-          <p className={`pointer-events-none absolute inset-x-3 top-[38%] mx-auto w-fit max-w-full rounded-md border-2 border-[#2a190d] bg-[#3a2513]/90 px-3 py-1.5 text-center text-read font-semibold text-[#ffeccb] ${banner || reduced ? "" : "animate-pulse motion-reduce:animate-none"}`} aria-live="polite" data-felling-banner={banner ? "" : "ready"}>
+          <p className="pointer-events-none absolute inset-x-3 top-8 mx-auto w-fit max-w-full rounded-md border-2 border-[#2a190d] bg-[#3a2513]/95 px-3 py-1 text-center text-read font-semibold text-[#ffeccb]" aria-live="polite" data-felling-banner={banner ? "" : "ready"}>
             {banner ?? (th ? "กด ← หรือ → เพื่อเริ่มฟัน" : "Press ← or → to begin")}
           </p>
         )}
