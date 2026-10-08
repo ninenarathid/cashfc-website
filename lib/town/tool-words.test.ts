@@ -18,7 +18,7 @@ describe("what an option does, in a line (the smith's cards)", () => {
   it("a line's numbers are the registry's: a knob turned there turns the words", () => {
     expect(optionDoes("pkSteady").en).toContain(String(optN("pkSteady", "strikes")));
     expect(optionDoes("axKeen").th).toContain(String(optN("axKeen", "chops")));
-    expect(optionDoes("pkQuake").en).toContain(`${OPTIONS.pkQuake.use.n} a day`);
+    expect(optionDoes("pkQuake").en).toContain(`${OPTIONS.pkQuake.use?.n} a day`);
     expect(optionDoes("rdQuick").en).toContain("15%");
     expect(optionDoes("ckBrisk").th).toContain("25%");
     for (const id of OPTION_IDS) {
