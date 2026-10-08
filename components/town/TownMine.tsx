@@ -138,9 +138,17 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
 
   // ── what is told, set on the map's own state ──
   const sig = told ? JSON.stringify([told.day, told.gone, told.ways, told.torches.map((t) => [t.f, t.x, t.y]), told.crystal]) : "";
+  const dayWas = useRef<number | null>(null);
   useEffect(() => {
     if (!told) return;
     setCaveDay(told.day);
+    // (the day has turned while I stood in the cave: its floors are other ones now, and I am stood where this one is come down into)
+    if (dayWas.current !== null && dayWas.current !== told.day && whereRef.current.floor > 0 && !isRest(whereRef.current.floor)) {
+      const a = World.caveSpots(whereRef.current.floor).arrive;
+      warp(a[0], a[1]);
+      setNote(th ? "ถ้ำเปลี่ยนรูปไปแล้ว" : "The cave has shifted");
+    }
+    dayWas.current = told.day;
     setRocksDown(told.gone["0"] ?? []);
     for (let f = 1; f <= MINING.floors; f++) {
       const way = told.ways[String(f)];
@@ -260,9 +268,12 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     if (!walk(standAt[0], standAt[1])) liftWant.current = null;
     return true;
   }, [here, walk]);
+  /** (where the layout cannot be told a way is shut) A move between floors that is meant: the lift's, or a script's. */
+  const meant = useRef(0);
   const ride = useCallback(async (to: number) => {
     const did = await keeper.liftRide(to);
     if (!did.ok) { say(did.why); return; }
+    meant.current = performance.now();
     sfx?.work("liftRun");
     setLift(null);
     const at = did.at ?? [MOUNTAIN_AT.mouth.x + 3, MOUNTAIN_AT.mouth.y];
@@ -294,13 +305,23 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     const draw: FarmDraw = (frame: FarmFrame) => {
       const me = frame.self, floor = me ? floorAtTile(Math.floor(me.x), Math.floor(me.y)) : 0;
       const mountain = !!me && !floor && me.x >= MOUNTAIN.x && me.y >= MOUNTAIN.y && me.x < MOUNTAIN.x + MOUNTAIN.w && me.y < MOUNTAIN.y + MOUNTAIN.h;
-      if (floor !== whereRef.current.floor || mountain !== whereRef.current.mountain) { whereRef.current = { floor, mountain }; setWhere(whereRef.current); }
+      if (floor !== whereRef.current.floor || mountain !== whereRef.current.mountain) {
+        const from = whereRef.current.floor;
+        // (the fallback's own guard: with a layout that cannot be told a way is shut, whoever its ladder took down from a
+        // floor whose way nobody has found is stood back beside that ladder)
+        if (!setCaveWay && floor === from + 1 && isDug(from) && !keeper.cave()?.ways[String(from)] && performance.now() - meant.current > 1500 && keeper.cave()) {
+          const d = World.caveSpots(from).down;
+          warp(d[0] + 1, d[1] + 1);
+          say("shut");
+          return;
+        }
+        whereRef.current = { floor, mountain };
+        setWhere(whereRef.current);
+      }
       // a lift I was walking to: its panel, on getting there
       const want = liftWant.current;
       if (want && me && Math.max(Math.abs(Math.floor(me.x) - want.tile[0]), Math.abs(Math.floor(me.y) - want.tile[1])) <= 1) { liftWant.current = null; setLift({ at: want.at }); }
       if (!floor && !mountain) return;
-      // (the fallback's own guard: with a layout that cannot be told a way is shut, whoever its ladder took down a floor
-      // whose way nobody has found is stood back beside it)
       // everybody's light, for the dark: by what each holds
       if (floor && frame.people) { lights.current.clear(); for (const p of frame.people()) if (p.hold === MINING.mushroom) lights.current.set(p.id, MINING.light.mushroom); }
       const t = keeper.cave(), turn = turnOf(keeper.now()), art = cracks(), s = frame.s;
@@ -369,7 +390,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     };
     register(draw);
     return () => register(null);
-  }, [register, keeper, vfx, needOf]);
+  }, [register, keeper, vfx, needOf, warp, say]);
 
   // ── for scripts in `next dev` ──
   useEffect(() => {
@@ -386,6 +407,8 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       light: () => myLight,
       hooks: () => ({ way: !!setCaveWay, crystal: !!setCrystalRock, laid: World.CAVE.laid.length }),
       lift: (at: number) => setLift({ at }),
+      /** A script's own move between floors is meant (the layout's ladder is not stood back from). */
+      meant: () => { meant.current = performance.now(); },
       ride: (to: number) => ride(to),
     };
     return () => { delete (window as unknown as { __townMine?: unknown }).__townMine; };
