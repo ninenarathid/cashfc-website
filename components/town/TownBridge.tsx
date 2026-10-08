@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { BRIDGE, SIGN_AT, bridgeSpans, bridgeWhole, byBoard, carrying, nearTile, readStoneTold, stoneTold, takers, type Hand, type Lack, type StoneTold } from "@/lib/town/bridge";
-import type { Told } from "@/lib/town/handing";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { BANNER_AT, BRIDGE, COURSE_AT, MARKS, SIGN_AT, bridgeSpans, bridgeWhole, carrying, course, holdFor, inSpan, nearTile, stands, takers, toFoot, type FindTold, type Hand, type Lack, type Named } from "@/lib/town/bridge";
 import type { Keeper } from "@/lib/town/keeper";
-import { between } from "@/lib/town/line";
+import { PAST_BOUND, pastBound } from "@/lib/town/lines";
 import type { SceneryKit, Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
@@ -12,35 +11,45 @@ import { handOf } from "@/lib/town/trade";
 import { walkable, type Vec } from "@/lib/town/world";
 import { loadWorksArt } from "@/lib/town/works-art";
 import type { FarmDraw } from "./TownFarm";
-import TownHanding, { newOtherHand, type HandingResult, type OtherHand } from "./TownHanding";
+import TownFoot from "./TownFoot";
 
 export type { Hand };
 /** What a tap on the map came to here: nothing of the bridge's (null), or the pile's or the sign's: done where I stand, or to be walked to. With `peek` nothing is done. */
 export type BridgeTap = (x: number, y: number, peek?: boolean) => { walk: Vec | null } | null;
-/** The room's way for two pages to tell each other of a stone handed on by tired hands (lib/town/session's `pair`): into one letterbox, never the room; the words in the stone's own envelope (lib/town/bridge). */
-export interface StonePairing { send: (to: string, told: StoneTold) => void; hear: (fn: ((from: string, data: unknown) => void) | null) => void }
 
-/**
- * A handing-over that is a game (somebody has no stamina), as this page has it (as the bucket line has its own:
- * components/town/TownLine): which one, whether I throw (`from`) or take (`to`), who the other is, whether they have
- * answered yet, whose hands are tired, the seed the two share, and whether it is settled already.
- */
-interface Match { id: string; role: "from" | "to"; who: { id: string; name: string }; phase: "asking" | "playing"; tired: { from: boolean; to: boolean }; seed: number; over?: boolean }
-/** How long an answer is waited for (it comes in a fifth of a second). None by then: nobody is there to play, and the stone goes over at once. */
-const ASK_MS = 2000;
-/** How long somebody whose handing-over I gave up is not answered yes again: a board is not to come up over and over on a page that does not want it. */
-const SHY_MS = 8000;
 /** How often a bridge that is not open yet is asked after, in milliseconds (the game itself is asked after every five minutes while it is shut). */
 const CLOSED_AGAIN = 5 * 60_000;
+/** How long what a stone laid earned me is said, a find with it, and a span's feast (the whole bridge's a little longer), in milliseconds: slowly, each. */
+const EARNED_MS = 5200, FOUND_MS = 7000, FEAST_MS = 9000, WHOLE_MS = 14_000;
+/** How long the find's flourish is drawn at the foot, in milliseconds; and how near the foot one stands to be shown a find one had no hand in, in tiles. */
+const GLINT_MS = 4600, SEEN = 12;
+/** A span laid is feasted by a page that saw it laid, not by one that comes back to find the bridge much further on: so many stones at the most since it last looked. */
+const FRESH = 20;
 
 /** Where the sign stands: beside the foot, away from the water (one tile to the right of it on the screen), wherever the foot is (lib/town/bridge says where it may not). */
 const SIGN: Vec = SIGN_AT;
 /** How near the sign one stands to read it, in tiles. */
 const READ = 3;
-/** How large the pile and the sign are drawn, as shares of their pictures' own size. */
-const PILE_K = 0.95, SIGN_K = 0.9;
+/** How large the pile, the sign, the banner, the marks on the road and the building at the foot are drawn, as shares of their pictures' own size. */
+const PILE_K = 0.95, SIGN_K = 0.9, BANNER_K = 0.8, STAND_K = 0.72, SITE_K = 0.85;
 /** The bar on the sign's board, in the sign's own pixels from its picture's corner: where it begins, how long and how high it is. */
 const BAR = { x: 13, y: 43, w: 27, h: 3 };
+/**
+ * The course of stones at the foot, as its ten steps are laid: where each stone lies from the course's ground point,
+ * in the picture's own pixels (four, then three on them, then two, then one), and which of the three stones' pictures
+ * it is. Drawn from the same three small pictures, never made by the frame.
+ */
+const STONE_W = 19, STONE_H = 7;
+const COURSE: Array<[dx: number, dy: number, art: string]> = [
+  [-1.5, 0, "courseA"], [-0.5, 0, "courseC"], [0.5, 0, "courseA"], [1.5, 0, "courseB"],
+  [-1, 1, "courseA"], [0, 1, "courseB"], [1, 1, "courseC"],
+  [-0.5, 2, "courseC"], [0.5, 2, "courseA"],
+  [0, 3, "courseA"],
+];
+/** What is put up beside the course as its span comes on, each from its share of the span (lib/town/bridge's `MORE`): which picture, where from the course's ground point in the picture's pixels, and whether it stands behind the course. */
+const UP: Array<{ art: string; dx: number; dy: number; behind: boolean }> = [
+  { art: "siteScaffold", dx: -20, dy: -4, behind: true }, { art: "siteHoist", dx: 40, dy: 3, behind: false }, { art: "siteArch", dx: -46, dy: 8, behind: false },
+];
 
 /** Why not, in the bridge's own words: for whoever lifts and lays, and for a stone handed on. */
 const WHY_MINE: Record<string, [th: string, en: string]> = {
@@ -49,14 +58,11 @@ const WHY_MINE: Record<string, [th: string, en: string]> = {
   held: ["ถือหินอยู่แล้ว", "You hold a stone already"], none: ["ไม่ได้ถือหินอยู่", "You hold no stone"], away: ["ติดต่อเมืองไม่ได้ ลองอีกครั้ง", "The town could not be reached: try again"],
 };
 const WHY_PASS: Record<string, [th: string, en: string]> = {
-  ...WHY_MINE, hand: ["อีกฝ่ายถือของอยู่ ยังรับหินไม่ได้", "They have a thing in their hand"], held: ["อีกฝ่ายถือหินอยู่แล้ว", "They hold a stone already"],
-  none: ["ไม่มีใครรับหิน", "Nobody is there to take it"],
-  // (of the board of tired hands: it was not caught; the other is not ready, or stopped)
-  missed: ["รับไม่ทัน หินยังอยู่ที่เดิม ลองอีกครั้ง", "It was not caught: the stone is where it was. Try again"],
-  notReady: ["อีกฝ่ายยังไม่พร้อมรับหิน", "They are not ready to take it"], left: ["อีกฝ่ายเลิกกลางคัน", "They stopped"],
+  ...WHY_MINE, hand: ["อีกฝ่ายถือของอยู่ ยังรับหินไม่ได้ หินยังอยู่กับเรา", "They have a thing in their hand: the stone is still yours"], held: ["อีกฝ่ายถือหินอยู่แล้ว หินยังอยู่กับเรา", "They hold a stone already: yours is still yours"],
+  none: ["ไม่มีใครรับหิน หินยังอยู่กับเรา", "Nobody is there to take it: the stone is still yours"],
+  // (the button of tired hands let go of before it was full: nothing is done, and nothing is lost)
+  early: ["กดค้างไว้จนแถบเต็ม หินถึงจะไปถึงมือเพื่อน", "Keep it held until the bar is full"],
 };
-/** Why the other's page said no to the board, in those words (lib/town/bridge: `bare` is a thing in the hand, `full` a stone held already). */
-const NO = { busy: "notReady", away: "notReady", bare: "hand", full: "held" } as const;
 /** What somebody close by lacks to be handed a stone, said of them by name. */
 const LACKS: Record<Lack, [(name: string) => string, (name: string) => string]> = {
   walking: [(n) => `${n} ต้องยืนนิ่งก่อน ถึงจะรับหินได้`, (n) => `${n} has to stand still to take the stone`],
@@ -69,14 +75,37 @@ const STEPS: Array<[th: string, en: string]> = [
   ["ส่งต่อให้เพื่อนที่ยืนมือเปล่า หรือเดินไปเอง", "Hand it to a friend with empty hands, or walk it"],
   ["วางหินที่เชิงสะพาน", "Lay it at the bridge's foot"],
 ];
+/** Said beforehand, in one line each: what a stone laid counts for, and where to stand and where the foot is. */
+const COUNTS: [th: string, en: string] = ["หินถึงสะพานเมื่อไหร่ ทุกมือที่ช่วยส่งได้ +1 ก้อนเท่ากัน", "Once a stone is laid, every hand it went through is counted one, all alike"];
+const WHERE: [th: string, en: string] = ["วงหินบนทางคือจุดยืนส่งต่อ ธงแดงคือเชิงสะพาน", "The rings of pebbles on the road are where a row stands; the red banner is the bridge's foot"];
+/** What a stone may have in it: its picture, and what it is called. One it knows no name for (a kind added since) is a strange thing in the stone. */
+const FINDS: Record<string, { art: string; th: string; en: string }> = {
+  shell: { art: "findShell", th: "เปลือกหอยในหิน", en: "a shell in the stone" }, coin: { art: "findCoin", th: "เหรียญเก่าของหมู่บ้าน", en: "an old coin of the village" },
+  rune: { art: "findRune", th: "ลายสลักโบราณ", en: "a carved sign" }, pearl: { art: "findPearl", th: "ไข่มุกแม่น้ำ", en: "a river pearl" },
+  star: { art: "findStar", th: "หินรูปดาว", en: "a star-shaped stone" }, leaf: { art: "findLeaf", th: "รอยพิมพ์ใบไม้", en: "a leaf's print" },
+};
+const findOf = (kind: string) => FINDS[kind] ?? { art: "glint", th: "ของแปลกในหิน", en: "a strange thing in the stone" };
 
-/** One of the works' own pictures, cut out of the scenery's picture: its pixels kept square. */
-function Art({ sprite, box }: { sprite: Sprite | null; box: number }) {
-  if (!sprite) return <span aria-hidden className="shrink-0" style={{ width: box, height: box }} />;
-  const [x, y, w, h] = sprite.at, k = box / Math.max(w, h);
+/** What moves in a span's feast: slowly, and not at all for whoever asked for less motion. */
+const FEAST_CSS = `
+  @keyframes bridge-feast-in { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes bridge-sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+  @keyframes bridge-fall { 0% { transform: translateY(-14px); opacity: 0; } 18% { opacity: 1; } 80% { opacity: 1; } 100% { transform: translateY(84px); opacity: 0; } }
+  @keyframes bridge-rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .bridge-feast { animation: bridge-feast-in 900ms ease-out both; }
+  .bridge-feast [data-sway] { transform-origin: 50% 0; animation: bridge-sway 4.4s ease-in-out infinite; }
+  .bridge-feast [data-fall] { animation: bridge-fall 7s linear infinite both; }
+  .bridge-rise { animation: bridge-rise 600ms ease-out both; }
+  @media (prefers-reduced-motion: reduce) { .bridge-feast, .bridge-feast [data-sway], .bridge-feast [data-fall], .bridge-rise { animation: none; } }
+`;
+
+/** One of the works' own pictures, cut out of the scenery's picture: its pixels kept square. `wide`: as wide as the box, and as high as it comes to. `shadow`: only its shape, dark. */
+function Art({ sprite, box, wide = false, shadow = false }: { sprite: Sprite | null; box: number; wide?: boolean; shadow?: boolean }) {
+  if (!sprite) return <span aria-hidden className="shrink-0" style={{ width: box, height: wide ? box / 3 : box }} />;
+  const [x, y, w, h] = sprite.at, k = box / (wide ? w : Math.max(w, h));
   return (
-    <span aria-hidden className="grid shrink-0 place-items-center" style={{ width: box, height: box }}>
-      <span style={{ width: w * k, height: h * k, backgroundImage: `url(${sprite.src})`, backgroundSize: `${sprite.sheet[0] * k}px ${sprite.sheet[1] * k}px`, backgroundPosition: `${-x * k}px ${-y * k}px`, imageRendering: "pixelated" }} />
+    <span aria-hidden className="grid shrink-0 place-items-center" style={{ width: box, height: wide ? h * k : box }}>
+      <span style={{ width: w * k, height: h * k, backgroundImage: `url(${sprite.src})`, backgroundSize: `${sprite.sheet[0] * k}px ${sprite.sheet[1] * k}px`, backgroundPosition: `${-x * k}px ${-y * k}px`, imageRendering: "pixelated", ...(shadow ? { filter: "brightness(0)", opacity: 0.4 } : {}) }} />
     </span>
   );
 }
@@ -96,36 +125,81 @@ function Steps({ th, at, wide = false }: { th: boolean; at: number; wide?: boole
 }
 
 /**
+ * A button that is held, for tired hands (lib/town/bridge's `holdFor`): it fills while it is held, and what it is for
+ * is done when it is full. Let go of early, nothing is done and nothing is lost (`onEarly` says so). **Nothing to be
+ * quick at, and it cannot fail**: by the mouse, a finger, or the space bar and Enter held down.
+ */
+function HoldButton({ secs, onDone, onEarly, disabled, who, className, children }: { secs: number; onDone: () => void; onEarly: () => void; disabled: boolean; who: string; className: string; children: ReactNode }) {
+  const [holding, setHolding] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null), done = useRef(onDone);
+  done.current = onDone;
+  const stop = useCallback((early: boolean) => {
+    if (timer.current) { clearTimeout(timer.current); timer.current = null; if (early) onEarly(); }
+    setHolding(false);
+  }, [onEarly]);
+  const start = useCallback(() => {
+    if (disabled || timer.current) return;
+    setHolding(true);
+    timer.current = setTimeout(() => { timer.current = null; setHolding(false); done.current(); }, secs * 1000);
+  }, [disabled, secs]);
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  return (
+    <button type="button" disabled={disabled} data-bridge-chip={who} data-hold={secs} data-holding={holding}
+            onPointerDown={(e) => { if (e.pointerType === "mouse" && e.button !== 0) return; try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* no capture: held all the same */ } start(); }}
+            onPointerUp={() => stop(true)} onPointerCancel={() => stop(false)} onBlur={() => stop(false)} onContextMenu={(e) => e.preventDefault()}
+            onKeyDown={(e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (!e.repeat) start(); } }}
+            onKeyUp={(e) => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); stop(true); } }}
+            className={`${className} relative select-none overflow-hidden`} style={{ touchAction: "none", WebkitTouchCallout: "none" }}>
+      <span aria-hidden className="absolute inset-0 origin-left bg-gold/40" data-bridge-fill style={{ transform: `scaleX(${holding ? 1 : 0})`, transition: holding ? `transform ${secs}s linear` : "transform 200ms ease-out" }} />
+      <span className="relative flex min-w-0 items-center gap-2">{children}</span>
+    </button>
+  );
+}
+
+/**
  * The bridge built by hand (lib/town/bridge; the owner, 2026-10-08: "สะพานจากมือชาวบ้าน", and of every such piece:
- * "ขอ UI ดีๆเท่าที่จะเป็นไปได้ mini game เข้าใจไม่ยาก ถ้าเข้าใจยากเขียนวิธีเล่นไว้คร่าวๆด้วย").
+ * "ขอ UI ดีๆเท่าที่จะเป็นไปได้ mini game เข้าใจไม่ยาก ถ้าเข้าใจยากเขียนวิธีเล่นไว้คร่าวๆด้วย"; and that evening, of what it
+ * would take for made-up players to score it ninety: "ขอให้ทำทุกอันเป็นแบบดันสุดเลย … เอาตามที่ codex ว่ามาได้เลย").
  *
  * A pile of stone stands by the uncle's shop, under a cloth until the bridge is opened. Standing by it with empty
  * hands, a button lifts a stone (a tap on the pile walks up to it and lifts one). The stone is seen in my hands by
  * everybody, and I walk at half the pace with it. Standing still with one, whoever stands still with empty hands
- * within six tiles is offered by name, three at the most, those nearer the bridge's foot first: a press, and it is in
+ * within ten tiles is offered by name, three at the most, those nearer the bridge's foot first: a press, and it is in
  * their hands. With nobody to offer, whoever stands close by is named with what they lack. At the foot a button lays
  * it. It can be let go of anywhere (two presses: it is gone for good).
  *
- * **With no stamina on either side handing it on is the handing game's easy board** (lib/town/handing, TownHanding
- * with a stone's picture and words; lib/town/bridge's `byBoard`): the same press puts a board up and asks the other's
- * page, where one comes up by itself and waits for their Ready; whoever has the stone presses Toss, and whoever takes
- * it presses the side it flies to. Caught, it is in their hands; not, the stone is where it was. The two pages talk
- * through the room's letterboxes (`pair`); where the other is not there to play (another page of the site, a page
- * that does not answer) the stone goes over at once, as it does with stamina: nothing is refused to tired hands.
+ * **Nobody is ever unsure what to do, nothing is lost by a slip, nothing is gated by quick hands, and everybody who
+ * took part is counted and named**:
+ * - **No board at any stamina.** With no stamina on either side the same button is held for a little over a second
+ *   and fills (`HoldButton`); let go of early, the stone is where it was. Nothing comes up on the other's page.
+ * - **Every hand sees what it earned**: when a stone I had a hand in is laid, wherever I stand, "+1 stone · 73/100 of
+ *   this span" and the helpers' point; and the offer and the sign say beforehand that it will be so.
+ * - **Places to stand**: while the bridge is being built the road has a ring of pebbles where each of a row would
+ *   stand (lib/town/bridge's `stands`), and a banner at the foot. They are only drawn.
+ * - **Progress seen at once**: at the foot a course of stones grows through the span in hand, a step for every tenth
+ *   stone, with a scaffold from a quarter of the span, a hoist and its rope from a half and an arch's form from three
+ *   quarters. (The bridge's own six states are the map's: `bridgeSpans`, `bridgeWhole`.)
+ * - **A feast at every hundredth stone**: every page of the town says so for a few seconds, slowly, with the names of
+ *   that span's hands; and the sign keeps "span n, laid by …" for each.
+ * - **Marked stones**: about one in twenty-five has something in it, which nobody is told while it is carried. Laid,
+ *   it is set in the bridge: a glint at the foot for whoever is near, its hands told wherever they are, and the sign
+ *   shows every find with its hands' names, and the kinds I have had a hand in (the rest as shadows).
  *
  * **How it is done is said in three steps, the one to do now lit**: over the buttons at the pile and while a stone is
- * held, and on the sign. The sign stands at the foot; a tap on it (it is walked up to first) opens its panel: the
- * village's bar, so many of six hundred and which span of six; the three steps; everybody who has helped, in the
- * order they first came, with no numbers and no ranking; and my own count, shown to me alone.
+ * held, and on the sign. The sign stands at the foot; a tap on it or on the banner (walked up to first) opens its
+ * panel: the village's bar, so many of six hundred and which span of six; the three steps; my own count, shown to me
+ * alone; each span's hands; the finds; and everybody who has helped, in the order they first came, with no numbers
+ * and no ranking.
  *
- * The map draws the pile and the sign through here (their own picture: lib/town/works-art); the stone in somebody's
- * hands is the map's own to draw, with everybody else.
+ * The map draws all of it through here (the works' own picture: lib/town/works-art), from prepared pictures and
+ * nothing made by the frame; the stone in somebody's hands is the map's own to draw, with everybody else. What sits
+ * at the foot of the screen is put into the map's one grid (components/town/TownFoot).
  *
  * What is kept is the keeper's: for a member the database's (v160), in `next dev`'s test room the browser's trial.
  * A keeper that knows of no works (the database before v160) shows nothing; a bridge that is not open shows only its
  * pile under the cloth.
  */
-export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, phone, tabbar, register, registerTap, carry, pair = null }: {
+export default function TownBridge({ keeper, me, th, here, people, sfx, phone, tabbar, register, registerTap, carry }: {
   keeper: Keeper;
   me: string;
   th: boolean;
@@ -133,24 +207,21 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
   here: [number, number] | null;
   /** Everybody on the map now, as the map has them. */
   people: () => Hand[];
-  /** How far up from the foot of the map what is offered sits. */
-  bottom: string;
   sfx: FishSfx | null;
   phone: boolean;
   tabbar: boolean;
-  /** Hand the map the way to draw the pile and the sign, and the way to ask whether a tap was on one of them (and take each back with null). */
+  /** Hand the map the way to draw the pile, the sign and the building, and the way to ask whether a tap was on one of them (and take each back with null). */
   register: (draw: FarmDraw | null) => void;
   registerTap: (tap: BridgeTap | null) => void;
   /** Tell the room what I carry in my hands (a stone), or that they are free of it. */
   carry: (thing: string | null) => void;
-  /** How this page and another tell each other of a stone handed on by tired hands (null: nobody to tell, and it goes over at once). */
-  pair?: StonePairing | null;
 }) {
   const [, setTick] = useState(0);
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
   const works = keeper.works(), bridge = works?.works[BRIDGE.work] ?? null, open = !!bridge?.open;
   const need = bridge?.needs[BRIDGE.thing] ?? null, spans = bridgeSpans(works), whole = bridgeWhole(works), held = carrying(works);
-  const purse = keeper.purse(), hand = handOf(purse);
+  const have = need?.have ?? 0, mine = bridge?.mine[BRIDGE.thing] ?? 0, finds = bridge?.finds ?? [];
+  const purse = keeper.purse(), hand = handOf(purse), tired = isSpent(purse, keeper.now());
 
   // The works' own pictures: fetched once there are works to show, and the scenery they were added to kept for the map.
   const kit = useRef<SceneryKit | null>(null);
@@ -166,8 +237,8 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
 
   // The room is told what I carry, so that every page draws it and walks me at its pace.
   useEffect(() => { carry(held); }, [held, carry]);
-  // While the bridge is being built it is read again now and then (a stone handed to me is told through the room at
-  // once; this is for a word the room lost, and for the bar).
+  // While the bridge is being built it is read again now and then (a stone handed to me, and every stone laid, are
+  // told through the room at once; this is for a word the room lost).
   useEffect(() => (open && !whole ? keeper.look("works") : undefined), [keeper, open, whole]);
   // While it is not open yet it is asked after seldom: so that the pile is uncovered on a page that was here already
   // when its owner opened it, with nothing loaded again (as the game itself opens: lib/town/keeper).
@@ -178,7 +249,7 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
   }, [keeper, known, open]);
 
   const [note, setNote] = useState<string | null>(null);
-  useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 3000); return () => clearTimeout(t); }, [note]);
+  useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 3200); return () => clearTimeout(t); }, [note]);
   const [toast, setToast] = useState<string | null>(null);
   useEffect(() => { if (!toast) return; const t = setTimeout(() => setToast(null), 4600); return () => clearTimeout(t); }, [toast]);
   const [busy, setBusy] = useState(false);
@@ -198,6 +269,7 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
   const found = looking && here ? takers(me, { x: here[0] + 0.5, y: here[1] + 0.5 }, people()) : null;
   const offered = found?.offered ?? [], lacks = found?.lacks ?? null;
   const nameOf = useCallback((id: string, told = "") => told || people().find((p) => p.id === id)?.name || "", [people]);
+  const called = (who: Named) => nameOf(who.id, who.name) || (th ? "ชาวบ้าน" : "A villager");
 
   /** A stone of my own lifting is no news to me: only one that comes into my hands by somebody else's. */
   const lifting = useRef(false);
@@ -223,12 +295,11 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
       say(WHY_MINE, did.why);
       return;
     }
+    // (what it earned, a span's feast and a find are said by what the keeper tells of the works then: below)
     sfx?.wake();
     sfx?.work("knock", 0.9);
-    if (did.whole) setToast(th ? "สะพานเสร็จสมบูรณ์แล้ว! ขอบคุณทุกมือที่ช่วยกัน" : "The bridge is whole! Thank you, every hand");
-    else if (did.span) setToast(th ? `ต่อสะพานได้อีกช่วงแล้ว! (ช่วงที่ ${did.spans} จาก ${BRIDGE.spans})` : `Another span is laid! (${did.spans} of ${BRIDGE.spans})`);
-    else setNote(th ? "วางหินแล้ว" : "The stone is laid");
   }, [keeper, sfx, say, th]);
+  /** Hand the stone on to somebody: it is in their hands, and they are told through the room. Refused (they took a thing up meanwhile), the stone is where it was, and why is said. */
   const passTo = useCallback(async (to: { id: string; name: string }) => {
     if (busyRef.current) return;
     busyRef.current = true; setBusy(true);
@@ -239,6 +310,7 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
     sfx?.work("pick", 0.6);
     setNote(th ? `ส่งหินให้ ${to.name || "เพื่อน"} แล้ว` : `Handed to ${to.name || "them"}`);
   }, [keeper, sfx, say, th]);
+  const early = useCallback(() => say(WHY_PASS, "early"), [say]);
   /** Letting go takes two presses: a stone let go of is gone for good. */
   const [sure, setSure] = useState(false);
   useEffect(() => { if (!sure) return; const t = setTimeout(() => setSure(false), 3500); return () => clearTimeout(t); }, [sure]);
@@ -254,18 +326,42 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
     setNote(th ? "ปล่อยหินแล้ว" : "The stone is let go");
   }, [keeper, sure, say, th]);
 
-  // A stone that comes into my hands by somebody's hand, and a span the village laid while I looked on: said once each.
-  const was = useRef<{ held: string | null; spans: number } | null>(null);
+  // ── what the keeper's telling of the works has new in it, said once each ──
+  // A stone that came into my hands by somebody's hand; a stone I had a hand in, laid (wherever I stand); something
+  // found in a stone (to its hands wherever they are, and to whoever is near the foot); a span laid, or the bridge
+  // whole (to every page of the town).
+  const [earned, setEarned] = useState<{ n: number; at: number; of: number; past: boolean } | null>(null);
+  useEffect(() => { if (!earned) return; const t = setTimeout(() => setEarned(null), EARNED_MS); return () => clearTimeout(t); }, [earned]);
+  const [dug, setDug] = useState<{ find: FindTold; mine: boolean } | null>(null);
+  useEffect(() => { if (!dug) return; const t = setTimeout(() => setDug(null), FOUND_MS); return () => clearTimeout(t); }, [dug]);
+  const [feast, setFeast] = useState<{ span: number; whole: boolean; names: Named[]; all: number } | null>(null);
+  useEffect(() => { if (!feast) return; const t = setTimeout(() => setFeast(null), feast.whole ? WHOLE_MS : FEAST_MS); return () => clearTimeout(t); }, [feast]);
+  /** What the map draws for a moment at the foot: the thing found, rising with a glint; and lanterns while a span is feasted. */
+  const glint = useRef<{ kind: string; since: number | null } | null>(null), feasting = useRef(false);
+  feasting.current = !!feast;
+  const was = useRef<{ held: string | null; spans: number; mine: number; finds: number; have: number } | null>(null);
   useEffect(() => {
     const before = was.current;
-    was.current = { held, spans };
+    was.current = open ? { held, spans, mine, finds: finds.length, have } : null;
     if (!before || !open) return;
     if (held && !before.held) {
       if (lifting.current) lifting.current = false;
       else { setToast(th ? "มีคนส่งหินมาให้ ถือไว้แล้ว" : "Somebody handed you a stone"); sfx?.wake(); sfx?.work("pick", 0.7); }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- by what I hold, not by the sound's identity
-  }, [held, spans, open, th]);
+    const fresh = have > before.have && have - before.have <= FRESH;
+    if (mine > before.mine && fresh) {
+      const into = inSpan(have, need?.need ?? null);
+      // (a helpers' point; past the day's bound of theirs a point counts a quarter: lib/town/lines)
+      setEarned({ n: mine - before.mine, at: into?.n ?? have, of: into?.of ?? 0, past: pastBound("helpers", keeper.lines()?.lines.helpers.today ?? 0) });
+    }
+    if (finds.length > before.finds && fresh) {
+      const find = finds[finds.length - 1], had = find.hands.some((h) => h.id === me || h.id === keeper.id);
+      const self = people().find((p) => p.id === me), near = !!self && toFoot(self) <= SEEN;
+      if (had || near) { setDug({ find, mine: had }); if (near) glint.current = { kind: find.kind, since: null }; sfx?.wake(); sfx?.work("pick", 0.5); }
+    }
+    if (spans > before.spans && fresh) setFeast({ span: spans, whole, names: bridge?.built[String(spans)] ?? [], all: bridge?.helpers.length ?? 0 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- by what the works tell, not by the sound's identity or who is where
+  }, [held, spans, mine, finds.length, have, open, th]);
 
   // ── the sign's panel ──
   const [panel, setPanel] = useState(false);
@@ -290,138 +386,31 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
     else if (w === "sign" && nearTile(at, SIGN, READ)) { want.current = null; setPanel(true); }
   }, [hereKey, lift]);
 
-  // ── tired hands: the handing game's board, for a stone (lib/town/bridge's `byBoard`; as the bucket line's, components/town/TownLine) ──
-  const [match, setMatch] = useState<Match | null>(null);
-  const matchRef = useRef<Match | null>(null), other = useRef<OtherHand>(newOtherHand()), asking = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const put = useCallback((m: Match | null) => {
-    if (asking.current && m?.phase !== "asking") { clearTimeout(asking.current); asking.current = null; }
-    matchRef.current = m;
-    setMatch(m);
-  }, []);
-  /** Whose handing-over I gave up, and until when they are not answered yes again. */
-  const shy = useRef(new Map<string, number>());
-  /** (for scripts in `next dev`: a page that asks nobody, as one that does not answer does) */
-  const mute = useRef(false);
-  /** Whether nothing of mine is in the way of a board coming up: nothing being done, the sign's panel shut. */
-  const idle = useRef(true);
-  useEffect(() => { idle.current = !busyRef.current && !panel; });
-  const send = useCallback((to: string, told: Told) => pair?.send(to, stoneTold(told)), [pair]);
-
-  /** Hand the stone on to somebody: at once with stamina on both sides; with none on either, by the board, where the other is there to play. */
-  const begin = useCallback((to: Hand) => {
-    if (busyRef.current || matchRef.current) return;
-    const tired = isSpent(keeper.purse(), keeper.now());
-    if (!byBoard(tired, to.spent) || !pair || to.away) { void passTo(to); return; }
-    const id = Math.random().toString(36).slice(2, 10).padEnd(8, "0"), seed = Math.floor(Math.random() * 2 ** 31);
-    other.current = newOtherHand();
-    put({ id, role: "from", who: { id: to.id, name: to.name }, phase: "asking", tired: { from: tired, to: to.spent === true }, seed });
-    if (!mute.current) send(to.id, { k: "ask", m: id, s: tired, z: seed });
-    asking.current = setTimeout(() => {
-      asking.current = null;
-      const m = matchRef.current;
-      if (!m || m.id !== id || m.phase !== "asking") return;
-      // (no answer: nobody there to play it with, and the stone goes over as it does with stamina)
-      put(null);
-      void passTo(to);
-    }, ASK_MS);
-  }, [keeper, pair, passTo, put, send]);
-
-  /** What another page said of a stone handed on: asked to take one, or a word of the handing-over that is on. */
-  const heard = useCallback((from: string, raw: unknown) => {
-    const told = readStoneTold(raw);
-    if (!told || !pair) return;
-    const m = matchRef.current;
-    if (told.k === "ask") {
-      // (only from somebody the room has with a stone in their hands, and only where a bridge is being built)
-      const who = people().find((p) => p.id === from), at = hereRef.current, works = worksRef.current;
-      if (!who || !who.carry || !works?.works[BRIDGE.work]?.open) return;
-      const no = (w: keyof typeof NO) => send(from, { k: "no", m: told.m, w });
-      if (m || !idle.current || !at || between({ x: at[0] + 0.5, y: at[1] + 0.5 }, who) > BRIDGE.reach || (shy.current.get(from) ?? 0) > performance.now()) return no("busy");
-      if (handOf(keeper.purse())) return no("bare");
-      if (carrying(works)) return no("full");
-      // yes: a board comes up here, and nothing is thrown until I say I am ready
-      const tired = isSpent(keeper.purse(), keeper.now());
-      other.current = newOtherHand();
-      put({ id: told.m, role: "to", who: { id: from, name: who.name }, phase: "playing", tired: { from: told.s, to: tired }, seed: told.z });
-      send(from, { k: "ok", m: told.m, s: tired });
-      return;
-    }
-    if (!m || m.id !== told.m || m.who.id !== from) {
-      // (a yes that comes after I have stopped waiting for it: their board is up for nothing, and is told so)
-      if (told.k === "ok") send(from, { k: "bye", m: told.m });
-      return;
-    }
-    if (m.over) return;
-    const o = other.current;
-    if (told.k === "ok") { if (m.role === "from" && m.phase === "asking") put({ ...m, phase: "playing", tired: { ...m.tired, to: told.s } }); }
-    else if (told.k === "no") {
-      if (m.role !== "from" || m.phase !== "asking") return;
-      put(null);
-      say(WHY_PASS, NO[told.w]);
-    }
-    else if (told.k === "r") { if (m.role === "from") o.ready = true; }
-    else if (told.k === "p") { if (m.role === "from") o.put = told.d; }
-    else if (told.k === "th") { if (m.role === "to" && o.thrown === null) o.thrown = performance.now(); }
-    else if (told.k === "end") { if (m.role === "from") o.verdict = told.c; }
-    else if (told.k === "bye") { put(null); say(WHY_PASS, "left"); }
-  }, [pair, people, keeper, put, say, send]);
-  useEffect(() => { if (!pair) return; pair.hear(heard); return () => pair.hear(null); }, [pair, heard]);
-
-  /** Giving it up: the other is told (and, having taken no stone from them, I am not asked again at once). */
-  const stop = useCallback(() => {
-    const m = matchRef.current;
-    if (!m) return;
-    // (one that is settled already is only shut)
-    if (!m.over) {
-      send(m.who.id, { k: "bye", m: m.id });
-      if (m.role === "to") shy.current.set(m.who.id, performance.now() + SHY_MS);
-    }
-    put(null);
-  }, [send, put]);
-  // walking off, or something else opening, leaves it; and so does leaving the town
-  useEffect(() => { if (match && (!here || panel)) stop(); }, [match, here, panel, stop]);
-  useEffect(() => () => {
-    const m = matchRef.current;
-    if (m && !m.over) pair?.send(m.who.id, stoneTold({ k: "bye", m: m.id }));
-    if (asking.current) clearTimeout(asking.current);
-  }, [pair]);
-  /**
-   * Settled: caught, whoever threw it hands the stone on at that moment (whoever took it is told by the keeper, as
-   * ever); not caught, the stone is where it was, and that is said. The board is up a blink longer, and shut by itself.
-   */
-  const played = useCallback((r: HandingResult) => {
-    const m = matchRef.current;
-    if (!m || m.over) return;
-    put({ ...m, over: true });
-    const mine = m.role === "from";
-    keeper.record({ game: "farming", at: keeper.now(), won: r.won, secs: r.secs, spent: mine ? m.tired.from : m.tired.to, buff: null, what: mine ? "stoneHand" : "stoneTake", need: 1, hits: r.won ? 1 : 0, misses: r.won ? 0 : 1 });
-    if (!r.won) { say(WHY_PASS, "missed"); return; }
-    if (mine) void passTo(m.who);
-  }, [keeper, put, say, passTo]);
-  const shut = useCallback(() => { if (matchRef.current?.over) put(null); }, [put]);
-
-  // The map draws the pile and the sign, and asks here whether a tap was on one of them.
-  const boxes = useRef<{ pile: Box | null; sign: Box | null }>({ pile: null, sign: null });
+  // The map draws the pile, the sign and the building, and asks here whether a tap was on one of them.
+  const boxes = useRef<{ pile: Box | null; sign: Box | null; banner: Box | null }>({ pile: null, sign: null, banner: null });
   useEffect(() => {
     register((frame) => {
-      const { ctx, things, project, onScreen, s } = frame;
-      boxes.current = { pile: null, sign: null };
+      const { ctx, things, project, onScreen, s, now, still } = frame;
+      boxes.current = { pile: null, sign: null, banner: null };
       const k = kit.current, w = worksRef.current?.works[BRIDGE.work];
       if (!k || !w) return;
       const px = Math.abs(ctx.getTransform().a) || 1;
+      const boxOf = (name: string, at: Vec, z: number, pad = 0): Box => { const [pw, ph] = k.sizeOf(name), [ax, ay] = k.anchorOf(name); return { x0: at.x - ax * z - pad, y0: at.y - ay * z - pad, x1: at.x + (pw - ax) * z + pad, y1: at.y + (ph - ay) * z + pad }; };
       // the pile by the shop: under its cloth until the bridge is opened. It stops nobody (no tile is closed for it).
       const pile = w.open ? "stonePile" : "stonePileCloth", at = project({ x: BRIDGE.pile.x + 0.5, y: BRIDGE.pile.y + 0.62 });
       if (k.has(pile) && onScreen(at)) {
-        const z = s * PILE_K, [pw, ph] = k.sizeOf(pile), [ax, ay] = k.anchorOf(pile);
-        if (w.open) boxes.current.pile = { x0: at.x - ax * z, y0: at.y - ay * z, x1: at.x + (pw - ax) * z, y1: at.y + (ph - ay) * z };
+        const z = s * PILE_K;
+        if (w.open) boxes.current.pile = boxOf(pile, at, z);
         things.push({ depth: BRIDGE.pile.x + BRIDGE.pile.y + 1, draw: () => k.drawProp(ctx, pile, at.x, at.y, z, px) });
       }
-      // the sign at the foot, once the bridge is open: its bar is the village's, a notch a span
+      if (!w.open) return;
+      const n = w.needs[BRIDGE.thing], building = !!n && n.need !== null && n.have < n.need;
+      // the sign at the foot: its bar is the village's, a notch a span
       const post = project({ x: SIGN.x + 0.5, y: SIGN.y + 0.62 });
-      if (w.open && k.has("bridgeSign") && onScreen(post)) {
-        const z = s * SIGN_K, [sw, sh] = k.sizeOf("bridgeSign"), [ax, ay] = k.anchorOf("bridgeSign"), n = w.needs[BRIDGE.thing];
+      if (k.has("bridgeSign") && onScreen(post)) {
+        const z = s * SIGN_K, [ax, ay] = k.anchorOf("bridgeSign");
         const share = n?.need ? Math.max(0, Math.min(1, n.have / n.need)) : 0;
-        boxes.current.sign = { x0: post.x - ax * z - 4, y0: post.y - ay * z - 4, x1: post.x + (sw - ax) * z + 4, y1: post.y + (sh - ay) * z + 4 };
+        boxes.current.sign = boxOf("bridgeSign", post, z, 4);
         things.push({ depth: SIGN.x + SIGN.y + 1, draw: () => {
           k.drawProp(ctx, "bridgeSign", post.x, post.y, z, px);
           const snap = (v: number) => Math.round(v * px) / px, x0 = snap(post.x + (BAR.x - ax) * z), y0 = snap(post.y + (BAR.y - ay) * z), bw = BAR.w * z, bh = Math.max(1, BAR.h * z);
@@ -434,7 +423,54 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
           // (a notch between two spans)
           ctx.fillStyle = "#3a2412";
           for (let i = 1; i < BRIDGE.spans; i++) ctx.fillRect(snap(x0 + (bw * i) / BRIDGE.spans), y0, Math.max(1 / px, z * 0.5), bh);
+          // (a span is feasted: a lantern on the sign's post for as long)
+          if (feasting.current && k.has("feastLantern")) k.drawProp(ctx, "feastLantern", post.x + 22 * z, post.y - 28 * z, z * 0.6, px);
         } });
+      }
+      if (!building) return;
+      // ── while it is being built: where a row would stand, the banner at the foot, and the course that grows there.
+      // All only drawn: nobody is stopped by any of it, and no tile's walking changes.
+      if (k.has("standMark")) for (const m of stands()) {
+        const c = project({ x: m.x + 0.5, y: m.y + 0.5 });
+        if (!onScreen(c)) continue;
+        // (flat on the ground: under whoever stands on its tile, and under whatever stands before it)
+        const [, mh] = k.sizeOf("standMark"), z = s * STAND_K;
+        things.push({ depth: m.x + m.y + 0.2, draw: () => k.drawProp(ctx, "standMark", c.x, c.y + (mh / 2) * z, z, px) });
+      }
+      const flag = project({ x: BANNER_AT.x + 0.5, y: BANNER_AT.y + 0.62 });
+      if (k.has("bridgeBanner") && onScreen(flag)) {
+        const z = s * BANNER_K;
+        boxes.current.banner = boxOf("bridgeBanner", flag, z, 2);
+        // (its cloth leans a little, slowly, as the town's trees do)
+        things.push({ depth: BANNER_AT.x + BANNER_AT.y + 1, draw: () => {
+          k.drawProp(ctx, "bridgeBanner", flag.x, flag.y, z, px, 0, false, still ? 0 : 0.012 * Math.sin(now / 1900));
+          if (feasting.current && k.has("feastLantern")) k.drawProp(ctx, "feastLantern", flag.x - 14 * z, flag.y - 70 * z, z * 0.7, px);
+        } });
+      }
+      const site = project({ x: COURSE_AT.x + 0.5, y: COURSE_AT.y + 0.62 });
+      if (k.has("courseA") && onScreen(site)) {
+        const z = s * SITE_K, { step, more } = course(n!.have, n!.need), depth = COURSE_AT.x + COURSE_AT.y + 1;
+        const up = UP.slice(0, more).filter((u) => k.has(u.art));
+        for (const u of up) things.push({ depth: depth + (u.behind ? -0.3 : 0.05 + u.dy * 0.01), draw: () => k.drawProp(ctx, u.art, site.x + u.dx * z, site.y + u.dy * z, z, px) });
+        if (step > 0) things.push({ depth, draw: () => { for (const [dx, dy, name] of COURSE.slice(0, step)) k.drawProp(ctx, name, site.x + dx * STONE_W * z, site.y - dy * STONE_H * z, z, px); } });
+      }
+      // what was found in a stone just laid: it rises slowly from the course with a glint, and is gone
+      const g = glint.current;
+      if (g && onScreen(site)) {
+        g.since ??= now;
+        const t = (now - g.since) / GLINT_MS;
+        if (t >= 1) glint.current = null;
+        else {
+          const z = s * SITE_K, name = findOf(g.kind).art, rise = (still ? 1 : Math.min(1, t * 2.2)) * 30, fade = t < 0.75 ? 1 : Math.max(0, (1 - t) / 0.25), pulse = still ? 1 : 0.75 + 0.25 * Math.sin(now / 420);
+          things.push({ depth: COURSE_AT.x + COURSE_AT.y + 3, draw: () => {
+            ctx.save();
+            ctx.globalAlpha = fade;
+            if (k.has(name)) k.drawProp(ctx, name, site.x, site.y - (26 + rise) * z, z * 0.8, px);
+            ctx.globalAlpha = fade * pulse;
+            if (k.has("glint")) { k.drawProp(ctx, "glint", site.x - 16 * z, site.y - (50 + rise) * z, z * 0.8, px); k.drawProp(ctx, "glint", site.x + 18 * z, site.y - (34 + rise) * z, z * 0.6, px); }
+            ctx.restore();
+          } });
+        }
       }
     });
     registerTap((x, y, peek = false) => {
@@ -443,7 +479,8 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
       const far = (t: Vec) => (at ? Math.hypot(t.x - at[0], t.y - at[1]) : 0);
       const beside = (t: Vec, reach: number) => [[1, 1], [1, 0], [0, 1], [-1, 1], [1, -1], [-1, 0], [0, -1], [-1, -1]].map(([dx, dy]) => ({ x: t.x + dx, y: t.y + dy }))
         .filter((c) => walkable(c.x, c.y) && nearTile([c.x, c.y], t, reach)).sort((p, q) => far(p) - far(q))[0] ?? null;
-      if (hit(b.sign)) {
+      // (the banner is the foot's own mark: a tap on it reads the sign too)
+      if (hit(b.sign) || hit(b.banner)) {
         if (peek) return { walk: null };
         if (at && nearTile(at, SIGN, READ)) { want.current = null; setPanel(true); return { walk: null }; }
         want.current = "sign";
@@ -463,17 +500,20 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
     return () => { register(null); registerTap(null); };
   }, [register, registerTap, lift]);
 
-  // (for scripts in `next dev`: the works as kept, the trial's own switches, what is offered, and each deed)
+  // (for scripts in `next dev`: the works as kept, the trial's own switches, what is offered, what is said, and each deed)
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
       works: () => keeper.works(), spans: () => bridgeSpans(keeper.works()), whole: () => bridgeWhole(keeper.works()), held: () => carrying(keeper.works()),
-      open: (on = true) => keeper.trial?.worksOpen(on), have: (n: number) => keeper.trial?.worksHave(n), anew: () => keeper.trial?.worksAnew(),
+      open: (on = true) => keeper.trial?.worksOpen(on), have: (n: number) => keeper.trial?.worksHave(n), anew: () => keeper.trial?.worksAnew(), mark: (kind: string | null) => keeper.trial?.worksMark(kind),
       here: () => hereRef.current, atPile: () => atPile, atFoot: () => atFoot, offered: () => offered.map((p) => p.id), lacks: () => (lacks ? { who: lacks.who.id, why: lacks.why } : null),
-      lift, lay, drop: async () => keeper.stoneDrop(), pass: (id: string) => { const to = offered.find((p) => p.id === id); if (to) begin(to); },
-      match: () => (match ? { role: match.role, phase: match.phase, with: match.who.id, tired: match.tired } : null), mute: (on = true) => { mute.current = on; }, idle: () => ({ idle: idle.current, busy: busyRef.current, panel }),
-      note: () => note, toast: () => toast, panel: (on = true) => setPanel(on), isPanel: () => panel, boxes: () => boxes.current, drawn: () => drawn,
-      pile: BRIDGE.pile, foot: BRIDGE.foot, sign: SIGN, reach: BRIDGE.reach, near: BRIDGE.near, need: BRIDGE.need,
+      holds: () => Object.fromEntries(offered.map((p) => [p.id, holdFor(tired, p.spent)])), tired: () => tired,
+      lift, lay, drop: async () => keeper.stoneDrop(), pass: (id: string) => { const to = offered.find((p) => p.id === id); if (to) void passTo(to); },
+      idle: () => ({ busy: busyRef.current, panel }), note: () => note, toast: () => toast, earned: () => earned, dug: () => (dug ? { kind: dug.find.kind, mine: dug.mine, hands: dug.find.hands.map((h) => h.id) } : null),
+      feast: () => (feast ? { span: feast.span, whole: feast.whole, names: feast.names.map((h) => h.id) } : null), glint: () => glint.current?.kind ?? null,
+      course: () => { const n = keeper.works()?.works[BRIDGE.work]?.needs[BRIDGE.thing]; return n ? course(n.have, n.need) : null; },
+      panel: (on = true) => setPanel(on), isPanel: () => panel, boxes: () => boxes.current, drawn: () => drawn,
+      pile: BRIDGE.pile, foot: BRIDGE.foot, sign: SIGN, banner: BANNER_AT, site: COURSE_AT, marks: stands(), reach: BRIDGE.reach, near: BRIDGE.near, need: BRIDGE.need, hold: BRIDGE.hold, kinds: MARKS,
     };
     (window as unknown as { __townBridge?: typeof handle }).__townBridge = handle;
     return () => { delete (window as unknown as { __townBridge?: typeof handle }).__townBridge; };
@@ -482,36 +522,85 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
   if (!open || !need) return null;
   const stone = art("stoneHeld");
   const step = held ? (atFoot ? 2 : 1) : 0;
-  const mine = bridge!.mine[BRIDGE.thing] ?? 0;
   const span = Math.min(BRIDGE.spans, spans + 1);
   const title = th ? "สะพานจากมือชาวบ้าน" : "The bridge built by hand";
   const pill = "pop-in pressable pointer-events-auto flex min-h-11 max-w-[22rem] items-center gap-2 rounded-full border bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors disabled:opacity-60";
   const offering = !panel && !!here && (held ? true : atPile && !whole);
+  const built = Object.entries(bridge!.built).map(([n, hands]) => ({ n: Number(n), hands })).filter((b) => b.n > 0 && b.hands.length).sort((a, b) => a.n - b.n);
+  /** The kinds I have had a hand in: found, they are shown as they are; the rest as shadows. */
+  const kinds = new Set(finds.filter((f) => f.hands.some((h) => h.id === me || h.id === keeper.id)).map((f) => f.kind));
+  const names = (list: Named[]) => list.map(called).join(th ? " · " : ", ");
   return (
     <>
-      {toast && (
-        <div className="pointer-events-none absolute inset-x-0 top-28 z-20 flex justify-center px-2">
-          <p className="pop-in flex items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 py-2 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-bridge-toast>
-            <Art sprite={stone} box={20} />
-            {toast}
-          </p>
-        </div>
-      )}
-      {(offering || note || match) && !panel && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
-          {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-bridge-note>{note}</p>}
-          {match ? (
-            // (tired hands: the handing game's own board, with a stone. Whoever asks has it from the press, before the
-            // other has answered; whoever is asked has it come up by itself, and nothing is thrown until they say ready.)
-            <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game="handing">
-              <TownHanding key={match.id} thing="stone" stone={stone} th={th} role={match.role} m={match.id} waiting={match.phase === "asking"} seed={match.seed} tired={match.tired} other={other} sfx={sfx}
-                           names={match.role === "from" ? { from: "", to: match.who.name } : { from: match.who.name, to: "" }}
-                           tell={(told) => send(match.who.id, told)} onDone={played} onClose={shut} onCancel={stop} />
+      {(toast || earned || dug || feast) && (
+        <TownFoot rank="toast" order={34}>
+          {(feast || earned || dug) && <style>{FEAST_CSS}</style>}
+          {feast && (
+            // (a span laid, or the bridge whole: every page of the town, for a few seconds, slowly; a tap puts it away)
+            <div role="status" aria-live="polite" onClick={() => setFeast(null)} data-bridge-feast={feast.span} data-whole={feast.whole}
+                 className="bridge-feast pointer-events-auto relative w-[26rem] max-w-full cursor-pointer overflow-hidden rounded-2xl border border-gold/60 bg-surface/95 px-4 pb-3 pt-9 text-center shadow-xl shadow-black/40 backdrop-blur-sm">
+              <span aria-hidden className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
+                <Art sprite={art("feastBunting")} box={208} wide /><Art sprite={art("feastBunting")} box={208} wide />
+              </span>
+              <span aria-hidden data-sway className="pointer-events-none absolute left-2 top-5"><Art sprite={art("feastLantern")} box={38} /></span>
+              <span aria-hidden data-sway className="pointer-events-none absolute right-2 top-5" style={{ animationDelay: "-2.1s" }}><Art sprite={art("feastLantern")} box={38} /></span>
+              {[12, 30, 50, 68, 86].map((left, i) => (
+                <span key={left} aria-hidden data-fall className="pointer-events-none absolute top-6" style={{ left: `${left}%`, animationDelay: `${-i * 1.4}s` }}><Art sprite={art("feastConfetti")} box={22} /></span>
+              ))}
+              <div className="relative flex flex-col items-center gap-1">
+                <Art sprite={art("feastWreath")} box={52} />
+                <p className="font-display text-title font-semibold text-ink">
+                  {feast.whole ? (th ? "สะพานเสร็จสมบูรณ์แล้ว!" : "The bridge is whole!") : th ? `ช่วงที่ ${feast.span} จาก ${BRIDGE.spans} เสร็จแล้ว!` : `Span ${feast.span} of ${BRIDGE.spans} is laid!`}
+                </p>
+                {feast.names.length > 0 && (
+                  <p className="max-w-full text-ui leading-relaxed text-ink" data-bridge-feast-names>
+                    <span className="text-muted">{th ? `ช่วงที่ ${feast.span} วางโดย ` : `Span ${feast.span}, laid by `}</span>{names(feast.names)}
+                  </p>
+                )}
+                <p className="text-meta text-muted">
+                  {feast.whole ? (th ? `ขอบคุณทุกมือที่ช่วยกัน ทั้ง ${feast.all} คน` : `Thank you, every hand: all ${feast.all}`) : th ? "ชื่อทุกคนอยู่บนป้ายที่เชิงสะพาน" : "Every name is on the sign at the bridge's foot"}
+                </p>
+              </div>
             </div>
-          ) : offering && (
-            <div className="pop-in pointer-events-auto w-full max-w-[26rem] rounded-2xl border border-line-lit bg-surface/92 p-2 shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-bridge-card={held ? "held" : "pile"}>
-              {/* how it is done: three steps, the one to do now lit */}
+          )}
+          {earned && (
+            // (a stone I had a hand in is laid: what it earned me, wherever I stand)
+            <p className="bridge-rise flex max-w-full flex-wrap items-center justify-center gap-x-2 gap-y-0.5 rounded-full border border-gold/60 bg-surface/95 px-4 py-2 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" aria-live="polite" data-bridge-earned={earned.n}>
+              <Art sprite={stone} box={20} />
+              <span className="font-data tabular-nums text-gold">+{earned.n}</span>
+              <span>{th ? "ก้อน" : earned.n === 1 ? "stone" : "stones"}</span>
+              {earned.of > 0 && <span className="font-normal text-muted">· <span className="font-data tabular-nums text-ink">{earned.at}/{earned.of}</span> {th ? "ของช่วงนี้" : "of this span"}</span>}
+              <span className="rounded-full bg-jade/15 px-2 py-0.5 text-meta font-semibold text-jade" data-bridge-point>
+                +{earned.past ? earned.n * PAST_BOUND : earned.n} {th ? "แต้มผู้ช่วย" : earned.n === 1 && !earned.past ? "helpers' point" : "helpers' points"}
+              </span>
+            </p>
+          )}
+          {dug && (
+            // (something was in the stone: seen now that it is laid)
+            <p className="bridge-rise flex max-w-[24rem] items-center gap-2 rounded-2xl border border-line-lit bg-surface/95 px-4 py-2 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" aria-live="polite" data-bridge-dug={dug.find.kind}>
+              <Art sprite={art(findOf(dug.find.kind).art)} box={36} />
+              <span className="min-w-0 leading-snug">
+                <b className="font-semibold">{dug.mine ? (th ? `ในหินก้อนนี้มี${findOf(dug.find.kind).th}!` : `There was ${findOf(dug.find.kind).en} in that one!`) : th ? `พบ${findOf(dug.find.kind).th}ในหินที่เพิ่งวาง!` : `${findOf(dug.find.kind).en.replace(/^./, (c) => c.toUpperCase())} was in the stone just laid!`}</b>
+                <span className="block text-meta text-muted">{th ? `ฝังไว้ในสะพานแล้ว จากมือของ ${names(dug.find.hands)}` : `Set in the bridge, from the hands of ${names(dug.find.hands)}`}</span>
+              </span>
+            </p>
+          )}
+          {toast && (
+            <p className="pop-in flex items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 py-2 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-bridge-toast>
+              <Art sprite={stone} box={20} />
+              {toast}
+            </p>
+          )}
+        </TownFoot>
+      )}
+      {(offering || note) && !panel && (
+        <TownFoot rank="chip" order={26}>
+          {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-bridge-note>{note}</p>}
+          {offering && (
+            <div className="pop-in pointer-events-auto w-[26rem] max-w-full rounded-2xl border border-line-lit bg-surface/92 p-2 shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-bridge-card={held ? "held" : "pile"}>
+              {/* how it is done: three steps, the one to do now lit; and one line said beforehand */}
               <Steps th={th} at={step} />
+              <p className="mt-1.5 px-1 text-center text-label leading-snug text-muted" data-bridge-hint={held ? "counts" : "where"}>{held ? (th ? COUNTS[0] : COUNTS[1]) : th ? WHERE[0] : WHERE[1]}</p>
               <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                 {!held ? (
                   hand ? (
@@ -534,13 +623,21 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
                         {th ? "วางหินที่เชิงสะพาน" : "Lay the stone"}
                       </button>
                     )}
-                    {/* one for each of those it may go to, the likeliest first and named in full */}
-                    {offered.map((p, i) => (
-                      <button key={p.id} type="button" onClick={() => begin(p)} disabled={busy} data-bridge-chip={p.id} className={`${pill} border-line-lit hover:border-accent`}>
-                        <Art sprite={stone} box={20} />
-                        <span className="min-w-0 truncate">{i === 0 ? (th ? `ส่งหินต่อให้ ${p.name || "เพื่อน"}` : `Hand it on to ${p.name || "them"}`) : th ? `หรือ ${p.name || "เพื่อน"}` : `or ${p.name || "them"}`}</span>
-                      </button>
-                    ))}
+                    {/* one for each of those it may go to, the likeliest first and named in full: a press; or, where either of us has no stamina, a hold that fills */}
+                    {offered.map((p, i) => {
+                      const secs = holdFor(tired, p.spent), name = p.name || (th ? "เพื่อน" : "them");
+                      return secs > 0 ? (
+                        <HoldButton key={p.id} secs={secs} who={p.id} disabled={busy} onDone={() => void passTo(p)} onEarly={early} className={`${pill} border-line-lit hover:border-accent`}>
+                          <Art sprite={stone} box={20} />
+                          <span className="min-w-0 truncate">{i === 0 ? (th ? `กดค้างไว้ ส่งหินให้ ${name}` : `Hold to hand it to ${name}`) : th ? `หรือกดค้าง: ${name}` : `or hold: ${name}`}</span>
+                        </HoldButton>
+                      ) : (
+                        <button key={p.id} type="button" onClick={() => void passTo(p)} disabled={busy} data-bridge-chip={p.id} data-hold={0} className={`${pill} border-line-lit hover:border-accent`}>
+                          <Art sprite={stone} box={20} />
+                          <span className="min-w-0 truncate">{i === 0 ? (th ? `ส่งหินต่อให้ ${name}` : `Hand it on to ${name}`) : th ? `หรือ ${name}` : `or ${name}`}</span>
+                        </button>
+                      );
+                    })}
                     {!offered.length && lacks && (
                       // (nobody to hand it to: who stands close by, and what they lack. Nothing to press.)
                       <p className="flex max-w-[22rem] items-center gap-2 rounded-full border border-line bg-bg/80 px-4 py-2 text-ui text-muted" aria-live="polite" data-bridge-lacks={lacks.why}>
@@ -554,9 +651,12 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
                   </>
                 )}
               </div>
+              {held && tired && offered.length > 0 && (
+                <p className="mt-1.5 px-1 text-center text-label leading-snug text-muted" data-bridge-weary>{th ? "หมดแรงแล้ว: กดปุ่มค้างไว้จนแถบเต็ม หินไม่มีวันหล่น" : "Out of stamina: hold the button until it fills. The stone never drops"}</p>
+              )}
             </div>
           )}
-        </div>
+        </TownFoot>
       )}
       {panel && (
         <div className={`pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
@@ -596,11 +696,15 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
                 </p>
               </div>
 
-              {/* how it is done */}
+              {/* how it is done, and the two lines said beforehand */}
               {!whole && (
                 <div className="mt-3">
                   <h3 className="mb-1.5 font-data text-label uppercase tracking-wider text-muted">{th ? "วิธีเล่น" : "How it is done"}</h3>
                   <Steps th={th} at={step} wide />
+                  <ul className="mt-2 grid gap-1 text-meta leading-relaxed text-muted" data-bridge-said>
+                    <li className="flex items-start gap-1.5"><Art sprite={stone} box={16} /><span>{th ? COUNTS[0] : COUNTS[1]}</span></li>
+                    <li className="flex items-start gap-1.5"><Art sprite={art("standMark")} box={16} /><span>{th ? WHERE[0] : WHERE[1]}</span></li>
+                  </ul>
                 </div>
               )}
 
@@ -611,13 +715,57 @@ export default function TownBridge({ keeper, me, th, here, people, bottom, sfx, 
                   : th ? "ยังไม่มีหินที่ผ่านมือฉัน" : "No stone has gone through my hands yet"}
               </p>
 
+              {/* each span, and whose hands laid it: names only, in the order they came to it */}
+              {built.length > 0 && (
+                <>
+                  <h3 className="mb-1.5 mt-3 font-data text-label uppercase tracking-wider text-muted">{th ? "มือของแต่ละช่วง" : "The hands of each span"}</h3>
+                  <ul className="grid gap-1.5" data-bridge-built>
+                    {built.map((b) => (
+                      <li key={b.n} data-span-hands={b.n} data-done={b.n <= spans} className="rounded-xl border border-line bg-bg/60 px-3 py-2 text-meta leading-relaxed text-ink">
+                        <span className={`font-semibold ${b.n <= spans ? "text-jade" : "text-gold"}`}>{b.n <= spans ? (th ? `ช่วงที่ ${b.n} วางโดย ` : `Span ${b.n}, laid by `) : th ? `ช่วงที่ ${b.n} กำลังวางโดย ` : `Span ${b.n}, being laid by `}</span>
+                        {names(b.hands)}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              {/* what was found in the stones: set in the bridge for good, each with its hands; and the kinds I have had a hand in */}
+              <h3 className="mb-1.5 mt-3 font-data text-label uppercase tracking-wider text-muted">{th ? `ของที่พบในหิน (${finds.length})` : `Found in the stones (${finds.length})`}</h3>
+              <div className="rounded-xl border border-line bg-bg/60 px-3 py-2" data-bridge-kinds={kinds.size}>
+                <p className="text-meta text-muted">{th ? "ที่ฉันมีส่วนพบ" : "Those I had a hand in"}</p>
+                <ul className="mt-1 flex flex-wrap gap-2">
+                  {MARKS.map((kind) => (
+                    <li key={kind} data-kind={kind} data-found={kinds.has(kind)} title={kinds.has(kind) ? (th ? findOf(kind).th : findOf(kind).en) : th ? "ยังไม่เคยพบ" : "Not found yet"}
+                        className={`grid size-12 place-items-center rounded-lg border ${kinds.has(kind) ? "border-gold/60 bg-gold/10" : "border-line bg-surface"}`}>
+                      <Art sprite={art(findOf(kind).art)} box={36} shadow={!kinds.has(kind)} />
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-1.5 text-label leading-snug text-muted">{th ? "หินบางก้อนมีของอยู่ข้างใน จะรู้ก็ตอนวางลงสะพาน" : "Some stones have something in them. It shows when the stone is laid"}</p>
+              </div>
+              {finds.length > 0 && (
+                <ul className="mt-1.5 grid gap-1.5" data-bridge-finds>
+                  {finds.map((f, i) => (
+                    <li key={`${f.at}-${i}`} data-find={f.kind} className="flex items-center gap-2 rounded-xl border border-line bg-bg/60 px-3 py-2">
+                      <Art sprite={art(findOf(f.kind).art)} box={34} />
+                      <span className="min-w-0 text-meta leading-snug text-ink">
+                        <b className="font-semibold">{th ? findOf(f.kind).th : findOf(f.kind).en.replace(/^./, (c) => c.toUpperCase())}</b>
+                        {f.span > 0 && <span className="text-muted"> · {th ? `ช่วงที่ ${f.span}` : `span ${f.span}`}</span>}
+                        <span className="block text-muted">{th ? "จากมือของ " : "From the hands of "}<span className="text-ink">{names(f.hands)}</span></span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
               {/* everybody who has helped, in the order they first came: no numbers, no ranking */}
               <h3 className="mb-1.5 mt-3 font-data text-label uppercase tracking-wider text-muted">{th ? `ชาวบ้านที่ร่วมสร้าง (${bridge!.helpers.length})` : `Built by (${bridge!.helpers.length})`}</h3>
               {bridge!.helpers.length ? (
                 <ul className="flex flex-wrap gap-1.5" data-bridge-names>
                   {bridge!.helpers.map((h) => (
                     <li key={h.id} data-id={h.id} className={`max-w-full truncate rounded-full border px-2.5 py-1 text-meta ${h.id === keeper.id || h.id === me ? "border-gold/60 bg-gold/10 text-ink" : "border-line bg-bg/60 text-ink"}`}>
-                      {nameOf(h.id, h.name) || (th ? "ชาวบ้าน" : "A villager")}
+                      {called(h)}
                     </li>
                   ))}
                 </ul>

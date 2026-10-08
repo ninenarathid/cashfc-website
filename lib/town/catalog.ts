@@ -295,10 +295,13 @@ export function catalogOf() {
      * table of what a work needs is seeded from `need`, and is what the giving reads from then on); what lifting and
      * laying cost; how far a stone is handed (the page's to hold to), how near the pile and the foot one stands, the
      * paces of whoever holds one (the page's), how many hands are remembered, what a stone laid is worth on the
-     * helpers' line; and the two tiles.
+     * helpers' line; the seconds the button is held by tired hands, how far apart the marks on the road stand and in
+     * how many steps the course at the foot grows through a span (the page's, all three); one stone in how many has
+     * something in it, and what it may be (the database draws it as the stone is lifted); and the two tiles.
      */
     bridge: {
       work: BRIDGE.work, thing: BRIDGE.thing, need: BRIDGE.need, spans: BRIDGE.spans, costs: BRIDGE.costs, reach: BRIDGE.reach, near: BRIDGE.near, paces: BRIDGE.paces, hands: BRIDGE.hands, point: BRIDGE.point,
+      hold: BRIDGE.hold, stand: BRIDGE.stand, steps: BRIDGE.steps, marks: BRIDGE.marks,
       pile: [BRIDGE.pile.x, BRIDGE.pile.y], foot: [BRIDGE.foot.x, BRIDGE.foot.y],
     },
   };

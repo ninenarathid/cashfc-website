@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { BRIDGE, counted, drop, give, lay, lift, nearTile, newWorks, pass, spansOf, told, wants, workOf, type Carried, type Work, type WorksKept, type WorksTold } from "./bridge";
+import { BRIDGE, MARKS, counted, drop, give, laid, lay, lift, markLuck, markOf, nearTile, newWorks, pass, spanOf, spansOf, told, wants, workOf, type Carried, type Work, type WorksKept, type WorksTold } from "./bridge";
 import type { ItemId } from "./items";
 import { count, countsOf, newLine, type LineKept } from "./line-points";
 import { dayOf, staminaOf } from "./stamina";
@@ -11,13 +11,15 @@ import { hold, letGo, newPurse, put, type Purse } from "./trade";
  * lib/town/db-vectors-line.test.ts is the same for the bucket line, and says how). Two kinds:
  *
  * - **rules**: each of `town.stone_lift`, `stone_pass`, `stone_lay`, `stone_drop`, `works_give`, `works_wants`,
- *   `stone_spans`, `stone_near` and `work_counts_of` with its words, as the database takes them, and what the code
- *   answers;
+ *   `stone_spans`, `stone_into`, `stone_near`, `stone_mark` (and the number a stone is tried by, from its lifter and
+ *   the moment) and `work_counts_of` with its words, as the database takes them, and what the code answers;
  * - **stories**: four members at the bridge, one deed after another through the functions a member calls (a stone
  *   lifted, handed on, laid, let go of; a thing taken into the hand and put away), each with the moment it is done
  *   at, what it answers, the doer's stamina and what they are told of the works; and at the end what is kept: how
- *   many the bridge has, who was counted how many and when each first came, who still holds a stone and whose hands
- *   it came by, and where each stands on the helpers' line (some stories run past the helpers' day's bound).
+ *   many the bridge has, who was counted how many and when each first came, whose hands built each span, what was
+ *   found in the stones, who still holds a stone, whose hands it came by and what it has in it, and where each stands
+ *   on the helpers' line (some stories run past the helpers' day's bound). A stone's mark is drawn by its lifter and
+ *   its moment, so the database, at the story's clock, draws the same.
  *
  *   TOWN_VECTORS=<folder> npx vitest run lib/town/db-vectors-bridge.test.ts
  */
@@ -28,7 +30,7 @@ type Deed =
   | { fn: "pass"; to: string | null }
   | { fn: "drop" | "read" | "put_away" }
   | { fn: "hold"; slot: number };
-interface Step { by: string; now: number; deed: Deed; want: { ok?: boolean; why?: string; have?: number; spans?: number; span?: boolean; whole?: boolean }; stamina: number; told: WorksTold }
+interface Step { by: string; now: number; deed: Deed; want: { ok?: boolean; why?: string; have?: number; spans?: number; span?: boolean; whole?: boolean; into?: number; find?: string | null }; stamina: number; told: WorksTold }
 interface Story {
   need: number | null; have: number; stamina: Record<string, number>; steps: Step[];
   end: { bridge: WorksKept["works"][string]; carried: Record<string, Carried>; helpers: Record<string, Pick<LineKept, "points" | "today" | "day">> };
@@ -64,7 +66,8 @@ function rules(): Vector[] {
     return p;
   };
   const hands = () => { const n = c.of([1, 1, 2, 3, 5, 7, 8]); return [...WHO, "b1", "b2", "b3", "b4", "b5"].sort(() => c.next() - 0.5).slice(0, n); };
-  const carried = (p = 0.7): Carried | null => (c.maybe(p) ? { work: "bridge", thing: c.maybe(0.95) ? "stone" : "wood", hands: hands() } : null);
+  // (what a stone has in it: nothing for most, a kind for some; and now and then a stone that says nothing of it, as one lifted before marks were would)
+  const carried = (p = 0.7): Carried | null => (c.maybe(p) ? { work: "bridge", thing: c.maybe(0.95) ? "stone" : "wood", hands: hands(), ...(c.maybe(0.1) ? {} : { mark: c.maybe(0.3) ? c.of(MARKS) : null }) } : null);
   const work = (): Work | null => {
     if (c.maybe(0.06)) return null;
     const need = c.of<number | null>([600, 600, 600, 12, null]), have = need === null ? c.int(0, 5000) : c.of([0, 1, need - 1, need, need + 1, c.int(0, need)]);
@@ -91,7 +94,13 @@ function rules(): Vector[] {
     out.push({ fn: "give", args: [p, w, thing, n], want: give(p, w, thing, n) });
   }
   for (let i = 0; i < 160; i++) { const w = work(), thing = c.of(["stone", "stone", "wood"]); out.push({ fn: "wants", args: [w, thing], want: wants(w, thing) }); }
-  for (const need of [600, 12, 7, 1, null, 0]) for (const have of [0, 1, 2, 6, 7, 11, 12, 99, 100, 101, 199, 200, 599, 600, 601, 1200]) out.push({ fn: "spans", args: [have, need], want: spansOf(have, need) });
+  for (const need of [600, 12, 7, 1, null, 0]) for (const have of [0, 1, 2, 6, 7, 11, 12, 99, 100, 101, 199, 200, 599, 600, 601, 1200]) out.push({ fn: "spans", args: [have, need], want: spansOf(have, need) }, { fn: "into", args: [have, need], want: spanOf(have, need) });
+  // (what a stone has in it by its number: about the bounds of each kind's share, and over the whole of it; and the number itself, from a lifter and a moment)
+  const { one, kinds } = BRIDGE.marks, share = 1 / (one * kinds.length);
+  for (let k = 0; k <= kinds.length + 1; k++) for (const by of [-1e-9, 0, 1e-9, share / 2]) out.push({ fn: "mark", args: [k * share + by], want: markOf(k * share + by) });
+  for (let i = 0; i < 300; i++) { const luck = c.maybe(0.6) ? c.next() / one * 1.2 : c.next(); out.push({ fn: "mark", args: [luck], want: markOf(luck) }); }
+  out.push({ fn: "mark", args: [null], want: null }, { fn: "mark", args: [0.999999], want: null });
+  for (let i = 0; i < 200; i++) { const me = c.of(WHO), now = MORNING + c.int(0, 86_400_000); out.push({ fn: "luck", args: [me, now], want: markLuck(me, now) }); }
   for (const [which, t] of [["pile", PILE], ["foot", FOOT]] as const) {
     for (let dx = -4; dx <= 4; dx++) for (let dy = -4; dy <= 4; dy++) out.push({ fn: "near", args: [t.x + dx, t.y + dy, which], want: nearTile([t.x + dx, t.y + dy], t) });
     out.push({ fn: "near", args: [null, t.y, which], want: false }, { fn: "near", args: [t.x, null, which], want: false }, { fn: "near", args: [null, null, which], want: false });
@@ -144,10 +153,10 @@ function story(seed: number, need: number | null, have: number, length: number, 
         purses[by] = did.purse;
         const carried = { ...kept.carried };
         delete carried[by];
-        kept = counted({ ...kept, carried }, mine!.work, mine!.thing, did.hands, 1, 1, now);
+        kept = laid({ ...kept, carried }, mine!.work, mine!.thing, did.hands, did.into, did.find, now);
         // (a helpers' point to each of them, by the line's own rule and the day's bound)
         for (const h of did.hands) for (const k of countsOf({ from: "deed", what: h === by ? "stone_lay" : "stone_hand", thing: mine!.thing, n: 1, doc: {} }, h)) lines[h] = count(lines[h] ?? newLine(), k, dayOf(now));
-        want = { ok: true, have: did.have, spans: did.spans, span: did.span, whole: did.whole };
+        want = { ok: true, have: did.have, spans: did.spans, span: did.span, whole: did.whole, into: did.into, find: did.find };
       } else want = did;
     } else {
       deed = { fn: "drop" };
@@ -190,6 +199,12 @@ describe("the cases the database's rules of the bridge built by hand are held to
     const passed = all.rules.filter((v) => v.fn === "pass" && (v.want as { ok: boolean }).ok).map((v) => [v.args[0] as Carried, v.want as { carried: Carried }] as const);
     expect(passed.some(([was, d]) => was.hands.length === BRIDGE.hands && d.carried.hands.length === BRIDGE.hands && d.carried.hands[0] !== was.hands[0])).toBe(true);
     expect(passed.some(([was, d]) => was.hands.includes(d.carried.hands.at(-1)!) && d.carried.hands.length === was.hands.length)).toBe(true);
+    // what a stone has in it goes with it from hand to hand, and is found when it is laid; a stone lifted is marked now and then
+    expect(passed.some(([was, d]) => !!was.mark && d.carried.mark === was.mark) && passed.some(([was, d]) => was.mark === null && d.carried.mark === null) && passed.some(([was, d]) => !("mark" in was) && !("mark" in d.carried))).toBe(true);
+    const found = all.rules.filter((v) => v.fn === "lay" && (v.want as { ok: boolean }).ok).map((v) => (v.want as { find: string | null }).find);
+    expect(found.some((f) => f === null) && new Set(found.filter(Boolean)).size >= 3).toBe(true);
+    expect(new Set(all.rules.filter((v) => v.fn === "mark").map((v) => v.want))).toEqual(new Set([null, ...MARKS]));
+    expect(all.rules.filter((v) => v.fn === "into").some((v) => v.want === 0) && new Set(all.rules.filter((v) => v.fn === "into").map((v) => v.want)).size).toBe(BRIDGE.spans + 1);
     // the stories reach what they are for
     const steps = all.stories.flatMap((s) => s.steps), did = (fn: string, why?: string) => steps.filter((x) => x.deed.fn === fn && (why ? x.want.why === why : x.want.ok)).length;
     expect(did("lift")).toBeGreaterThan(400);
@@ -209,6 +224,16 @@ describe("the cases the database's rules of the bridge built by hand are held to
     // everybody the stone came by is counted it: what the hands were counted comes to more than what the bridge has
     const counted_ = (s: Story) => Object.values(s.end.bridge.hands).reduce((n, h) => n + (h.stone?.n ?? 0), 0);
     expect(all.stories.some((s) => counted_(s) > s.end.bridge.needs.stone.have - s.have)).toBe(true);
+    // marked stones in the stories, by their lifters and moments alone: some lifted, some laid and set in the bridge (one by more than one pair of hands), one still carried at an end
+    const finds = all.stories.flatMap((s) => s.end.bridge.finds ?? []);
+    expect(finds.length).toBeGreaterThanOrEqual(5);
+    expect(finds.some((f) => f.hands.length >= 2)).toBe(true);
+    expect(steps.filter((x) => x.deed.fn === "lay" && x.want.ok && x.want.find).length).toBe(finds.length);
+    expect(steps.some((x) => x.told.works.bridge.finds.length > 0 && !JSON.stringify(x.told.carried ?? {}).includes("mark"))).toBe(true);
+    // each span's hands: more than one span built in a story, and more than one pair of hands in a span
+    expect(all.stories.some((s) => Object.keys(s.end.bridge.built ?? {}).length >= 2)).toBe(true);
+    expect(all.stories.some((s) => Object.values(s.end.bridge.built ?? {}).some((by) => Object.keys(by).length >= 3))).toBe(true);
+    expect(all.stories.find((s) => s.need === null)!.end.bridge.built ?? {}).toEqual({});
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-v160.json`, JSON.stringify(all)); }
   });

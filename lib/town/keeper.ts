@@ -495,7 +495,8 @@ export interface Keeper {
   // ── the bridge built by hand ── (lib/town/bridge)
   /**
    * The village's works: what I am told of them (of the bridge: whether it is open, how many stones it has of how
-   * many, everybody who has helped in the order they came, my own count) and what I carry in my hands. Null until it
+   * many, everybody who has helped in the order they came, my own count, each span's hands, and what was found in its
+   * stones) and what I carry in my hands (never what the stone has in it: nobody is told that until it is laid). Null until it
    * has been read, and for as long as whoever keeps the game knows of no works (a database before v160: the page then
    * shows nothing of them). `worksLook` reads it again. **What the map draws of the bridge is read off this**:
    * `bridgeSpans(keeper.works())`, none to six, and `bridgeWhole(keeper.works())`.
@@ -506,11 +507,13 @@ export interface Keeper {
    * A stone lifted at the pile, from the tile I stand on; the one I hold handed on to somebody (who is told through
    * the room, `works`: nothing that keeps the game knows where anybody stands, so who is near enough is the page's to
    * say); laid at the bridge's foot, from the tile I stand on (how many the bridge has then, how many spans, whether
-   * this stone finished one, and whether it is whole); and let go of.
+   * this stone finished one, whether it is whole, which span it went into, and what was found in it); and let go of.
+   * **Every stone laid is told to the room** (`works`): each page reads the works again, and shows whoever had a
+   * hand in it what it earned, the course at the foot one stone on, a find, a span's feast.
    */
   stoneLift(at: [number, number]): Promise<Did>;
   stonePass(to: string): Promise<Did>;
-  stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean }>>;
+  stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null }>>;
   stoneDrop(): Promise<Did>;
 
   /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
@@ -862,7 +865,7 @@ export class DbKeeper implements Keeper {
       if (this.visit_) void this.ask("town_shop_look", { p_who: this.visit_.who });
       return;
     }
-    // ── the bridge built by hand ── (a stone was handed to me, or a span was laid: asked for wherever I am; not of a database with no works)
+    // ── the bridge built by hand ── (a stone was handed to me, or one was laid: asked for wherever I am; not of a database with no works)
     if (what === "works") { if (this.works_) void this.ask("town_works_read"); return; }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
     if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
@@ -1427,11 +1430,12 @@ export class DbKeeper implements Keeper {
     if (did.ok) this.onDeed?.("works", to);
     return did;
   }
-  async stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean }>> {
-    const did = await this.deed<{ have: number; spans: number; span: boolean; whole: boolean }>("town_stone_lay", { p_x: at[0], p_y: at[1] });
-    // (a span more, or the bridge whole: everybody's map shows it, so everybody is told; a stone among a hundred is
-    // only read by whoever looks at the sign, in its own time)
-    if (did.ok && (did.span || did.whole)) this.onDeed?.("works");
+  async stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null }>> {
+    const did = await this.deed<{ have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null }>("town_stone_lay", { p_x: at[0], p_y: at[1] });
+    // (every stone laid is told to the room: whoever had a hand in it is shown what it earned wherever they stand,
+    // and every map has the course at the foot one stone on. The room says a thing of one kind once in a few seconds
+    // at the most, lib/town/session: a row at work asks each page for the works about as often as that.)
+    if (did.ok) this.onDeed?.("works");
     return did;
   }
   stoneDrop() { return this.deed("town_stone_drop"); }

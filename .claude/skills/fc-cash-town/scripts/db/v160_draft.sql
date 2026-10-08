@@ -8,10 +8,18 @@
 -- ขุดแร่กับตัดไม้ทำเสร็จก่อน ไม่งั้น สะพานจะสร้างเสร็จก่อน patch มา", and "stamina
 -- คนยก เหลือ 1 พอ".
 --
+-- And that evening, of what it would take for made-up players to score the
+-- piece ninety: "ขอให้ทำทุกอันเป็นแบบดันสุดเลย … เอาตามที่ codex ว่ามาได้เลย": a stone is
+-- handed on within ten tiles; each span keeps whose hands built it; and about
+-- one stone in twenty-five has something in it.
+--
 -- **A work** is something the whole village gives to. `town_works` has one row
 -- a work (when it was opened, when it was marked whole); `town_work_needs` what
 -- it needs of each thing (no number: it takes any amount) and how many it has;
--- `town_work_hands` who gave how many of what, and when each first came.
+-- `town_work_hands` who gave how many of what, and when each first came;
+-- `town_work_built` whose hands built each span of it, and when each first
+-- came to that span; `town_work_finds` what was found in its stones, when, in
+-- which span, and whose hands each came by.
 -- `town_work_give(work, thing, n)` gives out of the bag: it refuses only what
 -- would pass a need that is a number. **`done_at` is a mark for the page: the
 -- giving never reads it, and nothing closes a row for good.** No work uses the
@@ -22,8 +30,13 @@
 --
 --   · A stone is in the hands, never in the bag: `town_work_carried` has, for
 --     whoever holds one, whose hands it has been through (the last eight, the
---     holder last).
---   · Lifted at the pile with nothing in the hand: one stamina.
+--     holder last), and what the stone has in it.
+--   · Lifted at the pile with nothing in the hand: one stamina. **About one in
+--     twenty-five has something in it** (six kinds, the catalog's
+--     `bridge.marks`), drawn at that moment from the lifter and the clock
+--     (`town.roll`, as an insect let go on a plant is tried) and kept with the
+--     stone. **Nobody is told while it is carried**: no answer and no reading
+--     says it, the holder's neither.
 --   · Handed on to somebody with empty hands: nothing.
 --   · Laid at the foot: one stamina. The work has one more, and **everybody
 --     whose hands the stone went through is counted it** (a row of
@@ -31,6 +44,11 @@
 --     the one who laid it (`stone_lay`) and one for each of the others
 --     (`stone_hand`), which v149's trigger counts by `town.work_counts_of`.
 --     The helpers' day's bound holds them as it holds every point of theirs.
+--     Each of them is one of the hands of the span the stone went into
+--     (`town_work_built`), and what the stone had in it is seen now: its
+--     answer says so (`find`), and it is set in the bridge for good with their
+--     names (`town_work_finds`). A find is never a thing, is never sold, and
+--     counts on no line.
 --   · Let go of anywhere: it is gone, and nothing comes back.
 --   · With no stamina nothing is refused.
 --   · No coins come of it, and nothing that can be sold.
@@ -54,8 +72,8 @@
 -- written again. **A file after this one that writes either again carries
 -- this file's block with its own.** The rules are lib/town/bridge.ts
 -- written again (`town.stone_lift`, `stone_pass`, `stone_lay`, `stone_drop`,
--- `works_give`), held to the code case by case by the dry run; the numbers are
--- the catalog's row `bridge`.
+-- `stone_mark`, `stone_into`, `works_give`), held to the code case by case by
+-- the dry run; the numbers are the catalog's row `bridge`.
 --
 -- **The code goes out before this file**: a page with the code and a database
 -- without the file is told nothing of any works, and shows nothing of them.
@@ -79,11 +97,15 @@ insert into public.town_catalog (key, data) values
     "need": 600,
     "spans": 6,
     "costs": {"lift":1,"lay":1},
-    "reach": 6,
+    "reach": 10,
     "near": 2,
     "paces": {"held":0.5,"spent":0.25},
     "hands": 8,
     "point": 1,
+    "hold": 1.2,
+    "stand": 9,
+    "steps": 10,
+    "marks": {"one":25,"kinds":["shell","coin","rune","pearl","star","leaf"]},
     "pile": [42,27],
     "foot": [11,27]
   }$town$::jsonb)
@@ -119,18 +141,45 @@ create table if not exists public.town_work_hands (
 );
 -- What somebody carries in their hands towards a work (a stone): whose hands
 -- it has been through, in the order it came by them, the holder last.
+-- And what the stone has in it (null: nothing, as most have): the keeper's
+-- alone until it is laid.
 create table if not exists public.town_work_carried (
   member_id uuid primary key references public.profiles (id) on delete cascade,
   work      text not null references public.town_works (id) on delete cascade,
   thing     text not null,
   hands     uuid[] not null default '{}',
+  mark      text,
   at        timestamptz not null default now()
 );
+-- Whose hands built each span of a work (from one), and when each first came
+-- to that span.
+create table if not exists public.town_work_built (
+  work      text not null references public.town_works (id) on delete cascade,
+  span      integer not null check (span > 0),
+  member_id uuid not null references public.profiles (id) on delete cascade,
+  first_at  timestamptz not null default now(),
+  primary key (work, span, member_id)
+);
+-- What was found in a stone and set in a work for good: which kind, when it
+-- was laid, in which span, and whose hands the stone came by, in the order it
+-- went through them.
+create table if not exists public.town_work_finds (
+  id    bigint generated always as identity primary key,
+  work  text not null references public.town_works (id) on delete cascade,
+  thing text not null,
+  kind  text not null,
+  span  integer not null default 0,
+  hands uuid[] not null default '{}',
+  at    timestamptz not null default now()
+);
+create index if not exists town_work_finds_work on public.town_work_finds (work, at);
 alter table public.town_works enable row level security;
 alter table public.town_work_needs enable row level security;
 alter table public.town_work_hands enable row level security;
 alter table public.town_work_carried enable row level security;
-revoke all on public.town_works, public.town_work_needs, public.town_work_hands, public.town_work_carried from anon, authenticated;
+alter table public.town_work_built enable row level security;
+alter table public.town_work_finds enable row level security;
+revoke all on public.town_works, public.town_work_needs, public.town_work_hands, public.town_work_carried, public.town_work_built, public.town_work_finds from anon, authenticated;
 
 -- The bridge: closed, needing its stones. (What it needs is seeded from the
 -- catalog and is the table's from then on: the giving reads the table.)
@@ -168,8 +217,28 @@ as $$
               else greatest(0, least((town.cat('bridge')->>'spans')::integer, (p_have * (town.cat('bridge')->>'spans')::integer) / p_need)) end
 $$;
 
+-- Which span the stone that makes so many of so many went into, from one (the
+-- span that was in hand before it): none, for a work that takes any amount.
+create or replace function town.stone_into(p_have integer, p_need integer)
+returns integer language sql stable
+as $$
+  select case when p_need is null or p_need <= 0 or p_have is null or p_have <= 0 then 0
+              else least((town.cat('bridge')->>'spans')::integer, town.stone_spans(p_have - 1, p_need) + 1) end
+$$;
+
+-- What a stone has in it by the number it is tried by: one in so many has
+-- something, each kind as likely as another; the rest nothing.
+create or replace function town.stone_mark(p_luck double precision)
+returns text language sql stable
+as $$
+  select case when p_luck is null or not (p_luck >= 0) or p_luck * (m.k->>'one')::double precision >= 1 then null
+              else m.k->'kinds'->>least(jsonb_array_length(m.k->'kinds') - 1, floor(p_luck * (m.k->>'one')::double precision * jsonb_array_length(m.k->'kinds'))::integer) end
+    from (select town.cat('bridge')->'marks' as k) m
+$$;
+
 -- Lift a stone at the pile: nothing in the hand, no stone in the hands, a tile
--- by the pile. One stamina (none left: lifted all the same).
+-- by the pile. One stamina (none left: lifted all the same). What it has in it
+-- is drawn at this moment, from its lifter and the clock.
 create or replace function town.stone_lift(p_purse jsonb, p_carried jsonb, p_work jsonb, p_x integer, p_y integer, p_me text, p_now bigint)
 returns jsonb language plpgsql stable
 as $$
@@ -184,13 +253,13 @@ begin
   if not town.stone_near(p_x, p_y, 'pile') then return town.no('far'); end if;
   return jsonb_build_object('ok', true,
     'purse', town.spend(p_purse, (b->'costs'->>'lift')::double precision, p_now),
-    'carried', jsonb_build_object('work', b->>'work', 'thing', thing, 'hands', jsonb_build_array(p_me)));
+    'carried', jsonb_build_object('work', b->>'work', 'thing', thing, 'hands', jsonb_build_array(p_me), 'mark', town.stone_mark(town.roll('stone|' || p_me, p_now))));
 end;
 $$;
 
 -- Hand the stone one holds on to somebody with nothing in the hand and no
 -- stone: for nothing. It goes with the hands it came by, the taker's last
--- (once), the last so many remembered.
+-- (once), the last so many remembered, and with what it has in it.
 create or replace function town.stone_pass(p_carried jsonb, p_to text, p_theirs jsonb, p_their_carried jsonb, p_work jsonb)
 returns jsonb language plpgsql stable
 as $$
@@ -214,7 +283,8 @@ $$;
 -- Lay the stone one holds at the foot: from a tile by it, for one stamina
 -- (none left: laid all the same). Says how many the work has now, whose hands
 -- the stone came by, how many spans that makes, whether this stone finished
--- one, and whether the work is whole.
+-- one, whether the work is whole, which span the stone went into, and what was
+-- found in it, now that it is laid.
 create or replace function town.stone_lay(p_purse jsonb, p_carried jsonb, p_work jsonb, p_x integer, p_y integer, p_now bigint)
 returns jsonb language plpgsql stable
 as $$
@@ -237,7 +307,8 @@ begin
     'purse', town.spend(p_purse, (b->'costs'->>'lay')::double precision, p_now),
     'have', have, 'hands', p_carried->'hands',
     'spans', town.stone_spans(have, need), 'span', town.stone_spans(have, need) > town.stone_spans(have - 1, need),
-    'whole', need is not null and have >= need);
+    'whole', need is not null and have >= need,
+    'into', town.stone_into(have, need), 'find', coalesce(p_carried->'mark', 'null'::jsonb));
 end;
 $$;
 
@@ -282,12 +353,12 @@ as $$
     from public.town_works w where w.id = p_work
 $$;
 
--- What a member carries in their hands, as the rules read it. Nothing, for
--- empty hands.
+-- What a member carries in their hands, as the rules read it (what the stone
+-- has in it among it: the rules' alone). Nothing, for empty hands.
 create or replace function town.works_carried(p_member uuid)
 returns jsonb language sql stable set search_path = public
 as $$
-  select jsonb_build_object('work', c.work, 'thing', c.thing, 'hands', to_jsonb(c.hands)) from public.town_work_carried c where c.member_id = p_member
+  select jsonb_build_object('work', c.work, 'thing', c.thing, 'hands', to_jsonb(c.hands), 'mark', c.mark) from public.town_work_carried c where c.member_id = p_member
 $$;
 
 -- So many of a thing counted to each of some members (only those who are
@@ -309,19 +380,44 @@ begin
 end;
 $$;
 
+-- A stone laid (lib/town/bridge's `laid`): everybody whose hands it came by is
+-- counted it; each is one of the hands of the span it went into, from the
+-- moment they first came to that span; and what was in the stone, if anything,
+-- is set in the work for good with whose hands it came by.
+create or replace function town.works_laid(p_work text, p_thing text, p_who uuid[], p_into integer, p_mark text, p_now bigint)
+returns void language plpgsql set search_path = public
+as $$
+begin
+  perform town.works_counted(p_work, p_thing, p_who, 1, 1, p_now);
+  if p_into > 0 then
+    insert into public.town_work_built (work, span, member_id, first_at)
+      select p_work, p_into, h.id, to_timestamp(p_now / 1000.0)
+        from (select distinct x.id from unnest(p_who) as x(id)) h join public.profiles pr on pr.id = h.id
+      on conflict (work, span, member_id) do nothing;
+  end if;
+  if p_mark is not null then
+    insert into public.town_work_finds (work, thing, kind, span, hands, at)
+      values (p_work, p_thing, p_mark, coalesce(p_into, 0), p_who, to_timestamp(p_now / 1000.0));
+  end if;
+end;
+$$;
+
 -- The works as a member is told them (lib/town/bridge's `told`): of each one
 -- that is open, when it was marked whole, what it needs and has, everybody who
--- has given to it **in the order they first came, with no numbers**, and the
--- member's own counts, told to them alone; of one that is not open, only that
--- it is not. And what the member carries in their hands, towards a work that
--- is open.
+-- has given to it **in the order they first came, with no numbers**, the
+-- member's own counts, told to them alone, whose hands built each span (by the
+-- span, in the order they first came to it, with no numbers either), and what
+-- was found in its stones, in the order they were laid, each with the hands it
+-- came by; of one that is not open, only that it is not. And what the member
+-- carries in their hands, towards a work that is open: **never what the stone
+-- has in it**.
 create or replace function town.works_told(p_member uuid)
 returns jsonb language sql stable set search_path = public
 as $$
   select jsonb_build_object(
     'works', coalesce((
       select jsonb_object_agg(w.id, case when w.opened_at is null
-        then jsonb_build_object('open', false, 'done', null, 'needs', '{}'::jsonb, 'helpers', '[]'::jsonb, 'mine', '{}'::jsonb)
+        then jsonb_build_object('open', false, 'done', null, 'needs', '{}'::jsonb, 'helpers', '[]'::jsonb, 'mine', '{}'::jsonb, 'built', '{}'::jsonb, 'finds', '[]'::jsonb)
         else jsonb_build_object('open', true, 'done', round(extract(epoch from w.done_at) * 1000)::bigint,
           'needs', coalesce((select jsonb_object_agg(n.thing, jsonb_build_object('need', n.need, 'have', n.have)) from public.town_work_needs n where n.work = w.id), '{}'::jsonb),
           'helpers', coalesce((
@@ -330,7 +426,19 @@ as $$
                            coalesce(pr.character_name, pr.display_name, pr.discord_username, '') as name
                       from public.town_work_hands h join public.profiles pr on pr.id = h.member_id
                      where h.work = w.id group by h.member_id, pr.character_name, pr.display_name, pr.discord_username) q), '[]'::jsonb),
-          'mine', coalesce((select jsonb_object_agg(h.thing, h.n) from public.town_work_hands h where h.work = w.id and h.member_id = p_member), '{}'::jsonb)) end)
+          'mine', coalesce((select jsonb_object_agg(h.thing, h.n) from public.town_work_hands h where h.work = w.id and h.member_id = p_member), '{}'::jsonb),
+          'built', coalesce((
+            select jsonb_object_agg(s.span::text, s.hands)
+              from (select b.span, jsonb_agg(jsonb_build_object('id', b.member_id, 'name', coalesce(pr.character_name, pr.display_name, pr.discord_username, ''))
+                                             order by b.first_at, b.member_id::text collate "C") as hands
+                      from public.town_work_built b join public.profiles pr on pr.id = b.member_id
+                     where b.work = w.id group by b.span) s), '{}'::jsonb),
+          'finds', coalesce((
+            select jsonb_agg(jsonb_build_object('kind', f.kind, 'at', round(extract(epoch from f.at) * 1000)::bigint, 'span', f.span,
+                     'hands', coalesce((select jsonb_agg(jsonb_build_object('id', x.id, 'name', coalesce(pr.character_name, pr.display_name, pr.discord_username, '')) order by x.ord)
+                                          from unnest(f.hands) with ordinality x(id, ord) join public.profiles pr on pr.id = x.id), '[]'::jsonb))
+                     order by f.at, f.id)
+              from public.town_work_finds f where f.work = w.id), '[]'::jsonb)) end)
         from public.town_works w), '{}'::jsonb),
     'carried', (select jsonb_build_object('work', c.work, 'thing', c.thing)
                   from public.town_work_carried c join public.town_works w on w.id = c.work
@@ -488,8 +596,8 @@ begin
   did := town.stone_lift(mine, town.works_carried(me), town.works_read(town.cat('bridge')->>'work'), p_x, p_y, me::text, now_);
   if (did->>'ok')::boolean then
     perform town.keep_purse(me, did->'purse');
-    insert into public.town_work_carried (member_id, work, thing, hands, at)
-      values (me, did->'carried'->>'work', did->'carried'->>'thing', array[me], to_timestamp(now_ / 1000.0));
+    insert into public.town_work_carried (member_id, work, thing, hands, mark, at)
+      values (me, did->'carried'->>'work', did->'carried'->>'thing', array[me], did->'carried'->>'mark', to_timestamp(now_ / 1000.0));
     perform town.note(me, 'stone_lift', did->'carried'->>'thing', 1, 0, jsonb_build_object('work', did->'carried'->>'work', 'tile', jsonb_build_array(p_x, p_y)));
   end if;
   return town.answer(me, (did - 'purse' - 'carried') || jsonb_build_object('works', town.works_told(me)));
@@ -527,9 +635,9 @@ begin
   did := town.stone_pass(carried, p_to::text, theirs, town.works_carried(p_to), town.works_read(coalesce(carried->>'work', town.cat('bridge')->>'work')));
   if (did->>'ok')::boolean then
     delete from public.town_work_carried c where c.member_id = me;
-    insert into public.town_work_carried (member_id, work, thing, hands, at)
+    insert into public.town_work_carried (member_id, work, thing, hands, mark, at)
       values (p_to, did->'carried'->>'work', did->'carried'->>'thing',
-              array(select x.id::uuid from jsonb_array_elements_text(did->'carried'->'hands') with ordinality x(id, ord) order by x.ord), to_timestamp(now_ / 1000.0));
+              array(select x.id::uuid from jsonb_array_elements_text(did->'carried'->'hands') with ordinality x(id, ord) order by x.ord), did->'carried'->>'mark', to_timestamp(now_ / 1000.0));
     perform town.note(me, 'stone_pass', did->'carried'->>'thing', 1, 0, jsonb_build_object('to', p_to, 'work', did->'carried'->>'work'));
   end if;
   return town.answer(me, (did - 'carried') || jsonb_build_object('works', town.works_told(me)));
@@ -537,7 +645,8 @@ end;
 $$;
 
 -- Lay the stone I hold at the foot, from the tile I stand on: the work has one
--- more, and everybody whose hands it went through is counted it.
+-- more, everybody whose hands it went through is counted it and is one of that
+-- span's hands, and what the stone had in it is set in the work and told.
 create or replace function public.town_stone_lay(p_x integer, p_y integer)
 returns jsonb language plpgsql security definer set search_path = public
 as $$
@@ -557,10 +666,11 @@ begin
     hands := array(select x.id::uuid from jsonb_array_elements_text(did->'hands') with ordinality x(id, ord) order by x.ord);
     perform town.keep_purse(me, did->'purse');
     delete from public.town_work_carried c where c.member_id = me;
-    perform town.works_counted(work_, carried->>'thing', hands, 1, 1, now_);
+    perform town.works_laid(work_, carried->>'thing', hands, (did->>'into')::integer, did->>'find', now_);
     perform town.note(me, 'stone_lay', carried->>'thing', 1, 0,
       jsonb_build_object('work', work_, 'have', did->'have', 'hands', jsonb_array_length(did->'hands'), 'tile', jsonb_build_array(p_x, p_y))
-        || case when (did->>'span')::boolean then jsonb_build_object('span', did->'spans') else '{}'::jsonb end);
+        || case when (did->>'span')::boolean then jsonb_build_object('span', did->'spans') else '{}'::jsonb end
+        || case when did->>'find' is not null then jsonb_build_object('find', did->'find') else '{}'::jsonb end);
     -- (a line of the deeds for each of the others it came by, at the moment it was laid: only those who are still here)
     insert into public.town_deeds (member_id, at, what, thing, n, doc)
       select h.id, to_timestamp(now_ / 1000.0), 'stone_hand', carried->>'thing', 1, jsonb_build_object('by', me, 'work', work_)
@@ -634,8 +744,8 @@ notify pgrst, 'reload schema';
 --   select c.relname, c.relrowsecurity as closed,
 --          (select count(*) from information_schema.role_table_grants g
 --            where g.table_schema = 'public' and g.table_name = c.relname and g.grantee in ('anon', 'authenticated')) as grants
---     from pg_class c where c.relnamespace = 'public'::regnamespace and c.relname in ('town_works', 'town_work_needs', 'town_work_hands', 'town_work_carried') order by 1;
---   -- four rows, each t | 0
+--     from pg_class c where c.relnamespace = 'public'::regnamespace and c.relname in ('town_works', 'town_work_needs', 'town_work_hands', 'town_work_carried', 'town_work_built', 'town_work_finds') order by 1;
+--   -- six rows, each t | 0
 --
 --   select p.proname, has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as member
 --     from pg_proc p where p.pronamespace = 'public'::regnamespace
@@ -645,9 +755,9 @@ notify pgrst, 'reload schema';
 --   select w.id, w.opened_at, w.done_at, n.thing, n.need, n.have from public.town_works w join public.town_work_needs n on n.work = w.id;
 --   -- bridge | (null) | (null) | stone | 600 | 0
 --
---   select town.cat('bridge')->>'need' as need, town.deed_th('stone_lay') as lay,
+--   select town.cat('bridge')->>'need' as need, town.cat('bridge')->>'reach' as reach, town.cat('bridge')->'marks'->>'one' as one_in, town.deed_th('stone_lay') as lay,
 --          pg_get_functiondef('town.work_counts_of(jsonb, text)'::regprocedure) like '%''stone_hand''%' as counted;
---   -- 600 | วางหินที่เชิงสะพาน | t
+--   -- 600 | 10 | 25 | วางหินที่เชิงสะพาน | t
 --
 -- ─── Opening it ──────────────────────────────────────────────────────────
 --
@@ -659,9 +769,17 @@ notify pgrst, 'reload schema';
 --   select n.have, n.need from public.town_work_needs n where n.work = 'bridge';
 --   select p.character_name, h.n, h.first_at from public.town_work_hands h join public.profiles p on p.id = h.member_id where h.work = 'bridge' order by h.first_at;
 --
---   -- who holds a stone now, and whose hands it has been through
---   select p.character_name as holder, (select array_agg(h.character_name order by o.ord) from unnest(c.hands) with ordinality o(id, ord) join public.profiles h on h.id = o.id) as hands
+--   -- who holds a stone now, whose hands it has been through, and what it has in it
+--   select p.character_name as holder, (select array_agg(h.character_name order by o.ord) from unnest(c.hands) with ordinality o(id, ord) join public.profiles h on h.id = o.id) as hands, c.mark
 --     from public.town_work_carried c join public.profiles p on p.id = c.member_id;
+--
+--   -- what was found in the stones, and whose hands each came by; and each span's hands in the order they came to it
+--   select f.at, f.kind, f.span, (select array_agg(h.character_name order by o.ord) from unnest(f.hands) with ordinality o(id, ord) join public.profiles h on h.id = o.id) as hands
+--     from public.town_work_finds f where f.work = 'bridge' order by f.at;
+--   select b.span, array_agg(p.character_name order by b.first_at) as hands from public.town_work_built b join public.profiles p on p.id = b.member_id where b.work = 'bridge' group by b.span order by b.span;
+--
+--   -- how often a stone had something in it (about one in twenty-five is meant)
+--   select count(*) filter (where d.what = 'stone_lay') as laid, count(*) filter (where d.what = 'stone_lay' and d.doc ? 'find') as found from public.town_deeds d;
 --
 --   -- stones lifted, handed on, laid and let go of, by day
 --   select (d.at at time zone 'Asia/Bangkok')::date as day, d.what, count(*) from public.town_deeds d where d.what like 'stone\_%' group by 1, 2 order by 1 desc, 2;

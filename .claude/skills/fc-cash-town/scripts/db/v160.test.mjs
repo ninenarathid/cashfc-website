@@ -8,7 +8,7 @@
  *
  * It reads the draft beside this file (`v160_draft.sql`) while there is one, then supabase/'s in the root given, then
  * history once it has run. What is held:
- *   · the file adds four tables, closed, and fourteen functions, six of them a member's to call; `town.work_counts_of`
+ *   · the file adds six tables, closed, and twenty-one functions, six of them a member's to call; `town.work_counts_of`
  *     and `town.deed_th` are the ones they replace, word for word, but for the lines meant; nothing else of the
  *     town's is written, dropped or given to anybody; the catalog has one row more, the code's, and no other differs;
  *   · the rules are the site's own, case by case (lib/town/db-vectors-bridge.test.ts makes the cases from
@@ -17,7 +17,8 @@
  *   · stories of four members at the bridge through the functions a member calls, with the test's clock: every
  *     answer, the doer's stamina, what each is told, and at the end what is kept, the helpers' line among it;
  *   · said plainly once each: a stone through three hands, the hundredth and the six-hundredth, the names in the
- *     order they came and my count for me alone, tired hands, the works' own giving, and who may.
+ *     order they came and my count for me alone, each span's hands, a marked stone (told to nobody while it is
+ *     carried, found when it is laid, set in the bridge with its hands), tired hands, the works' own giving, and who may.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -26,7 +27,7 @@ import { U, migration } from "./pglite-harness.mjs";
 import { bareWrites } from "./bare-writes.mjs";
 await import("./repo-ts-town.mjs");
 const { catalogOf } = await import("@/lib/town/catalog");
-const { BRIDGE } = await import("@/lib/town/bridge");
+const { BRIDGE, MARKS, markLuck, markOf } = await import("@/lib/town/bridge");
 
 const [root] = process.argv.slice(2);
 const beside = new URL("./v160_draft.sql", import.meta.url);
@@ -73,20 +74,30 @@ const lastDeed = async () => Number((await one(`select coalesce(max(id), 0) as n
 const helpersOf = async (who) => (await one(`select w.kept from public.town_work w where w.member_id = $1 and w.line = 'helpers'`, [who]))?.kept ?? null;
 const needOf = async (work = "bridge", thing = "stone") => one(`select n.need, n.have from public.town_work_needs n where n.work = $1 and n.thing = $2`, [work, thing]);
 const handsOf = async (work = "bridge") => rows(`select h.member_id as id, h.thing, h.n, round(extract(epoch from h.first_at) * 1000)::float8 as first from public.town_work_hands h where h.work = $1 order by h.first_at, h.member_id::text collate "C", h.thing`, [work]);
-const carriedOf = async () => Object.fromEntries((await rows(`select c.member_id as id, c.work, c.thing, c.hands from public.town_work_carried c`)).map((r) => [r.id, { work: r.work, thing: r.thing, hands: r.hands }]));
+/** Who holds a stone, and whose hands it has been through; with `marked`, what each has in it too (the keeper's alone). */
+const carriedOf = async (marked = false) => Object.fromEntries((await rows(`select c.member_id as id, c.work, c.thing, c.hands, c.mark from public.town_work_carried c`)).map((r) => [r.id, { work: r.work, thing: r.thing, hands: r.hands, ...(marked ? { mark: r.mark } : {}) }]));
+/** Whose hands built each span, and when each first came to it; and what was found in the stones, in the order they were laid. */
+const builtOf = async (work = "bridge") => { const out = {}; for (const r of await rows(`select b.span, b.member_id as id, round(extract(epoch from b.first_at) * 1000)::float8 as first from public.town_work_built b where b.work = $1`, [work])) (out[r.span] ??= {})[r.id] = r.first; return out; };
+const findsOf = async (work = "bridge") => rows(`select f.kind, round(extract(epoch from f.at) * 1000)::float8 as at, f.span, f.hands from public.town_work_finds f where f.work = $1 order by f.at, f.id`, [work]);
+/** A moment from one on at which a stone that member lifts has something in it (or, with `plain`, has nothing): the code's own rule says which. */
+const momentFor = (who, from, plain = false) => { for (let t = from; ; t++) if (!!markOf(markLuck(who, t)) !== plain) return t; };
+/** What a page is told, with every name the member's id (the test's own people are held by their ids; their names are said plainly further down). */
+const byIds = (works) => (works ? { ...works, works: Object.fromEntries(Object.entries(works.works).map(([id, w]) => [id, { ...w, helpers: w.helpers.map((h) => ({ id: h.id, name: h.id })),
+  built: Object.fromEntries(Object.entries(w.built ?? {}).map(([span, by]) => [span, by.map((h) => ({ id: h.id, name: h.id }))])), finds: (w.finds ?? []).map((f) => ({ ...f, hands: f.hands.map((h) => ({ id: h.id, name: h.id })) })) }])) } : null);
+const SHUT_TOLD = { open: false, done: null, needs: {}, helpers: [], mine: {}, built: {}, finds: [] };
 /** The bridge and everything about it as it was at first, but for what a check says: open or not, so many of so many. */
 const anew = async ({ open = true, need = BRIDGE.need, have = 0 } = {}) => {
-  await t.sql(`delete from public.town_work_carried where true; delete from public.town_work_hands where true; delete from public.town_work where line = 'helpers';`);
+  await t.sql(`delete from public.town_work_carried where true; delete from public.town_work_hands where true; delete from public.town_work_built where true; delete from public.town_work_finds where true; delete from public.town_work where line = 'helpers';`);
   await t.sql(`update public.town_works set opened_at = case when $1 then to_timestamp((town.now_ms() - 3600000) / 1000.0) end, done_at = null where id = 'bridge'`, [open]);
   await t.sql(`update public.town_work_needs set need = $1, have = $2 where work = 'bridge' and thing = 'stone'`, [need, have]);
 };
 
-const NEW = ["town.works_wants(jsonb, text)", "town.stone_near(integer, integer, text)", "town.stone_spans(integer, integer)", "town.stone_lift(jsonb, jsonb, jsonb, integer, integer, text, bigint)",
+const NEW = ["town.works_wants(jsonb, text)", "town.stone_near(integer, integer, text)", "town.stone_spans(integer, integer)", "town.stone_into(integer, integer)", "town.stone_mark(double precision)", "town.works_laid(text, text, uuid[], integer, text, bigint)", "town.stone_lift(jsonb, jsonb, jsonb, integer, integer, text, bigint)",
   "town.stone_pass(jsonb, text, jsonb, jsonb, jsonb)", "town.stone_lay(jsonb, jsonb, jsonb, integer, integer, bigint)", "town.stone_drop(jsonb, jsonb)", "town.works_give(jsonb, jsonb, text, integer)",
   "town.works_read(text)", "town.works_carried(uuid)", "town.works_counted(text, text, uuid[], integer, integer, bigint)", "town.works_told(uuid)"];
 const CALLED = ["public.town_works_read()", "public.town_stone_lift(integer, integer)", "public.town_stone_pass(uuid)", "public.town_stone_lay(integer, integer)", "public.town_stone_drop()", "public.town_work_give(text, text, integer)"];
 const AGAIN = ["town.work_counts_of(jsonb, text)", "town.deed_th(text)"];
-const TABLES = ["town_works", "town_work_needs", "town_work_hands", "town_work_carried"];
+const TABLES = ["town_works", "town_work_needs", "town_work_hands", "town_work_carried", "town_work_built", "town_work_finds"];
 const NAMES = [...NEW, ...CALLED, ...AGAIN].map((s) => s.slice(0, s.indexOf("(")));
 /** Every function of the town's but those the file writes: its text, and who may call it. */
 const texts = async () => rows(`select n.nspname || '.' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' as name, md5(pg_get_functiondef(p.oid)) as body,
@@ -120,18 +131,18 @@ const tables = await rows(`select c.relname as name, c.relrowsecurity as closed,
     (select count(*)::int from information_schema.role_table_grants g where g.table_schema = 'public' and g.table_name = c.relname and g.grantee in ('anon', 'authenticated')) as grants,
     (select count(*)::int from pg_policies p where p.schemaname = 'public' and p.tablename = c.relname) as policies
   from pg_class c where c.relnamespace = 'public'::regnamespace and c.relkind = 'r' and c.relname = any($1) order by 1`, [TABLES]);
-t.check("four tables more: the works, what each needs, who gave, and what is carried in the hands", same(tables.map((r) => r.name), [...TABLES].sort()) && (await kept()).tables === keptWas.tables + 4, tables.map((r) => r.name));
-t.check("…each closed: row security on, no policy, and nothing granted to a browser", tables.length === 4 && tables.every((r) => r.closed && r.grants === 0 && r.policies === 0), tables);
+t.check("six tables more: the works, what each needs, who gave, what is carried in the hands, each span's hands, and what was found in the stones", same(tables.map((r) => r.name), [...TABLES].sort()) && (await kept()).tables === keptWas.tables + 6, tables.map((r) => r.name));
+t.check("…each closed: row security on, no policy, and nothing granted to a browser", tables.length === 6 && tables.every((r) => r.closed && r.grants === 0 && r.policies === 0), tables);
 const fns = await rows(`select n.nspname || '.' || p.proname || '(' || pg_get_function_identity_arguments(p.oid) || ')' as name, p.prosecdef as definer, coalesce(p.proconfig::text, '') as config,
     has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as member
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname || '.' || p.proname = any($1) order by 1`, [[...NEW, ...CALLED].map((s) => s.slice(0, s.indexOf("(")))]);
 const sig = (s) => s.replace(/\b(p_[a-z_]+) /g, "").replace(/ DEFAULT [^,)]+/g, "");
-t.check("fourteen functions more, with the words they are said to take", same(fns.map((f) => sig(f.name)).sort(), [...NEW, ...CALLED].sort()), fns.map((f) => sig(f.name)));
+t.check("twenty-one functions more, with the words they are said to take", same(fns.map((f) => sig(f.name)).sort(), [...NEW, ...CALLED].sort()), fns.map((f) => sig(f.name)));
 const called = fns.filter((f) => f.name.startsWith("public."));
 t.check("the six a browser calls are a member's to call and nobody's who is signed out", called.length === 6 && called.every((f) => f.member && !f.anon), called.map((f) => [f.name, f.anon, f.member]));
 t.check("…each security definer with its search path set", called.length === 6 && called.every((f) => f.definer && /search_path=public/.test(f.config)), called.map((f) => [f.name, f.definer, f.config]));
 const ruleFns = fns.filter((f) => f.name.startsWith("town."));
-t.check("the twelve rules are no browser's to call", ruleFns.length === 12 && ruleFns.every((f) => !f.member && !f.anon && !f.definer), ruleFns.map((f) => [f.name, f.anon, f.member]));
+t.check("the fifteen rules are no browser's to call", ruleFns.length === 15 && ruleFns.every((f) => !f.member && !f.anon && !f.definer), ruleFns.map((f) => [f.name, f.anon, f.member]));
 t.check("no function writes to a table with no WHERE", (await bareWrites((q) => t.sql(q).then((r) => r.rows))).length === 0);
 t.check("no other function of the town's is written, dropped, added or given to anybody else", same(await texts(), textsWas), (await texts()).length);
 const keptNow = await kept();
@@ -168,10 +179,12 @@ const ASK = {
   lift: "town.stone_lift($1::jsonb, $2::jsonb, $3::jsonb, $4::int, $5::int, $6::text, $7::bigint)", pass: "town.stone_pass($1::jsonb, $2::text, $3::jsonb, $4::jsonb, $5::jsonb)",
   lay: "town.stone_lay($1::jsonb, $2::jsonb, $3::jsonb, $4::int, $5::int, $6::bigint)", drop: "town.stone_drop($1::jsonb, $2::jsonb)", give: "town.works_give($1::jsonb, $2::jsonb, $3::text, $4::int)",
   wants: "town.works_wants($1::jsonb, $2::text)", spans: "town.stone_spans($1::int, $2::int)", near: "town.stone_near($1::int, $2::int, $3::text)", counts: "town.work_counts_of($1::jsonb, $2::text)",
+  into: "town.stone_into($1::int, $2::int)", mark: "town.stone_mark($1::float8)", luck: "town.roll('stone|' || $1::text, $2::bigint)",
 };
 const SAID = {
   lift: "a stone lifted", pass: "a stone handed on", lay: "a stone laid", drop: "a stone let go of", give: "a thing given to a work out of the bag", wants: "whether a work still wants a thing",
   spans: "how many spans so many stones make", near: "who stands by the pile and by the foot", counts: "what a deed of the bridge's counts for on the lines",
+  into: "which span a stone goes into", mark: "what a stone has in it by its number", luck: "the number a stone is tried by, from its lifter and the moment",
 };
 for (const fn of Object.keys(ASK)) {
   const cases = CASES.rules.filter((v) => v.fn === fn);
@@ -192,7 +205,7 @@ await clock(NOON);
 await t.sql(`insert into public.town_work_carried (member_id, work, thing, hands) values ($1, 'bridge', 'stone', array[$1::uuid])`, [U.guest]);
 const mark0 = await lastDeed(), shutPurse = await purseOf(U.m1);
 const shutTold = await read(U.m1);
-t.check("a page is told only that the bridge is not open: no number, no name, no stone in anybody's hands", same(shutTold, { works: { bridge: { open: false, done: null, needs: {}, helpers: [], mine: {} } }, carried: null }) && same(await read(U.guest), shutTold), shutTold);
+t.check("a page is told only that the bridge is not open: no number, no name, no stone in anybody's hands", same(shutTold, { works: { bridge: SHUT_TOLD }, carried: null }) && same(await read(U.guest), shutTold), shutTold);
 const shut = { lift: await lift(U.m1), pass: await pass(U.guest, U.m1), lay: await lay(U.guest), drop: await drop(U.guest), give: await call(U.m1, "town_work_give", { p_work: "bridge", p_thing: "stone", p_n: 1 }) };
 t.check("lifting, handing on, laying, letting go and giving each answer closed", Object.values(shut).every((r) => r?.ok === false && r.why === "closed"), Object.fromEntries(Object.entries(shut).map(([k, r]) => [k, r?.why ?? r])));
 t.check("…with nothing done: no deed written, no stamina gone, the bridge as it was, the stone that was in somebody's hands still there",
@@ -205,7 +218,7 @@ const OPEN = FILE.split("\n").map((l) => l.trim()).find((l) => /^--\s+update pub
 t.check("the file's head gives the owner one line to open it with", OPEN === "update public.town_works set opened_at = now() where id = 'bridge';", OPEN);
 await t.sql(OPEN);
 const openTold = await read(U.m1);
-t.check("the line run, a page is told the bridge: open, none of six hundred, nobody yet", same(openTold, { works: { bridge: { open: true, done: null, needs: { stone: { need: BRIDGE.need, have: 0 } }, helpers: [], mine: {} } }, carried: null }), openTold);
+t.check("the line run, a page is told the bridge: open, none of six hundred, nobody yet", same(openTold, { works: { bridge: { open: true, done: null, needs: { stone: { need: BRIDGE.need, have: 0 } }, helpers: [], mine: {}, built: {}, finds: [] } }, carried: null }), openTold);
 const up0 = await lift(U.m1);
 t.check("…and a stone is lifted", up0?.ok === true && same(up0.works?.carried, { work: "bridge", thing: "stone" }), up0?.why ?? up0?.works?.carried);
 await t.sql(`update public.town_works set opened_at = null where id = 'bridge'`);
@@ -214,7 +227,7 @@ t.check("closed again, whoever held a stone is told of none, and is refused like
 t.section("stories: four members at the bridge, through the functions a member calls");
 const RODS = bagOf({ item: "rod", n: 1 });
 const stories = FEW ? CASES.stories.slice(0, 3).concat(CASES.stories.slice(16, 18)) : CASES.stories;
-let played = 0, storyWrong = null, endWrong = null, lineWrong = null;
+let played = 0, storyWrong = null, endWrong = null, lineWrong = null, marksLaid = 0;
 for (const [i, s] of stories.entries()) {
   await clock(s.steps[0].now - 1000);
   await anew({ open: true, need: s.need, have: s.have });
@@ -226,24 +239,25 @@ for (const [i, s] of stories.entries()) {
       : d.fn === "hold" ? await call(x.by, "town_hold", { p_slot: d.slot }) : d.fn === "put_away" ? await call(x.by, "town_hold", { p_slot: null }) : await call(x.by, "town_works_read");
     played++;
     if (storyWrong) continue;
-    const got = d.fn === "read" ? {} : Object.fromEntries(["ok", "why", "have", "spans", "span", "whole"].filter((key) => r?.[key] !== undefined).map((key) => [key, r[key]]));
+    const got = d.fn === "read" ? {} : Object.fromEntries(["ok", "why", "have", "spans", "span", "whole", "into", "find"].filter((key) => r?.[key] !== undefined).map((key) => [key, r[key]]));
     // (names are the test's own people's: held by their ids here, and said plainly further down)
-    const works = r?.works ?? (await read(x.by)), told = works ? { ...works, works: Object.fromEntries(Object.entries(works.works).map(([id, w]) => [id, { ...w, helpers: w.helpers.map((h) => ({ id: h.id, name: h.id })) }])) } : null;
+    const told = byIds(r?.works ?? (await read(x.by)));
     const left = d.fn === "read" ? await staminaOf(x.by) : r?.purse ? Number((await one(`select town.stamina_of($1::jsonb, town.now_ms()) as n`, [JSON.stringify(r.purse)])).n) : null;
     if (!same(got, x.want) || !same(told, x.told) || left !== x.stamina) storyWrong = { story: i, step: k, deed: d, by: x.by, got, want: x.want, left, stamina: x.stamina, told: same(told, x.told) ? "same" : told, wantTold: same(told, x.told) ? "same" : x.told };
   }
   const bridge = await one(`select round(extract(epoch from w.opened_at) * 1000)::float8 as opened, round(extract(epoch from w.done_at) * 1000)::float8 as done from public.town_works w where w.id = 'bridge'`);
   const hands = {};
   for (const h of await handsOf()) (hands[h.id] ??= {})[h.thing] = { n: h.n, first: h.first };
-  const end = { done: bridge.done, needs: { stone: await needOf() }, hands };
-  if (!endWrong && !same(end, { done: s.end.bridge.done, needs: s.end.bridge.needs, hands: s.end.bridge.hands })) endWrong = { story: i, got: end, want: s.end.bridge };
-  if (!endWrong && !same(await carriedOf(), s.end.carried)) endWrong = { story: i, carried: await carriedOf(), want: s.end.carried };
+  const end = { done: bridge.done, needs: { stone: await needOf() }, hands, built: await builtOf(), finds: await findsOf() };
+  if (!endWrong && !same(end, { done: s.end.bridge.done, needs: s.end.bridge.needs, hands: s.end.bridge.hands, built: s.end.bridge.built ?? {}, finds: s.end.bridge.finds ?? [] })) endWrong = { story: i, got: end, want: s.end.bridge };
+  if (!endWrong && !same(await carriedOf(true), s.end.carried)) endWrong = { story: i, carried: await carriedOf(true), want: s.end.carried };
+  marksLaid += (s.end.bridge.finds ?? []).length;
   const lines = {};
   for (const who of Object.keys(s.stamina)) { const l = await helpersOf(who); if (l) lines[who] = { points: l.points, today: l.today, day: l.day }; }
   if (!lineWrong && !same(lines, s.end.helpers)) lineWrong = { story: i, got: lines, want: s.end.helpers };
 }
 t.check(`${stories.length} stories, ${played} deeds: every answer, the doer's stamina and what they are told of the works are the code's`, played > 400 && !storyWrong, storyWrong ? JSON.stringify(storyWrong).slice(0, 1400) : "");
-t.check("…and at each end what is kept: how many the bridge has, who was counted how many and when each first came, whether it is marked whole, who still holds a stone and whose hands it came by", !endWrong, endWrong ? JSON.stringify(endWrong).slice(0, 1200) : "");
+t.check("…and at each end what is kept: how many the bridge has, who was counted how many and when each first came, whether it is marked whole, whose hands built each span, what was found in the stones, who still holds a stone, whose hands it came by and what it has in it", !endWrong && (FEW || marksLaid >= 5), endWrong ? JSON.stringify(endWrong).slice(0, 1200) : `${marksLaid} finds`);
 t.check("…and where each stands on the helpers' line: a point a stone to everybody it came by, counted by the day's bound", !lineWrong, lineWrong ? JSON.stringify(lineWrong).slice(0, 900) : "");
 
 t.section("a stone through three pairs of hands");
@@ -279,7 +293,9 @@ t.check("the sign's names are everybody who has helped in the order they first c
   same(page.works.bridge.helpers, [{ id: U.m1, name: "Member One" }, { id: U.m2, name: "Member Two" }, { id: U.guest, name: "Guest Three" }, { id: U.admin, name: "Aqua Admin" }]) && !/\d/.test(JSON.stringify(page.works.bridge.helpers.map((h) => h.name))), page.works.bridge.helpers);
 t.check("my own count is told to me alone: two for member one, one for the guest, one for the admin",
   same(page.works.bridge.mine, { stone: 2 }) && same((await read(U.guest)).works.bridge.mine, { stone: 1 }) && same((await read(U.admin)).works.bridge.mine, { stone: 1 }) && third.have === 3 && same(third.works.works.bridge.mine, { stone: 2 }), page.works.bridge.mine);
-t.check("…and nobody's count but mine is in what I am told", !JSON.stringify(page).includes('"n"') && Object.keys(page.works.bridge).sort().join() === "done,helpers,mine,needs,open", Object.keys(page.works.bridge));
+t.check("…and nobody's count but mine is in what I am told", !JSON.stringify(page).includes('"n"') && Object.keys(page.works.bridge).sort().join() === "built,done,finds,helpers,mine,needs,open", Object.keys(page.works.bridge));
+t.check("each span keeps whose hands built it: the first span's are all four, in the order they came to it, by name and with no number",
+  same(page.works.bridge.built, { 1: [{ id: U.m1, name: "Member One" }, { id: U.m2, name: "Member Two" }, { id: U.guest, name: "Guest Three" }, { id: U.admin, name: "Aqua Admin" }] }) && !/\d/.test(JSON.stringify(Object.values(page.works.bridge.built).flat().map((h) => h.name))), page.works.bridge.built);
 
 t.section("what stands in the way");
 await clock(NOON + 10 * MIN);
@@ -309,6 +325,42 @@ t.check("let go of anywhere, it is gone: nothing comes back, the bridge has no m
 t.check("…and nothing refused wrote a deed or spent stamina", (await staminaOf(U.guest)) === 99 && (await deeds(mark2)).length === 1);
 await drop(U.m1);
 
+t.section("a marked stone: told to nobody while it is carried, found when it is laid");
+// (what a stone has in it is drawn from its lifter and the moment: the code's own rule says which moments mark one)
+await anew({ open: true });
+for (const who of [U.m1, U.m2, U.guest, U.admin]) await purse(who, RODS, 100);
+const MARKED = momentFor(U.m1, NOON + 12 * MIN), KIND = markOf(markLuck(U.m1, MARKED));
+await clock(MARKED);
+const mUp = await lift(U.m1);
+t.check("lifted at a moment that marks it, the stone has that in it, kept with it", mUp?.ok === true && MARKS.includes(KIND) && same((await carriedOf(true))[U.m1], { work: "bridge", thing: "stone", hands: [U.m1], mark: KIND }), { kind: KIND, carried: await carriedOf(true) });
+const mRead = await read(U.m1);
+t.check("…and nobody is told: not the lifter's answer, not what its holder reads, not what anybody else reads", !JSON.stringify(mUp).includes('"mark"') && same(mUp.works.carried, { work: "bridge", thing: "stone" }) && same(mRead.carried, { work: "bridge", thing: "stone" })
+  && !JSON.stringify(mRead).includes('"mark"') && same((await read(U.admin)).works.bridge.finds, []) && !JSON.stringify(await read(U.admin)).includes(`"${KIND}"`), mUp?.works?.carried);
+const liftDeed = (await rows(`select d.doc from public.town_deeds d where d.what = 'stone_lift' order by d.id desc limit 1`))[0].doc;
+t.check("…nor is it written with the lifting", !JSON.stringify(liftDeed).includes(KIND) && !("mark" in liftDeed), liftDeed);
+const mOn = await pass(U.m1, U.m2);
+t.check("handed on, what it has in it goes with it, and whoever takes it is told nothing of it either", mOn?.ok === true && same(await carriedOf(true), { [U.m2]: { work: "bridge", thing: "stone", hands: [U.m1, U.m2], mark: KIND } }) && !JSON.stringify(mOn).includes('"mark"') && same((await read(U.m2)).carried, { work: "bridge", thing: "stone" }),
+  await carriedOf(true));
+await clock(MARKED + 3 * MIN);
+const mark4 = await lastDeed(), pointsWas = Object.fromEntries(await Promise.all([U.m1, U.m2].map(async (id) => [id, (await helpersOf(id))?.points ?? 0])));
+const mDown = await lay(U.m2);
+t.check("laid, it is found: the answer says what was in it, and which span it went into", mDown?.ok === true && mDown.find === KIND && mDown.into === 1 && mDown.have === 1, { find: mDown?.find, into: mDown?.into });
+t.check("…set in the bridge for good: which, when, in which span, and whose hands it came by, in the order it went through them", same(await findsOf(), [{ kind: KIND, at: MARKED + 3 * MIN, span: 1, hands: [U.m1, U.m2] }]), await findsOf());
+const mTold = (await read(U.admin)).works.bridge.finds;
+t.check("…told to every page with its hands' names", same(mTold, [{ kind: KIND, at: MARKED + 3 * MIN, span: 1, hands: [{ id: U.m1, name: "Member One" }, { id: U.m2, name: "Member Two" }] }]) && same(mDown.works.works.bridge.finds, mTold), mTold);
+const layDeed = (await deeds(mark4)).find((d) => d.what === "stone_lay");
+t.check("…and written with the laying", layDeed?.doc.find === KIND, layDeed?.doc);
+const pointsNow = Object.fromEntries(await Promise.all([U.m1, U.m2].map(async (id) => [id, (await helpersOf(id))?.points ?? 0])));
+t.check("a find is never a thing and no point: the bags are as they were, and each hand has the one point of the stone", same((await purseOf(U.m1)).bag, RODS) && same((await purseOf(U.m2)).bag, RODS) && [U.m1, U.m2].every((id) => pointsNow[id] - pointsWas[id] === 1) && (await purseOf(U.m2)).coins === undefined && mDown.purse.coins === 0, { pointsWas, pointsNow });
+const PLAIN = momentFor(U.m1, MARKED + 5 * MIN, true);
+await clock(PLAIN);
+await lift(U.m1);
+const pDown = await lay(U.m1), plainDeed = (await rows(`select d.doc from public.town_deeds d where d.what = 'stone_lay' order by d.id desc limit 1`))[0].doc;
+t.check("a plain stone has nothing in it: nothing is found, nothing more is set in the bridge, and its laying says nothing of a find", pDown?.ok === true && pDown.find === null && (await findsOf()).length === 1 && !("find" in plainDeed) && same((await carriedOf(true)), {}), { find: pDown?.find, doc: plainDeed });
+const drawn = await rows(`select town.stone_mark(town.roll('stone|' || $1::text, g)) as kind, count(*)::int as n from generate_series($2::bigint, $2::bigint + 19999) g group by 1`, [U.m2, NOON]);
+const some = drawn.filter((r) => r.kind !== null), marked = some.reduce((n, r) => n + r.n, 0);
+t.check("over twenty thousand moments about one stone in twenty-five has something in it, and every one of the six kinds is among them", marked > 20000 / BRIDGE.marks.one * 0.8 && marked < 20000 / BRIDGE.marks.one * 1.2 && same(some.map((r) => r.kind).sort(), [...MARKS].sort()), drawn);
+
 t.section("the hundredth stone is a span, the six-hundredth makes it whole");
 await anew({ open: true, have: 98 });
 await clock(NOON + 20 * MIN);
@@ -316,6 +368,11 @@ await lift(U.m1); const s99 = await lay(U.m1); await lift(U.m1); const s100 = aw
 t.check("the ninety-ninth is no span, the hundredth is the first, the hundred-and-first is none", [s99, s100, s101].every((r) => r?.ok) && same([s99, s100, s101].map((r) => [r.have, r.spans, r.span, r.whole]), [[99, 0, false, false], [100, 1, true, false], [101, 1, false, false]]), [s99, s100, s101].map((r) => [r?.have, r?.spans, r?.span]));
 const spanDeed = (await rows(`select d.doc from public.town_deeds d where d.what = 'stone_lay' order by d.id desc limit 2`)).map((r) => r.doc.span ?? null);
 t.check("…and the deed of the stone that finished a span says which", same(spanDeed, [null, 1]), spanDeed);
+t.check("the hundredth stone went into the first span and the next into the second: each span has its own hands", same([s99, s100, s101].map((r) => r.into), [1, 1, 2]) && same(Object.keys(await builtOf()).sort(), ["1", "2"]) && same(byIds(s101.works).works.bridge.built, { 1: [{ id: U.m1, name: U.m1 }], 2: [{ id: U.m1, name: U.m1 }] }), [s99, s100, s101].map((r) => r?.into));
+await clock(NOON + 22 * MIN);
+await lift(U.m2); await pass(U.m2, U.guest); await lay(U.guest);
+const second = (await read(U.admin)).works.bridge.built;
+t.check("…who comes to a span later is named after who came before, and the span that is finished keeps the hands it had", same(second[1].map((h) => h.id), [U.m1]) && same(second[2].map((h) => h.id), [U.m1, U.m2, U.guest]) && same(await builtOf(), { 1: { [U.m1]: NOON + 20 * MIN }, 2: { [U.m1]: NOON + 20 * MIN, [U.m2]: NOON + 22 * MIN, [U.guest]: NOON + 22 * MIN } }), await builtOf());
 await anew({ open: true, have: 598 });
 for (const who of [U.m1, U.m2, U.guest]) { await purse(who, RODS, 100); await lift(who); }
 await clock(NOON + 30 * MIN);
@@ -390,11 +447,13 @@ t.check("while the town's game is shut a member is refused, and an admin is not"
 await t.sql(`update public.town_knobs set value = 1 where key = 'game_open'`);
 const peek = [];
 for (const table of TABLES) for (const who of ["anon", U.m1]) peek.push(await t.as(who, `select count(*) from public.${table}`));
-t.check("the four tables are nobody's to read from a browser", peek.every((r) => /permission denied/.test(r.error ?? "")), peek.map((r) => r.error ?? r.rows));
-const poke = [await t.as(U.m1, `update public.town_work_needs set have = 600 where work = 'bridge'`), await t.as(U.m1, `update public.town_works set opened_at = now() where true`), await t.as(U.m1, `insert into public.town_work_carried (member_id, work, thing) values ('${U.m1}', 'bridge', 'stone')`)];
-t.check("…nor to write: no stone laid, no work opened and no stone conjured from outside", poke.every((r) => /permission denied/.test(r.error ?? "")), poke.map((r) => r.error ?? r.affected));
-const rules = [await t.as(U.m1, `select town.works_counted('bridge', 'stone', array['${U.m1}'::uuid], 500, 500, 0)`), await t.as(U.m1, `select town.works_told('${U.m2}'::uuid)`), await t.as(U.m1, `select town.stone_lay('{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 0, 0, 0)`)];
-t.check("the rules are not to be asked from outside: nobody counts themselves stones, or reads another's count", rules.every((r) => /permission denied/.test(r.error ?? "")), rules.map((r) => r.error ?? r.rows));
+t.check("the six tables are nobody's to read from a browser", peek.length === 12 && peek.every((r) => /permission denied/.test(r.error ?? "")), peek.map((r) => r.error ?? r.rows));
+const poke = [await t.as(U.m1, `update public.town_work_needs set have = 600 where work = 'bridge'`), await t.as(U.m1, `update public.town_works set opened_at = now() where true`), await t.as(U.m1, `insert into public.town_work_carried (member_id, work, thing) values ('${U.m1}', 'bridge', 'stone')`),
+  await t.as(U.m1, `insert into public.town_work_finds (work, thing, kind, hands) values ('bridge', 'stone', 'pearl', array['${U.m1}'::uuid])`), await t.as(U.m1, `update public.town_work_carried set mark = 'pearl' where true`), await t.as(U.m1, `insert into public.town_work_built (work, span, member_id) values ('bridge', 6, '${U.m1}')`)];
+t.check("…nor to write: no stone laid, no work opened, no stone conjured, no find set in the bridge, no stone marked and nobody named of a span from outside", poke.every((r) => /permission denied/.test(r.error ?? "")), poke.map((r) => r.error ?? r.affected));
+const rules = [await t.as(U.m1, `select town.works_counted('bridge', 'stone', array['${U.m1}'::uuid], 500, 500, 0)`), await t.as(U.m1, `select town.works_told('${U.m2}'::uuid)`), await t.as(U.m1, `select town.stone_lay('{}'::jsonb, '{}'::jsonb, '{}'::jsonb, 0, 0, 0)`),
+  await t.as(U.m1, `select town.works_carried('${U.m2}'::uuid)`), await t.as(U.m1, `select town.works_laid('bridge', 'stone', array['${U.m1}'::uuid], 1, 'pearl', 0)`), await t.as(U.m1, `select town.stone_mark(0)`)];
+t.check("the rules are not to be asked from outside: nobody counts themselves stones, reads another's count, looks into a stone or sets a find", rules.every((r) => /permission denied/.test(r.error ?? "")), rules.map((r) => r.error ?? r.rows));
 
 t.done();
 console.log(`${((Date.now() - t0) / 1000).toFixed(1)} s`);

@@ -45,7 +45,7 @@ import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGif
 import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
 // ── the bridge built by hand ──
-import { BRIDGE, counted as worksCounted, drop as stoneDrop, lay as stoneLay, lift as stoneLift, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
+import { BRIDGE, drop as stoneDrop, laid as stoneLaid, lay as stoneLay, lift as stoneLift, luckFor, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -693,9 +693,15 @@ export class Trial {
   }
   /** The works as I am told them (a tester has no name here: the page calls each by what the room calls them). */
   works(): WorksTold { return worksTold(this.worksKept(), this.id, () => ""); }
+  /** For scripts: what the next stone I lift has in it (a kind, or null for a plain one), whatever its moment would draw. Once. */
+  private marked: string | null | undefined;
+  worksMark(kind: string | null) { this.marked = kind; }
   stoneLift(at: [number, number]): { ok: true } | { ok: false; why: BridgeRefusal } {
-    const kept = this.worksKept(), now = this.now(), did = stoneLift(this.purse(), kept.carried[this.id] ?? null, workOf(kept, BRIDGE.work), at, this.id, now);
+    const kept = this.worksKept(), now = this.now();
+    const did = this.marked === undefined ? stoneLift(this.purse(), kept.carried[this.id] ?? null, workOf(kept, BRIDGE.work), at, this.id, now)
+      : stoneLift(this.purse(), kept.carried[this.id] ?? null, workOf(kept, BRIDGE.work), at, this.id, now, luckFor(this.marked));
     if (!did.ok) return did;
+    this.marked = undefined;
     this.write(WORKS_AT, { ...kept, carried: { ...kept.carried, [this.id]: did.carried } });
     this.save(did.purse);
     return { ok: true };
@@ -712,16 +718,16 @@ export class Trial {
     this.tell();
     return { ok: true };
   }
-  /** Lay it at the foot: everybody whose hands it went through is counted it, and has a helpers' point for it. */
-  stoneLay(at: [number, number]): { ok: true; have: number; spans: number; span: boolean; whole: boolean } | { ok: false; why: BridgeRefusal } {
+  /** Lay it at the foot: everybody whose hands it went through is counted it, is one of that span's hands, and has a helpers' point for it; and what was in the stone is set in the bridge. */
+  stoneLay(at: [number, number]): { ok: true; have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null } | { ok: false; why: BridgeRefusal } {
     const kept = this.worksKept(), now = this.now(), mine = kept.carried[this.id] ?? null, did = stoneLay(this.purse(), mine, workOf(kept, mine?.work ?? BRIDGE.work), at, now);
     if (!did.ok) return did;
     const carried = { ...kept.carried };
     delete carried[this.id];
-    this.write(WORKS_AT, worksCounted({ ...kept, carried }, mine!.work, mine!.thing, did.hands, 1, 1, now));
+    this.write(WORKS_AT, stoneLaid({ ...kept, carried }, mine!.work, mine!.thing, did.hands, did.into, did.find, now));
     for (const h of did.hands) (h === this.id ? this : trialFor(h)).counted({ from: "deed", what: h === this.id ? "stone_lay" : "stone_hand", thing: mine!.thing, n: 1, doc: {} });
     this.save(did.purse);
-    return { ok: true, have: did.have, spans: did.spans, span: did.span, whole: did.whole };
+    return { ok: true, have: did.have, spans: did.spans, span: did.span, whole: did.whole, into: did.into, find: did.find };
   }
   stoneDrop(): { ok: true } | { ok: false; why: BridgeRefusal } {
     const kept = this.worksKept(), mine = kept.carried[this.id] ?? null, did = stoneDrop(mine, workOf(kept, mine?.work ?? BRIDGE.work));

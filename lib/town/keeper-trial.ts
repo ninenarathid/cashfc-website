@@ -390,9 +390,9 @@ class TrialKeeper implements Keeper {
     if (did.ok) this.onDeed?.("works", to);
     return did;
   }
-  async stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean }>> {
+  async stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null }>> {
     const did = this.trial.stoneLay(at);
-    if (did.ok && (did.span || did.whole)) this.onDeed?.("works");
+    if (did.ok) this.onDeed?.("works");
     return did;
   }
   async stoneDrop(): Promise<Did> { return this.trial.stoneDrop(); }

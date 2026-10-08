@@ -516,8 +516,10 @@ describe("the database's keeper", () => {
   });
 
   // ── the bridge built by hand ── (lib/town/bridge; v160)
-  it("keeps the village's works as it is told them, tells the taker of a stone and everybody of a span, and knows of none where the database has none", async () => {
-    const bridge = (have: number, mine: number, helpers: string[] = []) => ({ open: true, done: null, needs: { stone: { need: 600, have } }, helpers: helpers.map((id) => ({ id, name: id })), mine: mine ? { stone: mine } : {} });
+  it("keeps the village's works as it is told them, tells the taker of a stone and everybody of every stone laid, and knows of none where the database has none", async () => {
+    // (the spans' hands and what was found in the stones come with it, once a stone is laid)
+    const bridge = (have: number, mine: number, helpers: string[] = []) => ({ open: true, done: null, needs: { stone: { need: 600, have } }, helpers: helpers.map((id) => ({ id, name: id })), mine: mine ? { stone: mine } : {},
+      built: helpers.length ? { 1: helpers.map((id) => ({ id, name: id })) } : {}, finds: have >= 100 ? [{ kind: "pearl", at: NOW, span: 1, hands: helpers.map((id) => ({ id, name: id })) }] : [] });
     let told: unknown = { works: { bridge: bridge(98, 0) }, carried: null };
     const sent: Array<[string, Record<string, unknown>]> = [], nudges: Array<[string, string | undefined]> = [];
     const answer = (more: Record<string, unknown> = {}) => ({ now: NOW, purse: purse(), works: told, ...more });
@@ -530,7 +532,7 @@ describe("the database's keeper", () => {
         sent.push(["lay", a]);
         const have = ((told as { works: { bridge: { needs: { stone: { have: number } } } } }).works.bridge.needs.stone.have) + 1;
         told = { works: { bridge: bridge(have, 1, ["me"]) }, carried: null };
-        return answer({ ok: true, have, spans: Math.floor(have / 100), span: have % 100 === 0, whole: false });
+        return answer({ ok: true, have, spans: Math.floor(have / 100), span: have % 100 === 0, whole: false, into: 1, find: have === 100 ? "pearl" : null });
       },
       town_stone_drop: () => { sent.push(["drop", {}]); return answer({ ok: false, why: "none" }); },
     });
@@ -555,17 +557,18 @@ describe("the database's keeper", () => {
     expect(sent[1]).toEqual(["pass", { p_to: "them" }]);
     expect(k.works()?.carried).toBeNull();
     expect(nudges).toEqual([["works", "them"]]);
-    // laying: the tile; a stone among a hundred is told to nobody, the one that finishes a span to everybody
+    // laying: the tile; every stone laid is told to everybody (each page shows whoever had a hand in it what it earned), the one that finishes a span like any other
     const one = k.stoneLay([12, 28]);
     await settle();
-    expect(await one).toMatchObject({ ok: true, have: 99, span: false });
+    expect(await one).toMatchObject({ ok: true, have: 99, span: false, into: 1, find: null });
     expect(sent[2]).toEqual(["lay", { p_x: 12, p_y: 28 }]);
-    expect(nudges).toHaveLength(1);
+    expect(nudges).toEqual([["works", "them"], ["works", undefined]]);
+    expect(k.works()?.works.bridge).toMatchObject({ built: { 1: [{ id: "me", name: "me" }] }, finds: [] });
     const span = k.stoneLay([12, 28]);
     await settle();
-    expect(await span).toMatchObject({ ok: true, have: 100, spans: 1, span: true });
-    expect(nudges[1]).toEqual(["works", undefined]);
-    expect(k.works()?.works.bridge).toMatchObject({ needs: { stone: { have: 100 } }, mine: { stone: 1 }, helpers: [{ id: "me", name: "me" }] });
+    expect(await span).toMatchObject({ ok: true, have: 100, spans: 1, span: true, find: "pearl" });
+    expect(nudges[2]).toEqual(["works", undefined]);
+    expect(k.works()?.works.bridge).toMatchObject({ needs: { stone: { have: 100 } }, mine: { stone: 1 }, helpers: [{ id: "me", name: "me" }], finds: [{ kind: "pearl", at: NOW, span: 1, hands: [{ id: "me", name: "me" }] }] });
     // a refusal is the rule's own word, and what is kept is as it was told
     const none = k.stoneDrop();
     await settle();
@@ -580,7 +583,7 @@ describe("the database's keeper", () => {
     // a bridge that is not open is told as that and nothing more, whatever came with it
     told = { works: { bridge: { open: false, done: null, needs: { stone: { need: 600, have: 5 } }, helpers: [{ id: "me", name: "me" }], mine: { stone: 1 } } }, carried: null };
     await k.worksLook();
-    expect(k.works()?.works.bridge).toEqual({ open: false, done: null, needs: {}, helpers: [], mine: {} });
+    expect(k.works()?.works.bridge).toEqual({ open: false, done: null, needs: {}, helpers: [], mine: {}, built: {}, finds: [] });
     k.close();
 
     // a database that has no works yet answers nothing: nothing of them is shown, nothing is asked for when the room

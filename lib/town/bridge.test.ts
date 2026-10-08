@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { BRIDGE, OFFER, SIGN_AT, bridgeSpans, bridgeWhole, byBoard, readStoneTold, stoneTold, carryPace, carrying, counted, drop, give, lay, lift, nearTile, newWorks, pass, spansOf, takers, toFoot, told, wants, workOf, worksOf, type Carried, type Hand, type Work, type WorksKept } from "./bridge";
+import { BANNER_AT, BRIDGE, COURSE_AT, MARKS, MORE, OFFER, SIGN_AT, luckFor, bridgeSpans, bridgeWhole, carryPace, carrying, counted, course, drop, give, holdFor, inSpan, laid, lay, lift, markLuck, markOf, nearTile, newWorks, pass, spanOf, spansOf, stands, takers, toFoot, told, wants, workOf, worksOf, type Carried, type Hand, type Work, type WorksKept } from "./bridge";
 import { CART } from "./cart";
-import { readTold, type Told } from "./handing";
+import { between } from "./line";
 import { catalogOf } from "./catalog";
 import { ITEMS } from "./items";
 import { countsOf } from "./line-points";
@@ -13,7 +13,10 @@ import { SHOP, fishFrom, placeOf, walkable } from "./world";
 const NOW = Date.parse("2026-10-08T09:00:00+07:00");
 const PILE: [number, number] = [BRIDGE.pile.x, BRIDGE.pile.y - 1], FOOT: [number, number] = [BRIDGE.foot.x + 1, BRIDGE.foot.y];
 const open = (have = 0, need: number | null = BRIDGE.need): Work => ({ open: true, needs: { stone: { need, have } } });
-const stone = (...hands: string[]): Carried => ({ work: "bridge", thing: "stone", hands });
+const stone = (...hands: string[]): Carried => ({ work: "bridge", thing: "stone", hands, mark: null });
+/** A number no stone has anything in by: lifted with it, a stone is a plain one. */
+const PLAIN = 0.5;
+const SHUT = { open: false, done: null, needs: {}, helpers: [], mine: {}, built: {}, finds: [] };
 const tired = (p: Purse): Purse => ({ ...p, stamina: { day: Math.floor((NOW + 2 * 3_600_000) / 86_400_000), left: 0 } });
 const withRod = (): Purse => { const p = newPurse(), d = hold({ ...p, bag: put(p.bag, "rod", 1) }, 0); if (!d.ok) throw new Error("nothing to hold"); return d.purse; };
 
@@ -22,10 +25,11 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
     expect(BRIDGE.need).toBe(600);
     expect(BRIDGE.spans).toBe(6);
     expect(BRIDGE.costs).toEqual({ lift: 1, lay: 1 });
-    expect(BRIDGE.reach).toBe(6);
+    // (handed on within ten tiles: six at first, ten since the evening of 2026-10-08)
+    expect(BRIDGE.reach).toBe(10);
     expect(BRIDGE.hands).toBe(8);
     // the catalog's row is these numbers, and the tiles as the database reads them
-    expect(catalogOf().bridge).toEqual({ work: "bridge", thing: "stone", need: 600, spans: 6, costs: { lift: 1, lay: 1 }, reach: 6, near: 2, paces: { held: 0.5, spent: 0.25 }, hands: 8, point: 1, pile: [BRIDGE.pile.x, BRIDGE.pile.y], foot: [BRIDGE.foot.x, BRIDGE.foot.y] });
+    expect(catalogOf().bridge).toEqual({ work: "bridge", thing: "stone", need: 600, spans: 6, costs: { lift: 1, lay: 1 }, reach: 10, near: 2, paces: { held: 0.5, spent: 0.25 }, hands: 8, point: 1, hold: 1.2, stand: 9, steps: 10, marks: { one: 25, kinds: ["shell", "coin", "rune", "pearl", "star", "leaf"] }, pile: [BRIDGE.pile.x, BRIDGE.pile.y], foot: [BRIDGE.foot.x, BRIDGE.foot.y] });
   });
 
   it("stands its sign beside the foot: never on the foot's tile, on a tile of the bridge's or on a fishing float's, and stopping nobody", () => {
@@ -37,6 +41,15 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
     expect(spans.length).toBe(18);
     expect(taken.has(`${SIGN_AT.x},${SIGN_AT.y}`)).toBe(false);
     expect(taken.has(`${BRIDGE.pile.x},${BRIDGE.pile.y}`)).toBe(false);
+    // the banner and the course of stones that grows at the foot are held to the same tiles, and to three tiles of their own
+    for (const at of [BANNER_AT, COURSE_AT]) {
+      expect(taken.has(`${at.x},${at.y}`)).toBe(false);
+      expect(nearTile([at.x, at.y], BRIDGE.foot, 1)).toBe(true);
+      expect(walkable(at.x, at.y)).toBe(true);
+      expect(placeOf(at.x, at.y)).toBe("town");
+      expect(fishFrom(at.x, at.y)).toBeFalsy();
+    }
+    expect(new Set([SIGN_AT, BANNER_AT, COURSE_AT].map((t) => `${t.x},${t.y}`)).size).toBe(3);
     // beside the foot, and on a tile of the town's where one walks as before (the sign is only drawn)
     expect(nearTile([SIGN_AT.x, SIGN_AT.y], BRIDGE.foot, 1)).toBe(true);
     expect(walkable(SIGN_AT.x, SIGN_AT.y)).toBe(true);
@@ -70,8 +83,8 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
     for (let dx = -BRIDGE.near; dx <= BRIDGE.near; dx++) for (let dy = -BRIDGE.near; dy <= BRIDGE.near; dy++) if (walkable(BRIDGE.foot.x + dx, BRIDGE.foot.y + dy)) about++;
     expect(bank).toBe(true);
     expect(about).toBeGreaterThanOrEqual(12);
-    // and it is a long way: more than a few hands, which is why a row is worth standing in
-    expect(toFoot({ x: BRIDGE.pile.x + 0.5, y: BRIDGE.pile.y + 0.5 })).toBeGreaterThan(BRIDGE.reach * 4);
+    // and it is a long way: three hands' reach and more, which is why a row of four is worth standing in
+    expect(toFoot({ x: BRIDGE.pile.x + 0.5, y: BRIDGE.pile.y + 0.5 })).toBeGreaterThan(BRIDGE.reach * 3);
   });
 
   it("is closed until its owner opens it: every deed answers closed, and a page is told nothing of it", () => {
@@ -86,7 +99,7 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
     expect(drop(stone("a"), open())).toEqual({ ok: true });
     expect(drop(null, open())).toEqual({ ok: false, why: "none" });
     const kept = newWorks(), page = told({ ...kept, carried: { a: stone("a") } }, "a", (id) => id);
-    expect(page).toEqual({ works: { bridge: { open: false, done: null, needs: {}, helpers: [], mine: {} } }, carried: null });
+    expect(page).toEqual({ works: { bridge: SHUT }, carried: null });
     expect(bridgeSpans(page)).toBe(0);
     expect(bridgeWhole(page)).toBe(false);
     expect(bridgeSpans(null)).toBe(0);
@@ -94,7 +107,7 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
   });
 
   it("lifts a stone at the pile with empty hands, for one stamina", () => {
-    const p = newPurse(), did = lift(p, null, open(), PILE, "a", NOW);
+    const p = newPurse(), did = lift(p, null, open(), PILE, "a", NOW, PLAIN);
     expect(did.ok && did.carried).toEqual(stone("a"));
     expect(did.ok && staminaOf(did.purse, NOW)).toBe(STAMINA.max - 1);
     // nothing else of the purse moves: no coin, nothing in the bag
@@ -145,7 +158,7 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
 
   it("lays a stone at the foot for one stamina: one more, and everybody it came by is told", () => {
     const p = newPurse(), did = lay(p, stone("a", "b", "c"), open(41), FOOT, NOW);
-    expect(did).toMatchObject({ ok: true, have: 42, hands: ["a", "b", "c"], spans: 0, span: false, whole: false });
+    expect(did).toMatchObject({ ok: true, have: 42, hands: ["a", "b", "c"], spans: 0, span: false, whole: false, into: 1, find: null });
     expect(did.ok && staminaOf(did.purse, NOW)).toBe(STAMINA.max - 1);
     expect(lay(p, null, open(), FOOT, NOW)).toEqual({ ok: false, why: "none" });
     expect(lay(p, stone("a"), open(), PILE, NOW)).toEqual({ ok: false, why: "far" });
@@ -158,9 +171,14 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
     const p = newPurse();
     expect([0, 99, 100, 199, 200, 300, 400, 500, 599, 600, 700].map((n) => spansOf(n, 600))).toEqual([0, 0, 1, 1, 2, 3, 4, 5, 5, 6, 6]);
     expect(spansOf(50, null)).toBe(0);
-    expect(lay(p, stone("a"), open(99), FOOT, NOW)).toMatchObject({ ok: true, have: 100, spans: 1, span: true, whole: false });
-    expect(lay(p, stone("a"), open(100), FOOT, NOW)).toMatchObject({ ok: true, have: 101, spans: 1, span: false, whole: false });
-    expect(lay(p, stone("a"), open(599), FOOT, NOW)).toMatchObject({ ok: true, have: 600, spans: 6, span: true, whole: true });
+    expect(lay(p, stone("a"), open(99), FOOT, NOW)).toMatchObject({ ok: true, have: 100, spans: 1, span: true, whole: false, into: 1 });
+    expect(lay(p, stone("a"), open(100), FOOT, NOW)).toMatchObject({ ok: true, have: 101, spans: 1, span: false, whole: false, into: 2 });
+    expect(lay(p, stone("a"), open(599), FOOT, NOW)).toMatchObject({ ok: true, have: 600, spans: 6, span: true, whole: true, into: 6 });
+    // which span a stone goes into is the one that was in hand before it: the hundredth is the first span's, the next the second's
+    expect([1, 99, 100, 101, 200, 201, 599, 600].map((n) => spanOf(n, 600))).toEqual([1, 1, 1, 2, 2, 3, 6, 6]);
+    expect([1, 2, 3, 7].map((n) => spanOf(n, 7))).toEqual([1, 1, 2, 6]);
+    expect(spanOf(0, 600)).toBe(0);
+    expect(spanOf(5, null)).toBe(0);
     expect(lay(p, stone("a"), open(600), FOOT, NOW)).toEqual({ ok: false, why: "whole" });
     expect(lift(p, null, open(600), PILE, "a", NOW)).toEqual({ ok: false, why: "whole" });
     expect(wants(open(599), "stone")).toBe(true);
@@ -208,7 +226,12 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
     expect(worksOf({})).toBe(null);
     expect(worksOf({ works: [] })).toBe(null);
     const page = worksOf({ works: { bridge: { open: true, done: null, needs: { stone: { need: 600, have: "12" } }, helpers: [{ id: "a", name: "A" }, { id: 3 }, null], mine: { stone: 2, wood: "x" } }, pile: { open: false, needs: { stone: { need: 5, have: 5 } } } }, carried: { work: "bridge", thing: "stone", hands: ["a"] } });
-    expect(page).toEqual({ works: { bridge: { open: true, done: null, needs: { stone: { need: 600, have: 12 } }, helpers: [{ id: "a", name: "A" }], mine: { stone: 2 } }, pile: { open: false, done: null, needs: {}, helpers: [], mine: {} } }, carried: { work: "bridge", thing: "stone" } });
+    expect(page).toEqual({ works: { bridge: { open: true, done: null, needs: { stone: { need: 600, have: 12 } }, helpers: [{ id: "a", name: "A" }], mine: { stone: 2 }, built: {}, finds: [] }, pile: SHUT }, carried: { work: "bridge", thing: "stone" } });
+    // (the spans' hands and the finds: what is sound of them is kept, the rest left out; and what a stone has in it is never among what a page is told it carries)
+    const more = worksOf({ works: { bridge: { open: true, needs: {}, built: { 1: [{ id: "a", name: "A" }, 7], 2: "x", zero: [{ id: "b" }] }, finds: [{ kind: "shell", at: 5, span: 2, hands: [{ id: "a", name: "A" }, null] }, { kind: "No Such" }, null, { kind: "leaf" }] } }, carried: { work: "bridge", thing: "stone", mark: "shell" } });
+    expect(more?.works.bridge.built).toEqual({ 1: [{ id: "a", name: "A" }], 2: [] });
+    expect(more?.works.bridge.finds).toEqual([{ kind: "shell", at: 5, span: 2, hands: [{ id: "a", name: "A" }] }, { kind: "leaf", at: 0, span: 0, hands: [] }]);
+    expect(more?.carried).toEqual({ work: "bridge", thing: "stone" });
     const kept = { ...newWorks() };
     expect(worksOf(JSON.parse(JSON.stringify(told({ ...kept, works: { bridge: { ...kept.works.bridge, opened: NOW } } }, "a", (id) => id))))).toEqual(told({ ...kept, works: { bridge: { ...kept.works.bridge, opened: NOW } } }, "a", (id) => id));
     expect(workOf(kept, "bridge")).toEqual({ open: false, needs: { stone: { need: 600, have: 0 } } });
@@ -248,13 +271,13 @@ describe("the village's works: giving out of the bag", () => {
 describe("whom a stone is offered to", () => {
   const me = { x: 30.5, y: 27.5 };
   const one = (id: string, x: number, y: number, more: Partial<Hand> = {}): Hand => ({ id, name: id.toUpperCase(), x, y, moving: false, hold: null, ...more });
-  it("is anybody standing still with empty hands within six tiles: those nearer the foot first, three at the most", () => {
-    const people = [one("me", me.x, me.y), one("back", 34.5, 27.5), one("side", 30.5, 30.5), one("fore", 26.5, 27.5), one("far", 23.5, 27.5), one("near", 28.5, 27.5)];
+  it("is anybody standing still with empty hands within ten tiles: those nearer the foot first, three at the most", () => {
+    const people = [one("me", me.x, me.y), one("back", 34.5, 27.5), one("side", 30.5, 30.5), one("fore", 22.5, 27.5), one("far", 19.5, 27.5), one("near", 28.5, 27.5)];
     const found = takers("me", me, people);
     expect(found.offered.map((p) => p.id)).toEqual(["fore", "near", "side"]);
     expect(found.lacks).toBe(null);
     expect(takers("me", me, [people[1]]).offered.map((p) => p.id)).toEqual(["back"]);
-    // exactly six tiles is within reach; a little over is not
+    // exactly ten tiles is within reach; a little over is not
     expect(takers("me", me, [one("edge", me.x - BRIDGE.reach, me.y)]).offered.length).toBe(1);
     expect(takers("me", me, [one("over", me.x - BRIDGE.reach - 0.1, me.y)]).offered.length).toBe(0);
     expect(found.offered.length).toBe(OFFER.most);
@@ -277,26 +300,153 @@ describe("whom a stone is offered to", () => {
   });
 });
 
-describe("tired hands at the bridge: a stone handed on by the handing game's board", () => {
-  it("is by the board when either of the two has no stamina left, and at once when both have some", () => {
-    expect(byBoard(false, false)).toBe(false);
+describe("tired hands at the bridge: a button held, never a board (the owner, 2026-10-08 evening)", () => {
+  it("is a press with stamina on both sides, and a hold of 1.2 seconds when either of the two has none", () => {
+    expect(BRIDGE.hold).toBe(1.2);
+    expect(holdFor(false, false)).toBe(0);
     // (a page built before the room said who is tired says nothing of it: taken to have some)
-    expect(byBoard(false, undefined)).toBe(false);
-    expect(byBoard(false, null)).toBe(false);
-    expect(byBoard(true, false)).toBe(true);
-    expect(byBoard(false, true)).toBe(true);
-    expect(byBoard(true, true)).toBe(true);
+    expect(holdFor(false, undefined)).toBe(0);
+    expect(holdFor(false, null)).toBe(0);
+    expect(holdFor(true, false)).toBe(1.2);
+    expect(holdFor(false, true)).toBe(1.2);
+    expect(holdFor(true, true)).toBe(1.2);
   });
-  it("tells the other page in the handing game's own words, in an envelope of the stone's that the bucket line does not take for water", () => {
-    const ask: Told = { k: "ask", m: "abcd1234", s: true, z: 12345 };
-    expect(stoneTold(ask)).toEqual({ k: "st", t: ask });
-    expect(readStoneTold(stoneTold(ask))).toEqual(ask);
-    expect(readStoneTold(JSON.parse(JSON.stringify(stoneTold({ k: "end", m: "abcd1234", c: true }))))).toEqual({ k: "end", m: "abcd1234", c: true });
-    // the bucket line's reader takes nothing of an envelope, and the stone's nothing of water's bare words
-    expect(readTold(stoneTold(ask))).toBe(null);
-    expect(readStoneTold(ask)).toBe(null);
-    // and nothing that is not whole: no envelope, another's, a word of the game's that is not sound
-    for (const bad of [null, undefined, 7, "st", {}, { k: "st" }, { k: "st", t: null }, { k: "st", t: { k: "ask", m: "x", s: true, z: 1 } }, { k: "st", t: { k: "p", m: "abcd1234", d: 2 } }, { k: "dr", t: ask }])
-      expect(readStoneTold(bad)).toBe(null);
+  it("hands a stone on between tired hands by the rule alone: nothing of it can fail", () => {
+    const p = tired(newPurse());
+    expect(pass(stone("a"), "b", p, null, open())).toEqual({ ok: true, carried: stone("a", "b") });
+  });
+});
+
+describe("marked stones: about one in twenty-five has something in it", () => {
+  it("is drawn as the stone is lifted, from its lifter and the very moment: six kinds, each as likely as another", () => {
+    expect(BRIDGE.marks.one).toBe(25);
+    expect(MARKS).toEqual(["shell", "coin", "rune", "pearl", "star", "leaf"]);
+    // under one in twenty-five there is something, each sixth of that share a kind; from there on nothing
+    expect(markOf(0)).toBe("shell");
+    expect([0, 1, 2, 3, 4, 5].map((k) => markOf((k + 0.5) / (25 * 6)))).toEqual([...MARKS]);
+    expect(markOf(0.0399999)).toBe("leaf");
+    expect(markOf(0.04)).toBe(null);
+    expect(markOf(0.5)).toBe(null);
+    expect(markOf(0.999999)).toBe(null);
+    for (const bad of [-0.1, Number.NaN]) expect(markOf(bad)).toBe(null);
+    // (a script's number for a kind draws that kind, and for none a plain stone)
+    for (const kind of MARKS) expect(markOf(luckFor(kind))).toBe(kind);
+    expect(markOf(luckFor(null))).toBe(null);
+    expect(markOf(luckFor("no such"))).toBe(null);
+    // the number is the same whoever asks, another for another lifter and for another moment
+    expect(markLuck("a", NOW)).toBe(markLuck("a", NOW));
+    expect(markLuck("a", NOW)).not.toBe(markLuck("b", NOW));
+    expect(markLuck("a", NOW)).not.toBe(markLuck("a", NOW + 1));
+    // over many moments: about one in twenty-five, and every kind among them
+    const drawn = Array.from({ length: 20000 }, (_, i) => markOf(markLuck("00000000-0000-0000-0000-000000000001", NOW + i * 977))).filter(Boolean);
+    expect(drawn.length).toBeGreaterThan(20000 / 25 * 0.8);
+    expect(drawn.length).toBeLessThan(20000 / 25 * 1.2);
+    expect(new Set(drawn)).toEqual(new Set(MARKS));
+  });
+  it("is kept with the stone from hand to hand, told to nobody while it is carried, and found when it is laid", () => {
+    const p = newPurse(), up = lift(p, null, open(), PILE, "a", NOW, 0);
+    expect(up.ok && up.carried).toEqual({ ...stone("a"), mark: "shell" });
+    // by the moment itself, with no number given: what that moment draws
+    const own = lift(p, null, open(), PILE, "a", NOW);
+    expect(own.ok && own.carried.mark).toBe(markOf(markLuck("a", NOW)));
+    const on = pass(up.ok ? up.carried : null, "b", p, null, open());
+    expect(on.ok && on.carried).toEqual({ ...stone("a", "b"), mark: "shell" });
+    // what a page is told of what I carry says nothing of it
+    const kept: WorksKept = { ...newWorks(), carried: { b: { ...stone("a", "b"), mark: "shell" } } };
+    kept.works.bridge = { ...kept.works.bridge, opened: NOW };
+    expect(told(kept, "b", (id) => id).carried).toEqual({ work: "bridge", thing: "stone" });
+    expect(JSON.stringify(told(kept, "b", (id) => id))).not.toContain("shell");
+    const down = lay(p, on.ok ? on.carried : null, open(120), FOOT, NOW);
+    expect(down).toMatchObject({ ok: true, have: 121, into: 2, find: "shell" });
+    expect(lay(p, stone("a"), open(120), FOOT, NOW)).toMatchObject({ ok: true, find: null });
+  });
+  it("is set in the bridge for good with the hands it came by, and gives no point and no thing", () => {
+    let kept: WorksKept = newWorks();
+    kept = { ...kept, works: { bridge: { ...kept.works.bridge, opened: NOW } } };
+    kept = laid(kept, "bridge", "stone", ["c", "a"], 1, null, NOW + 1000);
+    kept = laid(kept, "bridge", "stone", ["a", "b"], 1, "pearl", NOW + 2000);
+    kept = laid(kept, "bridge", "stone", ["b"], 2, "leaf", NOW + 3000);
+    expect(kept.works.bridge.needs.stone.have).toBe(3);
+    expect(kept.works.bridge.hands.a.stone).toEqual({ n: 2, first: NOW + 1000 });
+    const page = told(kept, "a", (id) => id.toUpperCase()).works.bridge;
+    expect(page.finds).toEqual([
+      { kind: "pearl", at: NOW + 2000, span: 1, hands: [{ id: "a", name: "A" }, { id: "b", name: "B" }] },
+      { kind: "leaf", at: NOW + 3000, span: 2, hands: [{ id: "b", name: "B" }] },
+    ]);
+    // a find is a deed's particular, not a deed: nothing counts for it on any line
+    expect(countsOf({ from: "deed", what: "stone_lay", thing: "stone", n: 1, doc: { find: "pearl" } }, "a")).toEqual([{ to: null, line: "helpers", raw: BRIDGE.point }]);
+  });
+});
+
+describe("each span keeps whose hands built it", () => {
+  it("names them by the span, in the order they first came to it, with no numbers", () => {
+    let kept: WorksKept = newWorks();
+    kept = { ...kept, works: { bridge: { ...kept.works.bridge, opened: NOW } } };
+    kept = laid(kept, "bridge", "stone", ["c", "a"], 1, null, NOW + 1000);
+    kept = laid(kept, "bridge", "stone", ["b", "a"], 1, null, NOW + 2000);
+    kept = laid(kept, "bridge", "stone", ["b"], 2, null, NOW + 3000);
+    const page = told(kept, "z", (id) => id.toUpperCase()).works.bridge;
+    expect(page.built).toEqual({ 1: [{ id: "a", name: "A" }, { id: "c", name: "C" }, { id: "b", name: "B" }], 2: [{ id: "b", name: "B" }] });
+    expect(JSON.stringify(Object.values(page.built))).not.toMatch(/\d/);
+    // a work that takes any amount has no spans: nobody is of one
+    let heap: WorksKept = { works: { heap: { opened: NOW, done: null, needs: { stone: { need: null, have: 0 } }, hands: {} } }, carried: {} };
+    heap = laid(heap, "heap", "stone", ["a"], 0, null, NOW);
+    expect(told(heap, "a", (id) => id).works.heap.built).toEqual({});
+    // and what was kept before the spans' hands were (a trial of an earlier day) is told with none
+    const old = newWorks();
+    expect(told({ ...old, works: { bridge: { ...old.works.bridge, opened: NOW } } }, "a", (id) => id).works.bridge).toMatchObject({ built: {}, finds: [] });
+  });
+});
+
+describe("what is seen of the building", () => {
+  it("tells whoever had a hand in a stone how far its span has come with it", () => {
+    expect(inSpan(73, 600)).toEqual({ n: 73, of: 100 });
+    expect(inSpan(100, 600)).toEqual({ n: 100, of: 100 });
+    expect(inSpan(101, 600)).toEqual({ n: 1, of: 100 });
+    expect(inSpan(573, 600)).toEqual({ n: 73, of: 100 });
+    expect(inSpan(600, 600)).toEqual({ n: 100, of: 100 });
+    expect(inSpan(0, 600)).toBe(null);
+    expect(inSpan(5, null)).toBe(null);
+  });
+  it("grows a course of stones at the foot through the span in hand in ten steps, with a scaffold at a quarter, a rope at a half and an arch at three quarters", () => {
+    expect(BRIDGE.steps).toBe(10);
+    expect(MORE).toEqual([0.25, 0.5, 0.75]);
+    expect([0, 9, 10, 24, 25, 49, 50, 74, 75, 99].map((n) => course(n, 600))).toEqual([
+      { step: 0, more: 0 }, { step: 0, more: 0 }, { step: 1, more: 0 }, { step: 2, more: 0 }, { step: 2, more: 1 },
+      { step: 4, more: 1 }, { step: 5, more: 2 }, { step: 7, more: 2 }, { step: 7, more: 3 }, { step: 9, more: 3 },
+    ]);
+    // every tenth stone of a span is a step, none skipped
+    expect(Array.from({ length: 100 }, (_, n) => course(n, 600).step)).toEqual(Array.from({ length: 100 }, (_, n) => Math.floor(n / 10)));
+    // a span that is finished is the bridge's own: the next begins from nothing; and a bridge that is whole has none
+    expect(course(100, 600)).toEqual({ step: 0, more: 0 });
+    expect(course(173, 600)).toEqual({ step: 7, more: 2 });
+    expect(course(600, 600)).toEqual({ step: 0, more: 0 });
+    expect(course(40, null)).toEqual({ step: 0, more: 0 });
+  });
+  it("marks on the road where a row would stand: by the pile, by the foot, and about nine tiles apart between, each within reach of the next", () => {
+    expect(BRIDGE.stand).toBe(9);
+    const marks = stands();
+    // a row of four, as the rows that really form are
+    expect(marks.length).toBeGreaterThanOrEqual(4);
+    expect(marks.length).toBeLessThanOrEqual(5);
+    expect(nearTile([marks[0].x, marks[0].y], BRIDGE.pile)).toBe(true);
+    expect(nearTile([marks.at(-1)!.x, marks.at(-1)!.y], BRIDGE.foot)).toBe(true);
+    const mid = (t: { x: number; y: number }) => ({ x: t.x + 0.5, y: t.y + 0.5 });
+    for (let i = 1; i < marks.length; i++) {
+      const far = between(mid(marks[i - 1]), mid(marks[i]));
+      expect(far).toBeLessThanOrEqual(BRIDGE.reach);
+      expect(far).toBeGreaterThan(BRIDGE.stand - 2.5);
+    }
+    // they are only drawn: each on a tile of the town's where one walks as before, none on the pile's own tile, the foot's, the sign's, the bridge's or a fishing float's
+    const spans = Array.from({ length: BRIDGE.spans }, (_, i) => [[10 - i, 28 + i], [9 - i, 28 + i], [10 - i, 29 + i]]).flat();
+    const taken = new Set([...spans, [9, 28], [10, 29], [11, 29], [BRIDGE.foot.x, BRIDGE.foot.y], [BRIDGE.pile.x, BRIDGE.pile.y], [SIGN_AT.x, SIGN_AT.y]].map(([x, y]) => `${x},${y}`));
+    for (const m of marks) {
+      expect(walkable(m.x, m.y)).toBe(true);
+      expect(placeOf(m.x, m.y)).toBe("town");
+      expect(fishFrom(m.x, m.y)).toBeFalsy();
+      expect(taken.has(`${m.x},${m.y}`)).toBe(false);
+    }
+    // the same every time
+    expect(stands()).toEqual(marks);
   });
 });
