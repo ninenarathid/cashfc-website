@@ -3,7 +3,8 @@ import {
   FORGE, GEMS, SMELTING, SMELTS, drawable, drawnOf, elementOfGem, gemsOf, has, isWooden, levelOf, makerName, makersOf, settable, toolKindOf,
   type Element, type OptionId, type ToolKind,
 } from "./tools";
-import { held, put, roomFor, take, type Purse, type Stack } from "./trade";
+import { heldIn, roomIn, stow, takeOut } from "./pouches";
+import { type Purse, type Stack } from "./trade";
 
 /**
  * The blacksmith's rules (2026-10-08): smelting, a forging try, the options drawn at a tool's milestones, a gem set.
@@ -17,6 +18,11 @@ import { held, put, roomFor, take, type Purse, type Stack } from "./trade";
  * - **At a milestone** two options are drawn and one is chosen; an option can be drawn again for a gem and coins,
  *   the old one kept if wished. A draw waits until it is chosen: it cannot be had again by walking away.
  * - **A gem** is set into a tool's socket with a mount of copper; one set over another replaces it.
+ *
+ * **What the smith is given may be in a pouch as well as in the bag** (lib/town/pouches: ore and gems in a miner's
+ * sack, timber in a woodcutter's bundle): every count here is of the two together (`heldIn`), what is spent leaves
+ * the bag first and then the pouch (`takeOut`), and what is taken from the fire goes where a thing brought home goes,
+ * into a pouch that holds it before the bag (`stow`). A tool is always in the bag.
  *
  * Pure: every function is given the moment it is asked at and whatever chance it needs, and gives back new values.
  * What a member has at the smith is a `Smithy`; the keepers (the browser's trial, the database) hold it. Coins paid
@@ -151,8 +157,8 @@ export function smeltCost(purse: Purse, s: Smithy, piece: ItemId, n: number): { 
 export function maySmelt(purse: Purse, s: Smithy, piece: ItemId, now: number): number {
   const rule = SMELTS[piece];
   if (!rule) return 0;
-  let n = Math.min(smithView(s, now).free, Math.floor(held(purse.bag, rule.of) / SMELTING.fragments), rule.fee > 0 ? Math.floor(purse.coins / rule.fee) : Infinity);
-  while (n > 0 && timberFor(s, n, dryOf(purse.bag)).timber > held(purse.bag, "timber")) n--;
+  let n = Math.min(smithView(s, now).free, Math.floor(heldIn(purse, rule.of) / SMELTING.fragments), rule.fee > 0 ? Math.floor(purse.coins / rule.fee) : Infinity);
+  while (n > 0 && timberFor(s, n, dryOf(purse.bag)).timber > heldIn(purse, "timber")) n--;
   return Math.max(0, n);
 }
 /** Put so many pieces of one kind in to smelt: they are paid for now and join the end of the queue. */
@@ -161,31 +167,31 @@ export function smelt(purse: Purse, s: Smithy, piece: ItemId, n: number, now: nu
   if (!rule) return no("none");
   if (!whole(n)) return no("amount");
   if (smithView(s, now).free < n) return no("places");
-  if (held(purse.bag, rule.of) < SMELTING.fragments * n) return no("ore");
+  if (heldIn(purse, rule.of) < SMELTING.fragments * n) return no("ore");
   const burn = timberFor(s, n, dryOf(purse.bag));
-  if (held(purse.bag, "timber") < burn.timber) return no("timber");
+  if (heldIn(purse, "timber") < burn.timber) return no("timber");
   const fee = rule.fee * n;
   if (purse.coins < fee) return no("coins");
-  let bag = take(purse.bag, rule.of, SMELTING.fragments * n);
-  if (burn.timber > 0) bag = take(bag, "timber", burn.timber);
+  let spent = takeOut(purse, rule.of, SMELTING.fragments * n);
+  if (burn.timber > 0) spent = takeOut(spent, "timber", burn.timber);
   const queue = [...s.queue];
   let from = Math.max(now, ...queue.map((q) => q.till));
   for (let i = 0; i < n; i++) { const till = from + rule.mins * 60_000; queue.push({ piece, from, till }); from = till; }
-  return { ok: true, purse: { ...purse, coins: purse.coins - fee, bag }, smithy: { ...s, queue, ember: burn.ember }, timber: burn.timber, fee };
+  return { ok: true, purse: { ...spent, coins: purse.coins - fee }, smithy: { ...s, queue, ember: burn.ember }, timber: burn.timber, fee };
 }
-/** Take what is done: as much of it as the bag has room for; the rest goes on waiting. */
+/** Take what is done: as much of it as there is room for (in a pouch that holds it, then the bag); the rest goes on waiting. */
 export function collect(purse: Purse, s: Smithy, now: number): Did<{ purse: Purse; smithy: Smithy; got: Array<[ItemId, number]> }> {
   const done = s.queue.filter((q) => q.till <= now);
   if (!done.length) return no("none");
-  let bag = purse.bag;
+  let mine = purse;
   const got = new Map<ItemId, number>(), left: Smelting[] = [];
   for (const q of done) {
-    if (roomFor(bag, q.piece) < 1) { left.push(q); continue; }
-    bag = put(bag, q.piece, 1);
+    if (roomIn(mine, q.piece) < 1) { left.push(q); continue; }
+    mine = stow(mine, q.piece, 1);
     got.set(q.piece, (got.get(q.piece) ?? 0) + 1);
   }
   if (!got.size) return no("full");
-  return { ok: true, purse: { ...purse, bag }, smithy: { ...s, queue: [...left, ...s.queue.filter((q) => q.till > now)] }, got: [...got] };
+  return { ok: true, purse: mine, smithy: { ...s, queue: [...left, ...s.queue.filter((q) => q.till > now)] }, got: [...got] };
 }
 /** How many presses of the bellows the piece smelting now may still take, whoever presses: none, with nothing smelting. */
 export const bellowsLeft = (s: Smithy, now: number): number => {
@@ -215,9 +221,9 @@ export const widerCost = (s: Smithy): { timber: number; coins: number } | null =
 export function widen(purse: Purse, s: Smithy): Did<{ purse: Purse; smithy: Smithy }> {
   const cost = widerCost(s);
   if (!cost) return no("top");
-  if (held(purse.bag, "timber") < cost.timber) return no("timber");
+  if (heldIn(purse, "timber") < cost.timber) return no("timber");
   if (purse.coins < cost.coins) return no("coins");
-  return { ok: true, purse: { ...purse, coins: purse.coins - cost.coins, bag: take(purse.bag, "timber", cost.timber) }, smithy: { ...s, more: s.more + 1 } };
+  return { ok: true, purse: { ...takeOut(purse, "timber", cost.timber), coins: purse.coins - cost.coins }, smithy: { ...s, more: s.more + 1 } };
 }
 
 /* ── a forging try ──────────────────────────────────────────────────────── */
@@ -257,11 +263,11 @@ export function owedOf(stack: Stack | null | undefined): number {
   const level = levelOf(stack), mine = drawnOf(stack);
   return FORGE.milestones.findIndex((m, i) => level >= m && !mine[i] && candidates(stack, i).length > 0);
 }
-/** Which of a tool's materials for its next try a bag lacks: nothing, when it has them all. */
+/** Which of a tool's materials for its next try somebody lacks (bag and pouches together): nothing, when they have them all. */
 export function tryLacks(purse: Purse, slot: number): Array<"ore" | "timber" | "coins"> {
   const s = purse.bag[slot], kind = s ? toolKindOf(s.item) : null, cost = kind ? tryCost(kind, levelOf(s) + 1) : null;
   if (!cost) return [];
-  return [...(held(purse.bag, cost.ore) < cost.n ? ["ore" as const] : []), ...(held(purse.bag, "timber") < cost.timber ? ["timber" as const] : []), ...(purse.coins < cost.fee ? ["coins" as const] : [])];
+  return [...(heldIn(purse, cost.ore) < cost.n ? ["ore" as const] : []), ...(heldIn(purse, "timber") < cost.timber ? ["timber" as const] : []), ...(purse.coins < cost.fee ? ["coins" as const] : [])];
 }
 export type Outcome = "taken" | "stays" | "down";
 /** How a try for a level goes, from a number of chance (0 up to 1). */
@@ -285,16 +291,16 @@ export function forgeTry(purse: Purse, s: Smithy, slot: number, r: number, by = 
   // (a draw the tool is owed is chosen before it is forged further)
   if (owedOf(stack) >= 0) return no("owed");
   const cost = tryCost(kind, from + 1)!;
-  if (held(purse.bag, cost.ore) < cost.n) return no("ore");
-  if (held(purse.bag, "timber") < cost.timber) return no("timber");
+  if (heldIn(purse, cost.ore) < cost.n) return no("ore");
+  if (heldIn(purse, "timber") < cost.timber) return no("timber");
   if (purse.coins < cost.fee) return no("coins");
   const out = outcomeOf(from + 1, r);
   const level = out === "taken" ? from + 1 : out === "down" ? Math.max(Math.min(from, FORGE.floor), from - 1) : from;
-  const bag = take(take(purse.bag, cost.ore, cost.n), "timber", cost.timber);
+  const spent = takeOut(takeOut(purse, cost.ore, cost.n), "timber", cost.timber), bag = spent.bag;
   // (the tool stays in its slot: taking its materials never moves it, for a tool is no ore and no timber)
   const raised = withState(bag[slot] ?? stack, level, drawnOf(stack), gemsOf(stack));
   const forged = out === "taken" ? withMaker(raised, FORGE.milestones.indexOf(level), by) : raised;
-  const next = setSlot({ ...purse, coins: purse.coins - cost.fee, bag }, slot, forged);
+  const next = setSlot({ ...spent, coins: purse.coins - cost.fee }, slot, forged);
   return { ok: true, purse: next, out, from, level, item: kind, owed: owedOf(forged) };
 }
 
@@ -340,12 +346,12 @@ export function redraw(purse: Purse, s: Smithy, slot: number, at: number, gem: I
   if (!stack || !kind) return no("tool");
   const old = drawnOf(stack)[at];
   if (!old) return no("none");
-  if (!elementOfGem(gem) || held(purse.bag, gem) < SMITH.redraw.gems) return no("gem");
+  if (!elementOfGem(gem) || heldIn(purse, gem) < SMITH.redraw.gems) return no("gem");
   if (purse.coins < SMITH.redraw.fee) return no("coins");
   const from = candidates(stack, at);
   if (!from.length) return no("unbuilt");
   const pending: Pending = { item: kind, at, offer: pickOffer(from, r1, r2), old };
-  return { ok: true, pending, smithy: { ...s, pending }, purse: { ...purse, coins: purse.coins - SMITH.redraw.fee, bag: take(purse.bag, gem, SMITH.redraw.gems) } };
+  return { ok: true, pending, smithy: { ...s, pending }, purse: { ...takeOut(purse, gem, SMITH.redraw.gems), coins: purse.coins - SMITH.redraw.fee } };
 }
 /** Choose one of the options laid out (or, of a draw made again, keep the old one): it is the tool's from then on. */
 export function choose(purse: Purse, s: Smithy, slot: number, pick: string): Did<{ purse: Purse; smithy: Smithy; item: ToolKind; at: number; opt: OptionId; kept: boolean }> {
@@ -366,19 +372,21 @@ export function setGem(purse: Purse, slot: number, gem: ItemId): Did<{ purse: Pu
   const stack = purse.bag[slot], kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return no("tool");
   const element = elementOfGem(gem);
-  if (!element || held(purse.bag, gem) < 1) return no("gem");
+  if (!element || heldIn(purse, gem) < 1) return no("gem");
   if (!settable(kind, element)) return no("unbuilt");
   const over = gemsOf(stack)[0] ?? null;
   if (over === element) return no("same");
-  if (held(purse.bag, SMITH.gem.mount) < SMITH.gem.mounts) return no("ore");
+  if (heldIn(purse, SMITH.gem.mount) < SMITH.gem.mounts) return no("ore");
   if (purse.coins < SMITH.gem.fee) return no("coins");
-  const bag = take(take(purse.bag, gem, 1), SMITH.gem.mount, SMITH.gem.mounts);
-  const next = setSlot({ ...purse, coins: purse.coins - SMITH.gem.fee, bag }, slot, withState(bag[slot] ?? stack, levelOf(stack), drawnOf(stack), [element]));
+  const spent = takeOut(takeOut(purse, gem, 1), SMITH.gem.mount, SMITH.gem.mounts), bag = spent.bag;
+  const next = setSlot({ ...spent, coins: purse.coins - SMITH.gem.fee }, slot, withState(bag[slot] ?? stack, levelOf(stack), drawnOf(stack), [element]));
   return { ok: true, purse: next, item: kind, element, over };
 }
-/** The gems a bag holds, each element once with how many of its gem: in the elements' order. */
-export const gemsIn = (bag: Purse["bag"]): Array<{ element: Element; gem: ItemId; n: number }> =>
-  (Object.keys(GEMS) as Element[]).map((element) => ({ element, gem: GEMS[element].gem, n: held(bag, GEMS[element].gem) })).filter((g) => g.n > 0);
+/** The gems somebody has, each element once with how many of its gem, in the elements' order: in the bag and in a pouch (of a bag alone: those in it). */
+export const gemsIn = (of: Purse | Purse["bag"]): Array<{ element: Element; gem: ItemId; n: number }> => {
+  const purse = Array.isArray(of) ? { bag: of } : of;
+  return (Object.keys(GEMS) as Element[]).map((element) => ({ element, gem: GEMS[element].gem, n: heldIn(purse, GEMS[element].gem) })).filter((g) => g.n > 0);
+};
 /** The tools of a bag that can be forged, each with its slot. */
 export const toolsIn = (bag: Purse["bag"]): Array<{ slot: number; stack: Stack; kind: ToolKind }> =>
   bag.flatMap((s, slot) => { const kind = s ? toolKindOf(s.item) : null; return s && kind ? [{ slot, stack: s, kind }] : []; });

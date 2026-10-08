@@ -14,7 +14,7 @@ import {
   BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, drawnOf, gemsOf, makersOf, modsOf, settable,
   type OptionId, type ToolKind,
 } from "@/lib/town/tools";
-import { held } from "@/lib/town/trade";
+import { heldIn } from "@/lib/town/pouches";
 import TownIcon, { type IconName } from "./TownIcon";
 import { Coins, ItemIcon } from "./TownTrade";
 
@@ -171,7 +171,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   };
   // ── a gem: which one of the bag's is chosen ──
   const [gem, setGem] = useState<ItemId | null>(null);
-  const gems = gemsIn(purse.bag), chosenGem = gem && gems.some((g) => g.gem === gem) ? gem : null;
+  const gems = gemsIn(purse), chosenGem = gem && gems.some((g) => g.gem === gem) ? gem : null;
   const setIt = async () => {
     if (busy || slot < 0 || !chosenGem) return;
     setBusy(true);
@@ -474,11 +474,11 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                   {(() => {
                     const more = widerCost(told.smithy);
                     if (!more) return null;
-                    const noTimber = held(purse.bag, "timber") < more.timber, noCoins = purse.coins < more.coins;
+                    const noTimber = heldIn(purse, "timber") < more.timber, noCoins = purse.coins < more.coins;
                     return (
                       <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-[#4a341f] pt-2" data-smith-wider>
                         <span className="text-meta text-[#c9a877]">{t(`เพิ่มที่หลอมอีก ${SMITH.wider} ที่`, `${SMITH.wider} more places`)}</span>
-                        <Need id="timber" have={held(purse.bag, "timber")} want={more.timber} th={th} />
+                        <Need id="timber" have={heldIn(purse, "timber")} want={more.timber} th={th} />
                         <NeedCoins have={purse.coins} want={more.coins} th={th} />
                         <button type="button" onClick={() => void widenNow()} disabled={busy || noTimber || noCoins} data-smith-widen
                                 className="pressable ml-auto min-h-9 rounded-full border border-[#c9a877] px-3 text-meta font-semibold text-[#f3e3c3] disabled:border-[#4a341f] disabled:text-[#8f7655]">{t("ขยาย", "Widen")}</button>
@@ -487,16 +487,16 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                   })()}
                 </div>
                 {/* the fuel, as it stands */}
-                <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-meta text-[#e9d3a6]" data-smith-fuel data-timber={held(purse.bag, "timber")} data-ember={told.smithy.ember}>
-                  <span className="flex items-center gap-1"><ItemIcon id="timber" size={16} />{itemName("timber", th)} ×{held(purse.bag, "timber")}</span>
+                <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-meta text-[#e9d3a6]" data-smith-fuel data-timber={heldIn(purse, "timber")} data-ember={told.smithy.ember}>
+                  <span className="flex items-center gap-1"><ItemIcon id="timber" size={16} />{itemName("timber", th)} ×{heldIn(purse, "timber")}</span>
                   {told.smithy.ember > 0 && <span className="flex items-center gap-1 text-[#ffd9a0]"><TownIcon name="smithBellows" size={16} />{t(`ไฟยังแรง หลอมได้อีก ${told.smithy.ember} ชิ้นโดยไม่ใช้ไม้`, `The fire is still hot: ${told.smithy.ember} more piece${told.smithy.ember > 1 ? "s" : ""} with no timber`)}</span>}
                 </p>
                 {/* what the bag can smelt */}
                 <h3 className="mb-1.5 mt-4 font-display text-lead font-semibold text-[#f3e3c3]">{t("หลอมอะไรดี", "What to smelt")}</h3>
                 {(() => {
-                  const mine = (Object.keys(SMELTS) as ItemId[]).filter((piece) => held(purse.bag, SMELTS[piece]!.of) > 0);
+                  const mine = (Object.keys(SMELTS) as ItemId[]).filter((piece) => heldIn(purse, SMELTS[piece]!.of) > 0);
                   if (!mine.length) return <p className="rounded-xl border border-dashed border-[#6b4a2a] px-3 py-4 text-center text-ui text-[#c9a877]" data-smith-nothing>{t("ในกระเป๋าไม่มีเศษแร่หรือเศษพลอย", "There are no fragments in the bag")}</p>;
-                  return <ul className="space-y-1.5">{mine.map((piece) => <SmeltRow key={piece} piece={piece} th={th} busy={busy} free={q.free} may={maySmelt(purse, told.smithy, piece, now)} have={held(purse.bag, SMELTS[piece]!.of)} coins={purse.coins} timber={held(purse.bag, "timber")}
+                  return <ul className="space-y-1.5">{mine.map((piece) => <SmeltRow key={piece} piece={piece} th={th} busy={busy} free={q.free} may={maySmelt(purse, told.smithy, piece, now)} have={heldIn(purse, SMELTS[piece]!.of)} coins={purse.coins} timber={heldIn(purse, "timber")}
                                                                        costOf={(n) => smeltCost(purse, told.smithy, piece, n)!} burns={(n) => timberFor(told.smithy, n, dryOf(purse.bag)).timber} onSmelt={(n) => void smeltNow(piece, n)} />)}</ul>;
                 })()}
                 {/* friends whose fire burns: the bellows */}
@@ -588,8 +588,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                       </div>
                     )}
                     <div className="mt-2 flex flex-wrap items-center gap-2">
-                      <Need id={cost.ore} have={held(purse.bag, cost.ore)} want={cost.n} th={th} />
-                      <Need id="timber" have={held(purse.bag, "timber")} want={cost.timber} th={th} />
+                      <Need id={cost.ore} have={heldIn(purse, cost.ore)} want={cost.n} th={th} />
+                      <Need id="timber" have={heldIn(purse, "timber")} want={cost.timber} th={th} />
                       <NeedCoins have={purse.coins} want={cost.fee} th={th} />
                     </div>
                     <Odds odds={odds} th={th} />
@@ -642,8 +642,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     {chosenGem && (
                       <div className="mt-3 border-t border-[#4a341f] pt-3" data-smith-setting={chosenGem}>
                         <div className="flex flex-wrap items-center gap-2">
-                          <Need id={chosenGem} have={held(purse.bag, chosenGem)} want={1} th={th} />
-                          <Need id={SMITH.gem.mount} have={held(purse.bag, SMITH.gem.mount)} want={SMITH.gem.mounts} th={th} />
+                          <Need id={chosenGem} have={heldIn(purse, chosenGem)} want={1} th={th} />
+                          <Need id={SMITH.gem.mount} have={heldIn(purse, SMITH.gem.mount)} want={SMITH.gem.mounts} th={th} />
                           <NeedCoins have={purse.coins} want={SMITH.gem.fee} th={th} />
                         </div>
                         {setElement && (
@@ -651,7 +651,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                             <TownIcon name="warning" size={14} className="mt-0.5" />{t(`${itemName(GEMS[setElement].gem, true)}ที่ฝังอยู่จะหายไป เอาคืนไม่ได้`, `The ${itemName(GEMS[setElement].gem, false).toLowerCase()} set in it now will be gone for good`)}
                           </p>
                         )}
-                        <button type="button" onClick={() => void setIt()} disabled={busy || held(purse.bag, SMITH.gem.mount) < SMITH.gem.mounts || purse.coins < SMITH.gem.fee} data-smith-set
+                        <button type="button" onClick={() => void setIt()} disabled={busy || heldIn(purse, SMITH.gem.mount) < SMITH.gem.mounts || purse.coins < SMITH.gem.fee} data-smith-set
                                 className="pressable mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f0c46a] font-display text-title font-bold text-[#2a190d] shadow-[inset_0_-3px_0_rgba(0,0,0,0.25)] disabled:bg-[#4a341f] disabled:text-[#8f7655] disabled:shadow-none">
                           <TownIcon name="smithSocket" size={20} />{setElement ? t("ฝังทับ", "Set it over") : t("ฝังพลอย", "Set the gem")}
                         </button>

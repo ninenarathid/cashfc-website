@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
   atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
@@ -3889,10 +3889,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     w.__townSmith = { open: (view: SmithView = "smelt") => openSmithRef.current(view), close: () => openSmithRef.current(null) };
     return () => { delete w.__townSmith; };
   }, []);
-  /** Who stands by the forge with me: within a few tiles, on their feet, here and not on another page. */
+  /** Who stands by the forge with me: within a few tiles of the forge itself (lib/town/world's SMITH), on their feet, here and not on another page. */
   const smithNear = useCallback(() => {
     const all = standers(), mine = all.find((p) => p.id === me.id);
-    return mine ? all.filter((p) => p.id !== me.id && !p.away && Math.hypot(p.x - mine.x, p.y - mine.y) <= 6).map((p) => ({ id: p.id, name: p.name })) : [];
+    return mine ? all.filter((p) => p.id !== me.id && !p.away && Math.hypot(p.x - SMITH.stand.x, p.y - SMITH.stand.y) <= 6).map((p) => ({ id: p.id, name: p.name })) : [];
   }, [standers, me.id]);
   const pickTalk = (who: Speaker | "smith", id: string) => {
     // ── forging ── (the blacksmith's choices are his screen's leaves)
