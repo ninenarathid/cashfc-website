@@ -82,6 +82,17 @@ try {
   const early = await X.evaluate(`${F}.result()`);
   ok("…and the second is too soon as ever: the bait is gone with it", early?.how === "early" && (await held(X, "worm")) === worms - 1, { early, worms, now: await held(X, "worm") });
 
+  // the keeper's part again: a rod at the top that calls the fish, counted by the day
+  await forge(X, "rod", 10, ["", "", "rdCall"]);
+  await X.evaluate(`${T}.setStamina(100)`);
+  const called = await cast(X, ["featherback"]);
+  const after = await purse(X);
+  ok("a line dropped with a rod that calls is bitten at once, and one of the day's is counted", called.wait === 2 && after.powers?.rdCall?.n === 1, { called, powers: after.powers });
+  await strike(X);
+  await hand(X, "slack");
+  await result(X);
+  await forge(X, "rod", 0);
+
   /* ── the can ── */
   await X.evaluate(`(${T}.grant("can", 1), ${T}.grant("hoe", 1), ${T}.grant("bugNet", 1), ${T}.grant("pot", 1), ${T}.grant("tomato", 6), ${T}.grant("chili", 6), ${T}.setWell(60), ${T}.setStamina(100))`);
   await warp(X, ...WELL);
@@ -131,6 +142,43 @@ try {
   ok("what a hoe carries reaches its board: a hit fewer, a miss forgiven", r?.kind === "timing" && r.need === 2 && r.spare === 1 && near(r.width, 0.17 * 1.1, 1e-9), r);
   await escape(X);
   await gameGone(X);
+  // tired hands: a plain hoe is dropped at the third miss; one with a grip at the top is not
+  await forge(X, "hoe", 0);
+  await X.evaluate(`${T}.setStamina(0)`);
+  await sleep(400);
+  r = await farmGame(X);
+  ok("with no stamina a plain hoe has three misses in it", r?.kind === "timing" && r.most === 3, r);
+  await escape(X);
+  await gameGone(X);
+  await forge(X, "hoe", 10, ["", "", "hoGrip"]);
+  r = await farmGame(X);
+  ok("…and a hoe with a grip is not dropped", r?.kind === "timing" && r.most === 0, r);
+  await X.evaluate(`${T}.setStamina(100)`);
+  await escape(X);
+  await gameGone(X);
+  // the plot tilled and sown, for a can that waters with nothing in it
+  await forge(X, "hoe", 0);
+  await X.evaluate(`${FARM}.act()`);
+  ok("the plot is tilled with the plain hoe, by its own game", (await play(X)) === "timing");
+  await until("the plot is tilled", async () => (await X.evaluate(`${FARM}.seen("135,7").soil`)) === "tilled", 6000);
+  await X.evaluate(`${T}.grant("seedKangkong", 1)`);
+  await hold(X, "seedKangkong");
+  await until("the seed is offered the plot", async () => (await X.evaluate(`${FARM}.deed()`)) === "sow", 6000);
+  await X.evaluate(`${FARM}.act()`);
+  await until("it is sown", async () => (await X.evaluate(`${FARM}.seen("135,7").crop`)) === "kangkong", 6000);
+  await X.evaluate(`${T}.drop(${await slotOf(X, "can")})`);
+  await X.evaluate(`${T}.grant("can", 1)`);
+  await sleep(300);
+  await hold(X, "can");
+  await until("the can is offered the plant", async () => (await X.evaluate(`${FARM}.deed()`)) === "water", 6000);
+  const dry = await X.evaluate(`${K}.farmDo("135,7", "check")`);
+  ok("a plain can with no water in it is dry, as ever", dry.ok === false && dry.why === "dry", dry);
+  await forge(X, "can", 10, ["", "", "cnFull"]);
+  await X.evaluate(`${FARM}.act()`);
+  await until("the plant is watered", async () => (await X.evaluate(`${FARM}.seen("135,7").wet`)) === true, 6000).catch(() => null);
+  const wet = await purse(X), can = await stack(X, "can");
+  ok("a can at the top that runs on when dry waters it, with nothing in it, and its minutes are begun", (await X.evaluate(`${FARM}.seen("135,7").wet`)) === true && (can.water ?? 0) === 0 && wet.powers?.cnFull?.n === 1 && wet.canFull > Date.now(),
+    { can, powers: wet.powers, canFull: wet.canFull });
 
   /* ── the net ── */
   await until("the insects' own code has come", () => X.evaluate(`!!${B}`), 20000);
