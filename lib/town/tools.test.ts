@@ -240,7 +240,7 @@ describe("options", () => {
     expect(powerRule("axRoot")).toEqual({ n: 3, per: "day" });
     expect(powerRule("pkFresh")).toEqual({ n: 10, per: "meal" });
     expect(powerRule("axFresh")).toEqual({ n: 5, per: "meal" });
-    expect(powerRule("ckFresh")).toEqual({ n: 1, per: "meal" });
+    expect(powerRule("ckFresh")).toEqual({ n: 3, per: "meal" });
     expect(powerRule("pkPeek")).toBeNull();
     expect(powerRule("pkGleam")).toBeNull();
     expect(powerRule("nothing")).toBeNull();

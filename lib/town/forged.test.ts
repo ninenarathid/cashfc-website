@@ -11,7 +11,7 @@ import { HAUNTS, NET, againMs, aimAt, fledBy, net, ringOf, swingMs, taken, type 
 import { FISH, FISH_IDS, type ItemId } from "./items";
 import { LONG, startLong } from "./longpour";
 import { POURING, pour, startPour } from "./pouring";
-import { powerLeft, powerUsed } from "./powers";
+import { powerLeft, powerRule, powerUsed } from "./powers";
 import { STAMINA, chew, dayOf, spend, staminaOf } from "./stamina";
 import { STIRRING, startStir, stir } from "./stirring";
 import { TIMING, over, press, pressRow, startRound, startRow, type Round } from "./timing";
@@ -329,7 +329,7 @@ describe("a forged can", () => {
   it("with fire and a last drop holds more still, and a thrifty one fills from one bucketful", () => {
     expect(canHolds(tool("can", 1, [], ["fire"]))).toBe(10);
     expect(canHolds(tool("can", 10, [], ["fire"]))).toBe(18);
-    expect(canHolds(tool("can", 6, drawn("cnDrop", "cnThrift"), ["fire"]))).toBe(LEVELS.can.waterings[6] + 1 + 1);
+    expect(canHolds(tool("can", 6, drawn("cnDrop", "cnThrift"), ["fire"]))).toBe(LEVELS.can.waterings[6] + OPTIONS.cnDrop.n.more + 1);
     const thrifty = done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 50, NOW));
     expect([thrifty.well, thrifty.purse.bag[0]?.water]).toEqual([49, LEVELS.can.waterings[3]]);
     expect(done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 1, NOW)).purse.bag[0]?.water).toBe(LEVELS.can.waterings[3]);
@@ -399,7 +399,8 @@ describe("a forged net", () => {
   it("by what it carries: a quicker return, a miss more borne, a longer reach, a smaller ring with dark", () => {
     const fx = netFx(tool("bugNet", 6, drawn("ntAgain", "ntMesh")));
     expect(againMs(false, false, fx.lands, fx.again)).toBe(LEVELS.bugNet.lands[6] + NET.again / 2);
-    expect([fledBy(2, true, fx.bears), fledBy(3, true, fx.bears), fledBy(9, false, fx.bears)]).toEqual([false, true, false]);
+    expect(fx.bears).toBe(OPTIONS.ntMesh.n.misses);
+    expect([fledBy(NET.tired.misses + fx.bears - 1, true, fx.bears), fledBy(NET.tired.misses + fx.bears, true, fx.bears), fledBy(9, false, fx.bears)]).toEqual([false, true, false]);
     const long = netFx(tool("bugNet", 3, drawn("ntLong")));
     expect(long.reach).toBe(1);
     expect(aimAt({ x: 0, y: 0 }, { x: 10, y: 0 }, NET.reach + long.reach).x).toBeCloseTo(NET.reach + 1, 12);
@@ -538,9 +539,12 @@ describe("the stamina a forged tool takes off (whoever keeps the game)", () => {
     const cookWith = (s: Stack) => { let q = purseOf(s); for (const [id, k] of things) q = { ...q, bag: put(q.bag, id, k) }; return q; };
     const first = done(cook(cookWith(tool("pot", 3, drawn("ckFresh"))), things, ["pot"], 0, NOW));
     expect([first.made, staminaOf(first.purse, NOW), powerUsed(first.purse, "ckFresh", NOW)]).toEqual(["sourCurry", 100, 1]);
+    // (the rest of the meal's hours' free pots are free too; the one after them costs as ever)
+    const restock = (q: Purse): Purse => { let r: Purse = { ...q, bag: q.bag.map((b) => (b?.item === "potFull" ? null : b)) }; for (const [id, k] of things) r = { ...r, bag: put(r.bag, id, k) }; return r; };
     let again = first.purse;
-    for (const [id, k] of things) again = { ...again, bag: put(again.bag, id, k) };
-    expect(staminaOf(done(cook(again, things, ["pot"], 0, NOW)).purse, NOW)).toBe(100 - COOKING.cost);
+    for (let i = 1; i < powerRule("ckFresh")!.n; i++) again = done(cook(restock(again), things, ["pot"], 0, NOW)).purse;
+    expect([staminaOf(again, NOW), powerUsed(again, "ckFresh", NOW)]).toEqual([100, powerRule("ckFresh")!.n]);
+    expect(staminaOf(done(cook(restock(again), things, ["pot"], 0, NOW)).purse, NOW)).toBe(100 - COOKING.cost);
     expect(staminaOf(done(cook(cookWith(tool("pot")), things, ["pot"], 0, NOW)).purse, NOW)).toBe(100 - COOKING.cost);
   });
 });
@@ -650,11 +654,11 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     // (said as nothing, or as 1, a fight is the fight it was)
     expect(startFight(good, "good", { gear: gear(p), lively: 1 }, 7)).toEqual(awake);
   });
-  it("tired hands keep hold of a hoe with an iron grip, ten plots a day, each counted as it is hoed", () => {
+  it("tired hands keep hold of a hoe with an iron grip, so many plots a day, each counted as it is hoed", () => {
     const s = top("hoe", "hoGrip"), tired = { ...purseOf(s), stamina: { day: dayOf(NOW), left: 0 } };
     expect(hoeFx(s).grip).toBe(true);
     const did = done(tend("1,1", WILD, undefined, 0, 0, tired, "me", NOW));
-    expect([did.deed, powerUsed(did.purse, "hoGrip", NOW), powerLeft(did.purse, "hoGrip", NOW)]).toEqual(["clear", 1, 9]);
+    expect([did.deed, powerUsed(did.purse, "hoGrip", NOW), powerLeft(did.purse, "hoGrip", NOW)]).toEqual(["clear", 1, powerRule("hoGrip")!.n - 1]);
     // (with stamina it is not asked for, and not counted; nor with a plain hoe)
     expect(powerUsed(done(tend("1,1", WILD, undefined, 0, 0, purseOf(s), "me", NOW)).purse, "hoGrip", NOW)).toBe(0);
     expect(done(tend("1,1", WILD, undefined, 0, 0, { ...purseOf(tool("hoe")), stamina: { day: dayOf(NOW), left: 0 } }, "me", NOW)).purse.powers).toBeUndefined();

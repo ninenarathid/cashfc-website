@@ -155,6 +155,9 @@ const meal = (n: number): OptionUse => ({ n, per: "meal" }), day = (n: number): 
 /**
  * Every option there is. Pool 1 is drawn at the first two milestones, pool 2 at the top. What each does is read by
  * the game it belongs to, from the numbers here (`n`) and its count (`use`).
+ *
+ * Every one of them is built (`BUILT`), so every tool draws two from several at each milestone; and where one of a
+ * pool was plainly the worse of its fellows its number was mended (2026-10-08), so that each can be argued for.
  */
 export const OPTIONS = {
   // ── pool 1 ──
@@ -171,24 +174,24 @@ export const OPTIONS = {
   axFresh: opt(1, ["axe"], "แรงคนตัดไม้", "Woodcutter's wind", {}, meal(5)),
   axDry: opt(1, ["axe"], "ไม้แห้งสนิท", "Seasoned wood", { pieces: 2 }),
   rdBait: opt(1, ["rod"], "เหยื่อเกาะแน่น", "Fast bait"),
-  rdCalm: opt(1, ["rod"], "น้ำนิ่ง", "Still water", { secs: 1 }),
+  rdCalm: opt(1, ["rod"], "น้ำนิ่ง", "Still water", { secs: 2 }),
   rdFresh: opt(1, ["rod"], "แรงนักตกปลา", "Angler's wind", {}, meal(5)),
   rdQuick: opt(1, ["rod"], "ปลาใจร้อน", "Eager fish", { shorter: 0.15 }),
   hoClear: opt(1, ["hoe"], "ดินร่วน", "Loose earth", { stones: 2 }),
   hoFirst: opt(1, ["hoe"], "พลาดได้หนึ่งที", "One slip spared", { misses: 1 }),
   hoFresh: opt(1, ["hoe"], "แรงชาวไร่", "Farmer's wind", {}, meal(10)),
   hoLight: opt(1, ["hoe"], "จอบเบามือ", "Light hoe"),
-  cnDrop: opt(1, ["can"], "หยดสุดท้าย", "The last drop", { more: 1 }),
+  cnDrop: opt(1, ["can"], "หยดสุดท้าย", "The last drop", { more: 3 }),
   cnThrift: opt(1, ["can"], "ตักน้อยได้มาก", "Thrifty fill", { takes: 1 }),
   cnFresh: opt(1, ["can"], "แรงคนรดน้ำ", "Waterer's wind", {}, meal(10)),
   cnKind: opt(1, ["can"], "น้ำใจ", "Kind hands", { points: 1 }),
   ntAgain: opt(1, ["bugNet"], "ตวัดซ้ำ", "Quick return", { by: 0.5 }),
-  ntMesh: opt(1, ["bugNet"], "ตาข่ายถี่", "Fine mesh", { misses: 1 }),
+  ntMesh: opt(1, ["bugNet"], "ตาข่ายถี่", "Fine mesh", { misses: 2 }),
   ntFresh: opt(1, ["bugNet"], "แรงนักจับแมลง", "Catcher's wind", {}, meal(10)),
   ntLong: opt(1, ["bugNet"], "ด้ามยาว", "Long handle", { reach: 1 }),
   ckFire: opt(1, COOK, "ไฟนิ่ง", "Even flame", { steady: 2 }),
   ckBase: opt(1, COOK, "ก้นหนา", "Thick base", { misses: 1 }),
-  ckFresh: opt(1, COOK, "แรงคนครัว", "Cook's wind", {}, meal(1)),
+  ckFresh: opt(1, COOK, "แรงคนครัว", "Cook's wind", {}, meal(3)),
   ckBrisk: opt(1, COOK, "ไฟแรง", "Brisk fire", { shorter: 0.25 }),
   // ── pool 2 ──
   pkQuake: opt(2, ["pick"], "แผ่นดินสะเทือน", "Earthshaker", { reach: 1 }, day(10)),
@@ -203,12 +206,12 @@ export const OPTIONS = {
   rdStill: opt(2, ["rod"], "สายน้ำหลับ", "Sleeping water", { by: 0.5, mins: 5 }, day(2)),
   rdCall: opt(2, ["rod"], "เสียงเรียกปลา", "Fish-call", {}, day(10)),
   hoBoth: opt(2, ["hoe"], "จอบเดียวจบ", "One go, both", {}, day(10)),
-  hoGrip: opt(2, ["hoe"], "กำแน่น", "Iron grip", {}, day(10)),
+  hoGrip: opt(2, ["hoe"], "กำแน่น", "Iron grip", {}, day(20)),
   hoWet: opt(2, ["hoe"], "ดินชุ่ม", "Damp furrow", {}, day(10)),
   cnRain: opt(2, ["can"], "ฝนของฉัน", "A rain of one's own", {}, day(3)),
   cnFull: opt(2, ["can"], "บัวไม่รู้แห้ง", "Bottomless can", { mins: 30 }, day(1)),
   cnTwice: opt(2, ["can"], "รดซ้ำ", "Second watering", {}, day(10)),
-  ntWide: opt(2, ["bugNet"], "สวิงกวาด", "Sweeping net", { reach: 2 }, day(10)),
+  ntWide: opt(2, ["bugNet"], "สวิงกวาด", "Sweeping net", { reach: 3 }, day(10)),
   ntFreeze: opt(2, ["bugNet"], "นิ่งไว้ก่อน", "Hold still", { secs: 2 }, day(10)),
   ntNest: opt(2, ["bugNet"], "รู้รัง", "Nest-wise"),
   ckBig: opt(2, COOK, "หม้อใหญ่", "Big pot", { more: 2 }, day(3)),
@@ -227,7 +230,9 @@ export const optN = (id: OptionId, key: string): number => (OPTIONS[id].n as Rea
 /**
  * What is built: the options and the elements whose doing a game really reads, by the kind of tool. The smith draws
  * only an option that is here, and sets only a gem whose element is here for that tool: nothing is offered that does
- * nothing. One line a kind, each its builder's to fill (so that branches come together cleanly).
+ * nothing. One line a kind, each its builder's to fill (so that branches come together cleanly). Since 2026-10-08
+ * every option of the registry and every element is here for every kind: a line that leaves one out again is a
+ * thing not built, and says so by leaving it out.
  */
 export const BUILT: Record<ToolKind, { opts: readonly OptionId[]; gems: readonly Element[] }> = {
   pick: { opts: ["pkPeek", "pkCrumb", "pkSteady", "pkLoose", "pkFresh", "pkCutter", "pkQuake", "pkTwin", "pkDrill", "pkGleam"], gems: ELEMENTS },

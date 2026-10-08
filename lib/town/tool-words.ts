@@ -53,7 +53,7 @@ export function optionDoes(id: OptionId): Words {
     case "axElder": return w("ต้นไม้โบราณให้ของเพิ่มอีกครึ่งเท่า และรู้ว่าโตเมื่อไร", "The ancient tree gives half as much again, and you know when it is grown");
     // ── the rod ──
     case "rdBait": return w("ตวัดเร็วไปครั้งแรกของแต่ละการเหวี่ยง ปลาไม่ตกใจและเหยื่อไม่หาย", "The first strike too soon of a cast neither scares the fish nor loses the bait");
-    case "rdCalm": return w(`ช่วงปลอดภัยไม่ขยับในวินาทีแรกของการสู้ปลา`, `The safe stretch does not move in a fight's first ${n("secs") === 1 ? "second" : `${n("secs")} seconds`}`);
+    case "rdCalm": return w(n("secs") === 1 ? "ช่วงปลอดภัยไม่ขยับในวินาทีแรกของการสู้ปลา" : `ช่วงปลอดภัยไม่ขยับใน ${n("secs")} วินาทีแรกของการสู้ปลา`, `The safe stretch does not move in a fight's first ${n("secs") === 1 ? "second" : `${n("secs")} seconds`}`);
     case "rdFresh": return w(`สู้ปลา ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} fights of a meal's hours cost no stamina`);
     case "rdQuick": return w(`รอปลากินเหยื่อสั้นลง ${pct(n("shorter"))}%`, `The wait for a bite is ${pct(n("shorter"))}% shorter`);
     case "rdGold": return w(`ตวัดช้าไปก็ยังติด ถ้าตวัดภายใน ${n("secs")} วินาทีหลังปลากิน · วันละ ${u} ครั้ง`, `A strike that comes too late still takes, if made within ${n("secs")} s of the bite · ${u} a day`);
@@ -69,7 +69,7 @@ export function optionDoes(id: OptionId): Words {
     case "hoGrip": return w(`หมดแรงแล้วจอบก็ไม่หลุดมือเมื่อพลาดครั้งที่สาม · วันละ ${u} แปลง`, `With no stamina the hoe is not dropped at the third miss · ${u} plots a day`);
     case "hoWet": return w(`แปลงที่พรวนนับว่ารดน้ำแล้ว 1 ครั้ง · วันละ ${u} แปลง`, `A plot tilled counts as watered once · ${u} a day`);
     // ── the watering can ──
-    case "cnDrop": return w(`เติมน้ำครั้งหนึ่งรดได้เพิ่ม ${n("more")} ครั้ง`, `${n("more")} more watering a filling`);
+    case "cnDrop": return w(`เติมน้ำครั้งหนึ่งรดได้เพิ่ม ${n("more")} ครั้ง`, `${n("more")} more ${n("more") === 1 ? "watering" : "waterings"} a filling`);
     case "cnThrift": return w(`เติมบัวครั้งหนึ่งใช้น้ำบ่อ ${n("takes")} ถัง แทน 2 ถัง`, `A filling takes ${n("takes")} of the well's bucketfuls, not 2`);
     case "cnFresh": return w(`รดน้ำ ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} waterings of a meal's hours cost no stamina`);
     case "cnKind": return w(`รดน้ำให้ต้นของคนอื่น ได้แต้มสายผู้ช่วยเพิ่ม ${n("points")}`, `${n("points")} more helpers' point for watering another's plant`);
@@ -78,7 +78,7 @@ export function optionDoes(id: OptionId): Words {
     case "cnTwice": return w(`ต้นที่รดไปแล้วในชั่วโมงนี้ รดซ้ำได้อีกครั้ง · วันละ ${u} ครั้ง`, `A plot already watered this hour may be watered once more · ${u} a day`);
     // ── the insect net ──
     case "ntAgain": return w("ตวัดครั้งต่อไปได้เร็วขึ้นเท่าตัว", "The next swing can begin in half the time");
-    case "ntMesh": return w(`แมลงทนการพลาดได้อีก ${n("misses")} ครั้งก่อนหนีไป`, `An insect bears ${n("misses")} more miss before it is off`);
+    case "ntMesh": return w(`แมลงทนการพลาดได้อีก ${n("misses")} ครั้งก่อนหนีไป`, `An insect bears ${n("misses")} more ${n("misses") === 1 ? "miss" : "misses"} before it is off`);
     case "ntFresh": return w(`จับแมลง ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} catches of a meal's hours cost no stamina`);
     case "ntLong": return w(`เอื้อมได้ไกลขึ้น ${n("reach")} ช่อง`, `Reach ${n("reach")} tile longer`);
     case "ntWide": return w(`เมื่อมีแมลงตั้งแต่สองตัวในระยะ ${n("reach")} ช่องจากจุดที่สวิงลง ตวัดครั้งเดียวได้ทุกตัว · วันละ ${u} ครั้ง`, `Where two insects or more are within ${n("reach")} tiles of where the net lands, one swing takes every one · ${u} a day`);
@@ -87,7 +87,7 @@ export function optionDoes(id: OptionId): Words {
     // ── cookware ──
     case "ckFire": return w(`จังหวะคนนิ่งขึ้น ${n("steady")} เท่า: มือสะดุดนิดหน่อยยังไม่หลุดจังหวะ`, `The stirring's pace is ${n("steady")} times as steady: a hand that wobbles is not off it so soon`);
     case "ckBase": return w("พลาดครั้งแรกของแต่ละหม้อไม่เสียที่", "The first miss of a pot loses no helping");
-    case "ckFresh": return w("หม้อแรกของแต่ละมื้อไม่เสีย stamina", "The first pot of a meal's hours costs no stamina");
+    case "ckFresh": return u === 1 ? w("หม้อแรกของแต่ละมื้อไม่เสีย stamina", "The first pot of a meal's hours costs no stamina") : w(`${u} หม้อแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} pots of a meal's hours cost no stamina`);
     case "ckBrisk": return w(`การคนและการย่างสั้นลง ${pct(n("shorter"))}%`, `The stirring and the roast are ${pct(n("shorter"))}% shorter`);
     case "ckBig": return w(`หม้อนี้ได้เพิ่ม ${n("more")} ที่ · วันละ ${u} หม้อ`, `A pot gives ${n("more")} more helpings · ${u} pots a day`);
     case "ckWarm": return w(`ทุกคนที่กินจากหม้อนี้ที่โต๊ะเลี้ยง บัฟของอาหารนานขึ้น ${n("hours")} ชั่วโมง · วันละ ${u} หม้อ`, `For everybody who eats from this pot at the feast table, the dish's buff lasts ${n("hours")} ${n("hours") === 1 ? "hour" : "hours"} longer · ${u} pots a day`);
