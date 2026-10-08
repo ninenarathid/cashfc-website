@@ -133,7 +133,8 @@ async function until(label, fn, ms, every = 500) {
 }
 
 const T = "window.__cashTown";
-const press = `(() => { const b = [...document.querySelectorAll("button")].find(x => /เปิดไมค์|Turn mic on/.test(x.textContent)); if (!b || b.disabled) return false; b.click(); return true; })()`;
+// (the microphone is offered in a little tray since 2026-10-09: a tap on its button, then the button with the words)
+const press = `(async () => { const find = () => [...document.querySelectorAll("button")].find(x => /เปิดไมค์|Turn mic on/.test(x.textContent)); let b = find(); if (!b) { document.querySelector("[data-town-mic=off]")?.click(); await new Promise((r) => setTimeout(r, 400)); b = find(); } if (!b || b.disabled) return false; b.click(); return true; })()`;
 const listed = async (X) => (await X.evaluate(`${T}.people()`)).filter((p) => !p.going).map((p) => p.name.split(" ").pop());
 const linesUp = (X, n) => until(`${X.label} has ${n} voice lines up`, async () => {
   const s = await X.evaluate(`${T}.voice()`);

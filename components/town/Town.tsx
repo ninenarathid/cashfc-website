@@ -68,6 +68,8 @@ import { FishSfx, heard } from "@/lib/town/sfx";
 import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
 import TownFoot, { FOOT_CSS, TownFootContext, type FootPlaces } from "./TownFoot";
+import { SKIN_CSS } from "./TownSkin";
+import { STAMINA } from "@/lib/town/stamina";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
 
 /**
@@ -578,6 +580,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
+  // The menu at the top right, and the little tray that offers the microphone before it is opened.
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [voiceTray, setVoiceTray] = useState(false);
+  const menuBox = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const away = (e: PointerEvent) => { if (!menuBox.current?.contains(e.target as Node)) setMenuOpen(false); };
+    window.addEventListener("pointerdown", away);
+    return () => window.removeEventListener("pointerdown", away);
+  }, [menuOpen]);
+  // The site's own header and tab bar are put away while in town (the owner, 2026-10-09, asked: "ได้ครับ"): the map
+  // has the whole window. Whoever wants them has them back from the menu, kept on the device.
+  const [bars, setBars] = useState(false);
+  useEffect(() => { try { if (localStorage.getItem("cashTown:bars") === "on") setBars(true); } catch { /* a browser that keeps nothing */ } }, []);
+  const chooseBars = (on: boolean) => { setBars(on); try { if (on) localStorage.setItem("cashTown:bars", "on"); else localStorage.removeItem("cashTown:bars"); } catch { /* the same */ } };
   const [boardOpen, setBoardOpen] = useState(false);
   /** The wishing fountain's panel: it takes the board's place while it is open (so whatever makes way for the board makes way for it). */
   const [fountainOpen, setFountainOpen] = useState(false);
@@ -588,7 +605,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const talks = useRef(0);
   /** The trade's panel that is open (the uncle's stall, the bank, my bag), and what the map shows of my purse. */
   const [trade, setTrade] = useState<TradeView | null>(null);
-  const [purse, setPurse] = useState<TradeSummary>({ hand: null, wet: false, coins: 0, waiting: 0, stamina: 100, buff: null, eating: null });
+  const [purse, setPurse] = useState<TradeSummary>({ hand: null, wet: false, coins: 0, waiting: 0, stamina: 100, buff: null, eating: null, slots: [0, 0] });
   /**
    * Who keeps the game for me (lib/town/keeper), and whether it is open to me: the database for a member (which
    * answers whether it is), the browser's trial in `next dev`'s test room. With `&townDb=<address>` the test room is
@@ -3364,7 +3381,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
-      if (e.key === "Escape") { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTrade(null); return; }
+      if (e.key === "Escape") { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTrade(null); setMenuOpen(false); setVoiceTray(false); return; }
       // Enter starts typing, as in a game; Esc in the box gives the keys back to walking.
       if (e.key === "Enter" && !(target && /^(BUTTON|A)$/.test(target.tagName))) {
         e.preventDefault();
@@ -3762,15 +3779,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   };
 
   // Phones and the tab bar: the map runs under the bar, the controls stay above it.
-  const tabbar = phone && !immersive;
+  // (the map over the site's header and tab bar, unless they were asked back: the browser's own fullscreen is one more step)
+  const covered = immersive || !bars;
+  const tabbar = phone && !covered;
   const hudBottom = tabbar ? "calc(4.5rem + env(safe-area-inset-bottom) + 0.75rem)" : "calc(env(safe-area-inset-bottom) + 0.75rem)";
   const chatBottom = lift > 40 ? `${lift + 8}px` : hudBottom;
-  const hudBtn = "pressable grid size-10 shrink-0 place-items-center rounded-full border border-line-strong bg-bg/80 text-read text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent hover:text-accent";
+  // A button of the HUD's: a dark well in a wooden rim (./TownSkin), forty-eight pixels a side.
+  const hudBtn = "pressable tk tk-slot grid size-12 shrink-0 place-items-center text-read";
+  /** A button of the menu's, with its word under it. */
+  const menuTile = (label: string, button: React.ReactNode) => (
+    <span className="flex min-w-0 flex-col items-center gap-1 text-center text-[0.6875rem] leading-tight text-ink">{button}<span aria-hidden className="line-clamp-2 max-w-full">{label}</span></span>
+  );
+  // How far down the top row reaches: a phone's has the plate of what I have over the plaque of where this is.
+  const hudTop = phone ? (game ? "6.75rem" : "3.75rem") : "4.5rem";
 
   return (
     <div ref={stageRef}
          style={{ ["--hud-b" as string]: hudBottom }}
-         className={`${immersive ? "fixed inset-0 z-[55]" : "fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30]"} overflow-hidden overscroll-none bg-[#0b1016]`}>
+         className={`${covered ? "fixed inset-0 z-[55]" : "fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30]"} overflow-hidden overscroll-none bg-[#0b1016]`}>
      <TownFootContext.Provider value={footPlaces}>
       {/* The town: above the page (z-30), under the header (40) and the phone's
           tab bar (50); in fullscreen at 55, over both and under every dialog (60+). */}
@@ -3783,56 +3809,127 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* The top of the map, one row: on the left where this is, whether we are connected and who is here (a tap lists
           them), on the right the buttons. One row, so that the left gives way to the right and neither lies on the
           other (until 2026-10-08 each was placed by itself, and on a phone the clock lay under the wardrobe's button). */}
-      <div className="pointer-events-none absolute inset-x-3 top-3 flex items-start justify-between gap-1.5">
-       <div className="flex min-w-0 items-center gap-1.5">
-        <button type="button" onClick={() => { setPeopleOpen((o) => !o); setCard(null); setStatsOpen(false); }}
-                aria-expanded={peopleOpen} disabled={!s} aria-label={`Cash Town · ${w.peopleBtn(others.length + 1)}`}
-                className="pressable pointer-events-auto flex h-10 min-w-0 items-center gap-2 overflow-hidden rounded-full border border-line-strong bg-bg/80 px-3 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent max-[29.99rem]:gap-1.5 max-[29.99rem]:px-2.5">
-          <span aria-hidden className={`size-2 shrink-0 rounded-full ${live ? "bg-jade" : "bg-gold"}`} />
-          {/* (the words only where there is room for them: under 30rem the dot and the count are the button) */}
-          <span className="truncate font-display text-ui font-semibold text-ink max-[29.99rem]:hidden">Cash Town</span>
-          {!phone && <span className="font-data text-label uppercase tracking-wider text-accent">{w.beta}</span>}
-          {testTopic && <span className="font-data text-label uppercase tracking-wider text-gold max-[29.99rem]:hidden">dev</span>}
-          <span className="flex shrink-0 items-center gap-1 text-ui text-muted"><TownIcon name="people" size={16} className="max-[22.49rem]:hidden" />{others.length + 1}</span>
-        </button>
-        {/* (on a phone there is room for the clock or for the word that we are reconnecting, not both) */}
-        {!(phone && s && everReady && !live) && <TownClock th={w.th} compact={phone} />}
-        {s && everReady && !live && (
-          <span className={`flex shrink-0 items-center gap-1 rounded-full bg-bg/80 text-label text-gold ${phone ? "h-10 px-2.5" : "px-2 py-0.5"}`}><TownIcon name="signal" size={13} className="animate-pulse" />{w.reconnecting}</span>
+      <div className="pointer-events-none absolute inset-x-3 top-3 z-[35] flex items-start justify-between gap-1.5">
+       <div className="flex min-w-0 flex-col items-start gap-1.5 lg:flex-row lg:items-center">
+        {/* What I have: stamina, coins, and the meal I am at. Until 2026-10-09 these were two small numbers on the
+            bag's button at the foot; stamina decides how hard every game is, so it is the first thing on the screen
+            (the owner, of the new layout shown him: "ตามที่คุณแนะนำ ลงมือเลยครับ"). */}
+        {s && game && (
+          <div data-town-status role="status" aria-label={`stamina ${purse.stamina} / ${STAMINA.max} · ${w.th ? "เหรียญ" : "coins"} ${purse.coins}`}
+               className="tk tk-plate pointer-events-auto flex h-12 w-44 shrink-0 flex-col justify-center gap-1.5 px-3.5 lg:w-56">
+            <span className="flex items-center gap-1.5">
+              <TownIcon name="stamina" size={15} />
+              <span aria-hidden className="tk-bar min-w-0 flex-1" data-low={purse.stamina ? undefined : ""}><i style={{ width: `${Math.max(purse.stamina ? 3 : 0, Math.min(100, (purse.stamina / STAMINA.max) * 100))}%` }} /></span>
+              <span data-stamina className={`w-6 text-right font-data text-meta font-semibold leading-none tabular-nums ${purse.stamina ? "text-ink" : "text-chili"}`}>{purse.stamina}</span>
+            </span>
+            <span className="flex items-center gap-1.5 leading-none">
+              <TownIcon name="coin" size={14} /><span data-coins className="font-data text-meta font-semibold leading-none tabular-nums text-gold">{purse.coins}</span>
+              {/* The meal I am at: how far through it I am */}
+              {purse.eating && (
+                <span data-town-meal className="ml-auto flex items-center gap-1">
+                  <TownIcon name="meal" size={14} /><span className="sr-only">{w.th ? "กำลังกิน" : "Eating"}</span>
+                  <span aria-hidden className="tk-bar w-9" data-gold=""><i style={{ width: `${Math.round(purse.eating.progress * 100)}%` }} /></span>
+                  {company > 0 && <span className="font-data text-label font-semibold leading-none text-gold">+{company}</span>}
+                </span>
+              )}
+            </span>
+          </div>
         )}
+        {/* Where this is: whether we are connected, who is here (a tap lists them), and the town's hour (the word that
+            we are reconnecting stands in the hour's place). */}
+        <div className="tk tk-plate pointer-events-auto flex h-9 min-w-0 shrink-0 items-center gap-2 px-3">
+          <button type="button" onClick={() => { setPeopleOpen((o) => !o); setCard(null); setStatsOpen(false); setMenuOpen(false); }}
+                  aria-expanded={peopleOpen} disabled={!s} aria-label={`Cash Town · ${w.peopleBtn(others.length + 1)}`}
+                  className="pressable relative flex shrink-0 items-center gap-1.5 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-['']">
+            <span aria-hidden className={`size-2 shrink-0 ${live ? "bg-jade" : "bg-gold"}`} />
+            <TownIcon name="people" size={15} /><span className="font-data text-meta font-semibold leading-none tabular-nums text-ink">{others.length + 1}</span>
+          </button>
+          <span aria-hidden className="h-3 w-0.5 shrink-0 bg-black/40" />
+          {s && everReady && !live
+            ? <span className="flex shrink-0 items-center gap-1 text-label text-gold"><TownIcon name="signal" size={13} className="animate-pulse" />{w.reconnecting}</span>
+            : <TownClock th={w.th} compact={phone} bare />}
+        </div>
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
        </div>
-       {/* on the right: the wardrobe, the music, the settings, the numbers, fullscreen, the way out */}
+       {/* On the right, one button: the menu. Behind it everything that is the machine's and not the game's (the
+           wardrobe, the music, the settings, the numbers, fullscreen, the zoom, the site's own bars, the way out):
+           until 2026-10-09 six buttons here and three more down the right edge, sixteen round the screen of a phone.
+           Its panel is always there and only put away, so that the music, which its button keeps, plays on. */}
        {s && (
-         <div className="flex shrink-0 items-center gap-1.5 max-[23.49rem]:gap-1 [&>*]:pointer-events-auto">
-           {/* the icon alone, like the buttons beside it: the word took too much room (the owner, 2026-10-02) */}
-           <button type="button" onClick={() => (wardrobeOpen ? closeWardrobe() : openWardrobe())} aria-pressed={wardrobeOpen} title={w.wardrobe}
-                   className={wardrobeOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
-             <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
+         <div ref={menuBox} className="relative shrink-0 [&>*]:pointer-events-auto">
+           <button type="button" data-town-menu onClick={() => { setMenuOpen((o) => !o); setCard(null); setPopover(null); setPeopleOpen(false); }}
+                   aria-expanded={menuOpen} aria-label={w.th ? "เมนู" : "Menu"} title={w.th ? "เมนู" : "Menu"} className={hudBtn}>
+             <span aria-hidden className="flex h-4 w-5 flex-col justify-between">
+               {[0, 1, 2].map((i) => <i key={i} className="block h-1 bg-[#f5dab7] shadow-[0_2px_0_#1a0e06]" />)}
+             </span>
            </button>
-           <TownMusicButton th={w.th} hour={forcedHour.current} className={hudBtn} />
-           {/* (here on a wide screen only, like the numbers: a phone's corner has no room for one more, and its cog is
-               at the foot of the screen, beside the chat) */}
-           {!phone && <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} className={hudBtn} />}
-           {!phone && (
-             <button type="button" onClick={() => setStatsOpen((o) => !o)} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
-               <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>
-             </button>
-           )}
-           <button type="button" onClick={() => void toggleImmersive()} aria-pressed={immersive}
-                   title={immersive ? w.exitFullscreen : w.fullscreen} className={hudBtn}>
-             <TownIcon name={immersive ? "exitFullscreen" : "fullscreen"} size={18} /><span className="sr-only">{immersive ? w.exitFullscreen : w.fullscreen}</span>
-           </button>
-           <button type="button" onClick={() => s.close()} title={w.leaveTown} className={hudBtn}>
-             <TownIcon name="leave" size={20} /><span className="sr-only">{w.leaveTown}</span>
-           </button>
+           <div hidden={!menuOpen} data-town-menu-panel role="group" aria-label={w.th ? "เมนู" : "Menu"}
+                className="tk tk-window absolute right-0 top-full z-30 mt-2 w-[18rem] max-w-[calc(100vw-1.5rem)] p-4">
+             <p className="mb-3 flex items-baseline gap-2 font-display text-ui font-semibold text-ink">Cash Town
+               <span className="font-data text-label font-normal uppercase tracking-wider text-muted">{w.beta}</span>
+               {testTopic && <span className="font-data text-label font-normal uppercase tracking-wider text-gold">dev</span>}
+             </p>
+             <div className="grid grid-cols-4 gap-x-1 gap-y-2.5">
+               {menuTile(w.wardrobe,
+                 <button type="button" onClick={() => { setMenuOpen(false); if (wardrobeOpen) closeWardrobe(); else openWardrobe(); }} aria-pressed={wardrobeOpen} title={w.wardrobe} className={hudBtn}>
+                   <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
+                 </button>)}
+               {menuTile(w.th ? "เพลง" : "Music", <TownMusicButton th={w.th} hour={forcedHour.current} under className={hudBtn} />)}
+               {menuTile(w.th ? "ตั้งค่า" : "Settings", <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} under className={hudBtn} />)}
+               {menuTile(immersive ? w.exitFullscreen : w.fullscreen,
+                 <button type="button" onClick={() => void toggleImmersive()} aria-pressed={immersive} title={immersive ? w.exitFullscreen : w.fullscreen} className={hudBtn}>
+                   <TownIcon name={immersive ? "exitFullscreen" : "fullscreen"} size={18} /><span className="sr-only">{immersive ? w.exitFullscreen : w.fullscreen}</span>
+                 </button>)}
+               {menuTile(w.zoomIn,
+                 <button type="button" onClick={() => zoomBy(1.25)} title={w.zoomIn} className={hudBtn}>
+                   <TownIcon name="zoomIn" size={20} /><span className="sr-only">{w.zoomIn}</span>
+                 </button>)}
+               {menuTile(w.zoomOut,
+                 <button type="button" onClick={() => zoomBy(1 / 1.25)} title={w.zoomOut} className={hudBtn}>
+                   <TownIcon name="zoomOut" size={20} /><span className="sr-only">{w.zoomOut}</span>
+                 </button>)}
+               {menuTile(w.recenter,
+                 <button type="button" onClick={() => { recenter(); setMenuOpen(false); }} title={w.recenter} className={hudBtn}>
+                   <TownIcon name="recenter" size={20} /><span className="sr-only">{w.recenter}</span>
+                 </button>)}
+               {!phone && menuTile(w.stats,
+                 <button type="button" onClick={() => { setStatsOpen((o) => !o); setMenuOpen(false); }} aria-pressed={statsOpen} title={w.stats} className={hudBtn}>
+                   <TownIcon name="stats" size={20} /><span className="sr-only">{w.stats}</span>
+                 </button>)}
+               {/* The test window's button (the trial's, in `next dev` only): look at every thing there is, and conjure it */}
+               {TownTest && keeper?.trial && menuTile("Test",
+                 <button type="button" onClick={() => { setMenuOpen(false); setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setTestOpen((o) => !o); }}
+                         aria-expanded={testOpen} title={w.th ? "หน้าต่างทดสอบ: ดูและเสกของทุกอย่าง" : "The test window: look at everything, and conjure it"} className={hudBtn}>
+                   <TownIcon name="test" size={18} /><span className="sr-only">Test</span>
+                 </button>)}
+             </div>
+             <div className="mt-3 flex flex-col gap-2 border-t-2 border-line pt-3">
+               {/* The site's own header and tab bar: put away while in town (the owner, 2026-10-09: "ได้ครับ"), and
+                   back for whoever wants them here. */}
+               <button type="button" role="switch" aria-checked={bars} data-town-bars onClick={() => chooseBars(!bars)}
+                       className="pressable flex min-h-11 items-center justify-between gap-2 px-1 text-left text-ui text-ink">
+                 <span>{w.th ? "แถบเมนูของเว็บ" : "The site's own bars"}</span>
+                 <span className={`shrink-0 px-2.5 py-1 font-data text-label font-semibold ${bars ? "bg-accent text-bg" : "border-2 border-line-strong text-muted"}`}>{bars ? (w.th ? "แสดงอยู่" : "Shown") : (w.th ? "ซ่อนอยู่" : "Hidden")}</span>
+               </button>
+               {voiceOn && (
+                 <button type="button" onClick={() => { s.leaveVoice(); setMenuOpen(false); }} title={w.leave}
+                         className="pressable tk tk-btn-wood flex min-h-11 items-center justify-center gap-2 px-4 font-display text-ui font-medium">
+                   <TownIcon name="muted" size={18} />{w.leave}
+                 </button>
+               )}
+               <button type="button" onClick={() => s.close()} title={w.leaveTown}
+                       className="pressable tk tk-btn-wood flex min-h-11 items-center justify-center gap-2 px-4 font-display text-ui font-medium">
+                 <TownIcon name="leave" size={18} />{w.leaveTown}
+               </button>
+             </div>
+           </div>
          </div>
        )}
       </div>
 
       {/* Who is here: names only; a tap shows them on the map */}
       {s && peopleOpen && (
-        <aside className="pop-in absolute left-3 top-14 z-10 flex max-h-[min(60%,26rem)] w-64 max-w-[calc(100%-1.5rem)] flex-col overflow-hidden rounded-2xl border border-line-lit bg-surface/95 text-ui shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">
+        <aside style={{ top: hudTop }} className="pop-in tk tk-window absolute left-3 z-10 flex max-h-[min(60%,26rem)] w-64 max-w-[calc(100%-1.5rem)] flex-col p-3 text-ui" data-state="open">
           <div className="border-b border-line px-3 py-2 font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="people" size={15} />{w.here} · {others.length + 1}</span></div>
           <ul className="min-h-0 flex-1 overflow-y-auto p-1.5">
             <PersonRow name={`${me.name} (${w.you})`} voice={voiceOn} muted={muted} onClick={() => showPerson(me.id)} />
@@ -3972,7 +4069,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* How to play, until you have played */}
       {s && hint && !wardrobeOpen && !boardOpen && !trade && !talk && !signView && !testOpen && (
         <TownFoot rank="toast" order={1}>
-          <div className="pointer-events-none w-fit max-w-full rounded-full bg-bg/80 px-3 py-1 text-center text-meta text-muted backdrop-blur-sm">
+          <div className="tk tk-plate pointer-events-none w-fit max-w-full px-3.5 py-2 text-center text-meta text-muted">
             {phone ? w.hintPhone : w.hintDesk}
           </div>
         </TownFoot>
@@ -3984,8 +4081,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           and none lies on another (until 2026-10-08 each stood at a height of its own, and "get up" lay on the
           chat's lines, the zoom under the lines of work's button, a long line of chat under the bag). */}
       <style href="town-foot" precedence="medium">{FOOT_CSS}</style>
+      <style href="town-skin" precedence="medium">{SKIN_CSS}</style>
       {s && (() => {
-        const chatShown = !wardrobeOpen && !(phone && (boardOpen || !!trade));
+        // (a phone's talk box lies across the foot: the foot's last row is put away under it)
+        const chatShown = !wardrobeOpen && !(phone && (boardOpen || !!trade || !!talk));
         const showHistory = phone ? chatOpen : historyOpen;
         // A phone's history fits between the top bar and the box over the keyboard.
         const screenH = visibleH || cam.current.ch;
@@ -3994,9 +4093,78 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           if (phone) { setChatOpen(true); window.setTimeout(() => chatRef.current?.focus(), 0); }
           else setHistoryOpen(true);
         };
+        // What is for talking, at the foot's left: the microphone and the emotes, each with what opens over it.
+        // The microphone is never opened by one tap on a small picture: the first tap says what it is and offers
+        // it. (Until 2026-10-09 it was the largest button on the screen, with its words on it; a small one, tapped
+        // to see what it does, would have opened a microphone on the whole town.) In voice a tap is mute and
+        // unmute; the way out of voice is in the menu.
+        const micPiece = (
+          <div className="relative" data-town-voice>
+            {(voiceTray && !voiceOn) || micProblem || (voiceOn && s.voice.audioBlocked) ? (
+              <div className="absolute bottom-full left-0 z-20 mb-2 flex w-60 max-w-[calc(100vw-1.5rem)] flex-col items-start gap-2">
+                {micProblem && <div className="tk tk-plate px-3.5 py-2.5 text-meta leading-snug">{micProblem}</div>}
+                {voiceOn && s.voice.audioBlocked && (
+                  <button type="button" onClick={() => s.voice.resumeAudio()}
+                          className="pressable tk tk-btn flex min-h-11 items-center gap-1.5 whitespace-nowrap px-4 font-display text-ui font-medium">
+                    <TownIcon name="speaker" size={18} />{w.tapToHear}
+                  </button>
+                )}
+                {voiceTray && !voiceOn && (
+                  <div role="group" aria-label={w.joinLong} data-state="open" data-town-voice-tray className="pop-in tk tk-window flex w-full flex-col gap-2.5 p-4">
+                    <p className="text-meta leading-snug text-ink">{w.th ? "เปิดไมค์แล้วทุกคนในเมืองจะได้ยินคุณ ปิดเสียงตัวเองได้ทุกเมื่อ" : "With the microphone on, everybody in town hears you. You can mute yourself at any time."}</p>
+                    <button type="button" onClick={() => { setVoiceTray(false); void s.joinVoice(); }} disabled={!everReady || status === "full"} title={w.joinLong}
+                            className="pressable tk tk-btn flex min-h-11 items-center justify-center gap-1.5 px-4 font-display text-ui font-medium disabled:opacity-40">
+                      <TownIcon name="mic" size={20} />{w.join}
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : null}
+            {!voiceOn ? (
+              <button type="button" data-town-mic="off" onClick={() => { setVoiceTray((o) => !o); setEmoteOpen(false); }} aria-expanded={voiceTray}
+                      aria-label={w.th ? "ไมค์" : "Microphone"} title={w.th ? "ไมค์" : "Microphone"} className={hudBtn}>
+                <TownIcon name="mic" size={22} className="opacity-60" />
+              </button>
+            ) : (
+              <button type="button" data-town-mic={muted ? "muted" : "live"} data-plain="" onClick={() => s.toggleMute()} aria-pressed={muted}
+                      aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
+                      className={muted ? hudBtn : hudBtn.replace("tk-slot", "tk-slot-on")}>
+                <TownIcon name={muted ? "muted" : "mic"} size={22} />
+              </button>
+            )}
+            {PROXIMITY && voiceOn && <div className="tk tk-plate absolute bottom-full left-0 mb-2 whitespace-nowrap px-3 py-1 text-meta text-muted">{w.near}</div>}
+          </div>
+        );
+        const emotePiece = (
+          <div className="relative">
+            {/* The emote window (the owner, 2026-10-02: "ช่วยทำหน้าต่าง Emote ให้สามารถกดท่านั่งได้"): sit down on the ground
+                where I stand, or get up; walking anywhere gets up too. It hangs over its own button, so that opening
+                it moves nothing else. */}
+            {emoteOpen && (() => {
+              const down = (s.self.info.sit ?? -1) !== -1;
+              return (
+                <div role="menu" aria-label={w.emote} className="pop-in tk tk-window absolute bottom-full left-0 z-20 mb-2 flex gap-1.5 p-3.5" data-state="open">
+                  <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
+                          className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-label text-ink hover:bg-card">
+                    <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
+                    <kbd aria-hidden className="tk-key hidden sm:inline-grid">X</kbd>
+                  </button>
+                  {/* a sign held up over my head: a chat room, or a stall (the owner, 2026-10-06) */}
+                  <button type="button" role="menuitem" onClick={() => { setEmoteOpen(false); openSignPanel(); }} data-emote-sign
+                          className="pressable flex w-16 flex-col items-center gap-1 px-1 py-1.5 text-label text-ink hover:bg-card">
+                    <SignIcon size={30} />{s.self.info.sign ? (w.th ? "ป้ายของฉัน" : "My sign") : (w.th ? "ชูป้าย" : "Sign")}
+                  </button>
+                </div>
+              );
+            })()}
+            <button type="button" onClick={() => { setEmoteOpen((o) => !o); setVoiceTray(false); }} aria-expanded={emoteOpen} title={w.emote} className={hudBtn}>
+              <TownIcon name="emote" size={22} /><span className="sr-only">{w.emote}</span>
+            </button>
+          </div>
+        );
         return (
-          <div className="town-foot pointer-events-none absolute inset-x-3 top-[3.75rem]" data-typing={phone && chatOpen ? "" : undefined}
-               style={{ bottom: chatOpen || !phone ? chatBottom : "var(--hud-b)" }}>
+          <div className="town-foot pointer-events-none absolute inset-x-3" data-typing={phone && chatOpen ? "" : undefined}
+               style={{ top: hudTop, bottom: chatOpen || !phone ? chatBottom : "var(--hud-b)" }}>
             {/* The head, under the top row: on the left what stays under the clock, and in the middle what the town tells me
                 for a moment, each under the last (until 2026-10-08 each stood at a height of its own: three of them at
                 the same one). The corner is under the list of who is here (z-10); what is told is over every sheet
@@ -4025,7 +4193,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               <div ref={setFootSide} className={`flex flex-col items-start gap-2 pb-2 empty:hidden ${phone && chatOpen ? "hidden" : ""}`} />
               {satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && (
                 <button type="button" data-stand-up onClick={() => s.standUp()}
-                        className="pop-in pressable pointer-events-auto mb-2 flex min-h-11 max-w-full items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-left text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
+                        className="pop-in pressable tk tk-plate pointer-events-auto mb-2 flex min-h-12 max-w-full items-center gap-2 pl-3.5 pr-4 text-left text-ui font-semibold text-ink" data-state="open">
                   <TownIcon name="standUp" size={22} />
                   <span className="flex min-w-0 flex-col items-start leading-tight">
                     <span>{purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}</span>
@@ -4035,14 +4203,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                       </span>
                     )}
                   </span>
-                  <kbd aria-hidden className="hidden rounded border border-line-strong px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-muted sm:inline">X</kbd>
+                  <kbd aria-hidden className="tk-key hidden sm:inline-grid">X</kbd>
                 </button>
               )}
             </div>
             {/* The chat's lines: its history, or while that is shut the last few said, over the map. */}
             <div data-foot-said className="flex w-full max-w-[26rem] flex-col items-start gap-1 pb-1 empty:hidden">
               {!chatShown ? null : showHistory ? (
-                <div className={`pop-in pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
+                <div className={`pop-in tk tk-window pointer-events-auto flex flex-col p-3 ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
                      style={room ? { maxHeight: room } : undefined} data-state="open">
                   <div className="flex items-center gap-2 border-b border-line py-1 pl-3 pr-1">
                     <span className="font-data text-label uppercase tracking-wider text-muted"><span className="flex items-center gap-1.5"><TownIcon name="chat" size={14} />{w.history} · {s.chat.length}</span></span>
@@ -4057,7 +4225,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                     className="pointer-events-auto flex max-w-full cursor-pointer flex-col items-start gap-0.5"
                     onClick={openHistory}>
                   {recent.map((l) => (
-                    <li key={l.key} className="max-w-full truncate rounded-lg bg-bg/75 px-2 py-0.5 text-meta backdrop-blur-sm">
+                    <li key={l.key} className="max-w-full truncate bg-[#2a180c]/95 px-2 py-0.5 text-meta shadow-[0_0_0_2px_#1a0e06]">
                       <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
                       <span className="text-muted">: </span>
                       <span className="text-ink">{l.text}</span>
@@ -4069,169 +4237,84 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             {/* What the town offers where I stand: each piece puts itself here (TownFoot). Over somebody's card (z-10),
                 under every panel (z-20). */}
             <div ref={setFootDock} data-foot-dock className="z-[15] flex min-w-0 flex-col items-center gap-2 empty:hidden max-lg:pb-2" />
-            {/* The chat's box, under the left thumb. */}
-            <div data-foot-ctrl className="flex w-full max-w-[26rem] flex-col items-start gap-2">
+            {/* At the foot's left, under the left thumb, what is for talking: the chat, the microphone, the emotes. */}
+            <div data-foot-ctrl className="flex w-full max-w-[30rem] flex-col items-start gap-2">
               {chatShown && (
                 <div className="flex w-full flex-col gap-1">
-                  {chatNote && <div role="status" className="w-fit rounded-full bg-bg/85 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
+                  {chatNote && <div role="status" className="tk tk-plate w-fit px-3 py-1 text-label text-gold">{chatNote}</div>}
                   {phone && !chatOpen ? (
-                    // (and a phone's settings beside it: whoever the town's motion makes dizzy has to be able to turn it
-                    // off on a phone too, and the top corner is full; the panel opens upwards from this row's left)
-                    <div className="pointer-events-auto relative flex w-fit items-center gap-1.5">
+                    <div className="pointer-events-auto relative flex w-fit items-end gap-1.5">
                       <button type="button" onClick={openHistory}
-                              aria-label={w.chat} className={`${hudBtn} size-11`}><TownIcon name="chat" size={22} /></button>
-                      <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} low className={`${hudBtn} size-11`} />
-                      {/* (and what is in the hand, changed without the bag: a phone's quick bar unfolds over this row) */}
-                      {game && keeper && (
-                        <Suspense fallback={null}>
-                          <TownHand keeper={keeper} th={w.th} phone hidden={!!talk || boardOpen || wardrobeOpen || !!linesOpen || !!scroll || testOpen} className={`${hudBtn} size-11`} />
-                        </Suspense>
-                      )}
+                              aria-label={w.chat} className={hudBtn}><TownIcon name="chat" size={22} /></button>
+                      {micPiece}
+                      {emotePiece}
                     </div>
                   ) : (
-                    <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
-                      {!phone && (
-                        <button type="button" onClick={() => setHistoryOpen((o) => !o)} aria-pressed={historyOpen}
-                                title={historyOpen ? w.historyClose : w.history}
-                                className={`pressable grid size-10 shrink-0 place-items-center rounded-full border backdrop-blur-sm transition-colors ${historyOpen
-                                  ? "border-accent bg-accent/20 text-accent" : "border-line-strong bg-bg/85 text-ink hover:border-accent"}`}>
-                          <TownIcon name="history" size={20} /><span className="sr-only">{historyOpen ? w.historyClose : w.history}</span>
+                    <div className="pointer-events-auto flex w-full items-center gap-1.5">
+                      <form onSubmit={sendChat} className="flex min-w-0 flex-1 items-center gap-1.5">
+                        {!phone && (
+                          <button type="button" onClick={() => setHistoryOpen((o) => !o)} aria-pressed={historyOpen}
+                                  title={historyOpen ? w.historyClose : w.history} className={hudBtn}>
+                            <TownIcon name="history" size={20} /><span className="sr-only">{historyOpen ? w.historyClose : w.history}</span>
+                          </button>
+                        )}
+                        <span className="tk tk-plate flex h-12 min-w-0 flex-1 items-center px-3.5">
+                          <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
+                                 onChange={(e) => { setDraft(e.target.value); setChatNote(null); s.setTyping(e.target.value.trim().length > 0); }}
+                                 onKeyDown={(e) => { if (e.key === "Escape") { e.currentTarget.blur(); setHistoryOpen(false); if (phone) setChatOpen(false); } }}
+                                 onBlur={(e) => {
+                                   s.setTyping(false);
+                                   // On a phone the open chat closes with the keyboard, unless the
+                                   // tap that took the focus was in the history (to scroll it).
+                                   const next = e.relatedTarget as HTMLElement | null;
+                                   if (phone && !draft && !next?.closest("[role=log]")) setChatOpen(false);
+                                 }}
+                                 placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
+                                 className="h-full min-w-0 flex-1 bg-transparent text-read text-ink outline-none placeholder:text-muted" />
+                        </span>
+                        <button type="submit" className="pressable tk tk-btn h-12 shrink-0 px-4 font-display text-ui font-medium">
+                          {w.send}
                         </button>
-                      )}
-                      <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
-                             onChange={(e) => { setDraft(e.target.value); setChatNote(null); s.setTyping(e.target.value.trim().length > 0); }}
-                             onKeyDown={(e) => { if (e.key === "Escape") { e.currentTarget.blur(); setHistoryOpen(false); if (phone) setChatOpen(false); } }}
-                             onBlur={(e) => {
-                               s.setTyping(false);
-                               // On a phone the open chat closes with the keyboard, unless the
-                               // tap that took the focus was in the history (to scroll it).
-                               const next = e.relatedTarget as HTMLElement | null;
-                               if (phone && !draft && !next?.closest("[role=log]")) setChatOpen(false);
-                             }}
-                             placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
-                             className="h-10 min-w-0 flex-1 rounded-full border border-line-strong bg-bg/85 px-4 text-read text-ink outline-none backdrop-blur-sm placeholder:text-muted focus:border-accent" />
-                      <button type="submit" className="pressable h-10 shrink-0 rounded-full bg-accent/25 px-4 text-ui font-semibold text-accent backdrop-blur-sm hover:bg-accent/35">
-                        {w.send}
-                      </button>
-                    </form>
+                      </form>
+                      {!phone && micPiece}
+                      {!phone && emotePiece}
+                    </div>
                   )}
                 </div>
               )}
             </div>
-            {/* On the right: the zoom, in the middle of what room there is over the rest; then the lines of work, the
-                bag, the emotes and the microphone. */}
-            <div data-foot-right className="flex min-h-0 flex-col items-end justify-end gap-1.5 [&>*]:pointer-events-auto">
-              {!wardrobeOpen && !boardOpen && (
-                <div className="my-auto flex flex-col gap-1.5 [@media(max-height:34rem)]:hidden">
-                  <button type="button" onClick={() => zoomBy(1.25)} title={w.zoomIn} className={hudBtn}>
-                    <TownIcon name="zoomIn" size={20} /><span className="sr-only">{w.zoomIn}</span>
-                  </button>
-                  <button type="button" onClick={() => zoomBy(1 / 1.25)} title={w.zoomOut} className={hudBtn}>
-                    <TownIcon name="zoomOut" size={20} /><span className="sr-only">{w.zoomOut}</span>
-                  </button>
-                  <button type="button" onClick={recenter} title={w.recenter} className={hudBtn}>
-                    <TownIcon name="recenter" size={20} /><span className="sr-only">{w.recenter}</span>
-                  </button>
-                </div>
-              )}
-              {!wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || testOpen)) && (
+            {/* At the foot's right, under the right thumb, what is for doing: the thing in the hand, the lines of work,
+                the bag. (Until 2026-10-09 a column up the right edge, with the zoom, the emotes and the microphone
+                in it: on a short phone its buttons were squeezed to thirty-five pixels.) */}
+            <div data-foot-right className="flex items-end justify-end gap-1.5 [&>*]:pointer-events-auto">
+              {!wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || !!talk || testOpen)) && (
                 <>
-                  {/* The test window's button (the trial's, in `next dev` only): look at every thing there is, and conjure it */}
-                  {TownTest && keeper?.trial && (
-                    <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setTestOpen((o) => !o); }}
-                            aria-expanded={testOpen} title={w.th ? "หน้าต่างทดสอบ: ดูและเสกของทุกอย่าง" : "The test window: look at everything, and conjure it"}
-                            className={`pressable flex h-8 items-center rounded-full border px-3 font-data text-label font-semibold uppercase tracking-wider shadow-lg shadow-black/30 backdrop-blur-sm transition-colors ${testOpen
-                              ? "border-gold bg-gold text-bg" : "border-gold/60 bg-bg/80 text-gold hover:border-gold"}`}>
-                      <TownIcon name="test" size={16} className="mr-1" />Test
-                    </button>
+                  {/* What is in the hand, changed without the bag: a phone's quick bar unfolds over this corner */}
+                  {phone && game && keeper && (
+                    <Suspense fallback={null}>
+                      <TownHand keeper={keeper} th={w.th} phone hidden={!!talk || boardOpen || wardrobeOpen || !!linesOpen || !!scroll || testOpen} className={hudBtn} />
+                    </Suspense>
                   )}
                   {/* The lines of work and their ladders: where whoever keeps the game has them */}
                   {game && keeper && linesTold && (
-                    <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => (o ? false : "lines")); }}
+                    <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setMenuOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => (o ? false : "lines")); }}
                             aria-expanded={!!linesOpen} title={w.th ? "สายอาชีพ" : "Lines of work"} data-town-lines-button data-due={giftDue ? "" : undefined}
-                            className="pressable relative grid size-10 place-items-center rounded-full border border-line-strong bg-bg/80 shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
+                            className={hudBtn}>
                       <TownIcon name="rosette" size={22} /><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
                       {/* (a gift of a rank reached waits to be taken) */}
-                      {giftDue && <span aria-hidden className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-bg bg-gold" />}
+                      {giftDue && <span aria-hidden className="tk-dot" />}
                     </button>
                   )}
-                  {/* My bag, and my Popoto coins beside it */}
+                  {/* My bag: how many of its slots are taken (the coins and the stamina are at the top left now) */}
                   {game && (
                     <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"} aria-keyshortcuts="I"
-                            className={`pressable flex items-center gap-1.5 border border-line-strong bg-bg/80 pl-2.5 pr-3 text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent ${phone ? "h-11 rounded-2xl text-meta" : "h-10 rounded-full text-ui"}`}>
-                      <TownIcon name="bag" size={20} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
-                      {/* (on a phone the two numbers stand one over the other: side by side they made this the widest
-                          thing on the right, and the chat's lines ran under it) */}
-                      <span className={phone ? "flex flex-col gap-0.5 leading-none" : "contents"}>
-                        <span className="flex items-center gap-1.5"><TownIcon name="coin" size={phone ? 12 : 14} /><span className="font-data tabular-nums text-gold">{purse.coins}</span></span>
-                        <span className="flex items-center gap-1.5"><TownIcon name="stamina" size={phone ? 12 : 14} /><span className={`font-data tabular-nums ${purse.stamina ? "text-ink" : "text-chili"}`}>{purse.stamina}</span></span>
-                      </span>
-                      <span className="sr-only">stamina</span>
+                            className="pressable tk tk-window grid size-14 shrink-0 place-items-center">
+                      <TownIcon name="bag" size={30} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
+                      <span aria-hidden data-bag-count className="absolute -bottom-1.5 -right-1.5 bg-[#1a0e06] px-1 py-0.5 font-data text-[0.625rem] font-semibold leading-none tabular-nums text-[#f7e7c9]">{purse.slots[0]}/{purse.slots[1]}</span>
                       {/* (its key, on a wide screen: I opens the bag and shuts it) */}
-                      {!phone && <kbd aria-hidden className="rounded border border-line-strong px-1 font-data text-[0.625rem] leading-4 text-muted">I</kbd>}
+                      {!phone && <kbd aria-hidden className="tk-key absolute -right-2 -top-2">I</kbd>}
                     </button>
                   )}
-                  {/* The meal I am at: how far through it I am */}
-                  {game && purse.eating && (
-                    <span className="flex h-8 items-center gap-1.5 rounded-full border border-gold/60 bg-bg/85 pl-2 pr-3 text-meta text-ink shadow-lg shadow-black/30 backdrop-blur-sm">
-                      <TownIcon name="meal" size={16} /><span className={phone ? "sr-only" : undefined}>{w.th ? "กำลังกิน" : "Eating"}</span>
-                      <span aria-hidden className={`h-1.5 overflow-hidden rounded-full bg-line ${phone ? "w-10" : "w-14"}`}><span className="block h-full rounded-full bg-gold" style={{ width: `${Math.round(purse.eating.progress * 100)}%` }} /></span>
-                      {company > 0 && <span className="font-data text-gold">+{company}</span>}
-                    </span>
-                  )}
-                  <div className="relative">
-                    {/* The emote window (the owner, 2026-10-02: "ช่วยทำหน้าต่าง Emote ให้สามารถกดท่านั่งได้"): sit down on
-                        the ground where I stand, or get up; walking anywhere gets up too. It hangs over its own button (and over
-                        the buttons above that, while it is open), so that opening it moves nothing else. */}
-                    {emoteOpen && (() => {
-                      const down = (s.self.info.sit ?? -1) !== -1;
-                      return (
-                        <div role="menu" aria-label={w.emote} className="pop-in absolute bottom-full right-0 z-20 mb-1.5 flex gap-1.5 rounded-2xl border border-line-lit bg-surface/95 p-1.5 shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">
-                          <button type="button" role="menuitem" onClick={() => { if (down) s.standUp(); else s.sitHere(); setEmoteOpen(false); }}
-                                  className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
-                            <TownIcon name={down ? "standUp" : "sitDown"} size={30} />{down ? w.standUp : w.sitDown}
-                            <kbd aria-hidden className="hidden rounded border border-line-strong px-1 font-data text-[0.625rem] leading-4 text-muted sm:inline">X</kbd>
-                          </button>
-                          {/* a sign held up over my head: a chat room, or a stall (the owner, 2026-10-06) */}
-                          <button type="button" role="menuitem" onClick={() => { setEmoteOpen(false); openSignPanel(); }} data-emote-sign
-                                  className="pressable flex w-16 flex-col items-center gap-1 rounded-xl px-1 py-1.5 text-label text-ink hover:bg-card">
-                            <SignIcon size={30} />{s.self.info.sign ? (w.th ? "ป้ายของฉัน" : "My sign") : (w.th ? "ชูป้าย" : "Sign")}
-                          </button>
-                        </div>
-                      );
-                    })()}
-                    <button type="button" onClick={() => setEmoteOpen((o) => !o)} aria-expanded={emoteOpen} title={w.emote}
-                            className={emoteOpen ? hudBtn.replace("border-line-strong bg-bg/80 text-read text-ink", "border-accent bg-accent/20 text-read text-accent") : hudBtn}>
-                      <TownIcon name="emote" size={22} /><span className="sr-only">{w.emote}</span>
-                    </button>
-                  </div>
-                  {micProblem && <div className="max-w-[16rem] rounded-lg max-sm:max-w-[9.5rem] bg-chili/25 px-3 py-1.5 text-right text-ui text-ink backdrop-blur-sm">{micProblem}</div>}
-                  {voiceOn && s.voice.audioBlocked && (
-                    <button type="button" onClick={() => s.voice.resumeAudio()}
-                            className="pressable flex items-center gap-1.5 rounded-full bg-gold px-4 py-2 text-ui font-semibold text-bg shadow-lg">
-                      <TownIcon name="speaker" size={18} />{w.tapToHear}
-                    </button>
-                  )}
-                  {!voiceOn ? (
-                    <button type="button" onClick={() => void s.joinVoice()} disabled={!everReady || status === "full"}
-                            title={w.joinLong}
-                            className="pressable flex h-11 items-center gap-1.5 rounded-full bg-jade px-4 text-read font-semibold text-bg shadow-lg shadow-black/30 disabled:opacity-40">
-                      <TownIcon name="mic" size={20} />{w.join}
-                    </button>
-                  ) : (
-                    <div className="flex items-center gap-1.5">
-                      <button type="button" onClick={() => s.leaveVoice()} title={w.leave}
-                              className="pressable h-11 rounded-full border border-line-strong bg-bg/85 px-3 text-ui text-muted shadow-lg shadow-black/30 backdrop-blur-sm hover:text-ink">
-                        {w.leave}
-                      </button>
-                      <button type="button" onClick={() => s.toggleMute()} aria-pressed={muted}
-                              aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
-                              className={`pressable grid size-12 place-items-center rounded-full text-lead shadow-lg shadow-black/30 ${muted ? "bg-chili text-ink" : "bg-jade text-bg"}`}>
-                        <TownIcon name={muted ? "muted" : "mic"} size={24} />
-                      </button>
-                    </div>
-                  )}
-                  {PROXIMITY && voiceOn && <div className="rounded-full bg-bg/70 px-3 py-1 text-meta text-muted">{w.near}</div>}
                 </>
               )}
             </div>

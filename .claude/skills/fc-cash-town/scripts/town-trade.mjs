@@ -126,8 +126,9 @@ for (const [label, size] of [["wide", { width: 1280, height: 860 }], ["phone", {
     await press(X, "ปิด", TRADE); await sleep(250);
 
     // the bag on the map
-    const hud = await X.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า")?.innerText.replace(/\\s+/g, " ").trim() ?? null`);
-    ok("the bag's button on the map shows the coins", hud !== null && /35/.test(hud), hud);
+    // (the coins are on the plate at the top left of the map since 2026-10-09, with the stamina; the bag's button says how full it is)
+    const hud = await X.evaluate(`document.querySelector("[data-town-status] [data-coins]")?.innerText.trim() ?? null`);
+    ok("the plate at the top left of the map shows the coins", hud !== null && /35/.test(hud), hud);
     await X.evaluate(`[...document.querySelectorAll("button")].find((b) => b.title === "กระเป๋า").click()`);
     await sleep(300);
     ok("…and opens the bag", await X.evaluate(`!!${TRADE} && ${TRADE}.innerText.includes("กระเป๋าของฉัน")`));

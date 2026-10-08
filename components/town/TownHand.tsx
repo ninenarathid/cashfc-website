@@ -92,17 +92,17 @@ export default function TownHand({ keeper, th, phone = false, hidden = false, cl
     return (
       <div ref={box} data-town-hand="phone">
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={label} title={label}
-                className={`${className} ${open ? "border-accent" : inHand ? "border-gold" : ""}`}>
+                data-on={inHand && !open ? "" : undefined} className={className}>
           {inHand ? <StackIcon stack={inHand} size={26} /> : <TownIcon name="hand" size={24} />}
         </button>
         {open && (
           <div role="menu" aria-label={label} data-state="open"
-               className="pop-in absolute bottom-full left-0 z-30 mb-2 grid w-[15rem] max-w-[calc(100vw-1.5rem)] grid-cols-3 gap-1 rounded-2xl border border-line-lit bg-surface/97 p-1.5 shadow-xl shadow-black/40 backdrop-blur-sm">
+               className="pop-in tk tk-window absolute bottom-full right-0 z-30 mb-2 grid w-[16rem] max-w-[calc(100vw-1.5rem)] grid-cols-3 gap-1 p-3.5">
             {slots.map((slot) => {
               const on = slot === held;
               return (
                 <button key={slot} type="button" role="menuitemradio" aria-checked={on} data-hand-slot={slot} onClick={() => { take(slot); setOpen(false); }}
-                        className={`pressable flex min-h-[4.25rem] flex-col items-center justify-center gap-1 rounded-xl border px-1 py-1.5 text-label leading-tight text-ink ${on ? "border-gold bg-gold/15" : "border-transparent hover:bg-card"}`}>
+                        className={`pressable flex min-h-[4.25rem] flex-col items-center justify-center gap-1 border-2 px-1 py-1.5 text-label leading-tight text-ink ${on ? "border-gold bg-card" : "border-transparent hover:bg-card"}`}>
                   <StackIcon stack={purse.bag[slot]!} size={30} />
                   <span className="line-clamp-2 text-center">{nameOf(slot)}</span>
                 </button>
@@ -117,15 +117,15 @@ export default function TownHand({ keeper, th, phone = false, hidden = false, cl
   return (
     <TownFoot rank="chip" order={90}>
       <div role="toolbar" aria-label={label} data-town-hand="bar" data-state="open"
-           className="pop-in pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 rounded-2xl border border-line bg-bg/70 p-1 shadow-lg shadow-black/30 backdrop-blur-sm">
+           className="pop-in tk tk-plate pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 p-2.5">
         {slots.map((slot, i) => {
           const s = purse.bag[slot]!, on = slot === held, holds = holdsOf(s, th);
           return (
             <button key={slot} type="button" aria-pressed={on} data-hand-slot={slot} onClick={() => take(slot)}
                     title={`${nameOf(slot)}${holds ? ` · ${holds}` : ""} (${i + 1})`} aria-label={`${nameOf(slot)} (${i + 1})`}
-                    className={`pressable relative grid size-10 place-items-center rounded-xl border transition-colors ${on ? "border-gold bg-gold/20" : "border-line-strong bg-bg/60 hover:border-accent"}`}>
-              <StackIcon stack={s} size={26} />
-              <kbd aria-hidden className={`absolute left-0.5 top-0 font-data text-[0.625rem] leading-4 ${on ? "text-gold" : "text-muted"}`}>{i + 1}</kbd>
+                    className="pressable tk tk-slot grid size-12 place-items-center">
+              <StackIcon stack={s} size={28} />
+              <kbd aria-hidden className="tk-key absolute -left-1.5 -top-1.5 !h-3.5 !min-w-3.5 !px-0.5 !text-[0.625rem]">{i + 1}</kbd>
               {ITEMS[s.item].stack > 1 && <span aria-hidden className="absolute bottom-0 right-0.5 font-data text-[0.625rem] font-semibold leading-4 tabular-nums text-ink [text-shadow:0_1px_2px_#000]">{s.n}</span>}
             </button>
           );

@@ -37,11 +37,20 @@ export const PAD = 56;
 export const MAX_SCALE = 2.4;
 /**
  * As far out as the camera goes (the owner's call, 2026-10-02: "ไม่สามารถ zoom
- * out ได้มากเกินไป"): about the starter town's width across the screen, and
- * never so small that a doll is a speck (a phone stops at MIN_SCALE).
+ * out ได้มากเกินไป"; and again on 2026-10-09, of the limits that came of that, 26 tiles and 0.55:
+ * "ช่วยล็อคไม่ให้ zoom out ได้มากจนเกินไป").
+ * - Never smaller than the art's own pixels on a wide screen (`MIN_SCALE` 1): below that every sprite is resampled,
+ *   and a doll is a speck. A phone's finer screen stops a little further out (`MIN_SCALE_PHONE`), where a picture
+ *   pixel is still more than one of the screen's own.
+ * - And never more than `MOST_TILES_ACROSS` tiles across, which is what stops a large monitor.
+ * The three numbers are mine, his to change: a screen 1440 wide goes out to 22 tiles across where it went to 26, a
+ * phone to 8 where it went to 11.
  */
-export const MOST_TILES_ACROSS = 26;
-export const MIN_SCALE = 0.55;
+export const MOST_TILES_ACROSS = 22;
+export const MIN_SCALE = 1;
+export const MIN_SCALE_PHONE = 0.8;
+/** A phone's screen, or a window as narrow as one: where the camera starts closer and may go a little further out. */
+const narrow = (cw: number, ch: number) => cw < 640 || ch > cw * 1.15;
 
 export interface Cam {
   /** Screen pixels per isometric pixel. */
@@ -56,9 +65,9 @@ export function fitScale(cw: number, ch: number, b: Bounds = BOUNDS.town): numbe
   return Math.min(cw / (b.maxX - b.minX), ch / (b.maxY - b.minY));
 }
 
-/** The furthest out the camera may go: MOST_TILES_ACROSS tiles across, and never below MIN_SCALE. */
+/** The furthest out the camera may go: MOST_TILES_ACROSS tiles across, and never below MIN_SCALE (a phone: MIN_SCALE_PHONE). */
 export function minScale(cw: number, ch: number, b: Bounds = BOUNDS.town): number {
-  return Math.min(MAX_SCALE, Math.max(MIN_SCALE, cw / (MOST_TILES_ACROSS * TILE_W), fitScale(cw, ch, b)));
+  return Math.min(MAX_SCALE, Math.max(narrow(cw, ch) ? MIN_SCALE_PHONE : MIN_SCALE, cw / (MOST_TILES_ACROSS * TILE_W), fitScale(cw, ch, b)));
 }
 
 /**
@@ -70,7 +79,7 @@ export const START_DESK = 1.6;
 export const START_PHONE = 1.3;
 export function startScale(cw: number, ch: number): number {
   const fit = fitScale(cw, ch);
-  return Math.min(MAX_SCALE, Math.max(fit, cw < 640 || ch > cw * 1.15 ? START_PHONE : START_DESK));
+  return Math.min(MAX_SCALE, Math.max(fit, narrow(cw, ch) ? START_PHONE : START_DESK));
 }
 
 export const clampScale = (s: number, cw: number, ch: number, b: Bounds = BOUNDS.town) => Math.min(MAX_SCALE, Math.max(minScale(cw, ch, b), s));

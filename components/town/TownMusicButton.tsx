@@ -25,7 +25,9 @@ function savePref(p: { on: boolean; vol: number }) {
  * it starts with the first tap in town (a browser plays nothing before one),
  * and stays off for whoever turns it off.
  */
-export default function TownMusicButton({ th, hour, className }: {
+export default function TownMusicButton({ th, hour, under = false, className }: {
+  /** In the map's menu: the panel hangs under the menu, not under this button. */
+  under?: boolean;
   th: boolean;
   /** `next dev`'s ?townHour, so the music matches the sky being shown. */
   hour: number | null;
@@ -94,13 +96,13 @@ export default function TownMusicButton({ th, hour, className }: {
 
   const label = th ? "เพลง" : "Music";
   return (
-    <div ref={box} className="relative">
+    <div ref={box} className={under ? "" : "relative"}>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} title={label} className={className}>
         <TownIcon name={on ? "music" : "musicOff"} size={20} /><span className="sr-only">{label}</span>
       </button>
       {open && (
         <div data-state="open"
-             className="pop-in absolute right-0 top-12 z-30 w-60 rounded-2xl border border-line-lit bg-surface/97 p-3 shadow-xl shadow-black/40 backdrop-blur-sm">
+             className={`pop-in absolute z-30 ${under ? "tk tk-window right-0 top-[7.75rem] w-full p-4 text-left" : "right-0 top-12 w-60 rounded-2xl border border-line-lit bg-surface/97 p-3 shadow-xl shadow-black/40 backdrop-blur-sm"}`}>
           <div className="flex items-center gap-2">
             <TownIcon name="music" size={18} />
             <span className="text-ui font-semibold text-ink">{th ? "เพลงในเมือง" : "Town music"}</span>

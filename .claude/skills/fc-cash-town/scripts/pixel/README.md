@@ -30,6 +30,7 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 | `build-pixel-atlas.mjs` | `work/out` → `public/town` (`--out <dir>` to try elsewhere; `--poses` adds sit, sleep and wave) |
 | `gen-race.mjs`, `build-race-atlas.mjs`, `race-data.mjs` | The other seven races: sheets, picture, and what the wardrobe offers (see the last section) |
 | `checks/` | Audits and close-ups of the built dolls, and the town's sky in a headless browser (see the last section, and SKILL.md) |
+| `build-ui.mjs` | The HUD's skin: `work/out/ui-kit-*.png` → `lib/town/ui-kit.json`, each piece a nine-slice (its corners as drawn, its edges rebuilt from one row); `--look <out.png>` to see them. `components/town/TownSkin.ts` is the CSS of it (SKILL.md, "the HUD is the town's own") |
 | `pxlib.mjs` | Grid, cells, palette, shapes |
 | `pixelize.mjs`, `anim.mjs` | The spike's one-sheet tools |
 | `work/` | Sheets, ledger, debug pictures. Git-ignored by its own `.gitignore`; back it up, the sheets cost money. |
