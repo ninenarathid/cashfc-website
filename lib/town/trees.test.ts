@@ -344,9 +344,9 @@ describe("what an axe's plus, options and gems change", () => {
     expect(did.ok && staminaOf(did.purse, NOON)).toBe(STAMINA.max - TREES.cost);
   });
 
-  it("the keen edge and the grain-reader, awake from the plus they were drawn at", () => {
+  it("the keen edge and the grain-reader: an option drawn is the axe's whatever its plus has fallen to", () => {
     expect(ask(opts3("axKeen")).chops).toBe(LEVELS.axe.chops[3] - OPTIONS.axKeen.n.chops);
-    expect(ask({ plus: 2, opts: ["axKeen"] }).chops).toBe(LEVELS.axe.chops[2]);
+    expect(ask({ plus: 2, opts: ["axKeen"] }).chops).toBe(LEVELS.axe.chops[2] - OPTIONS.axKeen.n.chops);
     expect(ask(opts3("axGrain")).ahead).toBe(LEVELS.axe.ahead[3] + OPTIONS.axGrain.n.ahead);
   });
 

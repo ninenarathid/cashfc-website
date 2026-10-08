@@ -235,9 +235,9 @@ describe("mining: a rock struck", () => {
     }
     expect(50 - staminaOf(p, now)).toBe(2);
     expect(powerLeft(p, "pkFresh", now)).toBe(0);
-    // asleep under its milestone, it does nothing
-    const asleep = done(mine(miner(pickAt(2, ["pkFresh"]), 50), go({ ...where(5, (h) => h.kind === "stone") })));
-    expect(asleep.cost).toBe(1);
+    // fallen under the milestone it was drawn at, it works all the same: no option sleeps (lib/town/tools' `has`)
+    const fallen = done(mine(miner(pickAt(2, ["pkFresh"]), 50), go({ ...where(5, (h) => h.kind === "stone") })));
+    expect(fallen.cost).toBe(0);
   });
   it("a crumb: every fifth plain rock leaves one more fragment of the floor's ore", () => {
     const pick = pickAt(3, ["pkCrumb"]);

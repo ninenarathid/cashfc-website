@@ -90,7 +90,8 @@ describe("what is to come, in next dev only", () => {
     };
     const here = await rows("development"), there = await rows("production");
     expect(Object.keys(here)).toEqual(Object.keys(there));
-    expect(Object.keys(here).filter((key) => here[key] !== there[key])).toEqual([]);
+    // (but the trees' own row, the woodcutters': it lists every tree of the mountain, and there is none outside `next dev`)
+    expect(Object.keys(here).filter((key) => here[key] !== there[key])).toEqual(["trees"]);
     expect(JSON.parse(here.haunts).length).toBeGreaterThan(80);
   }, 120_000);
 

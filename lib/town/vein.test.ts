@@ -165,7 +165,7 @@ describe("what a vein gives, and what it is played with", () => {
   it("the strikes are the pick's: six, more by its plus and its steady hand; two fewer with no stamina, and the points then seen only at first", () => {
     expect(veinMods(pickAt(), false)).toEqual({ strikes: 6, back: 0, cross: 0, spent: false });
     expect([0, 4, 7, 9, 10].map((l) => veinMods(pickAt(l), false).strikes)).toEqual([6, 7, 8, 9, 10]);
-    expect(veinMods(pickAt(3, ["pkSteady"]), false).strikes).toBe(8);
+    expect(veinMods(pickAt(3, ["pkSteady"]), false).strikes).toBe(9);
     expect(veinMods(pickAt(), true)).toMatchObject({ strikes: 4, spent: true });
     expect(veinMods(null, true).strikes).toBe(4);
     expect(veinMods(pickAt(0, [], ["water"]), false).back).toBe(1);
