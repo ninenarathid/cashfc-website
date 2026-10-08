@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-08",
+   "type": "parse_up",
+   "id": 31902843,
+   "name": "Lapista Scholares",
+   "text": "set a new best parse: 100 on Honey B. Lovely as Warrior"
+  },
+  {
+   "date": "2026-10-08",
    "type": "level_100",
    "id": 50821570,
    "name": "Haruki Mizumoto",
@@ -1392,13 +1399,6 @@
    "id": 57375278,
    "name": "Komi Kona",
    "text": "reached level 100 on Ninja!"
-  },
-  {
-   "date": "2026-09-27",
-   "type": "level_100",
-   "id": 42948817,
-   "name": "Karuma Amamiya",
-   "text": "reached level 100 on Warrior!"
   }
  ]
 }

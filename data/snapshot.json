@@ -12985,7 +12985,7 @@
  },
  "31902843": {
   "name": "Lapista Scholares",
-  "parse": 99,
+  "parse": 100,
   "ult": 6,
   "mounts": 113,
   "minions": 177,
@@ -13047,7 +13047,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-10"
+  "chg": "2026-10-08"
  },
  "5761905": {
   "name": "Laura Nessonier",

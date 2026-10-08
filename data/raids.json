@@ -50806,6 +50806,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 99,
+      "median": 99,
+      "kills": 17,
+      "job": "Warrior"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 100,
+      "median": 97,
+      "kills": 17,
+      "job": "Warrior"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 99,
+      "median": 81,
+      "kills": 16,
+      "job": "Warrior"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 98,
+      "median": 89,
+      "kills": 19,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
