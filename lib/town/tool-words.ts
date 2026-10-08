@@ -1,5 +1,9 @@
-import { OLD_FX } from "./forged";
-import { ALL, GEM_FX, OPTIONS, WIND_WALK, optN, type Element, type OptionId, type ToolKind } from "./tools";
+import { OLD_FX, canFx, cookFx, hoeFx, netFx, rodFx } from "./forged";
+import {
+  ALL, FORGE, GEM_FX, LEVELS, OPTIONS, ROCKS, WIND_WALK, axeAhead, axeBarSlow, axeChops, levelOf, optN, pickSwings, toolKindOf, veinStrikes,
+  type Element, type OptionId, type ToolKind,
+} from "./tools";
+import type { Stack } from "./trade";
 
 /**
  * What an option and a gem do, in a line: the words of the smith's cards (a draw's two options to choose from; a
@@ -185,4 +189,94 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
 export function gemDoes(kind: ToolKind, element: Element, level: number): Words | null {
   if (level < 1) return null;
   return kind === "pick" || kind === "axe" ? newToolGem(kind, element, level) : oldToolGem(kind, element, level);
+}
+
+/* ── a tool's own numbers (its card, and what the next level changes) ───── */
+
+/** One number of a tool's card: what it is called, and how it reads (the same text is the same number). */
+export interface CardLine { key: string; name: Words; value: Words }
+const same = (text: string): Words => w(text, text);
+/** A share as a percentage, to one place where it has one: 0.025 is 2.5, 0.1 is 10. */
+const pct1 = (share: number): number => Math.round(share * 1000) / 10;
+/** A number to so many places at the most, with no noughts at its end. */
+const upTo = (n: number, places: number): string => String(Math.round(n * 10 ** places) / 10 ** places);
+/** So many times as wide, as words: wider by a share, narrower by one, or as it is bought. */
+const wider = (times: number): Words => {
+  const p = pct1(times - 1);
+  return p > 0 ? w(`กว้างขึ้น ${p}%`, `${p}% wider`) : p < 0 ? w(`แคบลง ${-p}%`, `${-p}% narrower`) : w("ตามปกติ", "as bought");
+};
+/** So many times the pace, as words: slower by a share, faster by one, or as it is bought. */
+const slower = (pace: number): Words => {
+  const p = pct1(1 - pace);
+  return p > 0 ? w(`ช้าลง ${p}%`, `${p}% slower`) : p < 0 ? w(`เร็วขึ้น ${-p}%`, `${-p}% faster`) : w("ตามปกติ", "as bought");
+};
+const times = (n: number): Words => w(`${n} ครั้ง`, String(n));
+const ROCK_WORD: Words[] = [w("ทุบหินชั้นตื้น", "Swings, shallow rock"), w("ทุบหินชั้นกลาง", "Swings, middle rock"), w("ทุบหินชั้นลึก", "Swings, deep rock")];
+/**
+ * The numbers of a tool's own card, as the tool is now: its level's, with whatever its options and its gem add to
+ * the same numbers (each is what its game reads: lib/town/tools' readers for the pick and the axe, lib/town/forged's
+ * for the rest). Nothing, of a thing that is not forged. A level's table is so laid that no plus leaves every one of
+ * these as the plus before left it.
+ */
+export function cardOf(stack: Stack | null | undefined): CardLine[] {
+  const kind = stack ? toolKindOf(stack.item) : null;
+  if (!stack || !kind) return [];
+  switch (kind) {
+    case "pick": return [
+      ...ROCKS.map((hard, i): CardLine => ({ key: `rock${i}`, name: ROCK_WORD[i] ?? ROCK_WORD[ROCK_WORD.length - 1], value: times(pickSwings(stack, hard)) })),
+      { key: "strikes", name: w("ตีสายแร่ได้", "Strikes at a vein"), value: times(veinStrikes(stack)) },
+    ];
+    case "axe": {
+      const ahead = axeAhead(stack);
+      return [
+        { key: "chops", name: w("ฟันต่อต้น", "Chops a tree"), value: times(axeChops(stack)) },
+        { key: "ahead", name: w("เห็นกิ่งล่วงหน้า", "Branches seen ahead"), value: w(`${ahead} ท่อน`, `${ahead} segments`) },
+        { key: "slow", name: w("แถบเวลา", "The time bar"), value: slower(1 - axeBarSlow(stack)) },
+      ];
+    }
+    case "rod": {
+      const fx = rodFx(stack), secs = upTo(LEVELS.rod.strike[0] * fx.strike, 2);
+      return [
+        { key: "band", name: w("ช่วงปลอดภัยตอนสู้ปลา", "The fight's safe stretch"), value: wider(fx.band) },
+        { key: "pace", name: w("ช่วงปลอดภัยขยับ", "The stretch's pace"), value: slower(fx.pace) },
+        { key: "strike", name: w("จังหวะตวัด", "The strike's moment"), value: w(`${secs} วินาที`, `${secs} s`) },
+      ];
+    }
+    case "hoe": {
+      const fx = hoeFx(stack);
+      return [
+        { key: "band", name: w("ช่วงตีจอบ", "The tilling stretch"), value: wider(fx.band) },
+        { key: "pace", name: w("ตัวชี้และลมตอนถอนวัชพืช", "The marker and the weeding's gusts"), value: slower(fx.pace) },
+      ];
+    }
+    case "can": {
+      const fx = canFx(stack);
+      return [
+        { key: "waterings", name: w("เติมครั้งหนึ่งรดได้", "Waterings a filling"), value: times(LEVELS.can.waterings[0] + fx.more) },
+        { key: "marks", name: w("ขีดตอนเทเมื่อหมดแรง", "The tired pour's marks"), value: wider(fx.marks) },
+      ];
+    }
+    case "bugNet": {
+      const fx = netFx(stack), ring = upTo(LEVELS.bugNet.ring[0] * fx.ring, 3), ms = Math.round(LEVELS.bugNet.lands[0] * fx.lands);
+      return [
+        { key: "ring", name: w("วงสวิง", "The net's ring"), value: w(`${ring} ช่อง`, `${ring} tile`) },
+        { key: "lands", name: w("สวิงลงถึงใน", "The swing lands in"), value: same(`${ms} ms`) },
+      ];
+    }
+    case "pot": case "pan": case "grill":
+      return [{ key: "band", name: w("จังหวะที่ดีตอนคนและย่าง", "The good stretch, stirring and roasting"), value: wider(cookFx(stack).band) }];
+  }
+}
+/** A number of a tool's card that the next level changes: as it is, and as it would be. */
+export interface CardChange { key: string; name: Words; from: Words; to: Words }
+/**
+ * What the next level changes for this tool: each number of its own card that would read otherwise at one plus more,
+ * as it reads now and as it would then (with the same options and the same gem; at the top a gem works a level
+ * stronger, and that is in the numbers too). Nothing, of a tool at the top and of a thing that is not forged.
+ */
+export function nextOf(stack: Stack | null | undefined): CardChange[] {
+  const level = levelOf(stack);
+  if (!stack || !toolKindOf(stack.item) || level >= FORGE.top) return [];
+  const now = cardOf(stack), then = cardOf({ ...stack, plus: level + 1 });
+  return now.flatMap((line, i) => (then[i] && then[i].value.en !== line.value.en ? [{ key: line.key, name: line.name, from: line.value, to: then[i].value }] : []));
 }

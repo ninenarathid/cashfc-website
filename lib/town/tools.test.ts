@@ -8,7 +8,7 @@ import { cook, goesIn } from "./cooking";
 import { powerLeft, powerRule, powerUsed, usePower } from "./powers";
 import { dayOf } from "./stamina";
 import {
-  ELEMENTS, FELLED, FORGE, GEMS, GEM_FX, LEVELS, MINED, OPTIONS, OPTION_IDS, ORES, SMELTS, TOOL_KINDS, WOODEN,
+  ELEMENTS, FELLED, FORGE, GEMS, GEM_FX, LEVELS, MINED, OPTIONS, OPTION_IDS, ORES, ROCKS, SMELTS, TOOL_KINDS, WOODEN,
   TOOL_WORD, WIND_WALK, axeAhead, axeBarPace, axeBarSlow, axeChops, capEase, drawnOf, elementOfChip, elementOfGem, gemBy, gemLevel, gemsOf, glowOf, has, isWooden, levelOf, modsOf, readToolWord, toolWord, walkPace,
   optN, pickPower, pickSwings, poolOf, ramp, smeltedOf, toolKindOf, veinStrikes, type OptionId, type ToolKind,
 } from "./tools";
@@ -131,15 +131,19 @@ describe("what a plus gives", () => {
       for (const v of table) expect(Number.isFinite(v)).toBe(true);
     }
   });
-  it("the pick and the axe, as they were approved", () => {
-    expect([...LEVELS.pick.power]).toEqual([3, 3.2, 3.4, 3.7, 4, 4.5, 5, 6, 7, 8.5, 12]);
-    expect([...LEVELS.pick.strikes]).toEqual([6, 6, 6, 6, 7, 7, 7, 8, 8, 9, 10]);
-    expect([...LEVELS.axe.chops]).toEqual([12, 12, 11, 11, 10, 9, 8, 7, 7, 6, 4]);
+  it("the pick and the axe: as bought and at the top as they were approved, and every level between another", () => {
+    // (2026-10-08: the levels between were laid again so that no plus leaves the tool as the plus before left it)
+    expect([...LEVELS.pick.power]).toEqual([3, 3.45, 3.65, 3.7, 4, 4.5, 5, 6, 7, 8.5, 12]);
+    expect([...LEVELS.pick.strikes]).toEqual([6, 6, 6, 7, 7, 7, 7, 8, 9, 9, 10]);
+    expect([...LEVELS.axe.chops]).toEqual([12, 11, 11, 10, 10, 9, 8, 7, 7, 6, 4]);
     expect([...LEVELS.axe.ahead]).toEqual([3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5]);
-    expect([...LEVELS.axe.slow]).toEqual([0, 0, 0, 0, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.5]);
+    expect([...LEVELS.axe.slow]).toEqual([0, 0, 0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.5]);
     // swings on the mountain's foot and the first ten floors, and at +0 on the deeper ones
     expect(Array.from({ length: 11 }, (_, l) => pickSwings(tool("pick", l), 12))).toEqual([4, 4, 4, 4, 3, 3, 3, 2, 2, 2, 1]);
-    expect([12, 18, 24].map((h) => pickSwings(tool("pick"), h))).toEqual([4, 6, 8]);
+    expect([...ROCKS].map((h) => pickSwings(tool("pick"), h))).toEqual([4, 6, 8]);
+    // (and on the deeper ones by the level: the first plus is a swing fewer on the deepest, the second on the middle)
+    expect(Array.from({ length: 11 }, (_, l) => pickSwings(tool("pick", l), 18))).toEqual([6, 6, 5, 5, 5, 4, 4, 3, 3, 3, 2]);
+    expect(Array.from({ length: 11 }, (_, l) => pickSwings(tool("pick", l), 24))).toEqual([8, 7, 7, 7, 6, 6, 5, 4, 4, 3, 2]);
   });
   it("the seven old tools at +0, +4, +7 and +10, climbing evenly between and never falling back", () => {
     const at = (t: readonly number[]) => [t[0], t[4], t[7], t[10]];
@@ -148,7 +152,8 @@ describe("what a plus gives", () => {
     expect(at(LEVELS.rod.strike)).toEqual([1.6, 1.7, 1.9, 2.2]);
     expect(at(LEVELS.hoe.band)).toEqual([1, 1.1, 1.25, 1.5]);
     expect(at(LEVELS.hoe.slow)).toEqual([0, 0.05, 0.15, 0.3]);
-    expect(at(LEVELS.can.waterings)).toEqual([8, 9, 11, 16]);
+    // (the can's waterings were laid again, 2026-10-08: one more at the first plus, and no two levels running the same past the fourth)
+    expect([...LEVELS.can.waterings]).toEqual([8, 9, 9, 10, 10, 11, 11, 12, 13, 14, 16]);
     expect(at(LEVELS.can.marks)).toEqual([1, 1.1, 1.25, 1.5]);
     expect(at(LEVELS.bugNet.ring)).toEqual([0.6, 0.66, 0.75, 0.9]);
     expect(at(LEVELS.bugNet.lands)).toEqual([300, 270, 225, 150]);
@@ -301,7 +306,7 @@ describe("what a tool carries, read as it works now", () => {
   });
   it("the pick's and the axe's own numbers, all told", () => {
     expect(veinStrikes(tool("pick", 10))).toBe(10);
-    expect(veinStrikes(tool("pick", 3, ["pkSteady"]))).toBe(8);
+    expect(veinStrikes(tool("pick", 3, ["pkSteady"]))).toBe(9);
     expect(veinStrikes(tool("pick", 2, ["pkSteady"]))).toBe(6);
     // fire: so much fewer, rounded up; dark: a swing more
     expect(pickSwings(tool("pick", 0, [], ["fire"]), 24)).toBe(7);
@@ -309,7 +314,7 @@ describe("what a tool carries, read as it works now", () => {
     expect(pickSwings(tool("pick", 0, [], ["dark"]), 12)).toBe(5);
     expect(pickSwings(tool("pick", 10), 12)).toBe(1);
     expect(axeChops(tool("axe", 10))).toBe(4);
-    expect(axeChops(tool("axe", 3, ["axKeen"]))).toBe(9);
+    expect(axeChops(tool("axe", 3, ["axKeen"]))).toBe(8);
     expect(axeChops(tool("axe", 0, [], ["fire"]))).toBe(11);
     expect(axeChops(tool("axe", 10, ["axKeen"], ["fire"]))).toBe(2);
     // (a tree that takes twice the chops takes twice the axe's)

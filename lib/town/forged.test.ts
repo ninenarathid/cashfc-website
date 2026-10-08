@@ -299,7 +299,7 @@ describe("a forged hoe", () => {
 
 describe("a forged can", () => {
   it("holds more waterings a filling, by its level; and a filling keeps what the can carries", () => {
-    expect([0, 4, 7, 10].map((l) => canHolds(tool("can", l)))).toEqual([8, 9, 11, 16]);
+    expect([0, 1, 4, 7, 10].map((l) => canHolds(tool("can", l)))).toEqual([8, 9, 10, 12, 16]);
     expect(canHolds(tool("canCopper", 10))).toBe(WATER.cans.canCopper);
     expect(canHolds(tool("hoe", 10))).toBe(0);
     for (const l of [0, 4, 10]) {
@@ -327,7 +327,7 @@ describe("a forged can", () => {
     expect(done(water("1,1", done(hold(plain, 1)).purse, sown(), "can", NOW)).purse.bag.slice(0, 2).map((s) => s?.water)).toEqual([2, 5]);
   });
   it("with fire and a last drop holds more still, and a thrifty one fills from one bucketful", () => {
-    expect(canHolds(tool("can", 1, [], ["fire"]))).toBe(9);
+    expect(canHolds(tool("can", 1, [], ["fire"]))).toBe(10);
     expect(canHolds(tool("can", 10, [], ["fire"]))).toBe(18);
     expect(canHolds(tool("can", 6, drawn("cnDrop", "cnThrift"), ["fire"]))).toBe(LEVELS.can.waterings[6] + 1 + 1);
     const thrifty = done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 50, NOW));

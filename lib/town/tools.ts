@@ -120,16 +120,26 @@ const WIDER = ramp(1, 1.1, 1.25, 1.5), SLOWER = ramp(0, 0.05, 0.15, 0.3);
  * - can: the waterings in a filling; how wide the tired pour's marks are.
  * - bugNet: the ring, in tiles; how long after the swing it lands, in milliseconds.
  * - pot, pan, grill: the stirring's and the roast's good stretch.
+ *
+ * **No level leaves a tool as the level before left it** (the owner, 2026-10-08): of the numbers a tool's own card
+ * shows (lib/town/tool-words' `cardOf`: a rock's swings at each depth, a tree's chops, a filling's waterings, each a
+ * whole number), one at the least is another at every plus. So the first plus of an axe is a chop fewer, and of a
+ * can a watering more. The tool as it is bought (+0) and the top (+10) are as they were approved.
  */
 export const LEVELS = {
-  pick: { power: [3, 3.2, 3.4, 3.7, 4, 4.5, 5, 6, 7, 8.5, 12], strikes: [6, 6, 6, 6, 7, 7, 7, 8, 8, 9, 10] },
-  axe: { chops: [12, 12, 11, 11, 10, 9, 8, 7, 7, 6, 4], ahead: [3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5], slow: [0, 0, 0, 0, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.5] },
+  pick: { power: [3, 3.45, 3.65, 3.7, 4, 4.5, 5, 6, 7, 8.5, 12], strikes: [6, 6, 6, 7, 7, 7, 7, 8, 9, 9, 10] },
+  axe: { chops: [12, 11, 11, 10, 10, 9, 8, 7, 7, 6, 4], ahead: [3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 5], slow: [0, 0, 0.05, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.5] },
   rod: { band: WIDER, slow: SLOWER, strike: ramp(1.6, 1.7, 1.9, 2.2) },
   hoe: { band: WIDER, slow: SLOWER },
-  can: { waterings: ramp(8, 9, 11, 16, 0), marks: WIDER },
+  can: { waterings: [8, 9, 9, 10, 10, 11, 11, 12, 13, 14, 16], marks: WIDER },
   bugNet: { ring: ramp(0.6, 0.66, 0.75, 0.9), lands: ramp(300, 270, 225, 150, 0) },
   pot: { band: WIDER }, pan: { band: WIDER }, grill: { band: WIDER },
 } as const satisfies Record<ToolKind, Record<string, readonly number[]>>;
+/**
+ * How hard a rock is at the cave's three depths (the shallowest is the mountain's foot's too): what a pick's card
+ * counts its swings by. The rocks themselves are lib/town/mining's, which has the same three of its own.
+ */
+export const ROCKS: readonly number[] = [12, 18, 24];
 
 /* ── options ────────────────────────────────────────────────────────────── */
 
