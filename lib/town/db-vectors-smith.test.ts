@@ -170,7 +170,8 @@ export function vectorsSmith(): Vector[] {
     { pending: { item: "pick", at: 0, offer: ["pkPeek", 3] } }, { pending: { item: "pick", at: 0, offer: "pkPeek" } }, { pending: { item: "pick", at: 0 } }, { pending: "pick" }, { pending: null }, { pending: { item: "pick", at: "0", offer: [] } },
     { pending: { item: "hoe", at: 1, offer: ["anything", ""], old: "", junk: 1 } },
   ];
-  for (const k of kepts) add("smithy_sound", [k === undefined ? null : k], soundSmithy(k));
+  // (a word is sent as the document it is: whoever asks the database sends text for a document as it is written)
+  for (const k of kepts) add("smithy_sound", [k === undefined ? null : typeof k === "string" ? JSON.stringify(k) : k], soundSmithy(k));
   for (let i = 0; i < 160; i++) { const s = smithyAt(NOW), k = c.maybe(0.5) ? { ...s, queue: [...s.queue].reverse(), junk: true } : s; add("smithy_sound", [k], soundSmithy(k)); }
   for (let i = 0; i < 260; i++) {
     const s = smithyAt(NOW), ends = s.queue.flatMap((q) => [q.from, q.till]);
