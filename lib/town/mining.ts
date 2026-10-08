@@ -228,8 +228,7 @@ export type MineRefusal =
   | "vein"   // a vein is open and not played out
   | "spent"  // a counted power has no time left in its stretch
   | "open"   // the way down is open already
-  | "here"   // nothing can be opened or set down on this tile
-  | "wait";  // the rock is struck whole away, and whoever struck it first cannot take what it leaves just now
+  | "here";  // nothing can be opened or set down on this tile
 /** What a go is, as whoever keeps the game has it. */
 export interface Go {
   now: number;
