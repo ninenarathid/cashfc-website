@@ -6,7 +6,7 @@ import { backBait, hookBait, landCatch, loseBait } from "./fishing";
 import { gather, holds, lanternLit, placeAt, ruleOf, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { huntTold, mapDig, mapUse, type HuntTold } from "./hunt";
 import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
-import { GIFTS, USES, giftsOf, stretchOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, wearing, type GiftId, type GiftRefusal } from "./gifts";
+import { ALL_GIFTS, GIFTS, USES, giftsOf, stretchOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, wearing, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
 import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereFor, nectar, net, netMine, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Mine, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
@@ -1275,11 +1275,12 @@ export class Trial {
   setGifts(all: boolean | readonly string[]) {
     const p = this.purse();
     if (Array.isArray(all)) {
-      const had = GIFTS.map((g) => g.id).filter((id) => all.includes(id)), was = giftsOf(p);
+      // (gifts to come: the later lines' gifts are had the same way)
+      const had = ALL_GIFTS.map((g) => g.id).filter((id) => all.includes(id)), was = giftsOf(p);
       this.save({ ...p, gifts: { ...was, had, charms: was.charms.filter((id) => had.includes(id)), familiar: was.familiar && had.includes(was.familiar) ? was.familiar : null } });
       return;
     }
-    this.save({ ...p, gifts: all ? { ...giftsOf(p), had: GIFTS.map((g) => g.id) } : { had: [], charms: [] } });
+    this.save({ ...p, gifts: all ? { ...giftsOf(p), had: ALL_GIFTS.map((g) => g.id) } : { had: [], charms: [] } });
   }
   /** Wear these charms and no others (none: take them all off). */
   charmsWear(ids: readonly string[]): { ok: true } | { ok: false; why: GiftRefusal } {

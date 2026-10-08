@@ -7,7 +7,7 @@ import {
   type BaitId, type CropId, type FishId, type ItemId, type ItemKind,
 } from "@/lib/town/items";
 import { PUT_ON, WATER } from "@/lib/town/farm";
-import { GIFTS, giftOf, giftsOf, type CharmId } from "@/lib/town/gifts";
+import { ALL_GIFTS, giftOf, giftsOf, type CharmId } from "@/lib/town/gifts";
 import { LINES, LINE_IDS, rankOf } from "@/lib/town/lines";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE, isRod } from "@/lib/town/gear";
 import { HINT_IDS, HINT_PRICE, hintOf } from "@/lib/town/hints";
@@ -192,7 +192,7 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
           </Row>
           <Row label={th ? "เครื่องราง" : "Charms"} value={<span className="text-meta text-ink">{(() => { const g = giftsOf(purse); return `${th ? "มี" : "have"} ${g.had.length} / ${GIFTS.length} · ${th ? "ใส่" : "worn"}: ${g.charms.map((id) => (th ? giftOf(id)?.name.th : giftOf(id)?.name.en)).join(", ") || "–"}`; })()}</span>}>
             <Do onClick={() => { trial.setGifts(true); setSaid(th ? "ได้เครื่องรางครบทุกชิ้นแล้ว ไปใส่ได้ที่ ตัวฉัน (แตะตัวเอง หรือปุ่มสายอาชีพ)" : "You have every charm: wear them under Me (tap yourself, or the lines' button)"); }}>{th ? "ได้ครบทุกชิ้น" : "Have them all"}</Do>
-            {GIFTS.filter((g) => g.kind === "charm").map((g) => {
+            {ALL_GIFTS.filter((g) => g.kind === "charm").map((g) => {
               const worn = giftsOf(purse).charms, on = worn.includes(g.id as CharmId);
               return (
                 <Do key={g.id} on={on} onClick={() => {
@@ -205,7 +205,7 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
             <Do onClick={() => { trial.setGifts(false); setSaid(th ? "ล้างเครื่องรางและภูตแล้ว" : "Charms and familiars cleared"); }}>{th ? "ล้าง" : "Clear"}</Do>
           </Row>
           <Row label={th ? "ภูตคู่ใจ" : "A familiar"} value={<span className="text-meta text-ink">{(() => { const id = giftsOf(purse).familiar; return id ? (th ? giftOf(id)?.name.th : giftOf(id)?.name.en) : "–"; })()}</span>}>
-            {GIFTS.filter((g) => g.kind === "familiar").map((g) => {
+            {ALL_GIFTS.filter((g) => g.kind === "familiar").map((g) => {
               const on = giftsOf(purse).familiar === g.id;
               return (
                 <Do key={g.id} on={on} onClick={() => {

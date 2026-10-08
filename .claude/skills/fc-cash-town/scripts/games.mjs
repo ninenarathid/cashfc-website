@@ -7,6 +7,7 @@
 //   pouring   the water, the button held or not, and a hand that lets go at a share of the way between the marks
 //   steady    the hands, a hand that holds over the middle by itself, and a shove
 //   handing   water handed on, a game for two: each page's own bucket, and a hand that plays it by itself  lib/town/handing
+//   felling   a tree: the trunk as it is seen, a chop from a side, and a hand that chops by itself from the safe side  lib/town/felling
 import { sleep, until } from "./cdp.mjs";
 
 const G = "window.__townGame";
@@ -33,6 +34,8 @@ export async function play(X, ms = 60000) {
   if (kind === "pouring") await X.evaluate(`${G}.steady(0.5)`);
   // (a game for two: this page's bucket plays by itself; the other page's has to be played too: `playTwo`)
   if (kind === "handing") await X.evaluate(`${G}.auto(true)`);
+  // (felling: a hand that chops by itself, from the side no branch comes down on)
+  if (kind === "felling") await X.evaluate(`${G}.auto(true)`);
   // (a roast: the stick is turned as each face turned to the fire is done, and at once when the next would burn)
   if (kind === "roasting") {
     const end = Date.now() + ms;
@@ -89,6 +92,17 @@ export async function fumble(X) {
     const was = (await gameState(X)).misses;
     await X.evaluate(`${G}.shove(1.3, 0)`);
     return until("a hand left outside the ring", async () => { const s = await gameState(X); return !s || s.kind !== "steady" || s.misses > was; }, 4000, 40);
+  }
+  if (kind === "felling") {
+    // chopped from safe sides until a branch is next, then from under it
+    const was = (await gameState(X)).misses;
+    return until("a chop from under a branch", async () => {
+      const s = await gameState(X);
+      if (!s || s.kind !== "felling" || s.over || s.misses + s.forgiven > was) return true;
+      await X.evaluate(`(() => { const g = ${G}, under = g.under(); g.chop(under || g.safe()); })()`);
+      await sleep(140);
+      return false;
+    }, 8000, 20);
   }
   if (kind === "stirring") {
     const was = (await gameState(X)).misses;
