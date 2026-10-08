@@ -147,6 +147,8 @@ export interface Stack {
   opts?: string[];
   /** and the gems set in it, by their elements: one for each socket filled. */
   gems?: string[];
+  /** Who forged it to each of its milestones, by name, in the milestones' order ("" where nobody is written): a tool's history, which goes with it wherever it goes. */
+  makers?: string[];
 }
 // ── forging ──
 /** Whether a tool carries something of its own: a plus, an option drawn for it, a gem set in it. */

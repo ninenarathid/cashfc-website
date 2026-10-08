@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   SMITH, TRIES, bellows, bellowsLeft, candidates, choose, collect, draw, dryOf, forgeTry, gemsIn, markFound, markTop, maySmelt, newBoard, newSmithy, outcomeOf, owedOf,
-  pendingSlot, pickOffer, placesOf, redraw, setGem, smelt, smeltCost, smithView, soundSmithy, timberFor, toolsIn, tryCost, tryLacks, tryOdds, widen, widerCost, type Smithy,
+  pendingSlot, pickOffer, placesOf, redraw, setGem, smelt, smeltCost, smithView, soundSmithy, timberFor, toolsIn, tryCost, tryLacks, tryOdds, widen, widerCost, withMaker, type Smithy,
 } from "./forge";
 import type { ItemId } from "./items";
-import { BUILT, ELEMENTS, FORGE, GEMS, TOOL_KINDS, drawable, drawnOf, gemsOf, has, levelOf, modsOf, poolOf, type OptionId } from "./tools";
+import { BUILT, ELEMENTS, FORGE, GEMS, TOOL_KINDS, drawable, drawnOf, gemsOf, has, levelOf, makerName, makersOf, modsOf, poolOf, type OptionId } from "./tools";
 import { forged, held, newPurse, put, type Purse, type Stack } from "./trade";
 
 const NOW = Date.parse("2026-10-08T12:00:00+07:00"), MIN = 60_000;
@@ -443,5 +443,42 @@ describe("a whole road, from a tool as it was bought to the top", () => {
     expect(20 - held(purse.bag, "oreIron")).toBe(3);
     expect(20 - held(purse.bag, "oreSilver")).toBe(14);
     expect(modsOf(purse.bag[0]).glow).toBe(2);
+  });
+});
+
+describe("a maker's history (the owner, 2026-10-08)", () => {
+  const stocked = (s: Stack): Purse => purseWith(100_000, [["shardCopper", 99], ["shardIron", 99], ["oreIron", 20], ["oreSilver", 20], ["timber", 50]], [s]);
+  it("a try that takes a tool to a milestone writes who forged it there, and no other try does", () => {
+    const to3 = ok(forgeTry(stocked(tool("pick", 2)), newSmithy(), 0, 0, "Aqua"));
+    expect(to3.level).toBe(3);
+    expect(makersOf(to3.purse.bag[0])).toEqual(["Aqua", null, null]);
+    expect(to3.purse.bag[0]?.makers).toEqual(["Aqua"]);
+    // (a level that is no milestone, a try that fails, and a try with no name: nothing written)
+    expect(ok(forgeTry(stocked(tool("pick", 0)), newSmithy(), 0, 0, "Aqua")).purse.bag[0]?.makers).toBeUndefined();
+    expect(ok(forgeTry(stocked(tool("pick", 5, ["pkPeek"])), newSmithy(), 0, 0.999999, "Aqua")).purse.bag[0]?.makers).toBeUndefined();
+    expect(ok(forgeTry(stocked(tool("pick", 2)), newSmithy(), 0, 0)).purse.bag[0]?.makers).toBeUndefined();
+  });
+  it("the first to bring it there is its maker for good; another's hand writes the next milestone beside it", () => {
+    const made: Stack = { ...tool("pick", 5, ["pkPeek"]), makers: ["Aqua"] };
+    const to6 = ok(forgeTry(stocked(made), newSmithy(), 0, 0, "Nine"));
+    expect(makersOf(to6.purse.bag[0])).toEqual(["Aqua", "Nine", null]);
+    // (fallen under +6 and forged back by a third: the +6 mark stays the first maker's)
+    const back = ok(forgeTry(stocked({ ...tool("pick", 5, ["pkPeek", "pkSteady"]), makers: ["Aqua", "Nine"] }), newSmithy(), 0, 0, "Third"));
+    expect(makersOf(back.purse.bag[0])).toEqual(["Aqua", "Nine", null]);
+    // (a tool that came with no mark at +3 keeps that place empty)
+    expect(ok(forgeTry(stocked(tool("pick", 5, ["pkPeek"])), newSmithy(), 0, 0, "Nine")).purse.bag[0]?.makers).toEqual(["", "Nine"]);
+  });
+  it("stays on the tool through everything else done to it, and is read soundly", () => {
+    const made: Stack = { ...tool("pick", 6, ["pkPeek", "pkSteady"]), makers: ["Aqua", "Nine"] };
+    const p = purseWith(500, [["gemRuby", 1], ["oreCopper", 1]], [made]);
+    expect(ok(setGem(p, 0, "gemRuby")).purse.bag[0]?.makers).toEqual(["Aqua", "Nine"]);
+    expect(forged(made)).toBe(true);
+    expect(makerName("  A   long\nname that goes on and on and on  ")).toBe("A long name that goes on");
+    expect(makerName(7)).toBe("");
+    expect(makersOf({ item: "pick", n: 1, plus: 10, makers: ["", 3 as unknown as string, "  Z  ", "extra"] })).toEqual([null, null, "Z"]);
+    expect(makersOf({ item: "worm", n: 1, makers: ["A"] })).toEqual([null, null, null]);
+    expect(withMaker(made, 1, "Other")).toBe(made);
+    expect(withMaker(made, 2, "")).toBe(made);
+    expect(withMaker(made, 7, "Other")).toBe(made);
   });
 });

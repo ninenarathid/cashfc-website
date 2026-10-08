@@ -1,6 +1,6 @@
 import { ITEMS, type ItemId } from "./items";
 import {
-  FORGE, GEMS, SMELTING, SMELTS, drawable, drawnOf, elementOfGem, gemsOf, has, isWooden, levelOf, settable, toolKindOf,
+  FORGE, GEMS, SMELTING, SMELTS, drawable, drawnOf, elementOfGem, gemsOf, has, isWooden, levelOf, makerName, makersOf, settable, toolKindOf,
   type Element, type OptionId, type ToolKind,
 } from "./tools";
 import { HOUR, held, put, roomFor, take, type Purse, type Stack } from "./trade";
@@ -216,6 +216,18 @@ function withState(s: Stack, plus: number, opts: Array<OptionId | null>, gems: E
   opts.forEach((o, i) => { if (o) last = i; });
   return { ...bare, ...(plus > 0 ? { plus } : {}), ...(last >= 0 ? { opts: opts.slice(0, last + 1).map((o) => o ?? "") } : {}), ...(gems.length ? { gems } : {}) };
 }
+/**
+ * A tool with its maker written at a milestone: only where nobody is written there yet (the first to bring it there
+ * is its maker for good), and only a name that is one.
+ */
+export function withMaker(s: Stack, at: number, by: string): Stack {
+  const name = makerName(by), had = makersOf(s);
+  if (!name || at < 0 || at >= had.length || had[at]) return s;
+  const makers = had.map((m, i) => (i === at ? name : m ?? ""));
+  let last = makers.length - 1;
+  while (last >= 0 && !makers[last]) last--;
+  return { ...s, makers: makers.slice(0, last + 1) };
+}
 const setSlot = (purse: Purse, slot: number, s: Stack): Purse => ({ ...purse, bag: purse.bag.map((b, i) => (i === slot ? s : b)) });
 /** The options a draw for a milestone may lay out for a tool: those of the milestone's pool that are built, less every one the tool has. */
 export function candidates(stack: Stack | null | undefined, at: number): OptionId[] {
@@ -249,9 +261,10 @@ export function outcomeOf(to: number, r: number): Outcome {
 /**
  * A try at the tool in a slot of the bag. Its materials and its fee are spent, taken or not. `r` is the number of
  * chance whoever keeps the game drew. A failure leaves the level or lowers it by one, as the table says, and never
- * under the floor; the tool is never lost.
+ * under the floor; the tool is never lost. `by`: what whoever forges is called: a try that takes a tool to one of
+ * its milestones writes that name on it, where nobody is written yet (lib/town/tools' `makersOf`).
  */
-export function forgeTry(purse: Purse, s: Smithy, slot: number, r: number): Did<{ purse: Purse; out: Outcome; from: number; level: number; item: ToolKind; owed: number }> {
+export function forgeTry(purse: Purse, s: Smithy, slot: number, r: number, by = ""): Did<{ purse: Purse; out: Outcome; from: number; level: number; item: ToolKind; owed: number }> {
   const stack = purse.bag[slot], kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return no("tool");
   const from = levelOf(stack);
@@ -266,7 +279,8 @@ export function forgeTry(purse: Purse, s: Smithy, slot: number, r: number): Did<
   const level = out === "taken" ? from + 1 : out === "down" ? Math.max(Math.min(from, FORGE.floor), from - 1) : from;
   const bag = take(take(purse.bag, cost.ore, cost.n), "timber", cost.timber);
   // (the tool stays in its slot: taking its materials never moves it, for a tool is no ore and no timber)
-  const forged = withState(bag[slot] ?? stack, level, drawnOf(stack), gemsOf(stack));
+  const raised = withState(bag[slot] ?? stack, level, drawnOf(stack), gemsOf(stack));
+  const forged = out === "taken" ? withMaker(raised, FORGE.milestones.indexOf(level), by) : raised;
   const next = setSlot({ ...purse, coins: purse.coins - cost.fee, bag }, slot, forged);
   return { ok: true, purse: next, out, from, level, item: kind, owed: owedOf(forged) };
 }

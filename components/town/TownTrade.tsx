@@ -8,7 +8,7 @@ import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
-import { GEMS, OPTIONS, gemsOf, modsOf, toolWord } from "@/lib/town/tools";
+import { GEMS, OPTIONS, gemsOf, makersOf, modsOf, toolWord } from "@/lib/town/tools";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { carried } from "@/lib/town/line";
@@ -889,8 +889,10 @@ export function holdsOf(s: Stack, th: boolean): string | null {
   // ── forging ── (and what a tool carries of its own: its plus, its gem, its options by their names; what each does is the smith's card's to say)
   if (!forged(s)) return holds;
   const m = modsOf(s), gem = gemsOf(s)[0];
+  // (and who forged it, each name once: a tool's history goes with it into whoever's bag it comes)
+  const makers = [...new Set(makersOf(s).filter((x): x is string => !!x))];
   return [m.level > 0 ? `+${m.level}` : null, gem ? (th ? ITEMS[GEMS[gem].gem].name.th : ITEMS[GEMS[gem].gem].name.en) : null,
-    ...m.opts.map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)), holds].filter(Boolean).join(" · ") || null;
+    ...m.opts.map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)), makers.length ? `${th ? "ตีโดย" : "forged by"} ${makers.join(", ")}` : null, holds].filter(Boolean).join(" · ") || null;
 }
 function heldIn(s: Stack, th: boolean): string | null {
   if (s.of) return `${th ? ITEMS[s.of.dish].name.th : ITEMS[s.of.dish].name.en} · ${s.of.left}`;

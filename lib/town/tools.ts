@@ -44,6 +44,8 @@ export const FORGE = {
   gemAtTop: 1,
   /** All of ease together (a plus, an option, a gem, a meal's buff, a gift) is never more than so many times the plain tool. */
   cap: 3,
+  /** A maker's name on a tool is so many characters at the most. */
+  maker: 24,
 };
 /** Ease, capped: so many times as easy, and a pace or a wait so many times as slow or short, never past the cap. */
 export const capEase = (times: number): number => Math.min(FORGE.cap, Math.max(1 / FORGE.cap, times));
@@ -315,6 +317,17 @@ export function drawnOf(stack: Stack | null | undefined): Array<OptionId | null>
 export function gemsOf(stack: Stack | null | undefined): Element[] {
   if (!stack || !toolKindOf(stack.item) || !Array.isArray(stack.gems)) return [];
   return stack.gems.filter(isElement).slice(0, FORGE.sockets);
+}
+/** A name as it is written on a tool: one line, no longer than a maker's name may be. Nothing, of what is no name. */
+export const makerName = (name: unknown): string => (typeof name === "string" ? Array.from(name.replace(/\s+/g, " ").trim()).slice(0, FORGE.maker).join("").trim() : "");
+/**
+ * Who forged a tool to each of its milestones, by the milestone (null where nobody is written): made sound. A tool
+ * remembers the first to bring it to each (the owner, 2026-10-08: a maker's history), and the names stay on it
+ * wherever it goes: a deal carries them with everything else the tool carries.
+ */
+export function makersOf(stack: Stack | null | undefined): Array<string | null> {
+  const kind = stack ? toolKindOf(stack.item) : null, kept = stack && Array.isArray(stack.makers) ? stack.makers : [];
+  return FORGE.milestones.map((_, i) => (kind ? makerName(kept[i]) || null : null));
 }
 /** Everything a tool carries, as it works now. */
 export function modsOf(stack: Stack | null | undefined): ToolMods {

@@ -11,7 +11,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import ART from "@/lib/town/smith-art.json";
 import { cardOf, gemDoes, nextOf, optionDoes } from "@/lib/town/tool-words";
 import {
-  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, drawnOf, gemsOf, modsOf, settable,
+  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, drawnOf, gemsOf, makersOf, modsOf, settable,
   type OptionId, type ToolKind,
 } from "@/lib/town/tools";
 import { held } from "@/lib/town/trade";
@@ -294,6 +294,20 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
           return <li key={i} aria-hidden className={`${mile ? "size-3 rotate-45 rounded-[3px]" : "h-2 flex-1 rounded-full"} border ${on ? "border-[#f0c46a] bg-[#f0c46a]" : "border-[#6b4a2a] bg-[#33251a]"}`} />;
         })}
       </ol>
+      {/* its makers' marks: who forged it to each milestone, struck under that milestone's diamond; they go with the tool wherever it goes */}
+      {makersOf(stack).some(Boolean) && (
+        <ul className="mt-2 flex flex-wrap gap-1.5" aria-label={t("ผู้ตีเครื่องมือชิ้นนี้", "Who forged this tool")} data-smith-makers>
+          {makersOf(stack).map((maker, i) => maker && (
+            <li key={i} className="flex min-w-0 max-w-full items-center gap-1.5 rounded-full border border-[#6b4a2a] bg-[#2a1d12] py-0.5 pl-2 pr-2.5 text-label text-[#d9c39b]" data-smith-maker={i} data-by={maker}>
+              <span aria-hidden className="size-2 shrink-0 rotate-45 rounded-[2px] bg-[#f0c46a]" />
+              <span className="shrink-0 font-data font-semibold tabular-nums text-[#f0c46a]">+{FORGE.milestones[i]}</span>
+              <TownIcon name="hammer" size={11} className="shrink-0 opacity-80" />
+              <span className="sr-only">{t("ตีโดย", "forged by")} </span>
+              <span className="min-w-0 truncate text-[#f3e3c3]">{maker}</span>
+            </li>
+          ))}
+        </ul>
+      )}
       {/* the tool's own numbers, as it works now: its level's, with what its options and its gem add to them */}
       <dl className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 rounded-xl border border-[#4a341f] bg-[#241a10] px-2.5 py-2" data-smith-lines>
         {cardOf(stack).map((line) => (

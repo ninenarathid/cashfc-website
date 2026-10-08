@@ -1428,7 +1428,7 @@ export class Trial {
     return { ok: true, off: did.off };
   }
   smithTry(slot: number, name: string) {
-    const did = this.smithKeep(forgeTry(this.purse(), this.smithy(), slot, this.smithChance()));
+    const did = this.smithKeep(forgeTry(this.purse(), this.smithy(), slot, this.smithChance(), name));
     if (did.ok) {
       // (every try is written down, whatever came of it; and the first of a kind at the top goes on the board)
       const now = this.now();
@@ -1461,7 +1461,7 @@ export class Trial {
   setTool(slot: number, plus: number, opts: string[] = [], gems: string[] = []): boolean {
     const p = this.purse(), s = p.bag[slot];
     if (!s || !toolKindOf(s.item)) return false;
-    const { plus: _p, opts: _o, gems: _g, ...bare } = s;
+    const { plus: _p, opts: _o, gems: _g, makers: _m, ...bare } = s;
     this.save({ ...p, bag: p.bag.map((b, i) => (i !== slot ? b : { ...bare, ...(plus > 0 ? { plus: Math.min(FORGE.top, Math.floor(plus)) } : {}), ...(opts.length ? { opts: [...opts] } : {}), ...(gems.length ? { gems: [...gems] } : {}) })) });
     return true;
   }
