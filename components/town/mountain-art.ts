@@ -28,8 +28,8 @@ import {
 
 /* ── what whoever keeps the game sets ───────────────────────────────────── */
 
-/** What can be tapped on these maps: a tree or a rock of the mountain, a rock of a cave floor, a floor's two ladders, a resting floor's lift, the mine's mouth, and the chest in the foot yard. */
-export type TapKind = "tree" | "rock" | "caveRock" | "ladderUp" | "ladderDown" | "lift" | "mouth" | "chest";
+/** What can be tapped on these maps: a tree or a rock of the mountain, its ancient cedar, a rock of a cave floor, a floor's two ladders, a resting floor's lift, the mine's mouth, and the chest in the foot yard. */
+export type TapKind = "tree" | "ancient" | "rock" | "caveRock" | "ladderUp" | "ladderDown" | "lift" | "mouth" | "chest";
 /** A tap: on what, its number where it has one (a tree's, a rock's; -1 otherwise), the cave's floor (0 off it), and its tile. */
 export interface Tapped { kind: TapKind; id: number; floor: number; tile: [number, number] }
 /** Answer false to let the tap go on (to whatever is behind, and then to a step); anything else and it is taken. */
@@ -39,12 +39,16 @@ const treeLooks = new Map<number, TreeAge>(), rocksDown = new Set<number>(), cav
 const torches = new Map<number, CaveLight[]>(), knownWhole = new Set<number>(), taps = new Map<TapKind, TapFn>();
 let lightOf: (member: string) => number = () => CAVE_LIGHT.walker;
 let sample = false;
+let ancientLook: 0 | 3 = 3;
 
 /** How a tree of the mountain looks (lib/town/world's MOUNTAIN_TREES, by its number): 0 a stump, 1 a sprout, 2 a young tree, 3 grown. Grown until it is said otherwise. */
 export function setTreeLook(id: number, look: TreeAge) { if (look === 3) treeLooks.delete(id); else treeLooks.set(id, look); }
 /** Every tree's look at once: those not named are grown. */
 export function setTreeLooks(looks: Iterable<readonly [number, TreeAge]>) { treeLooks.clear(); for (const [id, look] of looks) setTreeLook(id, look); }
 export const treeLook = (id: number): TreeAge => treeLooks.get(id) ?? (sample ? sampleAge(id) : 3);
+/** How the ancient cedar looks: 3 grown (as it is until this is said otherwise), 0 felled, when its picture is not drawn and its great stump stands in its place. */
+export function setAncientLook(look: 0 | 3) { ancientLook = look; }
+export const ancientLookNow = (): 0 | 3 => ancientLook;
 /** Whether a rock of the mountain stands (MOUNTAIN_ROCKS, by its number). Standing until it is said otherwise; a rock that does not is drawn as the rubble it left. */
 export function setRockStands(id: number, stands: boolean) { if (stands) rocksDown.delete(id); else rocksDown.add(id); }
 export function setRocksDown(ids: Iterable<number>) { rocksDown.clear(); for (const id of ids) rocksDown.add(id); }
@@ -109,7 +113,7 @@ export interface MoreHost { warp: (x: number, y: number) => boolean; walk: (x: n
 
 /** How large each picture is drawn against its own pixels (the model draws some things a little small or large). */
 const K: Record<string, number> = {
-  mt2_0: 1.2, mt2_1: 1.2, mt2_2: 1.2, mt2_3: 1.2, ancient: 1.3, mouth: 1.2, lookout: 1.4, flagpole: 1.05, storebox: 0.9, rubble: 0.5,
+  mt2_0: 1.2, mt2_1: 1.2, mt2_2: 1.2, mt2_3: 1.2, ancient: 1.3, ancientStump: 1.1, mouth: 1.2, lookout: 1.4, flagpole: 1.05, storebox: 0.9, rubble: 0.5,
   ladderUp: 1.25, ladderDown: 1.15, lift: 0.95, torch: 0.6, smithboard: 0.9, smithsign: 0.95, stalagmite: 0.9, minecart: 1,
 };
 const kOf = (name: string) => K[name] ?? 1;
@@ -233,7 +237,11 @@ export class MountainArt {
       /** The places `&townAt=` knows, and going to one now. */
       places: () => Object.keys(this.places()),
       go: (name: string) => this.go(name),
-      setTreeLook, setTreeLooks, setRockStands, setCaveRockStands, setCaveLight, setTorches, setKnownWhole, setSample, registerTap,
+      /** Where things are, for whoever checks: a cave floor's ladders today, the mountain's own, the bridge, the blacksmith. */
+      spots: (n: number) => caveSpots(n),
+      rocks: (n: number) => caveRocks(n),
+      world: () => ({ mountain: MOUNTAIN, at: MOUNTAIN_AT, cave: CAVE, bridge: { foot: BRIDGE.foot, tiles: BRIDGE.tiles }, smith: SMITH }),
+      setTreeLook, setTreeLooks, setAncientLook, setRockStands, setCaveRockStands, setCaveLight, setTorches, setKnownWhole, setSample, registerTap,
     };
   }
 
@@ -429,9 +437,11 @@ export class MountainArt {
         this.stand(f, name, at, depth, { faint: true, skew: f.sway(p) });
       }
     }
-    // the ancient cedar, over its three tiles by three
-    const C = MOUNTAIN_AT.cedar;
-    this.stand(f, "ancient", { x: C.x + C.w - 0.6, y: C.y + C.h - 0.6 }, C.x + C.y + C.w + C.h - 1, { faint: true });
+    // the ancient cedar, over its three tiles by three: grown, or its great stump once it is felled (its own picture,
+    // stood where the tree stands; a pine's stump drawn large until that picture has come)
+    const C = MOUNTAIN_AT.cedar, cedarAt = { x: C.x + C.w - 0.6, y: C.y + C.h - 0.6 }, cedarTap: Tapped = { kind: "ancient", id: -1, floor: 0, tile: [C.x + 1, C.y + 1] };
+    if (ancientLook === 3) this.stand(f, "ancient", cedarAt, C.x + C.y + C.w + C.h - 1, { faint: true, tap: cedarTap, hit: [0.5, 0.45] });
+    else this.stand(f, scenery.has("ancientStump") ? "ancientStump" : "mt1_0", cedarAt, C.x + C.y + C.w + C.h - 1, { tap: cedarTap });
     // the lookout's flag, at its far corner
     this.stand(f, "flagpole", { x: L.x + 0.3, y: L.y + 0.4 }, L.x + L.y + 0.7);
     // the mine's mouth, on the cliff's face behind its threshold

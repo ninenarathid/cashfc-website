@@ -149,8 +149,9 @@ describe("what is to come, in next dev only", () => {
       expect(W.PROPS.some((p) => p.x === x && p.y === y), `a prop at ${x},${y}`).toBe(false);
       expect(W.KEEPERS.some((k) => k.tiles.some(([kx, ky]) => kx === x && ky === y))).toBe(false);
     }
-    // he stands before his forge (lower on the screen), on a tile of his own; his board and his sign on theirs
+    // he stands by his forge, to its right on the screen, on a tile of his own; his board and his sign on theirs
     for (const at of [S.stand, S.at, S.board, S.sign]) expect(S.tiles.some(([x, y]) => x === Math.floor(at.x) && y === Math.floor(at.y)), JSON.stringify(at)).toBe(true);
+    expect(S.at.x - S.at.y).toBeGreaterThan(S.stand.x - S.stand.y);
     expect(S.at.x + S.at.y).toBeGreaterThan(S.stand.x + S.stand.y);
     // in the keepers' row, beyond the banker: to his right on the screen, and about as far down it
     const banker = W.KEEPERS[1];
@@ -351,7 +352,8 @@ describe("what is to come, in next dev only", () => {
     const steps = Array.from({ length: 40 }, (_, i) => W.groundTone("stair", M.x + 54.1 + i / 40, M.y + 14)![0]);
     expect(Math.min(...steps)).toBeLessThan(0.6);
     expect(Math.max(...steps)).toBeGreaterThan(1.1);
-    expect(steps.filter((k, i) => i > 0 && k < 0.6 && steps[i - 1] > 1).length).toBe(2);
+    expect(steps.filter((k) => k > 0.9).length).toBeGreaterThan(steps.length / 2);
+    expect(steps.filter((k, i) => i > 0 && k < 0.6 && steps[i - 1] > 0.9).length).toBe(2);
     // bare rock and snow are as their textures are
     expect(W.groundTone("rock", M.x + 20, M.y + 20)).toBeNull();
     // the cave's earth: as its texture is on the first ten floors, colder on the next ten, redder below

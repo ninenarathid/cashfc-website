@@ -161,6 +161,9 @@ const MOUNTAIN = [
   ["scene-mountain-b", ["mt2_0", "mt2_1", "mt2_2", "mt2_3"]],
   ["scene-mountain-c", ["mt3_0", "mt3_1", "mt3_2", "mt3_3"]],
   ["scene-mountain-d", ["ancient"], "whole"],
+  // (the cedar felled: its great stump, an edit of the tree's own sheet. The model drew it a little larger and lower on the
+  // canvas than the tree's own foot, so it is not laid on the tree: it stands on its own lowest row, as a prop does)
+  ["scene-mountain-d-stump", ["ancientStump"], "whole"],
   ["scene-mountain-e", ["mouth", "lookout", "msign", "flagpole"]],
   ROCKS,
   MINE,
