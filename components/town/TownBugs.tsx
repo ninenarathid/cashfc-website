@@ -215,7 +215,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   /** Hand the map the way to draw the insects (and take it back with null). */
   register: (draw: FarmDraw | null) => void;
   /** Hand the map what a tap on it is asked first: whether it was a swing of the net (and take it back with null). */
-  registerTap: (tap: ((at: Vec) => boolean) | null) => void;
+  registerTap: (tap: ((at: Vec, only?: boolean) => boolean) | null) => void;
   /** Hand the map what a press on it is asked: whether it begins the wind net's aim (and take it back with null). */
   registerAim?: (aim: BugsAim | null) => void;
 }) {
@@ -685,9 +685,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       sfx?.work("gust");
       vfx.add("leaves", lands, { lift: 6 });
     };
-    const tap = (at: Vec) => {
+    // (`only`: asked before whoever stands under the tap (the map does, where somebody does): then it is the net's
+    // only for an insect there, and a swing still in the air does not take a tap that is for a person)
+    const tap = (at: Vec, only = false) => {
       const l = live.current, here = me.current, now = Date.now();
       if (l.busy || !here || !mayNet(l.hand)) return false;
+      if (only && !byInsect(at, here)) return false;
       if (swing.current && !swing.current.done) return true;
       // a tap on an insect within reach, or just ahead of it, is a swing; anywhere else it is a step, as ever
       if (!byInsect(at, here)) return false;

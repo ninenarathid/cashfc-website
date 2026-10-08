@@ -129,6 +129,7 @@ const TownFrog = lazy(() => import("./TownFrog"));
 const TownMoon = lazy(() => import("./TownMoon"));
 const TownCook = lazy(() => import("./TownCook"));
 const TownDeal = lazy(() => import("./TownDeal"));
+const TownHand = lazy(() => import("./TownHand"));
 const TownScroll = lazy(() => import("./TownScroll"));
 const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
@@ -749,9 +750,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const forestDraw = useRef<FarmDraw | null>(null);
   const registerForest = useCallback((draw: FarmDraw | null) => { forestDraw.current = draw; }, []);
   // The insects (TownBugs): drawn on every map, and a tap is asked of the net before it is a step.
-  const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec) => boolean) | null>(null);
+  const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec, only?: boolean) => boolean) | null>(null);
   const registerBugs = useCallback((draw: FarmDraw | null) => { bugsDraw.current = draw; }, []);
-  const registerBugsTap = useCallback((tap: ((at: Vec) => boolean) | null) => { bugsTap.current = tap; }, []);
+  const registerBugsTap = useCallback((tap: ((at: Vec, only?: boolean) => boolean) | null) => { bugsTap.current = tap; }, []);
   // ── gifts: insects ── (the wind net is aimed for as long as the map is pressed and falls where it is let go: TownBugs
   // says whether a press begins such an aim, and is told where it is dragged to and where it is let go)
   const bugsAim = useRef<BugsAim | null>(null), bugsAimOn = useRef(false);
@@ -3089,6 +3090,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const who = personAt(x, y);
     // (a thing lying at somebody's feet is drawn over them: a tap on it is for the thing, not for who stands there)
     const atFeet = !!who && gameRef.current && !!groundTap.current?.(x, y, true);
+    // (and so is an insect that is over somebody, my own doll too: with a net in the hand a tap on one within reach is
+    // a swing at it, not a look at who stands behind it. Until 2026-10-08 the person was asked first, and an insect
+    // that came to where its hunter stood, as one called by nectar does, could not be swung at at all: every tap
+    // opened the hunter's own card. A member: "กดหลายรอบแล้วแต่ก็ยังจับไม่ได้". Whoever sits or holds a sign up swings
+    // at nothing, as before: for them the net is never asked.)
+    if (who && !atFeet && gameRef.current && bugsTap.current && !sessionRef.current?.stuck() && !sessionRef.current?.seated) {
+      const v = cam.current, iso = toIsoPoint(v, x, y, v.cw, v.ch);
+      if (bugsTap.current(fromIso(iso.x, iso.y), true)) { setPopover(null); setCard(null); return; }
+    }
     if (who && !atFeet) { setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return; }
     setCard(null);
     const b = buildingAt(x, y);
@@ -3162,7 +3172,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const g = gesture.current;
     // ── gifts: insects ── (another finger down calls the wind net's aim off; a first one on an insect within reach may begin one)
     if (bugsAimOn.current) { bugsAimOn.current = false; bugsAim.current?.loose(null); }
-    if (pointers.current.size === 1 && gameRef.current && !personAt(p.x, p.y) && !sessionRef.current?.stuck()) bugsAimOn.current = !!bugsAim.current?.press(bugsAt(p));
+    // (over somebody too, for whoever stands: the aim begins only on an insect within reach, and that is what the
+    // press is for then. Whoever sits aims over nobody, as before: a tap there is theirs to turn by.)
+    if (pointers.current.size === 1 && gameRef.current && !sessionRef.current?.stuck() && !(sessionRef.current?.seated && personAt(p.x, p.y))) bugsAimOn.current = !!bugsAim.current?.press(bugsAt(p));
     if (pointers.current.size === 1) {
       Object.assign(g, { mode: "tap", sx: p.x, sy: p.y, lx: p.x, ly: p.y, slop: e.pointerType === "mouse" ? SLOP_MOUSE : SLOP_TOUCH });
     } else if (pointers.current.size === 2) {
@@ -3261,6 +3273,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [zoomBy]);
 
   const wardrobeOpenRef = useRef(false);
+  /** What the I key does now (my bag, opened or shut): null while there is no bag to open. */
+  const bagKey = useRef<(() => void) | null>(null);
   useEffect(() => { wardrobeOpenRef.current = wardrobeOpen; }, [wardrobeOpen]);
 
   // For the test scripts (fc-cash-town's town-e2e and friends): where somebody
@@ -3316,6 +3330,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       fountain: () => (fountainBox.current ? { x: (fountainBox.current.x0 + fountainBox.current.x1) / 2, y: (fountainBox.current.y0 + fountainBox.current.y1) / 2 } : null),
       /** Why I cannot walk just now, if I cannot; and what a tap that would have walked me said instead. */
       stuck: () => sessionRef.current?.stuck() ?? null,
+      /** Whose doll a point of the screen is on, if anybody's (the one in front). */
+      who: (x: number, y: number) => personAt(x, y)?.id ?? null,
       /** The signs held up, each board's middle on the screen this frame, with whose it is. */
       signs: () => signBoxes.current.map((b) => ({ id: b.id, x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2, w: b.x1 - b.x0, h: b.y1 - b.y0 })),
       /** The storage box's middle on the screen, if it is drawn; and whether its lid is drawn up. */
@@ -3343,6 +3359,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (e.key === "0") { e.preventDefault(); cam.current.follow = true; return; }
       // X (or Insert) sits down where I am, on the nearest seat if one is beside me, and gets up again (by the key's
       // place on the keyboard, so that it is the same key with a Thai layout)
+      // I opens my bag and shuts it (a member, 2026-10-08: "กด i เพื่อเปิดปิดช่องเก็บของ"; by the key's place, as X is)
+      if (e.code === "KeyI" && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
+        if (!bagKey.current) return;
+        // (not while a piece of work's game is played: the bag opening gives the work up. The rod's panel is not
+        // such a one: a line stays out with the bag open.)
+        const playing = document.querySelector('[data-foot="board"] [data-town-game]');
+        if (playing && !playing.closest('[aria-labelledby="town-fish-h"]')) return;
+        e.preventDefault();
+        bagKey.current();
+        return;
+      }
       if ((e.code === "KeyX" || e.key === "Insert") && !e.ctrlKey && !e.metaKey && !e.altKey && !e.repeat) {
         const me_ = sessionRef.current;
         if (!me_ || me_.closed) return;
@@ -3587,11 +3614,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   /** One of the trade's panels: the uncle's stall, the bank, or my bag. */
   const openTrade = (view: TradeView) => {
-    setFishing(false);
+    // (my own bag is looked into with the line still in the water: a member, 2026-10-08, "กำลังรอให้ปลาติดเบ็ดเผลอไป
+    // กดเปิดกระเป๋าแล้วมันหลุดเลย". The rod put away there, or anything else opened, takes the line up as before.)
+    if (view !== "bag") setFishing(false);
     if (wardrobeOpenRef.current) closeWardrobe();
     setCard(null); setPopover(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTalk(null);
     setTrade(view);
   };
+  // (the I key's: my bag opened or shut, where the game is open to me. Said anew at every render, so that the key is
+  // never a step behind what is on the screen.)
+  bagKey.current = game && keeper ? () => (trade === "bag" ? setTrade(null) : openTrade("bag")) : null;
   /** What was chosen at the end of a talk: a chat (their next one, in turn), or one of the trade's panels. */
   const pickTalk = (who: Speaker, id: string) => {
     if (id === "chat") setTalk({ who, n: ++talks.current, lines: chatFor(who, talkTurns.current[who]++) });
@@ -4029,6 +4061,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                       <button type="button" onClick={openHistory}
                               aria-label={w.chat} className={`${hudBtn} size-11`}><TownIcon name="chat" size={22} /></button>
                       <TownSettingsButton th={w.th} pace={pace} onPace={choosePace} drawn={fpsRef} onShown={settingsShown} moving={moving} onMoving={chooseMoving} low className={`${hudBtn} size-11`} />
+                      {/* (and what is in the hand, changed without the bag: a phone's quick bar unfolds over this row) */}
+                      {game && keeper && (
+                        <Suspense fallback={null}>
+                          <TownHand keeper={keeper} th={w.th} phone hidden={!!talk || boardOpen || wardrobeOpen || !!linesOpen || !!scroll || testOpen} className={`${hudBtn} size-11`} />
+                        </Suspense>
+                      )}
                     </div>
                   ) : (
                     <form onSubmit={sendChat} className="pointer-events-auto flex w-full items-center gap-1.5">
@@ -4099,7 +4137,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                   )}
                   {/* My bag, and my Popoto coins beside it */}
                   {game && (
-                    <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"}
+                    <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"} aria-keyshortcuts="I"
                             className={`pressable flex items-center gap-1.5 border border-line-strong bg-bg/80 pl-2.5 pr-3 text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent ${phone ? "h-11 rounded-2xl text-meta" : "h-10 rounded-full text-ui"}`}>
                       <TownIcon name="bag" size={20} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
                       {/* (on a phone the two numbers stand one over the other: side by side they made this the widest
@@ -4109,6 +4147,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                         <span className="flex items-center gap-1.5"><TownIcon name="stamina" size={phone ? 12 : 14} /><span className={`font-data tabular-nums ${purse.stamina ? "text-ink" : "text-chili"}`}>{purse.stamina}</span></span>
                       </span>
                       <span className="sr-only">stamina</span>
+                      {/* (its key, on a wide screen: I opens the bag and shuts it) */}
+                      {!phone && <kbd aria-hidden className="rounded border border-line-strong px-1 font-data text-[0.625rem] leading-4 text-muted">I</kbd>}
                     </button>
                   )}
                   {/* The meal I am at: how far through it I am */}
@@ -4217,7 +4257,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* At a place to fish from (the deck where a line reaches water, or the town's bank), with the rod in my hand
           (the owner: "ตกปลาตรงนี้ ช่วยทำให้ขึ้นมาเฉพาะตอนถือเบ็ดตกปลา"): the way to begin, and then the rod's own panel, across
           the foot of the map */}
-      {s && game && keeper && fishAt && rodInHand && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && (
+      {s && game && keeper && fishAt && rodInHand && !talk && (!trade || (trade === "bag" && fishing)) && !boardOpen && !wardrobeOpen && !(phone && testOpen) && (
         <TownFoot rank={fishing ? "board" : "main"} wide>
           {fishing ? (
             <div className="pop-in pointer-events-auto w-full max-w-[30rem]" data-state="open">
@@ -4338,6 +4378,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownCook me={keeper.id} keeper={keeper} called={me.name} th={w.th} cooks={cooks} art={boardArt} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !plotHere && !fishing ? standing : null} crew={crew} sfx={sfxRef.current}
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerCook} reduced={!moving} onEatNow={eatNow} onFeastEat={eatNow} folk={yardFolk} feastAsk={feastAsk} phone={phone} tabbar={tabbar}
                     yard={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing ? yardTile : null} />
+        </Suspense>
+      )}
+      {/* The hand's quick bar (a wide screen's: a row at the foot; a phone's is beside the chat's button) */}
+      {s && game && keeper && !phone && (
+        <Suspense fallback={null}>
+          <TownHand keeper={keeper} th={w.th} hidden={!!talk || boardOpen || wardrobeOpen || !!linesOpen || !!scroll} />
         </Suspense>
       )}
       {/* A deal with somebody: what each lays out, and their word */}

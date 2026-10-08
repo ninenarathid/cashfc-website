@@ -7,6 +7,7 @@ import type { PricesTold } from "@/lib/town/market";
 import { NOTICES, afterFee, capOf, plain, type NoticeTold, type PinboardTold } from "@/lib/town/notices";
 import { roomFor, type Purse } from "@/lib/town/trade";
 import TownIcon, { type IconName } from "./TownIcon";
+import TownNumber from "./TownNumber";
 
 /**
  * The notice board beside the uncle's stall (lib/town/notices; the owner, 2026-10-05: "กระดานฝากขายระหว่างสมาชิก ทำได้
@@ -241,7 +242,6 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
   const met = board.seen.filter((id): id is ItemId => id in ITEMS).filter((id) => !q || ITEMS[id].name.th.toLowerCase().includes(q) || ITEMS[id].name.en.toLowerCase().includes(q));
   const cap = item ? capOf(item, { ...NOTICES, cap: board.cap, capless: board.capless }) : 1;
   const most = item ? (sell ? Math.min(board.most, plain(purse.bag, item)) : board.most) : 1;
-  const whole = (v: string, lo: number, hi: number) => Math.max(lo, Math.min(hi, Math.floor(Number(v)) || lo));
   const total = draft.n * draft.price, short = !sell && purse.coins < total;
   // what is known of its price: what the relatives give for one this round (or usually), and what it fetched on the board lately
   const told = item ? prices.things[item] : undefined, pays = item ? ITEMS[item].pays : 0, uncle = item && pays > 0 ? Math.round(pays * (told?.f ?? 100)) / 100 : null;
@@ -297,12 +297,12 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               <span className="mb-1 block text-meta text-muted">{th ? `จำนวน (ไม่เกิน ${most})` : `How many (${most} at the most)`}</span>
-              <input type="number" inputMode="numeric" min={1} max={most} value={draft.n} onChange={(e) => onChange({ ...draft, n: whole(e.target.value, 1, most) })} data-notice-n
+              <TownNumber max={most} value={draft.n} onChange={(n) => onChange({ ...draft, n })} data-notice-n
                      className="min-h-11 w-full rounded-xl border border-line-strong bg-bg/60 px-3 font-data text-ui tabular-nums text-ink focus:border-accent focus:outline-none" />
             </label>
             <label className="block">
               <span className="mb-1 block text-meta text-muted">{th ? `ราคาชิ้นละ (ไม่เกิน ${cap})` : `Price each (${cap} at the most)`}</span>
-              <input type="number" inputMode="numeric" min={1} max={cap} value={draft.price} onChange={(e) => onChange({ ...draft, price: whole(e.target.value, 1, cap) })} data-notice-price
+              <TownNumber max={cap} value={draft.price} onChange={(price) => onChange({ ...draft, price })} data-notice-price
                      className="min-h-11 w-full rounded-xl border border-line-strong bg-bg/60 px-3 font-data text-ui tabular-nums text-ink focus:border-accent focus:outline-none" />
             </label>
           </div>
