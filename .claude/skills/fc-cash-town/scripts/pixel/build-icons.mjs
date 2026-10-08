@@ -232,6 +232,10 @@ const SHEETS = [
   ["icons-ore-c", ["chipRuby", "chipSapphire", "chipAquamarine", "chipAmber", "chipTopaz", "chipEmerald"]],
   ["icons-ore-d", ["chipDiamond", "chipOnyx", "gemDiamond", "gemOnyx", "smithSocket", "smithBellows"]],
   ["icons-ore-e", ["gemRuby", "gemSapphire", "gemAquamarine", "gemAmber", "gemTopaz", "gemEmerald"]],
+  // ── felling ── (the woodcutters' three gifts: the echo axe, the woodpecker seen from the side as the other familiars
+  // are, the firewood cord; and a pine, a stump and a branch for the felling board's own words)
+  ["icons-felling-a", ["charmEchoAxe", "famWoodpecker", "thingBundle", "pineTree", "treeStump", "pineBranch"]],
+  // ── end: felling ──
 ];
 
 const pieces = [];

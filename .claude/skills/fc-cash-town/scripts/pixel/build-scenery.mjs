@@ -8,6 +8,9 @@
 //   node build-scenery.mjs --set mountain       the mountain's foot (mountain-<hash>.png + mountain.json) and
 //   node build-scenery.mjs --set cave           the cave under it (cave-<hash>.png + cave.json): each fetched only by
 //                                               whoever goes there (a look-only preview in `next dev`, 2026-10-08)
+//   node build-scenery.mjs --set felling        what a tree is felled on (felling-<hash>.png + felling.json): the board's
+//                                               scene, the boughs over it and the trunk's parts; fetched only by whoever
+//                                               fells a tree (components/town/TownFelling)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -33,7 +36,7 @@ fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
 /** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (!["scenery", "forest", "kitchen", "mountain", "cave"].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling"].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -185,6 +188,16 @@ const KITCHEN = [
   ["scene-town-game-kitchen", ["gameKitchen"], "scene"],
   ["scene-town-game-worktable", ["gameWorktable"], "scene"],
 ];
+// ── felling ── What a tree is felled on (the owner, 2026-10-08: pictures may be generated for a game's board): a
+// clearing in a pine wood seen from the front, a scene filling its canvas; the boughs the trunk goes up into, a wide
+// piece on nothing; and the trunk's parts, each a piece of its own: a section of a pine's trunk, a branch (it grows
+// to the right: the game turns it for the left), a stump, and the same of the ancient cedar.
+const FELLING = [
+  ["scene-felling-game-wood", ["gameWood"], "scene"],
+  ["scene-felling-game-boughs", ["gameBoughs"], "scene"],
+  ["scene-felling-pieces", ["fellTrunk", "fellBranch", "fellStump", "fellElder", "fellElderBranch"]],
+];
+// ── end: felling ──
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
 // like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist
 // liked. [file, name, the size of its own pixel, how]. `twice` doubles one that is to stand as tall as the town's own
@@ -215,6 +228,7 @@ const READY = {
     ["woodlog1", "logShort", 4, { twice: true, drop: ["a7a9a4", "a4a09e"], foot: [0.5, 0.86] }],
   ],
   kitchen: [],
+  felling: [],
   mountain: [],
   cave: [],
 };
@@ -232,6 +246,7 @@ const READY_TEX = {
   },
   forest: {},
   kitchen: {},
+  felling: {},
   mountain: {},
   cave: {},
 };
@@ -292,7 +307,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = { forest: ["wood"], kitchen: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -315,7 +330,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE }[SET] ?? SHEETS) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING }[SET] ?? SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop
