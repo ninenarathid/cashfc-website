@@ -1,6 +1,6 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
-import { netFx, partOf, slowPartOf } from "./forged";
+import { luckOf, netFx, partOf, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { softStep } from "./forest-eye";
 import { famBy, numberOf, useGift, wearing, type GiftRefusal } from "./gifts";
@@ -527,7 +527,9 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   const cost = bug.cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
   // ── forging: old tools ── (a catch with a forged net in the hand: what its forging takes off the stamina, lib/town/forged-keep)
   const tool = heldStack(purse), paid = toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh");
-  return { ok: true, purse: followed(purse, { ...paid, bag: put(purse.bag, has.bug, has.n) }, has.bug, has.n, at, now), got: [[has.bug, has.n]] };
+  // (and with a net that carries as much, another of its kind comes with the one caught so often, where the bag has room for it)
+  const n = has.n + (luckOf("twin", h.id, has.turn, now) < netFx(tool).twin && roomFor(purse.bag, has.bug) > has.n ? 1 : 0);
+  return { ok: true, purse: followed(purse, { ...paid, bag: put(purse.bag, has.bug, n) }, has.bug, has.n, at, now), got: [[has.bug, n]] };
 }
 
 /* ── the butterfly-wing cloak's pair (lib/town/gifts' charmCloak, the insects' sixth rank) ── */
@@ -684,8 +686,9 @@ export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: read
   if (roomFor(purse.bag, id) < one.n) return no("full");
   const cost = BUGS[id].cost + Math.min(NET.misses, Math.max(0, Math.floor(misses)));
   // ── forging: old tools ── (as a haunt's catch is paid for)
-  const tool = heldStack(purse), after = { ...toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh"), bag: put(purse.bag, id, one.n) };
-  return { ok: true, purse: l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, got: [[id, one.n]] };
+  const tool = heldStack(purse), more = one.n + (luckOf("twin", one.x, one.y, now) < netFx(tool).twin && roomFor(purse.bag, id) > one.n ? 1 : 0);
+  const after = { ...toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh"), bag: put(purse.bag, id, more) };
+  return { ok: true, purse: l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, got: [[id, more]] };
 }
 
 /* ── a ladybird's doing ─────────────────────────────────────────────────── */

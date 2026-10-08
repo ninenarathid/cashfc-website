@@ -38,6 +38,17 @@ export const slowedBy = (rest: number, mine: number): number =>
 export const partOf = (rest: number, mine: number): number => (mine === 1 ? 1 : easedBy(rest, mine) / rest);
 export const slowPartOf = (rest: number, mine: number): number => (mine === 1 ? 1 : slowedBy(rest, mine) / rest);
 
+/**
+ * A number of chance in [0, 1) from a word and a few numbers: the same for whoever asks with the same. What a deed
+ * done by chance is drawn with where the rules are worked out in the browser (the moment of the deed is one of the
+ * numbers); the database draws with a number of its own.
+ */
+export function luckOf(word: string, ...n: number[]): number {
+  let h = 2166136261;
+  for (const ch of `${word}|${n.join("|")}`) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); }
+  return (h >>> 0) / 4294967296;
+}
+
 /* ── what a gem does in the old tools ───────────────────────────────────── */
 
 const SHARE = [0.15, 0.25, 0.35, 0.45], COUNT = [1, 2, 3, 4], CHANCE = [0.1, 0.2, 0.3, 0.4], RARER = [1.2, 1.4, 1.6, 1.8];

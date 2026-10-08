@@ -3,7 +3,7 @@ import { COOKING, cook, stirMods } from "./cooking";
 import { FARMING, WATER, WILD, canHolds, chore, choreFor, tend, water, type Plant, type Plot } from "./farm";
 import { FIGHT, STRIKE, baitKept, fightPaid, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
 import {
-  COOK_KINDS, OLD_FX, PLAIN_CAN, PLAIN_COOK, PLAIN_HOE, PLAIN_NET, PLAIN_ROD, canFx, cookFx, easedBy, hitsWith, hoeFx, missesWith, netFx, partOf, rodFx, slowPartOf, slowedBy, stirsWith,
+  COOK_KINDS, OLD_FX, PLAIN_CAN, PLAIN_COOK, PLAIN_HOE, PLAIN_NET, PLAIN_ROD, canFx, cookFx, easedBy, hitsWith, hoeFx, luckOf, missesWith, netFx, partOf, rodFx, slowPartOf, slowedBy, stirsWith,
 } from "./forged";
 import { toolOwed, toolPaid } from "./forged-keep";
 import { PLAIN, RODS, gearOf, rodStack } from "./gear";
@@ -541,6 +541,61 @@ describe("the stamina a forged tool takes off (whoever keeps the game)", () => {
     for (const [id, k] of things) again = { ...again, bag: put(again.bag, id, k) };
     expect(staminaOf(done(cook(again, things, ["pot"], 0, NOW)).purse, NOW)).toBe(100 - COOKING.cost);
     expect(staminaOf(done(cook(cookWith(tool("pot")), things, ["pot"], 0, NOW)).purse, NOW)).toBe(100 - COOKING.cost);
+  });
+});
+
+describe("what a forged tool does by chance (whoever keeps the game)", () => {
+  /** How often, in a thousand moments a second apart, something came of a deed. */
+  const often = (came: (now: number) => boolean) => { let n = 0; for (let i = 0; i < 1000; i++) if (came(NOW + i * 1000)) n++; return n / 1000; };
+  it("draws a number of chance that is the same for the same asking, and spread evenly", () => {
+    expect(luckOf("worm|1,1", NOW)).toBe(luckOf("worm|1,1", NOW));
+    expect(luckOf("worm|1,1", NOW)).not.toBe(luckOf("worm|1,2", NOW));
+    expect(often((now) => luckOf("x", now) < 0.3)).toBeGreaterThan(0.25);
+    expect(often((now) => luckOf("x", now) < 0.3)).toBeLessThan(0.35);
+  });
+  it("a plot tilled with dark in the hoe turns up a worm so often, and never with a plain hoe or with no room", () => {
+    const cleared: Plot = { soil: "cleared", plant: null };
+    const worms = (s: Stack, full = false) => often((now) => {
+      const p = purseOf(s), did = done(tend("3,3", cleared, undefined, 0, 0, full ? { ...p, bag: p.bag.map((b) => b ?? { item: "stone" as ItemId, n: 1 }) } : { ...p, stamina: { day: dayOf(now), left: 100 } }, "me", now));
+      return did.got.some(([id]) => id === "worm");
+    });
+    expect(worms(tool("hoe"))).toBe(0);
+    expect(worms(tool("hoe", 10))).toBe(0);
+    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeGreaterThan(0.02);
+    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeLessThan(0.09);
+    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeGreaterThan(0.06);
+    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeLessThan(0.15);
+    expect(worms(tool("hoe", 10, [], ["dark"]), true)).toBe(0);
+    // (the worm is in the bag, and clearing weeds turns up none)
+    const lucky = Array.from({ length: 1000 }, (_, i) => NOW + i * 1000).find((now) => luckOf("worm|3,3", now) < 0.05)!;
+    const did = done(tend("3,3", cleared, undefined, 0, 0, purseOf(tool("hoe", 0, [], ["dark"])), "me", lucky));
+    expect([did.got, did.purse.bag[1]]).toEqual([[["worm", 1]], { item: "worm", n: 1 }]);
+    expect(done(tend("3,3", WILD, undefined, 0, 0, purseOf(tool("hoe", 0, [], ["dark"])), "me", lucky)).got).toEqual([]);
+  });
+  it("a catch with lightning in the net brings another of its kind so often", () => {
+    const h = HAUNTS[0], has: Swarm = { turn: 1, bug: "ladybird", n: 1, seed: 1 }, at: [number, number] = [Math.floor(h.perches[0].x), Math.floor(h.perches[0].y)];
+    const twins = (s: Stack) => often((now) => done(net({ ...purseOf(s), stamina: { day: dayOf(now), left: 100 } }, h, has, 0, false, "bugNet", at, 0, now)).got[0][1] === 2);
+    expect(twins(tool("bugNet"))).toBe(0);
+    expect(twins(tool("bugNet", 10))).toBe(0);
+    expect(twins(tool("bugNet", 0, [], ["lightning"]))).toBeGreaterThan(0.06);
+    expect(twins(tool("bugNet", 0, [], ["lightning"]))).toBeLessThan(0.14);
+    expect(twins(tool("bugNet", 10, [], ["lightning"]))).toBeGreaterThan(0.15);
+    expect(twins(tool("bugNet", 10, [], ["lightning"]))).toBeLessThan(0.25);
+    const lucky = Array.from({ length: 1000 }, (_, i) => NOW + i * 1000).find((now) => luckOf("twin", h.id, 1, now) < 0.1)!;
+    const did = done(net(purseOf(tool("bugNet", 0, [], ["lightning"])), h, has, 0, false, "bugNet", at, 0, lucky));
+    expect([did.got, did.purse.bag[1]]).toEqual([[["ladybird", 2]], { item: "ladybird", n: 2 }]);
+  });
+  it("a pot cooked in cookware with lightning or dark in it has a helping more so often", () => {
+    const things: Array<[ItemId, number]> = [["barb", 2], ["daikon", 1], ["cabbage", 1], ["chili", 1]];
+    const pot = (s: Stack, now: number) => { let q: Purse = { ...purseOf(s), stamina: { day: dayOf(now), left: 100 } }; for (const [id, k] of things) q = { ...q, bag: put(q.bag, id, k) }; return done(cook(q, things, ["pot"], 0, now)).n; };
+    const plain = pot(tool("pot"), NOW), more = (s: Stack) => often((now) => pot(s, now) === plain + 1);
+    expect(more(tool("pot"))).toBe(0);
+    expect(more(tool("pot", 10))).toBe(0);
+    expect(more(tool("pot", 0, [], ["lightning"]))).toBeGreaterThan(0.06);
+    expect(more(tool("pot", 0, [], ["lightning"]))).toBeLessThan(0.14);
+    expect(more(tool("pot", 10, [], ["dark"]))).toBeGreaterThan(0.15);
+    expect(more(tool("pot", 10, [], ["dark"]))).toBeLessThan(0.25);
+    expect(often((now) => pot(tool("pot", 10, [], ["dark"]), now) > plain + 1)).toBe(0);
   });
 });
 

@@ -1,4 +1,4 @@
-import { canFx, hoeFx } from "./forged";
+import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
@@ -128,6 +128,8 @@ export const FARMING = {
    */
   tired: 2,
 };
+// ── forging: old tools ── (what a tilled plot may turn up)
+export const WORM: ItemId = "worm";
 /** The hoes. */
 export const HOES: ItemId[] = ["hoe", "hoeIron", "hoeSteel"];
 /** The blades that pick one more: shears for a tree or a bush that bears for a season, a sickle for the rest; and how many pickings make a plant one of the first. */
@@ -585,7 +587,9 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
   let next: Bed | undefined = owner === null ? undefined : bed;
   if (deed === "sow" && owner === null) next = { by: me, tended: now, empty: 0 };
   else if (next && owner === me) next = { ...next, tended: now, empty: planted ? 0 : next.empty || now };
-  return { ok: true, deed, purse: paid, plot: did.plot, bed: next, got: did.got ?? [], ...(rung.times > 1 ? { times: rung.times } : {}) };
+  // ── forging: old tools ── (a plot tilled with a hoe that carries as much turns up a worm so often, where the bag has room for it)
+  const worm = deed === "till" && luckOf(`worm|${key}`, now) < hoeFx(tool).worm && roomFor(paid.bag, WORM) > 0;
+  return { ok: true, deed, purse: worm ? { ...paid, bag: put(paid.bag, WORM, 1) } : paid, plot: did.plot, bed: next, got: worm ? [...(did.got ?? []), [WORM, 1]] : did.got ?? [], ...(rung.times > 1 ? { times: rung.times } : {}) };
 }
 
 /* ── water: from the river, to the well, to the can ─────────────────────── */
