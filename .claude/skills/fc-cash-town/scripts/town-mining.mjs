@@ -734,7 +734,7 @@ try {
     await sleep(1500);
     const mossA = await A.evaluate(`${N}.moss()`), lightA = await A.evaluate(`${N}.mossLight()`);
     ok("a rock that lets moss out: the moss glows where it stood, and nothing of it is in the bag", mossA.length === 1 && mossA[0].f === 7 && !!(await A.evaluate(`!!document.querySelector("[data-mine-moss]")`)), mossA);
-    ok("…and the chamber is lit: its breaker's light reaches its furthest wall, and far more of the screen is lit than before", Object.values(lightA)[0] > 5 && (await lit(A)).lit > dark.a.lit * 2, { lightA, before: dark.a, now: await lit(A) });
+    ok("…and the chamber is lit: a light in its middle reaches its furthest wall, and far more of the screen is lit than before", Object.values(lightA)[0] > 5 && (await lit(A)).lit > dark.a.lit * 2, { lightA, before: dark.a, now: await lit(A) });
     await A.shot(`${OUT}/mining-moss.png`);
     await beside(B, 7, s3.id);
     await sleep(1200);

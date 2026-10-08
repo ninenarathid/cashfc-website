@@ -14,7 +14,7 @@ import { ALL, GEM_FX, gemBy, has } from "@/lib/town/tools";
 import { held } from "@/lib/town/trade";
 import { KEEPSAKES, TREES, WOOD, axeOf, bearsOf, bites, farFrom, fellingOf, girthOf, lookOf, wantsOf, type FellOne, type KeepsakeId, type Standing, type TreesTold } from "@/lib/town/trees";
 import { walkable, type Vec } from "@/lib/town/world";
-import { registerTap, setAncientLook, setTreeLooks } from "./mountain-art";
+import { registerTap, setAncientLook, setTreeLooks, setTreeScales } from "./mountain-art";
 import type { FarmDraw } from "./TownFarm";
 import TownFelling, { GIRTH_NAME } from "./TownFelling";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -34,8 +34,8 @@ const WHY_TREE: Record<string, [th: string, en: string]> = {
 const CARD_MS = 12_000, GOT_MS = 2600;
 /** How far from its member a woodpecker goes to a grown tree, in tiles. */
 const PERCH = 7;
-/** A tree's girth is marked at its foot for whoever holds an axe, within so many tiles of them. */
-const GIRTH_SIGHT = 9;
+/** A pine is drawn as stout as it is: how large a grown one stands against its picture's own size, slender, plain and stout. */
+const GIRTH_SCALE = [0.86, 1, 1.16];
 /** The numerals a better axe's tier is written in. */
 const TIER = ["", "I", "II", "III", "IV"];
 const iconFor = (item: ItemId): IconName => { const name = iconOf(item); return (name in ICON_ATLAS.icons ? name : "log") as IconName; };
@@ -86,9 +86,10 @@ function Pips({ most, got, size = 16 }: { most: number; got: number; size?: numb
  * With an axe in the hand a tap on a tree walks up to it. Beside a grown one there are two presses: the plain one
  * fells it at once for its logs, and the other puts the board up, which is played for the fine timber (the tree
  * comes down however that goes). A tree this axe cannot fell shows the axe it wants. What a go gave comes up on a
- * small card, with how near it was to more. Over the map this draws only what is somebody's own to see: a mark of
- * each pine's girth at its foot for whoever holds an axe, how long a stump has to go for whoever has a woodpecker, a
- * glint on the grown trees for an axe that sees them, and the mark of a tree half cut.
+ * small card, with how near it was to more. A pine's girth is in the tree itself: the map's drawing is told how
+ * large each grown one stands (`setTreeScales`). Over the map this draws only what is somebody's own to see: how long
+ * a stump has to go for whoever has a woodpecker, a glint on the grown trees for an axe that sees them, the tree the
+ * presses are for, and the mark of a tree half cut.
  *
  * A friend may brace the trunk: whoever stands within two tiles of a tree somebody's board is up at has one press
  * for it. Who has a board up where, and who braces which trunk, is told through the room in a few letters with the
@@ -161,6 +162,14 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     setAncientLook(all.get(TREES.elder.id) === 0 ? 0 : 3);
   });
   useEffect(() => () => { setTreeLooks([]); setAncientLook(3); }, []);
+  // A pine's girth is seen in the tree itself, by everybody: the map is told how large each grown pine stands, once,
+  // where whoever keeps the game keeps trees (the girth is from the tree's number: it never changes).
+  const kept = !!told;
+  useEffect(() => {
+    if (!kept) return;
+    setTreeScales(WOOD.filter((t) => !t.elder && t.tier === 1).map((t) => [t.id, GIRTH_SCALE[girthOf(t) - 1] ?? 1] as const));
+    return () => setTreeScales([]);
+  }, [kept]);
 
   /* ── walking up to a tree ── */
   const want = useRef<number | null>(null), tileRef = useRef(tile), axeRef = useRef(axe), busyRef = useRef(busy || !!working);
@@ -341,13 +350,13 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   /* ── what is drawn over the map ── */
   const eye = useRef({ pecker: false, glint: 0, th, knows: false, axe: false });
   eye.current = { pecker: works(purse, "famWoodpecker"), glint: axe ? gemBy(axe, "light", GEM_FX.light.axe.glint) : 0, th, knows: !!axe && has(axe, "axElder"), axe: !!axe };
-  const glinting = useRef(0), timed = useRef(0), girthed = useRef(0);
+  const glinting = useRef(0), timed = useRef(0);
   useEffect(() => {
     register((frame) => {
       const { ctx, things, project, onScreen, s, now: t, still, self, sign, over } = frame;
       vfx.draw(frame);
       const said = toldRef.current, at = keeper.now(), e = eye.current;
-      let glints = 0, times = 0, girths = 0;
+      let glints = 0, times = 0;
       // a tree half cut: pale chips at its foot, and a notch in its trunk, for everybody
       for (const id of said?.half ?? []) {
         const tr = WOOD.find((x) => x.id === id);
@@ -364,29 +373,15 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           for (const [dx, dy] of [[-12, 1], [9, 2], [-4, 4], [13, -1]] as const) ctx.fillRect(Math.round(c.x + dx * s), Math.round(c.y + dy * s), d, d);
         } });
       }
-      // a pine's girth, for whoever holds an axe: at the foot of each grown one about me, as many pale log-ends as it
-      // has fine timbers (one a slender tree, three a stout one), and the tree the presses are for marked from above
+      // the tree the presses are for, marked from above, for whoever holds an axe. (A pine's girth is in the tree
+      // itself: the map draws each grown one as stout as it is, `setTreeScales`; the marks at its foot are gone.)
       if (e.axe && self && said) {
-        for (const tr of WOOD) {
-          if (tr.elder || tr.tier > TREES.axeTier) continue;
-          if (Math.hypot(tr.x + 0.5 - self.x, tr.y + 0.5 - self.y) > GIRTH_SIGHT || lookOf(said, tr.id, at) !== 3) continue;
+        const tr = WOOD.find((x) => x.id === hereRef.current);
+        if (tr && !tr.elder && tr.tier <= TREES.axeTier && lookOf(said, tr.id, at) === 3) {
           const c = project({ x: tr.x + 0.5, y: tr.y + 0.62 });
-          if (!onScreen(c)) continue;
-          girths++;
-          const n = girthOf(tr), mine = tr.id === hereRef.current;
-          things.push({ depth: tr.x + tr.y + 1.03, draw: () => {
-            const d = Math.max(3, Math.round(2.6 * s)), gap = Math.max(1, Math.round(s)), w = n * d + (n - 1) * gap, x0 = Math.round(c.x - w / 2), y0 = Math.round(c.y + 2 * s);
-            ctx.fillStyle = "#2a190d";
-            ctx.fillRect(x0 - gap, y0 - gap, w + 2 * gap, d + 2 * gap);
-            for (let i = 0; i < n; i++) {
-              ctx.fillStyle = "#f3d9a4";
-              ctx.fillRect(x0 + i * (d + gap), y0, d, d);
-              ctx.fillStyle = "#c9954f";
-              ctx.fillRect(x0 + i * (d + gap) + Math.floor(d / 3), y0 + Math.floor(d / 3), Math.max(1, Math.ceil(d / 3)), Math.max(1, Math.ceil(d / 3)));
-            }
-          } });
-          if (mine) {
-            const bob = still ? 0 : Math.round(Math.sin(t / 260) * 2 * s), d = Math.max(2, Math.round(2 * s)), x = Math.round(c.x), y = Math.round(c.y - 74 * s) + bob;
+          if (onScreen(c)) {
+            const tall = tr.tier === 1 ? GIRTH_SCALE[girthOf(tr) - 1] ?? 1 : 1;
+            const bob = still ? 0 : Math.round(Math.sin(t / 260) * 2 * s), d = Math.max(2, Math.round(2 * s)), x = Math.round(c.x), y = Math.round(c.y - 74 * tall * s) + bob;
             (over ?? ((fn: () => void) => fn()))(() => {
               // (an arrow of big pixels, pointing down at the tree)
               for (let r = 0; r < 4; r++) {
@@ -430,7 +425,6 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       }
       glinting.current = glints;
       timed.current = times;
-      girthed.current = girths;
     });
     return () => register(null);
   }, [register, vfx, keeper]);
@@ -483,8 +477,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       note: () => note, root: () => root(), rootable: () => rootId,
       /** A friend at the trunk: the others at a tree, the go I may brace, the press, the trunk I hold, and who braces mine. */
       folk: () => folk, open: () => (open?.t ? { feller: open.o.id, tree: open.t.id } : null), brace: () => (open ? braceIt(open.o) : undefined), bracing: () => bracing, bracer: () => bracer?.id ?? null,
-      /** What this page draws for me alone: glints on grown trees, times over stumps, and marks of girth, as of the last frame. */
-      glints: () => glinting.current, times: () => timed.current, girths: () => girthed.current,
+      /** What this page draws for me alone: glints on grown trees and times over stumps, as of the last frame. */
+      glints: () => glinting.current, times: () => timed.current,
     };
     (window as unknown as { __townTrees?: typeof handle }).__townTrees = handle;
     return () => { delete (window as unknown as { __townTrees?: typeof handle }).__townTrees; };

@@ -15,7 +15,7 @@ import { handOf } from "@/lib/town/trade";
 import * as World from "@/lib/town/world";
 import { MOUNTAIN, MOUNTAIN_AT, setCaveDay, walkable, type Vec } from "@/lib/town/world";
 import * as Art from "./mountain-art";
-import { registerTap, setCaveLight, setCaveRocksDown, setKnownWhole, setRocksDown, setTorches, type Tapped } from "./mountain-art";
+import { registerTap, setCaveLight, setCaveRocksDown, setGlows, setKnownWhole, setRocksDown, setTorches, type Tapped } from "./mountain-art";
 import type { FarmDraw, FarmFrame } from "./TownFarm";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
@@ -33,10 +33,9 @@ const TownVein = lazy(() => import("./TownVein"));
  * whoever keeps the game tells (the rocks gone, the ways down open, the torches burning, how far each member's light
  * reaches), and asks it for the taps. Only `next dev` asks for this file, as for that one.
  *
- * Glowing moss (now and then a plain rock of the cave lets some out) lights the chamber its rock stood in. The map's
- * art has no light to set down that is not a torch standing there, so the chamber is lit by the lights it does have:
- * for as long as the moss glows, the own light of whoever stands in that chamber reaches to its furthest wall, on
- * everybody's screen.
+ * Glowing moss (now and then a plain rock of the cave lets some out) lights the chamber its rock stood in: for as
+ * long as it glows, a light of the map's art with nothing drawn where it is (`setGlows`) stands in the chamber's
+ * middle and reaches its furthest wall, on everybody's screen, for whoever looks in from outside it too.
  *
  * Nothing here explains itself on the screen: states and refusals, never rules (the owner's rule).
  */
@@ -81,10 +80,8 @@ function mossArt(): HTMLCanvasElement[] {
   });
   return MOSS;
 }
-/** The furthest a member's light is let reach for moss, in tiles (a chamber is not wider); and how much of the way to where it is going a light comes each frame, as a chamber lights up or goes dark. */
+/** The furthest a glowing chamber's light is let reach, in tiles (a chamber is not wider); and how much of the way to where it is going the light comes each frame, as a chamber lights up or goes dark. */
 const MOSS_MOST = 16, MOSS_EASE = 0.14;
-/** Whoever stands so near beyond a glowing chamber's furthest wall is in it all the same (a rock may stand in a tunnel's mouth, and its breaker beside it). */
-const MOSS_NEAR = 2.5;
 /** A swing as it is seen: how long the pick takes to come down. */
 const SWING_MS = 190;
 /** A hand that has not swung for so long has rested: the swings it made and has not told yet are told (milliseconds). */
@@ -234,17 +231,19 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
   const lights = useRef(new Map<string, number>());
   const myLight = lightOf(purse);
   // glowing moss: the chambers that glow now, each with its middle and how far its furthest wall is from it (worked
-  // out when what is told of the moss changes); and how far each member's light reaches for it, as the map's frame
-  // last worked it out
+  // out when what is told of the moss changes); and each one's light as the map's frame last had it (by the moss's
+  // floor and tile: where its chamber's middle is, and how far it reaches just now)
   const mossSig = (told?.moss ?? []).map((m) => `${m.f}:${m.x}:${m.y}:${m.until}`).join("|"), mossDay = told?.day ?? 0;
   const glowing = useMemo(() => (keeper.cave()?.moss ?? []).flatMap((m) => { const c = chamberOf(m.f, mossDay, m.x, m.y); return c ? [{ ...m, c }] : []; }),
     [keeper, mossSig, mossDay]); // eslint-disable-line react-hooks/exhaustive-deps -- `mossSig` is what of the moss this reads
-  const glowingRef = useRef(glowing), mossy = useRef(new Map<string, number>());
+  const glowingRef = useRef(glowing), mossy = useRef(new Map<string, { f: number; x: number; y: number; r: number }>());
   glowingRef.current = glowing;
   useEffect(() => {
-    setCaveLight((id) => Math.max(id === keeper.id ? myLight : Math.max(lights.current.get(id) ?? MINING.light.walker, lightOfOther(id)), mossy.current.get(id) ?? 0));
+    setCaveLight((id) => (id === keeper.id ? myLight : Math.max(lights.current.get(id) ?? MINING.light.walker, lightOfOther(id))));
     return () => setCaveLight(null);
   }, [keeper.id, myLight, lightOfOther]);
+  // (the moss's lights are put out with this)
+  useEffect(() => { const kept = mossy.current; return () => { for (const g of kept.values()) setGlows(g.f, []); kept.clear(); }; }, []);
   // (a lamp worn is told to the room, so that those near see by it; what is held is told already)
   const lamp = keeper.gives("charmMinerLamp") && wearing(purse, "charmMinerLamp") ? MINING.light.lamp : 0;
   useEffect(() => { tellLight(lamp); }, [tellLight, lamp]);
@@ -494,19 +493,27 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       if (!t) return;
       const rocks = floor ? World.caveRocks(floor) : World.MOUNTAIN_ROCKS, gone = t.gone[String(floor)] ?? [];
       const loose = t.loose && t.loose.floor === floor ? t.loose.ids : [];
-      // glowing moss: whoever stands in a chamber that glows has a light that reaches its furthest wall, on everybody's
-      // screen (the dark is cut by the lights the map's art has: nothing is drawn for it here but the moss itself)
+      // glowing moss: a chamber that glows is lit from its middle as far as its furthest wall, on everybody's screen (a
+      // light of the map's art with nothing drawn where it is: it comes up and dies down by the frame); the moss itself
+      // is drawn here
       const lit = floor ? glowingRef.current.filter((m) => m.f === floor && m.until > keeper.now()) : [];
       if (lit.length || mossy.current.size) {
-        const reach = (x: number, y: number) => { let r = 0; for (const m of lit) { const d = Math.hypot(x - m.c.x, y - m.c.y); if (d <= m.c.r + MOSS_NEAR) r = Math.max(r, Math.min(MOSS_MOST, d + m.c.r + 1)); } return r; };
-        const ease = (id: string, to: number) => {
-          const was = mossy.current.get(id) ?? 0, next = frame.still || Math.abs(to - was) < 0.1 ? to : was + (to - was) * MOSS_EASE;
-          if (next > 0.05) mossy.current.set(id, next); else mossy.current.delete(id);
-        };
-        const here_ = new Set<string>([keeper.id]);
-        ease(keeper.id, me ? reach(me.x, me.y) : 0);
-        for (const p of frame.people?.() ?? []) if (p.id !== keeper.id && floorAtTile(Math.floor(p.x), Math.floor(p.y)) === floor) { here_.add(p.id); ease(p.id, reach(p.x, p.y)); }
-        for (const id of [...mossy.current.keys()]) if (!here_.has(id)) mossy.current.delete(id);
+        const on = new Set<string>(), gone = new Set<number>();
+        for (const m of lit) {
+          const key = `${m.f}:${m.x}:${m.y}`, to = Math.min(MOSS_MOST, m.c.r + 1), g = mossy.current.get(key) ?? { f: m.f, x: m.c.x, y: m.c.y, r: 0 };
+          on.add(key);
+          g.r = frame.still || Math.abs(to - g.r) < 0.1 ? to : g.r + (to - g.r) * MOSS_EASE;
+          mossy.current.set(key, g);
+        }
+        // (what has stopped glowing dies down; what glowed on a floor I have left is put out there)
+        for (const [key, g] of [...mossy.current]) {
+          if (on.has(key)) continue;
+          if (g.f !== floor) { gone.add(g.f); mossy.current.delete(key); continue; }
+          g.r = frame.still || g.r < 0.1 ? 0 : g.r * (1 - MOSS_EASE);
+          if (g.r <= 0) mossy.current.delete(key);
+        }
+        for (const f of gone) setGlows(f, []);
+        if (floor) setGlows(floor, [...mossy.current.values()].filter((g) => g.f === floor).map((g) => ({ x: g.x, y: g.y, r: g.r })));
         const pics = mossArt(), pic = pics[frame.still ? 0 : Math.floor(performance.now() / 700) % 2];
         for (const m of lit) {
           const c = frame.project({ x: m.x + 0.5, y: m.y + 0.62 });
@@ -623,9 +630,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       /** Tell what is not told yet, now (a script that will not wait for the hand to rest). */
       flush: () => { for (const k of [...unsent.current.keys()]) send(k); },
       company: () => company.current,
-      /** The chambers that glow with moss now (each with its middle and its reach), and how far each member's light reaches for it. */
+      /** The chambers that glow with moss now (each with its middle and its reach), and how far each one's light reaches just now (by the moss's floor and tile). */
       moss: () => glowingRef.current.filter((m) => m.until > keeper.now()),
-      mossLight: () => Object.fromEntries(mossy.current),
+      mossLight: () => Object.fromEntries([...mossy.current].map(([key, g]) => [key, g.r])),
       /** A tap on a rock, as the map hands one over (its tile looked up). */
       hit: (floor: number, rock: number) => { const r = (floor ? World.caveRocks(floor) : World.MOUNTAIN_ROCKS).find((x) => x.id === rock); return r ? strikeRock({ floor, id: rock, tile: [r.x, r.y] }) : false; },
       rocks: (floor: number) => (floor ? World.caveRocks(floor) : World.MOUNTAIN_ROCKS),

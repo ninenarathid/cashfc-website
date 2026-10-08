@@ -37,6 +37,7 @@ export type TapFn = (tap: Tapped) => boolean | void;
 
 const treeLooks = new Map<number, TreeAge>(), rocksDown = new Set<number>(), caveDown = new Map<number, Set<number>>();
 const torches = new Map<number, CaveLight[]>(), knownWhole = new Set<number>(), taps = new Map<TapKind, TapFn>();
+const treeScales = new Map<number, number>(), glows = new Map<number, CaveLight[]>();
 let lightOf: (member: string) => number = () => CAVE_LIGHT.walker;
 let sample = false;
 let ancientLook: 0 | 3 = 3;
@@ -48,6 +49,12 @@ export function setTreeLook(id: number, look: TreeAge) { if (look === 3) treeLoo
 /** Every tree's look at once: those not named are grown. */
 export function setTreeLooks(looks: Iterable<readonly [number, TreeAge]>) { treeLooks.clear(); for (const [id, look] of looks) setTreeLook(id, look); }
 export const treeLook = (id: number): TreeAge => treeLooks.get(id) ?? (sample ? sampleAge(id) : 3);
+/**
+ * How large each grown tree of the mountain is drawn against its picture's own size, by its number (a slender tree a
+ * little smaller, a stout one a little larger): every tree's at once, and those not named are drawn as they are. Only
+ * a grown tree is drawn by it: a stump, a sprout and a young tree are the size they are.
+ */
+export function setTreeScales(scales: Iterable<readonly [number, number]>) { treeScales.clear(); for (const [id, k] of scales) if (k > 0 && k !== 1) treeScales.set(id, k); }
 /** How the ancient cedar looks: 3 grown (as it is until this is said otherwise), 0 felled, when its picture is not drawn and its great stump stands in its place. */
 export function setAncientLook(look: 0 | 3) { ancientLook = look; }
 export const ancientLookNow = (): 0 | 3 => ancientLook;
@@ -78,6 +85,15 @@ export function setCaveLight(reach: ((member: string) => number) | null) { light
 export function setTorches(floor: number, lights: ReadonlyArray<{ x: number; y: number; r?: number }>) {
   const c = floorCorner(floor);
   torches.set(floor, lights.map((l) => ({ u: l.x - c.x, v: l.y - c.y, r: l.r ?? CAVE_LIGHT.torch })));
+}
+/**
+ * Lights on a floor with nothing drawn where they are (no torch stands there), for everybody: each where it is in the
+ * world's tiles and how far it reaches. The dark is cut by them as by a torch, and they are a pale pool on the ground,
+ * with no flame. All of a floor's at once: an empty list puts them out.
+ */
+export function setGlows(floor: number, lights: ReadonlyArray<{ x: number; y: number; r: number }>) {
+  const c = floorCorner(floor), set = lights.filter((l) => l.r > 0).map((l) => ({ u: l.x - c.x, v: l.y - c.y, r: l.r }));
+  if (set.length) glows.set(floor, set); else glows.delete(floor);
 }
 /** Whether a floor's small map is known whole (shown all at once), or filled in as it is walked. */
 export function setKnownWhole(floor: number, whole: boolean) { if (whole) knownWhole.add(floor); else knownWhole.delete(floor); }
@@ -309,12 +325,12 @@ export class MountainArt {
   }
 
   /** A prop at its tile, drawn at its own size, and where it is on the screen (for taps). */
-  private stand(f: MoreFrame, name: string, at: Vec, depth: number, more?: { tap?: Tapped; hit?: [number, number]; mirror?: boolean; skew?: number; faint?: boolean; after?: (c: Vec, k: number) => void }) {
+  private stand(f: MoreFrame, name: string, at: Vec, depth: number, more?: { tap?: Tapped; hit?: [number, number]; mirror?: boolean; skew?: number; faint?: boolean; scale?: number; after?: (c: Vec, k: number) => void }) {
     const scenery = f.scenery!;
     if (!scenery.has(name)) return;
     const c = f.project(at);
     if (!f.onScreen(c)) return;
-    const k = f.s * kOf(name), [w, h] = scenery.sizeOf(name), [ax, ay] = scenery.anchorOf(name);
+    const k = f.s * kOf(name) * (more?.scale ?? 1), [w, h] = scenery.sizeOf(name), [ax, ay] = scenery.anchorOf(name);
     f.things.push({ depth, draw: () => {
       // (whatever tall stands in front of me is drawn faint, so that nobody is lost to their own sight among the trees)
       const me = more?.faint && f.me ? { at: f.project(f.me), depth: f.me.x + f.me.y } : null;
@@ -429,7 +445,7 @@ export class MountainArt {
       if (p.kind === "mtree") {
         // a tree as whoever keeps the game says it looks; grown, with nothing said
         const look = treeLook(p.id!);
-        this.stand(f, `mt${p.tier}_${look}`, at, depth, { faint: true, skew: look >= 2 ? f.sway({ kind: "pine", x: p.x, y: p.y }) * (p.tier === 1 ? 1 : 0.7) : 0, tap: { kind: "tree", id: p.id!, floor: 0, tile }, hit: look === 3 ? [0.6, 0.5] : look === 2 ? [0.8, 0.7] : [1, 1] });
+        this.stand(f, `mt${p.tier}_${look}`, at, depth, { faint: true, scale: look === 3 ? treeScales.get(p.id!) ?? 1 : 1, skew: look >= 2 ? f.sway({ kind: "pine", x: p.x, y: p.y }) * (p.tier === 1 ? 1 : 0.7) : 0, tap: { kind: "tree", id: p.id!, floor: 0, tile }, hit: look === 3 ? [0.6, 0.5] : look === 2 ? [0.8, 0.7] : [1, 1] });
       } else if (p.kind === "mrock") {
         // a rock that still stands; the rubble of one that does not
         const stands = rockStands(p.id!);
@@ -544,7 +560,8 @@ export class MountainArt {
     const floor = caveToday(n), corner = floorCorner(n), { ctx, s, cw, ch } = f;
     const mine = { u: f.me.x - corner.x, v: f.me.y - corner.y, r: lightOf(f.me.id) };
     const walkers = [mine, ...f.others.filter((o) => floorOf(o.x, o.y) === n).map((o) => ({ u: o.x - corner.x, v: o.y - corner.y, r: lightOf(o.id) }))];
-    const set = torches.get(n) ?? [], lights = lightsOf(floor, walkers, set), fixed = lights.length - walkers.length - set.length;
+    // (the lights in their order: the floor's own, the walkers', the torches set down, and last the lights with nothing drawn)
+    const set = torches.get(n) ?? [], pale = glows.get(n) ?? [], lights = lightsOf(floor, walkers, [...set, ...pale]), fixed = lights.length - walkers.length - set.length - pale.length;
 
     // the dark: a black sheet at a third of the screen's size, each light's picture cut out of it
     const w = Math.ceil(cw / DARK_SCALE), h = Math.ceil(ch / DARK_SCALE);
@@ -563,6 +580,7 @@ export class MountainArt {
         // its pool on the ground, as far as it reaches…
         g.drawImage(pic, c.x / DARK_SCALE - rx, c.y / DARK_SCALE - ry, rx * 2, ry * 2);
         // …and what stands in it: a walker's own doll, the ladder with its lamp, a fire
+        if (i >= lights.length - pale.length) return;
         const walker = i >= fixed && i < fixed + walkers.length, tall = (walker ? DOLL * 0.62 : i === 0 ? 74 : 40) * s / DARK_SCALE, wide = Math.min(rx, (walker ? 46 : 60) * s / DARK_SCALE);
         g.drawImage(pic, c.x / DARK_SCALE - wide, c.y / DARK_SCALE - tall - wide * 0.9, wide * 2, wide * 1.8 + tall * 0.6);
       });
@@ -586,6 +604,8 @@ export class MountainArt {
         const c = f.project({ x: corner.x + l.u, y: corner.y + l.v }), up = i === 0 ? 70 : 24;
         // (a walker's own light is only a little warmth about them)
         if (i >= fixed && i < fixed + walkers.length) { f.glow(c.x, c.y - 26 * s, l.r * (TILE_W / 2) * 1.1 * s, "255,214,160", 0.13 * waver, 0.7); return; }
+        // (a light with nothing burning in it: a pale pool on the ground, and no flame)
+        if (i >= lights.length - pale.length) { f.glow(c.x, c.y - 6 * s, l.r * (TILE_W / 2) * 1.2 * s, "178,236,198", 0.1 * waver, 0.5); return; }
         f.glow(c.x - (i === 0 ? 14 * s : 0), c.y - up * s, 34 * s, "255,210,140", 0.5 * waver);
         f.glow(c.x, c.y - 6 * s, l.r * (TILE_W / 2) * 1.2 * s, "255,176,100", 0.16 * waver, 0.5);
       });

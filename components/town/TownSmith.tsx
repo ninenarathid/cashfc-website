@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
   SMITH, bellowsOff, candidates, gemsIn, maySmelt, owedOf, pendingSlot, smeltCost, smithView, timberFor, dryOf, toolsIn, tryCost, tryLacks, tryOdds, widerCost,
   type Outcome, type SmithRefusal, type Smelting,
@@ -245,7 +245,6 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   // (a leaf turned: what the last one said is put away)
   useEffect(() => { setSaid(null); setCame(null); setAgain(null); setGem(null); }, [view]);
 
-  const cave = useMemo(() => (keeper as unknown as { caveBoard?: () => { floor: number; by: string } | null }).caveBoard, [keeper]);
   if (!told) return null;
   const q = smithView(told.smithy, now);
   const glow = mods.glow ? { filter: `drop-shadow(0 0 ${mods.glow === 2 ? 7 : 4}px ${mods.hue}) drop-shadow(0 0 ${mods.glow === 2 ? 14 : 6}px ${mods.hue}${mods.glow === 2 ? "" : "88"})` } : undefined;
@@ -666,12 +665,13 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
 
             {view === "board" && (
               <div data-smith-board>
-                {cave && (() => {
-                  const deep = cave.call(keeper);
+                {/* the cave's own board, which whoever keeps the game keeps with the cave (lib/town/cave-state): the deepest floor reached today, and who opened the way to it */}
+                {(() => {
+                  const deep = keeper.caveBoard();
                   return (
                     <div className="mb-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#f0e0b8] px-3 py-2.5 text-[#3a2612] shadow-[2px_3px_0_rgba(0,0,0,0.3)]" data-smith-cave={deep?.floor ?? 0}>
                       <p className="font-data text-label uppercase text-[#7a5a30]">{t("ลึกสุดของวันนี้", "Today's deepest")}</p>
-                      {deep ? <p className="font-display text-lead font-semibold">{t(`ชั้น ${deep.floor}`, `Floor ${deep.floor}`)} <span className="text-ui font-normal">· {deep.by}</span></p>
+                      {deep ? <p className="font-display text-lead font-semibold">{t(`ชั้น ${deep.floor}`, `Floor ${deep.floor}`)} <span className="text-ui font-normal">· {deep.name || deep.by}</span></p>
                         : <p className="text-ui text-[#7a5a30]">{t("วันนี้ยังไม่มีใครลงไป", "Nobody has gone down today")}</p>}
                     </div>
                   );
