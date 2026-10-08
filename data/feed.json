@@ -1,6 +1,34 @@
 {
  "events": [
   {
+   "date": "2026-10-08",
+   "type": "level_100",
+   "id": 8286372,
+   "name": "Aloha Banana",
+   "text": "reached level 100 on Bard!"
+  },
+  {
+   "date": "2026-10-08",
+   "type": "parse_up",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "set a new best parse: 11 on Valigarmanda as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-10-08",
+   "type": "parse_up",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "set a new best parse: 70 on Valigarmanda as Viper"
+  },
+  {
+   "date": "2026-10-08",
+   "type": "parse_up",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "set a new best parse: 5 on Valigarmanda as Ninja"
+  },
+  {
    "date": "2026-10-07",
    "type": "parse_up",
    "id": 58199536,
@@ -1371,34 +1399,6 @@
    "id": 60972300,
    "name": "Mizuki Sekine",
    "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-09-27",
-   "type": "level_100",
-   "id": 47221226,
-   "name": "Destiny Marjory",
-   "text": "reached level 100 on Scholar!"
-  },
-  {
-   "date": "2026-09-27",
-   "type": "grade_up",
-   "id": 14476396,
-   "name": "Arawn A'nnwn",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-09-27",
-   "type": "rare_up",
-   "id": 14476396,
-   "name": "Arawn A'nnwn",
-   "text": "earned Occult Enlightenment IV — only 0.5% of players have it, and 75 more"
-  },
-  {
-   "date": "2026-09-26",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Sage!"
   }
  ]
 }

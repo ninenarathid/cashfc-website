@@ -73195,7 +73195,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 79,
-    "kills": 57,
+    "kills": 60,
     "job": "Astrologian",
     "cleared": true,
     "job_kills": {
@@ -73315,7 +73315,7 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 89,
-    "kills": 32,
+    "kills": 44,
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
@@ -76544,8 +76544,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 29,
-    "kills": 1,
+    "best": 70,
+    "kills": 4,
     "job": "Viper",
     "cleared": true
    }
@@ -80517,17 +80517,21 @@
     "job": "Summoner",
     "cleared": true,
     "job_kills": {
+     "Summoner": {
+      "kills": 5,
+      "best": 63
+     },
      "Viper": {
       "kills": 1,
       "best": 35
      },
+     "Pictomancer": {
+      "kills": 11,
+      "best": 60
+     },
      "Reaper": {
       "kills": 2,
       "best": 32
-     },
-     "Pictomancer": {
-      "kills": 4,
-      "best": 44
      },
      "WhiteMage": {
       "kills": 1,
@@ -81438,8 +81442,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 4,
-    "kills": 5,
+    "best": 5,
+    "kills": 11,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
@@ -81618,9 +81622,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1071,
     "name": "Valigarmanda",
-    "best": 4,
-    "kills": 23,
-    "job": "Paladin",
+    "best": 11,
+    "kills": 35,
+    "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
      "Dragoon": {
