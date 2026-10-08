@@ -48,6 +48,7 @@ import type { WellGiftRefusal } from "./well-gifts";
 import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
 // ── forging ──
+import { mayTwice } from "./farm";
 import { newBoard, soundSmithy, type Did as SmithDid, type Outcome as ForgeOutcome, type Pending, type SmithBoard, type Smelting, type Smithy } from "./forge";
 import type { Element, OptionId } from "./tools";
 
@@ -223,7 +224,8 @@ export interface Keeper {
   land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed>;
 
   /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
-  farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>>;
+  // (forging: `also`, the plots beside it that the tool in the hand did the same to, by their keys: lib/town/farm's beside)
+  farmDo(key: string, name: string, timing?: Timing, sure?: boolean): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>>;
   choreDo(where: Water, at: [number, number] | null): Promise<Did<{ chore: Chore }>>;
   // ── gifts: farming ──
   /**
@@ -927,7 +929,8 @@ export class DbKeeper implements Keeper {
   }
   deedAt(key: string): Deed | null {
     const [x, y] = key.split(",").map(Number);
-    return deedFor(key, this.plots[key] ?? WILD, handOf(this.mine), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains());
+    // (forging: a can that waters twice in an hour is offered a plant that is wet from one watering; whether it takes is the database's)
+    return deedFor(key, this.plots[key] ?? WILD, handOf(this.mine), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.rains(), mayTwice(this.mine, this.now()));
   }
   /**
    * The hours the farm was counted with insects on it, as the database tells them with the farm (v147; none from a

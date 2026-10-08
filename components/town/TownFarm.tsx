@@ -227,6 +227,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
   seen.current = new Map(Object.entries(plots).map(([key, plot]) => [key, see(key, plot, now, rains)]));
+  // ── forging: old tools ── (a can with light in it: the plants that could be watered now, and within how many tiles of me one of them glints: lib/town/forged)
+  const glintOf = canFx(heldStack(keeper.purse(), keeper.handSlot())).glint;
+  const thirsty = useRef<{ reach: number; keys: Set<string> }>({ reach: 0, keys: new Set() });
+  thirsty.current = { reach: glintOf, keys: glintOf > 0 ? new Set(Object.keys(plots).filter((key) => keeper.deedAt(key) === "water")) : new Set() };
   const owners = useRef(keeper.owners());
   owners.current = keeper.owners();
   const well = useRef(0);
@@ -518,9 +522,22 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           }
           ctx.globalAlpha = 1;
         });
+        // ── forging: old tools ── (a can with light in it: a plant that could be watered now glints while I stand within its reach)
+        if (thirsty.current.reach > 0 && frame.self && thirsty.current.keys.has(plotKey(tx, ty)) && Math.hypot(frame.self.x - (tx + 0.5), frame.self.y - (ty + 0.5)) <= thirsty.current.reach) above(() => {
+          const px = Math.max(2, Math.round(1.8 * s)), blink = still ? 0.8 : 0.5 + 0.5 * Math.sin(t / 240 + tx * 1.7 + ty), x = Math.round(at.x - 12 * s), y = Math.round(at.y - 30 * s);
+          ctx.fillStyle = "#bfe8fa";
+          ctx.globalAlpha = 0.3 + 0.7 * blink;
+          ctx.fillRect(x, y, px, px);
+          ctx.globalAlpha *= 0.55;
+          ctx.fillRect(x - px, y, px * 3, px);
+          ctx.fillRect(x, y - px, px, px * 3);
+          ctx.globalAlpha = 1;
+        });
         things.push({ depth: tx + ty + 0.6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled") blit("plotSoil", at, 0, PLANT * s * 0.9);
+          // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
+          if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
           if (what.dead) { blit("plotDead", at); return; }
           blit(growIconOf(what.crop, what.stage), at);
@@ -628,6 +645,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (rid) vfx.add("sparkle", at);
     for (const id of seenAtPlot(did.deed, mine, began)) vfx.add("bless", at, { icon: BURST[id], lift: 8 });
     if (did.got.length) vfx.add("pop", at, { icon: did.got[0][0] });
+    // ── forging: old tools ── (the plots beside it that the tool in my hand did the same to: the same flies up over each a moment after, with a sparkle)
+    (did.also ?? []).forEach((plot, i) => {
+      const [u, v] = plot.split(",").map(Number);
+      window.setTimeout(() => { vfx.add(fx, { x: u + 0.5, y: v + 0.5 }); vfx.add("sparkle", { x: u + 0.5, y: v + 0.5 }); }, 140 + i * 70);
+    });
     if (sang) { songs.current.push({ x, y, from: null }); sfx?.work("cooked", 0.7); }
     // (somebody else's plant watered with the anklet on: the run's next note)
     const rung = keeper.purse().chime;

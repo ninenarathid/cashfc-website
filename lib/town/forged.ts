@@ -178,8 +178,11 @@ export interface HoeFx {
   worm: number;
   /** Whether tired hands keep hold of it however often they miss (the counted option: so many plots a day). */
   grip: boolean;
+  /** Whether a wild plot it clears is tilled by the same game; and whether a plot it tills is left damp, so that what is sown there has had its first watering (the counted options: so many plots a day, each). */
+  both: boolean;
+  wet: boolean;
 }
-export const PLAIN_HOE: HoeFx = { band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false };
+export const PLAIN_HOE: HoeFx = { band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false, both: false, wet: false };
 export function hoeFx(stack: Held): HoeFx {
   const s = of(stack, "hoe");
   if (!s) return PLAIN_HOE;
@@ -197,6 +200,8 @@ export function hoeFx(stack: Held): HoeFx {
     next: gemBy(s, "lightning", OLD_FX.lightning.chance),
     worm,
     grip: has(s, "hoGrip"),
+    both: has(s, "hoBoth"),
+    wet: has(s, "hoWet"),
   };
 }
 
@@ -228,8 +233,11 @@ export interface CanFx {
   glint: number;
   /** For how many minutes it waters with no water in it once it has run dry (the counted option: so often a day); none: 0. */
   full: number;
+  /** Whether a watering in a bed of one's own waters the whole row; and whether a plant watered already this hour takes one watering more (the counted options: so many a day, each). */
+  rain: boolean;
+  twice: boolean;
 }
-export const PLAIN_CAN: CanFx = { more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0 };
+export const PLAIN_CAN: CanFx = { more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0, rain: false, twice: false };
 export function canFx(stack: Held): CanFx {
   const s = of(stack, "can");
   if (!s) return PLAIN_CAN;
@@ -248,6 +256,8 @@ export function canFx(stack: Held): CanFx {
     uses: rich > 0 ? OLD_FX.dark.can.uses : 1,
     glint: gemBy(s, "light", OLD_FX.light.can.glint),
     full: has(s, "cnFull") ? optN("cnFull", "mins") : 0,
+    rain: has(s, "cnRain"),
+    twice: has(s, "cnTwice"),
   };
 }
 

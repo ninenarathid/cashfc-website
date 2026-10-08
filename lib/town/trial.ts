@@ -46,6 +46,9 @@ import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
 // ── forging ──
 import { FORGE, toolKindOf, type OptionId, type ToolKind } from "./tools";
+import { beside, mayTwice } from "./farm";
+import { canFx } from "./forged";
+import { heldStack as toolInHand } from "./trade";
 import {
   bellows, bellowsLeft, choose as chooseOption, collect as collectSmelted, draw as drawOptions, forgeTry, markFound, markTop, newBoard, newSmithy, redraw as redrawOption, setGem, smelt, smithView, soundSmithy, widen,
   type Did as SmithDid, type Outcome as ForgeOutcome, type SmithBoard, type Smithy,
@@ -444,10 +447,11 @@ export class Trial {
   /** What the thing in my hand can do to a plot now, if anything. */
   deedAt(key: string): Deed | null {
     const [x, y] = key.split(",").map(Number);
-    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky());
+    // (forging: a can that waters twice in an hour is offered a plant that is wet from one watering)
+    return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky(), mayTwice(this.purse(), this.now()));
   }
   /** Do to a plot what the thing in my hand does: clear it, till it, dig its plant out (a living one only when it is `sure`), sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
-  farmDo(key: string, name = "", sure = false): { ok: true; deed: Deed; got: Array<[ItemId, number]> } | { ok: false; why: Refusal | FarmRefusal } {
+  farmDo(key: string, name = "", sure = false): { ok: true; deed: Deed; got: Array<[ItemId, number]>; also?: string[] } | { ok: false; why: Refusal | FarmRefusal } {
     // (somebody is at the farm: its hour is counted, if it has not been)
     this.swarmNote();
     const p = this.purse(), now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, beds = this.beds();
@@ -458,6 +462,10 @@ export class Trial {
     const next = { ...plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
     if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed));
+    // ── forging: old tools ── (what the deed did to the plots beside it, with lightning in the tool or a can that rains: lib/town/farm's beside.
+    // Each is kept as the one done was kept, and none of them is counted on a line: they are the tool's doing.)
+    const more = beside(key, this.rowKeys(key), plots, did.deed, p, did.purse, this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
+    for (const [k, beside2] of Object.entries(more.plots)) next[k] = did.deed === "water" && plots[k] ? this.poured(plots[k], beside2, now, 1, this.bellWorn(bed)) : beside2;
     this.write(FARM, next);
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
@@ -467,15 +475,19 @@ export class Trial {
     if (did.deed === "sow") this.wellSeen({ by: this.id, at: now, what: "sow", tile: [x, y] });
     // (a plant watered is a line of the well's book: with which can, and whose plant when not my own)
     if (did.deed === "water") this.wellSeen({ by: this.id, at: now, what: "water", can: handOf(p) ?? undefined, tile: [x, y], ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}) });
-    this.save(did.purse);
+    this.save(more.purse);
     // ── gifts: helpers ── (a friend watered in this bed a moment ago: the duet bell, lib/town/helping)
     if (did.deed === "water") this.bell(bed, [key], name);
     // (and it counts on a line, if it is one that does: help in somebody else's bed, a picking of one's own plant)
+    // (forging: `kind`, somebody else's plant watered with a can of kind hands: so many points more, lib/town/line-points)
+    const kind = did.deed === "water" && plot.plant && plot.plant.by !== this.id ? canFx(toolInHand(p)).kind : 0;
     this.counted({ from: "deed", what: did.deed, thing: plot.plant?.crop ?? null, n: 1, doc: {
       ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}),
       ...(!plot.plant && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}),
+      ...(kind > 0 ? { kind } : {}),
     } });
-    return { ok: true, deed: did.deed, got: did.got };
+    const also = Object.keys(more.plots);
+    return { ok: true, deed: did.deed, got: did.got, ...(also.length ? { also } : {}) };
   }
   // ── gifts: farming ──
   /** The plots of the row of its bed a plot is in, by their keys. */

@@ -2,6 +2,7 @@ import { KINDS } from "./forest";
 import { BUGS } from "./insects";
 import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
 import { LINES, LINE_IDS, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
+import { optN } from "./tools";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 
 /**
@@ -113,7 +114,8 @@ export function countsOf(d: Done, doer: string): Counts[] {
       return typeof d.doc.whose === "string" && d.doc.whose !== doer
         ? [{ to: d.doc.whose, line: "kitchen", raw: POINTS.kitchen.ladled, held: { key: `ladle:${doer}`, most: POINTS.kitchen.ladling } }] : [];
     case "water": case "clear": case "till": case "feed": case "cure": case "dust":
-      return other && other !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers[d.what] }] : [];
+      // ── forging: old tools ── (`kind`: somebody else's plant watered with a can of kind hands is so many points more, never more than the option's own number: lib/town/forged's canFx)
+      return other && other !== doer ? [{ to: null, line: "helpers", raw: POINTS.helpers[d.what] + (d.what === "water" && typeof d.doc.kind === "number" && d.doc.kind > 0 ? Math.min(optN("cnKind", "points"), Math.floor(d.doc.kind)) : 0) }] : [];
     // ── gifts: helpers ── (a duet bell that rang, lib/town/helping: written down for each of the two, with how many of
     // somebody else's plants it rang over for them: each is a watering's worth more)
     case "bell":

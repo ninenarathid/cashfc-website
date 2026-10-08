@@ -1,6 +1,6 @@
 import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
-import { usePower } from "./powers";
+import { powerLeft, usePower } from "./powers";
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
@@ -184,8 +184,15 @@ export interface Plant {
   pour?: { by: string; at: number; base: number; x: number; worn?: boolean; bell?: boolean };
   /** The moments garden fae dust was sprinkled on it (lib/town/helping's diesAt): for so many hours from each its dying clock stands still. Missing from a plant never dusted. */
   dust?: number[];
+  // ── forging: old tools ──
+  /** The moment of the watering it was given on top of another in the same hour, by a can that waters twice (`water`): a plant takes only one such until it has dried. Missing from a plant never watered twice. */
+  twice?: number;
 }
-export interface Plot { soil: Soil; plant: Plant | null }
+export interface Plot {
+  soil: Soil; plant: Plant | null;
+  // ── forging: old tools ── (a furrow left damp by the hoe that tilled it: what is sown in it has had its first watering. Missing from every other plot.)
+  damp?: boolean;
+}
 export const WILD: Plot = { soil: "wild", plant: null };
 /** A plot's name in the farm's keeping: its tile. */
 export const plotKey = (tx: number, ty: number) => `${tx},${ty}`;
@@ -336,10 +343,14 @@ export function pestAt(key: string, p: Plant, now: number, rains: FarmSky = DRY)
 }
 
 /** What a plot shows at a moment: its plant's stage, whether it is ripe, has a pest on it, is dead, or is wet (watered this hour, or rained on now). */
-export interface Seen { soil: Soil; crop: CropId | null; by: string | null; stage: 0 | 1 | 2 | 3 | 4 | 5; ripe: boolean; pest: boolean; dead: boolean; wet: boolean }
+export interface Seen {
+  soil: Soil; crop: CropId | null; by: string | null; stage: 0 | 1 | 2 | 3 | 4 | 5; ripe: boolean; pest: boolean; dead: boolean; wet: boolean;
+  // ── forging: old tools ── (bare tilled ground that a hoe left damp)
+  damp?: boolean;
+}
 export function see(key: string, plot: Plot, now: number, rains: FarmSky = DRY): Seen {
   const p = plot.plant;
-  if (!p) return { soil: plot.soil, crop: null, by: null, stage: 0, ripe: false, pest: false, dead: false, wet: false };
+  if (!p) return { soil: plot.soil, crop: null, by: null, stage: 0, ripe: false, pest: false, dead: false, wet: false, ...(plot.damp && plot.soil === "tilled" ? { damp: true } : {}) };
   // ── gifts: helpers ── (the moment it dies of its pest: so many hours after it struck, not counting the time fae dust lay on it)
   const struck = pestAt(key, p, now, rains), end = struck === null ? 0 : diesAt(p, struck, FARMING.pests.kills * HOUR), dead = struck !== null && now > end;
   // (a dead plant stays as it was when it died)
@@ -385,10 +396,12 @@ export function sow(purse: Purse, plot: Plot, hand: ItemId | null, me: string, n
   const crop = cropOf(hand);
   if (!crop || !hasInHand(purse, hand)) return not("hand");
   if (plot.soil !== "tilled" || plot.plant) return not("soil");
+  // ── forging: old tools ── (a furrow the hoe left damp: the seed has had its first watering, a plain one, and is wet for its hour)
+  const damp = plot.damp ? FARMING.water.adds * 60_000 : 0;
   return {
     ok: true,
     // (under the fountain's warm soil a seed is some of its way to ripe at once: lib/town/fountain)
-    plot: { soil: "tilled", plant: { by: me, crop, sown: now, boost: hasBuff(purse, now, "sprout") ? BLESSINGS.sprout.by * CROPS[crop].hours * 3_600_000 : 0, watered: 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } },
+    plot: { soil: "tilled", plant: { by: me, crop, sown: now, boost: (hasBuff(purse, now, "sprout") ? BLESSINGS.sprout.by * CROPS[crop].hours * 3_600_000 : 0) + damp, watered: plot.damp ? now : 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } },
     purse: { ...spend(purse, FARMING.costs.sow, now), bag: take(purse.bag, hand!, 1) },
   };
 }
@@ -410,25 +423,36 @@ const canSlot = (purse: Purse, hand: ItemId | null, will: (s: Stack) => boolean)
   const at = handSlot(purse, purse.handAt ?? null), mine = at >= 0 ? purse.bag[at] : null;
   return mine && mine.item === hand && forged(mine) && will(mine) ? at : purse.bag.findIndex((s) => !!s && s.item === hand && will(s));
 };
+/** What a watering adds to a plant, in milliseconds of growth: a better can's more, green fingers', and the share more of a can that carries as much. */
+const wateringOf = (purse: Purse, hand: ItemId | null, now: number, fx: { rich: number }): number => FARMING.water.adds * 60_000 * (FIELD[hand!] ?? 1) * (1 + buffBy(purse, now, "green")) * (1 + fx.rich);
+/** Whether the can in somebody's hand waters a plant twice in an hour now: it has the option, and the day has one left. */
+export const mayTwice = (purse: Purse, now: number): boolean => canFx(heldStack(purse)).twice && powerLeft(purse, "cnTwice", now) > 0;
+/** Whether a plant is wet from a watering it could take one more on top of: watered within the hour, not rained on, and not watered twice already since it was last dry. */
+const wetOnce = (p: Plant, now: number, rains: FarmSky): boolean => now - p.watered < FARMING.water.every * 60_000 && !rainingAt(rainsIn(rains), now) && p.twice !== p.watered;
 
 /** Water a growing plant, anybody's, with a can in the hand that has water in it: once an hour for each plot, and not while the rain does it. A better can adds more, and so does a meal that left green fingers. */
 export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null, now: number, rains: FarmSky = DRY): Did | { ok: false; why: Refusal } {
   if (toolOf(hand) !== "can" || !hasInHand(purse, hand)) return not("hand");
   const seen = see(key, plot, now, rains), p = plot.plant;
   if (!p || seen.dead || (seen.ripe && !CROPS[p.crop].again) || growing(p, now, rains).spent) return not("soil");
-  if (seen.wet) return not("wet");
+  // ── forging: old tools ── (a plant watered already this hour takes one watering more from a can that waters twice, so many a day, counted by the option)
+  const again = seen.wet && heldStack(purse)?.item === hand && wetOnce(p, now, rains) && mayTwice(purse, now);
+  if (seen.wet && !again) return not("wet");
   // ── forging: old tools ── (a can that waters with no water in it: once it has run dry it goes on for its minutes, so often a day, counted by the
   // option; while they last no watering uses any water. The can is the one in the hand.)
   const wet = canSlot(purse, hand, (s) => (s.water ?? 0) > 0), mine = heldStack(purse), runs = canFullNow(purse, now);
   const begun = wet < 0 && !runs && mine?.item === hand && canFx(mine).full > 0 ? usePower(purse, mine, "cnFull", now) : null;
   const slot = wet >= 0 ? wet : runs || begun?.ok ? handSlot(purse, purse.handAt ?? null) : -1;
   if (slot < 0 || purse.bag[slot]?.item !== hand) return no("dry");
-  const can = purse.bag[slot]!, green = 1 + buffBy(purse, now, "green"), from: Purse = begun?.ok ? { ...begun.purse, canFull: now + canFx(mine).full * 60_000 } : purse;
+  const can = purse.bag[slot]!, from: Purse = begun?.ok ? { ...begun.purse, canFull: now + canFx(mine).full * 60_000 } : purse;
   // (a can that carries as much adds a share more, and uses so many of its waterings at once: what it has, of a can with fewer)
   const fx = canFx(can), free = hasBuff(purse, now, "spring") || runs || !!begun?.ok;
+  const paid: Purse = { ...spend(from, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: (can.water ?? 0) - (free ? 0 : Math.min(can.water!, fx.uses)) }) };
+  // (a second watering in the hour: one of the day's is counted, and the plant takes no third until it has dried)
+  const twice = again ? usePower(paid, mine, "cnTwice", now) : null;
   return {
-    ok: true, plot: { ...plot, plant: { ...p, watered: now, boost: p.boost + FARMING.water.adds * 60_000 * (FIELD[hand!] ?? 1) * green * (1 + fx.rich) } },
-    purse: { ...spend(from, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: (can.water ?? 0) - (free ? 0 : Math.min(can.water!, fx.uses)) }) },
+    ok: true, plot: { ...plot, plant: { ...p, watered: now, boost: p.boost + wateringOf(purse, hand, now, fx), ...(again ? { twice: now } : {}) } },
+    purse: twice?.ok ? twice.purse : paid,
   };
 }
 
@@ -543,13 +567,14 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
  * hoe in the hand a ripe plant is dug out, not picked: so it is asked twice.)
  */
 export type Deed = "clear" | "till" | "pull" | "uproot" | "sow" | "water" | "feed" | "cure" | "pick";
-export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY): Deed | null {
+// (`twice`: the can in the hand waters a plant twice in an hour now, lib/town/farm's mayTwice: a plant wet from one watering is offered another)
+export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY, twice = false): Deed | null {
   const seen = see(key, plot, now, rains), kind = toolOf(hand), p = plot.plant, mine = owner === null || owner === me;
   if (kind === "hoe") return p ? (!mine ? null : seen.dead ? "pull" : "uproot") : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
   if (kind === "seed") return mine && plot.soil === "tilled" && !p ? "sow" : null;
   if (p && !seen.dead) {
     if (kind === "cure" && seen.pest) return "cure";
-    if (kind === "can" && !seen.wet && !growing(p, now, rains).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
+    if (kind === "can" && (!seen.wet || (twice && wetOnce(p, now, rains))) && !growing(p, now, rains).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
     if (kind === "feed" && !p.fed) return "feed";
     // (what keeps pests off is for a plant that has none: one that has is the cure's, and an insect's that eats them)
     if (kind === "guard" && p.guard <= now && (!seen.pest || FARMING.rids[hand!] !== undefined)) return "feed";
@@ -573,7 +598,7 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
 export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: FarmSky = DRY, sure = false, luck?: number):
   { ok: true; deed: Deed; purse: Purse; plot: Plot; bed: Bed | undefined; got: Array<[ItemId, number]>; times?: number } | { ok: false; why: Refusal | FarmRefusal } {
   const hand = handOf(purse), owner = ownerOf(bed, others > 0 || !!plot.plant, now);
-  const deed = deedFor(key, plot, hand, me, now, owner, rains);
+  const deed = deedFor(key, plot, hand, me, now, owner, rains, mayTwice(purse, now));
   if (!deed) return { ok: false, why: owner !== null && owner !== me ? "theirs" : "soil" };
   if (deed === "sow" && owner === null && holds >= BEDS.each) return { ok: false, why: "beds" };
   const did = deed === "clear" || deed === "till" ? hoe(key, purse, plot, hand, now, rains) : deed === "pull" || deed === "uproot" ? uproot(key, purse, plot, true, sure, hand, now, rains)
@@ -592,14 +617,52 @@ export function tend(key: string, plot: Plot, bed: Bed | undefined, others: numb
   const eased2 = deed === "clear" || deed === "till" ? toolPaid(purse, rung.purse, now, tool, hoeFx(tool), "hoFresh") : deed === "water" ? toolPaid(purse, rung.purse, now, tool, canFx(tool), "cnFresh") : rung.purse;
   // (a plot hoed by tired hands with a hoe they keep hold of: one of the day's is counted, by the option)
   const gripped = (deed === "clear" || deed === "till") && isSpent(purse, now) && hoeFx(tool).grip ? usePower(eased2, tool, "hoGrip", now) : null;
-  const paid = gripped?.ok ? gripped.purse : eased2;
+  const gripPaid = gripped?.ok ? gripped.purse : eased2, hfx = hoeFx(tool);
+  // (a wild plot cleared with a hoe that does both: it is tilled by the same game, so many a day, counted by the option)
+  const both = deed === "clear" && did.plot.soil === "cleared" && hfx.both ? usePower(gripPaid, tool, "hoBoth", now) : null, bothPaid = both?.ok ? both.purse : gripPaid;
+  const tilled = deed === "till" || !!both?.ok;
+  // (and a plot tilled with a hoe that leaves the furrow damp: what is sown in it has had its first watering, so many a day)
+  const damp = tilled && hfx.wet ? usePower(bothPaid, tool, "hoWet", now) : null, paid = damp?.ok ? damp.purse : bothPaid;
+  const left: Plot = both?.ok || damp?.ok ? { soil: "tilled", plant: null, ...(damp?.ok ? { damp: true } : {}) } : did.plot;
   const planted = others > 0 || !!did.plot.plant;
   let next: Bed | undefined = owner === null ? undefined : bed;
   if (deed === "sow" && owner === null) next = { by: me, tended: now, empty: 0 };
   else if (next && owner === me) next = { ...next, tended: now, empty: planted ? 0 : next.empty || now };
   // ── forging: old tools ── (a plot tilled with a hoe that carries as much turns up a worm so often, where the bag has room for it)
-  const worm = deed === "till" && luckOf(`worm|${key}`, now) < hoeFx(tool).worm && roomFor(paid.bag, WORM) > 0;
-  return { ok: true, deed, purse: worm ? { ...paid, bag: put(paid.bag, WORM, 1) } : paid, plot: did.plot, bed: next, got: worm ? [...(did.got ?? []), [WORM, 1]] : did.got ?? [], ...(rung.times > 1 ? { times: rung.times } : {}) };
+  const worm = tilled && luckOf(`worm|${key}`, now) < hfx.worm && roomFor(paid.bag, WORM) > 0;
+  return { ok: true, deed, purse: worm ? { ...paid, bag: put(paid.bag, WORM, 1) } : paid, plot: left, bed: next, got: worm ? [...(did.got ?? []), [WORM, 1]] : did.got ?? [], ...(rung.times > 1 ? { times: rung.times } : {}) };
+}
+
+// ── forging: old tools ──
+/**
+ * What a deed done with a forged hoe or can does to the plots beside the one it was done to. `keys` are the plots of
+ * its row (lib/town/world's `rowOf`), `plots` those of them that are kept, as they stood before the deed; `before`
+ * and `after` the purse as the deed found it and as it left it; `owner` whose the bed is now. None of it costs
+ * anything: no stamina, no water, no game.
+ * - **Lightning** in the hoe or in the can: so often the nearest plot of the row that wants the same deed has it too
+ *   (of two as near, the one further left). `luck`: a number of chance in place of the moment's own.
+ * - **A can that rains** (the counted option: so often a day): a watering in a bed of one's own waters every plant
+ *   of the row that could be watered now. Counted only where another plant is there to be watered.
+ * Gives the purse with whatever was counted, and the plots it changed, by their keys: mostly none.
+ */
+export function beside(key: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, deed: Deed, before: Purse, after: Purse, me: string, now: number,
+  owner: string | null = null, rains: FarmSky = DRY, luck?: number): { purse: Purse; plots: Record<string, Plot> } {
+  const nothing = { purse: after, plots: {} as Record<string, Plot> }, hoes = deed === "clear" || deed === "till";
+  if ((!hoes && deed !== "water") || !keys.includes(key)) return nothing;
+  const hand = handOf(before), tool = heldStack(before), x0 = xOf(key), chance = hoes ? hoeFx(tool).next : canFx(tool).next, rains2 = !hoes && canFx(tool).rain && owner === me;
+  if (!(chance > 0) && !rains2) return nothing;
+  const want = keys.filter((k) => k !== key && deedFor(k, plots[k] ?? WILD, hand, me, now, owner, rains) === deed)
+    .sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
+  if (!want.length) return nothing;
+  const struck = (luck ?? luckOf(`next|${key}`, now)) < chance;
+  if (hoes) {
+    const did = struck ? hoe(want[0], before, plots[want[0]] ?? WILD, hand, now, rains) : null;
+    return did?.ok ? { purse: after, plots: { [want[0]]: did.plot } } : nothing;
+  }
+  const fx = canFx(tool), wet = (k: string): Plot => { const plot = plots[k]!, p = plot.plant!; return { ...plot, plant: { ...p, watered: now, boost: p.boost + wateringOf(before, hand, now, fx) } }; };
+  const rained = rains2 ? usePower(after, tool, "cnRain", now) : null;
+  if (rained?.ok) return { purse: rained.purse, plots: Object.fromEntries(want.map((k) => [k, wet(k)])) };
+  return struck ? { purse: after, plots: { [want[0]]: wet(want[0]) } } : nothing;
 }
 
 /* ── water: from the river, to the well, to the can ─────────────────────── */

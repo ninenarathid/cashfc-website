@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { COOKING, cook, stirMods } from "./cooking";
-import { FARMING, WATER, WILD, canFullNow, canHolds, chore, choreFor, tend, water, type Plant, type Plot } from "./farm";
+import { FARMING, WATER, WILD, beside, canFullNow, canHolds, chore, choreFor, deedFor, mayTwice, see, sow, tend, water, type Plant, type Plot } from "./farm";
 import { FIGHT, LULL, STRIKE, baitKept, called, calledCast, fightPaid, goldStrike, goldWindowOf, livelyOf, lullNow, lulled, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
 import {
   COOK_KINDS, OLD_FX, PLAIN_CAN, PLAIN_COOK, PLAIN_HOE, PLAIN_NET, PLAIN_ROD, canFx, cookFx, easedBy, hitsWith, hoeFx, luckOf, missesWith, netFx, partOf, rodFx, slowPartOf, slowedBy, stirsWith,
@@ -85,8 +85,8 @@ describe("a plain tool reads as nothing", () => {
   });
   it("and the plain objects are the numbers that change nothing", () => {
     expect(PLAIN_ROD).toEqual({ band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false, gold: 0, lull: 1, lullMins: 0 });
-    expect(PLAIN_HOE).toEqual({ band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false });
-    expect(PLAIN_CAN).toEqual({ more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0 });
+    expect(PLAIN_HOE).toEqual({ band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false, both: false, wet: false });
+    expect(PLAIN_CAN).toEqual({ more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0, rain: false, twice: false });
     expect(PLAIN_NET).toEqual({ ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0 });
     expect(PLAIN_COOK).toEqual({ band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0 });
   });
@@ -696,6 +696,76 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     const odd: Array<[ItemId, number]> = [["chili", 2]], fresh = { ...purseOf(top("pot", "ckBig")), bag: put(purseOf(top("pot", "ckBig")).bag, "chili", 2) };
     const mess = done(cook(fresh, odd, ["pot"], 0, NOW));
     expect([mess.made, powerUsed(mess.purse, "ckBig", NOW)]).toEqual(["oddDish", 0]);
+  });
+});
+
+describe("the hoe's and the can's other options, and what lightning does to the plot beside (whoever keeps the game)", () => {
+  const top = (item: ItemId, opt: OptionId): Stack => tool(item, 10, drawn(null, null, opt));
+  const keys = ["1,1", "2,1", "3,1", "4,1"], cleared: Plot = { soil: "cleared", plant: null };
+  it("a hoe that does both: a wild plot is tilled by its clearing, for the clearing's stamina, ten plots a day", () => {
+    let p = purseOf(top("hoe", "hoBoth"));
+    const did = done(tend("1,1", WILD, undefined, 0, 0, p, "me", NOW));
+    expect([did.deed, did.plot, powerUsed(did.purse, "hoBoth", NOW), staminaOf(did.purse, NOW)]).toEqual(["clear", { soil: "tilled", plant: null }, 1, 100 - FARMING.costs.clear]);
+    // (ground already cleared is tilled as ever, and nothing is counted)
+    expect(powerUsed(done(tend("1,1", cleared, undefined, 0, 0, p, "me", NOW)).purse, "hoBoth", NOW)).toBe(0);
+    // (the day's ten spent: a clearing clears)
+    for (let i = 0; i < 10; i++) p = done(tend(`${i},1`, WILD, undefined, 0, 0, p, "me", NOW)).purse;
+    expect(done(tend("1,1", WILD, undefined, 0, 0, p, "me", NOW)).plot).toEqual(cleared);
+    expect(done(tend("1,1", WILD, undefined, 0, 0, purseOf(tool("hoe")), "me", NOW)).plot).toEqual(cleared);
+  });
+  it("a hoe that leaves the furrow damp: what is sown there has had its first watering, a plain one, ten plots a day", () => {
+    const did = done(tend("1,1", cleared, undefined, 0, 0, purseOf(top("hoe", "hoWet")), "me", NOW));
+    expect([did.plot, powerUsed(did.purse, "hoWet", NOW), see("1,1", did.plot, NOW).damp]).toEqual([{ soil: "tilled", plant: null, damp: true }, 1, true]);
+    const seeds = { ...newPurse(), stamina: { day: dayOf(NOW), left: 100 }, bag: put(newPurse().bag, "seedKangkong", 2) };
+    const wet = done(sow(seeds, did.plot, "seedKangkong", "me", NOW)), dry = done(sow(seeds, { soil: "tilled", plant: null }, "seedKangkong", "me", NOW));
+    expect([wet.plot.plant!.watered, wet.plot.plant!.boost - dry.plot.plant!.boost, wet.plot.damp]).toEqual([NOW, FARMING.water.adds * 60_000, undefined]);
+    expect([dry.plot.plant!.watered, see("1,1", wet.plot, NOW).wet, see("1,1", dry.plot, NOW).wet]).toEqual([0, true, false]);
+    // (a plain hoe leaves it as it always did)
+    expect(done(tend("1,1", cleared, undefined, 0, 0, purseOf(tool("hoe")), "me", NOW)).plot).toEqual({ soil: "tilled", plant: null });
+  });
+  it("lightning in the hoe: so often the nearest plot of the row that wants the same deed has it too, and nothing is paid for it", () => {
+    const p = purseOf(tool("hoe", 1, [], ["lightning"]));
+    // (of two as near, the one further left)
+    expect(beside("2,1", keys, {}, "clear", p, p, "me", NOW, null, undefined, 0)).toEqual({ purse: p, plots: { "1,1": cleared } });
+    expect(beside("2,1", keys, { "1,1": cleared, "4,1": cleared }, "till", p, p, "me", NOW, null, undefined, 0).plots).toEqual({ "1,1": { soil: "tilled", plant: null } });
+    // (the chance is the gem's: past it nothing; and with no plot beside that wants the deed, nothing)
+    expect(beside("2,1", keys, {}, "clear", p, p, "me", NOW, null, undefined, OLD_FX.lightning.chance[0]).plots).toEqual({});
+    expect(beside("2,1", keys, {}, "till", p, p, "me", NOW, null, undefined, 0).plots).toEqual({});
+    const plain = purseOf(tool("hoe"));
+    expect(beside("2,1", keys, {}, "clear", plain, plain, "me", NOW, null, undefined, 0)).toEqual({ purse: plain, plots: {} });
+  });
+  it("lightning in the can: so often the nearest plant of the row that could be watered is watered too", () => {
+    const p = purseOf({ ...tool("can", 1, [], ["lightning"]), water: 5 }), plots = { "1,1": sown(), "2,1": sown(), "3,1": sown({ watered: NOW - 1000 }) };
+    const did = beside("2,1", keys, plots, "water", p, p, "me", NOW, null, undefined, 0);
+    expect(Object.keys(did.plots)).toEqual(["1,1"]);
+    expect([did.plots["1,1"].plant!.watered, did.plots["1,1"].plant!.boost, did.purse]).toEqual([NOW, FARMING.water.adds * 60_000, p]);
+    expect(beside("2,1", keys, plots, "water", p, p, "me", NOW, null, undefined, 0.99).plots).toEqual({});
+  });
+  it("a can that rains: a watering in a bed of one's own waters every plant of the row that could be watered, three times a day", () => {
+    const p = purseOf({ ...top("can", "cnRain"), water: 5 }), plots = { "1,1": sown(), "2,1": sown(), "3,1": sown({ watered: NOW - 1000 }), "4,1": sown() };
+    const did = beside("2,1", keys, plots, "water", p, p, "me", NOW, "me");
+    expect([Object.keys(did.plots).sort(), powerUsed(did.purse, "cnRain", NOW)]).toEqual([["1,1", "4,1"], 1]);
+    // (in somebody else's bed, and in one that is nobody's, it is a plain watering; and with no other plant to water none is counted)
+    expect(beside("2,1", keys, plots, "water", p, p, "me", NOW, "other")).toEqual({ purse: p, plots: {} });
+    expect(beside("2,1", keys, plots, "water", p, p, "me", NOW, null)).toEqual({ purse: p, plots: {} });
+    expect(beside("2,1", keys, { "2,1": sown() }, "water", p, p, "me", NOW, "me")).toEqual({ purse: p, plots: {} });
+    let q = p;
+    for (let i = 0; i < 3; i++) q = beside("2,1", keys, plots, "water", q, q, "me", NOW, "me").purse;
+    expect([powerUsed(q, "cnRain", NOW), beside("2,1", keys, plots, "water", q, q, "me", NOW, "me").plots]).toEqual([3, {}]);
+  });
+  it("a can that waters twice: a plant wet from one watering takes one more, ten times a day, and no third until it has dried", () => {
+    const p = purseOf({ ...top("can", "cnTwice"), water: 9 }), wet = sown({ watered: NOW - 1000 });
+    expect([mayTwice(p, NOW), mayTwice(purseOf({ ...tool("can", 10), water: 9 }), NOW)]).toEqual([true, false]);
+    expect([deedFor("1,1", wet, "can", "me", NOW), deedFor("1,1", wet, "can", "me", NOW, null, undefined, true)]).toEqual([null, "water"]);
+    const did = done(water("1,1", p, wet, "can", NOW));
+    expect([did.plot.plant!.watered, did.plot.plant!.twice, did.plot.plant!.boost, powerUsed(did.purse, "cnTwice", NOW), did.purse.bag[0]?.water]).toEqual([NOW, NOW, FARMING.water.adds * 60_000, 1, 8]);
+    expect(water("1,1", did.purse, did.plot, "can", NOW + 1000)).toEqual({ ok: false, why: "wet" });
+    expect(deedFor("1,1", did.plot, "can", "me", NOW + 1000, null, undefined, true)).toBeNull();
+    // (dried and watered plainly again: it takes one more again; a plain can's second watering is refused as ever)
+    const later = NOW + 2 * HOUR, plainly = done(water("1,1", did.purse, did.plot, "can", later));
+    expect(powerUsed(plainly.purse, "cnTwice", NOW)).toBe(1);
+    expect(done(water("1,1", plainly.purse, plainly.plot, "can", later + 1000)).plot.plant!.twice).toBe(later + 1000);
+    expect(water("1,1", purseOf({ ...tool("can"), water: 5 }), wet, "can", NOW)).toEqual({ ok: false, why: "wet" });
   });
 });
 
