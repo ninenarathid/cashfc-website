@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  barShare, beginPlay, brace, chop, headingFor, isOver, leave, missesOf, onTheEdge, outcomeOf, paceNow, seen, startFelling, tick,
+  barShare, beginPlay, brace, chop, headingFor, isOver, leave, missesOf, onTheEdge, outcomeOf, paceNow, seen, startFelling, tick, timberOf,
   type FellEnd, type FellOutcome, type FellPlay, type FellingAsk, type Side,
 } from "@/lib/town/felling";
 import type { Look } from "@/lib/town/look";
@@ -403,7 +403,8 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
         </span>
         {/* where the go stands: the fine timber it is heading for, a pip each (a group a tree), and the chops made */}
         <div className="pointer-events-none absolute inset-x-2 top-7 flex items-start gap-1.5">
-          <span className="flex items-center gap-1 rounded-full border-2 border-[#2a190d] bg-[#4a2f18]/90 px-1.5 py-0.5 font-data text-label tabular-nums text-[#ffeccb]" data-felling-cut={p.cut} data-felling-chops={game.chops}>
+          <span className="flex items-center gap-1 rounded-full border-2 border-[#2a190d] bg-[#4a2f18]/90 px-1.5 py-0.5 font-data text-label tabular-nums text-[#ffeccb]" data-felling-cut={p.cut} data-felling-chops={game.chops}
+                data-hits={p.end === "through" ? game.chops : p.cut} data-need={game.chops}>
             <TownIcon name={"axe" as IconName} size={16} />{p.end === "through" ? game.chops : p.cut}/{game.chops}
           </span>
           <span className="flex flex-wrap items-center gap-1.5 rounded-full border-2 border-[#2a190d] bg-[#4a2f18]/90 px-1.5 py-0.5" data-felling-pips={heading.join(",")} data-edge={edge ? "" : undefined}
@@ -412,7 +413,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
               <span key={t.id} className="flex gap-0.5">
                 {t.timber.map((_, j) => {
                   // (the pip that the next miss puts out has an amber edge)
-                  const lit = j < heading[i], last = lit && j === heading[i] - 1 && edge;
+                  const lit = j < heading[i], last = lit && j === heading[i] - 1 && !over && timberOf(t.timber, missesOf(p) + 1) < heading[i];
                   return <span key={j} className={`grid size-[22px] place-items-center rounded-[3px] border-2 ${lit ? (last ? "border-[#f0c060] bg-[#5a3a1c]" : "border-[#2a190d] bg-[#5a3a1c]") : "border-[#2a190d] bg-[#2a190d]/70 opacity-45 grayscale"}`} data-pip={lit ? (last ? "edge" : "lit") : "out"}><TownIcon name={TIMBER} size={16} /></span>;
                 })}
               </span>
