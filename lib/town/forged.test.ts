@@ -158,6 +158,17 @@ describe("a forged rod", () => {
     expect(strikeWindowOf(done(hold(p, 1)).purse, NOW)).toBe(STRIKE.window);
     expect(strikeWindowOf(purseOf(tool("rod")), NOW)).toBe(STRIKE.window);
   });
+  it("with water and a fast bait forgives strikes too soon, and with light its float shows the bite a moment early", () => {
+    const fx = (s: Stack) => gearOf(purseOf(s).bag, "rod", 0).fx;
+    expect(fx(tool("rod", 0, [], ["water"]))?.spared).toBe(1);
+    expect(fx(tool("rod", 10, [], ["water"]))?.spared).toBe(2);
+    expect(fx(tool("rod", 3, drawn("rdBait")))?.spared).toBe(1);
+    expect(fx(tool("rod", 10, drawn("rdBait"), ["water"]))?.spared).toBe(3);
+    expect(fx(tool("rod", 2, drawn("rdBait")))?.spared).toBe(0);
+    expect(fx(tool("rod", 0, [], ["light"]))?.shimmer).toBe(OLD_FX.light.rod.early[0]);
+    expect(fx(tool("rod", 10, [], ["light"]))?.shimmer).toBe(OLD_FX.light.rod.early[1]);
+    expect(fx(tool("rod", 5))?.shimmer).toBe(0);
+  });
   it("with fire has less line to win, with dark a fiercer fish, with a still water more time before the stretch moves", () => {
     const at = (s: Stack) => startFight("koi", "good", { gear: gearOf(purseOf(s).bag, "rod", 0) }, 11), plain = at(tool("rod"));
     expect(at(tool("rod", 1, [], ["fire"])).length).toBeCloseTo(plain.length * 0.85, 12);

@@ -286,10 +286,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     }
     // (the trial's own log knows the baits of the bag: a line dropped with a stardust bait is written down with the bait that was in hand beside it)
     out.current = { bait: inHand, hour, rain, gear, wait: cast.wait, nibbles: cast.nibbles.length };
+    forgiven.current = 0;
     setPhase({ at: "waiting", wait: cast.wait, nibbles: cast.nibbles, from: performance.now() - cast.lag * 1000, ...(cast.shade ? { shade: cast.shade } : {}), ...(cast.coming ? { coming: cast.coming } : {}),
       ...(cast.pair ? { pair: true } : {}), ...(cast.coming2 ? { coming2: cast.coming2 } : {}), ...(how === "star" ? { star: true } : {}) });
   };
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
+  // ── forging: old tools ── (how many strikes too soon this cast has been forgiven by the rod it went out with: lib/town/forged)
+  const forgiven = useRef(0);
   /** The second line's float and thread, of a rod of two lines. */
   const float2 = useRef<HTMLSpanElement>(null), thread2 = useRef<SVGLineElement>(null);
   /** The whispering float's own: the ring that runs down to the bite, and the flash at the true bite. */
@@ -317,6 +320,13 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         float.current.style.opacity = bitten ? "0.35" : "1";
       }
       if (thread.current) thread.current.setAttribute("y2", String(40 + bob + dip));
+      // ── forging: old tools ── (a rod with light in it: the float glows a moment before the bite)
+      const early = out.current?.gear.fx?.shimmer ?? 0;
+      if (early > 0 && float.current) {
+        const lit = !bitten && s >= cast.wait - early;
+        float.current.style.filter = lit ? "drop-shadow(0 0 2px #fff6d8) drop-shadow(0 0 7px #fff6d8)" : "";
+        float.current.toggleAttribute("data-shimmer", lit);
+      }
       // (a rod of two lines: the second float rides beside the first to its own beat, and goes under with it)
       if (float2.current) {
         const bob2 = reduced ? 0 : Math.sin(t / 420 + 1.9) * 2;
@@ -358,6 +368,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
     // How good a strike it was is this hand's to say, and heard at once; whether anything is on the hook, and what,
     // is the keeper's (its clock gives a moment's grace either way).
     const hit = strikeOf(reaction, { keen: levelOf(p, t, "keen"), spent: isSpent(p, t), gear: out.current?.gear });
+    // ── forging: old tools ── (a strike too soon that the rod forgives: the line stays out with its bait on, and nobody is asked anything)
+    if (!hit && reaction < 0 && forgiven.current < (out.current?.gear.fx?.spared ?? 0)) { forgiven.current++; sfx.wake(); sfx.play("nibble"); return; }
     sfx.wake();
     sfx.play(!hit ? "early" : hit === "perfect" ? "perfect" : "strike");
     setPhase({ at: "striking" });
@@ -737,6 +749,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       // (a script's strike is taken whenever it comes: the line's rest is for hands, which the checks try by the button and the key)
       fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike: () => strike(true), result: () => (phase.at === "result" ? phase : null),
       quick: (on: boolean) => setQuick(on), place: () => place,
+      /** (forging) The gear the line in the water went out with, or what I have to hand; and how many strikes too soon this cast has been forgiven. */
+      gear: () => out.current?.gear ?? gear, forgiven: () => forgiven.current, window: () => strikeWindow({ keen, spent, gear: out.current?.gear ?? gear }),
       /** A sound made where nobody hears it, and measured. */
       sound: (name: FishSound | "tick", tier?: Parameters<typeof measure>[1]) => measure(name, tier),
     };
