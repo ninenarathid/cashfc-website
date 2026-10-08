@@ -39,7 +39,7 @@ import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
 import { CHARMS, GIFTS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { rides } from "@/lib/town/riding";
-import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
+import { ALL_LINE_IDS, LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { BOX } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
@@ -114,6 +114,8 @@ const TownTrade = lazy(() => import("./TownTrade"));
 /** Fishing from the finished deck, and a recipe unrolled to be read: of the same game, and loaded the same way. */
 const TownFish = lazy(() => import("./TownFish"));
 const TownTest = process.env.NODE_ENV !== "production" ? lazy(() => import("./TownTest")) : null;
+// ── felling ── (the mountain's trees, to fell: `next dev` only, where the mountain is; a production build has no such chunk)
+const TownTrees = process.env.NODE_ENV === "development" ? lazy(() => import("./TownTrees")) : null;
 const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
@@ -134,7 +136,7 @@ const TownScroll = lazy(() => import("./TownScroll"));
 const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop"];
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* felling */ "trees"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** What a worn title is written in, by its rank (components/town/TownLines' own, kept here so that the map does not load that screen to draw a name): bronze, silver, gold, and the last rank's own. */
@@ -764,6 +766,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const onForestRef = useRef(false);
   const forestDraw = useRef<FarmDraw | null>(null);
   const registerForest = useCallback((draw: FarmDraw | null) => { forestDraw.current = draw; }, []);
+  // ── felling ── (whether I am on the mountain's map; the trees' own way of drawing what is mine to see over them; and
+  // where a woodpecker flies to from where its member stands: components/town/TownTrees)
+  const [onMountain, setOnMountain] = useState(false);
+  const onMountainRef = useRef(false);
+  const treesDraw = useRef<FarmDraw | null>(null), perchOf = useRef<((at: Vec) => Vec | null) | null>(null);
+  const registerTrees = useCallback((draw: FarmDraw | null) => { treesDraw.current = draw; }, []);
+  const registerPerch = useCallback((perch: ((at: Vec) => Vec | null) | null) => { perchOf.current = perch; }, []);
+  const walkToTile = useCallback((x: number, y: number) => { const ok = sessionRef.current?.walkTo({ x, y }) ?? false; if (ok) cam.current.follow = true; return ok; }, []);
+  // ── end: felling ──
   // The insects (TownBugs): drawn on every map, and a tap is asked of the net before it is a step.
   const bugsDraw = useRef<FarmDraw | null>(null), bugsTap = useRef<((at: Vec) => boolean) | null>(null);
   const registerBugs = useCallback((draw: FarmDraw | null) => { bugsDraw.current = draw; }, []);
@@ -1792,6 +1803,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (farming !== onFarmRef.current) { onFarmRef.current = farming; setOnFarm(farming); }
       const foraging = placeOf(tx, ty) === "forest";
       if (foraging !== onForestRef.current) { onForestRef.current = foraging; setOnForest(foraging); }
+      // ── felling ──
+      const climbing = placeOf(tx, ty) === "mountain";
+      if (climbing !== onMountainRef.current) { onMountainRef.current = climbing; setOnMountain(climbing); }
       const inYard = !mine.path.length && onYard(tx, ty) ? `${tx},${ty}` : "";
       if (inYard !== yardRef.current) { yardRef.current = inYard; setYardTile(inYard ? [tx, ty] : null); }
       // where I stand still (not sitting), for the kitchen; and what the others at the yard's places hold
@@ -2118,6 +2132,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (placeRef.current === "farm") farmDraw.current?.(frame);
       if (placeRef.current === "farm") wellGiftDraw.current?.(frame);   // ── gifts: well ── (the light at the well as a moon flask is poured)
       if (placeRef.current === "forest") forestDraw.current?.(frame);
+      if (placeRef.current === "mountain") treesDraw.current?.(frame);   // ── felling ──
       bugsDraw.current?.(frame);
       // the pots of food that stand about, wherever they were set down
       cookDraw.current?.(frame);
@@ -2432,7 +2447,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * behind its member, catches up when they stand, and is beside them at once after a gate. Nothing of the game hangs
    * on where it is: each page walks the familiars it draws by itself.
    */
-  function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean } | null {
+  function petOf(a: Avatar, dt: number): { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean } | null {
     const name = a.info.pet;
     if (!name || !name.startsWith("fam") || !(name in ICON_ATLAS.icons) || a.byeAt !== undefined) { pets.current.delete(a.info.id); return null; }
     // ── gifts: forest ── (a moss stag is ridden: it is under its member and drawn with them, see drawAvatar; here only
@@ -2456,6 +2471,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       return { at: { x: p.x, y: p.y }, right: p.right, moving: far > 0.9, name: name as IconName, swims: far <= 0.9 };
     }
     // ── gifts: forest ── (my own familiar sent to fetch: it runs to the place, stays a moment, and runs back to my heels)
+    // ── felling ── (a woodpecker flies to the nearest grown tree about its member and clings to its trunk, a little
+    // in front of it so that the tree is drawn behind: components/town/TownTrees says which tree)
+    const perch = name === "famWoodpecker" ? perchOf.current?.(a.pos) ?? null : null;
+    if (perch) {
+      const tx = perch.x + 0.55 - p.x, ty = perch.y + 0.55 - p.y, far = Math.hypot(tx, ty), go = Math.min(far, 7 * dt);
+      if (far > 0.001) { p.x += (tx / far) * go; p.y += (ty / far) * go; if (far > 0.12 && Math.abs(tx - ty) > 0.02) p.right = tx - ty > 0; }
+      return { at: { x: p.x, y: p.y }, right: far > 0.12 ? p.right : false, moving: far > 0.12, name: name as IconName, perched: far <= 0.12 };
+    }
     const sent = a.info.id === me.id && petErrand.current && performance.now() < petErrand.current.until ? petErrand.current : null;
     const goal = sent ?? a.pos;
     const dx = goal.x - p.x, dy = goal.y - p.y, d = Math.hypot(dx, dy), gap = sent ? 0.08 : 0.72;
@@ -2471,12 +2494,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     return { at: { x: p.x, y: p.y }, right: p.right, moving, name: name as IconName };
   }
   /** A familiar at its place: its picture out of the icons', turned the way it goes, hopping as it runs (a butterfly flies and never lands). */
-  function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean }, now: number) {
+  function drawPet(ctx: CanvasRenderingContext2D, pet: { at: Vec; right: boolean; moving: boolean; name: IconName; swims?: boolean; perched?: boolean }, now: number) {
     const img = iconImg.current;
     if (!img?.complete || !img.naturalWidth) return;
     const c = project({ x: pet.at.x + 0.5, y: pet.at.y + 0.5 });
     if (!onScreen(c)) return;
-    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = petScale(pet.name) * sc, flies = pet.name === "famButterfly", still = reducedRef.current;
+    const [x, y, w, h] = ICON_ATLAS.icons[pet.name], sc = cam.current.s, k = petScale(pet.name) * sc, flies = pet.name === "famButterfly" || /* felling: a woodpecker flies too */ pet.name === "famWoodpecker", still = reducedRef.current;
     // ── gifts: fishing ── in the water (the otter by a float): no shadow, a ring going out on the water about it, and
     // only what is above the water drawn, rocking a little
     if (pet.swims) {
@@ -2497,6 +2520,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const bob = still ? 0 : flies ? Math.sin(now / 260) * 3 * sc : pet.moving ? Math.abs(Math.sin(now / 95)) * 3.5 * sc : 0;
     // ── gifts: well ── (a frog hops: long hops as it follows, a small glad one in the rain; components/town/frog-art)
     const frog = pet.name === "famFrog", hop = frog && !still ? frogHop(now, pet.moving, SKIES.raining()) * sc : null;
+    // ── felling ── (a woodpecker on a trunk: up it, with no shadow under it, knocking at the bark now and then)
+    if (pet.perched) {
+      const knock = still ? 0 : Math.floor(now / 120) % 8 < 2 ? -2.5 * sc : 0;
+      ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.translate(Math.round(c.x + knock), Math.round(c.y - (TILE_H * 0.49 + 26) * sc));
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, x, y, w, h, -Math.round((w * k) / 2), -Math.round(h * k), Math.round(w * k), Math.round(h * k));
+      ctx.restore();
+      return;
+    }
     const lift = (flies ? 14 * sc : 0) + (hop ?? bob);
     ctx.fillStyle = "rgba(0,0,0,0.2)";
     ctx.beginPath();
@@ -3696,7 +3730,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Whether I have the moon flask. */
   const hasMoon = giftsTold.gifts.had.includes("thingMoon") && giftsTold.given.includes("thingMoon");
   /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
-  const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
+  const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(ALL_LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
   // A dining table that was tapped from outside the yard: its panel is asked for now that I have stopped in it.
   useEffect(() => {
     if (!feastWant.current || !stops) return;
@@ -4230,6 +4264,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownForest keeper={keeper} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onForest} sfx={sfxRef.current} art={boardArt}
                       bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerForest} sendPet={sendPet} />
+        </Suspense>
+      )}
+      {/* ── felling ── The mountain's trees: felled with an axe in the hand, on a board of their own */}
+      {s && game && keeper && TownTrees && (
+        <Suspense fallback={null}>
+          <TownTrees keeper={keeper} th={w.th} name={me.name} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onMountain}
+                     look={myLook} reduced={reducedRef.current} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
+                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} walk={walkToTile} register={registerTrees} registerPerch={registerPerch} />
         </Suspense>
       )}
       {/* The insects: out on every map, and caught with a net */}
