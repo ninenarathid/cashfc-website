@@ -60,6 +60,16 @@ const CARD_MS = 3200, NOTE_MS = 2600;
 const SWING_MS = 190;
 
 interface Came { key: number; got: Array<[ItemId, number]>; way: boolean; crystal: boolean; vein: boolean }
+/** A line of words over the map for a moment: with the picture of the thing it wants, where it wants one. */
+interface Note { text: string; icon?: IconName }
+/**
+ * A press on the map, as the map tells of it (components/town/Town's pointers): where it came down, in the screen's
+ * own pixels; and that it was let go, or became a pull at the map. `up` answers whether the press had done anything
+ * here already (a swing, a walk up to the rock): the letting go is then no tap besides.
+ */
+export interface MineHold { down: (x: number, y: number) => void; up: () => boolean }
+/** A press being held: where and since when; the rock under it (not looked for until it has been held long enough; null: none); and what it has done. */
+interface Held { x: number; y: number; at: number; rock?: Pick<Tapped, "floor" | "id" | "tile"> | null; swung: boolean; walked: boolean }
 
 /** The cracks of a rock being struck, three stages of them: small pictures drawn once, laid on the rock each frame. */
 let CRACKS: HTMLCanvasElement[] | null = null;
@@ -87,7 +97,7 @@ function cracks(): HTMLCanvasElement[] {
   return CRACKS;
 }
 
-export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced, register, here, warp, walk, openChest, tellLight, lightOfOther }: {
+export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced, register, here, warp, walk, openChest, tellLight, lightOfOther, registerHold }: {
   keeper: Keeper;
   th: boolean;
   /** My name, for whoever opened a way down. */
@@ -110,14 +120,17 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
   /** Tell the room how far my own light reaches when what I wear lights more than a walker's own (0: nothing does); and how far somebody else's was told to reach. */
   tellLight: (tiles: number) => void;
   lightOfOther: (id: string) => number;
+  /** Hand the map what it is to tell of a press on it (and take it back with null): a press held on a rock keeps the pick swinging. */
+  registerHold: (hold: MineHold | null) => void;
 }) {
   const [, setTick] = useState(0);
   const again = useCallback(() => setTick((n) => n + 1), []);
   useEffect(() => { const stop = keeper.watch(again), t = setInterval(again, 5000); return () => { stop(); clearInterval(t); }; }, [keeper, again]);
   const vfx = useMemo(() => new Vfx(), []);
-  const [note, setNote] = useState<string | null>(null);
+  const [note, setNote] = useState<Note | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), NOTE_MS); return () => clearTimeout(t); }, [note]);
-  const say = useCallback((why: string) => { const w = WHY_MINE[why] ?? (WHY as Record<string, [string, string]>)[why]; if (w) setNote(th ? w[0] : w[1]); }, [th]);
+  // (a refusal for want of a pick shows the pick it wants)
+  const say = useCallback((why: string) => { const w = WHY_MINE[why] ?? (WHY as Record<string, [string, string]>)[why]; if (w) setNote({ text: th ? w[0] : w[1], ...(why === "tool" || why === "weak" ? { icon: "pick" as IconName } : {}) }); }, [th]);
   const [came, setCame] = useState<Came | null>(null);
   useEffect(() => { if (!came) return; const t = setTimeout(() => setCame(null), CARD_MS); return () => clearTimeout(t); }, [came]);
 
@@ -149,7 +162,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     if (dayWas.current !== null && dayWas.current !== told.day && whereRef.current.floor > 0 && !isRest(whereRef.current.floor)) {
       const a = World.caveSpots(whereRef.current.floor).arrive;
       warp(a[0], a[1]);
-      setNote(th ? "ถ้ำเปลี่ยนรูปไปแล้ว" : "The cave has shifted");
+      setNote({ text: th ? "ถ้ำเปลี่ยนรูปไปแล้ว" : "The cave has shifted" });
     }
     dayWas.current = told.day;
     setRocksDown(told.gone["0"] ?? []);
@@ -219,7 +232,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
 
   const strikeRock = useCallback((tap: Pick<Tapped, "floor" | "id" | "tile">): boolean => {
     const p = keeper.purse(), held = pickOf(p), me = here(), t = keeper.cave();
-    if (!held || !me || !t || busyRef.current || vein) return false;
+    if (!me || !t || busyRef.current || vein) return false;
+    // no pick in the hand: said, as any other refusal is, and the tap is no step
+    if (!held) { say("tool"); return true; }
     if (t.vein) { aside.current = null; setVein(t.vein); return true; }
     const floor = tap.floor, rock = tap.id, turn = turnOf(keeper.now()), k = `${floor}:${rock}:${turn}`;
     if ((t.gone[String(floor)] ?? []).includes(rock)) return false;
@@ -227,6 +242,8 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     if (has(held, "pkPeek") && !peeks.current.has(k)) {
       void keeper.minePeek(floor, rock).then((did) => { if (did.ok) { peeks.current.set(k, did.peek); again(); } else say(did.why); });
       peeks.current.set(k, "stone");
+      // (a press held on goes on to swing only after a swing's own time: what the look said is seen first)
+      lastSwing.current = performance.now();
       return true;
     }
     const at: [number, number] = [Math.floor(me.x), Math.floor(me.y)];
@@ -272,6 +289,18 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     again();
     return true;
   }, [keeper, here, walk, vein, quake, needOf, name, sfx, vfx, say, again, reduced]);
+
+  // ── a press held on a rock: the pick keeps swinging, a swing at the swing's own time (the map's frame drives it) ──
+  const hold = useRef<Held | null>(null), strikeRef = useRef(strikeRock);
+  strikeRef.current = strikeRock;
+  useEffect(() => {
+    registerHold({
+      // (only a press with a pick in the hand, and nothing else on the screen, may come to be held on a rock)
+      down: (x, y) => { hold.current = !busyRef.current && pickOf(keeper.purse()) ? { x, y, at: performance.now(), swung: false, walked: false } : null; },
+      up: () => { const h = hold.current; hold.current = null; return !!h && (h.swung || h.walked); },
+    });
+    return () => { registerHold(null); hold.current = null; };
+  }, [registerHold, keeper]);
 
   // ── the lift, the last floor's sign ──
   const [lift, setLift] = useState<{ at: number } | null>(null), liftWant = useRef<{ at: number; tile: [number, number] } | null>(null);
@@ -344,6 +373,31 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       if (!t) return;
       const rocks = floor ? World.caveRocks(floor) : World.MOUNTAIN_ROCKS, gone = t.gone[String(floor)] ?? [];
       const loose = t.loose && t.loose.floor === floor ? t.loose.ids : [];
+      // a press held on a rock: once it has been held long enough the rock under it is looked for (the one in front
+      // first, where its picture is on the screen), and the pick swings at it, a swing at the swing's own time, until
+      // the press is let go, the rock is gone, or I am moved out of its reach
+      const h = hold.current;
+      if (h && me && !busyRef.current) {
+        const tick = performance.now();
+        if (h.rock === undefined && tick - h.at >= MINING.swing.hold) {
+          let under: (typeof rocks)[number] | null = null;
+          for (const r of rocks) {
+            if (gone.includes(r.id)) continue;
+            const c = frame.project({ x: r.x + 0.5, y: r.y + 0.62 });
+            if (Math.abs(h.x - c.x) <= 20 * s && h.y >= c.y - 34 * s && h.y <= c.y + 2 * s && (!under || r.x + r.y > under.x + under.y)) under = r;
+          }
+          h.rock = under ? { floor, id: under.id, tile: [under.x, under.y] } : null;
+        }
+        if (h.rock) {
+          const inReach = Math.max(Math.abs(Math.floor(me.x) - h.rock.tile[0]), Math.abs(Math.floor(me.y) - h.rock.tile[1])) <= MINING.reach;
+          if (h.rock.floor !== floor || gone.includes(h.rock.id) || (h.swung && !inReach)) h.rock = null;
+          else if (inReach ? tick - lastSwing.current >= MINING.swing.ms && !asking.current : !h.walked) {
+            // (out of reach: walked up to once, and swung at on getting there)
+            if (inReach) h.swung = true; else h.walked = true;
+            strikeRef.current(h.rock);
+          }
+        }
+      }
       for (const r of rocks) {
         if (gone.includes(r.id)) continue;
         const k = `${floor}:${r.id}:${turn}`, n = swings.current.get(k) ?? 0, peek = peeks.current.get(k);
@@ -391,7 +445,8 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
       // what glints for me (a light gem's): marks laid over the dark, each where its rock is on the screen
       const box = glintBox.current;
       if (box) {
-        const k = box.clientWidth / Math.max(1, frame.ctx.canvas.width);
+        // (the map's points are the screen's own pixels, as this box's are: one to one where the box is the canvas's size)
+        const k = box.clientWidth / Math.max(1, frame.ctx.canvas.clientWidth);
         let i = 0;
         for (const id of floor ? t.glints : []) {
           const r = rocks.find((x) => x.id === id), el = box.children[i] as HTMLElement | undefined;
@@ -462,7 +517,11 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
               {came.crystal && <span className="basis-full text-center font-display text-read font-semibold text-[#bfeaff]">{th ? "ผลึกแตกแล้ว!" : "The crystal breaks!"}</span>}
             </div>
           )}
-          {note && <p className={`${reduced ? "" : "pop-in"} rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm`} data-state="open" data-mine-note aria-live="polite">{note}</p>}
+          {note && (
+            <p className={`${reduced ? "" : "pop-in"} flex items-center gap-2 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm`} data-state="open" data-mine-note data-mine-wants={note.icon ?? ""} aria-live="polite">
+              {note.icon && <TownIcon name={note.icon} size={22} />}{note.text}
+            </p>
+          )}
         </div>
       )}
 

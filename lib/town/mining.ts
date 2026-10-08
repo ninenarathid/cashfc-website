@@ -52,8 +52,8 @@ export const MINING = {
   touch: 2,
   /** The crystal rock: on which floors it may stand, the plus a pick needs, and what it leaves (fragments of silver, and of the floor's gem). */
   crystal: { floors: [28, 30] as [number, number], plus: 10, shards: 20, chips: 5 },
-  /** A swing on the page takes so long (milliseconds), and whoever keeps the game believes none quicker than `least`. */
-  swing: { ms: 320, least: 180 },
+  /** A swing on the page takes so long (milliseconds), and whoever keeps the game believes none quicker than `least`. A press held on a rock so long (`hold`) swings by itself from then on, a swing every `ms`. */
+  swing: { ms: 320, least: 180, hold: 240 },
   /** How far a member sees in the cave, in tiles: with nothing, holding a glowing mushroom, wearing the miner's lamp; a torch set down, and how long it burns. */
   light: { walker: 2, mushroom: 3, lamp: 4, torch: 4, burns: 5 * MINUTE },
   /** What is held as a weak light, and what is set down as a strong one. */

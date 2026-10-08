@@ -784,6 +784,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const mineChest = useCallback((tile: [number, number]) => { openBoxRef.current?.({ x: tile[0], y: tile[1] }); }, []);
   const mineLit = useCallback((tiles: number) => { sessionRef.current?.setLit(tiles); }, []);
   const mineLitOf = useCallback((id: string) => sessionRef.current?.avatars.get(id)?.info.lit ?? 0, []);
+  // (a press held on a rock keeps the pick swinging: TownMine is told where the map is pressed, and when the press is
+  // let go or becomes a pull at the map; it answers a letting go with whether the press had swung already)
+  const mineHold = useRef<{ down: (x: number, y: number) => void; up: () => boolean } | null>(null);
+  const registerMineHold = useCallback((hold: { down: (x: number, y: number) => void; up: () => boolean } | null) => { mineHold.current = hold; }, []);
   // ── gifts: insects ── (the wind net is aimed for as long as the map is pressed and falls where it is let go: TownBugs
   // says whether a press begins such an aim, and is told where it is dragged to and where it is let go)
   const bugsAim = useRef<BugsAim | null>(null), bugsAimOn = useRef(false);
@@ -3216,6 +3220,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // ── gifts: insects ── (another finger down calls the wind net's aim off; a first one on an insect within reach may begin one)
     if (bugsAimOn.current) { bugsAimOn.current = false; bugsAim.current?.loose(null); }
     if (pointers.current.size === 1 && gameRef.current && !personAt(p.x, p.y) && !sessionRef.current?.stuck()) bugsAimOn.current = !!bugsAim.current?.press(bugsAt(p));
+    // ── mining ── (one finger down on the map, on nobody: a press that may be held on a rock; a second finger calls it off)
+    if (pointers.current.size === 1 && gameRef.current && !personAt(p.x, p.y) && !sessionRef.current?.stuck() && !sessionRef.current?.seated) mineHold.current?.down(p.x, p.y); else mineHold.current?.up();
     if (pointers.current.size === 1) {
       Object.assign(g, { mode: "tap", sx: p.x, sy: p.y, lx: p.x, ly: p.y, slop: e.pointerType === "mouse" ? SLOP_MOUSE : SLOP_TOUCH });
     } else if (pointers.current.size === 2) {
@@ -3273,6 +3279,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     if (g.mode === "tap" && Math.hypot(p.x - g.sx, p.y - g.sy) > g.slop) g.mode = "pan";
     if (g.mode === "pan") {
+      mineHold.current?.up();   // ── mining ── (a press that pulls at the map is held on no rock)
       setCam({ s: v.s, cx: v.cx - (p.x - g.lx) / v.s, cy: v.cy - (p.y - g.ly) / v.s });
       v.follow = false;
       if (e.pointerType === "mouse") mouseAt(e.currentTarget, p, "grab");
@@ -3287,6 +3294,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (!had) return;
     // ── gifts: insects ── (the wind net let go: where, if it was dragged there; a plain tap is handed over as ever)
     if (bugsAimOn.current) { bugsAimOn.current = false; bugsAim.current?.loose(g.mode === "none" && e.type === "pointerup" ? bugsAt(local(e.clientX, e.clientY)) : null); }
+    // ── mining ── (a press held on a rock has swung the pick already: letting it go is no tap besides)
+    if (mineHold.current?.up() && g.mode === "tap") g.mode = "none";
     if (pointers.current.size === 0) {
       if (g.mode === "tap" && e.type === "pointerup") tap(g.sx, g.sy);
       g.mode = "none";
@@ -4261,7 +4270,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {s && game && keeper && TownMine && (
         <Suspense fallback={null}>
           <TownMine keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)} reduced={reducedRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} tellLight={mineLit} lightOfOther={mineLitOf} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} tellLight={mineLit} lightOfOther={mineLitOf} registerHold={registerMineHold} />
         </Suspense>
       )}
       {/* The well's book: offered to whoever stands at the farm's well */}
