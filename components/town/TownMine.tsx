@@ -10,7 +10,7 @@ import { MINING, hasBelow, isDug, lightOf, oreOf, pickOf, swingsFor, turnOf, typ
 import { powerLeft } from "@/lib/town/powers";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
-import { has, levelOf } from "@/lib/town/tools";
+import { gemLevel, has, levelOf } from "@/lib/town/tools";
 import { handOf } from "@/lib/town/trade";
 import * as World from "@/lib/town/world";
 import { MOUNTAIN, MOUNTAIN_AT, setCaveDay, walkable, type Vec } from "@/lib/town/world";
@@ -169,6 +169,19 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
     const t = setTimeout(() => { void keeper.caveLook(whereRef.current.floor, tile()).then(again); }, Math.max(500, told.again - keeper.now() + 300));
     return () => clearTimeout(t);
   }, [keeper, told?.again, tile, again]); // eslint-disable-line react-hooks/exhaustive-deps
+  // a pick that makes some rocks glint: what glints is told by where I stand, so it is asked again as I walk (a few
+  // tiles on from where it was last asked, and no oftener than every other second)
+  const sees = !!pick && gemLevel(pick, "light") > 0 && where.floor > 0, askedAt = useRef<[number, number] | null>(null);
+  useEffect(() => {
+    if (!sees) return;
+    const t = setInterval(() => {
+      const at = tile(), was = askedAt.current;
+      if (!at || (was && Math.max(Math.abs(at[0] - was[0]), Math.abs(at[1] - was[1])) < 2)) return;
+      askedAt.current = at;
+      void keeper.caveLook(whereRef.current.floor, at).then(again);
+    }, 2000);
+    return () => { clearInterval(t); askedAt.current = null; };
+  }, [sees, keeper, tile, again]);
   // a guiding bat: a floor's small map is known whole on coming to it
   const bat = keeper.gives("famBat") && familiarOf(purse) === "famBat";
   useEffect(() => { if (where.floor > 0) setKnownWhole(where.floor, bat); }, [where.floor, bat]);

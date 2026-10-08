@@ -630,6 +630,19 @@ try {
     await until("what it came to", async () => !!(await veinCame(A)), 8000).catch(() => {});
     await click(A, "[data-vein-next]");
     await sleep(400);
+    // light: the rocks that hide a vein glint, within its reach of where one stands
+    await kit(A, { gems: ["light"] });
+    const near = (await plain(A, 6))[0], off = (await plain(A, 6)).filter((r) => Math.hypot(r.x - near.x, r.y - near.y) > 9)[0];
+    await A.evaluate(`(${K}.setRock(6, ${near.id}, "vein", 3)${off ? `, ${K}.setRock(6, ${off.id}, "vein", 4)` : ""})`);
+    await beside(A, 6, near.id);
+    await until("the glint", async () => (await told(A)).glints.includes(near.id), 9000).catch(() => {});
+    const glints = (await told(A)).glints;
+    ok("a light gem: a rock near by that hides a vein glints, over the dark, and one far off does not", glints.includes(near.id) && (!off || !glints.includes(off.id))
+      && (await A.evaluate(`[...document.querySelectorAll("[data-mine-glint]")].some((e) => e.style.opacity === "1")`)), { glints, near: near.id, off: off?.id });
+    await A.shot(`${OUT}/mining-glint.png`);
+    await kit(A);
+    await sleep(2500);
+    ok("…and nothing glints for a pick without it", (await told(A)).glints.length === 0);
     await A.evaluate(`(${K}.unsetRocks(), ${K}.setMineLuck(null))`);
   }
 
