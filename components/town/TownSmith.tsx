@@ -145,6 +145,9 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
     if (view !== "forge" || slot < 0 || owed < 0 || laid || busy) return;
     void keeper.smithDraw(slot);
   }, [view, slot, owed, laid, busy, keeper]);
+  // (the options laid out are brought into sight: on a small screen they may come under its foot)
+  const offerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { if (laid) offerRef.current?.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }); }, [laid, reduced]);
   const choose = async (pick: string) => {
     if (busy || slot < 0) return;
     setBusy(true);
@@ -322,10 +325,10 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   );
   /** A draw's options, laid out to choose from: each on its own card. */
   const offer = laid && pending && (
-    <div className="mt-3" data-smith-offer data-at={pending.at}>
+    <div className="mb-3" ref={offerRef} data-smith-offer data-at={pending.at}>
       <p className="mb-2 text-center font-display text-lead font-semibold text-[#f0c46a]">{pending.old ? t("เลือกอันใหม่ หรือเก็บอันเดิม", "Take a new one, or keep the old") : t(`ถึง +${FORGE.milestones[pending.at]} แล้ว เลือกออปชันหนึ่งอย่าง`, `+${FORGE.milestones[pending.at]}: choose one option`)}</p>
       <ul className={`grid gap-2 ${pending.offer.length + (pending.old ? 1 : 0) > 2 && !phone ? "grid-cols-3" : "grid-cols-2"}`}>
-        {[...pending.offer, ...(pending.old ? [pending.old] : [])].map((id, i) => <OptionCard key={id} id={id} th={th} keep={id === pending.old} busy={busy} reduced={reduced} delay={i * 90} onPick={() => void choose(id)} />)}
+        {[...pending.offer, ...(pending.old ? [pending.old] : [])].map((id, i) => <OptionCard key={id} id={id} th={th} at={FORGE.milestones[pending.at]} keep={id === pending.old} busy={busy} reduced={reduced} delay={i * 90} onPick={() => void choose(id)} />)}
       </ul>
     </div>
   );
@@ -378,7 +381,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
               {view !== "smelt" && stack && (
                 <>
                   <span className="absolute" style={{ ...spot(ART.anvil), transform: "translate(-50%, -100%)", animation: !reduced && mods.glow === 2 ? "sm-bob 2.4s ease-in-out infinite" : undefined }} data-smith-anvil data-glow={mods.glow}>
-                    <span className="block" style={glow}><ItemIcon id={stack.item} size={phone ? 46 : 54} /></span>
+                    <span className="block" style={glow}><ItemIcon id={stack.item} size={phone ? 52 : 62} /></span>
                   </span>
                   {level > 0 && <span className="absolute -translate-x-1/2 rounded-full border border-[#2a190d] bg-[#f0c46a] px-1.5 font-data text-meta font-bold text-[#2a190d]" style={{ ...spot([ART.anvil[0] + 0.07, ART.anvil[1] - 0.2]) }}>+{level}</span>}
                   {/* the hammer: three knocks to a try */}
@@ -395,12 +398,13 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                   {came && <span key={`${came.out}-${came.level}`} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: came.out === "taken" ? "radial-gradient(circle at 50% 50%, rgba(255,220,130,.75), rgba(255,220,130,0) 60%)" : "radial-gradient(circle at 50% 50%, rgba(20,20,26,.6), rgba(20,20,26,0) 60%)", animation: reduced ? undefined : "sm-flash 700ms ease-out both", opacity: reduced ? 0 : undefined }} />}
                 </>
               )}
+              {/* what the last thing done came to: a strip at the picture's foot, so that nothing under it moves */}
+              <p className={`absolute inset-x-0 bottom-0 px-3 pb-1.5 pt-6 text-center text-ui font-semibold leading-relaxed ${said ? "bg-gradient-to-t from-black/85 via-black/60 to-transparent" : ""} ${said?.tone === "good" ? "text-[#ffe9a8]" : said?.tone === "bad" ? "text-[#ffb4a0]" : "text-[#f3e3c3]"}`}
+                 aria-live="polite" data-smith-said data-out={came?.out ?? ""}>{said?.text ?? ""}</p>
             </div>
           )}
 
           <div className="px-3 pb-4 pt-3">
-            {/* what the last thing done came to */}
-            <p className={`mb-2 min-h-[1.7em] text-center text-ui font-semibold leading-relaxed ${said?.tone === "good" ? "text-[#ffe9a8]" : said?.tone === "bad" ? "text-[#ffb4a0]" : "text-[#f3e3c3]"}`} aria-live="polite" data-smith-said data-out={came?.out ?? ""}>{said?.text ?? ""}</p>
 
             {view === "smelt" && (
               <div data-smith-smelt>
@@ -487,11 +491,10 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
             {view === "forge" && (
               <div data-smith-forge>
                 {rack}
-                {card}
                 {offer}
                 {/* drawing an option again: which gem pays */}
                 {again !== null && stack && !laid && (
-                  <div className="mt-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3" data-smith-redraw={again}>
+                  <div className="mb-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3" data-smith-redraw={again}>
                     <p className="text-ui text-[#f3e3c3]">{t("สุ่มออปชันนี้ใหม่ ใช้พลอย 1 เม็ด (ธาตุไหนก็ได้) กับ", "Draw this option again for 1 gem of any element and")} <Coins n={SMITH.redraw.fee} th={th} small className="inline-flex" /></p>
                     {gems.length ? (
                       <ul className="mt-2 flex flex-wrap gap-1.5">
@@ -507,11 +510,11 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                 )}
                 {/* the next try: what it takes, how it may go */}
                 {stack && kind && !laid && again === null && (level >= FORGE.top ? (
-                  <p className="mt-3 rounded-2xl border-2 border-[#f0c46a] bg-[#3a2a12] px-3 py-3 text-center font-display text-lead font-semibold text-[#ffe9a8]" data-smith-top>{t("ถึงขั้นสูงสุดแล้ว", "It is at the top")}</p>
+                  <p className="rounded-2xl border-2 border-[#f0c46a] bg-[#3a2a12] px-3 py-3 text-center font-display text-lead font-semibold text-[#ffe9a8]" data-smith-top>{t("ถึงขั้นสูงสุดแล้ว", "It is at the top")}</p>
                 ) : cost && odds && (
-                  <div className="mt-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-try data-to={level + 1}>
+                  <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-try data-to={level + 1}>
                     <p className="flex items-center gap-2 font-display text-lead font-semibold text-[#f3e3c3]">
-                      <span className="tabular-nums">+{level}</span><TownIcon name="chevron" size={12} /><span className="tabular-nums text-[#f0c46a]">+{level + 1}</span>
+                      <span>{itemName(stack.item, th)}</span><span className="tabular-nums">+{level}</span><TownIcon name="chevron" size={12} className="-rotate-90" /><span className="tabular-nums text-[#f0c46a]">+{level + 1}</span>
                     </p>
                     <div className="mt-2 flex flex-wrap items-center gap-2">
                       <Need id={cost.ore} have={held(purse.bag, cost.ore)} want={cost.n} th={th} />
@@ -525,6 +528,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     </button>
                   </div>
                 ))}
+                {card && <div className="mt-3">{card}</div>}
               </div>
             )}
 
@@ -672,12 +676,12 @@ function Odds({ odds, th }: { odds: { take: number; stay: number; down: number }
   );
 }
 /** One option of a draw, on a card of its own: its name, what it does, and the button that takes it. */
-function OptionCard({ id, th, keep, busy, reduced, delay, onPick }: { id: OptionId; th: boolean; keep: boolean; busy: boolean; reduced: boolean; delay: number; onPick: () => void }) {
+function OptionCard({ id, th, at, keep, busy, reduced, delay, onPick }: { id: OptionId; th: boolean; at: number; keep: boolean; busy: boolean; reduced: boolean; delay: number; onPick: () => void }) {
   const o = OPTIONS[id], does = optionDoes(id);
   return (
     <li className={`flex flex-col rounded-2xl border-2 p-2.5 ${keep ? "border-[#6b4a2a] bg-[#2a1d12]" : "border-[#f0c46a] bg-gradient-to-b from-[#4a3423] to-[#2a1d12] shadow-[0_0_0_2px_rgba(240,196,106,0.18)]"}`}
         style={reduced ? undefined : { animation: `sm-rise 220ms ease-out ${delay}ms both` }} data-smith-option={id} data-keep={keep}>
-      <span className="font-data text-label uppercase text-[#c9a877]">{keep ? (th ? "อันเดิม" : "The old one") : th ? `ขั้น ${o.pool}` : `Pool ${o.pool}`}</span>
+      <span className="font-data text-label uppercase text-[#c9a877]">{keep ? (th ? "อันเดิม" : "The old one") : th ? `ออปชันขั้น +${at}` : `An option of +${at}`}</span>
       <span className="mt-0.5 font-display text-lead font-semibold leading-snug text-[#f3e3c3]">{th ? o.name.th : o.name.en}</span>
       <span className="mt-1 flex-1 text-meta leading-relaxed text-[#d9c39b]">{th ? does.th : does.en}</span>
       <button type="button" onClick={onPick} disabled={busy} data-smith-choose={id}
@@ -695,7 +699,7 @@ function SmeltRow({ piece, th, busy, free, may, have, coins, timber, costOf, bur
   return (
     <li className="rounded-xl border border-[#6b4a2a] bg-[#2a1d12] px-2.5 py-2" data-smith-row={piece} data-may={may}>
       <div className="flex items-center gap-2">
-        <ItemIcon id={rule.of} size={22} /><TownIcon name="chevron" size={10} className="opacity-70" /><ItemIcon id={piece} size={26} />
+        <ItemIcon id={rule.of} size={22} /><TownIcon name="chevron" size={10} className="-rotate-90 opacity-70" /><ItemIcon id={piece} size={26} />
         <span className="min-w-0 flex-1 truncate text-ui font-semibold text-[#f3e3c3]">{th ? ITEMS[piece].name.th : ITEMS[piece].name.en}</span>
         <span className="font-data text-meta tabular-nums text-[#c9a877]">{rule.mins} {th ? "นาที" : "min"}</span>
       </div>
