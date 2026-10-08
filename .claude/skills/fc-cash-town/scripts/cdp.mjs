@@ -2,7 +2,7 @@
 // `goto`, `evaluate`, `shot`, `send` and `close`; `until(label, fn, ms)` waits for something to come true.
 // `page.tab(label)` opens another tab of the same browser: the same localStorage, its own sessionStorage, so a second
 // tester who shares what the trial keeps for the whole browser (the farm, the well, the pots).
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -50,6 +50,32 @@ async function attach(label, url, size) {
   };
 }
 
+/**
+ * Every browser this script opened: its process and its profile folder, which go with the script, whichever way it
+ * ends. (`close` removes the profile a moment later, on a timer; but every check ends with `process.exit`, which no
+ * timer outlives, so each run left its profile in the temp folder, 90 to 200 MB a browser. On 2026-10-08 there were
+ * 835 of them and the disk was full, mid-check.)
+ * - Chrome's own children hold files in the profile for a moment after the browser is gone: on Windows the whole tree
+ *   is ended first, and what still cannot be removed is left to a process of its own that tries for some seconds more.
+ * - Only a browser that has not ended yet is ended: once it has, Windows may give its number to somebody else's
+ *   process (another check's Chrome), and that must not be ended in its place.
+ */
+const OPENED = new Set();
+process.once("exit", () => {
+  for (const { proc, profile } of OPENED) {
+    try {
+      if (proc.exitCode === null && proc.signalCode === null) {
+        if (process.platform === "win32" && proc.pid) spawnSync("taskkill", ["/pid", String(proc.pid), "/T", "/F"], { stdio: "ignore" });
+        else proc.kill();
+      }
+    } catch {}
+    try { rmSync(profile, { recursive: true, force: true, maxRetries: 6, retryDelay: 100 }); continue; } catch {}
+    try {
+      spawn(process.execPath, ["-e", `setTimeout(() => { try { require("fs").rmSync(${JSON.stringify(profile)}, { recursive: true, force: true, maxRetries: 20, retryDelay: 300 }); } catch {} }, 1500)`], { detached: true, stdio: "ignore" }).unref();
+    } catch {}
+  }
+});
+
 /** `flags`: more of Chrome's own switches, for a check that needs a browser unlike a member's (town-fps: a fast screen). */
 export async function browser(label, size = { width: 1280, height: 860 }, flags = []) {
   const profile = mkdtempSync(join(tmpdir(), `town-${label}-`));
@@ -57,6 +83,7 @@ export async function browser(label, size = { width: 1280, height: 860 }, flags 
     "--no-first-run", "--no-default-browser-check", "--use-fake-ui-for-media-stream",
     "--use-fake-device-for-media-stream", "--autoplay-policy=no-user-gesture-required",
     "--disable-background-timer-throttling", "--disable-backgrounding-occluded-windows", "--disable-renderer-backgrounding", ...flags, "about:blank"], { stdio: "ignore" });
+  OPENED.add({ proc, profile });
   let port;
   for (let i = 0; i < 150 && !port; i++) {
     try { port = readFileSync(join(profile, "DevToolsActivePort"), "utf8").split("\n")[0]; } catch { await sleep(100); }
