@@ -293,6 +293,9 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const float = useRef<HTMLSpanElement>(null), ring = useRef<HTMLSpanElement>(null), thread = useRef<SVGLineElement>(null);
   // ── forging: old tools ── (how many strikes too soon this cast has been forgiven by the rod it went out with: lib/town/forged)
   const forgiven = useRef(0);
+  /** (for scripts) What I fish with as it is now, and the strike's moment with it. */
+  const mine = useRef({ gear, keen, spent });
+  mine.current = { gear, keen, spent };
   /** The second line's float and thread, of a rod of two lines. */
   const float2 = useRef<HTMLSpanElement>(null), thread2 = useRef<SVGLineElement>(null);
   /** The whispering float's own: the ring that runs down to the bite, and the flash at the true bite. */
@@ -750,7 +753,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       fight: () => fight.current, hold: (on: boolean) => { holding.current = on; }, strike: () => strike(true), result: () => (phase.at === "result" ? phase : null),
       quick: (on: boolean) => setQuick(on), place: () => place,
       /** (forging) The gear the line in the water went out with, or what I have to hand; and how many strikes too soon this cast has been forgiven. */
-      gear: () => out.current?.gear ?? gear, forgiven: () => forgiven.current, window: () => strikeWindow({ keen, spent, gear: out.current?.gear ?? gear }),
+      gear: () => mine.current.gear, forgiven: () => forgiven.current, window: () => strikeWindow({ keen: mine.current.keen, spent: mine.current.spent, gear: mine.current.gear }),
       /** A sound made where nobody hears it, and measured. */
       sound: (name: FishSound | "tick", tier?: Parameters<typeof measure>[1]) => measure(name, tier),
     };
