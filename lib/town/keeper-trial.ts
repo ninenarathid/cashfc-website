@@ -23,6 +23,8 @@ import { trialFor, type Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
 import type { RowDid } from "./keeper";
+// ── the lamp relay ──
+import type { LampMap } from "./lamps";
 
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
@@ -415,6 +417,21 @@ class TrialKeeper implements Keeper {
     return did;
   }
   async stoneDrop(): Promise<Did> { return this.trial.stoneDrop(); }
+
+  // ── the lamp relay ── (whoever takes a flame is in another tab: told through the room, as the database's keeper tells them)
+  lamps() { return this.trial.lamps(); }
+  async lampsLook() { /* the lamps are in this browser already */ }
+  async flameTake(map: LampMap, at: [number, number]): Promise<Did<{ until: number }>> { return this.trial.flameTake(map, at); }
+  async flamePass(to: string): Promise<Did<{ until: number }>> {
+    const did = this.trial.flamePass(to);
+    if (did.ok) this.onDeed?.("lamps", to);
+    return did;
+  }
+  async lampLight(map: LampMap, post: number, at: [number, number]): Promise<Did<{ n: number; of: number; full: boolean }>> {
+    const did = this.trial.lampLight(map, post, at);
+    if (did.ok) this.onDeed?.("lamps");
+    return did;
+  }
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

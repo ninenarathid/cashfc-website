@@ -267,7 +267,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "" };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", carry: i.carry ?? "", flame: i.flame ?? 0 };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -910,7 +910,7 @@ export class TownSession {
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
             ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
-            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}) },
+            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}), ...(d.flame !== undefined ? { flame: d.flame } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined, sat: ++this.sittings,
         });
       } else {
@@ -1047,6 +1047,11 @@ export class TownSession {
   setCarrying(thing: string | null) {
     if ((this.self.info.carry ?? "") !== (thing ?? "")) this.tell({ carry: thing ?? "" });
   }
+  /** Tell the room of the flame I bear (lib/town/lamps): the moment it dies by the clock of whoever keeps the game, or 0 for none. */
+  setFlame(until: number) {
+    const at = until > 0 ? Math.floor(until) : 0;
+    if ((this.self.info.flame ?? 0) !== at) this.tell({ flame: at });
+  }
   /** Tell the room what I am doing with a rod: 0 nothing, 1 it is in my hand, 2 my line is in the water, 3 a fish is on, 4 one is landed this moment. */
   setFishing(n: 0 | 1 | 2 | 3 | 4) {
     if ((this.self.info.fish ?? 0) !== n) this.tell({ fish: n });
@@ -1158,6 +1163,7 @@ export class TownSession {
         spent: a.info.spent ?? null,
         pet: a.info.pet ?? "",
         carry: a.info.carry ?? "",
+        flame: a.info.flame ?? 0,
         going: a.goneAt !== undefined,
         sign: a.info.sign ?? "",
         circle: a.info.circle ?? "",

@@ -87,6 +87,8 @@ export interface Doing {
   circle?: string;
   /** What they carry in both hands that is no thing of the bag (a stone for the bridge: lib/town/bridge), "" when nothing; missing from a browser older than that. Whoever carries something walks slower, on every page that walks them (lib/town/carry). */
   carry?: string;
+  /** The flame they bear from a fire to a lamp post (lib/town/lamps): the moment it dies, in ms of the clock of whoever keeps the game; 0 when none; missing from a browser older than that. Every page draws it in their hands, with what is left of it. */
+  flame?: number;
 }
 
 /**
@@ -188,6 +190,7 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   if (typeof p.sign === "string") { const sign = decodeSign(p.sign); d.sign = sign ? encodeSign(sign) : ""; }
   if (typeof p.circle === "string" && /^[A-Za-z0-9_-]{0,64}$/.test(p.circle)) d.circle = p.circle;
   if (typeof p.carry === "string" && /^[a-z]{0,24}$/.test(p.carry)) d.carry = p.carry;
+  if (typeof p.flame === "number" && Number.isFinite(p.flame) && p.flame >= 0) d.flame = Math.floor(p.flame);
   return d;
 }
 
