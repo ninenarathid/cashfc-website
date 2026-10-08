@@ -14,6 +14,7 @@ import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
+import { useLeaving } from "./useLeaving";
 import type { GameResult } from "./TownGame";
 import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
@@ -202,6 +203,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** (`whole`: tired hands steadying themselves for a row's deed that has no game of its own, the pouch's sowing: done, the whole row is sown) */
   /** (`sweep`: the ripe plants of a row that the crescent sickle sweeps along once, from one end to the other: where each stands in the row, what it is, and how much harder it is for me) */
   /** (`long`: the plants of a row of somebody else's that the gardener's gloves water at one long pour, from the row's head: where each stands in the row and what it is; `hard`: how much harder the row is for me) */
+  const leaving = useLeaving(keeper);
   const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
     long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
@@ -935,6 +937,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           },
           onDone: (result: GameResult) => {
             const { key: k, work, row } = working;
+            // (its own end has come: a board shut in the blink before this was not left)
+            leaving.ended(working);
             setWorking(null);
             // (a row worked at a swing is one deed, the keeper's to judge whole: told how each plot's beat went, it does
             // each plot whose beat was hit as if it had been hoed by itself, and leaves each whose beat was missed)
@@ -959,7 +963,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           },
           // (a board shut by its member is written down too: how often a game is given up is how hard it is found)
           onCancel: () => {
-            keeper.record({ game: "farming", board: game ?? undefined, how: "left", at: keeper.now(), won: false, secs: 0, spent: isSpent(purse, now), buff: null, what: working.work, need: 0, hits: 0, misses: 0 });
+            leaving.left(working, { game: "farming", board: working.row ? "row" : game ?? undefined, how: "left", at: keeper.now(), won: false, secs: 0, spent: isSpent(purse, now), buff: null, what: working.work, need: 0, hits: 0, misses: 0 });
             setWorking(null);
           },
         };

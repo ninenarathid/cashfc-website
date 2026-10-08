@@ -15,6 +15,7 @@ import { YARD } from "@/lib/town/yard";
 import type { FarmDraw } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
+import { useLeaving } from "./useLeaving";
 import type { GameResult } from "./TownGame";
 import { AT_THE_POT, BURST, BuffAura } from "./TownBuffFx";
 import TownFeast, { clockOf } from "./TownFeast";
@@ -277,6 +278,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   /* ── cooking ── */
   const [open, setOpen] = useState(false);
   const [things, setThings] = useState<Array<[ItemId, number]>>([]);
+  const leaving = useLeaving(keeper);
   const [stirring, setStirring] = useState<{ things: Array<[ItemId, number]>; crew: Array<ItemId | null> } | null>(null);
   /** What came of the last go, while its card is up. */
   const [result, setResult] = useState<KitchenResult | null>(null);
@@ -385,14 +387,16 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   const giveUp = useCallback(() => {
     const job = stirring;
     setStirring(null);
-    if (job) keeper.record({ game: "cooking", board: job.crew[0] === "skewer" ? "roasting" : "stirring", how: "left", at: keeper.now(), won: false, secs: 0, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "nothing", need: 0, hits: 0, misses: 0 });
-  }, [stirring, keeper]);
+    if (job) leaving.left(job, { game: "cooking", board: job.crew[0] === "skewer" ? "roasting" : "stirring", how: "left", at: keeper.now(), won: false, secs: 0, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "nothing", need: 0, hits: 0, misses: 0 });
+  }, [stirring, keeper, leaving]);
   const finish = useCallback((result: GameResult) => {
     const job = stirring;
+    // (its own end has come: a board shut in the blink before this was not left)
+    leaving.ended(job);
     setStirring(null);
     // (cooked by hand with the flame set to guard the pot: what comes to nothing comes back, while it has any of the day's left)
     if (job) void cooked(job, result, flameHad && flameOn && flameLeft > 0 ? { flame: true } : {});
-  }, [stirring, cooked, flameHad, flameOn, flameLeft]);
+  }, [stirring, cooked, flameHad, flameOn, flameLeft, leaving]);
 
   /* ── the hearth sprite (lib/town/cooking's cookWith): while it follows me, a recipe I have made is cooked with no game ── */
   const spriteOn = works(purse, "famSprite"), spriteLeft = spriteOn ? usesLeft(purse, "famSprite", now) : 0;

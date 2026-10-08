@@ -14,6 +14,7 @@ import { atWell, fishFrom, yardPlace } from "@/lib/town/world";
 import TownHanding, { newOtherHand, type HandingResult, type OtherHand } from "./TownHanding";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
+import { useLeaving } from "./useLeaving";
 import TownPouring from "./TownPouring";
 
 export type { Stander };
@@ -127,6 +128,7 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2800); return () => clearTimeout(t); }, [note]);
   const [busy, setBusy] = useState(false);
   /** The handing on that tired hands are at: to whom. */
+  const leaving = useLeaving(keeper);
   const [working, setWorking] = useState<Stander | null>(null);
 
   /**
@@ -337,13 +339,14 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
                            onHit={(hit) => { sfx?.wake(); if (!hit) sfx?.work("knock"); }}
                            onDone={(result) => {
                              const to = working;
+                             leaving.ended(to);
                              setWorking(null);
                              keeper.record({ game: "farming", board: "pouring", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: "pour", need: result.need, hits: result.hits, misses: result.misses });
                              if (result.dropped) { say("shaky"); return; }
                              void hand_on(to);
                            }}
                            onCancel={() => {
-                             keeper.record({ game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "pour", need: 0, hits: 0, misses: 0 });
+                             leaving.left(working, { game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "pour", need: 0, hits: 0, misses: 0 });
                              setWorking(null);
                            }} />
             </div>

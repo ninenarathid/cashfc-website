@@ -13,6 +13,7 @@ import { WELL } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
+import { useLeaving } from "./useLeaving";
 import TownPouring from "./TownPouring";
 import { FLASK_LIGHT_MS, drawFlaskLight } from "./moon-art";
 
@@ -76,6 +77,7 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 4200); return () => clearTimeout(t); }, [note]);
   const say = useCallback((why: string) => { const w = WHY[why] ?? WHY.amount; setNote(th ? w[0] : w[1]); }, [th]);
   /** The pour that tired hands are at: how many bucketfuls. */
+  const leaving = useLeaving(keeper);
   const [working, setWorking] = useState<number | null>(null);
   useEffect(() => { if (working !== null && !canPour) setWorking(null); }, [working, canPour]);
 
@@ -203,13 +205,14 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
                          onHit={(hit) => { sfx?.wake(); if (!hit) sfx?.work("knock"); }}
                          onDone={(result) => {
                            const n = working;
+                           leaving.ended("flask");
                            setWorking(null);
                            keeper.record({ game: "farming", board: "pouring", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: "flask", need: result.need, hits: result.hits, misses: result.misses });
                            if (result.dropped) { say("shaky"); return; }
                            void pour(n);
                          }}
                          onCancel={() => {
-                           keeper.record({ game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "flask", need: 0, hits: 0, misses: 0 });
+                           leaving.left("flask", { game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "flask", need: 0, hits: 0, misses: 0 });
                            setWorking(null);
                          }} />
           </div>
