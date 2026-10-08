@@ -1,7 +1,7 @@
 import { KINDS } from "./forest";
 import { BUGS } from "./insects";
 import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
-import { LINES, LINE_IDS, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
+import { ALL_LINE_IDS, LINES, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
 import { optN } from "./tools";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 
@@ -38,6 +38,9 @@ export const POINTS = {
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
   insects: { plain: 1, way: 3, rare: 8, pays: 20 },
   farming: { every: 12 },
+  // ── mining ── (a rock broken, a vein played out, a way down found, the day's crystal rock; the first of each kind of fragment is the "first".
+  // `lent`, `lending`: a hand lent to a rock somebody else struck first, on the mining line and on the helpers')
+  mining: { rock: 1, vein: 3, way: 5, crystal: 10, lent: 1, lending: 1 },
 };
 
 /**
@@ -48,9 +51,9 @@ export const POINTS = {
 export function linesRow() {
   const insects = Object.fromEntries(Object.keys(BUGS).map((id) => [id, bugPoints(id)]));
   return {
-    ids: [...LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
-    marks: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].marks])),
-    day: Object.fromEntries(LINE_IDS.map((id) => [id, LINES[id].day])),
+    ids: [...ALL_LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
+    marks: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].marks])),
+    day: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].day])),
     kitchen: {
       ladled: POINTS.kitchen.ladled, pots: POINTS.kitchen.pots, ladling: POINTS.kitchen.ladling,
       pot: Object.fromEntries([...DISH_IDS.flatMap((id) => (DISHES[id].recipe ? [[id, DISHES[id].recipe!.serves] as [string, number]] : [])), ...MAKE_IDS.map((id) => [id, POINTS.kitchen.made] as [string, number])]),
@@ -60,6 +63,7 @@ export function linesRow() {
     forest: { how: { pick: POINTS.forest.pick, choose: POINTS.forest.choose, shake: POINTS.forest.shake, dig: POINTS.forest.dig }, rare: POINTS.forest.rare, rares: [...RARE_WILD].sort() },
     insects,
     farming: Object.fromEntries(CROP_IDS.map((id) => [id, Math.max(1, Math.floor(CROPS[id].hours / POINTS.farming.every))])),
+    mining: POINTS.mining,   // ── mining ──
   };
 }
 
@@ -135,6 +139,28 @@ export function countsOf(d: Done, doer: string): Counts[] {
       const raw = bugPoints(thing);
       return raw ? [{ to: null, line: "insects", raw, first: `insects:${thing}` }] : [];
     }
+    // ── mining ── (lib/town/mining: a deed for each rock broken, with the fragments it left if it left any; one for a
+    // vein played out, with the ore and the gem it gave; one for a way down found; one for the crystal rock. A vein's
+    // second go, a twin's, counts for nothing but its firsts)
+    case "mine":
+      return [{ to: null, line: "mining", raw: POINTS.mining.rock * Math.max(1, Math.floor(d.n)), ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) }];
+    case "vein":
+      return [
+        { to: null, line: "mining", raw: d.doc.again ? 0 : POINTS.mining.vein, ...(thing ? { first: `mining:${thing}` } : {}) },
+        ...(typeof d.doc.chip === "string" ? [{ to: null, line: "mining" as const, raw: 0, first: `mining:${d.doc.chip}` }] : []),
+      ];
+    case "delve":
+      return [{ to: null, line: "mining", raw: POINTS.mining.way }];
+    // (a rock somebody else struck first, broken with my swings in it: a point on this line and one on the helpers')
+    case "hew":
+      return typeof d.doc.whose === "string" && d.doc.whose !== doer
+        ? [{ to: null, line: "mining", raw: POINTS.mining.lent }, { to: null, line: "helpers", raw: POINTS.mining.lending }] : [];
+    case "crystal":
+      return [
+        { to: null, line: "mining", raw: POINTS.mining.crystal, ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) },
+        ...(typeof d.doc.chip === "string" ? [{ to: null, line: "mining" as const, raw: 0, first: `mining:${d.doc.chip}` }] : []),
+      ];
+    // ── end: mining ──
     case "pick": {
       // (a plant one sowed: a picking of somebody else's plant is no farming of one's own, and is nobody's help either)
       const hours = CROPS[thing as CropId]?.hours;

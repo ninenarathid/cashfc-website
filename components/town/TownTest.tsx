@@ -7,8 +7,8 @@ import {
   type BaitId, type CropId, type FishId, type ItemId, type ItemKind,
 } from "@/lib/town/items";
 import { PUT_ON, WATER } from "@/lib/town/farm";
-import { GIFTS, giftOf, giftsOf, type CharmId } from "@/lib/town/gifts";
-import { LINES, LINE_IDS, rankOf } from "@/lib/town/lines";
+import { ALL_GIFTS, giftOf, giftsOf, type CharmId } from "@/lib/town/gifts";
+import { ALL_LINE_IDS, LINES, rankOf } from "@/lib/town/lines";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE, isRod } from "@/lib/town/gear";
 import { HINT_IDS, HINT_PRICE, hintOf } from "@/lib/town/hints";
 import { BASIC, UNLOCKS } from "@/lib/town/orders";
@@ -203,12 +203,12 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
             );
           })()}
           {/* the lines of work and the gifts of their ranks: points to reach a rank, every charm at once, and what is worn */}
-          <Row label={th ? "แต้มสายอาชีพ" : "Points on the lines"} value={<span className="font-data text-meta tabular-nums text-ink">{LINE_IDS.map((id) => `${th ? LINES[id].name.th.replace("สาย", "") : LINES[id].name.en.replace("The ", "")} ${rankOf(id, trial.lines().lines[id].points)}`).join(" · ")}</span>}>
-            {[0, 60, 400, 12000].map((n) => <Do key={n} onClick={() => { for (const id of LINE_IDS) if (id !== "well") trial.setLine(id, n); setSaid(th ? `ตั้งทุกสายเป็น ${n} แต้มแล้ว (ยกเว้นหาบน้ำ ซึ่งนับเป็นถัง)` : `Every line set to ${n} points (but the well's, which counts buckets)`); }}>{n}</Do>)}
+          <Row label={th ? "แต้มสายอาชีพ" : "Points on the lines"} value={<span className="font-data text-meta tabular-nums text-ink">{ALL_LINE_IDS.map((id) => `${th ? LINES[id].name.th.replace("สาย", "") : LINES[id].name.en.replace("The ", "")} ${rankOf(id, trial.lines().lines[id].points)}`).join(" · ")}</span>}>
+            {[0, 60, 400, 12000].map((n) => <Do key={n} onClick={() => { for (const id of ALL_LINE_IDS) if (id !== "well") trial.setLine(id, n); setSaid(th ? `ตั้งทุกสายเป็น ${n} แต้มแล้ว (ยกเว้นหาบน้ำ ซึ่งนับเป็นถัง)` : `Every line set to ${n} points (but the well's, which counts buckets)`); }}>{n}</Do>)}
           </Row>
-          <Row label={th ? "เครื่องราง" : "Charms"} value={<span className="text-meta text-ink">{(() => { const g = giftsOf(purse); return `${th ? "มี" : "have"} ${g.had.length} / ${GIFTS.length} · ${th ? "ใส่" : "worn"}: ${g.charms.map((id) => (th ? giftOf(id)?.name.th : giftOf(id)?.name.en)).join(", ") || "–"}`; })()}</span>}>
+          <Row label={th ? "เครื่องราง" : "Charms"} value={<span className="text-meta text-ink">{(() => { const g = giftsOf(purse); return `${th ? "มี" : "have"} ${g.had.length} / ${ALL_GIFTS.length} · ${th ? "ใส่" : "worn"}: ${g.charms.map((id) => (th ? giftOf(id)?.name.th : giftOf(id)?.name.en)).join(", ") || "–"}`; })()}</span>}>
             <Do onClick={() => { trial.setGifts(true); setSaid(th ? "ได้เครื่องรางครบทุกชิ้นแล้ว ไปใส่ได้ที่ ตัวฉัน (แตะตัวเอง หรือปุ่มสายอาชีพ)" : "You have every charm: wear them under Me (tap yourself, or the lines' button)"); }}>{th ? "ได้ครบทุกชิ้น" : "Have them all"}</Do>
-            {GIFTS.filter((g) => g.kind === "charm").map((g) => {
+            {ALL_GIFTS.filter((g) => g.kind === "charm").map((g) => {
               const worn = giftsOf(purse).charms, on = worn.includes(g.id as CharmId);
               return (
                 <Do key={g.id} on={on} onClick={() => {
@@ -221,7 +221,7 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
             <Do onClick={() => { trial.setGifts(false); setSaid(th ? "ล้างเครื่องรางและภูตแล้ว" : "Charms and familiars cleared"); }}>{th ? "ล้าง" : "Clear"}</Do>
           </Row>
           <Row label={th ? "ภูตคู่ใจ" : "A familiar"} value={<span className="text-meta text-ink">{(() => { const id = giftsOf(purse).familiar; return id ? (th ? giftOf(id)?.name.th : giftOf(id)?.name.en) : "–"; })()}</span>}>
-            {GIFTS.filter((g) => g.kind === "familiar").map((g) => {
+            {ALL_GIFTS.filter((g) => g.kind === "familiar").map((g) => {
               const on = giftsOf(purse).familiar === g.id;
               return (
                 <Do key={g.id} on={on} onClick={() => {
@@ -232,6 +232,27 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
               );
             })}
           </Row>
+          {/* ── mining ── (the mountain and the cave are `next dev`'s only: a pick to hold, as forged as one likes; and going there at once) */}
+          {process.env.NODE_ENV === "development" && (
+            <Row label={th ? "เหมือง" : "The mine"} value={<span className="font-data text-meta tabular-nums text-ink">{(() => { const i = purse.bag.findIndex((s) => s?.item === "pick"), s = i >= 0 ? purse.bag[i] : null; return s ? `+${s.plus ?? 0}${s.opts?.length ? ` · ${s.opts.join(" ")}` : ""}${s.gems?.length ? ` · ${s.gems.join(" ")}` : ""}` : "–"; })()}</span>}>
+              {([[0, [], []], [5, ["pkPeek"], []], [10, ["pkLoose", "pkSteady", "pkQuake"], ["fire"]], [10, ["pkCrumb", "pkCutter", "pkDrill"], ["light"]], [10, ["pkFresh", "pkPeek", "pkTwin"], ["water"]], [10, ["pkSteady", "pkLoose", "pkGleam"], ["ice"]]] as Array<[number, string[], string[]]>).map(([plus, opts, gems], k) => (
+                <Do key={k} onClick={() => {
+                  let i = trial.purse().bag.findIndex((s) => s?.item === "pick");
+                  if (i < 0) { trial.grant("pick", 1); i = trial.purse().bag.findIndex((s) => s?.item === "pick"); }
+                  if (i < 0) { setSaid(th ? "กระเป๋าเต็ม" : "The bag is full"); return; }
+                  trial.setTool(i, plus, opts, gems); trial.hold(i);
+                  setSaid(th ? `ถืออีเต้อ +${plus} แล้ว` : `A pick at +${plus} is in your hand`);
+                }}>{`+${plus}${opts[2] ? ` ${opts[2].slice(2)}` : ""}${gems[0] ? ` ${gems[0]}` : ""}`}</Do>
+              ))}
+              <Do onClick={() => { trial.grant("torch", 5); trial.grant("glowMushroom", 1); setSaid(th ? "ได้คบไฟและเห็ดเรืองแสงแล้ว" : "Torches and a glowing mushroom"); }}>{th ? "คบไฟ เห็ด" : "Torches"}</Do>
+              {["foot", "mouth", "cave1", "cave9", "cave10", "cave28"].map((to) => (
+                <Do key={to} onClick={() => { const more = (window as unknown as { __townMore?: { go: (name: string) => boolean } }).__townMore; if (!more?.go(to)) setSaid(th ? "ไปไม่ได้" : "Cannot go there"); }}>{to}</Do>
+              ))}
+              <Do onClick={() => { trial.setRests([10, 20, 30]); setSaid(th ? "ลิฟต์ไปได้ทุกชั้นพัก" : "The lift stops at every resting floor"); }}>{th ? "ลิฟต์ครบ" : "Lift: all"}</Do>
+              <Do onClick={() => { trial.skipMinutes(20); setSaid(th ? "เลื่อนเวลา 20 นาที" : "Twenty minutes on"); }}>+20m</Do>
+              <Do onClick={() => { trial.caveReset(); setSaid(th ? "ล้างถ้ำแล้ว" : "The cave as nobody had been in it"); }}>{th ? "ล้างถ้ำ" : "Reset"}</Do>
+            </Row>
+          )}
           <Row label={th ? "ถืออยู่ในมือ" : "In the hand"} value={<span className="text-ink">{handOf(purse) ? name(handOf(purse)!) : "–"}</span>}>
             <Do onClick={() => trial.letGo()}>{th ? "เก็บ" : "Put away"}</Do>
           </Row>

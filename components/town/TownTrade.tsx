@@ -22,6 +22,7 @@ import {
 } from "@/lib/town/trade";
 import type { Did, Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
+import TownPouches from "./TownPouches";   // ── mining ──
 import TownIcon, { type IconName } from "./TownIcon";
 import TownNotices from "./TownNotices";
 // ── gifts: kitchen ──
@@ -295,7 +296,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && <Bag purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
+        {view === "bag" && <Bag pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
                                 kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
                                                      onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
@@ -602,7 +603,9 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort }: {
+function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches }: {
+  // ── mining ── (the pouches somebody has, each a row of its own under the bag's pockets: components/town/TownPouches)
+  pouches?: React.ReactNode;
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
   /** The slot the thing in the hand is in (the keeper's handSlot): of several pots of food, which is the one held. */
   held: number;
@@ -753,6 +756,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
             {lying}
             <Pockets bag={purse.bag} th={th} picked={slot} hand={hand} held={held} onPick={(i) => setPicked(i === slot || !purse.bag[i] ? null : { slot: i, item: purse.bag[i]!.item })}
                      onMove={mayMove ? move : undefined} placing={moving} onPlace={(to) => (to === moving ? setMoving(null) : move(moving!, to))} />
+            {pouches}
             <div className="mt-2.5 min-h-[4.25rem] rounded-xl border border-[#4a341f] bg-[#2a1e13]/80 px-2.5 py-2" aria-live="polite">
               {inHand && it ? (
                 <div className="flex items-center gap-2.5">

@@ -74,7 +74,7 @@ export function vectorsLines(): Vector[] {
 
   // a line as it is kept, with one more thing counted
   const DAY = 20733;
-  const kept = (line: (typeof LINE_IDS)[number]): LineKept => {
+  const kept = (line: keyof typeof LINES): LineKept => {
     if (c.maybe(0.15)) return newLine();
     const bound = LINES[line].day;
     return {

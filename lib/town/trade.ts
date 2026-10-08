@@ -282,6 +282,12 @@ export interface Purse {
   // ── forging ──
   /** What a tool's option does only so many times (lib/town/powers): how many times each has been used in its stretch, by the option. Counted for the member, whichever tool it was used with. */
   powers?: Record<string, { k: number; n: number }>;
+  // ── mining ──
+  /** What a member keeps of the mine (lib/town/mining's MineKept, made sound by its `mineOf`): stamina owed, a count towards a crumb, rocks loosened, a vein opened and not yet played out, the resting floors reached, when a rock was last struck, the last rock of theirs that somebody else broke for them. */
+  mine?: { owed?: number; crumb?: number; loose?: { k: string; ids: number[] }; vein?: unknown; rests?: number[]; last?: number; paid?: unknown };
+  /** Slots beyond the bag's that hold only some things, by the gift that gives them (lib/town/pouches). */
+  pouches?: Record<string, Array<Stack | null>>;
+  // ── end: mining ──
 }
 /** The village's: how many of each thing the stall has sold this round. */
 export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { giftAt, type Gifts } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
-import { LINES, LINE_IDS, RANKS, ladderOf, pastBound, rankOf, titleOf, towards, type LineId, type LinesTold, type Worn } from "@/lib/town/lines";
+import { ALL_LINE_IDS, LINES, RANKS, ladderOf, linesShown, pastBound, rankOf, titleOf, towards, type LineId, type LinesTold, type Worn } from "@/lib/town/lines";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownMe from "./TownMe";
 
@@ -49,7 +49,7 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
   bottom: string;
   onClose: () => void;
 }) {
-  const [picked, setPicked] = useState<LineId>(() => [...LINE_IDS].sort((a, b) => told.lines[b].points - told.lines[a].points)[0]);
+  const [picked, setPicked] = useState<LineId>(() => [...linesShown(told)].sort((a, b) => told.lines[b].points - told.lines[a].points)[0]);
   const [busy, setBusy] = useState(false);
   const [at, setAt] = useState<"lines" | "me">(gifting ? leaf : "lines");
   const board = useRef<HTMLElement>(null);
@@ -104,7 +104,7 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
         <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)] gap-2 p-2 min-[900px]:grid-cols-[minmax(0,1fr)_22rem] min-[900px]:grid-rows-[minmax(0,1fr)]">
           {/* ── the seven lines ── */}
           <ul className="flex gap-1.5 overflow-x-auto pb-1 min-[900px]:max-h-[30rem] min-[900px]:flex-col min-[900px]:overflow-y-auto min-[900px]:overflow-x-hidden min-[900px]:pb-0 min-[900px]:pr-1 [scrollbar-color:#6b4a2a_transparent] [scrollbar-width:thin]" aria-label={th ? "สายทั้งหมด" : "The lines"}>
-            {LINE_IDS.map((id) => {
+            {linesShown(told).map((id) => {
               const l = LINES[id], has = told.lines[id], at = towards(id, has.points), title = titleOf(id, at.rank), on = id === picked;
               return (
                 <li key={id} className="w-[13.5rem] shrink-0 min-[900px]:w-auto">
@@ -194,4 +194,4 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
 }
 
 /** The rank somebody has on each line, for whoever wants them at a glance. */
-export const ranksOf = (told: LinesTold) => Object.fromEntries(LINE_IDS.map((id) => [id, rankOf(id, told.lines[id].points)])) as Record<LineId, number>;
+export const ranksOf = (told: LinesTold) => Object.fromEntries(ALL_LINE_IDS.map((id) => [id, rankOf(id, told.lines[id].points)])) as Record<LineId, number>;

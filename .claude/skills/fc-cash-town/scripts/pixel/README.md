@@ -239,3 +239,10 @@ Twenty-four calls, $0.45 of the $5 the step was given (the budget is 35 since th
 - **Textures** (`BG=opaque`, no reference): `tex-rock`, `tex-snow`, `tex-cavefloor`, `tex-cavewall`, and **`tex-cliff`**, which is a rock face "seen from straight in front": lib/town/scenery lays it straight up the screen, not along the ground. The first cave floor came out coarse (a grid of 12.8) and was drawn once more (`tex-cavefloor.coarse.png` is the first).
 
 **The builder's own switches:** `SKIN_TRACE=<job>` (and `SKIN_TRACE_ROWS`), `SKIN_WHY=<job>` (a map, and what is warm and not skin by colour; `SKIN_WHY_TEXT=1` adds letters), `SKIN_DEBUG=1` (the colour vote, and what each face rule took), `THING_DEBUG=1` (or a job: a map of what the mistaken-thing rule dropped), `FACE_DEBUG=1` (light cells left in a face, and why a patch stayed open), `OWN_DEBUG=1` (a face's main colours), `SHADE_MAP=1`, `SIT_MAP=1`, `FILL_DEBUG=<g>-<view>`, `FILL_SWEEP=1`, `SIT_DEBUG=1`, `EYE_DEBUG=1`, `CAP_DEBUG=1`. A job is `body-<g>-<view>-<step>` or `sit-<g>-<view>`.
+
+## Mining: the line's gifts and the vein's board (2026-10-08)
+
+Two calls, $0.038 (`gpt-image-2.5-sunburst`, low, 1536x1024). Prompts in `prompts/icons/icons-mining-a.txt` and `prompts/scenery/mining-game-vein.txt`.
+
+- **`icons-mining-a`** (`build-icons.mjs`, with `scene-icons` for the style): a miner's lamp, a guiding bat, a miner's sack (the mining line's three gifts: `charmMinerLamp`, `famBat`, `thingSack`), and what a vein's face shows: ore that glints, a cluster of crystals, a hard knot (`veinOre`, `veinCrystal`, `veinKnot`).
+- **`scene-mining-game-vein`** (`BG=opaque`, with `scene-cave-a` for the style): a plain face of rock between timber props, a lantern at its upper left, rubble along its foot. `node build-mine-scene.mjs [out folder]` shrinks it to its true pixels (199 x 132, 22 KB) as `public/town/mine-vein-<hash>.png`; the board (components/town/TownVein) names the file, lays it under its six-by-six face and asks for it only when a vein is opened.
