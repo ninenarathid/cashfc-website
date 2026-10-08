@@ -4,21 +4,26 @@
 //
 // - closed, as it is built: nothing is offered at the pile, nothing can be tapped, and lifting is refused;
 // - opened (the trial's own switch, as the owner's one line opens the database's): the strip says how it is done,
-//   the step to do now lit; a thing in the hand is said to be in the way; a stone is lifted for one stamina, and
-//   every page is told that its holder carries one;
+//   the step to do now lit, and in one line where to stand and where the foot is; the road has its marks where a row
+//   would stand (each on a tile one walks as before) and the foot its banner; a thing in the hand is said to be in
+//   the way; a stone is lifted for one stamina, and every page is told that its holder carries one;
 // - its holder walks at half the pace, on their own page and on another's;
-// - nobody near: nothing offered; somebody still with empty hands within six tiles is offered by name and has the
-//   stone at once, for nothing, and is told; whoever has a thing in the hand, or walks, is named with what they lack;
-//   whoever is nearer the foot is offered first;
-// - laid at the foot for one stamina: the bar is one more, all three are counted one stone and a helpers' point;
-// - the sign's panel: the bar, the three steps, the names in the order they came with no numbers, my count for me;
-// - the hundredth stone is a span, the six-hundredth makes it whole, and nothing more is lifted;
-// - with no stamina: lifted and laid all the same, a quarter of the pace; and handed on by the handing game's board,
-//   with a stone's picture and words: nothing thrown before the other is ready, a real press on Ready and on Toss
-//   while the button is lit, steady hands to the side the arrow shows, the stone in the other's hands; the wrong side is a
-//   miss with nothing lost and both told; Escape gives it up and the other is told; a page that does not answer is
-//   handed the stone at once; with stamina on both sides there is never a board;
-// - let go of with two presses; and a phone's card, its board and the sign's panel within its screen.
+// - nobody near: nothing offered; somebody still with empty hands within ten tiles is offered by name and has the
+//   stone at once, for nothing, and is told; the offer says beforehand that a stone counts for every hand; whoever
+//   has a thing in the hand, or walks, is named with what they lack; whoever is nearer the foot is offered first;
+// - laid at the foot for one stamina: the bar is one more, all three are counted one stone and a helpers' point, and
+//   **the two who only handed it on see "+1 · 1/100 of this span" where they stand**;
+// - a marked stone (forced by the trial's handle): nobody is told while it is carried; laid, its hands are told
+//   wherever they are, the map by the foot has its glint, and the sign shows it with its hands' names, the kind
+//   found as its picture and the other five as shadows;
+// - the sign's panel (a tap on the sign, or on the banner): the bar, the three steps and the two lines said
+//   beforehand, my count for me, the span's hands, the names in the order they came with no numbers;
+// - the course at the foot grows through the span; the hundredth stone is a span: **a feast on every page**, with the
+//   names of that span's hands, and the sign keeps "span 1, laid by …"; the six-hundredth makes it whole, feasted
+//   too, and nothing more is lifted; the marks, the banner and the course are gone;
+// - with no stamina: lifted and laid all the same, a quarter of the pace; and handed on **by holding the button,
+//   which fills in 1.2 seconds: no board on either page, a press let go of early loses nothing, and it never fails**;
+// - let go of with two presses; and a phone's card, its held button, a span's feast and the sign's panel within its screen.
 //
 // Prints PASS/FAIL lines and writes screenshots to <outdir>.
 //
@@ -28,10 +33,10 @@ import { browser, sleep, status, until } from "./cdp.mjs";
 const [BASE = "http://localhost:3100", OUT = "."] = process.argv.slice(2);
 let pass = 0, fail = 0;
 const ok = (n, c, d = "") => { c ? pass++ : fail++; console.log(`  ${c ? "PASS" : "FAIL"} ${n}${c ? "" : "  " + (typeof d === "string" ? d : JSON.stringify(d))}`); };
-const T = "window.__townTrade", B = "window.__townBridge", V = "window.__townView", S = "window.__cashTown";
+const T = "window.__townTrade", B = "window.__townBridge", V = "window.__townView", S = "window.__cashTown", G = "window.__townGame";
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const there = (X, sel) => X.evaluate(`!!document.querySelector(${JSON.stringify(sel)})`);
-const textOf = (X, sel) => X.evaluate(`document.querySelector(${JSON.stringify(sel)})?.innerText ?? null`);
+const textOf = (X, sel) => X.evaluate(`document.querySelector(${JSON.stringify(sel)})?.innerText.replace(/\\s+/g, " ").trim() ?? null`);
 const stamina = (X) => X.evaluate(`(() => { const p = ${T}.purse(); return p.stamina.day < 0 ? 100 : p.stamina.left; })()`);
 const warp = async (X, x, y) => { await X.evaluate(`${V}.warp(${x}, ${y})`); await sleep(900); };
 const held = (X) => X.evaluate(`${B}.held()`);
@@ -40,56 +45,27 @@ const mine = (X) => X.evaluate(`${B}.works()?.works.bridge.mine.stone ?? 0`);
 const points = (X) => X.evaluate(`${T}.lines().lines.helpers.points`);
 /** What a page has heard of somebody else: what they carry in their hands. */
 const carriedBy = (X, id) => X.evaluate(`${S}.people().find((q) => q.id === ${JSON.stringify(id)})?.carry ?? null`);
-/** A real press of the mouse on what a selector finds, or on a point of the map. */
-const press = async (X, x, y) => {
+/** Whether a game's board is up on a page: the bridge has none, at any stamina. */
+const board = (X) => X.evaluate(`(${G}?.kind ?? null) !== null || !!document.querySelector("[data-game], [data-town-game]")`);
+const middle = (X, sel) => X.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+/** A real press of the mouse on a point; with `ms`, held down that long before it is let go of. */
+const press = async (X, x, y, ms = 0) => {
   await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
   await X.send("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", clickCount: 1 });
+  if (ms) await sleep(ms);
   await X.send("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", clickCount: 1 });
 };
-const tap = async (X, sel) => {
-  const at = await X.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
+const tap = async (X, sel, ms = 0) => {
+  const at = await middle(X, sel);
   if (!at) throw new Error(`nothing to tap: ${sel}`);
-  await press(X, at.x, at.y);
+  await press(X, at.x, at.y, ms);
   await sleep(450);
 };
-/** A real tap on the map, at a point of the canvas: a box of the bridge's (its pile, its sign), a little above its middle, where nobody who stands before it is in the way. */
-const mapTap = async (X, box) => {
+/** A real tap on the map, at a point of the canvas: a box of the bridge's (its pile, its sign, its banner), a little above its middle, where nobody who stands before it is in the way. */
+const mapTap = async (X, box, up = 0.3) => {
   const at = await X.evaluate(`(() => { const r = document.querySelector("canvas").getBoundingClientRect(); return { x: r.left, y: r.top }; })()`);
-  await press(X, at.x + (box.x0 + box.x1) / 2, at.y + box.y0 + (box.y1 - box.y0) * 0.3);
+  await press(X, at.x + (box.x0 + box.x1) / 2, at.y + box.y0 + (box.y1 - box.y0) * up);
 };
-/** A real press on what a selector finds, with no wait after it: for what has to be pressed in time. */
-const quick = async (X, sel) => {
-  const at = await X.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const r = e.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; })()`);
-  if (!at) return false;
-  await press(X, at.x, at.y);
-  return true;
-};
-/** The board of tired hands that is up on a page (components/town/TownHanding), if one is: how it stands. */
-const G = "window.__townGame";
-const board = (X) => X.evaluate(`${G}?.kind === "handing" ? { ...${G}.state(), thing: document.querySelector('[data-look="handing"]')?.dataset.thing ?? null, title: document.querySelector("[data-town-game]")?.innerText.split("\\n")[0] ?? "" } : null`);
-const boardSteps = (X) => X.evaluate(`(() => { const o = document.querySelector("[data-handing-steps]"); return o ? { at: Number(o.dataset.handingSteps), text: [...o.querySelectorAll("li")].map((l) => l.innerText.replace(/\\s+/g, " ").trim()) } : null; })()`);
-const boardGone = (X, ms = 6000) => until("the board is gone", async () => (await X.evaluate(`${G}?.kind ?? null`)) === null, ms, 40);
-/**
- * A stone tossed from one page to another, the two boards being up already: a real press on Ready on the taker's and
- * on Toss on the thrower's while its button is lit; and the taker's hands put to a side: the side the arrow shows the
- * moment it shows, by steady hands (`__townGame.auto()`, as town-handing.mjs plays tired hands: the arrow of tired
- * hands is up for less than half a second, which a press sent from outside the page does not always make), or, with
- * `wrong`, to the other side by a real press beforehand. Says how it went on each page.
- */
-async function toss(From, To, to = "steady") {
-  await until("the button to be ready", () => there(To, "[data-handing-ready]"), 6000, 40);
-  await quick(To, "[data-handing-ready]");
-  await until("whoever throws is told they are ready", async () => (await board(From))?.ready === true, 6000, 30);
-  const side = (await board(From)).side;
-  if (to === "wrong") { await quick(To, `[data-handing-side="${-side}"]`); await sleep(120); }
-  else await To.evaluate(`${G}.auto(true)`);
-  await until("the button to toss is lit", () => there(From, '[data-handing-throw="lit"]'), 6000, 6);
-  await quick(From, "[data-handing-throw]");
-  const over = await until("it is settled on both pages", async () => { const [a, b] = [await board(From), await board(To)]; return (!a || a.over) && (!b || b.over) ? { from: a?.over ?? null, to: b?.over ?? null } : null; }, 8000, 30).catch(() => null);
-  await boardGone(From).catch(() => {});
-  await boardGone(To).catch(() => {});
-  return { side, over };
-}
 const TOUCH = `window.dispatchEvent(new Event("pointermove"))`;
 /** Walk to a tile and say how long it took on my own page, in milliseconds (town-cart.mjs says why it is begun so). */
 const walk = (X, x, y) => X.evaluate(`(async () => {
@@ -120,6 +96,9 @@ async function enter(X, letter) {
 }
 /** A tester with empty hands and a full gauge. */
 const fresh = (X) => X.evaluate(`(${T}.resize(10), ${T}.letGo(), 0)`);
+const within = (P, sel) => P.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const r = e.getBoundingClientRect();
+  return { left: Math.round(r.left), right: Math.round(r.right), top: Math.round(r.top), bottom: Math.round(r.bottom), w: innerWidth, h: innerHeight, scroll: document.documentElement.scrollWidth }; })()`);
+const inside = (r) => !!r && r.left >= 0 && r.right <= r.w && r.top >= 0 && r.bottom <= r.h && r.scroll <= r.w;
 
 const X = await browser("Bridge", { width: 1280, height: 860 });
 try {
@@ -128,9 +107,10 @@ try {
   await sleep(500);
   await fresh(X);
   const a = await X.evaluate(`${T}.id`);
-  const { pile: PILE, foot: FOOT, reach: REACH, need: NEED } = await X.evaluate(`({ pile: ${B}.pile, foot: ${B}.foot, reach: ${B}.reach, need: ${B}.need })`);
+  const { pile: PILE, foot: FOOT, reach: REACH, need: NEED, hold: HOLD, marks: MARKS, kinds: KINDS } = await X.evaluate(`({ pile: ${B}.pile, foot: ${B}.foot, reach: ${B}.reach, need: ${B}.need, hold: ${B}.hold, marks: ${B}.marks, kinds: ${B}.kinds })`);
   // by the pile, by the foot, and a straight stretch of open road west of the pile
   const BY_PILE = [PILE.x - 1, PILE.y + 1], BY_FOOT = [FOOT.x + 1, FOOT.y + 1], ROAD = [PILE.x - 6, PILE.y + 2], ROAD_END = [PILE.x - 2, PILE.y + 2];
+  ok("a stone is handed on within ten tiles, and tired hands hold the button for 1.2 seconds", REACH === 10 && HOLD === 1.2, { REACH, HOLD });
 
   // ── closed, as it is built
   await warp(X, ...BY_PILE);
@@ -138,7 +118,8 @@ try {
   await sleep(600);
   const closed = await X.evaluate(`${B}.works()`);
   ok("built closed: a page is told only that the bridge is not open", closed?.works.bridge.open === false && same(closed.works.bridge.needs, {}) && closed.carried === null, closed);
-  ok("…nothing is offered at the pile, and there is nothing of it to tap (it stands under its cloth)", (await X.evaluate(`${B}.atPile()`)) === true && !(await there(X, "[data-bridge-card]")) && !(await there(X, "[data-bridge-lift]")) && (await X.evaluate(`${B}.boxes().pile`)) === null && (await X.evaluate(`${B}.boxes().sign`)) === null);
+  ok("…nothing is offered at the pile, and there is nothing of it to tap (it stands under its cloth): no mark on the road, no banner", (await X.evaluate(`${B}.atPile()`)) === true && !(await there(X, "[data-bridge-card]")) && !(await there(X, "[data-bridge-lift]"))
+    && same(await X.evaluate(`${B}.boxes()`), { pile: null, sign: null, banner: null }), await X.evaluate(`${B}.boxes()`));
   await X.shot(`${OUT}/bridge-closed.png`);
   await X.evaluate(`${B}.lift()`);
   await sleep(500);
@@ -149,7 +130,20 @@ try {
   await until("the pile's card comes up", () => there(X, "[data-bridge-card='pile']"), 8000);
   ok("opened: by the pile a strip says how it is done in three steps, the first lit, over a button to lift a stone", (await X.evaluate(`document.querySelector("[data-bridge-steps]")?.dataset.bridgeSteps`)) === "0" && (await X.evaluate(`document.querySelectorAll("[data-bridge-steps] li").length`)) === 3
     && (await X.evaluate(`document.querySelector("[data-bridge-steps] [data-now='true']")?.innerText ?? ""`)).includes("ยกหิน") && /ยกหิน/.test((await textOf(X, "[data-bridge-lift]")) ?? ""), await textOf(X, "[data-bridge-card]"));
+  ok("…and says in one line where a row stands and where the foot is", /วงหินบนทาง/.test((await textOf(X, "[data-bridge-hint='where']")) ?? "") && /ธงแดง/.test((await textOf(X, "[data-bridge-hint='where']")) ?? ""), await textOf(X, "[data-bridge-hint]"));
+  // (the map draws it uncovered with its next frame)
+  await until("the pile is drawn uncovered", () => X.evaluate(`!!${B}.boxes().pile`), 4000).catch(() => {});
   ok("…and the pile, uncovered, can be tapped", !!(await X.evaluate(`${B}.boxes().pile`)));
+  ok("the card is put into the map's one grid, among what the place offers", (await X.evaluate(`document.querySelector("[data-bridge-card]")?.closest("[data-foot]")?.dataset.foot`)) === "chip" && (await X.evaluate(`!!document.querySelector("[data-bridge-card]")?.closest("[data-foot-dock]")`)));
+  // the marks on the road: a row of four or five, the first by the pile and the last by the foot, each within reach of the next
+  const far = (p, q) => Math.hypot(p.x - q.x, p.y - q.y), cheb = (p, q) => Math.max(Math.abs(p.x - q.x), Math.abs(p.y - q.y));
+  ok("the road has its marks where a row would stand: by the pile, by the foot, and each within reach of the next", MARKS.length >= 4 && MARKS.length <= 5 && cheb(MARKS[0], PILE) <= 2 && cheb(MARKS.at(-1), FOOT) <= 2
+    && MARKS.every((m, i) => i === 0 || (far(m, MARKS[i - 1]) <= REACH && far(m, MARKS[i - 1]) > 6)), MARKS);
+  await warp(X, MARKS[1].x, MARKS[1].y);
+  ok("…and a mark stops nobody: one stands on its tile as on any other", same(await X.evaluate(`${B}.here()`), [MARKS[1].x, MARKS[1].y]), await X.evaluate(`${B}.here()`));
+  await X.shot(`${OUT}/bridge-mark.png`);
+  await warp(X, ...BY_PILE);
+  await until("the pile's card comes up again", () => there(X, "[data-bridge-card='pile']"), 8000);
   await X.shot(`${OUT}/bridge-pile.png`);
   await X.evaluate(`(${T}.grant("rod", 1), ${T}.hold(${T}.purse().bag.findIndex((s) => s?.item === "rod")))`);
   await until("a thing in the hand is said to be in the way", () => there(X, "[data-bridge-lacks='mine']"), 6000).catch(() => {});
@@ -170,13 +164,16 @@ try {
   const plains = [await walk(X, ...ROAD_END), await walk(X, ...ROAD), await walk(X, ...ROAD_END), await walk(X, ...ROAD)], plain = quickest(...plains);
   ok("a stretch of four tiles is walked there and back with empty hands", plain > 500, plains);
 
-  // ── a stone lifted
+  // ── a stone lifted (this one has a pearl in it, by the trial's handle: nobody is told)
   await warp(X, ...BY_PILE);
   await until("the button to lift", () => there(X, "[data-bridge-lift]"), 6000);
+  await X.evaluate(`${B}.mark("pearl")`);
   await tap(X, "[data-bridge-lift]");
   await until("a stone is in the hands", async () => (await held(X)) === "stone", 6000);
   ok("a press lifts a stone at once: it is in the hands, for one stamina, and nothing is in the bag for it", (await stamina(X)) === 99 && (await X.evaluate(`${T}.purse().bag.every((s) => !s || s.item === "rod")`)), { stamina: await stamina(X) });
   ok("…the strip's second step is lit, and nothing more is lifted while one is held", (await X.evaluate(`document.querySelector("[data-bridge-steps]")?.dataset.bridgeSteps`)) === "1" && (await there(X, "[data-bridge-card='held']")) && !(await there(X, "[data-bridge-lift]")), await textOf(X, "[data-bridge-card]"));
+  ok("…and it says beforehand, in one line, that a stone laid counts for every hand it went through", /ทุกมือที่ช่วยส่งได้ \+1 ก้อน/.test((await textOf(X, "[data-bridge-hint='counts']")) ?? ""), await textOf(X, "[data-bridge-hint]"));
+  ok("what the stone has in it is told to nobody while it is carried: not what its holder's page is told, nothing on the screen", same(await X.evaluate(`${B}.works().carried`), { work: "bridge", thing: "stone" }) && !/pearl|ไข่มุก/.test(await X.evaluate(`JSON.stringify(${B}.works()) + document.body.innerText`)) && !(await there(X, "[data-bridge-dug]")), await X.evaluate(`${B}.works().carried`));
   await until("the other page is told who carries a stone", async () => (await carriedBy(Y, a)) === "stone", 10000).catch(() => {});
   ok("…and everybody's page is told its holder carries a stone", (await carriedBy(Y, a)) === "stone" && (await X.evaluate(`${S}.me().carry`)) === "stone", await carriedBy(Y, a));
   await sleep(500);
@@ -190,21 +187,22 @@ try {
   ok("with a stone the same stretch takes twice as long: half the pace", slow / plain > 1.8 && slow / plain < 2.25, { plain, slow, ratio: slow / plain });
   ok("…and on the other tester's page too, which walks them by the same rule", slowSeen / plain > 1.7 && slowSeen / plain < 2.3, { plain, slowSeen, ratio: slowSeen / plain });
 
-  // ── nobody near; then somebody still with empty hands within six tiles
+  // ── nobody near; then somebody still with empty hands within ten tiles
   await sleep(700);
   ok("with nobody within reach nothing is offered, and nobody is named", same(await X.evaluate(`${B}.offered()`), []) && (await X.evaluate(`${B}.lacks()`)) === null && !(await there(X, "[data-bridge-chip]")) && !(await there(X, "[data-bridge-lacks]")), await X.evaluate(`${B}.offered()`));
   await warp(Y, ROAD[0] - REACH - 1, ROAD[1]);
   await sleep(1200);
-  ok("somebody a tile further than six is not offered", same(await X.evaluate(`${B}.offered()`), []), await X.evaluate(`${B}.offered()`));
+  ok("somebody a tile further than ten is not offered", same(await X.evaluate(`${B}.offered()`), []), await X.evaluate(`${B}.offered()`));
   await warp(Y, ROAD[0] - REACH + 1, ROAD[1]);
   await until("the one within reach is offered", async () => same(await X.evaluate(`${B}.offered()`), [b]), 12000).catch(() => {});
   const chip = await textOf(X, "[data-bridge-chip]");
-  ok("somebody standing still with empty hands within six tiles is offered, by name", same(await X.evaluate(`${B}.offered()`), [b]) && /ส่งหินต่อให้/.test(chip ?? "") && /q/i.test(chip ?? ""), chip);
+  ok("somebody standing still with empty hands nine tiles off is offered, by name: a press, not a hold, with stamina on both sides", same(await X.evaluate(`${B}.offered()`), [b]) && /ส่งหินต่อให้/.test(chip ?? "") && /q/i.test(chip ?? "")
+    && (await X.evaluate(`document.querySelector("[data-bridge-chip]")?.dataset.hold`)) === "0", chip);
   await X.shot(`${OUT}/bridge-offer.png`);
   await tap(X, "[data-bridge-chip]");
   await until("the stone has gone over", async () => (await held(Y)) === "stone", 8000);
   ok("a press, and the stone is in their hands at once: mine are empty, and it cost neither of us anything", (await held(X)) === null && (await stamina(X)) === 99 && (await stamina(Y)) === 100 && /ส่งหินให้/.test((await X.evaluate(`${B}.note()`)) ?? ""), { x: await held(X), note: await X.evaluate(`${B}.note()`) });
-  ok("…with stamina on both sides there is no board, on either page", (await board(X)) === null && (await board(Y)) === null && !(await there(X, "[data-game='handing']")) && !(await there(Y, "[data-game='handing']")));
+  ok("…and there is no board, on either page", !(await board(X)) && !(await board(Y)));
   await until("the taker is told", () => there(Y, "[data-bridge-toast]"), 8000).catch(() => {});
   ok("whoever takes it is told so on their map, and their strip says what to do next", /มีคนส่งหินมาให้/.test((await textOf(Y, "[data-bridge-toast]")) ?? "") && (await Y.evaluate(`document.querySelector("[data-bridge-steps]")?.dataset.bridgeSteps`)) === "1", await textOf(Y, "[data-bridge-toast]"));
   await until("each page is told who carries it now", async () => (await carriedBy(X, b)) === "stone" && (await carriedBy(Y, a)) === "", 10000).catch(() => {});
@@ -238,17 +236,30 @@ try {
   await tap(Y, `[data-bridge-chip="${c}"]`);
   await until("the third has the stone", async () => (await held(Z)) === "stone", 8000);
 
-  // ── laid at the foot
+  // ── laid at the foot: the two who only handed it on are far away, and are told what it earned them
+  await warp(X, PILE.x - 4, PILE.y + 17);
   await warp(Z, ...BY_FOOT);
   await until("the button to lay it", () => there(Z, "[data-bridge-lay]"), 8000);
-  ok("at the foot the strip's last step is lit, over a button to lay the stone", (await Z.evaluate(`document.querySelector("[data-bridge-steps]")?.dataset.bridgeSteps`)) === "2" && /วางหิน/.test((await textOf(Z, "[data-bridge-lay]")) ?? ""), await textOf(Z, "[data-bridge-card]"));
+  ok("at the foot the strip's last step is lit, over a button to lay the stone; and the banner stands there", (await Z.evaluate(`document.querySelector("[data-bridge-steps]")?.dataset.bridgeSteps`)) === "2" && /วางหิน/.test((await textOf(Z, "[data-bridge-lay]")) ?? "") && !!(await Z.evaluate(`${B}.boxes().banner`)), await textOf(Z, "[data-bridge-card]"));
   await Z.shot(`${OUT}/bridge-foot.png`);
   await tap(Z, "[data-bridge-lay]");
   await until("the stone is laid", async () => (await have(Z)) === 1, 8000);
   ok("a press lays it for one stamina: the bridge has one more, and the hands are empty", (await held(Z)) === null && (await stamina(Z)) === 99 && (await have(Z)) === 1, { stamina: await stamina(Z), have: await have(Z) });
+  await until("each of the three is told what it earned", async () => (await there(X, "[data-bridge-earned]")) && (await there(Y, "[data-bridge-earned]")) && (await there(Z, "[data-bridge-earned]")), 8000).catch(() => {});
+  const earned = [await textOf(X, "[data-bridge-earned]"), await textOf(Y, "[data-bridge-earned]"), await textOf(Z, "[data-bridge-earned]")];
+  ok("whoever lifted it and whoever was the middle hand, far from the foot, each see what it earned them: +1 stone, 1/100 of this span, and a helpers' point", earned.slice(0, 2).every((t) => /\+1 ก้อน/.test(t ?? "") && /1\/100 ของช่วงนี้/.test(t ?? "") && /\+1 แต้มผู้ช่วย/.test(t ?? "")), earned);
+  ok("…and so does whoever laid it", /\+1 ก้อน/.test(earned[2] ?? "") && /1\/100/.test(earned[2] ?? ""), earned[2]);
+  await Y.shot(`${OUT}/bridge-earned.png`);
   await until("every page has it", async () => (await have(X)) === 1 && (await have(Y)) === 1, 8000).catch(() => {});
   ok("all three whose hands it went through are counted one stone, each told their own", same([await mine(X), await mine(Y), await mine(Z)], [1, 1, 1]) && (await have(X)) === 1 && (await have(Y)) === 1, [await mine(X), await mine(Y), await mine(Z)]);
   ok("…and each has a point on the helpers' line", same([await points(X), await points(Y), await points(Z)], [1, 1, 1]), [await points(X), await points(Y), await points(Z)]);
+  // ── what the stone had in it, seen now that it is laid
+  await until("each of its hands is told what was in it", async () => (await there(X, "[data-bridge-dug='pearl']")) && (await there(Y, "[data-bridge-dug='pearl']")) && (await there(Z, "[data-bridge-dug='pearl']")), 6000).catch(() => {});
+  const dug = [await textOf(X, "[data-bridge-dug]"), await textOf(Y, "[data-bridge-dug]"), await textOf(Z, "[data-bridge-dug]")];
+  ok("the stone had a pearl in it: laid, each of its three hands is told, wherever they stand, with whose hands it came by", dug.every((t) => /ในหินก้อนนี้มีไข่มุกแม่น้ำ/.test(t ?? "") && /ฝังไว้ในสะพานแล้ว/.test(t ?? "")), dug);
+  ok("…and by the foot the map shows it for a moment", (await Z.evaluate(`${B}.glint()`)) === "pearl" && (await X.evaluate(`${B}.glint()`)) === null, { z: await Z.evaluate(`${B}.glint()`), x: await X.evaluate(`${B}.glint()`) });
+  await Z.shot(`${OUT}/bridge-found.png`);
+  ok("a find gives no point more and nothing in the bag", same([await points(X), await points(Y), await points(Z)], [1, 1, 1]) && (await Z.evaluate(`${T}.purse().bag.every((s) => !s || s.item === "rod")`)));
 
   // ── the sign's panel
   const sign = await Z.evaluate(`${B}.boxes().sign`);
@@ -256,19 +267,35 @@ try {
   if (sign) await mapTap(Z, sign);
   await until("the sign's panel opens", () => there(Z, "[data-bridge-panel]"), 8000).catch(() => {});
   const panel = await Z.evaluate(`(() => { const p = document.querySelector("[data-bridge-panel]"); if (!p) return null;
-    return { have: p.querySelector("[data-bridge-have]")?.innerText, spans: p.querySelectorAll("[data-span]").length, steps: p.querySelectorAll("[data-bridge-steps] li").length,
-      names: [...p.querySelectorAll("[data-bridge-names] li")].map((e) => [e.dataset.id, e.innerText.trim()]), mine: p.querySelector("[data-bridge-mine]")?.dataset.bridgeMine, text: p.innerText }; })()`);
+    return { have: p.querySelector("[data-bridge-have]")?.innerText, spans: p.querySelectorAll("[data-span]").length, steps: p.querySelectorAll("[data-bridge-steps] li").length, said: p.querySelector("[data-bridge-said]")?.innerText ?? "",
+      names: [...p.querySelectorAll("[data-bridge-names] li")].map((e) => [e.dataset.id, e.innerText.trim()]), mine: p.querySelector("[data-bridge-mine]")?.dataset.bridgeMine,
+      built: [...p.querySelectorAll("[data-span-hands]")].map((e) => [e.dataset.spanHands, e.dataset.done, e.innerText.replace(/\\s+/g, " ").trim()]),
+      finds: [...p.querySelectorAll("[data-bridge-finds] li")].map((e) => [e.dataset.find, e.innerText.replace(/\\s+/g, " ").trim()]),
+      kinds: [...p.querySelectorAll("[data-kind]")].map((e) => [e.dataset.kind, e.dataset.found]), text: p.innerText }; })()`);
   ok("a tap on it opens its panel: the village's bar, so many of six hundred, in six spans, and the three steps", !!panel && panel.have.replace(/\s/g, "") === `1/${NEED}` && panel.spans === 6 && panel.steps === 3 && /ช่วงที่ 1 จาก 6/.test(panel.text), panel);
-  // (all three came by one stone, at one moment: such are listed by their ids. Who came at different moments is in the order they came: the last part of this check.)
+  ok("…it says beforehand that a stone counts for every hand, and where to stand", /ทุกมือที่ช่วยส่งได้ \+1 ก้อน/.test(panel?.said ?? "") && /วงหินบนทาง/.test(panel?.said ?? ""), panel?.said);
+  // (all three came by one stone, at one moment: such are listed by their ids. Who came at different moments is in the order they came: further down.)
   ok("…everybody who has helped by that stone, by name and with no number", !!panel && same(panel.names.map(([id]) => id), [a, b, c].sort()) && panel.names.every(([, name]) => name.length > 0 && !/\d/.test(name.replace(/ทดสอบ|test/gi, ""))), panel?.names);
-  ok("…and my own count, shown to me", panel?.mine === "1" && /ผ่านมือฉัน/.test(panel.text), panel?.mine);
+  ok("…my own count, shown to me", panel?.mine === "1" && /ผ่านมือฉัน/.test(panel.text), panel?.mine);
+  ok("…the span in hand with its hands' names", panel?.built.length === 1 && panel.built[0][0] === "1" && panel.built[0][1] === "false" && /ช่วงที่ 1 กำลังวางโดย/.test(panel.built[0][2]), panel?.built);
+  ok("…what was found in the stones, set in the bridge with its hands' names", panel?.finds.length === 1 && panel.finds[0][0] === "pearl" && /ไข่มุกแม่น้ำ/.test(panel.finds[0][1]) && /จากมือของ/.test(panel.finds[0][1]) && /ช่วงที่ 1/.test(panel.finds[0][1]), panel?.finds);
+  ok("…and the kinds I have had a hand in: the pearl as its picture, the other five as shadows", !!panel && same(panel.kinds.map(([k]) => k), KINDS) && panel.kinds.filter(([, f]) => f === "true").map(([k]) => k).join() === "pearl" && panel.kinds.filter(([, f]) => f === "false").length === 5, panel?.kinds);
   await Z.shot(`${OUT}/bridge-panel.png`);
   await Z.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
   await sleep(400);
   ok("Escape shuts it", !(await there(Z, "[data-bridge-panel]")));
+  const banner = await Z.evaluate(`${B}.boxes().banner`);
+  if (banner) await mapTap(Z, banner, 0.25);
+  await until("the banner opens the sign's panel too", () => there(Z, "[data-bridge-panel]"), 8000).catch(() => {});
+  ok("a tap on the banner reads the sign too", !!banner && (await there(Z, "[data-bridge-panel]")));
+  await Z.evaluate(`${B}.panel(false)`);
 
-  // ── the hundredth stone is a span
-  await X.evaluate(`${T}.worksHave(99)`);
+  // ── the course at the foot grows through the span; the hundredth stone is a span, feasted on every page
+  ok("with one stone of a hundred the course at the foot has not begun", same(await Z.evaluate(`${B}.course()`), { step: 0, more: 0 }), await Z.evaluate(`${B}.course()`));
+  const grown = [];
+  for (const n of [10, 25, 50, 75, 99]) { await X.evaluate(`${T}.worksHave(${n})`); await sleep(350); grown.push(await Z.evaluate(`${B}.course()`)); if (n === 75) await Z.shot(`${OUT}/bridge-course.png`); }
+  ok("the course grows a step for every tenth stone, with a scaffold from a quarter of the span, a rope from a half and an arch from three quarters", same(grown, [{ step: 1, more: 0 }, { step: 2, more: 1 }, { step: 5, more: 2 }, { step: 7, more: 3 }, { step: 9, more: 3 }]), grown);
+  ok("…and stones conjured by a script are nobody's: nothing is said to have been earned, and nothing is feasted", !(await there(Y, "[data-bridge-feast]")) && same([await mine(X), await mine(Y), await mine(Z)], [1, 1, 1]));
   await warp(X, ...BY_PILE);
   await until("the button to lift", () => there(X, "[data-bridge-lift]"), 8000);
   await tap(X, "[data-bridge-lift]");
@@ -278,12 +305,30 @@ try {
   ok("with ninety-nine laid, no span shows yet", (await X.evaluate(`${B}.spans()`)) === 0 && (await Y.evaluate(`${B}.spans()`)) === 0);
   await tap(X, "[data-bridge-lay]");
   await until("the span is laid", async () => (await X.evaluate(`${B}.spans()`)) === 1, 8000).catch(() => {});
-  ok("the hundredth stone is a span: said aloud to whoever laid it, and every page's bridge has one span", (await X.evaluate(`${B}.spans()`)) === 1 && /ต่อสะพานได้อีกช่วง/.test((await textOf(X, "[data-bridge-toast]")) ?? "") && (await Y.evaluate(`${B}.spans()`)) === 1 && (await Z.evaluate(`${B}.spans()`)) === 1 && !(await X.evaluate(`${B}.whole()`)),
-    { toast: await textOf(X, "[data-bridge-toast]"), y: await Y.evaluate(`${B}.spans()`) });
+  await until("every page feasts it", async () => (await there(X, "[data-bridge-feast='1']")) && (await there(Y, "[data-bridge-feast='1']")) && (await there(Z, "[data-bridge-feast='1']")), 8000).catch(() => {});
+  const feasts = [await X.evaluate(`${B}.feast()`), await Y.evaluate(`${B}.feast()`), await Z.evaluate(`${B}.feast()`)], said = await textOf(Y, "[data-bridge-feast]");
+  ok("the hundredth stone is a span: every page of the town says so, wherever its tester stands, and every page's bridge has one span", feasts.every((f) => f?.span === 1 && f.whole === false) && /ช่วงที่ 1 จาก 6 เสร็จแล้ว/.test(said ?? "")
+    && (await X.evaluate(`${B}.spans()`)) === 1 && (await Y.evaluate(`${B}.spans()`)) === 1 && (await Z.evaluate(`${B}.spans()`)) === 1 && !(await X.evaluate(`${B}.whole()`)), { feasts, said });
+  ok("…with the names of that span's hands, in the order they came to it", feasts.every((f) => same(f?.names, [a, b, c].sort())) && /ช่วงที่ 1 วางโดย/.test(said ?? ""), { names: feasts.map((f) => f?.names), said });
+  ok("…whoever laid it is told it was the hundredth of the hundred", /\+1 ก้อน/.test((await textOf(X, "[data-bridge-earned]")) ?? "") && /100\/100/.test((await textOf(X, "[data-bridge-earned]")) ?? ""), await textOf(X, "[data-bridge-earned]"));
+  await sleep(1200);
   await X.shot(`${OUT}/bridge-span.png`);
+  ok("…and the course begins again from nothing for the next span", same(await X.evaluate(`${B}.course()`), { step: 0, more: 0 }));
+  await X.evaluate(`${B}.panel()`);
+  await until("the panel", () => there(X, "[data-bridge-panel]"), 6000);
+  const kept = await X.evaluate(`[...document.querySelectorAll("[data-span-hands]")].map((e) => [e.dataset.spanHands, e.dataset.done, e.innerText.replace(/\\s+/g, " ").trim()])`);
+  ok("the sign keeps \"span 1, laid by …\" with its hands' names", kept.length === 1 && kept[0][0] === "1" && kept[0][1] === "true" && /^ช่วงที่ 1 วางโดย /.test(kept[0][2]), kept);
+  await X.evaluate(`${B}.panel(false)`);
+  // (a tap on the feast puts it away)
+  await tap(Y, "[data-bridge-feast]").catch(() => {});
+  ok("a tap puts the feast away", !(await there(Y, "[data-bridge-feast]")));
 
   // ── the six-hundredth makes it whole
   await X.evaluate(`${T}.worksHave(${NEED - 1})`);
+  await sleep(600);
+  // (the first span's feast may be up on it still: no later span's is)
+  const stale = await Z.evaluate(`${B}.feast()`);
+  ok("a page that finds the bridge much further on than it last saw it feasts nothing it did not see", (!stale || stale.span === 1) && (await Z.evaluate(`${B}.spans()`)) === 5, stale);
   await warp(X, ...BY_PILE);
   await warp(Y, PILE.x, PILE.y + 2);
   await until("both are offered a stone", async () => (await there(X, "[data-bridge-lift]")) && (await there(Y, "[data-bridge-lift]")), 8000);
@@ -295,7 +340,11 @@ try {
   await until("the button to lay it", () => there(X, "[data-bridge-lay]"), 8000);
   await tap(X, "[data-bridge-lay]");
   await until("the bridge is whole", () => X.evaluate(`${B}.whole()`), 8000).catch(() => {});
-  ok("the six-hundredth stone makes the bridge whole: six spans on every page, and it is said aloud", (await X.evaluate(`${B}.whole()`)) && (await X.evaluate(`${B}.spans()`)) === 6 && (await Y.evaluate(`${B}.whole()`)) && (await Z.evaluate(`${B}.spans()`)) === 6 && /สะพานเสร็จสมบูรณ์/.test((await textOf(X, "[data-bridge-toast]")) ?? ""), await textOf(X, "[data-bridge-toast]"));
+  await until("every page feasts it", async () => (await there(X, "[data-bridge-feast][data-whole='true']")) && (await there(Z, "[data-bridge-feast][data-whole='true']")), 8000).catch(() => {});
+  ok("the six-hundredth stone makes the bridge whole: six spans on every page, and every page says so", (await X.evaluate(`${B}.whole()`)) && (await X.evaluate(`${B}.spans()`)) === 6 && (await Y.evaluate(`${B}.whole()`)) && (await Z.evaluate(`${B}.spans()`)) === 6
+    && /สะพานเสร็จสมบูรณ์แล้ว/.test((await textOf(X, "[data-bridge-feast]")) ?? "") && /สะพานเสร็จสมบูรณ์แล้ว/.test((await textOf(Z, "[data-bridge-feast]")) ?? ""), await textOf(X, "[data-bridge-feast]"));
+  await X.shot(`${OUT}/bridge-whole-feast.png`);
+  ok("…and the marks on the road, the banner and the course are gone with the building", (await X.evaluate(`${B}.boxes().banner`)) === null && !!(await X.evaluate(`${B}.boxes().sign`)) && same(await X.evaluate(`${B}.course()`), { step: 0, more: 0 }), await X.evaluate(`${B}.boxes()`));
   await until("no button to lay a stone that came too late", async () => !(await there(Y, "[data-bridge-lay]")) && (await there(Y, "[data-bridge-drop]")), 6000).catch(() => {});
   ok("a stone that came too late is not laid: there is only letting it go", (await held(Y)) === "stone" && !(await there(Y, "[data-bridge-lay]")) && (await there(Y, "[data-bridge-drop]")) && (await have(Y)) === NEED);
   await tap(Y, "[data-bridge-drop]");
@@ -311,8 +360,8 @@ try {
   await warp(X, ...BY_FOOT);
   await X.evaluate(`${B}.panel()`);
   await until("the panel", () => there(X, "[data-bridge-panel]"), 6000);
-  const done = await X.evaluate(`({ names: document.querySelectorAll("[data-bridge-names] li").length, text: document.querySelector("[data-bridge-panel]").innerText, full: document.querySelectorAll("[data-span][data-full='true']").length })`);
-  ok("…and the names stay on the sign, under a bar that is full", done.names === 3 && done.full === 6 && /สะพานเสร็จสมบูรณ์แล้ว/.test(done.text), done);
+  const done = await X.evaluate(`({ names: document.querySelectorAll("[data-bridge-names] li").length, text: document.querySelector("[data-bridge-panel]").innerText, full: document.querySelectorAll("[data-span][data-full='true']").length, finds: document.querySelectorAll("[data-bridge-finds] li").length })`);
+  ok("…and the names stay on the sign, under a bar that is full, with what was found", done.names === 3 && done.full === 6 && done.finds === 1 && /สะพานเสร็จสมบูรณ์แล้ว/.test(done.text), done);
   await X.shot(`${OUT}/bridge-whole.png`);
   await X.evaluate(`${B}.panel(false)`);
 
@@ -332,65 +381,47 @@ try {
   await Y.evaluate(`${V}.lookAt(${ROAD[0] + 2}, ${ROAD[1]})`);
   const weary = [await seen(ROAD_END), await seen(ROAD)], crawl = quickest(...weary.map((s) => s.mine)), crawlSeen = quickest(...weary.map((s) => s.theirs));
   ok("…and walked at a quarter of the pace, on my page and on another's", crawl / plain > 3.6 && crawl / plain < 4.5 && crawlSeen / plain > 3.4 && crawlSeen / plain < 4.6, { plain, crawl, crawlSeen });
-  // ── tired hands hand it on by the handing game's board, with a stone's picture and words
-  await warp(Z, ROAD[0] - 3, ROAD[1]);
+
+  // ── tired hands hand it on by holding the button: no board, nothing to be quick at, nothing that can fail
+  await warp(Z, ROAD[0] - 8, ROAD[1]);
   await until("the tired one is offered the other tired one", async () => same(await X.evaluate(`${B}.offered()`), [c]), 12000).catch(() => {});
   await until("the room has told each page that the other is tired", async () => (await X.evaluate(`${S}.people().find((q) => q.id === ${JSON.stringify(c)})?.spent`)) === true && (await Z.evaluate(`${S}.people().find((q) => q.id === ${JSON.stringify(a)})?.spent`)) === true, 10000).catch(() => {});
+  const tiredChip = await X.evaluate(`(() => { const e = document.querySelector("[data-bridge-chip]"); return e ? { hold: e.dataset.hold, holding: e.dataset.holding, text: e.innerText.trim() } : null; })()`);
+  ok("with no stamina the chip is a button to hold: it says so, by name, and that the stone never drops", tiredChip?.hold === String(HOLD) && /กดค้างไว้/.test(tiredChip.text) && /r/i.test(tiredChip.text) && /หินไม่มีวันหล่น/.test((await textOf(X, "[data-bridge-weary]")) ?? ""), { tiredChip, weary: await textOf(X, "[data-bridge-weary]") });
+  await X.shot(`${OUT}/bridge-hold.png`);
   await tap(X, "[data-bridge-chip]");
-  await until("a board is up on both pages", async () => (await board(X))?.phase === "wait" && !!(await board(Z)), 8000, 40).catch(() => {});
-  const [bx, bz, sx, sz] = [await board(X), await board(Z), await boardSteps(X), await boardSteps(Z)];
-  ok("with no stamina on either side the same press puts a board up on both pages, of a stone: whoever has it is to throw, whoever takes it has it come up by itself",
-    bx?.thing === "stone" && bz?.thing === "stone" && /โยนหินส่งต่อ/.test(bx.title) && /รับหินที่โยนมา/.test(bz.title) && bx.tired.from === true && bx.tired.to === true && (await held(X)) === "stone" && (await held(Z)) === null, { bx, bz });
-  ok("…each board says in two steps what to press, the one to do now lit: wait for Ready and then Toss; Ready and then the side the arrow shows",
-    sx?.at === 0 && /รอเพื่อนกด/.test(sx.text[0]) && /โยน!/.test(sx.text[1]) && sz?.at === 0 && /พร้อมรับ/.test(sz.text[0]) && /ลูกศร/.test(sz.text[1]), { sx, sz });
-  await Z.shot(`${OUT}/bridge-board-take.png`);
-  await quick(X, "[data-handing-throw]");
-  await sleep(350);
-  ok("nothing is thrown at somebody who has not said ready: a press on Toss does nothing, and the stone is still in the hands", (await board(X))?.flew === null && (await board(X))?.phase === "wait" && (await held(X)) === "stone", await board(X));
-  const first = await toss(X, Z);
-  await X.shot(`${OUT}/bridge-board-thrown.png`);
-  await until("tired hands have handed it on", async () => (await held(Z)) === "stone", 8000).catch(() => {});
-  ok("a press on Ready, a press on Toss while the button is lit, the hands put to the side the arrow shows: caught, and the stone is in the other's hands, for no stamina on either side",
-    first.over?.from?.won === true && first.over?.to?.won === true && (await held(Z)) === "stone" && (await held(X)) === null && (await stamina(X)) === 0 && (await stamina(Z)) === 0, { first, z: await held(Z), x: await held(X) });
-  await until("the taker is told", () => there(Z, "[data-bridge-toast]"), 6000).catch(() => {});
-  ok("…and both are told: whoever threw that it is handed on, whoever took it that a stone came", /ส่งหินให้/.test((await X.evaluate(`${B}.note()`)) ?? "") && /มีคนส่งหินมาให้/.test((await textOf(Z, "[data-bridge-toast]")) ?? ""), { note: await X.evaluate(`${B}.note()`), toast: await textOf(Z, "[data-bridge-toast]") });
-  // back again, the bucket put to the wrong side: a miss, nothing lost, both told
-  await until("the one who took it is offered the one who threw", async () => same(await Z.evaluate(`${B}.offered()`), [a]), 12000).catch(() => {});
-  await sleep(3200);
-  await tap(Z, "[data-bridge-chip]");
-  await until("a board is up on both pages again", async () => (await board(Z))?.phase === "wait" && !!(await board(X)), 8000, 40).catch(() => {});
-  const missed = await toss(Z, X, "wrong");
   await sleep(400);
-  ok("the hands put to the wrong side: not caught, the stone is where it was, and both pages say so", missed.over?.from?.won === false && missed.over?.to?.won === false && (await held(Z)) === "stone" && (await held(X)) === null
-    && /รับไม่ทัน/.test((await Z.evaluate(`${B}.note()`)) ?? "") && /รับไม่ทัน/.test((await X.evaluate(`${B}.note()`)) ?? ""), { missed, z: await Z.evaluate(`${B}.note()`), x: await X.evaluate(`${B}.note()`) });
-  // given up with Escape: the other is told, and the stone stays
-  await sleep(3200);
-  await tap(Z, "[data-bridge-chip]");
-  await until("a board is up on both pages a third time", async () => (await board(Z))?.phase === "wait" && !!(await board(X)), 8000, 40).catch(() => {});
-  await X.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
-  await until("both boards are gone", async () => (await board(X)) === null && (await board(Z)) === null, 6000, 40).catch(() => {});
-  ok("Escape gives it up: the board is gone from both pages, whoever has the stone is told the other stopped, and still has it", (await board(X)) === null && (await board(Z)) === null && /เลิกกลางคัน/.test((await Z.evaluate(`${B}.note()`)) ?? "") && (await held(Z)) === "stone", await Z.evaluate(`${B}.note()`));
-  // a page that asks nobody (as one whose other does not answer): the stone goes over at once all the same
-  await Z.evaluate(`${B}.mute()`);
-  await sleep(3200);
-  await tap(Z, "[data-bridge-chip]");
-  const began = Date.now();
-  await until("with nobody answering, the stone goes over by itself", async () => (await held(X)) === "stone", 8000, 50).catch(() => {});
-  const waited = Date.now() - began;
-  ok(`where the other does not answer, tired hands hand it on at once all the same (after ${(waited / 1000).toFixed(1)} s of asking): nothing is refused`, (await held(X)) === "stone" && (await held(Z)) === null && (await board(X)) === null && waited < 6000, { waited, x: await held(X) });
-  await Z.evaluate(`${B}.mute(false)`);
-  // (and on to the one at the foot's end of the row, by the board once more, to be laid)
-  await until("offered the other again", async () => same(await X.evaluate(`${B}.offered()`), [c]), 12000).catch(() => {});
-  await tap(X, "[data-bridge-chip]");
-  await until("a board is up on both pages", async () => (await board(X))?.phase === "wait" && !!(await board(Z)), 8000, 40).catch(() => {});
-  const again = await toss(X, Z);
-  await until("tired hands have handed it on", async () => (await held(Z)) === "stone", 8000).catch(() => {});
-  ok("tired hands hand it on to tired hands", again.over?.to?.won === true && (await held(Z)) === "stone" && (await held(X)) === null && (await stamina(X)) === 0 && (await stamina(Z)) === 0, { again, z: await held(Z), x: await held(X) });
+  ok("a press let go of at once hands nothing on and loses nothing: the stone is still in the hands, and it says to keep it held", (await held(X)) === "stone" && (await held(Z)) === null && /กดค้างไว้จนแถบเต็ม/.test((await X.evaluate(`${B}.note()`)) ?? ""), { x: await held(X), note: await X.evaluate(`${B}.note()`) });
+  ok("…and no board has come up on either page", !(await board(X)) && !(await board(Z)));
+  // (held: the button fills, and half-way the stone is still mine)
+  const at = await middle(X, "[data-bridge-chip]");
+  await X.send("Input.dispatchMouseEvent", { type: "mouseMoved", x: at.x, y: at.y });
+  await X.send("Input.dispatchMouseEvent", { type: "mousePressed", x: at.x, y: at.y, button: "left", clickCount: 1 });
+  await sleep(HOLD * 500);
+  const half = { holding: await X.evaluate(`document.querySelector("[data-bridge-chip]")?.dataset.holding`), x: await held(X), z: await held(Z) };
+  await X.shot(`${OUT}/bridge-holding.png`);
+  await until("held to the end, the stone goes over", async () => (await held(Z)) === "stone", HOLD * 1000 + 4000, 40).catch(() => {});
+  await X.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: at.x, y: at.y, button: "left", clickCount: 1 });
+  ok("held, the button fills: half-way the stone is still in the hands", half.holding === "true" && half.x === "stone" && half.z === null, half);
+  ok("held for 1.2 seconds, the stone is in the other's hands: tired hands to tired hands, for no stamina on either side, with no board on either page", (await held(Z)) === "stone" && (await held(X)) === null && (await stamina(X)) === 0 && (await stamina(Z)) === 0 && !(await board(X)) && !(await board(Z)), { z: await held(Z), x: await held(X) });
+  await until("the taker is told", () => there(Z, "[data-bridge-toast]"), 6000).catch(() => {});
+  ok("…and both are told: whoever held the button that it is handed on, whoever took it that a stone came", /ส่งหินให้/.test((await X.evaluate(`${B}.note()`)) ?? "") && /มีคนส่งหินมาให้/.test((await textOf(Z, "[data-bridge-toast]")) ?? ""), { note: await X.evaluate(`${B}.note()`), toast: await textOf(Z, "[data-bridge-toast]") });
+  // tired hands to hands that have stamina, and those to tired hands: a hold either way
+  await warp(Y, ROAD[0] - 12, ROAD[1]);
+  await until("the tired holder is offered the fresh one", async () => (await Z.evaluate(`${B}.offered()`)).includes(b), 12000).catch(() => {});
+  ok("where only one of the two is tired it is a hold all the same: tired hands to fresh ones", (await Z.evaluate(`${B}.holds()`))[b] === HOLD && (await Z.evaluate(`document.querySelector('[data-bridge-chip="${b}"]')?.dataset.hold`)) === String(HOLD), await Z.evaluate(`${B}.holds()`));
+  await tap(Z, `[data-bridge-chip="${b}"]`, HOLD * 1000 + 350);
+  await until("the fresh one has it", async () => (await held(Y)) === "stone", 6000).catch(() => {});
+  ok("…held, and the stone is theirs", (await held(Y)) === "stone" && (await held(Z)) === null);
+  await until("the fresh holder is offered the tired one", async () => (await Y.evaluate(`${B}.offered()`)).includes(c), 12000).catch(() => {});
+  ok("…and fresh hands to tired ones", (await Y.evaluate(`${B}.holds()`))[c] === HOLD, await Y.evaluate(`${B}.holds()`));
+  await tap(Y, `[data-bridge-chip="${c}"]`, HOLD * 1000 + 350);
+  await until("the tired one has it again", async () => (await held(Z)) === "stone", 6000).catch(() => {});
   await warp(Z, ...BY_FOOT);
   await until("the button to lay it", () => there(Z, "[data-bridge-lay]"), 8000);
   await tap(Z, "[data-bridge-lay]");
   await until("tired hands lay it", async () => (await have(Z)) === 11, 8000).catch(() => {});
-  ok("…and lay it, at none", (await have(Z)) === 11 && (await stamina(Z)) === 0 && (await held(Z)) === null, { have: await have(Z) });
+  ok("…who lay it, at none", (await have(Z)) === 11 && (await stamina(Z)) === 0 && (await held(Z)) === null, { have: await have(Z) });
 
   // ── a tap on the pile from far off walks up to it and lifts one
   await Y.evaluate(`${T}.letGo()`);
@@ -405,34 +436,47 @@ try {
   const P = await X.tab("BridgePhone", { width: 390, height: 780, dpr: 2, mobile: true });
   await enter(P, "s");
   await fresh(P);
+  await warp(X, PILE.x - 4, PILE.y + 1);
+  await X.evaluate(`${T}.letGo()`);
   await warp(P, ...BY_PILE);
   await until("the button to lift", () => there(P, "[data-bridge-lift]"), 10000);
   await tap(P, "[data-bridge-lift]");
   await until("a stone is in the hands", async () => (await held(P)) === "stone", 6000);
-  const within = (sel) => P.evaluate(`(() => { const e = document.querySelector(${JSON.stringify(sel)}); if (!e) return null; const r = e.getBoundingClientRect();
-    return { left: Math.round(r.left), right: Math.round(r.right), top: Math.round(r.top), bottom: Math.round(r.bottom), w: innerWidth, h: innerHeight, scroll: document.documentElement.scrollWidth }; })()`);
-  const card = await within("[data-bridge-card]");
-  ok("on a phone the strip and its buttons are within the screen, with nothing wider than it", !!card && card.left >= 0 && card.right <= card.w && card.bottom <= card.h && card.top >= 0 && card.scroll <= card.w, card);
+  const card = await within(P, "[data-bridge-card]");
+  ok("on a phone the strip and its buttons are within the screen, with nothing wider than it", inside(card), card);
   await P.shot(`${OUT}/bridge-phone-card.png`);
-  // the board of tired hands on a phone: asked for from the phone, of the first tester, who stands on the road with empty hands
+  // the button of tired hands on a phone: held, of the first tester, who stands by with empty hands
   await P.evaluate(`${T}.spend(500)`);
-  await until("the phone is offered the one standing by", async () => (await P.evaluate(`${B}.offered()`)).includes(a), 12000).catch(() => {});
-  await tap(P, `[data-bridge-chip="${a}"]`);
-  await until("the phone's board is up, and the other's", async () => !!(await board(P)) && !!(await board(X)), 8000, 40).catch(() => {});
+  await until("the phone is offered the one standing by, to hold", async () => (await P.evaluate(`${B}.holds()`))[a] === HOLD, 12000).catch(() => {});
+  const holdChip = await within(P, `[data-bridge-chip="${a}"]`), wearyLine = await within(P, "[data-bridge-weary]");
+  ok("on a phone the button to hold and its line are within the screen", inside(holdChip) && inside(wearyLine) && inside(await within(P, "[data-bridge-card]")), { holdChip, wearyLine });
+  await P.shot(`${OUT}/bridge-phone-hold.png`);
+  const pc = await middle(P, `[data-bridge-chip="${a}"]`);
+  await P.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: pc.x, y: pc.y }] });
+  await until("held by a finger, the stone goes over", async () => (await held(X)) === "stone", HOLD * 1000 + 5000, 40).catch(() => {});
+  await P.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  ok("…and held by a finger it hands the stone on, with no board on the phone", (await held(X)) === "stone" && (await held(P)) === null && !(await board(P)), { x: await held(X), p: await held(P) });
+  // a span's feast on a phone
+  await P.evaluate(`${T}.worksHave(199)`);
   await sleep(500);
-  const game = await within("[data-town-game]"), toss2 = await within("[data-handing-throw]");
-  ok("on a phone the board of tired hands and its button are within the screen", !!game && !!toss2 && game.left >= 0 && game.right <= game.w && game.top >= 0 && game.bottom <= game.h && toss2.bottom <= toss2.h && game.scroll <= game.w, { game, toss2 });
-  await P.shot(`${OUT}/bridge-phone-board.png`);
-  await P.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
-  await until("the phone's board is gone", async () => (await board(P)) === null, 6000, 40).catch(() => {});
-  await boardGone(X).catch(() => {});
+  await warp(P, ...BY_PILE);
+  await until("the button to lift", () => there(P, "[data-bridge-lift]"), 10000);
+  await tap(P, "[data-bridge-lift]");
+  await until("a stone is in the hands", async () => (await held(P)) === "stone", 6000);
   await warp(P, ...BY_FOOT);
+  await until("the button to lay it", () => there(P, "[data-bridge-lay]"), 8000);
+  await tap(P, "[data-bridge-lay]");
+  await until("the phone feasts the span", () => there(P, "[data-bridge-feast='2']"), 8000).catch(() => {});
+  await sleep(1100);
+  const feast = await within(P, "[data-bridge-feast]"), earnedP = await within(P, "[data-bridge-earned]");
+  ok("on a phone a span's feast and what the stone earned are within the screen", inside(feast) && inside(earnedP), { feast, earnedP });
+  await P.shot(`${OUT}/bridge-phone-feast.png`);
   await sleep(700);
   const psign = await P.evaluate(`${B}.boxes().sign`);
   if (psign) await mapTap(P, psign);
   await until("the phone's panel opens", () => there(P, "[data-bridge-panel]"), 8000).catch(() => {});
-  const sheet = await within("[data-bridge-panel]"), shut = await within("[data-bridge-close]");
-  ok("…and so is the sign's panel, its button to shut it too", !!sheet && !!shut && sheet.left >= 0 && sheet.right <= sheet.w && sheet.top >= 0 && sheet.bottom <= sheet.h && shut.right <= shut.w && shut.top >= 0 && sheet.scroll <= sheet.w, { sheet, shut });
+  const sheet = await within(P, "[data-bridge-panel]"), shut = await within(P, "[data-bridge-close]");
+  ok("…and so is the sign's panel, its button to shut it too", inside(sheet) && !!shut && shut.right <= shut.w && shut.top >= 0, { sheet, shut });
   await P.shot(`${OUT}/bridge-phone-panel.png`);
   const errors = [...X.errors(), ...Y.errors(), ...Z.errors(), ...P.errors()];
   ok("no page threw anything", errors.length === 0, errors.slice(0, 4));
