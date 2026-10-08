@@ -1,0 +1,5 @@
+Use the attached sprite sheet only as the reference for the pixel art style, its colours and its chunky square pixel size. Draw one wide piece for a mini-game of the same cozy 2D game: the lower part of the thick crown of a big pine tree, seen straight from the front.
+
+A dense mass of dark green pine boughs that stretches across the whole width of the canvas, from the left edge to the right edge, and fills the upper half of the canvas completely with no gaps or holes in it. Its lower edge is ragged: heavy drooping boughs with pointed tips hang down to different lengths, like a curtain, the same pine green as the grown pine tree in the attached sheet, with a few lighter green highlights and a dark outline along the lower edge. No trunk is visible. The lower half of the canvas below the boughs is completely empty and transparent.
+
+Crisp pixel art with hard square pixel edges, flat shading with a few tones per colour, no anti-aliasing, no blur, no gradients, no glow. Transparent background. No snow, no characters, no text, no letters, no numbers.
