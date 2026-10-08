@@ -20,7 +20,7 @@ import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/l
 import { loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
-import { SKINS, decodeLook, defaultLook, type Look } from "@/lib/town/look";
+import { SKINS, decodeLook, defaultLook, hairsFor, skinsOf, type Look } from "@/lib/town/look";
 import { BUILDING, POLL, etaShort } from "@/lib/town/board";
 import { alongRoute, outingsNow, presence, type Activity, type Outing } from "@/lib/town/popotos";
 import { BIRDS, BUTTERFLIES, birdAt, butterflyAt, petsOf, rompsNow } from "@/lib/town/critters";
@@ -48,6 +48,7 @@ import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { SmithView } from "./TownSmith";
 import { glowOf } from "@/lib/town/tools";
+import { drawLongTool, handOf, handSize, heldPicture, isLongTool } from "./held";
 import type { FarmDraw } from "./TownFarm";
 // ── gifts: farming ──
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
@@ -454,6 +455,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** The town's icons (components/town/TownIcon), for badges drawn on the map. */
   const iconImg = useRef<HTMLImageElement | null>(null);
   useEffect(() => { const i = new Image(); i.src = ICON_ATLAS.image; iconImg.current = i; }, []);
+  // (the long tools as they stand in a hand, and the gems' pieces: components/town/held asks for its own sheet)
+  useEffect(() => { heldPicture(); }, []);
   /** `next dev` only: ?townHour=21 shows the town at that hour; ?townPopoto=lunch brings that popoto out now. */
   const forcedHour = useRef<number | null>(null);
   const forcedPopoto = useRef<Activity | undefined>(undefined);
@@ -2681,7 +2684,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * from its tip to the float. Upright with no line out; leaning out over the water with one; dipping at the bite;
    * bent hard and shaking with a fish on.
    */
-  function drawRod(ctx: CanvasRenderingContext2D, p: Vec, h: number, rod: { float: Vec; state: LineState | "ready" }, id: string, now: number, which: RodId = "rod", held?: 1 | -1) {
+  function drawRod(ctx: CanvasRenderingContext2D, p: Vec, h: number, rod: { float: Vec; state: LineState | "ready" }, id: string, now: number, which: RodId = "rod", held?: 1 | -1): Vec {
     const wood = ROD_LOOKS[which];
     const v = cam.current, px = Math.max(1, v.s), still = reducedRef.current;
     // (only held, not fished with: on the side they face, with no float to lean towards)
@@ -2726,6 +2729,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.stroke();
     }
     ctx.restore();
+    // (its tip: what its gems show is about that)
+    return at(1);
   }
 
   /**
@@ -2734,14 +2739,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * is, upright; and while somebody fishes, the rod they fish with is what is seen.) **A bucket with water in it is
    * drawn full** (the owner, 2026-10-05: "ตอนถือถังน้ำ … ไม่ได้บอกว่าเป็นถังมีน้ำหรือถังว่าง"), as it is in the bag: its
    * own picture with water, and a drop over it, since at the map's size the two pictures are much alike.
+   *
+   * **A tool is in proportion to whoever holds it** (the owner, 2026-10-08: "ให้ขนาดสมส่วนกับตัวละคร … แบบเบ็ดตกปลา";
+   * components/town/held): a long one (a pick, an axe, a hoe, a net, a sickle, shears) stands upright in the fist,
+   * its head at the top, so much of the doll's own standing height (`tall`); a hand tool (a can, a bucket, cookware)
+   * is its picture at a size that doll's hand carries, at the fist or hung from it, turned to the side faced.
+   * Anything else held (a fish, a crop, a dish, a scroll) is as it was. Gives back where the thing's head is on the
+   * screen (a long tool's head, a rod's tip, the middle of anything else): what a tool's gems show is about that.
    */
-  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false) {
-    if (isRod(item)) { drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side); return; }
+  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false, tall = h, dpr = 1): Vec | null {
+    if (isRod(item)) return drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side);
     // (its picture is its own name's, but every scroll looks the same: lib/town/items' iconOf, without the catalog)
     const full = wet && `${item}Full` in ICON_ATLAS.icons;
     const icon = (item.startsWith("scroll") ? "scroll" : full ? `${item}Full` : item) as IconName;
-    if (!(icon in ICON_ATLAS.icons)) return;
-    const v = cam.current, px = Math.max(1, v.s), size = Math.round(15 * v.s);
+    if (!(icon in ICON_ATLAS.icons)) return null;
+    const v = cam.current, px = Math.max(1, v.s);
     const snap = (n: number) => Math.round(n / px) * px;
     // (a cart is not held up: it stands on the ground before them, their hands on it: lib/town/cart)
     // ── gifts: well ── (under rain, the empty bucket of whoever a rain frog follows gathers it: drawn falling into the bucket itself, and for my own how full it is by now)
@@ -2750,19 +2762,38 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const wide = Math.round(30 * v.s);
       drawIcon(ctx, iconImg.current, icon, snap(p.x + side * h * 0.46), snap(p.y - wide * 0.42), wide);
       if (gathers !== null) drawRainGather(ctx, { x: snap(p.x + side * h * 0.46), y: snap(p.y - wide * 0.5) }, v.s, now, reducedRef.current, gathers, side);
-      return;
+      return null;
     }
     const x = snap(p.x + side * h * 0.27), y = snap(p.y - h * 0.36);
-    drawIcon(ctx, iconImg.current, icon, x, y - size * 0.25, size);
-    if (gathers !== null) drawRainGather(ctx, { x, y: y - size * 0.5 }, v.s, now, reducedRef.current, gathers, side);
-    if (full) drawIcon(ctx, iconImg.current, "plotDrop", snap(x + side * size * 0.45), snap(y - size * 0.8), Math.round(7 * v.s));
     // the fist that holds it: a few pixels of their own skin, edged dark
-    ctx.save();
-    ctx.fillStyle = "#2a1b12";
-    ctx.fillRect(x - 2 * px, y - px, 4 * px, 4 * px);
-    ctx.fillStyle = SKINS[look.skin]?.hex ?? "#e8b98f";
-    ctx.fillRect(x - px, y, 2 * px, 2 * px);
-    ctx.restore();
+    const fist = () => {
+      ctx.save();
+      ctx.fillStyle = "#2a1b12";
+      ctx.fillRect(x - 2 * px, y - px, 4 * px, 4 * px);
+      ctx.fillStyle = SKINS[look.skin]?.hex ?? "#e8b98f";
+      ctx.fillRect(x - px, y, 2 * px, 2 * px);
+      ctx.restore();
+    };
+    // a long tool: upright in the fist, its head at the top (until its picture has come, its bag picture as ever)
+    if (isLongTool(item)) {
+      const head = drawLongTool(ctx, item, { x, y: y + px }, tall, side, dpr);
+      if (head) { fist(); return head; }
+    }
+    // a hand tool by the doll's size, at the fist or hung from it; anything else as it always was
+    const hand = handOf(item), size = hand ? handSize(hand, tall, v.s) : Math.round(15 * v.s);
+    const cy = y - size * 0.25 + (hand ? hand.hang * size : 0);
+    if (hand && (side === -1) !== !!hand.turn) {
+      // (turned to the side faced: a can's spout and a pan's bowl are out before them)
+      ctx.save();
+      ctx.translate(x, 0);
+      ctx.scale(-1, 1);
+      drawIcon(ctx, iconImg.current, icon, 0, cy, size);
+      ctx.restore();
+    } else drawIcon(ctx, iconImg.current, icon, x, cy, size);
+    if (gathers !== null) drawRainGather(ctx, { x, y: cy - size * 0.25 }, v.s, now, reducedRef.current, gathers, side);
+    if (full) drawIcon(ctx, iconImg.current, "plotDrop", snap(x + side * size * 0.45), snap(cy - size * 0.55), Math.round(size * 0.47));
+    fist();
+    return { x, y: cy };
   }
 
   /** Which way somebody faces: the way they walk; after standing a while, towards you; with a rod out, towards their float. */
@@ -2817,7 +2848,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const look = lookOf(a);
     const kit = kitFor(look.race);
     // sitting, the name and the tap box come down with the head
-    const h = (kit?.heightOf(look) ?? DOLL_H) * k * (sitting(a) || riding ? SIT_HEIGHT : 1);
+    const tall = (kit?.heightOf(look) ?? DOLL_H) * k, h = tall * (sitting(a) || riding ? SIT_HEIGHT : 1);
     const voice = sessionRef.current?.voice;
     const level = voice?.active ? voice.level(isMe ? "me" : a.info.id) : 0;
     const talking = a.info.voice && !a.info.muted && level > 0.06;
@@ -2880,7 +2911,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.restore();
     };
     if (rod && face.view === "back") lit(() => drawRod(ctx, p, h, rod, a.info.id, now, fishesWith));
-    if (held && face.view === "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet));
+    if (held && face.view === "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr));
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -2896,7 +2927,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fill();
     }
     if (rod && face.view !== "back") lit(() => drawRod(ctx, p, h, rod, a.info.id, now, fishesWith));
-    if (held && face.view !== "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet));
+    if (held && face.view !== "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr));
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
@@ -3448,6 +3479,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         return { x: p.x, y: p.y - dollH(a) * cam.current.s * 0.5 };
       },
       cam: () => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy, follow: cam.current.follow }),
+      /** The map at a zoom (as far as the camera allows), where it looks now. */
+      zoom: (s: number) => { setCam({ s, cx: cam.current.cx, cy: cam.current.cy }); return cam.current.s; },
+      /** My doll as another race and gender (the first hairstyle of theirs), to look at each size of doll. */
+      race: (race: number, gender = 0) => {
+        const stay = sessionRef.current;
+        if (!stay) return false;
+        const was = lookOf(stay.self);
+        stay.setLook({ ...was, race, gender, hair: hairsFor(gender, race)[0] ?? 0, skin: Math.min(was.skin, skinsOf(race).length - 1) });
+        return true;
+      },
       /** Look at a tile without walking there (the camera stops following me). */
       lookAt: (x: number, y: number) => { const p = toIso(x, y); cam.current.follow = false; setCam({ s: cam.current.s, cx: p.x, cy: p.y }); },
       /** Stand at a tile of either map at once, without walking to a gate. */
