@@ -9,7 +9,10 @@
 //
 //   node town-mining.mjs <base> <outdir> [section,…]
 //
-// Needs `next dev`. A section named (rock, vein, way, light, lift, foot, power, crystal, day, gift, gem, phone) runs alone.
+// Needs `next dev`. A section named (rock, vein, way, light, lift, foot, power, crystal, day, gift, gem, share, phone) runs alone.
+// (`share`: several picks on one rock, a press held, a rock tapped with no pick, a vein's family and its best go,
+// glowing moss. Its rows were written with the build of 2026-10-08's evening, when the word was to build and not to
+// test yet: they have never been run, and are to be proved with the rest at the next pass in a browser.)
 import { mkdirSync } from "node:fs";
 import { browser, sleep, status, until } from "./cdp.mjs";
 
@@ -668,6 +671,94 @@ try {
     ok("…every floor is laid out anew, and whoever stood in it stands where it is come down into", JSON.stringify(await A.evaluate(`${N}.rocks(2)`)) !== rocksWas && (await A.evaluate(`(() => { const a = ${M}.spots(2).arrive, p = ${T}.me().pos; return Math.floor(p.x) === a[0] && Math.floor(p.y) === a[1]; })()`)), await me(A));
     ok("…the resting floors a member has reached are still theirs", JSON.stringify(after.rests) === JSON.stringify(before.rests), after.rests);
     console.log(`  (the rock that hides the second floor's way: ${wayWas} yesterday, ${await A.evaluate(`${K}.wayRock(2)`)} today)`);
+  }
+
+  if (want("share")) {
+    console.log("several picks on one rock, a press held, no pick, a face's family, moss (rows never run yet)");
+    await A.evaluate(`(${K}.unsetRocks(), ${K}.setMineLuck(1))`);
+    await kit(A); await kit(B);
+    await go(A, "cave7", 7); await go(B, "cave7", 7);
+    await sleep(600);
+    ok("each tester knows of the other on the floor", (await A.evaluate(`${N}.company()`)) && (await B.evaluate(`${N}.company()`)));
+    // ── two picks on one rock: A begins it, B strikes the rest away, A is paid ──
+    const [s1, s2, s3, s4] = await plain(A, 7);
+    for (const r of [s1, s2, s3]) await A.evaluate(`${K}.setRock(7, ${r.id}, "shards")`);
+    await beside(A, 7, s1.id); await beside(B, 7, s1.id);
+    const was = { a: { st: await stamina(A), pts: await points(A), stone: await count(A, "stone") }, b: { st: await stamina(B), pts: await points(B), help: await B.evaluate(`${K}.lines().lines.helpers.points`) } };
+    for (let i = 0; i < 2; i++) { await A.evaluate(`${N}.hit(7, ${s1.id})`); await sleep(380); }
+    await A.evaluate(`${N}.flush()`);
+    await sleep(300);
+    ok("two swings of four leave the rock standing, half of it struck away, as whoever keeps the game has it", Math.abs((await A.evaluate(`${N}.part(7, ${s1.id})`)) - 0.5) < 0.01 && !(await gone(A, 7, s1.id)), await A.evaluate(`${N}.part(7, ${s1.id})`));
+    await until("B is told of it", async () => ((await told(B)).struck?.[String(s1.id)]?.part ?? 0) > 0.4, 6000).catch(() => {});
+    const seenByB = (await told(B)).struck?.[String(s1.id)];
+    ok("the other tester is told the rock is half struck away, and whose it is", !!seenByB && Math.abs(seenByB.part - 0.5) < 0.01 && seenByB.mine === false && seenByB.by === nameA, seenByB);
+    await B.shot(`${OUT}/mining-share-half.png`);
+    for (let i = 0; i < 2 && !(await gone(B, 7, s1.id)); i++) { await B.evaluate(`${N}.hit(7, ${s1.id})`); await sleep(420); }
+    await until("the rock is gone", () => gone(A, 7, s1.id), 6000).catch(() => {});
+    const cardB = await B.evaluate(`(() => { const el = document.querySelector("[data-mine-came]"); return el ? { helped: el.dataset.mineHelped, got: el.querySelectorAll("[data-mine-got]").length } : null; })()`);
+    const cardA = await A.evaluate(`(() => { const el = document.querySelector("[data-mine-came]"); return el ? { by: el.dataset.mineBy, got: Object.fromEntries([...el.querySelectorAll("[data-mine-got]")].map((g) => [g.dataset.mineGot, Number(g.dataset.n)])) } : null; })()`);
+    ok("two more swings by the other break it: what it left is the first striker's, who pays its stamina", (await gone(A, 7, s1.id)) && (await count(A, "stone")) - was.a.stone === 1 && was.a.st - (await stamina(A)) === 1 && (await points(A)) - was.a.pts >= 1, { stone: await count(A, "stone"), st: await stamina(A) });
+    ok("…and the first striker's page says so, with who struck the last of it away", !!cardA && cardA.got.stone === 1 && !!cardA.by, cardA);
+    ok("…the other pays no stamina and has nothing of it in the bag, and is counted a point on the mining line and one on the helpers'", was.b.st === (await stamina(B)) && (await count(B, "stone")) === 0 && (await points(B)) - was.b.pts === 1 && (await B.evaluate(`${K}.lines().lines.helpers.points`)) - was.b.help === 1, { st: await stamina(B), pts: await points(B) });
+    ok("…and their page says whom they helped", !!cardB && cardB.helped === nameA && cardB.got === 0, cardB);
+    const deedsB = await B.evaluate(`${K}.mineDeeds().slice(-1)[0]`);
+    ok("…written down as a hand lent", deedsB?.what === "hew" && deedsB.doc.rock === s1.id, deedsB);
+    await A.shot(`${OUT}/mining-share-paid.png`);
+    // ── a press held on a rock keeps swinging; let go, it stops ──
+    await beside(A, 7, s2.id);
+    const h2 = (await A.evaluate(`${M}.hits()`)).find((x) => x.kind === "caveRock" && x.id === s2.id);
+    const corner = await A.evaluate(`(() => { const c = document.querySelector("canvas").getBoundingClientRect(); return { x: c.left, y: c.top }; })()`);
+    await A.send("Input.dispatchMouseEvent", { type: "mousePressed", x: corner.x + h2.x, y: corner.y + h2.y, button: "left", buttons: 1, clickCount: 1 });
+    await sleep(1150);
+    const held = await A.evaluate(`${N}.swings(7, ${s2.id})`);
+    await A.send("Input.dispatchMouseEvent", { type: "mouseReleased", x: corner.x + h2.x, y: corner.y + h2.y, button: "left", buttons: 0, clickCount: 1 });
+    await sleep(900);
+    const after = await A.evaluate(`${N}.swings(7, ${s2.id})`), stood = !(await gone(A, 7, s2.id));
+    ok("a press held on a rock swings by itself, a swing at the swing's own time (two or three in a second and a bit)", held >= 2 && held <= 3, held);
+    ok("…and letting go stops it, with no swing more for the letting go", after === held && stood, { held, after, stood });
+    await strike(A, 7, s2.id);
+    // ── a rock tapped with no pick in the hand says so ──
+    await A.evaluate(`(() => { const t = ${K}; t.empty(); return true; })()`);
+    await sleep(300);
+    const h3 = (await A.evaluate(`${M}.hits()`)).find((x) => x.kind === "caveRock" && x.id === s3.id), stoodAt = await me(A);
+    await tap(A, h3.x, h3.y);
+    await sleep(500);
+    const wants = await A.evaluate(`document.querySelector("[data-mine-note]")?.dataset.mineWants ?? null`), stays = await me(A);
+    ok("a rock tapped with no pick in the hand says a pick is wanted, with its picture, and is no step", wants === "pick" && Math.hypot(stays.x - stoodAt.x, stays.y - stoodAt.y) < 0.2, { wants, note: await note(A) });
+    await A.shot(`${OUT}/mining-no-pick.png`);
+    await kit(A);
+    // ── glowing moss: the chamber is lit for a minute, for both ──
+    await A.evaluate(`${K}.setRock(7, ${s3.id}, "moss")`);
+    const dark = { a: await lit(A), b: await lit(B) };
+    await strike(A, 7, s3.id);
+    await sleep(1500);
+    const mossA = await A.evaluate(`${N}.moss()`), lightA = await A.evaluate(`${N}.mossLight()`);
+    ok("a rock that lets moss out: the moss glows where it stood, and nothing of it is in the bag", mossA.length === 1 && mossA[0].f === 7 && !!(await A.evaluate(`!!document.querySelector("[data-mine-moss]")`)), mossA);
+    ok("…and the chamber is lit: its breaker's light reaches its furthest wall, and far more of the screen is lit than before", Object.values(lightA)[0] > 5 && (await lit(A)).lit > dark.a.lit * 2, { lightA, before: dark.a, now: await lit(A) });
+    await A.shot(`${OUT}/mining-moss.png`);
+    await beside(B, 7, s3.id);
+    await sleep(1200);
+    ok("…for whoever else stands in that chamber too", (await lit(B)).lit > dark.b.lit * 2 && (await told(B)).moss.length === 1, { before: dark.b, now: await lit(B) });
+    await A.evaluate(`${K}.skipMinutes(1.1)`);
+    await sleep(2500);
+    ok("a minute on it glows no more", (await A.evaluate(`${N}.moss()`)).length === 0 && (await lit(A)).lit < dark.a.lit * 1.5, await lit(A));
+    // ── a vein's face says its family, and once the go is over the best go there was is drawn beside it ──
+    if (s4) {
+      await A.evaluate(`${K}.setRock(7, ${s4.id}, "vein", 11)`);
+      await strike(A, 7, s4.id);
+      await until("the board", () => A.evaluate(`!!${G}`), 8000).catch(() => {});
+      const fam = await A.evaluate(`({ family: ${G}.state().family, said: document.querySelector("[data-town-vein]")?.dataset.family, lie: document.querySelector("[data-vein-lie]")?.dataset.veinLie ?? null })`);
+      ok("a vein's board says which family its face comes of, and marks where it lies (a scatter lies anywhere)", ["seam", "cluster", "ring", "scatter"].includes(fam.family) && fam.said === fam.family && (fam.family === "scatter") === (fam.lie === null), fam);
+      await A.evaluate(`${G}.strike([${(await A.evaluate(`${G}.state().head`)).join(",")}])`);
+      await A.evaluate(`${G}.enough()`);
+      await until("what it came to", async () => !!(await veinCame(A)), 8000).catch(() => {});
+      const end = await A.evaluate(`(() => { const el = document.querySelector("[data-vein-came]"), best = document.querySelector("[data-vein-best]"); return { passed: Number(el?.dataset.veinPassed), could: Number(el?.dataset.veinCould), drawn: best ? Number(best.dataset.veinBest) : null, against: document.querySelector("[data-vein-against]")?.dataset.veinAgainst ?? null }; })()`);
+      ok("a go ended at once passes nothing; its card says what the best go would have passed, and that go is drawn over the face", end.passed === 0 && end.could >= 2 && end.drawn === end.could && end.against === "more", end);
+      await A.shot(`${OUT}/mining-vein-best.png`);
+      await click(A, "[data-vein-next]");
+      await sleep(400);
+    }
+    await A.evaluate(`(${K}.unsetRocks(), ${K}.setMineLuck(null))`);
   }
 
   if (want("phone")) {
