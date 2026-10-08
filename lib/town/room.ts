@@ -85,6 +85,14 @@ export interface Doing {
   sign?: string;
   /** The chat room they are in (lib/town/circle): its holder's id, their own when they hold it, "" when none; missing from a browser older than that. */
   circle?: string;
+  // ── felling ──
+  /**
+   * What they do at a tree of the mountain's (lib/town/trees): "f" and the tree's number while their board is up at
+   * it, "b" and its number while they brace its trunk for somebody, "" when neither; missing from a browser older
+   * than that.
+   */
+  fell?: string;
+  // ── end: felling ──
 }
 
 /**
@@ -185,6 +193,9 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   // (a sign is written again from what was read of it: its title is somebody's own words, cleaned like a line of chat)
   if (typeof p.sign === "string") { const sign = decodeSign(p.sign); d.sign = sign ? encodeSign(sign) : ""; }
   if (typeof p.circle === "string" && /^[A-Za-z0-9_-]{0,64}$/.test(p.circle)) d.circle = p.circle;
+  // ── felling ──
+  if (typeof p.fell === "string" && /^([fb]\d{1,4})?$/.test(p.fell)) d.fell = p.fell;
+  // ── end: felling ──
   return d;
 }
 

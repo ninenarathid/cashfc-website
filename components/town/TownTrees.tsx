@@ -11,6 +11,7 @@ import { powerLeft } from "@/lib/town/powers";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { ALL, GEM_FX, gemBy, has } from "@/lib/town/tools";
+import { held } from "@/lib/town/trade";
 import { KEEPSAKES, TREES, WOOD, axeOf, bearsOf, bites, farFrom, girthOf, lookOf, wantsOf, type FellOne, type Standing, type TreesTold } from "@/lib/town/trees";
 import { walkable, type Vec } from "@/lib/town/world";
 import { registerTap, setAncientLook, setTreeLooks } from "./mountain-art";
@@ -51,6 +52,8 @@ const NTH: ReadonlyArray<[th: string, en: string]> = [["ชิ้นแรก", 
 interface Working { id: number; trees: number[]; ask: FellingAsk; elder: boolean; from: [number, number] }
 /** What a go came to, on a card: what whoever keeps the game said of it, how the board went (none, of the axe's one chop and of the plain way), and the tile I stood on. */
 interface Card { did: FellDid; out: FellOutcome | null; ask: FellingAsk | null; tile: string; at: number }
+/** Somebody else who does something at a tree, as the room has them: where they stand (their tile), and their letters (lib/town/room's `fell`). */
+export interface TreeFolk { id: string; name: string; x: number; y: number; moving: boolean; fell: string }
 /** A few words over the buttons: a refusal (with the axe a tree wants, where it wants one), or what the plain way gave. */
 interface Note { text: string; wants?: { tier: number; plus: number }; got?: Array<[ItemId, number]> }
 
@@ -85,8 +88,12 @@ function Pips({ most, got, size = 16 }: { most: number; got: number; size?: numb
  * small card, with how near it was to more. Over the map this draws only what is somebody's own to see: a mark of
  * each pine's girth at its foot for whoever holds an axe, how long a stump has to go for whoever has a woodpecker, a
  * glint on the grown trees for an axe that sees them, and the mark of a tree half cut.
+ *
+ * A friend may brace the trunk: whoever stands within two tiles of a tree somebody's board is up at has one press
+ * for it. Who has a board up where, and who braces which trunk, is told through the room in a few letters with the
+ * rest of what one does (lib/town/room's `fell`); whoever keeps the game writes the brace down and pays it.
  */
-export default function TownTrees({ keeper, th, name, tile, near, look, reduced, sfx, bottom, busy, walk, register, registerPerch }: {
+export default function TownTrees({ keeper, th, name, tile, near, look, reduced, sfx, bottom, busy, walk, register, registerPerch, tell, others }: {
   keeper: Keeper;
   th: boolean;
   name: string;
@@ -105,6 +112,10 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   register: (draw: FarmDraw | null) => void;
   /** Hand the map the way to say where a woodpecker flies to from where its member stands (and take it back with null). */
   registerPerch: (perch: ((at: Vec) => Vec | null) | null) => void;
+  /** Tell the room what I do at a tree: "f" and its number while my board is up at it, "b" and its number while I brace its trunk, "" when neither. */
+  tell: (word: string) => void;
+  /** The others who do something at a tree, as this screen has them. */
+  others: () => TreeFolk[];
 }) {
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -241,6 +252,58 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   }, [working, tile]);
   // and walking off puts the card away
   useEffect(() => { setCard((c) => (c && c.tile !== spot ? null : c)); }, [spot]);
+
+  /* ── a friend at the trunk ── */
+  // The others at a tree, by their tiles: looked at a few times a second while I am on the mountain.
+  const [folk, setFolk] = useState<TreeFolk[]>([]);
+  useEffect(() => {
+    if (!near) { setFolk([]); return; }
+    let was = "";
+    const read = () => {
+      const all = others().map((o) => ({ ...o, x: Math.floor(o.x), y: Math.floor(o.y) })), key = JSON.stringify(all);
+      if (key !== was) { was = key; setFolk(all); }
+    };
+    read();
+    const t = setInterval(read, 400);
+    return () => clearInterval(t);
+  }, [near, others]);
+  /** The trunk I brace: whose go it is, at which tree, and the logs I had when I took hold. */
+  const [bracing, setBracing] = useState<{ feller: string; name: string; tree: number; logs: number } | null>(null);
+  // What I do at a tree is told to the room: my board up, a trunk braced, or neither.
+  const word = working ? `f${working.id}` : bracing ? `b${bracing.tree}` : "";
+  useEffect(() => { tell(word); }, [word, tell]);
+  useEffect(() => () => tell(""), [tell]);
+  /** Whoever braces the trunk of my go: somebody who says so, standing within a brace's reach of the tree. */
+  const bracer = working ? folk.find((o) => { const t = WOOD.find((x) => x.id === working.id); return o.fell === `b${working.id}` && !!t && farFrom(t, [o.x, o.y]) <= TREES.brace.reach; }) ?? null : null;
+  /** A go I may brace: somebody's board is up at a tree within a brace's reach of where I stand, and nobody braces it yet. */
+  const open = near && tile && !busy && !working && !bracing
+    ? folk.filter((o) => o.fell[0] === "f").map((o) => ({ o, t: WOOD.find((x) => x.id === Number(o.fell.slice(1))) ?? null }))
+      .find(({ t }) => !!t && farFrom(t, tile) <= TREES.brace.reach && !folk.some((b) => b.fell === `b${t.id}`)) ?? null
+    : null;
+  const braceIt = useCallback(async (feller: TreeFolk) => {
+    const from = tileRef.current;
+    if (!from || beginning.current) return;
+    beginning.current = true;
+    try {
+      const did = await keeper.fellBrace(feller.id, from);
+      if (!did.ok) { say(did.why); return; }
+      sfx?.wake(); sfx?.work("pluck");
+      setBracing({ feller: feller.id, name: feller.name, tree: did.tree, logs: held(keeper.purse().bag, "log") });
+    } finally { beginning.current = false; }
+  }, [keeper, say, sfx]);
+  // I hold the trunk while their board is up and I stand by it. Their go over, what I had for it is said a moment on.
+  useEffect(() => {
+    if (!bracing) return;
+    const t = WOOD.find((x) => x.id === bracing.tree), on = folk.some((o) => o.id === bracing.feller && o.fell === `f${bracing.tree}`);
+    if (on && tile && t && farFrom(t, tile) <= TREES.brace.reach) return;
+    setBracing(null);
+    if (on) return;
+    const had = bracing.logs;
+    window.setTimeout(() => {
+      const n = held(keeper.purse().bag, "log") - had;
+      if (n > 0) setNote({ text: th ? "ช่วยค้ำต้นไม้" : "Braced the trunk", got: [["log", n]] });
+    }, 1500);
+  }, [bracing, folk, tile, keeper, th]);
 
   /** A go is over: it is written down, judged by whoever keeps the game, and what it gave comes up on a card. */
   const done = useCallback(async (w: Working, out: FellOutcome, how: { one?: boolean; twice?: boolean }) => {
@@ -412,16 +475,19 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       working: () => (working ? { id: working.id, trees: working.trees, elder: working.elder, ask: working.ask } : null),
       card: () => (card ? { ...card.did, out: card.out } : null),
       note: () => note, root: () => root(), rootable: () => rootId,
+      /** A friend at the trunk: the others at a tree, the go I may brace, the press, the trunk I hold, and who braces mine. */
+      folk: () => folk, open: () => (open?.t ? { feller: open.o.id, tree: open.t.id } : null), brace: () => (open ? braceIt(open.o) : undefined), bracing: () => bracing, bracer: () => bracer?.id ?? null,
       /** What this page draws for me alone: glints on grown trees, times over stumps, and marks of girth, as of the last frame. */
       glints: () => glinting.current, times: () => timed.current, girths: () => girthed.current,
     };
     (window as unknown as { __townTrees?: typeof handle }).__townTrees = handle;
     return () => { delete (window as unknown as { __townTrees?: typeof handle }).__townTrees; };
-  }, [hereId, tapped, begin, plain, working, card, note, root, rootId, looks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the go I may brace is known by who and where
+  }, [hereId, tapped, begin, plain, working, card, note, root, rootId, looks, folk, open?.o.id, open?.t?.id, braceIt, bracing, bracer?.id]);
 
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const powers = axe ? { one: has(axe, "axOne") ? powerLeft(purse, "axOne", now) : 0, twice: has(axe, "axDouble") ? powerLeft(purse, "axDouble", now) : 0 } : undefined;
-  if (!working && !here && !note && !card) return null;
+  if (!working && !here && !note && !card && !open && !bracing) return null;
   const hereGirth: Girth | null = here && !here.elder ? girthOf(here) : null;
   /** How near the go was to more, in a few words: a state, of the tree walked up to. */
   const nearWord = (c: Card): string | null => {
@@ -443,6 +509,19 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           {note.wants && <Wanted wants={note.wants} />}
           <span className="pl-2">{note.text}</span>
           {note.got?.map(([id, n]) => <span key={id} className="flex items-center gap-1" data-trees-got={id} data-n={n}><TownIcon name={iconFor(id)} size={22} /><span className="font-data tabular-nums">×{n}</span></span>)}
+        </p>
+      )}
+      {/* a friend's go near me: one press braces its trunk; and the trunk I hold */}
+      {open?.t && (
+        <button type="button" onClick={() => void braceIt(open.o)} data-trees-brace={open.t.id} data-feller={open.o.id} data-state="open"
+                className="pop-in pressable pointer-events-auto flex min-h-12 max-w-full items-center gap-2 rounded-full bg-[#24465c] py-1 pl-2 pr-4 text-ui font-semibold text-[#dff3ff] shadow-xl shadow-black/40">
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-white/15"><TownIcon name={"handshake" as IconName} size={26} /></span>
+          <span className="truncate">{th ? `ช่วยค้ำต้นไม้ให้ ${open.o.name}` : `Brace the trunk for ${open.o.name}`}</span>
+        </button>
+      )}
+      {bracing && (
+        <p className="pop-in flex max-w-full items-center gap-2 rounded-full bg-[#24465c]/95 py-1.5 pl-2 pr-4 text-ui text-[#dff3ff] shadow-lg shadow-black/30" data-state="open" data-trees-bracing={bracing.tree} aria-live="polite">
+          <TownIcon name={"handshake" as IconName} size={22} /><span className="truncate">{th ? `กำลังค้ำต้นไม้ให้ ${bracing.name}` : `Bracing the trunk for ${bracing.name}`}</span>
         </p>
       )}
       {/* what the go gave: a small card of the town's wood */}
@@ -497,7 +576,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       )}
       {working ? (
         <div key={`${working.id}:${working.ask.seed}`} className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game="felling" data-tree={working.id}>
-          <TownFelling th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers}
+          <TownFelling th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers} braced={bracer?.name ?? null}
                        onDone={(out, how) => void done(working, out, how)} onCancel={() => setWorking(null)} />
         </div>
       ) : here && !card && (

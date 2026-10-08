@@ -255,7 +255,7 @@ export class TownSession {
   /** What I am doing, as the room is told. */
   doing(): Doing {
     const i = this.self.info;
-    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "" };
+    return { x: i.x, y: i.y, voice: i.voice, muted: i.muted, away: i.away, look: i.look, sit: i.sit ?? -1, turn: i.turn ?? 0, typing: i.typing ?? false, eat: i.eat ?? "", hold: i.hold ?? "", wet: i.wet ?? false, spent: i.spent ?? false, pet: i.pet ?? "", fish: i.fish ?? 0, sign: i.sign ?? "", circle: i.circle ?? "", /* felling */ fell: i.fell ?? "" };
   }
 
   stats(): Promise<PeerInfo[]> {
@@ -897,7 +897,7 @@ export class TownSession {
           // others' games hang on: who cooks with me, whether a beetle comes down its tree, lib/town/insects)
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
             ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
-            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}) },
+            ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), /* felling */ ...(d.fell !== undefined ? { fell: d.fell } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
         });
       } else {
@@ -1032,6 +1032,12 @@ export class TownSession {
   setFishing(n: 0 | 1 | 2 | 3 | 4) {
     if ((this.self.info.fish ?? 0) !== n) this.tell({ fish: n });
   }
+  // ── felling ──
+  /** Tell the room what I do at a tree (lib/town/room's `fell`): my board up at it, its trunk braced for somebody, or neither. */
+  setFelling(word: string) {
+    if ((this.self.info.fell ?? "") !== word) this.tell({ fell: word });
+  }
+  // ── end: felling ──
 
   private tell(patch: Partial<Doing>) {
     this.self.info = { ...this.self.info, ...patch };

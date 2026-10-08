@@ -773,6 +773,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const treesDraw = useRef<FarmDraw | null>(null), perchOf = useRef<((at: Vec) => Vec | null) | null>(null);
   const registerTrees = useCallback((draw: FarmDraw | null) => { treesDraw.current = draw; }, []);
   const registerPerch = useCallback((perch: ((at: Vec) => Vec | null) | null) => { perchOf.current = perch; }, []);
+  // (what I do at a tree, told to the room; and the others who do something at one, as this screen has them: a friend braces a trunk by these)
+  const tellFelling = useCallback((word: string) => { sessionRef.current?.setFelling(word); }, []);
+  const fellers = useCallback(() => {
+    const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
+    return (stay ? [...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined && !!a.info.fell)
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, fell: a.info.fell ?? "" }));
+  }, []);
   const walkToTile = useCallback((x: number, y: number) => { const ok = sessionRef.current?.walkTo({ x, y }) ?? false; if (ok) cam.current.follow = true; return ok; }, []);
   // ── end: felling ──
   // The insects (TownBugs): drawn on every map, and a tap is asked of the net before it is a step.
@@ -4271,7 +4278,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         <Suspense fallback={null}>
           <TownTrees keeper={keeper} th={w.th} name={me.name} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onMountain}
                      look={myLook} reduced={reducedRef.current} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
-                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} walk={walkToTile} register={registerTrees} registerPerch={registerPerch} />
+                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} walk={walkToTile} register={registerTrees} registerPerch={registerPerch} tell={tellFelling} others={fellers} />
         </Suspense>
       )}
       {/* The insects: out on every map, and caught with a net */}
