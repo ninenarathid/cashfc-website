@@ -13,6 +13,7 @@ import { handOf } from "@/lib/town/trade";
 import { atWell, fishFrom, yardPlace } from "@/lib/town/world";
 import TownHanding, { newOtherHand, type HandingResult, type OtherHand } from "./TownHanding";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import TownPouring from "./TownPouring";
 
 export type { Stander };
@@ -305,15 +306,15 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
   return (
     <>
       {toast && (
-        <div className="pointer-events-none absolute inset-x-0 top-28 z-20 flex justify-center px-2">
+        <TownFoot rank="toast" order={30}>
           <p className="pop-in flex items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 py-2 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-line-toast>
             <TownIcon name="bucketFull" size={20} />
             {toast}
           </p>
-        </div>
+        </TownFoot>
       )}
       {(next || lacks || note || working || match) && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+        <TownFoot rank={match || working ? "board" : "chip"} order={24}>
           {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-line-note>{note}</p>}
           {match ? (
             // (the game for two, where somebody has no stamina: my bucket and theirs on one board, which says step by
@@ -361,7 +362,7 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
               <span className="min-w-0">{LACKS[lacks.why][th ? 0 : 1](lacks.who.name || (th ? "เพื่อน" : "Your friend"))}</span>
             </p>
           )}
-        </div>
+        </TownFoot>
       )}
     </>
   );

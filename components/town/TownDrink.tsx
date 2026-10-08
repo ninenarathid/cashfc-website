@@ -8,6 +8,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { STAMINA, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import { DRINK, drinkNear, hasDrunk, readDrinkTold, toastOf, type DrinkNo, type DrinkTold } from "@/lib/town/well-gifts";
 import TownIcon, { type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 
 /** The room's way for two pages to tell each other of a drink (lib/town/session's `pair`): into one letterbox, never the room. */
 export interface DrinkPairing { send: (to: string, told: DrinkTold) => void; hear: (fn: ((from: string, data: unknown) => void) | null) => void }
@@ -256,7 +257,9 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
           </span>
         );
       })}
-      <div className="pointer-events-none absolute inset-x-0 top-[6.25rem] z-20 flex flex-col items-center gap-2 px-2" data-town-drink data-still={still ? "" : undefined}>
+      {(moment || note || card || out || tired) && (
+      <TownFoot rank="toast" order={40}>
+      <div className="pointer-events-none flex max-w-full flex-col items-center gap-2" data-town-drink data-still={still ? "" : undefined}>
         {/* a drink drunk: the flask tipped, and what I had of it */}
         {moment && (
           <p key={moment.key} role="status" data-state="open" data-drink-moment={moment.mine} data-got={moment.got} data-back={moment.back}
@@ -317,6 +320,8 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
           </button>
         )}
       </div>
+      </TownFoot>
+      )}
     </>
   );
 }

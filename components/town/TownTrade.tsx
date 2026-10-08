@@ -313,12 +313,8 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                 }} />}
       </div>
 
-      {/* what I carry, always in sight at the stall: buying fills it, leaving things empties it */}
-      {uncle && (
-        <div className="border-t border-line bg-[#1d140c] px-4 py-2">
-          <Pockets bag={purse.bag} th={th} small />
-        </div>
-      )}
+      {/* what I carry, at the stall's foot: buying fills it, leaving things empties it; it folds away */}
+      {uncle && <StallBag bag={purse.bag} th={th} />}
 
       {/* this is a trial: say so, and let a round be brought on */}
       {process.env.NODE_ENV !== "production" && trial && <div className="flex flex-wrap items-center justify-end gap-x-1.5 gap-y-1.5 border-t border-line bg-bg/40 px-4 py-2 text-meta text-muted">
@@ -912,6 +908,54 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
         );
       })}
     </ul>
+  );
+}
+
+/**
+ * What I carry, at the foot of the stall, and it folds to one line (the owner, 2026-10-08, of a phone on which a bag of
+ * twenty-five slots left the shelf a sliver: "มองไม่เห็นเมนูที่จะขายเลย ถ้าหด UI หน้าตะกร้าออกไปได้จะดีมาก"). Folded it says how
+ * many slots are taken and how many are free, which is what buying asks. On a phone it begins folded, and unfolded
+ * shows two rows at a time; on a wide screen it begins open while the bag is three rows or fewer. The choice is kept
+ * on the device, a phone's apart.
+ */
+function StallBag({ bag, th }: { bag: Purse["bag"]; th: boolean }) {
+  // (a phone is what the map takes for one: Town.tsx's own query. Asked here, so that the panel's props stay as they are)
+  const [phone, setPhone] = useState(() => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)"), update = () => setPhone(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  // (until somebody chooses: folded on a phone, and on a wide screen once the bag is more than three rows)
+  const key = `cashTown:stallBag:${phone ? "phone" : "wide"}`, roomy = !phone && bag.length <= 15;
+  const [open, setOpen] = useState(roomy);
+  useEffect(() => {
+    let kept: string | null = null;
+    try { kept = window.localStorage.getItem(key); } catch { /* the default, then */ }
+    setOpen(kept ? kept === "open" : roomy);
+  }, [key, roomy]);
+  const toggle = () => {
+    setOpen(!open);
+    try { window.localStorage.setItem(key, open ? "shut" : "open"); } catch { /* not kept, then */ }
+  };
+  const used = bag.filter(Boolean).length, free = bag.length - used;
+  return (
+    <div className="border-t border-line bg-[#1d140c]" data-stall-bag={open ? "open" : "shut"}>
+      <button type="button" onClick={toggle} aria-expanded={open}
+              className="pressable flex min-h-11 w-full items-center gap-2 px-4 text-left text-meta text-[#c9a877] hover:text-[#f3e3c3]">
+        <TownIcon name="bag" size={20} />
+        <span className="font-semibold text-[#f3e3c3]">{th ? "กระเป๋า" : "Bag"}</span>
+        <span className="font-data tabular-nums">{used}/{bag.length}</span>
+        <span className={free ? "" : "font-semibold text-gold"}>{free ? (th ? `ว่าง ${free} ช่อง` : `${free} free`) : (th ? "เต็มแล้ว" : "full")}</span>
+        <span className="ml-auto flex items-center gap-1.5">{open ? (th ? "พับเก็บ" : "Fold away") : (th ? "เปิดดู" : "Show")}<TownIcon name="chevron" size={12} className={open ? "" : "rotate-180"} /></span>
+      </button>
+      {open && (
+        <div className="px-4 pb-2 max-sm:max-h-[6.75rem] max-sm:overflow-y-auto max-sm:overscroll-contain">
+          <Pockets bag={bag} th={th} small />
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -7,6 +7,7 @@ import type { Keeper } from "@/lib/town/keeper";
 import type { Stander } from "@/lib/town/line";
 import type { FishSfx } from "@/lib/town/sfx";
 import TownIcon, { type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 
 /**
  * What the gifts of the helpers' line show on the map's page (lib/town/helping), beside the farm's own buttons
@@ -98,13 +99,13 @@ export function HelpNews({ keeper, th, sfx, onAid, nameOf }: {
   }, [ready, newest, keeper, next]);
   if (!shown) return null;
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-[8.25rem] z-30 flex justify-center px-3">
+    <TownFoot rank="toast" order={50}>
       <p key={shown.at} role="status" data-state="open" data-help-news={shown.what} data-help-by={shown.by}
          className="pop-in flex max-w-[24rem] items-center gap-2 rounded-2xl border-2 border-[#f0c060] bg-[#3a2513]/95 py-1.5 pl-2 pr-4 text-ui font-semibold leading-snug text-[#ffeccb] shadow-xl shadow-black/40">
         <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full border-2 border-[#2a190d] bg-[#6b4424]"><TownIcon name={AID_GIFT[shown.what] as IconName} size={26} /></span>
         {aidWord(shown, th, nameOf?.(shown.by))}
       </p>
-    </div>
+    </TownFoot>
   );
 }
 
@@ -170,7 +171,7 @@ export function RingOffer({ keeper, th, here, people, name, sfx, bottom, onGave 
   }, [can, left, note, give, people, keeper]);
   if (!near.length && !note) return null;
   return (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom: `calc(${bottom} + 14.5rem)` }}>
+    <TownFoot rank="chip" order={20}>
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-ring-note>{note}</p>}
       {near.map((p) => (
         <button key={p.id} type="button" onClick={() => void give(p)} data-ring-chip={p.id} data-state="open"
@@ -182,6 +183,6 @@ export function RingOffer({ keeper, th, here, people, name, sfx, bottom, onGave 
           </span>
         </button>
       ))}
-    </div>
+    </TownFoot>
   );
 }

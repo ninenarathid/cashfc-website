@@ -9,6 +9,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import type { Vec } from "@/lib/town/world";
 import type { FarmDraw } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import { StackIcon, WHY, WHY_GROUND } from "./TownTrade";
 
 /**
@@ -147,7 +148,7 @@ export default function TownGround({ keeper, th, here, bottom, sfx, register, re
   if (!near.length && !note) return null;
   const now = keeper.now();
   return (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+    <TownFoot rank="chip" order={30}>
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-ground-note>{note}</p>}
       {near.length > 0 && (
         <div className="pointer-events-auto flex flex-wrap items-center justify-center gap-2">
@@ -166,6 +167,6 @@ export default function TownGround({ keeper, th, here, bottom, sfx, register, re
           })}
         </div>
       )}
-    </div>
+    </TownFoot>
   );
 }

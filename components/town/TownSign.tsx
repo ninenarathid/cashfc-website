@@ -12,6 +12,7 @@ import { SIGN, decodeSign, tidyTitle, type Sign } from "@/lib/town/sign";
 import { roomFor } from "@/lib/town/trade";
 import SignIcon from "./SignIcon";
 import TownIcon from "./TownIcon";
+import TownFoot from "./TownFoot";
 import { Coins, ItemIcon, WHY } from "./TownTrade";
 
 /** Which of the sign's panels is open: holding one up, my own, or somebody's stall. */
@@ -208,11 +209,11 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
   }, [view, onView, said, toast, raise, keeper, trade]);
 
   const word = toast && (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2" style={{ bottom }}>
+    <TownFoot rank="toast" order={5}>
       <p role="status" data-sign-toast className="pop-in flex min-h-9 items-center gap-2 rounded-full border border-gold/60 bg-surface/95 px-4 text-ui font-semibold text-gold shadow-lg shadow-black/30 backdrop-blur-sm">
         <SignIcon size={18} />{toast}
       </p>
-    </div>
+    </TownFoot>
   );
   if (!view || hidden) return word || null;
 

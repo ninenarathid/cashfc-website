@@ -7,6 +7,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { held } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import TownIcon from "./TownIcon";
+import TownFoot from "./TownFoot";
 import { Coins, ItemIcon, WHY } from "./TownTrade";
 
 /** Open a deal with somebody: their id in the town, and what they are called. */
@@ -136,7 +137,7 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
     </div>
   );
   return (
-    <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+    <TownFoot rank={side && deal ? "board" : "note"} wide>
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
       {side && deal && (
         <section aria-label={th ? "แลกของ" : "A deal"} className="pop-in pointer-events-auto w-full max-w-[30rem] rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm" data-state="open">
@@ -182,6 +183,6 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
           </button>
         </section>
       )}
-    </div>
+    </TownFoot>
   );
 }

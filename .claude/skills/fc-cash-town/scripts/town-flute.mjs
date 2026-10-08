@@ -162,14 +162,14 @@ try {
   { const thrown = [...X.logs, ...O.logs].filter((x) => x.startsWith("exception")); ok("no page errors", thrown.length === 0, thrown); }
 } finally { await X.close(); }
 
-// a phone's width: the belt's two things, one over the other
+// a phone's width: the belt's two things, side by side beside the chat (they stood one over the other until the foot was laid out as one: components/town/TownFoot)
 const P = await browser("FlutePhone", { width: 360, height: 740, dpr: 2, mobile: true });
 try {
   await begin(P, "H");
   await P.evaluate(`${T}.setGifts(["thingFlute", "thingNectar"])`);
   await sleep(700);
   const both = await P.evaluate(`[...document.querySelectorAll("[data-bug-belt] button")].map((b) => { const r = b.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height, on: document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === b || b.contains(document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2)) }; })`);
-  ok("at a phone's width the belt's two things are on the screen, a thumb wide each, with nothing over them", both.length === 2 && both.every((b) => b.x >= 0 && b.x + b.w <= 360 && b.y >= 0 && b.y + b.h <= 740 && b.w >= 44 && b.h >= 44 && b.on) && Math.abs(both[0].y - both[1].y) >= 44, both);
+  ok("at a phone's width the belt's two things are on the screen, a thumb wide each, with nothing over them", both.length === 2 && both.every((b) => b.x >= 0 && b.x + b.w <= 360 && b.y >= 0 && b.y + b.h <= 740 && b.w >= 44 && b.h >= 44 && b.on) && (Math.abs(both[0].y - both[1].y) >= 44 || Math.abs(both[0].x - both[1].x) >= 44), both);
   await P.shot(`${OUT}/flute-3-phone.png`);
   { const thrown = P.logs.filter((x) => x.startsWith("exception")); ok("no page errors on the phone", thrown.length === 0, thrown); }
 } finally { await P.close(); }

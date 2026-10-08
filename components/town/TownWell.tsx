@@ -9,6 +9,7 @@ import { handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import { RANK_TITLES } from "@/lib/town/well";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import { WHY } from "./TownTrade";
 
 /** The mark of each rank, the first to the last. */
@@ -120,14 +121,14 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
   return (
     <>
       {!open && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2" style={{ bottom }}>
+        <TownFoot rank="chip" order={34}>
           <button type="button" onClick={() => setOpen(true)} data-well-chip data-state="open"
                   className="pop-in pressable pointer-events-auto relative flex min-h-11 items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
             <TownIcon name="wellBook" size={22} />
             {th ? "สมุดบ่อน้ำ" : "The well's book"}
             {book.gift && <span data-well-waiting className="absolute -right-1 -top-2"><TownIcon name="wellGift" size={20} /></span>}
           </button>
-        </div>
+        </TownFoot>
       )}
       {open && (
         <div className={`pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone

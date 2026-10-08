@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
 import TownIcon from "./TownIcon";
+import TownFoot from "./TownFoot";
 
 /** How often whom I have to thank is asked for again while I am on the farm. */
 const AGAIN_MS = 3 * 60_000;
@@ -84,15 +85,15 @@ export default function TownThanks({ keeper, th, tile, near, bottom, sfx }: {
   return (
     <>
       {toast && (
-        <div className="pointer-events-none absolute inset-x-0 top-16 z-20 flex justify-center px-2">
+        <TownFoot rank="toast" order={20}>
           <p className="pop-in flex items-center gap-2 rounded-full border border-line-lit bg-surface/95 px-4 py-2 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-thanks-toast>
             <TownIcon name="thanksCard" size={20} />
             {toast}
           </p>
-        </div>
+        </TownFoot>
       )}
       {(helpers.length > 0 || note) && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+        <TownFoot rank="chip" order={32}>
           {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-thanks-note>{note}</p>}
           {helpers.length > 0 && (
             <button type="button" onClick={() => void thank()} disabled={busy} data-thanks-chip data-state="open"
@@ -103,7 +104,7 @@ export default function TownThanks({ keeper, th, tile, near, bottom, sfx }: {
               </span>
             </button>
           )}
-        </div>
+        </TownFoot>
       )}
     </>
   );

@@ -9,6 +9,7 @@ import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import type { Stack } from "@/lib/town/trade";
 import TownIcon from "./TownIcon";
+import TownFoot from "./TownFoot";
 import { ItemCard, Pic, StackIcon, WHY, holdsOf } from "./TownTrade";
 
 /** Why something was not done at the box, in a few words (what a bag refuses for is TownTrade's to word). */
@@ -110,14 +111,14 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
   return (
     <>
       {!open && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex justify-center px-2" style={{ bottom }}>
+        <TownFoot rank="chip" order={36}>
           <button type="button" onClick={() => setOpen(true)} data-box-chip data-state="open"
                   className="pop-in pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
             <Pic sprite={art("storebox")} box={24} />
             {title}
             <span className="font-data tabular-nums text-muted">{inBox} / {box.things.length}</span>
           </button>
-        </div>
+        </TownFoot>
       )}
       {open && (
         <div className={`pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone

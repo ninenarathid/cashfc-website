@@ -25,6 +25,7 @@ import TownForestChart from "./TownForestChart";
 import TownForestMap, { WARM_INK } from "./TownForestMap";
 import type { GameResult } from "./TownGame";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownFoot from "./TownFoot";
 import TownSteady from "./TownSteady";
 import { WHY } from "./TownTrade";
 import { Vfx, type VfxKind } from "./vfx";
@@ -510,7 +511,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
           </div>
         ))}
       {(working || here || note || digHere) && (
-        <div className="pointer-events-none absolute inset-x-0 z-20 flex flex-col items-center gap-2 px-2" style={{ bottom }}>
+        <TownFoot rank={working && tile ? "board" : "main"}>
           {note && (
             <p className="pop-in flex items-center gap-1.5 rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-forest-note={noteBy ?? ""} aria-live="polite">
               {noteBy && <TownIcon name={noteBy} size={20} />}{note}
@@ -548,7 +549,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
               </div>
             );
           })() : (here || digHere) && (
-            <div className="pointer-events-none mb-14 flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
+            <div className="pointer-events-none flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
               {here && byHand && (hereSecret ? (
                 // a secret place of the deep woods: its own button, with a mark for each of its two games
                 <button type="button" onClick={() => begin()} data-forest-offer="secret" data-secret-kind={here.spot.kind} data-state="open"
@@ -586,7 +587,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
               )}
             </div>
           )}
-        </div>
+        </TownFoot>
       )}
     </>
   );
