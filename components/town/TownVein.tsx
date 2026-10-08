@@ -16,6 +16,9 @@ import TownIcon, { type IconName } from "./TownIcon";
  * The one thing the board says in words is how it is played (the owner, 2026-10-08: a mini-game must not be hard to
  * understand, and one that might be has a short how-to on its own board). Everything else on it is a state: the
  * strikes left, what the crack has passed, what it has come to.
+ *
+ * A vein opened with no stamina left waits: its board says how many strikes there are and that what glints is to be
+ * remembered, and the moment in which it shows begins only at the press of "ready".
  */
 const SCENE = "/town/mine-vein-a4dbff6321.png";
 /** How long after its last strike a go is sent, and how long a strike's own look lasts (milliseconds). */
@@ -62,21 +65,23 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
     ro.observe(el);
     return () => ro.disconnect();
   }, [face.size]);
-  /** What the board is at: being played, its go sent, what it came to shown, or waiting for room in the bag. */
-  const [phase, setPhase] = useState<"play" | "sent" | "came" | "full" | "lost">("play");
+  /** What the board is at: waiting for its player to be ready (a vein opened with no stamina left), being played, its go sent, what it came to shown, or waiting for room in the bag. */
+  const [phase, setPhase] = useState<"ready" | "play" | "sent" | "came" | "full" | "lost">(mods.spent ? "ready" : "play");
   const [came, setCame] = useState<VeinCame | null>(null);
   /** The cell last struck and how it went, for a moment: its look on the face. */
   const [last, setLast] = useState<{ cell: [number, number]; knot: boolean; back: boolean; at: number } | null>(null);
-  // (with no stamina what glints is seen only at first: lib/town/vein's `tired.shows`)
-  const [seen, setSeen] = useState(true);
+  // (with no stamina what glints is seen only for a moment, lib/town/vein's `tired.shows`: a moment that begins when
+  // the player says they are ready, and not before)
+  const [seen, setSeen] = useState(!mods.spent), [readyAt, setReadyAt] = useState<number | null>(null);
+  const ready = useCallback(() => { setPhase((p) => (p === "ready" ? "play" : p)); setSeen(true); setReadyAt(Date.now()); }, []);
   useEffect(() => {
-    if (!mods.spent) return;
+    if (!mods.spent || readyAt === null) return;
     const t = setTimeout(() => setSeen(false), VEIN.tired.shows);
     return () => clearTimeout(t);
-  }, [mods.spent, vein.seed, vein.again]);
+  }, [mods.spent, readyAt]);
   // the same face once more (a twin vein): the board begins again
   const round = vein.again ? 2 : 1;
-  useEffect(() => { strikes.current = []; setCrack(begin(face, mods)); setPhase("play"); setCame(null); setLast(null); setSeen(true); }, [face, mods, round]);
+  useEffect(() => { strikes.current = []; setCrack(begin(face, mods)); setPhase(mods.spent ? "ready" : "play"); setCame(null); setLast(null); setSeen(!mods.spent); setReadyAt(null); }, [face, mods, round]);
 
   const ore = oreOf(vein.f), chip = vein.gem ? GEMS[vein.gem].chip : null;
   const soFar = yieldOf(face, crack, ore, chip, vein.more);
@@ -110,9 +115,11 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
     return true;
   }, [phase, face, crack, mods, hx, hy, sfx]);
 
-  // keys: an arrow strikes two cells that way (one, with Shift held); Escape is "enough"
+  // keys: an arrow strikes two cells that way (one, with Shift held); Escape ends the go and keeps what it has won
+  // (a board that waits for "ready" is neither struck nor ended by a key: Enter or the space bar on its button begins it)
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
+      if (phase === "ready") return;
       const d = e.key === "ArrowLeft" ? [-1, 0] : e.key === "ArrowRight" ? [1, 0] : e.key === "ArrowUp" ? [0, -1] : e.key === "ArrowDown" ? [0, 1] : null;
       if (d) { e.preventDefault(); const far = e.shiftKey ? 1 : VEIN.reach; if (!hit([hx + d[0] * far, hy + d[1] * far])) hit([hx + d[0], hy + d[1]]); }
       else if (e.key === "Escape") { e.preventDefault(); if (phase === "play") void send(); else if (phase !== "sent") onClose(); }
@@ -128,9 +135,10 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
       state: () => ({ face, ice, head: [hx, hy], left: crack.left, back: crack.back, got: [...crack.got], path: crack.path, phase, seen, round, gem: vein.gem, mods, came }),
       strike: (cell: [number, number]) => hit(cell),
       enough: () => { if (phase === "play") void send(); },
+      ready: () => { if (phase === "ready") ready(); },
     };
     return () => { delete (window as unknown as { __townVein?: unknown }).__townVein; };
-  }, [face, ice, hx, hy, crack, phase, seen, round, vein.gem, mods, came, hit, send]);
+  }, [face, ice, hx, hy, crack, phase, seen, round, vein.gem, mods, came, hit, send, ready]);
 
   const size = face.size, title = vein.gem ? (th ? "สายแร่พลอย" : "A gem vein") : (th ? "สายแร่พิเศษ" : "A special vein");
   const path = `M${(crack.path[0][0] + 0.5).toFixed(3)} ${(crack.path[0][1] + 0.5).toFixed(3)} ${crack.path.slice(1).map((p, i) => bent(crack.path[i], p)).join(" ")}`;
@@ -147,17 +155,20 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
         <span className="ml-1 flex gap-1" aria-label={`${crack.got.length} / ${face.points.length}`}>
           {face.points.map((_, i) => <span key={i} className={`size-3 border-2 border-[#2a190d] ${i < crack.got.length ? "bg-[#ffd15c]" : "bg-[#4a2f18]"}`} />)}
         </span>
-        <button type="button" onClick={() => { if (phase === "play") void send(); else if (phase !== "sent") onClose(); }} disabled={phase === "sent"} data-vein-enough
-                className="pressable -mr-1 ml-auto min-h-9 rounded-md px-2.5 py-1.5 text-meta text-[#e9cfa4] hover:text-[#fff6e3] disabled:opacity-50">
-          {phase === "play" ? (th ? "พอแค่นี้" : "Enough") : (th ? "ปิด" : "Close")}
-        </button>
+        {/* the press that ends a go says that what it has won is kept; a board that waits for "ready" has none */}
+        {phase !== "ready" && (
+          <button type="button" onClick={() => { if (phase === "play") void send(); else if (phase !== "sent") onClose(); }} disabled={phase === "sent"} data-vein-enough
+                  className="pressable -mr-1 ml-auto min-h-9 rounded-md px-2.5 py-1.5 text-meta text-[#e9cfa4] hover:text-[#fff6e3] disabled:opacity-50">
+            {phase === "play" ? (th ? "จบและเก็บแร่" : "Finish and keep ore") : (th ? "ปิด" : "Close")}
+          </button>
+        )}
       </div>
       <p className="-mt-0.5 mb-2 text-meta leading-relaxed text-[#f6e3bd]" data-vein-how>{th ? HOW[0] : HOW[1]}</p>
 
       <div className={`${STAGE} aspect-[25/27] w-full`} style={{ backgroundImage: `url(${SCENE})`, backgroundSize: "auto 118%", backgroundPosition: "center top", imageRendering: "pixelated" }}>
         {/* with no stamina: how long what glints is still to be seen */}
         {mods.spent && phase === "play" && (
-          <span aria-hidden data-vein-seen={seen ? "1" : "0"} className="absolute inset-x-[5%] top-[2.5%] h-1.5 overflow-hidden border border-[#2a190d] bg-[#2a190d]/70">
+          <span key={readyAt ?? 0} aria-hidden data-vein-seen={seen ? "1" : "0"} className="absolute inset-x-[5%] top-[2.5%] h-1.5 overflow-hidden border border-[#2a190d] bg-[#2a190d]/70">
             <span className="block h-full origin-left bg-[#ffd15c]" style={reduced ? { transform: seen ? "none" : "scaleX(0)" } : { animation: `vein-drain ${VEIN.tired.shows}ms linear forwards` }} />
           </span>
         )}
@@ -168,7 +179,7 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
             const knot = face.knots.some(([kx, ky]) => kx === x && ky === y), icy = ice.some(([kx, ky]) => kx === x && ky === y);
             const inLine = phase === "play" && mayStrike(face, crack, [x, y]), far = Math.abs(x - hx) + Math.abs(y - hy), may = inLine && far <= VEIN.reach;
             const head = x === hx && y === hy, start = x === face.start[0] && y === face.start[1];
-            const shown = !!point && (seen || got || phase !== "play");
+            const shown = !!point && phase !== "ready" && (seen || got || phase !== "play");
             const struck = last && last.cell[0] === x && last.cell[1] === y;
             const kind = knot ? (icy ? "ice" : "knot") : point ? (point.gem > 0 && chip ? "gem" : "ore") : "rock";
             const label = `${x + 1},${y + 1} ${knot ? (icy ? (th ? "ก้อนน้ำแข็ง" : "ice") : (th ? "ก้อนดำ" : "knot")) : shown ? (kind === "gem" && chip ? name(chip) : name(ore)) : (th ? "หิน" : "rock")}`;
@@ -201,6 +212,25 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
             {!reduced && phase === "play" && <rect x={hx + 0.5 - 0.3} y={hy + 0.5 - 0.3} width={0.6} height={0.6} fill="none" stroke="#fff3c9" strokeWidth={0.05} className="origin-center animate-[vein-head_1.3s_ease-out_infinite]" style={{ transformBox: "fill-box" }} />}
           </svg>
         </div>
+
+        {/* opened with no stamina left: the board waits, and says what there is to this go, until its player is ready */}
+        {phase === "ready" && (
+          <div className={`absolute inset-x-[7%] top-[30%] rounded-md border-[3px] border-[#2a190d] bg-[#f6e3bd] px-3 py-3 text-center text-[#3a2209] shadow-[0_6px_0_rgba(0,0,0,0.35)] ${reduced ? "" : "pop-in"}`} data-state="open" data-vein-wait>
+            <p className="flex items-center justify-center gap-1" aria-hidden>
+              {Array.from({ length: mods.strikes }, (_, i) => <TownIcon key={i} name={"pick" as IconName} size={22} />)}
+            </p>
+            <p className="mt-1.5 text-ui font-semibold leading-relaxed">
+              {th ? `หมดแรงแล้ว: ทุบได้ ${mods.strikes} ครั้ง` : `No stamina left: ${mods.strikes} strikes`}
+            </p>
+            <p className="text-ui leading-relaxed">
+              {th ? `จุดแร่จะโชว์ ${VEIN.tired.shows / 1000} วินาทีแล้วหายไป จำตำแหน่งไว้` : `The ore shows for ${VEIN.tired.shows / 1000} seconds, then hides. Remember where it is.`}
+            </p>
+            <button type="button" onClick={ready} data-vein-ready autoFocus
+                    className="pressable mt-2.5 min-h-11 w-full rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] text-read font-semibold text-[#3a2209] shadow-[inset_0_-4px_0_#c98f2f,inset_0_2px_0_#ffe19a] active:translate-y-px">
+              {th ? "พร้อมแล้ว" : "Ready"}
+            </button>
+          </div>
+        )}
 
         {/* what it came to, over the face */}
         {(phase === "came" || phase === "full" || phase === "lost") && (

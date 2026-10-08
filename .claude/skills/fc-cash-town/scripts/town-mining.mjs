@@ -264,11 +264,19 @@ try {
     await strike(A, 1, r6.id);
     await until("the board", () => A.evaluate(`!!${G}`), 8000).catch(() => {});
     const t0 = await A.evaluate(`${G} ? ${G}.state() : null`);
+    // (the board waits: nothing glints, nothing is struck, and no press ends it, until "ready" is pressed)
+    await sleep(2600);
+    const waiting = await A.evaluate(`({ phase: ${G}.state().phase, shown: document.querySelectorAll('[data-vein-cell][data-kind="ore"][data-shown="1"]').length, card: !!document.querySelector("[data-vein-wait]"), end: !!document.querySelector("[data-vein-enough]") })`);
+    ok("a vein opened with no stamina waits for its player: a card with the strikes there are, nothing glinting yet, no way to end it by a slip", waiting.phase === "ready" && waiting.shown === 0 && waiting.card && !waiting.end, waiting);
+    await A.shot(`${OUT}/mining-vein-wait.png`);
+    await click(A, "[data-vein-ready]");
+    await sleep(150);
     const shownAt = await A.evaluate(`document.querySelectorAll('[data-vein-cell][data-kind="ore"][data-shown="1"]').length`);
     await sleep(2600);
     const shownLater = await A.evaluate(`document.querySelectorAll('[data-vein-cell][data-kind="ore"][data-shown="1"]').length`);
     ok("with no stamina the vein has two strikes fewer", t0?.left === 4 && t0.mods.spent === true, t0 && { left: t0.left });
-    ok("…and what glints is shown only for its first two seconds", shownAt === t0.face.points.length && shownLater === 0 && (await A.evaluate(`${G}.state().seen`)) === false, { shownAt, shownLater });
+    ok("…and what glints is shown only for two seconds, from the press of ready", shownAt === t0.face.points.length && shownLater === 0 && (await A.evaluate(`${G}.state().seen`)) === false, { shownAt, shownLater });
+    ok("the press that ends a go says that what was won is kept", /เก็บแร่|keep ore/i.test(await A.evaluate(`document.querySelector("[data-vein-enough]")?.textContent ?? ""`)));
     await A.shot(`${OUT}/mining-vein-tired.png`);
     await playVein(A, false);
     await A.evaluate(`${G}.enough()`);
