@@ -19,7 +19,7 @@ import { STAMINA, staminaOf } from "@/lib/town/stamina";
 import { GOODS, handOf, held, roomFor } from "@/lib/town/trade";
 import { trialFor } from "@/lib/town/trial";
 // ── forging ──
-import { drawnOf, gemsOf, levelOf, toolKindOf } from "@/lib/town/tools";
+import { ELEMENTS, GEMS, drawnOf, gemsOf, levelOf, toolKindOf, type Element } from "@/lib/town/tools";
 import { handSlot } from "@/lib/town/trade";
 import { WELL } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -31,6 +31,16 @@ const KINDS: Array<[ItemKind | "all", string, string]> = [
   ["wood", "ไม้", "Wood"], ["mineral", "หินและแร่", "Stone and ore"],
 ];
 type View = "things" | "plants" | "me" | "plays";
+/**
+ * (forging: the look) The tools the test window puts in the hand with gems, and a few telling sets of several
+ * elements: the four pairs that make something of the two together, a pair that simply shows both, three of a
+ * kind each, and two of one with another.
+ */
+const GEM_TOOLS: ItemId[] = ["pick", "axe", "hoe", "bugNet", "can", "rod"];
+const GEM_MIXES: Element[][] = [
+  ["fire", "water"], ["fire", "ice"], ["lightning", "water"], ["light", "dark"], ["earth", "wind"],
+  ["fire", "water", "ice"], ["light", "dark", "lightning"], ["earth", "wind", "water"], ["fire", "fire", "water"],
+];
 /** What each stage of a plant's growing is called. */
 const STAGE_NAMES: Array<[string, string]> = [["เมล็ด", "Sown"], ["ต้นอ่อน", "Sprout"], ["ต้นกล้า", "Seedling"], ["กำลังโต", "Half grown"], ["โตเต็มที่", "Ripe"]];
 /** So many hours, in the words a person would use: minutes, hours, or days. */
@@ -56,6 +66,10 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
   /** Which tier to show: 0 all, 1 the early game, 2 and 3 what comes after. */
   const [tier, setTier] = useState<0 | 1 | 2 | 3>(0);
   const [said, setSaid] = useState<string | null>(null);
+  // (forging: the look) the tool, the gems and the level last put in the hand from the row of gems
+  const [gemTool, setGemTool] = useState<ItemId>("pick");
+  const [gemSet, setGemSet] = useState<Element[]>(["fire"]);
+  const [gemPlus, setGemPlus] = useState(0);
 
   const now = trial.now(), purse = trial.purse();
   const ids = ITEM_IDS.filter((id) => (kind === "all" || ITEMS[id].kind === kind) && (!tier || ITEMS[id].tier === tier));
@@ -199,6 +213,31 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
                 <Do onClick={() => { trial.grantSmith(); setSaid(th ? "ได้ไม้ เศษแร่ แร่ก้อน พลอย และเหรียญแล้ว (กระเป๋า 20 ช่อง)" : "Timber, fragments, ore, gems and coins are in the bag (twenty slots)"); }}>{th ? "เสกวัตถุดิบ" : "Materials"}</Do>
                 {[0, 3, 6, 7, 10].map((n) => <Do key={n} on={!!tool && !!kind && levelOf(tool) === n} onClick={() => { if (tool && kind) trial.setTool(at, n, drawnOf(tool).map((o) => o ?? ""), gemsOf(tool)); }}>+{n}</Do>)}
                 <Do onClick={() => trial.skipHours(0.1)}>+6 {th ? "นาที" : "min"}</Do>
+              </Row>
+            );
+          })()}
+          {/* ── forging: the look ── a tool in the hand with gems, to see on the map what they show about it. A tool of this round has
+              one socket, so here it is given two and three, of one element and of several: the look only (the rules of this round
+              count the first gem). A tool, a level, and then one element so many times or one of the sets. */}
+          {process.env.NODE_ENV === "development" && (() => {
+            const holdWith = (item: ItemId, gems: Element[], plus: number) => {
+              setGemTool(item); setGemSet(gems); setGemPlus(plus);
+              let i = trial.purse().bag.findIndex((s) => s?.item === item);
+              if (i < 0) { trial.grant(item, 1); i = trial.purse().bag.findIndex((s) => s?.item === item); }
+              if (i < 0) { setSaid(th ? "กระเป๋าเต็ม" : "The bag is full"); return; }
+              trial.setTool(i, plus, drawnOf(trial.purse().bag[i]).map((o) => o ?? ""), gems); trial.hold(i);
+              setSaid(th ? "ถือไว้แล้ว ปิดหน้าต่างนี้เพื่อดูบนแผนที่" : "It is in your hand: close this window to see it on the map");
+            };
+            const gem = (e: Element) => (th ? GEMS[e].name.th : GEMS[e].name.en), same = gemSet.length > 0 && gemSet.every((e) => e === gemSet[0]);
+            const is = (set: Element[]) => set.length === gemSet.length && set.every((e, k) => e === gemSet[k]);
+            return (
+              <Row label={th ? "เครื่องมือในมือกับพลอย" : "A held tool and its gems"} value={<span className="font-data text-meta tabular-nums text-ink" data-test-gems={gemSet.join(" ")}>{`${th ? ITEMS[gemTool].name.th : ITEMS[gemTool].name.en} +${gemPlus} · ${gemSet.length ? gemSet.map(gem).join(" + ") : th ? "ไม่มีพลอย" : "no gem"}`} <span className="text-muted">{th ? "(ดูหน้าตาบนแผนที่เท่านั้น กฎรอบนี้นับพลอยเม็ดแรก)" : "(the look on the map only: this round's rules count the first gem)"}</span></span>}>
+                {GEM_TOOLS.map((id) => <Do key={id} on={gemTool === id} onClick={() => holdWith(id, gemSet, gemPlus)}><span className="flex items-center gap-1"><TownIcon name={id as IconName} size={16} />{th ? ITEMS[id].name.th : ITEMS[id].name.en}</span></Do>)}
+                {[0, 7, 10].map((n) => <Do key={n} on={gemPlus === n} onClick={() => holdWith(gemTool, gemSet, n)}>+{n}</Do>)}
+                <Do on={!gemSet.length} onClick={() => holdWith(gemTool, [], gemPlus)}>{th ? "ไม่มีพลอย" : "No gem"}</Do>
+                {ELEMENTS.map((e) => <Do key={e} on={same && gemSet[0] === e} onClick={() => holdWith(gemTool, Array<Element>(same ? gemSet.length : 1).fill(e), gemPlus)}><span className="flex items-center gap-1"><TownIcon name={GEMS[e].gem as IconName} size={16} />{gem(e)}</span></Do>)}
+                {[1, 2, 3].map((n) => <Do key={n} on={same && gemSet.length === n} onClick={() => holdWith(gemTool, Array<Element>(n).fill(gemSet[0] ?? "fire"), gemPlus)}>{th ? `ธาตุเดียว ×${n}` : `one element ×${n}`}</Do>)}
+                {GEM_MIXES.map((set) => <Do key={set.join("+")} on={is(set)} onClick={() => holdWith(gemTool, set, gemPlus)}>{set.map(gem).join(" + ")}</Do>)}
               </Row>
             );
           })()}
