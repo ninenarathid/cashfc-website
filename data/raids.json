@@ -82977,9 +82977,9 @@
     "state": "learning",
     "pct": 44.76,
     "phase": 4,
-    "pulls": 72,
-    "last": "2026-10-06",
-    "last_ts": 1791298571
+    "pulls": 71,
+    "last": "2026-10-07",
+    "last_ts": 1791385140
    }
   ]
  },
@@ -83178,6 +83178,23 @@
     "kills": 1,
     "job": "Monk",
     "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 95,
+    "kills": 2,
+    "job": "Sage",
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 2,
+      "best": 95
+     }
+    }
    },
    {
     "zone": "The Omega Protocol",
@@ -86056,7 +86073,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 27,
+    "pulls": 13,
     "last": "2026-09-29",
     "last_ts": 1790690223
    }
@@ -86243,6 +86260,17 @@
     "best": 38,
     "kills": 1,
     "job": "WhiteMage",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 84,
+    "kills": 2,
+    "job": "Gunbreaker",
     "cleared": true
    },
    {
@@ -87400,6 +87428,17 @@
     "name": "Dragonsong's Reprise",
     "best": 65,
     "kills": 5,
+    "job": "DarkKnight",
+    "cleared": true
+   },
+   {
+    "zone": "Ultimates (Legacy)",
+    "zone_id": 59,
+    "expansion": "Dawntrail",
+    "encounter_id": 1074,
+    "name": "The Weapon's Refrain",
+    "best": 78,
+    "kills": 2,
     "job": "DarkKnight",
     "cleared": true
    }
