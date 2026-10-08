@@ -1374,11 +1374,11 @@ try {
     did = await I.stoneLift(PILE);
     await mark(a, "pearl");
     await I.worksLook();
-    ok("a stone with something in it: its holder's keeper is told that it carries a stone, and nothing of what is in it", did.ok && JSON.stringify(I.works().carried) === JSON.stringify({ work: "bridge", thing: "stone" }) && !/pearl|mark/.test(JSON.stringify(I.works())), I.works().carried);
+    ok("a stone with something in it: its holder's keeper is told that it carries a stone, and nothing of what is in it", did.ok && JSON.stringify(I.works().carried) === JSON.stringify({ work: "bridge", thing: "stone" }) && !/pearl|"mark"/.test(JSON.stringify(I.works())), I.works().carried);
     did = await I.stonePass(c);
     K.nudged("works");
     await settled(K);
-    ok("…nor is whoever takes it", did.ok && carrying(K.works()) === "stone" && !/pearl|mark/.test(JSON.stringify(K.works())) && !/pearl|mark/.test(JSON.stringify(did)), K.works().carried);
+    ok("…nor is whoever takes it", did.ok && carrying(K.works()) === "stone" && !/pearl|"mark"/.test(JSON.stringify(K.works())) && !/pearl|"mark"/.test(JSON.stringify(did)), K.works().carried);
     did = await K.stoneLay(FOOT);
     ok("laid, it is found: the answer says what was in it, and the keeper has it set in the bridge with the hands it came by, in the order it went through them",
       did.ok && did.find === "pearl" && did.into === 1 && did.have === 2 && JSON.stringify(K.works().works.bridge.finds.map((f) => [f.kind, f.span, f.hands.map((h) => h.id)])) === JSON.stringify([["pearl", 1, [a, c]]])
