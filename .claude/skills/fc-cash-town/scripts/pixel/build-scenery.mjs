@@ -141,8 +141,16 @@ const KITCHEN = [
 // and the sign at the bridge's foot. A picture of their own, so that the town's picture is as it was. Their pixels
 // are about six and a half of the sheet's: measured freely the build takes two of them for one (13.8), and at 6.9 or
 // 8 the little bridge carved on the sign comes out broken, so the range says where to look.
+// And what the building is seen by (the owner, 2026-10-08 evening: every picture the piece names, "อย่าไปคิดเรื่องต้นทุนรูป"):
+// the mark on the road where a row would stand and the banner at the foot; three stones of the course that grows at
+// the foot, with the scaffold, the hoist with its rope and the arch's wooden form that are put up as a span comes on;
+// the six things a stone may have in it, and a glint; and the feast of a span laid: bunting, a lantern, confetti, a wreath.
 const WORKS = [
   ["scene-bridge-works", ["stonePile", "stonePileCloth", "stoneHeld", "bridgeSign"], undefined, undefined, [6.5, 6.7]],
+  ["scene-bridge-road", ["standMark", "bridgeBanner"]],
+  ["scene-bridge-course", ["courseA", "courseB", "courseC", "siteScaffold", "siteHoist", "siteArch"]],
+  ["scene-bridge-finds", ["findShell", "findCoin", "findRune", "findPearl", "findStar", "findLeaf", "glint"]],
+  ["scene-bridge-feast", ["feastBunting", "feastLantern", "feastConfetti", "feastWreath"]],
 ];
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
 // like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist

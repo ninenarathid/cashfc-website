@@ -28,13 +28,6 @@ const BX = 30, BY = 44, MID = 127, STEP = 24, BIGGER = 32, ARC = 18;
 const spot = (put: Side | 0) => MID + put * STEP;
 
 type Phase = "calling" | "wait" | "ready" | "flight" | "won" | "lost";
-/** The two buckets' pictures when none are said (a stone has no bucket). */
-const PLAIN = { from: "bucketFull", fromEmpty: "bucket", to: "bucket", toFull: "bucketFull" } as const satisfies Record<string, IconName>;
-/**
- * ── the bridge built by hand ── An open hand, for a stone handed on (lib/town/bridge): the palm of the atlas's `hand`
- * (the picture of empty hands; its upper half is a star, which is not wanted here).
- */
-const PALM = ((): [number, number, number, number] => { const [x, y, w, h] = ICON_ATLAS.icons.hand, top = Math.round(h * 0.49); return [x, y + top, w, h - top]; })();
 
 /**
  * Water handed on by tired hands, on the screen (lib/town/handing; the owner, 2026-10-06, of the game before this
@@ -52,12 +45,8 @@ const PALM = ((): [number, number, number, number] => { const [x, y, w, h] = ICO
  *
  * Tired hands: whoever throws can only while the bucket swings forward (the button is lit then, and says so);
  * whoever takes is shown the arrow late. Each board marks which side is tired.
- *
- * ── the bridge built by hand ── **The same board hands a stone on** (`thing="stone"`; lib/town/bridge: with no stamina
- * on either side, as water): the same three presses, a stone tossed from an open hand to an open hand, and a stone's
- * words.
  */
-export default function TownHanding({ th, role, m, seed, tired, names, icons = PLAIN, other, waiting, tell, onDone, onClose, onCancel, sfx, scene = null, thing = "water", stone = null }: {
+export default function TownHanding({ th, role, m, seed, tired, names, icons, other, waiting, tell, onDone, onClose, onCancel, sfx, scene = null }: {
   th: boolean;
   /** Which bucket is mine: the one thrown from (`from`), or the one held under (`to`). */
   role: "from" | "to";
@@ -67,7 +56,7 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
   tired: { from: boolean; to: boolean };
   names: { from: string; to: string };
   /** The two buckets' pictures: the one thrown from with water in it and without, the one held under without and with. */
-  icons?: { from: IconName; fromEmpty: IconName; to: IconName; toFull: IconName };
+  icons: { from: IconName; fromEmpty: IconName; to: IconName; toFull: IconName };
   other: MutableRefObject<OtherHand>;
   /** Whoever throws: asked, and the other has not answered yet. */
   waiting: boolean;
@@ -78,33 +67,10 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
   onCancel: () => void;
   sfx: FishSfx | null;
   scene?: Sprite | null;
-  /** What is handed on: water out of a bucket, as it began; or a stone for the bridge, with its own picture (`stone`) and words. */
-  thing?: "water" | "stone";
-  stone?: Sprite | null;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null), stage = useRef<HTMLDivElement>(null);
   const sheet = useRef<HTMLImageElement | null>(null);
   useEffect(() => { const img = new Image(); img.src = ICON_ATLAS.image; sheet.current = img; }, []);
-  // ── the bridge built by hand ── (a stone's own picture, out of the works' sheet; and the open hands it goes between)
-  const rock = thing === "stone", stoneSrc = stone?.src ?? null;
-  const stoneImg = useRef<HTMLImageElement | null>(null);
-  useEffect(() => { if (!stoneSrc) { stoneImg.current = null; return; } const img = new Image(); img.src = stoneSrc; stoneImg.current = img; }, [stoneSrc]);
-  const drawStone = (ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number) => {
-    const img = stoneImg.current;
-    if (!stone || !img?.complete || !img.naturalWidth) return;
-    const [x, y, w, h] = stone.at, k = size / Math.max(w, h);
-    ctx.drawImage(img, x, y, w, h, Math.round(cx - (w * k) / 2), Math.round(cy - (h * k) / 2), w * k, h * k);
-  };
-  const drawPalm = (ctx: CanvasRenderingContext2D, cx: number, cy: number, size: number, flip: boolean) => {
-    const img = sheet.current;
-    if (!img?.complete || !img.naturalWidth) return;
-    const [x, y, w, h] = PALM, k = size / w;
-    ctx.save();
-    ctx.translate(Math.round(cx), Math.round(cy));
-    if (flip) ctx.scale(-1, 1);
-    ctx.drawImage(img, x, y, w, h, -(w * k) / 2, -(h * k) / 2, w * k, h * k);
-    ctx.restore();
-  };
   const mine = role === "from", side = sideOf(seed);
   const born = useRef(0);
   useEffect(() => { born.current = performance.now(); }, []);
@@ -125,10 +91,10 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
     over.current = result;
     setPhase(won ? "won" : "lost");
     sfx?.wake();
-    sfx?.work(won ? (rock ? "pick" : "dip") : "knock", 0.8);
+    sfx?.work(won ? "dip" : "knock", 0.8);
     onDone(result);
     window.setTimeout(onClose, 500);
-  }, [onDone, onClose, sfx, rock]);
+  }, [onDone, onClose, sfx]);
 
   /** Whoever throws presses the button: thrown, if the other is ready and the hands can. */
   const press = useCallback(() => {
@@ -145,8 +111,8 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
     flew.current = now;
     tell({ k: "th", m });
     sfx?.wake();
-    sfx?.work(rock ? "pull" : "pour", 0.7);
-  }, [mine, waiting, tired.from, seed, tell, m, sfx, rock]);
+    sfx?.work("pour", 0.7);
+  }, [mine, waiting, tired.from, seed, tell, m, sfx]);
   /** Whoever takes it says they are ready. */
   const beReady = useCallback(() => {
     if (mine || over.current || ready.current) return;
@@ -185,7 +151,7 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
         if (next !== phase) setPhase(next);
       } else {
         if (auto.current && !ready.current) beReady();
-        if (o.thrown !== null && flew.current === null) { flew.current = o.thrown; setPhase("flight"); sfx?.wake(); sfx?.work(rock ? "pull" : "pour", 0.7); }
+        if (o.thrown !== null && flew.current === null) { flew.current = o.thrown; setPhase("flight"); sfx?.wake(); sfx?.work("pour", 0.7); }
         if (flew.current !== null) {
           const f = (now - flew.current) / 1000, see = f >= shownAt(tired.to);
           if (see !== shown) setShown(see);
@@ -211,35 +177,23 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
     // the two places the water may come down on, either side of where the other stands
     for (const s of [-1, 1] as const) {
       const lit = flying && see && s === side;
-      ctx.fillStyle = lit ? (rock ? "#ffe19a" : "#bfe6ff") : "rgba(42, 25, 13, 0.55)";
+      ctx.fillStyle = lit ? "#bfe6ff" : "rgba(42, 25, 13, 0.55)";
       ctx.fillRect(spot(s) - 9, GROUND + 3, 19, 2);
       if (lit) { ctx.fillStyle = "rgba(16, 36, 56, 0.6)"; ctx.fillRect(spot(s) - 7, GROUND + 5, 15, 1); }
     }
     // the bucket that is thrown from: at rest tipped a little; tired, swinging back and forth (forward is when it can be thrown); flung forward at the throw
     const swing = readyAt.current !== null && tired.from && mine ? (canThrow(true, seed, (now - readyAt.current) / 1000) ? 0.55 : -0.12) : 0.18 + 0.05 * Math.sin(now / 420);
     const turn = f >= 0 ? Math.min(1.5, 0.3 + f * 12) : now < numb.current ? -0.25 + 0.08 * Math.sin(now / 40) : swing;
-    if (rock) {
-      // (a stone: on the open hand that throws it, lifted and let down as the bucket swings; off it once it is thrown)
-      const lift = f >= 0 ? -3 : Math.round(-turn * 9);
-      drawPalm(ctx, BX, BY + 22 + lift, BIGGER, false);
-      if (f < 0) drawStone(ctx, BX + 3, BY + 8 + lift, 24);
-    } else {
-      ctx.save();
-      ctx.translate(BX, BY);
-      ctx.rotate(turn);
-      drawIcon(ctx, sheet.current, f >= 0 ? icons.fromEmpty : icons.from, 0, 0, BIGGER);
-      ctx.restore();
-    }
+    ctx.save();
+    ctx.translate(BX, BY);
+    ctx.rotate(turn);
+    drawIcon(ctx, sheet.current, f >= 0 ? icons.fromEmpty : icons.from, 0, 0, BIGGER);
+    ctx.restore();
     const mouth = GROUND - 24;
-    if (flying && rock) {
-      // the stone in the air: towards where the other stands, and to its side once that is shown
-      const lean = see ? Math.min(1, (f - shownAt(tired.to)) / 0.12) : 0, end = MID + side * STEP * lean, lx = BX + 16, ly = BY - 4, u = f / HANDING.flight;
-      drawStone(ctx, lx + (end - lx) * u, ly + (mouth - ly) * u - ARC * 4 * u * (1 - u), 20);
-    }
     if (flying) {
       // the water in the air: towards where the other stands, and to its side once that is shown
       const lean = see ? Math.min(1, (f - shownAt(tired.to)) / 0.12) : 0, end = MID + side * STEP * lean, lx = BX + 16, ly = BY - 4;
-      for (let k = 0; k < 11 && !rock; k++) {
+      for (let k = 0; k < 11; k++) {
         const u = f / HANDING.flight - k * 0.028;
         if (u < 0) break;
         const x = lx + (end - lx) * u, y = ly + (mouth - ly) * u - ARC * 4 * u * (1 - u), big = k < 3 ? 4 : k < 7 ? 3 : 2;
@@ -258,8 +212,7 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
       }
     }
     const won = !!over.current && over.current.won, lost = !!over.current && !over.current.won;
-    if (lost && f >= 0 && rock) drawStone(ctx, spot(side), GROUND - 3, 18);   // (beside the hand: the stone, where it came down)
-    else if (lost && f >= 0) {
+    if (lost && f >= 0) {
       // beside the bucket: a puddle where it came down
       const x = spot(side), j = Math.floor(now / 50) % 3;
       ctx.fillStyle = "#48a0c8";
@@ -272,15 +225,9 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
     drawnAt.current += Math.sign(gap) * Math.min(Math.abs(gap), 260 * dt);
     const bx = Math.round(drawnAt.current);
     ctx.globalAlpha = isReady || over.current ? 1 : 0.55;
-    if (rock) {
-      // (a stone: the other's open hand, held out once they are ready; caught, the stone lies on it)
-      const hy = GROUND - 17 + (isReady || over.current ? -3 : 0);
-      drawPalm(ctx, bx, hy, BIGGER - 2, true);
-      ctx.globalAlpha = 1;
-      if (won) drawStone(ctx, bx - 3, hy - 13, 22);
-    } else drawIcon(ctx, sheet.current, won ? icons.toFull : icons.to, bx, GROUND - 14 + (isReady || over.current ? -3 : 0), BIGGER - 2);
+    drawIcon(ctx, sheet.current, won ? icons.toFull : icons.to, bx, GROUND - 14 + (isReady || over.current ? -3 : 0), BIGGER - 2);
     ctx.globalAlpha = 1;
-    if (won && !rock) { const j = Math.floor(now / 42) % 4; ctx.fillStyle = "#e6f6ff"; for (let i = 0; i < 5; i++) ctx.fillRect(bx - 8 + i * 4, mouth - 6 - ((i * 2 + j) % 5), 2, 2); }
+    if (won) { const j = Math.floor(now / 42) % 4; ctx.fillStyle = "#e6f6ff"; for (let i = 0; i < 5; i++) ctx.fillRect(bx - 8 + i * 4, mouth - 6 - ((i * 2 + j) % 5), 2, 2); }
   });
 
   // The space bar is the big button (throw; ready), the arrow keys the two sides; Escape gives it up. Heard before the town hears them.
@@ -321,20 +268,20 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
   const done = phase === "won" || phase === "lost";
   /** The two steps of whoever looks at this board, and which is to be done now (0, 1; 2: both done). */
   const steps = mine
-    ? [th ? "รอเพื่อนกด “พร้อมรับ”" : "Wait for “Ready”", rock ? (th ? "กดปุ่ม “โยน!”" : "Press “Toss!”") : th ? "กดปุ่ม “สาด!”" : "Press “Throw!”"]
+    ? [th ? "รอเพื่อนกด “พร้อมรับ”" : "Wait for “Ready”", th ? "กดปุ่ม “สาด!”" : "Press “Throw!”"]
     : [th ? "กดปุ่ม “พร้อมรับ”" : "Press “Ready”", th ? "ลูกศรชี้ทางไหน กดทางนั้น" : "Press the side the arrow shows"];
   const at = done || phase === "flight" && mine ? 2 : phase === "calling" || phase === "wait" ? 0 : 1;
   const word = done
-    ? phase === "won" ? (rock ? (th ? "รับได้! หินถึงมือ" : "Caught! Handed over") : th ? "รับได้! ส่งน้ำถึงมือ" : "Caught! Handed over") : th ? "รับไม่ทัน… ลองอีกที" : "Missed… try again"
+    ? phase === "won" ? (th ? "รับได้! ส่งน้ำถึงมือ" : "Caught! Handed over") : th ? "รับไม่ทัน… ลองอีกที" : "Missed… try again"
     : mine
       ? phase === "calling" ? (th ? `กำลังเรียก ${them}…` : `Calling ${them}…`)
         : phase === "wait" ? (th ? `รอ ${them} กดพร้อม…` : `Waiting for ${them}…`)
-          : phase === "flight" ? (rock ? (th ? "หินลอยไปแล้ว!" : "There it goes!") : th ? "น้ำลอยไปแล้ว!" : "There it goes!")
-            : hands === "lit" ? (rock ? (th ? `${them} พร้อมแล้ว กด “โยน!” เลย` : `${them} is ready: toss it!`) : th ? `${them} พร้อมแล้ว กด “สาด!” เลย` : `${them} is ready: throw!`)
-              : hands === "fumble" ? (th ? "ยกไม่ไหว! รอแป๊บ" : "Too heavy! A moment") : rock ? (th ? "หินหนัก… รอปุ่มสว่างก่อน" : "Heavy… wait for the light") : th ? "ถังหนัก… รอปุ่มสว่างก่อน" : "Heavy… wait for the light"
-      : phase === "wait" ? (rock ? (th ? `${them} จะโยนหินให้ กด “พร้อมรับ”` : `${them} has a stone for you: press Ready`) : th ? `${them} จะส่งน้ำให้ กด “พร้อมรับ”` : `${them} has water for you: press Ready`)
-        : phase === "ready" ? (rock ? (th ? "เตรียมรับ… รอหินลอยมา" : "Ready… wait for it") : th ? "เตรียมรับ… รอน้ำลอยมา" : "Ready… wait for it")
-          : shown ? (side < 0 ? (th ? "← ซ้าย!" : "← Left!") : th ? "ขวา! →" : "Right! →") : rock ? (th ? "หินมาแล้ว! รอดูลูกศร" : "Here it comes! Watch for the arrow") : th ? "น้ำมาแล้ว! รอดูลูกศร" : "Here it comes! Watch for the arrow";
+          : phase === "flight" ? (th ? "น้ำลอยไปแล้ว!" : "There it goes!")
+            : hands === "lit" ? (th ? `${them} พร้อมแล้ว กด “สาด!” เลย` : `${them} is ready: throw!`)
+              : hands === "fumble" ? (th ? "ยกไม่ไหว! รอแป๊บ" : "Too heavy! A moment") : th ? "ถังหนัก… รอปุ่มสว่างก่อน" : "Heavy… wait for the light"
+      : phase === "wait" ? (th ? `${them} จะส่งน้ำให้ กด “พร้อมรับ”` : `${them} has water for you: press Ready`)
+        : phase === "ready" ? (th ? "เตรียมรับ… รอน้ำลอยมา" : "Ready… wait for it")
+          : shown ? (side < 0 ? (th ? "← ซ้าย!" : "← Left!") : th ? "ขวา! →" : "Right! →") : th ? "น้ำมาแล้ว! รอดูลูกศร" : "Here it comes! Watch for the arrow";
   const weary = mine ? tired.from : tired.to;
   const tag = (name: string, me: boolean, spent: boolean, where: string) => (
     <span className={`pointer-events-none absolute top-1 ${where} flex max-w-[46%] items-center gap-1 rounded-sm bg-[#2a190d]/80 px-1.5 py-0.5 text-label ${me ? "font-semibold text-[#ffe19a]" : "text-[#e9cfa4]"}`}>
@@ -349,7 +296,7 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
     </button>
   );
   return (
-    <GameFrame th={th} title={rock ? (mine ? (th ? "โยนหินส่งต่อ" : "Toss the stone over") : th ? "รับหินที่โยนมา" : "Catch the stone") : mine ? (th ? "สาดน้ำส่งต่อ" : "Throw it over") : th ? "รับน้ำที่สาดมา" : "Catch the water"} need={0} hits={0} misses={0} most={0} onCancel={onCancel}>
+    <GameFrame th={th} title={mine ? (th ? "สาดน้ำส่งต่อ" : "Throw it over") : th ? "รับน้ำที่สาดมา" : "Catch the water"} need={0} hits={0} misses={0} most={0} onCancel={onCancel}>
       {/* how it is played: the two steps of whoever looks at this board, the one to do now lit */}
       <ol className="mb-1.5 mt-0.5 grid grid-cols-2 gap-1.5" data-handing-steps={at}>
         {steps.map((s, i) => (
@@ -361,11 +308,11 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
       </ol>
       {weary && (
         <p className="mb-1 text-label text-[#ffb09c]" data-handing-weary>
-          {mine ? (rock ? (th ? "หมดแรง หินหนัก: กดโยนได้เฉพาะตอนปุ่มสว่าง" : "Tired, and the stone is heavy: toss only while the button is lit") : th ? "หมดแรง ถังหนัก: กดสาดได้เฉพาะตอนปุ่มสว่าง" : "Tired, and the bucket is heavy: throw only while the button is lit")
+          {mine ? (th ? "หมดแรง ถังหนัก: กดสาดได้เฉพาะตอนปุ่มสว่าง" : "Tired, and the bucket is heavy: throw only while the button is lit")
             : th ? "หมดแรง: ลูกศรจะขึ้นช้า ต้องกดให้ไว" : "Tired: the arrow shows late, be quick"}
         </p>
       )}
-      <div ref={stage} className={`${STAGE} aspect-[3/2] w-full touch-none`} data-look="handing" data-thing={thing} data-role={role} data-phase={phase}
+      <div ref={stage} className={`${STAGE} aspect-[3/2] w-full touch-none`} data-look="handing" data-role={role} data-phase={phase}
            onPointerDown={(e) => {
              auto.current = false;
              if (mine) { press(); return; }
@@ -383,7 +330,7 @@ export default function TownHanding({ th, role, m, seed, tired, names, icons = P
         {mine ? (
           <button type="button" className={`${BIG} col-span-2 ${phase === "ready" && hands === "lit" ? "" : "opacity-45"}`} data-handing-throw={phase === "ready" ? hands : "off"}
                   onPointerDown={(e) => { e.preventDefault(); auto.current = false; press(); }}>
-            {rock ? (th ? "โยน!" : "Toss!") : th ? "สาด!" : "Throw!"}
+            {th ? "สาด!" : "Throw!"}
             <kbd aria-hidden className="ml-2 hidden rounded border border-[#3a2209]/40 px-1.5 py-px align-middle font-data text-label font-normal uppercase tracking-wider text-[#3a2209]/80 sm:inline">Space</kbd>
           </button>
         ) : phase === "wait" ? (
