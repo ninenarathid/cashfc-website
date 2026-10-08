@@ -54,22 +54,29 @@ export default function TownFoot({ rank = "chip", order, wide = false, children 
 /**
  * How it is laid out: one grid (`.town-foot`, the map's) for everything under the top row.
  *
- * Its pieces: what stays under the clock (`corner`) and what is told for a moment (`toast`) at the head; then the
- * chat's lines (`said`), the foot's column (`dock`), what is under the left thumb (`ctrl`: the belt, getting up, the
- * chat's box); and the buttons on the right (`right`), from the head to the foot.
- * - A narrow screen: everything but the buttons is one column, in that order, the lines' row taking what room is
- *   left (the lines come and go, and nothing to press moves when they do). The column is as wide as the buttons
- *   leave, so nothing in it can lie under them.
+ * Its pieces: what stays under the clock (`corner`) and what is told for a moment (`toast`) at the head; then what
+ * is used by hand (`hand`: the belt, getting up), the chat's lines (`said`), the foot's column (`dock`) and the chat's
+ * box (`ctrl`); and the buttons on the right (`right`), from the head to the foot.
+ * - "Get up" is over the chat, not between its lines and its box (the owner, 2026-10-08: "ปุ่มลุกขึ้นควรจะอยู่ด้านบนแชท").
+ *   So it moves a line's height when a line of chat comes or goes: his choice, over mine of a button that keeps
+ *   its place.
+ * - A narrow screen: everything but the buttons is one column, in that order, the hand's row taking what room is
+ *   left. What the place offers stays just over the chat's box, where no line of chat moves it. The column is as
+ *   wide as the buttons leave, so nothing in it can lie under them.
  * - From 64rem: three columns, the toasts and the dock in the middle of the screen, each side at least 16rem. The
  *   chat's box gives way before anything overlaps.
  * - `:has()` puts the rest of the foot away while a board is up (see `TownFoot`). A browser without it shows them
  *   still, above the board, never across it.
  * - While a phone's chat is typed in, the dock is put away: the keyboard has the room.
+ * - The rows over the chat's box give way before it does: the hand's takes what is left, and the lines' row may be
+ *   less than its history is tall (`minmax(0, auto)`: the history then runs up over the head, as it always did), so
+ *   that on a screen a keyboard has made short the box stays at the foot and is not pushed under the keyboard.
  */
 export const FOOT_CSS = `
-  .town-foot { display: grid; align-items: end; column-gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr) auto auto; grid-template-areas: "corner right" "toast right" "said right" "dock right" "ctrl right"; }
+  .town-foot { display: grid; align-items: end; column-gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr) minmax(0, auto) auto auto; grid-template-areas: "corner right" "toast right" "hand right" "said right" "dock right" "ctrl right"; }
   .town-foot > [data-head-corner] { grid-area: corner; align-self: start; justify-self: start; }
   .town-foot > [data-head-toast] { grid-area: toast; align-self: start; }
+  .town-foot > [data-foot-hand] { grid-area: hand; }
   .town-foot > [data-foot-said] { grid-area: said; }
   .town-foot > [data-foot-dock] { grid-area: dock; }
   .town-foot > [data-foot-ctrl] { grid-area: ctrl; }
@@ -79,10 +86,10 @@ export const FOOT_CSS = `
   .town-foot[data-typing] > [data-foot-dock] { display: none; }
   @media (max-width: 63.999rem) {
     .town-foot:not([data-typing]):has([data-foot="board"]) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); grid-template-areas: "corner" "toast" "dock"; }
-    .town-foot:not([data-typing]):has([data-foot="board"]) > :is([data-foot-said], [data-foot-ctrl], [data-foot-right]) { display: none; }
+    .town-foot:not([data-typing]):has([data-foot="board"]) > :is([data-foot-hand], [data-foot-said], [data-foot-ctrl], [data-foot-right]) { display: none; }
   }
   @media (min-width: 64rem) {
-    .town-foot { grid-template-columns: minmax(16rem, 1fr) auto minmax(16rem, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "corner toast right" "said dock right" "ctrl dock right"; }
+    .town-foot { grid-template-columns: minmax(16rem, 1fr) auto minmax(16rem, 1fr); grid-template-rows: auto minmax(0, 1fr) minmax(0, auto) auto; grid-template-areas: "corner toast right" "hand dock right" "said dock right" "ctrl dock right"; }
     .town-foot > [data-head-toast] { justify-self: center; }
   }
 `;

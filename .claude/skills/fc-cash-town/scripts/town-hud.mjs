@@ -4,7 +4,8 @@
 // across the pouring board; and the stall's bag leaving the shelf no room on a phone. Everything under the top row is
 // one grid now (components/town/TownFoot), and this holds it to that at three sizes of screen:
 //
-// - sitting, with lines of chat over the map: the way to get up is under the lines, and nothing overlaps;
+// - sitting, with lines of chat over the map: the way to get up is over the chat (its lines and its box are one
+//   thing: the owner, the same day, "ปุ่มลุกขึ้นควรจะอยู่ด้านบนแชท"), with the history open too, and nothing overlaps;
 // - on a farm plot with water in the bucket and two friends beside with empty ones: the deed and the chips to hand
 //   it on, one under the other; a game's board up: the chips put away, and on a narrow screen the whole foot the board's;
 // - a phone at the uncle's stall with a bag of twenty-five slots: the bag folded to a line, the shelf with room, and
@@ -72,11 +73,40 @@ for (const [label, size] of Object.entries(SIZES)) {
     await X.evaluate(`${S}.sitHere()`); await sleep(900);
     const up = await box(X, "[data-stand-up]"), said = await box(X, "[data-foot-said] ul");
     over = await overlaps(X);
-    ok("sat down: the way to get up is there, under the chat's lines, and nothing lies on another", !!up?.shown && !!said?.shown && up.y >= said.y + said.h - 1 && over.length === 0, { up, said, over });
+    ok("sat down: the way to get up is there, over the chat's lines, and nothing lies on another", !!up?.shown && !!said?.shown && up.y + up.h <= said.y + 1 && over.length === 0, { up, said, over });
+    // (and with the chat's history open: a wide screen's by its button, a phone's by the chat's)
+    await X.evaluate(`(document.querySelector('button[aria-label="แชท"]') ?? document.querySelector("[data-foot-ctrl] form button[type=button]")).click()`); await sleep(700);
+    const log = await box(X, "[data-foot-said] [role=log]"), upNow = await box(X, "[data-stand-up]");
+    ok(size.mobile ? "a phone's chat opened: its history and its box are one thing, and getting up is put away while it is typed in" : "the history opened: getting up is over it, not between it and the chat's box",
+       !!log?.shown && (size.mobile ? !upNow?.shown : !!upNow?.shown && upNow.y + upNow.h <= log.y + 1), { log, upNow });
+    await X.shot(`${OUT}/hud-sat-history-${label}.png`);
+    await X.send("Input.dispatchKeyEvent", { type: "keyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+    await X.send("Input.dispatchKeyEvent", { type: "keyUp", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+    await X.evaluate(`document.querySelector("[data-foot-said] button[aria-label]")?.click()`); await sleep(500);
     ok("…and all of it is within the screen", await within(X, size));
     await X.shot(`${OUT}/hud-sat-${label}.png`);
     { const thrown = X.logs.filter((x) => x.startsWith("exception")); ok("no page errors", thrown.length === 0, thrown); }
   } catch (e) { fail++; console.log(`  FAIL (stopped) ${e?.message ?? e}`); await X.shot(`${OUT}/hud-sat-${label}-stopped.png`).catch(() => {}); }
+  finally { await X.close(); }
+}
+
+/* ── a screen a keyboard has made short, the chat open with more history than it has room for ── */
+{
+  // (no keyboard can be had here: a phone's screen 340 high leaves the grid as little as one does. Found by Codex's
+  // check of the row that "get up" was given: with the history's row sized by its content, the chat's box was
+  // pushed below the grid's foot, where a keyboard is.)
+  const X = await browser("HudShortChat", { width: 384, height: 340, dpr: 2, mobile: true });
+  console.log("the chat open on a very short screen");
+  try {
+    await enter(X, "K");
+    await X.evaluate(`(${T}.reset(), ${T}.forget())`); await sleep(500);
+    await say(X); await say(X);
+    await X.evaluate(`document.querySelector('button[aria-label="แชท"]').click()`); await sleep(900);
+    const r = await X.evaluate(`(() => { const f = document.querySelector("[data-foot-ctrl] form")?.getBoundingClientRect(), g = document.querySelector(".town-foot").getBoundingClientRect(), h = document.querySelector("[data-foot-said] [role=log]")?.parentElement.getBoundingClientRect(); return { grid: [Math.round(g.top), Math.round(g.bottom)], form: f ? [Math.round(f.top), Math.round(f.bottom)] : null, history: h ? [Math.round(h.top), Math.round(h.bottom)] : null }; })()`);
+    ok("the history is taller than the room there is, and the chat's box stays at the foot: it is the history that gives way, upwards",
+       !!r.form && !!r.history && r.history[1] - r.history[0] > r.grid[1] - r.grid[0] - 44 && r.form[1] <= r.grid[1] + 1 && r.history[1] <= r.form[0], r);
+    await X.shot(`${OUT}/hud-short-chat.png`);
+  } catch (e) { fail++; console.log(`  FAIL (stopped) ${e?.message ?? e}`); await X.shot(`${OUT}/hud-short-chat-stopped.png`).catch(() => {}); }
   finally { await X.close(); }
 }
 

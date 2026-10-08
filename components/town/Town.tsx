@@ -3965,8 +3965,29 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
               <div ref={setFootCorner} className="contents" />
             </div>
             <div ref={setFootHead} data-head-toast className="z-30 flex min-w-0 flex-col items-center gap-2 pb-1.5 empty:hidden" />
-            {/* The chat's lines: its history, or while that is shut the last few said, over the map. On top of the
-                column: they come and go, and nothing to press moves when they do. */}
+            {/* What is used by hand, over the chat: the hunter's belt (it puts itself here), and while I sit the way to
+                get up (a tap on the map only turns me; at a meal it says what getting up costs). Over the chat and not
+                inside it (the owner, 2026-10-08, of "get up" between the chat's history and its box: "ปุ่มลุกขึ้นควรจะอยู่
+                ด้านบนแชทนะครับ"): the chat's lines and its box are one thing. */}
+            <div data-foot-hand className="flex w-full max-w-[26rem] flex-col items-start">
+              <div ref={setFootSide} className={`flex flex-col items-start gap-2 pb-2 empty:hidden ${phone && chatOpen ? "hidden" : ""}`} />
+              {satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && (
+                <button type="button" data-stand-up onClick={() => s.standUp()}
+                        className="pop-in pressable pointer-events-auto mb-2 flex min-h-11 max-w-full items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-left text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
+                  <TownIcon name="standUp" size={22} />
+                  <span className="flex min-w-0 flex-col items-start leading-tight">
+                    <span>{purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}</span>
+                    {purse.eating && purse.eating.progress < 1 && (
+                      <span className="text-meta font-normal text-muted" data-stand-cost>
+                        {DISHES[purse.eating.dish].buff ? (w.th ? "ได้ stamina เท่าที่กินไป ไม่ได้บัฟ" : "Keeps the stamina so far, no buff") : (w.th ? "ได้ stamina เท่าที่กินไป" : "Keeps the stamina so far")}
+                      </span>
+                    )}
+                  </span>
+                  <kbd aria-hidden className="hidden rounded border border-line-strong px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-muted sm:inline">X</kbd>
+                </button>
+              )}
+            </div>
+            {/* The chat's lines: its history, or while that is shut the last few said, over the map. */}
             <div data-foot-said className="flex w-full max-w-[26rem] flex-col items-start gap-1 pb-1 empty:hidden">
               {!chatShown ? null : showHistory ? (
                 <div className={`pop-in pointer-events-auto flex flex-col overflow-hidden rounded-2xl border border-line-lit bg-surface/95 shadow-xl shadow-black/40 backdrop-blur-sm ${phone ? "" : "max-h-[min(42vh,24rem)]"}`}
@@ -3996,26 +4017,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             {/* What the town offers where I stand: each piece puts itself here (TownFoot). Over somebody's card (z-10),
                 under every panel (z-20). */}
             <div ref={setFootDock} data-foot-dock className="z-[15] flex min-w-0 flex-col items-center gap-2 empty:hidden max-lg:pb-2" />
-            {/* Under the left thumb: what is used by hand (the hunter's belt puts itself here), the way to get up, and
-                the chat's box. */}
+            {/* The chat's box, under the left thumb. */}
             <div data-foot-ctrl className="flex w-full max-w-[26rem] flex-col items-start gap-2">
-              <div ref={setFootSide} className={`flex flex-col items-start gap-2 empty:hidden ${phone && chatOpen ? "hidden" : ""}`} />
-              {/* While I sit: the way to get up (a tap on the map only turns me). At a meal it says what getting up costs. */}
-              {satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && (
-                <button type="button" data-stand-up onClick={() => s.standUp()}
-                        className="pop-in pressable pointer-events-auto flex min-h-11 max-w-full items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-left text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open">
-                  <TownIcon name="standUp" size={22} />
-                  <span className="flex min-w-0 flex-col items-start leading-tight">
-                    <span>{purse.eating ? (w.th ? "เลิกกินแล้วลุก" : "Leave the meal") : w.standUp}</span>
-                    {purse.eating && purse.eating.progress < 1 && (
-                      <span className="text-meta font-normal text-muted" data-stand-cost>
-                        {DISHES[purse.eating.dish].buff ? (w.th ? "ได้ stamina เท่าที่กินไป ไม่ได้บัฟ" : "Keeps the stamina so far, no buff") : (w.th ? "ได้ stamina เท่าที่กินไป" : "Keeps the stamina so far")}
-                      </span>
-                    )}
-                  </span>
-                  <kbd aria-hidden className="hidden rounded border border-line-strong px-1.5 py-px font-data text-label font-normal uppercase tracking-wider text-muted sm:inline">X</kbd>
-                </button>
-              )}
               {chatShown && (
                 <div className="flex w-full flex-col gap-1">
                   {chatNote && <div role="status" className="w-fit rounded-full bg-bg/85 px-3 py-0.5 text-label text-gold">{chatNote}</div>}
