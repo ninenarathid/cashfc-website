@@ -24,7 +24,7 @@ import type { Vec } from "@/lib/town/world";
  * What it costs: every piece is a small picture of one sheet (the fc-cash-town skill's scripts/pixel/build-held.mjs)
  * laid with `drawImage`, the light a picture made once for each colour; no path, no gradient and nothing kept from
  * frame to frame: where a piece is follows from the clock and its holder's id. So many pieces a doll and so many a
- * screen at the most (`CAP`); past that a tool has its light alone. With the town's motion switched off: the light,
+ * screen at the most (`CAP`); past that a tool has no more of them. With the town's motion switched off: the light,
  * still.
  */
 type Cell = [number, number, number, number];
@@ -64,11 +64,15 @@ export const isLongTool = (item: string): boolean => item in LONG && item in HEL
  * A long tool in a fist: its picture upright, mirrored by the side faced, its handle through the fist. `tall` is the
  * doll's standing height on the screen. Hard pixels while a picture pixel covers a screen pixel, as the dolls are.
  * Gives back where its head is on the screen, or null if its picture has not come yet (nothing is drawn then).
+ * `under` is called with that place just before the picture is laid, for what belongs behind the tool's head.
  */
-export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: Vec, tall: number, side: 1 | -1, dpr: number): Vec | null {
+export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: Vec, tall: number, side: 1 | -1, dpr: number, under?: (head: Vec) => void): Vec | null {
   const img = heldPicture(), cell = HELD_ART.tools[item], rule = LONG[item];
   if (!img || !cell || !rule) return null;
   const [sx, sy, w, h, gx, hx, hy] = cell, k = (rule.tall * tall) / h, grip = rule.grip * h;
+  const head = { x: fist.x + side * (hx - gx + LEAN * (grip - hy)) * k, y: fist.y + (hy - grip) * k };
+  // (what lies behind its head is laid first: the light of its gems, a ring about it)
+  under?.(head);
   ctx.save();
   ctx.imageSmoothingQuality = "high";
   ctx.imageSmoothingEnabled = k * dpr < 1;
@@ -77,7 +81,7 @@ export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: 
   ctx.transform(side * k, 0, -side * LEAN * k, k, 0, 0);
   ctx.drawImage(img, sx, sy, w, h, -gx, -grip, w, h);
   ctx.restore();
-  return { x: fist.x + side * (hx - gx + LEAN * (grip - hy)) * k, y: fist.y + (hy - grip) * k };
+  return head;
 }
 
 /**
@@ -113,8 +117,11 @@ export const handSize = (hand: Hand, tall: number, zoom: number): number => Math
 
 /* ── a gem's element about the tool ─────────────────────────────────────── */
 
-/** The most pieces laid for one doll's tool, and for every tool on a screen in one frame (my own tool is never left out). */
-export const CAP = { doll: 18, screen: 150 };
+/**
+ * The most pieces laid for one doll's tool (so many behind its head and so many before it), and for every tool on a
+ * screen in one frame (my own tool is never left out).
+ */
+export const CAP = { under: 6, over: 14, screen: 150 };
 /** The small pieces a tool has, by how strongly its gems show (1 to 4). */
 const PIECES = [0, 3, 5, 7, 9];
 /** How long a small piece of each element is on its way, in milliseconds. */
@@ -156,6 +163,17 @@ function lightPicture(hex: string): HTMLCanvasElement {
   return canvas;
 }
 
+/**
+ * The light a tool's gems throw in the dark, for the map's own lights (components/town/Town lays them once the
+ * night is on the picture): each gem's colour as `r,g,b`, and how far it reaches in map pixels.
+ */
+const RGB = Object.fromEntries((Object.keys(GEMS) as Element[]).map((e) => { const n = parseInt(GEMS[e].hue.slice(1), 16); return [e, `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`]; })) as Record<Element, string>;
+export function gemLights(look: ToolLook | null): Array<{ rgb: string; reach: number }> {
+  const strength = gemShow(look);
+  if (!look || !strength) return [];
+  return [...new Set(look.gems)].map((e) => ({ rgb: RGB[e], reach: 16 + 5 * strength }));
+}
+
 /** The pieces left to lay on this screen in this frame: a frame is known by its clock. */
 let frame = -1, left = CAP.screen;
 
@@ -163,8 +181,12 @@ let frame = -1, left = CAP.screen;
  * What a tool's gems show about its head (see the top of this file). `head` is where the tool's head is on the
  * screen and `ground` where its holder's feet are; `tall` the holder's standing height on the screen and `zoom` the
  * map's; `seed` from the holder's id. Nothing, of a tool with no gem.
+ *
+ * It is laid in two goes, so that the tool itself is seen among it: `under` before the tool's picture (the light, a
+ * ring or an orb behind its head, whatever goes round it while it is at the back) and `over` after it (everything
+ * else). Every piece belongs to one of the two.
  */
-export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, head: Vec, ground: number, tall: number, zoom: number, dpr: number,
+export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, layer: "under" | "over", head: Vec, ground: number, tall: number, zoom: number, dpr: number,
   now: number, seed: number, still: boolean, mine: boolean) {
   const strength = gemShow(look);
   if (!look || !strength) return;
@@ -173,25 +195,31 @@ export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, h
   // a picture pixel of a piece is a whole number of the screen's own pixels: by the doll's size and the map's zoom
   const q = Math.max(1, Math.round(Math.max(0.72, Math.min(1.3, tall / zoom / 70)) * zoom * dpr)) / dpr;
   const base = ctx.globalAlpha, snap = (v: number) => Math.round(v * dpr) / dpr;
+  const back = layer === "under";
   let laid = 0;
-  const room = () => laid < CAP.doll && (mine || left > 0);
+  const room = () => laid < (back ? CAP.under : CAP.over) && (mine || left > 0);
   const spend = () => { laid++; if (!mine) left--; };
   ctx.save();
+  // (a tool that glows is drawn under a shadow of its own: none of that on these)
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
   // ── the light, in each gem's colour: side by side where there are several, going slowly round ──
-  const wide = (9 + 3 * strength) * q, turn = still ? 0.6 : now / 2600 + (seed & 7);
-  ctx.imageSmoothingEnabled = true;
-  kinds.forEach((e, k) => {
-    const a = turn + (k * Math.PI * 2) / kinds.length, off = kinds.length > 1 ? 3.5 * q : 0;
-    ctx.globalAlpha = base * (kinds.length > 1 ? 0.6 : 0.7);
-    ctx.drawImage(lightPicture(GEMS[e].hue), head.x + Math.cos(a) * off - wide, head.y + Math.sin(a) * off * 0.7 - wide, wide * 2, wide * 2);
-    spend();
-  });
+  if (back) {
+    const wide = (9 + 3 * strength) * q, turn = still ? 0.6 : now / 2600 + (seed & 7);
+    ctx.imageSmoothingEnabled = true;
+    kinds.forEach((e, k) => {
+      const a = turn + (k * Math.PI * 2) / kinds.length, off = kinds.length > 1 ? 4 * q : 0;
+      ctx.globalAlpha = base * (still ? 1 : kinds.length > 1 ? 0.7 : 0.8);
+      ctx.drawImage(lightPicture(GEMS[e].hue), head.x + Math.cos(a) * off - wide, head.y + Math.sin(a) * off * 0.7 - wide, wide * 2, wide * 2);
+      spend();
+    });
+  }
   const img = heldPicture();
   if (still || !img) { ctx.restore(); return; }
   ctx.imageSmoothingEnabled = false;
-  /** One picture, its middle at so many picture pixels from the head: `m` times as large, mirrored, so strong. */
-  const lay = (cell: Cell | undefined, dx: number, dy: number, alpha = 1, flip = false, m = 1) => {
-    if (!cell || alpha <= 0.02 || !room()) return;
+  /** One picture, its middle at so many picture pixels from the head: so strong, mirrored, `m` times as large; `behind` the tool's head or before it. */
+  const lay = (cell: Cell | undefined, dx: number, dy: number, alpha = 1, flip = false, m = 1, behind = false) => {
+    if (behind !== back || !cell || alpha <= 0.02 || !room()) return;
     const [sx, sy, w, h] = cell, u = q * m, x = snap(head.x + dx * q - (w * u) / 2), y = snap(head.y + dy * q - (h * u) / 2);
     ctx.globalAlpha = base * Math.min(1, alpha);
     if (flip) { ctx.save(); ctx.translate(x + w * u, y); ctx.scale(-1, 1); ctx.drawImage(img, sx, sy, w, h, 0, 0, w * u, h * u); ctx.restore(); }
@@ -214,17 +242,17 @@ export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, h
       }
       case "water":
         // a ring of water about the head, its crest going round
-        lay(grand ? C : beat(300) ? A : B, 0, 1, 0.95, grand && !!beat(300));
+        lay(grand ? C : beat(300) ? A : B, 0, 1, 0.95, grand && !!beat(300), 1, true);
         break;
       case "ice":
         // a ring of frost, growing and drawing in
-        lay(grand ? (beat(650) ? B : C) : beat(700) ? A : B, 0, 0, 0.95);
+        lay(grand ? (beat(650) ? B : C) : beat(700) ? A : B, 0, 0, 0.95, false, 1, true);
         break;
       case "earth": {
         // stones going round the head (and a boulder over it)
         const t = now / 2600 + rnd(seed, 0, 9);
-        [A, B].forEach((cell, k) => { const a = (t + k / 2) * Math.PI * 2; lay(cell, Math.cos(a) * 15, Math.sin(a) * 5 - 1, Math.sin(a) < 0 ? 0.7 : 1, Math.cos(a) < 0, 0.75); });
-        if (grand) lay(C, 0, -17 + Math.sin(now / 520) * 1.5, 1);
+        [A, B].forEach((cell, k) => { const a = (t + k / 2) * Math.PI * 2; lay(cell, Math.cos(a) * 15, Math.sin(a) * 5 - 1, 1, Math.cos(a) < 0, 1, Math.sin(a) < 0); });
+        if (grand) lay(C, 0, -19 + Math.sin(now / 520) * 1.5, 1);
         break;
       }
       case "lightning": {
@@ -240,15 +268,15 @@ export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, h
       }
       case "wind":
         // a whirlwind about the head
-        lay(grand ? C : beat(170) ? A : B, 0, 2, 0.92, grand && !!beat(170));
+        lay(grand ? C : beat(170) ? A : B, 0, 2, 0.8, grand && !!beat(170));
         break;
       case "light":
         // a halo, its rays reaching and drawing in
-        lay(grand ? (beat(520) ? B : C) : beat(560) ? A : B, 0, 0, 0.95);
+        lay(grand ? (beat(520) ? B : C) : beat(560) ? A : B, 0, 0, 0.95, false, 1, true);
         break;
       case "dark":
         // a dark orb, its wisps licking about
-        lay(grand ? C : beat(380) ? A : B, 0, -2, 1, grand && !!beat(380));
+        lay(grand ? C : beat(380) ? A : B, 0, -2, 1, grand && !!beat(380), 1, true);
         break;
     }
   }
@@ -264,7 +292,7 @@ export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, h
       lay(mix[1], -Math.sin(now / 1100 + (seed & 15)) * 9, -4, 0.7);
     } else if (what === "crackle") {
       for (let i = 0; i < 2; i++) { const c = Math.floor(now / 330 + i * 0.5), t = (now / 330 + i * 0.5) % 1; if (t < 0.5) lay(mix[2], (rnd(seed, c, 13 + i) - 0.5) * 20, (rnd(seed, c, 15 + i) - 0.5) * 14 + 3, 1, rnd(seed, c, 17) > 0.5); }
-    } else lay(mix[5], 0, 0, 0.6 + 0.2 * Math.sin(now / 700));
+    } else lay(mix[5], 0, 0, 0.7 + 0.2 * Math.sin(now / 700), false, 1, true);
   }
 
   // ── the small pieces: each gem's in its share, each on its own way ──
@@ -291,7 +319,7 @@ export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, h
       case "earth": {
         // grit thrown off and falling
         const s = (t * life) / 1000;
-        lay(bits[i % 3], (r1 - 0.5) * 14 + (r2 - 0.5) * 9 * t, 1 - 14 * s + 20 * s * s, t > 0.8 ? (1 - t) / 0.2 : 1, r3 > 0.5);
+        lay(bits[i % 4 === 3 ? 0 : 1 + (i % 2)], (r1 - 0.5) * 14 + (r2 - 0.5) * 9 * t, 1 - 14 * s + 20 * s * s, t > 0.8 ? (1 - t) / 0.2 : 1, r3 > 0.5);
         break;
       }
       case "lightning":
@@ -301,7 +329,7 @@ export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, h
       case "wind": {
         // swirls going round the head
         const a = (t + i / count) * Math.PI * 2;
-        lay(bits[i % 3], Math.cos(a) * (10 + r1 * 3), Math.sin(a) * 5 - 1, Math.sin(a) < 0 ? 0.55 : 0.95, Math.sin(a) > 0);
+        lay(bits[i % 3], Math.cos(a) * (10 + r1 * 3), Math.sin(a) * 5 - 1, 0.95, Math.sin(a) > 0, 1, Math.sin(a) < 0);
         break;
       }
       case "light":

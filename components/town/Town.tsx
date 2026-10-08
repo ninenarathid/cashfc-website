@@ -47,8 +47,8 @@ import TownBoard from "./TownBoard";
 import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { SmithView } from "./TownSmith";
-import { glowOf } from "@/lib/town/tools";
-import { drawLongTool, handOf, handSize, heldPicture, isLongTool } from "./held";
+import { glowOf, readToolWord } from "@/lib/town/tools";
+import { drawGems, drawLongTool, gemLights, handOf, handSize, heldPicture, isLongTool, seedOf } from "./held";
 import type { FarmDraw } from "./TownFarm";
 // ── gifts: farming ──
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
@@ -457,6 +457,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => { const i = new Image(); i.src = ICON_ATLAS.image; iconImg.current = i; }, []);
   // (the long tools as they stand in a hand, and the gems' pieces: components/town/held asks for its own sheet)
   useEffect(() => { heldPicture(); }, []);
+  /** Where a tool with gems is held on the screen this frame, and its gems' lights: laid among the map's lights once the night is on the picture. */
+  const toolLights = useRef<Array<{ x: number; y: number; rgb: string; reach: number }>>([]);
   /** `next dev` only: ?townHour=21 shows the town at that hour; ?townPopoto=lunch brings that popoto out now. */
   const forcedHour = useRef<number | null>(null);
   const forcedPopoto = useRef<Activity | undefined>(undefined);
@@ -1723,6 +1725,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }
 
   function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number) {
+    // (the lights of the gems in the tools held this frame: taken up here, whatever the place)
+    const held = toolLights.current;
+    toolLights.current = [];
     // ── to come ── (nor any sky: the cave's dark is its own, laid by the preview's module)
     if (process.env.NODE_ENV === "development" && placeRef.current === "cave") return;
     const day = skyNow();
@@ -1738,6 +1743,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     drawCampLight(ctx, day.lamps, now);
     drawLampLight(ctx, day.lamps, now);
     drawDecorLights(ctx, day.lamps, now);
+    // a gem in a tool shines in the dark, in its own colour: a small light about the tool's head
+    if (held.length && day.lamps >= 0.02) {
+      ctx.save();
+      ctx.globalCompositeOperation = "lighter";
+      for (const l of held) glowAt(ctx, l.x, l.y, l.reach * cam.current.s, l.rgb, 0.3 * day.lamps);
+      ctx.restore();
+    }
     if (day.lamps < 0.02) return;
     const s = cam.current.s;
     ctx.save();
@@ -2745,9 +2757,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * its head at the top, so much of the doll's own standing height (`tall`); a hand tool (a can, a bucket, cookware)
    * is its picture at a size that doll's hand carries, at the fist or hung from it, turned to the side faced.
    * Anything else held (a fish, a crop, a dish, a scroll) is as it was. Gives back where the thing's head is on the
-   * screen (a long tool's head, a rod's tip, the middle of anything else): what a tool's gems show is about that.
+   * screen (a long tool's head, a rod's tip, the middle of anything else): what a tool's gems show is about that;
+   * and `under` is called with it just before a tool's own picture is laid, for what belongs behind it.
    */
-  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false, tall = h, dpr = 1): Vec | null {
+  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false, tall = h, dpr = 1, under?: (head: Vec) => void): Vec | null {
     if (isRod(item)) return drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side);
     // (its picture is its own name's, but every scroll looks the same: lib/town/items' iconOf, without the catalog)
     const full = wet && `${item}Full` in ICON_ATLAS.icons;
@@ -2776,12 +2789,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     };
     // a long tool: upright in the fist, its head at the top (until its picture has come, its bag picture as ever)
     if (isLongTool(item)) {
-      const head = drawLongTool(ctx, item, { x, y: y + px }, tall, side, dpr);
+      const head = drawLongTool(ctx, item, { x, y: y + px }, tall, side, dpr, under);
       if (head) { fist(); return head; }
     }
     // a hand tool by the doll's size, at the fist or hung from it; anything else as it always was
     const hand = handOf(item), size = hand ? handSize(hand, tall, v.s) : Math.round(15 * v.s);
     const cy = y - size * 0.25 + (hand ? hand.hang * size : 0);
+    if (hand) under?.({ x, y: cy });
     if (hand && (side === -1) !== !!hand.turn) {
       // (turned to the side faced: a can's spout and a pan's bowl are out before them)
       ctx.save();
@@ -2910,8 +2924,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (glow.glow === 2) draw();
       ctx.restore();
     };
-    if (rod && face.view === "back") lit(() => drawRod(ctx, p, h, rod, a.info.id, now, fishesWith));
-    if (held && face.view === "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr));
+    // (and its gems show as their elements about its head, whatever its level: components/town/held. Their light
+    // and what stands behind the head are laid before the tool's picture, the rest after it; all of it behind the
+    // body or before it as the tool is. A rod's tip is known only once it is drawn: both go after it.)
+    const gems = a.info.hold ? readToolWord(a.info.tool) : null, tool: { head: Vec | null; under: boolean } = { head: null, under: false };
+    const gem = (layer: "under" | "over", head: Vec) => drawGems(ctx, gems, layer, head, p.y, tall, k, dpr, now, seedOf(a.info.id), reducedRef.current, isMe);
+    const under = gems?.gems.length ? (head: Vec) => { if (!tool.under) { tool.under = true; gem("under", head); } } : undefined;
+    const shine = () => {
+      if (!tool.head || !gems?.gems.length) return;
+      under?.(tool.head);
+      gem("over", tool.head);
+      if (!faded && toolLights.current.length < 24) for (const l of gemLights(gems)) toolLights.current.push({ x: tool.head.x, y: tool.head.y, ...l });
+    };
+    if (rod && face.view === "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith); }); shine(); }
+    if (held && face.view === "back") { lit(() => { tool.head = drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr, under); }); shine(); }
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -2926,8 +2952,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.arc(p.x, p.y - h * 0.72 - bob, h * 0.24, 0, Math.PI * 2);
       ctx.fill();
     }
-    if (rod && face.view !== "back") lit(() => drawRod(ctx, p, h, rod, a.info.id, now, fishesWith));
-    if (held && face.view !== "back") lit(() => drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr));
+    if (rod && face.view !== "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith); }); shine(); }
+    if (held && face.view !== "back") { lit(() => { tool.head = drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr, under); }); shine(); }
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
