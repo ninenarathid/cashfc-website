@@ -65,20 +65,23 @@ interface Came { key: number; got: Array<[ItemId, number]>; way: boolean; crysta
 let CRACKS: HTMLCanvasElement[] | null = null;
 function cracks(): HTMLCanvasElement[] {
   if (CRACKS) return CRACKS;
-  const lines: Array<Array<[number, number, number, number]>> = [
-    [[11, 3, 10, 7], [10, 7, 12, 10]],
-    [[11, 3, 10, 7], [10, 7, 12, 10], [12, 10, 9, 14], [10, 7, 6, 8], [12, 10, 16, 11]],
-    [[11, 3, 10, 7], [10, 7, 12, 10], [12, 10, 9, 14], [10, 7, 6, 8], [12, 10, 16, 11], [9, 14, 11, 18], [6, 8, 4, 12], [16, 11, 18, 15], [11, 3, 14, 1], [9, 14, 5, 16]],
-  ];
-  CRACKS = lines.map((stage) => {
+  const first: Array<[number, number, number, number]> = [[14, 2, 12, 8], [12, 8, 15, 13]];
+  const second: Array<[number, number, number, number]> = [...first, [15, 13, 11, 19], [12, 8, 6, 10], [15, 13, 21, 14]];
+  const third: Array<[number, number, number, number]> = [...second, [11, 19, 13, 23], [6, 10, 3, 15], [21, 14, 24, 19], [14, 2, 18, 0], [11, 19, 6, 21], [21, 14, 25, 11]];
+  CRACKS = [first, second, third].map((stage) => {
     const c = document.createElement("canvas");
-    c.width = 22; c.height = 20;
+    c.width = 28; c.height = 24;
     const g = c.getContext("2d")!;
-    const dot = (x: number, y: number, col: string) => { g.fillStyle = col; g.fillRect(x, y, 1, 1); };
-    for (const [x0, y0, x1, y1] of stage) {
-      const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
-      for (let i = 0; i <= n; i++) { const x = Math.round(x0 + ((x1 - x0) * i) / n), y = Math.round(y0 + ((y1 - y0) * i) / n); dot(x + 1, y, "rgba(255,240,214,0.55)"); dot(x, y, "#120b07"); }
-    }
+    // (each a dark groove two pixels wide, with a pale edge of dust on its right)
+    const pass = (dx: number, w: number, col: string) => {
+      g.fillStyle = col;
+      for (const [x0, y0, x1, y1] of stage) {
+        const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0));
+        for (let i = 0; i <= n; i++) g.fillRect(Math.round(x0 + ((x1 - x0) * i) / n) + dx, Math.round(y0 + ((y1 - y0) * i) / n), w, 1);
+      }
+    };
+    pass(2, 1, "rgba(255,240,214,0.6)");
+    pass(0, 2, "#120b07");
     return c;
   });
   return CRACKS;
@@ -337,9 +340,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
         // the cracks: by how far through it I am (a rock loosened shows the first of them)
         const need = Math.max(1, needOf(floor, r.id)), stage = n ? Math.min(2, Math.floor((n / need) * 3)) : loose.includes(r.id) ? 0 : -1;
         if (stage >= 0) frame.things.push({ depth: r.x + r.y + 1.02, draw: () => {
-          const w = art[stage].width * s * 1.1, h = art[stage].height * s * 1.1;
+          const w = art[stage].width * s, h = art[stage].height * s;
           frame.ctx.imageSmoothingEnabled = false;
-          frame.ctx.drawImage(art[stage], Math.round(c.x - w / 2), Math.round(c.y - h - 3 * s), Math.round(w), Math.round(h));
+          frame.ctx.drawImage(art[stage], Math.round(c.x - w / 2), Math.round(c.y - h - 5 * s), Math.round(w), Math.round(h));
         } });
         if (peek && frame.img) {
           const cell = ICON_ATLAS.icons[PEEK_ICON(peek, floor) as IconName] as [number, number, number, number] | undefined;
@@ -360,10 +363,10 @@ export default function TownMine({ keeper, th, name, sfx, busy, bottom, reduced,
         else {
           const c = frame.project({ x: sw.tile[0] + 0.5, y: sw.tile[1] + 0.5 }), left = frame.project(sw.from).x > c.x ? -1 : 1;
           frame.things.push({ depth: sw.tile[0] + sw.tile[1] + 1.06, draw: () => {
-            const g = frame.ctx, kx = (18 * s) / Math.max(cell[2], cell[3]), turnBy = (-1.1 + Math.min(1, age) * 1.5) * left;
+            const g = frame.ctx, kx = (22 * s) / Math.max(cell[2], cell[3]), turnBy = (-1.25 + Math.min(1, age) * 1.6) * left;
             g.save();
             g.imageSmoothingEnabled = false;
-            g.translate(c.x - left * 9 * s, c.y - 15 * s);
+            g.translate(c.x - left * 11 * s, c.y - 18 * s);
             g.rotate(turnBy);
             if (left < 0) g.scale(-1, 1);
             g.drawImage(frame.img!, cell[0], cell[1], cell[2], cell[3], Math.round(-cell[2] * kx * 0.2), Math.round(-cell[3] * kx), Math.round(cell[2] * kx), Math.round(cell[3] * kx));
