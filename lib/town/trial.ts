@@ -21,6 +21,7 @@ import { count, keep, newTally, type Play, type Tally } from "./plays";
 import { open } from "./scrolls";
 import { SKIES } from "./skies";
 import { STAMINA, bowlsBack, chew, dayOf, getUp, readScroll, sitDown, spend } from "./stamina";
+import { moveSlot, sortBag } from "./bag";
 import {
   RULES, buy, change, collect, handOf, hold, leave, letGo, newPurse, newStall, nextRoundAt, no, put, roomFor, roomy, roundOf, takeBack, takeOff, wear,
   type Done, type Purse, type Refusal, type Stall,
@@ -358,6 +359,9 @@ export class Trial {
   /** Take up the thing in a slot of the bag, to hold it in the hand; or put away what is held. */
   hold(slot: number) { return this.keep(hold(this.purse(), slot)); }
   letGo() { this.save(letGo(this.purse())); }
+  /** The bag put in order (lib/town/bag): a thing moved from one slot to another, and the whole of it sorted. */
+  bagMove(from: number, to: number) { return this.keep(moveSlot(this.purse(), from, to)); }
+  bagSort() { this.save(sortBag(this.purse())); }
 
   /** Put a bait on the hook: one of it leaves the bag (a bait that is not eaten stays, and is lost only with a snapped line). A rod has to be in the bag too. */
   bait(bait: BaitId): Done<{ purse: Purse }> { return this.keep(hookBait(this.purse(), bait)); }

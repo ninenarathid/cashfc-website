@@ -41,9 +41,10 @@ describe("the database's keeper", () => {
     expect(k.open()).toBeNull();
     await settle();
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
-    // whether the chest in the plaza is a storage box, with what I keep in it; whether things can be dropped on the
-    // ground, with what lies about; and everybody's rank at the well, for the names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
+    // whether the chest in the plaza is a storage box, with what I keep in it; whether a bag can be put in order;
+    // whether things can be dropped on the ground, with what lies about; and everybody's rank at the well, for the
+    // names over heads)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -69,14 +70,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(10);
+    expect(db.asked).toHaveLength(11);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -447,6 +448,95 @@ describe("the database's keeper", () => {
     k.close(); again.close();
   });
 
+  it("puts a bag in order only where the database says it can, and through a move and a sort the pot in the hand is the pot it was", async () => {
+    const { moveSlot, sortBag } = await import("./bag");
+    const pot = (left: number): Stack => ({ item: "potFull", n: 1, of: { dish: "friedMinnow", left } });
+    let mine = purse({ bag: [pot(1), { item: "salt", n: 1 }, pot(3), null, pot(2), null, null, null, null, null], hand: "potFull" });
+    const sent: string[] = [];
+    const answers: Record<string, (args: Record<string, unknown>) => unknown> = {
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }),
+      town_hold: ({ p_slot }) => {
+        const s = p_slot === null ? null : mine.bag[p_slot as number];
+        if (p_slot !== null && !s) return { ok: false, why: "none", now: NOW, purse: mine };
+        mine = { ...mine, hand: s?.item ?? null };
+        return { ok: true, now: NOW, purse: mine };
+      },
+      town_bag_move: ({ p_from, p_to }) => {
+        sent.push(`move ${p_from} ${p_to}`);
+        const did = moveSlot(mine, p_from as number, p_to as number);
+        if (did.ok) mine = did.purse;
+        return { ok: did.ok, ...(did.ok ? {} : { why: did.why }), now: NOW, purse: mine };
+      },
+      town_bag_sort: () => { sent.push("sort"); mine = sortBag(mine); return { ok: true, now: NOW, purse: mine }; },
+    };
+    // a database that has not had the file: asked once, told nothing, and nothing offered
+    const before = new DbKeeper("me", database(answers).ask);
+    await settle();
+    expect(before.bagTidy()).toBe(false);
+    before.close();
+    answers.town_bag = () => ({ ok: true, tidy: true, now: NOW });
+    const db = database(answers);
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.bagTidy()).toBe(true);
+    expect(db.asked.filter((f) => f === "town_bag")).toHaveLength(1);
+    const heldLeft = () => k.purse().bag[k.handSlot()]?.of?.left;
+    // a page loaded again remembers no slot: the first pot there is, the one with one helping, is the one held
+    expect(k.handSlot()).toBe(0);
+    // …and changing places with another pot it is held still (Codex's check: with no slot remembered, the other became the hand's)
+    expect(await k.bagMove(0, 2)).toMatchObject({ ok: true });
+    expect([k.handSlot(), heldLeft()]).toEqual([2, 1]);
+    // moved by the other pot's being dragged onto it, likewise
+    expect(await k.bagMove(4, 2)).toMatchObject({ ok: true });
+    expect([k.handSlot(), heldLeft()]).toEqual([4, 1]);
+    // a move refused leaves the hand where it was
+    expect(await k.bagMove(3, 4)).toMatchObject({ ok: false, why: "none" });
+    expect([k.handSlot(), heldLeft()]).toEqual([4, 1]);
+    // sorted, the fuller pots are first, and the pot in the hand is the one with one helping still
+    expect(await k.bagSort()).toMatchObject({ ok: true });
+    expect(k.purse().bag.slice(0, 4).map((s) => s?.of?.left ?? null)).toEqual([3, 2, 1, null]);
+    expect([k.handSlot(), heldLeft()]).toEqual([2, 1]);
+    // the same on a page loaded again, which remembers no slot: the first pot is held, and sorted it is that pot still
+    mine = purse({ bag: [pot(1), null, pot(3), null, null, null, null, null, null, null], hand: "potFull" });
+    const again = new DbKeeper("me", db.ask);
+    await settle();
+    expect([again.handSlot(), again.purse().bag[again.handSlot()]?.of?.left]).toEqual([0, 1]);
+    expect(await again.bagSort()).toMatchObject({ ok: true });
+    expect([again.handSlot(), again.purse().bag[again.handSlot()]?.of?.left]).toEqual([1, 1]);
+    // another pot taken up and the bag sorted before that is answered: the slot is read in the sort's own turn (Codex's check)
+    mine = purse({ bag: [pot(1), null, pot(3), pot(2), null, null, null, null, null, null], hand: "potFull" });
+    const quick = new DbKeeper("me", db.ask);
+    await settle();
+    await quick.hold(0);
+    const both = [quick.hold(3), quick.bagSort()];
+    await settle();
+    await Promise.all(both);
+    expect(quick.purse().bag.slice(0, 3).map((s) => s?.of?.left)).toEqual([3, 2, 1]);
+    expect([quick.handSlot(), quick.purse().bag[quick.handSlot()]?.of?.left]).toEqual([1, 2]);
+    // with nothing in the hand no slot is made up
+    await quick.hold(null);
+    await quick.bagMove(0, 5);
+    expect(quick.handSlot()).toBe(-1);
+    expect(sent.at(-1)).toBe("move 0 5");
+    // a thing let go of while a sort is not yet answered: by the move's turn another thing is in its slot, and the
+    // move is not asked at all (Codex's second look: the hoe that the sort had put there was moved in its place)
+    mine = purse({ bag: [{ item: "kangkong", n: 5 }, { item: "hoe", n: 1 }, null, null, null, null, null, null, null, null] });
+    const late = new DbKeeper("me", db.ask);
+    await settle();
+    const from = sent.length;
+    const pair = [late.bagSort(), late.bagMove(0, 3)];
+    await settle();
+    expect(await Promise.all(pair)).toEqual([expect.objectContaining({ ok: true }), { ok: false, why: "none" }]);
+    expect(sent.slice(from)).toEqual(["sort"]);
+    expect(late.purse().bag.slice(0, 4).map((s) => s?.item ?? null)).toEqual(["hoe", "kangkong", null, null]);
+    // …and a move asked of a slot that was empty is not made good by something having come into it meanwhile
+    const two = [late.bagMove(1, 3), late.bagMove(3, 2)];
+    await settle();
+    expect(await Promise.all(two)).toEqual([expect.objectContaining({ ok: true }), { ok: false, why: "none" }]);
+    expect(late.purse().bag.slice(0, 4).map((s) => s?.item ?? null)).toEqual(["hoe", null, null, "kangkong"]);
+    k.close(); again.close(); quick.close(); late.close();
+  });
+
   it("offers no book where the database has none yet: nothing is kept of an answer that never came", async () => {
     const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
     const k = new DbKeeper("me", db.ask);
@@ -462,7 +552,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_ground" || fn === "town_shop" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);

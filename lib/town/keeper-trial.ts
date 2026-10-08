@@ -16,6 +16,7 @@ import type { ShopAsk } from "./shop";
 import { SKIES } from "./skies";
 import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
 import { handSlot, type Purse } from "./trade";
+import { sortedSlot } from "./bag";
 import type { Nature } from "./waters";
 import { KITCHEN, atWell } from "./world";
 import { trialFor, type Trial } from "./trial";
@@ -120,6 +121,24 @@ class TrialKeeper implements Keeper {
     return this.trial.hold(slot);
   }
   handSlot() { return handSlot(this.trial.purse(), this.taken); }
+  bagTidy() { return true; }
+  async bagMove(from: number, to: number): Promise<Did> {
+    // (the slot the hand's thing is in goes where that thing goes: read by the bag as it is, since a page loaded again
+    // remembers none and holds the first pot there is; kept before the trial tells whoever watches, and put back if
+    // the move is refused)
+    const was = this.taken, at = this.handSlot();
+    if (at >= 0) this.taken = at === from ? to : at === to ? from : at;
+    const did = this.trial.bagMove(from, to);
+    if (!did.ok) this.taken = was;
+    return did.ok ? { ok: true } : did;
+  }
+  async bagSort(): Promise<Did> {
+    // (the pot that was in the hand is in it still: its slot goes where the sort puts it, kept before the trial tells whoever watches)
+    const at = this.handSlot();
+    if (at >= 0) this.taken = sortedSlot(this.trial.purse(), at);
+    this.trial.bagSort();
+    return { ok: true };
+  }
   async wear(slot: number): Promise<Did> { return this.trial.wear(slot); }
   async takeOff(item: ItemId): Promise<Did> { return this.trial.takeOff(item); }
   async serve(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.serve(slot); }

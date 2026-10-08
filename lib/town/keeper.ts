@@ -23,6 +23,7 @@ import type { FishingEnd, Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, handSlot, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
+import { sortedSlot, whatOf } from "./bag";
 import { NATURES, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
 import { CHARM_IDS, type GiftRefusal } from "./gifts";
@@ -188,6 +189,15 @@ export interface Keeper {
    * thing is held, so a page loaded again holds the first there is.
    */
   handSlot(): number;
+  /**
+   * Whether whoever keeps the game lets the bag be put in order (lib/town/bag): false from a database before v165,
+   * and the page then offers neither to sort it nor to move a thing in it.
+   */
+  bagTidy(): boolean;
+  /** A thing moved from one slot of my bag to another: into an empty one, onto more of itself, or changing places with what is there. */
+  bagMove(from: number, to: number): Promise<Did>;
+  /** My bag sorted: by kind, split stacks brought together, no gap. */
+  bagSort(): Promise<Did>;
   wear(slot: number): Promise<Did>;
   takeOff(item: ItemId): Promise<Did>;
   serve(slot: number): Promise<Did<{ dish: DishId }>>;
@@ -502,6 +512,8 @@ export interface Keeper {
  */
 export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknown>;
 type Answer = Record<string, unknown>;
+/** What is read as a question's own turn in the line comes, and kept of its answer before the next one's (see `ask`). */
+interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => void }
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
 const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000 };
@@ -578,6 +590,8 @@ export class DbKeeper implements Keeper {
   private waters_ = false;
   private water_: WellWater | null = null;
   private box_: Box | null = null;
+  /** Whether the database lets a bag be put in order (it says so when asked, from v165 on). */
+  private tidy_ = false;
   /** What lies on the ground, as the database last told it: null until one that keeps a ground has said. */
   private ground_: Dropped[] | null = null;
   /** What the database last told of stalls (null until one that keeps stalls has said), and whose stall I am looking at, as last read. */
@@ -624,6 +638,9 @@ export class DbKeeper implements Keeper {
     // (and whether the chest in the plaza is a storage box yet, with what I keep in it: asked once as the game begins;
     // a database without one answers nothing, and the chest is only a chest)
     if (this.read && !this.shut) void this.ask("town_box");
+    // (and whether a bag can be put in order: asked once as the game begins; a database that has no such thing
+    // answers nothing, and the bag offers neither to sort it nor to move a thing in it)
+    if (this.read && !this.shut) void this.ask("town_bag");
     // (and whether things can be dropped on the ground, with what lies about now: asked once as the game begins; a
     // database that keeps no ground answers nothing, and a thing is only thrown away, as it was)
     if (this.read && !this.shut) void this.ask("town_ground");
@@ -652,8 +669,19 @@ export class DbKeeper implements Keeper {
   open(): boolean | null { return this.opened; }
 
   /** Ask, in turn: after everything asked before it has been answered. Null when it could not be had. */
-  private ask(fn: string, args: Record<string, unknown> = {}): Promise<Answer | null> {
-    const asked = this.line.then(() => this.once(fn, args));
+  /**
+   * `turn`: what is to be read as this question's own turn comes (every question asked before it has been answered by
+   * then, and what it left is kept), and what is to be kept of its answer before the next one's turn. For what the
+   * page remembers beside the purse and a later deed reads: the slot the hand's thing was taken up from. `before`
+   * may say no (false): the question is then not asked at all, and is answered as refused, nothing there (`none`).
+   */
+  private ask(fn: string, args: Record<string, unknown> = {}, turn?: Turn): Promise<Answer | null> {
+    const asked = this.line.then(turn ? async () => {
+      if (turn.before?.() === false) return { ok: false, why: "none" } as Answer;
+      const a = await this.once(fn, args);
+      turn.after?.(a);
+      return a;
+    } : () => this.once(fn, args));
     this.line = asked.catch(() => null);
     return asked;
   }
@@ -738,6 +766,7 @@ export class DbKeeper implements Keeper {
     if (a.line === true) this.line_ = true;
     if ("wellWater" in a) { this.waters_ = true; this.water_ = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; }
     if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
+    if (a.tidy === true && !this.tidy_) this.tidy_ = true;
     // (what lies on the ground; a thing this page was built before is left out: it could not be drawn)
     if (Array.isArray(a.ground)) { this.ground_ = (a.ground as Dropped[]).filter((d) => !!d && !!d.stack && d.stack.item in ITEMS && Array.isArray(d.at)); this.groundDue(); }
     // (stalls: what I am told of them, and the one I am looking at; a line of a thing this page was built before is left out)
@@ -924,8 +953,8 @@ export class DbKeeper implements Keeper {
 
   /* ── deeds ── */
   /** A deed's answer as the panels take it: what the rule answered, or that the town could not be reached. */
-  private async deed<T>(fn: string, args: Record<string, unknown> = {}): Promise<Did<T>> {
-    const a = await this.ask(fn, args);
+  private async deed<T>(fn: string, args: Record<string, unknown> = {}, turn?: Turn): Promise<Did<T>> {
+    const a = await this.ask(fn, args, turn);
     if (!a) return AWAY;
     return (a.ok ? a : { ok: false, why: (a.why as Why) ?? "none" }) as Did<T>;
   }
@@ -994,13 +1023,37 @@ export class DbKeeper implements Keeper {
   readScroll(slot: number) { return this.deed<{ dish: ItemId }>("town_read", { p_slot: slot }); }
   /** (Its answer's `found` is what was inside, one thing or none: not the list of what has been found, which is a list and so is not mistaken for it.) */
   openThing(slot: number) { return this.deed<{ found: ItemId | null }>("town_open", { p_slot: slot }); }
-  async hold(slot: number | null) {
-    const did = await this.deed("town_hold", { p_slot: slot });
-    // (told again: the purse was told of before the slot was kept)
-    if (did.ok) { this.taken = slot; this.tell(); }
-    return did;
+  hold(slot: number | null) {
+    // (the slot is kept as the deed's own turn ends, so that a move or a sort asked for straight after it reads it;
+    // and told again: the purse was told of before the slot was kept)
+    return this.deed("town_hold", { p_slot: slot }, { after: (a) => { if (a?.ok) { this.taken = slot; this.tell(); } } });
   }
   handSlot() { return handSlot(this.mine, this.taken); }
+  bagTidy() { return this.tidy_; }
+  // The bag put in order. Of two pots of food, the one that was held is held still: the slot the hand's thing is in
+  // goes where that thing goes. Which slot that is, is read as the deed's own turn comes and by the bag as it then is
+  // (`handSlot`): a page loaded again remembers no slot and holds the first pot there is, and a pot taken up a
+  // moment before has been by then. Both found by Codex's check. Told again, as a thing held is.
+  //
+  // And a move is of the thing that was meant: what the slot had as the move was asked for (what the page showed,
+  // `whatOf`) has to be in it still when the move's turn comes. A bag sorted a moment before, its answer not yet
+  // here, has something else there by then: the move is not asked, and is refused (Codex's second look).
+  bagMove(from: number, to: number) {
+    const meant = whatOf(this.mine.bag[from]);
+    let at = -1;
+    return this.deed("town_bag_move", { p_from: from, p_to: to }, {
+      before: () => { if (whatOf(this.mine.bag[from]) !== meant) return false; at = this.handSlot(); },
+      after: (a) => { if (a?.ok && at >= 0) { this.taken = at === from ? to : at === to ? from : at; this.tell(); } },
+    });
+  }
+  bagSort() {
+    // (a stack brought together with its fellows is nowhere of its own: the first that has the thing is the hand's)
+    let held = false, to: number | null = null;
+    return this.deed("town_bag_sort", {}, {
+      before: () => { const at = this.handSlot(); held = at >= 0; to = held ? sortedSlot(this.mine, at) : null; },
+      after: (a) => { if (a?.ok && held) { this.taken = to; this.tell(); } },
+    });
+  }
   wear(slot: number) { return this.deed("town_wear", { p_slot: slot }); }
   takeOff(item: ItemId) { return this.deed("town_take_off", { p_item: item }); }
   serve(slot: number) { return this.deed<{ dish: DishId }>("town_serve", { p_slot: slot }); }
