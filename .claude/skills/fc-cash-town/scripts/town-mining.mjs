@@ -373,6 +373,7 @@ try {
     await until("the lift's panel", () => A.evaluate(`!!document.querySelector("[data-mine-lift]")`), 20000).catch(() => {});
     const stops = await A.evaluate(`[...document.querySelectorAll("[data-lift-stop]")].map((e) => [Number(e.dataset.liftStop), e.dataset.state])`);
     ok("a tap on the lift opens its panel: the mouth, this floor, and the floors not reached as states", JSON.stringify(stops) === JSON.stringify([[0, "reached"], [10, "here"], [20, "far"], [30, "far"]]), stops);
+    await sleep(500);
     await A.shot(`${OUT}/mining-lift.png`);
     await click(A, '[data-lift-stop="0"]');
     await until("A at the mouth", async () => (await where(A)).mountain === true, 10000).catch(() => {});
@@ -401,6 +402,7 @@ try {
     if (last) await tap(A, last.x, last.y);
     await sleep(600);
     ok("at the thirtieth floor's way down there is a sign", await A.evaluate(`!!document.querySelector("[data-mine-sign]")`), last);
+    await sleep(500);
     await A.shot(`${OUT}/mining-sign.png`);
     await click(A, "[data-mine-sign]");
   }
