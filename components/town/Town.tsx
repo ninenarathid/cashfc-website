@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
-  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
+  BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
   atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
@@ -48,7 +48,7 @@ import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { SmithView } from "./TownSmith";
 import { glowOf, readToolWord } from "@/lib/town/tools";
-import { drawGems, drawLongTool, gemLights, handOf, handSize, heldPicture, isLongTool, seedOf } from "./held";
+import { drawGems, drawIconRim, drawLevel, drawLongTool, gemLights, handOf, handSize, heldPicture, isLongTool, longHead, rimFor, seedOf, type LevelAt, type Rim } from "./held";
 import type { FarmDraw } from "./TownFarm";
 // ── gifts: farming ──
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
@@ -458,7 +458,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // (the long tools as they stand in a hand, and the gems' pieces: components/town/held asks for its own sheet)
   useEffect(() => { heldPicture(); }, []);
   /** Where a tool with gems is held on the screen this frame, and its gems' lights: laid among the map's lights once the night is on the picture. */
-  const toolLights = useRef<Array<{ x: number; y: number; rgb: string; reach: number }>>([]);
+  const toolLights = useRef<Array<{ x: number; y: number; rgb: string; reach: number; flat: number; strong: number }>>([]);
+  /** `next dev` only: so many more of my own doll about me, each holding a thing with a tool's word, to look at many forged tools at once and at what they cost a frame. */
+  const crowd = useRef<{ n: number; hold: string; word: string; walk: boolean } | null>(null);
   /** `next dev` only: ?townHour=21 shows the town at that hour; ?townPopoto=lunch brings that popoto out now. */
   const forcedHour = useRef<number | null>(null);
   const forcedPopoto = useRef<Activity | undefined>(undefined);
@@ -1747,7 +1749,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (held.length && day.lamps >= 0.02) {
       ctx.save();
       ctx.globalCompositeOperation = "lighter";
-      for (const l of held) glowAt(ctx, l.x, l.y, l.reach * cam.current.s, l.rgb, 0.3 * day.lamps);
+      for (const l of held) glowAt(ctx, l.x, l.y, l.reach * cam.current.s, l.rgb, 0.32 * l.strong * day.lamps, l.flat);
       ctx.restore();
     }
     if (day.lamps < 0.02) return;
@@ -2405,6 +2407,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       }
     }
     if (mine) things.push({ depth: depthOf(mine), draw: () => drawAvatar(ctx, mine, true, names, boxes, false, wall, now, dpr) });
+    // (`next dev`: a crowd of my own doll, each with a tool, in rows before me: __townView.crowd)
+    if (process.env.NODE_ENV !== "production" && mine && crowd.current) {
+      const c = crowd.current;
+      for (let i = 0; i < c.n; i++) {
+        const at = { x: mine.pos.x + ((i % 5) - 2) * 1.5, y: mine.pos.y + (Math.floor(i / 5) + 1) * 1.3 };
+        const ghost: Avatar = { ...mine, info: { ...mine.info, id: `${mine.info.id}#${i}`, hold: c.hold, tool: c.word, sit: -1, eat: "", fish: 0 }, pos: at, path: c.walk ? [{ x: at.x + 3, y: at.y }] : [] };
+        things.push({ depth: at.x + at.y, draw: () => drawAvatar(ctx, ghost, false, names, boxes, false, wall, now, dpr) });
+      }
+    }
     // ── gifts: farming ── (my familiar is not at my heels while it is off at work: the gnome going down a bed, drawn there by the farm's own code)
     const myPet = mine && performance.now() >= FAMILIAR_AWAY.until ? petOf(mine, dt) : null;
     if (myPet) things.push({ depth: myPet.at.x + myPet.at.y, draw: () => drawPet(ctx, myPet, now) });
@@ -2758,10 +2769,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * is its picture at a size that doll's hand carries, at the fist or hung from it, turned to the side faced.
    * Anything else held (a fish, a crop, a dish, a scroll) is as it was. Gives back where the thing's head is on the
    * screen (a long tool's head, a rod's tip, the middle of anything else): what a tool's gems show is about that;
-   * and `under` is called with it just before a tool's own picture is laid, for what belongs behind it.
+   * and `more.under` is called with it just before a tool's own picture is laid, for what belongs behind it.
+   * `more.rim`: a tool forged far is laid on its own outline in light. `more.spot`: nothing is drawn, only where the
+   * head would be is given back (null for a rod, whose tip is known once it is drawn). `more.sweep` is told the way
+   * a glint runs along the tool.
    */
-  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false, tall = h, dpr = 1, under?: (head: Vec) => void): Vec | null {
-    if (isRod(item)) return drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side);
+  function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false, tall = h, dpr = 1,
+    more: { under?: (head: Vec) => void; rim?: Rim; spot?: boolean; sweep?: { from: Vec; to: Vec } } = {}): Vec | null {
+    if (isRod(item)) return more.spot ? null : drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side);
     // (its picture is its own name's, but every scroll looks the same: lib/town/items' iconOf, without the catalog)
     const full = wet && `${item}Full` in ICON_ATLAS.icons;
     const icon = (item.startsWith("scroll") ? "scroll" : full ? `${item}Full` : item) as IconName;
@@ -2772,6 +2787,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // ── gifts: well ── (under rain, the empty bucket of whoever a rain frog follows gathers it: drawn falling into the bucket itself, and for my own how full it is by now)
     const gathers = gathering.current.has(id) && !wet ? gathering.current.get(id) ?? undefined : null;
     if (item === CART.item) {
+      if (more.spot) return null;
       const wide = Math.round(30 * v.s);
       drawIcon(ctx, iconImg.current, icon, snap(p.x + side * h * 0.46), snap(p.y - wide * 0.42), wide);
       if (gathers !== null) drawRainGather(ctx, { x: snap(p.x + side * h * 0.46), y: snap(p.y - wide * 0.5) }, v.s, now, reducedRef.current, gathers, side);
@@ -2789,21 +2805,32 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     };
     // a long tool: upright in the fist, its head at the top (until its picture has come, its bag picture as ever)
     if (isLongTool(item)) {
-      const head = drawLongTool(ctx, item, { x, y: y + px }, tall, side, dpr, under);
-      if (head) { fist(); return head; }
+      const grip = { x, y: y + px }, head = more.spot ? (heldPicture() ? longHead(item, grip, tall, side) : null) : drawLongTool(ctx, item, grip, tall, side, dpr, more.under, more.rim);
+      if (head) {
+        if (more.sweep) { more.sweep.from = grip; more.sweep.to = head; }
+        if (!more.spot) fist();
+        return head;
+      }
     }
     // a hand tool by the doll's size, at the fist or hung from it; anything else as it always was
     const hand = handOf(item), size = hand ? handSize(hand, tall, v.s) : Math.round(15 * v.s);
     const cy = y - size * 0.25 + (hand ? hand.hang * size : 0);
-    if (hand) under?.({ x, y: cy });
+    if (more.sweep) { more.sweep.from = { x: x - side * size * 0.38, y: cy + size * 0.3 }; more.sweep.to = { x: x + side * size * 0.38, y: cy - size * 0.34 }; }
+    if (more.spot) return { x, y: cy };
+    if (hand) more.under?.({ x, y: cy });
+    const rim = hand ? more.rim : undefined;
     if (hand && (side === -1) !== !!hand.turn) {
       // (turned to the side faced: a can's spout and a pan's bowl are out before them)
       ctx.save();
       ctx.translate(x, 0);
       ctx.scale(-1, 1);
+      if (rim) drawIconRim(ctx, iconImg.current, ICON_ATLAS.icons[icon], 0, cy, size, rim, dpr);
       drawIcon(ctx, iconImg.current, icon, 0, cy, size);
       ctx.restore();
-    } else drawIcon(ctx, iconImg.current, icon, x, cy, size);
+    } else {
+      if (rim) drawIconRim(ctx, iconImg.current, ICON_ATLAS.icons[icon], x, cy, size, rim, dpr);
+      drawIcon(ctx, iconImg.current, icon, x, cy, size);
+    }
     if (gathers !== null) drawRainGather(ctx, { x, y: cy - size * 0.25 }, v.s, now, reducedRef.current, gathers, side);
     if (full) drawIcon(ctx, iconImg.current, "plotDrop", snap(x + side * size * 0.45), snap(cy - size * 0.55), Math.round(size * 0.47));
     fist();
@@ -2912,11 +2939,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const rod = rodOf(a, isMe), held = !rod ? a.info.hold || null : null;
     const handSide = (face.view === "back") !== face.mirror ? -1 : 1;
     const fishesWith: RodId = isRod(a.info.hold) ? a.info.hold : "rod";
-    // ── forging ── (a tool forged far enough glows in the hand, in its gem's colour; fully at the top, where it
-    // breathes a little while the town moves. From what the room is told of it: everybody sees it.)
-    const glow = a.info.hold ? glowOf(a.info.tool) : null;
+    // ── forging ── (a tool forged far has a light of its own, +7 and grander at the top, and its gems show as their
+    // elements about its head whatever its level: components/town/held, from what the room is told of the tool, so
+    // everybody sees it. The level's light is soft and added: its pool, halo and rays are laid before anything of the
+    // doll, so that none of it lies over a face; the tool's picture on a rim of light; the glint, motes and sparks
+    // after it. The gems' light and what stands behind the head are laid just before the tool's picture, their
+    // pieces after it, over the level's. All of the tool's own behind the body or before it as the tool is. A rod is
+    // drawn by code and its tip known only then: it keeps a shadow of light for a rim, and all of its light goes
+    // after it.)
+    const gems = a.info.hold ? readToolWord(a.info.tool) : null, forgedFar = gems?.glow ? gems : null, seed = seedOf(a.info.id);
+    const glow = a.info.hold ? glowOf(a.info.tool) : null, byCode = !!rod || (!!held && isRod(held));
     const lit = (draw: () => void) => {
-      if (!glow) { draw(); return; }
+      if (!glow || !byCode) { draw(); return; }
       ctx.save();
       ctx.shadowColor = glow.hue;
       ctx.shadowBlur = (glow.glow === 2 ? 11 + (reducedRef.current ? 0 : 3 * Math.sin(now / 320 + a.info.id.charCodeAt(0))) : 6) * dpr;
@@ -2924,20 +2958,33 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (glow.glow === 2) draw();
       ctx.restore();
     };
-    // (and its gems show as their elements about its head, whatever its level: components/town/held. Their light
-    // and what stands behind the head are laid before the tool's picture, the rest after it; all of it behind the
-    // body or before it as the tool is. A rod's tip is known only once it is drawn: both go after it.)
-    const gems = a.info.hold ? readToolWord(a.info.tool) : null, tool: { head: Vec | null; under: boolean } = { head: null, under: false };
-    const gem = (layer: "under" | "over", head: Vec) => drawGems(ctx, gems, layer, head, p.y, tall, k, dpr, now, seedOf(a.info.id), reducedRef.current, isMe);
+    const tool: { head: Vec | null; under: boolean; back: boolean } = { head: null, under: false, back: false }, sweep = { from: p, to: p };
+    // (how they walk on the screen, in pixels a second: the sparks a tool at the top leaves are behind it)
+    let walks: Vec | null = null;
+    if (forgedFar?.glow === 2 && moving && a.path[0] && !reducedRef.current) {
+      const far = Math.hypot(a.path[0].x - a.pos.x, a.path[0].y - a.pos.y), to = project(a.path[0]), from = project(a.pos);
+      if (far > 0.01) walks = { x: ((to.x - from.x) / far) * SPEED, y: ((to.y - from.y) / far) * SPEED };
+    }
+    const levelAt = (head: Vec): LevelAt => ({ head, from: sweep.from, to: sweep.to, feet: p, tall, zoom: k, dpr, now, seed, still: reducedRef.current, mine: isMe, vel: walks });
+    const rim = forgedFar && !byCode ? rimFor(forgedFar, now, seed, reducedRef.current) : undefined;
+    if (forgedFar && held) {
+      const spot = drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr, { spot: true, sweep });
+      if (spot) { drawLevel(ctx, forgedFar, "back", levelAt(spot)); tool.back = true; }
+    }
+    const gem = (layer: "under" | "over", head: Vec) => drawGems(ctx, gems, layer, head, p.y, tall, k, dpr, now, seed, reducedRef.current, isMe);
     const under = gems?.gems.length ? (head: Vec) => { if (!tool.under) { tool.under = true; gem("under", head); } } : undefined;
     const shine = () => {
-      if (!tool.head || !gems?.gems.length) return;
-      under?.(tool.head);
-      gem("over", tool.head);
-      if (!faded && toolLights.current.length < 24) for (const l of gemLights(gems)) toolLights.current.push({ x: tool.head.x, y: tool.head.y, ...l });
+      const head = tool.head;
+      if (!head || !gems || (!forgedFar && !gems.gems.length)) return;
+      if (forgedFar) {
+        if (!tool.back) { sweep.from = sweep.to = head; drawLevel(ctx, forgedFar, "back", { ...levelAt(head), late: true }); }
+        drawLevel(ctx, forgedFar, "over", levelAt(head));
+      }
+      if (gems.gems.length) { under?.(head); gem("over", head); }
+      if (!faded && toolLights.current.length < 60) for (const l of gemLights(gems)) toolLights.current.push({ x: l.ground ? p.x : head.x, y: l.ground ? p.y : head.y, rgb: l.rgb, reach: l.reach, flat: l.ground ? 0.38 : 1, strong: l.strong });
     };
     if (rod && face.view === "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith); }); shine(); }
-    if (held && face.view === "back") { lit(() => { tool.head = drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr, under); }); shine(); }
+    if (held && face.view === "back") { lit(() => { tool.head = drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr, { under, rim, sweep }); }); shine(); }
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -2953,7 +3000,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fill();
     }
     if (rod && face.view !== "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith); }); shine(); }
-    if (held && face.view !== "back") { lit(() => { tool.head = drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr, under); }); shine(); }
+    if (held && face.view !== "back") { lit(() => { tool.head = drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet, tall, dpr, { under, rim, sweep }); }); shine(); }
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
@@ -3505,6 +3552,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         return { x: p.x, y: p.y - dollH(a) * cam.current.s * 0.5 };
       },
       cam: () => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy, follow: cam.current.follow }),
+      /** So many more of my own doll about me, each holding `hold` with a tool's word (lib/town/tools' toolWord: "2", "2fff2"), walking or not; 0 for none. To look at many forged tools at once. */
+      crowd: (n: number, hold = "pick", word = "2", walk = false) => { crowd.current = n > 0 ? { n: Math.min(60, Math.floor(n)), hold, word, walk } : null; return crowd.current?.n ?? 0; },
       /** The map at a zoom (as far as the camera allows), where it looks now. */
       zoom: (s: number) => { setCam({ s, cx: cam.current.cx, cy: cam.current.cy }); return cam.current.s; },
       /** My doll as another race and gender (the first hairstyle of theirs), to look at each size of doll. */

@@ -584,6 +584,13 @@ body { overflow-x: clip; }
  */
 
 /* Coins in the air: crouch, leap, hang while they fall, land. 1400ms. */
+/* Cash Town: a tool forged to the top breathes in its slot (components/town/TownTrade's StackIcon lays the light
+   behind the tool's picture, and leaves the animation off when the town's motion is switched off). */
+@keyframes forge-breathe {
+  0%, 100% { opacity: 0.55; transform: scale(0.92); }
+  50% { opacity: 0.95; transform: scale(1.08); }
+}
+
 @keyframes aqua-hop {
   0%   { transform: translateY(0) scale(1, 1); }
   26%  { transform: translateY(2%) scale(1.05, .95); }

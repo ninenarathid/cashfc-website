@@ -10,7 +10,9 @@ import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
-import { GEMS, OPTIONS, gemsShown, makersOf, modsOf, toolWord, type Element } from "@/lib/town/tools";
+import { GEMS, OPTIONS, gemsShown, makersOf, modsOf, readToolWord, toolWord, type Element } from "@/lib/town/tools";
+import { keptMotion } from "@/lib/town/motion";
+import { levelHue } from "./held";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { carried } from "@/lib/town/line";
@@ -163,9 +165,17 @@ export function StackIcon({ stack, size, className }: { stack: Stack; size: numb
   // ── forging ── (a tool that carries something says so wherever it is drawn: its plus at a corner, a pip a gem at another)
   if (!forged(stack)) return icon;
   const gems = gemsShown(stack);
+  // (and one forged far shimmers in its slot as it does in the hand: a light behind its picture in the colour of its
+  // light on the map, its outline lit, breathing at the top; still, with the town's motion switched off)
+  const look = readToolWord(toolWord(stack)), far = look?.glow ? look : null, hue = far ? levelHue(far) : null;
   return (
-    <span className="relative inline-block align-middle" data-plus={modsOf(stack).level} data-gem={gems[0] ?? ""} data-gems={gems.join(" ")}>
-      {icon}
+    <span className={`relative inline-block align-middle ${far ? "isolate" : ""}`} data-plus={modsOf(stack).level} data-gem={gems[0] ?? ""} data-gems={gems.join(" ")}
+          style={hue ? ({ "--forge": hue } as React.CSSProperties) : undefined}>
+      {far && hue && (
+        <span aria-hidden data-forge-light={far.glow} className="pointer-events-none absolute -inset-[24%] -z-10 rounded-full"
+              style={{ background: `radial-gradient(circle, ${hue} 0%, ${hue}77 36%, transparent 68%)`, opacity: far.glow === 2 ? 0.85 : 0.5, animation: far.glow === 2 && keptMotion() ? "forge-breathe 2.6s ease-in-out infinite" : undefined }} />
+      )}
+      {far ? <TownIcon name={name as IconName} size={size} className={`${className ?? ""} ${far.glow === 2 ? "[filter:drop-shadow(0_0_1px_var(--forge))_drop-shadow(0_0_3px_var(--forge))]" : "[filter:drop-shadow(0_0_1px_var(--forge))_drop-shadow(0_0_2px_var(--forge))]"}`} /> : icon}
       <ForgeMarks stack={stack} size={size} />
     </span>
   );
