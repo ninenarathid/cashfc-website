@@ -4,7 +4,9 @@
 //   node build-held.mjs [--out <tree>]      (in a worktree, name the tree: the default writes into fcnext's)
 //
 // Every sheet is one row of pictures on a clear ground: `held-tools-a` eight tall tools (a pick, an axe, three hoes,
-// an insect net, a sickle, shears), each upright with its head at the top turned to the right; `held-fx-<element>`
+// an insect net, a sickle, shears), each upright with its head at the top turned to the right; `held-tools-b1` and
+// `-b2` the same eight again, four a sheet, drawn finer for the tall races' hands (`fine` in the JSON: the map takes
+// whichever of the two a doll's size and the zoom bring nearer to a screen pixel a picture pixel); `held-fx-<element>`
 // six pictures of an element, three tiny ones and three big ones (its flourish, twice, and its grandest); and
 // `held-fx-mix` what shows where two elements meet. The pictures of a row are not of one width, so a row is cut at
 // its widest empty gaps (so many pictures, one gap fewer), and whatever lies between two gaps is one picture, in
@@ -52,14 +54,14 @@ function row(g, want) {
 }
 
 const pieces = [];
-// ── the long tools ──
-{
-  const sheet = await cells("held-tools-a", 40, [4, 12]);
-  if (!sheet) console.log("no held-tools-a");
+// ── the long tools: the eight of one sheet, and the finer ones, four a sheet ──
+for (const [name_, kind, tools, range] of [["held-tools-a", "tool", TOOLS, [4, 12]], ["held-tools-b1", "fine", TOOLS.slice(0, 4), [6, 13]], ["held-tools-b2", "fine", TOOLS.slice(4), [6, 13]]]) {
+  const sheet = await cells(name_, 40, range);
+  if (!sheet) console.log(`no ${name_}`);
   else {
-    const sets = row(sheet.g, TOOLS.length);
-    if (sets.length !== TOOLS.length) throw new Error(`held-tools-a: ${sets.length} pictures found, ${TOOLS.length} wanted`);
-    TOOLS.forEach(([name, top], k) => {
+    const sets = row(sheet.g, tools.length);
+    if (sets.length !== tools.length) throw new Error(`${name_}: ${sets.length} pictures found, ${tools.length} wanted`);
+    tools.forEach(([name, top], k) => {
       const im = L.crop(sheet.g, sets[k]), solid = (x, y) => im.buf[(y * im.w + x) * 4 + 3] > 0;
       // where its handle stands: the middle of its lowest rows
       let sx = 0, n = 0;
@@ -68,7 +70,7 @@ const pieces = [];
       let hx = 0, hy = 0, m = 0;
       for (let y = 0; y < Math.ceil(im.h * top); y++) for (let x = 0; x < im.w; x++) if (solid(x, y)) { hx += x + 0.5; hy += y + 0.5; m++; }
       const round = (v) => Math.round(v * 10) / 10;
-      pieces.push({ kind: "tool", name, img: im, more: [round(sx / n), round(hx / m), round(hy / m)] });
+      pieces.push({ kind, name, img: im, more: [round(sx / n), round(hx / m), round(hy / m)] });
       console.log(`${name.padEnd(12)} ${im.w}x${im.h}  handle at ${round(sx / n)}, head at ${round(hx / m)},${round(hy / m)}  (grid ${sheet.pitch.toFixed(2)})`);
     });
   }
@@ -103,6 +105,7 @@ for (const p of pieces) if (p.kind === "fx") (fx[p.name] ??= [])[p.k] = [p.x, p.
 const meta = {
   image: `/town/held-${hash}.png`, size: [W, H],
   tools: Object.fromEntries(pieces.filter((p) => p.kind === "tool").map((p) => [p.name, [p.x, p.y, p.img.w, p.img.h, ...p.more]])),
+  fine: Object.fromEntries(pieces.filter((p) => p.kind === "fine").map((p) => [p.name, [p.x, p.y, p.img.w, p.img.h, ...p.more]])),
   fx,
 };
 for (const f of fs.readdirSync(pub)) if (/^held-[0-9a-f]{10}\.png$/.test(f) && f !== `held-${hash}.png`) fs.unlinkSync(path.join(pub, f));

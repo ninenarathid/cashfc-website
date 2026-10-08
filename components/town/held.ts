@@ -40,6 +40,8 @@ export const HELD_ART = art as unknown as {
   image: string; size: [number, number];
   /** A long tool's picture: where it is, where its handle stands (from its left) and where its head is, in its own pixels. */
   tools: Record<string, [number, number, number, number, number, number, number]>;
+  /** The same tools drawn finer, for where the first would be blown up (a tall doll's hand, a close zoom). */
+  fine?: Record<string, [number, number, number, number, number, number, number]>;
   /** An element's six pictures: three small pieces, its flourish twice, its grandest. `mix`: a puff, a wisp of mist, a blue spark; steam, a bank of mist, a dim halo. */
   fx: Record<Element | "mix", Cell[]>;
 };
@@ -67,9 +69,18 @@ const LONG: Record<string, { tall: number; grip: number }> = {
 /** How far a long tool leans out from upright, away from its holder (so much sideways for each pixel up). */
 const LEAN = 0.1;
 export const isLongTool = (item: string): boolean => item in LONG && item in HELD_ART.tools;
+/**
+ * Which of a long tool's two pictures a doll so tall holds: the finer one where a pixel of the first would cover
+ * more than a screen pixel and a half (a tall race's hand, a Lalafell seen close), so that a tool's pixels are near
+ * its holder's own; the first one otherwise (the finer made smaller would lose its outline).
+ */
+function longCell(item: string, tall: number, dpr: number) {
+  const first = HELD_ART.tools[item], rule = LONG[item], fine = HELD_ART.fine?.[item];
+  return first && rule && fine && ((rule.tall * tall) / first[3]) * dpr > 1.5 ? fine : first;
+}
 /** Where a long tool's head is on the screen, held in a fist there by a doll so tall on the side faced: without drawing it. Null for what is no long tool. */
-export function longHead(item: string, fist: Vec, tall: number, side: 1 | -1): Vec | null {
-  const cell = HELD_ART.tools[item], rule = LONG[item];
+export function longHead(item: string, fist: Vec, tall: number, side: 1 | -1, dpr = 1): Vec | null {
+  const cell = longCell(item, tall, dpr), rule = LONG[item];
   if (!cell || !rule) return null;
   const [, , , h, gx, hx, hy] = cell, k = (rule.tall * tall) / h, grip = rule.grip * h;
   return { x: fist.x + side * (hx - gx + LEAN * (grip - hy)) * k, y: fist.y + (hy - grip) * k };
@@ -82,10 +93,10 @@ export function longHead(item: string, fist: Vec, tall: number, side: 1 | -1): V
  * `under` is called with that place just before the picture is laid, for what belongs behind the tool's head.
  */
 export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: Vec, tall: number, side: 1 | -1, dpr: number, under?: (head: Vec) => void, rim?: Rim): Vec | null {
-  const img = heldPicture(), cell = HELD_ART.tools[item], rule = LONG[item];
+  const img = heldPicture(), cell = longCell(item, tall, dpr), rule = LONG[item];
   if (!img || !cell || !rule) return null;
   const [sx, sy, w, h, gx] = cell, k = (rule.tall * tall) / h, grip = rule.grip * h;
-  const head = longHead(item, fist, tall, side)!;
+  const head = longHead(item, fist, tall, side, dpr)!;
   // (what lies behind its head is laid first: the light of its gems, a ring about it)
   under?.(head);
   ctx.save();

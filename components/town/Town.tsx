@@ -2805,7 +2805,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     };
     // a long tool: upright in the fist, its head at the top (until its picture has come, its bag picture as ever)
     if (isLongTool(item)) {
-      const grip = { x, y: y + px }, head = more.spot ? (heldPicture() ? longHead(item, grip, tall, side) : null) : drawLongTool(ctx, item, grip, tall, side, dpr, more.under, more.rim);
+      const grip = { x, y: y + px }, head = more.spot ? (heldPicture() ? longHead(item, grip, tall, side, dpr) : null) : drawLongTool(ctx, item, grip, tall, side, dpr, more.under, more.rim);
       if (head) {
         if (more.sweep) { more.sweep.from = grip; more.sweep.to = head; }
         if (!more.spot) fist();
