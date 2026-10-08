@@ -7,8 +7,9 @@ import type { Stack } from "./trade";
 
 /**
  * What an option and a gem do, in a line: the words of the smith's cards (a draw's two options to choose from; a
- * tool's own card, which says of its options and of the gem set in it what each does). Nothing else in the game says
- * these: they are read only by whoever has the option laid out before them, or the gem set.
+ * tool's own card, which says of its options and of the gem set in it what each does; the gems leaf, which says of
+ * each gem held what it would do in the tool on the anvil). Nothing else in the game says these: they are read only
+ * by whoever has the option laid out before them, or the gem in hand.
  *
  * Every number in a line is read from the registry (lib/town/tools), never written here: a knob turned there turns
  * the words. Pure.

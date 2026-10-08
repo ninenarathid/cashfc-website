@@ -78,6 +78,8 @@ const spot = (at: number[]) => ({ left: `${at[0] * 100}%`, top: `${((at[1] - STA
  * is said on its own card, to whoever has it laid out before them or on their tool. A tool's card has the tool's own
  * numbers as it works now (lib/town/tool-words' `cardOf`), and before a try the forging leaf shows which of them the
  * level tried for changes, from what to what (`nextOf`): nobody pays for a level blind (the owner, 2026-10-08).
+ * What a gem does is said on the card of a tool it is set in, and, on the gems leaf, of every gem held: what it would
+ * do in the tool on the anvil, at the level it would work at there, before it is set.
  *
  * What is kept is the keeper's: for a member the database's, in `next dev`'s test room the browser's trial. A keeper
  * that knows of no smith offers none of this (`keeper.smith()` is null, and the map never opens this).
@@ -583,15 +585,33 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                 {rack}
                 {stack && kind && (
                   <div className="mb-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]">
-                    <p className="mb-2 font-data text-label uppercase text-[#c9a877]">{t("พลอยในกระเป๋า", "Gems in the bag")}</p>
+                    <p className="mb-2 flex flex-wrap items-baseline justify-between gap-x-2 font-data text-label uppercase text-[#c9a877]">
+                      <span>{t("พลอยในกระเป๋า", "Gems in the bag")}</span>
+                      {gems.length > 0 && <span className="normal-case">{t(`ถ้าฝังใน${itemName(stack.item, true)} +${level}`, `set in this ${itemName(stack.item, false).toLowerCase()} +${level}`)}</span>}
+                    </p>
                     {gems.length ? (
-                      <ul className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={t("พลอยในกระเป๋า", "Gems in the bag")}>
+                      // (each gem held says what it would do in the tool on the anvil, at the level it would work at there: nobody sets one blind)
+                      <ul className="space-y-1.5" role="radiogroup" aria-label={t("พลอยในกระเป๋า", "Gems in the bag")}>
                         {gems.map((g) => {
-                          const cannot = !settable(kind, g.element) || g.element === setElement;
+                          const isSet = g.element === setElement, cannot = !settable(kind, g.element) || isSet, on = chosenGem === g.gem;
+                          const would = gemDoes(kind, g.element, Math.min(GEM_LEVELS, 1 + (level >= FORGE.top ? FORGE.gemAtTop : 0)));
                           return (
-                            <li key={g.gem}><button type="button" role="radio" aria-checked={chosenGem === g.gem} onClick={() => setGem(chosenGem === g.gem ? null : g.gem)} disabled={busy || cannot} data-smith-pick-gem={g.gem} data-can={!cannot}
-                                                    className={`pressable flex min-h-10 items-center gap-1.5 rounded-full border-2 px-3 text-meta disabled:opacity-40 ${chosenGem === g.gem ? "border-[#f0c46a] bg-[#4a3423] text-[#f3e3c3]" : "border-[#6b4a2a] bg-[#33251a] text-[#f3e3c3] hover:border-[#c9a877]"}`}>
-                              <ItemIcon id={g.gem} size={20} />{itemName(g.gem, th)} <span className="font-data tabular-nums text-[#c9a877]">×{g.n}</span></button></li>
+                            <li key={g.gem}>
+                              <button type="button" role="radio" aria-checked={on} onClick={() => setGem(on ? null : g.gem)} disabled={busy || cannot} data-smith-pick-gem={g.gem} data-can={!cannot}
+                                      className={`pressable flex w-full items-start gap-2.5 rounded-xl border-2 px-2.5 py-2 text-left disabled:opacity-55 ${on ? "border-[#f0c46a] bg-[#4a3423] shadow-[0_0_0_2px_rgba(240,196,106,0.18)]" : "border-[#6b4a2a] bg-[#33251a] hover:border-[#c9a877]"}`}>
+                                <span className="relative mt-0.5 grid size-8 shrink-0 place-items-center"><TownIcon name="smithSocket" size={30} /><span className="absolute"><ItemIcon id={g.gem} size={18} /></span></span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="flex items-baseline gap-1.5">
+                                    <span className="min-w-0 truncate text-ui font-semibold" style={{ color: GEMS[g.element].hue }}>{itemName(g.gem, th)}</span>
+                                    <span className="shrink-0 text-label text-[#c9a877]">{th ? GEMS[g.element].name.th : GEMS[g.element].name.en}</span>
+                                    <span className="ml-auto shrink-0 font-data text-meta tabular-nums text-[#c9a877]">×{g.n}</span>
+                                  </span>
+                                  <span className="mt-0.5 block text-meta leading-relaxed text-[#d9c39b]" data-smith-gem-would={g.element}>
+                                    {isSet ? t("ฝังอยู่ในเครื่องมือชิ้นนี้แล้ว", "Set in this tool already") : would && settable(kind, g.element) ? (th ? would.th : would.en) : th ? WHY.unbuilt[0] : WHY.unbuilt[1]}
+                                  </span>
+                                </span>
+                              </button>
+                            </li>
                           );
                         })}
                       </ul>
