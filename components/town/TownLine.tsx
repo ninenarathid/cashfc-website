@@ -242,11 +242,14 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
     if (!m) return;
     // (one that is settled already is only shut)
     if (!m.over) {
+      const mine = m.role === "from";
+      // (a board given up is written down as one)
+      keeper.record({ game: "farming", board: "handing", how: "left", at: keeper.now(), won: false, secs: 0, spent: mine ? m.tired.from : m.tired.to, buff: null, what: mine ? "hand" : "take", need: 1, hits: 0, misses: 0 });
       pair?.send(m.who.id, { k: "bye", m: m.id });
       if (m.role === "to") shy.current.set(m.who.id, performance.now() + SHY_MS);
     }
     put(null);
-  }, [pair, put]);
+  }, [pair, put, keeper]);
   // walking off, or something else opening, leaves it; and so does leaving the town
   useEffect(() => { if (match && !here) stop(); }, [match, here, stop]);
   useEffect(() => () => {
@@ -264,7 +267,7 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
     if (!m || m.over) return;
     put({ ...m, over: true });
     const mine = m.role === "from";
-    keeper.record({ game: "farming", at: keeper.now(), won: r.won, secs: r.secs, spent: mine ? m.tired.from : m.tired.to, buff: null, what: mine ? "hand" : "take", need: 1, hits: r.won ? 1 : 0, misses: r.won ? 0 : 1 });
+    keeper.record({ game: "farming", board: "handing", at: keeper.now(), won: r.won, secs: r.secs, spent: mine ? m.tired.from : m.tired.to, buff: null, what: mine ? "hand" : "take", need: 1, hits: r.won ? 1 : 0, misses: r.won ? 0 : 1 });
     if (!r.won) { say("spilt"); return; }
     if (mine) void hand_on(m.who);
   }, [keeper, put, say, hand_on]);
@@ -335,11 +338,14 @@ export default function TownLine({ keeper, me, th, here, people, bottom, sfx, pa
                            onDone={(result) => {
                              const to = working;
                              setWorking(null);
-                             keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: "pour", need: result.need, hits: result.hits, misses: result.misses });
+                             keeper.record({ game: "farming", board: "pouring", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: "pour", need: result.need, hits: result.hits, misses: result.misses });
                              if (result.dropped) { say("shaky"); return; }
                              void hand_on(to);
                            }}
-                           onCancel={() => setWorking(null)} />
+                           onCancel={() => {
+                             keeper.record({ game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "pour", need: 0, hits: 0, misses: 0 });
+                             setWorking(null);
+                           }} />
             </div>
           ) : next ? (
             // (one for each of those it may go to, the likeliest first and named in full)

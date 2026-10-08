@@ -354,7 +354,8 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     const slot = did.made ? keeper.purse().bag.findIndex((s, i) => s?.item === "potFull" && s.of?.dish === did.made && before[i]?.item !== "potFull") : -1;
     // (a recipe's dish is a go won; the odd dish, and nothing, are not)
     const right = isFind(did.made);
-    keeper.record({ game: "cooking", at: keeper.now(), won: right, secs: result.secs, spent: isSpent(purse, now), buff: null, what: did.made ?? "nothing", need: result.need, hits: result.hits, misses: result.misses });
+    // (the board itself was played to its end whatever came out of the pot; the hearth sprite's pot had no board)
+    keeper.record({ game: "cooking", ...(how.sprite ? {} : { board: job.crew[0] === "skewer" ? "roasting" : "stirring" }), how: "done", at: keeper.now(), won: right, secs: result.secs, spent: isSpent(purse, now), buff: null, what: did.made ?? "nothing", need: result.need, hits: result.hits, misses: result.misses });
     setThings([]);
     setRefusal(null);
     jot({ at: keeper.now(), things: job.things, tool: job.crew[0], cooks: job.crew.length, made: did.made, n: did.n + (did.fresh ? YARD.gives : 0), ...(did.taste ? { taste: did.taste } : {}), ...(did.first ? { first: true } : {}) });
@@ -380,6 +381,12 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     setNote(`${did.first ? (th ? "พบสูตรใหม่! " : "A new recipe! ") : ""}${name(did.made)} ${dish ? (th ? `· ${helpings} ที่` : `· ${helpings} helpings`) : `×${did.n}`}${taste}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the dish is done
   }, [keeper, others, th, sfx, name, say, called, vfx, jot]);
+  /** The board shut by the cook before the pot was done: nothing is cooked and nothing is used, and that it was given up is written down. */
+  const giveUp = useCallback(() => {
+    const job = stirring;
+    setStirring(null);
+    if (job) keeper.record({ game: "cooking", board: job.crew[0] === "skewer" ? "roasting" : "stirring", how: "left", at: keeper.now(), won: false, secs: 0, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "nothing", need: 0, hits: 0, misses: 0 });
+  }, [stirring, keeper]);
   const finish = useCallback((result: GameResult) => {
     const job = stirring;
     setStirring(null);
@@ -605,11 +612,11 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
             <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} harder={harder} scene={art?.("gameFire") ?? null}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) vfx.add("smoke", null, { lift: 22 }); }}
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
-                          onDone={finish} onCancel={() => setStirring(null)} />
+                          onDone={finish} onCancel={giveUp} />
           ) : (
             <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsFor(stirring.things)} mods={stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm")))} harder={harder}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
-                          onDone={finish} onCancel={() => setStirring(null)} />
+                          onDone={finish} onCancel={giveUp} />
           )}
         </div>
       ) : open || feastOpen ? null : (

@@ -24,8 +24,8 @@ import type { Strike } from "./fishing";
  * (lib/town/trial); the shape is the one a table will have.
  */
 
-/** The games there are: fishing, so far (cooking and farming as they are built). */
-export type GameId = "fishing" | "farming" | "cooking";
+/** The games there are: fishing, the farm's work, the kitchen's, and the boards of the forest and of the net. */
+export type GameId = "fishing" | "farming" | "cooking" | "forest" | "insects";
 
 interface PlayBase {
   game: GameId;
@@ -72,12 +72,24 @@ export interface FishingPlay extends PlayBase {
  * worked at (a plot's deed, a dish), how many hits it wanted, and the hits and misses it took.
  */
 export interface WorkPlay extends PlayBase {
-  game: "farming" | "cooking";
+  game: "farming" | "cooking" | "forest" | "insects";
   what: string;
   need: number;
   hits: number;
   misses: number;
+  /** Which board it was played on (weeding, timing, pouring, steady, a row, a sweep, a long pour, handing, stirring, roasting, choosing, digging, catching, the net); none where the work had no board. */
+  board?: string;
+  /**
+   * How the go ended, when `won` does not say it all: the work came off, the board was lost (tired hands dropped it,
+   * a throw was not caught, an insect fled), or the member closed the board. Left out, it is done when won and
+   * dropped when not.
+   */
+  how?: WorkEnd;
 }
+/** How a go at a board ended. */
+export type WorkEnd = "done" | "dropped" | "left";
+/** A go at a board's end, said whole: what a play leaves unsaid is read off whether it was won. */
+export const endOf = (play: WorkPlay): WorkEnd => play.how ?? (play.won ? "done" : "dropped");
 export type Play = FishingPlay | WorkPlay;
 
 /** How many of the newest plays the log keeps. */

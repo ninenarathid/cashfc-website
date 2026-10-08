@@ -374,9 +374,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           // (the insect of my drop of nectar is no haunt's: it is caught as mine alone)
           const asked = id === LURED ? keeper.netMine("lured", tile, { misses: misses.current.get(key) ?? 0 }, live.current.name)
             : keeper.netDo(id, tile, { misses: misses.current.get(key) ?? 0, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name);
+          const missed = misses.current.get(key) ?? 0;
           void asked.then((did) => {
             if (!did.ok) { say(did.why); return; }
             misses.current.delete(key);
+            // (a go with the net, written down beside its deed: one that fled is written down below, and has no deed)
+            keeper.record({ game: "insects", board: "net", at: keeper.now(), won: true, secs: 0, spent: live.current.spent, buff: null, what: sight.bug, need: 1, hits: 1, misses: missed });
             caught.current.push({ bug: sight.bug, first: did.first, rid: did.rid ?? null });
             if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
             const what = did.got.map(([item, n]) => `${nameOf(item)} ×${n}`).join(" · ");
@@ -399,6 +402,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             gone.set(key, (id === LURED ? live.current.lured?.l.until ?? keeper.now() : bugTurnStart(h, sight.turn + 1)) - keeper.now() + Date.now());
             fled.current = gone;
             keepFled(gone);
+            keeper.record({ game: "insects", board: "net", at: keeper.now(), won: false, secs: 0, spent: live.current.spent, buff: null, what: sight.bug, need: 1, hits: 0, misses: misses.current.get(key) ?? 0 });
             misses.current.delete(key);
             sfx?.work("flit");
             vfx.add("leaves", { x: pose.x, y: pose.y }, { lift: 30 });

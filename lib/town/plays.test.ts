@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { FishId } from "./items";
 import { STEPS, replayFight, startFight, stepFight } from "./fishing";
 import { PLAIN } from "./gear";
-import { KEPT, count, keep, newTally, tallyOf, type FishingPlay, type Play } from "./plays";
+import { KEPT, count, endOf, keep, newTally, tallyOf, type FishingPlay, type Play, type WorkPlay } from "./plays";
 
 const play = (over: Partial<FishingPlay> = {}): FishingPlay => ({
   game: "fishing", at: 1_000, won: true, secs: 12.5, spent: false, buff: null,
@@ -10,6 +10,23 @@ const play = (over: Partial<FishingPlay> = {}): FishingPlay => ({
   what: "minnow", size: 6.2, wait: 14, nibbles: 1, reaction: 0.31, strike: "perfect", gear: PLAIN,
   fight: { seed: 7, holds: [3, 40, 61], steps: 1500, inBand: 0.82 }, kept: true, record: true,
   ...over,
+});
+
+describe("how a go at a board ended", () => {
+  const go: WorkPlay = { game: "farming", at: 1_000, won: true, secs: 2, spent: true, buff: null, what: "water", need: 2, hits: 2, misses: 0 };
+  it("is done when it was won and dropped when it was not, unless it says otherwise", () => {
+    expect(endOf(go)).toBe("done");
+    expect(endOf({ ...go, won: false })).toBe("dropped");
+    // (a board its member shut; and a pot stirred to its end that was no recipe's: played out, though not won)
+    expect(endOf({ ...go, won: false, how: "left" })).toBe("left");
+    expect(endOf({ ...go, game: "cooking", won: false, how: "done" })).toBe("done");
+  });
+  it("counts on the tally under its own line of work, the forest's and the net's among them", () => {
+    const tally = [go, { ...go, game: "forest" as const, won: false }, { ...go, game: "insects" as const }].reduce(count, newTally());
+    expect(tally.games.forest).toMatchObject({ plays: 1, won: 0, spent: 1 });
+    expect(tally.games.insects).toMatchObject({ plays: 1, won: 1 });
+    expect(tally.games.farming).toMatchObject({ plays: 1, won: 1 });
+  });
 });
 
 describe("the record of every go at a mini-game (the owner: \"ช่วยเก็บประวัติการเล่น minigame ทั้งหมดไว้ด้วย\")", () => {

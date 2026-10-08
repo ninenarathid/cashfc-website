@@ -204,11 +204,14 @@ export default function TownMoon({ keeper, th, compact, reduced, sfx, at, bottom
                          onDone={(result) => {
                            const n = working;
                            setWorking(null);
-                           keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: "pour", need: result.need, hits: result.hits, misses: result.misses });
+                           keeper.record({ game: "farming", board: "pouring", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: "flask", need: result.need, hits: result.hits, misses: result.misses });
                            if (result.dropped) { say("shaky"); return; }
                            void pour(n);
                          }}
-                         onCancel={() => setWorking(null)} />
+                         onCancel={() => {
+                           keeper.record({ game: "farming", board: "pouring", how: "left", at: keeper.now(), won: false, secs: 0, spent: true, buff: null, what: "flask", need: 0, hits: 0, misses: 0 });
+                           setWorking(null);
+                         }} />
           </div>
         </TownFoot>
       )}

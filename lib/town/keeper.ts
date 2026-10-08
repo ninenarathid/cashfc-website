@@ -19,7 +19,7 @@ import type { NoticeRefusal, PinboardTold } from "./notices";
 import { shelfOf, sourcesAt, type Order } from "./orders";
 import type { ShopAsk, ShopRefusal, ShopTold, ShopsTold } from "./shop";
 import { SKIES } from "./skies";
-import type { FishingEnd, Play } from "./plays";
+import { endOf, type FishingEnd, type Play } from "./plays";
 import { STAMINA, chew } from "./stamina";
 import type { Helper, ThanksBoard } from "./thanks";
 import { handOf, handSlot, newPurse, newStall, type Purse, type Refusal, type Stall } from "./trade";
@@ -498,7 +498,7 @@ export interface Keeper {
   moonKeep(): Promise<Did<{ n: number; kind: Nature }>>;
   moonPour(n: number, at: [number, number] | null): Promise<Did<{ poured: number; into: number; kind: Nature }>>;
 
-  /** Write a go at a game of timing down (the trial's own log; the database writes its own as the deed is done). */
+  /** Write a go at a board down, whatever its end: done, dropped by tired hands, or left (the trial's own log; the database keeps it beside the deeds it writes itself). */
   record(play: Play): void;
   /** Stop every timer: the member has left the town. */
   close(): void;
@@ -1435,7 +1435,22 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
-  record() { /* the database writes every go down itself, as the deed is done */ }
+  /**
+   * A go at a board, told as the page saw it end (v166's `town_try`). The database writes down the deeds that come
+   * off and nothing of a board that was dropped or left, and of a tired pour or a steadied hand only that the work
+   * was done: this is how often each board is lost or given up, to set its numbers by. Fishing is left out, every
+   * end of a line being the database's own already. Nothing waits for the answer and nothing hangs on it; a
+   * database that has not heard of it is asked three times and then left alone.
+   */
+  private untold = 0;
+  record(play: Play) {
+    if (play.game === "fishing" || this.untold >= 3 || this.shut) return;
+    const whole = (n: number) => (Number.isFinite(n) ? Math.max(0, Math.round(n)) : 0);
+    void this.rpc("town_try", {
+      p_game: play.game, p_board: play.board ?? null, p_what: play.what, p_how: endOf(play), p_spent: play.spent,
+      p_need: whole(play.need), p_hits: whole(play.hits), p_misses: whole(play.misses), p_secs: Number.isFinite(play.secs) ? Math.max(0, play.secs) : 0,
+    }).then((kept) => { this.untold = kept === null ? this.untold + 1 : 0; }, () => { this.untold += 1; });
+  }
   close() {
     this.shut = true;
     for (const l of this.looking.values()) if (l.timer) clearTimeout(l.timer);

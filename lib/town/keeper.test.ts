@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { inPestHours, pestAt, pestHour, roll, see, type Plant } from "./farm";
 import { HINT_IDS, HINT_PRICE, hintPrice } from "./hints";
 import { DbKeeper, type Ask } from "./keeper";
+import type { Play } from "./plays";
 import { shelfOf, sourcesAt } from "./orders";
 import { SKIES } from "./skies";
 import { newPurse, type Purse, type Stack } from "./trade";
@@ -896,5 +897,51 @@ describe("the database's keeper", () => {
     expect(db.asked.length).toBe(n);
     expect(k.shopSeen()).toEqual({ who: "them", told: null });
     k.close();
+  });
+
+  it("tells the database of a go at a board, whatever its end, and never of a line in the water; one that has not heard of it is asked three times and then left alone", async () => {
+    const told: Array<Record<string, unknown>> = [];
+    let knows = true;
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const ask: Ask = async (fn, args = {}) => {
+      if (fn !== "town_try") return db.ask(fn, args);
+      told.push(args);
+      return knows ? true : null;
+    };
+    const k = new DbKeeper("me", ask);
+    await settle();
+    const go = { game: "farming" as const, at: NOW, won: false, secs: 2.25, spent: true, buff: null, what: "water", need: 2, hits: 1, misses: 3 };
+    // dropped by tired hands (not won, and nothing more said); done (won); left, with a board's count that is no count
+    k.record({ ...go, board: "pouring" });
+    k.record({ ...go, won: true });
+    k.record({ ...go, game: "forest", board: "digging", how: "left", secs: Number.NaN, hits: -4, misses: 2.6 });
+    // (every end of a line in the water is the database's own already)
+    k.record({ game: "fishing" } as unknown as Play);
+    await settle();
+    expect(told).toEqual([
+      { p_game: "farming", p_board: "pouring", p_what: "water", p_how: "dropped", p_spent: true, p_need: 2, p_hits: 1, p_misses: 3, p_secs: 2.25 },
+      { p_game: "farming", p_board: null, p_what: "water", p_how: "done", p_spent: true, p_need: 2, p_hits: 1, p_misses: 3, p_secs: 2.25 },
+      { p_game: "forest", p_board: "digging", p_what: "water", p_how: "left", p_spent: true, p_need: 2, p_hits: 0, p_misses: 3, p_secs: 0 },
+    ]);
+    // a database that has not had v166: three goes told to nobody, and then no more is asked of it
+    knows = false;
+    told.length = 0;
+    for (let i = 0; i < 5; i++) { k.record(go); await settle(); }
+    expect(told.length).toBe(3);
+    // …but one that answered in between is asked on
+    const again: Array<Record<string, unknown>> = [];
+    let answers = [null, null, true, null, null, null, null];
+    const k2 = new DbKeeper("me", async (fn, args = {}) => { if (fn !== "town_try") return db.ask(fn, args); again.push(args); return answers.shift() ?? null; });
+    await settle();
+    for (let i = 0; i < 9; i++) { k2.record(go); await settle(); }
+    expect(again.length).toBe(6);
+    answers = [];
+    // and nothing is told once the member has left the town
+    const before = told.length;
+    k.close();
+    k.record({ ...go, board: "pouring" });
+    await settle();
+    expect(told.length).toBe(before);
+    k2.close();
   });
 });
