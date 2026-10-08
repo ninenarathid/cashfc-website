@@ -24,7 +24,7 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 
 | File | What it does |
 |---|---|
-| `gen.mjs` | One API call: `node gen.mjs <name> <model> <quality> <size> <prompt.txt> [ref.png ...]` |
+| `gen.mjs` | One API call: `node gen.mjs <name> <model> <quality> <size> <prompt.txt> [ref.png ...]`. It draws only a call Codex has read (see "Codex reads a prompt before it is drawn") |
 | `gen-hairs.sh` | Hairstyle sheets as in-place edits: `./gen-hairs.sh <g> <hair> [<g> <hair> ...]` |
 | `build-scenery.mjs` | The town's scenery; `--set forest` the forest's own sheet; `--set kitchen` the cooking screen's (`public/town/kitchen.json`). In a worktree pass `--out <tree>/public/town` (the default writes into fcnext's), and link `work` to fcnext's so that the ledger is the one ledger (`mklink /J work …cnext…pixelwork`) |
 | `build-pixel-atlas.mjs` | `work/out` → `public/town` (`--out <dir>` to try elsewhere; `--poses` adds sit, sleep and wave) |
@@ -41,6 +41,28 @@ Spike demo: [Pixel Lalafell Spike](https://claude.ai/artifact/Uetw3Y3U1iCnDn4Z9q
 - **Every call** is logged in `work/ledger.jsonl` with its cost, worked out from the returned usage: $8 per 1M image-input tokens, $30 per 1M image-output tokens, $5 per 1M text tokens. About $0.018 a call.
 - **Budget:** `gen.mjs` stops within $0.50 of `BUDGET` ($25 since the owner topped it up, 2026-10-02; `work/ledger.jsonl` has what is spent).
 - **Rate limit:** a new account may send 5 reference pictures a minute. `gen.mjs` waits as the 429 says and tries again, and `gen-hairs.sh` runs one call at a time.
+
+## Codex reads a prompt before it is drawn (2026-10-09)
+
+The owner: "ช่วยทำให้ codex review prompt ก่อนนำไปสร้างเป็นภาพด้วย อยากได้งาน premium แต่คุ้มค่ากับ credit ที่เสียไปที่สุด". Until that day $6.01 of the $23.36 spent (320 of 1,252 calls) had gone on sheets that were then drawn again, and two thirds of what a call costs is the reference picture sent in with it.
+
+- **The read:** from this folder, `node ~/.claude/skills/codex-pair/scripts/codex-ask.mjs art --for "<where the picture is shown, how large, beside what>" <name> <model> <quality> <size> <prompt.txt> [ref.png ...]`: the words `gen.mjs` takes (`--bg opaque` where `BG=opaque` will be set). Codex is shown the reference pictures, reads this file, the earlier prompts of the kind and the builder that will cut the sheet, and answers `send`, `fix` (with the whole prompt as it would send it) or `stop`. About a minute. The codex-pair skill has the rest.
+- **The gate:** what Codex passed is written in `work/reviews.jsonl`, and `gen.mjs` refuses a call that is not there (its prompt, its settings and its references' names together; the name is not part of it). The ledger's line says which read let it through (`review`).
+- **A batch:** `CALLS=<file> node gen-race.mjs <race> …` (or any script that calls `gen.mjs`) lists every call in the file and draws nothing; `codex-ask.mjs art --calls <file>` reads them in one run.
+- **Unread on purpose:** `NO_REVIEW="<why>"` before the command, and the ledger keeps the reason (`noReview`): a trial of settings, a batch whose template was read as one of its calls.
+- **What the read is told decides much of what it says.** Told that a scene had been drawn before and not kept, it found two faults in the prompt; told the same scene was in the game and nothing was wrong with it, it passed the same words unchanged. Say in `--for` only what is so.
+
+**What a setting buys** (measured that day, one draw of each, 1536×1024 with one reference; `work/ab/compare-kitchen.png`, `compare-pots.png`):
+
+| Quality | Picture tokens out | A call | After the builder's cut |
+|---|---|---|---|
+| low | 158 | $0.0195 | the cooking game's scene: 279×185 cells, 58% of its edges on the grid |
+| medium | 343 | $0.0250 | more texture (floor tiles, grain), and a busier wall where the prompt asked for a quiet one; 51% |
+| high | 1,372 | $0.0559 | a coarser grid (205×137 cells) and softer cells; 34% |
+
+Six pots at medium came out more painted and less crisp than the low sheet that is in the game. A reference cut to hard pixels first (one colour a cell, nothing half see-through) made nothing crisper, on the scene or on the pots. So low stays the setting for a sheet that is cut to a grid; medium is a matter of taste for a large scene, and the owner's to choose; high bought nothing. The older figure for a picture at medium and high ($0.041, $0.165, from the price list) was not what the account paid.
+
+`node checks/cut-look.mjs <out.png> 4.5-7.5 "<label>=<sheet.png>" …` lays sheets side by side as the game will show them (each cut the builders' way), with each one's pixel size, how many cells it has and how clean it was before the cut: for choosing between two drawings of one thing.
 
 ## The sheets (`work/out/<g>-<hair>-<type>.png`)
 
@@ -225,5 +247,6 @@ What stays is skin where the key says so, whatever the vote says of its colour.
 | `hair-skin-check.mjs <race> <hair:view,…> [scale]` | hairstyles in a far skin, with skin-like cells that are not skin marked |
 | `look-check.mjs [base] [out] <look,…>` | looks in the dev town itself: standing, sitting on the ground and on a bench, photographed; green and olive eyes counted on the screen against the same look with other eyes |
 | `sky-check.mjs`, `sky-film.mjs <weather>` | the town's weather in a headless browser (SKILL.md) |
+| `cut-look.mjs <out.png> <lo-hi> <label=sheet.png> …` | sheets from `work/out` side by side, each cut the builders' way, with its pixel size, its cells and how clean it was drawn (this one reads sheets, not `public/town`) |
 
 **The builder's own switches:** `SKIN_TRACE=<job>` (and `SKIN_TRACE_ROWS`), `SKIN_WHY=<job>` (a map, and what is warm and not skin by colour; `SKIN_WHY_TEXT=1` adds letters), `SKIN_DEBUG=1` (the colour vote, and what each face rule took), `THING_DEBUG=1` (or a job: a map of what the mistaken-thing rule dropped), `FACE_DEBUG=1` (light cells left in a face, and why a patch stayed open), `OWN_DEBUG=1` (a face's main colours), `SHADE_MAP=1`, `SIT_MAP=1`, `FILL_DEBUG=<g>-<view>`, `FILL_SWEEP=1`, `SIT_DEBUG=1`, `EYE_DEBUG=1`, `CAP_DEBUG=1`. A job is `body-<g>-<view>-<step>` or `sit-<g>-<view>`.
