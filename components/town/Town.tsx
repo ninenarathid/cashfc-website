@@ -52,6 +52,7 @@ import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
 import type { BugsAim } from "./TownBugs";
 import type { GroundTap } from "./TownGround";
 import type { BridgeTap, Hand } from "./TownBridge";
+import type { Bearer, LampsHooks } from "./TownLamps";
 import SignIcon from "./SignIcon";
 import type { SignView } from "./TownSign";
 import type { Stuck } from "@/lib/town/session";
@@ -124,6 +125,7 @@ const TownWell = lazy(() => import("./TownWell"));
 const TownBox = lazy(() => import("./TownBox"));
 const TownGround = lazy(() => import("./TownGround"));
 const TownBridge = lazy(() => import("./TownBridge"));
+const TownLamps = lazy(() => import("./TownLamps"));
 const TownSign = lazy(() => import("./TownSign"));
 const TownCircle = lazy(() => import("./TownCircle"));
 const TownThanks = lazy(() => import("./TownThanks"));
@@ -139,7 +141,7 @@ const TownScroll = lazy(() => import("./TownScroll"));
 const TownLines = lazy(() => import("./TownLines"));
 const TownFountain = lazy(() => import("./TownFountain"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", "works"];
+const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", "works", "lamps"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** What a worn title is written in, by its rank (components/town/TownLines' own, kept here so that the map does not load that screen to draw a name): bronze, silver, gold, and the last rank's own. */
@@ -795,6 +797,17 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: a.info.hold || null, carry: a.info.carry || null, away: a.info.away, spent: a.info.spent }));
   }, []);
   const carryTold = useCallback((thing: string | null) => { session?.setCarrying(thing); }, [session]);
+  // ── the lamp relay ── (lib/town/lamps, TownLamps): what it draws, what a tap on it comes to, the night's dark lifted
+  // round a lit lamp and the flame somebody bears are all asked of it through one hand; everybody on the map as its
+  // offering needs them (the flame each bears among it); and the room told of the flame I bear
+  const lampsHooks = useRef<LampsHooks | null>(null);
+  const registerLamps = useCallback((hooks: LampsHooks | null) => { lampsHooks.current = hooks; }, []);
+  const bearers = useCallback((): Bearer[] => {
+    const stay = sessionRef.current && !sessionRef.current.closed ? sessionRef.current : null;
+    return (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
+      .map((a) => ({ id: a.info.id, name: a.info.name, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: a.info.hold || null, carry: a.info.carry || null, flame: a.info.flame ?? 0, away: a.info.away, spent: a.info.spent }));
+  }, []);
+  const flameTold = useCallback((until: number) => { session?.setFlame(until); }, [session]);
   /** The tile I am on, walking or not: where a thing I drop comes to lie. */
   const whereAmI = useCallback((): [number, number] | null => { const a = sessionRef.current?.self; return a ? [Math.floor(a.pos.x), Math.floor(a.pos.y)] : null; }, []);
   /** The test window (the owner's, in the trial): every thing there is, to look at and to conjure. */
@@ -1688,7 +1701,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   function drawDaylight(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number) {
     const day = skyNow();
     const [r, g, b] = day.tint;
-    if (r < 255 || g < 255 || b < 255) {
+    // ── the lamp relay ── (where a lit lamp is in sight the hour's dark is laid by the lamps' own hand, lifted in each
+    // lamp's ring: TownLamps' `dark`. With none in sight it says no, and the dark is laid here as it always was)
+    if ((r < 255 || g < 255 || b < 255) && !lampsHooks.current?.dark(ctx, cw, ch, day.tint)) {
       ctx.save();
       ctx.globalCompositeOperation = "multiply";
       ctx.fillStyle = `rgb(${r},${g},${b})`;
@@ -2161,6 +2176,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       groundDraw.current?.(frame);
       // ── the bridge built by hand ── (the pile of stone by the uncle's shop, and the sign at the bridge's foot)
       bridgeDraw.current?.(frame);
+      // ── the lamp relay ── (the farm's brazier, the board by each fire, the lamp posts dark and lit, and what the night brings out)
+      lampsHooks.current?.draw(frame);
     }
     if (scenery && placeRef.current === "farm") for (const p of FARM_PROPS) {
       const c = project({ x: p.x + 0.5, y: p.y + 0.62 });
@@ -2810,6 +2827,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (held && face.view === "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
     // ── the bridge built by hand ── (a stone carried in both hands: before them, so behind whoever faces away)
     if (a.info.carry && face.view === "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, false);
+    // ── the lamp relay ── (a flame borne from a fire to a lamp post: the ring of embers at their feet that says what is
+    // left of it, under them; and the flame before them, so behind whoever faces away. Its light is drawn over the night's dark)
+    const flame = a.info.flame ? lampsHooks.current?.flame : undefined;
+    if (flame) flame(ctx, a.info.flame!, p, h, face.view === "back" ? "both" : "feet", dpr, names);
     if (kit) {
       // Everybody on their own foot: a step offset from their id.
       const step = moving && !riding ? Math.floor(now / 1000 * WALK_FPS) + (a.info.id.charCodeAt(0) & 3) : undefined;
@@ -2827,6 +2848,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (rod && face.view !== "back") drawRod(ctx, p, h, rod, a.info.id, now, fishesWith);
     if (held && face.view !== "back") drawHeld(ctx, p, h, held, handSide, look, a.info.id, now, !!a.info.wet);
     if (a.info.carry && face.view !== "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, true);
+    if (flame && face.view !== "back") flame(ctx, a.info.flame!, p, h, "hands", dpr, names);   // ── the lamp relay ──
 
     const top = p.y - h * 1.12 - bob;
     ctx.font = `10px ${fontRef.current}`;
@@ -3234,6 +3256,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const hit = bridgeTap.current(x, y);
       if (hit) { if (hit.walk && sessionRef.current?.walkTo(hit.walk)) cam.current.follow = true; return; }
     }
+    // ── the lamp relay ── (the farm's brazier, a board, a lamp post: done from where I stand, or walked up to first)
+    if (gameRef.current && lampsHooks.current) {
+      const hit = lampsHooks.current.tap(x, y);
+      if (hit) { if (hit.walk && sessionRef.current?.walkTo(hit.walk)) cam.current.follow = true; return; }
+    }
     // the storage box: walk up to it, and open it (until whoever keeps the game knows of one, the chest is only a
     // chest). Asked after the net, for the same reason, and after a thing lying before it, which is drawn over it.
     const sb = storeBox.current;
@@ -3297,7 +3324,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           || (!!sb && p.x >= sb.x0 && p.x <= sb.x1 && p.y >= sb.y0 && p.y <= sb.y1)
           || (!!gameRef.current && !!keeper?.feast() && feastBoxes.current.some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1))
           || [...keeperBoxes.current, ...gateBoxes.current].some((k) => p.x >= k.x0 && p.x <= k.x1 && p.y >= k.y0 && p.y <= k.y1)
-          || (!!gameRef.current && !!bridgeTap.current?.(p.x, p.y, true));   // ── the bridge built by hand ── (its pile and its sign)
+          || (!!gameRef.current && !!bridgeTap.current?.(p.x, p.y, true))   // ── the bridge built by hand ── (its pile and its sign)
+          || (!!gameRef.current && !!lampsHooks.current?.tap(p.x, p.y, true));   // ── the lamp relay ── (the brazier, a board, a lamp post)
         mouseAt(e.currentTarget, p, seat ? "sit" : clickable ? "hand" : "arrow");
       }
       return;
@@ -4576,6 +4604,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           <TownBridge keeper={keeper} me={me.id} th={w.th} people={hands}
                       here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                       sfx={sfxRef.current} phone={phone} tabbar={tabbar} register={registerBridge} registerTap={registerBridgeTap} carry={carryTold} />
+        </Suspense>
+      )}
+      {/* ── the lamp relay ── a flame taken at a fire, handed on, a lamp post lit; the board's panel; and what the night becomes */}
+      {s && game && keeper && (
+        <Suspense fallback={null}>
+          <TownLamps keeper={keeper} me={me.id} th={w.th} people={bearers} place={onForest ? "forest" : onFarm ? "farm" : null}
+                     here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
+                     sfx={sfxRef.current} phone={phone} tabbar={tabbar} register={registerLamps} bear={flameTold} />
         </Suspense>
       )}
       {/* Thanks: for whoever helped the plant in the plot of mine I stand on; and being told when I am thanked */}

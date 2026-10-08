@@ -47,6 +47,8 @@ import { dust, pourFor, pourRow } from "./farm";
 import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helping";
 // ── the bridge built by hand ──
 import { BRIDGE, drop as stoneDrop, laid as stoneLaid, lay as stoneLay, lift as stoneLift, luckFor, newWorks, pass as stonePass, told as worksTold, workOf, type BridgeRefusal, type WorksKept, type WorksTold } from "./bridge";
+// ── the lamp relay ──
+import { LAMPS, held as lampHeld, light as lampLight, lighted as lampLighted, litOf, newLamps, nightBegins, nightOf, pass as flamePass, postsOf, take as flameTake, told as lampsTold, type LampMap, type LampRefusal, type LampsKept, type LampsTold } from "./lamps";
 
 /**
  * The trade's rules kept in this browser, to try them (the owner, 2026-10-03,
@@ -95,6 +97,8 @@ const WELL_LOG = "cashtown.trial.welllog.1";
 const LINES_AT = "cashtown.trial.lines.1", TITLES = "cashtown.trial.titles.1";
 /** The village's works (lib/town/bridge): the whole browser's, so that one tester hands a stone to another and all build one bridge. */
 const WORKS_AT = "cashtown.trial.works.1";
+/** The lamps of the farm and the forest (lib/town/lamps): the whole browser's, so that one tester hands a flame to another and all light one night. */
+const LAMPS_AT = "cashtown.trial.lamps.1";
 /** The thanks given (lib/town/thanks), and the jar at the well with what waits at it for each (lib/town/jar): the whole browser's. */
 const THANKS = "cashtown.trial.thanks.1", JAR = "cashtown.trial.jar.1";
 /** The bucketfuls in the cooking yard's water jar (lib/town/yard): the whole browser's. */
@@ -755,6 +759,67 @@ export class Trial {
   }
   /** For scripts and the test window: the bridge as it was at first: closed, no stone laid, nobody counted, nobody holding one. */
   worksAnew() { this.set(WORKS_AT, null); this.tell(); }
+
+  /* ── the lamp relay (lib/town/lamps): the lamps are everybody's, a flame is in one tester's hands ── */
+  private lampsKept(): LampsKept {
+    return this.read<LampsKept>(LAMPS_AT, newLamps, (v) => { const k = v as Partial<LampsKept> | null; return !!k && Array.isArray(k.lit) && Array.isArray(k.full) && !!k.flames && typeof k.flames === "object"; });
+  }
+  /** The lamps as I am told them (a tester has no name here: the page calls each by what the room calls them). */
+  lamps(): LampsTold { return lampsTold(this.lampsKept(), this.id, () => "", this.now()); }
+  /** Whether a tester carries a stone in both hands (lib/town/bridge): hands that are not empty. */
+  private stoneOf(id: string): boolean { return !!this.worksKept().carried[id]; }
+  flameTake(map: string, at: [number, number]): { ok: true; until: number } | { ok: false; why: LampRefusal } {
+    const kept = this.lampsKept(), now = this.now();
+    const did = flameTake(this.purse(), kept.flames[this.id] ?? null, this.stoneOf(this.id), litOf(kept, map, nightOf(now)).length, map, at, this.id, now);
+    if (!did.ok) return did;
+    this.write(LAMPS_AT, lampHeld(kept, this.id, did.flame));
+    this.tell();
+    return { ok: true, until: did.flame.until };
+  }
+  /** Hand the flame I bear on to another tester of this browser: it is fresh again in their hands. */
+  flamePass(to: string): { ok: true; until: number } | { ok: false; why: LampRefusal } {
+    if (!to || to === this.id) return { ok: false, why: "none" };
+    const kept = this.lampsKept(), now = this.now();
+    const did = flamePass(kept.flames[this.id] ?? null, to, trialFor(to).purse(), kept.flames[to] ?? null, this.stoneOf(to), now);
+    if (!did.ok) return did;
+    this.write(LAMPS_AT, lampHeld(kept, to, did.flame, this.id));
+    this.tell();
+    return { ok: true, until: did.flame.until };
+  }
+  /** Light a post with it: the post is lit for the night, and everybody whose hands the flame went through has the helpers' points for it. */
+  lampLight(map: string, post: number, at: [number, number]): { ok: true; n: number; of: number; full: boolean } | { ok: false; why: LampRefusal } {
+    const kept = this.lampsKept(), now = this.now();
+    const did = lampLight(this.purse(), kept.flames[this.id] ?? null, litOf(kept, map, nightOf(now)), map, post, at, now);
+    if (!did.ok) return did;
+    this.write(LAMPS_AT, lampLighted(kept, this.id, map as LampMap, post, did.hands, did.full, now));
+    for (const h of did.hands) (h === this.id ? this : trialFor(h)).counted({ from: "deed", what: h === this.id ? "lamp_light" : "lamp_hand", thing: "flame", n: 1, doc: {} });
+    this.save(did.purse);
+    return { ok: true, n: did.n, of: did.of, full: did.full };
+  }
+  /** For scripts and the test window: the trial's clock put into tonight if it is day (to nine in the evening). */
+  lampsNight() {
+    const now = this.now();
+    if (nightOf(now) !== null) return;
+    this.write(CLOCK, now - Date.now() + (nightBegins(now) - now) + 3.5 * 3_600_000);
+    this.tell();
+  }
+  /** For scripts and the test window: so many of a map's posts lit tonight already, the first so many by their numbers (nobody's flame). */
+  lampsLit(map: LampMap, n: number) {
+    const kept = this.lampsKept(), now = this.now(), night = nightOf(now);
+    if (night === null) return;
+    const of = postsOf(map), most = Math.max(0, Math.min(of, Math.floor(n)));
+    const lit = [...kept.lit.filter((l) => !(l.night === night && l.map === map)), ...Array.from({ length: most }, (_, post) => ({ night, map, post, at: now, hands: [] as string[] }))];
+    const full = kept.full.filter((f) => !(f.night === night && f.map === map));
+    this.write(LAMPS_AT, { ...kept, lit, full: most >= of ? [...full, { night, map, at: now }] : full });
+    this.tell();
+  }
+  /** For scripts: a flame in my hands that lives so many seconds from now, whatever the rule says (a check that walks by taps needs longer than five). */
+  lampsFlame(secs: number = LAMPS.life, map: LampMap = "farm") {
+    this.write(LAMPS_AT, lampHeld(this.lampsKept(), this.id, { from: map, until: this.now() + secs * 1000, hands: [this.id] }));
+    this.tell();
+  }
+  /** For scripts and the test window: the lamps as they were at first: none lit, nobody bearing a flame, no night counted. */
+  lampsAnew() { this.set(LAMPS_AT, null); this.tell(); }
 
   /** For scripts and the test window: so many bucketfuls in the yard's jar (nobody's water). */
   setYardJar(buckets: number) { this.write(YARD_JAR, Math.max(0, Math.floor(buckets))); this.tell(); }
@@ -1491,7 +1556,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
-    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT]) this.set(key, null);
+    for (const key of [purseKey(this.id), boxKey(this.id), GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT, LAMPS_AT]) this.set(key, null);
     this.tell();
   }
 }

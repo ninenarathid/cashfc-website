@@ -16,6 +16,7 @@ import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
 import { BRIDGE } from "./bridge";
+import { LAMPS } from "./lamps";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE } from "./insects";
 import { JAR } from "./jar";
@@ -304,6 +305,19 @@ export function catalogOf() {
       hold: BRIDGE.hold, stand: BRIDGE.stand, steps: BRIDGE.steps, marks: BRIDGE.marks,
       pile: [BRIDGE.pile.x, BRIDGE.pile.y], foot: [BRIDGE.foot.x, BRIDGE.foot.y],
     },
+    // ── the lamp relay ── (lib/town/lamps; v163)
+    /**
+     * The lamp relay at dusk: the minutes of Bangkok's day it runs from and until; the seconds a flame lives in a hand
+     * and the seconds of grace after them; how far a flame is handed (the page's to hold to), how near the fire and a
+     * post one stands; what lighting costs, and the seconds tired hands hold the button (the flame is good that much
+     * longer in them); how far a lit lamp lights (the page's); how many hands are remembered, and what a post lit is
+     * worth on the helpers' line; at how many lit posts more of the night comes out (the page's); and each map's fire
+     * and its posts, by their tiles.
+     */
+    lamps: {
+      from: LAMPS.from, until: LAMPS.until, life: LAMPS.life, grace: LAMPS.grace, reach: LAMPS.reach, near: LAMPS.near, cost: LAMPS.cost, hold: LAMPS.hold,
+      light: LAMPS.light, hands: LAMPS.hands, point: LAMPS.point, more: LAMPS.more, maps: LAMPS.maps,
+    },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -432,10 +446,14 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * of `items` by itself, not the row: `bowl.stack`, three where it was one.
  *
  * v160 (a draft, not run) seeds one, new: `bridge`, for the bridge built by hand and the village's works.
+ *
+ * v163 (a draft, not run) seeds one, new: `lamps`, for the lamp relay at dusk.
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
   // ── the bridge built by hand ── (v160, a draft: one row, new)
   v160: { keys: ["bridge"], over: [] },
+  // ── the lamp relay ── (v163, a draft: one row, new)
+  v163: { keys: ["lamps"], over: [] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

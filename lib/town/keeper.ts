@@ -49,6 +49,8 @@ import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
 // ── the bridge built by hand ──
 import { worksOf, type BridgeRefusal, type WorksTold } from "./bridge";
+// ── the lamp relay ──
+import { lampsOf, type LampMap, type LampRefusal, type LampsTold } from "./lamps";
 
 /**
  * Who keeps the game.
@@ -81,12 +83,14 @@ export type Why = Refusal | FarmRefusal | ForestRefusal | BugRefusal | NoticeRef
   // ── gifts: fishing ──
   | FishRefusal
   // ── the bridge built by hand ──
-  | BridgeRefusal;
+  | BridgeRefusal
+  // ── the lamp relay ──
+  | LampRefusal;
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why };
 // ── gifts: kitchen ── (what a deed with a gift of the kitchen's comes to: the kitchen has reasons of its own for a no)
 export type KitchenDid<T = unknown> = ({ ok: true } & T) | { ok: false; why: Why | KitchenRefusal };
 /** What can be looked at, and what the room says has changed. */
-export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop" | /* the bridge built by hand */ "works";
+export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild" | "bugs" | "notices" | "line" | "ground" | "shop" | /* the bridge built by hand */ "works" | /* the lamp relay */ "lamps";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number }
@@ -526,6 +530,27 @@ export interface Keeper {
   stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null }>>;
   stoneDrop(): Promise<Did>;
 
+  // ── the lamp relay ── (lib/town/lamps)
+  /**
+   * The lamps of the farm and of the forest: the night it is (none by day), each map's posts lit tonight with the
+   * hands each flame came by, the night's lighters in the order they came, how many nights every lamp of the map
+   * has been lit; and the flame I bear (the moment it dies, by this keeper's clock). Null until it has been read, and
+   * for as long as whoever keeps the game knows of no lamps (a database before v163: the page then shows nothing of
+   * them). `lampsLook` reads it again.
+   */
+  lamps(): LampsTold | null;
+  lampsLook(): Promise<void>;
+  /**
+   * A flame taken at a map's fire, from the tile I stand on (says the moment it dies); the one I bear handed on to
+   * somebody, fresh again (who is told through the room, `lamps`: nothing that keeps the game knows where anybody
+   * stands, so who is near enough is the page's to say); and a post lit with it, from the tile I stand on (how many
+   * of the map's are lit then, of how many, and whether that is all of them). **Every post lit is told to the
+   * room** (`lamps`): each page reads the lamps again and lights it.
+   */
+  flameTake(map: LampMap, at: [number, number]): Promise<Did<{ until: number }>>;
+  flamePass(to: string): Promise<Did<{ until: number }>>;
+  lampLight(map: LampMap, post: number, at: [number, number]): Promise<Did<{ n: number; of: number; full: boolean }>>;
+
   /** Write a go at a board down, whatever its end: done, dropped by tired hands, or left (the trial's own log; the database keeps it beside the deeds it writes itself). */
   record(play: Play): void;
   /** Stop every timer: the member has left the town. */
@@ -544,7 +569,7 @@ type Answer = Record<string, unknown>;
 interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => void }
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, works: 45_000 };
+const EVERY: Record<Looked, number> = { stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, works: 45_000, lamps: 60_000 };
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -627,6 +652,8 @@ export class DbKeeper implements Keeper {
   private visit_: { who: string; told: ShopTold | null } | null = null;
   // ── the bridge built by hand ── (the village's works as the database last told them: null until one that has works has said)
   private works_: WorksTold | null = null;
+  // ── the lamp relay ── (the lamps as the database last told them: null until one that has lamps has said)
+  private lamps_: LampsTold | null = null;
 
   /** The meal: who is beside me as last told to the database, when that was, and the timer for its end. */
   private company = 0;
@@ -680,6 +707,9 @@ export class DbKeeper implements Keeper {
     // ── the bridge built by hand ── (and whether the village has works, with what I carry in my hands: asked once as
     // the game begins; a database without them answers nothing, and nothing of them is shown)
     if (this.read && !this.shut) void this.ask("town_works_read");
+    // ── the lamp relay ── (and whether the farm and the forest have lamps, with the flame I bear: asked once as the
+    // game begins; a database without them answers nothing, and nothing of them is shown)
+    if (this.read && !this.shut) void this.ask("town_lamps_read");
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
@@ -822,6 +852,8 @@ export class DbKeeper implements Keeper {
     }
     // ── the bridge built by hand ── (the works, told when they are asked for and with every deed of theirs)
     if (a.works && typeof a.works === "object") { const works = worksOf(a.works); if (works) this.works_ = works; }
+    // ── the lamp relay ── (the lamps, told when they are asked for and with every deed of theirs)
+    if (a.lamps && typeof a.lamps === "object") { const lamps = lampsOf(a.lamps); if (lamps) this.lamps_ = lamps; }
     if ("deal" in a) this.dealt(a.deal as (KeptDeal & { end?: string | null }) | null, !!a.purse);
     this.tell();
   }
@@ -896,6 +928,8 @@ export class DbKeeper implements Keeper {
     }
     // ── the bridge built by hand ── (a stone was handed to me, or one was laid: asked for wherever I am; not of a database with no works)
     if (what === "works") { if (this.works_) void this.ask("town_works_read"); return; }
+    // ── the lamp relay ── (a flame was handed to me, or a post was lit: asked for wherever I am; not of a database with no lamps)
+    if (what === "lamps") { if (this.lamps_) void this.ask("town_lamps_read"); return; }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
     if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
     if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what);
@@ -915,6 +949,7 @@ export class DbKeeper implements Keeper {
       : what === "ground" ? this.ask("town_ground")
       : what === "shop" ? this.ask("town_shop")
       : what === "works" ? this.ask("town_works_read")
+      : what === "lamps" ? this.ask("town_lamps_read")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -1492,6 +1527,23 @@ export class DbKeeper implements Keeper {
     return did;
   }
   stoneDrop() { return this.deed("town_stone_drop"); }
+
+  // ── the lamp relay ──
+  lamps(): LampsTold | null { return this.lamps_; }
+  async lampsLook() { if (this.lamps_) await this.ask("town_lamps_read"); }
+  flameTake(map: LampMap, at: [number, number]) { return this.deed<{ until: number }>("town_flame_take", { p_map: map, p_x: at[0], p_y: at[1] }); }
+  async flamePass(to: string): Promise<Did<{ until: number }>> {
+    const did = await this.deed<{ until: number }>("town_flame_pass", { p_to: to });
+    // (whoever took it reads the lamps again, and finds the flame in their hands)
+    if (did.ok) this.onDeed?.("lamps", to);
+    return did;
+  }
+  async lampLight(map: LampMap, post: number, at: [number, number]): Promise<Did<{ n: number; of: number; full: boolean }>> {
+    const did = await this.deed<{ n: number; of: number; full: boolean }>("town_lamp_light", { p_map: map, p_post: post, p_x: at[0], p_y: at[1] });
+    // (a post lit is told to the room: every page reads the lamps again, and the lamp is lit on it)
+    if (did.ok) this.onDeed?.("lamps");
+    return did;
+  }
 
   /**
    * A go at a board, told as the page saw it end (v166's `town_try`). The database writes down the deeds that come

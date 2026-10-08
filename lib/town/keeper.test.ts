@@ -44,8 +44,9 @@ describe("the database's keeper", () => {
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
     // whether the chest in the plaza is a storage box, with what I keep in it; whether a bag can be put in order;
     // whether things can be dropped on the ground, with what lies about; whether the village has works, with what I
-    // carry in my hands; and everybody's rank at the well, for the names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_well_ranks", "town_work"]);
+    // carry in my hands; whether the farm and the forest have lamps, with the flame I bear; and everybody's rank at
+    // the well, for the names over heads)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -71,14 +72,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(12);
+    expect(db.asked).toHaveLength(13);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -553,7 +554,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_works_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_works_read" || fn === "town_lamps_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);
@@ -692,6 +693,90 @@ describe("the database's keeper", () => {
     await settle();
     expect(await away).toEqual({ ok: false, why: "away" });
     expect(o.works()).toBeNull();
+    o.close();
+  });
+
+  // ── the lamp relay ── (lib/town/lamps; v163)
+  it("keeps the lamps as it is told them, tells the taker of a flame and everybody of every post lit, and knows of none where the database has none", async () => {
+    const map = (lit: number[], by: string[] = [], full = 0) => ({ lit: lit.map((post) => ({ post, at: NOW, hands: by.map((id) => ({ id, name: id })) })), lighters: by.map((id) => ({ id, name: id })), full });
+    let told: unknown = { night: 20_734, maps: { farm: map([2]), forest: map([]) }, flame: null };
+    const sent: Array<[string, Record<string, unknown>]> = [], nudges: Array<[string, string | undefined]> = [];
+    const answer = (more: Record<string, unknown> = {}) => ({ now: NOW, purse: purse(), lamps: told, ...more });
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_lamps_read: () => ({ now: NOW, lamps: told }),
+      town_flame_take: (a) => { sent.push(["take", a]); told = { night: 20_734, maps: { farm: map([2]), forest: map([]) }, flame: { until: NOW + 5000, hands: 1 } }; return answer({ ok: true, until: NOW + 5000 }); },
+      town_flame_pass: (a) => { sent.push(["pass", a]); told = { night: 20_734, maps: { farm: map([2]), forest: map([]) }, flame: null }; return answer({ ok: true, until: NOW + 5000 }); },
+      town_lamp_light: (a) => {
+        sent.push(["light", a]);
+        if (a.p_post === 2) return answer({ ok: false, why: "lit" });
+        told = { night: 20_734, maps: { farm: map([2, Number(a.p_post)], ["them", "me"]), forest: map([]) }, flame: null };
+        return answer({ ok: true, n: 2, of: 12, full: false });
+      },
+    });
+    const k = new DbKeeper("me", db.ask);
+    k.onDeed = (what, to) => { nudges.push([what, to]); };
+    expect(k.lamps()).toBeNull();
+    await settle();
+    // asked for once as the game begins: the lamps are known before a fire is walked up to
+    expect(k.lamps()).toMatchObject({ night: 20_734, flame: null });
+    expect(k.lamps()?.maps.farm.lit.map((l) => l.post)).toEqual([2]);
+    // a flame taken: the map and the tile I stand on; the answer brings the moment it dies, and nobody else is told through the room
+    const take = k.flameTake("farm", [160, 24]);
+    await settle();
+    expect(await take).toMatchObject({ ok: true, until: NOW + 5000 });
+    expect(sent[0]).toEqual(["take", { p_map: "farm", p_x: 160, p_y: 24 }]);
+    expect(k.lamps()?.flame).toEqual({ until: NOW + 5000, hands: 1 });
+    expect(nudges).toEqual([]);
+    // handed on: to whom; whoever takes it is told through the room, and my hands are empty
+    const pass = k.flamePass("them");
+    await settle();
+    expect(await pass).toMatchObject({ ok: true });
+    expect(sent[1]).toEqual(["pass", { p_to: "them" }]);
+    expect(k.lamps()?.flame).toBeNull();
+    expect(nudges).toEqual([["lamps", "them"]]);
+    // a post lit: the map, the post and the tile; it is told to everybody, and what is kept has it lit with the hands its flame came by
+    const lit = k.lampLight("farm", 5, [175, 21]);
+    await settle();
+    expect(await lit).toMatchObject({ ok: true, n: 2, of: 12, full: false });
+    expect(sent[2]).toEqual(["light", { p_map: "farm", p_post: 5, p_x: 175, p_y: 21 }]);
+    expect(nudges).toEqual([["lamps", "them"], ["lamps", undefined]]);
+    expect(k.lamps()?.maps.farm).toMatchObject({ lit: [{ post: 2 }, { post: 5, hands: [{ id: "them", name: "them" }, { id: "me", name: "me" }] }], lighters: [{ id: "them", name: "them" }, { id: "me", name: "me" }] });
+    // a refusal is the rule's own word, and nobody is told of it
+    const again = k.lampLight("farm", 2, [150, 24]);
+    await settle();
+    expect(await again).toEqual({ ok: false, why: "lit" });
+    expect(nudges).toHaveLength(2);
+    // the room says the lamps changed (a flame handed to me, a post lit by somebody): asked for again, wherever I am
+    told = { night: 20_734, maps: { farm: map([2, 5, 7], ["them", "me"], 3), forest: map([]) }, flame: { until: NOW + 4000, hands: 2 } };
+    const before = db.asked.filter((fn) => fn === "town_lamps_read").length;
+    k.nudged("lamps");
+    await settle();
+    expect(db.asked.filter((fn) => fn === "town_lamps_read").length).toBe(before + 1);
+    expect(k.lamps()?.flame).toEqual({ until: NOW + 4000, hands: 2 });
+    expect(k.lamps()?.maps.farm.full).toBe(3);
+    // by day it is told as that: no night, nothing lit
+    told = { night: null, maps: { farm: map([], [], 3), forest: map([]) }, flame: null };
+    await k.lampsLook();
+    expect(k.lamps()).toEqual({ night: null, maps: { farm: { lit: [], lighters: [], full: 3 }, forest: { lit: [], lighters: [], full: 0 } }, flame: null });
+    k.close();
+
+    // a database that has no lamps yet answers nothing: nothing of them is shown, nothing is asked for when the room
+    // says so, and a flame asked for all the same could not be reached
+    const old = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const o = new DbKeeper("me", old.ask);
+    await settle();
+    expect(old.asked).toContain("town_lamps_read");
+    expect(o.lamps()).toBeNull();
+    const asked = old.asked.length;
+    o.nudged("lamps");
+    await o.lampsLook();
+    await settle();
+    expect(old.asked).toHaveLength(asked);
+    const away = o.flameTake("farm", [160, 24]);
+    await settle();
+    expect(await away).toEqual({ ok: false, why: "away" });
+    expect(o.lamps()).toBeNull();
     o.close();
   });
 
