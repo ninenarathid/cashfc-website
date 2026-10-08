@@ -584,6 +584,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [menuOpen, setMenuOpen] = useState(false);
   const [voiceTray, setVoiceTray] = useState(false);
   const menuBox = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { if (!menuOpen) settingsOpenRef.current = false; }, [menuOpen]);
   useEffect(() => {
     if (!menuOpen) return;
     const away = (e: PointerEvent) => { if (!menuBox.current?.contains(e.target as Node)) setMenuOpen(false); };
@@ -3780,12 +3781,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   // Phones and the tab bar: the map runs under the bar, the controls stay above it.
   // (the map over the site's header and tab bar, unless they were asked back: the browser's own fullscreen is one more step)
-  const covered = immersive || !bars;
+  const covered = immersive || (!bars && !!s);
   const tabbar = phone && !covered;
   const hudBottom = tabbar ? "calc(4.5rem + env(safe-area-inset-bottom) + 0.75rem)" : "calc(env(safe-area-inset-bottom) + 0.75rem)";
   const chatBottom = lift > 40 ? `${lift + 8}px` : hudBottom;
   // A button of the HUD's: a dark well in a wooden rim (./TownSkin), forty-eight pixels a side.
-  const hudBtn = "pressable tk tk-slot grid size-12 shrink-0 place-items-center text-read";
+  const hudBtn = "pressable tk tk-slot grid size-12 shrink-0 place-items-center text-read max-[22.49rem]:size-11";
   /** A button of the menu's, with its word under it. */
   const menuTile = (label: string, button: React.ReactNode) => (
     <span className="flex min-w-0 flex-col items-center gap-1 text-center text-[0.6875rem] leading-tight text-ink">{button}<span aria-hidden className="line-clamp-2 max-w-full">{label}</span></span>
@@ -3810,7 +3811,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           them), on the right the buttons. One row, so that the left gives way to the right and neither lies on the
           other (until 2026-10-08 each was placed by itself, and on a phone the clock lay under the wardrobe's button). */}
       <div className="pointer-events-none absolute inset-x-3 top-3 z-[35] flex items-start justify-between gap-1.5">
-       <div className="flex min-w-0 flex-col items-start gap-1.5 lg:flex-row lg:items-center">
+       <div className="flex min-w-0 flex-col items-start gap-1.5 sm:flex-row sm:items-center">
         {/* What I have: stamina, coins, and the meal I am at. Until 2026-10-09 these were two small numbers on the
             bag's button at the foot; stamina decides how hard every game is, so it is the first thing on the screen
             (the owner, of the new layout shown him: "ตามที่คุณแนะนำ ลงมือเลยครับ"). */}
@@ -3865,6 +3866,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
            </button>
            <div hidden={!menuOpen} data-town-menu-panel role="group" aria-label={w.th ? "เมนู" : "Menu"}
                 className="tk tk-window absolute right-0 top-full z-30 mt-2 w-[18rem] max-w-[calc(100vw-1.5rem)] p-4">
+             <div className="-m-1 max-h-[calc(100dvh-8rem)] overflow-y-auto p-1">
              <p className="mb-3 flex items-baseline gap-2 font-display text-ui font-semibold text-ink">Cash Town
                <span className="font-data text-label font-normal uppercase tracking-wider text-muted">{w.beta}</span>
                {testTopic && <span className="font-data text-label font-normal uppercase tracking-wider text-gold">dev</span>}
@@ -3921,6 +3923,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                        className="pressable tk tk-btn-wood flex min-h-11 items-center justify-center gap-2 px-4 font-display text-ui font-medium">
                  <TownIcon name="leave" size={18} />{w.leaveTown}
                </button>
+             </div>
              </div>
            </div>
          </div>
@@ -4243,7 +4246,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 <div className="flex w-full flex-col gap-1">
                   {chatNote && <div role="status" className="tk tk-plate w-fit px-3 py-1 text-label text-gold">{chatNote}</div>}
                   {phone && !chatOpen ? (
-                    <div className="pointer-events-auto relative flex w-fit items-end gap-1.5">
+                    <div className="pointer-events-auto relative flex w-fit items-end gap-1.5 max-[22.49rem]:gap-1">
                       <button type="button" onClick={openHistory}
                               aria-label={w.chat} className={hudBtn}><TownIcon name="chat" size={22} /></button>
                       {micPiece}
@@ -4286,7 +4289,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             {/* At the foot's right, under the right thumb, what is for doing: the thing in the hand, the lines of work,
                 the bag. (Until 2026-10-09 a column up the right edge, with the zoom, the emotes and the microphone
                 in it: on a short phone its buttons were squeezed to thirty-five pixels.) */}
-            <div data-foot-right className="flex items-end justify-end gap-1.5 [&>*]:pointer-events-auto">
+            <div data-foot-right className="flex items-end justify-end gap-1.5 max-[22.49rem]:gap-1 [&>*]:pointer-events-auto">
               {!wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || !!talk || testOpen)) && (
                 <>
                   {/* What is in the hand, changed without the bag: a phone's quick bar unfolds over this corner */}
@@ -4308,7 +4311,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                   {/* My bag: how many of its slots are taken (the coins and the stamina are at the top left now) */}
                   {game && (
                     <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"} aria-keyshortcuts="I"
-                            className="pressable tk tk-window grid size-14 shrink-0 place-items-center">
+                            className="pressable tk tk-window grid size-14 shrink-0 place-items-center max-[22.49rem]:size-[3.25rem]">
                       <TownIcon name="bag" size={30} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
                       <span aria-hidden data-bag-count className="absolute -bottom-1.5 -right-1.5 bg-[#1a0e06] px-1 py-0.5 font-data text-[0.625rem] font-semibold leading-none tabular-nums text-[#f7e7c9]">{purse.slots[0]}/{purse.slots[1]}</span>
                       {/* (its key, on a wide screen: I opens the bag and shuts it) */}

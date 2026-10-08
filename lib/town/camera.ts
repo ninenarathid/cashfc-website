@@ -79,7 +79,8 @@ export const START_DESK = 1.6;
 export const START_PHONE = 1.3;
 export function startScale(cw: number, ch: number): number {
   const fit = fitScale(cw, ch);
-  return Math.min(MAX_SCALE, Math.max(fit, narrow(cw, ch) ? START_PHONE : START_DESK));
+  // (never further out than the camera may go: a large monitor's limit is closer in than where a small one starts)
+  return Math.min(MAX_SCALE, Math.max(fit, minScale(cw, ch), narrow(cw, ch) ? START_PHONE : START_DESK));
 }
 
 export const clampScale = (s: number, cw: number, ch: number, b: Bounds = BOUNDS.town) => Math.min(MAX_SCALE, Math.max(minScale(cw, ch, b), s));
