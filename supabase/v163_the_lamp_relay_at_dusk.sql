@@ -1,8 +1,8 @@
 -- v163 — the lamp relay at dusk
 --
--- A DRAFT: it is not in supabase/ and has not run. Run it once in the Supabase
--- SQL editor, after v160 (the bridge built by hand), which it stands on.
--- Running it again is safe.
+-- Run it once in the Supabase SQL editor, after v160 (the bridge built by
+-- hand), which it stands on: its first statement stops it if v160 has not
+-- run. Running it again is safe.
 --
 -- The owner, 2026-10-08, of three games like the bucket line ("เอา 1 2 3"), and
 -- then of this one: "ส่งไฟจุดโคมตอนค่ำ เหลือไฟในมือ 5 วินาทีพอ ยิ่งจุดเยอะ แมพยิ่งสวย

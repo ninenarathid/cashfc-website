@@ -1,7 +1,8 @@
 -- v160 — the bridge built by hand, and the village's works
 --
--- A DRAFT: it is not in supabase/ and has not run. Run it once in the Supabase
--- SQL editor, after v159. Running it again is safe.
+-- Run it once in the Supabase SQL editor, after v166 (it stands on nothing
+-- later than v159; v161, v162 and v164 are other rounds' numbers and have not
+-- run). Running it again is safe.
 --
 -- The owner, 2026-10-08, of the bucket line that members stand in rows of four
 -- and five for: "สะพานจากมือชาวบ้าน สร้างได้เลย แต่จะเปิดใช้งานเมื่อ session ที่ทำ
