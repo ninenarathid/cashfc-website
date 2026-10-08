@@ -201,7 +201,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     try {
       const did = await keeper.fellDo({ tree: id, secs: 0, plain: true }, from, name);
       if (!did.ok) { say(did.why, id); return; }
-      sfx?.work("timber");
+      sfx?.wake(); sfx?.work("timber");
       fall(did.felled);
       // (a keepsake is told on a card; wood alone, in a word over the buttons)
       if (did.found.length) setCard({ did, out: null, ask: null, tile: from.join(","), at: Date.now() });
@@ -452,7 +452,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
 
   // The space bar puts the board up (while the board is up it is the board's).
   useEffect(() => {
-    if (!here || working || refused) return;
+    if (!here || working || refused || book) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
@@ -464,7 +464,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the tree offered is known by its number
-  }, [hereId, working, refused, begin]);
+  }, [hereId, working, refused, book, begin]);
 
   // (for scripts in `next dev`)
   useEffect(() => {
