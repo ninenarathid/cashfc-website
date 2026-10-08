@@ -186,7 +186,9 @@ function lightPicture(rgb: string, kind: "soft" | "ring" = "soft"): HTMLCanvasEl
   const g = c.getContext("2d");
   if (g) {
     const fill = g.createRadialGradient(64, 64, 0, 64, 64, 64);
-    const stops: Array<[number, number]> = kind === "ring" ? [[0, 1], [0.78, 1], [0.88, 0.7], [0.95, 0.3], [1, 0]] : [[0, 1], [0.22, 0.72], [0.5, 0.3], [0.78, 0.08], [1, 0]];
+    // (a lit post's ring: the whole of the day's colours through the rule's six tiles, which is 1 / EDGE of this picture's
+    // reach, and a soft edge of a little over half a tile beyond them; it was whole only to five tiles and a bit)
+    const stops: Array<[number, number]> = kind === "ring" ? [[0, 1], [1 / EDGE, 1], [0.96, 0.5], [1, 0]] : [[0, 1], [0.22, 0.72], [0.5, 0.3], [0.78, 0.08], [1, 0]];
     for (const [at, a] of stops) fill.addColorStop(at, `rgba(${rgb},${a})`);
     g.fillStyle = fill;
     g.fillRect(0, 0, 128, 128);
@@ -326,8 +328,11 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
   const lamps = keeper.lamps(), known = !!lamps;
   const now = keeper.now(), night = known ? nightOf(now) : null, fresh = night !== null && lamps?.night === night;
-  const flame = lamps?.flame ?? null, left = leftOf(flame, now), bearing = left > 0;
   const purse = keeper.purse(), hand = handOf(purse), tired = isSpent(purse, now), stone = !!keeper.works()?.carried;
+  // (Whoever keeps the game counts a tired lighter's flame good for the hold longer, so that a hold begun in time cannot
+  // fail. The page has to keep its button for as long: taken away at the flame's own end, the hold was cut off under
+  // the finger and no lighting was ever asked for.)
+  const flame = lamps?.flame ?? null, left = leftOf(flame, now), bearing = left > 0 || (!!flame && tired && now < flame.until + LAMPS.hold * 1000);
   const mine = place && lamps ? lamps.maps[place] : null;
   const litHere = fresh && mine ? mine.lit : [];
   const litKey = litHere.map((l) => l.post).join(",");
