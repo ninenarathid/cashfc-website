@@ -46,7 +46,11 @@ export function moveSlot(purse: Purse, from: number, to: number): Done<{ purse: 
     out[to] = { ...a };
     out[from] = b ? { ...b } : null;
   }
-  return { ok: true, purse: { ...purse, bag: out } };
+  // ── forging ── (the slot a tool was taken up from, lib/town/trade's `handAt`, goes where its thing goes: of two
+  // tools of a kind the one held is held still. Only a purse that remembers a slot has one written.)
+  const h = purse.handAt, joined = !!b && b.item === a.item && joins(a) && joins(b) && b.n < stack;
+  const at = !Number.isInteger(h) ? null : joined ? (h === from && !out[from] ? to : h) : h === from ? to : h === to ? from : h;
+  return { ok: true, purse: { ...purse, bag: out, ...(at !== null && at !== h ? { handAt: at } : {}) } };
 }
 
 /** Where a stack stands in a sorted bag: before another, after it, or beside it (two alike in every way). */
@@ -76,7 +80,9 @@ export function sortBag(purse: Purse): Purse {
     for (let left = n; left > 0; left -= stack) whole.push({ item, n: Math.min(stack, left) });
   }
   whole.sort(order);
-  return { ...purse, bag: purse.bag.map((_, i) => whole[i] ?? null) };
+  // ── forging ── (the slot a tool was taken up from goes where its thing goes, as in a move: the first stack like it)
+  const h = purse.handAt, taken = Number.isInteger(h) ? purse.bag[h as number] ?? null : null, at = taken ? whole.findIndex((x) => word(x) === word(taken)) : -1;
+  return { ...purse, bag: purse.bag.map((_, i) => whole[i] ?? null), ...(at >= 0 && at !== h ? { handAt: at } : {}) };
 }
 
 /**
