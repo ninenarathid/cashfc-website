@@ -228,7 +228,7 @@ What stays is skin where the key says so, whatever the vote says of its colour.
 
 ## The mountain, the cave, the bridge and the blacksmith (2026-10-08, a preview in `next dev`)
 
-Twenty-five calls, $0.56 of the $5 the step was given (the budget is 35 since that day). Prompts in `prompts/scenery`; three sets: the town's own, `--set mountain`, `--set cave` (`public/town/mountain.json`, `cave.json`: fetched only by whoever goes there, components/town/mountain-art's `loadMore`).
+Twenty-four calls, $0.45 of the $5 the step was given (the budget is 35 since that day). Prompts in `prompts/scenery`; three sets: the town's own, `--set mountain`, `--set cave` (`public/town/mountain.json`, `cave.json`: fetched only by whoever goes there, components/town/mountain-art's `loadMore`).
 
 - **`scene-bridge-2`** ("whole", a 3456×2304 canvas with the deck's sheet for its wood): the bridge whole, lying straight across the canvas ("not turned and not isometric … its far edge and its near edge two long straight horizontal lines"), built "in six equal spans" on "seven low piers of grey stone". **`scene-bridge-1`** is an edit of it, the bare frame on the same piers, stood where the first stands: the map draws so many spans of the whole one and the next of the frame, so one pair of pictures is every state. Where its floor and its ends are in the picture is in mountain-art.ts (`BRIDGE_ART`, measured with the scratch `measure.cjs` way: rows nearly full of pixels are the floor and the rails).
 - **`popoto-smith`** ("body", with the uncle's sheet for the size), **`talk-smith`** ("talk"), **`scene-forge`** (the forge, the notice board, a sign post).
