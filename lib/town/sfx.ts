@@ -42,10 +42,13 @@ export type WorkSound =
   | "stir" | "clang" | "cooked" | "odd" | "nothing" | "made" | "ladle" | "down" | "soak" | "scrub" | "squeak" | "clean"
   | "rustle" | "pluck" | "wrong" | "brush" | "bruise" | "shake" | "basket" | "thud"
   | "swish" | "netted" | "flit" | "chirp" | "cicada" | "drip" | "gust" | "lull"
-  | "crackle" | "sizzle" | "turn" | "charred";
+  | "crackle" | "sizzle" | "turn" | "charred"
+  // ── mining ── (a pick on stone, a rock giving way, a pick that will not bite, the crystal's ring, the lift, ore passed in a vein)
+  | "pickHit" | "rockBreak" | "clink" | "crystalRing" | "liftRun" | "veinGlint";
 export const WORK_SOUNDS: WorkSound[] = ["hoe", "knock", "sow", "water", "feed", "spray", "pick", "pull", "dip", "pour",
   "stir", "clang", "cooked", "odd", "nothing", "made", "ladle", "down", "soak", "scrub", "squeak", "clean",
-  "rustle", "pluck", "wrong", "brush", "bruise", "shake", "basket", "thud", "swish", "netted", "flit", "chirp", "cicada", "drip", "gust", "lull", "crackle", "sizzle", "turn", "charred"];
+  "rustle", "pluck", "wrong", "brush", "bruise", "shake", "basket", "thud", "swish", "netted", "flit", "chirp", "cicada", "drip", "gust", "lull", "crackle", "sizzle", "turn", "charred",
+  /* mining */ "pickHit", "rockBreak", "clink", "crystalRing", "liftRun", "veinGlint"];
 
 const KEY = "cashtown.sfx.off";
 /** Another's fishing: how loud it is beside them, as a share of one's own, and how many tiles off it is last heard. */
@@ -457,6 +460,46 @@ function makeWork(b: Bench, name: WorkSound, t: number) {
       // left a moment too long: a puff, and a note going down
       hiss(b, t, "lowpass", 1100, 360, 0.7, 0.3, 0.2, 0.02);
       tone(b, t + 0.06, "triangle", 293.66, 220, 0.24, 0.14, 0.01);
+      break;
+
+    /* ── mining ── */
+    case "pickHit":
+      // iron on stone: a hard bright tick, the stone's dull answer under it, and grit
+      tone(b, t, "square", 2300, 1500, 0.035, 0.16, 0.001);
+      tone(b, t, "triangle", 1150, 760, 0.07, 0.2, 0.001);
+      tone(b, t + 0.005, "sine", 210, 95, 0.1, 0.4, 0.002);
+      hiss(b, t + 0.01, "bandpass", 3200, 1500, 1.4, 0.09, 0.14, 0.003);
+      break;
+    case "rockBreak":
+      // the rock gives way: a deep knock, and its pieces tumbling down after
+      tone(b, t, "sine", 170, 52, 0.22, 0.6, 0.002);
+      hiss(b, t, "lowpass", 2400, 320, 0.8, 0.38, 0.34, 0.004);
+      for (const [i, at] of [0.09, 0.16, 0.25, 0.37].entries()) tone(b, t + at, "triangle", 300 - i * 45, 120, 0.06, 0.2 - i * 0.03, 0.002);
+      break;
+    case "clink":
+      // a pick that will not bite: it rings off, short and dull
+      tone(b, t, "triangle", 1650, 1560, 0.09, 0.2, 0.001);
+      tone(b, t, "sine", 2480, 2400, 0.05, 0.08, 0.001);
+      tone(b, t + 0.01, "sine", 140, 90, 0.06, 0.2, 0.002);
+      break;
+    case "crystalRing":
+      // the crystal breaks: a knock, then glass singing, a chord that hangs in the air
+      tone(b, t, "sine", 190, 60, 0.2, 0.5, 0.002);
+      for (const [i, hz] of [1318.5, 1568, 1975.5, 2637].entries()) bell(b, t + 0.06 + i * 0.07, hz, 0.14 - i * 0.02, 1.1);
+      hiss(b, t + 0.05, "highpass", 6200, 9000, 0.6, 0.5, 0.06, 0.02);
+      break;
+    case "liftRun":
+      // the lift: its brake let go, the chain running, and the cage settling with a bell
+      tone(b, t, "triangle", 160, 120, 0.08, 0.3, 0.002);
+      tone(b, t + 0.08, "sawtooth", 58, 74, 0.85, 0.2, 0.08, { hz: 19, by: 9 });
+      for (let i = 0; i < 9; i++) tone(b, t + 0.12 + i * 0.085, "square", 900 - (i % 3) * 110, 700, 0.02, 0.05, 0.001);
+      hiss(b, t + 0.1, "lowpass", 500, 260, 0.7, 0.8, 0.12, 0.05);
+      bell(b, t + 0.98, 783.99, 0.18, 0.5);
+      break;
+    case "veinGlint":
+      // ore laid bare: two small bright notes
+      bell(b, t, 1568, 0.13, 0.22);
+      bell(b, t + 0.07, 2093, 0.11, 0.3);
       break;
   }
 }

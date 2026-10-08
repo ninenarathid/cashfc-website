@@ -232,6 +232,9 @@ const SHEETS = [
   ["icons-ore-c", ["chipRuby", "chipSapphire", "chipAquamarine", "chipAmber", "chipTopaz", "chipEmerald"]],
   ["icons-ore-d", ["chipDiamond", "chipOnyx", "gemDiamond", "gemOnyx", "smithSocket", "smithBellows"]],
   ["icons-ore-e", ["gemRuby", "gemSapphire", "gemAquamarine", "gemAmber", "gemTopaz", "gemEmerald"]],
+  // ── mining ── (the line's three gifts: a miner's lamp, a guiding bat, a miner's sack; and what a vein's face shows:
+  // ore that glints, a gem's crystals, a hard knot)
+  ["icons-mining-a", ["charmMinerLamp", "famBat", "thingSack", "veinOre", "veinCrystal", "veinKnot"]],
 ];
 
 const pieces = [];
