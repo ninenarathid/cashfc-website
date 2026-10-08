@@ -22,7 +22,7 @@ import { supabaseLike, migration } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
 
 /** The last file of the town's that has run (town-bench.mjs has the same number). */
-export const RAN = 159;
+export const RAN = 165;
 const here = (name) => new URL(`./${name}`, import.meta.url);
 const SNAP = here(`snap-v${RAN}.tar`);
 const extra = `${KUDOS}
@@ -36,7 +36,8 @@ alter table public.gallery_likes enable row level security;
 /** Built from nothing: every file replayed. */
 async function build() {
   const t = await supabaseLike({ extra });
-  // (by number, but v130 after v131, as it ran; v136 is the party finder's and v157 the members' contacts'; a number that was never a file is passed over)
+  // (by number, but v130 after v131, as it ran; v136 is the party finder's and v157 the members' contacts'; a number that was never a file is passed over:
+  // v160 to v164 are other rounds' numbers, not files yet when v165 ran, and none of them and v165 stands on the other)
   const numbers = Array.from({ length: RAN - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157);
   numbers.splice(numbers.indexOf(131) + 1, 0, 130);
   for (const n of numbers) { let sql = null; try { sql = migration(n); } catch { /* never a file */ } if (sql) await t.run(sql, `v${n}`); }
