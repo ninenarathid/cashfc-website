@@ -78,7 +78,7 @@ describe("mining: when, and what a place is", () => {
     expect(elementOf(SALT, 7, 20734)).toBe(elementOf(SALT, 7, 20734));
     expect(new Set(Array.from({ length: 30 }, (_, i) => elementOf("another word", 7, i)).map((e, i) => e === elementOf(SALT, 7, i))).has(false)).toBe(true);
   });
-  it("what a rock holds: stone always, fragments four times in ten in the cave and one in five on the foot, a vein eight in a hundred, a gem's one vein in four", () => {
+  it("what a rock holds: stone always, fragments four times in ten in the cave and one in five on the foot, a vein eight in a hundred, a gem's one vein in twenty", () => {
     let shards = 0, veins = 0, gems = 0, two = 0, all = 0, foot = 0;
     for (let turn = 0; turn < 3000; turn++) for (let rock = 0; rock < 20; rock++) {
       const h = holdsOf(SALT, 7, rock, turn, NONE);
@@ -90,7 +90,7 @@ describe("mining: when, and what a place is", () => {
       if (m.kind === "stone" && m.shards) { foot++; expect(m.shards).toBe(1); }
     }
     expect(veins / all).toBeGreaterThan(0.07); expect(veins / all).toBeLessThan(0.09);
-    expect(gems / veins).toBeGreaterThan(0.21); expect(gems / veins).toBeLessThan(0.29);
+    expect(gems / veins).toBeGreaterThan(0.03); expect(gems / veins).toBeLessThan(0.07);
     // (fragments are rolled apart from the vein: of the rocks that are no vein, four in ten)
     expect(shards / (all - veins)).toBeGreaterThan(0.38); expect(shards / (all - veins)).toBeLessThan(0.42);
     expect(two / shards).toBeGreaterThan(0.45); expect(two / shards).toBeLessThan(0.55);

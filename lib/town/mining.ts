@@ -46,8 +46,11 @@ export const MINING = {
   stone: 1,
   /** On the mountain's foot: how likely a rock leaves fragments too, and how many (least, most). */
   foot: { shard: 0.2, n: [1, 1] as [number, number] },
-  /** In the cave: the same; how likely a rock hides a vein, and a vein is a gem's. */
-  cave: { shard: 0.4, n: [1, 2] as [number, number], vein: 0.08, gem: 0.25 },
+  /**
+   * In the cave: the same; how likely a rock hides a vein, and a vein is a gem's. **A gem's vein is rare** (the owner,
+   * 2026-10-09: a gem is to be a rare thing that members sell each other dear; it was one vein in four).
+   */
+  cave: { shard: 0.4, n: [1, 2] as [number, number], vein: 0.08, gem: 0.05 },
   /** Light and dark are a floor's element so many times as often as each of the other six. */
   rare: 0.5,
   /** Rocks so near each other "touch" (a king's move of so many tiles): for a rock loosened, and for one that breaks with its neighbour. */
