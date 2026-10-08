@@ -7,7 +7,7 @@ import {
   type BaitId, type CropId, type FishId, type ItemId, type ItemKind,
 } from "@/lib/town/items";
 import { PUT_ON, WATER } from "@/lib/town/farm";
-import { ALL_GIFTS, giftOf, giftsOf, type CharmId } from "@/lib/town/gifts";
+import { ALL_GIFTS, GIFTS, giftOf, giftsOf, type CharmId } from "@/lib/town/gifts";
 import { LINES, LINE_IDS, rankOf } from "@/lib/town/lines";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE, isRod } from "@/lib/town/gear";
 import { HINT_IDS, HINT_PRICE, hintOf } from "@/lib/town/hints";
