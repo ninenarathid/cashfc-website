@@ -97,9 +97,10 @@ export interface Doing {
   tool?: string;
   // ── felling ──
   /**
-   * What they do at a tree of the mountain's (lib/town/trees): "f" and the tree's number while their board is up at
-   * it, "b" and its number while they brace its trunk for somebody, "" when neither; missing from a browser older
-   * than that.
+   * What they do at a tree of the mountain's (lib/town/trees' `fellWord`): "f" and the tree's number while their
+   * board is up at it, then every other tree their go holds, each after a dot ("f12", "f12.13.15"); "b" and its
+   * number while they brace its trunk for somebody; "" when neither; missing from a browser older than that. Every
+   * page reads from it which trees are held and by whom.
    */
   fell?: string;
   // ── end: felling ──
@@ -207,7 +208,8 @@ function readDoing(p: Record<string, unknown>): Partial<Doing> {
   // (forging)
   if (typeof p.tool === "string" && (p.tool === "" || TOOL_WORD.test(p.tool))) d.tool = p.tool;
   // ── felling ──
-  if (typeof p.fell === "string" && /^([fb]\d{1,4})?$/.test(p.fell)) d.fell = p.fell;
+  // (the shape of lib/town/trees' `fellWord`, kept here too: that file is the mountain's, and no part of a page without it)
+  if (typeof p.fell === "string" && /^(?:f\d{1,4}(?:\.\d{1,4}){0,3}|b\d{1,4})?$/.test(p.fell)) d.fell = p.fell;
   // ── end: felling ──
   return d;
 }

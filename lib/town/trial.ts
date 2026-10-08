@@ -1424,9 +1424,9 @@ export class Trial {
   private grove(): Grove { return treesTidied(groveOf(this.read<unknown>(TREES_AT, newGrove, (v) => !!v && typeof v === "object")), this.now()); }
   /** The trees as I am told them: every one that is not grown, and those half cut. */
   trees(): TreesTold { return treesTold(this.grove(), this.purse(), this.now()); }
-  /** Walk up to a tree with an axe in the hand: the game that fells it, or the state that refuses it. The go is mine from now, whatever anybody does to its trees meanwhile. */
+  /** Walk up to a tree with an axe in the hand: the game that fells it, or the state that refuses it. Its trees are held for me from now, for as long as a go is held: nobody else's board or press takes on them meanwhile. */
   fellBegin(tree: number, at: [number, number]): { ok: true; trees: number[]; ask: FellingAsk; elder: boolean } | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
-    const grove = this.grove(), did = fellBegin(this.purse(), grove, tree, at, this.now(), this.fellSeed ?? Math.floor(Math.random() * 2 ** 31));
+    const grove = this.grove(), did = fellBegin(this.purse(), grove, tree, at, this.now(), this.fellSeed ?? Math.floor(Math.random() * 2 ** 31), undefined, this.id);
     if (did.ok) this.write(TREES_AT, fellOpened(grove, this.id, did.trees, this.now()));
     return did;
   }

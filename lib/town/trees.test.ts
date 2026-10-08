@@ -8,7 +8,7 @@ import { held, newPurse, type Purse, type Stack } from "./trade";
 import {
   KEEPSAKES, KEEPSAKE_IDS, TREES, ageOf, bearsOf, begin, braceGo, bracePay, bringHome, chopsFor, farFrom, fell, fellingOf, girthOf, groupOf, groveOf, grownAt, keepsakeFor, keepsakesOf, kindOf, lookAt, lookOf, mostTimber, newGrove, opened,
   rootBack, rootable, tidied, timberFor, toldOf, treeOf, wantsOf, woodOf,
-  type FellLuck, type Grove, type Standing,
+  type FellLuck, type Grove, type Standing, fellWord, heldBy, readFellWord,
 } from "./trees";
 
 const MIN = 60_000, HOUR = 3_600_000;
@@ -220,29 +220,43 @@ describe("a tree felled", () => {
     expect(alone.ok && alone.felled.map((f) => f.id)).toEqual([0]);
   });
 
-  it("a go is one's own from the moment its board is open: a tree somebody else fells meanwhile still pays, and stays their stump", () => {
+  it("one go on a tree at a time: while a board's hold lasts nobody else's board or press takes on its tree, and a hold that lapsed frees it", () => {
     const p = woodcutter(), open = opened(newGrove(), "me", [3], NOON);
     expect(open.goes).toEqual({ me: { trees: [3], at: NOON } });
-    // she fells it the plain way five seconds on
-    const hers = fell(woodcutter(), open, "her", { tree: 3, secs: 0, plain: true }, BESIDE[3], NOON + 5000, lucky(1), WOOD);
-    if (!hers.ok) throw new Error(hers.why);
-    expect(hers.grove.down[3]).toEqual({ at: NOON + 5000, by: "her" });
-    expect(hers.grove.goes).toEqual({ me: { trees: [3], at: NOON } });
-    // my go goes on, and pays me
-    const mine = fell(p, hers.grove, "me", { tree: 3, through: true, misses: 0, secs: 6 }, BESIDE[3], NOON + 9000, lucky(1), WOOD);
+    expect(heldBy(open, 3, NOON + 5000)).toBe("me");
+    expect(heldBy(open, 3, NOON + 5000, "me")).toBeNull();
+    // five seconds on she is refused, the plain way, her own board and an axe's one chop alike; I am not
+    expect(fell(woodcutter(), open, "her", { tree: 3, secs: 0, plain: true }, BESIDE[3], NOON + 5000, lucky(1), WOOD)).toEqual({ ok: false, why: "held" });
+    expect(begin(woodcutter(), open, 3, BESIDE[3], NOON + 5000, 1, WOOD, "her")).toEqual({ ok: false, why: "held" });
+    expect(begin(p, open, 3, BESIDE[3], NOON + 5000, 1, WOOD, "me")).toMatchObject({ ok: true, trees: [3] });
+    // my go goes on, and pays me alone: the stump is mine
+    const mine = fell(p, open, "me", { tree: 3, through: true, misses: 0, secs: 6 }, BESIDE[3], NOON + 9000, lucky(1), WOOD);
     expect(mine).toMatchObject({ ok: true, through: true, felled: [{ id: 3, timber: 2 }], got: [["log", 2], ["timber", 2]] });
     if (!mine.ok) return;
-    expect(mine.grove.down[3]).toEqual({ at: NOON + 5000, by: "her" });
+    expect(mine.grove.down[3]).toEqual({ at: NOON + 9000, by: "me" });
     expect(mine.grove.goes).toBeUndefined();
     expect(staminaOf(mine.purse, NOON + 9000)).toBe(STAMINA.max - TREES.cost);
     // once only: the go is over, and the tree is a stump to me as to anybody
     expect(fell(mine.purse, mine.grove, "me", { tree: 3, through: true, misses: 0, secs: 6 }, BESIDE[3], NOON + 12000, lucky(1), WOOD)).toEqual({ ok: false, why: "stump" });
-    // a tree that was down before my board was open is no part of my go; nor is a go held past its minutes
+    // a tree that was down before my board was open is no part of my go
     const before: Grove = { down: { 3: { at: NOON - 1000, by: "her" } }, half: [], goes: { me: { trees: [3], at: NOON } } };
     expect(fell(p, before, "me", { tree: 3, through: true, misses: 0, secs: 6 }, BESIDE[3], NOON + 9000, lucky(1), WOOD)).toEqual({ ok: false, why: "stump" });
-    const late = NOON + (TREES.go.mins + 1) * MIN;
-    expect(fell(p, { ...hers.grove, down: { 3: { at: late - 1000, by: "her" } } }, "me", { tree: 3, through: true, misses: 0, secs: 6 }, BESIDE[3], late, lucky(1), WOOD)).toEqual({ ok: false, why: "stump" });
-    expect(tidied(hers.grove, late, WOOD).goes).toBeUndefined();
+    // a hold that has lapsed frees the tree: she fells it, and my go, ended after that, is paid for nothing (the tree pays once)
+    const late = NOON + (TREES.go.secs + 1) * 1000;
+    expect(heldBy(open, 3, late)).toBeNull();
+    const hers = fell(woodcutter(), open, "her", { tree: 3, secs: 0, plain: true }, BESIDE[3], late, lucky(1), WOOD);
+    if (!hers.ok) throw new Error(hers.why);
+    expect(hers.grove.down[3]).toEqual({ at: late, by: "her" });
+    expect(fell(p, hers.grove, "me", { tree: 3, through: true, misses: 0, secs: 6 }, BESIDE[3], late + 1000, lucky(1), WOOD)).toEqual({ ok: false, why: "stump" });
+    // ...and with the tree still standing my late go is paid as any go is
+    expect(fell(p, open, "me", { tree: 3, through: true, misses: 0, secs: 6 }, BESIDE[3], late, lucky(1), WOOD)).toMatchObject({ ok: true, felled: [{ id: 3, timber: 2 }] });
+    expect(tidied(open, late, WOOD).goes).toBeUndefined();
+    // what the room is told of a go, and read back: the tree walked up to, and every tree the go holds
+    expect(fellWord([12])).toBe("f12");
+    expect(fellWord([12, 13, 15])).toBe("f12.13.15");
+    expect(readFellWord("f12.13.15")).toEqual({ kind: "f", tree: 12, trees: [12, 13, 15] });
+    expect(readFellWord("b7")).toEqual({ kind: "b", tree: 7, trees: [7] });
+    for (const bad of ["", "f", "x3", "b1.2", "f1.", "f1.2.3.4.5", null, 3]) expect(readFellWord(bad)).toBeNull();
     // what is kept is made sound, with its goes
     expect(groveOf({ down: {}, half: [], goes: { me: { trees: [3], at: NOON, braced: "her" }, bad: { trees: [], at: NOON }, self: { trees: [1], at: NOON, braced: "self" } } }).goes).toEqual({ me: { trees: [3], at: NOON, braced: "her" }, self: { trees: [1], at: NOON } });
   });
@@ -316,8 +330,9 @@ describe("the echo axe (felling's first rank): one game for the trees standing c
     // and it is held to the one trunk's chops: sixteen were not chopped in a second
     expect(fell(p, newGrove(), "me", { tree: 0, through: true, misses: 0, secs: 0.9 }, BESIDE[0], NOON, lucky(3), WOOD)).toEqual({ ok: false, why: "none" });
     // of a go whose board was opened, the trees are those it was opened for: one that grew meanwhile is no part of it
-    const open = opened({ down: { 1: { at: NOON - 39 * MIN, by: "x" } }, half: [] }, "me", [0, 2], NOON);
-    const held = fell(p, open, "me", { tree: 0, through: true, misses: 0, secs: 14 }, BESIDE[0], NOON + 2 * MIN, lucky(3), WOOD);
+    // (it is grown again twenty seconds after the board is opened, and the go ends thirty seconds after: within its hold)
+    const open = opened({ down: { 1: { at: NOON - 40 * MIN + 20_000, by: "x" } }, half: [] }, "me", [0, 2], NOON);
+    const held = fell(p, open, "me", { tree: 0, through: true, misses: 0, secs: 14 }, BESIDE[0], NOON + 30_000, lucky(3), WOOD);
     expect(held.ok && held.felled.map((f) => f.id)).toEqual([0, 2]);
   });
 });
@@ -506,7 +521,7 @@ describe("a friend braces the trunk", () => {
     expect(braceGo(open, "me", "me", [31, 31], NOON + 1000, WOOD)).toEqual({ ok: false, why: "none" });
     expect(braceGo(open, "her", "nobody", [31, 31], NOON + 1000, WOOD)).toEqual({ ok: false, why: "none" });
     expect(braceGo(open, "her", "me", [33, 30], NOON + 1000, WOOD)).toEqual({ ok: false, why: "far" });
-    expect(braceGo(open, "her", "me", [32, 31], NOON + (TREES.go.mins + 1) * MIN, WOOD)).toEqual({ ok: false, why: "none" });
+    expect(braceGo(open, "her", "me", [32, 31], NOON + (TREES.go.secs + 1) * 1000, WOOD)).toEqual({ ok: false, why: "none" });
     const braced = braceGo(open, "her", "me", [32, 31], NOON + 1000, WOOD);
     expect(braced).toMatchObject({ ok: true, tree: 3 });
     if (!braced.ok) return;

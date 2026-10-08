@@ -62,8 +62,18 @@ export const TREES = {
   elderChops: 24, elderPace: 1, elderSpent: 1.6, elderFamily: "noise" as Family,
   /** The ancient tree: its number among the trees, the plus an axe has to have, and what it gives. */
   elder: { id: 900, plus: FORGE.top, timber: 15, resin: 3 },
-  /** A go is one's own for so many minutes from the moment its board is open: what somebody else fells of it meanwhile still pays. */
-  go: { mins: 10 },
+  /**
+   * **One go on a tree at a time** (2026-10-09: wood is the scarce thing). From the moment a board is open its trees
+   * are held for whoever opened it, for so many seconds: nobody else's board or plain press takes on any of them
+   * meanwhile (they are told who fells it; the brace stays theirs to offer), so nobody is robbed mid-go and no tree
+   * pays two people. A hold that has lapsed frees its trees, and a go that ends after it is paid only for the trees
+   * still standing: nobody keeps a tree from the others by opening a board and walking away.
+   * How long: the longest a go can be played is its bar's time, what it begins with and what every chop puts back,
+   * at the slowest the bar can run ((1.8 + 0.36 a chop) seconds, over the pace): about 7 s on a stout pine with a
+   * plain axe and 10 with its trunk braced, and at the very most about 20 (the ancient tree, the slowest bar there
+   * can be, braced). With room to read the board before the first chop and for the answer to come back: 45.
+   */
+  go: { secs: 45 },
   /** A friend braces a trunk from within so many tiles of it; and has so many logs for it, their own. */
   brace: { reach: 2, logs: 1 },
   /** A keepsake falls out of one tree in so many. */
@@ -177,7 +187,26 @@ export function ageOf(grove: Grove, t: Standing, now: number): TreeAge {
 }
 export const isGrown = (grove: Grove, t: Standing, now: number): boolean => ageOf(grove, t, now) === 3;
 /** Whether a go is still its owner's: opened no longer ago than a go is held. */
-const goHolds = (go: Go | undefined, now: number): go is Go => !!go && now - go.at <= TREES.go.mins * MIN && now >= go.at;
+const goHolds = (go: Go | undefined, now: number): go is Go => !!go && now - go.at <= TREES.go.secs * 1000 && now >= go.at;
+/** Whose go holds a tree now, other than `me`'s own: whoever has an open go, not lapsed, that the tree is one of. Null when nobody's. */
+export function heldBy(grove: Grove, tree: number, now: number, me?: string): string | null {
+  for (const [who, go] of Object.entries(grove.goes ?? {})) if (who !== me && goHolds(go, now) && go.trees.includes(tree)) return who;
+  return null;
+}
+/**
+ * What the room is told of what somebody does at a tree (lib/town/room's `Doing.fell`): `f` and the tree their board
+ * is up at, then every other tree their go holds (an echoing axe's), each after a dot; `b` and the tree whose trunk
+ * they brace; "" for neither. Every page reads from it which trees are held and by whom, before anybody presses.
+ */
+export const fellWord = (trees: readonly number[]): string => (trees.length ? `f${trees.slice(0, 4).join(".")}` : "");
+/** (The same shape is what lib/town/room lets through: change the two together.) */
+export const FELL_WORD = /^(?:f\d{1,4}(?:\.\d{1,4}){0,3}|b\d{1,4})?$/;
+/** The word read back: a board (`f`) with its first tree and all the trees it holds, or a brace (`b`) with its tree. Null for no word. */
+export function readFellWord(word: unknown): { kind: "f" | "b"; tree: number; trees: number[] } | null {
+  if (typeof word !== "string" || !word || !FELL_WORD.test(word)) return null;
+  const trees = word.slice(1).split(".").map(Number);
+  return { kind: word[0] as "f" | "b", tree: trees[0], trees };
+}
 /** A grove with what has grown again forgotten, and the goes that are held no longer: only what still counts is kept. */
 export function tidied(grove: Grove, now: number, wood: readonly Standing[] = WOOD): Grove {
   const down = Object.fromEntries(Object.entries(grove.down).filter(([id, f]) => { const t = treeOf(Number(id), wood); return !!t && now < grownAt(t, f.at); }));
@@ -282,7 +311,7 @@ export function bringHome<P extends Purse>(purse: P, things: ReadonlyArray<reado
 /* ── a game, put together ───────────────────────────────────────────────── */
 
 /** Why a tree is not felled: it is not grown; this axe will not bite (a tree of a better tier); the ancient tree asks more of an axe; it is too far. */
-export type TreeRefusal = "stump" | "bite" | "plus" | "far";
+export type TreeRefusal = "stump" | "bite" | "plus" | "far" | "held";
 type No = { ok: false; why: TreeRefusal | "none" | "tool" | "full" | "spent" };
 const no = (why: No["why"]): No => ({ ok: false, why });
 
@@ -312,9 +341,10 @@ export function chopsFor(axe: Stack, t: Standing, half: boolean): number {
  * of the axe's own reach as stand near the first, the nearest first (a tie: the lower number). The ancient tree is
  * felled by itself and never among others.
  */
-export function groupOf(purse: Purse, grove: Grove, first: Standing, axe: Stack, now: number, wood: readonly Standing[] = WOOD): Standing[] {
+export function groupOf(purse: Purse, grove: Grove, first: Standing, axe: Stack, now: number, wood: readonly Standing[] = WOOD, me?: string): Standing[] {
   if (first.elder || !works(purse, "charmEchoAxe")) return [first];
-  const more = wood.filter((t) => t.id !== first.id && !t.elder && !bites(axe, t) && apart(t, first) <= TREES.echo.reach && isGrown(grove, t, now))
+  // (never a tree somebody else's go holds)
+  const more = wood.filter((t) => t.id !== first.id && !t.elder && !bites(axe, t) && apart(t, first) <= TREES.echo.reach && isGrown(grove, t, now) && !heldBy(grove, t.id, now, me))
     .sort((a, b) => apart(a, first) - apart(b, first) || a.id - b.id);
   return [first, ...more.slice(0, TREES.echo.trees - 1)];
 }
@@ -351,18 +381,20 @@ export interface Begun { trees: number[]; ask: FellingAsk; elder: boolean }
 /**
  * Walk up to a tree with an axe in the hand: whether it can be felled now, and the game that fells it. `seed`: a
  * number of chance, from which the trunk is made. Refused: no axe in the hand; too far; an axe that will not bite;
- * the ancient tree to an axe that is not at the top; a tree that is not grown; a bag with no room for what it may give.
+ * the ancient tree to an axe that is not at the top; **a tree somebody else's go holds** (`me`: whose go this would
+ * be; their own never refuses them); a tree that is not grown; a bag with no room for what it may give.
  * (Whoever keeps the game writes the go down as open, with `opened`, when a board is put up for it.)
  */
-export function begin(purse: Purse, grove: Grove, id: number, at: readonly [number, number], now: number, seed: number, wood: readonly Standing[] = WOOD): ({ ok: true } & Begun) | No {
+export function begin(purse: Purse, grove: Grove, id: number, at: readonly [number, number], now: number, seed: number, wood: readonly Standing[] = WOOD, me?: string): ({ ok: true } & Begun) | No {
   const t = treeOf(id, wood), axe = axeOf(purse);
   if (!t) return no("none");
   if (!axe) return no("tool");
   if (farFrom(t, at) > TREES.reach) return no("far");
   const refused = bites(axe, t);
   if (refused) return no(refused);
+  if (heldBy(grove, t.id, now, me)) return no("held");
   if (!isGrown(grove, t, now)) return no("stump");
-  const trees = groupOf(purse, grove, t, axe, now, wood);
+  const trees = groupOf(purse, grove, t, axe, now, wood, me);
   if (!hasRoom(purse, axe, trees)) return no("full");
   const trunk = trunkOf(axe, grove, trees), knobs = girthKnobs(trunk.t), spent = isSpent(purse, now);
   return {
@@ -376,7 +408,7 @@ export function begin(purse: Purse, grove: Grove, id: number, at: readonly [numb
     },
   };
 }
-/** A board is put up for a go: it is its owner's from now, whatever anybody else does to its trees meanwhile (one go a member: an older one is forgotten). */
+/** A board is put up for a go: its trees are held for its owner from now, for as long as a go is held (one go a member: an older one is forgotten). */
 export function opened(grove: Grove, me: string, trees: readonly number[], now: number): Grove {
   return { ...grove, goes: { ...(grove.goes ?? {}), [me]: { trees: [...trees], at: now } } };
 }
@@ -444,10 +476,12 @@ function summed(all: Array<Array<[ItemId, number]>>): Array<[ItemId, number]> {
  * trunk cut through gives each tree its own by the misses, and a go that says it was played faster than a hand can
  * chop is no go. The plain way fells the one tree walked up to, for its logs alone.
  *
- * The trees of a go are those its board was opened for (`opened`), while it holds: each still grown, or felled
- * since by somebody else, whose stump it stays, and who takes nothing from whoever was at it. Of a go that was
- * never written down they are worked out afresh, and have to be grown. Only the ancient tree stands when its go is
- * lost: then nothing changes. Every tree that falls is a stump for everybody from now; the stamina is paid a tree.
+ * **One go on a tree at a time**: a tree that somebody else's open go holds is refused to everybody else, board,
+ * plain press and the axe's one chop alike (`held`), so nobody is robbed mid-go and no tree pays twice. The trees of
+ * a go are those its board was opened for (`opened`) while it holds; of a go whose hold has lapsed, or that was
+ * never written down, they are worked out afresh; either way only those still standing are felled and paid. Only
+ * the ancient tree stands when its go is lost: then nothing changes. Every tree that falls is a stump for everybody
+ * from now; the stamina is paid a tree.
  * `luck`: a set of numbers of chance for each tree, in their order. `who`: the name the book of the pines writes
  * beside what was never found before.
  */
@@ -458,6 +492,8 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
   if (farFrom(first, at) > TREES.reach) return no("far");
   const refused = bites(axe, first);
   if (refused) return no(refused);
+  // (somebody else is at it: their go holds the tree)
+  if (heldBy(grove, first.id, now, me)) return no("held");
   let mine = purse;
   const one = !!went.one, plain = !one && !!went.plain, board = !one && !plain;
   // the axe's one chop, and the plain way: the tree walked up to and nothing else, there and then (never the ancient tree)
@@ -470,12 +506,11 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
     if (!used.ok) return no(used.why);
     mine = used.purse;
   }
-  // the trees of the go: those its board was opened for, still grown or felled meanwhile by another; or worked out afresh
+  // the trees of the go: those its board was opened for while it holds, or worked out afresh; only those still standing
   const go = grove.goes?.[me], held = board && goHolds(go, now) && go.trees[0] === first.id ? go : null;
-  const theirs = (t: Standing): boolean => { const f = grove.down[t.id]; return !!held && !!f && f.by !== me && f.at >= held.at && now < grownAt(t, f.at); };
-  const trees = !board ? [first]
-    : held ? held.trees.map((id) => treeOf(id, wood)).filter((t): t is Standing => !!t && !bites(axe, t) && (isGrown(grove, t, now) || theirs(t)))
-    : groupOf(purse, grove, first, axe, now, wood).filter((t) => isGrown(grove, t, now));
+  const trees = (!board ? [first]
+    : held ? held.trees.map((id) => treeOf(id, wood)).filter((t): t is Standing => !!t && !bites(axe, t))
+    : groupOf(purse, grove, first, axe, now, wood, me)).filter((t) => isGrown(grove, t, now));
   if (!trees.length) return no("stump");
   const through = !board || !!went.through, misses = board ? Math.max(0, Math.floor(Number(went.misses) || 0)) : 0;
   if (board && through && !(Number(went.secs) + 0.05 >= leastSecs([trunkOf(axe, grove, trees).chops]))) return no("none");
@@ -521,8 +556,7 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
       mine = paid.purse;
       kept = { ...kept, owed: paid.owed };
     }
-    // (a tree somebody else felled meanwhile stays their stump)
-    if (!down[t.id] || now >= grownAt(t, down[t.id].at)) down[t.id] = { at: now, by: me };
+    down[t.id] = { at: now, by: me };
     half = half.filter((id) => id !== t.id);
     // the axe's lightning: the nearest grown tree that is not falling in this go is left half cut
     let chained: number | null = null;

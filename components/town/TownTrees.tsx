@@ -12,7 +12,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { ALL, GEM_FX, gemBy, has } from "@/lib/town/tools";
 import { held } from "@/lib/town/trade";
-import { KEEPSAKES, TREES, WOOD, axeOf, bearsOf, bites, farFrom, fellingOf, girthOf, lookOf, wantsOf, type FellOne, type KeepsakeId, type Standing, type TreesTold } from "@/lib/town/trees";
+import { KEEPSAKES, TREES, WOOD, axeOf, bearsOf, bites, farFrom, fellWord, fellingOf, girthOf, lookOf, readFellWord, wantsOf, type FellOne, type KeepsakeId, type Standing, type TreesTold } from "@/lib/town/trees";
 import { walkable, type Vec } from "@/lib/town/world";
 import { registerTap, setAncientLook, setTreeLooks, setTreeScales } from "./mountain-art";
 import type { FarmDraw } from "./TownFarm";
@@ -27,6 +27,8 @@ import { Vfx } from "./vfx";
 const WHY_TREE: Record<string, [th: string, en: string]> = {
   stump: ["ยังไม่โต", "Not grown yet"], bite: ["ขวานนี้ฟันไม่เข้า", "This axe will not bite"], plus: ["ต้นไม้เก่าแก่ไม่สะเทือนเลย", "The ancient tree does not so much as tremble"],
   far: ["ยืนไกลเกินไป", "Too far to reach"], tool: ["ต้องถือขวาน", "It takes an axe in the hand"], spent: ["วันนี้ใช้ไปหมดแล้ว", "None left today"],
+  // (one go on a tree at a time: somebody else's board is up at it)
+  held: ["มีคนกำลังโค่นต้นนี้อยู่", "Somebody is felling this tree"],
   // (the ancient tree alone stands when its go is lost)
   dropped: ["ขวานหลุดมือ ต้นไม้เก่าแก่ยังยืนอยู่", "The axe slipped: the ancient tree stands"], time: ["ไม่ทัน ต้นไม้เก่าแก่ยังยืนอยู่", "Out of time: the ancient tree stands"],
   left: ["วางขวานแล้ว ต้นไม้เก่าแก่ยังยืนอยู่", "Axe put down: the ancient tree stands"],
@@ -283,14 +285,20 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   /** The trunk I brace: whose go it is, at which tree, and the logs I had when I took hold. */
   const [bracing, setBracing] = useState<{ feller: string; name: string; tree: number; logs: number } | null>(null);
   // What I do at a tree is told to the room: my board up, a trunk braced, or neither.
-  const word = working ? `f${working.id}` : bracing ? `b${bracing.tree}` : "";
+  const word = working ? fellWord(working.trees.length ? working.trees : [working.id]) : bracing ? `b${bracing.tree}` : "";
   useEffect(() => { tell(word); }, [word, tell]);
   useEffect(() => () => tell(""), [tell]);
+  /**
+   * Whoever else is felling the tree I stand by: their board is up at it, or it is one of the trees their go holds
+   * (the room says so: lib/town/trees' fellWord). One go on a tree at a time: it is not offered to me meanwhile, and
+   * says whose it is; bracing their trunk stays offered.
+   */
+  const holder = here && !working ? folk.find((o) => { const w = readFellWord(o.fell); return w?.kind === "f" && w.trees.includes(here.id); }) ?? null : null;
   /** Whoever braces the trunk of my go: somebody who says so, standing within a brace's reach of the tree. */
   const bracer = working ? folk.find((o) => { const t = WOOD.find((x) => x.id === working.id); return o.fell === `b${working.id}` && !!t && farFrom(t, [o.x, o.y]) <= TREES.brace.reach; }) ?? null : null;
   /** A go I may brace: somebody's board is up at a tree within a brace's reach of where I stand, and nobody braces it yet. */
   const open = near && tile && !busy && !working && !bracing
-    ? folk.filter((o) => o.fell[0] === "f").map((o) => ({ o, t: WOOD.find((x) => x.id === Number(o.fell.slice(1))) ?? null }))
+    ? folk.filter((o) => o.fell[0] === "f").map((o) => ({ o, t: WOOD.find((x) => x.id === readFellWord(o.fell)?.tree) ?? null }))
       .find(({ t }) => !!t && farFrom(t, tile) <= TREES.brace.reach && !folk.some((b) => b.fell === `b${t.id}`)) ?? null
     : null;
   const braceIt = useCallback(async (feller: TreeFolk) => {
@@ -307,7 +315,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   // I hold the trunk while their board is up and I stand by it. Their go over, what I had for it is said a moment on.
   useEffect(() => {
     if (!bracing) return;
-    const t = WOOD.find((x) => x.id === bracing.tree), on = folk.some((o) => o.id === bracing.feller && o.fell === `f${bracing.tree}`);
+    const t = WOOD.find((x) => x.id === bracing.tree), on = folk.some((o) => { const w = o.id === bracing.feller ? readFellWord(o.fell) : null; return w?.kind === "f" && w.tree === bracing.tree; });
     if (on && tile && t && farFrom(t, tile) <= TREES.brace.reach) return;
     setBracing(null);
     if (on) return;
@@ -446,7 +454,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
 
   // The space bar puts the board up (while the board is up it is the board's).
   useEffect(() => {
-    if (!here || working || refused || book) return;
+    if (!here || working || refused || book || holder) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
@@ -458,7 +466,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     window.addEventListener("keydown", down, true);
     return () => window.removeEventListener("keydown", down, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the tree offered is known by its number
-  }, [hereId, working, refused, book, begin]);
+  }, [hereId, working, refused, book, begin, holder]);
 
   // (for scripts in `next dev`)
   useEffect(() => {
@@ -602,7 +610,13 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
               </button>
             </div>
           )}
-          {refused ? (
+          {holder ? (
+            // one go on a tree at a time: somebody else's board is up at it (their trunk may be braced: the chip beside)
+            <p className="pop-in flex items-center gap-2 rounded-full bg-bg/85 py-1.5 pl-2 pr-4 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-trees-held={holder.id}>
+              <span className="grid size-8 place-items-center rounded-full bg-ink/10"><TownIcon name={"axe" as IconName} size={20} /></span>
+              {th ? `${holder.name} กำลังโค่นต้นนี้อยู่` : `${holder.name} is felling this tree`}
+            </p>
+          ) : refused ? (
             // a tree this axe cannot fell: the axe it wants, as a picture
             <p className="pop-in flex items-center gap-3 rounded-full bg-bg/85 py-1.5 pl-2 pr-4 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-trees-refused={refused}>
               {wantsOf(here) && <Wanted wants={wantsOf(here)!} />}
