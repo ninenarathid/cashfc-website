@@ -317,15 +317,15 @@ t.check("…and the deed of the stone that finished a span says which", same(spa
 await anew({ open: true, have: 598 });
 for (const who of [U.m1, U.m2, U.guest]) { await purse(who, RODS, 100); await lift(who); }
 await clock(NOON + 30 * MIN);
-const s599 = await lay(U.m1);
+const s599 = await lay(U.m2);
 await clock(NOON + 31 * MIN);
-const s600 = await lay(U.m2);
+const s600 = await lay(U.m1);
 t.check("the six-hundredth stone makes the bridge whole: six spans, and the moment is marked", s599?.whole === false && s600?.ok === true && same([s600.have, s600.spans, s600.span, s600.whole], [600, 6, true, true]) && s600.works.works.bridge.done === NOON + 31 * MIN, [s600?.have, s600?.spans, s600?.whole, s600?.works?.works?.bridge?.done]);
-const late = await lay(U.guest), more = await lift(U.m1);
+const late = await lay(U.guest), more = await lift(U.m2);
 t.check("…then nothing more is laid or lifted: whole", late?.ok === false && late.why === "whole" && more?.ok === false && more.why === "whole" && same(await needOf(), { need: BRIDGE.need, have: 600 }), [late?.why, more?.why]);
 t.check("…the stone that came too late is still in its holder's hands, to be let go of", !!(await carriedOf())[U.guest] && (await drop(U.guest))?.ok === true && same(await carriedOf(), {}), await carriedOf());
 const whole = await read(U.admin);
-t.check("…and the names stay on the sign, with my own count", same(whole.works.bridge.helpers.map((h) => h.id), [U.m1, U.m2]) && same((await read(U.m1)).works.bridge.mine, { stone: 1 }) && whole.works.bridge.done === NOON + 31 * MIN, whole.works.bridge);
+t.check("…and the names stay on the sign in the order they came, with my own count", same(whole.works.bridge.helpers.map((h) => h.id), [U.m2, U.m1]) && same((await read(U.m1)).works.bridge.mine, { stone: 1 }) && whole.works.bridge.done === NOON + 31 * MIN, whole.works.bridge);
 
 t.section("tired hands: nothing is refused");
 await anew({ open: true });
@@ -367,6 +367,7 @@ t.check("a need with no number takes any amount, whatever it has, and such a wor
 await purse(U.m2, KANG(4, 4), 50);
 const g5 = await call(U.m2, "town_work_give", { p_work: "heap", p_thing: "salt", p_n: 4 });
 t.check("who gave is kept by work and thing, each from when they first came; and a page is told its givers", g5?.ok === true && same((await handsOf("heap")).map((h) => [h.id, h.thing, h.n]), [[U.m1, "kangkong", 14], [U.m2, "salt", 4]]) && same(g5.works.works.heap.helpers.map((h) => h.id), [U.m1, U.m2]) && same(g5.works.works.heap.mine, { salt: 4 }), await handsOf("heap"));
+t.check("…and a work with a need that has no number is not marked whole, though all it needs a number of is there", same(await needOf("heap", "salt"), { need: 4, have: 4 }) && (await one(`select w.done_at from public.town_works w where w.id = 'heap'`)).done_at === null && g5.works.works.heap.done === null, g5?.works?.works?.heap);
 t.check("the bridge's stones are not to be given out of a bag: nobody has one", (await call(U.m1, "town_work_give", { p_work: "bridge", p_thing: "stone", p_n: 1 }))?.why === "short");
 await t.sql(`delete from public.town_works where id in ('heap', 'fence')`);
 t.check("a work taken away takes what it needed and who gave with it", (await rows(`select 1 from public.town_work_needs where work in ('heap', 'fence') union all select 1 from public.town_work_hands where work in ('heap', 'fence')`)).length === 0);

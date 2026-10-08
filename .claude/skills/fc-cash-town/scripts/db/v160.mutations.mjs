@@ -86,7 +86,7 @@ export default ({ swap, cut }) => {
       cut("  update public.town_work_needs n set have = n.have + p_add where n.work = p_work and n.thing = p_thing;\n", "  update public.town_works w set done_at"), [END, "laid at the foot: one stamina"]],
     ["a work that has all it needs is not marked",
       swap("   where w.id = p_work and w.done_at is null\n", "   where false and w.done_at is null\n"), [END, "the six-hundredth stone makes the bridge whole", "the last it needs makes it whole"]],
-    ["a work that takes any amount is marked whole", swap("where n.work = w.id and (n.need is null or n.have < n.need));", "where n.work = w.id and n.have < n.need);"), ["a need with no number takes any amount"]],
+    ["a work that takes any amount is marked whole", swap("where n.work = w.id and (n.need is null or n.have < n.need));", "where n.work = w.id and n.have < n.need);"), ["…and a work with a need that has no number is not marked whole"]],
     // ── what a page is told
     ["a page is told a closed work's numbers",
       swap("select jsonb_object_agg(w.id, case when w.opened_at is null\n", "select jsonb_object_agg(w.id, case when false\n"), ["a page is told only that the bridge is not open", "…and each tells the page again that it is not open"]],
@@ -94,7 +94,7 @@ export default ({ swap, cut }) => {
       swap("                 where c.member_id = p_member and w.opened_at is not null))", "                 where c.member_id = p_member))"), ["a page is told only that the bridge is not open", "closed again, whoever held a stone is told of none"]],
     ["everybody's count is told to everybody",
       swap("from public.town_work_hands h where h.work = w.id and h.member_id = p_member), '{}'::jsonb)) end)", "from public.town_work_hands h where h.work = w.id), '{}'::jsonb)) end)"), ["my own count is told to me alone"]],
-    ["the names are in the order of their ids", swap("order by q.first_at, q.id_text)", "order by q.id_text)"), ["the sign's names are everybody who has helped in the order they first came"]],
+    ["the names are in the order of their ids", swap("order by q.first_at, q.id_text)", "order by q.id_text)"), ["…and the names stay on the sign in the order they came"]],
     ["the names are told with when each came",
       swap("select jsonb_agg(jsonb_build_object('id', q.member_id, 'name', q.name) order by", "select jsonb_agg(jsonb_build_object('id', q.member_id, 'name', q.name, 'n', q.first_at) order by"), ["…and nobody's count but mine is in what I am told"]],
     // ── the helpers' line, and the tally's words
@@ -108,7 +108,8 @@ export default ({ swap, cut }) => {
     ["letting go has no word", swap("when ''stone_drop'' then ''ปล่อยหินทิ้ง'' ", ""), ["town.deed_th is the one it replaces", "each deed of the bridge's and the works' has its word in Thai"]],
     // ── what a member calls
     ["the rules are left to a browser",
-      cut("revoke execute on all functions in schema town from public, anon, authenticated;\n", "/* ── what a browser calls"), ["the twelve rules are no browser's to call", "the rules are not to be asked from outside"]],
+      cut("revoke execute on all functions in schema town from public, anon, authenticated;\n", "/* ── what a browser calls"), ["the twelve rules are no browser's to call"]],
+    // (asked from outside they are refused all the same: the schema itself is no browser's to use, as the dry run's last check holds)
     ["the works are read by somebody signed out",
       cut("revoke execute on function public.town_works_read() from public, anon;\n", "revoke execute on function public.town_stone_lift"), ["the six a browser calls are a member's to call", "somebody signed out is refused all six"]],
     ["a stone is laid by somebody signed out",
