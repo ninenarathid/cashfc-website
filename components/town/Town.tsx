@@ -37,9 +37,9 @@ import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
-import { CHARMS, GIFTS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
+import { ALL_GIFTS, CHARMS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
 import { rides } from "@/lib/town/riding";
-import { LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
+import { ALL_LINE_IDS, RANKS, titleOf, type LinesTold, type Worn } from "@/lib/town/lines";
 import { CART } from "@/lib/town/cart";
 import { BOX, byMoreChest } from "@/lib/town/box";
 import TownBoard from "./TownBoard";
@@ -860,7 +860,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       // (my lines, kept only as they change: the keeper tells of every little thing)
       const next = keeper.lines();
       setLinesTold((was) => (JSON.stringify(was) === JSON.stringify(next) ? was : next));
-      const mine = { gifting: keeper.gifting(), given: GIFTS.filter((g) => keeper.gives(g.id)).map((g) => g.id as string), gifts: giftsOf(keeper.purse()) };
+      const mine = { gifting: keeper.gifting(), given: ALL_GIFTS.filter((g) => keeper.gives(g.id)).map((g) => g.id as string), gifts: giftsOf(keeper.purse()) };
       setGiftsTold((was) => (JSON.stringify(was) === JSON.stringify(mine) ? was : mine));
       lampRef.current = mine.gifts.charms.includes("charmLamp") ? CHARMS.charmLamp : 0;
     };
@@ -3709,7 +3709,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Whether I have the moon flask. */
   const hasMoon = giftsTold.gifts.had.includes("thingMoon") && giftsTold.given.includes("thingMoon");
   /** Whether a gift of a rank I have reached waits to be taken (lib/town/gifts): a dot on the lines' button. */
-  const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
+  const giftDue = !!linesTold && giftsTold.gifting && dueOf(Object.fromEntries(ALL_LINE_IDS.map((id) => [id, linesTold.lines[id].points])), { gifts: giftsTold.gifts }).some((g) => giftsTold.given.includes(g.id));
   // A dining table that was tapped from outside the yard: its panel is asked for now that I have stopped in it.
   useEffect(() => {
     if (!feastWant.current || !stops) return;

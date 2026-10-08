@@ -36,6 +36,8 @@ export const POINTS = {
   /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
   insects: { plain: 1, way: 3, rare: 8, pays: 20 },
   farming: { every: 12 },
+  // ── mining ── (a rock broken, a vein played out, a way down found, the day's crystal rock; the first of each kind of fragment is the "first")
+  mining: { rock: 1, vein: 3, way: 5, crystal: 10 },
 };
 
 /**
@@ -58,6 +60,7 @@ export function linesRow() {
     forest: { how: { pick: POINTS.forest.pick, choose: POINTS.forest.choose, shake: POINTS.forest.shake, dig: POINTS.forest.dig }, rare: POINTS.forest.rare, rares: [...RARE_WILD].sort() },
     insects,
     farming: Object.fromEntries(CROP_IDS.map((id) => [id, Math.max(1, Math.floor(CROPS[id].hours / POINTS.farming.every))])),
+    mining: POINTS.mining,   // ── mining ──
   };
 }
 
@@ -129,6 +132,24 @@ export function countsOf(d: Done, doer: string): Counts[] {
       const raw = bugPoints(thing);
       return raw ? [{ to: null, line: "insects", raw, first: `insects:${thing}` }] : [];
     }
+    // ── mining ── (lib/town/mining: a deed for each rock broken, with the fragments it left if it left any; one for a
+    // vein played out, with the ore and the gem it gave; one for a way down found; one for the crystal rock. A vein's
+    // second go, a twin's, counts for nothing but its firsts)
+    case "mine":
+      return [{ to: null, line: "mining", raw: POINTS.mining.rock * Math.max(1, Math.floor(d.n)), ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) }];
+    case "vein":
+      return [
+        { to: null, line: "mining", raw: d.doc.again ? 0 : POINTS.mining.vein, ...(thing ? { first: `mining:${thing}` } : {}) },
+        ...(typeof d.doc.chip === "string" ? [{ to: null, line: "mining" as const, raw: 0, first: `mining:${d.doc.chip}` }] : []),
+      ];
+    case "delve":
+      return [{ to: null, line: "mining", raw: POINTS.mining.way }];
+    case "crystal":
+      return [
+        { to: null, line: "mining", raw: POINTS.mining.crystal, ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) },
+        ...(typeof d.doc.chip === "string" ? [{ to: null, line: "mining" as const, raw: 0, first: `mining:${d.doc.chip}` }] : []),
+      ];
+    // ── end: mining ──
     case "pick": {
       // (a plant one sowed: a picking of somebody else's plant is no farming of one's own, and is nobody's help either)
       const hours = CROPS[thing as CropId]?.hours;
