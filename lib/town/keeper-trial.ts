@@ -2,6 +2,9 @@ import { COOKING, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
 import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
+// ── forging: old tools ──
+import { baitKept, fightPaid, rarer, rodHaste, rodOf } from "./fishing";
+import { rodFx } from "./forged";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, ITEMS, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
@@ -159,6 +162,9 @@ class TrialKeeper implements Keeper {
     let odds = star ? starOdds(under.rain, !place.deep, under.signs, Math.max(...this.trial.shelf().map((id) => ITEMS[id].tier))) : oddsOf(bait, under.hour, under.rain, levelOf(p, now, "lucky"), !place.deep, under.signs);
     if (pair) odds = sift(odds, PAIR.never);
     if (isWary(p, now)) odds = sift(odds, WARY.tiers);
+    // ── forging: old tools ── (what the rod carries of its own: rare fish oftener with one, a bite sooner with another)
+    const rod = rodFx(rodOf(p, this.handSlot()));
+    if (rod.rare > 1) odds = rarer(odds, rod.rare);
     // (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
     if (!odds.length) return { ok: false, why: "calm" };
     // (the line goes out: the bait has left the bag, or the stardust is counted)
@@ -170,7 +176,8 @@ class TrialKeeper implements Keeper {
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
     const blessed = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     // (and under an orb the bite comes sooner still)
-    const cast = sky ? hastened(blessed, orbHaste()) : blessed, told = wearing(p, "charmFloat");
+    const sooner = sky ? hastened(blessed, orbHaste()) : blessed, haste = rodHaste(sooner.wait / Math.max(1, drawn.wait), rod.quick);
+    const cast = haste > 0 ? hastened(sooner, haste) : sooner, told = wearing(p, "charmFloat");
     this.out = { cast, bait: star ? null : bait, told, harder, ...(second ? { two: { what: second.what, size: second.size } } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
@@ -197,7 +204,7 @@ class TrialKeeper implements Keeper {
       const told: Hooked[] = [], onhook: Array<{ what: CatchId; size: number }> = [];
       for (const thing of [{ what, size }, o.two]) {
         if (!(thing.what in FISH)) told.push({ what: thing.what, size: 0, landed: true, kept: this.trial.land(thing.what, 0).kept });
-        else { this.trial.spend(FISH[thing.what as FishId].fight.effort); onhook.push(thing); told.push({ ...thing, landed: false }); }
+        else { this.trial.fished(fightPaid(this.trial.purse(), FISH[thing.what as FishId].fight.effort, this.trial.now(), this.handSlot())); onhook.push(thing); told.push({ ...thing, landed: false }); }
       }
       if (!onhook.length) this.out = null;
       else { o.cast = { ...o.cast, ...onhook[0] }; o.two = onhook[1]; }
@@ -209,7 +216,8 @@ class TrialKeeper implements Keeper {
       return { ok: true, hooked: true, what, size: 0, landed: true, ...this.trial.land(what, 0) };
     }
     // a fight costs its stamina whatever comes of it
-    this.trial.spend(FISH[what as FishId].fight.effort);
+    // ── forging: old tools ── (less of it, or none, with what the rod carries: lib/town/fishing's fightPaid)
+    this.trial.fished(fightPaid(this.trial.purse(), FISH[what as FishId].fight.effort, this.trial.now(), this.handSlot()));
     return { ok: true, hooked: true, what, size, landed: false, ...harder };
   }
   async missed() {
@@ -236,6 +244,8 @@ class TrialKeeper implements Keeper {
     const driven = driveBack(this.trial.purse(), how, !!o.again, this.trial.now());
     if (driven.ok) { this.trial.fished(driven.purse); o.again = true; return { how, kept: false, record: false, again: true }; }
     this.out = null;
+    // ── forging: old tools ── (a fish landed with a rod that spares the bait so often: the bait is back in the bag, where there is room)
+    if (how === "landed" && o.bait && o.cast.what in FISH && baitKept(this.trial.purse(), Math.random(), this.handSlot())) return { how, ...this.trial.land(o.cast.what, o.cast.size), ...(this.trial.back(o.bait) ? { back: true } : {}) };
     if (how === "landed") return { how, ...this.trial.land(o.cast.what, o.cast.size) };
     if (how === "snapped" && o.bait) this.trial.lose(o.bait);
     // (a fish hooked and lost in the fight gives the bait it took back, where the bag has room)

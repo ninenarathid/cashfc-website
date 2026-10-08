@@ -220,7 +220,7 @@ export const optN = (id: OptionId, key: string): number => (OPTIONS[id].n as Rea
 export const BUILT: Record<ToolKind, { opts: readonly OptionId[]; gems: readonly Element[] }> = {
   pick: { opts: ["pkPeek", "pkCrumb", "pkSteady", "pkLoose", "pkFresh", "pkCutter", "pkQuake", "pkTwin", "pkDrill", "pkGleam"], gems: ELEMENTS },
   axe: { opts: ["axGrain", "axDust", "axKeen", "axResin", "axFresh", "axDry", "axOne", "axDouble", "axRoot", "axElder"], gems: ELEMENTS },
-  rod: { opts: ["rdBait", "rdCalm"], gems: ["fire", "water", "ice", "wind", "light"] },
+  rod: { opts: ["rdBait", "rdCalm", "rdFresh", "rdQuick"], gems: ["fire", "water", "ice", "earth", "lightning", "wind", "light", "dark"] },
   hoe: { opts: ["hoClear", "hoFirst", "hoFresh", "hoLight"], gems: ["fire", "water", "ice", "earth", "wind", "light"] },
   can: { opts: ["cnDrop", "cnThrift", "cnFresh"], gems: ["fire", "water", "ice", "earth", "wind", "dark"] },
   bugNet: { opts: ["ntAgain", "ntMesh", "ntFresh", "ntLong"], gems: ["fire", "water", "earth", "wind"] },

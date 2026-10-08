@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { COOKING, cook, stirMods } from "./cooking";
 import { FARMING, WATER, WILD, canHolds, chore, choreFor, tend, water, type Plant, type Plot } from "./farm";
-import { FIGHT, STRIKE, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
+import { FIGHT, STRIKE, baitKept, fightPaid, rarer, rodHaste, rodOf, startFight, strikeOf, strikeWindow, strikeWindowOf } from "./fishing";
 import {
   COOK_KINDS, OLD_FX, PLAIN_CAN, PLAIN_COOK, PLAIN_HOE, PLAIN_NET, PLAIN_ROD, canFx, cookFx, easedBy, hitsWith, hoeFx, missesWith, netFx, partOf, rodFx, slowPartOf, slowedBy, stirsWith,
 } from "./forged";
@@ -180,6 +180,49 @@ describe("a forged rod", () => {
     const netted = startFight("koi", "good", { gear: gearOf(purseOf(tool("rod", 10, [], ["fire"]), tool("netLong")).bag, "rod", 0) }, 11);
     expect(netted.length / FISH.koi.fight.line).toBeCloseTo(0.76 * 0.75, 10);
     expect(FIGHT.reel).toBeGreaterThan(0);
+  });
+});
+
+describe("what whoever keeps the game does for a forged rod", () => {
+  it("pays a fight with what the rod takes off: a share with earth, nothing for the first fights of a meal's hours", () => {
+    const plain = purseOf(tool("rod"));
+    expect(fightPaid(plain, 4, NOW)).toEqual(spend(plain, 4, NOW));
+    expect(staminaOf(fightPaid(purseOf(tool("rod", 10, [], ["earth"])), 4, NOW), NOW)).toBe(97);
+    // (the rod need not be in the hand: the one fished with is the best in the bag)
+    expect(staminaOf(fightPaid(purseOf(tool("worm"), tool("rod", 10, [], ["earth"])), 4, NOW), NOW)).toBe(97);
+    expect(rodOf(purseOf(tool("rod", 2), tool("rod", 9)), 1)?.plus).toBe(9);
+    expect(rodOf(purseOf(tool("rod", 2), tool("rod", 9)))?.plus).toBe(2);
+    let p = purseOf(tool("rod", 3, drawn("rdFresh")));
+    const free = powerLeft(p, "rdFresh", NOW);
+    for (let i = 0; i < free; i++) p = fightPaid(p, 6, NOW);
+    expect([free, staminaOf(p, NOW), powerLeft(p, "rdFresh", NOW)]).toEqual([5, 100, 0]);
+    expect(staminaOf(fightPaid(p, 6, NOW), NOW)).toBe(94);
+  });
+  it("makes rare fish so many times as often with dark, each share of the whole again", () => {
+    const odds = [{ what: "minnow" as const, p: 0.5 }, { what: "featherback" as const, p: 0.25 }, { what: "tilapia" as const, p: 0.25 }];
+    const dark = rarer(odds, rodFx(tool("rod", 0, [], ["dark"])).rare);
+    expect(dark.map((o) => o.what)).toEqual(["minnow", "featherback", "tilapia"]);
+    expect(dark[1].p).toBeCloseTo((0.25 * 1.2) / 1.05, 12);
+    expect(dark.reduce((t, o) => t + o.p, 0)).toBeCloseTo(1, 12);
+    expect(dark[1].p / dark[0].p).toBeCloseTo((0.25 / 0.5) * 1.2, 12);
+    expect(rarer(odds, 1)).toEqual(odds);
+    expect(rodFx(tool("rod", 10, [], ["dark"])).rare).toBe(OLD_FX.dark.rod.rare[1]);
+  });
+  it("brings a bite sooner with an eager fish, never under a third of the plain wait with the rest", () => {
+    const quick = rodFx(tool("rod", 3, drawn("rdQuick"))).quick;
+    expect(quick).toBe(0.15);
+    expect(rodHaste(1, quick)).toBeCloseTo(0.15, 12);
+    expect(rodHaste(0.6, quick)).toBeCloseTo(0.15, 12);
+    // (a swift blessing and an orb have left three tenths already: nothing more comes off)
+    expect(rodHaste(0.3, quick)).toBe(0);
+    expect(0.36 * (1 - rodHaste(0.36, quick))).toBeCloseTo(1 / FORGE.cap, 12);
+    expect(rodHaste(1, 0)).toBe(0);
+  });
+  it("gives the bait back from a fish landed, so often, with lightning", () => {
+    const p = purseOf(tool("rod", 0, [], ["lightning"]));
+    expect([baitKept(p, 0.05), baitKept(p, 0.1), baitKept(p, 0.99)]).toEqual([true, false, false]);
+    expect(baitKept(purseOf(tool("rod", 10, [], ["lightning"])), 0.15)).toBe(true);
+    expect(baitKept(purseOf(tool("rod", 10)), 0)).toBe(false);
   });
 });
 

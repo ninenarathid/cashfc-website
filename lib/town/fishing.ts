@@ -1,9 +1,10 @@
-import { partOf, slowPartOf } from "./forged";
-import { PLAIN, ROD_IDS, gearOf, type Gear } from "./gear";
+import { partOf, rodFx, slowPartOf } from "./forged";
+import { toolPaid } from "./forged-keep";
+import { PLAIN, ROD_IDS, gearOf, rodStack, type Gear } from "./gear";
 import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
 import { charmBy, numberOf, useGift, type GiftRefusal } from "./gifts";
-import { STAMINA, isSpent, levelOf } from "./stamina";
-import { handOf, handSlot, held, no, put, roomFor, take, type Done, type Purse } from "./trade";
+import { STAMINA, isSpent, levelOf, spend } from "./stamina";
+import { handOf, handSlot, held, no, put, roomFor, take, type Done, type Purse, type Stack } from "./trade";
 
 /**
  * Fishing, as rules (the owner, 2026-10-03, asked how each part should go): a
@@ -191,6 +192,32 @@ export function landCatch(purse: Purse, what: CatchId, size: number): { purse: P
 export const strikeWindowOf = (purse: Purse, now: number) =>
   // ── forging: old tools ── (the rod in the hand is the one in the slot it was taken up from, where the purse says which)
   strikeWindow({ keen: levelOf(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse), handSlot(purse, purse.handAt ?? null)), charm: charmBy(purse, "charmFloat") });
+
+// ── forging: old tools ── (what whoever keeps the game does for a forged rod: lib/town/forged has what one carries)
+/** The rod somebody fishes with now, as the stack it is: the one in the hand, by the slot it was taken up from (`slot`, where the keeper knows it; else as the purse says), or the best in the bag. */
+export const rodOf = (purse: Purse, slot: number | null = null): Stack | null =>
+  rodStack(purse.bag, gearOf(purse.bag, handOf(purse)).rod, slot !== null && slot >= 0 ? slot : handSlot(purse, purse.handAt ?? null));
+/** A purse after a fight's stamina is paid, with what the rod takes off it (lib/town/forged-keep: a share, owed forward; or nothing at all, of the first fights of a meal's hours). */
+export function fightPaid<P extends Purse>(purse: P, effort: number, now: number, slot: number | null = null): P {
+  const rod = rodOf(purse, slot);
+  return toolPaid(purse, spend(purse, effort, now) as P, now, rod, rodFx(rod), "rdFresh");
+}
+/** What may take a bait, with the fish of some tiers so many times as often: each share of the whole again. */
+export function rarer(odds: ReadonlyArray<{ what: CatchId; p: number }>, k: number, tiers: readonly Tier[] = ["rare", "legend"]): Array<{ what: CatchId; p: number }> {
+  if (!(k > 1)) return odds.map((o) => ({ ...o }));
+  const raised = odds.map((o) => ({ what: o.what, p: o.what in FISH && tiers.includes(FISH[o.what as FishId].tier) ? o.p * k : o.p }));
+  let total = 0;
+  for (const o of raised) total += o.p;
+  return raised.map((o) => ({ what: o.what, p: o.p / total }));
+}
+/**
+ * How much sooner a bite comes with a rod that hurries it: the share of the wait to take off (lib/town/fountain's
+ * `hastened` takes it). `rest` is what everything else has left of the wait already (1: nothing has shortened it);
+ * together they never leave under one part in the cap of the plain wait.
+ */
+export const rodHaste = (rest: number, quick: number): number => (quick > 0 ? 1 - slowPartOf(Math.min(1, Math.max(0.01, rest)), 1 - quick) : 0);
+/** Whether a bait comes back from a fish that was landed, with a rod that spares it so often (`luck`: a number of chance, of whoever keeps the game). */
+export const baitKept = (purse: Purse, luck: number, slot: number | null = null): boolean => luck < rodFx(rodOf(purse, slot)).keeps;
 
 /* ── the strike ─────────────────────────────────────────────────────────── */
 
