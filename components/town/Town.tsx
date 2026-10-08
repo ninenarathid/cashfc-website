@@ -3941,7 +3941,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Who stands by the forge with me: within a few tiles of the forge itself (lib/town/world's SMITH), on their feet, here and not on another page. */
   const smithNear = useCallback(() => {
     const all = standers(), mine = all.find((p) => p.id === me.id);
-    return mine ? all.filter((p) => p.id !== me.id && !p.away && Math.hypot(p.x - SMITH.stand.x, p.y - SMITH.stand.y) <= 6).map((p) => ({ id: p.id, name: p.name })) : [];
+    return mine ? all.filter((p) => p.id !== me.id && !p.away && Math.hypot(p.x - SMITH.stand.x, p.y - SMITH.stand.y) <= SMITH.reach).map((p) => ({ id: p.id, name: p.name })) : [];
+  }, [standers, me.id]);
+  /**
+   * What a move of what the smith put into a tool is asked with (lib/town/forge's `moveForging`): the tile I stand on,
+   * and whether a game's board is open on this page (as the I key asks it: a piece of work being played; the rod's
+   * panel is not such a one, and a rod has no fellow to trade with).
+   */
+  const smithWhere = useCallback(() => {
+    const mine = standers().find((p) => p.id === me.id), board = document.querySelector('[data-foot="board"] [data-town-game]');
+    return { at: mine ? ([Math.floor(mine.x), Math.floor(mine.y)] as [number, number]) : null, playing: !!board && !board.closest('[aria-labelledby="town-fish-h"]') };
   }, [standers, me.id]);
   const pickTalk = (who: Speaker | "smith", id: string) => {
     // ── forging ── (the blacksmith's choices are his screen's leaves)
@@ -4738,7 +4747,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* ── forging ── The blacksmith's screen: only where whoever keeps the game has a smith */}
       {s && game && keeper && smith && keeper.smith() && (
         <Suspense fallback={null}>
-          <TownSmith keeper={keeper} th={w.th} view={smith} onView={setSmith} onClose={() => setSmith(null)} phone={phone} tabbar={tabbar} reduced={!moving} sfx={sfxRef.current} name={me.name} near={smithNear} />
+          <TownSmith keeper={keeper} th={w.th} view={smith} onView={setSmith} onClose={() => setSmith(null)} phone={phone} tabbar={tabbar} reduced={!moving} sfx={sfxRef.current} name={me.name} near={smithNear} where={smithWhere} />
         </Suspense>
       )}
       {/* A recipe unrolled to be read: over everything */}

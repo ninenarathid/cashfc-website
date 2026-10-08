@@ -1,5 +1,5 @@
 import { stretchOf } from "./gifts";
-import { OPTIONS, has, isOption, type OptionId, type OptionUse } from "./tools";
+import { OPTIONS, drawnOf, has, isOption, type OptionId, type OptionUse } from "./tools";
 import type { Purse, Stack } from "./trade";
 
 /**
@@ -36,4 +36,21 @@ export function usePower<P extends Pick<Purse, "powers">>(purse: P, tool: Stack 
   if (n >= rule.n) return { ok: false, why: "spent" };
   const kept = purse.powers && typeof purse.powers === "object" && !Array.isArray(purse.powers) ? purse.powers : {};
   return { ok: true, left: rule.n - n - 1, purse: { ...purse, powers: { ...kept, [id]: { k: stretchOf(rule, now), n: n + 1 } } } };
+}
+
+/**
+ * The options whose doing, once begun, goes on for a while: each with where the purse keeps the moment it is over
+ * (lib/town/farm's `canFullNow`, lib/town/fishing's `lullNow`). One line an option, each its builder's to add.
+ */
+export const TIMED: Partial<Record<OptionId, "canFull" | "rodStill">> = { cnFull: "canFull", rdStill: "rodStill" };
+/**
+ * The options a tool carries whose doing is going on now: begun, and not yet over. While one is, what the smith put
+ * into the tool is not moved to another (lib/town/forge's `moveForging`): the minutes are the member's, and would go
+ * on with whatever tool came to hand.
+ */
+export function running(purse: Pick<Purse, "canFull" | "rodStill">, tool: Stack | null | undefined, now: number): OptionId[] {
+  return drawnOf(tool).filter((id): id is OptionId => {
+    const key = id ? TIMED[id] : undefined, till = key ? purse[key] : undefined;
+    return typeof till === "number" && till > now;
+  });
 }

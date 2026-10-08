@@ -32,6 +32,7 @@ import type { MineDid, MineDone, VeinDid } from "./keeper";
 import type { Peek } from "./mining";
 // ── felling ──
 import type { FellDid } from "./keeper";
+import type { MoveHow } from "./keeper";
 import type { FellingAsk } from "./felling";
 import type { FellWent } from "./trees";
 
@@ -474,6 +475,7 @@ class TrialKeeper implements Keeper {
   async smithChoose(slot: number, pick: string, name: string) { return this.trial.smithChoose(slot, pick, name); }
   async smithRedraw(slot: number, at: number, gem: ItemId) { return this.trial.smithRedraw(slot, at, gem); }
   async smithGem(slot: number, gem: ItemId) { return this.trial.smithGem(slot, gem); }
+  async smithMove(from: number, to: number, how: MoveHow) { return this.trial.smithMove(from, to, how); }
   // ── felling ── (whoever else is on the mountain is in another tab: told through the room, as the database's keeper tells them)
   trees() { return this.trial.trees(); }
   async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { return this.trial.fellBegin(tree, at); }

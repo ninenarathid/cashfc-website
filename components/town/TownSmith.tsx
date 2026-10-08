@@ -2,27 +2,33 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import {
-  SMITH, bellowsOff, candidates, gemsIn, maySmelt, owedOf, pendingSlot, smeltCost, smithView, timberFor, dryOf, toolsIn, tryCost, tryLacks, tryOdds, widerCost,
+  SMITH, bellowsOff, candidates, fellowsIn, gemsIn, maySmelt, moveFee, moveWhy, owedOf, pendingSlot, smeltCost, smithView, timberFor, dryOf, toolsIn, traded, tryCost, tryLacks, tryOdds, widerCost,
   type Outcome, type SmithRefusal, type Smelting,
 } from "@/lib/town/forge";
 import { ITEMS, type ItemId } from "@/lib/town/items";
-import type { Keeper } from "@/lib/town/keeper";
+import type { Keeper, MoveHow } from "@/lib/town/keeper";
+import { LINES } from "@/lib/town/lines";
+import { running } from "@/lib/town/powers";
 import type { FishSfx } from "@/lib/town/sfx";
 import ART from "@/lib/town/smith-art.json";
 import { cardOf, gemDoes, nextOf, optionDoes } from "@/lib/town/tool-words";
 import {
-  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, drawnOf, gemsOf, makersOf, modsOf, settable,
+  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, awayOf, drawnOf, gemsOf, lineKinds, makersOf, modsOf, originOf, settable, toolLineOf,
   type OptionId, type ToolKind,
 } from "@/lib/town/tools";
 import { heldIn } from "@/lib/town/pouches";
+import type { Stack } from "@/lib/town/trade";
+import { bySmith } from "@/lib/town/world";
 import TownIcon, { type IconName } from "./TownIcon";
-import { Coins, ItemIcon, StackIcon, forgeWords } from "./TownTrade";
+import { Coins, ItemIcon, StackIcon, forgeWords, gemWords } from "./TownTrade";
 
-/** The smith's four leaves. */
-export type SmithView = "smelt" | "forge" | "gems" | "board";
-export const SMITH_VIEWS: SmithView[] = ["smelt", "forge", "gems", "board"];
+/** The smith's five leaves. */
+export type SmithView = "smelt" | "forge" | "gems" | "move" | "board";
+export const SMITH_VIEWS: SmithView[] = ["smelt", "forge", "gems", "move", "board"];
 export const isSmithView = (v: unknown): v is SmithView => typeof v === "string" && (SMITH_VIEWS as string[]).includes(v);
-const VIEW_WORD: Record<SmithView, [th: string, en: string]> = { smelt: ["หลอมแร่", "Smelt"], forge: ["ตีบวก", "Forge"], gems: ["ฝังพลอย", "Gems"], board: ["กระดาน", "Board"] };
+const VIEW_WORD: Record<SmithView, [th: string, en: string]> = { smelt: ["หลอมแร่", "Smelt"], forge: ["ตีบวก", "Forge"], gems: ["ฝังพลอย", "Gems"], move: ["ย้าย", "Move"], board: ["กระดาน", "Board"] };
+/** A leaf's fuller name for his talk's choices, where the one word of its tab says too little by itself. */
+const TALK_WORD: Partial<Record<SmithView, [th: string, en: string]>> = { move: ["ย้ายบวกและพลอย", "Move a forging"] };
 /**
  * What the smith's talk offers, for whoever builds his talk (as the uncle's and the banker's choices are built in
  * Town.tsx's openTalk): a choice for each leaf of this screen, the smelting's with how many pieces wait to be taken.
@@ -32,7 +38,7 @@ export function smithChoices(keeper: Keeper | null, th: boolean): Array<{ id: Sm
   const told = keeper?.smith() ?? null;
   if (!keeper || !told) return [];
   const done = smithView(told.smithy, keeper.now()).done.length;
-  return SMITH_VIEWS.map((id) => ({ id, label: th ? VIEW_WORD[id][0] : VIEW_WORD[id][1], ...(id === "smelt" && done > 0 ? { note: String(done) } : {}) }));
+  return SMITH_VIEWS.map((id) => ({ id, label: (TALK_WORD[id] ?? VIEW_WORD[id])[th ? 0 : 1], ...(id === "smelt" && done > 0 ? { note: String(done) } : {}) }));
 }
 
 /** Why something was not done at the smith, in a few words. */
@@ -53,7 +59,20 @@ const WHY: Record<SmithRefusal, [th: string, en: string]> = {
   self: ["สูบลมให้เตาของตัวเองไม่ได้", "Not one's own bellows"],
   idle: ["ตอนนี้ไม่มีอะไรหลอมอยู่", "Nothing is smelting there now"],
   tired: ["ชิ้นนี้สูบลมครบแล้ว", "This piece has had all the bellows it takes"],
+  // ── a move ──
+  far: ["ต้องมายืนที่เตาของช่างก่อน", "Come and stand by the forge first"],
+  twice: ["ต้องเลือกเครื่องมือสองชิ้นที่ต่างกัน", "Choose two different tools"],
+  alone: ["สายนี้มีเครื่องมือชนิดเดียว ไม่มีชิ้นไหนให้ย้ายไป", "This line has one kind of tool: there is nothing to move to"],
+  line: ["ย้ายได้เฉพาะเครื่องมือสายเดียวกันและระดับเดียวกัน", "Only between tools of one line and one tier"],
+  nothing: ["สองชิ้นนี้ไม่มีอะไรให้ย้าย", "These two have nothing to trade"],
+  playing: ["กำลังเล่นมินิเกมอยู่ เล่นให้จบก่อน", "A game is being played: finish it first"],
+  running: ["พลังของเครื่องมือกำลังทำงานอยู่ รอให้หมดเวลาก่อน", "A power of the tool is running: wait until it is over"],
+  foreign: ["บวกชุดนี้ไม่ได้ตีมากับเครื่องมือชนิดนี้ ต้องย้ายกลับก่อน", "This forging is not this kind of tool's own: move it back first"],
   away: ["ติดต่อสมุดของเมืองไม่ได้ ลองใหม่อีกครั้ง", "The town's books could not be reached. Try again."],
+};
+/** Why a tool cannot be moved to, in the few words its row has room for. */
+const WHY_ROW: Partial<Record<SmithRefusal, [th: string, en: string]>> = {
+  nothing: ["ไม่มีอะไรให้ย้าย", "Nothing to trade"], owed: ["รอเลือกออปชันอยู่", "An option waits to be chosen"], running: ["พลังกำลังทำงานอยู่", "A power is running"],
 };
 const KIND_WORD: Record<ToolKind, [th: string, en: string]> = {
   pick: ["อีเต้อ", "Pickaxe"], axe: ["ขวาน", "Axe"], rod: ["คันเบ็ด", "Rod"], hoe: ["จอบ", "Hoe"], can: ["บัวรดน้ำ", "Watering can"],
@@ -68,11 +87,13 @@ const FRAC = BAND.h / ART.size[1], START = (1 - FRAC) * BAND.top;
 const spot = (at: number[]) => ({ left: `${at[0] * 100}%`, top: `${((at[1] - START) / FRAC) * 100}%` });
 
 /**
- * The blacksmith's screen (lib/town/forge; 2026-10-08, with woodcutting and mining). Four leaves on one board, under
+ * The blacksmith's screen (lib/town/forge; 2026-10-08, with woodcutting and mining). Five leaves on one board, under
  * a picture of his forge: smelting (what the bag can smelt, the queue with its countdowns, what waits to be taken, a
  * friend's fire to blow on), forging (the tool on the anvil, what the next try takes, how it may go, three knocks
  * and what came of it, the two options of a draw to choose from), gems (the tool's socket, the gems held, what a
- * new one would cost and take the place of), and the board (the village's firsts).
+ * new one would cost and take the place of), a move (the owner, 2026-10-09: the tool on the anvil and another of its
+ * line trade what the smith put into them; both tools before and after, side by side, and the fee), and the board
+ * (the village's firsts).
  *
  * It shows states and refusals and never a rule: what is lacking is marked where it is lacking. What an option does
  * is said on its own card, to whoever has it laid out before them or on their tool. A tool's card has the tool's own
@@ -84,7 +105,7 @@ const spot = (at: number[]) => ({ left: `${at[0] * 100}%`, top: `${((at[1] - STA
  * What is kept is the keeper's: for a member the database's, in `next dev`'s test room the browser's trial. A keeper
  * that knows of no smith offers none of this (`keeper.smith()` is null, and the map never opens this).
  */
-export default function TownSmith({ keeper, th, view, onView, onClose, phone, tabbar, reduced, sfx, name, near }: {
+export default function TownSmith({ keeper, th, view, onView, onClose, phone, tabbar, reduced, sfx, name, near, where }: {
   keeper: Keeper;
   th: boolean;
   view: SmithView;
@@ -99,6 +120,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   name: string;
   /** Who stands by the forge with me now: their fires may be blown on. */
   near: () => Array<{ id: string; name: string }>;
+  /** The tile I stand on now, and whether a game's board is open on the page: a move is asked with them. */
+  where: () => MoveHow;
 }) {
   const [, setTick] = useState(0);
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
@@ -181,6 +204,27 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
     sfx?.work("clang"); setGem(null);
     setSaid({ text: t(`ฝัง${itemName(chosenGem, true)}แล้ว`, `${itemName(chosenGem, false)} is set`), tone: "good" });
   };
+  // ── a move: the tool on the anvil is the one moved from; which other tool of its line it trades with ──
+  const [moveTo, setMoveTo] = useState<number | null>(null);
+  const fellows = slot >= 0 ? fellowsIn(purse.bag, slot) : [];
+  const target = moveTo !== null && fellows.some((x) => x.slot === moveTo) ? moveTo : null;
+  // (the two tools side by side are brought into sight when the second is chosen: they come under the lists. They
+  // do not rise into place as a draw's cards do: a thing that is moving is not where it will be, and would be scrolled past)
+  const pairRef = useRef<HTMLDivElement | null>(null), leavesRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { if (target !== null) pairRef.current?.scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" }); }, [target, slot, reduced]);
+  const moveNow = async () => {
+    if (busy || slot < 0 || target === null) return;
+    const a = purse.bag[slot], b = purse.bag[target];
+    if (!a || !b) return;
+    setBusy(true); setSaid(null);
+    const did = await keeper.smithMove(slot, target, where());
+    setBusy(false);
+    if (!did.ok) { refuse(did.why); return; }
+    sfx?.work("clang"); setMoveTo(null);
+    setSaid({ text: t(`ย้ายแล้ว: ${itemName(a.item, true)} ⇄ ${itemName(b.item, true)} · ${did.fee} coin`, `Moved: ${itemName(a.item, false)} ⇄ ${itemName(b.item, false)} · ${did.fee} coins`), tone: "good" });
+    // (what came of it is said under the picture of the forge, at the leaf's top: back there)
+    leavesRef.current?.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+  };
   // ── smelting ──
   const smeltNow = async (piece: ItemId, n: number) => {
     if (busy) return;
@@ -237,13 +281,13 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       e.stopPropagation();
-      if (again !== null) setAgain(null); else if (gem) setGem(null); else onClose();
+      if (again !== null) setAgain(null); else if (gem) setGem(null); else if (moveTo !== null) setMoveTo(null); else onClose();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [again, gem, onClose]);
+  }, [again, gem, moveTo, onClose]);
   // (a leaf turned: what the last one said is put away)
-  useEffect(() => { setSaid(null); setCame(null); setAgain(null); setGem(null); }, [view]);
+  useEffect(() => { setSaid(null); setCame(null); setAgain(null); setGem(null); setMoveTo(null); }, [view]);
 
   if (!told) return null;
   const q = smithView(told.smithy, now);
@@ -265,7 +309,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
             const m = modsOf(x.stack), on = x.slot === slot;
             return (
               <li key={x.slot}>
-                <button type="button" onClick={() => { setPicked(x.slot); setCame(null); setSaid(null); setAgain(null); }} aria-pressed={on} disabled={busy || (laid && !on)}
+                <button type="button" onClick={() => { setPicked(x.slot); setCame(null); setSaid(null); setAgain(null); setMoveTo(null); }} aria-pressed={on} disabled={busy || (laid && !on)}
                         data-smith-tool={x.slot} data-item={x.stack.item} data-plus={m.level}
                         aria-label={`${itemName(x.stack.item, th)} ${forgeWords(x.stack, th) || `+${m.level}`}`}
                         className={`pressable relative grid size-12 place-items-center rounded-xl border-2 disabled:opacity-40 ${on ? "border-[#f0c46a] bg-[#4a3423] shadow-[0_0_0_2px_rgba(240,196,106,0.25)]" : "border-[#6b4a2a] bg-[#33251a] hover:border-[#c9a877]"}`}>
@@ -279,7 +323,10 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
       ) : <p className="rounded-xl border border-dashed border-[#6b4a2a] px-3 py-4 text-center text-ui text-[#c9a877]" data-smith-none>{t("ในกระเป๋าไม่มีเครื่องมือที่ตีบวกได้", "There is no tool in the bag that can be forged")}</p>}
     </div>
   );
-  /** The tool's own card: its plus, its numbers, its options, its gem. (An option once drawn works whatever the level has fallen to: none sleeps.) */
+  // (a forging that sits in a kind of tool of another pool than its own: its options sleep there, and it is moved back before it is forged further)
+  const away = awayOf(stack), home = originOf(stack);
+  const homeWord = home ? (th ? KIND_WORD[home][0] : KIND_WORD[home][1].toLowerCase()) : "";
+  /** The tool's own card: its plus, its numbers, its options, its gem. (An option once drawn works whatever the level has fallen to; it sleeps only in a kind of tool of another pool, and says so.) */
   const card = stack && kind && (
     <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-card data-item={stack.item} data-plus={level}>
       <div className="flex items-center gap-2">
@@ -317,21 +364,23 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
       </dl>
       <ul className="mt-3 space-y-2">
         {drawnOf(stack).map((id, i) => {
-          if (!id) return level >= FORGE.milestones[i] || !BUILT[kind].opts.length ? null : (
+          if (!id) return level >= FORGE.milestones[i] || !BUILT[kind].opts.length || away ? null : (
             <li key={i} className="flex items-center gap-2 text-meta text-[#8f7655]"><TownIcon name="lock" size={12} />{t(`ออปชันขั้น +${FORGE.milestones[i]}`, `The option of +${FORGE.milestones[i]}`)}</li>
           );
           const o = OPTIONS[id], does = optionDoes(id);
           return (
-            <li key={i} className="rounded-xl border border-[#6b4a2a] bg-[#2a1d12] px-2.5 py-2" data-smith-opt={id}>
+            <li key={i} className={`rounded-xl border px-2.5 py-2 ${away ? "border-dashed border-[#5a4630] bg-[#231a11]" : "border-[#6b4a2a] bg-[#2a1d12]"}`} data-smith-opt={id} data-asleep={away}>
               <div className="flex items-center gap-2">
                 <span className="font-data text-label text-[#c9a877]">+{FORGE.milestones[i]}</span>
-                <span className="min-w-0 flex-1 truncate text-ui font-semibold text-[#f3e3c3]">{th ? o.name.th : o.name.en}</span>
+                <span className={`min-w-0 flex-1 truncate text-ui font-semibold ${away ? "text-[#9c8767]" : "text-[#f3e3c3]"}`}>{th ? o.name.th : o.name.en}</span>
+                {away && <span className="shrink-0 rounded-full border border-[#6b5a45] px-2 text-label text-[#b9a27c]">{t("หลับ", "Asleep")}</span>}
                 {view === "forge" && !laid && candidates(stack, i).length > 0 && (
                   <button type="button" onClick={() => setAgain(again === i ? null : i)} disabled={busy} aria-expanded={again === i} data-smith-again={i}
                           className="pressable min-h-8 rounded-full border border-[#6b4a2a] px-2.5 text-label font-semibold text-[#c9a877] hover:border-[#c9a877] hover:text-[#f3e3c3]">{t("สุ่มใหม่", "Draw again")}</button>
                 )}
               </div>
-              <p className="mt-1 text-meta leading-relaxed text-[#d9c39b]">{th ? does.th : does.en}</p>
+              <p className={`mt-1 text-meta leading-relaxed ${away ? "text-[#8f7655]" : "text-[#d9c39b]"}`}>{th ? does.th : does.en}</p>
+              {away && <p className="mt-1 text-meta leading-relaxed text-[#d2b98a]" data-smith-asleep-why>{t(`ตีมากับ${homeWord} จะทำงานอีกครั้งเมื่อย้ายกลับไปอยู่ใน${homeWord}`, `Drawn for a ${homeWord}: it works again once it is moved back into one`)}</p>}
             </li>
           );
         })}
@@ -391,7 +440,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
             </button>
           ))}
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-[#8a5a2b] to-[#6e4420]">
+        <div ref={leavesRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-[#8a5a2b] to-[#6e4420]">
           {/* the forge itself: the furnace, the anvil with the tool on it, the hammer */}
           {view !== "board" && (
             <div className="relative w-full overflow-hidden border-b-2 border-[#2e1c0c]" style={{ aspectRatio: `${BAND.w} / ${BAND.h}` }} data-smith-scene>
@@ -545,8 +594,15 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     {purse.coins < SMITH.redraw.fee && <p className="mt-2 text-meta text-[#ffb4a0]">{th ? WHY.coins[0] : WHY.coins[1]}</p>}
                   </div>
                 )}
-                {/* the next try: what it takes, how it may go */}
-                {stack && kind && !laid && again === null && (level >= FORGE.top ? (
+                {/* the next try: what it takes, how it may go (none, of a forging that sits in a kind of tool of another pool: it is moved back first) */}
+                {stack && kind && !laid && again === null && (away ? (
+                  <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-foreign={home ?? ""}>
+                    <p className="flex items-start gap-2 text-ui leading-relaxed text-[#f3e3c3]"><TownIcon name="lock" size={14} className="mt-1 shrink-0" />
+                      {t(`บวกชุดนี้ตีมากับ${homeWord} อยู่ใน${itemName(stack.item, true)}จึงตีต่อและสุ่มออปชันใหม่ไม่ได้ ต้องย้ายกลับไป${homeWord}ก่อน`, `This forging was made in a ${homeWord}. In this ${itemName(stack.item, false).toLowerCase()} it is neither forged further nor drawn for again: move it back into a ${homeWord} first.`)}</p>
+                    <button type="button" onClick={() => onView("move")} disabled={busy} data-smith-to-move
+                            className="pressable mt-3 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#c9a877] text-ui font-bold text-[#f3e3c3]"><TownIcon name="trade" size={16} />{t("ไปหน้าย้าย", "To the Move leaf")}</button>
+                  </div>
+                ) : level >= FORGE.top ? (
                   <p className="rounded-2xl border-2 border-[#f0c46a] bg-[#3a2a12] px-3 py-3 text-center font-display text-lead font-semibold text-[#ffe9a8]" data-smith-top>{t("ถึงขั้นสูงสุดแล้ว", "It is at the top")}</p>
                 ) : cost && odds && (
                   <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-try data-to={level + 1}>
@@ -662,6 +718,110 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
               </div>
             )}
 
+            {view === "move" && (
+              <div data-smith-move>
+                {/* what a move is, in one sentence: it is not obvious */}
+                <p className="mb-3 rounded-xl border border-[#4a341f] bg-[#241a10] px-2.5 py-2 text-meta leading-relaxed text-[#e9d3a6]" data-smith-move-about>
+                  {t("เครื่องมือสองชิ้นในสายเดียวกันสลับทุกอย่างที่ช่างทำไว้ให้กัน (บวก พลอย ออปชัน) ติดแน่นอน เสียแค่เหรียญ", "Two tools of one line trade everything the smith put into them (plus, gems, options): it always takes, for coins only.")}
+                </p>
+                {(() => { const here = where(); return here.at && bySmith(here.at[0] + 0.5, here.at[1] + 0.5) ? null : (
+                  <p className="mb-3 flex items-start gap-1.5 rounded-xl border border-[#b3402f] bg-[#3a1712] px-2.5 py-2 text-meta leading-relaxed text-[#ffb4a0]" data-smith-move-far><TownIcon name="warning" size={14} className="mt-0.5 shrink-0" />{th ? WHY.far[0] : WHY.far[1]}</p>
+                ); })()}
+                <h3 className="mb-1.5 font-display text-lead font-semibold text-[#f3e3c3]"><span className="mr-1.5 font-data text-[#c9a877]">1</span>{t("ย้ายจาก", "Move from")}</h3>
+                {rack}
+                {stack && kind && (() => {
+                  const kinds = lineKinds(kind), line = toolLineOf(kind), lineWord = line ? (th ? LINES[line].name.th : LINES[line].name.en) : "";
+                  const kindNames = (list: readonly ToolKind[]) => list.map((k) => (th ? KIND_WORD[k][0] : KIND_WORD[k][1])).join(th ? " " : ", ");
+                  // a kind alone in its line: said plainly, with no list to pick from
+                  if (kinds.length < 2) return (
+                    <p className="rounded-xl border border-dashed border-[#6b4a2a] px-3 py-4 text-center text-ui leading-relaxed text-[#c9a877]" data-smith-move-alone={kind}>
+                      {t(`${KIND_WORD[kind][0]}เป็นเครื่องมือชนิดเดียวของ${lineWord} จึงไม่มีชิ้นไหนให้ย้ายไป`, `The ${KIND_WORD[kind][1].toLowerCase()} is the only kind of tool of its line (${lineWord}): there is nothing to move to.`)}
+                    </p>
+                  );
+                  // (what stands against the tool moved from itself is said once, in place of the list)
+                  const own: SmithRefusal | null = owedOf(stack) >= 0 ? "owed" : running(purse, stack, now).length ? "running" : null;
+                  const here = where(), ask = { near: !!here.at && bySmith(here.at[0] + 0.5, here.at[1] + 0.5), playing: here.playing, now };
+                  const other = target !== null ? purse.bag[target] : null;
+                  const why = other ? moveWhy(purse, told.smithy, slot, target!, ask) : null, fee = other ? moveFee(stack, other) : null;
+                  const after = other ? traded(stack, other) : null;
+                  return (
+                    <>
+                      <h3 className="mb-1.5 flex flex-wrap items-baseline gap-x-2 font-display text-lead font-semibold text-[#f3e3c3]">
+                        <span><span className="mr-1.5 font-data text-[#c9a877]">2</span>{t("ย้ายไป", "Move to")}</span>
+                        <span className="font-body text-meta font-normal text-[#c9a877]" data-smith-move-line={line ?? ""}>{lineWord} · {kindNames(kinds)}</span>
+                      </h3>
+                      {own ? (
+                        <div className="rounded-xl border border-[#b3402f] bg-[#3a1712] px-3 py-3 text-ui leading-relaxed text-[#ffb4a0]" data-smith-move-own={own}>
+                          <p>{th ? WHY[own][0] : WHY[own][1]}</p>
+                          {own === "owed" && <button type="button" onClick={() => onView("forge")} disabled={busy} className="pressable mt-2 min-h-9 rounded-full border border-[#ffb4a0] px-3 text-meta font-semibold">{t("ไปเลือกที่หน้าตีบวก", "Choose it on the Forge leaf")}</button>}
+                        </div>
+                      ) : fellows.length ? (
+                        <ul className="space-y-1.5" role="radiogroup" aria-label={t("ย้ายไปที่เครื่องมือชิ้นไหน", "The tool to move to")} data-smith-move-to>
+                          {fellows.map((x) => {
+                            // (what stands against this pair whatever the moment: nothing to trade, a draw that waits, a power running; the moment's own are said by the button)
+                            const no = moveWhy(purse, told.smithy, slot, x.slot, { near: true, playing: false, now }), cannot = !!no && no !== "coins", on = target === x.slot;
+                            const carries = forgeWords(x.stack, th);
+                            return (
+                              <li key={x.slot}>
+                                <button type="button" role="radio" aria-checked={on} onClick={() => { setMoveTo(on ? null : x.slot); setSaid(null); }} disabled={busy || cannot} data-smith-move-pick={x.slot} data-item={x.stack.item} data-can={!cannot} data-why={cannot ? no : ""}
+                                        className={`pressable flex min-h-12 w-full items-center gap-3 rounded-xl border-2 px-3 py-1.5 text-left disabled:opacity-60 ${on ? "border-[#f0c46a] bg-[#4a3423] shadow-[0_0_0_2px_rgba(240,196,106,0.18)]" : "border-[#6b4a2a] bg-[#33251a] hover:border-[#c9a877]"}`}>
+                                  <span className="grid size-9 shrink-0 place-items-center"><StackIcon stack={x.stack} size={28} /></span>
+                                  <span className="min-w-0 flex-1">
+                                    <span className="block truncate text-ui font-semibold text-[#f3e3c3]">{itemName(x.stack.item, th)}</span>
+                                    <span className={`block truncate text-meta ${cannot ? "text-[#ffb4a0]" : "text-[#c9a877]"}`}>{cannot ? (WHY_ROW[no!] ?? WHY[no!])[th ? 0 : 1] : carries || t("ยังไม่ได้ตี", "Not forged yet")}</span>
+                                  </span>
+                                </button>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      ) : (
+                        <p className="rounded-xl border border-dashed border-[#6b4a2a] px-3 py-4 text-center text-ui leading-relaxed text-[#c9a877]" data-smith-move-none>
+                          {t(`ในกระเป๋าไม่มีเครื่องมือชิ้นอื่นของ${lineWord} (${kindNames(kinds)})`, `No other tool of this line is in the bag (${kindNames(kinds)})`)}
+                        </p>
+                      )}
+                      {/* both tools side by side, as they are and as they would be; the fee; and the one press */}
+                      {!own && other && after && fee !== null && (
+                        <div ref={pairRef} className="mt-3 scroll-mt-2 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-2.5 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-move-pair data-from={slot} data-to={target} data-fee={fee}>
+                          <p className="mb-1.5 font-data text-label uppercase text-[#c9a877]">{t("ก่อนย้าย", "Before")}</p>
+                          <div className="grid grid-cols-2 gap-2">
+                            <MoveCard stack={stack} th={th} side="from" />
+                            <MoveCard stack={other} th={th} side="to" />
+                          </div>
+                          <p className="my-2 flex items-center gap-2 font-data text-label uppercase text-[#f0c46a]"><TownIcon name="trade" size={14} />{t("หลังย้าย", "After")}<span aria-hidden className="h-px flex-1 bg-[#4a341f]" /></p>
+                          <div className="grid grid-cols-2 gap-2">
+                            <MoveCard stack={after[0]} was={stack} th={th} side="from" />
+                            <MoveCard stack={after[1]} was={other} th={th} side="to" />
+                          </div>
+                          {(awayOf(after[0]) || awayOf(after[1])) && (
+                            <p className="mt-2 flex items-start gap-1.5 rounded-xl border border-[#6b5a45] bg-[#241a10] px-2.5 py-2 text-meta leading-relaxed text-[#e9d3a6]" data-smith-move-sleeps>
+                              <TownIcon name="lock" size={12} className="mt-1 shrink-0" />
+                              {t("ออปชันของจอบกับของบัวรดน้ำเป็นคนละชุด อยู่ผิดชนิดจะหลับ และเครื่องมือชิ้นนั้นจะตีต่อไม่ได้จนกว่าจะย้ายกลับ (บวกกับพลอยยังทำงานตามปกติ)", "A hoe's options and a watering can's are sets of their own: in the other kind they sleep, and that tool is not forged further until they are moved back (the plus and the gems work as ever).")}
+                            </p>
+                          )}
+                          {([[stack, after[0]], [other, after[1]]] as Array<[Stack, Stack]>).map(([was, now_], i) => ((was.water ?? 0) > (now_.water ?? 0) ? (
+                            <p key={i} className="mt-2 flex items-start gap-1.5 rounded-xl border border-[#b3402f] bg-[#3a1712] px-2.5 py-2 text-meta leading-relaxed text-[#ffb4a0]" data-smith-move-spilt={(was.water ?? 0) - (now_.water ?? 0)}>
+                              <TownIcon name="warning" size={14} className="mt-0.5 shrink-0" />
+                              {t(`บัวจะจุน้ำได้น้อยลง น้ำในบัว ${was.water} ครั้งจะเหลือ ${now_.water ?? 0} ครั้ง`, `The can will hold less: of the ${was.water} waterings in it, ${now_.water ?? 0} are left`)}
+                            </p>
+                          ) : null))}
+                          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#4a341f] pt-3">
+                            <span className="text-meta text-[#c9a877]">{t("ค่าย้าย", "The fee")}</span>
+                            <NeedCoins have={purse.coins} want={fee} th={th} />
+                            {why && <span className="basis-full text-meta leading-relaxed text-[#ffb4a0]" data-smith-move-why={why}>{th ? WHY[why][0] : WHY[why][1]}</span>}
+                          </div>
+                          <button type="button" onClick={() => void moveNow()} disabled={busy || !!why} data-smith-move-do
+                                  className="pressable mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f0c46a] font-display text-title font-bold text-[#2a190d] shadow-[inset_0_-3px_0_rgba(0,0,0,0.25)] disabled:bg-[#4a341f] disabled:text-[#8f7655] disabled:shadow-none">
+                            <TownIcon name="trade" size={20} />{busy ? t("กำลังย้าย…", "Moving…") : t("ย้าย", "Move")}
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+
             {view === "board" && (
               <div data-smith-board>
                 {/* the cave's own board, which whoever keeps the game keeps with the cave (lib/town/cave-state): the deepest floor reached today, and who opened the way to it */}
@@ -722,6 +882,65 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
           </div>
         </div>
       </section>
+    </div>
+  );
+}
+
+/**
+ * One tool of a move, as it is or as it would be: its picture with its marks, its plus, its gems in words, its
+ * options by their names (those that sleep marked so), who forged it, and the numbers of its own card (lib/town/
+ * tool-words' `cardOf`) with, of a watering can, the water in it. Given the tool as it was (`was`), whatever reads
+ * otherwise than it did is lit.
+ */
+function MoveCard({ stack, was, th, side }: { stack: Stack; was?: Stack; th: boolean; side: "from" | "to" }) {
+  const m = modsOf(stack), gems = gemWords(stack, th), old = was ? modsOf(was) : null, oldGems = was ? gemWords(was, th) : null;
+  const lit = "text-[#f0c46a]", plain = "text-[#f3e3c3]";
+  const opts = [...m.opts.map((id) => ({ id, asleep: false })), ...m.asleep.map((id) => ({ id, asleep: true }))];
+  const makers = [...new Set(makersOf(stack).filter((x): x is string => !!x))];
+  const lines = cardOf(stack), before = was ? cardOf(was) : null;
+  const can = stack.water !== undefined || stack.item === "can", water = stack.water ?? 0;
+  const changed = !!old && (old.level !== m.level || oldGems !== gems || old.opts.join() !== m.opts.join() || old.asleep.join() !== m.asleep.join());
+  return (
+    <div className={`min-w-0 rounded-xl border px-2 py-2 ${was ? (changed ? "border-[#f0c46a] bg-[#2f2212]" : "border-[#6b4a2a] bg-[#2a1d12]") : "border-[#4a341f] bg-[#241a10]"}`}
+         data-smith-move-card={was ? "after" : "before"} data-side={side} data-item={stack.item} data-plus={m.level} data-gems={gemsOf(stack).join(" ")} data-opts={m.opts.join(" ")} data-asleep={m.asleep.join(" ")} data-water={can ? water : ""}>
+      <div className="flex items-center gap-1.5">
+        <span className="grid size-9 shrink-0 place-items-center"><StackIcon stack={stack} size={26} /></span>
+        <span className="min-w-0 flex-1 truncate text-meta font-semibold text-[#f3e3c3]">{th ? ITEMS[stack.item].name.th : ITEMS[stack.item].name.en}</span>
+        <span className={`shrink-0 font-data text-lead font-bold tabular-nums ${old && old.level !== m.level ? lit : m.level > 0 ? plain : "text-[#8f7655]"}`}>+{m.level}</span>
+      </div>
+      <dl className="mt-1.5 space-y-1 text-meta leading-snug">
+        <div className="flex items-baseline gap-1.5">
+          <dt className="shrink-0 text-label text-[#a88d5e]">{th ? "พลอย" : "Gems"}</dt>
+          <dd className={`min-w-0 ${gems ? (old && oldGems !== gems ? lit : plain) : "text-[#8f7655]"}`}>{gems || (th ? "ไม่มี" : "None")}</dd>
+        </div>
+        <div className={opts.length ? "" : "flex items-baseline gap-1.5"}>
+          <dt className="shrink-0 text-label text-[#a88d5e]">{th ? "ออปชัน" : "Options"}</dt>
+          {opts.length ? opts.map(({ id, asleep }) => (
+            <dd key={id} className={`flex items-baseline gap-1 ${asleep ? "text-[#8f7655]" : old && !old.opts.includes(id) ? lit : plain}`} data-asleep={asleep}>
+              <span className="min-w-0 truncate">{th ? OPTIONS[id].name.th : OPTIONS[id].name.en}</span>
+              {asleep && <span className="shrink-0 rounded-full border border-[#6b5a45] px-1.5 text-label leading-4 text-[#b9a27c]">{th ? "หลับ" : "Asleep"}</span>}
+            </dd>
+          )) : <dd className="text-[#8f7655]">{th ? "ไม่มี" : "None"}</dd>}
+        </div>
+        {makers.length > 0 && (
+          <div className="flex items-baseline gap-1.5">
+            <dt className="shrink-0 text-label text-[#a88d5e]">{th ? "ตีโดย" : "Forged by"}</dt>
+            <dd className="min-w-0 truncate text-[#d9c39b]">{makers.join(", ")}</dd>
+          </div>
+        )}
+        {lines.map((line, i) => (
+          <div key={line.key} data-smith-move-line={line.key} data-value={line.value.en}>
+            <dt className="text-label text-[#a88d5e]">{th ? line.name.th : line.name.en}</dt>
+            <dd className={`font-data tabular-nums ${before && before[i] && before[i].value.en !== line.value.en ? lit : plain}`}>{th ? line.value.th : line.value.en}</dd>
+          </div>
+        ))}
+        {can && (
+          <div>
+            <dt className="text-label text-[#a88d5e]">{th ? "น้ำในบัว" : "Water in it"}</dt>
+            <dd className={`font-data tabular-nums ${was && (was.water ?? 0) !== water ? "text-[#ffb4a0]" : plain}`}>{th ? `${water} ครั้ง` : String(water)}</dd>
+          </div>
+        )}
+      </dl>
     </div>
   );
 }

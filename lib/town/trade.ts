@@ -150,6 +150,12 @@ export interface Stack {
   /** Who forged it to each of its milestones, by name, in the milestones' order ("" where nobody is written): a tool's history, which goes with it wherever it goes. */
   makers?: string[];
   /**
+   * The kind of tool its options were drawn for, where that is another kind than the tool it sits in now and of
+   * another pool (a hoe's forging moved into a watering can: lib/town/forge's `moveForging`). Left out everywhere
+   * else: a tool with no such field carries a forging of its own kind (lib/town/tools' `originOf` reads it).
+   */
+  origin?: string;
+  /**
    * (a pot of food cooked in forged cookware that carries as much, lib/town/cooking) What a helping eaten out of it at
    * the feast table has more than its dish gives: so many hours of its buff, so much stamina. It goes with the pot
    * when it is set down and taken up; a helping ladled into a bowl is a plain helping.
@@ -158,7 +164,7 @@ export interface Stack {
   scent?: number;
 }
 // ── forging ──
-/** Whether a tool carries something of its own: a plus, an option drawn for it, a gem set in it. */
+/** Whether a tool carries something of its own: a plus, an option drawn for it (awake or asleep), a gem set in it. */
 export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus ?? 0) > 0 || !!s.opts?.length || !!s.gems?.length);
 /**
  * A plain thing: one that holds nothing (no dish, no water) and carries nothing of its own. Only plain things are

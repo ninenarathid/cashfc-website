@@ -19,7 +19,7 @@ import { STAMINA, staminaOf } from "@/lib/town/stamina";
 import { GOODS, handOf, held, roomFor } from "@/lib/town/trade";
 import { trialFor } from "@/lib/town/trial";
 // ── forging ──
-import { ELEMENTS, GEMS, drawnOf, gemsOf, levelOf, toolKindOf, type Element } from "@/lib/town/tools";
+import { ELEMENTS, GEMS, TOOL_LINES, awayOf, drawnOf, gemsOf, levelOf, toolKindOf, type Element, type ToolKind } from "@/lib/town/tools";
 import { handSlot } from "@/lib/town/trade";
 import { WELL } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -213,6 +213,31 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
                 <Do onClick={() => { trial.grantSmith(); setSaid(th ? "ได้ไม้ เศษแร่ แร่ก้อน พลอย และเหรียญแล้ว (กระเป๋า 20 ช่อง)" : "Timber, fragments, ore, gems and coins are in the bag (twenty slots)"); }}>{th ? "เสกวัตถุดิบ" : "Materials"}</Do>
                 {[0, 3, 6, 7, 10].map((n) => <Do key={n} on={!!tool && !!kind && levelOf(tool) === n} onClick={() => { if (tool && kind) trial.setTool(at, n, drawnOf(tool).map((o) => o ?? ""), gemsOf(tool)); }}>+{n}</Do>)}
                 <Do onClick={() => trial.skipHours(0.1)}>+6 {th ? "นาที" : "min"}</Do>
+              </Row>
+            );
+          })()}
+          {/* ── forging: a move ── what trying a move out takes: the cookware (a pot far forged, a plain pan, a grill a little forged), a hoe and a
+              full watering can both forged (their options are of two pools: each other's sleep), coins, and the way to the forge with the leaf open
+              (a move is asked from beside the forge: the Test window's own way in to his screen is from anywhere) */}
+          {process.env.NODE_ENV === "development" && (() => {
+            const lines: Array<["kitchen" | "farming", readonly ToolKind[]]> = [["kitchen", TOOL_LINES.kitchen], ["farming", TOOL_LINES.farming]];
+            const has = (kind: ToolKind) => { const s = purse.bag.find((b) => b?.item === kind); return s ? `${th ? ITEMS[kind].name.th : ITEMS[kind].name.en} +${levelOf(s)}${awayOf(s) ? (th ? " (ออปชันหลับ)" : " (asleep)") : ""}` : null; };
+            const told = lines.map(([, kinds]) => kinds.map(has).filter(Boolean).join(" · ")).filter(Boolean).join("  |  ");
+            const go = () => {
+              const w = window as unknown as { __townView?: { warp: (x: number, y: number) => boolean }; __townSmith?: { open: (view: string) => void } };
+              // (a tile before the forge that can be stood on, within its reach)
+              w.__townView?.warp(51, 25);
+              onClose(); w.__townSmith?.open("move");
+            };
+            const give = (line: "kitchen" | "farming") => setSaid(trial.grantMove(line)
+              ? (th ? (line === "kitchen" ? "ได้หม้อ +7 กระทะเปล่า และเตาปิ้ง +3 แล้ว" : "ได้จอบ +7 กับบัวรดน้ำ +10 ที่น้ำเต็มแล้ว") : line === "kitchen" ? "A pot at +7, a plain pan and a grill at +3 are in the bag" : "A hoe at +7 and a full watering can at +10 are in the bag")
+              : th ? "กระเป๋าเต็ม" : "The bag is full");
+            return (
+              <Row label={th ? "ย้ายบวกและพลอย (ช่าง)" : "Moving a forging (the smith)"} value={<span className="font-data text-meta tabular-nums text-ink" data-test-move>{told || "–"}</span>}>
+                <Do onClick={() => give("kitchen")}>{th ? "ชุดครัว: หม้อ +7 กระทะ เตาปิ้ง +3" : "Cookware: pot +7, pan, grill +3"}</Do>
+                <Do onClick={() => give("farming")}>{th ? "จอบ +7 กับบัว +10 น้ำเต็ม" : "A hoe +7 and a full can +10"}</Do>
+                <Do onClick={() => trial.grant("rod", 0, 1000)}>+1000 coin</Do>
+                <Do onClick={go}>{th ? "ไปยืนที่เตา เปิดหน้าย้าย" : "To the forge, the Move leaf"}</Do>
               </Row>
             );
           })()}

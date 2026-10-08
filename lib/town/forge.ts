@@ -1,6 +1,8 @@
+import { canHolds } from "./farm";
 import { ITEMS, type ItemId } from "./items";
+import { running } from "./powers";
 import {
-  FORGE, GEMS, SMELTING, SMELTS, drawable, drawnOf, elementOfGem, gemsOf, has, isWooden, levelOf, makerName, makersOf, settable, toolKindOf,
+  FORGE, GEMS, SMELTING, SMELTS, awayOf, drawable, drawnOf, elementOfGem, gemsOf, has, isElement, isWooden, levelOf, lineKinds, makerName, makersOf, originOf, samePool, settable, toolKindOf, toolLineOf,
   type Element, type OptionId, type ToolKind,
 } from "./tools";
 import { heldIn, roomIn, stow, takeOut } from "./pouches";
@@ -18,6 +20,10 @@ import { type Purse, type Stack } from "./trade";
  * - **At a milestone** two options are drawn and one is chosen; an option can be drawn again for a gem and coins,
  *   the old one kept if wished. A draw waits until it is chosen: it cannot be had again by walking away.
  * - **A gem** is set into a tool's socket with a mount of fine timber; one set over another replaces it.
+ * - **A move** (the owner, 2026-10-09): two tools of one line and one tier, both the member's, trade the whole of
+ *   what the smith put into them, for coins. It always takes. Between the hoe and the watering can, whose options
+ *   are drawn from pools of their own, the options a forging carries sleep in the other kind, and the forging is
+ *   neither forged further nor drawn for again until it is back.
  *
  * **What the smith is given may be in a pouch as well as in the bag** (lib/town/pouches: ore and gems in a miner's
  * sack, timber in a woodcutter's bundle): every count here is of the two together (`heldIn`), what is spent leaves
@@ -45,6 +51,13 @@ export const SMITH = {
   redraw: { gems: 1, fee: 100 },
   /** How many options a draw lays out to choose from. */
   offer: 2,
+  /**
+   * Moving what the smith put into a tool to another tool of its line (`moveForging`): so many hundredths of the
+   * sticker price of the higher of the two tools' levels (the fees of every try up to it, added up: `stickerOf`),
+   * shared by the number of kinds of tool the line has; and never less than so many coins. Coins only, and they
+   * leave the game.
+   */
+  move: { share: 30, least: 50 },
 };
 
 /** A try: the level tried for; how likely it takes, fails and stays, fails and loses a level (hundredths); the fee; and a metal tool's ore and timber. */
@@ -120,6 +133,15 @@ export type SmithRefusal =
   | "self"     // one's own bellows
   | "idle"     // nothing smelting there now
   | "tired"    // the piece smelting has had all the presses of the bellows a piece takes
+  // ── a move ──
+  | "far"      // not standing by the forge
+  | "twice"    // the same slot said twice
+  | "alone"    // a kind of tool alone in its line: there is nothing to move to
+  | "line"     // two tools of different lines, or of different tiers
+  | "nothing"  // the two have nothing to trade: both plain, or carrying the same
+  | "playing"  // a game is being played with one of the two
+  | "running"  // a power of one of the two is going on now (lib/town/powers' `running`)
+  | "foreign"  // the forging sits in a kind of tool of another pool than its own: it is moved back before it is forged further or drawn for again
   | "away";    // the town's books could not be reached
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: SmithRefusal };
 const no = (why: SmithRefusal): { ok: false; why: SmithRefusal } => ({ ok: false, why });
@@ -251,7 +273,8 @@ const setSlot = (purse: Purse, slot: number, s: Stack): Purse => ({ ...purse, ba
 /** The options a draw for a milestone may lay out for a tool: those of the milestone's pool that are built, less every one the tool has. */
 export function candidates(stack: Stack | null | undefined, at: number): OptionId[] {
   const kind = stack ? toolKindOf(stack.item) : null, pool = FORGE.pools[at];
-  if (!kind || !pool) return [];
+  // (nothing is drawn for a forging that is away from home: its options are another kind's, and stay as they are)
+  if (!kind || !pool || awayOf(stack)) return [];
   const mine = drawnOf(stack);
   return drawable(kind, pool).filter((id) => !mine.includes(id));
 }
@@ -260,6 +283,7 @@ export function candidates(stack: Stack | null | undefined, at: number): OptionI
  * draw. -1 when it is owed none. (A level regained is owed nothing: the option drawn there never left the tool.)
  */
 export function owedOf(stack: Stack | null | undefined): number {
+  if (awayOf(stack)) return -1;
   const level = levelOf(stack), mine = drawnOf(stack);
   return FORGE.milestones.findIndex((m, i) => level >= m && !mine[i] && candidates(stack, i).length > 0);
 }
@@ -286,6 +310,8 @@ export function outcomeOf(to: number, r: number): Outcome {
 export function forgeTry(purse: Purse, s: Smithy, slot: number, r: number, by = ""): Did<{ purse: Purse; out: Outcome; from: number; level: number; item: ToolKind; owed: number }> {
   const stack = purse.bag[slot], kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return no("tool");
+  // (a forging that sits in a kind of tool of another pool is moved back first: it is not forged further where its options sleep)
+  if (awayOf(stack)) return no("foreign");
   const from = levelOf(stack);
   if (from >= FORGE.top) return no("top");
   // (a draw the tool is owed is chosen before it is forged further)
@@ -319,7 +345,8 @@ export function pickOffer(from: readonly OptionId[], r1: number, r2: number, n =
 export function pendingSlot(purse: Purse, p: Pending | null, slot = -1): number {
   if (!p) return -1;
   // (a draw made again is for the tool that has the old option, whatever its level has fallen to since: what was paid for it is not lost with a level)
-  const fits = (s: Stack | null | undefined) => !!s && toolKindOf(s.item) === p.item && (p.old ? drawnOf(s)[p.at] === p.old : levelOf(s) >= FORGE.milestones[p.at] && !drawnOf(s)[p.at]);
+  // (never a tool whose forging is away from home: what it carries there is another kind's, and no draw is for it)
+  const fits = (s: Stack | null | undefined) => !!s && toolKindOf(s.item) === p.item && !awayOf(s) && (p.old ? drawnOf(s)[p.at] === p.old : levelOf(s) >= FORGE.milestones[p.at] && !drawnOf(s)[p.at]);
   return fits(purse.bag[slot]) ? slot : purse.bag.findIndex(fits);
 }
 /**
@@ -331,6 +358,7 @@ export function draw(purse: Purse, s: Smithy, slot: number, r1: number, r2: numb
   if (s.pending && waits >= 0) return waits === slot ? { ok: true, smithy: s, pending: s.pending, slot, fresh: false } : no("owed");
   const stack = purse.bag[slot], kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return no("tool");
+  if (awayOf(stack)) return no("foreign");
   const at = owedOf(stack);
   if (at < 0) return no("none");
   const pending: Pending = { item: kind, at, offer: pickOffer(candidates(stack, at), r1, r2) };
@@ -344,6 +372,7 @@ export function redraw(purse: Purse, s: Smithy, slot: number, at: number, gem: I
   if (s.pending && pendingSlot(purse, s.pending, slot) >= 0) return no("owed");
   const stack = purse.bag[slot], kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return no("tool");
+  if (awayOf(stack)) return no("foreign");
   const old = drawnOf(stack)[at];
   if (!old) return no("none");
   if (!elementOfGem(gem) || heldIn(purse, gem) < SMITH.redraw.gems) return no("gem");
@@ -392,6 +421,105 @@ export const gemsIn = (of: Purse | Purse["bag"]): Array<{ element: Element; gem:
 /** The tools of a bag that can be forged, each with its slot. */
 export const toolsIn = (bag: Purse["bag"]): Array<{ slot: number; stack: Stack; kind: ToolKind }> =>
   bag.flatMap((s, slot) => { const kind = s ? toolKindOf(s.item) : null; return s && kind ? [{ slot, stack: s, kind }] : []; });
+
+/* ── a move ─────────────────────────────────────────────────────────────── */
+
+/**
+ * What the smith put into a tool, all of it: its plus, the options it carries by their milestones, its gems, its
+ * makers' names, and the kind of tool those options were drawn for (null with no option: a forging that has none is
+ * of no pool). What a tool holds of its own (a can's water) is no part of it.
+ */
+export interface Forging { plus: number; opts: Array<OptionId | null>; gems: Element[]; makers: Array<string | null>; origin: ToolKind | null }
+export function forgingOf(stack: Stack | null | undefined): Forging {
+  const opts = drawnOf(stack);
+  // (every gem kept that is one, as it is kept: how many of them work is the reader's to say, by the tool's sockets)
+  const gems = stack && toolKindOf(stack.item) && Array.isArray(stack.gems) ? stack.gems.filter(isElement) : [];
+  return { plus: levelOf(stack), opts, gems, makers: makersOf(stack), origin: opts.some(Boolean) ? originOf(stack) : null };
+}
+/** Whether two forgings are the same in everything: a trade of them would change neither tool. */
+const sameForging = (a: Forging, b: Forging): boolean => JSON.stringify(a) === JSON.stringify(b);
+/**
+ * A tool with a forging in place of whatever it carried: written as it is kept (nothing kept that says nothing).
+ * `origin` is kept only where it says something: the forging has an option, and this tool's kind draws from another
+ * pool than the kind that option was drawn for. What the tool holds of its own stays as it is, but a watering can's
+ * water is cut down to what the can holds now (lib/town/farm's `canHolds`): nobody gains water by a move.
+ */
+export function withForging(tool: Stack, f: Forging): Stack {
+  const { plus: _p, opts: _o, gems: _g, makers: _m, origin: _f, ...bare } = tool, kind = toolKindOf(tool.item);
+  let opt = -1, maker = -1;
+  f.opts.forEach((o, i) => { if (o) opt = i; });
+  f.makers.forEach((m, i) => { if (m) maker = i; });
+  const next: Stack = {
+    ...bare,
+    ...(f.plus > 0 ? { plus: f.plus } : {}),
+    ...(opt >= 0 ? { opts: f.opts.slice(0, opt + 1).map((o) => o ?? "") } : {}),
+    ...(f.gems.length ? { gems: [...f.gems] } : {}),
+    ...(maker >= 0 ? { makers: f.makers.slice(0, maker + 1).map((m) => m ?? "") } : {}),
+    ...(kind && f.origin && opt >= 0 && !samePool(f.origin, kind) ? { origin: f.origin } : {}),
+  };
+  return typeof next.water === "number" && canHolds(next) > 0 ? { ...next, water: Math.max(0, Math.min(next.water, canHolds(next))) } : next;
+}
+/** Two tools as they are once they have traded what the smith put into them: the first with the second's, the second with the first's. */
+export const traded = (a: Stack, b: Stack): [Stack, Stack] => [withForging(a, forgingOf(b)), withForging(b, forgingOf(a))];
+/** What the tries up to a level ask in coins, all told: a level's sticker price (read from the owner's table, never written again). */
+export const stickerOf = (level: number): number => TRIES.reduce((t, x) => t + (x.to <= level ? x.fee : 0), 0);
+/**
+ * What a move costs in a line of so many kinds of tool, at the higher of the two tools' levels: its share of that
+ * level's sticker price, shared by the kinds, rounded up; never less than the least. (Worked in whole hundredths, so
+ * that a fee that comes out even is not rounded a coin up.)
+ */
+export const moveFeeAt = (kinds: number, level: number): number =>
+  Math.max(SMITH.move.least, Math.ceil((SMITH.move.share * stickerOf(Math.max(0, Math.min(FORGE.top, Math.floor(level))))) / (100 * Math.max(1, kinds))));
+/** What moving between two tools costs: null of what are not two tools that are forged. */
+export function moveFee(a: Stack | null | undefined, b: Stack | null | undefined): number | null {
+  const ka = a ? toolKindOf(a.item) : null, kb = b ? toolKindOf(b.item) : null;
+  return ka && kb ? moveFeeAt(lineKinds(ka).length, Math.max(levelOf(a), levelOf(b))) : null;
+}
+/**
+ * What whoever keeps the game says of the moment a move is asked at: whether the member stands by the forge, whether
+ * a game is being played with either of the two tools, and the clock.
+ */
+export interface MoveAsk { near: boolean; playing: boolean; now: number }
+/**
+ * Why two tools of a bag cannot trade what the smith put into them now, or null when they can. In this order, and
+ * every one of them before a coin is taken: not by the forge; the same slot twice; a slot with no tool that is
+ * forged; a kind alone in its line; another line or tier; nothing to trade; a draw that waits to be chosen (or is
+ * owed) on either; a game being played with either; a power of either going on; too few coins.
+ */
+export function moveWhy(purse: Purse, s: Smithy, from: number, to: number, ask: MoveAsk): SmithRefusal | null {
+  if (!ask.near) return "far";
+  if (from === to) return "twice";
+  const a = purse.bag[from], b = purse.bag[to], ka = a ? toolKindOf(a.item) : null, kb = b ? toolKindOf(b.item) : null;
+  if (!a || !b || !ka || !kb) return "tool";
+  if (lineKinds(ka).length < 2) return "alone";
+  if (toolLineOf(ka) !== toolLineOf(kb) || ITEMS[a.item].tier !== ITEMS[b.item].tier) return "line";
+  if (sameForging(forgingOf(a), forgingOf(b))) return "nothing";
+  for (const [slot, stack] of [[from, a], [to, b]] as Array<[number, Stack]>) if (owedOf(stack) >= 0 || (s.pending && pendingSlot(purse, s.pending, slot) === slot)) return "owed";
+  if (ask.playing) return "playing";
+  if (running(purse, a, ask.now).length || running(purse, b, ask.now).length) return "running";
+  if (purse.coins < moveFee(a, b)!) return "coins";
+  return null;
+}
+/**
+ * Two tools of one line and one tier trade the whole of what the smith put into them: the plus, the gems, the
+ * options, the makers' names. Onto a plain tool it is the same thing, with nothing coming back. It always takes, for
+ * coins only (`moveFee`). The tools stay in their slots, so the one in the hand is still the one in the hand; what a
+ * tool holds of its own stays with it (`withForging`); a counted power's count is the member's and is left as it is;
+ * no maker's name is written and nothing goes on the board.
+ */
+export function moveForging(purse: Purse, s: Smithy, from: number, to: number, ask: MoveAsk): Did<{ purse: Purse; fee: number; a: ToolKind; b: ToolKind; level: number; spilt: number }> {
+  const why = moveWhy(purse, s, from, to, ask);
+  if (why) return no(why);
+  const a = purse.bag[from]!, b = purse.bag[to]!, fee = moveFee(a, b)!, [na, nb] = traded(a, b);
+  const spilt = Math.max(0, (a.water ?? 0) - (na.water ?? 0)) + Math.max(0, (b.water ?? 0) - (nb.water ?? 0));
+  const bag = purse.bag.map((x, i) => (i === from ? na : i === to ? nb : x));
+  return { ok: true, purse: { ...purse, coins: purse.coins - fee, bag }, fee, a: toolKindOf(a.item)!, b: toolKindOf(b.item)!, level: Math.max(levelOf(a), levelOf(b)), spilt };
+}
+/** The tools of a bag another may trade with: those of its line, itself left out, each with its slot. */
+export const fellowsIn = (bag: Purse["bag"], slot: number): Array<{ slot: number; stack: Stack; kind: ToolKind }> => {
+  const mine = bag[slot], kind = mine ? toolKindOf(mine.item) : null;
+  return kind ? toolsIn(bag).filter((x) => x.slot !== slot && toolLineOf(x.kind) === toolLineOf(kind)) : [];
+};
 
 /* ── the board ──────────────────────────────────────────────────────────── */
 

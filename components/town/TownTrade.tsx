@@ -990,7 +990,10 @@ export function holdsOf(s: Stack, th: boolean): string | null {
   // (and who forged it, each name once: a tool's history goes with it into whoever's bag it comes)
   const makers = [...new Set(makersOf(s).filter((x): x is string => !!x))];
   return [m.level > 0 ? `+${m.level}` : null, gems ? `${th ? "พลอย" : "gems:"} ${gems}` : null,
-    ...m.opts.map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)), makers.length ? `${th ? "ตีโดย" : "forged by"} ${makers.join(", ")}` : null, holds].filter(Boolean).join(" · ") || null;
+    ...m.opts.map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)),
+    // (the options of a forging that sits in a kind of tool of another pool: they are the tool's still, and sleep)
+    ...m.asleep.map((id) => `${th ? OPTIONS[id].name.th : OPTIONS[id].name.en} ${th ? "(หลับ)" : "(asleep)"}`),
+    makers.length ? `${th ? "ตีโดย" : "forged by"} ${makers.join(", ")}` : null, holds].filter(Boolean).join(" · ") || null;
 }
 function heldIn(s: Stack, th: boolean): string | null {
   if (s.of) return `${th ? ITEMS[s.of.dish].name.th : ITEMS[s.of.dish].name.en} · ${s.of.left}`;

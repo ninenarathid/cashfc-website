@@ -9,6 +9,11 @@ import type { Stack } from "./trade";
  * (0 to 10), the options drawn for it at its milestones (`opts`), the gems set in it (`gems`). Forging never changes
  * a tool's tier (the owner), and a plus buys time and ease: never more things a go, never less stamina.
  *
+ * What the smith put into a tool (its plus, its options, its gems, its makers' names) may be traded with another tool
+ * of its line (`TOOL_LINES`; lib/town/forge's `moveForging`). The cookware draws from one pool, so there an option is
+ * at home in all three; a hoe's options in a watering can, and a can's in a hoe, sleep until they are back in a kind
+ * of their own pool (`originOf`, `awayOf`). That is the only way an option sleeps.
+ *
  * This file is the registry and the readers. It keeps nothing, reads no clock, and imports nothing but types, so
  * that lib/town/gear (which lib/town/trade stands on) may read it. The smith's own rules (smelting, a try, a draw)
  * are lib/town/forge's; what is counted by the day or the meal is lib/town/powers'. Nothing here is told to the
@@ -27,6 +32,28 @@ export const isWooden = (kind: ToolKind): boolean => WOODEN.includes(kind);
 /** The kind of tool a thing is forged as: null for everything else, the better tools of later tiers among it. */
 export const toolKindOf = (item: string | null | undefined): ToolKind | null =>
   (typeof item === "string" && (TOOL_KINDS as readonly string[]).includes(item) ? (item as ToolKind) : null);
+/**
+ * The lines of work, by the kinds of tool each is done with (the owner, 2026-10-09: a line with several tools, like
+ * cooking's pot, pan and grill, may move a tool's plus and gems to another of its tools). The table itself, and
+ * nothing worked out from elsewhere: every kind that is forged is in one line and in no other. Two tools of one line
+ * may trade what the smith put into them (lib/town/forge's `moveForging`), and the more kinds a line has the less it
+ * pays; a kind alone in its line has nothing to trade with. A line is called as lib/town/lines calls it (cooking is
+ * "kitchen" there), though nothing is read from there.
+ */
+export const TOOL_LINES = {
+  kitchen: ["pot", "pan", "grill"],
+  farming: ["hoe", "can"],
+  fishing: ["rod"],
+  insects: ["bugNet"],
+  mining: ["pick"],
+  felling: ["axe"],
+} as const satisfies Record<string, readonly ToolKind[]>;
+export type ToolLine = keyof typeof TOOL_LINES;
+export const TOOL_LINE_IDS = Object.keys(TOOL_LINES) as ToolLine[];
+/** The line a kind of tool is of. */
+export const toolLineOf = (kind: ToolKind): ToolLine | null => TOOL_LINE_IDS.find((l) => (TOOL_LINES[l] as readonly ToolKind[]).includes(kind)) ?? null;
+/** The kinds of a kind's line, in the table's order, itself among them (itself alone, of a kind in no line). */
+export const lineKinds = (kind: ToolKind): readonly ToolKind[] => { const l = toolLineOf(kind); return l ? TOOL_LINES[l] : [kind]; };
 
 export const FORGE = {
   /** The highest plus. */
@@ -227,6 +254,13 @@ export const optionOf = (id: string): Option | null => (isOption(id) ? OPTIONS[i
 export const poolOf = (kind: ToolKind, pool: 1 | 2): OptionId[] => OPTION_IDS.filter((id) => OPTIONS[id].pool === pool && (OPTIONS[id].tools as readonly ToolKind[]).includes(kind));
 /** One of an option's own numbers (nothing, of a number it has not). */
 export const optN = (id: OptionId, key: string): number => (OPTIONS[id].n as Readonly<Record<string, number>>)[key] ?? 0;
+/** Every option a kind of tool is drawn, as one word: two kinds with the same word draw from one pool. */
+const POOL_WORD = Object.fromEntries(TOOL_KINDS.map((k) => [k, OPTION_IDS.filter((id) => (OPTIONS[id].tools as readonly ToolKind[]).includes(k)).join(" ")])) as Record<ToolKind, string>;
+/**
+ * Whether two kinds of tool draw their options from one pool, as the pot, the pan and the grill do: an option drawn
+ * for one is then an option of the other, and works in it. Read from the registry: nothing is listed twice.
+ */
+export const samePool = (a: ToolKind, b: ToolKind): boolean => a === b || POOL_WORD[a] === POOL_WORD[b];
 
 /**
  * What is built: the options and the elements whose doing a game really reads, by the kind of tool. The smith draws
@@ -289,11 +323,16 @@ export interface ToolMods {
   /** Its plus, 0 to 10. */
   level: number;
   /**
-   * The options it has, in the order of their milestones. An option once drawn is the tool's for good and works
-   * whatever the level has since fallen to (the owner, 2026-10-08: a failed try takes a level, never a choice made).
+   * The options it has that work, in the order of their milestones. An option once drawn is the tool's for good and
+   * works whatever the level has since fallen to (the owner, 2026-10-08: a failed try takes a level, never a choice
+   * made).
    */
   opts: OptionId[];
-  /** Always empty: no option sleeps any more. (Kept so that what reads a tool's mods keeps its shape.) */
+  /**
+   * The options it carries that sleep: those of a forging that sits in a kind of tool of another pool than the one
+   * they were drawn for (a hoe's in a watering can, a can's in a hoe: `awayOf`). They do nothing there, and work
+   * again when the forging is back in a kind of their own pool. Nothing else puts an option to sleep.
+   */
   asleep: OptionId[];
   /** The level each element works at, of the gems set in it (one more at the top). */
   gems: Partial<Record<Element, number>>;
@@ -308,16 +347,48 @@ export function levelOf(stack: Stack | null | undefined): number {
   const p = stack.plus;
   return typeof p === "number" && Number.isFinite(p) ? Math.max(0, Math.min(FORGE.top, Math.floor(p))) : 0;
 }
-/**
- * The options a tool has, by the milestone each was drawn at (null where none was drawn, or what is kept there is no
- * option of this tool's and that milestone's pool): made sound.
- */
-export function drawnOf(stack: Stack | null | undefined): Array<OptionId | null> {
-  const kind = stack ? toolKindOf(stack.item) : null, kept = stack && Array.isArray(stack.opts) ? stack.opts : [];
-  return FORGE.milestones.map((_, i) => {
+/** What is kept as a tool's options, read as the options of a kind of tool: by the milestone, each of that kind's and that milestone's pool, each once. */
+const optsFor = (kept: readonly unknown[], kind: ToolKind): Array<OptionId | null> =>
+  FORGE.milestones.map((_, i) => {
     const id = kept[i];
-    return kind && isOption(id) && OPTIONS[id].pool === FORGE.pools[i] && (OPTIONS[id].tools as readonly ToolKind[]).includes(kind) && kept.indexOf(id) === i ? id : null;
+    return isOption(id) && OPTIONS[id].pool === FORGE.pools[i] && (OPTIONS[id].tools as readonly ToolKind[]).includes(kind) && kept.indexOf(id) === i ? id : null;
   });
+/**
+ * A tool's options and the kind of tool they were drawn for, made sound. They are the tool's own kind's, but for a
+ * forging that came out of a fellow of its line (`origin` on the stack: lib/town/forge's `moveForging` writes it)
+ * and has an option of that kind's: then they are that kind's. A forging with no option yet is of no pool, and so of
+ * the kind it sits in, wherever it began.
+ */
+function carriedOf(stack: Stack | null | undefined): { origin: ToolKind | null; opts: Array<OptionId | null> } {
+  const kind = stack ? toolKindOf(stack.item) : null;
+  if (!stack || !kind) return { origin: null, opts: FORGE.milestones.map(() => null) };
+  const kept: readonly unknown[] = Array.isArray(stack.opts) ? stack.opts : [], from = toolKindOf(stack.origin);
+  if (from && from !== kind && lineKinds(kind).includes(from)) {
+    const theirs = optsFor(kept, from);
+    if (theirs.some(Boolean)) return { origin: from, opts: theirs };
+  }
+  return { origin: kind, opts: optsFor(kept, kind) };
+}
+/**
+ * The options a tool carries, by the milestone each was drawn at (null where none was drawn, or what is kept there is
+ * no option of the kind they were drawn for and that milestone's pool): made sound. Carried, awake or asleep: which
+ * of the two is `awayOf`'s to say, and `modsOf` has them apart.
+ */
+export const drawnOf = (stack: Stack | null | undefined): Array<OptionId | null> => carriedOf(stack).opts;
+/**
+ * The kind of tool a tool's options were drawn for: its own, but for a forging moved into it out of a fellow of its
+ * line. Null for a thing that is not forged. (A tool forged before anything could be moved has no such field, and is
+ * its own kind.)
+ */
+export const originOf = (stack: Stack | null | undefined): ToolKind | null => carriedOf(stack).origin;
+/**
+ * Whether a tool's forging is away from home: it sits in a kind of tool that draws from another pool than its
+ * options were drawn from. Its options sleep there, and it is neither forged further nor drawn for again until it is
+ * back (lib/town/forge). Never, among the pot, the pan and the grill: they draw from one pool.
+ */
+export function awayOf(stack: Stack | null | undefined): boolean {
+  const kind = stack ? toolKindOf(stack.item) : null, from = carriedOf(stack).origin;
+  return !!kind && !!from && !samePool(from, kind);
 }
 /** The elements of the gems set in a tool, one for each socket filled: made sound. */
 export function gemsOf(stack: Stack | null | undefined): Element[] {
@@ -339,12 +410,12 @@ export function makersOf(stack: Stack | null | undefined): Array<string | null> 
 export function modsOf(stack: Stack | null | undefined): ToolMods {
   const kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return NOTHING;
-  const level = levelOf(stack), opts = drawnOf(stack).filter((id): id is OptionId => !!id);
+  const level = levelOf(stack), drawn = drawnOf(stack).filter((id): id is OptionId => !!id), away = awayOf(stack);
   const set = gemsOf(stack), gems: Partial<Record<Element, number>> = {};
   for (const e of set) gems[e] = worksAt(level);
-  return { kind, level, opts, asleep: [], gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
+  return { kind, level, opts: away ? [] : drawn, asleep: away ? drawn : [], gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
 }
-/** Whether a tool has an option: drawn for it at one of its milestones, whatever its level is now. */
+/** Whether a tool has an option that works: drawn at one of its milestones, whatever its level is now, and not asleep. */
 export const has = (stack: Stack | null | undefined, id: OptionId): boolean => modsOf(stack).opts.includes(id);
 /** The level an element works at in a tool: 0 with no gem of it set. */
 export const gemLevel = (stack: Stack | null | undefined, element: Element): number => modsOf(stack).gems[element] ?? 0;

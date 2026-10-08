@@ -48,11 +48,13 @@ import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helpin
 // ── forging ──
 import { FORGE, toolKindOf, type OptionId, type ToolKind } from "./tools";
 import { beside, mayTwice } from "./farm";
+import { canHolds } from "./farm";
 import { canFx, netFx } from "./forged";
 import { usePower } from "./powers";
 import { heldStack as toolInHand } from "./trade";
+import type { Stack } from "./trade";
 import {
-  bellows, bellowsLeft, choose as chooseOption, collect as collectSmelted, draw as drawOptions, forgeTry, markFound, markTop, newBoard, newSmithy, redraw as redrawOption, setGem, smelt, smithView, soundSmithy, widen,
+  bellows, bellowsLeft, choose as chooseOption, collect as collectSmelted, draw as drawOptions, forgeTry, markFound, markTop, moveForging, newBoard, newSmithy, redraw as redrawOption, setGem, smelt, smithView, soundSmithy, widen,
   type Did as SmithDid, type Outcome as ForgeOutcome, type SmithBoard, type Smithy,
 } from "./forge";
 /** What each tester has at the smith (lib/town/forge), the village's board there, and every try that was made: the whole browser's. */
@@ -68,6 +70,7 @@ import { ALL, GEMS, GEM_FX, ORES, gemBy, has as toolHas } from "./tools";
 import { isRest } from "./cave";
 import { ALL_LINE_IDS, MORE_LINE_IDS } from "./lines";
 import { MOUNTAIN_ROCKS } from "./world";
+import { bySmith } from "./world";
 /** The cave as the browser keeps it for every tester (lib/town/cave-state); what scripts have a rock hold, and the chances they hold; and each tester's own deeds at the mine. */
 const CAVE_KEPT = "cashtown.trial.cave.1", MINE_FATE = "cashtown.trial.mine.fate.1", MINE_LUCK = "cashtown.trial.mine.luck.1";
 const mineDeedsKey = (id: string) => `cashtown.trial.mine.deeds.1.${id}`;
@@ -1545,6 +1548,15 @@ export class Trial {
   }
   smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithKeep(redrawOption(this.purse(), this.smithy(), slot, at, gem, this.smithChance(), this.smithChance())); }
   smithGem(slot: number, gem: ItemId) { return this.smithKeep(setGem(this.purse(), slot, gem)); }
+  /**
+   * Two tools of my bag trade what the smith put into them. The trial takes the page's word for where I stand and
+   * whether a game's board is open (it is the browser's own keeper); nothing goes on the board and no try is logged.
+   */
+  smithMove(from: number, to: number, how: { at: [number, number] | null; playing: boolean }) {
+    const near = !!how.at && bySmith(how.at[0] + 0.5, how.at[1] + 0.5);
+    const did = this.smithKeep(moveForging(this.purse(), this.smithy(), from, to, { near, playing: !!how.playing, now: this.now() }));
+    return did.ok ? { ok: true as const, fee: did.fee, spilt: did.spilt } : did;
+  }
   // ── mining ──
   /* ── the mountain's rocks and the cave (lib/town/mining, cave-state): rocks, ways down and torches are everybody's, so the browser's ── */
   private caveKept(): CaveState { return caveAt(this.read<unknown>(CAVE_KEPT, () => null, () => true), this.now()); }
@@ -1821,6 +1833,35 @@ export class Trial {
       bag = put(bag, id, Math.min(n, roomFor(bag, id)));
     }
     this.save({ ...p, coins: p.coins + 20_000, bag });
+  }
+  /**
+   * (forging: a move) What trying a move out takes: the tools of a line that has several, forged so that a move shows
+   * everything there is to it (a plus, options, a gem, makers' names; of the farm's two a watering can full of water,
+   * which holds more forged than it does plain). Each takes the place of the first of its kind in the bag, or an
+   * empty slot. False where the bag has no room.
+   */
+  grantMove(line: "kitchen" | "farming"): boolean {
+    if (this.purse().bag.length < 20) this.resize(20);
+    const sets: Record<"kitchen" | "farming", Stack[]> = {
+      kitchen: [
+        { item: "pot", n: 1, plus: 7, opts: ["ckFire", "ckBase"], gems: ["fire"], makers: ["Aqua", "Nine"] },
+        { item: "pan", n: 1 },
+        { item: "grill", n: 1, plus: 3, opts: ["ckBrisk"], gems: ["water"], makers: ["Nine"] },
+      ],
+      farming: [
+        { item: "hoe", n: 1, plus: 7, opts: ["hoClear", "hoFirst"], gems: ["earth"], makers: ["Nine", "Nine"] },
+        { item: "can", n: 1, plus: 10, opts: ["cnDrop", "cnThrift", "cnRain"], gems: ["fire"], makers: ["Aqua", "Aqua", "Aqua"] },
+      ],
+    };
+    const p = this.purse(), bag = [...p.bag];
+    for (const made of sets[line]) {
+      const at = bag.findIndex((s) => s?.item === made.item), slot = at >= 0 ? at : bag.findIndex((s) => !s);
+      if (slot < 0) return false;
+      // (a can is given full, as the can it now is)
+      bag[slot] = made.item === "can" ? { ...made, water: canHolds(made) } : made;
+    }
+    this.save({ ...p, bag });
+    return true;
   }
   /** A bag of so many slots. One that is growing keeps everything; one that is shrinking keeps what fits in front, and says no when a slot to go is full. */
   resize(slots: number): boolean {

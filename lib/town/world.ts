@@ -404,14 +404,18 @@ export function setBridge(spans: number, open = true) {
  * where he does, before it and to its right, by the anvil; `board` is the notice board, before the forge on its other side, and `sign` the post his sign hangs from, behind it;
  * `fire` is the furnace's mouth, from the forge's ground point in its picture's own pixels (across, up), which glows.
  * `tiles` are the ones they close. Not one of KEEPERS yet: he keeps no shop, and nothing of the town's was laid out
- * round him.
+ * round him. `reach`: whoever stands within so many tiles of the forge is by it (a friend's bellows; a move of what
+ * he put into a tool: `bySmith`).
  */
 export const SMITH = {
   id: "smith" as const,
   stand: { x: 50.2, y: 24.1 }, at: { x: 51.42, y: 23.51 }, board: { x: 50.2, y: 26.6 }, sign: { x: 50.54, y: 23.26 },
   fire: [-19, 30] as [number, number],
   tiles: (PREVIEW ? [[50, 24], [49, 24], [50, 23], [51, 23], [50, 26]] : []) as Array<[number, number]>,
+  reach: 6,
 };
+/** Whether somebody at a point of the map (a tile's middle, or wherever they stand) is by the forge. */
+export const bySmith = (x: number, y: number): boolean => Math.hypot(x - SMITH.stand.x, y - SMITH.stand.y) <= SMITH.reach;
 const smithAt = new Set(SMITH.tiles.map(([x, y]) => `${x},${y}`));
 
 /**

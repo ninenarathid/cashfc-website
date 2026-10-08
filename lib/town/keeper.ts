@@ -569,6 +569,12 @@ export interface Keeper {
   smithRedraw(slot: number, at: number, gem: ItemId): Promise<SmithDid<{ pending: Pending }>>;
   /** Set a gem of my bag into the tool in a slot. */
   smithGem(slot: number, gem: ItemId): Promise<SmithDid<{ element: Element; over: Element | null }>>;
+  /**
+   * Two tools of one line trade what the smith put into them (lib/town/forge's `moveForging`): the two slots of my
+   * bag, and what the page knows of the moment: the tile I stand on (null where it cannot say) and whether a game's
+   * board is open on it. What it cost, and how much water a can that holds less now has lost.
+   */
+  smithMove(from: number, to: number, how: MoveHow): Promise<SmithDid<{ fee: number; spilt: number }>>;
   // ── mining ──
   /**
    * The mountain's rocks and the cave (lib/town/mining, lib/town/cave-state): what I am told of them, or null from
@@ -618,6 +624,8 @@ export interface Keeper {
 // ── forging ──
 /** What a keeper tells of the smith: what the member has there, and the village's board. */
 export interface SmithTold { smithy: Smithy; board: SmithBoard }
+/** What the page says of the moment a move is asked at: the tile the member stands on, and whether a game's board is open. */
+export interface MoveHow { at: [number, number] | null; playing: boolean }
 
 /**
  * One function of the town's, asked of the database: its answer as it came, or
@@ -1687,4 +1695,6 @@ export class DbKeeper implements Keeper {
   smithChoose(slot: number, pick: string) { return this.smithDeed<{ opt: OptionId; kept: boolean }>("town_smith_choose", { p_slot: slot, p_pick: pick }); }
   smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithDeed<{ pending: Pending }>("town_smith_redraw", { p_slot: slot, p_at: at, p_gem: gem }); }
   smithGem(slot: number, gem: ItemId) { return this.smithDeed<{ element: Element; over: Element | null }>("town_smith_gem", { p_slot: slot, p_gem: gem }); }
+  // (a move of what the smith put into a tool: the database has no such function yet, and nothing is moved or paid)
+  async smithMove(_from: number, _to: number, _how: MoveHow): Promise<SmithDid<{ fee: number; spilt: number }>> { return { ok: false, why: "unbuilt" }; }
 }
