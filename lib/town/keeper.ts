@@ -511,6 +511,8 @@ export interface Keeper {
  * reached.
  */
 export type Ask = (fn: string, args?: Record<string, unknown>) => Promise<unknown>;
+/** How long a board that was shut waits to be told of as left, in ms: longer than any board waits before saying it is done. */
+const LEFT_MS = 900;
 type Answer = Record<string, unknown>;
 /** What is read as a question's own turn in the line comes, and kept of its answer before the next one's (see `ask`). */
 interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => void }
@@ -1441,17 +1443,35 @@ export class DbKeeper implements Keeper {
    * was done: this is how often each board is lost or given up, to set its numbers by. Fishing is left out, every
    * end of a line being the database's own already. Nothing waits for the answer and nothing hangs on it; a
    * database that has not heard of it is asked three times and then left alone.
+   *
+   * A board says it is done a blink after its last hit (up to 0.62 s), and may be shut in that blink: then its own
+   * end is the one that counts. So a board left is told a moment late, and not at all when its end comes after it.
    */
   private untold = 0;
+  private leaving: { key: string; tell: () => void; timer: ReturnType<typeof setTimeout> } | null = null;
   record(play: Play) {
     if (play.game === "fishing" || this.untold >= 3 || this.shut) return;
     const whole = (n: number) => (Number.isFinite(n) ? Math.max(0, Math.round(n)) : 0);
-    void this.rpc("town_try", {
-      p_game: play.game, p_board: play.board ?? null, p_what: play.what, p_how: endOf(play), p_spent: play.spent,
+    const how = endOf(play), key = `${play.game}/${play.board ?? ""}`;
+    const args = {
+      p_game: play.game, p_board: play.board ?? null, p_what: play.what, p_how: how, p_spent: play.spent,
       p_need: whole(play.need), p_hits: whole(play.hits), p_misses: whole(play.misses), p_secs: Number.isFinite(play.secs) ? Math.max(0, play.secs) : 0,
-    }).then((kept) => { this.untold = kept === null ? this.untold + 1 : 0; }, () => { this.untold += 1; });
+    };
+    const rpc = this.rpc;
+    const tell = () => { void rpc("town_try", args).then((kept) => { this.untold = kept === null ? this.untold + 1 : 0; }, () => { this.untold += 1; }); };
+    const was = this.leaving;
+    if (was) {
+      clearTimeout(was.timer);
+      this.leaving = null;
+      // (the same board's own end, come after it was shut: it was not left. Anything else: the one that waited is told first)
+      if (was.key !== key || how === "left") was.tell();
+    }
+    if (how === "left") { this.leaving = { key, tell, timer: setTimeout(() => { this.leaving = null; tell(); }, LEFT_MS) }; return; }
+    tell();
   }
   close() {
+    // (a board shut a moment ago is told of now: only that the database hears it matters)
+    if (this.leaving) { clearTimeout(this.leaving.timer); this.leaving.tell(); this.leaving = null; }
     this.shut = true;
     for (const l of this.looking.values()) if (l.timer) clearTimeout(l.timer);
     this.looking.clear();

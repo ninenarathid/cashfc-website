@@ -24,8 +24,8 @@ import type { Strike } from "./fishing";
  * (lib/town/trial); the shape is the one a table will have.
  */
 
-/** The games there are: fishing, the farm's work, the kitchen's, and the boards of the forest and of the net. */
-export type GameId = "fishing" | "farming" | "cooking" | "forest" | "insects";
+/** The games there are: fishing, the farm's work, the kitchen's, the boards of the forest and of the net, and the mountain's two (the vein and the felling). */
+export type GameId = "fishing" | "farming" | "cooking" | "forest" | "insects" | "mining" | "felling";
 
 interface PlayBase {
   game: GameId;
@@ -72,7 +72,7 @@ export interface FishingPlay extends PlayBase {
  * worked at (a plot's deed, a dish), how many hits it wanted, and the hits and misses it took.
  */
 export interface WorkPlay extends PlayBase {
-  game: "farming" | "cooking" | "forest" | "insects";
+  game: Exclude<GameId, "fishing">;
   what: string;
   need: number;
   hits: number;

@@ -5,7 +5,9 @@
 // the table left open (no row security, the grants Supabase gives left standing), the function open to whoever is
 // signed out or run as its caller, a word that is no board's let through, a number let through unbounded, the forty a
 // minute gone or counted over everybody, the moment not the town's clock's, the blessings left out, the line not its
-// member's, the count open to a browser or deaf to its days, and the first block gone.
+// member's, the count open to a browser or deaf to its days, and the first block gone. Every anchor is on one line: a
+// file checked out on Windows has CRLF, and an anchor over two lines misses it. Not seen in one connection, so not
+// broken on purpose: one member's calls taken one at a time (the advisory lock).
 const TRY = "public.town_try(text, text, text, text, boolean, integer, integer, integer, double precision)";
 export default ({ swap, cut }) => [
   ["the table has no row security",
@@ -21,13 +23,13 @@ export default ({ swap, cut }) => [
     swap("returns boolean language plpgsql security definer set search_path = public", "returns boolean language plpgsql set search_path = public"),
     ["…security definer with its search path set", "a member's go is kept"]],
   ["a line of work that is none is let through",
-    swap("if p_game is null or p_game not in ('farming', 'cooking', 'forest', 'insects')\n     or p_how", "if p_how"),
+    swap("if p_game is null or p_game not in ('farming', 'cooking', 'forest', 'insects', 'mining', 'felling')", "if false"),
     ["a line of work, an end, a name or a board that is none keeps nothing"]],
   ["an end that is none is let through",
-    swap("or p_how is null or p_how not in ('done', 'dropped', 'left')\n", "\n"),
+    swap("or p_how is null or p_how not in ('done', 'dropped', 'left')", "or false"),
     ["a line of work, an end, a name or a board that is none keeps nothing"]],
   ["a name with anything in it is let through",
-    swap("or p_what is null or p_what !~ '^[A-Za-z][A-Za-z0-9_]{0,47}$'\n", "\n"),
+    swap("or p_what is null or p_what !~ '^[A-Za-z][A-Za-z0-9_]{0,47}$'", "or false"),
     ["a line of work, an end, a name or a board that is none keeps nothing"]],
   ["a board with anything in it is let through",
     swap("     or (p_board is not null and p_board !~ '^[a-z]{1,16}$') then", "     then"),
@@ -54,13 +56,13 @@ export default ({ swap, cut }) => [
     swap("least(greatest(coalesce(p_secs, 0), 0), 3600)::real, town.under(me));", "least(greatest(coalesce(p_secs, 0), 0), 3600)::real, '{}'::jsonb);"),
     ["a go under a blessing has it beside it"]],
   ["a line stays when its member goes",
-    swap("references public.profiles (id) on delete cascade,\n  at         timestamptz", "references public.profiles (id),\n  at         timestamptz"),
+    swap("member_id  uuid not null references public.profiles (id) on delete cascade,", "member_id  uuid not null references public.profiles (id),"),
     ["a line is its member's"]],
   ["the count is a browser's to ask",
     swap("revoke execute on all functions in schema town from public, anon, authenticated;", ""),
     ["the count is no browser's to ask"]],
   ["the count is deaf to the days asked for",
-    swap("   where t.at >= p_from and t.at < p_to\n", ""),
+    swap("where t.at >= p_from and t.at < p_to", "where true"),
     ["outside the days asked for, no line"]],
   ["the count takes a board that was left for one that came off",
     swap("round(100.0 * count(*) filter (where t.how = 'done') / count(*), 0)", "round(100.0 * count(*) filter (where t.how <> 'dropped') / count(*), 0)"),

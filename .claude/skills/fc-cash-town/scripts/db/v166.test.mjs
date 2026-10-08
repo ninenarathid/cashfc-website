@@ -11,7 +11,8 @@
  * editor, and writes nothing again. So what is held is: nothing that was there is touched; a go told is kept as it
  * was told, bounded; what is no board's word keeps nothing; one member leaves no more than forty lines a minute;
  * nothing hangs on a line (no play, no deed, no point, no purse moves); and who may call, read and count is who
- * should.
+ * should. Not seen here, one connection being all there is: one member's calls taken one at a time (the advisory
+ * lock), so that many sent at once cannot all pass the forty.
  */
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -102,8 +103,8 @@ did = await tell(U.m1, { p_game: "forest", p_board: null, p_what: "mushrooms", p
 mine = await linesOf(U.m1);
 t.check("told in five words only, with no board, it is kept with nothing counted", did === true && same(mine[1], { game: "forest", board: null, what: "mushrooms", how: "left", spent: false, need: 0, hits: 0, misses: 0, secs: 0, doc: {} }), mine[1] ?? did);
 const each = [];
-for (const game of ["farming", "cooking", "forest", "insects"]) for (const how of ["done", "dropped", "left"]) each.push(await tell(U.m1, GO({ p_game: game, p_how: how, p_board: "steady", p_what: "friedRice_2" })));
-t.check("each line of work and each end is kept", each.every((r) => r === true) && (await lines()) === 14, each);
+for (const game of ["farming", "cooking", "forest", "insects", "mining", "felling"]) for (const how of ["done", "dropped", "left"]) each.push(await tell(U.m1, GO({ p_game: game, p_how: how, p_board: "steady", p_what: "friedRice_2" })));
+t.check("each line of work and each end is kept", each.every((r) => r === true) && (await lines()) === 20, each);
 // (a blessing that holds for this member: written into the fountain's row as the fountain writes it)
 const fountainWas = (await one(`select doc from public.town_things where key = 'fountain'`))?.doc ?? null;
 await t.sql(`update public.town_things set doc = coalesce(doc, '{}'::jsonb) || jsonb_build_object('blessings', jsonb_build_array(jsonb_build_object('id', 'green', 'until', town.now_ms() + 3600000, 'of', jsonb_build_array($1::text)))) where key = 'fountain'`, [U.m1]);

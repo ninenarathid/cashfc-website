@@ -353,6 +353,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           const where = { x: p.x, y: p.y };
           void keeper.netMine("pair", tile, { misses: fo.missed }, live.current.name).then((did) => {
             if (!did.ok) { say(did.why); return; }
+            keeper.record({ game: "insects", board: "net", at: keeper.now(), won: true, secs: 0, spent: live.current.spent, buff: null, what: fo.bug, need: 1, hits: 1, misses: fo.missed });
             caught.current.push({ bug: fo.bug, first: did.first, rid: did.rid ?? null });
             if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
             setNote(`${did.got.map(([item, n]) => `${nameOf(item)} ×${n}`).join(" · ")} · ${live.current.th ? PAIR_WORD[0] : PAIR_WORD[1]}`);

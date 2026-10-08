@@ -918,11 +918,37 @@ describe("the database's keeper", () => {
     // (every end of a line in the water is the database's own already)
     k.record({ game: "fishing" } as unknown as Play);
     await settle();
+    // (the board that was left waits a moment, in case its own end comes after it)
+    expect(told.length).toBe(2);
+    await vi.advanceTimersByTimeAsync(1000);
     expect(told).toEqual([
       { p_game: "farming", p_board: "pouring", p_what: "water", p_how: "dropped", p_spent: true, p_need: 2, p_hits: 1, p_misses: 3, p_secs: 2.25 },
       { p_game: "farming", p_board: null, p_what: "water", p_how: "done", p_spent: true, p_need: 2, p_hits: 1, p_misses: 3, p_secs: 2.25 },
       { p_game: "forest", p_board: "digging", p_what: "water", p_how: "left", p_spent: true, p_need: 2, p_hits: 0, p_misses: 3, p_secs: 0 },
     ]);
+    // a board shut in the blink before it says it is done: its own end is the one told, and "left" never is
+    told.length = 0;
+    k.record({ ...go, board: "steady", how: "left" });
+    k.record({ ...go, board: "steady", won: true });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(told.map((t) => t.p_how)).toEqual(["done"]);
+    // …while another board's go, or another board left, does not swallow it: the one that waited is told first
+    told.length = 0;
+    k.record({ ...go, board: "steady", how: "left" });
+    k.record({ ...go, board: "pouring", won: true });
+    k.record({ ...go, board: "pouring", how: "left" });
+    k.record({ ...go, board: "weeding", how: "left" });
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(told.map((t) => `${t.p_board} ${t.p_how}`)).toEqual(["steady left", "pouring done", "pouring left", "weeding left"]);
+    // and one that still waits when the member leaves the town is told as they go
+    told.length = 0;
+    const k3 = new DbKeeper("me", ask);
+    await settle();
+    k3.record({ ...go, board: "steady", how: "left" });
+    k3.close();
+    await settle();
+    expect(told.map((t) => t.p_how)).toEqual(["left"]);
+    told.length = 0;
     // a database that has not had v166: three goes told to nobody, and then no more is asked of it
     knows = false;
     told.length = 0;

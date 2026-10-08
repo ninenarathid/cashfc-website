@@ -26,7 +26,9 @@
 -- What it adds.
 --
 --   · `town_tries`: a line for every go at a board as the member's page saw
---     it end: the line of work, the board, what was worked at, how it ended
+--     it end: the line of work (the farm's, the kitchen's, the forest's,
+--     the net's; the mine's and the felling's for when their boards come),
+--     the board, what was worked at, how it ended
 --     (done; dropped: the board was lost; left: its member shut it), whether
 --     it was played with no stamina, and the board's own count (how many it
 --     wanted, hits, misses, seconds). Closed, as `town_plays` is: no browser
@@ -61,7 +63,7 @@ create table if not exists public.town_tries (
   -- The line of work, the board it was played on (none where the work had
   -- no board), and what was worked at: a deed, a dish, a kind of place, an
   -- insect.
-  game       text not null check (game in ('farming', 'cooking', 'forest', 'insects')),
+  game       text not null check (game in ('farming', 'cooking', 'forest', 'insects', 'mining', 'felling')),
   board      text check (board is null or board ~ '^[a-z]{1,16}$'),
   what       text not null check (what ~ '^[A-Za-z][A-Za-z0-9_]{0,47}$'),
   how        text not null check (how in ('done', 'dropped', 'left')),
@@ -96,13 +98,15 @@ declare
   at_ timestamptz := to_timestamp(town.now_ms() / 1000.0);
   lately integer;
 begin
-  if p_game is null or p_game not in ('farming', 'cooking', 'forest', 'insects')
+  if p_game is null or p_game not in ('farming', 'cooking', 'forest', 'insects', 'mining', 'felling')
      or p_how is null or p_how not in ('done', 'dropped', 'left')
      or p_what is null or p_what !~ '^[A-Za-z][A-Za-z0-9_]{0,47}$'
      or (p_board is not null and p_board !~ '^[a-z]{1,16}$') then
     return false;
   end if;
-  -- (the quickest board there is ends in about a second: forty in a minute is more than hands make)
+  -- (the quickest board there is ends in about a second: forty in a minute is more than hands make. One member's
+  -- calls are taken one at a time, so that many sent at once are counted one after another and not all as the first.)
+  perform pg_advisory_xact_lock(hashtextextended('town_try:' || me::text, 0));
   select count(*)::int into lately from public.town_tries t where t.member_id = me and t.at > at_ - interval '1 minute';
   if lately >= 40 then return false; end if;
   insert into public.town_tries (member_id, at, game, board, what, how, spent, need, hits, misses, secs, doc)
