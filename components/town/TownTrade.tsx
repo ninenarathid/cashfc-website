@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { sorted, whatOf } from "@/lib/town/bag";
 import { WATER } from "@/lib/town/farm";
 import { seedTime } from "@/lib/town/clues";
 import { CARRIES } from "@/lib/town/gear";
@@ -36,7 +38,8 @@ export interface TradeSummary {
   waiting: number;
   stamina: number;
   buff: WishId | null;
-  eating: { dish: DishId; progress: number } | null;
+  /** (`from`: the moment this helping began, which tells one helping from the next of the same dish) */
+  eating: { dish: DishId; progress: number; from: number } | null;
 }
 
 type Kind = keyof Purse["popoto"];
@@ -189,11 +192,11 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
 
   const now = keeper.now(), purse = keeper.purse(), stall = keeper.stall();
   const due = waiting(purse, now), stamina = staminaOf(purse, now), buff = buffsOf(purse, now)[0] ?? null;
-  const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now) } : null, hand = handOf(purse), wet = !!carried(purse);
+  const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now), from: purse.eating.from } : null, hand = handOf(purse), wet = !!carried(purse);
   useEffect(() => {
     onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the meal is told by its dish and how far through it is
-  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating && Math.round(eating.progress * 100)]);
+  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating?.from, eating && Math.round(eating.progress * 100)]);
 
   // A meal is counted on every second while I sit at it; getting up leaves it.
   const sitting = useRef(seated), beside = useRef(company);
@@ -302,6 +305,10 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                   if (did.found) say(`ข้างในมี ${ITEMS[did.found].name.th}`, `Inside: ${ITEMS[did.found].name.en.toLowerCase()}`);
                                   else say("ข้างในไม่มีอะไร", "There is nothing in it.");
                                 }}
+                                // (the bag put in order, where whoever keeps the game lets it be: lib/town/bag. A move that comes off says nothing: the thing is where it was put)
+                                tidy={keeper.bagTidy()}
+                                onMove={(from, to) => { void keeper.bagMove(from, to).then((did) => { if (!did.ok) say(...why(did.why)); }); }}
+                                onSort={() => tried(keeper.bagSort(), ["จัดเรียงกระเป๋าแล้ว", "Your bag is in order."])}
                                 dropsAll={keeper.ground() !== null}
                                 lying={<Lying keeper={keeper} th={th} where={where} say={say} />}
                                 onDrop={(slot) => {
@@ -580,7 +587,7 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles }: {
+function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort }: {
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
   /** The slot the thing in the hand is in (the keeper's handSlot): of several pots of food, which is the one held. */
   held: number;
@@ -604,6 +611,11 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
   onDrop: (slot: number) => void;
   /** Open the thing in a slot, to see what is in it. */
   onOpen: (slot: number) => void;
+  /**
+   * The bag put in order (lib/town/bag; a member, 2026-10-08: "ขอ function sort ของในกระเป๋า และ ลากวางได้"): whether whoever
+   * keeps the game lets it be, a thing moved from one slot to another, and the whole of it sorted.
+   */
+  tidy?: boolean; onMove?: (from: number, to: number) => void; onSort?: () => void;
 }) {
   const stamina = Math.round(staminaOf(purse, now)), meal = mealOf(now), bowls = bowlsToday(purse, now);
   // Every buff I have, each with its level and the minutes it has left: what meals left (a level each, the owner,
@@ -618,6 +630,19 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
   const full = purse.bag.filter(Boolean).length, hand = handOf(purse);
   // (a pot of food is held by its slot: every pot is the same kind of thing, with a dish of its own)
   const holding = !!inHand && hand === inHand.item && (!inHand.of || slot === held);
+  /** The slot whose thing is being placed by taps: the way to move a thing with no dragging (the thing taken up, "move", then the slot it goes to). */
+  const [moving, setMoving] = useState<number | null>(null);
+  useEffect(() => { if (moving !== null && moving !== slot) setMoving(null); }, [moving, slot]);
+  const mayMove = tidy && !!onMove;
+  /** A thing moved, by a drag or by taps: what is taken up to look at goes with it. */
+  const move = (from: number, to: number) => {
+    const s = purse.bag[from];
+    setMoving(null);
+    if (!s || !onMove || from === to) return;
+    if (picked?.slot === from) setPicked({ slot: to, item: s.item });
+    else if (picked?.slot === to) setPicked(null);
+    onMove(from, to);
+  };
   return (
     <>
       <div className="rounded-xl border border-line bg-card/60 px-3 py-2.5">
@@ -678,10 +703,25 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
         <div className="relative rounded-[1.6rem] border-2 border-[#2e1c0c] bg-gradient-to-b from-[#8a5a2b] to-[#6e4420] p-2.5 shadow-lg shadow-black/40">
           <span aria-hidden className="pointer-events-none absolute inset-1 rounded-[1.3rem] border-2 border-dashed border-[#f0d9a8]/35" />
           <div className="relative rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] px-2.5 pb-2.5 pt-4 shadow-[inset_0_6px_14px_rgba(0,0,0,0.75)]">
-            <p className="mb-2 flex items-center justify-between font-data text-label uppercase tracking-wider text-[#c9a877]">
-              <span>{th ? "ของในกระเป๋า" : "In the bag"}</span>
-              <span className="tabular-nums">{full} / {purse.bag.length}</span>
-            </p>
+            <div className="mb-2 flex min-h-8 items-center gap-1.5 font-data text-label uppercase tracking-wider text-[#c9a877]">
+              {moving !== null ? (
+                // (placing a thing by taps: said where the words were, with the way out of it)
+                <span className="min-w-0 flex-1 truncate normal-case tracking-normal text-[#f3e3c3]" aria-live="polite" data-bag-placing>{th ? "แตะช่องที่จะวาง" : "Tap the slot it goes to"}</span>
+              ) : <span className="min-w-0 flex-1 truncate">{th ? "ของในกระเป๋า" : "In the bag"}</span>}
+              {mayMove && moving !== null && (
+                <button type="button" onClick={() => setMoving(null)}
+                        className="pressable min-h-8 shrink-0 rounded-full border border-[#6b4a2a] px-2.5 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold">{th ? "ยกเลิก" : "Cancel"}</button>
+              )}
+              {mayMove && moving === null && slot !== null && (
+                <button type="button" onClick={() => setMoving(slot)} data-bag-move
+                        className="pressable min-h-8 shrink-0 rounded-full border border-[#6b4a2a] px-2.5 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold">{th ? "ย้าย" : "Move"}</button>
+              )}
+              {tidy && onSort && moving === null && (
+                <button type="button" onClick={onSort} disabled={sorted(purse)} data-bag-sort
+                        className="pressable min-h-8 shrink-0 rounded-full border border-[#6b4a2a] px-2.5 text-meta normal-case tracking-normal text-[#f3e3c3] hover:border-gold disabled:opacity-40">{th ? "จัดเรียง" : "Sort"}</button>
+              )}
+              <span className="shrink-0 tabular-nums">{full} / {purse.bag.length}</span>
+            </div>
             {/* what is worn to carry more: a tap takes it off */}
             {(purse.wears ?? []).length > 0 && (
               <ul className="mb-2 flex flex-wrap gap-1.5" aria-label={th ? "ที่สะพายอยู่" : "Worn"}>
@@ -696,7 +736,8 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
               </ul>
             )}
             {lying}
-            <Pockets bag={purse.bag} th={th} picked={slot} hand={hand} held={held} onPick={(i) => setPicked(i === slot || !purse.bag[i] ? null : { slot: i, item: purse.bag[i]!.item })} />
+            <Pockets bag={purse.bag} th={th} picked={slot} hand={hand} held={held} onPick={(i) => setPicked(i === slot || !purse.bag[i] ? null : { slot: i, item: purse.bag[i]!.item })}
+                     onMove={mayMove ? move : undefined} placing={moving} onPlace={(to) => (to === moving ? setMoving(null) : move(moving!, to))} />
             <div className="mt-2.5 min-h-[4.25rem] rounded-xl border border-[#4a341f] bg-[#2a1e13]/80 px-2.5 py-2" aria-live="polite">
               {inHand && it ? (
                 <div className="flex items-center gap-2.5">
@@ -877,16 +918,89 @@ export function holdsOf(s: Stack, th: boolean): string | null {
  * Small, it is a strip at a panel's foot, to look at only. What is in the hand is marked wherever the bag has it; of
  * pots of food, only the one in the slot `held` (they are one kind of thing, and only one of them is in the hand).
  */
-function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small = false }: {
+function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small = false, onMove, placing = null, onPlace }: {
   bag: Purse["bag"]; th: boolean; picked?: number | null; hand?: ItemId | null; held?: number; onPick?: (slot: number) => void; small?: boolean;
+  /**
+   * A thing dragged from one slot to another (the bag's own panel, where whoever keeps the game lets a bag be put in
+   * order): with a mouse by pressing and pulling, with a finger by holding a moment and then pulling (a finger that
+   * moves at once is scrolling the panel, as ever).
+   */
+  onMove?: (from: number, to: number) => void;
+  /** The slot whose thing is being placed by taps: every slot is then somewhere to put it (its own gives it up). */
+  placing?: number | null; onPlace?: (to: number) => void;
 }) {
+  const list = useRef<HTMLUListElement>(null);
+  /** The thing being carried: where it came from, where the pointer is, and the slot under it. */
+  const [drag, setDrag] = useState<{ from: number; x: number; y: number; over: number | null } | null>(null);
+  /** A press that may become a carry: its slot and what was in it, where it began, whether the thing is up yet, and a finger's moment of holding. */
+  const live = useRef<{ from: number; what: string; x0: number; y0: number; on: boolean; timer: number | null; touch: boolean } | null>(null);
+  /** What is in a slot, as a word (lib/town/bag's: the thing, and for what holds something what it holds). */
+  const whatIn = (i: number) => whatOf(bag[i]);
+  /** The bag as the last drawing had it, for a finger's moment that ends between two drawings. */
+  const now = useRef(whatIn);
+  now.current = whatIn;
+  /** The click that follows a carry is the carry's own end, not a tap on the slot it ended over. */
+  const swallow = useRef(false);
+  const can = !!onMove;
+  const slotAt = (x: number, y: number) => { const el = document.elementFromPoint(x, y)?.closest("[data-bag-slot]") as HTMLElement | null; return el && list.current?.contains(el) ? Number(el.dataset.bagSlot) : null; };
+  const lift = (x: number, y: number) => { const l = live.current; if (!l) return; if (now.current(l.from) !== l.what) { quit(); return; } l.on = true; setDrag({ from: l.from, x, y, over: l.from }); };
+  const carry = (x: number, y: number) => setDrag((d) => (d ? { ...d, x, y, over: slotAt(x, y) } : d));
+  const quit = () => { const l = live.current; if (l?.timer) window.clearTimeout(l.timer); live.current = null; setDrag(null); };
+  const drop = (x: number, y: number) => {
+    const l = live.current;
+    quit();
+    if (!l?.on) return;
+    swallow.current = true;
+    window.setTimeout(() => { swallow.current = false; }, 400);
+    const to = slotAt(x, y);
+    // (what was pressed is what is moved: the slot's thing become another under the carry, by a sort answered late
+    // say, nothing is)
+    if (to !== null && to !== l.from && now.current(l.from) === l.what) onMove?.(l.from, to);
+  };
+  // A finger that carries a thing must not scroll the panel under it: only a listener that is not passive may say so.
+  useEffect(() => {
+    const el = list.current;
+    if (!el || !can) return;
+    const move = (e: TouchEvent) => {
+      const l = live.current, t = e.touches[0];
+      if (!l?.touch || !t) return;
+      // (a second finger, wherever it came down, is another gesture: whatever the first had begun is over)
+      if (e.touches.length !== 1) { quit(); return; }
+      if (l.on) { e.preventDefault(); carry(t.clientX, t.clientY); }
+      else if (Math.hypot(t.clientX - l.x0, t.clientY - l.y0) > 10) quit();
+    };
+    // (…and one that comes down on the bag itself, on an empty slot or between two, is heard here: Codex's second look)
+    const more = (e: TouchEvent) => { if (live.current?.touch && e.touches.length > 1) quit(); };
+    el.addEventListener("touchmove", move, { passive: false });
+    el.addEventListener("touchstart", more, { passive: true });
+    return () => { el.removeEventListener("touchmove", move); el.removeEventListener("touchstart", more); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- the listener reads the press from its ref
+  }, [can]);
+  useEffect(() => () => { if (live.current?.timer) window.clearTimeout(live.current.timer); }, []);
+  // The thing carried is gone from its slot, or another is in it (eaten, sold, a sort answered while it was carried,
+  // another page of mine): the carry is over, whether or not the pointer's end is ever heard (the button it began on
+  // may have gone with the thing). Found by Codex's check: a carry went on with whatever had come into the slot.
+  const gone = !!drag && whatIn(drag.from) !== live.current?.what;
+  useEffect(() => {
+    if (gone) quit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- quit reads the press from its ref
+  }, [gone]);
   return (
-    <ul className="grid grid-cols-5 gap-1.5" aria-label={th ? "กระเป๋า" : "Bag"}>
+    <ul ref={list} className="grid grid-cols-5 gap-1.5" aria-label={th ? "กระเป๋า" : "Bag"} data-bag-dragging={drag ? drag.from : undefined}
+        onClickCapture={(e) => { if (swallow.current) { swallow.current = false; e.preventDefault(); e.stopPropagation(); } }}>
       {bag.map((s, i) => {
+        // (where a carried thing would land, and in placing by taps every slot but its own)
+        const target = (drag && drag.over === i && drag.from !== i) || (placing !== null && placing !== i);
         const look = `relative grid w-full place-items-center rounded-xl border-2 ${small ? "h-11" : "aspect-square"} ${s
-          ? `bg-[#33251a] shadow-[inset_0_-3px_0_rgba(0,0,0,0.35)] ${picked === i ? "border-gold" : "border-[#6b4a2a] hover:border-[#c9a877]"}`
-          : "border-dashed border-[#4a341f] bg-[#241a10] shadow-[inset_0_3px_6px_rgba(0,0,0,0.5)]"}`;
-        if (!s) return <li key={i} className={look}><span className="sr-only">{th ? "ช่องว่าง" : "Empty slot"}</span></li>;
+          ? `bg-[#33251a] shadow-[inset_0_-3px_0_rgba(0,0,0,0.35)] ${picked === i ? "border-gold" : target ? "border-accent" : "border-[#6b4a2a] hover:border-[#c9a877]"}`
+          : `border-dashed bg-[#241a10] shadow-[inset_0_3px_6px_rgba(0,0,0,0.5)] ${target ? "border-accent" : "border-[#4a341f]"}`}`;
+        if (!s) return (
+          <li key={i} data-bag-slot={i} className={look}>
+            {placing !== null && onPlace
+              ? <button type="button" onClick={() => onPlace(i)} aria-label={th ? `วางที่ช่องว่าง ${i + 1}` : `Put it in empty slot ${i + 1}`} className="absolute inset-0 rounded-xl" />
+              : <span className="sr-only">{th ? "ช่องว่าง" : "Empty slot"}</span>}
+          </li>
+        );
         const name = th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en;
         const inside = (
           <>
@@ -896,17 +1010,61 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
               <span className={`absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums [text-shadow:0_1px_2px_#000,0_0_2px_#000] ${s.of ? "text-[#f3e3c3]" : "text-[#8fd0ff]"}`}>{s.of ? s.of.left : s.water}</span>
             )}
             {hand === s.item && (!s.of || i === held) && <span data-bag-held className="absolute left-0.5 top-0.5 rounded-full bg-gold px-1 font-data text-[9px] font-semibold uppercase leading-4 text-bg">{th ? "ถือ" : "held"}</span>}
-            <ItemCard id={s.item} n={s.n} th={th} at={((i % 5) + 0.5) / 5} holds={holdsOf(s, th)} />
+            {/* (no card over a thing while one is carried or placed: it would lie on the slots above, and on the bag's head where the way to place is said) */}
+            {!drag && placing === null && <ItemCard id={s.item} n={s.n} th={th} at={((i % 5) + 0.5) / 5} holds={holdsOf(s, th)} />}
           </>
         );
+        // (a press that may become a carry: a mouse's by pulling, a finger's by holding a moment first)
+        const carries = can ? {
+          onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+            if (e.pointerType === "touch" || e.button !== 0 || placing !== null) return;
+            live.current = { from: i, what: whatIn(i), x0: e.clientX, y0: e.clientY, on: false, timer: null, touch: false };
+            e.currentTarget.setPointerCapture(e.pointerId);
+          },
+          onPointerMove: (e: React.PointerEvent<HTMLElement>) => {
+            const l = live.current;
+            if (!l || l.touch) return;
+            if (l.on) carry(e.clientX, e.clientY);
+            else if (Math.hypot(e.clientX - l.x0, e.clientY - l.y0) >= 6) lift(e.clientX, e.clientY);
+          },
+          onPointerUp: (e: React.PointerEvent<HTMLElement>) => { if (live.current && !live.current.touch) drop(e.clientX, e.clientY); },
+          onPointerCancel: () => { if (live.current && !live.current.touch) quit(); },
+          // (the pointer taken away with no word of its end, by another window say: after a pointer let go this finds nothing to end)
+          onLostPointerCapture: () => { if (live.current && !live.current.touch) quit(); },
+          onTouchStart: (e: React.TouchEvent<HTMLElement>) => {
+            const t = e.touches[0];
+            // (a second finger is another gesture: whatever the first had begun is over)
+            if (e.touches.length !== 1) { quit(); return; }
+            if (!t || placing !== null) return;
+            const l = { from: i, what: whatIn(i), x0: t.clientX, y0: t.clientY, on: false, timer: null as number | null, touch: true };
+            l.timer = window.setTimeout(() => { l.timer = null; if (live.current === l) { lift(l.x0, l.y0); navigator.vibrate?.(12); } }, 320);
+            live.current = l;
+          },
+          onTouchEnd: (e: React.TouchEvent<HTMLElement>) => {
+            const t = e.changedTouches[0];
+            if (!live.current?.touch || !t) return;
+            // (let go of with another finger still down: not a thing put somewhere)
+            if (e.touches.length > 0) quit(); else drop(t.clientX, t.clientY);
+          },
+          onTouchCancel: () => { if (live.current?.touch) quit(); },
+          onContextMenu: (e: React.MouseEvent) => { if (live.current) e.preventDefault(); },
+        } : {};
+        const slotLook = `group select-none ${look} ${drag?.from === i ? "opacity-40" : ""}`;
         return (
-          <li key={i} className="relative hover:z-20 focus-within:z-20">
-            {onPick
-              ? <button type="button" onClick={() => onPick(i)} aria-pressed={picked === i} aria-label={`${name} ×${s.n}`} className={`group pressable ${look}`}>{inside}</button>
-              : <span tabIndex={0} aria-label={`${name} ×${s.n}`} className={`group ${look}`}>{inside}</span>}
+          <li key={i} data-bag-slot={i} className="relative hover:z-20 focus-within:z-20" style={can ? { WebkitTouchCallout: "none" } : undefined}>
+            {placing !== null && onPlace
+              ? <button type="button" onClick={() => onPlace(i)} aria-pressed={placing === i} aria-label={placing === i ? `${name} ×${s.n}` : (th ? `วางที่ช่องของ ${name}` : `Put it where the ${name} is`)} className={`pressable ${slotLook}`}>{inside}</button>
+              : onPick
+                ? <button type="button" onClick={() => onPick(i)} aria-pressed={picked === i} aria-label={`${name} ×${s.n}`} className={`pressable ${slotLook}`} {...carries}>{inside}</button>
+                : <span tabIndex={0} aria-label={`${name} ×${s.n}`} className={slotLook}>{inside}</span>}
           </li>
         );
       })}
+      {/* the thing being carried, under the pointer: over everything (the ladder's top, where the thrown potato is) */}
+      {drag && bag[drag.from] && createPortal(
+        <span aria-hidden className="pointer-events-none fixed z-[200] -translate-x-1/2 -translate-y-1/2 scale-125 [filter:drop-shadow(0_6px_8px_rgba(0,0,0,0.6))]" style={{ left: drag.x, top: drag.y }} data-bag-ghost>
+          <StackIcon stack={bag[drag.from]!} size={small ? 24 : 36} />
+        </span>, document.body)}
     </ul>
   );
 }

@@ -55,6 +55,15 @@ export interface Avatar {
   said?: { text: string; at: number };
   /** When they last told the room they were typing. */
   typingAt?: number;
+  /**
+   * Which sitting of theirs this is, numbered by this stay: a new number when they are first seen and each time they
+   * sit down. Whoever remembers them at a seat (a meal's company, lib/town/company) knows a later sitting from that
+   * one, whether or not anything was drawn while they were on their feet. It is numbered from what the room heard:
+   * somebody cut off from the room and back within `GONE_MS` is taken to have sat on, though they may have got up and
+   * sat down on the same seat meanwhile (Codex's check). Left so on purpose: to hold every cut-off against them would
+   * lose a member their company each time somebody's phone lost the room for a moment, which is what was asked away.
+   */
+  sat?: number;
 }
 
 /** A line of the chat, as this tab heard it. Never stored anywhere. */
@@ -137,6 +146,8 @@ export class TownSession {
   readonly testTopic: string | undefined;
   readonly cap: number;
   readonly avatars = new Map<string, Avatar>();
+  /** How many sittings this stay has numbered (`Avatar.sat`). */
+  private sittings = 0;
   readonly self: Avatar;
   readonly voice: VoiceMesh;
   status: RoomStatus = "connecting";
@@ -900,7 +911,7 @@ export class TownSession {
           info: { ...p, x: spot.x, y: spot.y, voice: d.voice ?? false, muted: d.muted ?? false, away: d.away ?? false, look: d.look, sit: d.sit ?? -1,
             ...(d.hold !== undefined ? { hold: d.hold } : {}), ...(d.wet !== undefined ? { wet: d.wet } : {}), ...(d.spent !== undefined ? { spent: d.spent } : {}), ...(d.pet !== undefined ? { pet: d.pet } : {}), ...(d.eat !== undefined ? { eat: d.eat } : {}), ...(d.fish !== undefined ? { fish: d.fish } : {}),
             ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}) },
-          pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined,
+          pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined, sat: ++this.sittings,
         });
       } else {
         if (known.info.face !== p.face) known.img = loadFace(p.face);
@@ -937,6 +948,8 @@ export class TownSession {
     if (d.typing) a.typingAt = Date.now();
     // (somebody who had said they were in my room and now says otherwise has left it: their page was loaded again, say)
     const leftMine = this.circle?.host === this.me.id && d.circle !== undefined && d.circle !== this.me.id && a.info.circle === this.me.id && this.circle.members.includes(id);
+    // (sat down, or onto another seat: another sitting)
+    if (d.sit !== undefined && d.sit !== -1 && d.sit !== (a.info.sit ?? -1)) a.sat = ++this.sittings;
     a.info = { ...a.info, ...d };
     if (leftMine && this.circle) this.roomIs(without(this.circle, id));
     if (voiceChanged) this.syncVoice();

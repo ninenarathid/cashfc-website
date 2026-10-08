@@ -22,7 +22,7 @@ const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v160"];
+const NEXT = ["v160", "v165"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -1246,6 +1246,55 @@ try {
     const lines = await sql(`select what, thing, n::int as n from public.town_deeds where what like 'ground\\_%' order by id`);
     ok("each deed is written down: two drops, and the one picking up", JSON.stringify(lines) === JSON.stringify([{ what: "ground_drop", thing: "minnow", n: 9 }, { what: "ground_take", thing: "minnow", n: 9 }, { what: "ground_drop", thing: "can", n: 1 }]), lines);
     M.close(); N.close();
+  }
+
+  if ((await sql(`select to_regprocedure('public.town_bag_sort()') is not null as there`))[0].there) {
+    section("a bag put in order: said as the game begins, a thing moved, the whole sorted, and the pot in the hand the same pot (v165)");
+    const { sorted } = await import("@/lib/town/bag");
+    const dish = Object.keys((await sql(`select town.cat('dishes') as c`))[0].c)[0];
+    const pot = (left) => ({ item: "potFull", n: 1, of: { dish, left } });
+    await purse(a, 12, [{ item: "kangkong", n: 5 }, null, pot(3), { item: "kangkong", n: 18 }, pot(1), { item: "worm", n: 2 }]);
+    await purse(b, 3, [{ item: "worm", n: 4 }, null, { item: "hoe", n: 1 }]);
+    const from = asked.length, deedsWere = (await sql(`select coalesce(max(id), 0)::int as n from public.town_deeds`))[0].n;
+    const M = new DbKeeper(a, askAs("A")), N = new DbKeeper(b, askAs("B"));
+    await settled(M); await settled(N);
+    await sleep(300);
+    ok("asked once as the game begins: a bag can be put in order here", asked.slice(from).filter((x) => x === "A town_bag").length === 1 && M.bagTidy() === true && sorted(M.purse()) === false, asked.slice(from));
+    await M.hold(4);
+    ok("(the pot with one helping is taken up: of the two pots, that slot's is the one held)", M.handSlot() === 4 && M.purse().bag[M.handSlot()].of.left === 1, M.handSlot());
+    let did = await M.bagMove(4, 1);
+    ok("a thing moved into an empty slot: the keeper has my bag as it now stands, at once", did.ok && M.purse().bag[1]?.of?.left === 1 && M.purse().bag[4] === null, M.purse().bag);
+    ok("…asked with the slot it came from and the slot it went to", JSON.stringify(sent.filter((x) => x.fn === "town_bag_move").at(-1)?.args) === JSON.stringify({ p_from: 4, p_to: 1 }), sent.at(-1));
+    ok("…and the pot in the hand is the one that was moved: its slot went with it", M.handSlot() === 1, M.handSlot());
+    did = await M.bagMove(2, 1);
+    ok("the other pot dragged onto it: they change places, and the hand's pot is where it now is", did.ok && M.purse().bag[1].of.left === 3 && M.purse().bag[2].of.left === 1 && M.handSlot() === 2, { bag: M.purse().bag, hand: M.handSlot() });
+    did = await M.bagMove(0, 3);
+    ok("more of one thing joined as far as a slot holds, the rest where it was", did.ok && M.purse().bag[3].n === 20 && M.purse().bag[0].n === 3 && M.handSlot() === 2, M.purse().bag);
+    const was = JSON.stringify(M.purse().bag);
+    did = await M.bagMove(4, 0);
+    ok("an empty slot to move from is refused, and nothing moves: bag and hand as they were", !did.ok && did.why === "none" && JSON.stringify(M.purse().bag) === was && M.handSlot() === 2, did);
+    did = await M.bagSort();
+    const bag = M.purse().bag;
+    ok("sorted: the bag in order, the fuller pot first, nothing made or lost", did.ok && sorted(M.purse()) && bag.length === 10
+      && JSON.stringify(bag.filter(Boolean).map((s) => `${s.item}×${s.n}${s.of ? ":" + s.of.left : ""}`)) === JSON.stringify(["potFull×1:3", "potFull×1:1", "worm×2", "kangkong×20", "kangkong×3"]), bag);
+    ok("…asked with no word but the deed's own", JSON.stringify(sent.filter((x) => x.fn === "town_bag_sort").at(-1)?.args) === "{}", sent.at(-1));
+    ok("…and the pot in the hand is still the pot with one helping, wherever the sort put it", M.purse().hand === "potFull" && bag[M.handSlot()]?.of?.left === 1, { hand: M.handSlot(), bag });
+    const page = new DbKeeper(a, askAs("A"));
+    await settled(page);
+    ok("another page of mine has the bag as it was left", JSON.stringify(page.purse().bag) === JSON.stringify(bag) && M.purse().coins === 12, page.purse().bag);
+    await settled(N);
+    ok("the other's bag and coins are as they were", N.purse().bag[0]?.n === 4 && N.purse().bag[2]?.item === "hoe" && N.purse().coins === 3, { bag: N.purse().bag, coins: N.purse().coins });
+    const written = await sql(`select what, thing from public.town_deeds where id > $1 order by id`, [deedsWere]);
+    ok("nothing of the moving or the sorting is among the deeds: only the pot taken up", JSON.stringify(written) === JSON.stringify([{ what: "hold", thing: "potFull" }]), written);
+    M.close(); N.close(); page.close();
+  } else {
+    section("a bag put in order (v165 has not run here)");
+    const from = asked.length;
+    const M = new DbKeeper(a, askAs("A"));
+    await settled(M);
+    await sleep(300);
+    ok("asked as the game begins and told nothing: the keeper says a bag cannot be put in order, and the page offers neither", asked.slice(from).includes("A town_bag") && M.bagTidy() === false && M.ready(), asked.slice(from));
+    M.close();
   }
 
   // ── the bridge built by hand ── (v160, a draft or run: a database before it has no works, and the keeper knows of none)

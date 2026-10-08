@@ -12,6 +12,7 @@ import { SIGN, decodeSign, tidyTitle, type Sign } from "@/lib/town/sign";
 import { roomFor } from "@/lib/town/trade";
 import SignIcon from "./SignIcon";
 import TownIcon from "./TownIcon";
+import TownNumber from "./TownNumber";
 import TownFoot from "./TownFoot";
 import { Coins, ItemIcon, WHY } from "./TownTrade";
 
@@ -34,7 +35,6 @@ const WHY_SIGN: Record<string, [th: string, en: string]> = {
 };
 const why = (w: string, th: boolean) => { const m = WHY_SIGN[w] ?? WHY[w as keyof typeof WHY] ?? WHY.none; return th ? m[0] : m[1]; };
 const nameOf = (id: ItemId, th: boolean) => (id in ITEMS ? (th ? ITEMS[id].name.th : ITEMS[id].name.en) : id);
-const whole = (v: string, most: number) => Math.max(1, Math.min(most, Math.floor(Number(v)) || 1));
 
 /** The two marks a stall's sign carries, in the board's own colours (the map draws the same). */
 export const SELL_INK = "#a8452a", BUY_INK = "#2f6f8f";
@@ -284,11 +284,11 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                               <Mark kind={l.kind} th={th} />
                             </div>
                             <label className="flex flex-col items-center text-label text-muted">{t("จำนวน", "How many")}
-                              <input type="number" inputMode="numeric" min={1} max={most} value={l.n} onChange={(e) => set({ n: whole(e.target.value, most) })} data-line-n
+                              <TownNumber max={most} value={l.n} onChange={(n) => set({ n })} data-line-n
                                      className="h-9 w-14 rounded-lg border border-line-strong bg-bg/85 text-center font-data text-ui tabular-nums text-ink outline-none focus:border-accent" />
                             </label>
                             <label className="flex flex-col items-center text-label text-muted">{t("ราคา/ชิ้น", "Each")}
-                              <input type="number" inputMode="numeric" min={1} max={cap} value={l.price} onChange={(e) => set({ price: whole(e.target.value, cap) })} data-line-price
+                              <TownNumber max={cap} value={l.price} onChange={(price) => set({ price })} data-line-price
                                      className="h-9 w-16 rounded-lg border border-line-strong bg-bg/85 text-center font-data text-ui tabular-nums text-gold outline-none focus:border-accent" />
                             </label>
                             <button type="button" onClick={() => setLines((all) => all.filter((_, j) => j !== i))} aria-label={`${t("เอาออก", "Remove")}: ${nameOf(l.item, th)}`}
