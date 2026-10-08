@@ -6,7 +6,7 @@ import { ITEMS } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import TownFoot from "./TownFoot";
 import TownIcon from "./TownIcon";
-import { StackIcon, holdsOf } from "./TownTrade";
+import { StackIcon, forgeWords, holdsOf } from "./TownTrade";
 
 /**
  * The hand's quick bar: what of the bag is taken in the hand to do something with (lib/town/hand), there on the map,
@@ -119,10 +119,10 @@ export default function TownHand({ keeper, th, phone = false, hidden = false, cl
       <div role="toolbar" aria-label={label} data-town-hand="bar" data-state="open"
            className="pop-in pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 rounded-2xl border border-line bg-bg/70 p-1 shadow-lg shadow-black/30 backdrop-blur-sm">
         {slots.map((slot, i) => {
-          const s = purse.bag[slot]!, on = slot === held, holds = holdsOf(s, th);
+          const s = purse.bag[slot]!, on = slot === held, holds = holdsOf(s, th), carries = forgeWords(s, th);
           return (
             <button key={slot} type="button" aria-pressed={on} data-hand-slot={slot} onClick={() => take(slot)}
-                    title={`${nameOf(slot)}${holds ? ` · ${holds}` : ""} (${i + 1})`} aria-label={`${nameOf(slot)} (${i + 1})`}
+                    title={`${nameOf(slot)}${holds ? ` · ${holds}` : ""} (${i + 1})`} aria-label={`${nameOf(slot)}${carries ? ` ${carries}` : ""} (${i + 1})`}
                     className={`pressable relative grid size-10 place-items-center rounded-xl border transition-colors ${on ? "border-gold bg-gold/20" : "border-line-strong bg-bg/60 hover:border-accent"}`}>
               <StackIcon stack={s} size={26} />
               <kbd aria-hidden className={`absolute left-0.5 top-0 font-data text-[0.625rem] leading-4 ${on ? "text-gold" : "text-muted"}`}>{i + 1}</kbd>

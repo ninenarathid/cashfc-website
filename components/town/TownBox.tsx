@@ -10,7 +10,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import type { Stack } from "@/lib/town/trade";
 import TownIcon from "./TownIcon";
 import TownFoot from "./TownFoot";
-import { ItemCard, Pic, StackIcon, WHY, holdsOf } from "./TownTrade";
+import { ItemCard, Pic, StackIcon, WHY, forgeWords, holdsOf } from "./TownTrade";
 
 /** Why something was not done at the box, in a few words (what a bag refuses for is TownTrade's to word). */
 const WHY_BOX: Record<string, [th: string, en: string]> = {
@@ -196,7 +196,7 @@ function Slots({ slots, th, label, act, onPick }: { slots: Array<Stack | null>; 
           : "border-dashed border-[#4a341f] bg-[#241a10] shadow-[inset_0_3px_6px_rgba(0,0,0,0.5)]"}`;
         if (!s) return <li key={i} className={look}><span className="sr-only">{th ? "ช่องว่าง" : "Empty slot"}</span></li>;
         // (a thing this page was built before has no picture or name here: it is shown as something, and moves all the same)
-        const known = s.item in ITEMS, name = known ? (th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en) : s.item;
+        const known = s.item in ITEMS, carries = known ? forgeWords(s, th) : "", name = `${known ? (th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en) : s.item}${carries ? ` ${carries}` : ""}`;
         return (
           <li key={i} className="relative hover:z-20 focus-within:z-20">
             <button type="button" onClick={() => onPick(i)} aria-label={`${act}: ${name} ×${s.n}`} data-slot={i} data-item={s.item} data-n={s.n} className={`group pressable ${look}`}>

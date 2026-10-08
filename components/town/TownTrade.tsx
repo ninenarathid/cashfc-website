@@ -10,7 +10,7 @@ import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
-import { GEMS, OPTIONS, gemsOf, makersOf, modsOf, toolWord } from "@/lib/town/tools";
+import { GEMS, OPTIONS, gemsShown, makersOf, modsOf, toolWord, type Element } from "@/lib/town/tools";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { carried } from "@/lib/town/line";
@@ -108,18 +108,65 @@ function NextRound({ keeper, th, sell, coming }: { keeper: Keeper; th: boolean; 
 }
 const MEAL_NAME: Array<[th: string, en: string]> = [["มื้อเช้า", "Breakfast"], ["มื้อเที่ยง", "Lunch"], ["มื้อเย็น", "Dinner"]];
 
+/**
+ * (forging) A gem's pip on a tool's slot, by its element: the element's colour in two tones, so that the eight are
+ * told apart at a pip's size (water from ice, earth from lightning, light from everything) by a lighter core or a
+ * darker rim, never by their size.
+ */
+const PIP: Record<Element, { core: string; rim: string }> = {
+  fire: { core: "#ffb547", rim: "#e2351f" }, water: { core: "#5c9bff", rim: "#1f47b8" }, ice: { core: "#c6f3ff", rim: "#2fb2e6" }, earth: { core: "#c98b3b", rim: "#6e4416" },
+  lightning: { core: "#fff570", rim: "#e0a400" }, wind: { core: "#a5f5ba", rim: "#22a258" }, light: { core: "#ffffff", rim: "#ecc552" }, dark: { core: "#2a184f", rim: "#a47bff" },
+};
+/**
+ * (forging) The gems a tool carries, in words: each element once, in the order they were set, with a count for one
+ * set more than once ("ไฟ ×3", "ไฟ + น้ำ + น้ำแข็ง"). Nothing, of a tool with no gem.
+ */
+export function gemWords(stack: Stack | null | undefined, th: boolean): string {
+  const gems = gemsShown(stack);
+  return [...new Set(gems)].map((e) => { const n = gems.filter((g) => g === e).length; return `${th ? GEMS[e].name.th : GEMS[e].name.en}${n > 1 ? ` ×${n}` : ""}`; }).join(" + ");
+}
+/** (forging) What a forged tool carries, said shortly for a slot's label: its plus, and its gems in words. Nothing, of a plain thing. */
+export function forgeWords(stack: Stack | null | undefined, th: boolean): string {
+  if (!stack || !forged(stack)) return "";
+  const level = modsOf(stack).level, gems = gemWords(stack, th);
+  return [level > 0 ? `+${level}` : null, gems ? `${th ? "พลอย" : "gems:"} ${gems}` : null].filter(Boolean).join(" · ");
+}
+/**
+ * (forging) What a forged tool's slot says of it, wherever a slot is drawn (the hand bar, the bag, the storage box,
+ * the ground, the smith's screen): its plus small at the upper right corner, and **a pip for each gem set in it**
+ * in a row at the lower left, in the order set (the owner, 2026-10-09: three elements are three colours, one
+ * element three times three pips of one colour). Both stand out over the picture's corners, so that the tool's own
+ * picture is seen whole. Laid over the slot's picture: its parent is the picture's own box.
+ */
+export function ForgeMarks({ stack, size }: { stack: Stack; size: number }) {
+  const level = modsOf(stack).level, gems = gemsShown(stack);
+  const big = size >= 34, pip = big ? 10 : size >= 26 ? 8 : 7, out = big ? 6 : 5;
+  return (
+    <>
+      {level > 0 && (
+        <span data-forge-plus={level} className="pointer-events-none absolute z-[1] whitespace-nowrap rounded-[5px] border border-[#2a190d] bg-[#f0c46a] font-data font-bold tabular-nums text-[#2a190d]"
+              style={{ right: -out - 5, top: -out - 3, fontSize: big ? 9 : 8, lineHeight: big ? "11px" : "10px", padding: "0 2px" }}>+{level}</span>
+      )}
+      {gems.length > 0 && (
+        <span aria-hidden data-forge-gems={gems.join(" ")} className="pointer-events-none absolute z-[1] flex" style={{ left: -out, bottom: -out, gap: 1 }}>
+          {gems.map((e, i) => <span key={i} className="block rounded-full border border-[#2a190d]" style={{ width: pip, height: pip, background: PIP[e].core, boxShadow: `inset 0 0 0 ${big ? 2 : 1.5}px ${PIP[e].rim}` }} />)}
+        </span>
+      )}
+    </>
+  );
+}
+
 /** The picture of what is in a slot: the thing's own, but a pot of food is its dish's pot, and a bucket with water in it is full. */
 export function StackIcon({ stack, size, className }: { stack: Stack; size: number; className?: string }) {
   const name = stack.of ? potIconOf(stack.of.dish) : stack.water && stack.item in WATER.buckets ? `${stack.item}Full` : iconOf(stack.item);
   const icon = <TownIcon name={name as IconName} size={size} className={className} />;
-  // ── forging ── (a tool that carries something says so wherever it is drawn: its plus at a corner, a dot of its gem's colour at another)
+  // ── forging ── (a tool that carries something says so wherever it is drawn: its plus at a corner, a pip a gem at another)
   if (!forged(stack)) return icon;
-  const m = modsOf(stack), gem = gemsOf(stack)[0];
+  const gems = gemsShown(stack);
   return (
-    <span className="relative inline-block align-middle" data-plus={m.level} data-gem={gem ?? ""}>
+    <span className="relative inline-block align-middle" data-plus={modsOf(stack).level} data-gem={gems[0] ?? ""} data-gems={gems.join(" ")}>
       {icon}
-      {m.level > 0 && <span className="absolute -right-1.5 -top-1.5 rounded-full border border-[#2a190d] bg-[#f0c46a] px-1 font-data text-label font-bold leading-4 text-[#2a190d]">+{m.level}</span>}
-      {gem && <span aria-hidden className="absolute -bottom-0.5 -left-0.5 size-2.5 rounded-full border border-[#2a190d]" style={{ background: GEMS[gem].hue }} />}
+      <ForgeMarks stack={stack} size={size} />
     </span>
   );
 }
@@ -929,10 +976,10 @@ export function holdsOf(s: Stack, th: boolean): string | null {
   const holds = heldIn(s, th);
   // ── forging ── (and what a tool carries of its own: its plus, its gem, its options by their names; what each does is the smith's card's to say)
   if (!forged(s)) return holds;
-  const m = modsOf(s), gem = gemsOf(s)[0];
+  const m = modsOf(s), gems = gemWords(s, th);
   // (and who forged it, each name once: a tool's history goes with it into whoever's bag it comes)
   const makers = [...new Set(makersOf(s).filter((x): x is string => !!x))];
-  return [m.level > 0 ? `+${m.level}` : null, gem ? (th ? ITEMS[GEMS[gem].gem].name.th : ITEMS[GEMS[gem].gem].name.en) : null,
+  return [m.level > 0 ? `+${m.level}` : null, gems ? `${th ? "พลอย" : "gems:"} ${gems}` : null,
     ...m.opts.map((id) => (th ? OPTIONS[id].name.th : OPTIONS[id].name.en)), makers.length ? `${th ? "ตีโดย" : "forged by"} ${makers.join(", ")}` : null, holds].filter(Boolean).join(" · ") || null;
 }
 function heldIn(s: Stack, th: boolean): string | null {
@@ -1030,7 +1077,8 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
               : <span className="sr-only">{th ? "ช่องว่าง" : "Empty slot"}</span>}
           </li>
         );
-        const name = th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en;
+        // (a forged tool's slot says its plus and its gems to a screen reader too)
+        const carries_ = forgeWords(s, th), name = `${th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en}${carries_ ? ` ${carries_}` : ""}`;
         const inside = (
           <>
             <StackIcon stack={s} size={small ? 24 : 36} />

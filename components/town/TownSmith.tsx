@@ -16,7 +16,7 @@ import {
 } from "@/lib/town/tools";
 import { heldIn } from "@/lib/town/pouches";
 import TownIcon, { type IconName } from "./TownIcon";
-import { Coins, ItemIcon } from "./TownTrade";
+import { Coins, ItemIcon, StackIcon, forgeWords } from "./TownTrade";
 
 /** The smith's four leaves. */
 export type SmithView = "smelt" | "forge" | "gems" | "board";
@@ -267,11 +267,10 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
               <li key={x.slot}>
                 <button type="button" onClick={() => { setPicked(x.slot); setCame(null); setSaid(null); setAgain(null); }} aria-pressed={on} disabled={busy || (laid && !on)}
                         data-smith-tool={x.slot} data-item={x.stack.item} data-plus={m.level}
-                        aria-label={`${itemName(x.stack.item, th)} +${m.level}`}
+                        aria-label={`${itemName(x.stack.item, th)} ${forgeWords(x.stack, th) || `+${m.level}`}`}
                         className={`pressable relative grid size-12 place-items-center rounded-xl border-2 disabled:opacity-40 ${on ? "border-[#f0c46a] bg-[#4a3423] shadow-[0_0_0_2px_rgba(240,196,106,0.25)]" : "border-[#6b4a2a] bg-[#33251a] hover:border-[#c9a877]"}`}>
-                  <ItemIcon id={x.stack.item} size={30} />
-                  {m.level > 0 && <span className="absolute -right-1 -top-1 rounded-full border border-[#2a190d] bg-[#f0c46a] px-1 font-data text-label font-bold leading-4 text-[#2a190d]">+{m.level}</span>}
-                  {gemsOf(x.stack)[0] && <span aria-hidden className="absolute -bottom-1 -left-1 size-3 rounded-full border border-[#2a190d]" style={{ background: GEMS[gemsOf(x.stack)[0]].hue }} />}
+                  {/* (its plus and a pip a gem: the one mark of a tool's slot, components/town/TownTrade's) */}
+                  <StackIcon stack={x.stack} size={30} />
                 </button>
               </li>
             );
