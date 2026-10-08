@@ -496,6 +496,12 @@ export interface Keeper {
 
   // ── forging ── (lib/town/forge: the blacksmith)
   /**
+   * Use a counted option of the tool in my hand once (lib/town/powers), where its game is played on the page and the
+   * page has to ask for the count: a net that holds an insect still, a net that sweeps. Refused where the tool has
+   * no such option, the day's are spent, or whoever keeps the game knows of no such thing.
+   */
+  toolPower(id: OptionId): Promise<Did<{ left: number }>>;
+  /**
    * What I have at the smith and the village's board there: null from a database that has not had the file, and the
    * page then offers nothing of a smith (no screen, no choice in his talk).
    */
@@ -1444,6 +1450,8 @@ export class DbKeeper implements Keeper {
   }
 
   // ── forging ── (lib/town/forge: every outcome is the database's, and each answer brings my purse and what I have at the smith)
+  // (a counted option asked for by the page: the database has no such function yet, and nothing is counted or done)
+  async toolPower(_id: OptionId): Promise<Did<{ left: number }>> { return { ok: false, why: "none" }; }
   smith(): SmithTold | null { return this.smith_; }
   smithLook() { if (this.smith_) void this.ask("town_smith"); }
   private async smithDeed<T>(fn: string, args: Record<string, unknown> = {}): Promise<SmithDid<T>> {

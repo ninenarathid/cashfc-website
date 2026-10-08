@@ -87,7 +87,7 @@ describe("a plain tool reads as nothing", () => {
     expect(PLAIN_ROD).toEqual({ band: 1, pace: 1, strike: 1, line: 1, fierce: 1, spared: 0, still: 0, shimmer: 0, stamina: 0, fresh: false, quick: 0, keeps: 0, rare: 1, call: false, gold: 0, lull: 1, lullMins: 0 });
     expect(PLAIN_HOE).toEqual({ band: 1, pace: 1, fewer: 0, spared: 0, stones: 0, even: false, glow: false, stamina: 0, fresh: false, next: 0, worm: 0, grip: false, both: false, wet: false });
     expect(PLAIN_CAN).toEqual({ more: 0, marks: 1, pace: 1, spared: 0, takes: null, stamina: 0, fresh: false, kind: 0, next: 0, rich: 0, uses: 1, glint: 0, full: 0, rain: false, twice: false });
-    expect(PLAIN_NET).toEqual({ ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0 });
+    expect(PLAIN_NET).toEqual({ ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0, rare: 1, wide: 0, freeze: 0, nest: false });
     expect(PLAIN_COOK).toEqual({ band: 1, shorter: 0, spared: 0, grace: 1, stamina: 0, fresh: false, helping: 0, big: 0 });
   });
   it("an option works whatever the level has fallen to, and a gem works one level stronger at the top", () => {
@@ -753,6 +753,12 @@ describe("the hoe's and the can's other options, and what lightning does to the 
     for (let i = 0; i < 3; i++) q = beside("2,1", keys, plots, "water", q, q, "me", NOW, "me").purse;
     expect([powerUsed(q, "cnRain", NOW), beside("2,1", keys, plots, "water", q, q, "me", NOW, "me").plots]).toEqual([3, {}]);
   });
+  it("the net: its three options of the top, and what ice and dark are to it, are read from the registry", () => {
+    expect([netFx(top("bugNet", "ntWide")).wide, netFx(top("bugNet", "ntFreeze")).freeze, netFx(top("bugNet", "ntNest")).nest]).toEqual([OPTIONS.ntWide.n.reach, OPTIONS.ntFreeze.n.secs, true]);
+    expect(netFx(tool("bugNet", 1, [], ["ice"])).flight).toBeCloseTo(1 - OLD_FX.ice.slow[0], 12);
+    const dark = netFx(tool("bugNet", 1, [], ["dark"]));
+    expect([dark.rare, dark.ring]).toEqual([OLD_FX.dark.bugNet.rare[0], expect.closeTo((LEVELS.bugNet.ring[1] / LEVELS.bugNet.ring[0]) * (1 - OLD_FX.dark.bugNet.smaller), 10)]);
+  });
   it("a can that waters twice: a plant wet from one watering takes one more, ten times a day, and no third until it has dried", () => {
     const p = purseOf({ ...top("can", "cnTwice"), water: 9 }), wet = sown({ watered: NOW - 1000 });
     expect([mayTwice(p, NOW), mayTwice(purseOf({ ...tool("can", 10), water: 9 }), NOW)]).toEqual([true, false]);
@@ -793,7 +799,7 @@ describe("what is built", () => {
     const read = (kind: ToolKind, s: Stack) => JSON.stringify(kind === "rod" ? rodFx(s) : kind === "hoe" ? hoeFx(s) : kind === "can" ? canFx(s) : kind === "bugNet" ? netFx(s) : cookFx(s));
     // (and every kind has something to draw at each of its milestones, or the smith says which have none)
     expect(OLD.filter((kind) => drawable(kind, 1).length < 2)).toEqual([]);
-    expect(OLD.filter((kind) => drawable(kind, 2).length === 0)).toEqual(["bugNet"]);
+    expect(OLD.filter((kind) => drawable(kind, 2).length < 3)).toEqual([]);
     for (const kind of OLD) {
       const bare = read(kind, stack(kind, null, null));
       for (const id of BUILT[kind].opts) expect(read(kind, stack(kind, id, null)), `${kind} ${id}`).not.toBe(bare);

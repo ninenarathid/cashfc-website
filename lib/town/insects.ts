@@ -368,9 +368,11 @@ const mayBe = (salt: string, h: Haunt, turn: number, rains: readonly Rain[]) => 
  * One of them, by their weights and a number from 0 up to 1; and where in that insect's own share of the weights the
  * number fell, from 0 up to 1 (which says nothing of which insect it is: it is as good a number of chance as another).
  */
-function whichOf(may: BugId[], r: number): { bug: BugId; within: number } | undefined {
-  let left = r * may.reduce((t, id) => t + BUGS[id].weight, 0);
-  for (const id of may) { left -= BUGS[id].weight; if (left < 0) return { bug: id, within: (left + BUGS[id].weight) / BUGS[id].weight }; }
+// ── forging: old tools ── (`rare`: the rare kinds weigh so many times their own: nothing said, as they are)
+function whichOf(may: BugId[], r: number, rare = 1): { bug: BugId; within: number } | undefined {
+  const w = (id: BugId) => BUGS[id].weight * (rare > 1 && tierOf(id) === "rare" ? rare : 1);
+  let left = r * may.reduce((t, id) => t + w(id), 0);
+  for (const id of may) { left -= w(id); if (left < 0) return { bug: id, within: (left + w(id)) / w(id) }; }
   const last = may[may.length - 1];
   return last ? { bug: last, within: 0 } : undefined;
 }
@@ -447,8 +449,10 @@ export const hereFor = (salt: string, h: Haunt, now: number, rains: readonly Rai
  * (a second number), and how many (a third). Null when the map has no such haunt. Whether a catch brings one back at
  * all is the keeper's to say: only one that was the haunt's own does. And the insect that would come back comes only
  * as often as it is plentiful at the catch (`hunts`, as for a haunt's own): hunted, a kind comes back seldom too.
+ * (forging: `rare`, of a catch made with a net that carries as much: the rare kinds are so many times as likely to be
+ * the one that comes back. Nothing said: as ever.)
  */
-export function comeback(salt: string, from: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], r: readonly [number, number, number], hunts: readonly Hunt[] = UNHUNTED): Comeback | null {
+export function comeback(salt: string, from: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], r: readonly [number, number, number], hunts: readonly Hunt[] = UNHUNTED, rare = 1): Comeback | null {
   const at = now + COMEBACK.after * 1000;
   const free = HAUNTS.filter((h) => {
     if (h.id === from.id || h.place !== from.place) return false;
@@ -459,7 +463,7 @@ export function comeback(salt: string, from: Haunt, now: number, rains: readonly
   });
   if (!free.length) return null;
   const pick = (x: number, n: number) => Math.min(n - 1, Math.max(0, Math.floor(x * n)));
-  const h = free[pick(r[0], free.length)], turn = bugTurn(h, at), one = whichOf(mayBe(salt, h, turn, rains), Math.min(0.999999, Math.max(0, r[1])))!;
+  const h = free[pick(r[0], free.length)], turn = bugTurn(h, at), one = whichOf(mayBe(salt, h, turn, rains), Math.min(0.999999, Math.max(0, r[1])), rare)!;
   if (one.within >= plentyOf(hunts, one.bug, now)) return null;
   const bug = one.bug, [lo, hi] = BUGS[bug].n;
   return { haunt: h.id, turn, bug, n: lo + pick(r[2], hi - lo + 1), from: at };

@@ -47,7 +47,8 @@ import { aided, belled, pouredAs, ring, share, type HelpRefusal } from "./helpin
 // ── forging ──
 import { FORGE, toolKindOf, type OptionId, type ToolKind } from "./tools";
 import { beside, mayTwice } from "./farm";
-import { canFx } from "./forged";
+import { canFx, netFx } from "./forged";
+import { usePower } from "./powers";
 import { heldStack as toolInHand } from "./trade";
 import {
   bellows, bellowsLeft, choose as chooseOption, collect as collectSmelted, draw as drawOptions, forgeTry, markFound, markTop, newBoard, newSmithy, redraw as redrawOption, setGem, smelt, smithView, soundSmithy, widen,
@@ -840,7 +841,8 @@ export class Trial {
       // been caught where the rolls had none, and nothing comes back to such a haunt)
       let back: Comeback | null = null;
       for (let i = 0; i < 12 && !back; i++) {
-        const b = comeback(this.salt(), h, now, SKIES.rains(), backs, [Math.random(), Math.random(), Math.random()], hunts);
+        // (forging: with a net that carries as much, the one that comes back is of the rare kinds so many times as often)
+        const b = comeback(this.salt(), h, now, SKIES.rains(), backs, [Math.random(), Math.random(), Math.random()], hunts, netFx(toolInHand(this.purse())).rare);
         if (!b) break;
         if (!took[`${b.haunt}:${b.turn}`]?.length) back = b;
       }
@@ -1468,6 +1470,16 @@ export class Trial {
   setUsed(id: GiftId, n: number) {
     const p = this.purse(), mine = giftsOf(p), rule = USES[id];
     if (rule) this.save({ ...p, gifts: { ...mine, used: { ...mine.used, [id]: { k: stretchOf(rule, this.now()), n: Math.max(0, Math.floor(n)) } } } });
+  }
+  /**
+   * (forging) Use a counted option of the tool in my hand once (lib/town/powers): what its game does with it is the
+   * page's to show (an insect held still, a net that sweeps); that it is counted, so many a day, is kept here.
+   */
+  toolPower(id: OptionId): { ok: true; left: number } | { ok: false; why: Refusal } {
+    const p = this.purse(), used = usePower(p, toolInHand(p), id, this.now());
+    if (!used.ok) return no("none");
+    this.save(used.purse);
+    return { ok: true, left: used.left };
   }
   /** (forging) The tool in a slot as if it had been forged: its plus, its options in the order of their milestones, its gems by their elements. To try what each does without the smith. */
   setTool(slot: number, plus: number, opts: string[] = [], gems: string[] = []): boolean {

@@ -81,9 +81,9 @@ export function optionDoes(id: OptionId): Words {
     case "ntMesh": return w(`แมลงทนการพลาดได้อีก ${n("misses")} ครั้งก่อนหนีไป`, `An insect bears ${n("misses")} more miss before it is off`);
     case "ntFresh": return w(`จับแมลง ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} catches of a meal's hours cost no stamina`);
     case "ntLong": return w(`เอื้อมได้ไกลขึ้น ${n("reach")} ช่อง`, `Reach ${n("reach")} tile longer`);
-    case "ntWide": return w(`ตวัดครั้งเดียวได้แมลงทุกตัวในระยะ ${n("reach")} ช่อง · วันละ ${u} ครั้ง`, `One swing takes every insect within ${n("reach")} tiles · ${u} a day`);
-    case "ntFreeze": return w(`แมลงที่เล็งไว้อยู่นิ่ง ${n("secs")} วินาที · วันละ ${u} ครั้ง`, `The insect aimed at holds still ${n("secs")} s · ${u} a day`);
-    case "ntNest": return w("จุดแมลงที่เพิ่งว่างบอกว่าจะมีตัวใหม่เมื่อไร", "A haunt just emptied says when it will have another");
+    case "ntWide": return w(`เมื่อมีแมลงตั้งแต่สองตัวในระยะ ${n("reach")} ช่องจากจุดที่สวิงลง ตวัดครั้งเดียวได้ทุกตัว · วันละ ${u} ครั้ง`, `Where two insects or more are within ${n("reach")} tiles of where the net lands, one swing takes every one · ${u} a day`);
+    case "ntFreeze": return w(`แมลงที่เล็งไว้อยู่นิ่ง ${n("secs")} วินาทีตั้งแต่เริ่มตวัด · วันละ ${u} ครั้ง`, `The insect a swing is aimed at holds still for ${n("secs")} s from the moment it begins · ${u} a day`);
+    case "ntNest": return w("จุดแมลงที่เราจับจนว่าง บอกเวลาที่ตัวใหม่อาจมาอีก", "A haunt you have emptied says when another may come there");
     // ── cookware ──
     case "ckFire": return w("ไฟลุกพรึ่บน้อยลงครึ่งหนึ่ง และจังหวะคนไม่เปลี่ยนความเร็ว", "The roast flares half as often, and the stir's pace does not change speed");
     case "ckBase": return w("พลาดครั้งแรกของแต่ละหม้อไม่เสียที่", "The first miss of a pot loses no helping");
@@ -156,7 +156,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
       if (fam === "rod") return w(`แถบปลอดภัยขยับช้าลง ${p}%`, `The safe stretch moves ${p}% slower`);
       if (fam === "hoe") return w(`ตัวชี้และลมตอนถอนวัชพืชช้าลง ${p}%`, `The marker and the weeding's gusts are ${p}% slower`);
       if (fam === "can") return w(`น้ำในเกมรดขึ้นช้าลง ${p}%`, `The pour's water rises ${p}% slower`);
-      if (fam === "bugNet") return w(`แมลงหนีช้าลง ${p}%`, `An insect makes off ${p}% slower`);
+      if (fam === "bugNet") return w(`แมลงทุกตัวเคลื่อนไหวช้าลง ${p}% สำหรับเรา`, `Every insect moves ${p}% slower for you`);
       return w(`หลุดจังหวะได้นานขึ้นก่อนจะเสีย (ช้าลง ${p}%)`, `A slip may last longer before it costs (${p}% slower)`);
     }
     case "earth": {
@@ -183,7 +183,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
       if (fam === "rod") { const x = step(F.dark.rod.rare, level), f = pct(F.dark.rod.fiercer); return w(`ปลาหายากมาบ่อยขึ้น ${x} เท่า แต่ปลาทุกตัวดึงแรงขึ้น ${f}%`, `Rare fish ${x} times as often; every fish pulls ${f}% harder`); }
       if (fam === "hoe") { const p = pct(step(F.dark.hoe.worm, level)), f = pct(F.dark.hoe.faster); return w(`${p}% ที่พรวนแล้วเจอไส้เดือน แต่ตัวชี้เร็วขึ้น ${f}%`, `${p}% that a tilled plot turns up a worm; the marker ${f}% faster`); }
       if (fam === "can") { const p = pct(step(F.dark.can.more, level)), k = F.dark.can.uses; return w(`รดครั้งหนึ่งต้นโตเพิ่ม ${p}% แต่ใช้น้ำ ${k} ครั้ง`, `A watering adds ${p}% more growth, and uses ${k}`); }
-      if (fam === "bugNet") { const x = step(F.dark.bugNet.rare, level), f = pct(F.dark.bugNet.smaller); return w(`แมลงหายากมาบ่อยขึ้น ${x} เท่า แต่วงสวิงเล็กลง ${f}%`, `Rare insects ${x} times as often; the ring ${f}% smaller`); }
+      if (fam === "bugNet") { const x = step(F.dark.bugNet.rare, level), f = pct(F.dark.bugNet.smaller); return w(`แมลงที่กลับมาหลังเราจับได้ เป็นตัวหายากบ่อยขึ้น ${x} เท่า แต่วงสวิงเล็กลง ${f}%`, `The insect that comes back after your catch is a rare one ${x} times as often; the ring ${f}% smaller`); }
       { const p = pct(step(F.dark.cook.helping, level)), f = pct(F.dark.cook.harder); return w(`${p}% ที่หม้อได้เพิ่ม 1 ที่ แต่จังหวะที่ดีแคบลง ${f}%`, `${p}% that a pot has one more helping; its good pace ${f}% narrower`); }
   }
 }

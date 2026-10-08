@@ -5,6 +5,7 @@ import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, 
 // ── forging: old tools ──
 import { baitKept, called, calledCast, fightPaid, goldStrike, lulled, rarer, rodHaste, rodOf } from "./fishing";
 import { rodFx } from "./forged";
+import type { OptionId } from "./tools";
 import type { Outcome } from "./forest";
 import { hastened, shadeOf, type Shade, type WishId } from "./fountain";
 import { type CatchId, FISH, ITEMS, type BaitId, type DishId, type FishId, type ItemId, type Sign } from "./items";
@@ -400,6 +401,7 @@ class TrialKeeper implements Keeper {
   }
 
   // ── forging ── (lib/town/forge: the trial keeps what each tester has at the smith, and draws the chance itself)
+  async toolPower(id: OptionId): Promise<Did<{ left: number }>> { return this.trial.toolPower(id); }
   smith() { return this.trial.smith(); }
   smithLook() { /* it is in this browser already */ }
   async smithSmelt(piece: ItemId, n: number) { return this.trial.smithSmelt(piece, n); }

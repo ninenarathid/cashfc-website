@@ -276,7 +276,7 @@ export interface NetFx {
   /** Misses of a go that are not counted; and misses more an insect bears before it is off. */
   spared: number;
   bears: number;
-  /** How fast an insect makes off, so many times (under 1: slower). */
+  /** The pace the insects' own clock runs at for whoever holds the net, so many times (under 1: everything about them is slower: how fast they fly, hop and turn, and how soon they are off again). */
   flight: number;
   /** The share of a catch's stamina taken off; and whether the first catches of a meal's hours cost none (the counted option). */
   stamina: number;
@@ -284,8 +284,16 @@ export interface NetFx {
   /** How likely a catch brings one more; and within how many tiles insects that hide are seen (none: 0). */
   twin: number;
   seen: number;
+  /** The insect that comes back after a catch is one of the rare kinds so many times as often (1: as ever). */
+  rare: number;
+  /** Within how many tiles of where it lands a swing takes every insect, where there are two or more (the counted option: so many a day); none: 0. */
+  wide: number;
+  /** For how many seconds the insect a swing is aimed at holds still (the counted option: so many a day); none: 0. */
+  freeze: number;
+  /** Whether a haunt it has emptied says when another may come there. */
+  nest: boolean;
 }
-export const PLAIN_NET: NetFx = { ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0 };
+export const PLAIN_NET: NetFx = { ring: 1, lands: 1, again: 1, reach: 0, spared: 0, bears: 0, flight: 1, stamina: 0, fresh: false, twin: 0, seen: 0, rare: 1, wide: 0, freeze: 0, nest: false };
 export function netFx(stack: Held): NetFx {
   const s = of(stack, "bugNet");
   if (!s) return PLAIN_NET;
@@ -301,6 +309,10 @@ export function netFx(stack: Held): NetFx {
     fresh: has(s, "ntFresh"),
     twin: gemBy(s, "lightning", OLD_FX.lightning.chance),
     seen: gemBy(s, "light", OLD_FX.light.bugNet.seen),
+    rare: gemBy(s, "dark", OLD_FX.dark.bugNet.rare, 1),
+    wide: has(s, "ntWide") ? optN("ntWide", "reach") : 0,
+    freeze: has(s, "ntFreeze") ? optN("ntFreeze", "secs") : 0,
+    nest: has(s, "ntNest"),
   };
 }
 
