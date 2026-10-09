@@ -171,10 +171,12 @@ export const LAND = [
     + `      ${OPEN}: lib/town/fishing's baitKept; the number of chance is drawn only with a forged rod ──\n`
     + "      if fish is not null and cat->'baits' ? (line->>'bait') then\n"
     + "        rod_ := town.rod_held(purse);\n"
-    + "        if rod_ is not null and random() < (town.rod_fx(rod_)->>'keeps')::double precision then\n"
-    + "          baited_ := town.back_bait(landed->'purse', line->>'bait');\n"
-    + "          kept_ := town.held(baited_->'bag', line->>'bait') > town.held(landed->'purse'->'bag', line->>'bait');\n"
-    + "          perform town.keep_purse(me, baited_);\n"
+    + "        if rod_ is not null then\n"
+    + "          if random() < (town.rod_fx(rod_)->>'keeps')::double precision then\n"
+    + "            baited_ := town.back_bait(landed->'purse', line->>'bait');\n"
+    + "            kept_ := town.held(baited_->'bag', line->>'bait') > town.held(landed->'purse'->'bag', line->>'bait');\n"
+    + "            perform town.keep_purse(me, baited_);\n"
+    + "          end if;\n"
     + "        end if;\n"
     + "      end if;\n"
     + `      ${END}\n`
