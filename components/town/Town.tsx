@@ -6,8 +6,9 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBuilt, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBridge, setBuilt, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
+import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
@@ -709,6 +710,15 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).get("townSites") === "1") setBuilt(false);
   }, []);
   useEffect(() => { if (game) setBuilt(true); }, [game]);
+  // ── the bridge built by hand ── (and the land beyond it, which is to come: `next dev` only. The bridge the map draws and
+  // is walked over is the village's own: as many spans as the works have laid, walked on once it is whole and not before. The test
+  // room's trial keeper has its own way over (whole and open from the first, `&townBridge=` and `&townAt=`), and keeps it)
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development" || !keeper || (testTopic && !new URLSearchParams(location.search).get("townDb"))) return;
+    const sync = () => { const w = keeper.works(); setBridge(bridgeSpans(w), bridgeWhole(w)); };
+    sync();
+    return keeper.watch(sync);
+  }, [keeper, testTopic]);
   /** Fishing: the place I stand at (a tile a line can be dropped from: where its float lands, and whether that is deep water), whether my rod is out, and what my line is doing (for the map to draw). */
   const [fishAt, setFishAt] = useState<FishPlace | null>(null);
   const fishAtRef = useRef<FishPlace | null>(null);
