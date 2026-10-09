@@ -684,6 +684,319 @@ as $$
     from (select case when p_floor between 0 and (town.cat('mining')->>'floors')::integer then p_floor else 0 end as n) f, (select town.day_of(p_now) as n) d
 $$;
 
+-- ─── 8. A rock struck (lib/town/mining's mine, payFirst and pay) ─────────
+--
+-- A GO, as the rules below are given it (`p_go`): now; floor (0: the mountain's foot); rock; at ([x, y], the tile
+-- the member stands on: null for a tile that is none); swings (those made since the page last said); who and name
+-- (the striker's); rocks (the place's as they are laid, [[id, x, y, look], …]); cave (the place's document as it is
+-- now); crystal (the day's crystal rock if it is this place's); day; today ({way, crystal}: `town.mine_today`);
+-- element (the floor's of the day); points (the striker's on the miners' line); quake (a counted power asked for).
+
+-- Some more of a thing among what a go leaves ([[thing, how many], …]): onto its own line, or a new one at the end.
+create or replace function town.mine_add(p_got jsonb, p_id text, p_n double precision)
+returns jsonb language sql immutable
+as $$
+  select case when p_n is null or p_n <= 0 then p_got
+    when exists (select 1 from jsonb_array_elements(p_got) g(v) where g.v->>0 = p_id)
+      then (select jsonb_agg(case when g.v->>0 = p_id then jsonb_build_array(p_id, (g.v->>1)::double precision + p_n) else g.v end order by g.ord) from jsonb_array_elements(p_got) with ordinality g(v, ord))
+    else p_got || jsonb_build_array(jsonb_build_array(p_id, p_n)) end
+$$;
+
+-- What a rock holds if it is a plain one that may break with another: null for one that somebody else than `p_first`
+-- has begun (that one is theirs), and for one that hides a vein, the way down or the crystal.
+create or replace function town.mine_plain_at(p_go jsonb, p_rock integer, p_first text, p_veins double precision, p_word text)
+returns jsonb language sql stable
+as $$
+  select case when b.begun is not null and b.begun->>'first' <> p_first then null
+    else (select case when h.v->>'kind' = 'stone' then h.v end
+            from (select town.mine_holds_by(p_word, (p_go->>'floor')::integer, p_rock, town.mine_turn((p_go->>'now')::bigint), p_go->'today', p_veins) as v) h) end
+    from (select town.cave_struck_at(p_go->'cave', p_rock, (p_go->>'now')::bigint) as begun) b
+$$;
+
+-- pay: a rock struck whole away breaks, and whoever struck it first has what it left. `p_own`: it is they who
+-- struck the last of it away (then it is the pick in their hand that counts; or else the best they have). Refused
+-- with nothing changed when it hides a vein and they have one open, or there is no room for what it leaves.
+create or replace function town.mine_pay(p_purse jsonb, p_go jsonb, p_rock jsonb, p_struck jsonb, p_quake boolean, p_own boolean, p_word text)
+returns jsonb language plpgsql stable
+as $$
+declare
+  m jsonb := town.cat('mining');
+  now_ bigint := (p_go->>'now')::bigint;
+  floor_ integer := (p_go->>'floor')::integer;
+  rock_ integer := (p_rock->>0)::integer;
+  here integer := (p_go->>'crystal')::integer;
+  touch double precision := (m->>'touch')::double precision;
+  pick jsonb := case when p_own then town.mine_pick(p_purse) else town.mine_any_pick(p_purse) end;
+  opts jsonb := town.tool_mods(pick)->'opts';
+  kept jsonb := town.mine_of(p_purse);
+  turn_ bigint := town.mine_turn(now_);
+  spent boolean := town.stamina_of(p_purse, now_) <= 0;
+  veins double precision := town.mine_veins(pick);
+  holds jsonb := town.mine_holds_by(p_word, floor_, rock_, turn_, p_go->'today', veins);
+  breaks jsonb;                 -- [{rock: [id, x, y, look], holds}, …]: the rock struck first
+  r jsonb;
+  b jsonb;
+  h jsonb;
+  chance double precision;
+  chained integer;
+  got_ jsonb := '[]'::jsonb;
+  each_ jsonb := '[]'::jsonb;
+  moss jsonb := '[]'::jsonb;
+  gone jsonb;
+  loose jsonb;
+  ore_ text := town.mine_ore(floor_);
+  crumb integer := (kept->>'crumb')::integer;
+  shards double precision;
+  by_ double precision;
+  way_ integer;
+  shattered boolean := false;
+  vein_ jsonb := 'null'::jsonb;
+  stowed jsonb;
+  after_ jsonb;
+  cost double precision := 0;
+  owed double precision := (kept->>'owed')::double precision;
+  fresh_ jsonb;
+  eased_ jsonb;
+  used jsonb;
+  had_ double precision;
+  key_ text := floor_::text || ':' || turn_::text;
+  paid jsonb;
+begin
+  if holds->>'kind' = 'vein' and kept->'vein' <> 'null'::jsonb then return town.no('vein'); end if;
+
+  -- which rocks break: the one struck; with a quake, every plain rock within a step of the member; and now and
+  -- then a neighbour. (Never a rock somebody else has begun: that one is theirs.)
+  breaks := jsonb_build_array(jsonb_build_object('rock', p_rock, 'holds', holds));
+  if p_quake then
+    for r in select x.v from jsonb_array_elements(p_go->'rocks') with ordinality x(v, ord) order by x.ord loop
+      continue when (r->>0)::integer = rock_ or not town.cave_stands(p_go->'cave', (r->>0)::integer, now_, here)
+        or not town.mine_near((p_go->'at'->>0)::numeric, (p_go->'at'->>1)::numeric, (r->>1)::integer, (r->>2)::integer, town.opt_n('pkQuake', 'reach'));
+      h := town.mine_plain_at(p_go, (r->>0)::integer, p_struck->>'first', veins, p_word);
+      if h is not null then breaks := breaks || jsonb_build_array(jsonb_build_object('rock', r, 'holds', h)); end if;
+    end loop;
+  end if;
+  chance := town.gem_by(pick, 'lightning', m->'pick'->'gems'->'lightning'->'chain');
+  if chance > 0 and town.roll(p_word || ':chain', floor_, rock_, turn_) < chance then
+    -- (the nearest plain rock that touches it and still stands; of two as near, the lesser number)
+    r := (select x.v from jsonb_array_elements(p_go->'rocks') x(v)
+           where town.cave_stands(p_go->'cave', (x.v->>0)::integer, now_, here)
+             and not exists (select 1 from jsonb_array_elements(breaks) q(v) where q.v->'rock'->>0 = x.v->>0)
+             and town.mine_near((p_rock->>1)::numeric, (p_rock->>2)::numeric, (x.v->>1)::integer, (x.v->>2)::integer, touch)
+             and town.mine_plain_at(p_go, (x.v->>0)::integer, p_struck->>'first', veins, p_word) is not null
+           order by ((x.v->>1)::integer - (p_rock->>1)::integer) * ((x.v->>1)::integer - (p_rock->>1)::integer) + ((x.v->>2)::integer - (p_rock->>2)::integer) * ((x.v->>2)::integer - (p_rock->>2)::integer), (x.v->>0)::integer
+           limit 1);
+    if r is not null then
+      breaks := breaks || jsonb_build_array(jsonb_build_object('rock', r, 'holds', town.mine_plain_at(p_go, (r->>0)::integer, p_struck->>'first', veins, p_word)));
+      chained := (r->>0)::integer;
+    end if;
+  end if;
+
+  -- what they leave
+  for b in select x.v from jsonb_array_elements(breaks) with ordinality x(v, ord) order by x.ord loop
+    got_ := town.mine_add(got_, 'stone', (m->>'stone')::double precision);
+    h := b->'holds';
+    shards := 0;
+    if h->>'kind' in ('stone', 'way') then
+      shards := (h->>'shards')::double precision;
+      if h->>'kind' = 'way' then
+        way_ := (b->'rock'->>0)::integer;
+      elsif opts ? 'pkCrumb' then
+        crumb := crumb + 1;
+        if crumb >= town.opt_n('pkCrumb', 'every') then crumb := 0; shards := shards + town.opt_n('pkCrumb', 'more'); end if;
+      end if;
+      if h->>'kind' = 'stone' and coalesce((h->>'moss')::boolean, false) then moss := moss || jsonb_build_array((b->'rock'->>0)::integer); end if;
+      got_ := town.mine_add(got_, ore_, shards);
+    elsif h->>'kind' = 'crystal' then
+      shattered := true;
+      by_ := case when opts ? 'pkGleam' then town.opt_n('pkGleam', 'by') else 1 end;
+      shards := ceil((m->'crystal'->>'shards')::double precision * by_);
+      got_ := town.mine_add(got_, m->'ores'->-1->>'shard', shards);
+      got_ := town.mine_add(got_, town.cat('forge')->'gems'->(p_go->>'element')->>'chip', ceil((m->'crystal'->>'chips')::double precision * by_));
+    end if;
+    each_ := each_ || jsonb_build_array(jsonb_build_object('rock', (b->'rock'->>0)::integer, 'kind', h->>'kind', 'shards', shards));
+  end loop;
+  stowed := town.stow_all(p_purse, got_);
+  if stowed is null then return town.no('full'); end if;
+
+  -- what it costs: a point a go, none while the pick's own count lasts, an earth gem's share less (kept exact over time)
+  after_ := stowed;
+  fresh_ := case when opts ? 'pkFresh' then town.use_power(after_, pick, 'pkFresh', now_) end;
+  if fresh_ is not null and (fresh_->>'ok')::boolean then
+    after_ := fresh_->'purse';
+  else
+    had_ := town.stamina_of(after_, now_);
+    eased_ := town.eased(after_, town.spend(after_, (m->>'stamina')::double precision, now_), now_,
+      1::double precision - town.gem_by(pick, 'earth', m->'pick'->'gems'->'earth'->'stamina'), owed);
+    cost := had_ - town.stamina_of(eased_->'purse', now_);
+    after_ := eased_->'purse';
+    owed := (eased_->>'owed')::double precision;
+  end if;
+  if p_quake then
+    used := town.use_power(after_, pick, 'pkQuake', now_);
+    if (used->>'ok')::boolean then after_ := used->'purse'; end if;
+  end if;
+  if holds->>'kind' = 'vein' then
+    -- the vein is the member's from here: played with the pick as it is now, and with the stamina left after the rock
+    vein_ := jsonb_build_object('f', floor_, 'rock', rock_, 'turn', turn_, 'seed', holds->'seed',
+      'gem', case when (holds->>'gem')::boolean then p_go->'element' else 'null'::jsonb end,
+      'mods', town.vein_mods(pick, town.stamina_of(after_, now_) <= 0),
+      'more', case when (holds->>'gem')::boolean and opts ? 'pkCutter' then town.opt_n('pkCutter', 'more') else 0 end);
+    had_ := town.stamina_of(after_, now_);
+    after_ := town.spend(after_, (m->'vein'->>'stamina')::double precision, now_);
+    cost := cost + (had_ - town.stamina_of(after_, now_));
+  end if;
+
+  -- what is loosened: the rocks that touch one that broke, and still stand
+  gone := (select jsonb_agg((x.v->'rock'->>0)::integer order by x.ord) from jsonb_array_elements(breaks) with ordinality x(v, ord));
+  loose := coalesce((select jsonb_agg(i.v order by i.ord) from jsonb_array_elements(case when kept->'loose'->>'k' = key_ then kept->'loose'->'ids' else '[]'::jsonb end) with ordinality i(v, ord)
+                      where not exists (select 1 from jsonb_array_elements(gone) g(v) where g.v = i.v)), '[]'::jsonb);
+  if opts ? 'pkLoose' then
+    for r in select x.v from jsonb_array_elements(p_go->'rocks') with ordinality x(v, ord) order by x.ord loop
+      continue when exists (select 1 from jsonb_array_elements(gone || loose) g(v) where (g.v #>> '{}')::numeric = (r->>0)::numeric)
+        or not town.cave_stands(p_go->'cave', (r->>0)::integer, now_, here)
+        or not exists (select 1 from jsonb_array_elements(breaks) q(v)
+                        where town.mine_near((q.v->'rock'->>1)::numeric, (q.v->'rock'->>2)::numeric, (r->>1)::integer, (r->>2)::integer, touch));
+      loose := loose || jsonb_build_array((r->>0)::integer);
+    end loop;
+    loose := coalesce((select jsonb_agg(i.v order by (i.v #>> '{}')::numeric) from jsonb_array_elements(loose) i(v)), '[]'::jsonb);
+  end if;
+  -- (broken for them by somebody else: their page is to say so once, with what it left and who it was)
+  paid := case when p_own then kept->'paid' else jsonb_build_object('at', now_, 'f', floor_, 'rock', rock_, 'got', got_, 'way', way_ is not null, 'crystal', shattered,
+    'vein', vein_ <> 'null'::jsonb, 'by', coalesce(p_go->>'name', '')) end;
+  after_ := after_ || jsonb_build_object('mine', kept || jsonb_build_object('owed', owed, 'crumb', crumb, 'loose', jsonb_build_object('k', key_, 'ids', loose), 'vein', vein_,
+    'last', case when p_own then to_jsonb(now_) else kept->'last' end, 'paid', paid));
+  return jsonb_build_object('ok', true, 'done', true, 'purse', after_, 'struck', p_struck, 'broke', gone, 'chained', chained, 'got', got_, 'way', way_, 'vein', vein_,
+    'crystal', shattered, 'loose', loose, 'cost', cost, 'spent', spent, 'each', each_, 'moss', moss);
+end;
+$$;
+
+-- mine: a rock struck: the swings made since the page last said go into it, as the striker's own share of it. It
+-- still stands (`done` false: the tally is to be kept, and the purse only remembers the moment); or it is struck
+-- whole away and the striker struck it first (`done` true: it breaks, and their purse has what it left); or it is
+-- struck whole away and somebody else struck it first (`done` "theirs": it is that member's to be paid for, with
+-- their purse, `town.mine_pay_first`). The refusals are the code's, in the code's order.
+create or replace function town.mine(p_purse jsonb, p_go jsonb, p_word text)
+returns jsonb language plpgsql stable
+as $$
+declare
+  m jsonb := town.cat('mining');
+  now_ bigint := (p_go->>'now')::bigint;
+  floor_ integer := (p_go->>'floor')::integer;
+  rock_ integer := (p_go->>'rock')::integer;
+  who text := coalesce(p_go->>'who', '');
+  pick jsonb := town.mine_pick(p_purse);
+  kept jsonb := town.mine_of(p_purse);
+  turn_ bigint := town.mine_turn(now_);
+  swings double precision := case when jsonb_typeof(p_go->'swings') = 'number' then (p_go->>'swings')::double precision end;
+  last_ double precision := (kept->>'last')::double precision;
+  r jsonb;
+  had jsonb;
+  own boolean;
+  spent boolean;
+  quake boolean;
+  need double precision;
+  left_ double precision;
+  counted double precision;
+  share double precision;
+  struck jsonb;
+  swung jsonb;
+begin
+  if pick is null then return town.no('tool'); end if;
+  if kept->'vein' <> 'null'::jsonb then return town.no('vein'); end if;
+  r := town.mine_rock(p_go->'rocks', rock_);
+  if r is null then return town.no('none'); end if;
+  if not town.cave_stands(p_go->'cave', rock_, now_, (p_go->>'crystal')::integer) then return town.no('gone'); end if;
+  if jsonb_typeof(p_go->'at') is distinct from 'array'
+     or not town.mine_near((p_go->'at'->>0)::numeric, (p_go->'at'->>1)::numeric, (r->>1)::integer, (r->>2)::integer, (m->>'reach')::double precision) then return town.no('far'); end if;
+  if town.mine_holds(p_word, floor_, rock_, turn_, p_go->'today', pick)->>'kind' = 'crystal' and town.tool_level(pick) < (m->'crystal'->>'plus')::integer then return town.no('weak'); end if;
+  -- (the one swing of a quake is for a rock nobody else has begun: on somebody else's rock the pick swings as any other)
+  had := town.cave_struck_at(p_go->'cave', rock_, now_);
+  own := had is null or had->>'first' = who;
+  spent := town.stamina_of(p_purse, now_) <= 0;
+  quake := coalesce((p_go->>'quake')::boolean, false) and own;
+  if quake and not town.may_power(p_purse, pick, 'pkQuake', now_) then return town.no('spent'); end if;
+  if swings is null or swings < 1 then return town.no('more'); end if;
+  -- the swings that count: no more than what is left of the rock takes of this pick, and none quicker than a hand swings
+  need := case when quake then 1 else town.mine_swings(pick, floor_, spent, town.mine_is_loose(p_purse, floor_, turn_, rock_), coalesce((p_go->>'points')::double precision, 0)) end;
+  left_ := greatest(0::double precision, 1::double precision - town.mine_part(had));
+  counted := least(floor(swings), ceil(left_ * need - 1e-6::double precision));
+  if now_ >= last_ and now_ - last_ < counted * (m->'swing'->>'least')::double precision then return town.no('soon'); end if;
+  share := least(left_, counted / need);
+  struck := jsonb_build_object('first', coalesce(had->>'first', who), 'name', case when had is not null then had->>'name' else coalesce(p_go->>'name', '') end,
+    'at', case when had is not null then had->'at' else to_jsonb(now_) end,
+    'by', coalesce(had->'by', '{}'::jsonb) || case when share > 0 then jsonb_build_object(who, coalesce((had->'by'->>who)::double precision, 0) + share) else '{}'::jsonb end);
+  swung := p_purse || jsonb_build_object('mine', kept || jsonb_build_object('last', now_));
+  if town.mine_part(struck) < 1::double precision - 1e-6::double precision then
+    return jsonb_build_object('ok', true, 'done', false, 'purse', swung, 'struck', struck, 'part', town.mine_part(struck));
+  end if;
+  if struck->>'first' <> who then return jsonb_build_object('ok', true, 'done', 'theirs', 'purse', swung, 'struck', struck); end if;
+  return town.mine_pay(p_purse, p_go, r, struck, quake, true, p_word);
+end;
+$$;
+
+-- payFirst: a rock that somebody else struck the last of away, paid to whoever struck it first as if they had
+-- broken it: with their purse, wherever they stand and whatever they hold now. `p_go` is the go that broke it; its
+-- `name` is who broke it. Refused with nothing changed when there is no room for what it leaves, or it hides a vein
+-- and they have one open already: the rock then waits for them, whole.
+create or replace function town.mine_pay_first(p_purse jsonb, p_go jsonb, p_struck jsonb, p_word text)
+returns jsonb language plpgsql stable
+as $$
+declare
+  r jsonb := town.mine_rock(p_go->'rocks', (p_go->>'rock')::integer);
+begin
+  if r is null then return town.no('none'); end if;
+  if not town.cave_stands(p_go->'cave', (r->>0)::integer, (p_go->>'now')::bigint, (p_go->>'crystal')::integer) then return town.no('gone'); end if;
+  return town.mine_pay(p_purse, p_go, r, p_struck, false, false, p_word);
+end;
+$$;
+
+-- What a rock holds, for a pick that sees into it (as the code's keeper answers a peek).
+create or replace function town.mine_look(p_purse jsonb, p_go jsonb, p_word text)
+returns jsonb language plpgsql stable
+as $$
+declare
+  pick jsonb := town.mine_pick(p_purse);
+  now_ bigint := (p_go->>'now')::bigint;
+  rock_ integer := (p_go->>'rock')::integer;
+begin
+  if pick is null or not town.tool_has(pick, 'pkPeek') then return town.no('tool'); end if;
+  if town.mine_rock(p_go->'rocks', rock_) is null then return town.no('none'); end if;
+  if not town.cave_stands(p_go->'cave', rock_, now_, (p_go->>'crystal')::integer) then return town.no('gone'); end if;
+  return jsonb_build_object('ok', true, 'peek', town.mine_peek(town.mine_holds(p_word, (p_go->>'floor')::integer, rock_, town.mine_turn(now_), p_go->'today', pick)));
+end;
+$$;
+
+-- openWay: a floor's way down opened: it stays so for the day. (The deepest floor reached is read off the rows.)
+create or replace function town.cave_open_way(p_cave jsonb, p_floor integer, p_way jsonb)
+returns jsonb language sql stable
+as $$
+  select case when coalesce(p_cave->'way', 'null'::jsonb) <> 'null'::jsonb or p_floor < 1 or p_floor >= (town.cat('mining')->>'floors')::integer then p_cave
+    else p_cave || jsonb_build_object('way', p_way) end
+$$;
+
+-- crystalBroken: the day's crystal rock broken, by whom.
+create or replace function town.cave_crystal_broken(p_cave jsonb, p_who jsonb)
+returns jsonb language sql immutable
+as $$ select case when coalesce(p_cave->'crystal', 'null'::jsonb) <> 'null'::jsonb then p_cave else p_cave || jsonb_build_object('crystal', p_who) end $$;
+
+-- A light set on a tile, among some lights: it burns from now, so long. One to a tile: a new one there burns anew.
+create or replace function town.cave_light(p_lights jsonb, p_floor integer, p_x integer, p_y integer, p_by text, p_now bigint, p_for numeric)
+returns jsonb language sql immutable
+as $$
+  select coalesce((select jsonb_agg(t.v order by t.ord) from jsonb_array_elements(coalesce(p_lights, '[]'::jsonb)) with ordinality t(v, ord)
+     where (t.v->>'until')::numeric > p_now and not ((t.v->>'f')::numeric = p_floor and (t.v->>'x')::numeric = p_x and (t.v->>'y')::numeric = p_y)), '[]'::jsonb)
+    || jsonb_build_array(jsonb_build_object('f', p_floor, 'x', p_x, 'y', p_y, 'until', p_now + p_for, 'by', p_by))
+$$;
+
+-- setTorch, setMoss: a torch set down, and moss let out of a rock that stood on a tile: for everybody.
+create or replace function town.cave_set_torch(p_cave jsonb, p_floor integer, p_x integer, p_y integer, p_by text, p_now bigint)
+returns jsonb language sql stable
+as $$ select p_cave || jsonb_build_object('torches', town.cave_light(p_cave->'torches', p_floor, p_x, p_y, p_by, p_now, (town.cat('mining')->'light'->>'burns')::numeric)) $$;
+
+create or replace function town.cave_set_moss(p_cave jsonb, p_floor integer, p_x integer, p_y integer, p_by text, p_now bigint)
+returns jsonb language sql stable
+as $$ select p_cave || jsonb_build_object('moss', town.cave_light(p_cave->'moss', p_floor, p_x, p_y, p_by, p_now, (town.cat('mining')->'moss'->>'glows')::numeric)) $$;
+
 -- A member's name, as the others are told it.
 create or replace function town.mine_name(p_member uuid)
 returns text language sql stable set search_path = public
