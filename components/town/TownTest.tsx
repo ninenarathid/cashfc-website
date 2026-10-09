@@ -211,7 +211,7 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
               <Row label={th ? "ช่างตีเหล็ก" : "The blacksmith"} value={<span className="font-data text-meta tabular-nums text-ink" data-test-smith>{tool && kind ? `${th ? ITEMS[tool.item].name.th : ITEMS[tool.item].name.en} +${levelOf(tool)}` : th ? "ถือเครื่องมือไว้ก่อน" : "hold a tool first"}</span>}>
                 <Do onClick={() => { onClose(); open("forge"); }}>{th ? "เปิดหน้าช่าง" : "Open his screen"}</Do>
                 <Do onClick={() => { trial.grantSmith(); setSaid(th ? "ได้ไม้ เศษแร่ แร่ก้อน พลอย และเหรียญแล้ว (กระเป๋า 20 ช่อง)" : "Timber, fragments, ore, gems and coins are in the bag (twenty slots)"); }}>{th ? "เสกวัตถุดิบ" : "Materials"}</Do>
-                {[0, 3, 6, 7, 10].map((n) => <Do key={n} on={!!tool && !!kind && levelOf(tool) === n} onClick={() => { if (tool && kind) trial.setTool(at, n, drawnOf(tool).map((o) => o ?? ""), gemsOf(tool)); }}>+{n}</Do>)}
+                {[0, 3, 6, 7, 9, 10].map((n) => <Do key={n} on={!!tool && !!kind && levelOf(tool) === n} onClick={() => { if (tool && kind) trial.setTool(at, n, drawnOf(tool).map((o) => o ?? ""), gemsOf(tool)); }}>+{n}</Do>)}
                 <Do onClick={() => trial.skipHours(0.1)}>+6 {th ? "นาที" : "min"}</Do>
               </Row>
             );
@@ -238,6 +238,24 @@ export default function TownTest({ me, name: called, th, onClose }: { me: string
                 <Do onClick={() => give("farming")}>{th ? "จอบ +7 กับบัว +10 น้ำเต็ม" : "A hoe +7 and a full can +10"}</Do>
                 <Do onClick={() => trial.grant("rod", 0, 1000)}>+1000 coin</Do>
                 <Do onClick={go}>{th ? "ไปยืนที่เตา เปิดหน้าย้าย" : "To the forge, the Move leaf"}</Do>
+              </Row>
+            );
+          })()}
+          {/* ── forging: the great fire ── the village's one fire that a try for the top takes: its state in a few words, and the ways to bring it on
+              (its time, both halves, made-up members before me in the row, a fresh one) */}
+          {process.env.NODE_ENV === "development" && (() => {
+            const f = trial.fire();
+            const state = [
+              f.lit ? (th ? "ไฟติด" : "lit") : `${f.flint ? (th ? "หิน" : "flint") : "–"}/${f.tinder ? (th ? "เชื้อ" : "tinder") : "–"}`,
+              th ? `คิว ${f.row.length}` : `row ${f.row.length}`,
+              f.mine >= 0 ? (th ? `ฉันที่ ${f.mine + 1}` : `me at ${f.mine + 1}`) : (th ? "ฉันไม่อยู่ในคิว" : "me not in it"),
+            ].join(" · ");
+            return (
+              <Row label={th ? "ไฟใหญ่ของเตา" : "The great fire"} value={<span className="font-data text-meta tabular-nums text-ink" data-test-fire={state}>{state}</span>}>
+                <Do onClick={() => trial.fireDue()}>{th ? "ถึงเวลา" : "Its time has come"}</Do>
+                <Do onClick={() => trial.fireLight()}>{th ? "จุดไฟเลย" : "Light it"}</Do>
+                <Do onClick={() => trial.fireRow(2)}>{th ? "คิว: 2 คนก่อนฉัน" : "Row: two before me"}</Do>
+                <Do onClick={() => trial.fireReset()}>{th ? "ล้าง" : "Reset"}</Do>
               </Row>
             );
           })()}
