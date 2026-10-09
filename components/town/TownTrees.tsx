@@ -17,6 +17,7 @@ import { walkable, type Vec } from "@/lib/town/world";
 import { registerTap, setAncientLook, setTreeLooks, setTreeScales } from "./mountain-art";
 import type { FarmDraw } from "./TownFarm";
 import TownFelling, { GIRTH_NAME } from "./TownFelling";
+import { useLeaving } from "./useLeaving";
 import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownPinesBook, { keepsakeIcon } from "./TownPinesBook";
@@ -134,6 +135,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   toldRef.current = told;
   const purse = keeper.purse(), now = keeper.now(), axe = axeOf(purse);
   const [working, setWorking] = useState<Working | null>(null);
+  const leaving = useLeaving(keeper);
   const [card, setCard] = useState<Card | null>(null);
   const [note, setNote] = useState<Note | null>(null);
   /** The tree I tapped: the one the two presses are for, while I stand beside it. */
@@ -326,12 +328,21 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     }, 1500);
   }, [bracing, folk, tile, keeper, th]);
 
+  /** The board is shut by its member before its first chop: written down as left in a moment, unless its own end comes first (lib/town/leaving). */
+  const cancel = useCallback((w: Working) => {
+    setWorking(null);
+    const at = keeper.now(), first = WOOD.find((t) => t.id === w.id);
+    leaving.left(w, { game: "felling", board: "felling", how: "left", at, won: false, secs: 0, spent: isSpent(keeper.purse(), at), buff: null, what: first?.elder ? TREES.elderKind : TREES.kinds[(first?.tier ?? 1) - 1], need: 0, hits: 0, misses: 0 });
+  }, [keeper, leaving]);
+
   /** A go is over: it is written down, judged by whoever keeps the game, and what it gave comes up on a card. */
   const done = useCallback(async (w: Working, out: FellOutcome, how: { one?: boolean; twice?: boolean }) => {
     setWorking(null);
+    leaving.ended(w);
     const mine = keeper.purse(), at = keeper.now(), first = WOOD.find((t) => t.id === w.id);
     if (!how.one) {
-      keeper.record({ game: "felling", at, won: out.through, secs: out.secs, spent: isSpent(mine, at), buff: null,
+      // (a go played out with no fine timber is done, not dropped: the board came to its end)
+      keeper.record({ game: "felling", board: "felling", ...(out.through ? {} : { how: "done" as const }), at, won: out.through, secs: out.secs, spent: isSpent(mine, at), buff: null,
         what: first?.elder ? TREES.elderKind : TREES.kinds[(first?.tier ?? 1) - 1], need: out.chops, hits: out.cut, misses: out.misses });
     }
     const did = await keeper.fellDo({ tree: w.id, through: out.through, misses: out.misses, secs: out.secs, ...(how.one ? { one: true } : {}), ...(how.twice ? { twice: true } : {}) }, w.from, name);
@@ -341,7 +352,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     fall(did.felled);
     setNote(null);
     setCard({ did, out: how.one ? null : out, ask: how.one ? null : w.ask, tile: w.from.join(","), at: Date.now() });
-  }, [keeper, name, say, fall]);
+  }, [keeper, name, say, fall, leaving]);
 
   /** The quickening root: the last stump I made grows back at once. */
   const rootId = card && axe && powerLeft(purse, "axRoot", now) > 0 && has(axe, "axRoot") ? [...card.did.felled].reverse().find((f) => f.id !== TREES.elder.id)?.id ?? null : null;
@@ -593,7 +604,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       {working ? (
         <div key={`${working.id}:${working.ask.seed}`} className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game="felling" data-tree={working.id}>
           <TownFelling th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers} braced={bracer?.name ?? null}
-                       onDone={(out, how) => void done(working, out, how)} onCancel={() => setWorking(null)} />
+                       onDone={(out, how) => void done(working, out, how)} onCancel={() => cancel(working)} />
         </div>
       ) : here && !card && !book && (
         <div className="pointer-events-none flex flex-col items-center gap-1.5" data-trees-here={here.id} data-girth={hereGirth ?? undefined}>
