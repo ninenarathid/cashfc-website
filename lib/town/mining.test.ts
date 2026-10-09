@@ -163,6 +163,11 @@ describe("mining: a rock struck", () => {
     expect(mine(full, go())).toEqual({ ok: false, why: "full" });
     expect(mine({ ...p, mine: { last: NOON - 100 } }, go())).toEqual({ ok: false, why: "soon" });
     expect(mine({ ...p, mine: { last: NOON - 4 * MINING.swing.least } }, go()).ok).toBe(true);
+    // a moment that is not after the last strike believed is too soon too, however far before it: a call that took
+    // its moment and then waited, while a newer one of the same member moved `last` on, is not believed its swings
+    expect(mine({ ...p, mine: { last: NOON } }, go())).toEqual({ ok: false, why: "soon" });
+    expect(mine({ ...p, mine: { last: NOON + 1 } }, go())).toEqual({ ok: false, why: "soon" });
+    expect(mine({ ...p, mine: { last: NOON + 3_600_000 } }, go({ swings: 1 }))).toEqual({ ok: false, why: "soon" });
   });
   it("a rock broken leaves a stone always, its fragments if it had any, and costs a point of stamina whatever the swings", () => {
     const bare = where(5, (h) => h.kind === "stone" && h.shards === 0), rich = where(5, (h) => h.kind === "stone" && h.shards === 2);

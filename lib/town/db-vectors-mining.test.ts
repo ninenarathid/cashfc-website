@@ -637,6 +637,21 @@ export function vectorsMining(): Vector[] {
     deed("crystal", "stone", 1, { got: "shardSilver", chip: "chipDiamond" }), deed("crystal", "stone", 1, { got: "shardSilver" }), deed("crystal", "stone", 1, { chip: "chipDiamond" }), deed("crystal", "stone", 1, {}),
     deed("lift", null, 10, {}), deed("torch", "torch", 1, { floor: 3, tile: [70, 330] }), deed("vein_odd", null, 0, { said: {} }), deed("net", "ladybird", 1, {}),
   ]) add("counts_of", [done, "m1"], countsOf(done, "m1"));
+
+  /* ── edges of a rock struck, said out whatever the chance above came to (a chance of their own: nothing above moves) ── */
+  // the swings' bound: two swings go in a whole hand's time for each after the last strike believed; a millisecond
+  // short of that, at the very moment of the last, and BEFORE the last (an older call that waited for a place while
+  // a newer one of the same member moved `last` on) they are too soon
+  {
+    const e = chance(41640), pick: Stack = { item: "pick", n: 1 }, swings = 2;
+    for (const foot of [true, false]) {
+      const sc = sceneOf(e, "stone", pick, foot), s = standing(e, sc);
+      for (const last of [sc.now - swings * MINING.swing.least, sc.now - swings * MINING.swing.least + 1, sc.now - 1, sc.now, sc.now + 1, sc.now + 5000, sc.now + 86_400_000]) {
+        const p = minerOf(sc, pick, { last }), { go, said } = goOf(sc, s, { at: [sc.rock.x + 1, sc.rock.y], swings, who: "m1" });
+        add("mine", [p, said, sc.word], shown(mine(p, go)));
+      }
+    }
+  }
   return out;
 }
 
@@ -674,6 +689,11 @@ describe("the cases the database's rules of mining are held to", () => {
     interface Went { ok: boolean; why?: string; done?: boolean | "theirs"; vein?: { gem: string | null; more: number } | null; way?: number | null; crystal?: boolean; chained?: number | null; moss?: number[]; broke?: number[]; cost?: number; loose?: number[]; got?: Array<[string, number]>; purse?: Purse }
     const goes = of("mine").map((v) => v.want as Went), broke = goes.filter((g) => g.done === true);
     expect(new Set(goes.filter((g) => !g.ok).map((g) => g.why))).toEqual(new Set(["tool", "vein", "none", "gone", "far", "weak", "spent", "more", "soon", "full"]));
+    // (no go is believed whose moment is not after the last strike believed; of the edges said out, the first is believed and the six after it are too soon, on the foot and in the cave)
+    const stale = of("mine").filter((v) => ((v.args[0] as Purse).mine as { last: number }).last >= (v.args[1] as { now: number }).now);
+    expect(stale.length).toBeGreaterThan(100);
+    expect(stale.every((v) => (v.want as Went).ok === false) && stale.filter((v) => (v.want as Went).why === "soon").length > 50).toBe(true);
+    expect(of("mine").slice(-14).map((v) => (v.want as Went).why ?? "in")).toEqual([...Array.from({ length: 2 }, () => ["in", "soon", "soon", "soon", "soon", "soon", "soon"])].flat());
     expect(goes.filter((g) => g.done === false).length).toBeGreaterThan(150);
     expect(goes.filter((g) => g.done === "theirs").length).toBeGreaterThan(60);
     expect(broke.length).toBeGreaterThan(500);

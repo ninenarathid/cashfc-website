@@ -947,7 +947,9 @@ begin
   need := case when quake then 1 else town.mine_swings(pick, floor_, spent, town.mine_is_loose(p_purse, floor_, turn_, rock_), coalesce((p_go->>'points')::double precision, 0)) end;
   left_ := greatest(0::double precision, 1::double precision - town.mine_part(had));
   counted := least(floor(swings), ceil(left_ * need - 1e-6::double precision));
-  if now_ >= last_ and now_ - last_ < counted * (m->'swing'->>'least')::double precision then return town.no('soon'); end if;
+  -- (a moment BEFORE the last strike believed is too soon too: `town_mine` takes its moment before it waits for the
+  -- place, and a newer call of the same member on another place may have moved `last` on meanwhile)
+  if now_ - last_ < counted * (m->'swing'->>'least')::double precision then return town.no('soon'); end if;
   share := least(left_, counted / need);
   struck := jsonb_build_object('first', coalesce(had->>'first', who), 'name', case when had is not null then had->>'name' else coalesce(p_go->>'name', '') end,
     'at', case when had is not null then had->'at' else to_jsonb(now_) end,

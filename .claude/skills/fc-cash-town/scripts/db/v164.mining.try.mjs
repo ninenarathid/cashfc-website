@@ -350,6 +350,16 @@ export default async function (ctx) {
     await strike(U.m1, 0, next.rock.id, [null, null], 4), await strike(U.m1, 0, next.rock.id, [5, K.at.y + 5], 4), await strike(U.m1, 0, 9999, next.at, 4), await strike(U.m1, 0, next.rock.id, next.at, 0), await strike(U.m1, 77, 0, next.at, 4)];
   t.check("from two tiles off, from the rock's own tile, from another rock's, from no tile, from a tile of the cave's: out of reach; a rock that is none, and a place that is none: none; no swing at all: more. Nothing changes by any of it",
     tries.every((y) => y.agrees) && same(tries.map((y) => y.a.why), ["far", "far", "far", "far", "far", "none", "more", "none"]), tries.map((y) => y.off.length ? y.off : y.a.why));
+  // (`town_mine` takes its moment before it waits for the place: a call that waited while a newer one of the same
+  // member, on another place, moved `mine.last` on comes back with a moment BEFORE the last strike believed)
+  const mineWas = (await purseNow(U.m1)).mine, stale = [];
+  for (const ahead of [1, 3_600_000]) {
+    await patch(U.m1, { mine: { ...mineWas, last: NOW + ahead } });
+    stale.push(await strike(U.m1, 0, next.rock.id, next.at, 4));
+  }
+  t.check("a strike whose moment is before the last one believed (an older call that waited while a newer one went first) is too soon, by a millisecond as by an hour: the rock stands, and nothing of it is struck away",
+    stale.every((y) => y.agrees && y.a.why === "soon" && y.a.cave.struck[String(next.rock.id)] === undefined && !(y.a.cave.gone["0"] ?? []).includes(next.rock.id)), stale.map((y) => y.off.length ? y.off : y.a.why ?? y.a));
+  await patch(U.m1, { mine: mineWas });
   await patch(U.m1, { hand: "glowMushroom", bag: bag(PICK, { item: "glowMushroom", n: 1 }) });
   x = await strike(U.m1, 0, next.rock.id, next.at, 4);
   t.check("with something else in the hand there is no pick to swing", x.agrees && x.a.why === "tool", x.off.length ? x.off : x.a);

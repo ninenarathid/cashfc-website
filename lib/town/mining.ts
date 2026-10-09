@@ -343,7 +343,10 @@ export function mine(purse: Purse, go: Go): Mined | Swung | Theirs | { ok: false
   // the swings that count: no more than what is left of the rock takes of this pick, and none quicker than a hand swings
   const need = quake ? 1 : swingsFor(pick, go.floor, spent, isLoose(purse, go.floor, turn, rock.id), go.points);
   const left = Math.max(0, 1 - partOf(had)), counted = Math.min(Math.floor(go.swings), Math.ceil(left * need - 1e-6));
-  if (go.now >= kept.last && go.now - kept.last < counted * MINING.swing.least) return no("soon");
+  // (a moment BEFORE the last strike believed is too soon too: a call that took its moment and then waited for a
+  // place, while a newer call of the same member moved `last` on, comes back with an older `now`, and its swings
+  // are not believed for that)
+  if (go.now - kept.last < counted * MINING.swing.least) return no("soon");
   const mine_ = Math.min(left, counted / need);
   const struck: Struck = { first: had?.first ?? who, name: had ? had.name : go.name ?? "", at: had?.at ?? go.now, by: { ...(had?.by ?? {}), ...(mine_ > 0 ? { [who]: (had?.by[who] ?? 0) + mine_ } : {}) } };
   const swung: Purse = { ...purse, mine: { ...kept, last: go.now } };

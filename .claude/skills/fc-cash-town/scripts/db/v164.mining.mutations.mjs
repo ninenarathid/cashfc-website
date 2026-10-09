@@ -60,8 +60,11 @@ export default ({ cut, swap }) => {
       ["beside:"]],
     // ── the swings' bound ──
     ["swings are believed however quick they come",
-      swap("  if now_ >= last_ and now_ - last_ < counted * (m->'swing'->>'least')::double precision then return town.no('soon'); end if;\n", ""),
+      swap("  if now_ - last_ < counted * (m->'swing'->>'least')::double precision then return town.no('soon'); end if;\n", ""),
       ["mine:", "two more, one swing's time later, are quicker than a hand swings"]],
+    ["a strike told with a moment before the last one believed gets past the bound (an older call that waited for a place)",
+      swap("  if now_ - last_ < counted * (m->'swing'->>'least')::double precision then return town.no('soon'); end if;\n", "  if now_ >= last_ and now_ - last_ < counted * (m->'swing'->>'least')::double precision then return town.no('soon'); end if;\n"),
+      ["mine:", "a strike whose moment is before the last one believed"]],
     ["a swing is believed in a tenth of a hand's time",
       swap("now_ - last_ < counted * (m->'swing'->>'least')::double precision then", "now_ - last_ < counted * (m->'swing'->>'least')::double precision / 10 then"),
       ["mine:", "two more, one swing's time later, are quicker than a hand swings"]],
