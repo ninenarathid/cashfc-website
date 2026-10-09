@@ -362,10 +362,14 @@ export const KEEPERS: Keeper[] = [
  */
 export const PREVIEW = true;
 /**
- * Whether the far side is open to this page's member (the bridge over the river, the mountain's foot and the cave under
+ * Whether the far side is open to this page's member (the mountain's foot beyond the west gate, and the cave under
  * it). Its lists and its pictures are in every build; what a build gates is reaching it. Shut until the page's keeper
- * says otherwise (`setFar`, as `setBuilt` is told): the bridge is then not walked over, nothing of the far side answers
- * a tap and none of its panels opens (Town.tsx).
+ * says otherwise (`setFar`, as `setBuilt` is told): the gate beyond the bridge then leads nowhere, nothing of the far
+ * side answers a tap and none of its panels opens (Town.tsx).
+ *
+ * The bridge itself is NOT the far side's (the owner, 2026-10-09, the afternoon the village laid its last stone:
+ * "เอาสะพานมาก่อนเลย … เอาให้เดินข้ามได้จริงด้วย"): whoever built it walks over it the moment it is whole, to the far
+ * bank, and finds the way on to the mountain not open yet.
  */
 let farOpen = false;
 /** Say whether the far side is open here. Each page works out where one may walk from this and from setBridge. */
@@ -406,8 +410,10 @@ export const BRIDGE = {
   ends: [{ x: 11, y: 28 }, { x: 5, y: 34 }] as [Vec, Vec],
 };
 const bridgeAt = new Set(BRIDGE.tiles.flat().map(([x, y]) => `${x},${y}`));
-/** Whether the bridge is walked on here now: whole, and opened. */
-export const bridgeOpen = () => PREVIEW && farOpen && !asWas && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length;
+/** Whether the bridge is walked on here now: whole, and opened; whatever the far side's switch says. */
+export const bridgeOpen = () => PREVIEW && !asWas && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length;
+/** Whether the gate beyond the bridge leads on to the mountain here now: over a bridge that is walked on, and only while the far side is open. */
+export const mountainOpen = () => bridgeOpen() && farOpen;
 /** How much of the bridge there is, and whether it is opened (it cannot be, short of whole). Each page works out where one may walk from this, as from setBuilt. */
 export function setBridge(spans: number, open = true) {
   BRIDGE.spans = Math.max(0, Math.min(BRIDGE.tiles.length, Math.floor(spans)));
@@ -1209,11 +1215,11 @@ function moreShut(tx: number, ty: number): boolean {
  * mouth, which puts one beside the first floor's ladder, and every floor's two ladders (the one come down by goes
  * back up, to stand beside the way down of the floor above, or before the mouth; the way down goes on, where the
  * floor below is laid and where there is a way down at all: `caveWay`). And the gate beyond the bridge, which leads
- * nowhere until the bridge is open. Gives the
+ * nowhere until the bridge is walked on and the far side open (`mountainOpen`). Gives the
  * place a gate leads to, null where what looks like one leads nowhere, and nothing where this has no say.
  */
 function moreGate(tx: number, ty: number): Vec | null | undefined {
-  if (ty < MOUNTAIN.y) return tx >= 0 && tx < 2 && ty < ROWS && !bridgeOpen() ? null : undefined;
+  if (ty < MOUNTAIN.y) return tx >= 0 && tx < 2 && ty < ROWS && !mountainOpen() ? null : undefined;
   if (within(tx, ty, MOUNTAIN)) {
     if (!MOUNTAIN_AT.mouthTiles.some(([x, y]) => x === tx && y === ty)) return undefined;
     return CAVE.laid.includes(1) ? inCave(1, caveToday(1).arrive) : null;
@@ -1463,7 +1469,7 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   // ── to come ── (the blacksmith's tiles are closed; the bridge's are walked on once it is whole and open, the water under it too)
   if (PREVIEW && !asWas) {
     if (smithAt.has(`${tx},${ty}`)) return "keeper";
-    if (farOpen && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length && bridgeAt.has(`${tx},${ty}`)) return null;
+    if (BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length && bridgeAt.has(`${tx},${ty}`)) return null;
   }
   if (isClosed(tx, ty)) return "roadworks";
   if (isWater(tx, ty)) return "water";

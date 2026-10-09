@@ -8,7 +8,7 @@ import { SMITH_CLOSED, SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
 import type { Line } from "@/lib/town/talk";
 import {
   BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, TILE_H, TILE_W,
-  caveRocks, caveSpots, caveToday, caveWay, floorCorner, floorOf, setBridge, setCaveDay, setCaveWay, walkable, type Place, type Prop, type Vec,
+  caveRocks, caveSpots, caveToday, caveWay, floorCorner, floorOf, mountainOpen, setBridge, setCaveDay, setCaveWay, walkable, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 
 /**
@@ -688,7 +688,8 @@ export class MountainArt {
   }
   /** What a gateway of these maps is called, over it; nothing for a gateway that is not theirs. */
   gateName(g: { from: Place; leads: Place }, th: boolean): string | null {
-    return g.leads === "mountain" ? (th ? "ไปตีนเขา" : "To the mountain") : null;
+    // (the gate beyond the bridge says so while the way on is not open: the bridge is walked over before the mountain is)
+    return g.leads === "mountain" ? (mountainOpen() || g.from === "mountain" ? (th ? "ไปตีนเขา" : "To the mountain") : th ? "ทางขึ้นเขา (ยังไม่เปิด)" : "The way up the mountain (not open yet)") : null;
   }
   /** The blacksmith's next talk: his name and portrait, and what he says at this hour. */
   talk(hour: number): { as: { name: Line; job: Line; art: [string, string] }; lines: Line[] } {
