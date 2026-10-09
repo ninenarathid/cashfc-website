@@ -268,7 +268,8 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
   const aside = useRef<number | null>(null), pending = told?.vein ?? null, veinSent = useRef(false);
   // (a board whose vein whoever keeps the game no longer has, and that was never sent: put away)
   useEffect(() => { if (vein && !pending && !veinSent.current) setVein(null); }, [vein, pending]);
-  useEffect(() => { veinSent.current = false; }, [vein]);
+  const veinAt = useRef(0);
+  useEffect(() => { veinSent.current = false; veinAt.current = Date.now(); }, [vein]);
   useEffect(() => { if (pending && !vein && pending.seed !== aside.current) setVein(pending); }, [pending?.seed, pending?.again, vein]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const needOf = useCallback((floor: number, rock: number): number => {
@@ -786,7 +787,12 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
         <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-2 sm:items-center sm:p-4" style={{ paddingBottom: "var(--hud-b)" }} data-mine-vein>
           <Suspense fallback={null}>
             <TownVein vein={vein} th={th} reduced={reduced} sfx={sfx}
-                      onEnd={async (strikes) => { veinSent.current = true; const did = await keeper.veinDo(strikes); again(); return did.ok ? did : { ok: false, why: did.why }; }}
+                      onEnd={async (strikes) => {
+                        veinSent.current = true; const did = await keeper.veinDo(strikes); again();
+                        // (a go at a vein, written down beside its deed: ended before every glint was reached it is done all the same, and a rock on the map and the plain press are not written down)
+                        if (did.ok) keeper.record({ game: "mining", board: "vein", ...(did.passed >= did.of ? {} : { how: "done" as const }), at: keeper.now(), won: did.passed >= did.of, secs: Math.round((Date.now() - veinAt.current) / 100) / 10, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: vein.gem ? "gem" : "ore", need: did.of, hits: did.passed, misses: Math.max(0, strikes.length - did.passed) });
+                        return did.ok ? did : { ok: false, why: did.why };
+                      }}
                       onClose={() => { const next = keeper.cave()?.vein ?? null; aside.current = next && !(next.again && !vein.again) ? next.seed : null; setVein(next && next.again && !vein.again ? next : null); again(); }} />
           </Suspense>
         </div>
