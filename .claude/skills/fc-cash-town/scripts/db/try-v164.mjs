@@ -4,7 +4,8 @@
  * the version and the part are arguments, a part may make a table, and a part may add lines to functions that earlier
  * files wrote, without pasting them.
  *
- *   node try-v164.mjs <the worktree's root> <version> <part>          e.g.  node try-v164.mjs E:/…/fcnext-wt-x v164 smith
+ *   node try-v164.mjs <the worktree's root> <version> <part>          e.g.  node try-v164.mjs E:/…/fcnext-wt-x v164 felling
+ *                                                                          or  node try-v164.mjs E:/…/fcnext-wt-x v173 smith
  *
  * It reads, in <root>/.claude/skills/fc-cash-town/scripts/db/:
  *   <version>.shared.sql          optional: what every part stands on (run first; not a part's to change)
@@ -67,7 +68,9 @@ const param = (v) => (v === null ? null : typeof v === "object" ? JSON.stringify
 const standsOn = (sql) => (sql.split("\n").slice(0, 60).map((l) => /^-- stands on:\s*(.+)$/.exec(l)?.[1]).find(Boolean) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
 const t0 = Date.now();
-const t = await standIn({ before164: true });
+// (v164's own parts are tried on the database as it was before v164; a part of any later file on the database as it is
+// after the last file that ran)
+const t = await standIn({ before164: version === "v164" });
 const one = async (sql, params) => (await t.sql(sql, params)).rows[0];
 /** So many points on a line for a member, as if earned before today. */
 const rank = async (who, ln, points) => {
