@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "./items";
-import { NOTICES, plain, takePlain } from "./notices";
+import { NOTICES, dearOf, plain, takePlain } from "./notices";
 import { put, roomFor, type Purse, type Refusal } from "./trade";
 
 /**
@@ -72,8 +72,8 @@ type Did<T> = ({ ok: true } & T) | { ok: false; why: ShopRefusal };
 const no = (why: ShopRefusal): { ok: false; why: ShopRefusal } => ({ ok: false, why });
 const whole = (n: number) => Number.isInteger(n) && n > 0;
 
-/** The most a thing may be asked or offered for at a stall: by what the relatives pay for it, whether the uncle sells it or not. */
-export const capOf = (item: ItemId, k: ShopKnobs = SHOP) => (ITEMS[item].pays > 0 ? ITEMS[item].pays * k.cap : k.capless);
+/** The most a thing may be asked or offered for at a stall: by what the relatives pay for it, whether the uncle sells it or not; a gem and a gem's fragment have their own (lib/town/notices' `dearOf`). */
+export const capOf = (item: ItemId, k: ShopKnobs = SHOP) => dearOf(item) ?? (ITEMS[item].pays > 0 ? ITEMS[item].pays * k.cap : k.capless);
 /** Whether a stall is open: its keeper's page has been heard from lately. */
 export const alive = (shop: Shop, now: number, k: ShopKnobs = SHOP) => now - shop.beat < k.quiet * 1000;
 /** Whether somebody on a tile stands by a stall. */

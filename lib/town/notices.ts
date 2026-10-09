@@ -1,5 +1,6 @@
 import { ITEMS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
+import { GEMS } from "./tools";
 import { HOUR, no as refuse, plainStack, put, roomFor, type Purse, type Refusal } from "./trade";
 
 /**
@@ -47,6 +48,12 @@ export const NOTICES = {
   /** The most a price is: so many times what the relatives usually pay for the thing; for a thing they do not take, so many coins. */
   cap: 10,
   capless: 500,
+  /**
+   * A gem and a gem's fragment have a most of their own (the owner, 2026-10-09: gems are to be rare and sold dear
+   * between members, "เพดานขึ้นไป 100,000 เลยก็ได้"; a fragment's is a tenth of it). At a stall as on the board.
+   */
+  gem: 100_000,
+  chip: 10_000,
   /** The most of a thing on one notice. */
   most: 200,
   /** How many notices are told at once, the newest first; and how many days of what was sold. */
@@ -76,8 +83,11 @@ const whole = (n: number) => Number.isInteger(n) && n > 0;
 /** The most a thing may be asked or offered for: by what the relatives pay for it, whether the uncle sells it or not (the same as at a stall: lib/town/shop). */
 export function capOf(item: ItemId, k: NoticeKnobs = NOTICES): number {
   const pays = ITEMS[item].pays;
-  return pays > 0 ? pays * k.cap : k.capless;
+  return dearOf(item) ?? (pays > 0 ? pays * k.cap : k.capless);
 }
+const DEAR = new Map<string, number>(Object.values(GEMS).flatMap((g): Array<[string, number]> => [[g.gem, NOTICES.gem], [g.chip, NOTICES.chip]]));
+/** The most a gem or a gem's fragment may be asked or offered for, on the board and at a stall; nothing for any other thing. */
+export const dearOf = (item: ItemId): number | null => DEAR.get(item) ?? null;
 /** How many of a thing are in a bag as plain things: a stack that holds something is not counted. */
 export const plain = (bag: Purse["bag"], id: ItemId) => bag.reduce((t, s) => t + (s && s.item === id && plainStack(s) ? s.n : 0), 0);
 /** A bag with so many plain ones of a thing out of it, from its last stacks first. (It must hold as many.) */
