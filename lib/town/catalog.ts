@@ -24,7 +24,7 @@ import { GROUND, GROUND_MAPS } from "./ground";
 import { BRIDGE } from "./bridge";
 import { LAMPS } from "./lamps";
 import { HINT_IDS, HINT_PRICE } from "./hints";
-import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE } from "./insects";
+import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE, tierOf } from "./insects";
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
@@ -134,6 +134,8 @@ export function catalogOf() {
     fishing: {
       fish: FISH_IDS, flotsam: FLOTSAM_IDS, tiers: TIER_WEIGHT, baits: BAITS, kept: KEPT_BAITS, rods: ROD_IDS,
       floats: Object.fromEntries(Object.entries(TACKLE).filter(([, t]) => t!.strike).map(([id, t]) => [id, t!.strike])),
+      // (v174: what each net leaves of the line to be won, lib/town/gear's TACKLE: a forged rod's own part of it is taken with the best of them)
+      nets: Object.fromEntries(Object.entries(TACKLE).filter(([, t]) => t!.line).map(([id, t]) => [id, t!.line])),
       strike: STRIKE.window, spent: STAMINA.spent.strike, apart: NIBBLES_APART, reel: FIGHT.reel,
       slack: { early: 300, late: 1500 }, least: 0.5, longest: 900,
       // what some fish wait for (lib/town/fishing's SIGNS): how many others' lines make a crowd and how lately dropped,
@@ -249,6 +251,8 @@ export function catalogOf() {
       kinds: HAUNT_KINDS,
       haunts: HAUNTS.map((h): [string, string, string | null, Array<[number, number]>] => [h.kind, h.place, h.zone, h.perches.map((p): [number, number] => [p.x, p.y])]),
       net: { reach: NET.reach, far: NET.far, misses: NET.misses }, nets: NETS, lures: LURES,
+      // (v174: the kinds that are rare among the others, lib/town/insects' tierOf: what a forged net's reader may speak of)
+      rare: BUG_IDS.filter((id) => tierOf(id) === "rare"),
       // an insect caught comes back at another haunt of its map: how many seconds after, and how many its turn there must have left
       comeback: { after: COMEBACK.after, least: COMEBACK.least },
       // hunted, a kind grows scarce: the hours a catch counts against it for, less with each, and how many counting halve it
@@ -499,9 +503,11 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * what a pick and an axe were read by from the first day: the great fire's knobs (`fire`), the options whose doing
  * goes on for a while (`timed`), where the forge stands (`stand`), and the elements' steps for the seven older tools
  * (`old`). Nothing else of the row differs from what v164 seeded.
+ * And, for the older tools' part of the same file, two rows more: `fishing` (new: `nets`, what each net leaves of the
+ * line to be won) and `insects` (new: `rare`, the kinds that are rare among the others).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v174: { keys: [], over: ["forge"] },
+  v174: { keys: [], over: ["forge", "fishing", "insects"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
