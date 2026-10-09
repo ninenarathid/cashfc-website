@@ -47,6 +47,11 @@ export default async function ({ t, U, one, CODE, root, sql }) {
 
   t.section("the texts");
   const MARK = "-- ── the older tools (v174)";
+  // (the two databases are what the day below takes them for: the first has none of the part, this one all of it)
+  const dampOf = async (d) => Number((await d.sql(`select count(*)::int as n from information_schema.columns where table_schema = 'public' and table_name = 'town_plots' and column_name = 'damp'`)).rows[0].n);
+  t.check("the database built beside this one is the one before the part: no function of it carries the part's mark, none of the part's own is in it, and its plots have no `damp`",
+    Object.keys(WAS).filter((k) => WAS[k].includes(MARK)).length === 0 && !("town.rod_fx(jsonb)" in WAS) && "town.rod_fx(jsonb)" in NOW_ && (await dampOf(B0)) === 0 && (await dampOf(t)) === 1,
+    { marked: Object.keys(WAS).filter((k) => WAS[k].includes(MARK)).length, damp: [await dampOf(B0), await dampOf(t)] });
   t.check(`each of the ${AGAIN.length} functions written again carries the part's mark, and no other function does`,
     AGAIN.every(([, sig]) => NOW_[sig]?.includes(MARK)) && Object.keys(NOW_).filter((k) => NOW_[k].includes(MARK)).length === AGAIN.length,
     Object.keys(NOW_).filter((k) => NOW_[k].includes(MARK) !== AGAIN.some(([, sig]) => sig === k)));

@@ -16,6 +16,7 @@
 //   node build-v164.mjs <the worktree's root> <version> <part> [<out.sql>]
 //     prints (or writes to <out.sql>, which must not be the part itself) the part with its places filled from the
 //     stand-in database as it is after the last file that ran (stand-in.mjs). try-v164.mjs does the same in memory.
+//     A part whose head says `-- stands on: <part>, …` is built on the database with those parts run first.
 //
 // Whoever puts v164 together runs every part's lines over the same text in turn, from the database as it is after the
 // last file that has run by then: a function two parts change has both blocks in it, and whatever a file in between
@@ -66,8 +67,14 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   const { standIn } = await import("./stand-in.mjs");
   process.env.FC_REPO ??= root;
   const t = await standIn(version === "v164" ? { before164: true } : { upTo: Number(version.slice(1)) - 1 });
-  const text = readFileSync(file, "utf8").split("\r\n").join("\n");
-  const made = filled(text, againOf(await defsOf((q) => t.sql(q).then((r) => r.rows)), await linesOf(db(`${version}.${part}.lines.mjs`))));
+  const lf = (s) => s.split("\r\n").join("\n"), run = (q) => t.sql(q).then((r) => r.rows);
+  const text = lf(readFileSync(file, "utf8"));
+  // (a part that stands on others, `-- stands on: a, b` in its head: those are run first, each built from the text
+  // the database has at that moment, as they will have run when the file is put together; the part's own lines are
+  // then built on what they leave. try-v164.mjs does the same. The catalog's rows are the standing parts' own to write.)
+  const under = (text.split("\n").slice(0, 60).map((l) => /^-- stands on:\s*(.+)$/.exec(l)?.[1]).find(Boolean) ?? "").split(",").map((x) => x.trim()).filter(Boolean);
+  for (const b of under) await t.db.exec(filled(lf(readFileSync(db(`${version}.${b}.sql`), "utf8")), againOf(await defsOf(run), await linesOf(db(`${version}.${b}.lines.mjs`)))));
+  const made = filled(text, againOf(await defsOf(run), await linesOf(db(`${version}.${part}.lines.mjs`))));
   if (out) { writeFileSync(out, made); console.log(`${out}: ${version}.${part} with its places filled from the stand-in`); } else console.log(made);
   try { await t.db.close(); } catch { /* closed */ }
   process.exit(0);
