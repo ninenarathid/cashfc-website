@@ -46,8 +46,8 @@ const OTHERS = [136, 157];
 const LATE = [160, 163];
 // (and one later still: v164, the far side, is run after v168, though its number is lower. It writes the same two functions
 // again from their text as it stood after v163: replayed by its number, before v160 and v163, those two would undo its
-// blocks. So once it is a file, in supabase/ to be run or in history once it has, it is replayed after v168. While it is
-// neither, there is nothing to replay, and a draft of it comes in by BENCH_EXTRA after everything.)
+// blocks. It has run (2026-10-09), so it is in history and replayed after v168; a draft
+// of a later file comes in by BENCH_EXTRA after everything.)
 const AFTER_168 = [164];
 const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n) && !LATE.includes(n) && !AFTER_168.includes(n));
 numbers.splice(numbers.indexOf(131) + 1, 0, 130);

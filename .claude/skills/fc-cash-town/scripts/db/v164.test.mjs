@@ -81,7 +81,7 @@ const param = (v) => (v === null || v === undefined ? null : typeof v === "objec
 const no = (r) => r?.code === "42501";
 
 const t0 = Date.now();
-const t = await standIn();
+const t = await standIn({ before164: true });
 const rows = async (sql, params) => (await t.sql(sql, params)).rows;
 const one = async (sql, params) => (await rows(sql, params))[0];
 const call = async (who, fn, ...args) => {
@@ -168,7 +168,7 @@ t.section(`the file: what the assembler makes of the parts as they are (${PARTS.
 const LINES = Object.fromEntries(await Promise.all(PARTS.map(async (p) => [p, await linesOf(db(`${VERSION}.${p}.lines.mjs`))])));
 const AGAIN = [...new Set(PARTS.flatMap((p) => LINES[p].map(([, sig]) => sig)))];
 if (!process.env.MIGRATION_FILE) {
-  const t2 = await standIn(), made = await assemble(root, t2, { ran: RAN });
+  const t2 = await standIn({ before164: true }), made = await assemble(root, t2, { ran: RAN });
   try { await t2.db.close(); } catch { /* closed */ }
   t.check("the file is the assembler's, to the letter: each part's places filled from the stand-in as the parts before it left it", made.sql === FILE,
     made.sql === FILE ? "" : `it differs from line ${made.sql.split("\n").findIndex((l, i) => l !== FILE.split("\n")[i]) + 1}: put it together again (node assemble-v164.mjs <root> <out>)`);

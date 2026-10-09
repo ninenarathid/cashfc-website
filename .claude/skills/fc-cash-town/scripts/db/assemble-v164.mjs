@@ -133,7 +133,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   }
   if (PARTS.some((p) => resolve(out) === resolve(join(root, ".claude/skills/fc-cash-town/scripts/db", `${VERSION}.${p}.sql`)))) throw new Error("not into a part itself");
   const { standIn, RAN } = await import("./stand-in.mjs");
-  const t = await standIn();
+  const t = await standIn({ before164: true });
   const { sql, again } = await assemble(root, t, { ran: RAN });
   writeFileSync(out, sql);
   console.log(`${resolve(out)}: ${VERSION} from ${PARTS.join(", ")}, built on the stand-in after v${RAN}; ${again.length} functions of earlier files written again`);

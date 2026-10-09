@@ -31,10 +31,10 @@ const flat = (x, at = "", out = {}) => { if (x && typeof x === "object" && !Arra
 const differ = (a, b) => { const x = flat(a), y = flat(b); return [...new Set([...Object.keys(x), ...Object.keys(y)])].filter((k) => x[k] !== y[k]); };
 const NOBODY = "00000000-0000-0000-0000-000000000000";
 
-/* what the file writes of the catalog: its block (the file while it is in supabase/, the draft beside this script before that, the base part's own afterwards) */
+/* what the file writes of the catalog: its block (the file has run and is in history; the base part, which the file was built from, has it) */
 const beside = (name) => new URL(`./${name}`, import.meta.url);
-const inRepo = fs.existsSync(`${repo}/supabase`) ? fs.readdirSync(`${repo}/supabase`).find((f) => f.startsWith("v164_") && f.endsWith(".sql")) : null;
-const file = fs.readFileSync(inRepo ? `${repo}/supabase/${inRepo}` : fs.existsSync(beside("v164_draft.sql")) ? beside("v164_draft.sql") : beside("v164.base.sql"), "utf8").split("\r\n").join("\n");
+// (the file has run and is in history, not in supabase/: its catalog block is the base part's, which the file was built from)
+const file = fs.readFileSync(beside("v164.base.sql"), "utf8").split("\r\n").join("\n");
 const block = file.slice(file.indexOf("-- <catalog:v164>"), file.indexOf("-- </catalog:v164>"));
 const seeded = block.slice(0, block.indexOf("on conflict (key) do nothing;")), want = {};
 for (const m of block.matchAll(/\('([a-z_]+)', \$town\$([\s\S]*?)\$town\$::jsonb\)/g)) want[m[1]] = JSON.parse(m[2]);

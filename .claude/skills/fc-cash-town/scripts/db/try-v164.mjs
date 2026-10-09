@@ -67,7 +67,7 @@ const param = (v) => (v === null ? null : typeof v === "object" ? JSON.stringify
 const standsOn = (sql) => (sql.split("\n").slice(0, 60).map((l) => /^-- stands on:\s*(.+)$/.exec(l)?.[1]).find(Boolean) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
 const t0 = Date.now();
-const t = await standIn();
+const t = await standIn({ before164: true });
 const one = async (sql, params) => (await t.sql(sql, params)).rows[0];
 /** So many points on a line for a member, as if earned before today. */
 const rank = async (who, ln, points) => {

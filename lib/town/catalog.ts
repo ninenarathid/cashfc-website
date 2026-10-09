@@ -484,23 +484,13 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v168 wrote `lamps` over again: the forest's posts after its twelfth laid over the whole map, fifty-six in all. It
  * ran on 2026-10-09 too.
  *
- * v164 (NOT RUN: the far side, the mountain with its trees and its rocks and the cave under it) seeds four, new: the
- * mountain's trees (`trees`), the miners' knobs with the rocks of the mountain's foot (`mining`), the pouches
- * (`pouches`), and the tools that can be forged with their options and gems (`forge`: no smith yet, his own
- * migration comes later, but what a pick or an axe carries is read from this row from the first day). And it writes
- * nine over: the pick, the axe, the wood, the stone, the ore, the gems and the torch (`items`); the pick and the axe
- * on the first day's shelf (`goods`, `shelf`); the torch made by hand and hinted at (`makes`, `cooking`, `hints`),
- * with wood and minerals never put in a pot (`cooking`); the woodcutters' and the miners' lines and what their deeds
- * are worth (`work`); those two lines' gifts (`gifts`); and the chest at the mountain's foot, which opens a member's
- * storage box as the plaza's does (`box.more`: until the row had it the database took a member beside that chest to
- * be standing far from any). **`trees.wood` and `mining.rocks` are the mountain as it
- * is laid out, in a test and in a script as in `next dev`** (lib/town/far-side; the world's own lists are empty
- * outside `next dev`). Only a production build lays none out: `seedFor` refuses to write the block there, and v164's
- * own first lines refuse to run on a row that has none.
+ * v164 ran on 2026-10-09, after v168 (the far side: the mountain with its trees and its rocks and the cave under it).
+ * It seeded four, new: the mountain's trees (`trees`), the miners' knobs with the rocks of the mountain's foot
+ * (`mining`), the pouches (`pouches`), and the tools that can be forged with their options and gems (`forge`). And it
+ * wrote nine over: `items`, `goods`, `shelf`, `hints`, `makes`, `cooking`, `work`, `gifts` and `box` (`box.more`: the
+ * chest at the mountain's foot). Nothing waits now; the blacksmith's migration is still to come.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v164: { keys: ["forge", "trees", "mining", "pouches"], over: ["items", "goods", "shelf", "hints", "makes", "cooking", "work", "gifts", "box"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
