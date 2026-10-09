@@ -545,8 +545,10 @@ export default async function (ctx) {
   const tAt = laidOn(3, today).arrive, k3 = CS.cornerOf(3), rock3 = rocksOn(3)[0];
   x = await torch(U.m1, tAt);
   const lit = NOW + K.light.burns;
-  t.check("a torch from the hand is set down on the floor one stands on: it burns for five minutes, for everybody, and there is one fewer in the bag; the page is to ask again when it burns out, if the rocks' turn is not sooner", x.agrees && x.a.ok === true && x.a.until === lit
-    && same(x.a.cave.torches, [{ f: 3, x: tAt[0], y: tAt[1], until: lit, by: U.m1 }]) && x.a.purse.bag[1].n === 1 && x.a.cave.again === Math.min(lit, (M.turnOf(NOW) + 1) * TURN)
+  // (what a rock holds is rolled from the turn, and the turn is the real clock's: on some runs a rock that broke in the
+  // scenes above let moss out, which glows a minute and is one more thing a page asks again for. It is counted in)
+  t.check("a torch from the hand is set down on the floor one stands on: it burns for five minutes, for everybody, and there is one fewer in the bag; the page is to ask again when it burns out, if the rocks' turn (or moss that glows still) is not sooner", x.agrees && x.a.ok === true && x.a.until === lit
+    && same(x.a.cave.torches, [{ f: 3, x: tAt[0], y: tAt[1], until: lit, by: U.m1 }]) && x.a.purse.bag[1].n === 1 && x.a.cave.again === Math.min(lit, (M.turnOf(NOW) + 1) * TURN, ...x.a.cave.moss.map((g) => g.until))
     && same((await call(U.m2, "town_cave", 0, null, null)).cave.torches, x.a.cave.torches), x.off.length ? x.off : x.a);
   await tick(MIN);
   x = await torch(U.m1, tAt);
