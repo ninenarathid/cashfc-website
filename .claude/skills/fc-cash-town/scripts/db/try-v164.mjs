@@ -10,7 +10,10 @@
  *   <version>.shared.sql          optional: what every part stands on (run first; not a part's to change)
  *   <version>.<part>.sql          the part's tables and NEW functions (it must run, twice over, and write to no table
  *                                 with no WHERE). A line `-- stands on: <part>, <part>` in its head names the parts whose
- *                                 SQL is run before it, as it will be in the file put together.
+ *                                 SQL is run before it, as it will be in the file put together. A part that carries the
+ *                                 file's catalog block (`-- <catalog:vNNN>`, written by fill-catalog.mjs) writes those
+ *                                 rows itself: they are not put in for it, and what it leaves is held to the code.
+ *                                 (MIGRATION_FILE=<a copy> tries that copy in the part's place: mutate.mjs's way.)
  *   <version>.<part>.lines.mjs    optional: `export const AGAIN = [[mark, "schema.fn(arg types)", [[from, to], …]], …]`:
  *                                 the functions of earlier files that the part adds lines to. THE PART NEVER PASTES
  *                                 THEM (a file that runs in between may write them again): its file has an empty place
@@ -18,7 +21,7 @@
  *                                 function's own text as the database has it, with the lines in place (build-v164.mjs).
  *                                 A part that writes a function that was there before in its own file fails.
  *   <version>.<part>.calls.json   optional: { "<case fn>": "town.x($1::jsonb, $2::text)" } for the part's rule cases
- *   <version>.<part>.try.mjs      optional: `export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, give, patch, rank, root }) { … }`
+ *   <version>.<part>.try.mjs      optional: `export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, give, patch, rank, root, sql }) { … }`
  * and, in ./<version>/ beside this file (write them first, in the worktree:
  *   TOWN_VECTORS=<this folder>/<version> npx vitest run lib/town/db-vectors-<part>.test.ts ):
  *   catalog.json              the catalog as the worktree's code has it: every row of it is put into the database first
@@ -48,8 +51,15 @@ const lf = (s) => s.split("\r\n").join("\n");
 const file = (p) => `${version}.${p}.sql`;
 if (!existsSync(db(file(part)))) { console.log(`no ${db(file(part))}`); process.exit(2); }
 if (!existsSync(here("catalog.json"))) { console.log(`no ${version}/catalog.json: run the part's rule cases with TOWN_VECTORS first (see this file's head)`); process.exit(2); }
-const FILE = lf(readFileSync(db(file(part)), "utf8"));
+// (MIGRATION_FILE: a broken copy of the part's own file in its place, which is how mutate.mjs hands one in)
+const FILE = lf(readFileSync(process.env.MIGRATION_FILE || db(file(part)), "utf8"));
 const CODE = JSON.parse(readFileSync(here("catalog.json"), "utf8"));
+/** The catalog rows a part's own text writes: those of its marked block (`-- <catalog:vNNN>` … `-- </catalog:vNNN>`), if it carries one. */
+const blockOf = (sql) => {
+  const a = sql.indexOf(`-- <catalog:${version}>`), b = sql.indexOf(`-- </catalog:${version}>`);
+  return a < 0 || b < a ? [] : [...sql.slice(a, b).matchAll(/^ {2}\('([a-z_]+)', \$town\$/gm)].map((m) => m[1]);
+};
+const OWN = blockOf(FILE);
 const settle = (v) => (Array.isArray(v) ? v.map(settle) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, settle(v[k])])) : v);
 const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 const param = (v) => (v === null ? null : typeof v === "object" ? JSON.stringify(v) : v);
@@ -91,8 +101,11 @@ const ready = async (p) => filled(lf(readFileSync(db(file(p)), "utf8")), againOf
 t.section(`the catalog as the code has it: ${Object.keys(CODE).length} rows`);
 const before = Object.fromEntries((await t.sql(`select key, data from public.town_catalog`)).rows.map((r) => [r.key, r.data]));
 const moved = Object.keys(CODE).filter((k) => !same(CODE[k], before[k]));
-for (const k of Object.keys(CODE)) await t.sql(`insert into public.town_catalog (key, data) values ($1, $2::jsonb) on conflict (key) do update set data = excluded.data, updated_at = now()`, [k, JSON.stringify(CODE[k])]);
+// (a part that carries the file's catalog block writes its rows itself: they are not put in for it, so that it is the
+// block that is tried, and what it leaves is held to the code below)
+for (const k of Object.keys(CODE).filter((key) => !OWN.includes(key))) await t.sql(`insert into public.town_catalog (key, data) values ($1, $2::jsonb) on conflict (key) do update set data = excluded.data, updated_at = now()`, [k, JSON.stringify(CODE[k])]);
 console.log(`  rows that differ from what the database had: ${moved.length ? moved.join(", ") : "none"}`);
+if (OWN.length) console.log(`  rows the part's own block writes, left to it: ${OWN.join(", ")}`);
 
 t.section(`${existsSync(db(file("shared"))) ? `${file("shared")}, then ` : ""}the part's own`);
 if (existsSync(db(file("shared"))) && part !== "shared") await t.runTwice(lf(readFileSync(db(file("shared")), "utf8")), file("shared"));
@@ -107,6 +120,15 @@ let RUN = FILE;
 try { RUN = filled(FILE, againOf(OLD, AGAIN)); t.check(`${AGAIN.length} function${AGAIN.length === 1 ? "" : "s"} of earlier files built from the database's own text, each with the part's lines in place`, true); }
 catch (e) { t.check("the functions of earlier files are built from the database's own text with the part's lines in place", false, e.message); }
 await t.runTwice(RUN, file(part));
+if (OWN.length) {
+  // (the block is the code's: every row the code has is the database's now, and the block wrote every row that
+  // differed and no other)
+  const after = Object.fromEntries((await t.sql(`select key, data from public.town_catalog`)).rows.map((r) => [r.key, r.data]));
+  const off = Object.keys(CODE).filter((k) => !same(CODE[k], after[k]));
+  t.check(`the catalog is the code's after the part's own block (${OWN.length} rows written by it)`, off.length === 0, off);
+  const idle = OWN.filter((k) => !moved.includes(k)), missed = moved.filter((k) => !OWN.includes(k));
+  t.check("the block writes every row that differed from the database's, and none that did not", idle.length === 0 && missed.length === 0, { idle, missed });
+}
 const NOW = await defs();
 const bare = await bareWrites((q) => t.sql(q).then((r) => r.rows));
 t.check("no function writes to a table with no WHERE", bare.length === 0, bare);
@@ -162,7 +184,8 @@ if (existsSync(here(`vectors-${part}.json`))) {
 
 if (existsSync(db(`${version}.${part}.try.mjs`))) {
   const mod = await import(pathToFileURL(db(`${version}.${part}.try.mjs`)).href);
-  await mod.default({ t, U, call, purseOf, deeds, one, same, CODE, give, patch, rank, root });
+  // (`sql`: the part as it was run, its places filled: for a scene that runs it once more over what members have done since)
+  await mod.default({ t, U, call, purseOf, deeds, one, same, CODE, give, patch, rank, root, sql: RUN });
 }
 t.done();
 console.log(`${((Date.now() - t0) / 1000).toFixed(1)} s`);
