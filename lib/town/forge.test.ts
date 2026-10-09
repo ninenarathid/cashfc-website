@@ -162,8 +162,8 @@ describe("a forging try (the table is the owner's)", () => {
   it("the table, exactly", () => {
     expect(TRIES.map((t) => [t.to, t.take, t.stay, t.down, t.fee, t.ore, t.n, t.timber])).toEqual([
       [1, 100, 0, 0, 10, "shardCopper", 5, 2], [2, 100, 0, 0, 20, "shardCopper", 8, 2], [3, 100, 0, 0, 40, "shardCopper", 12, 3], [4, 100, 0, 0, 80, "shardIron", 16, 3],
-      [5, 90, 10, 0, 150, "oreIron", 1, 4], [6, 80, 15, 5, 250, "oreIron", 2, 4], [7, 70, 20, 10, 400, "oreSilver", 2, 5], [8, 60, 25, 15, 600, "oreSilver", 3, 5],
-      [9, 50, 25, 25, 900, "oreSilver", 4, 6], [10, 40, 30, 30, 1500, "oreSilver", 5, 6],
+      [5, 90, 10, 0, 150, "oreIron", 3, 12], [6, 80, 15, 5, 250, "oreIron", 5, 12], [7, 70, 20, 10, 400, "oreSilver", 6, 15], [8, 60, 25, 15, 600, "oreSilver", 9, 15],
+      [9, 50, 25, 25, 900, "oreSilver", 12, 18], [10, 40, 30, 30, 1500, "oreSilver", 5, 6],
     ]);
     for (const t of TRIES) expect(t.take + t.stay + t.down).toBe(100);
     expect(tryOdds(11)).toBeNull();
@@ -172,7 +172,9 @@ describe("a forging try (the table is the owner's)", () => {
   it("two recipes: a wooden tool takes half the ore, rounded up, and twice the timber", () => {
     expect(tryCost("pick", 1)).toEqual({ fee: 10, ore: "shardCopper", n: 5, timber: 2 });
     expect(tryCost("axe", 1)).toEqual({ fee: 10, ore: "shardCopper", n: 3, timber: 4 });
-    expect(tryCost("rod", 5)).toEqual({ fee: 150, ore: "oreIron", n: 1, timber: 8 });
+    expect(tryCost("rod", 5)).toEqual({ fee: 150, ore: "oreIron", n: 2, timber: 24 });
+    expect(tryCost("axe", 9)).toEqual({ fee: 900, ore: "oreSilver", n: 6, timber: 36 });
+    expect(tryCost("pot", 9)).toEqual({ fee: 900, ore: "oreSilver", n: 12, timber: 18 });
     expect(tryCost("bugNet", 10)).toEqual({ fee: 1500, ore: "oreSilver", n: 3, timber: 12 });
     expect(tryCost("hoe", 10)).toEqual({ fee: 1500, ore: "oreSilver", n: 5, timber: 6 });
     for (const k of ["can", "pot", "pan", "grill"] as const) expect(tryCost(k, 4)).toEqual({ fee: 80, ore: "shardIron", n: 16, timber: 3 });
@@ -198,7 +200,7 @@ describe("a forging try (the table is the owner's)", () => {
     }
   });
   it("spends its materials and its fee, taken or not, and leaves the tool in its slot", () => {
-    const purse = purseWith(1000, [["oreIron", 3], ["timber", 10]], [tool("hoe", 5, ["hoFirst"], ["earth"])]);
+    const purse = purseWith(1000, [["oreIron", 6], ["timber", 18]], [tool("hoe", 5, ["hoFirst"], ["earth"])]);
     for (const [r, out, level] of [[0.1, "taken", 6], [0.85, "stays", 5], [0.97, "down", 4]] as const) {
       const d = ok(forgeTry(purse, newSmithy(), 0, r));
       expect(d.out).toBe(out);
@@ -434,7 +436,7 @@ describe("the smith's board", () => {
 
 describe("a whole road, from a tool as it was bought to the top", () => {
   it("with the best of luck: ten tries, three draws, and the count of what it took", () => {
-    let purse = purseWith(100_000, [["shardCopper", 99], ["shardIron", 99], ["oreIron", 20], ["oreSilver", 20], ["timber", 50]], [tool("pick")]);
+    let purse = purseWith(100_000, [["shardCopper", 99], ["shardIron", 99], ["oreIron", 20], ["oreSilver", 40], ["timber", 99]], [tool("pick")]);
     let s: Smithy = newSmithy();
     const before = { coins: purse.coins, timber: held(purse.bag, "timber") };
     for (let to = 1; to <= 10; to++) {
@@ -449,11 +451,11 @@ describe("a whole road, from a tool as it was bought to the top", () => {
     expect(purse.bag[0]).toEqual({ item: "pick", n: 1, plus: 10, opts: ["pkPeek", "pkCrumb", "pkQuake"] });
     expect(before.coins - purse.coins).toBe(TRIES.reduce((t, x) => t + x.fee, 0));
     expect(before.coins - purse.coins).toBe(3950);
-    expect(before.timber - held(purse.bag, "timber")).toBe(40);
+    expect(before.timber - held(purse.bag, "timber")).toBe(88);
     expect(99 - held(purse.bag, "shardCopper")).toBe(25);
     expect(99 - held(purse.bag, "shardIron")).toBe(16);
-    expect(20 - held(purse.bag, "oreIron")).toBe(3);
-    expect(20 - held(purse.bag, "oreSilver")).toBe(14);
+    expect(20 - held(purse.bag, "oreIron")).toBe(8);
+    expect(40 - held(purse.bag, "oreSilver")).toBe(32);
     expect(modsOf(purse.bag[0]).glow).toBe(2);
   });
 });

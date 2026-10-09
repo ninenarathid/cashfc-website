@@ -2008,12 +2008,17 @@ export class Trial {
     this.save({ ...p, bag: p.bag.map((b, i) => (i !== slot ? b : { ...bare, ...(plus > 0 ? { plus: Math.min(FORGE.top, Math.floor(plus)) } : {}), ...(opts.length ? { opts: [...opts] } : {}), ...(gems.length ? { gems: [...gems] } : {}) })) });
     return true;
   }
-  /** (forging) What trying the smith out takes, all at once: a bag of twenty slots, coins, fine timber, fragments, ore and a few gems. */
+  /**
+   * (forging) What trying the smith out takes, all at once: a bag of twenty slots, coins, fine timber, fragments, ore and
+   * a few gems. The timber and the two ores are a metal tool's whole road to the top with the best of luck and a little
+   * over (lib/town/forge's `TRIES` as it is since 2026-10-10: 88 fine timber, 8 iron, 32 silver); a wooden tool's road
+   * takes twice the timber, and a try that fails takes its share again.
+   */
   grantSmith() {
     if (this.purse().bag.length < 20) this.resize(20);
     const p = this.purse();
     let bag = p.bag;
-    for (const [id, n] of [["timber", 50], ["shardCopper", 60], ["shardIron", 40], ["oreCopper", 6], ["oreIron", 10], ["oreSilver", 20], ["chipRuby", 20], ["gemRuby", 2], ["gemSapphire", 2], ["gemEmerald", 2]] as Array<[ItemId, number]>) {
+    for (const [id, n] of [["timber", 100], ["shardCopper", 60], ["shardIron", 40], ["oreCopper", 6], ["oreIron", 20], ["oreSilver", 40], ["chipRuby", 20], ["gemRuby", 2], ["gemSapphire", 2], ["gemEmerald", 2]] as Array<[ItemId, number]>) {
       bag = put(bag, id, Math.min(n, roomFor(bag, id)));
     }
     this.save({ ...p, coins: p.coins + 20_000, bag });

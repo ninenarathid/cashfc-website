@@ -174,13 +174,13 @@ try {
   ok("to +4, still for certain", did.out === "taken" && did.tool.plus === 4, did);
 
   // ── from the try to +5 it may fail ──
-  ok("the try to +5 is said to take nine times in ten and never to lower; a wooden tool's share of it is one ore, eight timbers", (await attr(A, "[data-smith-odds]", "data-smith-odds")) === "90/10/0"
-    && (await attr(A, '[data-smith-try] [data-smith-need="oreIron"]', "data-want")) === "1" && (await attr(A, '[data-smith-try] [data-smith-need="timber"]', "data-want")) === "8" && (await attr(A, '[data-smith-try] [data-smith-need="coins"]', "data-want")) === "150");
+  ok("the try to +5 is said to take nine times in ten and never to lower; a wooden tool's share of it is two ores, twenty-four timbers", (await attr(A, "[data-smith-odds]", "data-smith-odds")) === "90/10/0"
+    && (await attr(A, '[data-smith-try] [data-smith-need="oreIron"]', "data-want")) === "2" && (await attr(A, '[data-smith-try] [data-smith-need="timber"]', "data-want")) === "24" && (await attr(A, '[data-smith-try] [data-smith-need="coins"]', "data-want")) === "150");
   const g0 = await purse(A);
   did = await strike(A, "axe", [0.95]);
   const g1 = await purse(A);
   ok("a try that fails and stays: still +4, and the screen says so", did.out === "stays" && did.tool.plus === 4 && /\+4/.test(did.said), did);
-  ok("a failed try spent its ore, its timber and its fee all the same", count(g0.bag, "oreIron") - count(g1.bag, "oreIron") === 1 && count(g0.bag, "timber") - count(g1.bag, "timber") === 8 && g0.coins - g1.coins === 150);
+  ok("a failed try spent its ore, its timber and its fee all the same", count(g0.bag, "oreIron") - count(g1.bag, "oreIron") === 2 && count(g0.bag, "timber") - count(g1.bag, "timber") === 24 && g0.coins - g1.coins === 150);
   did = await strike(A, "axe", [0.5]);
   ok("a try that takes: +5", did.out === "taken" && did.tool.plus === 5, did);
   ok("the try to +6 is said to lower one time in twenty", (await attr(A, "[data-smith-odds]", "data-smith-odds")) === "80/15/5");
@@ -198,6 +198,10 @@ try {
   const second = cards[1].id;
   await click(A, `[data-smith-choose="${second}"]`, 600);
   ok("the second is chosen", JSON.stringify((await toolOf(A, "axe")).opts) === JSON.stringify([first, second]));
+
+  // (timber once more: since 2026-10-10 a wooden tool's try from +5 on takes two dozen fine timber and more, and the road
+  // from here to the top with its two failures takes about a hundred and seventy)
+  await A.evaluate(`${T}.grant("timber", 200)`);
 
   // ── an option stays the tool's when the level falls under it (nothing sleeps: the owner, 2026-10-08) ──
   did = await strike(A, "axe", [0.999]);

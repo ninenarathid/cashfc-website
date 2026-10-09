@@ -352,7 +352,9 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, pa
     const want = guard % 5 === 1 ? "down" : guard % 5 === 3 ? "stays" : "taken", o = tryOf((tool.plus ?? 0) + 1);
     x = await tryOnce((out) => (o[want === "taken" ? "take" : want === "stays" ? "stay" : "down"] > 0 ? out === want : out === "taken"));
     walked.push({ from: x.from, out: x.answer?.out, level: x.answer?.level, ok: x.answer?.ok === true && x.answer.out === x.want && x.answer.level === (x.want === "taken" ? x.from + 1 : x.want === "down" ? Math.max(Math.min(x.from, F.forge.floor), x.from - 1) : x.from) && (x.after.plus ?? 0) === x.answer.level && x.after.item === kind });
-    if (held(await purseOf(U.m1), "oreSilver") < 10) await stocked((await purseOf(U.m1)).bag[0]);
+    // (stocked again before the dearest try of the table could find the bag short: the table's own numbers, whatever they are)
+    const left = await purseOf(U.m1), dearest = (what) => Math.max(...F.tries.map((y) => (what === "timber" ? costOf(kind, y.to).timber : y.ore === what ? costOf(kind, y.to).n : 0)));
+    if (["oreIron", "oreSilver", "timber"].some((what) => held(left, what) < dearest(what))) await stocked(left.bag[0]);
   }
   p = await purseOf(U.m1);
   t.check(`every try went as the table says of the number drawn; some stayed, some lost a level, none fell under +${F.forge.floor}, none lost the tool or an option`, walked.filter((s_) => "ok" in s_).every((s_) => s_.ok) && walked.some((s_) => s_.out === "stays")
@@ -563,10 +565,10 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, pa
   const steer = [await t.as(U.m1, `select public.town_smith_try(0, 0.01)`), await t.as(U.m1, `select public.town_smith_try(0, 0.01::double precision, 0.5::double precision)`), await t.as(U.m1, `select public.town_smith_draw(0, 0.1, 0.2)`)];
   t.check("the functions a member calls take a slot (and a milestone and a gem) and no number of chance: one sent is no function at all", same(sig.map((r) => `${r.proname}(${r.args})`), ["town_smith_draw(p_slot integer)", "town_smith_redraw(p_slot integer, p_at integer, p_gem text)", "town_smith_try(p_slot integer)"])
     && steer.every((r) => /does not exist/.test(r.error ?? "")), [sig, steer.map((r) => r.error)]);
-  const FROM = 5, o6 = tryOf(FROM + 1), markT = await lastDeed();
+  const FROM = 5, o6 = tryOf(FROM + 1), c6 = costOf("pot", FROM + 1), markT = await lastDeed();
   await t.sql(`select setseed(0.4242)`);
   for (let i = 0; i < TRIES; i++) {
-    await patch(U.m1, { coins: 100000, hand: null, bag: bag({ item: "pot", n: 1, plus: FROM, opts: pool("pot", 1).slice(0, 1) }, { item: "oreIron", n: 9 }, { item: "timber", n: 9 }) });
+    await patch(U.m1, { coins: 100000, hand: null, bag: bag({ item: "pot", n: 1, plus: FROM, opts: pool("pot", 1).slice(0, 1) }, { item: c6.ore, n: c6.n + 4 }, { item: "timber", n: c6.timber + 4 }) });
     await call(U.m1, "town_smith_try", 0);
   }
   const tried = (await deedsAfter(markT)).filter((d) => d.what === "forge"), share = (out) => tried.filter((d) => d.doc.out === out).length / tried.length;
