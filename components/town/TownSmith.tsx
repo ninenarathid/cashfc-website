@@ -440,7 +440,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
             </button>
           ))}
         </div>
-        <div ref={leavesRef} className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-[#8a5a2b] to-[#6e4420]">
+        {/* (`relative`: what is read out only, down a long leaf, is placed in this box and not in the board's own, which would then scroll with its head out of sight when a thing here is brought into view) */}
+        <div ref={leavesRef} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-[#8a5a2b] to-[#6e4420]">
           {/* the forge itself: the furnace, the anvil with the tool on it, the hammer */}
           {view !== "board" && (
             <div className="relative w-full overflow-hidden border-b-2 border-[#2e1c0c]" style={{ aspectRatio: `${BAND.w} / ${BAND.h}` }} data-smith-scene>
