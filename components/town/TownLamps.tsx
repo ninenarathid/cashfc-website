@@ -88,7 +88,7 @@ const STEPS: Array<[th: string, en: string]> = [
   ["จุดโคมที่ยังมืด", "Light a lamp that is dark"],
 ];
 /** Said beforehand, in one line each: how long a flame lives, what a lamp lit counts for, and that nothing is lost. */
-const LIVES: [th: string, en: string] = ["ไฟอยู่ในมือได้ 5 วินาที ส่งต่อเมื่อไหร่นับใหม่อีก 5 วินาที", "A flame lives 5 seconds in a hand. Handed on, it is fresh again: 5 more"];
+const LIVES: [th: string, en: string] = [`ไฟอยู่ในมือได้ ${LAMPS.life} วินาที ส่งต่อเมื่อไหร่นับใหม่อีก ${LAMPS.life} วินาที`, `A flame lives ${LAMPS.life} seconds in a hand. Handed on, it is fresh again: ${LAMPS.life} more`];
 const COUNTS: [th: string, en: string] = ["โคมติดเมื่อไหร่ ทุกมือที่ไฟผ่านได้ +3 แต้มผู้ช่วยเท่ากัน", "Once a lamp is lit, every hand the flame went through has 3 helpers' points, all alike"];
 const NO_LOSS: [th: string, en: string] = ["ไฟดับกลางทางไม่เสียอะไร กลับมารับใหม่ได้เสมอ", "A flame that goes out costs nothing: there is always another at the fire"];
 const MAP_NAME: Record<LampMap, [th: string, en: string]> = { farm: ["แปลงผัก", "The farm"], forest: ["ป่า", "The forest"] };
@@ -378,11 +378,12 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
     const each = setInterval(() => setTick((n) => n + 1), 250), end = setTimeout(() => setTick((n) => n + 1), Math.max(0, flame.until - keeper.now()) + 30);
     return () => { clearInterval(each); clearTimeout(end); };
   }, [bearing, flame, keeper]);
-  // who stands where is the map's, and changes without anything of the keeper's changing: looked at twice a second while I stand with a flame
+  // who stands where is the map's, and changes without anything of the keeper's changing: looked at five times a second while I stand with a flame
+  // (twice a second until a flame lived three seconds: half a second of not seeing a friend stop is a sixth of it)
   const looking = bearing && !!here;
   useEffect(() => {
     if (!looking) return;
-    const t = setInterval(() => setTick((n) => n + 1), 500);
+    const t = setInterval(() => setTick((n) => n + 1), 200);
     return () => clearInterval(t);
   }, [looking]);
 
@@ -1065,7 +1066,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
               </button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
-              {/* tonight: so many lit of twelve, a lantern each; a twinkle where more of the night comes out */}
+              {/* tonight: so many lit of the map's posts, a lantern each (smaller ones for a map of many); a twinkle where more of the night comes out */}
               <div className="rounded-2xl border border-line bg-bg/60 p-3" data-lamps-tonight={litHere.length}>
                 <div className="flex items-baseline justify-between gap-2">
                   <p className="text-ui font-semibold text-ink">
@@ -1078,7 +1079,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
                     const on = night !== null && i < litHere.length, more = i + 1 === LAMPS.more[0] || i + 1 === LAMPS.more[1] || i + 1 === of;
                     return (
                       <li key={i} data-pip={i + 1} data-lit={on} className="flex items-end">
-                        <Art sprite={art("feteLantern")} box={24} shadow={!on} />
+                        <Art sprite={art("feteLantern")} box={of > 16 ? 18 : 24} shadow={!on} />
                         {more && <span className="-ml-1 mr-1" data-more={i + 1}><Art sprite={art("twinkle")} box={14} shadow={!on} /></span>}
                       </li>
                     );
@@ -1124,7 +1125,7 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
               </p>
               {LAMP_MAPS.filter((m) => m !== place).map((m) => (
                 <p key={m} className="mt-1.5 px-1 text-meta text-muted" data-lamps-other={m}>
-                  {th ? `${MAP_NAME[m][0]}ก็มีโคม 12 ต้นเหมือนกัน` : `${MAP_NAME[m][1]} has twelve lamps of its own`}
+                  {th ? `${MAP_NAME[m][0]}ก็มีโคม ${postsOf(m)} ต้นเหมือนกัน` : `${MAP_NAME[m][1]} has ${postsOf(m)} lamps of its own`}
                   {fresh && <> · <span className="font-data tabular-nums text-ink">{lamps.maps[m].lit.length}/{postsOf(m)}</span></>}
                 </p>
               ))}

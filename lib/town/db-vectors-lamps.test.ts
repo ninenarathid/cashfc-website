@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { LAMPS, LAMP_MAPS, byTile, fireOf, held, light, lighted, litOf, newLamps, nightEnds, nightOf, pass, postOf, take, told, type Flame, type LampMap, type LampsKept, type LampsTold } from "./lamps";
+import { LAMPS, LAMP_MAPS, byTile, fireOf, held, light, lighted, litOf, newLamps, nightEnds, nightOf, pass, postOf, postsOf, take, told, type Flame, type LampMap, type LampsKept, type LampsTold } from "./lamps";
 import type { ItemId } from "./items";
 import { count, countsOf, newLine, type LineKept } from "./line-points";
 import { dayOf, staminaOf } from "./stamina";
@@ -77,7 +77,7 @@ function rules(): Vector[] {
   for (let i = 0; i < 800; i++) {
     const now = moment(), p = purse(now), has = flame(now, 0.3), m = map(), fire = fireOf(m) ?? LAMPS.maps.farm.fire;
     const at = c.maybe(0.05) ? null : c.maybe(0.8) ? about(c, fire) : c.maybe(0.5) ? about(c, fire, 2) : about(c, LAMPS.maps[m === "farm" ? "forest" : "farm"].fire);
-    const stone = c.maybe(0.08), lit = c.of([0, 0, 0, 3, 7, 11, 11, 12, 12, 13]), me = c.of(WHO);
+    const stone = c.maybe(0.08), lit = c.of([0, 0, 0, 3, 7, 11, 12, 27, 28, 29, 39, 40, 41]), me = c.of(WHO);
     out.push({ fn: "take", args: [p, has, stone, lit, m, at?.[0] ?? null, at?.[1] ?? null, me, now], want: take(p, has, stone, lit, m, at, me, now) });
   }
   for (let i = 0; i < 600; i++) {
@@ -85,15 +85,15 @@ function rules(): Vector[] {
     out.push({ fn: "pass", args: [has, to, theirs, their, stone, now], want: pass(has, to, theirs, their, stone, now) });
   }
   for (let i = 0; i < 900; i++) {
-    const now = moment(), p = purse(now), has = flame(now, 0.9), m = map(), post = c.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, -1]);
+    const now = moment(), p = purse(now), has = flame(now, 0.9), m = map(), post = c.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 19, 23, 24, 27, 28, 33, 39, 40, -1]);
     const tile = postOf(m, post) ?? LAMPS.maps.farm.posts[0];
     const at = c.maybe(0.05) ? null : c.maybe(0.8) ? about(c, tile) : about(c, tile, 2);
     // (the posts lit already: none, some, all but this one, this one among them)
-    const all = [...Array(12).keys()], lit = c.maybe(0.3) ? [] : c.maybe(0.3) ? all.filter((n) => n !== post) : all.filter(() => c.maybe(0.4));
+    const all = [...Array(postsOf(m) || 12).keys()], lit = c.maybe(0.3) ? [] : c.maybe(0.3) ? all.filter((n) => n !== post) : all.filter(() => c.maybe(0.4));
     out.push({ fn: "light", args: [p, has, lit, m, post, at?.[0] ?? null, at?.[1] ?? null, now], want: light(p, has, lit, m, post, at, now) });
   }
   for (const m of [...LAMP_MAPS, "town"]) {
-    for (const post of [null, 0, 5, 11, 12, -1]) {
+    for (const post of [null, 0, 5, 11, 12, 27, 28, 39, 40, -1]) {
       const tile = post === null ? fireOf(m) : postOf(m, post), mid = tile ?? LAMPS.maps.farm.fire;
       for (let dx = -3; dx <= 3; dx++) for (let dy = -3; dy <= 3; dy++) out.push({ fn: "by", args: [m, post, mid[0] + dx, mid[1] + dy], want: byTile([mid[0] + dx, mid[1] + dy], tile) });
       out.push({ fn: "by", args: [m, post, null, mid[1]], want: false }, { fn: "by", args: [m, post, mid[0], null], want: false });
@@ -108,7 +108,7 @@ function rules(): Vector[] {
 }
 
 /** A story: its seed, when it begins, how long it is, what stamina each begins with, how many seconds at the most go by between two deeds, how many of the four take part, how readily a flame is lit with rather than handed on, and how often and how many minutes the clock leaps. */
-function story(seed: number, begin: number, length: number, start: number[], secs = 4, people = WHO.length, eager = 0.5, leap: [p: number, from: number, to: number] = [0.03, 5, 40]): Story {
+function story(seed: number, begin: number, length: number, start: number[], secs = 2, people = WHO.length, eager = 0.5, leap: [p: number, from: number, to: number] = [0.03, 5, 40]): Story {
   const c = chance(seed), steps: Step[] = [], WHO_ = WHO.slice(0, people);
   let now = begin + c.int(0, 20) * MIN, kept: LampsKept = newLamps();
   // (each has a rod in the first slot of the bag, to take into the hand; and so much stamina today)
@@ -142,8 +142,8 @@ function story(seed: number, begin: number, length: number, start: number[], sec
       if (did.ok) { kept = held(kept, to!, did.flame, by); want = { ok: true, until: did.flame.until }; } else want = did;
     } else {
       // (mostly a post that is still dark, from a tile by it; now and then one that is lit, or from too far)
-      const map: LampMap = c.maybe(0.8) ? mine.from : c.of(LAMP_MAPS), lit = litOf(kept, map, night), dark = [...Array(12).keys()].filter((n) => !lit.includes(n));
-      const post = dark.length && c.maybe(0.9) ? c.of(dark) : c.int(-1, 12), tile = postOf(map, post) ?? LAMPS.maps[map].posts[0];
+      const map: LampMap = c.maybe(0.8) ? mine.from : c.of(LAMP_MAPS), lit = litOf(kept, map, night), dark = [...Array(LAMPS.maps[map].posts.length).keys()].filter((n) => !lit.includes(n));
+      const post = dark.length && c.maybe(0.9) ? c.of(dark) : c.int(-1, 40), tile = postOf(map, post) ?? LAMPS.maps[map].posts[0];
       const at = c.maybe(0.92) ? about(c, tile) : c.maybe(0.5) ? about(c, tile, 3) : null;
       deed = { fn: "light", map, post, at };
       const did = light(purses[by], mine, lit, map, post, at, now);
@@ -196,7 +196,7 @@ describe("the cases the database's rules of the lamp relay are held to", () => {
     // handed on within the second of grace, and fresh again from that moment; the last eight hands kept, the taker's once
     const passed = all.rules.filter((v) => v.fn === "pass" && (v.want as { ok: boolean }).ok).map((v) => [v.args, (v.want as { flame: Flame }).flame] as const);
     expect(passed.some(([args]) => (args[5] as number) > (args[0] as Flame).until)).toBe(true);
-    expect(passed.every(([args, f]) => f.until === (args[5] as number) + 5000 && f.hands.at(-1) === args[1])).toBe(true);
+    expect(passed.every(([args, f]) => f.until === (args[5] as number) + LAMPS.life * 1000 && f.hands.at(-1) === args[1])).toBe(true);
     expect(passed.some(([args, f]) => (args[0] as Flame).hands.length === LAMPS.hands && f.hands.length === LAMPS.hands && f.hands[0] !== (args[0] as Flame).hands[0])).toBe(true);
     expect(passed.some(([args, f]) => (args[0] as Flame).hands.includes(args[1] as string) && f.hands.length === (args[0] as Flame).hands.length)).toBe(true);
     // the stories reach what they are for

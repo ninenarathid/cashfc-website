@@ -9,12 +9,17 @@ import { CAMP, FARM, FOREST, type Vec } from "./world";
  * the lamps he had meant as a builder's works, "แทนงานโคมลุงก่อสร้างเลย"; and he had asked before for the farm and the
  * forest, which are dark at night, to be lighter and easier to play in then).
  *
- * From half past five in the evening (Bangkok) until five in the morning, the farm and the forest each have twelve
- * lamp posts along their ways, and one fire in their middle: the forest's camp fire, and a brazier beside the farm's well.
+ * From half past five in the evening (Bangkok) until five in the morning, the farm has twenty-eight lamp posts and
+ * the forest forty, and each one fire in its middle: the forest's camp fire, and a brazier beside the farm's well.
+ * Twelve of a map's posts stand along its ways, as they did from the first night. **The others stand about its
+ * fields and its edges, and a flame lives three seconds where it lived five** (the owner, 2026-10-09, the morning
+ * after the first night: "ช่วยลดเวลาโคมยามค่ำ เหลือ ไฟ 3 วิพอ (5 วิง่ายไป)", and "เพิ่มโคมรอบๆแมพฟาร์ม และ ป่า
+ * ให้มากกว่านี้ นอกจากทางเดิน อยากให้มีขอบๆแมพด้วย"; and, of a first layout of twenty-eight a map, "แมพป่าใหญ่กว่า
+ * ควรจะมีโคมเยอะกว่าฟาร์มครับ").
  *
- * - **A flame is taken at the fire with empty hands**: it is in the hands, never in the bag, and it lives **five
- *   seconds** there (about seventeen tiles of walking), by the clock of whoever keeps the game.
- * - It is **handed on** to somebody who stands still with empty hands within three tiles: it is fresh again, five
+ * - **A flame is taken at the fire with empty hands**: it is in the hands, never in the bag, and it lives **three
+ *   seconds** there (about ten tiles of walking), by the clock of whoever keeps the game.
+ * - It is **handed on** to somebody who stands still with empty hands within three tiles: it is fresh again, three
  *   seconds. **A handing on asked for up to a second after the flame's time still counts** (`grace`): lag is never
  *   somebody's fault. The same second is given to the lighting.
  * - **Never from a lamp**: a flame is taken only at a fire, never from a post that is lit (or one member would light
@@ -25,8 +30,9 @@ import { CAMP, FARM, FOREST, type Vec } from "./world";
  *   **No board, and no test of quick hands, at any stamina.**
  * - **Everybody whose hands that flame went through** (the last eight) has three points on the helpers' line
  *   (lib/town/line-points) and is among the night's lighters.
- * - One member alone lights the posts near the fire; the far ones take two or three in a relay. Nothing is lost if
- *   nobody lights: the night is as dark as it was.
+ * - One member alone lights the few posts nearest the fire; the others take a relay, the furthest of the farm's some
+ *   three hands and of the forest's four. (Two who hand a flame back and forth as they go reach any post: a flame is
+ *   fresh again in hands it has been in before.) Nothing is lost if nobody lights: the night is as dark as it was.
  * - No coins come of it, nothing that can be sold, and no thing: a flame is not in `items.ts`.
  *
  * What a lit lamp does is the page's (components/town/TownLamps): it lights six tiles round it for everybody, the
@@ -43,7 +49,7 @@ export const LAMPS = {
   /** When: from this minute of Bangkok's day (17:30) until that minute of the next (05:00). A lamp lit stays lit until then. */
   from: 17 * 60 + 30, until: 5 * 60,
   /** How long a flame lives in a hand, in seconds; and for how long after that a handing on or a lighting asked for still counts. */
-  life: 5, grace: 1,
+  life: 3, grace: 1,
   /** How far apart two may stand for a flame to be handed on, in tiles as the path goes (the page's to hold to). */
   reach: 3,
   /** How near the fire one stands to take a flame, and how near a post to light it, in tiles. */
@@ -58,10 +64,20 @@ export const LAMPS = {
   hands: 8,
   /** The points on the helpers' line a post lit is worth to each of them. */
   point: 3,
-  /** At how many lit posts of a map more of the night comes out, before all of them (the page's). */
-  more: [4, 8],
+  /** At how many lit posts of a map more of the night comes out, before all of them (the page's). The first is as it was with twelve posts, so that a few members see it soon. */
+  more: [4, 10],
   /**
-   * Each map's fire and its twelve posts, by their tiles. The farm's: a brazier beside the well, and posts along its
+   * Each map's fire and its posts, by their tiles. **The first twelve are the ways' own, as they were, and keep their
+   * numbers** (a lamp lit is kept by its number); the ones after them were added on 2026-10-09. The farm's sixteen:
+   * twelve round its rim, two or three tiles in from the edge (clockwise from the north-west corner), and one in the
+   * middle of each quarter of the beds. The forest's twenty-eight, spread over the whole of it away from its trails,
+   * **the nearest to the camp fire first, as one walks**: about the camp, the meadow, the bamboo grove and the rocky
+   * rise, the south rim, the deep woods across the stream, the east rim, and the three furthest: the north rim by the
+   * great tree, the south-east corner, and the west rim. No post is further than fifty tiles of path from its fire,
+   * and only those three of the forest's are further than forty-two (its other corners are some sixty to seventy, and
+   * have none).
+   *
+   * The twelve of the ways, as they were laid out: The farm's: a brazier beside the well, and posts along its
    * two lanes: three to the west, four to the east, one where the lanes cross (it lights the well and the brazier)
    * and two more north of it, two south. The forest's: the camp
    * fire, and posts along the trail to the gate, the trail to the great tree and the trail to the waterfall, four
@@ -72,11 +88,23 @@ export const LAMPS = {
   maps: {
     farm: {
       fire: F(27, 24),
-      posts: [F(18, 23), F(8, 20), F(3, 23), F(38, 23), F(44, 20), F(50, 23), F(56, 20), F(31, 20), F(28, 10), F(31, 3), F(28, 31), F(31, 39)],
+      posts: [F(18, 23), F(8, 20), F(3, 23), F(38, 23), F(44, 20), F(50, 23), F(56, 20), F(31, 20), F(28, 10), F(31, 3), F(28, 31), F(31, 39),
+        // the rim, clockwise from the north-west corner
+        F(3, 3), F(16, 2), F(45, 3), F(55, 3), F(57, 11), F(57, 32), F(57, 40), F(45, 41), F(16, 41), F(3, 39), F(2, 32), F(2, 12),
+        // the middle of each quarter of the beds
+        F(15, 11), F(44, 11), F(15, 32), F(44, 32)],
     },
     forest: {
       fire: [CAMP.fire.x, CAMP.fire.y] as [number, number],
-      posts: [W(50, 56), W(48, 65), W(46, 70), W(46, 74), W(49, 36), W(48, 29), W(50, 20), W(45, 12), W(61, 46), W(69, 46), W(74, 38), W(80, 34)],
+      posts: [W(50, 56), W(48, 65), W(46, 70), W(46, 74), W(49, 36), W(48, 29), W(50, 20), W(45, 12), W(61, 46), W(69, 46), W(74, 38), W(80, 34),
+        // off the trails, the nearest to the camp fire first: within twenty-five tiles of path
+        W(40, 44), W(37, 53), W(60, 56), W(41, 35), W(61, 36), W(29, 44), W(32, 36),
+        // within thirty-five
+        W(65, 65), W(31, 65), W(37, 25), W(21, 49), W(69, 31), W(79, 48), W(76, 58), W(24, 31),
+        // within forty-two
+        W(72, 71), W(13, 46), W(16, 36), W(16, 60), W(63, 19), W(56, 11), W(19, 69), W(75, 25), W(89, 48), W(85, 59),
+        // the three furthest: the north rim by the great tree, the south-east corner, the west rim
+        W(40, 7), W(85, 68), W(5, 43)],
     },
   },
 };
@@ -89,7 +117,7 @@ export const isLampMap = (v: unknown): v is LampMap => v === "farm" || v === "fo
 /**
  * What is the page's alone, and only drawn: where the board stands by each fire (how to play, how many are lit
  * tonight, the night's lighters); and which posts follow one another out from the fire along one way (`ARMS`: what
- * goes along the way between two lit posts goes by these).
+ * goes along the way between two lit posts goes by these; the posts off the ways are on no arm).
  */
 export const BOARD_AT: Record<LampMap, [number, number]> = { farm: F(27, 26), forest: W(51, 48) };
 export const ARMS: Record<LampMap, number[][]> = { farm: [[0, 1, 2], [3, 4, 5, 6], [7, 8, 9], [10, 11]], forest: [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11]] };

@@ -6,8 +6,8 @@
 //   fire, a flame asked for all the same is refused, and the board says when the lamps are lit;
 // - by night (the trial's own switch): at the fire the strip says how it is done in three steps, the first lit; a
 //   real tap takes a flame: it is in my hands with the moment it dies, the room is told, a bar burns down, and there
-//   is no board; left alone it goes out after five seconds, which is said, and nothing is lost;
-// - alone: a flame taken and a tap on the nearest dark post walks there and lights it: one of twelve, one stamina,
+//   is no board; left alone it goes out after three seconds, which is said, and nothing is lost;
+// - alone: a flame taken and a tap on the nearest dark post walks there and lights it: one of twenty-eight, one stamina,
 //   three helpers' points, and what it earned is said; a tap on a lit post says whose hands lit it, and a tap on a
 //   dark one with no flame says where to get one;
 // - two: whoever stands still with empty hands within three tiles is offered by name; a tap, and the flame is
@@ -16,8 +16,8 @@
 //   is named with what they lack;
 // - tired hands: the button is held, 1.2 seconds; let go of early nothing is done and nothing is lost; held to the
 //   end the post is lit; no board on any page;
-// - the board by the fire: so many lit of twelve, the three steps, the night's lighters, the nights counted;
-// - what the night becomes at four, at eight and with all twelve lit, on the farm and in the forest, each with a
+// - the board by the fire: so many lit of the map's posts, the three steps, the night's lighters, the nights counted;
+// - what the night becomes at four, at ten and with every post lit, on the farm and in the forest, each with a
 //   picture to be looked at (`lamps-<map>-<n>.png`: **a PASS does not say it is beautiful**); the last lamp is a
 //   celebration with the lighters' names on every page that is on the map, and its fire gives no more flame;
 // - and a phone's card, the board's panel and the celebration within its screen.
@@ -94,7 +94,7 @@ try {
   const a = await X.evaluate(`${T}.id`);
   const { fires: FIRES, posts: POSTS, boards: BOARDS, life: LIFE, reach: REACH, near: NEAR } = await X.evaluate(`({ fires: ${L}.fires, posts: ${L}.posts, boards: ${L}.boards, life: ${L}.life, reach: ${L}.reach, near: ${L}.near })`);
   const FIRE = FIRES.farm, BY_FIRE = [FIRE[0] + 1, FIRE[1] + 1], CAMP = [FIRES.forest[0] + 1, FIRES.forest[1] + 1];
-  ok("a flame lives five seconds, is handed on within three tiles, and a post is lit from within two; twelve posts a map", LIFE === 5 && REACH === 3 && NEAR === 2 && POSTS.farm.length === 12 && POSTS.forest.length === 12, { LIFE, REACH, NEAR });
+  ok("a flame lives three seconds, is handed on within three tiles, and a post is lit from within two; twenty-eight posts on the farm, forty in the forest", LIFE === 3 && REACH === 3 && NEAR === 2 && POSTS.farm.length === 28 && POSTS.forest.length === 40, { LIFE, REACH, NEAR });
 
   // ── by day: the trial's clock put to noon
   const hour = await X.evaluate(`Math.floor((((${T}.now() + 7 * 3600000) % 86400000) + 86400000) % 86400000 / 3600000)`);
@@ -124,12 +124,12 @@ try {
   await X.shot(`${OUT}/lamps-farm-0.png`);
   await takeFlame(X);
   const first = await left(X);
-  ok("a tap takes a flame: it is in my hands for five seconds, for nothing, and the room is told the moment it dies", first > 3000 && first <= 5000 && (await stamina(X)) === 100 && (await X.evaluate(`${S}.me().flame`)) === (await X.evaluate(`${L}.lamps().flame.until`)), { first, room: await X.evaluate(`${S}.me().flame`) });
+  ok("a tap takes a flame: it is in my hands for three seconds, for nothing, and the room is told the moment it dies", first > 1500 && first <= 3000 && (await stamina(X)) === 100 && (await X.evaluate(`${S}.me().flame`)) === (await X.evaluate(`${L}.lamps().flame.until`)), { first, room: await X.evaluate(`${S}.me().flame`) });
   ok("…the strip lights the second step, a bar says what is left, and no board is up", (await X.evaluate(`document.querySelector("[data-lamps-card] [data-lamps-steps]")?.dataset.lampsSteps`)) === "1" && (await there(X, "[data-lamps-left]")) && !(await board(X)), await textOf(X, "[data-lamps-card]"));
   await X.shot(`${OUT}/lamps-flame.png`);
   await until("the flame goes out", async () => (await left(X)) === 0, 7000);
   await sleep(500);
-  ok("left alone it goes out after five seconds: that is said, the room is told, and nothing is lost", /ไฟดับ|went out/.test((await note(X)) ?? "") && (await X.evaluate(`${S}.me().flame`)) === 0 && (await stamina(X)) === 100 && same(await litOf(X), []), { note: await note(X), room: await X.evaluate(`${S}.me().flame`) });
+  ok("left alone it goes out after three seconds: that is said, the room is told, and nothing is lost", /ไฟดับ|went out/.test((await note(X)) ?? "") && (await X.evaluate(`${S}.me().flame`)) === 0 && (await stamina(X)) === 100 && same(await litOf(X), []), { note: await note(X), room: await X.evaluate(`${S}.me().flame`) });
 
   // ── alone: a post near the fire (the first of the south arm's, seven tiles down the lane)
   const NEAREST = 10, was = await points(X);
@@ -138,7 +138,7 @@ try {
   const box4 = await postBox(X, NEAREST);
   if (box4) await mapTap(X, box4);
   await until("the post is lit", async () => (await litOf(X)).includes(NEAREST), 8000).catch(() => {});
-  ok("alone: a flame taken and a tap on the nearest dark post walks there and lights it, one of twelve", !!box4 && same(await litOf(X), [NEAREST]) && (await left(X)) === 0, { box: !!box4, lit: await litOf(X), left: await left(X), note: await note(X) });
+  ok("alone: a flame taken and a tap on the nearest dark post walks there and lights it, one of twenty-eight", !!box4 && same(await litOf(X), [NEAREST]) && (await left(X)) === 0, { box: !!box4, lit: await litOf(X), left: await left(X), note: await note(X) });
   ok("…for one stamina and three helpers' points, and what it earned is said", (await stamina(X)) === 99 && (await points(X)) === was + 3 && (await there(X, "[data-lamps-earned]")) && /\+3/.test((await textOf(X, "[data-lamps-point]")) ?? ""), { stamina: await stamina(X), points: await points(X), earned: await textOf(X, "[data-lamps-earned]") });
   await sleep(3400);
   ok("…its ring is cut in the night's dark, and no board came up", (await X.evaluate(`${L}.rings()`)) === 1 && !(await board(X)), await X.evaluate(`${L}.rings()`));
@@ -176,7 +176,7 @@ try {
   if (await there(X, `[data-lamps-chip="${b}"]`)) await tap(X, `[data-lamps-chip="${b}"]`);
   await until("the flame is the other's", async () => (await left(Y)) > 0, 5000).catch(() => {});
   const fresh2 = await left(Y);
-  ok("a tap, and the flame is theirs, fresh again, for nothing; my hands are empty and that is said", fresh2 > 3000 && (await left(X)) === 0 && /ส่งไฟให้|Handed to/.test((await note(X)) ?? "") && (await stamina(X)) === 99, { fresh2, mine: await left(X), note: await note(X) });
+  ok("a tap, and the flame is theirs, fresh again, for nothing; my hands are empty and that is said", fresh2 > 1500 && (await left(X)) === 0 && /ส่งไฟให้|Handed to/.test((await note(X)) ?? "") && (await stamina(X)) === 99, { fresh2, mine: await left(X), note: await note(X) });
   ok("…and whoever took it is told", await there(Y, "[data-lamps-gift]"), await textOf(Y, "[data-lamps-card]"));
   const box5 = await postBox(Y, FAR);
   if (box5) await mapTap(Y, box5);
@@ -217,28 +217,28 @@ try {
   if (boardBox) await mapTap(X, boardBox);
   await until("the board's panel opens", () => there(X, "[data-lamps-panel='farm']"), 8000).catch(() => {});
   const lighters = await X.evaluate(`[...document.querySelectorAll("[data-lamps-names] li")].map((e) => e.dataset.id)`);
-  ok("the board says how many are lit tonight of twelve, with a lantern each", (await X.evaluate(`document.querySelector("[data-lamps-tonight]")?.dataset.lampsTonight`)) === "3" && /3\s*\/\s*12/.test((await textOf(X, "[data-lamps-have]")) ?? "")
-    && (await X.evaluate(`document.querySelectorAll("[data-pip]").length`)) === 12 && (await X.evaluate(`document.querySelectorAll("[data-pip][data-lit='true']").length`)) === 3, await textOf(X, "[data-lamps-tonight]"));
+  ok("the board says how many are lit tonight of twenty-eight, with a lantern each", (await X.evaluate(`document.querySelector("[data-lamps-tonight]")?.dataset.lampsTonight`)) === "3" && /3\s*\/\s*28/.test((await textOf(X, "[data-lamps-have]")) ?? "")
+    && (await X.evaluate(`document.querySelectorAll("[data-pip]").length`)) === 28 && (await X.evaluate(`document.querySelectorAll("[data-pip][data-lit='true']").length`)) === 3, await textOf(X, "[data-lamps-tonight]"));
   ok("…the three steps and the three lines said beforehand, the night's lighters in the order they came with no numbers, and the nights counted", (await X.evaluate(`document.querySelectorAll("[data-lamps-panel] [data-lamps-steps] li").length`)) === 3
     && (await X.evaluate(`document.querySelectorAll("[data-lamps-rules] li").length`)) === 3 && same(lighters, [a, b]) && (await X.evaluate(`document.querySelector("[data-lamps-nights]")?.dataset.lampsNights`)) === "0", { lighters, names: await textOf(X, "[data-lamps-names]") });
   await sleep(700);
   await X.shot(`${OUT}/lamps-panel.png`);
   await tap(X, "[data-lamps-close]");
 
-  // ── what the night becomes, on the farm: four, eight, and all twelve (pictures to be looked at)
+  // ── what the night becomes, on the farm: four, ten, and all twenty-eight (pictures to be looked at)
   await warp(X, ...BY_FIRE);
   await warp(Y, BY_FIRE[0] + 1, BY_FIRE[1]);
   await zoomOut(X);
-  for (const n of [4, 8]) {
+  for (const n of [4, 10]) {
     await X.evaluate(`${L}.lit("farm", ${n})`);
     await sleep(4200);
     ok(`with ${n} lit more of the night has come out on the farm`, (await X.evaluate(`${L}.tier()`)) === (n === 4 ? 1 : 2) && (await X.evaluate(`${L}.rings()`)) >= 1, { tier: await X.evaluate(`${L}.tier()`), rings: await X.evaluate(`${L}.rings()`) });
     await X.shot(`${OUT}/lamps-farm-${n}.png`);
   }
-  await X.evaluate(`${L}.lit("farm", 11)`);
+  await X.evaluate(`${L}.lit("farm", 27)`);
   await sleep(800);
   await X.evaluate(`${L}.give(30)`);
-  await warp(X, POSTS.farm[11][0] + 1, POSTS.farm[11][1]);
+  await warp(X, POSTS.farm[27][0] + 1, POSTS.farm[27][1]);
   await until("the last post can be lit", () => there(X, "[data-lamps-light='press']"), 6000);
   await tap(X, "[data-lamps-light='press']");
   await until("the celebration comes up", () => there(X, "[data-lamps-fete='farm']"), 8000).catch(() => {});
@@ -250,7 +250,7 @@ try {
   await warp(X, ...BY_FIRE);
   if (await there(X, "[data-lamps-fete]")) await tap(X, "[data-lamps-fete]");
   await sleep(9000);
-  await X.shot(`${OUT}/lamps-farm-12.png`);
+  await X.shot(`${OUT}/lamps-farm-28.png`);
   await X.evaluate(`${L}.take()`);
   await sleep(500);
   ok("with every lamp lit the fire gives no more flame, the night is counted, and nothing is offered at it", (await left(X)) === 0 && (await X.evaluate(`${L}.lamps().maps.farm.full`)) === 1 && !(await there(X, "[data-lamps-take]")), { note: await note(X), full: await X.evaluate(`${L}.lamps().maps.farm.full`) });
@@ -261,15 +261,15 @@ try {
   const ways = await X.evaluate(`${L}.ways("forest")`);
   ok("in the forest the camp's fire offers a flame, and its ways are laid out: three arms, mushrooms along them, the stream's own tiles", (await X.evaluate(`${L}.place()`)) === "forest" && ways.arms.length === 3 && ways.shrooms > 10 && ways.stream > 5, ways);
   await takeFlame(X);
-  ok("a flame is taken at the camp's fire", (await left(X)) > 3500);
+  ok("a flame is taken at the camp's fire", (await left(X)) > 1500);
   await zoomOut(X, 0);
   await X.shot(`${OUT}/lamps-forest-0.png`);
   await sleep(5400);
-  for (const n of [1, 4, 8, 12]) {
+  for (const n of [1, 4, 10, 40]) {
     await X.evaluate(`${L}.lit("forest", ${n})`);
-    if (n === 12) { await until("the forest celebrates", () => there(X, "[data-lamps-fete='forest']"), 6000).catch(() => {}); if (await there(X, "[data-lamps-fete]")) await tap(X, "[data-lamps-fete]"); }
-    await sleep(n === 12 ? 9000 : 4200);
-    ok(`with ${n} lit in the forest: ${n === 12 ? "every lamp, the night at its most" : n >= 8 ? "glowing mushrooms along the trail" : n >= 4 ? "fireflies over the stream" : "its own light"}`, (await X.evaluate(`${L}.tier()`)) === (n === 12 ? 3 : n >= 8 ? 2 : n >= 4 ? 1 : 0) && (await X.evaluate(`${L}.rings()`)) >= 1, { tier: await X.evaluate(`${L}.tier()`), rings: await X.evaluate(`${L}.rings()`) });
+    if (n === 40) { await until("the forest celebrates", () => there(X, "[data-lamps-fete='forest']"), 6000).catch(() => {}); if (await there(X, "[data-lamps-fete]")) await tap(X, "[data-lamps-fete]"); }
+    await sleep(n === 40 ? 9000 : 4200);
+    ok(`with ${n} lit in the forest: ${n === 40 ? "every lamp, the night at its most" : n >= 10 ? "glowing mushrooms along the trail" : n >= 4 ? "fireflies over the stream" : "its own light"}`, (await X.evaluate(`${L}.tier()`)) === (n === 40 ? 3 : n >= 10 ? 2 : n >= 4 ? 1 : 0) && (await X.evaluate(`${L}.rings()`)) >= 1, { tier: await X.evaluate(`${L}.tier()`), rings: await X.evaluate(`${L}.rings()`) });
     await X.shot(`${OUT}/lamps-forest-${n}.png`);
   }
   // (and by its trails: the way to the great tree, and the pool under the waterfall)
@@ -303,9 +303,9 @@ try {
   await sleep(700);
   await P.shot(`${OUT}/lamps-phone-panel.png`);
   if (await there(P, "[data-lamps-close]")) await tap(P, "[data-lamps-close]");
-  await P.evaluate(`${L}.lit("farm", 11)`);
+  await P.evaluate(`${L}.lit("farm", 27)`);
   await sleep(700);
-  await P.evaluate(`${L}.lit("farm", 12)`);
+  await P.evaluate(`${L}.lit("farm", 28)`);
   await until("the phone celebrates", () => there(P, "[data-lamps-fete]"), 8000).catch(() => {});
   ok("…and the night every lamp is lit", inside(await within(P, "[data-lamps-fete]")), await within(P, "[data-lamps-fete]"));
   await sleep(1300);

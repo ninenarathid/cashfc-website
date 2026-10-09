@@ -446,9 +446,15 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * of `items` by itself, not the row: `bowl.stack`, three where it was one.
  *
  * v160 seeded one, new: `bridge`, for the bridge built by hand and the village's works; v163 one, new: `lamps`, for
- * the lamp relay at dusk. Both ran on 2026-10-09, after v166. Nothing waits now.
+ * the lamp relay at dusk. Both ran on 2026-10-09, after v166.
+ *
+ * v167 (a draft, not run) writes one over: `lamps`, for a flame of three seconds and more posts a map (the first
+ * twelve of each as they were).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // ── the lamp relay ── (v167, a draft: the row written over)
+  v167: { keys: [], over: ["lamps"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
