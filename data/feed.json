@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-09",
+   "type": "level_100",
+   "id": 61014734,
+   "name": "Hanna Doss",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-10-09",
    "type": "rare_up",
    "id": 34509521,
    "name": "Liliya Quintilis",
@@ -1392,13 +1399,6 @@
    "id": 42021700,
    "name": "Josuke Mizumoto",
    "text": "earned Cut Above the Rest: Knives Occultum — only 1.1% of players have it, and 13 more"
-  },
-  {
-   "date": "2026-09-28",
-   "type": "rare_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "earned Resplendent: Brilliant Alembic, and 1 more"
   }
  ]
 }

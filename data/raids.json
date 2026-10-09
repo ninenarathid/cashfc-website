@@ -60562,9 +60562,17 @@
     "job": "BlackMage",
     "cleared": true,
     "job_kills": {
+     "Reaper": {
+      "kills": 2,
+      "best": 80
+     },
      "BlackMage": {
       "kills": 11,
       "best": 32
+     },
+     "Samurai": {
+      "kills": 1,
+      "best": 14
      }
     }
    },
@@ -79546,7 +79554,7 @@
     "cleared": true,
     "job_kills": {
      "Machinist": {
-      "kills": 3,
+      "kills": 6,
       "best": 74
      }
     }
