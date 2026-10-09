@@ -612,7 +612,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     {purse.coins < SMITH.redraw.fee && <p className="mt-2 text-meta text-[#ffb4a0]">{th ? WHY.coins[0] : WHY.coins[1]}</p>}
                   </div>
                 )}
-                {fireNow && stack && kind && !laid && again === null && !away && underTop && <GreatFireCard fire={fireNow} th={th} name={name} keeper={keeper} onRefuse={refuse} />}
+                {fireNow && stack && kind && underTop && <GreatFireCard fire={fireNow} th={th} name={name} keeper={keeper} onRefuse={refuse} />}
                 {/* the next try: what it takes, how it may go (none, of a forging that sits in a kind of tool of another pool: it is moved back first) */}
                 {stack && kind && !laid && again === null && (away ? (
                   <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-foreign={home ?? ""}>

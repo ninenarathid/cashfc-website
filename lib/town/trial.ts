@@ -1698,8 +1698,8 @@ export class Trial {
   }
   /** For scripts trying things out: its time has come (both halves gone, so the next rock and tree find them); both halves found by me now; so many made-up members before me in the row; a fresh fire. */
   fireDue() { this.write(SMITH_FIRE, { ...this.greatFire(), due: 0, flint: null, tinder: null }); this.tell(); }
-  fireLight(name = this.id) { const at = this.now(), f = this.greatFire(); this.write(SMITH_FIRE, { ...f, flint: { id: this.id, name, at }, tinder: { id: this.id, name, at } }); this.tell(); }
-  fireRow(n: number, name = this.id) {
+  fireLight(name = "ทดสอบ") { const at = this.now(), f = this.greatFire(); this.write(SMITH_FIRE, { ...f, flint: { id: this.id, name, at }, tinder: { id: this.id, name, at } }); this.tell(); }
+  fireRow(n: number, name = "ทดสอบ") {
     const f = this.greatFire(), at = this.now(), mine = f.row.find((w) => w.id === this.id) ?? { id: this.id, name, since: at };
     const fakes = Array.from({ length: Math.max(0, Math.floor(n)) }, (_, i) => ({ id: `fake${i + 1}`, name: `ทดสอบ ${i + 1}`, since: at }));
     const rest = f.row.filter((w) => w.id !== this.id && !/^fake\d+$/.test(w.id));
