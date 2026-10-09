@@ -243,7 +243,7 @@ export default async function ({ t, U, one, CODE, root, sql }) {
   if (process.env.SAID) for (const [label, a] of said[1]) console.log(`    ${label}: ${a?.error ?? (a?.ok === undefined ? "read" : a.ok ? "ok" : a.why)}${a?.deed ? ` ${a.deed}` : ""}${a?.how ? ` ${a.how}` : ""}${a?.hooked !== undefined ? ` hooked ${a.hooked}` : ""}${a?.got ? ` ${JSON.stringify(a.got)}` : ""}${a?.made !== undefined ? ` made ${a.made} ×${a.n}` : ""}`);
   const off = said[0].map(([label, a], i) => (str(a) === str(said[1][i][1]) ? null : label)).filter(Boolean);
   const came = said[1].filter(([, a]) => a?.ok === true).length, refused = said[1].filter(([, a]) => a?.ok === false).length, erred = said[1].filter(([, a]) => a?.error);
-  t.check(`${said[1].length} calls of the day (${came} came off, ${refused} refused): every answer the same on both`, off.length === 0 && said[0].length === said[1].length,
+  t.check(`the day's calls, every answer the same on both: ${said[1].length} calls (${came} came off, ${refused} refused)`, off.length === 0 && said[0].length === said[1].length,
     off.length ? { first: off[0], before: said[0].find(([l]) => l === off[0])[1], after: said[1].find(([l]) => l === off[0])[1], all: off.slice(0, 12) } : "");
   t.check("the day reached each game: no call broke, and each of fishing, the farm, the well, the net and the kitchen came off more than once", erred.length === 0
     && said[1].some(([l, a]) => l.endsWith(": soon") && a?.how === "slipped")

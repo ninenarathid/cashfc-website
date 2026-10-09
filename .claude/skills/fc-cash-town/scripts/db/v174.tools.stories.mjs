@@ -207,6 +207,19 @@ export default async function ({ t, U, one, CODE, clock, now, purse, kept, patch
   did = await tend(U.m1, 5, 1);
   t.check("…and at a moment that does not, only its own", did.ok && !("also" in did) && (await plotRow(6, 1)) === null && (await plotRow(4, 1)) === null);
 
+  // a row at a time (the enchanted hoe, the seed pouch) with a forged hoe: each plot as a deed leaves it, its mark kept and gone again
+  await purse(U.m1, [wetHoe, { item: "seedKangkong", n: 9 }], 100, { hand: "hoe", handAt: 0, gifts: { had: ["charmHoe", "thingPouch"], charms: ["charmHoe"], owed: 0, familiar: null, used: {} } });
+  const rowKeys = Array.from({ length: F.side }, (_, i) => key(i, 3)), marks = Object.fromEntries(rowKeys.map((k) => [k, true]));
+  const dampIn = async () => Number((await one(`select count(*)::int as n from public.town_plots where damp and y = $1 and x between $2 and $3`, [by + 3, bx, bx + F.side - 1])).n);
+  const r1 = await ask(U.m1, "town_row", bx, by + 3, marks, { hits: 7, misses: 0, secs: 9 }), r2 = await ask(U.m1, "town_row", bx, by + 3, marks, { hits: 7, misses: 0, secs: 9 });
+  const dampAfter = await dampIn();
+  await patch(U.m1, { hand: "seedKangkong", handAt: 1 });
+  const r3 = await ask(U.m1, "town_row", bx, by + 3, {}, null);
+  t.check("a row hoed with the enchanted hoe and a hoe that leaves its furrows so: every plot of the row is kept with its mark, and sown from the pouch each has its watering and its mark is gone",
+    r1.ok && r2.ok && r2.deed === "till" && rowKeys.every((k) => r2.plots[k]?.damp === true) && dampAfter === F.side && used(await kept(U.m1), "hoWet") === F.side
+    && r3.ok && r3.deed === "sow" && r3.done.length >= 2 && r3.done.every((k) => r3.plots[k].plant.watered === now() && !("damp" in r3.plots[k])) && (await dampIn()) === F.side - r3.done.length,
+    { r1: r1.ok ?? r1, r2: r2.deed ?? r2, damp: dampAfter, sown: r3.done, left: await dampIn() });
+
   /* ── the watering can ── */
   t.section("a forged watering can at the well and on the farm");
   const [wx, wy] = F.wellAt, [cx, cy] = F.bedsAt[4];

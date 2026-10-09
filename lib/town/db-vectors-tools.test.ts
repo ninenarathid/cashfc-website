@@ -9,7 +9,7 @@ import { toolOwed, toolPaid } from "./forged-keep";
 import { hastened } from "./fountain";
 import { gearOf } from "./gear";
 import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, UNHUNTED, comeback, net, netMine, tierOf, type BugId, type Comeback, type Swarm } from "./insects";
-import { BAITS, CROPS, DISHES, FISH, FISH_IDS, type CropId, type DishId, type ItemId } from "./items";
+import { BAITS, CROPS, DISHES, FISH, FISH_IDS, ITEMS, type CropId, type DishId, type ItemId } from "./items";
 import { countsOf, type Done } from "./line-points";
 import { usePower } from "./powers";
 import { STAMINA, chew, dayOf, spend } from "./stamina";
@@ -268,8 +268,12 @@ export function vectorsTools(): Vector[] {
   for (let i = 0; i < 2000; i++) {
     const h = c.of(HAUNTS), fit = BUG_IDS.filter((id) => BUGS[id].at.includes(h.kind)), bug = c.of(fit), now = START + c.int(0, 60) * HOUR + c.int(0, 59) * MIN + c.int(0, 59_999);
     const has: Swarm | null = c.maybe(0.04) ? null : { turn: c.int(1, 99999), bug, n: c.int(BUGS[bug].n[0], BUGS[bug].n[1]), seed: h.id * 100003 + 7 };
-    const tool = c.of<() => Stack>([() => forgedOf("bugNet"), () => forgedOf("bugNet"), () => forgedOf("bugNet"), () => plain("bugNet"), () => plain("bugNet", { plus: c.int(0, 10), gems: [c.of(["lightning", "earth"])], opts: ["ntFresh", "", ""] }), () => forgedOf("hoe")])();
-    const filler: Array<Stack | null> = c.maybe(0.12) ? Array.from({ length: 11 }, () => plain("boot")) : c.maybe(0.2) ? [plain(bug, { n: c.int(1, 19) })] : [];
+    const most = ITEMS[bug].stack ?? 1, exact = !!has && most > has.n && c.maybe(0.3);
+    const tool = exact ? plain("bugNet", { plus: c.of([3, 10]), gems: ["lightning"] })
+      : c.of<() => Stack>([() => forgedOf("bugNet"), () => forgedOf("bugNet"), () => forgedOf("bugNet"), () => plain("bugNet"), () => plain("bugNet", { plus: c.int(0, 10), gems: [c.of(["lightning", "earth"])], opts: ["ntFresh", "", ""] }), () => forgedOf("hoe")])();
+    // (a bag with no room at all; one with room for exactly as many as the haunt has, and no more; one with some of the kind in it already)
+    const filler: Array<Stack | null> = exact ? [plain(bug, { n: most - has!.n }), ...Array.from({ length: 10 }, () => plain("boot"))]
+      : c.maybe(0.1) ? Array.from({ length: 11 }, () => plain("boot")) : c.maybe(0.2) ? [plain(bug, { n: c.int(1, 19) })] : [];
     const stacks = [tool, ...filler].sort(() => c.next() - 0.5), powers = powersOf("bugNet", now), owed = owedOf();
     const gifts = c.of<Purse["gifts"] | undefined>([undefined, undefined, { had: ["charmCloak"], charms: ["charmCloak"] } as Purse["gifts"]]);
     const purse = purseOf(stacks, c.maybe(0.95) ? stacks.indexOf(tool) : null, now, { ...(powers ? { powers } : {}), ...(owed === undefined ? {} : { toolOwed: owed as number }), ...(gifts ? { gifts } : {}),
@@ -322,7 +326,7 @@ export function vectorsTools(): Vector[] {
     add("pot_marks", [m], (() => { const s = setDown(p, 1, ME, [50, 50], "7"); return s.ok ? { ...(s.pot.warm !== undefined ? { warm: s.pot.warm } : {}), ...(s.pot.scent !== undefined ? { scent: s.pot.scent } : {}) } : {}; })());
     // the helping, eaten: halfway, and to its end; with a buff of the dish's running already, and none
     const MEAL = STAMINA.minutes * MIN, from = now - c.of([0, MIN, MEAL - 1, MEAL, MEAL + MIN]), buff = DISHES[dish].buff;
-    const buffs = c.of<() => Purse["buffs"] | undefined>([() => undefined, () => [], () => (buff ? [{ id: buff, level: c.int(1, 4), until: now + c.int(1, 170) * MIN }] : []), () => [{ id: "hearty", level: 2, until: now + 40 * MIN }]])();
+    const buffs = c.of<() => Purse["buffs"] | undefined>([() => undefined, () => [], () => (buff ? [{ id: buff, level: c.int(1, 4), until: now + c.int(1, 170) * MIN }] : []), () => (buff ? [{ id: buff, level: c.int(1, 3), until: now + c.of([3.5, 4, 5]) * HOUR }] : []), () => [{ id: "hearty", level: 2, until: now + 40 * MIN }]])();
     const eater = { ...newPurse(), stamina: { day: dayOf(now), left: c.of([0, 40, 95]) }, meals: { day: dayOf(now), eaten: [false, true, false], bowls: [0, 1, 0] },
       eating: { dish, meal: 1 as const, from, till: from + c.of([0, 30_000]), got: c.of([0, 3.5]), ...(c.maybe(0.7) ? { lent: true } : {}), ...marks() }, ...(buffs === undefined ? {} : { buffs }) } as Purse;
     const company = c.of([0, 0, 2, 7]);
@@ -377,6 +381,9 @@ describe("the cases the database's rules of the seven older tools are held to", 
     expect(of("net").filter(ok).length).toBeGreaterThan(600);
     expect(of("net").some((v) => ok(v) && (v.want as { got: Array<[string, number]> }).got[0][1] > (v.args[2] as Swarm).n)).toBe(true);
     expect(of("net_mine").some((v) => ok(v))).toBe(true);
+    // (a catch with room for what the haunt has and not for one more, at a moment that would bring one more)
+    expect(of("net").filter((v) => ok(v) && (v.args[0] as Purse).bag.some((b) => b?.item === (v.args[2] as Swarm).bug && b.n === (ITEMS[(v.args[2] as Swarm).bug as ItemId].stack ?? 1) - (v.args[2] as Swarm).n)
+      && luckOf("twin", v.args[1] as number, (v.args[2] as Swarm).turn, v.args[9] as number) < netFx(heldStack(v.args[0] as Purse)).twin).length).toBeGreaterThan(5);
     expect(of("comeback_rarer").filter((v) => v.want !== null).length).toBeGreaterThan(100);
     // the kitchen: a dish with more helpings, a pot that carries each mark, a helping that gives each
     const cooks = of("cook");
