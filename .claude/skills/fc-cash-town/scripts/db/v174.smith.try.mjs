@@ -592,7 +592,7 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, pa
   t.section("the moment the fire's halves can next be found is told to no page: not in any answer, not in any deed");
   fire = await fireNow();
   const told = answers.filter(([, a]) => /"due"\s*:/.test(a) || [...dues].some((d) => a.includes(d)));
-  t.check(`of ${answers.length} answers of every function a member calls (the woodcutters' and the miners' among them), none has a \`due\` and none has one of the ${dues.size} moments the row has held`, dues.size >= 2 && told.length === 0, told.map(([fn, a]) => [fn, a.slice(0, 300)]));
+  t.check(`no answer has it: of ${answers.length} answers of every function a member calls (the woodcutters' and the miners' among them), none has a \`due\` and none has one of the ${dues.size} moments the row has held`, dues.size >= 2 && told.length === 0, told.map(([fn, a]) => [fn, a.slice(0, 300)]));
   const fireKeys = answers.filter(([fn]) => fn.startsWith("town_smith") || fn.startsWith("town_fire")).map(([, a]) => JSON.parse(a)?.smith?.fire).filter(Boolean);
   t.check("what is told of the fire is always the same seven things, and none of them is a moment", fireKeys.length > 100 && fireKeys.every((f_) => Object.keys(f_).sort().join() === "flint,lit,mine,open,row,tinder,topped"
     && [f_.flint, f_.tinder].every((h) => h === null || Object.keys(h).join() === "name") && f_.row.every((r) => Object.keys(r).sort().join() === "id,name")), fireKeys.find((f_) => Object.keys(f_).length !== 7));
@@ -603,6 +603,11 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, pa
   t.check("the fire's table is read by three rules and no other function; and its document is asked for by the functions the head names, each of which passes on `town.fire_told` or nothing",
     same(readers, ["town.fire_kept", "town.fire_wants", "town.keep_fire"]) && same(kept_, ["public.town_fell", "public.town_fire_join", "public.town_fire_leave", "public.town_mine", "public.town_smith_try", "town.smith_told"])
     && /town\.fire_told\(town\.fire_kept\(false\)/.test(src["town.smith_told"]) && /- 'smithy' - 'fire'/.test(src["town.smith_answer"]), { readers, kept_ });
+
+  t.section("every deed of the smith's and of the great fire's was written down in these stories, and has its word");
+  const WORDS = ["smelt", "smelted", "smith_wider", "bellows", "forge", "forge_draw", "forge_choose", "forge_redraw", "gem_set", "forge_move", "forge_first", "power", "fire_found", "fire_join", "fire_leave"];
+  const worded = (await t.sql(`select w.what, town.deed_th(w.what) as th, (select count(*)::int from public.town_deeds d where d.what = w.what) as n from unnest($1::text[]) w(what)`, [`{${WORDS.join(",")}}`])).rows;
+  t.check("fifteen kinds of deed, each written at least once here, each with a word of its own for the tally", worded.length === WORDS.length && worded.every((r) => r.n > 0 && r.th !== r.what && /[\u0E01-\u0E5B]/.test(r.th)), worded.filter((r) => !(r.n > 0 && r.th !== r.what)));
 
   t.section("nothing paid to the smith went anywhere; and the part run once more over all of it changes nothing");
   t.check("no other purse, no jar, no book and nothing of the village's has a coin more or less for all the fees paid", same(await aroundNow(), around0), [around0, await aroundNow()]);
