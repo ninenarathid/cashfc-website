@@ -277,6 +277,14 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, pa
   let f0 = await fellOne(U.m1), b0 = await breakOne(U.m2);
   t.check("a member fells a tree and another breaks a rock with the smith closed: both done as ever, no `fire` in either answer, the fire's row untouched, nothing written of it",
     f0.felled?.ok === true && f0.felled.felled.length === 1 && f0.felled.fire === undefined && b0.broke.fire === undefined && same(await fireKept(), {}) && (await deeds("fire_found")).length === 0, [f0.felled?.why ?? f0.felled?.fire, b0.broke?.fire]);
+  // (to an admin the smith is always open, his halves among it: so that the whole of it can be tried before it is opened)
+  await patch(U.admin, { bag: bag() });
+  const fa = await fellOne(U.admin), byAdmin = await fireKept();
+  t.check("…but an admin's felling does, with the smith closed: the tinder is kept under the admin's name and said in the admin's own answer", same(fa.felled?.fire, { half: "tinder", lit: false })
+    && byAdmin.tinder?.id === U.admin && (await deeds("fire_found")).length === 1, [fa.felled?.fire ?? fa.felled?.why, byAdmin]);
+  // (the row put back as it was made, for the stories that follow: the statement the part's head gives its owner)
+  await t.sql(`update public.town_great_fire set doc = '{}'::jsonb, updated_at = now() where one`);
+  await t.sql(`delete from public.town_deeds where what = 'fire_found'`);
   await knob("smith_open", 1);
   await on(MIN);
 
