@@ -21,6 +21,7 @@ import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
+import { fireFoundWords } from "@/lib/town/fire-words";
 
 const TownVein = lazy(() => import("./TownVein"));
 
@@ -89,7 +90,7 @@ const SWING_MS = 190;
 const REST_MS = 900;
 
 /** What a rock left, on its card: `by`, somebody else struck the last of my rock away (their name); `helped`, it was somebody else's rock (their name) and I lent a hand. */
-interface Came { key: number; got: Array<[ItemId, number]>; way: boolean; crystal: boolean; vein: boolean; by?: string; helped?: string; moss?: boolean }
+interface Came { key: number; got: Array<[ItemId, number]>; way: boolean; crystal: boolean; vein: boolean; by?: string; helped?: string; moss?: boolean; fire?: string }
 /** A line of words over the map for a moment: with the picture of the thing it wants, where it wants one. */
 interface Note { text: string; icon?: IconName }
 /**
@@ -318,7 +319,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
       if (did.got[0]) vfx.add("pop", { x: tile[0] + 0.5, y: tile[1] + 0.5 }, { icon: iconOf(did.got[did.got.length - 1][0]), lift: 26 });
       // (a rock somebody else struck first: what it left is theirs, and I lent a hand)
       if (did.helped) setCame({ key: Date.now(), got: [], way: did.way, crystal: did.crystal, vein: false, helped: theirs ?? "", moss: !!did.moss });
-      else setCame({ key: Date.now(), got: did.got, way: did.way, crystal: did.crystal, vein: !!did.vein, moss: !!did.moss });
+      else setCame({ key: Date.now(), got: did.got, way: did.way, crystal: did.crystal, vein: !!did.vein, moss: !!did.moss, ...(did.fire ? { fire: fireFoundWords(did.fire, th) } : {}) });
       if (did.moss) setTimeout(() => sfx?.work("veinGlint"), 160);
       if (did.vein) { const v = did.vein; setTimeout(() => setVein(v), reduced ? 150 : 650); }
       void keeper.caveLook(floor, at).then(again);
@@ -685,6 +686,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
               {came.way && <span className="basis-full text-center font-display text-read font-semibold text-[#ffd15c]" data-mine-way>{th ? "เจอทางลงแล้ว!" : "The way down!"}</span>}
               {came.vein && <span className="basis-full text-center font-display text-read font-semibold text-[#ffd15c]">{th ? "เจอสายแร่!" : "A vein!"}</span>}
               {came.crystal && <span className="basis-full text-center font-display text-read font-semibold text-[#bfeaff]">{th ? "ผลึกแตกแล้ว!" : "The crystal breaks!"}</span>}
+              {came.fire && <span className="basis-full text-center font-display text-read font-semibold text-[#ffd15c]" data-mine-fire>{came.fire}</span>}
               {came.moss && <span className="basis-full text-center font-display text-read font-semibold text-[#9dffc4]" data-mine-moss>{th ? "ตะไคร่เรืองแสงส่องสว่างทั้งโถง!" : "Glowing moss lights the chamber!"}</span>}
             </div>
           )}

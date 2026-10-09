@@ -23,6 +23,7 @@ import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownPinesBook, { keepsakeIcon } from "./TownPinesBook";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
+import { fireFoundWords } from "@/lib/town/fire-words";
 
 /** What a tree that is not felled says of itself, by the state that refused it (states, never the rule behind them). */
 const WHY_TREE: Record<string, [th: string, en: string]> = {
@@ -218,7 +219,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       fall(did.felled);
       // (a keepsake is told on a card; wood alone, in a word over the buttons)
       if (did.found.length) setCard({ did, out: null, ask: null, tile: from.join(","), at: Date.now() });
-      else { setCard(null); setNote({ text: th ? "ล้มแล้ว" : "Timber", got: did.got }); }
+      else { setCard(null); setNote({ text: (th ? "ล้มแล้ว" : "Timber") + (did.fire ? " · " + fireFoundWords(did.fire, th) : ""), got: did.got }); }
     } finally { beginning.current = false; }
   }, [keeper, name, say, sfx, fall, th]);
   /** A tap on a tree: with an axe in the hand it is walked up to, and the two presses are for it; with none it is a step, as anywhere. */
@@ -564,6 +565,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
               </li>
             ))}
           </ul>
+          {card.did.fire && <p className="mt-1.5 text-ui font-semibold text-[#ffe19a]" data-trees-fire>{fireFoundWords(card.did.fire, th)}</p>}
           {/* each tree of the go: its fine timber, won and not; and how near the go was to more */}
           {card.out && (
             <div className="mt-1.5 flex flex-col gap-1 text-label text-[#e9cfa4]">
