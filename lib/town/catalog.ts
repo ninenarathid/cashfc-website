@@ -1,4 +1,4 @@
-import { BOX } from "./box";
+import { BOX, MORE_CHESTS } from "./box";
 import { farCedar, farTrees } from "./far-side";
 import { giftsRowAll } from "./gifts";
 import { linesRow } from "./line-points";
@@ -288,8 +288,13 @@ export function catalogOf() {
     line: { reach: LINE.reach, cost: LINE.cost, hands: LINE.hands },
     /** Waters that differ (lib/town/waters): the hours the dew is drawn in, the hours of a night for the moon's (a night the moon is full, by `fishing.signs`), the minutes a bucketful keeps the well's nature and at most, and what a watering has more under each. */
     waters: { dawn: WATERS.dawn, night: WATERS.night, lasts: WATERS.lasts, most: WATERS.most, adds: WATERS.adds, guards: WATERS.guards },
-    /** The storage box in the plaza (lib/town/box): the slots a member's has for nothing, how near it one stands to use it, and the tile it stands on. */
-    box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y] },
+    /**
+     * The storage box (lib/town/box): the slots a member's has for nothing, how near a chest one stands to use it, and
+     * the tile the plaza's chest stands on. And, from v164, `more`: the tiles of the chests beyond the plaza's that
+     * open the same box, each from as near (lib/town/box's MORE_CHESTS, which `nearBox` reads: the mountain's foot
+     * has one). The database's `town.by_box` reads both.
+     */
+    box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y], more: MORE_CHESTS.map((c) => [c.x, c.y]) },
     /** The lines of work (lib/town/lines, line-points): every ladder's marks and day's bound, and what each thing is worth on its line. */
     work: linesRow(),
     /**
@@ -483,16 +488,18 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * mountain's trees (`trees`), the miners' knobs with the rocks of the mountain's foot (`mining`), the pouches
  * (`pouches`), and the tools that can be forged with their options and gems (`forge`: no smith yet, his own
  * migration comes later, but what a pick or an axe carries is read from this row from the first day). And it writes
- * eight over: the pick, the axe, the wood, the stone, the ore, the gems and the torch (`items`); the pick and the axe
+ * nine over: the pick, the axe, the wood, the stone, the ore, the gems and the torch (`items`); the pick and the axe
  * on the first day's shelf (`goods`, `shelf`); the torch made by hand and hinted at (`makes`, `cooking`, `hints`),
  * with wood and minerals never put in a pot (`cooking`); the woodcutters' and the miners' lines and what their deeds
- * are worth (`work`); and those two lines' gifts (`gifts`). **`trees.wood` and `mining.rocks` are the mountain as it
+ * are worth (`work`); those two lines' gifts (`gifts`); and the chest at the mountain's foot, which opens a member's
+ * storage box as the plaza's does (`box.more`: until the row had it the database took a member beside that chest to
+ * be standing far from any). **`trees.wood` and `mining.rocks` are the mountain as it
  * is laid out, in a test and in a script as in `next dev`** (lib/town/far-side; the world's own lists are empty
  * outside `next dev`). Only a production build lays none out: `seedFor` refuses to write the block there, and v164's
  * own first lines refuse to run on a row that has none.
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  v164: { keys: ["forge", "trees", "mining", "pouches"], over: ["items", "goods", "shelf", "hints", "makes", "cooking", "work", "gifts"] },
+  v164: { keys: ["forge", "trees", "mining", "pouches"], over: ["items", "goods", "shelf", "hints", "makes", "cooking", "work", "gifts", "box"] },
 };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */

@@ -43,8 +43,10 @@ describe("the far side's lists, for the database", () => {
 
   it("are in the block v164 carries, in a production build as in the others", async () => {
     const { CATALOG_KEYS, seedFor } = await import("./catalog");
-    expect(CATALOG_KEYS.v164).toEqual({ keys: ["forge", "trees", "mining", "pouches"], over: ["items", "goods", "shelf", "hints", "makes", "cooking", "work", "gifts"] });
+    expect(CATALOG_KEYS.v164).toEqual({ keys: ["forge", "trees", "mining", "pouches"], over: ["items", "goods", "shelf", "hints", "makes", "cooking", "work", "gifts", "box"] });
     const block = seedFor("v164");
+    // (and the chest at the mountain's foot, which opens a member's storage box: one, beside the camp)
+    expect(JSON.parse(block.slice(block.indexOf("('box', $town$")).split("\n").find((l) => l.startsWith(`    "more": `))!.replace(/^ {4}"more": /, "").replace(/,$/, ""))).toEqual([[67, 242]]);
     // (a row's top entries are a line each: the two lists, whole)
     const line = (key: string) => JSON.parse(block.split("\n").find((l) => l.startsWith(`    "${key}": `))!.replace(/^ {4}"[a-z]+": /, "").replace(/,$/, "")) as unknown[];
     expect([line("wood").length, line("rocks").length]).toEqual([121, 54]);

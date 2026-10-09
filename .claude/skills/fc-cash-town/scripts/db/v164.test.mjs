@@ -14,13 +14,13 @@
  *   · the draft is what the assembler makes of the parts as they are now, to the letter; it has one `notify pgrst`, at
  *     its end, a last revoke on the schema `town` after its last function, the one line that opens it in its head,
  *     and no place left empty;
- *   · the look its head gives for the SQL editor says the ten functions are as they were, before the file, and not after;
+ *   · the look its head gives for the SQL editor says the eleven functions are as they were, before the file, and not after;
  *   · it runs, and runs a second time with no error and NO CHANGE: every function, grant, table, policy, trigger,
  *     knob and row as the first run left it;
  *   · what it adds, counted, and nothing else: two tables (closed; the site's key may read and insert the cave's days
- *     and no more), a trigger, 168 functions (seventeen a member's), three knobs, twelve catalog rows which are the
+ *     and no more), a trigger, 168 functions (seventeen a member's), three knobs, thirteen catalog rows which are the
  *     code's (`catalogOf()`), a row of `town_things` and one of `town_secrets`; no other row, knob, policy or trigger;
- *   · NO FUNCTION OF AN EARLIER FILE IS CHANGED but the ten the parts say they write again, and each of those is the
+ *   · NO FUNCTION OF AN EARLIER FILE IS CHANGED but the eleven the parts say they write again, and each of those is the
  *     one it replaces, word for word, but for the parts' lines; `town.work_counts_of` and `town.deed_th` carry BOTH
  *     blocks (and v160's and v163's), every word and every count that was there answers as before, and a tree felled
  *     and a rock broken are each worded and each counted on its own line of work, as lib/town/line-points counts them;
@@ -31,8 +31,9 @@
  *   · ONE MEMBER'S STORY ACROSS BOTH LINES, by the functions a member calls, each call held to the code itself on
  *     what the database kept before it (lib/town/trees, mining, cave-state, vein-account; the twins are the parts'
  *     own tries', cut down to one member): a tree felled, the pick taken up, a rock of the mountain's foot broken, a
- *     rock of the cave that hides a vein broken, the vein played out. After each: the purse, the grove and the place's
- *     row as the code says; at the end, the deeds written down and the points on the two lines;
+ *     rock of the cave that hides a vein broken, the vein played out, and the wood put away at the chest at the
+ *     mountain's foot (the storage box is v134's; the far side's chest opens it). After each: the purse, the grove and
+ *     the place's row as the code says; at the end, the deeds written down and the points on the two lines;
  *   · the file once more, over all of that: opened it stays open, and nothing a member did is touched;
  *   · the queries at its foot say what it says they say (on a database it has just run on), and "Reading it" runs.
  */
@@ -61,6 +62,7 @@ const LP = await import("@/lib/town/line-points");
 const { caveLayout } = await import("@/lib/town/mining-row");
 const { dayOf } = await import("@/lib/town/stamina");
 const { hold } = await import("@/lib/town/trade");
+const BOXES = await import("@/lib/town/box");
 
 const db = (name) => join(root, ".claude/skills/fc-cash-town/scripts/db", name);
 const lf = (s) => s.split("\r\n").join("\n");
@@ -170,7 +172,7 @@ if (!process.env.MIGRATION_FILE) {
   try { await t2.db.close(); } catch { /* closed */ }
   t.check("the file is the assembler's, to the letter: each part's places filled from the stand-in as the parts before it left it", made.sql === FILE,
     made.sql === FILE ? "" : `it differs from line ${made.sql.split("\n").findIndex((l, i) => l !== FILE.split("\n")[i]) + 1}: put it together again (node assemble-v164.mjs <root> <out>)`);
-  t.check(`ten functions of earlier files are written again by it: ${AGAIN.map((s) => s.slice(0, s.indexOf("("))).join(", ")}`, same(made.again, AGAIN) && AGAIN.length === 10, made.again);
+  t.check(`eleven functions of earlier files are written again by it: ${AGAIN.map((s) => s.slice(0, s.indexOf("("))).join(", ")}`, same(made.again, AGAIN) && AGAIN.length === 11, made.again);
 }
 const body = FILE.split("\n"), isCode = (l) => l.trim() !== "" && !l.startsWith("--");
 const lastOf = (test) => body.reduce((at, l, i) => (test(l) ? i : at), -1);
@@ -184,7 +186,7 @@ t.check("its head says that the blacksmith is not in it, that it is built closed
   /BLACKSMITH IS NOT IN IT/.test(head) && /BUILT CLOSED/.test(head) && head.includes(`--   ${OPENS}`) && /Running it again is safe/.test(head) && /Safe to run twice/.test(head) && /at the file's foot/.test(head));
 const empty = [...FILE.matchAll(/^-- <((?:town|public)\.[a-z_]+)>\n(.*)$/gm)].filter((m) => !/^create or replace function /.test(m[2])).map((m) => m[1]);
 const places = [...FILE.matchAll(/^-- <((?:town|public)\.[a-z_]+)>$/gm)].map((m) => m[1]);
-t.check(`no place of a part is left empty: ${places.length} statements built from the database's own text, the two that two parts write among them twice`, empty.length === 0 && places.length === 12
+t.check(`no place of a part is left empty: ${places.length} statements built from the database's own text, the two that two parts write among them twice`, empty.length === 0 && places.length === 13
   && places.filter((p) => p === "town.work_counts_of").length === 2 && places.filter((p) => p === "town.deed_th").length === 2 && !/empty places: build-v164/.test(FILE), { empty, places });
 t.check("it would not be written under supabase/ unasked", underSupabase(join(root, "supabase", "v164_x.sql")) && underSupabase("C:/x/Supabase/y.sql") && !underSupabase(db("v164_draft.sql")));
 
@@ -192,8 +194,8 @@ t.check("it would not be written under supabase/ unasked", underSupabase(join(ro
 t.section("before it: nothing of the far side");
 const OLD = await defsOf(rows), WAS = await state();
 const looks = queriesOf(head).filter((q) => /as_they_were/.test(q.sql));
-t.check("the head's look for the SQL editor is one query, and before the file it says the ten functions are as they were when the file was built: true | 10",
-  looks.length === 1 && same(looks[0].want, ["true | 10"]) && saysSo(await rows(looks[0].sql), looks[0].want), looks.length === 1 ? await rows(looks[0].sql) : looks);
+t.check("the head's look for the SQL editor is one query, and before the file it says the eleven functions are as they were when the file was built: true | 11",
+  looks.length === 1 && same(looks[0].want, ["true | 11"]) && saysSo(await rows(looks[0].sql), looks[0].want), looks.length === 1 ? await rows(looks[0].sql) : looks);
 const asked = await call(U.admin, "town_far");
 t.check("a page that asks whether the far side is open is answered that there is no such function (which a page takes for no)", !!asked?.error && /does not exist/.test(asked.error), asked);
 /** Deeds of the kinds that were there, and of the far side's, as a line counts them and as the tally words them. */
@@ -208,8 +210,13 @@ const wordsWas = Object.fromEntries((await rows(`select w, town.deed_th(w) as th
 t.check(`the tally has a word for ${WORDS.length} deeds, the bridge's and the lamps' among them, and none for the far side's`, WORDS.length > 60 && wordsWas.stone_lay !== "stone_lay" && wordsWas.lamp_light !== "lamp_light"
   && (await one(`select town.deed_th('fell') as f, town.deed_th('mine') as m`)).f === "fell", WORDS.length);
 const diffsWas = Object.keys(CODE).filter((k) => !same(CODE[k], WAS.catalog[k]?.data));
-const K164 = CATALOG_KEYS[VERSION];
-t.check(`the catalog differs from the code's in the twelve rows the file is to write, and in no other: ${K164.keys.join(", ")} are not there, ${K164.over.join(", ")} are not the code's`,
+// (the rows the file's own block writes: those it seeds, before `on conflict (key) do nothing`, and those it writes over.
+// Read from the file, so that this still holds once it has run and lib/town/catalog's CATALOG_KEYS names it no more)
+const BLOCK = FILE.slice(FILE.indexOf(`-- <catalog:${VERSION}>`), FILE.indexOf(`-- </catalog:${VERSION}>`)), rowsIn = (s) => [...s.matchAll(/^ {2}\('([a-z_]+)', \$town\$/gm)].map((m) => m[1]);
+const seededRows = rowsIn(BLOCK.slice(0, BLOCK.indexOf("on conflict (key) do nothing;"))), K164 = { keys: seededRows, over: rowsIn(BLOCK).filter((k) => !seededRows.includes(k)) };
+t.check("the file's block of catalog rows names four it seeds and nine it writes over (the rows lib/town/catalog says a pending v164 writes, while it says so)",
+  K164.keys.length === 4 && K164.over.length === 9 && (!CATALOG_KEYS[VERSION] || same(CATALOG_KEYS[VERSION], K164)), K164);
+t.check(`the catalog differs from the code's in the thirteen rows the file is to write, and in no other: ${K164.keys.join(", ")} are not there, ${K164.over.join(", ")} are not the code's`,
   same([...diffsWas].sort(), [...K164.keys, ...K164.over].sort()) && K164.keys.every((k) => !WAS.catalog[k]) && K164.over.every((k) => !!WAS.catalog[k]) && CODE.trees.wood.length > 0 && CODE.mining.rocks.length > 0, diffsWas);
 
 /* ══ twice over ══ */
@@ -225,8 +232,8 @@ t.check("v164 runs a second time", again === null, again);
 const TWICE = await state();
 const moved = differs(ONCE_, TWICE, { moments: false }), first = differs(WAS, ONCE, { moments: false });
 // (the same look sees what the first run did, so that seeing nothing after the second means there was nothing)
-t.check(`…and the second run changes nothing: every function, who may call it, every table, policy, trigger, index, knob and row as the first run left it (the first run changed ${first.length} of them)`, moved.length === 0 && first.length >= 168 + 10 + 2 + 3 + 12 + 2, moved);
-t.check("…the four rows it seeds are left as they are by a second run (a number changed since would outlive it), the eight it writes over are written again with the same",
+t.check(`…and the second run changes nothing: every function, who may call it, every table, policy, trigger, index, knob and row as the first run left it (the first run changed ${first.length} of them)`, moved.length === 0 && first.length >= 168 + 11 + 2 + 3 + 13 + 2, moved);
+t.check("…the four rows it seeds are left as they are by a second run (a number changed since would outlive it), the nine it writes over are written again with the same",
   K164.keys.every((k) => TWICE.catalog[k].at === ONCE_.catalog[k].at) && K164.over.every((k) => TWICE.catalog[k].at !== ONCE_.catalog[k].at && same(TWICE.catalog[k].data, ONCE_.catalog[k].data)));
 const foot = FILE.slice(FILE.indexOf("─── What it should say afterwards"));
 const [saying, reading] = foot.split(/^-- ─── Reading it.*$/m);
@@ -234,7 +241,7 @@ const said = await held(saying);
 t.check(`the queries at its foot say what the file says they say: ${said.said} of them held to their lines (${said.n} run)`, said.off.length === 0 && said.said >= 14, said.off);
 const read = await held(reading ?? "");
 t.check(`…and those under "Reading it" run: ${read.n}`, read.off.length === 0 && read.n >= 5, read.off);
-t.check("the head's look says false once the file has run: the ten have their blocks", saysSo(await rows(looks[0].sql), ["false | 10"]), await rows(looks[0].sql));
+t.check("the head's look says false once the file has run: the eleven have their blocks", saysSo(await rows(looks[0].sql), ["false | 11"]), await rows(looks[0].sql));
 
 /* ══ what it adds, and nothing else ══ */
 t.section("what it adds, and nothing else");
@@ -254,7 +261,7 @@ for (const sig of AGAIN) {
 const others = Object.keys(OLD).filter((k) => !AGAIN.includes(k) && (NOW[k] !== OLD[k] || IS.fns[k].def !== WAS.fns[k].def));
 t.check(`NO OTHER FUNCTION THAT WAS THERE IS CHANGED: ${Object.keys(OLD).length - AGAIN.length} of them, each its own text from before`, others.length === 0 && Object.keys(OLD).length === Object.keys(WAS.fns).length, others);
 const regranted = Object.keys(WAS.fns).filter((k) => IS.fns[k].anon !== WAS.fns[k].anon || IS.fns[k].member !== WAS.fns[k].member || IS.fns[k].definer !== WAS.fns[k].definer);
-t.check("…and who may call each of them is as it was, the ten written again among them", regranted.length === 0, regranted);
+t.check("…and who may call each of them is as it was, the eleven written again among them", regranted.length === 0, regranted);
 const both = (def) => [def.includes("the mountain's trees (v164)"), def.includes("the mountain's rocks (v164)"), /the bridge|v160/.test(def), /the lamp|v163/.test(def)];
 t.check("`town.work_counts_of` and `town.deed_th` carry BOTH blocks, the woodcutters' and the miners', with the bridge's and the lamps' that were there",
   both(NOW["town.work_counts_of(jsonb, text)"]).every(Boolean) && both(NOW["town.deed_th(text)"]).every(Boolean), [both(NOW["town.work_counts_of(jsonb, text)"]), both(NOW["town.deed_th(text)"])]);
@@ -272,9 +279,9 @@ const knobsNew = Object.keys(IS.knobs).filter((k) => !(k in WAS.knobs)).sort();
 t.check("three knobs more: the far side closed, and the most a gem and a gem's fragment may be asked for; every knob that was there as it was",
   same(knobsNew, ["far_open", "notice_chip", "notice_gem"]) && IS.knobs.far_open === 0 && IS.knobs.notice_gem === 100000 && IS.knobs.notice_chip === 10000 && Object.keys(WAS.knobs).every((k) => IS.knobs[k] === WAS.knobs[k]), knobsNew);
 const off = Object.keys(CODE).filter((k) => !same(CODE[k], IS.catalog[k]?.data));
-t.check(`the catalog is the code's now, every row of it (${Object.keys(CODE).length}): the twelve the file writes are what catalogOf() gives`, off.length === 0 && same(Object.keys(IS.catalog).sort(), Object.keys(CODE).sort()), off);
+t.check(`the catalog is the code's now, every row of it (${Object.keys(CODE).length}): the thirteen the file writes are what catalogOf() gives`, off.length === 0 && same(Object.keys(IS.catalog).sort(), Object.keys(CODE).sort()), off);
 const touched = Object.keys(WAS.catalog).filter((k) => !same(ONCE.catalog[k], WAS.catalog[k])).sort();
-t.check("…and no other row of it was written: the eight written over are the only ones that moved, in one go", same(touched, [...K164.over].sort()) && new Set(K164.over.map((k) => ONCE.catalog[k].at)).size === 1, touched);
+t.check("…and no other row of it was written: the nine written over are the only ones that moved, in one go", same(touched, [...K164.over].sort()) && new Set(K164.over.map((k) => ONCE.catalog[k].at)).size === 1, touched);
 t.check("the village's trees as a row of its things, none down; the rocks' word, sixty-four letters; and no other thing or word touched",
   same(IS.things.grove, { down: {}, half: [] }) && Object.keys(WAS.things).every((k) => same(IS.things[k], WAS.things[k])) && Object.keys(IS.things).length === Object.keys(WAS.things).length + 1
   && (await one(`select length(word) as n from public.town_secrets where key = 'mine'`)).n === 64 && Object.keys(WAS.secrets).every((k) => IS.secrets[k] === WAS.secrets[k]) && Object.keys(IS.secrets).length === Object.keys(WAS.secrets).length + 1 && IS.secrets.mine === ONCE.secrets.mine);
@@ -495,16 +502,28 @@ await tick(20 * SEC);
   t.check(`the vein played out by its best go, told by the page as its account (lib/town/vein-account): ${want.passed} of ${want.of} glinting cells passed, the fragments in the bag, the vein closed; the answer and the purse as lib/town/mining's veinEnd says, and no row of the cave touched`,
     want.ok === true && got?.ok === true && why.length === 0 && want.passed > 0 && mine.mine.vein === null && same(written[0]?.doc.said?.ore, account.ore), why.length ? why : got);
 }
+
+/* the chest at the mountain's foot: the storage box is v134's, and the far side's chest opens it (the base's `box.more`, and its lines in `town.by_box`) */
+await tick(10 * SEC);
+{
+  const chest = BOXES.MORE_CHESTS[0], tile = [chest.x - 1, chest.y], purse = await purseNow(), slot = purse.bag.findIndex((b) => b?.item === "log");
+  const boxWas = (await call(ME, "town_box")).box, want = BOXES.stow(purse, boxWas, slot, KT.logs, tile);
+  const got = await call(ME, "town_box_put", slot, KT.logs, tile[0], tile[1]), mine = await purseNow(), boxIs = (await call(ME, "town_box")).box;
+  const off = await call(ME, "town_box_put", 0, 1, chest.x + BOXES.BOX.reach + 1, chest.y), plaza = await call(ME, "town_box_take", boxIs.things.findIndex((b) => b?.item === "log"), 1, CODE.box.at[0] + 1, CODE.box.at[1]);
+  t.check("the logs are put away at the chest at the mountain's foot, which opens my storage box as the plaza's does: out of the bag and into the box as lib/town/box says; from three tiles off it is too far; and one of them is taken out at the plaza's chest",
+    want.ok === true && got?.ok === true && same(mine, want.purse) && same(boxIs, want.box) && boxIs.things.some((b) => b?.item === "log" && b.n === KT.logs) && off?.why === "far" && plaza?.ok === true
+    && same(CODE.box.more, [[chest.x, chest.y]]), [got?.why ?? got?.ok, off?.why ?? off?.ok, plaza?.why ?? plaza?.ok]);
+}
 const told = await deedsAfter(mark), day = dayOf(CLOCK);
 let felling = LP.newLine(), mining = LP.newLine();
 for (const d of told) for (const c of LP.countsOf({ from: "deed", what: d.what, thing: d.thing, n: d.n, doc: d.doc }, ME)) { if (c.to === null && c.line === "felling") felling = LP.count(felling, c, day); if (c.to === null && c.line === "mining") mining = LP.count(mining, c, day); }
 const keptF = await lineKept("felling"), keptM = await lineKept("mining");
-t.check("the story is written down as five deeds, in my name: a tree felled, the pick taken up, a rock mined, a rock mined, a vein", same(told.map((d) => [d.member_id, d.what]), [[ME, "fell"], [ME, "hold"], [ME, "mine"], [ME, "mine"], [ME, "vein"]]) && told.every((d) => d.coins === 0),
-  told.map((d) => [d.what, d.thing]));
+t.check("the story is written down as seven deeds, in my name: a tree felled, the pick taken up, a rock mined, a rock mined, a vein, things put away in the box, one taken out",
+  same(told.map((d) => [d.member_id, d.what]), [[ME, "fell"], [ME, "hold"], [ME, "mine"], [ME, "mine"], [ME, "vein"], [ME, "box_put"], [ME, "box_take"]]) && told.every((d) => d.coins === 0), told.map((d) => [d.what, d.thing]));
 t.check(`…each counted on its own line of work as lib/town/line-points counts it: ${felling.points} on the woodcutters', ${mining.points} on the miners', with the firsts of each`,
   felling.points > 0 && mining.points > 0 && keptF?.points === felling.points && keptM?.points === mining.points && same([...(keptF.firsts ?? [])].sort(), [...felling.firsts].sort()) && same([...(keptM.firsts ?? [])].sort(), [...mining.firsts].sort()), { keptF, felling, keptM, mining });
 const ended = await purseNow();
-t.check("…and no coin was made by any of it: the purse has what it began with, less the stamina, with the wood and the stone in the bag", ended.coins === began.coins && ended.coins === 50 && ended.stamina.left < 100
+t.check("…and no coin was made by any of it: the purse has what it began with, less the stamina, with wood and stone in the bag", ended.coins === began.coins && ended.coins === 50 && ended.stamina.left < 100
   && ended.bag.some((b) => b?.item === "log") && ended.bag.some((b) => b?.item === "stone") && (await one(`select coins::float8 as c from public.town_purses where member_id = $1`, [ME])).c === 50, ended.bag);
 
 /* ══ once more ══ */

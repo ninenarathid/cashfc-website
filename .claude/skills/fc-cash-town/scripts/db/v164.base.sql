@@ -10,9 +10,9 @@
 --
 -- What this part gives the others, in the order of the file:
 --
---   1. THE CATALOG. Four rows seeded (`forge`, `trees`, `mining`, `pouches`) and eight written over (`items`,
---      `goods`, `shelf`, `hints`, `makes`, `cooking`, `work`, `gifts`): every row that differs from the database as
---      it stands. The block is written from lib/town/catalog.ts (fill-catalog.mjs v164 <this file>).
+--   1. THE CATALOG. Four rows seeded (`forge`, `trees`, `mining`, `pouches`) and nine written over (`items`,
+--      `goods`, `shelf`, `hints`, `makes`, `cooking`, `work`, `gifts`, `box`): every row that differs from the
+--      database as it stands. The block is written from lib/town/catalog.ts (fill-catalog.mjs v164 <this file>).
 --   2. THE GATE. The knob `far_open` (0: built closed). `town.far_member()` is what every function of the far side
 --      that a member calls begins with, in the place of `town.member()`:
 --          me uuid := town.far_member();
@@ -64,9 +64,18 @@
 -- and so fourteen when rounded up; in `numeric` it is thirteen). `town.gem_by` and `town.opt_n` answer in it for
 -- that reason, and whatever is worked out from them is worked out in it.
 --
--- Eight functions that were there have a small marked block more each: the six that a forged tool is no plain thing
--- to (`town.plain`, `town.take_plain`, `town.push`, `town.jar_drop`, `town.leave`, `town.hold`) and the two caps
--- (`town.shop_cap`, `town.notice_cap`). NOTHING OF THEM IS PASTED HERE: v164.base.lines.mjs says the lines, and
+-- THE CHEST AT THE MOUNTAIN'S FOOT opens a member's storage box as the plaza's does (lib/town/box's `nearBox`). The
+-- box is v134's and is not the far side's: `town_box_put` and `town_box_take` begin with the game's gate, not this
+-- part's. What this part does is tell the database where that chest stands: the catalog's `box` row has `more` (the
+-- tiles of the chests beyond the plaza's), and `town.by_box` reads it. IT ANSWERS WHETHER THE FAR SIDE IS OPEN OR
+-- NOT, as the code does: the tile a member says they stand on is the page's word at every chest (the database cannot
+-- know where anybody stands), so a browser that would say the mountain's tile while the far side is shut could as
+-- well say the plaza's; shutting the far chest by the knob would keep nobody from anything, and would have a member
+-- who stands there when the far side is shut again told to stand nearer a chest they are beside.
+--
+-- Nine functions that were there have a small marked block more each: the six that a forged tool is no plain thing
+-- to (`town.plain`, `town.take_plain`, `town.push`, `town.jar_drop`, `town.leave`, `town.hold`), the two caps
+-- (`town.shop_cap`, `town.notice_cap`) and `town.by_box`. NOTHING OF THEM IS PASTED HERE: v164.base.lines.mjs says the lines, and
 -- build-v164.mjs builds each statement from the function's own text as the database then has it (a file that runs
 -- before v164 may have written it again), into the empty places marked below.
 
@@ -80,6 +89,7 @@ begin
     raise exception 'v143 and v144 have not both run yet: the most a gem may be asked for is laid over theirs';
   end if;
   if to_regclass('public.town_secrets') is null then raise exception 'v125 has not run yet: the rocks'' rolls hang on a word kept in its table'; end if;
+  if to_regprocedure('town.by_box(integer, integer)') is null then raise exception 'v134 has not run yet: the chest at the mountain''s foot opens its storage box'; end if;
 end $$;
 
 -- ─── 1. The catalog ──────────────────────────────────────────────────────
@@ -842,6 +852,12 @@ insert into public.town_catalog (key, data) values
     "uses": {"thingSpoon":{"n":3,"per":"day"},"famSprite":{"n":3,"per":"meal"},"thingSpice":{"n":1,"per":"day"},"thingFlame":{"n":3,"per":"day"},"charmRing":{"n":3,"per":"day"},"thingDust":{"n":5,"per":"day"},"famOtter":{"n":10,"per":"meal"},"thingOrb":{"n":1,"per":"day"},"thingBait":{"n":3,"per":"day"},"famSquirrel":{"n":20,"per":"meal"},"famPiglet":{"n":10,"per":"meal"},"thingMap":{"n":3,"per":"day"},"thingNectar":{"n":10,"per":"day"},"thingFlute":{"n":1,"per":"span","ms":300000},"thingHourglass":{"n":1,"per":"day"},"famMandrake":{"n":7,"per":"day"}},
     "harder": {"from":4,"by":0.08},
     "gifts": {"charmApron":{"kind":"charm","line":"kitchen","rank":1,"by":1},"charmGloves":{"kind":"charm","line":"helpers","rank":1,"by":0},"charmFloat":{"kind":"charm","line":"fishing","rank":1,"by":1},"charmLamp":{"kind":"charm","line":"forest","rank":1,"by":5},"charmNet":{"kind":"charm","line":"insects","rank":1,"by":1},"charmHoe":{"kind":"charm","line":"farming","rank":1,"by":1},"famSquirrel":{"kind":"familiar","line":"forest","rank":2,"by":2},"famButterfly":{"kind":"familiar","line":"insects","rank":2,"by":0.5},"famGnome":{"kind":"familiar","line":"farming","rank":2,"by":90},"thingBasket":{"kind":"thing","line":"kitchen","rank":2,"by":12},"thingSpoon":{"kind":"thing","line":"kitchen","rank":3,"by":1},"famSprite":{"kind":"familiar","line":"kitchen","rank":4,"by":1},"thingSpice":{"kind":"thing","line":"kitchen","rank":5,"by":4},"thingFlame":{"kind":"thing","line":"kitchen","rank":6,"by":1},"charmAnklet":{"kind":"charm","line":"helpers","rank":2,"by":2},"charmBell":{"kind":"charm","line":"helpers","rank":3,"by":2},"charmRing":{"kind":"charm","line":"helpers","rank":4,"by":30},"thingDust":{"kind":"thing","line":"helpers","rank":5,"by":12},"charmGuard":{"kind":"charm","line":"helpers","rank":6,"by":2},"famOtter":{"kind":"familiar","line":"fishing","rank":2,"by":1},"thingRod":{"kind":"thing","line":"fishing","rank":3,"by":0.75},"charmLine":{"kind":"charm","line":"fishing","rank":4,"by":3},"thingOrb":{"kind":"thing","line":"fishing","rank":5,"by":2},"thingBait":{"kind":"thing","line":"fishing","rank":6,"by":1},"famPiglet":{"kind":"familiar","line":"forest","rank":3,"by":1},"charmFirefly":{"kind":"charm","line":"forest","rank":4,"by":1},"thingMap":{"kind":"thing","line":"forest","rank":5,"by":1},"famStag":{"kind":"familiar","line":"forest","rank":6,"by":2},"thingNectar":{"kind":"thing","line":"insects","rank":3,"by":1},"charmWind":{"kind":"charm","line":"insects","rank":4,"by":1},"thingFlute":{"kind":"thing","line":"insects","rank":5,"by":15},"charmCloak":{"kind":"charm","line":"insects","rank":6,"by":3},"thingPouch":{"kind":"thing","line":"farming","rank":3,"by":5},"charmSickle":{"kind":"charm","line":"farming","rank":4,"by":1},"thingHourglass":{"kind":"thing","line":"farming","rank":5,"by":3},"famMandrake":{"kind":"familiar","line":"farming","rank":6,"by":1},"thingFlask":{"kind":"thing","line":"well","rank":4,"by":30},"famFrog":{"kind":"familiar","line":"well","rank":5,"by":45},"thingMoon":{"kind":"thing","line":"well","rank":6,"by":3},"charmEchoAxe":{"kind":"charm","line":"felling","rank":1,"by":3},"famWoodpecker":{"kind":"familiar","line":"felling","rank":2,"by":1},"thingBundle":{"kind":"thing","line":"felling","rank":3,"by":3},"charmMinerLamp":{"kind":"charm","line":"mining","rank":1,"by":4},"famBat":{"kind":"familiar","line":"mining","rank":2,"by":1},"thingSack":{"kind":"thing","line":"mining","rank":3,"by":5}}
+  }$town$::jsonb),
+  ('box', $town${
+    "slots": 10,
+    "reach": 2,
+    "at": [34,34],
+    "more": [[67,242]]
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();
 -- </catalog:v164>
@@ -1526,6 +1542,9 @@ $$;
 -- <town.notice_cap>
 -- </town.notice_cap>
 
+-- <town.by_box>
+-- </town.by_box>
+
 -- ─── What a member calls ─────────────────────────────────────────────────
 
 -- Whether today's cave is laid, for a page: yes, or the refusal `unlaid` while today's floors are not all there (the
@@ -1617,6 +1636,11 @@ grant execute on function public.town_pouch_in(integer) to authenticated;
 --   select (select doc from public.town_things where key = 'grove') as grove, (select length(word) from public.town_secrets where key = 'mine') as word,
 --          town.shop_cap('gemRuby', town.shop_knobs()) as a_gem, town.notice_cap('chipRuby', town.notice_knobs()) as a_fragment, town.shop_cap('worm', town.shop_knobs()) as a_worm;
 --   -- {"down": {}, "half": []} | 64 | 100000 | 10000 | 10      (the grove as it is on the first run; later, whatever has been felled)
+--
+--   -- (a member's storage box is opened from beside the plaza's chest as ever, and from beside the mountain's; never from a chest's own tile, nor from further off)
+--   select (select data->'more' from public.town_catalog where key = 'box') as the_chests_beyond, town.by_box(33, 34) as by_the_plazas, town.by_box(66, 242) as by_the_mountains,
+--          town.by_box(67, 242) as on_it, town.by_box(70, 242) as too_far;
+--   -- [[67, 242]] | true | true | false | false
 --
 --   -- (in the SQL editor nobody is signed in, so this says false; it is the page's to ask)
 --   select public.town_far();

@@ -4,8 +4,10 @@
 // (build-v164.mjs; try-v164.mjs does it against the snapshot, and holds each function to the one it replaces but for
 // these lines).
 //
-// Two things:
+// Three things:
 //
+//   * the chests beyond the plaza's open a member's storage box as the plaza's does (lib/town/box's `nearBox`: the
+//     mountain's foot has one), from the tiles the catalog's `box.more` now lists;
 //   * a tool that carries something of its own (a plus, an option, a gem) is no plain thing (lib/town/trade's
 //     `plainStack` and `wholeStack`), and the slot a thing is taken up from is kept with the hand (`handAt`). Carried
 //     from the "plain" part of branch smith-sql, whose six anchors are in the functions as they stand after v167;
@@ -21,6 +23,7 @@
 //   town.hold         R  its `return jsonb_build_object('ok', true, 'purse', p_purse || jsonb_build_object('hand', s->>'item'));` line (a key more)
 //   town.shop_cap     K  its `  select case` line: the block goes AFTER (one `when` before the others)
 //   town.notice_cap   K  the same line, the same block
+//   town.by_box       K  its `  select coalesce(greatest(…) between 1 and (b.k->>'reach')::int, false)` line: the block goes AFTER (one `or exists` more)
 // A line meant that is not in the function exactly once stops the build and says so.
 
 /** town.plain (v142's; the notice board and the stalls count by it): a forged tool is not counted among the plain ones of its kind. */
@@ -77,6 +80,19 @@ export const CAP = [[
   + "    when town.dear_of(p_item) is not null then town.dear_of(p_item)\n",
 ]];
 
+/**
+ * town.by_box (v134's; `town.stow` and `town.unstow` ask it of the tile a member says they stand on): by the plaza's
+ * chest, OR by one of the chests beyond it, each from as near and never from its own tile (lib/town/box's `nearBox`:
+ * `byStorebox || byMoreChest`). A row with no `more` (the catalog before this file) has none, and answers as before.
+ */
+export const BY_BOX = [[
+  "  select coalesce(greatest(abs(p_x - (b.k->'at'->>0)::int), abs(p_y - (b.k->'at'->>1)::int)) between 1 and (b.k->>'reach')::int, false)\n",
+  "  select coalesce(greatest(abs(p_x - (b.k->'at'->>0)::int), abs(p_y - (b.k->'at'->>1)::int)) between 1 and (b.k->>'reach')::int, false)\n"
+  + "    -- ── v164: a chest beyond the plaza's opens the same box, from as near (the mountain's foot has one) ──\n"
+  + "    or exists (select 1 from jsonb_array_elements(case when jsonb_typeof(b.k->'more') = 'array' then b.k->'more' else '[]'::jsonb end) c(v)\n"
+  + "                where greatest(abs(p_x - (c.v->>0)::int), abs(p_y - (c.v->>1)::int)) between 1 and (b.k->>'reach')::int)\n",
+]];
+
 /** The functions written again: the place in the part's file, the function as Postgres names it, and its lines. */
 export const AGAIN = [
   ["town.plain", "town.plain(jsonb, text)", PLAIN],
@@ -87,4 +103,5 @@ export const AGAIN = [
   ["town.hold", "town.hold(jsonb, integer)", HOLD],
   ["town.shop_cap", "town.shop_cap(text, jsonb)", CAP],
   ["town.notice_cap", "town.notice_cap(text, jsonb)", CAP],
+  ["town.by_box", "town.by_box(integer, integer)", BY_BOX],
 ];

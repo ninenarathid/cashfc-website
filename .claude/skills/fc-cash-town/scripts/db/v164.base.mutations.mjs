@@ -1,6 +1,16 @@
 // The breaks that matter for a base, each with the check that has to notice it:
 //   FC_REPO=<the worktree's root> node mutate.mjs <root>/.claude/skills/fc-cash-town/scripts/db/v164.base.sql v164.base.test.mjs v164.base.mutations.mjs
 // (FROM=<n> TO=<m> takes a slice of the list, for running it in parts side by side: a run is some fifteen seconds.)
+//
+// And the lines the part writes into `town.by_box` (v164.base.lines.mjs, which no break of the part's own file
+// reaches), broken the same way as the woodcutters' part breaks its own:
+//   FC_REPO=<the worktree's root> node v164.base.mutations.mjs lines
+// (it lays a copy of the part in a folder beside itself, with the lines broken, and tries that)
+import { spawnSync } from "node:child_process";
+import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+
 export default ({ cut, swap }) => {
   const all = [
     // ── the gate ──
@@ -119,8 +129,52 @@ export default ({ cut, swap }) => {
     ["a plus of nothing is a forging",
       swap("then (p_stack->>'plus')::numeric > 0 else false end", "then (p_stack->>'plus')::numeric >= 0 else false end"),
       ["forged", "plain", "leave"]],
+    // ── the chest at the mountain's foot ──
+    ["the catalog is not told of the chest at the mountain's foot",
+      swap('"more": [[67,242]]', '"more": []'),
+      ["the catalog is the code's after the part's own block", "by_box:", "stow:", "the chests: one beyond the plaza's", "standing beside the mountain's chest"]],
+    ["the part goes out without the chest's lines (and so without any of its lines)",
+      swap("-- <town.by_box>\n-- </town.by_box>", "-- <town.by_box_>\n-- </town.by_box_>"),
+      ["by_box:", "standing beside the mountain's chest"]],
   ];
   const from = Number(process.env.FROM ?? 0), to = Number(process.env.TO ?? all.length);
   // (an anchor of more than one line is written with plain line ends: the part is read so, however git checked it out)
   return all.slice(from, to).map(([name, mutate, mustFail]) => [name, (sql) => mutate(sql.split("\r\n").join("\n")), mustFail]);
 };
+
+/** The lines' own breaks: [what it is, the text of v164.base.lines.mjs that is changed, what stands in its place, the checks that have to fail]. */
+export const LINES = [
+  ["the chest at the mountain's foot opens no box: the line that reads `box.more` is never true",
+    "    or exists (select 1 from jsonb_array_elements(", "    or false and exists (select 1 from jsonb_array_elements(", ["by_box:", "stow:", "the chests: one beyond the plaza's", "standing beside the mountain's chest"]],
+  ["the mountain's chest opens the box from its own tile",
+    "abs(p_y - (c.v->>1)::int)) between 1 and (b.k->>'reach')::int)", "abs(p_y - (c.v->>1)::int)) between 0 and (b.k->>'reach')::int)", ["by_box:", "the chests: one beyond the plaza's", "from the mountain's chest's own tile"]],
+  ["the mountain's chest opens the box from a tile further off than the plaza's does",
+    "abs(p_y - (c.v->>1)::int)) between 1 and (b.k->>'reach')::int)", "abs(p_y - (c.v->>1)::int)) between 1 and (b.k->>'reach')::int + 1)", ["by_box:", "the chests: one beyond the plaza's", "from the mountain's chest's own tile"]],
+  ["the mountain's chest is read by one of its two numbers alone: a whole row of tiles opens the box",
+    "where greatest(abs(p_x - (c.v->>0)::int), abs(p_y - (c.v->>1)::int)) between 1", "where greatest(abs(p_y - (c.v->>1)::int), abs(p_y - (c.v->>1)::int)) between 1", ["by_box:"]],
+];
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1]) && process.argv[2] === "lines") {
+  const root = process.env.FC_REPO;
+  if (!root) { console.log("FC_REPO=<the worktree's root> node v164.base.mutations.mjs lines"); process.exit(2); }
+  const here = dirname(fileURLToPath(import.meta.url)), rel = ".claude/skills/fc-cash-town/scripts/db", src = join(root, rel), lines = readFileSync(join(src, "v164.base.lines.mjs"), "utf8");
+  let caught = 0;
+  for (const [i, [name, was, to, must]] of LINES.entries()) {
+    // (a root of its own, with the part's files in it and the lines broken: try-v164.mjs reads a part from the root it is
+    // given, and the code from FC_REPO; the scenes load the code by repo-ts-town.mjs, beside them)
+    const fake = join(here, `base-lines-break-${i}`), db = join(fake, rel);
+    rmSync(fake, { recursive: true, force: true });
+    mkdirSync(db, { recursive: true });
+    for (const f of readdirSync(src).filter((n) => /^v164\.base\./.test(n) || n === "repo-ts-town.mjs")) cpSync(join(src, f), join(db, f));
+    if (lines.split(was).length !== 2) { console.log(`MISSED  ${name}  (the text meant is not in the lines once)`); continue; }
+    writeFileSync(join(db, "v164.base.lines.mjs"), lines.replace(was, () => to));
+    const run = spawnSync(process.execPath, [join(here, "try-v164.mjs"), fake, "v164", "base"], { cwd: here, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, env: { ...process.env, FC_REPO: root } });
+    const failed = run.stdout.split("\n").filter((l) => l.startsWith("  FAIL")).map((l) => l.slice(7)), missing = must.filter((m) => !failed.some((f) => f.startsWith(m)));
+    const ok = missing.length === 0 && failed.length > 0;
+    if (ok) caught++;
+    console.log(`${ok ? "CAUGHT" : "MISSED"}  ${name}  (${failed.length} FAIL line(s)${missing.length ? `; still passing: ${missing.join(" | ")}` : ""})`);
+    rmSync(fake, { recursive: true, force: true });
+  }
+  console.log(`\n${caught}/${LINES.length} breaks of the lines caught`);
+  process.exit(caught === LINES.length ? 0 : 1);
+}

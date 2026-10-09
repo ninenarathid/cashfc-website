@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { BOX, MORE_CHESTS, nearBox, newBox, stow as boxStow, unstow as boxUnstow } from "./box";
 import { catalogOf } from "./catalog";
 import { vectorsPlain } from "./db-vectors-plain.test";
 import { stretchOf } from "./gifts";
@@ -13,6 +14,7 @@ import {
   poolOf, samePool, toolKindOf, type Element, type OptionId, type ToolKind,
 } from "./tools";
 import { handSlot, heldStack, newPurse, put, type Purse, type Stack } from "./trade";
+import { STOREBOX } from "./world";
 
 /**
  * The cases the database's rules are held to for v164's base: what the far side's other parts stand on
@@ -237,6 +239,19 @@ export function vectorsBase(): Vector[] {
       add("notice_cap", [id, k], noticeCap(id, { ...NOTICES, ...k }));
     }
   }
+
+  /* ── the storage box's chests (lib/town/box's nearBox): the plaza's, and the one at the mountain's foot ── */
+  // every tile about each chest, the chest's own and those past its reach among them; and tiles far from both
+  for (const chest of [STOREBOX, ...MORE_CHESTS]) for (let dx = -4; dx <= 4; dx++) for (let dy = -4; dy <= 4; dy++) add("by_box", [chest.x + dx, chest.y + dy], nearBox([chest.x + dx, chest.y + dy]));
+  for (const tile of [[0, 0], [STOREBOX.x, MORE_CHESTS[0].y], [MORE_CHESTS[0].x, STOREBOX.y], [-3, 242], [200, 200]] as Array<[number, number]>) add("by_box", tile, nearBox(tile));
+  // a thing put away and taken out from beside each: the same box, whichever chest is stood by; and from too far off
+  for (const chest of [STOREBOX, ...MORE_CHESTS]) for (const [dx, dy] of [[-1, 0], [BOX.reach, -BOX.reach], [0, 0], [BOX.reach + 1, 0]]) {
+    const logs: Stack = { item: "log", n: 3 }, stones: Stack = { item: "stone", n: 4 };
+    const tile: [number, number] = [chest.x + dx, chest.y + dy], p: Purse = { ...newPurse(), bag: newPurse().bag.map((s, i) => (i === 0 ? logs : s)) };
+    const box = { ...newBox(), things: newBox().things.map((s, i) => (i === 2 ? stones : s)) };
+    add("stow", [p, box, 0, 2, tile[0], tile[1]], boxStow(p, box, 0, 2, tile));
+    add("unstow", [p, box, 2, 4, tile[0], tile[1]], boxUnstow(p, box, 2, 4, tile));
+  }
   return out;
 }
 
@@ -293,6 +308,14 @@ describe("the cases the database's rules are held to for the far side's base", (
       }
     }
     expect(all.length).toBeGreaterThan(14_000);
+    // the chests: one beyond the plaza's; each opens the box from the twenty-four tiles within its reach and from no
+    // other, its own among those; a thing is put away and taken out from beside either, and from neither too far off
+    expect(MORE_CHESTS).toEqual([{ x: 67, y: 242 }]);
+    const near = own.filter((v) => v.fn === "by_box" && v.want === true).map((v) => v.args as [number, number]);
+    expect(near.length).toBe(2 * ((2 * BOX.reach + 1) ** 2 - 1));
+    expect(near.filter(([x, y]) => Math.max(Math.abs(x - 67), Math.abs(y - 242)) <= BOX.reach).length).toBe(near.length / 2);
+    expect(own.filter((v) => v.fn === "by_box" && v.want === false).length).toBeGreaterThan(100);
+    for (const fn of ["stow", "unstow"]) expect(own.filter((v) => v.fn === fn).map((v) => (v.want as { ok: boolean; why?: string }).why ?? "ok")).toEqual(["ok", "ok", "far", "far", "ok", "ok", "far", "far"]);
 
     const dir = process.env.TOWN_VECTORS;
     if (dir) {

@@ -43,5 +43,6 @@
   "swap": "town.swap($1::jsonb, $2::jsonb, $3::jsonb)",
   "jar_drop": "town.jar_drop($1::jsonb, $2::jsonb, $3::jsonb)",
   "leave": "town.leave($1::jsonb, $2::integer, $3::integer, $4::bigint, $5::integer)",
-  "hold": "town.hold($1::jsonb, $2::integer)"
+  "hold": "town.hold($1::jsonb, $2::integer)",
+  "by_box": "town.by_box($1::integer, $2::integer)"
 }

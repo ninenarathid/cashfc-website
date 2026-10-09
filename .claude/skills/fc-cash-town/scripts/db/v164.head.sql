@@ -41,10 +41,12 @@
 --   · three knobs: `far_open` (0), `notice_gem` and `notice_chip` (the most a
 --     gem and a gem's fragment may be asked for at a stall and on the board);
 --   · four catalog rows seeded (`forge`, `trees`, `mining`, `pouches`) and
---     eight written over as the code has them (`items`, `goods`, `shelf`,
---     `hints`, `makes`, `cooking`, `work`, `gifts`): the pick and the axe on
---     the first day's shelf, the wood, the stone, the ore, the gems and the
---     torch, the two new lines of work and their gifts;
+--     nine written over as the code has them (`items`, `goods`, `shelf`,
+--     `hints`, `makes`, `cooking`, `work`, `gifts`, `box`): the pick and the
+--     axe on the first day's shelf, the wood, the stone, the ore, the gems and
+--     the torch, the two new lines of work and their gifts, and where the
+--     chest at the mountain's foot stands (it opens a member's storage box as
+--     the plaza's does: `box.more`);
 --   · the village's trees as a row of `town_things` (`grove`), and the word
 --     the rocks' rolls hang on as a row of `town_secrets` (`mine`), made once;
 --   · two tables, closed: `town_cave_days` (a floor of the cave on a day, laid
@@ -58,14 +60,22 @@
 --     `town_fell_brace`, `town_fell_root`; `town_cave`, `town_mine`,
 --     `town_mine_peek`, `town_cave_reach`, `town_lift`, `town_torch`,
 --     `town_drill`, `town_vein`;
---   · and ten functions that were there, each with a small marked block more
---     and nothing else of it touched: `town.plain`, `town.take_plain`,
+--   · and eleven functions that were there, each with a small marked block
+--     more and nothing else of it touched: `town.plain`, `town.take_plain`,
 --     `town.push`, `town.jar_drop`, `town.leave`, `town.hold` (a forged tool is
---     no plain thing), `town.shop_cap`, `town.notice_cap` (a gem's most), and
+--     no plain thing), `town.shop_cap`, `town.notice_cap` (a gem's most),
+--     `town.by_box` (the chest at the mountain's foot), and
 --     `town.work_counts_of` and `town.deed_th`, which have TWO blocks more
 --     each, the woodcutters' and the miners' (what a deed of theirs counts for
 --     on its line, and a Thai word for each). **A file after this one that
---     writes any of the ten again carries this file's blocks with its own.**
+--     writes any of the eleven again carries this file's blocks with its
+--     own.**
+--
+-- The storage box is not the far side's: it is v134's, behind the game's own
+-- gate, and the mountain's chest opens it whether the far side is open or
+-- not. (Where a member stands is the page's word at every chest: the database
+-- cannot know it. Shutting that chest by the far side's knob would keep
+-- nobody from anything.)
 --
 -- No coins are made by it. What comes of a tree and of a rock are things:
 -- logs, timber, stone, ore, fragments, which a member sells as they sell
@@ -88,7 +98,7 @@
 --
 -- Safe to run twice. A knob that is there is left as it is (the far side,
 -- once opened, stays open); the four seeded rows are left as they are, the
--- eight others written over with the same; the trees that are down, the
+-- nine others written over with the same; the trees that are down, the
 -- rocks' word, the cave's rows and every purse are not touched; every
 -- function is written again as the first run left it.
 --

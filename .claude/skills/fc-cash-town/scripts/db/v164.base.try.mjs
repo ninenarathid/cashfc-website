@@ -38,6 +38,8 @@ export default async function (ctx) {
     more: await one(`select (select doc from public.town_things where key = 'grove') as grove, (select length(word) from public.town_secrets where key = 'mine') as word,
       town.shop_cap('gemRuby', town.shop_knobs()) as a_gem, town.notice_cap('chipRuby', town.notice_knobs()) as a_fragment, town.shop_cap('worm', town.shop_knobs()) as a_worm`),
     far: (await one(`select public.town_far() as far`)).far,
+    chests: await one(`select (select data->'more' from public.town_catalog where key = 'box') as the_chests_beyond, town.by_box(33, 34) as by_the_plazas, town.by_box(66, 242) as by_the_mountains,
+      town.by_box(67, 242) as on_it, town.by_box(70, 242) as too_far`),
   };
   t.check("the knobs: closed, and the two numbers of a gem's most", same(said.knobs, [{ key: "far_open", value: 0 }, { key: "notice_chip", value: 10000 }, { key: "notice_gem", value: 100000 }]), said.knobs);
   t.check("the catalog: 121 trees, 54 rocks, 2 pouches, 4 new rows", same(said.rows, { trees: 121, rocks: 54, pouches: 2, new_rows: 4 }), said.rows);
@@ -46,6 +48,8 @@ export default async function (ctx) {
   t.check("the four functions a member calls: definer, not for the signed out, for the signed in",
     same(said.fns, ["town_cave_days", "town_far", "town_pouch_in", "town_pouch_out"].map((proname) => ({ proname, definer: true, anon: false, member: true }))), said.fns);
   t.check("the grove empty, a word of 64, a gem 100,000, a fragment 10,000, a worm 10; and nobody is signed in in the editor", same(said.more, { grove: { down: {}, half: [] }, word: 64, a_gem: 100000, a_fragment: 10000, a_worm: 10 }) && said.far === false, { ...said.more, far: said.far });
+  t.check("the chests: one beyond the plaza's, at the mountain's foot; a box is opened from beside either, never from a chest's own tile nor from further off",
+    same(said.chests, { the_chests_beyond: [[67, 242]], by_the_plazas: true, by_the_mountains: true, on_it: false, too_far: false }), said.chests);
 
   t.section("the gate: built closed");
   t.check("the knob is there and says closed; the two numbers of a gem's most are beside it", (await knobOf("far_open")) === 0 && (await knobOf("notice_gem")) === 100000 && (await knobOf("notice_chip")) === 10000,
@@ -188,6 +192,44 @@ export default async function (ctx) {
   t.check("the gem's most is its knob's: turned, a stall follows at once, and a fragment's is not touched", same(lower.map((s) => (s?.ok === true ? "ok" : s?.why)), ["dear", "ok", "ok"]), lower.map((s) => s?.why ?? s?.ok));
   await call(U.m1, "town_shop_close");
   await t.sql(`delete from public.town_notices where member_id = $1`, [U.m1]);
+
+  t.section("the storage box, from the chest at the mountain's foot");
+  // (each call of the database's, and of lib/town/box on what the database kept before it: the answer, the bag and the box)
+  const BOXES = await import("@/lib/town/box");
+  const chest = BOXES.MORE_CHESTS[0], byFar = [chest.x - 1, chest.y], byPlaza = [CODE.box.at[0] - 1, CODE.box.at[1]];
+  const boxNow = async (who) => (await call(who, "town_box")).box;
+  const atBox = async (who, how, slot, n, tile) => {
+    const purse = await purseOf(who), box = await boxNow(who), marks = await written();
+    const want = (how === "put" ? BOXES.stow : BOXES.unstow)(purse, box, slot, n, tile), got = await call(who, how === "put" ? "town_box_put" : "town_box_take", slot, n, tile[0], tile[1]);
+    const agrees = want.ok ? got?.ok === true && got.item === want.item && got.n === want.n && same(await purseOf(who), want.purse) && same(await boxNow(who), want.box) && (await written()) === marks + 1
+      : got?.ok === false && got.why === want.why && same(await purseOf(who), purse) && same(await boxNow(who), box) && (await written()) === marks;
+    return { got, want, agrees };
+  };
+  await t.sql(`delete from public.town_boxes where member_id = $1`, [U.m1]);
+  await patch(U.m1, { hand: null, pouches: {}, bag: bag({ item: "log", n: 6 }, { item: "stone", n: 4 }) });
+  t.check("the catalog says where the chest at the mountain's foot stands, as the code has it; the plaza's is where it was", same(CODE.box.more, BOXES.MORE_CHESTS.map((c) => [c.x, c.y])) && same(CODE.box.more, [[67, 242]])
+    && same((await one(`select data from public.town_catalog where key = 'box'`)).data, CODE.box) && same(CODE.box.at, [34, 34]), CODE.box);
+  let at = await atBox(U.m1, "put", 0, 4, byFar);
+  t.check("standing beside the mountain's chest, four logs are put away: in my box, out of my bag, written down, as lib/town/box says", at.agrees && at.got?.ok === true && same((await boxNow(U.m1)).things[0], { item: "log", n: 4 }), at.got);
+  at = await atBox(U.m1, "take", 0, 1, byFar);
+  t.check("…and one is taken out again there", at.agrees && at.got?.ok === true && same((await purseOf(U.m1)).bag[0], { item: "log", n: 3 }), at.got);
+  at = await atBox(U.m1, "take", 0, 2, byPlaza);
+  t.check("it is the same box at the plaza's chest: two of the logs put away on the mountain are taken out in the town", at.agrees && at.got?.ok === true && same((await boxNow(U.m1)).things[0], { item: "log", n: 1 }), at.got);
+  at = await atBox(U.m1, "put", 1, 4, byPlaza);
+  t.check("…and the plaza's chest takes things as it always did", at.agrees && at.got?.ok === true, at.got);
+  const tiles = [[chest.x, chest.y], [chest.x + 3, chest.y], [chest.x, chest.y - 3], [chest.x + 2, chest.y + 2], [34, chest.y], [null, null]], offs = [];
+  for (const tile of tiles) offs.push(await atBox(U.m1, "take", 1, 1, tile));
+  t.check("from the mountain's chest's own tile, from three tiles off either way, from a tile by neither chest and from no tile: too far, and nothing moves; from two tiles off cornerwise, it opens",
+    offs.every((o) => o.agrees) && same(offs.map((o) => o.got?.why ?? "ok"), ["far", "far", "far", "ok", "far", "far"]), offs.map((o) => [o.agrees, o.got?.why ?? "ok", o.want.why ?? "ok"]));
+  // (the far side shut: the box is the game's, not the far side's, and the tile is the page's word at either chest)
+  await knob("far_open", 0);
+  at = await atBox(U.m1, "put", 0, 1, byFar);
+  const shutToo = await atBox(U.m2, "put", 0, 1, byFar);
+  t.check("with the far side shut the mountain's chest answers as the plaza's does, as the code's rule does (the box is the game's own; where a member stands is the page's word at every chest)",
+    at.agrees && at.got?.ok === true && shutToo.agrees && (await call(U.m1, "town_far")) === false, [at.got, shutToo.got]);
+  t.check("…and somebody the game itself is not for is refused at either chest", no(await call("anon", "town_box_put", 0, 1, byFar[0], byFar[1])) && no(await call(U.unver, "town_box_put", 0, 1, byFar[0], byFar[1])) && no(await call(U.unver, "town_box_put", 0, 1, byPlaza[0], byPlaza[1])));
+  await knob("far_open", 1);
+  await t.sql(`delete from public.town_boxes where member_id = $1`, [U.m1]);
 
   t.section("the file run once more, over what has been done since");
   // (far_open is 1 and the gem's knob 500 here; the grove is given a tree down; the cave has a day laid and two places kept)
