@@ -1,7 +1,7 @@
 -- v167 — a flame of three seconds, and more lamps: twenty-eight on the farm, forty in the forest
 --
--- A DRAFT: it is not in supabase/ and has not run. Run it once in the Supabase SQL editor, after v163 (the lamp relay
--- at dusk: it stops at its first line without it). Running it again is safe. The site's code for it goes out first: a
+-- Run it once in the Supabase SQL editor, after v163 (the lamp relay at dusk: it stops at its first line without it).
+-- Running it again is safe. The site's code for it went out first: a
 -- page with the code and a database without this file shows the new posts and is answered "too far" at them, and a
 -- flame still lives five seconds there; a page from before the code goes on showing twelve posts a map, and takes a
 -- map for whole at twelve (it should be loaded again).
