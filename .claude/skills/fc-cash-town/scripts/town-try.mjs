@@ -26,12 +26,13 @@
 //   can be tried), an axe at +6, a rod at +7, a can at +4 (full), a pot at +6. In the bag, with a hoe, two kinds of gem
 //   and bait;
 // - in the miner's sack and the woodcutter's bundle (the two pouches, which the tester is given as one who has their
-//   gifts: the smith takes what is in them as he takes what is in the bag): pieces of iron and silver, fragments of
-//   copper and iron, copper pieces; fine timber, 150;
-// - in the storage box (the chest in the plaza), which is given thirty slots beyond its ten (`town_boxes.more`, the
-//   rules' own number for a bigger box, which nothing in the game gives yet): a pick, an axe, a rod, a can, a net, a
-//   pot, a pan and a grill as they were bought; fragments of silver; chips and a cut gem of every element; seeds,
-//   bowls, a meal's things, torches.
+//   gifts: the smith takes what is in them as he takes what is in the bag): pieces of silver (40) and iron (20),
+//   fragments of copper and iron (99 each); fine timber, 150;
+// - in the storage box (the chest in the plaza), which is given slots beyond its ten for all of it (`town_boxes.more`,
+//   the rules' own number for a bigger box, which nothing in the game gives yet): a pick, an axe, a rod, a can, a net, a
+//   pot, a pan and a grill as they were bought; more pieces of silver, iron and copper; fragments of silver; chips
+//   and a cut gem of every element; seeds, bowls, a meal's things, torches, bait.
+// Nothing is piled higher than the catalog's stack of its kind (a piece of ore stacks to 20, fine timber to 50).
 // The great fire is as a village's first (its halves are found by the next tree felled and the next plain rock broken).
 import { spawn, spawnSync } from "node:child_process";
 import { copyFileSync, existsSync, openSync, readFileSync, rmSync, writeFileSync } from "node:fs";
@@ -88,8 +89,10 @@ const laid = await layDays(b, 1);
 console.log(`the gates are open (${(await b.sql(`select key, value from public.town_knobs where key in ('game_open', 'far_open', 'smith_open') order by key`)).map((k) => `${k.key} ${k.value}`).join(", ")}), the bridge is whole, and the cave is laid for today and tomorrow (day ${laid.day}: ${laid.floors} floors)`);
 
 /* ── the two testers ── */
-const ITEMS = new Set(Object.keys((await b.one(`select town.cat('items') as i`)).i));
-const things = (list) => list.filter((s) => { if (ITEMS.has(s.item)) return true; console.log(`   (no such thing in this database's catalog, left out: ${s.item})`); return false; });
+const ITEMS = (await b.one(`select town.cat('items') as i`)).i;
+const things = (list) => list.flat().filter((s) => { if (s.item in ITEMS) return true; console.log(`   (no such thing in this database's catalog, left out: ${s.item})`); return false; });
+/** So many of a thing, in as many stacks as the catalog says it takes (a stack holds so many of a kind: nothing here is piled higher than a member could pile it). */
+const of = (item, n) => { const max = Math.max(1, Number(ITEMS[item]?.stack ?? 1)), out = []; for (let left = n; left > 0; left -= max) out.push({ item, n: Math.min(max, left) }); return out; };
 const FORGED = [["pick", 9], ["axe", 6], ["rod", 7], ["can", 4], ["pot", 6]];
 const seeded = {};
 for (const [letter, admin] of [["A", true], ["B", false]]) {
@@ -105,14 +108,15 @@ for (const [letter, admin] of [["A", true], ["B", false]]) {
   const tool = (item) => made[item] ?? { item, n: 1 };
   const f = smith ? (await b.one(`select town.cat('forge') as f`)).f : null, gems = f ? Object.entries(f.smelts.of).filter(([gem]) => gem.startsWith("gem")).map(([gem, s]) => ({ gem, chip: s.of })) : [];
   const full = (await b.one(`select coalesce(to_regprocedure('town.can_holds(jsonb)')::text, '') as fn`)).fn ? Number((await b.one(`select town.can_holds($1::jsonb) as n`, [JSON.stringify(tool("can"))])).n) : 10;
-  const bag = things([tool("pick"), tool("axe"), tool("rod"), { ...tool("can"), water: full }, tool("pot"), { item: "hoe", n: 1 }, ...gems.slice(0, 2).map((g) => ({ item: g.gem, n: 5 })), { item: "worm", n: 30 }]);
-  const sack = things([{ item: "oreSilver", n: 99 }, { item: "oreIron", n: 99 }, { item: "shardCopper", n: 99 }, { item: "shardIron", n: 99 }, { item: "oreCopper", n: 30 }]);
-  const bundle = things([{ item: "timber", n: 50 }, { item: "timber", n: 50 }, { item: "timber", n: 50 }]);
+  const bag = things([tool("pick"), tool("axe"), tool("rod"), { ...tool("can"), water: full }, tool("pot"), { item: "hoe", n: 1 }, ...gems.slice(0, 2).map((g) => of(g.gem, 5)), of("worm", 20)]);
+  const sack = things([of("oreSilver", 40), of("oreIron", 20), of("shardCopper", 99), of("shardIron", 99)]);
+  const bundle = things([of("timber", 150)]);
   const box = things([
     ...["pick", "axe", "rod", "can", "bugNet", "pot", "pan", "grill"].map((item) => ({ item, n: 1 })),
-    { item: "shardSilver", n: 99 }, ...gems.map((g) => ({ item: g.chip, n: 40 })), ...gems.slice(2).map((g) => ({ item: g.gem, n: 5 })),
-    { item: "seedKangkong", n: 20 }, { item: "bowl", n: 5 }, { item: "minnow", n: 9 }, { item: "salt", n: 5 }, { item: "friedMinnow", n: 3 }, { item: "torch", n: 5 }, { item: "worm", n: 30 },
+    of("oreSilver", 40), of("oreIron", 20), of("oreCopper", 20), of("shardSilver", 99), ...gems.map((g) => of(g.chip, 40)), ...gems.slice(2).map((g) => of(g.gem, 5)),
+    of("seedKangkong", 20), of("bowl", 6), of("minnow", 9), of("salt", 5), of("friedMinnow", 3), of("torch", 5), of("worm", 20),
   ]);
+  if (bag.length > 10 || sack.length > 5 || bundle.length > 3) throw new Error(`what was to be seeded does not fit: bag ${bag.length} of 10, sack ${sack.length} of 5, bundle ${bundle.length} of 3`);
   const more = Math.max(0, box.length + 4 - 10);
   await setPurse(b, id, 100000, bag, smith ? { gifts: { had: ["thingSack", "thingBundle"] }, pouches: { thingSack: sack, thingBundle: bundle } } : {});
   await b.sql(`insert into public.town_boxes (member_id, things, more) values ($1, $2::jsonb, $3) on conflict (member_id) do update set things = excluded.things, more = excluded.more`, [id, JSON.stringify([...box, ...Array(10 + more - box.length).fill(null)]), more]);

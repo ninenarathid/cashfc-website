@@ -166,7 +166,7 @@ const chooseFirst = async (X) => {
 const fireCard = (X) => X.evaluate(`(() => { const c = document.querySelector("[data-smith-fire]"); if (!c) return null; const d = c.dataset;
   return { lit: d.lit, flint: d.flint, tinder: d.tinder, row: Number(d.row), mine: Number(d.mine), open: Number(d.open), join: !!c.querySelector("[data-smith-fire-join]"), leave: !!c.querySelector("[data-smith-fire-leave]"), topped: !!c.querySelector("[data-smith-fire-topped]") }; })()`);
 /** The materials of every try there is, and gems, in a bag with the tools named: enough for many tries (restocked by `stock`). */
-const STOCK = [{ item: "shardCopper", n: 99 }, { item: "shardIron", n: 99 }, { item: "oreIron", n: 99 }, { item: "oreSilver", n: 99 }, { item: "timber", n: 50 }];
+const STOCK = [{ item: "shardCopper", n: 99 }, { item: "shardIron", n: 99 }, { item: "oreIron", n: 20 }, { item: "oreSilver", n: 20 }, { item: "timber", n: 50 }];   // (each a whole stack of its kind, and no more)
 const stock = async (X, id, coins = 50000) => {
   const k = await kept(b, id), bag = k.doc.bag.map((s) => { const full = STOCK.find((x) => x.item === s?.item); return full ? { ...s, n: full.n } : s; });
   await sql(`update public.town_purses set coins = $2, doc = jsonb_set(doc, '{bag}', $3::jsonb) where member_id = $1`, [id, coins, JSON.stringify(bag)]);
@@ -618,8 +618,8 @@ try {
     await fireAsNew(b);
     await sql(`update public.town_things set doc = '{"down": {}, "half": []}'::jsonb where key = 'grove'`);
     await sql(`delete from public.town_cave where true`);
-    await setPurse(a, 50000, [{ item: "pick", n: 1 }, { item: "oreSilver", n: 99 }, { item: "timber", n: 50 }, { item: "axe", n: 1 }]);
-    await setPurse(bId, 50000, [{ item: "pick", n: 1 }, { item: "oreSilver", n: 99 }, { item: "timber", n: 50 }, { item: "pick", n: 1 }]);
+    await setPurse(a, 50000, [{ item: "pick", n: 1 }, { item: "oreSilver", n: 20 }, { item: "timber", n: 50 }, { item: "axe", n: 1 }]);
+    await setPurse(bId, 50000, [{ item: "pick", n: 1 }, { item: "oreSilver", n: 20 }, { item: "timber", n: 50 }, { item: "pick", n: 1 }]);
     await opened();
     const top = FORGE.forge.top;
     const mineA = await forged(A, idA, a, "pick", top - 1), mineB = await forged(B, idB, bId, "pick", top - 1);
@@ -745,7 +745,7 @@ try {
     const rod = await make("rod", 6);
     for (const [word, stack, isForged] of VARIANTS(rod, "rod")) {
       await alive(A);
-      await setPurse(a, 100, [stack, { item: "worm", n: 30 }]);
+      await setPurse(a, 100, [stack, { item: "worm", n: 20 }]);
       await again(A);
       await hold(A, "rod");
       const plays0 = Number((await one(`select coalesce(max(id), 0) as n from public.town_plays`)).n), had = (await kept(b, a)).doc.bag;
