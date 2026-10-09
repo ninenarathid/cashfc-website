@@ -76,7 +76,7 @@ export const MINE = [
   [
     "  if first_ is not null and first_ < me then theirs := town.purse_of(first_, true); end if;\n",
     `  ${OPEN}: the village's row, held after the cave's place and before any purse, and only while its flint can be found by me or by whoever struck the rock first ──\n`
-    + "  if town.fire_wants('flint', me, now_) or town.fire_wants('flint', first_, now_) then fire_ := town.fire_kept(true); end if;\n"
+    + "  if town.fire_wants('flint', me, now_, first_) then fire_ := town.fire_kept(true); end if;\n"
     + `  ${OPEN}: its end ──\n`
     + "  if first_ is not null and first_ < me then theirs := town.purse_of(first_, true); end if;\n",
   ],

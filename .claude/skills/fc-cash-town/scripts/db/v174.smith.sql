@@ -951,7 +951,9 @@ as $$
 $$;
 
 -- soundGreatFire: what was kept, made sound: nobody twice in the row, nobody in it who has taken the top, no more
--- names than the row holds.
+-- names than the row holds. (A walk down the row, as the code walks it. It was timed on the stand-in beside one
+-- statement over the row, in the language of SQL and inside this one, with rows of none, three, ten and sixty names:
+-- the walk was the lightest of the three at every length. Every telling of the smith reads this.)
 create or replace function town.fire_sound(p_kept jsonb)
 returns jsonb language plpgsql stable
 as $$
@@ -1165,23 +1167,24 @@ create or replace function town.keep_fire(p_doc jsonb)
 returns void language sql set search_path = public
 as $$ update public.town_great_fire set doc = p_doc, updated_at = now() where one $$;
 
--- Whether a half of the great fire could be found by a member at a moment, as things stand (read without holding):
--- its time has come, that half is not found yet, and the smith is open to them. What `public.town_fell` and
--- `public.town_mine` ask before they take the fire's row, so that the row is held only then: for a fortnight and more
--- after a fire is spent no felling and no mining touches it. (Read off the row as `town.fire_sound` reads these two,
--- without the row of names being walked.)
-create or replace function town.fire_wants(p_half text, p_who uuid, p_now bigint)
+-- Whether a half of the great fire could be found at a moment by a member, or by another (the one a rock would be
+-- paid to), as things stand, read without holding: its time has come, that half is not found yet, and the smith is
+-- open to one of the two. What `public.town_fell` and `public.town_mine` ask before they take the fire's row, so that
+-- the row is held only then: for a fortnight and more after a fire is spent no felling and no mining touches it.
+-- ONE read of the one row, whoever asks (read off it as `town.fire_sound` reads these two, the row of names left
+-- alone): this is asked by every felling and every mining call there is.
+create or replace function town.fire_wants(p_half text, p_who uuid, p_now bigint, p_other uuid default null)
 returns boolean language plpgsql stable set search_path = public
 as $$
 declare
   kept jsonb;
 begin
-  if p_who is null or p_half not in ('flint', 'tinder') then return false; end if;
+  if (p_who is null and p_other is null) or p_half not in ('flint', 'tinder') then return false; end if;
   select f.doc into kept from public.town_great_fire f where f.one;
   if kept is null then return false; end if;
   if jsonb_typeof(kept->'due') = 'number' and p_now < (kept->>'due')::numeric then return false; end if;
   if town.fire_finder(kept->p_half, case when jsonb_typeof(kept->p_half) = 'object' then kept->p_half->'at' end) <> 'null'::jsonb then return false; end if;
-  return town.smith_for(p_who);
+  return coalesce(town.smith_for(p_who), false) or coalesce(town.smith_for(p_other), false);
 end;
 $$;
 
@@ -1330,14 +1333,19 @@ as $$
 declare
   me uuid := town.smith_member();
   now_ bigint := town.now_ms();
+  each_ numeric := (town.cat('forge')->'smith'->'bellows'->>'each')::numeric;
 begin
   if p_ids is null or coalesce(array_length(p_ids, 1), 0) > 64 then return jsonb_build_object('now', now_, 'near', '[]'::jsonb); end if;
+  -- (each queue is looked at once, and only a queue that has something in it; what a piece may still take is
+  -- `town.bellows_left`'s own sum, of the piece already in hand)
   return jsonb_build_object('now', now_, 'near', coalesce((
-    select jsonb_agg(jsonb_build_object('id', x.id, 'piece', x.view->'now', 'left', town.bellows_left(x.smithy, now_)) order by x.ord)
-      from (select i.id, i.ord, s.smithy, town.smith_view(s.smithy, now_) as view
-              from (select distinct on (u.id) u.id, u.ord from unnest(p_ids) with ordinality u(id, ord) where u.id is not null and u.id <> me order by u.id, u.ord) i,
-                   lateral (select town.smithy_sound(k.doc) as smithy from public.town_smiths k where k.member_id = i.id) s) x
-     where x.view->'now' <> 'null'::jsonb), '[]'::jsonb));
+    select jsonb_agg(jsonb_build_object('id', x.id, 'piece', x.cur, 'left', greatest(0, each_ - coalesce((x.cur->>'blown')::numeric, 0))::integer) order by x.ord)
+      from (select i.id, i.ord, town.smith_view(town.smithy_sound(k.doc), now_)->'now' as cur
+              from (select distinct on (u.id) u.id, u.ord from unnest(p_ids) with ordinality u(id, ord) where u.id is not null and u.id <> me order by u.id, u.ord) i
+              join public.town_smiths k on k.member_id = i.id
+             where jsonb_typeof(k.doc->'queue') = 'array' and jsonb_array_length(k.doc->'queue') > 0
+            offset 0) x
+     where x.cur <> 'null'::jsonb), '[]'::jsonb));
 end;
 $$;
 
