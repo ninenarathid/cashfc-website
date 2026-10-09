@@ -36,7 +36,8 @@ export default ({ cut, swap }) => {
       ["public.town_smith_try: for the signed in, not for the signed out"]],
     ["a rule is left for a browser to call",
       swap("revoke execute on all functions in schema town from public, anon, authenticated;", "revoke execute on all functions in schema town from anon;"),
-      ["no rule of schema town is for anybody to call", "a member, straight at the tables and the rules"]],
+      // (the schema itself is a second wall: a member is still stopped at it, so the scene that goes straight at a rule does not see this; the grants' own check does)
+      ["no rule of schema town is for anybody to call"]],
     ["the fire's table is left open to whoever is signed in: its row can be read, moment and all",
       swap("alter table public.town_great_fire enable row level security;\nrevoke all on table public.town_great_fire from anon, authenticated;\n", ""),
       ["public.town_great_fire: row level security on", "a member, straight at the tables and the rules"]],
@@ -45,7 +46,8 @@ export default ({ cut, swap }) => {
       ["a member fells a tree and another breaks a rock with the smith closed"]],
     // ── another member's smithy ──
     ["one's own bellows may be pressed",
-      swap("  if p_by = p_owner then return town.no('self'); end if;\n", ""), ["bellows: ", "one's own bellows: `self`"]],
+      // (the function a member calls refuses one's own bellows before the rule is asked: the scene does not see this; the rule's cases do)
+      swap("  if p_by = p_owner then return town.no('self'); end if;\n", ""), ["bellows: "]],
     ["a piece takes presses without end",
       swap("  if coalesce((piece->>'blown')::numeric, 0) >= each_ then return town.no('tired'); end if;\n", ""), ["bellows: ", "each press takes its share"]],
     // ── the same call twice making two things ──
@@ -69,7 +71,8 @@ export default ({ cut, swap }) => {
     // ── the page steering chance ──
     ["a try goes by a number that is not drawn: it always takes",
       swap("  r double precision := random();\n  did jsonb := town.forge_try_fired(", "  r double precision := 0.01;\n  did jsonb := town.forge_try_fired("),
-      ["…and they took 80 in a hundred", "every try went as the table says of the number drawn"]],
+      // (the stories go wrong from the first try on and stop long before the odds are counted: the first scene that reads the number is the one named)
+      ["three tries to +3"]],
     ["a draw is laid out by no chance: always the first two",
       swap("  did jsonb := town.forge_draw(purse, town.smithy_held(me), p_slot, random(), random());", "  did jsonb := town.forge_draw(purse, town.smithy_held(me), p_slot, 0, 0);"),
       ["the draw: two options of the first pool"]],
@@ -118,9 +121,10 @@ export default ({ cut, swap }) => {
       swap("    if holds > 0 then next_ := next_ || jsonb_build_object('water', greatest(0, least((next_->>'water')::numeric, holds::numeric))); end if;\n", ""),
       ["tool_with_forging", "a full can whose forging is traded for a lesser one"]],
     // ── the part without its lines ──
+    // (the place for a built function is gone from the part: the build says so, loudly, and nothing of the lines is run)
     ["the part goes out without its lines on the woodcutters' function: no tree is anybody's tinder",
       swap("-- <public.town_fell>\n-- </public.town_fell>", "-- <public.town_felled>\n-- </public.town_felled>"),
-      ["the functions of earlier files are built from the database's own text", "the next tree felled is the village's tinder"]],
+      ["the functions of earlier files are built from the database's own text with the part's lines in place", "the next tree felled is the village's tinder"]],
   ];
   const from = Number(process.env.FROM ?? 0), to = Number(process.env.TO ?? all.length);
   // (an anchor of more than one line is written with plain line ends: the part is read so, however git checked it out)
@@ -131,6 +135,8 @@ export default ({ cut, swap }) => {
 export const LINES = [
   ["a tree felled is nobody's tinder: the block that finds it is empty",
     "    did := did || town.fire_find(fire_, 'tinder', me, now_);\\n", "    null;\\n", ["the next tree felled is the village's tinder"]],
+  ["a go that is lost finds the tinder all the same: no tree need fall",
+    "  if fire_ is not null and jsonb_array_length(did->'felled') > 0 then\\n", "  if fire_ is not null then\\n", ["a felling call that is refused, and a go that is lost"]],
   ["the woodcutters' call reads the fire's row without holding it, and a half is written all the same",
     "if town.fire_wants('tinder', me, now_) then fire_ := town.fire_kept(true); end if;", "if town.fire_wants('tinder', me, now_) then fire_ := town.fire_kept(false); end if;", ["…each holding exactly what the part's head says it holds"]],
   ["the flint is the breaker's, not whoever is paid for the rock",
