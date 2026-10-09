@@ -68,7 +68,7 @@ export default ({ cut, swap }) => {
     ["one's own go holds a tree against oneself",
       swap("where g.key is distinct from p_me and town.go_holds(g.value, p_now)", "where town.go_holds(g.value, p_now)"),
       ["tree_held", "its own member is never refused it"]],
-    ["an echoing axe takes a tree somebody else's go holds",
+    ["a go takes in, beside its first tree, one that somebody else's go holds",
       swap(" and town.tree_grown(p_grove, w.v, p_now) and not town.tree_held(p_grove, (w.v->>0)::integer, p_now, p_me)\n", " and town.tree_grown(p_grove, w.v, p_now)\n"),
       ["fell_group"]],
     // ── a yield ──
