@@ -22,7 +22,7 @@ import { supabaseLike, migration } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
 
 /** The last file of the town's that has run (town-bench.mjs has the same number). */
-export const RAN = 166;
+export const RAN = 167;
 const here = (name) => new URL(`./${name}`, import.meta.url);
 // (v160 and v163 ran after v166, and the snapshot named for v166 alone was built before them: while RAN is 166 the
 // one that has the two is under a name of its own, so that no folder goes on reading the older one for this code)
