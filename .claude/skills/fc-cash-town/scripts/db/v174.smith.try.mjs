@@ -17,7 +17,9 @@
 //   · the same call twice making nothing twice; the odds of a try by the database's chance; and the part run once more
 //     over all of it.
 //   TRIES=<n>: how many tries the odds are counted over (300).
-export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, patch, root, sql }) {
+// (`own`: handed by v174.test.mjs, which plays this on the whole file: the text of the smith's own section of it,
+// which is where his functions are read from; `sql` is then the whole file, run once more at the end.)
+export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, patch, root, sql, own = null }) {
   process.env.FC_REPO ??= root;
   await import("./repo-ts-town.mjs");
   const { caveLayout } = await import("@/lib/town/mining-row");
@@ -579,7 +581,7 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, pa
     && Math.abs(share("down") - o6.down / 100) < 4 * sd(o6.down) + 0.01, [share("taken"), share("stays"), share("down")]);
 
   t.section("the order rows are held in, read off the text of every function that holds one");
-  const made = [...new Set([...sql.matchAll(/create or replace function ((?:public|town)\.[a-z0-9_]+)\s*\(/gi)].map((m) => m[1].toLowerCase()))];
+  const made = [...new Set([...(own ?? sql).matchAll(/create or replace function ((?:public|town)\.[a-z0-9_]+)\s*\(/gi)].map((m) => m[1].toLowerCase()))];
   const src = Object.fromEntries((await t.sql(`select n.nspname || '.' || p.proname as name, p.prosrc as src from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname in ('town', 'public')`)).rows.map((r) => [r.name, r.src]));
   const HOLDS = [["the grove", /town\.thing\('grove', true\)/g, 1], ["a place of the cave", /town\.cave_kept\([^()]*, true\)/g, 1], ["the great fire", /town\.fire_kept\(true\)/g, 2], ["the smith's board", /town\.thing\('smith', true\)/g, 3],
     ["a purse", /town\.purse_of\([^()]*, true\)/g, 4], ["a smithy", /town\.smithy_held\(/g, 5]];

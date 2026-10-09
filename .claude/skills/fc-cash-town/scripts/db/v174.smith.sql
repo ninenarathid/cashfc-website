@@ -1658,9 +1658,10 @@ grant execute on function public.town_tool_power(text) to authenticated;
 --          round(100.0 * count(*) filter (where d.doc->>'out' = 'taken') / count(*), 1) as taken,
 --          round(100.0 * count(*) filter (where d.doc->>'out' = 'stays') / count(*), 1) as stays,
 --          round(100.0 * count(*) filter (where d.doc->>'out' = 'down') / count(*), 1) as down,
---          (select t->>'take' || ' / ' || (t->>'stay') || ' / ' || (t->>'down') from jsonb_array_elements(town.cat('forge')->'tries') t where t->>'to' = d.doc->>'to') as the_table,
+--          min((t.v->>'take') || ' / ' || (t.v->>'stay') || ' / ' || (t.v->>'down')) as the_table,
 --          -sum(d.coins) as coins_paid
---     from public.town_deeds d where d.what = 'forge' and d.at > now() - interval '1 day' group by d.doc->>'to' order by 1;
+--     from public.town_deeds d left join lateral jsonb_array_elements(town.cat('forge')->'tries') t(v) on t.v->>'to' = d.doc->>'to'
+--    where d.what = 'forge' and d.at > now() - interval '1 day' group by d.doc->>'to' order by 1;
 --
 --   -- who has what at the smith: pieces done and waiting, smelting, how wide the queue is, a draw waiting
 --   select p.character_name, jsonb_array_length(v.view->'done') as done, (v.view->'now'->>'piece') as smelting, jsonb_array_length(v.view->'waiting') as waiting,

@@ -15,11 +15,18 @@
 //     by their own tool; a forged tool that is in the bag and not in the hand;
 //   · the plots beside a deed's: all of its own bed, the same from either end of the row;
 //   · and the part run once more over all of it.
+//
+// THE WHOLE FILE (v174.test.mjs) plays the same through here, with `before` given: `{ open, made }`, where `open()`
+// gives the database as it is BEFORE THE FILE (the stand-in after the last file that ran, its catalog its own, nothing
+// of v174 in it), and `made` names what the file itself makes that a day with plain tools is not to be held against
+// (`tables` that are only there after it, and rows by their key: `rows.town_catalog`, `rows.town_knobs`,
+// `rows.town_things`). The day is then played on the database before the file and on the one after it, and `sql` is
+// the whole file.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 
-export default async function ({ t, U, one, CODE, root, sql }) {
+export default async function ({ t, U, one, CODE, root, sql, before = null }) {
   process.env.FC_REPO ??= root;
   await import("./repo-ts-town.mjs");
   const here = (name) => import(pathToFileURL(join(process.cwd(), name)).href);
@@ -39,10 +46,15 @@ export default async function ({ t, U, one, CODE, root, sql }) {
   const F = CODE.farming, K = CODE.cooking, INS = CODE.insects, FI = CODE.fishing, FORGE = CODE.forge;
   const AGAIN = await linesOf(dbFile("v174.tools.lines.mjs"));
 
-  /* ── the database as it was before the part: the stand-in, the code's catalog, the smith's part ── */
-  const B0 = await standIn({ upTo: 173 });
-  for (const k of Object.keys(CODE)) await B0.sql(`insert into public.town_catalog (key, data) values ($1, $2::jsonb) on conflict (key) do update set data = excluded.data, updated_at = now()`, [k, JSON.stringify(CODE[k])]);
-  await B0.db.exec(filled(lf(readFileSync(dbFile("v174.smith.sql"), "utf8")), againOf(await defsOf((q) => B0.sql(q).then((r) => r.rows)), await linesOf(dbFile("v174.smith.lines.mjs")))));
+  /* ── the database as it was before the part: the stand-in, the code's catalog, the smith's part (or, of the whole file, the database before the file) ── */
+  const MADE = { tables: before?.made?.tables ?? [], rows: before?.made?.rows ?? {} };
+  let B0;
+  if (before) B0 = await before.open();
+  else {
+    B0 = await standIn({ upTo: 173 });
+    for (const k of Object.keys(CODE)) await B0.sql(`insert into public.town_catalog (key, data) values ($1, $2::jsonb) on conflict (key) do update set data = excluded.data, updated_at = now()`, [k, JSON.stringify(CODE[k])]);
+    await B0.db.exec(filled(lf(readFileSync(dbFile("v174.smith.sql"), "utf8")), againOf(await defsOf((q) => B0.sql(q).then((r) => r.rows)), await linesOf(dbFile("v174.smith.lines.mjs")))));
+  }
   const WAS = await defsOf((q) => B0.sql(q).then((r) => r.rows)), NOW_ = await defsOf((q) => t.sql(q).then((r) => r.rows));
 
   t.section("the texts");
@@ -52,6 +64,14 @@ export default async function ({ t, U, one, CODE, root, sql }) {
   t.check("the database built beside this one is the one before the part: no function of it carries the part's mark, none of the part's own is in it, and its plots have no `damp`",
     Object.keys(WAS).filter((k) => WAS[k].includes(MARK)).length === 0 && !("town.rod_fx(jsonb)" in WAS) && "town.rod_fx(jsonb)" in NOW_ && (await dampOf(B0)) === 0 && (await dampOf(t)) === 1,
     { marked: Object.keys(WAS).filter((k) => WAS[k].includes(MARK)).length, damp: [await dampOf(B0), await dampOf(t)] });
+  // (of the whole file: the database before it has nothing of the smith's either, and its three catalog rows are not the code's yet)
+  if (before) {
+    const rowsWas = Object.fromEntries((await B0.sql(`select key, data from public.town_catalog`)).rows.map((r) => [r.key, r.data]));
+    t.check("…and, of the whole file, it is the database before the file: no smith, no gate of his, and the catalog rows the file writes are not the code's yet",
+      !("town.smith_member()" in WAS) && !("public.town_smith_open()" in WAS) && "public.town_smith_open()" in NOW_ && (MADE.rows.town_catalog ?? []).length > 0
+      && (MADE.rows.town_catalog ?? []).every((k) => str(rowsWas[k]) !== str(CODE[k])) && Object.keys(CODE).filter((k) => str(rowsWas[k]) !== str(CODE[k])).length === (MADE.rows.town_catalog ?? []).length,
+      Object.keys(CODE).filter((k) => str(rowsWas[k]) !== str(CODE[k])));
+  }
   t.check(`each of the ${AGAIN.length} functions written again carries the part's mark, and no other function does`,
     AGAIN.every(([, sig]) => NOW_[sig]?.includes(MARK)) && Object.keys(NOW_).filter((k) => NOW_[k].includes(MARK)).length === AGAIN.length,
     Object.keys(NOW_).filter((k) => NOW_[k].includes(MARK) !== AGAIN.some(([, sig]) => sig === k)));
@@ -259,16 +279,26 @@ export default async function ({ t, U, one, CODE, root, sql }) {
   const rowsOf = async (d, table) => {
     const cols = (await d.sql(`select column_name as c, data_type as ty from information_schema.columns where table_schema = 'public' and table_name = $1 order by ordinal_position`, [table])).rows
       .filter((c) => c.ty !== "timestamp with time zone" && !(table === "town_plots" && c.c === "damp") && !(table === "town_pots" && c.c === "marks"));
-    return (await d.sql(`select jsonb_build_object(${cols.map((c) => `'${c.c}', x.${JSON.stringify(c.c)}`).join(", ")})::text as r from public.${table} x order by 1`)).rows.map((r) => r.r);
+    // (of the whole file: the rows the file itself makes or writes are left out, by their keys)
+    const but = MADE.rows[table] ?? [];
+    return (await d.sql(`select jsonb_build_object(${cols.map((c) => `'${c.c}', x.${JSON.stringify(c.c)}`).join(", ")})::text as r from public.${table} x ${but.length ? "where not (x.key = any($1::text[]))" : ""} order by 1`, but.length ? [but] : [])).rows.map((r) => r.r);
   };
   const unlike = [];
   let rows = 0;
-  for (const table of tables) {
+  // (of the whole file: the tables it makes are in the second database only; a day with plain tools leaves them as the file made them)
+  const onlyAfter = [];
+  for (const table of tables) if (Number((await B0.sql(`select count(*)::int as n from information_schema.tables where table_schema = 'public' and table_name = $1`, [table])).rows[0].n) === 0) onlyAfter.push(table);
+  if (before) {
+    t.check(`the tables the file makes are the only ones the day's second database has more (${MADE.tables.join(", ")}), and the day left them as the file made them: no smithy, the great fire as new`,
+      str(onlyAfter) === str([...MADE.tables].sort()) && (await one(`select (select count(*) from public.town_smiths)::int as smithies, (select count(*) from public.town_great_fire where doc = '{}'::jsonb)::int as fires_new, (select count(*) from public.town_great_fire)::int as fires`)).smithies === 0
+      && (await one(`select (select count(*) from public.town_great_fire where doc = '{}'::jsonb)::int as n`)).n === 1, onlyAfter);
+  } else t.check("the day's two databases have the same tables", onlyAfter.length === 0, onlyAfter);
+  for (const table of tables.filter((x) => !onlyAfter.includes(x))) {
     const a = await rowsOf(B0, table), b = await rowsOf(t, table);
     rows += b.length;
     if (JSON.stringify(a) !== JSON.stringify(b)) unlike.push({ table, before: a.length, after: b.length, first: b.find((r, i) => r !== a[i])?.slice(0, 600), was: a.find((r, i) => r !== b[i])?.slice(0, 600) });
   }
-  t.check(`every row kept is the same on both: ${rows} rows of ${tables.length} tables (purses, plots, beds, lines, pots, deeds, goes, takes, the well's book, the lines of work)`, unlike.length === 0 && rows > 100, unlike.slice(0, 3));
+  t.check(`every row kept is the same on both: ${rows} rows of ${tables.length - onlyAfter.length} tables (purses, plots, beds, lines, pots, deeds, goes, takes, the well's book, the lines of work)`, unlike.length === 0 && rows > 100, unlike.slice(0, 3));
   t.check("after the day no plot is damp and no pot carries anything", (await one(`select (select count(*) from public.town_plots where damp)::int + (select count(*) from public.town_pots where marks is not null)::int as n`)).n === 0);
   const leftover = await kept(U.m1);
   t.check("a purse that played the day with plain tools keeps nothing of a forged tool's", !("powers" in leftover) && !("toolOwed" in leftover) && !("canFull" in leftover) && !("rodStill" in leftover), Object.keys(leftover));

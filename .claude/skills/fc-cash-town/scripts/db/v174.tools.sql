@@ -786,9 +786,9 @@ begin
 end;
 $$;
 
--- netMore: how many tiles farther than a net as it was bought the net in a member's hand takes an insect from (the
--- reader's `reach` and `wide` together); nothing, with any other net. `town.net` and `town.net_mine` allow a catch
--- that much farther off.
+-- netMore: what the reader says of the net in a member's hand, its `reach` and its `wide` together; nothing, with
+-- a net as it was bought and with anything else in the hand. `town.net` and `town.net_mine` add it to the bound
+-- their `far` is told by.
 create or replace function town.net_more_far(p_purse jsonb)
 returns double precision language plpgsql stable
 as $$
