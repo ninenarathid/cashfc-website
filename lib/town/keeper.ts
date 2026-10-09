@@ -895,19 +895,6 @@ export class DbKeeper implements Keeper {
     if (yes !== this.far_) { this.far_ = yes; this.tell(); }
     if (!yes && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
   }
-  /**
-   * Ask for the cave, and when the database says the day's floors are not laid yet (`unlaid`: the site's server lays them,
-   * lib/town/mining-row's caveLayout by app/api/town/cave), have them laid and ask once more. The server is asked once
-   * a minute at the most, whoever asks.
-   */
-  private async askCave(floor: number, at: [number, number] | null): Promise<Answer | null> {
-    const args = { p_floor: floor, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null };
-    const a = await this.ask("town_cave", args);
-    if (!a || a.ok !== false || a.why !== "unlaid" || this.shut || Date.now() - this.caveLaidAt < 60_000) return a;
-    this.caveLaidAt = Date.now();
-    try { await fetch("/api/town/cave", { cache: "no-store" }); } catch { return a; }
-    return this.ask("town_cave", args);
-  }
 
   /** Ask, in turn: after everything asked before it has been answered. Null when it could not be had. */
   /**
@@ -932,7 +919,18 @@ export class DbKeeper implements Keeper {
     let got: unknown = null;
     try { got = await this.rpc(fn, args); } catch { got = null; }
     // (a function that answers with a table answers with a list of one line)
-    const a = (Array.isArray(got) ? got[0] : got) as Answer | null;
+    let a = (Array.isArray(got) ? got[0] : got) as Answer | null;
+    // ── the cave's day ── (any cave or mining function says `unlaid` while the day's floors are not in the database: the
+    // site's server is asked to lay them, once a minute at the most, and the same is asked again, the once)
+    if (a && typeof a === "object" && a.ok === false && a.why === "unlaid" && !this.shut && Date.now() - this.caveLaidAt >= 60_000) {
+      this.caveLaidAt = Date.now();
+      let laid = false;
+      try { laid = (await fetch("/api/town/cave", { cache: "no-store" })).ok; } catch { laid = false; }
+      if (laid && !this.shut) {
+        try { got = await this.rpc(fn, args); } catch { got = null; }
+        a = (Array.isArray(got) ? got[0] : got) as Answer | null;
+      }
+    }
     if (!a || typeof a !== "object") return null;
     if (a.denied) { if (this.opened !== false) { this.opened = false; this.tell(); } return null; }
     this.take(a, sent);
@@ -1126,7 +1124,7 @@ export class DbKeeper implements Keeper {
   private fetch(what: Looked) {
     const l = this.looking.get(what);
     if (l?.timer) { clearTimeout(l.timer); l.timer = null; }
-    const asked = what === "cave" ? this.askCave(this.caveAt_.floor, this.caveAt_.at)
+    const asked = what === "cave" ? this.ask("town_cave", { p_floor: this.caveAt_.floor, p_x: this.caveAt_.at?.[0] ?? null, p_y: this.caveAt_.at?.[1] ?? null })
       : what === "stall" ? this.ask("town_stall")
       : what === "kitchen" ? this.ask("town_kitchen").then((a) => { if (this.yard_ !== null) void this.ask("town_yard"); return a; })
       : what === "deal" ? this.ask("town_deal")
@@ -1603,7 +1601,7 @@ export class DbKeeper implements Keeper {
 
   // ── mining ── (a database that keeps no cave answers nothing, and the page then offers nothing there)
   cave(): CaveTold | null { return this.cave_; }
-  async caveLook(floor: number, at: [number, number] | null) { this.caveAt_ = { floor, at }; await this.askCave(floor, at); }
+  async caveLook(floor: number, at: [number, number] | null) { this.caveAt_ = { floor, at }; await this.ask("town_cave", { p_floor: floor, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null }); }
   async mineDo(floor: number, rock: number, at: [number, number], swings: number, _name: string, how?: "quake") {
     const did = await this.deed<MineDid>("town_mine", { p_floor: floor, p_rock: rock, p_x: at[0], p_y: at[1], p_swings: swings, ...(how ? { p_how: how } : {}) }) as MineDone<MineDid>;
     if (did.ok || did.why === "gone") this.onDeed?.("cave");
