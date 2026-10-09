@@ -478,6 +478,9 @@ class TrialKeeper implements Keeper {
   async smithRedraw(slot: number, at: number, gem: ItemId) { return this.trial.smithRedraw(slot, at, gem); }
   async smithGem(slot: number, gem: ItemId) { return this.trial.smithGem(slot, gem); }
   async smithMove(from: number, to: number, how: MoveHow) { return this.trial.smithMove(from, to, how); }
+  fire() { return this.trial.fire(); }
+  async fireJoin(name: string) { return this.trial.fireJoin(name); }
+  async fireLeave() { return this.trial.fireLeave(); }
   // ── felling ── (whoever else is on the mountain is in another tab: told through the room, as the database's keeper tells them)
   trees() { return this.trial.trees(); }
   async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { return this.trial.fellBegin(tree, at); }

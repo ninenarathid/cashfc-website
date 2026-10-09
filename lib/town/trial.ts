@@ -55,18 +55,21 @@ import { heldStack as toolInHand } from "./trade";
 import type { Stack } from "./trade";
 import {
   bellows, bellowsLeft, choose as chooseOption, collect as collectSmelted, draw as drawOptions, forgeTry, markFound, markTop, moveForging, newBoard, newSmithy, redraw as redrawOption, setGem, smelt, smithView, soundSmithy, widen,
-  type Did as SmithDid, type Outcome as ForgeOutcome, type SmithBoard, type Smithy,
+  type Did as SmithDid, type Outcome as ForgeOutcome, type SmithBoard, type SmithRefusal, type Smithy,
 } from "./forge";
 /** What each tester has at the smith (lib/town/forge), the village's board there, and every try that was made: the whole browser's. */
 const smithKey = (id: string) => `cashtown.trial.smith.1.${id}`;
 const SMITH_BOARD = "cashtown.trial.smith.board.1", SMITH_LOG = "cashtown.trial.smith.log.1";
+/** The village's one great fire (lib/town/great-fire): the whole browser's, like the board. */
+const SMITH_FIRE = "cashtown.trial.smith.fire.1";
 /** A try as it is written down: who, at which tool, from which level for which, and how it went. */
 export interface TryLogged { by: string; name: string; item: ToolKind; from: number; to: number; out: ForgeOutcome; level: number; at: number }
 // ── mining ──
 import { boardOf as caveBoardOf, breakRocks, caveAt, changesAt, crystalBroken, floorAtTile, floorRocks, floorSpots, floorTile, goneAt, openWay, setMoss, setTorch, stands, strikeRock, struckAt, struckTold, wayOpen, type CaveState, type CaveTold } from "./cave-state";
 import { MINING, anyPick, crystalOf, drill, elementOf, helpersOf, holdsOf, mayRide, mine, mineOf, oreOf, payFirst, peekOf, pickOf, reachRest, torchDown, turnOf as mineTurn, veinEnd, wayRockOf, type Go as MineGo, type Holds, type Mined, type MineRefusal, type Peek, type PendingVein, type PlaceToday, type RockAt } from "./mining";
 import { bagToPouch, pouchToBag, type PouchRefusal } from "./pouches";
-import { ALL, GEMS, GEM_FX, ORES, gemBy, has as toolHas } from "./tools";
+import { ALL, GEMS, GEM_FX, ORES, gemBy, has as toolHas, levelOf } from "./tools";
+import { fireSpent, fireTold, fireWhy, halfFound, joinRow, leaveRow, newGreatFire, soundGreatFire, type GreatFire, type Half } from "./great-fire";
 import { isRest } from "./cave";
 import { ALL_LINE_IDS, MORE_LINE_IDS } from "./lines";
 import { MOUNTAIN_ROCKS } from "./world";
@@ -1580,7 +1583,9 @@ export class Trial {
     const raw = did.braced ? this.get(purseKey(did.braced)) : null;
     if (did.braced && raw !== null) this.write(purseKey(did.braced), bracePay(JSON.parse(raw) as Purse).purse);
     did.felled.forEach((f, i) => this.counted({ from: "deed", what: "fell", thing: f.kind, n: 1, doc: { tree: f.id, misses: f.misses, girth: f.girth, timber: f.timber, ...(did.plain ? { how: "plain" } : did.one ? { how: "one" } : {}), ...(f.keepsake ? { keepsake: f.keepsake } : {}), ...(i === 0 && did.braced ? { braced: did.braced } : {}) } }));
-    return { ok: true, felled: did.felled, got: did.got, one: did.one, plain: did.plain, through: did.through, stood: did.stood, found: did.found, braced: did.braced };
+    // (a tree felled may be the village's tinder)
+    const fire = did.felled.length ? this.fireFound("tinder", name) : null;
+    return { ok: true, felled: did.felled, got: did.got, one: did.one, plain: did.plain, through: did.through, stood: did.stood, found: did.found, braced: did.braced, ...(fire ? { fire } : {}) };
   }
   /** Brace the trunk of somebody's open go, from the tile I stand on (their go is in this browser too). */
   fellBrace(feller: string, at: [number, number]): { ok: true; tree: number } | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
@@ -1663,8 +1668,51 @@ export class Trial {
     this.tell();
     return { ok: true, off: did.off };
   }
+  /* ── the great fire (lib/town/great-fire): the village's, so the browser's like the board ── */
+  private greatFire(): GreatFire { return soundGreatFire(this.read<unknown>(SMITH_FIRE, newGreatFire, (v) => !!v && typeof v === "object" && !Array.isArray(v))); }
+  /** What I may be told of the great fire. */
+  fire() { return fireTold(this.greatFire(), this.id, this.now()); }
+  /** Whether my bag holds a tool that stands one level under the top: the row is for those who have one. */
+  private underTop(): boolean { return this.purse().bag.some((s) => !!s && !!toolKindOf(s.item) && levelOf(s) === FORGE.top - 1); }
+  fireJoin(name: string): { ok: true } | { ok: false; why: SmithRefusal } {
+    const did = joinRow(this.greatFire(), { id: this.id, name }, this.underTop(), this.now());
+    if (!did.ok) return { ok: false, why: did.why };
+    this.write(SMITH_FIRE, did.fire);
+    this.tell();
+    return { ok: true };
+  }
+  fireLeave(): { ok: true } | { ok: false; why: SmithRefusal } {
+    const did = leaveRow(this.greatFire(), this.id);
+    if (!did.ok) return { ok: false, why: "none" };
+    this.write(SMITH_FIRE, did.fire);
+    this.tell();
+    return { ok: true };
+  }
+  /** A half found by a deed of mine, if its time has come and nobody has found it: kept, and told to whoever asks. */
+  private fireFound(half: Half, name: string): { half: Half; lit: boolean } | null {
+    const did = halfFound(this.greatFire(), half, { id: this.id, name: name || this.id }, this.now());
+    if (!did.found) return null;
+    this.write(SMITH_FIRE, did.fire);
+    this.tell();
+    return { half, lit: did.lit };
+  }
+  /** For scripts trying things out: its time has come (both halves gone, so the next rock and tree find them); both halves found by me now; so many made-up members before me in the row; a fresh fire. */
+  fireDue() { this.write(SMITH_FIRE, { ...this.greatFire(), due: 0, flint: null, tinder: null }); this.tell(); }
+  fireLight(name = this.id) { const at = this.now(), f = this.greatFire(); this.write(SMITH_FIRE, { ...f, flint: { id: this.id, name, at }, tinder: { id: this.id, name, at } }); this.tell(); }
+  fireRow(n: number, name = this.id) {
+    const f = this.greatFire(), at = this.now(), mine = f.row.find((w) => w.id === this.id) ?? { id: this.id, name, since: at };
+    const fakes = Array.from({ length: Math.max(0, Math.floor(n)) }, (_, i) => ({ id: `fake${i + 1}`, name: `ทดสอบ ${i + 1}`, since: at }));
+    const rest = f.row.filter((w) => w.id !== this.id && !/^fake\d+$/.test(w.id));
+    this.write(SMITH_FIRE, { ...f, row: [...fakes, mine, ...rest] });
+    this.tell();
+  }
+  fireReset() { this.write(SMITH_FIRE, newGreatFire()); this.tell(); }
   smithTry(slot: number, name: string) {
+    // (a tool one level under the top is tried only with the great fire: asked before anything is taken)
+    const held = this.purse().bag[slot], needs = !!held && !!toolKindOf(held.item) && levelOf(held) === FORGE.top - 1;
+    if (needs) { const why = fireWhy(this.greatFire(), this.id, this.now()); if (why) return { ok: false as const, why }; }
     const did = this.smithKeep(forgeTry(this.purse(), this.smithy(), slot, this.smithChance(), name));
+    if (did.ok && needs) this.write(SMITH_FIRE, fireSpent(this.greatFire(), { id: this.id, name }, did.out, this.now(), Math.random()));
     if (did.ok) {
       // (every try is written down, whatever came of it; and the first of a kind at the top goes on the board)
       const now = this.now();
@@ -1778,7 +1826,7 @@ export class Trial {
    * whoever else struck some of it away is written down as having lent a hand.
    */
   mineDo(floor: number, rock: number, at: [number, number], swings: number, name: string, how?: "quake"):
-    { ok: true; got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean; moss?: boolean } | { ok: false; why: MineRefusal } {
+    { ok: true; got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean; moss?: boolean; fire?: { half: "flint" | "tinder"; lit: boolean } } | { ok: false; why: MineRefusal } {
     const now = this.now(), s = this.caveKept(), rocks = this.rocksAt(floor, s.day), today = this.todayAt(floor, s), before = this.purse(), pick = pickOf(before);
     const c = this.crystalToday(s.day), crystal = c && c.floor === floor ? c.rock : null, element = elementOf(this.salt(), floor, s.day);
     const go: MineGo = {
@@ -1830,8 +1878,10 @@ export class Trial {
     if (way !== null) this.mineDeedFor(first, "delve", null, 1, { floor, rock: way });
     for (const id of helpers) this.mineDeedFor(id, "hew", "stone", 1, { floor, rock, whose: first });
     this.tell();
+    // (a plain rock broken by this call may be the village's flint: not the day's crystal rock)
+    const fire = first === this.id && paid.each.some((e) => e.kind !== "crystal") ? this.fireFound("flint", name) : null;
     return first === this.id
-      ? { ok: true, got: paid.got, broke: paid.broke, way: way !== null, vein: paid.vein, crystal: paid.crystal, chained: paid.chained, cost: paid.cost, part: 1, moss: paid.moss.length > 0 }
+      ? { ok: true, got: paid.got, broke: paid.broke, way: way !== null, vein: paid.vein, crystal: paid.crystal, chained: paid.chained, cost: paid.cost, part: 1, moss: paid.moss.length > 0, ...(fire ? { fire } : {}) }
       : { ok: true, ...nothing, broke: paid.broke, way: way !== null, crystal: paid.crystal, chained: paid.chained, part: 1, helped: true, whose: theirs, paid: first, moss: paid.moss.length > 0 };
   }
   /** What a rock holds, for a pick that sees it. */
@@ -2032,7 +2082,7 @@ export class Trial {
   reset() {
     for (const key of [purseKey(this.id), boxKey(this.id), /* felling */ TREES_AT, GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT, LAMPS_AT]) this.set(key, null);
     // ── forging ──
-    for (const key of [smithKey(this.id), SMITH_BOARD, SMITH_LOG]) this.set(key, null);
+    for (const key of [smithKey(this.id), SMITH_BOARD, SMITH_LOG, SMITH_FIRE]) this.set(key, null);
     this.tell();
   }
 }
