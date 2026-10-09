@@ -1,0 +1,42 @@
+--   ── the whole file ──
+--
+--   -- (nothing of the schema `town` is anybody's to call; the seventeen functions a member calls are there, each for the signed in and for nobody signed out)
+--   select (select count(*) from pg_proc p where p.pronamespace = 'town'::regnamespace
+--            and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'))) as rules_a_browser_calls,
+--          (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
+--            and has_function_privilege('authenticated', p.oid, 'execute') and not has_function_privilege('anon', p.oid, 'execute')
+--            and p.proname in ('town_far', 'town_cave_days', 'town_pouch_out', 'town_pouch_in', 'town_trees', 'town_fell_begin', 'town_fell', 'town_fell_brace', 'town_fell_root',
+--                              'town_cave', 'town_mine', 'town_mine_peek', 'town_cave_reach', 'town_lift', 'town_torch', 'town_drill', 'town_vein')) as a_members;
+--   -- 0 | 17
+--
+--   -- (the two functions both lines of work add to have both blocks, and the blocks v160 and v163 put there)
+--   select position('the mountain''s trees (v164)' in w.def) > 0 as trees_counted, position('the mountain''s rocks (v164)' in w.def) > 0 as rocks_counted,
+--          position('the mountain''s trees (v164)' in d.def) > 0 as trees_worded, position('the mountain''s rocks (v164)' in d.def) > 0 as rocks_worded,
+--          town.deed_th('stone_lay') <> 'stone_lay' and town.deed_th('lamp_light') <> 'lamp_light' as the_words_before
+--     from (select pg_get_functiondef('town.work_counts_of(jsonb, text)'::regprocedure) as def) w, (select pg_get_functiondef('town.deed_th(text)'::regprocedure) as def) d;
+--   -- true | true | true | true | true
+--
+--   -- (a forged tool is no plain thing, and a plain one is as it was)
+--   select town.forged('{"item": "pick", "n": 1, "plus": 1}'::jsonb) as forged, town.forged('{"item": "pick", "n": 1}'::jsonb) as plain;
+--   -- true | false
+--
+-- ─── Reading it ──────────────────────────────────────────────────────────────────────────────────────────────────
+--
+--   -- whether the far side is open, and since when its knob has stood as it does
+--   select value, updated_at from public.town_knobs where key = 'far_open';
+--
+--   -- the far side's deeds, a day at a time
+--   select (d.at at time zone 'Asia/Bangkok')::date as day, d.what, count(*), sum(d.n) as n, count(distinct d.member_id) as members
+--     from public.town_deeds d
+--    where d.what in ('fell', 'brace', 'root', 'mine', 'crystal', 'delve', 'hew', 'vein', 'vein_odd', 'lift', 'torch')
+--    group by 1, 2 order by 1 desc, 2 limit 80;
+--
+--   -- a vein's go that the rules could not hold (each is worth a look: a page said more than any face has)
+--   select d.at, d.member_id, d.doc from public.town_deeds d where d.what = 'vein_odd' order by d.id desc limit 20;
+--
+--   -- the trees that are down, and the days of the cave that are laid
+--   select jsonb_object_keys(doc->'down') as tree from public.town_things where key = 'grove' limit 200;
+--   select day, count(*) as floors, min(written) as laid from public.town_cave_days group by 1 order by 1 desc limit 7;
+--
+--   -- where the two lines of work stand
+--   select w.line, count(*) as members, max((w.kept->>'points')::numeric) as most from public.town_work w where w.line in ('felling', 'mining') group by 1;

@@ -1,0 +1,106 @@
+-- v164 — the far side: the mountain's trees, its rocks, and the cave under it
+--
+-- Run it once in the Supabase SQL editor, after v168 (v165 to v168 ran before
+-- it, though its number is lower: the number was kept for the mountain).
+-- Running it again is safe. **Run it after the site's own code for it is
+-- live** (see "The page", below).
+--
+-- What it is. The far side is the mountain over the bridge the village built
+-- by hand (v160): its trees, felled with an axe on the woodcutters' line of
+-- work, and its rocks, broken with a pick on the miners', with a cave of
+-- thirty floors under it. The rules are lib/town's written again (trees,
+-- felling, mining, cave-state, tools, powers, pouches), each held to the code
+-- case by case; what the database decides and what a page is believed about
+-- is said at the head of each part below.
+--
+-- **THE BLACKSMITH IS NOT IN IT.** Smelting, forging, a gem set in a tool, a
+-- forging moved to another tool and the great fire come with a migration of
+-- his own, later (the owner, 2026-10-09: the first opening is the mountain
+-- with mining and felling only). So there is no table for a member's smithy
+-- here, no rule of his, and no answer has a `fire` in it. What IS here of
+-- forging is what a pick or an axe is read by from the first day, while every
+-- tool is still as it was bought: the catalog's `forge` row, the readers of
+-- what a tool carries, and the rule that a tool which carries something of
+-- its own is no plain thing at a stall, on the board, in a deal or in the jar.
+--
+-- **IT IS BUILT CLOSED.** The knob `far_open` is made at 0. While it is,
+-- every function of the far side answers an admin and refuses everybody else
+-- (42501, as the game refuses whoever it is shut to), and `town_far()`, which
+-- a page asks first, says no: a member's page shows nothing of the mountain
+-- and asks nothing more of it. Its owner opens it with one line, with no
+-- deploy, when he has tried it:
+--
+--   update public.town_knobs set value = 1 where key = 'far_open';
+--
+-- (and shuts it again with `value = 0`). The bridge has its own line, v160's:
+-- the far side being open does not open the bridge, nor the bridge the far
+-- side.
+--
+-- What it makes:
+--
+--   · three knobs: `far_open` (0), `notice_gem` and `notice_chip` (the most a
+--     gem and a gem's fragment may be asked for at a stall and on the board);
+--   · four catalog rows seeded (`forge`, `trees`, `mining`, `pouches`) and
+--     eight written over as the code has them (`items`, `goods`, `shelf`,
+--     `hints`, `makes`, `cooking`, `work`, `gifts`): the pick and the axe on
+--     the first day's shelf, the wood, the stone, the ore, the gems and the
+--     torch, the two new lines of work and their gifts;
+--   · the village's trees as a row of `town_things` (`grove`), and the word
+--     the rocks' rolls hang on as a row of `town_secrets` (`mine`), made once;
+--   · two tables, closed: `town_cave_days` (a floor of the cave on a day, laid
+--     by the site's server with its own key, which may read and insert and no
+--     more; what is laid stays as it was laid) and `town_cave` (what the
+--     village shares of a place: 0 the mountain's foot, 1 to 30 the floors);
+--   · 151 rules in the schema `town`, no browser's to call;
+--   · seventeen functions a member calls, each for the signed in and each
+--     beginning with the gate: `town_far`, `town_cave_days`, `town_pouch_out`,
+--     `town_pouch_in`; `town_trees`, `town_fell_begin`, `town_fell`,
+--     `town_fell_brace`, `town_fell_root`; `town_cave`, `town_mine`,
+--     `town_mine_peek`, `town_cave_reach`, `town_lift`, `town_torch`,
+--     `town_drill`, `town_vein`;
+--   · and ten functions that were there, each with a small marked block more
+--     and nothing else of it touched: `town.plain`, `town.take_plain`,
+--     `town.push`, `town.jar_drop`, `town.leave`, `town.hold` (a forged tool is
+--     no plain thing), `town.shop_cap`, `town.notice_cap` (a gem's most), and
+--     `town.work_counts_of` and `town.deed_th`, which have TWO blocks more
+--     each, the woodcutters' and the miners' (what a deed of theirs counts for
+--     on its line, and a Thai word for each). **A file after this one that
+--     writes any of the ten again carries this file's blocks with its own.**
+--
+-- No coins are made by it. What comes of a tree and of a rock are things:
+-- logs, timber, stone, ore, fragments, which a member sells as they sell
+-- anything.
+--
+-- The page. The site's code for the far side has been live since 2026-10-09
+-- with the far side shut: it asks `town_far()`, is told nothing by a database
+-- that has not had this file, and shows nothing. **Three things of the page's
+-- keeper are newer than that and have to be live before this file runs**
+-- (lib/town/keeper.ts): the trees are asked for once the far side says yes,
+-- the keepsakes of a go are read from `keeps`, and a vein's go is told as an
+-- account (`town_vein(p_go)`, lib/town/vein-account). With the older page and
+-- this file, a member sees no difference (the far side is closed to them); an
+-- admin is told no trees and cannot play a vein out. A page left open since
+-- before that deploy has to be loaded again.
+--
+-- The site's server lays the cave's floors (`town_cave_days`: today's and
+-- tomorrow's, thirty a day) when a page asks it to; until a day is laid, what
+-- reads a floor answers `unlaid` and changes nothing.
+--
+-- Safe to run twice. A knob that is there is left as it is (the far side,
+-- once opened, stays open); the four seeded rows are left as they are, the
+-- eight others written over with the same; the trees that are down, the
+-- rocks' word, the cave's rows and every purse are not touched; every
+-- function is written again as the first run left it.
+--
+-- How it was put together. Three parts, each written and proved alone
+-- (v164.base.sql, v164.felling.sql, v164.mining.sql in the fc-cash-town
+-- skill's scripts/db), run in that order: the two others stand on the base.
+-- Each part's own head is kept below as the head of its section, word for
+-- word. Where one says that nothing of an earlier file's function is pasted
+-- and that its place is left empty, the place is FILLED in this file: by
+-- assemble-v164.mjs, from the function's own text as the stand-in database
+-- had it after v168 and after the parts above it, with the part's lines in
+-- place. So the second statement of `town.work_counts_of` and of
+-- `town.deed_th` (the miners') has the woodcutters' block in it too.
+--
+-- What to see afterwards is at the file's foot.
