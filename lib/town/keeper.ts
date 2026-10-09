@@ -160,6 +160,8 @@ export interface Keeper {
   /** Whether my purse has been read yet; and whether the town's game is open to me (null until it is known). */
   ready(): boolean;
   open(): boolean | null;
+  /** Whether the far side (the bridge, the mountain's foot, the cave) is open to me: the trial's always, the database's by `town_far`, no until it says so. */
+  far(): boolean;
   /** Be told when anything kept changes. Returns how to stop. */
   watch(fn: () => void): () => void;
   /** Keep what others may change in sight while it is looked at. Returns how to stop. */
@@ -712,6 +714,8 @@ const CHEW = 20_000;
 const SHUT_MS = 5 * 60_000;
 /** How often everybody's rank at the well is asked for again. */
 const RANKS_MS = 5 * 60_000;
+/** How long before the far side is asked after again while it is not open to me. */
+const FAR_MS = 5 * 60_000;
 /** While something lies on the ground, how often it is looked at again (a thing lies ten seconds; the room's word of the next one may come seconds late). */
 const GROUND_AGAIN = 3000;
 /** How long an ended deal is still shown. */
@@ -735,6 +739,12 @@ export class DbKeeper implements Keeper {
   private taken: number | null = null;
   private read = false;
   private opened: boolean | null = null;
+  /** Whether the far side is open to me (`town_far`), and the wait before it is asked again while it is not. */
+  private far_ = false;
+  private farTimer: ReturnType<typeof setTimeout> | null = null;
+  private farAsked = false;
+  /** When the site's server was last asked to lay the cave's day (it is asked once a minute at the most). */
+  private caveLaidAt = 0;
   private stall_: Stall = newStall();
   private prices_: PricesTold = NO_PRICES;
   private unlocked = 0;
@@ -844,8 +854,11 @@ export class DbKeeper implements Keeper {
     // a database that keeps no stalls answers nothing, and a sign is only a chat room's)
     if (this.read && !this.shut) void this.ask("town_shop");
     // ── felling ── (and whether the mountain's trees are kept, with those that are not grown: asked once as the game
-    // begins, and only where there is a mountain to fell them on, `next dev`; a database that keeps none answers nothing)
-    if (process.env.NODE_ENV === "development" && this.read && !this.shut) void this.ask("town_trees");
+    // begins; a database that keeps none answers nothing)
+    if (this.read && !this.shut) void this.ask("town_trees");
+    // ── the far side ── (and whether it is open to me: asked once as the game begins, and again every five minutes while
+    // it is not, so that it opens here when its owner opens it; a database that has not heard the question says no)
+    if (this.read && !this.shut && !this.farAsked) { this.farAsked = true; void this.askFar(); }
     // ── the bridge built by hand ── (and whether the village has works, with what I carry in my hands: asked once as
     // the game begins; a database without them answers nothing, and nothing of them is shown)
     if (this.read && !this.shut) void this.ask("town_works_read");
@@ -872,6 +885,29 @@ export class DbKeeper implements Keeper {
   now(): number { return Date.now() + this.skew; }
   ready(): boolean { return this.read; }
   open(): boolean | null { return this.opened; }
+  far(): boolean { return this.far_; }
+  /** Ask `town_far` (not through the line: its answer is a plain yes or no, which `once` would not keep). Anything but a yes is a no: a missing function, an error, a refusal. */
+  private async askFar() {
+    if (this.shut) return;
+    let got: unknown = null;
+    try { got = await this.rpc("town_far", {}); } catch { got = null; }
+    const yes = (Array.isArray(got) ? got[0] : got) === true;
+    if (yes !== this.far_) { this.far_ = yes; this.tell(); }
+    if (!yes && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
+  }
+  /**
+   * Ask for the cave, and when the database says the day's floors are not laid yet (`unlaid`: the site's server lays them,
+   * lib/town/mining-row's caveLayout by app/api/town/cave), have them laid and ask once more. The server is asked once
+   * a minute at the most, whoever asks.
+   */
+  private async askCave(floor: number, at: [number, number] | null): Promise<Answer | null> {
+    const args = { p_floor: floor, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null };
+    const a = await this.ask("town_cave", args);
+    if (!a || a.ok !== false || a.why !== "unlaid" || this.shut || Date.now() - this.caveLaidAt < 60_000) return a;
+    this.caveLaidAt = Date.now();
+    try { await fetch("/api/town/cave", { cache: "no-store" }); } catch { return a; }
+    return this.ask("town_cave", args);
+  }
 
   /** Ask, in turn: after everything asked before it has been answered. Null when it could not be had. */
   /**
@@ -1090,7 +1126,7 @@ export class DbKeeper implements Keeper {
   private fetch(what: Looked) {
     const l = this.looking.get(what);
     if (l?.timer) { clearTimeout(l.timer); l.timer = null; }
-    const asked = what === "cave" ? this.ask("town_cave", { p_floor: this.caveAt_.floor, p_x: this.caveAt_.at?.[0] ?? null, p_y: this.caveAt_.at?.[1] ?? null })
+    const asked = what === "cave" ? this.askCave(this.caveAt_.floor, this.caveAt_.at)
       : what === "stall" ? this.ask("town_stall")
       : what === "kitchen" ? this.ask("town_kitchen").then((a) => { if (this.yard_ !== null) void this.ask("town_yard"); return a; })
       : what === "deal" ? this.ask("town_deal")
@@ -1567,7 +1603,7 @@ export class DbKeeper implements Keeper {
 
   // ── mining ── (a database that keeps no cave answers nothing, and the page then offers nothing there)
   cave(): CaveTold | null { return this.cave_; }
-  async caveLook(floor: number, at: [number, number] | null) { this.caveAt_ = { floor, at }; await this.ask("town_cave", { p_floor: floor, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null }); }
+  async caveLook(floor: number, at: [number, number] | null) { this.caveAt_ = { floor, at }; await this.askCave(floor, at); }
   async mineDo(floor: number, rock: number, at: [number, number], swings: number, _name: string, how?: "quake") {
     const did = await this.deed<MineDid>("town_mine", { p_floor: floor, p_rock: rock, p_x: at[0], p_y: at[1], p_swings: swings, ...(how ? { p_how: how } : {}) }) as MineDone<MineDid>;
     if (did.ok || did.why === "gone") this.onDeed?.("cave");
@@ -1803,6 +1839,7 @@ export class DbKeeper implements Keeper {
     if (this.bugsTimer) clearTimeout(this.bugsTimer);
     if (this.groundTimer) clearTimeout(this.groundTimer);
     if (this.retry) clearTimeout(this.retry);
+    if (this.farTimer) clearTimeout(this.farTimer);
     if (this.ranksAgain) clearInterval(this.ranksAgain);
     this.heard.clear();
   }

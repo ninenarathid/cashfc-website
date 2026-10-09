@@ -6,7 +6,7 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, setBridge, setBuilt, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
@@ -125,13 +125,13 @@ const TownTrade = lazy(() => import("./TownTrade"));
 /** Fishing from the finished deck, and a recipe unrolled to be read: of the same game, and loaded the same way. */
 const TownFish = lazy(() => import("./TownFish"));
 const TownTest = process.env.NODE_ENV !== "production" ? lazy(() => import("./TownTest")) : null;
-// ── felling ── (the mountain's trees, to fell: `next dev` only, where the mountain is; a production build has no such chunk)
-const TownTrees = process.env.NODE_ENV === "development" ? lazy(() => import("./TownTrees")) : null;
+// ── felling ── (the mountain's trees, to fell: in every build, but its board is shown only while the far side is open to me)
+const TownTrees = lazy(() => import("./TownTrees"));
 const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
 const TownBugs = lazy(() => import("./TownBugs"));
-// ── mining ── (the mountain's rocks and the cave: `next dev` only, as the maps they are on; a production build has neither the layer nor its file)
-const TownMine = process.env.NODE_ENV === "development" ? lazy(() => import("./TownMine")) : null;
+// ── mining ── (the mountain's rocks and the cave: in every build, shown only while the far side is open to me)
+const TownMine = lazy(() => import("./TownMine"));
 const TownWell = lazy(() => import("./TownWell"));
 const TownBox = lazy(() => import("./TownBox"));
 const TownGround = lazy(() => import("./TownGround"));
@@ -587,24 +587,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   const [session, setSession] = useState<TownSession | null>(null);
   const sessionRef = useRef<TownSession | null>(null);
-  // ── to come ── (the preview of the bridge, the blacksmith, the mountain's foot and the cave, `next dev` only: all
-  // of its drawing is a module of its own, asked for here and never in a production build. The map hands it a frame,
-  // and knows no more of it)
+  // ── the far side ── (the bridge, the blacksmith, the mountain's foot and the cave: all of its drawing is a module of
+  // its own, asked for here. The map hands it a frame, and knows no more of it. Its taps are answered only while
+  // the far side is open to me, `isFar`)
   const moreArt = useRef<MountainArt | null>(null);
   useEffect(() => {
     let gone = false, made: MountainArt | null = null;
-    // (the asking itself sits in a branch a production build drops, as the test window's does: written as an early
-    // return, the build made the module's chunk all the same, though nothing asked for it. Found 2026-10-08, by looking)
-    if (process.env.NODE_ENV === "development") {
-      void import("./mountain-art").then((m) => {
-        if (gone) return;
-        made = moreArt.current = m.openMore({
-          warp: (x, y) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
-          walk: (x, y) => sessionRef.current?.walkTo({ x, y }) ?? false,
-          me: () => { const a = sessionRef.current?.self; return a ? { id: a.info.id, x: a.pos.x, y: a.pos.y } : null; },
-        });
+    void import("./mountain-art").then((m) => {
+      if (gone) return;
+      made = moreArt.current = m.openMore({
+        warp: (x, y) => sessionRef.current?.warpTo({ x: x + 0.5, y: y + 0.5 }) ?? false,
+        walk: (x, y) => sessionRef.current?.walkTo({ x, y }) ?? false,
+        me: () => { const a = sessionRef.current?.self; return a ? { id: a.info.id, x: a.pos.x, y: a.pos.y } : null; },
       });
-    }
+    });
     return () => { gone = true; made?.close(); moreArt.current = null; };
   }, []);
   const [popover, setPopover] = useState<{ b: Building; x: number; y: number } | null>(null);
@@ -710,11 +706,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (process.env.NODE_ENV !== "production" && new URLSearchParams(location.search).get("townSites") === "1") setBuilt(false);
   }, []);
   useEffect(() => { if (game) setBuilt(true); }, [game]);
-  // ── the bridge built by hand ── (and the land beyond it, which is to come: `next dev` only. The bridge the map draws and
+  // ── the far side ── (whether it is open to me, as the keeper tells: the trial's always, the database's by `town_far`;
+  // shut until it says. Where I may walk and what answers a tap follows lib/town/world's setFar)
+  const [farOn, setFarOn] = useState(false);
+  useEffect(() => {
+    if (!keeper) { setFar(false); setFarOn(false); return; }
+    const see = () => { const on = keeper.far(); setFar(on); setFarOn(on); };
+    see();
+    return keeper.watch(see);
+  }, [keeper]);
+  // ── the bridge built by hand ── (and the land beyond it. The bridge the map draws and
   // is walked over is the village's own: as many spans as the works have laid, walked on once it is whole and not before. The test
   // room's trial keeper has its own way over (whole and open from the first, `&townBridge=` and `&townAt=`), and keeps it)
   useEffect(() => {
-    if (process.env.NODE_ENV !== "development" || !keeper || (testTopic && !new URLSearchParams(location.search).get("townDb"))) return;
+    if (!keeper || (testTopic && !new URLSearchParams(location.search).get("townDb"))) return;
     const sync = () => { const w = keeper.works(); setBridge(bridgeSpans(w), bridgeWhole(w)); };
     sync();
     return keeper.watch(sync);
@@ -1402,7 +1407,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    */
   function drawWeather(ctx: CanvasRenderingContext2D, cw: number, ch: number, now: number, dt: number) {
     // ── to come ── (there is no weather under the ground)
-    if (process.env.NODE_ENV === "development" && placeRef.current === "cave") return;
+    if (placeRef.current === "cave") return;
     // (`dt` is seconds, as everywhere here. Until 2026-10-03 this took it for milliseconds: the rain hung in the
     // air, no leaf ever reached the ground, and a change in the weather took hours to come on.)
     const sec = Math.min(dt, 0.1);
@@ -1802,7 +1807,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const held = toolLights.current;
     toolLights.current = [];
     // ── to come ── (nor any sky: the cave's dark is its own, laid by the preview's module)
-    if (process.env.NODE_ENV === "development" && placeRef.current === "cave") return;
+    if (placeRef.current === "cave") return;
     const day = skyNow();
     const [r, g, b] = day.tint;
     // ── the lamp relay ── (where a lit lamp is in sight the hour's dark is laid by the lamps' own hand, lifted in each
@@ -1884,7 +1889,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       loadForest().then(() => { forestHere.current = true; }).catch(() => { /* its trees are the town's until it comes */ });
     }
     // ── to come ── (another floor of the cave is another map to the camera: it is put on me at once, and the floor comes up out of the dark)
-    if (process.env.NODE_ENV === "development" && moreArt.current?.moved(mine ? mine.pos : null) && mine) {
+    if (moreArt.current?.moved(mine ? mine.pos : null) && mine) {
       const iso = toIso(mine.pos.x, mine.pos.y);
       v.cx = iso.x; v.cy = iso.y - dollH(mine) * 0.45;
       v.follow = true;
@@ -2272,7 +2277,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         gateBoxes.current.push({ to: g.tiles[0], x0: c.x - (gw / 2) * v.s, y0: c.y - gh * v.s, x1: c.x + (gw / 2) * v.s, y1: c.y });
         const th = words.current.th;
         // ── to come ── (a gateway of the preview's own maps is named by the preview's module)
-        const more = process.env.NODE_ENV === "development" ? moreArt.current?.gateName(g, th) : null;
+        const more = moreArt.current?.gateName(g, th) ?? null;
         const leads = more ?? (g.leads === "farm" ? (th ? "ไปแปลงผัก" : "To the farm") : g.leads === "forest" ? (th ? "ไปป่า" : "To the forest") : (th ? "กลับเข้าเมือง" : "Back to town"));
         signs.push(() => label(ctx, leads, c.x, c.y - (gh + 4) * v.s, "#e5cc80", "rgba(15,19,25,0.82)", popotoImg.current));
       } });
@@ -2501,7 +2506,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // (a familiar whose member has gone is forgotten)
     if (pets.current.size > (stay?.avatars.size ?? 0) + 1) for (const id of pets.current.keys()) if (id !== mine?.info.id && !stay?.avatars.has(id)) pets.current.delete(id);
     // ── to come ── (what stands on the preview's maps: its own module adds it to what is drawn, back to front with the rest)
-    const more = process.env.NODE_ENV === "development" ? moreArt.current : null;
+    const more = moreArt.current;
     const moreFrame: MoreFrame | null = more ? {
       ctx, things, signs, project, onScreen, s: v.s, cw, ch, dpr, now, scenery: scenery ?? null, still: reducedRef.current, th: words.current.th, place: placeRef.current,
       me: mine ? { id: mine.info.id, x: mine.pos.x, y: mine.pos.y } : null,
@@ -3515,9 +3520,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const thing = groundTap.current(x, y);
       if (thing) { if (thing.walk && sessionRef.current?.walkTo(thing.walk)) cam.current.follow = true; return; }
     }
-    // ── to come ── (a tree, a rock, a ladder, a lift, the mine's mouth, the yard's chest: whoever has asked the preview's
-    // module for taps on one has this one. With nobody asking, it is a step, as anywhere)
-    if (process.env.NODE_ENV === "development" && moreArt.current?.tap(x, y)) return;
+    // ── the far side ── (a tree, a rock, a ladder, a lift, the mine's mouth, the yard's chest: whoever has asked the far
+    // side's module for taps on one has this one; none answers while the far side is shut. With nobody asking, it is a step, as anywhere)
+    if (isFar() && moreArt.current?.tap(x, y)) return;
     // ── the bridge built by hand ── (its pile and its sign: done from where I stand, or walked up to first)
     if (gameRef.current && bridgeTap.current) {
       const hit = bridgeTap.current(x, y);
@@ -3959,11 +3964,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     setCard(null); setPeopleOpen(false); setChatOpen(false); setHistoryOpen(false); setBoardOpen(false); setTrade(null);
     setFishing(false);
     const hour = Math.floor(bangkokMinute(new Date()) / 60), n = ++talks.current, th = words.current.th;
-    // ── to come ── (the blacksmith, in the preview: his lines, his name and his portrait are the preview's module's; he
-    // only talks, whether the game is open or not)
-    if (process.env.NODE_ENV === "development" && asked === "smith") {
+    // ── the far side ── (the blacksmith: his lines, his name and his portrait are the far side's module's; he only
+    // talks, whether the game is open or not. Where no smith is kept for me (the database's, until his file has run) he
+    // says that his forge is not open yet, and has no screen to offer)
+    if (asked === "smith") {
       const art = moreArt.current;
       if (!art) return;
+      if (!keeper?.smith()) { setTalk({ who: asked, n, ...art.closed() }); return; }
       // ── forging ── (where the game is open and whoever keeps it has a smith, he asks what one came for and offers
       // his screen's leaves (TownSmith's smithChoices; the screen's own module is asked for here, as it is about to be
       // opened); with no smith kept, he only talks, as before)
@@ -4086,6 +4093,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // ── forging ── (open the blacksmith's screen at one of its leaves, over whatever else was open; for his talk's
   // choices (TownSmith's smithChoices) and, in `next dev`, for scripts and the test window)
   const openSmith = (view: SmithView | null) => {
+    // (no smith kept for me: no screen, whoever asks, the talk's choices and the test window's handle included)
+    if (view && !keeper?.smith()) return;
     if (view) { if (wardrobeOpenRef.current) closeWardrobe(); setCard(null); setPopover(null); setPeopleOpen(false); setHistoryOpen(false); setTalk(null); setTrade(null); setBoardOpen(false); setFishing(false); }
     setSmith(view);
   };
@@ -4876,7 +4885,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         </Suspense>
       )}
       {/* ── felling ── The mountain's trees: felled with an axe in the hand, on a board of their own */}
-      {s && game && keeper && TownTrees && (
+      {s && game && keeper && farOn && (
         <Suspense fallback={null}>
           <TownTrees keeper={keeper} th={w.th} name={me.name} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onMountain}
                      look={myLook} reduced={reducedRef.current} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)}
@@ -4891,7 +4900,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         </Suspense>
       )}
       {/* ── mining ── the mountain's rocks and the cave: struck on the map, with a pick (`next dev` only) */}
-      {s && game && keeper && TownMine && (
+      {s && game && keeper && farOn && (
         <Suspense fallback={null}>
           <TownMine keeper={keeper} th={w.th} name={me.name} sfx={sfxRef.current} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)} reduced={reducedRef.current}
                     register={registerMine} here={mineHere} warp={mineWarp} walk={mineWalk} openChest={mineChest} tellLight={mineLit} lightOfOther={mineLitOf} registerHold={registerMineHold} />

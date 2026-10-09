@@ -25,8 +25,6 @@ import type { Facing } from "./world";
  * down, which the game will hide under a rock, stands open.
  */
 
-/** Not in a production build: there no floor is made, and the build drops the making (lib/town/world's PREVIEW is the switch that puts the cave in the world). */
-const OFF = process.env.NODE_ENV === "production";
 /** A floor's side, in tiles. Its outermost ring is always rock. */
 export const CAVE_SIZE = 28;
 /** About how many rocks stand on a floor, and the fewest a floor is let have. */
@@ -207,7 +205,6 @@ function attemptAt(n: number, day: number, attempt: number): CaveFloor | null {
  * A resting floor is the same on every day.
  */
 export function caveFloor(n: number, day: number): CaveFloor {
-  if (OFF) throw new RangeError();
   const when = isRest(n) ? 0 : day;
   for (let attempt = 0; attempt < 400; attempt++) {
     const f = attemptAt(n, when, attempt);

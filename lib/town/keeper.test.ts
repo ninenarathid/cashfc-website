@@ -44,9 +44,9 @@ describe("the database's keeper", () => {
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
     // whether the chest in the plaza is a storage box, with what I keep in it; whether a bag can be put in order;
     // whether things can be dropped on the ground, with what lies about; whether the village has works, with what I
-    // carry in my hands; whether the farm and the forest have lamps, with the flame I bear; and everybody's rank at
+    // carry in my hands; whether the far side is open to me (`town_far`, asked past the line); whether the mountain's trees are kept; whether the farm and the forest have lamps, with the flame I bear; and everybody's rank at
     // the well, for the names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_trees", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -72,14 +72,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_trees", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(13);
+    expect(db.asked).toHaveLength(15);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -574,7 +574,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_works_read" || fn === "town_lamps_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_far" ? false : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_trees" || fn === "town_works_read" || fn === "town_lamps_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);
@@ -1136,5 +1136,89 @@ describe("the database's keeper", () => {
     for (let i = 0; i < 9; i++) { k2.record(go); await settle(); }
     expect(again.length).toBe(6);
     k2.close();
+  });
+});
+
+describe("the far side, as the database's keeper learns it", () => {
+  const mine = () => ({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+
+  it("is shut until the database says it is open: asked as the game begins, and again every five minutes while it is not", async () => {
+    let open = false;
+    const db = database({ ...mine(), town_far: () => open });
+    const k = new DbKeeper("me", db.ask);
+    let told = 0;
+    k.watch(() => { told++; });
+    expect(k.far()).toBe(false);
+    await settle();
+    expect(db.asked.filter((f) => f === "town_far").length).toBe(1);
+    expect(k.far()).toBe(false);
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    expect(db.asked.filter((f) => f === "town_far").length).toBe(2);
+    expect(k.far()).toBe(false);
+    open = true;
+    const before = told;
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    expect(db.asked.filter((f) => f === "town_far").length).toBe(3);
+    expect(k.far()).toBe(true);
+    expect(told).toBeGreaterThan(before);
+    // open, it is not asked again
+    await vi.advanceTimersByTimeAsync(30 * 60_000);
+    expect(db.asked.filter((f) => f === "town_far").length).toBe(3);
+    k.close();
+  });
+
+  it("reads a missing function, an error and a refusal as shut, never as a fault", async () => {
+    for (const far of [undefined, () => { throw new Error("no such function"); }, () => ({ denied: true }), () => null, () => "yes"] as Array<(() => unknown) | undefined>) {
+      const db = database({ ...mine(), ...(far ? { town_far: far } : {}) });
+      const k = new DbKeeper("me", db.ask);
+      await settle();
+      expect(k.ready()).toBe(true);
+      expect(k.far()).toBe(false);
+      k.close();
+    }
+  });
+});
+
+describe("the cave's day, laid by the site's server", () => {
+  const cave = (day = 20400) => ({ cave: { day, gone: {}, deepest: null } });
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it("has the day's floors laid when the database says they are not (unlaid), and asks again; the server is asked once a minute at the most", async () => {
+    let laid = false;
+    const calls: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => { calls.push(url); laid = true; return new Response(JSON.stringify({ day: 20400, laid: 30 })); });
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }), town_cave: () => (laid ? { ok: true, now: NOW, ...cave() } : { ok: false, why: "unlaid" }) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    await k.caveLook(1, null);
+    expect(calls).toEqual(["/api/town/cave"]);
+    expect(db.asked.filter((f) => f === "town_cave").length).toBe(2);
+    expect(k.cave()?.day).toBe(20400);
+    // still unlaid at a later time (the server could not lay them): not asked again within the minute
+    laid = false;
+    await k.caveLook(1, null);
+    await k.caveLook(2, null);
+    expect(calls.length).toBe(1);
+    await vi.advanceTimersByTimeAsync(61_000);
+    await k.caveLook(1, null);
+    expect(calls.length).toBe(2);
+    k.close();
+  });
+
+  it("does not call the server when the floors are laid, or when it cannot be reached", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal("fetch", async (url: string) => { calls.push(url); throw new Error("offline"); });
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }), town_cave: () => ({ ok: true, now: NOW, ...cave() }) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    await k.caveLook(1, null);
+    expect(calls).toEqual([]);
+    const down = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }), town_cave: () => ({ ok: false, why: "unlaid" }) });
+    const j = new DbKeeper("me", down.ask);
+    await settle();
+    await j.caveLook(1, null);
+    expect(calls.length).toBe(1);
+    expect(down.asked.filter((f) => f === "town_cave").length).toBe(1);
+    k.close(); j.close();
   });
 });

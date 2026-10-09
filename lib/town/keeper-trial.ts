@@ -66,6 +66,7 @@ class TrialKeeper implements Keeper {
 
   ready() { return true; }
   open() { return true; }
+  far() { return true; }
   watch(fn: () => void) { return this.trial.watch(fn); }
   /** Everything is in this browser already; but an hour of the pests' is counted by its first look at the farm, as the database counts it (lib/town/farm's Swarms), and again every so often while it is looked at, for the hour that turns meanwhile. */
   look(what?: string) {

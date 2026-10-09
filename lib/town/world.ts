@@ -13,7 +13,7 @@
  * y down to the left; the isometric diamond is 2:1.
  */
 
-// ── to come (a look-only preview, `next dev` only: see PREVIEW below) ── the mountain's foot and the cave, each laid out in its own file
+// ── the far side (in every build; reached only while setFar says it is open: see FAR below) ── the mountain's foot and the cave, each laid out in its own file
 import { CAVE_SIZE, caveFloor, depthOf, hollowAt, type CaveFloor } from "./cave";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 
@@ -360,7 +360,23 @@ export const KEEPERS: Keeper[] = [
  * In `next dev` only. A production build has none of it, and neither has a test, where the town is as its members
  * have it: what is to come is tested by a test that says so (lib/town/preview.test.ts).
  */
-export const PREVIEW = process.env.NODE_ENV === "development";
+export const PREVIEW = true;
+/**
+ * Whether the far side is open to this page's member (the bridge over the river, the mountain's foot and the cave under
+ * it). Its lists and its pictures are in every build; what a build gates is reaching it. Shut until the page's keeper
+ * says otherwise (`setFar`, as `setBuilt` is told): the bridge is then not walked over, nothing of the far side answers
+ * a tap and none of its panels opens (Town.tsx).
+ */
+let farOpen = false;
+/** Say whether the far side is open here. Each page works out where one may walk from this and from setBridge. */
+export function setFar(open: boolean) {
+  if (farOpen === open) return;
+  farOpen = open;
+  // (the bank the first span is laid from is a place to fish from only while the bridge is not walked over: what was worked out is dropped)
+  fishing.clear();
+}
+/** Whether the far side is open here now. */
+export const isFar = () => farOpen;
 /**
  * Whether something is being laid out as the town was before any of this (see asBuilt): the bridge is not walked
  * on then and the blacksmith closes no tile, so that what the database keeps a copy of (the insects' haunts, the
@@ -391,11 +407,12 @@ export const BRIDGE = {
 };
 const bridgeAt = new Set(BRIDGE.tiles.flat().map(([x, y]) => `${x},${y}`));
 /** Whether the bridge is walked on here now: whole, and opened. */
-export const bridgeOpen = () => PREVIEW && !asWas && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length;
+export const bridgeOpen = () => PREVIEW && farOpen && !asWas && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length;
 /** How much of the bridge there is, and whether it is opened (it cannot be, short of whole). Each page works out where one may walk from this, as from setBuilt. */
 export function setBridge(spans: number, open = true) {
   BRIDGE.spans = Math.max(0, Math.min(BRIDGE.tiles.length, Math.floor(spans)));
   BRIDGE.open = open && BRIDGE.spans >= BRIDGE.tiles.length;
+  fishing.clear();
 }
 /**
  * The blacksmith: a third popoto keeping shop, beyond the banker in the row before the Popoto Shop. He will smelt
@@ -1051,7 +1068,7 @@ const isForestWater = (tx: number, ty: number) => inStream(tx - FOREST.x + 0.5, 
 // (the camp's logs are benches: sat on like the town's, told to the room by their place in the same list)
 BENCHES.push(...FOREST_PROPS.filter((p) => p.kind === "logseat"));
 
-/* ── to come: the mountain's foot, and the cave under it (the preview, `next dev` only) ── */
+/* ── the far side: the mountain's foot, and the cave under it ── */
 
 /**
  * The mountain's foot ("ตีนเขา"; lib/town/mountain lays it out): a fourth map, out of the town's west path and over
@@ -1067,8 +1084,8 @@ export const MOUNTAIN = { x: 0, y: 208, w: MOUNTAIN_W, h: MOUNTAIN_H };
  * (Asked for by name wherever it is used, the build kept them: it does not follow `PREVIEW` through. Found by
  * building, 2026-10-08.) Everything below goes by these two.
  */
-const MT = process.env.NODE_ENV === "development" ? { layMountain, closedOf, mountainGround, cliffAt, GATE_ROWS, CEDAR, LOOKOUT_AT, MOUTH_AT, MINE_MOUTH } : null;
-const CV = process.env.NODE_ENV === "development" ? { caveFloor, hollowAt, depthOf } : null;
+const MT = { layMountain, closedOf, mountainGround, cliffAt, GATE_ROWS, CEDAR, LOOKOUT_AT, MOUTH_AT, MINE_MOUTH };
+const CV = { caveFloor, hollowAt, depthOf };
 const mountainLaid = MT ? MT.layMountain() : [];
 /** What stands about it, in the world's own tiles (nothing at all, outside the preview). */
 export const MOUNTAIN_PROPS: Prop[] = MT ? mountainLaid.map(({ u, v, ...p }) => ({ ...p, x: MOUNTAIN.x + u, y: MOUNTAIN.y + v })) : [];
@@ -1446,7 +1463,7 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
   // ── to come ── (the blacksmith's tiles are closed; the bridge's are walked on once it is whole and open, the water under it too)
   if (PREVIEW && !asWas) {
     if (smithAt.has(`${tx},${ty}`)) return "keeper";
-    if (BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length && bridgeAt.has(`${tx},${ty}`)) return null;
+    if (farOpen && BRIDGE.open && BRIDGE.spans >= BRIDGE.tiles.length && bridgeAt.has(`${tx},${ty}`)) return null;
   }
   if (isClosed(tx, ty)) return "roadworks";
   if (isWater(tx, ty)) return "water";

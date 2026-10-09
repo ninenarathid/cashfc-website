@@ -29,9 +29,9 @@ export const BOUNDS: Record<Place, Bounds> = {
   town: { minX: ISO_MIN_X, maxX: ISO_MAX_X, minY: ISO_MIN_Y, maxY: ISO_MAX_Y },
   farm: boundsOf(FARM),
   forest: boundsOf(FOREST),
-  // ── to come ── (the preview, `next dev` only; a production build has neither place, and nobody is ever in one there)
+  // ── the far side ── (in every build; nobody is in either place while the far side is shut)
   // the mountain's foot, and the cave: which is the floor one is on, and no more of it (floorBounds)
-  ...((process.env.NODE_ENV === "development" ? { mountain: boundsOf(MOUNTAIN), cave: boundsOf({ ...floorCorner(1), w: CAVE.size, h: CAVE.size }) } : {}) as { mountain: Bounds; cave: Bounds }),
+  mountain: boundsOf(MOUNTAIN), cave: boundsOf({ ...floorCorner(1), w: CAVE.size, h: CAVE.size }),
 };
 /** The extent of one floor of the cave: the camera stays inside the floor one stands on (the map puts it in BOUNDS.cave on coming to a floor). */
 export const floorBounds = (n: number): Bounds => boundsOf({ ...floorCorner(n), w: CAVE.size, h: CAVE.size });

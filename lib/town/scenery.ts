@@ -1,6 +1,6 @@
 "use client";
 
-import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM, FOREST, MORE_GROUND, MOUNTAIN, ROWS, TILE_H, TILE_W, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
+import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM, FOREST, MORE_GROUND, MOUNTAIN, PREVIEW, ROWS, TILE_H, TILE_W, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
 
 /**
  * Cash Town's scenery in pixel art: the ground and what stands on it (trees,
@@ -54,11 +54,9 @@ const LAY_PER_FRAME = 2;
 /** The ground's kind is worked out once per eighth of a tile, then remembered. */
 const SUB = 8;
 const TOWN_KINDS = ["grass", "plaza", "road", "water", "sand", "field", "wood"] as const;
-/** ── to come ── Whether what is to come is here (lib/town/world's PREVIEW; said again in this file, so that a production build drops what hangs on it). */
-const PREVIEW = process.env.NODE_ENV === "development";
 /**
- * ── to come ── (the preview, `next dev` only) The mountain's and the cave's own kinds of ground come after the
- * town's: none of them in a production build, where this is the town's list. Each is laid in the path's earth until
+ * ── the far side ── The mountain's and the cave's own kinds of ground come after the
+ * town's (in every build; the far side is only reached while it is open). Each is laid in the path's earth until
  * its own picture has come (components/town/mountain-art's loadMore); a stair has no texture of its own and is laid in
  * the plaza's cobbles, which its steps are then shaded over.
  */

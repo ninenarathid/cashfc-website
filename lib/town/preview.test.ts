@@ -1,16 +1,17 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 /**
- * What is to come (the bridge, the blacksmith, the mountain's foot, the cave) is in `next dev` only: lib/town/world's
- * PREVIEW. A test runs as neither `next dev` nor a production build, and there the town is as its members have it,
- * which is what every other test of the town is about. So this one says which it means: it makes the world as
- * `next dev` does, and as a production build does, and holds the two to each other.
+ * The far side (the bridge, the blacksmith, the mountain's foot, the cave) is in every build, whatever NODE_ENV is; what
+ * is gated is reaching it: lib/town/world's `setFar`. It is shut until a page's keeper says it is open. So this makes
+ * the world in each environment, holds them to each other, and says what shut and open each mean.
  */
 type World = typeof import("./world");
-const made = async (env: "development" | "production" | "test"): Promise<World> => {
+const made = async (env: "development" | "production" | "test", open = true): Promise<World> => {
   vi.resetModules();
   vi.stubEnv("NODE_ENV", env);
-  return import("./world");
+  const W = await import("./world");
+  W.setFar(open);
+  return W;
 };
 const FOUNTAIN_SIDE = { x: 32.5, y: 31.5 };
 /** Every tile of a map walked to from one, a step at a time (never over a corner). */
@@ -29,59 +30,74 @@ function walked(W: World, from: { x: number; y: number }): Set<string> {
   return seen;
 }
 
-describe("what is to come, in next dev only", () => {
+describe("the far side, in every build and reached only while it is open", () => {
   afterEach(() => { vi.unstubAllEnvs(); vi.resetModules(); });
 
-  it("is not there in a production build, nor in a test: no bridge, no blacksmith, no mountain, no cave", async () => {
-    for (const env of ["production", "test"] as const) {
-      const W = await made(env);
-      expect(W.PREVIEW).toBe(false);
-      expect(W.GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"]]);
+  it("is in every build, and shut until it is said to be open: nobody crosses the river, no gate beyond it leads anywhere", async () => {
+    for (const env of ["production", "test", "development"] as const) {
+      const W = await made(env, false);
+      expect(W.PREVIEW).toBe(true);
+      expect(W.isFar()).toBe(false);
+      // the lists are full in every environment: the maps, their gates, the bridge, the smith, the mountain and the cave
+      expect(W.GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"], ["town", "mountain"], ["mountain", "town"]]);
       expect(W.KEEPERS.map((k) => k.id)).toEqual(["uncle", "banker"]);
+      expect([W.BRIDGE.tiles.length, W.SMITH.tiles.length, W.MOUNTAIN_ROCKS.length, W.MORE_GROUND.length, W.CAVE.laid.length]).toEqual([6, 5, 54, 6, 30]);
+      expect(W.MOUNTAIN_TREES.length).toBe(120);
+      expect(W.PEAKS.length).toBeGreaterThan(0);
+      expect(W.MOUNTAIN_PROPS.length).toBeGreaterThan(0);
+      expect(W.CAVE_SEATS.length).toBeGreaterThan(0);
+      // the maps are there to be seen, drawn: but while it is shut the bridge is not walked over, whole and opened as it is
+      expect([W.BRIDGE.spans, W.BRIDGE.open]).toEqual([6, true]);
       expect(W.bridgeOpen()).toBe(false);
-      expect([W.BRIDGE.tiles, W.SMITH.tiles, W.MOUNTAIN_PROPS, W.MOUNTAIN_TREES, W.MOUNTAIN_ROCKS, W.MORE_GROUND, W.CAVE.laid, W.CAVE_SEATS, W.PEAKS]).toEqual([[], [], [], [], [], [], [], [], []]);
-      // nobody is anywhere there, nothing is seen there, and nobody crosses the river
-      for (const [x, y] of [[W.MOUNTAIN.x + 60, W.MOUNTAIN.y + 30], [W.CAVE.x + 10, W.CAVE.y + 10], [-5, 30]]) {
-        expect(W.placeOf(x, y)).toBeNull();
-        expect(W.walkable(x, y)).toBe(false);
-        expect(W.seenAt(x + 0.5, y + 0.5)).toBe(false);
-        expect(W.floorOf(x, y)).toBe(0);
-      }
+      expect(W.placeOf(W.MOUNTAIN.x + 60, W.MOUNTAIN.y + 30)).toBe("mountain");
+      expect(W.seenAt(-3, 33)).toBe(true);
       expect(W.findPath(FOUNTAIN_SIDE, { x: 0.5, y: 32.5 })).toBeNull();
       expect(W.walkable(8, 30)).toBe(false);
       expect(W.gateAt(0.5, 32.5)).toBeNull();
-      expect(W.groundLook(11.5, 28.5)).toBe(W.groundAt(11, 28));
-      // (setting the bridge whole and open there opens nothing: there is no bridge to set)
+      for (const [x, y] of W.GATES[4].tiles) expect(W.gateAt(x + 0.5, y + 0.5)).toBeNull();
+      // (saying the bridge whole and open does not open the far side: only setFar does, and the bridge as well)
       W.setBridge(6, true);
       expect(W.bridgeOpen()).toBe(false);
       expect(W.walkable(8, 30)).toBe(false);
-      expect(W.BENCHES.every((b) => W.placeOf(b.x, b.y) === "town" || W.placeOf(b.x, b.y) === "forest")).toBe(true);
+      W.setFar(true);
+      expect(W.isFar()).toBe(true);
+      expect(W.bridgeOpen()).toBe(true);
+      expect(W.walkable(8, 30)).toBe(true);
+      expect(W.findPath(FOUNTAIN_SIDE, { x: 0.5, y: 32.5 })).not.toBeNull();
+      // shut again: as it was
+      W.setFar(false);
+      expect(W.bridgeOpen()).toBe(false);
+      expect(W.walkable(8, 30)).toBe(false);
+      expect(W.findPath(FOUNTAIN_SIDE, { x: 0.5, y: 32.5 })).toBeNull();
     }
   });
 
-  it("leaves everything the town already has where it was: its props, its benches, its gates, and every tile of its three maps but the bridge's and the blacksmith's", async () => {
-    // (as a test has it: the town as it is live, with the deck and the cooking yard finished as `next dev` has them)
-    const live = await made("test"), liveProps = JSON.stringify([live.PROPS, live.FARM_PROPS, live.FOREST_PROPS, live.BEYOND_PROPS]), liveBenches = JSON.stringify(live.BENCHES);
-    const liveGates = JSON.stringify(live.GATES), liveShut = new Map<string, boolean>();
-    for (const r of [{ x: 0, y: 0, w: live.COLS, h: live.ROWS }, live.FARM, live.FOREST]) for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) liveShut.set(`${x},${y}`, live.walkable(x, y));
-    const W = await made("development");
-    expect(W.PREVIEW).toBe(true);
-    expect(JSON.stringify([W.PROPS, W.FARM_PROPS, W.FOREST_PROPS, W.BEYOND_PROPS])).toBe(liveProps);
-    // the benches that were, in their places in the list (somebody sitting is told to the room by that number); the new ones after them
-    expect(JSON.stringify(W.BENCHES.slice(0, live.BENCHES.length))).toBe(liveBenches);
-    expect(JSON.stringify(W.GATES.slice(0, 4))).toBe(liveGates);
-    const changed: string[] = [];
-    for (const [k, was] of liveShut) { const [x, y] = k.split(",").map(Number); if (W.walkable(x, y) !== was) changed.push(k); }
+  it("leaves everything the town already has where it was: its benches, its gates, and every tile of its three maps but the bridge's and the blacksmith's", async () => {
+    // (the town as it was before the far side: asBuilt lays it out so, as what the database keeps a copy of is made)
+    const W = await made("test", false), was = new Map<string, boolean>();
+    for (const r of [{ x: 0, y: 0, w: W.COLS, h: W.ROWS }, W.FARM, W.FOREST]) W.asBuilt(() => { for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) was.set(`${x},${y}`, W.walkable(x, y)); });
+    // the benches that were come first in their list (somebody sitting is told to the room by that number); the far side's after them
+    const firstFar = W.BENCHES.findIndex((b) => W.placeOf(b.x, b.y) === "mountain" || W.placeOf(b.x, b.y) === "cave");
+    expect(firstFar).toBeGreaterThan(0);
+    expect(W.BENCHES.slice(0, firstFar).every((b) => ["town", "farm", "forest"].includes(W.placeOf(b.x, b.y) as string))).toBe(true);
+    expect(W.BENCHES.slice(firstFar).every((b) => W.placeOf(b.x, b.y) === "mountain" || W.placeOf(b.x, b.y) === "cave")).toBe(true);
+    expect(W.GATES.slice(0, 4).map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"]]);
+    // shut, only the blacksmith's own tiles are shut that were not
+    const smith = W.SMITH.tiles.map(([x, y]) => `${x},${y}`);
+    const changed = (): string[] => [...was].filter(([k, w]) => { const [x, y] = k.split(",").map(Number); return W.walkable(x, y) !== w; }).map(([k]) => k).sort();
+    expect(changed()).toEqual([...smith].sort());
+    // open, the bridge's water as well
+    W.setFar(true);
     const water = W.BRIDGE.tiles.flat().filter(([x, y]) => W.groundAt(x, y) === "water").map(([x, y]) => `${x},${y}`);
-    expect(changed.sort()).toEqual([...water, ...W.SMITH.tiles.map(([x, y]) => `${x},${y}`)].sort());
-    // and laid out as it was (asBuilt), every one of those tiles is as it is live: what the database keeps is made so
-    W.asBuilt(() => { for (const [k, was] of liveShut) { const [x, y] = k.split(",").map(Number); expect(W.walkable(x, y), k).toBe(was); } });
+    expect(changed()).toEqual([...water, ...smith].sort());
+    // and laid out as it was (asBuilt), every one of those tiles is as it was: what the database keeps is made so
+    W.asBuilt(() => { for (const [k, w] of was) { const [x, y] = k.split(",").map(Number); expect(W.walkable(x, y), k).toBe(w); } });
     expect(W.bridgeOpen()).toBe(true);
   });
 
-  it("makes every row the database keeps a copy of exactly as a production build does", async () => {
+  it("makes every row the database keeps a copy of the same in every environment, the mountain's lists full", async () => {
     const rows = async (env: "development" | "production"): Promise<Record<string, string>> => {
-      await made(env);
+      await made(env, false);
       const { catalogOf } = await import("./catalog");
       const { HAUNTS } = await import("./insects");
       const { SPOTS, SECRETS } = await import("./forest");
@@ -90,12 +106,8 @@ describe("what is to come, in next dev only", () => {
     };
     const here = await rows("development"), there = await rows("production");
     expect(Object.keys(here)).toEqual(Object.keys(there));
-    // (but the two rows that list the mountain, the woodcutters' with every tree and the miners' with every rock of its
-    // foot: a production build lays no mountain out at all (lib/town/mountain's OFF), so there the two lists are empty.
-    // That is why the catalog's block is never written in one: lib/town/catalog's seedFor refuses, and so does v164.)
-    expect(Object.keys(here).filter((key) => here[key] !== there[key])).toEqual(["trees", "mining"]);
-    expect([JSON.parse(there.trees).wood.length, JSON.parse(there.mining).rocks.length]).toEqual([0, 0]);
-    expect([JSON.parse(here.trees).wood.length, JSON.parse(here.mining).rocks.length]).toEqual([121, 54]);
+    expect(Object.keys(here).filter((key) => here[key] !== there[key])).toEqual([]);
+    expect([JSON.parse(there.trees).wood.length, JSON.parse(there.mining).rocks.length]).toEqual([121, 54]);
     expect(JSON.parse(here.haunts).length).toBeGreaterThan(80);
   }, 120_000);
 
@@ -144,8 +156,7 @@ describe("what is to come, in next dev only", () => {
   });
 
   it("stands the blacksmith beyond the banker, on grass, in nobody's way", async () => {
-    const live = await made("test"), before = walked(live, FOUNTAIN_SIDE);
-    const W = await made("development"), S = W.SMITH;
+    const W = await made("development"), S = W.SMITH, before = W.asBuilt(() => walked(W, FOUNTAIN_SIDE));
     expect(S.id).toBe("smith");
     expect(S.tiles.length).toBeGreaterThanOrEqual(3);
     for (const [x, y] of S.tiles) {

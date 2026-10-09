@@ -12,8 +12,9 @@ import { MOUNTAIN_ROCKS, MOUNTAIN_TREES } from "./world";
 describe("the far side's lists, for the database", () => {
   afterEach(() => { vi.unstubAllEnvs(); vi.resetModules(); });
 
-  it("are full where the world's own are empty", () => {
-    expect([MOUNTAIN_TREES.length, MOUNTAIN_ROCKS.length]).toEqual([0, 0]);
+  it("are full, as the world's own are in every build", () => {
+    expect([MOUNTAIN_TREES.length, MOUNTAIN_ROCKS.length]).toEqual([120, 54]);
+    expect(farTrees()).toEqual(MOUNTAIN_TREES);
     expect([farTrees().length, farRocks().length]).toEqual([120, 54]);
     const all = catalogOf();
     // (the hundred and twenty numbered trees and the ancient cedar; every rock of the mountain's foot)
@@ -23,7 +24,7 @@ describe("the far side's lists, for the database", () => {
     expect(all.mining.rocks.map((r) => r[0])).toEqual(Array.from({ length: 54 }, (_, i) => i));
   });
 
-  it("are the world's own as `next dev` lays it out, tree for tree and rock for rock", async () => {
+  it("are the world's own, tree for tree and rock for rock, as `next dev` has them", async () => {
     vi.stubEnv("NODE_ENV", "development");
     vi.resetModules();
     const world = await import("./world"), trees = await import("./trees"), far = await import("./far-side"), catalog = await import("./catalog");
@@ -40,18 +41,18 @@ describe("the far side's lists, for the database", () => {
     expect(far.farCedar()).toEqual(farCedar());
   });
 
-  it("are in the block v164 carries, which is never written where no mountain is laid out", async () => {
+  it("are in the block v164 carries, in a production build as in the others", async () => {
     const { CATALOG_KEYS, seedFor } = await import("./catalog");
     expect(CATALOG_KEYS.v164).toEqual({ keys: ["forge", "trees", "mining", "pouches"], over: ["items", "goods", "shelf", "hints", "makes", "cooking", "work", "gifts"] });
     const block = seedFor("v164");
     // (a row's top entries are a line each: the two lists, whole)
     const line = (key: string) => JSON.parse(block.split("\n").find((l) => l.startsWith(`    "${key}": `))!.replace(/^ {4}"[a-z]+": /, "").replace(/,$/, "")) as unknown[];
     expect([line("wood").length, line("rocks").length]).toEqual([121, 54]);
-    // (a production build lays none out, lib/town/mountain's OFF: there the block is refused, never written short)
+    // (a production build lays the mountain out too: the block is the same there)
     vi.stubEnv("NODE_ENV", "production");
     vi.resetModules();
     const there = await import("./catalog");
-    expect(there.catalogOf().trees.wood.length).toBe(0);
-    expect(() => there.seedFor("v164")).toThrow(/no tree in it here/);
-  });
+    expect(there.catalogOf().trees.wood.length).toBe(121);
+    expect(there.seedFor("v164")).toBe(block);
+  }, 60_000);
 });

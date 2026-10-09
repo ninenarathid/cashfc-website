@@ -57,6 +57,8 @@ export const SMITH_TALKS: Line[][] = [
 export const SMITH_ASK: Line = { th: "วันนี้จะให้ข้าทำอะไรให้ล่ะ", en: "What shall I do for you today?" };
 /** The lines of a talk at an open forge: the greeting for the hour, then what he asks. */
 export const smithAsk = (hour: number): Line[] => [smithHello(hour), SMITH_ASK];
+/** What he says while whoever keeps the game has no smith for me (the database has not had his file, or his forge is not yet open): one line, whatever the hour, and no screen. */
+export const SMITH_CLOSED: Line = { th: "ช่างยังจัดร้านไม่เสร็จ อีกไม่นานจะเปิดเตา", en: "The smith is still setting up shop. The forge opens soon." };
 
 /** The lines of one talk: the greeting for the hour, then his conversation number `turn` (they go round). */
 export function smithTalk(hour: number, turn: number): Line[] {
