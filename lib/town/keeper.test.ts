@@ -1254,7 +1254,7 @@ describe("the mountain's trees, as the database's keeper asks for them", () => {
     const price = k.hintPrice();
     expect(await k.fellBegin(7, [3, 4])).toEqual({ ok: true, trees: [7, 8], ask: { chops: 8 }, elder: false });
     const did = await k.fellDo({ tree: 7, plain: true, secs: 0 }, [3, 4], "Me");
-    // (no `fire` in it: the great fire is not the database's yet)
+    // (no `fire` in it: this tree was nobody's tinder)
     expect(did).toEqual({ ok: true, felled, got: [["log", 2]], one: false, plain: true, through: true, stood: false, found: [{ id: "nest", first: true }], braced: "you" });
     // the stump and the book's line are on the page at once, the room is told a tree fell, and what the village has found is as it was
     expect(k.trees()).toEqual({ down: [{ id: 7, at: NOW, until: NOW + 40 * 60_000 }], half: [], book });
@@ -1521,6 +1521,197 @@ describe("the later lines of work, while the far side is shut", () => {
     const on = k.lines()!;
     expect([on.lines.felling.points, on.lines.mining.points, on.worn, on.given]).toEqual([500, 900, { line: "felling", rank: 2 }, ["felling", "mining"]]);
     expect(Object.keys(k.titles()).sort()).toEqual(["me", "they", "you"]);
+    k.close();
+  });
+});
+
+// ── forging ──
+describe("the blacksmith, as the database's keeper learns of him", () => {
+  const mine = (p: Purse = purse()) => ({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: p }) });
+  const fire = (more: Record<string, unknown> = {}) => ({ flint: null, tinder: null, lit: false, row: [], open: 0, mine: -1, topped: false, ...more });
+  const smith = (more: Record<string, unknown> = {}) => ({ smithy: { queue: [], more: 0, ember: 0, pending: null }, board: { tops: {}, found: {} }, fire: fire(), ...more });
+  const told = (p: Purse = purse(), s: Record<string, unknown> = smith()) => ({ now: NOW, purse: p, smith: s });
+  const asked = (db: { asked: string[] }, fn: string) => db.asked.filter((f) => f === fn).length;
+  const FIVE = 5 * 60_000 + 100;
+
+  it("is asked after only once the far side is open; a no is asked again every five minutes; a yes brings what I have there and the great fire, and then he is not asked after again", async () => {
+    let far = false, open = false;
+    const db = database({ ...mine(), town_far: () => far, town_smith_open: () => open, town_smith: () => told() });
+    const k = new DbKeeper("me", db.ask);
+    let heard = 0;
+    k.watch(() => { heard++; });
+    await settle();
+    expect([asked(db, "town_smith_open"), asked(db, "town_smith"), k.smith(), k.fire()]).toEqual([0, 0, null, null]);
+    // with no smith known nothing of his is sent, and nobody is refused anything
+    expect(await k.smithSmelt("oreCopper", 1)).toEqual({ ok: false, why: "away" });
+    expect(await k.fireJoin("Me")).toEqual({ ok: false, why: "away" });
+    expect(await k.smithNear(["you"])).toEqual([]);
+    k.smithLook();
+    await settle();
+    expect(db.asked.filter((f) => f.startsWith("town_smith") || f.startsWith("town_fire"))).toEqual([]);
+    far = true;
+    await vi.advanceTimersByTimeAsync(FIVE);
+    expect([k.far(), asked(db, "town_smith_open"), asked(db, "town_smith"), k.smith()]).toEqual([true, 1, 0, null]);
+    await vi.advanceTimersByTimeAsync(FIVE);
+    expect([asked(db, "town_smith_open"), asked(db, "town_smith")]).toEqual([2, 0]);
+    open = true;
+    const before = heard;
+    await vi.advanceTimersByTimeAsync(FIVE);
+    expect([asked(db, "town_smith_open"), asked(db, "town_smith")]).toEqual([3, 1]);
+    expect(k.smith()).toEqual({ smithy: { queue: [], more: 0, ember: 0, pending: null }, board: { tops: {}, found: {} } });
+    expect(k.fire()).toEqual(fire());
+    expect(heard).toBeGreaterThan(before);
+    await vi.advanceTimersByTimeAsync(6 * FIVE);
+    expect(asked(db, "town_smith_open")).toBe(3);
+    k.close();
+  });
+
+  it("reads a missing function, an error, a refusal and a smith that could not be had as no smith, never as a fault; and the game and the far side are as they were", async () => {
+    for (const open of [undefined, () => { throw new Error("no such function"); }, () => ({ denied: true }), () => null, () => "yes", () => false] as Array<(() => unknown) | undefined>) {
+      const db = database({ ...mine(), town_far: () => true, ...(open ? { town_smith_open: open } : {}), town_smith: () => told() });
+      const k = new DbKeeper("me", db.ask);
+      await settle();
+      expect([k.ready(), k.open(), k.far(), k.smith(), k.fire(), asked(db, "town_smith")]).toEqual([true, true, true, null, null, 0]);
+      k.close();
+    }
+    // (told yes, and then he cannot be had: asked after again in its time)
+    let has = false;
+    const db = database({ ...mine(), town_far: () => true, town_smith_open: () => true, town_smith: () => (has ? told() : null) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect([k.smith(), asked(db, "town_smith_open"), asked(db, "town_smith")]).toEqual([null, 1, 1]);
+    has = true;
+    await vi.advanceTimersByTimeAsync(FIVE);
+    expect([k.smith() !== null, asked(db, "town_smith_open"), asked(db, "town_smith")]).toEqual([true, 2, 2]);
+    k.close();
+  });
+
+  it("takes a function of his refused for the smith shut again: not the game, not the far side; and asks after him again in five minutes", async () => {
+    let shut = true;
+    const db = database({ ...mine(), town_far: () => true, town_trees: () => ({ now: NOW, purse: purse(), trees: { down: [], half: [] } }), town_smith_open: () => true, town_smith: () => told(),
+      town_smith_try: () => (shut ? { denied: true } : { ok: true, out: "taken", from: 0, level: 1, item: "pick", owed: -1, spent: false, ...told() }) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.smith()).not.toBeNull();
+    expect(await k.smithTry(0)).toEqual({ ok: false, why: "away" });
+    expect([k.smith(), k.fire(), k.open(), k.far(), k.trees() !== null]).toEqual([null, null, true, true, true]);
+    shut = false;
+    await vi.advanceTimersByTimeAsync(FIVE);
+    expect([k.smith() !== null, asked(db, "town_smith_open")]).toEqual([true, 2]);
+    const did = await k.smithTry(0);
+    expect(did.ok && did.out === "taken" && did.level === 1).toBe(true);
+    k.close();
+  });
+
+  it("with the far side shut again he is forgotten with it, and asked after only once it is open", async () => {
+    let far = true;
+    const db = database({ ...mine(), town_far: () => far, town_trees: () => (far ? { now: NOW, purse: purse(), trees: { down: [], half: [] } } : { denied: true }), town_smith_open: () => far, town_smith: () => told() });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect([k.far(), k.smith() !== null]).toEqual([true, true]);
+    far = false;
+    const stop = k.look("trees");
+    await settle();
+    stop();
+    expect([k.far(), k.smith(), k.fire(), k.open()]).toEqual([false, null, null, true]);
+    const was = asked(db, "town_smith_open");
+    far = true;
+    await vi.advanceTimersByTimeAsync(FIVE);
+    expect([k.far(), k.smith() !== null, asked(db, "town_smith_open")]).toEqual([true, true, was + 1]);
+    k.close();
+  });
+
+  it("sends a try's slot and no name; a move's two slots with the tile and whether a board is open; and the row's two deeds with nothing", async () => {
+    const sent: Record<string, Record<string, unknown>> = {};
+    const note = (fn: string, answer: Record<string, unknown>) => (args: Record<string, unknown>) => { sent[fn] = args; return { ...told(), ...answer }; };
+    const queued = fire({ row: [{ id: "me", name: "Me" }], mine: 0 });
+    const db = database({ ...mine(), town_far: () => true, town_smith_open: () => true, town_smith: () => told(),
+      town_smith_try: note("town_smith_try", { ok: false, why: "fire" }), town_smith_choose: note("town_smith_choose", { ok: true, opt: "pkPeek", kept: false }),
+      town_smith_move: note("town_smith_move", { ok: true, fee: 95, spilt: 2, a: "pot", b: "grill", level: 7 }),
+      town_fire_join: (args) => { sent.town_fire_join = args; return { ok: true, ...told(purse(), smith({ fire: queued })) }; }, town_fire_leave: note("town_fire_leave", { ok: false, why: "none" }) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(await k.smithTry(2)).toMatchObject({ ok: false, why: "fire" });
+    expect(sent.town_smith_try).toEqual({ p_slot: 2 });
+    await k.smithChoose(2, "pkPeek");
+    expect(sent.town_smith_choose).toEqual({ p_slot: 2, p_pick: "pkPeek" });
+    expect(await k.smithMove(0, 1, { at: [50, 24], playing: false })).toMatchObject({ ok: true, fee: 95, spilt: 2 });
+    expect(sent.town_smith_move).toEqual({ p_from: 0, p_to: 1, p_x: 50, p_y: 24, p_playing: false });
+    await k.smithMove(3, 1, { at: null, playing: true });
+    expect(sent.town_smith_move).toEqual({ p_from: 3, p_to: 1, p_x: null, p_y: null, p_playing: true });
+    expect(await k.fireJoin("A name the page says")).toEqual({ ok: true });
+    expect(sent.town_fire_join).toEqual({});
+    expect(k.fire()).toEqual(queued);
+    expect(await k.fireLeave()).toEqual({ ok: false, why: "none" });
+    k.close();
+  });
+
+  it("asks for a counted option only of a tool in the hand that has it, and says `none` for whatever it is refused for", async () => {
+    const net: Stack = { item: "bugNet", n: 1, plus: 10, opts: ["", "", "ntFreeze"] };
+    const p = purse({ hand: "bugNet", bag: [net, ...newPurse().bag.slice(1)] });
+    let left = 1;
+    const sent: Array<Record<string, unknown>> = [];
+    const db = database({ ...mine(p), town_tool_power: (args) => { sent.push(args); return left > 0 ? { ok: true, left: --left, now: NOW, purse: p } : { ok: false, why: "spent", now: NOW, purse: p }; } });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(await k.toolPower("ntWide")).toEqual({ ok: false, why: "none" });
+    expect(sent).toEqual([]);
+    expect(await k.toolPower("ntFreeze")).toMatchObject({ ok: true, left: 0 });
+    expect(await k.toolPower("ntFreeze")).toEqual({ ok: false, why: "none" });
+    expect(sent).toEqual([{ p_id: "ntFreeze" }, { p_id: "ntFreeze" }]);
+    k.close();
+    // (a database from before the smith: the function is not there, and the page is answered that the town could not be reached, never refused)
+    const old = database({ ...mine(p) });
+    const k2 = new DbKeeper("me", old.ask);
+    await settle();
+    expect(await k2.toolPower("ntFreeze")).toEqual({ ok: false, why: "away" });
+    expect([k2.open(), k2.ready()]).toEqual([true, true]);
+    k2.close();
+  });
+
+  it("passes on a half of the great fire found by a tree felled or a rock paid for, and reads the smith again for the fire as a page knows it", async () => {
+    const fell = (more: Record<string, unknown>) => ({ ok: true, now: NOW, purse: purse(), felled: [{ id: 7, kind: "pine", misses: 0, girth: 2, timber: 0, got: [["log", 2]] }], got: [["log", 2]], one: false, plain: false, through: true, stood: false, keeps: [], braced: null,
+      trees: { down: [], half: [] }, ...more });
+    const broke = (more: Record<string, unknown>) => ({ ok: true, now: NOW, purse: purse(), got: [["stone", 1]], broke: [3], way: false, vein: null, crystal: false, chained: null, cost: 1, part: 1, moss: false, ...more });
+    const fells = [fell({ fire: { half: "tinder", lit: false } }), fell({}), fell({ fire: "lit" })], breaks = [broke({ fire: { half: "flint", lit: true } }), broke({}), broke({ fire: { half: "ember" } })];
+    const db = database({ ...mine(), town_far: () => true, town_trees: () => ({ now: NOW, purse: purse(), trees: { down: [], half: [] } }), town_smith_open: () => true, town_smith: () => told(),
+      town_fell: () => fells.shift(), town_mine: () => breaks.shift() });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(asked(db, "town_smith")).toBe(1);
+    const went = { tree: 7, through: true, misses: 0, secs: 9 };
+    const f1 = await k.fellDo(went, [3, 4], "Me");
+    await settle();
+    expect(f1.ok && f1.fire).toEqual({ half: "tinder", lit: false });
+    expect(asked(db, "town_smith")).toBe(2);
+    const f2 = await k.fellDo(went, [3, 4], "Me"), f3 = await k.fellDo(went, [3, 4], "Me");
+    await settle();
+    expect([f2.ok && "fire" in f2, f3.ok && "fire" in f3, asked(db, "town_smith")]).toEqual([false, false, 2]);
+    const m1 = await k.mineDo(0, 3, [39, 231], 4, "Me");
+    await settle();
+    expect(m1.ok && m1.fire).toEqual({ half: "flint", lit: true });
+    expect(asked(db, "town_smith")).toBe(3);
+    const m2 = await k.mineDo(0, 3, [39, 231], 4, "Me"), m3 = await k.mineDo(0, 3, [39, 231], 4, "Me");
+    await settle();
+    expect([m2.ok && "fire" in m2, m3.ok && "fire" in m3, asked(db, "town_smith")]).toEqual([false, false, 3]);
+    k.close();
+  });
+
+  it("reads the smith again at the room's word that something of mine changed, only while a piece of mine smelts", async () => {
+    let queue: Array<Record<string, unknown>> = [];
+    const db = database({ ...mine(), town_far: () => true, town_smith_open: () => true, town_smith: () => told(purse(), smith({ smithy: { queue, more: 0, ember: 0, pending: null } })) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    k.nudged("line");
+    await settle();
+    expect([asked(db, "town_me"), asked(db, "town_smith")]).toEqual([2, 1]);
+    queue = [{ piece: "oreCopper", from: NOW - 1000, till: NOW + 60_000 }];
+    k.smithLook();
+    await settle();
+    expect(asked(db, "town_smith")).toBe(2);
+    k.nudged("line");
+    await settle();
+    expect([asked(db, "town_me"), asked(db, "town_smith")]).toEqual([3, 3]);
     k.close();
   });
 });

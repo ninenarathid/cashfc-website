@@ -69,9 +69,10 @@ import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
 // ── forging ──
 import { mayTwice } from "./farm";
-import { newBoard, soundSmithy, type Did as SmithDid, type Outcome as ForgeOutcome, type Pending, type SmithBoard, type SmithRefusal, type Smelting, type Smithy } from "./forge";
-import type { Element, OptionId } from "./tools";
+import { newBoard, smithView, soundSmithy, type Did as SmithDid, type Outcome as ForgeOutcome, type Pending, type SmithBoard, type SmithRefusal, type Smelting, type Smithy } from "./forge";
+import { has, type Element, type OptionId } from "./tools";
 import type { FireTold } from "./great-fire";
+import { heldStack } from "./trade";
 // ── felling ──
 import type { FellingAsk } from "./felling";
 import type { FellOne, FellWent, KeepsakeId, TreeRefusal, TreesTold } from "./trees";
@@ -726,6 +727,28 @@ const SHUT_MS = 5 * 60_000;
 const RANKS_MS = 5 * 60_000;
 /** How long before the far side is asked after again while it is not open to me. */
 const FAR_MS = 5 * 60_000;
+// ── forging ── (how long before the smith is asked after again while he is not open to me, or could not be had)
+const SMITH_MS = 5 * 60_000;
+/**
+ * The functions of the smith and of the great fire: the database answers them only to whoever the smith is open to
+ * (its own knob, behind the far side's). One of them refused is the smith shut to me again, never the game shut.
+ * (`town_tool_power` is not among them: it goes by the game's gate.)
+ */
+const SMITH_FNS: ReadonlySet<string> = new Set(["town_smith", "town_smith_smelt", "town_smith_take", "town_smith_widen", "town_smith_near", "town_smith_bellows", "town_smith_try", "town_smith_draw",
+  "town_smith_choose", "town_smith_redraw", "town_smith_gem", "town_smith_move", "town_fire_join", "town_fire_leave"]);
+/** A half of the great fire found by a deed of mine, as its answer says it: null for anything else. */
+const halfOf = (v: unknown): { half: "flint" | "tinder"; lit: boolean } | null => {
+  const f = v as { half?: unknown; lit?: unknown } | null;
+  return f && typeof f === "object" && (f.half === "flint" || f.half === "tinder") ? { half: f.half, lit: f.lit === true } : null;
+};
+/** What a page may be told of the great fire, read off an answer: null for what is none. */
+const fireOf = (v: unknown): FireTold | null => {
+  const f = v as Partial<FireTold> | null;
+  if (!f || typeof f !== "object" || typeof f.lit !== "boolean" || !Array.isArray(f.row) || typeof f.open !== "number" || typeof f.mine !== "number") return null;
+  const half = (h: unknown) => (h && typeof h === "object" && typeof (h as { name?: unknown }).name === "string" ? { name: (h as { name: string }).name } : null);
+  return { flint: half(f.flint), tinder: half(f.tinder), lit: f.lit, open: f.open, mine: f.mine, topped: f.topped === true,
+    row: f.row.filter((w): w is { id: string; name: string } => !!w && typeof w.id === "string").map((w) => ({ id: w.id, name: typeof w.name === "string" ? w.name : "" })) };
+};
 // ── felling ── (the functions of the mountain's trees: the database answers them only to whoever the far side is open to)
 const FELLING_FNS: ReadonlySet<string> = new Set(["town_trees", "town_fell_begin", "town_fell", "town_fell_brace", "town_fell_root"]);
 // ── mining ── (and those of its rocks, its cave and the pouches: behind the same gate, refused with it and not with the game)
@@ -795,8 +818,10 @@ export class DbKeeper implements Keeper {
   private titlesRaw_: Record<string, Worn> = {};
   private titles_: Record<string, Worn> = {};
   private gifting_ = false;
-  // ── forging ── (nothing, until the database tells of a smith)
+  // ── forging ── (nothing, until the database says the smith is open to me and tells of him; the great fire as he last told it)
   private smith_: SmithTold | null = null;
+  private fire_: FireTold | null = null;
+  private smithTimer: ReturnType<typeof setTimeout> | null = null;
   /** The gifts the database gives, as it last said; until it says (v151 said only that it gives some), the first round's six charms. */
   private gives_: readonly string[] = CHARM_IDS;
   private ranksAgain: ReturnType<typeof setInterval> | null = null;
@@ -935,7 +960,39 @@ export class DbKeeper implements Keeper {
     // ── felling ── (the mountain's trees, with those that are not grown: asked for the moment the far side is, or
     // becomes, open to me, and never while it is not)
     if (yes && !this.shut) void this.ask("town_trees");
+    // ── forging ── (the smith is behind the far side's gate and one of his own: asked after only once the far side is open to me)
+    if (yes && !this.shut) void this.askSmith();
     if (!yes && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
+  }
+  // ── forging ──
+  /**
+   * Ask `town_smith_open` (as `askFar` asks `town_far`: a plain yes or no, and anything but a yes is a no: a missing
+   * function, an error, a refusal). A yes is followed by what I have at the smith (`town_smith`), which is how the
+   * page comes to offer him at all; a no, or a smith that could not be had, is asked after again in five minutes. Only
+   * while the far side is open to me: with it shut nothing of the smith is asked.
+   */
+  private async askSmith() {
+    if (this.smithTimer) { clearTimeout(this.smithTimer); this.smithTimer = null; }
+    if (this.shut || !this.far_) return;
+    let got: unknown = null;
+    try { got = await this.rpc("town_smith_open", {}); } catch { got = null; }
+    const yes = (Array.isArray(got) ? got[0] : got) === true;
+    if (this.shut || !this.far_) return;
+    if (yes) await this.ask("town_smith");
+    else if (this.smith_ || this.fire_) { this.smith_ = null; this.fire_ = null; this.tell(); }
+    if (!this.smith_ && !this.shut && this.far_ && !this.smithTimer) this.smithTimer = setTimeout(() => { this.smithTimer = null; void this.askSmith(); }, SMITH_MS);
+  }
+  /**
+   * A function of the smith's was refused: he has been shut to me again (his owner's knob). What I was told of him is
+   * forgotten, so that nothing of him is offered, and whether he is open is asked again in its time. The game and the
+   * far side are as they were.
+   */
+  private smithShut() {
+    const had = !!this.smith_ || !!this.fire_;
+    this.smith_ = null;
+    this.fire_ = null;
+    if (had) this.tell();
+    if (!this.smithTimer && !this.shut && this.far_) this.smithTimer = setTimeout(() => { this.smithTimer = null; void this.askSmith(); }, SMITH_MS);
   }
 
   /** Ask, in turn: after everything asked before it has been answered. Null when it could not be had. */
@@ -977,6 +1034,8 @@ export class DbKeeper implements Keeper {
     // ── felling ── (a function of the trees refused: the far side is shut to me again, which is not the game shut)
     // ── mining ── (and one of the rocks' or the cave's, the same)
     if (a.denied && (FELLING_FNS.has(fn) || MINING_FNS.has(fn))) { this.farShut(); return null; }
+    // ── forging ── (and one of the smith's or the great fire's: the smith is shut to me again, which is neither the game nor the far side shut)
+    if (a.denied && SMITH_FNS.has(fn)) { this.smithShut(); return null; }
     if (a.denied) { if (this.opened !== false) { this.opened = false; this.tell(); } return null; }
     this.take(a, sent);
     return a;
@@ -1042,9 +1101,12 @@ export class DbKeeper implements Keeper {
     if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
     // ── forging ── (what I have at the smith, and the board: told by a database that has one, with my purse and with every deed there)
     if (a.smith && typeof a.smith === "object" && typeof (a.smith as { smithy?: unknown }).smithy === "object") {
-      const told = a.smith as { smithy: unknown; board?: Partial<SmithBoard> | null };
+      const told = a.smith as { smithy: unknown; board?: Partial<SmithBoard> | null; fire?: unknown };
       const board = told.board && typeof told.board === "object" ? told.board : this.smith_?.board ?? newBoard();
       this.smith_ = { smithy: soundSmithy(told.smithy), board: { tops: board.tops ?? {}, found: board.found ?? {} } };
+      // (and the great fire, as a page may know it: told with the smith, never by itself)
+      const fire = fireOf(told.fire);
+      if (fire) this.fire_ = fire;
     }
     if (Array.isArray(a.gives)) { this.givesRaw_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string"); this.fit(); }
     if (a.titles && typeof a.titles === "object") {
@@ -1154,7 +1216,12 @@ export class DbKeeper implements Keeper {
   }
   nudged(what: Looked) {
     // (somebody handed me water: it is in my purse, which is read again)
-    if (what === "line") { void this.ask("town_me"); return; }
+    if (what === "line") {
+      void this.ask("town_me");
+      // ── forging ── (a friend may have pressed my bellows: what I have at the smith is read again, while a piece of mine smelts there)
+      if (this.smith_ && smithView(this.smith_.smithy, this.now()).now) void this.ask("town_smith");
+      return;
+    }
     // (somebody dropped a thing, or picked one up: asked for, wherever I am in town; not of a database with no ground)
     if (what === "ground") { if (this.ground_) void this.ask("town_ground"); return; }
     // (somebody bought at a stall or brought to one: mine is read again with my purse, and so is the one I am looking at)
@@ -1272,6 +1339,10 @@ export class DbKeeper implements Keeper {
   private farShut() {
     this.trees_ = null;
     this.cave_ = null;
+    // ── forging ── (the smith is behind the far side's gate: with it shut he is shut too, and asked after only once it is open again)
+    this.smith_ = null;
+    this.fire_ = null;
+    if (this.smithTimer) { clearTimeout(this.smithTimer); this.smithTimer = null; }
     if (this.far_) { this.far_ = false; this.fit(); }
     this.tell();
     if (!this.farTimer && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
@@ -1289,11 +1360,15 @@ export class DbKeeper implements Keeper {
     if (a.ok !== true) return { ok: false, why: (a.why as Why) ?? "none" };
     const felled = (Array.isArray(a.felled) ? a.felled : []) as FellOne[];
     if (felled.length) this.onDeed?.("trees");
+    // ── forging ── (a tree felled may have been the village's tinder: said in my own answer; the fire as a page knows it is read again)
+    const fire = halfOf(a.fire);
+    if (fire && this.smith_) void this.ask("town_smith");
     this.tell();
     return {
       ok: true, felled, got: (Array.isArray(a.got) ? a.got : []) as Array<[ItemId, number]>, one: !!a.one, plain: !!a.plain, through: !!a.through, stood: !!a.stood,
       // (the keepsakes found are told as `keeps`: an answer's `found` is the village's list of what has been found, which `take` keeps)
       found: (Array.isArray(a.keeps) ? a.keeps : []) as FellDid["found"], braced: typeof a.braced === "string" ? a.braced : null,
+      ...(fire ? { fire } : {}),
     };
   }
   async fellBrace(feller: string, at: [number, number]): Promise<Did<{ tree: number }>> {
@@ -1686,6 +1761,12 @@ export class DbKeeper implements Keeper {
     if (did.ok || did.why === "gone") this.onDeed?.("cave");
     // (my swings broke a rock somebody else struck first: it is they who are paid, and told through the room that their purse changed)
     if (did.ok && typeof did.paid === "string") this.onDeed?.("line", did.paid);
+    // ── forging ── (a rock I am paid for may have been the village's flint: said in my own answer; the fire as a page knows it is read again)
+    if (did.ok) {
+      const fire = halfOf((did as { fire?: unknown }).fire);
+      if (fire && this.smith_) void this.ask("town_smith");
+      if (!fire && "fire" in did) delete (did as { fire?: unknown }).fire;
+    }
     return did;
   }
   minePeek(floor: number, rock: number) { return this.deed<{ peek: Peek }>("town_mine_peek", { p_floor: floor, p_rock: rock }) as Promise<MineDone<{ peek: Peek }>>; }
@@ -1931,13 +2012,22 @@ export class DbKeeper implements Keeper {
     if (this.groundTimer) clearTimeout(this.groundTimer);
     if (this.retry) clearTimeout(this.retry);
     if (this.farTimer) clearTimeout(this.farTimer);
+    if (this.smithTimer) clearTimeout(this.smithTimer);
     if (this.ranksAgain) clearInterval(this.ranksAgain);
     this.heard.clear();
   }
 
   // ── forging ── (lib/town/forge: every outcome is the database's, and each answer brings my purse and what I have at the smith)
-  // (a counted option asked for by the page: the database has no such function yet, and nothing is counted or done)
-  async toolPower(_id: OptionId): Promise<Did<{ left: number }>> { return { ok: false, why: "none" }; }
+  /**
+   * A counted option of the tool in my hand, used once. Asked only of a tool that has the option, by the purse as I
+   * was last told it: a database from before the smith has no such tool, and is asked nothing. Whatever it refuses for
+   * is "none" to the page, as the trial's keeper says it.
+   */
+  async toolPower(id: OptionId): Promise<Did<{ left: number }>> {
+    if (!has(heldStack(this.mine, this.taken), id)) return { ok: false, why: "none" };
+    const did = await this.deed<{ left: number }>("town_tool_power", { p_id: id });
+    return did.ok ? did : { ok: false, why: did.why === "away" ? "away" : "none" };
+  }
   smith(): SmithTold | null { return this.smith_; }
   smithLook() { if (this.smith_) void this.ask("town_smith"); }
   private async smithDeed<T>(fn: string, args: Record<string, unknown> = {}): Promise<SmithDid<T>> {
@@ -1958,15 +2048,22 @@ export class DbKeeper implements Keeper {
     if (did.ok) this.onDeed?.("line", whose);
     return did;
   }
+  // (the name on the tool and on the board is the one the site calls me by: the database reads it, and no page's word is sent)
   smithTry(slot: number) { return this.smithDeed<{ out: ForgeOutcome; from: number; level: number; owed: number }>("town_smith_try", { p_slot: slot }); }
   smithDraw(slot: number) { return this.smithDeed<{ pending: Pending }>("town_smith_draw", { p_slot: slot }); }
   smithChoose(slot: number, pick: string) { return this.smithDeed<{ opt: OptionId; kept: boolean }>("town_smith_choose", { p_slot: slot, p_pick: pick }); }
   smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithDeed<{ pending: Pending }>("town_smith_redraw", { p_slot: slot, p_at: at, p_gem: gem }); }
   smithGem(slot: number, gem: ItemId) { return this.smithDeed<{ element: Element; over: Element | null }>("town_smith_gem", { p_slot: slot, p_gem: gem }); }
-  // (a move of what the smith put into a tool: the database has no such function yet, and nothing is moved or paid)
-  async smithMove(_from: number, _to: number, _how: MoveHow): Promise<SmithDid<{ fee: number; spilt: number }>> { return { ok: false, why: "unbuilt" }; }
-  // (the great fire: the database has none yet, and nobody is put in a row for it)
-  fire(): FireTold | null { return null; }
-  async fireJoin(_name: string): Promise<{ ok: true } | { ok: false; why: SmithRefusal }> { return { ok: false, why: "away" }; }
-  async fireLeave(): Promise<{ ok: true } | { ok: false; why: SmithRefusal }> { return { ok: false, why: "away" }; }
+  // (a move: the tile I stand on is the page's word, which the database holds to the forge's place; so is whether a game's board is open)
+  smithMove(from: number, to: number, how: MoveHow) {
+    return this.smithDeed<{ fee: number; spilt: number }>("town_smith_move", { p_from: from, p_to: to, p_x: how.at ? Math.floor(how.at[0]) : null, p_y: how.at ? Math.floor(how.at[1]) : null, p_playing: !!how.playing });
+  }
+  // (the great fire: told with the smith, and with every deed of his and of the row's)
+  fire(): FireTold | null { return this.smith_ ? this.fire_ : null; }
+  private async fireDeed(fn: string): Promise<{ ok: true } | { ok: false; why: SmithRefusal }> {
+    const did = await this.smithDeed(fn);
+    return did.ok ? { ok: true } : { ok: false, why: did.why };
+  }
+  fireJoin(_name: string) { return this.fireDeed("town_fire_join"); }
+  fireLeave() { return this.fireDeed("town_fire_leave"); }
 }
