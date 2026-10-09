@@ -64,7 +64,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1
   if (!existsSync(file)) throw new Error(`no ${file}`);
   if (out && resolve(out) === resolve(file)) throw new Error("not into the part itself: a function that was there before is never pasted into a part");
   const { standIn } = await import("./stand-in.mjs");
-  const t = await standIn({ before164: version === "v164" });
+  process.env.FC_REPO ??= root;
+  const t = await standIn(version === "v164" ? { before164: true } : { upTo: Number(version.slice(1)) - 1 });
   const text = readFileSync(file, "utf8").split("\r\n").join("\n");
   const made = filled(text, againOf(await defsOf((q) => t.sql(q).then((r) => r.rows)), await linesOf(db(`${version}.${part}.lines.mjs`))));
   if (out) { writeFileSync(out, made); console.log(`${out}: ${version}.${part} with its places filled from the stand-in`); } else console.log(made);

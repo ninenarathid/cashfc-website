@@ -369,15 +369,20 @@ export default async function ({ t, U, call, purseOf, deeds, one, same, CODE, pa
   t.section("the fire's halves: tinder by a tree felled, flint by a rock paid for; under the finder's name; lit with both");
   await patch(U.admin, { bag: bag() });
   const stood = await (async () => {
-    // (a go that is not cut through: the tree stands, and nothing is found)
+    // (a go that is lost: since v173 the tree stands, and a call that fells no tree finds nothing; and a call that is refused)
     const was = await purseOf(U.m2), tree = pines[nextPine++ % pines.length], spot = [tree.x - 1, tree.y];
     await patch(U.m2, { bag: bag({ item: "axe", n: 1 }), hand: "axe", handAt: 0, stamina: { day: dayOf(NOW), left: 100 } });
     await t.sql(`update public.town_things set doc = '{"down": {}, "half": []}'::jsonb where key = 'grove'`);
     const refused = await ask(U.m2, "town_fell", { tree: tree.id, through: true, misses: 0, secs: 30 }, spot[0] - 9, spot[1]);
+    await ask(U.m2, "town_fell_begin", tree.id, spot[0], spot[1]);
+    await on(30_000);
+    const lost = await ask(U.m2, "town_fell", { tree: tree.id, through: false, misses: 3, secs: 30 }, spot[0], spot[1]);
     await patch(U.m2, { bag: was.bag, hand: was.hand ?? null, handAt: was.handAt ?? null });
-    return refused;
+    return { refused, lost };
   })();
-  t.check("a felling call that fells no tree finds nothing: the fire is as it was", stood?.ok === false && stood.fire === undefined && ((await fireKept()).tinder ?? null) === null, stood?.why);
+  t.check("a felling call that is refused, and a go that is lost (the tree stands: no tree felled), find nothing: the fire is as it was, though its tinder is there to be found",
+    stood.refused?.ok === false && stood.refused.fire === undefined && stood.lost?.ok === true && stood.lost.stood === true && stood.lost.felled.length === 0 && stood.lost.fire === undefined
+    && ((await fireKept()).tinder ?? null) === null && (await deeds("fire_found")).length === 0, [stood.refused?.why, { ...stood.lost, purse: undefined, trees: undefined }]);
   let markF = await lastDeed();
   let f1 = await fellOne(U.m2);
   fire = await fireNow();

@@ -68,9 +68,12 @@ const param = (v) => (v === null ? null : typeof v === "object" ? JSON.stringify
 const standsOn = (sql) => (sql.split("\n").slice(0, 60).map((l) => /^-- stands on:\s*(.+)$/.exec(l)?.[1]).find(Boolean) ?? "").split(",").map((s) => s.trim()).filter(Boolean);
 
 const t0 = Date.now();
-// (v164's own parts are tried on the database as it was before v164; a part of any later file on the database as it is
-// after the last file that ran)
-const t = await standIn({ before164: version === "v164" });
+// (v164's own parts are tried on the database as it was before v164. A part of any later file is tried on the database
+// as it will be when that file runs: every file that has run, and after them those of supabase/ in the root given that
+// have not run yet and have a lesser number, in their order (v174's part has v172 and v173 under it). The first time
+// that database is built from history, which takes a few minutes, and kept beside this file as a snapshot.)
+process.env.FC_REPO ??= root;
+const t = await standIn(version === "v164" ? { before164: true } : { upTo: Number(version.slice(1)) - 1 });
 const one = async (sql, params) => (await t.sql(sql, params)).rows[0];
 /** So many points on a line for a member, as if earned before today. */
 const rank = async (who, ln, points) => {
