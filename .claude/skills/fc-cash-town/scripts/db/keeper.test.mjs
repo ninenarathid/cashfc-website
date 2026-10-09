@@ -19,6 +19,7 @@ const { FARM, KITCHEN, plotAt, fishFrom, bedOf } = await import("@/lib/town/worl
 const { shelfOf } = await import("@/lib/town/orders");
 const { BUGS, HAUNTS } = await import("@/lib/town/insects");
 const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town/farm");
+const { ALL_LINE_IDS, MORE_LINE_IDS } = await import("@/lib/town/lines");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
@@ -110,12 +111,14 @@ try {
   ok("popoto from pictures are refused: none to change", !did.ok && did.why === "popoto", did);
   did = await A.change("profile", 17);
   ok("more than the week's rest is refused: cap", !did.ok && did.why === "cap", did);
-  // (the first day's shelf: twenty-one things, from v117 the scroll of the cure for pests, and from v125 a net for insects)
-  const sells = (await sql(`select town.cat('items') ? 'scrollPestCure' as cure, town.cat('items') ? 'bugNet' as net`))[0], first = 21 + (sells.cure ? 1 : 0) + (sells.net ? 1 : 0);
+  // (the first day's shelf is read from the database's own catalog, never named here: twenty-one things at first, the
+  // scroll of the cure for pests from v117, a net for insects from v125, a pick and an axe from v164)
+  const first = Number((await sql(`select jsonb_array_length(town.cat('shelf')->'basic') as n`))[0].n);
+  const sells = (await sql(`select town.cat('items') ? 'scrollPestCure' as cure, town.cat('items') ? 'bugNet' as net`))[0];
   ok("the stall is not known until it is looked at", A.order() === null && A.shelf().length === shelfOf(0).length);
   const stopStall = A.look("stall");
   await settled(A);
-  ok(`looked at: today's order, the first day's shelf of ${first}, what his next hint costs`, A.order()?.wants?.length === 3 && A.shelf().length === first && A.hintPrice() === 15, { order: A.order(), shelf: A.shelf().length, hint: A.hintPrice() });
+  ok(`looked at: today's order, the first day's shelf of ${first}, what his next hint costs`, A.order()?.wants?.length === 3 && first >= 23 && A.shelf().length === first && A.hintPrice() === 15, { order: A.order(), shelf: A.shelf().length, hint: A.hintPrice() });
   stopStall();
   did = await A.buy("worm", 3);
   ok("three worms bought: six coins gone, in the bag, counted on the stall", did.ok && A.purse().coins === 14 && A.purse().bag[0]?.item === "worm" && A.purse().bag[0].n === 3 && A.stall().sold.worm === 3, { purse: A.purse().bag[0], stall: A.stall() });
@@ -1680,7 +1683,11 @@ try {
     ok(`what the keepers did above counted on the lines it is of: ${LINES_PLAYED.join(", ")}`, LINES_PLAYED.every((l) => counted[l] > 0), counted);
     A.linesRead();
     await settled(A);
-    ok("…and a keeper is told its own, all seven", Object.keys(A.lines()?.lines ?? {}).length === 7, A.lines());
+    // (every line the code has, whatever the database lists: the far side's two are shown at nothing while the far
+    // side is not open to this member, which it is not to a member here, with v164 or without)
+    const mine = A.lines()?.lines ?? {}, farOpen = A.far();
+    ok(`…and a keeper is told its own, every line there is (${ALL_LINE_IDS.length})${farOpen ? "" : `, the far side's ${MORE_LINE_IDS.length} at nothing while it is shut to them`}`,
+      JSON.stringify(Object.keys(mine).sort()) === JSON.stringify([...ALL_LINE_IDS].sort()) && LINES_PLAYED.every((l) => mine[l].points > 0) && (farOpen || MORE_LINE_IDS.every((l) => mine[l].points === 0)), A.lines());
     // (v151, a draft or run: the gifts of ranks. A database before it gives none, and the keeper says so)
     if ((await sql(`select to_regprocedure('public.town_gift_take(text, integer)') is not null as there`))[0].there) {
       ok("where gifts are given the keeper says so", A.gifting() === true);
@@ -1717,14 +1724,17 @@ try {
           // What is tried is the wiring: that each deed reaches a function that is there, with the arguments it takes, and
           // that its answer is a rule's (done, or refused for a reason) and not "the town could not be reached". The rules
           // themselves are the dry run's. Every gift is put into the purse, the familiar changed as each deed needs.
-          const every = Object.keys((await sql(`select town.cat('gifts')->'gifts' as g`))[0].g);
+          const gifts = (await sql(`select town.cat('gifts')->'gifts' as g`))[0].g, every = Object.keys(gifts);
+          // (the gifts of the far side's two lines are in the catalog from v164 on, and are offered only once the far side is open to this member)
+          const offered = every.filter((id) => A.far() || !MORE_LINE_IDS.includes(gifts[id].line)), held = every.filter((id) => !offered.includes(id));
           const withGifts = async (familiar) => { await sql(`update public.town_purses set doc = jsonb_set(doc, '{gifts}', $2::jsonb) where member_id = $1`,
             [a, JSON.stringify({ had: every, charms: ["charmHoe", "charmSickle"], owed: 0, familiar, used: {} })]); await settled(A); };
           const reached = (r) => !!r && (r.ok === true || (typeof r.why === "string" && r.why !== "away"));
           const tried = [];
           const ask = async (name, fn) => { let r; try { r = await fn(); } catch (e) { r = { threw: String(e?.message ?? e) }; } tried.push([name, r]); return r; };
           await withGifts("famGnome");
-          ok("the keeper offers every gift the database's catalog has", every.length >= 39 && every.every((id) => A.gives(id)), every.filter((id) => !A.gives(id)));
+          ok(`the keeper offers every gift the database's catalog has of the lines open to it: ${offered.length} of ${every.length}${held.length ? `, the far side's ${held.length} held back while it is shut` : ""}`,
+            offered.length >= 39 && offered.every((id) => A.gives(id)) && held.every((id) => !A.gives(id)), { missing: offered.filter((id) => !A.gives(id)), early: held.filter((id) => A.gives(id)) });
           const here = [plot[0], plot[1]];
           // the kitchen
           await ask("basketPut", () => A.basketPut(0, 1));
