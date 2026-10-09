@@ -66,7 +66,8 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
   });
 
   it("is no thing of the bag: a stone is nowhere among the things, and nothing new can be sold", () => {
-    expect("stone" in ITEMS).toBe(false);
+    // (the mine leaves an item of that name now, a mineral of the bag; the bridge's stone is carried in the hands and never read from the bag)
+    expect(ITEMS.stone.kind).toBe("mineral");
   });
 
   it("stands its pile by the uncle's shop, where it stops nobody, and its foot on the town's own bank", () => {

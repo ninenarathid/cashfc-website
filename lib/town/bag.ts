@@ -19,7 +19,7 @@ import { ITEMS, type ItemId, type ItemKind } from "./items";
 import { no, type Done, type Purse, type Stack } from "./trade";
 
 /** The kinds in the order a sorted bag has them: what is worked with first, then what it brings, then what is made of that. */
-export const KIND_ORDER: ItemKind[] = ["tool", "seed", "bait", "crop", "fish", "catch", "wild", "bug", "staple", "goods", "dish", "scroll"];
+export const KIND_ORDER: ItemKind[] = ["tool", "seed", "bait", "crop", "fish", "catch", "wild", "bug", "wood", "mineral", "staple", "goods", "dish", "scroll"];
 
 /**
  * Whether a stack may be joined to more of its thing: of a thing more than one of which go in a slot, and with
