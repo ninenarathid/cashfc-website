@@ -57,6 +57,8 @@ const WHY_MINE: Record<string, [th: string, en: string]> = {
   full: WHY.full, vein: ["ยังมีสายแร่ที่เปิดค้างไว้", "A vein is still open"], spent: ["วันนี้ใช้ไปครบแล้ว", "Used up for today"],
   open: ["ทางลงชั้นนี้เปิดอยู่แล้ว", "The way down is open already"], here: ["ตรงนี้ทำไม่ได้", "Not on this spot"], away: WHY.away,
   shut: ["ทางลงชั้นนี้ยังไม่มีใครหาเจอ", "Nobody has found the way down yet"],
+  // (the day's floors are not in the database yet, and the site could not lay them just now)
+  unlaid: ["ถ้ำของวันนี้ยังไม่พร้อม ลองใหม่อีกสักครู่", "Today's cave is not ready yet. Try again in a moment."],
 };
 /** What a peek shows over a rock: the picture, by what it said. */
 const PEEK_ICON = (peek: Peek, floor: number): string => (peek === "vein" ? "veinOre" : peek === "shards" ? iconOf(oreOf(floor)) : "stone");
