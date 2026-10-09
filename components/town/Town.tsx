@@ -4258,7 +4258,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   return (
     <div ref={stageRef}
-         style={{ ["--hud-b" as string]: hudBottom }}
+         style={{ ["--hud-b" as string]: hudBottom, ["--hud-t" as string]: hudTop }}
          className={`${covered ? "fixed inset-0 z-[55]" : "fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30]"} overflow-hidden overscroll-none bg-[#0b1016]`}>
      <TownFootContext.Provider value={footPlaces}>
       {/* The town: above the page (z-30), under the header (40) and the phone's

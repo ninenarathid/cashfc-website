@@ -788,9 +788,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
         </div>
       )}
 
-      {/* a vein opened: its board, over the map */}
+      {/* a vein opened: its board, over the map (on a phone it begins under the HUD's top row, which lies over everything there: the board's head and its how-to were under the plates) */}
       {vein && (
-        <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-2 sm:items-center sm:p-4" style={{ paddingBottom: "var(--hud-b)" }} data-mine-vein>
+        <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-[calc(var(--hud-t,0px)+0.25rem)] sm:items-center sm:p-4" style={{ paddingBottom: "var(--hud-b)" }} data-mine-vein>
           <Suspense fallback={null}>
             <TownVein vein={vein} th={th} reduced={reduced} sfx={sfx}
                       onEnd={async (strikes) => {
