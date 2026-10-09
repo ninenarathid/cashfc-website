@@ -363,13 +363,21 @@ try {
     await second();
     const { b: bId, idB } = who;
     await sql(`delete from public.town_smiths where member_id in ($1, $2)`, [a, bId]);
-    await setPurse(a, 1000, [{ item: "shardCopper", n: 60 }, { item: "timber", n: 40 }]);
+    await setPurse(a, 1000, [{ item: "shardCopper", n: 60 }, { item: "timber", n: 50 }, { item: "timber", n: 30 }, { item: "shardIron", n: 20 }, { item: "shardSilver", n: 20 }, { item: "chipRuby", n: 20 }]);
     await setPurse(bId, 0, []);
     await opened();
     for (const X of [A, B]) { await again(X); await go(X, "smith"); }
     const at = await self(A);
     await warp(B, at.x + 1, at.y);
     await openSmith(A, "smelt");
+    // every piece the bag has fragments for: what its row says it takes, and for how long, against the catalog's row
+    const rows = [];
+    for (const piece of ["oreCopper", "oreIron", "oreSilver", "gemRuby"]) {
+      const rule = FORGE.smelts.of[piece], screen = await needs(A, `[data-smith-row="${piece}"]`), text = (await textOf(A, `[data-smith-row="${piece}"]`)) ?? "";
+      const catalog = { [rule.of]: FORGE.smelting.fragments, timber: FORGE.smelting.timber, coins: rule.fee };
+      rows.push({ piece, screen, catalog, mins: rule.mins, same: same(screen, catalog) && new RegExp(`(^|\\D)${rule.mins}\\s*(นาที|min)`).test(text) });
+    }
+    ok("each piece the bag has fragments for (copper, iron, silver, a gem) is said to take its catalog row's fragments, timber and fee, and to smelt for its minutes", rows.every((r) => r.same), rows.map((r) => `${r.piece}: ${JSON.stringify(r.screen)} ${r.mins} min${r.same ? "" : ` (the catalog: ${JSON.stringify(r.catalog)})`}`));
     const copper = FORGE.smelts.of.oreCopper, fromCatalog = { [copper.of]: FORGE.smelting.fragments, timber: FORGE.smelting.timber, coins: copper.fee };
     const row = await needs(A, '[data-smith-row="oreCopper"]');
     ok("a piece of copper is said to take what the catalog's row says: its fragments, a fine timber and its fee", same(row, fromCatalog), { screen: row, catalog: fromCatalog, row: copper });
@@ -421,6 +429,8 @@ try {
     const more = FORGE.smith.more[0];
     ok("widened from the screen for what it said, which is the catalog's: three places more, the timber and the coins gone", same(wider, { timber: more.timber, coins: more.coins }) && same(lost({ coins: was.coins, bag: was.doc.bag }, { coins: is.coins, bag: is.doc.bag }, ["timber"]), { coins: more.coins, timber: more.timber })
       && (await attr(A, "[data-smith-places]", "data-smith-places")) === String(FORGE.smith.places + FORGE.smith.wider) && (await smithyOf(a)).more === 1, { screen: wider, catalog: more, places: await attr(A, "[data-smith-places]", "data-smith-places") });
+    const wider2 = await needs(A, "[data-smith-wider]"), more2 = FORGE.smith.more[1];
+    ok("…and the next widening is said to take what the catalog says of the second", same(wider2, { timber: more2.timber, coins: more2.coins }), { screen: wider2, catalog: more2 });
     await shutSmith(A);
   }
 
@@ -499,7 +509,15 @@ try {
     await again(A); await go(A, "smith");
     await openSmith(A, "forge");
     await anvil(A, "axe");
-    for (let i = 0; i < FORGE.forge.milestones[0]; i++) { await stock(A, a); await strikeOnce(A, a); }
+    // (the axe is a wooden tool: its share of each try is another than a metal tool's, and is held against the catalog as the pick's was)
+    const wooden = [];
+    const held = async (did, to) => {
+      const takes = await tryTakes(b, "axe", to), table = FORGE.tries.find((t) => t.to === to);
+      if (!same(did.want, { [takes.ore]: takes.n, timber: takes.timber, coins: takes.fee })) wooden.push(`+${to}: the screen says ${JSON.stringify(did.want)}, the catalog ${JSON.stringify(takes)}`);
+      if (did.odds !== `${table.take}/${table.stay}/${table.down}`) wooden.push(`+${to}: odds on the screen ${did.odds}, the catalog's ${table.take}/${table.stay}/${table.down}`);
+      if (did.lost && !same(did.lost, { coins: takes.fee, [takes.ore]: takes.n, timber: takes.timber })) wooden.push(`+${to}: said ${JSON.stringify(did.want)}, lost ${JSON.stringify(did.lost)}`);
+    };
+    for (let i = 0; i < FORGE.forge.milestones[0]; i++) { await stock(A, a); await held(await strikeOnce(A, a), i + 1); }
     await until("the draw is laid out", () => there(A, "[data-smith-offer]"), 10000, 100).catch(() => {});
     const first = await offered(A), pending = (await smithyOf(a))?.pending;
     ok("at +3 the draw is laid out: two options, not the same one twice, and they are the two the stand-in keeps waiting", first.length === FORGE.smith.offer && first[0].id !== first[1].id && same(first.map((c) => c.id), pending?.offer) && pending.at === 0, { screen: first.map((c) => c.id), kept: pending });
@@ -529,6 +547,17 @@ try {
     await press(A, `[data-smith-choose="${fresh}"]`, 800);
     tool = await toolKept(a, "axe");
     ok("a new one chosen takes the old one's place", same(tool.opts, [fresh]) && (await there(A, `[data-smith-opt="${fresh}"]`)) && !(await there(A, `[data-smith-opt="${first[1].id}"]`)), tool);
+    // the rest of a wooden tool's road, as the screen says each try before it is made: the axe forged on a level at a time by its member's own
+    // functions (no try is made from the screen here), and what the forging leaf then says the next takes
+    const read = [];
+    for (let level = FORGE.forge.milestones[0]; level < FORGE.forge.top; level++) {
+      if (level > FORGE.forge.milestones[0]) { await forgeTo(b, idA, a, 0, level); await A.evaluate(`${K}.smithLook()`); }
+      const on = await until(`the try to +${level + 1} is on the screen`, async () => (await attr(A, "[data-smith-try]", "data-to")) === String(level + 1), 8000, 120).catch(() => false);
+      if (!on) { wooden.push(`+${level + 1}: its try was not on the screen (the tool at +${(await toolKept(a, "axe"))?.plus})`); continue; }
+      await held({ want: await needs(A, "[data-smith-try]"), odds: await attr(A, "[data-smith-odds]", "data-smith-odds") }, level + 1);
+      read.push(level + 1);
+    }
+    ok("a wooden tool's every try, +1 to +10, is said on the screen to take what the catalog's table says of a wooden tool, at the catalog's odds; and the three made from the screen took just that", wooden.length === 0 && read.length === FORGE.forge.top - FORGE.forge.milestones[0], wooden.length ? wooden.slice(0, 6) : `read off the screen: +1 to +3 as struck, then ${read.map((n) => `+${n}`).join(" ")}`);
     await shutSmith(A);
   }
 
@@ -570,7 +599,8 @@ try {
     await sql(`delete from public.town_smiths where member_id = $1`, [a]);
     await setPurse(a, 5000, [{ item: "hoe", n: 1 }, { item: "can", n: 1 }, { item: "rod", n: 1 }]);
     await opened();
-    const made = await forged(A, idA, a, "hoe", 4);
+    // (to +6: the fee of a move is then above its least, and what the page works out is held against what the database takes)
+    const made = await forged(A, idA, a, "hoe", 6);
     await go(A, "smith");
     await openSmith(A, "move");
     await anvil(A, "hoe");
@@ -582,7 +612,7 @@ try {
     let is = await kept(b, a);
     const after = pair.cards.filter((c) => c.smithMoveCard === "after");
     ok("moved from the screen: the two tools side by side as they would be are what the stand-in then keeps (the can has the plus and the option, the hoe none), for the fee the screen said, and the screen says so", pair.why === null
-      && (is.doc.bag[1].plus ?? 0) === made.tool.plus && same(is.doc.bag[1].opts, made.tool.opts) && !(is.doc.bag[0].plus > 0) && was.coins - is.coins === pair.fee && pair.fee > 0
+      && (is.doc.bag[1].plus ?? 0) === made.tool.plus && same(is.doc.bag[1].opts, made.tool.opts) && !(is.doc.bag[0].plus > 0) && was.coins - is.coins === pair.fee && pair.fee > FORGE.smith.move.least
       && after.find((c) => c.item === "can")?.plus === String(made.tool.plus) && after.find((c) => c.item === "hoe")?.plus === "0" && /⇄/.test((await textOf(A, "[data-smith-said]")) ?? ""), { fee: pair.fee, paid: was.coins - is.coins, kept: is.doc.bag.slice(0, 2), said: await textOf(A, "[data-smith-said]") });
     // in the can the hoe's forging is not its own: said on the forging leaf, and refused by the stand-in
     await leaf(A, "forge");
@@ -611,7 +641,7 @@ try {
     await leaf(A, "forge");
     await anvil(A, "hoe");
     ok("moved back by the forge: the hoe has its forging again in the stand-in, the can none, and on the forging leaf it may be forged further", (is.doc.bag[0].plus ?? 0) === made.tool.plus && same(is.doc.bag[0].opts, made.tool.opts) && !(is.doc.bag[1].plus > 0) && !("origin" in is.doc.bag[0]) && was.coins > is.coins
-      && (await there(A, "[data-smith-try]")) && !(await there(A, "[data-smith-foreign]")), { kept: is.doc.bag.slice(0, 2), paid: was.coins - is.coins });
+      && (await there(A, "[data-smith-try]")) && !(await there(A, "[data-smith-foreign]")) && was.coins - is.coins === pair.fee, { kept: is.doc.bag.slice(0, 2), paid: was.coins - is.coins, said: pair.fee });
     await shutSmith(A);
   }
 
