@@ -716,6 +716,8 @@ const SHUT_MS = 5 * 60_000;
 const RANKS_MS = 5 * 60_000;
 /** How long before the far side is asked after again while it is not open to me. */
 const FAR_MS = 5 * 60_000;
+// ── felling ── (the functions of the mountain's trees: the database answers them only to whoever the far side is open to)
+const FELLING_FNS: ReadonlySet<string> = new Set(["town_trees", "town_fell_begin", "town_fell", "town_fell_brace", "town_fell_root"]);
 /** While something lies on the ground, how often it is looked at again (a thing lies ten seconds; the room's word of the next one may come seconds late). */
 const GROUND_AGAIN = 3000;
 /** How long an ended deal is still shown. */
@@ -857,10 +859,8 @@ export class DbKeeper implements Keeper {
     // (and whether a stall can be opened under a sign, with mine if one is still open: asked once as the game begins;
     // a database that keeps no stalls answers nothing, and a sign is only a chat room's)
     if (this.read && !this.shut) void this.ask("town_shop");
-    // ── felling ── (and whether the mountain's trees are kept, with those that are not grown: asked once as the game
-    // begins; a database that keeps none answers nothing)
-    // (the mountain's trees are asked for only where the far side is open: until its migration runs there is no such function, and nobody could reach a tree)
-    if (this.read && !this.shut && this.far()) void this.ask("town_trees");
+    // ── felling ── (the mountain's trees are not asked for here: the database refuses them to whoever the far side is
+    // not open to, and until it has said yes nobody could reach a tree. They are asked for the moment it says so: `askFar`)
     // ── the far side ── (and whether it is open to me: asked once as the game begins, and again every five minutes while
     // it is not, so that it opens here when its owner opens it; a database that has not heard the question says no)
     if (this.read && !this.shut && !this.farAsked) { this.farAsked = true; void this.askFar(); }
@@ -914,6 +914,9 @@ export class DbKeeper implements Keeper {
     try { got = await this.rpc("town_far", {}); } catch { got = null; }
     const yes = (Array.isArray(got) ? got[0] : got) === true;
     if (yes !== this.far_) { this.far_ = yes; this.fit(); this.tell(); }
+    // ── felling ── (the mountain's trees, with those that are not grown: asked for the moment the far side is, or
+    // becomes, open to me, and never while it is not)
+    if (yes && !this.shut) void this.ask("town_trees");
     if (!yes && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
   }
 
@@ -953,6 +956,8 @@ export class DbKeeper implements Keeper {
       }
     }
     if (!a || typeof a !== "object") return null;
+    // ── felling ── (a function of the trees refused: the far side is shut to me again, which is not the game shut)
+    if (a.denied && FELLING_FNS.has(fn)) { this.farShut(); return null; }
     if (a.denied) { if (this.opened !== false) { this.opened = false; this.tell(); } return null; }
     this.take(a, sent);
     return a;
@@ -1157,8 +1162,8 @@ export class DbKeeper implements Keeper {
       : what === "line" ? this.ask("town_me")
       : what === "ground" ? this.ask("town_ground")
       : what === "shop" ? this.ask("town_shop")
-      // ── felling ── (not asked of a database that keeps no trees)
-      : what === "trees" ? (this.trees_ ? this.ask("town_trees") : Promise.resolve(null))
+      // ── felling ── (asked whenever they are looked at while the far side is open to me, and never while it is not)
+      : what === "trees" ? (this.far_ ? this.ask("town_trees") : Promise.resolve(null))
       : what === "works" ? this.ask("town_works_read")
       : what === "lamps" ? this.ask("town_lamps_read")
       : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
@@ -1217,9 +1222,20 @@ export class DbKeeper implements Keeper {
   lines(): LinesTold | null { return this.lines_; }
   titles(): Record<string, Worn> { return this.titles_; }
   // ── felling ──
-  /** The trees as the database last told them: null until one that keeps trees has said. */
+  /** The trees as the database last told them: null until the far side is open to me and a database that keeps trees has said. */
   private trees_: TreesTold | null = null;
   trees(): TreesTold | null { return this.trees_; }
+  /**
+   * The far side was open to me and a function of the trees was refused: it has been shut again (its owner's knob).
+   * The trees are forgotten, so that nothing of them is offered, and whether it is open is asked again in its time.
+   * The game itself is as it was.
+   */
+  private farShut() {
+    this.trees_ = null;
+    if (this.far_) { this.far_ = false; this.fit(); }
+    this.tell();
+    if (!this.farTimer && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
+  }
   async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> {
     if (!this.trees_) return { ok: false, why: "none" };
     const a = await this.ask("town_fell_begin", { p_tree: tree, p_x: at[0], p_y: at[1] });
@@ -1236,7 +1252,8 @@ export class DbKeeper implements Keeper {
     this.tell();
     return {
       ok: true, felled, got: (Array.isArray(a.got) ? a.got : []) as Array<[ItemId, number]>, one: !!a.one, plain: !!a.plain, through: !!a.through, stood: !!a.stood,
-      found: (Array.isArray(a.found) ? a.found : []) as FellDid["found"], braced: typeof a.braced === "string" ? a.braced : null,
+      // (the keepsakes found are told as `keeps`: an answer's `found` is the village's list of what has been found, which `take` keeps)
+      found: (Array.isArray(a.keeps) ? a.keeps : []) as FellDid["found"], braced: typeof a.braced === "string" ? a.braced : null,
     };
   }
   async fellBrace(feller: string, at: [number, number]): Promise<Did<{ tree: number }>> {

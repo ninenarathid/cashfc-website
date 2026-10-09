@@ -44,9 +44,9 @@ describe("the database's keeper", () => {
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
     // whether the chest in the plaza is a storage box, with what I keep in it; whether a bag can be put in order;
     // whether things can be dropped on the ground, with what lies about; whether the village has works, with what I
-    // carry in my hands; whether the far side is open to me (`town_far`, asked past the line); whether the mountain's trees are kept; whether the farm and the forest have lamps, with the flame I bear; and everybody's rank at
-    // the well, for the names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_trees", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
+    // carry in my hands; whether the far side is open to me (`town_far`, asked past the line); whether the farm and the forest have lamps, with the flame I bear; and everybody's rank at
+    // the well, for the names over heads. The mountain's trees are NOT asked for: the far side has not said it is open to me)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -72,14 +72,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_trees", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_far", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(15);
+    expect(db.asked).toHaveLength(14);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -1178,6 +1178,136 @@ describe("the far side, as the database's keeper learns it", () => {
     }
   });
 });
+
+// ── felling ──
+describe("the mountain's trees, as the database's keeper asks for them", () => {
+  const stump = { id: 5, at: NOW - 60_000, until: NOW + 39 * 60_000 };
+  const told = (down = [stump]) => ({ now: NOW, purse: purse(), trees: { down, half: [] } });
+  const mine = () => ({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+  const asked = (db: { asked: string[] }, fn: string) => db.asked.filter((f) => f === fn).length;
+
+  it("asks for the trees only while the far side is open to me: never as the game begins, at once when it opens, and at a look from then on", async () => {
+    let open = false;
+    const db = database({ ...mine(), town_far: () => open, town_trees: () => told() });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.far()).toBe(false);
+    expect(asked(db, "town_trees")).toBe(0);
+    expect(k.trees()).toBeNull();
+    // shut, a look at the trees and the room's word of them ask nothing, and no deed at a tree is sent
+    const stop = k.look("trees");
+    k.nudged("trees");
+    await settle();
+    expect(await k.fellBegin(5, [10, 10])).toEqual({ ok: false, why: "none" });
+    expect(await k.fellDo({ tree: 5, plain: true, secs: 0 }, [10, 10], "Me")).toEqual({ ok: false, why: "none" });
+    expect(await k.fellBrace("you", [10, 10])).toEqual({ ok: false, why: "none" });
+    expect(await k.fellRoot(5)).toEqual({ ok: false, why: "none" });
+    expect(db.asked.filter((f) => f === "town_trees" || f.startsWith("town_fell"))).toEqual([]);
+    stop();
+    // opened by its owner: the trees are asked for in the same breath as the far side says yes
+    open = true;
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    await settle();
+    expect(k.far()).toBe(true);
+    expect(asked(db, "town_trees")).toBe(1);
+    expect(k.trees()).toEqual({ down: [stump], half: [] });
+    // looked at, they are asked for again, and again when the room says a tree fell
+    const again = k.look("trees");
+    await settle();
+    expect(asked(db, "town_trees")).toBe(2);
+    k.nudged("trees");
+    await settle();
+    expect(asked(db, "town_trees")).toBe(3);
+    again();
+    k.close();
+  });
+
+  it("asks for the trees as the game begins where the far side is open already", async () => {
+    const db = database({ ...mine(), town_far: () => true, town_trees: () => told() });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.far()).toBe(true);
+    expect(asked(db, "town_trees")).toBe(1);
+    expect(k.trees()?.down).toEqual([stump]);
+    k.close();
+  });
+
+  it("sends a go as it was played, keeps the trees every answer tells, and reads the keepsakes found as `keeps`", async () => {
+    const sent: Array<Record<string, unknown>> = [];
+    const felled = [{ id: 7, kind: "pine", girth: 1, misses: 0, got: [["log", 2]], timber: 0, most: 1, chained: null, free: false, twice: false, keepsake: "nest" }];
+    const book = [["nest", "Me"]];
+    const db = database({
+      ...mine(), town_far: () => true, town_trees: () => told([]), town_stall: () => ({ now: NOW, purse: purse(), found: ["tomYum"] }),
+      town_fell_begin: (a) => { sent.push(a); return { ok: true, ...told([]), group: [7, 8], ask: { chops: 8 }, elder: false }; },
+      town_fell: (a) => { sent.push(a); return { ok: true, now: NOW, purse: purse(), trees: { down: [{ id: 7, at: NOW, until: NOW + 40 * 60_000 }], half: [], book }, felled, got: [["log", 2]], one: false, plain: true, through: true, stood: false, keeps: [{ id: "nest", first: true }], braced: "you" }; },
+      town_fell_brace: (a) => { sent.push(a); return { ok: true, ...told([]), tree: 7 }; },
+      town_fell_root: (a) => { sent.push(a); return { ok: true, ...told([]), left: 2 }; },
+    });
+    const k = new DbKeeper("me", db.ask);
+    const heard: string[] = [];
+    k.onDeed = (what) => { heard.push(what); };
+    await settle();
+    expect(k.trees()).toEqual({ down: [], half: [] });
+    const stop = k.look("stall");
+    await settle();
+    stop();
+    const price = k.hintPrice();
+    expect(await k.fellBegin(7, [3, 4])).toEqual({ ok: true, trees: [7, 8], ask: { chops: 8 }, elder: false });
+    const did = await k.fellDo({ tree: 7, plain: true, secs: 0 }, [3, 4], "Me");
+    // (no `fire` in it: the great fire is not the database's yet)
+    expect(did).toEqual({ ok: true, felled, got: [["log", 2]], one: false, plain: true, through: true, stood: false, found: [{ id: "nest", first: true }], braced: "you" });
+    // the stump and the book's line are on the page at once, the room is told a tree fell, and what the village has found is as it was
+    expect(k.trees()).toEqual({ down: [{ id: 7, at: NOW, until: NOW + 40 * 60_000 }], half: [], book });
+    expect(heard).toEqual(["trees"]);
+    expect(k.hintPrice()).toBe(price);
+    expect(await k.fellBrace("you", [5, 4])).toEqual({ ok: true, tree: 7 });
+    expect(heard).toEqual(["trees"]);
+    expect(await k.fellRoot(7)).toEqual({ ok: true, left: 2 });
+    expect(heard).toEqual(["trees", "trees"]);
+    expect(k.trees()?.down).toEqual([]);
+    expect(sent).toEqual([{ p_tree: 7, p_x: 3, p_y: 4 }, { p_went: { tree: 7, plain: true, secs: 0 }, p_x: 3, p_y: 4 }, { p_feller: "you", p_x: 5, p_y: 4 }, { p_tree: 7 }]);
+    k.close();
+  });
+
+  it("hands on a refusal's own word, and says a town that could not be reached is away", async () => {
+    const no = (why: string) => () => ({ ok: false, why, ...told([]) });
+    const db = database({ ...mine(), town_far: () => true, town_trees: () => told([]), town_fell_begin: no("held"), town_fell: no("stump"), town_fell_brace: no("far"), town_fell_root: () => null });
+    const k = new DbKeeper("me", db.ask);
+    const heard: string[] = [];
+    k.onDeed = (what) => { heard.push(what); };
+    await settle();
+    expect(await k.fellBegin(7, [3, 4])).toEqual({ ok: false, why: "held" });
+    expect(await k.fellDo({ tree: 7, through: true, misses: 1, secs: 6 }, [3, 4], "Me")).toEqual({ ok: false, why: "stump" });
+    expect(await k.fellBrace("you", [5, 4])).toEqual({ ok: false, why: "far" });
+    expect(await k.fellRoot(7)).toEqual({ ok: false, why: "away" });
+    expect(heard).toEqual([]);
+    expect([k.far(), k.open()]).toEqual([true, true]);
+    k.close();
+  });
+
+  it("takes a refusal of the trees for the far side shut again, never for the game shut: the trees are forgotten, and it is asked after again", async () => {
+    let open = true;
+    const db = database({ ...mine(), town_far: () => open, town_trees: () => (open ? told() : { denied: true }), town_fell_begin: () => ({ denied: true }) });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect([k.far(), k.open(), k.trees()?.down.length]).toEqual([true, true, 1]);
+    open = false;
+    expect(await k.fellBegin(5, [10, 10])).toEqual({ ok: false, why: "away" });
+    expect([k.far(), k.open(), k.ready(), k.trees()]).toEqual([false, true, true, null]);
+    // shut, nothing of the trees is asked; five minutes on the far side is asked after again, and opens here when it is opened
+    const before = asked(db, "town_trees");
+    const stop = k.look("trees");
+    await settle();
+    expect(asked(db, "town_trees")).toBe(before);
+    open = true;
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    await settle();
+    expect([k.far(), k.trees()?.down.length]).toEqual([true, 1]);
+    stop();
+    k.close();
+  });
+});
+// ── end: felling ──
 
 describe("the cave's day, laid by the site's server", () => {
   const cave = (day = 20400) => ({ cave: { day, gone: {}, deepest: null } });
