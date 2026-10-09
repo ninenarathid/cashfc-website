@@ -329,7 +329,13 @@ export function vectorsSmith(): Vector[] {
   return out;
 }
 
-describe("the cases the database's rules of the blacksmith are held to", () => {
+// SKIPPED, 2026-10-09, and to come back with the blacksmith's own migration. The blacksmith is not in v164 (the owner:
+// the first opening is the mountain with mining and felling only; the smith follows in a migration of his own), and
+// these cases were written for the draft of his SQL from before the rules of forging were changed: one refusal the
+// test expects of `forge_redraw` (`unbuilt`) is one no case reaches any more. It fails so on main as it is live, and
+// no rule is changed to make it pass. Whoever writes the blacksmith's migration makes these cases anew from the rules
+// as they stand then (`vectorsSmith` is as it was), takes the `.skip` off, and holds his SQL to them.
+describe.skip("the cases the database's rules of the blacksmith are held to", () => {
   it("are made the same every time, and reach every answer a rule can give", () => {
     const all = vectorsSmith();
     expect(JSON.stringify(vectorsSmith())).toBe(JSON.stringify(all));

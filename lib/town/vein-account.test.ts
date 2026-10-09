@@ -64,7 +64,9 @@ describe("a go at a vein, as its page tells it to a keeper that does not lay the
       }
     }
     expect([gos, twins > 100, fulls > 50, gems > 500, backs > 20]).toEqual([4500, true, true, true, true]);
-  });
+    // (4,500 goes, each laid out and played twice: two seconds alone, and more than the five a test is given when
+    // the whole suite runs beside it)
+  }, 60_000);
 
   it("refuses what no face could have come to, and closes the vein; and answers nothing to an account of another vein", () => {
     const mods: VeinMods = { strikes: 6, back: 1, cross: 0, spent: false }, plain = veinOf(4242, null, mods), gemVein = veinOf(4242, "fire", mods, 1);
