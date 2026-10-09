@@ -23,10 +23,12 @@
 // shut again by its knob under a member who stands in the cave: the page takes the refusal for the far side shut and
 // not for the game shut.
 //
-// On 2026-10-09, 58 of 60: the two that fail are things a member would meet, and are left failing until they are
-// seen to. The cave's board of the deepest floor is drawn only on the blacksmith's screen, which a database without
-// a smith never opens. And a page that came in while the day's floors were not laid has no words for it (its keeper
-// was told of no cave, so the mine's panel draws nothing and a tap on a rock is a step).
+// On 2026-10-09 three of its sixty-one lines fail. They are things a member would meet, and are left failing until
+// they are seen to. The chest in the foot yard is offered as the storage box and the database refuses it as too far (v134's
+// `town.by_box` knows the plaza's chest alone). The cave's board of the deepest floor is drawn only on the
+// blacksmith's screen, which a database without a smith never opens. And a page that came in while the day's floors
+// were not laid has no words for it (its keeper was told of no cave, so the mine's panel draws nothing and a tap on
+// a rock is a step).
 //
 //   (in the scratch folder of the dry runs, see scripts/db/README.md; leave it running)
 //   BENCH_EXTRA=<v164's three parts as one draft, each part's places filled (db/build-v164.mjs)> node town-bench.mjs 3187
@@ -79,12 +81,16 @@ const HOLDS = `with d as (select town.now_ms() as now, town.day_of(town.now_ms()
     town.mine_holds(town.mine_word(), $1, (r.v->>0)::integer, town.mine_turn(g.now), town.mine_today(town.mine_word(), $1, g.day, g.rocks, g.cave, g.crock), town.mine_pick(town.purse_of($2::uuid, false))) as holds
   from g, jsonb_array_elements(g.rocks) with ordinality r(v, ord) order by r.ord`;
 const holds = (floor, id) => sql(HOLDS, [floor, id]);
-/** Today's thirty floors laid into the stand-in as the site's key lays them (insert only, through the table's own guard), from the page's own generator. */
-async function layDay() {
+/** A file of the game's own rules (lib/town), for what a page works out by them and this has to as well: a floor's layout, the best go at a vein. */
+async function rules(name) {
   process.env.FC_REPO ??= fileURLToPath(new URL("../../../../", import.meta.url)).replace(/\\/g, "/").replace(/\/$/, "");
   await import("./db/repo-ts-town.mjs");
-  const { caveLayout } = await import("@/lib/town/mining-row");
-  const { MINING } = await import("@/lib/town/mining");
+  return import(`@/lib/town/${name}`);
+}
+/** Today's thirty floors laid into the stand-in as the site's key lays them (insert only, through the table's own guard), from the page's own generator. */
+async function layDay() {
+  const { caveLayout } = await rules("mining-row");
+  const { MINING } = await rules("mining");
   const day = (await one(`select town.day_of(town.now_ms()) as d`)).d;
   for (let f = 1; f <= MINING.floors; f++) {
     const r = await post("/bench/sql", { sql: `set role service_role; insert into public.town_cave_days (day, floor, layout) values (${day}, ${f}, $lay$${JSON.stringify(caveLayout(f, day))}$lay$::jsonb) on conflict do nothing; reset role;` });
@@ -197,23 +203,24 @@ async function strike(X, floor, rock, most = 24) {
   }
   return { taps, gone: await gone(), said };
 }
-/** Play the vein's board that is up with real presses on its cells: each strike the one that runs the crack over the most ore it has not passed. */
-async function playVein(X) {
-  const struck = [];
-  for (let i = 0; i < 24; i++) {
-    const next = await X.evaluate(`(() => { const b = document.querySelector("[data-town-vein]"); if (!b || b.dataset.phase !== "play") return null;
-      const cells = [...b.querySelectorAll("[data-vein-cell]")].map((e) => ({ at: e.dataset.veinCell.split(",").map(Number), kind: e.dataset.kind, may: e.dataset.may === "1", got: e.dataset.got === "1", head: e.dataset.head === "1" }));
-      const head = cells.find((c) => c.head)?.at, at = (x, y) => cells.find((c) => c.at[0] === x && c.at[1] === y);
-      const may = cells.filter((c) => c.may && c.kind !== "knot" && c.kind !== "ice");
-      if (!head || !may.length) return null;
-      const worth = (c) => { const dx = Math.sign(c.at[0] - head[0]), dy = Math.sign(c.at[1] - head[1]), far = Math.abs(c.at[0] - head[0]) + Math.abs(c.at[1] - head[1]); let n = 0;
-        for (let k = 1; k <= far; k++) { const p = at(head[0] + dx * k, head[1] + dy * k); if (p && (p.kind === "ore" || p.kind === "gem") && !p.got) n++; } return n * 10 + far; };
-      return may.sort((a, b) => worth(b) - worth(a))[0].at; })()`);
-    if (!next) break;
-    await press(X, `[data-vein-cell="${next[0]},${next[1]}"]`, 260);
-    struck.push(next);
+/**
+ * Play the vein's board that is up with real presses on its cells: the best go there is on its face, worked out by
+ * the game's own rules (lib/town/vein's bestRoute) from the vein as the database keeps it open (its seed, whether it
+ * is a gem's, what the go is played with). A go that passes all it can with strikes to spare is ended by the board's
+ * own press. Says the strikes pressed, and how many glinting cells the rules say that go passes.
+ * (A hand that only reaches for the nearest glint runs to and fro on some faces and passes nothing.)
+ */
+async function playVein(X, open) {
+  const { faceOf, bestRoute } = await rules("vein");
+  const route = bestRoute(faceOf(open.seed, !!open.gem), open.mods);
+  const playing = () => X.evaluate(`document.querySelector("[data-town-vein]")?.dataset.phase === "play"`);
+  for (const [x, y] of route.strikes) {
+    if (!(await playing())) break;
+    await press(X, `[data-vein-cell="${x},${y}"]`, 260);
   }
-  return struck;
+  await sleep(900);
+  if ((await playing()) && (await there(X, "[data-vein-enough]"))) await press(X, "[data-vein-enough]", 300);
+  return { strikes: route.strikes, passes: route.passed };
 }
 /** Put the stand-in's clock on to the rocks' next turn where little of this one is left (rocks that are broken stand again at a turn's end); never over the day's end. */
 async function freshTurn(least, pages) {
@@ -464,6 +471,23 @@ try {
   const mine = deeds.find((d) => d.what === "mine"), hew = deeds.find((d) => d.what === "hew");
   ok("written down: the rock in the name of whoever struck it first, broken by the other; and the hand lent, in the helper's name", mine?.by === a && mine.doc.rock === r2 && mine.doc.by === b && hew?.by === b && hew.doc.rock === r2 && hew.doc.whose === a && count(pb.doc.bag, "stone") === 0, deeds);
 
+  // the chest in the foot yard: the same storage box as the plaza's, by a second door (lib/town/box's MORE_CHESTS)
+  await sleep(3400);
+  await go(A, "camp");
+  const chest = (await hits(A, "chest"))[0] ?? null;
+  if (chest) await warp(A, chest.tile[0] - 1, chest.tile[1]);
+  await until("the box is offered", () => there(A, "[data-box-chip]"), 6000, 150).catch(() => {});
+  const yard = { chest: chest?.tile ?? null, chip: await textOf(A, "[data-box-chip]"), stood: await self(A), stones: count((await kept(a)).doc.bag, "stone") };
+  if (yard.chip) await press(A, "[data-box-chip]", 700);
+  if (await there(A, '[data-slot][data-item="stone"]')) await press(A, '[data-slot][data-item="stone"]', 1200);
+  yard.said = await A.evaluate(`[...document.querySelectorAll("[aria-live]")].map((e) => e.innerText.replace(/\\s+/g, " ").trim()).filter((t) => /กล่อง|box/i.test(t))`);
+  yard.boxed = count((await one(`select (select x.things from public.town_boxes x where x.member_id = $1) as things`, [a])).things, "stone");
+  yard.db = (await rpc(idA, "town_box_put", { p_slot: 9, p_n: 1, p_x: (chest?.tile[0] ?? 0) - 1, p_y: chest?.tile[1] ?? 0 })).body?.why ?? null;
+  await A.evaluate(`window.__townBox?.close?.()`);
+  await sleep(400);
+  ok("the chest in the foot yard is offered as my storage box, and a thing pressed there goes into the box the database keeps", !!yard.chip && yard.boxed === yard.stones && yard.stones > 0 && count((await kept(a)).doc.bag, "stone") === 0,
+    yard.boxed ? yard : { ...yard, why: "the page offers the box there (lib/town/box's nearBox: the plaza's chest or the yard's) and the database refuses it as too far: v134's town.by_box knows the plaza's chest alone, and no part of v164 tells it of the yard's" });
+
   /* ── 4: the cave ── */
   console.log("4  the cave");
   await alive(A); await alive(B);
@@ -523,15 +547,16 @@ try {
     const open = (await kept(a)).doc.mine?.vein ?? null;
     ok("the rock the stand-in says holds a vein, broken: the vein's board comes up from the database's seed, with its strikes and how it is played", face?.phase === "play" && face.left > 0 && face.of > 0 && face.how && open?.rock === vein.rock && open.seed === vein.holds.seed && (await A.evaluate(`${M}.told().vein?.seed`)) === open.seed, { face, open });
     await shots(A, "vein");
-    const struck = await playVein(A);
+    const played = open ? await playVein(A, open) : { strikes: [], passes: -1 };
     const end = await until("what the vein came to", () => A.evaluate(`(() => { const c = document.querySelector("[data-vein-came]"); if (!c) return null;
       return { phase: c.dataset.veinCame, passed: Number(c.dataset.veinPassed ?? -1), got: [...c.querySelectorAll("[data-vein-got]")].map((e) => [e.dataset.veinGot, Number(e.dataset.n)]) }; })()`), 10000, 100).catch((e) => e.message);
     await sleep(600);
     deeds = await deedsSince(deeds0);
     pa = await kept(a);
     const veinDeed = deeds.find((d) => d.what === "vein");
-    ok("played out with real presses on its cells: the database accepts the page's account and pays what the board says", typeof end === "object" && end.phase === "came" && end.passed > 0 && end.got.length > 0 && gained(had.kept, pa.doc.bag, end.got) && gained(had.page, (await purse(A)).bag, end.got)
-      && veinDeed?.by === a && veinDeed.n === end.passed && veinDeed.doc.rock === vein.rock && same(veinDeed.doc.strikes, struck) && !deeds.some((d) => d.what === "vein_odd") && pa.doc.mine?.vein === null, { struck, end, bag: pa.doc.bag.filter(Boolean), deed: veinDeed && { n: veinDeed.n, rock: veinDeed.doc.rock, passed: veinDeed.doc.passed, of: veinDeed.doc.of, said: veinDeed.doc.said } });
+    ok("the best go there is on its face, played out with real presses on its cells: the board passes what the rules say, and the database accepts the page's account and pays what the board says", typeof end === "object" && end.phase === "came" && end.passed > 0 && end.passed === played.passes && end.got.length > 0
+      && gained(had.kept, pa.doc.bag, end.got) && gained(had.page, (await purse(A)).bag, end.got)
+      && veinDeed?.by === a && veinDeed.n === end.passed && veinDeed.doc.rock === vein.rock && same(veinDeed.doc.strikes, played.strikes) && !deeds.some((d) => d.what === "vein_odd") && pa.doc.mine?.vein === null, { played, end, bag: pa.doc.bag.filter(Boolean), deed: veinDeed && { n: veinDeed.n, rock: veinDeed.doc.rock, passed: veinDeed.doc.passed, of: veinDeed.doc.of, said: veinDeed.doc.said } });
     const veinGo = await one(`select t.game, t.board, t.what, t.how, t.need, t.hits from public.town_tries t where t.member_id = $1 order by t.id desc limit 1`, [a]);
     ok("…and the go at the vein is in the go-log", veinGo?.game === "mining" && veinGo.board === "vein" && typeof end === "object" && veinGo.hits === end.passed, veinGo);
     if (await there(A, "[data-vein-next]")) await press(A, "[data-vein-next]", 500);
