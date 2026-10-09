@@ -33,7 +33,7 @@
   "mounts": 285,
   "minions": 487,
   "rare": 500,
-  "level": 100,
+  "level": 50,
   "cc": [
    true,
    true,
@@ -170,7 +170,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-10-08"
+  "chg": "2026-10-09"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -763,7 +763,7 @@
   "name": "Kori Kona",
   "parse": 15,
   "ult": 0,
-  "mounts": 186,
+  "mounts": 187,
   "minions": 454,
   "rare": 430,
   "level": 100,
@@ -889,7 +889,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-04"
+  "chg": "2026-10-09"
  },
  "35634484": {
   "name": "Little Eevee",
@@ -2286,7 +2286,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 30,
   "cc": [
    true,
    true,
@@ -2332,14 +2332,14 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-09"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
   "parse": 95,
   "ult": 0,
-  "mounts": 110,
-  "minions": 223,
+  "mounts": 111,
+  "minions": 225,
   "rare": 91,
   "level": 100,
   "cc": [
@@ -2461,7 +2461,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-09"
  },
  "36183378": {
   "name": "K' Potassium",
@@ -2837,6 +2837,7 @@
    2766,
    2783,
    2872,
+   2873,
    2930,
    2932,
    2933,
@@ -2876,7 +2877,6 @@
    3630,
    3631,
    3632,
-   3642,
    3643,
    3648,
    3656,
@@ -4172,6 +4172,7 @@
    1352,
    1381,
    1382,
+   1727,
    1859,
    1860,
    1861,
@@ -4216,7 +4217,6 @@
    2756,
    2800,
    2803,
-   2810,
    2811,
    2812,
    2941,
@@ -4455,6 +4455,7 @@
    3770,
    3771,
    3802,
+   3823,
    3832,
    3842,
    3843,
@@ -4473,7 +4474,6 @@
    3880,
    3881,
    3882,
-   3883,
    3885,
    3886,
    3887,
@@ -6902,7 +6902,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 71,
   "cc": [
    false,
    false,
@@ -6919,7 +6919,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-09"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -8575,7 +8575,7 @@
   "mounts": 45,
   "minions": 68,
   "rare": null,
-  "level": 100,
+  "level": 93,
   "cc": [
    false,
    false,
@@ -8588,7 +8588,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-09"
  },
  "45513833": {
   "name": "Isildur One",
@@ -8619,7 +8619,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 80,
+  "level": 89,
   "cc": [
    false,
    false,
@@ -8759,7 +8759,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 64,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -8772,7 +8772,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-09"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8808,7 +8808,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 62,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8824,7 +8824,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-09"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
