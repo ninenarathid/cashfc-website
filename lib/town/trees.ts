@@ -16,10 +16,12 @@ import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
  * - **A tree is everybody's.** Felled, it is a stump on every screen, and grows back by the clock through four looks
  *   (a stump, a sprout, a young tree, grown). Who felled which and when is kept by whoever keeps the game
  *   (`Grove`); a page is told only what is not grown, and draws that.
- * - **A tree always falls, and always gives its logs** (the owner, 2026-10-08, evening). With an axe in the hand
- *   there are two ways: the plain one fells it at once, for its logs; the board (lib/town/felling) is played for the
- *   fine timber besides, and a go that is lost there still fells the tree for its logs. Nobody leaves a tree with
- *   nothing. Only the ancient tree stands when its go is lost: it is felled on the board or not at all.
+ * - **A tree always falls, and always gives its logs** (the owner, 2026-10-08, evening). A tree is felled at its
+ *   board (lib/town/felling), which is played for the fine timber besides; a go that is lost there still fells the
+ *   tree for its logs. Nobody leaves a tree with nothing. Only the ancient tree stands when its go is lost.
+ *   (There was a plain way beside the board, which felled a tree at once for its logs: taken out on the owner's
+ *   word the day after the mountain opened, "เอาระบบตัดไม้เร็วออก ต้องเล่น มินิเกมทุกครั้ง": somebody felled so
+ *   fast that nobody else had a tree. A go that asks for it is refused, `board`.)
  * - **A pine has a girth**: slender, plain or stout, its own from its number. A slender one is a short game with a
  *   kind bar and one fine timber at the most; a stout one a long game with a tight bar and three.
  * - **A go is one's own from the moment its board is open**: a tree somebody else fells meanwhile still pays whoever
@@ -313,7 +315,8 @@ export function bringHome<P extends Purse>(purse: P, things: ReadonlyArray<reado
 /* ── a game, put together ───────────────────────────────────────────────── */
 
 /** Why a tree is not felled: it is not grown; this axe will not bite (a tree of a better tier); the ancient tree asks more of an axe; it is too far. */
-export type TreeRefusal = "stump" | "bite" | "plus" | "far" | "held";
+/** (`board`: the plain way that was, asked for: a tree is felled at its board.) */
+export type TreeRefusal = "stump" | "bite" | "plus" | "far" | "held" | "board";
 type No = { ok: false; why: TreeRefusal | "none" | "tool" | "full" | "spent" };
 const no = (why: No["why"]): No => ({ ok: false, why });
 
@@ -437,7 +440,8 @@ export function bracePay<P extends Purse>(purse: P): { purse: P; got: Array<[Ite
 
 /**
  * How a go went, as the page played it: the tree walked up to; whether the trunk was cut through, and with how many
- * misses; the seconds played by hand. Or the plain way (`plain`: the tree felled at once, with no board). And what
+ * misses; the seconds played by hand. (`plain`: the plain way that was, the tree felled at once with no board; a go
+ * that says so is refused.) And what
  * was asked of the axe's counted powers (`one`: the tree to fall at one chop, with no game; `twice`: twice the wood).
  */
 export interface FellWent { tree: number; through?: boolean; misses?: number; secs: number; plain?: boolean; one?: boolean; twice?: boolean }
@@ -454,7 +458,7 @@ export interface FellLuck { dark: number; scent: number; which: number; chain: n
 export interface FellOne { id: number; kind: string; girth: Girth; misses: number; got: Array<[ItemId, number]>; timber: number; most: number; chained: number | null; free: boolean; twice: boolean; keepsake?: KeepsakeId }
 /**
  * What a go came to: the purse and the grove after it; every tree that fell; all it brought home; whether it was the
- * one chop of the axe's own, or the plain way; whether the trunk was cut through; whether the tree stands after all
+ * one chop of the axe's own (`plain`: the way that was; never true now); whether the trunk was cut through; whether the tree stands after all
  * (the ancient tree, of a go that was lost); the keepsakes found, each with whether nobody had found one before; and
  * who braced the trunk, to be paid for it.
  */
@@ -476,10 +480,10 @@ function summed(all: Array<Array<[ItemId, number]>>): Array<[ItemId, number]> {
  * A go at felling, as it is judged by whoever keeps the game. The tree named has to be reached with an axe that
  * bites. Every tree of the go comes down, however it went, and gives its logs; the fine timber is the board's: a
  * trunk cut through gives each tree its own by the misses, and a go that says it was played faster than a hand can
- * chop is no go. The plain way fells the one tree walked up to, for its logs alone.
+ * chop is no go. The plain way that was is refused (`board`).
  *
  * **One go on a tree at a time**: a tree that somebody else's open go holds is refused to everybody else, board,
- * plain press and the axe's one chop alike (`held`), so nobody is robbed mid-go and no tree pays twice. The trees of
+ * and the axe's one chop alike (`held`), so nobody is robbed mid-go and no tree pays twice. The trees of
  * a go are those its board was opened for (`opened`) while it holds; of a go whose hold has lapsed, or that was
  * never written down, they are worked out afresh; either way only those still standing are felled and paid. Only
  * the ancient tree stands when its go is lost: then nothing changes. Every tree that falls is a stump for everybody
@@ -498,7 +502,9 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
   if (heldBy(grove, first.id, now, me)) return no("held");
   let mine = purse;
   const one = !!went.one, plain = !one && !!went.plain, board = !one && !plain;
-  // the axe's one chop, and the plain way: the tree walked up to and nothing else, there and then (never the ancient tree)
+  // (there is no plain way any more: a tree is felled at its board)
+  if (plain) return no("board");
+  // the axe's one chop: the tree walked up to and nothing else, there and then (never the ancient tree)
   if (!board) {
     if (first.elder) return no("none");
     if (!isGrown(grove, first, now)) return no("stump");

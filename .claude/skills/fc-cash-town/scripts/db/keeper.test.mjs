@@ -1530,9 +1530,16 @@ try {
     ok("…and both are written down by the function itself: the feller's deed with the tree, the tile and who braced, and the friend's own",
       written.some((d) => d.what === "fell" && d.member_id === a && d.thing === "pine" && d.doc.tree === p[0] && d.doc.braced === b && d.doc.tile.join() === beside(p).join())
       && written.some((d) => d.what === "brace" && d.member_id === b && d.doc.feller === a), written);
+    // (v172: the plain way that was is refused; a database from before it fells the tree at once)
+    const v172 = (await sql(`select position('v172' in pg_get_functiondef('town.fell(jsonb,jsonb,text,jsonb,integer,integer,bigint,jsonb,text)'::regprocedure)) > 0 as there`))[0].there;
     const plain = await F.fellDo({ tree: q[0], plain: true, secs: 0 }, beside(q), "Tester A");
+    ok(v172 ? "the plain way that was, through the keeper: refused as the board's, and the tree stands" : "the plain press through the keeper (a database from before v172)",
+      v172 ? !plain.ok && plain.why === "board" && !F.trees().down.some((d) => d.id === q[0]) : plain.ok && plain.plain && plain.felled[0]?.id === q[0], plain);
+    // (where there is no plain way, the tree comes down by a go lost on its board: for its logs)
+    const lostAt = v172 ? await F.fellBegin(q[0], beside(q)) : { ok: true };
+    const lost = v172 ? await F.fellDo({ tree: q[0], through: false, misses: 1, secs: 1.5 }, beside(q), "Tester A") : plain;
     const noRoot = await F.fellRoot(q[0]);
-    ok("the plain press through the keeper; and its stump is not woken with a plain axe: refused by the rule, not out of reach", plain.ok && plain.plain && plain.felled[0]?.id === q[0] && !noRoot.ok && noRoot.why !== "away", { plain, noRoot });
+    ok("a tree down for its logs alone; and its stump is not woken with a plain axe: refused by the rule, not out of reach", lostAt.ok && lost.ok && lost.felled[0]?.id === q[0] && lost.felled[0].timber === 0 && !noRoot.ok && noRoot.why !== "away", { lostAt, lost, noRoot });
     await sql(`update public.town_purses set doc = jsonb_set(doc, '{bag,0}', '{"item": "axe", "n": 1, "plus": 10, "opts": ["axGrain", "axKeen", "axRoot"]}'::jsonb) where member_id = $1`, [a]);
     await settled(F);
     const woke = await F.fellRoot(q[0]);
