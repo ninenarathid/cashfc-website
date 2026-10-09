@@ -451,13 +451,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v167 wrote one over: `lamps`, for a flame of three seconds and more posts a map (the first twelve of each as they
  * were). It ran on 2026-10-09.
  *
- * v168 (a draft, not run) writes `lamps` over again: the forest's posts after its twelfth laid over the whole map,
- * fifty-six in all.
+ * v168 wrote `lamps` over again: the forest's posts after its twelfth laid over the whole map, fifty-six in all. It
+ * ran on 2026-10-09 too. Nothing waits now.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // ── the lamp relay ── (v168, a draft: the row written over)
-  v168: { keys: [], over: ["lamps"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
