@@ -1043,6 +1043,11 @@ export class DbKeeper implements Keeper {
     if (a.tidy === true && !this.tidy_) this.tidy_ = true;
     // ── mining ──
     if (a.cave && typeof a.cave === "object" && typeof (a.cave as CaveTold).day === "number" && !!(a.cave as CaveTold).gone) this.cave_ = a.cave as CaveTold;
+    // (my own of the cave, told by what is asked with no floor, a vein played out or a floor come to: laid over what I was last told)
+    if (a.caveMine && typeof a.caveMine === "object" && !Array.isArray(a.caveMine) && this.cave_) {
+      const own = a.caveMine as Partial<Pick<CaveTold, "rests" | "vein" | "loose" | "paid">>;
+      this.cave_ = { ...this.cave_, ...(Array.isArray(own.rests) ? { rests: own.rests } : {}), ...("vein" in own ? { vein: own.vein ?? null } : {}), ...("loose" in own ? { loose: own.loose ?? null } : {}), ...("paid" in own ? { paid: own.paid ?? null } : {}) };
+    }
     // (what lies on the ground; a thing this page was built before is left out: it could not be drawn)
     if (Array.isArray(a.ground)) { this.ground_ = (a.ground as Dropped[]).filter((d) => !!d && !!d.stack && d.stack.item in ITEMS && Array.isArray(d.at)); this.groundDue(); }
     // (stalls: what I am told of them, and the one I am looking at; a line of a thing this page was built before is left out)
@@ -1649,7 +1654,18 @@ export class DbKeeper implements Keeper {
     return did;
   }
   minePeek(floor: number, rock: number) { return this.deed<{ peek: Peek }>("town_mine_peek", { p_floor: floor, p_rock: rock }) as Promise<MineDone<{ peek: Peek }>>; }
-  veinDo(strikes: Array<[number, number]>) { return this.deed<VeinDid>("town_vein", { p_strikes: strikes }) as Promise<MineDone<VeinDid>>; }
+  /**
+   * The database does not lay a vein's face out (the generator is not written twice): this page, which has the face,
+   * says what the go came to (lib/town/vein-account's `accountOf`), and is believed within what the rules allow of any
+   * face. The vein is the one I was last told is open; an account the rules cannot hold is answered `odd`, and the
+   * vein is closed with nothing given. (The rules of a vein are loaded when one is first played.)
+   */
+  async veinDo(strikes: Array<[number, number]>): Promise<MineDone<VeinDid>> {
+    const vein = this.cave_?.vein;
+    if (!vein) return { ok: false, why: "none" };
+    const { accountOf } = await import("./vein-account");
+    return this.deed<VeinDid>("town_vein", { p_go: accountOf(vein, strikes) }) as Promise<MineDone<VeinDid>>;
+  }
   async caveReach(floor: number) { if (this.cave_) await this.ask("town_cave_reach", { p_floor: floor }); }
   liftRide(to: number) { return this.deed<{ at: [number, number] | null }>("town_lift", { p_to: to }) as Promise<MineDone<{ at: [number, number] | null }>>; }
   async torchDown(at: [number, number]) {

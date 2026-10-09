@@ -1602,6 +1602,69 @@ try {
     O.close();
   }
 
+  // ── mining ── (v164, a draft or run: the mountain's rocks and the cave. A database before it keeps no cave, and the keeper is told of none)
+  if ((await sql(`select to_regprocedure('public.town_mine(integer, integer, integer, integer, double precision, text)') is not null as there`))[0].there) {
+    section("the mountain's rocks and the cave (v164)");
+    const MN = await import("@/lib/town/mining"), VN = await import("@/lib/town/vein"), { caveLayout } = await import("@/lib/town/mining-row");
+    const PICK = { item: "pick", n: 1 };
+    const was = (await sql(`select value from public.town_knobs where key = 'far_open'`))[0]?.value ?? 0;
+    await sql(`update public.town_knobs set value = 1 where key = 'far_open'`);
+    const day = (await sql(`select town.day_of(town.now_ms()) as d`))[0].d, word = (await sql(`select town.mine_word() as w`))[0].w;
+    for (const who of [a, b]) { await purse(who, 0, [PICK]); await sql(`update public.town_purses set doc = doc || '{"hand": "pick", "handAt": 0}'::jsonb where member_id = $1`, [who]); }
+    const M = new DbKeeper(a, askAs("A")), N = new DbKeeper(b, askAs("B")), nudged = [];
+    N.onDeed = (what, to) => { nudged.push([what, to]); };
+    await settled(M); await settled(N);
+    await sql(`delete from public.town_cave_days where day = $1`, [day]);
+    await M.caveLook(0, null);
+    ok("a day whose floors the site has not laid: the keeper is told so and keeps nothing of the cave (it asks the site to lay them: there is none here)", M.cave() === null && asked.filter((x) => x === "A town_cave").length === 1, M.cave());
+    // (laid as the site's server lays it: the thirty floors from the code's own generator)
+    await sql(`insert into public.town_cave_days (day, floor, layout) select $1::integer, e.ord::integer, e.v from jsonb_array_elements($2::jsonb) with ordinality e(v, ord) on conflict do nothing`,
+      [day, JSON.stringify(Array.from({ length: MN.MINING.floors }, (_, i) => caveLayout(i + 1, day)))]);
+    const foot = (await sql(`select town.cat('mining')->'rocks' as r`))[0].r.map(([id, x, y]) => ({ id, x, y }));
+    const rock = foot.find((q) => !foot.some((o) => o.x === q.x + 1 && o.y === q.y)), at = [rock.x + 1, rock.y], need = MN.swingsFor(PICK, 0, false);
+    await M.caveLook(0, at);
+    ok("laid: the keeper is told of the cave: the day, no rock gone, nobody deepest", M.cave()?.day === day && Object.keys(M.cave().gone).length === 0 && M.caveBoard() === null, M.cave());
+    let did = await M.mineDo(0, rock.id, at, need / 2, "Tester A");
+    ok("half a rock's swings through the keeper: it stands, half of it struck away, and the keeper has it so at once", did.ok && did.part === 0.5 && did.broke.length === 0 && M.cave().struck?.[String(rock.id)]?.part === 0.5, did);
+    did = await N.mineDo(0, rock.id, at, need, "Tester B");
+    ok("the other's swings break it: they lent a hand, whoever struck it first is paid, the rock is gone on the keeper at once, and the room is to tell the first that their purse changed",
+      did.ok && did.helped === true && did.paid === a && did.broke.join() === String(rock.id) && N.cave().gone["0"]?.includes(rock.id) && nudged.some(([what, to]) => what === "line" && to === a), { did, nudged });
+    await settled(M);
+    ok("…whose purse has the stone when it is next read", slotOf(M, "stone") >= 0 && M.purse().mine?.paid?.rock === rock.id, M.purse().mine);
+    // a vein: found by the code's own roll with the database's word, opened and played through the keeper
+    await skip(5000);
+    await settled(M);
+    let hit = null;
+    for (let f = 1; f <= 9 && !hit; f++) {
+      const rocks = caveLayout(f, day).rocks.map(([id, x, y]) => ({ id, x, y })), today = { way: MN.wayRockOf(word, f, day, rocks, null), crystal: null };
+      const r = rocks.find((q) => { const h = MN.holdsOf(word, f, q.id, MN.turnOf(M.now()), today, PICK); return h.kind === "vein" && !h.gem; });
+      if (r) hit = { f, r };
+    }
+    did = await M.mineDo(hit.f, hit.r.id, [hit.r.x + 1, hit.r.y], 99, "Tester A");
+    ok("a rock that hides a vein, broken through the keeper: the vein is the keeper's at once, with no look in between", did.ok && typeof did.vein?.seed === "number" && M.cave().vein?.seed === did.vein.seed && M.cave().place === hit.f && !("fire" in did), did);
+    const face = VN.faceOf(did.vein.seed, false), best = VN.bestRoute(face, did.vein.mods), played = await M.veinDo(best.strikes), told = sent.filter((x) => x.fn === "town_vein").pop();
+    ok("the vein played through the keeper: the database gives what the go passes on the face, and the vein is played out on the keeper at once", played.ok && played.passed === best.passed && played.of === face.points.length && M.cave().vein === null
+      && slotOf(M, MN.oreOf(hit.f)) >= 0, played);
+    ok("…told to the database as the page's account of the go, never as bare strikes", told?.args.p_go?.seed === did.vein.seed && told.args.p_go.struck === best.strikes.length && told.args.p_strikes === undefined, told);
+    // the rest: each reaches the database and is answered by its rule (the rules themselves are the dry run's)
+    const arrive = caveLayout(1, day).arrive;
+    const rest = [await M.minePeek(0, foot[1].id), await M.liftRide(0), await M.liftRide(10), await M.torchDown(arrive), await M.drillDo(arrive, "Tester A")];
+    await M.caveReach(10);
+    ok("looking into a rock, the lift, a torch and breaking through a floor each reach the database and are answered by its rule; a floor come to is told", rest.map((r) => (r.ok ? "ok" : r.why)).join() === "tool,ok,none,tool,tool" && rest[1].at === null
+      && sent.some((x) => x.fn === "town_cave_reach" && x.args.p_floor === 10) && (M.cave().rests ?? []).length === 0, rest);
+    const deeds = Object.fromEntries((await sql(`select what, count(*)::int as n from public.town_deeds where what in ('mine', 'hew', 'vein', 'lift') group by 1`)).map((r) => [r.what, r.n]));
+    ok("what was done was written down by the functions themselves: two rocks mined, a hand lent, a vein, a ride", deeds.mine === 2 && deeds.hew === 1 && deeds.vein === 1 && deeds.lift === 1, deeds);
+    M.close(); N.close();
+    await sql(`update public.town_knobs set value = $1 where key = 'far_open'`, [was]);
+  } else {
+    const O = new DbKeeper(a, askAs("A"));
+    await settled(O);
+    await O.caveLook(0, null);
+    ok("a database that keeps no cave: the keeper is told of none", O.cave() === null && O.caveBoard() === null);
+    O.close();
+  }
+  // ── end: mining ──
+
   section("one thing at a time");
   await purse(a, 100, []);
   await settled(A);
