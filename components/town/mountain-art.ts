@@ -4,7 +4,7 @@ import { BOUNDS, floorBounds } from "@/lib/town/camera";
 import { CAVE_LIGHT, CAVE_SIZE, lightsOf, reveal, type CaveLight } from "@/lib/town/cave";
 import { sampleAge, type TreeAge } from "@/lib/town/mountain";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
-import { SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
+import { SMITH_CLOSED, SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
 import type { Line } from "@/lib/town/talk";
 import {
   BEYOND_MORE_PROPS, BRIDGE, CAVE, CAVE_SEATS, GATES, MOUNTAIN, MOUNTAIN_AT, MOUNTAIN_PROPS, PEAKS, SMITH, TILE_H, TILE_W,
@@ -247,13 +247,16 @@ export class MountainArt {
   private litLast = { lit: 0, of: 0, lights: 0 };
 
   constructor(private readonly host: MoreHost) {
+    // the day whose cave it is: Bangkok's, counted from 1970 (the test room may ask for another)
+    setCaveDay(Math.floor((Date.now() + 7 * 3_600_000) / 86_400_000));
+    // (the test room's words and handle, `next dev` only, in a block a production build drops: there the address says nothing to this)
+    if (process.env.NODE_ENV !== "development") return;
     const q = new URLSearchParams(location.search);
-    // (`next dev` only, like every other switch of the test room) how much of the bridge there is, and whether it is opened
+    // how much of the bridge there is, and whether it is opened
     if (q.has("townBridge")) { const n = Number(q.get("townBridge")); if (Number.isFinite(n)) setBridge(n, q.get("townBridgeOpen") !== "0"); }
     else if (q.get("townBridgeOpen") === "0") setBridge(BRIDGE.spans, false);
-    // the day whose cave it is: Bangkok's, counted from 1970; or the one asked for
     const day = Number(q.get("townCaveDay"));
-    setCaveDay(q.has("townCaveDay") && Number.isFinite(day) ? Math.floor(day) : Math.floor((Date.now() + 7 * 3_600_000) / 86_400_000));
+    if (q.has("townCaveDay") && Number.isFinite(day)) setCaveDay(Math.floor(day));
     if (q.get("townSample") === "1") setSample(true);
     this.wanted = q.get("townAt");
     (window as unknown as { __townMore?: unknown }).__townMore = {
@@ -690,6 +693,10 @@ export class MountainArt {
   /** The blacksmith's next talk: his name and portrait, and what he says at this hour. */
   talk(hour: number): { as: { name: Line; job: Line; art: [string, string] }; lines: Line[] } {
     return { as: SMITH_WHO, lines: smithTalk(hour, this.smithTurn++) };
+  }
+  /** His one line while his forge is not open to me (no smith kept): no greeting and no choice. */
+  closed(): { as: { name: Line; job: Line; art: [string, string] }; lines: Line[] } {
+    return { as: SMITH_WHO, lines: [SMITH_CLOSED] };
   }
   /** His talk where his forge is open (whoever keeps the game has a smith): the greeting, and what he asks; the choices are the map's to add. */
   ask(hour: number): { as: { name: Line; job: Line; art: [string, string] }; lines: Line[] } {

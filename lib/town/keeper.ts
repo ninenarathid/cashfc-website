@@ -27,8 +27,8 @@ import { handOf, handSlot, newPurse, newStall, type Purse, type Refusal, type St
 import { sortedSlot, whatOf } from "./bag";
 import { NATURES, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
-import { CHARM_IDS, type GiftRefusal } from "./gifts";
-import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
+import { CHARM_IDS, giftOf, type GiftRefusal } from "./gifts";
+import { MORE_LINE_IDS, linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 // ── gifts: kitchen ──
@@ -160,6 +160,8 @@ export interface Keeper {
   /** Whether my purse has been read yet; and whether the town's game is open to me (null until it is known). */
   ready(): boolean;
   open(): boolean | null;
+  /** Whether the far side (the bridge, the mountain's foot, the cave) is open to me: the trial's always, the database's by `town_far`, no until it says so. */
+  far(): boolean;
   /** Be told when anything kept changes. Returns how to stop. */
   watch(fn: () => void): () => void;
   /** Keep what others may change in sight while it is looked at. Returns how to stop. */
@@ -712,6 +714,8 @@ const CHEW = 20_000;
 const SHUT_MS = 5 * 60_000;
 /** How often everybody's rank at the well is asked for again. */
 const RANKS_MS = 5 * 60_000;
+/** How long before the far side is asked after again while it is not open to me. */
+const FAR_MS = 5 * 60_000;
 /** While something lies on the ground, how often it is looked at again (a thing lies ten seconds; the room's word of the next one may come seconds late). */
 const GROUND_AGAIN = 3000;
 /** How long an ended deal is still shown. */
@@ -735,6 +739,12 @@ export class DbKeeper implements Keeper {
   private taken: number | null = null;
   private read = false;
   private opened: boolean | null = null;
+  /** Whether the far side is open to me (`town_far`), and the wait before it is asked again while it is not. */
+  private far_ = false;
+  private farTimer: ReturnType<typeof setTimeout> | null = null;
+  private farAsked = false;
+  /** When the site's server was last asked to lay the cave's day (it is asked once a minute at the most). */
+  private caveLaidAt = 0;
   private stall_: Stall = newStall();
   private prices_: PricesTold = NO_PRICES;
   private unlocked = 0;
@@ -760,6 +770,10 @@ export class DbKeeper implements Keeper {
   private wellBook_: WellBook | null = null;
   private ranks_: Record<string, number> = {};
   private lines_: LinesTold | null = null;
+  /** What the database told of the lines, the gifts given and the titles worn, whole; `lines_`, `gives_` and `titles_` are these as the far side's switch lets me see them (`fit`). */
+  private linesRaw_: LinesTold | null = null;
+  private givesRaw_: readonly string[] = CHARM_IDS;
+  private titlesRaw_: Record<string, Worn> = {};
   private titles_: Record<string, Worn> = {};
   private gifting_ = false;
   // ── forging ── (nothing, until the database tells of a smith)
@@ -844,8 +858,11 @@ export class DbKeeper implements Keeper {
     // a database that keeps no stalls answers nothing, and a sign is only a chat room's)
     if (this.read && !this.shut) void this.ask("town_shop");
     // ── felling ── (and whether the mountain's trees are kept, with those that are not grown: asked once as the game
-    // begins, and only where there is a mountain to fell them on, `next dev`; a database that keeps none answers nothing)
-    if (process.env.NODE_ENV === "development" && this.read && !this.shut) void this.ask("town_trees");
+    // begins; a database that keeps none answers nothing)
+    if (this.read && !this.shut) void this.ask("town_trees");
+    // ── the far side ── (and whether it is open to me: asked once as the game begins, and again every five minutes while
+    // it is not, so that it opens here when its owner opens it; a database that has not heard the question says no)
+    if (this.read && !this.shut && !this.farAsked) { this.farAsked = true; void this.askFar(); }
     // ── the bridge built by hand ── (and whether the village has works, with what I carry in my hands: asked once as
     // the game begins; a database without them answers nothing, and nothing of them is shown)
     if (this.read && !this.shut) void this.ask("town_works_read");
@@ -872,6 +889,32 @@ export class DbKeeper implements Keeper {
   now(): number { return Date.now() + this.skew; }
   ready(): boolean { return this.read; }
   open(): boolean | null { return this.opened; }
+  far(): boolean { return this.far_; }
+  /**
+   * The lines of work, the gifts given and the titles worn as I may see them. The database lists the two later lines
+   * (felling and mining) for everybody; while the far side is not open to me they are not shown anywhere: no points on
+   * them, no title of theirs worn by me or over anybody's head, no gift of theirs given.
+   */
+  private fit() {
+    const r = this.linesRaw_, more = (line: string) => (MORE_LINE_IDS as readonly string[]).includes(line);
+    if (this.far_) { this.lines_ = r; this.gives_ = this.givesRaw_; this.titles_ = this.titlesRaw_; return; }
+    if (r) {
+      const { given, ...rest } = r;
+      this.lines_ = { ...rest, lines: { ...r.lines, ...Object.fromEntries(MORE_LINE_IDS.map((id) => [id, { points: 0, today: 0 }])) }, worn: r.worn && more(r.worn.line) ? null : r.worn };
+      void given;
+    } else this.lines_ = null;
+    this.gives_ = this.givesRaw_.filter((id) => !more(giftOf(id)?.line ?? ""));
+    this.titles_ = Object.fromEntries(Object.entries(this.titlesRaw_).filter(([, w]) => !more(w.line)));
+  }
+  /** Ask `town_far` (not through the line: its answer is a plain yes or no, which `once` would not keep). Anything but a yes is a no: a missing function, an error, a refusal. */
+  private async askFar() {
+    if (this.shut) return;
+    let got: unknown = null;
+    try { got = await this.rpc("town_far", {}); } catch { got = null; }
+    const yes = (Array.isArray(got) ? got[0] : got) === true;
+    if (yes !== this.far_) { this.far_ = yes; this.fit(); this.tell(); }
+    if (!yes && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
+  }
 
   /** Ask, in turn: after everything asked before it has been answered. Null when it could not be had. */
   /**
@@ -896,7 +939,18 @@ export class DbKeeper implements Keeper {
     let got: unknown = null;
     try { got = await this.rpc(fn, args); } catch { got = null; }
     // (a function that answers with a table answers with a list of one line)
-    const a = (Array.isArray(got) ? got[0] : got) as Answer | null;
+    let a = (Array.isArray(got) ? got[0] : got) as Answer | null;
+    // ── the cave's day ── (any cave or mining function says `unlaid` while the day's floors are not in the database: the
+    // site's server is asked to lay them, once a minute at the most, and the same is asked again, the once)
+    if (a && typeof a === "object" && a.ok === false && a.why === "unlaid" && !this.shut && Date.now() - this.caveLaidAt >= 60_000) {
+      this.caveLaidAt = Date.now();
+      let laid = false;
+      try { laid = (await fetch("/api/town/cave", { cache: "no-store" })).ok; } catch { laid = false; }
+      if (laid && !this.shut) {
+        try { got = await this.rpc(fn, args); } catch { got = null; }
+        a = (Array.isArray(got) ? got[0] : got) as Answer | null;
+      }
+    }
     if (!a || typeof a !== "object") return null;
     if (a.denied) { if (this.opened !== false) { this.opened = false; this.tell(); } return null; }
     this.take(a, sent);
@@ -959,7 +1013,7 @@ export class DbKeeper implements Keeper {
     // ── felling ── (the trees that are not grown, told with every answer that touched one)
     if (a.trees && typeof a.trees === "object" && Array.isArray((a.trees as TreesTold).down)) this.trees_ = { down: (a.trees as TreesTold).down, half: Array.isArray((a.trees as TreesTold).half) ? (a.trees as TreesTold).half : [], ...(Array.isArray((a.trees as TreesTold).book) ? { book: (a.trees as TreesTold).book } : {}) };
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
-    if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
+    if (a.lines && typeof a.lines === "object") { this.linesRaw_ = linesOf(a.lines, a.worn); this.fit(); }
     if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
     // ── forging ── (what I have at the smith, and the board: told by a database that has one, with my purse and with every deed there)
     if (a.smith && typeof a.smith === "object" && typeof (a.smith as { smithy?: unknown }).smithy === "object") {
@@ -967,9 +1021,10 @@ export class DbKeeper implements Keeper {
       const board = told.board && typeof told.board === "object" ? told.board : this.smith_?.board ?? newBoard();
       this.smith_ = { smithy: soundSmithy(told.smithy), board: { tops: board.tops ?? {}, found: board.found ?? {} } };
     }
-    if (Array.isArray(a.gives)) this.gives_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string");
+    if (Array.isArray(a.gives)) { this.givesRaw_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string"); this.fit(); }
     if (a.titles && typeof a.titles === "object") {
-      this.titles_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
+      this.titlesRaw_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
+      this.fit();
     }
     if (a.toThank && typeof a.toThank === "object") this.toThank_ = a.toThank as Record<string, Array<Helper & { name: string }>>;
     if (a.thanks && typeof a.thanks === "object") { this.thanks_ = a.thanks as ThanksBoard; this.thanked_ = this.thanks_.today; }
@@ -1803,6 +1858,7 @@ export class DbKeeper implements Keeper {
     if (this.bugsTimer) clearTimeout(this.bugsTimer);
     if (this.groundTimer) clearTimeout(this.groundTimer);
     if (this.retry) clearTimeout(this.retry);
+    if (this.farTimer) clearTimeout(this.farTimer);
     if (this.ranksAgain) clearInterval(this.ranksAgain);
     this.heard.clear();
   }

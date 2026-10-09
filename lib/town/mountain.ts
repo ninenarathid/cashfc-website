@@ -25,12 +25,6 @@ import type { Facing } from "./world";
  * mined yet.
  */
 
-/**
- * Not in a production build: there this file lays nothing out and says nothing of the ground, and the build drops
- * what is written under each such line (the kinds of thing that stand here, by name, among it). In a test and in
- * `next dev` it is whole. (The switch that puts the mountain in the world is lib/town/world's PREVIEW.)
- */
-const OFF = process.env.NODE_ENV === "production";
 /** The map's size in tiles: 72 along the climb, 56 across it. */
 export const MOUNTAIN_W = 72, MOUNTAIN_H = 56;
 /** How thick a cliff is on the map, in tiles. Its face stands that many half tiles tall on the screen: taller than a doll. */
@@ -120,7 +114,6 @@ const inBox = (u: number, v: number, r: { u: number; v: number; w: number; h: nu
 export type MountainGround = "cliff" | "stair" | "road" | "grass" | "wood" | "rock" | "snow";
 /** The ground at a point: a cliff's face or a stair up it, a trail, or what the terrace there is floored with. */
 export function mountainGround(u: number, v: number): MountainGround {
-  if (OFF) return "grass";
   const c = cliffAt(u, v);
   if (c) return STAIRS[c.k].some((s) => v >= s && v < s + 2) ? "stair" : "cliff";
   if (onTrail(u, v)) return "road";
@@ -168,7 +161,6 @@ export const shut = (u: number, v: number) => isRim(u, v) || (!!cliffAt(u + 0.5,
  * shuts a way.
  */
 export function layMountain(): MountainProp[] {
-  if (OFF) return [];
   const out: MountainProp[] = [];
   const solid = new Set<string>(), used = new Set<string>();
   let trees = 0, rocks = 0;
@@ -241,7 +233,6 @@ export function layMountain(): MountainProp[] {
  * and the ancient cedar's nine. The lookout's deck is walked on.
  */
 export function closedOf(props: readonly MountainProp[]): Set<string> {
-  if (OFF) return new Set();
   const out = new Set(props.filter((p) => p.solid).map((p) => `${p.u},${p.v}`));
   for (let v = 0; v < MOUNTAIN_H; v++) for (let u = 0; u < MOUNTAIN_W; u++) if (shut(u, v) || inBox(u, v, ANCIENT)) out.add(`${u},${v}`);
   return out;

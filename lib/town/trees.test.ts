@@ -607,11 +607,12 @@ describe("the mountain as it is laid out (the preview)", () => {
     expect([1, 2, 3].map((g) => pines.filter((t) => live.girthOf(t) === g).length)).toEqual([20, 20, 20]);
   });
 
-  it("is no wood at all outside the preview: nothing to fell on today's site", async () => {
-    vi.unstubAllEnvs();
+  it("is the same wood in a production build: the mountain is laid out in every build, and reached only while the far side is open", async () => {
+    vi.stubEnv("NODE_ENV", "production");
     vi.resetModules();
-    const { WOOD: none } = await import("./trees");
-    expect(none).toEqual([]);
+    const { WOOD: wood } = await import("./trees");
+    expect(wood.length).toBe(121);
+    vi.unstubAllEnvs();
     expect(FELLING.tired.misses).toBe(3);
   });
 });

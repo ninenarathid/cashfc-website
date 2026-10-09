@@ -200,7 +200,8 @@ describe("walking", () => {
       // somebody can stand there, on the sand; the float is on the water, straight across the screen and not far
       expect(walkable(x, y)).toBe(true);
       expect(groundAt(x, y)).toBe("sand");
-      expect(groundLook(f.float.x, f.float.y)).toBe("water");
+      // (a float cast from the map's west edge may land beyond it, among the woods seen there: the far side's ground is drawn in every build)
+      if (f.float.x >= 0) expect(groundLook(f.float.x, f.float.y)).toBe("water");
       expect(f.float.x + f.float.y).toBeCloseTo(x + y + 1, 1);
       expect(Math.hypot(f.float.x - x - 0.5, f.float.y - y - 0.5)).toBeLessThanOrEqual(CAST.reach + 0.01);
       // the town's side of the river: the float is further from the plaza than the one who cast it
@@ -386,7 +387,8 @@ describe("walking", () => {
 
   it("joins the maps by gates: the east path's end and the farm lane's, the north path's end and the foot of the forest's trail", () => {
     const [town, farm, north, forest] = GATES;
-    expect(GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"]]);
+    // (the first four are the town's own; the far side's two come after them)
+    expect(GATES.slice(0, 4).map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"]]);
     expect(town.tiles.length).toBeGreaterThanOrEqual(2);
     expect(north.tiles.length).toBeGreaterThanOrEqual(2);
     // the north one is at the top of the town's map, and no tile is a gate to two places
@@ -396,7 +398,7 @@ describe("walking", () => {
     expect(placeOf(forest.to.x, forest.to.y)).toBe("town");
     expect(findPath({ x: 32.5, y: 31.5 }, forest.to)).not.toBeNull();
     expect(findPath(north.to, { x: forest.tiles[0][0] + 0.5, y: forest.tiles[0][1] + 0.5 })).not.toBeNull();
-    for (const g of GATES) {
+    for (const g of GATES.slice(0, 4)) {
       for (const [x, y] of g.tiles) {
         expect(placeOf(x, y)).toBe(g.from);
         expect(groundAt(x, y)).toBe("road");
@@ -543,15 +545,19 @@ describe("walking", () => {
     for (const y of [-2.5, -9.5]) { const way = across(y, BEYOND.north.x, BEYOND.north.x + BEYOND.north.w); expect(way.length).toBeGreaterThanOrEqual(6); expect(Math.abs(way[0] - north.tiles[0][0])).toBeLessThan(8); }
     for (const y of [3.5, 10.5]) expect(across(FOREST.y + FOREST.h + y, forest.tiles[0][0] - 4, forest.tiles[0][0] + 6).length).toBeGreaterThanOrEqual(6);
     expect(seenAt(32, 32)).toBe(true);
-    expect(seenAt(-5, 32)).toBe(false);
+    // (west of the town the far side's woods are seen, and nothing further off)
+    expect(seenAt(-5, 32)).toBe(true);
+    expect(seenAt(-40, 32)).toBe(false);
     expect(findPath({ x: 33.5, y: 3.5 }, { x: 33.5, y: -1.5 })).toBeNull();
   });
 
   it("has logs round the forest camp's fire that are sat on like the town's benches", () => {
-    const logs = BENCHES.filter((b) => b.kind === "logseat");
+    const logs = BENCHES.filter((b) => b.kind === "logseat" && placeOf(b.x, b.y) === "forest");
     expect(logs.length).toBe(4);
-    // after the town's own, so that every bench's number is what it was
-    expect(BENCHES.findIndex((b) => b.kind === "logseat")).toBe(BENCHES.length - 4);
+    // after the town's own, so that every bench's number is what it was (the far side's benches come after the forest's)
+    const first = BENCHES.findIndex((b) => b.kind === "logseat");
+    expect(BENCHES.slice(first, first + 4)).toEqual(logs);
+    expect(BENCHES.slice(0, first).every((b) => placeOf(b.x, b.y) === "town")).toBe(true);
     for (const b of logs) {
       expect(zoneAt(b.x, b.y)).toBe("camp");
       expect(benchAt(b.x, b.y)).toBe(BENCHES.indexOf(b));
