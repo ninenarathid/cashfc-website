@@ -706,6 +706,15 @@ interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => vo
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
 const EVERY: Record<Looked, number> = { /* mining */ cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000 };
+/**
+ * The room's word that a thing changed is answered at once, and then no oftener than this for the things that are
+ * dear to read (seen on the live database the evening the mountain opened, 2026-10-09: seven members in the cave,
+ * each telling the room of every rock, had every page ask for the whole cave at every word: some ten asks a second,
+ * and the database could answer nothing else). What changed meanwhile is read by the one ask that follows.
+ */
+const NUDGE_GAP: Partial<Record<Looked, number>> = { cave: 5000, trees: 5000, bugs: 10_000, wild: 10_000 };
+/** Whether nobody is looking at this page (another tab is in front, or the window is put away): it asks for nothing it only looks at then, and asks again the moment it is seen. */
+const unseen = (): boolean => typeof document !== "undefined" && document.visibilityState === "hidden";
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */
 const DEAL_OPEN = 2500;
 /** A meal is counted on with the database this often, and whenever the company changes. */
@@ -736,6 +745,11 @@ export class DbKeeper implements Keeper {
   private readonly looking = new Map<Looked, { n: number; timer: ReturnType<typeof setTimeout> | null }>();
   private line: Promise<unknown> = Promise.resolve();
   private shut = false;
+  /** When the room's word last had each thing asked for, and the one ask that waits for a thing's gap to be over (NUDGE_GAP). */
+  private readonly nudgedAt = new Map<Looked, number>();
+  private readonly nudgeDue = new Map<Looked, ReturnType<typeof setTimeout>>();
+  /** The page is seen again: everything it looks at is asked for now (it asked for nothing while nobody saw it). */
+  private readonly onSeen = () => { if (this.shut || unseen()) return; for (const [what, l] of this.looking) if (l.n > 0) this.fetch(what); };
 
   private skew = 0;
   private mine: Purse = newPurse();
@@ -824,6 +838,7 @@ export class DbKeeper implements Keeper {
     this.id = id;
     this.rpc = rpc;
     this.line = this.begin();
+    if (typeof document !== "undefined") document.addEventListener("visibilitychange", this.onSeen);
   }
   /** How many times the town could not be reached at the beginning, and the wait before it is asked again. */
   private tries = 0;
@@ -1153,12 +1168,27 @@ export class DbKeeper implements Keeper {
     if (what === "lamps") { if (this.lamps_) void this.ask("town_lamps_read"); return; }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
     if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
-    if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") this.fetch(what);
+    if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") {
+      // (a thing that is dear to read: at once the first time, then one ask when its gap is over, whatever was said meanwhile)
+      const gap = NUDGE_GAP[what] ?? 0, since = Date.now() - (this.nudgedAt.get(what) ?? 0);
+      if (gap <= 0 || since >= gap) { this.nudgedAt.set(what, Date.now()); this.fetch(what); return; }
+      if (!this.nudgeDue.has(what)) this.nudgeDue.set(what, setTimeout(() => {
+        this.nudgeDue.delete(what);
+        if (this.shut || (this.looking.get(what)?.n ?? 0) <= 0) return;
+        this.nudgedAt.set(what, Date.now());
+        this.fetch(what);
+      }, gap - since));
+    }
   }
   /** Ask for one of them now, and again in its time while it is looked at. */
   private fetch(what: Looked) {
     const l = this.looking.get(what);
     if (l?.timer) { clearTimeout(l.timer); l.timer = null; }
+    // (nobody is looking at this page: nothing is asked; it is tried again in the thing's own time, and at once when the page is seen)
+    if (unseen()) {
+      if (l && l.n > 0 && !this.shut) l.timer = setTimeout(() => { l.timer = null; this.fetch(what); }, EVERY[what]);
+      return;
+    }
     const asked = what === "cave" ? this.ask("town_cave", { p_floor: this.caveAt_.floor, p_x: this.caveAt_.at?.[0] ?? null, p_y: this.caveAt_.at?.[1] ?? null })
       : what === "stall" ? this.ask("town_stall")
       : what === "kitchen" ? this.ask("town_kitchen").then((a) => { if (this.yard_ !== null) void this.ask("town_yard"); return a; })
@@ -1890,6 +1920,9 @@ export class DbKeeper implements Keeper {
   }
   close() {
     this.shut = true;
+    if (typeof document !== "undefined") document.removeEventListener("visibilitychange", this.onSeen);
+    for (const t of this.nudgeDue.values()) clearTimeout(t);
+    this.nudgeDue.clear();
     for (const l of this.looking.values()) if (l.timer) clearTimeout(l.timer);
     this.looking.clear();
     if (this.mealEnd) clearTimeout(this.mealEnd);

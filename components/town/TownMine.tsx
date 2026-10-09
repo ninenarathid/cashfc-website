@@ -324,7 +324,8 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
       else setCame({ key: Date.now(), got: did.got, way: did.way, crystal: did.crystal, vein: !!did.vein, moss: !!did.moss, ...(did.fire ? { fire: fireFoundWords(did.fire, th) } : {}) });
       if (did.moss) setTimeout(() => sfx?.work("veinGlint"), 160);
       if (did.vein) { const v = did.vein; setTimeout(() => setVein(v), reduced ? 150 : 650); }
-      void keeper.caveLook(floor, at).then(again);
+      // (the database's answer to the strike has the cave as it is then: only the trial is asked for it again)
+      if (keeper.trial) void keeper.caveLook(floor, at).then(again);
       again();
     });
   }, [keeper, name, th, sfx, vfx, say, again, reduced]);
