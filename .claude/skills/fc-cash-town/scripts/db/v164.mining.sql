@@ -890,7 +890,11 @@ begin
   -- (broken for them by somebody else: their page is to say so once, with what it left and who it was)
   paid := case when p_own then kept->'paid' else jsonb_build_object('at', now_, 'f', floor_, 'rock', rock_, 'got', got_, 'way', way_ is not null, 'crystal', shattered,
     'vein', vein_ <> 'null'::jsonb, 'by', coalesce(p_go->>'name', '')) end;
-  after_ := after_ || jsonb_build_object('mine', kept || jsonb_build_object('owed', owed, 'crumb', crumb, 'loose', jsonb_build_object('k', key_, 'ids', loose), 'vein', vein_,
+  -- (a rock that opens no vein leaves the vein that is open as it is: whoever struck a rock first and has opened a
+  -- vein elsewhere since is paid for the rock when somebody else breaks it, and their vein is theirs to play still.
+  -- A rock that does open one never comes here with one open: it is refused at the top, and waits)
+  after_ := after_ || jsonb_build_object('mine', kept || jsonb_build_object('owed', owed, 'crumb', crumb, 'loose', jsonb_build_object('k', key_, 'ids', loose),
+    'vein', case when vein_ <> 'null'::jsonb then vein_ else kept->'vein' end,
     'last', case when p_own then to_jsonb(now_) else kept->'last' end, 'paid', paid));
   return jsonb_build_object('ok', true, 'done', true, 'purse', after_, 'struck', p_struck, 'broke', gone, 'chained', chained, 'got', got_, 'way', way_, 'vein', vein_,
     'crystal', shattered, 'loose', loose, 'cost', cost, 'spent', spent, 'each', each_, 'moss', moss);

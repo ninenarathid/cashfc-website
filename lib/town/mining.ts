@@ -446,7 +446,10 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   }
   // (broken for them by somebody else: their page is to say so once, with what it left and who it was)
   const paid: Paid | null = own ? kept.paid : { at: go.now, f: go.floor, rock: rock.id, got: got.map(([id, n]): [ItemId, number] => [id, n]), way: way !== null, crystal, vein: !!vein, by: go.name ?? "" };
-  after = { ...after, mine: { ...kept, owed, crumb, loose: { k, ids: loose }, vein, last: own ? go.now : kept.last, paid } };
+  // (a rock that opens no vein leaves the vein that is open as it is: whoever struck a rock first and has opened a
+  // vein elsewhere since is paid for the rock when somebody else breaks it, and their vein is theirs to play still.
+  // A rock that does open one never comes here with one open: it is refused above, and waits)
+  after = { ...after, mine: { ...kept, owed, crumb, loose: { k, ids: loose }, vein: vein ?? kept.vein, last: own ? go.now : kept.last, paid } };
   return { ok: true, done: true, purse: after, struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each, moss };
 }
 

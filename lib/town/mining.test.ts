@@ -381,6 +381,32 @@ describe("mining: several picks on one rock", () => {
     const full: Purse = { ...away, bag: away.bag.map((x, i) => (i === 0 ? x : { item: "minnow", n: 1 })) };
     expect(payFirst(full, go({ ...s, who: "b", name: "Bo", struck: tally(begun) }), begun)).toEqual({ ok: false, why: "full" });
   });
+  it("the first, paid for a rock somebody else broke, keeps the vein they have open: a rock that opens none leaves it as it is, and one that would open another waits", () => {
+    const s = where(5, (h) => h.kind === "stone" && h.shards === 0), v = where(5, (h) => h.kind === "vein" && !h.gem);
+    // (the first struck half of a rock, went off, and broke a rock elsewhere that hid a vein: it is open, not played yet)
+    const open = { f: 3, rock: 9, turn: 77, seed: 4242, gem: null, mods: { strikes: 6, back: 0, cross: 0, spent: false }, more: 0 };
+    const begun: Struck = { first: "a", name: "Aqua", at: s.now, by: { a: 0.5, b: 0.5 } };
+    const first: Purse = { ...miner(), mine: { vein: open } };
+    const paid = payFirst(first, go({ ...s, who: "b", name: "Bo", struck: tally(begun) }), begun);
+    if (!paid.ok) throw new Error(`refused: ${paid.why}`);
+    expect(paid.got).toEqual([["stone", 1]]);
+    // the rock opened no vein, and says so; the vein that was open is the member's still, as it was
+    expect(paid.vein).toBeNull();
+    expect(mineOf(paid.purse).paid).toMatchObject({ rock: s.rock, vein: false, by: "Bo" });
+    expect(mineOf(paid.purse).vein).toEqual(open);
+    // (with none open there is none after it)
+    const none = payFirst(miner(), go({ ...s, who: "b", name: "Bo", struck: tally(begun) }), begun);
+    expect(none.ok && mineOf(none.purse).vein).toBeNull();
+    // a rock that hides a vein, for somebody who has one open: refused with nothing changed, and the rock waits for them
+    const waits: Struck = { first: "a", name: "Aqua", at: v.now, by: { a: 0.5, b: 0.5 } };
+    expect(payFirst(first, go({ ...v, who: "b", name: "Bo", struck: tally(waits) }), waits)).toEqual({ ok: false, why: "vein" });
+    // …and for somebody who has none it opens, theirs, and what they were paid says so
+    const opened = payFirst(miner(), go({ ...v, who: "b", name: "Bo", struck: tally(waits) }), waits);
+    if (!opened.ok) throw new Error(`refused: ${opened.why}`);
+    expect(opened.vein).toMatchObject({ f: 5, rock: v.rock });
+    expect(mineOf(opened.purse).vein).toEqual(opened.vein);
+    expect(mineOf(opened.purse).paid).toMatchObject({ vein: true });
+  });
   it("the earthshaker leaves a rock somebody else has begun standing, and on such a rock a swing is a swing", () => {
     const pick = pickAt(10, ["pkPeek", "pkCrumb", "pkQuake"]);
     const s = (() => { for (let t = 0; t < 400; t++) { const now = NOON + t * MINING.turn, turn = turnOf(now); if ([3, 4].every((r) => holdsOf(SALT, 5, r, turn, NONE, pick).kind === "stone")) return now; } throw new Error("none"); })();

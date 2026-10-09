@@ -421,7 +421,13 @@ export default async function (ctx) {
 
   t.section("a vein opened; the crystal rock; a bag with no room; a look, and a go with `quake`");
   await tick(5000);
-  await miner(U.m1);
+  await miner(U.m1); await miner(U.m2);
+  s = await stateNow();
+  // (first the first strikes half of a rock of the foot away, and goes off into the cave: that rock is theirs still)
+  const begun = find(0, PICK, plain, s), footNeed = await swingsOf(U.m1, 0);
+  x = await strike(U.m1, 0, begun.rock.id, begun.at, footNeed / 2);
+  const half0 = x.agrees && x.a.part === 0.5;
+  await tick(5000);
   s = await stateNow();
   const veinAt = findAny(PICK, (h) => h.kind === "vein" && !h.gem, s);
   need = await swingsOf(U.m1, veinAt.floor);
@@ -435,6 +441,14 @@ export default async function (ctx) {
   const other1 = find(veinAt.floor, PICK, plain, s);
   x = await strike(U.m1, veinAt.floor, other1.rock.id, other1.at, need);
   t.check("with a vein open and not played out, no rock is struck", x.agrees && x.a.why === "vein" && same(x.a.cave.vein?.seed, seed), x.off.length ? x.off : x.a);
+  // (somebody else now strikes away the rest of the rock of the foot that the first began before they opened the vein)
+  await tick(5000);
+  const openWas = (await purseNow(U.m1)).mine.vein;
+  x = await strike(U.m2, 0, begun.rock.id, begun.at, footNeed);
+  p1 = await purseNow(U.m1);
+  t.check("the first is paid for a rock they began before they opened the vein, broken by somebody else meanwhile: the stone is theirs, they are told who broke it, and the vein they have open is open still, as it was",
+    half0 && x.agrees && x.a.ok && x.a.helped === true && x.a.paid === U.m1 && openWas?.seed === seed && same(p1.mine.vein, openWas) && p1.mine.paid?.rock === begun.rock.id && p1.mine.paid.vein === false && p1.mine.paid.by === NAME[U.m2]
+    && p1.bag.some((b) => b?.item === "stone" && b.n === 2) && same((await call(U.m1, "town_cave", 0, null, null)).cave.vein, openWas), x.off.length ? x.off : [x.a, p1.mine]);
   // the crystal rock
   await miner(U.m1);
   s = await stateNow();

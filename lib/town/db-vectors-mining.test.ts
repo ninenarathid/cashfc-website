@@ -652,6 +652,17 @@ export function vectorsMining(): Vector[] {
       }
     }
   }
+  // whoever struck first, paid while a vein of their own is open (they began the rock, and opened the vein elsewhere
+  // since): a rock that opens none leaves it open, as it was (a plain rock, one with fragments, the way down); one
+  // that hides a vein waits for them. Each beside the same with no vein open
+  {
+    const e = chance(41641), pick: Stack = { item: "pick", n: 1 };
+    for (const fate of ["stone", "shards", "way", "vein"] as Fate[]) for (const open of [true, false]) {
+      const sc = sceneOf(e, fate, pick), whole = tally("m2", [["m1", 0.5], ["m2", 0.5]], sc.now - 5000), s = standing(e, sc, { had: whole });
+      const first = minerOf(sc, pick, { vein: open, last: sc.now - 5000 }), { go, said } = goOf(sc, s, { at: [sc.rock.x + 1, sc.rock.y], swings: 1, who: "m1" });
+      add("pay_first", [first, said, whole, sc.word], shown(payFirst(first, go, whole)));
+    }
+  }
   return out;
 }
 
@@ -704,6 +715,14 @@ describe("the cases the database's rules of mining are held to", () => {
     const firsts = of("pay_first").map((v) => v.want as Went);
     expect(new Set(firsts.filter((g) => !g.ok).map((g) => g.why))).toEqual(new Set(["none", "gone", "vein", "full"]));
     expect(firsts.filter((g) => g.ok).length).toBeGreaterThan(300);
+    // (whoever is paid with a vein of their own open has it open still, to the letter: a rock that would open another is refused them; of the edges said out, three rocks that open none, then one that hides a vein)
+    const veinIn = (p: unknown) => ((p as Purse).mine as { vein: { rock: number } | null }).vein;
+    const held = of("pay_first").filter((v) => veinIn(v.args[0]) && (v.want as Went).ok);
+    expect(held.length).toBeGreaterThan(30);
+    expect(held.every((v) => JSON.stringify(veinIn((v.want as Went).purse)) === JSON.stringify(veinIn(v.args[0])) && (v.want as Went).vein === null)).toBe(true);
+    const edges = of("pay_first").slice(-8).map((v) => { const w = v.want as Went; return w.ok ? veinIn(w.purse)?.rock ?? null : w.why; });
+    expect(edges.slice(0, 7)).toEqual([99, null, 99, null, 99, null, "vein"]);
+    expect(typeof edges[7] === "number" && edges[7] !== 99).toBe(true);
     expect(firsts.some((g) => g.vein) && firsts.some((g) => g.way !== null && g.ok) && firsts.some((g) => g.crystal) && firsts.every((g) => !g.ok || (g.purse!.mine as { paid: unknown }).paid !== null)).toBe(true);
     expect(new Set(of("look").map((v) => (v.want as { why?: string; peek?: string }).why ?? (v.want as { peek: string }).peek))).toEqual(new Set(["tool", "none", "gone", "stone", "shards", "vein"]));
     expect(of("stood").filter((v) => v.want === false).length).toBeGreaterThan(100);
