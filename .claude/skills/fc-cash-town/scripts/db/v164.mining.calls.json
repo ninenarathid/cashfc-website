@@ -32,5 +32,14 @@
   "break": "town.cave_break($1::jsonb, $2::jsonb, $3::bigint)",
   "told": "town.cave_told_of($1::jsonb, $2::jsonb, $3::text, $4::integer, $5::integer, $6::integer, $7::bigint, $8::text, $9::jsonb, $10::jsonb)",
   "floor_at": "town.cave_floor_at($1::integer, $2::integer)",
-  "floor_tile": "town.cave_floor_tile($1::jsonb, $2::integer, $3::integer, $4::integer)"
+  "floor_tile": "town.cave_floor_tile($1::jsonb, $2::integer, $3::integer, $4::integer)",
+  "mine": "town.mine($1::jsonb, $2::jsonb, $3::text)",
+  "pay_first": "town.mine_pay_first($1::jsonb, $2::jsonb, $3::jsonb, $4::text)",
+  "look": "town.mine_look($1::jsonb, $2::jsonb, $3::text)",
+  "stood": "town.mine_stood($1::integer, $2::integer, $3::integer, $4::jsonb, $5::jsonb, $6::jsonb, $7::bigint, $8::integer)",
+  "open_way": "town.cave_open_way($1::jsonb, $2::integer, $3::jsonb)",
+  "crystal_broken": "town.cave_crystal_broken($1::jsonb, $2::jsonb)",
+  "set_torch": "town.cave_set_torch($1::jsonb, $2::integer, $3::integer, $4::integer, $5::text, $6::bigint)",
+  "set_moss": "town.cave_set_moss($1::jsonb, $2::integer, $3::integer, $4::integer, $5::text, $6::bigint)",
+  "counts_of": "town.work_counts_of($1::jsonb, $2::text)"
 }

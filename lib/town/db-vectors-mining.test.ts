@@ -7,11 +7,15 @@ import {
   type ByWhom, type CaveState, type CaveTold, type Moss, type Torch, type WayOpen,
 } from "./cave-state";
 import { farRocks } from "./far-side";
+import { stretchOf } from "./gifts";
+import { ITEMS } from "./items";
+import { countsOf, type Done } from "./line-points";
 import { caveLayout } from "./mining-row";
 import {
-  MINING, anyPick, crystalOf, elementOf, hardnessOf, hasBelow, helpersOf, holdsOf, isDug, isLoose, mineOf, oreOf, partOf, peekOf, pickOf, struckOf, swingsFor, turnOf, wayRockOf,
-  type Holds, type PlaceToday, type RockAt, type Struck,
+  MINING, anyPick, crystalOf, elementOf, hardnessOf, hasBelow, helpersOf, holdsOf, isDug, isLoose, mine, mineOf, oreOf, partOf, payFirst, peekOf, pickOf, struckOf, swingsFor, turnOf, wayRockOf,
+  type Go as MineGo, type Holds, type PlaceToday, type RockAt, type Struck,
 } from "./mining";
+import { powerRule } from "./powers";
 import { dayOf } from "./stamina";
 import { ALL, ELEMENTS, FORGE, GEM_FX, gemBy, has, pickSwings, poolOf, type Element, type OptionId } from "./tools";
 import { newPurse, type Purse, type Stack } from "./trade";
@@ -157,6 +161,109 @@ function caveOf(c: Chance, now: number, word: string): { s: CaveState; crystal: 
   if (crystal && c.maybe(0.3)) s = crystalBroken(s, { by: "m2", name: "Nine", at: next() });
   return { s: caveAt(s, now), crystal };
 }
+
+/* ── a go at a rock, as the trial's keeper makes one and as the database is told it ── */
+
+/** A rock by what it holds: plain with nothing in it, with fragments, with moss; the way down; a vein, a gem's vein; the day's crystal. */
+type Fate = "any" | "stone" | "shards" | "moss" | "way" | "vein" | "gem" | "crystal";
+const isFate = (h: Holds, k: Fate): boolean => k === "any" || (k === "stone" ? h.kind === "stone" && !h.shards && !h.moss : k === "shards" ? h.kind === "stone" && h.shards > 0 : k === "moss" ? h.kind === "stone" && !!h.moss
+  : k === "way" ? h.kind === "way" : k === "vein" ? h.kind === "vein" && !h.gem : k === "gem" ? h.kind === "vein" && h.gem : h.kind === "crystal");
+/** The floors that have rocks. */
+const DUG = Array.from({ length: MINING.floors }, (_, i) => i + 1).filter(isDug);
+/** A place's rocks on a day (none, of a place that is none), laid once. */
+const rocksAt = (f: number, day: number): RockAt[] => (f < 0 || f > MINING.floors ? [] : rocksOf(laid(f, day)));
+const crystalAt = (word: string, day: number) => crystalOf(word, day, (n) => rocksAt(n, day));
+const todayOf = (word: string, f: number, s: CaveState, crystal: { floor: number; rock: number } | null): PlaceToday => {
+  if (f <= 0) return { way: null, crystal: null };
+  const here = crystal && crystal.floor === f ? crystal.rock : null;
+  return { way: s.ways[String(f)] ? null : wayRockOf(word, f, s.day, rocksAt(f, s.day), here), crystal: s.crystal ? null : here };
+};
+/** A tally with its members in the order the database keeps them (the order of their ids), which is the order it adds them up in. */
+const ordered = (s: Struck): Struck => ({ ...s, by: Object.fromEntries(Object.entries(s.by).sort((a, b) => (a[0] < b[0] ? -1 : 1))) });
+/** What a go came to, as it is held against the database's: how much is struck away is asked of the code for the tally as the database has it. */
+const shown = (did: ReturnType<typeof mine>): unknown => (!did.ok ? did : did.done === false ? { ...did, struck: ordered(did.struck), part: partOf(ordered(did.struck)) } : { ...did, struck: ordered(did.struck) });
+
+/** A place, a moment and a rock of it that holds what is asked for, for a pick: the word the rolls hang on is looked for until one does. */
+interface Scene { word: string; now: number; day: number; turn: number; f: number; rocks: RockAt[]; crystal: { floor: number; rock: number } | null; rock: RockAt }
+function sceneOf(c: Chance, fate: Fate, pick: Stack | null, foot = false): Scene {
+  const now = c.of(NOWS) + c.int(0, 2) * 1000, day = dayOf(now), turn = turnOf(now), base = c.of(WORDS);
+  for (let i = 0; i < 20000; i++) {
+    const word = i ? `${base}:${i}` : base, crystal = crystalAt(word, day), f = foot ? 0 : fate === "crystal" ? crystal?.floor ?? 28 : c.of(DUG);
+    const rocks = rocksAt(f, day), today = todayOf(word, f, newCave(day), crystal);
+    const fits = rocks.filter((r) => isFate(holdsOf(word, f, r.id, turn, today, pick), fate));
+    if (fits.length) return { word, now, day, turn, f, rocks, crystal, rock: c.of(fits) };
+  }
+  throw new Error(`no rock that holds ${fate}`);
+}
+/** The place as it stands for a scene: some other rocks broken or begun, the rock itself begun or not, the way down open or not, the crystal broken or not. */
+function standing(c: Chance, sc: Scene, o: { had?: Struck | null; open?: boolean; shattered?: boolean; gone?: boolean } = {}): CaveState {
+  let s = newCave(sc.day);
+  const others = sc.rocks.filter((r) => r.id !== sc.rock.id);
+  if (others.length && c.maybe(0.5)) s = breakRocks(s, sc.f, Array.from({ length: c.int(1, 5) }, () => c.of(others).id), sc.now);
+  if (o.gone) s = breakRocks(s, sc.f, [sc.rock.id], sc.now);
+  // (rocks about it that somebody has begun: a quake and a neighbour's breaking pass over another's, and take one's own)
+  for (let i = others.length ? c.int(0, 3) : 0; i > 0; i--) { const first = c.of(WHO); s = strikeRock(s, sc.f, c.of(others).id, tally(first, [[first, c.of([0.25, 0.5, 1 / 3])]], sc.now - 900), sc.now); }
+  if (o.had) s = strikeRock(s, sc.f, sc.rock.id, o.had, sc.now);
+  const way = todayOf(sc.word, sc.f, s, sc.crystal).way;
+  if (o.open && sc.f > 0 && way !== null && way !== sc.rock.id) { const r = sc.rocks.find((x) => x.id === way)!; s = openWay(s, sc.f, { rock: c.maybe(0.8) ? r.id : null, x: r.x, y: r.y, by: "m3", name: "m3", at: sc.now - 4000 }); }
+  if (o.shattered && sc.crystal && !(sc.crystal.floor === sc.f && sc.crystal.rock === sc.rock.id)) s = crystalBroken(s, { by: "m2", name: "Nine", at: sc.now - 3000 });
+  return caveAt(s, sc.now);
+}
+/** A member's purse at a scene: the pick in the first slot, and what is said of the rest. */
+interface Miner {
+  /** Stamina left today (nothing said: the day's whole). */
+  left?: number;
+  /** The bag: room for everything; a slot of stone one short of full and nothing else free; nothing free at all. */
+  bag?: "roomy" | "tight" | "full";
+  sack?: boolean;
+  /** A vein open already; the rocks loosened here this turn; the plain rocks since the last crumb; a share of stamina owed; when a rock was last struck. */
+  vein?: boolean; loose?: number[]; crumb?: number; owed?: number; last?: number;
+  /** A counted option used so many times in the stretch that is. */
+  used?: Partial<Record<OptionId, number>>;
+  /** What the hand is on: the pick, something else, nothing. A second pick, further down the bag. */
+  hand?: "pick" | "other" | "none"; second?: Stack | null;
+}
+function minerOf(sc: Scene, pick: Stack | null, o: Miner = {}): Purse {
+  const filler: Stack = { item: "boot", n: 1 }, n = newPurse().bag.length;
+  const rest: Array<Stack | null> = o.bag === "full" ? Array.from({ length: n - 2 }, () => filler) : o.bag === "tight" ? [{ item: "stone", n: ITEMS.stone.stack - 1 }, ...Array.from({ length: n - 3 }, () => filler)] : [{ item: "torch", n: 2 }];
+  const powers = Object.fromEntries(Object.entries(o.used ?? {}).map(([id, used]) => [id, { k: stretchOf(powerRule(id)!, sc.now), n: used }]));
+  const stacks: Array<Stack | null> = [pick, { item: "glowMushroom", n: 1 }, ...rest];
+  while (stacks.length < n) stacks.push(null);
+  if (o.second) stacks[n - 1] = o.second;
+  return {
+    ...purseWith(stacks),
+    ...(o.hand === "none" ? {} : { hand: o.hand === "other" ? "glowMushroom" : "pick", ...(o.hand === "other" ? {} : { handAt: 0 }) }),
+    ...(o.left === undefined ? {} : { stamina: { day: sc.day, left: o.left } }),
+    ...(o.sack ? { gifts: { had: ["thingSack"], charms: [] }, pouches: { thingSack: [{ item: "stone", n: 7 }, null, null, null, null] } } : {}),
+    ...(Object.keys(powers).length ? { powers } : {}),
+    mine: {
+      owed: o.owed ?? 0, crumb: o.crumb ?? 0, loose: o.loose ? { k: `${sc.f}:${sc.turn}`, ids: o.loose } : { k: "", ids: [] }, rests: [], last: o.last ?? 0, paid: null,
+      vein: o.vein ? { f: sc.f, rock: 99, turn: sc.turn, seed: 4242, gem: null, mods: { strikes: 6, back: 0, cross: 0, spent: false }, more: 0 } : null,
+    },
+  } as Purse;
+}
+/** A go at a scene's rock: for the code, and as the database is told it (the place's rocks as they are laid, its document, and what the keeper works out of the day). */
+function goOf(sc: Scene, s: CaveState, how: { rock?: number; at: [number, number]; swings: number; who: string; points?: number; quake?: boolean }): { go: MineGo; said: Record<string, unknown> } {
+  const here = sc.crystal && sc.crystal.floor === sc.f ? sc.crystal.rock : null, today = todayOf(sc.word, sc.f, s, sc.crystal), element = elementOf(sc.word, sc.f, sc.day);
+  const rock = how.rock ?? sc.rock.id, name = how.who === "m1" ? "Aqua" : how.who, points = how.points ?? 0, quake = !!how.quake;
+  return {
+    go: { now: sc.now, floor: sc.f, rock, at: how.at, swings: how.swings, rocks: sc.rocks, standing: (id) => stands(s, sc.f, id, sc.now, here), salt: sc.word, day: sc.day, today, element, points, quake, who: how.who, name, struck: (id) => struckAt(s, sc.f, id, sc.now) },
+    said: { now: sc.now, floor: sc.f, rock, at: how.at, swings: how.swings, who: how.who, name, rocks: laidOf(sc.rocks), cave: placeOf(s, sc.f, sc.now, sc.crystal?.floor ?? null), crystal: here, day: sc.day, today, element, points, quake },
+  };
+}
+/** What a pick that sees into stone is told of a rock, as the trial's keeper answers (lib/town/trial's minePeek). */
+function lookOf(p: Purse, go: MineGo): { ok: true; peek: string } | { ok: false; why: string } {
+  const pick = pickOf(p);
+  if (!pick || !has(pick, "pkPeek")) return { ok: false, why: "tool" };
+  if (!go.rocks.some((r) => r.id === go.rock)) return { ok: false, why: "none" };
+  if (!go.standing(go.rock)) return { ok: false, why: "gone" };
+  return { ok: true, peek: peekOf(holdsOf(go.salt, go.floor, go.rock, turnOf(go.now), go.today, pick)) };
+}
+/** Whether a tile is one a member may be believed to stand on to strike from: the place of a rock only once that rock stands no longer; else, in the cave, floor with nothing on it, and on the mountain's foot any tile that is no floor of the cave's. */
+const stoodOn = (f: number, day: number, x: number, y: number, rocks: readonly RockAt[], stands_: (id: number) => boolean): boolean => {
+  const r = rocks.find((q) => q.x === x && q.y === y);
+  return r ? !stands_(r.id) : f === 0 ? floorAtTile(x, y) === 0 : floorTile(f, day, x, y);
+};
 
 export function vectorsMining(): Vector[] {
   const c = chance(20261165), out: Vector[] = [];
@@ -338,6 +445,107 @@ export function vectorsMining(): Vector[] {
     add("floor_tile", [layout, f, null, k.y + 3], false);
     add("floor_tile", [layout, 0, k.x + 3, k.y + 3], floorTile(0, day, k.x + 3, k.y + 3));
   }
+
+  /* ── a rock struck: every way a go can come out, with every sort of pick and purse ── */
+  const P1: OptionId[] = ["pkPeek", "pkCrumb", "pkSteady", "pkLoose", "pkFresh", "pkCutter"], P2: OptionId[] = ["pkQuake", "pkTwin", "pkDrill", "pkGleam"];
+  const NEAR: Array<[number, number]> = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, -1], [1, -1]], FAR: Array<[number, number]> = [[2, 0], [0, 3], [-2, -2], [5, 1]];
+  /** A pick of the miners' at some level, with what it may carry. */
+  const minersPick = (level: number): Stack => pickAt(c, level, c.maybe(0.55) ? c.of(ELEMENTS) : null, c.maybe(0.75) ? [c.of(P1), c.of(P1), c.of(P2)] : []);
+  /** A purse of somebody at a scene, by chance. */
+  const anyMiner = (sc: Scene, pick: Stack | null, more: Miner = {}): Purse => minerOf(sc, pick, {
+    left: c.of([undefined, undefined, 100, 40, 3, 2, 1, 0.5, 0, 0]), bag: c.of<Miner["bag"]>(["roomy", "roomy", "roomy", "roomy", "tight", "full"]), sack: c.maybe(0.3),
+    crumb: c.int(0, 5), owed: c.of([0, 0, 0.35, 0.9]), last: c.of([0, 0, sc.now - 600_000, sc.now - 600_000, sc.now - 600_000, sc.now - 20_000, sc.now - 2000, sc.now - 700, sc.now - 100, sc.now + 5000]),
+    loose: c.maybe(0.35) ? [sc.rock.id, ...sc.rocks.slice(0, 2).map((r) => r.id)].sort((a, b) => a - b).filter((id, i, all) => all.indexOf(id) === i) : undefined,
+    used: { ...(c.maybe(0.5) ? { pkQuake: c.of([0, 3, 9, 10]) } : {}), ...(c.maybe(0.5) ? { pkFresh: c.of([0, 4, 9, 10]) } : {}) },
+    ...more,
+  });
+  for (let i = 0; i < 2400; i++) {
+    const fate = c.of<Fate>(["any", "any", "any", "any", "stone", "shards", "moss", "way", "vein", "vein", "gem", "crystal"]);
+    const foot = (fate === "any" || fate === "stone" || fate === "shards") && c.maybe(0.3);
+    const pick = minersPick(fate === "crystal" ? c.of([10, 10, 10, 9, 4]) : c.of([0, 0, 1, 3, 4, 6, 7, 9, 10, 10]));
+    const sc = sceneOf(c, fate, pick, foot), who = c.of(WHO), other = c.of(WHO.filter((id) => id !== who));
+    // the rock as this go finds it: untouched, begun by the striker, begun by another (with a helper or none), all but
+    // struck away by another, struck whole away by others and waiting
+    const had = c.of<() => Struck | null>([
+      () => null, () => null, () => null, () => null, () => null, () => null, () => null, () => null,
+      () => tally(who, [[who, c.of([1 / 4, 1 / 6, 0.5, 2 / 3])]], sc.now - 5000),
+      () => tally(who, [[who, c.of([1 / 4, 1 / 3])], [other, c.of([1 / 4, 1 / 6])]], sc.now - 5000),
+      () => tally(other, [[other, c.of([1 / 4, 1 / 6, 0.5])]], sc.now - 5000),
+      () => tally(other, [[other, c.of([1 / 4, 1 / 3])], [who, c.of([1 / 4, 1 / 6])], ...(c.maybe(0.5) ? [[WHO.find((id) => id !== who && id !== other)!, 1 / 6] as [string, number]] : [])], sc.now - 5000),
+      () => tally(other, [[other, c.of([0.9, 5 / 6, 0.99, 0.75])]], sc.now - 5000),
+      () => tally(other, [[other, 0.6], [WHO.find((id) => id !== who && id !== other)!, 0.4]], sc.now - 5000),
+    ])();
+    const s = standing(c, sc, { had, open: c.maybe(0.3), shattered: c.maybe(0.15), gone: c.maybe(0.05) });
+    const way: Miner = c.of<Miner>([...Array.from({ length: 30 }, () => ({})), { hand: "other" }, { hand: "none" }, { vein: true }, { vein: true }]);
+    const p = anyMiner(sc, c.maybe(0.03) ? null : pick, { ...way, ...(c.maybe(0.1) ? { second: pickAt(c, c.int(0, 10)) } : {}) });
+    const d = c.maybe(0.92) ? c.of(NEAR) : c.of(FAR);
+    const { go, said } = goOf(sc, s, {
+      rock: c.maybe(0.04) ? 999 : sc.rock.id, at: [sc.rock.x + d[0], sc.rock.y + d[1]], swings: c.of([1, 1, 2, 2, 3, 4, 6, 8, 12, 30, 30, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 2.7, 2.7, 0, 0.5, -3]),
+      who, points: c.of([0, 0, 300, 700, 2200, 12000]), quake: has(pick, "pkQuake") ? c.maybe(0.6) : c.maybe(0.05),
+    });
+    const did = mine(p, go);
+    add("mine", [p, said, sc.word], shown(did));
+    add("stood", [sc.f, go.at[0], go.at[1], sc.f > 0 ? caveLayout(sc.f, sc.day) : null, said.rocks, said.cave, sc.now, said.crystal], stoodOn(sc.f, sc.day, go.at[0], go.at[1], sc.rocks, go.standing));
+    if (did.ok && did.done === "theirs") {
+      // whoever struck it first is paid, wherever they are and whatever they hold now: a pick in the hand, one in the
+      // bag only, none at all; with room and with none; with a vein open already
+      const theirs = c.of<Stack | null>([minersPick(c.int(0, 10)), minersPick(10), pickAt(c, 0), null]);
+      const first = anyMiner(sc, theirs, { ...c.of<Miner>([{}, {}, {}, { hand: "other" }, { hand: "none" }, { vein: true }]), last: sc.now - 5000 });
+      add("pay_first", [first, said, ordered(did.struck), sc.word], shown(payFirst(first, go, did.struck)));
+    }
+  }
+  // (and whoever struck first paid for every sort of rock, by every sort of pick they may have about them)
+  for (let i = 0; i < 700; i++) {
+    const fate = c.of<Fate>(["any", "stone", "shards", "moss", "way", "vein", "gem", "crystal"]), theirs = c.maybe(0.1) ? null : minersPick(c.of([0, 3, 6, 10, 10]));
+    const sc = sceneOf(c, fate, theirs), who = c.of(WHO), other = c.of(WHO.filter((id) => id !== who));
+    const whole = tally(other, [[other, c.of([0.5, 2 / 3, 5 / 6])], [who, c.of([0.5, 1 / 3, 1 / 6])]], sc.now - 5000);
+    const s = standing(c, sc, { had: whole, open: c.maybe(0.3), shattered: c.maybe(0.1), gone: c.maybe(0.04) });
+    const first = anyMiner(sc, theirs, { ...c.of<Miner>([{}, {}, {}, { hand: "other" }, { hand: "none" }, { vein: true }]), last: sc.now - 5000 });
+    const { go, said } = goOf(sc, s, { rock: c.maybe(0.03) ? 999 : sc.rock.id, at: [sc.rock.x + 1, sc.rock.y], swings: 1, who, quake: c.maybe(0.2) });
+    add("pay_first", [first, said, whole, sc.word], shown(payFirst(first, go, whole)));
+  }
+  // what a pick that sees into stone is told
+  for (let i = 0; i < 400; i++) {
+    const pick = c.maybe(0.08) ? null : pickAt(c, c.of([0, 3, 6, 10]), c.maybe(0.3) ? "dark" : null, c.maybe(0.8) ? ["pkPeek"] : ["pkCrumb", "pkLoose"]);
+    const fate = c.of<Fate>(["any", "any", "shards", "way", "vein", "crystal"]), sc = sceneOf(c, fate, pick, (fate === "any" || fate === "shards") && c.maybe(0.25));
+    const s = standing(c, sc, { open: c.maybe(0.3), shattered: c.maybe(0.2), gone: c.maybe(0.1) }), p = minerOf(sc, pick, { hand: c.maybe(0.9) ? "pick" : "other" });
+    const { go, said } = goOf(sc, s, { rock: c.maybe(0.06) ? 999 : sc.rock.id, at: [sc.rock.x, sc.rock.y + 1], swings: 0, who: "m1" });
+    add("look", [p, said, sc.word], lookOf(p, go));
+  }
+  // where a member may be believed to stand: on floor, where a rock stood and stands no longer; never on a rock, in the wall, or off the place
+  for (let i = 0; i < 500; i++) {
+    const sc = sceneOf(c, "any", null, c.maybe(0.2)), s = standing(c, sc, { gone: c.maybe(0.3), open: c.maybe(0.5) });
+    const { go, said } = goOf(sc, s, { at: [0, 0], swings: 1, who: "m1" });
+    const k = sc.f > 0 ? cornerOf(sc.f) : { x: 30, y: 225 }, r = c.of(sc.rocks);
+    const [x, y] = c.of<[number, number]>([[r.x, r.y], [sc.rock.x, sc.rock.y], [r.x + 1, r.y], [k.x + c.int(-1, 28), k.y + c.int(-1, 28)], [k.x + c.int(0, 27), k.y + c.int(0, 27)], [5, 330]]);
+    add("stood", [sc.f, x, y, sc.f > 0 ? caveLayout(sc.f, sc.day) : null, said.rocks, said.cave, sc.now, said.crystal], stoodOn(sc.f, sc.day, x, y, sc.rocks, go.standing));
+  }
+
+  /* ── what a go leaves in a place's document ── */
+  for (let i = 0; i < 300; i++) {
+    const now = c.of(NOWS), word = c.of(WORDS), { s } = caveOf(c, now, word), f = c.int(0, MINING.floors + 1), doc = placeOf(s, f, now, f), st = stateOf(f, doc);
+    const way: WayOpen = { rock: c.maybe(0.7) ? c.int(0, 20) : null, x: 70 + c.int(0, 9), y: 330 + c.int(0, 9), by: "m4", name: "Four", at: now };
+    add("open_way", [doc, f, way], placeOf(openWay(st, f, way), f, now, f));
+    add("crystal_broken", [doc, { by: "m3", name: "Three", at: now }], placeOf(crystalBroken(st, { by: "m3", name: "Three", at: now }), f, now, f));
+    // (a light on a tile that has one already, on one that has none, and with one that has burnt out beside it)
+    const lit = [...doc.torches, ...doc.moss], x = lit.length && c.maybe(0.5) ? lit[0].x : 75 + c.int(0, 5), y = lit.length && c.maybe(0.5) ? lit[0].y : 335 + c.int(0, 5);
+    add("set_torch", [doc, f, x, y, "m2", now], placeOf(setTorch(st, f, x, y, "m2", now), f, now, f));
+    add("set_moss", [doc, f, x, y, "m2", now], placeOf(setMoss(st, f, x, y, "m2", now), f, now, f));
+  }
+
+  /* ── the line: what a deed of the miners' counts for (lib/town/line-points) ── */
+  const deed = (what: string, thing: string | null, n: number, doc: Record<string, unknown>): Done => ({ from: "deed", what, thing, n, doc });
+  for (const done of [
+    deed("mine", "stone", 1, { floor: 1, rock: 3, hand: "pick" }), deed("mine", "stone", 1, { floor: 1, rock: 3, got: "shardCopper", shards: 2 }), deed("mine", "stone", 3, { got: "shardIron" }),
+    deed("mine", "stone", 0, {}), deed("mine", "stone", 2.7, { got: 5 }), deed("mine", "stone", -4, { got: null }), deed("mine", null, 1, { vein: true }),
+    deed("vein", "shardCopper", 4, { floor: 3, passed: 4, of: 5 }), deed("vein", "shardSilver", 2, { chip: "chipRuby", gem: "fire" }), deed("vein", null, 1, { chip: "chipOnyx" }), deed("vein", null, 0, {}),
+    deed("vein", "shardIron", 5, { again: true }), deed("vein", "shardIron", 5, { again: true, chip: "chipTopaz" }), deed("vein", "shardIron", 5, { again: false }), deed("vein", "shardIron", 5, { again: 1 }),
+    deed("vein", "shardIron", 5, { again: 0 }), deed("vein", "shardIron", 5, { again: "" }), deed("vein", "shardIron", 5, { again: "yes", chip: 7 }), deed("vein", "", 5, { again: null }),
+    deed("delve", null, 1, { floor: 4, rock: 9 }), deed("delve", null, 1, { floor: 4, how: "drill", tile: [70, 330] }),
+    deed("hew", "stone", 1, { floor: 2, rock: 5, whose: "m2" }), deed("hew", "stone", 1, { whose: "m1" }), deed("hew", "stone", 1, { whose: 3 }), deed("hew", "stone", 1, {}),
+    deed("crystal", "stone", 1, { got: "shardSilver", chip: "chipDiamond" }), deed("crystal", "stone", 1, { got: "shardSilver" }), deed("crystal", "stone", 1, { chip: "chipDiamond" }), deed("crystal", "stone", 1, {}),
+    deed("lift", null, 10, {}), deed("torch", "torch", 1, { floor: 3, tile: [70, 330] }), deed("vein_odd", null, 0, { said: {} }), deed("net", "ladybird", 1, {}),
+  ]) add("counts_of", [done, "m1"], countsOf(done, "m1"));
   return out;
 }
 
@@ -371,6 +579,28 @@ describe("the cases the database's rules of mining are held to", () => {
     expect(new Set(of("vein_mods").map((v) => (v.want as { strikes: number }).strikes)).size).toBeGreaterThan(6);
     // a rock's tally
     expect(of("struck_of").some((v) => v.want === null) && of("part").some((v) => v.want === 1) && of("part").some((v) => (v.want as number) > 0 && (v.want as number) < 1) && of("helpers").some((v) => (v.want as string[]).length === 3)).toBe(true);
+    // a rock struck: every refusal there is, and every way a go comes out
+    interface Went { ok: boolean; why?: string; done?: boolean | "theirs"; vein?: { gem: string | null; more: number } | null; way?: number | null; crystal?: boolean; chained?: number | null; moss?: number[]; broke?: number[]; cost?: number; loose?: number[]; got?: Array<[string, number]>; purse?: Purse }
+    const goes = of("mine").map((v) => v.want as Went), broke = goes.filter((g) => g.done === true);
+    expect(new Set(goes.filter((g) => !g.ok).map((g) => g.why))).toEqual(new Set(["tool", "vein", "none", "gone", "far", "weak", "spent", "more", "soon", "full"]));
+    expect(goes.filter((g) => g.done === false).length).toBeGreaterThan(150);
+    expect(goes.filter((g) => g.done === "theirs").length).toBeGreaterThan(60);
+    expect(broke.length).toBeGreaterThan(500);
+    expect(broke.some((g) => g.vein && !g.vein.gem) && broke.some((g) => g.vein?.gem) && broke.some((g) => g.vein && g.vein.more > 0) && broke.some((g) => g.way !== null) && broke.some((g) => g.crystal)).toBe(true);
+    expect(broke.some((g) => g.chained !== null) && broke.some((g) => g.moss!.length > 0) && broke.some((g) => g.broke!.length > 2) && broke.some((g) => g.loose!.length > 0)).toBe(true);
+    expect(broke.some((g) => g.cost === 0) && broke.some((g) => g.cost === 1) && broke.some((g) => g.cost! > 1) && broke.some((g) => (g.purse!.mine as { owed: number }).owed > 0)).toBe(true);
+    expect(broke.some((g) => g.got!.some(([id, n]) => id === "shardSilver" && n >= MINING.crystal.shards)) && broke.some((g) => g.got!.some(([id]) => id.startsWith("chip")))).toBe(true);
+    const firsts = of("pay_first").map((v) => v.want as Went);
+    expect(new Set(firsts.filter((g) => !g.ok).map((g) => g.why))).toEqual(new Set(["none", "gone", "vein", "full"]));
+    expect(firsts.filter((g) => g.ok).length).toBeGreaterThan(300);
+    expect(firsts.some((g) => g.vein) && firsts.some((g) => g.way !== null && g.ok) && firsts.some((g) => g.crystal) && firsts.every((g) => !g.ok || (g.purse!.mine as { paid: unknown }).paid !== null)).toBe(true);
+    expect(new Set(of("look").map((v) => (v.want as { why?: string; peek?: string }).why ?? (v.want as { peek: string }).peek))).toEqual(new Set(["tool", "none", "gone", "stone", "shards", "vein"]));
+    expect(of("stood").filter((v) => v.want === false).length).toBeGreaterThan(100);
+    expect(of("stood").some((v) => v.want === true && (v.args[4] as Laid[]).some((r) => r[1] === v.args[1] && r[2] === v.args[2]))).toBe(true);
+    // the line: every deed of the miners' that counts, the twin's go that counts for its firsts alone, and those that count for nothing
+    const counts = of("counts_of").map((v) => v.want as Array<{ line: string; raw: number; first?: string }>);
+    expect(counts.filter((k) => k.length === 0).length).toBeGreaterThan(5);
+    expect(counts.some((k) => k.length === 2 && k[1].line === "helpers") && counts.some((k) => k.length === 2 && k[0].raw === 0 && !!k[1].first) && counts.some((k) => k[0]?.raw === 10) && counts.some((k) => k[0]?.raw === 5) && counts.some((k) => k[0]?.raw === 3 && !k[0].first)).toBe(true);
 
     const dir = process.env.TOWN_VECTORS;
     if (dir) {
