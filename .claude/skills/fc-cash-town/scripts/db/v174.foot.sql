@@ -1,0 +1,84 @@
+--   ── the whole file ──
+--
+--   -- (built closed)
+--   select value from public.town_knobs where key = 'smith_open';
+--   -- 0   (1 once its owner has opened it)
+--
+--   -- (nothing of the schema `town` is anybody's to call; the sixteen functions a member calls are there, each for the signed in and for nobody signed out)
+--   select (select count(*) from pg_proc p where p.pronamespace = 'town'::regnamespace
+--            and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'))) as rules_a_browser_calls,
+--          (select count(*) from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
+--            and has_function_privilege('authenticated', p.oid, 'execute') and not has_function_privilege('anon', p.oid, 'execute')
+--            and p.proname in ('town_smith_open', 'town_smith', 'town_smith_smelt', 'town_smith_take', 'town_smith_widen', 'town_smith_near', 'town_smith_bellows', 'town_smith_try',
+--                              'town_smith_draw', 'town_smith_choose', 'town_smith_redraw', 'town_smith_gem', 'town_smith_move', 'town_fire_join', 'town_fire_leave', 'town_tool_power')) as a_members;
+--   -- 0 | 16
+--
+--   -- (the two tables are closed: row level security on, no policy, nothing granted to a browser)
+--   select c.relname, c.relrowsecurity as closed,
+--          (select count(*) from pg_policies p where p.schemaname = 'public' and p.tablename = c.relname) as policies,
+--          (select count(*) from information_schema.role_table_grants g where g.table_schema = 'public' and g.table_name = c.relname and g.grantee in ('anon', 'authenticated')) as a_browsers
+--     from pg_class c where c.relnamespace = 'public'::regnamespace and c.relname in ('town_smiths', 'town_great_fire') order by 1;
+--   -- town_great_fire | true | 0 | 0
+--   -- town_smiths | true | 0 | 0
+--
+--   -- (the great fire has its one row and the village its board; the two columns are there)
+--   select (select count(*) from public.town_great_fire) as fires, (select count(*) from public.town_things where key = 'smith') as boards,
+--          (select count(*) from information_schema.columns where table_schema = 'public' and (table_name, column_name) in (('town_plots', 'damp'), ('town_pots', 'marks'))) as columns;
+--   -- 1 | 1 | 2
+--
+--   -- (the catalog's three rows are the file's: the table asks the new pieces and timber of +5 to +9, and the rows have their new keys)
+--   select (select string_agg((t->>'n') || '/' || (t->>'timber'), ' ' order by (t->>'to')::int) from jsonb_array_elements(c.data->'tries') t where (t->>'to')::int between 5 and 9) as pieces_and_timber,
+--          c.data ? 'fire' and c.data ? 'timed' and c.data ? 'stand' and c.data ? 'old' as the_smiths_keys,
+--          (select f.data ? 'nets' from public.town_catalog f where f.key = 'fishing') as fishing_nets, (select i.data ? 'rare' from public.town_catalog i where i.key = 'insects') as insects_rare
+--     from public.town_catalog c where c.key = 'forge';
+--   -- 3/12 5/12 6/15 9/15 12/18 | true | true | true
+--
+--   -- (the thirty functions that were there have their lines: thirty carry a mark of this file's, and `town.work_counts_of` carries both parts')
+--   select count(*) as marked,
+--          bool_or(p.oid = 'town.work_counts_of(jsonb, text)'::regprocedure and p.prosrc like '%the blacksmith (v174)%' and p.prosrc like '%the older tools (v174)%') as counted_by_both
+--     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+--    where n.nspname in ('town', 'public')
+--      and (p.prosrc like '%the forge''s great fire (v174)%' or p.prosrc like '%the blacksmith (v174)%' or p.prosrc like '%the older tools (v174)%');
+--   -- 30 | true
+--
+--   -- (what earlier files put into those functions is still there: the woodcutters' and the miners' blocks, the words of the bridge, the lamps and the mountain; and the smith's deeds have words)
+--   select position('the mountain''s trees (v164)' in w.def) > 0 and position('the mountain''s rocks (v164)' in w.def) > 0 as the_mountain_counted,
+--          town.deed_th('stone_lay') <> 'stone_lay' and town.deed_th('lamp_light') <> 'lamp_light' and town.deed_th('fell') <> 'fell' and town.deed_th('mine') <> 'mine' as the_words_before,
+--          town.deed_th('forge') <> 'forge' and town.deed_th('fire_found') <> 'fire_found' as the_smiths_words
+--     from (select pg_get_functiondef('town.work_counts_of(jsonb, text)'::regprocedure) as def) w;
+--   -- true | true | true
+--
+--   -- (the rule of felling, which this file does not write, has v172's and v173's blocks still; and the pot's rule asks v171's question still)
+--   select position('v172:' in f.src) > 0 and position('v173:' in f.src) > 0 as felling_as_it_was, position('putIn' in k.src) > 0 as the_pots_question
+--     from (select p.prosrc as src from pg_proc p where p.oid = 'town.fell(jsonb, jsonb, text, jsonb, integer, integer, bigint, jsonb, text)'::regprocedure) f,
+--          (select p.prosrc as src from pg_proc p where p.oid = 'town.cook(jsonb, jsonb, jsonb, double precision, bigint)'::regprocedure) k;
+--   -- true | true
+--
+--   -- (a net as it was bought is read as nothing more; and nothing has been done at the smith yet)
+--   select town.net_more_far('{"hand": "bugNet", "handAt": 0, "bag": [{"item": "bugNet", "n": 1}]}'::jsonb) as a_bought_nets_more,
+--          (select count(*) from public.town_smiths) as smithies,
+--          (select count(*) from public.town_deeds d where d.what in ('smelt', 'smelted', 'smith_wider', 'bellows', 'forge', 'forge_draw', 'forge_choose', 'forge_redraw',
+--                                                                   'forge_first', 'gem_set', 'forge_move', 'fire_found', 'fire_join', 'fire_leave')) as the_smiths_deeds;
+--   -- 0 | 0 | 0   (the last two until an admin has tried him)
+--
+-- ─── Reading it ──────────────────────────────────────────────────────────────────────────────────────────────────
+--
+--   -- whether the smith is open, and since when his knob has stood as it does
+--   select value, updated_at from public.town_knobs where key = 'smith_open';
+--
+--   -- the smith's deeds and the great fire's, a day at a time
+--   select (d.at at time zone 'Asia/Bangkok')::date as day, d.what, count(*), -sum(d.coins) as coins_gone, count(distinct d.member_id) as members
+--     from public.town_deeds d
+--    where d.what in ('smelt', 'smelted', 'smith_wider', 'bellows', 'forge', 'forge_draw', 'forge_choose', 'forge_redraw', 'forge_first', 'gem_set', 'forge_move', 'fire_found', 'fire_join', 'fire_leave', 'power')
+--    group by 1, 2 order by 1 desc, 2 limit 120;
+--
+--   -- the great fire's own row (its owner's to read: no page is told when its halves can next be found)
+--   select doc, updated_at from public.town_great_fire;
+--
+--   -- the forged tools in members' bags, by kind and level
+--   select s.v->>'item' as tool, (s.v->>'plus')::numeric as plus, count(*) as tools
+--     from public.town_purses p, jsonb_array_elements(p.doc->'bag') s(v)
+--    where jsonb_typeof(s.v) = 'object' and jsonb_typeof(s.v->'plus') = 'number' and (s.v->>'plus')::numeric > 0 group by 1, 2 order by 1, 2;
+--
+--   -- the plots that are damp and the pots that carry something (the two columns this file adds)
+--   select (select count(*) from public.town_plots where damp) as damp_plots, (select count(*) from public.town_pots where marks is not null) as marked_pots;

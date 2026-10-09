@@ -1,0 +1,117 @@
+-- v174 — the blacksmith, the forge's great fire, and the seven older tools in the games that are live
+--
+-- Run it once in the Supabase SQL editor, after v173 (it stops at its first statement where v173 has not run: the
+-- rule of felling without v173's block). Running it again is safe. **THE SITE'S CODE FOR IT GOES OUT FIRST** (see
+-- "The page", below).
+--
+-- What it is. Round two of the far side (the owner, 2026-10-09: "ทำต่อได้เลยนะครับ รอบสอง"). v164 opened the mountain
+-- with mining and felling only and said of the blacksmith that he would come "with a migration of his own, later":
+-- this is it. He stands in the town. He smelts fragments into pieces, forges a tool a level at a time by the table's
+-- chances, lays out the options a tool is owed at its milestones, sets a gem, and moves what he put into a tool to
+-- another of its line; and the village keeps the forge's great fire, which a try for the top is made at. With him,
+-- in the same file (the owner's ruling of 2026-10-09: one opening with every tool), the seven older tools (the rod,
+-- the hoe, the watering can, the insect net, the pot, the pan and the grill) are read by the games that are live as
+-- what they carry says: fishing, the farm and the well, the insects, the kitchen. The rules are lib/town's written
+-- again (forge, great-fire, powers, forged, forged-keep, and the lines of fishing, farm, insects, cooking and stamina
+-- that read a tool), each held to the code case by case.
+--
+-- **A TOOL AS IT WAS BOUGHT PLAYS AS IT ALWAYS DID, TO THE LETTER.** Twenty-seven rules of the live games are written
+-- again here, each its own text with a few marked lines (`-- ── the older tools (v174) … ──`) that do nothing unless
+-- the deed is done with a forged tool. Before this file was made, every rule case of the older files was asked of
+-- the database before it and after it, and a day in the town with tools as they were bought was played on both,
+-- call for call: no answer and no row kept differed.
+--
+-- **THE FORGING TABLE ASKS MORE THAN THE ONE THE PAGE SHOWED UNTIL NOW.** The owner, 2026-10-10: "ช่วยเพิ่มให้การตีบวก
+-- ยากขึ้นด้วยครับ แต่ยังแฟร์อยู่", and then "x3 ไปเลย เพราะคนเล่นเกมนี้ เล่นกันเยอะมาก มีคนฟาร์มสายได้วันละ 1000 ด้วย". So a try
+-- for +5, +6, +7, +8 and +9 takes 3, 5, 6, 9 and 12 smelted pieces, where it took 1, 2, 2, 3 and 4: his. The fine
+-- timber of those five levels is tripled with them (12, 12, 15, 15 and 18, where it was 4, 4, 5, 5 and 6): that
+-- tripling is Claude's, told to him, and is undone on his word (lib/town/forge.ts's `TRIES`, and a file that writes
+-- the `forge` row again). The odds, the fees, +1 to +4 and +10 are as they were. Every number of the table, of
+-- smelting and of the great fire is the catalog's `forge` row, which this file writes: no rule has one of its own.
+--
+-- **IT IS BUILT CLOSED.** The knob `smith_open` is made at 0. While it is, every function of the smith's answers an
+-- admin and refuses everybody else (42501, as the far side refuses whoever it is shut to), and `town_smith_open()`,
+-- which a page asks first, says no: a member's page shows nothing of the smith and asks nothing more of him. Nobody
+-- but an admin can have a tool forged while he is closed, so a member's tools stay as they were bought (unless an
+-- admin hands one over in a deal). Its owner opens it with one line, with no deploy, when he has tried it:
+--
+--   update public.town_knobs set value = 1 where key = 'smith_open';
+--
+-- (and shuts it again with `value = 0`). The game's knob (v115's) and the far side's (v164's `far_open`) are asked
+-- before the smith's: he is open to a member only while all three are.
+--
+-- **AN ADMIN CAN TRY EVERYTHING WHILE IT IS CLOSED**: smelting, the bellows (two admins, one at the other's fire), a
+-- try, a draw, a gem, a move, a forged tool in each of the live games, and the great fire: an admin who fells a tree
+-- or is paid for a rock may find one of its halves, and may light it and spend it. What is tried STAYS: an admin's
+-- tools, pieces and coins are their own, the village's board keeps the firsts it was given, and the great fire is
+-- where the trying left it. BEFORE OPENING, this one line puts the great fire back to new, so that the village finds
+-- its first one itself:
+--
+--   update public.town_great_fire set doc = '{}'::jsonb, updated_at = now() where one;
+--
+-- And, should the board's firsts be the village's to make and not the testers', this empties the board:
+--
+--   update public.town_things set doc = '{"tops": {}, "found": {}}'::jsonb, updated_at = now() where key = 'smith';
+--
+-- What it makes:
+--
+--   · one knob: `smith_open` (0);
+--   · three catalog rows written over as the code has them: `forge` (the table of tries with its new numbers, the
+--     great fire's knobs, the forge's place, the older tools' steps), `fishing` and `insects` (a key more each);
+--   · two tables, closed (row level security on, no policy, nothing granted to a browser): `town_smiths` (what a
+--     member has at the smith: a row a member, made when they first put something in) and `town_great_fire` (the
+--     village's one row; the moment its halves can next be found is in it and is told to no page, ever);
+--   · the village's board at the smith as a row of `town_things` (`smith`), made once;
+--   · two columns, each added in a moment with no row written: `town_plots.damp` (false) and `town_pots.marks`
+--     (null), both empty for everything there is today;
+--   · 111 rules in the schema `town`, no browser's to call;
+--   · sixteen functions a member calls, each for the signed in: `town_smith_open`, `town_smith`, `town_smith_smelt`,
+--     `town_smith_take`, `town_smith_widen`, `town_smith_near`, `town_smith_bellows`, `town_smith_try`,
+--     `town_smith_draw`, `town_smith_choose`, `town_smith_redraw`, `town_smith_gem`, `town_smith_move`,
+--     `town_fire_join`, `town_fire_leave`, each beginning with the smith's gate, and `town_tool_power`, which begins
+--     with the game's own (a counted option is used wherever its tool's game is played);
+--   · and thirty functions that were there, each with marked lines more and nothing else of it touched:
+--     `public.town_fell` and `public.town_mine` (a tree felled, a rock paid for: the great fire's halves),
+--     `town.work_counts_of` and `town.deed_th` (what the smith's deeds count for, and a Thai word for each), and the
+--     twenty-seven of the live games (`town.work_counts_of` among them once more): `town.strike_window`,
+--     `public.town_cast`, `public.town_strike`, `town.strike_two`, `public.town_land`, `town.land_one`; `town.tend`,
+--     `town.water`, `town.sow`, `town.chore`, `town.chore_for`, `town.pour_for`, `public.town_tend`,
+--     `public.town_row`, `public.town_farm`; `town.net`, `town.net_mine`, `town.comeback`, `public.town_net`;
+--     `town.cook`, `town.set_down`, `town.take_up`, `town.feast_eat`, `town.chew`, `town.pot_doc`,
+--     `public.town_pot_down`. **A file after this one that writes any of the thirty again carries this file's lines
+--     with its own.** `town.fell` and `town.spoon` are not written, and `town.cook` keeps v171's question of what
+--     goes into a pot.
+--
+-- Coins paid to the smith leave the game: they go to nobody. No coin is made by this file, and nobody's purse, tool,
+-- plot or pot is touched by running it.
+--
+-- The page. **The site's code for the smith has to be live before this file runs** (branch `smith-db`: the page's
+-- keeper asks `town_smith_open()` once the far side says yes, takes "no such function" for no, and shuts the smith
+-- on the page, not the game, when a function of his is refused; and the forging table with its new numbers, which
+-- the page reads from the code and the database from the `forge` row this file writes). With that code live and
+-- this file not run, nothing of the smith shows to anybody. With this file run and the older code live, nothing of
+-- him shows either, to an admin as little as to a member, and nothing of him can be tried: so the code goes first,
+-- and this file once its deploy has succeeded. A page left open since before that deploy has to be loaded again.
+--
+-- Safe to run twice. The knob, once there, is left as it is (the smith, once opened, stays open); the three catalog
+-- rows are written over with the same; the two tables, the board's row, the great fire's row, every member's smithy
+-- and every purse are not touched; the two columns are added only where they are not there; every function is
+-- written again as the first run left it.
+--
+-- How it was put together. Two parts, each written and proved alone (v174.smith.sql and v174.tools.sql in the
+-- fc-cash-town skill's scripts/db), run in that order: the older tools' part stands on the smith's. Each part's own
+-- head is kept below as the head of its section. Where one says that nothing of an earlier file's function is
+-- pasted and that its place is left empty, the place is FILLED in this file: by assemble-v174.mjs, from the
+-- function's own text as the stand-in database had it after v173 and after the part above, with the part's lines
+-- in place. So the second statement of `town.work_counts_of` (the older tools') has the smith's block in it too.
+--
+-- What to see afterwards is at the file's foot.
+--
+-- <look first>
+
+do $$ begin
+  if to_regprocedure('town.fell(jsonb, jsonb, text, jsonb, integer, integer, bigint, jsonb, text)') is null
+     or coalesce(position('v173:' in (select p.prosrc from pg_proc p where p.oid = to_regprocedure('town.fell(jsonb, jsonb, text, jsonb, integer, integer, bigint, jsonb, text)'))), 0) = 0 then
+    raise exception 'v174 needs v173: the rule of felling has not had v173''s block yet (v172 and v173 run before this file)';
+  end if;
+end $$;
