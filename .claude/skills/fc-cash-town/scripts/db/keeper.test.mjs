@@ -549,6 +549,12 @@ try {
 
   if ((await sql(`select to_regprocedure('town.prices_told(uuid)') is not null as there`))[0].there) {
     section("the relatives' price: told at the stall, and with a thing left or taken back (v124; the usual amounts are v155's)");
+    // (the market as v124 makes it, in the round that is: nothing sold, every price its usual one, no round behind it.
+    // This test puts the clock an hour forward at its start; begun in the hour before a round's turn, 06:00 to 07:00
+    // or 18:00 to 19:00, that carried it over the turn, the price was a round on before this section first looked,
+    // and five checks here failed by the hour and by nothing else)
+    await sql(`update public.town_things set doc = jsonb_build_object('round', town.round_of(town.now_ms()), 'at', '{}'::jsonb, 'sold', '{}'::jsonb) where key = 'market'`);
+    await sql(`delete from public.town_market_log where true`);
     const P = new DbKeeper(a, askAs("A"));
     await purse(a, 0, [...Array(8).fill({ item: "kangkong", n: 20 }), { item: "worm", n: 3 }]);
     await settled(P);
