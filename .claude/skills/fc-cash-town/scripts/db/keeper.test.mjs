@@ -26,7 +26,7 @@ const { ALL_LINE_IDS, MORE_LINE_IDS } = await import("@/lib/town/lines");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v174"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -1712,6 +1712,92 @@ try {
     O.close();
   }
   // ── end: mining ──
+
+  // ── forging ── (v174's smith part, a draft or run: a database before it has no smith, and the keeper offers none)
+  if ((await sql(`select to_regprocedure('public.town_smith_open()') is not null as there`))[0].there) {
+    section("the blacksmith: offered only once he is open; pieces smelted, a friend at the bellows, a try, a move, the great fire's row, a counted option; shut again (v174)");
+    const FORGE = (await sql(`select town.cat('forge') as k`))[0].k, KS = FORGE.smith, copper = FORGE.smelts.of.oreCopper;
+    const was = Object.fromEntries((await sql(`select key, value from public.town_knobs where key in ('far_open', 'smith_open')`)).map((r) => [r.key, Number(r.value)]));
+    // (the far side's answer and then the smith's are asked past the line of questions: a moment for each, and for what is asked on their yes)
+    const begun = async (k) => { for (let i = 0; i < 3; i++) { await settled(k); await sleep(300); } };
+    const bagOf = (id, coins, bag) => purse(id, coins, bag);
+    const POT = { item: "pot", n: 1, plus: 7, opts: ["ckFire", "ckBase"] }, sticker = FORGE.tries.reduce((n, x) => n + (x.to <= 7 ? x.fee : 0), 0), fee = Math.max(KS.move.least, Math.ceil((KS.move.share * sticker) / (100 * FORGE.lines.kitchen.length)));
+    await sql(`update public.town_knobs set value = 1 where key = 'far_open'`);
+    await sql(`update public.town_knobs set value = 0 where key = 'smith_open'`);
+    await sql(`delete from public.town_smiths where true`);
+    await sql(`update public.town_great_fire set doc = '{}'::jsonb where one`);
+    await bagOf(a, 5000, [POT, { item: "grill", n: 1 }, { item: "shardCopper", n: 40 }, { item: "timber", n: 20 }, { item: "pick", n: 1 }]);
+    await bagOf(b, 0, []);
+    let from = asked.length;
+    const shut = new DbKeeper(a, askAs("A"));
+    await begun(shut);
+    const none = await shut.smithSmelt("oreCopper", 1);
+    shut.smithLook();
+    await settled(shut);
+    ok("the smith closed: a member's keeper asks once whether he is open, is told no, offers nothing of him and sends no deed of his; the game and the far side are theirs all the same",
+      shut.far() === true && shut.smith() === null && shut.fire() === null && shut.open() === true && !none.ok && none.why === "away"
+      && asked.slice(from).filter((x) => /town_smith|town_fire/.test(x)).join() === "A town_smith_open", asked.slice(from).filter((x) => /town_smith|town_fire/.test(x)));
+    shut.close();
+    await sql(`update public.town_knobs set value = 1 where key = 'smith_open'`);
+    const S = new DbKeeper(a, askAs("A")), H = new DbKeeper(b, askAs("B")), nudged = [];
+    H.onDeed = (what, to) => { nudged.push([what, to]); };
+    await begun(S); await begun(H);
+    ok("opened by its knob: the keeper is told yes, and has what the member has at the smith, the village's board, and the great fire as a page may know it (seven things, none of them a moment)",
+      S.smith() !== null && S.smith().smithy.queue.length === 0 && JSON.stringify(S.smith().board) === JSON.stringify({ tops: {}, found: {} }) && S.fire()?.lit === false && S.fire().mine === -1
+      && Object.keys(S.fire()).sort().join() === "flint,lit,mine,open,row,tinder,topped", [S.smith(), S.fire()]);
+    let did = await S.smithSmelt("oreCopper", 2);
+    ok("two pieces put in through the keeper: paid for, and in the keeper's queue at once, by the database's clock", did.ok && did.fee === 2 * copper.fee && S.smith().smithy.queue.length === 2 && S.purse().coins === 5000 - 2 * copper.fee
+      && Math.abs(S.smith().smithy.queue[0].from - S.now()) < 1500, did);
+    const near = await H.smithNear([a, b]), off = Math.round(copper.mins * 60_000 * KS.bellows.share);
+    did = await H.smithBellows(a);
+    ok("the other member's keeper sees whose piece smelts and presses the bellows: the press's share is off it, and the room is to tell the owner", near.length === 1 && near[0].id === a && near[0].piece.piece === "oreCopper" && near[0].left === KS.bellows.each
+      && did.ok && did.off === off && nudged.some(([what, to]) => what === "line" && to === a), { near, did: { ...did, purse: undefined }, nudged });
+    from = asked.length;
+    S.nudged("line");
+    await begun(S);
+    ok("…at the room's word the owner's keeper reads the smith again, a piece of theirs smelting: it ends sooner there too", S.smith().smithy.queue[0].blown === 1 && asked.slice(from).includes("A town_smith"), [S.smith().smithy.queue, asked.slice(from)]);
+    await skip((copper.mins + 1) * 60_000);
+    did = await S.smithTake();
+    ok("its minutes on, what is done is taken through the keeper, and is in the purse it keeps", did.ok && did.got.join() === "oreCopper,1" && slotOf(S, "oreCopper") >= 0 && S.smith().smithy.queue.length === 1, { ...did, purse: undefined });
+    did = await S.smithTry(slotOf(S, "pick"));
+    const told = sent.filter((x) => x.fn === "town_smith_try").pop();
+    ok("a try through the keeper: the database's own chance and nothing sent but the slot; the tool in the purse it keeps is at +1", did.ok && did.out === "taken" && did.level === 1 && S.purse().bag[slotOf(S, "pick")].plus === 1
+      && Object.keys(told.args).join() === "p_slot", { did: { ...did, purse: undefined }, told });
+    const stand = FORGE.stand.at.map(Math.floor), away = await S.smithMove(0, 1, { at: [1, 1], playing: false });
+    did = await S.smithMove(0, 1, { at: stand, playing: false });
+    ok("a move through the keeper: refused from far off, made by the forge for its fee; both tools in the purse it keeps", !away.ok && away.why === "far" && did.ok && did.fee === fee && did.spilt === 0 && S.purse().bag[1].plus === 7 && !S.purse().bag[0].plus
+      && S.purse().coins === 5000 - 2 * copper.fee - FORGE.tries[0].fee - fee, [away, { ...did, purse: undefined }]);
+    let row = await S.fireJoin("a name the page says");
+    ok("the great fire's row is for whoever has a tool one level under the top: refused, `level`", !row.ok && row.why === "level" && S.fire().row.length === 0, row);
+    await sql(`update public.town_purses set doc = jsonb_set(doc, '{bag,0}', $2::jsonb) where member_id = $1`, [a, JSON.stringify({ item: "pot", n: 1, plus: FORGE.forge.top - 1, opts: ["ckFire", "ckBase"] })]);
+    row = await S.fireJoin("a name the page says");
+    const name = (await sql(`select town.smith_called($1) as n`, [a]))[0].n;
+    ok("with one, a name is put in the row: the one the site calls them by, not the page's; and the keeper has the row at once", row.ok && S.fire().mine === 0 && S.fire().row.length === 1 && S.fire().row[0].name === name && name !== "a name the page says", [row, S.fire()]);
+    did = await S.smithTry(0);
+    ok("a try for the top with no fire lit is refused through the keeper, `fire`, and nothing is spent", !did.ok && did.why === "fire" && S.purse().coins === 5000 - 2 * copper.fee - FORGE.tries[0].fee - fee, did);
+    row = await S.fireLeave();
+    ok("…and the name is taken out again", row.ok && S.fire().mine === -1 && S.fire().row.length === 0, [row, S.fire()]);
+    await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'bugNet', 'handAt', 2, 'powers', '{}'::jsonb) || jsonb_build_object('bag', jsonb_set(doc->'bag', '{2}', $2::jsonb)) where member_id = $1`,
+      [a, JSON.stringify({ item: "bugNet", n: 1, plus: 10, opts: ["", "", "ntFreeze"] })]);
+    await settled(S);
+    const power = await S.toolPower("ntFreeze"), noPower = await S.toolPower("ntWide");
+    ok("a counted option of the tool in the hand is counted by the database through the keeper; one the tool has not is not asked for", power.ok && power.left === FORGE.options.of.ntFreeze.use.n - 1 && S.purse().powers.ntFreeze.n === 1
+      && !noPower.ok && noPower.why === "none" && sent.filter((x) => x.fn === "town_tool_power").length === 1, [power, noPower]);
+    const deeds = Object.fromEntries((await sql(`select what, count(*)::int as n from public.town_deeds where what in ('smelt', 'smelted', 'bellows', 'forge', 'forge_move', 'fire_join', 'fire_leave', 'power') group by 1`)).map((r) => [r.what, r.n]));
+    ok("what was done was written down by the functions themselves", deeds.smelt === 1 && deeds.smelted === 1 && deeds.bellows === 1 && deeds.forge === 1 && deeds.forge_move === 1 && deeds.fire_join === 1 && deeds.fire_leave === 1 && deeds.power === 1, deeds);
+    await sql(`update public.town_knobs set value = 0 where key = 'smith_open'`);
+    const gone = await S.smithWiden();
+    ok("the smith shut again by his knob: a deed of his is refused, the keeper forgets him and the fire, and the game and the far side are theirs all the same", !gone.ok && gone.why === "away" && S.smith() === null && S.fire() === null && S.open() === true && S.far() === true, gone);
+    S.close(); H.close();
+    await sql(`update public.town_knobs set value = $1 where key = 'smith_open'`, [was.smith_open ?? 0]);
+    await sql(`update public.town_knobs set value = $1 where key = 'far_open'`, [was.far_open ?? 0]);
+  } else {
+    const O = new DbKeeper(a, askAs("A"));
+    await settled(O);
+    ok("a database that has no smith: the keeper offers none, and no great fire", O.smith() === null && O.fire() === null && !asked.some((x) => /town_smith(?!_open)|town_fire/.test(x)));
+    O.close();
+  }
+  // ── end: forging ──
 
   section("one thing at a time");
   await purse(a, 100, []);
