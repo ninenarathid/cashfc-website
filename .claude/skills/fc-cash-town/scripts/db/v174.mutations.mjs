@@ -33,7 +33,7 @@ export default ({ swap }) => {
     return s.slice(0, a) + s.slice(b, c) + s.slice(a, b) + s.slice(c);
   };
   const plain = (list) => list.map(([name, mutate, mustFail]) => [name, (sql) => mutate(sql.split("\r\n").join("\n")), mustFail]);
-  return plain([
+  const all = plain([
     // ── the guard ──
     ["the guard is left out: the file runs on a database that has not had v173",
       cutTo("do $$ begin\n  if to_regprocedure('town.fell(", "-- ═══ Part 1 of 2:"),
@@ -60,9 +60,12 @@ export default ({ swap }) => {
     ["a try at the smith is for somebody signed out",
       swap("revoke execute on function public.town_smith_try(integer) from public, anon;", "grant execute on function public.town_smith_try(integer) to anon;"),
       ["the sixteen: each security definer"]],
-    ["the last revoke on the schema `town` is left out",
-      lastSwap("revoke execute on all functions in schema town from public, anon, authenticated;", "-- (left out)"),
-      ["the schema `town` is taken from every browser once more"]],
+    // (the older tools' part ends with the same revoke, after its last function: the file's last one left out alone is
+    // no break, and was not noticed. Both left out, the part's rules are anybody's to call after the first run, and
+    // only a second run, which reaches the smith's revoke again, would take them back.)
+    ["the revoke on the schema `town` is left out after the older tools' part, and at the file's end",
+      (s) => lastSwap("revoke execute on all functions in schema town from public, anon, authenticated;", "-- (left out)")(lastSwap("revoke execute on all functions in schema town from public, anon, authenticated;", "-- (left out)")(s)),
+      ["the schema `town` is taken from every browser once more", "…and the second run changes nothing", "nothing of the schema `town` is anybody's to call"]],
     ["the smith is built open", swap("  ('smith_open', 0) ", "  ('smith_open', 1) "),
       ["one knob more, the smith's, at 0", "the queries at its foot say what the file says they say"]],
     ["opened, the smith is shut again by the next run of the file",
@@ -79,4 +82,5 @@ export default ({ swap }) => {
     ["the API is not told of it", swap("notify pgrst, 'reload schema';\n", ""), ["it begins by saying what it is"]],
     ["the foot says something the file does not do", swap("--   -- 0 | 16\n", "--   -- 0 | 17\n"), ["the queries at its foot say what the file says they say"]],
   ]);
+  return all.slice(Number(process.env.FROM ?? 0), Number(process.env.TO ?? all.length));
 };

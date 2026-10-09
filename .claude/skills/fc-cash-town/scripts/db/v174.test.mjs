@@ -265,8 +265,9 @@ const fresh = Object.keys(NOW).filter((k) => !(k in OLD)), gone = Object.keys(OL
 const CALLED = fresh.filter((k) => k.startsWith("public.")).sort();
 t.check("127 functions more and none gone: 111 rules of the schema `town`, sixteen a member's to call", fresh.length === 127 && gone.length === 0 && CALLED.length === 16 && fresh.filter((k) => k.startsWith("town.")).length === 111, { fresh: fresh.length, gone, called: CALLED.length });
 t.check("the sixteen: each security definer, for the signed in, not for the signed out", CALLED.every((k) => IS.fns[k].definer && IS.fns[k].member && !IS.fns[k].anon), CALLED.filter((k) => !(IS.fns[k].definer && IS.fns[k].member && !IS.fns[k].anon)));
-const open = Object.values(IS.fns).filter((f) => f.sig.startsWith("town.") && (f.anon || f.member)).map((f) => f.sig);
-t.check("nothing of the schema `town` is anybody's to call, the new rules among it", open.length === 0 && Object.keys(IS.fns).filter((k) => k.startsWith("town.")).length === Object.keys(WAS.fns).filter((k) => k.startsWith("town.")).length + 111, open);
+// (after the FIRST run as after the second: a rule left open by one run and shut by the next would be open on the live database, where the file runs once)
+const open = [...new Set([ONCE, IS].flatMap((st) => Object.values(st.fns).filter((f) => f.sig.startsWith("town.") && (f.anon || f.member)).map((f) => f.sig)))];
+t.check("nothing of the schema `town` is anybody's to call, the new rules among it, after the first run as after the second", open.length === 0 && Object.keys(IS.fns).filter((k) => k.startsWith("town.")).length === Object.keys(WAS.fns).filter((k) => k.startsWith("town.")).length + 111, open);
 for (const sig of AGAIN) {
   const by = PARTS.filter((p) => LINES[p].some(([, s]) => s === sig));
   let want = OLD[sig], why = "";
