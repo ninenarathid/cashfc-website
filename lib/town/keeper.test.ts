@@ -1222,3 +1222,28 @@ describe("the cave's day, laid by the site's server", () => {
     k.close(); j.close();
   });
 });
+
+describe("the later lines of work, while the far side is shut", () => {
+  it("shows felling and mining nowhere until the far side is open to me: no points, no title, no gift, whatever the database lists", async () => {
+    let open = false;
+    const lines = { kitchen: { points: 30, today: 2 }, felling: { points: 500, today: 3 }, mining: { points: 900, today: 1 } };
+    const db = database({
+      town_is_open: () => true, town_far: () => open,
+      town_me: () => ({ now: NOW, purse: purse(), lines, worn: { line: "felling", rank: 2 }, titles: { me: { line: "felling", rank: 2 }, you: { line: "kitchen", rank: 1 }, they: { line: "mining", rank: 1 } }, gifting: true, gives: ["charmApron"] }),
+    });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    expect(k.far()).toBe(false);
+    const shut = k.lines()!;
+    expect([shut.lines.felling, shut.lines.mining, shut.lines.kitchen.points, shut.worn, shut.given]).toEqual([{ points: 0, today: 0 }, { points: 0, today: 0 }, 30, null, undefined]);
+    expect(k.titles()).toEqual({ you: { line: "kitchen", rank: 1 } });
+    expect(k.gives("charmApron")).toBe(true);
+    open = true;
+    await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+    expect(k.far()).toBe(true);
+    const on = k.lines()!;
+    expect([on.lines.felling.points, on.lines.mining.points, on.worn, on.given]).toEqual([500, 900, { line: "felling", rank: 2 }, ["felling", "mining"]]);
+    expect(Object.keys(k.titles()).sort()).toEqual(["me", "they", "you"]);
+    k.close();
+  });
+});

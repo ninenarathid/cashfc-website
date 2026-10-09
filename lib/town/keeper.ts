@@ -27,8 +27,8 @@ import { handOf, handSlot, newPurse, newStall, type Purse, type Refusal, type St
 import { sortedSlot, whatOf } from "./bag";
 import { NATURES, natureAt, natureOf, type Nature, type WellWater } from "./waters";
 import type { WellBook } from "./well";
-import { CHARM_IDS, type GiftRefusal } from "./gifts";
-import { linesOf, wornOf, type LinesTold, type Worn } from "./lines";
+import { CHARM_IDS, giftOf, type GiftRefusal } from "./gifts";
+import { MORE_LINE_IDS, linesOf, wornOf, type LinesTold, type Worn } from "./lines";
 import { YARD, canPour, takesWater } from "./yard";
 import type { KeptBed, KeptDeal, Trial } from "./trial";
 // ── gifts: kitchen ──
@@ -770,6 +770,10 @@ export class DbKeeper implements Keeper {
   private wellBook_: WellBook | null = null;
   private ranks_: Record<string, number> = {};
   private lines_: LinesTold | null = null;
+  /** What the database told of the lines, the gifts given and the titles worn, whole; `lines_`, `gives_` and `titles_` are these as the far side's switch lets me see them (`fit`). */
+  private linesRaw_: LinesTold | null = null;
+  private givesRaw_: readonly string[] = CHARM_IDS;
+  private titlesRaw_: Record<string, Worn> = {};
   private titles_: Record<string, Worn> = {};
   private gifting_ = false;
   // ── forging ── (nothing, until the database tells of a smith)
@@ -886,13 +890,29 @@ export class DbKeeper implements Keeper {
   ready(): boolean { return this.read; }
   open(): boolean | null { return this.opened; }
   far(): boolean { return this.far_; }
+  /**
+   * The lines of work, the gifts given and the titles worn as I may see them. The database lists the two later lines
+   * (felling and mining) for everybody; while the far side is not open to me they are not shown anywhere: no points on
+   * them, no title of theirs worn by me or over anybody's head, no gift of theirs given.
+   */
+  private fit() {
+    const r = this.linesRaw_, more = (line: string) => (MORE_LINE_IDS as readonly string[]).includes(line);
+    if (this.far_) { this.lines_ = r; this.gives_ = this.givesRaw_; this.titles_ = this.titlesRaw_; return; }
+    if (r) {
+      const { given, ...rest } = r;
+      this.lines_ = { ...rest, lines: { ...r.lines, ...Object.fromEntries(MORE_LINE_IDS.map((id) => [id, { points: 0, today: 0 }])) }, worn: r.worn && more(r.worn.line) ? null : r.worn };
+      void given;
+    } else this.lines_ = null;
+    this.gives_ = this.givesRaw_.filter((id) => !more(giftOf(id)?.line ?? ""));
+    this.titles_ = Object.fromEntries(Object.entries(this.titlesRaw_).filter(([, w]) => !more(w.line)));
+  }
   /** Ask `town_far` (not through the line: its answer is a plain yes or no, which `once` would not keep). Anything but a yes is a no: a missing function, an error, a refusal. */
   private async askFar() {
     if (this.shut) return;
     let got: unknown = null;
     try { got = await this.rpc("town_far", {}); } catch { got = null; }
     const yes = (Array.isArray(got) ? got[0] : got) === true;
-    if (yes !== this.far_) { this.far_ = yes; this.tell(); }
+    if (yes !== this.far_) { this.far_ = yes; this.fit(); this.tell(); }
     if (!yes && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
   }
 
@@ -993,7 +1013,7 @@ export class DbKeeper implements Keeper {
     // ── felling ── (the trees that are not grown, told with every answer that touched one)
     if (a.trees && typeof a.trees === "object" && Array.isArray((a.trees as TreesTold).down)) this.trees_ = { down: (a.trees as TreesTold).down, half: Array.isArray((a.trees as TreesTold).half) ? (a.trees as TreesTold).half : [], ...(Array.isArray((a.trees as TreesTold).book) ? { book: (a.trees as TreesTold).book } : {}) };
     if (a.ranks && typeof a.ranks === "object") this.ranks_ = a.ranks as Record<string, number>;
-    if (a.lines && typeof a.lines === "object") this.lines_ = linesOf(a.lines, a.worn);
+    if (a.lines && typeof a.lines === "object") { this.linesRaw_ = linesOf(a.lines, a.worn); this.fit(); }
     if (typeof a.gifting === "boolean") this.gifting_ = a.gifting;
     // ── forging ── (what I have at the smith, and the board: told by a database that has one, with my purse and with every deed there)
     if (a.smith && typeof a.smith === "object" && typeof (a.smith as { smithy?: unknown }).smithy === "object") {
@@ -1001,9 +1021,10 @@ export class DbKeeper implements Keeper {
       const board = told.board && typeof told.board === "object" ? told.board : this.smith_?.board ?? newBoard();
       this.smith_ = { smithy: soundSmithy(told.smithy), board: { tops: board.tops ?? {}, found: board.found ?? {} } };
     }
-    if (Array.isArray(a.gives)) this.gives_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string");
+    if (Array.isArray(a.gives)) { this.givesRaw_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string"); this.fit(); }
     if (a.titles && typeof a.titles === "object") {
-      this.titles_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
+      this.titlesRaw_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
+      this.fit();
     }
     if (a.toThank && typeof a.toThank === "object") this.toThank_ = a.toThank as Record<string, Array<Helper & { name: string }>>;
     if (a.thanks && typeof a.thanks === "object") { this.thanks_ = a.thanks as ThanksBoard; this.thanked_ = this.thanks_.today; }
