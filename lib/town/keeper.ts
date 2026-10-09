@@ -711,8 +711,9 @@ const EVERY: Record<Looked, number> = { /* mining */ cave: 60_000, stall: 30_000
  * dear to read (seen on the live database the evening the mountain opened, 2026-10-09: seven members in the cave,
  * each telling the room of every rock, had every page ask for the whole cave at every word: some ten asks a second,
  * and the database could answer nothing else). What changed meanwhile is read by the one ask that follows.
+ * (Exported for the stand-in's test alone, which takes the gaps away to see what each word brings.)
  */
-const NUDGE_GAP: Partial<Record<Looked, number>> = { cave: 5000, trees: 5000, bugs: 10_000, wild: 10_000 };
+export const NUDGE_GAP: Partial<Record<Looked, number>> = { cave: 5000, trees: 5000, bugs: 10_000, wild: 10_000 };
 /** Whether nobody is looking at this page (another tab is in front, or the window is put away): it asks for nothing it only looks at then, and asks again the moment it is seen. */
 const unseen = (): boolean => typeof document !== "undefined" && document.visibilityState === "hidden";
 /** A deal that is open is the one thing two people watch each other do: asked for this often while it is. */

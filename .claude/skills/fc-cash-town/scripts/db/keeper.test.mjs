@@ -14,7 +14,10 @@ import { fileURLToPath } from "node:url";
 import { existsSync, readdirSync } from "node:fs";
 
 await import("./repo-ts-town.mjs");
-const { DbKeeper } = await import("@/lib/town/keeper");
+const { DbKeeper, NUDGE_GAP } = await import("@/lib/town/keeper");
+// (the room's word is answered at once all through this file: the gaps the page keeps are tried in a section of their own.
+// A keeper from before the gaps has none to take away.)
+for (const what of Object.keys(NUDGE_GAP ?? {})) NUDGE_GAP[what] = 0;
 const { FARM, KITCHEN, plotAt, fishFrom, bedOf } = await import("@/lib/town/world");
 const { shelfOf } = await import("@/lib/town/orders");
 const { BUGS, HAUNTS } = await import("@/lib/town/insects");
@@ -855,6 +858,28 @@ try {
     ok("a day on, they are on the page again", back.some((s) => kinds.includes(s.bug)), back.length);
     stopA();
     await sql(`delete from public.town_deeds where what = 'net' and n = 1000000`);
+  }
+
+  if (NUDGE_GAP && (await sql(`select to_regclass('public.town_comebacks') is not null as there`))[0].there) {
+    section("the room's word about a thing that is dear to read: asked for at once, then once when its gap is over");
+    await sql(`delete from public.town_comebacks`);
+    NUDGE_GAP.bugs = 1500;
+    const stop = A.look("bugs"), asks = (from) => asked.slice(from).filter((x) => x === "A town_bugs").length;
+    await sleep(1700);   // (the look's own ask is over, and so is any gap begun before)
+    const from = asked.length;
+    A.nudged("bugs");
+    await sleep(300);
+    ok("the first word is answered at once", asks(from) === 1, asked.slice(from));
+    A.nudged("bugs"); A.nudged("bugs"); A.nudged("bugs");
+    await sleep(300);
+    ok("three more words inside the gap ask for nothing yet", asks(from) === 1, asked.slice(from));
+    await sleep(1500);
+    ok("and for it once when the gap is over, whatever was said meanwhile", asks(from) === 2, asked.slice(from));
+    A.nudged("bugs");
+    stop();
+    await sleep(1700);
+    ok("a word that waits is dropped when the thing is looked at no more", asks(from) === 2, asked.slice(from));
+    NUDGE_GAP.bugs = 0;
   }
 
   // (v140 makes no new function: it is known by what the rule of putting a thing on a plant says. Nor does v145: it is
