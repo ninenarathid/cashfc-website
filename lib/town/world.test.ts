@@ -4,7 +4,7 @@ import {
   BENCHES, BEYOND, BEYOND_PROPS, BOARD, CAMP, COLS, DROP, FARM, FARM_PROPS, FORDS, FOREST, FOREST_PROPS, GATES, GREAT_TREE, KEEPERS, KITCHEN, ROADWORKS, FAR, FOUNTAIN, FRONT, MAX_LINES, MOVE_BUDGET, NEAR, PIER, PLAZA, PROPS, ROWS, SHOP, TOWN, benchAt, findPath, fromIso, gateAt, groundAt, hearing, groundLook, moveEvery, onDeck, fishFrom, CAST, pickLines, placeOf, plotAt, spawnFor, stepAlong, thingAt, toIso, walkable, onYard, yardPlace,
   YARD_SEATS, inDiningYard, atFire, isBuilt, seenAt, setBuilt, yardSeat, zoneAt, type Zone,
 } from "./world";
-import { rowOf, bedOf, bedCorner, FARM_PUMPKINS, yardFloor } from "./world";
+import { rowOf, bedOf, bedCorner, FARM_PUMPKINS, yardFloor, BRIDGE, bridgeOpen, setBridge } from "./world";
 
 describe("projection", () => {
   it("goes to isometric pixels and back", () => {
@@ -68,7 +68,9 @@ describe("walking", () => {
     expect(north).toBeGreaterThanOrEqual(2);
   });
 
-  it("has a river on the left that nobody can cross yet, with a sandy bank", () => {
+  it("has a river on the left that nobody crosses but by the village's bridge once it is whole, with a sandy bank", () => {
+    // (the river as it is before the bridge: no span laid)
+    setBridge(0);
     const water: Array<[number, number]> = [];
     for (let y = 0; y < ROWS; y++) for (let x = 0; x < COLS; x++) if (groundAt(x, y) === "water") water.push([x, y]);
     expect(water.length).toBeGreaterThan(200);
@@ -79,8 +81,8 @@ describe("walking", () => {
     expect(groundAt(10, 29)).toBe("sand");
     expect(groundAt(12, 29)).toBe("road");
     for (const [x, y] of water) {
-      // nobody walks on water, but over it on the finished deck's boards
-      expect(walkable(x, y)).toBe(onDeck(x, y));
+      // nobody walks on water, but over it on the finished deck's boards, and on the village's bridge once it is whole
+      expect(walkable(x, y)).toBe(onDeck(x, y) || (bridgeOpen() && BRIDGE.tiles.some((span) => span.some(([bx, by]) => bx === x && by === y))));
       // on the left of the map: down-left of the town's middle on the screen
       expect(y - x).toBeGreaterThan(10);
     }
@@ -91,6 +93,12 @@ describe("walking", () => {
     expect(findPath({ x: 32.5, y: 31.5 }, { x: 32.5, y: ROWS - 0.5 })).toBeNull();
     // but the town itself is all on this side
     expect(findPath({ x: 32.5, y: 31.5 }, { x: 16.5, y: 31.5 })).not.toBeNull();
+    // the village's bridge whole (the owner, 2026-10-09: it is walked over before the mountain opens): the west road's far end is reached, over the bridge's own tiles and no other water
+    setBridge(6, true);
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: 0.5, y: 31.5 })).not.toBeNull();
+    for (const [x, y] of water) expect(walkable(x, y)).toBe(onDeck(x, y) || BRIDGE.tiles.some((span) => span.some(([bx, by]) => bx === x && by === y)));
+    // (and with it the land beyond the river, the south road's far end too: one bank)
+    expect(findPath({ x: 32.5, y: 31.5 }, { x: 32.5, y: ROWS - 0.5 })).not.toBeNull();
   });
 
   it("stands the Popoto Board north of the fountain, in the way of nobody", () => {

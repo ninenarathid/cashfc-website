@@ -85,13 +85,18 @@ describe("the far side, in every build and reached only while it is open", () =>
     expect(W.BENCHES.slice(0, firstFar).every((b) => ["town", "farm", "forest"].includes(W.placeOf(b.x, b.y) as string))).toBe(true);
     expect(W.BENCHES.slice(firstFar).every((b) => W.placeOf(b.x, b.y) === "mountain" || W.placeOf(b.x, b.y) === "cave")).toBe(true);
     expect(W.GATES.slice(0, 4).map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"]]);
-    // shut, only the blacksmith's own tiles are shut that were not
+    // the far side shut and the bridge whole: the blacksmith's own tiles are shut that were not, and the bridge's water
+    // is walked on (the bridge comes before the mountain: it is walked over whatever the far side's switch says)
     const smith = W.SMITH.tiles.map(([x, y]) => `${x},${y}`);
-    const changed = (): string[] => [...was].filter(([k, w]) => { const [x, y] = k.split(",").map(Number); return W.walkable(x, y) !== w; }).map(([k]) => k).sort();
-    expect(changed()).toEqual([...smith].sort());
-    // open, the bridge's water as well
-    W.setFar(true);
     const water = W.BRIDGE.tiles.flat().filter(([x, y]) => W.groundAt(x, y) === "water").map(([x, y]) => `${x},${y}`);
+    const changed = (): string[] => [...was].filter(([k, w]) => { const [x, y] = k.split(",").map(Number); return W.walkable(x, y) !== w; }).map(([k]) => k).sort();
+    expect(changed()).toEqual([...water, ...smith].sort());
+    // a bridge short of whole: only the blacksmith's
+    W.setBridge(5, true);
+    expect(changed()).toEqual([...smith].sort());
+    W.setBridge(6, true);
+    // the far side open: the same tiles, no other
+    W.setFar(true);
     expect(changed()).toEqual([...water, ...smith].sort());
     // and laid out as it was (asBuilt), every one of those tiles is as it was: what the database keeps is made so
     W.asBuilt(() => { for (const [k, w] of was) { const [x, y] = k.split(",").map(Number); expect(W.walkable(x, y), k).toBe(w); } });
