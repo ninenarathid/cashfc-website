@@ -22,6 +22,31 @@ export default async function (ctx) {
   // writes a field of one by hand)
   for (const who of [U.m1, U.m2]) await call(who, "town_hold", null);
 
+  t.section("what the base should say afterwards (the queries at its foot)");
+  const said = {
+    knobs: (await t.sql(`select key, value from public.town_knobs where key in ('far_open', 'notice_chip', 'notice_gem') order by key`)).rows,
+    rows: await one(`select (select jsonb_array_length(data->'wood') from public.town_catalog where key = 'trees') as trees,
+      (select jsonb_array_length(data->'rocks') from public.town_catalog where key = 'mining') as rocks,
+      (select jsonb_array_length(data) from public.town_catalog where key = 'pouches') as pouches,
+      (select count(*) from public.town_catalog where key in ('forge', 'trees', 'mining', 'pouches'))::int as new_rows`),
+    tables: (await t.sql(`select c.relname, c.relrowsecurity as closed,
+        (select count(*) from information_schema.role_table_grants g where g.table_schema = 'public' and g.table_name = c.relname and g.grantee in ('anon', 'authenticated'))::int as a_browsers_grants,
+        (select string_agg(g.privilege_type, ', ' order by g.privilege_type) from information_schema.role_table_grants g where g.table_schema = 'public' and g.table_name = c.relname and g.grantee = 'service_role') as the_sites_key
+      from pg_class c where c.oid in ('public.town_cave_days'::regclass, 'public.town_cave'::regclass) order by 1`)).rows,
+    fns: (await t.sql(`select p.proname, p.prosecdef as definer, has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as member
+      from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname in ('town_far', 'town_cave_days', 'town_pouch_out', 'town_pouch_in') order by 1`)).rows,
+    more: await one(`select (select doc from public.town_things where key = 'grove') as grove, (select length(word) from public.town_secrets where key = 'mine') as word,
+      town.shop_cap('gemRuby', town.shop_knobs()) as a_gem, town.notice_cap('chipRuby', town.notice_knobs()) as a_fragment, town.shop_cap('worm', town.shop_knobs()) as a_worm`),
+    far: (await one(`select public.town_far() as far`)).far,
+  };
+  t.check("the knobs: closed, and the two numbers of a gem's most", same(said.knobs, [{ key: "far_open", value: 0 }, { key: "notice_chip", value: 10000 }, { key: "notice_gem", value: 100000 }]), said.knobs);
+  t.check("the catalog: 121 trees, 54 rocks, 2 pouches, 4 new rows", same(said.rows, { trees: 121, rocks: 54, pouches: 2, new_rows: 4 }), said.rows);
+  t.check("the two tables: closed, nothing of a browser's, and the cave's days for the site's key to read and insert and no more",
+    same(said.tables.map((x) => [x.relname, x.closed, x.a_browsers_grants]), [["town_cave", true, 0], ["town_cave_days", true, 0]]) && said.tables[1].the_sites_key === "INSERT, SELECT", said.tables);
+  t.check("the four functions a member calls: definer, not for the signed out, for the signed in",
+    same(said.fns, ["town_cave_days", "town_far", "town_pouch_in", "town_pouch_out"].map((proname) => ({ proname, definer: true, anon: false, member: true }))), said.fns);
+  t.check("the grove empty, a word of 64, a gem 100,000, a fragment 10,000, a worm 10; and nobody is signed in in the editor", same(said.more, { grove: { down: {}, half: [] }, word: 64, a_gem: 100000, a_fragment: 10000, a_worm: 10 }) && said.far === false, { ...said.more, far: said.far });
+
   t.section("the gate: built closed");
   t.check("the knob is there and says closed; the two numbers of a gem's most are beside it", (await knobOf("far_open")) === 0 && (await knobOf("notice_gem")) === 100000 && (await knobOf("notice_chip")) === 10000,
     [await knobOf("far_open"), await knobOf("notice_gem"), await knobOf("notice_chip")]);

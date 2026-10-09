@@ -1586,3 +1586,38 @@ revoke execute on function public.town_pouch_out(text, integer) from public, ano
 grant execute on function public.town_pouch_out(text, integer) to authenticated;
 revoke execute on function public.town_pouch_in(integer) from public, anon;
 grant execute on function public.town_pouch_in(integer) to authenticated;
+
+-- ─── What the base should say afterwards (for the file's foot, where the parts are put together) ─────────────────
+--
+--   select key, value from public.town_knobs where key in ('far_open', 'notice_chip', 'notice_gem') order by key;
+--   -- far_open    | 0          (closed: opened with `update public.town_knobs set value = 1 where key = 'far_open';`)
+--   -- notice_chip | 10000
+--   -- notice_gem  | 100000
+--
+--   select (select jsonb_array_length(data->'wood') from public.town_catalog where key = 'trees') as trees,
+--          (select jsonb_array_length(data->'rocks') from public.town_catalog where key = 'mining') as rocks,
+--          (select jsonb_array_length(data) from public.town_catalog where key = 'pouches') as pouches,
+--          (select count(*) from public.town_catalog where key in ('forge', 'trees', 'mining', 'pouches')) as new_rows;
+--   -- 121 | 54 | 2 | 4
+--
+--   select c.relname, c.relrowsecurity as closed,
+--          (select count(*) from information_schema.role_table_grants g where g.table_schema = 'public' and g.table_name = c.relname and g.grantee in ('anon', 'authenticated')) as a_browsers_grants,
+--          (select string_agg(g.privilege_type, ', ' order by g.privilege_type) from information_schema.role_table_grants g where g.table_schema = 'public' and g.table_name = c.relname and g.grantee = 'service_role') as the_sites_key
+--     from pg_class c where c.oid in ('public.town_cave_days'::regclass, 'public.town_cave'::regclass) order by 1;
+--   -- town_cave      | true | 0 | (whatever a table of the town's has: no browser's)
+--   -- town_cave_days | true | 0 | INSERT, SELECT
+--
+--   select p.proname, p.prosecdef as definer, has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as member
+--     from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname in ('town_far', 'town_cave_days', 'town_pouch_out', 'town_pouch_in') order by 1;
+--   -- town_cave_days | true | false | true
+--   -- town_far       | true | false | true
+--   -- town_pouch_in  | true | false | true
+--   -- town_pouch_out | true | false | true
+--
+--   select (select doc from public.town_things where key = 'grove') as grove, (select length(word) from public.town_secrets where key = 'mine') as word,
+--          town.shop_cap('gemRuby', town.shop_knobs()) as a_gem, town.notice_cap('chipRuby', town.notice_knobs()) as a_fragment, town.shop_cap('worm', town.shop_knobs()) as a_worm;
+--   -- {"down": {}, "half": []} | 64 | 100000 | 10000 | 10      (the grove as it is on the first run; later, whatever has been felled)
+--
+--   -- (in the SQL editor nobody is signed in, so this says false; it is the page's to ask)
+--   select public.town_far();
+--   -- false
