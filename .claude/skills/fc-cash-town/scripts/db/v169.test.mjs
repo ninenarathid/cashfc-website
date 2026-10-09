@@ -1,6 +1,7 @@
 /*
  * v169 (sixty picks and sixty axes a round on the uncle's shelf, where there were six of each) tried against the
- * stand-in database as it is after the last file that ran, v164 among them: stand-in.mjs's snapshot, loaded in a
+ * stand-in database as it was BEFORE it ran (v164 among the files there: `standIn({ upTo: 168 })`, snap-v168-with-164.tar),
+ * the snapshot of stand-in.mjs loaded in a
  * second, in memory: nothing is written anywhere.
  *
  *   FC_REPO=<the tree whose code is meant> node v169.test.mjs [that tree's root]     (MIGRATION_FILE=<a file> tries that one)
@@ -28,7 +29,7 @@ const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 let pass = 0, fail = 0;
 const ok = (name, cond, detail = "") => { cond ? pass++ : fail++; console.log(`  ${cond ? "PASS" : "FAIL"} ${name}${cond ? "" : "  " + (typeof detail === "string" ? detail : JSON.stringify(detail).slice(0, 400))}`); };
 
-const t = await standIn();
+const t = await standIn({ upTo: 168 });
 const rows = async (sql, params) => (await t.sql(sql, params)).rows;
 const texts = async () => rows(`select p.oid::regprocedure::text as name, md5(pg_get_functiondef(p.oid)) as body from pg_proc p join pg_namespace n on n.oid = p.pronamespace
   where n.nspname in ('town', 'public') and p.prokind = 'f' and (n.nspname = 'town' or p.proname like 'town\\_%') order by 1`);

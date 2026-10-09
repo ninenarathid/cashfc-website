@@ -22,14 +22,15 @@ import { supabaseLike, migration } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
 
 /** The last file of the town's that has run (town-bench.mjs has the same number). */
-export const RAN = 168;
+export const RAN = 170;
 const here = (name) => new URL(`./${name}`, import.meta.url);
-// (v160 and v163 ran after v166, and v164 after v168: the snapshot named for RAN alone was built before them. While RAN is what it was,
-// the one that has them is under a name of its own, so that no folder goes on reading the older one for this code: snap-v168.tar is the
-// database before v164, which v164's own dry runs begin from; snap-v168-with-164.tar has it)
-const SNAP = here(`snap-v${RAN}${RAN === 166 ? "-with-160-163" : RAN === 168 ? "-with-164" : ""}.tar`);
-// (and the database before v164, for the parts of v164 and the tools that build the blacksmith's migration the same way: `standIn({ before164: true })`)
-const SNAP_BEFORE_164 = here(`snap-v${RAN}.tar`);
+// (v160 and v163 ran after v166, v164 after v168: the snapshot named for RAN alone is of all that has run, as it ran: snap-v170.tar.
+// Older ones are kept, each under its own name, for the dry runs that begin from the database as it was before a file:
+// snap-v168.tar is the database before v164 (`standIn({ before164: true })`, for v164's own parts); snap-v168-with-164.tar is
+// before v169 (`standIn({ upTo: 168 })`); snap-v169-with-164.tar is before v170 (`standIn({ upTo: 169 })`).)
+const snapOf = (upTo) => here(upTo === RAN ? `snap-v${RAN}.tar` : `snap-v${upTo}-with-164.tar`);
+const SNAP = snapOf(RAN);
+const SNAP_BEFORE_164 = here("snap-v168.tar");
 const extra = `${KUDOS}
 create table public.gallery_posts (id bigint generated always as identity primary key, author_id uuid not null references public.profiles (id) on delete cascade, caption text, created_at timestamptz not null default now());
 alter table public.gallery_posts enable row level security;
@@ -39,14 +40,16 @@ alter table public.gallery_likes enable row level security;
 `;
 
 /** Built from nothing: every file replayed. */
-async function build({ before164 = false } = {}) {
+async function build({ before164 = false, upTo = RAN } = {}) {
+  if (before164) upTo = 168;
   const t = await supabaseLike({ extra });
   // (by number, but v130 after v131, as it ran; v136 is the party finder's and v157 the members' contacts'; a number that was never a file is passed over:
   // v160 to v164 were other rounds' numbers, not files yet when v165 and v166 ran; **v160 (the bridge built by hand) and v163 (the lamp relay) ran after
   // v166, on 2026-10-09, and are replayed there, as they ran**; v161 and v162 never were files)
+  // (v169 and v170 ran on 2026-10-09 after v164, in their numbers' order: v164 is replayed after v168, then v169, then v170)
   // (**v164, the far side, ran on 2026-10-09 after v168, though its number is lower**: it writes `town.work_counts_of` and `town.deed_th` from
   // their text as v163 left it, so it is replayed after v168 and not by its number, where it would undo v160's and v163's blocks and be undone by them.)
-  const numbers = Array.from({ length: RAN - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157 && n !== 160 && n !== 163 && n !== 164);
+  const numbers = Array.from({ length: upTo - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157 && n !== 160 && n !== 163 && n !== 164);
   const AFTER_168 = before164 ? [] : [164];
   numbers.splice(numbers.indexOf(131) + 1, 0, 130);
   numbers.splice(numbers.indexOf(166) + 1, 0, 160, 163);
@@ -58,10 +61,10 @@ async function build({ before164 = false } = {}) {
 }
 
 /** The stand-in, from the snapshot when there is one (and `fresh` is not asked for), else built and dumped for the next time. */
-export async function standIn({ fresh = process.env.FRESH === "1", before164 = false } = {}) {
-  const SNAP_ = before164 ? SNAP_BEFORE_164 : SNAP;
+export async function standIn({ fresh = process.env.FRESH === "1", before164 = false, upTo = RAN } = {}) {
+  const SNAP_ = before164 ? SNAP_BEFORE_164 : snapOf(upTo);
   if (!fresh && existsSync(SNAP_)) return supabaseLike({ load: new Blob([readFileSync(SNAP_)]) });
-  const t = await build({ before164 });
+  const t = await build({ before164, upTo });
   const dump = await t.db.dumpDataDir("none");
   writeFileSync(SNAP_, Buffer.from(await dump.arrayBuffer()));
   return t;

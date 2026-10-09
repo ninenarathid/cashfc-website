@@ -43,7 +43,7 @@ describe("the far side's lists, for the database", () => {
 
   it("are in the catalog, with the chest at the mountain's foot, in a production build as in the others (v164 ran on 2026-10-09: no block waits)", async () => {
     const { CATALOG_KEYS } = await import("./catalog");
-    // (v164 has run and names no row any more; what waits now is v170's, the mountain's trees again)
+    // (v164, v169 and v170 have run and name no row any more: nothing waits)
     expect(CATALOG_KEYS.v164).toBeUndefined();
     expect(catalogOf().box.more).toEqual([[67, 242]]);
     expect([catalogOf().trees.wood.length, catalogOf().mining.rocks.length]).toEqual([213, 54]);

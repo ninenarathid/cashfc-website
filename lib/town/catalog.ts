@@ -488,12 +488,15 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * It seeded four, new: the mountain's trees (`trees`), the miners' knobs with the rocks of the mountain's foot
  * (`mining`), the pouches (`pouches`), and the tools that can be forged with their options and gems (`forge`). And it
  * wrote nine over: `items`, `goods`, `shelf`, `hints`, `makes`, `cooking`, `work`, `gifts` and `box` (`box.more`: the
- * chest at the mountain's foot). Nothing waits now; the blacksmith's migration is still to come.
+ * chest at the mountain's foot).
+ *
+ * v169 wrote two numbers of `goods` by themselves: the shelf's picks and axes a round (`pick.stock`, `axe.stock`). It ran on
+ * 2026-10-09.
+ *
+ * v170 wrote `trees` over: more trees on the mountain, and a tree grown again in six minutes. It ran on 2026-10-09 too.
+ * Nothing waits now; the blacksmith's migration is still to come.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
-  // (v170, NOT RUN: more trees on the mountain and trees that grow back in six minutes: the `trees` row written over)
-  v170: { keys: [], over: ["trees"] },
-};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
