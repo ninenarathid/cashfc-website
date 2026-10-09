@@ -476,6 +476,9 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * v167 wrote one over: `lamps`, for a flame of three seconds and more posts a map (the first twelve of each as they
  * were). It ran on 2026-10-09.
  *
+ * v168 wrote `lamps` over again: the forest's posts after its twelfth laid over the whole map, fifty-six in all. It
+ * ran on 2026-10-09 too.
+ *
  * v164 (NOT RUN: the far side, the mountain with its trees and its rocks and the cave under it) seeds four, new: the
  * mountain's trees (`trees`), the miners' knobs with the rocks of the mountain's foot (`mining`), the pouches
  * (`pouches`), and the tools that can be forged with their options and gems (`forge`: no smith yet, his own

@@ -46,29 +46,32 @@ describe("the far side, in every build and reached only while it is open", () =>
       expect(W.PEAKS.length).toBeGreaterThan(0);
       expect(W.MOUNTAIN_PROPS.length).toBeGreaterThan(0);
       expect(W.CAVE_SEATS.length).toBeGreaterThan(0);
-      // the maps are there to be seen, drawn: but while it is shut the bridge is not walked over, whole and opened as it is
+      // the maps are there to be seen, drawn; the bridge, whole and opened as it is, is walked over to the far bank (the
+      // owner, 2026-10-09: the village's bridge comes before the mountain), and while the far side is shut the gate
+      // beyond it leads nowhere
       expect([W.BRIDGE.spans, W.BRIDGE.open]).toEqual([6, true]);
-      expect(W.bridgeOpen()).toBe(false);
+      expect(W.bridgeOpen()).toBe(true);
+      expect(W.mountainOpen()).toBe(false);
       expect(W.placeOf(W.MOUNTAIN.x + 60, W.MOUNTAIN.y + 30)).toBe("mountain");
       expect(W.seenAt(-3, 33)).toBe(true);
-      expect(W.findPath(FOUNTAIN_SIDE, { x: 0.5, y: 32.5 })).toBeNull();
-      expect(W.walkable(8, 30)).toBe(false);
+      expect(W.findPath(FOUNTAIN_SIDE, { x: 0.5, y: 32.5 })).not.toBeNull();
+      expect(W.walkable(8, 30)).toBe(true);
       expect(W.gateAt(0.5, 32.5)).toBeNull();
       for (const [x, y] of W.GATES[4].tiles) expect(W.gateAt(x + 0.5, y + 0.5)).toBeNull();
-      // (saying the bridge whole and open does not open the far side: only setFar does, and the bridge as well)
-      W.setBridge(6, true);
+      // (a bridge short of whole is not walked over, whatever the far side says)
+      W.setBridge(5, true);
       expect(W.bridgeOpen()).toBe(false);
       expect(W.walkable(8, 30)).toBe(false);
+      W.setBridge(6, true);
       W.setFar(true);
       expect(W.isFar()).toBe(true);
+      expect(W.mountainOpen()).toBe(true);
+      expect(W.gateAt(W.GATES[4].tiles[0][0] + 0.5, W.GATES[4].tiles[0][1] + 0.5)).not.toBeNull();
+      // shut again: the bridge stays walked over, the way on does not
+      W.setFar(false);
       expect(W.bridgeOpen()).toBe(true);
       expect(W.walkable(8, 30)).toBe(true);
-      expect(W.findPath(FOUNTAIN_SIDE, { x: 0.5, y: 32.5 })).not.toBeNull();
-      // shut again: as it was
-      W.setFar(false);
-      expect(W.bridgeOpen()).toBe(false);
-      expect(W.walkable(8, 30)).toBe(false);
-      expect(W.findPath(FOUNTAIN_SIDE, { x: 0.5, y: 32.5 })).toBeNull();
+      expect(W.gateAt(W.GATES[4].tiles[0][0] + 0.5, W.GATES[4].tiles[0][1] + 0.5)).toBeNull();
     }
   });
 

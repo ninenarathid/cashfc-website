@@ -94,7 +94,7 @@ try {
   const a = await X.evaluate(`${T}.id`);
   const { fires: FIRES, posts: POSTS, boards: BOARDS, life: LIFE, reach: REACH, near: NEAR } = await X.evaluate(`({ fires: ${L}.fires, posts: ${L}.posts, boards: ${L}.boards, life: ${L}.life, reach: ${L}.reach, near: ${L}.near })`);
   const FIRE = FIRES.farm, BY_FIRE = [FIRE[0] + 1, FIRE[1] + 1], CAMP = [FIRES.forest[0] + 1, FIRES.forest[1] + 1];
-  ok("a flame lives three seconds, is handed on within three tiles, and a post is lit from within two; twenty-eight posts on the farm, forty in the forest", LIFE === 3 && REACH === 3 && NEAR === 2 && POSTS.farm.length === 28 && POSTS.forest.length === 40, { LIFE, REACH, NEAR });
+  ok("a flame lives three seconds, is handed on within three tiles, and a post is lit from within two; twenty-eight posts on the farm, fifty-six in the forest", LIFE === 3 && REACH === 3 && NEAR === 2 && POSTS.farm.length === 28 && POSTS.forest.length === 56, { LIFE, REACH, NEAR });
 
   // ── by day: the trial's clock put to noon
   const hour = await X.evaluate(`Math.floor((((${T}.now() + 7 * 3600000) % 86400000) + 86400000) % 86400000 / 3600000)`);
@@ -265,11 +265,11 @@ try {
   await zoomOut(X, 0);
   await X.shot(`${OUT}/lamps-forest-0.png`);
   await sleep(5400);
-  for (const n of [1, 4, 10, 40]) {
+  for (const n of [1, 4, 10, 56]) {
     await X.evaluate(`${L}.lit("forest", ${n})`);
-    if (n === 40) { await until("the forest celebrates", () => there(X, "[data-lamps-fete='forest']"), 6000).catch(() => {}); if (await there(X, "[data-lamps-fete]")) await tap(X, "[data-lamps-fete]"); }
-    await sleep(n === 40 ? 9000 : 4200);
-    ok(`with ${n} lit in the forest: ${n === 40 ? "every lamp, the night at its most" : n >= 10 ? "glowing mushrooms along the trail" : n >= 4 ? "fireflies over the stream" : "its own light"}`, (await X.evaluate(`${L}.tier()`)) === (n === 40 ? 3 : n >= 10 ? 2 : n >= 4 ? 1 : 0) && (await X.evaluate(`${L}.rings()`)) >= 1, { tier: await X.evaluate(`${L}.tier()`), rings: await X.evaluate(`${L}.rings()`) });
+    if (n === 56) { await until("the forest celebrates", () => there(X, "[data-lamps-fete='forest']"), 6000).catch(() => {}); if (await there(X, "[data-lamps-fete]")) await tap(X, "[data-lamps-fete]"); }
+    await sleep(n === 56 ? 9000 : 4200);
+    ok(`with ${n} lit in the forest: ${n === 56 ? "every lamp, the night at its most" : n >= 10 ? "glowing mushrooms along the trail" : n >= 4 ? "fireflies over the stream" : "its own light"}`, (await X.evaluate(`${L}.tier()`)) === (n === 56 ? 3 : n >= 10 ? 2 : n >= 4 ? 1 : 0) && (await X.evaluate(`${L}.rings()`)) >= 1, { tier: await X.evaluate(`${L}.tier()`), rings: await X.evaluate(`${L}.rings()`) });
     await X.shot(`${OUT}/lamps-forest-${n}.png`);
   }
   // (and by its trails: the way to the great tree, and the pool under the waterfall)

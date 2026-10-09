@@ -859,7 +859,8 @@ export class DbKeeper implements Keeper {
     if (this.read && !this.shut) void this.ask("town_shop");
     // ── felling ── (and whether the mountain's trees are kept, with those that are not grown: asked once as the game
     // begins; a database that keeps none answers nothing)
-    if (this.read && !this.shut) void this.ask("town_trees");
+    // (the mountain's trees are asked for only where the far side is open: until its migration runs there is no such function, and nobody could reach a tree)
+    if (this.read && !this.shut && this.far()) void this.ask("town_trees");
     // ── the far side ── (and whether it is open to me: asked once as the game begins, and again every five minutes while
     // it is not, so that it opens here when its owner opens it; a database that has not heard the question says no)
     if (this.read && !this.shut && !this.farAsked) { this.farAsked = true; void this.askFar(); }
