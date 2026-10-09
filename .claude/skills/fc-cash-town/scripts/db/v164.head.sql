@@ -83,14 +83,17 @@
 --
 -- The page. The site's code for the far side has been live since 2026-10-09
 -- with the far side shut: it asks `town_far()`, is told nothing by a database
--- that has not had this file, and shows nothing. **Three things of the page's
+-- that has not had this file, and shows nothing. **Four things of the page's
 -- keeper are newer than that and have to be live before this file runs**
--- (lib/town/keeper.ts): the trees are asked for once the far side says yes,
--- the keepsakes of a go are read from `keeps`, and a vein's go is told as an
--- account (`town_vein(p_go)`, lib/town/vein-account). With the older page and
--- this file, a member sees no difference (the far side is closed to them); an
--- admin is told no trees and cannot play a vein out. A page left open since
--- before that deploy has to be loaded again.
+-- (lib/town/keeper.ts): the trees are asked for once the far side says yes;
+-- the keepsakes of a go are read from `keeps`; a vein's go is told as an
+-- account (`town_vein(p_go)`, lib/town/vein-account); and a function of the
+-- cave or the rocks refused shuts the far side on the page, not the whole
+-- game. With the older page and this file, a member sees no difference while
+-- the far side is closed to them; an admin is told no trees and cannot play a
+-- vein out; and once it has been opened, shutting it again would show the
+-- game as shut to whoever stood in the cave. A page left open since before
+-- that deploy has to be loaded again.
 --
 -- The site's server lays the cave's floors (`town_cave_days`: today's and
 -- tomorrow's, thirty a day) when a page asks it to; until a day is laid, what
