@@ -452,7 +452,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
       registerTap("chest", (tap) => { openChest(tap.tile); return true; }),
       registerTap("lift", (tap) => openLift(tap.floor, tap.tile)),
       // the mine's mouth: whoever has reached a resting floor is asked where to; anybody else walks in, by its threshold
-      registerTap("mouth", (tap) => ((keeper.cave()?.rests.length ?? 0) > 0 ? openLift(0, tap.tile) : walk(tap.tile[0], tap.tile[1]))),
+      // (asked from before the mouth, where the lift sets a rider down: the mouth's own tile is the way in, and a walk
+      // up to it went on through it, to stand on floor 1 with the mouth's panel open)
+      registerTap("mouth", (tap) => ((keeper.cave()?.rests.length ?? 0) > 0 ? openLift(0, [MOUNTAIN_AT.mouth.x + 3, MOUNTAIN_AT.mouth.y]) : walk(tap.tile[0], tap.tile[1]))),
       registerTap("ladderDown", (tap) => {
         if (tap.floor >= MINING.floors) { setSign(true); return true; }
         // (where the layout cannot be told that a way is shut: its ladder stands, and takes nobody down until the way is found)
