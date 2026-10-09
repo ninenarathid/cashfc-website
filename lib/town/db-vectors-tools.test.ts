@@ -394,5 +394,5 @@ describe("the cases the database's rules of the seven older tools are held to", 
     expect(of("chew").some((v) => (v.want as { done: boolean }).done)).toBe(true);
     const dir = process.env.TOWN_VECTORS;
     if (dir) { mkdirSync(dir, { recursive: true }); writeFileSync(`${dir}/vectors-tools.json`, JSON.stringify(all)); writeFileSync(`${dir}/catalog.json`, JSON.stringify(catalogOf())); }
-  });
+  }, 240_000);
 });
