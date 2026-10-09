@@ -1335,7 +1335,8 @@ declare
   now_ bigint := town.now_ms();
   each_ numeric := (town.cat('forge')->'smith'->'bellows'->>'each')::numeric;
 begin
-  if p_ids is null or coalesce(array_length(p_ids, 1), 0) > 64 then return jsonb_build_object('now', now_, 'near', '[]'::jsonb); end if;
+  -- (`cardinality`, not the first dimension's length: a list of lists counts by all it holds)
+  if p_ids is null or coalesce(cardinality(p_ids), 0) > 64 then return jsonb_build_object('now', now_, 'near', '[]'::jsonb); end if;
   -- (each queue is looked at once, and only a queue that has something in it; what a piece may still take is
   -- `town.bellows_left`'s own sum, of the piece already in hand)
   return jsonb_build_object('now', now_, 'near', coalesce((
