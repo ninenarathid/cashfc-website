@@ -191,10 +191,10 @@ describe("mining: a rock struck", () => {
     expect(mine(miner(pickAt(9)), go({ rock: 7, floor: 28, today: crystal, element: "ice" }))).toEqual({ ok: false, why: "weak" });
     const c = done(mine(miner(pickAt(10)), go({ rock: 7, floor: 28, today: crystal, element: "ice" })));
     expect(c.crystal).toBe(true);
-    expect(c.got).toEqual([["stone", 1], ["shardSilver", 20], [GEMS.ice.chip, 5]]);
+    expect(c.got).toEqual([["stone", 1], ["shardSilver", 20], [GEMS.ice.chip, 2]]);
     // (half as much again, with the gleam)
     const g = done(mine(miner(pickAt(10, ["pkPeek", "pkCrumb", "pkGleam"])), go({ rock: 7, floor: 28, today: crystal, element: "dark" })));
-    expect(g.got).toEqual([["stone", 1], ["shardSilver", 30], [GEMS.dark.chip, 8]]);
+    expect(g.got).toEqual([["stone", 1], ["shardSilver", 30], [GEMS.dark.chip, 3]]);
   });
   it("a rock that hides a vein opens it for its breaker: played with the pick as it is, for three more stamina", () => {
     const v = where(5, (h) => h.kind === "vein" && !h.gem), g = where(5, (h) => h.kind === "vein" && h.gem);
