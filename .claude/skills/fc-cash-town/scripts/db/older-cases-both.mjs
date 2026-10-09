@@ -6,7 +6,8 @@
  *   node older-cases-both.mjs <the worktree's root> <version> --each [<how many at once: 3>]
  *     (run where the harness is: the scratch folder of the dry runs. `--each` asks every file of cases in a process
  *      of its own, a few at a time, and adds them up: one process for all of them dies of its size after some two
- *      hundred thousand questions.)
+ *      hundred thousand questions. Either way it ends with 1 where any case differs before and after, and with 0
+ *      only where none does.)
  *
  * The cases: ./now/vectors-*.json beside this script, written first, in the worktree:
  *     TOWN_VECTORS=<this folder>/now npx vitest run lib/town/db-vectors
@@ -45,7 +46,8 @@ if (rest[0] === "--each") {
     child.stderr.on("data", (d) => { out += d; });
     child.on("close", (code) => {
       const m = /^ALL: (\d+) cases asked before and after; (\d+) differ; (\d+) are not .*?; (\d+) had no call known/m.exec(out);
-      if (code !== 0 || !m) sum.failed.push(file);
+      // (a file's process ends otherwise than well when a case of it differs, and says its sum all the same: the sum is taken wherever it was said, and a file gave no answer only where it said none)
+      if (!m) sum.failed.push(file);
       else { sum.asked += Number(m[1]); sum.differ += Number(m[2]); sum.off += Number(m[3]); sum.none += Number(m[4]); sum.files++; }
       const said = out.split("\n").filter((l) => l.startsWith("vectors-") || l.startsWith("   FIRST") || l.startsWith("   DIFFER") || /NOT BEFORE AND AFTER/.test(l)).join("\n") || `${file}: NO ANSWER (exit ${code}) ${out.slice(-300)}`;
       console.log(said); lines.push(said);
@@ -115,4 +117,5 @@ for (const file of FILES.filter((f) => filter.test(f))) {
   if (first) { console.log(`   DIFFER BY RULE: ${JSON.stringify([...badBy])}`); console.log(`   FIRST THAT DIFFERS: ${JSON.stringify(first).slice(0, 3000)}`); }
 }
 console.log(`ALL: ${total} cases asked before and after; ${differ} differ; ${off} are not what today's code answers, in both alike; ${unmapped} had no call known`);
-process.exit(0);
+// (a case that differs is the one thing this is run to find: it ends otherwise than well then, as the `--each` way does)
+process.exit(differ ? 1 : 0);
