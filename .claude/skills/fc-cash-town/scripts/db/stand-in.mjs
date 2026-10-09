@@ -22,12 +22,12 @@ import { supabaseLike, migration } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
 
 /** The last file of the town's that has run (town-bench.mjs has the same number). */
-export const RAN = 170;
+export const RAN = 171;
 const here = (name) => new URL(`./${name}`, import.meta.url);
-// (v160 and v163 ran after v166, v164 after v168: the snapshot named for RAN alone is of all that has run, as it ran: snap-v170.tar.
+// (v160 and v163 ran after v166, v164 after v168: the snapshot named for RAN alone is of all that has run, as it ran: snap-v171.tar.
 // Older ones are kept, each under its own name, for the dry runs that begin from the database as it was before a file:
 // snap-v168.tar is the database before v164 (`standIn({ before164: true })`, for v164's own parts); snap-v168-with-164.tar is
-// before v169 (`standIn({ upTo: 168 })`); snap-v169-with-164.tar is before v170 (`standIn({ upTo: 169 })`).)
+// before v169 (`standIn({ upTo: 168 })`); snap-v169-with-164.tar is before v170 (`standIn({ upTo: 169 })`); snap-v170-with-164.tar is before v171 (`standIn({ upTo: 170 })`).)
 const snapOf = (upTo) => here(upTo === RAN ? `snap-v${RAN}.tar` : `snap-v${upTo}-with-164.tar`);
 const SNAP = snapOf(RAN);
 const SNAP_BEFORE_164 = here("snap-v168.tar");
@@ -46,7 +46,7 @@ async function build({ before164 = false, upTo = RAN } = {}) {
   // (by number, but v130 after v131, as it ran; v136 is the party finder's and v157 the members' contacts'; a number that was never a file is passed over:
   // v160 to v164 were other rounds' numbers, not files yet when v165 and v166 ran; **v160 (the bridge built by hand) and v163 (the lamp relay) ran after
   // v166, on 2026-10-09, and are replayed there, as they ran**; v161 and v162 never were files)
-  // (v169 and v170 ran on 2026-10-09 after v164, in their numbers' order: v164 is replayed after v168, then v169, then v170)
+  // (v169 and v170 ran on 2026-10-09 after v164, in their numbers' order, and v171 after them: v164 is replayed after v168, then v169, v170, v171)
   // (**v164, the far side, ran on 2026-10-09 after v168, though its number is lower**: it writes `town.work_counts_of` and `town.deed_th` from
   // their text as v163 left it, so it is replayed after v168 and not by its number, where it would undo v160's and v163's blocks and be undone by them.)
   const numbers = Array.from({ length: upTo - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157 && n !== 160 && n !== 163 && n !== 164);

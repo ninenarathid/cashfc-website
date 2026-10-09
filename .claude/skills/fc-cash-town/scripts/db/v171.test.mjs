@@ -1,6 +1,7 @@
 /*
  * v171 (a torch can be made: what goes into a pot, or a pair of hands, is asked of the catalog's `cooking.putIn` too)
- * tried against the stand-in database as it is after the last file that ran, v164 among them: stand-in.mjs's
+ * tried against the stand-in database as it was BEFORE it ran (v164, v169 and v170 among the files there:
+ * `standIn({ upTo: 170 })`, snap-v170-with-164.tar): stand-in.mjs's
  * snapshot, loaded in a second, in memory: nothing is written anywhere.
  *
  *   FC_REPO=<the tree whose code is meant> node v171.test.mjs [that tree's root]     (MIGRATION_FILE=<a file> tries that one)
@@ -33,7 +34,7 @@ const same = (a, b) => JSON.stringify(settle(a)) === JSON.stringify(settle(b));
 let pass = 0, fail = 0;
 const ok = (name, cond, detail = "") => { cond ? pass++ : fail++; console.log(`  ${cond ? "PASS" : "FAIL"} ${name}${cond ? "" : "  " + (typeof detail === "string" ? detail : JSON.stringify(detail).slice(0, 600))}`); };
 
-const t = await standIn();
+const t = await standIn({ upTo: 170 });
 const rows = async (sql, params) => (await t.sql(sql, params)).rows;
 const one = async (sql, params) => (await rows(sql, params))[0];
 /** As PostgREST calls it: by the names of the words sent, and only those. */
