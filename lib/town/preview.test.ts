@@ -90,8 +90,12 @@ describe("what is to come, in next dev only", () => {
     };
     const here = await rows("development"), there = await rows("production");
     expect(Object.keys(here)).toEqual(Object.keys(there));
-    // (but the trees' own row, the woodcutters': it lists every tree of the mountain, and there is none outside `next dev`)
-    expect(Object.keys(here).filter((key) => here[key] !== there[key])).toEqual(["trees"]);
+    // (but the two rows that list the mountain, the woodcutters' with every tree and the miners' with every rock of its
+    // foot: a production build lays no mountain out at all (lib/town/mountain's OFF), so there the two lists are empty.
+    // That is why the catalog's block is never written in one: lib/town/catalog's seedFor refuses, and so does v164.)
+    expect(Object.keys(here).filter((key) => here[key] !== there[key])).toEqual(["trees", "mining"]);
+    expect([JSON.parse(there.trees).wood.length, JSON.parse(there.mining).rocks.length]).toEqual([0, 0]);
+    expect([JSON.parse(here.trees).wood.length, JSON.parse(here.mining).rocks.length]).toEqual([121, 54]);
     expect(JSON.parse(here.haunts).length).toBeGreaterThan(80);
   }, 120_000);
 

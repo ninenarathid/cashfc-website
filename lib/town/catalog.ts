@@ -1,7 +1,10 @@
 import { BOX } from "./box";
-import { giftsRow } from "./gifts";
+import { farCedar, farTrees } from "./far-side";
+import { giftsRowAll } from "./gifts";
 import { linesRow } from "./line-points";
-import { treesRow } from "./trees";
+import { miningRow } from "./mining-row";
+import { POUCHES } from "./pouches";
+import { treesRow, woodOf } from "./trees";
 import { COOKING, COOKWARE_IDS, NOT_PUT_IN, ODD, PUT_IN, RECIPE_IDS, needsOf, tidy } from "./cooking";
 import { DEAL } from "./deal";
 import { DITCH } from "./ditch";
@@ -289,17 +292,29 @@ export function catalogOf() {
     box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y] },
     /** The lines of work (lib/town/lines, line-points): every ladder's marks and day's bound, and what each thing is worth on its line. */
     work: linesRow(),
-    /** The gifts of the lines' ranks (lib/town/gifts): the places for charms, and of each gift its kind, the rank that gives it, and its number. */
-    gifts: giftsRow(),
+    /**
+     * The gifts of the lines' ranks (lib/town/gifts): the places for charms, and of each gift its kind, the rank that gives it, and its number.
+     * (Since v164 with the woodcutters' and the miners' gifts in it: a database that keeps those two lines gives their gifts.)
+     */
+    gifts: giftsRowAll(),
     /** Things dropped on the ground (lib/town/ground): the seconds one lies before it is gone, how near it one stands to pick it up, and the maps one may be dropped on, each as the box of its tiles. */
     ground: { lasts: GROUND.lasts, reach: GROUND.reach, maps: GROUND_MAPS },
     // ── forging ──
     /** The blacksmith (lib/town/forge, lib/town/tools): the kinds of tool that are forged, the table of tries, his knobs, the options and what is built of them, the gems, and what is smelted of what (lib/town/forge-row says each part). */
     forge: forgeRow(),
     // ── felling ──
-    /** The mountain's trees (lib/town/trees, lib/town/felling): every knob of the woodcutters', the axe as their game reads it, and every tree there is (none, outside `next dev`). */
-    trees: treesRow(),
+    /**
+     * The mountain's trees (lib/town/trees, lib/town/felling): every knob of the woodcutters', the axe as their game reads it, and every tree there is.
+     * (Every tree, wherever this is asked: the world itself has none outside `next dev`, and the database is production's. lib/town/far-side lays them out for it.)
+     */
+    trees: treesRow(woodOf(farTrees(), farCedar())),
     // ── end: felling ──
+    // ── mining ──
+    /** The mountain's rocks and the cave (lib/town/mining, lib/town/vein): every knob of the miners', the pick as their game reads it, where the cave's floors lie, and every rock of the mountain's foot (lib/town/mining-row says each part). */
+    mining: miningRow(),
+    // ── end: mining ──
+    /** The pouches (lib/town/pouches), in the order things are put into them: the gift that gives each, how many slots it has, and the things they hold. */
+    pouches: POUCHES.map((p) => ({ gift: p.gift, slots: p.slots, holds: [...p.holds] })),
     // ── the bridge built by hand ── (lib/town/bridge; v160)
     /**
      * The bridge and its stones: the work and the thing it is built of; how many it takes and in how many spans (the
@@ -459,9 +474,23 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * the lamp relay at dusk. Both ran on 2026-10-09, after v166.
  *
  * v167 wrote one over: `lamps`, for a flame of three seconds and more posts a map (the first twelve of each as they
- * were). It ran on 2026-10-09. Nothing waits now.
+ * were). It ran on 2026-10-09.
+ *
+ * v164 (NOT RUN: the far side, the mountain with its trees and its rocks and the cave under it) seeds four, new: the
+ * mountain's trees (`trees`), the miners' knobs with the rocks of the mountain's foot (`mining`), the pouches
+ * (`pouches`), and the tools that can be forged with their options and gems (`forge`: no smith yet, his own
+ * migration comes later, but what a pick or an axe carries is read from this row from the first day). And it writes
+ * eight over: the pick, the axe, the wood, the stone, the ore, the gems and the torch (`items`); the pick and the axe
+ * on the first day's shelf (`goods`, `shelf`); the torch made by hand and hinted at (`makes`, `cooking`, `hints`),
+ * with wood and minerals never put in a pot (`cooking`); the woodcutters' and the miners' lines and what their deeds
+ * are worth (`work`); and those two lines' gifts (`gifts`). **`trees.wood` and `mining.rocks` are the mountain as it
+ * is laid out, in a test and in a script as in `next dev`** (lib/town/far-side; the world's own lists are empty
+ * outside `next dev`). Only a production build lays none out: `seedFor` refuses to write the block there, and v164's
+ * own first lines refuse to run on a row that has none.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  v164: { keys: ["forge", "trees", "mining", "pouches"], over: ["items", "goods", "shelf", "hints", "makes", "cooking", "work", "gifts"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
@@ -474,6 +503,11 @@ function lines(doc: unknown): string {
 export function seedFor(version: string): string {
   const all = catalogOf() as Record<string, unknown>;
   const { keys, over } = CATALOG_KEYS[version];
+  // (the two rows that list the mountain are never written without it: a production build lays none out, and a
+  // database given that would have no tree to fell and no rock to strike)
+  const listed = [...keys, ...over] as string[];
+  if (listed.includes("trees") && !(all.trees as { wood: unknown[] }).wood.length) throw new Error("the catalog's `trees` row has no tree in it here: the block is not written where the mountain is not laid out");
+  if (listed.includes("mining") && !(all.mining as { rocks: unknown[] }).rocks.length) throw new Error("the catalog's `mining` row has no rock in it here: the block is not written where the mountain is not laid out");
   const insert = (list: string[], then: string) => (list.length ? [
     `insert into public.town_catalog (key, data) values`,
     list.map((key) => `  ('${key}', $town$${lines(all[key])}$town$::jsonb)`).join(",\n"),

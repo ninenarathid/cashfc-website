@@ -611,10 +611,10 @@ export function rootable(purse: Purse, grove: Grove, me: string, now: number, wo
  * of the axe's with its pool, its numbers and its count, what each gem does: lib/town/tools' own numbers, copied here
  * so that the trees' rules in the database stand on no other part); the keepsakes, each with its weight and whether
  * only a stout tree has it; and every tree there is, as [number, x, y, tier, tiles across, girth].
- * (The trees are the mountain's, which is laid out only in `next dev`: the row a database is given has to be made
- * there, or it has no tree in it.)
+ * (The trees are the mountain's, which the world lays out only in `next dev`: left to `WOOD`, the row has no tree in
+ * it anywhere else. The catalog hands in the trees as they are laid, wherever it is asked: lib/town/far-side.)
  */
-export const treesRow = () => ({
+export const treesRow = (wood: readonly Standing[] = WOOD) => ({
   regrow: TREES.regrow, cost: TREES.cost, reach: TREES.reach, axeTier: TREES.axeTier, logs: TREES.logs, girths: TREES.girths, girthSeed: TREES.girthSeed, girthAbove: TREES.girthAbove,
   elderChops: TREES.elderChops, elderPace: TREES.elderPace, elderSpent: TREES.elderSpent, elderFamily: TREES.elderFamily, elder: TREES.elder, kinds: TREES.kinds, elderKind: TREES.elderKind, scent: TREES.scent,
   echo: TREES.echo, chain: TREES.chain, pecks: TREES.pecks, root: TREES.root, go: TREES.go, brace: TREES.brace, keepsake: TREES.keepsake,
@@ -629,5 +629,5 @@ export const treesRow = () => ({
     })),
     gems: Object.fromEntries(ELEMENTS.map((e) => [e, GEM_FX[e].axe])),
   },
-  wood: WOOD.map((t) => [t.id, t.x, t.y, t.tier, t.size ?? 1, girthOf(t)]),
+  wood: wood.map((t) => [t.id, t.x, t.y, t.tier, t.size ?? 1, girthOf(t)]),
 });

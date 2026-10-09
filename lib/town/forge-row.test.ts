@@ -4,7 +4,7 @@ import { SMITH, TRIES } from "./forge";
 import { forgeRow } from "./forge-row";
 import { ITEMS, type ItemId } from "./items";
 import { POINTS } from "./line-points";
-import { BUILT, ELEMENTS, FORGE, GEMS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, WOODEN, drawable, isWooden, poolOf, settable, smeltedOf } from "./tools";
+import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, TOOL_LINES, WOODEN, drawable, isWooden, lineKinds, poolOf, samePool, settable, smeltedOf } from "./tools";
 
 describe("what the database is told of the blacksmith", () => {
   const row = forgeRow();
@@ -23,6 +23,18 @@ describe("what the database is told of the blacksmith", () => {
     expect(row.kinds).toEqual([...TOOL_KINDS]);
     for (const k of TOOL_KINDS) expect(row.wooden.includes(k), k).toBe(isWooden(k));
     expect(row.wooden).toEqual([...WOODEN]);
+    expect(row.gemLevels).toBe(GEM_LEVELS);
+    expect(row.levels).toEqual(LEVELS);
+    // (the lines, read as the database reads them: a kind's fellows are the kinds of the one line that has it; and two
+    // kinds draw from one pool when the same options, in the registry's order, are drawn for both)
+    expect(row.lines).toEqual(TOOL_LINES);
+    const drawnFor = (k: string) => row.options.order.filter((id) => (row.options.of as Record<string, { tools: string[] }>)[id].tools.includes(k)).join(" ");
+    for (const k of TOOL_KINDS) {
+      const line = Object.values(row.lines as Record<string, readonly string[]>).filter((kinds) => kinds.includes(k));
+      expect(line.length, k).toBe(1);
+      expect(line[0], k).toEqual(lineKinds(k));
+      for (const o of TOOL_KINDS) expect(k === o || drawnFor(k) === drawnFor(o), `${k} ${o}`).toBe(samePool(k, o));
+    }
     // (every thing it names is a thing there is)
     for (const id of [...row.kinds, ...row.tries.map((t) => t.ore), row.smith.gem.mount, "timber"]) expect(id in ITEMS, id).toBe(true);
     // (what the bellows are worth is the helpers' line's own number, which the database counts by)
