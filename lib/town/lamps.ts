@@ -10,12 +10,13 @@ import { CAMP, FARM, FOREST, type Vec } from "./world";
  * forest, which are dark at night, to be lighter and easier to play in then).
  *
  * From half past five in the evening (Bangkok) until five in the morning, the farm has twenty-eight lamp posts and
- * the forest forty, and each one fire in its middle: the forest's camp fire, and a brazier beside the farm's well.
+ * the forest fifty-six, and each one fire in its middle: the forest's camp fire, and a brazier beside the farm's well.
  * Twelve of a map's posts stand along its ways, as they did from the first night. **The others stand about its
  * fields and its edges, and a flame lives three seconds where it lived five** (the owner, 2026-10-09, the morning
  * after the first night: "ช่วยลดเวลาโคมยามค่ำ เหลือ ไฟ 3 วิพอ (5 วิง่ายไป)", and "เพิ่มโคมรอบๆแมพฟาร์ม และ ป่า
  * ให้มากกว่านี้ นอกจากทางเดิน อยากให้มีขอบๆแมพด้วย"; and, of a first layout of twenty-eight a map, "แมพป่าใหญ่กว่า
- * ควรจะมีโคมเยอะกว่าฟาร์มครับ").
+ * ควรจะมีโคมเยอะกว่าฟาร์มครับ"; and at noon, of the forty the forest then had, none further than fifty tiles of path from
+ * the camp fire: "ช่วยทำให้โคมไฟ กระจายทั่วแมพกว่านี้ได้ไหม", "ในป่าดูไม่ครอบคลุมทั้งแมพ").
  *
  * - **A flame is taken at the fire with empty hands**: it is in the hands, never in the bag, and it lives **three
  *   seconds** there (about ten tiles of walking), by the clock of whoever keeps the game.
@@ -31,7 +32,7 @@ import { CAMP, FARM, FOREST, type Vec } from "./world";
  * - **Everybody whose hands that flame went through** (the last eight) has three points on the helpers' line
  *   (lib/town/line-points) and is among the night's lighters.
  * - One member alone lights the few posts nearest the fire; the others take a relay, the furthest of the farm's some
- *   three hands and of the forest's four. (Two who hand a flame back and forth as they go reach any post: a flame is
+ *   three hands and of the forest's six. (Two who hand a flame back and forth as they go reach any post: a flame is
  *   fresh again in hands it has been in before.) Nothing is lost if nobody lights: the night is as dark as it was.
  * - No coins come of it, nothing that can be sold, and no thing: a flame is not in `items.ts`.
  *
@@ -70,12 +71,12 @@ export const LAMPS = {
    * Each map's fire and its posts, by their tiles. **The first twelve are the ways' own, as they were, and keep their
    * numbers** (a lamp lit is kept by its number); the ones after them were added on 2026-10-09. The farm's sixteen:
    * twelve round its rim, two or three tiles in from the edge (clockwise from the north-west corner), and one in the
-   * middle of each quarter of the beds. The forest's twenty-eight, spread over the whole of it away from its trails,
-   * **the nearest to the camp fire first, as one walks**: about the camp, the meadow, the bamboo grove and the rocky
-   * rise, the south rim, the deep woods across the stream, the east rim, and the three furthest: the north rim by the
-   * great tree, the south-east corner, and the west rim. No post is further than fifty tiles of path from its fire,
-   * and only those three of the forest's are further than forty-two (its other corners are some sixty to seventy, and
-   * have none).
+   * middle of each quarter of the beds. The forest's forty-four, **spread over the whole of the map**, its four corners,
+   * its rims and the deep woods across the stream among them: each was put, one at a time, on the free tile furthest
+   * from every post there was, so that no open ground is further than eleven tiles from a lamp (it was thirty-seven
+   * from one in the north-west while no post stood further than fifty tiles of path from the fire). They are written
+   * **the nearest to the camp fire first, as one walks**; the furthest is some seventy-eight tiles of path away, and
+   * seven are further than sixty.
    *
    * The twelve of the ways, as they were laid out: The farm's: a brazier beside the well, and posts along its
    * two lanes: three to the west, four to the east, one where the lanes cross (it lights the well and the brazier)
@@ -97,14 +98,14 @@ export const LAMPS = {
     forest: {
       fire: [CAMP.fire.x, CAMP.fire.y] as [number, number],
       posts: [W(50, 56), W(48, 65), W(46, 70), W(46, 74), W(49, 36), W(48, 29), W(50, 20), W(45, 12), W(61, 46), W(69, 46), W(74, 38), W(80, 34),
-        // off the trails, the nearest to the camp fire first: within twenty-five tiles of path
-        W(40, 44), W(37, 53), W(60, 56), W(41, 35), W(61, 36), W(29, 44), W(32, 36),
-        // within thirty-five
-        W(65, 65), W(31, 65), W(37, 25), W(21, 49), W(69, 31), W(79, 48), W(76, 58), W(24, 31),
+        // off the trails, over the whole map, the nearest to the camp fire first: within thirty tiles of path
+        W(40, 54), W(38, 45), W(63, 57), W(58, 31), W(33, 61), W(26, 48), W(32, 35), W(59, 69),
         // within forty-two
-        W(72, 71), W(13, 46), W(16, 36), W(16, 60), W(63, 19), W(56, 11), W(19, 69), W(75, 25), W(89, 48), W(85, 59),
-        // the three furthest: the north rim by the great tree, the south-east corner, the west rim
-        W(40, 7), W(85, 68), W(5, 43)],
+        W(35, 71), W(70, 66), W(79, 49), W(20, 38), W(81, 59), W(15, 55), W(66, 24), W(12, 45), W(20, 69), W(57, 12), W(89, 48), W(76, 25), W(80, 70),
+        // within sixty: the rims, and the deep woods across the stream
+        W(33, 21), W(36, 11), W(19, 26), W(91, 58), W(53, 2), W(91, 37), W(7, 36), W(2, 50), W(6, 61), W(67, 7), W(78, 15), W(91, 68), W(38, 2), W(9, 27), W(19, 15), W(2, 71),
+        // the furthest: the north-east, the north-west and its corner
+        W(91, 19), W(24, 5), W(2, 21), W(9, 12), W(87, 2), W(14, 2), W(2, 2)],
     },
   },
 };
