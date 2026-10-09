@@ -326,6 +326,19 @@ export default async function ({ t, U, one, CODE, clock, now, purse, kept, patch
   await patch(U.m1, { handAt: 1 });
   const rarerBag = (await one(`select town.net_cat($1::jsonb, town.cat('insects')) as k`, [JSON.stringify(await kept(U.m1))])).k;
   t.check("what comes back after a catch is asked with the row as the net in the hand has it; with the plain net in the hand and the forged one in the bag, as it is", rarerHeld === FORGED.netFx(darkNet).rare && rarerBag === null, { rarerHeld, rarerBag });
+  // (2026-10-10: an honest swing at the edge of a forged net was told `far`. A tile going east from a haunt's easternmost
+  // perch, the first whose middle is farther from every perch than a net as it was bought takes from: a step east is at
+  // most a tile farther, so it is within what such a net adds; and the first past that.)
+  const longNet = tool("bugNet", 3, ["ntLong"]), farther = FORGED.netFx(longNet).reach + FORGED.netFx(longNet).wide, LIMIT = INS.net.reach + INS.net.far;
+  await purse(U.m1, [longNet], 100, { hand: "bugNet", handAt: 0 });
+  await purse(U.m2, [{ item: "bugNet", n: 1 }, longNet], 100, { hand: "bugNet", handAt: 0 });
+  const out = (await ask(U.m1, "town_bugs")).bugs.filter((x) => INS.bugs[x[1]].habit !== "lure");
+  const nearestTo = (id, at) => Math.min(...INS.haunts[id][3].map((q) => Math.hypot(q[0] - at[0] - 0.5, q[1] - at[1] - 0.5)));
+  const firstPast = (id, limit) => { const q = [...INS.haunts[id][3]].sort((x, y) => y[0] - x[0])[0]; for (let x = Math.floor(q[0]); ; x++) { const at = [x, Math.round(q[1] - 0.5)]; if (nearestTo(id, at) > limit) return at; } };
+  const edge = firstPast(out[0][0], LIMIT), past = firstPast(out[0][0], LIMIT + farther);
+  const tooFar = await ask(U.m1, "town_net", out[0][0], past[0], past[1], 0, null), plainFar = await ask(U.m2, "town_net", out[0][0], edge[0], edge[1], 0, null), reached = await ask(U.m1, "town_net", out[0][0], edge[0], edge[1], 0, null);
+  t.check("a net that takes from farther off, at a tile just past where a net as it was bought is told `far`: it catches; a net as it was bought in the hand is told `far` there, though the other lies in the bag; and past what it adds it is told `far` too",
+    farther > 0 && nearestTo(out[0][0], edge) > LIMIT && nearestTo(out[0][0], edge) <= LIMIT + farther && reached.ok === true && plainFar.why === "far" && tooFar.why === "far", { edge, past, reached, plainFar, tooFar });
 
   /* ── the kitchen ── */
   t.section("forged cookware in the kitchen");

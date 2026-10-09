@@ -8,7 +8,7 @@ import { PLAIN_ROD, canFx, cookFx, easedBy, hoeFx, luckOf, netFx, partOf, rodFx,
 import { toolOwed, toolPaid } from "./forged-keep";
 import { hastened } from "./fountain";
 import { gearOf } from "./gear";
-import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, UNHUNTED, comeback, net, netMine, tierOf, type BugId, type Comeback, type Swarm } from "./insects";
+import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, NET, UNHUNTED, comeback, nearHaunt, net, netMine, netMore, tierOf, type BugId, type Comeback, type Swarm } from "./insects";
 import { BAITS, CROPS, DISHES, FISH, FISH_IDS, ITEMS, type CropId, type DishId, type ItemId } from "./items";
 import { countsOf, type Done } from "./line-points";
 import { usePower } from "./powers";
@@ -332,6 +332,27 @@ export function vectorsTools(): Vector[] {
     const company = c.of([0, 0, 2, 7]);
     add("chew", [eater, company, now], chew(eater, company, now));
   }
+
+  /* ── the insects again: the edge of what a net takes an insect from (2026-10-10) ── */
+  // (these come last, so that no case above is another than it was. A tile on a ring about a perch, from well inside
+  // what a net as it was bought takes from to well outside what any net does; the same about the place of an insect
+  // that is one member's alone; with a net as it was bought, with each of the two options that take from farther off,
+  // with both, and with such a net in the bag while another is in the hand.)
+  const EDGE: Array<() => Stack> = [() => plain("bugNet"), () => plain("bugNet", { plus: 3 }), () => plain("bugNet", { plus: 6, gems: ["lightning"] }), () => withOpt("bugNet", "ntLong"), () => withOpt("bugNet", "ntLong", 4),
+    () => withOpt("bugNet", "ntWide"), () => ({ item: "bugNet" as ItemId, n: 1, plus: FORGE.top, opts: ["ntLong", "", "ntWide"] })];
+  for (let i = 0; i < 1600; i++) {
+    const h = c.of(HAUNTS), bug = c.of(BUG_IDS.filter((id) => BUGS[id].at.includes(h.kind))), now = START + c.int(0, 60) * HOUR + c.int(0, 59_999);
+    const has: Swarm = { turn: c.int(1, 99999), bug, n: BUGS[bug].n[0], seed: h.id * 100003 + 7 };
+    const tool = c.of(EDGE)(), other = c.maybe(0.35) ? c.of(EDGE)() : null, stacks = c.maybe(0.5) ? [tool, other] : [other, tool];
+    const purse = purseOf(stacks, stacks.indexOf(tool), now, { lured: { x: 20, y: 20, haunt: h.id, bug, n: BUGS[bug].n[0], from: now - 1000, until: now + 60_000, seed: 5 },
+      follower: { bug, n: BUGS[bug].n[0], at: [20, 20] as [number, number], until: now + 2000 } });
+    const perch = c.of(h.perches), off = NET.reach + NET.far + c.int(-15, 55) / 10, turn = c.next() * Math.PI * 2, hand = handOf(purse), lure = BUGS[bug].habit === "lure" ? ("resin" as ItemId) : null;
+    const tile: [number, number] = [Math.round(perch.x - 0.5 + Math.cos(turn) * off), Math.round(perch.y - 0.5 + Math.sin(turn) * off)];
+    add("net", [purse, h.id, has, 0, false, hand, tile[0], tile[1], 0, now, lure], net(purse, h, has, 0, false, hand, tile, 0, now, lure));
+    const by: [number, number] = [20 + Math.round(Math.cos(turn) * off), 20 + Math.round(Math.sin(turn) * off)], which = c.of(["lured", "pair"] as const);
+    add("net_mine", [purse, which, hand, by[0], by[1], 0, now], netMine(purse, which, hand, by, 0, now));
+    add("net_more_far", [purse], netMore(purse));
+  }
   void COOKING; void has;
   return out;
 }
@@ -385,6 +406,24 @@ describe("the cases the database's rules of the seven older tools are held to", 
     expect(of("net").filter((v) => ok(v) && (v.args[0] as Purse).bag.some((b) => b?.item === (v.args[2] as Swarm).bug && b.n === (ITEMS[(v.args[2] as Swarm).bug as ItemId].stack ?? 1) - (v.args[2] as Swarm).n)
       && luckOf("twin", v.args[1] as number, (v.args[2] as Swarm).turn, v.args[9] as number) < netFx(heldStack(v.args[0] as Purse)).twin).length).toBeGreaterThan(5);
     expect(of("comeback_rarer").filter((v) => v.want !== null).length).toBeGreaterThan(100);
+    // the edge of what a net takes an insect from: caught from where a net as it was bought is told `far`, with each of
+    // the two options alone; a net as it was bought told `far` there; and every net told `far` beyond what it adds
+    const whyOf = (v: Vector) => (v.want as { why?: string } | null)?.why, fxAt = (v: Vector) => netFx(heldStack(v.args[0] as Purse));
+    const tileOf = (v: Vector): [number, number] => [v.args[6] as number, v.args[7] as number], hauntAt = (v: Vector) => HAUNTS[v.args[1] as number];
+    const beyond = of("net").filter((v) => ok(v) && !nearHaunt(hauntAt(v), tileOf(v)));
+    expect(beyond.length).toBeGreaterThan(60);
+    expect(beyond.every((v) => netMore(v.args[0] as Purse) > 0 && nearHaunt(hauntAt(v), tileOf(v), netMore(v.args[0] as Purse)))).toBe(true);
+    expect(beyond.some((v) => fxAt(v).reach > 0 && fxAt(v).wide === 0) && beyond.some((v) => fxAt(v).wide > 0 && fxAt(v).reach === 0) && beyond.some((v) => fxAt(v).wide > 0 && fxAt(v).reach > 0)).toBe(true);
+    expect(of("net").filter((v) => whyOf(v) === "far" && netMore(v.args[0] as Purse) === 0 && nearHaunt(hauntAt(v), tileOf(v), 1)).length).toBeGreaterThan(20);
+    expect(of("net").filter((v) => whyOf(v) === "far" && netMore(v.args[0] as Purse) > 0).length).toBeGreaterThan(40);
+    // (a net that takes from farther off lying in the bag, and one as it was bought in the hand: `far` as ever)
+    expect(of("net").some((v) => whyOf(v) === "far" && netMore(v.args[0] as Purse) === 0 && nearHaunt(hauntAt(v), tileOf(v), 1)
+      && (v.args[0] as Purse).bag.some((s) => s?.item === "bugNet" && (s.opts ?? []).some((o) => o === "ntLong" || o === "ntWide")))).toBe(true);
+    const off = (v: Vector) => Math.hypot(20 - (v.args[3] as number), 20 - (v.args[4] as number));
+    expect(of("net_mine").filter((v) => ok(v) && off(v) > NET.reach + NET.far).length).toBeGreaterThan(40);
+    expect(of("net_mine").filter((v) => whyOf(v) === "far" && netMore(v.args[0] as Purse) === 0 && off(v) <= NET.reach + 1 + NET.far).length).toBeGreaterThan(10);
+    expect(of("net_mine").filter((v) => whyOf(v) === "far" && netMore(v.args[0] as Purse) > 0).length).toBeGreaterThan(20);
+    expect(of("net_more_far").some((v) => v.want === 0) && of("net_more_far").some((v) => (v.want as number) > 0)).toBe(true);
     // the kitchen: a dish with more helpings, a pot that carries each mark, a helping that gives each
     const cooks = of("cook");
     expect(cooks.filter(ok).length).toBeGreaterThan(1200);

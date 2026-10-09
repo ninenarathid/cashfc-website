@@ -786,12 +786,19 @@ begin
 end;
 $$;
 
--- whichOf's weight: an insect's own, so many times over for the kinds the row names where it is handed with `rarer`.
-create or replace function town.bug_weight(p_ins jsonb, p_id text)
-returns double precision language sql immutable
+-- netMore: how many tiles farther than a net as it was bought the net in a member's hand takes an insect from (the
+-- reader's `reach` and `wide` together); nothing, with any other net. `town.net` and `town.net_mine` allow a catch
+-- that much farther off.
+create or replace function town.net_more_far(p_purse jsonb)
+returns double precision language plpgsql stable
 as $$
-  select (p_ins->'bugs'->p_id->>'weight')::double precision
-    * case when p_ins ? 'rarer' and coalesce(p_ins->'rare' ? p_id, false) then (p_ins->>'rarer')::double precision else 1::double precision end
+declare
+  fx jsonb;
+begin
+  if p_purse->>'hand' is distinct from 'bugNet' or not town.bag_forged(p_purse->'bag', 'bugNet') then return 0; end if;
+  fx := town.net_fx(town.hand_stack(p_purse));
+  return (fx->>'reach')::double precision + (fx->>'wide')::double precision;
+end;
 $$;
 
 -- ─── 5d. The kitchen (lib/town/cooking, lib/town/stamina) ────────────────

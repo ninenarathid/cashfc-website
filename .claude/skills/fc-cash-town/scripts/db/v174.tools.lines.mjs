@@ -29,8 +29,8 @@
 //             public.town_row           v153   the plots' line; K the plot kept (after)
 //             public.town_farm          v147   the plots' line
 //             town.work_counts_of       v174's smith's (v163's with v164's two blocks and the smith's one)   K the helpers' line (before)
-//   insects   town.net                  v153   declare; K the cost's line (after)
-//             town.net_mine             v153   declare; K the cost's line (after)
+//   insects   town.net                  v153   declare; the far check's second line; K the cost's line (after)
+//             town.net_mine             v153   declare; its `reach` line; K the cost's line (after)
 //             town.comeback             v139   declare; three lines that read a weight
 //             public.town_net           v153   the line that asks what comes back
 //   kitchen   town.cook                 v171   declare; K the stamina's line (after); K the helpings' last line (after); the pot's line
@@ -384,9 +384,14 @@ export const NET = [
   [
     "  cost double precision;\nbegin\n",
     "  cost double precision;\n"
-    + `  ${OPEN}: the forged net in the hand, and the catch's end with it ──\n`
-    + "  tool_ jsonb;\n  more_ jsonb;\n"
+    + `  ${OPEN}: the forged net in the hand, the catch's end with it, and how much farther off than a net as it was bought it takes an insect ──\n`
+    + "  tool_ jsonb;\n  more_ jsonb;\n  far_ double precision := town.net_more_far(p_purse);\n"
     + "begin\n",
+  ],
+  [
+    "           <= (ins->'net'->>'reach')::double precision + (ins->'net'->>'far')::double precision) then\n",
+    `           ${OPEN}: and as far again as the net in the hand takes an insect from beyond one as it was bought (nothing, with any other) ──\n`
+    + "           <= (ins->'net'->>'reach')::double precision + far_ + (ins->'net'->>'far')::double precision) then\n",
   ],
   [
     "  cost := (bug->>'cost')::double precision + least((ins->'net'->>'misses')::int, greatest(0, floor(coalesce(p_misses, 0)))::int);\n",
@@ -410,6 +415,11 @@ export const NET_MINE = [
     + `  ${OPEN}: the forged net in the hand, and the catch's end with it ──\n`
     + "  tool_ jsonb;\n  more_ jsonb;\n"
     + "begin\n",
+  ],
+  [
+    "  reach double precision := (ins->'net'->>'reach')::double precision + (ins->'net'->>'far')::double precision;\n",
+    `  ${OPEN}: and as far again as the net in the hand takes an insect from beyond one as it was bought (nothing, with any other) ──\n`
+    + "  reach double precision := (ins->'net'->>'reach')::double precision + town.net_more_far(p_purse) + (ins->'net'->>'far')::double precision;\n",
   ],
   [
     "  cost := (ins->'bugs'->id->>'cost')::double precision + least((ins->'net'->>'misses')::int, greatest(0, floor(coalesce(p_misses, 0)))::int);\n",

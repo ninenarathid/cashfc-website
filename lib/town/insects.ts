@@ -510,8 +510,17 @@ export type BugRefusal = "had" | "bare" | "far" | "lure"
   | "out"    // a drop of nectar of mine is out already
   | "quiet"; // no insect is about this place at this hour for a drop to call
 
-/** Whether somebody on a tile is near enough a haunt to have caught what is there. */
-export const nearHaunt = (h: Haunt, at: readonly [number, number]) => h.perches.some((p) => Math.hypot(p.x - at[0] - 0.5, p.y - at[1] - 0.5) <= NET.reach + NET.far);
+/**
+ * Whether somebody on a tile is near enough a haunt to have caught what is there. `more`: how many tiles farther than
+ * a net as it was bought the net in the hand takes an insect from (`netMore`); nothing said, a net as it was bought.
+ */
+export const nearHaunt = (h: Haunt, at: readonly [number, number], more = 0) => h.perches.some((p) => Math.hypot(p.x - at[0] - 0.5, p.y - at[1] - 0.5) <= NET.reach + more + NET.far);
+/**
+ * ── forging: old tools ── How many tiles farther than a net as it was bought the net in a member's hand takes an insect
+ * from: lib/town/forged's `netFx`, its `reach` and its `wide` together. Whoever keeps the game allows a catch that
+ * much farther off (2026-10-10: an honest swing at the edge of such a net was told `far`). Nothing, with any other net.
+ */
+export const netMore = (purse: Purse): number => { const fx = netFx(heldStack(purse)); return fx.reach + fx.wide; };
 
 /**
  * Catch what a haunt has. `taken` is how many have caught it this turn, `mine` whether I am one of them; `at` is the
@@ -524,7 +533,7 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   if (mine) return { ok: false, why: "had" };
   if (taken >= HAUNT_KINDS[h.kind].shares) return { ok: false, why: "bare" };
   if (!mayNet(hand)) return no("tool");
-  if (!nearHaunt(h, at)) return { ok: false, why: "far" };
+  if (!nearHaunt(h, at, netMore(purse))) return { ok: false, why: "far" };
   const bug = BUGS[has.bug];
   if (bug.habit === "lure" && !(lure && LURES.includes(lure))) return { ok: false, why: "lure" };
   if (roomFor(purse.bag, has.bug) < has.n) return no("full");
@@ -684,7 +693,7 @@ export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: read
   const l = which === "lured" ? luredNow(purse, now) : null, f = which === "pair" ? followerNow(purse, now) : null;
   const one = l ? { bug: l.bug as BugId, n: l.n, x: l.x, y: l.y } : f ? { bug: f.bug as BugId, n: f.n, x: f.at[0], y: f.at[1] } : null;
   if (!one) return no("none");
-  const id = one.bug, reach = NET.reach + NET.far, dx = one.x - at[0], dy = one.y - at[1];
+  const id = one.bug, reach = NET.reach + netMore(purse) + NET.far, dx = one.x - at[0], dy = one.y - at[1];
   if (!mayNet(hand)) return no("tool");
   if (dx * dx + dy * dy > reach * reach) return { ok: false, why: "far" };
   if (roomFor(purse.bag, id) < one.n) return no("full");

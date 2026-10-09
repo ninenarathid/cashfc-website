@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
-  BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE, UNHUNTED, aimOf, bugTurn, bugTurnStart, comeback, farmBugs, hereAt, mayNet, missed, nearHaunt, net, newMind, plentyOf, poseOf, ringOf, swarmAt,
+  BUGS, BUG_IDS, COMEBACK, HABITS, HAUNTS, HAUNT_KINDS, LURES, NET, NETS, SCARCE, UNHUNTED, aimOf, bugTurn, bugTurnStart, comeback, farmBugs, hereAt, mayNet, missed, nearHaunt, net, netMine, netMore, newMind, plentyOf, poseOf, ringOf, swarmAt,
   swarms, swingMs, taken, think, type BugId, type Comeback, type Haunt, type Hunt, type Mind, type Person, type Swarm, pestToRid, fledBy,
 } from "./insects";
 import { BAITS, BAIT_AS, FISH, FISH_IDS, ITEMS, MAKES, type ItemId } from "./items";
@@ -202,6 +202,54 @@ describe("a net", () => {
     expect(NET.reach).toBeGreaterThan(HABITS.behind.back + NET.radius);
     expect(NET.reach).toBeLessThan(HABITS.behind.ahead);
     expect(NET.reach).toBeLessThan(HABITS.spot.notice);
+  });
+});
+
+describe("how far off a catch is taken from (2026-10-10: an honest swing at the edge of a forged net was told `far`)", () => {
+  const LONG = { item: "bugNet" as ItemId, n: 1, plus: 3, opts: ["ntLong", "", ""] }, WIDE = { item: "bugNet" as ItemId, n: 1, plus: 10, opts: ["", "", "ntWide"] };
+  const holding = (...nets: Array<{ item: ItemId; n: number; plus?: number; opts?: string[] }>): Purse => { const p = newPurse(); return { ...p, bag: p.bag.map((s, i) => nets[i] ?? s), hand: "bugNet", handAt: 0 }; };
+  const nearest = (h: Haunt, at: [number, number]) => Math.min(...h.perches.map((p) => Math.hypot(p.x - at[0] - 0.5, p.y - at[1] - 0.5)));
+  /** Going east from a haunt's easternmost perch, the first tile whose middle is farther than so many tiles from every perch. */
+  const firstPast = (h: Haunt, limit: number): [number, number] => {
+    const p = [...h.perches].sort((a, b) => b.x - a.x)[0];
+    for (let x = Math.floor(p.x); ; x++) { const at: [number, number] = [x, Math.round(p.y - 0.5)]; if (nearest(h, at) > limit) return at; }
+  };
+
+  it("a net as it was bought adds nothing; a forged one adds what lib/town/forged's netFx says of it (`reach` and `wide`), and only in the hand", () => {
+    expect(netMore(holding({ item: "bugNet", n: 1 }))).toBe(0);
+    expect(netMore(holding({ item: "bugNet", n: 1, plus: 10 }))).toBe(0);
+    expect(netMore(newPurse())).toBe(0);
+    expect(netMore(holding(LONG))).toBeGreaterThan(0);
+    expect(netMore(holding(WIDE))).toBeGreaterThan(0);
+    expect(netMore(holding({ ...LONG, opts: ["ntLong", "", "ntWide"], plus: 10 }))).toBe(netMore(holding(LONG)) + netMore(holding(WIDE)));
+    // (lying in the bag while a net as it was bought is in the hand: nothing)
+    expect(netMore(holding({ item: "bugNet", n: 1 }, LONG))).toBe(0);
+  });
+  it("a haunt's insect: from just past where a net as it was bought is told `far`, a net that takes from farther off catches; and is told `far` past what it adds", () => {
+    const h = hauntOf("blooms", "town"), has = swarmOf(h, "butterflyWhite", NOON), plainNet = holding({ item: "bugNet", n: 1 });
+    for (const forged of [holding(LONG), holding(WIDE)]) {
+      // (a step east takes a tile at most a tile farther from every perch: the first past the one bound is within the other)
+      const more = netMore(forged), band = firstPast(h, NET.reach + NET.far), inside: [number, number] = [band[0] - 1, band[1]], outside = firstPast(h, NET.reach + more + NET.far);
+      expect(nearest(h, band)).toBeGreaterThan(NET.reach + NET.far);
+      expect(nearest(h, band)).toBeLessThanOrEqual(NET.reach + more + NET.far);
+      expect(net(plainNet, h, has, 0, false, "bugNet", inside, 0, NOON).ok).toBe(true);
+      expect(net(plainNet, h, has, 0, false, "bugNet", band, 0, NOON)).toEqual({ ok: false, why: "far" });
+      expect(net(forged, h, has, 0, false, "bugNet", band, 0, NOON).ok).toBe(true);
+      expect(net(forged, h, has, 0, false, "bugNet", outside, 0, NOON)).toEqual({ ok: false, why: "far" });
+      expect(nearHaunt(h, band)).toBe(false);
+      expect(nearHaunt(h, band, more)).toBe(true);
+    }
+  });
+  it("an insect that is one member's alone (the one come to a drop, the one that follows a catch): the same", () => {
+    for (const forged of [holding(LONG), holding(WIDE)]) {
+      const more = netMore(forged), band: [number, number] = [20 + Math.floor(NET.reach + NET.far) + 1, 20], outside: [number, number] = [20 + Math.ceil(NET.reach + NET.far + more) + 1, 20];
+      const mine = (p: Purse): Purse => ({ ...p, lured: { x: 20, y: 20, haunt: 0, bug: "butterflyWhite", n: 1, from: NOON - 1000, until: NOON + 60_000, seed: 5 }, follower: { bug: "butterflyWhite", n: 1, at: [20, 20], until: NOON + 2000 } });
+      for (const which of ["lured", "pair"] as const) {
+        expect(netMine(mine(holding({ item: "bugNet", n: 1 })), which, "bugNet", band, 0, NOON)).toEqual({ ok: false, why: "far" });
+        expect(netMine(mine(forged), which, "bugNet", band, 0, NOON).ok).toBe(true);
+        expect(netMine(mine(forged), which, "bugNet", outside, 0, NOON)).toEqual({ ok: false, why: "far" });
+      }
+    }
   });
 });
 

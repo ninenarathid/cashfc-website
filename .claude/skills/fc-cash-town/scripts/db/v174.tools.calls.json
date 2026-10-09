@@ -31,6 +31,7 @@
   "counts_of": "town.work_counts_of($1::jsonb, $2::text)",
   "net": "town.net($1::jsonb, $2::int, $3::jsonb, $4::int, $5::boolean, $6::text, $7::int, $8::int, $9::float8, $10::bigint, $11::text)",
   "net_mine": "town.net_mine($1::jsonb, $2::text, $3::text, $4::int, $5::int, $6::float8, $7::bigint)",
+  "net_more_far": "town.net_more_far($1::jsonb)",
   "net_rarer": "(town.net_cat($1::jsonb, '{}'::jsonb)->>'rarer')::double precision",
   "comeback_rarer": "town.comeback($1::int, $2::bigint, $3::jsonb, $4::float8, $5::float8, $6::float8, case when $7::float8 > 1 then town.cat('insects') || jsonb_build_object('rarer', $7::float8) else town.cat('insects') end, $8::text)",
   "rare_kinds": "town.cat('insects')->'rare'",
