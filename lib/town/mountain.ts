@@ -154,6 +154,8 @@ const isRim = (u: number, v: number) => u === 0 || v === 0 || v === MOUNTAIN_H -
 /** Whether a tile is closed by the ground itself: a cliff's face (but for its stairs), or the rim. */
 export const shut = (u: number, v: number) => isRim(u, v) || (!!cliffAt(u + 0.5, v + 0.5) && !stairAt(u + 0.5, v + 0.5));
 
+/** How many more trees are asked for on each terrace, beyond the first hundred and twenty: [how many, terrace]. */
+export const MORE_TREES: ReadonlyArray<readonly [number, Terrace]> = [[90, 1], [40, 2], [20, 3]];
 /**
  * What stands about the mountain, laid out by a fixed seed like the town and the forest: the same on every screen.
  * Nothing solid stands on a trail or beside one, beside a cliff or a stair, on the rim's inside, or touching another
@@ -190,9 +192,14 @@ export function layMountain(): MountainProp[] {
     return false;
   };
   const hard = (u: number, v: number) => { const g = ground(u, v); return g === "cliff" || g === "stair" || g === "road"; };
-  /** So many things on a terrace, each made from a number of its own; solid ones clear of everything all round. */
-  const grow = (n: number, terrace: Terrace, make: (k: number) => Omit<MountainProp, "u" | "v">) => {
-    for (let tries = 0, placed = 0; placed < n && tries < n * 80; tries++) {
+  /** Whether a tile of a terrace is free for a thing: nothing on it, not kept clear, not cliff or stair or road; and for a solid thing, nothing solid, hard or of the rim beside it. */
+  const free = (u: number, v: number, terrace: Terrace, isSolid: boolean) =>
+    !(used.has(`${u},${v}`) || kept(u, v) || hard(u, v) || terraceAt(u + 0.5, v + 0.5) !== terrace)
+    && !(isSolid && (around(u, v, (x, y) => solid.has(`${x},${y}`)) || around(u, v, hard) || around(u, v, isRim)));
+  /** So many things on a terrace, each made from a number of its own; solid ones clear of everything all round. Says how many found a place. */
+  const grow = (n: number, terrace: Terrace, make: (k: number) => Omit<MountainProp, "u" | "v">): number => {
+    let placed = 0;
+    for (let tries = 0; placed < n && tries < n * 80; tries++) {
       const u = 2 + Math.floor(rnd() * (MOUNTAIN_W - 4)), v = 2 + Math.floor(rnd() * (MOUNTAIN_H - 4)), k = rnd();
       if (used.has(`${u},${v}`) || kept(u, v) || hard(u, v) || terraceAt(u + 0.5, v + 0.5) !== terrace) continue;
       const p = make(k);
@@ -200,6 +207,7 @@ export function layMountain(): MountainProp[] {
       put({ ...p, u, v });
       placed++;
     }
+    return placed;
   };
   // the slope: sixty pines (trees 0 to 59), forty plain rocks (rocks 0 to 39)
   grow(60, 1, () => ({ kind: "mtree", tier: 1, solid: true }));
@@ -224,6 +232,23 @@ export function layMountain(): MountainProp[] {
     const t = terraceAt(u + 0.5, v + 0.5), k = rnd();
     put(t === 0 ? { kind: k < 0.7 ? "tree" : "boulder", u, v, solid: true }
       : t === 3 || k < 0.45 ? { kind: "boulder", u, v, solid: true } : { kind: "pine", u, v, solid: true });
+  }
+  // More trees of each kind (the owner, 2026-10-09, the evening the mountain opened: one member alone had every pine
+  // down, "ช่วยเพิ่ม ต้นไม้ ทุก tier"). They are laid LAST and from numbers of their own, so that no tree and no rock
+  // that was there moves or changes its number (what the village has felled and struck is kept by those numbers):
+  // the new ones are numbered on from the last tree there was, each terrace's in turn. As many as find a free tile
+  // with nothing solid beside it, up to these.
+  a = 20261009;
+  for (const [n, terrace] of MORE_TREES) {
+    const tree = (): Omit<MountainProp, "u" | "v"> => ({ kind: "mtree", tier: terrace as 1 | 2 | 3, solid: true });
+    let left = n - grow(n, terrace, tree);
+    // (where chance found no more room: every tile of the terrace is tried in turn, in an order that is no row's, until there is none or enough)
+    for (let i = 0, tiles = MOUNTAIN_W * MOUNTAIN_H; left > 0 && i < tiles; i++) {
+      const at = (i * 2654435761) % tiles, u = at % MOUNTAIN_W, v = Math.floor(at / MOUNTAIN_W);
+      if (u < 2 || v < 2 || u >= MOUNTAIN_W - 2 || v >= MOUNTAIN_H - 2 || !free(u, v, terrace, true)) continue;
+      put({ ...tree(), u, v });
+      left--;
+    }
   }
   return out;
 }

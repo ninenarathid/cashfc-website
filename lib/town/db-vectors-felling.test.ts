@@ -286,7 +286,7 @@ describe("the cases the database's rules of woodcutting are held to", () => {
     expect(JSON.stringify(vectorsFelling().all)).toBe(JSON.stringify(all));
     const of = (fn: string) => all.filter((v) => v.fn === fn);
     const whys = (fn: string) => [...new Set(of(fn).map((v) => { const w = v.want as { ok: boolean; why?: string }; return w.ok ? "ok" : w.why!; }))].sort();
-    expect(wood.length).toBe(121);
+    expect(wood.length).toBe(213);
     expect((catalogOf().trees as { wood: unknown[] }).wood).toEqual(wood.map(rowOf));
     expect(whys("fell_begin")).toEqual(["bite", "far", "full", "held", "none", "ok", "plus", "stump", "tool"]);
     expect(whys("fell")).toEqual(["bite", "far", "full", "held", "none", "ok", "plus", "spent", "stump", "tool"]);

@@ -37,17 +37,17 @@ function cut(p: Purse, g: Grove, id: number, misses = 0, more: { luck?: Partial<
 const opts3 = (id: string) => ({ plus: 3, opts: [id] }), top = (id?: string) => ({ plus: 10, opts: id ? ["", "", id] : [] });
 
 describe("a tree, by the clock", () => {
-  it("is a stump, a sprout, a young tree and grown at the shares of its forty minutes", () => {
+  it("is a stump, a sprout, a young tree and grown at the shares of its six minutes", () => {
     const from = NOON, until = grownAt({}, from);
     expect(until - from).toBe(TREES.regrow * MIN);
-    expect(TREES.regrow).toBe(40);
+    expect(TREES.regrow).toBe(6);
     expect(lookAt(from, until, from)).toBe(0);
-    expect(lookAt(from, until, from + 9.9 * MIN)).toBe(0);
-    expect(lookAt(from, until, from + 10 * MIN)).toBe(1);
-    expect(lookAt(from, until, from + 23.9 * MIN)).toBe(1);
-    expect(lookAt(from, until, from + 24 * MIN)).toBe(2);
-    expect(lookAt(from, until, from + 39.9 * MIN)).toBe(2);
-    expect(lookAt(from, until, from + 40 * MIN)).toBe(3);
+    expect(lookAt(from, until, from + 0.249 * TREES.regrow * MIN)).toBe(0);
+    expect(lookAt(from, until, from + 0.25 * TREES.regrow * MIN)).toBe(1);
+    expect(lookAt(from, until, from + 0.599 * TREES.regrow * MIN)).toBe(1);
+    expect(lookAt(from, until, from + 0.6 * TREES.regrow * MIN)).toBe(2);
+    expect(lookAt(from, until, from + 0.999 * TREES.regrow * MIN)).toBe(2);
+    expect(lookAt(from, until, from + TREES.regrow * MIN)).toBe(3);
   });
 
   it("the ancient tree is grown once a day, from dawn in Bangkok, and a stump until then", () => {
@@ -66,9 +66,9 @@ describe("a tree, by the clock", () => {
   it("what has grown again is forgotten, and a page reads each tree's look from what it is told", () => {
     const g: Grove = { down: { 0: { at: NOON, by: "a" }, 1: { at: NOON - 50 * MIN, by: "b" } }, half: [2, 0] };
     expect(Object.keys(tidied(g, NOON, WOOD).down)).toEqual(["0"]);
-    const told = toldOf(g, woodcutter(), NOON + 12 * MIN, WOOD);
-    expect(told).toEqual({ down: [{ id: 0, at: NOON, until: NOON + 40 * MIN }], half: [2] });
-    expect(lookOf(told, 0, NOON + 12 * MIN)).toBe(1);
+    const told = toldOf(g, woodcutter(), NOON + 2 * MIN, WOOD);
+    expect(told).toEqual({ down: [{ id: 0, at: NOON, until: NOON + TREES.regrow * MIN }], half: [2] });
+    expect(lookOf(told, 0, NOON + 2 * MIN)).toBe(1);
     expect(lookOf(told, 0, NOON + 41 * MIN)).toBe(3);
     expect(lookOf(told, 1, NOON)).toBe(3);
     expect(lookOf(null, 5, NOON)).toBe(3);
@@ -118,7 +118,7 @@ describe("walking up to a tree with an axe", () => {
     expect(begin(p, g, 3, [30, 33], NOON, 1, WOOD)).toEqual({ ok: false, why: "far" });
     expect(begin(p, g, 60, BESIDE[60], NOON, 1, WOOD)).toEqual({ ok: false, why: "bite" });
     expect(begin(woodcutter({ plus: 10 }), g, 100, BESIDE[100], NOON, 1, WOOD)).toEqual({ ok: false, why: "bite" });
-    expect(begin(p, { down: { 3: { at: NOON - 39 * MIN, by: "x" } }, half: [] }, 3, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "stump" });
+    expect(begin(p, { down: { 3: { at: NOON - (TREES.regrow - 1) * MIN, by: "x" } }, half: [] }, 3, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "stump" });
     expect(begin(p, { down: { 3: { at: NOON - 40 * MIN, by: "x" } }, half: [] }, 3, BESIDE[3], NOON, 1, WOOD).ok).toBe(true);
     expect(begin(p, g, 999, BESIDE[3], NOON, 1, WOOD)).toEqual({ ok: false, why: "none" });
     const full = { ...p, bag: p.bag.map((s) => s ?? { item: "stone" as const, n: 50 }) };
@@ -171,10 +171,10 @@ describe("a tree felled", () => {
     expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - TREES.cost);
     expect(did.grove.down[3]).toEqual({ at: NOON, by: "me" });
     // somebody else, with another purse, is told the same
-    expect(toldOf(did.grove, newPurse(), NOON, WOOD).down).toEqual([{ id: 3, at: NOON, until: NOON + 40 * MIN }]);
+    expect(toldOf(did.grove, newPurse(), NOON, WOOD).down).toEqual([{ id: 3, at: NOON, until: NOON + TREES.regrow * MIN }]);
     // and nobody fells it again until it is grown
-    expect(cut(did.purse, did.grove, 3, 0, { now: NOON + 39 * MIN })).toEqual({ ok: false, why: "stump" });
-    expect(cut(did.purse, did.grove, 3, 0, { now: NOON + 40 * MIN }).ok).toBe(true);
+    expect(cut(did.purse, did.grove, 3, 0, { now: NOON + (TREES.regrow - 1) * MIN })).toEqual({ ok: false, why: "stump" });
+    expect(cut(did.purse, did.grove, 3, 0, { now: NOON + TREES.regrow * MIN }).ok).toBe(true);
   });
 
   it("always falls, and always gives its logs: a go that was lost on the board fells the tree with no fine timber", () => {
@@ -596,22 +596,23 @@ describe("the mountain as it is laid out (the preview)", () => {
     vi.resetModules();
     const live = await import("./trees");
     vi.unstubAllEnvs();
-    expect(live.WOOD.length).toBe(121);
+    expect(live.WOOD.length).toBe(213);
     expect(live.WOOD.filter((t) => t.elder).map((t) => t.id)).toEqual([live.TREES.elder.id]);
     expect(live.WOOD.every((t) => t.elder || t.id < live.TREES.elder.id)).toBe(true);
     const pines = live.WOOD.filter((t) => t.tier === 1 && !t.elder);
-    expect(pines.length).toBe(60);
+    expect(pines.length).toBe(92);
     const near = pines.filter((t) => pines.some((o) => o.id !== t.id && Math.max(Math.abs(o.x - t.x), Math.abs(o.y - t.y)) <= live.TREES.echo.reach));
     expect(near.length).toBeGreaterThan(40);
-    // a third of the pines each girth
-    expect([1, 2, 3].map((g) => pines.filter((t) => live.girthOf(t) === g).length)).toEqual([20, 20, 20]);
+    // about a third of the pines each girth (the first sixty, a third each to the tree)
+    expect([1, 2, 3].map((g) => pines.filter((t) => t.id < 60 && live.girthOf(t) === g).length)).toEqual([20, 20, 20]);
+    for (const g of [1, 2, 3]) expect(pines.filter((t) => live.girthOf(t) === g).length).toBeGreaterThanOrEqual(25);
   });
 
   it("is the same wood in a production build: the mountain is laid out in every build, and reached only while the far side is open", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.resetModules();
     const { WOOD: wood } = await import("./trees");
-    expect(wood.length).toBe(121);
+    expect(wood.length).toBe(213);
     vi.unstubAllEnvs();
     expect(FELLING.tired.misses).toBe(3);
   });

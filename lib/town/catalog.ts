@@ -490,7 +490,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * wrote nine over: `items`, `goods`, `shelf`, `hints`, `makes`, `cooking`, `work`, `gifts` and `box` (`box.more`: the
  * chest at the mountain's foot). Nothing waits now; the blacksmith's migration is still to come.
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // (v170, NOT RUN: more trees on the mountain and trees that grow back in six minutes: the `trees` row written over)
+  v170: { keys: [], over: ["trees"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

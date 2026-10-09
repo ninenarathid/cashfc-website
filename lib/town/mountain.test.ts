@@ -148,11 +148,18 @@ describe("the mountain's foot, laid out", () => {
     for (const p of props) if (rim(p.u, p.v)) { expect(p.solid).toBe(true); expect((p.u + p.v) % 2).toBe(0); }
   });
 
-  it("has about sixty pines and forty rocks on the slope, forty ironwoods above, twenty moonwoods on the summit, and one ancient cedar", () => {
+  it("has ninety-two pines and forty rocks on the slope, eighty ironwoods above, forty moonwoods on the summit, and one ancient cedar", () => {
     const trees = (tier: number) => props.filter((p) => p.kind === "mtree" && p.tier === tier);
-    expect(trees(1).length).toBe(60);
-    expect(trees(2).length).toBe(40);
-    expect(trees(3).length).toBe(20);
+    expect(trees(1).length).toBe(92);
+    expect(trees(2).length).toBe(80);
+    expect(trees(3).length).toBe(40);
+    // (the first hundred and twenty are where they were laid before more were asked for, and numbered as they were: what the village
+    // has felled is kept by a tree's number; the later ones are numbered on from them)
+    const numbered = props.filter((p) => p.kind === "mtree").sort((a, b) => a.id! - b.id!);
+    expect(numbered.map((p) => p.id)).toEqual(Array.from({ length: 212 }, (_, i) => i));
+    expect(numbered.slice(0, 3).map((p) => [p.u, p.v, p.tier])).toEqual([[39, 45, 1], [35, 10, 1], [42, 4, 1]]);
+    expect([numbered[59].tier, numbered[60].tier, numbered[99].tier, numbered[100].tier, numbered[119].tier]).toEqual([1, 2, 2, 3, 3]);
+    expect([numbered[119].u, numbered[119].v]).toEqual([8, 2]);
     for (const [tier, terrace] of [[1, 1], [2, 2], [3, 3]] as const) for (const p of trees(tier)) expect(terraceOfTile(p.u, p.v)).toBe(terrace);
     const rocks = props.filter((p) => p.kind === "mrock");
     expect(rocks.filter((p) => terraceOfTile(p.u, p.v) === 1).length).toBe(40);
@@ -179,7 +186,8 @@ describe("the mountain's foot, laid out", () => {
     expect(trees.map((p) => p.id)).toEqual(trees.map((_, i) => i));
     expect(rocks.map((p) => p.id)).toEqual(rocks.map((_, i) => i));
     // the slope's pines first, then the upper terrace's ironwoods, then the summit's moonwoods
-    expect(trees.map((p) => p.tier).join("")).toBe("1".repeat(60) + "2".repeat(40) + "3".repeat(20));
+    // (and after those hundred and twenty, the trees laid later, again each terrace's in turn)
+    expect(trees.map((p) => p.tier).join("")).toBe("1".repeat(60) + "2".repeat(40) + "3".repeat(20) + "1".repeat(32) + "2".repeat(40) + "3".repeat(20));
     expect(rocks.slice(0, 40).every((p) => terraceOfTile(p.u, p.v) === 1)).toBe(true);
     // nothing else has one
     for (const p of props) if (p.kind !== "mtree" && p.kind !== "mrock") expect(p.id).toBeUndefined();

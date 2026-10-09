@@ -39,7 +39,9 @@ import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
  */
 export const TREES = {
   /** The minutes a felled tree takes to be grown again; and the share of them at which each of its four looks begins. */
-  regrow: 40, looks: [0, 0.25, 0.6, 1] as readonly number[],
+  // (six minutes since 2026-10-09, where it was forty: the owner, the evening the mountain opened, "ทำให้ respawn ไวขึ้น".
+  // With the ninety-two pines there are it is some fifteen a minute for the whole village: five members felling without a pause.)
+  regrow: 6, looks: [0, 0.25, 0.6, 1] as readonly number[],
   /** The stamina a tree felled costs; how near one stands to fell it, in tiles; and the tier of the axes there are. */
   cost: 2, reach: 1, axeTier: 1,
   /** What a tree gives whatever the hand does: so many logs. */

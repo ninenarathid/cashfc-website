@@ -42,7 +42,7 @@ describe("the far side, in every build and reached only while it is open", () =>
       expect(W.GATES.map((g) => [g.from, g.leads])).toEqual([["town", "farm"], ["farm", "town"], ["town", "forest"], ["forest", "town"], ["town", "mountain"], ["mountain", "town"]]);
       expect(W.KEEPERS.map((k) => k.id)).toEqual(["uncle", "banker"]);
       expect([W.BRIDGE.tiles.length, W.SMITH.tiles.length, W.MOUNTAIN_ROCKS.length, W.MORE_GROUND.length, W.CAVE.laid.length]).toEqual([6, 5, 54, 6, 30]);
-      expect(W.MOUNTAIN_TREES.length).toBe(120);
+      expect(W.MOUNTAIN_TREES.length).toBe(212);
       expect(W.PEAKS.length).toBeGreaterThan(0);
       expect(W.MOUNTAIN_PROPS.length).toBeGreaterThan(0);
       expect(W.CAVE_SEATS.length).toBeGreaterThan(0);
@@ -115,7 +115,7 @@ describe("the far side, in every build and reached only while it is open", () =>
     const here = await rows("development"), there = await rows("production");
     expect(Object.keys(here)).toEqual(Object.keys(there));
     expect(Object.keys(here).filter((key) => here[key] !== there[key])).toEqual([]);
-    expect([JSON.parse(there.trees).wood.length, JSON.parse(there.mining).rocks.length]).toEqual([121, 54]);
+    expect([JSON.parse(there.trees).wood.length, JSON.parse(there.mining).rocks.length]).toEqual([213, 54]);
     expect(JSON.parse(here.haunts).length).toBeGreaterThan(80);
   }, 120_000);
 
@@ -267,7 +267,7 @@ describe("the far side, in every build and reached only while it is open", () =>
     // every tree and every rock: its number is its place in the list, its tile is its own and nobody walks on it
     expect(W.MOUNTAIN_TREES.map((t) => t.id)).toEqual(W.MOUNTAIN_TREES.map((_, i) => i));
     expect(W.MOUNTAIN_ROCKS.map((r) => r.id)).toEqual(W.MOUNTAIN_ROCKS.map((_, i) => i));
-    expect([W.MOUNTAIN_TREES.filter((t) => t.tier === 1).length, W.MOUNTAIN_TREES.filter((t) => t.tier === 2).length, W.MOUNTAIN_TREES.filter((t) => t.tier === 3).length]).toEqual([60, 40, 20]);
+    expect([W.MOUNTAIN_TREES.filter((t) => t.tier === 1).length, W.MOUNTAIN_TREES.filter((t) => t.tier === 2).length, W.MOUNTAIN_TREES.filter((t) => t.tier === 3).length]).toEqual([92, 80, 40]);
     expect(W.MOUNTAIN_ROCKS.length).toBe(54);
     for (const t of [...W.MOUNTAIN_TREES, ...W.MOUNTAIN_ROCKS]) {
       expect(W.placeOf(t.x, t.y)).toBe("mountain");
@@ -275,7 +275,7 @@ describe("the far side, in every build and reached only while it is open", () =>
       // (somebody can stand beside each one)
       expect([[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => seen.has(`${t.x + dx},${t.y + dy}`)), `${t.id} at ${t.x},${t.y}`).toBe(true);
     }
-    expect(new Set([...W.MOUNTAIN_TREES, ...W.MOUNTAIN_ROCKS].map((t) => `${t.x},${t.y}`)).size).toBe(174);
+    expect(new Set([...W.MOUNTAIN_TREES, ...W.MOUNTAIN_ROCKS].map((t) => `${t.x},${t.y}`)).size).toBe(266);
     expect(W.MOUNTAIN_TREES[0]).toEqual({ id: 0, x: M.x + 39, y: M.y + 45, tier: 1 });
     expect(W.MOUNTAIN_ROCKS[0]).toEqual({ id: 0, x: M.x + 39, y: M.y + 24, look: W.MOUNTAIN_ROCKS[0].look });
     // the camp's four logs and the lookout's bench are benches, after the forest's; each is sat on from a tile one can walk to

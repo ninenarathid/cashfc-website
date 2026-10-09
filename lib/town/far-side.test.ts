@@ -13,14 +13,14 @@ describe("the far side's lists, for the database", () => {
   afterEach(() => { vi.unstubAllEnvs(); vi.resetModules(); });
 
   it("are full, as the world's own are in every build", () => {
-    expect([MOUNTAIN_TREES.length, MOUNTAIN_ROCKS.length]).toEqual([120, 54]);
+    expect([MOUNTAIN_TREES.length, MOUNTAIN_ROCKS.length]).toEqual([212, 54]);
     expect(farTrees()).toEqual(MOUNTAIN_TREES);
-    expect([farTrees().length, farRocks().length]).toEqual([120, 54]);
+    expect([farTrees().length, farRocks().length]).toEqual([212, 54]);
     const all = catalogOf();
-    // (the hundred and twenty numbered trees and the ancient cedar; every rock of the mountain's foot)
-    expect(all.trees.wood.length).toBe(121);
+    // (the two hundred and twelve numbered trees and the ancient cedar; every rock of the mountain's foot)
+    expect(all.trees.wood.length).toBe(213);
     expect(all.mining.rocks.length).toBe(54);
-    expect(all.trees.wood.map((t) => t[0])).toEqual([...Array.from({ length: 120 }, (_, i) => i), all.trees.elder.id]);
+    expect(all.trees.wood.map((t) => t[0])).toEqual([...Array.from({ length: 212 }, (_, i) => i), all.trees.elder.id]);
     expect(all.mining.rocks.map((r) => r[0])).toEqual(Array.from({ length: 54 }, (_, i) => i));
   });
 
@@ -43,14 +43,15 @@ describe("the far side's lists, for the database", () => {
 
   it("are in the catalog, with the chest at the mountain's foot, in a production build as in the others (v164 ran on 2026-10-09: no block waits)", async () => {
     const { CATALOG_KEYS } = await import("./catalog");
-    expect(CATALOG_KEYS).toEqual({});
+    // (v164 has run and names no row any more; what waits now is v170's, the mountain's trees again)
+    expect(CATALOG_KEYS.v164).toBeUndefined();
     expect(catalogOf().box.more).toEqual([[67, 242]]);
-    expect([catalogOf().trees.wood.length, catalogOf().mining.rocks.length]).toEqual([121, 54]);
+    expect([catalogOf().trees.wood.length, catalogOf().mining.rocks.length]).toEqual([213, 54]);
     // (a production build lays the mountain out too)
     vi.stubEnv("NODE_ENV", "production");
     vi.resetModules();
     const there = await import("./catalog");
-    expect(there.catalogOf().trees.wood.length).toBe(121);
+    expect(there.catalogOf().trees.wood.length).toBe(213);
     expect(there.catalogOf().mining.rocks.length).toBe(54);
   }, 60_000);
 });
