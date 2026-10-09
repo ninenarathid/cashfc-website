@@ -719,7 +719,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // is walked over is the village's own: as many spans as the works have laid, walked on once it is whole and not before. The test
   // room's trial keeper has its own way over (whole and open from the first, `&townBridge=` and `&townAt=`), and keeps it)
   useEffect(() => {
-    if (!keeper || (testTopic && !new URLSearchParams(location.search).get("townDb"))) return;
+    if (!keeper || (process.env.NODE_ENV !== "production" && testTopic && !new URLSearchParams(location.search).get("townDb"))) return;
     const sync = () => { const w = keeper.works(); setBridge(bridgeSpans(w), bridgeWhole(w)); };
     sync();
     return keeper.watch(sync);

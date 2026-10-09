@@ -247,18 +247,19 @@ export class MountainArt {
   private litLast = { lit: 0, of: 0, lights: 0 };
 
   constructor(private readonly host: MoreHost) {
-    // (the test room's words, `next dev` only: in a production build the address says nothing to this, and the day is Bangkok's)
-    const dev = process.env.NODE_ENV === "development";
-    const q = new URLSearchParams(dev ? location.search : "");
+    // the day whose cave it is: Bangkok's, counted from 1970 (the test room may ask for another)
+    setCaveDay(Math.floor((Date.now() + 7 * 3_600_000) / 86_400_000));
+    // (the test room's words and handle, `next dev` only, in a block a production build drops: there the address says nothing to this)
+    if (process.env.NODE_ENV !== "development") return;
+    const q = new URLSearchParams(location.search);
     // how much of the bridge there is, and whether it is opened
     if (q.has("townBridge")) { const n = Number(q.get("townBridge")); if (Number.isFinite(n)) setBridge(n, q.get("townBridgeOpen") !== "0"); }
     else if (q.get("townBridgeOpen") === "0") setBridge(BRIDGE.spans, false);
-    // the day whose cave it is: Bangkok's, counted from 1970; or the one asked for
     const day = Number(q.get("townCaveDay"));
-    setCaveDay(q.has("townCaveDay") && Number.isFinite(day) ? Math.floor(day) : Math.floor((Date.now() + 7 * 3_600_000) / 86_400_000));
+    if (q.has("townCaveDay") && Number.isFinite(day)) setCaveDay(Math.floor(day));
     if (q.get("townSample") === "1") setSample(true);
     this.wanted = q.get("townAt");
-    if (dev) (window as unknown as { __townMore?: unknown }).__townMore = {
+    (window as unknown as { __townMore?: unknown }).__townMore = {
       /** Where I am, as this sees it; how much of the bridge there is; and what the dark last left lit. */
       state: () => ({ floor: this.floor, bridge: { spans: BRIDGE.spans, open: BRIDGE.open }, lit: { ...this.litLast }, seen: Object.fromEntries([...this.seen].map(([n, tiles]) => [n, tiles.reduce((sum, t) => sum + t, 0)])) }),
       /** What can be tapped on the screen this frame, each with its middle. */
