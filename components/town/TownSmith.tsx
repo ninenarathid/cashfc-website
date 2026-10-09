@@ -6,6 +6,7 @@ import {
   type Outcome, type SmithRefusal, type Smelting,
 } from "@/lib/town/forge";
 import { ITEMS, type ItemId } from "@/lib/town/items";
+import type { FireTold } from "@/lib/town/great-fire";
 import type { Keeper, MoveHow } from "@/lib/town/keeper";
 import { LINES } from "@/lib/town/lines";
 import { running } from "@/lib/town/powers";
@@ -339,6 +340,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   );
   // (a forging that sits in a kind of tool of another pool than its own: its options sleep there, and it is moved back before it is forged further)
   const away = awayOf(stack), home = originOf(stack);
+  // (the great fire, where whoever keeps the game has one: a tool one level under the top needs it for its try)
+  const fireNow = keeper.fire(), underTop = level === FORGE.top - 1, noFire = fireNow && underTop ? fireBar(fireNow) : null;
   const homeWord = home ? (th ? KIND_WORD[home][0] : KIND_WORD[home][1].toLowerCase()) : "";
   /** The tool's own card: its plus, its numbers, its options, its gem. (An option once drawn works whatever the level has fallen to; it sleeps only in a kind of tool of another pool, and says so.) */
   const card = stack && kind && (
@@ -609,6 +612,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     {purse.coins < SMITH.redraw.fee && <p className="mt-2 text-meta text-[#ffb4a0]">{th ? WHY.coins[0] : WHY.coins[1]}</p>}
                   </div>
                 )}
+                {fireNow && stack && kind && !laid && again === null && !away && underTop && <GreatFireCard fire={fireNow} th={th} name={name} keeper={keeper} onRefuse={refuse} />}
                 {/* the next try: what it takes, how it may go (none, of a forging that sits in a kind of tool of another pool: it is moved back first) */}
                 {stack && kind && !laid && again === null && (away ? (
                   <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-foreign={home ?? ""}>
@@ -663,10 +667,11 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                       <NeedCoins have={purse.coins} want={cost.fee} th={th} />
                     </div>
                     <Odds odds={odds} th={th} />
-                    <button type="button" onClick={() => void strike()} disabled={busy || lacks.length > 0} data-smith-strike
+                    <button type="button" onClick={() => void strike()} disabled={busy || lacks.length > 0 || !!noFire} data-smith-strike
                             className="pressable mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#f0c46a] font-display text-title font-bold text-[#2a190d] shadow-[inset_0_-3px_0_rgba(0,0,0,0.25)] disabled:bg-[#4a341f] disabled:text-[#8f7655] disabled:shadow-none">
                       <TownIcon name="hammer" size={20} />{busy ? t("กำลังตี…", "Striking…") : t("ตี", "Strike")}
                     </button>
+                    {noFire && <p className="mt-2 rounded-lg bg-[#3a1712] px-2.5 py-1.5 text-meta text-[#ffb4a0]" data-smith-fire-why={noFire}>{th ? WHY[noFire][0] : WHY[noFire][1]}</p>}
                   </div>
                 ))}
                 {card && <div className="mt-3">{card}</div>}
@@ -850,6 +855,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                     </div>
                   );
                 })()}
+                {keeper.fire() && <GreatFireCard fire={keeper.fire()!} th={th} name={name} keeper={keeper} onRefuse={refuse} />}
                 <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#f0e0b8] px-3 py-2.5 text-[#3a2612] shadow-[2px_3px_0_rgba(0,0,0,0.3)]">
                   <p className="mb-1.5 font-data text-label uppercase text-[#7a5a30]">{t("คนแรกที่ตีถึง +10", "First to forge to +10")}</p>
                   <ul>
@@ -956,6 +962,89 @@ function MoveCard({ stack, was, th, side }: { stack: Stack; was?: Stack; th: boo
           </div>
         )}
       </dl>
+    </div>
+  );
+}
+
+/**
+ * Why a try for the top may not be made now, by what the village is told of its great fire (lib/town/great-fire's
+ * `fireWhy`, read from what a page may see); null when it may.
+ */
+function fireBar(f: FireTold): SmithRefusal | null {
+  if (!f.lit) return "fire";
+  if (f.mine < 0) return f.topped ? "topped" : "row";
+  return f.mine >= f.open ? "turn" : null;
+}
+
+/**
+ * The forge's great fire (lib/town/great-fire), which a try for the top takes: whether it is lit, who found each
+ * half, the row of names taking turns and where I stand in it. Nothing here says when a half can be found: that is
+ * for the village to come upon.
+ */
+function GreatFireCard({ fire, th, name, keeper, onRefuse }: { fire: FireTold; th: boolean; name: string; keeper: Keeper; onRefuse: (why: SmithRefusal) => void }) {
+  const t = (thai: string, en: string) => (th ? thai : en);
+  const [busy, setBusy] = useState(false);
+  const inRow = fire.mine >= 0, n = fire.row.length;
+  const act = async (go: () => Promise<{ ok: true } | { ok: false; why: SmithRefusal }>) => {
+    if (busy) return;
+    setBusy(true);
+    try { const did = await go(); if (!did.ok) onRefuse(did.why); } finally { setBusy(false); }
+  };
+  // (a long row shows its first eight and my place, with a gap between)
+  const lines: Array<number | "gap"> = [];
+  for (let i = 0; i < n; i++) {
+    if (n <= 8 || i < 8) lines.push(i);
+    else if (i === fire.mine) { if (i > 8) lines.push("gap"); lines.push(i); }
+  }
+  const halves: Array<[key: "flint" | "tinder", word: [string, string], hint: [string, string]]> = [
+    ["flint", ["หินเพลิง", "Flint"], ["มาจากหิน", "from a rock"]], ["tinder", ["เชื้อไฟ", "Tinder"], ["มาจากต้นไม้", "from a tree"]],
+  ];
+  return (
+    <div className="mb-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]"
+         data-smith-fire data-lit={fire.lit ? "1" : "0"} data-flint={fire.flint?.name ?? ""} data-tinder={fire.tinder?.name ?? ""} data-row={n} data-mine={fire.mine} data-open={fire.open}>
+      <p className="flex items-center justify-between gap-2 font-display text-lead font-semibold text-[#f3e3c3]">
+        <span>{t("ไฟใหญ่ของเตา", "The forge's great fire")}</span>
+        {fire.lit
+          ? <span className="flex items-center gap-1 rounded-full bg-[#3a2a12] px-2.5 py-0.5 font-body text-meta font-semibold text-[#f0c46a]"><TownIcon name={"fxSpark1" as IconName} size={12} />{t("ไฟติดแล้ว", "Lit")}</span>
+          : <span className="rounded-full border border-[#4a341f] px-2.5 py-0.5 font-body text-meta text-[#8f7655]">{t("ยังไม่ติด", "Not lit")}</span>}
+      </p>
+      <p className="mt-1 text-meta leading-relaxed text-[#c9a877]">{t("ตีขึ้น +10 ใช้ไฟใหญ่ของหมู่บ้าน 1 ดวงต่อการตี 1 ครั้ง ไม่มีใครเป็นเจ้าของ ใช้กันตามคิว", "A try for +10 takes the village's great fire: one fire, one try. Nobody owns it; it is used by turns.")}</p>
+      <div className="mt-2 grid grid-cols-2 gap-2">
+        {halves.map(([key, word, hint]) => {
+          const by = fire[key];
+          return (
+            <div key={key} className={`rounded-xl border px-2.5 py-2 ${by ? "border-[#f0c46a] bg-[#2a1f10]" : "border-dashed border-[#6b4a2a] bg-[#241a10]"}`} data-smith-fire-half={key} data-found={by ? "1" : "0"}>
+              <p className={`text-ui font-semibold ${by ? "text-[#f0c46a]" : "text-[#c9a877]"}`}>{th ? word[0] : word[1]}</p>
+              <p className="text-label text-[#8f7655]">{th ? hint[0] : hint[1]}</p>
+              <p className={`mt-1 truncate text-meta ${by ? "text-[#f3e3c3]" : "text-[#8f7655]"}`}>{by ? t(`พบโดย ${by.name || "?"}`, `Found by ${by.name || "?"}`) : t("ยังไม่มีใครพบ", "Nobody has found it")}</p>
+            </div>
+          );
+        })}
+      </div>
+      {n === 0 ? <p className="mt-2 text-meta text-[#8f7655]" data-smith-fire-empty>{t("ยังไม่มีใครลงชื่อ", "Nobody has put a name down")}</p> : (
+        <ol className="mt-2 space-y-1" data-smith-fire-row>
+          {lines.map((i, k) => {
+            if (i === "gap") return <li key={`gap${k}`} className="px-2 text-meta text-[#8f7655]" aria-hidden>…</li>;
+            const w = fire.row[i], me = i === fire.mine;
+            return (
+              <li key={w.id} className={`flex items-center gap-2 rounded-lg px-2 py-1 text-meta ${me ? "bg-[#33251a] text-[#f3e3c3]" : "text-[#d9c39b]"}`} data-smith-fire-line={i + 1} data-me={me ? "1" : "0"}>
+                <span className="w-6 shrink-0 font-data tabular-nums text-[#8f7655]">{i + 1}</span>
+                <span className="min-w-0 flex-1 truncate">{w.name || "?"}{me && <span className="ml-1 text-[#c9a877]">{t("(คุณ)", "(you)")}</span>}</span>
+                {i < fire.open && <span className="shrink-0 rounded-full bg-[#3a2a12] px-2 py-0.5 text-label font-semibold text-[#f0c46a]">{t("ถึงคิว", "May use it")}</span>}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      {inRow ? (
+        <button type="button" onClick={() => void act(() => keeper.fireLeave())} disabled={busy} data-smith-fire-leave
+                className="pressable mt-3 flex min-h-10 w-full items-center justify-center rounded-xl border border-[#6b4a2a] text-ui text-[#c9a877] disabled:opacity-50">{t("ถอนชื่อ", "Take my name out")}</button>
+      ) : fire.topped ? (
+        <p className="mt-3 text-meta leading-relaxed text-[#d9c39b]" data-smith-fire-topped>{th ? WHY.topped[0] : WHY.topped[1]}</p>
+      ) : (
+        <button type="button" onClick={() => void act(() => keeper.fireJoin(name))} disabled={busy} data-smith-fire-join
+                className="pressable mt-3 flex min-h-11 w-full items-center justify-center rounded-xl border border-[#c9a877] text-ui font-bold text-[#f3e3c3] disabled:opacity-50">{t("ลงชื่อเข้าคิว", "Put my name down")}</button>
+      )}
     </div>
   );
 }
