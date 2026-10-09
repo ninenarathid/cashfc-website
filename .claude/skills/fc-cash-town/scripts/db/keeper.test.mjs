@@ -1435,6 +1435,95 @@ try {
     O.close();
   }
 
+  // ── felling ── (v164's woodcutters' part, a draft or run: a database before it has no trees, and the keeper asks for none)
+  if ((await sql(`select to_regprocedure('public.town_trees()') is not null as there`))[0].there) {
+    section("the mountain's trees: asked for only once the far side is open, a board, a friend at the trunk, a tree felled, a stump woken, shut again (v164)");
+    const TREES = (await sql(`select town.cat('trees') as k`))[0].k, pines = TREES.wood.filter((w) => w[3] === 1 && w[0] !== TREES.elder.id);
+    const [p, q] = pines, beside = (w) => [w[1] - 1, w[2]];
+    const axeIn = async (id) => {
+      await purse(id, 0, [{ item: "axe", n: 1 }]);
+      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'axe', 'handAt', 0, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', 100)) where member_id = $1`, [id]);
+    };
+    const groveKept = async () => (await sql(`select doc from public.town_things where key = 'grove'`))[0].doc;
+    const logsOf = (k) => k.purse().bag.reduce((n, s) => n + (s?.item === "log" ? s.n : 0), 0);
+    // (the far side's own answer is asked past the line of questions: a moment for it, and for the trees asked on its yes)
+    const begun = async (k) => { await settled(k); await sleep(300); await settled(k); };
+    const farWas = Number((await sql(`select value from public.town_knobs where key = 'far_open'`))[0].value);
+    await sql(`update public.town_things set doc = '{"down": {}, "half": []}'::jsonb where key = 'grove'`);
+    await sql(`update public.town_knobs set value = 0 where key = 'far_open'`);
+    await axeIn(a); await axeIn(b);
+    let from = asked.length;
+    const shut = new DbKeeper(a, askAs("A"));
+    await begun(shut);
+    const stopShut = shut.look("trees");
+    shut.nudged("trees");
+    const none = await shut.fellBegin(p[0], beside(p));
+    ok("the far side closed: a member's keeper asks for no tree, at the beginning, at a look or at the room's word, and sends no deed at one; the game is theirs all the same",
+      shut.far() === false && shut.trees() === null && shut.open() === true && !none.ok && none.why === "none" && !asked.slice(from).some((x) => /town_trees|town_fell/.test(x)), asked.slice(from));
+    stopShut();
+    shut.close();
+    await sql(`update public.town_knobs set value = 1 where key = 'far_open'`);
+    // (what the database itself answers, kept beside what the keeper makes of it)
+    const seen = {};
+    const hearing = (as) => async (fn, args) => { const r = await askAs(as)(fn, args); seen[`${as} ${fn}`] = r; return r; };
+    from = asked.length;
+    const F = new DbKeeper(a, hearing("A")), G = new DbKeeper(b, hearing("B"));
+    const told = [];
+    F.onDeed = (what) => { told.push(what); if (what === "trees") G.nudged("trees"); };
+    await begun(F); await begun(G);
+    const first = asked.slice(from);
+    ok("opened by its knob: the keeper says so, and asks for the trees once it has (none is down)",
+      F.far() === true && first.includes("A town_trees") && first.indexOf("A town_trees") > first.indexOf("A town_far") && F.trees()?.down.length === 0 && F.trees().half.length === 0, { far: F.far(), trees: F.trees(), first });
+    const stopG = G.look("trees");
+    const board = await F.fellBegin(p[0], beside(p));
+    ok("a board through the keeper: the trees it is for and what the game is made from; and the tree is held for its member in the grove the database keeps",
+      board.ok && board.trees.join() === String(p[0]) && board.ask.chops > 0 && Number.isInteger(board.ask.seed) && board.ask.trees[0].id === p[0] && board.elder === false && (await groveKept()).goes?.[a]?.trees.join() === String(p[0]), board);
+    const theirs = await G.fellBegin(p[0], [p[1] + 1, p[2]]);
+    ok("…another member's board at it is refused with the rule's own word", !theirs.ok && theirs.why === "held", theirs);
+    const braced = await G.fellBrace(a, [p[1] + 1, p[2]]);
+    ok("a friend braces the trunk through the keeper, by the feller's id", braced.ok && braced.tree === p[0] && (await groveKept()).goes[a].braced === b, braced);
+    const logsG = logsOf(G);
+    const did = await F.fellDo({ tree: p[0], through: true, misses: 0, secs: 9 }, beside(p), "Tester A");
+    const answer = seen["A town_fell"] ?? {};
+    ok("a go sent as it was played: the tree down, its wood in the purse the keeper has at once, the stump on the page, and the room told",
+      did.ok && did.felled.length === 1 && did.felled[0].id === p[0] && did.through && !did.stood && logsOf(F) >= TREES.logs && F.trees().down.some((d) => d.id === p[0]) && told.join() === "trees", { did, told });
+    ok("…the keepsakes come as `keeps` (the village's found list is no part of the answer), with who braced; no fire, and nothing of the grove as it is kept",
+      did.ok && Array.isArray(answer.keeps) && did.found.length === answer.keeps.length && !("found" in answer) && !("fire" in answer) && !("grove" in answer) && did.braced === b && !("fire" in did), Object.keys(answer));
+    await sleep(400);
+    await settled(G);
+    ok("…the friend's page, told through the room, has the stump and the log they had for it", G.trees()?.down.some((d) => d.id === p[0]) && logsOf(G) === logsG + TREES.brace.logs, { trees: G.trees(), logs: logsOf(G) });
+    const written = await sql(`select member_id, what, thing, doc from public.town_deeds where what in ('fell', 'brace') order by id desc limit 2`);
+    ok("…and both are written down by the function itself: the feller's deed with the tree, the tile and who braced, and the friend's own",
+      written.some((d) => d.what === "fell" && d.member_id === a && d.thing === "pine" && d.doc.tree === p[0] && d.doc.braced === b && d.doc.tile.join() === beside(p).join())
+      && written.some((d) => d.what === "brace" && d.member_id === b && d.doc.feller === a), written);
+    const plain = await F.fellDo({ tree: q[0], plain: true, secs: 0 }, beside(q), "Tester A");
+    const noRoot = await F.fellRoot(q[0]);
+    ok("the plain press through the keeper; and its stump is not woken with a plain axe: refused by the rule, not out of reach", plain.ok && plain.plain && plain.felled[0]?.id === q[0] && !noRoot.ok && noRoot.why !== "away", { plain, noRoot });
+    await sql(`update public.town_purses set doc = jsonb_set(doc, '{bag,0}', '{"item": "axe", "n": 1, "plus": 10, "opts": ["axGrain", "axKeen", "axRoot"]}'::jsonb) where member_id = $1`, [a]);
+    await settled(F);
+    const woke = await F.fellRoot(q[0]);
+    ok("…with the axe that can, it is woken through the keeper: counted, gone from the page at once, and the room told again", woke.ok && woke.left >= 0 && !F.trees().down.some((d) => d.id === q[0]) && told.join() === "trees,trees,trees", { woke, told });
+    F.record({ game: "felling", board: "felling", at: F.now(), won: true, secs: 9, spent: false, buff: null, what: "pine", need: 8, hits: 8, misses: 0 });
+    await sleep(400);
+    ok("a go at the board is told to the log of goes under the game's own name", Number((await sql(`select count(*)::int as n from public.town_tries where member_id = $1 and game = 'felling' and board = 'felling'`, [a]))[0].n) === 1);
+    await sql(`update public.town_knobs set value = 0 where key = 'far_open'`);
+    const late = await F.fellBegin(q[0], beside(q));
+    ok("closed again by its knob: a tree refused is the far side shut to me, not the game: no tree is offered any more, and nothing of the game is lost",
+      !late.ok && late.why === "away" && F.far() === false && F.trees() === null && F.open() === true && F.ready(), { late, far: F.far(), open: F.open() });
+    const bought = await F.buy("worm", 1);
+    ok("…and a deed of the town's is answered as before", bought.ok || bought.why !== "away", bought);
+    stopG();
+    F.close(); G.close();
+    await sql(`update public.town_knobs set value = $1 where key = 'far_open'`, [farWas]);
+  } else {
+    const O = new DbKeeper(a, askAs("A"));
+    await settled(O);
+    await sleep(300);
+    const none = await O.fellBegin(0, [0, 0]);
+    ok("a database with no trees: the keeper knows of none, asks for none, and no deed at one is sent", O.trees() === null && O.far() === false && !none.ok && none.why === "none" && !asked.some((x) => /town_trees|town_fell/.test(x)), { trees: O.trees(), none });
+    O.close();
+  }
+
   // ── the lamp relay ── (v163, a draft or run: a database before it has no lamps, and the keeper knows of none)
   if ((await sql(`select to_regprocedure('public.town_lamps_read()') is not null as there`))[0].there) {
     section("the lamp relay at dusk: a flame from the fire through two keepers to a post, five seconds by the database's clock, tired hands, the last lamp of a map (v163)");
