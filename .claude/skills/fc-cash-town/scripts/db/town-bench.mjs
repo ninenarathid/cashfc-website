@@ -9,7 +9,10 @@
  *   BENCH_EXTRA=<a.sql>[,<b.sql>]       a draft that is not in supabase/ yet, run after everything that is
  *
  *   POST /rest/v1/rpc/<function>        its arguments as JSON; `x-town-as: <a tester's id>` says who asks
- *   GET  /bench/who?as=<id>&name=…      the member a tester is here (made at first sight: a proved character, thirty popoto)
+ *   GET  /bench/who?as=<id>&name=…      the member a tester is here (made at first sight: a proved character, thirty popoto; `&admin=1`: an admin)
+ *   POST /bench/alias { like, as }      every tester whose id fits the pattern is the member `as` is here: a tester of the dev test room has a new
+ *                                       id in every tab (`test-A-…`), and a stand-in set up for somebody to play by hand (scripts/town-try.mjs)
+ *                                       gives each letter one member, whose purse is there whichever tab comes
  *   POST /bench/sql   { sql, params }   anything, as the SQL editor: for a check to set a purse up, or read a table
  *   POST /bench/skip  { ms }            put the town's clock forward (the next round, a plant grown, a meal's hours)
  *
@@ -72,10 +75,14 @@ await t.sql(`
 /* ── who asks ── */
 const members = new Map();
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Testers who are one member here, whatever their own id: a pattern of ids and the tester they all are (`/bench/alias`). */
+const aliases = [];
 async function who(as, name, admin = false) {
   if (!as) return null;
   if (UUID.test(as)) return as;
   if (members.has(as)) return members.get(as);
+  const same = aliases.find((x) => x.like.test(as));
+  if (same) { const id = await who(same.as); members.set(as, id); return id; }
   const h = createHash("sha1").update(`town-bench:${as}`).digest("hex");
   const id = `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-8${h.slice(17, 20)}-${h.slice(20, 32)}`;
   const character = 700000000 + (parseInt(h.slice(0, 6), 16) % 90000000);
@@ -105,6 +112,8 @@ async function rpc(name, args, as) {
   const fn = fns.get(name);
   if (!fn) return [404, { code: "PGRST202", message: `Could not find the function public.${name} in the schema cache` }];
   const names = Object.keys(args), values = [];
+  // (the fires close by are answered by members' ids: said back to a page by the ids it asked with, which are the room's)
+  let near = null;
   for (const k of names) {
     if (!/^[a-z_][a-z0-9_]*$/.test(k) || !(k in fn.types)) return [404, { code: "PGRST202", message: `public.${name} takes no ${k}` }];
     let v = args[k];
@@ -118,6 +127,9 @@ async function rpc(name, args, as) {
     if (k === "p_to" && name === "town_flame_pass" && typeof v === "string") v = await who(v);
     // ── felling ── (whoever a trunk is braced for: a tester as the member they are here, a member's own id as it is)
     if (k === "p_feller" && typeof v === "string") v = await who(v);
+    // ── forging ── (whoever's bellows are pressed, and whoever stands by the forge: testers as the members they are here)
+    if (k === "p_whose" && typeof v === "string") v = await who(v);
+    if (k === "p_ids" && name === "town_smith_near" && Array.isArray(v)) { near = v.map(String); v = await Promise.all(near.map((x) => who(x))); near = new Map(v.map((id, i) => [id, near[i]])); }
     const type = fn.types[k];
     values.push(v === null || v === undefined ? null
       : type === "jsonb" || type === "json" ? JSON.stringify(v)
@@ -128,6 +140,7 @@ async function rpc(name, args, as) {
   const r = await t.as(as ?? "anon", `select coalesce(jsonb_agg(to_jsonb(x)), '[]'::jsonb)::text as r from ${call} x`, values.length ? values : undefined);
   if (r.error) return [r.code === "42501" ? 403 : 400, { code: r.code ?? "", message: r.error }];
   const rows = JSON.parse(r.rows[0].r);
+  if (near) for (const row of rows) for (const f of Array.isArray(row?.near) ? row.near : []) if (near.has(f?.id)) f.id = near.get(f.id);
   return [200, fn.many ? rows : rows[0] ?? null];
 }
 
@@ -153,6 +166,11 @@ const server = createServer(async (req, res) => {
       if (url.pathname === "/bench/who") {
         const id = await who(url.searchParams.get("as") ?? "", url.searchParams.get("name") ?? "", url.searchParams.get("admin") === "1");
         return send(id ? 200 : 400, { id });
+      }
+      if (url.pathname === "/bench/alias" && req.method === "POST") {
+        if (typeof body.like !== "string" || typeof body.as !== "string" || !body.as) return send(400, { message: "like and as" });
+        aliases.push({ like: new RegExp(body.like), as: body.as });
+        return send(200, { id: await who(body.as) });
       }
       if (url.pathname === "/bench/sql" && req.method === "POST") {
         const r = await t.as("super", String(body.sql ?? ""), Array.isArray(body.params) && body.params.length ? body.params : undefined);
