@@ -43,9 +43,24 @@
 --     outside that pays nothing, closes the vein and is written down apart (`vein_odd`), as a fish landed sooner than
 --     any fight is let slip and written down as suspect. Whether there is a vein, of which gem, with how many
 --     strikes: those are the purse's, written by `town_mine`, never the page's. The whole account is kept in the
---     deed's doc.
+--     deed's doc, with the seed of the face and what the go was played with: a go can be played again on its face
+--     afterwards (lib/town/vein-account's `accountOf`) and held to what was said.
+--     WHAT BELIEVING IT COSTS: a page may say it passed every cell of the fullest face there could be, whatever the
+--     face was: six cells, twelve fragments of the floor's ore a vein (a rested hand with a plain pick has four
+--     cells or so of the five a face has, taking one face with another); of a gem's vein, both of the two gem's
+--     cells a face can have at their three fragments. It cannot say there is a vein where there is none, a gem
+--     where there is none, a strike more than the go has, or anything of what its pick carries.
 --   · A RESTING FLOOR REACHED (`town_cave_reach`): the floor is the page's word; it counts only while the way down
 --     to it is open today. THE LIFT (`town_lift`): where it is taken from is not asked, as the code does not.
+--   · A TORCH (`town_torch`) wants floor with nothing on it under it, as the code does. A FLOOR BROKEN THROUGH
+--     (`town_drill`): the code asks only which floor the tile said is of; here it has to be a tile that could be
+--     stood on as well, with a free tile beside it.
+--
+-- WHAT AN ANSWER BRINGS BESIDES. Every answer of `town_mine`, and a torch set down or a floor broken through, tells
+-- the cave as it is then for the floor and the tile said (`cave`: what `town_cave` tells), so that a page has what
+-- its own deed changed with no look in between. What is told no floor (`town_vein`, `town_cave_reach`) tells only
+-- the member's own of it (`caveMine`: the lift's stops, the vein open, the rocks loosened, the rock somebody else
+-- broke for them), which a page lays over what it was last told.
 --
 -- THE ORDER ROWS ARE HELD IN (the base's): the place of `town_cave` first; then purses by their ids, the lesser
 -- first (a rock somebody else struck first pays THAT member: theirs and the striker's are both held, in that order,
@@ -223,7 +238,7 @@ begin
 end;
 $$;
 
--- What a pick makes of the chance of a vein: its own gem's share, or 1.
+-- A pick's share of the chance of a vein (the catalog's `pick.gems.dark.veins`), or 1.
 create or replace function town.mine_veins(p_pick jsonb)
 returns double precision language sql stable
 as $$ select town.gem_by(p_pick, 'dark', town.cat('mining')->'pick'->'gems'->'dark'->'veins', 1) $$;
@@ -655,7 +670,7 @@ begin
       deepest := jsonb_build_object('floor', f + 1, 'by', c->'way'->'by', 'name', c->'way'->'name', 'at', c->'way'->'at');
     end if;
   end loop;
-  -- a pick that makes the rocks that hide a vein glint, within its reach of where the member stands
+  -- the rocks that glint for the pick in the hand (the catalog's `pick.gems.light.glint`), by where the member stands
   reach := town.gem_by(pick, 'light', m->'pick'->'gems'->'light'->'glint');
   if reach > 0 and p_floor > 0 and p_x is not null and p_y is not null then
     today_ := town.mine_today(p_word, p_floor, day_, p_rocks, here, case when cfloor = p_floor then crock end);
@@ -776,7 +791,7 @@ declare
 begin
   if holds->>'kind' = 'vein' and kept->'vein' <> 'null'::jsonb then return town.no('vein'); end if;
 
-  -- which rocks break: the one struck; with a quake, every plain rock within a step of the member; and now and
+  -- which rocks break: the one struck; by `pkQuake`, plain rocks about the member; and by the roll of `:chain`, now and
   -- then a neighbour. (Never a rock somebody else has begun: that one is theirs.)
   breaks := jsonb_build_array(jsonb_build_object('rock', p_rock, 'holds', holds));
   if p_quake then
@@ -830,7 +845,7 @@ begin
   stowed := town.stow_all(p_purse, got_);
   if stowed is null then return town.no('full'); end if;
 
-  -- what it costs: a point a go, none while the pick's own count lasts, an earth gem's share less (kept exact over time)
+  -- what it costs: a point a go, by `pkFresh`'s count and `pick.gems.earth.stamina` (a share kept exact over time)
   after_ := stowed;
   fresh_ := case when opts ? 'pkFresh' then town.use_power(after_, pick, 'pkFresh', now_) end;
   if fresh_ is not null and (fresh_->>'ok')::boolean then
@@ -921,7 +936,7 @@ begin
   if jsonb_typeof(p_go->'at') is distinct from 'array'
      or not town.mine_near((p_go->'at'->>0)::numeric, (p_go->'at'->>1)::numeric, (r->>1)::integer, (r->>2)::integer, (m->>'reach')::double precision) then return town.no('far'); end if;
   if town.mine_holds(p_word, floor_, rock_, turn_, p_go->'today', pick)->>'kind' = 'crystal' and town.tool_level(pick) < (m->'crystal'->>'plus')::integer then return town.no('weak'); end if;
-  -- (the one swing of a quake is for a rock nobody else has begun: on somebody else's rock the pick swings as any other)
+  -- (`pkQuake` is for a rock nobody else has begun: on somebody else's rock the pick swings as any other)
   had := town.cave_struck_at(p_go->'cave', rock_, now_);
   own := had is null or had->>'first' = who;
   spent := town.stamina_of(p_purse, now_) <= 0;
@@ -962,7 +977,7 @@ begin
 end;
 $$;
 
--- What a rock holds, for a pick that sees into it (as the code's keeper answers a peek).
+-- A look at a rock, for a pick that has `pkPeek` (as the code's keeper answers a peek).
 create or replace function town.mine_look(p_purse jsonb, p_go jsonb, p_word text)
 returns jsonb language plpgsql stable
 as $$
@@ -1042,7 +1057,7 @@ as $$
     from (select town.cat('mining')->>'torch' as id) k
 $$;
 
--- drill: the floor struck to open the way down oneself: a counted power of the pick in the hand, on a floor whose
+-- drill: the way down opened oneself: `pkDrill`, counted, of the pick in the hand, on a floor whose
 -- way is not open yet.
 create or replace function town.mine_drill(p_purse jsonb, p_floor integer, p_open boolean, p_now bigint)
 returns jsonb language plpgsql stable
@@ -1086,7 +1101,7 @@ $$;
 --     gems          what each gem's cell it passed gives, in fragments: [n, …]
 -- and is believed within what holds of EVERY face (`town.vein_odd`). What is the database's own and never the
 -- page's: that there is a vein, whether it is a gem's and of which element, the strikes a go has and what a knot
--- gives back (all in the purse's `mine.vein`, written when the rock broke), and what the pick adds to a gem's cells.
+-- gives back, and the vein's `more` (all in the purse's `mine.vein`, written when the rock broke).
 
 -- Whether something said is a whole number, none or more.
 create or replace function town.vein_whole(p_v jsonb)
@@ -1179,7 +1194,7 @@ begin
   if chips > 0 and chip is not null then got_ := got_ || jsonb_build_array(jsonb_build_array(chip, chips)); end if;
   stowed := town.stow_all(p_purse, got_);
   if stowed is null then return town.no('full'); end if;
-  -- a twin vein: the same face once more, with the pick now in the hand, so many times a day
+  -- `pkTwin`, counted, of the pick now in the hand: the vein is kept, as its second go
   pick := town.mine_pick(stowed);
   twin := case when not twice and pick is not null then town.use_power(stowed, pick, 'pkTwin', p_now) end;
   after_ := case when coalesce((twin->>'ok')::boolean, false) then twin->'purse' else stowed end;
@@ -1404,7 +1419,7 @@ begin
 end;
 $$;
 
--- What a rock holds, for a pick that sees into it: stone, fragments, or a vein. Nothing is held and nothing changes.
+-- A look at a rock, with a pick that has `pkPeek`: stone, fragments, or a vein. Nothing is held and nothing changes.
 create or replace function public.town_mine_peek(p_floor integer, p_rock integer)
 returns jsonb language plpgsql security definer set search_path = public
 as $$
@@ -1487,7 +1502,7 @@ begin
 end;
 $$;
 
--- Break through the floor beside the tile I stand on (a counted power of the pick): the way down opens there, for
+-- The way down opened beside the tile I stand on (`pkDrill`, counted, of the pick in the hand): it opens there, for
 -- everybody, for the day. The tile I say I stand on has to be one that could be stood on (the code asks only which
 -- floor it is of: the database asks this more), and there has to be a free tile beside it. The floor's row is held,
 -- then my purse.
@@ -1586,3 +1601,28 @@ revoke execute on function public.town_drill(integer, integer) from public, anon
 grant execute on function public.town_drill(integer, integer) to authenticated;
 revoke execute on function public.town_vein(jsonb) from public, anon;
 grant execute on function public.town_vein(jsonb) to authenticated;
+
+-- ─── What the miners' part should say afterwards (for the file's foot, where the parts are put together) ─────────
+--
+--   select p.proname, p.prosecdef as definer, has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as member
+--     from pg_proc p where p.pronamespace = 'public'::regnamespace
+--      and p.proname in ('town_cave', 'town_mine', 'town_mine_peek', 'town_cave_reach', 'town_lift', 'town_torch', 'town_drill', 'town_vein') order by 1;
+--   -- town_cave       | true | false | true
+--   -- town_cave_reach | true | false | true
+--   -- town_drill      | true | false | true
+--   -- town_lift       | true | false | true
+--   -- town_mine       | true | false | true
+--   -- town_mine_peek  | true | false | true
+--   -- town_torch      | true | false | true
+--   -- town_vein       | true | false | true
+--
+--   select town.deed_th('mine') as a_word, town.deed_th('vein_odd') as another,
+--          town.work_counts_of('{"from": "deed", "what": "delve", "thing": null, "n": 1, "doc": {}}'::jsonb, 'me') as a_way_counts,
+--          town.mine_hardness(1, 0) as a_rock, town.cave_is_rest(10) as a_rest, town.mine_ore(25) as deep_ore,
+--          town.vein_odd('{"gem": null, "mods": {"strikes": 6, "back": 0}}'::jsonb, '{"strikes": [[0, 0]], "struck": 1, "of": 7, "ore": 1, "gems": []}'::jsonb) as a_face_of_seven;
+--   -- ทุบหิน | สายแร่ที่เล่าผลมาไม่ตรงกติกา | [{"to": null, "raw": 5, "line": "mining"}] | 12 | true | shardSilver | of
+--
+--   -- (what is kept of the cave: no row on the first run; later, a row a place somebody has struck a rock of)
+--   select place, doc->'day' as day, doc->'way' as way, jsonb_array_length(doc->'broken'->'ids') as broken from public.town_cave order by place;
+--
+--   -- (in the SQL editor nobody is signed in: `select public.town_cave();` is refused there, as it is to a browser signed out)

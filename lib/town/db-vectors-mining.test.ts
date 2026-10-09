@@ -253,7 +253,7 @@ function goOf(sc: Scene, s: CaveState, how: { rock?: number; at: [number, number
     said: { now: sc.now, floor: sc.f, rock, at: how.at, swings: how.swings, who: how.who, name, rocks: laidOf(sc.rocks), cave: placeOf(s, sc.f, sc.now, sc.crystal?.floor ?? null), crystal: here, day: sc.day, today, element, points, quake },
   };
 }
-/** What a pick that sees into stone is told of a rock, as the trial's keeper answers (lib/town/trial's minePeek). */
+/** A look at a rock, as the trial's keeper answers one (lib/town/trial's minePeek). */
 function lookOf(p: Purse, go: MineGo): { ok: true; peek: string } | { ok: false; why: string } {
   const pick = pickOf(p);
   if (!pick || !has(pick, "pkPeek")) return { ok: false, why: "tool" };
@@ -506,7 +506,7 @@ export function vectorsMining(): Vector[] {
     const { go, said } = goOf(sc, s, { rock: c.maybe(0.03) ? 999 : sc.rock.id, at: [sc.rock.x + 1, sc.rock.y], swings: 1, who, quake: c.maybe(0.2) });
     add("pay_first", [first, said, whole, sc.word], shown(payFirst(first, go, whole)));
   }
-  // what a pick that sees into stone is told
+  // a look at a rock, with a pick that has pkPeek and with one that has not
   for (let i = 0; i < 400; i++) {
     const pick = c.maybe(0.08) ? null : pickAt(c, c.of([0, 3, 6, 10]), c.maybe(0.3) ? "dark" : null, c.maybe(0.8) ? ["pkPeek"] : ["pkCrumb", "pkLoose"]);
     const fate = c.of<Fate>(["any", "any", "shards", "way", "vein", "crystal"]), sc = sceneOf(c, fate, pick, (fate === "any" || fate === "shards") && c.maybe(0.25));
@@ -589,6 +589,8 @@ export function vectorsMining(): Vector[] {
     const said = c.maybe(0.5) ? honest : c.of<() => unknown>([
       () => ({ ...honest, strikes: Array.from({ length: mods.strikes }, (_, k) => [k % VEIN.size, 0]), struck: mods.strikes, of: VEIN.points[1], ore: VEIN.points[1] - (gem ? Math.max(1, honest.gems.length) : 0) }),
       () => ({ ...honest, of: c.of([3, 7, 6, 4, 5]) }), () => ({ ...honest, ore: honest.ore + c.int(1, 3) }), () => ({ ...honest, struck: honest.struck + c.int(1, 4) }),
+      // (strikes enough were made, and more are said to have counted than a go has: its own, and what a knot may give back)
+      () => ({ ...honest, strikes: Array.from({ length: 20 }, (_, k) => [k % VEIN.size, 2]), struck: mods.strikes + mods.back + c.of([0, 1, 1, 3]) }),
       () => ({ ...honest, gems: [...honest.gems, c.int(1, 4)] }), () => ({ ...honest, strikes: Array.from({ length: 6 }, (_, k) => [k, 1]), struck: Math.min(6, mods.strikes), gems: [3, 3], ore: 4, of: 6 }), () => ({ ...honest, gems: [3, 3, 3] }),
       () => ({ ...honest, gems: [c.of([0, 4, 1.5, -1])] }), () => ({ ...honest, struck: 1, ore: 3 }), () => ({ ...honest, strikes: [...honest.strikes, c.of<unknown>([[6, 1], [1, -1], [1.5, 2], [1], "x", null])] }),
       () => ({ ...honest, strikes: Array.from({ length: 70 }, () => [1, 1]) }), () => ({ ...honest, strikes: c.of<unknown>([null, "none", 5]) }),
@@ -603,6 +605,23 @@ export function vectorsMining(): Vector[] {
     } as Purse;
     add("vein_odd", [vein, [said ?? null]], oddOf(vein, said));
     add("vein_end", [p, [said ?? null], now], veinFrom(p, said, now));
+  }
+  // (a go of very few strikes, with some given back: no pick there is has so few, but the rule is the rule. Where a
+  // strike given back runs one cell fewer than another is seen only here)
+  for (let i = 0; i < 240; i++) {
+    const mods = { strikes: c.of([1, 1, 2]), back: c.of([0, 1, 2, 4]), cross: 0, spent: false }, vein: PendingVein = { f: 2, rock: 1, turn: 9, seed: 77, gem: null, mods, more: 0 };
+    const said = { seed: 77, again: false, strikes: Array.from({ length: 12 }, (_, k) => [k % VEIN.size, 3]), struck: c.int(0, mods.strikes + mods.back + 1), of: c.of([4, 5, 6]), ore: c.int(0, 6), gems: [] };
+    add("vein_odd", [vein, [said]], oddOf(vein, said));
+  }
+  // (and the edges said out, whatever the chance above came to: every cell of a face passed as ore, a cell fewer and
+  // two fewer, with no gem's cell, one and two, on a vein that is no gem's and on veins that are, which have a cell
+  // at least that is no ore; and one strike more than a go has)
+  for (const gem of [null, "fire", "dark"] as Array<Element | null>) for (const cells of [4, 5, 6]) for (const cut of [[], [1], [2, 3]] as number[][]) for (const less of [0, 1, 2]) for (const more of [0, 1]) {
+    const mods = { strikes: 6, back: 1, cross: 0, spent: false }, vein: PendingVein = { f: 12, rock: 4, turn: 9, seed: 99, gem, mods, more: gem ? 1 : 0 };
+    const said = { seed: 99, again: false, strikes: Array.from({ length: 9 }, (_, k) => [k % VEIN.size, 4]), struck: mods.strikes + mods.back + more, of: cells, ore: cells - less, gems: cut };
+    const p = purseWith([{ item: "pick", n: 1 }], { hand: "pick", mine: { owed: 0, crumb: 0, loose: { k: "", ids: [] }, vein, rests: [], last: 0, paid: null } } as Partial<Purse>);
+    add("vein_odd", [vein, [said]], oddOf(vein, said));
+    add("vein_end", [p, [said], NOWS[0]], veinFrom(p, said, NOWS[0]));
   }
 
   /* ── the line: what a deed of the miners' counts for (lib/town/line-points) ── */

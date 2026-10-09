@@ -16,9 +16,9 @@ import { VEIN, faceOf, play, type Cell } from "./vein";
  * lib/town/mining's `veinEnd` with the account in the face's place). An account of an honest page is never odd, and
  * comes to what the trial gives to the last fragment: lib/town/vein-account.test.ts holds the two to each other.
  *
- * Whether there is a vein, whether it is a gem's and of which, the strikes a go has, what a knot gives back, what a
- * pick adds to a gem's cells: those are the keeper's (the `PendingVein` in the purse, which striking the rock wrote),
- * never the page's.
+ * Whether there is a vein, whether it is a gem's and of which, the strikes a go has, what a knot gives back and the
+ * vein's `more`: those are the keeper's (the `PendingVein` in the purse, which striking the rock wrote), never the
+ * page's.
  *
  * Pure, like the rest.
  */
@@ -101,7 +101,7 @@ export function veinFrom(purse: Purse, said: unknown, now: number): VeinDone | {
   const got: Array<[ItemId, number]> = [...(shards ? [[oreOf(vein.f), shards] as [ItemId, number]] : []), ...(chips && chip ? [[chip, chips] as [ItemId, number]] : [])];
   const stowed = stowAll(purse, got);
   if (!stowed) return { ok: false, why: "full" };
-  // a twin vein: the same face once more, with the pick now in the hand, so many times a day
+  // (lib/town/mining's veinEnd, to the letter: `pkTwin`, counted, of the pick now in the hand)
   const pick = pickOf(stowed), twin = !vein.again && pick ? usePower(stowed, pick, "pkTwin", now) : null;
   const after: Purse = twin?.ok ? twin.purse : stowed;
   return {

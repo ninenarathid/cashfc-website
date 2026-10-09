@@ -265,6 +265,23 @@ export default async function (ctx) {
   const handed = async (who, more = {}) => patch(who, { hand: "pick", handAt: 0, stamina: { day: dayOf(NOW), left: 100 }, bag: bag(PICK), ...more });
   const swingsOf = async (who, floor) => { const p = await purseNow(who); return M.swingsFor(M.pickOf(p), floor, false, false, await pointsOf(who)); };
 
+  t.section("what the miners' part should say afterwards (the queries at its foot)");
+  const PUBLIC = ["town_cave", "town_cave_reach", "town_drill", "town_lift", "town_mine", "town_mine_peek", "town_torch", "town_vein"];
+  const foot = {
+    fns: (await t.sql(`select p.proname, p.prosecdef as definer, has_function_privilege('anon', p.oid, 'execute') as anon, has_function_privilege('authenticated', p.oid, 'execute') as member
+      from pg_proc p where p.pronamespace = 'public'::regnamespace and p.proname = any($1) order by 1`, [PUBLIC])).rows,
+    said: await one(`select town.deed_th('mine') as a_word, town.deed_th('vein_odd') as another,
+      town.work_counts_of('{"from": "deed", "what": "delve", "thing": null, "n": 1, "doc": {}}'::jsonb, 'me') as a_way_counts,
+      town.mine_hardness(1, 0) as a_rock, town.cave_is_rest(10) as a_rest, town.mine_ore(25) as deep_ore,
+      town.vein_odd('{"gem": null, "mods": {"strikes": 6, "back": 0}}'::jsonb, '{"strikes": [[0, 0]], "struck": 1, "of": 7, "ore": 1, "gems": []}'::jsonb) as a_face_of_seven`),
+    kept: (await t.sql(`select place, doc->'day' as day, doc->'way' as way, jsonb_array_length(doc->'broken'->'ids') as broken from public.town_cave order by place`)).rows,
+    editor: await t.as("super", `select public.town_cave()`),
+  };
+  t.check("the eight functions a member calls: definer, not for the signed out, for the signed in", same(foot.fns, PUBLIC.map((proname) => ({ proname, definer: true, anon: false, member: true }))) && same(GATED.map(([fn]) => fn).sort(), PUBLIC), foot.fns);
+  t.check("a deed's word, a way down's count, a rock's hardness, a resting floor, the deep ore, and a face of seven refused", same(foot.said, { a_word: "ทุบหิน", another: "สายแร่ที่เล่าผลมาไม่ตรงกติกา", a_way_counts: [{ to: null, raw: 5, line: "mining" }],
+    a_rock: 12, a_rest: true, deep_ore: "shardSilver", a_face_of_seven: "of" }), foot.said);
+  t.check("nothing is kept of the cave before anybody has struck a rock; and nobody is signed in in the editor, where the cave is not told", same(foot.kept, []) && no(foot.editor), [foot.kept, foot.editor?.code ?? foot.editor]);
+
   t.section("the gate: built closed, opened by its knob");
   for (const [who, name] of [["anon", "somebody signed out"], [U.nochar, "a member with no character"], [U.unver, "a member whose character was never proved"], [U.m1, "a proved member, while it is closed"]]) {
     const did = await gate(who);
@@ -313,9 +330,10 @@ export default async function (ctx) {
   let x = await strike(U.m1, 0, spot.rock.id, spot.at, 2);
   t.check("two swings of a plain pick go into a rock of the foot, which still stands: half of it struck away, in my name, and the purse remembers only the moment", x.agrees && need === 4 && x.a.part === 0.5 && x.a.broke.length === 0 && x.a.whose === null
     && same(x.a.cave.struck[String(spot.rock.id)], { part: 0.5, own: 0.5, by: NAME[U.m1], mine: true }) && x.a.purse.mine.last === NOW && x.a.purse.stamina.left === 100, x.off);
+  await tick(K.swing.least);
   x = await strike(U.m1, 0, spot.rock.id, spot.at, 2);
-  t.check("two more at once are quicker than a hand swings: `soon`, and nothing is counted", x.agrees && x.a.why === "soon" && x.a.cave.struck[String(spot.rock.id)].part === 0.5, x.off.length ? x.off : x.a);
-  await tick(2 * K.swing.least);
+  t.check("two more, one swing's time later, are quicker than a hand swings: `soon`, and nothing is counted", x.agrees && x.a.why === "soon" && x.a.cave.struck[String(spot.rock.id)].part === 0.5, x.off.length ? x.off : x.a);
+  await tick(K.swing.least);
   const footHolds = M.holdsOf(WORD, 0, spot.rock.id, M.turnOf(NOW), { way: null, crystal: null }, PICK), pointsWas = await pointsOf(U.m1);
   x = await strike(U.m1, 0, spot.rock.id, spot.at, 2);
   t.check("a hand's time later they strike the last of it away: it breaks, a stone (and the fragments it held) in the bag for a point of stamina, and it is gone for everybody", x.agrees && x.a.ok && same(x.a.broke, [spot.rock.id]) && x.a.part === 1
@@ -339,6 +357,8 @@ export default async function (ctx) {
   t.section("two picks on one rock: what it leaves is for whoever struck it first");
   await clock(NOW + 60_000);
   await miner(U.m1); await miner(U.m2);
+  // (the two purses are told apart: whoever is paid, it shows which)
+  await patch(U.m2, { coins: 77, stamina: { day: dayOf(NOW), left: 60 } });
   s = await stateNow();
   spot = find(1, PICK, plain, s);
   need = await swingsOf(U.m1, 1);
@@ -353,8 +373,8 @@ export default async function (ctx) {
   x = await strike(U.m2, 1, spot.rock.id, spot.at, need);
   let p1 = await purseNow(U.m1), p2 = await purseNow(U.m2);
   t.check("the second strikes the last of it away: it breaks, and the FIRST is paid (the stone, the stamina, and told who broke it for them); the second has nothing of it and lent a hand", x.agrees && x.a.ok && x.a.helped === true && x.a.paid === U.m1 && x.a.whose === NAME[U.m1]
-    && same(x.a.got, []) && same(x.a.broke, [spot.rock.id]) && x.a.cost === 0 && p2.stamina.left === 100 && !p2.bag.some((b) => b?.item === "stone")
-    && p1.bag.some((b) => b?.item === "stone" && b.n === 1) && p1.stamina.left === 99 && p1.mine.paid?.by === NAME[U.m2] && p1.mine.paid.rock === spot.rock.id && same(p1.mine.paid.got[0], ["stone", 1]), x.off.length ? x.off : [x.a, p1.mine]);
+    && same(x.a.got, []) && same(x.a.broke, [spot.rock.id]) && x.a.cost === 0 && p2.stamina.left === 60 && p2.coins === 77 && !p2.bag.some((b) => b?.item === "stone")
+    && p1.bag.some((b) => b?.item === "stone" && b.n === 1) && p1.stamina.left === 99 && p1.coins === 50 && p1.mine.paid?.by === NAME[U.m2] && p1.mine.paid.rock === spot.rock.id && same(p1.mine.paid.got[0], ["stone", 1]), x.off.length ? x.off : [x.a, p1.mine]);
   let ds = await deedsSince((await lastDeed()) - 2);
   t.check("…written down: the rock in the first's name, with who broke it and who helped; and a hand lent, in the helper's name", same(ds.map((d) => [d.member_id, d.what, d.doc.by ?? null, d.doc.with ?? null, d.doc.whose ?? null]), [[U.m1, "mine", U.m2, [U.m2], null], [U.m2, "hew", null, null, U.m1]]), ds);
   t.check("…and counted: the rock's point to the first (with a first fragment's, if it left one); a point on the miners' line and one on the helpers' to the second",
@@ -389,7 +409,7 @@ export default async function (ctx) {
   t.check("the tile where it stood may be stood on now: a rock beside it is struck from there… if one is near enough; and the other member is told of the way as it is", same((await call(U.m2, "town_cave", 1, null, null)).cave.ways, x.a.cave.ways)
     && (await one(`select town.mine_stood(1, $1, $2, town.cave_laid($3, 1), town.cave_laid($3, 1)->'rocks', town.cave_at((select doc from public.town_cave where place = 1), town.now_ms()), town.now_ms(), null) as ok`, [way.rock.x, way.rock.y, today])).ok === true);
 
-  t.section("a vein opened; the crystal rock; a bag with no room; what a keen pick does");
+  t.section("a vein opened; the crystal rock; a bag with no room; a look, and a go with `quake`");
   await tick(5000);
   await miner(U.m1);
   s = await stateNow();
@@ -434,18 +454,18 @@ export default async function (ctx) {
   t.check("with the miners' sack it is: the stone goes into the sack, the bag as full as it was", x.agrees && x.a.ok && same(x.a.broke, [full.rock.id]) && same(x.a.purse.pouches.thingSack[0], { item: "stone", n: 1 })
     && x.a.purse.bag.filter((b) => b?.item === "boot").length === 9, x.off.length ? x.off : x.a);
   await give(U.m1, { had: [] });
-  // a pick that sees into stone, and one swing for every rock within a step
+  // a look with a pick that has pkPeek, and a go asked with `quake` by one that has pkQuake
   await tick(5000);
   await miner(U.m1, BEST);
   s = await stateNow();
   const seen = find(2, BEST, () => true, s), peek = await call(U.m1, "town_mine_peek", 2, seen.rock.id);
-  t.check("a pick that sees into stone is told what a rock holds, as the code would tell it: and nothing is held, kept or written down by looking", peek?.ok === true
+  t.check("a look (town_mine_peek) with a pick that has pkPeek is answered as the code answers it: and nothing is held, kept or written down by looking", peek?.ok === true
     && peek.peek === M.peekOf(M.holdsOf(WORD, 2, seen.rock.id, M.turnOf(NOW), todayAt(2, s, crystal), BEST)) && same(await placeNow(2), placeOf(s, 2, NOW, crystal.floor)), peek);
   const peeks = [await call(U.m1, "town_mine_peek", 2, 9999), await call(U.m1, "town_mine_peek", 2, full.rock.id), await call(U.m1, "town_mine_peek", 44, 0)];
   await miner(U.m2);
   peeks.push(await call(U.m2, "town_mine_peek", 2, seen.rock.id));
-  t.check("…none of a rock that is none or a place that is none, gone of one broken, and nothing to a pick that cannot see", same(peeks.map((y) => y?.why), ["none", "gone", "none", "tool"]), peeks);
-  // (two rocks a tile apart with a tile between them: a quake from there breaks both, if both are plain)
+  t.check("…none of a rock that is none or a place that is none, gone of one broken, and `tool` to a pick without pkPeek", same(peeks.map((y) => y?.why), ["none", "gone", "none", "tool"]), peeks);
+  // (two plain rocks a tile apart with a tile between them, for the go asked with `quake`)
   let pair = null;
   for (let f = 1; f <= K.floors && !pair; f++) {
     if (!M.isDug(f)) continue;
@@ -458,10 +478,10 @@ export default async function (ctx) {
     }
   }
   x = await strike(U.m1, pair.f, pair.a.id, pair.mid, 1, "quake");
-  t.check("a quake: one swing, and every plain rock within a step of the striker breaks with the one struck; counted once of the day's ten", !!pair && x.agrees && x.a.ok && x.a.broke.length >= 2 && x.a.broke.includes(pair.a.id) && x.a.broke.includes(pair.b.id)
+  t.check("a go asked with `quake`, by a pick that has pkQuake, from between two plain rocks: answered as the code answers it (both are among what broke), and counted once in the purse (powers.pkQuake)", !!pair && x.agrees && x.a.ok && x.a.broke.length >= 2 && x.a.broke.includes(pair.a.id) && x.a.broke.includes(pair.b.id)
     && same(x.a.purse.powers.pkQuake, { k: today, n: 1 }) && x.a.got.find((g) => g[0] === "stone")[1] === x.a.broke.length && x.a.cost === 1, x.off.length ? x.off : x.a);
   ds = await deedsSince((await lastDeed()) - x.a.broke.length);
-  t.check("…each rock written down, each as a quake's", ds.length === x.a.broke.length && ds.every((d) => d.what === "mine" && d.doc.how === "quake" && d.member_id === U.m1), ds);
+  t.check("…each rock that broke written down, each with `how: quake`", ds.length === x.a.broke.length && ds.every((d) => d.what === "mine" && d.doc.how === "quake" && d.member_id === U.m1), ds);
 
   t.section("a floor broken through; a resting floor reached; the lift");
   const DRILL = { item: "pick", n: 1, plus: 10, opts: ["pkPeek", "pkLoose", "pkDrill"] };
@@ -473,7 +493,7 @@ export default async function (ctx) {
   t.check("the lift goes to the mouth for anybody, and to no floor that was not reached", rides.every((y) => y.agrees) && rides[0].a.why === "none" && rides[1].a.ok === true && rides[1].a.at === null, rides.map((y) => (y.off.length ? y.off : y.a)));
   const arrive9 = laidOn(9, today).arrive, delveWas = await pointsOf(U.m1);
   x = await drill(U.m1, arrive9);
-  t.check("a pick that breaks through the floor opens the way down beside its holder, for everybody: on the ninth floor, from where one comes down into it; counted once of the day's three; and the tenth floor is the deepest reached", x.agrees && x.a.ok === true && x.a.left === 2
+  t.check("town_drill with a pick that has pkDrill, on the ninth floor, from where one comes down into it: the way down is open on the free tile beside, for everybody; counted once in the purse (powers.pkDrill); and the tenth floor is the deepest reached", x.agrees && x.a.ok === true && x.a.left === 2
     && same(x.a.cave.ways["9"], { x: x.a.at[0], y: x.a.at[1], rock: null, name: NAME[U.m1] }) && same(x.a.cave.deepest, { floor: 10, by: U.m1, name: NAME[U.m1], at: NOW }) && same(x.a.purse.powers.pkDrill, { k: today, n: 1 }), x.off.length ? x.off : x.a);
   ds = await deedsSince((await lastDeed()) - 1);
   t.check("…written down as a way down found, by the pick, with the tile it opened on; and counted as one", same(ds.map((d) => [d.member_id, d.what, d.doc.floor, d.doc.how, d.doc.tile]), [[U.m1, "delve", 9, "drill", x.a.at]]) && (await pointsOf(U.m1)) > delveWas, ds);
@@ -487,7 +507,7 @@ export default async function (ctx) {
   t.check("where the way is open already: open; on a resting floor: none; with a pick that cannot: tool; off the cave: none; from a tile in the rock: here. Nothing changes by any of it", drills.every((y) => y.agrees)
     && same(drills.map((y) => y.a.why), ["open", "none", "tool", "none", "here"]), drills.map((y) => (y.off.length ? y.off : y.a.why)));
   const more = [await drill(U.m1, laidOn(8, today).arrive), await drill(U.m1, laidOn(7, today).arrive), await drill(U.m1, laidOn(6, today).arrive)];
-  t.check("the pick breaks through three floors a day and no more: the fourth is `spent`", more.every((y) => y.agrees) && same(more.map((y) => y.a.left ?? y.a.why), [1, 0, "spent"]) && same(Object.keys(more[2].a.purse.powers), ["pkDrill"]), more.map((y) => (y.off.length ? y.off : y.a)));
+  t.check("pkDrill is counted by the day, as the catalog says: once its count is used up the answer is `spent`", more.every((y) => y.agrees) && same(more.map((y) => y.a.left ?? y.a.why), [1, 0, "spent"]) && same(Object.keys(more[2].a.purse.powers), ["pkDrill"]), more.map((y) => (y.off.length ? y.off : y.a)));
   const reaches = [await reach(U.m1, 10), await reach(U.m1, 10), await reach(U.m2, 10), await reach(U.m1, 9), await reach(U.m1, 20), await reach(U.m1, 40), await reach(U.m1, null)];
   t.check("with the ninth floor's way open, the tenth is a stop of the lift for whoever comes to it: once; not a floor that is no resting floor, not one whose way is shut, not one there is none of", reaches.every((y) => y.agrees)
     && same(reaches.map((y) => y.a.reached), [true, false, true, false, false, false, false]) && same(reaches[0].a.caveMine.rests, [10]) && same((await purseNow(U.m2)).mine.rests, [10]) && same((await call(U.m1, "town_cave", 0, null, null)).cave.rests, [10]),
@@ -580,14 +600,15 @@ export default async function (ctx) {
   const logged = await call(U.m1, "town_try", "mining", "vein", "ore", "done", false, x.a.of, x.a.passed, 0, 12.5);
   t.check("the go at the board is taken by the log of every go (v166's `town_try`), as the page sends it: the game `mining`, the board `vein`", logged === true
     && same(await one(`select game, board, what, how, need, hits from public.town_tries where member_id = $1 order by at desc limit 1`, [U.m1]), { game: "mining", board: "vein", what: "ore", how: "done", need: x.a.of, hits: x.a.passed }), logged);
-  // a gem's vein, with a pick that cuts a fragment more and has two strikes more
+  // a gem's vein, opened with a pick that has pkCutter and pkSteady
   const CUT = { item: "pick", n: 1, plus: 6, opts: ["pkCutter", "pkSteady"] };
-  const v2 = await openVein(U.m1, CUT, true), face2 = V.faceOf(v2.vein.seed, true), best2 = V.bestRoute(face2, v2.vein.mods), chip2 = TOOLS.GEMS[v2.vein.gem]?.chip;
-  const cut2 = best2.got.map((i) => face2.points[i].gem).filter((n) => n > 0), ore2 = best2.got.length - cut2.length;
+  // (the go played is the one that passes the most of the gem's cells: so that the gem's share is in the scene, whatever the face)
+  const v2 = await openVein(U.m1, CUT, true), face2 = V.faceOf(v2.vein.seed, true), chip2 = TOOLS.GEMS[v2.vein.gem]?.chip;
+  const best2 = { strikes: V.bestRoute({ ...face2, points: face2.points.filter((p) => p.gem > 0) }, v2.vein.mods).strikes }, said2 = VA.accountOf(v2.vein, best2.strikes), cut2 = said2.gems, ore2 = said2.ore;
   x = await playVein(U.m1, best2.strikes);
-  t.check("a gem's vein: of the floor's element of the day and with the pick's fragment more, both by the database's own reckoning when the rock broke; the gem's cells passed give their fragments (and the one more), the others ore",
+  t.check("a gem's vein: of the floor's element of the day, with the vein's `more` and its strikes by the database's own reckoning when the rock broke (pkCutter, pkSteady); the gem's cells passed give their fragments and the vein's `more`, the others ore",
     v2.x.agrees && v2.vein.gem === M.elementOf(WORD, v2.floor, today) && v2.vein.more === 1 && v2.vein.mods.strikes === K.pick.strikes[6] + K.pick.opts.pkSteady.n.strikes && x.agrees && x.a.ok === true
-    && same(x.a.got, [...(ore2 ? [[M.oreOf(v2.floor), ore2 * K.vein.ore]] : []), ...(cut2.length ? [[chip2, cut2.reduce((a, b) => a + b, 0) + 1]] : [])]), [v2.x.off, x.off.length ? x.off : x.a, v2.vein]);
+    && cut2.length >= 1 && same(x.a.got, [...(ore2 ? [[M.oreOf(v2.floor), ore2 * K.vein.ore]] : []), [chip2, cut2.reduce((a, b) => a + b, 0) + 1]]), [v2.x.off, x.off.length ? x.off : x.a, v2.vein, said2]);
   ds = await deedsSince((await lastDeed()) - 1);
   t.check("…written down as a gem's vein, with the gem's cells that were said", ds[0].what === "vein" && ds[0].doc.gem === v2.vein.gem && same(ds[0].doc.said.gems, cut2) && (cut2.length ? ds[0].doc.chip === chip2 : ds[0].doc.chip === undefined), ds);
 
@@ -627,7 +648,7 @@ export default async function (ctx) {
   const v5 = await openVein(U.m1, TWIN, false), best5 = V.bestRoute(V.faceOf(v5.vein.seed, false), v5.vein.mods);
   x = await playVein(U.m1, best5.strikes);
   const after5 = await pointsOf(U.m1);
-  t.check("a pick with a twin vein in it: the same face is to be played once more, counted once of the day's five", x.agrees && x.a.ok === true && x.a.again === true && same(x.a.caveMine.vein, { ...v5.vein, again: true })
+  t.check("a vein played with a pick that has pkTwin: the answer says `again`, the vein is kept as its second go, and it is counted once in the purse (powers.pkTwin)", x.agrees && x.a.ok === true && x.a.again === true && same(x.a.caveMine.vein, { ...v5.vein, again: true })
     && same((await purseNow(U.m1)).powers.pkTwin, { k: today, n: 1 }), x.off.length ? x.off : x.a);
   x = await playVein(U.m1, best5.strikes);
   ds = await deedsSince((await lastDeed()) - 1);
@@ -642,4 +663,23 @@ export default async function (ctx) {
   x = await playVein(U.m2, best6.strikes);
   ds = await deedsSince((await lastDeed()) - 1);
   t.check("with room made it is: and written down as a go played with no stamina", x.agrees && x.a.ok === true && x.a.passed === best6.passed && ds[0].what === "vein" && ds[0].doc.spent === true, x.off.length ? x.off : x.a);
+
+  t.section("the file run once more, over what has been done since");
+  // (the far side is open, a day and its morrow are laid, rocks are broken on many floors, ways were opened, veins played, purses hold stone)
+  const v7 = await openVein(U.m1, PICK, false);
+  const kept = async () => ({ caves: await caves(), p1: await purseNow(U.m1), p2: await purseNow(U.m2), deeds: await written(), far: (await one(`select value from public.town_knobs where key = 'far_open'`)).value,
+    days: (await one(`select count(*)::int as n from public.town_cave_days`)).n, word: (await one(`select town.mine_word() as w`)).w,
+    work: (await t.sql(`select member_id, line, kept from public.town_work order by 1, 2`)).rows, told: (await call(U.m1, "town_cave", 1, null, null)).cave });
+  const was7 = await kept();
+  let ran = null;
+  try { await t.sql(sql); } catch (e) { ran = e.message; }
+  const now7 = await kept();
+  t.check("it runs, and changes nothing: the cave's places, both purses (a vein open among them), the deeds, the lines, the days laid, the rocks' word, the far side open, and what a member is told", ran === null && same(now7, was7) && was7.caves.length >= 8 && was7.far === 1
+    && was7.p1.mine.vein?.seed === v7.vein.seed, { ran, differ: Object.keys(was7).filter((k) => !same(was7[k], now7[k])) });
+  x = await playVein(U.m1, V.bestRoute(V.faceOf(v7.vein.seed, false), v7.vein.mods).strikes);
+  await tick(5000);
+  s = await stateNow();
+  spot = find(2, PICK, plain, s);
+  const after7 = await strike(U.m1, 2, spot.rock.id, spot.at, 200);
+  t.check("…and the game goes on over it: the vein that was open is played out, and a rock is broken", x.agrees && x.a.ok === true && after7.agrees && after7.a.ok === true && after7.a.broke.includes(spot.rock.id), [x.off, after7.off]);
 }
