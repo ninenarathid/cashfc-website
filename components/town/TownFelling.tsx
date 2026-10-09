@@ -319,11 +319,14 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     }
   }
 
-  // The arrow keys chop (and A, D); Escape is the board's way out. Heard before the town hears them.
+  // The arrow keys chop, and A and D: by where the key is on the keyboard, not by the letter it types (on a Thai layout
+  // A types ฟ and D types ก, and the two did nothing: the owner, 2026-10-09). Escape is the board's way out. Heard before
+  // the town hears them.
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); stop(); return; }
-      const side: Side | 0 = e.key === "ArrowLeft" || e.key === "a" || e.key === "A" ? -1 : e.key === "ArrowRight" || e.key === "d" || e.key === "D" ? 1 : 0;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      const side: Side | 0 = e.key === "ArrowLeft" || e.code === "ArrowLeft" || e.code === "KeyA" ? -1 : e.key === "ArrowRight" || e.code === "ArrowRight" || e.code === "KeyD" ? 1 : 0;
       if (!side) return;
       e.preventDefault();
       e.stopPropagation();
@@ -436,7 +439,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
         )}
         {(banner || ready) && (
           <p className="pointer-events-none absolute inset-x-3 top-[4.25rem] mx-auto w-fit max-w-full rounded-md border-2 border-[#2a190d] bg-[#3a2513]/95 px-3 py-1 text-center text-read font-semibold text-[#ffeccb]" aria-live="polite" data-felling-banner={banner ? "" : "ready"}>
-            {banner ?? (th ? "กด ← หรือ → เพื่อเริ่มฟัน" : "Press ← or → to begin")}
+            {banner ?? (th ? "กด ← → หรือ A D เพื่อเริ่มฟัน" : "Press ← → or A D to begin")}
           </p>
         )}
       </div>
