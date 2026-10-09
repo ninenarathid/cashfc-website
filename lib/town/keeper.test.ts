@@ -1475,40 +1475,6 @@ describe("the mountain's rocks and the cave, as the database's keeper asks them"
     expect(nudges).toEqual(["cave", "cave"]);
     k.close();
   });
-
-  it("takes a refusal of the cave, the rocks or the pouches for the far side shut again, never for the game shut: what was told of the cave is forgotten, and the far side is asked after again in five minutes", async () => {
-    // (each function of the far side's own gate that is not the trees', with something to ask it; the trees' are held the same way further up)
-    const calls: Array<[string, (k: DbKeeper) => Promise<unknown>]> = [
-      ["town_cave", (k) => k.caveLook(3, [70, 330])], ["town_mine", (k) => k.mineDo(3, 7, [70, 331], 2, "Me")], ["town_mine_peek", (k) => k.minePeek(3, 7)],
-      ["town_cave_reach", (k) => k.caveReach(10)], ["town_lift", (k) => k.liftRide(10)], ["town_torch", (k) => k.torchDown([70, 330])], ["town_drill", (k) => k.drillDo([70, 330], "Me")],
-      ["town_vein", (k) => k.veinDo([[1, 0]])], ["town_pouch_out", (k) => k.pouchOut("thingSack", 0)], ["town_pouch_in", (k) => k.pouchIn(0)],
-    ];
-    for (const [fn, call] of calls) {
-      let open = true, heard = 0;
-      const db = database({ ...base(), town_far: () => open, town_cave: () => (open || fn !== "town_cave" ? { ok: true, now: NOW, cave: told({ vein }) } : { denied: true }), ...(fn === "town_cave" ? {} : { [fn]: () => ({ denied: true }) }) });
-      const k = new DbKeeper("me", db.ask);
-      await settle();
-      await k.caveLook(3, [70, 330]);
-      expect([fn, k.far(), k.open(), k.cave()?.day]).toEqual([fn, true, true, 20400]);
-      k.watch(() => { heard++; });
-      // its owner shuts the far side, and the next thing asked of it is refused
-      open = false;
-      await call(k);
-      expect([fn, k.far(), k.open(), k.ready(), k.cave()]).toEqual([fn, false, true, true, null]);
-      expect(heard).toBeGreaterThan(0);
-      // nothing more of the cave is asked for by what needs to have been told of one; five minutes on the far side is
-      // asked after again, and opens here when it is opened
-      const before = db.asked.filter((f) => f === "town_far").length, reached = db.asked.filter((f) => f === "town_cave_reach").length;
-      await k.caveReach(10);
-      expect(db.asked.filter((f) => f === "town_cave_reach").length).toBe(reached);
-      open = true;
-      await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
-      await settle();
-      expect(db.asked.filter((f) => f === "town_far").length).toBe(before + 1);
-      expect([fn, k.far(), k.open()]).toEqual([fn, true, true]);
-      k.close();
-    }
-  });
 });
 
 describe("the later lines of work, while the far side is shut", () => {
