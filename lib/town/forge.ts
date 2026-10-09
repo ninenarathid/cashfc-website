@@ -142,6 +142,12 @@ export type SmithRefusal =
   | "playing"  // a game is being played with one of the two
   | "running"  // a power of one of the two is going on now (lib/town/powers' `running`)
   | "foreign"  // the forging sits in a kind of tool of another pool than its own: it is moved back before it is forged further or drawn for again
+  // ── the great fire (lib/town/great-fire) ──
+  | "fire"     // the village has no great fire lit now
+  | "row"      // not in the row for it
+  | "turn"     // somebody else's turn comes first
+  | "topped"   // has taken the top before: the row is for those who have not
+  | "level"    // no tool one level under the top
   | "away";    // the town's books could not be reached
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: SmithRefusal };
 const no = (why: SmithRefusal): { ok: false; why: SmithRefusal } => ({ ok: false, why });

@@ -68,6 +68,12 @@ const WHY: Record<SmithRefusal, [th: string, en: string]> = {
   playing: ["กำลังเล่นมินิเกมอยู่ เล่นให้จบก่อน", "A game is being played: finish it first"],
   running: ["พลังของเครื่องมือกำลังทำงานอยู่ รอให้หมดเวลาก่อน", "A power of the tool is running: wait until it is over"],
   foreign: ["บวกชุดนี้ไม่ได้ตีมากับเครื่องมือชนิดนี้ ต้องย้ายกลับก่อน", "This forging is not this kind of tool's own: move it back first"],
+  // ── the great fire ──
+  fire: ["หมู่บ้านยังไม่มีไฟใหญ่ของเตา", "The village has no great fire lit now"],
+  row: ["ต้องลงชื่อในคิวไฟใหญ่ก่อน", "Put your name in the row for the great fire first"],
+  turn: ["ยังไม่ถึงคิวของคุณ", "It is not your turn yet"],
+  topped: ["คุณเคยตีถึง +10 แล้ว คิวนี้เป็นของคนที่ยังไม่เคย", "You have taken +10 before: the row is for those who have not"],
+  level: ["ต้องมีเครื่องมือ +9 ก่อน", "A tool at +9 comes first"],
   away: ["ติดต่อสมุดของเมืองไม่ได้ ลองใหม่อีกครั้ง", "The town's books could not be reached. Try again."],
 };
 /** Why a tool cannot be moved to, in the few words its row has room for. */
