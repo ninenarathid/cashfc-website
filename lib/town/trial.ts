@@ -1571,7 +1571,7 @@ export class Trial {
     return did;
   }
   /**
-   * A go at felling as it was played, or the plain way: every tree that fell is a stump for the whole browser, and
+   * A go at felling as it was played: every tree that fell is a stump for the whole browser, and
    * its wood is in my bag. Whoever braced the trunk has their log, into their own bag (their purse is in this browser too).
    */
   fellDo(went: FellWent, at: [number, number], name = ""): ({ ok: true } & FellDid) | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {

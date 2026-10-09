@@ -16,12 +16,12 @@ import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
  * - **A tree is everybody's.** Felled, it is a stump on every screen, and grows back by the clock through four looks
  *   (a stump, a sprout, a young tree, grown). Who felled which and when is kept by whoever keeps the game
  *   (`Grove`); a page is told only what is not grown, and draws that.
- * - **A tree always falls, and always gives its logs** (the owner, 2026-10-08, evening). A tree is felled at its
- *   board (lib/town/felling), which is played for the fine timber besides; a go that is lost there still fells the
- *   tree for its logs. Nobody leaves a tree with nothing. Only the ancient tree stands when its go is lost.
- *   (There was a plain way beside the board, which felled a tree at once for its logs: taken out on the owner's
- *   word the day after the mountain opened, "เอาระบบตัดไม้เร็วออก ต้องเล่น มินิเกมทุกครั้ง": somebody felled so
- *   fast that nobody else had a tree. A go that asks for it is refused, `board`.)
+ * - **A tree is felled at its board, by a trunk cut through** (lib/town/felling). A go that is lost fells nothing,
+ *   gives nothing and costs no stamina: the tree stands, for whoever comes to it next. The owner, the day after the
+ *   mountain opened, of somebody who felled so fast that nobody else had a tree: "เอาระบบตัดไม้เร็วออก ต้องเล่น
+ *   มินิเกมทุกครั้ง", and of a go lost on purpose, which still fell its tree: "แพ้แล้วต้นไม่ล้ม ไม่ได้ของ และไม่เสีย
+ *   stamina". (Before that, from 2026-10-08: a tree always fell and gave its logs however its go went, and beside
+ *   the board there was a plain way that felled it at once. A go that asks for the plain way is refused, `board`.)
  * - **A pine has a girth**: slender, plain or stout, its own from its number. A slender one is a short game with a
  *   kind bar and one fine timber at the most; a stout one a long game with a tight bar and three.
  * - **A go is one's own from the moment its board is open**: a tree somebody else fells meanwhile still pays whoever
@@ -68,7 +68,7 @@ export const TREES = {
   elder: { id: 900, plus: FORGE.top, timber: 15, resin: 3 },
   /**
    * **One go on a tree at a time** (2026-10-09: wood is the scarce thing). From the moment a board is open its trees
-   * are held for whoever opened it, for so many seconds: nobody else's board or plain press takes on any of them
+   * are held for whoever opened it, for so many seconds: nobody else's board or one chop takes on any of them
    * meanwhile (they are told who fells it; the brace stays theirs to offer), so nobody is robbed mid-go and no tree
    * pays two people. A hold that has lapsed frees its trees, and a go that ends after it is paid only for the trees
    * still standing: nobody keeps a tree from the others by opening a board and walking away.
@@ -459,7 +459,7 @@ export interface FellOne { id: number; kind: string; girth: Girth; misses: numbe
 /**
  * What a go came to: the purse and the grove after it; every tree that fell; all it brought home; whether it was the
  * one chop of the axe's own (`plain`: the way that was; never true now); whether the trunk was cut through; whether the tree stands after all
- * (the ancient tree, of a go that was lost); the keepsakes found, each with whether nobody had found one before; and
+ * (a go that was lost: `stood`, with nothing felled and nothing spent); the keepsakes found, each with whether nobody had found one before; and
  * who braced the trunk, to be paid for it.
  */
 export interface Fell {
@@ -478,16 +478,15 @@ function summed(all: Array<Array<[ItemId, number]>>): Array<[ItemId, number]> {
 
 /**
  * A go at felling, as it is judged by whoever keeps the game. The tree named has to be reached with an axe that
- * bites. Every tree of the go comes down, however it went, and gives its logs; the fine timber is the board's: a
- * trunk cut through gives each tree its own by the misses, and a go that says it was played faster than a hand can
- * chop is no go. The plain way that was is refused (`board`).
+ * bites. A trunk cut through fells every tree of the go: each gives its logs, and its fine timber by the misses; a
+ * go that says it was played faster than a hand can chop is no go. A go that was lost fells nothing: the trees
+ * stand, nothing is given, no stamina is paid, and the go is over. The plain way that was is refused (`board`).
  *
  * **One go on a tree at a time**: a tree that somebody else's open go holds is refused to everybody else, board,
  * and the axe's one chop alike (`held`), so nobody is robbed mid-go and no tree pays twice. The trees of
  * a go are those its board was opened for (`opened`) while it holds; of a go whose hold has lapsed, or that was
- * never written down, they are worked out afresh; either way only those still standing are felled and paid. Only
- * the ancient tree stands when its go is lost: then nothing changes. Every tree that falls is a stump for everybody
- * from now; the stamina is paid a tree.
+ * never written down, they are worked out afresh; either way only those still standing are felled and paid. Every
+ * tree that falls is a stump for everybody from now; the stamina is paid a tree.
  * `luck`: a set of numbers of chance for each tree, in their order. `who`: the name the book of the pines writes
  * beside what was never found before.
  */
@@ -525,8 +524,8 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
   const goes = { ...(grove.goes ?? {}) };
   if (board) delete goes[me];
   const closed = (g: Grove): Grove => { const { goes: _was, ...rest } = g; return { ...rest, ...(Object.keys(goes).length ? { goes } : {}) }; };
-  // the ancient tree, of a go that was lost: it stands, and nothing is changed but that the go is over
-  if (first.elder && !through) return { ok: true, purse, grove: closed(grove), felled: [], got: [], one, plain, through, stood: true, found: [], braced: null };
+  // a go that was lost: every tree of it stands, and nothing is changed but that the go is over (once the ancient tree's alone)
+  if (!through) return { ok: true, purse, grove: closed(grove), felled: [], got: [], one, plain, through, stood: true, found: [], braced: null };
 
   let down = { ...grove.down }, half = grove.half.slice(), kept = fellingOf(mine);
   const book = { ...(grove.book ?? {}) }, found: Fell["found"] = [];

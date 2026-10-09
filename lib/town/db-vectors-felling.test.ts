@@ -239,7 +239,7 @@ export function vectorsFelling(): { all: Vector[]; wood: Standing[] } {
     } else if (c.maybe(0.1)) {
       kept = opened(g, ME, [c.of(pines).id], now);
     }
-    // the go: cut through, mostly; now and then lost; now and then the axe's one chop, or the plain way that was (refused)
+    // the go: cut through, mostly; now and then lost (the trees stand); now and then the axe's one chop, or the plain way that was (refused)
     const chops = b.ok ? b.ask.chops : 12;
     const went: FellWent = {
       tree: id, through: c.maybe(0.85), misses: c.of([0, 0, 0, 1, 1, 2, 3, 5]), secs: c.maybe(0.08) ? c.of([0, 0.1, 0.3]) : Math.round((chops * (0.2 + c.next() * 0.5)) * 10) / 10,
@@ -304,7 +304,13 @@ describe("the cases the database's rules of woodcutting are held to", () => {
     expect(new Set(begun.map((b) => b.ask.pace)).size).toBeGreaterThan(8);
     type One = { id: number; kind: string; girth: number; misses: number; got: Array<[string, number]>; timber: number; most: number; chained: number | null; free: boolean; twice: boolean; keepsake?: string };
     const felled = of("fell").filter((v) => (v.want as { ok: boolean }).ok).map((v) => ({ args: v.args, ...(v.want as { felled: One[]; one: boolean; plain: boolean; through: boolean; stood: boolean; found: Array<{ id: string; first: boolean }>; braced: string | null; purse: Purse; grove: Grove }) }));
-    expect(felled.some((f) => f.stood && f.felled.length === 0) && felled.some((f) => f.felled.length === 3) && felled.some((f) => f.one) && !felled.some((f) => f.plain) && felled.some((f) => !f.through && f.felled.length > 0)).toBe(true);
+    expect(felled.some((f) => f.stood && f.felled.length === 0) && felled.some((f) => f.felled.length === 3) && felled.some((f) => f.one) && !felled.some((f) => f.plain)).toBe(true);
+    // a go that was lost: every tree of it stands, whatever the tree, and the purse is as it came
+    const lostGoes = felled.filter((f) => !f.through);
+    expect(lostGoes.length).toBeGreaterThan(50);
+    expect(lostGoes.every((f) => f.stood && f.felled.length === 0 && f.found.length === 0 && f.braced === null && JSON.stringify(f.purse) === JSON.stringify(f.args[0]))).toBe(true);
+    expect(lostGoes.some((f) => (f.args[3] as FellWent).tree !== TREES.elder.id) && lostGoes.some((f) => !!(f.args[1] as Grove).goes?.[ME] && !f.grove.goes?.[ME])).toBe(true);
+    expect(felled.every((f) => f.through || f.stood)).toBe(true);
     // (the plain way that was is asked for some hundreds of times, and never answered with a tree)
     const plains = of("fell").filter((v) => (v.args[3] as FellWent).plain && !(v.args[3] as FellWent).one);
     expect(plains.length).toBeGreaterThan(100);

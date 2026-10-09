@@ -177,14 +177,25 @@ describe("a tree felled", () => {
     expect(cut(did.purse, did.grove, 3, 0, { now: NOON + TREES.regrow * MIN }).ok).toBe(true);
   });
 
-  it("always falls, and always gives its logs: a go that was lost on the board fells the tree with no fine timber", () => {
-    for (const went of [{ through: false, misses: 0, secs: 2 }, { through: false, misses: 3, secs: 0.4 }]) {
-      const p = woodcutter(), did = fell(p, newGrove(), "me", { tree: 3, ...went }, BESIDE[3], NOON, lucky(1), WOOD);
-      expect(did).toMatchObject({ ok: true, through: false, plain: false, stood: false, felled: [{ id: 3, timber: 0, most: 2, girth: 2 }], got: [["log", 2]] });
+  it("stands when its go is lost: nothing is felled, nothing is given, no stamina is paid, and the go is over (the owner, 2026-10-09)", () => {
+    for (const went of [{ through: false, misses: 0, secs: 2 }, { through: false, misses: 3, secs: 0.4 }, { misses: 0, secs: 9 }]) {
+      const p = woodcutter(), did = fell(p, newGrove(), "me", { tree: 3, ...went }, BESIDE[3], NOON, lucky(1, { keep: 0, kind: 0 }), WOOD);
+      expect(did).toMatchObject({ ok: true, through: false, plain: false, stood: true, felled: [], got: [], found: [], braced: null });
       if (!did.ok) continue;
-      expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - TREES.cost);
-      expect(did.grove.down[3]).toEqual({ at: NOON, by: "me" });
+      expect(did.purse).toEqual(p);
+      expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max);
+      expect(did.grove).toEqual(newGrove());
     }
+    // the go is over: its hold is gone, and the tree is anybody's at once
+    const open = opened(newGrove(), "me", [3], NOON);
+    expect(begin(woodcutter(), open, 3, BESIDE[3], NOON + 1000, 1, WOOD, "her")).toEqual({ ok: false, why: "held" });
+    const lost = fell(woodcutter(), open, "me", { tree: 3, through: false, misses: 1, secs: 1 }, BESIDE[3], NOON + 2000, lucky(1), WOOD);
+    if (!lost.ok) throw new Error(lost.why);
+    expect(lost.grove.goes).toBeUndefined();
+    expect(begin(woodcutter(), lost.grove, 3, BESIDE[3], NOON + 3000, 1, WOOD, "her")).toMatchObject({ ok: true, trees: [3] });
+    // with no stamina left it is the same: the tree stands, and nothing is owed
+    const tired = { ...woodcutter(), stamina: { day: woodcutter().stamina!.day, left: 0 } };
+    expect(fell(tired, newGrove(), "me", { tree: 3, through: false, misses: 3, secs: 1 }, BESIDE[3], NOON, lucky(1), WOOD)).toMatchObject({ ok: true, stood: true, felled: [], got: [], purse: tired });
   });
 
   it("has no plain way any more: a go that asks for a tree at once, with no board, is refused whatever the tree (the owner, 2026-10-09)", () => {
@@ -324,10 +335,9 @@ describe("the echo axe (felling's first rank): one game for the trees standing c
     expect(Object.keys(did.grove.down)).toEqual(["0", "1", "2"]);
     expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - 3 * TREES.cost);
     expect(did.got).toEqual([["log", 6], ["timber", 4]]);
-    // a go that was lost: all three for their logs
+    // a go that was lost: all three stand, and nothing is spent
     const lost = fell(p, newGrove(), "me", { tree: 0, through: false, misses: 2, secs: 3 }, BESIDE[0], NOON, lucky(3), WOOD);
-    expect(lost.ok && lost.got).toEqual([["log", 6]]);
-    expect(lost.ok && lost.felled.length).toBe(3);
+    expect(lost).toMatchObject({ ok: true, stood: true, felled: [], got: [], purse: p });
     // and it is held to the one trunk's chops: sixteen were not chopped in a second
     expect(fell(p, newGrove(), "me", { tree: 0, through: true, misses: 0, secs: 0.9 }, BESIDE[0], NOON, lucky(3), WOOD)).toEqual({ ok: false, why: "none" });
     // of a go whose board was opened, the trees are those it was opened for: one that grew meanwhile is no part of it
@@ -529,10 +539,14 @@ describe("a friend braces the trunk", () => {
     expect(braced.grove.goes).toEqual({ me: { trees: [3], at: NOON, braced: "her" } });
     // one brace a go
     expect(braceGo(braced.grove, "him", "me", [32, 31], NOON + 2000, WOOD)).toEqual({ ok: false, why: "none" });
-    // the go over, however it went: who braced it is told, to be paid
-    const did = fell(woodcutter(), braced.grove, "me", { tree: 3, through: false, misses: 2, secs: 4 }, BESIDE[3], NOON + 8000, lucky(1), WOOD);
+    // the trunk cut through, with whatever misses: who braced it is told, to be paid
+    const did = fell(woodcutter(), braced.grove, "me", { tree: 3, through: true, misses: 2, secs: 4 }, BESIDE[3], NOON + 8000, lucky(1), WOOD);
     expect(did.ok && did.braced).toBe("her");
     expect(did.ok && did.grove.goes).toBeUndefined();
+    // a go that was lost fells nothing, and nobody is paid for bracing it
+    const lostGo = fell(woodcutter(), braced.grove, "me", { tree: 3, through: false, misses: 2, secs: 4 }, BESIDE[3], NOON + 8000, lucky(1), WOOD);
+    expect(lostGo).toMatchObject({ ok: true, stood: true, braced: null, felled: [] });
+    expect(lostGo.ok && lostGo.grove.goes).toBeUndefined();
     // (the plain way that was is refused, braced or not: nobody is paid for it)
     expect(fell(woodcutter(), braced.grove, "me", { tree: 3, secs: 0, plain: true }, BESIDE[3], NOON + 8000, lucky(1), WOOD)).toEqual({ ok: false, why: "board" });
     // a log of their own, where the bag has room; and nothing lost where it has none
@@ -569,8 +583,8 @@ describe("keepsakes", () => {
   });
 
   it("are kept by whoever felled the tree, never in the bag; and the first of each is written in the village's book with who found it", () => {
-    // (a go that was lost: the tree comes down for its logs alone)
-    const p = woodcutter(), did = fell(p, newGrove(), "me", { tree: 3, through: false, misses: 0, secs: 2 }, BESIDE[3], NOON, lucky(1, { keep: 0, kind: 0 }), WOOD, "Aqua");
+    // (a trunk cut through with so many misses that it gives its logs alone)
+    const p = woodcutter(), did = fell(p, newGrove(), "me", { tree: 3, through: true, misses: 9, secs: 6 }, BESIDE[3], NOON, lucky(1, { keep: 0, kind: 0 }), WOOD, "Aqua");
     if (!did.ok) throw new Error(did.why);
     const id = KEEPSAKE_IDS[0];
     expect(did.found).toEqual([{ id, first: true }]);
@@ -581,7 +595,7 @@ describe("keepsakes", () => {
     expect(did.grove.book).toEqual({ [id]: { by: "Aqua", at: NOON } });
     expect(toldOf(did.grove, did.purse, NOON, WOOD).book).toEqual([[id, "Aqua"]]);
     // found again by another: theirs to keep too, and the book's first stays
-    const hers = fell(woodcutter(), did.grove, "her", { tree: 0, through: false, misses: 0, secs: 2 }, BESIDE[0], NOON + MIN, lucky(1, { keep: 0, kind: 0 }), WOOD, "Bee");
+    const hers = fell(woodcutter(), did.grove, "her", { tree: 0, through: true, misses: 9, secs: 6 }, BESIDE[0], NOON + MIN, lucky(1, { keep: 0, kind: 0 }), WOOD, "Bee");
     expect(hers.ok && hers.found).toEqual([{ id, first: false }]);
     expect(hers.ok && hers.grove.book).toEqual({ [id]: { by: "Aqua", at: NOON } });
     // with no luck, nothing

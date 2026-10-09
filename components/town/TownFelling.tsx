@@ -29,14 +29,14 @@ interface Chip { at: number; x: number; y: number; vx: number; vy: number }
 /** The pictures the board draws from: its own sheet, the icons' (for the axe), and my own doll's. */
 interface Arts { img: HTMLImageElement; art: (name: string) => Sprite | null }
 
-/** What the board says when a go is over, by how it ended (a pine comes down however it went; the ancient tree stands when its go is lost). */
+/** What the board says when a go is over, by how it ended (a tree stands when its go is lost). */
 function endWord(end: FellEnd, timber: number, elder: boolean, th: boolean): string {
   if (end === "through") {
     if (elder) return th ? "โค่นต้นไม้เก่าแก่ได้แล้ว!" : "The ancient tree is down!";
     return timber > 0 ? (th ? `ล้มแล้ว! ไม้เนื้อดี ×${timber}` : `Timber! Fine timber ×${timber}`) : th ? "ล้มแล้ว ได้แต่ท่อนไม้" : "Down: logs only";
   }
   const how = end === "time" ? (th ? "ไม่ทันเวลา" : "Out of time") : end === "dropped" ? (th ? "ขวานหลุดมือ" : "The axe slipped") : th ? "วางขวาน" : "Axe put down";
-  return elder ? (th ? `${how} ต้นไม้เก่าแก่ยังยืนอยู่` : `${how}: the ancient tree stands`) : th ? `${how} ต้นไม้ล้มแล้ว ได้แต่ท่อนไม้` : `${how}: it is down, logs only`;
+  return elder ? (th ? `${how} ต้นไม้เก่าแก่ยังยืนอยู่` : `${how}: the ancient tree stands`) : th ? `${how} ต้นไม้ยังยืนอยู่` : `${how}: the tree stands`;
 }
 
 /**
@@ -45,8 +45,8 @@ function endWord(end: FellEnd, timber: number, elder: boolean, th: boolean): str
  * down with the trunk, and a bar of time along the top. The left and right arrow keys chop, or a touch on that half
  * of the picture.
  *
- * The tree comes down however the go ends; the board is played for the fine timber, and says where that stands: a
- * pip for each fine timber the go is still heading for, going out at the miss that loses it.
+ * The tree comes down when its trunk is cut through, and stands when the go is lost; the board says where the fine
+ * timber stands: a pip for each the go is still heading for, going out at the miss that loses it.
  *
  * The one board of the town that says how it is played (the owner, 2026-10-08, of a game nobody had understood:
  * "ถ้าเข้าใจยากเขียนวิธีเล่นไว้คร่าวๆด้วย"): three short marks under its title, each a picture and a few words.
@@ -111,7 +111,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     play.current = next;
     if (!isOver(game, next)) return;
     // the bar ran out
-    sfx?.wake(); sfx?.work(elder ? "nothing" : "timber");
+    sfx?.wake(); sfx?.work("nothing");
     fx.current.side = 0;
     setShown((n) => n + 1);
     finish();
@@ -149,7 +149,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     else if (did.what === "forgiven") { f.gone.add(was.cut + 1); sfx?.work("chop"); sfx?.work("pluck", 0.7); }
     else if (did.what === "felled") sfx?.work("timber");
     else sfx?.work("chop");
-    if (did.what === "dropped") sfx?.work(elder ? "wrong" : "timber");
+    if (did.what === "dropped") sfx?.work("wrong");
     setShown((n) => n + 1);
     if (isOver(game, did.play)) finish();
   }, [game, reduced, sfx, elder, finish, advance]);
@@ -173,7 +173,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     if (isOver(game, was)) return;
     if (!was.running) { onCancel(); return; }
     play.current = leave(game, was);
-    sfx?.wake(); sfx?.work(elder ? "nothing" : "timber");
+    sfx?.wake(); sfx?.work("nothing");
     setShown((n) => n + 1);
     finish();
   }, [game, advance, onCancel, sfx, elder, finish]);
@@ -242,8 +242,8 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     const [tw0, th0] = sizeOf(trunk), tw = rh * (tw0 / th0) * (elder ? WIDE_ELDER : WIDE[game.girth - 1]), [bw0, bh0] = sizeOf(limb), bw = rh * 1.55, bh = bw * (bh0 / bw0);
     // (the trunk comes down a segment after a chop: for a moment it is still on its way)
     const since = now - f.chopAt, falling = reduced || over ? 0 : Math.max(0, 1 - since / DROP) * rh;
-    // (a pine is down however the go ended; the ancient tree stands when its go was lost)
-    const rows = seen(game, p, ROWS), down = over && (p.end === "through" || !elder);
+    // (a tree is down when its trunk was cut through; it stands when its go was lost)
+    const rows = seen(game, p, ROWS), down = over && p.end === "through";
 
     // the stump the trunk stands on
     const [pw0, ph0] = sizeOf("fellStump"), pw = tw * 1.7, ph = pw * (ph0 / pw0);
@@ -389,7 +389,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
             th ? "ฟันซ้ายหรือขวา" : "Chop left or right", th ? "หรือแตะฝั่งนั้น" : "or tap that side"],
           [<TownIcon key="b" name={"pineBranch" as IconName} size={24} />, th ? "อย่ายืนใต้กิ่ง" : "Never under a branch", elder ? (th ? "โดนกิ่งแล้วเสียเวลา" : "a hit costs time") : th ? "โดนกิ่ง ไม้เนื้อดีลด" : "a hit costs fine timber"],
           [<span key="t" aria-hidden className="block h-3 w-7 shrink-0 border-2 border-[#2a190d] bg-[#2a190d]"><span className="block h-full w-2/3 bg-[#8fd45f]" /></span>,
-            th ? "ฟันให้ขาดก่อนแถบหมด" : "Cut through in time", elder ? (th ? "ไม่ทัน ต้นไม้ไม่ล้ม" : "too slow: it stands") : th ? "ไม่ทันก็ยังได้ท่อนไม้" : "too slow: logs all the same"],
+            th ? "ฟันให้ขาดก่อนแถบหมด" : "Cut through in time", th ? "ไม่ทัน ต้นไม้ไม่ล้ม" : "too slow: it stands"],
         ] as const).map(([mark, word, more], i) => (
           <li key={i} className="flex min-h-11 flex-col items-center justify-center gap-0.5 rounded-[4px] border-2 border-[#2a190d] bg-[#4a2f18] px-1 py-1 text-center">
             {mark}

@@ -31,9 +31,10 @@ const WHY_TREE: Record<string, [th: string, en: string]> = {
   far: ["ยืนไกลเกินไป", "Too far to reach"], tool: ["ต้องถือขวาน", "It takes an axe in the hand"], spent: ["วันนี้ใช้ไปหมดแล้ว", "None left today"],
   // (one go on a tree at a time: somebody else's board is up at it)
   held: ["มีคนกำลังโค่นต้นนี้อยู่", "Somebody is felling this tree"], board: ["ต้นไม้ต้องลงมือโค่นเอง", "A tree is felled at its board"],
-  // (the ancient tree alone stands when its go is lost)
+  // (a tree stands when its go is lost: the ancient tree's words, and any other tree's)
   dropped: ["ขวานหลุดมือ ต้นไม้เก่าแก่ยังยืนอยู่", "The axe slipped: the ancient tree stands"], time: ["ไม่ทัน ต้นไม้เก่าแก่ยังยืนอยู่", "Out of time: the ancient tree stands"],
   left: ["วางขวานแล้ว ต้นไม้เก่าแก่ยังยืนอยู่", "Axe put down: the ancient tree stands"],
+  droppedTree: ["ขวานหลุดมือ", "The axe slipped"], timeTree: ["ไม่ทันเวลา", "Out of time"], leftTree: ["วางขวาน", "Axe put down"],
 };
 /** How long the card of what a go gave stays up, in milliseconds; and a small word over the buttons. */
 const CARD_MS = 12_000, GOT_MS = 2600;
@@ -89,8 +90,9 @@ function Pips({ most, got, size = 16 }: { most: number; got: number; size?: numb
  * keeps the game says who felled which and when.
  *
  * With an axe in the hand a tap on a tree walks up to it. Beside a grown one there is one press: it puts the board
- * up, which is played for the fine timber (the tree comes down however that goes). There is no felling without the
- * board (lib/town/trees says why). A tree this axe cannot fell shows the axe it wants. What a go gave comes up on a
+ * up: a trunk cut through fells the tree, for its logs and its fine timber; a go that is lost leaves it standing, and
+ * costs nothing. There is no felling without the board (lib/town/trees says why). A tree this axe cannot fell shows
+ * the axe it wants. What a go gave comes up on a
  * small card, with how near it was to more. A pine's girth is in the tree itself: the map's drawing is told how
  * large each grown one stands (`setTreeScales`). Over the map this draws only what is somebody's own to see: how long
  * a stump has to go for whoever has a woodpecker, a glint on the grown trees for an axe that sees them, the tree the
@@ -333,12 +335,19 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     }
     const did = await keeper.fellDo({ tree: w.id, through: out.through, misses: out.misses, secs: out.secs, ...(how.one ? { one: true } : {}), ...(how.twice ? { twice: true } : {}) }, w.from, name);
     if (!did.ok) { say(did.why, w.id); return; }
-    // (the ancient tree, of a go that was lost)
-    if (did.stood) { say(out.end && out.end !== "through" ? out.end : "time"); return; }
+    // (a go that was lost: the tree stands, nothing was given and nothing spent; said in a word, with how near it was)
+    if (did.stood) {
+      const end = out.end && out.end !== "through" ? out.end : "time";
+      if (first?.elder) { say(end); return; }
+      const how = WHY_TREE[`${end}Tree`], left = Math.max(1, out.chops - out.cut);
+      setCard(null);
+      setNote({ text: th ? `${how[0]} เหลืออีก ${left} ฟัน · ต้นไม้ยังยืนอยู่ ไม่เสียแรง` : `${how[1]}, ${left} ${left === 1 ? "chop" : "chops"} from the end: the tree stands, and nothing was spent` });
+      return;
+    }
     fall(did.felled);
     setNote(null);
     setCard({ did, out: how.one ? null : out, ask: how.one ? null : w.ask, tile: w.from.join(","), at: Date.now() });
-  }, [keeper, name, say, fall, leaving]);
+  }, [keeper, name, say, fall, leaving, th]);
 
   /** The quickening root: the last stump I made grows back at once. */
   const rootId = card && axe && powerLeft(purse, "axRoot", now) > 0 && has(axe, "axRoot") ? [...card.did.felled].reverse().find((f) => f.id !== TREES.elder.id)?.id ?? null : null;
@@ -499,10 +508,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     const out = c.out, first = c.did.felled[0];
     if (!out || !first || first.kind === TREES.elderKind) return null;
     const t = WOOD.find((x) => x.id === first.id), near = nearOf(out, t ? bearsOf(t) : []);
-    if (!out.through) {
-      const how = out.end === "dropped" ? (th ? "ขวานหลุดมือ" : "The axe slipped") : out.end === "left" ? (th ? "วางขวาน" : "Axe put down") : th ? "แถบหมด" : "Out of time";
-      return th ? `${how}ตอนเหลืออีก ${near.chops} ฟัน` : `${how} ${near.chops} ${near.chops === 1 ? "chop" : "chops"} from the end`;
-    }
+    // (a card is of a trunk cut through: a go that was lost has a word over the buttons, and no card)
+    if (!out.through) return null;
     if (!near.misses) return th ? "ได้ไม้เนื้อดีครบทุกชิ้น" : "Every fine timber it had";
     const nth = NTH[Math.min(NTH.length - 1, near.got)];
     return th ? `พลาดน้อยกว่านี้ ${near.misses} ครั้ง ก็ได้ไม้เนื้อดี${nth[0]}` : `${near.misses === 1 ? "One miss" : `${near.misses} misses`} from ${nth[1]} fine timber`;
