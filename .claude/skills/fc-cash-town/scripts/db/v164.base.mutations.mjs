@@ -121,5 +121,6 @@ export default ({ cut, swap }) => {
       ["forged", "plain", "leave"]],
   ];
   const from = Number(process.env.FROM ?? 0), to = Number(process.env.TO ?? all.length);
-  return all.slice(from, to);
+  // (an anchor of more than one line is written with plain line ends: the part is read so, however git checked it out)
+  return all.slice(from, to).map(([name, mutate, mustFail]) => [name, (sql) => mutate(sql.split("\r\n").join("\n")), mustFail]);
 };
