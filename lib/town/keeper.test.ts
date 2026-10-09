@@ -1475,6 +1475,29 @@ describe("the mountain's rocks and the cave, as the database's keeper asks them"
     expect(nudges).toEqual(["cave", "cave"]);
     k.close();
   });
+
+  it("takes a refusal of the cave or of a rock for the far side shut again, never for the game shut: the cave is forgotten, and it is asked after again", async () => {
+    for (const refused of ["town_cave", "town_mine", "town_torch", "town_lift", "town_vein"]) {
+      let open = true;
+      const no = () => (open ? { ok: false, why: "none", now: NOW, purse: purse() } : { denied: true });
+      const db = database({ ...base(), town_far: () => open, town_trees: () => ({ now: NOW, purse: purse(), trees: { down: [], half: [] } }),
+        town_cave: () => (open ? { ok: true, now: NOW, cave: told({ vein }) } : { denied: true }), town_mine: no, town_torch: no, town_lift: no, town_vein: no });
+      const k = new DbKeeper("me", db.ask);
+      await settle();
+      await k.caveLook(3, [70, 330]);
+      expect([k.far(), k.open(), k.cave()?.day]).toEqual([true, true, 20400]);
+      open = false;
+      if (refused === "town_cave") await k.caveLook(3, [70, 330]);
+      else expect(await (refused === "town_mine" ? k.mineDo(3, 7, [70, 331], 1, "Me") : refused === "town_torch" ? k.torchDown([70, 330]) : refused === "town_lift" ? k.liftRide(0) : k.veinDo([[1, 0]]))).toEqual({ ok: false, why: "away" });
+      expect([refused, k.far(), k.open(), k.ready(), k.cave(), k.trees()]).toEqual([refused, false, true, true, null, null]);
+      // five minutes on the far side is asked after again, and opens here when it is opened
+      open = true;
+      await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
+      await settle();
+      expect([k.far(), k.open()]).toEqual([true, true]);
+      k.close();
+    }
+  });
 });
 
 describe("the later lines of work, while the far side is shut", () => {

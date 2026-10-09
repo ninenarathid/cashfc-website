@@ -718,6 +718,8 @@ const RANKS_MS = 5 * 60_000;
 const FAR_MS = 5 * 60_000;
 // ── felling ── (the functions of the mountain's trees: the database answers them only to whoever the far side is open to)
 const FELLING_FNS: ReadonlySet<string> = new Set(["town_trees", "town_fell_begin", "town_fell", "town_fell_brace", "town_fell_root"]);
+// ── mining ── (and those of its rocks, its cave and the pouches: behind the same gate, refused with it and not with the game)
+const MINING_FNS: ReadonlySet<string> = new Set(["town_cave", "town_cave_days", "town_mine", "town_mine_peek", "town_vein", "town_cave_reach", "town_lift", "town_torch", "town_drill", "town_pouch_out", "town_pouch_in"]);
 /** While something lies on the ground, how often it is looked at again (a thing lies ten seconds; the room's word of the next one may come seconds late). */
 const GROUND_AGAIN = 3000;
 /** How long an ended deal is still shown. */
@@ -957,7 +959,8 @@ export class DbKeeper implements Keeper {
     }
     if (!a || typeof a !== "object") return null;
     // ── felling ── (a function of the trees refused: the far side is shut to me again, which is not the game shut)
-    if (a.denied && FELLING_FNS.has(fn)) { this.farShut(); return null; }
+    // ── mining ── (and one of the rocks' or the cave's, the same)
+    if (a.denied && (FELLING_FNS.has(fn) || MINING_FNS.has(fn))) { this.farShut(); return null; }
     if (a.denied) { if (this.opened !== false) { this.opened = false; this.tell(); } return null; }
     this.take(a, sent);
     return a;
@@ -1231,12 +1234,13 @@ export class DbKeeper implements Keeper {
   private trees_: TreesTold | null = null;
   trees(): TreesTold | null { return this.trees_; }
   /**
-   * The far side was open to me and a function of the trees was refused: it has been shut again (its owner's knob).
-   * The trees are forgotten, so that nothing of them is offered, and whether it is open is asked again in its time.
-   * The game itself is as it was.
+   * The far side was open to me and a function of the trees (or of the rocks and the cave) was refused: it has been
+   * shut again (its owner's knob). The trees and the cave are forgotten, so that nothing of them is offered, and
+   * whether it is open is asked again in its time. The game itself is as it was.
    */
   private farShut() {
     this.trees_ = null;
+    this.cave_ = null;
     if (this.far_) { this.far_ = false; this.fit(); }
     this.tell();
     if (!this.farTimer && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
