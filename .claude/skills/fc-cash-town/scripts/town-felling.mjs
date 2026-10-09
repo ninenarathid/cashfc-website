@@ -96,6 +96,8 @@ try {
   await fresh(A);
   await standBy(A, t1);
   ok("with an axe in the hand the grown tree I stand by is offered", (await A.evaluate(`document.querySelector("[data-trees-offer]")?.dataset.treesOffer`)) === String(t1));
+  ok("…by one press, its board: there is no plain press beside a tree", (await A.evaluate(`!document.querySelector("[data-trees-plain]") && document.querySelectorAll("[data-trees-offer]").length === 1`)) === true);
+  await A.shot(`${OUT}/felling-0-offer.png`);
   await key(A, " ");
   await up(A);
   let s = await state(A);
