@@ -14,13 +14,14 @@ import { caveLayout } from "./mining-row";
 import {
   MINING, anyPick, crystalOf, drill, elementOf, hardnessOf, hasBelow, helpersOf, holdsOf, isDug, isLoose, liftStops, mayRide, mine, mineOf, oreOf, partOf, payFirst, peekOf, pickOf, reachRest, struckOf, swingsFor,
   torchDown, turnOf, wayRockOf,
-  type Go as MineGo, type Holds, type PlaceToday, type RockAt, type Struck,
+  type Go as MineGo, type Holds, type PendingVein, type PlaceToday, type RockAt, type Struck,
 } from "./mining";
 import { powerRule } from "./powers";
 import { dayOf } from "./stamina";
 import { ALL, ELEMENTS, FORGE, GEM_FX, gemBy, has, pickSwings, poolOf, type Element, type OptionId } from "./tools";
 import { newPurse, type Purse, type Stack } from "./trade";
-import { veinMods } from "./vein";
+import { VEIN, begin, bestRoute, faceOf, headOf, over, strike as veinStrike, veinMods } from "./vein";
+import { accountOf, oddOf, veinFrom } from "./vein-account";
 
 /**
  * The cases the database's rules are held to for v164's miners' part (lib/town/db-vectors-base.test.ts says how such
@@ -564,6 +565,46 @@ export function vectorsMining(): Vector[] {
     }
   }
 
+  /* ── a vein played out, by what its page says of the go (lib/town/vein-account) ── */
+  /** A go played by somebody who strikes any cell that can be struck: its strikes, in their order. */
+  const anyGo = (vein: PendingVein): Array<[number, number]> => {
+    const face = faceOf(vein.seed, !!vein.gem), strikes: Array<[number, number]> = [];
+    let crack = begin(face, vein.mods);
+    for (let i = 0; i < 40 && !over(face, crack); i++) {
+      const [hx, hy] = headOf(crack), [dx, dy] = c.of([[1, 0], [-1, 0], [0, 1], [0, -1]] as const), far = c.int(1, VEIN.reach), to: [number, number] = [hx + dx * far, hy + dy * far];
+      const did = veinStrike(face, vein.mods, crack, to);
+      if (did.moved < 0) continue;
+      strikes.push(to);
+      crack = did.crack;
+    }
+    return strikes;
+  };
+  for (let i = 0; i < 1500; i++) {
+    const now = c.of(NOWS), gem = c.maybe(0.4) ? c.of(ELEMENTS) : null;
+    const pick = c.maybe(0.08) ? null : pickAt(c, c.of([0, 3, 6, 10, 10]), c.maybe(0.35) ? c.of<Element>(["water", "ice"]) : null, c.maybe(0.7) ? ["pkSteady", "pkCutter", "pkTwin"] : []);
+    const mods = veinMods(pick, c.maybe(0.3));
+    const vein: PendingVein = { f: c.int(1, MINING.floors), rock: c.int(0, 20), turn: turnOf(now), seed: c.int(0, 4294967295), gem, mods, more: gem && c.maybe(0.4) ? 1 : 0, ...(c.maybe(0.15) ? { again: true } : {}) };
+    const face = faceOf(vein.seed, !!gem), honest = accountOf(vein, c.of<() => Array<[number, number]>>([() => bestRoute(face, mods).strikes, () => anyGo(vein), () => anyGo(vein), () => []])());
+    // what a page may say: the go as it was; and each thing said pushed to the edge of what the rules allow, and past it
+    const said = c.maybe(0.5) ? honest : c.of<() => unknown>([
+      () => ({ ...honest, strikes: Array.from({ length: mods.strikes }, (_, k) => [k % VEIN.size, 0]), struck: mods.strikes, of: VEIN.points[1], ore: VEIN.points[1] - (gem ? Math.max(1, honest.gems.length) : 0) }),
+      () => ({ ...honest, of: c.of([3, 7, 6, 4, 5]) }), () => ({ ...honest, ore: honest.ore + c.int(1, 3) }), () => ({ ...honest, struck: honest.struck + c.int(1, 4) }),
+      () => ({ ...honest, gems: [...honest.gems, c.int(1, 4)] }), () => ({ ...honest, strikes: Array.from({ length: 6 }, (_, k) => [k, 1]), struck: Math.min(6, mods.strikes), gems: [3, 3], ore: 4, of: 6 }), () => ({ ...honest, gems: [3, 3, 3] }),
+      () => ({ ...honest, gems: [c.of([0, 4, 1.5, -1])] }), () => ({ ...honest, struck: 1, ore: 3 }), () => ({ ...honest, strikes: [...honest.strikes, c.of<unknown>([[6, 1], [1, -1], [1.5, 2], [1], "x", null])] }),
+      () => ({ ...honest, strikes: Array.from({ length: 70 }, () => [1, 1]) }), () => ({ ...honest, strikes: c.of<unknown>([null, "none", 5]) }),
+      () => ({ ...honest, seed: c.of<unknown>([vein.seed + 1, String(vein.seed), null]) }), () => ({ ...honest, again: !honest.again }), () => ({ ...honest, again: c.of<unknown>([honest.again ? 1 : 0, honest.again ? "yes" : "", null]) }),
+      () => ({ ...honest, struck: c.of<unknown>(["3", null, 2.5, -1]) }), () => ({ ...honest, gems: c.of<unknown>([null, 2, "3"]) }), () => ({ ...honest, ore: c.of<unknown>([1.5, "2", null]) }), () => ({ ...honest, of: c.of<unknown>(["6", null, 5.5]) }),
+      () => null, () => "go", () => [honest], () => ({}), () => 7,
+    ])();
+    const p = {
+      ...purseWith(c.maybe(0.06) ? [pick, ...Array.from({ length: 9 }, (): Stack => ({ item: "boot", n: 1 }))] : [pick]), hand: c.maybe(0.92) ? "pick" : null, handAt: 0,
+      ...(c.maybe(0.3) ? { gifts: { had: ["thingSack"], charms: [] } } : {}), ...(c.maybe(0.3) ? { powers: { pkTwin: { k: c.maybe(0.85) ? dayOf(now) : dayOf(now) - 1, n: c.of([0, 2, 4, 5]) } } } : {}),
+      mine: { owed: 0, crumb: 2, loose: { k: "", ids: [] }, vein: c.maybe(0.04) ? null : vein, rests: [10], last: now - 9000, paid: null },
+    } as Purse;
+    add("vein_odd", [vein, [said ?? null]], oddOf(vein, said));
+    add("vein_end", [p, [said ?? null], now], veinFrom(p, said, now));
+  }
+
   /* ── the line: what a deed of the miners' counts for (lib/town/line-points) ── */
   const deed = (what: string, thing: string | null, n: number, doc: Record<string, unknown>): Done => ({ from: "deed", what, thing, n, doc });
   for (const done of [
@@ -634,6 +675,12 @@ describe("the cases the database's rules of mining are held to", () => {
     expect(new Set(of("torch_down").map((v) => (v.want as { why?: string }).why ?? "ok"))).toEqual(new Set(["tool", "ok"]));
     expect(new Set(of("drill").map((v) => (v.want as { why?: string }).why ?? "ok"))).toEqual(new Set(["tool", "none", "open", "spent", "ok"]));
     expect(of("beside").some((v) => v.want === null) && of("beside").filter((v) => v.want !== null).length > 50).toBe(true);
+    // a vein played out: every way an account is odd, and every way a go ends
+    expect(new Set(of("vein_odd").map((v) => v.want))).toEqual(new Set([null, "shape", "strikes", "of", "struck", "gems", "passed", "far"]));
+    expect(of("vein_odd").filter((v) => v.want === null).length).toBeGreaterThan(500);
+    const ends = of("vein_end").map((v) => v.want as { ok: boolean; why?: string; again?: boolean; got?: Array<[string, number]> });
+    expect(new Set(ends.filter((e) => !e.ok).map((e) => e.why))).toEqual(new Set(["none", "odd", "full"]));
+    expect(ends.filter((e) => e.ok).length > 500 && ends.some((e) => e.again) && ends.some((e) => e.got?.some(([id]) => id.startsWith("chip"))) && ends.some((e) => e.ok && e.got!.length === 0)).toBe(true);
     // the line: every deed of the miners' that counts, the twin's go that counts for its firsts alone, and those that count for nothing
     const counts = of("counts_of").map((v) => v.want as Array<{ line: string; raw: number; first?: string }>);
     expect(counts.filter((k) => k.length === 0).length).toBeGreaterThan(5);

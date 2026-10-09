@@ -18,6 +18,8 @@ export default async function (ctx) {
   const CS = await import("@/lib/town/cave-state");
   const TOOLS = await import("@/lib/town/tools");
   const { isRest } = await import("@/lib/town/cave");
+  const V = await import("@/lib/town/vein");
+  const VA = await import("@/lib/town/vein-account");
   const { dayOf } = await import("@/lib/town/stamina");
   const K = CODE.mining, TURN = K.turn, MIN = 60_000;
   const knob = (key, v) => t.sql(`update public.town_knobs set value = $2 where key = $1`, [key, v]);
@@ -45,7 +47,7 @@ export default async function (ctx) {
   const crystalOn = (day = today) => M.crystalOf(WORD, day, (f) => rocksOn(f, day));
   const NAME = Object.fromEntries(await Promise.all([U.m1, U.m2, U.admin].map(async (id) => [id, (await one(`select town.mine_name($1) as n`, [id])).n])));
   /** The functions of this part that a member calls behind the gate, each with something to ask; and whether it reads a floor. */
-  const GATED = [["town_cave", true, 0, null, null], ["town_mine", true, 0, 0, 39, 231, 1, null], ["town_mine_peek", true, 0, 0], ["town_cave_reach", false, 10], ["town_lift", true, 0], ["town_torch", true, 5, 330], ["town_drill", true, 5, 330]];
+  const GATED = [["town_cave", true, 0, null, null], ["town_mine", true, 0, 0, 39, 231, 1, null], ["town_mine_peek", true, 0, 0], ["town_cave_reach", false, 10], ["town_lift", true, 0], ["town_torch", true, 5, 330], ["town_drill", true, 5, 330], ["town_vein", false, {}]];
   const gate = async (who, only = () => true) => Promise.all(GATED.filter(only).map(([fn, , ...args]) => call(who, fn, ...args)));
   for (const who of [U.m1, U.m2, U.admin]) await call(who, "town_hold", null);
 
@@ -218,6 +220,27 @@ export default async function (ctx) {
   async function drill(who, at) {
     const s = await stateNow(), purse = await purseNow(who), mark = await lastDeed(), got = await call(who, "town_drill", at[0], at[1]);
     return held(who, got, twinDrill(s, who, purse, at, NOW), { floor: CS.floorAtTile(at[0], at[1]) || null, tile: at, mark, told: !!got?.cave });
+  }
+  /**
+   * A vein played out, as the trial's keeper plays one (lib/town/trial's veinDo): by lib/town/mining's `veinEnd`, which
+   * lays the face out and plays the strikes on it again. The database is told the go as its own keeper tells it
+   * (lib/town/vein-account's `accountOf`, from the face), or whatever a scene has a page say instead.
+   */
+  function twinVein(s, who, purse, strikes, now) {
+    const did = M.veinEnd(purse, strikes, now), out = { state: s, mine: purse, deeds: [] };
+    if (!did.ok) return { ...out, answer: did };
+    const v = did.vein, ore = M.oreOf(v.f), chip = did.got.find((g) => g[0] !== ore)?.[0] ?? null;
+    return { ...out, mine: did.purse, answer: { ok: true, got: did.got, passed: did.passed, of: did.of, again: did.again },
+      deeds: [[who, "vein", did.got.some((g) => g[0] === ore) ? ore : null, did.passed, { floor: v.f, rock: v.rock, strikes: strikes.slice(0, 64), struck: did.struck, passed: did.passed, of: did.of,
+        ...(v.mods.spent ? { spent: true } : {}), ...(chip ? { chip } : {}), ...(v.gem ? { gem: v.gem } : {}), ...(v.again ? { again: true } : {}) }]] };
+  }
+  async function playVein(who, strikes) {
+    const s = await stateNow(), purse = await purseNow(who), vein = M.mineOf(purse).vein, mark = await lastDeed();
+    const got = await call(who, "town_vein", vein ? VA.accountOf(vein, strikes) : { seed: 0, again: false, strikes: [], struck: 0, of: 4, ore: 0, gems: [] });
+    const x_ = await held(who, got, twinVein(s, who, purse, strikes, NOW), { mark, told: false });
+    const own = toldOf(s, await purseNow(who), who, 0, null, NOW);
+    if (!same(got?.caveMine, { rests: own.rests, vein: own.vein, loose: own.loose, paid: own.paid })) { x_.agrees = false; x_.off.push({ caveMine: got?.caveMine }); }
+    return x_;
   }
   /** A rock of a place that holds what is wanted for a pick now, and a tile beside it to strike from (floor, and no rock's): null where the place has none. */
   function find(floor, pick, want, s, skip = []) {
@@ -533,4 +556,90 @@ export default async function (ctx) {
   rides = [await lift(U.m1, 10), await reach(U.admin, 10)];
   t.check("the lift's stops are the member's own, and are kept over the day's turn; and nobody reaches the tenth floor anew while the ninth's way is shut again", rides[0].agrees && same(rides[0].a.at, laidOn(10, today).liftAt) && same((await purseNow(U.m1)).mine.rests, [10]) && rides[1].agrees && rides[1].a.reached === false,
     rides.map((y) => (y.off.length ? y.off : y.a)));
+
+  t.section("a vein played out: told by its page, believed within the rules");
+  /** A vein opened by a member: a rock that hides one for their pick (a gem's or not) is found and broken. Where this turn has none, the turns to come are looked through. */
+  async function openVein(who, pick, gem, more = {}) {
+    for (let i = 0; i < 60; i++) {
+      await miner(who, pick, more);
+      const hit = findAny(pick, (h) => h.kind === "vein" && h.gem === gem, await stateNow());
+      if (hit) { const y = await strike(who, hit.floor, hit.rock.id, hit.at, 200); return { ...hit, x: y, vein: y.a.vein }; }
+      await clock((M.turnOf(NOW) + 1) * TURN + 1000);
+    }
+    throw new Error("no rock hides such a vein in sixty turns");
+  }
+  const v1 = await openVein(U.m1, PICK, false), face1 = V.faceOf(v1.vein.seed, false), best1 = V.bestRoute(face1, v1.vein.mods), veinWas = await pointsOf(U.m1);
+  x = await playVein(U.m1, best1.strikes);
+  t.check("a vein played by its best go: the page says what the crack passed, and the database gives what the trial's keeper gives for the same strikes on the same face: two fragments of the floor's ore a glinting cell, and the vein is played out",
+    v1.x.agrees && x.agrees && x.a.ok === true && best1.passed >= 2 && x.a.passed === best1.passed && x.a.of === face1.points.length && same(x.a.got, [[M.oreOf(v1.floor), best1.passed * K.vein.ore]]) && x.a.again === false && x.a.caveMine.vein === null
+    && (await purseNow(U.m1)).mine.vein === null, [v1.x.off, x.off.length ? x.off : x.a]);
+  ds = await deedsSince((await lastDeed()) - 1);
+  t.check("…written down with the strikes as they were made and the whole of what was said, with the seed of the face and what the go was played with: so that the go can be played again on its face, and held to its account",
+    ds[0].what === "vein" && ds[0].thing === M.oreOf(v1.floor) && ds[0].n === best1.passed && same(ds[0].doc.strikes, best1.strikes) && same(ds[0].doc.said, { ore: best1.passed, gems: [], seed: v1.vein.seed, mods: v1.vein.mods, more: 0 })
+    && VA.accountOf(v1.vein, ds[0].doc.strikes).ore === ds[0].doc.said.ore && (await pointsOf(U.m1)) >= veinWas + CODE.work.mining.vein, ds);
+  const logged = await call(U.m1, "town_try", "mining", "vein", "ore", "done", false, x.a.of, x.a.passed, 0, 12.5);
+  t.check("the go at the board is taken by the log of every go (v166's `town_try`), as the page sends it: the game `mining`, the board `vein`", logged === true
+    && same(await one(`select game, board, what, how, need, hits from public.town_tries where member_id = $1 order by at desc limit 1`, [U.m1]), { game: "mining", board: "vein", what: "ore", how: "done", need: x.a.of, hits: x.a.passed }), logged);
+  // a gem's vein, with a pick that cuts a fragment more and has two strikes more
+  const CUT = { item: "pick", n: 1, plus: 6, opts: ["pkCutter", "pkSteady"] };
+  const v2 = await openVein(U.m1, CUT, true), face2 = V.faceOf(v2.vein.seed, true), best2 = V.bestRoute(face2, v2.vein.mods), chip2 = TOOLS.GEMS[v2.vein.gem]?.chip;
+  const cut2 = best2.got.map((i) => face2.points[i].gem).filter((n) => n > 0), ore2 = best2.got.length - cut2.length;
+  x = await playVein(U.m1, best2.strikes);
+  t.check("a gem's vein: of the floor's element of the day and with the pick's fragment more, both by the database's own reckoning when the rock broke; the gem's cells passed give their fragments (and the one more), the others ore",
+    v2.x.agrees && v2.vein.gem === M.elementOf(WORD, v2.floor, today) && v2.vein.more === 1 && v2.vein.mods.strikes === K.pick.strikes[6] + K.pick.opts.pkSteady.n.strikes && x.agrees && x.a.ok === true
+    && same(x.a.got, [...(ore2 ? [[M.oreOf(v2.floor), ore2 * K.vein.ore]] : []), ...(cut2.length ? [[chip2, cut2.reduce((a, b) => a + b, 0) + 1]] : [])]), [v2.x.off, x.off.length ? x.off : x.a, v2.vein]);
+  ds = await deedsSince((await lastDeed()) - 1);
+  t.check("…written down as a gem's vein, with the gem's cells that were said", ds[0].what === "vein" && ds[0].doc.gem === v2.vein.gem && same(ds[0].doc.said.gems, cut2) && (cut2.length ? ds[0].doc.chip === chip2 : ds[0].doc.chip === undefined), ds);
+
+  t.section("a vein's account that is not so");
+  const v3 = await openVein(U.m1, PICK, false), honest3 = VA.accountOf(v3.vein, V.bestRoute(V.faceOf(v3.vein.seed, false), v3.vein.mods).strikes);
+  let mark = await lastDeed(), was = await purseNow(U.m1);
+  const strangers = [await call(U.m1, "town_vein", { ...honest3, seed: honest3.seed + 1 }), await call(U.m1, "town_vein", { ...honest3, again: true }), await call(U.m1, "town_vein", null), await call(U.m1, "town_vein", JSON.stringify("a go")),
+    await call(U.m2, "town_vein", honest3)];
+  t.check("an account of another vein than the one that is open, of its second go, no account at all, and one from somebody with no vein open: nothing is done, and the vein waits", strangers.every((y) => y?.ok === false && y.why === "none")
+    && strangers[0].caveMine.vein.seed === v3.vein.seed && same(await purseNow(U.m1), was) && (await lastDeed()) === mark, strangers.map((y) => y?.why ?? y));
+  const pointsWas3 = await pointsOf(U.m1);
+  let lied = await call(U.m1, "town_vein", { ...honest3, of: K.vein.points[1] + 1, ore: K.vein.points[1] + 1 });
+  ds = await deedsSince(mark);
+  t.check("an account that no face could have come to (a face of seven glinting cells): nothing is paid, the vein is closed, and it is written down apart with all that was said and why it could not be", lied?.ok === false && lied.why === "odd" && lied.caveMine.vein === null
+    && same(await purseNow(U.m1), { ...was, mine: { ...was.mine, vein: null } }) && ds.length === 1 && ds[0].what === "vein_odd" && ds[0].n === 0 && ds[0].doc.how === "of" && ds[0].doc.said.ore === K.vein.points[1] + 1
+    && ds[0].doc.seed === v3.vein.seed && same(ds[0].doc.mods, v3.vein.mods) && (await pointsOf(U.m1)) === pointsWas3, [lied, ds]);
+  lied = await call(U.m1, "town_vein", honest3);
+  t.check("…and the vein is not to be told again, truly or not", lied?.ok === false && lied.why === "none", lied);
+  const odds = [];
+  for (const [why, said] of [["shape", { struck: "6" }], ["strikes", { strikes: [[6, 0]] }], ["struck", { struck: v3.vein.mods.strikes + 1, strikes: Array.from({ length: 12 }, () => [1, 1]) }], ["gems", { gems: [2] }], ["passed", { of: 4, ore: 5 }], ["far", { struck: 1, ore: 3 }]]) {
+    const v = await openVein(U.m1, PICK, false), y = await call(U.m1, "town_vein", { ...VA.accountOf(v.vein, []), strikes: Array.from({ length: 6 }, (_, i) => [i, 0]), struck: 6, of: 6, ore: 2, ...said });
+    odds.push([why, y?.why, (await deedsSince((await lastDeed()) - 1))[0]?.doc.how]);
+  }
+  t.check("each thing the rules hold an account to, past its edge: more strikes than a go has, a strike off the face, a gem's cell in a vein that is no gem's, more cells passed than the face has or than the crack could have run through", odds.every(([why, got, how]) => got === "odd" && how === why), odds);
+  // what believing the page costs: the fullest face there could be, every cell of it passed
+  const v4 = await openVein(U.m2, PICK, false), S4 = v4.vein.mods.strikes;
+  const lie = { seed: v4.vein.seed, again: false, strikes: Array.from({ length: S4 }, (_, i) => [i % K.vein.size, 0]), struck: S4, of: K.vein.points[1], ore: K.vein.points[1], gems: [] };
+  lied = await call(U.m2, "town_vein", lie);
+  ds = await deedsSince((await lastDeed()) - 1);
+  const again4 = VA.accountOf(v4.vein, ds[0].doc.strikes);
+  t.check("WHAT BELIEVING THE PAGE COSTS: a page that says it passed every cell of the fullest face there could be is paid for six cells, twelve fragments, whatever the face was. It shows afterwards: the strikes written down, played again on the face of the seed written down, do not come to what was said",
+    lied?.ok === true && same(lied.got, [[M.oreOf(v4.floor), K.vein.points[1] * K.vein.ore]]) && same(VA.mostOf(v4.vein), { ore: 12, gems: 0 }) && ds[0].what === "vein" && ds[0].doc.said.ore === K.vein.points[1]
+    && !same([again4.of, again4.ore, again4.struck], [lie.of, lie.ore, lie.struck]), [lied, again4]);
+
+  t.section("a twin vein; a bag with no room; a vein opened with no stamina left");
+  const TWIN = { item: "pick", n: 1, plus: 10, opts: ["pkPeek", "pkLoose", "pkTwin"] };
+  const v5 = await openVein(U.m1, TWIN, false), best5 = V.bestRoute(V.faceOf(v5.vein.seed, false), v5.vein.mods);
+  x = await playVein(U.m1, best5.strikes);
+  const after5 = await pointsOf(U.m1);
+  t.check("a pick with a twin vein in it: the same face is to be played once more, counted once of the day's five", x.agrees && x.a.ok === true && x.a.again === true && same(x.a.caveMine.vein, { ...v5.vein, again: true })
+    && same((await purseNow(U.m1)).powers.pkTwin, { k: today, n: 1 }), x.off.length ? x.off : x.a);
+  x = await playVein(U.m1, best5.strikes);
+  ds = await deedsSince((await lastDeed()) - 1);
+  t.check("the second go gives what it passes again, is written down as the second, counts for nothing more on the line, and there is no third", x.agrees && x.a.ok === true && x.a.again === false && x.a.caveMine.vein === null && ds[0].doc.again === true
+    && (await pointsOf(U.m1)) === after5 && (await call(U.m1, "town_vein", VA.accountOf({ ...v5.vein, again: true }, best5.strikes))).why === "none", x.off.length ? x.off : [x.a, ds]);
+  const v6 = await openVein(U.m2, PICK, false, { stamina: { day: dayOf(NOW), left: 1 } }), best6 = V.bestRoute(V.faceOf(v6.vein.seed, false), v6.vein.mods);
+  await patch(U.m2, { bag: bag(PICK, ...Array.from({ length: 9 }, () => ({ item: "boot", n: 1 }))) });
+  x = await playVein(U.m2, best6.strikes);
+  t.check("a vein opened with the last of the day's stamina is played tired, with two strikes fewer: the database's to say, not the page's. With no room for what it gives it is not played out: `full`, and it waits", v6.x.agrees
+    && same(v6.vein.mods, { strikes: K.pick.strikes[0] - K.vein.tired.fewer, back: 0, cross: 0, spent: true }) && x.agrees && x.a.why === "full" && x.a.caveMine.vein.seed === v6.vein.seed, [v6.x.off, x.off.length ? x.off : x.a]);
+  await patch(U.m2, { bag: bag(PICK) });
+  x = await playVein(U.m2, best6.strikes);
+  ds = await deedsSince((await lastDeed()) - 1);
+  t.check("with room made it is: and written down as a go played with no stamina", x.agrees && x.a.ok === true && x.a.passed === best6.passed && ds[0].what === "vein" && ds[0].doc.spent === true, x.off.length ? x.off : x.a);
 }

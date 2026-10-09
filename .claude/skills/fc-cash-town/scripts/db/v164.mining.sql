@@ -1073,6 +1073,123 @@ as $$
    order by d.ord limit 1
 $$;
 
+-- ─── 10. A vein played out, by what its page says of the go (lib/town/vein-account) ─────────────────────────────
+--
+-- The database does not lay a vein's face out: the face comes of its seed by a generator that tries many times and
+-- searches a way through each try, and that is not written twice. The page has the face. It says what the go came
+-- to (`p_go`, lib/town/vein-account's VeinAccount):
+--     seed, again   the vein it is a go at (the seed of its face; whether this is its second go)
+--     strikes       the strikes as they were made, [[x, y], …]: cells of the face, sixty-four at the most
+--     struck        how many of them counted
+--     of            how many cells of the face glint
+--     ore           how many glinting cells of ore the crack passed
+--     gems          what each gem's cell it passed gives, in fragments: [n, …]
+-- and is believed within what holds of EVERY face (`town.vein_odd`). What is the database's own and never the
+-- page's: that there is a vein, whether it is a gem's and of which element, the strikes a go has and what a knot
+-- gives back (all in the purse's `mine.vein`, written when the rock broke), and what the pick adds to a gem's cells.
+
+-- Whether something said is a whole number, none or more.
+create or replace function town.vein_whole(p_v jsonb)
+returns boolean language sql immutable
+as $$ select case when jsonb_typeof(p_v) = 'number' then (p_v #>> '{}')::numeric >= 0 and (p_v #>> '{}')::numeric = floor((p_v #>> '{}')::numeric) else false end $$;
+
+-- oddOf: whether an account says something no face of that vein could have come to, and what (null: it is within
+-- the rules). A face has so many glinting cells, least to most; a go has the vein's strikes and so many given back
+-- at the most, and no more count than were made; a strike lengthens the crack by `reach` cells at the most, one that
+-- a knot stopped (the only kind given back) by one fewer, and the crack passes no more glinting cells than it has
+-- run through; only a gem's vein has gem's cells, one at least and so many at the most, each of so many fragments.
+create or replace function town.vein_odd(p_vein jsonb, p_go jsonb)
+returns text language plpgsql stable
+as $$
+declare
+  v jsonb := town.cat('mining')->'vein';
+  side numeric := (v->>'size')::numeric;
+  reach numeric := (v->>'reach')::numeric;
+  own numeric := greatest(1, (p_vein->'mods'->>'strikes')::numeric);
+  back_ numeric := greatest(0, (p_vein->'mods'->>'back')::numeric);
+  gem_ boolean := coalesce(p_vein->'gem', 'null'::jsonb) <> 'null'::jsonb;
+  struck numeric;
+  of_ numeric;
+  ore numeric;
+  cut integer;
+begin
+  if p_go is null or not town.vein_whole(p_go->'struck') or not town.vein_whole(p_go->'of') or not town.vein_whole(p_go->'ore') or jsonb_typeof(p_go->'gems') is distinct from 'array' then return 'shape'; end if;
+  if exists (select 1 from jsonb_array_elements(p_go->'gems') g(n) where not town.vein_whole(g.n)) then return 'shape'; end if;
+  if jsonb_typeof(p_go->'strikes') is distinct from 'array' then return 'strikes'; end if;
+  if jsonb_array_length(p_go->'strikes') > 64 or exists (select 1 from jsonb_array_elements(p_go->'strikes') s(c)
+       where not case when jsonb_typeof(s.c) = 'array' then
+                   case when jsonb_array_length(s.c) = 2 and town.vein_whole(s.c->0) and town.vein_whole(s.c->1) then (s.c->>0)::numeric < side and (s.c->>1)::numeric < side else false end
+                 else false end) then return 'strikes'; end if;
+  struck := (p_go->>'struck')::numeric;
+  of_ := (p_go->>'of')::numeric;
+  ore := (p_go->>'ore')::numeric;
+  cut := jsonb_array_length(p_go->'gems');
+  if of_ < (v->'points'->>0)::numeric or of_ > (v->'points'->>1)::numeric then return 'of'; end if;
+  if struck > jsonb_array_length(p_go->'strikes') or struck > own + back_ then return 'struck'; end if;
+  if gem_ then
+    if cut > (v->'gem'->'points'->>1)::integer or exists (select 1 from jsonb_array_elements_text(p_go->'gems') g(n) where g.n::numeric < (v->'gem'->'chips'->>0)::numeric or g.n::numeric > (v->'gem'->'chips'->>1)::numeric) then return 'gems'; end if;
+  elsif cut > 0 then
+    return 'gems';
+  end if;
+  if ore + cut > of_ or (gem_ and ore > of_ - greatest(1, cut)) then return 'passed'; end if;
+  if ore + cut > reach * least(struck, own) + (reach - 1) * greatest(0, struck - own) then return 'far'; end if;
+  return null;
+end;
+$$;
+
+-- veinFrom (lib/town/mining's veinEnd, with the account in the face's place): a vein played out. Refused with
+-- nothing changed when no vein is open or the account is of another vein than the one that is (`none`), or there is
+-- no room for what it gives (`full`: the vein then waits). An account that no face could have come to (`odd`, with
+-- what was odd in it) gives nothing and closes the vein: the purse given back with the refusal is the one to keep.
+create or replace function town.vein_end(p_purse jsonb, p_go jsonb, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  v jsonb := town.cat('mining')->'vein';
+  kept jsonb := town.mine_of(p_purse);
+  vein_ jsonb := kept->'vein';
+  twice boolean;
+  how text;
+  chip text;
+  ore numeric;
+  shards numeric;
+  cut numeric;
+  chips numeric;
+  got_ jsonb := '[]'::jsonb;
+  stowed jsonb;
+  pick jsonb;
+  twin jsonb;
+  after_ jsonb;
+begin
+  if vein_ = 'null'::jsonb then return town.no('none'); end if;
+  twice := coalesce((vein_->>'again')::boolean, false);
+  -- (an account of another vein than the one that is open, or of its other go: nothing is done with it)
+  if p_go is null or jsonb_typeof(p_go) <> 'object' or jsonb_typeof(p_go->'seed') is distinct from 'number' then return town.no('none'); end if;
+  if (p_go->>'seed')::numeric <> (vein_->>'seed')::numeric or town.mine_yes(p_go->'again') <> twice then return town.no('none'); end if;
+  how := town.vein_odd(vein_, p_go);
+  if how is not null then
+    return jsonb_build_object('ok', false, 'why', 'odd', 'how', how, 'purse', p_purse || jsonb_build_object('mine', kept || jsonb_build_object('vein', null)));
+  end if;
+  chip := case when vein_->'gem' <> 'null'::jsonb then town.cat('forge')->'gems'->(vein_->>'gem')->>'chip' end;
+  ore := (p_go->>'ore')::numeric;
+  shards := ore * (v->>'ore')::numeric;
+  cut := coalesce((select sum(g.n::numeric) from jsonb_array_elements_text(p_go->'gems') g(n)), 0);
+  chips := case when cut > 0 then cut + greatest(0, (vein_->>'more')::numeric) else 0 end;
+  if shards > 0 then got_ := got_ || jsonb_build_array(jsonb_build_array(town.mine_ore((vein_->>'f')::integer), shards)); end if;
+  if chips > 0 and chip is not null then got_ := got_ || jsonb_build_array(jsonb_build_array(chip, chips)); end if;
+  stowed := town.stow_all(p_purse, got_);
+  if stowed is null then return town.no('full'); end if;
+  -- a twin vein: the same face once more, with the pick now in the hand, so many times a day
+  pick := town.mine_pick(stowed);
+  twin := case when not twice and pick is not null then town.use_power(stowed, pick, 'pkTwin', p_now) end;
+  after_ := case when coalesce((twin->>'ok')::boolean, false) then twin->'purse' else stowed end;
+  return jsonb_build_object('ok', true, 'got', got_, 'passed', ore + jsonb_array_length(p_go->'gems'), 'of', p_go->'of', 'struck', p_go->'struck',
+    'again', coalesce((twin->>'ok')::boolean, false), 'vein', vein_,
+    'purse', after_ || jsonb_build_object('mine', town.mine_of(after_) || jsonb_build_object('vein',
+      case when coalesce((twin->>'ok')::boolean, false) then vein_ || '{"again": true}'::jsonb else 'null'::jsonb end)));
+end;
+$$;
+
 -- A member's name, as the others are told it: who they are, of somebody with no name at all (as the code's keeper says).
 create or replace function town.mine_name(p_member uuid)
 returns text language sql stable set search_path = public
@@ -1408,6 +1525,46 @@ begin
 end;
 $$;
 
+-- The vein I opened, played out: what my page says the go came to (section 10 says what an account is, and how far
+-- it is believed). It reads no floor. Only my purse is held. The go is written down with the whole of what was
+-- said and what it was played with (`said`: the cells of ore and of the gem that were claimed, the seed of the
+-- face, the strikes the go had), so that a go can be played again on its face afterwards and held to its account.
+-- An account no face could have come to pays nothing, closes the vein, and is written down apart (`vein_odd`).
+create or replace function public.town_vein(p_go jsonb)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.far_member();
+  now_ bigint := town.now_ms();
+  purse jsonb := town.purse_of(me, true);
+  -- (what is no account, or too long to be one, is none)
+  said jsonb := town.claims(p_go);
+  did jsonb := town.vein_end(purse, said, now_);
+  vein_ jsonb := town.mine_of(purse)->'vein';
+  ore_ text;
+begin
+  if (did->>'ok')::boolean then
+    perform town.keep_purse(me, did->'purse');
+    ore_ := town.mine_ore((vein_->>'f')::integer);
+    perform town.note(me, 'vein', case when exists (select 1 from jsonb_array_elements(did->'got') g(v) where g.v->>0 = ore_) then ore_ end, (did->>'passed')::numeric, 0,
+      jsonb_build_object('floor', vein_->'f', 'rock', vein_->'rock', 'strikes', said->'strikes', 'struck', did->'struck', 'passed', did->'passed', 'of', did->'of')
+      || case when (vein_->'mods'->>'spent')::boolean then '{"spent": true}'::jsonb else '{}'::jsonb end
+      || coalesce((select jsonb_build_object('chip', g.v->0) from jsonb_array_elements(did->'got') with ordinality g(v, ord) where g.v->>0 <> ore_ order by g.ord limit 1), '{}'::jsonb)
+      || case when vein_->'gem' <> 'null'::jsonb then jsonb_build_object('gem', vein_->'gem') else '{}'::jsonb end
+      || case when coalesce((vein_->>'again')::boolean, false) then '{"again": true}'::jsonb else '{}'::jsonb end
+      || jsonb_build_object('said', jsonb_build_object('ore', said->'ore', 'gems', said->'gems', 'seed', vein_->'seed', 'mods', vein_->'mods', 'more', vein_->'more')));
+    return town.answer(me, jsonb_build_object('ok', true, 'got', did->'got', 'passed', did->'passed', 'of', did->'of', 'again', did->'again', 'caveMine', town.cave_own(did->'purse', now_)));
+  end if;
+  if did->>'why' = 'odd' then
+    perform town.keep_purse(me, did->'purse');
+    perform town.note(me, 'vein_odd', null, 0, 0, jsonb_build_object('floor', vein_->'f', 'rock', vein_->'rock', 'how', did->'how', 'said', said,
+      'seed', vein_->'seed', 'gem', vein_->'gem', 'mods', vein_->'mods', 'more', vein_->'more'));
+    return town.answer(me, town.no('odd') || jsonb_build_object('caveMine', town.cave_own(did->'purse', now_)));
+  end if;
+  return town.answer(me, did || jsonb_build_object('caveMine', town.cave_own(purse, now_)));
+end;
+$$;
+
 -- ─── Who may ─────────────────────────────────────────────────────────────
 
 -- The rules are no browser's to call; what a member calls is for the signed in.
@@ -1427,3 +1584,5 @@ revoke execute on function public.town_torch(integer, integer) from public, anon
 grant execute on function public.town_torch(integer, integer) to authenticated;
 revoke execute on function public.town_drill(integer, integer) from public, anon;
 grant execute on function public.town_drill(integer, integer) to authenticated;
+revoke execute on function public.town_vein(jsonb) from public, anon;
+grant execute on function public.town_vein(jsonb) to authenticated;

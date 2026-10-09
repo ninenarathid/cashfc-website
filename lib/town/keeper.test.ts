@@ -1223,6 +1223,130 @@ describe("the cave's day, laid by the site's server", () => {
   });
 });
 
+describe("the mountain's rocks and the cave, as the database's keeper asks them", () => {
+  const vein = { f: 3, rock: 5, turn: 99, seed: 20261008, gem: null, mods: { strikes: 6, back: 0, cross: 0, spent: false }, more: 0 };
+  const told = (more: Record<string, unknown> = {}) => ({ day: 20400, turn: 99, again: NOW + 60_000, gone: {}, ways: {}, torches: [], moss: [], deepest: null, rests: [], vein: null, loose: null, glints: [], place: 3, struck: {}, paid: null, crystal: null, ...more });
+  const base = () => ({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+
+  it("strikes a rock with the floor, the rock, the tile and the swings, keeps what the answer tells of the cave, and tells the room: everybody of the cave, and whoever was paid of their purse", async () => {
+    const seen: Array<Record<string, unknown>> = [];
+    let n = 0;
+    const db = database({
+      ...base(), town_cave: () => ({ ok: true, now: NOW, cave: told() }),
+      town_mine: (args) => {
+        seen.push(args);
+        n++;
+        if (n === 1) return { ok: true, now: NOW, purse: purse(), got: [], broke: [], way: false, vein: null, crystal: false, chained: null, cost: 0, part: 0.5, whose: null, cave: told({ struck: { 7: { part: 0.5, own: 0.5, by: "Me", mine: true } } }) };
+        if (n === 2) return { ok: true, now: NOW, purse: purse(), got: [], broke: [7], way: false, vein: null, crystal: false, chained: null, cost: 0, part: 1, helped: true, whose: "Other", paid: "them", moss: false, cave: told({ gone: { 3: [7] } }) };
+        if (n === 3) return { ok: true, now: NOW, purse: purse({ coins: 3 }), got: [["stone", 1]], broke: [8], way: false, vein, crystal: false, chained: null, cost: 4, part: 1, moss: false, cave: told({ gone: { 3: [7, 8] }, vein }) };
+        return { ok: false, why: "gone", now: NOW, purse: purse(), cave: told({ gone: { 3: [7, 8, 9] } }) };
+      },
+    });
+    const k = new DbKeeper("me", db.ask), nudges: Array<[string, string | undefined]> = [];
+    k.onDeed = (what, to) => { nudges.push([what, to]); };
+    await settle();
+    await k.caveLook(3, [70, 330]);
+    const swung = await k.mineDo(3, 7, [70, 331], 2, "Me");
+    expect(seen[0]).toEqual({ p_floor: 3, p_rock: 7, p_x: 70, p_y: 331, p_swings: 2 });
+    expect(swung.ok && swung.part === 0.5 && swung.broke.length === 0).toBe(true);
+    expect(k.cave()?.struck?.["7"]?.part).toBe(0.5);
+    // (a rock somebody else struck first, broken by my swings: they are told, through the room, that their purse changed)
+    const helped = await k.mineDo(3, 7, [70, 331], 2, "Me", "quake");
+    expect(seen[1]).toEqual({ p_floor: 3, p_rock: 7, p_x: 70, p_y: 331, p_swings: 2, p_how: "quake" });
+    expect(helped.ok && helped.helped === true && helped.paid === "them").toBe(true);
+    expect(k.cave()?.gone).toEqual({ 3: [7] });
+    // a vein opened: it is in what I am told of the cave at once, with no look in between
+    const opened = await k.mineDo(3, 8, [70, 331], 4, "Me");
+    expect(opened.ok && opened.vein?.seed === vein.seed && "fire" in opened === false).toBe(true);
+    expect(k.cave()?.vein).toEqual(vein);
+    expect(k.purse().coins).toBe(3);
+    // a refusal brings what is told too: a rock that is gone is gone on this page from then on
+    const gone = await k.mineDo(3, 9, [70, 331], 1, "Me");
+    expect(gone).toMatchObject({ ok: false, why: "gone" });
+    expect(k.cave()?.gone).toEqual({ 3: [7, 8, 9] });
+    expect(nudges).toEqual([["cave", undefined], ["cave", undefined], ["line", "them"], ["cave", undefined], ["cave", undefined]]);
+    k.close();
+  });
+
+  it("tells a vein's go as its page saw it come out (the face is the page's to lay out), of the vein it was last told is open; and lays what comes back of my own over what it was told", async () => {
+    const { accountOf } = await import("./vein-account");
+    const { bestRoute, faceOf } = await import("./vein");
+    const strikes = bestRoute(faceOf(vein.seed, false), vein.mods).strikes, seen: Array<Record<string, unknown>> = [];
+    let open: typeof vein | null = vein;
+    const db = database({
+      ...base(), town_cave: () => ({ ok: true, now: NOW, cave: told({ vein: open, rests: [10], glints: [4] }) }),
+      town_vein: (args) => {
+        seen.push(args);
+        const go = args.p_go as { ore: number; of: number };
+        open = null;
+        return { ok: true, now: NOW, purse: purse({ coins: 9 }), got: [["shardCopper", go.ore * 2]], passed: go.ore, of: go.of, again: false, caveMine: { rests: [10], vein: null, loose: null, paid: null } };
+      },
+    });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    // before anything is told of the cave there is no vein to play: nothing is asked
+    expect(await k.veinDo(strikes)).toEqual({ ok: false, why: "none" });
+    expect(db.asked.includes("town_vein")).toBe(false);
+    await k.caveLook(3, [70, 330]);
+    const did = await k.veinDo(strikes);
+    expect(seen).toEqual([{ p_go: accountOf(vein, strikes) }]);
+    expect((seen[0].p_go as { seed: number; struck: number; ore: number }).seed).toBe(vein.seed);
+    expect((seen[0].p_go as { struck: number }).struck).toBe(strikes.length);
+    expect((seen[0].p_go as { ore: number }).ore).toBeGreaterThanOrEqual(2);
+    expect(did.ok && did.passed === (seen[0].p_go as { ore: number }).ore && did.again === false).toBe(true);
+    // the vein is played out on this page at once; what was told of the floor I am on is as it was
+    expect(k.cave()?.vein).toBeNull();
+    expect([k.cave()?.rests, k.cave()?.glints, k.cave()?.place]).toEqual([[10], [4], 3]);
+    expect(k.purse().coins).toBe(9);
+    k.close();
+  });
+
+  it("is answered `odd` for an account the rules cannot hold, as any refusal; and a vein that waits for room is still the open one", async () => {
+    let answer: Record<string, unknown> = { ok: false, why: "odd", now: NOW, purse: purse(), caveMine: { rests: [], vein: null, loose: null, paid: null } };
+    const db = database({ ...base(), town_cave: () => ({ ok: true, now: NOW, cave: told({ vein }) }), town_vein: () => answer });
+    const k = new DbKeeper("me", db.ask);
+    await settle();
+    await k.caveLook(3, null);
+    expect(await k.veinDo([[1, 0]])).toMatchObject({ ok: false, why: "odd" });
+    expect(k.cave()?.vein).toBeNull();
+    await k.caveLook(3, null);
+    answer = { ok: false, why: "full", now: NOW, purse: purse(), caveMine: { rests: [], vein, loose: null, paid: null } };
+    expect(await k.veinDo([[1, 0]])).toMatchObject({ ok: false, why: "full" });
+    expect(k.cave()?.vein).toEqual(vein);
+    k.close();
+  });
+
+  it("asks of a floor come to only once it has been told of a cave, and has the lift's new stop at once; rides the lift, sets a torch down, breaks through a floor and looks into a rock by their own functions", async () => {
+    const seen: Array<[string, Record<string, unknown>]> = [];
+    const note = (fn: string, answer: Record<string, unknown>) => (args: Record<string, unknown>) => { seen.push([fn, args]); return { now: NOW, purse: purse(), ...answer }; };
+    const db = database({
+      ...base(), town_cave: () => ({ ok: true, now: NOW, cave: told() }),
+      town_cave_reach: note("town_cave_reach", { ok: true, reached: true, caveMine: { rests: [10], vein: null, loose: null, paid: null } }),
+      town_lift: note("town_lift", { ok: true, at: [150, 460] }),
+      town_torch: note("town_torch", { ok: true, until: NOW + 300_000, cave: told({ torches: [{ f: 3, x: 70, y: 330, until: NOW + 300_000, by: "me" }] }) }),
+      town_drill: note("town_drill", { ok: true, at: [71, 330], left: 2, cave: told({ ways: { 3: { x: 71, y: 330, rock: null, name: "Me" } }, deepest: { floor: 4, by: "me", name: "Me", at: NOW } }) }),
+      town_mine_peek: note("town_mine_peek", { ok: true, peek: "shards" }),
+    });
+    const k = new DbKeeper("me", db.ask), nudges: string[] = [];
+    k.onDeed = (what) => { nudges.push(what); };
+    await settle();
+    await k.caveReach(10);
+    expect(seen).toEqual([]);
+    await k.caveLook(10, null);
+    await k.caveReach(10);
+    expect(k.cave()?.rests).toEqual([10]);
+    expect(await k.liftRide(10)).toMatchObject({ ok: true, at: [150, 460] });
+    expect(await k.torchDown([70, 330])).toMatchObject({ ok: true, until: NOW + 300_000 });
+    expect(k.cave()?.torches.length).toBe(1);
+    expect(await k.drillDo([70, 330], "Me")).toMatchObject({ ok: true, at: [71, 330], left: 2 });
+    expect(k.caveBoard()).toEqual({ floor: 4, by: "me", name: "Me", at: NOW });
+    expect(await k.minePeek(3, 7)).toMatchObject({ ok: true, peek: "shards" });
+    expect(seen).toEqual([["town_cave_reach", { p_floor: 10 }], ["town_lift", { p_to: 10 }], ["town_torch", { p_x: 70, p_y: 330 }], ["town_drill", { p_x: 70, p_y: 330 }], ["town_mine_peek", { p_floor: 3, p_rock: 7 }]]);
+    expect(nudges).toEqual(["cave", "cave"]);
+    k.close();
+  });
+});
+
 describe("the later lines of work, while the far side is shut", () => {
   it("shows felling and mining nowhere until the far side is open to me: no points, no title, no gift, whatever the database lists", async () => {
     let open = false;

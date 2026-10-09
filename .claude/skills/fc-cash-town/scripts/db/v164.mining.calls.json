@@ -47,5 +47,7 @@
   "may_ride": "town.mine_may_ride($1::jsonb, $2::integer)",
   "torch_down": "town.mine_torch_down($1::jsonb)",
   "drill": "town.mine_drill($1::jsonb, $2::integer, $3::boolean, $4::bigint)",
-  "beside": "town.cave_beside($1::jsonb, $2::integer, $3::integer, $4::integer)"
+  "beside": "town.cave_beside($1::jsonb, $2::integer, $3::integer, $4::integer)",
+  "vein_odd": "town.vein_odd($1::jsonb, ($2::jsonb)->0)",
+  "vein_end": "town.vein_end($1::jsonb, ($2::jsonb)->0, $3::bigint)"
 }
