@@ -15,7 +15,7 @@ import { caveLayout } from "@/lib/town/mining-row";
  * and asks again. Written as the weather is (app/api/town/weather).
  *
  * Nothing a caller says is believed or even read: no query and no body. The day is this server's clock's (Bangkok's,
- * turning at 05:00, as the cave's rules count it), the floors are the generator's. A row that is there already is
+ * turning at 05:00, as the cave's rules count it) and the one after it, the floors are the generator's. A row that is there already is
  * left as it is (insert only: nothing here updates or deletes), so asking over and over only counts rows. Where the
  * database has no such table yet, or the site has no key to write with, it answers that no floor is laid, and says
  * nothing else.
@@ -36,16 +36,22 @@ export async function GET() {
   try {
     const supabase = admin();
     if (!supabase) return Response.json({ day, laid: 0 }, { headers: HEADERS });
-    const count = () => supabase.from("town_cave_days").select("floor", { count: "exact", head: true }).eq("day", day);
-    const before = await count();
+    const count = (of: number) => supabase.from("town_cave_days").select("floor", { count: "exact", head: true }).eq("day", of);
+    const before = await count(day);
     // (no such table yet: nothing is laid, and nothing is said of why)
     if (before.error) return Response.json({ day, laid: 0 }, { headers: HEADERS });
-    if ((before.count ?? 0) < MINING.floors) {
-      const rows = Array.from({ length: MINING.floors }, (_, i) => ({ day, floor: i + 1, layout: caveLayout(i + 1, day) }));
+    // Today's floors, and tomorrow's as well (the database takes both and no other day): so that the day's turn finds
+    // its cave laid already, and nobody who is in it at that hour meets a floor that is not there. Each day is written
+    // by itself, today's first: a row the database refuses makes its whole insert fail, and tomorrow's must never
+    // cost today's (the two clocks may differ by a moment just at the turn).
+    for (const of of [day, day + 1]) {
+      const have = of === day ? before : await count(of);
+      if (have.error || (have.count ?? 0) >= MINING.floors) continue;
+      const rows = Array.from({ length: MINING.floors }, (_, i) => ({ day: of, floor: i + 1, layout: caveLayout(i + 1, of) }));
       // (a floor that is kept already stays as it is: two askers at once write the same thing, or one of them nothing)
       await supabase.from("town_cave_days").upsert(rows, { onConflict: "day,floor", ignoreDuplicates: true });
     }
-    const after = await count();
+    const after = await count(day);
     return Response.json({ day, laid: after.error ? 0 : after.count ?? 0 }, { headers: HEADERS });
   } catch {
     return Response.json({ day, laid: 0 });

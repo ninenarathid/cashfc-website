@@ -57,6 +57,8 @@ const WHY_MINE: Record<string, [th: string, en: string]> = {
   full: WHY.full, vein: ["ยังมีสายแร่ที่เปิดค้างไว้", "A vein is still open"], spent: ["วันนี้ใช้ไปครบแล้ว", "Used up for today"],
   open: ["ทางลงชั้นนี้เปิดอยู่แล้ว", "The way down is open already"], here: ["ตรงนี้ทำไม่ได้", "Not on this spot"], away: WHY.away,
   shut: ["ทางลงชั้นนี้ยังไม่มีใครหาเจอ", "Nobody has found the way down yet"],
+  // (the day's floors are not in the database yet, and the site could not lay them just now)
+  unlaid: ["ถ้ำของวันนี้ยังไม่พร้อม ลองใหม่อีกสักครู่", "Today's cave is not ready yet. Try again in a moment."],
 };
 /** What a peek shows over a rock: the picture, by what it said. */
 const PEEK_ICON = (peek: Peek, floor: number): string => (peek === "vein" ? "veinOre" : peek === "shards" ? iconOf(oreOf(floor)) : "stone");
@@ -450,7 +452,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
       registerTap("chest", (tap) => { openChest(tap.tile); return true; }),
       registerTap("lift", (tap) => openLift(tap.floor, tap.tile)),
       // the mine's mouth: whoever has reached a resting floor is asked where to; anybody else walks in, by its threshold
-      registerTap("mouth", (tap) => ((keeper.cave()?.rests.length ?? 0) > 0 ? openLift(0, tap.tile) : walk(tap.tile[0], tap.tile[1]))),
+      // (asked from before the mouth, where the lift sets a rider down: the mouth's own tile is the way in, and a walk
+      // up to it went on through it, to stand on floor 1 with the mouth's panel open)
+      registerTap("mouth", (tap) => ((keeper.cave()?.rests.length ?? 0) > 0 ? openLift(0, [MOUNTAIN_AT.mouth.x + 3, MOUNTAIN_AT.mouth.y]) : walk(tap.tile[0], tap.tile[1]))),
       registerTap("ladderDown", (tap) => {
         if (tap.floor >= MINING.floors) { setSign(true); return true; }
         // (where the layout cannot be told that a way is shut: its ladder stands, and takes nobody down until the way is found)
@@ -784,9 +788,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
         </div>
       )}
 
-      {/* a vein opened: its board, over the map */}
+      {/* a vein opened: its board, over the map (on a phone it begins under the HUD's top row, which lies over everything there: the board's head and its how-to were under the plates) */}
       {vein && (
-        <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-2 sm:items-center sm:p-4" style={{ paddingBottom: "var(--hud-b)" }} data-mine-vein>
+        <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-[calc(var(--hud-t,0px)+0.25rem)] sm:items-center sm:p-4" style={{ paddingBottom: "var(--hud-b)" }} data-mine-vein>
           <Suspense fallback={null}>
             <TownVein vein={vein} th={th} reduced={reduced} sfx={sfx}
                       onEnd={async (strikes) => {

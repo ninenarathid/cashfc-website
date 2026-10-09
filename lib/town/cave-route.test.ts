@@ -3,12 +3,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 /** The cave's day route, with the database played by a script: what it writes, and what it says when there is no table. */
 const calls: Array<{ op: string; args: unknown[] }> = [];
 let table: "missing" | "there";
-let have = 0;
+const have = new Map<number, number>();
 vi.mock("@supabase/supabase-js", () => ({
   createClient: () => ({
     from: (name: string) => ({
-      select: () => ({ eq: async () => (table === "missing" ? { error: { code: "42P01" }, count: null } : { error: null, count: have }) }),
-      upsert: async (rows: unknown[], options: unknown) => { calls.push({ op: `upsert ${name}`, args: [rows, options] }); have = (rows as unknown[]).length; return { error: null }; },
+      select: () => ({ eq: async (_col: string, of: number) => (table === "missing" ? { error: { code: "42P01" }, count: null } : { error: null, count: have.get(of) ?? 0 }) }),
+      upsert: async (rows: Array<{ day: number }>, options: unknown) => { calls.push({ op: `upsert ${name}`, args: [rows, options] }); have.set(rows[0].day, rows.length); return { error: null }; },
       insert: async () => { calls.push({ op: "insert", args: [] }); return { error: null }; },
       update: async () => { calls.push({ op: "update", args: [] }); return { error: null }; },
       delete: async () => { calls.push({ op: "delete", args: [] }); return { error: null }; },
@@ -17,10 +17,10 @@ vi.mock("@supabase/supabase-js", () => ({
 }));
 vi.mock("@/lib/supabase/config", () => ({ SUPABASE_URL: "http://db.test" }));
 
-afterEach(() => { calls.length = 0; have = 0; vi.unstubAllEnvs(); vi.resetModules(); });
+afterEach(() => { calls.length = 0; have.clear(); vi.unstubAllEnvs(); vi.resetModules(); });
 
 describe("the cave's day route", () => {
-  it("lays the thirty floors with the game's own generator, insert only, and says how many are there", async () => {
+  it("lays today's thirty floors and tomorrow's with the game's own generator, each day by itself, insert only, and says how many are there today", async () => {
     vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "k");
     table = "there";
     const { GET } = await import("../../app/api/town/cave/route");
@@ -28,12 +28,15 @@ describe("the cave's day route", () => {
     const body = await (await GET()).json();
     expect(body.laid).toBe(30);
     expect(typeof body.day).toBe("number");
-    expect(calls.map((c) => c.op)).toEqual(["upsert town_cave_days"]);
-    const [rows, options] = calls[0].args as [Array<{ day: number; floor: number; layout: unknown }>, { onConflict: string; ignoreDuplicates: boolean }];
-    expect(options).toEqual({ onConflict: "day,floor", ignoreDuplicates: true });
-    expect(rows.map((r) => r.floor)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
-    expect(rows.every((r) => r.day === body.day && Object.keys(r).sort().join() === "day,floor,layout")).toBe(true);
-    expect(rows[4].layout).toEqual(caveLayout(5, body.day));
+    expect(calls.map((c) => c.op)).toEqual(["upsert town_cave_days", "upsert town_cave_days"]);
+    calls.forEach((call, i) => {
+      // (today's first, then tomorrow's: a day to a write)
+      const [rows, options] = call.args as [Array<{ day: number; floor: number; layout: unknown }>, { onConflict: string; ignoreDuplicates: boolean }], of = body.day + i;
+      expect(options).toEqual({ onConflict: "day,floor", ignoreDuplicates: true });
+      expect(rows.map((r) => r.floor)).toEqual(Array.from({ length: 30 }, (_, k) => k + 1));
+      expect(rows.every((r) => r.day === of && Object.keys(r).sort().join() === "day,floor,layout")).toBe(true);
+      expect(rows[4].layout).toEqual(caveLayout(5, of));
+    });
     // laid already: nothing is written again
     calls.length = 0;
     expect((await (await GET()).json()).laid).toBe(30);
