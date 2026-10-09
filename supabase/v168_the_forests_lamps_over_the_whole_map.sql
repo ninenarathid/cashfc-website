@@ -1,9 +1,9 @@
 -- v168 — the forest's lamps over the whole of the map: fifty-six, where it had forty near its middle
 --
--- A DRAFT: it is not in supabase/ and has not run. Run it once in the Supabase SQL editor, after v167 (it stops at
+-- Run it once in the Supabase SQL editor, after v167 (it stops at
 -- its first line without v163's lamps). Running it again is safe. **Run it by day, before half past five in the
 -- evening**: the forest's posts after its twelfth change their tiles, and a post lit is kept by its number, so on a
--- night that is on a lamp lit at one of them would be shown at its number's new place. The site's code for it goes
+-- night that is on a lamp lit at one of them would be shown at its number's new place. The site's code for it went
 -- out first: a page with the code and a database without this file shows the new places and is answered "too far" at
 -- the forest's posts after the twelfth; a page from before the code shows the old ones (it should be loaded again).
 --
