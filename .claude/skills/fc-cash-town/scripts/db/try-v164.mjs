@@ -5,7 +5,7 @@
  * files wrote, without pasting them.
  *
  *   node try-v164.mjs <the worktree's root> <version> <part>          e.g.  node try-v164.mjs E:/…/fcnext-wt-x v164 felling
- *                                                                          or  node try-v164.mjs E:/…/fcnext-wt-x v173 smith
+ *                                                                          or  node try-v164.mjs E:/…/fcnext-wt-x v174 smith
  *
  * It reads, in <root>/.claude/skills/fc-cash-town/scripts/db/:
  *   <version>.shared.sql          optional: what every part stands on (run first; not a part's to change)

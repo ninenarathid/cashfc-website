@@ -23,7 +23,7 @@ import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, 
  * - `elements` in their order, and `gems`: each element's gem and the fragment it is smelted of;
  * - `smelting` (so many fragments and so much timber a piece), and `smelts`: every piece that comes out, in order,
  *   with the fragment it is of, its minutes and its fee;
- * - (from v173, with the smith himself) `fire`: the great fire's knobs (lib/town/great-fire's `GREAT_FIRE`, whole);
+ * - (from v174, with the smith himself) `fire`: the great fire's knobs (lib/town/great-fire's `GREAT_FIRE`, whole);
  *   `timed`: the options whose doing goes on for a while, each with where the purse keeps the moment it is over
  *   (lib/town/powers' `TIMED`); `stand`: where the forge stands, and within how many tiles of it one is by it
  *   (lib/town/world's `bySmith`); `old`: the elements' steps for the seven tools there were before the pick and the

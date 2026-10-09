@@ -21,9 +21,9 @@ import { newPurse, put, type Purse, type Stack } from "./trade";
 import { SMITH as SMITH_PLACE, bySmith } from "./world";
 
 /**
- * The cases the database's rules of the blacksmith are held to (v173's smith part; lib/town/db-vectors-gifts.test.ts
+ * The cases the database's rules of the blacksmith are held to (v174's smith part; lib/town/db-vectors-gifts.test.ts
  * says how such a file works). Each is a function of the schema `town` with its arguments and what the code answers
- * (.claude/skills/fc-cash-town/scripts/db/v173.smith.calls.json says which function each name is). What a tool
+ * (.claude/skills/fc-cash-town/scripts/db/v174.smith.calls.json says which function each name is). What a tool
  * carries is read by v164's readers, which have cases of their own (lib/town/db-vectors-base.test.ts); these are of
  * what the smith does with it:
  *

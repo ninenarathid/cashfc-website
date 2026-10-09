@@ -1,6 +1,6 @@
--- v173, the smith's part: the blacksmith who stands in the town, and the forge's great fire (lib/town/forge,
+-- v174, the smith's part: the blacksmith who stands in the town, and the forge's great fire (lib/town/forge,
 -- lib/town/great-fire and lib/town/powers' `running`, written again). Tried on the stand-in's snapshot, as it is
--- after the last file that ran: `node try-v164.mjs <the worktree's root> v173 smith`. Safe to run twice.
+-- after the last file that ran: `node try-v164.mjs <the worktree's root> v174 smith`. Safe to run twice.
 --
 -- It stands on what v164 gave and is live (v164.base.sql's head is the contract): the catalog's `forge` row, the far
 -- side's gate, the readers of a tool (`town.tool_kind`, `tool_level`, `tool_drawn`, `tool_origin`, `tool_away`,
@@ -12,7 +12,7 @@
 --
 --   1. THE CATALOG. One row written over, `forge`: what the smith himself reads beyond what a pick and an axe were
 --      read by from the first day (`fire`, `timed`, `stand`, `old`). The block is written from lib/town/catalog.ts
---      (fill-catalog.mjs v173 <this file>); whoever adds a row to CATALOG_KEYS.v173 writes it again.
+--      (fill-catalog.mjs v174 <this file>); whoever adds a row to CATALOG_KEYS.v174 writes it again.
 --   2. THE GATE. The knob `smith_open` (0: built closed). `town.smith_member()` is what every function of the smith's
 --      that a member calls begins with:
 --          me uuid := town.smith_member();
@@ -79,9 +79,9 @@
 -- Four functions that were there have a small marked block more each: `public.town_fell` and `public.town_mine` (a
 -- tree felled may be the village's tinder, a rock paid for its flint), `town.work_counts_of` (the bellows count for
 -- the helpers' line) and `town.deed_th` (a word for each deed here). NOTHING OF THEM IS PASTED HERE:
--- v173.smith.lines.mjs says the lines, and build-v164.mjs builds each statement from the function's own text as the
--- database then has it (a file that runs before v173 may have written it again), into the empty places marked below.
--- `town.fell` itself, the woodcutters' rule, is not touched.
+-- v174.smith.lines.mjs says the lines, and build-v164.mjs builds each statement from the function's own text as the
+-- database then has it (a file that runs before v174 may have written it again), into the empty places marked below.
+-- `town.fell` itself, the woodcutters' rule, is not touched (v172 and v173, which run before this file, write it).
 
 -- <guards: the smith's part> (whoever puts the file together may fold these into the file's own head)
 do $$
@@ -102,7 +102,7 @@ end $$;
 
 -- ─── 1. The catalog ──────────────────────────────────────────────────────
 
--- <catalog:v173> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
+-- <catalog:v174> written from lib/town/catalog.ts (npm test checks it; TOWN_WRITE=1 npx vitest run lib/town/catalog.test.ts writes it)
 insert into public.town_catalog (key, data) values
   ('forge', $town${
     "kinds": ["pick","axe","rod","hoe","can","bugNet","pot","pan","grill"],
@@ -125,7 +125,7 @@ insert into public.town_catalog (key, data) values
     "old": {"fire":{"rod":{"tires":[0.15,0.25,0.35,0.45]},"hoe":{"fewer":[1,1,2,2]},"can":{"more":[1,2,3,4]},"bugNet":{"sooner":[0.15,0.25,0.35,0.45]},"cook":{"shorter":[0.15,0.25,0.35,0.45]}},"water":{"spared":[1,2,3,4]},"ice":{"slow":[0.15,0.25,0.35,0.45]},"earth":{"stamina":[0.15,0.25,0.35,0.45]},"lightning":{"chance":[0.1,0.2,0.3,0.4]},"light":{"rod":{"early":[0.2,0.3,0.4,0.5]},"can":{"glint":[4,7,10,999]},"bugNet":{"seen":[3,5,7,9]}},"dark":{"rod":{"rare":[1.2,1.4,1.6,1.8],"fiercer":0.1},"hoe":{"worm":[0.05,0.1,0.15,0.2],"faster":0.1},"can":{"more":[0.1,0.15,0.2,0.25],"uses":2},"bugNet":{"rare":[1.2,1.4,1.6,1.8],"smaller":0.1},"cook":{"helping":[0.1,0.2,0.3,0.4],"harder":0.1}}}
   }$town$::jsonb)
   on conflict (key) do update set data = excluded.data, updated_at = now();
--- </catalog:v173>
+-- </catalog:v174>
 
 do $$
 begin
@@ -1229,8 +1229,8 @@ as $$ select town.answer(p_member, p_did - 'smithy' - 'fire') || jsonb_build_obj
 
 -- ─── 5a. Functions of earlier files, each with a block more ──────────────
 -- (empty places: build-v164.mjs puts each function here as the database has it, with the lines of
--- v173.smith.lines.mjs in place. Left empty in this file on purpose: a pasted copy would undo whatever a file that
--- runs before v173 wrote into the same function.)
+-- v174.smith.lines.mjs in place. Left empty in this file on purpose: a pasted copy would undo whatever a file that
+-- runs before v174 wrote into the same function.)
 
 -- <public.town_fell>
 -- </public.town_fell>

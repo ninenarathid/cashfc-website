@@ -1,6 +1,6 @@
-// What v173's smith part changes in functions that earlier files wrote. Nothing of those functions is pasted into
-// v173.smith.sql: each change is a small marked block (`-- ── the forge's great fire (v173) … ──`,
-// `-- ── the blacksmith (v173) … ──`), given here as [the anchor: a line of the function as it stands, what stands in
+// What v174's smith part changes in functions that earlier files wrote. Nothing of those functions is pasted into
+// v174.smith.sql: each change is a small marked block (`-- ── the forge's great fire (v174) … ──`,
+// `-- ── the blacksmith (v174) … ──`), given here as [the anchor: a line of the function as it stands, what stands in
 // its place], and built into the function's own text as the database has it (build-v164.mjs; try-v164.mjs does it
 // against the snapshot, and holds each function to the one it replaces but for these lines).
 //
@@ -19,10 +19,12 @@
 //   town.work_counts_of   its `  if what = 'net' then` line                K, the block BEFORE it (as v164's two)
 //   town.deed_th          its `    else p_what end` line                   K, the block BEFORE it (as v164's two)
 //
-// `town.fell`, the woodcutters' rule, is NOT written again: a file that runs before v173 and writes it (v172 does)
-// touches no line of these.
+// `town.fell`, the woodcutters' rule, is NOT written again: a file that runs before v174 and writes it (v172 and
+// v173 do) touches no line of these. v173 may also write `public.town_fell` where the deed is written down: the three
+// anchors there are the declare's last line, the line that reads my go off the grove, and the line that keeps the
+// grove, none of them a line of the deed's.
 
-const OPEN = "-- ── the forge's great fire (v173)";
+const OPEN = "-- ── the forge's great fire (v174)";
 
 /**
  * public.town_fell (v164's text): a call that felled a tree may have found the village's tinder. The fire's row is the
@@ -101,26 +103,26 @@ export const MINE = [
  */
 export const WORK_COUNTS_OF = [[
   "  if what = 'net' then\n",
-  "  -- ── the blacksmith (v173): the bellows worked at the smith for somebody else's piece ──\n"
+  "  -- ── the blacksmith (v174): the bellows worked at the smith for somebody else's piece ──\n"
   + "  if what = 'bellows' then\n"
   + "    if jsonb_typeof(doc->'whose') = 'string' and doc->>'whose' <> p_doer then\n"
   + "      return jsonb_build_array(jsonb_build_object('to', null, 'line', 'helpers', 'raw', l->'helpers'->'bellows'));\n"
   + "    end if;\n"
   + "    return '[]'::jsonb;\n"
   + "  end if;\n"
-  + "  -- ── the blacksmith (v173): its end ──\n"
+  + "  -- ── the blacksmith (v174): its end ──\n"
   + "  if what = 'net' then\n",
 ]];
 
 /** town.deed_th (v163's text with v164's two blocks): a word for each deed of the smith's and of the great fire's. */
 export const DEED_TH = [[
   "    else p_what end\n",
-  "    -- ── the blacksmith (v173) ──\n"
+  "    -- ── the blacksmith (v174) ──\n"
   + "    when 'smelt' then 'ฝากช่างตีเหล็กหลอม' when 'smelted' then 'รับของที่หลอมเสร็จ' when 'smith_wider' then 'ขยายเตาหลอม' when 'bellows' then 'สูบลมช่วยเพื่อนหลอม'\n"
   + "    when 'forge' then 'ตีบวกเครื่องมือ' when 'forge_draw' then 'ช่างเปิดออปชันให้เลือก' when 'forge_choose' then 'เลือกออปชันของเครื่องมือ' when 'forge_redraw' then 'สุ่มออปชันใหม่'\n"
   + "    when 'gem_set' then 'ฝังพลอยลงเครื่องมือ' when 'forge_move' then 'ย้ายของที่ตีไว้ไปเครื่องมืออีกชิ้น' when 'forge_first' then 'ขึ้นป้ายคนแรกของช่างตีเหล็ก' when 'power' then 'ใช้พลังของเครื่องมือ'\n"
   + "    when 'fire_found' then 'พบส่วนหนึ่งของไฟใหญ่ของเตา' when 'fire_join' then 'ลงชื่อในคิวไฟใหญ่' when 'fire_leave' then 'ถอนชื่อจากคิวไฟใหญ่'\n"
-  + "    -- ── the blacksmith (v173): its end ──\n"
+  + "    -- ── the blacksmith (v174): its end ──\n"
   + "    else p_what end\n",
 ]];
 
