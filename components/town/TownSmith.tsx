@@ -427,7 +427,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   );
 
   return (
-    <div className={`pop-in absolute z-30 overflow-hidden border-2 border-[#2e1c0c] bg-[#6e4420] shadow-xl shadow-black/50 ${phone ? "inset-x-0 h-[min(92%,48rem)] rounded-t-2xl" : "right-3 top-16 w-[27rem] rounded-2xl"}`}
+    // (on a phone the sheet is as tall as it can be UNDER the top row of the HUD, as the stall's is: taller, its own head lay under the plate with the clock)
+    <div className={`pop-in absolute z-30 overflow-hidden border-2 border-[#2e1c0c] bg-[#6e4420] shadow-xl shadow-black/50 ${phone ? "inset-x-0 h-[min(92%,48rem,calc(100%-8.5rem))] rounded-t-2xl" : "right-3 top-16 w-[27rem] rounded-2xl"}`}
          style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }} data-state="open" data-smith-panel data-smith-view={view}>
       <style href="town-smith" precedence="medium">{`
         @keyframes sm-swing { 0% { transform: rotate(-58deg) } 55% { transform: rotate(-58deg) } 78% { transform: rotate(8deg) } 100% { transform: rotate(-24deg) } }
