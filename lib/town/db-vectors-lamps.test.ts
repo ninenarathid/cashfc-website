@@ -77,7 +77,7 @@ function rules(): Vector[] {
   for (let i = 0; i < 800; i++) {
     const now = moment(), p = purse(now), has = flame(now, 0.3), m = map(), fire = fireOf(m) ?? LAMPS.maps.farm.fire;
     const at = c.maybe(0.05) ? null : c.maybe(0.8) ? about(c, fire) : c.maybe(0.5) ? about(c, fire, 2) : about(c, LAMPS.maps[m === "farm" ? "forest" : "farm"].fire);
-    const stone = c.maybe(0.08), lit = c.of([0, 0, 0, 3, 7, 11, 12, 27, 28, 29, 39, 40, 41]), me = c.of(WHO);
+    const stone = c.maybe(0.08), lit = c.of([0, 0, 0, 3, 7, 11, 12, 27, 28, 29, 55, 56, 57]), me = c.of(WHO);
     out.push({ fn: "take", args: [p, has, stone, lit, m, at?.[0] ?? null, at?.[1] ?? null, me, now], want: take(p, has, stone, lit, m, at, me, now) });
   }
   for (let i = 0; i < 600; i++) {
@@ -85,7 +85,7 @@ function rules(): Vector[] {
     out.push({ fn: "pass", args: [has, to, theirs, their, stone, now], want: pass(has, to, theirs, their, stone, now) });
   }
   for (let i = 0; i < 900; i++) {
-    const now = moment(), p = purse(now), has = flame(now, 0.9), m = map(), post = c.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 19, 23, 24, 27, 28, 33, 39, 40, -1]);
+    const now = moment(), p = purse(now), has = flame(now, 0.9), m = map(), post = c.of([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 12, 13, 19, 23, 24, 27, 28, 33, 39, 40, 55, 56, -1]);
     const tile = postOf(m, post) ?? LAMPS.maps.farm.posts[0];
     const at = c.maybe(0.05) ? null : c.maybe(0.8) ? about(c, tile) : about(c, tile, 2);
     // (the posts lit already: none, some, all but this one, this one among them)
@@ -93,7 +93,7 @@ function rules(): Vector[] {
     out.push({ fn: "light", args: [p, has, lit, m, post, at?.[0] ?? null, at?.[1] ?? null, now], want: light(p, has, lit, m, post, at, now) });
   }
   for (const m of [...LAMP_MAPS, "town"]) {
-    for (const post of [null, 0, 5, 11, 12, 27, 28, 39, 40, -1]) {
+    for (const post of [null, 0, 5, 11, 12, 27, 28, 39, 55, 56, -1]) {
       const tile = post === null ? fireOf(m) : postOf(m, post), mid = tile ?? LAMPS.maps.farm.fire;
       for (let dx = -3; dx <= 3; dx++) for (let dy = -3; dy <= 3; dy++) out.push({ fn: "by", args: [m, post, mid[0] + dx, mid[1] + dy], want: byTile([mid[0] + dx, mid[1] + dy], tile) });
       out.push({ fn: "by", args: [m, post, null, mid[1]], want: false }, { fn: "by", args: [m, post, mid[0], null], want: false });
@@ -143,7 +143,7 @@ function story(seed: number, begin: number, length: number, start: number[], sec
     } else {
       // (mostly a post that is still dark, from a tile by it; now and then one that is lit, or from too far)
       const map: LampMap = c.maybe(0.8) ? mine.from : c.of(LAMP_MAPS), lit = litOf(kept, map, night), dark = [...Array(LAMPS.maps[map].posts.length).keys()].filter((n) => !lit.includes(n));
-      const post = dark.length && c.maybe(0.9) ? c.of(dark) : c.int(-1, 40), tile = postOf(map, post) ?? LAMPS.maps[map].posts[0];
+      const post = dark.length && c.maybe(0.9) ? c.of(dark) : c.int(-1, 56), tile = postOf(map, post) ?? LAMPS.maps[map].posts[0];
       const at = c.maybe(0.92) ? about(c, tile) : c.maybe(0.5) ? about(c, tile, 3) : null;
       deed = { fn: "light", map, post, at };
       const did = light(purses[by], mine, lit, map, post, at, now);
