@@ -8670,7 +8670,7 @@
     "state": "learning",
     "pct": 63.97,
     "phase": 4,
-    "pulls": 115,
+    "pulls": 79,
     "last": "2026-10-05",
     "last_ts": 1791219669
    }
@@ -9390,7 +9390,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 66,
-    "kills": 17,
+    "kills": 20,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
@@ -10375,7 +10375,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 75,
-    "kills": 1,
+    "kills": 2,
     "job": "Viper",
     "cleared": true
    },
@@ -25568,20 +25568,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 103,
-    "name": "The Tyrant",
-    "kind": "savage",
-    "state": "learning",
-    "pct": 64.48,
-    "phase": 0,
-    "pulls": 18,
-    "last": "2026-09-29",
-    "last_ts": 1790648912
-   }
-  ]
+  "_status": "ok"
  },
  "25541816": {
   "current": {
@@ -26963,9 +26950,9 @@
     "state": "learning",
     "pct": 22.88,
     "phase": 3,
-    "pulls": 57,
-    "last": "2026-09-30",
-    "last_ts": 1790788041
+    "pulls": 22,
+    "last": "2026-10-09",
+    "last_ts": 1791560747
    }
   ]
  },
@@ -27993,8 +27980,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 1,
-    "kills": 1,
+    "best": 54,
+    "kills": 2,
     "job": "BlackMage",
     "cleared": true
    },
@@ -28692,20 +28679,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 13,
-    "last": "2026-09-29",
-    "last_ts": 1790690223
-   }
-  ]
+  "_status": "ok"
  },
  "26844665": {
   "current": {
@@ -31870,8 +31844,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 56,
-    "kills": 1,
+    "best": 57,
+    "kills": 2,
     "job": "Warrior",
     "cleared": true
    },
@@ -33615,9 +33589,9 @@
     "state": "learning",
     "pct": 22.88,
     "phase": 3,
-    "pulls": 57,
-    "last": "2026-09-30",
-    "last_ts": 1790788041
+    "pulls": 22,
+    "last": "2026-10-09",
+    "last_ts": 1791560747
    }
   ]
  },
@@ -34641,8 +34615,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 40,
-    "kills": 1,
+    "best": 66,
+    "kills": 2,
     "job": "Samurai",
     "cleared": true
    },
@@ -43779,8 +43753,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 22,
-    "kills": 1,
+    "best": 27,
+    "kills": 2,
     "job": "Bard",
     "cleared": true
    },
@@ -46154,8 +46128,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 16,
-    "kills": 1,
+    "best": 18,
+    "kills": 2,
     "job": "WhiteMage",
     "cleared": true
    },
@@ -60557,9 +60531,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 32,
-    "kills": 11,
-    "job": "BlackMage",
+    "best": 80,
+    "kills": 14,
+    "job": "Reaper",
     "cleared": true,
     "job_kills": {
      "Reaper": {
@@ -63048,12 +63022,12 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 93,
-    "kills": 16,
+    "kills": 18,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
      "Samurai": {
-      "kills": 14,
+      "kills": 16,
       "best": 93
      },
      "Viper": {
@@ -65641,7 +65615,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 42,
-    "kills": 5,
+    "kills": 8,
     "job": "Dancer",
     "cleared": true,
     "job_kills": {
@@ -73367,6 +73341,10 @@
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
+     "Ninja": {
+      "kills": 2,
+      "best": 37
+     },
      "RedMage": {
       "kills": 5,
       "best": 53
@@ -79549,7 +79527,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 74,
-    "kills": 3,
+    "kills": 6,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
