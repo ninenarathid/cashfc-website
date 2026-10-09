@@ -1,4 +1,8 @@
 import { SMITH, TRIES } from "./forge";
+import { OLD_FX } from "./forged";
+import { GREAT_FIRE } from "./great-fire";
+import { TIMED } from "./powers";
+import { SMITH as SMITH_PLACE } from "./world";
 import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, SMELTING, SMELTS, TOOL_KINDS, TOOL_LINES, WOODEN } from "./tools";
 
 /**
@@ -18,7 +22,12 @@ import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, 
  *   elements, each kind of tool has a use for yet: only those are drawn and set;
  * - `elements` in their order, and `gems`: each element's gem and the fragment it is smelted of;
  * - `smelting` (so many fragments and so much timber a piece), and `smelts`: every piece that comes out, in order,
- *   with the fragment it is of, its minutes and its fee.
+ *   with the fragment it is of, its minutes and its fee;
+ * - (from v173, with the smith himself) `fire`: the great fire's knobs (lib/town/great-fire's `GREAT_FIRE`, whole);
+ *   `timed`: the options whose doing goes on for a while, each with where the purse keeps the moment it is over
+ *   (lib/town/powers' `TIMED`); `stand`: where the forge stands, and within how many tiles of it one is by it
+ *   (lib/town/world's `bySmith`); `old`: the elements' steps for the seven tools there were before the pick and the
+ *   axe (lib/town/forged's `OLD_FX`, whole: the two new tools' are in their own lines' rows).
  *
  * No names and no words: what an option or an element does is the games' own to read from the numbers.
  */
@@ -32,5 +41,6 @@ export function forgeRow() {
     built: BUILT,
     elements: [...ELEMENTS], gems: Object.fromEntries(ELEMENTS.map((e) => [e, { gem: GEMS[e].gem, chip: GEMS[e].chip }])),
     smelting: { fragments: SMELTING.fragments, timber: SMELTING.timber }, smelts: { order: Object.keys(SMELTS), of: SMELTS },
+    fire: GREAT_FIRE, timed: TIMED, stand: { at: [SMITH_PLACE.stand.x, SMITH_PLACE.stand.y], reach: SMITH_PLACE.reach }, old: OLD_FX,
   };
 }
