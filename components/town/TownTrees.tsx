@@ -30,12 +30,13 @@ const WHY_TREE: Record<string, [th: string, en: string]> = {
   stump: ["ยังไม่โต", "Not grown yet"], bite: ["ขวานนี้ฟันไม่เข้า", "This axe will not bite"], plus: ["ต้นไม้เก่าแก่ไม่สะเทือนเลย", "The ancient tree does not so much as tremble"],
   far: ["ยืนไกลเกินไป", "Too far to reach"], tool: ["ต้องถือขวาน", "It takes an axe in the hand"], spent: ["วันนี้ใช้ไปหมดแล้ว", "None left today"],
   // (one go on a tree at a time: somebody else's board is up at it)
-  held: ["มีคนกำลังโค่นต้นนี้อยู่", "Somebody is felling this tree"],
-  // (the ancient tree alone stands when its go is lost)
+  held: ["มีคนกำลังโค่นต้นนี้อยู่", "Somebody is felling this tree"], board: ["ต้นไม้ต้องลงมือโค่นเอง", "A tree is felled at its board"],
+  // (a tree stands when its go is lost: the ancient tree's words, and any other tree's)
   dropped: ["ขวานหลุดมือ ต้นไม้เก่าแก่ยังยืนอยู่", "The axe slipped: the ancient tree stands"], time: ["ไม่ทัน ต้นไม้เก่าแก่ยังยืนอยู่", "Out of time: the ancient tree stands"],
   left: ["วางขวานแล้ว ต้นไม้เก่าแก่ยังยืนอยู่", "Axe put down: the ancient tree stands"],
+  droppedTree: ["ขวานหลุดมือ", "The axe slipped"], timeTree: ["ไม่ทันเวลา", "Out of time"], leftTree: ["วางขวาน", "Axe put down"],
 };
-/** How long the card of what a go gave stays up, in milliseconds; and a small word of what the plain way gave. */
+/** How long the card of what a go gave stays up, in milliseconds; and a small word over the buttons. */
 const CARD_MS = 12_000, GOT_MS = 2600;
 /** How far from its member a woodpecker goes to a grown tree, in tiles. */
 const PERCH = 7;
@@ -56,11 +57,11 @@ const leftOf = (ms: number, th: boolean): string => {
 const NTH: ReadonlyArray<[th: string, en: string]> = [["ชิ้นแรก", "a first"], ["ชิ้นที่ 2", "a second"], ["ชิ้นที่ 3", "a third"]];
 
 interface Working { id: number; trees: number[]; ask: FellingAsk; elder: boolean; from: [number, number] }
-/** What a go came to, on a card: what whoever keeps the game said of it, how the board went (none, of the axe's one chop and of the plain way), and the tile I stood on. */
+/** What a go came to, on a card: what whoever keeps the game said of it, how the board went (none, of the axe's one chop), and the tile I stood on. */
 interface Card { did: FellDid; out: FellOutcome | null; ask: FellingAsk | null; tile: string; at: number }
 /** Somebody else who does something at a tree, as the room has them: where they stand (their tile), and their letters (lib/town/room's `fell`). */
 export interface TreeFolk { id: string; name: string; x: number; y: number; moving: boolean; fell: string }
-/** A few words over the buttons: a refusal (with the axe a tree wants, where it wants one), or what the plain way gave. */
+/** A few words over the buttons: a refusal (with the axe a tree wants, where it wants one), or what a hand lent gave. */
 interface Note { text: string; wants?: { tier: number; plus: number }; got?: Array<[ItemId, number]> }
 
 /** The axe a tree asks for, as a picture: of a better tier (an axe nobody has yet: a shade, with its tier on it), or this one forged so far. */
@@ -88,9 +89,10 @@ function Pips({ most, got, size = 16 }: { most: number; got: number; size?: numb
  * own module for these maps (components/town/mountain-art), from what this tells it: each tree's look, as whoever
  * keeps the game says who felled which and when.
  *
- * With an axe in the hand a tap on a tree walks up to it. Beside a grown one there are two presses: the plain one
- * fells it at once for its logs, and the other puts the board up, which is played for the fine timber (the tree
- * comes down however that goes). A tree this axe cannot fell shows the axe it wants. What a go gave comes up on a
+ * With an axe in the hand a tap on a tree walks up to it. Beside a grown one there is one press: it puts the board
+ * up: a trunk cut through fells the tree, for its logs and its fine timber; a go that is lost leaves it standing, and
+ * costs nothing. There is no felling without the board (lib/town/trees says why). A tree this axe cannot fell shows
+ * the axe it wants. What a go gave comes up on a
  * small card, with how near it was to more. A pine's girth is in the tree itself: the map's drawing is told how
  * large each grown one stands (`setTreeScales`). Over the map this draws only what is somebody's own to see: how long
  * a stump has to go for whoever has a woodpecker, a glint on the grown trees for an axe that sees them, the tree the
@@ -207,22 +209,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       if (f.keepsake) vfx.add("sparkle", where);
     }
   }, [sfx, vfx]);
-  /** The plain way: the tree is felled at once, for its logs. No board, and no fine timber. */
-  const plain = useCallback(async (id: number) => {
-    const from = tileRef.current;
-    if (!from || beginning.current || busyRef.current) return;
-    beginning.current = true;
-    try {
-      const did = await keeper.fellDo({ tree: id, secs: 0, plain: true }, from, name);
-      if (!did.ok) { say(did.why, id); return; }
-      sfx?.wake(); sfx?.work("timber");
-      fall(did.felled);
-      // (a keepsake is told on a card; wood alone, in a word over the buttons)
-      if (did.found.length) setCard({ did, out: null, ask: null, tile: from.join(","), at: Date.now() });
-      else { setCard(null); setNote({ text: (th ? "ล้มแล้ว" : "Timber") + (did.fire ? " · " + fireFoundWords(did.fire, th) : ""), got: did.got }); }
-    } finally { beginning.current = false; }
-  }, [keeper, name, say, sfx, fall, th]);
-  /** A tap on a tree: with an axe in the hand it is walked up to, and the two presses are for it; with none it is a step, as anywhere. */
+  /** A tap on a tree: with an axe in the hand it is walked up to, and the press is for it; with none it is a step, as anywhere. */
   const tapped = useCallback((id: number): boolean => {
     const t = WOOD.find((x) => x.id === id);
     // (where whoever keeps the game keeps no trees, a tree is only a tree: the tap is a step)
@@ -348,12 +335,19 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     }
     const did = await keeper.fellDo({ tree: w.id, through: out.through, misses: out.misses, secs: out.secs, ...(how.one ? { one: true } : {}), ...(how.twice ? { twice: true } : {}) }, w.from, name);
     if (!did.ok) { say(did.why, w.id); return; }
-    // (the ancient tree, of a go that was lost)
-    if (did.stood) { say(out.end && out.end !== "through" ? out.end : "time"); return; }
+    // (a go that was lost: the tree stands, nothing was given and nothing spent; said in a word, with how near it was)
+    if (did.stood) {
+      const end = out.end && out.end !== "through" ? out.end : "time";
+      if (first?.elder) { say(end); return; }
+      const how = WHY_TREE[`${end}Tree`], left = Math.max(1, out.chops - out.cut);
+      setCard(null);
+      setNote({ text: th ? `${how[0]} เหลืออีก ${left} ฟัน · ต้นไม้ยังยืนอยู่ ไม่เสียแรง` : `${how[1]}, ${left} ${left === 1 ? "chop" : "chops"} from the end: the tree stands, and nothing was spent` });
+      return;
+    }
     fall(did.felled);
     setNote(null);
     setCard({ did, out: how.one ? null : out, ask: how.one ? null : w.ask, tile: w.from.join(","), at: Date.now() });
-  }, [keeper, name, say, fall, leaving]);
+  }, [keeper, name, say, fall, leaving, th]);
 
   /** The quickening root: the last stump I made grows back at once. */
   const rootId = card && axe && powerLeft(purse, "axRoot", now) > 0 && has(axe, "axRoot") ? [...card.did.felled].reverse().find((f) => f.id !== TREES.elder.id)?.id ?? null : null;
@@ -488,8 +482,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       told: () => toldRef.current, looks: () => Object.fromEntries(looks()),
       /** Every tree of the layout, with its tile and its girth. */
       wood: () => WOOD.map((t) => ({ ...t, girth: girthOf(t) })),
-      /** The tree the presses are for where I stand; a tap on a tree, as the map hands one over; the board put up at one; and the plain way. */
-      here: () => hereId, tap: (id: number) => tapped(id), begin: (id: number) => begin(id), plain: (id: number) => plain(id),
+      /** The tree the press is for where I stand; a tap on a tree, as the map hands one over; and the board put up at one. */
+      here: () => hereId, tap: (id: number) => tapped(id), begin: (id: number) => begin(id),
       working: () => (working ? { id: working.id, trees: working.trees, elder: working.elder, ask: working.ask } : null),
       card: () => (card ? { ...card.did, out: card.out } : null),
       /** The book of the pines: open it (at a leaf), shut it, and whether it is open. */
@@ -503,7 +497,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     (window as unknown as { __townTrees?: typeof handle }).__townTrees = handle;
     return () => { delete (window as unknown as { __townTrees?: typeof handle }).__townTrees; };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the go I may brace is known by who and where
-  }, [hereId, tapped, begin, plain, working, card, note, root, rootId, looks, folk, open?.o.id, open?.t?.id, braceIt, bracing, bracer?.id, book]);
+  }, [hereId, tapped, begin, working, card, note, root, rootId, looks, folk, open?.o.id, open?.t?.id, braceIt, bracing, bracer?.id, book]);
 
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const powers = axe ? { one: has(axe, "axOne") ? powerLeft(purse, "axOne", now) : 0, twice: has(axe, "axDouble") ? powerLeft(purse, "axDouble", now) : 0 } : undefined;
@@ -514,10 +508,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     const out = c.out, first = c.did.felled[0];
     if (!out || !first || first.kind === TREES.elderKind) return null;
     const t = WOOD.find((x) => x.id === first.id), near = nearOf(out, t ? bearsOf(t) : []);
-    if (!out.through) {
-      const how = out.end === "dropped" ? (th ? "ขวานหลุดมือ" : "The axe slipped") : out.end === "left" ? (th ? "วางขวาน" : "Axe put down") : th ? "แถบหมด" : "Out of time";
-      return th ? `${how}ตอนเหลืออีก ${near.chops} ฟัน` : `${how} ${near.chops} ${near.chops === 1 ? "chop" : "chops"} from the end`;
-    }
+    // (a card is of a trunk cut through: a go that was lost has a word over the buttons, and no card)
+    if (!out.through) return null;
     if (!near.misses) return th ? "ได้ไม้เนื้อดีครบทุกชิ้น" : "Every fine timber it had";
     const nth = NTH[Math.min(NTH.length - 1, near.got)];
     return th ? `พลาดน้อยกว่านี้ ${near.misses} ครั้ง ก็ได้ไม้เนื้อดี${nth[0]}` : `${near.misses === 1 ? "One miss" : `${near.misses} misses`} from ${nth[1]} fine timber`;
@@ -637,15 +629,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
             </p>
           ) : (
             <div className="flex flex-wrap items-stretch justify-center gap-2">
-              {/* the plain way: down at once, for its logs */}
-              {!here.elder && (
-                <button type="button" onClick={() => void plain(here.id)} data-trees-plain={here.id} data-state="open"
-                        className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-bg/90 py-1 pl-2 pr-4 text-ui font-semibold text-ink shadow-xl shadow-black/40 backdrop-blur-sm">
-                  <span className="grid size-10 place-items-center rounded-full bg-ink/10"><TownIcon name={"log" as IconName} size={26} /></span>
-                  <span className="flex flex-col items-start leading-tight"><span>{th ? "ตัดเลย" : "Fell it now"}</span><span className="text-label font-normal opacity-80">{th ? `ได้ท่อนไม้ ${TREES.logs}` : `${TREES.logs} logs`}</span></span>
-                </button>
-              )}
-              {/* the board: played for the fine timber */}
+              {/* the board: played for the fine timber (the one way to fell a tree) */}
               <button type="button" onClick={() => void begin(here.id)} data-trees-offer={here.id} data-state="open"
                       className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent py-1 pl-2 pr-4 text-ui font-semibold text-bg shadow-xl shadow-black/40">
                 <span className="grid size-10 place-items-center rounded-full bg-bg/25"><TownIcon name={"axe" as IconName} size={28} /></span>

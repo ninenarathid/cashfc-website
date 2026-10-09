@@ -77,8 +77,8 @@ import type { FellingAsk } from "./felling";
 import type { FellOne, FellWent, KeepsakeId, TreeRefusal, TreesTold } from "./trees";
 /**
  * What a go at felling came to, as a panel is told it: every tree that fell with what it gave, and all it brought
- * home; whether it was the axe's one chop, or the plain way; whether the trunk was cut through; whether the tree
- * stands after all (the ancient tree, of a go that was lost); the keepsakes found, each with whether it is the first
+ * home; whether it was the axe's one chop (`plain`: the way that was, never true now); whether the trunk was cut through; whether the tree
+ * stands after all (a go that was lost: nothing felled, nothing spent); the keepsakes found, each with whether it is the first
  * the village has; and who braced the trunk.
  */
 export interface FellDid { felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean; plain: boolean; through: boolean; stood: boolean; found: Array<{ id: KeepsakeId; first: boolean }>; braced: string | null; fire?: { half: "flint" | "tinder"; lit: boolean } }
@@ -629,7 +629,7 @@ export interface Keeper {
   trees(): TreesTold | null;
   /** Walk up to a tree with an axe in the hand, from the tile I stand on: the game that fells it (the trees it is for, and what the game is made from), or the state that refuses it. */
   fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>>;
-  /** A go at felling as it was played, or the plain way, from the tile I stand on: what it brought home (the tree comes down however a go went). `name`: mine, for the book of the pines. */
+  /** A go at felling as it was played, from the tile I stand on: what it brought home (a trunk cut through fells the tree; a go that was lost leaves it standing, `stood`). `name`: mine, for the book of the pines. */
   fellDo(went: FellWent, at: [number, number], name: string): Promise<Did<FellDid>>;
   /** Brace the trunk of somebody's go that is open, from the tile I stand on: the tree it is at. Paid when their go is over. */
   fellBrace(feller: string, at: [number, number]): Promise<Did<{ tree: number }>>;

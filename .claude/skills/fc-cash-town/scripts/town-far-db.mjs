@@ -8,8 +8,8 @@
 //      over, the gate on the far bank says "not open yet" and leads nowhere, nothing of the far side answers, and the
 //      lines of work have no felling and no mining; with 1, the gate leads to the mountain's foot
 //   2  felling: a board put up from what the database said, a second member refused at the held tree and then
-//      bracing its trunk, the board played through, the wood, the deeds and the go as the database kept them; then
-//      the plain press on another tree
+//      bracing its trunk, the board played through, the wood, the deeds and the go as the database kept them; and
+//      no plain press beside a tree (there is none since v172: a tree is felled at its board)
 //   3  mining at the foot: a rock broken by real taps; a rock one member struck first and the other broke
 //   4  the cave: through the mouth to floor 1, the rock that hides the way down (asked of the stand-in), the ladder
 //      to floor 2, a vein opened (asked of the stand-in) and played with real presses, a torch set down, the board of
@@ -362,7 +362,7 @@ try {
   await warp(A, spots[0][0], spots[0][1]);
   await until("the tree is offered", async () => (await A.evaluate(`${R}.here()`)) === t1.id, 8000, 100).catch(() => {});
   let offer = await marks(A, "[data-trees-here], [data-trees-plain], [data-trees-offer]");
-  ok("beside a pine with the axe in the hand: the plain press and the board are offered", offer.some((m) => m.treesHere === String(t1.id)) && offer.some((m) => m.treesPlain === String(t1.id)) && offer.some((m) => m.treesOffer === String(t1.id)), offer);
+  ok("beside a pine with the axe in the hand: the board is offered, and no plain press", offer.some((m) => m.treesHere === String(t1.id)) && !offer.some((m) => m.treesPlain !== undefined) && offer.some((m) => m.treesOffer === String(t1.id)), offer);
   let deeds0 = await lastDeed();
   await press(A, `[data-trees-offer="${t1.id}"]`);
   await until("the board, made from what the database said", async () => (await A.evaluate(`${G}?.kind ?? null`)) === "felling", 8000, 60);
@@ -408,20 +408,12 @@ try {
   await until("a stump on both pages", async () => (await A.evaluate(`${R}.looks()[${t1.id}]`)) === 0 && (await B.evaluate(`${R}.looks()[${t1.id}]`)) === 0, 10000, 150).catch(() => {});
   ok("the tree is down on both pages and in the stand-in's grove, felled by that member", (await A.evaluate(`${R}.looks()[${t1.id}]`)) === 0 && (await B.evaluate(`${R}.looks()[${t1.id}]`)) === 0 && wood.down?.[String(t1.id)]?.by === a && !wood.goes?.[a], { down: wood.down, goes: wood.goes ?? null });
 
-  // the plain press, on another tree
+  // another tree: its board, and no plain press (NOT RUN since the plain way went: this step was written for v172 and not tried in a browser)
   spots = await besideTree(A, t2.id);
   await warp(A, spots[0][0], spots[0][1]);
-  await until("the other tree is offered", () => there(A, `[data-trees-plain="${t2.id}"]`), 8000, 100);
+  await until("the other tree is offered", () => there(A, `[data-trees-offer="${t2.id}"]`), 8000, 100);
   deeds0 = await lastDeed();
-  await press(A, `[data-trees-plain="${t2.id}"]`);
-  // (wood alone is said in a word over the buttons; where the tree let a keepsake fall besides, on a card)
-  const plainTold = await until("what the plain way gave", () => A.evaluate(`(() => { const n = document.querySelector("[data-trees-note]"), c = document.querySelector("[data-trees-card]"), on = n?.querySelector("[data-trees-got]") ? n : c;
-    return on ? { on: on === n ? "note" : "card", got: [...on.querySelectorAll("[data-trees-got]")].map((e) => [e.dataset.treesGot, Number(e.dataset.n)]) } : null; })()`), 8000, 80).catch((e) => e.message);
-  deeds = await deedsSince(deeds0);
-  pa = await kept(a);
-  await until("the other sees the stump", async () => (await B.evaluate(`${R}.looks()[${t2.id}]`)) === 0, 10000, 150).catch(() => {});
-  ok("the plain press on another tree: down at once for its logs, no board, written down as the plain way, and a stump on the other's page", typeof plainTold === "object" && same(plainTold.got, [["log", 2]]) && (await A.evaluate(`${G}?.kind ?? null`)) === null
-    && deeds.length === 1 && deeds[0].what === "fell" && deeds[0].doc.how === "plain" && deeds[0].doc.tree === t2.id && count(pa.doc.bag, "log") === 4 && (await B.evaluate(`${R}.looks()[${t2.id}]`)) === 0, { told: plainTold, deeds });
+  ok("at another tree: its board is offered, there is no plain press, and nothing was written down for standing there", !(await there(A, "[data-trees-plain]")) && (await deedsSince(deeds0)).length === 0);
 
   /* ── 3: mining at the mountain's foot ── */
   console.log("3  mining at the mountain's foot");
