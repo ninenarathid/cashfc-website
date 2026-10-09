@@ -4,6 +4,8 @@ import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishI
 import { ALL_LINE_IDS, LINES, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
 import { optN } from "./tools";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
+import { BRIDGE } from "./bridge";
+import { LAMPS } from "./lamps";
 
 /**
  * What counts for the points of a line (lib/town/lines), read off what is written down anyway: a deed (the
@@ -23,6 +25,8 @@ import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
  * - **Farming**: a picking of a plant one sowed, a point for every twelve hours its crop takes (one at the least).
  * - **Felling** (lines to come): a tree felled 2, the ancient tree 10.
  * - **The first of its kind** (a fish, a forest thing, an insect, a crop, a recipe) is ten more, once ever.
+ * - **A stone laid for the bridge** (lib/town/bridge) is a helpers' point to everybody whose hands it went through.
+ * - **A lamp post lit at dusk** (lib/town/lamps) is three helpers' points to everybody whose hands its flame went through.
  * - **The well** is not here: its count is the bucketfuls poured, which the well's own book keeps (lib/town/well).
  *
  * The numbers are knobs (mine, to be set from what the members really do before the lines open). A day's bound is
@@ -175,6 +179,14 @@ export function countsOf(d: Done, doer: string): Counts[] {
       const hours = CROPS[thing as CropId]?.hours;
       return hours && !other ? [{ to: null, line: "farming", raw: Math.max(1, Math.floor(hours / POINTS.farming.every)), first: `farming:${thing}` }] : [];
     }
+    // ── the bridge built by hand ── (lib/town/bridge: a stone laid counts for everybody whose hands it went through,
+    // whoever laid it and each of the others, a line of the deeds for each; what it is worth is the bridge's own number)
+    case "stone_lay": case "stone_hand":
+      return [{ to: null, line: "helpers", raw: BRIDGE.point }];
+    // ── the lamp relay ── (lib/town/lamps: a post lit counts for everybody whose hands its flame went through, whoever
+    // lit it and each of the others, a line of the deeds for each; what it is worth is the lamps' own number)
+    case "lamp_light": case "lamp_hand":
+      return [{ to: null, line: "helpers", raw: LAMPS.point }];
     // ── felling ── (a tree felled: its kind is the deed's thing; and whoever braced its trunk, if anybody, has a point
     // of the helpers')
     case "fell": {

@@ -15,6 +15,7 @@ import type { Keeper } from "@/lib/town/keeper";
 import { FARM, WELL, bedCorner, bedOf, plotAt, type Vec } from "@/lib/town/world";
 import TownIcon, { ICON_ATLAS, petScale, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
+import { useLeaving } from "./useLeaving";
 import type { GameResult } from "./TownGame";
 import { BURST, BuffAura, atPlot, seenAtPlot } from "./TownBuffFx";
 import TownPouring from "./TownPouring";
@@ -204,6 +205,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** (`whole`: tired hands steadying themselves for a row's deed that has no game of its own, the pouch's sowing: done, the whole row is sown) */
   /** (`sweep`: the ripe plants of a row that the crescent sickle sweeps along once, from one end to the other: where each stands in the row, what it is, and how much harder it is for me) */
   /** (`long`: the plants of a row of somebody else's that the gardener's gloves water at one long pour, from the row's head: where each stands in the row and what it is; `hard`: how much harder the row is for me) */
+  const leaving = useLeaving(keeper);
   const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
     long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
@@ -628,7 +630,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // (every miss of the hoe is a little more stamina gone: the keeper's to take)
     const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined, sure);
     if (!did.ok) { say(did.why); return; }
-    if (timing) keeper.record({ game: "farming", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(purse, now), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
+    if (timing) keeper.record({ game: "farming", board: did.deed === "clear" ? "weeding" : "timing", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(purse, now), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
     // an insect that eats pests, let go on a plant that had one: it ate it, or it is off with the pest still there (lib/town/farm's FARMING.rids)
     const rid = did.deed === "feed" && held ? ridCameOf(k, stood, keeper.farm()[k] ?? WILD, held, began, keeper.rains()) : null;
     // the mandrake that follows me sang to the plant as I picked it: it stays in its plot, and bears once more (lib/town/farm's pick)
@@ -714,7 +716,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (!did.ok) { say(did.why); return; }
     // (the hoe's row and the sickle's sweep are goes at a game, written down as the hoe's own are; the swings were heard as they were made)
     const hoed = did.deed === "clear" || did.deed === "till", reaped = did.deed === "pick";
-    if (timing && (hoed || reaped)) keeper.record({ game: "farming", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
+    if (timing && (hoed || reaped)) keeper.record({ game: "farming", board: reaped ? "sweep" : "row", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
     const [fx, sound] = DEED_FX[did.deed];
     sfx?.wake();
     if (!hoed && did.done.length) sfx?.work(sound);
@@ -797,7 +799,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // (with the anklet on each plant of the row is of the run: a note each, one after another)
     const rung = keeper.purse().chime;
     if (rung && rung.at !== ran && wearing(keeper.purse(), "charmAnklet")) did.done.forEach((plot, i) => chimeAt(plot, rung.n - did.done.length + 1 + i, 120 + i * 110));
-    keeper.record({ game: "farming", at: keeper.now(), won: did.done.length > 0, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "water", need: timing.need, hits: timing.hits, misses: timing.misses });
+    keeper.record({ game: "farming", board: "longpour", at: keeper.now(), won: did.done.length > 0, secs: timing.secs, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "water", need: timing.need, hits: timing.hits, misses: timing.misses });
     sfx?.wake();
     if (did.done.length) sfx?.work("water");
     did.done.forEach((plot, i) => { const [x, y] = plot.split(",").map(Number); window.setTimeout(() => vfx.add("water", { x: x + 0.5, y: y + 0.5 }), i * 60); });
@@ -965,6 +967,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           },
           onDone: (result: GameResult) => {
             const { key: k, work, row } = working;
+            // (its own end has come: a board shut in the blink before this was not left)
+            leaving.ended(working);
             setWorking(null);
             // (a row worked at a swing is one deed, the keeper's to judge whole: told how each plot's beat went, it does
             // each plot whose beat was hit as if it had been hoed by itself, and leaves each whose beat was missed)
@@ -974,8 +978,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             }
             // (the long pour of the gardener's gloves: each plant the water reached is watered, and the rest are left)
             if (working.long && k) { void doLong(k, Object.fromEntries(working.long.map((p, i) => [p.key, !!result.marks?.[i]])), result); return; }
-            // (a game of tired hands is written down whatever its end; the hoe's own, when it is done, with the deed)
-            if (result.dropped || !hoeing) keeper.record({ game: "farming", at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
+            // (a game of tired hands is written down whatever its end; the hoe's own and the sickle's sweep, when they
+            // are done, with the deed)
+            if (result.dropped || (!hoeing && !working.sweep)) keeper.record({ game: "farming", board: game ?? undefined, at: keeper.now(), won: !result.dropped, secs: result.secs, spent: true, buff: null, what: work, need: result.need, hits: result.hits, misses: result.misses });
             // with no stamina left the work is dropped at the third miss: nothing is done
             if (result.dropped) { say(hoeing ? "tired" : "shaky"); return; }
             // (the sickle's sweep: every plant it went along is picked, and each that was cut well gives one more)
@@ -986,7 +991,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             if (k) void act(k, hoeing ? result : undefined);
             else void carry();
           },
-          onCancel: () => setWorking(null),
+          // (a board shut by its member is written down too: how often a game is given up is how hard it is found)
+          onCancel: () => {
+            leaving.left(working, { game: "farming", board: working.row ? "row" : game ?? undefined, how: "left", at: keeper.now(), won: false, secs: 0, spent: isSpent(purse, now), buff: null, what: working.work, need: 0, hits: 0, misses: 0 });
+            setWorking(null);
+          },
         };
         return (
           <div className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game}>

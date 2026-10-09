@@ -35,6 +35,8 @@ import type { FellDid } from "./keeper";
 import type { MoveHow } from "./keeper";
 import type { FellingAsk } from "./felling";
 import type { FellWent } from "./trees";
+// ── the lamp relay ──
+import type { LampMap } from "./lamps";
 
 const HOUR = 3_600_000;
 const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)) + 24 * HOUR) % (24 * HOUR) / HOUR);
@@ -491,6 +493,36 @@ class TrialKeeper implements Keeper {
     return did;
   }
   // ── end: felling ──
+  // ── the bridge built by hand ── (whoever takes a stone is in another tab: told through the room, as the database's keeper tells them)
+  works() { return this.trial.works(); }
+  async worksLook() { /* the works are in this browser already */ }
+  async stoneLift(at: [number, number]): Promise<Did> { return this.trial.stoneLift(at); }
+  async stonePass(to: string): Promise<Did> {
+    const did = this.trial.stonePass(to);
+    if (did.ok) this.onDeed?.("works", to);
+    return did;
+  }
+  async stoneLay(at: [number, number]): Promise<Did<{ have: number; spans: number; span: boolean; whole: boolean; into: number; find: string | null }>> {
+    const did = this.trial.stoneLay(at);
+    if (did.ok) this.onDeed?.("works");
+    return did;
+  }
+  async stoneDrop(): Promise<Did> { return this.trial.stoneDrop(); }
+
+  // ── the lamp relay ── (whoever takes a flame is in another tab: told through the room, as the database's keeper tells them)
+  lamps() { return this.trial.lamps(); }
+  async lampsLook() { /* the lamps are in this browser already */ }
+  async flameTake(map: LampMap, at: [number, number]): Promise<Did<{ until: number }>> { return this.trial.flameTake(map, at); }
+  async flamePass(to: string): Promise<Did<{ until: number }>> {
+    const did = this.trial.flamePass(to);
+    if (did.ok) this.onDeed?.("lamps", to);
+    return did;
+  }
+  async lampLight(map: LampMap, post: number, at: [number, number]): Promise<Did<{ n: number; of: number; full: boolean }>> {
+    const did = this.trial.lampLight(map, post, at);
+    if (did.ok) this.onDeed?.("lamps");
+    return did;
+  }
 
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }

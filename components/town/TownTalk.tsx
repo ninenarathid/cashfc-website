@@ -91,6 +91,12 @@ export default function TownTalk({ who, as, lines, choices, onPick, th, phone, r
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
       if (e.key === "Escape") { e.preventDefault(); onClose(); return; }
+      // (a number picks that choice, while the choices are there: nothing else has the numbers during a talk)
+      if (choosing && /^Digit[1-9]$/.test(e.code) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const c = choices![Number(e.code.slice(5)) - 1];
+        if (c) { e.preventDefault(); e.stopPropagation(); onPick?.(c.id); }
+        return;
+      }
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault(); e.stopPropagation();
       if (!choosing) { go(); return; }
@@ -103,61 +109,62 @@ export default function TownTalk({ who, as, lines, choices, onPick, th, phone, r
 
   const w = as ?? WHO[who as Speaker];
   return (
-    <section ref={box} aria-labelledby="town-talk-h"
-             className="relative flex items-end gap-3 rounded-2xl border border-line-lit bg-surface/97 px-4 pb-3 pt-3 shadow-xl shadow-black/40 backdrop-blur-sm"
-             onClick={go}>
-      <Portrait sprite={art(w.art[writing && mouth ? 1 : 0])} pixel={pixelFor(phone ? PIXEL_PHONE : PIXEL_WIDE)} />
-      <div className="flex min-w-0 flex-1 flex-col self-stretch">
-        <div className="flex items-baseline gap-2">
-          <h2 id="town-talk-h" className="shrink-0 whitespace-nowrap font-display text-title font-semibold text-accent">{th ? w.name.th : w.name.en}</h2>
-          <span className="min-w-0 truncate text-meta text-muted">{th ? w.job.th : w.job.en}</span>
-          <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
-                  className="pressable -mr-1 ml-auto shrink-0 rounded-full px-3 py-1.5 text-meta text-muted hover:text-ink">
-            {th ? "ปิด" : "Close"}
+    <section ref={box} aria-labelledby="town-talk-h" className="tk tk-window relative flex flex-col gap-2 px-5 pb-4 pt-4" onClick={go}>
+      {/* The keeper stands on the box's top edge, outside its frame, with the name on a ribbon beside them (until
+          2026-10-09 a small picture inside a navy panel, the choices pills that wrapped where they pleased). */}
+      <span className="pointer-events-none absolute bottom-full left-2 -mb-3 flex items-end gap-1.5">
+        <Portrait sprite={art(w.art[writing && mouth ? 1 : 0])} pixel={pixelFor(phone ? PIXEL_PHONE : PIXEL_WIDE)} />
+        <h2 id="town-talk-h" className="tk-ribbon mb-1.5 shrink-0 whitespace-nowrap px-3.5 py-1.5 font-display text-ui font-semibold">{th ? w.name.th : w.name.en}</h2>
+      </span>
+      <div className="flex items-baseline gap-2">
+        <span className="min-w-0 truncate text-meta text-muted">{th ? w.job.th : w.job.en}</span>
+        <button type="button" onClick={(e) => { e.stopPropagation(); onClose(); }}
+                className="pressable -mr-2 -mt-1 ml-auto shrink-0 px-3 py-1.5 text-meta text-muted hover:text-ink">
+          {th ? "ปิด" : "Close"}
+        </button>
+      </div>
+      {/* the whole line is always there for a screen reader; what is written so far is what the eye sees */}
+      <p className="sr-only" aria-live="polite">{text}</p>
+      <p aria-hidden className={`text-read leading-relaxed text-ink ${choosing ? "min-h-[3em]" : "min-h-[4.5em]"}`}>
+        {text.slice(0, shown)}
+      </p>
+      {choosing ? (
+        // (each choice a button of its own width's worth, in two columns and three on a wide screen: none wraps)
+        <div role="group" aria-label={th ? "เลือก" : "Choose"} className="grid max-h-[40vh] grid-cols-2 gap-1.5 overflow-y-auto sm:grid-cols-3" onClick={(e) => e.stopPropagation()}>
+          {choices!.map((c, i) => (
+            <button key={c.id} ref={i === 0 ? first : undefined} type="button" onClick={() => onPick?.(c.id)}
+                    className={`pressable tk ${i === 0 ? "tk-btn" : "tk-btn-wood"} flex min-h-11 items-center justify-center gap-1.5 px-3 py-1.5 text-center font-display text-ui font-medium leading-tight`}>
+              {!phone && <kbd aria-hidden className="tk-key">{i + 1}</kbd>}{c.label}{c.note && <span className="font-data text-meta text-gold">{c.note}</span>}
+            </button>
+          ))}
+          <button type="button" onClick={onClose}
+                  className="pressable tk tk-btn-wood flex min-h-11 items-center justify-center px-3 py-1.5 font-display text-ui font-medium opacity-75">
+            {th ? "ไว้เจอกัน" : "See you"}
           </button>
         </div>
-        {/* the whole line is always there for a screen reader; what is written so far is what the eye sees */}
-        <p className="sr-only" aria-live="polite">{text}</p>
-        <p aria-hidden className={`mt-1 flex-1 text-read leading-relaxed text-ink ${choosing ? "min-h-[3em]" : "min-h-[4.5em]"}`}>
-          {text.slice(0, shown)}
-        </p>
-        {choosing ? (
-          <div role="group" aria-label={th ? "เลือก" : "Choose"} className="mt-1 flex flex-wrap items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-            {choices!.map((c, i) => (
-              <button key={c.id} ref={i === 0 ? first : undefined} type="button" onClick={() => onPick?.(c.id)}
-                      className={`pressable min-h-11 rounded-full px-4 py-2 text-ui font-semibold ${i === 0 ? "bg-accent text-bg" : "border border-line-strong bg-card/70 text-ink hover:border-accent"}`}>
-                {c.label}{c.note && <span className={`ml-1.5 font-data text-meta ${i === 0 ? "text-bg/80" : "text-gold"}`}>{c.note}</span>}
-              </button>
+      ) : (
+        <div className="flex items-center gap-2">
+          <span aria-hidden className="flex gap-1">
+            {lines.map((_, i) => (
+              <span key={i} className={`size-1.5 ${i === at ? "bg-accent" : i < at ? "bg-accent/40" : "bg-line-strong"}`} />
             ))}
-            <button type="button" onClick={onClose}
-                    className="pressable min-h-11 rounded-full px-3 py-2 text-ui text-muted hover:text-ink">
-              {th ? "ไว้เจอกัน" : "See you"}
-            </button>
-          </div>
-        ) : (
-          <div className="mt-1 flex items-center gap-2">
-            <span aria-hidden className="flex gap-1">
-              {lines.map((_, i) => (
-                <span key={i} className={`size-1.5 rounded-full ${i === at ? "bg-accent" : i < at ? "bg-accent/40" : "bg-line-strong"}`} />
-              ))}
-            </span>
-            <button ref={next} type="button" onClick={(e) => { e.stopPropagation(); go(); }}
-                    className="pressable ml-auto min-h-11 rounded-full bg-accent px-5 py-2 text-ui font-semibold text-bg">
-              {last && !writing && !choices?.length ? (th ? "ไว้เจอกัน" : "See you") : (th ? "ต่อไป" : "Next")}
-            </button>
-          </div>
-        )}
-      </div>
+          </span>
+          <button ref={next} type="button" onClick={(e) => { e.stopPropagation(); go(); }}
+                  className="pressable tk tk-btn ml-auto min-h-11 px-5 py-2 font-display text-ui font-medium">
+            {last && !writing && !choices?.length ? (th ? "ไว้เจอกัน" : "See you") : (th ? "ต่อไป" : "Next")}
+          </button>
+        </div>
+      )}
     </section>
   );
 }
 
-/** The speaker's portrait from the scenery, in hard pixels, standing on the box's foot and rising above its top; nothing until it has come. */
+/** The speaker's portrait from the scenery, in hard pixels, standing on the box's top edge; nothing until it has come. */
 function Portrait({ sprite, pixel }: { sprite: Sprite | null; pixel: number }) {
   if (!sprite) return <span aria-hidden className="w-24 shrink-0" />;
   const [x, y, w, h] = sprite.at;
   return (
-    <span aria-hidden className="-mt-10 shrink-0 self-end" style={{
+    <span aria-hidden className="shrink-0" style={{
       width: w * pixel, height: h * pixel,
       backgroundImage: `url(${sprite.src})`,
       backgroundSize: `${sprite.sheet[0] * pixel}px ${sprite.sheet[1] * pixel}px`,

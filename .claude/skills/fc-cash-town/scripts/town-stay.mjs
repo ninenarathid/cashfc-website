@@ -65,7 +65,8 @@ async function until(label, fn, ms, every = 300) {
 
 const T = "window.__cashTown";
 const DOCK = `document.querySelector('[role=region][aria-label="Cash Town"]')`;
-const press = `(() => { const b = [...document.querySelectorAll("button")].find(x => /เปิดไมค์|Turn mic on/.test(x.textContent)); if (!b || b.disabled) return false; b.click(); return true; })()`;
+// (the microphone is offered in a little tray since 2026-10-09: a tap on its button, then the button with the words)
+const press = `(async () => { const find = () => [...document.querySelectorAll("button")].find(x => /เปิดไมค์|Turn mic on/.test(x.textContent)); let b = find(); if (!b) { document.querySelector("[data-town-mic=off]")?.click(); await new Promise((r) => setTimeout(r, 400)); b = find(); } if (!b || b.disabled) return false; b.click(); return true; })()`;
 // (by id once both are in: somebody else may be in the dev test room under the same letter, the owner trying things out)
 const ID = {};
 const other = (X, who) => X.evaluate(`${T}?.people?.().find(p => ${ID[who] ? `p.id === ${JSON.stringify(ID[who])}` : `p.name.endsWith(" ${who}")`}) ?? null`);

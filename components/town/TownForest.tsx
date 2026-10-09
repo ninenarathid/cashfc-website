@@ -26,6 +26,7 @@ import TownForestMap, { WARM_INK } from "./TownForestMap";
 import type { GameResult } from "./TownGame";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
+import { useLeaving } from "./useLeaving";
 import TownSteady from "./TownSteady";
 import { WHY } from "./TownTrade";
 import { Vfx, type VfxKind } from "./vfx";
@@ -110,6 +111,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   }, [keeper, near]);
   // (what the forest has is asked for while I am in it)
   useEffect(() => (near ? keeper.look("wild") : undefined), [near, keeper]);
+  const leaving = useLeaving(keeper);
   const [working, setWorking] = useState<Working | null>(null);
   const [note, setNote] = useState<string | null>(null);
   /** Whose doing the note is of: the squirrel's, when it fetched the thing; the piglet's; the lantern's (its picture goes beside the words). */
@@ -434,9 +436,11 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
    */
   const leave = useCallback((w: Working | null) => {
     setWorking(null);
+    // (a board left is written down as one: how often a game is given up is how hard it is found)
+    if (w) leaving.left(w, { game: "forest", board: w.game, how: "left", at: keeper.now(), won: false, secs: w.secs ?? 0, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: w.spot.kind, need: w.sight.n, hits: 0, misses: 0 });
     // (told from the tile its games were begun on: walking off is no way out of them)
     if (w && w.stage !== undefined) void act(w.spot, w.from, { misses: 0, wrong: 0, lost: true });
-  }, [act]);
+  }, [act, keeper, leaving]);
   // walking off leaves the work
   useEffect(() => { if (working && working.spot.id !== hereId) leave(working); }, [working, hereId, leave]);
 
@@ -529,6 +533,10 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
             // (a good thing is harder for a practised hand; what is buried and unseen is dug as by anybody)
             const hard = harderOf(sight.item, points);
             const done = (r: GameResult) => {
+              // (its own end has come: a board shut in the blink before this was not left)
+              leaving.ended(working);
+              // (every go at a board of the forest's is written down, whatever its end: at a secret place one miss loses it)
+              keeper.record({ game: "forest", board: game, at: keeper.now(), won: !r.dropped && !(secret && r.misses > 0), secs: r.secs, spent, buff: null, what: spot.kind, need: r.need, hits: r.hits, misses: r.misses });
               // (tired hands that let it fall have gathered nothing, and lost nothing)
               if (!secret && r.dropped) { setWorking(null); say("shaky"); return; }
               if (secret) {

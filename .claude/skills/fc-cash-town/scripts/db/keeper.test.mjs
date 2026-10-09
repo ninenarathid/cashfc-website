@@ -22,7 +22,7 @@ const { ridCameOf, see, roll, inPestHours, pestHour } = await import("@/lib/town
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = [];
+const NEXT = ["v167"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -1295,6 +1295,221 @@ try {
     await sleep(300);
     ok("asked as the game begins and told nothing: the keeper says a bag cannot be put in order, and the page offers neither", asked.slice(from).includes("A town_bag") && M.bagTidy() === false && M.ready(), asked.slice(from));
     M.close();
+  }
+
+  // ── the bridge built by hand ── (v160, a draft or run: a database before it has no works, and the keeper knows of none)
+  if ((await sql(`select to_regprocedure('public.town_works_read()') is not null as there`))[0].there) {
+    section("the bridge built by hand: built closed, opened by one line, a stone through three keepers, a marked stone, each span's hands (v160)");
+    const { BRIDGE, bridgeSpans, bridgeWhole, carrying } = await import("@/lib/town/bridge");
+    const PILE = [BRIDGE.pile.x - 1, BRIDGE.pile.y + 1], FOOT = [BRIDGE.foot.x + 1, BRIDGE.foot.y + 1];
+    const c = await member("C", "Tester C");
+    const hands = async (id, left = 100, hand = null) => {
+      await purse(id, 0, hand ? [{ item: hand, n: 1 }] : []);
+      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', $2::text, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', $3::int)) where member_id = $1`, [id, hand, left]);
+    };
+    const staminaOf = async (id) => Number((await sql(`select town.stamina_of(town.purse_kept($1, false), town.now_ms()) as n`, [id]))[0].n);
+    const pointsOf = async (id) => Number((await sql(`select coalesce((select (w.kept->>'points')::float8 from public.town_work w where w.member_id = $1 and w.line = 'helpers'), 0) as p`, [id]))[0].p);
+    const have = (n) => sql(`update public.town_work_needs set have = $1 where work = 'bridge' and thing = 'stone'`, [n]);
+    // (what a stone has in it is the database's draw as it is lifted, one in twenty-five: set here to what a check needs, as the draw would have)
+    const mark = (id, kind) => sql(`update public.town_work_carried set mark = $2 where member_id = $1`, [id, kind]);
+    await sql(`delete from public.town_work_carried where true`);
+    await sql(`delete from public.town_work_hands where true`);
+    await sql(`delete from public.town_work_built where true`);
+    await sql(`delete from public.town_work_finds where true`);
+    await sql(`update public.town_works set opened_at = null, done_at = null where id = 'bridge'`);
+    await have(0);
+    for (const id of [a, b, c]) await hands(id);
+    const I = new DbKeeper(a, askAs("A")), J = new DbKeeper(b, askAs("B")), K = new DbKeeper(c, askAs("C"));
+    await settled(I); await settled(J); await settled(K);
+    const told = [];
+    I.onDeed = (what, to) => { told.push(`${what} ${to}`); };
+    K.onDeed = (what, to) => { told.push(`${what} ${to}`); };
+    ok("built closed: the keeper is told only that the bridge is not open, and the map has no span of it", I.works()?.works.bridge.open === false && JSON.stringify(I.works().works.bridge.needs) === "{}" && I.works().carried === null && bridgeSpans(I.works()) === 0 && bridgeWhole(I.works()) === false, I.works());
+    let did = await I.stoneLift(PILE);
+    ok("…and a stone asked for all the same is refused by the database: closed", !did.ok && did.why === "closed" && carrying(I.works()) === null && (await staminaOf(a)) === 100, did);
+    // (the one line of the file's head, as the owner runs it)
+    await sql(`update public.town_works set opened_at = now() where id = 'bridge'`);
+    await I.worksLook(); await J.worksLook(); await K.worksLook();
+    ok("opened by the owner's one line: read again, the keeper has the bridge with its six hundred stones to come", I.works().works.bridge.open === true && JSON.stringify(I.works().works.bridge.needs.stone) === JSON.stringify({ need: BRIDGE.need, have: 0 }) && I.works().works.bridge.helpers.length === 0, I.works());
+    did = await I.stoneLift([0, 0]);
+    ok("a stone is not lifted from far off: the tile is the page's word, held to the pile's", !did.ok && did.why === "far", did);
+    did = await I.stoneLift(PILE);
+    ok("lifted at the pile: in the hands the keeper has at once, for one stamina, nothing in the bag, and nobody told through the room", did.ok && carrying(I.works()) === "stone" && (await staminaOf(a)) === 100 - BRIDGE.costs.lift && I.purse().bag.every((x) => !x) && told.length === 0, { did, works: I.works(), told });
+    await mark(a, null);
+    did = await I.stoneLift(PILE);
+    ok("no second stone while one is held", !did.ok && did.why === "held", did);
+    const before = [await pointsOf(a), await pointsOf(b), await pointsOf(c)];
+    did = await I.stonePass(b);
+    ok("handed on: my hands are empty at once, it cost nothing, and whoever took it is to be told through the room", did.ok && carrying(I.works()) === null && (await staminaOf(a)) === 99 && (await staminaOf(b)) === 100 && told.join() === `works ${b}`, { did, told });
+    ok("the taker's keeper knows nothing of it yet", carrying(J.works()) === null);
+    // (the room's word, as the map would hand it on)
+    J.nudged("works");
+    await settled(J);
+    ok("told through the room, it reads the works again and has the stone", carrying(J.works()) === "stone", J.works());
+    did = await J.stoneLay(PILE);
+    ok("a stone is not laid at the pile: far", !did.ok && did.why === "far" && carrying(J.works()) === "stone", did);
+    did = await J.stonePass(c);
+    K.nudged("works");
+    await settled(K);
+    ok("handed on again, to the third", did.ok && carrying(K.works()) === "stone" && carrying(J.works()) === null, did);
+    did = await K.stoneLay(FOOT);
+    ok("laid at the foot by the third: one stamina, the bridge has one, no span yet, the stone went into the first span with nothing in it, and everybody is to be told through the room",
+      did.ok && did.have === 1 && did.spans === 0 && did.span === false && did.whole === false && did.into === 1 && did.find === null && carrying(K.works()) === null && (await staminaOf(c)) === 99 && K.works().works.bridge.needs.stone.have === 1
+        && told.length === 2 && told[1] === "works undefined", { did, told });
+    ok("the keepers of the two who only handed it on know nothing of it yet", [I, J].every((k) => JSON.stringify(k.works().works.bridge.mine) === "{}"));
+    // (the room's word, as the map would hand it on: each reads the works again, and its page shows what the stone earned)
+    I.nudged("works"); J.nudged("works");
+    await settled(I); await settled(J);
+    ok("all three whose hands it went through are counted one stone, each told their own count and nobody else's",
+      [I, J, K].every((k) => JSON.stringify(k.works().works.bridge.mine) === JSON.stringify({ stone: 1 })) && !/"n":/.test(JSON.stringify(I.works())), [I.works().works.bridge.mine, J.works().works.bridge.mine, K.works().works.bridge.mine]);
+    // (the three came by one stone, at one moment: such are listed by their ids; the dry run holds the order of those who came at different moments)
+    ok("the sign's names are all three who came by that stone, by name, with no number", JSON.stringify(I.works().works.bridge.helpers.map((h) => h.id)) === JSON.stringify([a, b, c].sort()) && I.works().works.bridge.helpers.every((h) => /^Tester [ABC]$/.test(h.name) && Object.keys(h).sort().join() === "id,name"), I.works().works.bridge.helpers);
+    const after = [await pointsOf(a), await pointsOf(b), await pointsOf(c)];
+    ok("…and each has a point more on the helpers' line", after.every((p, i) => Math.abs(p - before[i] - BRIDGE.point) < 1e-9), { before, after });
+    const lines = (await sql(`select d.what, d.member_id as by from public.town_deeds d where d.what like 'stone%' order by d.id`)).map((d) => `${d.what} ${d.by === a ? "A" : d.by === b ? "B" : "C"}`);
+    ok("each deed is written down: the lifting, the two handings on, the laying, and a line for each of the others it came by", lines.join() === "stone_lift A,stone_pass A,stone_pass B,stone_lay C,stone_hand A,stone_hand B", lines);
+    ok("all three are of the first span's hands, by name and with no number", JSON.stringify(Object.keys(I.works().works.bridge.built)) === '["1"]' && JSON.stringify(I.works().works.bridge.built[1].map((h) => h.id)) === JSON.stringify([a, b, c].sort())
+      && I.works().works.bridge.built[1].every((h) => /^Tester [ABC]$/.test(h.name) && Object.keys(h).sort().join() === "id,name") && I.works().works.bridge.finds.length === 0, I.works().works.bridge.built);
+    // a marked stone: nobody is told while it is carried; laid, it is found and set in the bridge
+    did = await I.stoneLift(PILE);
+    await mark(a, "pearl");
+    await I.worksLook();
+    ok("a stone with something in it: its holder's keeper is told that it carries a stone, and nothing of what is in it", did.ok && JSON.stringify(I.works().carried) === JSON.stringify({ work: "bridge", thing: "stone" }) && !/pearl|"mark"/.test(JSON.stringify(I.works())), I.works().carried);
+    did = await I.stonePass(c);
+    K.nudged("works");
+    await settled(K);
+    ok("…nor is whoever takes it", did.ok && carrying(K.works()) === "stone" && !/pearl|"mark"/.test(JSON.stringify(K.works())) && !/pearl|"mark"/.test(JSON.stringify(did)), K.works().carried);
+    did = await K.stoneLay(FOOT);
+    ok("laid, it is found: the answer says what was in it, and the keeper has it set in the bridge with the hands it came by, in the order it went through them",
+      did.ok && did.find === "pearl" && did.into === 1 && did.have === 2 && JSON.stringify(K.works().works.bridge.finds.map((f) => [f.kind, f.span, f.hands.map((h) => h.id)])) === JSON.stringify([["pearl", 1, [a, c]]])
+        && K.works().works.bridge.finds[0].hands.every((h) => /^Tester [AC]$/.test(h.name)) && typeof K.works().works.bridge.finds[0].at === "number", { did, finds: K.works().works.bridge.finds });
+    I.nudged("works"); J.nudged("works");
+    await settled(I); await settled(J);
+    ok("…every keeper the room tells has the find, whoever had no hand in it too; and it is one point of the stone's to each hand, none of the pearl's",
+      [I, J].every((k) => k.works().works.bridge.finds.length === 1) && Math.abs((await pointsOf(a)) - after[0] - BRIDGE.point) < 1e-9 && Math.abs((await pointsOf(b)) - after[1]) < 1e-9 && I.purse().bag.every((x) => !x), [await pointsOf(a), await pointsOf(b)]);
+    ok("…and the laying is written with what was found", (await sql(`select d.doc->>'find' as find from public.town_deeds d where d.what = 'stone_lay' order by d.id desc limit 1`))[0].find === "pearl");
+    // the hundredth stone is a span: everybody is told through the room, and reads it
+    await have(99);
+    did = await K.stoneLift(PILE);
+    await mark(c, null);
+    did = did.ok ? await K.stoneLay(FOOT) : did;
+    ok("the hundredth stone is a span: said in the answer, the first span's own, and everybody is to be told through the room", did.ok && did.have === 100 && did.spans === 1 && did.span === true && did.whole === false && did.into === 1 && bridgeSpans(K.works()) === 1 && told[told.length - 1] === "works undefined", { did, told });
+    ok("another keeper still has none", bridgeSpans(I.works()) === 0);
+    I.nudged("works");
+    await settled(I);
+    ok("…until the room says so: then it has the span", bridgeSpans(I.works()) === 1 && bridgeWhole(I.works()) === false, I.works()?.works.bridge.needs);
+    // the six-hundredth makes it whole, and nothing more is lifted
+    await have(BRIDGE.need - 1);
+    await K.stoneLift(PILE);
+    await I.stoneLift(PILE);
+    await mark(c, null); await mark(a, null);
+    did = await K.stoneLay(FOOT);
+    ok("the six-hundredth is the last span's: its hands are kept apart from the first's", did.ok && did.into === BRIDGE.spans && JSON.stringify(Object.keys(K.works().works.bridge.built).sort()) === JSON.stringify(["1", String(BRIDGE.spans)]) && JSON.stringify(K.works().works.bridge.built[BRIDGE.spans].map((h) => h.id)) === JSON.stringify([c]), K.works().works.bridge.built);
+    ok("the six-hundredth stone makes the bridge whole: six spans, and the moment marked", did.ok && did.whole === true && did.spans === BRIDGE.spans && bridgeWhole(K.works()) && bridgeSpans(K.works()) === BRIDGE.spans && typeof K.works().works.bridge.done === "number", { did, bridge: K.works().works.bridge });
+    did = await I.stoneLay(FOOT);
+    const more = await K.stoneLift(PILE);
+    ok("whole: a stone that came too late is not laid, and nothing more is lifted", !did.ok && did.why === "whole" && !more.ok && more.why === "whole" && carrying(I.works()) === "stone", { did, more });
+    did = await I.stoneDrop();
+    const again = await I.stoneDrop();
+    ok("the stone that came too late is let go of: gone, nothing back; and with none there is nothing to let go of", did.ok && carrying(I.works()) === null && (await staminaOf(a)) === 97 && !again.ok && again.why === "none", { did, again });
+    ok("the names stay on the sign of a bridge that is whole, with what was found", K.works().works.bridge.helpers.length === 3 && K.works().works.bridge.mine.stone === 4 && K.works().works.bridge.finds.length === 1, K.works().works.bridge);
+    // a thing in the hand; and tired hands, which nothing is refused
+    await have(10);
+    await sql(`update public.town_works set done_at = null where id = 'bridge'`);
+    await hands(a, 100, "rod"); await hands(b, 0);
+    await settled(I); await settled(J);
+    did = await I.stoneLift(PILE);
+    ok("with a thing in the hand no stone is lifted: hand", !did.ok && did.why === "hand", did);
+    did = await J.stoneLift(PILE);
+    await mark(b, null);
+    const handed = did.ok ? await J.stonePass(a) : did;
+    ok("tired hands lift a stone all the same, at none; and it is not handed to somebody with a thing in the hand", did.ok && (await staminaOf(b)) === 0 && !handed.ok && handed.why === "hand" && carrying(J.works()) === "stone", { did, handed });
+    did = await J.stoneLay(FOOT);
+    ok("…and lay it, at none", did.ok && did.have === 11 && (await staminaOf(b)) === 0, did);
+    I.close(); J.close(); K.close();
+  } else {
+    const O = new DbKeeper(a, askAs("A"));
+    await settled(O);
+    const none = await O.stoneLift([0, 0]);
+    ok("a database with no works: the keeper knows of none, and a stone asked for could not be reached", O.works() === null && !none.ok && none.why === "away", { works: O.works(), none });
+    O.close();
+  }
+
+  // ── the lamp relay ── (v163, a draft or run: a database before it has no lamps, and the keeper knows of none)
+  if ((await sql(`select to_regprocedure('public.town_lamps_read()') is not null as there`))[0].there) {
+    section("the lamp relay at dusk: a flame from the fire through two keepers to a post, five seconds by the database's clock, tired hands, the last lamp of a map (v163)");
+    const { LAMPS, nightOf, nightBegins, leftOf } = await import("@/lib/town/lamps");
+    const FIRE = [LAMPS.maps.farm.fire[0] + 1, LAMPS.maps.farm.fire[1] + 1], POST = (i) => LAMPS.maps.farm.posts[i];
+    const hands = async (id, left = 100, hand = null) => {
+      await purse(id, 0, hand ? [{ item: hand, n: 1 }] : []);
+      await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', $2::text, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', $3::int)) where member_id = $1`, [id, hand, left]);
+    };
+    const staminaOf = async (id) => Number((await sql(`select town.stamina_of(town.purse_kept($1, false), town.now_ms()) as n`, [id]))[0].n);
+    const pointsOf = async (id) => Number((await sql(`select coalesce((select (w.kept->>'points')::float8 from public.town_work w where w.member_id = $1 and w.line = 'helpers'), 0) as p`, [id]))[0].p);
+    // (the stand-in's clock is put into tonight for this, and back where it was afterwards)
+    const nowDb = Number((await sql(`select town.now_ms() as n`))[0].n), OUT = (LAMPS.life + LAMPS.grace) * 1000 + 500;
+    const ahead = nightOf(nowDb) === null ? nightBegins(nowDb) - nowDb + 3.5 * 3_600_000 : 0;
+    if (ahead) await skip(ahead);
+    await sql(`delete from public.town_lamps_lit where true`);
+    await sql(`delete from public.town_lamp_nights where true`);
+    await sql(`delete from public.town_lamp_flames where true`);
+    await sql(`delete from public.town_work_carried where true`);
+    for (const id of [a, b]) await hands(id);
+    const I = new DbKeeper(a, askAs("A")), J = new DbKeeper(b, askAs("B"));
+    await settled(I); await settled(J);
+    const told = [];
+    I.onDeed = (what, to) => { told.push(`${what} ${to}`); };
+    J.onDeed = (what, to) => { told.push(`${what} ${to}`); };
+    ok("as the game begins the keeper has the lamps: tonight, none lit on either map, no flame", I.lamps()?.night === nightOf(I.now()) && I.lamps().night !== null && I.lamps().maps.farm.lit.length === 0 && I.lamps().maps.forest.lit.length === 0 && I.lamps().flame === null, I.lamps());
+    let did = await I.flameTake("farm", [0, 0]);
+    ok("a flame is not taken from far off: the tile is the page's word, held to the fire's", !did.ok && did.why === "far", did);
+    did = await I.flameTake("farm", FIRE);
+    ok("taken at the fire: the keeper has it at once with the moment it dies, five seconds on by the database's clock, for nothing, and nobody told through the room",
+      did.ok && I.lamps().flame?.until === did.until && Math.abs(leftOf(I.lamps().flame, I.now()) - LAMPS.life * 1000) < 1500 && (await staminaOf(a)) === 100 && told.length === 0, { did, flame: I.lamps().flame, now: I.now(), told });
+    did = await I.flameTake("farm", FIRE);
+    ok("no second flame while one is alive", !did.ok && did.why === "held", did);
+    const before = [await pointsOf(a), await pointsOf(b)];
+    did = await I.flamePass(b);
+    ok("handed on: my hands are empty at once, it cost nothing, and whoever took it is to be told through the room", did.ok && I.lamps().flame === null && (await staminaOf(a)) === 100 && told.join() === `lamps ${b}`, { did, told });
+    ok("the taker's keeper knows nothing of it yet", J.lamps().flame === null);
+    // (the room's word, as the map would hand it on)
+    J.nudged("lamps"); await settled(J);
+    ok("…told by the room it reads the lamps again, and bears the flame, fresh", J.lamps().flame?.hands === 2 && leftOf(J.lamps().flame, J.now()) > 2500, J.lamps().flame);
+    did = await J.lampLight("farm", 0, [0, 0]);
+    ok("a post is not lit from far off, and the flame is still its bearer's", !did.ok && did.why === "far" && !!J.lamps().flame, did);
+    did = await J.lampLight("farm", 0, POST(0));
+    ok("a post lit: one of twelve, one stamina the lighter's, the flame spent, and every page to be told through the room",
+      did.ok && did.n === 1 && did.of === 12 && !did.full && J.lamps().flame === null && J.lamps().maps.farm.lit.map((l) => l.post).join() === "0" && (await staminaOf(b)) === 100 - LAMPS.cost && told.at(-1) === "lamps undefined", { did, told });
+    ok("…three helpers' points to both whose hands the flame went through", (await pointsOf(a)) === before[0] + LAMPS.point && (await pointsOf(b)) === before[1] + LAMPS.point, [await pointsOf(a), await pointsOf(b)]);
+    I.nudged("lamps"); await settled(I);
+    ok("…and the other keeper, told by the room, has it lit with the hands its flame came by, and the night's lighters in the order they came",
+      I.lamps().maps.farm.lit[0]?.hands.map((h) => h.id).join() === `${a},${b}` && I.lamps().maps.farm.lighters.map((h) => h.id).join() === `${a},${b}`, I.lamps().maps.farm);
+    // (a flame that is lit with nothing goes out by the database's clock: its five seconds and the second of grace)
+    did = await I.flameTake("farm", FIRE);
+    await skip(OUT);
+    const gone = await I.lampLight("farm", 1, POST(1));
+    ok("a flame goes out by the database's clock: past its five seconds and the second of grace it lights nothing, and nothing is lost", did.ok && !gone.ok && gone.why === "out" && (await staminaOf(a)) === 100 && I.lamps().flame === null, { did, gone });
+    await hands(a, 0);
+    await I.lampsLook();
+    did = await I.flameTake("farm", FIRE);
+    const tired = did.ok ? await I.lampLight("farm", 1, POST(1)) : did;
+    ok("with no stamina a flame is taken and a post lit all the same", did.ok && tired.ok && tired.n === 2 && (await staminaOf(a)) === 0, { did, tired });
+    // (the last lamp of the map: nine more lit by nobody, then the twelfth)
+    for (let post = 2; post < 11; post++) await sql(`insert into public.town_lamps_lit (night, map, post) values (town.lamp_night(town.now_ms()), 'farm', $1)`, [post]);
+    await J.lampsLook();
+    did = await J.flameTake("farm", FIRE);
+    const last = did.ok ? await J.lampLight("farm", 11, POST(11)) : did;
+    const more = [await J.flameTake("farm", FIRE), await J.flameTake("forest", LAMPS.maps.forest.fire)];
+    ok("the twelfth post says so, the night is counted whole, and the fire gives no more flame for that map though the other map's does",
+      did.ok && last.ok && last.n === 12 && last.full === true && J.lamps().maps.farm.full === 1 && more[0].why === "whole" && more[1].ok === true, { did, last, more });
+    I.close(); J.close();
+    await skip(-ahead - OUT);
+  } else {
+    const O = new DbKeeper(a, askAs("A"));
+    await settled(O);
+    const none = await O.flameTake("farm", [0, 0]);
+    ok("a database with no lamps: the keeper knows of none, and a flame asked for could not be reached", O.lamps() === null && !none.ok && none.why === "away", { lamps: O.lamps(), none });
+    O.close();
   }
 
   section("one thing at a time");

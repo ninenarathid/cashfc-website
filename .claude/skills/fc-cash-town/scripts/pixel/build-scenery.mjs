@@ -11,6 +11,10 @@
 //   node build-scenery.mjs --set felling        what a tree is felled on (felling-<hash>.png + felling.json): the board's
 //                                               scene, the boughs over it and the trunk's parts; fetched only by whoever
 //                                               fells a tree (components/town/TownFelling)
+//   node build-scenery.mjs --set works          the village's works' things (works-<hash>.png + works.json): the bridge's
+//                                               pile of stone, a stone, its sign (lib/town/works-art.ts)
+//   node build-scenery.mjs --set lamps          the lamp relay's things (lamps-<hash>.png + lamps.json): the posts, the
+//                                               brazier, a flame, what the night brings out (lib/town/lamps-art.ts)
 //   node build-scenery.mjs --work <dir>         the sheets are another tree's (a worktree has no work folder of its own)
 //   node build-scenery.mjs --own-ground         the ground in the model's own textures, not the drawn ones (READY_TEX)
 //
@@ -36,7 +40,7 @@ fs.mkdirSync(PUB, { recursive: true });
 const argSet = process.argv.indexOf("--set");
 /** Which picture is built: the town's scenery, the forest's, or the cooking screen's. */
 const SET = argSet > 0 ? process.argv[argSet + 1] : "scenery";
-if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling"].includes(SET)) throw new Error(`no such set: ${SET}`);
+if (!["scenery", "forest", "kitchen", "mountain", "cave", /* felling */ "felling", "works", "lamps"].includes(SET)) throw new Error(`no such set: ${SET}`);
 
 // [sheet, names, how]: "whole" keeps every shape on the sheet as one piece (the shop site and its
 // heaps); "hat" stands frames on their feet under the middle of their yellow hard hat, so a
@@ -198,6 +202,36 @@ const FELLING = [
   ["scene-felling-pieces", ["fellTrunk", "fellBranch", "fellStump", "fellElder", "fellElderBranch"]],
 ];
 // ── end: felling ──
+// The village's works' own (lib/town/bridge; the owner, 2026-10-08: "สะพานจากมือชาวบ้าน"): the pile of stone by the
+// uncle's shop, the same pile under its cloth while the bridge is not open, one stone as it is carried in two hands,
+// and the sign at the bridge's foot. A picture of their own, so that the town's picture is as it was. Their pixels
+// are about six and a half of the sheet's: measured freely the build takes two of them for one (13.8), and at 6.9 or
+// 8 the little bridge carved on the sign comes out broken, so the range says where to look.
+// And what the building is seen by (the owner, 2026-10-08 evening: every picture the piece names, "อย่าไปคิดเรื่องต้นทุนรูป"):
+// the mark on the road where a row would stand and the banner at the foot; three stones of the course that grows at
+// the foot, with the scaffold, the hoist with its rope and the arch's wooden form that are put up as a span comes on;
+// the six things a stone may have in it, and a glint; and the feast of a span laid: bunting, a lantern, confetti, a wreath.
+const WORKS = [
+  ["scene-bridge-works", ["stonePile", "stonePileCloth", "stoneHeld", "bridgeSign"], undefined, undefined, [6.5, 6.7]],
+  ["scene-bridge-road", ["standMark", "bridgeBanner"]],
+  ["scene-bridge-course", ["courseA", "courseB", "courseC", "siteScaffold", "siteHoist", "siteArch"]],
+  ["scene-bridge-finds", ["findShell", "findCoin", "findRune", "findPearl", "findStar", "findLeaf", "glint"]],
+  ["scene-bridge-feast", ["feastBunting", "feastLantern", "feastConfetti", "feastWreath"]],
+];
+// The lamp relay's own (lib/town/lamps; the owner, 2026-10-08: "ส่งไฟจุดโคมตอนค่ำ … ยิ่งจุดเยอะ แมพยิ่งสวย ขอให้เป็นบรรยากาศสวยๆ
+// น่าจดจำไปเลย", and of pictures "อย่าไปคิดเรื่องต้นทุนรูป"). A picture of their own, so that the town's is as it was:
+// a wooden lamp post with its paper lantern dark and lit, the farm's brazier cold and burning, and the board that
+// stands by each fire; a flame in a clay bowl as it is carried, an ember glowing and burnt out (the ring round whoever
+// bears a flame is made of them), a moth with its wings open and half folded, a firefly, a sky lantern; the evening
+// flowers round a farm post shut and open, the mushrooms round a forest post plain and glowing, one glowing mushroom
+// for the trail, a wisp of the great tree's light; and for the night every lamp is lit: a string of lanterns, one big
+// lantern, a twinkle.
+const LAMPS = [
+  ["scene-lamps-posts", ["lampPost", "lampPostLit", "brazier", "brazierLit", "lampBoard"]],
+  ["scene-lamps-flame", ["flameHeld", "ember", "emberOut", "moth", "mothShut", "firefly", "skyLantern"]],
+  ["scene-lamps-night", ["bloomShut", "bloomOpen", "shroom", "shroomGlow", "shroomOne", "wisp"]],
+  ["scene-lamps-fete", ["feteString", "feteLantern", "twinkle"]],
+];
 // Pixel art that came drawn (the owner's folder of 2026-10-05, "oatto-asset": kept in work/oatto like the sheets, and
 // like them not in the repo), each thing true pixels blown up a whole number of times, at whatever size its artist
 // liked. [file, name, the size of its own pixel, how]. `twice` doubles one that is to stand as tall as the town's own
@@ -231,6 +265,8 @@ const READY = {
   felling: [],
   mountain: [],
   cave: [],
+  works: [],
+  lamps: [],
 };
 // Ground that came drawn (the same folder's pack of textures; the ones used are in work/oatto/tex, with the pack's
 // licence: free to use and to change, not to be handed on as files, which is one more reason they stay out of the
@@ -249,6 +285,8 @@ const READY_TEX = {
   felling: {},
   mountain: {},
   cave: {},
+  works: {},
+  lamps: {},
 };
 /** The mean of each colour of a picture's pixels, and how far its light and dark spread about their mean. */
 function colourOf(buf) {
@@ -307,7 +345,7 @@ const isWater = (r, g, b) => { const mx = Math.max(r, g, b), mn = Math.min(r, g,
   return (b > r + 25 && b >= g && (mx - mn) / 255 > 0.18) || (l > 0.82 && b >= r && b >= g - 4); };
 // (the mountain's own ground: bare stony earth, a cliff's face seen from the front, snow, and the forest's floor under its
 // pines; the cave's: its floor, the top of its rock, and the same face for its walls)
-const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
+const TEXTURES = { forest: ["wood"], kitchen: [], felling: [], works: [], lamps: [], mountain: ["rock", "cliff", "snow", "wood"], cave: ["cavefloor", "cavewall", "cliff"] }[SET]
   ?? ["grass", "plaza", "road", "water", "sand", "field"];
 
 const pieces = [];
@@ -330,7 +368,7 @@ function moveOnto(g, ref, refSet) {
   }
   return { ...best, of: low.length };
 }
-for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING }[SET] ?? SHEETS) {
+for (const [sheet, names, how, like, range, opts] of { forest: FOREST, kitchen: KITCHEN, mountain: MOUNTAIN, cave: CAVE, felling: FELLING, works: WORKS, lamps: LAMPS }[SET] ?? SHEETS) {
   if (!fs.existsSync(path.join(OUT, `${sheet}.png`))) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(path.join(OUT, `${sheet}.png`));
   // the characters' own pixel size (about 5.3–6.2): a double period scores as well and halves every prop

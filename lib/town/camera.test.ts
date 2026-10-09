@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ISO_MAX_X, ISO_MAX_Y, ISO_MIN_X, ISO_MIN_Y, MAX_SCALE, MIN_SCALE, MOST_TILES_ACROSS, PAD, START_DESK, START_PHONE,
+  ISO_MAX_X, ISO_MAX_Y, ISO_MIN_X, ISO_MIN_Y, MAX_SCALE, MIN_SCALE, MIN_SCALE_PHONE, MOST_TILES_ACROSS, PAD, START_DESK, START_PHONE,
   clampCam, clampScale, fitScale, minScale, startScale, toIsoPoint, toScreen, zoomAt,
 } from "./camera";
 
@@ -18,11 +18,20 @@ describe("the camera's zoom", () => {
   it("goes in no further than MAX_SCALE, and out only to about a town's width", () => {
     expect(clampScale(99, desk.w, desk.h)).toBe(MAX_SCALE);
     expect(clampScale(0.01, desk.w, desk.h)).toBeCloseTo(minScale(desk.w, desk.h));
-    // a wide screen: the starter town's width across it, far closer than the whole map
-    expect(desk.w / minScale(desk.w, desk.h) / 64).toBeCloseTo(MOST_TILES_ACROSS, 6);
+    // a wide screen: never smaller than the art's own pixels, nor more tiles across than the starter town is wide,
+    // whichever stops it sooner; far closer than the whole map
+    expect(minScale(desk.w, desk.h)).toBe(Math.max(MIN_SCALE, desk.w / (MOST_TILES_ACROSS * 64)));
     expect(minScale(desk.w, desk.h)).toBeGreaterThan(fitScale(desk.w, desk.h) * 2);
-    // a phone stops sooner, so a doll is never a speck
-    expect(minScale(phone.w, phone.h)).toBe(MIN_SCALE);
+    // a large monitor is stopped by the tiles across it, a small window by the art's own pixels
+    expect(2560 / minScale(2560, 1440) / 64).toBeCloseTo(MOST_TILES_ACROSS, 6);
+    expect(minScale(1024, 700)).toBe(MIN_SCALE);
+    // and it starts no further out than it may go (found by Codex's check: 1.6 against 1.82 at 2560 wide)
+    expect(startScale(2560, 1440)).toBeGreaterThanOrEqual(minScale(2560, 1440));
+    // a phone's finer screen goes a little further out, and no further (it went to 0.55 until 2026-10-09: the owner,
+    // "ช่วยล็อคไม่ให้ zoom out ได้มากจนเกินไป")
+    expect(minScale(phone.w, phone.h)).toBe(MIN_SCALE_PHONE);
+    expect(MIN_SCALE_PHONE).toBeGreaterThanOrEqual(0.8);
+    expect(clampScale(0.55, phone.w, phone.h)).toBe(MIN_SCALE_PHONE);
     // and furthest out is still further than where it starts
     expect(minScale(desk.w, desk.h)).toBeLessThan(startScale(desk.w, desk.h));
     expect(minScale(phone.w, phone.h)).toBeLessThan(startScale(phone.w, phone.h));

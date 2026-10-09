@@ -395,6 +395,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           const where = { x: p.x, y: p.y };
           void keeper.netMine("pair", tile, { misses: missesWith(fo.missed, live.current.fx.spared) }, live.current.name).then((did) => {
             if (!did.ok) { say(did.why); return; }
+            keeper.record({ game: "insects", board: "net", at: keeper.now(), won: true, secs: 0, spent: live.current.spent, buff: null, what: fo.bug, need: 1, hits: 1, misses: fo.missed });
             caught.current.push({ bug: fo.bug, first: did.first, rid: did.rid ?? null });
             if (did.rid) { ridUntil.current = Date.now() + RID_MS; vfx.add("sparkle", null, { lift: 40 }); }
             setNote(`${did.got.map(([item, n]) => `${nameOf(item)} ×${n}`).join(" · ")} · ${live.current.th ? PAIR_WORD[0] : PAIR_WORD[1]}`);
@@ -418,9 +419,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           const missedBy = missesWith(misses.current.get(key) ?? 0, live.current.fx.spared);
           const asked = id === LURED ? keeper.netMine("lured", tile, { misses: missedBy }, live.current.name)
             : keeper.netDo(id, tile, { misses: missedBy, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name);
+          const missed = misses.current.get(key) ?? 0;
           void asked.then((did) => {
             if (!did.ok) { say(did.why); return; }
             misses.current.delete(key);
+            // (a go with the net, written down beside its deed: one that fled is written down below, and has no deed)
+            keeper.record({ game: "insects", board: "net", at: keeper.now(), won: true, secs: 0, spent: live.current.spent, buff: null, what: sight.bug, need: 1, hits: 1, misses: missed });
             // ── forging: old tools ── (a haunt emptied with a net that knows them: from now it says when another may come there)
             if (id !== LURED && live.current.fx.nest) nests.current.add(id);
             caught.current.push({ bug: sight.bug, first: did.first, rid: did.rid ?? null });
@@ -445,6 +449,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             gone.set(key, (id === LURED ? live.current.lured?.l.until ?? keeper.now() : bugTurnStart(h, sight.turn + 1)) - keeper.now() + Date.now());
             fled.current = gone;
             keepFled(gone);
+            keeper.record({ game: "insects", board: "net", at: keeper.now(), won: false, secs: 0, spent: live.current.spent, buff: null, what: sight.bug, need: 1, hits: 0, misses: misses.current.get(key) ?? 0 });
             misses.current.delete(key);
             sfx?.work("flit");
             vfx.add("leaves", { x: pose.x, y: pose.y }, { lift: 30 });

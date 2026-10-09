@@ -11,7 +11,9 @@ import TownIcon from "./TownIcon";
  * (lib/town/motion): it does for everybody, and whoever the rain and the leaves make dizzy turns it off here. The
  * choices are the town's page's to keep and to draw by; this shows them, and what the map is drawing at now, and asks.
  */
-export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, moving, onMoving, low = false, className }: {
+export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, moving, onMoving, low = false, under = false, className }: {
+  /** In the map's menu: the panel hangs under the menu, not under this button. */
+  under?: boolean;
   th: boolean;
   /** How many frames a second the map is held to. */
   pace: Fps;
@@ -65,14 +67,15 @@ export default function TownSettingsButton({ th, pace, onPace, drawn, onShown, m
   const head = th ? "ความลื่นของภาพ" : "Frame rate";
   const motion = th ? "ภาพเคลื่อนไหว" : "Motion";
   return (
-    <div ref={box} className={low ? "" : "relative"}>
+    <div ref={box} className={low || under ? "" : "relative"}>
       <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} title={label} className={className} data-town-settings>
         <TownIcon name="settings" size={20} /><span className="sr-only">{label}</span>
       </button>
       {open && (
         <div data-state="open" data-town-settings-panel
-             className={`pop-in absolute z-30 rounded-2xl border border-line-lit bg-surface/97 p-3 shadow-xl shadow-black/40 backdrop-blur-sm ${low
-               ? "bottom-12 left-0 w-[min(18rem,calc(100vw-1.5rem))]" : "right-0 top-12 w-72"}`}>
+             className={`pop-in absolute z-30 ${under
+               ? "tk tk-window right-0 top-[7.75rem] w-full p-4 text-left"
+               : `rounded-2xl border border-line-lit bg-surface/97 p-3 shadow-xl shadow-black/40 backdrop-blur-sm ${low ? "bottom-12 left-0 w-[min(18rem,calc(100vw-1.5rem))]" : "right-0 top-12 w-72"}`}`}>
           <div className="flex items-center gap-2">
             <TownIcon name="gauge" size={18} />
             <span className="text-ui font-semibold text-ink">{head}</span>

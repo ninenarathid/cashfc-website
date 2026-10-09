@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { inPestHours, pestAt, pestHour, roll, see, type Plant } from "./farm";
 import { HINT_IDS, HINT_PRICE, hintPrice } from "./hints";
 import { DbKeeper, type Ask } from "./keeper";
+import type { Play } from "./plays";
 import { shelfOf, sourcesAt } from "./orders";
 import { SKIES } from "./skies";
 import { newPurse, type Purse, type Stack } from "./trade";
@@ -42,9 +43,10 @@ describe("the database's keeper", () => {
     await settle();
     // (and, the game being theirs: whether there is a notice board beside the stall, for the uncle to offer by name;
     // whether the chest in the plaza is a storage box, with what I keep in it; whether a bag can be put in order;
-    // whether things can be dropped on the ground, with what lies about; and everybody's rank at the well, for the
-    // names over heads)
-    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
+    // whether things can be dropped on the ground, with what lies about; whether the village has works, with what I
+    // carry in my hands; whether the farm and the forest have lamps, with the flame I bear; and everybody's rank at
+    // the well, for the names over heads)
+    expect(db.asked).toEqual(["town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.ready()).toBe(true);
     expect(k.open()).toBe(true);
     expect(k.purse().coins).toBe(7);
@@ -70,14 +72,14 @@ describe("the database's keeper", () => {
     open = true;
     await vi.advanceTimersByTimeAsync(5 * 60_000 + 100);
     await settle();
-    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_well_ranks", "town_work"]);
+    expect(db.asked).toEqual(["town_is_open", "town_is_open", "town_is_open", "town_me", "town_notices", "town_box", "town_bag", "town_ground", "town_shop", "town_works_read", "town_lamps_read", "town_well_ranks", "town_work"]);
     expect(k.open()).toBe(true);
     expect(k.ready()).toBe(true);
     expect(told).toBeGreaterThan(1);
     k.close();
     // closed, it asks no more
     await vi.advanceTimersByTimeAsync(20 * 60_000);
-    expect(db.asked).toHaveLength(11);
+    expect(db.asked).toHaveLength(13);
   });
 
   it("refused the purse by a database that has not heard the question, says the game is not open", async () => {
@@ -572,7 +574,7 @@ describe("the database's keeper", () => {
     const waits: Record<string, number> = { a: 300, b: 10, c: 100 };
     const done: string[] = [];
     const ask: Ask = (fn, args = {}) => new Promise((answer) => {
-      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
+      if (fn !== "town_buy") { answer(fn === "town_is_open" ? true : fn === "town_well_ranks" ? { now: NOW, ranks: {} } : fn === "town_notices" || fn === "town_box" || fn === "town_bag" || fn === "town_ground" || fn === "town_shop" || fn === "town_works_read" || fn === "town_lamps_read" || fn === "town_work" ? { now: NOW } : { now: NOW, purse: purse() }); return; }
       setTimeout(() => { done.push(String(args.p_item)); answer({ ok: true, now: NOW, purse: purse({ coins: done.length }) }); }, waits[String(args.p_item)]);
     });
     const k = new DbKeeper("me", ask);
@@ -621,6 +623,180 @@ describe("the database's keeper", () => {
     await settle();
     expect(await none).toEqual({ ok: false, why: "away" });
     expect(o.box()).toBeNull();
+    o.close();
+  });
+
+  // ── the bridge built by hand ── (lib/town/bridge; v160)
+  it("keeps the village's works as it is told them, tells the taker of a stone and everybody of every stone laid, and knows of none where the database has none", async () => {
+    // (the spans' hands and what was found in the stones come with it, once a stone is laid)
+    const bridge = (have: number, mine: number, helpers: string[] = []) => ({ open: true, done: null, needs: { stone: { need: 600, have } }, helpers: helpers.map((id) => ({ id, name: id })), mine: mine ? { stone: mine } : {},
+      built: helpers.length ? { 1: helpers.map((id) => ({ id, name: id })) } : {}, finds: have >= 100 ? [{ kind: "pearl", at: NOW, span: 1, hands: helpers.map((id) => ({ id, name: id })) }] : [] });
+    let told: unknown = { works: { bridge: bridge(98, 0) }, carried: null };
+    const sent: Array<[string, Record<string, unknown>]> = [], nudges: Array<[string, string | undefined]> = [];
+    const answer = (more: Record<string, unknown> = {}) => ({ now: NOW, purse: purse(), works: told, ...more });
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_works_read: () => ({ now: NOW, works: told }),
+      town_stone_lift: (a) => { sent.push(["lift", a]); told = { works: { bridge: bridge(98, 0) }, carried: { work: "bridge", thing: "stone" } }; return answer({ ok: true }); },
+      town_stone_pass: (a) => { sent.push(["pass", a]); told = { works: { bridge: bridge(98, 0) }, carried: null }; return answer({ ok: true }); },
+      town_stone_lay: (a) => {
+        sent.push(["lay", a]);
+        const have = ((told as { works: { bridge: { needs: { stone: { have: number } } } } }).works.bridge.needs.stone.have) + 1;
+        told = { works: { bridge: bridge(have, 1, ["me"]) }, carried: null };
+        return answer({ ok: true, have, spans: Math.floor(have / 100), span: have % 100 === 0, whole: false, into: 1, find: have === 100 ? "pearl" : null });
+      },
+      town_stone_drop: () => { sent.push(["drop", {}]); return answer({ ok: false, why: "none" }); },
+    });
+    const k = new DbKeeper("me", db.ask);
+    k.onDeed = (what, to) => { nudges.push([what, to]); };
+    expect(k.works()).toBeNull();
+    await settle();
+    // asked for once as the game begins: the bridge is known before its pile is walked up to
+    expect(k.works()?.works.bridge).toMatchObject({ open: true, needs: { stone: { need: 600, have: 98 } } });
+    expect(k.works()?.carried).toBeNull();
+    // lifting: the tile I stand on; the answer brings what I carry, and nobody else is told through the room
+    const lift = k.stoneLift([41, 28]);
+    await settle();
+    expect(await lift).toMatchObject({ ok: true });
+    expect(sent[0]).toEqual(["lift", { p_x: 41, p_y: 28 }]);
+    expect(k.works()?.carried).toEqual({ work: "bridge", thing: "stone" });
+    expect(nudges).toEqual([]);
+    // handing on: to whom; whoever takes it is told through the room, and my hands are empty
+    const pass = k.stonePass("them");
+    await settle();
+    expect(await pass).toMatchObject({ ok: true });
+    expect(sent[1]).toEqual(["pass", { p_to: "them" }]);
+    expect(k.works()?.carried).toBeNull();
+    expect(nudges).toEqual([["works", "them"]]);
+    // laying: the tile; every stone laid is told to everybody (each page shows whoever had a hand in it what it earned), the one that finishes a span like any other
+    const one = k.stoneLay([12, 28]);
+    await settle();
+    expect(await one).toMatchObject({ ok: true, have: 99, span: false, into: 1, find: null });
+    expect(sent[2]).toEqual(["lay", { p_x: 12, p_y: 28 }]);
+    expect(nudges).toEqual([["works", "them"], ["works", undefined]]);
+    expect(k.works()?.works.bridge).toMatchObject({ built: { 1: [{ id: "me", name: "me" }] }, finds: [] });
+    const span = k.stoneLay([12, 28]);
+    await settle();
+    expect(await span).toMatchObject({ ok: true, have: 100, spans: 1, span: true, find: "pearl" });
+    expect(nudges[2]).toEqual(["works", undefined]);
+    expect(k.works()?.works.bridge).toMatchObject({ needs: { stone: { have: 100 } }, mine: { stone: 1 }, helpers: [{ id: "me", name: "me" }], finds: [{ kind: "pearl", at: NOW, span: 1, hands: [{ id: "me", name: "me" }] }] });
+    // a refusal is the rule's own word, and what is kept is as it was told
+    const none = k.stoneDrop();
+    await settle();
+    expect(await none).toEqual({ ok: false, why: "none" });
+    // the room says the works changed (a stone handed to me, a span laid by somebody): asked for again, wherever I am
+    told = { works: { bridge: bridge(100, 1, ["me"]) }, carried: { work: "bridge", thing: "stone" } };
+    const before = db.asked.filter((fn) => fn === "town_works_read").length;
+    k.nudged("works");
+    await settle();
+    expect(db.asked.filter((fn) => fn === "town_works_read").length).toBe(before + 1);
+    expect(k.works()?.carried).toEqual({ work: "bridge", thing: "stone" });
+    // a bridge that is not open is told as that and nothing more, whatever came with it
+    told = { works: { bridge: { open: false, done: null, needs: { stone: { need: 600, have: 5 } }, helpers: [{ id: "me", name: "me" }], mine: { stone: 1 } } }, carried: null };
+    await k.worksLook();
+    expect(k.works()?.works.bridge).toEqual({ open: false, done: null, needs: {}, helpers: [], mine: {}, built: {}, finds: [] });
+    k.close();
+
+    // a database that has no works yet answers nothing: nothing of them is shown, nothing is asked for when the room
+    // says so, and a stone asked for all the same could not be reached
+    const old = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const o = new DbKeeper("me", old.ask);
+    await settle();
+    expect(old.asked).toContain("town_works_read");
+    expect(o.works()).toBeNull();
+    const asked = old.asked.length;
+    o.nudged("works");
+    await o.worksLook();
+    await settle();
+    expect(old.asked).toHaveLength(asked);
+    const away = o.stoneLift([41, 28]);
+    await settle();
+    expect(await away).toEqual({ ok: false, why: "away" });
+    expect(o.works()).toBeNull();
+    o.close();
+  });
+
+  // ── the lamp relay ── (lib/town/lamps; v163)
+  it("keeps the lamps as it is told them, tells the taker of a flame and everybody of every post lit, and knows of none where the database has none", async () => {
+    const map = (lit: number[], by: string[] = [], full = 0) => ({ lit: lit.map((post) => ({ post, at: NOW, hands: by.map((id) => ({ id, name: id })) })), lighters: by.map((id) => ({ id, name: id })), full });
+    let told: unknown = { night: 20_734, maps: { farm: map([2]), forest: map([]) }, flame: null };
+    const sent: Array<[string, Record<string, unknown>]> = [], nudges: Array<[string, string | undefined]> = [];
+    const answer = (more: Record<string, unknown> = {}) => ({ now: NOW, purse: purse(), lamps: told, ...more });
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_lamps_read: () => ({ now: NOW, lamps: told }),
+      town_flame_take: (a) => { sent.push(["take", a]); told = { night: 20_734, maps: { farm: map([2]), forest: map([]) }, flame: { until: NOW + 5000, hands: 1 } }; return answer({ ok: true, until: NOW + 5000 }); },
+      town_flame_pass: (a) => { sent.push(["pass", a]); told = { night: 20_734, maps: { farm: map([2]), forest: map([]) }, flame: null }; return answer({ ok: true, until: NOW + 5000 }); },
+      town_lamp_light: (a) => {
+        sent.push(["light", a]);
+        if (a.p_post === 2) return answer({ ok: false, why: "lit" });
+        told = { night: 20_734, maps: { farm: map([2, Number(a.p_post)], ["them", "me"]), forest: map([]) }, flame: null };
+        return answer({ ok: true, n: 2, of: 12, full: false });
+      },
+    });
+    const k = new DbKeeper("me", db.ask);
+    k.onDeed = (what, to) => { nudges.push([what, to]); };
+    expect(k.lamps()).toBeNull();
+    await settle();
+    // asked for once as the game begins: the lamps are known before a fire is walked up to
+    expect(k.lamps()).toMatchObject({ night: 20_734, flame: null });
+    expect(k.lamps()?.maps.farm.lit.map((l) => l.post)).toEqual([2]);
+    // a flame taken: the map and the tile I stand on; the answer brings the moment it dies, and nobody else is told through the room
+    const take = k.flameTake("farm", [160, 24]);
+    await settle();
+    expect(await take).toMatchObject({ ok: true, until: NOW + 5000 });
+    expect(sent[0]).toEqual(["take", { p_map: "farm", p_x: 160, p_y: 24 }]);
+    expect(k.lamps()?.flame).toEqual({ until: NOW + 5000, hands: 1 });
+    expect(nudges).toEqual([]);
+    // handed on: to whom; whoever takes it is told through the room, and my hands are empty
+    const pass = k.flamePass("them");
+    await settle();
+    expect(await pass).toMatchObject({ ok: true });
+    expect(sent[1]).toEqual(["pass", { p_to: "them" }]);
+    expect(k.lamps()?.flame).toBeNull();
+    expect(nudges).toEqual([["lamps", "them"]]);
+    // a post lit: the map, the post and the tile; it is told to everybody, and what is kept has it lit with the hands its flame came by
+    const lit = k.lampLight("farm", 5, [175, 21]);
+    await settle();
+    expect(await lit).toMatchObject({ ok: true, n: 2, of: 12, full: false });
+    expect(sent[2]).toEqual(["light", { p_map: "farm", p_post: 5, p_x: 175, p_y: 21 }]);
+    expect(nudges).toEqual([["lamps", "them"], ["lamps", undefined]]);
+    expect(k.lamps()?.maps.farm).toMatchObject({ lit: [{ post: 2 }, { post: 5, hands: [{ id: "them", name: "them" }, { id: "me", name: "me" }] }], lighters: [{ id: "them", name: "them" }, { id: "me", name: "me" }] });
+    // a refusal is the rule's own word, and nobody is told of it
+    const again = k.lampLight("farm", 2, [150, 24]);
+    await settle();
+    expect(await again).toEqual({ ok: false, why: "lit" });
+    expect(nudges).toHaveLength(2);
+    // the room says the lamps changed (a flame handed to me, a post lit by somebody): asked for again, wherever I am
+    told = { night: 20_734, maps: { farm: map([2, 5, 7], ["them", "me"], 3), forest: map([]) }, flame: { until: NOW + 4000, hands: 2 } };
+    const before = db.asked.filter((fn) => fn === "town_lamps_read").length;
+    k.nudged("lamps");
+    await settle();
+    expect(db.asked.filter((fn) => fn === "town_lamps_read").length).toBe(before + 1);
+    expect(k.lamps()?.flame).toEqual({ until: NOW + 4000, hands: 2 });
+    expect(k.lamps()?.maps.farm.full).toBe(3);
+    // by day it is told as that: no night, nothing lit
+    told = { night: null, maps: { farm: map([], [], 3), forest: map([]) }, flame: null };
+    await k.lampsLook();
+    expect(k.lamps()).toEqual({ night: null, maps: { farm: { lit: [], lighters: [], full: 3 }, forest: { lit: [], lighters: [], full: 0 } }, flame: null });
+    k.close();
+
+    // a database that has no lamps yet answers nothing: nothing of them is shown, nothing is asked for when the room
+    // says so, and a flame asked for all the same could not be reached
+    const old = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const o = new DbKeeper("me", old.ask);
+    await settle();
+    expect(old.asked).toContain("town_lamps_read");
+    expect(o.lamps()).toBeNull();
+    const asked = old.asked.length;
+    o.nudged("lamps");
+    await o.lampsLook();
+    await settle();
+    expect(old.asked).toHaveLength(asked);
+    const away = o.flameTake("farm", [160, 24]);
+    await settle();
+    expect(await away).toEqual({ ok: false, why: "away" });
+    expect(o.lamps()).toBeNull();
     o.close();
   });
 
@@ -916,5 +1092,49 @@ describe("the database's keeper", () => {
     expect(db.asked.length).toBe(n);
     expect(k.shopSeen()).toEqual({ who: "them", told: null });
     k.close();
+  });
+
+  it("tells the database of a go at a board, whatever its end, and never of a line in the water; one that has not heard of it is asked three times and then left alone", async () => {
+    const told: Array<Record<string, unknown>> = [];
+    let knows = true;
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    const ask: Ask = async (fn, args = {}) => {
+      if (fn !== "town_try") return db.ask(fn, args);
+      told.push(args);
+      return knows ? true : null;
+    };
+    const k = new DbKeeper("me", ask);
+    await settle();
+    const go = { game: "farming" as const, at: NOW, won: false, secs: 2.25, spent: true, buff: null, what: "water", need: 2, hits: 1, misses: 3 };
+    // dropped by tired hands (not won, and nothing more said); done (won); left, with a board's count that is no count
+    k.record({ ...go, board: "pouring" });
+    k.record({ ...go, won: true });
+    k.record({ ...go, game: "forest", board: "digging", how: "left", secs: Number.NaN, hits: -4, misses: 2.6 });
+    // (every end of a line in the water is the database's own already)
+    k.record({ game: "fishing" } as unknown as Play);
+    await settle();
+    expect(told).toEqual([
+      { p_game: "farming", p_board: "pouring", p_what: "water", p_how: "dropped", p_spent: true, p_need: 2, p_hits: 1, p_misses: 3, p_secs: 2.25 },
+      { p_game: "farming", p_board: null, p_what: "water", p_how: "done", p_spent: true, p_need: 2, p_hits: 1, p_misses: 3, p_secs: 2.25 },
+      { p_game: "forest", p_board: "digging", p_what: "water", p_how: "left", p_spent: true, p_need: 2, p_hits: 0, p_misses: 3, p_secs: 0 },
+    ]);
+    // it is heard after the keeper is closed too (a board shut as the member leaves the town)
+    k.close();
+    k.record({ ...go, board: "steady", how: "left" });
+    await settle();
+    expect(told.at(-1)).toMatchObject({ p_board: "steady", p_how: "left" });
+    // a database that has not had v166: three goes told to nobody, and then no more is asked of it
+    knows = false;
+    told.length = 0;
+    for (let i = 0; i < 5; i++) { k.record(go); await settle(); }
+    expect(told.length).toBe(3);
+    // …but one that answered in between is asked on
+    const again: Array<Record<string, unknown>> = [];
+    const answers = [null, null, true, null, null, null, null];
+    const k2 = new DbKeeper("me", async (fn, args = {}) => { if (fn !== "town_try") return db.ask(fn, args); again.push(args); return answers.shift() ?? null; });
+    await settle();
+    for (let i = 0; i < 9; i++) { k2.record(go); await settle(); }
+    expect(again.length).toBe(6);
+    k2.close();
   });
 });

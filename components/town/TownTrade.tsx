@@ -46,6 +46,8 @@ export interface TradeSummary {
   eating: { dish: DishId; progress: number; from: number } | null;
   /** (forging) What the tool in my hand carries, as the room is told it (lib/town/tools' toolWord): "" for a plain one or an empty hand. */
   tool?: string;
+  /** How many of the bag's slots are taken, and how many it has (the bag's button on the map says so). */
+  slots: [taken: number, all: number];
 }
 
 type Kind = keyof Purse["popoto"];
@@ -266,10 +268,11 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   const eating = purse.eating ? { dish: purse.eating.dish, progress: mealProgress(purse, now), from: purse.eating.from } : null, hand = handOf(purse), wet = !!carried(purse);
   // (forging: what the tool in my hand carries, for the room)
   const heldAt = keeper.handSlot(), tool = toolWord(heldAt >= 0 ? purse.bag[heldAt] : null);
+  const taken = purse.bag.filter(Boolean).length, slots = purse.bag.length;
   useEffect(() => {
-    onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating, tool });
+    onSummary({ hand, wet, coins: purse.coins, waiting: due.coins, stamina: Math.round(stamina), buff, eating, tool, slots: [taken, slots] });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the meal is told by its dish and how far through it is
-  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating?.from, eating && Math.round(eating.progress * 100), tool]);
+  }, [onSummary, hand, wet, purse.coins, due.coins, Math.round(stamina), buff, eating?.dish, eating?.from, eating && Math.round(eating.progress * 100), tool, taken, slots]);
 
   // A meal is counted on every second while I sit at it; getting up leaves it.
   const sitting = useRef(seated), beside = useRef(company);

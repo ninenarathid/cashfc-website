@@ -9402,6 +9402,10 @@
       "kills": 2,
       "best": 18
      },
+     "Paladin": {
+      "kills": 3,
+      "best": 11
+     },
      "Sage": {
       "kills": 9,
       "best": 66
@@ -9552,16 +9556,16 @@
     "cleared": true,
     "job_kills": {
      "Monk": {
-      "kills": 4,
-      "best": 49
-     },
-     "Sage": {
       "kills": 6,
       "best": 71
      },
      "Samurai": {
-      "kills": 1,
-      "best": 1
+      "kills": 2,
+      "best": 21
+     },
+     "Sage": {
+      "kills": 6,
+      "best": 71
      }
     }
    },
@@ -18292,6 +18296,10 @@
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
+     "BlackMage": {
+      "kills": 6,
+      "best": 50
+     },
      "Pictomancer": {
       "kills": 2,
       "best": 70
@@ -18307,10 +18315,6 @@
      "Summoner": {
       "kills": 1,
       "best": 41
-     },
-     "BlackMage": {
-      "kills": 3,
-      "best": 50
      },
      "Bard": {
       "kills": 1,
@@ -18430,13 +18434,13 @@
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
+     "Viper": {
+      "kills": 11,
+      "best": 92
+     },
      "BlackMage": {
       "kills": 4,
       "best": 75
-     },
-     "Viper": {
-      "kills": 2,
-      "best": 71
      },
      "Bard": {
       "kills": 9,
@@ -50802,6 +50806,49 @@
     ]
    },
    {
+    "zone": "AAC Light-Heavyweight",
+    "zone_id": 62,
+    "expansion": "Dawntrail",
+    "encounters": [
+     {
+      "label": "M1S",
+      "encounter_id": 93,
+      "name": "Black Cat",
+      "best": 99,
+      "median": 99,
+      "kills": 17,
+      "job": "Warrior"
+     },
+     {
+      "label": "M2S",
+      "encounter_id": 94,
+      "name": "Honey B. Lovely",
+      "best": 100,
+      "median": 97,
+      "kills": 17,
+      "job": "Warrior"
+     },
+     {
+      "label": "M3S",
+      "encounter_id": 95,
+      "name": "Brute Bomber",
+      "best": 99,
+      "median": 81,
+      "kills": 16,
+      "job": "Warrior"
+     },
+     {
+      "label": "M4S",
+      "encounter_id": 96,
+      "name": "Wicked Thunder",
+      "best": 98,
+      "median": 89,
+      "kills": 19,
+      "job": "Warrior"
+     }
+    ]
+   },
+   {
     "zone": "Anabaseios",
     "zone_id": 54,
     "expansion": "Endwalker",
@@ -65521,6 +65568,10 @@
      "Dancer": {
       "kills": 5,
       "best": 42
+     },
+     "Sage": {
+      "kills": 3,
+      "best": 26
      }
     }
    },
@@ -65639,6 +65690,14 @@
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
+     "Paladin": {
+      "kills": 31,
+      "best": 77
+     },
+     "Gunbreaker": {
+      "kills": 7,
+      "best": 67
+     },
      "Reaper": {
       "kills": 1,
       "best": 31
@@ -65650,10 +65709,6 @@
      "Pictomancer": {
       "kills": 1,
       "best": 10
-     },
-     "Paladin": {
-      "kills": 26,
-      "best": 43
      }
     }
    },
@@ -73175,7 +73230,7 @@
       "best": 19
      },
      "Astrologian": {
-      "kills": 24,
+      "kills": 27,
       "best": 75
      },
      "WhiteMage": {
@@ -73323,16 +73378,24 @@
       "kills": 11,
       "best": 89
      },
+     "Dancer": {
+      "kills": 2,
+      "best": 83
+     },
+     "Bard": {
+      "kills": 1,
+      "best": 65
+     },
      "RedMage": {
       "kills": 1,
       "best": 36
      },
      "Astrologian": {
-      "kills": 14,
+      "kills": 19,
       "best": 82
      },
      "WhiteMage": {
-      "kills": 2,
+      "kills": 6,
       "best": 77
      },
      "Scholar": {
@@ -76547,7 +76610,13 @@
     "best": 70,
     "kills": 4,
     "job": "Viper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Viper": {
+      "kills": 4,
+      "best": 70
+     }
+    }
    }
   ],
   "legacy": [],
@@ -79512,6 +79581,17 @@
   "ultimates": [],
   "extremes": [
    {
+    "zone": "Trials III (Extreme)",
+    "zone_id": 72,
+    "expansion": "Dawntrail",
+    "encounter_id": 1083,
+    "name": "Doomtrain",
+    "best": 4,
+    "kills": 1,
+    "job": "Reaper",
+    "cleared": true
+   },
+   {
     "zone": "Trials I (Extreme)",
     "zone_id": 58,
     "expansion": "Dawntrail",
@@ -81448,8 +81528,8 @@
     "cleared": true,
     "job_kills": {
      "Ninja": {
-      "kills": 5,
-      "best": 4
+      "kills": 11,
+      "best": 5
      }
     }
    }
@@ -81627,17 +81707,17 @@
     "job": "DarkKnight",
     "cleared": true,
     "job_kills": {
+     "DarkKnight": {
+      "kills": 8,
+      "best": 11
+     },
      "Dragoon": {
       "kills": 6,
       "best": 3
      },
-     "DarkKnight": {
-      "kills": 3,
-      "best": 4
-     },
      "Paladin": {
-      "kills": 14,
-      "best": 4
+      "kills": 21,
+      "best": 8
      }
     }
    },
@@ -81888,12 +81968,12 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 16,
-    "kills": 8,
+    "kills": 11,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 8,
+      "kills": 11,
       "best": 16
      }
     }
@@ -86077,7 +86157,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 13,
+    "pulls": 19,
     "last": "2026-09-29",
     "last_ts": 1790690223
    }
@@ -87441,7 +87521,7 @@
     "expansion": "Dawntrail",
     "encounter_id": 1074,
     "name": "The Weapon's Refrain",
-    "best": 78,
+    "best": 79,
     "kills": 2,
     "job": "DarkKnight",
     "cleared": true
@@ -87651,7 +87731,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 82,
-    "kills": 8,
+    "kills": 9,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
@@ -90445,9 +90525,23 @@
     "encounter_id": 1071,
     "name": "Valigarmanda",
     "best": 48,
-    "kills": 1,
+    "kills": 13,
     "job": "Reaper",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Reaper": {
+      "kills": 1,
+      "best": 48
+     },
+     "Dancer": {
+      "kills": 9,
+      "best": 43
+     },
+     "WhiteMage": {
+      "kills": 3,
+      "best": 29
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -90504,8 +90598,30 @@
    ]
   },
   "ultimates": [],
-  "extremes": [],
+  "extremes": [
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1071,
+    "name": "Valigarmanda",
+    "best": 22,
+    "kills": 12,
+    "job": "Sage",
+    "cleared": true,
+    "job_kills": {
+     "Sage": {
+      "kills": 9,
+      "best": 22
+     },
+     "Scholar": {
+      "kills": 3,
+      "best": 12
+     }
+    }
+   }
+  ],
   "legacy": [],
-  "_status": "none"
+  "_status": "ok"
  }
 }

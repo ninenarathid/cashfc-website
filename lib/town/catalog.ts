@@ -18,6 +18,8 @@ import { huntRow } from "./hunt";
 import { HEAT } from "./heat";
 import { CARRIES, FIELD, KITCHEN_GEAR, ROD_IDS, TACKLE } from "./gear";
 import { GROUND, GROUND_MAPS } from "./ground";
+import { BRIDGE } from "./bridge";
+import { LAMPS } from "./lamps";
 import { HINT_IDS, HINT_PRICE } from "./hints";
 import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE } from "./insects";
 import { JAR } from "./jar";
@@ -298,6 +300,34 @@ export function catalogOf() {
     /** The mountain's trees (lib/town/trees, lib/town/felling): every knob of the woodcutters', the axe as their game reads it, and every tree there is (none, outside `next dev`). */
     trees: treesRow(),
     // ── end: felling ──
+    // ── the bridge built by hand ── (lib/town/bridge; v160)
+    /**
+     * The bridge and its stones: the work and the thing it is built of; how many it takes and in how many spans (the
+     * table of what a work needs is seeded from `need`, and is what the giving reads from then on); what lifting and
+     * laying cost; how far a stone is handed (the page's to hold to), how near the pile and the foot one stands, the
+     * paces of whoever holds one (the page's), how many hands are remembered, what a stone laid is worth on the
+     * helpers' line; the seconds the button is held by tired hands, how far apart the marks on the road stand and in
+     * how many steps the course at the foot grows through a span (the page's, all three); one stone in how many has
+     * something in it, and what it may be (the database draws it as the stone is lifted); and the two tiles.
+     */
+    bridge: {
+      work: BRIDGE.work, thing: BRIDGE.thing, need: BRIDGE.need, spans: BRIDGE.spans, costs: BRIDGE.costs, reach: BRIDGE.reach, near: BRIDGE.near, paces: BRIDGE.paces, hands: BRIDGE.hands, point: BRIDGE.point,
+      hold: BRIDGE.hold, stand: BRIDGE.stand, steps: BRIDGE.steps, marks: BRIDGE.marks,
+      pile: [BRIDGE.pile.x, BRIDGE.pile.y], foot: [BRIDGE.foot.x, BRIDGE.foot.y],
+    },
+    // ── the lamp relay ── (lib/town/lamps; v163)
+    /**
+     * The lamp relay at dusk: the minutes of Bangkok's day it runs from and until; the seconds a flame lives in a hand
+     * and the seconds of grace after them; how far a flame is handed (the page's to hold to), how near the fire and a
+     * post one stands; what lighting costs, and the seconds tired hands hold the button (the flame is good that much
+     * longer in them); how far a lit lamp lights (the page's); how many hands are remembered, and what a post lit is
+     * worth on the helpers' line; at how many lit posts more of the night comes out (the page's); and each map's fire
+     * and its posts, by their tiles.
+     */
+    lamps: {
+      from: LAMPS.from, until: LAMPS.until, life: LAMPS.life, grace: LAMPS.grace, reach: LAMPS.reach, near: LAMPS.near, cost: LAMPS.cost, hold: LAMPS.hold,
+      light: LAMPS.light, hands: LAMPS.hands, point: LAMPS.point, more: LAMPS.more, maps: LAMPS.maps,
+    },
   };
 }
 export type Catalog = ReturnType<typeof catalogOf>;
@@ -424,8 +454,17 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * was six; and `feast`: how many pots of one member's the table takes, the minutes a pot stands on the ground first, the
  * tile a pot on the table is said to stand on, and the yard's floor, from which the table is reached). And one number
  * of `items` by itself, not the row: `bowl.stack`, three where it was one.
+ *
+ * v160 seeded one, new: `bridge`, for the bridge built by hand and the village's works; v163 one, new: `lamps`, for
+ * the lamp relay at dusk. Both ran on 2026-10-09, after v166.
+ *
+ * v167 (a draft, not run) writes one over: `lamps`, for a flame of three seconds and more posts a map (the first
+ * twelve of each as they were).
  */
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {
+  // ── the lamp relay ── (v167, a draft: the row written over)
+  v167: { keys: [], over: ["lamps"] },
+};
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

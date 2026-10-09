@@ -42,7 +42,10 @@ async function enter(X, letter, weather) {
 }
 const panel = `document.querySelector("[data-town-settings-panel]")`;
 const knob = `${panel}.querySelector("[data-town-motion]")`;
+// (the cog is in the menu at the top right since 2026-10-09: the menu is opened first)
+const openMenu = (X) => X.evaluate(`document.querySelector("[data-town-menu-panel]")?.hidden && document.querySelector("[data-town-menu]").click()`);
 const openSettings = async (X) => {
+  await openMenu(X); await sleep(150);
   if (!(await X.evaluate(`!!${panel}`))) await X.evaluate(`document.querySelector("[data-town-settings]").click()`);
   await until("the settings open", () => X.evaluate(`!!${panel}`), 4000);
 };
@@ -121,12 +124,13 @@ try {
   await enter(P, "N", "rain");
   s = await sky(P);
   ok(`a phone that asks for reduced motion has the rain too (${s.drops} drops)`, (await P.evaluate(`matchMedia("(prefers-reduced-motion: reduce)").matches`)) && s.moving === true && s.drops > 30, s);
-  const cog = await P.evaluate(`(() => { const all = document.querySelectorAll("[data-town-settings]"); if (all.length !== 1) return { n: all.length }; const chat = all[0].parentElement.previousElementSibling; const r = all[0].getBoundingClientRect(), c = chat?.getAttribute("aria-label") === "แชท" ? chat.getBoundingClientRect() : null; return { n: 1, left: r.left, right: r.right, top: r.top, bottom: r.bottom, wide: r.width, chat: c ? { right: c.right, top: c.top } : null, screen: [innerWidth, innerHeight] }; })()`);
-  ok("its cog is at the foot of the screen, beside the chat", cog.n === 1 && cog.top > 400 && cog.left < 80 && cog.wide >= 40 && !!cog.chat && Math.abs(cog.chat.top - cog.top) < 3 && cog.left - cog.chat.right < 12 && cog.left >= cog.chat.right, cog);
+  await openMenu(P); await sleep(200);
+  const cog = await P.evaluate(`(() => { const all = document.querySelectorAll("[data-town-settings]"); if (all.length !== 1) return { n: all.length }; const r = all[0].getBoundingClientRect(), m = document.querySelector("[data-town-menu]").getBoundingClientRect(); return { n: 1, left: r.left, right: r.right, top: r.top, bottom: r.bottom, wide: r.width, menu: { right: m.right, bottom: m.bottom }, screen: [innerWidth, innerHeight] }; })()`);
+  ok("its cog is in the menu at the top right, a thumb wide", cog.n === 1 && cog.wide >= 44 && cog.top >= cog.menu.bottom && cog.top < 240 && cog.right <= cog.screen[0] - 8 && cog.left > cog.screen[0] / 3, cog);
   await openSettings(P);
   await sleep(300);
   const box = await P.evaluate(`(() => { const r = ${panel}.getBoundingClientRect(), c = document.querySelector("[data-town-settings]").getBoundingClientRect(), bar = document.querySelector("canvas").getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom, cogTop: c.top, stageTop: bar.top, screen: [innerWidth, innerHeight] }; })()`);
-  ok("its panel opens upwards and fits the screen", box.left >= 8 && box.right <= box.screen[0] - 8 && box.bottom <= box.cogTop && box.top >= box.stageTop + 56, box);
+  ok("its panel opens under the cog, inside the menu, and fits the screen", box.left >= 8 && box.right <= box.screen[0] - 8 && box.top >= box.cogTop + 44 && box.bottom <= box.screen[1] - 8, box);
   await P.shot(`${OUT}/motion-phone-settings.png`);
   await flip(P);
   await shut(P);

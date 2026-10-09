@@ -102,9 +102,11 @@ for (const [label, size] of Object.entries(SIZES)) {
     await X.evaluate(`(${T}.reset(), ${T}.forget())`); await sleep(500);
     await say(X); await say(X);
     await X.evaluate(`document.querySelector('button[aria-label="แชท"]').click()`); await sleep(900);
-    const r = await X.evaluate(`(() => { const f = document.querySelector("[data-foot-ctrl] form")?.getBoundingClientRect(), g = document.querySelector(".town-foot").getBoundingClientRect(), h = document.querySelector("[data-foot-said] [role=log]")?.parentElement.getBoundingClientRect(); return { grid: [Math.round(g.top), Math.round(g.bottom)], form: f ? [Math.round(f.top), Math.round(f.bottom)] : null, history: h ? [Math.round(h.top), Math.round(h.bottom)] : null }; })()`);
-    ok("the history is taller than the room there is, and the chat's box stays at the foot: it is the history that gives way, upwards",
-       !!r.form && !!r.history && r.history[1] - r.history[0] > r.grid[1] - r.grid[0] - 44 && r.form[1] <= r.grid[1] + 1 && r.history[1] <= r.form[0], r);
+    const r = await X.evaluate(`(() => { const f = document.querySelector("[data-foot-ctrl] form")?.getBoundingClientRect(), g = document.querySelector(".town-foot").getBoundingClientRect(), log = document.querySelector("[data-foot-said] [role=log]"), h = log?.parentElement.getBoundingClientRect(); return { grid: [Math.round(g.top), Math.round(g.bottom)], form: f ? [Math.round(f.top), Math.round(f.bottom)] : null, history: h ? [Math.round(h.top), Math.round(h.bottom)] : null, more: log ? log.scrollHeight - log.clientHeight : 0 }; })()`);
+    // (since 2026-10-09 the top row of a phone is two plates deep, so the room is less: the history has what is
+    // left of it and scrolls, three lines at the least, and the box does not move)
+    ok("there is more history than there is room for, and the chat's box stays at the foot: it is the history that gives way",
+       !!r.form && !!r.history && r.more > 0 && r.history[1] - r.history[0] >= 72 && r.form[1] <= r.grid[1] + 1 && r.history[1] <= r.form[0], r);
     await X.shot(`${OUT}/hud-short-chat.png`);
   } catch (e) { fail++; console.log(`  FAIL (stopped) ${e?.message ?? e}`); await X.shot(`${OUT}/hud-short-chat-stopped.png`).catch(() => {}); }
   finally { await X.close(); }

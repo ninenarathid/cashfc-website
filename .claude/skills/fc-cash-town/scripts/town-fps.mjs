@@ -50,7 +50,10 @@ async function enter(X, letter) {
   await sleep(4000);
 }
 const panel = `document.querySelector("[data-town-settings-panel]")`;
+// (the cog is in the menu at the top right since 2026-10-09: the menu is opened first)
+const openMenu = (X) => X.evaluate(`document.querySelector("[data-town-menu-panel]")?.hidden && document.querySelector("[data-town-menu]").click()`);
 const openSettings = async (X) => {
+  await openMenu(X); await sleep(150);
   if (!(await X.evaluate(`!!${panel}`))) await X.evaluate(`document.querySelector("[data-town-settings]").click()`);
   await until("the settings open", () => X.evaluate(`!!${panel}`), 4000);
 };
@@ -79,8 +82,9 @@ try {
   ok("…of as many as the screen has, still", (await asked(X, 2000)) > 100);
 
   console.log("the settings at the top right:");
+  await openMenu(X); await sleep(200);
   const cog = await X.evaluate(`(() => { const b = document.querySelector("[data-town-settings]"), c = document.querySelector("canvas").getBoundingClientRect(); if (!b) return null; const r = b.getBoundingClientRect(); return { down: r.top - c.top, in: c.right - r.right, title: b.title }; })()`);
-  ok("there is a cog at the top right of the town", !!cog && cog.down < 30 && cog.in < 320 && cog.title === "ตั้งค่า", cog);
+  ok("there is a cog in the menu at the top right of the town", !!cog && cog.down > 40 && cog.down < 240 && cog.in < 320 && cog.title === "ตั้งค่า", cog);
   await openSettings(X);
   await sleep(1200);
   const shown = await X.evaluate(`({ text: ${panel}.innerText.replace(/\\s+/g, " ").trim(), now: Number(${panel}.querySelector("[data-drawn]").dataset.drawn), emoji: /\\p{Extended_Pictographic}/u.test(${panel}.innerText) })`);
@@ -172,8 +176,9 @@ try {
   await enter(P, "G");
   const rawP = await asked(P);
   ok(`the phone's screen asks for far more than 60 too (${rawP})`, rawP > 100, rawP);
+  await openMenu(P); await sleep(200);
   const cogP = await P.evaluate(`(() => { const all = document.querySelectorAll("[data-town-settings]"), c = document.querySelector("canvas").getBoundingClientRect(); if (all.length !== 1) return { n: all.length }; const r = all[0].getBoundingClientRect(); return { n: 1, fromTop: r.top - c.top, fromLeft: r.left - c.left, up: innerHeight - r.bottom }; })()`);
-  ok("a phone has one cog, at the foot of the screen beside the chat: its corner has no room for one more", cogP.n === 1 && cogP.fromTop > 300 && cogP.fromLeft < 80 && cogP.up > 60, cogP);
+  ok("a phone has one cog, in the menu at the top right as a wide screen has", cogP.n === 1 && cogP.fromTop > 40 && cogP.fromTop < 240 && cogP.fromLeft > 80, cogP);
   const phone = await drawn(P, 5);
   ok(`…and is held to 60 all the same (${phone.all.join(" ")})`, (await sky(P)).pace === 60 && phone.most <= 61, phone);
   await choose(P, 30);
