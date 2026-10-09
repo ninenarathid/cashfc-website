@@ -34,10 +34,9 @@ describe("the twenty-eight things of woodcutting and mining", () => {
   });
   it("fetch nothing from the uncle's relatives, but for the two tools he sells", () => {
     for (const id of NEW) if (id !== "pick" && id !== "axe") expect(ITEMS[id].pays).toBe(0);
-    // the two tools are on his shelf as the hoe is: its price, its stock, one a member a round
-    expect(GOODS.pick).toEqual(GOODS.hoe);
-    expect(GOODS.axe).toEqual(GOODS.hoe);
-    expect(GOODS.pick).toEqual({ price: 50, stock: 6, each: 1 });
+    // the two tools are on his shelf at the hoe's price, one a member a round, and enough of them a round for every member there is
+    expect(GOODS.axe).toEqual(GOODS.pick);
+    expect(GOODS.pick).toEqual({ price: GOODS.hoe!.price, stock: 60, each: 1 });
     // and his relatives pay less for one than he asks
     expect(ITEMS.pick.pays).toBeLessThan(GOODS.pick!.price);
     expect(ITEMS.axe.pays).toBeLessThan(GOODS.axe!.price);

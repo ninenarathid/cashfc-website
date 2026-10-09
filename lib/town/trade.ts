@@ -65,8 +65,11 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   bowl: good(5, 60, 5), bucket: good(20, 30, 4),
   // (a net for insects, from the first day: lib/town/insects. It can be made of what the forest gives, too.)
   bugNet: good(35, 6, 1),
-  // (woodcutting and mining, 2026-10-08: the two lines' first tools, from the first day, stocked as the hoe is)
-  pick: good(50, 6, 1), axe: good(50, 6, 1),
+  // (woodcutting and mining, 2026-10-08: the two lines' first tools, from the first day. Sixty a round since the
+  // evening the mountain opened, where they were stocked as the hoe is, at six: the owner, 2026-10-09, "เพิ่มโควต้า
+  // อีเต้อกับขวานต่อวันให้หน่อย". A tool is bought once and kept, and at six a round twelve members a day could begin a
+  // line; sixty is every purse there is in one round. Still one a member a round, and the price as it was.)
+  pick: good(50, 60, 1), axe: good(50, 60, 1),
   bucketIron: good(70, 6, 1), apron: good(120, 4, 1),
   // The early seeds that were to be found in the wild: sold here until foraging opens (it does not, today), since
   // without them half the early dishes could not be cooked at all.
