@@ -40,8 +40,14 @@ async function build() {
   const t = await supabaseLike({ extra });
   // (by number, but v130 after v131, as it ran; v136 is the party finder's and v157 the members' contacts'; a number that was never a file is passed over:
   // v160 to v164 were other rounds' numbers, not files yet when v165 and v166 ran; **v160 (the bridge built by hand) and v163 (the lamp relay) ran after
-  // v166, on 2026-10-09, and are replayed there, as they ran**; v161, v162 and v164 never were files)
-  const numbers = Array.from({ length: RAN - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157 && n !== 160 && n !== 163);
+  // v166, on 2026-10-09, and are replayed there, as they ran**; v161 and v162 never were files)
+  // (**v164, the far side, is not replayed here at all while it has not run.** Its number is under RAN: the day its file
+  // lies in supabase/ to be run, replaying by number would run it before v165 to v168 and before v160 and v163, which
+  // write `town.work_counts_of` and `town.deed_th` after it and would undo its blocks; and the snapshot named for RAN
+  // would have a file in it that has not run, which v164's own dry runs begin without. WHEN IT HAS RUN: take 164 out of
+  // this filter, put it in after the last file that ran before it (`numbers.splice(numbers.indexOf(168) + 1, 0, 164)`),
+  // and give the snapshot a name of its own while RAN is what it was, as below for v160 and v163.)
+  const numbers = Array.from({ length: RAN - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && n !== 136 && n !== 157 && n !== 160 && n !== 163 && n !== 164);
   numbers.splice(numbers.indexOf(131) + 1, 0, 130);
   numbers.splice(numbers.indexOf(166) + 1, 0, 160, 163);
   for (const n of numbers) { let sql = null; try { sql = migration(n); } catch { /* never a file */ } if (sql) await t.run(sql, `v${n}`); }

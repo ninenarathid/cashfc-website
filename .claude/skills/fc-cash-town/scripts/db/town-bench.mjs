@@ -44,9 +44,15 @@ const OTHERS = [136, 157];
 // between them. Both write `town.work_counts_of` and `town.deed_th` again; no file from v161 to v166 does, so the order changes no row and no rule:
 // they are replayed after v166 all the same, as they ran.)
 const LATE = [160, 163];
-const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n) && !LATE.includes(n));
+// (and one later still: v164, the far side, is run after v168, though its number is lower. It writes the same two functions
+// again from their text as it stood after v163: replayed by its number, before v160 and v163, those two would undo its
+// blocks. So once it is a file, in supabase/ to be run or in history once it has, it is replayed after v168. While it is
+// neither, there is nothing to replay, and a draft of it comes in by BENCH_EXTRA after everything.)
+const AFTER_168 = [164];
+const numbers = Array.from({ length: newest - 103 }, (_, i) => 104 + i).filter((n) => n !== 130 && !OTHERS.includes(n) && !LATE.includes(n) && !AFTER_168.includes(n));
 numbers.splice(numbers.indexOf(131) + 1, 0, 130);
 numbers.splice(numbers.indexOf(166) + 1, 0, ...LATE);
+numbers.splice(numbers.indexOf(168) + 1, 0, ...AFTER_168);
 for (const n of numbers) {
   let sql = null;
   try { sql = migration(n); } catch { /* a number that was never a file */ }
@@ -110,6 +116,8 @@ async function rpc(name, args, as) {
     if (k === "p_to" && name === "town_stone_pass" && typeof v === "string") v = await who(v);
     // ── the lamp relay ── (whoever a flame is handed to: the same)
     if (k === "p_to" && name === "town_flame_pass" && typeof v === "string") v = await who(v);
+    // ── felling ── (whoever a trunk is braced for: a tester as the member they are here, a member's own id as it is)
+    if (k === "p_feller" && typeof v === "string") v = await who(v);
     const type = fn.types[k];
     values.push(v === null || v === undefined ? null
       : type === "jsonb" || type === "json" ? JSON.stringify(v)
