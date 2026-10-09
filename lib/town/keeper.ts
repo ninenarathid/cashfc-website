@@ -1579,11 +1579,12 @@ export class DbKeeper implements Keeper {
       ...(a.again ? { again: true } : {}), ...(a.more ? { more: true } : {}) };
   }
 
-  async farmDo(key: string, _name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]> }>> {
+  // (forging: old tools: the answer's `also` are the plots beside the deed's that it changed too, each of which comes in the answer's `plots` and is kept as any answer's are)
+  async farmDo(key: string, _name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
     const [x, y] = key.split(",").map(Number);
     // (the word is sent only when it is given: a database that has not had v119 knows no such argument, and every
     // other deed is to go on being done there)
-    const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]> }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null, ...(sure ? { p_sure: true } : {}) });
+    const did = await this.deed<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>("town_tend", { p_x: x, p_y: y, p_timing: timing ?? null, ...(sure ? { p_sure: true } : {}) });
     if (did.ok) this.onDeed?.("farm");
     // ── gifts: helpers ── (a duet bell rang: whoever it rang with has stamina back and is told of it, in their own purse, which they read again)
     if (did.ok) this.rangWith(did);

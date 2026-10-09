@@ -5,6 +5,7 @@ import { DbKeeper, type Ask } from "./keeper";
 import type { Play } from "./plays";
 import { shelfOf, sourcesAt } from "./orders";
 import { SKIES } from "./skies";
+import { dayOf } from "./stamina";
 import { newPurse, type Purse, type Stack } from "./trade";
 import { bedOf } from "./world";
 
@@ -1712,6 +1713,67 @@ describe("the blacksmith, as the database's keeper learns of him", () => {
     k.nudged("line");
     await settle();
     expect([asked(db, "town_me"), asked(db, "town_smith")]).toEqual([3, 3]);
+    k.close();
+  });
+});
+
+// ── forging: old tools ──
+describe("the seven older tools, as the database's keeper passes them on", () => {
+  const plant = (more: Partial<Plant> = {}): Plant => ({ by: "me", crop: "kangkong", sown: NOW - 1_200_000, boost: 0, watered: 0, fed: 0, guard: NOW + 99 * 3_600_000, cured: 0, picked: 0, pickedAt: 0, ...more });
+  const withCan = (opts: string[]): Purse => purse({ bag: [{ item: "can", n: 1, water: 5, plus: 10, opts }, ...Array<Stack | null>(9).fill(null)], hand: "can", handAt: 0 });
+
+  it("passes on the plots beside a deed's (`also`) and keeps each as the answer tells it, a furrow's `damp` with the rest; asks for nothing more", async () => {
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_farm: () => ({ now: NOW + 1, well: 4, plots: { "133,5": { soil: "tilled", plant: null, damp: true }, "134,5": { soil: "wild", plant: null } }, beds: {} }),
+      town_tend: () => ({ ok: true, now: NOW + 3, purse: purse(), deed: "clear", got: [["worm", 1]], key: "135,5", plot: { soil: "tilled", plant: null, damp: true }, bed: null, misses: 0,
+        also: ["136,5"], plots: { "136,5": { soil: "cleared", plant: null } } }),
+    });
+    const k = new DbKeeper("me", db.ask);
+    const stop = k.look("farm");
+    await settle();
+    expect(k.farm()["133,5"]).toEqual({ soil: "tilled", plant: null, damp: true });
+    expect(see("133,5", k.farm()["133,5"], NOW).damp).toBe(true);
+    const asked = db.asked.length, did = await k.farmDo("135,5", "Me", { hits: 3, misses: 0, secs: 2 });
+    expect(did).toMatchObject({ ok: true, deed: "clear", got: [["worm", 1]], also: ["136,5"] });
+    expect(k.farm()["135,5"]).toEqual({ soil: "tilled", plant: null, damp: true });
+    expect(k.farm()["136,5"]).toEqual({ soil: "cleared", plant: null });
+    expect(db.asked.slice(asked)).toEqual(["town_tend"]);
+    stop();
+    k.close();
+  });
+
+  it("offers a plant wet from one watering to a can whose purse may water it once more, by its own reading of the purse the database told; to any other can it does not", async () => {
+    const wet = { soil: "tilled", plant: plant({ watered: NOW - 600_000 }) };
+    for (const [mine, want] of [[withCan(["", "", "cnTwice"]), "water"], [withCan(["cnDrop", "", ""]), null],
+      [{ ...withCan(["", "", "cnTwice"]), powers: { cnTwice: { k: dayOf(NOW), n: 99 } } } as Purse, null]] as Array<[Purse, string | null]>) {
+      const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: mine }), town_farm: () => ({ now: NOW, well: 4, plots: { "133,5": wet }, beds: {} }) });
+      const k = new DbKeeper("me", db.ask);
+      const stop = k.look("farm");
+      await settle();
+      expect([k.deedAt("133,5"), want === null ? k.purse().powers?.cnTwice?.n ?? 0 : 0]).toEqual([want, want === null && mine.powers ? 99 : 0]);
+      stop();
+      k.close();
+    }
+  });
+
+  it("keeps a pot as it is told it, with what it carries from its cookware: from the kitchen's answer, a pot set down, and a helping eaten out of it", async () => {
+    const pot = (more: Record<string, unknown> = {}) => ({ id: "7", by: "you", dish: "tomYum", left: 3, at: [46, 48], feast: true, set: NOW, name: "You", warm: 2, scent: 10, ...more });
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_kitchen: () => ({ now: NOW, pots: [pot()], feast: { pots: 6, ground: 60, tile: [46, 48] }, found: [], finders: {} }),
+      town_feast_eat: () => ({ ok: true, now: NOW + 1, purse: purse(), dish: "tomYum", pot: pot({ left: 2 }) }),
+      town_pot_down: () => ({ ok: true, now: NOW + 2, purse: purse(), pot: pot({ id: "8", by: "me", scent: undefined }) }),
+    });
+    const k = new DbKeeper("me", db.ask);
+    const stop = k.look("kitchen");
+    await settle();
+    expect(k.pots().map((o) => [o.id, o.left, o.warm, o.scent])).toEqual([["7", 3, 2, 10]]);
+    expect((await k.feastEat("7", [47, 50], true)).ok).toBe(true);
+    expect(k.pots().map((o) => [o.id, o.left, o.warm, o.scent])).toEqual([["7", 2, 2, 10]]);
+    await k.potDown([47, 50]);
+    expect(k.pots().map((o) => [o.id, o.warm, o.scent])).toEqual([["7", 2, 10], ["8", 2, undefined]]);
+    stop();
     k.close();
   });
 });
