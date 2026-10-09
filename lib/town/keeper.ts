@@ -52,7 +52,7 @@ import type { PouchRefusal } from "./pouches";
  * older than several picks on one rock: a rock then breaks at one go or not at all.) `moss`: a rock that broke let
  * glowing moss out.
  */
-export interface MineDid { got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean; moss?: boolean }
+export interface MineDid { got: Array<[ItemId, number]>; broke: number[]; way: boolean; vein: PendingVein | null; crystal: boolean; chained: number | null; cost: number; part?: number; helped?: boolean; whose?: string | null; paid?: string | null; waits?: boolean; moss?: boolean; fire?: { half: "flint" | "tinder"; lit: boolean } }
 /** What a vein played out came to: what it gave, how many glinting cells of how many, and whether the same face is to be played once more. */
 export interface VeinDid { got: Array<[ItemId, number]>; passed: number; of: number; again: boolean }
 export type MineDone<T> = ({ ok: true } & T) | { ok: false; why: Why | MineRefusal | PouchRefusal };
@@ -69,8 +69,9 @@ import { dust, pourFor } from "./farm";
 import type { HelpRefusal } from "./helping";
 // ── forging ──
 import { mayTwice } from "./farm";
-import { newBoard, soundSmithy, type Did as SmithDid, type Outcome as ForgeOutcome, type Pending, type SmithBoard, type Smelting, type Smithy } from "./forge";
+import { newBoard, soundSmithy, type Did as SmithDid, type Outcome as ForgeOutcome, type Pending, type SmithBoard, type SmithRefusal, type Smelting, type Smithy } from "./forge";
 import type { Element, OptionId } from "./tools";
+import type { FireTold } from "./great-fire";
 // ── felling ──
 import type { FellingAsk } from "./felling";
 import type { FellOne, FellWent, KeepsakeId, TreeRefusal, TreesTold } from "./trees";
@@ -80,7 +81,7 @@ import type { FellOne, FellWent, KeepsakeId, TreeRefusal, TreesTold } from "./tr
  * stands after all (the ancient tree, of a go that was lost); the keepsakes found, each with whether it is the first
  * the village has; and who braced the trunk.
  */
-export interface FellDid { felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean; plain: boolean; through: boolean; stood: boolean; found: Array<{ id: KeepsakeId; first: boolean }>; braced: string | null }
+export interface FellDid { felled: FellOne[]; got: Array<[ItemId, number]>; one: boolean; plain: boolean; through: boolean; stood: boolean; found: Array<{ id: KeepsakeId; first: boolean }>; braced: string | null; fire?: { half: "flint" | "tinder"; lit: boolean } }
 // ── end: felling ──
 // ── the bridge built by hand ──
 import { worksOf, type BridgeRefusal, type WorksTold } from "./bridge";
@@ -585,6 +586,14 @@ export interface Keeper {
    * board is open on it. What it cost, and how much water a can that holds less now has lost.
    */
   smithMove(from: number, to: number, how: MoveHow): Promise<SmithDid<{ fee: number; spilt: number }>>;
+  /**
+   * The forge's great fire (lib/town/great-fire), which a try for the top needs: what a page may be told of it, or
+   * null from whoever keeps none (the page then shows nothing of it and asks nothing of it). A name put in the row
+   * for it, and taken out again.
+   */
+  fire(): FireTold | null;
+  fireJoin(name: string): Promise<{ ok: true } | { ok: false; why: SmithRefusal }>;
+  fireLeave(): Promise<{ ok: true } | { ok: false; why: SmithRefusal }>;
   // ── mining ──
   /**
    * The mountain's rocks and the cave (lib/town/mining, lib/town/cave-state): what I am told of them, or null from
@@ -1828,4 +1837,8 @@ export class DbKeeper implements Keeper {
   smithGem(slot: number, gem: ItemId) { return this.smithDeed<{ element: Element; over: Element | null }>("town_smith_gem", { p_slot: slot, p_gem: gem }); }
   // (a move of what the smith put into a tool: the database has no such function yet, and nothing is moved or paid)
   async smithMove(_from: number, _to: number, _how: MoveHow): Promise<SmithDid<{ fee: number; spilt: number }>> { return { ok: false, why: "unbuilt" }; }
+  // (the great fire: the database has none yet, and nobody is put in a row for it)
+  fire(): FireTold | null { return null; }
+  async fireJoin(_name: string): Promise<{ ok: true } | { ok: false; why: SmithRefusal }> { return { ok: false, why: "away" }; }
+  async fireLeave(): Promise<{ ok: true } | { ok: false; why: SmithRefusal }> { return { ok: false, why: "away" }; }
 }
