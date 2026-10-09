@@ -101,11 +101,14 @@ create or replace function town.tree_most(p_tree jsonb)
 returns integer language sql stable
 as $$ select case when town.tree_elder(p_tree) then (town.cat('trees')->'elder'->>'timber')::integer else jsonb_array_length(town.tree_bears(p_tree)) end $$;
 
--- farFrom: how far a tile is from a tree, from the nearest of the tiles it stands on.
+-- farFrom: how far a tile is from a tree, from the nearest of the tiles it stands on. From no tile it is no distance
+-- at all (null: said out, since the greatest of some numbers passes over one that is not there, and no tile would
+-- else be the tree's own): whatever asks it reads that as too far.
 create or replace function town.tree_far(p_tree jsonb, p_x integer, p_y integer)
 returns integer language sql immutable
 as $$
-  select greatest(greatest(t.x - p_x, 0, p_x - (t.x + t.n - 1)), greatest(t.y - p_y, 0, p_y - (t.y + t.n - 1)))
+  select case when p_x is null or p_y is null then null
+    else greatest(greatest(t.x - p_x, 0, p_x - (t.x + t.n - 1)), greatest(t.y - p_y, 0, p_y - (t.y + t.n - 1))) end
     from (select (p_tree->>1)::integer as x, (p_tree->>2)::integer as y, coalesce((p_tree->>4)::integer, 1) as n) t
 $$;
 
@@ -720,7 +723,7 @@ declare
   purse jsonb := town.purse_of(me, false);
 begin
   return jsonb_build_object('now', now_, 'purse', purse,
-    'trees', town.trees_told(coalesce(town.thing('grove', false), '{"down": {}, "half": []}'::jsonb), purse, now_));
+    'trees', town.trees_told(town.grove_tidied(coalesce(town.thing('grove', false), '{"down": {}, "half": []}'::jsonb), now_), purse, now_));
 end;
 $$;
 
