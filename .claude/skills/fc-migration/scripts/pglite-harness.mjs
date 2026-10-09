@@ -361,7 +361,10 @@ export function migration(n, { repo = process.env.FC_REPO ?? "E:/NinenineProject
   if (here.length) return readFileSync(join(dir, here[0]), "utf8");
 
   const git = (...args) => execFileSync("git", args, { cwd: repo, encoding: "utf8" });
-  const log = git("log", "--all", "--diff-filter=D", "--name-only", "--format=%H", "--", `supabase/${prefix}*.sql`)
+  // (`--full-history`: without it git follows, at a merge, the parent that never had the file, and the commit that
+  // took the file out is not found once a branch has been merged over it. v167 and v168 were passed over so, silently,
+  // from the afternoon of 2026-10-09: a stand-in built anew had a flame of five seconds where the code had three.)
+  const log = git("log", "--all", "--full-history", "--diff-filter=D", "--name-only", "--format=%H", "--", `supabase/${prefix}*.sql`)
     .split("\n").map((s) => s.trim()).filter(Boolean);
   const commit = log.find((s) => /^[0-9a-f]{40}$/.test(s));
   const path = log.find((s) => s.startsWith("supabase/"));

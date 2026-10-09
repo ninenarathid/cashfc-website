@@ -1524,11 +1524,12 @@ try {
     O.close();
   }
 
-  // ── the lamp relay ── (v163, a draft or run: a database before it has no lamps, and the keeper knows of none)
+  // ── the lamp relay ── (v163, a draft or run: a database before it has no lamps, and the keeper knows of none. How long a flame
+  // lives and how many posts a map has are the code's own numbers, read here and never written: v167 and v168 changed both)
   if ((await sql(`select to_regprocedure('public.town_lamps_read()') is not null as there`))[0].there) {
-    section("the lamp relay at dusk: a flame from the fire through two keepers to a post, five seconds by the database's clock, tired hands, the last lamp of a map (v163)");
+    section("the lamp relay at dusk: a flame from the fire through two keepers to a post, its seconds by the database's clock, tired hands, the last lamp of a map (v163, v167, v168)");
     const { LAMPS, nightOf, nightBegins, leftOf } = await import("@/lib/town/lamps");
-    const FIRE = [LAMPS.maps.farm.fire[0] + 1, LAMPS.maps.farm.fire[1] + 1], POST = (i) => LAMPS.maps.farm.posts[i];
+    const FIRE = [LAMPS.maps.farm.fire[0] + 1, LAMPS.maps.farm.fire[1] + 1], POST = (i) => LAMPS.maps.farm.posts[i], OF = LAMPS.maps.farm.posts.length;
     const hands = async (id, left = 100, hand = null) => {
       await purse(id, 0, hand ? [{ item: hand, n: 1 }] : []);
       await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', $2::text, 'stamina', jsonb_build_object('day', town.day_of(town.now_ms()), 'left', $3::int)) where member_id = $1`, [id, hand, left]);
@@ -1553,7 +1554,7 @@ try {
     let did = await I.flameTake("farm", [0, 0]);
     ok("a flame is not taken from far off: the tile is the page's word, held to the fire's", !did.ok && did.why === "far", did);
     did = await I.flameTake("farm", FIRE);
-    ok("taken at the fire: the keeper has it at once with the moment it dies, five seconds on by the database's clock, for nothing, and nobody told through the room",
+    ok("taken at the fire: the keeper has it at once with the moment it dies, its seconds on by the database's clock, for nothing, and nobody told through the room",
       did.ok && I.lamps().flame?.until === did.until && Math.abs(leftOf(I.lamps().flame, I.now()) - LAMPS.life * 1000) < 1500 && (await staminaOf(a)) === 100 && told.length === 0, { did, flame: I.lamps().flame, now: I.now(), told });
     did = await I.flameTake("farm", FIRE);
     ok("no second flame while one is alive", !did.ok && did.why === "held", did);
@@ -1563,34 +1564,34 @@ try {
     ok("the taker's keeper knows nothing of it yet", J.lamps().flame === null);
     // (the room's word, as the map would hand it on)
     J.nudged("lamps"); await settled(J);
-    ok("…told by the room it reads the lamps again, and bears the flame, fresh", J.lamps().flame?.hands === 2 && leftOf(J.lamps().flame, J.now()) > 2500, J.lamps().flame);
+    ok("…told by the room it reads the lamps again, and bears the flame, fresh", J.lamps().flame?.hands === 2 && leftOf(J.lamps().flame, J.now()) > LAMPS.life * 1000 - 1500, J.lamps().flame);
     did = await J.lampLight("farm", 0, [0, 0]);
     ok("a post is not lit from far off, and the flame is still its bearer's", !did.ok && did.why === "far" && !!J.lamps().flame, did);
     did = await J.lampLight("farm", 0, POST(0));
-    ok("a post lit: one of twelve, one stamina the lighter's, the flame spent, and every page to be told through the room",
-      did.ok && did.n === 1 && did.of === 12 && !did.full && J.lamps().flame === null && J.lamps().maps.farm.lit.map((l) => l.post).join() === "0" && (await staminaOf(b)) === 100 - LAMPS.cost && told.at(-1) === "lamps undefined", { did, told });
+    ok(`a post lit: one of ${OF}, one stamina the lighter's, the flame spent, and every page to be told through the room`,
+      did.ok && did.n === 1 && did.of === OF && !did.full && J.lamps().flame === null && J.lamps().maps.farm.lit.map((l) => l.post).join() === "0" && (await staminaOf(b)) === 100 - LAMPS.cost && told.at(-1) === "lamps undefined", { did, told });
     ok("…three helpers' points to both whose hands the flame went through", (await pointsOf(a)) === before[0] + LAMPS.point && (await pointsOf(b)) === before[1] + LAMPS.point, [await pointsOf(a), await pointsOf(b)]);
     I.nudged("lamps"); await settled(I);
     ok("…and the other keeper, told by the room, has it lit with the hands its flame came by, and the night's lighters in the order they came",
       I.lamps().maps.farm.lit[0]?.hands.map((h) => h.id).join() === `${a},${b}` && I.lamps().maps.farm.lighters.map((h) => h.id).join() === `${a},${b}`, I.lamps().maps.farm);
-    // (a flame that is lit with nothing goes out by the database's clock: its five seconds and the second of grace)
+    // (a flame that is lit with nothing goes out by the database's clock: its seconds and the second of grace)
     did = await I.flameTake("farm", FIRE);
     await skip(OUT);
     const gone = await I.lampLight("farm", 1, POST(1));
-    ok("a flame goes out by the database's clock: past its five seconds and the second of grace it lights nothing, and nothing is lost", did.ok && !gone.ok && gone.why === "out" && (await staminaOf(a)) === 100 && I.lamps().flame === null, { did, gone });
+    ok("a flame goes out by the database's clock: past its seconds and the second of grace it lights nothing, and nothing is lost", did.ok && !gone.ok && gone.why === "out" && (await staminaOf(a)) === 100 && I.lamps().flame === null, { did, gone });
     await hands(a, 0);
     await I.lampsLook();
     did = await I.flameTake("farm", FIRE);
     const tired = did.ok ? await I.lampLight("farm", 1, POST(1)) : did;
     ok("with no stamina a flame is taken and a post lit all the same", did.ok && tired.ok && tired.n === 2 && (await staminaOf(a)) === 0, { did, tired });
-    // (the last lamp of the map: nine more lit by nobody, then the twelfth)
-    for (let post = 2; post < 11; post++) await sql(`insert into public.town_lamps_lit (night, map, post) values (town.lamp_night(town.now_ms()), 'farm', $1)`, [post]);
+    // (the last lamp of the map: all but one more lit by nobody, then the last)
+    for (let post = 2; post < OF - 1; post++) await sql(`insert into public.town_lamps_lit (night, map, post) values (town.lamp_night(town.now_ms()), 'farm', $1)`, [post]);
     await J.lampsLook();
     did = await J.flameTake("farm", FIRE);
-    const last = did.ok ? await J.lampLight("farm", 11, POST(11)) : did;
+    const last = did.ok ? await J.lampLight("farm", OF - 1, POST(OF - 1)) : did;
     const more = [await J.flameTake("farm", FIRE), await J.flameTake("forest", LAMPS.maps.forest.fire)];
-    ok("the twelfth post says so, the night is counted whole, and the fire gives no more flame for that map though the other map's does",
-      did.ok && last.ok && last.n === 12 && last.full === true && J.lamps().maps.farm.full === 1 && more[0].why === "whole" && more[1].ok === true, { did, last, more });
+    ok("the map's last post says so, the night is counted whole, and the fire gives no more flame for that map though the other map's does",
+      did.ok && last.ok && last.n === OF && last.full === true && J.lamps().maps.farm.full === 1 && more[0].why === "whole" && more[1].ok === true, { did, last, more });
     I.close(); J.close();
     await skip(-ahead - OUT);
   } else {
