@@ -41,5 +41,11 @@
   "crystal_broken": "town.cave_crystal_broken($1::jsonb, $2::jsonb)",
   "set_torch": "town.cave_set_torch($1::jsonb, $2::integer, $3::integer, $4::integer, $5::text, $6::bigint)",
   "set_moss": "town.cave_set_moss($1::jsonb, $2::integer, $3::integer, $4::integer, $5::text, $6::bigint)",
-  "counts_of": "town.work_counts_of($1::jsonb, $2::text)"
+  "counts_of": "town.work_counts_of($1::jsonb, $2::text)",
+  "reach_rest": "town.mine_reach_rest($1::jsonb, $2::integer)",
+  "lift_stops": "town.mine_lift_stops($1::jsonb)",
+  "may_ride": "town.mine_may_ride($1::jsonb, $2::integer)",
+  "torch_down": "town.mine_torch_down($1::jsonb)",
+  "drill": "town.mine_drill($1::jsonb, $2::integer, $3::boolean, $4::bigint)",
+  "beside": "town.cave_beside($1::jsonb, $2::integer, $3::integer, $4::integer)"
 }

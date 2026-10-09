@@ -601,6 +601,20 @@ $$;
 -- place they are in, the last rock of theirs somebody else broke). Never what a rock holds.
 -- `p_caves`: every place that has a document, each as it is at this moment ({"0": …, "7": …}); `p_rocks`: the rocks
 -- of the place the member says they are in; `p_crystal`: where the day's crystal rock stands, {floor, rock}.
+
+-- The member's own of it, which is all in their purse: the lift's stops, a vein opened and not played out, the rocks
+-- loosened for them this turn, the last rock of theirs somebody else broke. (Told by itself, as `caveMine`, by what
+-- changes only these and is told no floor: a page lays it over what it was last told of the cave.)
+create or replace function town.cave_own(p_purse jsonb, p_now bigint)
+returns jsonb language sql stable
+as $$
+  select jsonb_build_object('rests', k.v->'rests', 'vein', k.v->'vein',
+    'loose', case when split_part(k.lk, ':', 2) ~ '^[0-9]+$' and split_part(k.lk, ':', 2)::numeric = town.mine_turn(p_now) and jsonb_array_length(k.v->'loose'->'ids') > 0
+      then jsonb_build_object('floor', case when split_part(k.lk, ':', 1) ~ '^-?[0-9]+$' then split_part(k.lk, ':', 1)::numeric end, 'ids', k.v->'loose'->'ids') else 'null'::jsonb end,
+    'paid', k.v->'paid')
+    from (select o.v, o.v->'loose'->>'k' as lk from (select town.mine_of(p_purse) as v) o) k
+$$;
+
 create or replace function town.cave_told_of(p_caves jsonb, p_purse jsonb, p_me text, p_floor integer, p_x integer, p_y integer, p_now bigint, p_word text, p_rocks jsonb, p_crystal jsonb)
 returns jsonb language plpgsql stable
 as $$
@@ -608,7 +622,6 @@ declare
   m jsonb := town.cat('mining');
   turn_ bigint := town.mine_turn(p_now);
   day_ integer := town.day_of(p_now);
-  kept jsonb := town.mine_of(p_purse);
   pick jsonb := town.mine_pick(p_purse);
   here jsonb := coalesce(p_caves->(p_floor::text), town.cave_at(null, p_now));
   cfloor integer := (p_crystal->>'floor')::integer;
@@ -628,7 +641,6 @@ declare
   veins double precision;
   today_ jsonb;
   r jsonb;
-  lk text := kept->'loose'->>'k';
   again_ numeric;
 begin
   for f in 0..(m->>'floors')::integer loop
@@ -663,13 +675,11 @@ begin
   -- changesAt: when this next changes by itself: the rocks' next turn, the first torch to burn out, the first moss to stop glowing
   select least((turn_ + 1) * (m->>'turn')::numeric, min((t.v->>'until')::numeric)) into again_ from jsonb_array_elements(torches || moss) t(v);
   return jsonb_build_object('day', day_, 'turn', turn_, 'again', again_, 'gone', gone, 'ways', ways, 'torches', torches, 'moss', moss, 'deepest', deepest,
-    'rests', kept->'rests', 'vein', kept->'vein',
-    'loose', case when split_part(lk, ':', 2) ~ '^[0-9]+$' and split_part(lk, ':', 2)::numeric = turn_ and jsonb_array_length(kept->'loose'->'ids') > 0
-      then jsonb_build_object('floor', case when split_part(lk, ':', 1) ~ '^-?[0-9]+$' then split_part(lk, ':', 1)::numeric end, 'ids', kept->'loose'->'ids') else 'null'::jsonb end,
-    'glints', glints, 'place', p_floor, 'struck', town.cave_struck_told(here, p_me, p_now), 'paid', kept->'paid',
+    'glints', glints, 'place', p_floor, 'struck', town.cave_struck_told(here, p_me, p_now),
     'crystal', case when p_crystal is null or p_crystal = 'null'::jsonb or shattered then 'null'::jsonb
       when p_floor = cfloor then jsonb_build_object('floor', cfloor, 'rock', crock)
-      when pick is not null and town.tool_has(pick, 'pkGleam') then jsonb_build_object('floor', cfloor, 'rock', null) else 'null'::jsonb end);
+      when pick is not null and town.tool_has(pick, 'pkGleam') then jsonb_build_object('floor', cfloor, 'rock', null) else 'null'::jsonb end)
+    || town.cave_own(p_purse, p_now);
 end;
 $$;
 
@@ -999,6 +1009,70 @@ create or replace function town.cave_set_moss(p_cave jsonb, p_floor integer, p_x
 returns jsonb language sql stable
 as $$ select p_cave || jsonb_build_object('moss', town.cave_light(p_cave->'moss', p_floor, p_x, p_y, p_by, p_now, (town.cat('mining')->'moss'->>'glows')::numeric)) $$;
 
+-- ─── 9. The lift, a torch, and a floor broken through (lib/town/mining) ──
+
+-- reachRest: a resting floor reached is one of the lift's stops for the member from then on. (A purse that gains
+-- nothing by it is given back as it was.)
+create or replace function town.mine_reach_rest(p_purse jsonb, p_floor integer)
+returns jsonb language sql stable
+as $$
+  select case when p_floor is null or not town.cave_is_rest(p_floor) or p_floor > (town.cat('mining')->>'floors')::integer or k.v->'rests' @> to_jsonb(p_floor) then p_purse
+    else p_purse || jsonb_build_object('mine', k.v || jsonb_build_object('rests',
+      (select jsonb_agg(r.n order by r.n) from (select (i.v #>> '{}')::numeric as n from jsonb_array_elements(k.v->'rests') i(v) union select p_floor::numeric) r))) end
+    from (select town.mine_of(p_purse) as v) k
+$$;
+
+-- liftStops, mayRide: where the lift takes somebody: the cave's mouth (0) always, and the resting floors they have
+-- reached.
+create or replace function town.mine_lift_stops(p_purse jsonb)
+returns jsonb language sql stable
+as $$ select '[0]'::jsonb || (town.mine_of(p_purse)->'rests') $$;
+
+create or replace function town.mine_may_ride(p_purse jsonb, p_to integer)
+returns boolean language sql stable
+as $$ select coalesce(town.mine_lift_stops(p_purse) @> to_jsonb(p_to), false) $$;
+
+-- torchDown: a torch set down from the hand: one fewer in the bag. (Where it stands and how long it burns is the
+-- place's own document.)
+create or replace function town.mine_torch_down(p_purse jsonb)
+returns jsonb language sql stable
+as $$
+  select case when town.hand_of(p_purse) is distinct from k.id or town.held(p_purse->'bag', k.id) < 1 then town.no('tool')
+    else jsonb_build_object('ok', true, 'purse', p_purse || jsonb_build_object('bag', town.take(p_purse->'bag', k.id, 1))) end
+    from (select town.cat('mining')->>'torch' as id) k
+$$;
+
+-- drill: the floor struck to open the way down oneself: a counted power of the pick in the hand, on a floor whose
+-- way is not open yet.
+create or replace function town.mine_drill(p_purse jsonb, p_floor integer, p_open boolean, p_now bigint)
+returns jsonb language plpgsql stable
+as $$
+declare
+  pick jsonb := town.mine_pick(p_purse);
+  used jsonb;
+begin
+  if pick is null or not town.tool_has(pick, 'pkDrill') then return town.no('tool'); end if;
+  if not town.mine_is_dug(p_floor) or not town.mine_has_below(p_floor) then return town.no('none'); end if;
+  if p_open then return town.no('open'); end if;
+  used := town.use_power(p_purse, pick, 'pkDrill', p_now);
+  if (used->>'ok')::boolean then return jsonb_build_object('ok', true, 'purse', used->'purse', 'left', used->'left'); end if;
+  return town.no('spent');
+end;
+$$;
+
+-- The nearest free tile beside a tile of a floor, where a way broken through opens: floor with nothing on it, and
+-- not where one comes down (the ladder, or the tile one arrives on). The four sides first, then the corners, in the
+-- code's own order (lib/town/trial's drillDo). Null where there is none.
+create or replace function town.cave_beside(p_layout jsonb, p_floor integer, p_x integer, p_y integer)
+returns jsonb language sql stable
+as $$
+  select jsonb_build_array(p_x + d.dx, p_y + d.dy)
+    from (values (1, 1, 0), (2, 0, 1), (3, -1, 0), (4, 0, -1), (5, 1, 1), (6, -1, 1), (7, 1, -1), (8, -1, -1)) d(ord, dx, dy)
+   where town.cave_floor_tile(p_layout, p_floor, p_x + d.dx, p_y + d.dy)
+     and p_layout->'up' is distinct from jsonb_build_array(p_x + d.dx, p_y + d.dy) and p_layout->'arrive' is distinct from jsonb_build_array(p_x + d.dx, p_y + d.dy)
+   order by d.ord limit 1
+$$;
+
 -- A member's name, as the others are told it: who they are, of somebody with no name at all (as the code's keeper says).
 create or replace function town.mine_name(p_member uuid)
 returns text language sql stable set search_path = public
@@ -1228,6 +1302,112 @@ begin
 end;
 $$;
 
+-- I have come to a floor: a resting floor, come to while the way down to it is open today, is one of my lift's stops
+-- from then on. The floor is the page's word (the database does not know where anybody is): it counts for nothing
+-- but a resting floor whose way is open. It reads no floor's layout, so a day not laid is nothing to it. Only my
+-- purse is held; the floor above is read, not held.
+create or replace function public.town_cave_reach(p_floor integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.far_member();
+  now_ bigint := town.now_ms();
+  purse jsonb := town.purse_of(me, true);
+  reached boolean := false;
+begin
+  if town.cave_is_rest(p_floor) and p_floor <= (town.cat('mining')->>'floors')::integer and not town.mine_of(purse)->'rests' @> to_jsonb(p_floor)
+     and town.cave_way_open(town.cave_at(town.cave_kept(p_floor - 1, false), now_), p_floor - 1) then
+    purse := town.mine_reach_rest(purse, p_floor);
+    perform town.keep_purse(me, purse);
+    reached := true;
+  end if;
+  return town.answer(me, jsonb_build_object('ok', true, 'reached', reached, 'caveMine', town.cave_own(purse, now_)));
+end;
+$$;
+
+-- Ride the lift to the mouth (0) or to a resting floor I have reached: where I come out, in the world's tiles (null:
+-- before the mouth). Where it is taken from is not asked, as the code does not. Nothing is held; the ride is
+-- written down.
+create or replace function public.town_lift(p_to integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.far_member();
+  now_ bigint := town.now_ms();
+begin
+  if not town.cave_is_laid(town.day_of(now_)) then return town.no('unlaid') || jsonb_build_object('now', now_); end if;
+  if not town.mine_may_ride(town.purse_of(me, false), p_to) then return town.answer(me, town.no('none')); end if;
+  perform town.note(me, 'lift', null, p_to, 0, '{}'::jsonb);
+  return town.answer(me, jsonb_build_object('ok', true, 'at', case when p_to = 0 then null else town.cave_laid(town.day_of(now_), p_to)->'liftAt' end));
+end;
+$$;
+
+-- Set the torch in my hand down on the tile I stand on: it lights that floor for everybody, for as long as a torch
+-- burns. The tile has to be floor of the cave with nothing on it, by the day's layout. The floor's row is held, then
+-- my purse.
+create or replace function public.town_torch(p_x integer, p_y integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.far_member();
+  now_ bigint := town.now_ms();
+  day_ integer := town.day_of(now_);
+  place_ integer := town.cave_floor_at(p_x, p_y);
+  cave_ jsonb;
+  purse jsonb;
+  did jsonb;
+begin
+  if not town.cave_is_laid(day_) then return town.no('unlaid') || jsonb_build_object('now', now_); end if;
+  if place_ = 0 or not town.cave_floor_tile(town.cave_laid(day_, place_), place_, p_x, p_y) then return town.answer(me, town.no('here')); end if;
+  cave_ := town.cave_at(town.cave_kept(place_, true), now_);
+  purse := town.purse_of(me, true);
+  did := town.mine_torch_down(purse);
+  if not (did->>'ok')::boolean then return town.answer(me, did); end if;
+  perform town.keep_cave(place_, town.cave_set_torch(cave_, place_, p_x, p_y, me::text, now_));
+  perform town.keep_purse(me, did->'purse');
+  perform town.note(me, 'torch', town.cat('mining')->>'torch', 1, 0, jsonb_build_object('floor', place_, 'tile', jsonb_build_array(p_x, p_y)));
+  return town.answer(me, jsonb_build_object('ok', true, 'until', now_ + (town.cat('mining')->'light'->>'burns')::bigint, 'cave', town.cave_told(me, did->'purse', place_, p_x, p_y, now_)));
+end;
+$$;
+
+-- Break through the floor beside the tile I stand on (a counted power of the pick): the way down opens there, for
+-- everybody, for the day. The tile I say I stand on has to be one that could be stood on (the code asks only which
+-- floor it is of: the database asks this more), and there has to be a free tile beside it. The floor's row is held,
+-- then my purse.
+create or replace function public.town_drill(p_x integer, p_y integer)
+returns jsonb language plpgsql security definer set search_path = public
+as $$
+declare
+  me uuid := town.far_member();
+  now_ bigint := town.now_ms();
+  day_ integer := town.day_of(now_);
+  place_ integer := town.cave_floor_at(p_x, p_y);
+  laid_ jsonb;
+  cave_ jsonb;
+  c jsonb;
+  free_ jsonb;
+  purse jsonb;
+  did jsonb;
+begin
+  if not town.cave_is_laid(day_) then return town.no('unlaid') || jsonb_build_object('now', now_); end if;
+  if place_ = 0 then return town.answer(me, town.no('none')); end if;
+  laid_ := town.cave_laid(day_, place_);
+  cave_ := town.cave_at(town.cave_kept(place_, true), now_);
+  purse := town.purse_of(me, true);
+  c := town.mine_crystal(day_);
+  free_ := town.cave_beside(laid_, place_, p_x, p_y);
+  if free_ is null or not town.mine_stood(place_, p_x, p_y, laid_, laid_->'rocks', cave_, now_, case when (c->>'floor')::integer = place_ then (c->>'rock')::integer end) then
+    return town.answer(me, town.no('here'));
+  end if;
+  did := town.mine_drill(purse, place_, town.cave_way_open(cave_, place_), now_);
+  if not (did->>'ok')::boolean then return town.answer(me, did); end if;
+  perform town.keep_cave(place_, town.cave_open_way(cave_, place_, jsonb_build_object('rock', null, 'x', free_->0, 'y', free_->1, 'by', me::text, 'name', town.mine_name(me), 'at', now_)));
+  perform town.keep_purse(me, did->'purse');
+  perform town.note(me, 'delve', null, 1, 0, jsonb_build_object('floor', place_, 'how', 'drill', 'tile', free_));
+  return town.answer(me, jsonb_build_object('ok', true, 'at', free_, 'left', did->'left', 'cave', town.cave_told(me, did->'purse', place_, p_x, p_y, now_)));
+end;
+$$;
+
 -- ─── Who may ─────────────────────────────────────────────────────────────
 
 -- The rules are no browser's to call; what a member calls is for the signed in.
@@ -1239,3 +1419,11 @@ revoke execute on function public.town_mine(integer, integer, integer, integer, 
 grant execute on function public.town_mine(integer, integer, integer, integer, double precision, text) to authenticated;
 revoke execute on function public.town_mine_peek(integer, integer) from public, anon;
 grant execute on function public.town_mine_peek(integer, integer) to authenticated;
+revoke execute on function public.town_cave_reach(integer) from public, anon;
+grant execute on function public.town_cave_reach(integer) to authenticated;
+revoke execute on function public.town_lift(integer) from public, anon;
+grant execute on function public.town_lift(integer) to authenticated;
+revoke execute on function public.town_torch(integer, integer) from public, anon;
+grant execute on function public.town_torch(integer, integer) to authenticated;
+revoke execute on function public.town_drill(integer, integer) from public, anon;
+grant execute on function public.town_drill(integer, integer) to authenticated;

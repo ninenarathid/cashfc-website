@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { depthOf, isRest } from "./cave";
 import { catalogOf } from "./catalog";
 import {
-  breakRocks, caveAt, crystalBroken, floorAtTile, floorRocks, floorTile, goneAt, newCave, openWay, setMoss, setTorch, stands, strikeRock, struckAt, struckTold, wayOpen, boardOf, changesAt, cornerOf,
+  breakRocks, caveAt, crystalBroken, floorAtTile, floorRocks, floorSpots, floorTile, goneAt, newCave, openWay, setMoss, setTorch, stands, strikeRock, struckAt, struckTold, wayOpen, boardOf, changesAt, cornerOf,
   type ByWhom, type CaveState, type CaveTold, type Moss, type Torch, type WayOpen,
 } from "./cave-state";
 import { farRocks } from "./far-side";
@@ -12,7 +12,8 @@ import { ITEMS } from "./items";
 import { countsOf, type Done } from "./line-points";
 import { caveLayout } from "./mining-row";
 import {
-  MINING, anyPick, crystalOf, elementOf, hardnessOf, hasBelow, helpersOf, holdsOf, isDug, isLoose, mine, mineOf, oreOf, partOf, payFirst, peekOf, pickOf, struckOf, swingsFor, turnOf, wayRockOf,
+  MINING, anyPick, crystalOf, drill, elementOf, hardnessOf, hasBelow, helpersOf, holdsOf, isDug, isLoose, liftStops, mayRide, mine, mineOf, oreOf, partOf, payFirst, peekOf, pickOf, reachRest, struckOf, swingsFor,
+  torchDown, turnOf, wayRockOf,
   type Go as MineGo, type Holds, type PlaceToday, type RockAt, type Struck,
 } from "./mining";
 import { powerRule } from "./powers";
@@ -533,6 +534,36 @@ export function vectorsMining(): Vector[] {
     add("set_moss", [doc, f, x, y, "m2", now], placeOf(setMoss(st, f, x, y, "m2", now), f, now, f));
   }
 
+  /* ── the lift, a torch, and a floor broken through ── */
+  for (let i = 0; i < 300; i++) {
+    const kept = mineKept(), p = purseWith([], kept === undefined ? {} : ({ mine: kept } as Partial<Purse>));
+    const f = c.of([10, 10, 20, 30, 40, 9, 0, -10, 15]), to = c.of([0, 10, 20, 30, 5, 40, -1]);
+    add("reach_rest", [p, f], reachRest(p, f));
+    add("lift_stops", [p], liftStops(p));
+    add("may_ride", [p, to], mayRide(p, to));
+  }
+  for (let i = 0; i < 200; i++) {
+    const hand = c.of<unknown>(["torch", "torch", "torch", "pick", null, undefined]);
+    const p = { ...purseWith([c.maybe(0.8) ? { item: "torch", n: c.int(1, 3) } : null, { item: "pick", n: 1 }, c.maybe(0.3) ? { item: "torch", n: 1 } : null]), ...(hand === undefined ? {} : { hand }) } as Purse;
+    add("torch_down", [p], torchDown(p));
+  }
+  for (let i = 0; i < 400; i++) {
+    const now = c.of(NOWS), pick = c.maybe(0.08) ? null : pickAt(c, c.of([0, 6, 10, 10, 10]), null, c.maybe(0.75) ? ["pkDrill"] : ["pkQuake"]), used = c.of([undefined, 0, 1, 2, 3, 5]);
+    const p = { ...purseWith([pick]), hand: c.maybe(0.9) ? "pick" : null, ...(used === undefined ? {} : { powers: { pkDrill: { k: c.maybe(0.85) ? dayOf(now) : dayOf(now) - 1, n: used } } }) } as Purse;
+    const f = c.of([1, 5, 9, 10, 29, 30, 0, 31, 17]), open = c.maybe(0.25);
+    add("drill", [p, f, open, now], drill(p, f, open, now));
+  }
+  // (the free tile beside one, where a way broken through opens: the code's own search, lib/town/trial's drillDo)
+  for (const f of [1, 3, 9, 10, 20, 28]) {
+    const day = DAYS[0], layout = caveLayout(f, day), k = cornerOf(f), spots = floorSpots(f, day);
+    const tiles: Array<[number, number]> = [spots.up, spots.arrive, [spots.arrive[0] + 1, spots.arrive[1]], [spots.up[0] - 1, spots.up[1]], spots.down, ...Array.from({ length: 30 }, (): [number, number] => [k.x + c.int(-1, 28), k.y + c.int(-1, 28)])];
+    for (const [x, y] of tiles) {
+      const free = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]].map(([dx, dy]): [number, number] => [x + dx, y + dy])
+        .find(([u, v]) => floorTile(f, day, u, v) && !(u === spots.up[0] && v === spots.up[1]) && !(u === spots.arrive[0] && v === spots.arrive[1]));
+      add("beside", [layout, f, x, y], free ?? null);
+    }
+  }
+
   /* ── the line: what a deed of the miners' counts for (lib/town/line-points) ── */
   const deed = (what: string, thing: string | null, n: number, doc: Record<string, unknown>): Done => ({ from: "deed", what, thing, n, doc });
   for (const done of [
@@ -597,6 +628,12 @@ describe("the cases the database's rules of mining are held to", () => {
     expect(new Set(of("look").map((v) => (v.want as { why?: string; peek?: string }).why ?? (v.want as { peek: string }).peek))).toEqual(new Set(["tool", "none", "gone", "stone", "shards", "vein"]));
     expect(of("stood").filter((v) => v.want === false).length).toBeGreaterThan(100);
     expect(of("stood").some((v) => v.want === true && (v.args[4] as Laid[]).some((r) => r[1] === v.args[1] && r[2] === v.args[2]))).toBe(true);
+    // the lift, a torch, a floor broken through
+    expect(of("reach_rest").filter((v) => JSON.stringify(v.want) !== JSON.stringify(v.args[0])).length).toBeGreaterThan(20);
+    expect(of("may_ride").some((v) => v.want === true && v.args[1] !== 0) && of("may_ride").some((v) => v.want === false)).toBe(true);
+    expect(new Set(of("torch_down").map((v) => (v.want as { why?: string }).why ?? "ok"))).toEqual(new Set(["tool", "ok"]));
+    expect(new Set(of("drill").map((v) => (v.want as { why?: string }).why ?? "ok"))).toEqual(new Set(["tool", "none", "open", "spent", "ok"]));
+    expect(of("beside").some((v) => v.want === null) && of("beside").filter((v) => v.want !== null).length > 50).toBe(true);
     // the line: every deed of the miners' that counts, the twin's go that counts for its firsts alone, and those that count for nothing
     const counts = of("counts_of").map((v) => v.want as Array<{ line: string; raw: number; first?: string }>);
     expect(counts.filter((k) => k.length === 0).length).toBeGreaterThan(5);

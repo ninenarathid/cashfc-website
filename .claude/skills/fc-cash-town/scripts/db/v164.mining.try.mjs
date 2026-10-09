@@ -17,6 +17,7 @@ export default async function (ctx) {
   const M = await import("@/lib/town/mining");
   const CS = await import("@/lib/town/cave-state");
   const TOOLS = await import("@/lib/town/tools");
+  const { isRest } = await import("@/lib/town/cave");
   const { dayOf } = await import("@/lib/town/stamina");
   const K = CODE.mining, TURN = K.turn, MIN = 60_000;
   const knob = (key, v) => t.sql(`update public.town_knobs set value = $2 where key = $1`, [key, v]);
@@ -44,7 +45,7 @@ export default async function (ctx) {
   const crystalOn = (day = today) => M.crystalOf(WORD, day, (f) => rocksOn(f, day));
   const NAME = Object.fromEntries(await Promise.all([U.m1, U.m2, U.admin].map(async (id) => [id, (await one(`select town.mine_name($1) as n`, [id])).n])));
   /** The functions of this part that a member calls behind the gate, each with something to ask; and whether it reads a floor. */
-  const GATED = [["town_cave", true, 0, null, null], ["town_mine", true, 0, 0, 39, 231, 1, null], ["town_mine_peek", true, 0, 0]];
+  const GATED = [["town_cave", true, 0, null, null], ["town_mine", true, 0, 0, 39, 231, 1, null], ["town_mine_peek", true, 0, 0], ["town_cave_reach", false, 10], ["town_lift", true, 0], ["town_torch", true, 5, 330], ["town_drill", true, 5, 330]];
   const gate = async (who, only = () => true) => Promise.all(GATED.filter(only).map(([fn, , ...args]) => call(who, fn, ...args)));
   for (const who of [U.m1, U.m2, U.admin]) await call(who, "town_hold", null);
 
@@ -171,6 +172,53 @@ export default async function (ctx) {
     const got = await call(who, "town_mine", floor, rock, at?.[0] ?? null, at?.[1] ?? null, swings, how);
     return held(who, got, twinMine(s, who, purse, theirs, floor, rock, at, swings, how ?? undefined, NOW, points), { floor, tile: at, other, mark });
   }
+  /** A floor come to, the lift ridden, a torch set down, a floor broken through: each as the trial's keeper does it (lib/town/trial's caveReach, liftRide, torchDown, drillDo). */
+  const twinReach = (s, purse, floor) => {
+    const reached = isRest(floor) && !M.mineOf(purse).rests.includes(floor) && CS.wayOpen(s, floor - 1);
+    return { state: s, mine: reached ? M.reachRest(purse, floor) : purse, deeds: [], answer: { ok: true, reached } };
+  };
+  const twinLift = (s, who, purse, to) => (!M.mayRide(purse, to) ? { state: s, mine: purse, deeds: [], answer: { ok: false, why: "none" } }
+    : { state: s, mine: purse, deeds: [[who, "lift", null, to, {}]], answer: { ok: true, at: to === 0 ? null : CS.floorSpots(to, s.day).liftAt ?? null } });
+  function twinTorch(s, who, purse, at, now) {
+    const floor = at[0] === null || at[1] === null ? 0 : CS.floorAtTile(at[0], at[1]), out = { state: s, mine: purse, deeds: [] };
+    if (!floor || !CS.floorTile(floor, s.day, at[0], at[1])) return { ...out, answer: { ok: false, why: "here" } };
+    const did = M.torchDown(purse);
+    if (!did.ok) return { ...out, answer: did };
+    return { state: CS.setTorch(s, floor, at[0], at[1], who, now), mine: did.purse, deeds: [[who, "torch", K.torch, 1, { floor, tile: at }]], answer: { ok: true, until: now + K.light.burns } };
+  }
+  function twinDrill(s, who, purse, at, now) {
+    const floor = CS.floorAtTile(at[0], at[1]), out = { state: s, mine: purse, deeds: [] };
+    if (!floor) return { ...out, answer: { ok: false, why: "none" } };
+    const spots = CS.floorSpots(floor, s.day), c = crystalOn(s.day), rocks = rocksOn(floor, s.day);
+    const free = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]].map(([dx, dy]) => [at[0] + dx, at[1] + dy])
+      .find(([u, v]) => CS.floorTile(floor, s.day, u, v) && !(u === spots.up[0] && v === spots.up[1]) && !(u === spots.arrive[0] && v === spots.arrive[1]));
+    // (the database's own, which the code does not ask: the tile said has to be one that could be stood on)
+    if (!free || !stoodOn(floor, s.day, at[0], at[1], rocks, (id) => CS.stands(s, floor, id, now, c && c.floor === floor ? c.rock : null))) return { ...out, answer: { ok: false, why: "here" } };
+    const did = M.drill(purse, floor, CS.wayOpen(s, floor), now);
+    if (!did.ok) return { ...out, answer: did };
+    return { state: CS.openWay(s, floor, { rock: null, x: free[0], y: free[1], by: who, name: NAME[who] ?? who, at: now }), mine: did.purse, deeds: [[who, "delve", null, 1, { floor, how: "drill", tile: free }]], answer: { ok: true, at: free, left: did.left } };
+  }
+  async function reach(who, floor) {
+    const s = await stateNow(), purse = await purseNow(who), mark = await lastDeed(), got = await call(who, "town_cave_reach", floor);
+    const x_ = await held(who, got, twinReach(s, purse, floor), { mark, told: false });
+    // (what it tells of the member's own is what the cave's reader tells of it)
+    const own = toldOf(s, await purseNow(who), who, 0, null, NOW);
+    if (!same(got?.caveMine, { rests: own.rests, vein: own.vein, loose: own.loose, paid: own.paid })) { x_.agrees = false; x_.off.push({ caveMine: got?.caveMine }); }
+    return x_;
+  }
+  async function lift(who, to) {
+    const s = await stateNow(), purse = await purseNow(who), mark = await lastDeed(), got = await call(who, "town_lift", to);
+    return held(who, got, twinLift(s, who, purse, to), { mark, told: false });
+  }
+  async function torch(who, at) {
+    const s = await stateNow(), purse = await purseNow(who), mark = await lastDeed(), got = await call(who, "town_torch", at[0], at[1]);
+    const floor = at[0] === null || at[1] === null ? 0 : CS.floorAtTile(at[0], at[1]);
+    return held(who, got, twinTorch(s, who, purse, at, NOW), { floor: floor || null, tile: at, mark, told: !!got?.cave });
+  }
+  async function drill(who, at) {
+    const s = await stateNow(), purse = await purseNow(who), mark = await lastDeed(), got = await call(who, "town_drill", at[0], at[1]);
+    return held(who, got, twinDrill(s, who, purse, at, NOW), { floor: CS.floorAtTile(at[0], at[1]) || null, tile: at, mark, told: !!got?.cave });
+  }
   /** A rock of a place that holds what is wanted for a pick now, and a tile beside it to strike from (floor, and no rock's): null where the place has none. */
   function find(floor, pick, want, s, skip = []) {
     const c = crystalOn(s.day), td = todayAt(floor, s, c), here = c && c.floor === floor ? c.rock : null, rocks = rocksOn(floor, s.day), stands = (id) => CS.stands(s, floor, id, NOW, here);
@@ -190,6 +238,8 @@ export default async function (ctx) {
   const PICK = { item: "pick", n: 1 }, BEST = { item: "pick", n: 1, plus: 10, opts: ["pkPeek", "pkLoose", "pkQuake"] };
   /** A member set up to mine: a pick in the hand, a day's stamina, nothing kept of the mine, and what is said besides. */
   const miner = async (who, pick = PICK, more = {}) => patch(who, { coins: 50, hand: "pick", handAt: 0, pouches: {}, powers: {}, mine: {}, stamina: { day: dayOf(NOW), left: 100 }, bag: bag(pick), ...more });
+  /** …with a pick in the hand and a day's stamina again, and whatever they keep of the mine left as it is. */
+  const handed = async (who, more = {}) => patch(who, { hand: "pick", handAt: 0, stamina: { day: dayOf(NOW), left: 100 }, bag: bag(PICK), ...more });
   const swingsOf = async (who, floor) => { const p = await purseNow(who); return M.swingsFor(M.pickOf(p), floor, false, false, await pointsOf(who)); };
 
   t.section("the gate: built closed, opened by its knob");
@@ -211,7 +261,7 @@ export default async function (ctx) {
   await miner(U.m1);
   const before = { caves: await caves(), purse: await purseNow(U.m1), deeds: await written() };
   did = await gate(U.m1, ([, reads]) => reads);
-  t.check("every function that reads a floor answers `unlaid` with this clock, and no purse", did.length >= 3 && did.every((r) => r?.ok === false && r.why === "unlaid" && r.now === T0 && r.purse === undefined), did);
+  t.check("every function that reads a floor answers `unlaid` with this clock, and no purse", did.length === GATED.filter(([, reads]) => reads).length && did.every((r) => r?.ok === false && r.why === "unlaid" && r.now === T0 && r.purse === undefined), did);
   t.check("…and nothing was made, kept or written down by asking", same(await caves(), before.caves) && same(await purseNow(U.m1), before.purse) && (await written()) === before.deeds, await caves());
 
   t.section("the day laid by the site's key: what a member is told of a cave nobody has been in");
@@ -390,5 +440,97 @@ export default async function (ctx) {
   ds = await deedsSince((await lastDeed()) - x.a.broke.length);
   t.check("…each rock written down, each as a quake's", ds.length === x.a.broke.length && ds.every((d) => d.what === "mine" && d.doc.how === "quake" && d.member_id === U.m1), ds);
 
-  return { clock, tick, now: () => NOW, T0, today, WORD, laidOn, rocksOn, crystal, knob, no, written, caves, bag, lay, GATED, gate, M, CS, TOOLS, K, TURN, MIN, sql };
+  t.section("a floor broken through; a resting floor reached; the lift");
+  const DRILL = { item: "pick", n: 1, plus: 10, opts: ["pkPeek", "pkLoose", "pkDrill"] };
+  await tick(5000);
+  await miner(U.m1, DRILL); await miner(U.m2);
+  x = await reach(U.m1, 10);
+  t.check("a resting floor is no stop of the lift while the way down to it is shut today, whatever the page says", x.agrees && x.a.ok === true && x.a.reached === false && same(x.a.caveMine.rests, []), x.off.length ? x.off : x.a);
+  let rides = [await lift(U.m1, 10), await lift(U.m1, 0)];
+  t.check("the lift goes to the mouth for anybody, and to no floor that was not reached", rides.every((y) => y.agrees) && rides[0].a.why === "none" && rides[1].a.ok === true && rides[1].a.at === null, rides.map((y) => (y.off.length ? y.off : y.a)));
+  const arrive9 = laidOn(9, today).arrive, delveWas = await pointsOf(U.m1);
+  x = await drill(U.m1, arrive9);
+  t.check("a pick that breaks through the floor opens the way down beside its holder, for everybody: on the ninth floor, from where one comes down into it; counted once of the day's three; and the tenth floor is the deepest reached", x.agrees && x.a.ok === true && x.a.left === 2
+    && same(x.a.cave.ways["9"], { x: x.a.at[0], y: x.a.at[1], rock: null, name: NAME[U.m1] }) && same(x.a.cave.deepest, { floor: 10, by: U.m1, name: NAME[U.m1], at: NOW }) && same(x.a.purse.powers.pkDrill, { k: today, n: 1 }), x.off.length ? x.off : x.a);
+  ds = await deedsSince((await lastDeed()) - 1);
+  t.check("…written down as a way down found, by the pick, with the tile it opened on; and counted as one", same(ds.map((d) => [d.member_id, d.what, d.doc.floor, d.doc.how, d.doc.tile]), [[U.m1, "delve", 9, "drill", x.a.at]]) && (await pointsOf(U.m1)) > delveWas, ds);
+  // (a tile in the rock, with floor beside it: no place to stand, whatever the page says; the code asks only which floor it is of)
+  const k8 = CS.cornerOf(8);
+  let inRock = null;
+  for (let v = 0; v < K.at.size && !inRock; v++) for (let u = 0; u < K.at.size && !inRock; u++) {
+    if (laidOn(8, today).open[v * K.at.size + u] === "0" && [[1, 0], [0, 1], [-1, 0], [0, -1]].some(([dx, dy]) => CS.floorTile(8, today, k8.x + u + dx, k8.y + v + dy))) inRock = [k8.x + u, k8.y + v];
+  }
+  const drills = [await drill(U.m1, arrive9), await drill(U.m1, laidOn(10, today).arrive), await drill(U.m2, laidOn(8, today).arrive), await drill(U.m1, [40, 230]), await drill(U.m1, inRock)];
+  t.check("where the way is open already: open; on a resting floor: none; with a pick that cannot: tool; off the cave: none; from a tile in the rock: here. Nothing changes by any of it", drills.every((y) => y.agrees)
+    && same(drills.map((y) => y.a.why), ["open", "none", "tool", "none", "here"]), drills.map((y) => (y.off.length ? y.off : y.a.why)));
+  const more = [await drill(U.m1, laidOn(8, today).arrive), await drill(U.m1, laidOn(7, today).arrive), await drill(U.m1, laidOn(6, today).arrive)];
+  t.check("the pick breaks through three floors a day and no more: the fourth is `spent`", more.every((y) => y.agrees) && same(more.map((y) => y.a.left ?? y.a.why), [1, 0, "spent"]) && same(Object.keys(more[2].a.purse.powers), ["pkDrill"]), more.map((y) => (y.off.length ? y.off : y.a)));
+  const reaches = [await reach(U.m1, 10), await reach(U.m1, 10), await reach(U.m2, 10), await reach(U.m1, 9), await reach(U.m1, 20), await reach(U.m1, 40), await reach(U.m1, null)];
+  t.check("with the ninth floor's way open, the tenth is a stop of the lift for whoever comes to it: once; not a floor that is no resting floor, not one whose way is shut, not one there is none of", reaches.every((y) => y.agrees)
+    && same(reaches.map((y) => y.a.reached), [true, false, true, false, false, false, false]) && same(reaches[0].a.caveMine.rests, [10]) && same((await purseNow(U.m2)).mine.rests, [10]) && same((await call(U.m1, "town_cave", 0, null, null)).cave.rests, [10]),
+    reaches.map((y) => (y.off.length ? y.off : y.a.reached)));
+  rides = [await lift(U.m1, 10), await lift(U.m1, 0), await lift(U.m1, 20), await lift(U.m1, null)];
+  t.check("the lift takes them to the tenth floor, to the tile beside its lift; to the mouth; and to no floor they have not reached", rides.every((y) => y.agrees) && same(rides[0].a.at, laidOn(10, today).liftAt) && rides[1].a.at === null
+    && rides[2].a.why === "none" && rides[3].a.why === "none" && same((await deedsSince((await lastDeed()) - 2)).map((d) => [d.what, d.n]), [["lift", 10], ["lift", 0]]), rides.map((y) => (y.off.length ? y.off : y.a)));
+
+  t.section("a torch set down");
+  await handed(U.m1, { hand: "torch", bag: bag(PICK, { item: "torch", n: 2 }) });
+  const tAt = laidOn(3, today).arrive, k3 = CS.cornerOf(3), rock3 = rocksOn(3)[0];
+  x = await torch(U.m1, tAt);
+  const lit = NOW + K.light.burns;
+  t.check("a torch from the hand is set down on the floor one stands on: it burns for five minutes, for everybody, and there is one fewer in the bag; the page is to ask again when it burns out, if the rocks' turn is not sooner", x.agrees && x.a.ok === true && x.a.until === lit
+    && same(x.a.cave.torches, [{ f: 3, x: tAt[0], y: tAt[1], until: lit, by: U.m1 }]) && x.a.purse.bag[1].n === 1 && x.a.cave.again === Math.min(lit, (M.turnOf(NOW) + 1) * TURN)
+    && same((await call(U.m2, "town_cave", 0, null, null)).cave.torches, x.a.cave.torches), x.off.length ? x.off : x.a);
+  await tick(MIN);
+  x = await torch(U.m1, tAt);
+  t.check("another on the same tile burns anew: one torch to a tile", x.agrees && x.a.ok === true && same(x.a.cave.torches, [{ f: 3, x: tAt[0], y: tAt[1], until: NOW + K.light.burns, by: U.m1 }]) && x.a.purse.bag[1] === null, x.off.length ? x.off : x.a);
+  const torches = [await torch(U.m1, tAt)];
+  await patch(U.m1, { bag: bag(PICK, { item: "torch", n: 5 }) });
+  torches.push(await torch(U.m1, [k3.x, k3.y]), await torch(U.m1, [rock3.x, rock3.y]), await torch(U.m1, [40, 230]), await torch(U.m1, [null, null]));
+  await patch(U.m1, { hand: "pick" });
+  torches.push(await torch(U.m1, tAt));
+  t.check("with none left there is no torch to set down; in the rock, on a rock's tile, on the mountain's foot, on no tile: not here; and a torch in the bag but not in the hand is not set down", torches.every((y) => y.agrees)
+    && same(torches.map((y) => y.a.why), ["tool", "here", "here", "here", "here", "tool"]), torches.map((y) => (y.off.length ? y.off : y.a.why)));
+  await tick(K.light.burns);
+  t.check("five minutes on it has burnt out, and nobody is told of it", same((await call(U.m2, "town_cave", 3, null, null)).cave.torches, []) && same((await placeNow(3)).torches, []));
+
+  t.section("the rocks' turn: whole again, and the way down stays for the day");
+  const turnWas = M.turnOf(NOW);
+  told = (await call(U.m1, "town_cave", 1, null, null)).cave;
+  t.check("before the turn: rocks are gone on the foot and on several floors, and ways are open", Object.keys(told.gone).length >= 3 && told.gone["1"].length >= 3 && same(Object.keys(told.ways), ["1", "7", "8", "9"]), [told.gone, told.ways]);
+  await clock((turnWas + 1) * TURN + 1000);
+  s = await stateNow();
+  await handed(U.m1); await handed(U.m2);
+  told = (await call(U.m1, "town_cave", 1, null, null)).cave;
+  t.check("at the next turn every rock is back but the one each way down was found under, and the day's crystal rock: the ways are open still, the board is as it was, nothing is being broken",
+    told.turn === turnWas + 1 && same(told.gone, { 1: [wayId], [crystal.floor]: [crystal.rock] }) && same(Object.keys(told.ways), ["1", "7", "8", "9"]) && told.deepest.floor === 10 && same(told.struck, {})
+    && same(told, toldOf(s, await purseNow(U.m1), U.m1, 1, null, NOW)), told);
+  t.check("…and nothing was cleared to make it so: what was kept is read as it is now", (await caves()).some((c) => c.place === 1 && c.doc.broken.turn === turnWas && c.doc.broken.ids.length >= 3));
+  need = await swingsOf(U.m1, 1);
+  x = await strike(U.m1, 1, spot.rock.id, spot.at, need);
+  t.check("a rock broken last turn stands again, whole, and is broken again", x.agrees && x.a.ok === true && same(x.a.broke, [spot.rock.id]) && x.a.part === 1, x.off.length ? x.off : x.a);
+
+  t.section("the day turns");
+  const dawn = (today + 1) * 86_400_000 - 7 * 3_600_000 + CODE.rules.dawn * 3_600_000, rows = await caves(), deeds0 = await written();
+  await clock(dawn + 5000);
+  today += 1;
+  await handed(U.m1, { mine: { ...(await purseNow(U.m1)).mine, vein: null } });
+  const purse0 = await purseNow(U.m1);
+  did = await gate(U.m1, ([, reads]) => reads);
+  t.check("a new day whose floors the site has not laid yet: every function that reads a floor answers `unlaid`, and nothing is held, kept or written down", did.length === GATED.filter(([, reads]) => reads).length
+    && did.every((y) => y?.ok === false && y.why === "unlaid" && y.now === NOW && y.purse === undefined) && same(await caves(), rows) && (await written()) === deeds0 && same(await purseNow(U.m1), purse0), did);
+  r = await lay("service", today);
+  t.check("the site lays the new day", !r.error && r.affected === K.floors, r);
+  s = await stateNow();
+  const crystal2 = crystalOn();
+  told = (await call(U.m1, "town_cave", crystal2.floor, null, null)).cave;
+  t.check("yesterday's cave is read as a new day's: no way open, nobody deepest, no rock gone, the crystal rock whole where the new day has it; and what was kept of yesterday was not touched", told.day === today && same(told.ways, {}) && told.deepest === null
+    && same(told.gone, {}) && same(told.crystal, crystal2) && same(await caves(), rows) && same(told, toldOf(s, await purseNow(U.m1), U.m1, crystal2.floor, null, NOW)), told);
+  spot = find(1, PICK, plain, s);
+  need = await swingsOf(U.m1, 1);
+  x = await strike(U.m1, 1, spot.rock.id, spot.at, need);
+  t.check("a rock of the first floor as it is laid today is broken: the floor's document is the new day's from then on", x.agrees && x.a.ok === true && same(x.a.broke, [spot.rock.id]) && (await placeNow(1)).day === today && (await placeNow(1)).way === null, x.off.length ? x.off : x.a);
+  rides = [await lift(U.m1, 10), await reach(U.admin, 10)];
+  t.check("the lift's stops are the member's own, and are kept over the day's turn; and nobody reaches the tenth floor anew while the ninth's way is shut again", rides[0].agrees && same(rides[0].a.at, laidOn(10, today).liftAt) && same((await purseNow(U.m1)).mine.rests, [10]) && rides[1].agrees && rides[1].a.reached === false,
+    rides.map((y) => (y.off.length ? y.off : y.a)));
 }
