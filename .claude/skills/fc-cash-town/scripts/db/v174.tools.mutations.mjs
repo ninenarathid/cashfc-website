@@ -54,7 +54,7 @@ export default ({ swap }) => {
     ["what the hoe pays is taken off twice", swap("  paid := town.tool_paid(p_before, p_after, p_now, p_tool, fx, 'hoFresh');", "  paid := town.tool_paid(p_before, town.tool_paid(p_before, p_after, p_now, p_tool, fx, 'hoFresh'), p_now, p_tool, fx, 'hoFresh');"), ["tend"]],
     ["a counted option of the hoe's works past its count", swap("    if (used->>'ok')::boolean then paid := used->'purse'; both_ := true; end if;", "    both_ := true;\n    if (used->>'ok')::boolean then paid := used->'purse'; end if;"), ["tend"]],
     ["a can waters the row in a bed that is somebody else's", swap("  rains := not hoes and (fx->>'rain')::boolean and coalesce(p_owner = p_me, false);", "  rains := not hoes and (fx->>'rain')::boolean;"), ["beside", "in a bed that is somebody else's it waters its own plot only"]],
-    ["the lines of work are told of the can for a plant of one's own", swap("  if p_deed is distinct from 'water' or coalesce(p_plot->'plant'->>'by', p_me) = p_me or p_purse->>'hand' is distinct from 'can' then return '{}'::jsonb; end if;",
+    ["the lines of work are told of the can for a plant of one's own", swap("  if p_deed is distinct from 'water' or coalesce(p_plot->'plant'->>'by', p_me) = p_me or p_purse->>'hand' is distinct from 'can' or not town.bag_forged(p_purse->'bag', 'can') then return '{}'::jsonb; end if;",
       "  if p_deed is distinct from 'water' or p_purse->>'hand' is distinct from 'can' then return '{}'::jsonb; end if;"), ["kind_doc"]],
     // ── the insects, the kitchen ──
     ["a catch brings one more with no room for it", swap(" and town.room(p_purse->'bag', p_id) > p_n then 1 else 0 end;", " then 1 else 0 end;"), ["net"]],

@@ -13,7 +13,8 @@
 -- file that is written again here is its own text as the database has it, with a few marked lines
 -- (`-- ── the older tools (v174) … ──`), each of which does nothing unless a forged tool of the first tier is the one
 -- the deed is done with: v174.tools.lines.mjs says the lines, build-v164.mjs builds each statement, and nothing of
--- those functions is pasted here. A plain tool's deed reads the stack in the hand once and never the `forge` row.
+-- those functions is pasted here. A plain tool's deed looks through the bag once for a forged thing of its kind
+-- (`town.bag_forged`), and never reads the `forge` row.
 --
 -- WHAT IS HERE, in the order of the file:
 --
@@ -749,7 +750,7 @@ as $$
 declare
   n double precision;
 begin
-  if p_deed is distinct from 'water' or coalesce(p_plot->'plant'->>'by', p_me) = p_me or p_purse->>'hand' is distinct from 'can' then return '{}'::jsonb; end if;
+  if p_deed is distinct from 'water' or coalesce(p_plot->'plant'->>'by', p_me) = p_me or p_purse->>'hand' is distinct from 'can' or not town.bag_forged(p_purse->'bag', 'can') then return '{}'::jsonb; end if;
   n := (town.can_fx(town.hand_stack(p_purse))->>'kind')::double precision;
   return case when n > 0 then jsonb_build_object('kind', n) else '{}'::jsonb end;
 end;
@@ -779,7 +780,7 @@ as $$
 declare
   k double precision;
 begin
-  if p_purse->>'hand' is distinct from 'bugNet' then return null; end if;
+  if p_purse->>'hand' is distinct from 'bugNet' or not town.bag_forged(p_purse->'bag', 'bugNet') then return null; end if;
   k := (town.net_fx(town.hand_stack(p_purse))->>'rare')::double precision;
   return case when k > 1 then p_ins || jsonb_build_object('rarer', k) end;
 end;
@@ -810,7 +811,7 @@ as $$
 declare
   s jsonb;
 begin
-  if jsonb_typeof(p_crew->0) is distinct from 'string' or p_crew->>0 not in ('pot', 'pan', 'grill') then return null; end if;
+  if jsonb_typeof(p_crew->0) is distinct from 'string' or p_crew->>0 not in ('pot', 'pan', 'grill') or not town.bag_forged(p_purse->'bag', p_crew->>0) then return null; end if;
   s := town.hand_stack(p_purse);
   return case when s->>'item' = p_crew->>0 and town.forged(s) then s end;
 end;

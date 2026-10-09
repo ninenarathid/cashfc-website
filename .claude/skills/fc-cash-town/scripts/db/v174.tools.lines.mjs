@@ -5,9 +5,9 @@
 // holds each function to the one it replaces but for these lines).
 //
 // THE RULE: with a tool as it was bought in the hand, every line here does nothing. Each block begins with one look
-// at the stack the deed is done with (`town.rod_held`, `town.hand_stack` + `town.forged`, `town.bag_forged`,
-// `town.cook_held`), reads the catalog's `forge` row only when that stack carries something, and draws no number of
-// chance otherwise. Where a line of the function had to be written again rather than kept (K below: kept, a block
+// through the bag for a forged thing of the kind the deed is done with (`town.bag_forged`, which `town.rod_held`,
+// `town.cook_held` and `town.net_cat` begin with too), takes the stack in the hand and reads the catalog's `forge`
+// row only when there is one, and draws no number of chance otherwise. Where a line of the function had to be written again rather than kept (K below: kept, a block
 // before or after it), what it answers for a plain tool is the same number: a product has `* 1`, a document `|| {}`.
 //
 // The functions, by the game, with what last wrote each (as of RAN = 173) and the pieces meant:
@@ -208,7 +208,7 @@ export const TEND = [
     + "  tool_ jsonb;\n  more_ jsonb;\n"
     + "begin\n"
     + `  ${OPEN}: the forged hoe or can in the hand, read once (no other thing held is looked at); and lib/town/farm's mayTwice, where deedFor is told of it ──\n`
-    + "  if hand = 'hoe' or hand = 'can' then\n"
+    + "  if (hand = 'hoe' or hand = 'can') and town.bag_forged(p_purse->'bag', hand) then\n"
     + "    tool_ := town.hand_stack(p_purse);\n"
     + "    if not town.forged(tool_) then tool_ := null; end if;\n"
     + "  end if;\n"
@@ -301,7 +301,7 @@ export const TOWN_TEND = [
   [
     "  perform town.keep_purse(me, after);\n",
     `  ${OPEN}: what a deed done with a forged hoe or can does to the plots beside its own: plots of this row of this bed, which is held whole above; each is kept as the deed's own was, and none is a deed of its own ──\n`
-    + "  if did->>'deed' in ('clear', 'till', 'water') and purse->>'hand' in ('hoe', 'can') and town.forged(town.hand_stack(purse)) then\n"
+    + "  if did->>'deed' in ('clear', 'till', 'water') and purse->>'hand' in ('hoe', 'can') and town.bag_forged(purse->'bag', purse->>'hand') and town.forged(town.hand_stack(purse)) then\n"
     + `    select coalesce(jsonb_object_agg(p.x::text || ',' || p.y::text, ${PLOT_AS} ${DAMP}), '{}'::jsonb) into row_\n`
     + "      from public.town_plots p where p.bed = bed_n and p.y = p_y;\n"
     + "    more_ := town.beside(key, town.row_keys(p_x, p_y), row_ || jsonb_build_object(key, plot), did->>'deed', purse, after, me::text, now_,\n"
@@ -377,7 +377,7 @@ export const WORK_COUNTS_OF = [[
 
 /* ── the insects ───────────────────────────────────────────────────────── */
 
-const NET_HELD = "  if p_purse->>'hand' = 'bugNet' then tool_ := town.hand_stack(p_purse); end if;\n";
+const NET_HELD = "  if p_purse->>'hand' = 'bugNet' and town.bag_forged(p_purse->'bag', 'bugNet') then tool_ := town.hand_stack(p_purse); end if;\n";
 
 /** town.net: a catch with a forged net in the hand. */
 export const NET = [
