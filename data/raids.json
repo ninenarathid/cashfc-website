@@ -86157,7 +86157,7 @@
     "state": "cleared",
     "pct": null,
     "phase": 0,
-    "pulls": 13,
+    "pulls": 19,
     "last": "2026-09-29",
     "last_ts": 1790690223
    }
@@ -87521,7 +87521,7 @@
     "expansion": "Dawntrail",
     "encounter_id": 1074,
     "name": "The Weapon's Refrain",
-    "best": 78,
+    "best": 79,
     "kills": 2,
     "job": "DarkKnight",
     "cleared": true
@@ -87731,7 +87731,7 @@
     "encounter_id": 1085,
     "name": "Dancing Mad",
     "best": 82,
-    "kills": 8,
+    "kills": 9,
     "job": "Ninja",
     "cleared": true,
     "job_kills": {
