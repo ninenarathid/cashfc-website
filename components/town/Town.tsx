@@ -72,6 +72,7 @@ import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
 import TownFoot, { FOOT_CSS, TownFootContext, type FootPlaces } from "./TownFoot";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
+import { FORGED_BEATS, drawForged } from "./TownForged";
 // ── to come ── (the preview of the mountain and the cave: only its types here; the module itself is asked for in `next dev` alone)
 import type { MoreFrame, MountainArt } from "./mountain-art";
 
@@ -905,6 +906,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     keeper.onDeed = (what, to) => session.nudge(what, to && session.avatars.has(to) ? to : undefined);
     return () => { session.onNudge = null; keeper.onDeed = null; };
   }, [session, keeper]);
+  // Somebody else's try at the forge is heard by whoever stands near them: the three knocks and what came of it,
+  // softer than one's own and fainter the further off (my own are the smith's screen's to make).
+  useEffect(() => {
+    if (!session) return;
+    const due = new Set<ReturnType<typeof setTimeout>>();
+    const later = (ms: number, fn: () => void) => { const t = setTimeout(() => { due.delete(t); fn(); }, ms); due.add(t); };
+    session.onForged = (a) => {
+      const told = a.forged, mine = session.self.pos;
+      const loud = heard(Math.hypot(a.pos.x - mine.x, a.pos.y - mine.y));
+      if (!told || loud <= 0) return;
+      for (const ms of FORGED_BEATS.knocks) later(ms, () => sfxRef.current?.work("clang", loud));
+      later(FORGED_BEATS.result, () => sfxRef.current?.work(told.out === "taken" ? "made" : "nothing", loud));
+    };
+    return () => { session.onForged = null; for (const t of due) clearTimeout(t); };
+  }, [session]);
   /** How far the forest walker's lamp lights about me, in tiles, while I wear it (lib/town/gifts): none without it. And where I stand, for its light. */
   const lampRef = useRef(0), lampAt = useRef<Vec | null>(null);
   /** Where each familiar drawn is, by whom it follows: this page's own (lib/town/gifts). */
@@ -3061,7 +3077,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, foot.y + 31, RANK_INK[rank - 1]);
       ctx.restore();
       // The sign they hold up: its pole in their hand, its board over their head; what they say goes over the board.
-      const over = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
+      const board = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
+      // Their try at the forge (lib/town/forge-show): a plate over their head, the knocks, and what came of it.
+      const over = a.forged ? drawForged(ctx, iconImg.current, a.forged, p.x, board - 2, wall, { reduced: reducedRef.current, font: fontRef.current, th: words.current.th }) : board;
       // What they just typed, over their head; it fades in its last moment.
       if (said) bubble(ctx, said.text, p.x, over - 2, Math.min(1, (BUBBLE_MS - (wall - said.at)) / 800));
       else if (typing) dots(ctx, p.x, over - 2, now);
@@ -3935,7 +3953,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const w = window as unknown as { __townSmith?: unknown };
-    w.__townSmith = { open: (view: SmithView = "smelt") => openSmithRef.current(view), close: () => openSmithRef.current(null) };
+    // (`show`: a try over my head as if it had just been made, told to the room: for looking at the show, which chance decides otherwise)
+    w.__townSmith = { open: (view: SmithView = "smelt") => openSmithRef.current(view), close: () => openSmithRef.current(null), show: (told: Parameters<TownSession["forgeShown"]>[0]) => sessionRef.current?.forgeShown(told) };
     return () => { delete w.__townSmith; };
   }, []);
   /** Who stands by the forge with me: within a few tiles of the forge itself (lib/town/world's SMITH), on their feet, here and not on another page. */
@@ -4747,7 +4766,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* ── forging ── The blacksmith's screen: only where whoever keeps the game has a smith */}
       {s && game && keeper && smith && keeper.smith() && (
         <Suspense fallback={null}>
-          <TownSmith keeper={keeper} th={w.th} view={smith} onView={setSmith} onClose={() => setSmith(null)} phone={phone} tabbar={tabbar} reduced={!moving} sfx={sfxRef.current} name={me.name} near={smithNear} where={smithWhere} />
+          <TownSmith keeper={keeper} th={w.th} view={smith} onView={setSmith} onClose={() => setSmith(null)} phone={phone} tabbar={tabbar} reduced={!moving} sfx={sfxRef.current} name={me.name} near={smithNear} where={smithWhere} shown={(told) => session?.forgeShown(told)} />
         </Suspense>
       )}
       {/* A recipe unrolled to be read: over everything */}

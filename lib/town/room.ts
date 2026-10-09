@@ -131,6 +131,8 @@ export interface RoomHandlers {
   onPair(from: string, data: unknown): void;
   /** Somebody did something the others will want to see (raw: a word for what, never the change itself, which each asks the database for). */
   onNudge(id: string, what: unknown): void;
+  /** Somebody tried their luck at the forge, and how it went (raw: lib/town/forge-show reads it; it is only shown). */
+  onForged(id: string, told: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
 }
 
@@ -148,6 +150,8 @@ export interface Room {
   pair(to: string, data: unknown): void;
   /** Say that something of the town's game changed (the farm, the kitchen), to everybody; or, into one letterbox, that a deal with them did. */
   nudge(what: string, to?: string): void;
+  /** A try of mine at the forge, for everybody in the room to see over my head (lib/town/forge-show). */
+  forged(told: Record<string, unknown>): void;
   bye(): void;
   /** Make sure the room still lists me; say who I am again if it lost me. */
   check(): void;
@@ -309,6 +313,10 @@ export async function joinTown(
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
   });
+  room.on("broadcast", { event: "fg" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === "string" && p.id !== me.id) h.onForged(p.id, p);
+  });
 
   /* ── my letterbox ── */
   const box: RealtimeChannel = supabase.channel(boxOf(me.id), {
@@ -400,6 +408,7 @@ export async function joinTown(
     circle(to, word) { post(to, "cr", { from: me.id, w: word }); },
     pair(to, data) { post(to, "pg", { from: me.id, data }); },
     nudge(what, to) { if (to) post(to, "nd", { id: me.id, w: what }); else cast("nd", { id: me.id, w: what }); },
+    forged(told) { cast("fg", { ...told, id: me.id }); },
     bye() { cast("bye", { id: me.id }); },
     check() {
       if (room.state !== "joined") return;

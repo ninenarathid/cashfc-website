@@ -105,7 +105,7 @@ const spot = (at: number[]) => ({ left: `${at[0] * 100}%`, top: `${((at[1] - STA
  * What is kept is the keeper's: for a member the database's, in `next dev`'s test room the browser's trial. A keeper
  * that knows of no smith offers none of this (`keeper.smith()` is null, and the map never opens this).
  */
-export default function TownSmith({ keeper, th, view, onView, onClose, phone, tabbar, reduced, sfx, name, near, where }: {
+export default function TownSmith({ keeper, th, view, onView, onClose, phone, tabbar, reduced, sfx, name, near, where, shown }: {
   keeper: Keeper;
   th: boolean;
   view: SmithView;
@@ -122,6 +122,11 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   near: () => Array<{ id: string; name: string }>;
   /** The tile I stand on now, and whether a game's board is open on the page: a move is asked with them. */
   where: () => MoveHow;
+  /**
+   * A try is shown over my head on the map, to everybody in the room (lib/town/forge-show): said as I strike (no
+   * outcome yet), again with what came of it once the keeper has answered, and with nothing when it was refused.
+   */
+  shown?: (told: { item: ItemId; from: number; out: Outcome | null } | null) => void;
 }) {
   const [, setTick] = useState(0);
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
@@ -151,6 +156,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   const strike = async () => {
     if (busy || slot < 0) return;
     setBusy(true); setCame(null); setSaid(null);
+    const struck = stack?.item ?? null;
+    if (struck) shown?.({ item: struck, from: level, out: null });
     const gap = reduced ? 140 : 380;
     const knocks = new Promise<void>((done) => {
       [0, 1, 2].forEach((i) => timers.current.push(setTimeout(() => { setKnock(i + 1); sfx?.work("clang"); }, i * gap)));
@@ -158,7 +165,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
     });
     const [did] = await Promise.all([keeper.smithTry(slot, name), knocks]);
     setKnock(0); setBusy(false);
-    if (!did.ok) { refuse(did.why); return; }
+    if (!did.ok) { shown?.(null); refuse(did.why); return; }
+    if (struck) shown?.({ item: struck, from: did.from, out: did.out });
     setCame({ out: did.out, level: did.level });
     sfx?.work(did.out === "taken" ? "made" : "nothing");
     setSaid(did.out === "taken" ? { text: t(`ตีติด! เป็น +${did.level} แล้ว`, `It took: +${did.level}`), tone: "good" }

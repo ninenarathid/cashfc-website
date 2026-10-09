@@ -11,6 +11,7 @@ import { SHOP } from "./shop";
 import { SIGN, decodeSign, encodeSign, inReach, mayRaise, tidyTitle, type Sign } from "./sign";
 import { VoiceMesh, type PeerInfo, type Signal } from "./voice";
 import { CART, cartPace } from "./cart";
+import { KNOCKS_MS, SHOW, readTold as readForged, toldOf, type ForgeShow } from "./forge-show";
 import { readTold } from "./handing";
 import { paceOf } from "./riding";
 import { walkPace } from "./tools";
@@ -53,6 +54,8 @@ export interface Avatar {
   byeAt?: number;
   /** What they last typed, for the bubble over their head. */
   said?: { text: string; at: number };
+  /** Their last try at the forge, for the plate over their head (lib/town/forge-show). */
+  forged?: ForgeShow;
   /** When they last told the room they were typing. */
   typingAt?: number;
   /**
@@ -762,6 +765,32 @@ export class TownSession {
     if (told?.k === "ask") this.current?.pair(from, { k: "no", m: told.m, w: "away" });
   }
 
+  /**
+   * A try at the forge is shown over the forger's head (lib/town/forge-show). Mine: the knocks as I strike (no
+   * outcome yet), then what came of it once whoever keeps the game has answered, which is when the room is told;
+   * nothing (null) when the try was refused. Heard of somebody else, it is only looked at.
+   */
+  onForged: ((a: Avatar) => void) | null = null;
+  forgeShown(told: { item: ForgeShow["item"]; from: number; out: ForgeShow["out"] } | null) {
+    if (this.closed) return;
+    const now = Date.now();
+    if (!told) this.self.forged = undefined;
+    // (my own knocks were heard as I struck: what came of it is shown at once)
+    else if (told.out === null) this.self.forged = { ...told, at: now };
+    else { this.self.forged = { ...told, at: now - KNOCKS_MS }; this.current?.forged(toldOf({ item: told.item, from: told.from, out: told.out })); }
+    this.notify();
+  }
+  // Only from somebody the room lists now, a try that can be, and not one upon another.
+  private heardForged(id: string, raw: unknown) {
+    const a = this.avatars.get(id);
+    if (!a || a.byeAt !== undefined || !this.listed.has(id)) return;
+    const told = readForged(raw), now = Date.now();
+    if (!told || (a.forged && now - a.forged.at < SHOW.every)) return;
+    a.forged = { ...told, at: now };
+    this.onForged?.(a);
+    this.notify();
+  }
+
   sendChat(raw: string): ChatResult {
     if (this.closed) return "offline";
     const text = cleanChat(raw);
@@ -873,6 +902,7 @@ export class TownSession {
       onBye: (id) => { if (live()) this.onBye(id); },
       onChat: (id, text) => { if (live()) this.onChat(id, text); },
       onNudge: (_id, what) => { if (live() && typeof what === "string" && what.length <= 12) this.onNudge?.(what); },
+      onForged: (id, told) => { if (live()) this.heardForged(id, told); },
       // (a voice line only with whoever I may hear: lib/town/circle. A page built before there were chat rooms asks everybody.)
       onSignal: (from, data) => { if (mine === this.gen && this.hearsNow(from)) void this.voice.receive(from, data as Signal); },
       onCircle: (from, word) => { if (live()) this.onCircle(from, word); },
