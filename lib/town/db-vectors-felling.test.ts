@@ -189,6 +189,9 @@ export function vectorsFelling(): { all: Vector[]; wood: Standing[] } {
     if (c.maybe(0.85)) g.goes = { ...(g.goes ?? {}), [HER]: go(now, c.maybe(0.03) ? [9999] : [t.id], c.maybe(0.15) ? { braced: c.of([ME, HIM]) } : {}) };
     const n = t.size ?? 1, where: [number, number] = c.of([[t.x - 1, t.y], [t.x - 2, t.y + 1], [t.x + n + 1, t.y + n + 1], [t.x - 3, t.y], [t.x + n + 2, t.y - 2], [t.x, t.y + n]] as Array<[number, number]>);
     add("brace_go", [g, ME, feller, where[0], where[1], now], braceGo(g, ME, feller, where, now, wood));
+    // (and, of every eighth, the go's own member at their own trunk from the same tile: nobody braces their own. No
+    // number of chance is drawn for it, so every case after it is as it was)
+    if (i % 8 === 0) add("brace_go", [g, HER, HER, where[0], where[1], now], braceGo(g, HER, HER, where, now, wood));
   }
   for (let i = 0; i < 200; i++) { const p = purse(NOWS[0], { full: c.maybe(0.3) }); add("brace_pay", [p], bracePay(p)); }
 
@@ -289,6 +292,10 @@ describe("the cases the database's rules of woodcutting are held to", () => {
     expect(whys("fell")).toEqual(["bite", "far", "full", "held", "none", "ok", "plus", "spent", "stump", "tool"]);
     expect(whys("fell_root")).toEqual(["none", "ok", "spent", "tool"]);
     expect(whys("brace_go")).toEqual(["far", "none", "ok"]);
+    // (one's own trunk is refused, and often where anybody else would have been let: the go up, near enough, nobody at it yet)
+    const own = of("brace_go").filter((v) => v.args[1] === v.args[2]);
+    expect(own.every((v) => (v.want as { why?: string }).why === "none")).toBe(true);
+    expect(own.filter((v) => braceGo(v.args[0] as Grove, ME, HER, [v.args[3] as number, v.args[4] as number], v.args[5] as number, wood).ok).length).toBeGreaterThan(10);
     const begun = of("fell_begin").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { trees: number[]; elder: boolean; ask: { chops: number; spared: number; spent: boolean; ahead: number; pace: number; family: string; girth: number; trees: Array<{ timber: number[] }> } });
     expect(begun.some((b) => b.trees.length === 3) && begun.some((b) => b.trees.length === 2) && begun.some((b) => b.elder) && begun.some((b) => b.ask.spent) && begun.some((b) => b.ask.spared >= 2)).toBe(true);
     expect(new Set(begun.map((b) => b.ask.family))).toEqual(new Set(["alternate", "pairs", "run", "noise"]));

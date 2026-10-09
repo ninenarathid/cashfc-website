@@ -309,6 +309,18 @@ export default async function (ctx) {
     t.check("a friend with no room for a log has none, and loses nothing; the tree fell all the same, and the point on the helpers' line is theirs",
       f.ok && f.got.ok === true && f.got.braced === U.m2 && held(await purseAs(U.m2), "log") === 0 && f.written.find((d) => d.what === "brace").n === 0 && (await points(U.m2, "helpers")) === helpers + CODE.work.braced, f.why.length ? f.why : f.written);
   }
+  {
+    const p = tree(), from = beside(p);
+    await fresh(U.m1); await fresh(U.m2, axe(), { hand: null });
+    await begin(U.m1, p.id, from);
+    const took = await brace(U.m2, U.m1, [p.x + 1, p.y]);
+    await on(3 * SEC);
+    const logs = held(await purseAs(U.m2), "log"), helpers = await points(U.m2, "helpers");
+    const f = await fell(U.m1, { tree: p.id, plain: true, secs: 0 }, from, plainLuck);
+    t.check("a trunk braced and then felled the plain way pays no friend: a brace is the board's, and nothing is written down for it",
+      took.ok && took.got.ok === true && f.ok && f.got.ok === true && f.got.braced === null && held(await purseAs(U.m2), "log") === logs && !f.written.some((d) => d.what === "brace") && (await points(U.m2, "helpers")) === helpers,
+      f.why.length ? f.why : f.written);
+  }
 
   t.section("a keepsake, found once");
   {
