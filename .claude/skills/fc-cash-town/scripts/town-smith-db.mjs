@@ -240,8 +240,14 @@ async function fishOnce(X, most = 8) {
     out.casts++;
     const c = await X.evaluate(`${FISH}.cast()`);
     await skip(Math.round(c.wait * 1000) + 250);
-    await X.evaluate(`${FISH}.strike()`);
-    await until("the strike is answered", () => X.evaluate(`["fight", "result"].includes(${FISH}.phase())`), 6000);
+    // (the stand-in's clock is at the bite and the page's own is not: to the page this strike is too soon. A rod may carry an option by which the
+    // page lets such a strike by, the line left out and nobody asked: the hand then strikes again, as a member's would)
+    for (let i = 0; i < 4; i++) {
+      await X.evaluate(`${FISH}.strike()`);
+      if (await until("the strike is answered", () => X.evaluate(`["fight", "result"].includes(${FISH}.phase())`), i < 3 ? 1500 : 6000, 60).catch(() => false)) break;
+      out.forgiven = (out.forgiven ?? 0) + 1;
+    }
+    if (!(await X.evaluate(`["fight", "result"].includes(${FISH}.phase())`))) { out.hows.push(`no answer to a strike: ${await X.evaluate(`${FISH}.phase()`)}`); break; }
     out.strikes++;
     const res = (await X.evaluate(`${FISH}.phase()`)) === "fight" ? await fight(X) : await X.evaluate(`${FISH}.result()`);
     out.hows.push(res.how);
