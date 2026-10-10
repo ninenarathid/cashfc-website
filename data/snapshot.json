@@ -2286,7 +2286,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 31,
+  "level": 38,
   "cc": [
    true,
    true,
@@ -2332,7 +2332,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-10-10"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -4863,7 +4863,7 @@
   "mounts": 206,
   "minions": 416,
   "rare": 289,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -4993,7 +4993,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-10"
  },
  "42976317": {
   "name": "Zeadz Stellar",
@@ -7810,7 +7810,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 100,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -7855,7 +7855,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-10"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8619,7 +8619,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 94,
+  "level": 80,
   "cc": [
    false,
    false,
@@ -8637,7 +8637,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-10-10"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
