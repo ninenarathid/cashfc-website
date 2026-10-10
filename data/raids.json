@@ -83119,7 +83119,7 @@
     "state": "learning",
     "pct": 44.76,
     "phase": 4,
-    "pulls": 71,
+    "pulls": 60,
     "last": "2026-10-07",
     "last_ts": 1791385140
    }
@@ -83328,10 +83328,14 @@
     "encounter_id": 1074,
     "name": "The Weapon's Refrain",
     "best": 95,
-    "kills": 2,
+    "kills": 6,
     "job": "Sage",
     "cleared": true,
     "job_kills": {
+     "RedMage": {
+      "kills": 4,
+      "best": 87
+     },
      "Sage": {
       "kills": 2,
       "best": 95
@@ -84955,8 +84959,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 14,
-    "kills": 1,
+    "best": 20,
+    "kills": 2,
     "job": "DarkKnight",
     "cleared": true
    },
@@ -85543,8 +85547,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 47,
-    "kills": 1,
+    "best": 69,
+    "kills": 2,
     "job": "Scholar",
     "cleared": true
    },
@@ -86206,20 +86210,7 @@
     ]
    }
   ],
-  "_status": "ok",
-  "progress": [
-   {
-    "encounter_id": 1085,
-    "name": "Dancing Mad",
-    "kind": "ultimate",
-    "state": "cleared",
-    "pct": null,
-    "phase": 0,
-    "pulls": 19,
-    "last": "2026-09-29",
-    "last_ts": 1790690223
-   }
-  ]
+  "_status": "ok"
  },
  "45513833": {
   "_status": "none",
@@ -86410,8 +86401,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1074,
     "name": "The Weapon's Refrain",
-    "best": 84,
-    "kills": 2,
+    "best": 97,
+    "kills": 6,
     "job": "Gunbreaker",
     "cleared": true
    },
@@ -87580,7 +87571,7 @@
     "encounter_id": 1074,
     "name": "The Weapon's Refrain",
     "best": 79,
-    "kills": 2,
+    "kills": 6,
     "job": "DarkKnight",
     "cleared": true
    }
