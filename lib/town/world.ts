@@ -1330,9 +1330,11 @@ function moreLook(x: number, y: number): Ground | MoreGround | null {
     const r = acrossRiver(x, y);
     if (r < RIVER_HALF) return "water";
     if (r < RIVER_HALF + 0.9 + 0.22 * Math.sin(x * 1.9) * Math.sin(y * 2.3)) return "sand";
-    // beyond the town's west gate: the path running on, grass giving way to stony ground and then to snow
+    // A wooded foothill beside the town, with irregular outcrops; snow belongs to the summit.
     if (Math.abs(y - pathMiddle(x, PLAZA.x - x, WEST_SEED)) < pathHalf(x, WEST_SEED)) return "road";
-    return x > -3.2 + 0.9 * Math.sin(y / 2.9) ? "grass" : x > -9.5 + 1.4 * Math.sin(y / 3.7) ? "rock" : "snow";
+    const stone = Math.sin(x / 2.8 + y / 4.1) * Math.cos(y / 2.3 - x / 4.7);
+    if (x < -5 && stone > 0.28 + (x + 5) * 0.025) return "rock";
+    return x < -7 && stone < -0.22 ? "wood" : "grass";
   }
   // the bridge: a little trodden earth where each of its ends meets the path (drawn only: nothing is laid out from it)
   if (x < 14 && y > 26 && y < 36 && BRIDGE.spans > 0 && acrossRiver(x, y) >= RIVER_HALF
@@ -1397,9 +1399,11 @@ export const BEYOND_MORE_PROPS = PREVIEW ? {
  * picture's size it is drawn. A row of them behind the town's west gate, and another beyond the mountain's summit.
  */
 export const PEAKS: Array<{ x: number; y: number; art: 1 | 2; k: number; mirror?: boolean }> = PREVIEW ? [
-  { x: -11, y: 17, art: 2, k: 2.6 }, { x: -13.5, y: 24, art: 1, k: 3 }, { x: -10.5, y: 30.5, art: 2, k: 2.8, mirror: true }, { x: -14, y: 37, art: 1, k: 3.2, mirror: true },
-  { x: -11, y: 44, art: 2, k: 2.7 }, { x: -14.5, y: 50, art: 1, k: 2.9 },
-  ...[[-7, 4, 2, 2.4], [-10.5, 13, 1, 3], [-7.5, 22, 2, 2.6], [-11, 31, 1, 3.2], [-7.5, 40, 2, 2.6], [-10.5, 49, 1, 2.9], [-7.5, 57, 2, 2.4]]
+  // Lower, wooded ridges sit back from the bank instead of covering the river with huge flat bases.
+  { x: -9.5, y: 30, art: 1, k: 1.25 }, { x: -13, y: 42, art: 2, k: 1.4, mirror: true },
+  { x: -14, y: 53, art: 1, k: 1.25 },
+  // Leave an open ravine around the headwater, rather than a ridge across its source.
+  ...[[-10, 7, 2, 1.1], [-12, 21, 1, 1.3], [-11, 35, 2, 1.2], [-12, 59, 1, 1.3]]
     .map(([u, v, art, k], i) => ({ x: MOUNTAIN.x + u, y: MOUNTAIN.y + v, art: art as 1 | 2, k, mirror: i % 2 === 1 })),
 ] : [];
 

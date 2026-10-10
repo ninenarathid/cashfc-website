@@ -48,7 +48,8 @@ export function riverPixel(u: number, v: number, ground: "water" | "rock", water
     const lip = cliff.rise > 0.88 + 0.05 * Math.sin(v * 17) || cliff.rise < 0.1 + 0.05 * Math.sin(v * 13);
     if (lip && foam > -0.1) return [207, 241, 231];
     if (foam > 0.62) return [155, 222, 224];
-    const shade = 0.66 + cliff.rise * 0.22;
+    // Both lips meet the channel's own colour; only the middle of the face is shaded.
+    const shade = 1 - 0.22 * Math.sin(cliff.rise * Math.PI);
     return [water[0] * shade, water[1] * shade, water[2] * shade];
   }
   if (ground === "rock" && mountainRiverBed(u, v) < 0) {
@@ -58,7 +59,9 @@ export function riverPixel(u: number, v: number, ground: "water" | "rock", water
     const seed = Math.sin(nx * 73.3 + ny * 37.9);
     const dx = x - nx - 0.5 - seed * 0.16, dy = y - ny - 0.5 + seed * 0.12;
     if (dx * dx / 0.045 + dy * dy / 0.07 < 1) return null;
-    return [water[0] * 0.8 + 29, water[1] * 0.8 + 23, water[2] * 0.8 + 8];
+    return water;
   }
+  // No dark rectangular rim between a fishing pool and the adjoining stone ford.
+  if (ground === "water" && mountainRiverBed(u, v) < 0) return water;
   return null;
 }

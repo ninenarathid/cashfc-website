@@ -183,9 +183,11 @@ function drawSlice(f: MoreFrame, name: string, x: number, y: number, box: readon
 }
 
 /** The pictures of their own that these maps have (public/town/mountain.json, cave.json): each fetched once, by whoever goes that way, and added to the scenery. */
-const loaded: Record<"mountain" | "cave", { asked: number; here: boolean }> = { mountain: { asked: -1e9, here: false }, cave: { asked: -1e9, here: false } };
+type ScenerySet = "mountain" | "cave" | "foothills";
+const loaded: Record<ScenerySet, { asked: number; here: boolean }> = { mountain: { asked: -1e9, here: false }, cave: { asked: -1e9, here: false }, foothills: { asked: -1e9, here: false } };
 const AGAIN_MS = 30_000;
-function loadMore(set: "mountain" | "cave", now: number) {
+function loadMore(set: ScenerySet, now: number) {
+  if (set === "mountain") loadMore("foothills", now);
   const state = loaded[set];
   if (state.here || now - state.asked < AGAIN_MS) return;
   state.asked = now;
@@ -431,7 +433,7 @@ export class MountainArt {
   /** The far peaks: each a big picture, further back the higher its foot is on the screen. */
   private peaks(f: MoreFrame) {
     for (const p of PEAKS) {
-      const name = `peak${p.art}`;
+      const name = f.scenery!.has("foothillRidge") ? "foothillRidge" : `peak${p.art}`;
       if (!f.scenery!.has(name)) continue;
       const c = f.project(p), k = f.s * p.k, [w, h] = f.scenery!.sizeOf(name);
       if (c.x + (w / 2) * k < 0 || c.x - (w / 2) * k > f.cw || c.y < 0 || c.y - h * k > f.ch) continue;
