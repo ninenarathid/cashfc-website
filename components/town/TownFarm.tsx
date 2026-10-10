@@ -950,10 +950,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         const held = heldStack(purse, keeper.handSlot()), hfx = hoeFx(held), cfx = canFx(held);
         const need = hoeing && !working.row ? hitsWith(working.need, hfx) : working.need;
         // (and a hoe that tired hands keep hold of is not dropped, while the day still has such plots: whoever keeps the game counts them)
-        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: tiredAt(purse, isSpent(purse, now), theirs), drops: !(hoeing && hfx.grip && powerLeft(purse, "hoGrip", now) > 0), wide,
+        const grip = hoeing && isSpent(purse, now) && hfx.grip && powerLeft(purse, "hoGrip", now) > 0;
+        const mods = { tool: hand ? FIELD[hand] ?? 1 : 1, spent: tiredAt(purse, isSpent(purse, now), theirs), drops: true, wide,
           buff: (game === "steady" ? 1 : 1 + buffBy(purse, now, game === "pouring" ? "calm" : "keen")) * (game === "weeding" ? wide : 1),
           hard: theirs ? hardIn(worked, true, told?.farming.points ?? 0, told?.helpers.points ?? 0) : hardFor(worked, told?.farming.points ?? 0),
-          ...(game === "steady" ? {} : { forged: hfx.band * cfx.marks, pace: hfx.pace * cfx.pace, spare: hfx.spared + cfx.spared, even: hfx.even, stones: hfx.stones }) };
+          ...(game === "steady" ? {} : { forged: hfx.band * cfx.marks * (grip ? 1.7 : 1), pace: hfx.pace * cfx.pace * (grip ? 0.65 : 1), spare: hfx.spared + cfx.spared, even: hfx.even, stones: hfx.stones }) };
         const common = {
           th, title,
           onHit: (hit: boolean) => {

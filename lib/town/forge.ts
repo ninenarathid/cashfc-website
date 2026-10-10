@@ -2,7 +2,7 @@ import { canHolds } from "./farm";
 import { ITEMS, type ItemId } from "./items";
 import { running } from "./powers";
 import {
-  FORGE, GEMS, SMELTING, SMELTS, awayOf, drawable, drawnOf, elementOfGem, gemsOf, has, isElement, isWooden, levelOf, lineKinds, makerName, makersOf, originOf, samePool, settable, toolKindOf, toolLineOf,
+  FORGE, GEMS, SMELTING, SMELTS, awayOf, drawable, drawnOf, elementOfGem, gemsOf, has, isElement, isWooden, levelOf, lineKinds, makerName, makersOf, optN, originOf, samePool, settable, toolKindOf, toolLineOf,
   type Element, type OptionId, type ToolKind,
 } from "./tools";
 import { heldIn, roomIn, stow, takeOut } from "./pouches";
@@ -172,7 +172,7 @@ export function smithView(s: Smithy, now: number): { done: Smelting[]; now: Smel
   return { done, now: cur, waiting: rest.filter((q) => q !== cur), places: placesOf(s), free: Math.max(0, placesOf(s) - rest.length) };
 }
 /** Whether a bag has an axe whose seasoned wood makes a timber smelt more than one piece, and how many pieces it then smelts. */
-export const dryOf = (bag: Purse["bag"]): number => (bag.some((s) => has(s, "axDry")) ? 2 : 1);
+export const dryOf = (bag: Purse["bag"]): number => Math.max(1, ...bag.filter((s) => has(s, "axDry")).map((s) => optN("axDry", "pieces", s)));
 /** How much fine timber so many pieces take now: one a piece, less what a timber already burned still smelts. */
 export function timberFor(s: Smithy, n: number, dry: number): { timber: number; ember: number } {
   let ember = s.ember, timber = 0;

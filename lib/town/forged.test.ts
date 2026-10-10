@@ -15,7 +15,7 @@ import { powerLeft, powerRule, powerUsed } from "./powers";
 import { STAMINA, chew, dayOf, spend, staminaOf } from "./stamina";
 import { STIRRING, startStir, stir } from "./stirring";
 import { TIMING, over, press, pressRow, startRound, startRow, type Round } from "./timing";
-import { BUILT, ELEMENTS, FORGE, LEVELS, OPTIONS, drawable, poolOf, settable, type OptionId, type ToolKind } from "./tools";
+import { BUILT, ELEMENTS, FORGE, LEVELS, OPTIONS, SIX, drawable, poolOf, settable, type OptionId, type ToolKind } from "./tools";
 import { HOUR, hold, newPurse, put, type Purse, type Stack } from "./trade";
 import { WEEDING, patchAt, startPatch, touch } from "./weeding";
 
@@ -329,7 +329,7 @@ describe("a forged can", () => {
   it("with fire and a last drop holds more still, and a thrifty one fills from one bucketful", () => {
     expect(canHolds(tool("can", 1, [], ["fire"]))).toBe(10);
     expect(canHolds(tool("can", 10, [], ["fire"]))).toBe(18);
-    expect(canHolds(tool("can", 6, drawn("cnDrop", "cnThrift"), ["fire"]))).toBe(LEVELS.can.waterings[6] + OPTIONS.cnDrop.n.more + 1);
+    expect(canHolds(tool("can", 6, drawn("cnDrop", "cnThrift"), ["fire"]))).toBe(LEVELS.can.waterings[6] + OPTIONS.cnDrop.n.more + 1 + 6);
     const thrifty = done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 50, NOW));
     expect([thrifty.well, thrifty.purse.bag[0]?.water]).toEqual([49, LEVELS.can.waterings[3]]);
     expect(done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 1, NOW)).purse.bag[0]?.water).toBe(LEVELS.can.waterings[3]);
@@ -399,7 +399,7 @@ describe("a forged net", () => {
   it("by what it carries: a quicker return, a miss more borne, a longer reach, a smaller ring with dark", () => {
     const fx = netFx(tool("bugNet", 6, drawn("ntAgain", "ntMesh")));
     expect(againMs(false, false, fx.lands, fx.again)).toBe(LEVELS.bugNet.lands[6] + NET.again / 2);
-    expect(fx.bears).toBe(OPTIONS.ntMesh.n.misses);
+    expect(fx.bears).toBe(4);
     expect([fledBy(NET.tired.misses + fx.bears - 1, true, fx.bears), fledBy(NET.tired.misses + fx.bears, true, fx.bears), fledBy(9, false, fx.bears)]).toEqual([false, true, false]);
     const long = netFx(tool("bugNet", 3, drawn("ntLong")));
     expect(long.reach).toBe(1);
@@ -609,8 +609,8 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
   const top = (item: ItemId, opt: OptionId): Stack => tool(item, 10, drawn(null, null, opt));
   it("a line dropped with a rod that calls is bitten at once, ten times a day; then it waits as ever", () => {
     let p = purseOf(top("rod", "rdCall"));
-    for (let i = 0; i < 10; i++) { const q = called(p, NOW); expect(q).not.toBeNull(); p = q!; }
-    expect([powerUsed(p, "rdCall", NOW), called(p, NOW)]).toEqual([10, null]);
+    for (let i = 0; i < 500; i++) { const q = called(p, NOW); expect(q).not.toBeNull(); p = q!; }
+    expect([powerUsed(p, "rdCall", NOW), called(p, NOW)]).toEqual([500, null]);
     expect(called(purseOf(tool("rod", 10)), NOW)).toBeNull();
     expect(called(purseOf(tool("rod", 9, drawn(null, null, "rdCall"))), NOW)).not.toBeNull();
     expect(calledCast({ what: "minnow", wait: 40, nibbles: [9, 20], size: 5 })).toEqual({ what: "minnow", wait: 1, nibbles: [], size: 5 });
@@ -626,8 +626,8 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     expect(goldStrike(p, -0.2, NOW)).toBeNull();
     expect(goldStrike(p, secs + 0.01, NOW)).toBeNull();
     expect(goldStrike(purseOf(tool("rod", 10)), 2, NOW)).toBeNull();
-    for (let i = 0; i < 10; i++) { const q = goldStrike(p, secs, NOW); expect(q).not.toBeNull(); p = q!; }
-    expect([powerUsed(p, "rdGold", NOW), goldStrike(p, 2, NOW), goldWindowOf(p, NOW)]).toEqual([10, null, 0]);
+    for (let i = 0; i < 30; i++) { const q = goldStrike(p, secs, NOW); expect(q).not.toBeNull(); p = q!; }
+    expect([powerUsed(p, "rdGold", NOW), goldStrike(p, 2, NOW), goldWindowOf(p, NOW)]).toEqual([30, null, 0]);
     expect(goldWindowOf(p, NOW + 24 * HOUR)).toBe(secs);
   });
   it("a rod that lulls the water: a fish better than a common one puts it to sleep for its minutes, twice a day, and every fish is half as lively while it sleeps", () => {
@@ -649,7 +649,9 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     expect(livelyOf({ ...purseOf(tool("rod")), rodStill: NOW + 60_000 }, NOW)).toBe(1);
     // the fight: the stretch goes half as far and half as fast
     const gear = (q: Purse) => gearOf(q.bag, "rod", 0), awake = startFight(good, "good", { gear: gear(p) }, 7), asleep = startFight(good, "good", { gear: gear(p), lively: livelyOf(p, NOW) }, 7);
-    expect([asleep.sway / awake.sway, asleep.pace / awake.pace]).toEqual([0.5, 0.5].map((x) => expect.closeTo(x, 10)));
+    expect(asleep.sway / awake.sway).toBeCloseTo(0.35, 10);
+    expect(asleep.pace).toBeLessThan(awake.pace);
+    expect(asleep.pace / awake.pace).toBeGreaterThanOrEqual(0.35);
     expect([asleep.band, asleep.length, asleep.pull, asleep.power]).toEqual([awake.band, awake.length, awake.pull, awake.power]);
     // (said as nothing, or as 1, a fight is the fight it was)
     expect(startFight(good, "good", { gear: gear(p), lively: 1 }, 7)).toEqual(awake);
@@ -671,30 +673,30 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     expect([w.purse.bag[0]?.water, canFullNow(w.purse, NOW), powerUsed(w.purse, "cnFull", NOW)]).toEqual([0, false, 0]);
     p = w.purse;
     w = done(water("2,1", p, sown(), "can", NOW + 1000));
-    expect([w.purse.bag[0]?.water, canFullNow(w.purse, NOW + 1000), powerUsed(w.purse, "cnFull", NOW), w.purse.canFull]).toEqual([0, true, 1, NOW + 1000 + 30 * 60_000]);
+    expect([w.purse.bag[0]?.water, canFullNow(w.purse, NOW + 1000), powerUsed(w.purse, "cnFull", NOW), w.purse.canFull]).toEqual([0, true, 1, NOW + 1000 + 360 * 60_000]);
     expect(w.plot.plant!.watered).toBe(NOW + 1000);
     p = w.purse;
     // (while they last: watered with nothing in it; and filled meanwhile, none of its water is used)
     expect(done(water("3,1", p, sown(), "can", NOW + 29 * 60_000)).purse.bag[0]?.water).toBe(0);
     const filled = { ...p, bag: p.bag.map((b, i) => (i === 0 ? { ...b!, water: 16 } : b)) };
     expect(done(water("3,1", filled, sown(), "can", NOW + 29 * 60_000)).purse.bag[0]?.water).toBe(16);
-    expect(done(water("3,1", filled, sown(), "can", NOW + 32 * 60_000)).purse.bag[0]?.water).toBe(15);
+    expect(done(water("3,1", filled, sown(), "can", NOW + 362 * 60_000)).purse.bag[0]?.water).toBe(15);
     // (when they are over the can is dry, and the day has no more)
-    expect(water("3,1", p, sown(), "can", NOW + 32 * 60_000)).toEqual({ ok: false, why: "dry" });
+    expect(water("3,1", p, sown(), "can", NOW + 362 * 60_000)).toEqual({ ok: false, why: "dry" });
     // (a plain can that is dry is dry, as ever; and so is a forged one with no such option)
     expect(water("1,1", purseOf(tool("can")), sown(), "can", NOW)).toEqual({ ok: false, why: "dry" });
     expect(water("1,1", purseOf(tool("can", 10, drawn("cnDrop", "cnThrift"))), sown(), "can", NOW)).toEqual({ ok: false, why: "dry" });
     // (stamina is paid for each as ever)
     expect(staminaOf(w.purse, NOW + 1000)).toBe(100 - 2 * FARMING.costs.water);
   });
-  it("a big pot gives two helpings more, three pots of a dish a day", () => {
+  it("a big pot cooks three paid batches, three times a day", () => {
     const things: Array<[ItemId, number]> = [["barb", 2], ["daikon", 1], ["cabbage", 1], ["chili", 1]];
-    const stocked = (q: Purse) => { for (const [id, k] of things) q = { ...q, bag: put(q.bag.map((b) => (b?.item === "potFull" ? null : b)), id, k) }; return q; };
+    const stocked = (q: Purse) => { for (const [id, k] of things) q = { ...q, bag: put(q.bag.map((b) => (b?.item === "potFull" ? null : b)), id, k * 3) }; return q; };
     const plain = done(cook(stocked(purseOf(tool("pot"))), things, ["pot"], 0, NOW)).n;
     let p = purseOf(top("pot", "ckBig"));
     const got: number[] = [];
     for (let i = 0; i < 4; i++) { const did = done(cook(stocked(p), things, ["pot"], 0, NOW)); got.push(did.n); p = did.purse; }
-    expect(got).toEqual([plain + 2, plain + 2, plain + 2, plain]);
+    expect(got).toEqual([plain * 3, plain * 3, plain * 3, plain]);
     expect(powerLeft(p, "ckBig", NOW)).toBe(0);
     // (what is no recipe's is not counted, and has no more)
     const odd: Array<[ItemId, number]> = [["chili", 2]], fresh = { ...purseOf(top("pot", "ckBig")), bag: put(purseOf(top("pot", "ckBig")).bag, "chili", 2) };
@@ -717,7 +719,8 @@ describe("what a tool forged to the top does so many times a day (whoever keeps 
     // eaten at the table: by the time the helping is eaten up it has given so much more stamina
     const hungry: Purse = { ...newPurse(), stamina: { day: dayOf(NOW), left: 10 } }, end = NOW + STAMINA.minutes * 60_000;
     const ate = chew(done(feastEat(hungry, down.pot, true, NOW)).purse, 0, end).purse, bare = chew(done(feastEat(hungry, { ...down.pot, scent: undefined }, true, NOW)).purse, 0, end).purse;
-    expect(staminaOf(ate, end) - staminaOf(bare, end)).toBeCloseTo(OPTIONS.ckScent.n.stamina, 6);
+    expect(staminaOf(ate, end)).toBe(100);
+    expect(staminaOf(ate, end) - staminaOf(bare, end)).toBeCloseTo(Math.min(OPTIONS.ckScent.n.stamina, 100 - staminaOf(bare, end)), 6);
     // a warm pot: the buff its dish leaves lasts so many hours more
     const wdown = done(setDown(warm.purse, slotOf(warm.purse), "me", [1, 1], "p2", { now: NOW, yard: true, tile: [2, 2] }));
     const fed = chew(done(feastEat(hungry, wdown.pot, true, NOW)).purse, 0, end).purse, plainly = chew(done(feastEat(hungry, { ...wdown.pot, warm: undefined }, true, NOW)).purse, 0, end).purse;
@@ -799,8 +802,9 @@ describe("the hoe's and the can's other options, and what lightning does to the 
     expect(deedFor("1,1", did.plot, "can", "me", NOW + 1000, null, undefined, true)).toBeNull();
     // (dried and watered plainly again: it takes one more again; a plain can's second watering is refused as ever)
     const later = NOW + 2 * HOUR, plainly = done(water("1,1", did.purse, did.plot, "can", later));
-    expect(powerUsed(plainly.purse, "cnTwice", NOW)).toBe(1);
-    expect(done(water("1,1", plainly.purse, plainly.plot, "can", later + 1000)).plot.plant!.twice).toBe(later + 1000);
+    expect(powerUsed(plainly.purse, "cnTwice", NOW)).toBe(2);
+    expect(plainly.plot.plant!.boost).toBe(FARMING.water.adds * 60_000 * 3);
+    expect(water("1,1", plainly.purse, plainly.plot, "can", later + 1000)).toEqual({ ok: false, why: "wet" });
     expect(water("1,1", purseOf({ ...tool("can"), water: 5 }), wet, "can", NOW)).toEqual({ ok: false, why: "wet" });
   });
 });

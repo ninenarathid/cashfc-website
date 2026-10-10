@@ -520,7 +520,9 @@ export const nearHaunt = (h: Haunt, at: readonly [number, number], more = 0) => 
  * from: lib/town/forged's `netFx`, its `reach` and its `wide` together. Whoever keeps the game allows a catch that
  * much farther off (2026-10-10: an honest swing at the edge of such a net was told `far`). Nothing, with any other net.
  */
-export const netMore = (purse: Purse): number => { const fx = netFx(heldStack(purse)); return fx.reach + fx.wide; };
+export const netMore = (purse: Purse, now?: number): number => { const fx = netFx(heldStack(purse)); return fx.reach + (now === undefined || sweepNow(purse, now) ? fx.wide : 0); };
+export const sweepNow = (purse: Purse, now: number): boolean => netFx(heldStack(purse)).wide > 0 && !!purse.netSweep && purse.netSweep.until > now && purse.netSweep.left > 0;
+const sweepCaught = (purse: Purse, now: number): Purse => sweepNow(purse, now) ? { ...purse, netSweep: { ...purse.netSweep!, left: purse.netSweep!.left - 1 } } : purse;
 
 /**
  * Catch what a haunt has. `taken` is how many have caught it this turn, `mine` whether I am one of them; `at` is the
@@ -533,7 +535,7 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   if (mine) return { ok: false, why: "had" };
   if (taken >= HAUNT_KINDS[h.kind].shares) return { ok: false, why: "bare" };
   if (!mayNet(hand)) return no("tool");
-  if (!nearHaunt(h, at, netMore(purse))) return { ok: false, why: "far" };
+  if (!nearHaunt(h, at, netMore(purse, now))) return { ok: false, why: "far" };
   const bug = BUGS[has.bug];
   if (bug.habit === "lure" && !(lure && LURES.includes(lure))) return { ok: false, why: "lure" };
   if (roomFor(purse.bag, has.bug) < has.n) return no("full");
@@ -542,7 +544,7 @@ export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mi
   const tool = heldStack(purse), paid = toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh");
   // (and with a net that carries as much, another of its kind comes with the one caught so often, where the bag has room for it)
   const n = has.n + (luckOf("twin", h.id, has.turn, now) < netFx(tool).twin && roomFor(purse.bag, has.bug) > has.n ? 1 : 0);
-  return { ok: true, purse: followed(purse, { ...paid, bag: put(purse.bag, has.bug, n) }, has.bug, has.n, at, now), got: [[has.bug, n]] };
+  return { ok: true, purse: sweepCaught(followed(purse, { ...paid, bag: put(purse.bag, has.bug, n) }, has.bug, has.n, at, now), now), got: [[has.bug, n]] };
 }
 
 /* ── the butterfly-wing cloak's pair (lib/town/gifts' charmCloak, the insects' sixth rank) ── */
@@ -693,7 +695,7 @@ export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: read
   const l = which === "lured" ? luredNow(purse, now) : null, f = which === "pair" ? followerNow(purse, now) : null;
   const one = l ? { bug: l.bug as BugId, n: l.n, x: l.x, y: l.y } : f ? { bug: f.bug as BugId, n: f.n, x: f.at[0], y: f.at[1] } : null;
   if (!one) return no("none");
-  const id = one.bug, reach = NET.reach + netMore(purse) + NET.far, dx = one.x - at[0], dy = one.y - at[1];
+  const id = one.bug, reach = NET.reach + netMore(purse, now) + NET.far, dx = one.x - at[0], dy = one.y - at[1];
   if (!mayNet(hand)) return no("tool");
   if (dx * dx + dy * dy > reach * reach) return { ok: false, why: "far" };
   if (roomFor(purse.bag, id) < one.n) return no("full");
@@ -701,7 +703,7 @@ export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: read
   // ── forging: old tools ── (as a haunt's catch is paid for)
   const tool = heldStack(purse), more = one.n + (luckOf("twin", one.x, one.y, now) < netFx(tool).twin && roomFor(purse.bag, id) > one.n ? 1 : 0);
   const after = { ...toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh"), bag: put(purse.bag, id, more) };
-  return { ok: true, purse: l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, got: [[id, more]] };
+  return { ok: true, purse: sweepCaught(l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, now), got: [[id, more]] };
 }
 
 /* ── a ladybird's doing ─────────────────────────────────────────────────── */

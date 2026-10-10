@@ -222,38 +222,53 @@ export const OPTIONS = {
   ckFresh: opt(1, COOK, "แรงคนครัว", "Cook's wind", {}, meal(3)),
   ckBrisk: opt(1, COOK, "ไฟแรง", "Brisk fire", { shorter: 0.25 }),
   // ── pool 2 ──
-  pkQuake: opt(2, ["pick"], "แผ่นดินสะเทือน", "Earthshaker", { reach: 1 }, day(10)),
-  pkTwin: opt(2, ["pick"], "สายแร่แฝด", "Twin vein", { times: 2 }, day(5)),
-  pkDrill: opt(2, ["pick"], "เจาะทะลุพื้น", "Floor-breaker", {}, day(3)),
+  pkQuake: opt(2, ["pick"], "แผ่นดินสะเทือน", "Earthshaker", { reach: 2 }, day(10)),
+  pkTwin: opt(2, ["pick"], "สายแร่แฝด", "Twin vein", { times: 2 }, day(10)),
+  pkDrill: opt(2, ["pick"], "เจาะทะลุพื้น", "Floor-breaker", {}, day(10)),
   pkGleam: opt(2, ["pick"], "ประกายผลึก", "Crystal-gleam", { by: 1.5 }),
-  axOne: opt(2, ["axe"], "ฟันเดียวล้ม", "One stroke", {}, day(10)),
+  axOne: opt(2, ["axe"], "ฟันเดียวล้ม", "One stroke", {}, day(30)),
   axDouble: opt(2, ["axe"], "ไม้สองเท่า", "Double haul", { by: 2 }, day(10)),
-  axRoot: opt(2, ["axe"], "รากคืนชีพ", "Quickening root", {}, day(3)),
+  axRoot: opt(2, ["axe"], "รากคืนชีพ", "Quickening root", { reach: 3, trees: 5 }, day(3)),
   axElder: opt(2, ["axe"], "สหายไม้เฒ่า", "Elder's friend", { by: 1.5 }),
-  rdGold: opt(2, ["rod"], "จังหวะทอง", "Golden moment", { secs: 3 }, day(10)),
-  rdStill: opt(2, ["rod"], "สายน้ำหลับ", "Sleeping water", { by: 0.5, mins: 5 }, day(2)),
-  rdCall: opt(2, ["rod"], "เสียงเรียกปลา", "Fish-call", {}, day(10)),
-  hoBoth: opt(2, ["hoe"], "จอบเดียวจบ", "One go, both", {}, day(10)),
+  rdGold: opt(2, ["rod"], "จังหวะทอง", "Golden moment", { secs: 5 }, day(30)),
+  rdStill: opt(2, ["rod"], "สายน้ำหลับ", "Sleeping water", { by: 0.35, mins: 30 }, day(2)),
+  rdCall: opt(2, ["rod"], "เสียงเรียกปลา", "Fish-call", {}, day(500)),
+  hoBoth: opt(2, ["hoe"], "จอบเดียวจบ", "One go, both", { plots: 5 }, day(10)),
   hoGrip: opt(2, ["hoe"], "กำแน่น", "Iron grip", {}, day(20)),
   hoWet: opt(2, ["hoe"], "ดินชุ่ม", "Damp furrow", {}, day(10)),
   cnRain: opt(2, ["can"], "ฝนของฉัน", "A rain of one's own", {}, day(3)),
-  cnFull: opt(2, ["can"], "บัวไม่รู้แห้ง", "Bottomless can", { mins: 30 }, day(1)),
+  cnFull: opt(2, ["can"], "บัวไม่รู้แห้ง", "Bottomless can", { mins: 360 }, day(1)),
   cnTwice: opt(2, ["can"], "รดซ้ำ", "Second watering", {}, day(10)),
-  ntWide: opt(2, ["bugNet"], "สวิงกวาด", "Sweeping net", { reach: 3 }, day(10)),
-  ntFreeze: opt(2, ["bugNet"], "นิ่งไว้ก่อน", "Hold still", { secs: 2 }, day(10)),
+  ntWide: opt(2, ["bugNet"], "สวิงกวาด", "Sweeping net", { reach: 5, catches: 5 }, day(20)),
+  ntFreeze: opt(2, ["bugNet"], "นิ่งไว้ก่อน", "Hold still", { secs: 10 }, day(20)),
   ntNest: opt(2, ["bugNet"], "รู้รัง", "Nest-wise"),
-  ckBig: opt(2, COOK, "หม้อใหญ่", "Big pot", { more: 2 }, day(3)),
-  ckWarm: opt(2, COOK, "อุ่นนาน", "Long warmth", { hours: 2 }, day(3)),
-  ckScent: opt(2, COOK, "หอมทั้งลาน", "Scent of the yard", { stamina: 10 }, day(3)),
+  ckBig: opt(2, COOK, "หม้อใหญ่", "Big pot", { more: 6, batches: 3 }, day(3)),
+  ckWarm: opt(2, COOK, "อุ่นนาน", "Long warmth", { hours: 6 }, day(3)),
+  ckScent: opt(2, COOK, "หอมทั้งลาน", "Scent of the yard", { stamina: 100 }, day(3)),
 } as const satisfies Record<string, Option>;
 export type OptionId = keyof typeof OPTIONS;
 export const OPTION_IDS = Object.keys(OPTIONS) as OptionId[];
 export const isOption = (id: unknown): id is OptionId => typeof id === "string" && Object.prototype.hasOwnProperty.call(OPTIONS, id);
 export const optionOf = (id: string): Option | null => (isOption(id) ? OPTIONS[id] : null);
+/** A second milestone carries the stronger version, even after a failed try lowers its plus. */
+export interface OptionSix { n?: Readonly<Record<string, number>>; use?: OptionUse }
+export const SIX: Partial<Record<OptionId, OptionSix>> = {
+  pkPeek: { n: { strikes: 2 } }, pkCrumb: { n: { every: 3, more: 2 } }, pkSteady: { n: { strikes: 4 } },
+  pkLoose: { n: { fewer: 2 } }, pkFresh: { use: meal(20) }, pkCutter: { n: { more: 2 } },
+  axGrain: { n: { ahead: 4 } }, axDust: { n: { every: 3, more: 2 } }, axKeen: { n: { chops: 4 } },
+  axResin: { n: { in: 2 } }, axFresh: { use: meal(10) }, axDry: { n: { pieces: 3 } },
+  rdBait: { n: { strike: 0.5 } }, rdCalm: { n: { secs: 4 } }, rdFresh: { use: meal(10) }, rdQuick: { n: { shorter: 0.35 } },
+  hoClear: { n: { stones: 4 } }, hoFirst: { n: { misses: 2 } }, hoFresh: { use: meal(20) }, hoLight: { n: { band: 1.3 } },
+  cnDrop: { n: { more: 6 } }, cnThrift: { n: { takes: 1, more: 6 } }, cnFresh: { use: meal(20) }, cnKind: { n: { points: 2 } },
+  ntAgain: { n: { by: 0.25 } }, ntMesh: { n: { misses: 4 } }, ntFresh: { use: meal(20) }, ntLong: { n: { reach: 2 } },
+  ckFire: { n: { steady: 4 } }, ckBase: { n: { misses: 2 } }, ckFresh: { use: meal(6) }, ckBrisk: { n: { shorter: 0.4 } },
+};
+export const strongOf = (stack: Stack | null | undefined): OptionId | null => awayOf(stack) ? null : drawnOf(stack)[1];
 /** The options of a pool that are drawn for a kind of tool, in the registry's order. */
 export const poolOf = (kind: ToolKind, pool: 1 | 2): OptionId[] => OPTION_IDS.filter((id) => OPTIONS[id].pool === pool && (OPTIONS[id].tools as readonly ToolKind[]).includes(kind));
 /** One of an option's own numbers (nothing, of a number it has not). */
-export const optN = (id: OptionId, key: string): number => (OPTIONS[id].n as Readonly<Record<string, number>>)[key] ?? 0;
+export const optN = (id: OptionId, key: string, stack?: Stack | null): number =>
+  (stack && strongOf(stack) === id ? SIX[id]?.n?.[key] : undefined) ?? (OPTIONS[id].n as Readonly<Record<string, number>>)[key] ?? 0;
 /** Every option a kind of tool is drawn, as one word: two kinds with the same word draw from one pool. */
 const POOL_WORD = Object.fromEntries(TOOL_KINDS.map((k) => [k, OPTION_IDS.filter((id) => (OPTIONS[id].tools as readonly ToolKind[]).includes(k)).join(" ")])) as Record<ToolKind, string>;
 /**
@@ -334,13 +349,14 @@ export interface ToolMods {
    * again when the forging is back in a kind of their own pool. Nothing else puts an option to sleep.
    */
   asleep: OptionId[];
+  strong: OptionId | null;
   /** The level each element works at, of the gems set in it (one more at the top). */
   gems: Partial<Record<Element, number>>;
   /** Whether it glows in the hand: 0 not, 1 from +7, 2 fully at the top; and in what colour. */
   glow: 0 | 1 | 2;
   hue: string;
 }
-const NOTHING: ToolMods = { kind: null, level: 0, opts: [], asleep: [], gems: {}, glow: 0, hue: PLAIN_HUE };
+const NOTHING: ToolMods = { kind: null, level: 0, opts: [], asleep: [], strong: null, gems: {}, glow: 0, hue: PLAIN_HUE };
 /** A tool's plus, made sound: a whole number from 0 to the top; 0 for a thing that is not forged. */
 export function levelOf(stack: Stack | null | undefined): number {
   if (!stack || !toolKindOf(stack.item)) return 0;
@@ -413,7 +429,7 @@ export function modsOf(stack: Stack | null | undefined): ToolMods {
   const level = levelOf(stack), drawn = drawnOf(stack).filter((id): id is OptionId => !!id), away = awayOf(stack);
   const set = gemsOf(stack), gems: Partial<Record<Element, number>> = {};
   for (const e of set) gems[e] = worksAt(level);
-  return { kind, level, opts: away ? [] : drawn, asleep: away ? drawn : [], gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
+  return { kind, level, opts: away ? [] : drawn, asleep: away ? drawn : [], strong: strongOf(stack), gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
 }
 /** Whether a tool has an option that works: drawn at one of its milestones, whatever its level is now, and not asleep. */
 export const has = (stack: Stack | null | undefined, id: OptionId): boolean => modsOf(stack).opts.includes(id);
@@ -437,18 +453,18 @@ export function pickSwings(stack: Stack | null | undefined, hardness: number): n
   return Math.max(1, Math.ceil(plain * (1 - gemBy(stack, "fire", GEM_FX.fire.pick.fewer))) + gemBy(stack, "dark", GEM_FX.dark.pick.swings));
 }
 /** The strikes a pick has at a vein: its level's, and its steady hand's. */
-export const veinStrikes = (stack: Stack | null | undefined): number => at(LEVELS.pick.strikes, stack) + (has(stack, "pkSteady") ? optN("pkSteady", "strikes") : 0);
+export const veinStrikes = (stack: Stack | null | undefined): number => at(LEVELS.pick.strikes, stack) + (has(stack, "pkSteady") ? optN("pkSteady", "strikes", stack) : 0) + (has(stack, "pkPeek") ? optN("pkPeek", "strikes", stack) : 0);
 /**
  * The chops an axe takes to fell a tree, the axe's own all told: its level's, less its keen edge's, and its fire's so
  * much fewer (rounded up). Never under one. `base`: for a tree that takes more than a plain one (the plain tree's is
  * the table's +0), the same share of that.
  */
 export function axeChops(stack: Stack | null | undefined, base: number = LEVELS.axe.chops[0]): number {
-  const level = (at(LEVELS.axe.chops, stack) * base) / LEVELS.axe.chops[0] - (has(stack, "axKeen") ? optN("axKeen", "chops") : 0);
+  const level = (at(LEVELS.axe.chops, stack) * base) / LEVELS.axe.chops[0] - (has(stack, "axKeen") ? optN("axKeen", "chops", stack) : 0);
   return Math.max(1, Math.ceil(Math.ceil(level) * (1 - gemBy(stack, "fire", GEM_FX.fire.axe.fewer))));
 }
 /** How many segments ahead an axe shows a branch: its level's, and its grain-reader's. */
-export const axeAhead = (stack: Stack | null | undefined): number => at(LEVELS.axe.ahead, stack) + (has(stack, "axGrain") ? optN("axGrain", "ahead") : 0);
+export const axeAhead = (stack: Stack | null | undefined): number => at(LEVELS.axe.ahead, stack) + (has(stack, "axGrain") ? optN("axGrain", "ahead", stack) : 0);
 /**
  * How fast the felling's time bar runs with an axe, as so many times its plain pace, the axe's own all told: its
  * level's slowing, its ice's, and its dark's quickening. Never slower than the cap allows.

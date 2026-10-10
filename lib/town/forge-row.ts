@@ -3,7 +3,7 @@ import { OLD_FX } from "./forged";
 import { GREAT_FIRE } from "./great-fire";
 import { TIMED } from "./powers";
 import { SMITH as SMITH_PLACE } from "./world";
-import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, SMELTING, SMELTS, TOOL_KINDS, TOOL_LINES, WOODEN } from "./tools";
+import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, SMELTING, SMELTS, TOOL_KINDS, TOOL_LINES, WOODEN } from "./tools";
 
 /**
  * The blacksmith as the database is to read him (its catalog's `forge` row): every number of lib/town/forge and of
@@ -36,7 +36,7 @@ export function forgeRow() {
     kinds: [...TOOL_KINDS], wooden: [...WOODEN], lines: TOOL_LINES, forge: FORGE, gemLevels: GEM_LEVELS, levels: LEVELS, tries: TRIES, smith: SMITH,
     options: {
       order: [...OPTION_IDS],
-      of: Object.fromEntries(OPTION_IDS.map((id) => { const o = OPTIONS[id] as { pool: 1 | 2; tools: readonly string[]; n: Readonly<Record<string, number>>; use?: { n: number; per: string } }; return [id, { pool: o.pool, tools: [...o.tools], n: o.n, ...(o.use ? { use: o.use } : {}) }]; })),
+      of: Object.fromEntries(OPTION_IDS.map((id) => { const o = OPTIONS[id] as { pool: 1 | 2; tools: readonly string[]; n: Readonly<Record<string, number>>; use?: { n: number; per: string } }; return [id, { pool: o.pool, tools: [...o.tools], n: o.n, ...(o.use ? { use: o.use } : {}), ...(SIX[id] ? { six: SIX[id] } : {}) }]; })),
     },
     built: BUILT,
     elements: [...ELEMENTS], gems: Object.fromEntries(ELEMENTS.map((e) => [e, { gem: GEMS[e].gem, chip: GEMS[e].chip }])),

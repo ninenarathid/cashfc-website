@@ -1,6 +1,7 @@
 import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
-import { powerLeft, usePower } from "./powers";
+import { mayPower, powerLeft, powerUsed, usePower } from "./powers";
+import { optN } from "./tools";
 import { FIELD } from "./gear";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
@@ -187,6 +188,8 @@ export interface Plant {
   // ── forging: old tools ──
   /** The moment of the watering it was given on top of another in the same hour, by a can that waters twice (`water`): a plant takes only one such until it has dried. Missing from a plant never watered twice. */
   twice?: number;
+  /** A seed sown in the damp furrow keeps moisture for its growing life. */
+  moist?: boolean;
 }
 export interface Plot {
   soil: Soil; plant: Plant | null;
@@ -301,7 +304,8 @@ export function quickUntil(p: Plant | null | undefined, now: number): number | n
 export function grown(p: Plant, now: number, rains: FarmSky = DRY): number {
   const fed = p.fed ? Math.max(0, now - Math.max(p.fed, p.sown)) * (FARMING.feed - 1) : 0;
   // (rain is watering by the minute: what a watering adds, for every stretch as long as a watering lasts)
-  const wet = rainsIn(rains), rained = wet.length ? wetMs(wet, p.sown, now) * FARMING.water.adds / FARMING.water.every : 0;
+  const wet = rainsIn(rains), wetTime = p.moist ? Math.max(0, now - p.sown) : wet.length ? wetMs(wet, p.sown, now) : 0;
+  const rained = wetTime * FARMING.water.adds / FARMING.water.every;
   return (Math.max(0, now - p.sown) + fed + p.boost + rained + quickMs(p, p.sown, now)) / HOUR;
 }
 /**
@@ -357,7 +361,7 @@ export function see(key: string, plot: Plot, now: number, rains: FarmSky = DRY):
   const g = growing(p, dead ? end : now, rains);
   return {
     soil: plot.soil, crop: p.crop, by: p.by, stage: g.stage, ripe: g.ripe && !dead, pest: struck !== null && !dead, dead,
-    wet: now - p.watered < FARMING.water.every * 60_000 || rainingAt(rainsIn(rains), now),
+    wet: !!p.moist || now - p.watered < FARMING.water.every * 60_000 || rainingAt(rainsIn(rains), now),
   };
 }
 
@@ -401,7 +405,7 @@ export function sow(purse: Purse, plot: Plot, hand: ItemId | null, me: string, n
   return {
     ok: true,
     // (under the fountain's warm soil a seed is some of its way to ripe at once: lib/town/fountain)
-    plot: { soil: "tilled", plant: { by: me, crop, sown: now, boost: (hasBuff(purse, now, "sprout") ? BLESSINGS.sprout.by * CROPS[crop].hours * 3_600_000 : 0) + damp, watered: plot.damp ? now : 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0 } },
+    plot: { soil: "tilled", plant: { by: me, crop, sown: now, boost: (hasBuff(purse, now, "sprout") ? BLESSINGS.sprout.by * CROPS[crop].hours * 3_600_000 : 0) + damp, watered: plot.damp ? now : 0, fed: 0, guard: 0, cured: 0, picked: 0, pickedAt: 0, ...(plot.damp ? { moist: true } : {}) } },
     purse: { ...spend(purse, FARMING.costs.sow, now), bag: take(purse.bag, hand!, 1) },
   };
 }
@@ -449,9 +453,9 @@ export function water(key: string, purse: Purse, plot: Plot, hand: ItemId | null
   const fx = canFx(can), free = hasBuff(purse, now, "spring") || runs || !!begun?.ok;
   const paid: Purse = { ...spend(from, FARMING.costs.water, now), bag: setStack(purse.bag, slot, { ...can, water: (can.water ?? 0) - (free ? 0 : Math.min(can.water!, fx.uses)) }) };
   // (a second watering in the hour: one of the day's is counted, and the plant takes no third until it has dried)
-  const twice = again ? usePower(paid, mine, "cnTwice", now) : null;
+  const twice = again || !seen.wet ? usePower(paid, mine, "cnTwice", now) : null;
   return {
-    ok: true, plot: { ...plot, plant: { ...p, watered: now, boost: p.boost + wateringOf(purse, hand, now, fx), ...(again ? { twice: now } : {}) } },
+    ok: true, plot: { ...plot, plant: { ...p, watered: now, boost: p.boost + wateringOf(purse, hand, now, fx) * (twice?.ok && !again ? 2 : 1), ...(again || twice?.ok ? { twice: now } : {}) } },
     purse: twice?.ok ? twice.purse : paid,
   };
 }
@@ -649,13 +653,15 @@ export function beside(key: string, keys: readonly string[], plots: Readonly<Rec
   owner: string | null = null, rains: FarmSky = DRY, luck?: number): { purse: Purse; plots: Record<string, Plot> } {
   const nothing = { purse: after, plots: {} as Record<string, Plot> }, hoes = deed === "clear" || deed === "till";
   if ((!hoes && deed !== "water") || !keys.includes(key)) return nothing;
-  const hand = handOf(before), tool = heldStack(before), x0 = xOf(key), chance = hoes ? hoeFx(tool).next : canFx(tool).next, rains2 = !hoes && canFx(tool).rain && owner === me;
-  if (!(chance > 0) && !rains2) return nothing;
-  const want = keys.filter((k) => k !== key && deedFor(k, plots[k] ?? WILD, hand, me, now, owner, rains) === deed)
+  const hand = handOf(before), tool = heldStack(before), x0 = xOf(key), chance = hoes ? hoeFx(tool).next : canFx(tool).next, rains2 = !hoes && canFx(tool).rain && owner === me && mayPower(after, tool, "cnRain", now);
+  const both = hoes && owner === me && powerUsed(after, "hoBoth", now) > powerUsed(before, "hoBoth", now);
+  if (!(chance > 0) && !rains2 && !both) return nothing;
+  const want = keys.filter((k) => k !== key && (rains2 || k.split(",")[1] === key.split(",")[1]) && deedFor(k, plots[k] ?? WILD, hand, me, now, owner, rains) === deed)
     .sort((a, b) => Math.abs(xOf(a) - x0) - Math.abs(xOf(b) - x0) || xOf(a) - xOf(b));
   if (!want.length) return nothing;
   const struck = (luck ?? luckOf(`next|${key}`, now)) < chance;
   if (hoes) {
+    if (both) return { purse: after, plots: Object.fromEntries(want.slice(0, optN("hoBoth", "plots", tool) - 1).map((k) => [k, { soil: "tilled", plant: null } as Plot])) };
     const did = struck ? hoe(want[0], before, plots[want[0]] ?? WILD, hand, now, rains) : null;
     return did?.ok ? { purse: after, plots: { [want[0]]: did.plot } } : nothing;
   }

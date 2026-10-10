@@ -39,7 +39,7 @@ import { carried, pass, type PassRefusal } from "./line";
 import { keptAs, natureAt, natureOf, pouredIn, type Nature, type WellWater } from "./waters";
 // ── gifts: farming ──
 import { glassReach, glassTurn, gnomeReach, gnomeWater, plotKey, rowFor, rowTend, type RowDeed } from "./farm";
-import { rowOf } from "./world";
+import { rowOf, plotsOfBed } from "./world";
 // ── gifts: well ──
 import { MOON, drinkOffer, drinkTake, moonKeep, moonPour, rainFill, type WellGiftRefusal } from "./well-gifts";
 // ── gifts: helpers ──
@@ -511,7 +511,7 @@ export class Trial {
     if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed));
     // ── forging: old tools ── (what the deed did to the plots beside it, with lightning in the tool or a can that rains: lib/town/farm's beside.
     // Each is kept as the one done was kept, and none of them is counted on a line: they are the tool's doing.)
-    const more = beside(key, this.rowKeys(key), plots, did.deed, p, did.purse, this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
+    const more = beside(key, canFx(toolInHand(p)).rain ? plotsOfBed(x, y).map(([u, v]) => plotKey(u, v)) : this.rowKeys(key), plots, did.deed, p, did.purse, this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
     for (const [k, beside2] of Object.entries(more.plots)) next[k] = did.deed === "water" && plots[k] ? this.poured(plots[k], beside2, now, 1, this.bellWorn(bed)) : beside2;
     this.write(FARM, next);
     const kept = { ...beds };
@@ -1815,7 +1815,7 @@ export class Trial {
       if (ids.length) gone[String(f)] = ids;
     }
     // (a light gem: the rocks that hide a vein glint, within its reach of where I stand)
-    const reach = gemBy(pick, "light", GEM_FX.light.pick.glint), glints: number[] = [];
+    const reach = toolHas(pick, "pkGleam") ? ALL : gemBy(pick, "light", GEM_FX.light.pick.glint), glints: number[] = [];
     if (reach > 0 && floor > 0 && at) {
       const today = this.todayAt(floor, s), fate = this.fateAt(floor, turn, today, pick);
       for (const r of floorRocks(floor, s.day)) {

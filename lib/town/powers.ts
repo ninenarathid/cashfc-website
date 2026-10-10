@@ -1,5 +1,5 @@
 import { stretchOf } from "./gifts";
-import { OPTIONS, drawnOf, has, isOption, type OptionId, type OptionUse } from "./tools";
+import { OPTIONS, SIX, strongOf, drawnOf, has, isOption, optN, type OptionId, type OptionUse } from "./tools";
 import type { Purse, Stack } from "./trade";
 
 /**
@@ -13,7 +13,8 @@ import type { Purse, Stack } from "./trade";
 export type PowerRefusal = "none" | "spent";
 
 /** An option's count, if it is counted. */
-export const powerRule = (id: string): OptionUse | null => (isOption(id) ? (OPTIONS[id] as { use?: OptionUse }).use ?? null : null);
+export const powerRule = (id: string, tool?: Stack | null): OptionUse | null =>
+  isOption(id) ? (tool && strongOf(tool) === id ? SIX[id]?.use : undefined) ?? OPTIONS[id].use ?? null : null;
 /** How many times a counted option has been used in the stretch `now` is in (none, of a count kept wrongly or of another stretch). */
 export function powerUsed(purse: Pick<Purse, "powers">, id: string, now: number): number {
   const rule = powerRule(id), kept = purse.powers && typeof purse.powers === "object" && !Array.isArray(purse.powers) ? purse.powers : {};
@@ -22,20 +23,21 @@ export function powerUsed(purse: Pick<Purse, "powers">, id: string, now: number)
   return Math.max(0, Math.floor(u.n));
 }
 /** How many times more it may be used in this stretch (none, of an option that is not counted). */
-export const powerLeft = (purse: Pick<Purse, "powers">, id: string, now: number): number => {
-  const rule = powerRule(id);
+export const powerLeft = (purse: Pick<Purse, "powers">, id: string, now: number, tool?: Stack | null): number => {
+  const rule = powerRule(id, tool);
   return rule ? Math.max(0, rule.n - powerUsed(purse, id, now)) : 0;
 };
 /** Whether a tool's counted option can be used now: the tool has it, and it has a time left in this stretch. */
-export const mayPower = (purse: Pick<Purse, "powers">, tool: Stack | null | undefined, id: OptionId, now: number): boolean => has(tool, id) && powerLeft(purse, id, now) > 0;
+export const mayPower = (purse: Pick<Purse, "powers">, tool: Stack | null | undefined, id: OptionId, now: number): boolean => has(tool, id) && powerLeft(purse, id, now, tool) > 0;
 /** Use a tool's counted option once: the tool has to have it, and it has to have a time left in this stretch. */
 export function usePower<P extends Pick<Purse, "powers">>(purse: P, tool: Stack | null | undefined, id: OptionId, now: number): { ok: true; purse: P; left: number } | { ok: false; why: PowerRefusal } {
-  const rule = powerRule(id);
+  const rule = powerRule(id, tool);
   if (!rule || !has(tool, id)) return { ok: false, why: "none" };
   const n = powerUsed(purse, id, now);
   if (n >= rule.n) return { ok: false, why: "spent" };
   const kept = purse.powers && typeof purse.powers === "object" && !Array.isArray(purse.powers) ? purse.powers : {};
-  return { ok: true, left: rule.n - n - 1, purse: { ...purse, powers: { ...kept, [id]: { k: stretchOf(rule, now), n: n + 1 } } } };
+  return { ok: true, left: rule.n - n - 1, purse: { ...purse, powers: { ...kept, [id]: { k: stretchOf(rule, now), n: n + 1 } },
+    ...(id === "ntWide" ? { netSweep: { until: now + 10_000, left: optN(id, "catches", tool) } } : {}) } };
 }
 
 /**

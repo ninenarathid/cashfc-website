@@ -207,7 +207,7 @@ describe("a net", () => {
 
 describe("how far off a catch is taken from (2026-10-10: an honest swing at the edge of a forged net was told `far`)", () => {
   const LONG = { item: "bugNet" as ItemId, n: 1, plus: 3, opts: ["ntLong", "", ""] }, WIDE = { item: "bugNet" as ItemId, n: 1, plus: 10, opts: ["", "", "ntWide"] };
-  const holding = (...nets: Array<{ item: ItemId; n: number; plus?: number; opts?: string[] }>): Purse => { const p = newPurse(); return { ...p, bag: p.bag.map((s, i) => nets[i] ?? s), hand: "bugNet", handAt: 0 }; };
+  const holding = (...nets: Array<{ item: ItemId; n: number; plus?: number; opts?: string[] }>): Purse => { const p = newPurse(); return { ...p, bag: p.bag.map((s, i) => nets[i] ?? s), hand: "bugNet", handAt: 0, netSweep: { until: NOON + 10000, left: 5 } }; };
   const nearest = (h: Haunt, at: [number, number]) => Math.min(...h.perches.map((p) => Math.hypot(p.x - at[0] - 0.5, p.y - at[1] - 0.5)));
   /** Going east from a haunt's easternmost perch, the first tile whose middle is farther than so many tiles from every perch. */
   const firstPast = (h: Haunt, limit: number): [number, number] => {

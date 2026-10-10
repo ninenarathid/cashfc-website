@@ -293,6 +293,8 @@ export interface Purse {
   powers?: Record<string, { k: number; n: number }>;
   /** The game day of the member's last great-fire try. */
   forgeDay?: number;
+  /** The server grants a short sweep of at most five catches. */
+  netSweep?: { until: number; left: number };
   // ── mining ──
   /** What a member keeps of the mine (lib/town/mining's MineKept, made sound by its `mineOf`): stamina owed, a count towards a crumb, rocks loosened, a vein opened and not yet played out, the resting floors reached, when a rock was last struck, the last rock of theirs that somebody else broke for them. */
   mine?: { owed?: number; crumb?: number; loose?: { k: string; ids: number[] }; vein?: unknown; rests?: number[]; last?: number; paid?: unknown };

@@ -5,7 +5,7 @@ import type { TreeAge } from "./mountain";
 import { stowAll } from "./pouches";
 import { mayPower, usePower } from "./powers";
 import { dayOf, eased, isSpent, spend } from "./stamina";
-import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
+import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
 import { heldStack, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
 
@@ -361,10 +361,10 @@ export const mostTimber = (t: Pick<Standing, "id" | "tier" | "elder">): number =
  */
 export function mostOf(axe: Stack, trees: readonly Standing[]): Array<[ItemId, number]> {
   let logs = 0, timber = 0, resin = 0, scent = 0;
-  const twice = has(axe, "axDouble") ? optN("axDouble", "by") : 1, elder = has(axe, "axElder") ? optN("axElder", "by") : 1;
+  const twice = has(axe, "axDouble") ? optN("axDouble", "by", axe) : 1, elder = has(axe, "axElder") ? optN("axElder", "by", axe) : 1;
   for (const t of trees) {
     if (t.elder) { timber += Math.ceil(TREES.elder.timber * elder); resin += Math.ceil(TREES.elder.resin * elder); continue; }
-    logs += (TREES.logs + (gemBy(axe, "dark", GEM_FX.dark.axe.log) > 0 ? 1 : 0) + (has(axe, "axDust") ? optN("axDust", "more") : 0)) * twice;
+    logs += (TREES.logs + (gemBy(axe, "dark", GEM_FX.dark.axe.log) > 0 ? 1 : 0) + (has(axe, "axDust") ? optN("axDust", "more", axe) : 0)) * twice;
     timber += mostTimber(t) * twice;
     if (has(axe, "axResin")) scent++;
   }
@@ -407,7 +407,7 @@ export function begin(purse: Purse, grove: Grove, id: number, at: readonly [numb
     ask: {
       trees: trees.map((x): FellTree => ({ id: x.id, girth: girthOf(x), timber: [...bearsOf(x)] })),
       chops: trunk.chops, seed: (Math.imul(seed | 0, 31) + Math.imul(t.id + 1, 7919)) | 0, girth: girthOf(trunk.t), family: knobs.family,
-      ahead: axeAhead(axe), pace: axeBarPace(axe) * (spent ? knobs.spent : knobs.pace),
+      ahead: t.elder && has(axe, "axElder") ? ALL : axeAhead(axe), pace: axeBarPace(axe) * (spent ? knobs.spent : knobs.pace),
       spared: gemBy(axe, "water", GEM_FX.water.axe.spared) + (works(purse, "famWoodpecker") ? TREES.pecks : 0),
       spent,
     },
@@ -534,7 +534,7 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
     const l = luck[i] ?? { dark: 1, scent: 1, which: 1, chain: 1 }, got: Array<[ItemId, number]> = [];
     let twice = false, free = false, timber = 0;
     if (t.elder) {
-      const by = has(axe, "axElder") ? optN("axElder", "by") : 1;
+      const by = has(axe, "axElder") ? optN("axElder", "by", axe) : 1;
       timber = Math.ceil(TREES.elder.timber * by);
       got.push(["timber", timber], ["resin", Math.ceil(TREES.elder.resin * by)]);
     } else {
@@ -544,16 +544,16 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
       if (l.dark < gemBy(axe, "dark", GEM_FX.dark.axe.log)) logs++;
       if (has(axe, "axDust")) {
         kept = { ...kept, dust: kept.dust + 1 };
-        if (kept.dust >= optN("axDust", "every")) { logs += optN("axDust", "more"); kept = { ...kept, dust: 0 }; }
+        if (kept.dust >= optN("axDust", "every", axe)) { logs += optN("axDust", "more", axe); kept = { ...kept, dust: 0 }; }
       }
       // twice the wood, where it was asked for and the axe has a time left for it
       if (went.twice) {
         const used = usePower(mine, axe, "axDouble", now);
-        if (used.ok) { mine = used.purse; twice = true; logs *= optN("axDouble", "by"); timber *= optN("axDouble", "by"); }
+        if (used.ok) { mine = used.purse; twice = true; logs *= optN("axDouble", "by", axe); timber *= optN("axDouble", "by", axe); }
       }
       got.push(["log", logs]);
       if (timber > 0) got.push(["timber", timber]);
-      if (has(axe, "axResin") && l.scent < 1 / optN("axResin", "in")) got.push([TREES.scent[Math.min(TREES.scent.length - 1, Math.floor(l.which * TREES.scent.length))], 1]);
+      if (has(axe, "axResin") && l.scent < 1 / optN("axResin", "in", axe)) got.push([TREES.scent[Math.min(TREES.scent.length - 1, Math.floor(l.which * TREES.scent.length))], 1]);
     }
     // the stamina: none for the first few trees of a meal's hours with an axe that has that wind; else a tree's, less the axe's earth (what is left of a point is owed on)
     const fresh = usePower(mine, axe, "axFresh", now);
@@ -601,7 +601,12 @@ export function rootBack(purse: Purse, grove: Grove, me: string, id: number, now
   const used = usePower(purse, axe, "axRoot", now);
   if (!used.ok) return no(used.why);
   const down = { ...grove.down };
-  delete down[id];
+  const near = wood.filter((other) => {
+    const f = down[other.id];
+    return !other.elder && f?.by === me && now - f.at <= TREES.root.within * 1000 && now < grownAt(other, f.at)
+      && Math.max(Math.abs(other.x - t.x), Math.abs(other.y - t.y)) <= optN("axRoot", "reach", axe);
+  }).sort((a, b) => (a.id === id ? -1 : b.id === id ? 1 : Math.abs(a.x - t.x) + Math.abs(a.y - t.y) - Math.abs(b.x - t.x) - Math.abs(b.y - t.y) || a.id - b.id));
+  for (const other of near.slice(0, optN("axRoot", "trees", axe))) delete down[other.id];
   return { ok: true, purse: used.purse, grove: { ...grove, down }, left: used.left };
 }
 /** The stump the quickening root may bring back for me now, if there is one: the last tree I felled, while it is just made. */
@@ -632,7 +637,7 @@ export const treesRow = (wood: readonly Standing[] = WOOD) => ({
     chops: LEVELS.axe.chops, ahead: LEVELS.axe.ahead, slow: LEVELS.axe.slow, elements: ELEMENTS,
     opts: Object.fromEntries(OPTION_IDS.filter((id) => (OPTIONS[id].tools as readonly string[]).includes("axe")).map((id) => {
       const o = OPTIONS[id] as { pool: number; n: Readonly<Record<string, number>>; use?: OptionUse };
-      return [id, { pool: o.pool, n: o.n, ...(o.use ? { use: o.use } : {}) }];
+      return [id, { pool: o.pool, n: o.n, ...(o.use ? { use: o.use } : {}), ...(SIX[id] ? { six: SIX[id] } : {}) }];
     })),
     gems: Object.fromEntries(ELEMENTS.map((e) => [e, GEM_FX[e].axe])),
   },

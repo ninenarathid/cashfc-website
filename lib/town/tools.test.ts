@@ -168,7 +168,7 @@ describe("what a plus gives", () => {
   it("a tool at +0 with nothing on it is the tool as it is today", () => {
     for (const k of TOOL_KINDS) {
       const m = modsOf(tool(k));
-      expect(m).toEqual({ kind: k, level: 0, opts: [], asleep: [], gems: {}, glow: 0, hue: "#ffd98a" });
+      expect(m).toEqual({ kind: k, level: 0, opts: [], asleep: [], strong: null, gems: {}, glow: 0, hue: "#ffd98a" });
     }
     expect(pickPower(tool("pick"))).toBe(3);
     expect(veinStrikes(tool("pick"))).toBe(6);
@@ -233,9 +233,9 @@ describe("options", () => {
     // the first pool's counted ones are a meal's hours' (the first so many cost no stamina); the second pool's, a day's
     for (const id of counted) expect(powerRule(id)!.per).toBe(OPTIONS[id].pool === 1 ? "meal" : "day");
     expect(powerRule("pkQuake")).toEqual({ n: 10, per: "day" });
-    expect(powerRule("pkTwin")).toEqual({ n: 5, per: "day" });
-    expect(powerRule("pkDrill")).toEqual({ n: 3, per: "day" });
-    expect(powerRule("axOne")).toEqual({ n: 10, per: "day" });
+    expect(powerRule("pkTwin")).toEqual({ n: 10, per: "day" });
+    expect(powerRule("pkDrill")).toEqual({ n: 10, per: "day" });
+    expect(powerRule("axOne")).toEqual({ n: 30, per: "day" });
     expect(powerRule("axRoot")).toEqual({ n: 3, per: "day" });
     expect(powerRule("pkFresh")).toEqual({ n: 10, per: "meal" });
     expect(powerRule("axFresh")).toEqual({ n: 5, per: "meal" });

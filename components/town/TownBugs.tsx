@@ -7,6 +7,7 @@ import {
 } from "@/lib/town/insects";
 import { ridWords } from "@/lib/town/farm";
 import { missesWith, netFx, partOf, slowPartOf } from "@/lib/town/forged";
+import { optN } from "@/lib/town/tools";
 import { powerLeft } from "@/lib/town/powers";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
@@ -384,7 +385,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       // lands, it takes every one of them, so many a day. Whoever keeps the game counts it; each insect is caught, and paid for, as any is.)
       const l = live.current, sweep = l.fx.wide > 0 && !!tile && powerLeft(keeper.purse(), "ntWide", keeper.now()) > 0
         && [...poses.current.values()].filter(({ pose }) => pose.open && far(aimOf(pose), s.at) <= l.fx.wide).length >= 2;
-      if (sweep) { void keeper.toolPower("ntWide"); vfx.add("leaves", { x: s.at.x, y: s.at.y }, { lift: 6 }); sfx?.work("gust", 0.6); }
+      const ready = sweep ? keeper.toolPower("ntWide") : Promise.resolve({ ok: true as const });
+      if (sweep) { vfx.add("leaves", { x: s.at.x, y: s.at.y }, { lift: 6 }); sfx?.work("gust", 0.6); }
       // the one that follows a catch of mine, while it is there: netted as any insect is, or missed
       const fo = follow.current;
       if (fo && !fo.done && tile && now < fo.until) {
@@ -405,20 +407,21 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           });
         } else if (far(aimOf(p), s.at) <= NET.near) fo.missed++;
       }
+      let swept = 0;
       for (const [id, { sight, pose, h }] of poses.current) {
         const kept = minds.current.get(id);
         if (!kept) continue;
         const key = `${id}:${sight.turn}`;
-        if (tile && (sweep ? pose.open && far(aimOf(pose), s.at) <= l.fx.wide : !got && taken(sight.bug, pose, s.at, live.current.spent, 1, live.current.wary, live.current.fx.ring))) {
-          got = true;
+        if (tile && (sweep ? swept < optN("ntWide", "catches") && pose.open && far(aimOf(pose), s.at) <= l.fx.wide : !got && taken(sight.bug, pose, s.at, live.current.spent, 1, live.current.wary, live.current.fx.ring))) {
+          got = true; if (sweep) swept++;
           // (a beetle: whoever stands under its tree with something sweet; the tree it is in now, for one that does not stay)
           const lurer = BUGS[sight.bug].habit === "lure" ? about.current.find((p) => !p.moving && !!p.hold && LURES.includes(p.hold) && far(p, h.perches[kept.mind.at] ?? h.perches[0]) < HABITS.lure.reach) : null;
           const where = { x: pose.x, y: pose.y }, spot = aimOf(pose);
           // (the insect of my drop of nectar is no haunt's: it is caught as mine alone)
           // ── forging: old tools ── (the misses the net forgives are not told of: nothing is paid for them)
           const missedBy = missesWith(misses.current.get(key) ?? 0, live.current.fx.spared);
-          const asked = id === LURED ? keeper.netMine("lured", tile, { misses: missedBy }, live.current.name)
-            : keeper.netDo(id, tile, { misses: missedBy, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name);
+          const asked = ready.then((grant) => grant.ok ? (id === LURED ? keeper.netMine("lured", tile, { misses: missedBy }, live.current.name)
+            : keeper.netDo(id, tile, { misses: missedBy, lure: lurer?.hold ?? null, by: lurer?.id ?? null }, live.current.name)) : { ok: false as const, why: "none" as const });
           const missed = misses.current.get(key) ?? 0;
           void asked.then((did) => {
             if (!did.ok) { say(did.why); return; }
@@ -658,11 +661,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       for (const id of [...poses.current.keys()]) if (!shown.has(id)) { poses.current.delete(id); minds.current.delete(id); stirred.current.delete(id); sleeping.current.delete(id); frozen.current.delete(id); }
       // ── forging: old tools ── (a haunt I have emptied, with a net that knows them in my hand: while nothing is there, it says over its
       // place how long until another may come: the moment its next turn begins, which is no promise that anything will)
-      if (live.current.fx.nest) for (const id of nests.current) {
+      if (live.current.fx.nest) for (const id of new Set([...nests.current, ...shown])) {
         const h = HAUNTS[id];
-        if (!h || h.place !== here || shown.has(id)) continue;
+        if (!h || h.place !== here) continue;
         const c = project(h.perches[0]);
         if (!onScreen(c)) continue;
+        if (shown.has(id)) { frame.sign(live.current.th ? "มีแมลง" : "Occupied", c.x, c.y - 14 * s); continue; }
         const at = keeper.now(), secs = Math.ceil(Math.max(0, bugTurnStart(h, bugTurn(h, at) + 1) - at) / 1000), clock = `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
         frame.sign(live.current.th ? `อีก ${clock}` : `in ${clock}`, c.x, c.y - 14 * s);
       }

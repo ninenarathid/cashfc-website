@@ -345,7 +345,7 @@ export function vectorsTools(): Vector[] {
     const has: Swarm = { turn: c.int(1, 99999), bug, n: BUGS[bug].n[0], seed: h.id * 100003 + 7 };
     const tool = c.of(EDGE)(), other = c.maybe(0.35) ? c.of(EDGE)() : null, stacks = c.maybe(0.5) ? [tool, other] : [other, tool];
     const purse = purseOf(stacks, stacks.indexOf(tool), now, { lured: { x: 20, y: 20, haunt: h.id, bug, n: BUGS[bug].n[0], from: now - 1000, until: now + 60_000, seed: 5 },
-      follower: { bug, n: BUGS[bug].n[0], at: [20, 20] as [number, number], until: now + 2000 } });
+      follower: { bug, n: BUGS[bug].n[0], at: [20, 20] as [number, number], until: now + 2000 }, netSweep: { until: now + 10000, left: 5 } });
     const perch = c.of(h.perches), off = NET.reach + NET.far + c.int(-15, 55) / 10, turn = c.next() * Math.PI * 2, hand = handOf(purse), lure = BUGS[bug].habit === "lure" ? ("resin" as ItemId) : null;
     const tile: [number, number] = [Math.round(perch.x - 0.5 + Math.cos(turn) * off), Math.round(perch.y - 0.5 + Math.sin(turn) * off)];
     add("net", [purse, h.id, has, 0, false, hand, tile[0], tile[1], 0, now, lure], net(purse, h, has, 0, false, hand, tile, 0, now, lure));

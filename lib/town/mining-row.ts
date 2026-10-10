@@ -2,7 +2,7 @@ import { CAVE_SIZE, caveFloor } from "./cave";
 import { CAVE_AT, cornerOf } from "./cave-state";
 import { farRocks } from "./far-side";
 import { MINING } from "./mining";
-import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, ORES, type OptionUse } from "./tools";
+import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, ORES, type OptionUse } from "./tools";
 import { VEIN } from "./vein";
 
 /**
@@ -38,7 +38,7 @@ export const miningRow = () => ({
     power: LEVELS.pick.power, strikes: LEVELS.pick.strikes, elements: ELEMENTS,
     opts: Object.fromEntries(OPTION_IDS.filter((id) => (OPTIONS[id].tools as readonly string[]).includes("pick")).map((id) => {
       const o = OPTIONS[id] as { pool: number; n: Readonly<Record<string, number>>; use?: OptionUse };
-      return [id, { pool: o.pool, n: o.n, ...(o.use ? { use: o.use } : {}) }];
+      return [id, { pool: o.pool, n: o.n, ...(o.use ? { use: o.use } : {}), ...(SIX[id] ? { six: SIX[id] } : {}) }];
     })),
     gems: Object.fromEntries(ELEMENTS.map((e) => [e, GEM_FX[e].pick])),
   },

@@ -1,6 +1,7 @@
 import { cookFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { usePower } from "./powers";
+import { optN } from "./tools";
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
@@ -300,12 +301,14 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
   }
   if (dish) {
     // ── forging: old tools ── (a dish cooked in cookware that carries as much: so many helpings more, so many pots a day, counted by the option)
-    const big = made && cookFx(mine).big > 0 ? usePower(spent, mine, "ckBig", now) : null;
-    if (big?.ok) spent = big.purse;
+    const batches = optN("ckBig", "batches", mine);
+    const canBatch = made && cookFx(mine).big > 0 && all.every(([id, n]) => held(purse.bag, id) >= n * batches);
+    const big = canBatch ? usePower(spent, mine, "ckBig", now) : null;
+    if (big?.ok) { spent = big.purse; for (const [id, n] of all) bag = take(bag, id, n * (batches - 1)); }
     // (under the fountain's big pot, a helping more: lib/town/fountain)
-    const left = (made ? helpings(dish, crew, misses, purse.bag) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0)
+    const left = (made ? helpings(dish, crew, misses, purse.bag) * (big?.ok ? batches : 1) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0)
       // ── forging: old tools ── (a pot cooked in cookware that carries as much has a helping more, so often)
-      + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0) + (big?.ok ? cookFx(mine).big : 0);
+      + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0);
     // ── forging: old tools ── (a dish cooked in cookware whose pots are for the table: whoever eats out of this one at the feast table has
     // so many hours more of its buff, or so much more stamina; so many pots a day, each counted by its option)
     const warm = made && cookFx(mine).warm > 0 ? usePower(spent, mine, "ckWarm", now) : null;

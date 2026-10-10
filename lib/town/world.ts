@@ -832,6 +832,13 @@ export function rowOf(tx: number, ty: number): Array<[number, number]> {
   const [bx] = bedCorner(bed);
   return Array.from({ length: 8 }, (_, i): [number, number] => [bx + i, ty]).filter(([x, y]) => bedOf(x, y) === bed);
 }
+/** The plots in this bed, for a power which waters the whole owned bed. */
+export function plotsOfBed(tx: number, ty: number): Array<[number, number]> {
+  const bed = bedOf(tx, ty);
+  if (bed < 0) return [];
+  const [x, y] = bedCorner(bed);
+  return Array.from({ length: 64 }, (_, i): [number, number] => [x + i % 8, y + Math.floor(i / 8)]).filter(([u, v]) => bedOf(u, v) === bed);
+}
 /** A bed's corner tile nearest the top of the screen (its smallest x and y). */
 export function bedCorner(bed: number): [number, number] {
   const col = bed % 6, row = Math.floor(bed / 6);

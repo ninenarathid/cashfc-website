@@ -399,7 +399,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
           if (!id) return level >= FORGE.milestones[i] || !BUILT[kind].opts.length || away ? null : (
             <li key={i} className="flex items-center gap-2 text-meta text-[#8f7655]"><TownIcon name="lock" size={12} />{t(`ออปชันขั้น +${FORGE.milestones[i]}`, `The option of +${FORGE.milestones[i]}`)}</li>
           );
-          const o = OPTIONS[id], does = optionDoes(id);
+          const o = OPTIONS[id], does = optionDoes(id, stack);
           return (
             <li key={i} className={`rounded-xl border px-2.5 py-2 ${away ? "border-dashed border-[#5a4630] bg-[#231a11]" : "border-[#6b4a2a] bg-[#2a1d12]"}`} data-smith-opt={id} data-asleep={away}>
               <div className="flex items-center gap-2">
@@ -432,11 +432,11 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
     </div>
   );
   /** A draw's options, laid out to choose from: each on its own card. */
-  const offer = laid && pending && (
+  const offer = laid && pending && stack && (
     <div className="mb-3" ref={offerRef} style={{ scrollMarginTop: "13rem" }} data-smith-offer data-at={pending.at}>
       <p className="mb-2 text-center font-display text-lead font-semibold text-[#f0c46a]">{pending.old ? t("เลือกอันใหม่ หรือเก็บอันเดิม", "Take a new one, or keep the old") : t(`ถึง +${FORGE.milestones[pending.at]} แล้ว เลือกออปชันหนึ่งอย่าง`, `+${FORGE.milestones[pending.at]}: choose one option`)}</p>
       <ul className={`grid gap-2 ${pending.offer.length + (pending.old ? 1 : 0) > 2 && !phone ? "grid-cols-3" : "grid-cols-2"}`}>
-        {[...pending.offer, ...(pending.old ? [pending.old] : [])].map((id, i) => <OptionCard key={id} id={id} th={th} at={FORGE.milestones[pending.at]} keep={id === pending.old} busy={busy} reduced={reduced} delay={i * 90} onPick={() => void choose(id)} />)}
+        {[...pending.offer, ...(pending.old ? [pending.old] : [])].map((id, i) => <OptionCard key={id} id={id} stack={{ ...stack, opts: Array.from({ length: pending.at + 1 }, (_, n) => n === pending.at ? id : stack.opts?.[n] ?? "") }} th={th} at={FORGE.milestones[pending.at]} keep={id === pending.old} busy={busy} reduced={reduced} delay={i * 90} onPick={() => void choose(id)} />)}
       </ul>
     </div>
   );
@@ -1101,8 +1101,8 @@ function Odds({ odds, th }: { odds: { take: number; stay: number; down: number }
   );
 }
 /** One option of a draw, on a card of its own: its name, what it does, and the button that takes it. */
-function OptionCard({ id, th, at, keep, busy, reduced, delay, onPick }: { id: OptionId; th: boolean; at: number; keep: boolean; busy: boolean; reduced: boolean; delay: number; onPick: () => void }) {
-  const o = OPTIONS[id], does = optionDoes(id);
+function OptionCard({ id, stack, th, at, keep, busy, reduced, delay, onPick }: { id: OptionId; stack: Stack; th: boolean; at: number; keep: boolean; busy: boolean; reduced: boolean; delay: number; onPick: () => void }) {
+  const o = OPTIONS[id], does = optionDoes(id, stack);
   return (
     <li className={`flex flex-col rounded-2xl border-2 p-2.5 ${keep ? "border-[#6b4a2a] bg-[#2a1d12]" : "border-[#f0c46a] bg-gradient-to-b from-[#4a3423] to-[#2a1d12] shadow-[0_0_0_2px_rgba(240,196,106,0.18)]"}`}
         style={reduced ? undefined : { animation: `sm-rise 220ms ease-out ${delay}ms both` }} data-smith-option={id} data-keep={keep}>

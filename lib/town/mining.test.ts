@@ -211,7 +211,7 @@ describe("mining: a rock struck", () => {
     // nothing else is struck until it is played out
     expect(mine(a.purse, go({ rock: 12, at: [61, 40], now: v.now + 60_000 }))).toEqual({ ok: false, why: "vein" });
     const b = done(mine(miner(pickAt(6, ["pkSteady", "pkCutter"], ["water"])), go({ ...g, element: "wind" })));
-    expect(b.vein).toMatchObject({ gem: "wind", mods: { strikes: 9, back: 1, cross: 0 }, more: 1 });
+    expect(b.vein).toMatchObject({ gem: "wind", mods: { strikes: 9, back: 1, cross: 0 }, more: 2 });
     // with no stamina left after the rock: two strikes fewer, and its points not seen for long
     const t = done(mine(miner(pickAt(), 1), go({ ...v })));
     expect(t.vein!.mods).toMatchObject({ strikes: 4, spent: true });
@@ -475,18 +475,22 @@ describe("mining: a vein played out, the lift, a torch, the floor broken through
       expect(end.got.find((g) => g[0] === "shardCopper")?.[1] ?? 0).toBe((crack.got.length - gems.length) * VEIN.ore);
     }
   });
-  it("a twin vein is played once more, five times a day", () => {
+  it("a twin doubles earned yield immediately, never rewards an empty go, and shares ten daily uses", () => {
     const pick = pickAt(10, ["pkPeek", "pkCrumb", "pkTwin"]), { v, d } = open(pick);
     const one = veinEnd(d.purse, [], v.now);
     if (!one.ok) throw new Error(one.why);
-    expect(one.again).toBe(true);
-    expect(mineOf(one.purse).vein).toMatchObject({ seed: d.vein!.seed, again: true });
-    expect(powerLeft(one.purse, "pkTwin", v.now)).toBe(4);
-    const two = veinEnd(one.purse, [], v.now);
-    expect(two.ok && two.again).toBe(false);
-    expect(two.ok && mineOf(two.purse).vein).toBeNull();
-    // with none left today, once
-    const spent = veinEnd({ ...d.purse, powers: { pkTwin: { k: dayOf(v.now), n: 5 } } }, [], v.now);
+    expect(one.again).toBe(false);
+    expect(mineOf(one.purse).vein).toBeNull();
+    expect(powerLeft(one.purse, "pkTwin", v.now)).toBe(10);
+    const strikes = strikesFor(d.vein!.seed, false, d.vein!);
+    const bare = { ...d.purse, bag: d.purse.bag.map((s) => s?.item === "pick" ? { ...s, opts: s.opts!.slice(0, 2) } : s) };
+    const earned = veinEnd(bare, strikes, v.now), doubled = veinEnd(d.purse, strikes, v.now);
+    if (!earned.ok || !doubled.ok) throw new Error("refused");
+    expect(earned.got.length).toBeGreaterThan(0);
+    expect(doubled.got).toEqual(earned.got.map(([item, n]) => [item, n * 2]));
+    expect(powerLeft(doubled.purse, "pkTwin", v.now)).toBe(9);
+    expect(veinEnd(doubled.purse, strikes, v.now)).toEqual({ ok: false, why: "none" });
+    const spent = veinEnd({ ...d.purse, powers: { pkTwin: { k: dayOf(v.now), n: 10 } } }, strikes, v.now);
     expect(spent.ok && spent.again).toBe(false);
   });
   it("the lift stops at the mouth and at the resting floors a member has reached", () => {
@@ -524,7 +528,7 @@ describe("mining: a vein played out, the lift, a torch, the floor broken through
     expect(drill(miner(pick), 0, false, NOON)).toEqual({ ok: false, why: "none" });
     expect(drill(miner(pick), 5, true, NOON)).toEqual({ ok: false, why: "open" });
     let p = miner(pick);
-    for (let i = 0; i < 3; i++) { const d = drill(p, 5 + i, false, NOON); if (!d.ok) throw new Error(d.why); expect(d.left).toBe(2 - i); p = d.purse; }
+    for (let i = 0; i < 10; i++) { const d = drill(p, 5, false, NOON); if (!d.ok) throw new Error(d.why); expect(d.left).toBe(9 - i); p = d.purse; }
     expect(drill(p, 9, false, NOON)).toEqual({ ok: false, why: "spent" });
     expect(drill(p, 9, false, NOON + 24 * 3_600_000).ok).toBe(true);
   });

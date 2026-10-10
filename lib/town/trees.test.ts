@@ -463,16 +463,16 @@ describe("what an axe's plus, options and gems change", () => {
 });
 
 describe("the powers of an axe at the top, counted by the day", () => {
-  it("one stroke: the tree falls with no game, ten a day, never the ancient tree", () => {
+  it("one stroke: the tree falls with no game, thirty a day, never the ancient tree", () => {
     let p = woodcutter(top("axOne")), g = newGrove();
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 30; i++) {
       const did = fell(p, g, "me", { tree: 3, secs: 0, one: true }, BESIDE[3], NOON, lucky(1), WOOD);
       expect(did).toMatchObject({ ok: true, one: true, plain: false, felled: [{ id: 3, misses: 0 }], got: [["log", 2], ["timber", 2]] });
       if (did.ok) p = did.purse;
     }
     expect(powerLeft(p, "axOne", NOON)).toBe(0);
     expect(fell(p, g, "me", { tree: 3, secs: 0, one: true }, BESIDE[3], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "spent" });
-    expect(powerLeft(p, "axOne", NOON + 24 * HOUR)).toBe(10);
+    expect(powerLeft(p, "axOne", NOON + 24 * HOUR)).toBe(30);
     expect(fell(woodcutter(top("axOne")), g, "me", { tree: TREES.elder.id, secs: 0, one: true }, BESIDE[900], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "none" });
     // an axe without it has no such stroke
     expect(fell(woodcutter({ plus: 10 }), g, "me", { tree: 3, secs: 0, one: true }, BESIDE[3], NOON, lucky(1), WOOD)).toEqual({ ok: false, why: "none" });

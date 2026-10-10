@@ -136,21 +136,21 @@ export function rodFx(stack: Held): RodFx {
   return {
     band: LEVELS.rod.band[l],
     pace: (1 - LEVELS.rod.slow[l]) * (1 - gemBy(s, "ice", OLD_FX.ice.slow)),
-    strike: times(LEVELS.rod.strike, s),
+    strike: times(LEVELS.rod.strike, s) + (has(s, "rdBait") ? optN("rdBait", "strike", s) : 0),
     line: 1 - gemBy(s, "fire", OLD_FX.fire.rod.tires),
     fierce: dark ? 1 + OLD_FX.dark.rod.fiercer : 1,
     spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "rdBait") ? 1 : 0),
-    still: has(s, "rdCalm") ? optN("rdCalm", "secs") : 0,
+    still: has(s, "rdCalm") ? optN("rdCalm", "secs", s) : 0,
     shimmer: gemBy(s, "light", OLD_FX.light.rod.early),
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
     fresh: has(s, "rdFresh"),
-    quick: has(s, "rdQuick") ? optN("rdQuick", "shorter") : 0,
+    quick: has(s, "rdQuick") ? optN("rdQuick", "shorter", s) : 0,
     keeps: gemBy(s, "lightning", OLD_FX.lightning.chance),
     rare: gemBy(s, "dark", OLD_FX.dark.rod.rare, 1),
     call: has(s, "rdCall"),
-    gold: has(s, "rdGold") ? optN("rdGold", "secs") : 0,
-    lull: has(s, "rdStill") ? optN("rdStill", "by") : 1,
-    lullMins: has(s, "rdStill") ? optN("rdStill", "mins") : 0,
+    gold: has(s, "rdGold") ? optN("rdGold", "secs", s) : 0,
+    lull: has(s, "rdStill") ? optN("rdStill", "by", s) : 1,
+    lullMins: has(s, "rdStill") ? optN("rdStill", "mins", s) : 0,
   };
 }
 
@@ -189,11 +189,11 @@ export function hoeFx(stack: Held): HoeFx {
   if (!s) return PLAIN_HOE;
   const l = levelOf(s), worm = gemBy(s, "dark", OLD_FX.dark.hoe.worm);
   return {
-    band: LEVELS.hoe.band[l],
+    band: LEVELS.hoe.band[l] * (has(s, "hoLight") ? optN("hoLight", "band", s) || 1 : 1),
     pace: (1 - LEVELS.hoe.slow[l]) * (1 - gemBy(s, "ice", OLD_FX.ice.slow)) * (worm > 0 ? 1 + OLD_FX.dark.hoe.faster : 1),
     fewer: gemBy(s, "fire", OLD_FX.fire.hoe.fewer),
-    spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "hoFirst") ? optN("hoFirst", "misses") : 0),
-    stones: has(s, "hoClear") ? optN("hoClear", "stones") : 0,
+    spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "hoFirst") ? optN("hoFirst", "misses", s) : 0),
+    stones: has(s, "hoClear") ? optN("hoClear", "stones", s) : 0,
     even: has(s, "hoLight"),
     glow: gemBy(s, "light", COUNT) > 0,
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
@@ -244,19 +244,19 @@ export function canFx(stack: Held): CanFx {
   if (!s) return PLAIN_CAN;
   const l = levelOf(s), rich = gemBy(s, "dark", OLD_FX.dark.can.more);
   return {
-    more: LEVELS.can.waterings[l] - LEVELS.can.waterings[0] + gemBy(s, "fire", OLD_FX.fire.can.more) + (has(s, "cnDrop") ? optN("cnDrop", "more") : 0),
+    more: LEVELS.can.waterings[l] - LEVELS.can.waterings[0] + gemBy(s, "fire", OLD_FX.fire.can.more) + (has(s, "cnDrop") ? optN("cnDrop", "more", s) : 0) + (has(s, "cnThrift") ? optN("cnThrift", "more", s) : 0),
     marks: LEVELS.can.marks[l],
     pace: 1 - gemBy(s, "ice", OLD_FX.ice.slow),
     spared: gemBy(s, "water", OLD_FX.water.spared),
-    takes: has(s, "cnThrift") ? optN("cnThrift", "takes") : null,
+    takes: has(s, "cnThrift") ? optN("cnThrift", "takes", s) : null,
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
     fresh: has(s, "cnFresh"),
-    kind: has(s, "cnKind") ? optN("cnKind", "points") : 0,
+    kind: has(s, "cnKind") ? optN("cnKind", "points", s) : 0,
     next: gemBy(s, "lightning", OLD_FX.lightning.chance),
     rich,
     uses: rich > 0 ? OLD_FX.dark.can.uses : 1,
     glint: gemBy(s, "light", OLD_FX.light.can.glint),
-    full: has(s, "cnFull") ? optN("cnFull", "mins") : 0,
+    full: has(s, "cnFull") ? optN("cnFull", "mins", s) : 0,
     rain: has(s, "cnRain"),
     twice: has(s, "cnTwice"),
   };
@@ -301,18 +301,18 @@ export function netFx(stack: Held): NetFx {
   return {
     ring: times(LEVELS.bugNet.ring, s) * (gemBy(s, "dark", OLD_FX.dark.bugNet.rare) > 0 ? 1 - OLD_FX.dark.bugNet.smaller : 1),
     lands: times(LEVELS.bugNet.lands, s) * (1 - gemBy(s, "fire", OLD_FX.fire.bugNet.sooner)),
-    again: has(s, "ntAgain") ? optN("ntAgain", "by") : 1,
-    reach: has(s, "ntLong") ? optN("ntLong", "reach") : 0,
+    again: has(s, "ntAgain") ? optN("ntAgain", "by", s) : 1,
+    reach: has(s, "ntLong") ? optN("ntLong", "reach", s) : 0,
     spared: gemBy(s, "water", OLD_FX.water.spared),
-    bears: has(s, "ntMesh") ? optN("ntMesh", "misses") : 0,
+    bears: has(s, "ntMesh") ? optN("ntMesh", "misses", s) : 0,
     flight: 1 - gemBy(s, "ice", OLD_FX.ice.slow),
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
     fresh: has(s, "ntFresh"),
     twin: gemBy(s, "lightning", OLD_FX.lightning.chance),
     seen: gemBy(s, "light", OLD_FX.light.bugNet.seen),
     rare: gemBy(s, "dark", OLD_FX.dark.bugNet.rare, 1),
-    wide: has(s, "ntWide") ? optN("ntWide", "reach") : 0,
-    freeze: has(s, "ntFreeze") ? optN("ntFreeze", "secs") : 0,
+    wide: has(s, "ntWide") ? optN("ntWide", "reach", s) : 0,
+    freeze: has(s, "ntFreeze") ? optN("ntFreeze", "secs", s) : 0,
     nest: has(s, "ntNest"),
   };
 }
@@ -352,17 +352,17 @@ export function cookFx(stack: Held): CookFx {
   const kind = toolKindOf(s.item) as "pot" | "pan" | "grill", dark = gemBy(s, "dark", OLD_FX.dark.cook.helping);
   return {
     band: LEVELS[kind].band[levelOf(s)] * (dark > 0 ? 1 / (1 + OLD_FX.dark.cook.harder) : 1),
-    shorter: 1 - (1 - gemBy(s, "fire", OLD_FX.fire.cook.shorter)) * (1 - (has(s, "ckBrisk") ? optN("ckBrisk", "shorter") : 0)),
-    spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "ckBase") ? optN("ckBase", "misses") : 0),
+    shorter: 1 - (1 - gemBy(s, "fire", OLD_FX.fire.cook.shorter)) * (1 - (has(s, "ckBrisk") ? optN("ckBrisk", "shorter", s) : 0)),
+    spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "ckBase") ? optN("ckBase", "misses", s) : 0),
     grace: 1 / (1 - gemBy(s, "ice", OLD_FX.ice.slow)),
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
     fresh: has(s, "ckFresh"),
     helping: Math.max(gemBy(s, "lightning", OLD_FX.lightning.chance), dark),
-    big: has(s, "ckBig") ? optN("ckBig", "more") : 0,
-    steady: has(s, "ckFire") ? optN("ckFire", "steady") : 1,
+    big: has(s, "ckBig") ? optN("ckBig", "more", s) : 0,
+    steady: has(s, "ckFire") ? optN("ckFire", "steady", s) : 1,
     guide: gemBy(s, "light", COUNT) > 0,
-    warm: has(s, "ckWarm") ? optN("ckWarm", "hours") : 0,
-    scent: has(s, "ckScent") ? optN("ckScent", "stamina") : 0,
+    warm: has(s, "ckWarm") ? optN("ckWarm", "hours", s) : 0,
+    scent: has(s, "ckScent") ? optN("ckScent", "stamina", s) : 0,
   };
 }
 /** How many stirs a pot wants with a piece of cookware, of the stirs it plainly wants: so much fewer, rounded up, never under one. */

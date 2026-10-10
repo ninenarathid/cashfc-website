@@ -207,7 +207,7 @@ export const isLoose = (purse: Pick<Purse, "mine">, floor: number, turn: number,
  */
 export function swingsFor(pick: Stack | null | undefined, floor: number, spent: boolean, loose = false, points = 0): number {
   const plain = pickSwings(pick, hardnessOf(floor, points)) * (spent ? MINING.tired : 1);
-  return Math.max(1, plain - (loose ? optN("pkLoose", "fewer") : 0));
+  return Math.max(1, plain - (loose ? optN("pkLoose", "fewer", pick) : 0));
 }
 /** Whether a tile (or the tile a point is in) is within a king's move of so many tiles of a rock's. */
 export const near = (a: readonly [number, number] | { x: number; y: number }, b: { x: number; y: number }, by: number): boolean => {
@@ -381,7 +381,7 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   const plainAt = (r: RockAt) => { const begun = go.struck?.(r.id); if (begun && begun.first !== struck.first) return null; const h = holdsAt(r.id); return h.kind === "stone" ? h : null; };
   if (quake) {
     for (const r of go.rocks) {
-      if (r.id === rock.id || !go.standing(r.id) || !near(go.at, r, optN("pkQuake", "reach"))) continue;
+      if (r.id === rock.id || !go.standing(r.id) || !near(go.at, r, optN("pkQuake", "reach", pick))) continue;
       const h = plainAt(r);
       if (h) breaks.push({ rock: r, holds: h });
     }
@@ -404,12 +404,12 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
     if (h.kind === "stone" || h.kind === "way") {
       shards = h.shards;
       if (h.kind === "way") way = b.rock.id;
-      else if (has(pick, "pkCrumb") && ++crumb >= optN("pkCrumb", "every")) { crumb = 0; shards += optN("pkCrumb", "more"); }
+      else if (has(pick, "pkCrumb") && ++crumb >= optN("pkCrumb", "every", pick)) { crumb = 0; shards += optN("pkCrumb", "more", pick); }
       if (h.kind === "stone" && h.moss) moss.push(b.rock.id);
       add(got, ore, shards);
     } else if (h.kind === "crystal") {
       crystal = true;
-      const by = has(pick, "pkGleam") ? optN("pkGleam", "by") : 1;
+      const by = has(pick, "pkGleam") ? optN("pkGleam", "by", pick) : 1;
       shards = Math.ceil(MINING.crystal.shards * by);
       add(got, ORES[ORES.length - 1].shard, shards);
       add(got, GEMS[go.element].chip, Math.ceil(MINING.crystal.chips * by));
@@ -432,7 +432,7 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   if (holds.kind === "vein") {
     // the vein is the member's from here: played with the pick as it is now, and with the stamina left after the rock
     const tired = isSpent(after, go.now);
-    vein = { f: go.floor, rock: rock.id, turn, seed: holds.seed, gem: holds.gem ? go.element : null, mods: veinMods(pick, tired), more: holds.gem && has(pick, "pkCutter") ? optN("pkCutter", "more") : 0 };
+    vein = { f: go.floor, rock: rock.id, turn, seed: holds.seed, gem: holds.gem ? go.element : null, mods: veinMods(pick, tired), more: holds.gem && has(pick, "pkCutter") ? optN("pkCutter", "more", pick) : 0 };
     const had = staminaOf(after, go.now);
     after = spend(after, VEIN.stamina, go.now);
     cost += had - staminaOf(after, go.now);
@@ -471,15 +471,16 @@ export function veinEnd(purse: Purse, strikes: ReadonlyArray<Cell>, now: number)
   const kept = mineOf(purse), vein = kept.vein;
   if (!vein) return { ok: false, why: "none" };
   const face = faceOf(vein.seed, !!vein.gem), crack = play(face, vein.mods, (Array.isArray(strikes) ? strikes : []).filter(isCell));
-  const got = yieldOf(face, crack, oreOf(vein.f), vein.gem ? GEMS[vein.gem].chip : null, vein.more);
-  const stowed = stowAll(purse, got);
+  const earned = yieldOf(face, crack, oreOf(vein.f), vein.gem ? GEMS[vein.gem].chip : null, vein.more);
+  // An empty go earns nothing and spends no power; the extra is the same earned yield, without another board.
+  const pick = pickOf(purse), twin = earned.length && !vein.again && pick ? usePower(purse, pick, "pkTwin", now) : null;
+  const got = twin?.ok ? earned.map(([id, n]): [ItemId, number] => [id, n * optN("pkTwin", "times", pick)]) : earned;
+  const stowed = stowAll(twin?.ok ? twin.purse : purse, got);
   if (!stowed) return { ok: false, why: "full" };
-  // a twin vein: the same face once more, with the pick now in the hand, so many times a day
-  const pick = pickOf(stowed), twin = !vein.again && pick ? usePower(stowed, pick, "pkTwin", now) : null;
-  const after: Purse = twin?.ok ? twin.purse : stowed;
+  const after = stowed;
   return {
-    ok: true, got, passed: crack.got.length, of: face.points.length, struck: crack.struck, again: !!twin?.ok, vein,
-    purse: { ...after, mine: { ...mineOf(after), vein: twin?.ok ? { ...vein, again: true } : null } },
+    ok: true, got, passed: crack.got.length, of: face.points.length, struck: crack.struck, again: false, vein,
+    purse: { ...after, mine: { ...mineOf(after), vein: null } },
   };
 }
 
