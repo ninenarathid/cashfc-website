@@ -217,9 +217,11 @@ serializes transfers and upgrades; the displayed target prevents duplicate reque
 The SQL is in Git history; `v176.test.mjs` reads it with `migration(176)` and starts from v175.
 Validation: 39 database checks including 216 code/SQL cases, build, and desktop/mobile browser checks.
 
-## v179 — storage layout (pending)
+## v179 — storage layout (ran 2026-10-10)
 
-`supabase/v179_a_place_for_everything_in_the_box.sql` adds per-character move/merge/swap and sort RPCs.
+The owner confirmed that v179 ran ("179 รันแล้ว"). No live database probe was performed.
+The SQL is preserved in Git history: `git show 9ed9bd36:supabase/v179_a_place_for_everything_in_the_box.sql`.
+It adds per-character move/merge/swap and sort RPCs.
 It needs v176 and does not depend on the tool changes in v177/v178. `town_box` advertises `boxTidy`
 only after installation, so older databases keep the existing transfer UI. The purse lock serializes
 layout changes with transfers and upgrades; a compared snapshot refuses stale requests without accepting
@@ -227,3 +229,4 @@ client-supplied replacement contents. The current box is returned even on refusa
 Validation: `v179.test.mjs` passed 27 database checks, including 320 code/SQL vectors, reruns, permissions,
 stale requests, unchanged resources and character isolation. Unit tests, build, mouse drag, keyboard placement,
 trusted mobile touch drag/scroll, normal transfers and reload persistence were also checked.
+The test reads the applied SQL with `migration(179)`; the stand-in and HTTP bench now use `RAN = 179`.
