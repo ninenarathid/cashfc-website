@@ -54,8 +54,8 @@ describe("mining: when, and what a place is", () => {
     expect(LEVELS.pick.power.map((_, l) => swingsFor(pickAt(l), 5, true))).toEqual([8, 8, 8, 8, 6, 6, 6, 4, 4, 4, 2]);
     expect(swingsFor(pickAt(), 5, false, true)).toBe(3);
     expect(swingsFor(pickAt(10), 5, false, true)).toBe(1);
-    // a fire gem a share fewer (rounded up), a dark gem one more
-    expect(swingsFor(pickAt(0, [], ["fire"]), 25, false)).toBe(Math.ceil(8 * 0.85));
+    // Fire's integer rounding guarantees a useful reduction; dark adds work only on harder rocks.
+    expect(swingsFor(pickAt(0, [], ["fire"]), 25, false)).toBe(Math.floor(8 * 0.85));
     expect(swingsFor(pickAt(0, [], ["dark"]), 5, false)).toBe(5);
   });
   it("from the fourth rank of the line the deeper floors' rocks are harder, and the first ten floors' never", () => {

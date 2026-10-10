@@ -1,3 +1,4 @@
+import { trainElement } from "./element-training";
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { INSECT_SPECIES, type InsectSpeciesId } from "./insect-items";
 import { scentMods } from "./insect-garden";
@@ -532,7 +533,7 @@ const sweepCaught = (purse: Purse, now: number): Purse => sweepNow(purse, now) ?
  * tile I stand on; `misses` the swings that came to nothing first, each a point of stamina, up to so many; `lure` what
  * somebody under the tree holds (a beetle comes down to nothing else).
  */
-export function net(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mine: boolean, hand: ItemId | null, at: readonly [number, number], misses: number, now: number, lure: ItemId | null = null):
+function netUntrained(purse: Purse, h: Haunt, has: Swarm | null, taken: number, mine: boolean, hand: ItemId | null, at: readonly [number, number], misses: number, now: number, lure: ItemId | null = null):
   Done<{ purse: Purse; got: Array<[ItemId, number]> }> | { ok: false; why: BugRefusal } {
   if (!has) return no("none");
   if (mine) return { ok: false, why: "had" };
@@ -693,7 +694,7 @@ export type Mine = "lured" | "pair";
  * place of the first catch, with room in the bag, for its stamina and a point a miss up to so many. The drop is done
  * with, and under the cloak its insect has another following; the one that followed is gone, and has none.
  */
-export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: readonly [number, number], misses: number, now: number):
+function netMineUntrained(purse: Purse, which: Mine, hand: ItemId | null, at: readonly [number, number], misses: number, now: number):
   Done<{ purse: Purse; got: Array<[ItemId, number]> }> | { ok: false; why: BugRefusal } {
   const l = which === "lured" ? luredNow(purse, now) : null, f = which === "pair" ? followerNow(purse, now) : null;
   const one = l ? { bug: l.bug as BugId, n: l.n, x: l.x, y: l.y } : f ? { bug: f.bug as BugId, n: f.n, x: f.at[0], y: f.at[1] } : null;
@@ -1067,3 +1068,15 @@ export function aimAt(me: Vec, at: Vec, reach = NET.reach): Vec {
 }
 /** Whether a net landing at a point takes an insect as it is then. */
 export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1, harder = 1, forged = 1) => p.open && far(aimOf(p), at) <= ringOf(id, spent, wide, harder, forged);
+
+/** Training belongs to the tool used for this successful job, once per result. */
+export function net(...args: Parameters<typeof netUntrained>): ReturnType<typeof netUntrained> {
+  const did = netUntrained(...args);
+  return did.ok ? { ...did, purse: trainElement(args[0], did.purse, heldStack(args[0])) } : did;
+}
+
+/** Training belongs to the tool used for this successful job, once per result. */
+export function netMine(...args: Parameters<typeof netMineUntrained>): ReturnType<typeof netMineUntrained> {
+  const did = netMineUntrained(...args);
+  return did.ok ? { ...did, purse: trainElement(args[0], did.purse, heldStack(args[0])) } : did;
+}

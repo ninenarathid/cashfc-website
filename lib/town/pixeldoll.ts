@@ -260,6 +260,13 @@ export class PixelKit {
     return neck * k.body + (h - neck) * k.head;
   }
 
+  /** Standing height without ears, so long ears do not enlarge tools or move their grip up the chest. */
+  bodyHeightOf(look: Look): number | undefined {
+    if (this.race === 0) return this.heightOf(look);
+    const g = (GENDERS[look.gender]?.id ?? "f") as G, h = this.atlas.body?.[g];
+    return h === undefined ? this.heightOf(look) : h * this.sizesOf(g).body;
+  }
+
   /**
    * Where a doll's mouth is from its feet, in canvas units, standing or sitting: for what is brought up to it (a
    * morsel of a meal). Null when it faces away, or its picture does not say where its mouth is.

@@ -373,8 +373,8 @@ describe("the options drawn at a milestone", () => {
 });
 
 describe("a gem set in a tool", () => {
-  const p = purseWith(200, [["gemRuby", 2], ["gemSapphire", 1], ["timber", 10]], [tool("pick", 2)]);
-  it("takes a gem, a mount of five fine timber and fifty coins, and always takes: from +0, one socket", () => {
+  const p = purseWith(200, [["gemRuby", 2], ["gemSapphire", 1], ["timber", 10]], [tool("pick", 7)]);
+  it("takes a gem, five fine timber and fifty coins in the first socket at +7", () => {
     expect(SMITH.gem).toEqual({ mount: "timber", mounts: 5, fee: 50 });
     const d = ok(setGem(p, 0, "gemRuby"));
     expect(d.element).toBe("fire");
@@ -382,17 +382,17 @@ describe("a gem set in a tool", () => {
     expect(d.purse.coins).toBe(150);
     expect(held(d.purse.bag, "gemRuby")).toBe(1);
     expect(held(d.purse.bag, "timber")).toBe(5);
-    expect(d.purse.bag[0]).toEqual({ item: "pick", n: 1, plus: 2, gems: ["fire"] });
-    const bare = ok(setGem(purseWith(50, [["gemRuby", 1], ["timber", 5]], [tool("axe")]), 0, "gemRuby"));
-    expect(bare.purse.bag[0]).toEqual({ item: "axe", n: 1, gems: ["fire"] });
+    expect(d.purse.bag[0]).toEqual({ item: "pick", n: 1, plus: 7, gems: ["fire"] });
+    const bare = ok(setGem(purseWith(50, [["gemRuby", 1], ["timber", 5]], [tool("axe", 7)]), 0, "gemRuby"));
+    expect(bare.purse.bag[0]).toEqual({ item: "axe", n: 1, plus: 7, gems: ["fire"] });
     expect(forged(bare.purse.bag[0])).toBe(true);
   });
-  it("a new gem over an old one costs the same, and the old one is gone", () => {
+  it("a new gem over an old one costs the same, and the old one is returned", () => {
     const a = ok(setGem(p, 0, "gemRuby")), b = ok(setGem(a.purse, 0, "gemSapphire"));
     expect(b.over).toBe("fire");
     expect(b.purse.coins).toBe(100);
     expect(gemsOf(b.purse.bag[0])).toEqual(["water"]);
-    expect(held(b.purse.bag, "gemRuby")).toBe(1);
+    expect(held(b.purse.bag, "gemRuby")).toBe(2);
     expect(held(b.purse.bag, "timber")).toBe(0);
     // the same element again is refused: it would only be lost
     expect(setGem(a.purse, 0, "gemRuby")).toEqual({ ok: false, why: "same" });
@@ -401,23 +401,60 @@ describe("a gem set in a tool", () => {
     expect(setGem(p, 0, "gemOnyx")).toEqual({ ok: false, why: "gem" });
     expect(setGem(p, 0, "stone")).toEqual({ ok: false, why: "gem" });
     // (too little of the mount is said as too little fine timber: one short, none, and copper ore is no mount any more)
-    expect(setGem(purseWith(200, [["gemRuby", 1]], [tool("pick")]), 0, "gemRuby")).toEqual({ ok: false, why: "timber" });
-    expect(setGem(purseWith(200, [["gemRuby", 1], ["timber", 4]], [tool("pick")]), 0, "gemRuby")).toEqual({ ok: false, why: "timber" });
-    expect(setGem(purseWith(200, [["gemRuby", 1], ["oreCopper", 5]], [tool("pick")]), 0, "gemRuby")).toEqual({ ok: false, why: "timber" });
+    expect(setGem(purseWith(200, [["gemRuby", 1]], [tool("pick", 7)]), 0, "gemRuby")).toEqual({ ok: false, why: "timber" });
+    expect(setGem(purseWith(200, [["gemRuby", 1], ["timber", 4]], [tool("pick", 7)]), 0, "gemRuby")).toEqual({ ok: false, why: "timber" });
+    expect(setGem(purseWith(200, [["gemRuby", 1], ["oreCopper", 5]], [tool("pick", 7)]), 0, "gemRuby")).toEqual({ ok: false, why: "timber" });
     expect(setGem({ ...p, coins: 49 }, 0, "gemRuby")).toEqual({ ok: false, why: "coins" });
     expect(setGem(purseWith(200, [["gemRuby", 1], ["timber", 5]], [{ item: "minnow", n: 1 }]), 0, "gemRuby")).toEqual({ ok: false, why: "tool" });
     for (const k of TOOL_KINDS) for (const e of ELEMENTS) {
-      const d = setGem(purseWith(200, [[GEMS[e].gem, 1], ["timber", 5]], [tool(k)]), 0, GEMS[e].gem);
+      const d = setGem(purseWith(200, [[GEMS[e].gem, 1], ["timber", 5]], [tool(k, 7)]), 0, GEMS[e].gem);
       expect(d.ok).toBe(BUILT[k].gems.includes(e));
       if (!d.ok) expect(d.why).toBe("unbuilt");
     }
   });
   it("keeps the tool's plus and options, and what a bag has to set", () => {
-    const d = ok(setGem(purseWith(200, [["gemEmerald", 1], ["timber", 5]], [tool("pick", 6, ["pkPeek", "pkSteady"])]), 0, "gemEmerald"));
-    expect(d.purse.bag[0]).toEqual({ item: "pick", n: 1, plus: 6, opts: ["pkPeek", "pkSteady"], gems: ["wind"] });
-    expect(levelOf(d.purse.bag[0])).toBe(6);
+    const d = ok(setGem(purseWith(200, [["gemEmerald", 1], ["timber", 5]], [tool("pick", 7, ["pkPeek", "pkSteady"])]), 0, "gemEmerald"));
+    expect(d.purse.bag[0]).toEqual({ item: "pick", n: 1, plus: 7, opts: ["pkPeek", "pkSteady"], gems: ["wind"] });
+    expect(levelOf(d.purse.bag[0])).toBe(7);
     expect(gemsIn(p.bag)).toEqual([{ element: "fire", gem: "gemRuby", n: 2 }, { element: "water", gem: "gemSapphire", n: 1 }]);
     expect(toolsIn(p.bag).map((t) => [t.slot, t.kind])).toEqual([[0, "pick"]]);
+  });
+  it("gates empty sockets at +7/+10 without spending anything on a refusal", () => {
+    const before = structuredClone(p);
+    for (const level of [0, 6]) {
+      const low = { ...p, bag: [{ ...p.bag[0]!, plus: level }, ...p.bag.slice(1)] };
+      expect(setGem(low, 0, "gemRuby")).toEqual({ ok: false, why: "socket" });
+    }
+    const first = ok(setGem(p, 0, "gemRuby"));
+    expect(setGem(first.purse, 0, "gemSapphire", 1)).toEqual({ ok: false, why: "socket" });
+    for (const socket of [-1, 2, 1.5, NaN]) expect(setGem(p, 0, "gemRuby", socket)).toEqual({ ok: false, why: "socket" });
+    expect(p).toEqual(before);
+    const top = { ...p, bag: [{ ...p.bag[0]!, plus: 10 }, ...p.bag.slice(1)] };
+    expect(setGem(top, 0, "gemRuby", 1)).toEqual({ ok: false, why: "socket" });
+  });
+  it("fills the second socket with a mixed or matching gem and replaces only the chosen socket", () => {
+    const top = { ...p, coins: 500, bag: [{ ...p.bag[0]!, plus: 10, gems: ["fire"] }, ...p.bag.slice(1)] };
+    const mixed = ok(setGem(top, 0, "gemSapphire", 1));
+    expect(gemsOf(mixed.purse.bag[0])).toEqual(["fire", "water"]);
+    expect(mixed.over).toBeNull();
+    expect(modsOf(mixed.purse.bag[0]).gems).toEqual({ fire: 2, water: 2 });
+    const same = ok(setGem(top, 0, "gemRuby", 1));
+    expect(modsOf(same.purse.bag[0]).gems).toEqual({ fire: 3 });
+    const swapped = ok(setGem(mixed.purse, 0, "gemRuby", 1));
+    expect(swapped.over).toBe("water");
+    expect(gemsOf(swapped.purse.bag[0])).toEqual(["fire", "fire"]);
+    expect(setGem(swapped.purse, 0, "gemRuby", 1)).toEqual({ ok: false, why: "same" });
+  });
+  it("keeps fitted and historical gems through a downgrade and a replacement", () => {
+    const fallen = { ...p, bag: [{ ...p.bag[0]!, plus: 6, gems: ["fire", "wind", "ice"] }, ...p.bag.slice(1)] };
+    const changed = ok(setGem(fallen, 0, "gemSapphire", 1));
+    expect(changed.purse.bag[0]?.gems).toEqual(["fire", "water", "ice"]);
+    const stack = { ...tool("pick", 7, ["pkPeek", "pkSteady"]), gems: ["fire", "wind", "ice"] };
+    const cost = tryCost("pick", 8)!;
+    const down = ok(forgeTry(purseWith(cost.fee, [[cost.ore, cost.n], ["timber", cost.timber]], [stack]), newSmithy(), 0, .999999));
+    expect(down.level).toBe(6);
+    expect(down.purse.bag[0]?.gems).toEqual(["fire", "wind", "ice"]);
+    expect(modsOf(down.purse.bag[0]).gems).toEqual({ fire: 1, wind: 1 });
   });
 });
 
@@ -483,7 +520,7 @@ describe("a maker's history (the owner, 2026-10-08)", () => {
     expect(ok(forgeTry(stocked(tool("pick", 5, ["pkPeek"])), newSmithy(), 0, 0, "Nine")).purse.bag[0]?.makers).toEqual(["", "Nine"]);
   });
   it("stays on the tool through everything else done to it, and is read soundly", () => {
-    const made: Stack = { ...tool("pick", 6, ["pkPeek", "pkSteady"]), makers: ["Aqua", "Nine"] };
+    const made: Stack = { ...tool("pick", 7, ["pkPeek", "pkSteady"]), makers: ["Aqua", "Nine"] };
     const p = purseWith(500, [["gemRuby", 1], ["timber", 5]], [made]);
     expect(ok(setGem(p, 0, "gemRuby")).purse.bag[0]?.makers).toEqual(["Aqua", "Nine"]);
     expect(forged(made)).toBe(true);

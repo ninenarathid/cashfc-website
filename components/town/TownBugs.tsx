@@ -741,7 +741,11 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       const sw = swing.current;
       if (sw) {
         const c = project(sw.at), t = Math.min(1, (now - sw.began) / Math.max(1, sw.lands - sw.began));
-        if (!sw.done && now >= sw.lands) { sw.done = true; landedRef.current = { ...sw }; land(sw, now); }
+        if (!sw.done && now >= sw.lands) {
+          sw.done = true; landedRef.current = { ...sw };
+          vfx.element(heldStack(keeper.purse(), keeper.handSlot()), sw.at, { lift: 24 });
+          land(sw, now);
+        }
         if (now > sw.lands + (sw.wind ? 320 : 220)) swing.current = null;
         else if (sw.wind) things.push({ depth: sw.at.x + sw.at.y + 3, draw: () => {
           // the wind's: down already, the gust closing in on its ring, and the net pressed flat a moment

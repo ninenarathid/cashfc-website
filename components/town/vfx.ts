@@ -1,6 +1,9 @@
 import type { Vec } from "@/lib/town/world";
 import type { FarmFrame } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
+import type { Stack } from "@/lib/town/trade";
+import { elementAction } from "@/lib/town/element-action";
+import { ACTION_LIFE, ACTION_LIMIT, paintElementAction, type ElementBurst } from "./element-action-art";
 
 /**
  * What flies up where work is done (the owner, 2026-10-03: "การทำอาหาร และ ปลูกพืช ช่วย
@@ -141,7 +144,17 @@ function paint({ ctx, s, img }: FarmFrame, b: Burst, x: number, y: number, t: nu
 
 export class Vfx {
   private bursts: Burst[] = [];
+  private elements: { burst: ElementBurst; at: Vec | null; lift: number }[] = [];
   private seeds = 20261003;
+
+  element(stack: Stack | null | undefined, at: Vec | null = null, opts: { lift?: number } = {}) {
+    const look = elementAction(stack);
+    if (!look) return;
+    const now = performance.now();
+    this.elements = this.elements.filter((b) => now - b.burst.born < ACTION_LIFE);
+    if (this.elements.length >= ACTION_LIMIT) this.elements.shift();
+    this.elements.push({ burst: { look, born: now, seed: ++this.seeds, x: 0, y: 0, soft: false }, at: at ? { ...at } : null, lift: opts.lift ?? 0 });
+  }
 
   /** Begin a burst at a point of the map, or (with none) where I stand when it is first drawn. `lift` raises it off the ground, in the map's own pixels; `icon` is the thing a "pop" holds up. */
   add(kind: VfxKind, at: Vec | null = null, opts: { icon?: string; lift?: number } = {}) {
@@ -152,9 +165,19 @@ export class Vfx {
 
   /** Put what is in the air this frame among everything else the map draws. */
   draw(frame: FarmFrame) {
-    if (!this.bursts.length) return;
-    if (frame.still) { this.bursts = []; return; }
+    if (!this.bursts.length && !this.elements.length) return;
+    if (frame.still) this.bursts = [];
     const now = performance.now();
+    this.elements = this.elements.filter((b) => now - b.burst.born < ACTION_LIFE);
+    for (const b of this.elements) {
+      if (!b.at) { if (!frame.self) continue; b.at = { ...frame.self }; }
+      const at = b.at, c = frame.project(at);
+      if (!frame.onScreen(c)) continue;
+      const draw = () => paintElementAction(frame.ctx,
+        { ...b.burst, x: c.x, y: c.y - b.lift * frame.s }, now, frame.s, frame.still);
+      if (frame.over && (frame.dark ?? 0) > 0.3) frame.over(draw);
+      else frame.things.push({ depth: at.x + at.y + 1.5, draw });
+    }
     this.bursts = this.bursts.filter((b) => now - b.born < LIFE[b.kind]);
     for (const b of this.bursts) {
       if (!b.at) { if (!frame.self) continue; b.at = { ...frame.self }; }
@@ -165,5 +188,5 @@ export class Vfx {
   }
 
   /** How many bursts are in the air (for scripts in `next dev`). */
-  get count() { return this.bursts.length; }
+  get count() { return this.bursts.length + this.elements.length; }
 }

@@ -123,7 +123,7 @@ function newToolGem(kind: "pick" | "axe", element: Element, level: number): Word
       return n >= ALL ? w("ต้นไม้ที่โตแล้วส่องประกายทั้งแผนที่", "Grown trees glint over the whole map") : w(`ต้นไม้ที่โตแล้วส่องประกายในระยะ ${n} ช่อง`, `Grown trees glint within ${n} tiles`);
     }
     case "dark": {
-      if (pick) { const x = step(GEM_FX.dark.pick.veins, level), k = step(GEM_FX.dark.pick.swings, level); return w(`เจอสายแร่บ่อยขึ้น ${x} เท่า แต่หินทุกก้อนต้องทุบเพิ่ม ${k} ครั้ง`, `Veins ${x} times as often; every rock takes ${k} swing more`); }
+      if (pick) { const x = step(GEM_FX.dark.pick.veins, level), k = step(GEM_FX.dark.pick.swings, level); return w(`เจอสายแร่บ่อยขึ้น ${x} เท่า หินที่ปกติต้องทุบเกิน 2 ครั้งต้องทุบเพิ่ม ${k} ครั้ง`, `Veins ${x} times as often; rocks normally needing more than two swings take ${k} extra swing`); }
       const p = pct(step(GEM_FX.dark.axe.log, level)), f = pct(step(GEM_FX.dark.axe.faster, level));
       return w(`${p}% ได้ท่อนไม้เพิ่ม 1 แต่แถบเวลาเร็วขึ้น ${f}%`, `${p}% for one more log; the time bar runs ${f}% faster`);
     }
@@ -167,7 +167,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
     }
     case "lightning": {
       const p = pct(step(F.lightning.chance, level));
-      if (fam === "rod") return w(`ตกปลาได้แล้วมีโอกาส ${p}% ได้เหยื่อคืน`, `${p}% that a fish landed gives its bait back`);
+      if (fam === "rod") return w(`แถบปลอดภัยกว้างขึ้น ${p}% และมีโอกาส ${p}% ได้เหยื่อคืน`, `${p}% wider safe band; ${p}% chance to regain bait`);
       if (fam === "hoe") return w(`${p}% ที่แปลงถัดไปในแถวเสร็จไปด้วย`, `${p}% that the next plot of the row is done too`);
       if (fam === "can") return w(`${p}% ที่แปลงถัดไปได้น้ำไปด้วย`, `${p}% that the next plot is watered too`);
       if (fam === "bugNet") return w(`จับได้แล้วมีโอกาส ${p}% ได้เพิ่มอีกตัว`, `${p}% that a catch brings one more`);
@@ -176,16 +176,16 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
     case "wind": return windWords(level);
     case "light":
       if (fam === "rod") { const s = step(F.light.rod.early, level); return w(`ทุ่นเรืองแสงก่อนปลากิน ${s} วินาที`, `The float glows ${s} s before the bite`); }
-      if (fam === "hoe") return w("มินิเกมถางหญ้า: ก้อนหินเรืองแสงให้แยกจากต้นหญ้าได้ง่าย กดเฉพาะต้นหญ้าและหลีกเลี่ยงก้อนหิน", "Weeding minigame: stone obstacles glow so you can tell them from weeds; tap weeds and avoid stones");
+      if (fam === "hoe") { const n=step(F.light.hoe.stones,level); return w(`ก้อนหินเรืองแสง และมีหินลดลง ${n} ก้อน`, `Stones glow; ${n} fewer stone obstacles`); }
       if (fam === "can") { const n = step(F.light.can.glint, level); return n >= ALL ? w("ต้นที่รดได้ตอนนี้ส่องประกายทั้งแปลง", "Plants that can be watered now glint over the whole bed") : w(`ต้นที่รดได้ตอนนี้ส่องประกายในระยะ ${n} ช่อง`, `Plants that can be watered now glint within ${n} tiles`); }
       if (fam === "bugNet") { const n = step(F.light.bugNet.seen, level); return w(`แมลงในระยะ ${n} ช่องมีประกาย แม้ตัวที่ซ่อนอยู่`, `Insects within ${n} tiles glint, the hidden ones too`); }
-      return w("มีแสงวนรอบหม้อตามจังหวะที่ดี ให้ทัพพีวนตาม", "A light goes round the pot at the good pace, for the ladle to keep with");
+      return w(`แสงบอกจังหวะที่ดี และจังหวะกว้างขึ้น ${pct(step(F.light.cook.band,level))}%`, `Light guides stirring; ${pct(step(F.light.cook.band,level))}% wider timing band`);
     case "dark":
       if (fam === "rod") { const x = step(F.dark.rod.rare, level), f = pct(F.dark.rod.fiercer); return w(`ปลาหายากมาบ่อยขึ้น ${x} เท่า แต่ปลาทุกตัวดึงแรงขึ้น ${f}%`, `Rare fish ${x} times as often; every fish pulls ${f}% harder`); }
       if (fam === "hoe") { const p = pct(step(F.dark.hoe.worm, level)), f = pct(F.dark.hoe.faster); return w(`${p}% ที่พรวนแล้วเจอไส้เดือน แต่ตัวชี้เร็วขึ้น ${f}%`, `${p}% that a tilled plot turns up a worm; the marker ${f}% faster`); }
       if (fam === "can") { const p = pct(step(F.dark.can.more, level)), k = F.dark.can.uses; return w(`รดครั้งหนึ่งต้นโตเพิ่ม ${p}% แต่ใช้น้ำ ${k} ครั้ง`, `A watering adds ${p}% more growth, and uses ${k}`); }
       if (fam === "bugNet") { const x = step(F.dark.bugNet.rare, level), f = pct(F.dark.bugNet.smaller); return w(`แมลงที่กลับมาหลังเราจับได้ เป็นตัวหายากบ่อยขึ้น ${x} เท่า แต่วงสวิงเล็กลง ${f}%`, `The insect that comes back after your catch is a rare one ${x} times as often; the ring ${f}% smaller`); }
-      { const p = pct(step(F.dark.cook.helping, level)), f = pct(F.dark.cook.harder); return w(`${p}% ที่หม้อได้เพิ่ม 1 ที่ แต่จังหวะที่ดีแคบลง ${f}%`, `${p}% that a pot has one more helping; its good pace ${f}% narrower`); }
+      { const p = pct(step(F.dark.cook.helping, level)), f = pct(F.dark.cook.harder); return w(`${p}% ที่หม้อได้เพิ่ม 2 ที่ แต่จังหวะที่ดีแคบลง ${f}%`, `${p}% that a pot has two more helpings; its good pace ${f}% narrower`); }
   }
 }
 /** What a gem's element does in a kind of tool, at the level it works at: null where nothing says. */

@@ -17,6 +17,7 @@ import { handOf, held, roomFor } from "@/lib/town/trade";
 import type { CastHow, Hooked, Keeper } from "@/lib/town/keeper";
 import type { Fishing } from "@/lib/town/world";
 import { BIG, PixelGround, STAGE } from "./TownGame";
+import TownElementFx from "./TownElementFx";
 import { AT_THE_LINE, BuffAura, Twinkle } from "./TownBuffFx";
 import TownComboFx from "./TownComboFx";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -151,6 +152,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const [, setTick] = useState(0);
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
   const [phase, setPhase] = useState<Phase>({ at: "ready" });
+  const [elementPull, setElementPull] = useState(0);
   /** A go has ended: what it came to is shown, from now. */
   const end = useCallback((it: Ended) => setPhase({ at: "result", from: performance.now(), ...it }), []);
   const [bait, setBait] = useState<BaitId>("worm");
@@ -760,7 +762,10 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (e.key !== " " && e.code !== "Space") return;
       e.preventDefault();
       e.stopPropagation();
-      if (phase.at === "fight" || phase.at === "fight2") { holding.current = down; if (down) sfx.wake(); return; }
+      if (phase.at === "fight" || phase.at === "fight2") {
+        if (down && !holding.current) setElementPull((n) => n + 1);
+        holding.current = down; if (down) sfx.wake(); return;
+      }
       if (!down || e.repeat) return;
       if (phase.at === "waiting") void strike();
       else if (phase.at === "ready") dropRef.current();
@@ -796,7 +801,12 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
 
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const known = (id: CatchId) => !(id in FISH) || purse.best[id as FishId] !== undefined;
-  const press = (on: boolean) => (e: ReactPointerEvent) => { e.preventDefault(); holding.current = on; if (on) { sfx.wake(); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); } };
+  const press = (on: boolean) => (e: ReactPointerEvent) => {
+    e.preventDefault();
+    if (on && !holding.current) setElementPull((n) => n + 1);
+    holding.current = on;
+    if (on) { sfx.wake(); (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId); }
+  };
   const hasRod = !!gear.rod;
   /** What one line came to: the thing landed with what there is to say of it, or how it was lost. */
   const came = (o: Outcome, key: number) => (
@@ -903,7 +913,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   );
   return (
     <section ref={root} aria-labelledby="town-fish-h" data-town-game data-look="fish"
-             className="rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
+             className="relative rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex items-center gap-2">
         {/* the rod in use, when there is one */}
         <span title={gear.rod ? name(gear.rod) : undefined}>{gear.rod ? <ItemIcon id={gear.rod} size={24} /> : <TownIcon name="hook" size={22} />}</span>
@@ -1202,6 +1212,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
           </div>
         </div>
       )}
+      {phase.at !== "ready" && <TownElementFx pulse={`${phase.at}:${elementPull}`} active={phase.at !== "result"}
+        target='.town-game-stage[data-look="fight"], .town-game-stage[data-look="float"], .town-game-stage:not([data-look])' y={0.58} />}
     </section>
   );
 }

@@ -369,6 +369,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     sfx?.wake();
     sfx?.work(cooked ? "cooked" : right ? "made" : odd ? "odd" : did.back ? "crackle" : "nothing");
     vfx.add(right || did.back ? "sparkle" : odd ? "smoke" : "dust", null, { lift: 20 });
+    vfx.element(heldStack(purse, keeper.handSlot()), null, { lift: 22 });
     // (the phoenix flame gave every thing back: the bottle held up where the pot would have been)
     if (did.back) vfx.add("pop", null, { icon: "thingFlame", lift: 24 });
     if (cooked) vfx.add("steam", null, { lift: 22 });
@@ -618,12 +619,12 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           {/* what is cooked on a stick is roasted over the fire, a game of its own; everything else is stirred */}
           {stirring.crew[0] === "skewer" ? (
             <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} harder={harder} scene={art?.("gameFire") ?? null}
-                          onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) vfx.add("smoke", null, { lift: 22 }); }}
+                          onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) { vfx.add("smoke", null, { lift: 22 }); vfx.element(heldStack(purse, keeper.handSlot()), null, { lift: 22 }); } }}
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={giveUp} />
           ) : (
             <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsWith(stirsFor(stirring.things), cfx)} mods={{ ...stirMods(carriedBag(purse), spent, (1 + buffBy(purse, now, "calm"))), forged: cfx.band, spare: cfx.spared, grace: cfx.grace, steady: cfx.steady }} harder={harder} guide={cfx.guide}
-                          onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
+                          onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) { vfx.add("steam", null, { lift: 22 }); vfx.element(heldStack(purse, keeper.handSlot()), null, { lift: 22 }); } }}
                           onDone={finish} onCancel={giveUp} />
           )}
         </div>

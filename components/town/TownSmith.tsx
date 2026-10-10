@@ -16,7 +16,7 @@ import { dayOf } from "@/lib/town/stamina";
 import ART from "@/lib/town/smith-art.json";
 import { cardOf, gemDoes, nextOf, optionDoes } from "@/lib/town/tool-words";
 import {
-  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, awayOf, drawnOf, gemsOf, lineKinds, makersOf, modsOf, originOf, settable, toolLineOf,
+  BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, awayOf, drawnOf, gemsOf, isElement, lineKinds, makersOf, modsOf, originOf, settable, socketOpen, toolLineOf,
   type OptionId, type ToolKind,
 } from "@/lib/town/tools";
 import { heldIn } from "@/lib/town/pouches";
@@ -24,6 +24,8 @@ import type { Stack } from "@/lib/town/trade";
 import { bySmith } from "@/lib/town/world";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownForgeEffects from "./TownForgeEffects";
+import TownToolSkin from "./TownToolSkin";
+import { ELEMENT_TRAINING, elementStage, masteryOf } from "@/lib/town/tools";
 import { Coins, ItemIcon, StackIcon, forgeWords, gemWords } from "./TownTrade";
 
 /** The smith's five leaves. */
@@ -47,6 +49,7 @@ export function smithChoices(keeper: Keeper | null, th: boolean): Array<{ id: Sm
 
 /** Why something was not done at the smith, in a few words. */
 const WHY: Record<SmithRefusal, [th: string, en: string]> = {
+  socket: ["ช่องแรกเปิดที่ +7 ช่องสองที่ +10 และต้องใส่ช่องแรกก่อน", "The first socket opens at +7, the second at +10. Fill the first socket first."],
   daily: ["วันนี้ใช้สิทธิ์มหาไฟแล้ว กลับมาลองใหม่พรุ่งนี้", "Today's great-fire try is used. Come back tomorrow."],
   none: ["ไม่มีสิ่งนั้นแล้ว", "It is not there any more"],
   amount: ["จำนวนไม่ถูกต้อง", "Not a number that can be done"],
@@ -224,15 +227,26 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   };
   // ── a gem: which one of the bag's is chosen ──
   const [gem, setGem] = useState<ItemId | null>(null);
+  const [socket, setSocket] = useState(0);
+  const selectedSocket = Math.min(socket, gemsOf(stack).length);
   const gems = gemsIn(purse), chosenGem = gem && gems.some((g) => g.gem === gem) ? gem : null;
   const setIt = async () => {
     if (busy || slot < 0 || !chosenGem) return;
     setBusy(true);
-    const did = await keeper.smithGem(slot, chosenGem);
+    const did = await keeper.smithGem(slot, chosenGem, selectedSocket);
     setBusy(false);
     if (!did.ok) { refuse(did.why); return; }
     sfx?.work("clang"); setGem(null);
     setSaid({ text: t(`ฝัง${itemName(chosenGem, true)}แล้ว`, `${itemName(chosenGem, false)} is set`), tone: "good" });
+  };
+  const removeIt = async (socket = selectedSocket) => {
+    if (busy || slot < 0 || !stack?.gems?.filter(isElement)[socket]) return;
+    setBusy(true);
+    const did=await keeper.smithGem(slot,null,socket);
+    setBusy(false);
+    if (!did.ok) { refuse(did.why); return; }
+    sfx?.work("clang");setGem(null);setSocket(0);
+    setSaid({text:t("คืนพลอยเดิมแล้ว แต้มฝึกยังอยู่กับอุปกรณ์","Gem returned; the tool keeps its training"),tone:"good"});
   };
   // ── a move: the tool on the anvil is the one moved from; which other tool of its line it trades with ──
   const [moveTo, setMoveTo] = useState<number | null>(null);
@@ -323,12 +337,13 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   const q = smithView(told.smithy, now);
   const glow = mods.glow ? { filter: `drop-shadow(0 0 ${mods.glow === 2 ? 7 : 4}px ${mods.hue}) drop-shadow(0 0 ${mods.glow === 2 ? 14 : 6}px ${mods.hue}${mods.glow === 2 ? "" : "88"})` } : undefined;
   const cost = kind && level < FORGE.top ? tryCost(kind, level + 1) : null, odds = level < FORGE.top ? tryOdds(level + 1) : null, lacks = slot >= 0 ? tryLacks(purse, slot) : [];
-  const setElement = stack ? gemsOf(stack)[0] ?? null : null;
+  const setElement = stack ? gemsOf(stack)[selectedSocket] ?? null : null;
   // (what the next level changes for this tool: the numbers of its card that would read otherwise, and what else comes with that level)
   const changes = nextOf(stack), nextAt = FORGE.milestones.indexOf(level + 1);
   const drawComes = !!stack && nextAt >= 0 && !drawnOf(stack)[nextAt] && candidates(stack, nextAt).length > 0;
   const gemComes = kind && setElement && level + 1 === FORGE.top ? gemDoes(kind, setElement, Math.min(GEM_LEVELS, (mods.gems[setElement] ?? 1) + FORGE.gemAtTop)) : null;
   const glowComes = level + 1 === FORGE.glow.full ? 2 : level + 1 === FORGE.glow.from ? 1 : 0;
+  const socketComes = FORGE.socketAt.indexOf(level + 1);
 
   /** The tools of the bag, to put one on the anvil. */
   const rack = (
@@ -416,7 +431,9 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
             </li>
           );
         })}
-        <li className="flex items-start gap-2 rounded-xl border border-[#6b4a2a] bg-[#2a1d12] px-2.5 py-2" data-smith-gem={setElement ?? ""}>
+        {FORGE.socketAt.map((at, socketIndex) => {
+          const setElement = gemsOf(stack)[socketIndex] ?? null;
+          return <li key={socketIndex} className="flex items-start gap-2 rounded-xl border border-[#6b4a2a] bg-[#2a1d12] px-2.5 py-2" data-smith-gem={setElement ?? ""}>
           <span className="relative mt-0.5 grid size-7 shrink-0 place-items-center">
             <TownIcon name="smithSocket" size={26} />
             {setElement && <span className="absolute"><ItemIcon id={GEMS[setElement].gem} size={16} /></span>}
@@ -426,8 +443,9 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
               <span className="block text-ui font-semibold" style={{ color: GEMS[setElement].hue }}>{itemName(GEMS[setElement].gem, th)} · {th ? GEMS[setElement].name.th : GEMS[setElement].name.en} {mods.gems[setElement]}</span>
               {(() => { const does = gemDoes(kind, setElement, mods.gems[setElement] ?? 1); return does ? <span className="block text-meta leading-relaxed text-[#d9c39b]" data-smith-gem-does>{th ? does.th : does.en}</span> : null; })()}
             </span>
-          ) : <span className="self-center text-meta text-[#8f7655]">{t("ช่องพลอยว่าง", "The socket is empty")}</span>}
-        </li>
+          ) : <span className="self-center text-meta text-[#8f7655]">{socketOpen(stack, socketIndex) ? t("ช่องพลอยว่าง", "The socket is empty") : t(`เปิดช่อง ${socketIndex + 1} ที่ +${at}`, `Socket ${socketIndex + 1} opens at +${at}`)}</span>}
+        </li>;
+        })}
       </ul>
     </div>
   );
@@ -644,7 +662,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                       <span>{itemName(stack.item, th)}</span><span className="tabular-nums">+{level}</span><TownIcon name="chevron" size={12} className="-rotate-90" /><span className="tabular-nums text-[#f0c46a]">+{level + 1}</span>
                     </p>
                     {/* before and after: the numbers of this tool's card that the level tried for changes, and what else comes with it */}
-                    {(changes.length > 0 || drawComes || !!gemComes || glowComes > 0) && (
+                    {(changes.length > 0 || drawComes || !!gemComes || glowComes > 0 || socketComes >= 0) && (
                       <div className="mt-2 rounded-xl border border-[#4a341f] bg-[#241a10] px-2.5 py-2" data-smith-next>
                         <p className="mb-1 font-data text-label uppercase text-[#c9a877]">{t("ถ้าตีติด", "If it takes")}</p>
                         <ul className="space-y-1">
@@ -666,6 +684,11 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                           {gemComes && setElement && (
                             <li className="flex items-start gap-2 text-meta leading-relaxed text-[#f3e3c3]" data-smith-next-gem={setElement}>
                               <ItemIcon id={GEMS[setElement].gem} size={14} className="mt-0.5 shrink-0" /><span>{th ? gemComes.th : gemComes.en}</span>
+                            </li>
+                          )}
+                          {socketComes >= 0 && (
+                            <li className="flex items-center gap-2 text-meta text-[#f0c46a]" data-smith-next-socket={socketComes}>
+                              <TownIcon name="smithSocket" size={14} />{t(`เปิดช่องอัญมณีที่ ${socketComes + 1}`, `Unlocks gem socket ${socketComes + 1}`)}
                             </li>
                           )}
                           {glowComes > 0 && (
@@ -697,6 +720,46 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
               <div data-smith-gems>
                 {rack}
                 {stack && kind && (
+                  <div className="mb-3" data-smith-sockets>
+                    {(gemsOf(stack).length > 0 || Object.keys(masteryOf(stack)).length > 0) && <div className="mb-3 flex items-center gap-3 rounded-xl bg-[#1d140c] p-3">
+                      {gemsOf(stack).length ? <TownToolSkin stack={stack}/> : <ItemIcon id={stack.item} size={64}/>}
+                      <div className="min-w-0 flex-1">
+                        {ELEMENTS.filter(element => gemsOf(stack).includes(element) || (masteryOf(stack)[element] ?? 0)>0).map(element => {
+                          const stage=elementStage(stack,element),points=masteryOf(stack)[element] ?? 0,next=ELEMENT_TRAINING[stage+1];
+                          return <div key={element} className="mb-2 text-meta" data-element-training={element} data-stage={stage}>
+                            <p style={{color:GEMS[element].hue}}>{GEMS[element].name[th ? "th" : "en"]} · {t(["เริ่มผสาน","ตื่นพลัง","ก้องประสาน","แปรสภาพ"][stage],["Newly set","Awakening","Resonance","Ascended"][stage])}</p>
+                            {!gemsOf(stack).includes(element) && <p className="text-[#c9a877]">{t("พักพลัง · ใส่ธาตุนี้กลับเพื่อฝึกต่อ","Dormant · reinsert this element to resume")}</p>}
+                            <p className="text-[#c9a877]">{next ? t(`${points}/${next} งานสำเร็จ`,`${points}/${next} successful jobs`) : t("ฝึกครบแล้ว","Training complete")}</p>
+                            {next && <progress className="h-1.5 w-full accent-[#f0c46a]" value={points} max={next} aria-label={t("ความคืบหน้าการฝึกธาตุ","Element training progress")}/>}
+                          </div>;
+                        })}
+                        <p className="text-meta text-[#c9a877]">{t("ถอดพลอยแล้วแต้มยังอยู่กับอุปกรณ์ ใส่ธาตุเดิมฝึกต่อได้","Removing a gem preserves this tool's training. Reinsert the element to continue.")}</p>
+                      </div>
+                    </div>}
+                    <p className="mb-2 text-meta text-[#d9c39b]">{t("เลือกช่องที่จะฝัง · ช่องแรก +7 · ช่องสอง +10", "Choose a socket · first +7 · second +10")}</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {FORGE.socketAt.map((at, i) => {
+                        const element = gemsOf(stack)[i], open = socketOpen(stack, i) && i <= gemsOf(stack).length;
+                        return <button key={i} type="button" disabled={busy || !open} aria-pressed={selectedSocket === i} data-smith-socket={i}
+                          onClick={() => { setSocket(i); setGem(null); }}
+                          className={`rounded-xl border-2 p-3 text-meta disabled:opacity-50 ${selectedSocket === i ? "border-[#f0c46a] bg-[#4a3423]" : "border-[#6b4a2a] bg-[#33251a]"}`}>
+                          {t(`ช่อง ${i + 1}`, `Socket ${i + 1}`)} · {element ? itemName(GEMS[element].gem, th) : open ? t("ว่าง", "Empty") : `+${at}`}
+                        </button>;
+                      })}
+                    </div>
+                    <p className="mt-2 text-meta text-[#c9a877]">{t("ต่างธาตุ: ใช้ผลของแต่ละธาตุ โดยโบนัสชนิดเดียวกันอาจไม่รวมกัน · ธาตุซ้ำ: เพิ่มพลังธาตุนั้นหนึ่งขั้น · ตีตกไม่ทำให้พลอยหาย", "Mixed elements use each element's effects; overlapping bonuses may not stack · matching elements gain one effect tier · fitted gems survive downgrades")}</p>
+                    {setElement && <button type="button" onClick={()=>void removeIt()} disabled={busy || purse.coins < SMITH.gem.fee} className="pressable mt-2 min-h-10 rounded-full border border-[#c9a877] px-4 text-meta text-[#f3e3c3]" data-smith-remove-gem>
+                      {t(`ถอดและคืนพลอย · ${SMITH.gem.fee} เหรียญ`,`Remove and return gem · ${SMITH.gem.fee} coins`)}
+                    </button>}
+                    {stack.gems?.filter(isElement).slice(FORGE.sockets).map((element,i)=><button key={i} type="button" onClick={()=>void removeIt(i+FORGE.sockets)} disabled={busy} data-smith-legacy-gem className="pressable mt-2 min-h-10 rounded-full border border-[#c9a877] px-4 text-meta text-[#f3e3c3]">
+                      {t(`รับคืน${GEMS[element].name.th}จากช่องเก่า · ฟรี`,`Recover legacy ${GEMS[element].name.en} gem · free`)}
+                    </button>)}
+                    {["pot", "pan", "grill"].includes(kind) && gemsOf(stack).includes("lightning") && gemsOf(stack).includes("dark") && (
+                      <p className="mt-2 text-meta text-[#ffb4a0]">{t("สายฟ้าลุ้นเพิ่ม 1 ที่ ความมืดลุ้นเพิ่ม 2 ที่แยกกัน ได้พร้อมกันได้ แต่ความมืดทำให้จังหวะแคบลง", "Lightning rolls for one extra helping and dark rolls separately for two. Both can occur; dark narrows the timing band.")}</p>
+                    )}
+                  </div>
+                )}
+                {stack && kind && (
                   <div className="mb-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]">
                     <p className="mb-2 flex flex-wrap items-baseline justify-between gap-x-2 font-data text-label uppercase text-[#c9a877]">
                       <span>{t("พลอยในกระเป๋า", "Gems in the bag")}</span>
@@ -706,8 +769,10 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                       // (each gem held says what it would do in the tool on the anvil, at the level it would work at there: nobody sets one blind)
                       <ul className="space-y-1.5" role="radiogroup" aria-label={t("พลอยในกระเป๋า", "Gems in the bag")}>
                         {gems.map((g) => {
-                          const isSet = g.element === setElement, cannot = !settable(kind, g.element) || isSet, on = chosenGem === g.gem;
-                          const would = gemDoes(kind, g.element, Math.min(GEM_LEVELS, 1 + (level >= FORGE.top ? FORGE.gemAtTop : 0)));
+                          const isSet = g.element === setElement, cannot = !settable(kind, g.element) || isSet || !socketOpen(stack, selectedSocket), on = chosenGem === g.gem;
+                          const preview = [...gemsOf(stack)]; preview[selectedSocket] = g.element;
+                          const would = gemDoes(kind, g.element, modsOf({ ...stack, gems: preview }).gems[g.element] ?? 1);
+                          const overlap = ["pot", "pan", "grill"].includes(kind) && preview.includes("lightning") && preview.includes("dark");
                           return (
                             <li key={g.gem}>
                               <button type="button" role="radio" aria-checked={on} onClick={() => setGem(on ? null : g.gem)} disabled={busy || cannot} data-smith-pick-gem={g.gem} data-can={!cannot}
@@ -721,6 +786,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                                   </span>
                                   <span className="mt-0.5 block text-meta leading-relaxed text-[#d9c39b]" data-smith-gem-would={g.element}>
                                     {isSet ? t("ฝังอยู่ในเครื่องมือชิ้นนี้แล้ว", "Set in this tool already") : would && settable(kind, g.element) ? (th ? would.th : would.en) : th ? WHY.unbuilt[0] : WHY.unbuilt[1]}
+                                    {overlap && <span className="block text-[#ffb4a0]">{t("ลุ้นโบนัสอาหารแยกกัน: สายฟ้า +1 ความมืด +2 แต่ความมืดทำให้จังหวะแคบลง", "Separate extra-helping rolls: lightning +1, dark +2; dark narrows the timing band.")}</span>}
                                   </span>
                                 </span>
                               </button>
@@ -738,7 +804,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                         </div>
                         {setElement && (
                           <p className="mt-2 flex items-start gap-1.5 rounded-xl border border-[#b3402f] bg-[#3a1712] px-2.5 py-2 text-meta leading-relaxed text-[#ffb4a0]" data-smith-warn>
-                            <TownIcon name="warning" size={14} className="mt-0.5" />{t(`${itemName(GEMS[setElement].gem, true)}ที่ฝังอยู่จะหายไป เอาคืนไม่ได้`, `The ${itemName(GEMS[setElement].gem, false).toLowerCase()} set in it now will be gone for good`)}
+                            <TownIcon name="smithSocket" size={14} className="mt-0.5" />{t(`คืน${itemName(GEMS[setElement].gem, true)}ที่ฝังอยู่ แต้มฝึกยังอยู่กับอุปกรณ์ ต้องมีที่เก็บพลอยคืน`, `The ${itemName(GEMS[setElement].gem, false).toLowerCase()} returns to storage. Training stays with the tool; room for the returned gem is required.`)}
                           </p>
                         )}
                         <button type="button" onClick={() => void setIt()} disabled={busy || heldIn(purse, SMITH.gem.mount) < SMITH.gem.mounts || purse.coins < SMITH.gem.fee} data-smith-set

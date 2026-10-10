@@ -1,9 +1,10 @@
+import { trainElement } from "./element-training";
 import { carriedBag } from "./passive-equipment";
 import { GEOLOGY_RAW } from "./geology-items";
 import { cookFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { usePower } from "./powers";
-import { optN } from "./tools";
+import { optN, levelOf } from "./tools";
 import { COOK_EASE, KITCHEN_GEAR } from "./gear";
 import { BOWL, DISHES, DISH_IDS, ITEMS, MAKES, MAKE_IDS, isDish, type Cookware, type DishId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
@@ -272,7 +273,7 @@ export function tasteOf(things: Array<[ItemId, number]>, crew: Array<ItemId | nu
  * and a miss by a recipe's last thing alone is counted against that recipe
  * (`tries` in the purse), until the recipe says what the thing looks like.
  */
-export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, now: number):
+function cookUntrained(purse: Purse, things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, now: number):
   Done<{ purse: Purse; made: ItemId | null; n: number; taste?: Taste }> {
   const all = tidy(things);
   if (!all.length || all.length > COOKING.kinds) return no("amount");
@@ -310,7 +311,8 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
     // (under the fountain's big pot, a helping more: lib/town/fountain)
     const left = (made ? helpings(dish, crew, misses, carriedBag(purse)) * (big?.ok ? batches : 1) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0)
       // ── forging: old tools ── (a pot cooked in cookware that carries as much has a helping more, so often)
-      + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0);
+      + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0)
+      + (luckOf("darkhelping", now, levelOf(mine)) < (cookFx(mine).darkHelping ?? 0) ? 2 : 0);
     // ── forging: old tools ── (a dish cooked in cookware whose pots are for the table: whoever eats out of this one at the feast table has
     // so many hours more of its buff, or so much more stamina; so many pots a day, each counted by its option)
     const warm = made && cookFx(mine).warm > 0 ? usePower(spent, mine, "ckWarm", now) : null;
@@ -644,3 +646,10 @@ export function spiceEat(purse: Purse, from: { slot: number } | { dish: string }
  * always has: so it is the page that begins the game harder, and nothing of it is shown as a rule.
  */
 export const harderCook = (made: ItemId | null, points: number): number => (isFind(made) && ITEMS[made].tier >= 2 ? harderFor("kitchen", points) : 1);
+
+/** Training belongs to the tool used for this successful job, once per result. */
+export function cook(...args: Parameters<typeof cookUntrained>): ReturnType<typeof cookUntrained> {
+  const did = cookUntrained(...args);
+  const tool = heldStack(args[0]);
+  return did.ok && did.made !== null && madeOf(args[1]) !== null && tool?.item === args[2][0] ? { ...did, purse: trainElement(args[0], did.purse, tool) } : did;
+}

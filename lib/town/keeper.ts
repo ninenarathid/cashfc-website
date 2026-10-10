@@ -609,7 +609,7 @@ export interface Keeper {
   smithChoose(slot: number, pick: string, name: string): Promise<SmithDid<{ opt: OptionId; kept: boolean }>>;
   smithRedraw(slot: number, at: number, gem: ItemId): Promise<SmithDid<{ pending: Pending }>>;
   /** Set a gem of my bag into the tool in a slot. */
-  smithGem(slot: number, gem: ItemId): Promise<SmithDid<{ element: Element; over: Element | null }>>;
+  smithGem(slot: number, gem: ItemId | null, socket?: number): Promise<SmithDid<{ element: Element | null; over: Element | null }>>;
   /**
    * Two tools of one line trade what the smith put into them (lib/town/forge's `moveForging`): the two slots of my
    * bag, and what the page knows of the moment: the tile I stand on (null where it cannot say) and whether a game's
@@ -764,7 +764,7 @@ const SMITH_MS = 5 * 60_000;
  * (`town_tool_power` is not among them: it goes by the game's gate.)
  */
 const SMITH_FNS: ReadonlySet<string> = new Set(["town_smith", "town_smith_smelt", "town_smith_take", "town_smith_widen", "town_smith_near", "town_smith_bellows", "town_smith_try", "town_smith_draw",
-  "town_smith_choose", "town_smith_redraw", "town_smith_gem", "town_smith_move", "town_fire_join", "town_fire_leave"]);
+  "town_smith_choose", "town_smith_redraw", "town_smith_gem", "town_smith_gem_slot", "town_smith_move", "town_fire_join", "town_fire_leave"]);
 /** A half of the great fire found by a deed of mine, as its answer says it: null for anything else. */
 const halfOf = (v: unknown): { half: "flint" | "tinder"; lit: boolean } | null => {
   const f = v as { half?: unknown; lit?: unknown } | null;
@@ -2182,7 +2182,7 @@ export class DbKeeper implements Keeper {
   smithDraw(slot: number) { return this.smithDeed<{ pending: Pending }>("town_smith_draw", { p_slot: slot }); }
   smithChoose(slot: number, pick: string) { return this.smithDeed<{ opt: OptionId; kept: boolean }>("town_smith_choose", { p_slot: slot, p_pick: pick }); }
   smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithDeed<{ pending: Pending }>("town_smith_redraw", { p_slot: slot, p_at: at, p_gem: gem }); }
-  smithGem(slot: number, gem: ItemId) { return this.smithDeed<{ element: Element; over: Element | null }>("town_smith_gem", { p_slot: slot, p_gem: gem }); }
+  smithGem(slot: number, gem: ItemId | null, socket = 0) { return this.smithDeed<{ element: Element | null; over: Element | null }>("town_smith_gem_slot", { p_slot: slot, p_gem: gem, p_socket: socket }); }
   // (a move: the tile I stand on is the page's word, which the database holds to the forge's place; so is whether a game's board is open)
   smithMove(from: number, to: number, how: MoveHow) {
     return this.smithDeed<{ fee: number; spilt: number }>("town_smith_move", { p_from: from, p_to: to, p_x: how.at ? Math.floor(how.at[0]) : null, p_y: how.at ? Math.floor(how.at[1]) : null, p_playing: !!how.playing });

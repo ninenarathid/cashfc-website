@@ -58,17 +58,30 @@ export function heldPicture(): HTMLImageElement | null {
 
 /**
  * The long tools: how tall each stands against the doll that holds it (a share of the doll's standing height), and
- * how far down its picture the fist has it (a share of the picture's height, from the top). A sickle and shears are
- * short things, held by their grips.
+ * where the fist grips it, and how large its head stays. Compress only the shaft below `cut`: shrinking the whole
+ * picture would make the head unreadable. A sickle and shears are short things, held by their grips.
  */
-const LONG: Record<string, { tall: number; grip: number }> = {
-  pick: { tall: 0.74, grip: 0.74 }, axe: { tall: 0.74, grip: 0.74 },
-  hoe: { tall: 0.78, grip: 0.72 }, hoeIron: { tall: 0.78, grip: 0.72 }, hoeSteel: { tall: 0.78, grip: 0.72 },
-  bugNet: { tall: 0.84, grip: 0.74 }, sickle: { tall: 0.44, grip: 0.84 }, shears: { tall: 0.44, grip: 0.84 },
+const LONG: Record<string, { tall: number; grip: number; head: number; cut: number }> = {
+  pick: { tall: 0.46, grip: 0.66, head: 0.7, cut: 0.24 },
+  axe: { tall: 0.44, grip: 0.66, head: 0.74, cut: 0.3 },
+  hoe: { tall: 0.52, grip: 0.68, head: 0.72, cut: 0.24 },
+  hoeIron: { tall: 0.52, grip: 0.68, head: 0.72, cut: 0.24 },
+  hoeSteel: { tall: 0.52, grip: 0.68, head: 0.72, cut: 0.24 },
+  bugNet: { tall: 0.57, grip: 0.7, head: 0.78, cut: 0.4 },
+  sickle: { tall: 0.3, grip: 0.82, head: 0.32, cut: 0.65 },
+  shears: { tall: 0.25, grip: 0.8, head: 0.3, cut: 0.5 },
 };
 /** How far a long tool leans out from upright, away from its holder (so much sideways for each pixel up). */
 const LEAN = 0.1;
 export const isLongTool = (item: string): boolean => item in LONG && item in HELD_ART.tools;
+/** A short race's hand is below its large head; taller races have longer arms alongside their waist. */
+export function toolGrip(feet: Vec, height: number, side: 1 | -1, zoom: number, race: number): Vec {
+  const short = race === 0, broad = race === 4 || race === 6;
+  const out = height * (short ? 0.25 : broad ? 0.19 : 0.17);
+  const up = height * (short ? 0.3 : broad ? 0.4 : 0.42);
+  const px = Math.max(1, zoom), snap = (n: number) => Math.round(n / px) * px;
+  return { x: snap(feet.x + side * out), y: snap(feet.y - up) };
+}
 /**
  * Which of a long tool's two pictures a doll so tall holds: the finer one where a pixel of the first would cover
  * more than a screen pixel and a half (a tall race's hand, a Lalafell seen close), so that a tool's pixels are near
@@ -76,14 +89,23 @@ export const isLongTool = (item: string): boolean => item in LONG && item in HEL
  */
 function longCell(item: string, tall: number, dpr: number) {
   const first = HELD_ART.tools[item], rule = LONG[item], fine = HELD_ART.fine?.[item];
-  return first && rule && fine && ((rule.tall * tall) / first[3]) * dpr > 1.5 ? fine : first;
+  return first && rule && fine && ((rule.head * tall) / first[3]) * dpr > 1.5 ? fine : first;
+}
+/** The same split and grip for the picture, its rim and the element's anchor, including mirrored views. */
+function longLayout(item: string, tall: number, dpr: number) {
+  const cell = longCell(item, tall, dpr), rule = LONG[item];
+  if (!cell || !rule) return null;
+  const h = cell[3], cut = Math.round(h * rule.cut), k = (rule.head * tall) / h;
+  const height = rule.tall * tall, grip = rule.grip * height;
+  const tail = (height - cut * k) / (h - cut);
+  const hy = cell[6], y = (hy <= cut ? hy * k : cut * k + (hy - cut) * tail) - grip;
+  return { cell, cut, k, tail, grip, x: (cell[5] - cell[4]) * k - LEAN * y, y };
 }
 /** Where a long tool's head is on the screen, held in a fist there by a doll so tall on the side faced: without drawing it. Null for what is no long tool. */
 export function longHead(item: string, fist: Vec, tall: number, side: 1 | -1, dpr = 1): Vec | null {
-  const cell = longCell(item, tall, dpr), rule = LONG[item];
-  if (!cell || !rule) return null;
-  const [, , , h, gx, hx, hy] = cell, k = (rule.tall * tall) / h, grip = rule.grip * h;
-  return { x: fist.x + side * (hx - gx + LEAN * (grip - hy)) * k, y: fist.y + (hy - grip) * k };
+  const layout = longLayout(item, tall, dpr);
+  if (!layout) return null;
+  return { x: Math.round(fist.x * dpr) / dpr + side * layout.x, y: Math.round(fist.y * dpr) / dpr + layout.y };
 }
 
 /**
@@ -93,9 +115,9 @@ export function longHead(item: string, fist: Vec, tall: number, side: 1 | -1, dp
  * `under` is called with that place just before the picture is laid, for what belongs behind the tool's head.
  */
 export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: Vec, tall: number, side: 1 | -1, dpr: number, under?: (head: Vec) => void, rim?: Rim): Vec | null {
-  const img = heldPicture(), cell = longCell(item, tall, dpr), rule = LONG[item];
-  if (!img || !cell || !rule) return null;
-  const [sx, sy, w, h, gx] = cell, k = (rule.tall * tall) / h, grip = rule.grip * h;
+  const img = heldPicture(), layout = longLayout(item, tall, dpr);
+  if (!img || !layout) return null;
+  const { cell, cut, k, tail, grip } = layout, [sx, sy, w, h, gx] = cell;
   const head = longHead(item, fist, tall, side, dpr)!;
   // (what lies behind its head is laid first: the light of its gems, a ring about it)
   under?.(head);
@@ -104,17 +126,21 @@ export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: 
   ctx.imageSmoothingEnabled = k * dpr < 1;
   ctx.translate(Math.round(fist.x * dpr) / dpr, Math.round(fist.y * dpr) / dpr);
   // (sheared, not turned: every row of its pixels stays a row, a little further out the higher it is)
-  ctx.transform(side * k, 0, -side * LEAN * k, k, 0, 0);
+  ctx.transform(side, 0, -side * LEAN, 1, 0, 0);
   // (a tool forged far: its own outline in light, under it)
   if (rim) {
     const [f, t] = rimSize(rim, k * dpr), was = ctx.globalAlpha;
     ctx.globalCompositeOperation = "lighter";
     ctx.globalAlpha = was * rim.alpha;
-    ctx.drawImage(rimOf(img, cell, rim.hex, t, f), -gx - t / f, -grip - t / f, w + (t * 2) / f, h + (t * 2) / f);
+    const outline = rimOf(img, cell, rim.hex, t, f), split = t + cut * f;
+    const left = (-gx - t / f) * k, width = (w + (t * 2) / f) * k;
+    ctx.drawImage(outline, 0, 0, outline.width, split, left, -grip - (t / f) * k, width, (cut + t / f) * k);
+    ctx.drawImage(outline, 0, split, outline.width, outline.height - split, left, cut * k - grip, width, (h - cut + t / f) * tail);
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = was;
   }
-  ctx.drawImage(img, sx, sy, w, h, -gx, -grip, w, h);
+  ctx.drawImage(img, sx, sy, w, cut, -gx * k, -grip, w * k, cut * k);
+  ctx.drawImage(img, sx, sy + cut, w, h - cut, -gx * k, cut * k - grip, w * k, (h - cut) * tail);
   ctx.restore();
   return head;
 }
@@ -125,15 +151,15 @@ export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: 
  * over the fist), and whether its picture is turned round so that its handle is the fist's. Any other tool: `HAND`.
  */
 interface Hand { size: number; hang: number; turn?: boolean }
-const HAND: Hand = { size: 0.3, hang: 0 };
+const HAND: Hand = { size: 0.25, hang: 0 };
 const HANDS: Record<string, Hand> = {
-  can: { size: 0.32, hang: 0.3 }, canCopper: { size: 0.34, hang: 0.3 }, canBrass: { size: 0.34, hang: 0.3 },
-  bucket: { size: 0.3, hang: 0.72 }, bucketIron: { size: 0.32, hang: 0.72 }, krabung: { size: 0.36, hang: 0.72 },
-  pot: { size: 0.3, hang: 0.5 }, potBrass: { size: 0.34, hang: 0.5 }, potFull: { size: 0.34, hang: 0.5 }, jar: { size: 0.34, hang: 0.5 },
-  pan: { size: 0.36, hang: 0, turn: true }, panBrass: { size: 0.38, hang: 0 },
-  grill: { size: 0.32, hang: 0.5 }, stoveBig: { size: 0.38, hang: 0.5 }, oven: { size: 0.4, hang: 0.5 },
-  wok: { size: 0.42, hang: 0.4 }, hotpot: { size: 0.36, hang: 0.5 }, steamer: { size: 0.34, hang: 0.5 }, steamerBamboo: { size: 0.34, hang: 0.5 }, tok: { size: 0.4, hang: 0.4 },
-  mortar: { size: 0.3, hang: 0.5 }, stoneBowl: { size: 0.26, hang: 0.4 }, bowl: { size: 0.22, hang: 0.2 },
+  can: { size: 0.27, hang: 0.3 }, canCopper: { size: 0.29, hang: 0.3 }, canBrass: { size: 0.29, hang: 0.3 },
+  bucket: { size: 0.25, hang: 0.65 }, bucketIron: { size: 0.27, hang: 0.65 }, krabung: { size: 0.3, hang: 0.65 },
+  pot: { size: 0.25, hang: 0.5 }, potBrass: { size: 0.29, hang: 0.5 }, potFull: { size: 0.29, hang: 0.5 }, jar: { size: 0.29, hang: 0.5 },
+  pan: { size: 0.3, hang: 0, turn: true }, panBrass: { size: 0.32, hang: 0 },
+  grill: { size: 0.27, hang: 0.5 }, stoveBig: { size: 0.32, hang: 0.5 }, oven: { size: 0.34, hang: 0.5 },
+  wok: { size: 0.35, hang: 0.4 }, hotpot: { size: 0.3, hang: 0.5 }, steamer: { size: 0.29, hang: 0.5 }, steamerBamboo: { size: 0.29, hang: 0.5 }, tok: { size: 0.34, hang: 0.4 },
+  mortar: { size: 0.25, hang: 0.5 }, stoneBowl: { size: 0.23, hang: 0.4 }, bowl: { size: 0.2, hang: 0.2 },
   hookScale: { size: 0.2, hang: 0 }, hookSteel: { size: 0.2, hang: 0 }, hookTwin: { size: 0.2, hang: 0 },
   floatGlow: { size: 0.22, hang: 0 }, floatFeather: { size: 0.22, hang: 0 }, floatQuill: { size: 0.22, hang: 0 }, floatBell: { size: 0.22, hang: 0 },
 };
@@ -143,12 +169,12 @@ export function handOf(item: string): Hand | null {
   return HANDS[item] ?? HAND;
 }
 /**
- * How large a hand tool is on the screen for a doll so tall (`tall` on the screen, at the map's `zoom`). A Lalafell's
- * is what every held thing always was; a taller doll's is larger, by three quarters of what it stands taller: the
+ * How large a hand tool is on the screen for a doll so tall (`tall` on the screen, at the map's `zoom`). Start at a
+ * Lalafell's size; a taller doll's tool is larger, by half of what it stands taller: the
  * tall races have long legs and small hands for their height, and a can as wide as its holder's chest is no hand tool.
  */
 const SMALL = 52;
-export const handSize = (hand: Hand, tall: number, zoom: number): number => Math.max(8, Math.round(hand.size * (SMALL + (tall / zoom - SMALL) * 0.75) * zoom));
+export const handSize = (hand: Hand, tall: number, zoom: number): number => Math.max(8, Math.round(hand.size * (SMALL + (tall / zoom - SMALL) * 0.5) * zoom));
 
 /* ── the light of a tool forged far ─────────────────────────────────────── */
 
@@ -464,7 +490,8 @@ export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, l
   const gems = look.gems, kinds = [...new Set(gems)];
   // a picture pixel of a piece is a whole number of the screen's own pixels: by the doll's size and the map's zoom
   const q = Math.max(1, Math.round(Math.max(0.72, Math.min(1.3, tall / zoom / 70)) * zoom * dpr)) / dpr;
-  const base = ctx.globalAlpha, snap = (v: number) => Math.round(v * dpr) / dpr;
+  const stage=Math.max(0,...(look.stages ?? []));
+  const base = ctx.globalAlpha * (0.25 + stage * 0.25), snap = (v: number) => Math.round(v * dpr) / dpr;
   const back = layer === "under";
   let laid = 0;
   const room = () => laid < (back ? CAP.under : CAP.over) && (mine || left > 0);

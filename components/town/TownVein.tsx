@@ -8,6 +8,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { GEMS } from "@/lib/town/tools";
 import { VEIN, begin, bestRoute, faceOf, headOf, iceOf, mayStrike, over, strike, yieldOf, type Cell, type Crack, type Family } from "@/lib/town/vein";
 import { STAGE } from "./TownGame";
+import TownElementFx from "./TownElementFx";
 import type { ComboEffect } from "@/lib/town/combo-types";
 import TownComboFx from "./TownComboFx";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -195,7 +196,7 @@ export default function TownVein({ vein, th, reduced, sfx, onBond, onEnd, onClos
 
   return (
     <section aria-label={title} data-town-vein data-phase={phase} data-round={round} data-left={crack.left} data-got={crack.got.length} data-of={face.points.length} data-family={face.family}
-             className="w-full max-w-[26rem] select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
+             className="relative w-full max-w-[26rem] select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex min-h-9 items-center gap-2">
         <h2 className="font-display text-title font-semibold text-[#ffeccb] [text-shadow:0_2px_0_#2a190d]">{title}</h2>
         {round === 2 && <span className="rounded-sm border-2 border-[#2a190d] bg-[#f0c060] px-1.5 font-data text-label font-semibold text-[#3a2209]" data-vein-twin>{th ? "รอบ 2" : "2nd go"}</span>}
@@ -358,6 +359,8 @@ export default function TownVein({ vein, th, reduced, sfx, onBond, onEnd, onClos
         @keyframes vein-head { from { opacity: 0.9; transform: scale(0.5); } to { opacity: 0; transform: scale(1.35); } }
         @keyframes vein-drain { from { transform: scaleX(1); } to { transform: scaleX(0); } }
       `}</style>
+      <TownElementFx key={round} pulse={last?.at ?? 0} active={phase === "play"} target="[role=grid]"
+                     x={last ? (last.cell[0] + 0.5) / size : 0.5} y={last ? (last.cell[1] + 0.5) / size : 0.5} />
     </section>
   );
 }

@@ -11,7 +11,7 @@ import { powerLeft } from "@/lib/town/powers";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
 import { ALL, GEM_FX, gemBy, has } from "@/lib/town/tools";
-import { held } from "@/lib/town/trade";
+import { held, heldStack } from "@/lib/town/trade";
 import { KEEPSAKES, TREES, WOOD, axeOf, bearsOf, bites, farFrom, fellWord, fellingOf, girthOf, lookOf, readFellWord, wantsOf, type FellOne, type KeepsakeId, type Standing, type TreesTold } from "@/lib/town/trees";
 import { walkable, type Vec } from "@/lib/town/world";
 import { registerTap, setAncientLook, setTreeLooks, setTreeScales } from "./mountain-art";
@@ -206,6 +206,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       const mid = (t.size ?? 1) / 2, where = { x: t.x + mid, y: t.y + mid };
       vfx.add("leaves", where);
       vfx.add("dust", where);
+      vfx.element(heldStack(keeper.purse(), keeper.handSlot()), where, { lift: 18 });
       if (f.got[0]) vfx.add("pop", where, { icon: f.got[0][0], lift: 20 });
       if (f.keepsake) vfx.add("sparkle", where);
     }

@@ -1,3 +1,4 @@
+import { trainElement } from "./element-training";
 import { FELLING, leastSecs, timberOf, type Family, type FellTree, type FellingAsk, type Girth } from "./felling";
 import { works } from "./gifts";
 import type { ItemId } from "./items";
@@ -493,7 +494,7 @@ function summed(all: Array<Array<[ItemId, number]>>): Array<[ItemId, number]> {
  * `luck`: a set of numbers of chance for each tree, in their order. `who`: the name the book of the pines writes
  * beside what was never found before.
  */
-export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at: readonly [number, number], now: number, luck: readonly FellLuck[], wood: readonly Standing[] = WOOD, who: string = me): ({ ok: true } & Fell) | No {
+function fellUntrained(purse: Purse, grove: Grove, me: string, went: FellWent, at: readonly [number, number], now: number, luck: readonly FellLuck[], wood: readonly Standing[] = WOOD, who: string = me): ({ ok: true } & Fell) | No {
   if (went.grain !== undefined && (!woodSelection(went.grain) || !Number.isSafeInteger(went.misses) || went.misses! < 0 || went.misses! > 1000)) return no("none");
   const first = treeOf(went.tree, wood), axe = axeOf(purse);
   if (!first) return no("none");
@@ -649,3 +650,11 @@ export const treesRow = (wood: readonly Standing[] = WOOD) => ({
   },
   wood: wood.map((t) => [t.id, t.x, t.y, t.tier, t.size ?? 1, girthOf(t)]),
 });
+
+/** Training belongs to the tool used for this successful job, once per result. */
+export function fell(...args: Parameters<typeof fellUntrained>): ReturnType<typeof fellUntrained> {
+  const did = fellUntrained(...args);
+  if (!did.ok || !did.felled.length) return did;
+  const purse = trainElement(args[0], did.purse, axeOf(args[0]));
+  return { ...did, purse };
+}

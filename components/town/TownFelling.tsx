@@ -10,6 +10,7 @@ import { loadPixelKit, type PixelKit } from "@/lib/town/pixeldoll";
 import { loadFelling, type Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { STAGE, useFrames, useGameHandle } from "./TownGame";
+import TownElementFx from "./TownElementFx";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownWoodGrain from "./TownWoodGrain";
 import type { WoodSelection } from "@/lib/town/wood-grain";
@@ -379,7 +380,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     onSkip={() => { readRef.current = true; setRead(true); }} onCancel={stop} />;
   return (
     <section aria-label={title} data-town-game data-felling-girth={game.girth}
-             className="select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
+             className="relative select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex min-h-9 items-center gap-2">
         <h2 className="font-display text-title font-semibold text-[#ffeccb] [text-shadow:0_2px_0_#2a190d]">{title}</h2>
         {/* tired hands: a mark for each miss they still have in them, going out one by one */}
@@ -473,6 +474,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
           )}
         </div>
       )}
+      <TownElementFx pulse={fx.current.chopAt} active={p.running && !over} y={0.72} />
     </section>
   );
 }

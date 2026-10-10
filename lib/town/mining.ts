@@ -1,3 +1,4 @@
+import { trainElement } from "./element-training";
 import { geologicalYield, geologyMods, rockChoice, type RockChoice } from "./geology";
 import { depthOf, isRest } from "./cave";
 import { roll } from "./farm";
@@ -326,7 +327,7 @@ const add = (got: Array<[ItemId, number]>, id: ItemId, n: number) => { if (n <= 
  * pick is too weak for a crystal, no swing was made or they came quicker than a hand swings, or (striking the last
  * of one's own rock away) there is no room for what it leaves.
  */
-export function mine(purse: Purse, go: Go): Mined | Swung | Theirs | { ok: false; why: MineRefusal } {
+function mineUntrained(purse: Purse, go: Go): Mined | Swung | Theirs | { ok: false; why: MineRefusal } {
   const no = (why: MineRefusal) => ({ ok: false as const, why });
   const pick = pickOf(purse), kept = mineOf(purse), turn = turnOf(go.now), who = go.who ?? "";
   if (!pick) return no("tool");
@@ -512,4 +513,10 @@ export function drill(purse: Purse, floor: number, wayOpen: boolean, now: number
   if (wayOpen) return { ok: false, why: "open" };
   const used = usePower(purse, pick, "pkDrill", now);
   return used.ok ? { ok: true, purse: used.purse, left: used.left } : { ok: false, why: "spent" };
+}
+
+/** Training belongs to the tool used for this successful job, once per result. */
+export function mine(...args: Parameters<typeof mineUntrained>): ReturnType<typeof mineUntrained> {
+  const did = mineUntrained(...args);
+  return did.ok && did.done === true ? { ...did, purse: trainElement(args[0], did.purse, pickOf(args[0])) } : did;
 }

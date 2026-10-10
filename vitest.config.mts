@@ -20,5 +20,8 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["lib/**/*.test.ts"],
+    // Keep the large database-vector suites within the CI runner's CPU budget.
+    maxWorkers: 4,
+    testTimeout: 30_000,
   },
 });

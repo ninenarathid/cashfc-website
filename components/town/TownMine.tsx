@@ -382,6 +382,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
     made.current.set(k, (made.current.get(k) ?? 0) + 1);
     sfx?.work("pickHit");
     vfx.add("dust", { x: tap.tile[0] + 0.5, y: tap.tile[1] + 0.5 }, { lift: 10 });
+    vfx.element(held, { x: tap.tile[0] + 0.5, y: tap.tile[1] + 0.5 }, { lift: 10 });
     // told at once: the swing that strikes the last of it away, as far as I know; every swing at somebody else's rock;
     // and my first at a rock nobody is known to have begun, while anybody else is about. Otherwise when my hand rests.
     const first = n === 1 && !begun && !known.current.has(k);

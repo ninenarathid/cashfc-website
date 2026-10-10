@@ -1838,7 +1838,7 @@ export class Trial {
     return did;
   }
   smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithKeep(redrawOption(this.purse(), this.smithy(), slot, at, gem, this.smithChance(), this.smithChance())); }
-  smithGem(slot: number, gem: ItemId) { return this.smithKeep(setGem(this.purse(), slot, gem)); }
+  smithGem(slot: number, gem: ItemId | null, socket = 0) { return this.smithKeep(setGem(this.purse(), slot, gem, socket)); }
   /**
    * Two tools of my bag trade what the smith put into them. The trial takes the page's word for where I stand and
    * whether a game's board is open (it is the browser's own keeper); nothing goes on the board and no try is logged.
@@ -2110,11 +2110,11 @@ export class Trial {
     return { ok: true, left: used.left };
   }
   /** (forging) The tool in a slot as if it had been forged: its plus, its options in the order of their milestones, its gems by their elements. To try what each does without the smith. */
-  setTool(slot: number, plus: number, opts: string[] = [], gems: string[] = []): boolean {
+  setTool(slot: number, plus: number, opts: string[] = [], gems: string[] = [], mastery?: Stack["mastery"]): boolean {
     const p = this.purse(), s = p.bag[slot];
     if (!s || !toolKindOf(s.item)) return false;
     const { plus: _p, opts: _o, gems: _g, makers: _m, ...bare } = s;
-    this.save({ ...p, bag: p.bag.map((b, i) => (i !== slot ? b : { ...bare, ...(plus > 0 ? { plus: Math.min(FORGE.top, Math.floor(plus)) } : {}), ...(opts.length ? { opts: [...opts] } : {}), ...(gems.length ? { gems: [...gems] } : {}) })) });
+    this.save({ ...p, bag: p.bag.map((b, i) => (i !== slot ? b : { ...bare, ...(plus > 0 ? { plus: Math.min(FORGE.top, Math.floor(plus)) } : {}), ...(opts.length ? { opts: [...opts] } : {}), ...(gems.length ? { gems: [...gems] } : {}), ...(mastery ? { mastery: { ...mastery } } : {}) })) });
     return true;
   }
   /**

@@ -63,8 +63,9 @@ export const FORGE = {
   /** The levels an option is drawn at, and the pool each is drawn from. */
   milestones: [3, 6, 10] as readonly number[],
   pools: [1, 1, 2] as ReadonlyArray<1 | 2>,
-  /** Sockets, by the tool's tier (only the first tier is forged yet). */
-  sockets: 1,
+  /** Two gem sockets, opened at +7 and +10. */
+  sockets: 2,
+  socketAt: [7, 10] as readonly number[],
   /** A tool in the hand glows from this plus, and fully at the top. */
   glow: { from: 7, full: 10 },
   /** At the top every gem in the tool is so many levels stronger. */
@@ -314,7 +315,7 @@ export const GEM_LEVELS = 4;
  * - lightning: how likely a touching rock breaks too, or a neighbouring tree is half cut.
  * - wind: so much faster a walk, with the tool held.
  * - light: within so many tiles a vein's rock, or a grown tree, glints.
- * - dark: veins so many times as often and every rock so many swings more; how likely one more log, and the bar so much faster.
+ * - dark: veins so many times as often and harder rocks a swing more; how likely one more log, and the bar so much faster.
  */
 export const ALL = 999;
 const SHARE = [0.15, 0.25, 0.35, 0.45], COUNT = [1, 2, 3, 4], CHANCE = [0.1, 0.2, 0.3, 0.4], WALK = [0.1, 0.15, 0.2, 0.25];
@@ -411,6 +412,10 @@ export function gemsOf(stack: Stack | null | undefined): Element[] {
   if (!stack || !toolKindOf(stack.item) || !Array.isArray(stack.gems)) return [];
   return stack.gems.filter(isElement).slice(0, FORGE.sockets);
 }
+/** Fitted gems survive a downgrade; an empty socket needs its unlock level. */
+export const socketOpen = (stack: Stack | null | undefined, socket: number): boolean =>
+  !!stack && !!toolKindOf(stack.item) && Number.isInteger(socket) && socket >= 0 && socket < FORGE.sockets &&
+  (levelOf(stack) >= FORGE.socketAt[socket] || socket < gemsOf(stack).length);
 /** A name as it is written on a tool: one line, no longer than a maker's name may be. Nothing, of what is no name. */
 export const makerName = (name: unknown): string => (typeof name === "string" ? Array.from(name.replace(/\s+/g, " ").trim()).slice(0, FORGE.maker).join("").trim() : "");
 /**
@@ -428,12 +433,12 @@ export function modsOf(stack: Stack | null | undefined): ToolMods {
   if (!stack || !kind) return NOTHING;
   const level = levelOf(stack), drawn = drawnOf(stack).filter((id): id is OptionId => !!id), away = awayOf(stack);
   const set = gemsOf(stack), gems: Partial<Record<Element, number>> = {};
-  for (const e of set) gems[e] = worksAt(level);
+  for (const e of set) gems[e] = Math.min(GEM_LEVELS, gems[e] === undefined ? worksAt(level) : gems[e]! + 1);
   return { kind, level, opts: away ? [] : drawn, asleep: away ? drawn : [], strong: strongOf(stack), gems, glow: level >= FORGE.glow.full ? 2 : level >= FORGE.glow.from ? 1 : 0, hue: set.length ? GEMS[set[0]].hue : PLAIN_HUE };
 }
 /** Whether a tool has an option that works: drawn at one of its milestones, whatever its level is now, and not asleep. */
 export const has = (stack: Stack | null | undefined, id: OptionId): boolean => modsOf(stack).opts.includes(id);
-/** The level an element works at in a tool: 0 with no gem of it set. */
+/** The level an element works at: one extra tier for a matching second gem. */
 export const gemLevel = (stack: Stack | null | undefined, element: Element): number => modsOf(stack).gems[element] ?? 0;
 /** What an element gives a tool, from the steps of its four levels: `else_` with no gem of it set. */
 export const gemBy = (stack: Stack | null | undefined, element: Element, steps: readonly number[], else_ = 0): number => {
@@ -446,11 +451,12 @@ const at = (table: readonly number[], stack: Stack | null | undefined): number =
 export const pickPower = (stack: Stack | null | undefined): number => at(LEVELS.pick.power, stack);
 /**
  * How many swings a pick takes to break a rock of some hardness, the pick's own all told: its power; its fire, so
- * much fewer (rounded up); its dark, a swing more. Never under one. (Tired hands are the mining's own to add.)
+ * much fewer (rounded down when fire is active); dark adds a swing only to harder rocks. Never under one.
  */
 export function pickSwings(stack: Stack | null | undefined, hardness: number): number {
   const plain = Math.ceil(hardness / pickPower(stack));
-  return Math.max(1, Math.ceil(plain * (1 - gemBy(stack, "fire", GEM_FX.fire.pick.fewer))) + gemBy(stack, "dark", GEM_FX.dark.pick.swings));
+  const fire = gemBy(stack, "fire", GEM_FX.fire.pick.fewer);
+  return Math.max(1, (fire > 0 ? Math.floor(plain * (1 - fire)) : plain) + (plain > 2 ? gemBy(stack, "dark", GEM_FX.dark.pick.swings) : 0));
 }
 /** The strikes a pick has at a vein: its level's, and its steady hand's. */
 export const veinStrikes = (stack: Stack | null | undefined): number => at(LEVELS.pick.strikes, stack) + (has(stack, "pkSteady") ? optN("pkSteady", "strikes", stack) : 0) + (has(stack, "pkPeek") ? optN("pkPeek", "strikes", stack) : 0);
@@ -480,12 +486,12 @@ export const axeBarSlow = (stack: Stack | null | undefined): number => 1 - axeBa
 const LETTER: Record<Element, string> = { fire: "f", water: "w", ice: "i", earth: "e", lightning: "z", wind: "a", light: "l", dark: "d" };
 /** The level a gem works at in a tool of some plus: the first, and one more at the top. */
 const worksAt = (level: number): number => Math.min(GEM_LEVELS, 1 + (level >= FORGE.top ? FORGE.gemAtTop : 0));
-/** The most gems a tool is shown with: a tool of the third tier has three sockets (one, in this round). */
+/** The dev preview can still show three gems; gameplay uses at most two. */
 export const GEMS_SHOWN = 3;
 /**
  * The gems set in a tool as they are SHOWN on it in the hand, one for each that is set, in their sockets' order:
  * every one of them, so many at the most. In the game they are `gemsOf`'s (nothing is set where there is no socket);
- * the dev Test window sets more than a tool of this round has sockets for, to look at what two and three will be.
+ * the dev Test window can show historical three-gem concepts beyond the two gameplay sockets.
  * The rules never read this.
  */
 export function gemsShown(stack: Stack | null | undefined): Element[] {
@@ -499,31 +505,45 @@ export function gemsShown(stack: Stack | null | undefined): Element[] {
  * (no glow, no gem) and of a thing that is no tool. It is what every page draws the glow and the gems' elements
  * from, and what every page walks its holder by: a pace has to be the same on every page.
  *
- * **A word of one gem is the word it always was** (three characters), so a page built before reads every tool this
- * round can make as it did. A longer word it does not know it leaves out (its `TOOL_WORD` says no: the tool is drawn
- * plain there). From here on a word may grow without that: so many letters are let through as no tool has sockets
- * for yet, and a letter this page has no element for is passed over.
+ * A newly set gem retains the legacy three-character word. Trained gems append their visual stages after `~`.
+ * Every viewer needs the matching client release to draw this suffix. Historical third gems are not broadcast.
  */
+/** Visual milestones only: successful jobs, never extra drops or socket changes. */
+export const ELEMENT_TRAINING = [0, 20, 100, 300] as const;
+export const masteryOf = (stack: Stack | null | undefined): Partial<Record<Element, number>> =>
+  Object.fromEntries(ELEMENTS.flatMap((e) => {
+    const n = stack?.mastery?.[e];
+    return typeof n === "number" && Number.isFinite(n) && n > 0 ? [[e, Math.min(ELEMENT_TRAINING[3], Math.floor(n))]] : [];
+  }));
+export const elementStage = (stack: Stack | null | undefined, element: Element): number => {
+  const points = masteryOf(stack)[element] ?? 0;
+  return ELEMENT_TRAINING.reduce<number>((stage, threshold, i) => points >= threshold ? i : stage, 0);
+};
 export function toolWord(stack: Stack | null | undefined): string {
-  const m = modsOf(stack), set = gemsShown(stack);
+  const m = modsOf(stack), set = gemsOf(stack);
   if (!m.glow && !set.length) return "";
-  return `${m.glow}${set.length ? `${set.map((e) => LETTER[e]).join("")}${worksAt(m.level)}` : ""}`;
+  const stages = set.map((e) => elementStage(stack, e));
+  return `${m.glow}${set.length ? `${set.map((e) => LETTER[e]).join("")}${worksAt(m.level)}` : ""}${stages.some(Boolean) ? `~${stages.join("")}` : ""}`;
 }
-export const TOOL_WORD = /^[0-2](?:[a-z]{1,8}[1-4])?$/;
+export const TOOL_WORD = /^[0-2](?:[a-z]{1,8}[1-4](?:~[0-3]{1,3})?)?$/;
 /** What a word tells of a tool: how it glows; its gems as they are shown, in their order; the first of them and the level a gem works at; and the colour of its glow. */
-export interface ToolLook { glow: 0 | 1 | 2; gems: Element[]; element: Element | null; level: number; hue: string }
+export interface ToolLook { glow: 0 | 1 | 2; gems: Element[]; element: Element | null; level: number; hue: string; stages?: number[] }
 /** The word read back. Null for no word, or one that says nothing. */
 export function readToolWord(word: unknown): ToolLook | null {
   if (typeof word !== "string" || !TOOL_WORD.test(word)) return null;
-  const gems = [...word.slice(1, -1)].map((c) => ELEMENTS.find((x) => LETTER[x] === c)).filter((e): e is Element => !!e).slice(0, GEMS_SHOWN);
+  const [base, trained = ""] = word.split("~");
+  const gems = [...base.slice(1, -1)].map((c) => ELEMENTS.find((x) => LETTER[x] === c)).filter((e): e is Element => !!e).slice(0, GEMS_SHOWN);
   const e = gems[0] ?? null;
-  return { glow: Number(word[0]) as 0 | 1 | 2, gems, element: e, level: e ? Number(word[word.length - 1]) : 0, hue: e ? GEMS[e].hue : PLAIN_HUE };
+  return { glow: Number(base[0]) as 0 | 1 | 2, gems, element: e, level: e ? Number(base[base.length - 1]) : 0, hue: e ? GEMS[e].hue : PLAIN_HUE, ...(trained ? { stages: gems.map((_, i) => Number(trained[i] ?? 0)) } : {}) };
 }
 /**
- * How strongly a tool's gems show on it in the hand, 1 to 4 (0 with no gem): one for each gem, and one more at the
- * top, where a gem counts a level stronger. How it LOOKS only (components/town/held): no rule reads it.
+ * How strongly gems show in the hand, 1 to 4: training increases light and matching gems concentrate it.
+ * Appearance only (components/town/held); no gameplay rule reads it.
  */
-export const gemShow = (look: ToolLook | null): number => (look && look.gems.length ? Math.min(4, look.gems.length + (look.glow === 2 ? 1 : 0)) : 0);
+export const gemShow = (look: ToolLook | null): number => {
+  if (!look?.gems.length) return 0;
+  return Math.min(4,1+Math.max(0,...(look.stages ?? []))+(look.gems[0]===look.gems[1] ? 1 : 0));
+};
 /** The glow a word tells of: how strong, and in what colour (null for no word, and for a tool that does not glow). */
 export function glowOf(word: unknown): { glow: 1 | 2; hue: string } | null {
   const t = readToolWord(word);
@@ -538,5 +558,6 @@ export const WIND_WALK = WALK;
 export function walkPace(word: unknown): number {
   const t = readToolWord(word);
   // (the gems that work are those a socket holds: the first so many of what is shown)
-  return t && t.level >= 1 && t.gems.slice(0, FORGE.sockets).includes("wind") ? 1 + WIND_WALK[Math.min(WIND_WALK.length, t.level) - 1] : 1;
+  const winds = t?.gems.slice(0, FORGE.sockets).filter((e) => e === "wind").length ?? 0;
+  return t && t.level >= 1 && winds ? 1 + WIND_WALK[Math.min(WIND_WALK.length, t.level + winds - 1) - 1] : 1;
 }

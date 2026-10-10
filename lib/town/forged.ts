@@ -70,14 +70,14 @@ const SHARE = [0.15, 0.25, 0.35, 0.45], COUNT = [1, 2, 3, 4], CHANCE = [0.1, 0.2
  *   many; the net's ring so much smaller; how likely a pot has a helping more, and its good pace so much narrower.
  */
 export const OLD_FX = {
-  fire: { rod: { tires: SHARE }, hoe: { fewer: [1, 1, 2, 2] }, can: { more: COUNT }, bugNet: { sooner: SHARE }, cook: { shorter: SHARE } },
+  fire: { rod: { tires: SHARE }, hoe: { fewer: [1, 2, 3, 3] }, can: { more: COUNT }, bugNet: { sooner: SHARE }, cook: { shorter: SHARE } },
   water: { spared: COUNT },
   ice: { slow: SHARE },
   earth: { stamina: SHARE },
   lightning: { chance: CHANCE },
-  light: { rod: { early: [0.2, 0.3, 0.4, 0.5] }, can: { glint: [4, 7, 10, ALL] }, bugNet: { seen: [3, 5, 7, 9] } },
+  light: { rod: { early: [0.5, 1, 1.5, 2] }, hoe: { stones: [1,2,3,4] }, cook: { band: [.05,.1,.15,.2] }, can: { glint: [4, 7, 10, ALL] }, bugNet: { seen: [3, 5, 7, 9] } },
   dark: {
-    rod: { rare: RARER, fiercer: 0.1 }, hoe: { worm: [0.05, 0.1, 0.15, 0.2], faster: 0.1 }, can: { more: [0.1, 0.15, 0.2, 0.25], uses: 2 },
+    rod: { rare: RARER, fiercer: 0.1 }, hoe: { worm: [0.2, 0.35, 0.5, 0.65], faster: 0.1 }, can: { more: [0.25, 0.4, 0.55, 0.7], uses: 1 },
     bugNet: { rare: RARER, smaller: 0.1 }, cook: { helping: CHANCE, harder: 0.1 },
   },
 } as const;
@@ -134,7 +134,7 @@ export function rodFx(stack: Held): RodFx {
   if (!s) return PLAIN_ROD;
   const l = levelOf(s), dark = gemBy(s, "dark", OLD_FX.dark.rod.rare, 0) > 0;
   return {
-    band: LEVELS.rod.band[l],
+    band: LEVELS.rod.band[l] * (1 + gemBy(s,"lightning",OLD_FX.lightning.chance)),
     pace: (1 - LEVELS.rod.slow[l]) * (1 - gemBy(s, "ice", OLD_FX.ice.slow)),
     strike: times(LEVELS.rod.strike, s) + (has(s, "rdBait") ? optN("rdBait", "strike", s) : 0),
     line: 1 - gemBy(s, "fire", OLD_FX.fire.rod.tires),
@@ -193,7 +193,7 @@ export function hoeFx(stack: Held): HoeFx {
     pace: (1 - LEVELS.hoe.slow[l]) * (1 - gemBy(s, "ice", OLD_FX.ice.slow)) * (worm > 0 ? 1 + OLD_FX.dark.hoe.faster : 1),
     fewer: gemBy(s, "fire", OLD_FX.fire.hoe.fewer),
     spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "hoFirst") ? optN("hoFirst", "misses", s) : 0),
-    stones: has(s, "hoClear") ? optN("hoClear", "stones", s) : 0,
+    stones: (has(s, "hoClear") ? optN("hoClear", "stones", s) : 0) + gemBy(s,"light",OLD_FX.light.hoe.stones),
     even: has(s, "hoLight"),
     glow: gemBy(s, "light", COUNT) > 0,
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
@@ -334,6 +334,8 @@ export interface CookFx {
   fresh: boolean;
   /** How likely a pot has a helping more. */
   helping: number;
+  /** A separate roll: dark grants two helpings, lightning grants one. */
+  darkHelping?: number;
   /** Helpings more in a pot of a dish (the counted option: so many pots a day); none: 0. */
   big: number;
   /** How many times as slowly the pace that is kept follows the hand: a hand that wobbles is not off the good pace so soon (1: as ever). */
@@ -351,13 +353,14 @@ export function cookFx(stack: Held): CookFx {
   if (!s) return PLAIN_COOK;
   const kind = toolKindOf(s.item) as "pot" | "pan" | "grill", dark = gemBy(s, "dark", OLD_FX.dark.cook.helping);
   return {
-    band: LEVELS[kind].band[levelOf(s)] * (dark > 0 ? 1 / (1 + OLD_FX.dark.cook.harder) : 1),
+    band: LEVELS[kind].band[levelOf(s)] * (dark > 0 ? 1 / (1 + OLD_FX.dark.cook.harder) : 1) * (1 + gemBy(s,"light",OLD_FX.light.cook.band)),
     shorter: 1 - (1 - gemBy(s, "fire", OLD_FX.fire.cook.shorter)) * (1 - (has(s, "ckBrisk") ? optN("ckBrisk", "shorter", s) : 0)),
     spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "ckBase") ? optN("ckBase", "misses", s) : 0),
     grace: 1 / (1 - gemBy(s, "ice", OLD_FX.ice.slow)),
     stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
     fresh: has(s, "ckFresh"),
-    helping: Math.max(gemBy(s, "lightning", OLD_FX.lightning.chance), dark),
+    helping: gemBy(s, "lightning", OLD_FX.lightning.chance),
+    darkHelping: dark,
     big: has(s, "ckBig") ? optN("ckBig", "more", s) : 0,
     steady: has(s, "ckFire") ? optN("ckFire", "steady", s) : 1,
     guide: gemBy(s, "light", COUNT) > 0,

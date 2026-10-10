@@ -1,3 +1,4 @@
+import { trainElement } from "./element-training";
 import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { mayPower, powerLeft, powerUsed, usePower } from "./powers";
@@ -610,7 +611,7 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
  * `luck` is `feed`'s: a number in place of the moment's own, for the trial's
  * scripts.
  */
-export function tend(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: FarmSky = DRY, sure = false, luck?: number):
+function tendUntrained(key: string, plot: Plot, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, rains: FarmSky = DRY, sure = false, luck?: number):
   { ok: true; deed: Deed; purse: Purse; plot: Plot; bed: Bed | undefined; got: Array<[ItemId, number]>; times?: number } | { ok: false; why: Refusal | FarmRefusal } {
   const hand = handOf(purse), owner = ownerOf(bed, others > 0 || !!plot.plant, now);
   const deed = deedFor(key, plot, hand, me, now, owner, rains, mayTwice(purse, now));
@@ -1020,3 +1021,9 @@ export const hardIn = (crop: CropId | null | undefined, theirs: boolean, farming
  */
 export const tiredAt = (purse: Purse, spent: boolean, theirs: boolean): boolean => spent && !(theirs && wearing(purse, "charmGuard"));
 export const guardBy = (purse: Purse, theirs: boolean): number => (theirs && wearing(purse, "charmGuard") ? numberOf("charmGuard") : 1);
+
+/** Training belongs to the tool used for this successful job, once per result. */
+export function tend(...args: Parameters<typeof tendUntrained>): ReturnType<typeof tendUntrained> {
+  const did = tendUntrained(...args);
+  return did.ok && ["clear","till","water"].includes(did.deed) ? { ...did, purse: trainElement(args[5], did.purse, heldStack(args[5])) } : did;
+}

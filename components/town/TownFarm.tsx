@@ -657,6 +657,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // (an insect that is off is heard going, and leaves nothing in the air; one that ate its pest, a sparkle)
     if (!timing) sfx?.work(rid === false ? "flit" : sound);
     if (rid !== false) vfx.add(fx, at);
+    vfx.element(heldStack(mine, keeper.handSlot()), at, { lift: 6 });
     if (rid) vfx.add("sparkle", at);
     for (const id of seenAtPlot(did.deed, mine, began)) vfx.add("bless", at, { icon: BURST[id], lift: 8 });
     if (did.got.length) vfx.add("pop", at, { icon: did.got[0][0] });
@@ -680,6 +681,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     sfx?.wake();
     sfx?.work(CHORE_FX[did.chore][1], did.chore === "fill" ? 0.7 : 1);
     vfx.add(CHORE_FX[did.chore][0], null, { lift: did.chore === "fill" ? 10 : 0 });
+    vfx.element(heldStack(mine, keeper.handSlot()), null, { lift: 12 });
     // (a bucket drawn under the fountain's blessing for water bearers: its own burst)
     for (const id of seenAtPlot(did.chore, mine, began)) vfx.add("bless", null, { icon: BURST[id], lift: 26 });
     if (did.chore !== "draw") setNote(`${th ? "บ่อน้ำ" : "Well"} ${keeper.well()}/${WATER.well}`);
@@ -692,6 +694,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   }, [keeper, water, at?.[0], at?.[1], sfx, th, say, vfx]);
   /** Pour the bucket over the bed I stand in. */
   const pourOver = useCallback(async (k: string) => {
+    const tool = heldStack(keeper.purse(), keeper.handSlot());
     const did = await keeper.ditchDo(k);
     if (!did.ok) { say(did.why); return; }
     sfx?.wake();
@@ -699,6 +702,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // water over every plant it reached, and a splash where it was poured
     for (const plot of did.watered) { const [x, y] = plot.split(",").map(Number); vfx.add("water", { x: x + 0.5, y: y + 0.5 }); }
     vfx.add("splash", null);
+    vfx.element(tool, null, { lift: 12 });
     setNote(th ? `รดไป ${did.watered.length} ต้น` : `${did.watered.length} plants watered`);
   }, [keeper, sfx, th, say, vfx]);
   const begin = useCallback(() => {
@@ -989,7 +993,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             // a weed out of the ground, or the blade into the earth, and what flies up from it
             sfx?.work(hit ? (working.work === "clear" ? "pull" : "hoe") : "knock");
             const [x, y] = working.key.split(",").map(Number);
-            if (hit) vfx.add(working.work === "clear" ? "leaves" : "soil", { x: x + 0.5, y: y + 0.5 });
+            if (hit) {
+              vfx.add(working.work === "clear" ? "leaves" : "soil", { x: x + 0.5, y: y + 0.5 });
+              vfx.element(held, { x: x + 0.5, y: y + 0.5 }, { lift: 6 });
+            }
           },
           onDone: (result: GameResult) => {
             const { key: k, work, row } = working;

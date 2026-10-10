@@ -286,7 +286,7 @@ describe("a forged hoe", () => {
   });
   it("with fire takes a hit fewer a plot, never under one; with dark its marker is quicker", () => {
     expect(hitsWith(FARMING.swings.till, hoeFx(tool("hoe", 1, [], ["fire"])))).toBe(2);
-    expect(hitsWith(FARMING.swings.clear, hoeFx(tool("hoe", 10, [], ["fire"])))).toBe(2);
+    expect(hitsWith(FARMING.swings.clear, hoeFx(tool("hoe", 10, [], ["fire"])))).toBe(1);
     expect(hitsWith(1, { fewer: 2 })).toBe(1);
     expect(hitsWith(3, PLAIN_HOE)).toBe(3);
     expect(hitsWith(0, { fewer: 1 })).toBe(0);
@@ -334,11 +334,11 @@ describe("a forged can", () => {
     expect([thrifty.well, thrifty.purse.bag[0]?.water]).toEqual([49, LEVELS.can.waterings[3]]);
     expect(done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 1, NOW)).purse.bag[0]?.water).toBe(LEVELS.can.waterings[3]);
   });
-  it("with dark a watering adds a share more and uses two of the can's (what it has, of a can with one)", () => {
+  it("dark rewards watering without consuming twice the water", () => {
     const plain = done(water("1,1", purseOf({ ...tool("can"), water: 5 }), sown(), "can", NOW)), base = plain.plot.plant!.boost;
     const dark = done(water("1,1", purseOf({ ...tool("can", 1, [], ["dark"]), water: 5 }), sown(), "can", NOW));
-    expect(dark.plot.plant!.boost).toBeCloseTo(base * 1.1, 6);
-    expect(dark.purse.bag[0]?.water).toBe(3);
+    expect(dark.plot.plant!.boost).toBeCloseTo(base * 1.25, 6);
+    expect(dark.purse.bag[0]?.water).toBe(4);
     expect(done(water("1,1", purseOf({ ...tool("can", 10, [], ["dark"]), water: 1 }), sown(), "can", NOW)).purse.bag[0]?.water).toBe(0);
     expect(plain.purse.bag[0]?.water).toBe(4);
     expect(base).toBe(FARMING.water.adds * 60_000);
@@ -457,7 +457,7 @@ describe("forged cookware", () => {
     expect(startStir(5, mods(tool("pot", 1, [], ["ice"]))).grace).toBeCloseTo(STIRRING.grace / 0.85, 12);
     const plain = startStir(5, stirMods([], false)), dark = startStir(5, mods(tool("pot", 0, [], ["dark"])));
     expect((dark.hi - dark.lo) / (plain.hi - plain.lo)).toBeCloseTo(1 / 1.1, 12);
-    expect(cookFx(tool("pot", 1, [], ["dark"])).helping).toBe(OLD_FX.dark.cook.helping[0]);
+    expect(cookFx(tool("pot", 1, [], ["dark"])).darkHelping).toBe(OLD_FX.dark.cook.helping[0]);
     expect(cookFx(tool("pot", 10, [], ["lightning"])).helping).toBe(OLD_FX.lightning.chance[1]);
   });
 });
@@ -566,10 +566,10 @@ describe("what a forged tool does by chance (whoever keeps the game)", () => {
     });
     expect(worms(tool("hoe"))).toBe(0);
     expect(worms(tool("hoe", 10))).toBe(0);
-    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeGreaterThan(0.02);
-    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeLessThan(0.09);
-    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeGreaterThan(0.06);
-    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeLessThan(0.15);
+    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeGreaterThan(0.16);
+    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeLessThan(0.25);
+    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeGreaterThan(0.30);
+    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeLessThan(0.40);
     expect(worms(tool("hoe", 10, [], ["dark"]), true)).toBe(0);
     // (the worm is in the bag, and clearing weeds turns up none)
     const lucky = Array.from({ length: 1000 }, (_, i) => NOW + i * 1000).find((now) => luckOf("worm|3,3", now) < 0.05)!;
@@ -593,14 +593,14 @@ describe("what a forged tool does by chance (whoever keeps the game)", () => {
   it("a pot cooked in cookware with lightning or dark in it has a helping more so often", () => {
     const things: Array<[ItemId, number]> = [["barb", 2], ["daikon", 1], ["cabbage", 1], ["chili", 1]];
     const pot = (s: Stack, now: number) => { let q: Purse = { ...purseOf(s), stamina: { day: dayOf(now), left: 100 } }; for (const [id, k] of things) q = { ...q, bag: put(q.bag, id, k) }; return done(cook(q, things, ["pot"], 0, now)).n; };
-    const plain = pot(tool("pot"), NOW), more = (s: Stack) => often((now) => pot(s, now) === plain + 1);
+    const plain = pot(tool("pot"), NOW), more = (s: Stack,extra=1) => often((now) => pot(s, now) === plain + extra);
     expect(more(tool("pot"))).toBe(0);
     expect(more(tool("pot", 10))).toBe(0);
     expect(more(tool("pot", 0, [], ["lightning"]))).toBeGreaterThan(0.06);
     expect(more(tool("pot", 0, [], ["lightning"]))).toBeLessThan(0.14);
-    expect(more(tool("pot", 10, [], ["dark"]))).toBeGreaterThan(0.15);
-    expect(more(tool("pot", 10, [], ["dark"]))).toBeLessThan(0.25);
-    expect(often((now) => pot(tool("pot", 10, [], ["dark"]), now) > plain + 1)).toBe(0);
+    expect(more(tool("pot", 10, [], ["dark"]),2)).toBeGreaterThan(0.15);
+    expect(more(tool("pot", 10, [], ["dark"]),2)).toBeLessThan(0.25);
+    expect(often((now) => pot(tool("pot", 10, [], ["lightning","dark"]), now) === plain + 3)).toBeGreaterThan(0.01);
   });
 });
 

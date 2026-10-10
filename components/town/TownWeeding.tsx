@@ -39,6 +39,7 @@ export default function TownWeeding({ th, title, need, mods, onDone, onCancel, o
   /** Weeds on their way out of the ground: what each was, and where it stood. */
   const [pulled, setPulled] = useState<Array<{ tuft: Tuft; place: number; at: number }>>([]);
   const stage = useRef<HTMLDivElement>(null), things = useRef<HTMLDivElement>(null);
+  const lastTouch = useRef<number | null>(null);
   const now = () => (performance.now() - from.current) / 1000;
   useEffect(() => { from.current = performance.now(); }, []);
 
@@ -60,6 +61,7 @@ export default function TownWeeding({ th, title, need, mods, onDone, onCancel, o
   const tap = useCallback((place: number) => {
     if (ended.current) return;
     const was = patchAt(patch.current, now()), next = touch(was, now(), place), hit = next.hits > was.hits;
+    lastTouch.current = place;
     patch.current = next;
     onHit?.(hit);
     if (hit) {
@@ -83,7 +85,8 @@ export default function TownWeeding({ th, title, need, mods, onDone, onCancel, o
 
   const p = patch.current;
   return (
-    <GameFrame th={th} title={title} need={p.need} hits={p.hits} misses={p.misses} most={p.most} onCancel={onCancel}>
+    <GameFrame th={th} title={title} need={p.need} hits={p.hits} misses={p.misses} most={p.most} onCancel={onCancel}
+               effectAt={lastTouch.current === null ? undefined : spot(lastTouch.current)}>
       <div ref={stage} className={`${STAGE} mt-2 aspect-[2/1] w-full`} data-look="weeding">
         <PixelGround kind="soil" className="absolute inset-0 size-full" />
         {/* the places, each a button: what stands in it is said for whoever cannot see it */}

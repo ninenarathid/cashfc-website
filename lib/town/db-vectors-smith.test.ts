@@ -571,7 +571,7 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     for (const m of [0, 1, 2]) expect(chosen.some((x) => x.at === m), `chosen at ${m}`).toBe(true);
 
     // a gem: set, over none and over another, refused each way (too little of the mount by the mount's own word)
-    expect(whys("gem_set")).toEqual(["coins", "gem", "ok", "same", "timber", "tool"]);
+    expect(whys("gem_set")).toEqual(["coins", "gem", "ok", "same", "socket", "timber", "tool"]);
     const sets = of("gem_set").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { element: string; over: string | null });
     for (const e of ELEMENTS) expect(sets.some((x) => x.element === e && x.over === null) && sets.some((x) => x.element === e && x.over !== null), e).toBe(true);
 

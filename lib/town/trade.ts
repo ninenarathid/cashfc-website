@@ -151,6 +151,8 @@ export interface Stack {
   opts?: string[];
   /** and the gems set in it, by their elements: one for each socket filled. */
   gems?: string[];
+  /** Successful work with each element; travels with this tool's forging. */
+  mastery?: Partial<Record<import("./tools").Element, number>>;
   /** Who forged it to each of its milestones, by name, in the milestones' order ("" where nobody is written): a tool's history, which goes with it wherever it goes. */
   makers?: string[];
   /**
@@ -169,7 +171,7 @@ export interface Stack {
 }
 // ── forging ──
 /** Whether a tool carries something of its own: a plus, an option drawn for it (awake or asleep), a gem set in it. */
-export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus ?? 0) > 0 || !!s.opts?.length || !!s.gems?.length);
+export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus ?? 0) > 0 || !!s.opts?.length || !!s.gems?.length || !!Object.keys(s.mastery ?? {}).length);
 /**
  * A plain thing: one that holds nothing (no dish, no water) and carries nothing of its own. Only plain things are
  * counted, bought and sold by number (a stall, the notice board, the yard's jar): one of them is like any other.

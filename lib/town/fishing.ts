@@ -1,3 +1,4 @@
+import { trainElement } from "./element-training";
 import { carriedBag } from "./passive-equipment";
 import { partOf, rodFx, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
@@ -187,7 +188,7 @@ export function backBait(purse: Purse, bait: BaitId): Purse {
   return KEPT_BAITS.includes(bait) || roomFor(purse.bag, bait) < 1 ? purse : { ...purse, bag: put(purse.bag, bait, 1) };
 }
 /** Land what was caught: into the bag when there is room for it, and, a fish, onto the record when it is the longest of its kind yet. */
-export function landCatch(purse: Purse, what: CatchId, size: number): { purse: Purse; kept: boolean; record: boolean } {
+function landCatchUntrained(purse: Purse, what: CatchId, size: number): { purse: Purse; kept: boolean; record: boolean } {
   const kept = roomFor(purse.bag, what) > 0, fish = what in FISH ? (what as FishId) : null;
   const record = !!fish && size > (purse.best[fish] ?? 0);
   return { kept, record, purse: { ...purse, bag: kept ? put(purse.bag, what, 1) : purse.bag, best: record && fish ? { ...purse.best, [fish]: size } : purse.best } };
@@ -875,3 +876,9 @@ export const biggerBy = (size: number, k: number): number => Math.round(size * k
  */
 export const leastMs = (fish: FishId, harder: number, bouts: number, least: number): number =>
   Math.floor((FISH[fish].fight.line / FIGHT.reel) * least * harderOf(fish, harder) * bouts * 1000);
+
+/** Training belongs to the tool used for this successful job, once per result. */
+export function landCatch(...args: Parameters<typeof landCatchUntrained>): ReturnType<typeof landCatchUntrained> {
+  const did = landCatchUntrained(...args);
+  return did.kept ? { ...did, purse: trainElement(args[0], did.purse, rodOf(args[0])) } : did;
+}

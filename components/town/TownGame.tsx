@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { PACE, paced } from "@/lib/town/pace";
 import type { Sprite } from "@/lib/town/scenery";
+import TownElementFx from "./TownElementFx";
 
 /** How a game went: what the game of timing always gave back, and every game gives now. `dropped`: the work was not done (tired hands, and too many misses). */
 /** (`marks`: of a game that goes a beat at a time, a row's: how each beat went, in their order) */
@@ -25,7 +26,7 @@ export interface GameProps {
  *
  * Nothing on it explains the game beyond a word or two: what moves says it.
  */
-export function GameFrame({ th, title, need, hits, misses, most, onCancel, children, word }: {
+export function GameFrame({ th, title, need, hits, misses, most, onCancel, children, word, effectAt }: {
   th: boolean;
   title: string;
   need: number;
@@ -37,11 +38,12 @@ export function GameFrame({ th, title, need, hits, misses, most, onCancel, child
   children: ReactNode;
   /** A word or two under the title: what the hand does. */
   word?: string;
+  effectAt?: { x: number; y: number };
 }) {
   const left = Math.max(0, most - misses);
   return (
     <section aria-label={title} data-town-game
-             className="select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
+             className="relative select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
       <div className="flex min-h-9 items-center gap-2">
         <h2 className="font-display text-title font-semibold text-[#ffeccb] [text-shadow:0_2px_0_#2a190d]">{title}</h2>
         {/* a square for each part wanted, filled as they come */}
@@ -61,12 +63,13 @@ export function GameFrame({ th, title, need, hits, misses, most, onCancel, child
       </div>
       {word && <p className="-mt-0.5 mb-1 text-label text-[#e9cfa4]">{word}</p>}
       {children}
+      <TownElementFx pulse={`${hits}:${misses}`} active={hits < need && (most === 0 || misses < most)} x={effectAt?.x} y={effectAt?.y} />
     </section>
   );
 }
 
 /** What a game's picture stands in: a hollow in the board, dark, with hard edges. */
-export const STAGE = "relative overflow-hidden rounded-[4px] border-[3px] border-[#2a190d] bg-[#3a2513]";
+export const STAGE = "town-game-stage relative overflow-hidden rounded-[4px] border-[3px] border-[#2a190d] bg-[#3a2513]";
 /** The board's own big button: for the games that are played by one. */
 export const BIG = "min-h-14 w-full touch-none select-none rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] text-read font-semibold text-[#3a2209] shadow-[inset_0_-4px_0_#c98f2f,inset_0_2px_0_#ffe19a] active:translate-y-px active:shadow-[inset_0_-2px_0_#c98f2f]";
 

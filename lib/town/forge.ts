@@ -2,7 +2,7 @@ import { canHolds } from "./farm";
 import { ITEMS, type ItemId } from "./items";
 import { running } from "./powers";
 import {
-  FORGE, GEMS, SMELTING, SMELTS, awayOf, drawable, drawnOf, elementOfGem, gemsOf, has, isElement, isWooden, levelOf, lineKinds, makerName, makersOf, optN, originOf, samePool, settable, toolKindOf, toolLineOf,
+  FORGE, GEMS, SMELTING, SMELTS, awayOf, drawable, drawnOf, elementOfGem, gemsOf, has, isElement, isWooden, levelOf, lineKinds, makerName, makersOf, masteryOf, optN, originOf, samePool, settable, socketOpen, toolKindOf, toolLineOf,
   type Element, type OptionId, type ToolKind,
 } from "./tools";
 import { heldIn, roomIn, stow, takeOut } from "./pouches";
@@ -134,7 +134,8 @@ export type SmithRefusal =
   | "places"   // no place free in the queue
   | "full"     // no room in the bag
   | "gem"      // no such gem in the bag
-  | "same"     // that element is set in it already
+  | "same"     // that element is set in the chosen socket already
+  | "socket"   // the chosen socket is not available yet
   | "unbuilt"  // nothing to draw, or that element does nothing for this tool yet
   | "owed"     // a draw waits to be chosen first
   | "self"     // one's own bellows
@@ -267,9 +268,11 @@ export function widen(purse: Purse, s: Smithy): Did<{ purse: Purse; smithy: Smit
 /** A stack with its own state written as it is kept: nothing kept that says nothing. */
 function withState(s: Stack, plus: number, opts: Array<OptionId | null>, gems: Element[]): Stack {
   const { plus: _p, opts: _o, gems: _g, ...bare } = s;
+  // Keep any historical extra gems as stored data, even though only two work.
+  const keptGems = [...gems, ...(Array.isArray(s.gems) ? s.gems.filter(isElement).slice(FORGE.sockets) : [])];
   let last = -1;
   opts.forEach((o, i) => { if (o) last = i; });
-  return { ...bare, ...(plus > 0 ? { plus } : {}), ...(last >= 0 ? { opts: opts.slice(0, last + 1).map((o) => o ?? "") } : {}), ...(gems.length ? { gems } : {}) };
+  return { ...bare, ...(plus > 0 ? { plus } : {}), ...(last >= 0 ? { opts: opts.slice(0, last + 1).map((o) => o ?? "") } : {}), ...(keptGems.length ? { gems: keptGems } : {}) };
 }
 /**
  * A tool with its maker written at a milestone: only where nobody is written there yet (the first to bring it there
@@ -412,19 +415,40 @@ export function choose(purse: Purse, s: Smithy, slot: number, pick: string): Did
 
 /** What is said of too little of a thing the smith takes: of fine timber its own word, of anything else the ore's. */
 const lacking = (id: ItemId): SmithRefusal => (id === "timber" ? "timber" : "ore");
-/** Set a gem into the tool in a slot: a gem, its mount (bag and pouches together) and a fee. It always takes; a gem already there is gone. */
-export function setGem(purse: Purse, slot: number, gem: ItemId): Did<{ purse: Purse; item: ToolKind; element: Element; over: Element | null }> {
+/** Set or remove a gem for a fee. Replacement returns the previous gem and preserves the tool's elemental training. */
+export function setGem(purse: Purse, slot: number, gem: ItemId | null, socket = 0): Did<{ purse: Purse; item: ToolKind; element: Element | null; over: Element | null }> {
   const stack = purse.bag[slot], kind = stack ? toolKindOf(stack.item) : null;
   if (!stack || !kind) return no("tool");
+  if (gem === null) {
+    // Historical third gems remain recoverable, without reopening a gameplay socket.
+    const gems=Array.isArray(stack.gems) ? stack.gems.filter(isElement) : [],over=gems[socket];
+    if (!Number.isInteger(socket) || socket < 0 || !over) return no("socket");
+    const fee=socket >= FORGE.sockets ? 0 : SMITH.gem.fee;
+    if (purse.coins < fee) return no("coins");
+    if (roomIn(purse,GEMS[over].gem) < 1) return no("full");
+    const returned=stow(purse,GEMS[over].gem,1);
+    gems.splice(socket,1);
+    const { gems: _gems, ...bare } = returned.bag[slot] ?? stack;
+    return {ok:true,item:kind,element:null,over,purse:setSlot({...returned,coins:purse.coins-fee},slot,{...bare,...(gems.length ? { gems } : {})})};
+  }
   const element = elementOfGem(gem);
   if (!element || heldIn(purse, gem) < 1) return no("gem");
   if (!settable(kind, element)) return no("unbuilt");
-  const over = gemsOf(stack)[0] ?? null;
+  const gems = gemsOf(stack);
+  if (!socketOpen(stack, socket) || socket > gems.length) return no("socket");
+  const over = gems[socket] ?? null;
   if (over === element) return no("same");
   if (heldIn(purse, SMITH.gem.mount) < SMITH.gem.mounts) return no(lacking(SMITH.gem.mount));
   if (purse.coins < SMITH.gem.fee) return no("coins");
-  const spent = takeOut(takeOut(purse, gem, 1), SMITH.gem.mount, SMITH.gem.mounts), bag = spent.bag;
-  const next = setSlot({ ...spent, coins: purse.coins - SMITH.gem.fee }, slot, withState(bag[slot] ?? stack, levelOf(stack), drawnOf(stack), [element]));
+  let spent = takeOut(takeOut(purse, gem, 1), SMITH.gem.mount, SMITH.gem.mounts);
+  if (over) {
+    if (roomIn(spent,GEMS[over].gem) < 1) return no("full");
+    const returned=stow(spent,GEMS[over].gem,1);
+    spent=returned;
+  }
+  const bag = spent.bag;
+  gems[socket] = element;
+  const next = setSlot({ ...spent, coins: purse.coins - SMITH.gem.fee }, slot, withState(bag[slot] ?? stack, levelOf(stack), drawnOf(stack), gems));
   return { ok: true, purse: next, item: kind, element, over };
 }
 /** The gems somebody has, each element once with how many of its gem, in the elements' order: in the bag and in a pouch (of a bag alone: those in it). */
@@ -443,12 +467,13 @@ export const toolsIn = (bag: Purse["bag"]): Array<{ slot: number; stack: Stack; 
  * makers' names, and the kind of tool those options were drawn for (null with no option: a forging that has none is
  * of no pool). What a tool holds of its own (a can's water) is no part of it.
  */
-export interface Forging { plus: number; opts: Array<OptionId | null>; gems: Element[]; makers: Array<string | null>; origin: ToolKind | null }
+export interface Forging { plus: number; opts: Array<OptionId | null>; gems: Element[]; makers: Array<string | null>; origin: ToolKind | null; mastery?: Stack["mastery"] }
 export function forgingOf(stack: Stack | null | undefined): Forging {
   const opts = drawnOf(stack);
   // (every gem kept that is one, as it is kept: how many of them work is the reader's to say, by the tool's sockets)
   const gems = stack && toolKindOf(stack.item) && Array.isArray(stack.gems) ? stack.gems.filter(isElement) : [];
-  return { plus: levelOf(stack), opts, gems, makers: makersOf(stack), origin: opts.some(Boolean) ? originOf(stack) : null };
+  const mastery=masteryOf(stack);
+  return { plus: levelOf(stack), opts, gems, makers: makersOf(stack), origin: opts.some(Boolean) ? originOf(stack) : null, ...(Object.keys(mastery).length ? { mastery } : {}) };
 }
 /** Whether two forgings are the same in everything: a trade of them would change neither tool. */
 const sameForging = (a: Forging, b: Forging): boolean => JSON.stringify(a) === JSON.stringify(b);
@@ -459,12 +484,13 @@ const sameForging = (a: Forging, b: Forging): boolean => JSON.stringify(a) === J
  * water is cut down to what the can holds now (lib/town/farm's `canHolds`): nobody gains water by a move.
  */
 export function withForging(tool: Stack, f: Forging): Stack {
-  const { plus: _p, opts: _o, gems: _g, makers: _m, origin: _f, ...bare } = tool, kind = toolKindOf(tool.item);
+  const { plus: _p, opts: _o, gems: _g, makers: _m, origin: _f, mastery: _training, ...bare } = tool, kind = toolKindOf(tool.item);
   let opt = -1, maker = -1;
   f.opts.forEach((o, i) => { if (o) opt = i; });
   f.makers.forEach((m, i) => { if (m) maker = i; });
   const next: Stack = {
     ...bare,
+    ...(f.mastery ? { mastery: { ...f.mastery } } : {}),
     ...(f.plus > 0 ? { plus: f.plus } : {}),
     ...(opt >= 0 ? { opts: f.opts.slice(0, opt + 1).map((o) => o ?? "") } : {}),
     ...(f.gems.length ? { gems: [...f.gems] } : {}),

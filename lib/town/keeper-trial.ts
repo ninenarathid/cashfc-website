@@ -540,7 +540,7 @@ class TrialKeeper implements Keeper {
   async smithDraw(slot: number) { return this.trial.smithDraw(slot); }
   async smithChoose(slot: number, pick: string, name: string) { return this.trial.smithChoose(slot, pick, name); }
   async smithRedraw(slot: number, at: number, gem: ItemId) { return this.trial.smithRedraw(slot, at, gem); }
-  async smithGem(slot: number, gem: ItemId) { return this.trial.smithGem(slot, gem); }
+  async smithGem(slot: number, gem: ItemId | null, socket = 0) { return this.trial.smithGem(slot, gem, socket); }
   async smithMove(from: number, to: number, how: MoveHow) { return this.trial.smithMove(from, to, how); }
   fire() { return this.trial.fire(); }
   async fireJoin(name: string) { return this.trial.fireJoin(name); }

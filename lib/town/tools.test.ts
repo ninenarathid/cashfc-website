@@ -276,14 +276,19 @@ describe("what a tool carries, read as it works now", () => {
     // more than three are not read
     expect(modsOf(tool("pick", 10, ["pkPeek", "pkCrumb", "pkQuake", "pkTwin"])).opts).toEqual(["pkPeek", "pkCrumb", "pkQuake"]);
   });
-  it("a gem works at the first level, and one more at the top; a tool of the first tier has one socket", () => {
-    expect(FORGE.sockets).toBe(1);
+  it("two sockets combine mixed elements and matching elements gain one effect tier", () => {
+    expect(FORGE.sockets).toBe(2);
+    expect(FORGE.socketAt).toEqual([7, 10]);
+    expect(modsOf(tool("pick", 10, [], ["fire", "ice"])).gems).toEqual({ fire: 2, ice: 2 });
+    expect(gemLevel(tool("pick", 10, [], ["fire", "fire"]), "fire")).toBe(3);
+    expect(gemLevel(tool("pick", 10, [], ["fire", "fire", "fire"]), "fire")).toBe(3);
+    expect(walkPace(toolWord(tool("pick", 10, [], ["wind", "wind"])))).toBeCloseTo(1.2);
     expect(gemLevel(tool("pick", 0, [], ["fire"]), "fire")).toBe(1);
     expect(gemLevel(tool("pick", 9, [], ["fire"]), "fire")).toBe(1);
     expect(gemLevel(tool("pick", 10, [], ["fire"]), "fire")).toBe(2);
     expect(gemLevel(tool("pick", 10, [], ["fire"]), "ice")).toBe(0);
     expect(gemLevel(tool("pick"), "fire")).toBe(0);
-    expect(gemsOf(tool("pick", 0, [], ["fire", "ice"]))).toEqual(["fire"]);
+    expect(gemsOf(tool("pick", 0, [], ["fire", "ice"]))).toEqual(["fire", "ice"]);
     expect(gemsOf(tool("pick", 0, [], ["plasma", "ice"]))).toEqual(["ice"]);
     expect(gemsOf({ item: "pick", n: 1, gems: "fire" as unknown as string[] })).toEqual([]);
     expect(gemsOf({ item: "rodTeak", n: 1, gems: ["fire"] })).toEqual([]);
@@ -305,8 +310,8 @@ describe("what a tool carries, read as it works now", () => {
     expect(veinStrikes(tool("pick", 3, ["pkSteady"]))).toBe(9);
     expect(veinStrikes(tool("pick", 2, ["pkSteady"]))).toBe(8);
     // fire: so much fewer, rounded up; dark: a swing more
-    expect(pickSwings(tool("pick", 0, [], ["fire"]), 24)).toBe(7);
-    expect(pickSwings(tool("pick", 10, [], ["fire"]), 24)).toBe(2);
+    expect(pickSwings(tool("pick", 0, [], ["fire"]), 24)).toBe(6);
+    expect(pickSwings(tool("pick", 10, [], ["fire"]), 24)).toBe(1);
     expect(pickSwings(tool("pick", 0, [], ["dark"]), 12)).toBe(5);
     expect(pickSwings(tool("pick", 10), 12)).toBe(1);
     expect(axeChops(tool("axe", 10))).toBe(4);

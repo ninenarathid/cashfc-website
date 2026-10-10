@@ -1,0 +1,51 @@
+{
+  "cell": 64,
+  "elements": [
+    "fire",
+    "water",
+    "ice",
+    "earth",
+    "lightning",
+    "wind",
+    "light",
+    "dark"
+  ],
+  "tools": {
+    "pick": {
+      "image": "/town/element-skins/pick-f9480dda1c4f.png",
+      "bytes": 195576
+    },
+    "axe": {
+      "image": "/town/element-skins/axe-cc9daef89f79.png",
+      "bytes": 181599
+    },
+    "rod": {
+      "image": "/town/element-skins/rod-e0e3019b80f8.png",
+      "bytes": 147442
+    },
+    "hoe": {
+      "image": "/town/element-skins/hoe-819b6561377a.png",
+      "bytes": 208296
+    },
+    "can": {
+      "image": "/town/element-skins/can-d5f2156d6da0.png",
+      "bytes": 247867
+    },
+    "bugNet": {
+      "image": "/town/element-skins/bugNet-ffa55a21ea97.png",
+      "bytes": 171916
+    },
+    "pot": {
+      "image": "/town/element-skins/pot-f37b9ea71088.png",
+      "bytes": 246293
+    },
+    "pan": {
+      "image": "/town/element-skins/pan-570fbca645ba.png",
+      "bytes": 215431
+    },
+    "grill": {
+      "image": "/town/element-skins/grill-46c066cac8d3.png",
+      "bytes": 230371
+    }
+  }
+}
