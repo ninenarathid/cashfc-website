@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import { GARDEN_CROPS, type GardenCropId } from "./garden-items";
 import { CROPS, type CropId, type ItemId } from "./items";
 import { WILD, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
@@ -36,10 +37,10 @@ export function gardenRoom(key: string, crop: CropId, plots: Readonly<Record<str
   return cells?.every(k => plots[k]?.soil === "tilled" && !plots[k].plant) ? cells : null;
 }
 export function gardenMods(purse: Purse, now: number) {
-  return { hint: hasBuff(purse, now, "pollen") || held(purse.bag, "pollenBrush") > 0,
-    knife: held(purse.bag, "graftKnife") > 0, layout: held(purse.bag, "rootGuide") > 0,
-    boost: held(purse.bag, "soilScoop") > 0, seed: held(purse.bag, "seedTray") > 0,
-    extra: held(purse.bag, "gardenTwine") > 0 };
+  return { hint: hasBuff(purse, now, "pollen") || held(carriedBag(purse), "pollenBrush") > 0,
+    knife: held(carriedBag(purse), "graftKnife") > 0, layout: held(carriedBag(purse), "rootGuide") > 0,
+    boost: held(carriedBag(purse), "soilScoop") > 0, seed: held(carriedBag(purse), "seedTray") > 0,
+    extra: held(carriedBag(purse), "gardenTwine") > 0 };
 }
 /** One root can record a cross only once, even when it bears again. */
 export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, me: string, now: number, sky: FarmSky): GardenCropId | null {

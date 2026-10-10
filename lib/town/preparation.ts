@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import { PREP_MAKES } from "./preparation-items";
 import { byOf, type ItemId } from "./items";
 import { levelOf, spend } from "./stamina";
@@ -35,7 +36,7 @@ export function prepare(p:Purse,run:PrepRun|null,id:string,answers:PrepAnswers,a
  if(!answers||![answers.method,answers.heat,answers.finish].every(n=>Number.isInteger(n)&&n>=0&&n<=2)||(answers.correction!==undefined&&typeof answers.correction!=="boolean"))return no("none");
  const target=preparationTargets(run);
  let mistakes=Number(answers.method!==target.method)+Number(answers.heat!==target.heat)+Number(answers.finish!==target.finish);
- const adjusts=Math.max(held(p.bag,"tastingSpoon")>0?1:0,byOf("seasoning",levelOf(p,now,"seasoning")))>0;
+ const adjusts=Math.max(held(carriedBag(p),"tastingSpoon")>0?1:0,byOf("seasoning",levelOf(p,now,"seasoning")))>0;
  if(answers.correction&&!adjusts)return no("tool");
  // A taste can save one decision; carrying a spoon and eating the buff never makes this two.
  if(answers.correction)mistakes=Math.max(0,mistakes-1);

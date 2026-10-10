@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import { GEOLOGY_RAW } from "./geology-items";
 import { cookFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
@@ -307,7 +308,7 @@ export function cook(purse: Purse, things: Array<[ItemId, number]>, crew: Array<
     const big = canBatch ? usePower(spent, mine, "ckBig", now) : null;
     if (big?.ok) { spent = big.purse; for (const [id, n] of all) bag = take(bag, id, n * (batches - 1)); }
     // (under the fountain's big pot, a helping more: lib/town/fountain)
-    const left = (made ? helpings(dish, crew, misses, purse.bag) * (big?.ok ? batches : 1) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0)
+    const left = (made ? helpings(dish, crew, misses, carriedBag(purse)) * (big?.ok ? batches : 1) : oddHelpings(all, misses)) + (hasBuff(purse, now, "feast") ? BLESSINGS.feast.by : 0)
       // ── forging: old tools ── (a pot cooked in cookware that carries as much has a helping more, so often)
       + (luckOf("helping", now, all.length) < cookFx(mine).helping ? 1 : 0);
     // ── forging: old tools ── (a dish cooked in cookware whose pots are for the table: whoever eats out of this one at the feast table has
@@ -394,7 +395,7 @@ export interface FeastTold { pots: number; ground: number; tile: [number, number
 export function setDown(purse: Purse, slot: number, me: string, at: [number, number], id: string, how?: { now: number; yard: boolean; tile: [number, number] }): Done<{ purse: Purse; pot: Pot }> {
   const s = purse.bag[slot];
   if (!s || s.item !== "potFull" || !s.of) return no("none");
-  const tok = held(purse.bag, "tok") > 0, feast = !!how?.yard && s.of.dish !== ODD;
+  const tok = held(carriedBag(purse), "tok") > 0, feast = !!how?.yard && s.of.dish !== ODD;
   const pot: Pot = feast ? { id, by: me, dish: s.of.dish, left: s.of.left, at: how!.tile, feast: true, set: how!.now, ...potMarks(s) }
     : { id, by: me, dish: s.of.dish, left: s.of.left, at, ...(tok ? { tok } : {}), ...(how ? { set: how.now } : {}), ...potMarks(s) };
   return { ok: true, pot, purse: { ...purse, bag: purse.bag.map((b, i) => (i === slot ? null : b)) } };

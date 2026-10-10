@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import { WATER } from "./farm";
 import { byOf, type ItemId } from "./items";
 import { levelOf, spend } from "./stamina";
@@ -23,7 +24,7 @@ export const STREAM_WORK = {
 export const streamSiteAt = (at: readonly number[]) => STREAM_WORK.sites.find(s => at.length === 2 && Number.isInteger(at[0]) && Number.isInteger(at[1]) && Math.max(Math.abs(s.x-at[0]), Math.abs(s.y-at[1])) <= STREAM_WORK.reach) ?? null;
 export const streamRouteAt = (gate: StreamGate | null | undefined, now: number): StreamRoute => gate && gate.until > now ? gate.route : "pool";
 export const waterNature = (id: string): Nature | null => Object.hasOwn(STREAM_WORK.nature, id) ? STREAM_WORK.nature[id as keyof typeof STREAM_WORK.nature] : null;
-export const propertyDuration = (p: Purse, now: number): number => Math.max(1, held(p.bag,"sealedFlask") > 0 ? 2 : 1, byOf("waterProperty", levelOf(p,now,"waterProperty")));
+export const propertyDuration = (p: Purse, now: number): number => Math.max(1, held(carriedBag(p),"sealedFlask") > 0 ? 2 : 1, byOf("waterProperty", levelOf(p,now,"waterProperty")));
 export interface StreamResult { ok: true; purse: Purse; got?: Array<[ItemId,number]>; gate?: StreamGate; nature?: Nature; times?: number }
 
 /** The server decides recipes, source availability, limits and property strength. */

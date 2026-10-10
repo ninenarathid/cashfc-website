@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import type { ItemId } from "./items";
 import type { Purse } from "./trade";
 import { held } from "./trade";
@@ -7,7 +8,7 @@ export interface RockChoice { echo: -1 | 1; focus: "ore" | "crystal" }
 export const GEOLOGY = { version: 1, ore: 2, sieve: 1, crystal: 1, quartz: 1 } as const;
 export const rockChoice = (v: unknown): v is RockChoice => !!v && typeof v === "object" && [-1, 1].includes((v as RockChoice).echo) && ["ore", "crystal"].includes((v as RockChoice).focus);
 export const echoOf = (seed: number): -1 | 1 => Math.abs(Math.trunc(seed)) % 2 ? 1 : -1;
-export const geologyMods = (purse: Purse, now: number) => ({ hint: hasBuff(purse, now, "layers") || held(purse.bag, "echoHammer") > 0, cavities: held(purse.bag, "cavityLens") > 0, preserve: held(purse.bag, "crystalWrap") > 0, sieve: held(purse.bag, "oreSieve") > 0, chisel: held(purse.bag, "seamChisel") > 0, cord: held(purse.bag, "surveyCord") > 0 });
+export const geologyMods = (purse: Purse, now: number) => ({ hint: hasBuff(purse, now, "layers") || held(carriedBag(purse), "echoHammer") > 0, cavities: held(carriedBag(purse), "cavityLens") > 0, preserve: held(carriedBag(purse), "crystalWrap") > 0, sieve: held(carriedBag(purse), "oreSieve") > 0, chisel: held(carriedBag(purse), "seamChisel") > 0, cord: held(carriedBag(purse), "surveyCord") > 0 });
 /** The bounded vein account supplies the number reached. Empty attempts earn nothing. */
 export function geologicalYield(vein: PendingVein, choice: RockChoice, ore: number, gems: number, purse: Purse): Array<[ItemId, number]> {
   if (ore + gems <= 0) return [];

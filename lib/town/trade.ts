@@ -1,3 +1,4 @@
+import { isPassiveEquipment } from "./passive-equipment";
 import { CARRIES } from "./gear";
 import type { WishId } from "./fountain";
 import { ITEMS, type BuffId, type DishId, type FishId, type ItemId, type MealBuffId } from "./items";
@@ -242,6 +243,7 @@ export interface Purse {
   /** Bowls a meal has done with that the bag had no room for when it ended: they come back as soon as there is room (lib/town/stamina). */
   owed?: number;
   /** What is worn to carry more (a basket, a carrying basket, a carrying pole): each makes the bag bigger, and is no longer in it. */
+  /** Carrying gear and reusable passive equipment; each owns one item outside the bag. */
   wears?: ItemId[];
   /** The gifts of the lines of work somebody has taken, and the charms worn of them, the familiar that follows, and what part of a point of stamina the gloves' half has left owing (lib/town/gifts reads them, and makes them sound): in no slot of the bag. */
   gifts?: { had: string[]; charms: string[]; owed?: number; familiar?: string | null; used?: Record<string, { k: number; n: number }> };
@@ -445,17 +447,24 @@ export const heldStack = (purse: Purse, taken: number | null = null): Stack | nu
  * many slots more (lib/town/gear's CARRIES), one of a kind. The thing leaves
  * the bag when it is put on. Taking it off takes its slots away again: what
  * was in the bag has to fit in what is left, with the thing itself.
+ * Reusable passive equipment also leaves the bag, but adds no capacity. It can
+ * be returned to an available slot without repacking the other items.
  */
 export function wear(purse: Purse, slot: number): Done<{ purse: Purse }> {
-  const s = purse.bag[slot], more = s ? CARRIES[s.item] : undefined;
-  if (!s || !more) return no("none");
+  const s = Number.isInteger(slot) && slot >= 0 ? purse.bag[slot] : null;
+  const more = s ? CARRIES[s.item] ?? (isPassiveEquipment(s.item) ? 0 : undefined) : undefined;
+  if (!s || more === undefined || (!Number.isInteger(s.n) || s.n < 1) || (isPassiveEquipment(s.item) && Object.keys(s).some(k => k !== "item" && k !== "n"))) return no("none");
   if ((purse.wears ?? []).includes(s.item)) return no("worn");
   const bag = [...purse.bag.map((b, i) => (i !== slot ? b : s.n > 1 ? { ...s, n: s.n - 1 } : null)), ...Array<Stack | null>(more).fill(null)];
   return { ok: true, purse: { ...purse, bag, wears: [...(purse.wears ?? []), s.item] } };
 }
 export function takeOff(purse: Purse, item: ItemId): Done<{ purse: Purse }> {
-  const more = CARRIES[item];
-  if (!more || !(purse.wears ?? []).includes(item)) return no("none");
+  const more = CARRIES[item] ?? (isPassiveEquipment(item) ? 0 : undefined);
+  if (more === undefined || !(purse.wears ?? []).includes(item)) return no("none");
+  if (more === 0) {
+    if (roomFor(purse.bag, item) < 1) return no("full");
+    return { ok: true, purse: { ...purse, bag: put(purse.bag, item, 1), wears: (purse.wears ?? []).filter(w => w !== item) } };
+  }
   const things = purse.bag.filter((s): s is Stack => !!s), slots = purse.bag.length - more;
   if (things.length + 1 > slots) return no("full");
   const bag: Purse["bag"] = [...things, { item, n: 1 }, ...Array<Stack | null>(slots - things.length - 1).fill(null)];

@@ -1,4 +1,5 @@
 "use client";
+import { carriedBag } from "@/lib/town/passive-equipment";
 
 import { useRef, useState } from "react";
 import { isRod } from "@/lib/town/gear";
@@ -13,8 +14,9 @@ import styles from "./TownAdventure.module.css";
 export default function TownRodHook({ keeper, purse, th }: { keeper: Keeper; purse: Purse; th: boolean }) {
   const [open, setOpen] = useState(false), [busy, setBusy] = useState(false), [note, setNote] = useState<string | null>(null);
   const pending = useRef(false);
-  const current = hookOf(purse), owned = HOOK_IDS.filter(id => purse.bag.some(s => s?.item === id && s.n >= 1));
-  if (!purse.bag.some(s => s && isRod(s.item))) return null;
+  const bag = carriedBag(purse);
+  const current = hookOf(purse), owned = HOOK_IDS.filter(id => bag.some(s => s?.item === id && s.n >= 1));
+  if (!bag.some(s => s && isRod(s.item))) return null;
   const name = (id: HookId) => th ? ITEMS[id].name.th : ITEMS[id].name.en;
   const choose = async (id: HookId | null) => {
     if (pending.current) return;
@@ -37,7 +39,7 @@ export default function TownRodHook({ keeper, purse, th }: { keeper: Keeper; pur
       </button>
       <div className="min-w-0 flex-1">
         <p className="text-ui">{current ? name(current) : th ? "ยังไม่ได้ใส่เบ็ดเสริม" : "No extra hook fitted"}</p>
-        <p className="text-meta text-[#c9a877]">{th ? "เบ็ดยังอยู่ในกระเป๋า ใส่และถอดได้ฟรี" : "Kept in your bag. Free to fit or remove."}</p>
+        <p className="text-meta text-[#c9a877]">{th ? "ใช้เบ็ดจากกระเป๋าหรือช่องติดตัว ใส่และถอดได้ฟรี" : "Use a hook from your bag or equipment. Free to fit or remove."}</p>
       </div>
       {current && <button type="button" onClick={() => void choose(null)} disabled={busy} className="tk tk-btn-wood min-h-11 px-3 text-ui disabled:opacity-50" data-hook-remove>{th ? "ถอด" : "Remove"}</button>}
     </div>

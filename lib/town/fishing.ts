@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import { partOf, rodFx, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { powerLeft, usePower } from "./powers";
@@ -194,12 +195,12 @@ export function landCatch(purse: Purse, what: CatchId, size: number): { purse: P
 /** How long after the bite somebody's strike still hooks the fish, by the meal in them, the stamina left and the float they carry. */
 export const strikeWindowOf = (purse: Purse, now: number) =>
   // ── forging: old tools ── (the rod in the hand is the one in the slot it was taken up from, where the purse says which)
-  strikeWindow({ keen: levelOf(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(purse.bag, handOf(purse), handSlot(purse, purse.handAt ?? null)), charm: charmBy(purse, "charmFloat") });
+  strikeWindow({ keen: levelOf(purse, now, "keen"), spent: isSpent(purse, now), gear: gearOf(carriedBag(purse), handOf(purse), handSlot(purse, purse.handAt ?? null)), charm: charmBy(purse, "charmFloat") });
 
 // ── forging: old tools ── (what whoever keeps the game does for a forged rod: lib/town/forged has what one carries)
 /** The rod somebody fishes with now, as the stack it is: the one in the hand, by the slot it was taken up from (`slot`, where the keeper knows it; else as the purse says), or the best in the bag. */
 export const rodOf = (purse: Purse, slot: number | null = null): Stack | null =>
-  rodStack(purse.bag, gearOf(purse.bag, handOf(purse)).rod, slot !== null && slot >= 0 ? slot : handSlot(purse, purse.handAt ?? null));
+  rodStack(purse.bag, gearOf(carriedBag(purse), handOf(purse)).rod, slot !== null && slot >= 0 ? slot : handSlot(purse, purse.handAt ?? null));
 /** A purse after a fight's stamina is paid, with what the rod takes off it (lib/town/forged-keep: a share, owed forward; or nothing at all, of the first fights of a meal's hours). */
 export function fightPaid<P extends Purse>(purse: P, effort: number, now: number, slot: number | null = null): P {
   const rod = rodOf(purse, slot);

@@ -1,4 +1,5 @@
 "use client";
+import { carriedBag } from "@/lib/town/passive-equipment";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import type { Shade } from "@/lib/town/fountain";
@@ -204,7 +205,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   const have = (b: BaitId) => held(purse.bag, b);
   /** What I fish with: the rod in my hand, and the best of each kind of tackle in my bag (lib/town/gear). */
   // ── forging: old tools ── (the slot the rod was taken up from: of two rods of a kind, the one held is the one whose forging counts)
-  const gear = gearOf(purse.bag, handOf(purse), keeper.handSlot(), purse.fishingHook);
+  const gear = gearOf(carriedBag(purse), handOf(purse), keeper.handSlot(), purse.fishingHook);
   /** The trial hands out a rod and worms for the asking (the owner: "ช่วย Add คันเบ็ดให้ผมหน่อย เฉพาะใน DEV"): as much of them as the bag has room for. */
   const kit = () => {
     if (!trial) return;

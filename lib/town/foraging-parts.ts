@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import { HOES } from "./farm";
 import type { Held, Place } from "./forest";
 import type { ItemId } from "./items";
@@ -12,14 +13,14 @@ export const FORAGE_PARTS={
   leaf:2,root:1,restMinutes:30,spadeMinutes:15,bonus:1,
 } as const;
 export const partsAt=(kind:string):Partial<Record<ForestPart,ItemId>>=>FORAGE_PARTS.parts[kind as keyof typeof FORAGE_PARTS.parts]??{};
-export const seesTraces=(purse:Purse,now:number)=>held(purse.bag,"traceLens")>0||hasBuff(purse,now,"traces");
+export const seesTraces=(purse:Purse,now:number)=>held(carriedBag(purse),"traceLens")>0||hasBuff(purse,now,"traces");
 export const restingAt=(rest:ForestRest|undefined,now:number)=>!!rest&&rest.from<=now&&now<rest.until;
 /** All choices are checked again by the keeper; names and discoveries never determine a yield. */
 export function gatherPart(purse:Purse,spot:Pick<Place,"id"|"kind">,has:Held,part:ForestPart,hand:ItemId|null,misses:number,cost:number,nextTurn:number,now:number):Done<{purse:Purse;got:Array<[ItemId,number]>;rest?:ForestRest}> {
   if(part!=="leaf"&&part!=="root")return no("none");
   const item=partsAt(spot.kind)[part];if(!item)return no("none");
-  if(part==="root"&&held(purse.bag,"rootSpade")<1&&(!hand||!HOES.includes(hand)))return no("tool");
-  const carried=(id:ItemId)=>held(purse.bag,id)>0;
+  if(part==="root"&&held(carriedBag(purse),"rootSpade")<1&&(!hand||!HOES.includes(hand)))return no("tool");
+  const carried=(id:ItemId)=>held(carriedBag(purse),id)>0;
   // Tools which protect the same yield share one bonus, even when several are carried together.
   const protection=part==="leaf"&&carried("pruningKnife")||item==="forestLichen"&&carried("specimenPress")||["berryPip","mushroomSpores"].includes(item)&&carried("seedSieve");
   const forgiven=carried("forageBasket")?1:0;

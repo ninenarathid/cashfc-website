@@ -1,4 +1,5 @@
 "use client";
+import { carriedBag } from "@/lib/town/passive-equipment";
 import { partsAt, seesTraces, type ForestPart } from "@/lib/town/foraging-parts";
 import { ITEMS } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
@@ -18,7 +19,7 @@ const TRACE:Record<string,[string,string]>={
 };
 export default function TownForageParts({kind,keeper,th,onChoose,onClose}:{kind:string;keeper:Keeper;th:boolean;onChoose:(part:ForestPart)=>void;onClose:()=>void}) {
   const purse=keeper.purse(),parts=partsAt(kind),known=purse.forestPartsBook??[],read=seesTraces(purse,keeper.now());
-  const rootTool=held(purse.bag,"rootSpade")>0||!!purse.hand&&HOES.includes(purse.hand);
+  const rootTool=held(carriedBag(purse),"rootSpade")>0||!!purse.hand&&HOES.includes(purse.hand);
   return <section data-forage-parts className={`${styles.panel} ${styles.forest} pointer-events-auto w-full max-w-[400px]`} aria-label={th?"ร่องรอยที่จุดเก็บ":"Traces at this gathering place"}>
     <header className="flex items-center gap-2"><TownIcon name="traceLeaf" size={28}/><h2 className="font-display text-title">{th?"มีร่องรอยตรงนี้":"Traces here"}</h2><button type="button" onClick={onClose} className="pressable ml-auto min-h-11 px-2">{th?"ปิด":"Close"}</button></header>
     <div className={styles.scene}><TownIcon name="traceLeaf" size={48}/><p className="text-ui">{TRACE[kind]?.[th?0:1]}</p></div>
@@ -28,7 +29,7 @@ export default function TownForageParts({kind,keeper,th,onChoose,onClose}:{kind:
         const discovered=known.includes(`${kind}:${part}:${item}`),root=part==="root",allowed=!root||rootTool;
         return <button type="button" key={part} disabled={!allowed} data-forage-part={part} onClick={()=>onChoose(part as ForestPart)} className="pressable flex min-h-12 items-center gap-2 rounded border border-[#607346] bg-[#d1ddb3] p-2 text-left text-ui disabled:opacity-50">
           <TownIcon name={(discovered?item:root?"mound":"traceLeaf") as IconName} size={30}/><span>{discovered?ITEMS[item!].name[th?"th":"en"]:root?th?"แยกส่วนใต้ต้น":"Separate the lower part":th?"เก็บส่วนเล็กโดยเหลือต้นไว้":"Gather a small part; leave the plant"}
-            <small className="block text-meta">{!allowed?th?"ต้องมีเสียมหรือถือจอบ":"Carry a root spade or hold a hoe":root?th?`รอบหน้าจุดนี้พัก ${held(purse.bag,"rootSpade")>0?15:30} นาที`:`Next turn this site rests ${held(purse.bag,"rootSpade")>0?15:30} minutes`:th?"เก็บแล้วรอบหน้ายังเติบโตต่อ":"It keeps growing for the next turn"}</small>
+            <small className="block text-meta">{!allowed?th?"ต้องมีเสียมหรือถือจอบ":"Carry a root spade or hold a hoe":root?th?`รอบหน้าจุดนี้พัก ${held(carriedBag(purse),"rootSpade")>0?15:30} นาที`:`Next turn this site rests ${held(carriedBag(purse),"rootSpade")>0?15:30} minutes`:th?"เก็บแล้วรอบหน้ายังเติบโตต่อ":"It keeps growing for the next turn"}</small>
           </span>
         </button>;
       })}

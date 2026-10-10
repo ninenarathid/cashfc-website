@@ -6,6 +6,7 @@ import { sorted, whatOf } from "@/lib/town/bag";
 import { WATER } from "@/lib/town/farm";
 import { seedTime } from "@/lib/town/clues";
 import { CARRIES } from "@/lib/town/gear";
+import { equipmentEffect, isPassiveEquipment } from "@/lib/town/passive-equipment";
 import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
@@ -363,7 +364,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                 kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
                                                      onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
                                 sprinkles={sprinkles}
-                                onWear={(slot) => tried(keeper.wear(slot), ["สะพายแล้ว", "On your back."])}
+                                onWear={(slot) => tried(keeper.wear(slot), ["ติดตัวแล้ว", "Equipped."])}
                                 onTakeOff={(item) => tried(keeper.takeOff(item), ["ถอดเก็บแล้ว", "Taken off."])}
                                 onServe={async (slot) => { const did = await keeper.serve(slot); if (did.ok) say("ตักใส่ถ้วยแล้ว", "A helping, in your bowl."); else say(...(did.why === "tool" ? (["ไม่มีถ้วย", "No bowl"] as [string, string]) : why(did.why))); }}
                                 onEat={(slot) => tried(eatFrom(slot), ["เริ่มกินแล้ว", "Tucking in."])}
@@ -490,6 +491,7 @@ function Buy({ purse, stall, now, th, hintCoins, shelf, onBuy, onHint }: {
                   <Coins n={GOODS[id]!.price} th={th} small />
                 </div>
                 <p className="truncate text-meta text-muted">{th ? it.about.th : it.about.en}</p>
+                {equipmentEffect(id, th) && <p className="text-meta leading-relaxed text-[#bbd990]">{equipmentEffect(id, th)}</p>}
                 <SeedTime id={id} th={th} className="text-meta text-ink" />
                 <p className={`font-data text-meta ${may.n ? "text-muted" : "text-chili"}`}>
                   {may.n
@@ -684,7 +686,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
   /** The village's book of insects: who first caught each kind that has been caught. */
   book: Record<string, string>;
   onEat: (slot: number) => void; onGetUp: () => void; onRead: (slot: number) => void;
-  /** Put on what carries more (from a slot), take one off, and ladle a helping out of a pot of my own. */
+  /** Equip carrying gear or passive tools from a slot, take one off, and ladle a helping out of a pot. */
   onWear: (slot: number) => void; onTakeOff: (item: ItemId) => void; onServe: (slot: number) => void;
   /** Take the thing in a slot up to hold it in the hand, or (null) put away what is held. */
   onHold: (slot: number | null) => void;
@@ -802,18 +804,27 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
               )}
               <span className="shrink-0 tabular-nums">{full} / {purse.bag.length}</span>
             </div>
-            {/* what is worn to carry more: a tap takes it off */}
+            {/* Carrying gear and passive equipment own their items outside inventory. */}
             {(purse.wears ?? []).length > 0 && (
-              <ul className="mb-2 flex flex-wrap gap-1.5" aria-label={th ? "ที่สะพายอยู่" : "Worn"}>
+              <details open className="mb-3 rounded-lg border-2 border-[#6b4a2a] bg-[#33251a] p-2.5" data-passive-equipment>
+                <summary className="min-h-11 cursor-pointer content-center font-semibold text-[#f3e3c3]">{th ? "อุปกรณ์ติดตัว" : "Equipped gear"} · {(purse.wears ?? []).length}</summary>
+                <p className="mb-2 text-meta text-[#c9a877]">{th ? "ไม่ใช้ช่องกระเป๋า · ผลชนิดเดียวกันใช้ค่าที่ดีที่สุด" : "No bag slots used · same bonuses use the strongest value"}</p>
+              <ul className="grid max-h-64 gap-2 overflow-y-auto" aria-label={th ? "อุปกรณ์และผลที่ได้รับ" : "Equipment and effects"}>
                 {(purse.wears ?? []).map((id) => (
-                  <li key={id}>
-                    <button type="button" onClick={() => onTakeOff(id)} title={th ? ITEMS[id].name.th : ITEMS[id].name.en}
-                            className="pressable flex min-h-9 items-center gap-1.5 rounded-full border border-[#6b4a2a] bg-[#33251a] pl-1.5 pr-3 text-meta text-[#f3e3c3] hover:border-chili">
-                      <ItemIcon id={id} size={22} />{th ? "ถอด" : "Take off"}
+                  <li key={id} className="flex items-start gap-2 rounded-md border border-[#6b4a2a] bg-[#2a1e13] p-2">
+                    <ItemIcon id={id} size={30} />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-meta font-semibold text-[#f3e3c3]">{th ? ITEMS[id].name.th : ITEMS[id].name.en}</p>
+                      <p className="text-meta leading-relaxed text-[#bbd990]" data-equipment-effect={id}>{equipmentEffect(id, th) ?? (th ? `ช่องกระเป๋า +${CARRIES[id] ?? 0}` : `Bag slots +${CARRIES[id] ?? 0}`)}</p>
+                    </div>
+                    <button type="button" onClick={() => onTakeOff(id)} aria-label={th ? `ถอด ${ITEMS[id].name.th}` : `Take off ${ITEMS[id].name.en}`}
+                            className="pressable min-h-11 shrink-0 rounded-md border border-[#6b4a2a] px-2 text-meta text-[#f3e3c3] hover:border-chili">
+                      {th ? "ถอด" : "Remove"}
                     </button>
                   </li>
                 ))}
               </ul>
+              </details>
             )}
             {rodHook}
             {lying}
@@ -827,6 +838,10 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-ui font-semibold text-[#f3e3c3]">{inHand.of ? (th ? `หม้อ${ITEMS[inHand.of.dish].name.th}` : `A pot of ${ITEMS[inHand.of.dish].name.en.toLowerCase()}`) : th ? it.name.th : it.name.en} {it.stack > 1 && <span className="font-data text-[#c9a877]">×{inHand.n}</span>}</p>
                     <p className="text-meta text-[#c9a877]">{th ? it.about.th : it.about.en}</p>
+                    {equipmentEffect(inHand.item, th) && <>
+                      <p className="mt-1 text-meta leading-relaxed text-[#bbd990]" data-passive-effect={inHand.item}>{equipmentEffect(inHand.item, th)}</p>
+                      <p className="text-meta text-[#c9a877]">{th ? "กดติดตัวเพื่อคืนช่องกระเป๋า" : "Equip to free its bag slot"}</p>
+                    </>}
                     <SeedTime id={inHand.item} th={th} className="text-meta text-[#f3e3c3]" />
                     {holdsOf(inHand, th) && <p className="text-meta text-[#f3e3c3]">{inHand.of ? (th ? `เหลือ ${inHand.of.left} ที่` : `${inHand.of.left} helpings left`) : holdsOf(inHand, th)}</p>}
                     {dish && !mayEat && !purse.eating && <p className="text-meta text-chili">{th ? WHY.meal[0] : WHY.meal[1]}</p>}
@@ -837,10 +852,11 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
                           className={`pressable min-h-11 shrink-0 rounded-full border px-3 text-ui ${holding ? "border-gold bg-gold/15 font-semibold text-gold" : "border-[#6b4a2a] text-[#f3e3c3] hover:border-gold"}`}>
                     {holding ? (th ? "เก็บ" : "Put away") : (th ? "ถือ" : "Hold")}
                   </button>
-                  {inHand.item in CARRIES && (
-                    <button type="button" onClick={() => onWear(slot!)}
-                            className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg">
-                      {th ? "สะพาย" : "Wear"}
+                  {(inHand.item in CARRIES || isPassiveEquipment(inHand.item)) && (
+                    <button type="button" onClick={() => onWear(slot!)} data-equipment-equip
+                            disabled={(purse.wears ?? []).includes(inHand.item) || (isPassiveEquipment(inHand.item) && Object.keys(inHand).some(k => k !== "item" && k !== "n"))}
+                            className="pressable min-h-11 shrink-0 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
+                      {(purse.wears ?? []).includes(inHand.item) ? (th ? "ติดตัวอยู่แล้ว" : "Equipped") : isPassiveEquipment(inHand.item) ? (th ? "ติดตัว" : "Equip") : (th ? "สะพาย" : "Wear")}
                     </button>
                   )}
                   {inHand.of && (
@@ -947,6 +963,7 @@ export function ItemCard({ id, n, th, at, holds }: { id: ItemId; n?: number; th:
         <span className="min-w-0 text-ui font-semibold text-[#f3e3c3]">{th ? it.name.th : it.name.en}{n !== undefined && it.stack > 1 && <span className="font-data font-normal text-[#c9a877]"> ×{n}</span>}</span>
       </span>
       <span className="mt-1 block text-meta text-[#c9a877]">{th ? it.about.th : it.about.en}</span>
+      {equipmentEffect(id, th) && <span className="mt-1 block text-meta leading-relaxed text-[#bbd990]">{equipmentEffect(id, th)}</span>}
       <SeedTime id={id} th={th} className="mt-1 text-meta text-[#f3e3c3]" />
       {holds && <span className="mt-1 block text-meta text-[#f3e3c3]">{holds}</span>}
     </span>

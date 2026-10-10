@@ -1,3 +1,4 @@
+import { carriedBag } from "./passive-equipment";
 import { byOf, type ItemId, type MealBuffId } from "./items";
 import { dayOf, levelOf, mealBuffs, spend } from "./stamina";
 import { held, take, type Purse } from "./trade";
@@ -15,11 +16,11 @@ export function makeCamp(p:Purse,site:number,at:readonly number[],old:FieldCamp|
  if(!Number.isInteger(site)||!CAMPS.sites[site]||campSiteAt(at)!==site)return no("far");
  if(held(p.bag,"campKit")<1)return no("tool");
  if(old&&old.until>now)return no("spent");
- const charges=held(p.bag,"provisionChest")>0?CAMPS.chestCharges:CAMPS.charges;
+ const charges=held(carriedBag(p),"provisionChest")>0?CAMPS.chestCharges:CAMPS.charges;
  if(held(p.bag,"campCanvas")<1||held(p.bag,"dryTinder")<1||held(p.bag,"trailRation")<charges)return no("none");
  let bag=take(take(take(p.bag,"campCanvas",1),"dryTinder",1),"trailRation",charges);
- const wide=held(p.bag,"signalPennant")>0,lit=held(p.bag,"campLantern")>0;
- const camp:FieldCamp={site,x:CAMPS.sites[site][0],y:CAMPS.sites[site][1],by:me,until:now+(held(p.bag,"weatherAwning")>0?CAMPS.awningMinutes:CAMPS.minutes)*60000,left:charges,wide,lit};
+ const wide=held(carriedBag(p),"signalPennant")>0,lit=held(carriedBag(p),"campLantern")>0;
+ const camp:FieldCamp={site,x:CAMPS.sites[site][0],y:CAMPS.sites[site][1],by:me,until:now+(held(carriedBag(p),"weatherAwning")>0?CAMPS.awningMinutes:CAMPS.minutes)*60000,left:charges,wide,lit};
  return {ok:true as const,camp,purse:{...spend(p,CAMPS.cost,now),bag}};
 }
 export function campBenefit(p:Purse,camp:FieldCamp|null,supply:string,at:readonly number[],now:number){

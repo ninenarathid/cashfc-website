@@ -1,4 +1,5 @@
 "use client";
+import { carriedBag } from "@/lib/town/passive-equipment";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { COOKING, ODD, harderCook, hasMade, isFind, madeOf, mayTake, potNow, reachOf, stirMods, stirsFor, type CookHow, type Pot } from "@/lib/town/cooking";
@@ -621,7 +622,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={giveUp} />
           ) : (
-            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsWith(stirsFor(stirring.things), cfx)} mods={{ ...stirMods(purse.bag, spent, (1 + buffBy(purse, now, "calm"))), forged: cfx.band, spare: cfx.spared, grace: cfx.grace, steady: cfx.steady }} harder={harder} guide={cfx.guide}
+            <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsWith(stirsFor(stirring.things), cfx)} mods={{ ...stirMods(carriedBag(purse), spent, (1 + buffBy(purse, now, "calm"))), forged: cfx.band, spare: cfx.spared, grace: cfx.grace, steady: cfx.steady }} harder={harder} guide={cfx.guide}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) vfx.add("steam", null, { lift: 22 }); }}
                           onDone={finish} onCancel={giveUp} />
           )}
