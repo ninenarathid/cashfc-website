@@ -87,7 +87,7 @@ export const TREES = {
   /** What the resin-scent turns up besides the wood: one of these, as likely each. */
   scent: ["resin", "pineCone"] as readonly ItemId[],
   /** The echo axe: how many trees one game fells at the most, and how near the first the others stand, in tiles. */
-  echo: { trees: 3, reach: 2 },
+  echo: { trees: 2, reach: 2 },
   /** A tree half cut by an axe's lightning: how near the felled one it stands, in tiles; and the share of its chops that are left. */
   chain: { reach: 3, left: 0.5 },
   /** The woodpecker: so many branches struck that are forgiven, a tree. */

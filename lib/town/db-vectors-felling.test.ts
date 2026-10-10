@@ -255,7 +255,7 @@ export function vectorsFelling(): { all: Vector[]; wood: Standing[] } {
     p.bag = p.bag.map((s, k) => (k === 0 ? { item: "axe", n: 1, plus: 10, opts: [first, c.of(POOL1.filter((x) => x !== first)), power], ...(c.maybe(0.5) ? { gems: [c.of(ELEMENTS)] } : {}) } : s?.item === "axe" ? null : s));
     p.hand = "axe"; p.handAt = 0;
     p.stamina = { day: dayOf(now), left: c.of([0, 2, 100]) };
-    p.powers = { axOne: { k: dayOf(now), n: c.of([0, 9, 10]) }, axDouble: { k: dayOf(now), n: c.of([0, 9, 10]) }, axRoot: { k: dayOf(now), n: c.of([0, 2, 3]) }, axFresh: { k: dayOf(now) * 3 + mealOf(now), n: c.of([0, 4, 5]) } };
+    p.powers = { axOne: { k: dayOf(now), n: c.of([0, OPTIONS.axOne.use!.n - 1, OPTIONS.axOne.use!.n]) }, axDouble: { k: dayOf(now), n: c.of([0, 9, 10]) }, axRoot: { k: dayOf(now), n: c.of([0, 2, 3]) }, axFresh: { k: dayOf(now) * 3 + mealOf(now), n: c.of([0, 4, 5]) } };
     const b = begin(p, g, t.id, where, now, i, wood, ME);
     add("fell_begin", [p, g, t.id, where[0], where[1], now, i, ME], b);
     const kept = b.ok && c.maybe(0.7) ? opened(g, ME, b.trees, now) : g;
@@ -297,14 +297,14 @@ describe("the cases the database's rules of woodcutting are held to", () => {
     expect(own.every((v) => (v.want as { why?: string }).why === "none")).toBe(true);
     expect(own.filter((v) => braceGo(v.args[0] as Grove, ME, HER, [v.args[3] as number, v.args[4] as number], v.args[5] as number, wood).ok).length).toBeGreaterThan(10);
     const begun = of("fell_begin").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { trees: number[]; elder: boolean; ask: { chops: number; spared: number; spent: boolean; ahead: number; pace: number; family: string; girth: number; trees: Array<{ timber: number[] }> } });
-    expect(begun.some((b) => b.trees.length === 3) && begun.some((b) => b.trees.length === 2) && begun.some((b) => b.elder) && begun.some((b) => b.ask.spent) && begun.some((b) => b.ask.spared >= 2)).toBe(true);
+    expect(begun.every((b) => b.trees.length <= 2) && begun.some((b) => b.trees.length === 1) && begun.some((b) => b.trees.length === 2) && begun.some((b) => b.elder) && begun.some((b) => b.ask.spent) && begun.some((b) => b.ask.spared >= 2)).toBe(true);
     expect(new Set(begun.map((b) => b.ask.family))).toEqual(new Set(["alternate", "pairs", "run", "noise"]));
     expect(new Set(begun.map((b) => b.ask.girth))).toEqual(new Set([1, 2, 3]));
     expect(new Set(begun.map((b) => b.ask.chops)).size).toBeGreaterThan(8);
     expect(new Set(begun.map((b) => b.ask.pace)).size).toBeGreaterThan(8);
     type One = { id: number; kind: string; girth: number; misses: number; got: Array<[string, number]>; timber: number; most: number; chained: number | null; free: boolean; twice: boolean; keepsake?: string };
     const felled = of("fell").filter((v) => (v.want as { ok: boolean }).ok).map((v) => ({ args: v.args, ...(v.want as { felled: One[]; one: boolean; plain: boolean; through: boolean; stood: boolean; found: Array<{ id: string; first: boolean }>; braced: string | null; purse: Purse; grove: Grove }) }));
-    expect(felled.some((f) => f.stood && f.felled.length === 0) && felled.some((f) => f.felled.length === 3) && felled.some((f) => f.one) && !felled.some((f) => f.plain)).toBe(true);
+    expect(felled.some((f) => f.stood && f.felled.length === 0) && felled.some((f) => f.felled.length === 2) && felled.some((f) => f.one) && !felled.some((f) => f.plain)).toBe(true);
     // a go that was lost: every tree of it stands, whatever the tree, and the purse is as it came
     const lostGoes = felled.filter((f) => !f.through);
     expect(lostGoes.length).toBeGreaterThan(50);

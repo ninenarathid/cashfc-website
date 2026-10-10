@@ -312,18 +312,18 @@ describe("a tree felled", () => {
 describe("the echo axe (felling's first rank): one game for the trees standing close", () => {
   const worn = { gifts: { had: ["charmEchoAxe"], charms: ["charmEchoAxe"] } };
 
-  it("takes up to three grown trees within two tiles of the first, the nearest first; never the ancient tree, never a stump, and only when worn", () => {
+  it("takes up to two grown trees within two tiles of the first, the nearest first; never the ancient tree, never a stump, and only when worn", () => {
     const p = woodcutter({}, worn), axe = p.bag[0]!, first = treeOf(0, WOOD)!;
-    expect(groupOf(p, newGrove(), first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0, 1, 2]);
+    expect(groupOf(p, newGrove(), first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0, 1]);
     expect(groupOf(woodcutter(), newGrove(), first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0]);
     expect(groupOf(woodcutter({}, { gifts: { had: ["charmEchoAxe"], charms: [] } }), newGrove(), first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0]);
     expect(groupOf(p, { down: { 1: { at: NOON, by: "x" } }, half: [] }, first, axe, NOON, WOOD).map((t) => t.id)).toEqual([0, 2]);
     expect(groupOf(p, newGrove(), treeOf(3, WOOD)!, axe, NOON, WOOD).map((t) => t.id)).toEqual([3]);
     expect(groupOf(woodcutter({ plus: 10 }, worn), newGrove(), treeOf(TREES.elder.id, WOOD)!, axe, NOON, WOOD).map((t) => t.id)).toEqual([TREES.elder.id]);
-    // one game on one trunk: the hardest of them (the stout pine's sixteen chops, its bar, its long runs)
+    // one game on one trunk: the hardest of the two (the plain pine's twelve chops and paired branches)
     const did = begin(p, newGrove(), 0, BESIDE[0], NOON, 5, WOOD);
-    expect(did.ok && did.trees).toEqual([0, 1, 2]);
-    expect(did.ok && did.ask).toMatchObject({ trees: [{ id: 0, girth: 1, timber: [2] }, { id: 1, girth: 2, timber: [2, 0] }, { id: 2, girth: 3, timber: [3, 1, 0] }], chops: 16, girth: 3, family: "run", pace: 1.05 });
+    expect(did.ok && did.trees).toEqual([0, 1]);
+    expect(did.ok && did.ask).toMatchObject({ trees: [{ id: 0, girth: 1, timber: [2] }, { id: 1, girth: 2, timber: [2, 0] }], chops: 12, girth: 2, family: "pairs", pace: 1 });
   });
 
   it("every tree in reach comes down with the one trunk: stamina for each, and each its own fine timber by that game's misses", () => {
@@ -331,15 +331,15 @@ describe("the echo axe (felling's first rank): one game for the trees standing c
     const did = fell(p, newGrove(), "me", { tree: 0, through: true, misses: 1, secs: 14 }, BESIDE[0], NOON, lucky(3), WOOD);
     expect(did.ok).toBe(true);
     if (!did.ok) return;
-    expect(did.felled.map((f) => [f.id, f.girth, f.timber, f.most])).toEqual([[0, 1, 1, 1], [1, 2, 1, 2], [2, 3, 2, 3]]);
-    expect(Object.keys(did.grove.down)).toEqual(["0", "1", "2"]);
-    expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - 3 * TREES.cost);
-    expect(did.got).toEqual([["log", 6], ["timber", 4]]);
-    // a go that was lost: all three stand, and nothing is spent
+    expect(did.felled.map((f) => [f.id, f.girth, f.timber, f.most])).toEqual([[0, 1, 1, 1], [1, 2, 1, 2]]);
+    expect(Object.keys(did.grove.down)).toEqual(["0", "1"]);
+    expect(staminaOf(did.purse, NOON)).toBe(STAMINA.max - 2 * TREES.cost);
+    expect(did.got).toEqual([["log", 4], ["timber", 2]]);
+    // a go that was lost: both stand, and nothing is spent
     const lost = fell(p, newGrove(), "me", { tree: 0, through: false, misses: 2, secs: 3 }, BESIDE[0], NOON, lucky(3), WOOD);
     expect(lost).toMatchObject({ ok: true, stood: true, felled: [], got: [], purse: p });
-    // and it is held to the one trunk's chops: sixteen were not chopped in a second
-    expect(fell(p, newGrove(), "me", { tree: 0, through: true, misses: 0, secs: 0.9 }, BESIDE[0], NOON, lucky(3), WOOD)).toEqual({ ok: false, why: "none" });
+    // and it is held to the one trunk's chops: twelve were not chopped in half a second
+    expect(fell(p, newGrove(), "me", { tree: 0, through: true, misses: 0, secs: 0.5 }, BESIDE[0], NOON, lucky(3), WOOD)).toEqual({ ok: false, why: "none" });
     // of a go whose board was opened, the trees are those it was opened for: one that grew meanwhile is no part of it
     // (it is grown again twenty seconds after the board is opened, and the go ends thirty seconds after: within its hold)
     const open = opened({ down: { 1: { at: NOON - 40 * MIN + 20_000, by: "x" } }, half: [] }, "me", [0, 2], NOON);

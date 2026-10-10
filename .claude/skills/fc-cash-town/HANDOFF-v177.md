@@ -1,8 +1,12 @@
 # OP powers and understandable cards — 2026-10-10
 
-Owner confirmed v174, v175 and v176 ran. The smith is open to everyone.
-Code release: 469dfcc6 and be9f30c9. Migration v177 remains pending until the owner confirms running it.
+Owner confirmed v174, v175, v176 and v177 ran. The smith is open to everyone.
+Code release: 469dfcc6 and be9f30c9. Migration v177 is confirmed run by the owner; its closing probe has not yet been performed.
 Only the owner writes production SQL. Do not reset inventories, coins or daily rights.
+
+The owner's next balance decision is focused: reduce the echoing axe from three to two trees per game (v178). Keep log and timber drops: logs expand character storage and fine timber feeds forging. Preserve the stag's movement and the forge powers. Fast shared-tree depletion and client-reported completion times were investigated, but are not claimed fixed by this count change.
+
+v178 is ready in `supabase/v178_the_echoing_axe_for_two_trees.sql`: only two catalog numbers change; all existing SQL functions remain unchanged. New boards use two trees; a board already open keeps the trees it held for at most its existing 45 seconds. Validation: 63 focused unit checks, 56 database checks including 184 felling starts, two mutations caught, and TypeScript passes. The felling vectors now use axOne's actual daily quota for their exhausted case instead of the obsolete ten-use value. Owner must run v178 after the matching deploy; no production write was performed here.
 
 The owner prioritized OP powers, then asked for clear buff descriptions because players did not understand stones and weeds. Cards now name the minigame, action, effect and relevant conditions. Weeding has a short visible instruction. `hoFirst` uses a neutral name that fits both +3 and +6; `cnTwice` says double watering rather than suggesting an extra manual watering.
 

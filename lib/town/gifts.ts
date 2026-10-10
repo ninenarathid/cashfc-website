@@ -148,8 +148,8 @@ export const GIFTS: readonly Gift[] = [
 // ── gifts to come: felling, mining ── (what each does is read by lib/town/trees, lib/town/mining and the map; the bundle's and the sack's slots are lib/town/pouches')
 export const MORE_GIFTS: readonly Gift[] = [
   // ── felling ──
-  { id: "charmEchoAxe", kind: "charm", line: "felling", rank: 1, by: 3, name: { th: "ขวานสะท้อนป่า", en: "Echoing axe" },
-    does: { th: "เกมเดียวโค่นได้ถึง 3 ต้นที่ยืนใกล้กัน: ต้นละช่วง แต่ละช่วงเร็วขึ้นนิดหน่อย ช่วงไหนไม่ทัน ต้นนั้นยังยืนอยู่ เสียแรงตามจำนวนต้นที่ล้ม", en: "One game fells up to three trees standing close together: a stretch a tree, each a little faster; a stretch lost leaves its tree standing, and stamina is paid for each tree that falls" } },
+  { id: "charmEchoAxe", kind: "charm", line: "felling", rank: 1, by: 2, name: { th: "ขวานสะท้อนป่า", en: "Echoing axe" },
+    does: { th: "เกมเดียวโค่นได้ถึง 2 ต้นที่ยืนใกล้กัน เล่นกับต้นที่ตัดยากที่สุด ผ่านแล้วล้มทั้งคู่ ไม่ผ่านยังยืนอยู่ เสียแรงตามจำนวนต้นที่ล้ม", en: "One game fells up to two nearby trees. Play the harder trunk: winning fells both; losing leaves them standing. Stamina is paid for each tree that falls" } },
   { id: "famWoodpecker", kind: "familiar", line: "felling", rank: 2, by: 1, name: { th: "นกหัวขวานคู่ใจ", en: "A woodpecker" },
     does: { th: "บินไปเกาะต้นไม้ที่โตแล้วที่ใกล้ที่สุด บอกเหนือตอไม้ว่าอีกนานแค่ไหนจะโต และจิกกิ่งทิ้งให้ต้นละ 1 กิ่ง (กิ่งแรกที่โดนไม่นับพลาด)", en: "It flies to the nearest grown tree, shows over each stump how long until it is grown, and pecks one branch away a tree (the first branch that strikes you is no miss)" } },
   { id: "thingBundle", kind: "thing", line: "felling", rank: 3, by: 3, name: { th: "เชือกมัดฟืน", en: "Firewood cord" },
