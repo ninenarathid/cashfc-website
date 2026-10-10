@@ -6802,7 +6802,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 97,
+  "level": 98,
   "cc": [
    false,
    false,
@@ -6902,7 +6902,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 100,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -7240,7 +7240,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 100,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -7316,7 +7316,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-10"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8862,7 +8862,7 @@
   "mounts": 4,
   "minions": 14,
   "rare": null,
-  "level": 69,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8875,7 +8875,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-10"
  },
  "61748681": {
   "name": "Qzarel Lumina",
