@@ -5,6 +5,7 @@ import {
 } from "./tools";
 import type { Stack } from "./trade";
 import { powerRule } from "./powers";
+import { TREES } from "./trees";
 
 /**
  * What an option and a gem do, in a line: the words of the smith's cards (a draw's two options to choose from; a
@@ -32,66 +33,66 @@ export function optionDoes(id: OptionId, stack?: Stack | null): Words {
     // ── the pick ──
     case "pkPeek": return w(`แตะหินเพื่อรู้ว่าข้างในเป็นหินเปล่า เศษแร่ หรือสายแร่ โดยไม่ต้องทุบ${n("strikes") ? ` · ตีสายแร่เพิ่ม ${n("strikes")} ครั้ง` : ""}`, `Tap a rock to know what it holds without striking it${n("strikes") ? ` · ${n("strikes")} more vein strikes` : ""}`);
     case "pkCrumb": return w(`หินธรรมดาทุกก้อนที่ ${n("every")} ได้เศษแร่ของชั้นนั้นเพิ่ม ${n("more")}`, `Every ${n("every")}th plain rock gives ${n("more")} more fragment of the floor's ore`);
-    case "pkSteady": return w(`ตีสายแร่ได้เพิ่ม ${n("strikes")} ครั้ง`, `${n("strikes")} more strikes at a vein`);
+    case "pkSteady": return w(`ในมินิเกมขุดสายแร่ มีจำนวนครั้งให้ตีเพิ่ม ${n("strikes")} ครั้ง`, `${n("strikes")} more strikes in the vein minigame`);
     case "pkLoose": return w(`เมื่อหินแตก หินที่ติดกันทุบน้อยลง ${n("fewer")} ครั้ง`, `When a rock breaks, the rocks touching it take ${n("fewer")} swing fewer`);
     case "pkFresh": return w(`หิน ${u} ก้อนแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} rocks of a meal's hours cost no stamina`);
     case "pkCutter": return w(`สายพลอยให้เศษพลอยเพิ่ม ${n("more")}`, `A gem vein gives ${n("more")} more gem fragment`);
     case "pkQuake": return w(`ทุบครั้งเดียว หินในระยะ ${n("reach")} ช่องแตกด้วย · วันละ ${u} ครั้ง`, `One swing also breaks rocks within ${n("reach")} tiles · ${u} a day`);
-    case "pkTwin": return w(`ได้แร่ที่ขุดสำเร็จ ${n("times")} เท่าทันที · วันละ ${u} ครั้ง`, `An earned vein yield is doubled immediately · ${u} a day`);
-    case "pkDrill": return w(`ทุบพื้นเปิดทางลงเองได้ และเปิดให้ทุกคน · วันละ ${u} ครั้ง`, `Strike the floor to open the way down yourself, for everybody · ${u} a day`);
-    case "pkGleam": return w("หินผลึกให้ของเพิ่มอีกครึ่งเท่า รู้ว่าวันนี้อยู่ชั้นไหน และสายแร่ส่องประกายทั้งชั้น", "The crystal rock gives half as much again; know its floor and see every vein rock glint");
+    case "pkTwin": return w(`เล่นมินิเกมขุดสายแร่สำเร็จแล้ว ได้ของที่ขุดได้ ${n("times")} เท่าทันที · วันละ ${u} ครั้ง`, `Multiply the vein minigame's earned loot by ${n("times")} immediately · ${u} a day`);
+    case "pkDrill": return w(`กดใช้เพื่อเปิดทางลงเหมืองชั้นถัดไป โดยไม่ต้องหาหินที่ซ่อนทางลง ทุกคนใช้ทางนี้ได้ · วันละ ${u} ครั้ง`, `Activate to open the way to the next mine floor without finding the ladder rock; everyone can use it · ${u} a day`);
+    case "pkGleam": return w("หินผลึกให้ของเพิ่ม 50% บอกชั้นที่มีหินผลึกวันนี้ และทำให้หินที่มีสายแร่ส่องประกายทั้งชั้น", "Crystal rocks give 50% more loot; reveal today's crystal floor and make every vein rock glint");
     // ── the axe ──
-    case "axGrain": return w(`เห็นกิ่งล่วงหน้าไกลขึ้น ${n("ahead")} ท่อน`, `Branches are seen ${n("ahead")} segments further ahead`);
+    case "axGrain": return w(`ในมินิเกมตัดไม้ เห็นกิ่งล่วงหน้าเพิ่ม ${n("ahead")} ท่อน เพื่อเลือกด้านฟันได้ง่ายขึ้น`, `Preview ${n("ahead")} more trunk segments in the felling minigame to choose a safe side`);
     case "axDust": return w(`ต้นไม้ทุกต้นที่ ${n("every")} ได้ท่อนไม้เพิ่ม ${n("more")}`, `Every ${n("every")}th tree gives ${n("more")} more log`);
     case "axKeen": return w(`ฟันน้อยลง ${n("chops")} ครั้งต่อต้น`, `${n("chops")} chops fewer a tree`);
     case "axResin": return w(`ต้นไม้ 1 ใน ${n("in")} ต้นได้ยางไม้หรือลูกสนด้วย`, `1 tree in ${n("in")} also gives a resin or a pine cone`);
     case "axFresh": return w(`ต้นไม้ ${u} ต้นแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} trees of a meal's hours cost no stamina`);
     case "axDry": return w(`ไม้เนื้อดี 1 ท่อนหลอมได้ ${n("pieces")} ชิ้น (แค่มีขวานเล่มนี้ในกระเป๋า)`, `1 fine timber smelts ${n("pieces")} pieces (with this axe in the bag)`);
-    case "axOne": return w(`ฟันทีเดียวล้ม ไม่ต้องเล่นเกม · วันละ ${u} ต้น`, `A tree falls at one chop, with no game · ${u} a day`);
+    case "axOne": return w(`ต้นไม้ทั่วไปล้มในครั้งเดียว โดยข้ามมินิเกมตัดไม้ · วันละ ${u} ต้น`, `Fell an ordinary tree in one chop, skipping the felling minigame · ${u} a day`);
     case "axDouble": return w(`ต้นไม้ที่ล้มให้ไม้ ${n("by")} เท่า · วันละ ${u} ต้น`, `A felled tree gives ${n("by")} times the wood · ${u} a day`);
-    case "axRoot": return w(`ตอของคุณใกล้กันสูงสุด ${n("trees")} ต้นโตกลับให้ทุกคน · วันละ ${u} ครั้ง`, `Up to ${n("trees")} nearby stumps you made grow back for everybody · ${u} a day`);
-    case "axElder": return w("ต้นไม้โบราณให้ของเพิ่มอีกครึ่งเท่า เห็นกิ่งทั้งต้นล่วงหน้า และรู้ว่าโตเมื่อไร", "The ancient tree gives half as much again; preview every branch and know when it is grown");
+    case "axRoot": return w(`ใช้กับตอที่คุณเพิ่งตัดภายใน ${TREES.root.within / 60} นาที: ตอของคุณในระยะ ${n("reach")} ช่อง สูงสุด ${n("trees")} ต้น โตกลับทันทีให้ทุกคนตัดได้ ไม่รวมต้นไม้โบราณ · วันละ ${u} ครั้ง`, `Use on a stump you made within ${TREES.root.within / 60} minutes: regrow up to ${n("trees")} of your stumps within ${n("reach")} tiles for everyone, excluding the ancient tree · ${u} a day`);
+    case "axElder": return w("ตัดต้นไม้โบราณได้ของเพิ่ม 50% เห็นกิ่งทั้งหมดในมินิเกมก่อนฟัน และเห็นเวลาที่ต้นไม้โบราณจะโตกลับ", "The ancient tree gives 50% more loot; preview every branch before felling and see its regrowth time");
     // ── the rod ──
     case "rdBait": return w(`ตวัดเร็วไปครั้งแรก ปลาไม่ตกใจและเหยื่อไม่หาย${n("strike") ? ` · จังหวะตวัดกว้างขึ้น ${pct(n("strike"))}% ของเบ็ดเริ่มต้น` : ""}`, `The first early strike preserves the bait${n("strike") ? ` · strike window gains ${pct(n("strike"))}% of the starter rod's window` : ""}`);
-    case "rdCalm": return w(n("secs") === 1 ? "ช่วงปลอดภัยไม่ขยับในวินาทีแรกของการสู้ปลา" : `ช่วงปลอดภัยไม่ขยับใน ${n("secs")} วินาทีแรกของการสู้ปลา`, `The safe stretch does not move in a fight's first ${n("secs") === 1 ? "second" : `${n("secs")} seconds`}`);
+    case "rdCalm": return w(`ในมินิเกมสู้ปลา แถบปลอดภัยอยู่นิ่งใน ${n("secs")} วินาทีแรก ทำให้คุมตัวชี้ง่ายขึ้น`, `The safe zone stays still for the first ${n("secs")} seconds of the fishing fight`);
     case "rdFresh": return w(`สู้ปลา ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} fights of a meal's hours cost no stamina`);
     case "rdQuick": return w(`รอปลากินเหยื่อสั้นลง ${pct(n("shorter"))}%`, `The wait for a bite is ${pct(n("shorter"))}% shorter`);
     case "rdGold": return w(`ตวัดช้าไปก็ยังติด ถ้าตวัดภายใน ${n("secs")} วินาทีหลังปลากิน · วันละ ${u} ครั้ง`, `A strike that comes too late still takes, if made within ${n("secs")} s of the bite · ${u} a day`);
-    case "rdStill": return w(`เมื่อปลาที่ดีกว่าปลาธรรมดาติดเบ็ด สายน้ำจะหลับ ${n("mins")} นาที: ปลาทุกตัวคึกน้อยลง ${pct(1 - n("by"))}% · วันละ ${u} ครั้ง`,
-      `When a fish better than a common one is hooked the water sleeps for ${n("mins")} minutes: every fish ${pct(1 - n("by"))}% less lively · ${u} a day`);
+    case "rdStill": return w(`เมื่อปลาระดับสูงกว่าธรรมดาติดเบ็ด จะทำให้แถบปลอดภัยในมินิเกมสู้ปลาขยับช้าลง ${pct(1 - n("by"))}% นาน ${n("mins")} นาที มีผลกับปลาที่คุณตกช่วงนั้น · วันละ ${u} ครั้ง`,
+      `Hook a fish above common quality to slow your fishing fight's safe zone by ${pct(1 - n("by"))}% for ${n("mins")} minutes · ${u} a day`);
     case "rdCall": return w(`เหวี่ยงเบ็ดแล้วปลากินทันที · วันละ ${u} ครั้ง`, `A line dropped is bitten at once · ${u} a day`);
     // ── the hoe ──
-    case "hoClear": return w(`ถอนวัชพืชมีก้อนหินน้อยลง ${n("stones")} ก้อน`, `The weeding has ${n("stones")} stones fewer`);
-    case "hoFirst": return w(`พลาด ${n("misses")} ครั้งแรกของแต่ละแปลงไม่นับ`, `The first ${n("misses")} misses on a plot do not count`);
-    case "hoFresh": return w(`${u} แปลงแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} plots of a meal's hours cost no stamina`);
-    case "hoLight": return w(`ตัวชี้ไม่เร่งขึ้นหลังตีโดน${n("band") ? ` · ช่วงตีโดนกว้างขึ้น ${pct(n("band") - 1)}%` : ""}`, `The marker does not quicken after a hit${n("band") ? ` · safe stretch ${pct(n("band") - 1)}% wider` : ""}`);
-    case "hoBoth": return w(`ถางและพรวนแถวของคุณสูงสุด ${n("plots")} ช่องในเกมเดียว · วันละ ${u} ครั้ง`, `Clear and till up to ${n("plots")} plots of your row in one game · ${u} a day`);
-    case "hoGrip": return w(`หมดแรงแล้วยังคุมจอบง่ายขึ้น แต่พลาดได้ · วันละ ${u} แปลง`, `A tired hand controls the hoe more easily, and can still fail · ${u} plots a day`);
+    case "hoClear": return w(`มินิเกมถางหญ้า: มีก้อนหินที่กดโดนแล้วนับว่าพลาดน้อยลงสูงสุด ${n("stones")} ก้อน ช่วยให้เลือกกดต้นหญ้าได้ง่ายขึ้น`, `Weeding minigame: remove up to ${n("stones")} stone obstacles that count as misses when tapped, making weeds easier to pick`);
+    case "hoFirst": return w(`ในมินิเกมถางหญ้าและพรวนดิน ไม่นับการกดพลาด ${n("misses")} ครั้งแรกของแต่ละแปลง`, `Ignore the first ${n("misses")} misses per plot in the weeding and tilling minigames`);
+    case "hoFresh": return w(`ถางหญ้าหรือพรวนดิน ${u} แปลงแรกหลังอาหารแต่ละมื้อ ไม่เสีย stamina`, `The first ${u} weeding or tilling actions of a meal's hours cost no stamina`);
+    case "hoLight": return w(`มินิเกมพรวนดิน: ตัวชี้ไม่เร่งความเร็วหลังคุณกดถูกจังหวะ${n("band") ? ` และแถบที่ต้องกดให้โดนกว้างขึ้น ${pct(n("band") - 1)}%` : ""}`, `Tilling minigame: the marker does not speed up after a hit${n("band") ? `; the target zone is ${pct(n("band") - 1)}% wider` : ""}`);
+    case "hoBoth": return w(`เล่นมินิเกมถางหญ้าหรือพรวนดินสำเร็จครั้งเดียว เตรียมดินในแถวของคุณให้พร้อมปลูกสูงสุด ${n("plots")} ช่อง · วันละ ${u} ครั้ง`, `Finish one weeding or tilling minigame to prepare up to ${n("plots")} plots in your row for planting · ${u} a day`);
+    case "hoGrip": return w(`เมื่อ stamina หมด มินิเกมถางหญ้าขยับช้าลง และมินิเกมพรวนดินมีแถบกดกว้างขึ้นกับตัวชี้ช้าลง ช่วยให้เล่นง่ายขึ้น แต่ยังล้มเหลวได้ · วันละ ${u} แปลง`, `At zero stamina, weeding moves more slowly and tilling has a wider target zone and slower marker; failure is still possible · ${u} plots a day`);
     case "hoWet": return w(`แปลงที่พรวนเก็บความชื้น พืชที่ปลูกไม่ต้องรดน้ำตลอดรอบปลูก · วันละ ${u} แปลง`, `Tilled soil stays moist throughout its planted crop's life · ${u} plots a day`);
     // ── the watering can ──
     case "cnDrop": return w(`เติมน้ำครั้งหนึ่งรดได้เพิ่ม ${n("more")} ครั้ง`, `${n("more")} more ${n("more") === 1 ? "watering" : "waterings"} a filling`);
     case "cnThrift": return w(`เติมบัวใช้น้ำบ่อ ${n("takes")} ถัง แทน 2 ถัง${n("more") ? ` · จุเพิ่ม ${n("more")} ครั้ง` : ""}`, `A filling takes ${n("takes")} bucketfuls${n("more") ? ` · ${n("more")} more waterings` : ""}`);
     case "cnFresh": return w(`รดน้ำ ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} waterings of a meal's hours cost no stamina`);
     case "cnKind": return w(`รดน้ำให้ต้นของคนอื่น ได้แต้มสายผู้ช่วยเพิ่ม ${n("points")}`, `${n("points")} more helpers' point for watering another's plant`);
-    case "cnRain": return w(`รดครั้งเดียวเปียกทั้งแปลงของตัวเอง · วันละ ${u} ครั้ง`, `One watering wets your whole bed · ${u} a day`);
-    case "cnFull": return w(`${n("mins")} นาทีที่รดน้ำไม่เปลืองน้ำ · วันละ ${u} ครั้ง`, `${n("mins")} minutes in which watering uses no water · ${u === 1 ? "once" : u} a day`);
-    case "cnTwice": return w(`รดครั้งเดียวได้พลังน้ำสองเท่าอัตโนมัติ · วันละ ${u} ครั้ง`, `One watering gives double growth automatically · ${u} a day`);
+    case "cnRain": return w(`รดน้ำต้นของคุณ 1 ต้น แล้วรดต้นอื่นที่ยังต้องการน้ำในแปลงของคุณทั้งหมดไปด้วย · วันละ ${u} ครั้ง`, `Water one of your plants to also water every eligible plant in your bed · ${u} a day`);
+    case "cnFull": return w(`เริ่มเมื่อรดน้ำต้นที่ยังแห้ง: รดน้ำโดยไม่ลดน้ำในบัวนาน ${n("mins")} นาที แต่ยังใช้ stamina ตามปกติ · วันละ ${u} ครั้ง`, `Starts when watering a dry plant: use no can water for ${n("mins")} minutes; normal stamina costs apply · ${u === 1 ? "once" : u} a day`);
+    case "cnTwice": return w(`รดน้ำต้นที่ยังแห้ง 1 ครั้ง ได้การเติบโตเท่ากับรด 2 ครั้งอัตโนมัติ ใช้น้ำและ stamina เท่าครั้งเดียว · วันละ ${u} ครั้ง`, `Water a dry plant once for double watering growth automatically, at the water and stamina cost of one · ${u} a day`);
     // ── the insect net ──
-    case "ntAgain": return w(`รอระหว่างตวัดเหลือ ${pct(n("by"))}%`, `The wait between swings is ${pct(n("by"))}% of normal`);
+    case "ntAgain": return w(`หลังตวัดสวิง รอก่อนตวัดครั้งถัดไปสั้นลง ${pct(1 - n("by"))}%`, `Wait ${pct(1 - n("by"))}% less between net swings`);
     case "ntMesh": return w(`แมลงทนการพลาดได้อีก ${n("misses")} ครั้งก่อนหนีไป`, `An insect bears ${n("misses")} more ${n("misses") === 1 ? "miss" : "misses"} before it is off`);
     case "ntFresh": return w(`จับแมลง ${u} ครั้งแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} catches of a meal's hours cost no stamina`);
     case "ntLong": return w(`เอื้อมได้ไกลขึ้น ${n("reach")} ช่อง`, `Reach ${n("reach")} tile longer`);
-    case "ntWide": return w(`กวาดแมลงที่เปิดให้จับในระยะ ${n("reach")} ช่องได้สูงสุด ${n("catches")} ตัวต่อครั้ง · วันละ ${u} ครั้ง`, `Sweep up to ${n("catches")} catchable insects within ${n("reach")} tiles · ${u} a day`);
+    case "ntWide": return w(`ตวัดสวิงครั้งเดียว กวาดจับแมลงที่มองเห็นและจับได้ในระยะ ${n("reach")} ช่อง สูงสุด ${n("catches")} ตัว ต้องมีแมลงอยู่ในระยะ · วันละ ${u} ครั้ง`, `One net swing sweeps up to ${n("catches")} visible, catchable insects within ${n("reach")} tiles; insects must be present · ${u} a day`);
     case "ntFreeze": return w(`แมลงที่เล็งไว้อยู่นิ่ง ${n("secs")} วินาทีตั้งแต่เริ่มตวัด · วันละ ${u} ครั้ง`, `The insect a swing is aimed at holds still for ${n("secs")} s from the moment it begins · ${u} a day`);
-    case "ntNest": return w("เห็นจุดที่มีแมลง แม้ตัวซ่อนอยู่ และจุดที่จับจนว่างบอกเวลาที่ตัวใหม่อาจมาอีก", "See occupied haunts, including hidden insects, and the next possible return at haunts you emptied");
+    case "ntNest": return w("เห็นว่าจุดไหนมีแมลงแม้ตัวซ่อนอยู่ จุดที่คุณจับจนว่างจะบอกเวลาที่ตัวใหม่อาจกลับมา ช่วยเลือกจุดรอจับ", "Reveal occupied insect spots, even hidden insects, and show the next possible return at spots you emptied");
     // ── cookware ──
-    case "ckFire": return w(`จังหวะคนนิ่งขึ้น ${n("steady")} เท่า: มือสะดุดนิดหน่อยยังไม่หลุดจังหวะ`, `The stirring's pace is ${n("steady")} times as steady: a hand that wobbles is not off it so soon`);
-    case "ckBase": return w(`พลาด ${n("misses")} ครั้งแรกของแต่ละหม้อไม่เสียที่`, `The first ${n("misses")} misses of a pot lose no helping`);
+    case "ckFire": return w(`มินิเกมทำอาหาร: ทนต่อการคนหลุดจังหวะได้นานขึ้น ${n("steady")} เท่า ช่วยให้มือสะดุดเล็กน้อยแล้วอาหารไม่เสีย`, `Cooking minigame: tolerate off-pace stirring ${n("steady")} times longer before losing a helping`);
+    case "ckBase": return w(`มินิเกมทำอาหาร: พลาด ${n("misses")} ครั้งแรกของแต่ละหม้อ ไม่ลดจำนวนอาหารที่ได้`, `Cooking minigame: the first ${n("misses")} misses per pot do not reduce the servings`);
     case "ckFresh": return u === 1 ? w("หม้อแรกของแต่ละมื้อไม่เสีย stamina", "The first pot of a meal's hours costs no stamina") : w(`${u} หม้อแรกของแต่ละมื้อไม่เสีย stamina`, `The first ${u} pots of a meal's hours cost no stamina`);
     case "ckBrisk": return w(`การคนและการย่างสั้นลง ${pct(n("shorter"))}%`, `The stirring and the roast are ${pct(n("shorter"))}% shorter`);
-    case "ckBig": return w(`ทำ ${n("batches")} ชุดในเกมเดียว ใช้วัตถุดิบครบ ${n("batches")} ชุด ผลงานและการพลาดคิดตามทุกชุด · วันละ ${u} หม้อ`, `Cook ${n("batches")} paid batches on one board; ingredients and misses apply to every batch · ${u} pots a day`);
+    case "ckBig": return w(`มีวัตถุดิบตามสูตรครบ ${n("batches")} ชุด: เล่นมินิเกมทำอาหารครั้งเดียว ได้อาหาร ${n("batches")} ชุด ใช้วัตถุดิบทุกชุด หากพลาดจะลดอาหารทุกชุด ถ้ามีวัตถุดิบไม่พอจะทำ 1 ชุดตามปกติ · วันละ ${u} หม้อ`, `With ${n("batches")} recipe batches of ingredients, cook all ${n("batches")} in one minigame; consume every batch and apply misses to all. Otherwise cook one normally · ${u} pots a day`);
     case "ckWarm": return w(`ทุกคนที่กินจากหม้อนี้ที่โต๊ะเลี้ยง บัฟของอาหารนานขึ้น ${n("hours")} ชั่วโมง · วันละ ${u} หม้อ`, `For everybody who eats from this pot at the feast table, the dish's buff lasts ${n("hours")} ${n("hours") === 1 ? "hour" : "hours"} longer · ${u} pots a day`);
-    case "ckScent": return w(`ทุกคนที่กินจากหม้อนี้ที่โต๊ะเลี้ยง ได้ stamina เพิ่ม ${n("stamina")} ต่อที่ · วันละ ${u} หม้อ`, `Everybody who eats from this pot at the feast table has ${n("stamina")} more stamina a helping · ${u} pots a day`);
+    case "ckScent": return w(`ทำอาหารแล้ววางที่โต๊ะเลี้ยง: ทุกคนที่กินได้ stamina เพิ่ม ${n("stamina")} ต่อที่ โดยไม่เกินขีดสูงสุด · วันละ ${u} หม้อ`, `Cook and serve at the feast table: each helping restores ${n("stamina")} extra stamina to its eater, up to the stamina cap · ${u} pots a day`);
   }
 }
 
@@ -154,7 +155,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
     case "ice": {
       const p = pct(step(F.ice.slow, level));
       if (fam === "rod") return w(`แถบปลอดภัยขยับช้าลง ${p}%`, `The safe stretch moves ${p}% slower`);
-      if (fam === "hoe") return w(`ตัวชี้และลมตอนถอนวัชพืชช้าลง ${p}%`, `The marker and the weeding's gusts are ${p}% slower`);
+      if (fam === "hoe") return w(`มินิเกมพรวนดิน: ตัวชี้ช้าลง ${p}% · มินิเกมถางหญ้า: ต้นหญ้ากับหินสลับตำแหน่งช้าลง ${p}%`, `Tilling minigame: the marker moves ${p}% slower; weeding minigame: weeds and stones change places ${p}% slower`);
       if (fam === "can") return w(`น้ำในเกมรดขึ้นช้าลง ${p}%`, `The pour's water rises ${p}% slower`);
       if (fam === "bugNet") return w(`แมลงทุกตัวเคลื่อนไหวช้าลง ${p}% สำหรับเรา`, `Every insect moves ${p}% slower for you`);
       return w(`หลุดจังหวะได้นานขึ้นก่อนจะเสีย (ช้าลง ${p}%)`, `A slip may last longer before it costs (${p}% slower)`);
@@ -175,7 +176,7 @@ function oldToolGem(kind: ToolKind, element: Element, level: number): Words | nu
     case "wind": return windWords(level);
     case "light":
       if (fam === "rod") { const s = step(F.light.rod.early, level); return w(`ทุ่นเรืองแสงก่อนปลากิน ${s} วินาที`, `The float glows ${s} s before the bite`); }
-      if (fam === "hoe") return w("ก้อนหินตอนถอนวัชพืชเรืองแสงให้เห็น", "The weeding's stones glow");
+      if (fam === "hoe") return w("มินิเกมถางหญ้า: ก้อนหินเรืองแสงให้แยกจากต้นหญ้าได้ง่าย กดเฉพาะต้นหญ้าและหลีกเลี่ยงก้อนหิน", "Weeding minigame: stone obstacles glow so you can tell them from weeds; tap weeds and avoid stones");
       if (fam === "can") { const n = step(F.light.can.glint, level); return n >= ALL ? w("ต้นที่รดได้ตอนนี้ส่องประกายทั้งแปลง", "Plants that can be watered now glint over the whole bed") : w(`ต้นที่รดได้ตอนนี้ส่องประกายในระยะ ${n} ช่อง`, `Plants that can be watered now glint within ${n} tiles`); }
       if (fam === "bugNet") { const n = step(F.light.bugNet.seen, level); return w(`แมลงในระยะ ${n} ช่องมีประกาย แม้ตัวที่ซ่อนอยู่`, `Insects within ${n} tiles glint, the hidden ones too`); }
       return w("มีแสงวนรอบหม้อตามจังหวะที่ดี ให้ทัพพีวนตาม", "A light goes round the pot at the good pace, for the ladle to keep with");
@@ -248,7 +249,7 @@ export function cardOf(stack: Stack | null | undefined): CardLine[] {
       const fx = hoeFx(stack);
       return [
         { key: "band", name: w("ช่วงตีจอบ", "The tilling stretch"), value: wider(fx.band) },
-        { key: "pace", name: w("ตัวชี้และลมตอนถอนวัชพืช", "The marker and the weeding's gusts"), value: slower(fx.pace) },
+        { key: "pace", name: w("ความเร็วตัวชี้พรวนดิน / การสลับตำแหน่งในเกมถางหญ้า", "Tilling marker / weeding shuffle speed"), value: slower(fx.pace) },
       ];
     }
     case "can": {

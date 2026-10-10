@@ -1,0 +1,518 @@
+[
+  {
+    "sig": "town.tool_mods(jsonb)",
+    "lines": [
+      [
+        "'asleep', '[]'::jsonb, 'gems'",
+        "'asleep', '[]'::jsonb, 'strong', null, 'gems'"
+      ],
+      [
+        "'asleep', case when away_ then drawn else '[]'::jsonb end, 'gems'",
+        "'asleep', case when away_ then drawn else '[]'::jsonb end, 'strong', case when not away_ then carried->'opts'->1 else 'null'::jsonb end, 'gems'"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.fx_n(jsonb,jsonb,text,text,double precision)",
+    "lines": [
+      [
+        "coalesce((p_forge->'options'->'of'->p_opt->'n'->>p_key)::double precision, 0)",
+        "coalesce(case when p_mods->>'strong' = p_opt then (p_forge->'options'->'of'->p_opt->'six'->'n'->>p_key)::double precision end, (p_forge->'options'->'of'->p_opt->'n'->>p_key)::double precision, 0)"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.use_power(jsonb,jsonb,text,bigint)",
+    "lines": [
+      [
+        "rule jsonb := town.power_rule(p_id);",
+        "rule jsonb := town.power_rule(p_id, p_tool);"
+      ],
+      [
+        "'n', used_ + 1))));",
+        "'n', used_ + 1))) || case when p_id = 'ntWide' then jsonb_build_object('netSweep', jsonb_build_object('until', p_now + 10000, 'left', town.opt_n('ntWide', 'catches', p_tool))) else '{}'::jsonb end);"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.may_power(jsonb,jsonb,text,bigint)",
+    "lines": [
+      [
+        "town.power_left(p_purse, p_id, p_now)",
+        "town.power_left(p_purse, p_id, p_now, p_tool)"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.mine_pay(jsonb,jsonb,jsonb,jsonb,boolean,boolean,text)",
+    "lines": [
+      [
+        "        or not town.mine_near((p_go->'at'->>0)::numeric, (p_go->'at'->>1)::numeric, (r->>1)::integer, (r->>2)::integer, town.opt_n('pkQuake', 'reach'));",
+        "        or not town.mine_near((p_go->'at'->>0)::numeric, (p_go->'at'->>1)::numeric, (r->>1)::integer, (r->>2)::integer, town.opt_n('pkQuake', 'reach', pick));"
+      ],
+      [
+        "        if crumb >= town.opt_n('pkCrumb', 'every') then crumb := 0; shards := shards + town.opt_n('pkCrumb', 'more'); end if;",
+        "        if crumb >= town.opt_n('pkCrumb', 'every', pick) then crumb := 0; shards := shards + town.opt_n('pkCrumb', 'more', pick); end if;"
+      ],
+      [
+        "      by_ := case when opts ? 'pkGleam' then town.opt_n('pkGleam', 'by') else 1 end;",
+        "      by_ := case when opts ? 'pkGleam' then town.opt_n('pkGleam', 'by', pick) else 1 end;"
+      ],
+      [
+        "      'more', case when (holds->>'gem')::boolean and opts ? 'pkCutter' then town.opt_n('pkCutter', 'more') else 0 end);",
+        "      'more', case when (holds->>'gem')::boolean and opts ? 'pkCutter' then town.opt_n('pkCutter', 'more', pick) else 0 end);"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.mine_swings(jsonb,integer,boolean,boolean,double precision)",
+    "lines": [
+      [
+        "    - case when p_loose then town.opt_n('pkLoose', 'fewer') else 0 end)::integer",
+        "    - case when p_loose then town.opt_n('pkLoose', 'fewer', p_pick) else 0 end)::integer"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.vein_mods(jsonb,boolean)",
+    "lines": [
+      [
+        "      + case when town.tool_has(p_pick, 'pkSteady') then town.opt_n('pkSteady', 'strikes') else 0 end",
+        "      + case when town.tool_has(p_pick, 'pkSteady') then town.opt_n('pkSteady', 'strikes', p_pick) else 0 end"
+      ],
+      [
+        "      - case when p_spent",
+        "      + case when town.tool_has(p_pick, 'pkPeek') then town.opt_n('pkPeek', 'strikes', p_pick) else 0 end\n      - case when p_spent"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.axe_chops(jsonb,double precision)",
+    "lines": [
+      [
+        "      - case when town.tool_has(p_axe, 'axKeen') then town.opt_n('axKeen', 'chops') else 0 end)",
+        "      - case when town.tool_has(p_axe, 'axKeen') then town.opt_n('axKeen', 'chops', p_axe) else 0 end)"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.axe_ahead(jsonb)",
+    "lines": [
+      [
+        "    + case when town.tool_has(p_axe, 'axGrain') then town.opt_n('axGrain', 'ahead') else 0 end",
+        "    + case when town.tool_has(p_axe, 'axGrain') then town.opt_n('axGrain', 'ahead', p_axe) else 0 end"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.fell_most(jsonb,jsonb)",
+    "lines": [
+      [
+        "  twice double precision := case when town.tool_has(p_axe, 'axDouble') then town.opt_n('axDouble', 'by') else 1 end;",
+        "  twice double precision := case when town.tool_has(p_axe, 'axDouble') then town.opt_n('axDouble', 'by', p_axe) else 1 end;"
+      ],
+      [
+        "  elder double precision := case when town.tool_has(p_axe, 'axElder') then town.opt_n('axElder', 'by') else 1 end;",
+        "  elder double precision := case when town.tool_has(p_axe, 'axElder') then town.opt_n('axElder', 'by', p_axe) else 1 end;"
+      ],
+      [
+        "    + case when town.tool_has(p_axe, 'axDust') then town.opt_n('axDust', 'more') else 0 end;",
+        "    + case when town.tool_has(p_axe, 'axDust') then town.opt_n('axDust', 'more', p_axe) else 0 end;"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.fell(jsonb,jsonb,text,jsonb,integer,integer,bigint,jsonb,text)",
+    "lines": [
+      [
+        "      by_ := case when town.tool_has(axe, 'axElder') then town.opt_n('axElder', 'by') else 1 end;",
+        "      by_ := case when town.tool_has(axe, 'axElder') then town.opt_n('axElder', 'by', axe) else 1 end;"
+      ],
+      [
+        "        if dust >= town.opt_n('axDust', 'every') then logs := logs + town.opt_n('axDust', 'more'); dust := 0; end if;",
+        "        if dust >= town.opt_n('axDust', 'every', axe) then logs := logs + town.opt_n('axDust', 'more', axe); dust := 0; end if;"
+      ],
+      [
+        "          logs := logs * town.opt_n('axDouble', 'by'); timber := timber * town.opt_n('axDouble', 'by');",
+        "          logs := logs * town.opt_n('axDouble', 'by', axe); timber := timber * town.opt_n('axDouble', 'by', axe);"
+      ],
+      [
+        "      if town.tool_has(axe, 'axResin') and coalesce((l->>'scent')::double precision, 1) < 1::double precision / town.opt_n('axResin', 'in') then",
+        "      if town.tool_has(axe, 'axResin') and coalesce((l->>'scent')::double precision, 1) < 1::double precision / town.opt_n('axResin', 'in', axe) then"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.can_holds(jsonb)",
+    "lines": [
+      [
+        "          + case when town.tool_has(p_stack, 'cnDrop') then town.opt_n('cnDrop', 'more') else 0 end",
+        "          + case when town.tool_has(p_stack, 'cnDrop') then town.opt_n('cnDrop', 'more', p_stack) else 0 end"
+      ],
+      [
+        "          + case when town.tool_has(p_stack, 'cnDrop') then town.opt_n('cnDrop', 'more', p_stack) else 0 end",
+        "          + case when town.tool_has(p_stack, 'cnDrop') then town.opt_n('cnDrop', 'more', p_stack) else 0 end\n          + case when town.tool_has(p_stack, 'cnThrift') then town.opt_n('cnThrift', 'more', p_stack) else 0 end"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.rod_fx(jsonb)",
+    "lines": [
+      [
+        "'strike', case when l > 0 then (lv->'strike'->>l)::double precision / (lv->'strike'->>0)::double precision else 1::double precision end,",
+        "'strike', (case when l > 0 then (lv->'strike'->>l)::double precision / (lv->'strike'->>0)::double precision else 1::double precision end) + town.fx_n(k, m, 'rdBait', 'strike'),"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.hoe_fx(jsonb)",
+    "lines": [
+      [
+        "'band', (lv->'band'->>l)::double precision,",
+        "'band', (lv->'band'->>l)::double precision * greatest(1::double precision, town.fx_n(k, m, 'hoLight', 'band', 1)),"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.can_fx(jsonb)",
+    "lines": [
+      [
+        "+ town.fx_n(k, m, 'cnDrop', 'more'),",
+        "+ town.fx_n(k, m, 'cnDrop', 'more') + town.fx_n(k, m, 'cnThrift', 'more'),"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.smith_dry(jsonb)",
+    "lines": [
+      [
+        "  select case when exists (select 1 from jsonb_array_elements(p_bag) s where town.tool_has(s, 'axDry'))\n    then (town.cat('forge')->'options'->'of'->'axDry'->'n'->>'pieces')::integer else 1 end\n",
+        "  select greatest(1, coalesce((select max(town.opt_n('axDry', 'pieces', s))::integer from jsonb_array_elements(p_bag) s where town.tool_has(s, 'axDry')), 1))\n"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.fell_begin(jsonb,jsonb,integer,integer,integer,bigint,bigint,text)",
+    "lines": [
+      [
+        "'ahead', town.axe_ahead(axe),",
+        "'ahead', case when town.tree_elder(t) and town.tool_has(axe, 'axElder') then (town.cat('mining')->>'all')::double precision else town.axe_ahead(axe) end,"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.vein_end(jsonb,jsonb,bigint)",
+    "lines": [
+      [
+        "  stowed := town.stow_all(p_purse, got_);\n  if stowed is null then return town.no('full'); end if;\n  -- `pkTwin`, counted, of the pick now in the hand: the vein is kept, as its second go\n  pick := town.mine_pick(stowed);\n  twin := case when not twice and pick is not null then town.use_power(stowed, pick, 'pkTwin', p_now) end;\n  after_ := case when coalesce((twin->>'ok')::boolean, false) then twin->'purse' else stowed end;",
+        "  pick := town.mine_pick(p_purse);\n  twin := case when jsonb_array_length(got_) > 0 and not twice and pick is not null then town.use_power(p_purse, pick, 'pkTwin', p_now) end;\n  if coalesce((twin->>'ok')::boolean, false) then\n    select jsonb_agg(jsonb_build_array(g.v->>0, (g.v->>1)::numeric * town.opt_n('pkTwin', 'times', pick)) order by g.ord) into got_\n      from jsonb_array_elements(got_) with ordinality g(v, ord);\n  end if;\n  stowed := town.stow_all(case when coalesce((twin->>'ok')::boolean, false) then twin->'purse' else p_purse end, got_);\n  if stowed is null then return town.no('full'); end if;\n  after_ := stowed;"
+      ],
+      [
+        "'again', coalesce((twin->>'ok')::boolean, false), 'vein', vein_,",
+        "'again', false, 'vein', vein_,"
+      ],
+      [
+        "case when coalesce((twin->>'ok')::boolean, false) then vein_ || '{\"again\": true}'::jsonb else 'null'::jsonb end",
+        "'null'::jsonb"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.fell_root(jsonb,jsonb,text,integer,bigint)",
+    "lines": [
+      [
+        "  used jsonb;",
+        "  used jsonb;\n  ids text[];"
+      ],
+      [
+        "  return jsonb_build_object('ok', true, 'purse', used->'purse', 'left'",
+        "  select array_agg(q.id) into ids from (\n    select e.key id from jsonb_each(p_grove->'down') e\n      join lateral (select town.tree_of(e.key::integer) as tr) r on r.tr is not null\n     where not town.tree_elder(r.tr) and e.value->>'by' = p_me\n       and p_now - (e.value->>'at')::numeric <= (k->'root'->>'within')::numeric * 1000\n       and p_now < town.tree_until(false, (e.value->>'at')::numeric::bigint)\n       and greatest(abs((r.tr->>1)::integer - (t->>1)::integer), abs((r.tr->>2)::integer - (t->>2)::integer)) <= town.opt_n('axRoot', 'reach', axe)\n     order by case when e.key = p_tree::text then 0 else 1 end,\n       abs((r.tr->>1)::integer - (t->>1)::integer) + abs((r.tr->>2)::integer - (t->>2)::integer), e.key::integer\n     limit town.opt_n('axRoot', 'trees', axe)::integer\n  ) q;\n  return jsonb_build_object('ok', true, 'purse', used->'purse', 'left'"
+      ],
+      [
+        "(p_grove->'down') - (p_tree::text)",
+        "(p_grove->'down') - coalesce(ids, array[p_tree::text])"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.grown(jsonb,bigint)",
+    "lines": [
+      [
+        "town.wet_ms(p.sown, p_now)::double precision",
+        "(case when p_plant->'moist' = 'true'::jsonb then greatest(0, p_now - p.sown)::double precision else town.wet_ms(p.sown, p_now)::double precision end)"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.sow_damp(jsonb,bigint)",
+    "lines": [
+      [
+        "'watered', p_now)",
+        "'watered', p_now, 'moist', true)"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.see(text,jsonb,bigint)",
+    "lines": [
+      [
+        "'wet', p_now -",
+        "'wet', p->'moist' = 'true'::jsonb or p_now -"
+      ],
+      [
+        "p->'moist' = 'true'::jsonb or",
+        "coalesce(p->'moist' = 'true'::jsonb, false) or"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.water_with(text,jsonb,jsonb,text,bigint,jsonb)",
+    "lines": [
+      [
+        "if again then twice := town.use_power(paid, mine, 'cnTwice', p_now); end if;",
+        "if again or not (p_seen->>'wet')::boolean then twice := town.use_power(paid, mine, 'cnTwice', p_now); end if;"
+      ],
+      [
+        "town.watering_of(p_purse, p_hand, p_now, fx)) || case when again then",
+        "town.watering_of(p_purse, p_hand, p_now, fx) * case when coalesce((twice->>'ok')::boolean, false) and not again then 2::double precision else 1::double precision end) || case when again or coalesce((twice->>'ok')::boolean, false) then"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.beside(text,jsonb,jsonb,text,jsonb,jsonb,text,bigint,text,double precision)",
+    "lines": [
+      [
+        "  rains boolean;",
+        "  rains boolean;\n  both_ boolean;"
+      ],
+      [
+        "rains := not hoes and (fx->>'rain')::boolean and coalesce(p_owner = p_me, false);",
+        "rains := not hoes and (fx->>'rain')::boolean and coalesce(p_owner = p_me, false) and town.may_power(p_after, tool, 'cnRain', p_now);"
+      ],
+      [
+        "  if not chance > 0 and not rains then return nothing; end if;",
+        "  both_ := hoes and coalesce(p_owner = p_me, false) and town.power_used(p_after, 'hoBoth', p_now) > town.power_used(p_before, 'hoBoth', p_now);\n  if not chance > 0 and not rains and not both_ then return nothing; end if;"
+      ],
+      [
+        "where w.key_ <> p_key and town.deed_for",
+        "where w.key_ <> p_key and (rains or split_part(w.key_, ',', 2) = split_part(p_key, ',', 2)) and town.deed_for"
+      ],
+      [
+        "  if hoes then\n    if not struck",
+        "  if hoes then\n    if both_ then\n      for k in select q.key_ from jsonb_array_elements_text(want) with ordinality q(key_, ord) order by q.ord limit greatest(0, town.opt_n('hoBoth', 'plots', tool)::integer - 1) loop\n        out_ := out_ || jsonb_build_object(k, '{\"soil\":\"tilled\",\"plant\":null}'::jsonb);\n      end loop;\n      return jsonb_build_object('purse', p_after, 'plots', out_);\n    end if;\n    if not struck"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town_tend(integer,integer,jsonb,boolean)",
+    "lines": [
+      [
+        "where p.bed = bed_n and p.y = p_y;",
+        "where p.bed = bed_n and (p.y = p_y or town.tool_has(town.hand_stack(purse), 'cnRain'));"
+      ],
+      [
+        "town.beside(key, town.row_keys(p_x, p_y),",
+        "town.beside(key, case when town.tool_has(town.hand_stack(purse), 'cnRain') then town.bed_keys(p_x, p_y) else town.row_keys(p_x, p_y) end,"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.cook_more(jsonb,jsonb,jsonb,boolean,double precision,bigint)",
+    "lines": [
+      [
+        "  if p_made and (p_fx->>'big')::double precision > 0 then\n    used := town.use_power(spent, p_tool, 'ckBig', p_now);\n    if (used->>'ok')::boolean then spent := used->'purse'; more := more + (p_fx->>'big')::integer; end if;\n  end if;",
+        "  -- v177: paid batches are counted by town.cook, before its extras."
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.cook(jsonb,jsonb,jsonb,double precision,bigint)",
+    "lines": [
+      [
+        "  more_ jsonb;",
+        "  more_ jsonb;\n  batch_ integer := 1;\n  used_big jsonb;"
+      ],
+      [
+        "  if dish is not null then\n    left_ :=",
+        "  if dish is not null then\n    if made is not null and mine_ is not null and (fx_->>'big')::double precision > 0\n       and not exists (select 1 from jsonb_array_elements(alls) a(v) where town.held(p_purse->'bag', a.v->>0) < (a.v->>1)::numeric * town.opt_n('ckBig', 'batches', mine_)) then\n      used_big := town.use_power(spent, mine_, 'ckBig', p_now);\n      if (used_big->>'ok')::boolean then\n        spent := used_big->'purse'; batch_ := town.opt_n('ckBig', 'batches', mine_)::integer;\n        for x in select v from jsonb_array_elements(alls) a(v) loop bag := town.take(bag, x->>0, (x->>1)::numeric * (batch_ - 1)); end loop;\n      end if;\n    end if;\n    left_ :="
+      ],
+      [
+        "then town.helpings(dish, p_crew, p_misses, p_purse->'bag') else",
+        "then town.helpings(dish, p_crew, p_misses, p_purse->'bag') * batch_ else"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.work_counts_of(jsonb,text)",
+    "lines": [
+      [
+        "least(town.opt_n('cnKind', 'points')::numeric,",
+        "least(coalesce((town.cat('forge')->'options'->'of'->'cnKind'->'six'->'n'->>'points')::numeric, town.opt_n('cnKind', 'points')::numeric),"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.cave_told_of(jsonb,jsonb,text,integer,integer,integer,bigint,text,jsonb,jsonb)",
+    "lines": [
+      [
+        "reach := town.gem_by(pick, 'light', m->'pick'->'gems'->'light'->'glint');",
+        "reach := case when town.tool_has(pick, 'pkGleam') then (m->>'all')::double precision else town.gem_by(pick, 'light', m->'pick'->'gems'->'light'->'glint') end;"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.net(jsonb,integer,jsonb,integer,boolean,text,integer,integer,double precision,bigint,text)",
+    "lines": [
+      [
+        "town.net_more_far(p_purse)",
+        "town.net_more_far(p_purse, p_now)"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.net_mine(jsonb,text,text,integer,integer,double precision,bigint)",
+    "lines": [
+      [
+        "town.net_more_far(p_purse)",
+        "town.net_more_far(p_purse, p_now)"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  },
+  {
+    "sig": "town.net_more(jsonb,jsonb,text,integer,double precision,double precision,bigint)",
+    "lines": [
+      [
+        "    'purse', town.tool_paid(p_purse, town.spend(p_purse, p_cost, p_now), p_now, p_tool, fx, 'ntFresh') || jsonb_build_object('bag', town.put(p_purse->'bag', p_id, n)));",
+        "    'purse', town.sweep_caught(town.tool_paid(p_purse, town.spend(p_purse, p_cost, p_now), p_now, p_tool, fx, 'ntFresh') || jsonb_build_object('bag', town.put(p_purse->'bag', p_id, n)), p_now));"
+      ],
+      [
+        "AS $function$",
+        "AS $function$\n-- v177: stronger milestones and distinct powers.\n"
+      ]
+    ]
+  }
+]

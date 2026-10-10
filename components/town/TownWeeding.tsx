@@ -113,6 +113,9 @@ export default function TownWeeding({ th, title, need, mods, onDone, onCancel, o
           ))}
         </div>
       </div>
+      <p className="mt-2 text-center text-xs leading-relaxed text-[#ffeccb]">
+        {th ? "กดต้นหญ้าเพื่อถอน • หลีกเลี่ยงหินกับดินเปล่า • ระวังการสลับตำแหน่ง" : "Tap weeds to pull them • Avoid stones and bare earth • Watch for positions changing"}
+      </p>
     </GameFrame>
   );
 }

@@ -9,7 +9,7 @@ const tools = await import("@/lib/town/tools"), fx = await import("@/lib/town/fo
 const trade = await import("@/lib/town/trade");
 const { catalogOf } = await import("@/lib/town/catalog");
 const dir = join(process.env.FC_REPO, ".claude/skills/fc-cash-town/scripts/db");
-const source = readFileSync(process.env.V176_SQL ?? join(dir, "v177_draft.sql"), "utf8");
+const source = readFileSync(process.env.V177_SQL ?? join(dir, "v177_draft.sql"), "utf8");
 const t = await standIn({ upTo: 176 }), NOW = Date.parse("2026-10-10T12:00:00+07:00");
 const one = async (q, p = []) => (await t.sql(q, p)).rows[0];
 const defs = async () => (await t.sql("select p.oid::regprocedure::text sig, pg_get_functiondef(p.oid) def from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='town' or (n.nspname='public' and p.proname like 'town_%')")).rows;
@@ -20,7 +20,8 @@ const same = (a, b) => {
   return JSON.stringify(ka) === JSON.stringify(kb) && ka.every((k) => same(a[k], b[k]));
 };
 const old = await defs(), oldCat = (await t.sql("select key,data from public.town_catalog")).rows;
-await t.runTwice(source, "v177");
+if (process.env.V177_SQL) await t.db.exec(source);
+else await t.runTwice(source, "v177");
 const now = await defs(), edits = JSON.parse(readFileSync(join(dir, "v177.lines.json"), "utf8"));
 const owned = new Set(edits.map((e) => e.sig));
 for (const e of edits) t.check(`${e.sig}: exact marked changes`, now.find((d) => d.sig === e.sig)?.def === changed(old.find((d) => d.sig === e.sig).def, e.sig, e.lines));
@@ -69,6 +70,37 @@ await t.sql("update public.town_knobs set value=1 where key in ('game_open','smi
 const seed = async (id, p = trade.newPurse()) => t.sql("insert into public.town_purses(member_id,coins,doc) values($1,1000,$2::jsonb) on conflict(member_id) do update set doc=excluded.doc,coins=excluded.coins", [id, JSON.stringify(p)]);
 const ask = async (id, q, p = []) => { const a = await t.as(id, q, p); return a.error ? a : a.rows[0].r; };
 const purse = async (id) => (await one("select town.purse_of($1::uuid,false) p", [id])).p;
+const netTool = { item: "bugNet", n: 1, plus: 10, opts: ["ntLong", "ntMesh", "ntWide"] };
+await seed(U.m1, held(netTool)); await seed(U.m2, held(netTool));
+const otherBefore = await purse(U.m2);
+const first = await ask(U.m1, "select public.town_tool_power('ntWide') r");
+let saved = await purse(U.m1);
+t.check("member power grants five catches for ten seconds", first.ok === true && saved.netSweep?.left === 5 && saved.netSweep?.until === NOW + 10000, first);
+t.check("power changes only caller's purse", same(await purse(U.m2), otherBefore));
+const extra = async (p, at = NOW) => (await one("select town.net_more_far($1::jsonb,$2::bigint) n", [JSON.stringify(p), at])).n;
+t.check("sweep reaches only while its server grant is live", (await extra(saved)) === 6 && (await extra(saved, NOW + 10000)) === 1);
+const plainHand = { ...saved, bag: [{ item: "bugNet", n: 1, plus: 10, opts: ["ntLong"] }, ...Array(19).fill(null)] };
+t.check("swapping net cannot carry sweep's extra reach", (await extra(plainHand)) === 1);
+const bug = Object.keys(code.insects.bugs)[0];
+let swept = saved;
+for (let i = 0; i < 5; i++) swept = (await one("select town.net_more($1::jsonb,$2::jsonb,$3::text,1,0,1,$4::bigint) r", [JSON.stringify(swept), JSON.stringify(netTool), bug, NOW])).r.purse;
+t.check("five successful catches exhaust the server grant", swept.netSweep?.left === 0 && (await extra(swept)) === 1);
+let exhausted;
+for (let i = 1; i < 20; i++) exhausted = await ask(U.m1, "select public.town_tool_power('ntWide') r");
+const quotaBefore = await purse(U.m1);
+const refused = await ask(U.m1, "select public.town_tool_power('ntWide') r");
+t.check("repeated public requests share one daily quota", exhausted.ok === true && quotaBefore.powers.ntWide.n === 20 && refused.ok === false && refused.why === "spent", refused);
+t.check("refused power spends nothing", same(await purse(U.m1), quotaBefore));
+await t.db.exec(`create or replace function town.now_ms() returns bigint language sql stable as $$ select ${NOW + 86400000}::bigint $$`);
+const renewed = await ask(U.m1, "select public.town_tool_power('ntWide') r");
+t.check("daily quota renews on a later game day", renewed.ok === true && (await purse(U.m1)).powers.ntWide.n === 1);
+for (const id of ["anon", U.unver, U.nochar]) {
+  const r = await ask(id, "select public.town_tool_power('ntWide') r");
+  t.check(`${id}: cannot activate a power`, !!r.error, r);
+}
+const forgedWrite = await t.as(U.m1, "update public.town_purses set doc=jsonb_set(doc,'{netSweep}', '{\"until\":9999999999999,\"left\":500}'::jsonb) where member_id=$1", [U.m2]);
+t.check("member cannot mint a grant in another purse", !!forgedWrite.error || forgedWrite.rows.length === 0);
+t.check("other purse survives direct write attempt", same(await purse(U.m2), otherBefore));
 // A real function edit must be refused before any catalog write.
 const def = (await one("select pg_get_functiondef('town.can_fx(jsonb)'::regprocedure) d")).d;
 await t.db.exec(def.replace("AS $function$", "AS $function$\n-- an unexpected live edit"));

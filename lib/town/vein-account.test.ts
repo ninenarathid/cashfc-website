@@ -57,7 +57,7 @@ describe("a go at a vein, as its page tells it to a keeper that does not lay the
         // (what is said goes over a wire: said again from its own text it is the same account)
         expect(veinFrom(purse, JSON.parse(JSON.stringify(said)), NOW)).toEqual(want);
         gos++;
-        if (want.ok && want.again) twins++;
+        if (want.ok && (want.purse.powers?.pkTwin?.n ?? 0) > (purse.powers?.pkTwin?.n ?? 0)) twins++;
         if (!want.ok && want.why === "full") fulls++;
         if (want.ok && want.got.some(([id]) => id.startsWith("chip"))) gems++;
         if (said.struck > mods.strikes) backs++;

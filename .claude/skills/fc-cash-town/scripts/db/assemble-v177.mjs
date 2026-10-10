@@ -41,7 +41,7 @@ edit("town.can_fx", "+ town.fx_n(k, m, 'cnDrop', 'more'),", "+ town.fx_n(k, m, '
 edit("town.can_holds", "          + case when town.tool_has(p_stack, 'cnDrop') then town.opt_n('cnDrop', 'more', p_stack) else 0 end", "          + case when town.tool_has(p_stack, 'cnDrop') then town.opt_n('cnDrop', 'more', p_stack) else 0 end\n          + case when town.tool_has(p_stack, 'cnThrift') then town.opt_n('cnThrift', 'more', p_stack) else 0 end");
 const dry = current("town.smith_dry");
 edit("town.smith_dry", dry.slice(dry.indexOf("  select"), dry.lastIndexOf("$function$")), "  select greatest(1, coalesce((select max(town.opt_n('axDry', 'pieces', s))::integer from jsonb_array_elements(p_bag) s where town.tool_has(s, 'axDry')), 1))\n");
-edit("town.fell_begin", "'ahead', town.axe_ahead(axe),", "'ahead', case when town.tree_elder(t) and town.tool_has(axe, 'axElder') then 9999::double precision else town.axe_ahead(axe) end,");
+edit("town.fell_begin", "'ahead', town.axe_ahead(axe),", "'ahead', case when town.tree_elder(t) and town.tool_has(axe, 'axElder') then (town.cat('mining')->>'all')::double precision else town.axe_ahead(axe) end,");
 
 // A twin multiplies only the validated, earned yield. A refusal leaves its right and vein intact.
 edit("town.vein_end", "  stowed := town.stow_all(p_purse, got_);\n  if stowed is null then return town.no('full'); end if;\n  -- `pkTwin`, counted, of the pick now in the hand: the vein is kept, as its second go\n  pick := town.mine_pick(stowed);\n  twin := case when not twice and pick is not null then town.use_power(stowed, pick, 'pkTwin', p_now) end;\n  after_ := case when coalesce((twin->>'ok')::boolean, false) then twin->'purse' else stowed end;",

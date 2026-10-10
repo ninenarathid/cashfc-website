@@ -119,7 +119,7 @@ function toldOf(s: CaveState, p: Purse, me: string, floor: number, tile: [number
     if (s.crystal && c && c.floor === f && !ids.includes(c.rock)) ids.push(c.rock);
     if (ids.length) gone[String(f)] = ids;
   }
-  const reach = gemBy(pick, "light", GEM_FX.light.pick.glint), glints: number[] = [];
+  const reach = has(pick, "pkGleam") ? ALL : gemBy(pick, "light", GEM_FX.light.pick.glint), glints: number[] = [];
   if (reach > 0 && floor > 0 && tile) {
     const today = todayAt(word, floor, s, c);
     for (const r of floorRocks(floor, s.day)) {
@@ -549,7 +549,7 @@ export function vectorsMining(): Vector[] {
     add("torch_down", [p], torchDown(p));
   }
   for (let i = 0; i < 400; i++) {
-    const now = c.of(NOWS), pick = c.maybe(0.08) ? null : pickAt(c, c.of([0, 6, 10, 10, 10]), null, c.maybe(0.75) ? ["pkDrill"] : ["pkQuake"]), used = c.of([undefined, 0, 1, 2, 3, 5]);
+    const now = c.of(NOWS), pick = c.maybe(0.08) ? null : pickAt(c, c.of([0, 6, 10, 10, 10]), null, c.maybe(0.75) ? ["pkDrill"] : ["pkQuake"]), used = c.of([undefined, 0, 1, 2, 3, 5, 10]);
     const p = { ...purseWith([pick]), hand: c.maybe(0.9) ? "pick" : null, ...(used === undefined ? {} : { powers: { pkDrill: { k: c.maybe(0.85) ? dayOf(now) : dayOf(now) - 1, n: used } } }) } as Purse;
     const f = c.of([1, 5, 9, 10, 29, 30, 0, 31, 17]), open = c.maybe(0.25);
     add("drill", [p, f, open, now], drill(p, f, open, now));
@@ -738,7 +738,10 @@ describe("the cases the database's rules of mining are held to", () => {
     expect(of("vein_odd").filter((v) => v.want === null).length).toBeGreaterThan(500);
     const ends = of("vein_end").map((v) => v.want as { ok: boolean; why?: string; again?: boolean; got?: Array<[string, number]> });
     expect(new Set(ends.filter((e) => !e.ok).map((e) => e.why))).toEqual(new Set(["none", "odd", "full"]));
-    expect(ends.filter((e) => e.ok).length > 500 && ends.some((e) => e.again) && ends.some((e) => e.got?.some(([id]) => id.startsWith("chip"))) && ends.some((e) => e.ok && e.got!.length === 0)).toBe(true);
+    expect(ends.filter((e) => e.ok).length).toBeGreaterThan(500);
+    expect(ends.every((e) => !e.again)).toBe(true);
+    expect(ends.some((e) => e.got?.some(([id]) => id.startsWith("chip")))).toBe(true);
+    expect(ends.some((e) => e.ok && e.got!.length === 0)).toBe(true);
     // the line: every deed of the miners' that counts, the twin's go that counts for its firsts alone, and those that count for nothing
     const counts = of("counts_of").map((v) => v.want as Array<{ line: string; raw: number; first?: string }>);
     expect(counts.filter((k) => k.length === 0).length).toBeGreaterThan(5);

@@ -2,7 +2,7 @@ import type { ItemId } from "./items";
 import { mineOf, oreOf, pickOf, type MineRefusal, type PendingVein, type VeinDone } from "./mining";
 import { stowAll } from "./pouches";
 import { usePower } from "./powers";
-import { GEMS } from "./tools";
+import { GEMS, optN } from "./tools";
 import type { Purse } from "./trade";
 import { VEIN, faceOf, play, type Cell } from "./vein";
 
@@ -99,13 +99,14 @@ export function veinFrom(purse: Purse, said: unknown, now: number): VeinDone | {
   if (how) return { ok: false, why: "odd", how, purse: { ...purse, mine: { ...kept, vein: null } } };
   const told = a as VeinAccount, chip = vein.gem ? GEMS[vein.gem].chip : null, shards = told.ore * VEIN.ore, cut = told.gems.reduce((t, n) => t + n, 0), chips = cut > 0 ? cut + Math.max(0, vein.more) : 0;
   const got: Array<[ItemId, number]> = [...(shards ? [[oreOf(vein.f), shards] as [ItemId, number]] : []), ...(chips && chip ? [[chip, chips] as [ItemId, number]] : [])];
-  const stowed = stowAll(purse, got);
+  const pick = pickOf(purse), twin = got.length > 0 && !vein.again && pick ? usePower(purse, pick, "pkTwin", now) : null;
+  if (twin?.ok) for (const part of got) part[1] *= optN("pkTwin", "times", pick);
+  const stowed = stowAll(twin?.ok ? twin.purse : purse, got);
   if (!stowed) return { ok: false, why: "full" };
-  // (lib/town/mining's veinEnd, to the letter: `pkTwin`, counted, of the pick now in the hand)
-  const pick = pickOf(stowed), twin = !vein.again && pick ? usePower(stowed, pick, "pkTwin", now) : null;
-  const after: Purse = twin?.ok ? twin.purse : stowed;
+  // Match veinEnd: the accepted yield is multiplied immediately, with no replay.
+  const after = stowed;
   return {
-    ok: true, got, passed: told.ore + told.gems.length, of: told.of, struck: told.struck, again: !!twin?.ok, vein,
-    purse: { ...after, mine: { ...mineOf(after), vein: twin?.ok ? { ...vein, again: true } : null } },
+    ok: true, got, passed: told.ore + told.gems.length, of: told.of, struck: told.struck, again: false, vein,
+    purse: { ...after, mine: { ...mineOf(after), vein: null } },
   };
 }
