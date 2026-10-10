@@ -18292,7 +18292,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 88,
-    "kills": 13,
+    "kills": 16,
     "job": "Machinist",
     "cleared": true,
     "job_kills": {
@@ -73267,7 +73267,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 83,
-    "kills": 54,
+    "kills": 57,
     "job": "Bard",
     "cleared": true,
     "job_kills": {
@@ -73337,7 +73337,7 @@
     "encounter_id": 1081,
     "name": "Necron",
     "best": 53,
-    "kills": 18,
+    "kills": 20,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -81749,9 +81749,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 0,
-    "kills": 1,
-    "job": "Sage",
+    "best": 1,
+    "kills": 4,
+    "job": "DarkKnight",
     "cleared": true
    },
    {

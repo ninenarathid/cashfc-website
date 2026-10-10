@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-10-10",
+   "type": "level_100",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
    "date": "2026-10-09",
    "type": "level_100",
    "id": 61014734,
@@ -1392,13 +1399,6 @@
    "id": 42021700,
    "name": "Josuke Mizumoto",
    "text": "passed 100 mounts 🐎"
-  },
-  {
-   "date": "2026-09-28",
-   "type": "rare_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "earned Cut Above the Rest: Knives Occultum — only 1.1% of players have it, and 13 more"
   }
  ]
 }
