@@ -1,0 +1,152 @@
+.panel {
+  --ink: #302a20;
+  --accent: #446247;
+  --edge: #65784c;
+  --paper: #eee3bc;
+  color: var(--ink);
+  background: var(--paper);
+  border: 3px solid #302a20;
+  border-radius: 5px;
+  box-shadow: inset 0 0 0 2px #ffffff45, 4px 5px 0 #201c16, 0 12px 26px #10161055;
+  max-height: min(72dvh, 660px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--edge) var(--paper);
+  scrollbar-width: thin;
+  padding: 14px;
+  position: relative;
+  isolation: isolate;
+}
+.panel > header {
+  border-bottom: 2px solid var(--edge);
+  margin: -2px 0 12px;
+  padding-bottom: 8px;
+}
+.panel h2 { text-wrap: balance; line-height: 1.4; }
+.panel header h2 { min-width: 0; flex: 1; }
+.panel button, .workshop button, .rod button, .book button { touch-action: manipulation; }
+.panel button:focus-visible, .workshop :is(button,input):focus-visible, .rod button:focus-visible, .book :is(button,input):focus-visible {
+  outline: 3px solid #2467a2;
+  outline-offset: 3px;
+}
+.panel button:not(:disabled):hover { filter: brightness(1.06); }
+.panel button:disabled { cursor: not-allowed; }
+.panel small { line-height: 1.6; }
+.water { --ink: #233c39; --accent: #356b70; --edge: #638786; --paper: #e0ebe0; }
+.kitchen { --ink: #473022; --accent: #956337; --edge: #ae8553; --paper: #efdfb5; }
+.camp { --ink: #283b2a; --accent: #4c6b48; --edge: #74865b; --paper: #e3e4c4; }
+.forest { --ink: #2f3924; --accent: #5e7042; --edge: #859464; --paper: #e8e8ca; }
+.garden { --ink: #f1e5c6; --accent: #9cb37c; --edge: #847047; --paper: #473c29; }
+.wood { --ink: #ffeccb; --accent: #dab783; --edge: #a67949; --paper: #614125; }
+.scene {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0 14px;
+  padding: 12px;
+  border: 1px solid var(--edge);
+  background: #ffffff30;
+  box-shadow: inset 0 -3px 0 #0000000c;
+}
+.scene > :first-child { flex-shrink: 0; }
+.scene p { line-height: 1.6; }
+.caption { font-size: 12px; line-height: 1.6; opacity: .85; }
+.sectionLabel { margin: 16px 0 8px; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.sectionLabel::after { content: ''; height: 1px; background: var(--edge); flex: 1; opacity: .5; }
+.result { padding: 10px 12px; border-left: 4px solid var(--accent); background: #ffffff45; line-height: 1.7; margin-top: 12px; }
+.routeMap { width: 100%; height: 105px; display: block; }
+.routeChoice { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; margin-bottom: 12px; }
+.routeChoice button { padding: 8px; min-height: 48px; background: #f1f7e9; color: #294843; border: 2px solid #789993; text-align: left; }
+.routeChoice button[aria-pressed='true'] { background: #346b70; color: #f1f7e9; border-color: #233c39; }
+.routeChoice small { display: block; }
+.prepTray { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 10px; background: #b9915d; border: 2px solid #68432a; box-shadow: inset 0 -4px 0 #8b643d; }
+.prepTray > span { display: flex; align-items: center; gap: 4px; font-size: 12px; background: #f2e2bd; padding: 5px 7px; color: #473022; }
+.panel fieldset legend { font-weight: 600; margin-bottom: 5px; }
+.heatRead { display: flex; align-items: center; gap: 12px; padding: 12px; background: #352b25; color: #f6edcf; margin-top: 12px; border-bottom: 4px solid #ad663b; }
+.heatMeter { display: flex; gap: 4px; margin-top: 5px; }
+.heatMeter i { height: 6px; width: 26px; background: #705e4a; }
+.heatMeter i[data-lit] { background: #f2b66b; }
+.charges { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 0; }
+.charges i { width: 18px; height: 20px; border: 2px solid #526647; background: #abc17a; box-shadow: inset 0 3px 0 #cdda9e; }
+.supplyChoice small { color: #496041; }
+.workshop { --ink: #f1e0bb; color: var(--ink); padding: 16px; background: #34291d; overscroll-behavior: contain; scrollbar-width: thin; }
+.workshopHeader { border-bottom: 2px solid #796044; margin-bottom: 14px; padding-bottom: 12px; display: flex; align-items: center; gap: 14px; }
+.workshopHeader h3 { font-size: 18px; font-weight: 600; }
+.workshopHeader p { font-size: 12px; color: #dcc3a0; line-height: 1.6; }
+.craftList { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit,minmax(min(100%,280px),1fr)); }
+.recipe { background: #ede1bd; color: #382c1d; border: 2px solid #aa895a; padding: 12px; position: relative; box-shadow: 3px 3px 0 #211b14; content-visibility: auto; contain-intrinsic-size: auto 250px; }
+.recipe::before { content: ''; position: absolute; width: 26px; height: 5px; top: -3px; left: calc(50% - 13px); background: #ad7750; }
+.recipeIcon { display: grid; place-items: center; width: 48px; height: 48px; flex-shrink: 0; background: #d6cba5; border: 1px solid #aa895a; }
+.recipe li { font-size: 12px; border-bottom: 1px dashed #aa895a70; padding: 5px 0; }
+.rod { padding: 14px; margin-bottom: 12px; background: #302c24; border: 2px solid #8f7a52; color: #f3e3c3; }
+.recipeBook { border-left: 10px solid #485244 !important; box-shadow: inset 4px 0 8px #59452b28, 3px 4px 0 #bda779; border-radius: 2px 6px 6px 2px; }
+.recipeBook button:focus-visible { outline: 3px solid #2467a2; outline-offset: 2px; }
+.recipeBookHeading { display: flex; align-items: center; gap: 9px; padding: 12px 10px 8px; border-bottom: 1px solid #bda779; }
+.recipeBookHeading h3 { font-size: 15px; font-weight: 600; }
+.recipeSheet { overscroll-behavior: contain; background: repeating-linear-gradient(0deg,transparent,transparent 27px,#9b926910 27px,#9b926910 28px); }
+.recipeStrip { border-left: 8px solid #485244 !important; box-shadow: 2px 3px 0 #bda779; }
+.recipeIndex { display: flex; flex-direction: column; gap: 6px; }
+.recipeIndex li { border-bottom: 1px dashed #bda779; }
+.recipeIndex button { min-height: 52px; }
+.bookPager { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 10px 0 0; margin-top: 12px; border-top: 1px solid #bda779; font-size: 12px; }
+.bookPager button { min-height: 44px; padding: 5px 10px; border: 1px solid #bda779; background: #f3e9cb; }
+.bookPager button:disabled { opacity: .4; }
+.bookPager span { font-variant-numeric: tabular-nums; }
+.rodRig { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid #665b43; margin-top: 10px; }
+.rigLine { height: 55px; width: 46px; position: relative; flex-shrink: 0; }
+.rigLine::before { content: ''; width: 3px; height: 40px; background: #bda276; position: absolute; transform: rotate(22deg); left: 15px; top: 2px; }
+.rigLine::after { content: ''; width: 23px; height: 39px; border: 1px solid #e3debe; border-left: 0; border-bottom: 0; border-radius: 0 10px 0 0; position: absolute; top: 0; right: 0; }
+
+/* A bound notebook: a cover when shut, a sheet and index when opened. */
+.book { container: town-book / inline-size; color: #3b3026; min-width: 0; margin-top: 16px; }
+.notebookDialog { width: min(760px,calc(100vw - 24px)); max-width: none; max-height: 88dvh; padding: 0 5px 9px 0; margin: auto; border: 0; background: transparent; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.notebookDialog::backdrop { background: #102018b8; }
+.notebookDialog > .book { margin-top: 0; }
+.notebookDialog .bookHeader { position: sticky; top: 0; background: #59472f; z-index: 2; }
+.book button:not(:disabled):hover { filter: brightness(1.08); }
+.cover { width: 100%; display: flex; gap: 16px; align-items: center; text-align: left; padding: 18px 18px 18px 26px; min-height: 108px; color: #f4e8c8; background: #3d5546; border: 2px solid #26392e; border-left: 9px solid #26392e; border-radius: 2px 7px 7px 2px; box-shadow: 3px 3px 0 #d6c59a, 4px 5px 0 #604b31; position: relative; }
+.cover::after { content: ''; position: absolute; width: 13px; height: 34px; background: #bc894d; right: 20px; top: -2px; clip-path: polygon(0 0,100% 0,100% 100%,50% 80%,0 100%); }
+.cover:hover { background: #49614e; }
+.coverTitle { font-size: 15px; font-weight: 600; display: block; line-height: 1.5; }
+.coverHint { display: block; font-size: 12px; color: #dfd5b9; margin-top: 4px; }
+.binding { background: #59472f; border: 2px solid #33291d; padding: 5px 5px 9px 11px; border-radius: 3px 7px 7px 3px; box-shadow: 2px 3px 0 #dacda6, 4px 6px 0 #4b3c29, 0 12px 20px #1d1c1730; }
+.bookHeader { display: flex; align-items: center; gap: 8px; padding: 8px 10px; color: #f4e8c8; }
+.bookHeader h3 { flex: 1; min-width: 0; font-size: 15px; font-weight: 600; text-wrap: balance; }
+.bookHeader button { min-height: 44px; padding: 4px 10px; font-size: 12px; }
+.bookCategories { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 8px 10px; }
+.bookCategories button { min-height: 44px; padding: 6px 9px; color: #e9dbb9; font-size: 12px; background: #3e3224; border: 1px solid #af976d; }
+.bookCategories button[aria-pressed='true'] { background: #ede1bd; color: #382c1d; }
+.bookCategories span { margin-left: 5px; font-variant-numeric: tabular-nums; opacity: .8; }
+.spread { display: grid; background: #f3e9cb; position: relative; }
+.index { padding: 10px; display: flex; gap: 6px; overflow-x: auto; overscroll-behavior: contain; border-bottom: 1px solid #c8b58e; scrollbar-width: thin; background: #e8d9b5; }
+.index button { min-width: 90px; flex-shrink: 0; max-width: 180px; min-height: 44px; display: flex; align-items: center; gap: 6px; text-align: left; padding: 7px; border: 1px solid #baa67e; color: #4a3b29; background: #f4ebd1; font-size: 12px; line-height: 1.5; }
+.index button[aria-pressed='true'] { border-color: #456147; background: #456147; color: #faf2d6; }
+.leaf { padding: 20px 20px 12px 26px; min-height: 260px; position: relative; background: repeating-linear-gradient(0deg, transparent, transparent 27px,#9b926917 27px,#9b926917 28px); }
+.leaf::before { content: ''; position: absolute; top: 0; bottom: 0; left: 12px; border-left: 1px solid #b7786240; }
+.leafHeading { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 2px solid #b8a27c; }
+.leafHeading h4 { font-size: 16px; font-weight: 600; line-height: 1.6; }
+.leafBody { font-size: 13px; line-height: 1.9; overflow-wrap: anywhere; }
+.leafBody p + p { margin-top: 12px; }
+.leafBody h5 { margin: 18px 0 8px; font-size: 13px; font-weight: 600; }
+.bookSearch { display: flex; align-items: center; gap: 10px; padding: 8px 14px; background: #e6d8ae; color: #4a3b29; font-size: 12px; }
+.bookSearch input { min-width: 0; flex: 1; min-height: 44px; padding: 6px 10px; background: #f6edd6; border: 1px solid #ab966d; color: #302a20; }
+.indexPager { display: flex; flex-shrink: 0; min-width: 150px; gap: 6px; align-items: center; justify-content: space-between; font-size: 11px; padding-top: 8px; }
+.index .indexPager button { min-width: 44px; width: 44px; }
+.indexPager button:disabled { opacity: .4; }
+.leafBody small { font-size: 12px; color: #69553b; }
+.bookFoot { display: flex; gap: 8px; align-items: center; justify-content: space-between; margin-top: 20px; padding-top: 10px; border-top: 1px solid #c8b58e; }
+.bookFoot button { padding: 6px 8px; min-height: 44px; font-size: 12px; color: #4a3b29; border: 1px solid #b8a27c; background: #f4ebd1; }
+.bookFoot button:disabled { opacity: .4; }
+.bookFoot span { font-size: 12px; font-variant-numeric: tabular-nums; color: #69553b; }
+.turn { animation: town-leaf-turn 180ms ease-out; transform-origin: left center; }
+@keyframes town-leaf-turn { from { opacity: .5; transform: perspective(700px) rotateY(-7deg); } to { opacity: 1; transform: none; } }
+@container town-book (min-width: 460px) {
+  .spread { grid-template-columns: minmax(150px,.8fr) minmax(0,1.4fr); }
+  .index { display: flex; flex-direction: column; overflow-y: auto; max-height: 350px; border-bottom: 0; border-right: 8px solid #c7b58f; box-shadow: inset -5px 0 8px #58452c18; padding: 14px; }
+  .index button { min-width: 0; max-width: none; width: 100%; }
+  .leaf { box-shadow: inset 7px 0 8px #58452c12; }
+}
+@media (prefers-reduced-motion: reduce) { .turn { animation: none; } }
+@media (max-width: 480px) { .bookCategories { flex-wrap: nowrap; overflow-x: auto; } .bookCategories button { flex-shrink: 0; white-space: nowrap; } }
+:global([data-still]) .turn { animation: none; }
+@media (max-height: 600px) { .panel { max-height: 78dvh; } .leaf { min-height: 180px; } }

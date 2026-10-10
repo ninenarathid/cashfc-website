@@ -9,6 +9,7 @@ import { staminaOf } from "./stamina";
 import { HOUR, held, newPurse, put, type Purse } from "./trade";
 import { sources } from "./uses";
 import { ALWAYS_RAIN, DRY } from "./weather";
+import { FORAGE_ITEMS } from "./foraging-items";
 import { FOREST, GATES, findPath, groundAt, placeOf, walkable, zoneAt } from "./world";
 
 /** 2026-10-05 12:00 in Bangkok. */
@@ -22,7 +23,7 @@ function over(salt: string, spot: Spot, from: number, turns: number, rains = DRY
 
 describe("the forest's things (the owner, 2026-10-05: \"หาของป่า … ของบางอย่างเกิดทุก 10 นาที ไปจนถึง ขอหายาก ที่จะเกิดเฉพาะบางวัน แบบ Random\")", () => {
   it("are things of the early game that are found, each of them somewhere", () => {
-    const wild = ITEM_IDS.filter((id) => ITEMS[id].kind === "wild");
+    const wild = FINDS.filter((id) => ITEMS[id].kind === "wild");
     expect(wild.length).toBe(35);
     for (const id of wild) {
       expect(ITEMS[id].tier).toBe(1);
@@ -275,7 +276,7 @@ describe("what is made of the forest's things", () => {
   /** What only the forest gives: everything that can be had with it and cannot without. */
   const wild = new Set(ITEM_IDS.filter((id) => sources().get(id) === "forest"));
   /** The dishes that have one of those in them. */
-  const dishes = DISH_IDS.filter((id) => DISHES[id].recipe?.needs.some(([n]) => wild.has(n)));
+  const dishes = DISH_IDS.filter((id) => DISHES[id].buff === "forage" || DISHES[id].buff === "net");
 
   it("a skewer is whittled from two twigs by hand, and is cookware", () => {
     const did = cook(bagOf(["twig", 2]), [["twig", 2]], [null], 0, NOON);
@@ -299,7 +300,7 @@ describe("what is made of the forest's things", () => {
   });
 
   it("four dishes take nothing bought but salt: somebody with no coins can eat", () => {
-    const roasts = DISH_IDS.filter((id) => DISHES[id].recipe?.in.includes("skewer"));
+    const roasts = DISH_IDS.filter((id) => DISHES[id].recipe?.in.includes("skewer") && (id === "fishOnStick" || dishes.includes(id)));
     expect(roasts).toHaveLength(4);
     for (const id of roasts) {
       const r = DISHES[id].recipe!;

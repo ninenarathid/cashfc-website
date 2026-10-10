@@ -1,4 +1,6 @@
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
+import { INSECT_SPECIES, type InsectSpeciesId } from "./insect-items";
+import { scentMods } from "./insect-garden";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import { luckOf, netFx, partOf, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
@@ -56,7 +58,7 @@ import { CAMP, COLS, FARM, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, 
 export type Habit = "path" | "spot" | "behind" | "sound" | "look" | "lamp" | "lure" | "crawl";
 /** What a haunt is. */
 export type HauntKind = "blooms" | "water" | "field" | "lamp" | "tree" | "litter" | "glade" | "falls";
-export type BugId =
+export type BugId = InsectSpeciesId
   | "butterflyWhite" | "monarch" | "morpho" | "dragonfly" | "damselfly" | "glassDragonfly" | "grasshopper" | "mantis" | "cricket" | "cicada"
   | "stickInsect" | "leafInsect" | "firefly" | "orchidMantis" | "moth" | "lunaMoth" | "hawkMoth"
   | "rhinoBeetle" | "stagBeetle" | "jewelBeetle" | "herculesBeetle" | "ladybird" | "scarab" | "caterpillar";
@@ -145,6 +147,7 @@ export const BUGS: Record<BugId, Bug> = {
   ladybird: { habit: "crawl", at: ["field", "blooms"], weight: 13, n: [1, 1], cost: 1, size: 1, hours: DAYTIME, dry: true, rids: 0.1 },
   scarab: { habit: "crawl", at: ["field"], weight: 30, n: [1, 1], cost: 1, size: 1, places: ["farm"], hours: DAYTIME },
   caterpillar: { habit: "crawl", at: ["litter", "blooms"], weight: 45, n: [1, 1], cost: 1, size: 1, places: ["forest"], hours: DAYTIME },
+  ...INSECT_SPECIES,
 };
 export const BUG_IDS = Object.keys(BUGS) as BugId[];
 export const isBug = (id: string | null | undefined): id is BugId => !!id && id in BUGS;
@@ -237,7 +240,7 @@ export const NET = {
 /** What catches an insect, held in the hand. */
 export const NETS: ItemId[] = ["bugNet"];
 /** What brings a beetle down its tree, held in the hand of somebody standing still under it. */
-export const LURES: ItemId[] = ["resin", "wildApple"];
+export const LURES: ItemId[] = ["resin", "wildApple", "nectarVial"];
 export const mayNet = (hand: ItemId | null) => !!hand && NETS.includes(hand);
 
 /* ── the haunts ─────────────────────────────────────────────────────────── */
@@ -497,7 +500,7 @@ export function farmBugs(salt: string, now: number, rains: readonly Rain[], took
   for (const h of HAUNTS) {
     if (h.place !== "farm") continue;
     const out = has(h);
-    if (!out || FARMING.rids[out.bug] !== undefined || took(h, out.turn) >= HAUNT_KINDS[h.kind].shares) continue;
+    if (!out || out.bug in INSECT_SPECIES || FARMING.rids[out.bug] !== undefined || took(h, out.turn) >= HAUNT_KINDS[h.kind].shares) continue;
     n++;
   }
   return n;
@@ -716,7 +719,7 @@ export function netMine(purse: Purse, which: Mine, hand: ItemId | null, at: read
  */
 export function pestToRid(plots: Readonly<Record<string, Plot>>, now: number, rains: FarmSky, pick: number): string | null {
   const at = (key: string) => key.split(",").map(Number);
-  const keys = Object.keys(plots).filter((key) => see(key, plots[key], now, rains).pest)
+  const keys = Object.keys(plots).filter((key) => (!plots[key].plant?.root || plots[key].plant?.root === key) && see(key, plots[key], now, rains).pest)
     .sort((a, b) => at(a)[0] - at(b)[0] || at(a)[1] - at(b)[1]);
   if (!keys.length) return null;
   return keys[Math.min(keys.length - 1, Math.max(0, Math.floor(pick * keys.length)))];
@@ -762,7 +765,7 @@ const sensed = (reach: number, p: Person, id: BugId) => reach * (p.soft ?? 1) * 
  * multiplies whatever else there is (a third with that meal). Whoever comes at an insect the wrong way for its kind,
  * within what is left, sets it off all the same.
  */
-export const stealthOf = (purse: Purse, now: number): number => softStep(buffBy(purse, now, "net")) * Math.min(1, Math.max(0, famBy(purse, "famButterfly", 1)));
+export const stealthOf = (purse: Purse, now: number): number => softStep(buffBy(purse, now, "net")) * Math.min(1, Math.max(0, famBy(purse, "famButterfly", 1))) * scentMods(purse, now).soft;
 /**
  * A rare insect does not stay (the owner's ladder of 2026-10-07: "a rare insect moves perch every 20 s"): one that
  * would sit at its perch for good (among what it looks like, up its tree, where it sings or looks about) is at

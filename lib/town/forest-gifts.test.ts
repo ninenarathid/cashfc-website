@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { FORAGE_ITEMS } from "./foraging-items";
+import { STREAM_ITEMS } from "./stream-items";
 import { CATCHING, startShower } from "./catching";
 import { CHOOSING, dimmed, startBunch } from "./choosing";
 import { DIGGING, dug, dugUp, startDig, strike } from "./digging";
@@ -393,7 +395,7 @@ describe("good things are harder for the skilled (from the forest's fourth rank,
     for (const id of ["chanterelle", "porcini", "glowMushroom", "silkCocoon", "bambooShoot", "wildYam"] as ItemId[]) expect(wildTier(id), id).toBe("uncommon");
     for (const id of ["fourLeafClover", "truffle", "ginseng", "amber", "mandrake", "wildOrchid", "moonflower", "starShard"] as ItemId[]) expect(wildTier(id), id).toBe("rare");
     // (every thing the forest gives is one of the three, and most of them are common)
-    const wild = ITEM_IDS.filter((id) => ITEMS[id].kind === "wild");
+    const wild = ITEM_IDS.filter((id) => ITEMS[id].kind === "wild" && !Object.hasOwn(FORAGE_ITEMS, id) && !Object.hasOwn(STREAM_ITEMS, id));
     expect(wild.filter((id) => wildTier(id) === "common").length).toBeGreaterThan(wild.length / 2);
   });
 

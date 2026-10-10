@@ -1,9 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CHARMS, USES, dueOf, giftOf, usesLeft, type CharmId, type FamiliarId, type Gift, type Gifts, type ThingId } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
 import { ALL_LINE_IDS, LINES, type LinesTold } from "@/lib/town/lines";
+import type { ComboCue } from "@/lib/town/combo-types";
+import TownComboFx from "./TownComboFx";
+import TownComboBook from "./TownComboBook";
 import TownIcon, { type IconName } from "./TownIcon";
 
 const CREAM = "#ffeccb", CREAM_SOFT = "#e9cfa4", HOLLOW = "#3a2513", GOLD = "#f0c060";
@@ -26,6 +29,9 @@ const PAPER = "#f0dfb6", PAPER_EDGE = "#d9bf85", INK = "#4a3520", INK_SOFT = "#7
  * A panel of the lines' board (TownLines), on its wood. With the keeper busy nothing is pressed twice.
  */
 export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Keeper; told: LinesTold; gifts: Gifts; given: readonly string[]; th: boolean }) {
+  const [cue,setCue]=useState<ComboCue | undefined>();
+  const loadoutKey = `${gifts.charms.slice().sort().join(",")}:${gifts.familiar ?? ""}`;
+  useEffect(() => { let gone=false; setCue(undefined); void keeper.comboPrepare?.("wear").then(d => { if(!gone && d.ok) setCue(d.cue); }); return () => { gone=true; }; },[keeper,loadoutKey]);
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
   const points = Object.fromEntries(ALL_LINE_IDS.map((id) => [id, told.lines[id].points]));
@@ -58,6 +64,8 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
         [data-town-lines][data-still] .tm-in, [data-town-lines][data-still] .tm-glint { animation: none }
       `}</style>
 
+      {cue && <div className="mb-2"><TownComboFx cue={cue} th={th} quiet /></div>}
+      <TownComboBook purse={keeper.purse()} th={th} />
       {/* ── what waits to be taken ── */}
       {due.length > 0 && (
         <section className="mb-2 rounded-[4px] border-[3px] px-3 py-2" style={{ borderColor: GOLD, backgroundColor: "#5a3a1c" }} aria-label={th ? "ของที่รอรับ" : "Waiting to be taken"}>

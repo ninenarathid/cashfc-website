@@ -126,6 +126,9 @@ export function countsOf(d: Done, doer: string): Counts[] {
     return [];
   }
   switch (d.what) {
+    case "camp_prepare":
+      return typeof d.doc.owner==="string"&&d.doc.owner!==doer
+        ?[{to:d.doc.owner,line:"helpers",raw:POINTS.helpers.water,held:{key:`camp:${doer}`,most:3}}]:[];
     case "ladle":
       // (out of somebody else's pot: a point to whoever set it down)
       return typeof d.doc.whose === "string" && d.doc.whose !== doer

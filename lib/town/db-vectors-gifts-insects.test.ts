@@ -225,7 +225,7 @@ describe("the cases the database's rules of the insects' gifts are held to", () 
     // the cloak's own insects: each of the six that have days of their own, never on a day of its own, and mostly nothing
     const cloaks = of("cloak_at").map((v) => ({ h: v.args[0] as number, now: v.args[1] as number, sw: v.want as (Swarm & { until: number }) | null }));
     expect(cloaks.length).toBeGreaterThan(1500);
-    expect(new Set(cloaks.filter((x) => x.sw).map((x) => x.sw!.bug))).toEqual(new Set(["monarch", "morpho", "glassDragonfly", "hawkMoth", "jewelBeetle", "herculesBeetle"]));
+    expect(new Set(cloaks.filter((x) => x.sw).map((x) => x.sw!.bug))).toEqual(new Set(["monarch", "morpho", "glassDragonfly", "hawkMoth", "jewelBeetle", "herculesBeetle", "silkMoth"]));
     for (const x of cloaks) if (x.sw) { expect(x.sw.cloak).toBe(true); expect(BUGS[x.sw.bug].day).toBeGreaterThan(0); expect(swarmAt(WORD, HAUNTS[x.h], x.now, DRY)?.bug).not.toBe(x.sw.bug); }
     expect(cloaks.filter((x) => !x.sw).length).toBeGreaterThan(cloaks.length / 2);
     // (a nectar drop of somebody who wears it: one of them came that has days of its own)

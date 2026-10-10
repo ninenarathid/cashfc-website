@@ -118,6 +118,8 @@ export interface FellTree { id: number; girth: Girth; timber: readonly number[] 
 export interface Felling { trees: FellTree[]; chops: number; branches: Branch[]; girth: Girth; family: Family; pace: number; ahead: number; spared: number; most: number; spent: boolean }
 /** What a game is made from: its trees; the trunk (the chops it takes, the seed it is made from, its girth and its family); and what the hand and its axe make of it. */
 export interface FellingAsk {
+  /** Present only when the keeper supports judging the grain choices. */
+  grain?: { tree: number; hints: number; direction: boolean; buffered: boolean };
   trees: FellTree[];
   chops: number; seed: number; girth: Girth; family: Family;
   /** How many segments up a branch is seen, before tired hands are counted; and how fast the bar runs (so many times its plain pace), all told. */

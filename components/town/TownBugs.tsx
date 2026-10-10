@@ -6,6 +6,7 @@ import {
   type BugId, type BugSight, type Haunt, type Lured, type Mind, type Person, type Pose,
 } from "@/lib/town/insects";
 import { ridWords } from "@/lib/town/farm";
+import { insectCareMode, scentMods } from "@/lib/town/insect-garden";
 import { missesWith, netFx, partOf, slowPartOf } from "@/lib/town/forged";
 import { optN } from "@/lib/town/tools";
 import { powerLeft } from "@/lib/town/powers";
@@ -321,8 +322,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   }, [fluteWait]);
   // ── forging: old tools ── (what the net in my hand carries of its own, as the catching reads it: lib/town/forged. A plain net: nothing.)
   const fx = netFx(mayNet(hand) ? heldStack(purse, keeper.handSlot()) : null);
-  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id, fx });
-  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, wind, lured: luredKept.current, me: keeper.id, fx };
+  const route = scentMods(purse, keeper.now()).route;
+  const live = useRef({ hand, spent, busy, th, name, soft, flutter, wary, sees, wind, route, lured: luredKept.current, me: keeper.id, fx });
+  live.current = { hand, spent, busy, th, name, soft, flutter, wary, sees, wind, route, lured: luredKept.current, me: keeper.id, fx };
   useEffect(() => {
     if (!luredUntil) return;
     // (it is off again at its time: said once, where I had not caught it; and the belt is looked at afresh)
@@ -437,6 +439,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             // (one that eats pests: how it is used, said each time one is caught)
             const how = did.got.map(([item]) => howTo(item, live.current.th)).find((line) => !!line);
             if (how) setTip(how);
+            else if (insectCareMode(sight.bug)) setTip(live.current.th ? "ลองถือตัวนี้ไปเยี่ยมต้นในสวน หรือเก็บไว้ใช้ต่อ" : "Try holding this visitor beside a garden plant, or keep it for later.");
             sfx?.wake();
             sfx?.work("netted");
             if (did.got.length) vfx.add("pop", where, { icon: iconOf(did.got[0][0]) });
@@ -553,13 +556,19 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         if (holding && onScreen(at)) frame.over?.(() => drawHeld(ctx, at.x, at.y - pose.lift * TILE_H * s, s, (fz!.until - now) / Math.max(1, fz!.until - fz!.from), now, still));
         // heard: off in a fright from somebody; and what sings, over and over, softer from further off
         const away = frame.self ? far(frame.self, pose) : 99;
+        if (live.current.route && mayNet(live.current.hand) && away < 7 && pose.seen && !dozing && !holding) {
+          // The dotted trace predicts undisturbed movement, not a guaranteed catch.
+          const dots = [300, 600, 900].map(ms => poseOf(sight.bug, h, sight.seed, kept.mind, tick + ms)).map(p => project({ x: p.x, y: p.y }));
+          frame.over?.(() => { const px = Math.max(2, Math.round(2 * s)); ctx.fillStyle = "#d6e7a4"; for (let i = 0; i < dots.length; i++) { ctx.globalAlpha = 0.55 - i * 0.12; ctx.fillRect(Math.round(dots[i].x), Math.round(dots[i].y - pose.lift * TILE_H * s), px, px); } ctx.globalAlpha = 1; });
+        }
         if (kept.mind.visit !== before.visit && bug.habit !== "spot" && away < 9) sfx?.work("flit", Math.max(0.15, 1 - away / 9) * 0.6);
         if (pose.sings && away < 11 && now - (sang.current.get(h.id) ?? 0) > (bug.shy === "flight" ? 1100 : 620)) {
           sang.current.set(h.id, now);
           sfx?.work(bug.shy === "flight" ? "cicada" : "chirp", Math.max(0.06, 1 - away / 11) ** 1.6);
         }
         poses.current.set(h.id, { sight, pose, h, on: onScreen(at) });
-        const k = SIZE * s, icon = iconFor(iconOf(sight.bug)), mind = kept.mind;
+        const flyingIcon = `fly${sight.bug[0].toUpperCase()}${sight.bug.slice(1)}`;
+        const k = SIZE * s, icon = (pose.flying ? iconFor(flyingIcon) : null) ?? iconFor(iconOf(sight.bug)), mind = kept.mind;
         if (dozing && onScreen(at)) frame.over?.(() => drawSleep(ctx, at.x, at.y - pose.lift * TILE_H * s, s, now, still, h.id));
         // the net's silver glint over it, whether it shows itself or not; one off the screen is pointed to from the edge
         // ── forging: old tools ── (and with light in the net in my hand, over every insect within so many tiles of me)

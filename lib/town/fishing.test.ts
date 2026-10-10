@@ -11,9 +11,9 @@ import { held, newPurse, put, type Purse } from "./trade";
 
 const share = (odds: Array<{ what: CatchId; p: number }>, what: CatchId) => odds.find((o) => o.what === what)?.p ?? 0;
 /** What takes a bait at an hour where a fish lives, under the sky it bites under, with what it waits for: its own water. */
-const home = (id: FishId, bait: BaitId, hour: number) => oddsOf(bait, hour, (FISH[id].dry ?? 1) === 0, false, FISH[id].water === "bank", FISH[id].needs ?? []);
+const home = (id: FishId, bait: BaitId, hour: number) => oddsOf(bait, hour, (FISH[id].dry ?? 1) === 0, false, FISH[id].water === "bank", FISH[id].needs ?? [], FISH[id].habitat?.[0] ?? "town", FISH[id].current?.[0] ?? "eddy");
 /** The early game's twelve fish (the later tiers' are tried in tiers.test.ts). */
-const EARLY = FISH_IDS.filter((id) => ITEMS[id].tier === 1);
+const EARLY = FISH_IDS.filter((id) => ITEMS[id].tier === 1 && !FISH[id].habitat);
 /** A hand with no delay at all: reels below the middle of the safe stretch, and keeps low in it while the fish surges. */
 const steady = (f: Fight) => f.tension < f.lo + (f.hi - f.lo) * (surging(f) || warning(f) ? 0.25 : 0.5);
 /**
@@ -133,9 +133,9 @@ describe("twenty more of the early game's fish (the owner: \"แต่ละป�
       expect(ITEMS[id].tier).toBe(1);
       for (const bait of Object.keys(FISH[id].baits)) expect(ITEMS[bait as BaitId].tier).toBe(1);
     }
-    expect(FISH_IDS.length).toBe(32 + 20);
+    expect(FISH_IDS.filter(id => !FISH[id].habitat).length).toBe(32 + 20);
     // they are weighed after the fish there were, in this order
-    expect(FISH_IDS.slice(-20)).toEqual(NEW);
+    expect(FISH_IDS.filter(id => !FISH[id].habitat).slice(-20)).toEqual(NEW);
   });
 
   it("are each found their own way: no two bite in the same set of casts", () => {
@@ -163,7 +163,7 @@ describe("twenty more of the early game's fish (the owner: \"แต่ละป�
 
   it("wait, five of them, for a sign: the tired, a crowd, the weekend, the rain's end, a full moon", () => {
     const sign: Partial<Record<FishId, Sign>> = { dozyFish: "tired", popotoFish: "crowd", goldfish: "weekend", rainbowFish: "after", moonFish: "full" };
-    for (const id of FISH_IDS) expect(FISH[id].needs).toEqual(sign[id] ? [sign[id]] : undefined);
+    for (const id of FISH_IDS.filter(id => !FISH[id].habitat)) expect(FISH[id].needs).toEqual(sign[id] ? [sign[id]] : undefined);
     for (const [id, s] of Object.entries(sign) as Array<[FishId, Sign]>) {
       expect(bites(id).length).toBeGreaterThan(0);
       expect(bites(id).every((w) => w.signs.includes(s))).toBe(true);
@@ -1036,7 +1036,7 @@ describe("stardust bait (the owner: \"ปลาที่กินเหยื่
     const share = (rain: boolean) => { const odds = starOdds(rain, false, [], 1), wels = odds.find((o) => o.what === "wels")!.p, goby = odds.find((o) => o.what === "goby")!.p; return wels / goby; };
     expect(share(true)).toBeCloseTo(share(false) * 2, 9);
     // the later tiers' fish only once the shelf has reached them
-    for (const id of FISH_IDS) for (const top of [1, 2, 3]) expect(starOdds(false, false, [...ALL_SIGNS], top).some((o) => o.what === id), `${id} at ${top}`).toBe((tier(id) === "rare" || tier(id) === "legend") && ITEMS[id].tier <= top && FISH[id].water !== "bank");
+    for (const id of FISH_IDS) for (const top of [1, 2, 3]) expect(starOdds(false, false, [...ALL_SIGNS], top).some((o) => o.what === id), `${id} at ${top}`).toBe((tier(id) === "rare" || tier(id) === "legend") && ITEMS[id].tier <= top && FISH[id].water !== "bank" && !FISH[id].habitat);
     expect(starOdds(false, false, [], 0)).toEqual([]);
   });
   it("needs a rod and no bait, three a day, by whoever has it", () => {

@@ -1,4 +1,14 @@
 import type { Line } from "./talk";
+import { REGIONAL_ITEMS, REGIONAL_FISH, REGIONAL_DISHES, REGIONAL_SCROLLS, REGIONAL_SCROLL_ITEMS, type RegionalFishId, type RegionalDishId } from "./regional-fish";
+import { PREP_ITEMS, PREP_MAKES, PREP_DISHES, PREP_SCROLLS, PREP_SCROLL_ITEMS, type PrepDishId } from "./preparation-items";
+import { CAMP_ITEMS, CAMP_DISHES, CAMP_SCROLLS, CAMP_SCROLL_ITEMS, type CampDishId } from "./camp-items";
+import { INSECT_ITEMS, INSECT_MAKES, INSECT_DISHES, INSECT_SCROLLS, INSECT_SCROLL_ITEMS, type InsectDishId } from "./insect-items";
+import { FORAGE_ITEMS, FORAGE_MAKES, FORAGE_DISHES, FORAGE_SCROLLS, FORAGE_SCROLL_ITEMS, type ForageDishId } from "./foraging-items";
+import { STREAM_ITEMS, STREAM_MAKES, STREAM_DISHES, STREAM_SCROLLS, STREAM_SCROLL_ITEMS, type StreamDishId } from "./stream-items";
+import { GARDEN_CROPS, GARDEN_DISHES, GARDEN_ITEMS, GARDEN_MAKES, GARDEN_SEED_ITEMS, GARDEN_SCROLL_ITEMS, GARDEN_SCROLLS, type GardenCropId, type GardenDishId } from "./garden-items";
+import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
+import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
+import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
 
 /**
  * Everything that can be in a bag in Cash Town (the owner, 2026-10-03:
@@ -638,6 +648,27 @@ export const ITEMS = {
   gemDiamond: it("mineral", "เพชร", "Diamond", "พลอยใสไร้สี เจียระไนหลายเหลี่ยม สว่างจ้าแม้อยู่ในร่ม", "A colourless, many-faceted stone, bright even in the shade", 20, 0),
   gemOnyx: it("mineral", "นิล", "Onyx", "พลอยสีดำสนิท ขัดมน เหมือนดูดแสงรอบตัวเข้าไป", "A jet-black stone polished smooth, that seems to drink the light about it", 20, 0),
   torch: it("goods", "คบไฟ", "Torch", "ท่อนไม้ ปลายพันผ้าชุบยางไม้", "A length of wood with a resin-soaked rag bound round its end", 10, 0),
+  ...RIVER_ITEMS,
+  ...REGIONAL_ITEMS,
+  ...INSECT_ITEMS,
+  ...FORAGE_ITEMS,
+  ...STREAM_ITEMS,
+  ...PREP_ITEMS,
+  ...PREP_SCROLL_ITEMS,
+  ...CAMP_ITEMS,
+  ...CAMP_SCROLL_ITEMS,
+  ...STREAM_SCROLL_ITEMS,
+  ...FORAGE_SCROLL_ITEMS,
+  ...INSECT_SCROLL_ITEMS,
+  ...WOOD_ITEMS,
+  ...GARDEN_ITEMS,
+  ...GARDEN_SEED_ITEMS,
+  ...GARDEN_SCROLL_ITEMS,
+  ...WOOD_SCROLL_ITEMS,
+  ...GEOLOGY_ITEMS,
+  ...GEOLOGY_SCROLL_ITEMS,
+  ...RIVER_SCROLL_ITEMS,
+  ...REGIONAL_SCROLL_ITEMS,
 } satisfies Record<string, Item>;
 
 export type ItemId = keyof typeof ITEMS;
@@ -653,6 +684,16 @@ export const ITEM_IDS = Object.keys(ITEMS) as ItemId[];
  * found by guessing: nobody had found it, and nobody could have (see MAKES). The uncle sells it from the first day.
  */
 export const SCROLLS: Partial<Record<ItemId, ItemId>> = {
+  ...REGIONAL_SCROLLS,
+  ...WOOD_SCROLLS,
+  ...INSECT_SCROLLS,
+  ...FORAGE_SCROLLS,
+  ...STREAM_SCROLLS,
+  ...PREP_SCROLLS,
+  ...CAMP_SCROLLS,
+  ...GARDEN_SCROLLS,
+  ...GEOLOGY_SCROLLS,
+  ...RIVER_SCROLLS,
   scrollPestCure: "pestCure",
   scrollFriedMinnow: "friedMinnow", scrollGrilledFish: "grilledFish", scrollGrilledCorn: "grilledCorn", scrollRoastSweetPotato: "roastSweetPotato", scrollStirKangkong: "stirKangkong", scrollBasilCatfish: "basilCatfish",
   scrollTomYum: "tomYum", scrollSourCurry: "sourCurry", scrollFriedPerch: "friedPerch", scrollFishCake: "fishCake", scrollSpicyEel: "spicyEel", scrollGrilledPrawn: "grilledPrawn",
@@ -686,9 +727,9 @@ export const potIconOf = (dish: DishId): string => `pot${dish[0].toUpperCase()}$
  * eggs, a carved fish, a fermented ball). The fish of a later tier take only that tier's baits or later ones, so
  * the early game's water has only the early game's fish in it.
  */
-export type BaitId = "worm" | "dough" | "minnow" | "corn" | "loach" | "cricket" | "branBait" | "shrimpLive" | "antEggs" | "lure" | "fermentedBait"
+export type BaitId = "shadeLure" | "worm" | "dough" | "minnow" | "corn" | "loach" | "cricket" | "branBait" | "shrimpLive" | "antEggs" | "lure" | "fermentedBait"
   | "caterpillar" | "moth" | "dragonfly" | "grasshopper";
-export const BAITS: BaitId[] = ["worm", "dough", "minnow", "corn", "loach", "cricket", "branBait", "shrimpLive", "antEggs", "lure", "fermentedBait",
+export const BAITS: BaitId[] = ["shadeLure", "worm", "dough", "minnow", "corn", "loach", "cricket", "branBait", "shrimpLive", "antEggs", "lure", "fermentedBait",
   "caterpillar", "moth", "dragonfly", "grasshopper"];
 /**
  * Four insects go on a hook (lib/town/insects), each as a bait there already is does: whatever takes that takes the
@@ -699,8 +740,8 @@ export const BAITS: BaitId[] = ["worm", "dough", "minnow", "corn", "loach", "cri
  */
 export const BAIT_AS: Partial<Record<BaitId, BaitId>> = { caterpillar: "worm", moth: "dough", dragonfly: "minnow", grasshopper: "cricket" };
 /** Baits that are not eaten: they come back with the line, and are lost only when the line snaps. */
-export const KEPT_BAITS: BaitId[] = ["lure"];
-export type FishId =
+export const KEPT_BAITS: BaitId[] = ["lure", "shadeLure"];
+export type FishId = RegionalFishId | RiverFishId
   | "minnow" | "barb" | "tilapia" | "perch" | "catfish" | "pangasius" | "snakehead" | "eel" | "prawn" | "featherback" | "goby" | "koi"
   | "gourami" | "crab" | "snail" | "hampala" | "sheatfish" | "bagrid" | "giantGourami" | "frog" | "tigerfish" | "wallago"
   | "croaker" | "blackEar" | "spinyEel" | "puffer" | "goldenCarp" | "giantSnakehead" | "royalFeatherback" | "arowana" | "stingray" | "megaCatfish"
@@ -722,6 +763,9 @@ export type Sign = "tired" | "crowd" | "weekend" | "after" | "full";
 export type FightStyle = "steady" | "darter" | "leaper" | "slippery" | "sleeper";
 
 export interface Fish {
+  /** New waters have their own fish; old fish keep to the town. */
+  habitat?: FishingHabitat[];
+  current?: Current[];
   tier: Tier;
   /** How readily it takes each bait: 1 is its favourite, and one it is not listed for it never takes. */
   baits: Partial<Record<BaitId, number>>;
@@ -882,6 +926,8 @@ export const FISH: Record<FishId, Fish> = {
     fight: { style: "darter", band: 0.19, pull: 0.08, surge: 0.36, every: [1.4, 2.6], line: 0.6, effort: 2, sway: 0.18, pace: 0.15 } },
   moonFish: { tier: "rare", baits: { dough: 1, worm: 0.6 }, hours: [[19, 24], [0, 5]], rain: 1, needs: ["full"], wait: [18, 75], size: [20, 40],
     fight: { style: "slippery", band: 0.145, pull: 0.12, surge: 0.5, every: [2, 3.6], line: 1, effort: 7, sway: 0.3, pace: 0.16 } },
+  ...RIVER_FISH,
+  ...REGIONAL_FISH,
 };
 export const FISH_IDS = Object.keys(FISH) as FishId[];
 /** How often each tier bites beside the others, before the bait, the hour and the rain are counted. */
@@ -909,6 +955,7 @@ for (const [bug, as] of Object.entries(BAIT_AS) as Array<[BaitId, BaitId]>) {
 /* ── vegetables ─────────────────────────────────────────────────────────── */
 
 export type CropId =
+  | GardenCropId
   | "kangkong" | "scallion" | "cabbage" | "carrot" | "daikon" | "corn" | "chili" | "tomato" | "basil" | "sweetPotato" | "garlic" | "pumpkin"
   | "eggplant" | "cucumber" | "longBean" | "lemongrass" | "galangal" | "lime" | "papaya"
   | "mango" | "banana" | "coconut" | "ginger" | "turmeric" | "taro" | "watermelon";
@@ -938,6 +985,7 @@ export interface Crop {
   picks?: number;
 }
 export const CROPS: Record<CropId, Crop> = {
+  ...GARDEN_CROPS,
   kangkong: { seed: "seedKangkong", hours: 6, yield: [4, 6], again: 12, picks: 3 },
   scallion: { seed: "seedScallion", hours: 8, yield: [4, 6], again: 12, picks: 3 },
   cabbage: { seed: "seedCabbage", hours: 24, yield: [2, 2] },
@@ -1008,7 +1056,7 @@ export const growIconOf = (crop: CropId, stage: number): string =>
 
 /* ── dishes ─────────────────────────────────────────────────────────────── */
 
-export type BuffId = "calm" | "keen" | "lucky" | "hearty" | "green";
+export type BuffId = "calm" | "keen" | "lucky" | "hearty" | "green" | "current" | "grain" | "layers" | "pollen" | "scent" | "traces" | "waterProperty" | "seasoning" | "campPreparation";
 /** What a meal may leave: one of the five, or one of the forest's two (lib/town/forest-eye), which the fountain blesses with as well. */
 export type MealBuffId = BuffId | "forage" | "net";
 /**
@@ -1017,6 +1065,15 @@ export type MealBuffId = BuffId | "forage" | "net";
  * that reads it understands it.
  */
 export const BUFFS: Record<BuffId, { name: Line; about: Line; icon: string; by: number }> = {
+  seasoning:{name:{th:"ชิมแล้วปรับ",en:"Taste and adjust"},about:{th:"แก้การเตรียมอาหารได้หนึ่งครั้งต่อรอบ",en:"Correct a preparation once per round"},icon:"buffSeasoning",by:1},
+  campPreparation:{name:{th:"เตรียมตัวที่ค่าย",en:"Camp preparation"},about:{th:"ประโยชน์ที่เลือกจากค่ายอยู่ได้นานขึ้น",en:"A chosen camp benefit lasts longer"},icon:"buffCampPreparation",by:1.5},
+  waterProperty: { name: { th: "รักษาคุณน้ำ", en: "Preserve water properties" }, about: { th: "น้ำที่เตรียมไว้คงคุณสมบัติในบ่อได้นานขึ้น", en: "Prepared water keeps its nature in the well longer" }, icon: "buffWaterProperty", by: 1.5 },
+  traces: { name:{th:"อ่านร่องรอยป่า",en:"Read forest traces"},about:{th:"มองเห็นร่องรอยส่วนที่เก็บได้ แต่ยังต้องเลือกเก็บและลงมือเอง",en:"Recognize harvestable plant parts while choosing and gathering them yourself"},icon:"buffTraces",by:1 },
+  scent: { name: { th: "กลมกลืนกับกลิ่นสวน", en: "Blend with garden scents" }, about: { th: "แมลงรู้ตัวช้าลง และมองเห็นช่วงทางบินที่กำลังจะผ่าน", en: "Insects notice you from closer by, and their approaching route becomes visible" }, icon: "buffScent", by: 0.15 },
+  pollen: { name: { th: "รู้คู่เกสร", en: "Read pollen partners" }, about: { th: "เห็นว่าพืชที่โตข้างกันผสมเป็นพันธุ์ใดได้", en: "See which ripe neighbours can produce a new garden seed" }, icon: "buffPollen", by: 1 },
+  grain: { name: { th: "สัมผัสลายไม้", en: "Sense the grain" }, about: { th: "เห็นแนวเสี้ยนที่เหมาะกับรอยบากก่อนลงขวาน", en: "See suitable grain lines before making the notches" }, icon: "buffGrain", by: 1 },
+  layers: { name: { th: "ฟังชั้นหิน", en: "Hear the rock layers" }, about: { th: "แยกเสียงสะท้อนที่พาไปตามชั้นแร่", en: "Distinguish echoes along the mineral seam" }, icon: "buffLayers", by: 1 },
+  current: { name: { th: "อ่านสายน้ำ", en: "Read the current" }, about: { th: "เห็นลักษณะกระแสน้ำก่อนหย่อนเบ็ด และเห็นสัญญาณปลากระชากก่อนถึงจังหวะ", en: "Read the current before casting and see a fish's surge before it arrives" }, icon: "buffCurrent", by: 1 },
   calm: { name: { th: "มือนิ่ง", en: "Steady hands" }, about: { th: "งานที่ต้องประคองมือง่ายขึ้น: สู้ปลา คนหม้อ เทน้ำ ย่าง", en: "What is held steady is easier: a fish fought, a pot stirred, water poured, a roast" }, icon: "buffCalm", by: 0.2 },
   keen: { name: { th: "ตาไว", en: "Keen eye" }, about: { th: "งานที่ต้องจับจังหวะง่ายขึ้น: ตวัดเบ็ด ฟันจอบ ถอนหญ้า", en: "What is timed is easier: the strike, the hoe, the weeding" }, icon: "buffKeen", by: 0.5 },
   lucky: { name: { th: "โชคดี", en: "Lucky" }, about: { th: "ปลาหายากกินเบ็ดบ่อยขึ้น", en: "Rare fish bite more often" }, icon: "buffLucky", by: 0.5 },
@@ -1036,13 +1093,21 @@ export const BUFF_HOURS = 3;
  */
 export const BUFF_LEVELS = 4;
 export const BUFF_STEPS: Record<MealBuffId, [number, number, number, number]> = {
+  seasoning:[1,1,1,1],campPreparation:[1.5,1.75,2,2],
+  waterProperty: [1.5, 1.75, 2, 2],
+  traces: [1,1,1,1],
+  scent: [0.15, 0.2, 0.25, 0.3],
+  pollen: [1, 1, 1, 1],
+  grain: [1, 1, 1, 1],
+  layers: [1, 1, 1, 1],
+  current: [1, 1, 1, 1],
   calm: [0.2, 0.6, 1.2, 2], keen: [0.5, 1, 1.5, 2], lucky: [0.5, 1, 1.5, 2], green: [0.5, 1, 1.5, 2], hearty: [0.3, 0.45, 0.55, 0.67],
   forage: [1, 2, 2, 3], net: [0.5, 1, 1.5, 2],
 };
 /** How much a buff does at a level: nothing at none, and no more past the fourth. */
 export const byOf = (id: MealBuffId, level: number): number => (level >= 1 ? BUFF_STEPS[id][Math.min(BUFF_LEVELS, Math.floor(level)) - 1] : 0);
 
-export type DishId =
+export type DishId = RegionalDishId | PrepDishId | CampDishId | ForageDishId | RiverDishId | WoodDishId | GeologyDishId | GardenDishId | InsectDishId | StreamDishId
   | "riceBox" | "oddDish" | "friedMinnow" | "grilledFish" | "grilledCorn" | "roastSweetPotato" | "stirKangkong" | "basilCatfish" | "tomYum" | "sourCurry" | "friedPerch" | "fishCake" | "spicyEel" | "grilledPrawn" | "steamedGoby" | "pumpkinSoup" | "shabu"
   | "somTam" | "grilledEggplant" | "tomKha" | "friedGourami" | "crabCurry" | "steamedSheatfish" | "friedFrog" | "laab" | "omelette" | "snailCurry" | "candiedPumpkin" | "friedRice"
   | "greenCurry" | "khanomJeen" | "hoMok" | "mangoStickyRice" | "bananaInCoconut" | "taroPudding" | "steamedCroaker" | "gingerFish" | "turmericFish" | "jungleCurry" | "megaLaab" | "watermelonSlices" | "khantoke" | "naamPrik"
@@ -1051,7 +1116,7 @@ export type DishId =
   | "dozyFish" | "rainbowFish" | "fishChips" | "ukha" | "thieboudienne" | "piranhaSoup" | "crawfishBoil" | "masgouf" | "salmonSteak" | "arapaimaRoast"
   | "mushroomSoup" | "mushroomSkewer" | "fishOnStick" | "roastYam" | "roastedApple" | "mushroomRisotto" | "fernSalad" | "herbTea" | "berryCompote" | "bakedApple" | "roastChestnut" | "forestStew" | "bambooShootStir" | "rosemaryFish" | "ginsengSoup" | "moonTea" | "truffleEggs" | "mushroomOmelette";
 /** What a dish is cooked in: the first three, and the cookware of the later tiers. */
-export type Cookware = "pot" | "pan" | "grill" | "mortar" | "steamer" | "cleaver" | "jar" | "wok" | "potBrass" | "stoveBig" | "panBrass" | "steamerBamboo" | "hotpot"
+export type Cookware = "fermentCrock" | "fieldKettle" | "pot" | "pan" | "grill" | "mortar" | "steamer" | "cleaver" | "jar" | "wok" | "potBrass" | "stoveBig" | "panBrass" | "steamerBamboo" | "hotpot"
   | "rollingPin" | "sushiMat" | "stoneBowl" | "oven"
   // (a twig whittled to a point: what the forest's roasts are made on)
   | "skewer";
@@ -1077,6 +1142,14 @@ export interface Dish {
   recipe?: { needs: Array<[ItemId, number]>; in: Cookware[]; serves: number; cooks: number };
 }
 export const DISHES: Record<DishId, Dish> = {
+  ...INSECT_DISHES,
+  ...FORAGE_DISHES,
+  ...STREAM_DISHES,
+  ...PREP_DISHES,
+  ...CAMP_DISHES,
+  ...WOOD_DISHES,
+  ...GARDEN_DISHES,
+  ...GEOLOGY_DISHES,
   riceBox: { stamina: 15 },
   oddDish: { stamina: 6 },
   friedMinnow: { stamina: 20, buff: "keen", recipe: { needs: [["minnow", 3], ["salt", 1]], in: ["pan"], serves: 2, cooks: 1 } },
@@ -1193,6 +1266,8 @@ export const DISHES: Record<DishId, Dish> = {
   moonTea: { stamina: 30, buff: "net", recipe: { needs: [["chamomile", 1], ["mint", 1], ["moonflower", 1]], in: ["pot"], serves: 4, cooks: 1 } },
   truffleEggs: { stamina: 44, buff: "forage", recipe: { needs: [["egg", 2], ["salt", 1], ["truffle", 1]], in: ["pan"], serves: 3, cooks: 1 } },
   mushroomOmelette: { stamina: 30, buff: "forage", recipe: { needs: [["egg", 2], ["salt", 1], ["chanterelle", 1]], in: ["pan"], serves: 2, cooks: 1 } },
+  ...RIVER_DISHES,
+  ...REGIONAL_DISHES,
 };
 export const DISH_IDS = Object.keys(DISHES) as DishId[];
 export const isDish = (id: ItemId): id is DishId => id in DISHES;
@@ -1211,6 +1286,13 @@ export const inBowl = (id: DishId): boolean => id === "oddDish" || !!DISHES[id].
  */
 export interface Make { needs: Array<[ItemId, number]>; in: Cookware[]; gives: number }
 export const MAKES: Partial<Record<ItemId, Make>> = {
+  ...WOOD_MAKES,
+  ...INSECT_MAKES,
+  ...FORAGE_MAKES,
+  ...STREAM_MAKES,
+  ...PREP_MAKES,
+  ...GARDEN_MAKES,
+  ...GEOLOGY_MAKES,
   // the early game: in a pot, or by hand
   fishSauce: { needs: [["minnow", 4], ["salt", 2]], in: ["pot"], gives: 2 },
   compost: { needs: [["hyacinth", 3]], in: [], gives: 2 },
@@ -1254,6 +1336,7 @@ export const MAKES: Partial<Record<ItemId, Make>> = {
   riceNoodle: { needs: [["flour", 2]], in: ["pot"], gives: 3 },
   toastedRice: { needs: [["rice", 2]], in: ["wok"], gives: 2 },
   yoke: { needs: [["driftwood", 2], ["rope", 2], ["basket", 2]], in: [], gives: 1 },
+  ...RIVER_MAKES,
 };
 export const MAKE_IDS = Object.keys(MAKES) as ItemId[];
 /**
@@ -1261,9 +1344,9 @@ export const MAKE_IDS = Object.keys(MAKES) as ItemId[];
  * as they were for the rest: the uncle's hints of these are sold after the others of their tier (lib/town/hints),
  * and he does not ask for them in an order (lib/town/orders).
  */
-export const LATER_MADE: ItemId[] = ["fishChips", "ukha", "thieboudienne", "piranhaSoup", "crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast", "hookScale", "floatGlow", "bowl",
+export const LATER_MADE: ItemId[] = [...Object.keys(PREP_MAKES) as Array<keyof typeof PREP_MAKES>, ...Object.keys(PREP_DISHES) as PrepDishId[], ...Object.keys(CAMP_DISHES) as CampDishId[], ...Object.keys(STREAM_MAKES) as Array<keyof typeof STREAM_MAKES>, ...Object.keys(STREAM_DISHES) as StreamDishId[], ...Object.keys(FORAGE_MAKES) as Array<keyof typeof FORAGE_MAKES>, ...Object.keys(FORAGE_DISHES) as ForageDishId[], ...Object.keys(INSECT_MAKES) as Array<keyof typeof INSECT_MAKES>, ...Object.keys(INSECT_DISHES) as InsectDishId[], ...Object.keys(GARDEN_MAKES) as Array<keyof typeof GARDEN_MAKES>, ...Object.keys(GARDEN_DISHES) as GardenDishId[], "fishChips", "ukha", "thieboudienne", "piranhaSoup", "crawfishBoil", "masgouf", "salmonSteak", "arapaimaRoast", "hookScale", "floatGlow", "bowl",
   // (and what is made of the forest's things, which came the same day)
   "mushroomSoup", "mushroomSkewer", "fishOnStick", "roastYam", "roastedApple", "mushroomRisotto", "fernSalad", "herbTea", "berryCompote", "bakedApple", "roastChestnut", "forestStew", "bambooShootStir", "rosemaryFish", "ginsengSoup", "moonTea", "truffleEggs", "mushroomOmelette",
   "skewer", "floatFeather", "lineSpun", "mulch", "lavenderSachet", "bugNet",
   // (and the torch, 2026-10-08)
-  "torch"];
+  "torch", ...Object.keys(REGIONAL_DISHES) as RegionalDishId[], ...Object.keys(RIVER_MAKES) as Array<keyof typeof RIVER_MAKES>, ...Object.keys(RIVER_DISHES) as RiverDishId[], ...Object.keys(WOOD_MAKES) as Array<keyof typeof WOOD_MAKES>, ...Object.keys(WOOD_DISHES) as WoodDishId[], ...Object.keys(GEOLOGY_MAKES) as Array<keyof typeof GEOLOGY_MAKES>, ...Object.keys(GEOLOGY_DISHES) as GeologyDishId[]];

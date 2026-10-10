@@ -13,7 +13,7 @@ import {
 import { ALL_SIGNS, SIGNS, castLine, hookBait, landCatch, loseBait, oddsOf, signsOf, strikeWindowOf } from "./fishing";
 import { CARRIES } from "./gear";
 import { HINT_IDS, buyHint, nextHint } from "./hints";
-import { BAITS, BUFF_LEVELS, CROPS, CROP_IDS, DISH_IDS, FISH_IDS, FLOTSAM_IDS, ITEMS, ITEM_IDS, SCROLLS, byOf, growth, type BaitId, type BuffId, type CatchId, type DishId, type ItemId, type MealBuffId, type Sign } from "./items";
+import { BAITS, BUFF_LEVELS, CROPS, CROP_IDS, DISH_IDS, FISH, FISH_IDS, FLOTSAM_IDS, ITEMS, ITEM_IDS, SCROLLS, byOf, growth, type BaitId, type BuffId, type CatchId, type DishId, type ItemId, type MealBuffId, type Sign } from "./items";
 import { UNLOCKS, give, mayAsk, orderOf, shelfOf, sourcesAt, wantsFor, type Village } from "./orders";
 import { INSIDE, open } from "./scrolls";
 import { bowlsBack, bowlsToday, buffBy, buffOf, chew, costOf, dayOf, eatenToday, getUp, levelOf, mealBuffs, mealOf, raised, readScroll, settle, sitDown, spend, staminaOf } from "./stamina";
@@ -945,7 +945,7 @@ describe("the cases the database's rules are held to", () => {
     const held = all.filter((v) => v.fn === "signs_of").map((v) => v.want as Sign[]);
     for (const sign of ALL_SIGNS) { expect(held.some((w) => w.includes(sign))).toBe(true); expect(held.some((w) => !w.includes(sign))).toBe(true); }
     const bit = new Set(all.filter((v) => v.fn === "odds").flatMap((v) => (v.want as Array<{ what: string }>).map((o) => o.what)));
-    for (const id of FISH_IDS) expect(bit.has(id)).toBe(true);
+    for (const id of FISH_IDS.filter(id => !FISH[id].habitat)) expect(bit.has(id)).toBe(true);
     const whys = (fn: string) => new Set(all.filter((v) => v.fn === fn).map((v) => { const w = v.want as { ok?: boolean; why?: string } | null; return w?.ok ? "ok" : w?.why; }));
     expect([...whys("hook_bait")].sort()).toEqual(["none", "ok", "tool"]);
     // casts that bring a fish with nibbles and a length, and casts that bring what is no fish

@@ -8,7 +8,6 @@ import { seedTime } from "@/lib/town/clues";
 import { CARRIES } from "@/lib/town/gear";
 import { hintOf } from "@/lib/town/hints";
 import { WISH, type WishId } from "@/lib/town/fountain";
-import { BUG_IDS } from "@/lib/town/insects";
 import { BUFFS, ITEMS, SCROLLS, iconOf, isDish, potIconOf, type DishId, type ItemId, type ItemKind } from "@/lib/town/items";
 import { GEMS, OPTIONS, gemsShown, makersOf, modsOf, readToolWord, toolWord, type Element } from "@/lib/town/tools";
 import { keptMotion } from "@/lib/town/motion";
@@ -25,6 +24,9 @@ import {
 import type { Did, Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
 import TownPouches from "./TownPouches";   // ── mining ──
+import TownRodHook from "./TownRodHook";
+import TownBugBook from "./TownBugBook";
+import TownRecipeBook from "./TownRecipeBook";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownNotices from "./TownNotices";
 // ── gifts: kitchen ──
@@ -356,7 +358,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && <Bag pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipes={[...keeper.known(), ...keeper.knownMakes()]} book={keeper.bugBook()}
+        {view === "bag" && <Bag rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
                                 kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
                                                      onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
@@ -373,7 +375,6 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                   if (read.ok) say("จดสูตรลงสมุดแล้ว", "Copied into your recipe book.");
                                   onScroll(dish);
                                 }}
-                                onRecipe={onScroll}
                                 onHold={(slot) => tried(keeper.hold(slot), slot === null ? ["เก็บใส่กระเป๋าแล้ว", "Put away."] : ["ถือไว้ในมือแล้ว", "In your hand."])}
                                 onOpen={async (slot) => {
                                   const did = await keeper.openThing(slot);
@@ -663,7 +664,8 @@ function Bank({ purse, now, th, onChange }: { purse: Purse; now: number; th: boo
 }
 
 /** My bag, and how I am: my stamina and the day's meals, what a meal left, the bag itself, opened, and the recipes I know. */
-function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, dropsAll, lying, onEat, onGetUp, onRead, onRecipe, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches }: {
+function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book, dropsAll, lying, onEat, onGetUp, onRead, onHold, onDrop, onWear, onTakeOff, onServe, onOpen, kitchen, sprinkles, tidy = false, onMove, onSort, pouches, rodHook }: {
+  rodHook?: React.ReactNode;
   // ── mining ── (the pouches somebody has, each a row of its own under the bag's pockets: components/town/TownPouches)
   pouches?: React.ReactNode;
   purse: Purse; now: number; th: boolean; seated: boolean; company: number;
@@ -678,10 +680,10 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
   dropsAll: boolean;
   lying: React.ReactNode;
   /** What I know how to make: dishes, and other things. */
-  recipes: ItemId[];
+  recipeBook: React.ReactNode;
   /** The village's book of insects: who first caught each kind that has been caught. */
   book: Record<string, string>;
-  onEat: (slot: number) => void; onGetUp: () => void; onRead: (slot: number) => void; onRecipe: (dish: ItemId) => void;
+  onEat: (slot: number) => void; onGetUp: () => void; onRead: (slot: number) => void;
   /** Put on what carries more (from a slot), take one off, and ladle a helping out of a pot of my own. */
   onWear: (slot: number) => void; onTakeOff: (item: ItemId) => void; onServe: (slot: number) => void;
   /** Take the thing in a slot up to hold it in the hand, or (null) put away what is held. */
@@ -813,6 +815,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
                 ))}
               </ul>
             )}
+            {rodHook}
             {lying}
             <Pockets bag={purse.bag} th={th} picked={slot} hand={hand} held={held} onPick={(i) => setPicked(i === slot || !purse.bag[i] ? null : { slot: i, item: purse.bag[i]!.item })}
                      onMove={mayMove ? move : undefined} placing={moving} onPlace={(to) => (to === moving ? setMoving(null) : move(moving!, to))} />
@@ -883,45 +886,10 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipes, book, d
         </div>
       </div>
 
-      {/* the recipe book: not there until a recipe is known (the owner: "สมุดสูตรอาหาร Hide ไว้ก่อน ถ้ารู้แล้วค่อยขึ้นมาให้เห็น") */}
-      {recipes.length > 0 && (
-        <>
-        <h3 className="mb-1.5 mt-4 flex items-center gap-1.5 font-data text-label uppercase tracking-wider text-muted"><TownIcon name="recipes" size={14} />{th ? "สมุดสูตรอาหาร" : "Recipe book"}</h3>
-        <ul className="flex flex-wrap gap-1.5">
-          {recipes.map((d) => (
-            <li key={d}>
-              <button type="button" onClick={() => onRecipe(d)}
-                      className="pressable flex min-h-11 items-center gap-1.5 rounded-full border border-line-strong bg-card/60 px-3 text-ui text-ink hover:border-accent">
-                <ItemIcon id={d} size={20} />{th ? ITEMS[d].name.th : ITEMS[d].name.en}
-                {/* a recipe I have not made myself has a thing in it I am not told */}
-                {!(purse.made ?? []).includes(d) && <TownIcon name="mystery" size={16} />}
-              </button>
-            </li>
-          ))}
-        </ul>
-        </>
-      )}
+      {recipeBook}
 
       {/* the village's book of insects: not there until one has been caught; only the kinds somebody has caught, each with who caught the first */}
-      {BUG_IDS.some((id) => book[id] !== undefined) && (
-        <>
-        <h3 className="mb-1.5 mt-4 flex items-center gap-1.5 font-data text-label uppercase tracking-wider text-muted" data-bug-book>
-          <TownIcon name="bugNet" size={14} />{th ? "สมุดแมลงของหมู่บ้าน" : "The village's book of insects"}
-          <span className="ml-1 text-muted">{BUG_IDS.filter((id) => book[id] !== undefined).length}/{BUG_IDS.length}</span>
-        </h3>
-        <ul className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-          {BUG_IDS.filter((id) => book[id] !== undefined).map((id) => (
-            <li key={id} className="flex min-h-11 items-center gap-2 rounded-lg border border-line-strong bg-card/60 px-3 py-1.5" data-bug={id}>
-              <ItemIcon id={id} size={26} />
-              <span className="min-w-0">
-                <span className="block truncate text-ui text-ink">{th ? ITEMS[id].name.th : ITEMS[id].name.en}</span>
-                <span className="block truncate text-label text-muted">{th ? "จับได้คนแรก" : "First caught by"} {book[id] || (th ? "ใครสักคน" : "somebody")}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-        </>
-      )}
+      <TownBugBook book={book} th={th}/>
     </>
   );
 }

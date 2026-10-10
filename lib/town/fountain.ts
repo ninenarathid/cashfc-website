@@ -98,7 +98,7 @@ export const WISH: Record<WishId, { name: Line; about: Line; icon: string; by: n
  * (lib/town/forest-eye says what `forage` and `net` do), and their file, v125, puts the two at the end of the
  * database's own list (`town.wishes`), after v123's eleven.
  */
-export const LATER: WishId[] = [];
+export const LATER: WishId[] = ["current", "grain", "layers", "pollen", "scent", "traces", "waterProperty", "seasoning", "campPreparation"];
 /** What can be wished for, in the order they are listed: a meal's five, then the fountain's own. (The database says the same list, and the page shows what it says.) */
 export const WISHES = (Object.keys(WISH) as WishId[]).filter((w) => !LATER.includes(w));
 

@@ -1,3 +1,5 @@
+import { PREP_ITEMS, PREP_SCROLL_ITEMS, PREP_DISHES } from "./preparation-items";
+import { CAMP_ITEMS, CAMP_SCROLL_ITEMS, CAMP_DISHES } from "./camp-items";
 import { describe, expect, it } from "vitest";
 import { startShower } from "./catching";
 import { startBunch } from "./choosing";
@@ -11,6 +13,11 @@ import { POURING, startPour } from "./pouring";
 import { ROASTING, startRoast } from "./roasting";
 import { STIRRING, startStir } from "./stirring";
 import { TIMING, startRound } from "./timing";
+import { GEOLOGY_DISHES } from "./geology-items";
+import { WOOD_DISHES } from "./wood-items";
+import { RIVER_DISHES } from "./river-items";
+import { FORAGE_DISHES } from "./foraging-items";
+import { STREAM_DISHES } from "./stream-items";
 import { WEEDING, startPatch } from "./weeding";
 
 /**
@@ -70,7 +77,7 @@ describe("steady hands, beyond the fight", () => {
 });
 
 describe("the forest's dishes (the owner's plan of 2026-10-06: they leave the forest's own two buffs)", () => {
-  const forest = DISH_IDS.filter((id) => DISHES[id].recipe?.needs.some(([t]) => ITEMS[t].kind === "wild"));
+  const forest = DISH_IDS.filter((id) => !Object.hasOwn(PREP_DISHES,id) && !Object.hasOwn(CAMP_DISHES,id) && !Object.hasOwn(STREAM_DISHES, id) && !Object.hasOwn(FORAGE_DISHES, id) && !Object.hasOwn(RIVER_DISHES, id) && !Object.hasOwn(WOOD_DISHES,id) && !Object.hasOwn(GEOLOGY_DISHES,id) && DISHES[id].recipe?.needs.some(([t]) => ITEMS[t].kind === "wild"));
   it("each leaves the forest eye or the soft step, and nothing of the five", () => {
     expect(forest.length).toBeGreaterThanOrEqual(17);
     for (const id of forest) expect(["forage", "net"], id).toContain(DISHES[id].buff);
@@ -106,5 +113,21 @@ describe("the forest's dishes (the owner's plan of 2026-10-06: they leave the fo
   it("the soft step is softer at its levels: an insect's senses reach two thirds as far, then half, to a third", () => {
     expect(softStep(0)).toBe(1);
     expect(LEVELS.map((l) => Math.round(softStep(byOf("net", l)) * 1000) / 1000)).toEqual([0.667, 0.5, 0.4, 0.333]);
+  });
+});
+
+describe("reading the current", () => {
+  it("comes from river meals, stacks with steady hands and preserves the strongest level", () => {
+    const now = Date.parse("2026-10-10T12:00:00+07:00");
+    let purse = { ...newPurse(), bag: put(newPurse().bag, "creekBroth", 2), buffs: [{ id: "calm" as const, level: 2, until: now + 3_600_000 }] };
+    const eat = sitDown(purse, 0, true, now);
+    if (!eat.ok) throw new Error(eat.why);
+    purse = chew(eat.purse, 0, now + 5 * 60_000).purse as typeof purse;
+    expect(levelOf(purse, now + 5 * 60_000, "current")).toBe(1);
+    expect(levelOf(purse, now + 5 * 60_000, "calm")).toBe(2);
+    expect(byOf("current", 1)).toBe(byOf("current", 4));
+    expect(DISHES.smokedBrookBowl.buff).toBe("current");
+    expect(DISHES.torrentSkewer.buff).toBe("calm");
+    expect(DISHES.springDumpling.buff).toBe("keen");
   });
 });

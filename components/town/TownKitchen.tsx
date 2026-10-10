@@ -15,6 +15,8 @@ import { BIG, GameScene, STAGE } from "./TownGame";
 import TownIcon, { type IconName } from "./TownIcon";
 import { Secret } from "./TownScroll";
 import { ItemIcon } from "./TownTrade";
+import TownCrafting from "./TownCrafting";
+import styles from "./TownAdventure.module.css";
 
 /** Where the table is laid: one of the yard's places, or the forest camp's fire. */
 export type KitchenPlace = "stove" | "table" | "fire" | "camp" | "flame";
@@ -128,6 +130,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
   // them; at a stove with cookware in the bag one of the two is chosen first, so that a pot's dish is not made by hand
   // for want of a tap.
   const [byHand, setByHand] = useState(false);
+  const [workshop, setWorkshop] = useState(false);
   const bare = !tool && (place === "table" || place === "camp" || wares.length === 0 || byHand);
   const laid = useMemo(() => pantry(purse.bag), [purse.bag]);
   const put = (id: ItemId) => things.find(([t]) => t === id)?.[1] ?? 0;
@@ -186,7 +189,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
 
   const mayCook = things.length > 0 && (!!tool || bare);
   return (
-    <div className="absolute inset-0 z-30 flex items-stretch justify-center bg-black/60 min-[900px]:items-center min-[900px]:px-4 min-[900px]:pt-4" style={{ paddingBottom: bottom }} onClick={onClose}>
+    <div className="absolute inset-0 flex items-stretch justify-center bg-black/60 min-[900px]:items-center min-[900px]:px-4 min-[900px]:pt-4" style={{ paddingBottom: bottom, zIndex: 40 }} onClick={onClose}>
       <style href="town-kitchen" precedence="medium">{`
         @keyframes kt-pop { from { transform: scale(.6); opacity: 0 } to { transform: none; opacity: 1 } }
         @keyframes kt-squash { from { transform: scale(1.1, .88) } to { transform: none } }
@@ -242,7 +245,12 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
           <button type="button" onClick={onClose} className="pressable min-h-9 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta hover:bg-[#5a3a1c]" style={{ color: CREAM }}>{th ? "ปิด" : "Close"}</button>
         </header>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_auto_minmax(0,1fr)] gap-2 px-2 pb-1 pt-1 min-[900px]:grid-cols-[16.5rem_minmax(0,1fr)_19.5rem] min-[900px]:grid-rows-[minmax(0,1fr)]">
+        {(place === "table" || place === "camp") && <div className="flex shrink-0 gap-2 px-3 py-1" role="group" aria-label={th ? "เลือกงานที่โต๊ะ" : "Choose table work"}>
+          <button type="button" aria-pressed={!workshop} onClick={() => setWorkshop(false)} className="min-h-11 rounded border border-[#8a6948] px-3 text-[#f3e3c3]">{th ? "ทดลองส่วนผสม" : "Try ingredients"}</button>
+          <button type="button" aria-pressed={workshop} onClick={() => setWorkshop(true)} className="min-h-11 rounded border border-[#8a6948] px-3 text-[#f3e3c3]">{th ? "คราฟต์อุปกรณ์" : "Craft equipment"}</button>
+        </div>}
+        {workshop && <TownCrafting keeper={keeper} purse={purse} th={th} />}
+        <div style={{ display: workshop ? "none" : undefined }} className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_auto_minmax(0,1fr)] gap-2 px-2 pb-1 pt-1 min-[900px]:grid-cols-[16.5rem_minmax(0,1fr)_19.5rem] min-[900px]:grid-rows-[minmax(0,1fr)]">
           {/* ── the basket ── */}
           <section aria-label={th ? "ตะกร้าวัตถุดิบ" : "The basket"} className="order-3 flex min-h-0 flex-col overflow-hidden rounded-[4px] border-[3px] border-[#2a190d] min-[900px]:order-1 min-[900px]:max-h-[31rem]" style={{ backgroundColor: HOLLOW }}>
             <h3 className="hidden shrink-0 items-center gap-1.5 border-b-2 border-[#2a190d] bg-[#4a2f18] px-2 py-1 text-ui font-semibold min-[900px]:flex" style={{ color: CREAM }}>
@@ -388,7 +396,7 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
 
           {/* ── the book: a strip to unfold on a phone, a page beside the hearth on a wide screen ── */}
           <button type="button" onClick={() => setUnfolded(true)} aria-expanded={unfolded} data-kitchen-strip
-                  className="pressable order-1 flex min-h-11 items-center gap-2 rounded-[4px] border-2 border-[#2a190d] px-2 text-left min-[900px]:hidden" style={{ backgroundColor: PAPER, color: INK }}>
+                  className={`${styles.recipeStrip} pressable order-1 flex min-h-14 items-center gap-2 rounded-[4px] border-2 border-[#2a190d] px-2 text-left min-[900px]:hidden`} style={{ backgroundColor: PAPER, color: INK }}>
             <TownIcon name="recipes" size={22} className="shrink-0" />
             {pinned ? (
               <>
@@ -406,27 +414,32 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
             <span aria-hidden className="shrink-0 font-data text-meta" style={{ color: INK_SOFT }}>{th ? "เปิด" : "Open"}</span>
           </button>
           <section aria-label={th ? "สมุดสูตร" : "The recipe book"} data-kitchen-book
-                   className={`${unfolded ? "absolute inset-x-2 bottom-2 top-12 z-10 flex" : "hidden"} min-h-0 flex-col overflow-hidden rounded-[4px] border-[3px] border-[#2a190d] min-[900px]:static min-[900px]:order-3 min-[900px]:flex min-[900px]:max-h-[31rem]`}
+                   className={`${styles.recipeBook} ${unfolded ? "absolute inset-x-2 bottom-2 top-12 z-10 flex" : "hidden"} min-h-0 flex-col overflow-hidden rounded-[4px] border-[3px] border-[#2a190d] min-[900px]:static min-[900px]:order-3 min-[900px]:flex min-[900px]:max-h-[31rem]`}
                    style={{ color: INK, backgroundColor: PAPER, backgroundImage: `linear-gradient(90deg, ${PAPER_EDGE} 0, transparent 7%, transparent 93%, ${PAPER_EDGE} 100%)` }}>
-            <div className="flex shrink-0 items-center gap-1 border-b-2 px-2 py-1" style={{ borderColor: PAPER_EDGE }} role="tablist">
-              <TownIcon name="recipes" size={20} />
+            <header className={styles.recipeBookHeading}><TownIcon name="recipes" size={30}/><div><h3 className="font-display">{th?"สมุดสูตรอาหาร":"The recipe notebook"}</h3><p className="text-label" style={{color:INK_SOFT}}>{th?"สูตรที่รู้ กับเรื่องที่เคยลอง":"Known recipes and past experiments"}</p></div></header>
+            <div className="flex shrink-0 flex-wrap items-center gap-1 border-b-2 px-2 py-1" style={{ borderColor: PAPER_EDGE }} role="group" aria-label={th?"ส่วนของสมุด":"Notebook sections"}>
               {(["book", "notes"] as const).map((t) => (
-                <button key={t} type="button" role="tab" aria-selected={tab === t} onClick={() => setTab(t)} data-kitchen-tab={t}
-                        className="pressable min-h-9 rounded-md px-2 text-ui font-semibold" style={tab === t ? { backgroundColor: INK, color: PAPER } : { color: INK_SOFT }}>
+                <button key={t} type="button" aria-pressed={tab === t} onClick={() => setTab(t)} data-kitchen-tab={t}
+                        className="pressable min-h-11 rounded-md px-2 text-ui font-semibold" style={tab === t ? { backgroundColor: INK, color: PAPER } : { color: INK_SOFT }}>
                   {t === "book" ? (th ? `สมุดสูตร ${book.length}` : `Recipes ${book.length}`) : (th ? `ที่ลองไว้ ${notes.length}` : `Tried ${notes.length}`)}
                 </button>
               ))}
-              <button type="button" onClick={() => setUnfolded(false)} className="pressable ml-auto min-h-9 rounded-md px-2 text-meta font-semibold min-[900px]:hidden" style={{ color: INK_SOFT }}>{th ? "พับเก็บ" : "Fold away"}</button>
+              <button type="button" onClick={() => setUnfolded(false)} className="pressable ml-auto min-h-11 rounded-md px-2 text-meta font-semibold min-[900px]:hidden" style={{ color: INK_SOFT }}>{th ? "ปิดสมุด" : "Close book"}</button>
             </div>
-            <div className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-3 pt-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]">
+            <div className={`${styles.recipeSheet} min-h-0 flex-1 overflow-y-auto px-2.5 pb-3 pt-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]`}>
               {tab === "notes" ? <Tried notes={notes} th={th} whispers={whispers} known={book.map((r) => r.id)} />
                 : pinned ? <Page id={pinned.id} told={pinned.told} lines={lines} purse={purse} crew={crew} notes={notes} th={th} onBack={() => choose(null)} />
                   : <Index book={book} only={only} onOnly={setOnly} th={th} onPick={choose} />}
+              {tab==="book"&&pinned&&<div className={styles.bookPager}>
+                <button type="button" disabled={book.findIndex(r=>r.id===pinned.id)<=0} onClick={()=>choose(book[book.findIndex(r=>r.id===pinned.id)-1].id)}>← {th?"สูตรก่อน":"Previous"}</button>
+                <span>{book.findIndex(r=>r.id===pinned.id)+1} / {book.length}</span>
+                <button type="button" disabled={book.findIndex(r=>r.id===pinned.id)>=book.length-1} onClick={()=>choose(book[book.findIndex(r=>r.id===pinned.id)+1].id)}>{th?"สูตรถัดไป":"Next"} →</button>
+              </div>}
             </div>
           </section>
         </div>
 
-        <footer className="shrink-0 px-2 pb-2 min-[900px]:grid min-[900px]:grid-cols-[16.5rem_minmax(0,1fr)_19.5rem] min-[900px]:gap-x-2">
+        <footer hidden={workshop} style={workshop ? { display: "none" } : undefined} className="shrink-0 px-2 pb-2 min-[900px]:grid min-[900px]:grid-cols-[16.5rem_minmax(0,1fr)_19.5rem] min-[900px]:gap-x-2">
           <p className="min-h-[1.125rem] truncate text-center text-meta min-[900px]:col-start-2" style={{ color: "#ffb09c" }} aria-live="polite" data-kitchen-why>{why ?? ""}</p>
           <div className="flex items-center gap-2 min-[900px]:col-start-2">
             <button type="button" disabled={!things.length} onClick={onClear} className="pressable min-h-12 shrink-0 rounded-md border-2 border-[#2a190d] bg-[#4a2f18] px-3 text-meta disabled:opacity-40" style={{ color: CREAM }}>{th ? "เอาออกหมด" : "Take all out"}</button>
@@ -469,6 +482,8 @@ const SMALL = "font-data text-label";
 
 /** The book's index: every recipe one knows, what can be made of the bag first; by the buff it leaves, if one is asked for. */
 function Index({ book, only, onOnly, th, onPick }: { book: Entry[]; only: MealBuffId | "makes" | null; onOnly: (b: MealBuffId | "makes" | null) => void; th: boolean; onPick: (id: ItemId) => void }) {
+  const [page,setPage]=useState(0);
+  const filter=(value:MealBuffId|"makes"|null)=>{setPage(0);onOnly(value);};
   const buffs = [...new Set(book.flatMap((r) => (r.buff ? [r.buff] : [])))], makes = book.some((r) => !(r.id in DISHES));
   const shown = book.filter((r) => (only === null ? true : only === "makes" ? !(r.id in DISHES) : r.buff === only))
     .sort((a, b) => Number(b.ready) - Number(a.ready) || Number(!!a.told.last) - Number(!!b.told.last) || (th ? ITEMS[a.id].name.th.localeCompare(ITEMS[b.id].name.th, "th") : ITEMS[a.id].name.en.localeCompare(ITEMS[b.id].name.en)));
@@ -478,18 +493,18 @@ function Index({ book, only, onOnly, th, onPick }: { book: Entry[]; only: MealBu
     <>
       {(buffs.length > 0 || makes) && (
         <div className="mb-2 flex flex-wrap gap-1" role="group" aria-label={th ? "กรองตามบัฟ" : "By what it leaves"}>
-          <button type="button" aria-pressed={only === null} onClick={() => onOnly(null)} className="pressable min-h-8 rounded-full px-2.5 text-meta font-semibold" style={chip(only === null)}>{th ? "ทั้งหมด" : "All"}</button>
+          <button type="button" aria-pressed={only === null} onClick={() => filter(null)} className="pressable min-h-11 rounded px-2.5 text-meta font-semibold" style={chip(only === null)}>{th ? "ทั้งหมด" : "All"}</button>
           {buffs.map((b) => (
-            <button key={b} type="button" aria-pressed={only === b} onClick={() => onOnly(only === b ? null : b)} data-kitchen-buff={b}
-                    className="pressable flex min-h-8 items-center gap-1 rounded-full pl-1.5 pr-2.5 text-meta font-semibold" style={chip(only === b)}>
+            <button key={b} type="button" aria-pressed={only === b} onClick={() => filter(only === b ? null : b)} data-kitchen-buff={b}
+                    className="pressable flex min-h-11 items-center gap-1 rounded pl-1.5 pr-2.5 text-meta font-semibold" style={chip(only === b)}>
               <TownIcon name={WISH[b].icon as IconName} size={18} />{th ? WISH[b].name.th : WISH[b].name.en}
             </button>
           ))}
-          {makes && <button type="button" aria-pressed={only === "makes"} onClick={() => onOnly(only === "makes" ? null : "makes")} className="pressable min-h-8 rounded-full px-2.5 text-meta font-semibold" style={chip(only === "makes")}>{th ? "ของใช้" : "Things"}</button>}
+          {makes && <button type="button" aria-pressed={only === "makes"} onClick={() => filter(only === "makes" ? null : "makes")} className="pressable min-h-11 rounded px-2.5 text-meta font-semibold" style={chip(only === "makes")}>{th ? "ของแปรรูป / ของใช้" : "Processed / crafted"}</button>}
         </div>
       )}
-      <ul className="flex flex-col gap-1">
-        {shown.map((r) => (
+      <ul className={styles.recipeIndex}>
+        {shown.slice(Math.min(page,Math.max(0,Math.ceil(shown.length/10)-1))*10,Math.min(page,Math.max(0,Math.ceil(shown.length/10)-1))*10+10).map((r) => (
           <li key={r.id}>
             <button type="button" onClick={() => onPick(r.id)} data-kitchen-recipe={r.id}
                     className="pressable flex min-h-11 w-full items-center gap-2 rounded-md px-1.5 text-left hover:bg-[rgba(74,53,32,0.1)]">
@@ -502,6 +517,8 @@ function Index({ book, only, onOnly, th, onPick }: { book: Entry[]; only: MealBu
           </li>
         ))}
       </ul>
+      {!shown.length&&<p className="py-6 text-ui">{th?"ยังไม่มีสูตรในหมวดนี้":"No recipes in this category yet."}</p>}
+      {shown.length>10&&<div className={styles.bookPager}><button type="button" disabled={page<=0} onClick={()=>setPage(p=>Math.max(0,p-1))}>← {th?"ก่อนหน้า":"Previous"}</button><span>{Math.min(page+1,Math.ceil(shown.length/10))} / {Math.ceil(shown.length/10)}</span><button type="button" disabled={page>=Math.ceil(shown.length/10)-1} onClick={()=>setPage(p=>p+1)}>{th?"ถัดไป":"Next"} →</button></div>}
     </>
   );
 }

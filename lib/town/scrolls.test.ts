@@ -58,7 +58,13 @@ describe("the scrolls nobody sells (the owner: \"อาหารมีหลา�
     // a chest, of the later two
     const chest = done(open(purseWith(5, ["chest", 1]), 0, [0.5, 0.999999]));
     expect(ITEMS[chest.found!].tier).toBeGreaterThanOrEqual(2);
-    expect(ITEMS[done(open(purseWith(5, ["chest", 1]), 0, [0.5, 0.5])).found!].tier).toBe(3);
+    // Both tiers remain attainable as more scrolls join the draw.
+    const chestScrolls = insideOf("chest");
+    for (const tier of [2, 3] as const) {
+      const index = chestScrolls.findIndex(id => ITEMS[id].tier === tier);
+      expect(index).toBeGreaterThanOrEqual(0);
+      expect(ITEMS[done(open(purseWith(5, ["chest", 1]), 0, [0.5, (index + 0.5) / chestScrolls.length])).found!].tier).toBe(tier);
+    }
     expect(held(chest.purse.bag, "chest")).toBe(0);
     // an old boot has one now and then, of the early game's; more often it is only a boot, and gone either way
     const boot = purseWith(5, ["boot", 1]);

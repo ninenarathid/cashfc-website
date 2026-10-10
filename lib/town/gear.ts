@@ -9,7 +9,8 @@ import type { Purse, Stack } from "./trade";
  *
  * - **A rod** is the one in the hand (fishing is done with the rod held). A
  *   better one widens the safe stretch and slows its moves.
- * - **Tackle** only has to be in the bag, and the best of each kind counts:
+ * - **Hooks** use the chosen hook slot, with their item kept in the bag.
+ * - **Other tackle** only has to be in the bag, and the best of each kind counts:
  *   a float gives longer to strike, a hook is slower to slip, a line slower to
  *   snap, a net leaves less line to win.
  * - **A bag** is made bigger by what is carried: the basket, the carrying
@@ -33,6 +34,7 @@ export const isRod = (id: string | null | undefined): id is RodId => !!id && id 
 
 /** What a piece of tackle is better at: the strike's moment, how long a hook holds while slack, how long a line bears strain, and the share of the line left to win. */
 export const TACKLE: Partial<Record<ItemId, { strike?: number; slip?: number; snap?: number; line?: number }>> = {
+  flowFloat: { strike: 1.3 }, springLeader: { slip: 1.4 }, torrentNet: { line: 0.8 },
   // (the first of each is made, of a fish: a float of a moonfish's scale, a hook of a gar's; lib/town/items' MAKES)
   // (and two of the forest's things: a float of a feather and a joint of bamboo, a line spun of silk cocoons)
   floatFeather: { strike: 1.1 }, floatGlow: { strike: 1.15 }, floatQuill: { strike: 1.25 }, floatBell: { strike: 1.5 },
@@ -65,10 +67,10 @@ export function rodStack(bag: Purse["bag"], rod: RodId | null, slot: number | nu
 }
 
 /**
- * The gear somebody has to hand: the rod they hold (or, holding none, the best in the bag), and the best of each kind of tackle in the bag.
+ * The gear somebody has to hand: the rod held (or the best in the bag), the fitted hook, and the best other tackle.
  * (`slot`: the slot the thing in the hand was taken up from, where that is known: which of two rods of a kind is held.)
  */
-export function gearOf(bag: Purse["bag"], hand: ItemId | null, slot: number | null = null): Gear {
+export function gearOf(bag: Purse["bag"], hand: ItemId | null, slot: number | null = null, hook: Purse["fishingHook"] = null): Gear {
   const has = (id: ItemId) => bag.some((s) => s?.item === id);
   const rod = isRod(hand) && has(hand) ? hand : [...ROD_IDS].reverse().find(has) ?? null;
   const gear: Gear = { ...PLAIN, rod, ...(rod ? RODS[rod] : {}) };
@@ -76,6 +78,7 @@ export function gearOf(bag: Purse["bag"], hand: ItemId | null, slot: number | nu
   const fx = rodFx(rodStack(bag, rod, rod === hand ? slot : null));
   if (fx !== PLAIN_ROD) gear.fx = fx;
   for (const s of bag) {
+    if (s && ["hookScale", "hookSteel", "hookTwin"].includes(s.item) && (s.item !== hook || !rod || s.n < 1)) continue;
     const t = s ? TACKLE[s.item] : undefined;
     if (!t) continue;
     gear.strike = Math.max(gear.strike, t.strike ?? 1);

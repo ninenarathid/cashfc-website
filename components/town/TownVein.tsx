@@ -3,11 +3,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import { oreOf, type MineRefusal, type PendingVein } from "@/lib/town/mining";
+import { echoOf, type RockChoice } from "@/lib/town/geology";
 import type { FishSfx } from "@/lib/town/sfx";
 import { GEMS } from "@/lib/town/tools";
 import { VEIN, begin, bestRoute, faceOf, headOf, iceOf, mayStrike, over, strike, yieldOf, type Cell, type Crack, type Family } from "@/lib/town/vein";
 import { STAGE } from "./TownGame";
+import type { ComboEffect } from "@/lib/town/combo-types";
+import TownComboFx from "./TownComboFx";
 import TownIcon, { type IconName } from "./TownIcon";
+import styles from "./TownAdventure.module.css";
 
 /**
  * A special vein, played (lib/town/vein): a rock face of six cells by six on the town's wooden board, over a scene
@@ -50,16 +54,22 @@ function bent(a: readonly [number, number], b: readonly [number, number]): strin
   return `L${px.toFixed(3)} ${py.toFixed(3)} L${(b[0] + 0.5).toFixed(3)} ${(b[1] + 0.5).toFixed(3)}`;
 }
 
-export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
+export default function TownVein({ vein, th, reduced, sfx, onBond, onEnd, onClose }: {
+  onBond?: (context: "cavity" | "echo") => Promise<ComboEffect | undefined>;
   vein: PendingVein;
   th: boolean;
   /** The map's own motion switch: off, nothing on the board moves. */
   reduced: boolean;
   sfx: FishSfx | null;
   /** The go is over: its strikes, in their order. Answers with what it came to, or why it could not be kept. */
-  onEnd: (strikes: Array<[number, number]>) => Promise<Sent>;
+  onEnd: (strikes: Array<[number, number]>, choice?: RockChoice) => Promise<Sent>;
   onClose: () => void;
 }) {
+  const [bond,setBond]=useState<ComboEffect>();
+  const onBondRef=useRef(onBond); onBondRef.current=onBond;
+  const bondRound=`${vein.f}:${vein.rock}:${vein.turn}:${vein.seed}:${!!vein.again}`;
+  const hasGeology=!!vein.geology;
+  useEffect(() => { let gone=false; setBond(undefined); if(!hasGeology) return; void (async () => { const cavity=await onBondRef.current?.("cavity"); const effect=cavity ?? await onBondRef.current?.("echo"); if(!gone) setBond(effect); })(); return () => { gone=true; }; },[bondRound,hasGeology]);
   const face = useMemo(() => faceOf(vein.seed, !!vein.gem), [vein.seed, vein.gem]);
   const mods = vein.mods, ice = useMemo(() => iceOf(face, mods), [face, mods]);
   const [crack, setCrack] = useState<Crack>(() => begin(face, mods));
@@ -67,6 +77,7 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
   /** A cell's side on the screen, for the pictures in it. */
   const gridRef = useRef<HTMLDivElement>(null);
   const [cellPx, setCellPx] = useState(52);
+  const [phase, setPhase] = useState<"survey" | "ready" | "play" | "sent" | "came" | "full" | "lost">(vein.geology ? "survey" : mods.spent ? "ready" : "play");
   useEffect(() => {
     const el = gridRef.current;
     if (!el) return;
@@ -75,9 +86,11 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
     const ro = new ResizeObserver(measure);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [face.size]);
+  }, [face.size, phase]);
   /** What the board is at: waiting for its player to be ready (a vein opened with no stamina left), being played, its go sent, what it came to shown, or waiting for room in the bag. */
-  const [phase, setPhase] = useState<"ready" | "play" | "sent" | "came" | "full" | "lost">(mods.spent ? "ready" : "play");
+  const [choice, setChoice] = useState<RockChoice | undefined>();
+  const [echo, setEcho] = useState<-1 | 1 | null>(null);
+  const [focus, setFocus] = useState<RockChoice["focus"]>("ore");
   const [came, setCame] = useState<VeinCame | null>(null);
   /** The cell last struck and how it went, for a moment: its look on the face. */
   const [last, setLast] = useState<{ cell: [number, number]; knot: boolean; back: boolean; at: number } | null>(null);
@@ -92,7 +105,7 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
   }, [mods.spent, readyAt]);
   // the same face once more (a twin vein): the board begins again
   const round = vein.again ? 2 : 1;
-  useEffect(() => { strikes.current = []; setCrack(begin(face, mods)); setPhase(mods.spent ? "ready" : "play"); setCame(null); setLast(null); setSeen(!mods.spent); setReadyAt(null); }, [face, mods, round]);
+  useEffect(() => { strikes.current = []; setCrack(begin(face, mods)); setPhase(vein.geology ? "survey" : mods.spent ? "ready" : "play"); setChoice(undefined); setEcho(null); setFocus("ore"); setCame(null); setLast(null); setSeen(!mods.spent); setReadyAt(null); }, [face, mods, round, vein.geology]);
 
   const ore = oreOf(vein.f), chip = vein.gem ? GEMS[vein.gem].chip : null;
   const soFar = yieldOf(face, crack, ore, chip, vein.more);
@@ -100,10 +113,10 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
 
   const send = useCallback(async () => {
     setPhase("sent");
-    const did = await onEnd(strikes.current);
+    const did = await onEnd(strikes.current, choice);
     if (did.ok) { setCame({ got: did.got, passed: did.passed, of: did.of, again: did.again }); setPhase("came"); sfx?.work(did.got.length ? "made" : "nothing"); }
     else setPhase(did.why === "full" ? "full" : "lost");
-  }, [onEnd, sfx]);
+  }, [onEnd, sfx, choice]);
   // a go that is over is sent by itself, a beat after its last strike
   useEffect(() => {
     if (phase !== "play" || !done) return;
@@ -130,7 +143,7 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
   // (a board that waits for "ready" is neither struck nor ended by a key: Enter or the space bar on its button begins it)
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
-      if (phase === "ready") return;
+      if (phase === "ready" || phase === "survey") return;
       const d = e.key === "ArrowLeft" ? [-1, 0] : e.key === "ArrowRight" ? [1, 0] : e.key === "ArrowUp" ? [0, -1] : e.key === "ArrowDown" ? [0, 1] : null;
       if (d) { e.preventDefault(); const far = e.shiftKey ? 1 : VEIN.reach; if (!hit([hx + d[0] * far, hy + d[1] * far])) hit([hx + d[0], hy + d[1]]); }
       else if (e.key === "Escape") { e.preventDefault(); if (phase === "play") void send(); else if (phase !== "sent") onClose(); }
@@ -161,6 +174,24 @@ export default function TownVein({ vein, th, reduced, sfx, onEnd, onClose }: {
   const path = `M${(crack.path[0][0] + 0.5).toFixed(3)} ${(crack.path[0][1] + 0.5).toFixed(3)} ${crack.path.slice(1).map((p, i) => bent(crack.path[i], p)).join(" ")}`;
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const fresh = !!last && !reduced;
+
+  if (phase === "survey") return <section data-vein-survey className={`${styles.panel} ${styles.wood} w-full max-w-[400px]`} aria-label={th ? "ฟังชั้นหิน" : "Listen to the rock layers"}>
+    {bond && <TownComboFx cue={bond.cue} effect={bond} th={th} reduced={reduced} />}
+    <h2 className="font-display text-title font-semibold">{th ? "ฟังเสียงก่อนเปิดชั้นแร่" : "Listen before opening the seam"}</h2>
+    <div className={styles.scene}><TownIcon name="pick" size={42}/><p className="text-meta">{th ? "แนวแร่ส่งเสียงเป็นคลื่นยาว ส่วนโพรงให้เสียงสั้น เลือกแนวที่จะตาม แล้วเลือกว่าจะเก็บแร่หรือรักษาผลึก" : "A seam returns a long ringing wave; a cavity gives a short echo. Choose a seam, then ore or intact crystals."}</p></div>
+    <fieldset>
+      <legend className="text-meta">{th ? "แนวเสียงสะท้อน" : "Echo direction"}</legend>
+      <div className="my-2 flex gap-2">{([-1, 1] as const).map(side => <button key={side} type="button" aria-pressed={echo === side} data-echo={side} onClick={() => { setEcho(side); sfx?.work("clink"); }} className={`pressable min-h-11 flex-1 rounded border-2 p-2 ${echo === side ? "border-[#8fd45f] bg-[#31512c]" : "border-[#2a190d] bg-[#4a2f18]"}`}>
+        <svg viewBox="0 0 80 30" aria-hidden className="h-9 w-full"><path d={side === echoOf(vein.seed) ? "M1 15 L9 3 L17 27 L25 5 L33 25 L41 7 L49 23 L57 9 L65 21 L73 11 L79 15" : "M1 15 L9 5 L17 25 L25 12 L33 18 L41 15 H79"} fill="none" stroke="#f0c060" strokeWidth="2" /></svg>
+        {side < 0 ? (th ? "แนวซ้าย" : "Left seam") : th ? "แนวขวา" : "Right seam"}{(vein.geology?.hint || bond?.echo !== undefined) && side === echoOf(vein.seed) ? " ✦" : ""}
+      </button>)}</div>
+    </fieldset>
+    <fieldset className="my-2"><legend className="text-meta">{th ? "สิ่งที่จะรักษา" : "What to preserve"}</legend><div className="flex gap-2">{(["ore", "crystal"] as const).map(value => <button key={value} type="button" disabled={value === "crystal" && !vein.gem} aria-pressed={focus === value} onClick={() => setFocus(value)} className={`pressable min-h-11 flex-1 rounded border-2 p-2 text-meta disabled:opacity-40 ${focus === value ? "border-[#8fd45f] bg-[#31512c]" : "border-[#2a190d] bg-[#4a2f18]"}`}>{value === "ore" ? th ? "เก็บแร่" : "Gather ore" : th ? "รักษาผลึก" : "Preserve crystals"}</button>)}</div></fieldset>
+    <p className="text-meta">{focus === "crystal" ? th ? "ใช้ผลึกที่เข้าถึงแลกกับจีโอด ไม่ได้รับเศษอัญมณีจากรอบนี้" : "Reached crystals become intact geodes; this round gives no gem fragments." : th ? "ตามแนวเสียงให้ถูกเพื่อได้ก้อนแร่จากชั้นหินเพิ่ม" : "Follow the ringing seam to collect extra mineral nodules."}</p>
+    {(vein.geology?.cavities || bond?.cavities) && <p className="mt-1 text-meta text-[#bde99e]">{th ? `${bond?.cavities ? "เสียงสะท้อนเผย" : "เลนส์พบ"}จุดหินแข็ง ${face.knots.length} จุด หลีกเลี่ยงจุดเหล่านี้บนกระดาน` : `${bond?.cavities ? "The echo reveals" : "The lens finds"} ${face.knots.length} hard pockets. Avoid these knots on the board.`}</p>}
+    {(vein.geology?.cavities || bond?.cavities) && <div className="mx-auto my-2 grid w-36 grid-cols-6 gap-0.5" aria-label={th ? "ตำแหน่งหินแข็งก่อนเริ่มขุด" : "Hard pockets before mining"}>{Array.from({length:36},(_,i)=>{const x=i%6,y=Math.floor(i/6),knot=face.knots.some(([kx,ky])=>kx===x&&ky===y);return <span key={i} title={`${x+1},${y+1}`} className={`grid h-5 place-items-center rounded-sm text-label ${knot ? "bg-[#a58ad5] text-[#271939]" : "bg-[#392818] text-[#e9cfa4]"}`}>{knot ? "✦" : "·"}</span>;})}</div>}
+    <div className="mt-3 flex gap-2"><button type="button" onClick={onClose} className="pressable min-h-11 px-2 text-meta">{th ? "พักไว้" : "Leave for later"}</button><button type="button" disabled={echo === null} onClick={() => { if (echo !== null) { setChoice({ echo, focus }); setPhase(mods.spent ? "ready" : "play"); } }} data-survey-ready className="pressable min-h-11 flex-1 rounded border-2 border-[#2a190d] bg-[#f0c060] p-2 text-[#3a2209] disabled:opacity-40">{th ? "เริ่มตามชั้นแร่" : "Follow the seam"}</button></div>
+  </section>;
 
   return (
     <section aria-label={title} data-town-vein data-phase={phase} data-round={round} data-left={crack.left} data-got={crack.got.length} data-of={face.points.length} data-family={face.family}

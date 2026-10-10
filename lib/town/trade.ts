@@ -193,6 +193,11 @@ export const lotWorth = (l: Lot) => (l.n * l.pays * (l.f ?? 100)) / 100;
  * recipes they know.
  */
 export interface Purse {
+  gardenBook?: import("./garden-items").GardenCropId[];
+  insectGardenBook?: string[];
+  /** The hook chosen for the fishing rig; its item remains in the bag. */
+  fishingHook?: "hookScale" | "hookSteel" | "hookTwin" | null;
+  fishingPattern?: { key: string; n: number; at: number };
   coins: number;
   bag: Array<Stack | null>;
   bought: { round: number; n: Partial<Record<ItemId, number>> };
@@ -223,6 +228,13 @@ export interface Purse {
   best: Partial<Record<FishId, number>>;
   /** The recipes read off scrolls: of dishes, and of the one other thing a scroll tells of (lib/town/items' SCROLLS). */
   recipes: ItemId[];
+  /** Tools built at the workshop; kept apart from the kitchen's discovered recipes. */
+  crafted?: ItemId[];
+  streamTaken?: Record<string, number>;
+  streamBook?: ItemId[];
+  prepBook?: ItemId[];
+  campBook?: ItemId[];
+  campUses?: {day:number;n:number};
   /** The thing taken up to hold in the hand, for everybody to see (handOf says whether it is still held). Missing from a purse older than hands. */
   hand?: ItemId | null;
   /** (forging) The slot it was taken up from: of two tools of a kind, which is held (handSlot believes it only while that slot still has the thing). */
@@ -233,6 +245,7 @@ export interface Purse {
   wears?: ItemId[];
   /** The gifts of the lines of work somebody has taken, and the charms worn of them, the familiar that follows, and what part of a point of stamina the gloves' half has left owing (lib/town/gifts reads them, and makes them sound): in no slot of the bag. */
   gifts?: { had: string[]; charms: string[]; owed?: number; familiar?: string | null; used?: Record<string, { k: number; n: number }> };
+  combos?: import("./combo-types").ComboState;
   // ── gifts: fishing ──
   /** The sky an orb has lit for its owner, and until when (lib/town/fishing's orbOf reads it, and believes only one that still lasts). */
   orb?: { sky: string; until: number };
@@ -269,6 +282,7 @@ export interface Purse {
    * and how many chests I have dug up (lib/town/hunt).
    */
   forest?: { secrets?: number[]; hunt?: { k: number; n: number; digs: number } | null; chests?: number };
+  forestPartsBook?: string[];
   // ── gifts: insects ──
   /** The drop of nectar I have out and what it brings (lib/town/insects' Lured): the tile it lies on, the haunt it called from, the insect and how many a catch gives, from when it is there and until when, and the seed its ways follow from. Mine alone. */
   lured?: { x: number; y: number; haunt: number; bug: ItemId; n: number; from: number; until: number; seed: number } | null;

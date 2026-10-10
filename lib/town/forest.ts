@@ -1,4 +1,5 @@
 import { HOES, roll } from "./farm";
+import { gatherPart, type ForestPart, type ForestRest } from "./foraging-parts";
 import { signsOf } from "./fishing";
 import { harderFor, numberOf, useGift, usesLeft, wearing, works, type GiftRefusal } from "./gifts";
 import { ITEMS, type ItemId } from "./items";
@@ -404,7 +405,7 @@ export type ForestRefusal = "had" | "bare" | "far";
  * taken. `with`: the gift it was asked to be done with, where the plain way was there to choose too (the piglet's
  * digging, "famPiglet"). `lost`: at a secret place, the two games were not both won (one was failed, or left).
  */
-export interface Outcome { misses: number; wrong: number; with?: string | null; lost?: boolean }
+export interface Outcome { misses: number; wrong: number; with?: string | null; lost?: boolean; part?: ForestPart }
 
 /** Whether somebody on a tile is near enough a place to gather from it (`reach`: how far they reach, where it is not a tile). */
 export const reaches = (spot: Pick<Place, "x" | "y">, at: readonly [number, number], reach: number = FORAGING.reach) => Math.max(Math.abs(at[0] - spot.x), Math.abs(at[1] - spot.y)) <= reach;
@@ -446,12 +447,16 @@ export const mayGather = (kind: SpotKind, hand: ItemId | null) => KINDS[kind].ho
  * (`lost`) and my turn at it is spent for its stamina, with nothing got. It takes no hoe.
  */
 export function gather(purse: Purse, spot: Place, has: Held | null, taken: number, mine: boolean, hand: ItemId | null, at: readonly [number, number], play: Outcome, now: number):
-  Done<{ purse: Purse; got: Array<[ItemId, number]>; lost?: boolean }> | { ok: false; why: ForestRefusal | GiftRefusal } {
+  Done<{ purse: Purse; got: Array<[ItemId, number]>; lost?: boolean; rest?: ForestRest }> | { ok: false; why: ForestRefusal | GiftRefusal } {
   const kind = ruleOf(spot), secret = isSecret(spot.id);
   if (!has || (secret && !lanternLit(purse))) return no("none");
   if (mine) return { ok: false, why: "had" };
   if (taken >= kind.shares) return { ok: false, why: "bare" };
   if (!reaches(spot, at, reachOf(purse, kind.how, now))) return { ok: false, why: "far" };
+  if (play.part != null && play.part !== "whole") {
+    if (secret || play.with || play.lost) return no("none");
+    return gatherPart(purse,spot,has,play.part,hand,play.misses+play.wrong,kind.cost,turnStart(spot,has.turn+1),now);
+  }
   if (secret) {
     const spent = spend(purse, kind.cost, now);
     if (play.lost || Math.floor(play.misses) > 0 || Math.floor(play.wrong) > 0) return { ok: true, purse: spent, got: [], lost: true };

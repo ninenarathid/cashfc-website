@@ -15,6 +15,8 @@
 
 // ── the far side (in every build; reached only while setFar says it is open: see FAR below) ── the mountain's foot and the cave, each laid out in its own file
 import { CAVE_SIZE, caveFloor, depthOf, hollowAt, type CaveFloor } from "./cave";
+import type { Current, FishingHabitat } from "./river-items";
+import { mountainWater } from "./mountain-water";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 
 export const COLS = 64;
@@ -1208,7 +1210,7 @@ export const CAVE_SEATS: Prop[] = CV ? CAVE.laid.filter((n) => n % 10 === 0 && C
 if (PREVIEW) BENCHES.push(...CAVE_SEATS);
 /** Whether a tile of the mountain or of the cave stops a walker: a cliff, the rim, what stands there; rock, and a rock. */
 function moreShut(tx: number, ty: number): boolean {
-  if (within(tx, ty, MOUNTAIN)) return mountainShut.has(`${tx - MOUNTAIN.x},${ty - MOUNTAIN.y}`);
+  if (within(tx, ty, MOUNTAIN)) return mountainShut.has(`${tx - MOUNTAIN.x},${ty - MOUNTAIN.y}`) || !!mountainWater(tx-MOUNTAIN.x+0.5,ty-MOUNTAIN.y+0.5);
   const n = floorOf(tx, ty);
   if (!n) return true;
   // (the way down is stood on wherever it is: where a rock stood, its tile is shut in the layout)
@@ -1309,7 +1311,7 @@ const WEST_SEED = ARMS.find((a) => a.dir === "W")!.seed;
 /** The ground of what is to come at a point, for drawing: the mountain's, a cave floor's, and what lies beyond their edges; and the dirt the bridge's two ends stand on. Null where this has no say. */
 function moreLook(x: number, y: number): Ground | MoreGround | null {
   if (y >= BEYOND_MORE.low.y) {
-    if (within(x, y, MOUNTAIN)) return MT!.mountainGround(x - MOUNTAIN.x, y - MOUNTAIN.y);
+    if (within(x, y, MOUNTAIN)) return mountainWater(x-MOUNTAIN.x,y-MOUNTAIN.y) ? "water" : MT!.mountainGround(x - MOUNTAIN.x, y - MOUNTAIN.y);
     const n = floorOf(x, y);
     if (n) {
       const f = caveToday(n), c = floorCorner(n), u = x - c.x, v = y - c.y;
@@ -1506,7 +1508,7 @@ export function walkable(tx: number, ty: number): boolean {
  */
 export const CAST = { reach: 3.2, least: 1.2, out: 1.3, clear: 0.5 };
 /** A place to fish from: where its float lands, and whether that is deep water (off the deck) or the shallows (off the bank). */
-export interface Fishing { float: Vec; deep: boolean }
+export interface Fishing { float: Vec; deep: boolean; habitat?: FishingHabitat; current?: Current }
 
 /**
  * The tiles the deck's picture is drawn over: its boards; the edge and the
@@ -1589,6 +1591,41 @@ export function fishFrom(tx: number, ty: number): Fishing | null {
   if (known !== undefined) return known;
   let found: Fishing | null = null;
   const cx = tx + 0.5, cy = ty + 0.5;
+  if (within(tx, ty, MOUNTAIN) && walkable(tx, ty)) {
+    let best=Infinity;
+    for (const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1],[-0.7,-0.7],[0.7,-0.7],[-0.7,0.7],[0.7,0.7]]) {
+      for(let d=0.5;d<=CAST.reach;d+=0.25){
+        const u=cx-MOUNTAIN.x+dx*d,v=cy-MOUNTAIN.y+dy*d;
+        if (cliffAt(u,v)) break;
+        const water=mountainWater(u,v);
+        if(!water)continue;
+        if(d<best){best=d;found={float:{x:MOUNTAIN.x+u,y:MOUNTAIN.y+v},deep:true,...water};}
+        break;
+      }
+    }
+    fishing.set(key,found);
+    return found;
+  }
+  if (within(tx, ty, FOREST) && walkable(tx, ty)) {
+    const u = cx - FOREST.x, v = cy - FOREST.y;
+    // Probe the actual painted water, including the waterfall pool; never cast across a ford or cliff.
+    let best = Infinity;
+    for (const [dx, dy] of [[-1,0],[1,0],[0,-1],[0,1],[-0.7,-0.7],[0.7,-0.7],[-0.7,0.7],[0.7,0.7]]) {
+      for (let d = 0.5; d <= CAST.reach; d += 0.25) {
+        const x = u + dx*d, y = v + dy*d;
+        if (!inStream(x,y) || onCliff(x,y)) continue;
+        if (d < best) {
+          best = d;
+          const habitat: FishingHabitat = inPool(x,y) ? "pool" : x > 62 ? "headwater" : "creek";
+          const current: Current = habitat === "pool" || streamHalf(x) > 2.4 ? "eddy" : Math.abs(y-streamMid(x)) < streamHalf(x)*0.5 ? "run" : "shelter";
+          found = { float: {x: FOREST.x+x,y: FOREST.y+y}, deep: true, habitat, current };
+        }
+        break;
+      }
+    }
+    fishing.set(key,found);
+    return found;
+  }
   // which side of the river's middle: the town's is below it in y − x
   const side = cy - cx - riverMiddle(cx + cy - 1);
   if (onDeck(tx, ty)) {

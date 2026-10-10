@@ -17,6 +17,7 @@ import { walkable, type Vec } from "@/lib/town/world";
 import { registerTap, setAncientLook, setTreeLooks, setTreeScales } from "./mountain-art";
 import type { FarmDraw } from "./TownFarm";
 import TownFelling, { GIRTH_NAME } from "./TownFelling";
+import type { WoodSelection } from "@/lib/town/wood-grain";
 import { useLeaving } from "./useLeaving";
 import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
@@ -324,7 +325,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   }, [keeper, leaving]);
 
   /** A go is over: it is written down, judged by whoever keeps the game, and what it gave comes up on a card. */
-  const done = useCallback(async (w: Working, out: FellOutcome, how: { one?: boolean; twice?: boolean }) => {
+  const done = useCallback(async (w: Working, out: FellOutcome, how: { one?: boolean; twice?: boolean; grain?: WoodSelection }) => {
     setWorking(null);
     leaving.ended(w);
     const mine = keeper.purse(), at = keeper.now(), first = WOOD.find((t) => t.id === w.id);
@@ -333,7 +334,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       keeper.record({ game: "felling", board: "felling", ...(out.through ? {} : { how: "done" as const }), at, won: out.through, secs: out.secs, spent: isSpent(mine, at), buff: null,
         what: first?.elder ? TREES.elderKind : TREES.kinds[(first?.tier ?? 1) - 1], need: out.chops, hits: out.cut, misses: out.misses });
     }
-    const did = await keeper.fellDo({ tree: w.id, through: out.through, misses: out.misses, secs: out.secs, ...(how.one ? { one: true } : {}), ...(how.twice ? { twice: true } : {}) }, w.from, name);
+    const did = await keeper.fellDo({ tree: w.id, through: out.through, misses: out.misses, secs: out.secs, ...(how.one ? { one: true } : {}), ...(how.twice ? { twice: true } : {}), ...(how.grain ? { grain: how.grain } : {}) }, w.from, name);
     if (!did.ok) { say(did.why, w.id); return; }
     // (a go that was lost: the tree stands, nothing was given and nothing spent; said in a word, with how near it was)
     if (did.stood) {
@@ -557,6 +558,9 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
               </li>
             ))}
           </ul>
+          {card.did.felled[0]?.quality && <p className="mt-2 text-ui text-[#bde99e]" data-wood-quality={card.did.felled[0].quality}>
+            {th ? ({ rough: "เสี้ยนสะดุด", clear: "แนวเสี้ยนสะอาด", heart: "รักษาแก่นไม้ได้" } as const)[card.did.felled[0].quality] : ({ rough: "Rough grain", clear: "Clean grain", heart: "Heartwood preserved" } as const)[card.did.felled[0].quality]}
+          </p>}
           {card.did.fire && <p className="mt-1.5 text-ui font-semibold text-[#ffe19a]" data-trees-fire>{fireFoundWords(card.did.fire, th)}</p>}
           {/* each tree of the go: its fine timber, won and not; and how near the go was to more */}
           {card.out && (
@@ -597,7 +601,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       )}
       {working ? (
         <div key={`${working.id}:${working.ask.seed}`} className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game="felling" data-tree={working.id}>
-          <TownFelling th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers} braced={bracer?.name ?? null}
+          <TownFelling onBond={async notches => { const d=await keeper.comboPrepare?.("wood",{notches}); return d?.ok ? d.effect : undefined; }} th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers} braced={bracer?.name ?? null}
                        onDone={(out, how) => void done(working, out, how)} onCancel={() => cancel(working)} />
         </div>
       ) : here && !card && !book && (

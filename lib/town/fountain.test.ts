@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { cook } from "./cooking";
 import { chore, sow, water, type Plot } from "./farm";
-import { BLESSINGS, NOTE, WISH, WISHES, WISHING, blessed, blessingsOf, dawned, firstGoal, goalOf, hastened, newFountain, shadeOf, tidyNote, toss, type Fountain, type WishId } from "./fountain";
+import { BLESSINGS, LATER, NOTE, WISH, WISHES, WISHING, blessed, blessingsOf, dawned, firstGoal, goalOf, hastened, newFountain, shadeOf, tidyNote, toss, type Fountain, type WishId } from "./fountain";
 import { BUFFS, CROPS, type ItemId } from "./items";
 import { buffOf, buffsOf, costOf, hasBuff } from "./stamina";
 import { HOUR, newPurse, type Purse, type Stack } from "./trade";
@@ -52,8 +52,9 @@ describe("a coin tossed", () => {
   });
   it("can be for any of what a meal leaves behind, and for the eight that are the fountain's own", () => {
     // (the last two are the forest's and the insects': in the database their own file, v125, puts them after v123's eleven)
-    expect(WISHES).toEqual([...Object.keys(BUFFS), "swift", "clear", "spring", "sprout", "feast", "carry", "forage", "net"]);
-    expect(Object.keys(WISH).filter((w) => !WISHES.includes(w as WishId))).toEqual([]);
+    expect(WISHES).toEqual([...Object.keys(BUFFS).filter(id => !LATER.includes(id as WishId)), "swift", "clear", "spring", "sprout", "feast", "carry", "forage", "net"]);
+    expect(new Set(Object.keys(WISH).filter((w) => !WISHES.includes(w as WishId)))).toEqual(new Set(LATER));
+    expect(toss(rich(5), newFountain(), "a", "current" as WishId, 1, NOON, 0)).toEqual({ ok: false, why: "none" });
     expect(toss(rich(5), newFountain(), "a", "rain" as WishId, 1, NOON, 0)).toEqual({ ok: false, why: "none" });
     for (const w of WISHES) expect(WISH[w].name.th && WISH[w].about.th && WISH[w].icon).toBeTruthy();
     for (const w of WISHES) expect(tossed(rich(5), newFountain(), "a", w, 1, NOON).fountain.by).toEqual({ [w]: 1 });

@@ -1,4 +1,13 @@
 import { BOX, MORE_CHESTS } from "./box";
+import { GARDEN } from "./gardening";
+import { INSECT_GARDEN } from "./insect-garden";
+import { FORAGE_PARTS } from "./foraging-parts";
+import { STREAM_WORK } from "./stream-work";
+import { PREPARATION } from "./preparation";
+import { CAMPS } from "./camps";
+import { baseCraftRow, craftRow } from "./crafting";
+import { GEOLOGY } from "./geology";
+import { WOODCUTTING } from "./woodcutting";
 import { farCedar, farTrees } from "./far-side";
 import { giftsRowAll } from "./gifts";
 import { linesRow } from "./line-points";
@@ -39,7 +48,7 @@ import { GOODS, RULES } from "./trade";
 import { WATERS } from "./waters";
 import { WELL_BOOK } from "./well";
 import { DRINK, FROG, MOON } from "./well-gifts";
-import { BEDS_IN_FARM, COLS, FARM, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
+import { BEDS_IN_FARM, COLS, FARM, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
 
 /**
@@ -83,6 +92,15 @@ function bedSide(): number {
 /** The whole catalog, a document to a key. */
 export function catalogOf() {
   return {
+    workshop: craftRow(),
+    woodcutting: WOODCUTTING,
+    geology: GEOLOGY,
+    gardening: GARDEN,
+    insect_garden: INSECT_GARDEN,
+    forest_parts: FORAGE_PARTS,
+    stream_work: STREAM_WORK,
+    preparation: PREPARATION,
+    camps: CAMPS,
     /** Every thing: its kind, its tier, how many stack in a slot, what the uncle's relatives pay. */
     items: Object.fromEntries(ITEM_IDS.map((id) => [id, { kind: ITEMS[id].kind, tier: ITEMS[id].tier, stack: ITEMS[id].stack, pays: ITEMS[id].pays }])),
     /** What the stall sells: its price, its stock a round for the village, how many one person may buy a round. */
@@ -118,6 +136,7 @@ export function catalogOf() {
       tier: FISH[id].tier, baits: FISH[id].baits, hours: FISH[id].hours, rain: FISH[id].rain, wait: FISH[id].wait, size: FISH[id].size,
       effort: FISH[id].fight.effort, line: FISH[id].fight.line,
       ...(FISH[id].dry === undefined ? {} : { dry: FISH[id].dry }), ...(FISH[id].water ? { water: FISH[id].water } : {}), ...(FISH[id].needs ? { needs: FISH[id].needs } : {}),
+      ...(FISH[id].habitat ? { habitat:FISH[id].habitat } : {}), ...(FISH[id].current ? { current:FISH[id].current } : {}),
     }])),
     /** What comes up that is no fish. */
     flotsam: FLOTSAM,
@@ -151,7 +170,12 @@ export function catalogOf() {
       wary: WARY, bouts: BOUTS,
       // (with the deck finished, whatever is shown where this is asked: lib/town/world's asBuilt)
       places: asBuilt(() => Object.fromEntries(Array.from({ length: COLS * ROWS }, (_, i): [number, number] => [i % COLS, Math.floor(i / COLS)])
+        .concat(Array.from({length:MOUNTAIN.w*MOUNTAIN.h},(_,i):[number,number]=>[MOUNTAIN.x+i%MOUNTAIN.w,MOUNTAIN.y+Math.floor(i/MOUNTAIN.w)]))
+        .concat(Array.from({length:FOREST.w*FOREST.h},(_,i):[number,number]=>[FOREST.x+i%FOREST.w,FOREST.y+Math.floor(i/FOREST.w)]))
         .flatMap(([x, y]) => { const f = fishFrom(x, y); return f ? [[`${x},${y}`, f.deep] as [string, boolean]] : []; }))),
+      waters: asBuilt(() => Object.fromEntries(Array.from({length:FOREST.w*FOREST.h},(_,i):[number,number]=>[FOREST.x+i%FOREST.w,FOREST.y+Math.floor(i/FOREST.w)])
+        .concat(Array.from({length:MOUNTAIN.w*MOUNTAIN.h},(_,i):[number,number]=>[MOUNTAIN.x+i%MOUNTAIN.w,MOUNTAIN.y+Math.floor(i/MOUNTAIN.w)]))
+        .flatMap(([x,y])=>{const f=fishFrom(x,y);return f ? [[`${x},${y}`,{habitat:f.habitat,current:f.current}]] : [];}))),
     },
     /** Every vegetable: its seed, the hours from sowing to ripe, how many a picking gives (least and most), and, for one that bears again, the hours until it is ripe again and how many times it is picked in all. */
     crops: Object.fromEntries(CROP_IDS.map((id) => [id, { seed: CROPS[id].seed, hours: CROPS[id].hours, yield: CROPS[id].yield, again: CROPS[id].again ?? null, picks: CROPS[id].picks ?? 1 }])),
@@ -508,7 +532,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * line to be won) and `insects` (new: `rare`, the kinds that are rare among the others).
  */
 // v176 ran on 2026-10-10: box_upgrade holds the character's three expansion prices, up to forty slots.
-export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = { v180: { keys: ["workshop"], over: [] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {
@@ -520,6 +544,7 @@ function lines(doc: unknown): string {
 /** The seed a migration carries: the rows of `town_catalog` it adds, and those it writes over, as SQL. Between the two marked lines of its file. */
 export function seedFor(version: string): string {
   const all = catalogOf() as Record<string, unknown>;
+  if (version === "v180") all.workshop = baseCraftRow();
   const { keys, over } = CATALOG_KEYS[version];
   // (the two rows that list the mountain are never written without it: a production build lays none out, and a
   // database given that would have no tree to fell and no rock to strike)

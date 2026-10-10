@@ -1,7 +1,18 @@
+import { comboCue, comboLoadout, prepareCombo, rescueCombo } from "./private/combos";
+import { mineOf } from "./mining";
+import type { ComboContext, ComboReply } from "./combo-types";
+import type { RockChoice } from "./geology";
+import type { InsectCare } from "./insect-garden";
 import { COOKING, type Taste } from "./cooking";
+import type { CraftId } from "./crafting";
+import type { StreamAction } from "./stream-work";
+import type { PrepAnswers, PrepId } from "./preparation";
+import type { Current } from "./river-items";
+import { castPattern, currentAt, patternOdds } from "./river-fishing";
+import { fishFrom } from "./world";
 import type { Give } from "./deal";
 import type { Chore, Deed } from "./farm";
-import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
+import { ALL_SIGNS, PAIR, SIGNS, WARY, biggerBy, castFrom, driveBack, harderOf, hookBaits, hookStar, isWary, lightOrb, linesOf, oddsOf, orbHaste, orbOf, seeded, sift, signsOf, starOdds, tookUp, underOrb, type Cast, type Strike } from "./fishing";
 // ── forging: old tools ──
 import { baitKept, called, calledCast, fightPaid, goldStrike, lulled, rarer, rodHaste, rodOf } from "./fishing";
 import { rodFx } from "./forged";
@@ -55,7 +66,7 @@ class TrialKeeper implements Keeper {
   /** The line that is out: what is on its way, and the bait it took. */
   // ── gifts: fishing ── (`again`: the otter has driven this line's fish back once; `two`: what is on the second line of a rod of two lines, while both are on)
   // (`bait`: none, of a stardust bait: nothing left the bag, and nothing comes back to it; `told`: the line told what was on its way; `hooked`: a strike has set the hook; `harder`: how many times as hard the deck's good fish are for whoever dropped it)
-  private out: { cast: Cast; bait: BaitId | null; again?: boolean; two?: { what: CatchId; size: number }; told?: boolean; hooked?: boolean; harder?: number } | null = null;
+  private out: { loadout: string; at: number; cast: Cast; bait: BaitId | null; again?: boolean; hooks?: Array<{ what: CatchId; size: number }>; told?: boolean; hooked?: boolean; harder?: number } | null = null;
   /** For scripts: what the next lines bring, whatever the odds (this keeper is `next dev`'s only). */
   private fated: CatchId[] = [];
   willBite(ids: CatchId[]) { this.fated = [...ids]; }
@@ -105,6 +116,17 @@ class TrialKeeper implements Keeper {
   notices() { return this.trial.notices(); }
 
   async buy(item: ItemId, n: number): Promise<Did> { return this.trial.buy(item, n); }
+  async craft(item: CraftId, request: string): Promise<Did<{ item: CraftId; n: number; fee: number }>> {
+    return this.trial.craft(item, request);
+  }
+  streamGate() { return this.trial.streamGate(); }
+  preparationBegin(recipe:PrepId,at:[number,number],request:string){return Promise.resolve(this.trial.preparationBegin(recipe,at,request));}
+  preparationEnd(run:string,answers:PrepAnswers,at:[number,number]){return Promise.resolve(this.trial.preparationEnd(run,answers,at));}
+  camps(){return this.trial.camps();}
+  async campsLook(){this.trial.campsLook();}
+  campDo(action:"place"|"benefit",site:number,supply:string|null,at:[number,number],request:string){return Promise.resolve(this.trial.campDo(action,site,supply,at,request));}
+  async streamLook() {}
+  async streamDo(action: StreamAction, choice: string, at: [number,number], request: string) { return this.trial.streamDo(action,choice,at,request); }
   async hint(): Promise<Did<{ hint: ItemId }>> { return this.trial.hint(); }
   async orderGive(slot: number, n: number) { return this.trial.orderGive(slot, n); }
   async leave(slot: number, n: number): Promise<Did> { return this.trial.leave(slot, n); }
@@ -156,6 +178,7 @@ class TrialKeeper implements Keeper {
     return { ok: true };
   }
   async wear(slot: number): Promise<Did> { return this.trial.wear(slot); }
+  async rodHook(item: string | null): Promise<Did> { return this.trial.rodHook(item); }
   async takeOff(item: ItemId): Promise<Did> { return this.trial.takeOff(item); }
   async serve(slot: number): Promise<Did<{ dish: DishId }>> { return this.trial.serve(slot); }
   async drop(slot: number): Promise<Did> { this.trial.drop(slot); return { ok: true }; }
@@ -172,13 +195,14 @@ class TrialKeeper implements Keeper {
     return did;
   }
 
-  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false, how?: CastHow): Promise<Did<CastTold>> {
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick = false, how?: CastHow, chosen?: Current): Promise<Did<CastTold>> {
     // ── gifts: fishing ── (a rod of two lines is its owner's to drop, and takes two of the bait; a stardust bait is its owner's too, and takes none)
     const pair = how === "pair", star = how === "star", now = this.trial.now(), kept = this.trial.purse();
-    if ((pair && !works(kept, "thingRod")) || (star && !works(kept, "thingBait"))) return { ok: false, why: "none" };
+    const count = pair ? linesOf(kept, this.handSlot()) : 1;
+    if ((pair && count < 2) || (star && !works(kept, "thingBait"))) return { ok: false, why: "none" };
     // (a line still out with nothing hooked, dropped over: that is a line taken up, and counted so)
     const p = this.out && !this.out.hooked ? tookUp(kept, now) : kept;
-    const hooked = star ? hookStar(p, now) : hookBaits(p, bait, pair ? PAIR.lines : 1);
+    const hooked = star ? hookStar(p, now) : hookBaits(p, bait, count);
     if (!hooked.ok) return hooked;
     // What some fish wait for (lib/town/fishing's signs), by this browser's clock, its purse and its sky. The others'
     // lines it cannot know (each tab keeps its own): `&townSigns=crowd` says they are out, and any other sign named
@@ -186,12 +210,15 @@ class TrialKeeper implements Keeper {
     const named = (typeof location === "undefined" ? "" : new URLSearchParams(location.search).get("townSigns") ?? "").split(",").filter((x): x is Sign => ALL_SIGNS.includes(x as Sign));
     const signs = [...new Set([...signsOf({ now, spent: isSpent(p, now), others: 0, wet: wetMs(SKIES.rains(), now - SIGNS.after * 60_000, now) }, rain), ...named])];
     const rnd = seeded(Math.floor(Math.random() * 2 ** 31));
+    const water = fishFrom(...place.tile), habitat = water?.habitat ?? "town", current = currentAt(habitat,water?.current,chosen);
+    const pattern = castPattern(p,bait,place.tile,current,now);
     // (under a sky orb the water answers its owner as if under that sky: the hour, the rain and the signs are the orb's)
     const sky = orbOf(p, now), under = underOrb(sky, bangkokHour(now), rain, signs);
     // What may take it: the bait's own odds; a stardust bait's, every rare fish and better of this water and sky that
     // the uncle's shelf has reached; of a pair, never a legend; and for a hand the rare fish have grown wary of, none
     // of them.
-    let odds = star ? starOdds(under.rain, !place.deep, under.signs, Math.max(...this.trial.shelf().map((id) => ITEMS[id].tier))) : oddsOf(bait, under.hour, under.rain, levelOf(p, now, "lucky"), !place.deep, under.signs);
+    let odds = star ? starOdds(under.rain, !place.deep, under.signs, Math.max(...this.trial.shelf().map((id) => ITEMS[id].tier)),habitat,current) : oddsOf(bait, under.hour, under.rain, levelOf(p, now, "lucky"), !place.deep, under.signs,habitat,current);
+    if (habitat !== "town") odds = patternOdds(odds,pattern.n);
     if (pair) odds = sift(odds, PAIR.never);
     if (isWary(p, now)) odds = sift(odds, WARY.tiers);
     // ── forging: old tools ── (what the rod carries of its own: rare fish oftener with one, a bite sooner with another)
@@ -200,11 +227,11 @@ class TrialKeeper implements Keeper {
     // (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
     if (!odds.length) return { ok: false, why: "calm" };
     // (the line goes out: the bait has left the bag, or the stardust is counted)
-    this.trial.fished(hooked.purse);
+    this.trial.fished(habitat !== "town" ? {...hooked.purse,fishingPattern:pattern} : hooked.purse);
     // (from the fourth rank of the deck, what is uncommon or better is bigger, and fights harder)
     const harder = harderFor("fishing", this.trial.lines().lines.fishing.points);
     const draw = () => { const fate = this.fated.shift(), c = castFrom(fate ? [{ what: fate, p: 1 }] : odds, rnd); return { ...c, size: biggerBy(c.size, harderOf(c.what, harder)) }; };
-    const drawn = draw(), second = pair ? draw() : null;
+    const drawn = draw(), others = Array.from({ length: count - 1 }, draw);
     // (the fountain's blessings: a bite that comes sooner, and water clear enough to see the shade of what is coming)
     const blessed = hasBuff(p, now, "swift") ? hastened(drawn) : drawn;
     // (and under an orb the bite comes sooner still)
@@ -213,11 +240,11 @@ class TrialKeeper implements Keeper {
     const call = called(this.trial.purse(), now, this.handSlot());
     if (call) this.trial.fished(call);
     const cast = call ? calledCast(sooner) : haste > 0 ? hastened(sooner, haste) : sooner, told = wearing(p, "charmFloat");
-    this.out = { cast, bait: star ? null : bait, told, harder, ...(second ? { two: { what: second.what, size: second.size } } : {}) };
+    this.out = { cast, loadout: comboLoadout(p), at: now, bait: star ? null : bait, told, harder, ...(pair ? { hooks: [cast, ...others].map(({ what, size }) => ({ what, size })) } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
     return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}), ...(told ? { coming: cast.what } : {}),
-      ...(second ? { pair: true } : {}), ...(second && told ? { coming2: second.what } : {}) };
+      ...(pair ? { pair: true, lines: count } : {}), ...(others[0] && told ? { coming2: others[0].what } : {}) };
   }
   // ── gifts: fishing ──
   async orbLight(sky: string): Promise<Did<{ until: number }>> {
@@ -238,14 +265,14 @@ class TrialKeeper implements Keeper {
     if (!how) { this.out = null; this.letBy(o); return { ok: true, hooked: false, how: "early", what, size }; }
     o.hooked = true;
     // ── gifts: fishing ── (a rod of two lines: both are hooked by the one strike; what is no fish comes in at once, a fish's fight is paid for, each its own)
-    if (o.two) {
+    if (o.hooks) {
       const told: Hooked[] = [], onhook: Array<{ what: CatchId; size: number }> = [];
-      for (const thing of [{ what, size }, o.two]) {
+      for (const thing of o.hooks) {
         if (!(thing.what in FISH)) told.push({ what: thing.what, size: 0, landed: true, kept: this.trial.land(thing.what, 0).kept });
         else { this.trial.fished(lulled(fightPaid(this.trial.purse(), FISH[thing.what as FishId].fight.effort, this.trial.now(), this.handSlot()), thing.what, this.trial.now(), this.handSlot())); onhook.push(thing); told.push({ ...thing, landed: false }); }
       }
       if (!onhook.length) this.out = null;
-      else { o.cast = { ...o.cast, ...onhook[0] }; o.two = onhook[1]; }
+      else { o.cast = { ...o.cast, ...onhook[0] }; o.hooks = onhook.length > 1 ? onhook : undefined; }
       return { ok: true, hooked: true, what: told[0].what, size: told[0].size, landed: !onhook.length, kept: told[0].kept, pair: told, ...harder };
     }
     if (!(what in FISH)) {
@@ -265,23 +292,25 @@ class TrialKeeper implements Keeper {
     if (o) this.letBy(o);
     return o ? { what: o.cast.what, size: o.cast.size } : {};
   }
-  async land(how: "landed" | "snapped" | "slipped" | "left", _fight?: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed> {
+  async land(how: "landed" | "snapped" | "slipped" | "left", _fight?: Record<string, unknown> | null, which?: number): Promise<Landed> {
     const o = this.out;
     if (!o) return { how, kept: false, record: false };
     // ── gifts: fishing ── (a line pulled up with nothing hooked yet: a line taken up, and counted so)
     if (!o.hooked) { this.out = null; this.trial.fished(tookUp(this.trial.purse(), this.trial.now())); return { how: "left", kept: false, record: false }; }
     // (two fish still on a rod of two lines: one of them has ended, and the line is a line as any other from here, with the other)
-    if (o.two && how !== "left") {
-      const first = { what: o.cast.what, size: o.cast.size }, mine = which === 1 ? o.two : first, other = which === 1 ? first : o.two;
-      o.cast = { ...o.cast, ...other };
-      o.two = undefined;
+    if (o.hooks && how !== "left") {
+      const i = which ?? 0;
+      if (!Number.isInteger(i) || i < 0 || i >= o.hooks.length) return { how: "left", kept: false, record: false, more: true };
+      const mine = o.hooks[i], others = o.hooks.filter((_, j) => j !== i);
+      o.cast = { ...o.cast, ...others[0] };
+      o.hooks = others.length > 1 ? others : undefined;
       if (how === "landed") return { how, ...this.trial.land(mine.what, mine.size), more: true };
       if (how === "snapped" && o.bait) this.trial.lose(o.bait);
       return { how, kept: false, record: false, ...(o.bait && this.trial.back(o.bait) ? { back: true } : {}), more: true };
     }
     // (the otter drives a fish that got away back, once to a line: the line stays out, and the fight is to be had again)
     const driven = driveBack(this.trial.purse(), how, !!o.again, this.trial.now());
-    if (driven.ok) { this.trial.fished(driven.purse); o.again = true; return { how, kept: false, record: false, again: true }; }
+    if (driven.ok) { const bond = rescueCombo(driven.purse, `fish:${o.at}`, this.trial.now(), o.loadout); this.trial.fished(bond?.purse ?? driven.purse); o.again = true; return { how, kept: false, record: false, again: true, ...(bond ? { combo: bond.effect } : {}) }; }
     this.out = null;
     // ── forging: old tools ── (a fish landed with a rod that spares the bait so often: the bait is back in the bag, where there is room)
     if (how === "landed" && o.bait && o.cast.what in FISH && baitKept(this.trial.purse(), Math.random(), this.handSlot())) return { how, ...this.trial.land(o.cast.what, o.cast.size), ...(this.trial.back(o.bait) ? { back: true } : {}) };
@@ -293,7 +322,7 @@ class TrialKeeper implements Keeper {
   }
 
   async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
-    const did = this.trial.farmDo(key, name, sure);
+    const did = this.trial.farmDo(key, name, sure, timing?.rotation ?? 0);
     // every miss of the hoe is a little more stamina gone
     if (did.ok && timing?.misses) this.trial.spend(timing.misses);
     return did;
@@ -304,6 +333,7 @@ class TrialKeeper implements Keeper {
   async rowDo(key: string, name: string, marks: Record<string, boolean>): Promise<Did<RowDid>> { return this.trial.rowDo(key, name, marks); }
   gnomeAt(key: string) { return this.trial.gnomeAt(key); }
   async gnomeDo(key: string): Promise<Did<{ watered: string[] }>> { return this.trial.gnomeDo(key); }
+  async insectCare(key: string, slot: number, mode: InsectCare): Promise<Did> { return this.trial.insectCare(key, slot, mode); }
   glassAt(key: string) { return this.trial.glassAt(key); }
   async glassDo(key: string): Promise<Did<{ quickened: string[]; until: number }>> { return this.trial.glassDo(key); }
   // ── gifts: helpers ──
@@ -323,6 +353,24 @@ class TrialKeeper implements Keeper {
   async charmsWear(ids: readonly string[]): Promise<Did> { return this.trial.charmsWear(ids); }
   gives() { return true; }
   async familiarWear(id: string | null): Promise<Did> { return this.trial.familiarWear(id); }
+  private woodBond: { tree: number; at: number; loadout: string; hints: number } | null = null;
+  private veinBonds = new Map<string,string>();
+  private veinKey(v: NonNullable<ReturnType<typeof mineOf>["vein"]>) { return `vein:${v.f}:${v.rock}:${v.turn}:${v.seed}:${!!v.again}`; }
+  async comboPrepare(context: ComboContext, input: Record<string, unknown> = {}): Promise<Did<ComboReply>> {
+    const p=this.trial.purse(), now=this.trial.now();
+    if(context === "wear") return { ok:true, cue:comboCue(p,"wear") };
+    let bond: ReturnType<typeof prepareCombo> = null;
+    if(context === "wood") {
+      const w=this.woodBond;
+      if(w && now>=w.at && now-w.at<=45000) bond=prepareCombo(p,context,`wood:${w.at}:${w.tree}`,now,{...w,notches:input.notches});
+    } else {
+      const v=mineOf(p).vein;
+      if(v?.geology) { const key=this.veinKey(v); bond=prepareCombo(p,context,key,now,{seed:v.seed,...v.geology,loadout:this.veinBonds.get(key)}); }
+    }
+    if(!bond) return {ok:false,why:"none"};
+    this.trial.fished(bond.purse);
+    return {ok:true,effect:bond.effect};
+  }
   async giftUse(id: string): Promise<Did<{ left: number }>> { return this.trial.giftUse(id); }
   async wellLook() { /* the book is in this browser already */ }
   async wellTake(): Promise<Did<{ gift: ItemId; rank: number }>> { return this.trial.wellTake(); }
@@ -354,13 +402,23 @@ class TrialKeeper implements Keeper {
   cave() { return this.trial.cave(this.caveAt.floor, this.caveAt.at); }
   async caveLook(floor: number, at: [number, number] | null) { this.caveAt = { floor, at }; }
   async mineDo(floor: number, rock: number, at: [number, number], swings: number, name: string, how?: "quake"): Promise<MineDone<MineDid>> {
+    const loadout=comboLoadout(this.trial.purse());
+    const before=mineOf(this.trial.purse()).vein;
     const did = this.trial.mineDo(floor, rock, at, swings, name, how);
+    const v=mineOf(this.trial.purse()).vein;
+    if(did.ok && v && (!before || this.veinKey(before)!==this.veinKey(v))) { this.veinBonds.clear(); this.veinBonds.set(this.veinKey(v),loadout); }
     if (did.ok) this.onDeed?.("cave");
     if (did.ok && typeof did.paid === "string") this.onDeed?.("line", did.paid);
     return did;
   }
   async minePeek(floor: number, rock: number): Promise<MineDone<{ peek: Peek }>> { return this.trial.minePeek(floor, rock); }
-  async veinDo(strikes: Array<[number, number]>): Promise<MineDone<VeinDid>> { return this.trial.veinDo(strikes); }
+  async veinDo(strikes: Array<[number, number]>, choice?: RockChoice): Promise<MineDone<VeinDid>> {
+    const before=mineOf(this.trial.purse()).vein;
+    const loadout=before ? this.veinBonds.get(this.veinKey(before)) : undefined;
+    const did=this.trial.veinDo(strikes, choice), after=mineOf(this.trial.purse()).vein;
+    if(did.ok && after && loadout) this.veinBonds.set(this.veinKey(after),loadout);
+    return did;
+  }
   async caveReach(floor: number) { this.trial.caveReach(floor); }
   async liftRide(to: number): Promise<MineDone<{ at: [number, number] | null }>> { return this.trial.liftRide(to); }
   async torchDown(at: [number, number]): Promise<MineDone<{ until: number }>> {
@@ -489,7 +547,7 @@ class TrialKeeper implements Keeper {
   async fireLeave() { return this.trial.fireLeave(); }
   // ── felling ── (whoever else is on the mountain is in another tab: told through the room, as the database's keeper tells them)
   trees() { return this.trial.trees(); }
-  async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { return this.trial.fellBegin(tree, at); }
+  async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { const did=this.trial.fellBegin(tree, at); if(did.ok) this.woodBond={tree,at:this.trial.now(),loadout:comboLoadout(this.trial.purse()),hints:did.ask.grain?.hints ?? 0}; return did; }
   async fellDo(went: FellWent, at: [number, number], name: string): Promise<Did<FellDid>> {
     const did = this.trial.fellDo(went, at, name);
     if (did.ok && did.felled.length) this.onDeed?.("trees");

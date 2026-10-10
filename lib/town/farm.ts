@@ -3,6 +3,8 @@ import { toolPaid } from "./forged-keep";
 import { mayPower, powerLeft, powerUsed, usePower } from "./powers";
 import { optN } from "./tools";
 import { FIELD } from "./gear";
+import { GARDEN_CROPS } from "./garden-items";
+import { gardenHarvest } from "./gardening";
 import { CROPS, CROP_IDS, ITEMS, growth, type CropId, type ItemId } from "./items";
 import { BLESSINGS } from "./fountain";
 import { famBy, gloved, harderFor, hasThing, numberOf, useGift, usesLeft, wearing } from "./gifts";
@@ -158,6 +160,14 @@ export const BEDS = { empty: 24, untended: 96, each: 2 };
 export type Soil = "wild" | "cleared" | "tilled";
 /** A plant in a plot: who sowed it, what, and what has been done to it. Times are milliseconds. */
 export interface Plant {
+  /** A released pollinator works once each time this plant bears. */
+  pollenRound?: number;
+  pollenUntil?: number;
+  /** A sprawling plant is tended and harvested only at its root plot. */
+  root?: string;
+  footprint?: string[];
+  rotation?: number;
+  crossed?: boolean;
   by: string;
   crop: CropId;
   sown: number;
@@ -544,7 +554,7 @@ export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): numb
 /** Pick a ripe plant into the bag (which must have the room), by somebody who may. One that bears again goes back a stage; another leaves the plot cleared. */
 export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: ItemId | null, now: number, rains: FarmSky = DRY): Did | { ok: false; why: Refusal } {
   const p = plot.plant, seen = see(key, plot, now, rains);
-  if (!p || seen.dead) return not("soil");
+  if (!p || seen.dead || (p.root && p.root !== key)) return not("soil");
   if (!may) return not("theirs");
   if (!seen.ripe) return not("unripe");
   const n = yieldOf(key, p, hasInHand(purse, hand) ? hand : null);
@@ -573,6 +583,7 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
 export type Deed = "clear" | "till" | "pull" | "uproot" | "sow" | "water" | "feed" | "cure" | "pick";
 // (`twice`: the can in the hand waters a plant twice in an hour now, lib/town/farm's mayTwice: a plant wet from one watering is offered another)
 export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY, twice = false): Deed | null {
+  if (plot.plant?.root && plot.plant.root !== key) return null;
   const seen = see(key, plot, now, rains), kind = toolOf(hand), p = plot.plant, mine = owner === null || owner === me;
   if (kind === "hoe") return p ? (!mine ? null : seen.dead ? "pull" : "uproot") : plot.soil === "wild" ? "clear" : plot.soil === "cleared" ? "till" : null;
   if (kind === "seed") return mine && plot.soil === "tilled" && !p ? "sow" : null;
@@ -779,6 +790,7 @@ export function rowFor(at: string, keys: readonly string[], plots: Readonly<Reco
   if (!keys.includes(at)) return null;
   const hand = handOf(purse), want = (key: string) => deedFor(key, plots[key] ?? WILD, hand, me, now, owner, rains);
   const deed = want(at);
+  if (deed === "sow" && Object.values(GARDEN_CROPS).some(c => c.seed === hand)) return null;
   const hoes = (deed === "clear" || deed === "till") && wearing(purse, "charmHoe"), sows = deed === "sow" && hasThing(purse, "thingPouch");
   // (the sickle is for its wearer's own beds: not somebody else's, nor one that is nobody's)
   const reaps = deed === "pick" && owner === me && wearing(purse, "charmSickle");
@@ -858,7 +870,7 @@ export function glassTurn(plots: Readonly<Record<string, Plot>>, purse: Purse, m
   if (usesLeft(purse, "thingHourglass", now) < 1) return { ok: false, why: "spent" };
   if (owner !== me) return { ok: false, why: "theirs" };
   const yx = (key: string) => key.split(",").map(Number);
-  const live = Object.keys(plots).filter((key) => !!plots[key].plant && !see(key, plots[key], now, rains).dead).sort((a, b) => yx(a)[1] - yx(b)[1] || yx(a)[0] - yx(b)[0]);
+  const live = Object.keys(plots).filter((key) => !!plots[key].plant && (!plots[key].plant!.root || plots[key].plant!.root === key) && !see(key, plots[key], now, rains).dead).sort((a, b) => yx(a)[1] - yx(b)[1] || yx(a)[0] - yx(b)[0]);
   if (live.some((key) => quickUntil(plots[key].plant, now) !== null)) return { ok: false, why: "running" };
   // (it is turned for what is still on its way: a bed of plants that only wait to be picked has nothing to gain)
   if (!live.some((key) => !see(key, plots[key], now, rains).ripe)) return { ok: false, why: "soil" };
@@ -883,7 +895,11 @@ export interface RowDone { key: string; crop: CropId | null; n: number; well?: b
 export function rowTend(at: string, keys: readonly string[], plots: Readonly<Record<string, Plot>>, bed: Bed | undefined, rest: number, holds: number, purse: Purse, me: string, now: number,
   marks: Readonly<Record<string, boolean>>, rains: FarmSky = DRY):
   { ok: true; deed: RowDeed; purse: Purse; plots: Record<string, Plot>; bed: Bed | undefined; each: RowDone[]; got: Array<[ItemId, number]>; seeds?: number } | { ok: false; why: Refusal | FarmRefusal } {
-  const planted = (state: Readonly<Record<string, Plot>>, but: string) => rest + keys.filter((k) => k !== but && !!state[k]?.plant).length;
+  // A vertical footprint can extend beyond this row. Removing it also changes
+  // the plants counted outside the row before the next root is harvested.
+  const planted = (state: Readonly<Record<string, Plot>>, but: string) => rest
+    + Object.keys(state).filter(k => !keys.includes(k)).reduce((n, k) => n + Number(!!state[k]?.plant) - Number(!!plots[k]?.plant), 0)
+    + keys.filter((k) => k !== but && !!state[k]?.plant).length;
   const found = rowFor(at, keys, plots, purse, me, now, ownerOf(bed, planted(plots, "") > 0, now), rains);
   if (!found) return { ok: false, why: "none" };
   const state: Record<string, Plot> = {}, each: RowDone[] = [], sows = found.deed === "sow", reaps = found.deed === "pick", hand = handOf(purse), got = new Map<ItemId, number>();
@@ -894,9 +910,11 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
     // (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown; and every plant the
     // sickle swung at is picked, however it was cut: only one that was not in the sweep is left)
     if (reaps ? !(key in marks) : !sows && marks[key] !== true) continue;
-    const plot = state[key] ?? plots[key] ?? WILD, did = tend(key, plot, keeping, planted({ ...plots, ...state }, key), holds, mine, me, now, rains);
+    const plot = state[key] ?? plots[key] ?? WILD, base = tend(key, plot, keeping, planted({ ...plots, ...state }, key) - ((plot.plant?.footprint?.length ?? 1) - 1), holds, mine, me, now, rains);
+    const did = base.ok && reaps ? gardenHarvest(key, { ...plots, ...state }, mine, base, me, now, rains) : base;
     if (!did.ok || did.deed !== found.deed) { if (!each.length && !did.ok) return did; break; }
     mine = did.purse; keeping = did.bed; state[key] = did.plot;
+    for (const cell of plot.plant?.footprint ?? []) state[cell] = did.plot;
     // (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
     if (sows && each.length < spared) mine = { ...mine, bag: put(mine.bag, hand!, 1) };
     if (!reaps) { each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 }); continue; }
@@ -906,6 +924,7 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
     const n = (did.got[0]?.[1] ?? 0) + more;
     each.push({ key, crop, n, well });
     got.set(crop, (got.get(crop) ?? 0) + n);
+    for (const [id, amount] of did.got.slice(1)) got.set(id, (got.get(id) ?? 0) + amount);
   }
   return { ok: true, deed: found.deed, purse: mine, plots: state, bed: keeping, each, got: [...got], ...(sows ? { seeds: each.length - Math.min(spared, each.length) } : {}) };
 }

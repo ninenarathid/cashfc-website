@@ -1,0 +1,51 @@
+{
+  "capturedAfterChecks": "2026-10-10T08:03:18.090Z",
+  "note": "Shared working tree is active. Recheck hashes and rerun validation when integrating later gameplay phases.",
+  "checks": {
+    "vitest": {
+      "files": 9,
+      "tests": 183,
+      "passed": true
+    },
+    "database": {
+      "checks": 52,
+      "passed": true,
+      "live": false
+    },
+    "build": {
+      "passed": true
+    },
+    "privateRegistry": {
+      "productionBrowserChunks": 100,
+      "leaks": 0
+    },
+    "browser": {
+      "actualDiscovery": "SC02",
+      "desktop": [
+        1440,
+        1000
+      ],
+      "mobile": [
+        390,
+        844
+      ]
+    }
+  },
+  "sha256": {
+    "lib/town/combo-types.ts": "d9cae17e2f6aa2c15907b65752f9428abd2d49a67f141fbd21f561678822a46a",
+    "lib/town/private/combos.ts": "a1ebbcc1a918836b896bb500a883a94a39bb04e89ee79b33af36a4a59fe1670f",
+    "lib/town/keeper.ts": "e1c9968ba370ff53e7a53b981fd80e1beaa56070062a4bdd2b4a1ca121f051d2",
+    "lib/town/keeper-trial.ts": "2b5bb25b7aa38753dd8806fc77bbe489c6e24ece87045b3ee4c9adb11f631e66",
+    "lib/town/trade.ts": "506f91dd2f6ee156d6b3c612479599a2218af9c79bad3aeaf3291c3fceaa1b9a",
+    "components/town/TownComboFx.tsx": "59d3ac3628d00973c5b00aad5878b938fd286f00a796dba758eaaf94fdfdec96",
+    "components/town/TownComboBook.tsx": "a2e37e81ac948de95e0a924b180ad2089f935597a203517ec48a91b332b41612",
+    "components/town/TownMe.tsx": "f7370ea972ca90ba0f0c4de771b02fc1ef035be5dc8e152aa137d5ffceb7eae7",
+    "components/town/TownFish.tsx": "175cc40bf8730a7a20fac9c98c9717cd10b32426fea1a0c5e1e54247cb3b363c",
+    "components/town/TownWoodGrain.tsx": "12c3be0140e0fa98a0166cae2fc11b2b7ee433f4cc953b495669bb188713a5d1",
+    "components/town/TownFelling.tsx": "87f25ab53adcac3e6315ce927d6d36116d034804c61be60b3599b48da0822151",
+    "components/town/TownTrees.tsx": "ced05768c6b4a1629596efd633047f0ee3f0e64ab69a3b40b66ba5989f1f62b8",
+    "components/town/TownMine.tsx": "c8e1268503384a8d263fad2a2c67bf9468f9208c23e3776293fbb6b72980b63f",
+    "components/town/TownVein.tsx": "c23884ef1273d30ce7f625522f623dac45e934e2b70ca778aba7183334cc7d5c",
+    "supabase/v194_secret_equipment_bonds.sql": "1d71e4025a111f32cbce83db0ae805f3f673978fd2b000f9957e3bafe7da822d"
+  }
+}

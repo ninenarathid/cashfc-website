@@ -1,4 +1,11 @@
+import type { RockChoice } from "./geology";
+import type { InsectCare } from "./insect-garden";
 import type { Box, BoxRefusal, BoxUpgrade } from "./box";
+import type { CraftId } from "./crafting";
+import type { Current } from "./river-items";
+import type { StreamAction, StreamGate } from "./stream-work";
+import type { PrepAnswers, PrepId, PrepRun } from "./preparation";
+import type { FieldCamp } from "./camps";
 import { cook, hasMade, tidied, type FeastTold, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
@@ -138,13 +145,13 @@ export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild"
   | "works" | "lamps";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
-export interface Timing { hits: number; misses: number; secs: number; need?: number }
+export interface Timing { hits: number; misses: number; secs: number; need?: number; rotation?: number }
 /** What a strike came to. `what` and `size` are told when something is hooked (the trial knows them even when nothing is). */
 export interface Struck { hooked: boolean; how?: "early" | "missed"; what?: CatchId; size?: number; landed?: boolean; kept?: boolean; record?: boolean }
 /** (`back`: the bait came back, of a fish that got away in the fight) */
 // ── gifts: fishing ── (`again`: the otter drove the fish back, and it is to be fought once more at once: the go has not ended;
 // `more`: it was one of two on a rod of two lines, and the other is on still)
-export interface Landed { how: FishingEnd; kept: boolean; record: boolean; back?: boolean; again?: boolean; more?: boolean }
+export interface Landed { combo?: import("./combo-types").ComboEffect; how: FishingEnd; kept: boolean; record: boolean; back?: boolean; again?: boolean; more?: boolean }
 /** How a line is dropped when it is not the plain one: "pair", a rod of two lines (two baits, a second fish on the second line); "star", a stardust bait (none from the bag: the bait named is not looked at). */
 export type CastHow = "pair" | "star";
 /** One of the two a rod of two lines hooked: what it is and how long, and (what is no fish) that it came in at once. */
@@ -152,7 +159,7 @@ export interface Hooked { what: CatchId; size: number; landed: boolean; kept?: b
 /** (a strike's answer, of a rod of two lines: the two, in their order; and `harder`: how many times as hard the deck's good fish are for me, where they are: lib/town/gifts' harderFor) */
 export interface Struck { pair?: Hooked[]; harder?: number }
 /** What a line dropped is told of: how long until the bite and when the float twitches; and, where it is told, a shade or the thing itself of what is on its way (`coming2`: of the second line's), and that two lines are out. */
-export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId };
+export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number };
 
 export interface Keeper {
   readonly id: string;
@@ -174,6 +181,15 @@ export interface Keeper {
   now(): number;
 
   purse(): Purse;
+  craft(item: CraftId, request: string): Promise<Did<{ item: CraftId; n: number; fee: number }>>;
+  streamGate(): StreamGate | null;
+  streamLook(): Promise<void>;
+  streamDo(action: StreamAction, choice: string, at: [number, number], request: string): Promise<Did<{stream:StreamGate|null;got?:Array<[ItemId,number]>}>>;
+  preparationBegin(recipe:PrepId,at:[number,number],request:string):Promise<Did<{run:PrepRun}>>;
+  preparationEnd(run:string,answers:PrepAnswers,at:[number,number]):Promise<Did<{made:ItemId;n:number;mistakes:number}>>;
+  camps():FieldCamp[];
+  campsLook():Promise<void>;
+  campDo(action:"place"|"benefit",site:number,supply:string|null,at:[number,number],request:string):Promise<Did<{camps:FieldCamp[]}>>;
   /**
    * How many helpings a meal's hours take with whoever keeps the game: three (lib/town/stamina), or one where the
    * database still counts a meal once. The page asks, so that it never shows a helping to come that would be refused:
@@ -254,6 +270,7 @@ export interface Keeper {
   /** My bag sorted: by kind, split stacks brought together, no gap. */
   bagSort(): Promise<Did>;
   wear(slot: number): Promise<Did>;
+  rodHook(item: string | null): Promise<Did>;
   takeOff(item: ItemId): Promise<Did>;
   serve(slot: number): Promise<Did<{ dish: DishId }>>;
   drop(slot: number): Promise<Did>;
@@ -274,14 +291,14 @@ export interface Keeper {
    * how the fight ended, with the hand's own account of it.
    */
   /** (`coming`: what is on its way, told only to whoever wears the whispering float, lib/town/gifts) */
-  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean, how?: CastHow): Promise<Did<CastTold>>;
+  cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, quick?: boolean, how?: CastHow, current?: Current): Promise<Did<CastTold>>;
   strike(reaction: number, how: Strike | null): Promise<Did<Struck>>;
   missed(): Promise<{ what?: CatchId; size?: number }>;
   // ── gifts: fishing ──
   /** Light my sky orb under a sky ("night", "rain" or "moon": lib/town/fishing's ORB): for its minutes the water answers me as if under it, and bites come sooner. Says until when. */
   orbLight(sky: string): Promise<Did<{ until: number }>>;
   /** (`which`: of two fish still on a rod of two lines, the one that has ended: the first, or 1 for the second) */
-  land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed>;
+  land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: number): Promise<Landed>;
 
   /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
   // (forging: `also`, the plots beside it that the tool in the hand did the same to, by their keys: lib/town/farm's beside)
@@ -358,6 +375,7 @@ export interface Keeper {
   netDo(haunt: number, at: [number, number], went: { misses: number; lure?: ItemId | null; by?: string | null }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>>;
   /** The village's book of insects: who first caught each kind that has been caught. */
   bugBook(): Record<string, string>;
+  insectCare(key: string, slot: number, mode: InsectCare): Promise<Did>;
   // ── gifts: insects ──
   /**
    * A drop of nectar put down on the tile I stand on (lib/town/insects' nectar): what it brings is the keeper's to
@@ -402,6 +420,8 @@ export interface Keeper {
   familiarWear(id: string | null): Promise<Did>;
   /** Use a gift that is counted once (lib/town/gifts' `USES`): refused when it does not work for me now or has no time left in this stretch. Says how many are left. */
   giftUse(id: string): Promise<Did<{ left: number }>>;
+  /** Optional until the equipment-bond migration is installed. Never returns unknown recipes. */
+  comboPrepare?(context: import("./combo-types").ComboContext, input?: Record<string, unknown>): Promise<Did<import("./combo-types").ComboReply>>;
   /** Read the book again. */
   wellLook(): Promise<void>;
   /** Take what the well has waiting for me. */
@@ -617,7 +637,7 @@ export interface Keeper {
   /** What a rock holds, for a pick that sees into it. */
   minePeek(floor: number, rock: number): Promise<MineDone<{ peek: Peek }>>;
   /** The vein I opened, played out: its strikes in their order. */
-  veinDo(strikes: Array<[number, number]>): Promise<MineDone<VeinDid>>;
+  veinDo(strikes: Array<[number, number]>, choice?: RockChoice): Promise<MineDone<VeinDid>>;
   /** I have come to a floor: a resting floor reached is one of my lift's stops from then on. */
   caveReach(floor: number): Promise<void>;
   /** Ride the lift to the mouth (0) or to a resting floor I have reached: where I come out, in the world's tiles (null: before the mouth). */
@@ -732,6 +752,8 @@ const CHEW = 20_000;
 const SHUT_MS = 5 * 60_000;
 /** How often everybody's rank at the well is asked for again. */
 const RANKS_MS = 5 * 60_000;
+/** Room farm events can be frequent; keep one water refresh at the end of each gap. */
+const WATER_RANKS_MS = 20_000;
 /** How long before the far side is asked after again while it is not open to me. */
 const FAR_MS = 5 * 60_000;
 // ── forging ── (how long before the smith is asked after again while he is not open to me, or could not be had)
@@ -786,7 +808,12 @@ export class DbKeeper implements Keeper {
   private readonly nudgedAt = new Map<Looked, number>();
   private readonly nudgeDue = new Map<Looked, ReturnType<typeof setTimeout>>();
   /** The page is seen again: everything it looks at is asked for now (it asked for nothing while nobody saw it). */
-  private readonly onSeen = () => { if (this.shut || unseen()) return; for (const [what, l] of this.looking) if (l.n > 0) this.fetch(what); };
+  private readonly onSeen = () => {
+    if (this.shut || unseen()) return;
+    for (const [what, l] of this.looking) if (l.n > 0) this.fetch(what);
+    if (this.ranksAgain && Date.now() - this.ranksAt >= RANKS_MS) this.readRanks();
+    else if (this.waterRanksDirty) this.nudgeWaterRanks();
+  };
 
   private skew = 0;
   private mine: Purse = newPurse();
@@ -838,6 +865,10 @@ export class DbKeeper implements Keeper {
   /** The gifts the database gives, as it last said; until it says (v151 said only that it gives some), the first round's six charms. */
   private gives_: readonly string[] = CHARM_IDS;
   private ranksAgain: ReturnType<typeof setInterval> | null = null;
+  private ranksAt = 0;
+  private waterRanksAt: number | null = null;
+  private waterRanksDirty = false;
+  private waterRanksDue: ReturnType<typeof setTimeout> | null = null;
   private toThank_: Record<string, Array<Helper & { name: string }>> = {};
   private thanks_: ThanksBoard | null = null;
   private thanked_: Array<{ id: string; name: string }> = [];
@@ -849,6 +880,8 @@ export class DbKeeper implements Keeper {
   /** Whether the database knows of waters that differ, and the well's water as it last told it: both said with everybody's rank. */
   private waters_ = false;
   private water_: WellWater | null = null;
+  private stream_: StreamGate | null = null;
+  private camps_:FieldCamp[]=[];
   private box_: Box | null = null;
   private boxTidy_ = false;
   private boxOffer_: BoxUpgrade | null = null;
@@ -931,10 +964,8 @@ export class DbKeeper implements Keeper {
     // Everybody's rank at the well, for the names over heads: asked once the game is mine, and again now and then.
     // (A database that has no such book yet answers nothing, and nobody has a rank.)
     if (this.read && !this.shut && !this.ranksAgain) {
-      void this.ask("town_well_ranks");
-      // (and my lines of work with everybody's worn title, in the same breath: a database with no lines answers nothing)
-      void this.ask("town_work");
-      this.ranksAgain = setInterval(() => { void this.ask("town_well_ranks"); void this.ask("town_work"); }, RANKS_MS);
+      this.readRanks();
+      this.ranksAgain = setInterval(() => this.readRanks(), RANKS_MS);
     }
     if (this.read || this.opened === false || this.shut) return;
     // The town could not be reached: asked again in a while, a little later each time. (On a timer, not here: what
@@ -943,6 +974,27 @@ export class DbKeeper implements Keeper {
   }
 
   /* ── asking ── */
+  /** Periodic books pause while hidden and catch up once when the page returns. */
+  private readRanks() {
+    if (this.shut || unseen()) return;
+    this.ranksAt = Date.now();
+    this.waterRanksDirty = false;
+    if (this.waterRanksDue) { clearTimeout(this.waterRanksDue); this.waterRanksDue = null; }
+    void this.refresh("town_well_ranks");
+    void this.refresh("town_work");
+  }
+  private nudgeWaterRanks() {
+    this.waterRanksDirty = true;
+    if (this.shut || unseen() || this.waterRanksDue) return;
+    const wait = this.waterRanksAt === null ? 0 : WATER_RANKS_MS - (Date.now() - this.waterRanksAt);
+    if (wait > 0) {
+      this.waterRanksDue = setTimeout(() => { this.waterRanksDue = null; this.nudgeWaterRanks(); }, wait);
+      return;
+    }
+    this.waterRanksDirty = false;
+    this.waterRanksAt = Date.now();
+    void this.refresh("town_well_ranks");
+  }
   private tell() { for (const fn of this.heard) fn(); }
   watch(fn: () => void): () => void { this.heard.add(fn); return () => { this.heard.delete(fn); }; }
   now(): number { return Date.now() + this.skew; }
@@ -1085,6 +1137,8 @@ export class DbKeeper implements Keeper {
 
   /** Keep what an answer brought. */
   private take(a: Answer, sent: number) {
+    if ("stream" in a) this.stream_ = a.stream && typeof a.stream === "object" ? a.stream as StreamGate : null;
+    if(Array.isArray(a.camps))this.camps_=a.camps as FieldCamp[];
     // The database's clock, less this one's: read off the middle of the asking, so that half the journey each way cancels.
     if (typeof a.now === "number") this.skew = a.now - (sent + Date.now()) / 2;
     if (a.purse && typeof a.purse === "object") { this.mine = a.purse as Purse; this.read = true; this.opened = true; this.meal(); }
@@ -1279,7 +1333,7 @@ export class DbKeeper implements Keeper {
     // ── the lamp relay ── (a flame was handed to me, or a post was lit: asked for wherever I am; not of a database with no lamps)
     if (what === "lamps") { if (this.lamps_) void this.refresh("town_lamps_read"); return; }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
-    if (what === "farm" && this.waters_) void this.refresh("town_well_ranks");
+    if (what === "farm" && this.waters_) this.nudgeWaterRanks();
     if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") {
       // (a thing that is dear to read: at once the first time, then one ask when its gap is over, whatever was said meanwhile)
       const gap = NUDGE_GAP[what] ?? 0, since = Date.now() - (this.nudgedAt.get(what) ?? 0);
@@ -1439,6 +1493,7 @@ export class DbKeeper implements Keeper {
   gives(id: string) { return this.gifting_ && this.gives_.includes(id); }
   familiarWear(id: string | null) { return this.deed("town_familiar_wear", { p_id: id }); }
   giftUse(id: string) { return this.deed<{ left: number }>("town_gift_use", { p_id: id }); }
+  comboPrepare(context: import("./combo-types").ComboContext, input: Record<string, unknown> = {}) { return this.deed<import("./combo-types").ComboReply>("town_combo", { p_context: context, p_input: input }); }
   // (as they stand at this moment: between two tellings a pot's hour on the ground may end, or the table be cleared of it)
   pots(): Pot[] { return this.feast_ ? tidied(this.pots_, this.now(), this.feast_.tile, this.feast_.ground).pots : this.pots_; }
   feast(): FeastTold | null { return this.feast_; }
@@ -1464,6 +1519,15 @@ export class DbKeeper implements Keeper {
     return (a.ok ? a : { ok: false, why: (a.why as Why) ?? "none" }) as Did<T>;
   }
   buy(item: ItemId, n: number) { return this.deed("town_buy", { p_item: item, p_n: n }); }
+  craft(item: CraftId, request: string) { return this.deed<{ item: CraftId; n: number; fee: number }>("town_craft", { p_item: item, p_request: request }); }
+  streamGate() { return this.stream_; }
+  preparationBegin(recipe:PrepId,at:[number,number],request:string){return this.deed<{run:PrepRun}>("town_preparation",{p_action:"begin",p_recipe:recipe,p_x:at[0],p_y:at[1],p_request:request});}
+  preparationEnd(run:string,answers:PrepAnswers,at:[number,number]){return this.deed<{made:ItemId;n:number;mistakes:number}>("town_preparation",{p_action:"end",p_request:run,p_answers:answers,p_x:at[0],p_y:at[1]});}
+  camps(){return this.camps_;}
+  async campsLook(){await this.refresh("town_camp",()=>({p_action:"look"}));}
+  campDo(action:"place"|"benefit",site:number,supply:string|null,at:[number,number],request:string){return this.deed<{camps:FieldCamp[]}>("town_camp",{p_action:action,p_site:site,p_supply:supply,p_x:at[0],p_y:at[1],p_request:request});}
+  async streamLook() { await this.refresh("town_stream",()=>({p_action:"look"})); }
+  streamDo(action: StreamAction, choice: string, at: [number,number], request: string) { return this.deed<{stream:StreamGate|null;got?:Array<[ItemId,number]>}>("town_stream",{p_action:action,p_choice:choice,p_x:at[0],p_y:at[1],p_request:request}); }
   hint() { return this.deed<{ hint: ItemId }>("town_hint"); }
   orderGive(slot: number, n: number) { return this.deed<{ given: number; coins: number; opened: ItemId | null }>("town_give", { p_slot: slot, p_n: n }); }
   leave(slot: number, n: number) { return this.deed("town_leave", { p_slot: slot, p_n: n }); }
@@ -1561,6 +1625,7 @@ export class DbKeeper implements Keeper {
     });
   }
   wear(slot: number) { return this.deed("town_wear", { p_slot: slot }); }
+  rodHook(item: string | null) { return this.deed("town_fishing_hook", { p_item: item }); }
   takeOff(item: ItemId) { return this.deed("town_take_off", { p_item: item }); }
   serve(slot: number) { return this.deed<{ dish: DishId }>("town_serve", { p_slot: slot }); }
   drop(slot: number) { return this.deed("town_drop", { p_slot: slot }); }
@@ -1579,16 +1644,16 @@ export class DbKeeper implements Keeper {
     return did;
   }
 
-  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, _quick?: boolean, how?: CastHow): Promise<Did<CastTold>> {
+  async cast(bait: BaitId, place: { tile: [number, number]; deep: boolean }, rain: boolean, _quick?: boolean, how?: CastHow, current?: Current): Promise<Did<CastTold>> {
     // (how the line is dropped is said only when it is not the plain way: a database that has not had v153 knows no such argument)
-    const sent = Date.now(), a = await this.ask("town_cast", { p_bait: bait, p_x: place.tile[0], p_y: place.tile[1], p_rain: rain, ...(how ? { p_how: how } : {}) });
+    const sent = Date.now(), a = await this.ask("town_cast", { p_bait: bait, p_x: place.tile[0], p_y: place.tile[1], p_rain: rain, ...(how ? { p_how: how } : {}), ...(current ? { p_current: current } : {}) });
     if (!a) return AWAY;
     if (!a.ok) return { ok: false, why: (a.why as Why) ?? "none" };
     // (under clear water the database tells the shade of what is on its way, and nothing more of it)
-    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId };
+    const line = a.line as { wait: number; nibbles: number[]; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number };
     return { ok: true, wait: line.wait, nibbles: line.nibbles, lag: Math.max(0, (Date.now() - sent) / 2000), ...(line.shade ? { shade: line.shade } : {}), ...(typeof line.coming === "string" ? { coming: line.coming } : {}),
       // ── gifts: fishing ──
-      ...(line.pair ? { pair: true } : {}), ...(typeof line.coming2 === "string" ? { coming2: line.coming2 } : {}) };
+      ...(line.pair ? { pair: true, lines: line.lines ?? 2 } : {}), ...(typeof line.coming2 === "string" ? { coming2: line.coming2 } : {}) };
   }
   // ── gifts: fishing ──
   orbLight(sky: string) { return this.deed<{ until: number }>("town_orb", { p_sky: sky }); }
@@ -1615,12 +1680,12 @@ export class DbKeeper implements Keeper {
     }
     return {};
   }
-  async land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: 0 | 1): Promise<Landed> {
+  async land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: number): Promise<Landed> {
     const a = await this.ask("town_land", { p_how: how, p_fight: which === undefined ? fight : { ...(fight ?? {}), which } });
     if (!a?.ok) return { how: how === "landed" ? "slipped" : how, kept: false, record: false };
     return { how: a.how as FishingEnd, kept: !!a.kept, record: !!a.record, ...(a.back ? { back: true } : {}),
       // ── gifts: fishing ──
-      ...(a.again ? { again: true } : {}), ...(a.more ? { more: true } : {}) };
+      ...(a.again ? { again: true } : {}), ...(a.more ? { more: true } : {}), ...(a.combo ? { combo: a.combo as import("./combo-types").ComboEffect } : {}) };
   }
 
   // (forging: old tools: the answer's `also` are the plots beside the deed's that it changed too, each of which comes in the answer's `plots` and is kept as any answer's are)
@@ -1746,6 +1811,12 @@ export class DbKeeper implements Keeper {
     return did;
   }
   bugBook(): Record<string, string> { return this.book_; }
+  async insectCare(key: string, slot: number, mode: InsectCare): Promise<Did> {
+    const [x, y] = key.split(",").map(Number);
+    const did = await this.deed("town_insect_care", { p_x: x, p_y: y, p_slot: slot, p_mode: mode });
+    if (did.ok) { this.onDeed?.("farm"); this.fetch("farm"); }
+    return did;
+  }
   // ── gifts: insects ──
   nectarDrop(at: [number, number]) { return this.deed<{ left: number }>("town_nectar", { p_x: at[0], p_y: at[1] }); }
   async netMine(which: Mine, at: [number, number], went: { misses: number }, name: string): Promise<Did<{ got: Array<[ItemId, number]>; first: boolean; rid?: string | null }>> {
@@ -1824,11 +1895,11 @@ export class DbKeeper implements Keeper {
    * face. The vein is the one I was last told is open; an account the rules cannot hold is answered `odd`, and the
    * vein is closed with nothing given. (The rules of a vein are loaded when one is first played.)
    */
-  async veinDo(strikes: Array<[number, number]>): Promise<MineDone<VeinDid>> {
+  async veinDo(strikes: Array<[number, number]>, choice?: RockChoice): Promise<MineDone<VeinDid>> {
     const vein = this.cave_?.vein;
     if (!vein) return { ok: false, why: "none" };
     const { accountOf } = await import("./vein-account");
-    return this.deed<VeinDid>("town_vein", { p_go: accountOf(vein, strikes) }) as Promise<MineDone<VeinDid>>;
+    return this.deed<VeinDid>("town_vein", { p_go: accountOf(vein, strikes, choice) }) as Promise<MineDone<VeinDid>>;
   }
   async caveReach(floor: number) { if (this.cave_) await this.ask("town_cave_reach", { p_floor: floor }); }
   liftRide(to: number) { return this.deed<{ at: [number, number] | null }>("town_lift", { p_to: to }) as Promise<MineDone<{ at: [number, number] | null }>>; }
@@ -2071,6 +2142,7 @@ export class DbKeeper implements Keeper {
     if (this.farTimer) clearTimeout(this.farTimer);
     if (this.smithTimer) clearTimeout(this.smithTimer);
     if (this.ranksAgain) clearInterval(this.ranksAgain);
+    if (this.waterRanksDue) clearTimeout(this.waterRanksDue);
     this.heard.clear();
   }
 

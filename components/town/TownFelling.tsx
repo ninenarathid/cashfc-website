@@ -11,6 +11,8 @@ import { loadFelling, type Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
 import { STAGE, useFrames, useGameHandle } from "./TownGame";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
+import TownWoodGrain from "./TownWoodGrain";
+import type { WoodSelection } from "@/lib/town/wood-grain";
 
 /** How many segments of the trunk the board shows at once, the one that is level and those above it. */
 const ROWS = 8;
@@ -51,7 +53,7 @@ function endWord(end: FellEnd, timber: number, elder: boolean, th: boolean): str
  * The one board of the town that says how it is played (the owner, 2026-10-08, of a game nobody had understood:
  * "ถ้าเข้าใจยากเขียนวิธีเล่นไว้คร่าวๆด้วย"): three short marks under its title, each a picture and a few words.
  */
-export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers, braced, onDone, onCancel }: {
+export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers, braced, onBond, onDone, onCancel }: {
   th: boolean;
   /** The game, as whoever keeps it put it together (lib/town/trees). */
   ask: FellingAsk;
@@ -66,11 +68,14 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
   powers?: { one: number; twice: number };
   /** The friend who braces the trunk just now, by name, if anybody does: from then on the bar runs slower, for this go. */
   braced?: string | null;
-  onDone: (out: FellOutcome, how: { one?: boolean; twice?: boolean }) => void;
+  onBond?: (notches: number[]) => Promise<import("@/lib/town/combo-types").ComboEffect | undefined>;
+  onDone: (out: FellOutcome, how: { one?: boolean; twice?: boolean; grain?: WoodSelection }) => void;
   /** The board is left before its first chop: nothing was begun. */
   onCancel: () => void;
 }) {
   const game = useMemo(() => startFelling(ask), [ask]);
+  const [read, setRead] = useState(!ask.grain);
+  const readRef = useRef(!ask.grain), grain = useRef<WoodSelection | undefined>(undefined);
   const play = useRef<FellPlay>(beginPlay(game));
   const [, setShown] = useState(0);
   const [twice, setTwice] = useState(false);
@@ -91,7 +96,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
   const finish = useCallback((how: { one?: boolean } = {}) => {
     if (ended.current) return;
     ended.current = true;
-    const p = play.current, out = outcomeOf(game, p), asked = { ...how, ...(twiceRef.current ? { twice: true } : {}) };
+    const p = play.current, out = outcomeOf(game, p), asked = { ...how, ...(twiceRef.current ? { twice: true } : {}), ...(!how.one && grain.current ? { grain: grain.current } : {}) };
     if (!how.one && p.end) setBanner(endWord(p.end, headingFor(game, p).reduce((a, b) => a + b, 0), elder, th));
     window.setTimeout(() => onDone(out, asked), how.one ? 0 : REST);
   }, [game, onDone, elder, th]);
@@ -130,6 +135,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
 
   /** A chop from a side. */
   const press = useCallback((side: Side) => {
+    if (!readRef.current) return;
     const now = performance.now(), f = fx.current;
     advance(now);
     const was = play.current;
@@ -162,7 +168,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     if (ended.current || !p.running || isOver(game, p)) return;
     ended.current = true;
     play.current = leave(game, p);
-    handOn.current(outcomeOf(game, play.current), twiceRef.current ? { twice: true } : {});
+    handOn.current(outcomeOf(game, play.current), { ...(twiceRef.current ? { twice: true } : {}), ...(grain.current ? { grain: grain.current } : {}) });
   }, [game]);
 
   /** The board's own way out: before the first chop nothing was begun; after it the axe is put down, and the go is over. */
@@ -325,6 +331,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); stop(); return; }
+      if (!readRef.current) return;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const side: Side | 0 = e.key === "ArrowLeft" || e.code === "ArrowLeft" || e.code === "KeyA" ? -1 : e.key === "ArrowRight" || e.code === "ArrowRight" || e.code === "KeyD" ? 1 : 0;
       if (!side) return;
@@ -358,6 +365,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
     /** A hand that plays by itself, a chop every so many milliseconds. */
     auto: (on: boolean, every = 110) => { auto.current = { on, due: 0, every }; },
     one, stop, twice: (on: boolean) => { twiceRef.current = on; setTwice(on); },
+    grain: (choice?: WoodSelection) => { grain.current = choice; readRef.current = true; setRead(true); },
   }, [press, game, stop]);
 
   const p = play.current, over = isOver(game, p), many = game.trees.length > 1;
@@ -366,6 +374,9 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
   const ready = !p.running && p.cut === 0 && !over;
   const heading = headingFor(game, p), edge = onTheEdge(game, p), left = Math.max(0, game.most - missesOf(p));
   const spared = Math.max(0, game.spared - p.forgiven);
+  if (!read && ask.grain) return <TownWoodGrain th={th} {...ask.grain} onBond={onBond} reduced={reduced}
+    onReady={choice => { grain.current = choice; readRef.current = true; setRead(true); }}
+    onSkip={() => { readRef.current = true; setRead(true); }} onCancel={stop} />;
   return (
     <section aria-label={title} data-town-game data-felling-girth={game.girth}
              className="select-none rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">

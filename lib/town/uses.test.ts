@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
+import { GARDEN } from "./gardening";
 import { easeOf, helpings, isCookware, ladle, reachOf, type Pot } from "./cooking";
 import { WATER, chore, hoe, toolOf, WILD, yieldOf, type Plant } from "./farm";
 import { CARRIES, PLAIN, gearOf } from "./gear";
+import { isHook } from "./rod-hook";
 import { CLUES } from "./clues";
 import { HINT_IDS, HINT_PRICE, KIND_WORD, buyHint, hiddenLine, hintOf, hintPrice, hintsLeft, nextHint, toldOf } from "./hints";
 import { mayNet } from "./insects";
@@ -30,7 +32,10 @@ describe("every piece of gear (the owner: \"make sure ว่า อุปกร�
     for (const id of ITEM_IDS) for (const use of usesOf(id)) {
       const bag = purseWith([id, 1]).bag;
       if (use === "rod") expect(gearOf(bag, id).rod).toBe(id);
-      if (use === "tackle") expect(gearOf(bag, null)).not.toEqual(PLAIN);
+      if (use === "tackle") {
+        if (isHook(id)) expect(gearOf(purseWith(["rod", 1], [id, 1]).bag, "rod", null, id).slip).toBeGreaterThan(1);
+        else expect(gearOf(bag, null)).not.toEqual(PLAIN);
+      }
       if (use === "hoe") expect(hoe("1,1", purseWith([id, 1]), WILD, id, NOW).ok).toBe(true);
       if (use === "can") {
         const filled = chore(holding(purseWith([id, 1]), id), "well", 5, NOW);
@@ -113,8 +118,8 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
     for (const id of ["garlic", "coconut"] as const) expect(from.get(id)).toBe("farm");
     // nothing that is caught, grown or cooked is on the uncle's shelf (but the plain meal, and the pot's things)
     for (const id of Object.keys(GOODS) as ItemId[]) expect(["fish", "catch", "crop"]).not.toContain(ITEMS[id].kind);
-    // every seed is sold, so every vegetable can be grown
-    for (const c of CROP_IDS) expect(GOODS[CROPS[c].seed]).toBeDefined();
+    // Established seeds are sold; the new seeds are discovered through neighboring crosses.
+    for (const c of CROP_IDS) expect(!!GOODS[CROPS[c].seed] || GARDEN.crosses.some(([, , child]) => child === c), c).toBe(true);
   });
 
   it("woodcutting and mining: an axe and a pick from the uncle bring everything of the mountain, and the smith smelts the rest", () => {

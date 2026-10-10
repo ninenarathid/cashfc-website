@@ -191,6 +191,12 @@ export function vectorsKitchen(): Vector[] {
     const misses = c.of([0, 0, 1, 3, 9]);
     add("cook_with", [p, things, crew, misses, now, how], cookWith(p, things, crew, misses, now, how as { sprite?: boolean; flame?: boolean }));
   }
+  // A larger recipe pool must not make coverage of a known recipe's missing cookware depend on a random draw.
+  {
+    const things=needsOf("friedMinnow"),p={...newPurse(),made:["friedMinnow" as ItemId],gifts:{had:["famSprite"],charms:[],familiar:"famSprite"},bag:things.reduce((bag,[id,n])=>put(bag,id,n),Array<null>(12).fill(null) as Purse["bag"])};
+    add("cook_with",[p,things,[null],0,NOON,{}],cookWith(p,things,[null],0,NOON,{}));
+    add("cook_with",[p,things,[null],0,NOON,{sprite:true}],cookWith(p,things,[null],0,NOON,{sprite:true}));
+  }
   // (a bag with no slot for the pot once the things are out of it: each of them one more than the recipe takes, and nothing else free)
   for (const how of [{ sprite: true }, { flame: true }, {}]) for (const slots of [4, 5]) {
     const needs = needsOf("tomYum");
@@ -231,6 +237,14 @@ export function vectorsKitchen(): Vector[] {
     const slot = c.of([c.int(0, 7), c.int(0, 7), -1, 99]), dish = c.of<string>([mine[0]?.[0] ?? "tomYum", mine[mine.length - 1]?.[0] ?? "grilledCorn", "grilledCorn", "minnow"]);
     const seated = c.of<boolean | null>([true, true, true, true, false, null]);
     add("spice_eat", [p, fromBasket ? null : slot, fromBasket ? dish : null, seated, now], spiceEat(p, fromBasket ? { dish } : { slot }, seated as boolean, now));
+  }
+  // Cover both successful sources explicitly: expanding the recipe list changes
+  // random draws, but cannot remove this coverage from the database vectors.
+  for (const fromBasket of [false, true]) {
+    const p: Purse = { ...newPurse(), bag: put(newPurse().bag, "friedMinnow", 1),
+      gifts: { had: ["thingSpice", "thingBasket"], charms: [] }, basket: [["friedMinnow", 1]] };
+    const slot = fromBasket ? null : 0, dish = fromBasket ? "friedMinnow" : null;
+    add("spice_eat", [p, slot, dish, true, NOON], spiceEat(p, fromBasket ? { dish: "friedMinnow" } : { slot: 0 }, true, NOON));
   }
   return out;
 }

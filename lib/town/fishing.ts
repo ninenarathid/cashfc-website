@@ -3,9 +3,10 @@ import { toolPaid } from "./forged-keep";
 import { powerLeft, usePower } from "./powers";
 import { PLAIN, ROD_IDS, gearOf, rodStack, type Gear } from "./gear";
 import { BAITS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, KEPT_BAITS, TIER_WEIGHT, byOf, type BaitId, type CatchId, type FishId, type FightStyle, type FlotsamId, type Sign, type Tier } from "./items";
-import { charmBy, numberOf, useGift, type GiftRefusal } from "./gifts";
+import { charmBy, numberOf, useGift, works, type GiftRefusal } from "./gifts";
 import { STAMINA, isSpent, levelOf, spend } from "./stamina";
 import { handOf, handSlot, held, no, put, roomFor, take, type Done, type Purse, type Stack } from "./trade";
+import type { Current, FishingHabitat } from "./river-items";
 
 /**
  * Fishing, as rules (the owner, 2026-10-03, asked how each part should go): a
@@ -101,10 +102,11 @@ const lvl = (l: Level | undefined): number => (l === true ? 1 : l || 0);
  * common fish keeps to the deck). A fish that waits for a sign bites only
  * while it holds (`needs`: every one of them among `signs`).
  */
-export function oddsOf(bait: BaitId, hour: number, rain = false, lucky: Level = false, shallow = false, signs: readonly Sign[] = []): Array<{ what: CatchId; p: number }> {
+export function oddsOf(bait: BaitId, hour: number, rain = false, lucky: Level = false, shallow = false, signs: readonly Sign[] = [], habitat: FishingHabitat = "town", current: Current = "eddy"): Array<{ what: CatchId; p: number }> {
   const weights: Array<[CatchId, number]> = [];
   for (const id of FISH_IDS) {
     const f = FISH[id], likes = f.baits[bait] ?? 0;
+    if (!(f.habitat ?? ["town"]).includes(habitat) || (f.current && !f.current.includes(current))) continue;
     if (!likes || !inHours(f.hours, ((Math.floor(hour) % 24) + 24) % 24)) continue;
     if (f.water ? f.water !== (shallow ? "bank" : "deck") : shallow && f.tier !== "common") continue;
     if (f.needs && !f.needs.every((s) => signs.includes(s))) continue;
@@ -477,7 +479,7 @@ export function startFight(fish: FishId, strike: Strike, mods: FightMods, seed: 
 /** Whether the fish is surging now. */
 export const surging = (f: Fight) => f.t >= f.surge.from && f.t < f.surge.to;
 /** Whether the fish is giving away that it is about to surge (those that do). */
-export const warning = (f: Fight) => STYLE[FISH[f.fish].fight.style].tells && f.t < f.surge.from && f.surge.from - f.t <= FIGHT.warn;
+export const warning = (f: Fight, readCurrent = false) => (readCurrent || STYLE[FISH[f.fish].fight.style].tells) && f.t < f.surge.from && f.surge.from - f.t <= FIGHT.warn;
 
 /** The fight a moment later, the reel held or not. */
 export function stepFight(f: Fight, holding: boolean, dt: number): Fight {
@@ -634,6 +636,12 @@ export function driveBack<P extends Pick<Purse, "gifts">>(purse: P, how: string,
  * number (lib/town/gifts: three quarters of itself). `stray` and `alone` are the fight's own (`Pair`, below).
  */
 export const PAIR = { lines: 2, never: ["legend"] as Tier[], stray: 0.4, alone: 2 };
+/** Later rods carry two lines. The deck's gift adds one to the rod actually used. */
+export function linesOf(purse: Purse, slot: number | null = null): number {
+  const rod = rodOf(purse, slot);
+  if (!rod) return 0;
+  return (rod.item === "rod" ? 1 : 2) + (works(purse, "thingRod") ? 1 : 0);
+}
 /**
  * What may take a bait, without the fish of some tiers: each share of what is left, of what is left. (What is no fish
  * is of no tier, and stays: so something is always left of a bait's own odds.)
@@ -667,9 +675,9 @@ export function hookBaits(purse: Purse, bait: BaitId, n: number): Done<{ purse: 
  *   back to moving all its own way (within `PAIR.alone` seconds or so).
  */
 export interface Pair {
-  fights: [Fight, Fight];
+  fights: Fight[];
   /** How each ended, once it has. */
-  ended: [Fight["over"], Fight["over"]];
+  ended: Fight["over"][];
   t: number;
   tension: number;
   strain: number;
@@ -677,8 +685,8 @@ export interface Pair {
   snapIn: number;
   slipIn: number;
   /** Each fish's safe stretch on the gauge now: its two ends. */
-  lo: [number, number];
-  hi: [number, number];
+  lo: number[];
+  hi: number[];
   /** What the second fish's stretch keeps about, and how much of its own way it goes from there. */
   about: number;
   own: number;
@@ -689,28 +697,28 @@ export interface Pair {
 /** Where the second fish's stretch is: about a place, so much of its own way from it, never off the gauge. */
 const strayed = (f: Fight, about: number, own: number) => room(f.band, about + (f.at - FIGHT.centre) * own);
 /** Set two hooks at once: both fights as they begin, each stretch narrower (`mods.narrow`), on one line's tension. */
-export function startPair(fish: [FishId, FishId], strike: Strike, mods: FightMods, seed: number): Pair {
-  // (each fish its own run of numbers: the second's from the first's seed, turned)
-  const a = startFight(fish[0], strike, mods, seed), b = startFight(fish[1], strike, mods, (seed ^ 0x5bd1e995) | 0);
-  const at = strayed(b, a.at, PAIR.stray);
+export function startPair(fish: FishId[], strike: Strike, mods: FightMods, seed: number): Pair {
+  if (fish.length < 2 || fish.length > 3) throw new RangeError("Two or three lines are required");
+  const fights = fish.map((id, i) => startFight(id, strike, mods, (seed ^ Math.imul(i, 0x5bd1e995)) | 0));
+  const a = fights[0], centres = fights.map((f, i) => i ? strayed(f, a.at, PAIR.stray) : a.at);
   return {
-    fights: [a, b], ended: [null, null], t: 0, tension: 0.5, strain: 0, slack: 0, snapIn: a.snapIn, slipIn: a.slipIn,
-    lo: [a.lo, at - b.band / 2], hi: [a.hi, at + b.band / 2], about: a.at, own: PAIR.stray, silk: mods.silk && mods.silk > 0 ? mods.silk : 0, mend: null,
+    fights, ended: fish.map(() => null), t: 0, tension: 0.5, strain: 0, slack: 0, snapIn: a.snapIn, slipIn: a.slipIn,
+    lo: fights.map((f, i) => centres[i] - f.band / 2), hi: fights.map((f, i) => centres[i] + f.band / 2), about: a.at, own: PAIR.stray, silk: mods.silk && mods.silk > 0 ? mods.silk : 0, mend: null,
   };
 }
 /** The two a moment later, the reel held or not. */
 export function stepPair(p: Pair, holding: boolean, dt: number): Pair {
-  if (!(dt > 0) || (p.ended[0] && p.ended[1])) return p;
-  const live = ([0, 1] as const).filter((i) => !p.ended[i]), s = p.fights.map((f, i) => (p.ended[i] ? null : swayed(f, dt)));
+  if (!(dt > 0) || p.ended.every(Boolean)) return p;
+  const live = p.fights.map((_, i) => i).filter((i) => !p.ended[i]), s = p.fights.map((f, i) => (p.ended[i] ? null : swayed(f, dt)));
   const pull = Math.max(...live.map((i) => s[i]!.pull));
   const tension = Math.min(1.05, Math.max(0, p.tension + (holding ? FIGHT.rise + pull * FIGHT.held : pull * FIGHT.loose - FIGHT.fall) * dt));
   // Where each stretch is: the first's own; the second's about the first's while that fish is on, and, once it is
   // alone, about the gauge's middle and all its own way again, a little more of each with every moment.
   const near = 1 - Math.exp(-dt * 3 / PAIR.alone);
   const about = s[0] ? s[0].at : p.about + (FIGHT.centre - p.about) * near, own = s[0] ? PAIR.stray : p.own + (1 - p.own) * near;
-  const lo: [number, number] = [p.lo[0], p.lo[1]], hi: [number, number] = [p.hi[0], p.hi[1]];
+  const lo = [...p.lo], hi = [...p.hi];
   if (s[0]) { lo[0] = s[0].lo; hi[0] = s[0].hi; }
-  if (s[1]) { const at = strayed({ ...p.fights[1], at: s[1].at }, about, own); lo[1] = at - p.fights[1].band / 2; hi[1] = at + p.fights[1].band / 2; }
+  for (const i of live) if (i > 0) { const at = strayed({ ...p.fights[i], at: s[i]!.at }, about, own); lo[i] = at - p.fights[i].band / 2; hi[i] = at + p.fights[i].band / 2; }
   const top = Math.max(...live.map((i) => hi[i])), bottom = Math.min(...live.map((i) => lo[i]));
   const fights = p.fights.map((f, i) => {
     const m = s[i];
@@ -718,12 +726,12 @@ export function stepPair(p: Pair, holding: boolean, dt: number): Pair {
     const { on: _on, pull: _pull, ...moved } = m;
     const line = f.line - (holding && tension >= lo[i] && tension <= hi[i] ? FIGHT.reel * dt : 0) + (tension < bottom ? FIGHT.run * dt * (m.on ? 2 : 1) : 0);
     return { ...f, ...moved, tension, line: Math.max(0, line) };
-  }) as [Fight, Fight];
+  });
   let strain = tension > top ? p.strain + dt / p.snapIn : Math.max(0, p.strain - dt / FIGHT.mend);
   let slack = tension < bottom ? p.slack + dt / p.slipIn : Math.max(0, p.slack - dt / FIGHT.mend);
-  const ended: Pair["ended"] = [p.ended[0], p.ended[1]];
+  const ended = [...p.ended];
   let mend = p.mend, silk = p.silk;
-  const lose = (i: 0 | 1, how: "snapped" | "slipped") => { ended[i] = how; fights[i] = { ...fights[i], over: how }; strain = 0; slack = 0; mend = null; };
+  const lose = (i: number, how: "snapped" | "slipped") => { ended[i] = how; fights[i] = { ...fights[i], over: how }; strain = 0; slack = 0; mend = null; };
   for (const i of live) if (fights[i].line <= 0) { ended[i] = "landed"; fights[i] = { ...fights[i], over: "landed" }; }
   const still = live.filter((i) => !ended[i]);
   // (one at a time: whichever comes first of the line strained through, the hook slack too long, a fish run off with the line)
@@ -794,10 +802,11 @@ export const STAR = { tiers: ["rare", "legend"] as Tier[] };
 /** Why a line was not dropped that the bag and the gifts do not refuse for: nothing is there to take it. */
 export type FishRefusal = "calm";
 /** What takes a stardust bait, and how likely each is: every fish of its tiers that is in this water under this sky, by its tier and the sky alone. None, where there is none. */
-export function starOdds(rain: boolean, shallow: boolean, signs: readonly Sign[], top: number): Array<{ what: CatchId; p: number }> {
+export function starOdds(rain: boolean, shallow: boolean, signs: readonly Sign[], top: number, habitat: FishingHabitat = "town", current: Current = "eddy"): Array<{ what: CatchId; p: number }> {
   const weights: Array<[CatchId, number]> = [];
   for (const id of FISH_IDS) {
     const f = FISH[id];
+    if (!(f.habitat ?? ["town"]).includes(habitat) || (f.current && !f.current.includes(current))) continue;
     if (!STAR.tiers.includes(f.tier) || ITEMS[id].tier > top) continue;
     if (f.water ? f.water !== (shallow ? "bank" : "deck") : shallow) continue;
     if (f.needs && !f.needs.every((s) => signs.includes(s))) continue;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import TownNotebook, { type NotebookEntry } from "./TownNotebook";
 import { BLADES, FARMING, WATER, WILD, cropOf, gameFor, guardBy, hardFor, hardIn, hitsFor, moreOf, theirsAt, tiredAt, plotKey, pouchSeeds, quickUntil, ridCameOf, roll, see, sungTo, type Chore, type Deed, type RowDeed, type Seen } from "@/lib/town/farm";
 import { canFx, hitsWith, hoeFx } from "@/lib/town/forged";
 import { FIELD } from "@/lib/town/gear";
@@ -33,6 +34,11 @@ import TownTiming from "./TownTiming";
 import TownWeeding from "./TownWeeding";
 import { WHY } from "./TownTrade";
 import { Vfx, type VfxKind } from "./vfx";
+import { GARDEN_CROPS, type GardenCropId } from "@/lib/town/garden-items";
+import { gardenCross, gardenMods } from "@/lib/town/gardening";
+import TownGardenPlacement from "./TownGardenPlacement";
+import TownInsectRelease from "./TownInsectRelease";
+import { insectCareMode } from "@/lib/town/insect-garden";
 
 /** What the map hands the farm each frame, to draw its plots among everything else. */
 export interface FarmFrame {
@@ -206,8 +212,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** (`sweep`: the ripe plants of a row that the crescent sickle sweeps along once, from one end to the other: where each stands in the row, what it is, and how much harder it is for me) */
   /** (`long`: the plants of a row of somebody else's that the gardener's gloves water at one long pour, from the row's head: where each stands in the row and what it is; `hard`: how much harder the row is for me) */
   const leaving = useLeaving(keeper);
+  const [placement, setPlacement] = useState<{ key: string; crop: GardenCropId } | null>(null);
   const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
-    long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number } | null>(null);
+    long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number; rotation?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
   const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" } | null>(null);
   const leaveIt = useRef<HTMLButtonElement>(null);
@@ -227,6 +234,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // and every few seconds, not every frame.
   const now = keeper.now(), plots = keeper.farm();
   const seen = useRef(new Map<string, Seen>());
+  const gardenRoots = useRef(new Map<string, string>());
+  gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
   seen.current = new Map(Object.entries(plots).map(([key, plot]) => [key, see(key, plot, now, rains)]));
@@ -542,6 +551,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
+          if (gardenRoots.current.has(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) { blit("gardenTrellisMarker", at, 0, PLANT * s * 0.45); return; }
           if (what.dead) { blit("plotDead", at); return; }
           blit(growIconOf(what.crop, what.stage), at);
           if (what.wet && !later.has(plotKey(tx, ty))) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
@@ -603,8 +613,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     return () => register(null);
   }, [register, vfx]);
 
-  const key = tile ? plotKey(tile[0], tile[1]) : null;
+  const stoodKey = tile ? plotKey(tile[0], tile[1]) : null;
+  const key = stoodKey ? keeper.farm()[stoodKey]?.plant?.root ?? stoodKey : null;
   const purse = keeper.purse(), hand = handOf(purse);
+  const pollenHint = key && (gardenMods(purse, now).hint || (plots[key]?.plant?.pollenUntil ?? 0) > now) ? gardenCross(key, plots, keeper.id, now, rains) : null;
   const deed = key ? keeper.deedAt(key) : null;
   const chore = !deed ? keeper.choreAt(water) : null;
   /** With a bucket of water in the hand and nothing else to do here: the plots of this bed it would water, poured from where I stand (lib/town/ditch). */
@@ -622,14 +634,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** Whether my hands are tired for work on a plot: with no stamina, but never under the guardian's cloak where the work is for somebody else. */
   const tiredOn = useCallback((k: string | null) => tiredAt(keeper.purse(), isSpent(keeper.purse(), keeper.now()), theirsOn(k)), [keeper, theirsOn]);
   /** Do the deed, and say what came of it. `sure`: a living plant is meant to be dug out (asked twice, and answered). */
-  const act = useCallback(async (k: string, timing?: GameResult, sure = false) => {
+  const act = useCallback(async (k: string, timing?: GameResult, sure = false, rotation?: number) => {
     // (the buffs I have as the work begins: a blessing that had a hand in it shows over the plot when it is done)
     const mine = keeper.purse(), began = keeper.now();
     // (and the plot as it stands, with what is in the hand: what came of an insect let go on a pest is read from the plot as it was and as it is)
     const stood = keeper.farm()[k] ?? WILD, held = handOf(mine);
     // (every miss of the hoe is a little more stamina gone: the keeper's to take)
-    const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need } : undefined, sure);
-    if (!did.ok) { say(did.why); return; }
+    const did = await keeper.farmDo(k, name, timing ? { hits: timing.hits, misses: timing.misses, secs: timing.secs, need: timing.need, rotation } : rotation === undefined ? undefined : { hits: 0, misses: 0, secs: 0, rotation }, sure);
+    if (!did.ok) { say(did.why); return false; }
     if (timing) keeper.record({ game: "farming", board: did.deed === "clear" ? "weeding" : "timing", at: keeper.now(), won: true, secs: timing.secs, spent: isSpent(purse, now), buff: null, what: did.deed, need: timing.need, hits: timing.hits, misses: timing.misses });
     // an insect that eats pests, let go on a plant that had one: it ate it, or it is off with the pest still there (lib/town/farm's FARMING.rids)
     const rid = did.deed === "feed" && held ? ridCameOf(k, stood, keeper.farm()[k] ?? WILD, held, began, keeper.rains()) : null;
@@ -657,6 +669,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     // (somebody else's plant watered with the anklet on: the run's next note)
     const rung = keeper.purse().chime;
     if (did.deed === "water" && rung && rung.at !== mine.chime?.at && wearing(mine, "charmAnklet")) chimeAt(k, rung.n);
+    return true;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse and the clock are read when the deed is done
   }, [keeper, th, sfx, name, say, vfx, chimeAt]);
   /** Draw a bucket of water, pour it into the well, or fill the can. */
@@ -691,6 +704,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const begin = useCallback(() => {
     const work: Work | null = key && deed ? deed : chore ?? (key && pours ? "ditch" : null);
     if (!work) return;
+    const planting = cropOf(handOf(keeper.purse()));
+    if (work === "sow" && key && planting && planting in GARDEN_CROPS) { setPlacement({ key, crop: planting as GardenCropId }); return; }
     if (work === "ditch") {
       // (no game with stamina; with none it is poured like any water, a short round)
       if (tiredOn(key)) setWorking({ key, work, need: FARMING.tired });
@@ -924,14 +939,24 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The ring of shared strength, for a friend standing near: wherever I stand still. */
   const ringOffer = people ? <RingOffer keeper={keeper} th={th} here={here} people={people} name={name} sfx={sfx} bottom={bottom} onGave={onGave} /> : null;
   // (it keeps its place whatever else is shown: so what it is telling of is not lost when a button comes or goes)
-  const bare = !working && !offer && !note && !powers.length && !running;
+  const gardenInfo = key && (pollenHint || (plots[key]?.plant && insectCareMode(hand)) || purse.gardenBook?.length || purse.insectGardenBook?.length);
+  const bare = !placement && !working && !offer && !note && !powers.length && !running && !gardenInfo;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
     <>{news}{ringOffer}{bare ? null : (
-    <TownFoot rank={working || asking ? "board" : "main"} order={62}>
+    <TownFoot rank={placement || working || asking ? "board" : "main"} order={62}>
+      {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}
       {running && <AnkletRun keeper={keeper} />}
+      {!working && !placement && key && <TownInsectRelease keeper={keeper} at={key} th={th} />}
+      {!working && !placement && key && ((purse.gardenBook?.length ?? 0) > 0 || (purse.insectGardenBook?.length ?? 0) > 0) && <div className="pointer-events-auto w-[min(400px,calc(100vw-24px))] max-h-[70dvh] overflow-y-auto" data-garden-notebook>
+        <TownNotebook title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={[
+          ...(purse.gardenBook??[]).map(id=>({key:id,title:ITEMS[id].name[th?"th":"en"],icon:id as IconName,category:th?"เมล็ดจากต้นข้างกัน":"Neighbouring seeds",body:<p>{th?`เคยได้เมล็ด${ITEMS[id].name.th}จากต้นข้างกัน ดูแลต้นและเก็บผลที่จุดเมล็ดเพื่อทดลองต่อ`:`Discovered ${ITEMS[id].name.en} seeds from neighbouring plants. Tend and harvest at the seed plot to experiment further.`}</p>})),
+          ...(purse.insectGardenBook??[]).flatMap((entry):NotebookEntry[]=>{const[bug,crop,mode]=entry.split(":");return bug in ITEMS&&crop in ITEMS?[{key:entry,title:ITEMS[bug as ItemId].name[th?"th":"en"],icon:bug as IconName,category:th?"แมลงดูแลสวน":"Insect visitors",body:<><p>{ITEMS[crop as ItemId].name[th?"th":"en"]}</p><p>{mode==="guard"?th?"ปล่อยแมลงไปกำจัดศัตรูพืชบนต้นนี้":"Released an insect to remove pests on this plant.":th?"ปล่อยแมลงไปช่วยเกสรบนต้นนี้":"Released an insect to help pollination on this plant."}</p></>}]:[];})
+        ]}/>
+      </div>}
       {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite">{note}</p>}
+      {!working && !placement && pollenHint && <p data-garden-cross className="rounded-md border border-[#a8c583] bg-[#304323]/95 px-3 py-2 text-meta text-[#e1f1c9]">{th ? `เกสรของต้นข้างกันเข้าคู่กัน: เก็บแล้วได้เมล็ด${ITEMS[pollenHint].name.th}` : `Neighbouring pollen matches: harvest for ${ITEMS[pollenHint].name.en} seeds`}</p>}
       {working ? (() => {
         // each piece of work's own game (lib/town/farm's gameFor), on the same board, told the same things
         const game = working.long ? "longpour" : working.sweep ? "sweep" : working.work === "ditch" ? "pouring" : gameFor(working.work), title = verbOf(working.work, hand)[th ? 0 : 1];
@@ -989,7 +1014,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             // (tired hands steadied for a row's deed: the whole row is done)
             if (working.whole && k) { void doRow(k, {}, null); return; }
             if (work === "ditch") { if (k) void pourOver(k); return; }
-            if (k) void act(k, hoeing ? result : undefined);
+            if (k) void act(k, hoeing ? result : undefined, false, working.rotation);
             else void carry();
           },
           // (a board shut by its member is written down too: how often a game is given up is how hard it is found)
@@ -1042,7 +1067,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             </button>
           </div>
         </div>
-      ) : (offer || powers.length > 0) && (
+      ) : !placement && (offer || powers.length > 0) && (
         <div className="flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap">
           {offer && (
             <button type="button" onClick={begin} data-farm-offer={offer}

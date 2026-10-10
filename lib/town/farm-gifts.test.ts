@@ -354,8 +354,8 @@ describe("good things are harder for the skilled on the farm: a crop of the seco
   it("the simplest crops are as they are for everybody, at any rank; and so is everybody below the fourth", () => {
     const marks = LINES.farming.marks, tiers = CROP_IDS.map((c) => ITEMS[c].tier);
     expect(tiers.filter((t) => t === 1).length).toBe(12);
-    expect(tiers.filter((t) => t === 2).length).toBe(7);
-    expect(tiers.filter((t) => t === 3).length).toBe(7);
+    expect(tiers.filter((t) => t === 2).length).toBe(12);
+    expect(tiers.filter((t) => t === 3).length).toBe(10);
     for (const crop of CROP_IDS) {
       expect(hardFor(crop, 0)).toBe(1);
       expect(hardFor(crop, marks[2])).toBe(1);

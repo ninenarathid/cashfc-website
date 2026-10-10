@@ -793,9 +793,9 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
       {vein && (
         <div className="absolute inset-0 z-30 flex items-start justify-center overflow-y-auto bg-black/45 px-2 pt-[calc(var(--hud-t,0px)+0.25rem)] sm:items-center sm:p-4" style={{ paddingBottom: "var(--hud-b)" }} data-mine-vein>
           <Suspense fallback={null}>
-            <TownVein vein={vein} th={th} reduced={reduced} sfx={sfx}
-                      onEnd={async (strikes) => {
-                        veinSent.current = true; const did = await keeper.veinDo(strikes); again();
+            <TownVein onBond={async context => { const d=await keeper.comboPrepare?.(context); return d?.ok ? d.effect : undefined; }} vein={vein} th={th} reduced={reduced} sfx={sfx}
+                      onEnd={async (strikes, choice) => {
+                        veinSent.current = true; const did = await keeper.veinDo(strikes, choice); again();
                         // (a go at a vein, written down beside its deed: ended before every glint was reached it is done all the same, and a rock on the map and the plain press are not written down)
                         if (did.ok) keeper.record({ game: "mining", board: "vein", ...(did.passed >= did.of ? {} : { how: "done" as const }), at: keeper.now(), won: did.passed >= did.of, secs: Math.round((Date.now() - veinAt.current) / 100) / 10, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: vein.gem ? "gem" : "ore", need: did.of, hits: did.passed, misses: Math.max(0, strikes.length - did.passed) });
                         return did.ok ? did : { ok: false, why: did.why };

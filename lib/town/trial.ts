@@ -1,4 +1,12 @@
+import type { RockChoice } from "./geology";
+import { gardenTend, syncGarden } from "./gardening";
+import { insectCare, type InsectCare } from "./insect-garden";
 import { boxOffer, moveBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
+import { craft, type CraftId } from "./crafting";
+import { streamWork, type StreamAction, type StreamGate } from "./stream-work";
+import { preparationReady, prepare, PREPARATION, type PrepId, type PrepRun, type PrepAnswers } from "./preparation";
+import { makeCamp, campBenefit, type FieldCamp } from "./camps";
+import { fitHook } from "./rod-hook";
 import { cook, feastEat, hasMade, isFind, ladle, mayLeave, serve, setDown, takeUp, tidied, type Pot, type Taste } from "./cooking";
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
@@ -127,6 +135,7 @@ const PINBOARD = "cashtown.trial.notices.1", SEEN = "cashtown.trial.seen.1";
 interface KeptNote { id: number; by: string; day: number; wish: WishId; note: string; cheers: string[]; reports: string[]; hidden: boolean; at: number }
 /** The forest: the word its rolls hang on, and who has taken from which place in which turn. */
 const WILD_SALT = "cashtown.trial.wild.salt.1", WILD_TOOK = "cashtown.trial.wild.took.1";
+const WILD_REST = "cashtown.trial.wild.rest.1";
 const BUG_TOOK = "cashtown.trial.bugs.took.1", BUG_BOOK = "cashtown.trial.bugs.book.1", BUG_BACK = "cashtown.trial.bugs.back.1";
 /** The hours the farm was counted with insects that eat plants on it (lib/town/farm's Swarms). */
 const SWARMS = "cashtown.trial.farm.swarms.1";
@@ -206,7 +215,7 @@ export class Trial {
     }
     return fresh();
   }
-  private write(key: string, value: unknown) { this.set(key, JSON.stringify(value)); }
+  private write(key: string, value: unknown) { this.set(key, JSON.stringify(key === FARM ? syncGarden(value as Record<string, Plot>) : value)); }
 
   /** The trial's clock: the real one, put forward by however much was skipped. */
   now(): number { return Date.now() + this.read<number>(CLOCK, () => 0, (v) => typeof v === "number" && Number.isFinite(v)); }
@@ -290,9 +299,71 @@ export class Trial {
     return done;
   }
   /** Keep a purse as it has become. */
+  streamGate(): StreamGate | null { return this.read<StreamGate|null>("cashtown.trial.stream.1",()=>null,v=>v===null||!!v&&typeof v==="object"); }
+  preparationBegin(recipe:PrepId,at:[number,number],request:string){
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(request))return no("none");
+    const old=this.read<PrepRun|null>(`cashtown.trial.preparation.1.${this.id}`,()=>null,v=>v===null||!!v&&typeof v==="object");
+    const receipts=this.read<Record<string,string>>(`cashtown.trial.field.receipts.1.${this.id}`,()=>({}),v=>!!v&&typeof v==="object");
+    if(old?.id===request||Object.hasOwn(receipts,request))return {ok:false as const,why:"had" as const};
+    if(Object.keys(receipts).length>=1000)return {ok:false as const,why:"spent" as const};
+    const refused=preparationReady(this.purse(),recipe,at);if(refused)return {ok:false as const,why:refused};
+    const now=this.now(),run:PrepRun={id:request,recipe,seed:Math.floor(now%2147483647),at:now,until:now+PREPARATION.minutes*60000,tile:at};
+    this.write(`cashtown.trial.preparation.1.${this.id}`,run);this.write(`cashtown.trial.field.receipts.1.${this.id}`,{...receipts,[request]:"prep-begin"});return {ok:true as const,run};
+  }
+  preparationEnd(id:string,answers:PrepAnswers,at:[number,number]){
+    const receiptsKey=`cashtown.trial.field.receipts.1.${this.id}`,receipts=this.read<Record<string,string>>(receiptsKey,()=>({}),v=>!!v&&typeof v==="object");
+    if(receipts[id]==="prep-end")return {ok:false as const,why:"had" as const};
+    const key=`cashtown.trial.preparation.1.${this.id}`,run=this.read<PrepRun|null>(key,()=>null,v=>v===null||!!v&&typeof v==="object");
+    const d=prepare(this.purse(),run,id,answers,at,this.now());if(!d.ok)return d;
+    this.write(key,null);this.write(receiptsKey,{...receipts,[id]:"prep-end"});this.save(d.purse);
+    this.counted({from:"play",what:"cooking",thing:d.made,n:d.n,won:d.mistakes===0,doc:{preparation:true}});
+    return {ok:true as const,made:d.made,n:d.n,mistakes:d.mistakes};
+  }
+  camps():FieldCamp[]{return this.read<FieldCamp[]>("cashtown.trial.camps.1",()=>[],Array.isArray).filter(c=>c.until>this.now());}
+  campsLook(){this.tell();}
+  campDo(action:"place"|"benefit",site:number,supply:string|null,at:[number,number],request:string){
+    if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(request))return no("none");
+    const key=`cashtown.trial.field.receipts.1.${this.id}`,receipts=this.read<Record<string,string>>(key,()=>({}),v=>!!v&&typeof v==="object");
+    if(Object.hasOwn(receipts,request))return {ok:false as const,why:"had" as const};
+    if(Object.keys(receipts).length>=1000)return {ok:false as const,why:"spent" as const};
+    const camps=this.camps(),old=camps.find(c=>c.site===site)??null,now=this.now();
+    const d=action==="place"?makeCamp(this.purse(),site,at,old,this.id,now):campBenefit(this.purse(),old,supply??"",at,now);
+    if(!d.ok)return d;
+    const next=[...camps.filter(c=>c.site!==site),d.camp];this.write("cashtown.trial.camps.1",next);this.write(key,{...receipts,[request]:action});this.save(d.purse);
+    if(action==="benefit"&&old)this.counted({from:"deed",what:"camp_prepare",thing:supply,n:1,doc:{owner:old.by}});
+    return {ok:true as const,camps:next};
+  }
+  streamDo(action: StreamAction, choice: string, at: [number,number], request: string) {
+    if (!/^[0-9a-f-]{36}$/i.test(request)) return no("none");
+    const key=`cashtown.trial.stream.receipts.1.${this.id}`;
+    const receipts=this.read<Record<string,{action:string;choice:string}>>(key,()=>({}),v=>!!v&&typeof v==="object");
+    if (Object.hasOwn(receipts,request)) return { ok: false as const, why: "had" as const };
+    if (action==="pour" && this.well()>=WATER.well) return no("full");
+    const now=this.now(),d=streamWork(this.purse(),action,choice,at,this.streamGate(),this.id,now);
+    if (!d.ok) return d;
+    if (d.gate) this.write("cashtown.trial.stream.1",d.gate);
+    if (d.nature) {
+      this.write(WELL,this.well()+1);
+      this.wellSeen({by:this.id,at:now,what:"pour",n:1});
+      const log=this.wellLog();
+      this.write(WELL_LOG,{...log,wellWater:pouredIn(log.wellWater,d.nature,1,this.id,now,d.times)});
+    }
+    this.write(key,{...receipts,[request]:{action,choice}});
+    this.save(d.purse);
+    return {ok:true as const,stream:this.streamGate(),...(d.got?{got:d.got}:{})};
+  }
   private save(purse: Purse): Purse { this.write(purseKey(this.id), purse); this.tell(); return purse; }
 
   buy(item: ItemId, n: number) { return this.keep(buy(this.purse(), this.stall(), item, n, this.now(), this.shelf())); }
+  craft(item: CraftId, request: string): Done<{ purse: Purse; item: CraftId; n: number; fee: number }> {
+    const key = `cashtown.trial.craft.1.${this.id}`;
+    const receipts = this.read<Record<string, { item: CraftId; fee: number }>>(key, () => ({}), (v) => !!v && typeof v === "object" && !Array.isArray(v));
+    const old = Object.hasOwn(receipts, request) ? receipts[request] : null;
+    if (old) return old.item === item ? { ok: true, purse: this.purse(), item, n: 1, fee: old.fee } : { ok: false, why: "none" };
+    const did = this.keep(craft(this.purse(), item, this.now()));
+    if (did.ok) this.write(key, { ...receipts, [request]: { item: did.item, fee: did.fee } });
+    return did;
+  }
 
   /* ── the uncle's order: the village's, so the browser's ── */
   village(): Village {
@@ -508,22 +579,22 @@ export class Trial {
     return deedFor(key, this.farm()[key] ?? WILD, handOf(this.purse()), this.id, this.now(), this.owners().get(bedOf(x, y))?.by ?? null, this.sky(), mayTwice(this.purse(), this.now()));
   }
   /** Do to a plot what the thing in my hand does: clear it, till it, dig its plant out (a living one only when it is `sure`), sow it, water it, feed it, cure it, pick it. Says what was done and what came of it, or why not. */
-  farmDo(key: string, name = "", sure = false): { ok: true; deed: Deed; got: Array<[ItemId, number]>; also?: string[] } | { ok: false; why: Refusal | FarmRefusal } {
+  farmDo(key: string, name = "", sure = false, rotation = 0): { ok: true; deed: Deed; got: Array<[ItemId, number]>; also?: string[] } | { ok: false; why: Refusal | FarmRefusal } {
     // (somebody is at the farm: its hour is counted, if it has not been)
     this.swarmNote();
     const p = this.purse(), now = this.now(), plots = this.farm(), plot = plots[key] ?? WILD, beds = this.beds();
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y), planted = this.plantedIn(plots);
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
-    const did = tend(key, plot, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, this.sky(), sure, this.putLuck ?? undefined);
+    const did = gardenTend(key, plots, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, this.sky(), sure, this.putLuck ?? undefined, rotation);
     if (!did.ok) return did;
-    const next = { ...plots };
+    const next = { ...plots, ...did.plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
     if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed));
     // ── forging: old tools ── (what the deed did to the plots beside it, with lightning in the tool or a can that rains: lib/town/farm's beside.
     // Each is kept as the one done was kept, and none of them is counted on a line: they are the tool's doing.)
     const more = beside(key, canFx(toolInHand(p)).rain ? plotsOfBed(x, y).map(([u, v]) => plotKey(u, v)) : this.rowKeys(key), plots, did.deed, p, did.purse, this.id, now, this.owners().get(bed)?.by ?? null, this.sky());
     for (const [k, beside2] of Object.entries(more.plots)) next[k] = did.deed === "water" && plots[k] ? this.poured(plots[k], beside2, now, 1, this.bellWorn(bed)) : beside2;
-    this.write(FARM, next);
+    this.write(FARM, syncGarden(next));
     const kept = { ...beds };
     if (!did.bed) delete kept[bed];
     else kept[bed] = { ...did.bed, name: (did.bed.by === beds[bed]?.by && beds[bed]?.name) || name || did.bed.by };
@@ -543,7 +614,7 @@ export class Trial {
       ...(!plot.plant && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}),
       ...(kind > 0 ? { kind } : {}),
     } });
-    const also = Object.keys(more.plots);
+    const also = [...new Set([...Object.keys(more.plots), ...Object.keys(did.plots).filter(k => k !== key)])];
     return { ok: true, deed: did.deed, got: did.got, ...(also.length ? { also } : {}) };
   }
   // ── gifts: farming ──
@@ -582,6 +653,15 @@ export class Trial {
   gnomeAt(key: string): string[] {
     const [x, y] = key.split(",").map(Number), bed = bedOf(x, y);
     return bed < 0 ? [] : gnomeReach(bed, this.bedAt(x, y), this.purse(), this.id, this.now(), this.owners().get(bed)?.by ?? null, this.sky());
+  }
+  insectCare(key: string, slot: number, mode: InsectCare) {
+    const plots = this.farm(), did = insectCare(key, plots[key] ?? WILD, this.purse(), slot, mode, this.id, this.now(), this.sky());
+    if (!did.ok) return did;
+    this.write(FARM, { ...plots, [key]: did.plot });
+    this.save(did.purse);
+    this.counted({ from: "deed", what: mode === "guard" ? "cure" : "feed", thing: did.plot.plant.crop, n: 1, doc: { ...(did.plot.plant.by !== this.id ? { whose: did.plot.plant.by } : {}) } });
+    this.tell();
+    return { ok: true as const };
   }
   /** The plots of the bed a plot is in that my hourglass of seasons would quicken if I turned it now (lib/town/farm's glassReach). */
   glassAt(key: string): string[] {
@@ -918,18 +998,22 @@ export class Trial {
   /** Every place of the forest that has something for me now (with the firefly lantern worn: what is buried too, and the secret places). */
   wild(): Sight[] {
     const took = this.took();
-    return sights(this.salt(), this.now(), SKIES.rains(), (spot, turn) => { const who = took[`${spot.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; }, lanternLit(this.purse()));
+    const rest=this.read<Record<string,{from:number;until:number}>>(WILD_REST,()=>({}),(v)=>!!v&&typeof v==='object'&&!Array.isArray(v)),now=this.now();
+    return sights(this.salt(), now, SKIES.rains(), (spot, turn) => { const who = took[`${spot.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; }, lanternLit(this.purse())).filter(s=>!rest[s.id]||now<rest[s.id].from||now>=rest[s.id].until);
   }
   /** Gather what a place has, from the tile I stand on, with how its game went. Says what came of it, or why not (`lost`: a secret place's games were not both won, and my turn at it is spent). */
   gatherDo(id: number, at: [number, number], went: Outcome): { ok: true; got: Array<[ItemId, number]>; lost?: boolean } | { ok: false; why: Refusal | ForestRefusal | GiftRefusal } {
     const spot = placeAt(id);
     if (!spot) return no("none");
     const now = this.now(), has = holds(this.salt(), spot, now, SKIES.rains()), took = this.took(), key = `${id}:${has?.turn ?? 0}`, who = took[key] ?? [];
+    const rest=this.read<Record<string,{from:number;until:number}>>(WILD_REST,()=>({}),(v)=>!!v&&typeof v==='object'&&!Array.isArray(v));
+    if(rest[id]&&rest[id].from<=now&&now<rest[id].until)return no("none");
     const did = gather(this.purse(), spot, has, who.length, who.includes(this.id), handOf(this.purse()), at, went, now);
     if (!did.ok) return did;
     // (turns gone by are forgotten: only what the places have now is kept)
     const kept = Object.fromEntries(Object.entries(took).filter(([k]) => { const [s, t] = k.split(":").map(Number), p = placeAt(s); return !!p && t >= turnOf(p, now); }));
     this.write(WILD_TOOK, { ...kept, [key]: [...who, this.id] });
+    if(did.rest)this.write(WILD_REST,{...Object.fromEntries(Object.entries(rest).filter(([,r])=>r.until>now)),[id]:did.rest});
     this.save(did.purse);
     if (did.got[0]) this.counted({ from: "deed", what: "gather", thing: did.got[0][0], n: did.got[0][1], doc: { how: ruleOf(spot).how, kind: spot.kind } });
     return { ok: true, got: did.got, ...(did.lost ? { lost: true } : {}) };
@@ -1352,6 +1436,7 @@ export class Trial {
   setHintChance(r: number | null) { this.hintChance = r; }
   /** Put on what carries more, from a slot of the bag; and take one off. */
   wear(slot: number) { return this.keep(wear(this.purse(), slot)); }
+  rodHook(item: string | null) { return this.keep(fitHook(this.purse(), item)); }
   takeOff(item: ItemId) { return this.keep(takeOff(this.purse(), item)); }
 
   /* ── a deal with another tester of this browser: both purses are here, so the swap is one write ── */
@@ -1917,8 +2002,8 @@ export class Trial {
     return { ok: true, peek: peekOf(this.fateAt(floor, mineTurn(now), today, pick)(rock) ?? holdsOf(this.salt(), floor, rock, mineTurn(now), today, pick)) };
   }
   /** The vein I opened, played out. */
-  veinDo(strikes: Array<[number, number]>): { ok: true; got: Array<[ItemId, number]>; passed: number; of: number; again: boolean } | { ok: false; why: MineRefusal } {
-    const did = veinEnd(this.purse(), strikes, this.now());
+  veinDo(strikes: Array<[number, number]>, choice?: RockChoice): { ok: true; got: Array<[ItemId, number]>; passed: number; of: number; again: boolean } | { ok: false; why: MineRefusal } {
+    const did = veinEnd(this.purse(), strikes, this.now(), choice);
     if (!did.ok) return did;
     this.save(did.purse);
     const v = did.vein, chip = did.got.find((g) => g[0] !== oreOf(v.f))?.[0] ?? null;
@@ -2109,6 +2194,7 @@ export class Trial {
   }
   /** Begin again: my purse, the stall, its prices, the farm and the clock as they were at first. (What was played stays written down.) */
   reset() {
+    this.set(`cashtown.trial.craft.1.${this.id}`, null);
     for (const key of [purseKey(this.id), boxKey(this.id), /* felling */ TREES_AT, GROUND_AT, SHOPS, STALL, MARKET_AT, MARKET_LOG, CLOCK, FARM, WELL, WELL_LOG, THANKS, JAR, YARD_JAR, BEDS, POTS, FOUND, FINDERS, DEALS, VILLAGE, WORKS_AT, LAMPS_AT]) this.set(key, null);
     // ── forging ──
     for (const key of [smithKey(this.id), SMITH_BOARD, SMITH_LOG, SMITH_FIRE]) this.set(key, null);

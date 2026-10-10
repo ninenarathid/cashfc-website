@@ -28,7 +28,7 @@ describe("what an insect is among the others", () => {
   it("is common, uncommon or rare by what the relatives pay: nine, seven and eight of the twenty-four", () => {
     const of = (t: string) => BUG_IDS.filter((id) => tierOf(id) === t).sort();
     expect(of("common")).toEqual(["butterflyWhite", "caterpillar", "cricket", "dragonfly", "grasshopper", "ladybird", "monarch", "moth", "scarab"]);
-    expect(of("uncommon")).toEqual(["cicada", "damselfly", "firefly", "leafInsect", "mantis", "rhinoBeetle", "stickInsect"]);
+    expect(of("uncommon")).toEqual(["carpenterBee", "cicada", "damselfly", "firefly", "goldenAnt", "honeyBee", "hoverfly", "lacewing", "leafInsect", "mantis", "orchardBeetle", "pollenMidge", "rhinoBeetle", "silkMoth", "stickInsect"]);
     expect(of("rare")).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "lunaMoth", "morpho", "orchidMantis", "stagBeetle"]);
     // (the rare ones' mark is the one the line counts a rare catch from)
     expect(TIERS.rare).toBe(POINTS.insects.pays);
@@ -356,7 +356,7 @@ describe("the butterfly-wing cloak (insects, the sixth rank): the rare insects o
 
   it("is a charm of the sixth rank, three seconds for the second of a pair", () => {
     expect(GIFTS.find((g) => g.id === "charmCloak")).toMatchObject({ kind: "charm", line: "insects", rank: 6, by: 3 });
-    expect(dayKinds.sort()).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "monarch", "morpho"]);
+    expect(dayKinds.sort()).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "monarch", "morpho", "silkMoth"]);
   });
 
   it("has for its wearer, at a haunt, only an insect with days of its own on a day that is not one; everywhere else nothing of its own", () => {
@@ -371,7 +371,7 @@ describe("the butterfly-wing cloak (insects, the sixth rank): the rare insects o
       expect(BUGS[x.worn].at).toContain(x.h.kind);
       expect(x.all).not.toBe(x.worn);
     }
-    expect([...seen].sort()).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "monarch", "morpho"]);
+    expect([...seen].sort()).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "monarch", "morpho", "silkMoth"]);
     // a luna moth waits for the full moon, cloak or no cloak
     expect(seen.has("lunaMoth")).toBe(false);
     // and a haunt none of whose insects has a day has nothing for the cloak, ever
@@ -602,7 +602,7 @@ describe("a drop of nectar (insects, the third rank: within ten seconds an insec
       if (!from || !nectarMay(WORD, from, when, rains).length) expect(nectar(mine(), at, when, WORD, rains, UNHUNTED, MID)).toEqual({ ok: false, why: "quiet" });
     };
     const blooms = hauntOf("blooms", "town"), lamp = hauntOf("lamp", "town");
-    quiet(blooms, tileBy(blooms), NIGHT);
+    expect(nectarMay(WORD, blooms, NIGHT).map(([id]) => id)).toContain("lacewing");
     quiet(lamp, tileBy(lamp), NOON);
     quiet(blooms, tileBy(blooms), NOON, ALWAYS_RAIN);
     quiet(null, [-5, 5], NOON);
@@ -625,7 +625,7 @@ describe("a drop of nectar (insects, the third rank: within ten seconds an insec
     expect(rare).toBeGreaterThan(0);
     // and at the forest's flowers by day, an orchid mantis about one time in eighty
     const may = nectarMay(WORD, hauntOf("blooms", "forest"), NOON), total = may.reduce((t, [, w]) => t + w, 0);
-    expect((may.find(([id]) => id === "orchidMantis")?.[1] ?? 0) / total).toBeCloseTo(2 / 160, 3);
+    expect((may.find(([id]) => id === "orchidMantis")?.[1] ?? 0) / total).toBeCloseTo(2 / 176, 3);
   });
 
   it("a kind that is hunted comes seldom, and what is beside it there comes in its place; alone, it comes still", () => {

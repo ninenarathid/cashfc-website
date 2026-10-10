@@ -408,7 +408,7 @@ describe("the database's keeper", () => {
     let told: unknown, water: unknown = { kind: "dawn", by: "bo", until: NOW + 10 * 60_000 };
     const db = database({
       town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
-      town_well_ranks: () => ({ now: NOW, ranks: {}, ...(told === undefined ? {} : { wellWater: told }) }),
+      town_well_ranks: () => ({ now: Date.now(), ranks: {}, ...(told === undefined ? {} : { wellWater: told }) }),
       town_chore: () => ({ ok: true, chore: "pour", well: 3, now: NOW, purse: purse() }),
     });
     const raining = vi.spyOn(SKIES, "raining").mockReturnValue(true);
@@ -448,6 +448,7 @@ describe("the database's keeper", () => {
     // a nature that has run out by this page's clock is none, though nobody has said so yet
     told = { kind: "moon", by: "bo", until: NOW + 60_000 };
     k.nudged("farm");
+    await vi.advanceTimersByTimeAsync(20_000);
     await settle();
     expect(k.wellWater()?.kind).toBe("moon");
     vi.setSystemTime(NOW + 61_000);

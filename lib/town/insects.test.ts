@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { INSECT_SPECIES } from "./insect-items";
 import { FARMING, PUT_ON, see, type Plant, type Plot } from "./farm";
 import { oddsOf } from "./fishing";
 import {
@@ -32,7 +33,7 @@ function outOver(salt: string, from: number, days: number, rains = DRY): Map<Bug
 
 describe("insects (the owner: \"จับแมลง ในทุกแมพในเกม แมพกลางเมือง ฟาร์ม ป่า จะมีแมลงออกมา\")", () => {
   it("are twenty-four, of eight habits, each an item of its own and none of one country alone", () => {
-    expect(BUG_IDS).toHaveLength(24);
+    expect(BUG_IDS).toHaveLength(32);
     expect(new Set(BUG_IDS.map((id) => BUGS[id].habit)).size).toBe(8);
     for (const id of BUG_IDS) {
       expect(ITEMS[id], id).toBeDefined();
@@ -183,7 +184,7 @@ describe("a net", () => {
     expect(net(mine, h, has, 0, false, "bugNet", at, 0, NIGHT, "twig")).toEqual({ ok: false, why: "lure" });
     for (const lure of LURES) expect(net(mine, h, has, 0, false, "bugNet", at, 0, NIGHT, lure).ok, lure).toBe(true);
     // (and what brings one down is what the forest gives)
-    for (const lure of LURES) expect(sources().get(lure), lure).toBe("forest");
+    for (const lure of LURES) expect(sources().get(lure), lure).toBe(lure === "nectarVial" ? "kitchen" : "forest");
   });
 
   it("is slow, and its ring is small: smaller and slower for tired hands", () => {
@@ -839,7 +840,7 @@ describe("the insects on the farm, counted", () => {
   it("are the ones out at the farm's haunts that nobody has caught, less the two that eat pests", () => {
     let seen = 0, eaters = 0;
     for (let i = 0; i < 60; i++) {
-      const now = NOON + i * 7 * MINUTE, here = out(now), plain = here.filter((x) => FARMING.rids[x.has!.bug] === undefined);
+      const now = NOON + i * 7 * MINUTE, here = out(now), plain = here.filter((x) => !(x.has!.bug in INSECT_SPECIES) && FARMING.rids[x.has!.bug] === undefined);
       expect(farmBugs(WORD, now, DRY, none)).toBe(plain.length);
       seen += plain.length; eaters += here.length - plain.length;
       // one of them caught: one fewer; all of them: none

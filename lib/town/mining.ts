@@ -1,3 +1,4 @@
+import { geologicalYield, geologyMods, rockChoice, type RockChoice } from "./geology";
 import { depthOf, isRest } from "./cave";
 import { roll } from "./farm";
 import { harderFor, wearing } from "./gifts";
@@ -141,7 +142,7 @@ export const peekOf = (h: Holds): Peek => (h.kind === "vein" ? "vein" : h.kind !
 /* ── a member's own ─────────────────────────────────────────────────────── */
 
 /** A vein opened and not yet played out: where its rock stood, the seed of its face, the gem it is of (or none), what it is played with, and whether this is its second go. */
-export interface PendingVein { f: number; rock: number; turn: number; seed: number; gem: Element | null; mods: VeinMods; more: number; again?: boolean }
+export interface PendingVein { f: number; rock: number; turn: number; seed: number; gem: Element | null; mods: VeinMods; more: number; again?: boolean; geology?: ReturnType<typeof geologyMods> }
 /** A rock I struck first that somebody else broke for me: when, where, what it left me, and who it was (their name). The newest only: my page says so once. */
 export interface Paid { at: number; f: number; rock: number; got: Array<[ItemId, number]>; way: boolean; crystal: boolean; vein: boolean; by: string }
 /** What a member keeps of the mine, in their purse (`mine`). */
@@ -167,7 +168,7 @@ function veinOf(v: unknown): PendingVein | null {
   return {
     f: p.f!, rock: p.rock!, turn: p.turn!, seed: p.seed, gem: ELEMENTS.find((e) => e === p.gem) ?? null,
     mods: { strikes: Math.max(1, m.strikes!), back: Math.max(0, Math.floor(Number(m.back) || 0)), cross: Math.max(0, Math.floor(Number(m.cross) || 0)), spent: !!m.spent },
-    more: Math.max(0, Math.floor(Number(p.more) || 0)), ...(p.again ? { again: true } : {}),
+    more: Math.max(0, Math.floor(Number(p.more) || 0)), ...(p.geology ? { geology: p.geology } : {}), ...(p.again ? { again: true } : {}),
   };
 }
 function paidOf(v: unknown): Paid | null {
@@ -432,7 +433,7 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   if (holds.kind === "vein") {
     // the vein is the member's from here: played with the pick as it is now, and with the stamina left after the rock
     const tired = isSpent(after, go.now);
-    vein = { f: go.floor, rock: rock.id, turn, seed: holds.seed, gem: holds.gem ? go.element : null, mods: veinMods(pick, tired), more: holds.gem && has(pick, "pkCutter") ? optN("pkCutter", "more", pick) : 0 };
+    vein = { f: go.floor, rock: rock.id, turn, seed: holds.seed, gem: holds.gem ? go.element : null, geology: geologyMods(after, go.now), mods: veinMods(pick, tired), more: holds.gem && has(pick, "pkCutter") ? optN("pkCutter", "more", pick) : 0 };
     const had = staminaOf(after, go.now);
     after = spend(after, VEIN.stamina, go.now);
     cost += had - staminaOf(after, go.now);
@@ -467,14 +468,17 @@ export interface VeinDone {
  * A vein played out: its strikes are played again by the rules, and the purse has what the crack passed. Refused
  * with nothing changed when no vein is open, or there is no room for what it gives (the vein then waits).
  */
-export function veinEnd(purse: Purse, strikes: ReadonlyArray<Cell>, now: number): VeinDone | { ok: false; why: MineRefusal } {
+export function veinEnd(purse: Purse, strikes: ReadonlyArray<Cell>, now: number, choice?: RockChoice): VeinDone | { ok: false; why: MineRefusal } {
+  if (choice !== undefined && !rockChoice(choice)) return { ok: false, why: "none" };
   const kept = mineOf(purse), vein = kept.vein;
   if (!vein) return { ok: false, why: "none" };
   const face = faceOf(vein.seed, !!vein.gem), crack = play(face, vein.mods, (Array.isArray(strikes) ? strikes : []).filter(isCell));
-  const earned = yieldOf(face, crack, oreOf(vein.f), vein.gem ? GEMS[vein.gem].chip : null, vein.more);
+  let earned = yieldOf(face, crack, oreOf(vein.f), vein.gem ? GEMS[vein.gem].chip : null, vein.more);
+  if (choice?.focus === "crystal" && vein.gem) earned = earned.filter(([id]) => id !== GEMS[vein.gem!].chip);
   // An empty go earns nothing and spends no power; the extra is the same earned yield, without another board.
   const pick = pickOf(purse), twin = earned.length && !vein.again && pick ? usePower(purse, pick, "pkTwin", now) : null;
   const got = twin?.ok ? earned.map(([id, n]): [ItemId, number] => [id, n * optN("pkTwin", "times", pick)]) : earned;
+  if (choice) { const gems = crack.got.filter(i => face.points[i].gem > 0 && vein.gem).length; got.push(...geologicalYield(vein, choice, crack.got.length - gems, gems, purse)); }
   const stowed = stowAll(twin?.ok ? twin.purse : purse, got);
   if (!stowed) return { ok: false, why: "full" };
   const after = stowed;

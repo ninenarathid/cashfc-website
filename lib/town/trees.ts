@@ -8,6 +8,8 @@ import { dayOf, eased, isSpent, spend } from "./stamina";
 import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
 import { heldStack, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
+import { woodSelection, type GrainQuality, type WoodSelection } from "./wood-grain";
+import { woodMods, woodQuality, woodYield } from "./woodcutting";
 
 /**
  * The mountain's trees, and what felling one comes to (the owner, 2026-10-08: woodcutting; "Rocks struck and trees
@@ -405,6 +407,7 @@ export function begin(purse: Purse, grove: Grove, id: number, at: readonly [numb
   return {
     ok: true, trees: trees.map((x) => x.id), elder: !!t.elder,
     ask: {
+      grain: { tree: t.id, ...woodMods(purse, now) },
       trees: trees.map((x): FellTree => ({ id: x.id, girth: girthOf(x), timber: [...bearsOf(x)] })),
       chops: trunk.chops, seed: (Math.imul(seed | 0, 31) + Math.imul(t.id + 1, 7919)) | 0, girth: girthOf(trunk.t), family: knobs.family,
       ahead: t.elder && has(axe, "axElder") ? ALL : axeAhead(axe), pace: axeBarPace(axe) * (spent ? knobs.spent : knobs.pace),
@@ -444,7 +447,7 @@ export function bracePay<P extends Purse>(purse: P): { purse: P; got: Array<[Ite
  * that says so is refused.) And what
  * was asked of the axe's counted powers (`one`: the tree to fall at one chop, with no game; `twice`: twice the wood).
  */
-export interface FellWent { tree: number; through?: boolean; misses?: number; secs: number; plain?: boolean; one?: boolean; twice?: boolean }
+export interface FellWent { tree: number; through?: boolean; misses?: number; secs: number; plain?: boolean; one?: boolean; twice?: boolean; grain?: WoodSelection }
 /**
  * The numbers of chance a go may need, each from 0 to 1, a set a tree: whether the axe's dark turns up a log more,
  * whether its scent turns something up and what, whether its lightning half cuts a neighbour, and whether the tree
@@ -455,7 +458,7 @@ export interface FellLuck { dark: number; scent: number; which: number; chain: n
  * One tree that fell: its number, kind and girth; the misses it fell with; what it gave; the fine timber among that
  * and the most it could have given; the neighbour its fall left half cut, if any; and the keepsake it let fall.
  */
-export interface FellOne { id: number; kind: string; girth: Girth; misses: number; got: Array<[ItemId, number]>; timber: number; most: number; chained: number | null; free: boolean; twice: boolean; keepsake?: KeepsakeId }
+export interface FellOne { id: number; kind: string; girth: Girth; misses: number; got: Array<[ItemId, number]>; timber: number; most: number; chained: number | null; free: boolean; twice: boolean; keepsake?: KeepsakeId; quality?: GrainQuality }
 /**
  * What a go came to: the purse and the grove after it; every tree that fell; all it brought home; whether it was the
  * one chop of the axe's own (`plain`: the way that was; never true now); whether the trunk was cut through; whether the tree stands after all
@@ -491,6 +494,7 @@ function summed(all: Array<Array<[ItemId, number]>>): Array<[ItemId, number]> {
  * beside what was never found before.
  */
 export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at: readonly [number, number], now: number, luck: readonly FellLuck[], wood: readonly Standing[] = WOOD, who: string = me): ({ ok: true } & Fell) | No {
+  if (went.grain !== undefined && (!woodSelection(went.grain) || !Number.isSafeInteger(went.misses) || went.misses! < 0 || went.misses! > 1000)) return no("none");
   const first = treeOf(went.tree, wood), axe = axeOf(purse);
   if (!first) return no("none");
   if (!axe) return no("tool");
@@ -530,6 +534,7 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
   let down = { ...grove.down }, half = grove.half.slice(), kept = fellingOf(mine);
   const book = { ...(grove.book ?? {}) }, found: Fell["found"] = [];
   const felled: FellOne[] = [];
+  const quality = board && went.grain ? woodQuality(first.id, went.grain, misses, purse, now) : undefined;
   trees.forEach((t, i) => {
     const l = luck[i] ?? { dark: 1, scent: 1, which: 1, chain: 1 }, got: Array<[ItemId, number]> = [];
     let twice = false, free = false, timber = 0;
@@ -579,7 +584,8 @@ export function fell(purse: Purse, grove: Grove, me: string, went: FellWent, at:
       found.push({ id: keepsake, first: !book[keepsake] });
       book[keepsake] ??= { by: who, at: now };
     }
-    felled.push({ id: t.id, kind: kindOf(t), girth: girthOf(t), misses, got, timber, most: mostTimber(t), chained, free, twice, ...(keepsake ? { keepsake } : {}) });
+    if (quality && went.grain) got.push(...woodYield(t.id, !!t.elder, went.grain, quality, purse));
+    felled.push({ id: t.id, kind: kindOf(t), girth: girthOf(t), misses, got, timber, most: mostTimber(t), chained, free, twice, ...(keepsake ? { keepsake } : {}), ...(quality ? { quality } : {}) });
   });
   const got = summed(felled.map((f) => f.got)), home = bringHome(mine, got);
   if (!home) return no("full");

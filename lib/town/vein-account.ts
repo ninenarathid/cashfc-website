@@ -1,3 +1,4 @@
+import { geologicalYield, rockChoice, type RockChoice } from "./geology";
 import type { ItemId } from "./items";
 import { mineOf, oreOf, pickOf, type MineRefusal, type PendingVein, type VeinDone } from "./mining";
 import { stowAll } from "./pouches";
@@ -24,7 +25,7 @@ import { VEIN, faceOf, play, type Cell } from "./vein";
  */
 export interface VeinAccount {
   /** The vein it is a go at: the seed of its face, and whether this is its second go (a twin's). */
-  seed: number; again: boolean;
+  seed: number; again: boolean; geology?: RockChoice;
   /** The strikes as they were made, in their order: cells of the face, sixty-four at the most. Kept for the record. */
   strikes: Array<[number, number]>;
   /** How many of them counted (a strike on a cell that cannot be struck is passed over). */
@@ -44,11 +45,11 @@ const onFace = (c: unknown): c is Cell => isCell(c) && c[0] >= 0 && c[1] >= 0 &&
 const whole = (n: unknown): n is number => typeof n === "number" && Number.isInteger(n) && n >= 0;
 
 /** What a page that has the face says of a go: the strikes played on the face by the rules, and what the crack passed. */
-export function accountOf(vein: PendingVein, strikes: ReadonlyArray<Cell>): VeinAccount {
+export function accountOf(vein: PendingVein, strikes: ReadonlyArray<Cell>, choice?: RockChoice): VeinAccount {
   const face = faceOf(vein.seed, !!vein.gem), sound = (Array.isArray(strikes) ? strikes : []).filter(isCell), crack = play(face, vein.mods, sound);
   const passed = crack.got.map((i) => face.points[i]).filter((p) => !!p), gem = (p: { gem: number }) => p.gem > 0 && !!vein.gem;
   return {
-    seed: vein.seed, again: !!vein.again,
+    seed: vein.seed, again: !!vein.again, ...(choice ? { geology: choice } : {}),
     // (a cell off the face is never struck: it is left out of the record, and of nothing else)
     strikes: sound.slice(0, VEIN_STRIKES).filter(onFace).map(([x, y]): [number, number] => [x, y]),
     struck: crack.struck, of: face.points.length, ore: passed.filter((p) => !gem(p)).length, gems: passed.filter(gem).map((p) => p.gem),
@@ -95,12 +96,14 @@ export function veinFrom(purse: Purse, said: unknown, now: number): VeinDone | {
   const kept = mineOf(purse), vein = kept.vein, a = said as Partial<VeinAccount> | null;
   if (!vein) return { ok: false, why: "none" };
   if (!a || typeof a !== "object" || Array.isArray(a) || a.seed !== vein.seed || !!a.again !== !!vein.again) return { ok: false, why: "none" };
+  if ("geology" in a && !rockChoice((a as VeinAccount).geology)) return { ok: false, why: "none" };
   const how = oddOf(vein, a);
   if (how) return { ok: false, why: "odd", how, purse: { ...purse, mine: { ...kept, vein: null } } };
   const told = a as VeinAccount, chip = vein.gem ? GEMS[vein.gem].chip : null, shards = told.ore * VEIN.ore, cut = told.gems.reduce((t, n) => t + n, 0), chips = cut > 0 ? cut + Math.max(0, vein.more) : 0;
-  const got: Array<[ItemId, number]> = [...(shards ? [[oreOf(vein.f), shards] as [ItemId, number]] : []), ...(chips && chip ? [[chip, chips] as [ItemId, number]] : [])];
+  const got: Array<[ItemId, number]> = [...(shards ? [[oreOf(vein.f), shards] as [ItemId, number]] : []), ...(chips && chip && told.geology?.focus !== "crystal" ? [[chip, chips] as [ItemId, number]] : [])];
   const pick = pickOf(purse), twin = got.length > 0 && !vein.again && pick ? usePower(purse, pick, "pkTwin", now) : null;
   if (twin?.ok) for (const part of got) part[1] *= optN("pkTwin", "times", pick);
+  if (told.geology) got.push(...geologicalYield(vein, told.geology, told.ore, told.gems.length, purse));
   const stowed = stowAll(twin?.ok ? twin.purse : purse, got);
   if (!stowed) return { ok: false, why: "full" };
   // Match veinEnd: the accepted yield is multiplied immediately, with no replay.

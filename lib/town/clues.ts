@@ -2,6 +2,13 @@ import { KINDS, SPOT_KINDS, type SpotKind } from "./forest";
 import { CROPS, CROP_IDS, FISH, ITEMS, MAKES, growIconOf, type CropId, type Fish, type FishId, type ItemId, type ItemKind, type Tier } from "./items";
 import { BASIC, UNLOCKS } from "./orders";
 import type { Line } from "./talk";
+import { GEOLOGY_RAW } from "./geology-items";
+import { WOOD_RAW } from "./wood-items";
+import { FORAGE_PARTS } from "./foraging-parts";
+import { STREAM_RAW } from "./stream-items";
+import { CRAFTS, isCraft } from "./crafting";
+import { PREP_MAKES } from "./preparation-items";
+import { PREPARATION, type PrepId } from "./preparation";
 import type { Zone } from "./world";
 
 /**
@@ -134,7 +141,8 @@ function fishClue(f: Fish): Clue {
   const sky = f.rain === 0 ? line("ตอนฝนไม่ตก", "never in the rain") : f.dry === 0 ? line("เฉพาะตอนฝนตก", "only in the rain") : null;
   // (what a fish waits for beyond the hour and the sky is a secret of the river's: only that there is something)
   const waits = f.needs?.length ? line("เฉพาะบางโอกาส", "only on certain occasions") : null;
-  return { sort: TIER_WORD[f.tier], from: both([WATER_WORD[water], dayPart(f.hours), sky, waits]) };
+  const regional = f.habitat?.map(h => h === "creek" ? line("ลำธารในป่า", "forest creek") : h === "pool" ? line("แอ่งน้ำ", "deep pool") : line("ต้นน้ำ", "headwaters"));
+  return { sort: TIER_WORD[f.tier], from: both([regional?.length ? line(regional.map(l=>l.th).join("หรือ"),regional.map(l=>l.en).join(" or ")) : WATER_WORD[water], dayPart(f.hours), sky, waits]) };
 }
 
 /* ── the forest ─────────────────────────────────────────────────────────── */
@@ -211,10 +219,21 @@ function madeClue(id: ItemId): Clue | null {
  */
 export function clueOf(id: ItemId): Clue {
   const kind = ITEMS[id].kind;
+  if (Object.hasOwn(PREP_MAKES,id)) return {sort:[line("วัตถุดิบที่หั่นหรือผึ่งไว้","an ingredient cut or dried"),line("วัตถุดิบที่บดและผสม","an ingredient ground and mixed"),line("วัตถุดิบที่คั่วหรือตีเข้ากัน","an ingredient toasted or whisked")][PREPARATION.methods[id as PrepId]],from:line("ทดลองที่เขียงใกล้เตาในลานอาหาร","try a preparation board beside a kitchen stove")};
+  if (isCraft(id)) return { sort: KIND_WORD[kind], from: line(`ประกอบที่โต๊ะงานจากวัสดุ ${CRAFTS[id].length} อย่าง`, `assembled at the workshop from ${CRAFTS[id].length} materials`) };
+  if ((STREAM_RAW as readonly string[]).includes(id)) return {sort:line("ของที่แยกเก็บจากต้นน้ำ", "a part collected beside a mountain stream"),from:line("แถวแอ่งและร่องไหลบนภูเขา", "at mountain pools and running channels")};
+  const part=Object.entries(FORAGE_PARTS.parts).flatMap(([spot,parts])=>Object.entries(parts).map(([part,item])=>({spot,part,item}))).find(p=>p.item===id);
+  if(part)return {sort:line(part.part==="root"?"ส่วนใต้ต้นที่ต้องแยกเก็บ":"ส่วนเล็กที่เก็บโดยเหลือต้นไว้",part.part==="root"?"a part separated beneath a plant":"a small part gathered while leaving its plant"),from:line(`พบจากร่องรอยแถว${({leaves:"กองใบไม้",flowers:"ดอกไม้",bamboo:"ไผ่",greens:"พืชใบเขียว",berries:"เบอร์รี",mushrooms:"เห็ด"} as Record<string,string>)[part.spot]}`,`found by inspecting a forest ${part.spot} patch`)};
   if (kind === "fish" && id in FISH) return fishClue(FISH[id as FishId]);
   if (kind === "crop" && id in CROPS) return cropClue(id as CropId);
   if (kind === "wild") { const w = wildClue(id); if (w) return w; }
-  if (kind === "goods") { const m = madeClue(id); if (m) return m; }
+  if (kind === "goods" || kind === "staple") { const m = madeClue(id); if (m) return m; }
   if (kind === "catch") return { sort: KIND_WORD.catch, from: line("ติดเบ็ดขึ้นมาแทนปลา", "comes up on a line in a fish's place") };
+  if ((GEOLOGY_RAW as readonly string[]).includes(id)) return { sort: KIND_WORD[kind], from: id === "wholeGeode" ? line("ผลึกที่รักษาไว้หลังตามเสียงในสายแร่อัญมณี", "a crystal preserved after following a gem seam's echo") : id === "quartzCore" ? line("พบตามแนวแร่ด้วยสิ่วหรือสายสำรวจ", "found along a ringing seam using a chisel or survey cord") : line("เก็บจากชั้นหินหลังฟังเสียงสะท้อนในถ้ำ", "gathered from rock layers after listening to a cave's echoes") };
+  if ((WOOD_RAW as readonly string[]).includes(id)) return { sort: KIND_WORD.wood, from:
+    id === "cedarSliver" ? line("ส่วนหนึ่งจากต้นไม้เก่าแก่บนภูเขา", "a part of the ancient mountain tree") :
+    ["knottedWood", "straightWood", "heartwood"].includes(id) ? line("เนื้อที่เลือกเก็บหลังอ่านเสี้ยนและโค่นต้นไม้", "the selected interior after reading the grain and felling a tree") :
+    line("ส่วนที่เลือกเก็บจากรอบลำต้นบนภูเขา", "a selected part around a mountain trunk") };
+  if (kind === "wood") return { sort: KIND_WORD.wood, from: line("โค่นต้นไม้บนภูเขา ฟันหลบกิ่งเพื่อได้ชิ้นที่เรียบร้อย", "fell mountain trees; avoid branches to obtain clean pieces") };
   return { sort: KIND_WORD[kind], from: shelfClue(id) };
 }

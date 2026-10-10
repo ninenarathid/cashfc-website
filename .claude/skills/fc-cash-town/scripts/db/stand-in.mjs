@@ -21,7 +21,9 @@ import { fileURLToPath } from "node:url";
 import { supabaseLike, migration } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
 
-/** The last file of the town's that has run (town-bench.mjs has the same number). */
+/** The consecutive baseline used by town-bench.mjs. v183 ran independently
+ * after v179, before the pending v180–v182 expansion; tests of that combination
+ * must apply migration(183) explicitly rather than advancing through the drafts. */
 export const RAN = 179;
 const here = (name) => new URL(`./${name}`, import.meta.url);
 // (v160 and v163 ran after v166, v164 after v168: the snapshot named for RAN alone is of all that has run, as it ran: snap-v176.tar.

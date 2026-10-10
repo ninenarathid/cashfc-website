@@ -4,11 +4,20 @@ import { ALL_SIGNS, oddsOf } from "./fishing";
 import { FORAGING, KINDS, SPOT_KINDS } from "./forest";
 import { BUGS, BUG_IDS, LURES, NETS } from "./insects";
 import { CARRIES, COOK_EASE, FIELD, KITCHEN_GEAR, RODS, TACKLE } from "./gear";
-import { BAITS, CROPS, CROP_IDS, DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
+import { BAITS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, ITEMS, ITEM_IDS, MAKES, MAKE_IDS, SCROLLS, type ItemId } from "./items";
 import { INSIDE, foundScrolls } from "./scrolls";
 import { FELLED, MINED, SMELTING, SMELTS, toolKindOf } from "./tools";
 import { GOODS } from "./trade";
 import { WELL_BOOK } from "./well";
+import { GEOLOGY_RAW, GEOLOGY_TOOLS } from "./geology-items";
+import { GARDEN_TOOLS } from "./garden-items";
+import { INSECT_TOOLS } from "./insect-items";
+import { FORAGE_RAW, FORAGE_TOOLS } from "./foraging-items";
+import { STREAM_RAW, STREAM_TOOLS } from "./stream-items";
+import { PREP_TOOLS } from "./preparation-items";
+import { CAMP_TOOLS, CAMP_CRAFTS } from "./camp-items";
+import { WOOD_RAW, WOOD_TOOL_IDS } from "./wood-items";
+import { CRAFT_IDS, CRAFTS } from "./crafting";
 
 /**
  * What every thing is good for, and where every thing comes from: the two
@@ -34,11 +43,26 @@ export type Use =
   | "table"     // lets more gather round a pot
   | "net"       // catches insects, held in the hand
   | "pick"      // breaks a rock, held in the hand (lib/town/tools)
-  | "axe";      // fells a tree, held in the hand
+  | "axe"      // fells a tree, held in the hand
+  | "woodwork" // reads grain or helps select a tree's parts
+  | "survey" // hears seams or helps preserve and separate minerals
+  | "garden" // lays out sprawling plants and assists seed experiments
+  | "insectCare" // reads routes, lures insects or releases them into a garden
+  | "foraging" // inspects, separates and protects forest plant parts
+  | "waterwork" // samples, routes, filters, mixes and preserves mountain water
+  | "preparation" | "camp";
 
 /** The uses of a thing, as the rules have them. Empty for a thing that is only ever an ingredient, a bait, a seed, something to eat or to sell. */
 export function usesOf(id: ItemId): Use[] {
   const uses: Use[] = [];
+  if (WOOD_TOOL_IDS.includes(id as never)) uses.push("woodwork");
+  if (GEOLOGY_TOOLS.includes(id as never)) uses.push("survey");
+  if (GARDEN_TOOLS.includes(id as never)) uses.push("garden");
+  if (INSECT_TOOLS.includes(id as never)) uses.push("insectCare");
+  if (FORAGE_TOOLS.includes(id as never)) uses.push("foraging");
+  if (STREAM_TOOLS.includes(id as never)) uses.push("waterwork");
+  if (PREP_TOOLS.includes(id as never)) uses.push("preparation");
+  if (CAMP_TOOLS.includes(id as never)||Object.hasOwn(CAMP_CRAFTS,id)) uses.push("camp");
   if (id in RODS) uses.push("rod");
   if (id in TACKLE) uses.push("tackle");
   if (toolOf(id) === "hoe") uses.push("hoe");
@@ -86,6 +110,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
       for (const bait of BAITS) if (has(bait)) for (let hour = 0; hour < 24; hour++) for (const rain of [false, true]) for (const shallow of [false, true]) {
         for (const o of oddsOf(bait, hour, rain, false, shallow, ALL_SIGNS)) add(o.what, "river");
       }
+      // Exploration catches can be hinted at, while the uncle's daily orders retain their town-only pool.
+      if (wild) for (const id of FISH_IDS) if (FISH[id].habitat && Object.keys(FISH[id].baits).some(b => has(b as ItemId))) add(id,"river");
     }
     // and what is inside what the river brings up: the scrolls nobody sells. (A seed in a fish's belly is not
     // counted on: it is luck, and what the uncle may ask for is worked out from this, lib/town/orders.)
@@ -98,6 +124,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // the forest (lib/town/forest): with empty hands, whatever lies and grows and hangs there, on whatever day and
     // under whatever sky and moon; with a hoe, what is dug up; and the toadstool taken for a mushroom
     if (wild) {
+      for (const id of STREAM_RAW) if (!id.endsWith("Sample") || has("waterSampler") || Object.keys(WATER.buckets).some(id=>has(id as ItemId))) add(id,"mountain");
+      for (const id of FORAGE_RAW) if (!['flowerBulb','wildMedicRoot'].includes(id)||hoe||has('rootSpade')) add(id,"forest");
       for (const k of SPOT_KINDS) if (KINDS[k].how !== "dig" || hoe) for (const f of KINDS[k].finds) add(f.item, "forest");
       add(FORAGING.decoy, "forest");
     }
@@ -107,8 +135,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // the mountain (lib/town/tools): with an axe, what a felled tree leaves; with a pick, what a broken rock leaves,
     // on the mountain's foot and down the cave. Like the forest's, it is what somebody goes out and finds.
     if (wild) {
-      if (ITEM_IDS.some((id) => toolKindOf(id) === "axe" && has(id))) for (const id of FELLED) add(id, "mountain");
-      if (ITEM_IDS.some((id) => toolKindOf(id) === "pick" && has(id))) for (const id of MINED) add(id, "mountain");
+      if (ITEM_IDS.some((id) => toolKindOf(id) === "axe" && has(id))) for (const id of [...FELLED, ...WOOD_RAW]) add(id, "mountain");
+      if (ITEM_IDS.some((id) => toolKindOf(id) === "pick" && has(id))) for (const id of [...MINED,...GEOLOGY_RAW]) add(id, "mountain");
     }
     // the smith: big ore and gems, each of its own fragments and a piece of fine timber
     for (const id of Object.keys(SMELTS) as ItemId[]) if (has(SMELTS[id]!.of) && (SMELTING.timber <= 0 || has("timber"))) add(id, "smith");
@@ -123,6 +151,7 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
       const m = MAKES[id]!;
       if (m.needs.every(([n]) => has(n)) && m.in.every(has)) add(id, "kitchen");
     }
+    for (const id of CRAFT_IDS) if (CRAFTS[id].every(([material]) => has(material))) add(id, "kitchen");
     // and the odd dish: anything that goes in, cooked wrong by somebody who holds cookware
     if (ITEM_IDS.some((id) => isCookware(id) && has(id)) && ITEM_IDS.some((id) => goesIn(id) && has(id))) { add("oddDish", "kitchen"); add("potFull", "kitchen"); }
   }
@@ -134,7 +163,7 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
  * recipe can be made only where the shelf sells those tools. (A keeper asks before it offers a hint of one: a
  * database from before woodcutting and mining sells neither tool, and has no such hint to sell.)
  */
-export const ofMountain = (id: ItemId): boolean => needsOf(id).some(([n]) => FELLED.includes(n) || MINED.includes(n) || n in SMELTS);
+export const ofMountain = (id: ItemId): boolean => needsOf(id).some(([n]) => FELLED.includes(n) || (WOOD_RAW as readonly string[]).includes(n) || MINED.includes(n) || (GEOLOGY_RAW as readonly string[]).includes(n) || n in SMELTS);
 /** The things nobody can have yet: none, when the game is whole. */
 export const missing = (): ItemId[] => { const from = sources(); return ITEM_IDS.filter((id) => !from.has(id)); };
 /** The tools nothing reads: none, when every piece of gear does something. */

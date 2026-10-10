@@ -135,6 +135,8 @@ const TownBugs = lazy(() => import("./TownBugs"));
 // ── mining ── (the mountain's rocks and the cave: in every build, shown only while the far side is open to me)
 const TownMine = lazy(() => import("./TownMine"));
 const TownWell = lazy(() => import("./TownWell"));
+const TownStream = lazy(() => import("./TownStream"));
+const TownFieldwork = lazy(() => import("./TownFieldwork"));
 const TownBox = lazy(() => import("./TownBox"));
 const TownGround = lazy(() => import("./TownGround"));
 const TownBridge = lazy(() => import("./TownBridge"));
@@ -851,6 +853,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const onMountainRef = useRef(false);
   const treesDraw = useRef<FarmDraw | null>(null), perchOf = useRef<((at: Vec) => Vec | null) | null>(null);
   const registerTrees = useCallback((draw: FarmDraw | null) => { treesDraw.current = draw; }, []);
+  const streamDraw = useRef<FarmDraw | null>(null);
+  const registerStream = useCallback((draw: FarmDraw | null) => { streamDraw.current = draw; }, []);
+  const fieldworkDraw=useRef<FarmDraw|null>(null);
+  const registerFieldwork=useCallback((draw:FarmDraw|null)=>{fieldworkDraw.current=draw;},[]);
   const registerPerch = useCallback((perch: ((at: Vec) => Vec | null) | null) => { perchOf.current = perch; }, []);
   // (what I do at a tree, told to the room; and the others who do something at one, as this screen has them: a friend braces a trunk by these)
   const tellFelling = useCallback((word: string) => { sessionRef.current?.setFelling(word); }, []);
@@ -2321,6 +2327,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       if (placeRef.current === "farm") wellGiftDraw.current?.(frame);   // ── gifts: well ── (the light at the well as a moon flask is poured)
       if (placeRef.current === "forest") forestDraw.current?.(frame);
       if (placeRef.current === "mountain") treesDraw.current?.(frame);   // ── felling ──
+      if (placeRef.current === "mountain") streamDraw.current?.(frame);
+      fieldworkDraw.current?.(frame);
       bugsDraw.current?.(frame);
       mineDraw.current?.(frame);   // ── mining ── (cracks on a rock being struck, a swing, what a peek said)
       // the pots of food that stand about, wherever they were set down
@@ -4943,6 +4951,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         </Suspense>
       )}
       {/* The well's book: offered to whoever stands at the farm's well */}
+      {s && game && keeper && <Suspense fallback={null}><TownStream keeper={keeper} th={w.th} mountain={onMountain && farOn} register={registerStream} tile={standing?.tile ?? null} busy={!!talk || !!trade || boardOpen || wardrobeOpen || fishing || (phone && testOpen)} /></Suspense>}
+      {s && game && keeper && <Suspense fallback={null}><TownFieldwork sfx={sfxRef.current} keeper={keeper} th={w.th} far={farOn} register={registerFieldwork} tile={standing?.tile??null} busy={!!talk||!!trade||boardOpen||wardrobeOpen||fishing||(phone&&testOpen)} /></Suspense>}
       {s && game && keeper && (
         <Suspense fallback={null}>
           <TownWell keeper={keeper} name={me.name} th={w.th} at={wellHere && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen)} phone={phone} tabbar={tabbar}
