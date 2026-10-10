@@ -32,7 +32,7 @@ export interface VeinCame { got: Array<[ItemId, number]>; passed: number; of: nu
 type Sent = ({ ok: true } & VeinCame) | { ok: false; why: MineRefusal | string };
 
 const HOW: [th: string, en: string] = [
-  "แตะช่องแนวเดียวกับปลายรอยร้าว รอยร้าววิ่งไปทางนั้นได้ครั้งละ 2 ช่อง พาผ่านแร่ให้มากที่สุดก่อนทุบหมด ก้อนดำกั้นทางไว้",
+  "แตะช่องแนวเดียวกับปลายรอยร้าว รอยร้าววิ่งไปทางนั้นได้ครั้งละ 2 ช่อง พาผ่านแร่ให้มากที่สุดก่อนหมดจำนวนครั้งที่ทุบได้ ก้อนดำกั้นทางไว้",
   "Tap a cell in line with the crack's end: it runs up to 2 cells that way. Pass as much ore as you can before your strikes run out. Dark knots stop it.",
 ];
 /** What a face is called, by its family: of ore, and of a gem. */

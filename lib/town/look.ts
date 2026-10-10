@@ -101,7 +101,7 @@ export const HAIR_COLORS: Swatch[] = [
   { hex: "#8fb0e0", th: "ฟ้าพาสเทล", en: "Pastel blue" },
   { hex: "#2f6b5a", th: "เขียวป่า", en: "Forest" },
   { hex: "#4fa88a", th: "เขียวหยก", en: "Jade" },
-  { hex: "#8fd1b6", th: "มิ้นต์", en: "Mint" },
+  { hex: "#8fd1b6", th: "มินต์", en: "Mint" },
   { hex: "#6e6a75", th: "เทาควัน", en: "Smoke" },
   { hex: "#b9b6c3", th: "เงิน", en: "Silver" },
   { hex: "#e8e6ef", th: "ขาวหิมะ", en: "Snow" },

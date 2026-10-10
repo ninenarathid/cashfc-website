@@ -4400,7 +4400,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
              </div>
              {!phone && (
                <ul aria-label={w.th ? "ปุ่มลัด" : "Keys"} data-town-keys className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t-2 border-line pt-3 text-label leading-normal text-muted">
-                 {([["E", w.th ? "ทำสิ่งที่ตรงนี้ให้ทำ" : "Do what this place offers"], ["Space", w.th ? "งานของที่ตรงนี้" : "This place's work"], ["I", w.th ? "กระเป๋า" : "Bag"], ["C", w.th ? "ตัวฉัน" : "Me"],
+                 {([["E", w.th ? "ทำกิจกรรมตรงนี้" : "Do what this place offers"], ["Space", w.th ? "กิจกรรมประจำจุด" : "This place's work"], ["I", w.th ? "กระเป๋า" : "Bag"], ["C", w.th ? "ตัวฉัน" : "Me"],
                     ["Q · 1–9", w.th ? "ของในมือ" : "In the hand"], ["X", w.th ? "นั่ง / ลุก" : "Sit / get up"], ["Enter", w.th ? "แชท" : "Chat"], ["M", w.th ? "ปิด/เปิดเสียงตัวเอง" : "Mute / unmute"],
                     ["Esc · F2", w.th ? "ปิด / เมนู" : "Close / menu"], ["+ − 0", w.th ? "ซูม / กลับมาที่ตัวเรา" : "Zoom / back to me"]] as const).map(([k, what]) => (
                    <li key={k} className="flex items-center gap-1.5"><kbd className="tk-key shrink-0">{k}</kbd><span className="min-w-0">{what}</span></li>

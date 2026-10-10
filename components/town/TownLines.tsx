@@ -133,7 +133,7 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
           </ul>
 
           {/* ── the ladder of the line picked ── */}
-          <section aria-label={th ? `บันไดขั้นของ${line.name.th}` : `The ladder of ${line.name.en.toLowerCase()}`} data-lines-ladder={picked}
+          <section aria-label={th ? `ลำดับขั้นของ${line.name.th}` : `The ladder of ${line.name.en.toLowerCase()}`} data-lines-ladder={picked}
                    className="flex min-h-0 flex-col overflow-hidden rounded-[4px] border-[3px] border-[#2a190d] min-[900px]:max-h-[30rem]"
                    style={{ color: INK, backgroundColor: PAPER, backgroundImage: `linear-gradient(90deg, ${PAPER_EDGE} 0, transparent 7%, transparent 93%, ${PAPER_EDGE} 100%)` }}>
             <div className="flex shrink-0 items-center gap-2 border-b-2 px-3 py-2" style={{ borderColor: PAPER_EDGE }}>

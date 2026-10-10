@@ -43,7 +43,7 @@ export const SMITH_TALKS: Line[][] = [
   ],
   [
     { th: "ขวาน อีเต้อ จอบ ของพวกนี้ข้าตีให้ได้ ดีกว่าของที่วางขายทั่วไปด้วย", en: "Axes, pickaxes, hoes: I can forge them all, and better than what's on any shelf." },
-    { th: "เอาแท่งโลหะกับไม้ดีๆ มา ข้าจะตีให้เป็นเครื่องมือคู่มือ", en: "Bring bars and good timber, and I'll hammer you a tool that fits your hand." },
+    { th: "เอาแท่งโลหะกับไม้ดีๆ มา ข้าจะตีให้เป็นเครื่องมือที่ถนัดมือ", en: "Bring bars and good timber, and I'll hammer you a tool that fits your hand." },
     { th: "ตอนนี้ยังไม่เปิดรับงานนะ ทั่งเพิ่งตั้ง เตาเพิ่งก่อ ใจเย็นๆ", en: "Not open for orders yet, mind. The anvil's only just set and the furnace only just built." },
   ],
   [
