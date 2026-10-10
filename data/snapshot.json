@@ -147,7 +147,7 @@
    "gatherer": "legendary",
    "crafter": "legendary",
    "relic": "legendary",
-   "explorer": "legendary",
+   "explorer": "master",
    "goldsaucer": "legendary",
    "pvp": "legendary"
   },
@@ -738,7 +738,7 @@
   ],
   "tiers": {
    "relic": "legendary",
-   "explorer": "master"
+   "explorer": "expert"
   },
   "jobs": {
    "Dancer": "legendary",
@@ -1448,6 +1448,7 @@
    3846,
    3847,
    3853,
+   3855,
    3902,
    3903,
    3904,
@@ -1488,7 +1489,6 @@
    4017,
    4018,
    4022,
-   4027,
    4034,
    4043
   ],
@@ -2286,7 +2286,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 38,
+  "level": 42,
   "cc": [
    true,
    true,
@@ -3211,7 +3211,7 @@
   "tiers": {
    "gatherer": "expert",
    "crafter": "expert",
-   "explorer": "master"
+   "explorer": "expert"
   },
   "jobs": {
    "Warrior": "expert"
@@ -3457,7 +3457,7 @@
   "ult": 1,
   "mounts": 187,
   "minions": 436,
-  "rare": 140,
+  "rare": 141,
   "level": 100,
   "cc": [
    true,
@@ -3489,7 +3489,6 @@
    880,
    881,
    903,
-   918,
    1002,
    1003,
    1015,
@@ -3563,6 +3562,7 @@
    3921,
    3925,
    3979,
+   3988,
    4023,
    4028,
    4029,
@@ -3585,7 +3585,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-08"
+  "chg": "2026-10-10"
  },
  "51922514": {
   "name": "Mumu Nene",
@@ -4053,7 +4053,7 @@
   "mounts": 79,
   "minions": 70,
   "rare": null,
-  "level": 81,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4079,7 +4079,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-09"
+  "chg": "2026-10-10"
  },
  "29325838": {
   "name": "Ryuu Dawnblade",
@@ -4794,7 +4794,7 @@
   "mounts": 22,
   "minions": 65,
   "rare": 7,
-  "level": 76,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -4820,7 +4820,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-10"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -5985,7 +5985,7 @@
    3735,
    3736,
    3763,
-   3792,
+   3769,
    3793,
    3794,
    3795,
@@ -6802,7 +6802,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 96,
+  "level": 97,
   "cc": [
    false,
    false,
@@ -6819,7 +6819,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-06"
+  "chg": "2026-10-10"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -6902,7 +6902,7 @@
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 72,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6919,7 +6919,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-10-10"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7133,10 +7133,10 @@
    3723,
    3726,
    3729,
-   3736,
    3757,
    3758,
    3762,
+   3770,
    3778,
    3784,
    3817,
@@ -7810,7 +7810,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 86,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8685,7 +8685,7 @@
  },
  "57519259": {
   "name": "Kertia Cruz",
-  "parse": 48,
+  "parse": 63,
   "ult": 0,
   "mounts": 56,
   "minions": 175,
@@ -8706,7 +8706,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-10"
  },
  "62539607": {
   "name": "Kross Astra",
@@ -8759,7 +8759,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 65,
+  "level": 67,
   "cc": [
    false,
    false,
@@ -8772,7 +8772,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-10-10"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8808,7 +8808,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 67,
+  "level": 65,
   "cc": [
    false,
    false,
@@ -8824,7 +8824,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-09"
+  "chg": "2026-10-10"
  },
  "29389419": {
   "name": "Osilit Bloodhood",

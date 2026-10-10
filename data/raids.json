@@ -90598,9 +90598,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 41,
-    "kills": 4,
-    "job": "Viper",
+    "best": 63,
+    "kills": 6,
+    "job": "Reaper",
     "cleared": true,
     "job_kills": {
      "Viper": {
