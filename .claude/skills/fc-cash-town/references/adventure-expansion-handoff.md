@@ -1,8 +1,10 @@
 # Six gameplay phases: implementation handoff
 
-Updated 2026-10-10, Asia/Bangkok. Status: **local-done**. Site deployment and
-live installation remain separate. This is internal release preparation, not
-public patch notes.
+Updated 2026-10-10, Asia/Bangkok. Status: **deployed; SQL installation reported complete by owner**.
+Vercel completed commit `4a529987` at 2026-10-10 09:57:47 UTC. The owner subsequently
+reported running all twelve pending SQL files. Post-install feature markers and
+authenticated live gameplay still need verification. This handoff is internal,
+not public patch notes.
 
 ## Completed scope
 
@@ -130,9 +132,10 @@ Presentation was subsequently polished and locally verified; see
 UI source hashes. The bag's recipe and village insect books now open as bound
 readers with known-entry categories and details. No SQL was changed for that UI pass.
 
-Matching site deployment, installation of migrations not yet applied, and
-authenticated live smoke checks remain. Local completion is not a statement
-that players can already use the expansion on the live site.
+The matching site deployment is complete and the owner reported completing SQL
+installation. A post-install run of `.codex/adventure-qa/deploy-readiness.sql`
+should now return true for every row. Authenticated live smoke checks remain;
+the owner's installation report does not itself verify live gameplay.
 
 ## Regional fish and food extension — v198
 
@@ -178,8 +181,9 @@ Private combo rules are absent from all 101 production browser chunks. Evidence
 is under `.codex/adventure-qa/regional-full-tests.log`, `regional-build.log` and
 `regional-build.exit.txt`.
 
-v198 has not been remotely applied or deployed by this work. Keep this handoff
-internal; no public patch note or undiscovered recipe list is published.
+The v198 site code is deployed with commit `4a529987`; the owner reported applying
+v198 with the rest of the pending SQL chain. Keep this handoff internal; no public
+patch note or undiscovered recipe list is published.
 
 ## Release clarification: already-applied baseline
 
@@ -193,3 +197,15 @@ v180, v181, v182, v184, v185, v186, v187, v188, v194, v196, v197, v198.
 copy and verifies starting/final markers: 51 checks passed. The shared v195 readers
 remain intact; no v195 rerun is required by these twelve files. This is local
 replay evidence; actual installation state still comes from the owner's database.
+
+## Release installed: owner confirmation
+
+The pre-install query screenshot confirmed v176-v179, v183 and v195 present, with
+all twelve expansion rows absent. After Vercel reported deployment success, the
+owner said "รันครบหมดแล้ว" for the instructed sequence:
+v180, v181, v182, v184, v185, v186, v187, v188, v194, v196, v197, v198.
+Treat that sequence as applied according to the owner; do not suggest reinstalling
+it. Keep the SQL files as release references. The follow-up read-only marker
+query should return eighteen true rows, but its post-install result has not yet
+been received. Live authenticated gameplay has not been exercised by this agent
+after installation.
