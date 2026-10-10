@@ -1,4 +1,4 @@
-import { newBox, roomyBox, stow, unstow, type Box } from "./box";
+import { boxOffer, newBox, roomyBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
 import { cook, feastEat, hasMade, isFind, ladle, mayLeave, serve, setDown, takeUp, tidied, type Pot, type Taste } from "./cooking";
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
@@ -375,7 +375,7 @@ export class Trial {
     return roomyBox(this.read<Box>(boxKey(this.id), newBox, (v) => { const b = v as Partial<Box> | null; return !!b && Array.isArray(b.things) && typeof b.more === "number"; }));
   }
   /** Keep what a deed at the box came to. (What goes into a box has been in a bag: the notice board counts it as met, though it may never be in one when the board is looked at.) */
-  private boxed<T extends { purse: Purse; box: Box; item: ItemId }>(did: ({ ok: true } & T) | { ok: false; why: Refusal | "far" | "packed" }) {
+  private boxed<T extends { purse: Purse; box: Box; item: ItemId }>(did: ({ ok: true } & T) | { ok: false; why: Refusal | BoxRefusal }) {
     if (!did.ok) return did;
     const met = this.read<ItemId[]>(SEEN, () => [], Array.isArray);
     if (!met.includes(did.item)) this.write(SEEN, [...met, did.item]);
@@ -386,7 +386,13 @@ export class Trial {
   /** Put so many of what is in a slot of my bag away in my box; take so many of what is in a slot of the box out. */
   boxPut(slot: number, n: number, at: [number, number]) { return this.boxed(stow(this.purse(), this.box(), slot, n, at)); }
   boxTake(slot: number, n: number, at: [number, number]) { return this.boxed(unstow(this.purse(), this.box(), slot, n, at)); }
-  /** For scripts and the test window: a box with so many slots beyond the free ones (how a box grows is not settled: this is how a bigger one is tried). */
+  boxOffer() { return boxOffer(this.box()); }
+  boxUpgrade(slots: number, at: [number, number]) {
+    const did = upgradeBox(this.purse(), this.box(), slots, at);
+    if (did.ok) { this.write(boxKey(this.id), did.box); this.save(did.purse); }
+    return did;
+  }
+  /** For scripts and the test window: a box with so many slots beyond the free ones. */
   setBoxMore(more: number) {
     this.write(boxKey(this.id), roomyBox({ ...this.box(), more: Math.max(0, Math.floor(more)) }));
     this.tell();

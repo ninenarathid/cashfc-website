@@ -299,6 +299,7 @@ export function catalogOf() {
      * has one). The database's `town.by_box` reads both.
      */
     box: { slots: BOX.slots, reach: BOX.reach, at: [STOREBOX.x, STOREBOX.y], more: MORE_CHESTS.map((c) => [c.x, c.y]) },
+    box_upgrade: { max: BOX.max, upgrades: BOX.upgrades },
     /** The lines of work (lib/town/lines, line-points): every ladder's marks and day's bound, and what each thing is worth on its line. */
     work: linesRow(),
     /**
@@ -507,6 +508,7 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * line to be won) and `insects` (new: `rare`, the kinds that are rare among the others).
  */
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
+CATALOG_KEYS.v176 = { keys: ["box_upgrade"], over: [] };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

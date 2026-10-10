@@ -382,6 +382,8 @@ class TrialKeeper implements Keeper {
   async boxLook() { /* the box is in this browser already */ }
   async boxPut(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxPut(slot, n, at); }
   async boxTake(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>> { return this.trial.boxTake(slot, n, at); }
+  boxOffer() { return this.trial.boxOffer(); }
+  async boxUpgrade(slots: number, at: [number, number]) { return this.trial.boxUpgrade(slots, at); }
 
   shops() { return this.trial.shops(); }
   async shopLook() { /* stalls are in this browser already */ }

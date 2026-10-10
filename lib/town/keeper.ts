@@ -1,4 +1,4 @@
-import type { Box, BoxRefusal } from "./box";
+import type { Box, BoxRefusal, BoxUpgrade } from "./box";
 import { cook, hasMade, tidied, type FeastTold, type Pot, type Taste } from "./cooking";
 import type { Give } from "./deal";
 import { WILD, choreFor, deedFor, ownerOf, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
@@ -463,6 +463,9 @@ export interface Keeper {
   boxLook(): Promise<void>;
   boxPut(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>>;
   boxTake(slot: number, n: number, at: [number, number]): Promise<Did<{ item: ItemId; n: number }>>;
+  /** The next capacity and its price; null at the maximum or before upgrades are available. */
+  boxOffer(): BoxUpgrade | null;
+  boxUpgrade(slots: number, at: [number, number]): Promise<Did<BoxUpgrade>>;
 
   /**
    * A stall of one's own (lib/town/shop), under a sign held up (lib/town/sign). What I am told of stalls: mine, when
@@ -838,6 +841,7 @@ export class DbKeeper implements Keeper {
   private waters_ = false;
   private water_: WellWater | null = null;
   private box_: Box | null = null;
+  private boxOffer_: BoxUpgrade | null = null;
   /** Whether the database lets a bag be put in order (it says so when asked, from v165 on). */
   private tidy_ = false;
   // ── mining ── (what the database last told of the cave: null until one that keeps a cave has said; and where I last said I was)
@@ -1122,6 +1126,7 @@ export class DbKeeper implements Keeper {
     if (a.line === true) this.line_ = true;
     if ("wellWater" in a) { this.waters_ = true; this.water_ = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; }
     if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
+    if ("boxOffer" in a) this.boxOffer_ = a.boxOffer as BoxUpgrade | null;
     if (a.tidy === true && !this.tidy_) this.tidy_ = true;
     // ── mining ──
     if (a.cave && typeof a.cave === "object" && typeof (a.cave as CaveTold).day === "number" && !!(a.cave as CaveTold).gone) this.cave_ = a.cave as CaveTold;
@@ -1805,6 +1810,8 @@ export class DbKeeper implements Keeper {
   async boxLook() { await this.ask("town_box"); }
   boxPut(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_put", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }
   boxTake(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_take", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }
+  boxOffer(): BoxUpgrade | null { return this.boxOffer_; }
+  boxUpgrade(slots: number, at: [number, number]) { return this.deed<BoxUpgrade>("town_box_upgrade", { p_slots: slots, p_x: at[0], p_y: at[1] }); }
 
   // (a database that knows of no heat has no yard's jar either: it says of the jar with everybody's rank)
   hot(): boolean { const now = this.now(); return this.yard_ !== null && hotAt(now, SKIES.sky(now)); }

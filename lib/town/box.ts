@@ -1,6 +1,6 @@
 import { push } from "./deal";
 import type { ItemId } from "./items";
-import { no, roomFor, wholeStack, type Done, type Purse, type Stack } from "./trade";
+import { held, no, roomFor, take, wholeStack, type Done, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_PROPS, byStorebox } from "./world";
 
 /**
@@ -14,9 +14,9 @@ import { MOUNTAIN_PROPS, byStorebox } from "./world";
  * a number of their own. A thing that holds something (a pot of food, a can
  * with water in it) goes in and comes out as it is.
  *
- * **Bigger later.** A box has `more` slots beyond the free ones. Nothing gives
- * any yet: how a box grows is still to be settled, and whatever it is only has
- * to raise that number.
+ * A character can buy more slots with logs and coins, up to forty. Logs in
+ * the bag are used first, then logs in that character's box. Each purchase
+ * names the capacity shown, so another device cannot buy the next tier by accident.
  *
  * Nothing is made and nothing is lost by it: what leaves the bag is in the
  * box, and the other way about. Pure; the database keeps the same (v134).
@@ -24,18 +24,28 @@ import { MOUNTAIN_PROPS, byStorebox } from "./world";
 export const BOX = {
   /** The slots a box has for nothing. */
   slots: 10,
+  max: 40,
+  upgrades: [
+    { slots: 20, wood: 100, coins: 1000 },
+    { slots: 30, wood: 200, coins: 3000 },
+    { slots: 40, wood: 400, coins: 8000 },
+  ],
   /** How near the box one stands to put things in and take them out, in tiles. */
   reach: 2,
 };
 
 /** One member's box: what is in each slot, and the slots it has beyond the free ones. */
 export interface Box { things: Array<Stack | null>; more: number }
+export interface BoxUpgrade { slots: number; wood: number; coins: number }
 export const newBox = (): Box => ({ things: Array<Stack | null>(BOX.slots).fill(null), more: 0 });
 
 /** Why something was not done at the box, beyond what a bag refuses for. */
 export type BoxRefusal =
   | "far"     // not standing by the box
-  | "packed"; // no room in the box
+  | "packed"  // no room in the box
+  | "wood"    // not enough logs in the bag and box together
+  | "max"     // already at the largest capacity
+  | "changed"; // the capacity offered has changed on another device
 type Did<T> = Done<T> | { ok: false; why: BoxRefusal };
 const not = (why: BoxRefusal): { ok: false; why: BoxRefusal } => ({ ok: false, why });
 
@@ -43,6 +53,29 @@ const not = (why: BoxRefusal): { ok: false; why: BoxRefusal } => ({ ok: false, w
 export function roomyBox(box: Box): Box {
   const want = BOX.slots + Math.max(0, box.more);
   return box.things.length >= want ? box : { ...box, things: [...box.things, ...Array<null>(want - box.things.length).fill(null)] };
+}
+
+/** The next capacity and its price. Existing extra slots count toward the next tier. */
+export function boxOffer(box: Box): BoxUpgrade | null {
+  const slots = roomyBox(box).things.length;
+  return BOX.upgrades.find((u) => u.slots > slots && u.slots <= BOX.max) ?? null;
+}
+
+/** Buy the capacity shown, without moving or losing any other stored things. */
+export function upgradeBox(purse: Purse, box: Box, slots: number, at: readonly [number, number]): Did<{ purse: Purse; box: Box } & BoxUpgrade> {
+  if (!nearBox(at)) return not("far");
+  const kept = roomyBox(box), offer = boxOffer(kept);
+  if (!offer) return not("max");
+  if (slots !== offer.slots) return not("changed");
+  const bagWood = held(purse.bag, "log");
+  if (bagWood + held(kept.things, "log") < offer.wood) return not("wood");
+  if (purse.coins < offer.coins) return no("coins");
+  const fromBag = Math.min(bagWood, offer.wood);
+  return {
+    ok: true, ...offer,
+    purse: { ...purse, coins: purse.coins - offer.coins, bag: take(purse.bag, "log", fromBag) },
+    box: roomyBox({ ...kept, more: offer.slots - BOX.slots, things: take(kept.things, "log", offer.wood - fromBag) }),
+  };
 }
 
 // ── mining ── (the second door: the chest in the mountain's foot yard opens the same box. Its tile is the layout's,

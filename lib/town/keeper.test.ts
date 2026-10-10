@@ -627,6 +627,36 @@ describe("the database's keeper", () => {
     o.close();
   });
 
+  it("uses the database's box upgrade price and refreshes box, purse, and offer after a stale purchase", async () => {
+    const asked: Array<Record<string, unknown>> = [];
+    const offer = { slots: 20, wood: 125, coins: 1500 };
+    const db = database({
+      town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse({ coins: 9000 }) }),
+      town_box: () => ({ now: NOW, box: { things: Array(10).fill(null), more: 0 }, boxOffer: offer }),
+      town_box_upgrade: (args) => {
+        asked.push(args);
+        return { ok: false, why: "changed", now: NOW, purse: purse({ coins: 100 }), box: { things: Array(40).fill(null), more: 30 }, boxOffer: null };
+      },
+    });
+    const k = new DbKeeper("me", db.ask);
+    expect(k.boxOffer()).toBeNull();
+    await settle();
+    expect(k.boxOffer()).toEqual(offer);
+    const upgrade = k.boxUpgrade(20, [35, 35]);
+    await settle();
+    expect(await upgrade).toEqual({ ok: false, why: "changed" });
+    expect(asked).toEqual([{ p_slots: 20, p_x: 35, p_y: 35 }]);
+    expect(k.box()?.things).toHaveLength(40);
+    expect(k.boxOffer()).toBeNull();
+    expect(k.purse().coins).toBe(100);
+    k.close();
+    const old = new DbKeeper("old", database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }), town_box: () => ({ box: { things: Array(10).fill(null), more: 0 } }) }).ask);
+    await settle();
+    expect(old.box()?.things).toHaveLength(10);
+    expect(old.boxOffer()).toBeNull();
+    old.close();
+  });
+
   // ── the bridge built by hand ── (lib/town/bridge; v160)
   it("keeps the village's works as it is told them, tells the taker of a stone and everybody of every stone laid, and knows of none where the database has none", async () => {
     // (the spans' hands and what was found in the stones come with it, once a stone is laid)

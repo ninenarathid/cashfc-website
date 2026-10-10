@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { BOX, fits, nearBox, newBox, roomyBox, stow, unstow, type Box } from "./box";
+import { BOX, boxOffer, fits, nearBox, newBox, roomyBox, stow, unstow, upgradeBox, type Box } from "./box";
 import { ITEMS, type ItemId } from "./items";
-import { handOf, held, hold, newPurse, put, type Purse, type Stack } from "./trade";
+import { handOf, held, hold, newPurse, put, take, type Purse, type Stack } from "./trade";
 import { BENCHES, FOUNTAIN, PLAZA, PROPS, STOREBOX, findPath, thingAt, walkable } from "./world";
 
 const purseWith = (slots: number, ...items: Array<[ItemId, number]>): Purse => {
@@ -12,6 +12,65 @@ const done = <T extends { ok: boolean }>(d: T) => { if (!d.ok) throw new Error(`
 /** A tile beside the box. */
 const BY: [number, number] = [STOREBOX.x + 1, STOREBOX.y + 1];
 const count = (slots: Array<Stack | null>, id: ItemId) => held(slots, id);
+
+describe("upgrading a character's storage box", () => {
+  it("buys 20, 30, then 40 slots, charges increasingly, and stops at forty", () => {
+    let purse = { ...purseWith(16, ["log", 750]), coins: 12000 }, box = newBox();
+    const originalPurse = structuredClone(purse), originalBox = structuredClone(box);
+    for (const offer of BOX.upgrades) {
+      expect(boxOffer(box)).toEqual(offer);
+      const logsBefore = count(purse.bag, "log"), coinsBefore = purse.coins;
+      const did = done(upgradeBox(purse, box, offer.slots, BY));
+      expect(did.box.things).toHaveLength(offer.slots);
+      expect(did.box.more).toBe(offer.slots - BOX.slots);
+      expect(count(did.purse.bag, "log")).toBe(logsBefore - offer.wood);
+      expect(did.purse.coins).toBe(coinsBefore - offer.coins);
+      purse = did.purse; box = did.box;
+    }
+    expect(purse.coins).toBe(0);
+    expect(count(purse.bag, "log")).toBe(50);
+    expect(boxOffer(box)).toBeNull();
+    expect(upgradeBox(purse, box, 50, BY)).toEqual({ ok: false, why: "max" });
+    expect(originalBox).toEqual(newBox());
+    expect(count(originalPurse.bag, "log")).toBe(750);
+  });
+
+  it("uses bag logs first, then stored logs, keeping other things and their slots", () => {
+    const pot: Stack = { item: "potFull", n: 1, of: { dish: "tomYum", left: 2 } };
+    const forged: Stack = { item: "axe", n: 1, plus: 5 };
+    const purse = { ...purseWith(10, ["log", 60], ["timber", 12]), coins: 1000 };
+    const box: Box = { more: 0, things: [pot, { item: "log", n: 50 }, forged, ...Array<null>(7).fill(null)] };
+    const did = done(upgradeBox(purse, box, 20, BY));
+    expect(count(did.purse.bag, "log")).toBe(0);
+    expect(did.box.things.slice(0, 3)).toEqual([pot, { item: "log", n: 10 }, forged]);
+    expect(count(did.purse.bag, "timber")).toBe(12);
+    expect(did.box.things.slice(10)).toEqual(Array(10).fill(null));
+    expect(count(purse.bag, "log")).toBe(60);
+    expect(box.things[1]?.n).toBe(50);
+  });
+
+  it("refuses without consuming anything when logs, coins, proximity, or the displayed tier is wrong", () => {
+    const purse = { ...purseWith(10, ["log", 100]), coins: 1000 }, box = newBox();
+    const before = structuredClone({ purse, box });
+    expect(upgradeBox({ ...purse, bag: take(purse.bag, "log", 1) }, box, 20, BY)).toEqual({ ok: false, why: "wood" });
+    expect(upgradeBox({ ...purse, coins: 999 }, box, 20, BY)).toEqual({ ok: false, why: "coins" });
+    expect(upgradeBox(purse, box, 20, [0, 0])).toEqual({ ok: false, why: "far" });
+    for (const slots of [10, 30, 40, 50, 20.5, NaN]) expect(upgradeBox(purse, box, slots, BY)).toEqual({ ok: false, why: "changed" });
+    const did = done(upgradeBox(purse, box, 20, BY));
+    expect(upgradeBox(did.purse, did.box, 20, BY)).toEqual({ ok: false, why: "changed" });
+    expect({ purse, box }).toEqual(before);
+  });
+
+  it("counts previously granted slots and lets things use the new capacity", () => {
+    const purse = { ...purseWith(10, ["log", 100], ["minnow", 2]), coins: 1000 };
+    const box: Box = { more: 5, things: Array.from({ length: 15 }, (): Stack => ({ item: "rod", n: 1 })) };
+    const did = done(upgradeBox(purse, box, 20, BY));
+    expect(did.box.things.slice(0, 15)).toEqual(box.things);
+    const stored = done(stow(did.purse, did.box, 2, 2, BY));
+    expect(stored.box.things[15]).toEqual({ item: "minnow", n: 2 });
+    expect(done(unstow(stored.purse, stored.box, 15, 2, BY)).purse.bag[0]).toEqual({ item: "minnow", n: 2 });
+  });
+});
 
 describe("the storage box in the plaza (the owner: \"กล่องเก็บของ มาตั้งไว้กลางเมือง เก็บได้ฟรี 10 ชิ้น\")", () => {
   it("has ten slots for nothing, all of them empty to begin with", () => {

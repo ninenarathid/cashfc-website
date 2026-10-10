@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { fits } from "@/lib/town/box";
+import { BOX, fits } from "@/lib/town/box";
 import { WATER } from "@/lib/town/farm";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Sprite } from "@/lib/town/scenery";
 import type { FishSfx } from "@/lib/town/sfx";
-import type { Stack } from "@/lib/town/trade";
+import { held, type Stack } from "@/lib/town/trade";
 import TownIcon from "./TownIcon";
 import TownFoot from "./TownFoot";
 import { ItemCard, Pic, StackIcon, WHY, forgeWords, holdsOf } from "./TownTrade";
@@ -16,6 +16,9 @@ import { ItemCard, Pic, StackIcon, WHY, forgeWords, holdsOf } from "./TownTrade"
 const WHY_BOX: Record<string, [th: string, en: string]> = {
   packed: ["กล่องเต็ม", "The box is full"],
   far: ["ต้องยืนใกล้กล่อง", "Stand by the box"],
+  wood: ["ท่อนไม้ในกระเป๋าและกล่องไม่พอ", "Not enough logs in your bag and box"],
+  max: ["กล่องมีขนาดสูงสุดแล้ว", "The box is already at its maximum capacity"],
+  changed: ["ขนาดกล่องเปลี่ยนแล้ว กรุณาตรวจราคาใหม่", "The box capacity changed. Check the new price"],
 };
 /** How many of a stack a tap moves: all of it, half of it (the bigger half), or one. */
 type Step = "all" | "half" | "one";
@@ -32,7 +35,8 @@ const stepOf = (step: Step, have: number) => (step === "all" ? have : step === "
  *
  * What is in a box is its owner's alone: nobody else is told of it. How many
  * slots it has is what the keeper says (ten for nothing; a box that has been
- * given more shows them).
+ * given more shows them). Logs and coins buy more slots for this character alone,
+ * up to forty; the keeper supplies the next capacity and price.
  *
  * What is kept is the keeper's: for a member the database's (v134), in `next
  * dev`'s test room the browser's trial. A keeper that knows of no box (the
@@ -60,6 +64,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("all");
   const [said, setSaid] = useState<string | null>(null);
+  const [upgrading, setUpgrading] = useState(false);
   const busy = useRef(false);
   const here = !!at, hereNow = useRef(here);
   // read as I come to the box, and again as it is opened; walking off (or anything else opening) shuts it
@@ -76,7 +81,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
     return () => window.removeEventListener("keydown", down);
   }, [open]);
 
-  const box = keeper.box(), purse = keeper.purse();
+  const box = keeper.box(), purse = keeper.purse(), offer = keeper.boxOffer();
   const name = useCallback((id: ItemId) => (id in ITEMS ? (th ? ITEMS[id].name.th : ITEMS[id].name.en) : id), [th]);
   /** Move what is in a slot across: out of my bag into the box, or out of the box into my bag. So many as the step says, and no more than fit. */
   const move = useCallback(async (from: "bag" | "box", slot: number) => {
@@ -97,16 +102,40 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
     setSaid(from === "bag" ? (th ? `เก็บ ${what} เข้ากล่องแล้ว` : `Put away: ${what}`) : (th ? `หยิบ ${what} ใส่กระเป๋าแล้ว` : `Taken out: ${what}`));
   }, [keeper, at, step, th, sfx, name]);
 
+  const upgrade = useCallback(async () => {
+    const next = keeper.boxOffer();
+    if (!at || !next || busy.current) return;
+    busy.current = true;
+    setUpgrading(true);
+    try {
+      const did = await keeper.boxUpgrade(next.slots, at);
+      if (!did.ok) {
+        const w = WHY_BOX[did.why] ?? WHY[did.why as keyof typeof WHY] ?? WHY.none;
+        setSaid(th ? w[0] : w[1]);
+        return;
+      }
+      sfx?.wake();
+      sfx?.work("pick");
+      setSaid(th ? `อัปเกรดกล่องของตัวละครนี้เป็น ${did.slots} ช่องแล้ว` : `This character's box now has ${did.slots} slots`);
+    } finally {
+      busy.current = false;
+      setUpgrading(false);
+    }
+  }, [keeper, at, th, sfx]);
+
   // (for scripts in `next dev`: the box as it is kept, opening and shutting it, and moving a slot's things across)
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
-    const handle = { box: () => keeper.box(), open: () => setOpen(true), close: () => setOpen(false), isOpen: () => open, step: (s: Step) => setStep(s), move, here: () => at };
+    const handle = { box: () => keeper.box(), offer: () => keeper.boxOffer(), upgrade, open: () => setOpen(true), close: () => setOpen(false), isOpen: () => open, step: (s: Step) => setStep(s), move, here: () => at };
     (window as unknown as { __townBox?: typeof handle }).__townBox = handle;
     return () => { delete (window as unknown as { __townBox?: typeof handle }).__townBox; };
-  }, [keeper, open, move, at]);
+  }, [keeper, open, move, upgrade, at]);
 
   if (!at || !box) return null;
   const inBox = box.things.filter(Boolean).length, inBag = purse.bag.filter(Boolean).length;
+  const wood = held(purse.bag, "log") + held(box.things, "log");
+  const canUpgrade = !!offer && wood >= offer.wood && purse.coins >= offer.coins;
+  const number = (n: number) => n.toLocaleString(th ? "th-TH" : "en-US");
   const title = th ? "กล่องเก็บของ" : "Storage box";
   return (
     <>
@@ -166,6 +195,35 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
                   <Slots slots={box.things} th={th} label={th ? "ในกล่อง" : "In the box"} act={th ? "หยิบใส่กระเป๋า" : "Take out"} onPick={(i) => void move("box", i)} />
                 </div>
               </div>
+
+              {(offer || box.things.length >= BOX.max) && (
+                <div className="mt-3 rounded-xl border border-line-strong bg-surface px-3 py-3" data-box-upgrade>
+                  <p className="text-ui font-semibold text-ink">
+                    {offer ? (th ? `ขยายกล่อง ${box.things.length} → ${offer.slots} ช่อง` : `Expand box: ${box.things.length} → ${offer.slots} slots`)
+                      : (th ? `ขนาดสูงสุด ${BOX.max} ช่อง` : `Maximum capacity: ${BOX.max} slots`)}
+                  </p>
+                  <p className="mt-1 text-meta text-muted">{th ? "การอัปเกรดมีผลเฉพาะตัวละครนี้" : "Upgrades apply only to this character"}</p>
+                  {offer && (
+                    <>
+                      <p className="mt-2 flex items-center gap-2 text-meta text-ink" data-box-upgrade-wood>
+                        <StackIcon stack={{ item: "log", n: 1 }} size={20} />
+                        {th ? `ท่อนไม้ ${number(offer.wood)} ชิ้น` : `${number(offer.wood)} logs`}
+                        <span className={wood >= offer.wood ? "text-muted" : "text-accent"}>{th ? `(มี ${number(wood)})` : `(${number(wood)} available)`}</span>
+                      </p>
+                      <p className="mt-1 flex items-center gap-2 text-meta text-ink" data-box-upgrade-coins>
+                        <TownIcon name="coin" size={20} />
+                        {th ? `เงิน ${number(offer.coins)}` : `${number(offer.coins)} coins`}
+                        <span className={purse.coins >= offer.coins ? "text-muted" : "text-accent"}>{th ? `(มี ${number(purse.coins)})` : `(${number(purse.coins)} available)`}</span>
+                      </p>
+                      <p className="mt-1 text-meta text-muted">{th ? "ใช้ท่อนไม้จากกระเป๋าก่อน แล้วใช้จากกล่อง" : "Uses logs from your bag first, then your box"}</p>
+                      <button type="button" onClick={() => void upgrade()} disabled={!canUpgrade || upgrading} aria-busy={upgrading}
+                              data-box-upgrade-buy className="pressable mt-2 min-h-11 w-full rounded-full bg-accent px-3 text-ui font-semibold text-bg disabled:cursor-not-allowed disabled:opacity-50">
+                        {upgrading ? (th ? "กำลังอัปเกรด…" : "Upgrading…") : (th ? `อัปเกรดเป็น ${offer.slots} ช่อง` : `Upgrade to ${offer.slots} slots`)}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
 
               {/* my bag, as it is in its own panel */}
               <div className="relative mt-3 rounded-[1.6rem] border-2 border-[#2e1c0c] bg-gradient-to-b from-[#8a5a2b] to-[#6e4420] p-2 shadow-lg shadow-black/40" data-box-bag>
