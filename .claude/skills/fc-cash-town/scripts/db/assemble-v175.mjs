@@ -94,16 +94,17 @@ end $catalog$;
 `;
 const blocks = againOf(defs, AGAIN);
 const content = helper + catalog + Object.entries(blocks).map(([name, sql]) => `-- <${name}>\n${sql}\n-- </${name}>`).join("\n\n");
-const hashes = async () => Object.fromEntries((await run(`select p.oid::regprocedure::text sig, md5(pg_get_functiondef(p.oid)) hash from pg_proc p where p.oid = any(array[${AGAIN.map(([,s]) => `'${s}'::regprocedure::oid`).join(",")}])`)).map((r) => [r.sig, r.hash]));
+const hashes = async () => Object.fromEntries((await run(`select p.oid::regprocedure::text sig, md5(replace(pg_get_functiondef(p.oid), chr(13), '')) hash from pg_proc p where p.oid = any(array[${AGAIN.map(([,s]) => `'${s}'::regprocedure::oid`).join(",")}])`)).map((r) => [r.sig, r.hash]));
 const before = await hashes();
 await t.db.exec(content);
 const after = await hashes();
 const guard = `do $guard$ begin
   if to_regprocedure('town.forge_try_fired(jsonb,jsonb,integer,double precision,text,text,bigint,double precision)') is null then raise exception 'Run v174 first'; end if;
-${Object.keys(before).map((s) => `  if md5(pg_get_functiondef('${s}'::regprocedure)) not in ('${before[s]}','${after[s]}') then raise exception 'Definition changed: ${s}; rebuild v175 on its current text'; end if;`).join("\n")}
+${Object.keys(before).map((s) => `  if md5(replace(pg_get_functiondef('${s}'::regprocedure), chr(13), '')) not in ('${before[s]}','${after[s]}') then raise exception 'Definition changed: ${s}; rebuild v175 on its current text'; end if;`).join("\n")}
 end $guard$;\n`;
 const sql = `-- v175: daily great fire and the harder forging table. Site code goes out first.
 -- Run after v174, while smith_open remains 0. Safe to run twice.
+-- Definition hashes ignore CR characters from Windows clipboard line endings; all other text is checked.
 -- +10: 10% taken, 60% stays, 30% down. One accepted top attempt/member/game day.
 -- All tools share the right. Resets 05:00 Bangkok; prior +10 does not bar another tool.
 -- The purse's existing transaction lock prevents simultaneous requests spending twice.
