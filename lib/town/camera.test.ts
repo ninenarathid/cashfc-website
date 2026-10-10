@@ -30,7 +30,7 @@ describe("the camera's zoom", () => {
     // a phone's finer screen goes a little further out, and no further (it went to 0.55 until 2026-10-09: the owner,
     // "ช่วยล็อคไม่ให้ zoom out ได้มากจนเกินไป")
     expect(minScale(phone.w, phone.h)).toBe(MIN_SCALE_PHONE);
-    expect(MIN_SCALE_PHONE).toBeGreaterThanOrEqual(0.8);
+    expect(MIN_SCALE_PHONE).toBeGreaterThanOrEqual(1);
     expect(clampScale(0.55, phone.w, phone.h)).toBe(MIN_SCALE_PHONE);
     // and furthest out is still further than where it starts
     expect(minScale(desk.w, desk.h)).toBeLessThan(startScale(desk.w, desk.h));
@@ -44,6 +44,22 @@ describe("the camera's zoom", () => {
     const p = toScreen(after, before, desk.w, desk.h);
     expect(p.x).toBeCloseTo(700, 4);
     expect(p.y).toBeCloseTo(400, 4);
+  });
+
+  it("keeps dolls legible and does not drift when zoom-out continues at the stop", () => {
+    for (const { w, h, least } of [
+      { ...desk, least: 1.25 }, { ...phone, least: 1 }, { w: 1440, h: 900, least: 1.25 },
+    ]) {
+      const s = minScale(w, h);
+      expect(s).toBeGreaterThanOrEqual(least);
+      const stopped = clampCam({ s, cx: 40, cy: 500 }, w, h);
+      let cam = stopped;
+      for (let i = 0; i < 80; i++) cam = zoomAt(cam, cam.s * 0.7, w * 0.7, h * 0.3, w, h);
+      expect(cam.s).toBe(stopped.s);
+      expect(cam.cx).toBeCloseTo(stopped.cx, 8);
+      expect(cam.cy).toBeCloseTo(stopped.cy, 8);
+      expect(zoomAt(cam, cam.s * 1.25, w / 2, h / 2, w, h).s).toBeGreaterThan(cam.s);
+    }
   });
 });
 

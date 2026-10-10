@@ -76,6 +76,7 @@ import TownMusicButton from "./TownMusicButton";
 import TownSettingsButton from "./TownSettingsButton";
 import TownFoot, { FOOT_CSS, TownFootContext, type FootPlaces } from "./TownFoot";
 import { SKIN_CSS } from "./TownSkin";
+import { HUD_CSS, hudTierFor } from "./TownHud";
 import { STAMINA } from "@/lib/town/stamina";
 import TownIcon, { ICON_ATLAS, drawIcon, petScale, type IconName } from "./TownIcon";
 import { FORGED_BEATS, drawForged } from "./TownForged";
@@ -624,7 +625,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const [menuOpen, setMenuOpen] = useState(false);
   const [voiceTray, setVoiceTray] = useState(false);
   const menuBox = useRef<HTMLDivElement | null>(null);
-  useEffect(() => { if (!menuOpen) settingsOpenRef.current = false; }, [menuOpen]);
+  useEffect(() => {
+    if (!menuOpen) settingsOpenRef.current = false;
+    else menuBox.current?.querySelector<HTMLButtonElement>("[data-town-menu-panel] button")?.focus({ preventScroll: true });
+  }, [menuOpen]);
   useEffect(() => {
     if (!menuOpen) return;
     const away = (e: PointerEvent) => { if (!menuBox.current?.contains(e.target as Node)) setMenuOpen(false); };
@@ -1116,7 +1120,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   /* ── the camera ──────────────────────────────────────────────────────── */
   const camNow = (): Cam => ({ s: cam.current.s, cx: cam.current.cx, cy: cam.current.cy });
-  const setCam = (c: Cam) => { const v = cam.current; const k = clampCam(c, v.cw, v.ch, BOUNDS[placeRef.current]); v.s = k.s; v.cx = k.cx; v.cy = k.cy; };
+  const setCam = (c: Cam) => { const v = cam.current; const bounds = BOUNDS[placeRef.current]; const k = clampCam({ ...c, s: clampScale(c.s, v.cw, v.ch, bounds) }, v.cw, v.ch, bounds); v.s = k.s; v.cx = k.cx; v.cy = k.cy; };
   const zoomBy = useCallback((factor: number, px?: number, py?: number) => {
     const v = cam.current;
     if (!v.cw) return;
@@ -4266,18 +4270,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const chatBottom = lift > 40 ? `${lift + 8}px` : hudBottom;
   meKey.current = game && keeper && linesTold ? () => { setCard(null); setPopover(null); setPeopleOpen(false); setMenuOpen(false); setLinesOpen((o) => (o === "me" ? false : "me")); } : null;
   openRef.current = !!(card || popover || peopleOpen || historyOpen || trade || talk || wardrobeOpen || linesOpen || testOpen || boardOpen || signView || scroll || menuOpen || voiceTray || emoteOpen || statsOpen);
-  // A button of the HUD's: a dark well in a wooden rim (./TownSkin), forty-eight pixels a side.
-  const hudBtn = "pressable tk tk-slot grid size-12 shrink-0 place-items-center text-read max-[22.49rem]:size-11";
+  // Forty-four pixel targets, grouped in quiet frames so the map keeps the attention.
+  const hudBtn = "pressable tk tk-slot town-hud-button grid shrink-0 place-items-center text-read";
   /** A button of the menu's, with its word under it. */
   const menuTile = (label: string, button: React.ReactNode) => (
-    <span className="flex min-w-0 flex-col items-center gap-1 text-center text-[0.6875rem] leading-tight text-ink">{button}<span aria-hidden className="line-clamp-2 max-w-full">{label}</span></span>
+    <span className="flex min-w-0 flex-col items-center gap-1 text-center font-data text-meta leading-normal text-ink">{button}<span aria-hidden className="line-clamp-2 max-w-full">{label}</span></span>
   );
   // How far down the top row reaches: a phone's has the plate of what I have over the plaque of where this is.
-  const hudTop = phone ? (game ? "6.75rem" : "3.75rem") : "4.5rem";
+  const hudTop = `calc(max(12px, env(safe-area-inset-top)) + ${phone && game ? "4.75rem" : "3.75rem"})`;
+  const hudTier = hudTierFor(purse.coins);
+  const hudMenuRoom = `calc(100dvh - ${covered ? "0px" : "var(--nav-h)"} - max(12px, env(safe-area-inset-top)) - 3.75rem - ${hudBottom})`;
 
   return (
-    <div ref={stageRef}
-         style={{ ["--hud-b" as string]: hudBottom, ["--hud-t" as string]: hudTop }}
+    <div ref={stageRef} data-town-hud-tier={hudTier.id}
+         style={{ ["--hud-b" as string]: hudBottom, ["--hud-t" as string]: hudTop, ["--hud-menu-room" as string]: hudMenuRoom }}
          className={`${covered ? "fixed inset-0 z-[55]" : "fixed inset-x-0 bottom-0 top-[var(--nav-h)] z-[30]"} overflow-hidden overscroll-none bg-[#0b1016]`}>
      <TownFootContext.Provider value={footPlaces}>
       {/* The town: above the page (z-30), under the header (40) and the phone's
@@ -4291,21 +4297,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* The top of the map, one row: on the left where this is, whether we are connected and who is here (a tap lists
           them), on the right the buttons. One row, so that the left gives way to the right and neither lies on the
           other (until 2026-10-08 each was placed by itself, and on a phone the clock lay under the wardrobe's button). */}
-      <div className="pointer-events-none absolute inset-x-3 top-3 z-[35] flex items-start justify-between gap-1.5">
-       <div className="flex min-w-0 flex-col items-start gap-1.5 sm:flex-row sm:items-center">
+      <div className="town-hud-top pointer-events-none absolute z-[35] flex items-start justify-between gap-2">
+       <div className="tk tk-plate town-hud-surface town-hud-overview flex min-w-0 flex-col items-stretch sm:flex-row sm:items-center">
         {/* What I have: stamina, coins, and the meal I am at. Until 2026-10-09 these were two small numbers on the
             bag's button at the foot; stamina decides how hard every game is, so it is the first thing on the screen
             (the owner, of the new layout shown him: "ตามที่คุณแนะนำ ลงมือเลยครับ"). */}
         {s && game && (
-          <div data-town-status role="status" aria-label={`stamina ${purse.stamina} / ${STAMINA.max} · ${w.th ? "เหรียญ" : "coins"} ${purse.coins}`}
-               className="tk tk-plate pointer-events-auto flex h-12 w-44 shrink-0 flex-col justify-center gap-1.5 px-3.5 lg:w-56">
-            <span className="flex items-center gap-1.5">
+          <div data-town-status role="status" aria-label={`${w.th ? "แรงกาย" : "Stamina"} ${purse.stamina} / ${STAMINA.max} · ${w.th ? "เหรียญ" : "coins"} ${purse.coins}`}
+               className="town-hud-status pointer-events-auto flex h-8 items-center gap-3 px-2.5">
+            <span className="flex min-w-0 flex-1 items-center gap-1.5" title={`${w.th ? "แรงกาย" : "Stamina"} ${purse.stamina}/${STAMINA.max}`}>
               <TownIcon name="stamina" size={15} />
               <span aria-hidden className="tk-bar min-w-0 flex-1" data-low={purse.stamina ? undefined : ""}><i style={{ width: `${Math.max(purse.stamina ? 3 : 0, Math.min(100, (purse.stamina / STAMINA.max) * 100))}%` }} /></span>
               <span data-stamina className={`w-6 text-right font-data text-meta font-semibold leading-none tabular-nums ${purse.stamina ? "text-ink" : "text-chili"}`}>{purse.stamina}</span>
             </span>
             <span className="flex items-center gap-1.5 leading-none">
-              <TownIcon name="coin" size={14} /><span data-coins className="font-data text-meta font-semibold leading-none tabular-nums text-gold">{purse.coins}</span>
+              <TownIcon name="coin" size={14} /><span data-coins title={purse.coins.toLocaleString(w.th ? "th-TH" : "en-US")} className="font-data text-meta font-semibold leading-none tabular-nums text-gold">{new Intl.NumberFormat(w.th ? "th-TH" : "en-US", { notation: "compact", maximumFractionDigits: 1 }).format(purse.coins)}</span>
               {/* The meal I am at: how far through it I am */}
               {purse.eating && (
                 <span data-town-meal className="ml-auto flex items-center gap-1">
@@ -4319,14 +4325,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
         )}
         {/* Where this is: whether we are connected, who is here (a tap lists them), and the town's hour (the word that
             we are reconnecting stands in the hour's place). */}
-        <div className="tk tk-plate pointer-events-auto flex h-9 min-w-0 shrink-0 items-center gap-2 px-3">
+        <div className="town-hud-place pointer-events-auto flex h-7 min-w-0 items-center gap-2 px-2.5">
           <button type="button" onClick={() => { setPeopleOpen((o) => !o); setCard(null); setStatsOpen(false); setMenuOpen(false); }}
                   aria-expanded={peopleOpen} disabled={!s} aria-label={`Cash Town · ${w.peopleBtn(others.length + 1)}`}
-                  className="pressable relative flex shrink-0 items-center gap-1.5 after:absolute after:-inset-x-2 after:-inset-y-2.5 after:content-['']">
-            <span aria-hidden className={`size-2 shrink-0 ${live ? "bg-jade" : "bg-gold"}`} />
+                  className="pressable relative flex shrink-0 items-center gap-1.5 after:absolute after:inset-x-0 after:-inset-y-2 after:content-['']">
+            <span aria-hidden className={`size-1.5 shrink-0 rounded-full ${live ? "bg-jade" : "bg-gold"}`} />
             <TownIcon name="people" size={15} /><span className="font-data text-meta font-semibold leading-none tabular-nums text-ink">{others.length + 1}</span>
           </button>
-          <span aria-hidden className="h-3 w-0.5 shrink-0 bg-black/40" />
+          <span aria-hidden className="hidden h-3 w-px shrink-0 bg-current opacity-30 sm:block" />
           {s && everReady && !live
             ? <span className="flex shrink-0 items-center gap-1 text-label text-gold"><TownIcon name="signal" size={13} className="animate-pulse" />{w.reconnecting}</span>
             : <TownClock th={w.th} compact={phone} bare />}
@@ -4344,12 +4350,18 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
              <span aria-hidden className="flex h-4 w-5 flex-col justify-between">
                {[0, 1, 2].map((i) => <i key={i} className="block h-1 bg-[#f5dab7] shadow-[0_2px_0_#1a0e06]" />)}
              </span>
-             {!phone && <kbd aria-hidden className="tk-key absolute -bottom-2 -left-2">Esc</kbd>}
+             {!phone && <kbd aria-hidden className="tk-key town-hud-key absolute -bottom-1 -left-1">Esc</kbd>}
            </button>
            <div hidden={!menuOpen} data-town-menu-panel role="group" aria-label={w.th ? "เมนู" : "Menu"}
-                className="tk tk-window absolute right-0 top-full z-30 mt-2 w-[18rem] max-w-[calc(100vw-1.5rem)] p-4">
-             <div className="-m-1 max-h-[calc(100dvh-8rem)] overflow-y-auto p-1">
-             <p className="mb-3 flex items-baseline gap-2 font-display text-ui font-semibold text-ink">Cash Town
+                onKeyDown={(e) => {
+                  if (e.key !== "Escape" || e.defaultPrevented) return;
+                  e.preventDefault(); e.stopPropagation(); setMenuOpen(false);
+                  menuBox.current?.querySelector<HTMLButtonElement>("[data-town-menu]")?.focus({ preventScroll: true });
+                }}
+                className="tk tk-window town-hud-surface town-hud-menu absolute right-0 top-full z-30 mt-2 w-[19rem] max-w-[calc(100vw-1.5rem)]">
+             <div style={{ maxHeight: "max(5rem, calc(var(--hud-menu-room) - 2.25rem))" }} className="-m-1 overflow-y-auto overscroll-contain p-1">
+             <p className="town-hud-menu-heading mb-3 flex items-baseline gap-2 font-display text-title font-semibold text-ink">Cash Town
+               <span data-town-hud-material className="town-hud-material">{w.th ? hudTier.th : hudTier.en}</span>
                <span className="font-data text-label font-normal uppercase tracking-wider text-muted">{w.beta}</span>
                {testTopic && <span className="font-data text-label font-normal uppercase tracking-wider text-gold">dev</span>}
              </p>
@@ -4406,12 +4418,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                </button>
                {voiceOn && (
                  <button type="button" onClick={() => { s.leaveVoice(); setMenuOpen(false); }} title={w.leave}
-                         className="pressable tk tk-btn-wood flex min-h-11 items-center justify-center gap-2 px-4 font-display text-ui font-medium">
+                         className="pressable tk tk-btn-wood town-hud-surface flex min-h-11 items-center justify-center gap-2 px-4 font-display text-ui font-medium">
                    <TownIcon name="muted" size={18} />{w.leave}
                  </button>
                )}
                <button type="button" onClick={() => s.close()} title={w.leaveTown}
-                       className="pressable tk tk-btn-wood flex min-h-11 items-center justify-center gap-2 px-4 font-display text-ui font-medium">
+                       className="pressable tk tk-btn-wood town-hud-surface flex min-h-11 items-center justify-center gap-2 px-4 font-display text-ui font-medium">
                  <TownIcon name="leave" size={18} />{w.leaveTown}
                </button>
              </div>
@@ -4576,6 +4588,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           chat's lines, the zoom under the lines of work's button, a long line of chat under the bag). */}
       <style href="town-foot" precedence="medium">{FOOT_CSS}</style>
       <style href="town-skin" precedence="medium">{SKIN_CSS}</style>
+      <style href="town-hud" precedence="medium">{HUD_CSS}</style>
       {s && (() => {
         // (a phone's talk box lies across the foot: the foot's last row is put away under it)
         const chatShown = !wardrobeOpen && !(phone && (boardOpen || !!trade || !!talk));
@@ -4616,14 +4629,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             ) : null}
             {!voiceOn ? (
               <button type="button" data-town-mic="off" onClick={() => { setVoiceTray((o) => !o); setEmoteOpen(false); }} aria-expanded={voiceTray}
-                      aria-label={w.th ? "ไมค์" : "Microphone"} title={w.th ? "ไมค์" : "Microphone"} className={hudBtn}>
+                      aria-label={w.th ? "ไมค์" : "Microphone"} title={w.th ? "ไมค์" : "Microphone"} className={`${hudBtn}${phone ? " town-hud-labelled" : ""}`}>
                 <TownIcon name="mic" size={22} className="opacity-60" />
+                {phone && <span aria-hidden className="town-hud-label">{w.th ? "ไมค์" : "Mic"}</span>}
               </button>
             ) : (
               <button type="button" data-town-mic={muted ? "muted" : "live"} data-plain="" onClick={() => s.toggleMute()} aria-pressed={muted}
                       aria-label={muted ? w.unmute : w.mute} title={muted ? w.unmute : w.mute}
-                      className={muted ? hudBtn : hudBtn.replace("tk-slot", "tk-slot-on")}>
+                      className={`${muted ? hudBtn : hudBtn.replace("tk-slot", "tk-slot-on")}${phone ? " town-hud-labelled" : ""}`}>
                 <TownIcon name={muted ? "muted" : "mic"} size={22} />
+                {phone && <span aria-hidden className="town-hud-label">{w.th ? "ไมค์" : "Mic"}</span>}
                 {!phone && <kbd aria-hidden className="tk-key absolute -bottom-2 -left-2">M</kbd>}
               </button>
             )}
@@ -4652,8 +4667,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 </div>
               );
             })()}
-            <button type="button" onClick={() => { setEmoteOpen((o) => !o); setVoiceTray(false); }} aria-expanded={emoteOpen} title={w.emote} className={hudBtn}>
+            <button type="button" onClick={() => { setEmoteOpen((o) => !o); setVoiceTray(false); }} aria-expanded={emoteOpen} title={w.emote} className={`${hudBtn}${phone ? " town-hud-labelled" : ""}`}>
               <TownIcon name="emote" size={22} /><span className="sr-only">{w.emote}</span>
+              {phone && <span aria-hidden className="town-hud-label">{w.th ? "ท่าทาง" : "Emote"}</span>}
             </button>
           </div>
         );
@@ -4738,14 +4754,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 <div className="flex w-full flex-col gap-1">
                   {chatNote && <div role="status" className="tk tk-plate w-fit px-3 py-1 text-label text-gold">{chatNote}</div>}
                   {phone && !chatOpen ? (
-                    <div className="pointer-events-auto relative flex w-fit items-end gap-1.5 max-[22.49rem]:gap-1">
+                    <div className="tk tk-plate town-hud-surface town-hud-cluster pointer-events-auto relative flex w-fit items-end gap-1">
                       <button type="button" onClick={openHistory}
-                              aria-label={w.chat} className={hudBtn}><TownIcon name="chat" size={22} /></button>
+                              aria-label={w.chat} className={`${hudBtn} town-hud-labelled`}><TownIcon name="chat" size={22} /><span aria-hidden className="town-hud-label">{w.th ? "แชท" : "Chat"}</span></button>
                       {micPiece}
                       {emotePiece}
                     </div>
                   ) : (
-                    <div className="pointer-events-auto flex w-full items-center gap-1.5">
+                    <div className="tk tk-plate town-hud-surface town-hud-cluster town-hud-chat-row pointer-events-auto flex w-full items-center gap-1">
                       <form onSubmit={sendChat} className="flex min-w-0 flex-1 items-center gap-1.5">
                         {!phone && (
                           <button type="button" onClick={() => setHistoryOpen((o) => !o)} aria-pressed={historyOpen}
@@ -4753,7 +4769,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                             <TownIcon name="history" size={20} /><span className="sr-only">{historyOpen ? w.historyClose : w.history}</span>
                           </button>
                         )}
-                        <span className="tk tk-plate flex h-12 min-w-0 flex-1 items-center px-3.5">
+                        <span className="tk tk-plate town-hud-surface town-hud-input flex h-11 min-w-0 flex-1 items-center px-3">
                           <input ref={chatRef} value={draft} maxLength={600} enterKeyHint="send"
                                  onChange={(e) => { setDraft(e.target.value); setChatNote(null); s.setTyping(e.target.value.trim().length > 0); }}
                                  onKeyDown={(e) => { if (e.key === "Escape") { e.currentTarget.blur(); setHistoryOpen(false); if (phone) setChatOpen(false); } }}
@@ -4767,7 +4783,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                                  placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
                                  className="h-full min-w-0 flex-1 bg-transparent text-read text-ink outline-none placeholder:text-muted" />
                         </span>
-                        <button type="submit" className="pressable tk tk-btn h-12 shrink-0 px-4 font-display text-ui font-medium">
+                        <button type="submit" className="pressable tk tk-btn town-hud-send h-11 shrink-0 px-3 font-display text-ui font-medium">
                           {w.send}
                         </button>
                       </form>
@@ -4781,9 +4797,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
             {/* At the foot's right, under the right thumb, what is for doing: the thing in the hand, the lines of work,
                 the bag. (Until 2026-10-09 a column up the right edge, with the zoom, the emotes and the microphone
                 in it: on a short phone its buttons were squeezed to thirty-five pixels.) */}
-            <div data-foot-right className="flex items-end justify-end gap-1.5 max-[22.49rem]:gap-1 [&>*]:pointer-events-auto">
-              {!wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || !!talk || testOpen)) && (
+            <div data-foot-right className="flex items-end justify-end gap-1 [&>*]:pointer-events-auto">
+              {game && !wardrobeOpen && !(phone && (chatOpen || boardOpen || !!trade || !!talk || testOpen)) && (
                 <>
+                 <div className="tk tk-plate town-hud-surface town-hud-cluster flex items-end gap-1">
                   {/* What is in the hand, changed without the bag: a phone's quick bar unfolds over this corner */}
                   {phone && game && keeper && (
                     <Suspense fallback={null}>
@@ -4794,23 +4811,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                   {game && keeper && linesTold && (
                     <button type="button" onClick={() => { setCard(null); setPopover(null); setPeopleOpen(false); setMenuOpen(false); if (phone) { setTrade(null); setChatOpen(false); } setLinesOpen((o) => (o ? false : "lines")); }}
                             aria-expanded={!!linesOpen} title={w.th ? "สายอาชีพ" : "Lines of work"} data-town-lines-button data-due={giftDue ? "" : undefined}
-                            className={hudBtn}>
-                      <TownIcon name="rosette" size={22} /><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
+                            className={`${hudBtn} town-hud-labelled`}>
+                      <TownIcon name="rosette" size={20} /><span aria-hidden className="town-hud-label">{w.th ? "อาชีพ" : "Skills"}</span><span className="sr-only">{w.th ? "สายอาชีพ" : "Lines of work"}</span>
                       {/* (a gift of a rank reached waits to be taken) */}
                       {giftDue && <span aria-hidden className="tk-dot" />}
-                      {!phone && <kbd aria-hidden className="tk-key absolute -bottom-2 -left-2">C</kbd>}
+                      {!phone && <kbd aria-hidden className="tk-key town-hud-key absolute -top-1 -left-1">C</kbd>}
                     </button>
                   )}
                   {/* My bag: how many of its slots are taken (the coins and the stamina are at the top left now) */}
                   {game && (
                     <button type="button" onClick={() => (trade === "bag" ? setTrade(null) : openTrade("bag"))} aria-expanded={trade === "bag"} title={w.th ? "กระเป๋า" : "Bag"} aria-keyshortcuts="I"
-                            className="pressable tk tk-window grid size-14 shrink-0 place-items-center max-[22.49rem]:size-[3.25rem]">
-                      <TownIcon name="bag" size={30} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
-                      <span aria-hidden data-bag-count className="absolute -bottom-1.5 -right-1.5 bg-[#1a0e06] px-1 py-0.5 font-data text-[0.625rem] font-semibold leading-none tabular-nums text-[#f7e7c9]">{purse.slots[0]}/{purse.slots[1]}</span>
+                            className="pressable tk tk-slot town-hud-button town-hud-bag town-hud-labelled grid shrink-0 place-items-center">
+                      <TownIcon name="bag" size={25} /><span className="sr-only">{w.th ? "กระเป๋า" : "Bag"}</span>
+                      <span aria-hidden data-bag-count className="town-hud-label font-semibold tabular-nums">{purse.slots[0]}/{purse.slots[1]}</span>
                       {/* (its key, on a wide screen: I opens the bag and shuts it) */}
-                      {!phone && <kbd aria-hidden className="tk-key absolute -right-2 -top-2">I</kbd>}
+                      {!phone && <kbd aria-hidden className="tk-key town-hud-key absolute -right-1 -top-1">I</kbd>}
                     </button>
                   )}
+                 </div>
                 </>
               )}
             </div>

@@ -92,8 +92,9 @@ export default function TownHand({ keeper, th, phone = false, hidden = false, cl
     return (
       <div ref={box} data-town-hand="phone">
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label={label} title={label}
-                data-on={inHand && !open ? "" : undefined} className={className}>
+                data-on={inHand && !open ? "" : undefined} className={`${className} town-hud-labelled`}>
           {inHand ? <StackIcon stack={inHand} size={26} /> : <TownIcon name="hand" size={24} />}
+          <span aria-hidden className="town-hud-label">{th ? "ถือของ" : "Tools"}</span>
         </button>
         {open && (
           <div role="menu" aria-label={label} data-state="open"
@@ -117,15 +118,15 @@ export default function TownHand({ keeper, th, phone = false, hidden = false, cl
   return (
     <TownFoot rank="chip" order={90}>
       <div role="toolbar" aria-label={label} data-town-hand="bar" data-state="open"
-           className="pop-in tk tk-plate pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 p-2.5">
+           className="pop-in tk tk-plate town-hud-surface pointer-events-auto flex max-w-full flex-wrap justify-center gap-1 p-2.5">
         {slots.map((slot, i) => {
           const s = purse.bag[slot]!, on = slot === held, holds = holdsOf(s, th), carries = forgeWords(s, th);
           return (
             <button key={slot} type="button" aria-pressed={on} data-hand-slot={slot} onClick={() => take(slot)}
                     title={`${nameOf(slot)}${holds ? ` · ${holds}` : ""} (${i + 1})`} aria-label={`${nameOf(slot)}${carries ? ` ${carries}` : ""} (${i + 1})`}
-                    className="pressable tk tk-slot grid size-12 place-items-center">
+                    className="pressable tk tk-slot town-hud-button grid place-items-center">
               <StackIcon stack={s} size={28} />
-              <kbd aria-hidden className="tk-key absolute -left-1.5 -top-1.5 !h-3.5 !min-w-3.5 !px-0.5 !text-[0.625rem]">{i + 1}</kbd>
+              <kbd aria-hidden className="tk-key town-hud-key absolute left-0 top-0 !h-3.5 !min-w-3.5 !px-0.5 !text-[0.625rem]">{i + 1}</kbd>
               {ITEMS[s.item].stack > 1 && <span aria-hidden className="absolute bottom-0 right-0.5 font-data text-[0.625rem] font-semibold leading-4 tabular-nums text-ink [text-shadow:0_1px_2px_#000]">{s.n}</span>}
             </button>
           );
