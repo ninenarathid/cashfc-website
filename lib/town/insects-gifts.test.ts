@@ -390,7 +390,7 @@ describe("the butterfly-wing cloak (insects, the sixth rank): the rare insects o
       expect(perOtherDay / perOwnDay, id).toBeGreaterThan(0.7);
       expect(perOtherDay / perOwnDay, id).toBeLessThan(1.4);
     }
-  });
+  }, 30_000); // Forty days of haunts are sampled even when CI is running other simulations.
 
   it("is seen in the place of what everybody has there, by its wearer alone; and whoever nets that haunt's insect first has had its turn's", () => {
     const x = over(12).find((y) => y.worn === "monarch" && y.all !== null)!, none = () => ({ n: 0, mine: false });

@@ -7,7 +7,7 @@ import { ITEMS } from "./items";
 import { MINING, oreOf } from "./mining";
 import { caveLayout, miningRow } from "./mining-row";
 import { POUCHES } from "./pouches";
-import { ELEMENTS, GEM_FX, LEVELS, OPTIONS, OPTION_IDS, ORES } from "./tools";
+import { ELEMENTS, GEM_FX, LEVELS, OPTIONS, OPTION_IDS, ORES, SIX } from "./tools";
 import { VEIN } from "./vein";
 
 describe("what the database is told of mining", () => {
@@ -41,7 +41,7 @@ describe("what the database is told of mining", () => {
     expect(row.pick.strikes).toEqual(LEVELS.pick.strikes);
     const mine = OPTION_IDS.filter((id) => (OPTIONS[id].tools as readonly string[]).includes("pick"));
     expect(Object.keys(row.pick.opts).sort()).toEqual([...mine].sort());
-    for (const id of mine) expect(row.pick.opts[id], id).toEqual({ pool: OPTIONS[id].pool, n: OPTIONS[id].n, ...("use" in OPTIONS[id] ? { use: (OPTIONS[id] as { use: unknown }).use } : {}) });
+    for (const id of mine) expect(row.pick.opts[id], id).toEqual({ pool: OPTIONS[id].pool, n: OPTIONS[id].n, ...("use" in OPTIONS[id] ? { use: (OPTIONS[id] as { use: unknown }).use } : {}), ...(SIX[id] ? { six: SIX[id] } : {}) });
     for (const e of ELEMENTS) expect(row.pick.gems[e], e).toEqual(GEM_FX[e].pick);
   });
 

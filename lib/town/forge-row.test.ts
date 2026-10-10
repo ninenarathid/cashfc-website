@@ -4,7 +4,7 @@ import { SMITH, TRIES } from "./forge";
 import { forgeRow } from "./forge-row";
 import { ITEMS, type ItemId } from "./items";
 import { POINTS } from "./line-points";
-import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, TOOL_LINES, WOODEN, drawable, isWooden, lineKinds, poolOf, samePool, settable, smeltedOf } from "./tools";
+import { BUILT, ELEMENTS, FORGE, GEMS, GEM_LEVELS, LEVELS, OPTIONS, OPTION_IDS, SIX, SMELTS, TOOL_KINDS, TOOL_LINES, WOODEN, drawable, isWooden, lineKinds, poolOf, samePool, settable, smeltedOf } from "./tools";
 
 describe("what the database is told of the blacksmith", () => {
   const row = forgeRow();
@@ -46,7 +46,7 @@ describe("what the database is told of the blacksmith", () => {
     expect(row.options.order).toEqual(OPTION_IDS);
     expect(Object.keys(row.options.of).sort()).toEqual([...OPTION_IDS].sort());
     const of = row.options.of as Record<string, { pool: number; tools: string[]; n: Record<string, number>; use?: { n: number; per: string } }>;
-    for (const id of OPTION_IDS) expect(of[id]).toEqual({ pool: OPTIONS[id].pool, tools: [...OPTIONS[id].tools], n: OPTIONS[id].n, ...("use" in OPTIONS[id] ? { use: (OPTIONS[id] as { use: unknown }).use } : {}) });
+    for (const id of OPTION_IDS) expect(of[id]).toEqual({ pool: OPTIONS[id].pool, tools: [...OPTIONS[id].tools], n: OPTIONS[id].n, ...("use" in OPTIONS[id] ? { use: (OPTIONS[id] as { use: unknown }).use } : {}), ...(SIX[id] ? { six: SIX[id] } : {}) });
     for (const kind of TOOL_KINDS) for (const pool of [1, 2] as const) {
       // (as the database reads it: the order, those of the pool, for the kind, that are built)
       const read = row.options.order.filter((id) => of[id].pool === pool && of[id].tools.includes(kind));

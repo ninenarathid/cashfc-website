@@ -524,7 +524,7 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     expect(smelted.every((x) => x.d.purse.coins === x.p.coins - x.d.fee && heldIn(x.d.purse, "timber") === heldIn(x.p, "timber") - x.d.timber)).toBe(true);
     const fromPouch = (x: { p: Purse; d: { purse: Purse } }) => JSON.stringify(x.p.pouches ?? null) !== JSON.stringify(x.d.purse.pouches ?? null), fromBag = (x: { p: Purse; d: { purse: Purse } }) => JSON.stringify(x.p.bag) !== JSON.stringify(x.d.purse.bag);
     expect(smelted.some((x) => fromPouch(x) && !fromBag(x)) && smelted.some((x) => fromPouch(x) && fromBag(x)) && smelted.some((x) => !fromPouch(x) && fromBag(x))).toBe(true);
-    expect(new Set(of("smith_dry").map((v) => v.want))).toEqual(new Set([1, 2]));
+    expect(new Set(of("smith_dry").map((v) => v.want))).toEqual(new Set([1, 2, 3]));
     expect(whys("smith_collect")).toEqual(["full", "none", "ok"]);
     const got = of("smith_collect").filter((v) => (v.want as { ok: boolean }).ok).map((v) => ({ p: v.args[0] as Purse, s: v.args[1] as Smithy, now: v.args[2] as number, d: v.want as { smithy: Smithy; purse: Purse; got: Array<[string, number]> } }));
     expect(got.some((x) => x.d.smithy.queue.some((q) => q.till <= x.now)) && got.some((x) => x.d.got.length > 1) && got.every((x) => x.d.got.reduce((n, g) => n + g[1], 0) === x.s.queue.length - x.d.smithy.queue.length)).toBe(true);

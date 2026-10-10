@@ -471,7 +471,7 @@ describe("the safe stretch", () => {
       // (the gauge is twice as long as the stretch was drawn for: no stretch is more than a quarter of it)
       expect(f.band).toBeLessThanOrEqual(0.25);
     }
-  });
+  }, 30_000); // Every fish's simulated fight also runs beside the larger vector suites in CI.
 
   it("is not held to the middle: it may go anywhere on the gauge (the owner: \"ช่วยทำให้มันมีโอกาศวิ่งไปได้ทั้งหลอดเลย\")", () => {
     for (const id of [...EARLY, "frog", "stingray"] as FishId[]) {
