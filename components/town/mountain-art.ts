@@ -3,6 +3,9 @@
 import { BOUNDS, floorBounds } from "@/lib/town/camera";
 import { CAVE_LIGHT, CAVE_SIZE, lightsOf, reveal, type CaveLight } from "@/lib/town/cave";
 import { sampleAge, type TreeAge } from "@/lib/town/mountain";
+import { CLIFF, cliffTop } from "@/lib/town/mountain";
+import { mountainStreamMid } from "@/lib/town/mountain-water";
+import { mountainRiverBed } from "@/lib/town/river-landscape";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { boxSprite } from "@/lib/town/box-art";
 import { SMITH_CLOSED, SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
@@ -440,8 +443,27 @@ export class MountainArt {
 
   private mountain(f: MoreFrame) {
     const scenery = f.scenery!, { s } = f;
+    // The three terraces belong to one stream: foam follows its falls down each cliff.
+    f.ctx.save();
+    for (let k = 0; k < 3; k++) {
+      const mid = mountainStreamMid(cliffTop(k, 47));
+      for (let i = 0; i < 9; i++) {
+        const v = mid + (i % 5 - 2) * 0.32;
+        const fall = f.still ? (i * 0.173) % 1 : (f.now / 1100 + i * 0.173) % 1;
+        const u = cliffTop(k, v) + fall * CLIFF;
+        const p = f.project({ x: MOUNTAIN.x + u, y: MOUNTAIN.y + v });
+        if (!f.onScreen(p)) continue;
+        f.ctx.fillStyle = i % 2 ? "#ceeee4" : "#94d9df";
+        const z = Math.max(1, Math.round(s * 1.5));
+        f.ctx.fillRect(Math.round(p.x * f.dpr) / f.dpr, Math.round(p.y * f.dpr) / f.dpr, z * 3, z);
+      }
+    }
+    f.ctx.restore();
     // flowers lie flat: under whoever walks over them
-    for (const p of MOUNTAIN_PROPS) if (p.kind === "flowers") { const c = f.project({ x: p.x + 0.5, y: p.y + 0.62 }); if (f.onScreen(c)) scenery.drawProp(f.ctx, "flowers", c.x, c.y, s, f.dpr); }
+    for (const p of MOUNTAIN_PROPS) if (p.kind === "flowers" && mountainRiverBed(p.x - MOUNTAIN.x + 0.5, p.y - MOUNTAIN.y + 0.62) > 0.8) {
+      const c = f.project({ x: p.x + 0.5, y: p.y + 0.62 });
+      if (f.onScreen(c)) scenery.drawProp(f.ctx, "flowers", c.x, c.y, s, f.dpr);
+    }
     // the lookout's deck lies flat too, and is walked on
     const L = MOUNTAIN_AT.lookout, deck = f.project({ x: L.x + L.w / 2 + 0.35, y: L.y + L.h / 2 + 0.35 });
     if (scenery.has("lookout") && f.onScreen(deck)) scenery.drawProp(f.ctx, "lookout", deck.x, deck.y + 30 * s, s * kOf("lookout"), f.dpr);

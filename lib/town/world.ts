@@ -17,6 +17,7 @@
 import { CAVE_SIZE, caveFloor, depthOf, hollowAt, type CaveFloor } from "./cave";
 import type { Current, FishingHabitat } from "./river-items";
 import { mountainWater } from "./mountain-water";
+import { mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 
 export const COLS = 64;
@@ -1311,20 +1312,24 @@ const WEST_SEED = ARMS.find((a) => a.dir === "W")!.seed;
 /** The ground of what is to come at a point, for drawing: the mountain's, a cave floor's, and what lies beyond their edges; and the dirt the bridge's two ends stand on. Null where this has no say. */
 function moreLook(x: number, y: number): Ground | MoreGround | null {
   if (y >= BEYOND_MORE.low.y) {
-    if (within(x, y, MOUNTAIN)) return mountainWater(x-MOUNTAIN.x,y-MOUNTAIN.y) ? "water" : MT!.mountainGround(x - MOUNTAIN.x, y - MOUNTAIN.y);
+    if (within(x, y, MOUNTAIN)) return mountainRiverGround(x - MOUNTAIN.x, y - MOUNTAIN.y) ?? MT!.mountainGround(x - MOUNTAIN.x, y - MOUNTAIN.y);
     const n = floorOf(x, y);
     if (n) {
       const f = caveToday(n), c = floorCorner(n), u = x - c.x, v = y - c.y;
       return CV!.hollowAt(f, u, v) ? "cavefloor" : wallOver(f, u, v) <= CAVE_WALL ? "cliff" : "cavewall";
     }
     // the low country: grass, and the trail running on down through it
-    if (within(x, y, BEYOND_MORE.low)) return Math.abs(y - MOUNTAIN.y - 30 - 0.5 * Math.sin(x / 2.4)) < 0.95 ? "road" : "grass";
+    if (within(x, y, BEYOND_MORE.low)) return mountainRiverGround(x - MOUNTAIN.x, y - MOUNTAIN.y) ?? (Math.abs(y - MOUNTAIN.y - 30 - 0.5 * Math.sin(x / 2.4)) < 0.95 ? "road" : "grass");
     // beyond the summit: snow, and bare rock showing through it
-    if (within(x, y, BEYOND_MORE.high)) return Math.sin(x / 2.3 + y / 3.1) * Math.cos(y / 2.7 - x / 4.3) > 0.35 ? "rock" : "snow";
+    if (within(x, y, BEYOND_MORE.high)) return mountainRiverGround(x - MOUNTAIN.x, y - MOUNTAIN.y) ?? (Math.sin(x / 2.3 + y / 3.1) * Math.cos(y / 2.7 - x / 4.3) > 0.35 ? "rock" : "snow");
     return null;
   }
   if (x < 0) {
     if (!within(x, y, BEYOND_MORE.west)) return null;
+    // The river and both banks continue into the mountain scenery instead of ending at x=0.
+    const r = acrossRiver(x, y);
+    if (r < RIVER_HALF) return "water";
+    if (r < RIVER_HALF + 0.9 + 0.22 * Math.sin(x * 1.9) * Math.sin(y * 2.3)) return "sand";
     // beyond the town's west gate: the path running on, grass giving way to stony ground and then to snow
     if (Math.abs(y - pathMiddle(x, PLAZA.x - x, WEST_SEED)) < pathHalf(x, WEST_SEED)) return "road";
     return x > -3.2 + 0.9 * Math.sin(y / 2.9) ? "grass" : x > -9.5 + 1.4 * Math.sin(y / 3.7) ? "rock" : "snow";
@@ -1373,6 +1378,8 @@ function tileChance(x: number, y: number): number {
 function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k: number, x: number, y: number) => Prop["kind"] | null): Prop[] {
   const out: Prop[] = [];
   for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) {
+    const ground = moreLook(x + 0.5, y + 0.5);
+    if (ground === "water" || ground === "sand") continue;
     if ([-3, -2, -1, 0, 1, 2, 3].some((d) => moreLook(x + 0.5, y + d + 0.5) === "road")) continue;
     const kind = what(tileChance(x, y), x, y);
     if (kind) out.push({ kind, x, y, solid: true });

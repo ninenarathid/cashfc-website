@@ -1,6 +1,7 @@
 "use client";
 
 import { BEYOND, BEYOND_MORE, CAVE, COLS, FARM, FOREST, MORE_GROUND, MOUNTAIN, PREVIEW, ROWS, TILE_H, TILE_W, floorCorner, fromIso, groundLook, groundTone, seenAt, type Ground, type MoreGround } from "./world";
+import { riverPixel } from "./river-landscape";
 
 /**
  * Cash Town's scenery in pixel art: the ground and what stands on it (trees,
@@ -209,6 +210,15 @@ export class SceneryKit {
       const fx = t.x - Math.floor(t.x), fy = t.y - Math.floor(t.y);
       const ridge = kind === "field" && (fx < RIDGE || fx > 1 - RIDGE || fy < RIDGE || fy > 1 - RIDGE);
       const k = edge ? 0.8 : ridge ? 0.7 : 1;
+      // A cascade uses the river's palette down the cliff; the saved dry crossings are stone shallows.
+      if ((kind === "water" || kind === "rock") && t.y >= MOUNTAIN.y + 40 && t.y < MOUNTAIN.y + 54
+        && t.x >= MOUNTAIN.x - 14 && t.x < MOUNTAIN.x + MOUNTAIN.w + 14) {
+        const water = this.tex.water;
+        const wu = ((Math.floor(t.x * PER_TILE) % water.w) + water.w) % water.w;
+        const wv = ((Math.floor(t.y * PER_TILE) % water.h) + water.h) % water.h, wi = (wv * water.w + wu) * 4;
+        const pixel = riverPixel(t.x - MOUNTAIN.x, t.y - MOUNTAIN.y, kind, [water.d[wi], water.d[wi + 1], water.d[wi + 2]]);
+        if (pixel) { o[di] = pixel[0]; o[di + 1] = pixel[1]; o[di + 2] = pixel[2]; o[di + 3] = 255; continue; }
+      }
       // ── to come ── (the preview's own kinds of ground: a cliff's face is seen from the front, so its texture is laid
       // straight up the screen and not along the ground; and each is shaded as lib/town/world says, a cliff by its
       // height, a stair by its steps, a cave by its depth)
