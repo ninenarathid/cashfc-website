@@ -17,7 +17,7 @@
 import { CAVE_SIZE, caveFloor, depthOf, hollowAt, type CaveFloor } from "./cave";
 import type { Current, FishingHabitat } from "./river-items";
 import { mountainWater } from "./mountain-water";
-import { mountainRiverGround } from "./river-landscape";
+import { mountainRiverBed, mountainRiverGround } from "./river-landscape";
 import { ANCIENT as CEDAR, GATE_ROWS, LOOKOUT as LOOKOUT_AT, MOUNTAIN_H, MOUNTAIN_W, MOUTH as MINE_MOUTH, MOUTH_AT, cliffAt, closedOf, layMountain, mountainGround } from "./mountain";
 
 export const COLS = 64;
@@ -1332,9 +1332,9 @@ function moreLook(x: number, y: number): Ground | MoreGround | null {
     if (r < RIVER_HALF + 0.9 + 0.22 * Math.sin(x * 1.9) * Math.sin(y * 2.3)) return "sand";
     // A wooded foothill beside the town, with irregular outcrops; snow belongs to the summit.
     if (Math.abs(y - pathMiddle(x, PLAZA.x - x, WEST_SEED)) < pathHalf(x, WEST_SEED)) return "road";
-    const stone = Math.sin(x / 2.8 + y / 4.1) * Math.cos(y / 2.3 - x / 4.7);
-    if (x < -5 && stone > 0.28 + (x + 5) * 0.025) return "rock";
-    return x < -7 && stone < -0.22 ? "wood" : "grass";
+    // One long wooded slope meets the valley meadow, with outcrops against the far ridge.
+    if (x < -13.5 + 0.8 * Math.sin(y / 6)) return "rock";
+    return x < -5.5 + 1.2 * Math.sin(y / 5.3) ? "wood" : "grass";
   }
   // the bridge: a little trodden earth where each of its ends meets the path (drawn only: nothing is laid out from it)
   if (x < 14 && y > 26 && y < 36 && BRIDGE.spans > 0 && acrossRiver(x, y) >= RIVER_HALF
@@ -1382,6 +1382,7 @@ function beyondMore(r: { x: number; y: number; w: number; h: number }, what: (k:
   for (let y = r.y; y < r.y + r.h; y++) for (let x = r.x; x < r.x + r.w; x++) {
     const ground = moreLook(x + 0.5, y + 0.5);
     if (ground === "water" || ground === "sand") continue;
+    if (y >= MOUNTAIN.y + 40 && y < MOUNTAIN.y + 54 && mountainRiverBed(x - MOUNTAIN.x + 0.5, y - MOUNTAIN.y + 0.5) < 0.8) continue;
     if ([-3, -2, -1, 0, 1, 2, 3].some((d) => moreLook(x + 0.5, y + d + 0.5) === "road")) continue;
     const kind = what(tileChance(x, y), x, y);
     if (kind) out.push({ kind, x, y, solid: true });
@@ -1400,8 +1401,8 @@ export const BEYOND_MORE_PROPS = PREVIEW ? {
  */
 export const PEAKS: Array<{ x: number; y: number; art: 1 | 2; k: number; mirror?: boolean }> = PREVIEW ? [
   // Lower, wooded ridges sit back from the bank instead of covering the river with huge flat bases.
-  { x: -9.5, y: 30, art: 1, k: 1.25 }, { x: -13, y: 42, art: 2, k: 1.4, mirror: true },
-  { x: -14, y: 53, art: 1, k: 1.25 },
+  { x: -14, y: 29, art: 1, k: 2.3 }, { x: -16, y: 42, art: 2, k: 2.5, mirror: true },
+  { x: -17, y: 55, art: 1, k: 2.3 },
   // Leave an open ravine around the headwater, rather than a ridge across its source.
   ...[[-10, 7, 2, 1.1], [-12, 21, 1, 1.3], [-11, 35, 2, 1.2], [-12, 59, 1, 1.3]]
     .map(([u, v, art, k], i) => ({ x: MOUNTAIN.x + u, y: MOUNTAIN.y + v, art: art as 1 | 2, k, mirror: i % 2 === 1 })),

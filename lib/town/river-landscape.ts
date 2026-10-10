@@ -3,18 +3,26 @@ import { mountainStreamMid, mountainWater } from "./mountain-water";
 
 /** Scenery only: deep fishing water and the saved walking layout keep their own rules. */
 export function mountainRiverBed(u: number, v: number): number {
-  // Carry the same channel beyond both map edges, opening into the low-country river.
-  const mid = mountainStreamMid(Math.max(0, Math.min(72, u)));
-  const width = 1.1 + Math.max(0, u - 70) * 0.1;
-  return Math.min(Math.abs(v - mid) - width, Math.hypot(u - 42, v - 48) - 2.5,
-    Math.hypot(u - 21, v - 46) - 2.2);
+  const x = Math.max(0, Math.min(72, u)), mid = mountainStreamMid(x);
+  // The banks meander independently: a narrow run opens into gravel bars and quiet pools.
+  // The existing fishing channel remains inside this wider, asymmetric valley floor.
+  const left = 1.12 + 1.45 * (0.5 + 0.5 * Math.sin(x / 5.1 + 0.8));
+  const right = x > 55 ? 1.12 + 0.25 * (0.5 + 0.5 * Math.sin(x / 3.8)) : 1.12 + 1.8 * (0.5 + 0.5 * Math.sin(x / 6.3 - 1.4));
+  const outlet = Math.max(0, u - 70) * 0.08;
+  return Math.min(Math.max(mid - v - left - outlet, v - mid - right - outlet),
+    Math.hypot(u - 42, v - 48) - 2.5, Math.hypot(u - 21, v - 46) - 2.2,
+    // The foot-yard pool opens towards its empty northern bank, away from the existing trees.
+    Math.hypot((u - 65) * 0.75, v - 46) - 2);
 }
 
-// Rounded banks beneath the original tree roots and boulders, indexed once for ground painting.
+// Small root patches stay local to the existing dry buffers, without cutting the fishing channel.
 const islands: Array<Array<{ u: number; v: number; radius: number }>> = [];
 for (const prop of layMountain()) {
+  // Boundary decorations are omitted at the outlet; they need no root patches there.
+  if (prop.kind !== "mtree" && prop.kind !== "mrock" && prop.u === 71) continue;
   if (!prop.solid || mountainRiverBed(prop.u + 0.5, prop.v + 0.62) > 1.5) continue;
-  const island = { u: prop.u + 0.5, v: prop.v + 0.62, radius: prop.kind === "mrock" || prop.kind === "boulder" ? 0.55 : 0.8 };
+  const u = prop.u + 0.5, v = prop.v + 0.62;
+  const island = { u, v, radius: prop.kind === "mrock" || prop.kind === "boulder" ? 0.55 : 0.8 };
   for (let y = Math.max(0, prop.v - 1); y <= Math.min(55, prop.v + 1); y++) for (let x = Math.max(0, prop.u - 1); x <= Math.min(71, prop.u + 1); x++) {
     (islands[y * 72 + x] ??= []).push(island);
   }
@@ -32,16 +40,18 @@ export function mountainRiverGround(u: number, v: number): "water" | "sand" | Mo
     // Small stones and gravel link the water rather than square holes of grass.
     return "rock";
   }
-  if (bed < 0.65 + 0.12 * Math.sin(u * 2.1 + v * 1.7)) {
+  if (bed < 0.22 + 0.4 * (0.5 + 0.5 * Math.sin(u * 0.73 + v * 1.13))) {
     const ground = mountainGround(u, v);
     if (ground === "cliff" || ground === "stair" || ground === "road") return null;
-    return "sand";
+    return "rock";
   }
   return null;
 }
 
 /** Pixel-sized foam, shallow water between ford stones, and the falling face of a cascade. */
-export function riverPixel(u: number, v: number, ground: "water" | "rock", water: readonly [number, number, number]): readonly [number, number, number] | null {
+export function riverPixel(u: number, v: number, ground: "water" | "rock", sample: readonly [number, number, number]): readonly [number, number, number] | null {
+  // A smaller, cooler ripple pattern suits mountain water rather than the broad town river.
+  const water = [sample[0] * 0.72 + 12, sample[1] * 0.84 + 7, sample[2] * 0.72 + 9] as const;
   const cliff = cliffAt(u, v);
   if (ground === "water" && cliff) {
     const foam = Math.sin(v * 19 + Math.sin(u * 7) * 1.7) * Math.cos(u * 13 + v * 9);
@@ -58,7 +68,7 @@ export function riverPixel(u: number, v: number, ground: "water" | "rock", water
     const x = u / 0.82, y = v / 0.67, nx = Math.floor(x), ny = Math.floor(y);
     const seed = Math.sin(nx * 73.3 + ny * 37.9);
     const dx = x - nx - 0.5 - seed * 0.16, dy = y - ny - 0.5 + seed * 0.12;
-    if (dx * dx / 0.045 + dy * dy / 0.07 < 1) return null;
+    if (Math.abs(seed) > 0.75 && dx * dx / 0.045 + dy * dy / 0.07 < 1) return null;
     return water;
   }
   // No dark rectangular rim between a fishing pool and the adjoining stone ford.

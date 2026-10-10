@@ -44,8 +44,8 @@ describe("connected river scenery", () => {
     for (let u = 0; u < 72; u += 0.25) for (let v = 40; v < 54; v += 0.25) {
       const ground = mountainRiverGround(u, v);
       if (mountainWater(u, v)) expect(ground).toBe("water");
-      if (ground === "sand") banks++;
-      if (ground === "rock") shallows++;
+      if (ground === "rock" && mountainRiverBed(u, v) >= 0) banks++;
+      if (ground === "rock" && mountainRiverBed(u, v) < 0) shallows++;
     }
     expect(banks).toBeGreaterThan(100);
     expect(shallows).toBeGreaterThan(100);

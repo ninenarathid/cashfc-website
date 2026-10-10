@@ -472,6 +472,10 @@ export class MountainArt {
     for (const p of MOUNTAIN_PROPS) {
       const at = { x: p.x + 0.5, y: p.y + 0.62 }, depth = p.x + p.y + 1, tile: [number, number] = [p.x, p.y];
       if (p.kind === "flowers") continue;
+      // The permanently closed rim needs an open stream outlet, not decorative trees in the water.
+      // Numbered resource trees and rocks keep their positions and tap targets.
+      if (p.kind !== "mtree" && p.kind !== "mrock" && p.x === MOUNTAIN.x + MOUNTAIN.w - 1
+        && mountainRiverBed(at.x - MOUNTAIN.x, at.y - MOUNTAIN.y) < 0.8) continue;
       if (p.kind === "mtree") {
         // a tree as whoever keeps the game says it looks; grown, with nothing said
         const look = treeLook(p.id!);

@@ -214,8 +214,8 @@ export class SceneryKit {
       if ((kind === "water" || kind === "rock") && t.y >= MOUNTAIN.y + 40 && t.y < MOUNTAIN.y + 54
         && t.x >= MOUNTAIN.x - 14 && t.x < MOUNTAIN.x + MOUNTAIN.w + 14) {
         const water = this.tex.water;
-        const wu = ((Math.floor(t.x * PER_TILE) % water.w) + water.w) % water.w;
-        const wv = ((Math.floor(t.y * PER_TILE) % water.h) + water.h) % water.h, wi = (wv * water.w + wu) * 4;
+        const wu = ((Math.floor(t.x * PER_TILE * 2) % water.w) + water.w) % water.w;
+        const wv = ((Math.floor(t.y * PER_TILE * 2) % water.h) + water.h) % water.h, wi = (wv * water.w + wu) * 4;
         const pixel = riverPixel(t.x - MOUNTAIN.x, t.y - MOUNTAIN.y, kind, [water.d[wi], water.d[wi + 1], water.d[wi + 2]]);
         if (pixel) { o[di] = pixel[0]; o[di + 1] = pixel[1]; o[di + 2] = pixel[2]; o[di + 3] = 255; continue; }
       }
