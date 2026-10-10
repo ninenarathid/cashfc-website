@@ -208,3 +208,11 @@ grants, no bare writes, real authenticated RPC retries, dawn boundary, independe
 `keeper.test.mjs`: 404 passed with v174/v175. Browser QA at 390×844 verified the daily card and a real attempt.
 `v175.line-endings.test.mjs`: 10 passed for LF/CRLF, reruns, and refusal of a real definition change.
 The broader OP powers, +6 variants, farm goals, and village activities are the next phase, not part of v175.
+
+## v176 — character storage upgrades (ran 2026-10-10)
+
+The owner confirmed that v176 ran. Each character can expand their own box from 10 to 20, 30, then 40 slots,
+using 100/200/400 logs and 1,000/3,000/8,000 coins. Logs come from the bag first, then storage. The purse lock
+serializes transfers and upgrades; the displayed target prevents duplicate requests buying another tier.
+The SQL is in Git history; `v176.test.mjs` reads it with `migration(176)` and starts from v175.
+Validation: 39 database checks including 216 code/SQL cases, build, and desktop/mobile browser checks.

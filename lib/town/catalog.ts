@@ -507,8 +507,8 @@ export type Catalog = ReturnType<typeof catalogOf>;
  * And, for the older tools' part of the same file, two rows more: `fishing` (new: `nets`, what each net leaves of the
  * line to be won) and `insects` (new: `rare`, the kinds that are rare among the others).
  */
+// v176 ran on 2026-10-10: box_upgrade holds the character's three expansion prices, up to forty slots.
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = {};
-CATALOG_KEYS.v176 = { keys: ["box_upgrade"], over: [] };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

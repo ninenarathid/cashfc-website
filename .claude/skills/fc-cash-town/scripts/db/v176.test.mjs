@@ -1,17 +1,16 @@
 // Run beside the existing PGlite harness and snap-v175.tar in fcnext-codex-bench:
 // FC_REPO=<checkout> node v176.test.mjs
-import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import './repo-ts-town.mjs';
 import { standIn } from './stand-in.mjs';
-import { U } from './pglite-harness.mjs';
+import { U, migration } from './pglite-harness.mjs';
 
 const root = process.env.FC_REPO ?? 'E:/NinenineProject/fcnext';
 const { BOX, boxOffer, newBox, roomyBox, upgradeBox } = await import(pathToFileURL(`${root}/lib/town/box.ts`));
 const { newPurse, put } = await import(pathToFileURL(`${root}/lib/town/trade.ts`));
 const { catalogOf } = await import(pathToFileURL(`${root}/lib/town/catalog.ts`));
-const t = await standIn();
-const source = readFileSync(`${root}/supabase/v176_a_larger_box_for_each_character.sql`, 'utf8');
+const t = await standIn({ upTo: 175 });
+const source = migration(176);
 const one = async (sql, args = []) => (await t.sql(sql, args)).rows[0];
 const canonical = v => Array.isArray(v) ? v.map(canonical) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).sort().map(([k, val]) => [k, canonical(val)])) : v;
 const same = (a, b) => JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));

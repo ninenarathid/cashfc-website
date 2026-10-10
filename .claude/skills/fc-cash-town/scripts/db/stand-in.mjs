@@ -22,9 +22,9 @@ import { supabaseLike, migration } from "./pglite-harness.mjs";
 import { KUDOS } from "./kudos-stub.mjs";
 
 /** The last file of the town's that has run (town-bench.mjs has the same number). */
-export const RAN = 175;
+export const RAN = 176;
 const here = (name) => new URL(`./${name}`, import.meta.url);
-// (v160 and v163 ran after v166, v164 after v168: the snapshot named for RAN alone is of all that has run, as it ran: snap-v175.tar.
+// (v160 and v163 ran after v166, v164 after v168: the snapshot named for RAN alone is of all that has run, as it ran: snap-v176.tar.
 // Older ones are kept, each under its own name, for the dry runs that begin from the database as it was before a file:
 // snap-v168.tar is the database before v164 (`standIn({ before164: true })`, for v164's own parts); snap-v168-with-164.tar is
 // before v169 (`standIn({ upTo: 168 })`); snap-v169-with-164.tar is before v170 (`standIn({ upTo: 169 })`); snap-v170-with-164.tar is before v171 (`standIn({ upTo: 170 })`);
