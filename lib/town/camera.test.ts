@@ -23,14 +23,15 @@ describe("the camera's zoom", () => {
     expect(minScale(desk.w, desk.h)).toBe(Math.max(MIN_SCALE, desk.w / (MOST_TILES_ACROSS * 64)));
     expect(minScale(desk.w, desk.h)).toBeGreaterThan(fitScale(desk.w, desk.h) * 2);
     // a large monitor is stopped by the tiles across it, a small window by the art's own pixels
-    expect(2560 / minScale(2560, 1440) / 64).toBeCloseTo(MOST_TILES_ACROSS, 6);
+    expect(1920 / minScale(1920, 1080) / 64).toBeCloseTo(MOST_TILES_ACROSS, 6);
+    expect(minScale(2560, 1440)).toBe(MAX_SCALE);
     expect(minScale(1024, 700)).toBe(MIN_SCALE);
     // and it starts no further out than it may go (found by Codex's check: 1.6 against 1.82 at 2560 wide)
     expect(startScale(2560, 1440)).toBeGreaterThanOrEqual(minScale(2560, 1440));
     // a phone's finer screen goes a little further out, and no further (it went to 0.55 until 2026-10-09: the owner,
     // "ช่วยล็อคไม่ให้ zoom out ได้มากจนเกินไป")
     expect(minScale(phone.w, phone.h)).toBe(MIN_SCALE_PHONE);
-    expect(MIN_SCALE_PHONE).toBeGreaterThanOrEqual(1);
+    expect(MIN_SCALE_PHONE).toBeGreaterThanOrEqual(1.2);
     expect(clampScale(0.55, phone.w, phone.h)).toBe(MIN_SCALE_PHONE);
     // and furthest out is still further than where it starts
     expect(minScale(desk.w, desk.h)).toBeLessThan(startScale(desk.w, desk.h));
@@ -48,7 +49,7 @@ describe("the camera's zoom", () => {
 
   it("keeps dolls legible and does not drift when zoom-out continues at the stop", () => {
     for (const { w, h, least } of [
-      { ...desk, least: 1.25 }, { ...phone, least: 1 }, { w: 1440, h: 900, least: 1.25 },
+      { ...desk, least: 1.5 }, { ...phone, least: 1.2 }, { w: 1440, h: 900, least: 1.5 },
     ]) {
       const s = minScale(w, h);
       expect(s).toBeGreaterThanOrEqual(least);

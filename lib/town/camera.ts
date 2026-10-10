@@ -44,14 +44,14 @@ export const MAX_SCALE = 2.4;
  * As far out as the camera goes (the owner's call, 2026-10-02: "ไม่สามารถ zoom
  * out ได้มากเกินไป"; and again on 2026-10-09, of the limits that came of that, 26 tiles and 0.55:
  * "ช่วยล็อคไม่ให้ zoom out ได้มากจนเกินไป").
- * - A wide screen stops at 1.25, a phone at 1: dolls and interaction targets stay legible.
+ * - A wide screen stops at 1.5, a phone at 1.2: dolls and interaction targets stay legible.
  * - And never more than `MOST_TILES_ACROSS` tiles across, which is what stops a large monitor.
- * Tightened on 2026-10-10 at the owner's request: a 1440-wide screen stops at 18 tiles across;
- * a 390-wide phone at about six. Very large screens still respect MAX_SCALE.
+ * Tightened again on 2026-10-10 at the owner's request: a 1440-wide screen stops at 14 tiles across;
+ * a 390-wide phone at about five. Very large screens still respect MAX_SCALE.
  */
-export const MOST_TILES_ACROSS = 18;
-export const MIN_SCALE = 1.25;
-export const MIN_SCALE_PHONE = 1;
+export const MOST_TILES_ACROSS = 14;
+export const MIN_SCALE = 1.5;
+export const MIN_SCALE_PHONE = 1.2;
 /** A phone's screen, or a window as narrow as one: where the camera starts closer and may go a little further out. */
 const narrow = (cw: number, ch: number) => cw < 640 || ch > cw * 1.15;
 
