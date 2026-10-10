@@ -1,9 +1,9 @@
 /** Cosmetic only: the current purse chooses the material, with identical controls at every tier. */
 export const HUD_TIERS = [
-  { id: "wood", coins: 0, th: "ไม้เข้ม", en: "Walnut" },
-  { id: "copper", coins: 1_000, th: "ทองแดง", en: "Copper" },
-  { id: "gold", coins: 10_000, th: "ทอง", en: "Gold" },
-  { id: "platinum", coins: 100_000, th: "แพลทินัม", en: "Platinum" },
+  { id: "wood", coins: 0 },
+  { id: "copper", coins: 1_000 },
+  { id: "gold", coins: 10_000 },
+  { id: "platinum", coins: 100_000 },
 ] as const;
 
 export function hudTierFor(coins: number) {
@@ -75,7 +75,6 @@ export const HUD_CSS = `
   .town-hud-cluster .town-hud-bag::before { border-color: var(--hud-edge); background: var(--hud-selected); }
   .town-hud-label { font: 500 11px/1.4 var(--font-data); color: var(--color-muted); }
   .town-hud-key { border-radius: 4px; min-width: 17px; height: 17px; padding: 0 4px; background: var(--hud-muted); color: var(--hud-bottom); box-shadow: 0 1px 2px #15110d80; }
-  .town-hud-material { border: 1px solid var(--hud-edge); border-radius: 5px; padding: 2px 7px; font: 500 12px/1.6 var(--font-data); color: var(--hud-accent); }
   .town-hud-menu { padding: 18px; }
   .town-hud-menu-heading { padding-bottom: 12px; border-bottom: 1px solid var(--color-line); }
   .town-hud-menu .town-hud-button { width: 48px; height: 48px; }

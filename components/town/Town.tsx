@@ -4361,7 +4361,6 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 className="tk tk-window town-hud-surface town-hud-menu absolute right-0 top-full z-30 mt-2 w-[19rem] max-w-[calc(100vw-1.5rem)]">
              <div style={{ maxHeight: "max(5rem, calc(var(--hud-menu-room) - 2.25rem))" }} className="-m-1 overflow-y-auto overscroll-contain p-1">
              <p className="town-hud-menu-heading mb-3 flex items-baseline gap-2 font-display text-title font-semibold text-ink">Cash Town
-               <span data-town-hud-material className="town-hud-material">{w.th ? hudTier.th : hudTier.en}</span>
                <span className="font-data text-label font-normal uppercase tracking-wider text-muted">{w.beta}</span>
                {testTopic && <span className="font-data text-label font-normal uppercase tracking-wider text-gold">dev</span>}
              </p>
