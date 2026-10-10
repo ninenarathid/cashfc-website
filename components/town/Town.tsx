@@ -4358,13 +4358,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                   e.preventDefault(); e.stopPropagation(); setMenuOpen(false);
                   menuBox.current?.querySelector<HTMLButtonElement>("[data-town-menu]")?.focus({ preventScroll: true });
                 }}
-                className="tk tk-window town-hud-surface town-hud-menu absolute right-0 top-full z-30 mt-2 w-[19rem] max-w-[calc(100vw-1.5rem)]">
+                className="tk tk-window town-hud-surface town-hud-menu absolute right-0 top-full z-30 mt-2 w-[22rem] max-w-[calc(100vw-1.5rem)]">
              <div style={{ maxHeight: "max(5rem, calc(var(--hud-menu-room) - 2.25rem))" }} className="-m-1 overflow-y-auto overscroll-contain p-1">
              <p className="town-hud-menu-heading mb-3 flex items-baseline gap-2 font-display text-title font-semibold text-ink">Cash Town
                <span className="font-data text-label font-normal uppercase tracking-wider text-muted">{w.beta}</span>
                {testTopic && <span className="font-data text-label font-normal uppercase tracking-wider text-gold">dev</span>}
              </p>
-             <div className="grid grid-cols-4 gap-x-1 gap-y-2.5">
+             <div className="grid grid-cols-3 gap-x-2 gap-y-3 sm:grid-cols-4">
                {menuTile(w.wardrobe,
                  <button type="button" onClick={() => { setMenuOpen(false); if (wardrobeOpen) closeWardrobe(); else openWardrobe(); }} aria-pressed={wardrobeOpen} title={w.wardrobe} className={hudBtn}>
                    <TownIcon name="wardrobe" size={20} /><span className="sr-only">{w.wardrobe}</span>
@@ -4399,7 +4399,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                  </button>)}
              </div>
              {!phone && (
-               <ul aria-label={w.th ? "ปุ่มลัด" : "Keys"} data-town-keys className="mt-3 grid grid-cols-2 gap-x-3 gap-y-1.5 border-t-2 border-line pt-3 text-[0.6875rem] leading-tight text-muted">
+               <ul aria-label={w.th ? "ปุ่มลัด" : "Keys"} data-town-keys className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 border-t-2 border-line pt-3 text-label leading-normal text-muted">
                  {([["E", w.th ? "ทำสิ่งที่ตรงนี้ให้ทำ" : "Do what this place offers"], ["Space", w.th ? "งานของที่ตรงนี้" : "This place's work"], ["I", w.th ? "กระเป๋า" : "Bag"], ["C", w.th ? "ตัวฉัน" : "Me"],
                     ["Q · 1–9", w.th ? "ของในมือ" : "In the hand"], ["X", w.th ? "นั่ง / ลุก" : "Sit / get up"], ["Enter", w.th ? "แชท" : "Chat"], ["M", w.th ? "ปิด/เปิดเสียงตัวเอง" : "Mute / unmute"],
                     ["Esc · F2", w.th ? "ปิด / เมนู" : "Close / menu"], ["+ − 0", w.th ? "ซูม / กลับมาที่ตัวเรา" : "Zoom / back to me"]] as const).map(([k, what]) => (
@@ -4732,10 +4732,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 </div>
               ) : recent.length > 0 && (
                 <ul aria-label={w.chatLog} title={w.historyOpen}
-                    className="pointer-events-auto flex max-w-full cursor-pointer flex-col items-start gap-0.5"
+                    className="pointer-events-auto flex max-h-[min(28dvh,14rem)] max-w-full cursor-pointer flex-col items-start gap-0.5 overflow-y-auto overscroll-contain"
                     onClick={openHistory}>
                   {recent.map((l) => (
-                    <li key={l.key} className="max-w-full truncate bg-[#2a180c]/95 px-2 py-0.5 text-meta shadow-[0_0_0_2px_#1a0e06]">
+                    <li key={l.key} className="max-w-full whitespace-pre-wrap break-words bg-[#2a180c]/95 px-2 py-0.5 text-meta leading-normal shadow-[0_0_0_2px_#1a0e06] [overflow-wrap:anywhere]">
                       <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
                       <span className="text-muted">: </span>
                       <span className="text-ink">{l.text}</span>

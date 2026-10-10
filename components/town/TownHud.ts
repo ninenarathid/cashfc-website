@@ -12,6 +12,10 @@ export function hudTierFor(coins: number) {
 
 export const HUD_CSS = `
 @layer components {
+  .town-hud-top, .town-foot {
+    --text-label: 0.8125rem; --text-meta: 0.875rem; --text-ui: 0.9375rem;
+    --text-read: 1rem; --text-title: 1.125rem;
+  }
   [data-town-hud-tier] {
     --hud-edge: #ab8a59; --hud-top: #393025; --hud-bottom: #29231c;
     --hud-ink: #fff1d6; --hud-muted: #d0bfa3; --hud-accent: #f0ca86;
@@ -73,8 +77,9 @@ export const HUD_CSS = `
   .town-hud-cluster .town-hud-button:is([aria-expanded="true"], [aria-pressed="true"], [data-on]):not([data-plain])::before,
   .town-hud-cluster .town-hud-button.tk-slot-on::before { border-color: var(--hud-edge); background: var(--hud-selected); }
   .town-hud-cluster .town-hud-bag::before { border-color: var(--hud-edge); background: var(--hud-selected); }
-  .town-hud-label { font: 500 11px/1.4 var(--font-data); color: var(--color-muted); }
-  .town-hud-key { border-radius: 4px; min-width: 17px; height: 17px; padding: 0 4px; background: var(--hud-muted); color: var(--hud-bottom); box-shadow: 0 1px 2px #15110d80; }
+  .town-hud-label { font-family: var(--font-data-face, sans-serif); font-size: var(--text-label); font-weight: 600; line-height: 1.5; color: var(--color-ink); }
+  .town-hud-key { border-radius: 4px; min-width: 18px; height: 18px; padding: 0 4px; font-size: 0.75rem; background: var(--hud-muted); color: var(--hud-bottom); box-shadow: 0 1px 2px #15110d80; }
+  .town-hud-stack-count { font-size: var(--text-label); line-height: 1.5; }
   .town-hud-menu { padding: 18px; }
   .town-hud-menu-heading { padding-bottom: 12px; border-bottom: 1px solid var(--color-line); }
   .town-hud-menu .town-hud-button { width: 48px; height: 48px; }
@@ -92,7 +97,7 @@ export const HUD_CSS = `
 .town-foot {
   left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right));
 }
-.town-hud-labelled { height: 52px; gap: 1px; align-content: center; }
+.town-hud-labelled { height: 56px; gap: 2px; align-content: center; }
 .town-hud-chat-row { padding: 4px; }
 [data-town-hand="bar"].town-hud-surface { padding: 5px; gap: 4px; }
 [data-town-hand="bar"] .town-hud-button { width: 44px; height: 44px; }
