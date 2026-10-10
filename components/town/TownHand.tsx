@@ -126,8 +126,8 @@ export default function TownHand({ keeper, th, phone = false, hidden = false, cl
                     title={`${nameOf(slot)}${holds ? ` · ${holds}` : ""} (${i + 1})`} aria-label={`${nameOf(slot)}${carries ? ` ${carries}` : ""} (${i + 1})`}
                     className="pressable tk tk-slot town-hud-button grid place-items-center">
               <StackIcon stack={s} size={28} />
-              <kbd aria-hidden className="tk-key town-hud-key absolute left-0 top-0 !h-3.5 !min-w-3.5 !px-0.5 !text-[0.625rem]">{i + 1}</kbd>
-              {ITEMS[s.item].stack > 1 && <span aria-hidden className="absolute bottom-0 right-0.5 font-data text-[0.625rem] font-semibold leading-4 tabular-nums text-ink [text-shadow:0_1px_2px_#000]">{s.n}</span>}
+              <kbd aria-hidden className="tk-key town-hud-key absolute left-0 top-0">{i + 1}</kbd>
+              {ITEMS[s.item].stack > 1 && <span aria-hidden className="town-hud-stack-count absolute bottom-0 right-0.5 font-data font-semibold tabular-nums text-ink [text-shadow:0_1px_2px_#000]">{s.n}</span>}
             </button>
           );
         })}
