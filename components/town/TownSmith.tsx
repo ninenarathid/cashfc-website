@@ -14,7 +14,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import ART from "@/lib/town/smith-art.json";
 import { cardOf, gemDoes, nextOf, optionDoes } from "@/lib/town/tool-words";
 import {
-  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, TOOL_KINDS, awayOf, drawnOf, gemsOf, lineKinds, makersOf, modsOf, originOf, settable, toolLineOf,
+  BUILT, FORGE, GEMS, GEM_LEVELS, OPTIONS, OPTION_IDS, SMELTS, awayOf, drawnOf, gemsOf, lineKinds, makersOf, modsOf, originOf, settable, toolLineOf,
   type OptionId, type ToolKind,
 } from "@/lib/town/tools";
 import { heldIn } from "@/lib/town/pouches";
@@ -857,22 +857,10 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                   );
                 })()}
                 {keeper.fire() && <GreatFireCard fire={keeper.fire()!} th={th} name={name} keeper={keeper} onRefuse={refuse} />}
-                <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#f0e0b8] px-3 py-2.5 text-[#3a2612] shadow-[2px_3px_0_rgba(0,0,0,0.3)]">
-                  <p className="mb-1.5 font-data text-label uppercase text-[#7a5a30]">{t("คนแรกที่ตีถึง +10", "First to forge to +10")}</p>
-                  <ul>
-                    {TOOL_KINDS.map((k) => {
-                      const first = told.board.tops[k];
-                      return (
-                        <li key={k} className="flex items-center gap-2 border-t border-[#d9c39b] py-1.5 first:border-t-0" data-smith-top-of={k} data-by={first?.by ?? ""}>
-                          <ItemIcon id={k} size={22} /><span className="min-w-0 flex-1 truncate text-ui">{th ? KIND_WORD[k][0] : KIND_WORD[k][1]}</span>
-                          <span className={`min-w-0 max-w-[55%] truncate text-ui ${first ? "font-semibold" : "text-[#a88d5e]"}`}>{first ? first.name || "?" : t("ยังไม่มีใคร", "Nobody yet")}</span>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </div>
-                {/* the village's book of options: what has been found, and by whom first; what nobody has found is a shade */}
-                <div className="mt-3 rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-book>
+                {/* the village's book of options: what has been found; what nobody has found is a shade. Nobody is named
+                    as the first to anything here (the owner, 2026-10-10: "ไม่ต้องมีกระดานช่างคนแรกหรอก"): whoever keeps
+                    the game still knows who was, and the page says none of it */}
+                <div className="rounded-2xl border-2 border-[#2e1c0c] bg-[#1d140c] p-3 shadow-[inset_0_6px_14px_rgba(0,0,0,0.6)]" data-smith-book>
                   {(() => {
                     const known = OPTION_IDS.filter((id) => BUILT[OPTIONS[id].tools[0]].opts.includes(id)), found = known.filter((id) => told.board.found[id]);
                     const families: Array<[ToolKind, OptionId[]]> = (["pick", "axe", "rod", "hoe", "can", "bugNet", "pot"] as ToolKind[]).map((k) => [k, known.filter((id) => (OPTIONS[id].tools as readonly ToolKind[]).includes(k))]);
@@ -888,7 +876,6 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
                                 return first ? (
                                   <li key={id} className="rounded-lg border border-[#6b4a2a] bg-[#33251a] px-2 py-1" data-smith-known={id}>
                                     <span className="block text-meta font-semibold text-[#f3e3c3]">{th ? OPTIONS[id].name.th : OPTIONS[id].name.en}</span>
-                                    <span className="block max-w-[9rem] truncate text-label text-[#c9a877]">{first.name || "?"}</span>
                                   </li>
                                 ) : <li key={id} className="grid h-[2.6rem] w-16 place-items-center rounded-lg border border-dashed border-[#4a341f] bg-[#241a10]" data-smith-shade><TownIcon name="mystery" size={16} className="opacity-40" /><span className="sr-only">{t("ยังไม่มีใครพบ", "Nobody has found this one")}</span></li>;
                               })}
