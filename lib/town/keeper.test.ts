@@ -1459,19 +1459,23 @@ describe("the mountain's rocks and the cave, as the database's keeper asks them"
     const k = new DbKeeper("me", async (fn, args = {}) => {
       if (fn === "town_cave") {
         sent.push([fn, args]);
-        if (sent.length === 1) return new Promise((resolve) => { release = resolve; });
-        return { now: NOW, cave: told({ place: args.p_floor }) };
+        return new Promise((resolve) => { release = resolve; });
       }
       if (fn === "town_buy") sent.push([fn, args]);
       return db.ask(fn, args);
     });
     await settle(); const stop = k.look("cave"); await settle();
-    for (let i = 0; i < 50; i++) void k.caveLook(1 + i % 3, [70 + i, 330]);
+    let newest = Promise.resolve(), finished = false;
+    for (let i = 0; i < 50; i++) newest = k.caveLook(1 + i % 3, [70 + i, 330]);
+    void newest.then(() => { finished = true; });
     k.nudged("cave");
     const bought = k.buy("worm", 1);
     release?.({ now: NOW, cave: told({ place: 0 }) }); await bought; await settle();
     expect(sent.map(([fn]) => fn)).toEqual(["town_cave", "town_buy", "town_cave"]);
     expect(sent[2][1]).toEqual({ p_floor: 2, p_x: 119, p_y: 330 });
+    expect(finished).toBe(false);
+    release?.({ now: NOW, cave: told({ place: 2 }) }); await newest; await settle();
+    expect(finished).toBe(true);
     expect(k.cave()?.place).toBe(2);
     stop(); k.close();
   });

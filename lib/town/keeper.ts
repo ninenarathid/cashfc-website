@@ -777,7 +777,10 @@ export class DbKeeper implements Keeper {
   private readonly looking = new Map<Looked, { n: number; timer: ReturnType<typeof setTimeout> | null }>();
   private line: Promise<unknown> = Promise.resolve();
   /** One pending refresh per function, with one later refresh for changes heard while it waits. */
-  private readonly refreshing = new Map<string, { args: () => Record<string, unknown>; again: boolean; promise: Promise<Answer | null> }>();
+  private readonly refreshing = new Map<string, {
+    args: () => Record<string, unknown>; promise: Promise<Answer | null>;
+    follow?: Promise<Answer | null>; done?: (a: Answer | null) => void;
+  }>();
   private shut = false;
   /** When the room's word last had each thing asked for, and the one ask that waits for a thing's gap to be over (NUDGE_GAP). */
   private readonly nudgedAt = new Map<Looked, number>();
@@ -1033,14 +1036,21 @@ export class DbKeeper implements Keeper {
   private refresh(fn: string, args: () => Record<string, unknown> = () => ({})): Promise<Answer | null> {
     if (this.shut) return Promise.resolve(null);
     const pending = this.refreshing.get(fn);
-    if (pending) { pending.args = args; pending.again = true; return pending.promise; }
-    const next = { args, again: false, promise: Promise.resolve<Answer | null>(null) };
+    if (pending) {
+      pending.args = args;
+      pending.follow ??= new Promise((done) => { pending.done = done; });
+      return pending.follow;
+    }
+    const next: NonNullable<ReturnType<typeof this.refreshing.get>> = { args, promise: Promise.resolve(null) };
     next.promise = this.line.then(() => this.once(fn, next.args())).catch(() => null);
     this.line = next.promise;
     this.refreshing.set(fn, next);
     void next.promise.then(() => {
       this.refreshing.delete(fn);
-      if (next.again && !this.shut && !unseen()) void this.refresh(fn, next.args);
+      if (next.follow) {
+        if (!this.shut && !unseen()) void this.refresh(fn, next.args).then((a) => next.done?.(a));
+        else next.done?.(null);
+      }
     });
     return next.promise;
   }
