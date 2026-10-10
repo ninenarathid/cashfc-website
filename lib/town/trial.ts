@@ -1,4 +1,4 @@
-import { boxOffer, newBox, roomyBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
+import { boxOffer, moveBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
 import { cook, feastEat, hasMade, isFind, ladle, mayLeave, serve, setDown, takeUp, tidied, type Pot, type Taste } from "./cooking";
 import { WATER, WILD, chore, choreFor, deedFor, inPestHours, ownerOf, pestHour, tend, type Bed, type Chore, type Deed, type FarmRefusal, type FarmSky, type Plot, type Swarms } from "./farm";
 import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal";
@@ -387,6 +387,16 @@ export class Trial {
   boxPut(slot: number, n: number, at: [number, number]) { return this.boxed(stow(this.purse(), this.box(), slot, n, at)); }
   boxTake(slot: number, n: number, at: [number, number]) { return this.boxed(unstow(this.purse(), this.box(), slot, n, at)); }
   boxOffer() { return boxOffer(this.box()); }
+  boxMove(from: number, to: number, at: [number, number], expected: Box["things"]) {
+    const did = moveBox(this.box(), from, to, at, expected);
+    if (did.ok) { this.write(boxKey(this.id), did.box); this.tell(); }
+    return did;
+  }
+  boxSort(at: [number, number], expected: Box["things"]) {
+    const did = sortBox(this.box(), at, expected);
+    if (did.ok) { this.write(boxKey(this.id), did.box); this.tell(); }
+    return did;
+  }
   boxUpgrade(slots: number, at: [number, number]) {
     const did = upgradeBox(this.purse(), this.box(), slots, at);
     if (did.ok) { this.write(boxKey(this.id), did.box); this.save(did.purse); }

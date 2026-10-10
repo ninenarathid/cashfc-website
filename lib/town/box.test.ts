@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BOX, boxOffer, fits, nearBox, newBox, roomyBox, stow, unstow, upgradeBox, type Box } from "./box";
+import { BOX, boxOffer, boxSorted, fits, moveBox, nearBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box } from "./box";
 import { ITEMS, type ItemId } from "./items";
 import { handOf, held, hold, newPurse, put, take, type Purse, type Stack } from "./trade";
 import { BENCHES, FOUNTAIN, PLAZA, PROPS, STOREBOX, findPath, thingAt, walkable } from "./world";
@@ -12,6 +12,51 @@ const done = <T extends { ok: boolean }>(d: T) => { if (!d.ok) throw new Error(`
 /** A tile beside the box. */
 const BY: [number, number] = [STOREBOX.x + 1, STOREBOX.y + 1];
 const count = (slots: Array<Stack | null>, id: ItemId) => held(slots, id);
+
+describe("arranging stored things", () => {
+  it("moves to empty slots, swaps different things, and merges only as far as the stack fits", () => {
+    const box = newBox(); box.things[0] = { item: "log", n: 30 }; box.things[1] = { item: "log", n: 40 }; box.things[2] = { item: "stone", n: 3 };
+    const before = structuredClone(box);
+    const moved = done(moveBox(box, 0, 9, BY)).box;
+    expect(moved.things[0]).toBeNull(); expect(moved.things[9]).toEqual(box.things[0]);
+    const swapped = done(moveBox(box, 0, 2, BY)).box;
+    expect(swapped.things.slice(0, 3)).toEqual([box.things[2], box.things[1], box.things[0]]);
+    const merged = done(moveBox(box, 0, 1, BY)).box;
+    expect(merged.things[1]?.n).toBe(ITEMS.log.stack);
+    expect(count(merged.things, "log")).toBe(70);
+    expect(box).toEqual(before);
+  });
+
+  it("sorts and consolidates while preserving capacity, food, water, forged tools and unknown metadata", () => {
+    const pot: Stack = { item: "potFull", n: 1, of: { dish: "tomYum", left: 2 } };
+    const axe: Stack = { item: "axe", n: 1, plus: 6 };
+    const water: Stack = { item: "can", n: 1, water: 3 };
+    const future = { item: "futureItem", n: 7, special: { kept: true } } as unknown as Stack;
+    for (const more of [0, 10, 30]) {
+      const box = roomyBox({ more, things: [null, pot, { item: "log", n: 10 }, future, axe, water, { item: "stone", n: 9 }, { item: "log", n: 20 }] });
+      const before = structuredClone(box), got = done(sortBox(box, BY)).box;
+      expect(got.more).toBe(more); expect(got.things).toHaveLength(box.things.length);
+      expect(got.things).toContainEqual(pot); expect(got.things).toContainEqual(axe); expect(got.things).toContainEqual(water); expect(got.things).toContainEqual(future);
+      expect(got.things.filter(s => s?.item === "log")).toEqual([{ item: "log", n: 30 }]);
+      expect(got.things.findIndex(s => s?.item === "log")).toBeLessThan(got.things.findIndex(s => s?.item === "stone"));
+      expect(boxSorted(got)).toBe(true); expect(done(sortBox(got, BY)).box).toEqual(got); expect(box).toEqual(before);
+      expect(done(moveBox(got, got.things.findIndex(s => s?.item === future.item), 9, BY)).box.things[9]).toEqual(future);
+    }
+  });
+
+  it("refuses stale layouts and invalid destinations without changing anything", () => {
+    const box = newBox(); box.things[0] = { item: "log", n: 10 };
+    const stale = structuredClone(box.things); stale[0]!.n = 9;
+    expect(moveBox(box, 0, 1, BY, stale)).toEqual({ ok: false, why: "changed" });
+    expect(sortBox(box, BY, stale)).toEqual({ ok: false, why: "changed" });
+    for (const to of [-1, 10, 0, 1.5]) expect(moveBox(box, 0, to, BY)).toEqual({ ok: false, why: "none" });
+    expect(moveBox(box, 1, 2, BY)).toEqual({ ok: false, why: "none" });
+    expect(moveBox(box, 0, 1, [0, 0])).toEqual({ ok: false, why: "far" });
+    expect(sortBox(box, [0, 0])).toEqual({ ok: false, why: "far" });
+    const reordered = box.things.map(s => s ? { n: s.n, item: s.item } : null);
+    expect(moveBox(box, 0, 1, BY, reordered).ok).toBe(true);
+  });
+});
 
 describe("upgrading a character's storage box", () => {
   it("buys 20, 30, then 40 slots, charges increasingly, and stops at forty", () => {

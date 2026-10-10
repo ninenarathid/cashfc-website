@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BOX, fits } from "@/lib/town/box";
+import { BOX, boxSorted, fits } from "@/lib/town/box";
 import { boxSprite } from "@/lib/town/box-art";
 import { WATER } from "@/lib/town/farm";
 import { ITEMS, type ItemId } from "@/lib/town/items";
@@ -11,7 +11,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { held, type Stack } from "@/lib/town/trade";
 import TownIcon from "./TownIcon";
 import TownFoot from "./TownFoot";
-import { ItemCard, Pic, StackIcon, WHY, forgeWords, holdsOf } from "./TownTrade";
+import { ItemCard, Pic, Pockets, StackIcon, WHY, forgeWords, holdsOf } from "./TownTrade";
 
 /** Why something was not done at the box, in a few words (what a bag refuses for is TownTrade's to word). */
 const WHY_BOX: Record<string, [th: string, en: string]> = {
@@ -20,6 +20,7 @@ const WHY_BOX: Record<string, [th: string, en: string]> = {
   wood: ["ท่อนไม้ในกระเป๋าและกล่องไม่พอ", "Not enough logs in your bag and box"],
   max: ["กล่องมีขนาดสูงสุดแล้ว", "The box is already at its maximum capacity"],
   changed: ["ขนาดกล่องเปลี่ยนแล้ว กรุณาตรวจราคาใหม่", "The box capacity changed. Check the new price"],
+  layout: ["ของในกล่องเปลี่ยนแล้ว กรุณาเลือกใหม่", "The box contents changed. Select the item again"],
 };
 /** How many of a stack a tap moves: all of it, half of it (the bigger half), or one. */
 type Step = "all" | "half" | "one";
@@ -66,6 +67,10 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
   const [step, setStep] = useState<Step>("all");
   const [said, setSaid] = useState<string | null>(null);
   const [upgrading, setUpgrading] = useState(false);
+  const [layoutBusy, setLayoutBusy] = useState(false);
+  const [arranging, setArranging] = useState(false);
+  const [placing, setPlacing] = useState<number | null>(null);
+  const meant = useRef<Array<Stack | null> | null>(null);
   const busy = useRef(false);
   const here = !!at, hereNow = useRef(here);
   // read as I come to the box, and again as it is opened; walking off (or anything else opening) shuts it
@@ -75,6 +80,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
   useEffect(() => { if (ask > 0 && hereNow.current) setOpen(true); }, [ask]);
   useEffect(() => { onShown(open && here); }, [open, here, onShown]);
   useEffect(() => () => onShown(false), [onShown]);
+  useEffect(() => { if (!open) { setArranging(false); setPlacing(null); meant.current = null; } }, [open]);
   useEffect(() => {
     if (!open) return;
     const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); setOpen(false); } };
@@ -124,13 +130,32 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
     }
   }, [keeper, at, th, sfx]);
 
+  const arrange = useCallback(async (from: number | null, to?: number, expected?: Array<Stack | null>) => {
+    const kept = keeper.box();
+    if (!at || !kept || !keeper.boxTidy() || busy.current) return;
+    busy.current = true;
+    setLayoutBusy(true);
+    setPlacing(null);
+    try {
+      const did = from === null ? await keeper.boxSort(at, kept.things)
+        : await keeper.boxMove(from, to!, at, expected ?? kept.things);
+      if (!did.ok) {
+        const w = did.why === "changed" ? WHY_BOX.layout : WHY_BOX[did.why] ?? WHY[did.why as keyof typeof WHY] ?? WHY.none;
+        setSaid(th ? w[0] : w[1]);
+      } else {
+        sfx?.wake(); sfx?.work("pick");
+        setSaid(from === null ? (th ? "จัดเรียงของในกล่องแล้ว" : "Your box is in order") : (th ? "ย้ายตำแหน่งในกล่องแล้ว" : "Moved within the box"));
+      }
+    } finally { meant.current = null; busy.current = false; setLayoutBusy(false); }
+  }, [keeper, at, th, sfx]);
+
   // (for scripts in `next dev`: the box as it is kept, opening and shutting it, and moving a slot's things across)
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
-    const handle = { box: () => keeper.box(), offer: () => keeper.boxOffer(), upgrade, open: () => setOpen(true), close: () => setOpen(false), isOpen: () => open, step: (s: Step) => setStep(s), move, here: () => at };
+    const handle = { box: () => keeper.box(), offer: () => keeper.boxOffer(), upgrade, arrange, open: () => setOpen(true), close: () => setOpen(false), isOpen: () => open, step: (s: Step) => setStep(s), move, here: () => at };
     (window as unknown as { __townBox?: typeof handle }).__townBox = handle;
     return () => { delete (window as unknown as { __townBox?: typeof handle }).__townBox; };
-  }, [keeper, open, move, upgrade, at]);
+  }, [keeper, open, move, upgrade, arrange, at]);
 
   if (!at || !box) return null;
   const inBox = box.things.filter(Boolean).length, inBag = purse.bag.filter(Boolean).length;
@@ -140,6 +165,10 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
   const title = th ? "กล่องเก็บของ" : "Storage box";
   const closedArt = art(boxSprite(box.things.length)) ?? art("storebox");
   const openArt = art(boxSprite(box.things.length, true)) ?? art("storeboxOpen") ?? closedArt;
+  const tidy = keeper.boxTidy();
+  const help = arranging ? (placing === null ? (th ? "เลือกของ แล้วเลือกช่องที่จะวาง" : "Select an item, then its destination") : (th ? "เลือกช่องที่จะวาง หรือเลือกของเดิมเพื่อยกเลิก" : "Choose a destination, or select the item again to cancel"))
+    : tidy ? (th ? "แตะของเพื่อย้ายเข้า–ออก · ลากของในกล่องเพื่อจัดตำแหน่ง (มือถือแตะค้าง)" : "Tap to transfer · Drag to arrange the box (hold first on a phone)")
+    : (th ? "แตะของเพื่อย้ายระหว่างกระเป๋ากับกล่อง" : "Tap a thing to move it between your bag and the box");
   return (
     <>
       {!open && (
@@ -183,8 +212,21 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
               </div>
               {/* what came of the last tap; until there has been one, how the panel is worked (not a rule of the game's: only where to press) */}
               <p className={`mt-2 min-h-[1.6em] text-meta leading-relaxed ${said ? "text-accent" : "text-muted"}`} aria-live="polite" data-box-said>
-                {said ?? (th ? "แตะของเพื่อย้ายระหว่างกระเป๋ากับกล่อง" : "Tap a thing to move it between your bag and the box")}
+                {said ?? help}
               </p>
+              {tidy && (
+                <div className="mb-2 flex flex-wrap gap-2">
+                  <button type="button" data-box-sort disabled={layoutBusy || upgrading || boxSorted(box)} onClick={() => void arrange(null)}
+                          className="pressable min-h-9 rounded-full border border-line-strong px-3 text-meta text-ink disabled:opacity-50">
+                    {th ? "จัดเรียงของ" : "Sort items"}
+                  </button>
+                  <button type="button" data-box-arranging aria-pressed={arranging} disabled={layoutBusy || upgrading}
+                          onClick={() => { setArranging(!arranging); setPlacing(null); meant.current = null; setSaid(null); }}
+                          className={`pressable min-h-9 rounded-full border px-3 text-meta ${arranging ? "border-accent text-accent" : "border-line-strong text-ink"}`}>
+                    {arranging ? (th ? "เสร็จแล้ว" : "Done arranging") : (th ? "ย้ายตำแหน่ง" : "Arrange by taps")}
+                  </button>
+                </div>
+              )}
 
               {/* the chest: planks and iron, and what I keep in it */}
               <div className="relative mt-1 rounded-2xl border-2 border-[#22262c] bg-gradient-to-b from-[#8a5a2b] to-[#6e4420] p-2 shadow-lg shadow-black/40" data-box-things>
@@ -195,7 +237,16 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
                     <span>{th ? "ในกล่อง" : "In the box"}</span>
                     <span className="tabular-nums" data-box-count>{inBox} / {box.things.length}</span>
                   </p>
-                  <Slots slots={box.things} th={th} label={th ? "ในกล่อง" : "In the box"} act={th ? "หยิบใส่กระเป๋า" : "Take out"} onPick={(i) => void move("box", i)} />
+                  <Pockets bag={box.things} th={th} group="box" disabled={layoutBusy || upgrading} placing={placing}
+                           onMove={tidy ? (from, to) => void arrange(from, to) : undefined}
+                           onPick={(i) => {
+                             if (!arranging) { void move("box", i); return; }
+                             meant.current = structuredClone(box.things); setPlacing(i); setSaid(null);
+                           }}
+                           onPlace={(to) => {
+                             if (placing === to) { setPlacing(null); meant.current = null; return; }
+                             if (placing !== null) void arrange(placing, to, meant.current ?? box.things);
+                           }} />
                 </div>
               </div>
 

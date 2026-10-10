@@ -657,6 +657,25 @@ describe("the database's keeper", () => {
     old.close();
   });
 
+  it("enables box arrangement only on supported servers and refreshes stale layouts", async () => {
+    const box = { more: 0, things: [{ item: "log", n: 10 }, ...Array(9).fill(null)] };
+    const newer = { ...box, things: [null, { item: "log", n: 10 }, ...Array(8).fill(null)] };
+    const sent: Array<Record<string, unknown>> = [];
+    const k = new DbKeeper("me", database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }),
+      town_box: () => ({ box, boxTidy: true }),
+      town_box_move: args => { sent.push(args); return { ok: false, why: "changed", box: newer, boxTidy: true }; },
+      town_box_sort: args => { sent.push(args); return { ok: true, box, boxTidy: true }; },
+    }).ask);
+    expect(k.boxTidy()).toBe(false); await settle(); expect(k.boxTidy()).toBe(true);
+    const moved = k.boxMove(0, 9, [35, 35], box.things); await settle();
+    expect(await moved).toEqual({ ok: false, why: "changed" }); expect(k.box()).toEqual(newer);
+    const sorted = k.boxSort([35, 35], newer.things); await settle(); expect((await sorted).ok).toBe(true); expect(k.box()).toEqual(box);
+    expect(sent).toEqual([{ p_from: 0, p_to: 9, p_expected: box.things, p_x: 35, p_y: 35 }, { p_expected: newer.things, p_x: 35, p_y: 35 }]);
+    k.close();
+    const old = new DbKeeper("old", database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }), town_box: () => ({ box }) }).ask);
+    await settle(); expect(old.boxTidy()).toBe(false); old.close();
+  });
+
   // ── the bridge built by hand ── (lib/town/bridge; v160)
   it("keeps the village's works as it is told them, tells the taker of a stone and everybody of every stone laid, and knows of none where the database has none", async () => {
     // (the spans' hands and what was found in the stones come with it, once a stone is laid)

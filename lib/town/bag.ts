@@ -26,7 +26,7 @@ export const KIND_ORDER: ItemKind[] = ["tool", "seed", "bait", "crop", "fish", "
  * nothing hung on it but what it is and how many (a pot's food and a can's water today; whatever a later round hangs
  * on a stack keeps it whole too, with nothing to be written here).
  */
-const joins = (s: Stack) => ITEMS[s.item].stack > 1 && Object.entries(s).every(([k, v]) => k === "item" || k === "n" || !v);
+const joins = (s: Stack) => (ITEMS[s.item]?.stack ?? 1) > 1 && Object.entries(s).every(([k, v]) => k === "item" || k === "n" || !v);
 
 /**
  * A thing moved from one slot to another. Refused (`none`) for a slot the bag has not, the same slot twice, or an
@@ -37,7 +37,7 @@ export function moveSlot(purse: Purse, from: number, to: number): Done<{ purse: 
   if (!Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to < 0 || from >= bag.length || to >= bag.length || from === to) return no("none");
   const a = bag[from], b = bag[to];
   if (!a) return no("none");
-  const out = bag.map((s) => (s ? { ...s } : null)), stack = ITEMS[a.item].stack;
+  const out = bag.map((s) => (s ? { ...s } : null)), stack = ITEMS[a.item]?.stack ?? 1;
   if (b && b.item === a.item && joins(a) && joins(b) && b.n < stack) {
     const add = Math.min(a.n, stack - b.n);
     out[to] = { ...b, n: b.n + add };
@@ -55,10 +55,10 @@ export function moveSlot(purse: Purse, from: number, to: number): Done<{ purse: 
 
 /** Where a stack stands in a sorted bag: before another, after it, or beside it (two alike in every way). */
 function order(a: Stack, b: Stack): number {
-  const ka = KIND_ORDER.indexOf(ITEMS[a.item].kind), kb = KIND_ORDER.indexOf(ITEMS[b.item].kind);
+  const ka = ITEMS[a.item] ? KIND_ORDER.indexOf(ITEMS[a.item].kind) : 99, kb = ITEMS[b.item] ? KIND_ORDER.indexOf(ITEMS[b.item].kind) : 99;
   if (ka !== kb) return ka - kb;
   // (within a kind: what the early game has first, then by the thing)
-  const ta = ITEMS[a.item].tier, tb = ITEMS[b.item].tier;
+  const ta = ITEMS[a.item]?.tier ?? 9, tb = ITEMS[b.item]?.tier ?? 9;
   if (ta !== tb) return ta - tb;
   if (a.item !== b.item) return a.item < b.item ? -1 : 1;
   // (of one thing: the pots by their dish, the fuller first; then the more water; then the bigger stack)

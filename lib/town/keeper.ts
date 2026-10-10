@@ -466,6 +466,10 @@ export interface Keeper {
   /** The next capacity and its price; null at the maximum or before upgrades are available. */
   boxOffer(): BoxUpgrade | null;
   boxUpgrade(slots: number, at: [number, number]): Promise<Did<BoxUpgrade>>;
+  /** Whether the server supports persistent layout changes (v179). */
+  boxTidy(): boolean;
+  boxMove(from: number, to: number, at: [number, number], expected: Box["things"]): Promise<Did>;
+  boxSort(at: [number, number], expected: Box["things"]): Promise<Did>;
 
   /**
    * A stall of one's own (lib/town/shop), under a sign held up (lib/town/sign). What I am told of stalls: mine, when
@@ -841,6 +845,7 @@ export class DbKeeper implements Keeper {
   private waters_ = false;
   private water_: WellWater | null = null;
   private box_: Box | null = null;
+  private boxTidy_ = false;
   private boxOffer_: BoxUpgrade | null = null;
   /** Whether the database lets a bag be put in order (it says so when asked, from v165 on). */
   private tidy_ = false;
@@ -1126,6 +1131,7 @@ export class DbKeeper implements Keeper {
     if (a.line === true) this.line_ = true;
     if ("wellWater" in a) { this.waters_ = true; this.water_ = a.wellWater && typeof a.wellWater === "object" ? (a.wellWater as WellWater) : null; }
     if (a.box && typeof a.box === "object" && Array.isArray((a.box as Box).things)) this.box_ = a.box as Box;
+    if (a.boxTidy === true) this.boxTidy_ = true;
     if ("boxOffer" in a) this.boxOffer_ = a.boxOffer as BoxUpgrade | null;
     if (a.tidy === true && !this.tidy_) this.tidy_ = true;
     // ── mining ──
@@ -1812,6 +1818,13 @@ export class DbKeeper implements Keeper {
   boxTake(slot: number, n: number, at: [number, number]) { return this.deed<{ item: ItemId; n: number }>("town_box_take", { p_slot: slot, p_n: n, p_x: at[0], p_y: at[1] }); }
   boxOffer(): BoxUpgrade | null { return this.boxOffer_; }
   boxUpgrade(slots: number, at: [number, number]) { return this.deed<BoxUpgrade>("town_box_upgrade", { p_slots: slots, p_x: at[0], p_y: at[1] }); }
+  boxTidy() { return this.boxTidy_; }
+  boxMove(from: number, to: number, at: [number, number], expected: Box["things"]) {
+    return this.deed("town_box_move", { p_from: from, p_to: to, p_expected: expected, p_x: at[0], p_y: at[1] });
+  }
+  boxSort(at: [number, number], expected: Box["things"]) {
+    return this.deed("town_box_sort", { p_expected: expected, p_x: at[0], p_y: at[1] });
+  }
 
   // (a database that knows of no heat has no yard's jar either: it says of the jar with everybody's rank)
   hot(): boolean { const now = this.now(); return this.yard_ !== null && hotAt(now, SKIES.sky(now)); }

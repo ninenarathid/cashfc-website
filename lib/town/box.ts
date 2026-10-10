@@ -1,6 +1,7 @@
 import { push } from "./deal";
+import { moveSlot, sortBag, sorted } from "./bag";
 import type { ItemId } from "./items";
-import { held, no, roomFor, take, wholeStack, type Done, type Purse, type Stack } from "./trade";
+import { held, newPurse, no, roomFor, take, wholeStack, type Done, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_PROPS, byStorebox } from "./world";
 
 /**
@@ -60,6 +61,32 @@ export function boxOffer(box: Box): BoxUpgrade | null {
   const slots = roomyBox(box).things.length;
   return BOX.upgrades.find((u) => u.slots > slots && u.slots <= BOX.max) ?? null;
 }
+
+/** Snapshot equality includes quantities and every attached field, independent of JSON key order. */
+const sameThings = (a: unknown, b: unknown) => {
+  const word = (v: unknown) => JSON.stringify(v, (_, x) => x && typeof x === "object" && !Array.isArray(x)
+    ? Object.fromEntries(Object.entries(x).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0)) : x);
+  return word(a) === word(b);
+};
+
+/** Move, merge or swap a whole stored stack. A stale layout is refreshed, never applied to different things. */
+export function moveBox(box: Box, from: number, to: number, at: readonly [number, number], expected = box.things): Did<{ box: Box }> {
+  if (!nearBox(at)) return not("far");
+  const kept = roomyBox(box);
+  if (!sameThings(kept.things, expected)) return not("changed");
+  const did = moveSlot({ ...newPurse(), bag: kept.things }, from, to);
+  return did.ok ? { ok: true, box: { ...kept, things: did.purse.bag } } : did;
+}
+
+/** Sort by kind and tier, combine plain stacks and leave empty slots at the end. Capacity is preserved. */
+export function sortBox(box: Box, at: readonly [number, number], expected = box.things): Did<{ box: Box }> {
+  if (!nearBox(at)) return not("far");
+  const kept = roomyBox(box);
+  if (!sameThings(kept.things, expected)) return not("changed");
+  return { ok: true, box: { ...kept, things: sortBag({ ...newPurse(), bag: kept.things }).bag } };
+}
+
+export const boxSorted = (box: Box): boolean => sorted({ ...newPurse(), bag: roomyBox(box).things });
 
 /** Buy the capacity shown, without moving or losing any other stored things. */
 export function upgradeBox(purse: Purse, box: Box, slots: number, at: readonly [number, number]): Did<{ purse: Purse; box: Box } & BoxUpgrade> {

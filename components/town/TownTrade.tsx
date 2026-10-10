@@ -1010,7 +1010,7 @@ function heldIn(s: Stack, th: boolean): string | null {
  * Small, it is a strip at a panel's foot, to look at only. What is in the hand is marked wherever the bag has it; of
  * pots of food, only the one in the slot `held` (they are one kind of thing, and only one of them is in the hand).
  */
-function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small = false, onMove, placing = null, onPlace }: {
+export function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small = false, onMove, placing = null, onPlace, group = "bag", disabled = false }: {
   bag: Purse["bag"]; th: boolean; picked?: number | null; hand?: ItemId | null; held?: number; onPick?: (slot: number) => void; small?: boolean;
   /**
    * A thing dragged from one slot to another (the bag's own panel, where whoever keeps the game lets a bag be put in
@@ -1020,6 +1020,7 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
   onMove?: (from: number, to: number) => void;
   /** The slot whose thing is being placed by taps: every slot is then somewhere to put it (its own gives it up). */
   placing?: number | null; onPlace?: (to: number) => void;
+  group?: "bag" | "box"; disabled?: boolean;
 }) {
   const list = useRef<HTMLUListElement>(null);
   /** The thing being carried: where it came from, where the pointer is, and the slot under it. */
@@ -1027,14 +1028,14 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
   /** A press that may become a carry: its slot and what was in it, where it began, whether the thing is up yet, and a finger's moment of holding. */
   const live = useRef<{ from: number; what: string; x0: number; y0: number; on: boolean; timer: number | null; touch: boolean } | null>(null);
   /** What is in a slot, as a word (lib/town/bag's: the thing, and for what holds something what it holds). */
-  const whatIn = (i: number) => whatOf(bag[i]);
+  const whatIn = (i: number) => group === "box" ? JSON.stringify(bag[i] ?? null) : whatOf(bag[i]);
   /** The bag as the last drawing had it, for a finger's moment that ends between two drawings. */
   const now = useRef(whatIn);
   now.current = whatIn;
   /** The click that follows a carry is the carry's own end, not a tap on the slot it ended over. */
   const swallow = useRef(false);
-  const can = !!onMove;
-  const slotAt = (x: number, y: number) => { const el = document.elementFromPoint(x, y)?.closest("[data-bag-slot]") as HTMLElement | null; return el && list.current?.contains(el) ? Number(el.dataset.bagSlot) : null; };
+  const can = !!onMove && !disabled;
+  const slotAt = (x: number, y: number) => { const el = document.elementFromPoint(x, y)?.closest("[data-pocket-slot]") as HTMLElement | null; return el && list.current?.contains(el) ? Number(el.dataset.pocketSlot) : null; };
   const lift = (x: number, y: number) => { const l = live.current; if (!l) return; if (now.current(l.from) !== l.what) { quit(); return; } l.on = true; setDrag({ from: l.from, x, y, over: l.from }); };
   const carry = (x: number, y: number) => setDrag((d) => (d ? { ...d, x, y, over: slotAt(x, y) } : d));
   const quit = () => { const l = live.current; if (l?.timer) window.clearTimeout(l.timer); live.current = null; setDrag(null); };
@@ -1069,6 +1070,10 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the listener reads the press from its ref
   }, [can]);
   useEffect(() => () => { if (live.current?.timer) window.clearTimeout(live.current.timer); }, []);
+  useEffect(() => {
+    if (!can) quit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- cancel a carry when actions become unavailable
+  }, [can]);
   // The thing carried is gone from its slot, or another is in it (eaten, sold, a sort answered while it was carried,
   // another page of mine): the carry is over, whether or not the pointer's end is ever heard (the button it began on
   // may have gone with the thing). Found by Codex's check: a carry went on with whatever had come into the slot.
@@ -1078,7 +1083,7 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
     // eslint-disable-next-line react-hooks/exhaustive-deps -- quit reads the press from its ref
   }, [gone]);
   return (
-    <ul ref={list} className="grid grid-cols-5 gap-1.5" aria-label={th ? "กระเป๋า" : "Bag"} data-bag-dragging={drag ? drag.from : undefined}
+    <ul ref={list} className="grid grid-cols-5 gap-1.5" aria-label={group === "box" ? (th ? "ในกล่อง" : "In the box") : (th ? "กระเป๋า" : "Bag")} data-bag-dragging={group === "bag" && drag ? drag.from : undefined} data-box-dragging={group === "box" && drag ? drag.from : undefined}
         onClickCapture={(e) => { if (swallow.current) { swallow.current = false; e.preventDefault(); e.stopPropagation(); } }}>
       {bag.map((s, i) => {
         // (where a carried thing would land, and in placing by taps every slot but its own)
@@ -1087,24 +1092,24 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
           ? `bg-[#33251a] shadow-[inset_0_-3px_0_rgba(0,0,0,0.35)] ${picked === i ? "border-gold" : target ? "border-accent" : "border-[#6b4a2a] hover:border-[#c9a877]"}`
           : `border-dashed bg-[#241a10] shadow-[inset_0_3px_6px_rgba(0,0,0,0.5)] ${target ? "border-accent" : "border-[#4a341f]"}`}`;
         if (!s) return (
-          <li key={i} data-bag-slot={i} className={look}>
+          <li key={i} data-pocket-slot={i} data-bag-slot={group === "bag" ? i : undefined} data-box-slot={group === "box" ? i : undefined} className={look}>
             {placing !== null && onPlace
-              ? <button type="button" onClick={() => onPlace(i)} aria-label={th ? `วางที่ช่องว่าง ${i + 1}` : `Put it in empty slot ${i + 1}`} className="absolute inset-0 rounded-xl" />
+              ? <button type="button" disabled={disabled} onClick={() => onPlace(i)} aria-label={th ? `วางที่ช่องว่าง ${i + 1}` : `Put it in empty slot ${i + 1}`} className="absolute inset-0 rounded-xl" />
               : <span className="sr-only">{th ? "ช่องว่าง" : "Empty slot"}</span>}
           </li>
         );
         // (a forged tool's slot says its plus and its gems to a screen reader too)
-        const carries_ = forgeWords(s, th), name = `${th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en}${carries_ ? ` ${carries_}` : ""}`;
+        const known = s.item in ITEMS, carries_ = known ? forgeWords(s, th) : "", name = `${known ? (th ? ITEMS[s.item].name.th : ITEMS[s.item].name.en) : s.item}${carries_ ? ` ${carries_}` : ""}`;
         const inside = (
           <>
-            <StackIcon stack={s} size={small ? 24 : 36} />
-            {ITEMS[s.item].stack > 1 && <span className="absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums text-[#f3e3c3] [text-shadow:0_1px_2px_#000,0_0_2px_#000]">{s.n}</span>}
+            {known ? <StackIcon stack={s} size={small ? 24 : 36} /> : <TownIcon name="mystery" size={30} />}
+            {(ITEMS[s.item]?.stack ?? 1) > 1 && <span className="absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums text-[#f3e3c3] [text-shadow:0_1px_2px_#000,0_0_2px_#000]">{s.n}</span>}
             {(s.of || (s.water !== undefined && !(s.item in WATER.buckets))) && (
               <span className={`absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums [text-shadow:0_1px_2px_#000,0_0_2px_#000] ${s.of ? "text-[#f3e3c3]" : "text-[#8fd0ff]"}`}>{s.of ? s.of.left : s.water}</span>
             )}
             {hand === s.item && (!s.of || i === held) && <span data-bag-held className="absolute left-0.5 top-0.5 rounded-full bg-gold px-1 font-data text-[9px] font-semibold uppercase leading-4 text-bg">{th ? "ถือ" : "held"}</span>}
             {/* (no card over a thing while one is carried or placed: it would lie on the slots above, and on the bag's head where the way to place is said) */}
-            {!drag && placing === null && <ItemCard id={s.item} n={s.n} th={th} at={((i % 5) + 0.5) / 5} holds={holdsOf(s, th)} />}
+            {known && !drag && placing === null && <ItemCard id={s.item} n={s.n} th={th} at={((i % 5) + 0.5) / 5} holds={holdsOf(s, th)} />}
           </>
         );
         // (a press that may become a carry: a mouse's by pulling, a finger's by holding a moment first)
@@ -1144,19 +1149,19 @@ function Pockets({ bag, th, picked = null, hand = null, held = -1, onPick, small
         } : {};
         const slotLook = `group select-none ${look} ${drag?.from === i ? "opacity-40" : ""}`;
         return (
-          <li key={i} data-bag-slot={i} className="relative hover:z-20 focus-within:z-20" style={can ? { WebkitTouchCallout: "none" } : undefined}>
+          <li key={i} data-pocket-slot={i} data-bag-slot={group === "bag" ? i : undefined} data-box-slot={group === "box" ? i : undefined} className="relative hover:z-20 focus-within:z-20" style={can ? { WebkitTouchCallout: "none" } : undefined}>
             {placing !== null && onPlace
-              ? <button type="button" onClick={() => onPlace(i)} aria-pressed={placing === i} aria-label={placing === i ? `${name} ×${s.n}` : (th ? `วางที่ช่องของ ${name}` : `Put it where the ${name} is`)} className={`pressable ${slotLook}`}>{inside}</button>
+              ? <button type="button" disabled={disabled} onClick={() => onPlace(i)} aria-pressed={placing === i} aria-label={placing === i ? `${name} ×${s.n}` : (th ? `วางที่ช่องของ ${name}` : `Put it where the ${name} is`)} className={`pressable ${slotLook}`}>{inside}</button>
               : onPick
-                ? <button type="button" onClick={() => onPick(i)} aria-pressed={picked === i} aria-label={`${name} ×${s.n}`} className={`pressable ${slotLook}`} {...carries}>{inside}</button>
+                ? <button type="button" disabled={disabled} onClick={() => onPick(i)} aria-pressed={picked === i} aria-label={`${name} ×${s.n}`} data-slot={i} data-item={s.item} data-n={s.n} className={`pressable ${slotLook}`} {...carries}>{inside}</button>
                 : <span tabIndex={0} aria-label={`${name} ×${s.n}`} className={slotLook}>{inside}</span>}
           </li>
         );
       })}
       {/* the thing being carried, under the pointer: over everything (the ladder's top, where the thrown potato is) */}
       {drag && bag[drag.from] && createPortal(
-        <span aria-hidden className="pointer-events-none fixed z-[200] -translate-x-1/2 -translate-y-1/2 scale-125 [filter:drop-shadow(0_6px_8px_rgba(0,0,0,0.6))]" style={{ left: drag.x, top: drag.y }} data-bag-ghost>
-          <StackIcon stack={bag[drag.from]!} size={small ? 24 : 36} />
+        <span aria-hidden className="pointer-events-none fixed z-[200] -translate-x-1/2 -translate-y-1/2 scale-125 [filter:drop-shadow(0_6px_8px_rgba(0,0,0,0.6))]" style={{ left: drag.x, top: drag.y }} data-bag-ghost={group === "bag" ? true : undefined} data-box-ghost={group === "box" ? true : undefined}>
+          {bag[drag.from]!.item in ITEMS ? <StackIcon stack={bag[drag.from]!} size={small ? 24 : 36} /> : <TownIcon name="mystery" size={30} />}
         </span>, document.body)}
     </ul>
   );
