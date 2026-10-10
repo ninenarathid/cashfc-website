@@ -12,6 +12,7 @@ import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
 import { BOUNDS, START_DESK, clampCam, clampScale, startScale, toIsoPoint, toScreen, zoomAt, type Cam } from "@/lib/town/camera";
 import { PACE, keepFps, keptFps, nap, paceOf, paced, wokenFor, type Fps } from "@/lib/town/pace";
+import { canvasDpr } from "@/lib/town/rendering";
 import { PUDDLE_SIZES, RING_MS, Rain, ageOf, drawPicture, puddleRing, puddleRingsFor, puddlesFor, ringsFor, type Pictures } from "@/lib/town/rain";
 import { keepMotion, keptMotion } from "@/lib/town/motion";
 import { SHOP as STALL_RULES } from "@/lib/town/shop";
@@ -1169,9 +1170,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
     const resize = () => {
       const r = stage.getBoundingClientRect();
-      // Sharp on a phone's dense screen, but never a canvas of more than about
-      // four million pixels: a 4K monitor would otherwise redraw thirty.
-      const dpr = Math.min(window.devicePixelRatio || 1, 2, Math.sqrt(4_000_000 / Math.max(1, r.width * r.height)));
+      // Keep a large window's view, with at most a Full HD image to repaint.
+      // Phones retain their dense pixels; camera and input remain in CSS pixels.
+      const dpr = canvasDpr(r.width, r.height, window.devicePixelRatio);
       canvas.width = Math.round(r.width * dpr);
       canvas.height = Math.round(r.height * dpr);
       canvas.style.width = `${r.width}px`;
