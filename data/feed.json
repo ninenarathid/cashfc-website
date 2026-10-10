@@ -2,6 +2,13 @@
  "events": [
   {
    "date": "2026-10-10",
+   "type": "level_100",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "reached level 100 on Dark Knight!"
+  },
+  {
+   "date": "2026-10-10",
    "type": "rare_up",
    "id": 44970350,
    "name": "Allen Crist",
@@ -1392,13 +1399,6 @@
    "id": 29918255,
    "name": "Lyndanisse Vymmaith",
    "text": "reached level 100 on Dancer!"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "level_100",
-   "id": 31831003,
-   "name": "North Nostafari",
-   "text": "reached level 100 on Astrologian!"
   }
  ]
 }
