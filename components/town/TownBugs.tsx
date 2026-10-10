@@ -576,7 +576,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         if (live.current.sees || near) {
           lit++;
           frame.over?.(() => {
-            const W = ctx.canvas.width, H = ctx.canvas.height, m = Math.max(22, 12 * s), hid = hides(sight.bug, pose), top = at.y - pose.lift * TILE_H * s - (hid ? 3 : 18) * s;
+            // Projection uses screen pixels; the canvas bitmap is larger on high-DPI screens.
+            const px = Math.abs(ctx.getTransform().a) || 1;
+            const W = ctx.canvas.width / px, H = ctx.canvas.height / px, m = Math.max(22, 12 * s), hid = hides(sight.bug, pose), top = at.y - pose.lift * TILE_H * s - (hid ? 3 : 18) * s;
             const on = at.x >= m && at.x <= W - m && top >= m && top <= H - m;
             const gx = Math.round(Math.min(W - m, Math.max(m, at.x))), gy = Math.round(Math.min(H - m, Math.max(m, top)));
             const d = Math.max(3, Math.round(2.8 * s)), a = still ? 1 : 0.7 + 0.3 * Math.sin(now / 300 + h.id * 1.3);
