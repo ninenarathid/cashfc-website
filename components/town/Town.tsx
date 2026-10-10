@@ -976,8 +976,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const told = a.forged, mine = session.self.pos;
       const loud = heard(Math.hypot(a.pos.x - mine.x, a.pos.y - mine.y));
       if (!told || loud <= 0) return;
-      for (const ms of FORGED_BEATS.knocks) later(ms, () => sfxRef.current?.work("clang", loud));
-      later(FORGED_BEATS.result, () => sfxRef.current?.work(told.out === "taken" ? "made" : "nothing", loud));
+      FORGED_BEATS.knocks.forEach((ms, i) => later(ms, () => sfxRef.current?.work("forgeHit", loud * (.55 + i * .2))));
+      later(FORGED_BEATS.result, () => sfxRef.current?.work(told.out === "taken" ? told.from === 9 ? "forgeTop" : "forgeTaken" : told.out === "down" ? "forgeDown" : "forgeStays", loud));
     };
     return () => { session.onForged = null; for (const t of due) clearTimeout(t); };
   }, [session]);

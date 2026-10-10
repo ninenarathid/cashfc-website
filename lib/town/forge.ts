@@ -63,7 +63,7 @@ export const SMITH = {
 /** A try: the level tried for; how likely it takes, fails and stays, fails and loses a level (hundredths); the fee; and a metal tool's ore and timber. */
 export interface Try { to: number; take: number; stay: number; down: number; fee: number; ore: ItemId; n: number; timber: number }
 /**
- * The table. The odds and the fees are the owner's, and are not to be changed.
+ * The owner's 2026-10-10 table: failure starts at +4; the daily top takes ten times in a hundred.
  *
  * The pieces of +5 to +9 are his too (2026-10-10: forging made harder but still fair, "x3", because the game is played
  * a great deal and a member farming a line brings home a thousand things a day): 3, 5, 6, 9 and 12 where they were 1,
@@ -74,13 +74,13 @@ export const TRIES: readonly Try[] = [
   { to: 1, take: 100, stay: 0, down: 0, fee: 10, ore: "shardCopper", n: 5, timber: 2 },
   { to: 2, take: 100, stay: 0, down: 0, fee: 20, ore: "shardCopper", n: 8, timber: 2 },
   { to: 3, take: 100, stay: 0, down: 0, fee: 40, ore: "shardCopper", n: 12, timber: 3 },
-  { to: 4, take: 100, stay: 0, down: 0, fee: 80, ore: "shardIron", n: 16, timber: 3 },
-  { to: 5, take: 90, stay: 10, down: 0, fee: 150, ore: "oreIron", n: 3, timber: 12 },
-  { to: 6, take: 80, stay: 15, down: 5, fee: 250, ore: "oreIron", n: 5, timber: 12 },
-  { to: 7, take: 70, stay: 20, down: 10, fee: 400, ore: "oreSilver", n: 6, timber: 15 },
-  { to: 8, take: 60, stay: 25, down: 15, fee: 600, ore: "oreSilver", n: 9, timber: 15 },
-  { to: 9, take: 50, stay: 25, down: 25, fee: 900, ore: "oreSilver", n: 12, timber: 18 },
-  { to: 10, take: 40, stay: 30, down: 30, fee: 1500, ore: "oreSilver", n: 5, timber: 6 },
+  { to: 4, take: 90, stay: 10, down: 0, fee: 80, ore: "shardIron", n: 16, timber: 3 },
+  { to: 5, take: 70, stay: 30, down: 0, fee: 150, ore: "oreIron", n: 3, timber: 12 },
+  { to: 6, take: 55, stay: 40, down: 5, fee: 250, ore: "oreIron", n: 5, timber: 12 },
+  { to: 7, take: 40, stay: 50, down: 10, fee: 400, ore: "oreSilver", n: 6, timber: 15 },
+  { to: 8, take: 30, stay: 55, down: 15, fee: 600, ore: "oreSilver", n: 9, timber: 15 },
+  { to: 9, take: 20, stay: 55, down: 25, fee: 900, ore: "oreSilver", n: 12, timber: 18 },
+  { to: 10, take: 10, stay: 60, down: 30, fee: 1500, ore: "oreSilver", n: 5, timber: 6 },
 ];
 /** What a try for a level takes of a kind of tool: a wooden tool half the ore (rounded up) and twice the timber. Null past the top. */
 export function tryCost(kind: ToolKind, to: number): { fee: number; ore: ItemId; n: number; timber: number } | null {
@@ -154,6 +154,7 @@ export type SmithRefusal =
   | "row"      // not in the row for it
   | "turn"     // somebody else's turn comes first
   | "topped"   // has taken the top before: the row is for those who have not
+  | "daily"    // the member has made today's great-fire try already
   | "level"    // no tool one level under the top
   | "away";    // the town's books could not be reached
 export type Did<T = unknown> = ({ ok: true } & T) | { ok: false; why: SmithRefusal };

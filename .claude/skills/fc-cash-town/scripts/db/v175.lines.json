@@ -1,0 +1,164 @@
+[
+  [
+    "town.fire_new",
+    "town.fire_new()",
+    [
+      [
+        " select '{\"due\": 0, \"flint\": null, \"tinder\": null, \"row\": [], \"topped\": []}'::jsonb ",
+        "\n-- v175: daily rights, retained only in the member's purse.\n SELECT '{\"due\":0,\"flint\":null,\"tinder\":null,\"row\":[],\"topped\":[],\"used\":{}}'::jsonb \n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_sound",
+    "town.fire_sound(jsonb)",
+    [
+      [
+        "\ndeclare\n  k jsonb := case when jsonb_typeof(p_kept) = 'object' then p_kept else '{}'::jsonb end;\n  most_ integer := (town.cat('forge')->'fire'->>'row')::integer;\n  topped jsonb := '[]'::jsonb;\n  row_ jsonb := '[]'::jsonb;\n  seen jsonb;\n  w jsonb;\n  f jsonb;\n  t text;\nbegin\n  for t in select e.v #>> '{}' from jsonb_array_elements(case when jsonb_typeof(k->'topped') = 'array' then k->'topped' else '[]'::jsonb end) with ordinality e(v, ord)\n            where jsonb_typeof(e.v) = 'string' and e.v #>> '{}' <> '' order by e.ord loop\n    if not topped ? t then topped := topped || jsonb_build_array(t); end if;\n  end loop;\n  seen := topped;\n  for w in select e.v from jsonb_array_elements(case when jsonb_typeof(k->'row') = 'array' then k->'row' else '[]'::jsonb end) with ordinality e(v, ord) order by e.ord loop\n    f := town.fire_finder(w, case when jsonb_typeof(w) = 'object' then w->'since' end);\n    continue when f = 'null'::jsonb or seen ? (f->>'id') or jsonb_array_length(row_) >= most_;\n    seen := seen || jsonb_build_array(f->'id');\n    row_ := row_ || jsonb_build_array(jsonb_build_object('id', f->'id', 'name', f->'name', 'since', f->'at'));\n  end loop;\n  return jsonb_build_object('due', case when jsonb_typeof(k->'due') = 'number' then greatest(0, (k->>'due')::numeric) else 0 end,\n    'flint', town.fire_finder(k->'flint', case when jsonb_typeof(k->'flint') = 'object' then k->'flint'->'at' end),\n    'tinder', town.fire_finder(k->'tinder', case when jsonb_typeof(k->'tinder') = 'object' then k->'tinder'->'at' end),\n    'row', row_, 'topped', topped);\nend;\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\n\ndeclare\n  k jsonb := case when jsonb_typeof(p_kept) = 'object' then p_kept else '{}'::jsonb end;\n  tops_ jsonb := '[]'::jsonb;\n  used_ jsonb := '{}'::jsonb;\n  id_ text;\nbegin\n  for id_ in select e.v #>> '{}' from jsonb_array_elements(case when jsonb_typeof(k->'topped') = 'array' then k->'topped' else '[]'::jsonb end) with ordinality e(v, ord)\n    where jsonb_typeof(e.v) = 'string' and e.v #>> '{}' <> '' order by e.ord loop\n    if not tops_ ? id_ then tops_ := tops_ || jsonb_build_array(id_); end if;\n  end loop;\n  select coalesce(jsonb_object_agg(e.key, e.value), '{}'::jsonb) into used_\n    from jsonb_each(case when jsonb_typeof(k->'used') = 'object' then k->'used' else '{}'::jsonb end) e\n    where length(e.key) between 1 and 100 and case when jsonb_typeof(e.value) = 'number' then\n      (e.value #>> '{}')::numeric = trunc((e.value #>> '{}')::numeric) and abs((e.value #>> '{}')::numeric) <= 9007199254740991 else false end;\n  return town.fire_new() || jsonb_build_object('topped', tops_, 'used', used_);\nend;\n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_lit_at",
+    "town.fire_lit_at(jsonb)",
+    [
+      [
+        "\n  select case when coalesce(p_fire->'flint', 'null'::jsonb) <> 'null'::jsonb and coalesce(p_fire->'tinder', 'null'::jsonb) <> 'null'::jsonb\n    then greatest((p_fire->'flint'->>'at')::numeric, (p_fire->'tinder'->>'at')::numeric) end\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\n SELECT 0::numeric \n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_open_to",
+    "town.fire_open_to(jsonb, bigint)",
+    [
+      [
+        "\n  select case when l.lit is null or p_now < l.lit then 0\n    else least(jsonb_array_length(p_fire->'row'), 1 + floor((p_now - l.lit) / (town.cat('forge')->'fire'->>'turn')::numeric))::integer end\n    from (select town.fire_lit_at(p_fire) as lit) l\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\n SELECT jsonb_array_length(p_fire->'row') \n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_half_found",
+    "town.fire_half_found(jsonb, text, text, text, bigint)",
+    [
+      [
+        "\ndeclare\n  next_ jsonb;\nbegin\n  if p_half not in ('flint', 'tinder') or p_now < (p_fire->>'due')::numeric or coalesce(p_fire->p_half, 'null'::jsonb) <> 'null'::jsonb then\n    return jsonb_build_object('fire', p_fire, 'found', false, 'lit', false);\n  end if;\n  next_ := p_fire || jsonb_build_object(p_half, jsonb_build_object('id', p_id, 'name', p_name, 'at', p_now));\n  return jsonb_build_object('fire', next_, 'found', true, 'lit', town.fire_lit_at(next_) is not null);\nend;\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\nbegin return jsonb_build_object('fire', p_fire, 'found', false, 'lit', false); end;\n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_join",
+    "town.fire_join(jsonb, text, text, boolean, bigint)",
+    [
+      [
+        "\nbegin\n  if p_fire->'topped' ? p_id then return town.no('topped'); end if;\n  if exists (select 1 from jsonb_array_elements(p_fire->'row') w(v) where w.v->>'id' = p_id) then return town.no('twice'); end if;\n  if not coalesce(p_ready, false) then return town.no('level'); end if;\n  if jsonb_array_length(p_fire->'row') >= (town.cat('forge')->'fire'->>'row')::integer then return town.no('places'); end if;\n  return jsonb_build_object('ok', true, 'fire', p_fire || jsonb_build_object('row', p_fire->'row' || jsonb_build_array(jsonb_build_object('id', p_id, 'name', p_name, 'since', p_now))));\nend;\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\nbegin\n  if not coalesce(p_ready, false) then return town.no('level'); end if;\n  if town.fire_why(p_fire, p_id, p_now) is not null then return town.no('daily'); end if;\n  return jsonb_build_object('ok', true, 'fire', p_fire);\nend;\n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_leave",
+    "town.fire_leave(jsonb, text)",
+    [
+      [
+        "\n  select case when exists (select 1 from jsonb_array_elements(p_fire->'row') w(v) where w.v->>'id' = p_id)\n    then jsonb_build_object('ok', true, 'fire', p_fire || jsonb_build_object('row',\n      coalesce((select jsonb_agg(w.v order by w.ord) from jsonb_array_elements(p_fire->'row') with ordinality w(v, ord) where w.v->>'id' <> p_id), '[]'::jsonb)))\n    else town.no('none') end\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\n SELECT town.no('none') \n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_why",
+    "town.fire_why(jsonb, text, bigint)",
+    [
+      [
+        "\ndeclare\n  at_ integer;\nbegin\n  if town.fire_lit_at(p_fire) is null then return 'fire'; end if;\n  at_ := (select (w.ord - 1)::integer from jsonb_array_elements(p_fire->'row') with ordinality w(v, ord) where w.v->>'id' = p_id order by w.ord limit 1);\n  if at_ is null then return case when p_fire->'topped' ? p_id then 'topped' else 'row' end; end if;\n  return case when at_ < town.fire_open_to(p_fire, p_now) then null else 'turn' end;\nend;\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\nbegin\n  return case when jsonb_typeof(p_fire->'used'->p_id) = 'number' and (p_fire->'used'->>p_id)::numeric = town.day_of(p_now) then 'daily' end;\nend;\n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_spent",
+    "town.fire_spent(jsonb, text, text, text, bigint, double precision)",
+    [
+      [
+        "\ndeclare\n  w jsonb := town.cat('forge')->'fire'->'wait';\n  drawn numeric := floor((w->>'least')::double precision\n    + greatest(0::double precision, least(1::double precision, p_chance)) * ((w->>'most')::double precision - (w->>'least')::double precision) + 0.5)::numeric;\n  rest jsonb := coalesce((select jsonb_agg(r.v order by r.ord) from jsonb_array_elements(p_fire->'row') with ordinality r(v, ord) where r.v->>'id' <> p_id), '[]'::jsonb);\nbegin\n  return jsonb_build_object('due', p_now + drawn, 'flint', null, 'tinder', null,\n    'row', case when p_out = 'taken' then rest else rest || jsonb_build_array(jsonb_build_object('id', p_id, 'name', p_name, 'since', p_now)) end,\n    'topped', case when p_out = 'taken' and not (p_fire->'topped' ? p_id) then p_fire->'topped' || jsonb_build_array(p_id) else p_fire->'topped' end);\nend;\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\nbegin\n  return p_fire || jsonb_build_object('used', coalesce(p_fire->'used', '{}'::jsonb) || jsonb_build_object(p_id, town.day_of(p_now)),\n    'topped', case when p_out = 'taken' and not (p_fire->'topped' ? p_id) then p_fire->'topped' || jsonb_build_array(p_id) else p_fire->'topped' end);\nend;\n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_told",
+    "town.fire_told(jsonb, text, bigint)",
+    [
+      [
+        "\n  select jsonb_build_object(\n    'flint', case when coalesce(p_fire->'flint', 'null'::jsonb) <> 'null'::jsonb then jsonb_build_object('name', p_fire->'flint'->'name') end,\n    'tinder', case when coalesce(p_fire->'tinder', 'null'::jsonb) <> 'null'::jsonb then jsonb_build_object('name', p_fire->'tinder'->'name') end,\n    'lit', town.fire_lit_at(p_fire) is not null,\n    'row', coalesce((select jsonb_agg(jsonb_build_object('id', w.v->'id', 'name', w.v->'name') order by w.ord) from jsonb_array_elements(p_fire->'row') with ordinality w(v, ord)), '[]'::jsonb),\n    'open', town.fire_open_to(p_fire, p_now),\n    'mine', coalesce((select (w.ord - 1)::integer from jsonb_array_elements(p_fire->'row') with ordinality w(v, ord) where w.v->>'id' = p_me order by w.ord limit 1), -1),\n    'topped', p_fire->'topped' ? p_me)\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\n SELECT jsonb_build_object('flint', null, 'tinder', null, 'lit', true, 'row', '[]'::jsonb,\n  'open', case when town.fire_why(p_fire, p_me, p_now) = 'daily' then 0 else 1 end,\n  'mine', case when town.fire_why(p_fire, p_me, p_now) = 'daily' then -1 else 0 end, 'topped', false,\n  'daily', jsonb_build_object('day', town.day_of(p_now), 'used', coalesce(town.fire_why(p_fire, p_me, p_now) = 'daily', false),\n    'resetAt', (town.day_of(p_now)::bigint + 1) * 86400000 - 7200000)) \n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_kept",
+    "town.fire_kept(boolean)",
+    [
+      [
+        "\ndeclare\n  kept jsonb;\nbegin\n  if p_hold then select f.doc into kept from public.town_great_fire f where f.one for update;\n  else select f.doc into kept from public.town_great_fire f where f.one; end if;\n  return town.fire_sound(kept);\nend;\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\nbegin\n  return town.fire_from_purse(town.purse_of(auth.uid(), false), auth.uid()::text);\nend;\n"
+      ]
+    ]
+  ],
+  [
+    "town.fire_wants",
+    "town.fire_wants(text, uuid, bigint, uuid)",
+    [
+      [
+        "\ndeclare\n  kept jsonb;\nbegin\n  if (p_who is null and p_other is null) or p_half not in ('flint', 'tinder') then return false; end if;\n  select f.doc into kept from public.town_great_fire f where f.one;\n  if kept is null then return false; end if;\n  if jsonb_typeof(kept->'due') = 'number' and p_now < (kept->>'due')::numeric then return false; end if;\n  if town.fire_finder(kept->p_half, case when jsonb_typeof(kept->p_half) = 'object' then kept->p_half->'at' end) <> 'null'::jsonb then return false; end if;\n  return coalesce(town.smith_for(p_who), false) or coalesce(town.smith_for(p_other), false);\nend;\n",
+        "\n-- v175: daily rights, retained only in the member's purse.\nbegin return false; end;\n"
+      ]
+    ]
+  ],
+  [
+    "town.forge_try_fired",
+    "town.forge_try_fired(jsonb, jsonb, integer, double precision, text, text, bigint, double precision)",
+    [
+      [
+        "    why_ := town.fire_why(p_fire, p_id, p_now);",
+        "    -- v175: the locked purse owns the daily right, not the shared fire or a client.\n    why_ := town.fire_why(town.fire_from_purse(p_purse, p_id), p_id, p_now);"
+      ],
+      [
+        "  if not (did->>'ok')::boolean then return did; end if;",
+        "  if not (did->>'ok')::boolean then return did; end if;\n  -- v175: refusals spend nothing; every accepted top attempt spends the same member's right.\n  if needs then did := did || jsonb_build_object('purse', did->'purse' || jsonb_build_object('forgeDay', town.day_of(p_now))); end if;"
+      ]
+    ]
+  ],
+  [
+    "public.town_smith_try",
+    "public.town_smith_try(integer)",
+    [
+      [
+        "  fire_ jsonb := town.fire_kept(true);",
+        "  -- v175: no shared fire lock or global consumption.\n  fire_ jsonb := town.fire_new();"
+      ],
+      [
+        "  if (did->>'spent')::boolean then perform town.keep_fire(did->'fire'); end if;",
+        "  -- v175: forgeDay was saved atomically by keep_purse above."
+      ]
+    ]
+  ],
+  [
+    "public.town_fire_join",
+    "public.town_fire_join()",
+    [
+      [
+        "  perform town.keep_fire(did->'fire');",
+        "  -- v175: compatibility call only; there is no queue to write."
+      ],
+      [
+        "  perform town.note(me, 'fire_join', null, 1, 0, jsonb_build_object('place', jsonb_array_length(did->'fire'->'row')));",
+        "  -- v175: no queue deed."
+      ]
+    ]
+  ]
+]

@@ -1,3 +1,4 @@
+import { dayOf } from "./stamina";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
@@ -8,7 +9,7 @@ import {
   outcomeOf, owedOf, pendingSlot, pickOffer, redraw, setGem, smelt, smithView, soundSmithy, stickerOf, timberFor, tryCost, tryOdds, widen, withForging, withMaker,
   type Outcome, type Pending, type SmithBoard, type Smithy,
 } from "./forge";
-import { GREAT_FIRE, fireSpent, fireTold, fireWhy, halfFound, joinRow, leaveRow, litAt, newGreatFire, openTo, soundGreatFire, type GreatFire, type Half } from "./great-fire";
+import { fireFromPurse, fireSpent, fireTold, fireWhy, halfFound, joinRow, leaveRow, litAt, newGreatFire, openTo, soundGreatFire, type GreatFire, type Half } from "./great-fire";
 import { ITEMS, type ItemId } from "./items";
 import { countsOf, type Counts, type Done } from "./line-points";
 import { bagToPouch, heldIn } from "./pouches";
@@ -80,10 +81,10 @@ const NAMES = ["Aqua", "Member One", "น้องส้ม ช่างตี",
 /** A try as whoever keeps the game makes it (lib/town/trial's `smithTry`): with the fire, where the try is for the top. */
 function tryFired(purse: Purse, fire: GreatFire, slot: number, r: number, id: string, name: string, now: number, luck: number) {
   const held = purse.bag[slot], needs = !!held && !!toolKindOf(held.item) && levelOf(held) === FORGE.top - 1;
-  if (needs) { const why = fireWhy(fire, id, now); if (why) return { ok: false as const, why }; }
+  if (needs) { const why = fireWhy(fireFromPurse(purse, id), id, now); if (why) return { ok: false as const, why }; }
   const did = forgeTry(purse, newSmithy(), slot, r, name);
   if (!did.ok) return did;
-  return { ...did, spent: needs, fire: needs ? fireSpent(fire, { id, name }, did.out, now, luck) : fire };
+  return { ...did, purse: needs ? { ...did.purse, forgeDay: dayOf(now) } : did.purse, spent: needs, fire: needs ? fireSpent(fire, { id, name }, did.out, now, luck) : fire };
 }
 
 export function vectorsSmith(): Vector[] {
@@ -424,12 +425,13 @@ export function vectorsSmith(): Vector[] {
   const called = (id: string) => `สมาชิก ${id.slice(-1)}`;
   /** A fire as the village may keep it: its time come or not, each half found or not (and how long ago), a row of some, and some who have topped. */
   const fireAt = (how: Partial<{ due: number; flint: number | null; tinder: number | null; row: string[]; topped: string[] }> = {}): GreatFire => {
-    const ago = () => c.of([0, 1, 30 * MIN, GREAT_FIRE.turn - 1, GREAT_FIRE.turn, GREAT_FIRE.turn + 1, 2 * GREAT_FIRE.turn + HOUR, 9 * DAY]);
+    const ago = () => c.of([0, 1, 30 * MIN, DAY - 1, DAY, DAY + 1, 2 * DAY + HOUR, 9 * DAY]);
     const flint = how.flint === undefined ? (c.maybe(0.6) ? NOW - ago() : null) : how.flint, tinder = how.tinder === undefined ? (c.maybe(0.6) ? NOW - ago() : null) : how.tinder;
     const topped = how.topped ?? WHO.filter(() => c.maybe(0.15)), row = how.row ?? WHO.filter((id) => !topped.includes(id) && c.maybe(0.5)).sort(() => c.next() - 0.5);
     return {
       due: how.due ?? c.of([0, 0, NOW - DAY, NOW - 1, NOW, NOW + 1, NOW + 20 * DAY]),
       flint: flint === null ? null : { id: c.of(WHO), name: called(c.of(WHO)), at: flint }, tinder: tinder === null ? null : { id: c.of(WHO), name: called(c.of(WHO)), at: tinder },
+      used: Object.fromEntries(WHO.filter(() => c.maybe(0.3)).map((id) => [id, dayOf(NOW)])),
       row: row.map((id, i) => ({ id, name: called(id), since: NOW - (row.length - i) * HOUR })), topped,
     };
   };
@@ -439,12 +441,12 @@ export function vectorsSmith(): Vector[] {
     { due: -5, flint: { id: ME, name: "Me", at: 3 }, tinder: { id: "", name: "Nobody", at: 4 }, row: [], topped: [ME, ME, "", 3, null, HER] },
     { due: 12.5, flint: { id: ME, at: 3 }, tinder: { id: HER, name: 7, at: 9 }, row: [{ id: ME, name: "Me", since: 1 }, { id: ME, name: "Me again", since: 2 }, { id: HER, since: 3 }, { id: HIM, name: "Him", since: "4" }, null, "x", [HIM], { name: "No id", since: 5 }, { id: HIM, name: "Him", at: 6 }], topped: [] },
     { flint: { id: ME, name: "A name that runs on a good deal past the forty characters a finder's name is kept to", at: 3 }, tinder: { id: HER, name: "Her", at: "9" }, row: [{ id: HER, name: "Her", since: 1 }, { id: HIM, name: "Him", since: 2 }], topped: [HER] },
-    { due: 5, row: Array.from({ length: GREAT_FIRE.row + 7 }, (_, i) => ({ id: `id-${i}`, name: `ชื่อ ${i}`, since: i })), topped: ["id-3"] },
+    { due: 5, row: Array.from({ length: 60 + 7 }, (_, i) => ({ id: `id-${i}`, name: `ชื่อ ${i}`, since: i })), topped: ["id-3"] },
   ];
   for (const k of fires) add("fire_sound", [k === undefined ? null : typeof k === "string" ? JSON.stringify(k) : k], soundGreatFire(k));
   for (let i = 0; i < 700; i++) {
-    const f = c.maybe(0.08) ? fireAt({ row: Array.from({ length: GREAT_FIRE.row }, (_, n) => `id-${n}`), topped: [] }) : c.maybe(0.1) ? fireAt({ flint: NOW - c.int(0, 3) * GREAT_FIRE.turn, tinder: NOW - HOUR }) : fireAt();
-    const id = c.of([...WHO, f.row[0]?.id ?? ME, f.row[f.row.length - 1]?.id ?? HER, f.topped[0] ?? HIM]), now = c.of([NOW, NOW, NOW, NOW + GREAT_FIRE.turn, NOW - 2 * HOUR, NOW + 1]);
+    const f = c.maybe(0.08) ? fireAt({ row: Array.from({ length: 60 }, (_, n) => `id-${n}`), topped: [] }) : c.maybe(0.1) ? fireAt({ flint: NOW - c.int(0, 3) * DAY, tinder: NOW - HOUR }) : fireAt();
+    const id = c.of([...WHO, f.row[0]?.id ?? ME, f.row[f.row.length - 1]?.id ?? HER, f.topped[0] ?? HIM]), now = c.of([NOW, NOW, NOW, NOW + DAY, NOW - 2 * HOUR, NOW + 1]);
     add("fire_sound", [f], soundGreatFire(f));
     add("fire_lit_at", [f], litAt(f));
     add("fire_open_to", [f, now], openTo(f, now));
@@ -468,8 +470,9 @@ export function vectorsSmith(): Vector[] {
     const kind = c.of(KINDS), level = c.of([9, 9, 9, 9, 9, 9, 8, 5, 10, 0]), tool = soundTool(kind, level, { gem: null }), cost = tryCost(kind, Math.min(FORGE.top, level + 1))!;
     const short = c.of(["nothing", "nothing", "nothing", "nothing", "ore", "timber", "coins"] as const);
     const p = purseWith(short === "coins" ? cost.fee - 1 : cost.fee + 3, [tool], [[cost.ore, short === "ore" ? cost.n - 1 : cost.n], ["timber", short === "timber" ? cost.timber - 1 : cost.timber]]);
-    const lit = c.maybe(0.75), f = fireAt({ ...(lit ? { flint: NOW - c.of([1, HOUR, GREAT_FIRE.turn + 5, 3 * GREAT_FIRE.turn]), tinder: NOW - c.of([1, HOUR]) } : {}),
+    const lit = c.maybe(0.75), f = fireAt({ ...(lit ? { flint: NOW - c.of([1, HOUR, DAY + 5, 3 * DAY]), tinder: NOW - c.of([1, HOUR]) } : {}),
       ...(c.maybe(0.7) ? { row: c.of([[ME], [ME, HER], [HER, ME], [HER, HIM, ME], [HER]]), topped: c.of([[], [], [HIM], [ME]]).filter((id) => id !== ME || c.maybe(0.5)) } : {}) });
+    p.forgeDay = c.maybe(0.3) ? dayOf(NOW) : dayOf(NOW) - 1;
     const sound = soundGreatFire(f), r = luck(), draw_ = c.of([0, 1, c.next(), c.next()]), slot = c.maybe(0.95) ? 0 : c.of([1, -1]);
     add("forge_try_fired", [p, sound, slot, r, ME, "Member One", NOW, draw_], tryFired(p, sound, slot, r, ME, "Member One", NOW, draw_));
   }
@@ -544,7 +547,7 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     // (by the table as it is, a try that loses a level begins above the floor: the try to the level after the floor never does)
     expect(tries.some((x) => x.d.out === "down" && x.d.level === x.d.from - 1) && tries.some((x) => x.d.out === "stays" && x.d.level === x.d.from)).toBe(true);
     expect(tries.filter((x) => x.d.out === "down").every((x) => x.d.from > FORGE.floor && x.d.level === x.d.from - 1)).toBe(true);
-    expect(tries.every((x) => x.d.level >= Math.min(x.d.from, FORGE.floor) && x.d.level <= x.d.from + 1 && (x.d.from < FORGE.floor ? x.d.out === "taken" : true))).toBe(true);
+    expect(tries.every((x) => x.d.level >= Math.min(x.d.from, FORGE.floor) && x.d.level <= x.d.from + 1 && (x.d.from < 3 ? x.d.out === "taken" : true))).toBe(true);
     expect(tries.every((x) => x.d.purse.coins === x.p.coins - tryCost(x.d.item, x.d.from + 1)!.fee && x.d.purse.bag[x.slot]?.item === x.d.item && levelOf(x.d.purse.bag[x.slot]) === x.d.level)).toBe(true);
     expect(tries.some((x) => x.d.owed >= 0) && tries.some((x) => x.d.owed < 0) && tries.some((x) => (x.d.purse.bag[x.slot] as Stack).water !== undefined)).toBe(true);
     expect(tries.some((x) => fromPouch(x))).toBe(true);
@@ -589,24 +592,18 @@ describe("the cases the database's rules of the blacksmith are held to", () => {
     expect(of("board_top").some((v) => JSON.stringify(v.want) !== JSON.stringify(v.args[0])) && of("board_top").some((v) => JSON.stringify(v.want) === JSON.stringify(v.args[0]))).toBe(true);
     expect(of("board_found").some((v) => JSON.stringify(v.want) !== JSON.stringify(v.args[0])) && of("board_found").some((v) => JSON.stringify(v.want) === JSON.stringify(v.args[0]))).toBe(true);
 
-    // the great fire: found and not, lit and not; the row joined, left and refused each way; why a try may not be made, each way; spent each way
-    const halves = of("fire_half_found").map((v) => v.want as { found: boolean; lit: boolean });
-    expect(halves.some((h) => h.found && h.lit) && halves.some((h) => h.found && !h.lit) && halves.some((h) => !h.found)).toBe(true);
-    expect(whys("fire_join")).toEqual(["level", "ok", "places", "topped", "twice"]);
-    expect(whys("fire_leave")).toEqual(["none", "ok"]);
-    expect(new Set(of("fire_why").map((v) => v.want))).toEqual(new Set([null, "fire", "row", "topped", "turn"]));
-    expect(new Set(of("fire_open_to").map((v) => v.want)).size).toBeGreaterThan(3);
-    const spent = of("fire_spent").map((v) => ({ f: v.args[0] as GreatFire, id: v.args[1] as string, out: v.args[3] as Outcome, now: v.args[4] as number, d: v.want as GreatFire }));
-    expect(spent.every((x) => x.d.flint === null && x.d.tinder === null && x.d.due >= x.now + GREAT_FIRE.wait.least && x.d.due <= x.now + GREAT_FIRE.wait.most)).toBe(true);
-    expect(spent.some((x) => x.d.due === x.now + GREAT_FIRE.wait.least) && spent.some((x) => x.d.due === x.now + GREAT_FIRE.wait.most) && new Set(spent.map((x) => x.d.due - x.now)).size > 50).toBe(true);
-    expect(spent.every((x) => (x.out === "taken" ? x.d.topped.includes(x.id) && !x.d.row.some((w) => w.id === x.id) : x.d.row[x.d.row.length - 1].id === x.id))).toBe(true);
-    // (and what a page is told has no moment in it: not when the next comes, not when a half was found)
-    expect(of("fire_told").every((v) => !/"(due|at|since)"/.test(JSON.stringify(v.want)))).toBe(true);
+    // Daily rights are independent of old queues and previous top outcomes.
+    expect(of("fire_half_found").every((v) => !(v.want as { found: boolean }).found)).toBe(true);
+    expect(whys("fire_join")).toEqual(["daily", "level", "ok"]);
+    expect(whys("fire_leave")).toEqual(["none"]);
+    expect(new Set(of("fire_why").map((v) => v.want))).toEqual(new Set([null, "daily"]));
+    const spent = of("fire_spent").map((v) => ({ id: v.args[1] as string, now: v.args[4] as number, d: v.want as GreatFire }));
+    expect(spent.every((x) => x.d.used?.[x.id] === dayOf(x.now))).toBe(true);
     expect(new Set(of("forge_under_top").map((v) => v.want))).toEqual(new Set([true, false]));
-    expect(whys("forge_try_fired")).toEqual(["coins", "fire", "ok", "ore", "row", "timber", "tool", "top", "topped", "turn"]);
-    const fired = of("forge_try_fired").filter((v) => (v.want as { ok: boolean }).ok).map((v) => ({ f: v.args[1] as GreatFire, d: v.want as { spent: boolean; out: string; from: number; fire: GreatFire } }));
-    expect(fired.some((x) => x.d.spent && x.d.out === "taken") && fired.some((x) => x.d.spent && x.d.out !== "taken") && fired.some((x) => !x.d.spent)).toBe(true);
-    expect(fired.every((x) => x.d.spent === (x.d.from === FORGE.top - 1) && (x.d.spent ? x.d.fire.flint === null && x.d.fire.due > NOW : JSON.stringify(x.d.fire) === JSON.stringify(x.f)))).toBe(true);
+    expect(whys("forge_try_fired")).toEqual(["coins", "daily", "ok", "ore", "timber", "tool", "top"]);
+    const fired = of("forge_try_fired").filter((v) => (v.want as { ok: boolean }).ok).map((v) => v.want as { spent: boolean; out: string; from: number; purse: Purse });
+    expect(fired.some((x) => x.spent && x.out === "taken") && fired.some((x) => x.spent && x.out !== "taken") && fired.some((x) => !x.spent)).toBe(true);
+    expect(fired.every((x) => x.spent === (x.from === FORGE.top - 1) && (!x.spent || x.purse.forgeDay === dayOf(NOW)))).toBe(true);
 
     // the helpers' line: the bellows worked for somebody else count, and for nobody else do not
     const blownFor = of("counts_of").filter((v) => (v.args[0] as Done).what === "bellows").map((v) => v.want as Counts[]);

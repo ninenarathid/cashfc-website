@@ -161,9 +161,9 @@ describe("smelting", () => {
 describe("a forging try (the table is the owner's)", () => {
   it("the table, exactly", () => {
     expect(TRIES.map((t) => [t.to, t.take, t.stay, t.down, t.fee, t.ore, t.n, t.timber])).toEqual([
-      [1, 100, 0, 0, 10, "shardCopper", 5, 2], [2, 100, 0, 0, 20, "shardCopper", 8, 2], [3, 100, 0, 0, 40, "shardCopper", 12, 3], [4, 100, 0, 0, 80, "shardIron", 16, 3],
-      [5, 90, 10, 0, 150, "oreIron", 3, 12], [6, 80, 15, 5, 250, "oreIron", 5, 12], [7, 70, 20, 10, 400, "oreSilver", 6, 15], [8, 60, 25, 15, 600, "oreSilver", 9, 15],
-      [9, 50, 25, 25, 900, "oreSilver", 12, 18], [10, 40, 30, 30, 1500, "oreSilver", 5, 6],
+      [1, 100, 0, 0, 10, "shardCopper", 5, 2], [2, 100, 0, 0, 20, "shardCopper", 8, 2], [3, 100, 0, 0, 40, "shardCopper", 12, 3], [4, 90, 10, 0, 80, "shardIron", 16, 3],
+      [5, 70, 30, 0, 150, "oreIron", 3, 12], [6, 55, 40, 5, 250, "oreIron", 5, 12], [7, 40, 50, 10, 400, "oreSilver", 6, 15], [8, 30, 55, 15, 600, "oreSilver", 9, 15],
+      [9, 20, 55, 25, 900, "oreSilver", 12, 18], [10, 10, 60, 30, 1500, "oreSilver", 5, 6],
     ]);
     for (const t of TRIES) expect(t.take + t.stay + t.down).toBe(100);
     expect(tryOdds(11)).toBeNull();
@@ -181,15 +181,15 @@ describe("a forging try (the table is the owner's)", () => {
   });
   it("what comes of it is read from the number of chance: taken, then stays, then down, in the table's shares", () => {
     expect(outcomeOf(1, 0.999)).toBe("taken");
-    expect(outcomeOf(5, 0.899)).toBe("taken");
-    expect(outcomeOf(5, 0.9)).toBe("stays");
+    expect(outcomeOf(5, 0.699)).toBe("taken");
+    expect(outcomeOf(5, 0.7)).toBe("stays");
     expect(outcomeOf(5, 0.999)).toBe("stays");
-    expect(outcomeOf(6, 0.79)).toBe("taken");
-    expect(outcomeOf(6, 0.8)).toBe("stays");
+    expect(outcomeOf(6, 0.549)).toBe("taken");
+    expect(outcomeOf(6, 0.55)).toBe("stays");
     expect(outcomeOf(6, 0.949)).toBe("stays");
     expect(outcomeOf(6, 0.95)).toBe("down");
-    expect(outcomeOf(10, 0.39)).toBe("taken");
-    expect(outcomeOf(10, 0.4)).toBe("stays");
+    expect(outcomeOf(10, 0.099)).toBe("taken");
+    expect(outcomeOf(10, 0.1)).toBe("stays");
     expect(outcomeOf(10, 0.7)).toBe("down");
     expect(outcomeOf(10, 1)).toBe("down");
     // over a thousand even numbers of chance, each level's shares come out as the table has them
@@ -212,11 +212,11 @@ describe("a forging try (the table is the owner's)", () => {
       expect(d.purse.bag[0]).toEqual({ item: "hoe", n: 1, plus: level, opts: ["hoFirst"], gems: ["earth"] });
     }
   });
-  it("up to +4 always takes; from the try to +5 on it may fail, and never leaves a tool under +4", () => {
+  it("up to +3 always takes; from the try to +4 on it may fail, and never leaves a tool under +4", () => {
     let purse = purseWith(100_000, [["shardCopper", 99], ["shardIron", 99], ["oreIron", 20], ["oreSilver", 20], ["timber", 50]], [tool("can")]);
     let smithy = newSmithy();
     for (let to = 1; to <= 4; to++) {
-      const d = ok(forgeTry(purse, smithy, 0, 0.999999));
+      const d = ok(forgeTry(purse, smithy, 0, to <= 3 ? 0.999999 : 0));
       expect(d.out).toBe("taken");
       expect(d.level).toBe(to);
       purse = d.purse;

@@ -46,12 +46,13 @@ export type WorkSound =
   // ── mining ── (a pick on stone, a rock giving way, a pick that will not bite, the crystal's ring, the lift, ore passed in a vein)
   | "pickHit" | "rockBreak" | "clink" | "crystalRing" | "liftRun" | "veinGlint"
   // ── felling ── (an axe into a trunk, a branch that strikes, a tree coming down)
-  | "chop" | "crack" | "timber";
+  | "chop" | "crack" | "timber"
+  | "forgeHit" | "forgeTaken" | "forgeTop" | "forgeStays" | "forgeDown";
 export const WORK_SOUNDS: WorkSound[] = ["hoe", "knock", "sow", "water", "feed", "spray", "pick", "pull", "dip", "pour",
   "stir", "clang", "cooked", "odd", "nothing", "made", "ladle", "down", "soak", "scrub", "squeak", "clean",
   "rustle", "pluck", "wrong", "brush", "bruise", "shake", "basket", "thud", "swish", "netted", "flit", "chirp", "cicada", "drip", "gust", "lull", "crackle", "sizzle", "turn", "charred",
   /* mining */ "pickHit", "rockBreak", "clink", "crystalRing", "liftRun", "veinGlint",
-  /* felling */ "chop", "crack", "timber"];
+  /* felling */ "chop", "crack", "timber", "forgeHit", "forgeTaken", "forgeTop", "forgeStays", "forgeDown"];
 
 const KEY = "cashtown.sfx.off";
 /** Another's fishing: how loud it is beside them, as a share of one's own, and how many tiles off it is last heard. */
@@ -287,6 +288,31 @@ function makeWork(b: Bench, name: WorkSound, t: number) {
       // the spoon on the rim: off the beat
       tone(b, t, "square", 880, 830, 0.05, 0.09, 0.001);
       tone(b, t, "triangle", 1320, 1250, 0.09, 0.09, 0.001);
+      break;
+    case "forgeHit":
+      tone(b, t, "sine", 150, 65, .16, .28, .002);
+      tone(b, t, "triangle", 1120, 1030, .23, .16, .001);
+      tone(b, t, "sine", 2240, 2130, .32, .08, .001);
+      hiss(b, t, "highpass", 6200, 2200, .7, .13, .08, .001);
+      break;
+    case "forgeTaken":
+    case "forgeTop": {
+      const top = name === "forgeTop";
+      tone(b, t, "sine", 100, 50, .25, .25, .002);
+      hiss(b, t, "bandpass", 1800, 4800, .7, .34, .1, .025);
+      for (const [i, hz] of (top ? [523.25, 659.25, 783.99, 1046.5, 1318.51] : [523.25, 659.25, 1046.5]).entries())
+        bell(b, t + .06 + i * .105, hz, top ? .16 : .12, top ? .85 : .48);
+      if (top) tone(b, t + .25, "sine", 261.63, 523.25, .8, .09, .12);
+      break;
+    }
+    case "forgeStays":
+      tone(b, t, "triangle", 440, 290, .18, .14, .003);
+      hiss(b, t + .04, "lowpass", 1400, 350, .8, .35, .13, .04);
+      break;
+    case "forgeDown":
+      hiss(b, t, "highpass", 3800, 1800, .8, .19, .15, .001);
+      tone(b, t, "sine", 170, 50, .24, .26, .002);
+      tone(b, t + .06, "triangle", 587.33, 196, .3, .13, .005);
       break;
     case "cooked":
       // the lid off, steam out, and three notes like a bell at a kitchen hatch

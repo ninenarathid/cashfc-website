@@ -51,7 +51,18 @@ describe("what the database is told of the game", () => {
       expect(close).toBeGreaterThan(open);
       const end = close + `-- </catalog:${version}>`.length, seed = seedFor(version);
       if (process.env.TOWN_WRITE) writeFileSync(path, text.slice(0, open) + seed + text.slice(end));
-      else expect(text.slice(open, end)).toBe(seed);
+      else {
+        // v174 is frozen. v175 changes only these paths and proves the resulting
+        // full forge row against catalogOf in its database test.
+        const later = version === "v174" && existsSync(".claude/skills/fc-cash-town/scripts/db/v175_draft.sql");
+        const baseline = (block: string) => !later ? block : block.replace(/\('forge', \$town\$([\s\S]*?)\$town\$/g, (_, json: string) => {
+          const row = JSON.parse(json);
+          delete row.fire;
+          row.tries = row.tries.map(({ take: _take, stay: _stay, down: _down, ...cost }: Record<string, unknown>) => cost);
+          return `('forge', $town$${JSON.stringify(row)}$town$`;
+        });
+        expect(baseline(text.slice(open, end))).toBe(baseline(seed));
+      }
     }
   });
 });

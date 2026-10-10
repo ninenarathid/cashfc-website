@@ -1,5 +1,12 @@
 # Handoff: v174 (the blacksmith) — from Claude to Codex, 2026-10-10 morning
 
+**Codex update, 2026-10-10:** The owner confirmed v174 has not run, approved daily great fire at 10%, and approved
+repeat top attempts on other tools on later game days. v175 is reserved for the harder odds and daily fire; next
+free number is v176. `smith-fun` contains the first release. The owner explicitly requested pushing this first
+release immediately, then continuing OP powers and the wider game changes. Code is pushed and its deploy checked
+before v174 and v175 are placed in `supabase/` together. Run v174 THEN v175 while the smith stays closed. The
+old shared-fire reset/open instructions below are historical; no reset is needed for v175. The v174 SQL is frozen.
+
 Claude's weekly limit ran out mid-work. The owner asked for the context to be written down so that Codex can carry
 on by itself, the deploy included. This file is that. Read it whole before doing anything. Delete it in the
 "v174 has run" commit.

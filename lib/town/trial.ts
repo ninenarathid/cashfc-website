@@ -1671,11 +1671,11 @@ export class Trial {
   /* ── the great fire (lib/town/great-fire): the village's, so the browser's like the board ── */
   private greatFire(): GreatFire { return soundGreatFire(this.read<unknown>(SMITH_FIRE, newGreatFire, (v) => !!v && typeof v === "object" && !Array.isArray(v))); }
   /** What I may be told of the great fire. */
-  fire() { return fireTold(this.greatFire(), this.id, this.now()); }
+  fire() { return fireTold({ ...this.greatFire(), used: { [this.id]: this.purse().forgeDay ?? -1 } }, this.id, this.now()); }
   /** Whether my bag holds a tool that stands one level under the top: the row is for those who have one. */
   private underTop(): boolean { return this.purse().bag.some((s) => !!s && !!toolKindOf(s.item) && levelOf(s) === FORGE.top - 1); }
   fireJoin(name: string): { ok: true } | { ok: false; why: SmithRefusal } {
-    const did = joinRow(this.greatFire(), { id: this.id, name }, this.underTop(), this.now());
+    const did = joinRow({ ...this.greatFire(), used: { [this.id]: this.purse().forgeDay ?? -1 } }, { id: this.id, name }, this.underTop(), this.now());
     if (!did.ok) return { ok: false, why: did.why };
     this.write(SMITH_FIRE, did.fire);
     this.tell();
@@ -1706,13 +1706,21 @@ export class Trial {
     this.write(SMITH_FIRE, { ...f, row: [...fakes, mine, ...rest] });
     this.tell();
   }
-  fireReset() { this.write(SMITH_FIRE, newGreatFire()); this.tell(); }
+  fireReset() {
+    this.write(SMITH_FIRE, newGreatFire());
+    const { forgeDay: _day, ...purse } = this.purse();
+    this.smithKeep({ ok: true as const, purse });
+    this.tell();
+  }
   smithTry(slot: number, name: string) {
     // (a tool one level under the top is tried only with the great fire: asked before anything is taken)
     const held = this.purse().bag[slot], needs = !!held && !!toolKindOf(held.item) && levelOf(held) === FORGE.top - 1;
-    if (needs) { const why = fireWhy(this.greatFire(), this.id, this.now()); if (why) return { ok: false as const, why }; }
+    if (needs) { const why = fireWhy({ ...this.greatFire(), used: { [this.id]: this.purse().forgeDay ?? -1 } }, this.id, this.now()); if (why) return { ok: false as const, why }; }
     const did = this.smithKeep(forgeTry(this.purse(), this.smithy(), slot, this.smithChance(), name));
-    if (did.ok && needs) this.write(SMITH_FIRE, fireSpent(this.greatFire(), { id: this.id, name }, did.out, this.now(), Math.random()));
+    if (did.ok && needs) {
+      this.save({ ...this.purse(), forgeDay: dayOf(this.now()) });
+      this.write(SMITH_FIRE, fireSpent(this.greatFire(), { id: this.id, name }, did.out, this.now()));
+    }
     if (did.ok) {
       // (every try is written down, whatever came of it; and the first of a kind at the top goes on the board)
       const now = this.now();

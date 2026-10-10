@@ -108,7 +108,10 @@ export async function forgeTo(b, as, id, slot, level, { want = [], redraws = 40,
     await b.sql(`update public.town_purses set coins = coins + $2 where member_id = $1`, [id, takes.fee]);
     if (plus + 1 === top) {
       if (!fire) throw new Error("the top takes the great fire: ask with fire: true");
-      await lightByHand(b);
+      if (f.fire?.daily) {
+        const used = (await kept(b, id)).doc.forgeDay, today = (await b.one(`select town.day_of(town.now_ms()) d`)).d;
+        if (used === today) await b.skip(24 * 3600000);
+      } else await lightByHand(b);
       await b.rpc(as, "town_fire_join");
     }
     const did = (await b.rpc(as, "town_smith_try", { p_slot: 0 })).body;

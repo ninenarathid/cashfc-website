@@ -7,10 +7,12 @@ import {
 } from "@/lib/town/forge";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import type { FireTold } from "@/lib/town/great-fire";
+import { KNOCKS_MS, SHOW, type ForgeShow } from "@/lib/town/forge-show";
 import type { Keeper, MoveHow } from "@/lib/town/keeper";
 import { LINES } from "@/lib/town/lines";
 import { running } from "@/lib/town/powers";
 import type { FishSfx } from "@/lib/town/sfx";
+import { dayOf } from "@/lib/town/stamina";
 import ART from "@/lib/town/smith-art.json";
 import { cardOf, gemDoes, nextOf, optionDoes } from "@/lib/town/tool-words";
 import {
@@ -21,6 +23,7 @@ import { heldIn } from "@/lib/town/pouches";
 import type { Stack } from "@/lib/town/trade";
 import { bySmith } from "@/lib/town/world";
 import TownIcon, { type IconName } from "./TownIcon";
+import TownForgeEffects from "./TownForgeEffects";
 import { Coins, ItemIcon, StackIcon, forgeWords, gemWords } from "./TownTrade";
 
 /** The smith's five leaves. */
@@ -44,6 +47,7 @@ export function smithChoices(keeper: Keeper | null, th: boolean): Array<{ id: Sm
 
 /** Why something was not done at the smith, in a few words. */
 const WHY: Record<SmithRefusal, [th: string, en: string]> = {
+  daily: ["วันนี้ใช้สิทธิ์มหาไฟแล้ว กลับมาลองใหม่พรุ่งนี้", "Today's great-fire try is used. Come back tomorrow."],
   none: ["ไม่มีสิ่งนั้นแล้ว", "It is not there any more"],
   amount: ["จำนวนไม่ถูกต้อง", "Not a number that can be done"],
   tool: ["เครื่องมือชิ้นนี้ตีบวกไม่ได้", "This is no tool that can be forged"],
@@ -158,24 +162,35 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   // ── a try: three knocks, and what came of it ──
   const [knock, setKnock] = useState(0);
   const [came, setCame] = useState<{ out: Outcome; level: number } | null>(null);
+  const [spectacle, setSpectacle] = useState<ForgeShow | null>(null);
   const timers = useRef<Array<ReturnType<typeof setTimeout>>>([]);
-  useEffect(() => () => { for (const x of timers.current) clearTimeout(x); }, []);
+  const alive = useRef(true), finishKnocks = useRef<(() => void) | null>(null);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; for (const x of timers.current) clearTimeout(x); finishKnocks.current?.(); }; }, []);
   const strike = async () => {
     if (busy || slot < 0) return;
     setBusy(true); setCame(null); setSaid(null);
     const struck = stack?.item ?? null;
+    for (const timer of timers.current) clearTimeout(timer); timers.current = [];
+    if (struck) setSpectacle({ item: struck, from: level, out: null, at: performance.now() });
     if (struck) shown?.({ item: struck, from: level, out: null });
-    const gap = reduced ? 140 : 380;
+    const gap = reduced ? 140 : SHOW.knock;
     const knocks = new Promise<void>((done) => {
-      [0, 1, 2].forEach((i) => timers.current.push(setTimeout(() => { setKnock(i + 1); sfx?.work("clang"); }, i * gap)));
-      timers.current.push(setTimeout(done, 3 * gap));
+      finishKnocks.current = done;
+      [0, 1, 2].forEach((i) => {
+        timers.current.push(setTimeout(() => setKnock(i + 1), i * gap));
+        timers.current.push(setTimeout(() => sfx?.work("forgeHit", .55 + i * .2), (i + .78) * gap));
+      });
+      timers.current.push(setTimeout(done, reduced ? 3 * gap : KNOCKS_MS));
     });
-    const [did] = await Promise.all([keeper.smithTry(slot, name), knocks]);
+    const [did] = await Promise.all([keeper.smithTry(slot, name).catch(() => ({ ok: false as const, why: "away" as const })), knocks]);
+    finishKnocks.current = null;
+    if (!alive.current) return;
     setKnock(0); setBusy(false);
-    if (!did.ok) { shown?.(null); refuse(did.why); return; }
+    if (!did.ok) { setSpectacle(null); shown?.(null); refuse(did.why); return; }
     if (struck) shown?.({ item: struck, from: did.from, out: did.out });
     setCame({ out: did.out, level: did.level });
-    sfx?.work(did.out === "taken" ? "made" : "nothing");
+    if (struck) setSpectacle({ item: struck, from: did.from, out: did.out, at: performance.now() - KNOCKS_MS });
+    sfx?.work(did.out === "taken" ? did.level === FORGE.top ? "forgeTop" : "forgeTaken" : did.out === "down" ? "forgeDown" : "forgeStays");
     setSaid(did.out === "taken" ? { text: t(`ตีติด! เป็น +${did.level} แล้ว`, `It took: +${did.level}`), tone: "good" }
       : did.out === "stays" ? { text: t(`ไม่ติด ระดับยังอยู่ที่ +${did.level}`, `It did not take. Still +${did.level}`), tone: "plain" }
         : { text: t(`ไม่ติด ระดับลดลงเหลือ +${did.level}`, `It did not take. Down to +${did.level}`), tone: "bad" });
@@ -188,7 +203,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   }, [view, slot, owed, laid, busy, keeper]);
   // (the options laid out are brought into sight: on a small screen they may come under its foot)
   const offerRef = useRef<HTMLDivElement | null>(null);
-  useEffect(() => { if (laid) offerRef.current?.scrollIntoView({ block: "nearest", behavior: reduced ? "auto" : "smooth" }); }, [laid, reduced]);
+  useEffect(() => { if (laid) offerRef.current?.scrollIntoView({ block: "start", behavior: reduced ? "auto" : "smooth" }); }, [laid, reduced]);
   const choose = async (pick: string) => {
     if (busy || slot < 0) return;
     setBusy(true);
@@ -302,7 +317,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
     return () => window.removeEventListener("keydown", onKey);
   }, [again, gem, moveTo, onClose]);
   // (a leaf turned: what the last one said is put away)
-  useEffect(() => { setSaid(null); setCame(null); setAgain(null); setGem(null); setMoveTo(null); }, [view]);
+  useEffect(() => { setSaid(null); setCame(null); setSpectacle(null); setAgain(null); setGem(null); setMoveTo(null); }, [view]);
 
   if (!told) return null;
   const q = smithView(told.smithy, now);
@@ -324,7 +339,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
             const m = modsOf(x.stack), on = x.slot === slot;
             return (
               <li key={x.slot}>
-                <button type="button" onClick={() => { setPicked(x.slot); setCame(null); setSaid(null); setAgain(null); setMoveTo(null); }} aria-pressed={on} disabled={busy || (laid && !on)}
+                <button type="button" onClick={() => { setPicked(x.slot); setCame(null); setSpectacle(null); setSaid(null); setAgain(null); setMoveTo(null); }} aria-pressed={on} disabled={busy || (laid && !on)}
                         data-smith-tool={x.slot} data-item={x.stack.item} data-plus={m.level}
                         aria-label={`${itemName(x.stack.item, th)} ${forgeWords(x.stack, th) || `+${m.level}`}`}
                         className={`pressable relative grid size-12 place-items-center rounded-xl border-2 disabled:opacity-40 ${on ? "border-[#f0c46a] bg-[#4a3423] shadow-[0_0_0_2px_rgba(240,196,106,0.25)]" : "border-[#6b4a2a] bg-[#33251a] hover:border-[#c9a877]"}`}>
@@ -341,7 +356,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   // (a forging that sits in a kind of tool of another pool than its own: its options sleep there, and it is moved back before it is forged further)
   const away = awayOf(stack), home = originOf(stack);
   // (the great fire, where whoever keeps the game has one: a tool one level under the top needs it for its try)
-  const fireNow = keeper.fire(), underTop = level === FORGE.top - 1, noFire = fireNow && underTop ? fireBar(fireNow) : null;
+  const fireNow = keeper.fire(), underTop = level === FORGE.top - 1, noFire = fireNow && underTop ? fireBar(fireNow, now) : null;
   const homeWord = home ? (th ? KIND_WORD[home][0] : KIND_WORD[home][1].toLowerCase()) : "";
   /** The tool's own card: its plus, its numbers, its options, its gem. (An option once drawn works whatever the level has fallen to; it sleeps only in a kind of tool of another pool, and says so.) */
   const card = stack && kind && (
@@ -418,7 +433,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
   );
   /** A draw's options, laid out to choose from: each on its own card. */
   const offer = laid && pending && (
-    <div className="mb-3" ref={offerRef} data-smith-offer data-at={pending.at}>
+    <div className="mb-3" ref={offerRef} style={{ scrollMarginTop: "13rem" }} data-smith-offer data-at={pending.at}>
       <p className="mb-2 text-center font-display text-lead font-semibold text-[#f0c46a]">{pending.old ? t("เลือกอันใหม่ หรือเก็บอันเดิม", "Take a new one, or keep the old") : t(`ถึง +${FORGE.milestones[pending.at]} แล้ว เลือกออปชันหนึ่งอย่าง`, `+${FORGE.milestones[pending.at]}: choose one option`)}</p>
       <ul className={`grid gap-2 ${pending.offer.length + (pending.old ? 1 : 0) > 2 && !phone ? "grid-cols-3" : "grid-cols-2"}`}>
         {[...pending.offer, ...(pending.old ? [pending.old] : [])].map((id, i) => <OptionCard key={id} id={id} th={th} at={FORGE.milestones[pending.at]} keep={id === pending.old} busy={busy} reduced={reduced} delay={i * 90} onPick={() => void choose(id)} />)}
@@ -438,6 +453,8 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
         @keyframes sm-bob { 0%, 100% { transform: translate(-50%, -100%) } 50% { transform: translate(-50%, calc(-100% - 3px)) } }
         @keyframes sm-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .72 } }
         @keyframes sm-flash { from { opacity: .9 } to { opacity: 0 } }
+        @keyframes sm-stamp { 0% { transform: translate(-50%,-50%) scale(1.65); opacity: 0 } 25% { transform: translate(-50%,-50%) scale(.93); opacity: 1 } 50% { transform: translate(-50%,-50%) scale(1.06) } 100% { transform: translate(-50%,-50%) scale(1) } }
+        @keyframes sm-fall { 0% { transform: translate(-50%,-75%); opacity: 0 } 30% { opacity: 1 } 100% { transform: translate(-50%,-50%); opacity: 1 } }
       `}</style>
       <section aria-labelledby="town-smith-h" className="flex h-full flex-col">
         {/* the head: an iron plate riveted to the board */}
@@ -462,7 +479,7 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
         <div ref={leavesRef} className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain bg-gradient-to-b from-[#8a5a2b] to-[#6e4420]">
           {/* the forge itself: the furnace, the anvil with the tool on it, the hammer */}
           {view !== "board" && (
-            <div className="relative w-full overflow-hidden border-b-2 border-[#2e1c0c]" style={{ aspectRatio: `${BAND.w} / ${BAND.h}` }} data-smith-scene>
+            <div className={`${view === "forge" ? "sticky top-0 z-10" : "relative"} w-full overflow-hidden border-b-2 border-[#2e1c0c] bg-[#1d140c]`} style={{ aspectRatio: `${BAND.w} / ${BAND.h}` }} data-smith-scene>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={ART.image} alt="" decoding="async" className="absolute inset-0 size-full object-cover" style={{ imageRendering: "pixelated", objectPosition: `50% ${BAND.top * 100}%` }} />
               {/* the fire's breath, while a piece smelts */}
@@ -475,22 +492,19 @@ export default function TownSmith({ keeper, th, view, onView, onClose, phone, ta
               )}
               {view !== "smelt" && stack && (
                 <>
+                  {spectacle && <TownForgeEffects show={spectacle} reduced={reduced} x={ART.anvil[0]} y={(ART.anvil[1] - START) / FRAC - .1} />}
                   <span className="absolute" style={{ ...spot(ART.anvil), transform: "translate(-50%, -100%)", animation: !reduced && mods.glow === 2 ? "sm-bob 2.4s ease-in-out infinite" : undefined }} data-smith-anvil data-glow={mods.glow}>
                     <span className="block" style={glow}><ItemIcon id={stack.item} size={phone ? 52 : 62} /></span>
                   </span>
-                  {level > 0 && <span className="absolute -translate-x-1/2 rounded-full border border-[#2a190d] bg-[#f0c46a] px-1.5 font-data text-meta font-bold text-[#2a190d]" style={{ ...spot([ART.anvil[0] + 0.07, ART.anvil[1] - 0.2]) }}>+{level}</span>}
+                  {level > 0 && !came && <span className="absolute -translate-x-1/2 rounded-full border border-[#2a190d] bg-[#f0c46a] px-1.5 font-data text-meta font-bold text-[#2a190d]" style={{ ...spot([ART.anvil[0] + 0.07, ART.anvil[1] - 0.2]) }}>+{level}</span>}
                   {/* the hammer: three knocks to a try */}
                   {knock > 0 && (
-                    <span key={knock} aria-hidden className="absolute origin-bottom-right" style={{ ...spot([ART.anvil[0] + 0.02, ART.anvil[1] - 0.34]), transform: "rotate(-24deg)", animation: reduced ? undefined : "sm-swing 360ms ease-in both" }}>
-                      <TownIcon name="hammer" size={phone ? 40 : 46} />
+                    <span key={knock} aria-hidden className="absolute origin-bottom-right" style={{ ...spot([ART.anvil[0] + 0.02, ART.anvil[1] - 0.34]), transform: "rotate(-24deg)", animation: reduced ? undefined : `sm-swing ${SHOW.knock}ms ease-in both` }}>
+                      <TownIcon name="hammer" size={(phone ? 40 : 46) + knock * 2} />
                     </span>
                   )}
-                  {knock > 0 && !reduced && [[-26, -22], [22, -26], [-8, -34], [30, -8]].map(([sx, sy], i) => (
-                    <span key={`${knock}-${i}`} aria-hidden className="absolute" style={{ ...spot([ART.anvil[0], ART.anvil[1] - 0.1]), ["--sx" as string]: `${sx}px`, ["--sy" as string]: `${sy}px`, animation: "sm-spark 320ms ease-out 200ms both", opacity: 0 }}>
-                      <TownIcon name={(`fxSpark${(i % 4) + 1}`) as IconName} size={12} />
-                    </span>
-                  ))}
-                  {came && <span key={`${came.out}-${came.level}`} aria-hidden className="pointer-events-none absolute inset-0" style={{ background: came.out === "taken" ? "radial-gradient(circle at 50% 50%, rgba(255,220,130,.75), rgba(255,220,130,0) 60%)" : "radial-gradient(circle at 50% 50%, rgba(20,20,26,.6), rgba(20,20,26,0) 60%)", animation: reduced ? undefined : "sm-flash 700ms ease-out both", opacity: reduced ? 0 : undefined }} />}
+                  {came && <span key={spectacle?.at} aria-hidden className={`pointer-events-none absolute rounded-xl border-2 bg-black/70 px-3 py-1 font-data text-[2rem] font-black tabular-nums ${came.out === "taken" ? "border-[#ffd36c] text-[#fff0b3]" : came.out === "down" ? "border-[#ff735d] text-[#ffb39c]" : "border-[#8995a8] text-[#d9e0e9]"}`}
+                    style={{ left: `${ART.anvil[0] * 100}%`, top: "23%", transform: "translate(-50%,-50%)", fontSize: came.level === FORGE.top ? "3rem" : undefined, animation: reduced ? undefined : `${came.out === "down" ? "sm-fall" : "sm-stamp"} 480ms ease-out both` }} data-smith-result={came.out}>+{came.level}</span>}
                 </>
               )}
               {/* what the last thing done came to: a strip at the picture's foot, so that nothing under it moves */}
@@ -958,7 +972,8 @@ function MoveCard({ stack, was, th, side }: { stack: Stack; was?: Stack; th: boo
  * Why a try for the top may not be made now, by what the village is told of its great fire (lib/town/great-fire's
  * `fireWhy`, read from what a page may see); null when it may.
  */
-function fireBar(f: FireTold): SmithRefusal | null {
+function fireBar(f: FireTold, now: number): SmithRefusal | null {
+  if (f.daily) return f.daily.used && f.daily.day === dayOf(now) ? "daily" : null;
   if (!f.lit) return "fire";
   if (f.mine < 0) return f.topped ? "topped" : "row";
   return f.mine >= f.open ? "turn" : null;
@@ -969,7 +984,17 @@ function fireBar(f: FireTold): SmithRefusal | null {
  * half, the row of names taking turns and where I stand in it. Nothing here says when a half can be found: that is
  * for the village to come upon.
  */
-function GreatFireCard({ fire, th, name, keeper, onRefuse }: { fire: FireTold; th: boolean; name: string; keeper: Keeper; onRefuse: (why: SmithRefusal) => void }) {
+type FireCardProps = { fire: FireTold; th: boolean; name: string; keeper: Keeper; onRefuse: (why: SmithRefusal) => void };
+function GreatFireCard(props: FireCardProps) {
+  if (!props.fire.daily) return <LegacyGreatFireCard {...props} />;
+  const { fire, keeper, th } = props, used = fire.daily!.used && fire.daily!.day === dayOf(keeper.now());
+  return <div className="mb-3 rounded-2xl border-2 border-[#f0c46a] bg-[#332013] p-3" data-smith-daily-fire data-used={used}>
+    <p className="flex items-center gap-2 font-display text-title font-semibold text-[#ffd36c]"><TownIcon name="hammer" size={22} />{th ? "มหาไฟประจำวัน" : "The daily great fire"}</p>
+    <p className="mt-2 text-ui text-[#f3e3c3]">{used ? th ? "วันนี้ใช้สิทธิ์แล้ว ลองใหม่ได้ตอน 05:00 น." : "Today's try is used. Another is ready at 05:00 Bangkok." : th ? "พร้อมลอง +10 ได้ 1 ครั้งวันนี้" : "One try for +10 is ready today."}</p>
+    <p className="mt-1 text-meta text-[#c9a877]">{th ? "ทุกอุปกรณ์ใช้สิทธิ์ร่วมกัน คนอื่นยังตีได้ตามสิทธิ์ของตัวเอง" : "All your tools share this try. Every other member has their own."}</p>
+  </div>;
+}
+function LegacyGreatFireCard({ fire, th, name, keeper, onRefuse }: FireCardProps) {
   const t = (thai: string, en: string) => (th ? thai : en);
   const [busy, setBusy] = useState(false);
   const inRow = fire.mine >= 0, n = fire.row.length;

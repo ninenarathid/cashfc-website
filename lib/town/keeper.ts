@@ -746,8 +746,9 @@ const fireOf = (v: unknown): FireTold | null => {
   const f = v as Partial<FireTold> | null;
   if (!f || typeof f !== "object" || typeof f.lit !== "boolean" || !Array.isArray(f.row) || typeof f.open !== "number" || typeof f.mine !== "number") return null;
   const half = (h: unknown) => (h && typeof h === "object" && typeof (h as { name?: unknown }).name === "string" ? { name: (h as { name: string }).name } : null);
+  const daily = f.daily && Number.isSafeInteger(f.daily.day) && typeof f.daily.used === "boolean" && Number.isFinite(f.daily.resetAt) ? f.daily : undefined;
   return { flint: half(f.flint), tinder: half(f.tinder), lit: f.lit, open: f.open, mine: f.mine, topped: f.topped === true,
-    row: f.row.filter((w): w is { id: string; name: string } => !!w && typeof w.id === "string").map((w) => ({ id: w.id, name: typeof w.name === "string" ? w.name : "" })) };
+    row: f.row.filter((w): w is { id: string; name: string } => !!w && typeof w.id === "string").map((w) => ({ id: w.id, name: typeof w.name === "string" ? w.name : "" })), ...(daily ? { daily } : {}) };
 };
 // ── felling ── (the functions of the mountain's trees: the database answers them only to whoever the far side is open to)
 const FELLING_FNS: ReadonlySet<string> = new Set(["town_trees", "town_fell_begin", "town_fell", "town_fell_brace", "town_fell_root"]);

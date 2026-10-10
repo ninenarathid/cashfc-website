@@ -26,7 +26,7 @@ const { ALL_LINE_IDS, MORE_LINE_IDS } = await import("@/lib/town/lines");
 
 const PORT = 3198, BASE = `http://127.0.0.1:${PORT}`;
 // (the drafts of the next migrations, kept out of supabase/ until each is proved, are tried with the rest, in their order)
-const NEXT = ["v174"];
+const NEXT = ["v174", "v175"];
 const LINES_PLAYED = ["fishing", "helpers", "insects", "kitchen"];
 const there = readdirSync(`${process.env.FC_REPO ?? "E:/NinenineProject/fcnext"}/supabase`);
 const drafts = NEXT.filter((v) => !there.some((f) => f.startsWith(`${v}_`))).map((v) => fileURLToPath(new URL(`./${v}_draft.sql`, import.meta.url))).filter((f) => existsSync(f));
@@ -1743,8 +1743,8 @@ try {
     H.onDeed = (what, to) => { nudged.push([what, to]); };
     await begun(S); await begun(H);
     ok("opened by its knob: the keeper is told yes, and has what the member has at the smith, the village's board, and the great fire as a page may know it (seven things, none of them a moment)",
-      S.smith() !== null && S.smith().smithy.queue.length === 0 && JSON.stringify(S.smith().board) === JSON.stringify({ tops: {}, found: {} }) && S.fire()?.lit === false && S.fire().mine === -1
-      && Object.keys(S.fire()).sort().join() === "flint,lit,mine,open,row,tinder,topped", [S.smith(), S.fire()]);
+      S.smith() !== null && S.smith().smithy.queue.length === 0 && JSON.stringify(S.smith().board) === JSON.stringify({ tops: {}, found: {} }) && S.fire()?.lit === true && S.fire().mine === 0 && S.fire().daily?.used === false
+      && Object.keys(S.fire()).sort().join() === "daily,flint,lit,mine,open,row,tinder,topped", [S.smith(), S.fire()]);
     let did = await S.smithSmelt("oreCopper", 2);
     ok("two pieces put in through the keeper: paid for, and in the keeper's queue at once, by the database's clock", did.ok && did.fee === 2 * copper.fee && S.smith().smithy.queue.length === 2 && S.purse().coins === 5000 - 2 * copper.fee
       && Math.abs(S.smith().smithy.queue[0].from - S.now()) < 1500, did);
@@ -1771,12 +1771,17 @@ try {
     ok("the great fire's row is for whoever has a tool one level under the top: refused, `level`", !row.ok && row.why === "level" && S.fire().row.length === 0, row);
     await sql(`update public.town_purses set doc = jsonb_set(doc, '{bag,0}', $2::jsonb) where member_id = $1`, [a, JSON.stringify({ item: "pot", n: 1, plus: FORGE.forge.top - 1, opts: ["ckFire", "ckBase"] })]);
     row = await S.fireJoin("a name the page says");
-    const name = (await sql(`select town.smith_called($1) as n`, [a]))[0].n;
-    ok("with one, a name is put in the row: the one the site calls them by, not the page's; and the keeper has the row at once", row.ok && S.fire().mine === 0 && S.fire().row.length === 1 && S.fire().row[0].name === name && name !== "a name the page says", [row, S.fire()]);
+    ok("daily compatibility call creates no queue", row.ok && S.fire().mine === 0 && S.fire().row.length === 0 && S.fire().daily?.used === false, [row, S.fire()]);
     did = await S.smithTry(0);
-    ok("a try for the top with no fire lit is refused through the keeper, `fire`, and nothing is spent", !did.ok && did.why === "fire" && S.purse().coins === 5000 - 2 * copper.fee - FORGE.tries[0].fee - fee, did);
+    ok("missing top materials are refused without spending the daily right", !did.ok && did.why === "ore" && S.fire().daily?.used === false, did);
+    await sql(`update public.town_purses set doc = jsonb_set(jsonb_set(doc, '{bag,4}', '{"item":"oreSilver","n":20}'::jsonb), '{bag,5}', '{"item":"timber","n":50}'::jsonb) where member_id = $1`, [a]);
+    did = await S.smithTry(0);
+    ok("top attempt accepted and daily right read back immediately", did.ok && S.fire().daily?.used === true && S.purse().forgeDay === S.fire().daily.day, did);
+    await sql(`update public.town_purses set doc = jsonb_set(doc, '{bag,1}', '{"item":"pot","n":1,"plus":9,"opts":["ckFire","ckBase"]}'::jsonb) where member_id = $1`, [a]);
+    did = await S.smithTry(1);
+    ok("another tool cannot spend the same day's right", !did.ok && did.why === "daily", did);
     row = await S.fireLeave();
-    ok("…and the name is taken out again", row.ok && S.fire().mine === -1 && S.fire().row.length === 0, [row, S.fire()]);
+    ok("no queue remains to leave", !row.ok && row.why === "none", row);
     await sql(`update public.town_purses set doc = doc || jsonb_build_object('hand', 'bugNet', 'handAt', 2, 'powers', '{}'::jsonb) || jsonb_build_object('bag', jsonb_set(doc->'bag', '{2}', $2::jsonb)) where member_id = $1`,
       [a, JSON.stringify({ item: "bugNet", n: 1, plus: 10, opts: ["", "", "ntFreeze"] })]);
     await settled(S);
@@ -1784,7 +1789,7 @@ try {
     ok("a counted option of the tool in the hand is counted by the database through the keeper; one the tool has not is not asked for", power.ok && power.left === FORGE.options.of.ntFreeze.use.n - 1 && S.purse().powers.ntFreeze.n === 1
       && !noPower.ok && noPower.why === "none" && sent.filter((x) => x.fn === "town_tool_power").length === 1, [power, noPower]);
     const deeds = Object.fromEntries((await sql(`select what, count(*)::int as n from public.town_deeds where what in ('smelt', 'smelted', 'bellows', 'forge', 'forge_move', 'fire_join', 'fire_leave', 'power') group by 1`)).map((r) => [r.what, r.n]));
-    ok("what was done was written down by the functions themselves", deeds.smelt === 1 && deeds.smelted === 1 && deeds.bellows === 1 && deeds.forge === 1 && deeds.forge_move === 1 && deeds.fire_join === 1 && deeds.fire_leave === 1 && deeds.power === 1, deeds);
+    ok("what was done was written down by the functions themselves", deeds.smelt === 1 && deeds.smelted === 1 && deeds.bellows === 1 && deeds.forge === 2 && deeds.forge_move === 1 && !deeds.fire_join && !deeds.fire_leave && deeds.power === 1, deeds);
     await sql(`update public.town_knobs set value = 0 where key = 'smith_open'`);
     const gone = await S.smithWiden();
     ok("the smith shut again by his knob: a deed of his is refused, the keeper forgets him and the fire, and the game and the far side are theirs all the same", !gone.ok && gone.why === "away" && S.smith() === null && S.fire() === null && S.open() === true && S.far() === true, gone);

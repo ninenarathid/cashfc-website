@@ -28,7 +28,9 @@ export type ForgeTold = { item: ItemId; from: number; out: Outcome };
 
 export const SHOW = {
   /** The smith's knocks: so many, so far apart (components/town/TownSmith's own beats). */
-  knocks: 3, knock: 380,
+  knocks: 3, knock: 440,
+  /** A held beat after the last blow; the same anticipation for every outcome. */
+  hold: 220,
   /** How long what came of it is shown; and at the top, taken. */
   result: 3000, top: 5200,
   /** Its last moments, in which it fades. */
@@ -39,7 +41,7 @@ export const SHOW = {
   every: 900,
 } as const;
 /** How long the knocks take. */
-export const KNOCKS_MS = SHOW.knocks * SHOW.knock;
+export const KNOCKS_MS = SHOW.knocks * SHOW.knock + SHOW.hold;
 const OUTS: readonly Outcome[] = ["taken", "stays", "down"];
 
 /** The level the tool stands at after the try. */
@@ -75,7 +77,8 @@ export type ShowAt =
 export function showAt(show: ForgeShow, wall: number): ShowAt | null {
   const t = wall - show.at;
   if (t < 0 || t >= showMs(show)) return null;
-  if (t < KNOCKS_MS) return { phase: "knocks", beat: Math.floor(t / SHOW.knock), into: (t % SHOW.knock) / SHOW.knock, held: false };
+  if (t < SHOW.knocks * SHOW.knock) return { phase: "knocks", beat: Math.floor(t / SHOW.knock), into: (t % SHOW.knock) / SHOW.knock, held: false };
+  if (t < KNOCKS_MS) return { phase: "knocks", beat: SHOW.knocks - 1, into: 1, held: true };
   if (show.out === null) return { phase: "knocks", beat: SHOW.knocks - 1, into: 1, held: true };
   const ms = t - KNOCKS_MS, long = showMs(show) - KNOCKS_MS;
   return { phase: "result", ms, through: ms / long, alpha: Math.min(1, (long - ms) / SHOW.fade) };

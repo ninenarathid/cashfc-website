@@ -466,18 +466,18 @@ try {
       if (did.odds !== `${table.take}/${table.stay}/${table.down}`) bad.push(`+${level + 1}: odds on the screen ${did.odds}, the catalog's ${table.take}/${table.stay}/${table.down}`);
       if (after !== shouldBe || !new RegExp(`\\+${after}(?!\\d)`).test(did.said ?? "")) bad.push(`+${level + 1} ${did.out}: the stand-in has +${after}, the screen said "${did.said}"`);
       // the second window: the try over the forger's head, with the level it came to
-      const words = await until("the try is over the forger's head in the second window", async () => { const w = await drawn(B, 4000); return w.includes(`+${after}`) && (did.out !== "stays" || w.includes("ไม่ขึ้น")) && w; }, 5000, 150).catch(() => null);
+      const words = await until("the try is over the forger's head in the second window", async () => { const w = await drawn(B, 4000); return w.includes(`+${after}`) && (did.out !== "stays" || w.includes("คงเดิม")) && w; }, 5000, 150).catch(() => null);
       overHead.push(!!words);
       return { level, did, after };
     };
-    // to +4: every try taken (the draw of +3 chosen as it is laid out)
+    // to +3: every try taken (the draw of +3 chosen as it is laid out)
     const early = [];
-    for (let i = 0; i < FORGE.forge.floor; i++) {
+    for (let i = 0; i < 3; i++) {
       const t = await one_();
       early.push(t.did.out);
       if (await there(A, "[data-smith-offer]").catch(() => false) || t.after === FORGE.forge.milestones[0]) await chooseFirst(A);
     }
-    ok("to +4 every try is taken, at odds the screen gives as certain", same(early, Array(FORGE.forge.floor).fill("taken")) && Number((await toolKept(a, "pick")).plus) === FORGE.forge.floor, early);
+    ok("to +3 every try is taken, at odds the screen gives as certain", same(early, Array(3).fill("taken")) && Number((await toolKept(a, "pick")).plus) === 3, early);
     // onward by the database's chance, until a "stays" and a level lost have each been on the screen
     for (let i = 0; i < 90 && !(seen.stays && seen.down); i++) {
       let level = Number(await attr(A, "[data-smith-card]", "data-plus"));
@@ -645,124 +645,31 @@ try {
     await shutSmith(A);
   }
 
-  /* ── 7: the great fire ── */
+  /* 7: daily great fire (v175) */
   if (runs(7)) {
-    console.log("7  the great fire");
-    await second();
-    const { b: bId, idB, nameB } = who;
-    await sql(`delete from public.town_smiths where member_id in ($1, $2)`, [a, bId]);
-    await fireAsNew(b);
-    await sql(`update public.town_things set doc = '{"down": {}, "half": []}'::jsonb where key = 'grove'`);
-    await sql(`delete from public.town_cave where true`);
-    await setPurse(a, 50000, [{ item: "pick", n: 1 }, { item: "oreSilver", n: 20 }, { item: "timber", n: 50 }, { item: "axe", n: 1 }]);
-    await setPurse(bId, 50000, [{ item: "pick", n: 1 }, { item: "oreSilver", n: 20 }, { item: "timber", n: 50 }, { item: "pick", n: 1 }]);
-    await opened();
-    const top = FORGE.forge.top;
-    const mineA = await forged(A, idA, a, "pick", top - 1), mineB = await forged(B, idB, bId, "pick", top - 1);
-    note(`two picks forged to +${top - 1} by their members' own functions: ${mineA.tries} and ${mineB.tries} tries`);
-    await again(A); await again(B);
-    await go(A, "smith");
-    await openSmith(A, "forge");
-    await anvil(A, "pick", true);
-    const cards = {};
-    cards.new = await fireCard(A);
-    const none = { card: cards.new, why: await attr(A, "[data-smith-fire-why]", "data-smith-fire-why"), words: await textOf(A, "[data-smith-fire-why]"), pressed: await press(A, "[data-smith-strike]", 100), db: (await rpc(idA, "town_smith_try", { p_slot: 0 })).body?.why };
-    ok("with a tool one under the top on the anvil the great fire's card is on the forging leaf: not lit, neither half found, nobody in the row; the strike is not to be pressed, says why in words, and the stand-in refuses a try with the same word", none.card?.lit === "0" && none.card.flint === "" && none.card.tinder === "" && none.card.row === 0 && none.why === "fire" && !!none.words && none.pressed === false && none.db === "fire", none);
-    await shutSmith(A);
-
-    // tinder: a tree felled (A, with the axe)
-    await hold(A, "axe");
-    await go(A, "slope");
-    await until("the trees' layer", () => A.evaluate(`!!${R} && ${R}.wood().length > 100`), 60000);
-    const tree = await A.evaluate(`(() => { const wood = ${R}.wood(), pines = wood.filter((t) => t.tier === 1 && !t.elder), far = (p, q) => Math.max(Math.abs(p.x - q.x), Math.abs(p.y - q.y));
-      return pines.find((t) => !wood.some((x) => x.id !== t.id && far(x, t) <= 3)) ?? pines[0]; })()`);
-    const spots = await besideTree(A, tree.id);
-    await warp(A, spots[0][0], spots[0][1]);
-    await until("the tree is offered", () => there(A, `[data-trees-offer="${tree.id}"]`), 10000, 100);
-    await press(A, `[data-trees-offer="${tree.id}"]`);
-    await until("the felling board", async () => (await gameUp(A)) === "felling", 8000, 60);
-    await A.evaluate(`${G}.auto(true, 130)`);
-    await gameGone(A, 40000);
-    await until("the card", () => there(A, "[data-trees-card]"), 8000, 60).catch(() => {});
-    const tinder = { words: await textOf(A, "[data-trees-fire]"), kept: (await fireKept()).tinder, through: await attr(A, "[data-trees-card]", "data-through") };
-    ok("a tree felled through: its card tells the feller, in words, that the tinder was found; the stand-in keeps it under their name", !!tinder.words && tinder.kept?.id === a && tinder.through === "true", tinder);
-
-    // flint: a plain rock broken (B, with a pick)
-    await hold(B, "pick", true);
-    await go(B, "foot");
-    await until("told of the rocks", () => B.evaluate(`!!${M}?.told?.()`), 30000);
-    const rock = await B.evaluate(`(() => { const all = ${M}.rocks(0), gone = ${M}.told()?.gone?.["0"] ?? []; const out = [];
-      for (const r of all) { if (gone.includes(r.id)) continue; const near = all.filter((x) => x.id !== r.id && Math.max(Math.abs(x.x - r.x), Math.abs(x.y - r.y)) <= 2).length;
-        const room = [[1, 0], [0, 1], [-1, 0], [0, -1]].filter(([dx, dy]) => ${V}.walkable(r.x + dx, r.y + dy)).length; if (room >= 3) out.push({ id: r.id, near }); }
-      return out.sort((p, q) => p.near - q.near)[0]?.id ?? null; })()`);
-    await standBy(B, 0, rock);
-    const broke = await strikeRock(B, 0, rock);
-    await until("what the rock left", () => there(B, "[data-mine-came]"), 6000, 80).catch(() => {});
-    const flint = { broke, words: await textOf(B, "[data-mine-fire]"), kept: (await fireKept()).flint };
-    ok("a plain rock broken at the mountain's foot: its card tells whoever is paid for it, in words, that the flint was found; the stand-in keeps it under their name, and with both the fire is lit", broke.gone && !!flint.words && flint.kept?.id === bId, flint);
-
-    // lit: the card, before a name is in the row
-    await go(A, "smith");
-    await openSmith(A, "forge");
-    await anvil(A, "pick", true);
-    await A.evaluate(`${K}.smithLook()`); await sleep(600);
-    cards.lit = await fireCard(A);
-    const noRow = { card: cards.lit, why: await attr(A, "[data-smith-fire-why]", "data-smith-fire-why"), words: await textOf(A, "[data-smith-fire-why]"), db: (await rpc(idA, "town_smith_try", { p_slot: 0 })).body?.why };
-    ok("lit: the card says so, with who found each half by name; with no name in the row the strike says why in words, and the stand-in refuses a try with the same word", noRow.card?.lit === "1" && noRow.card.tinder === nameA && noRow.card.flint === nameB && noRow.card.join === true && noRow.why === "row" && !!noRow.words && noRow.db === "row", noRow);
-
-    // the row: the other first, then me; mine is not the turn yet
-    await go(B, "smith");
-    await openSmith(B, "board");
-    await press(B, "[data-smith-fire-join]", 800);
-    await press(A, "[data-smith-fire-join]", 800);
-    await A.evaluate(`${K}.smithLook()`); await sleep(600);
-    cards.second = await fireCard(A);
-    const turn = { card: cards.second, other: await fireCard(B), row: (await fireKept()).row.map((w) => w.id === a ? "A" : w.id === bId ? "B" : "?"), why: await attr(A, "[data-smith-fire-why]", "data-smith-fire-why"), words: await textOf(A, "[data-smith-fire-why]"), pressed: await press(A, "[data-smith-strike]", 100), db: (await rpc(idA, "town_smith_try", { p_slot: 0 })).body?.why };
-    ok("names put down from both screens: the stand-in's row is the other, then me; my card has me second with one who may use it, the strike says it is not my turn, in words, and the stand-in refuses a try with the same word", same(turn.row, ["B", "A"]) && turn.card?.row === 2 && turn.card.mine === 1 && turn.card.open === 1 && turn.card.leave === true && turn.why === "turn" && !!turn.words && turn.pressed === false && turn.db === "turn", turn);
-    await shots(A, "fire-card", async () => { await A.evaluate(`document.querySelector("[data-smith-fire]")?.scrollIntoView({ block: "start", behavior: "instant" })`); await sleep(300); });
-    await A.evaluate(`document.querySelector("[data-smith-fire]")?.scrollIntoView({ block: "start", behavior: "instant" })`);
-
-    // a turn's while on: one more of the row may use it; the try, and the fire spent whatever came of it
-    await skip(FORGE.fire.turn + 60_000);
-    await A.evaluate(`${K}.smithLook()`); await sleep(700);
-    cards.turn = await fireCard(A);
-    await stock(A, a);
-    const takes = await tryTakes(b, "pick", top), before = await kept(b, a);
-    const did = await strikeOnce(A, a);
-    await sleep(600);
-    const spent = await fireKept(), nowTool = await toolKept(a, "pick", true);
-    cards.spent = await fireCard(A);
-    ok("a turn's while later two of the row may use it; my try for the top is made from the screen for what it said (the catalog's), and whatever came of it the fire is spent: no half in the stand-in, the card not lit", cards.turn?.open === 2 && did.pressed && ["taken", "stays", "down"].includes(did.out) && same(did.want, { [takes.ore]: takes.n, timber: takes.timber, coins: takes.fee })
-      && same(did.lost, { coins: takes.fee, [takes.ore]: takes.n, timber: takes.timber }) && spent.flint === null && spent.tinder === null && spent.due > Number((await one(`select town.now_ms() as n`)).n) && (cards.spent === null || cards.spent.lit === "0"), { out: did.out, said: did.said, plus: nowTool?.plus, row: spent.row.map((w) => w.id === a ? "A" : "B"), topped: spent.topped.length, card: cards.spent, was: before.coins });
-    ok(did.out === "taken" ? "taken: the stand-in counts me as one who has taken the top, out of the row" : "not taken: the stand-in has me at the row's end, counted among nobody who has taken the top",
-      did.out === "taken" ? spent.topped.includes(a) && !spent.row.some((w) => w.id === a) && Number(nowTool.plus) === top : !spent.topped.includes(a) && spent.row.at(-1)?.id === a && Number(nowTool.plus) < top, { row: spent.row.length, topped: spent.topped.length, plus: nowTool?.plus });
-    // whoever has taken the top is not offered the row: tried until one of mine is taken, the fire lit by the stand-in's owner's hand each time
-    let goes = 1, out = did.out;
-    for (; out !== "taken" && goes < 40; goes++) {
-      if (await there(A, "[data-smith-offer]")) await chooseFirst(A);
-      const plus = Number((await toolKept(a, "pick", true)).plus);
-      if (plus < top - 1) { await forgeTo(b, idA, a, 0, top - 1); await A.evaluate(`${K}.smithLook()`); await sleep(400); }
-      await lightByHand(b);
-      await sql(`update public.town_great_fire set doc = jsonb_set(doc, '{row}', (select coalesce(jsonb_agg(w order by (w->>'id' = $1) desc), '[]'::jsonb) from jsonb_array_elements(doc->'row') w)) where one`, [a]);
-      await rpc(idA, "town_fire_join");
-      await stock(A, a);
-      await anvil(A, "pick", true);
-      const more = await strikeOnce(A, a);
-      if (!more.pressed) { note(`the strike was not to be pressed: ${JSON.stringify(more)}`); break; }
-      out = more.out;
-    }
-    if (goes > 1) note(`the top was taken at the ${goes}${goes === 2 ? "nd" : goes === 3 ? "rd" : "th"} try (the fire lit by hand for each after the first)`);
-    // (the top's own draw is laid out a moment after the try is answered, and no other leaf is turned to while it waits)
-    if (out === "taken") await until("the draw of the top is laid out", () => there(A, "[data-smith-offer]"), 8000, 100).catch(() => {});
-    if (await there(A, "[data-smith-offer]").catch(() => false)) await chooseFirst(A);
-    await leaf(A, "board");
-    await A.evaluate(`${K}.smithLook()`); await sleep(700);
-    cards.topped = await fireCard(A);
-    const topped = { out, card: cards.topped, words: await textOf(A, "[data-smith-fire-topped]"), db: (await rpc(idA, "town_fire_join")).body?.why, first: await attr(A, '[data-smith-top-of="pick"]', "data-by"), top: await there(A, "[data-smith-top]") };
-    ok("whoever has taken the top is not offered the row: the card says so in words and has no button, the stand-in refuses their name with the same word, and the board has them as the first to forge a pick to the top", out === "taken" && topped.card?.topped === true && topped.card.join === false && !!topped.words && topped.db === "topped" && topped.first === a, topped);
-    note(`the card through its states: ${JSON.stringify(cards)}`);
+    console.log("7  daily great fire");
+    await second(); await opened();
+    const { b: bId, idB } = who;
+    const first = FORGE.options.order.filter((id) => FORGE.options.of[id].pool === 1 && FORGE.options.of[id].tools.includes("pick")).slice(0, 2);
+    const readyBag = [{ item: "pick", n: 1, plus: 9, opts: first }, { item: "oreSilver", n: 20 }, { item: "timber", n: 50 }];
+    await sql(`delete from public.town_smiths where member_id in ($1,$2)`, [a,bId]);
+    await setPurse(a, 50000, readyBag); await setPurse(bId, 50000, readyBag);
+    await again(A); await again(B); await go(A,"smith"); await openSmith(A,"forge"); await anvil(A,"pick",true);
+    const ready = await A.evaluate(`${K}.fire()`);
+    ok("daily right ready with no queue", ready.daily?.used === false && ready.row.length === 0, ready);
+    await shots(A,"fire-card");
+    const did = await strikeOnce(A,a);
+    const used = await A.evaluate(`${K}.fire()`);
+    ok("accepted top try spends the member's daily right", did.pressed && ["taken","stays","down"].includes(did.out) && used.daily?.used === true, {did,used});
+    if (await there(A,"[data-smith-offer]")) await chooseFirst(A);
+    await sql(`update public.town_purses set doc=jsonb_set(doc,'{bag,0}',$2::jsonb) where member_id=$1`,[a,JSON.stringify(readyBag[0])]);
+    await again(A); await anvil(A,"pick",true);
+    const repeat = (await rpc(idA,"town_smith_try",{p_slot:0})).body;
+    ok("same member cannot try again on another device", !repeat.ok && repeat.why === "daily",repeat);
+    ok("other member retains their independent right", (await rpc(idB,"town_smith_try",{p_slot:0})).body.ok === true);
+    await skip(24*3600000); await again(A);
+    ok("next game day restores the right even after a top", (await A.evaluate(`${K}.fire()`)).daily?.used === false);
     await shutSmith(A); await shutSmith(B);
-    await fireAsNew(b);
   }
 
   /* ── 8: a forged tool in each older game, and the tool as it was bought ── */
