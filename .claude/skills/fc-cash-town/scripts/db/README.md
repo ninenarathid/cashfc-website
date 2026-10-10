@@ -193,7 +193,11 @@ not open yet, and none of the game's code is loaded for whoever it is shut to. T
 editor, with no deploy: `update public.town_knobs set value = 1 where key = 'game_open';`
 ## v175 — daily great fire (2026-10-10)
 
-Run v174, then v175, after the matching site deploy succeeds. Keep `smith_open = 0` until both have run.
+**v174 and v175 ran on 2026-10-10, confirmed by the owner.** Code `c98fcdec` deployed first; SQL `c4f7a5e9`
+followed; `8c463636` fixed the Windows clipboard definition guard. The owner's verification returned
+`{"dawn":5,"daily":true,"tries":1}`. No production probe was requested or performed.
+`RAN = 175`, `NEXT = []`, `CATALOG_KEYS = {}`; the current baseline is `snap-v175.tar`.
+The owner can test as an admin while the smith is closed, then open `smith_open` himself.
 The v174 file remains byte for byte as proved; v175 replaces its shared fire with one accepted top attempt per
 member per game day (05:00 Bangkok), across every tool/device. Previous tops do not bar another tool.
 Top odds: 10% taken, 60% stays, 30% down. Earlier levels use the harder approved table.
@@ -202,4 +206,5 @@ Top odds: 10% taken, 60% stays, 30% down. Earlier levels use the harder approved
 `v175.test.mjs`: 81 checks passed, including the code/SQL vectors, run twice, unrelated definitions unchanged,
 grants, no bare writes, real authenticated RPC retries, dawn boundary, independent members, and two mutations.
 `keeper.test.mjs`: 404 passed with v174/v175. Browser QA at 390×844 verified the daily card and a real attempt.
+`v175.line-endings.test.mjs`: 10 passed for LF/CRLF, reruns, and refusal of a real definition change.
 The broader OP powers, +6 variants, farm goals, and village activities are the next phase, not part of v175.
