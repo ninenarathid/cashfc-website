@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BOX, fits } from "@/lib/town/box";
+import { boxSprite } from "@/lib/town/box-art";
 import { WATER } from "@/lib/town/farm";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
@@ -137,13 +138,15 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
   const canUpgrade = !!offer && wood >= offer.wood && purse.coins >= offer.coins;
   const number = (n: number) => n.toLocaleString(th ? "th-TH" : "en-US");
   const title = th ? "กล่องเก็บของ" : "Storage box";
+  const closedArt = art(boxSprite(box.things.length)) ?? art("storebox");
+  const openArt = art(boxSprite(box.things.length, true)) ?? art("storeboxOpen") ?? closedArt;
   return (
     <>
       {!open && (
         <TownFoot rank="chip" order={36}>
           <button type="button" onClick={() => setOpen(true)} data-box-chip data-state="open"
                   className="pop-in pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded-full border border-line-lit bg-surface/95 pl-3 pr-4 text-ui font-semibold text-ink shadow-lg shadow-black/30 backdrop-blur-sm transition-colors hover:border-accent">
-            <Pic sprite={art("storebox")} box={24} />
+            <Pic sprite={closedArt} box={24} />
             {title}
             <span className="font-data tabular-nums text-muted">{inBox} / {box.things.length}</span>
           </button>
@@ -157,7 +160,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
              data-state="open" data-box-panel>
           <section aria-labelledby="town-box-h" className="flex h-full flex-col">
             <div className="flex items-center gap-2 border-b border-line px-4 py-3">
-              <Pic sprite={art("storeboxOpen") ?? art("storebox")} box={30} />
+              <Pic sprite={openArt} box={30} />
               <h2 id="town-box-h" className="min-w-0 truncate font-display text-title font-semibold text-ink">{title}</h2>
               <button type="button" onClick={() => setOpen(false)} data-box-close
                       className="pressable ml-auto rounded-full bg-accent px-4 py-1.5 text-ui font-semibold text-bg">
@@ -198,10 +201,13 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
 
               {(offer || box.things.length >= BOX.max) && (
                 <div className="mt-3 rounded-xl border border-line-strong bg-surface px-3 py-3" data-box-upgrade>
-                  <p className="text-ui font-semibold text-ink">
-                    {offer ? (th ? `ขยายกล่อง ${box.things.length} → ${offer.slots} ช่อง` : `Expand box: ${box.things.length} → ${offer.slots} slots`)
-                      : (th ? `ขนาดสูงสุด ${BOX.max} ช่อง` : `Maximum capacity: ${BOX.max} slots`)}
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <Pic sprite={offer ? (art(boxSprite(offer.slots)) ?? closedArt) : closedArt} box={44} />
+                    <p className="text-ui font-semibold text-ink">
+                      {offer ? (th ? `ขยายกล่อง ${box.things.length} → ${offer.slots} ช่อง` : `Expand box: ${box.things.length} → ${offer.slots} slots`)
+                        : (th ? `ขนาดสูงสุด ${BOX.max} ช่อง` : `Maximum capacity: ${BOX.max} slots`)}
+                    </p>
+                  </div>
                   <p className="mt-1 text-meta text-muted">{th ? "การอัปเกรดมีผลเฉพาะตัวละครนี้" : "Upgrades apply only to this character"}</p>
                   {offer && (
                     <>

@@ -416,6 +416,27 @@ export function loadScenery(): Promise<SceneryKit> {
   return kit;
 }
 
+let boxes: Promise<void> | null = null;
+
+/** All four personal chest tiers, shared by the map and the storage panel. */
+export function loadBoxes(): Promise<void> {
+  boxes ??= (async () => {
+    const [into, r] = await Promise.all([loadScenery(), fetch("/town/boxes.json")]);
+    if (!r.ok) throw new Error(`boxes.json ${r.status}`);
+    const json = await r.json() as SceneryJson;
+    const img = await new Promise<HTMLImageElement>((ok, no) => {
+      const i = new Image();
+      i.decoding = "async";
+      i.onload = () => ok(i);
+      i.onerror = () => no(new Error(`${json.image} did not load`));
+      i.src = `/town/${json.image}`;
+    });
+    into.add(json, img);
+  })();
+  boxes.catch(() => { boxes = null; });
+  return boxes;
+}
+
 let forest: Promise<void> | null = null;
 
 /** The forest's picture, fetched once per tab by whoever goes that way, and added to the scenery. */

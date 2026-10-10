@@ -4,6 +4,7 @@ import { BOUNDS, floorBounds } from "@/lib/town/camera";
 import { CAVE_LIGHT, CAVE_SIZE, lightsOf, reveal, type CaveLight } from "@/lib/town/cave";
 import { sampleAge, type TreeAge } from "@/lib/town/mountain";
 import { loadScenery, type SceneryKit } from "@/lib/town/scenery";
+import { boxSprite } from "@/lib/town/box-art";
 import { SMITH_CLOSED, SMITH_WHO, smithAsk, smithTalk } from "@/lib/town/smith";
 import type { Line } from "@/lib/town/talk";
 import {
@@ -117,6 +118,8 @@ export interface MoreFrame {
   /** Screen pixels to one of the map's own, the screen's size, device pixels to one of the screen's, and the frame's clock. */
   s: number; cw: number; ch: number; dpr: number; now: number;
   scenery: SceneryKit | null;
+  /** The viewer's own storage, also accessible at the mountain's chest. */
+  box?: { slots: number; open: boolean };
   /** Whether the town stands still (its own motion switch), and whether its words are Thai. */
   still: boolean; th: boolean;
   place: Place;
@@ -462,7 +465,9 @@ export class MountainArt {
         const back = p.facing === "NE" || p.facing === "NW", mirror = p.facing === "SW" || p.facing === "NW", name = back ? "bench_back" : "bench";
         this.stand(f, name, at, depth, { mirror, after: (c, k) => this.seat(f, p, name, c, k, mirror) });
       } else if (p.kind === "storebox") {
-        this.stand(f, "storebox", at, depth, { tap: { kind: "chest", id: -1, floor: 0, tile } });
+        const tier = boxSprite(f.box?.slots ?? 10, f.box?.open ?? false);
+        const name = scenery.has(tier) ? tier : "storebox";
+        this.stand(f, name, at, depth, { scale: name === "storebox" ? 1 : K.storebox, tap: { kind: "chest", id: -1, floor: 0, tile } });
       } else {
         const name = p.kind === "boulder" && !scenery.has("boulder") ? "rock" : p.kind;
         this.stand(f, name, at, depth, { faint: true, skew: f.sway(p) });

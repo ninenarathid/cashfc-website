@@ -18,7 +18,8 @@ import { SHOP as STALL_RULES } from "@/lib/town/shop";
 import { SIGN, decodeSign, inReach, type Sign } from "@/lib/town/sign";
 import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/talk";
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
-import { loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
+import { loadBoxes, loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
+import { boxSprite } from "@/lib/town/box-art";
 import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
 import { SKINS, decodeLook, defaultLook, hairsFor, skinsOf, type Look } from "@/lib/town/look";
@@ -782,7 +783,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const boxWant = useRef(false);
   const [boxAsk, setBoxAsk] = useState(0);
   const boxShown = useRef(false);
+  const boxSlots = useRef(10);
   const onBoxShown = useCallback((open: boolean) => { boxShown.current = open; }, []);
+  useEffect(() => {
+    boxSlots.current = 10;
+    if (!keeper) return;
+    let asked = false;
+    const read = () => {
+      boxSlots.current = keeper.box()?.things.length ?? 10;
+      if (keeper.ready() && !asked) { asked = true; void keeper.boxLook(); }
+    };
+    read();
+    return keeper.watch(read);
+  }, [keeper]);
   /**
    * A sign held up (lib/town/sign): where each one's board is on the screen this frame (a tap on one is for what it
    * is for); which of its panels is open (holding one up, my own, somebody's stall); a sign tapped from too far off,
@@ -1020,6 +1033,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     loadPixelKit(0).then((k) => { if (alive) kits.current.set(0, k); }).catch(() => { /* simple figures until a reload */ });
     // The ground, trees and fountain in pixel art, the same way; plain shapes until they come.
     loadScenery().then((k) => { if (alive) sceneryRef.current = k; }).catch(() => { /* plain shapes until a reload */ });
+    void loadBoxes().catch(() => { /* the original chest until a reload */ });
     return () => { alive = false; };
   }, []);
 
@@ -2094,8 +2108,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           // the storage box: its lid is up while my own panel of it is open (nobody else's shows); and where it is on
           // the screen, for taps and the cursor (the shut one's place, so that it does not grow under the pointer)
           const k = v.s * (PROP_K.storebox ?? 1);
-          scenery.drawProp(ctx, boxShown.current && scenery.has("storeboxOpen") ? "storeboxOpen" : "storebox", c.x, c.y, k, dpr);
-          const [w, h] = scenery.sizeOf("storebox"), [ax, ay] = scenery.anchorOf("storebox");
+          const closed = boxSprite(boxSlots.current), opened = boxSprite(boxSlots.current, true);
+          const name = scenery.has(closed) ? (boxShown.current && scenery.has(opened) ? opened : closed)
+            : (boxShown.current && scenery.has("storeboxOpen") ? "storeboxOpen" : "storebox");
+          scenery.drawProp(ctx, name, c.x, c.y, k, dpr);
+          const hit = scenery.has(closed) ? closed : "storebox";
+          const [w, h] = scenery.sizeOf(hit), [ax, ay] = scenery.anchorOf(hit);
           storeBox.current = { x0: c.x - ax * k, y0: c.y - ay * k, x1: c.x + (w - ax) * k, y1: c.y + (h - ay) * k };
         } else if (scenery?.has(p.kind)) {
           const art = shown(scenery, p);
@@ -2512,6 +2530,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       me: mine ? { id: mine.info.id, x: mine.pos.x, y: mine.pos.y } : null,
       others: stay ? [...stay.avatars.values()].filter((a) => a.byeAt === undefined).map((a) => ({ id: a.info.id, x: a.pos.x, y: a.pos.y })) : [],
       lamps: skyNow().lamps,
+      box: { slots: boxSlots.current, open: boxShown.current },
       label: (text, x, y, icon) => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)", icon ? popotoImg.current : null),
       flames: (x, y, k) => drawFlames(ctx, x, y, k, now),
       glow: (x, y, r, rgb, alpha, flat) => glowAt(ctx, x, y, r, rgb, alpha, flat),
@@ -3741,7 +3760,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       /** The signs held up, each board's middle on the screen this frame, with whose it is. */
       signs: () => signBoxes.current.map((b) => ({ id: b.id, x: (b.x0 + b.x1) / 2, y: (b.y0 + b.y1) / 2, w: b.x1 - b.x0, h: b.y1 - b.y0 })),
       /** The storage box's middle on the screen, if it is drawn; and whether its lid is drawn up. */
-      storebox: () => (storeBox.current ? { x: (storeBox.current.x0 + storeBox.current.x1) / 2, y: (storeBox.current.y0 + storeBox.current.y1) / 2, open: boxShown.current } : null),
+      storebox: () => (storeBox.current ? { x: (storeBox.current.x0 + storeBox.current.x1) / 2, y: (storeBox.current.y0 + storeBox.current.y1) / 2, open: boxShown.current, art: boxSprite(boxSlots.current, boxShown.current) } : null),
     };
     (window as unknown as { __townView?: unknown }).__townView = handle;
     return () => { delete (window as unknown as { __townView?: unknown }).__townView; };
