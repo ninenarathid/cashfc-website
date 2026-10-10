@@ -593,7 +593,7 @@ export class MountainArt {
         g.drawImage(pic, c.x / DARK_SCALE - wide, c.y / DARK_SCALE - tall - wide * 0.9, wide * 2, wide * 1.8 + tall * 0.6);
       });
       // (how much of the screen it left lit, for whoever checks: a pixel of the dark's own that is more than half cut out)
-      if (f.now - this.countedAt > 400) {
+      if (process.env.NODE_ENV === "development" && f.now - this.countedAt > 400) {
         this.countedAt = f.now;
         try {
           const d = g.getImageData(0, 0, w, h).data;

@@ -36,6 +36,50 @@ beforeEach(() => { vi.useFakeTimers(); vi.setSystemTime(NOW); });
 afterEach(() => { vi.useRealTimers(); });
 
 describe("the database's keeper", () => {
+  it("combines a burst of room reads and lets a deed run before the follow-up, keeping the newest purse", async () => {
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse({ coins: 10 }) }) });
+    let release: ((value: unknown) => void) | undefined;
+    let slow = false, reads = 0, coins = 10, active = 0, mostActive = 0;
+    const sent: string[] = [];
+    const ask: Ask = async (fn, args) => {
+      if (!slow) return db.ask(fn, args);
+      sent.push(fn); active++; mostActive = Math.max(mostActive, active);
+      try {
+        if (fn === "town_me" && ++reads === 1) return await new Promise((resolve) => { release = resolve; });
+        if (fn === "town_buy") coins--;
+        return { ok: true, now: NOW, purse: purse({ coins }) };
+      } finally { active--; }
+    };
+    const k = new DbKeeper("me", ask);
+    await settle(); slow = true;
+    k.nudged("line"); await settle();
+    for (let i = 0; i < 50; i++) k.nudged("line");
+    const bought = k.buy("worm", 1);
+    release?.({ now: NOW, purse: purse({ coins: 10 }) });
+    expect(await bought).toMatchObject({ ok: true }); await settle();
+    expect(sent).toEqual(["town_me", "town_buy", "town_me"]);
+    expect(reads).toBe(2); expect(mostActive).toBe(1); expect(k.purse().coins).toBe(9);
+    k.close();
+  });
+
+  it("uses the latest farm cursor on a coalesced follow-up and cancels queued refreshes on close", async () => {
+    const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+    let release: ((value: unknown) => void) | undefined;
+    const since: unknown[] = [];
+    const k = new DbKeeper("me", async (fn, args) => {
+      if (fn !== "town_farm") return db.ask(fn, args);
+      since.push(args?.p_since);
+      if (since.length === 1) return new Promise((resolve) => { release = resolve; });
+      return { now: NOW + 2, plots: {}, beds: {} };
+    });
+    await settle(); const stop = k.look("farm"); await settle();
+    for (let i = 0; i < 50; i++) k.nudged("farm");
+    release?.({ now: NOW + 1, plots: {}, beds: {} }); await settle();
+    expect(since).toEqual([0, NOW + 1]);
+    k.nudged("farm"); k.nudged("farm"); stop(); k.close(); await settle();
+    expect(since).toHaveLength(2);
+  });
+
   it("asks first whether the game is open, then for the purse", async () => {
     const db = database({ town_is_open: () => true, town_me: () => ({ now: NOW + 5000, purse: purse({ coins: 7 }) }) });
     const k = new DbKeeper("me", db.ask);
@@ -1407,6 +1451,30 @@ describe("the mountain's rocks and the cave, as the database's keeper asks them"
   const vein = { f: 3, rock: 5, turn: 99, seed: 20261008, gem: null, mods: { strikes: 6, back: 0, cross: 0, spent: false }, more: 0 };
   const told = (more: Record<string, unknown> = {}) => ({ day: 20400, turn: 99, again: NOW + 60_000, gone: {}, ways: {}, torches: [], moss: [], deepest: null, rests: [], vein: null, loose: null, glints: [], place: 3, struck: {}, paid: null, crystal: null, ...more });
   const base = () => ({ town_is_open: () => true, town_me: () => ({ now: NOW, purse: purse() }) });
+
+  it("combines cave movement and room reads, asking for the newest floor after a queued deed", async () => {
+    const db = database({ ...base(), town_buy: () => ({ ok: true, now: NOW, purse: purse() }) });
+    let release: ((value: unknown) => void) | undefined;
+    const sent: Array<[string, Record<string, unknown>]> = [];
+    const k = new DbKeeper("me", async (fn, args = {}) => {
+      if (fn === "town_cave") {
+        sent.push([fn, args]);
+        if (sent.length === 1) return new Promise((resolve) => { release = resolve; });
+        return { now: NOW, cave: told({ place: args.p_floor }) };
+      }
+      if (fn === "town_buy") sent.push([fn, args]);
+      return db.ask(fn, args);
+    });
+    await settle(); const stop = k.look("cave"); await settle();
+    for (let i = 0; i < 50; i++) void k.caveLook(1 + i % 3, [70 + i, 330]);
+    k.nudged("cave");
+    const bought = k.buy("worm", 1);
+    release?.({ now: NOW, cave: told({ place: 0 }) }); await bought; await settle();
+    expect(sent.map(([fn]) => fn)).toEqual(["town_cave", "town_buy", "town_cave"]);
+    expect(sent[2][1]).toEqual({ p_floor: 2, p_x: 119, p_y: 330 });
+    expect(k.cave()?.place).toBe(2);
+    stop(); k.close();
+  });
 
   it("strikes a rock with the floor, the rock, the tile and the swings, keeps what the answer tells of the cave, and tells the room: everybody of the cave, and whoever was paid of their purse", async () => {
     const seen: Array<Record<string, unknown>> = [];

@@ -47,10 +47,19 @@ interface SceneryJson {
 
 /** Texture pixels along a tile's side: a 64×32 diamond holds as many pixels as a 32×32 square. */
 const PER_TILE = Math.sqrt((TILE_W * TILE_H) / 2);
-/** The ground's chunks: their side in isometric pixels, how many are kept, how many are laid in one frame. */
+/** The ground's chunks: their side in isometric pixels and how many are kept. */
 const CHUNK = 512;
 const CHUNKS_KEPT = 24;
-const LAY_PER_FRAME = 2;
+/** Painting yields every two rows, with one shared time budget for the frame. */
+const GROUND_BUDGET_MS = 4;
+const ROWS_PER_SLICE = 2;
+interface GroundChunk {
+  cx: number; cy: number;
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+  pixels: ImageData;
+  row: number;
+}
 /** The ground's kind is worked out once per eighth of a tile, then remembered. */
 const SUB = 8;
 const TOWN_KINDS = ["grass", "plaza", "road", "water", "sand", "field", "wood"] as const;
@@ -93,6 +102,8 @@ export class SceneryKit {
   private readonly kinds = MAPS.map((m) => new Uint8Array(m.w * SUB * m.h * SUB));
   /** The ground is laid in square chunks, each when it first comes into view, a few kept. */
   private readonly chunks = new Map<string, HTMLCanvasElement>();
+  /** At most one unfinished chunk, discarded when it leaves the view or textures change. */
+  private pending: GroundChunk | null = null;
   /** ── to come ── Which of MAPS the last point asked about was on (kindAt). */
   private lastMap = 0;
 
@@ -126,6 +137,7 @@ export class SceneryKit {
       if (t) this.tex[k] = { w: t[2], h: t[3], d: sg.getImageData(t[0], t[1], t[2], t[3]).data };
     }
     this.chunks.clear();
+    this.pending = null;
     this.parts.clear();
   }
 
@@ -157,16 +169,33 @@ export class SceneryKit {
     return KINDS[v - 1];
   }
 
-  /** One chunk of the ground, laid pixel by pixel from the textures. */
-  private chunk(cx: number, cy: number): HTMLCanvasElement {
-    const key = `${cx},${cy}`;
-    const known = this.chunks.get(key);
-    if (known) { this.chunks.delete(key); this.chunks.set(key, known); return known; }
-    const c = document.createElement("canvas");
-    c.width = CHUNK; c.height = CHUNK;
-    const g = c.getContext("2d")!;
-    const out = g.createImageData(CHUNK, CHUNK), o = out.data;
-    for (let py = 0; py < CHUNK; py++) for (let px = 0; px < CHUNK; px++) {
+  /** Continue one chunk's pixels without holding up the next frame. */
+  private paintChunk(cx: number, cy: number, until: number) {
+    if (!this.pending || this.pending.cx !== cx || this.pending.cy !== cy) {
+      const canvas = document.createElement("canvas");
+      canvas.width = canvas.height = CHUNK;
+      const ctx = canvas.getContext("2d")!;
+      this.pending = { cx, cy, canvas, ctx, pixels: ctx.createImageData(CHUNK, CHUNK), row: 0 };
+    }
+    const work = this.pending, start = work.row;
+    while (work.row < CHUNK && performance.now() < until) {
+      const end = Math.min(CHUNK, work.row + ROWS_PER_SLICE);
+      this.paintRows(work, end);
+      work.row = end;
+    }
+    // Upload only the rows made this frame. The rest stays transparent until it is ready.
+    if (work.row > start) work.ctx.putImageData(work.pixels, 0, 0, 0, start, CHUNK, work.row - start);
+    if (work.row === CHUNK) {
+      this.chunks.set(`${cx},${cy}`, work.canvas);
+      if (this.chunks.size > CHUNKS_KEPT) this.chunks.delete(this.chunks.keys().next().value!);
+      this.pending = null;
+    }
+  }
+
+  /** Pixel colours and shading are identical whether painted at once or across frames. */
+  private paintRows(work: GroundChunk, end: number) {
+    const { cx, cy } = work, o = work.pixels.data;
+    for (let py = work.row; py < end; py++) for (let px = 0; px < CHUNK; px++) {
       const t = fromIso(this.origin.x + cx * CHUNK + px + 0.5, this.origin.y + cy * CHUNK + py + 0.5);
       if (!seenAt(t.x, t.y)) continue;
       const kind = this.kindAt(t.x, t.y), T = this.tex[kind];
@@ -191,30 +220,42 @@ export class SceneryKit {
       }
       o[di] = T.d[si] * k; o[di + 1] = T.d[si + 1] * k; o[di + 2] = T.d[si + 2] * k; o[di + 3] = 255;
     }
-    g.putImageData(out, 0, 0);
-    this.chunks.set(key, c);
-    if (this.chunks.size > CHUNKS_KEPT) this.chunks.delete(this.chunks.keys().next().value!);
-    return c;
   }
 
   /**
    * Draw the ground seen through a camera (`s` screen pixels per isometric
    * pixel, `cx`, `cy` the isometric point in the middle of a `cw` × `ch`
-   * screen). Chunks not laid yet are laid a few a frame, so a long walk never
-   * stalls a frame.
+   * screen). New ground is painted in short slices, nearest the camera first.
+   * Completed chunks and the visible part of the unfinished one are drawn every frame.
    */
   drawGround(ctx: CanvasRenderingContext2D, cam: { s: number; cx: number; cy: number }, cw: number, ch: number, px = 1) {
+    const until = performance.now() + GROUND_BUDGET_MS;
     const { s } = cam;
     const ix0 = cam.cx - cw / 2 / s - this.origin.x, iy0 = cam.cy - ch / 2 / s - this.origin.y;
     const ix1 = ix0 + cw / s, iy1 = iy0 + ch / s;
     const nx = Math.ceil(this.size.w / CHUNK), ny = Math.ceil(this.size.h / CHUNK);
-    let laid = 0;
+    const left = Math.max(0, Math.floor(ix0 / CHUNK)), right = Math.min(nx - 1, Math.floor(ix1 / CHUNK));
+    const top = Math.max(0, Math.floor(iy0 / CHUNK)), bottom = Math.min(ny - 1, Math.floor(iy1 / CHUNK));
+    if (this.pending && (this.pending.cx < left || this.pending.cx > right || this.pending.cy < top || this.pending.cy > bottom)) this.pending = null;
+    let next: { cx: number; cy: number } | null = this.pending;
+    if (!next) {
+      let nearest = Infinity;
+      const midX = (ix0 + ix1) / 2 / CHUNK, midY = (iy0 + iy1) / 2 / CHUNK;
+      for (let cy = top; cy <= bottom; cy++) for (let cx = left; cx <= right; cx++) {
+        if (this.chunks.has(`${cx},${cy}`)) continue;
+        const distance = (cx + 0.5 - midX) ** 2 + (cy + 0.5 - midY) ** 2;
+        if (distance < nearest) { nearest = distance; next = { cx, cy }; }
+      }
+    }
+    if (next) this.paintChunk(next.cx, next.cy, until);
     ctx.save();
     ctx.imageSmoothingEnabled = s * px < 1;
-    for (let cy = Math.max(0, Math.floor(iy0 / CHUNK)); cy <= Math.min(ny - 1, Math.floor(iy1 / CHUNK)); cy++) {
-      for (let cx = Math.max(0, Math.floor(ix0 / CHUNK)); cx <= Math.min(nx - 1, Math.floor(ix1 / CHUNK)); cx++) {
-        if (!this.chunks.has(`${cx},${cy}`) && laid++ >= LAY_PER_FRAME) continue;
-        const c = this.chunk(cx, cy);
+    for (let cy = top; cy <= bottom; cy++) {
+      for (let cx = left; cx <= right; cx++) {
+        const key = `${cx},${cy}`, known = this.chunks.get(key);
+        if (known) { this.chunks.delete(key); this.chunks.set(key, known); }
+        const c = known ?? (this.pending?.cx === cx && this.pending.cy === cy ? this.pending.canvas : null);
+        if (!c) continue;
         // whole device pixels at both edges, so neighbouring chunks never show a seam
         const x0 = Math.round(((cx * CHUNK - ix0) * s) * px) / px, y0 = Math.round(((cy * CHUNK - iy0) * s) * px) / px;
         const x1 = Math.round((((cx + 1) * CHUNK - ix0) * s) * px) / px, y1 = Math.round((((cy + 1) * CHUNK - iy0) * s) * px) / px;

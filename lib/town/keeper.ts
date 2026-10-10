@@ -776,6 +776,8 @@ export class DbKeeper implements Keeper {
   private readonly heard = new Set<() => void>();
   private readonly looking = new Map<Looked, { n: number; timer: ReturnType<typeof setTimeout> | null }>();
   private line: Promise<unknown> = Promise.resolve();
+  /** One pending refresh per function, with one later refresh for changes heard while it waits. */
+  private readonly refreshing = new Map<string, { args: () => Record<string, unknown>; again: boolean; promise: Promise<Answer | null> }>();
   private shut = false;
   /** When the room's word last had each thing asked for, and the one ask that waits for a thing's gap to be over (NUDGE_GAP). */
   private readonly nudgedAt = new Map<Looked, number>();
@@ -1022,6 +1024,26 @@ export class DbKeeper implements Keeper {
     this.line = asked.catch(() => null);
     return asked;
   }
+  /**
+   * Room updates and polling share a refresh. A burst must not fill the line ahead of a player's deed.
+   * Keep the line serial (answers can contain a purse), and read once more AFTER deeds already in the line
+   * when another update arrived. Resolve changing arguments, such as the floor and farm cursor, at its turn.
+   * Deeds continue to use `ask`, so none of them is combined or reordered.
+   */
+  private refresh(fn: string, args: () => Record<string, unknown> = () => ({})): Promise<Answer | null> {
+    if (this.shut) return Promise.resolve(null);
+    const pending = this.refreshing.get(fn);
+    if (pending) { pending.args = args; pending.again = true; return pending.promise; }
+    const next = { args, again: false, promise: Promise.resolve<Answer | null>(null) };
+    next.promise = this.line.then(() => this.once(fn, next.args())).catch(() => null);
+    this.line = next.promise;
+    this.refreshing.set(fn, next);
+    void next.promise.then(() => {
+      this.refreshing.delete(fn);
+      if (next.again && !this.shut && !unseen()) void this.refresh(fn, next.args);
+    });
+    return next.promise;
+  }
   private async once(fn: string, args: Record<string, unknown>): Promise<Answer | null> {
     if (this.shut) return null;
     const sent = Date.now();
@@ -1211,7 +1233,7 @@ export class DbKeeper implements Keeper {
       this.tell();
       if (!this.ground()?.length) return;
       // (could not be reached: what is known goes on being counted down)
-      void this.ask("town_ground").then((a) => { if (!a) this.groundDue(); });
+      void this.refresh("town_ground").then((a) => { if (!a) this.groundDue(); });
     }, Math.max(50, Math.min(GROUND_AGAIN, first + 50)));
   }
 
@@ -1229,25 +1251,25 @@ export class DbKeeper implements Keeper {
   nudged(what: Looked) {
     // (somebody handed me water: it is in my purse, which is read again)
     if (what === "line") {
-      void this.ask("town_me");
+      void this.refresh("town_me");
       // ── forging ── (a friend may have pressed my bellows: what I have at the smith is read again, while a piece of mine smelts there)
-      if (this.smith_ && smithView(this.smith_.smithy, this.now()).now) void this.ask("town_smith");
+      if (this.smith_ && smithView(this.smith_.smithy, this.now()).now) void this.refresh("town_smith");
       return;
     }
     // (somebody dropped a thing, or picked one up: asked for, wherever I am in town; not of a database with no ground)
-    if (what === "ground") { if (this.ground_) void this.ask("town_ground"); return; }
+    if (what === "ground") { if (this.ground_) void this.refresh("town_ground"); return; }
     // (somebody bought at a stall or brought to one: mine is read again with my purse, and so is the one I am looking at)
     if (what === "shop") {
-      if (this.shops_?.mine) void this.ask("town_shop");
-      if (this.visit_) void this.ask("town_shop_look", { p_who: this.visit_.who });
+      if (this.shops_?.mine) void this.refresh("town_shop");
+      if (this.visit_) void this.refresh("town_shop_look", () => ({ p_who: this.visit_?.who }));
       return;
     }
     // ── the bridge built by hand ── (a stone was handed to me, or one was laid: asked for wherever I am; not of a database with no works)
-    if (what === "works") { if (this.works_) void this.ask("town_works_read"); return; }
+    if (what === "works") { if (this.works_) void this.refresh("town_works_read"); return; }
     // ── the lamp relay ── (a flame was handed to me, or a post was lit: asked for wherever I am; not of a database with no lamps)
-    if (what === "lamps") { if (this.lamps_) void this.ask("town_lamps_read"); return; }
+    if (what === "lamps") { if (this.lamps_) void this.refresh("town_lamps_read"); return; }
     // (something was done on the farm: a bucket poured into the well may have changed what its water is)
-    if (what === "farm" && this.waters_) void this.ask("town_well_ranks");
+    if (what === "farm" && this.waters_) void this.refresh("town_well_ranks");
     if ((this.looking.get(what)?.n ?? 0) > 0 || what === "deal") {
       // (a thing that is dear to read: at once the first time, then one ask when its gap is over, whatever was said meanwhile)
       const gap = NUDGE_GAP[what] ?? 0, since = Date.now() - (this.nudgedAt.get(what) ?? 0);
@@ -1269,22 +1291,22 @@ export class DbKeeper implements Keeper {
       if (l && l.n > 0 && !this.shut) l.timer = setTimeout(() => { l.timer = null; this.fetch(what); }, EVERY[what]);
       return;
     }
-    const asked = what === "cave" ? this.ask("town_cave", { p_floor: this.caveAt_.floor, p_x: this.caveAt_.at?.[0] ?? null, p_y: this.caveAt_.at?.[1] ?? null })
-      : what === "stall" ? this.ask("town_stall")
-      : what === "kitchen" ? this.ask("town_kitchen").then((a) => { if (this.yard_ !== null) void this.ask("town_yard"); return a; })
-      : what === "deal" ? this.ask("town_deal")
-      : what === "fountain" ? this.ask("town_fountain")
-      : what === "notices" ? this.ask("town_notices")
-      : what === "wild" ? this.ask("town_wild")
-      : what === "bugs" ? this.ask("town_bugs")
-      : what === "line" ? this.ask("town_me")
-      : what === "ground" ? this.ask("town_ground")
-      : what === "shop" ? this.ask("town_shop")
+    const asked = what === "cave" ? this.refresh("town_cave", () => ({ p_floor: this.caveAt_.floor, p_x: this.caveAt_.at?.[0] ?? null, p_y: this.caveAt_.at?.[1] ?? null }))
+      : what === "stall" ? this.refresh("town_stall")
+      : what === "kitchen" ? this.refresh("town_kitchen").then((a) => { if (this.yard_ !== null) void this.refresh("town_yard"); return a; })
+      : what === "deal" ? this.refresh("town_deal")
+      : what === "fountain" ? this.refresh("town_fountain")
+      : what === "notices" ? this.refresh("town_notices")
+      : what === "wild" ? this.refresh("town_wild")
+      : what === "bugs" ? this.refresh("town_bugs")
+      : what === "line" ? this.refresh("town_me")
+      : what === "ground" ? this.refresh("town_ground")
+      : what === "shop" ? this.refresh("town_shop")
       // ── felling ── (asked whenever they are looked at while the far side is open to me, and never while it is not)
-      : what === "trees" ? (this.far_ ? this.ask("town_trees") : Promise.resolve(null))
-      : what === "works" ? this.ask("town_works_read")
-      : what === "lamps" ? this.ask("town_lamps_read")
-      : this.ask("town_farm", { p_since: this.farmAt }).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
+      : what === "trees" ? (this.far_ ? this.refresh("town_trees") : Promise.resolve(null))
+      : what === "works" ? this.refresh("town_works_read")
+      : what === "lamps" ? this.refresh("town_lamps_read")
+      : this.refresh("town_farm", () => ({ p_since: this.farmAt })).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
       if (this.shut || !still || still.n <= 0 || still.timer) return;
@@ -1768,7 +1790,10 @@ export class DbKeeper implements Keeper {
 
   // ── mining ── (a database that keeps no cave answers nothing, and the page then offers nothing there)
   cave(): CaveTold | null { return this.cave_; }
-  async caveLook(floor: number, at: [number, number] | null) { this.caveAt_ = { floor, at }; await this.ask("town_cave", { p_floor: floor, p_x: at?.[0] ?? null, p_y: at?.[1] ?? null }); }
+  async caveLook(floor: number, at: [number, number] | null) {
+    this.caveAt_ = { floor, at };
+    await this.refresh("town_cave", () => ({ p_floor: this.caveAt_.floor, p_x: this.caveAt_.at?.[0] ?? null, p_y: this.caveAt_.at?.[1] ?? null }));
+  }
   async mineDo(floor: number, rock: number, at: [number, number], swings: number, _name: string, how?: "quake") {
     const did = await this.deed<MineDid>("town_mine", { p_floor: floor, p_rock: rock, p_x: at[0], p_y: at[1], p_swings: swings, ...(how ? { p_how: how } : {}) }) as MineDone<MineDid>;
     if (did.ok || did.why === "gone") this.onDeed?.("cave");
