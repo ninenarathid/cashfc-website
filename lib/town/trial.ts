@@ -1,3 +1,4 @@
+// CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 import type { RockChoice } from "./geology";
 import { gardenTend, syncGarden } from "./gardening";
 import { insectCare, type InsectCare } from "./insect-garden";
@@ -183,7 +184,9 @@ export class Trial {
   private stored = true;
   private readonly memory = new Map<string, string>();
 
-  constructor(private readonly id: string) {}
+  constructor(private readonly id: string, options: { memoryOnly?: boolean } = {}) { this.stored = !options.memoryOnly; }
+  get memoryOnly() { return !this.stored; }
+  casinoCoins(coins: number) { const purse = this.purse(); if (purse.coins === coins) return; this.write(purseKey(this.id), { ...purse, coins }); this.tell(); }
 
   /** Another tab changed something: tell whoever is watching here. */
   private readonly onStorage = (e: StorageEvent) => { if (!e.key || e.key.startsWith("cashtown.trial.")) this.tell(); };

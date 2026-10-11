@@ -1,4 +1,5 @@
 "use client";
+import {useTownEphemeral} from "@/lib/town/ephemeral";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -287,8 +288,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
 
   // What every haunt has for me now: looked at afresh when something changes and every few seconds, not every frame.
   // (less those that fled from my tired hands: gone for me, for the rest of their turn)
+  const ephemeral = useTownEphemeral();
   const fled = useRef<Map<string, number> | null>(null);
-  if (!fled.current && typeof window !== "undefined") fled.current = fledKept();
+  if (!fled.current && typeof window !== "undefined") fled.current = ephemeral ? new Map() : fledKept();
   const seen = useRef<BugSight[]>([]);
   seen.current = keeper.bugs().filter((s) => !fled.current?.has(`${s.id}:${s.turn}`));
   const purse = keeper.purse(), hand = handOf(purse), spent = isSpent(purse, keeper.now());
@@ -457,7 +459,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             const gone = fled.current ?? new Map<string, number>();
             gone.set(key, (id === LURED ? live.current.lured?.l.until ?? keeper.now() : bugTurnStart(h, sight.turn + 1)) - keeper.now() + Date.now());
             fled.current = gone;
-            keepFled(gone);
+            if (!ephemeral) keepFled(gone);
             keeper.record({ game: "insects", board: "net", at: keeper.now(), won: false, secs: 0, spent: live.current.spent, buff: null, what: sight.bug, need: 1, hits: 0, misses: misses.current.get(key) ?? 0 });
             misses.current.delete(key);
             sfx?.work("flit");
@@ -945,7 +947,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       /** (forging) What my net does on this screen: the insects it holds still, the haunts it has emptied, and how far behind the wall's the insects' clock runs. */
       frozen: () => [...frozen.current.entries()].filter(([, f]) => Date.now() < f.until).map(([id, f]) => ({ id, until: f.until, ...f.pose })),
       nests: () => [...nests.current], slowBy: () => slow.current.lag,
-      forget: () => { fled.current = new Map(); keepFled(fled.current); setTick((n) => n + 1); },
+      forget: () => { fled.current = new Map(); if (!ephemeral) keepFled(fled.current); setTick((n) => n + 1); },
     };
     (window as unknown as { __townBugs?: typeof handle }).__townBugs = handle;
     return () => { delete (window as unknown as { __townBugs?: typeof handle }).__townBugs; };

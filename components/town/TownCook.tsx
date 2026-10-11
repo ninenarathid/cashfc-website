@@ -1,4 +1,5 @@
 "use client";
+import {useTownEphemeral} from "@/lib/town/ephemeral";
 import { carriedBag } from "@/lib/town/passive-equipment";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -285,13 +286,15 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   /** What came of the last go, while its card is up. */
   const [result, setResult] = useState<KitchenResult | null>(null);
   /** The notebook: every try and what came of it, kept in this browser. */
+  const ephemeral = useTownEphemeral();
   const [notes, setNotes] = useState<Note[]>([]);
-  useEffect(() => { try { setNotes(readNotes(JSON.parse(window.localStorage.getItem(`${NOTES_KEY}.${me}`) ?? "[]"))); } catch { setNotes([]); } }, [me]);
+  useEffect(() => { if (ephemeral) { setNotes([]); return; } try { setNotes(readNotes(JSON.parse(window.localStorage.getItem(`${NOTES_KEY}.${me}`) ?? "[]"))); } catch { setNotes([]); } }, [me, ephemeral]);
   const jot = useCallback((note: Note) => setNotes((was) => {
     const next = keepNote(was, note);
+    if (ephemeral) return next;
     try { window.localStorage.setItem(`${NOTES_KEY}.${me}`, JSON.stringify(next)); } catch { /* a browser that keeps nothing: the notebook lasts as long as the page */ }
     return next;
-  }), [me]);
+  }), [me, ephemeral]);
   const cooks = useMemo((): Array<ItemId | null> => [hand, ...crew.map((c) => (c in ITEMS ? (c as ItemId) : null))], [hand, crew]);
   // (the stove asked for: set as soon as I stand somewhere, which is at once when the bag's panel is put away; after a
   // little while with nowhere to stand still, it is said so and the asking is dropped)

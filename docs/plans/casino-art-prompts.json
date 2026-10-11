@@ -1,0 +1,29 @@
+{
+  "mode": "built-in image_gen",
+  "assets": [
+    {
+      "name": "chair",
+      "prompt": "Use case: stylized-concept. Production sprite for Cash Town, a cozy isometric pixel-art Popoto casino. Generate ONE beautifully crafted backless casino stool, isolated on a genuinely transparent background. Three-quarter isometric view, camera elevated about 30 degrees, seat ellipse matching 2:1 isometric tiles. Round deep burgundy velvet seat with tufted upholstery and a fine gold piping edge, ornate warm brass pedestal and circular footrest, stable circular gold base. Small tasteful potato-leaf engraving on the base. The seat top must be unobstructed because a player character will sit on it. Warm lamp light from upper left, consistent detailed crisp pixel clusters, rich antique gold highlights and dark wine shadows, charming polished RPG interior style. No character, no floor, no room, no text, no logo, no cast shadow extending outside the object. Entire object visible, tightly composed with only 8 percent transparent margin. Asset should read clearly when rendered 38 pixels wide and 42 pixels tall.",
+      "transparent_background": true
+    },
+    {
+      "name": "planter",
+      "prompt": "Use case: stylized-concept. Production decoration sprite for Cash Town, a cozy isometric pixel-art Popoto casino. ONE elegant decorative indoor potted plant isolated on a genuinely transparent background. Three-quarter isometric view, camera elevated about 30 degrees, matching 2:1 isometric RPG tiles. A dense small emerald green ornamental palm with layered broad leaves, in a short wine-red ceramic urn edged with antique gold bands and a subtle potato-leaf relief. Warm upper-left lamplight, deep burgundy and brass-gold accents, beautifully crafted crisp pixel clusters, detailed but readable at 44 pixels wide by 70 pixels tall. Entire pot and all leaves visible, only 8 percent transparent margin. No characters, floor, room, text, logo, extra objects, or extended cast shadow.",
+      "transparent_background": true
+    },
+    {
+      "name": "frame",
+      "prompt": "Use case: ui-mockup. Production raster UI frame asset for Cash Town's cozy Popoto casino game. Generate a SINGLE square decorative game panel texture, straight-on flat orthographic view, NOT isometric. Exact square geometry designed for CSS nine-slice scaling. Antique brass and soft gold carved border around a very dark plum velvet interior, elegant tiny sprouting-potato leaf flourishes ONLY in the four corners. Border perfectly parallel to the canvas edges, uniform visual thickness about 7 percent of canvas width; border outer edges touch the canvas perimeter; interior is a nearly flat very dark plum #302438, clean and uncluttered, occupying the middle 86 percent. Rich crisp pixel-art shading, restrained polished vintage RPG casino craftsmanship, gentle golden glints. Symmetric corners suitable for retaining their proportions when the center and edge strips stretch. No title, no text, no numbers, no symbols in the center, no buttons, no slot reels, no mock interface, no watermark. True alpha transparency only outside any decorative corner silhouette; all interior opaque for readable live HTML text. This is the final reusable panel asset, not a screenshot of an interface.",
+      "transparent_background": true
+    },
+    {
+      "name": "native-casino-v2-atlas",
+      "mode": "built-in image_gen",
+      "reference": "public/town/scenery-7ae61f173c.png",
+      "transparent_background": true,
+      "brief": "Six separate isometric pixel-art objects in a 3 by 2 atlas: four-reel slot with blank windows, velvet pedestal stool, curved banker counter with bell, three-seat sofa, potted palm, and wood wall panel with brass lantern. Match the Cash Town native scenery pixel clusters, orthographic 2:1 perspective, espresso walnut, aged brass, burgundy velvet, cream and muted sage. Entire objects visible, transparent gaps, no floor or baked shadows, no tiny filigree, readable at native game sizes. Potato sprout crest on casino cabinetry.",
+      "edit_brief": "Preserve object positions and perspective. Remove diffuse glow and halos from transparent areas; keep solid sprite interiors and crisp pixels. Replace spade crests with a tiny potato face and sprout. No other objects or changes.",
+      "processing": "Crop six atlas cells; remove low-alpha fringes; scale to native dimensions with a 96-colour palette. No glow baked into object alpha; room light is rendered in the map."
+    }
+  ]
+}

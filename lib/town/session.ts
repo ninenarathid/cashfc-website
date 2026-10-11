@@ -1,3 +1,4 @@
+// CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 "use client";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -120,6 +121,9 @@ export type MicProblem = "denied" | "no-mic" | "failed";
 export interface SessionOptions {
   /** The dev-only public test room (TownGate). */
   testTopic?: string;
+  privateTopic?: boolean;
+  ephemeral?: boolean;
+  terrain?: { spawn: Vec; path: (from: Vec, to: Vec) => Vec[] | null };
   /** For tests; everybody else gets ROOM_CAP. */
   cap?: number;
   /** Back after a reload: the microphone as it was. */
@@ -212,11 +216,13 @@ export class TownSession {
   private readonly subs = new Set<() => void>();
   private readonly tick: ReturnType<typeof setInterval>;
 
+  private readonly options: SessionOptions;
   constructor(me: Identity, opts: SessionOptions = {}) {
+    this.options = { ...opts, ephemeral: opts.ephemeral === true || opts.testTopic === "casino-lab" };
     this.me = me;
     this.testTopic = opts.testTopic;
     this.cap = opts.cap ?? ROOM_CAP;
-    const start = spawnFor(me.id);
+    const start = opts.terrain?.spawn ?? spawnFor(me.id);
     const look = encodeLook(savedLook(me.id) ?? defaultLook(me.id));
     this.self = {
       info: { ...me, x: start.x, y: start.y, voice: false, muted: false, away: true, look, sit: -1 },
@@ -319,7 +325,7 @@ export class TownSession {
       Object.assign(a, stepAlong(a.pos, a.path, SPEED * pace * dt));
     }
     // Stopped on a gate: through it, to the other map.
-    if (!this.self.path.length) {
+    if (!this.options.terrain && !this.self.path.length) {
       const beyond = gateAt(this.self.pos.x, this.self.pos.y);
       if (beyond) this.warpTo(beyond);
     }
@@ -348,7 +354,7 @@ export class TownSession {
     if (this.stuck()) return false;
     const a = this.self;
     const goal = { x: Math.floor(tile.x) + 0.5, y: Math.floor(tile.y) + 0.5 };
-    const path = findPath(a.pos, goal);
+    const path = this.options.terrain ? this.options.terrain.path(a.pos, goal) : findPath(a.pos, goal);
     if (!path) return false;
     // Walking anywhere gets up from a bench, or forgets the one I was heading for.
     this.sitWhenThere = null;
@@ -385,7 +391,7 @@ export class TownSession {
     if (this.closed) return false;
     // At a bench, on the bench: sat on the ground there, the doll and the bench were drawn over each other
     // (the owner, 2026-10-03: "นั่งแล้ว ภาพซ้อน")
-    if (!this.self.path.length) {
+    if (!this.options.terrain && !this.self.path.length) {
       const near = benchNear(this.self.pos);
       if (near >= 0) return this.sitOn(near);
       // beside one of the cooking yard's tables: at the table
@@ -835,7 +841,7 @@ export class TownSession {
     const code = encodeLook(look);
     if (code === this.self.info.look) return;
     this.self.info = { ...this.self.info, look: code };
-    saveLook(this.me.id, look);
+    if (!this.options.ephemeral) saveLook(this.me.id, look);
     if (this.lookTimer !== null) clearTimeout(this.lookTimer);
     this.lookTimer = setTimeout(() => this.settleLook(), LOOK_SETTLE_MS);
     this.notify();
@@ -877,7 +883,7 @@ export class TownSession {
     this.gen++;
     r?.bye();
     void (r?.leave() ?? Promise.resolve()).finally(() => this.client.realtime.disconnect());
-    rememberTown(null);
+    if (!this.options.ephemeral) rememberTown(null);
     setTownActive(null);
     const slot = globalThis as Slot;
     if (slot[SLOT] === this) delete slot[SLOT];
@@ -928,7 +934,7 @@ export class TownSession {
       onSignal: (from, data) => { if (mine === this.gen && this.hearsNow(from)) void this.voice.receive(from, data as Signal); },
       onCircle: (from, word) => { if (live()) this.onCircle(from, word); },
       onPair: (from, data) => { if (live()) this.heardPair(from, data); },
-    }, { testTopic: this.testTopic, cancelled: () => !live(), doing: () => this.doing() });
+    }, { testTopic: this.testTopic, privateTopic: this.options.privateTopic, cancelled: () => !live(), doing: () => this.doing() });
     if (!r) return;
     if (!live()) { void r.leave(); return; }
     this.current = r;
@@ -995,7 +1001,7 @@ export class TownSession {
       } else if (d.x !== a.info.x || d.y !== a.info.y) {
         // To the other map there is no walking: they went through a gate, and stand there now.
         if (placeOf(d.x, d.y) !== placeOf(a.pos.x, a.pos.y)) { a.pos = { x: d.x, y: d.y }; a.path = []; }
-        else a.path = findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
+        else a.path = this.options.terrain ? this.options.terrain.path(a.pos, { x: d.x, y: d.y }) ?? [] : findPath(a.pos, { x: d.x, y: d.y }) ?? [{ x: d.x, y: d.y }];
       }
     }
     // (whom I hear changes with who is in the voice, and with who is in which chat room)
@@ -1144,7 +1150,7 @@ export class TownSession {
   }
 
   private remember() {
-    if (this.closed) return;
+    if (this.closed || this.options.ephemeral) return;
     this.seenAt = Date.now();
     rememberTown({
       me: this.me, voice: this.self.info.voice, muted: this.self.info.muted, seenAt: this.seenAt,

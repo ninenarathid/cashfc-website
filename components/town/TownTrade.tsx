@@ -1,4 +1,6 @@
 "use client";
+import {useMapBag} from "@/lib/town/map-bag";
+import {useTownEphemeral} from "@/lib/town/ephemeral";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -245,6 +247,8 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
   // (the trial's own buttons, in a branch a production build drops)
   const trial = process.env.NODE_ENV !== "production" ? keeper.trial : null;
   const [, setTick] = useState(0);
+  const mapBag = useMapBag();
+  const [eventBag, setEventBag] = useState(false);
   // Whatever changes (here, in another tab, or the minute), look again.
   useEffect(() => {
     const again = () => setTick((n) => n + 1);
@@ -323,6 +327,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         </button>
       </div>
 
+      {view === 'bag' && mapBag && <div role="tablist" aria-label={th ? 'ช่องกระเป๋า' : 'Bag compartments'} className="flex gap-2 border-b border-line px-4 py-2">{[false,true].map(event=><button key={String(event)} role="tab" aria-selected={eventBag===event} className={`tk ${eventBag===event?'tk-slot-on':'tk-slot'} px-4 py-2`} onClick={()=>setEventBag(event)}>{event?'Event':th?'ของทั่วไป':'Items'}</button>)}</div>}
       {uncle && (
         <div role="tablist" aria-label={title} className="flex gap-1 border-b border-line px-3 pt-2">
           {([["buy", th ? "ซื้อของ" : "Buy"], ["sell", th ? "ฝากขาย" : "Sell"], ...(board ? [["board", th ? "กระดาน" : "Board"] as const] : [])] as const).map(([v, label]) => (
@@ -341,7 +346,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
       )}
 
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-3 pt-3">
-        <p className="mb-2 min-h-[1.5em] text-meta text-accent" aria-live="polite">{said ?? ""}</p>
+        {view==='bag'&&eventBag&&mapBag ? mapBag : <p className="mb-2 min-h-[1.5em] text-meta text-accent" aria-live="polite">{said ?? ""}</p>}
         {view === "buy" && <Buy purse={purse} stall={stall} now={now} th={th} hintCoins={keeper.hintPrice()} shelf={keeper.shelf()}
                                 onBuy={(id, n) => tried(keeper.buy(id, n), ["ขอบใจนะหลาน", "Much obliged, kiddo."])}
                                 onHint={() => tried(keeper.hint(), ["ลุงจดให้แล้วนะ ส่วนอย่างสุดท้าย ไปเดาเอาเอง", "There, I've jotted it down. The last thing is yours to guess."])} />}
@@ -359,7 +364,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
         {view === "bank" && <Bank purse={purse} now={now} th={th}
                                   onChange={(kind, n) => tried(keeper.change(kind, n), ["เรียบร้อยครับ ผมจดลงสมุดแล้ว", "All done. It is written in my ledger."])} />}
-        {view === "bag" && <Bag rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()}
+        {view === "bag" && !(eventBag && mapBag) && <Bag rodHook={<TownRodHook keeper={keeper} purse={purse} th={th} />} pouches={<TownPouches keeper={keeper} th={th} />} purse={purse} held={keeper.handSlot()} now={now} th={th} seated={seated} company={company} helpings={keeper.helpings()} recipeBook={<TownRecipeBook keeper={keeper} purse={purse} th={th}/>} book={keeper.bugBook()}
                                 // ── gifts: kitchen ── (the kitchen's gifts that are used from the bag: components/town/TownBasket)
                                 kitchen={<TownBasket keeper={keeper} purse={purse} now={now} th={th} seated={seated} helpings={keeper.helpings()} say={say} spice={spiceOn} onSpice={setSpiceOn}
                                                      onStove={() => { onView(null); window.dispatchEvent(new CustomEvent("cashtown:stove")); }} />}
@@ -1169,6 +1174,7 @@ function StallBag({ bag, th }: { bag: Purse["bag"]; th: boolean }) {
     return () => mq.removeEventListener("change", update);
   }, []);
   // (until somebody chooses: folded on a phone, and on a wide screen once the bag is more than three rows)
+  const ephemeral = useTownEphemeral();
   const key = `cashTown:stallBag:${phone ? "phone" : "wide"}`, roomy = !phone && bag.length <= 15;
   const [open, setOpen] = useState(roomy);
   useEffect(() => {
@@ -1178,7 +1184,7 @@ function StallBag({ bag, th }: { bag: Purse["bag"]; th: boolean }) {
   }, [key, roomy]);
   const toggle = () => {
     setOpen(!open);
-    try { window.localStorage.setItem(key, open ? "shut" : "open"); } catch { /* not kept, then */ }
+    try { if (!ephemeral) window.localStorage.setItem(key, open ? "shut" : "open"); } catch { /* not kept, then */ }
   };
   const used = bag.filter(Boolean).length, free = bag.length - used;
   return (

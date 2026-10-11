@@ -1,4 +1,5 @@
 "use client";
+import {useTownEphemeral} from "@/lib/town/ephemeral";
 
 import { useEffect, useRef, useState } from "react";
 import { bangkokMinute } from "@/lib/town/daylight";
@@ -33,6 +34,7 @@ export default function TownMusicButton({ th, hour, under = false, className }: 
   hour: number | null;
   className: string;
 }) {
+  const ephemeral = useTownEphemeral();
   const music = useRef<TownMusic | null>(null);
   const [on, setOn] = useState(false);
   const [vol, setVol] = useState(DEFAULT.vol);
@@ -86,12 +88,12 @@ export default function TownMusicButton({ th, hour, under = false, className }: 
     const next = !on;
     if (next) { player().setVolume(vol); player().start(hourNow()); } else player().stop();
     setOn(next);
-    savePref({ on: next, vol });
+    if (!ephemeral) savePref({ on: next, vol });
   };
   const loud = (v: number) => {
     setVol(v);
     music.current?.setVolume(v);
-    savePref({ on, vol: v });
+    if (!ephemeral) savePref({ on, vol: v });
   };
 
   const label = th ? "เพลง" : "Music";

@@ -1,3 +1,4 @@
+// CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 "use client";
 
 import { createClient as createSupabase, type RealtimeChannel, type SupabaseClient } from "@supabase/supabase-js";
@@ -232,7 +233,7 @@ export async function joinTown(
   me: Identity,
   h: RoomHandlers,
   /** `doing` is asked afresh whenever the room needs to be told where I am. */
-  opts: { testTopic?: string; cancelled?: () => boolean; doing?: () => Doing } = {},
+  opts: { testTopic?: string; privateTopic?: boolean; cancelled?: () => boolean; doing?: () => Doing } = {},
 ): Promise<Room | null> {
   // A tick before anything else, so a page that mounts and unmounts at once
   // (React's development double-mount, or a quick back-and-forth) can call
@@ -255,7 +256,14 @@ export async function joinTown(
   }
   if (opts.cancelled?.()) return null;
 
-  const isPrivate = !opts.testTopic;
+  const isPrivate = !opts.testTopic || opts.privateTopic === true;
+  const multiplex = opts.privateTopic === true;
+  if (multiplex) {
+    if (topic !== "casino-lab" && topic !== "casino-live") { h.onStatus("denied"); return null; }
+    const guard = await supabase.rpc(topic === "casino-lab" ? "casino_lab_allowed" : "casino_live_allowed");
+    if (guard.error || guard.data !== true) { h.onStatus("denied"); return null; }
+    await supabase.realtime.setAuth();
+  }
   const boxOf = (id: string) => `${topic}:u:${id}`;
 
   // The client hands back an existing channel for the same name, already
@@ -285,7 +293,7 @@ export async function joinTown(
     const people: Identity[] = [];
     for (const [id, metas] of Object.entries(room.presenceState<{ n?: string; f?: string | null; c?: string }>())) {
       const m = metas[metas.length - 1];
-      if (!m) continue;
+      if (!m || typeof m.n !== "string") continue;
       people.push({
         id,
         // From another browser, like a chat line: one clean line, and short.
@@ -304,11 +312,11 @@ export async function joinTown(
   });
   room.on("broadcast", { event: "mv" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
-    if (typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
+    if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
   });
   room.on("broadcast", { event: "st" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
-    if (typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
+    if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
   });
   room.on("broadcast", { event: "bye" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
@@ -320,7 +328,7 @@ export async function joinTown(
   });
   room.on("broadcast", { event: "nd" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
-    if (typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
+    if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
   });
   room.on("broadcast", { event: "fg" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
@@ -333,32 +341,35 @@ export async function joinTown(
   });
 
   /* ── my letterbox ── */
-  const box: RealtimeChannel = supabase.channel(boxOf(me.id), {
+  const box: RealtimeChannel = multiplex ? room : supabase.channel(boxOf(me.id), {
     config: { private: isPrivate, broadcast: { self: false, ack: false } },
   });
-  box.on("broadcast", { event: "st" }, ({ payload }) => {
+  if (!multiplex) box.on("broadcast", { event: "st" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
-    if (typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
+    if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onDoing(p.id, readDoing(p));
   });
-  box.on("broadcast", { event: "nd" }, ({ payload }) => {
+  if (!multiplex) box.on("broadcast", { event: "nd" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
-    if (typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
+    if ((!multiplex || !p.to || p.to === me.id) && typeof p?.id === "string" && p.id !== me.id) h.onNudge(p.id, p.w);
   });
   box.on("broadcast", { event: "cr" }, ({ payload }) => {
-    const p = payload as { from?: unknown; w?: unknown };
+    const p = payload as { from?: unknown; w?: unknown; to?: unknown };
+    if (multiplex && p.to !== me.id) return;
     if (typeof p?.from === "string" && p.from !== me.id) h.onCircle(p.from, p.w);
   });
   box.on("broadcast", { event: "rtc" }, ({ payload }) => {
-    const p = payload as { from?: unknown; data?: unknown };
+    const p = payload as { from?: unknown; data?: unknown; to?: unknown };
+    if (multiplex && p.to !== me.id) return;
     if (typeof p?.from === "string" && p.from !== me.id) h.onSignal(p.from, p.data);
   });
   box.on("broadcast", { event: "pg" }, ({ payload }) => {
-    const p = payload as { from?: unknown; data?: unknown };
+    const p = payload as { from?: unknown; data?: unknown; to?: unknown };
+    if (multiplex && p.to !== me.id) return;
     if (typeof p?.from === "string" && p.from !== me.id) h.onPair(p.from, p.data);
   });
 
   let roomUp = false;
-  let boxUp = false;
+  let boxUp = multiplex;
   // Into the room only while joined and connected; otherwise the client
   // quietly falls back to one HTTP request per message. Missed moves are not
   // lost: where I am is announced again (`hi`) the moment the room is back.
@@ -397,7 +408,7 @@ export async function joinTown(
       trouble(status, err);
     }
   });
-  box.subscribe((status, err) => {
+  if (!multiplex) box.subscribe((status, err) => {
     if (leaving) return;
     if (status === "SUBSCRIBED") { boxUp = true; settle(); }
     else { boxUp = false; trouble(status, err); }
@@ -405,6 +416,7 @@ export async function joinTown(
 
   /** Post into somebody's letterbox, over HTTP: one message, one delivery. */
   const post = (to: string, event: string, payload: Record<string, unknown>) => {
+    if (multiplex) { cast(event, { ...payload, to }); return; }
     let ch = outboxes.get(to);
     if (!ch) {
       ch = supabase.channel(boxOf(to), { config: { private: isPrivate } });
@@ -434,7 +446,7 @@ export async function joinTown(
       leaving = true;
       for (const ch of outboxes.values()) void supabase.removeChannel(ch);
       outboxes.clear();
-      if (supabase.getChannels().includes(box)) await supabase.removeChannel(box);
+      if (box !== room && supabase.getChannels().includes(box)) await supabase.removeChannel(box);
       // Only if it is still ours: a newer join may already have replaced it.
       if (!supabase.getChannels().includes(room)) return;
       try { await room.untrack(); } catch { /* already gone */ }

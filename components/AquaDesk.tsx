@@ -6,6 +6,7 @@ import { useAdmin } from "@/lib/admin";
 import { useLang } from "@/lib/i18n";
 import { loadAqua, summarize, type AquaRaw } from "@/lib/aqua";
 import AdminSwitch from "@/components/AdminSwitch";
+import Link from "next/link";
 import AquaView from "@/components/AquaView";
 import AquaContacts, { type ContactPerson } from "@/components/aqua/AquaContacts";
 
@@ -102,6 +103,7 @@ export default function AquaDesk(
   if (!summary || !raw || !supabase) {
     return (
       <main className="pt-7">
+        <Link href="/admin/aqua/casino" className="mb-4 block rounded-xl border border-line bg-card p-4 text-accent">Casino TEST · ตั้งค่าโอกาส งบ ประกาศ และส่งมอบรางวัล ↗</Link>
         {failed ? (
           <>
             <div className="rounded-lg border border-chili/40 bg-chili/10 p-3 text-ui text-chili">
@@ -122,10 +124,11 @@ export default function AquaDesk(
   }
 
   return (
+    <><Link id="casino" href="/admin/aqua/casino" className="mt-5 block rounded-xl border border-line bg-card p-4 text-accent">Casino TEST · ตั้งค่าโอกาส งบ ประกาศ และส่งมอบรางวัล ↗</Link>
     <AquaView s={summary} raw={raw} supabase={supabase} me={me} onReload={reload}
               people={people}
               span={span} spans={SPANS} onSpan={setSpan}
               onRefresh={() => void load(span, true)}
-              busy={busy} failed={failed} loadedAt={loadedAt} />
+              busy={busy} failed={failed} loadedAt={loadedAt} /></>
   );
 }

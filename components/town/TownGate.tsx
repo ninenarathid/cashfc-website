@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from 'next/navigation';
 import { useAdmin } from "@/lib/admin";
 import { useMyFace } from "@/lib/avatars";
 import { useLang } from "@/lib/i18n";
@@ -37,8 +38,29 @@ const Town = dynamic(() => import("./Town"), {
 });
 
 const TEST_TOPIC = "town:dev-test";
+const CasinoGate = dynamic(() => import('@/components/casino/CasinoGate'), { ssr:false });
 
 export default function TownGate() {
+  return <Suspense fallback={<Waiting />}><TownMapGate /></Suspense>;
+}
+function TownMapGate() {
+  const params=useSearchParams(),active=useTownActive();
+  const map=params.get('map')??(active?.testTopic==='casino-lab'?'casino-test':active?.testTopic==='casino-live'?'casino':'town');
+  if (map === 'casino-test') return <CasinoGate />;
+  if (map === 'casino') return <CasinoGate live />;
+  return <><VillageGate /><CasinoEntrance /></>;
+}
+/** The door appears only when Aqua opens LIVE. TEST remains a private direct link. */
+function CasinoEntrance(){
+  const {canEnterTown,realAdmin}=useAdmin();const [open,setOpen]=useState(false);
+  useEffect(()=>{if(!canEnterTown)return;const client=createClient();if(!client)return;let gone=false;
+    const read=async()=>{const {data}=await client.from('casino_live_settings').select('open,starts_at,ends_at').eq('id',1).maybeSingle();const now=Date.now();if(!gone)setOpen(!!data?.open&&(!data.starts_at||now>=Date.parse(data.starts_at))&&(!data.ends_at||now<Date.parse(data.ends_at)));};
+    void read();const ch=client.channel('casino-door').on('postgres_changes',{event:'UPDATE',schema:'public',table:'casino_live_settings'},()=>void read()).subscribe();const timer=setInterval(()=>void read(),30000);
+    return()=>{gone=true;clearInterval(timer);void client.removeChannel(ch);};
+  },[canEnterTown]);
+  return open||realAdmin?<Link href={open?"/town?map=casino":"/town?map=casino-test"} className="fixed right-3 top-[calc(var(--nav-h)+4rem)] z-[44] rounded-lg border border-amber-300 bg-[#402a37] px-3 py-2 text-sm text-amber-100">เทศบาล Popoto · Casino ↗</Link>:null;
+}
+function VillageGate() {
   const { lang } = useLang();
   const th = lang === "th";
   const { realAdmin, ready } = useAdmin();
@@ -100,7 +122,7 @@ export default function TownGate() {
     body = testId ? <Town me={me} testTopic={testRoom ? `${TEST_TOPIC}:${testRoom}` : TEST_TOPIC} cap={testCap} /> : <Waiting />;
   } else if (testBack) {
     body = <Town me={testBack.me} testTopic={testBack.testTopic} cap={testBack.cap} />;
-  } else if (active) {
+  } else if (active && !active.testTopic?.startsWith("casino-")) {
     // Already in town in this tab (the dock brought you back): straight to it.
     body = <Town me={active.me} testTopic={active.testTopic} cap={active.cap} />;
   } else if (!ready || !checked || !face.ready) {

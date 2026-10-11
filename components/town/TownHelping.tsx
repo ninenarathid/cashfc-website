@@ -1,4 +1,5 @@
 "use client";
+import {useTownEphemeral} from "@/lib/town/ephemeral";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { numberOf, usesLeft, wearing, works, type GiftId } from "@/lib/town/gifts";
@@ -83,20 +84,21 @@ export function HelpNews({ keeper, th, sfx, onAid, nameOf }: {
     onAid?.(a);
     window.setTimeout(next, 3600);
   }, [sfx, onAid]);
+  const ephemeral = useTownEphemeral();
   const ready = keeper.ready(), aids = ready ? aidsOf(keeper.purse()) : [], newest = aids.length ? Math.max(...aids.map((a) => a.at)) : 0;
   useEffect(() => {
     if (!ready || !newest) return;
     const key = `cashtown.aided.${keeper.id}`;
-    if (told.current === null) { try { told.current = Number(window.localStorage.getItem(key)) || 0; } catch { told.current = 0; } }
+    if (told.current === null) { try { told.current = ephemeral ? 0 : Number(window.localStorage.getItem(key)) || 0; } catch { told.current = 0; } }
     const was = told.current, now = keeper.now();
     // (what was done more than two days ago is no news any more)
     const fresh = aidsOf(keeper.purse()).filter((a) => a.at > was && now - a.at < 2 * 86_400_000).sort((a, b) => a.at - b.at);
     if (!fresh.length) return;
     told.current = newest;
-    try { window.localStorage.setItem(key, String(newest)); } catch { /* told again another time, then */ }
+    try { if (!ephemeral) window.localStorage.setItem(key, String(newest)); } catch { /* told again another time, then */ }
     queue.current.push(...fresh);
     if (!busy.current) next();
-  }, [ready, newest, keeper, next]);
+  }, [ready, newest, keeper, next, ephemeral]);
   if (!shown) return null;
   return (
     <TownFoot rank="toast" order={50}>

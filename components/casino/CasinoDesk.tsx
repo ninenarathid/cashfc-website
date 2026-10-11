@@ -1,0 +1,105 @@
+"use client";
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { CLAIM_LABEL, draftOf, draftProblem, effectiveChance, money, type CasinoDraft, type CasinoReceipt } from '@/lib/casino';
+import { useCasino } from './useCasino';
+import './casino.css';
+
+const localTime = (v: string | null) => {
+  if (!v) return '';
+  const d = new Date(v); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+};
+export default function CasinoDesk() {
+  const { client, live, state, error, setError, connected, reload } = useCasino();
+  const [draft, setDraft] = useState<CasinoDraft | null>(null), [revision, setRevision] = useState(0);
+  const [dirty, setDirty] = useState(false), [busy, setBusy] = useState(false), [message, setMessage] = useState('');
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [confirming,setConfirming]=useState<string|null>(null);
+  useEffect(() => {
+    if (state && !dirty) { setDraft(draftOf(state)); setRevision(state.settings.revision); }
+  }, [state, dirty]);
+  const edit = <K extends keyof CasinoDraft>(key: K, value: CasinoDraft[K]) => {
+    setDirty(true); setMessage(''); setDraft(d => d ? { ...d, [key]: value } : d);
+  };
+  const save = async () => {
+    if (!client || !state || !draft || busy) return;
+    const issue = draftProblem({...draft,prizes:draft.prizes.map(p=>({...p,issued:state.prizes.find(x=>x.id===p.id)!.issued}))}, state.settings); if (issue) { setError(issue); return; }
+    setBusy(true); setMessage(''); setError('');
+    try {
+      const { error: failed } = await client.rpc('casino_lab_save', { p_revision: revision, p_doc: draft });
+      if (failed) { setError(failed.message); return; }
+      setDirty(false); await reload(); setMessage('บันทึกแล้ว · มีผลกับการหมุนครั้งใหม่ ผลที่ออกแล้วคงเดิม');
+    } catch { setError('ยังยืนยันการบันทึกไม่ได้ กรุณาโหลดค่าปัจจุบันก่อนลองใหม่'); }
+    finally { setBusy(false); }
+  };
+  const handle = async (r: CasinoReceipt, action: string) => {
+    if (!client || busy) return;
+    const note = notes[r.id] ?? '';
+    if ((action === 'release' || action === 'cancel') && !note.trim()) { setError('กรอกเหตุผลก่อนคืนคิวหรือยกเลิก'); return; }
+    if (action === 'fulfill' && confirming!==r.id) {setConfirming(r.id);return;}
+    setBusy(true); setError('');
+    try {
+      const { error: failed } = await client.rpc('casino_lab_receipt', { p_id: r.id, p_action: action, p_note: note });
+      await reload(); if (failed) setError(failed.message);
+    } catch { setError('การเชื่อมต่อขาดช่วง กรุณาตรวจสถานะรายการก่อนดำเนินการต่อ'); }
+    finally { setBusy(false);setConfirming(null); }
+  };
+  if (!state || !draft) return <p className="py-10" role="status">{error || 'กำลังอ่านตั้งค่า Casino…'}</p>;
+  const settings = state.settings, issue = draftProblem({...draft,prizes:draft.prizes.map(p=>({...p,issued:state.prizes.find(x=>x.id===p.id)!.issued}))}, settings);
+  const changed = revision !== settings.revision;
+  const chance = state.prizes.reduce((n, p) => n + effectiveChance(p, settings, state.prizes), 0);
+  const expected = state.prizes.reduce((n, p) => n + (p.kind === 'gil' ? p.amount * effectiveChance(p, settings, state.prizes) / 100 : 0), 0);
+  const activeQueue = state.queue;
+  return <main id="casino"><div className="casino-links"><Link href="/admin/aqua">กลับ Aqua</Link><Link href={live?"/town?map=casino":"/town?map=casino-test"}>เข้าห้อง Casino {live?"LIVE":"TEST"} ↗</Link><Link href={live?"/admin/aqua/casino":"/admin/aqua/casino-live"}>ตั้งค่า {live?"TEST":"LIVE"} ↗</Link></div>
+    <section className="casino-desk"><h2><span className="casino-test">{live?"LIVE":"TEST"}</span>Casino · โต๊ะ Aqua</h2>
+      <p>{live?"ค่าชุดนี้ใช้เงินจริงของ Cash Town และบันทึกรางวัลถาวร เปิดรับการหมุนเมื่อพร้อมเปิดตัว การเปลี่ยนค่ามีผลกับรอบใหม่ทันที":"ค่าชุดนี้ใช้กับห้องทดลอง Nine และ Aqua เท่านั้น ข้อมูลอยู่ในห้อง Realtime และไม่เขียนฐานข้อมูล เมื่อทุกหน้าของห้องถูกปิด ข้อมูลทดลองจะเริ่มใหม่"}</p>
+      <p>{connected ? 'อัปเดตสด' : 'กำลังเชื่อมต่ออัปเดตสด'} · รุ่น {settings.revision} · หมุนแล้ว {money(settings.spins)} ครั้ง</p>
+      {error && <p role="alert" className="casino-error">{error}</p>}
+      {message && <p role="status">{message}</p>}
+      {changed && dirty && <p role="alert">อีกบัญชีเปลี่ยนค่าแล้ว กรุณาโหลดค่าปัจจุบันก่อนบันทึก</p>}
+      <div className="casino-desk-grid">
+        <label>ชื่อกิจกรรม<input value={draft.title} maxLength={100} onChange={e => edit('title', e.target.value)} /></label>
+        <label>วิธีสุ่ม<select value={draft.mode} onChange={e => edit('mode', e.target.value as CasinoDraft['mode'])}><option value="weighted">สุ่มตาม % · จำกัดสต็อก</option><option value="pool">กองรางวัลจำกัด · จับแล้วไม่คืน</option></select></label>
+        <label>Coin ต่อครั้ง<input type="number" min={1} max={100000} value={draft.price} onChange={e => edit('price', Number(e.target.value))} /></label>
+        <label>จำนวนครั้งต่อคน<input type="number" min={1} max={10000} value={draft.per_player} onChange={e => edit('per_player', Number(e.target.value))} /></label>
+        <label>งบ Gil ทั้งหมด<input type="number" min={settings.reserved} max={1e12} value={draft.budget} onChange={e => edit('budget', Number(e.target.value))} /></label>
+        <label>สิทธิ์ในกองทั้งหมด<input type="number" disabled={draft.mode !== 'pool'} min={Math.max(1, settings.pool_draws)} max={1e7} value={draft.pool_size} onChange={e => edit('pool_size', Number(e.target.value))} /></label>
+        <label>เริ่ม (เวลาบนอุปกรณ์)<input type="datetime-local" value={localTime(draft.starts_at)} onChange={e => edit('starts_at', e.target.value ? new Date(e.target.value).toISOString() : null)} /></label>
+        <label>สิ้นสุด (เวลาบนอุปกรณ์)<input type="datetime-local" value={localTime(draft.ends_at)} onChange={e => edit('ends_at', e.target.value ? new Date(e.target.value).toISOString() : null)} /></label>
+        <label className="casino-check"><input type="checkbox" checked={draft.open} onChange={e => edit('open', e.target.checked)} />เปิดรับการหมุน</label>
+      </div>
+      <div style={{ overflowX: 'auto' }}><table><thead><tr><th>เปิด</th><th>ชื่อรางวัล</th><th>ประเภท</th><th>จำนวน / มูลค่า</th><th>โอกาส %</th><th>สต็อกทั้งหมด</th><th>ออกแล้ว</th><th>ประกาศทั้ง Cash Town</th></tr></thead>
+        <tbody>{draft.prizes.map((p, index) => {
+          const change = (patch: Partial<typeof p>) => edit('prizes', draft.prizes.map((old, i) => i === index ? { ...old, ...patch } : old));
+          const issued = state.prizes.find(q => q.id === p.id)?.issued ?? p.issued;
+          return <tr key={p.id}><td><input aria-label={`เปิด ${p.id}`} type="checkbox" checked={p.active} onChange={e => change({ active: e.target.checked })} /></td>
+            <td><label><span>{p.id}</span><input aria-label={`ชื่อ ${p.id}`} value={p.name} maxLength={100} onChange={e => change({ name: e.target.value })} /></label></td>
+            <td><select aria-label={`ประเภท ${p.id}`} value={p.kind} onChange={e => change({ kind: e.target.value as typeof p.kind })}><option value="physical">ของนอกเกม</option><option value="gil">FFXIV Gil</option><option value="coin">Coin ในเกม</option></select></td>
+            <td><input aria-label={`มูลค่า ${p.id}`} type="number" min={p.kind === 'physical' ? 0 : 1} max={1e9} value={p.amount} onChange={e => change({ amount: Number(e.target.value) })} /></td>
+            <td><input aria-label={`โอกาส ${p.id}`} type="number" min={0} max={100} step="0.000001" disabled={draft.mode === 'pool'} value={p.chance} onChange={e => change({ chance: Number(e.target.value) })} /></td>
+            <td><input aria-label={`สต็อก ${p.id}`} type="number" min={issued} max={1e6} value={p.stock} onChange={e => change({ stock: Number(e.target.value) })} /></td><td>{money(issued)}</td>
+            <td><label className="casino-check"><input type="checkbox" checked={p.announce} onChange={e => change({ announce: e.target.checked })} />ประกาศ</label></td></tr>;
+        })}</tbody></table></div>
+      <p>{draft.mode === 'pool' ? 'โอกาสคำนวณจากสต็อกที่เหลือ / สิทธิ์ที่เหลือในกอง ถ้าจับครบกอง รางวัลที่เปิดไว้จะออกครบ' : 'โอกาสเป็นของแต่ละครั้ง จำนวนรางวัลที่ออกจริงไม่รับประกัน เมื่อสต็อกหรืองบไม่พอ โอกาสส่วนนั้นจะเป็นรอบไม่ชนะ'}</p>
+      <p>ของนอกเกมและ Gil ออกเป็นสิทธิ์ในกระเป๋า Event ส่วน Coin เข้า{live?'กระเป๋า Cash Town':'บัญชีทดลอง'}ทันที การประกาศอิงค่าขณะรับการหมุน</p>
+      {issue && <p role="status">{issue}</p>}
+      <div className="casino-actions"><button className="casino-save" disabled={busy || !dirty || !!issue || changed} onClick={() => void save()}>บันทึกทั้งชุด</button>
+        <button disabled={busy} onClick={() => { setDirty(false); setMessage(''); void reload(); }}>โหลดค่าปัจจุบัน</button></div>
+      <p className="casino-forecast">ค่าที่ใช้อยู่: โอกาสได้รางวัล {chance.toFixed(4)}% · Gil เฉลี่ยก่อนสต็อกเปลี่ยน {money(Math.round(expected))} ต่อครั้ง<br />
+        งบ {money(settings.budget)} · จองสำหรับผู้ชนะแล้ว {money(settings.reserved)} · ส่งมอบแล้ว {money(state.paid_gil)} · ยังไม่ถูกจอง {money(settings.budget - settings.reserved)}<br />
+        {settings.mode === 'pool' ? `กองเหลือ ${money(settings.pool_size - settings.pool_draws)} สิทธิ์` : 'ตัวเลขเฉลี่ยเป็นการประมาณ สต็อกและงบเป็นเพดานที่ระบบบังคับจริง'}</p>
+      <section className="casino-queue"><h2>คิวส่งมอบรางวัล {live?'LIVE':'TEST'} · {activeQueue.length}{activeQueue.length === 100 ? '+' : ''}</h2>
+        <p>รับรายการไว้ก่อนส่งมอบ อีกแอดมินจะทำรายการเดียวกันไม่ได้ หลังยืนยัน ไอเทมหายจากกระเป๋าที่รอรับ แต่ยังอยู่ในประวัติ</p>
+        {activeQueue.length === 100 && <p>แสดง 100 รายการแรก เมื่อดำเนินการแล้ว รายการถัดไปจะเข้าคิวแสดง</p>}
+        {!activeQueue.length && <p>ยังไม่มีสิทธิ์รอส่งมอบ</p>}
+        {activeQueue.map(r => <article key={r.id}><strong>{r.player_name} · {r.prize.name}</strong><small>{live?"LIVE":"TEST"} · {CLAIM_LABEL[r.status]} · รหัส {r.id} · {r.requested_at ? 'ผู้เล่นยืนยันขอรับแล้ว' : 'ยังไม่ได้ยืนยันขอรับ'}</small>
+          {r.status === 'processing' && r.handled_by !== state.user_id ? <p>อีกแอดมินกำลังดูแลรายการนี้</p> : <>
+            <label>บันทึกการส่งมอบ / เหตุผล<input maxLength={1000} value={notes[r.id] ?? ''} onChange={e => setNotes(n => ({ ...n, [r.id]: e.target.value }))} /></label>
+            <div className="casino-actions">{r.status === 'pending' ? <button disabled={busy} onClick={() => void handle(r, 'take')}>รับรายการนี้</button> : <>
+              <button disabled={busy} onClick={() => void handle(r, 'fulfill')}>ยืนยันส่งมอบ {live?"LIVE":"TEST"} แล้ว</button><button disabled={busy} onClick={() => void handle(r, 'release')}>คืนคิว</button><button disabled={busy} onClick={() => void handle(r, 'cancel')}>ยกเลิกสิทธิ์พร้อมเหตุผล</button></>}</div>
+            {confirming===r.id&&<div role="alert" className="casino-confirm"><p>ส่งมอบ {r.prize.name} ให้ {r.player_name} เรียบร้อยแล้วใช่ไหม?</p><button disabled={busy} onClick={()=>void handle(r,'fulfill')}>ยืนยันส่งมอบรางวัล</button><button disabled={busy} onClick={()=>setConfirming(null)}>กลับไปตรวจสอบ</button></div>}</>}
+        </article>)}
+      </section>
+    </section>
+  </main>;
+}

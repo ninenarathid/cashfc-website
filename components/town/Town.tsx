@@ -1,7 +1,9 @@
+// CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 "use client";
 
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import type { TownMapAddon } from "@/lib/town/map-addon";
 import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
@@ -387,7 +389,9 @@ function useWords() {
 type Card = { id: string; x: number; top: number; bottom: number };
 
 /** `cap` is for tests (TownGate's dev-only test room); everybody else gets ROOM_CAP. */
-export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; testTopic?: string; cap?: number }) {
+export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: TownMe; testTopic?: string; cap?: number; mapAddon?: TownMapAddon }) {
+  const mapRef = useRef(mapAddon); mapRef.current = mapAddon;
+  const ephemeral = mapAddon?.mode === "test" || testTopic === "casino-lab";
   const w = useWords();
   // The canvas is drawn by the first render's functions; words it draws come from here.
   const words = useRef(w);
@@ -539,6 +543,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // mine on it, whose member is shown forty-five, lib/town/well-gifts; and the way to ask for it now)
   const skyWant = useRef(20), skyLook = useRef<(() => void) | null>(null);
   useEffect(() => {
+    if (mapRef.current?.mode === "test" || testTopic === "casino-lab") return;
     // somewhere else in their round each visit
     cloudDrift.current = (Date.now() / 1000) * 24;
     const dev = process.env.NODE_ENV !== "production", params = new URLSearchParams(location.search);
@@ -622,12 +627,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** The settings' choice of how often the map is drawn: kept on this device, the most until it is read. */
   const [pace, setPace] = useState<Fps>(PACE.most);
   useEffect(() => { const kept = keptFps(); paceRef.current = kept; setPace(kept); }, []);
-  const choosePace = (fps: Fps) => { paceRef.current = fps; setPace(fps); keepFps(fps); };
+  const choosePace = (fps: Fps) => { paceRef.current = fps; setPace(fps); if (!ephemeral) keepFps(fps); };
   const settingsShown = useCallback((open: boolean) => { settingsOpenRef.current = open; }, []);
   /** The settings' choice of whether the town moves (lib/town/motion): kept on this device, moving until it is read. */
   const [moving, setMoving] = useState(true);
   useEffect(() => { const kept = keptMotion(); stillAt.current = Date.now(); reducedRef.current = !kept; setMoving(kept); }, []);
-  const chooseMoving = (on: boolean) => { stillAt.current = Date.now(); reducedRef.current = !on; setMoving(on); keepMotion(on); };
+  const chooseMoving = (on: boolean) => { stillAt.current = Date.now(); reducedRef.current = !on; setMoving(on); if (!ephemeral) keepMotion(on); };
   const [wardrobeOpen, setWardrobeOpen] = useState(false);
   /** The emote window: what my avatar can do where it stands (sit, for now). */
   const [emoteOpen, setEmoteOpen] = useState(false);
@@ -649,7 +654,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   // has the whole window. Whoever wants them has them back from the menu, kept on the device.
   const [bars, setBars] = useState(false);
   useEffect(() => { try { if (localStorage.getItem("cashTown:bars") === "on") setBars(true); } catch { /* a browser that keeps nothing */ } }, []);
-  const chooseBars = (on: boolean) => { setBars(on); try { if (on) localStorage.setItem("cashTown:bars", "on"); else localStorage.removeItem("cashTown:bars"); } catch { /* the same */ } };
+  const chooseBars = (on: boolean) => { setBars(on); if (ephemeral) return; try { if (on) localStorage.setItem("cashTown:bars", "on"); else localStorage.removeItem("cashTown:bars"); } catch { /* the same */ } };
   const [boardOpen, setBoardOpen] = useState(false);
   /** The wishing fountain's panel: it takes the board's place while it is open (so whatever makes way for the board makes way for it). */
   const [fountainOpen, setFountainOpen] = useState(false);
@@ -675,7 +680,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const gameRef = useRef(false);
   useEffect(() => {
     let gone = false, made: GameKeeper | null = null;
-    if (testTopic) {
+    // A missing TEST keeper must never fall through to the real database.
+    if (ephemeral) { setKeeper(mapAddon?.keeper ?? null); return () => setKeeper(null); }
+    if (mapAddon?.keeper) { setKeeper(mapAddon.keeper); return () => setKeeper(null); }
+    if (testTopic && !mapAddon) {
       if (process.env.NODE_ENV !== "production") {
         const bench = new URLSearchParams(location.search).get("townDb");
         if (bench && /^http:\/\/(127\.0\.0\.1|localhost):\d+$/.test(bench)) {
@@ -707,7 +715,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       }
     }
     return () => { gone = true; made?.close(); setKeeper(null); };
-  }, [me.id, testTopic]);
+  }, [me.id, testTopic, mapAddon?.keeper, ephemeral]);
   useEffect(() => {
     if (!keeper) { gameRef.current = false; setGame(false); return; }
     const see = () => { const on = keeper.ready() && keeper.open() === true; gameRef.current = on; setGame(on); };
@@ -748,7 +756,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const sfxRef = useRef<FishSfx | null>(null);
   const worldElements = useRef(new ElementBursts());
   const heardElements = useRef(0);
-  if (game && !sfxRef.current && typeof window !== "undefined") sfxRef.current = new FishSfx();
+  if (game && !sfxRef.current && typeof window !== "undefined") sfxRef.current = new FishSfx({ persistent: !ephemeral });
   useEffect(() => () => { sfxRef.current?.close(); }, []);
   const fishWas = useRef(new Map<string, number>());
   /** What I hold in my hand, for the map's own loop. */
@@ -974,7 +982,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const rec = resumable();
     const resume = rec && rec.me.id === me.id && rec.testTopic === testTopic
       ? { voice: rec.voice, muted: rec.muted } : undefined;
-    setSession(openSession(me, { testTopic, cap, resume }));
+    setSession(openSession(me, { testTopic, cap, resume, terrain: mapRef.current?.terrain, privateTopic: !!mapRef.current, ephemeral: mapRef.current?.mode === "test" || testTopic === "casino-lab" }));
     // The stay is keyed by who you are; a new name or face waits for the next one.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me.id, testTopic, cap]);
@@ -1157,13 +1165,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const setCam = (c: Cam) => { const v = cam.current; const bounds = BOUNDS[placeRef.current]; const k = clampCam({ ...c, s: clampScale(c.s, v.cw, v.ch, bounds) }, v.cw, v.ch, bounds); v.s = k.s; v.cx = k.cx; v.cy = k.cy; };
   const zoomBy = useCallback((factor: number, px?: number, py?: number) => {
     const v = cam.current;
+    if (mapRef.current) { mapRef.current.camera.current?.zoom(factor); return; }
     if (!v.cw) return;
     setCam(zoomAt(camNow(), v.s * factor, px ?? v.cw / 2, py ?? v.ch / 2, v.cw, v.ch, BOUNDS[placeRef.current]));
     // Zooming with the buttons keeps me in view; with the wheel or fingers, where you point.
     if (px === undefined) v.follow = true;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const recenter = () => { cam.current.follow = true; };
+  const recenter = () => { cam.current.follow = true; mapRef.current?.camera.current?.recenter(); };
 
   /** Look at somebody: the camera to them, and their card. */
   const showPerson = (id: string) => {
@@ -1245,7 +1254,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       frames++;
       if (now - fpsSince >= 1000) { fpsRef.current = Math.round((frames * 1000) / (now - fpsSince)); frames = 0; fpsSince = now; }
       if (live) live.step(now, dt);
-      draw(ctx, canvas, now, dt);
+      if (mapRef.current) mapRef.current.camera.current?.frame?.(now);
+      else draw(ctx, canvas, now, dt);
       ask();
     };
     // A touch of the page: the map is at the pace chosen again, and at once (the frame it was waiting for was a
@@ -2826,6 +2836,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
 
   /** On screen: the seat of the bench they sit on, or where they stand. */
   function spotOf(a: Avatar): Vec {
+    if (mapRef.current) { const p = project(a.pos); return { x: p.x, y: p.y - (sitting(a) && Math.abs(a.pos.y - 3.5) < .1 ? 35 * cam.current.s : 0) }; }
     const place = tableSeatOf(a);
     if (place) return project(place.at);
     const b = seatOf(a);
@@ -3043,6 +3054,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   /** Which way somebody faces: the way they walk; after standing a while, towards you; with a rod out, towards their float. */
   function facingOf(a: Avatar, isMe: boolean, now: number): { view: View; mirror: boolean } {
     if (isMe && wardrobeOpenRef.current) return TURNS[((turn.current % TURNS.length) + TURNS.length) % TURNS.length];
+    if (mapRef.current && sitting(a) && Math.abs(a.pos.y - 3.5) < .1) return { view: "back", mirror: false };
     const rod = rodOf(a, isMe);
     if (rod) return facingFor(rod.float.x - a.pos.x, rod.float.y - a.pos.y);
     // (whoever sits and has turned to a side, lib/town/session's turnTo, faces that side, whatever their seat)
@@ -3086,9 +3098,9 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     const v = cam.current;
     const k = v.s;
     // ── gifts: forest ── (on a moss stag's back, lib/town/riding: lifted onto it, sat, and stepping with it; the stag is drawn under them)
-    const foot = spotOf(a), riding = rides(a.info.pet, sitting(a)) && "famStag" in ICON_ATLAS.icons, ride = riding ? STEED.lift * k : 0;
+    const foot = mapRef.current ? project(a.pos) : spotOf(a), riding = rides(a.info.pet, sitting(a)) && "famStag" in ICON_ATLAS.icons, ride = riding ? STEED.lift * k : 0;
     const hop = riding && a.path.length > 0 && !reducedRef.current ? Math.abs(Math.sin(now / 105)) * 2.5 * k : 0;
-    const p = riding ? { x: foot.x, y: foot.y - ride - hop } : foot;
+    const p = mapRef.current ? spotOf(a) : riding ? { x: foot.x, y: foot.y - ride - hop } : foot;
     const look = lookOf(a);
     const kit = kitFor(look.race);
     // sitting, the name and the tap box come down with the head
@@ -4392,11 +4404,12 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       {/* The town: above the page (z-30), under the header (40) and the phone's
           tab bar (50); in fullscreen at 55, over both and under every dialog (60+). */}
       <canvas ref={canvasRef} role="img" aria-label={w.canvasLabel}
-              className="absolute inset-0 touch-none select-none"
+              style={{ visibility: mapAddon ? "hidden" : undefined }} className="absolute inset-0 touch-none select-none"
               onPointerDown={onPointerDown} onPointerMove={onPointerMove}
               onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
               onPointerLeave={() => { hover.current = null; if (mouse.current) mouse.current.inside = false; }} />
 
+      {mapAddon?.render({ session, camera: mapAddon.camera, person: (x, y) => { const who = personAt(x, y); if (!who) return false; setPopover(null); setCard({ id: who.id, x: (who.x0 + who.x1) / 2, top: who.y0, bottom: who.y1 }); return true; }, view: (view, width, height) => { Object.assign(cam.current, view, { cw: width, ch: height, ready: true }); hits.current = []; }, avatar: (ctx, a, stamp, dpr) => { const names: Array<() => void> = []; drawAvatar(ctx, a, a.info.id === me.id, names, hits.current, false, Date.now(), stamp, dpr); for (const name of names) name(); } })}
       {/* The top of the map, one row: on the left where this is, whether we are connected and who is here (a tap lists
           them), on the right the buttons. One row, so that the left gives way to the right and neither lies on the
           other (until 2026-10-08 each was placed by itself, and on a phone the clock lay under the wardrobe's button). */}
@@ -4675,7 +4688,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       )}
 
       {/* How to play, until you have played */}
-      {s && hint && !wardrobeOpen && !boardOpen && !trade && !talk && !signView && !testOpen && (
+      {!mapAddon && s && hint && !wardrobeOpen && !boardOpen && !trade && !talk && !signView && !testOpen && (
         <TownFoot rank="toast" order={1}>
           <div className="tk tk-plate pointer-events-none w-fit max-w-full px-3.5 py-2 text-center text-meta text-muted">
             {phone ? w.hintPhone : w.hintDesk}
@@ -4804,7 +4817,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
                 ด้านบนแชทนะครับ"): the chat's lines and its box are one thing. */}
             <div data-foot-hand className="flex w-full max-w-[26rem] flex-col items-start">
               <div ref={setFootSide} className={`flex flex-col items-start gap-2 pb-2 empty:hidden ${phone && chatOpen ? "hidden" : ""}`} />
-              {satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && (
+              {!mapAddon && satNow && !s.self.path.length && !talk && !trade && !boardOpen && !wardrobeOpen && !(phone && chatOpen) && (
                 <button type="button" data-stand-up onClick={() => s.standUp()}
                         className="pop-in pressable tk tk-plate pointer-events-auto mb-2 flex min-h-12 max-w-full items-center gap-2 pl-3.5 pr-4 text-left text-ui font-semibold text-ink" data-state="open">
                   <TownIcon name="standUp" size={22} />

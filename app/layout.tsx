@@ -8,6 +8,7 @@ import ToastHost from "@/components/ui/Toast";
 import RareDevTools from "@/components/RareDevTools";
 import PopotoWarmup from "@/components/ui/PopotoWarmup";
 import TownDock from "@/components/town/TownDock";
+import CasinoAnnouncementHost from "@/components/casino/CasinoAnnouncementHost";
 import { TooltipProvider } from "@/components/ui/Tooltip";
 import roster from "@/data/members.json";
 import type { BoardData } from "@/lib/types";
@@ -93,6 +94,7 @@ export default function RootLayout({
           {/* Radix shares tooltip timing across everything inside it: the first
               waits, and moving straight to the next shows it at once. */}
           <TooltipProvider>
+          <CasinoAnnouncementHost />
           <CommandPalette members={index} />
           {/* Outside the page's own column, because it is pinned to the window
               rather than to anything on the page. */}

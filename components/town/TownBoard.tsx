@@ -1,4 +1,5 @@
 "use client";
+import {useTownEphemeral} from "@/lib/town/ephemeral";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import popotoArt from "@/assets/popoto/popoto.webp";
@@ -28,7 +29,8 @@ export default function TownBoard({ th, onClose, onVoted, art }: {
   /** Told what my vote is now, so the map can stop flagging the board. */
   onVoted?: (choice: number | null) => void;
 }) {
-  const [supabase] = useState(createClient);
+  const ephemeral = useTownEphemeral();
+  const [supabase] = useState(() => ephemeral ? null : createClient());
   const [counts, setCounts] = useState<Record<number, number> | null>(null);
   const [mine, setMine] = useState<number | null>(null);
   const [busy, setBusy] = useState(false);
@@ -38,6 +40,7 @@ export default function TownBoard({ th, onClose, onVoted, art }: {
   const sent = useRef(0);
 
   const load = useCallback(async () => {
+    if (ephemeral) { setCounts({}); setNote(th ? "TEST: การโหวตจริงปิดไว้ในห้องทดลอง" : "TEST: real voting is disabled in this room"); return; }
     if (!supabase) { setNote(th ? "ตอนนี้ยังโหวตไม่ได้" : "Voting isn't available right now"); return; }
     const was = sent.current;
     const [tally, my] = await Promise.all([
@@ -57,7 +60,7 @@ export default function TownBoard({ th, onClose, onVoted, art }: {
     const m = typeof my.data === "number" ? my.data : null;
     setMine(m);
     onVoted?.(m);
-  }, [supabase, th, onVoted]);
+  }, [supabase, th, onVoted, ephemeral]);
 
   useEffect(() => {
     // Not awaited: the first fetch fills the board in when it comes.
@@ -136,7 +139,7 @@ export default function TownBoard({ th, onClose, onVoted, art }: {
           {CHOICES.map((c) => {
             const n = counts?.[c.n] ?? 0, share = total ? n / total : 0, chosen = mine === c.n;
             return (
-              <button key={c.n} type="button" aria-pressed={chosen} disabled={!counts || busy}
+              <button key={c.n} type="button" aria-pressed={chosen} disabled={ephemeral || !counts || busy}
                       onClick={() => void pick(c.n)}
                       className={`pressable relative overflow-hidden rounded-xl border px-3 py-2.5 text-left transition-colors disabled:cursor-default ${chosen
                         ? "border-accent bg-accent/10" : "border-line-strong hover:border-accent"}`}>

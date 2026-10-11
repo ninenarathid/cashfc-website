@@ -1,3 +1,4 @@
+// CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 import { comboCue, comboLoadout, prepareCombo, rescueCombo } from "./private/combos";
 import { mineOf } from "./mining";
 import { warehouseAction, type Warehouse, type WarehouseInput } from "./warehouse";
@@ -35,7 +36,7 @@ import { handSlot, type Purse } from "./trade";
 import { sortedSlot } from "./bag";
 import type { Nature } from "./waters";
 import { KITCHEN, atWell } from "./world";
-import { trialFor, type Trial } from "./trial";
+import { trialFor, Trial } from "./trial";
 import { wetMs } from "./weather";
 // ── gifts: farming ──
 import type { RowDid } from "./keeper";
@@ -63,13 +64,15 @@ const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)
  * the trial itself.
  */
 class TrialKeeper implements Keeper {
+  private warehouseRows: Warehouse[] = [];
   async warehouse(input: WarehouseInput) {
     const key = "cashTown:warehouseTrial";
-    let rows: Warehouse[] = [];
-    try { rows = JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { /* empty local rehearsal */ }
+    let rows: Warehouse[] = this.warehouseRows;
+    if (!this.trial.memoryOnly) { try { rows = JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { /* empty local rehearsal */ } }
     const did = warehouseAction(this.purse(), rows, this.id, this.id, input);
     if (did.ok && input.action !== "look") {
-      localStorage.setItem(key, JSON.stringify([...rows.filter(w => !did.warehouses.some(x => x.owner === w.owner)), ...did.warehouses]));
+      this.warehouseRows = [...rows.filter(w => !did.warehouses.some(x => x.owner === w.owner)), ...did.warehouses];
+      if (!this.trial.memoryOnly) localStorage.setItem(key, JSON.stringify(this.warehouseRows));
       this.trial.fished(did.purse);
     }
     return did;
@@ -606,6 +609,8 @@ class TrialKeeper implements Keeper {
   record(play: Play) { this.trial.record(play); }
   close() { /* nothing of its own to stop */ }
 }
+
+export function casinoMemoryKeeper(id: string) { const trial = new Trial(id, { memoryOnly: true }); return { keeper: new TrialKeeper(id, trial), coins: (n: number) => trial.casinoCoins(n) }; }
 
 const keepers = new Map<string, TrialKeeper>();
 /** The one trial's keeper for somebody in this tab. */

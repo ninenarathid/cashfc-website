@@ -1,4 +1,5 @@
 "use client";
+import {useTownEphemeral} from "@/lib/town/ephemeral";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { potSays, whispersOf, needsOf, COOKING, ODD, type Taste } from "@/lib/town/cooking";
@@ -150,10 +151,12 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
     return { id, told, ready: stocked(told, purse.bag), buff: id in DISHES ? DISHES[id as DishId].buff ?? null : null };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- what is known changes with the purse, which is read anew when the keeper says so
   }), [keeper, purse]);
+  const ephemeral = useTownEphemeral();
   const [pin, setPin] = useState<ItemId | null>(null);
-  useEffect(() => { try { const kept = window.localStorage.getItem(`${PIN_KEY}.${keeper.id}`); if (kept && kept in ITEMS) setPin(kept as ItemId); } catch { /* a browser that keeps nothing: no recipe is pinned */ } }, [keeper.id]);
+  useEffect(() => { if (ephemeral) return; try { const kept = window.localStorage.getItem(`${PIN_KEY}.${keeper.id}`); if (kept && kept in ITEMS) setPin(kept as ItemId); } catch { /* a browser that keeps nothing: no recipe is pinned */ } }, [keeper.id, ephemeral]);
   const choose = (id: ItemId | null) => {
     setPin(id);
+    if (ephemeral) return;
     try { if (id) window.localStorage.setItem(`${PIN_KEY}.${keeper.id}`, id); else window.localStorage.removeItem(`${PIN_KEY}.${keeper.id}`); } catch { /* not kept */ }
   };
   const pinned = book.find((r) => r.id === pin) ?? null;
