@@ -10535,7 +10535,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 87,
-    "kills": 9,
+    "kills": 14,
     "job": "Samurai",
     "cleared": true,
     "job_kills": {
@@ -21591,7 +21591,7 @@
     "encounter_id": 1079,
     "name": "Futures Rewritten",
     "best": 55,
-    "kills": 5,
+    "kills": 7,
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
@@ -26954,11 +26954,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 22.88,
+    "pct": 17.05,
     "phase": 3,
-    "pulls": 22,
-    "last": "2026-10-09",
-    "last_ts": 1791560747
+    "pulls": 68,
+    "last": "2026-10-11",
+    "last_ts": 1791738094
    }
   ]
  },
@@ -31856,7 +31856,7 @@
     "expansion": "Dawntrail",
     "encounter_id": 1085,
     "name": "Dancing Mad",
-    "best": 57,
+    "best": 58,
     "kills": 2,
     "job": "Warrior",
     "cleared": true,
@@ -33605,11 +33605,11 @@
     "name": "Dancing Mad",
     "kind": "ultimate",
     "state": "learning",
-    "pct": 22.88,
+    "pct": 17.05,
     "phase": 3,
-    "pulls": 22,
-    "last": "2026-10-09",
-    "last_ts": 1791560747
+    "pulls": 69,
+    "last": "2026-10-11",
+    "last_ts": 1791738094
    }
   ]
  },
@@ -60567,9 +60567,9 @@
     "expansion": "Dawntrail",
     "encounter_id": 1083,
     "name": "Doomtrain",
-    "best": 80,
-    "kills": 14,
-    "job": "Reaper",
+    "best": 89,
+    "kills": 16,
+    "job": "RedMage",
     "cleared": true,
     "job_kills": {
      "Reaper": {
@@ -60592,8 +60592,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1084,
     "name": "Enuo",
-    "best": 49,
-    "kills": 6,
+    "best": 71,
+    "kills": 7,
     "job": "RedMage",
     "cleared": true,
     "job_kills": {
@@ -73019,7 +73019,7 @@
     "encounter_id": 1083,
     "name": "Doomtrain",
     "best": 95,
-    "kills": 28,
+    "kills": 30,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73048,7 +73048,7 @@
     "encounter_id": 1084,
     "name": "Enuo",
     "best": 92,
-    "kills": 24,
+    "kills": 25,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -73227,8 +73227,8 @@
     "expansion": "Dawntrail",
     "encounter_id": 1072,
     "name": "Zoraal Ja",
-    "best": 84,
-    "kills": 10,
+    "best": 88,
+    "kills": 15,
     "job": "Paladin",
     "cleared": true,
     "job_kills": {
@@ -80724,7 +80724,7 @@
     "encounter_id": 1072,
     "name": "Zoraal Ja",
     "best": 62,
-    "kills": 4,
+    "kills": 9,
     "job": "Pictomancer",
     "cleared": true,
     "job_kills": {
@@ -80968,6 +80968,17 @@
       "best": 9
      }
     }
+   },
+   {
+    "zone": "Trials I (Extreme)",
+    "zone_id": 58,
+    "expansion": "Dawntrail",
+    "encounter_id": 1072,
+    "name": "Zoraal Ja",
+    "best": 34,
+    "kills": 5,
+    "job": "Astrologian",
+    "cleared": true
    }
   ],
   "legacy": [],

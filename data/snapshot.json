@@ -1588,7 +1588,7 @@
   "mounts": 74,
   "minions": 121,
   "rare": 14,
-  "level": 97,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -1627,7 +1627,7 @@
    "The Unending Coil of Bahamut",
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-27"
+  "chg": "2026-10-11"
  },
  "26699926": {
   "name": "Boonies Princess",
@@ -1789,7 +1789,7 @@
  },
  "36130968": {
   "name": "Chu Celestial",
-  "parse": 86,
+  "parse": 89,
   "ult": 1,
   "mounts": 33,
   "minions": 99,
@@ -1816,7 +1816,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-09-06"
+  "chg": "2026-10-11"
  },
  "28579232": {
   "name": "Dessiny Valkyrie",
@@ -4789,7 +4789,7 @@
  },
  "58202955": {
   "name": "Trevas Aka",
-  "parse": 9,
+  "parse": 34,
   "ult": 0,
   "mounts": 22,
   "minions": 65,
@@ -4817,10 +4817,11 @@
    "Doomtrain",
    "Enuo",
    "Guardian Arkveld",
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "26298391": {
   "name": "Yozora Luna",
@@ -5599,7 +5600,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 100,
+  "level": 83,
   "cc": [
    false,
    false,
@@ -5721,7 +5722,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-07"
+  "chg": "2026-10-11"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6802,7 +6803,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 95,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7240,7 +7241,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 82,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -7316,7 +7317,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -8619,7 +8620,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 91,
+  "level": 92,
   "cc": [
    false,
    false,

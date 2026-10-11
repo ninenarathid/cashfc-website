@@ -2,6 +2,48 @@
  "events": [
   {
    "date": "2026-10-11",
+   "type": "level_100",
+   "id": 36248712,
+   "name": "Boom Astraea",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "parse_up",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "set a new best parse: 89 on Doomtrain as Re\u0001 \u0002age"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "parse_up",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "set a new best parse: 34 on Zoraal Ja as Astrologian"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "ex_clear",
+   "id": 58202955,
+   "name": "Trevas Aka",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "level_100",
+   "id": 46243891,
+   "name": "Marin Elysium",
+   "text": "reached level 100 on Machinist!"
+  },
+  {
+   "date": "2026-10-11",
    "type": "rare_up",
    "id": 15308846,
    "name": "Aqua Eleison",
@@ -1357,48 +1399,6 @@
    "id": 57375278,
    "name": "Komi Kona",
    "text": "reached level 100 on Ninja!"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "rare_up",
-   "id": 15932791,
-   "name": "Yuziris Andra'nov",
-   "text": "earned A Wolf in Dark Robes III — only 3.0% of players have it, and 18 more"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "job_up",
-   "id": 42976317,
-   "name": "Zeadz Stellar",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "job_up",
-   "id": 29339718,
-   "name": "Ashe Fantine",
-   "text": "is now a Master Scholar"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "job_up",
-   "id": 40389196,
-   "name": "Dontae Luciano",
-   "text": "is now a Expert Monk"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "job_up",
-   "id": 42021700,
-   "name": "Josuke Mizumoto",
-   "text": "is now a Expert Paladin"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "job_up",
-   "id": 34509521,
-   "name": "Liliya Quintilis",
-   "text": "is now a Master White Mage"
   }
  ]
 }
