@@ -5103,7 +5103,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
           phone the stall's and the bank's sheet is as tall as it can be under the top row (the owner, 2026-10-08, of
           the stall there: "มองไม่เห็นเมนูที่จะขายเลย"); the bag's own stays lower, the map being looked at with it. */}
       {s && game && keeper && (
-        <div className={trade ? `pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
+        <div className={trade ? `pop-in absolute z-40 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
                ? `inset-x-0 rounded-t-2xl ${trade === "bag" ? "h-[min(72%,40rem)]" : "h-[min(84%,42rem,calc(100%-8.5rem))]"}`
                : "right-3 top-16 w-[24rem] rounded-2xl"}` : "hidden"}
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}

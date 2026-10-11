@@ -55,6 +55,9 @@ const WHY_BUGS: Record<string, [string, string]> = {
   flown: ["ตัวที่ตามมาบินหนีไปแล้ว", "The one that followed has flown"],
   // (the silver-web net's mark over one that does not show itself, tapped with no net in the hand: what it is a mark of, and what the hand lacks)
   netless: ["ประกายเงินคือแมลงที่ซ่อนอยู่ · ต้องถือสวิงจึงจะจับได้", "The silver mark is a hidden insect · hold a net to catch it"],
+  hidden: ["ประกายบอกตำแหน่ง แต่ตัวยังซ่อนอยู่ · รอให้มันเผยตัวก่อนเหวี่ยงสวิง", "The mark shows its location, but it is still hiding · wait for it to emerge before swinging"],
+  climbing: ["มันยังอยู่สูงบนต้นไม้ · ถือของหวานยืนใกล้ต้น รอให้มันลงมาก่อน", "It is still high in the tree · hold something sweet nearby and wait for it to climb down"],
+  moving: ["มันกำลังย้ายที่ · รอให้มันหยุดก่อนเหวี่ยงสวิง", "It is moving between perches · wait for it to settle before swinging"],
 };
 /** What is said beside the second of a pair when it is caught. */
 const PAIR_WORD: [th: string, en: string] = ["ได้ครบคู่", "the pair"];
@@ -833,6 +836,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         return false;
       }
       if (only && !byInsect(at, here)) return false;
+      const target = byInsect(at, here) ? [...poses.current.values()].find(({ pose }) => far(aimOf(pose), at) <= MARK) : undefined;
+      if (target && !target.pose.open) {
+        say(BUGS[target.sight.bug].habit === "lure" ? "climbing" : target.pose.seen ? "moving" : "hidden");
+      }
       if (swing.current && !swing.current.done) return true;
       // a tap on an insect within reach, or just ahead of it, is a swing; anywhere else it is a step, as ever
       if (!byInsect(at, here)) return false;

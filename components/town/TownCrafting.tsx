@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { CRAFTS, craft, craftFee, craftLeads, type CraftId } from "@/lib/town/crafting";
-import { KIND_WORD } from "@/lib/town/clues";
+import { clueOf, KIND_WORD } from "@/lib/town/clues";
 import { ITEMS, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import { held, type Purse } from "@/lib/town/trade";
@@ -54,7 +54,10 @@ export default function TownCrafting({ keeper, purse, th }: { keeper: Keeper; pu
         return <li key={id} className={styles.recipe} data-craft={id}>
           <div className="flex items-center gap-2"><span className={styles.recipeIcon}><ItemIcon id={id} size={36} /></span><strong className="min-w-0 flex-1 text-ui">{name(id)}</strong><span className="text-xs">{th ? "ขั้น" : "Tier"} {ITEMS[id].tier}</span></div>
           <p className="mt-2 text-meta leading-relaxed text-[#6b5236]">{ITEMS[id].about[th?"th":"en"]}</p>
-          <ul className="my-2 space-y-1 text-sm">{CRAFTS[id].map(([part, n]) => <li key={part} className="flex items-center gap-2">{seen.has(part) || purse.crafted?.includes(id) ? <><ItemIcon id={part} size={18} /><span>{name(part)}</span></> : <span className="text-[#735b36]">{KIND_WORD[ITEMS[part].kind][th ? "th" : "en"]}</span>}<span className={`ml-auto tabular-nums ${held(purse.bag, part) < n ? "text-[#9b352b]" : "text-[#365c37]"}`}>{held(purse.bag, part)} / {n}</span></li>)}</ul>
+          <ul className="my-2 space-y-1 text-sm">{CRAFTS[id].map(([part, n]) => {
+            const clue = clueOf(part), lang = th ? "th" : "en";
+            return <li key={part} className="flex items-center gap-2">{seen.has(part) || purse.crafted?.includes(id) ? <><ItemIcon id={part} size={18} /><span>{name(part)}</span></> : <span className="text-[#735b36]">{clue.sort[lang]}{clue.from && <small className="block">{clue.from[lang]}</small>}</span>}<span className={`ml-auto shrink-0 tabular-nums ${held(purse.bag, part) < n ? "text-[#9b352b]" : "text-[#365c37]"}`}>{held(purse.bag, part)} / {n}</span></li>;
+          })}</ul>
           <button type="button" disabled={!!busy || !check.ok} onClick={() => void make(id)} className="min-h-11 w-full rounded border-2 border-[#2a190d] bg-[#70512f] px-3 text-[#fff0cd] disabled:opacity-50">{busy === id ? (th ? "กำลังสร้าง…" : "Making…") : `${th ? "สร้าง" : "Make"} · ${craftFee(id)} ${th ? "เหรียญ" : "coins"}`}</button>
           {!check.ok && check.why === "full" && <p className="mt-1 text-sm">{th ? "เก็บของเข้ากล่องเพื่อเปิดที่ว่างก่อน" : "Store something to make room first"}</p>}
         </li>;

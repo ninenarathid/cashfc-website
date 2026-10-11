@@ -299,15 +299,11 @@ export class TownSession {
 
   /**
    * One frame of walking, from the town's canvas. After time without frames
-   * (another page, a hidden tab), everybody is put where they were going
-   * rather than walked there late.
+   * (another page, a hidden tab), movement catches up by elapsed time at its
+   * normal speed. A short interruption must not skip the whole remaining path.
    */
   step(now: number, dt: number) {
-    if (!this.steppedAt || now - this.steppedAt > 1000) {
-      for (const a of [this.self, ...this.avatars.values()]) {
-        if (a.path.length) { a.pos = { ...a.path[a.path.length - 1] }; a.path = []; }
-      }
-    }
+    if (this.steppedAt && now - this.steppedAt > 1000) dt = (now - this.steppedAt) / 1000;
     this.steppedAt = now;
     const all = [this.self, ...this.avatars.values()];
     for (const a of all) {

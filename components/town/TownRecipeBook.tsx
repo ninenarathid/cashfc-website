@@ -7,6 +7,7 @@ import { toldOf } from "@/lib/town/hints";
 import { DISHES, ITEMS, MAKES, iconOf, type DishId, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import type { Purse } from "@/lib/town/trade";
+import { recipeCategory } from "@/lib/town/recipe-category";
 import TownNotebook from "./TownNotebook";
 import TownIcon, { type IconName } from "./TownIcon";
 import { ItemIcon } from "./TownTrade";
@@ -23,10 +24,11 @@ export default function TownRecipeBook({ keeper, purse, th }: { keeper: Keeper; 
     const hasRecipe = !!dish?.recipe || !!MAKES[id];
     const recipe = hasRecipe ? toldOf(id, keeper.madeBefore(id) || whispers.includes(id), keeper.triesAt(id)) : null;
     const method = recipe?.in.includes("grill") ? ["ย่าง", "Grilled"] : recipe?.in.includes("oven") ? ["อบ", "Baked"] : recipe?.in.includes("steamer") ? ["นึ่ง", "Steamed"] : recipe?.in.includes("pan") || recipe?.in.includes("wok") ? ["กระทะ", "Skillet"] : recipe?.in.includes("pot") ? ["หม้อ", "Pots"] : recipe?.in.includes("jar") ? ["หมัก / ดอง", "Fermented / pickled"] : ["อาหารอื่น ๆ", "Other food"];
-    const category = dish ? method[th ? 0 : 1] : th ? "ของแปรรูป / ของใช้" : "Processed / crafted";
+    const category = recipeCategory(id, th);
     const first = keeper.finder(id), does = cureWords(id);
     return { key: id, title: name(id), searchText: `${ITEMS[id].name.th} ${ITEMS[id].name.en}`, icon: iconOf(id) as IconName, category, body: <div data-recipe-page={id}>
       <p>{ITEMS[id].about[lang]}</p>
+      {dish && <p><small>{method[th ? 0 : 1]}</small></p>}
       {recipe ? <>
         <h5>{th ? "วัตถุดิบ" : "Ingredients"}</h5>
         <ul className="flex flex-col gap-2">{recipe.needs.map(([item, n]) => <li key={item} className="flex items-center gap-2"><ItemIcon id={item} size={24}/><span>{name(item)}</span><strong className="ml-auto whitespace-nowrap">×{n}</strong></li>)}{recipe.last && <Secret hidden={recipe.last} th={th}/>}</ul>

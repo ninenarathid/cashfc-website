@@ -1,5 +1,6 @@
 import { comboCue, comboLoadout, prepareCombo, rescueCombo } from "./private/combos";
 import { mineOf } from "./mining";
+import { warehouseAction, type Warehouse, type WarehouseInput } from "./warehouse";
 import type { ComboContext, ComboReply } from "./combo-types";
 import type { RockChoice } from "./geology";
 import type { InsectCare } from "./insect-garden";
@@ -62,6 +63,17 @@ const bangkokHour = (now: number) => Math.floor((((now + 7 * HOUR) % (24 * HOUR)
  * the trial itself.
  */
 class TrialKeeper implements Keeper {
+  async warehouse(input: WarehouseInput) {
+    const key = "cashTown:warehouseTrial";
+    let rows: Warehouse[] = [];
+    try { rows = JSON.parse(localStorage.getItem(key) ?? "[]"); } catch { /* empty local rehearsal */ }
+    const did = warehouseAction(this.purse(), rows, this.id, this.id, input);
+    if (did.ok && input.action !== "look") {
+      localStorage.setItem(key, JSON.stringify([...rows.filter(w => !did.warehouses.some(x => x.owner === w.owner)), ...did.warehouses]));
+      this.trial.fished(did.purse);
+    }
+    return did;
+  }
   onDeed: ((what: Looked, to?: string) => void) | null = null;
   /** The line that is out: what is on its way, and the bait it took. */
   // ── gifts: fishing ── (`again`: the otter has driven this line's fish back once; `two`: what is on the second line of a rod of two lines, while both are on)

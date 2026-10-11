@@ -14,6 +14,13 @@ describe("later rods and the extra line", () => {
 });
 
 describe("three fish on one reel", () => {
+  it("a calm meal widens every band on two and three lines, including with gear and the rod's narrower band", () => {
+    for (const fish of [["tilapia", "carp"], ["tilapia", "carp", "catfish"]] as const) {
+      const normal=startPair([...fish],"good",{narrow:0.75},713);
+      const buffed=startPair([...fish],"good",{narrow:0.75,calm:1},713);
+      for (let i=0;i<fish.length;i++) expect(buffed.hi[i]-buffed.lo[i]).toBeGreaterThan(normal.hi[i]-normal.lo[i]);
+    }
+  });
   it("keeps the other two alive when one line is lost", () => {
     let p = startPair(["tilapia", "carp", "catfish"], "good", {}, 713);
     expect(p.fights).toHaveLength(3);

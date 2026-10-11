@@ -1145,7 +1145,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
               <span className="absolute inset-x-0 top-0 h-[2.5%] bg-[#e9573f]" />
               <span className="absolute inset-y-0 left-1/2 w-px bg-[#2a190d]" />
               {PAIR_LOOK.slice(0, phase.fish.length).map((look, i) => (
-                <span key={i} ref={two.band[i]} data-band={i} className={`absolute border-y-[3px] ${look.band}`} style={{ left: `${i * 100 / phase.fish.length}%`, width: `${100 / phase.fish.length}%`, bottom: "42%", height: "12%" }} />
+                <span key={i} ref={two.band[i]} data-band={i} data-fx={buffs.includes("calm") ? "calm" : undefined} className={`absolute border-y-[3px] ${look.band} ${buffs.includes("calm") ? "shadow-[0_0_14px_4px_rgba(150,225,255,0.75)]" : ""}`} style={{ left: `${i * 100 / phase.fish.length}%`, width: `${100 / phase.fish.length}%`, bottom: "42%", height: "12%" }} />
               ))}
               <span ref={two.needle} className="absolute inset-x-0 -mb-[2px] h-[5px] bg-[#fff6e3] shadow-[0_0_0_1px_#2a190d]" style={{ bottom: "50%" }} />
             </div>

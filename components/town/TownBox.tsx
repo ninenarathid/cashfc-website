@@ -11,6 +11,7 @@ import type { FishSfx } from "@/lib/town/sfx";
 import { held, type Stack } from "@/lib/town/trade";
 import TownIcon from "./TownIcon";
 import TownFoot from "./TownFoot";
+import TownWarehouse from "./TownWarehouse";
 import { ItemCard, Pic, Pockets, StackIcon, WHY, forgeWords, holdsOf } from "./TownTrade";
 
 /** Why something was not done at the box, in a few words (what a bag refuses for is TownTrade's to word). */
@@ -64,6 +65,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
   const [, setTick] = useState(0);
   useEffect(() => keeper.watch(() => setTick((n) => n + 1)), [keeper]);
   const [open, setOpen] = useState(false);
+  const [shared, setShared] = useState(false);
   const [step, setStep] = useState<Step>("all");
   const [said, setSaid] = useState<string | null>(null);
   const [upgrading, setUpgrading] = useState(false);
@@ -182,7 +184,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
         </TownFoot>
       )}
       {open && (
-        <div className={`pop-in absolute z-20 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
+        <div className={`pop-in absolute z-40 overflow-hidden border border-line-lit bg-surface/97 shadow-xl shadow-black/40 backdrop-blur-sm ${phone
                ? "inset-x-0 h-[min(84%,42rem)] rounded-t-2xl"
                : "right-3 top-16 w-[24rem] rounded-2xl"}`}
              style={phone ? { bottom: tabbar ? "calc(4.5rem + env(safe-area-inset-bottom))" : 0 } : { bottom: "0.75rem" }}
@@ -198,6 +200,12 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
+              <div role="group" aria-label={th ? "ประเภทคลัง" : "Storage type"} className="mb-4 flex gap-2">
+                <button type="button" aria-pressed={!shared} onClick={() => setShared(false)} className="pressable min-h-11 rounded-lg border border-line-strong px-3 aria-pressed:bg-accent/20">{th ? "กล่องส่วนตัว" : "Private box"}</button>
+                <button type="button" aria-pressed={shared} onClick={() => setShared(true)} className="pressable min-h-11 rounded-lg border border-line-strong px-3 aria-pressed:bg-accent/20">{th ? "คลังร่วม" : "Shared warehouse"}</button>
+              </div>
+              {shared && <TownWarehouse keeper={keeper} at={at} th={th} />}
+              <div hidden={shared}>
               {/* how many of a stack a tap moves */}
               <div className="flex flex-wrap items-center gap-1.5">
                 <span id="town-box-step" className="mr-1 text-meta text-muted">{th ? "ย้ายครั้งละ" : "A tap moves"}</span>
@@ -292,6 +300,7 @@ export default function TownBox({ keeper, th, at, ask, phone, tabbar, bottom, ar
                   </p>
                   <Slots slots={purse.bag} th={th} label={th ? "ในกระเป๋า" : "In the bag"} act={th ? "เก็บเข้ากล่อง" : "Put away"} onPick={(i) => void move("bag", i)} />
                 </div>
+              </div>
               </div>
             </div>
           </section>

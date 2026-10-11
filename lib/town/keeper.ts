@@ -162,6 +162,7 @@ export interface Struck { pair?: Hooked[]; harder?: number }
 export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number };
 
 export interface Keeper {
+  warehouse(input: import("./warehouse").WarehouseInput, request?: string): Promise<import("./warehouse").WarehouseReply | null>;
   readonly id: string;
   /** The browser's trial when that is what keeps things: the test window and the "skip a round" buttons are its. Null when the database keeps them. */
   readonly trial: Trial | null;
@@ -792,6 +793,9 @@ const LATE_MS = 1500 + 300;
 const AWAY: { ok: false; why: Why } = { ok: false, why: "away" };
 
 export class DbKeeper implements Keeper {
+  async warehouse(input: import("./warehouse").WarehouseInput, request?: string) {
+    return await this.ask("town_warehouse", { p_input: input, p_request: request ?? null }) as unknown as import("./warehouse").WarehouseReply | null;
+  }
   readonly trial = null;
   onDeed: ((what: Looked, to?: string) => void) | null = null;
 

@@ -43,7 +43,7 @@ export default function TownFoot({ rank = "chip", order, wide = false, children 
   const into = rank === "side" ? places.side : rank === "toast" ? places.head : rank === "corner" ? places.corner : places.dock;
   if (!into) return null;
   return createPortal(
-    <div data-foot={rank} style={{ order: order ?? ORDER[rank] }}
+    <div data-foot={rank} style={{ order: order ?? ORDER[rank], ...(rank === "board" ? { maxHeight: "100%", minHeight: 0 } : {}) }}
          className={`pointer-events-none flex max-w-full flex-col gap-2 ${rank === "side" || rank === "corner" ? "items-start" : "items-center"} ${rank === "board" ? (wide ? "w-[30rem]" : "w-[26rem]") : ""}`}>
       {children}
     </div>,
@@ -84,6 +84,8 @@ export const FOOT_CSS = `
   .town-foot > [data-foot-dock] { grid-area: dock; }
   .town-foot > [data-foot-ctrl] { grid-area: ctrl; }
   .town-foot > [data-foot-right] { grid-area: right; position: relative; }
+  .town-foot:has([data-foot="board"]) { z-index: 36; }
+  .town-foot [data-foot="board"] > * { max-height: 100%; min-height: 0; }
   .town-foot [data-foot-dock] button { max-width: 100%; }
   .town-foot [data-foot-dock]:has(> [data-foot="board"]) > :is([data-foot="chip"], [data-foot="main"]) { display: none; }
   .town-foot[data-typing] > [data-foot-dock] { display: none; }
