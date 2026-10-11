@@ -6898,7 +6898,7 @@
  },
  "60852230": {
   "name": "Lucienvt Yenslayer",
-  "parse": 11,
+  "parse": 14,
   "ult": 0,
   "mounts": 30,
   "minions": 58,
@@ -6916,11 +6916,12 @@
   "jobs": {},
   "ex": [
    "Doomtrain",
+   "Enuo",
    "Valigarmanda",
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "35854535": {
   "name": "Luminosity Eternelle",
@@ -7936,7 +7937,7 @@
  },
  "60211788": {
   "name": "Shikihara Catlover",
-  "parse": 5,
+  "parse": 9,
   "ult": 0,
   "mounts": 11,
   "minions": 20,
@@ -7954,10 +7955,11 @@
   "jobs": {},
   "ex": [
    "Queen Eternal",
-   "Valigarmanda"
+   "Valigarmanda",
+   "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-11"
  },
  "8713004": {
   "name": "Shoe Bite",
@@ -8620,7 +8622,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 92,
+  "level": 93,
   "cc": [
    false,
    false,

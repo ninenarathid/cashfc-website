@@ -2,6 +2,34 @@
  "events": [
   {
    "date": "2026-10-11",
+   "type": "parse_up",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "set a new best parse: 14 on Zoraal Ja as Dar\u0001 \u0002night"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "ex_clear",
+   "id": 60852230,
+   "name": "Lucienvt Yenslayer",
+   "text": "cleared Enuo (Extreme)"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "parse_up",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "set a new best parse: 9 on Zoraal Ja as Ninja"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "ex_clear",
+   "id": 60211788,
+   "name": "Shikihara Catlover",
+   "text": "cleared Zoraal Ja (Extreme)"
+  },
+  {
+   "date": "2026-10-11",
    "type": "level_100",
    "id": 36248712,
    "name": "Boom Astraea",
@@ -1371,34 +1399,6 @@
    "id": 29918255,
    "name": "Lyndanisse Vymmaith",
    "text": "earned Gathering in Spaaace"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "level_100",
-   "id": 47525984,
-   "name": "Dasei Mizumoto",
-   "text": "reached level 100 on Machinist!"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "job_up",
-   "id": 36168487,
-   "name": "Freki Plumis",
-   "text": "is now a Expert Dancer"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "job_up",
-   "id": 20014912,
-   "name": "Kaede Chan",
-   "text": "is now a Legendary Astrologian"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Ninja!"
   }
  ]
 }
