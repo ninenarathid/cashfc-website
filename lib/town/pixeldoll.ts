@@ -42,7 +42,7 @@ interface AtlasJson {
   /** Per gender and way, the four steps: the body piece and where the head's reference point is, from the feet. */
   walk: Record<G, Record<View, Array<{ body: string; hx: number; hy: number }>>>;
   /** Per gender and way, sitting: the body (its bottom is the seat) and the head's reference point. */
-  sit?: Record<G, Record<View, { body: string; hx: number; hy: number }>>;
+  sit?: Record<G, Record<View, { body: string; hx: number; hy: number; chair?: boolean }>>;
   /** Face pieces per gender and eye shape (front), and the back of the head (shared by the Lalafell, per gender for the rest). */
   face: Record<G, Record<string, string>> & { back?: string };
   /** How tall a standing doll is, per gender, in picture pixels (not given for the Lalafell). */
@@ -351,7 +351,9 @@ export class PixelKit {
     const steps = A.walk[g][view];
     const sat = state.sit ? A.sit?.[g]?.[view] : undefined;
     // (how much of the standing body is legs: what the head comes down by when the same doll sits)
-    const perch = state.perch && view === "back" && sat ? Math.max(0, sat.hy - steps[STAND].hy) : 0;
+    // A complete rear seated pose keeps its folded legs on chairs and benches.
+    // Older ground poses still need the table's existing hidden-leg fallback.
+    const perch = state.perch && view === "back" && sat && !sat.chair ? Math.max(0, sat.hy - steps[STAND].hy) : 0;
     const step = perch ? steps[STAND] : sat || steps[state.step === undefined ? STAND : ((state.step % 4) + 4) % 4];
     const faceName = view === "back" ? (A.face[g].back ?? A.face.back!) : (A.face[g][EYES[look.eyes]?.id] ?? A.face[g].round);
     const hairName = A.hair[hairsOf(this.race)[look.hair]?.id ?? ""]?.[view];
