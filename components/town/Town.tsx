@@ -3119,7 +3119,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
 
     // A shadow (not on a bench: the bench has the ground), and a ring at the feet while they speak.
     if (riding) drawSteed(ctx, a, foot, hop);
-    else if (!seatOf(a) && !tableSeatOf(a)) {
+    else if (mapRef.current?.shadows !== false && !seatOf(a) && !tableSeatOf(a)) {
       ctx.fillStyle = "rgba(0,0,0,0.32)";
       ctx.beginPath();
       ctx.ellipse(p.x, p.y, 15 * k, 6 * k, 0, 0, Math.PI * 2);

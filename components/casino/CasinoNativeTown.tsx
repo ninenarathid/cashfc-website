@@ -19,7 +19,7 @@ export default function CasinoNativeTown(){
   const uid=state?.user_id;
   useEffect(()=>{if(!uid||live)return;let gone=false;void import('@/lib/town/keeper-trial').then(m=>{if(!gone)setMemory(m.casinoMemoryKeeper(uid));});return()=>{gone=true;};},[uid,live]);
   useEffect(()=>{if(memory&&state)memory.coins(state.account.coins);},[memory,state]);
-  const addon=useMemo<TownMapAddon>(()=>({mode:live?'live':'test',keeper:live?undefined:memory?.keeper,terrain:{spawn:{...CASINO_SPAWN,x:uid==='6805ef04-9a57-408e-a982-e5ea471c8bfc'?7.5:CASINO_SPAWN.x},path:(from,to)=>casinoWalkable(to)?casinoPath(from,to):null},camera,render:runtime=><CasinoRoom native={runtime}/>}),[memory,live,uid]);
+  const addon=useMemo<TownMapAddon>(()=>({mode:live?'live':'test',shadows:false,keeper:live?undefined:memory?.keeper,terrain:{spawn:{...CASINO_SPAWN,x:uid==='6805ef04-9a57-408e-a982-e5ea471c8bfc'?7.5:CASINO_SPAWN.x},path:(from,to)=>casinoWalkable(to)?casinoPath(from,to):null},camera,render:runtime=><CasinoRoom native={runtime}/>}),[memory,live,uid]);
   if(!uid||!face.ready||(!live&&!memory))return <p role="status">{error||'กำลังเข้าห้อง Casino ใน Cash Town…'}</p>;
   return <TownEphemeral.Provider value={!live}><TownMapBag.Provider value={<CasinoEventBag/>}><Town me={{id:uid,name:face.name??'Admin',face:face.avatar,color:'#4fb8a8'}} testTopic={live?'casino-live':'casino-lab'} mapAddon={addon}/></TownMapBag.Provider></TownEphemeral.Provider>;
 }

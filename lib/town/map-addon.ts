@@ -18,6 +18,8 @@ export interface TownMapRuntime {
 /** A map replaces the scenery; Town still owns its session, frame loop and complete UI. */
 export interface TownMapAddon {
   mode: 'test' | 'live';
+  /** Disable floor cast shadows in interiors that do not use them. */
+  shadows?: boolean;
   keeper?: Keeper;
   terrain: NonNullable<SessionOptions['terrain']>;
   camera: RefObject<TownMapControls | null>;

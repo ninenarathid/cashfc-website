@@ -65,7 +65,6 @@ export function casinoScenery(ctx:CanvasRenderingContext2D,point:Point,scale:num
   };
   const furniture=(item:CasinoFurniture)=>{
     const {x,y,w,h}=item;
-    ellipse(x+w/2,y+h/2,0,w*18,h*8,'#1d222440');
     if(item.kind==='sofa'){
       block(x,y,w,h,5,18,['#683d47','#492e38','#3e2931']);
       block(x,y,w,.35,18,42,['#9c5c5c','#6d3e4a','#533440']);

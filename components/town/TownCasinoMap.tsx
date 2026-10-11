@@ -5,9 +5,10 @@ import { clampCam, toIsoPoint, toScreen, zoomAt, type Cam } from '@/lib/town/cam
 import { CASINO_BOUNDS, CASINO_MACHINE_X, CASINO_SPAWN, casinoPath, casinoTileFromIso } from '@/lib/town/casino-map';
 import { decodeLook,defaultLook } from '@/lib/town/look';
 import { facingFor,loadPixelKit,WALK_FPS,type PixelKit } from '@/lib/town/pixeldoll';
-import { SPEED,stepAlong,toIso,type Vec } from '@/lib/town/world';
+import { SIT_HERE,SPEED,stepAlong,toIso,type Vec } from '@/lib/town/world';
 import {reelAt,spinRevealed,type CasinoSpin,type SymbolId} from '@/lib/casino';
 import {drawCasinoSymbol} from '@/lib/town/casino-symbol-art';
+import {drawCasinoMarquee} from '@/lib/town/casino-marquee';
 import {CASINO_FURNITURE,casinoScenery} from '@/lib/town/casino-scenery';
 export type CasinoPeer={id:string;name:string;look:string;x:number;y:number;seat:number|null};
 export type CasinoCameraControls=TownMapControls;
@@ -77,7 +78,6 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
       hits.current=[];const door=xy(8.5,11.7);hits.current.push({n:-1,x:door.x-45*v.s,y:door.y-25*v.s,w:90*v.s,h:55*v.s});
       const objects:Array<{depth:number;paint:()=>void}>=[];
       const cabinet=(n:number)=>{const x=MACHINE_X[n-1],y=2.5,p=xy(x,y),k=v.s,latest=spins.find(s=>s.machine===n),rolling=latest&&!spinRevealed(latest,now);
-        ctx.fillStyle='#211c2930';ctx.beginPath();ctx.ellipse(p.x,p.y+5*k,35*k,15*k,0,0,Math.PI*2);ctx.fill();
         if(!bitmap?.slot.naturalWidth){polygon([{x:p.x-33*k,y:p.y-97*k},{x:p.x+26*k,y:p.y-79*k},{x:p.x+26*k,y:p.y},{x:p.x-33*k,y:p.y-18*k}],selected===n?'#dcb774':'#b88b53');
         polygon([{x:p.x+26*k,y:p.y-79*k},{x:p.x+40*k,y:p.y-90*k},{x:p.x+40*k,y:p.y-10*k},{x:p.x+26*k,y:p.y}], '#855633');
         ctx.save();ctx.translate(p.x-3*k,p.y-56*k);ctx.transform(1,.3,0,1,0,0);ctx.fillStyle='#6b2c47';ctx.fillRect(-25*k,-36*k,50*k,71*k);ctx.fillStyle='#f4d192';ctx.font=`bold ${11*k}px sans-serif`;ctx.textAlign='center';ctx.fillText(`№ ${n}`,0,-19*k);ctx.fillStyle='#fff0d1';ctx.fillRect(-22*k,-10*k,44*k,27*k);
@@ -103,7 +103,6 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
           }
         }
         hits.current.push({n,x:p.x-40*k,y:p.y-85*k,w:72*k,h:90*k});
-        if(latest&&now<Date.parse(latest.reveal_at)+7000){ctx.fillStyle='#1b1c27ee';ctx.fillRect(p.x-52*k,p.y-116*k,104*k,22*k);ctx.fillStyle=rolling?'#edd398':latest.prize?'#a1dfc8':'#dbccce';ctx.font=`${10*k}px sans-serif`;ctx.textAlign='center';ctx.fillText(rolling?'กำลังลุ้น…':latest.prize?'ได้ '+latest.prize.name.slice(0,18):'รอบนี้พลาด',p.x,p.y-101*k);}
       };
       for(let n=1;n<=5;n++){
         const x=MACHINE_X[n-1];
@@ -111,7 +110,6 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
         objects.push({depth:x+3.45,paint:()=>{
           const seat=xy(x,3.5),k=v.s;
           hits.current.push({n,x:seat.x-20*k,y:seat.y-38*k,w:40*k,h:45*k});
-          ctx.fillStyle='#171b2440';ctx.beginPath();ctx.ellipse(seat.x,seat.y,13*k,6*k,0,0,Math.PI*2);ctx.fill();
           if(bitmap?.chair.complete&&bitmap.chair.naturalWidth){ctx.drawImage(bitmap.chair,Math.round(seat.x-14*k),Math.round(seat.y-43*k),28*k,43*k);}
           if(selected===n)scenery.tile(x-.44,3.06,.88,.88,'#dec18e16',.8,'#c9aa61');
         }});
@@ -119,7 +117,6 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
       for(const item of CASINO_FURNITURE)objects.push({depth:item.x+item.y+item.w+item.h-.5,paint:()=>{
         const p=xy(item.x+item.w/2,item.y+item.h/2+(item.kind==='counter'?.8:0)),k=v.s;
         const sprite=item.kind==='plant'?bitmap?.planter:item.kind==='sofa'?bitmap?.sofa:bitmap?.counter;
-        ctx.fillStyle='#1d222450';ctx.beginPath();ctx.ellipse(p.x,p.y,item.w*18*k,item.h*8*k,0,0,Math.PI*2);ctx.fill();
         if(sprite?.naturalWidth)ctx.drawImage(sprite,Math.round(p.x-sprite.naturalWidth*k/2),Math.round(p.y-sprite.naturalHeight*k),sprite.naturalWidth*k,sprite.naturalHeight*k);
         if(item.kind==='counter')hits.current.push({n:0,x:p.x-65*k,y:p.y-110*k,w:130*k,h:110*k});
       }});
@@ -132,12 +129,23 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
         if(native){const avatar=avatars.find(a=>a.info.id===p.id);if(avatar)native.avatar(ctx,avatar,stamp,dpr);return;}
         const at=xy(a.pos.x,a.pos.y),look=decodeLook(p.look)??defaultLook(p.id),kit=kits.current.get(look.race),k=.85*v.s;
         const sit=!!p.seat&&!a.path.length,face=sit?{view:'back' as const,mirror:false}:facingFor(a.dx,a.dy);
-        ctx.fillStyle='#30223d40';ctx.beginPath();ctx.ellipse(at.x,at.y,14*k,7*k,0,0,Math.PI*2);ctx.fill();
         if(kit)kit.draw(ctx,look,face.view,face.mirror,at.x,at.y-(sit?35*v.s:0),k,{step:a.path.length?Math.floor(now/1000*WALK_FPS):undefined,sit,perch:false},dpr);
         else{ctx.fillStyle='#dcb68b';ctx.fillRect(at.x-8*k,at.y-38*k,16*k,30*k);}
         ctx.font=`${11*v.s}px sans-serif`;ctx.textAlign='center';ctx.fillStyle='#211b2bdd';ctx.fillRect(at.x-30*v.s,at.y+9*v.s,60*v.s,18*v.s);ctx.fillStyle=p.id===self.id?'#f4d893':'#dfede4';ctx.fillText(p.name.slice(0,14),at.x,at.y+22*v.s);
       }});}
       for(const o of objects.sort((a,b)=>a.depth-b.depth))o.paint();
+      // Public reels stay readable above every race, even with a closed slot UI.
+      // Keep the last result visible until the machine spins again.
+      for(let n=1;n<=5;n++){
+        const latest=spins.find(s=>s.machine===n);
+        const occupant=native?avatars.find(a=>!a.path.length&&a.info.sit===SIT_HERE&&Math.abs(a.pos.y-3.5)<.1&&Math.abs(a.pos.x-MACHINE_X[n-1])<.1)?.info.name:people.find(p=>p.seat===n)?.name;
+        if(!latest&&!occupant&&!(selected===n&&pane==='slots'))continue;
+        const p=xy(MACHINE_X[n-1],2.5);
+        // A short phone already shows large reels in its open slot window.
+        // Omit duplicate signs that would sit behind the town's top HUD.
+        if(cw<640&&pane==='slots'&&p.y-176*v.s<104)continue;
+        drawCasinoMarquee(ctx,n,latest,occupant??'พร้อมเล่น',now,p.x-7*v.s,p.y-176*v.s,v.s,reduced);
+      }
 
     };driver.current=draw;if(!live.current.native)frame=requestAnimationFrame(draw);return()=>{driver.current=null;cancelAnimationFrame(frame);};
   },[]);
