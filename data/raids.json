@@ -84996,7 +84996,13 @@
     "best": 20,
     "kills": 2,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 2,
+      "best": 20
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -85584,7 +85590,13 @@
     "best": 69,
     "kills": 2,
     "job": "Scholar",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Scholar": {
+      "kills": 2,
+      "best": 69
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -86438,7 +86450,13 @@
     "best": 97,
     "kills": 6,
     "job": "Gunbreaker",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Gunbreaker": {
+      "kills": 6,
+      "best": 97
+     }
+    }
    },
    {
     "zone": "The Omega Protocol",
@@ -87819,7 +87837,7 @@
     "cleared": true,
     "job_kills": {
      "Ninja": {
-      "kills": 8,
+      "kills": 9,
       "best": 82
      }
     }
