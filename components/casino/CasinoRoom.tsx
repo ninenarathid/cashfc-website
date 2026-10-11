@@ -148,7 +148,6 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
   const latest = state.spins.find(p => p.machine === selected) ?? (result?.machine === selected ? result : null);
   const rolling = !!latest && !spinRevealed(latest, clock);
   const ownRolling = state.spins.some(p => p.user_id === state.user_id && !spinRevealed(p, clock));
-  const announcement = state.spins.find(p => p.prize?.announce && spinRevealed(p, clock) && clock - Date.parse(p.reveal_at) < 9000);
   const visible = state.spins.filter(p => spinRevealed(p, clock));
   const remaining = s.per_player - state.account.spins;
   const closed = !s.open || (s.starts_at !== null && clock < Date.parse(s.starts_at)) || (s.ends_at !== null && clock >= Date.parse(s.ends_at));
@@ -158,8 +157,6 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
       <CasinoMap native={native} self={self} peers={peers} spins={state.spins} selected={selected} clock={now} pane={pane} onMove={move} onSelect={select} onReception={()=>setPane('desk')} onDismiss={()=>setPane('none')} onReady={setArrived} onControls={setCamera} />
       {!native && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume(); } setSound(!sound); }} camera={camera} />}
       {native&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}</span><button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
-      {cheer && pane !== 'feed' && <p className="casino-cheer-toast tk tk-plate" role="status">{cheer}</p>}
-      {announcement && <div className="casino-banner" role="status"><strong>✦</strong><span>{label} · {announcement.player_name} ได้ {announcement.prize!.name}!</span></div>}
       {error && <p className="casino-error" role="alert">{error}</p>}
       <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button><section className="casino-console"><h2>เครื่อง {selected}</h2>
         <nav className="casino-machines" aria-label="เลือกเครื่องสล็อต">{MACHINE_X.map((_, i) => <button key={i} className="casino-machine-tab pressable tk tk-slot" aria-label={`เครื่อง ${i + 1}`} aria-pressed={selected === i + 1} onClick={() => select(i + 1)}>{i + 1}</button>)}</nav>

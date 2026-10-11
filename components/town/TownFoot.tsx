@@ -24,8 +24,7 @@ import { createPortal } from "react-dom";
  * - `side`: a thing of the hand kept beside the chat (the hunter's belt), on the left.
  *
  * At the head, under the top row:
- * - `toast`: what the town tells me for a moment, or holds out to me (thanks, water handed to me, a drink), in the
- *   middle.
+ * - `toast`: transient notices, suppressed to keep the gameplay screen clear. Interactive offers use `chip`.
  * - `corner`: what stays under the clock (a chat room folded away), on the left.
  *
  * `order` places a piece among the others of its place (a higher number is lower on the screen); `wide` is a board of
@@ -40,7 +39,9 @@ const ORDER: Record<FootRank, number> = { note: 10, chip: 30, main: 60, board: 6
 
 export default function TownFoot({ rank = "chip", order, wide = false, children }: { rank?: FootRank; order?: number; wide?: boolean; children: ReactNode }) {
   const places = useContext(TownFootContext);
-  const into = rank === "side" ? places.side : rank === "toast" ? places.head : rank === "corner" ? places.corner : places.dock;
+  // Keep gameplay clear of transient notices on both phones and desktops.
+  if (rank === "toast") return null;
+  const into = rank === "side" ? places.side : rank === "corner" ? places.corner : places.dock;
   if (!into) return null;
   return createPortal(
     <div data-foot={rank} style={{ order: order ?? ORDER[rank], ...(rank === "board" ? { maxHeight: "100%", minHeight: 0 } : {}) }}

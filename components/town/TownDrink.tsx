@@ -257,7 +257,7 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
           </span>
         );
       })}
-      {(moment || note || card || out || tired) && (
+      {(moment || note) && (
       <TownFoot rank="toast" order={40}>
       <div className="pointer-events-none flex max-w-full flex-col items-center gap-2" data-town-drink data-still={still ? "" : undefined}>
         {/* a drink drunk: the flask tipped, and what I had of it */}
@@ -279,6 +279,12 @@ export default function TownDrink({ keeper, me, th, here, where, people, pair, s
           </p>
         )}
         {note && <p className="pop-in rounded-full bg-bg/85 px-4 py-1.5 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" aria-live="polite" data-drink-note>{note}</p>}
+      </div>
+      </TownFoot>
+      )}
+      {(card || out || tired) && (
+      <TownFoot rank="chip" order={40}>
+      <div className="pointer-events-none flex max-w-full flex-col items-center gap-2" data-town-drink data-still={still ? "" : undefined}>
         {/* a drink held out to me: it is mine to drink, or to leave */}
         {card && (
           <div role="group" aria-label={th ? "มีคนยื่นน้ำให้ดื่ม" : "A drink is held out to you"} data-state="open" data-drink-card={card.id}

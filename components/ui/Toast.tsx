@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import * as Radix from "@radix-ui/react-toast";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import GiftIcon from "@/components/ui/GiftIcon";
 import { RARE_INVENTORY, type RareTier } from "@/lib/popoto-rare";
 import PrizeToast from "@/components/ui/PrizeToast";
@@ -128,10 +129,18 @@ const LINGER_RARE = 26000;
 const AT_ONCE = 4;
 
 export default function ToastHost() {
+  const pathname = usePathname();
+  // Unmount the queue while playing, so old cards cannot return after leaving.
+  if (pathname === "/town" || pathname.startsWith("/town/")) return null;
+  return <ActiveToastHost />;
+}
+
+function ActiveToastHost() {
   const { t } = useLang();
   const [items, setItems] = useState<Shown[]>([]);
 
   useEffect(() => {
+    let disposed = false;
     let next = 1;
     const on = async (e: Event) => {
       const detail = (e as CustomEvent<ToastRequest>).detail;
@@ -157,10 +166,13 @@ export default function ToastHost() {
           new Promise((r) => setTimeout(r, 2500)),
         ]);
       }
-      setItems((v) => [...v, { ...detail, id }].slice(-AT_ONCE));
+      if (!disposed) setItems((v) => [...v, { ...detail, id }].slice(-AT_ONCE));
     };
     window.addEventListener(EVENT, on);
-    return () => window.removeEventListener(EVENT, on);
+    return () => {
+      disposed = true;
+      window.removeEventListener(EVENT, on);
+    };
   }, []);
 
   const close = (id: number) => setItems((v) => v.filter((x) => x.id !== id));

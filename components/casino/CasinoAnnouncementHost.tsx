@@ -1,10 +1,16 @@
 "use client";
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useTownActive } from '@/lib/town/active';
 type Announcement = { id: string; player_name: string; prize_name: string; created_at: string };
 /** Only committed live awards enter this feed. Laboratory spins never write it. */
 export default function CasinoAnnouncementHost() {
+  const pathname = usePathname();
+  if (pathname === '/town' || pathname.startsWith('/town/')) return null;
+  return <ActiveCasinoAnnouncementHost />;
+}
+function ActiveCasinoAnnouncementHost() {
   const active = useTownActive();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const uid = active && !active.testTopic ? active.me.id : null;

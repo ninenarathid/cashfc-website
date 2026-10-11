@@ -65,7 +65,7 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
   const line = LINES[picked], mine = told.lines[picked], ladder = ladderOf(picked, mine.points);
 
   return (
-    <div className="absolute inset-0 z-30 flex items-stretch justify-center bg-black/60 min-[900px]:items-center min-[900px]:px-4 min-[900px]:pt-4" style={{ paddingBottom: bottom }} onClick={onClose}>
+    <div className="absolute inset-0 z-40 flex items-stretch justify-center bg-black/60 min-[900px]:items-center min-[900px]:px-4 min-[900px]:pt-4" style={{ paddingBottom: bottom }} onClick={onClose}>
       <style href="town-lines" precedence="medium">{`
         @keyframes tl-fill { from { transform: scaleX(0) } to { transform: none } }
         .tl-fill { transform-origin: 0 50%; animation: tl-fill 520ms cubic-bezier(.2, .8, .2, 1) }
