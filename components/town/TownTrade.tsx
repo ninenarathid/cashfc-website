@@ -806,7 +806,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
             </div>
             {/* Carrying gear and passive equipment own their items outside inventory. */}
             {(purse.wears ?? []).length > 0 && (
-              <details open className="mb-3 rounded-lg border-2 border-[#6b4a2a] bg-[#33251a] p-2.5" data-passive-equipment>
+              <details className="mb-3 rounded-lg border-2 border-[#6b4a2a] bg-[#33251a] p-2.5" data-passive-equipment>
                 <summary className="min-h-11 cursor-pointer content-center font-semibold text-[#f3e3c3]">{th ? "อุปกรณ์ติดตัว" : "Equipped gear"} · {(purse.wears ?? []).length}</summary>
                 <p className="mb-2 text-meta text-[#c9a877]">{th ? "ไม่ใช้ช่องกระเป๋า · ผลชนิดเดียวกันใช้ค่าที่ดีที่สุด" : "No bag slots used · same bonuses use the strongest value"}</p>
               <ul className="grid max-h-64 gap-2 overflow-y-auto" aria-label={th ? "อุปกรณ์และผลที่ได้รับ" : "Equipment and effects"}>
