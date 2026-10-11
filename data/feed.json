@@ -1,6 +1,55 @@
 {
  "events": [
   {
+   "date": "2026-10-11",
+   "type": "rare_up",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "earned The Customer Is Always Right: Aunt Tii's Tacos I — only 2.8% of players have it"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "level_100",
+   "id": 15308846,
+   "name": "Aqua Eleison",
+   "text": "reached level 100 on Warrior!"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "rare_up",
+   "id": 29152036,
+   "name": "Fluffy Tinytail",
+   "text": "earned Phantom of the Umbra: Rapier Umbrae"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "rare_up",
+   "id": 30864049,
+   "name": "Lay Stardust",
+   "text": "earned Resplendent: Brilliant Mallet"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "level_100",
+   "id": 44133352,
+   "name": "Seville Beoulve",
+   "text": "reached level 100 on Red Mage!"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Gathering in Spaaace"
+  },
+  {
+   "date": "2026-10-11",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
    "date": "2026-10-10",
    "type": "level_100",
    "id": 60852230,
@@ -1350,55 +1399,6 @@
    "id": 34509521,
    "name": "Liliya Quintilis",
    "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "level_100",
-   "id": 42146242,
-   "name": "Zxazi Rowan",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "grade_up",
-   "id": 15308846,
-   "name": "Aqua Eleison",
-   "text": "is now a Legendary Explorer ✨"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "rare_up",
-   "id": 38152072,
-   "name": "Parker Thonhart",
-   "text": "earned Solid Crystal — only 2.8% of players have it"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "rare_up",
-   "id": 44970350,
-   "name": "Allen Crist",
-   "text": "earned Stay Gold, Cenote III — only 4.0% of players have it, and 1 more"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Paladin!"
-  },
-  {
-   "date": "2026-09-29",
-   "type": "level_100",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "reached level 100 on Dancer!"
   }
  ]
 }

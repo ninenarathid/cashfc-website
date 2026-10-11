@@ -33,7 +33,7 @@
   "mounts": 285,
   "minions": 487,
   "rare": 500,
-  "level": 50,
+  "level": 100,
   "cc": [
    true,
    true,
@@ -135,8 +135,8 @@
    3949,
    3959,
    3960,
+   3991,
    4000,
-   4007,
    4018,
    4035,
    4043,
@@ -170,7 +170,7 @@
    "The Epic of Alexander",
    "The Unending Coil of Bahamut"
   ],
-  "chg": "2026-10-09"
+  "chg": "2026-10-11"
  },
  "3968346": {
   "name": "Panuz Chocobunny",
@@ -668,6 +668,7 @@
    3763,
    3765,
    3766,
+   3767,
    3770,
    3771,
    3778,
@@ -706,7 +707,6 @@
    3885,
    3886,
    3887,
-   3898,
    3899,
    3921,
    3922,
@@ -2541,7 +2541,7 @@
   "mounts": 42,
   "minions": 130,
   "rare": null,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -2554,7 +2554,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-08"
+  "chg": "2026-10-11"
  },
  "25506828": {
   "name": "Kururuki Tzuzaku",
@@ -2705,6 +2705,7 @@
    3074,
    3162,
    3307,
+   3308,
    3309,
    3338,
    3348,
@@ -2759,7 +2760,6 @@
    4014,
    4015,
    4017,
-   4024,
    4025,
    4026,
    4027,
@@ -4139,7 +4139,7 @@
   "mounts": 173,
   "minions": 416,
   "rare": 437,
-  "level": 50,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6802,7 +6802,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 98,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -6819,7 +6819,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7133,10 +7133,10 @@
    3723,
    3726,
    3729,
+   3736,
    3757,
    3758,
    3762,
-   3770,
    3778,
    3784,
    3817,
@@ -8619,7 +8619,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 88,
+  "level": 91,
   "cc": [
    false,
    false,
@@ -8759,7 +8759,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 67,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -8772,7 +8772,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "44085912": {
   "name": "Mayu Ferguson",
@@ -8808,7 +8808,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 65,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8824,7 +8824,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -8906,7 +8906,7 @@
   "mounts": 7,
   "minions": 20,
   "rare": null,
-  "level": 83,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -8919,7 +8919,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-07"
+  "chg": "2026-10-11"
  },
  "31685121": {
   "name": "Squid Girls",
@@ -9558,7 +9558,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 72,
+  "level": 76,
   "cc": [
    false,
    false,

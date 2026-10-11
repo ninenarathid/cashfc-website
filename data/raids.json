@@ -81792,7 +81792,17 @@
     "best": 1,
     "kills": 4,
     "job": "DarkKnight",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "DarkKnight": {
+      "kills": 5,
+      "best": 8
+     },
+     "Sage": {
+      "kills": 1,
+      "best": 0
+     }
+    }
    },
    {
     "zone": "Trials I (Extreme)",
@@ -81833,6 +81843,10 @@
      "Dragoon": {
       "kills": 4,
       "best": 5
+     },
+     "DarkKnight": {
+      "kills": 5,
+      "best": 14
      }
     }
    }
@@ -90661,6 +90675,10 @@
     "job": "Reaper",
     "cleared": true,
     "job_kills": {
+     "Reaper": {
+      "kills": 5,
+      "best": 63
+     },
      "Viper": {
       "kills": 4,
       "best": 41
