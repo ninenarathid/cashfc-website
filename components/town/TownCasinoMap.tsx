@@ -48,6 +48,19 @@ export default function TownCasinoMap({native,self,peers,spins,selected,clock,pa
       const box=node.getBoundingClientRect(),cw=box.width,ch=box.height,dpr=Math.min(devicePixelRatio||1,2);
       if(node.width!==Math.round(cw*dpr)||node.height!==Math.round(ch*dpr)){node.width=Math.round(cw*dpr);node.height=Math.round(ch*dpr);cam.current.s=cw<640?1.3:Math.max(1.5,Math.min(2.1,cw/950));}
       if(follow.current){const center=toIso(mine.pos.x,mine.pos.y);const open=pane!=='none';cam.current.cx=center.x+(open&&cw>=640?180/cam.current.s:0);const ground=Math.max(190,ch-82-(ch<650?248:280)-38);cam.current.cy=open&&cw<640?center.y+(ch/2-ground)/cam.current.s:center.y-65;}
+      // Leave headroom for visible public displays when following a spectator.
+      // A dragged camera stays under the viewer's control.
+      if(follow.current&&pane==='none'&&cw>=640){
+        for(let n=1;n<=5;n++){
+          const x=MACHINE_X[n-1],active=spins.some(s=>s.machine===n)||(native?avatars.some(a=>!a.path.length&&a.info.sit===SIT_HERE&&Math.abs(a.pos.x-x)<.1&&Math.abs(a.pos.y-3.5)<.1):people.some(p=>p.seat===n));
+          if(!active)continue;
+          const p=toScreen(cam.current,toIso(x,2.5),cw,ch);
+          if(p.x+41*cam.current.s<0||p.x-55*cam.current.s>cw)continue;
+          cam.current.cy=Math.min(cam.current.cy,toIso(x,2.5).y-176+(ch/2-80)/cam.current.s);
+        }
+        // Keep the viewer's own feet above the bottom controls when walking away.
+        cam.current.cy=Math.max(cam.current.cy,toIso(mine.pos.x,mine.pos.y).y-(ch/2-100)/cam.current.s);
+      }
       cam.current=clampCam(cam.current,cw,ch,CASINO_BOUNDS);const v=cam.current;
       native?.view(v,cw,ch);
       ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=false;ctx.fillStyle='#1b1c27';ctx.fillRect(0,0,cw,ch);
