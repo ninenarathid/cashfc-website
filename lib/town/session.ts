@@ -16,6 +16,7 @@ import { carryPace } from "./carry";
 import { readTold } from "./handing";
 import { paceOf } from "./riding";
 import { walkPace } from "./tools";
+import { readElementAction, type ElementAction } from './element-action';
 import {
   BENCHES, FRONT, KITCHEN, SIT_HERE, SPEED, YARD_SEATS, distance, findPath, gateAt, hearing, moveEvery, pickLines, placeOf, spawnFor, stepAlong, yardSeat, type Vec,
 } from "./world";
@@ -59,6 +60,8 @@ export interface Avatar {
   forged?: ForgeShow;
   /** When they last told the room they were typing. */
   typingAt?: number;
+  /** Receipt time of the last cosmetic action, used only to limit bursts. */
+  elementAt?: number;
   /**
    * Which sitting of theirs this is, numbered by this stay: a new number when they are first seen and each time they
    * sit down. Whoever remembers them at a seat (a meal's company, lib/town/company) knows a later sitting from that
@@ -769,6 +772,25 @@ export class TownSession {
    * nothing (null) when the try was refused. Heard of somebody else, it is only looked at.
    */
   onForged: ((a: Avatar) => void) | null = null;
+  onElement: ((a: Avatar, look: ElementAction) => void) | null = null;
+  private elementSentAt = -Infinity;
+  /** At most one visual word per second, less often in a crowded room. */
+  element(look: ElementAction) {
+    const clean = readElementAction(look.key), now = performance.now();
+    const every = Math.max(1000, this.avatars.size * 80);
+    if (this.closed || !clean || now - (this.elementSentAt ?? -Infinity) < every || !this.current?.effect) return;
+    this.elementSentAt = now;
+    this.current.effect(clean.key);
+  }
+  private heardElement(id: string, raw: unknown) {
+    const a = this.avatars.get(id), look = readElementAction(raw), now = performance.now();
+    if (!a || !look || !this.listed.has(id) || a.byeAt !== undefined || a.goneAt !== undefined || !a.placed) return;
+    if (placeOf(a.pos.x, a.pos.y) !== placeOf(this.self.pos.x, this.self.pos.y) || distance(a.pos, this.self.pos) > 14) return;
+    if (now - (a.elementAt ?? -Infinity) < 900) return;
+    a.elementAt = now;
+    this.onElement?.(a, look);
+  }
+
   forgeShown(told: { item: ForgeShow["item"]; from: number; out: ForgeShow["out"] } | null) {
     if (this.closed) return;
     const now = Date.now();
@@ -901,6 +923,7 @@ export class TownSession {
       onChat: (id, text) => { if (live()) this.onChat(id, text); },
       onNudge: (_id, what) => { if (live() && typeof what === "string" && what.length <= 12) this.onNudge?.(what); },
       onForged: (id, told) => { if (live()) this.heardForged(id, told); },
+      onEffect: (id, word) => { if (live()) this.heardElement(id, word); },
       // (a voice line only with whoever I may hear: lib/town/circle. A page built before there were chat rooms asks everybody.)
       onSignal: (from, data) => { if (mine === this.gen && this.hearsNow(from)) void this.voice.receive(from, data as Signal); },
       onCircle: (from, word) => { if (live()) this.onCircle(from, word); },

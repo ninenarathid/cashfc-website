@@ -300,6 +300,8 @@ export interface Purse {
   // ── forging: old tools ──
   /** What part of a point of stamina a forged tool's share has left owing, to be paid with the next deed (lib/town/forged-keep's toolPaid): under one. */
   toolOwed?: number;
+  /** Compost recovered by a dark hoe this game day; shared across tools and capped at 20 units. */
+  darkSoil?: { day: number; n: number };
   /** Until when a can that waters with no water in it does so (lib/town/farm's water): the moment its minutes end. */
   canFull?: number;
   /** Until when the water sleeps for a rod that lulls it (lib/town/fishing's lulled): the moment its minutes end. */

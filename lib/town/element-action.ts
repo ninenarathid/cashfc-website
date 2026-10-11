@@ -12,9 +12,19 @@ const MIXES: Record<string, MixMotion> = {
   "wind:light": "halo", "wind:dark": "vortex", "light:dark": "eclipse",
 };
 export interface ElementAction { elements: Element[]; mix: MixMotion | null; doubled: boolean; key: string }
+/** Realtime carries only this compact visual recipe, never a stack or bonus. */
+export function readElementAction(raw: unknown): ElementAction | null {
+  if (typeof raw !== 'string' || raw.length > 32) return null;
+  const gems = raw.split(':');
+  if (gems.length > 2 || !gems.every(e => (ELEMENTS as readonly string[]).includes(e))) return null;
+  return actionOf(gems as Element[]);
+}
 export function elementAction(stack: Stack | null | undefined): ElementAction | null {
   const gems = gemsOf(stack);
   if (!gems.length) return null;
+  return actionOf(gems);
+}
+function actionOf(gems: Element[]): ElementAction {
   const doubled = gems.length === 2 && gems[0] === gems[1];
   const elements = [...new Set(gems)].sort((a, b) => ELEMENTS.indexOf(a) - ELEMENTS.indexOf(b));
   const key = elements.join(":");

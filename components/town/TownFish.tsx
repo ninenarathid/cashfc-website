@@ -1062,7 +1062,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
             )}
             {phase.at === "waiting" && phase.coming && <span ref={flash} className="absolute size-14 rounded-full opacity-0" style={{ background: "radial-gradient(circle, rgba(255,246,190,0.95) 0%, rgba(255,236,150,0.5) 45%, rgba(255,236,150,0) 70%)" }} data-fx="flash" />}
             <span ref={ring} className="absolute size-10 rounded-full border-2 border-white/80 opacity-0" />
-            <span ref={float} className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
+            <span ref={float} data-town-element-anchor className="relative transition-opacity duration-150"><TownIcon name="bobber" size={34} /></span>
             {/* a stardust bait on the hook: its light about the float, and sparks of it on the water */}
             {phase.at === "waiting" && phase.star && (
               <span className="absolute grid place-items-center" data-fx="star">
@@ -1115,10 +1115,10 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
                   <line x1="-12" y1="-6" x2="8" y2="9" stroke="#e0ba72" strokeWidth="3.5" strokeLinecap="round" />
                 </svg>
                 {(phase.bout ?? 1) > 1 && <span className="absolute left-1.5 top-1.5 rounded-[3px] border border-[#2a190d] bg-[#e9573f] px-1.5 py-0.5 text-label font-semibold text-[#fff6e3]" data-fx="bout" data-bout={phase.bout}>{th ? "ยกที่สอง" : "Second bout"}</span>}
-                <span ref={gauge.swim} className="absolute top-[30%] block" style={{ left: "78%" }}>
+                <span ref={gauge.swim} data-town-element-anchor className="absolute top-[30%] z-[3] block" style={{ left: "78%" }}>
                   <span ref={gauge.fish} className="inline-block"><TownIcon name="fishShadow" size={40} /></span>
                 </span>
-                <span ref={gauge.word} className="absolute bottom-1 right-1.5 rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
+                <span ref={gauge.word} className="absolute bottom-1 right-1.5 z-[3] rounded-[3px] bg-[#2a190d]/75 px-1.5 py-0.5 text-meta font-semibold text-[#fff6e3]" aria-live="off">{th ? "สาวสายได้" : "Reel"}</span>
                 {otterBy("bottom-0.5 left-1.5")}
                 {silkCount}
               </div>
@@ -1213,7 +1213,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         </div>
       )}
       {phase.at !== "ready" && <TownElementFx pulse={`${phase.at}:${elementPull}`} active={phase.at !== "result"}
-        target='.town-game-stage[data-look="fight"], .town-game-stage[data-look="float"], .town-game-stage:not([data-look])' y={0.58} />}
+        target='.town-game-stage[data-look="fight"], .town-game-stage[data-look="float"], .town-game-stage:not([data-look])' anchor='[data-town-element-anchor]' y={0.58} />}
     </section>
   );
 }

@@ -170,8 +170,8 @@ describe("what a vein gives, and what it is played with", () => {
     expect(veinMods(null, true).strikes).toBe(4);
     expect(veinMods(pickAt(0, [], ["water"]), false).back).toBe(1);
     expect(veinMods(pickAt(10, [], ["water"]), false).back).toBe(2);
-    expect(veinMods(pickAt(0, [], ["ice"]), false).cross).toBe(1);
-    expect(veinMods(pickAt(10, [], ["ice"]), false).cross).toBe(2);
+    expect(veinMods(pickAt(0, [], ["ice"]), false).cross).toBe(2);
+    expect(veinMods(pickAt(10, [], ["ice"]), false).cross).toBe(3);
     expect(VEIN.tired.shows).toBe(2000);
     expect(VEIN.stamina).toBe(3);
   });

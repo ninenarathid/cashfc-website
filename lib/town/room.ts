@@ -137,6 +137,8 @@ export interface RoomHandlers {
   onNudge(id: string, what: unknown): void;
   /** Somebody tried their luck at the forge, and how it went (raw: lib/town/forge-show reads it; it is only shown). */
   onForged(id: string, told: unknown): void;
+  /** A bounded cosmetic word, never authoritative inventory data. */
+  onEffect?(id: string, word: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
 }
 
@@ -156,6 +158,7 @@ export interface Room {
   nudge(what: string, to?: string): void;
   /** A try of mine at the forge, for everybody in the room to see over my head (lib/town/forge-show). */
   forged(told: Record<string, unknown>): void;
+  effect(word: string): void;
   bye(): void;
   /** Make sure the room still lists me; say who I am again if it lost me. */
   check(): void;
@@ -324,6 +327,11 @@ export async function joinTown(
     if (typeof p?.id === "string" && p.id !== me.id) h.onForged(p.id, p);
   });
 
+  room.on("broadcast", { event: "fx" }, ({ payload }) => {
+    const p = payload as Record<string, unknown>;
+    if (typeof p?.id === 'string' && p.id !== me.id && typeof p.w === 'string' && p.w.length <= 32) h.onEffect?.(p.id, p.w);
+  });
+
   /* ── my letterbox ── */
   const box: RealtimeChannel = supabase.channel(boxOf(me.id), {
     config: { private: isPrivate, broadcast: { self: false, ack: false } },
@@ -415,6 +423,7 @@ export async function joinTown(
     pair(to, data) { post(to, "pg", { from: me.id, data }); },
     nudge(what, to) { if (to) post(to, "nd", { id: me.id, w: what }); else cast("nd", { id: me.id, w: what }); },
     forged(told) { cast("fg", { ...told, id: me.id }); },
+    effect(word) { cast('fx', { id: me.id, w: word }); },
     bye() { cast("bye", { id: me.id }); },
     check() {
       if (room.state !== "joined") return;

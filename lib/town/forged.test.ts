@@ -143,7 +143,7 @@ describe("a forged rod", () => {
       expect(mine).toBeCloseTo(Math.max(rest, Math.min(FORGE.cap, rest * 1.5)), 10);
     }
     // the pace: the plus and ice together never under a third of the plain pace
-    expect(startFight(fish, "good", { gear }, 3).pace / FISH[fish].fight.pace).toBeCloseTo(0.7 * 0.75, 10);
+    expect(startFight(fish, "good", { gear }, 3).pace / FISH[fish].fight.pace).toBeCloseTo(0.7 * 0.6, 10);
     expect(slowedBy(1, 0.7 * (1 - OLD_FX.ice.slow[3]) * 0.5)).toBeCloseTo(1 / FORGE.cap, 10);
   });
   it("tired hands have the same share of a forged rod's moment as of a plain one's", () => {
@@ -171,14 +171,14 @@ describe("a forged rod", () => {
   });
   it("with fire has less line to win, with dark a fiercer fish, with a still water more time before the stretch moves", () => {
     const at = (s: Stack) => startFight("koi", "good", { gear: gearOf(purseOf(s).bag, "rod", 0) }, 11), plain = at(tool("rod"));
-    expect(at(tool("rod", 1, [], ["fire"])).length).toBeCloseTo(plain.length * 0.85, 12);
-    expect(at(tool("rod", 10, [], ["fire"])).length).toBeCloseTo(plain.length * 0.75, 12);
+    expect(at(tool("rod", 1, [], ["fire"])).length).toBeCloseTo(plain.length * 0.75, 12);
+    expect(at(tool("rod", 10, [], ["fire"])).length).toBeCloseTo(plain.length * 0.6, 12);
     const dark = at(tool("rod", 1, [], ["dark"]));
     expect([dark.pull / plain.pull, dark.power / plain.power]).toEqual([1.1, 1.1].map((x) => expect.closeTo(x, 10)));
     expect(at(tool("rod", 3, drawn("rdCalm"))).rest).toBeCloseTo(plain.rest + OPTIONS.rdCalm.n.secs, 12);
     // (the line to win is never under a third of the plain line's, whatever net is carried)
     const netted = startFight("koi", "good", { gear: gearOf(purseOf(tool("rod", 10, [], ["fire"]), tool("netLong")).bag, "rod", 0) }, 11);
-    expect(netted.length / FISH.koi.fight.line).toBeCloseTo(0.76 * 0.75, 10);
+    expect(netted.length / FISH.koi.fight.line).toBeCloseTo(0.76 * 0.6, 10);
     expect(FIGHT.reel).toBeGreaterThan(0);
   });
 });
@@ -187,9 +187,9 @@ describe("what whoever keeps the game does for a forged rod", () => {
   it("pays a fight with what the rod takes off: a share with earth, nothing for the first fights of a meal's hours", () => {
     const plain = purseOf(tool("rod"));
     expect(fightPaid(plain, 4, NOW)).toEqual(spend(plain, 4, NOW));
-    expect(staminaOf(fightPaid(purseOf(tool("rod", 10, [], ["earth"])), 4, NOW), NOW)).toBe(97);
+    expect(staminaOf(fightPaid(purseOf(tool("rod", 10, [], ["earth"])), 4, NOW), NOW)).toBe(98);
     // (the rod need not be in the hand: the one fished with is the best in the bag)
-    expect(staminaOf(fightPaid(purseOf(tool("worm"), tool("rod", 10, [], ["earth"])), 4, NOW), NOW)).toBe(97);
+    expect(staminaOf(fightPaid(purseOf(tool("worm"), tool("rod", 10, [], ["earth"])), 4, NOW), NOW)).toBe(98);
     expect(rodOf(purseOf(tool("rod", 2), tool("rod", 9)), 1)?.plus).toBe(9);
     expect(rodOf(purseOf(tool("rod", 2), tool("rod", 9)))?.plus).toBe(2);
     let p = purseOf(tool("rod", 3, drawn("rdFresh")));
@@ -202,9 +202,9 @@ describe("what whoever keeps the game does for a forged rod", () => {
     const odds = [{ what: "minnow" as const, p: 0.5 }, { what: "featherback" as const, p: 0.25 }, { what: "tilapia" as const, p: 0.25 }];
     const dark = rarer(odds, rodFx(tool("rod", 0, [], ["dark"])).rare);
     expect(dark.map((o) => o.what)).toEqual(["minnow", "featherback", "tilapia"]);
-    expect(dark[1].p).toBeCloseTo((0.25 * 1.2) / 1.05, 12);
+    expect(dark[1].p).toBeCloseTo((0.25 * 1.5) / 1.125, 12);
     expect(dark.reduce((t, o) => t + o.p, 0)).toBeCloseTo(1, 12);
-    expect(dark[1].p / dark[0].p).toBeCloseTo((0.25 / 0.5) * 1.2, 12);
+    expect(dark[1].p / dark[0].p).toBeCloseTo((0.25 / 0.5) * 1.5, 12);
     expect(rarer(odds, 1)).toEqual(odds);
     expect(rodFx(tool("rod", 10, [], ["dark"])).rare).toBe(OLD_FX.dark.rod.rare[1]);
   });
@@ -220,7 +220,7 @@ describe("what whoever keeps the game does for a forged rod", () => {
   });
   it("gives the bait back from a fish landed, so often, with lightning", () => {
     const p = purseOf(tool("rod", 0, [], ["lightning"]));
-    expect([baitKept(p, 0.05), baitKept(p, 0.1), baitKept(p, 0.99)]).toEqual([true, false, false]);
+    expect([baitKept(p, 0.05), baitKept(p, 0.2), baitKept(p, 0.99)]).toEqual([true, false, false]);
     expect(baitKept(purseOf(tool("rod", 10, [], ["lightning"])), 0.15)).toBe(true);
     expect(baitKept(purseOf(tool("rod", 10)), 0)).toBe(false);
   });
@@ -252,9 +252,9 @@ describe("a forged hoe", () => {
     for (const buff of [1, 1.5, 2, 2.5, 3]) for (const wide of [1, 2]) {
       const rest = buff * wide, r = startRound(3, { buff, wide, ...m }, 5), p = startPatch(3, { buff: buff * wide, ...m }, 5);
       expect(r.width).toBeCloseTo(Math.min(0.5, TIMING.zone * Math.max(rest, Math.min(FORGE.cap, rest * 1.5))), 10);
-      expect(p.every).toBeCloseTo(WEEDING.gust * Math.max(rest, Math.min(FORGE.cap, rest / (0.7 * 0.75))), 10);
+      expect(p.every).toBeCloseTo(WEEDING.gust * Math.max(rest, Math.min(FORGE.cap, rest / (0.7 * 0.6))), 10);
     }
-    expect(startRound(3, m, 5).speed).toBeCloseTo(TIMING.speed * 0.7 * 0.75, 10);
+    expect(startRound(3, m, 5).speed).toBeCloseTo(TIMING.speed * 0.7 * 0.6, 10);
   });
   it("forgives so many misses, keeps its marker's pace, and has fewer stones among the weeds, by what it carries", () => {
     const off = (r: Round) => { for (let t = 0.01; t < 5; t += 0.01) if (!over(r, t)) return t; throw new Error("no miss"); };
@@ -285,7 +285,7 @@ describe("a forged hoe", () => {
     expect(touch(p, 0.2, patchAt(p, 0.2).cells.findIndex((c) => c?.kind === "stone")).misses).toBe(1);
   });
   it("with fire takes a hit fewer a plot, never under one; with dark its marker is quicker", () => {
-    expect(hitsWith(FARMING.swings.till, hoeFx(tool("hoe", 1, [], ["fire"])))).toBe(2);
+    expect(hitsWith(FARMING.swings.till, hoeFx(tool("hoe", 1, [], ["fire"])))).toBe(1);
     expect(hitsWith(FARMING.swings.clear, hoeFx(tool("hoe", 10, [], ["fire"])))).toBe(1);
     expect(hitsWith(1, { fewer: 2 })).toBe(1);
     expect(hitsWith(3, PLAIN_HOE)).toBe(3);
@@ -327,9 +327,9 @@ describe("a forged can", () => {
     expect(done(water("1,1", done(hold(plain, 1)).purse, sown(), "can", NOW)).purse.bag.slice(0, 2).map((s) => s?.water)).toEqual([2, 5]);
   });
   it("with fire and a last drop holds more still, and a thrifty one fills from one bucketful", () => {
-    expect(canHolds(tool("can", 1, [], ["fire"]))).toBe(10);
-    expect(canHolds(tool("can", 10, [], ["fire"]))).toBe(18);
-    expect(canHolds(tool("can", 6, drawn("cnDrop", "cnThrift"), ["fire"]))).toBe(LEVELS.can.waterings[6] + OPTIONS.cnDrop.n.more + 1 + 6);
+    expect(canHolds(tool("can", 1, [], ["fire"]))).toBe(12);
+    expect(canHolds(tool("can", 10, [], ["fire"]))).toBe(22);
+    expect(canHolds(tool("can", 6, drawn("cnDrop", "cnThrift"), ["fire"]))).toBe(LEVELS.can.waterings[6] + OPTIONS.cnDrop.n.more + 3 + 6);
     const thrifty = done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 50, NOW));
     expect([thrifty.well, thrifty.purse.bag[0]?.water]).toEqual([49, LEVELS.can.waterings[3]]);
     expect(done(chore(purseOf(tool("can", 3, drawn("cnThrift"))), "well", 1, NOW)).purse.bag[0]?.water).toBe(LEVELS.can.waterings[3]);
@@ -337,7 +337,7 @@ describe("a forged can", () => {
   it("dark rewards watering without consuming twice the water", () => {
     const plain = done(water("1,1", purseOf({ ...tool("can"), water: 5 }), sown(), "can", NOW)), base = plain.plot.plant!.boost;
     const dark = done(water("1,1", purseOf({ ...tool("can", 1, [], ["dark"]), water: 5 }), sown(), "can", NOW));
-    expect(dark.plot.plant!.boost).toBeCloseTo(base * 1.25, 6);
+    expect(dark.plot.plant!.boost).toBeCloseTo(base * 1.35, 6);
     expect(dark.purse.bag[0]?.water).toBe(4);
     expect(done(water("1,1", purseOf({ ...tool("can", 10, [], ["dark"]), water: 1 }), sown(), "can", NOW)).purse.bag[0]?.water).toBe(0);
     expect(plain.purse.bag[0]?.water).toBe(4);
@@ -354,8 +354,8 @@ describe("a forged can", () => {
     // (steady hands and the can together: never past the cap, never less than the hands alone)
     for (const buff of [1.2, 1.6, 2.2, 3]) expect(startPour(2, { spent: true, buff, ...mods(tool("can", 10)) }, 9).width).toBeCloseTo(POURING.tired * Math.max(buff, Math.min(FORGE.cap, buff * 1.5)), 10);
     const icy = startPour(2, { spent: true, ...mods(tool("can", 1, [], ["ice"])) }, 9), bare = startPour(2, { spent: true }, 9);
-    expect(pour(icy, true, 0.2).level).toBeCloseTo(pour(bare, true, 0.2).level * 0.85, 12);
-    expect(startLong([1, 2], mods(tool("can", 1, [], ["ice"])), 1, 9).speed).toBeCloseTo(LONG.speed * 0.85, 12);
+    expect(pour(icy, true, 0.2).level).toBeCloseTo(pour(bare, true, 0.2).level * 0.75, 12);
+    expect(startLong([1, 2], mods(tool("can", 1, [], ["ice"])), 1, 9).speed).toBeCloseTo(LONG.speed * 0.75, 12);
     // a pour let go short of the marks, forgiven once
     let p = startPour(2, { spent: true, drops: true, ...mods(tool("can", 1, [], ["water"])) }, 9);
     p = pour(pour(p, true, 0.05), false, 0.01);
@@ -392,7 +392,7 @@ describe("a forged net", () => {
   });
   it("never eases past the cap: the ring with all that widens it, the swing with fire in it", () => {
     const fx = netFx(tool("bugNet", 10, [], ["fire"]));
-    expect(swingMs(false, false, fx.lands)).toBe(Math.round(NET.lands * 0.5 * 0.75));
+    expect(swingMs(false, false, fx.lands)).toBe(Math.round(NET.lands / FORGE.cap));
     expect(swingMs(false, false, 0.1)).toBe(Math.round(NET.lands / FORGE.cap));
     for (const wide of [1, 2, 2.5, 4]) expect(ringOf(bug, false, wide, 1, fx.ring) / ringOf(bug, false)).toBeCloseTo(Math.max(wide, Math.min(FORGE.cap, wide * 1.5)), 10);
   });
@@ -442,8 +442,8 @@ describe("forged cookware", () => {
   });
   it("by what it carries: fewer stirs, a miss that loses nothing, a slower slip, a harder pace with dark", () => {
     expect(stirsWith(8, cookFx(tool("pot", 3, drawn("ckBrisk"))))).toBe(6);
-    expect(stirsWith(5, cookFx(tool("pan", 1, [], ["fire"])))).toBe(Math.ceil(5 * 0.85));
-    expect(stirsWith(8, cookFx(tool("grill", 10, drawn("ckBrisk"), ["fire"])))).toBe(Math.ceil(8 * 0.75 * 0.75));
+    expect(stirsWith(5, cookFx(tool("pan", 1, [], ["fire"])))).toBe(Math.ceil(5 * 0.75));
+    expect(stirsWith(8, cookFx(tool("grill", 10, drawn("ckBrisk"), ["fire"])))).toBe(Math.ceil(8 * 0.6 * 0.75));
     expect(stirsWith(1, { shorter: 0.9 })).toBe(1);
     const base = startStir(5, mods(tool("pot", 3, drawn("ckBase"), ["water"])));
     expect(base.spare).toBe(2);
@@ -454,7 +454,7 @@ describe("forged cookware", () => {
     let bare = stir(startStir(5, stirMods([], false)), 0.01, 0.125);
     for (let i = 0; i < 30; i++) bare = stir(bare, 0.001, 0.125);
     expect(bare.misses).toBe(3);
-    expect(startStir(5, mods(tool("pot", 1, [], ["ice"]))).grace).toBeCloseTo(STIRRING.grace / 0.85, 12);
+    expect(startStir(5, mods(tool("pot", 1, [], ["ice"]))).grace).toBeCloseTo(STIRRING.grace / 0.75, 12);
     const plain = startStir(5, stirMods([], false)), dark = startStir(5, mods(tool("pot", 0, [], ["dark"])));
     expect((dark.hi - dark.lo) / (plain.hi - plain.lo)).toBeCloseTo(1 / 1.1, 12);
     expect(cookFx(tool("pot", 1, [], ["dark"])).darkHelping).toBe(OLD_FX.dark.cook.helping[0]);
@@ -473,18 +473,18 @@ describe("the stamina a forged tool takes off (whoever keeps the game)", () => {
     let p = purseOf(s);
     const left: number[] = [];
     for (let i = 0; i < 20; i++) { p = paid(p, 1, s, canFx(s), "cnFresh"); left.push(staminaOf(p, NOW)); }
-    // twenty waterings of a point each, 15% off: seventeen points paid, three given back, the first at the seventh
-    expect(left[19]).toBe(100 - 17);
-    expect(left.slice(0, 8)).toEqual([100, 99, 98, 97, 96, 95, 95, 94]);
+    // Twenty waterings, 30% off: fourteen paid, with fractional effort carried forward.
+    expect(left[19]).toBe(100 - 14);
+    expect(left.slice(0, 8)).toEqual([100, 99, 98, 98, 97, 96, 96, 95]);
     expect(toolOwed(p)).toBeCloseTo(0, 6);
     expect(p.gifts).toBeUndefined();
-    // a deed of two points with a quarter off: one and a half, so three for two deeds
+    // At +10 earth halves each two-point deed.
     const top = tool("hoe", 10, [], ["earth"]);
     let q = purseOf(top);
     q = paid(q, 2, top, hoeFx(top), "hoFresh");
-    expect([staminaOf(q, NOW), toolOwed(q)]).toEqual([99, expect.closeTo(0.5, 6)]);
+    expect([staminaOf(q, NOW), toolOwed(q)]).toEqual([99, expect.closeTo(0, 6)]);
     q = paid(q, 2, top, hoeFx(top), "hoFresh");
-    expect([staminaOf(q, NOW), toolOwed(q)]).toEqual([97, expect.closeTo(0, 6)]);
+    expect([staminaOf(q, NOW), toolOwed(q)]).toEqual([98, expect.closeTo(0, 6)]);
   });
   it("with a hearty meal the two together never leave less than a third of the plain cost", () => {
     const s = tool("pot", 10, [], ["earth"]);
@@ -492,10 +492,10 @@ describe("the stamina a forged tool takes off (whoever keeps the game)", () => {
     let p = buffed(purseOf(s), "hearty", 4);
     for (let i = 0; i < 12; i++) p = paid(p, 3, s, cookFx(s), "ckFresh");
     expect(staminaOf(p, NOW)).toBe(100 - 12);
-    // at its first (three tenths off), a quarter more off what is left
+    // At its first (three tenths off), earth halves the remaining cost.
     let q = buffed(purseOf(s), "hearty", 1);
     for (let i = 0; i < 10; i++) q = paid(q, 10, s, cookFx(s), "ckFresh");
-    expect([100 - staminaOf(q, NOW), toolOwed(q)]).toEqual([Math.floor(10 * 7 * 0.75), expect.closeTo(0.5, 6)]);
+    expect([100 - staminaOf(q, NOW), toolOwed(q)]).toEqual([35, expect.closeTo(0, 6)]);
   });
   it("the first few deeds of a meal's hours cost none, counted by the option; then they cost as ever", () => {
     const s = tool("hoe", 3, drawn("hoFresh"));
@@ -524,7 +524,7 @@ describe("the stamina a forged tool takes off (whoever keeps the game)", () => {
     p = purseOf({ ...tool("can", 10, [], ["earth"]), water: 9 });
     let n = 0;
     for (let i = 0; i < 8; i++) { const w = done(tend(`${i},1`, sown(), undefined, 0, 0, p, "me", NOW)); p = w.purse; n++; }
-    expect([n, staminaOf(p, NOW), p.bag[0]?.water]).toEqual([8, 100 - 6, 1]);
+    expect([n, staminaOf(p, NOW), p.bag[0]?.water]).toEqual([8, 100 - 4, 1]);
     // and a can whose first waterings of a meal's hours are free
     const fresh = done(tend("1,1", sown(), undefined, 0, 0, purseOf({ ...tool("can", 3, drawn("cnFresh")), water: 5 }), "me", NOW));
     expect([fresh.deed, staminaOf(fresh.purse, NOW), powerUsed(fresh.purse, "cnFresh", NOW), fresh.purse.bag[0]?.water]).toEqual(["water", 100, 1, 4]);
@@ -566,15 +566,15 @@ describe("what a forged tool does by chance (whoever keeps the game)", () => {
     });
     expect(worms(tool("hoe"))).toBe(0);
     expect(worms(tool("hoe", 10))).toBe(0);
-    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeGreaterThan(0.16);
-    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeLessThan(0.25);
-    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeGreaterThan(0.30);
-    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeLessThan(0.40);
+    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeGreaterThan(0.30);
+    expect(worms(tool("hoe", 0, [], ["dark"]))).toBeLessThan(0.40);
+    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeGreaterThan(0.45);
+    expect(worms(tool("hoe", 10, [], ["dark"]))).toBeLessThan(0.55);
     expect(worms(tool("hoe", 10, [], ["dark"]), true)).toBe(0);
     // (the worm is in the bag, and clearing weeds turns up none)
     const lucky = Array.from({ length: 1000 }, (_, i) => NOW + i * 1000).find((now) => luckOf("worm|3,3", now) < 0.05)!;
     const did = done(tend("3,3", cleared, undefined, 0, 0, purseOf(tool("hoe", 0, [], ["dark"])), "me", lucky));
-    expect([did.got, did.purse.bag[1]]).toEqual([[["worm", 1]], { item: "worm", n: 1 }]);
+    expect([did.got, did.purse.bag[1]]).toEqual([[["worm", 1], ["compost", 1]], { item: "worm", n: 1 }]);
     expect(done(tend("3,3", WILD, undefined, 0, 0, purseOf(tool("hoe", 0, [], ["dark"])), "me", lucky)).got).toEqual([]);
   });
   it("a catch with lightning in the net brings another of its kind so often", () => {
@@ -582,10 +582,10 @@ describe("what a forged tool does by chance (whoever keeps the game)", () => {
     const twins = (s: Stack) => often((now) => done(net({ ...purseOf(s), stamina: { day: dayOf(now), left: 100 } }, h, has, 0, false, "bugNet", at, 0, now)).got[0][1] === 2);
     expect(twins(tool("bugNet"))).toBe(0);
     expect(twins(tool("bugNet", 10))).toBe(0);
-    expect(twins(tool("bugNet", 0, [], ["lightning"]))).toBeGreaterThan(0.06);
-    expect(twins(tool("bugNet", 0, [], ["lightning"]))).toBeLessThan(0.14);
-    expect(twins(tool("bugNet", 10, [], ["lightning"]))).toBeGreaterThan(0.15);
-    expect(twins(tool("bugNet", 10, [], ["lightning"]))).toBeLessThan(0.25);
+    expect(twins(tool("bugNet", 0, [], ["lightning"]))).toBeGreaterThan(0.15);
+    expect(twins(tool("bugNet", 0, [], ["lightning"]))).toBeLessThan(0.25);
+    expect(twins(tool("bugNet", 10, [], ["lightning"]))).toBeGreaterThan(0.30);
+    expect(twins(tool("bugNet", 10, [], ["lightning"]))).toBeLessThan(0.40);
     const lucky = Array.from({ length: 1000 }, (_, i) => NOW + i * 1000).find((now) => luckOf("twin", h.id, 1, now) < 0.1)!;
     const did = done(net(purseOf(tool("bugNet", 0, [], ["lightning"])), h, has, 0, false, "bugNet", at, 0, lucky));
     expect([did.got, did.purse.bag[1]]).toEqual([[["ladybird", 2]], { item: "ladybird", n: 2 }]);
@@ -596,10 +596,10 @@ describe("what a forged tool does by chance (whoever keeps the game)", () => {
     const plain = pot(tool("pot"), NOW), more = (s: Stack,extra=1) => often((now) => pot(s, now) === plain + extra);
     expect(more(tool("pot"))).toBe(0);
     expect(more(tool("pot", 10))).toBe(0);
-    expect(more(tool("pot", 0, [], ["lightning"]))).toBeGreaterThan(0.06);
-    expect(more(tool("pot", 0, [], ["lightning"]))).toBeLessThan(0.14);
-    expect(more(tool("pot", 10, [], ["dark"]),2)).toBeGreaterThan(0.15);
-    expect(more(tool("pot", 10, [], ["dark"]),2)).toBeLessThan(0.25);
+    expect(more(tool("pot", 0, [], ["lightning"]))).toBeGreaterThan(0.15);
+    expect(more(tool("pot", 0, [], ["lightning"]))).toBeLessThan(0.25);
+    expect(more(tool("pot", 10, [], ["dark"]),2)).toBeGreaterThan(0.35);
+    expect(more(tool("pot", 10, [], ["dark"]),2)).toBeLessThan(0.45);
     expect(often((now) => pot(tool("pot", 10, [], ["lightning","dark"]), now) === plain + 3)).toBeGreaterThan(0.01);
   });
 });

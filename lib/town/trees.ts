@@ -6,7 +6,7 @@ import type { TreeAge } from "./mountain";
 import { stowAll } from "./pouches";
 import { mayPower, usePower } from "./powers";
 import { dayOf, eased, isSpent, spend } from "./stamina";
-import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
+import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, gemStamina, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
 import { heldStack, type Purse, type Stack } from "./trade";
 import { MOUNTAIN_AT, MOUNTAIN_TREES } from "./world";
 import { woodSelection, type GrainQuality, type WoodSelection } from "./wood-grain";
@@ -368,7 +368,7 @@ export function mostOf(axe: Stack, trees: readonly Standing[]): Array<[ItemId, n
   for (const t of trees) {
     if (t.elder) { timber += Math.ceil(TREES.elder.timber * elder); resin += Math.ceil(TREES.elder.resin * elder); continue; }
     logs += (TREES.logs + (gemBy(axe, "dark", GEM_FX.dark.axe.log) > 0 ? 1 : 0) + (has(axe, "axDust") ? optN("axDust", "more", axe) : 0)) * twice;
-    timber += mostTimber(t) * twice;
+    timber += (mostTimber(t) + (gemBy(axe, "dark", GEM_FX.dark.axe.timber) > 0 ? 1 : 0)) * twice;
     if (has(axe, "axResin")) scent++;
   }
   const out: Array<[ItemId, number]> = [["log", logs], ["timber", timber], ...TREES.scent.map((id): [ItemId, number] => [id, scent + (id === "resin" ? resin : 0)])];
@@ -548,6 +548,8 @@ function fellUntrained(purse: Purse, grove: Grove, me: string, went: FellWent, a
       // the fine timber: the board's, by the misses; all of it at the axe's one chop; none the plain way
       timber = one ? mostTimber(t) : plain || !through ? 0 : timberOf(bearsOf(t), misses);
       if (l.dark < gemBy(axe, "dark", GEM_FX.dark.axe.log)) logs++;
+      // A clean completed board earns a chance at fine timber, before a paid double batch.
+      if (board && through && misses === 0 && l.dark < gemBy(axe, "dark", GEM_FX.dark.axe.timber)) timber++;
       if (has(axe, "axDust")) {
         kept = { ...kept, dust: kept.dust + 1 };
         if (kept.dust >= optN("axDust", "every", axe)) { logs += optN("axDust", "more", axe); kept = { ...kept, dust: 0 }; }
@@ -565,7 +567,7 @@ function fellUntrained(purse: Purse, grove: Grove, me: string, went: FellWent, a
     const fresh = usePower(mine, axe, "axFresh", now);
     if (fresh.ok) { mine = fresh.purse; free = true; }
     else {
-      const paid = eased(mine, spend(mine, TREES.cost, now), now, 1 - gemBy(axe, "earth", GEM_FX.earth.axe.stamina), kept.owed);
+      const paid = eased(mine, spend(mine, TREES.cost, now), now, 1 - gemStamina(axe), kept.owed);
       mine = paid.purse;
       kept = { ...kept, owed: paid.owed };
     }

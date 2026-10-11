@@ -427,7 +427,7 @@ describe("what an axe's plus, options and gems change", () => {
     expect(ask({ gems: ["dark"] }).pace).toBeCloseTo(1 + GEM_FX.dark.axe.faster[0]);
     const dark = (luck: number, plus = 0) => { const did = cut(woodcutter({ plus, gems: ["dark"] }), newGrove(), 3, 0, { luck: { dark: luck } }); return did.ok ? did.got[0] : null; };
     expect(dark(0.09)).toEqual(["log", 3]);
-    expect(dark(0.11)).toEqual(["log", 2]);
+    expect(dark(0.25)).toEqual(["log", 2]);
     expect(dark(0.19, 10)).toEqual(["log", 3]);
   });
 
@@ -455,7 +455,7 @@ describe("what an axe's plus, options and gems change", () => {
     const next = cut(p, struck.grove, 1);
     expect(next.ok && next.grove.half).toEqual([]);
     // no luck, no neighbour; and never a tree out of reach
-    const none = cut(woodcutter({ gems: ["lightning"] }), newGrove(), 0, 0, { luck: { chain: 0.11 } });
+    const none = cut(woodcutter({ gems: ["lightning"] }), newGrove(), 0, 0, { luck: { chain: 0.2 } });
     expect(none.ok && none.grove.half).toEqual([]);
     const far = cut(woodcutter({ gems: ["lightning"] }), newGrove(), 3, 0, { luck: { chain: 0 } });
     expect(far.ok && far.felled[0].chained).toBe(null);

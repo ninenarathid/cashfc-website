@@ -1,4 +1,5 @@
 import { trainElement } from "./element-training";
+import { darkSoil } from "./gem-soil";
 import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
 import { mayPower, powerLeft, powerUsed, usePower } from "./powers";
@@ -646,7 +647,11 @@ function tendUntrained(key: string, plot: Plot, bed: Bed | undefined, others: nu
   else if (next && owner === me) next = { ...next, tended: now, empty: planted ? 0 : next.empty || now };
   // ── forging: old tools ── (a plot tilled with a hoe that carries as much turns up a worm so often, where the bag has room for it)
   const worm = tilled && luckOf(`worm|${key}`, now) < hfx.worm && roomFor(paid.bag, WORM) > 0;
-  return { ok: true, deed, purse: worm ? { ...paid, bag: put(paid.bag, WORM, 1) } : paid, plot: left, bed: next, got: worm ? [...(did.got ?? []), [WORM, 1]] : did.got ?? [], ...(rung.times > 1 ? { times: rung.times } : {}) };
+  const withWorm = worm ? { ...paid, bag: put(paid.bag, WORM, 1) } : paid;
+  const soil = tilled ? darkSoil(withWorm, tool, now) : { purse: withWorm, n: 0 };
+  const got: Array<[ItemId, number]> = worm ? [...(did.got ?? []), [WORM, 1]] : [...(did.got ?? [])];
+  if (soil.n) got.push(["compost", soil.n]);
+  return { ok: true, deed, purse: soil.purse, plot: left, bed: next, got, ...(rung.times > 1 ? { times: rung.times } : {}) };
 }
 
 // ── forging: old tools ──

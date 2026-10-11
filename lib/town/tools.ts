@@ -1,5 +1,6 @@
 import type { ItemId } from "./items";
 import type { Stack } from "./trade";
+import { GEM_BALANCE as BALANCE } from "./gem-balance";
 
 /**
  * Forging: what a tool carries of its own, and what that does (2026-10-08, with woodcutting and mining).
@@ -318,16 +319,16 @@ export const GEM_LEVELS = 4;
  * - dark: veins so many times as often and harder rocks a swing more; how likely one more log, and the bar so much faster.
  */
 export const ALL = 999;
-const SHARE = [0.15, 0.25, 0.35, 0.45], COUNT = [1, 2, 3, 4], CHANCE = [0.1, 0.2, 0.3, 0.4], WALK = [0.1, 0.15, 0.2, 0.25];
+const COUNT = [1, 2, 3, 4], WALK = BALANCE.windWalk;
 export const GEM_FX = {
-  fire: { pick: { fewer: SHARE }, axe: { fewer: SHARE } },
-  water: { pick: { back: COUNT }, axe: { spared: COUNT } },
-  ice: { pick: { cross: COUNT }, axe: { slow: SHARE } },
-  earth: { pick: { stamina: SHARE }, axe: { stamina: SHARE } },
-  lightning: { pick: { chain: CHANCE }, axe: { chain: CHANCE } },
+  fire: { pick: { fewer: BALANCE.fire, tempo: BALANCE.fireTempo }, axe: { fewer: BALANCE.fire } },
+  water: { pick: { back: COUNT, stamina: BALANCE.waterStamina }, axe: { spared: COUNT, stamina: BALANCE.waterStamina } },
+  ice: { pick: { cross: BALANCE.iceCross }, axe: { slow: BALANCE.ice } },
+  earth: { pick: { stamina: BALANCE.earth }, axe: { stamina: BALANCE.earth } },
+  lightning: { pick: { chain: BALANCE.lightning }, axe: { chain: BALANCE.lightning } },
   wind: { pick: { walk: WALK }, axe: { walk: WALK } },
-  light: { pick: { glint: [4, 7, 10, ALL] }, axe: { glint: [10, 20, 30, ALL] } },
-  dark: { pick: { veins: [1.3, 1.6, 1.9, 2.2], swings: [1, 1, 1, 1] }, axe: { log: CHANCE, faster: [0.15, 0.15, 0.15, 0.15] } },
+  light: { pick: { glint: [7, 10, 14, ALL], strikes: BALANCE.lightRead }, axe: { glint: [15, 25, 35, ALL], ahead: BALANCE.lightRead } },
+  dark: { pick: { veins: BALANCE.darkVeins, swings: [1, 1, 1, 1] }, axe: { log: BALANCE.darkYield, timber: BALANCE.darkYield, faster: [0.15, 0.15, 0.15, 0.15] } },
 } as const satisfies Record<Element, { pick: Record<string, readonly number[]>; axe: Record<string, readonly number[]> }>;
 
 /* ── the readers ────────────────────────────────────────────────────────── */
@@ -445,6 +446,13 @@ export const gemBy = (stack: Stack | null | undefined, element: Element, steps: 
   const l = gemLevel(stack, element);
   return l >= 1 ? steps[Math.min(steps.length, l) - 1] : else_;
 };
+/** Water preserves effort even on clean play; earth's larger saving stacks within the shared 3x cap. */
+export function gemStamina(stack: Stack | null | undefined): number {
+  const earth = gemBy(stack, "earth", BALANCE.earth), water = gemBy(stack, "water", BALANCE.waterStamina);
+  if (!earth) return water;
+  if (!water) return earth;
+  return 1 - Math.max(1 / FORGE.cap, (1 - earth) * (1 - water));
+}
 const at = (table: readonly number[], stack: Stack | null | undefined): number => table[levelOf(stack)];
 
 /** What one swing of a pick takes off a rock's hardness. */
@@ -458,8 +466,8 @@ export function pickSwings(stack: Stack | null | undefined, hardness: number): n
   const fire = gemBy(stack, "fire", GEM_FX.fire.pick.fewer);
   return Math.max(1, (fire > 0 ? Math.floor(plain * (1 - fire)) : plain) + (plain > 2 ? gemBy(stack, "dark", GEM_FX.dark.pick.swings) : 0));
 }
-/** The strikes a pick has at a vein: its level's, and its steady hand's. */
-export const veinStrikes = (stack: Stack | null | undefined): number => at(LEVELS.pick.strikes, stack) + (has(stack, "pkSteady") ? optN("pkSteady", "strikes", stack) : 0) + (has(stack, "pkPeek") ? optN("pkPeek", "strikes", stack) : 0);
+/** The strikes a pick has at a vein: its level's, options' and light gem's. */
+export const veinStrikes = (stack: Stack | null | undefined): number => at(LEVELS.pick.strikes, stack) + (has(stack, "pkSteady") ? optN("pkSteady", "strikes", stack) : 0) + (has(stack, "pkPeek") ? optN("pkPeek", "strikes", stack) : 0) + gemBy(stack, "light", GEM_FX.light.pick.strikes);
 /**
  * The chops an axe takes to fell a tree, the axe's own all told: its level's, less its keen edge's, and its fire's so
  * much fewer (rounded up). Never under one. `base`: for a tree that takes more than a plain one (the plain tree's is
@@ -470,7 +478,7 @@ export function axeChops(stack: Stack | null | undefined, base: number = LEVELS.
   return Math.max(1, Math.ceil(Math.ceil(level) * (1 - gemBy(stack, "fire", GEM_FX.fire.axe.fewer))));
 }
 /** How many segments ahead an axe shows a branch: its level's, and its grain-reader's. */
-export const axeAhead = (stack: Stack | null | undefined): number => at(LEVELS.axe.ahead, stack) + (has(stack, "axGrain") ? optN("axGrain", "ahead", stack) : 0);
+export const axeAhead = (stack: Stack | null | undefined): number => at(LEVELS.axe.ahead, stack) + (has(stack, "axGrain") ? optN("axGrain", "ahead", stack) : 0) + gemBy(stack, "light", GEM_FX.light.axe.ahead);
 /**
  * How fast the felling's time bar runs with an axe, as so many times its plain pace, the axe's own all told: its
  * level's slowing, its ice's, and its dark's quickening. Never slower than the cap allows.

@@ -1,4 +1,6 @@
 import type { Tier } from "./items";
+import type { Element } from './tools';
+import type { ElementAction } from './element-action';
 
 /**
  * The sounds of fishing (the owner, 2026-10-03: "ช่วย gen sound effect ตอนตกปลา ให้
@@ -570,19 +572,79 @@ export const chimeHz = (step: number): number => {
   return 196 * 2 ** (([0, 2, 4, 7, 9][i % 5] + 12 * Math.floor(i / 5)) / 12);
 };
 
+/** Short layered Foley, rather than eight pitch-shifted copies of one sound. */
+function elementMaterial(b: Bench, element: Element, t: number) {
+  switch (element) {
+    case 'fire':
+      hiss(b, t, 'lowpass', 950, 180, .7, .52, .19, .025);
+      hiss(b, t, 'bandpass', 2200, 600, .8, .32, .14, .018);
+      for (let i = 0; i < 3; i++) { hiss(b, t + .07 + i * .085, 'highpass', 3200, 2200, .6, .04, .09); tone(b, t + i * .085, 'triangle', 180, 65, .06, .045); }
+      break;
+    case 'water':
+      hiss(b, t, 'bandpass', 1700, 480, .8, .52, .23, .055);
+      for (let i = 0; i < 3; i++) tone(b, t + .06 + i * .095, 'sine', 330 + i * 170, 740 + i * 240, .095, .11 / (1 + i * .4), .012);
+      hiss(b, t + .12, 'lowpass', 700, 160, .7, .42, .08, .04);
+      break;
+    case 'ice':
+      [1480, 2360, 3520].forEach((hz, i) => bell(b, t + i * .055, hz, .085 - i * .016, .47 - i * .06));
+      hiss(b, t, 'highpass', 6400, 9200, .5, .16, .055);
+      break;
+    case 'earth':
+      tone(b, t, 'sine', 105, 38, .31, .32, .012);
+      tone(b, t + .02, 'triangle', 170, 64, .12, .085);
+      hiss(b, t, 'lowpass', 650, 90, .8, .4, .22, .015);
+      hiss(b, t + .09, 'bandpass', 980, 300, .7, .19, .11);
+      break;
+    case 'lightning':
+      hiss(b, t, 'highpass', 3800, 1100, .6, .08, .14);
+      tone(b, t, 'sawtooth', 1100, 120, .12, .045);
+      for (let i = 0; i < 3; i++) hiss(b, t + .045 + i * .064, 'bandpass', 3300 - i * 600, 900, 1.2, .055, .09);
+      tone(b, t + .09, 'sine', 160, 55, .24, .11);
+      break;
+    case 'wind':
+      hiss(b, t, 'bandpass', 420, 1900, .65, .31, .15, .1);
+      hiss(b, t + .23, 'bandpass', 1600, 350, .65, .39, .11, .025);
+      tone(b, t + .08, 'sine', 520, 810, .4, .023, .1);
+      break;
+    case 'light':
+      [784, 1046.5, 1318.5].forEach((hz, i) => bell(b, t + i * .07, hz, .065, .7));
+      hiss(b, t + .1, 'highpass', 8000, 11000, .5, .5, .024, .08);
+      break;
+    case 'dark':
+      tone(b, t, 'sine', 98, 65, .65, .18, .06, { hz: 6, by: 3 });
+      tone(b, t + .03, 'triangle', 196, 130, .5, .035, .06);
+      tone(b, t + .08, 'sine', 185, 123, .53, .035, .07);
+      hiss(b, t, 'bandpass', 780, 180, 1.1, .64, .08, .09);
+      break;
+  }
+}
+function makeElement(b: Bench, look: ElementAction, t: number) {
+  const gain = b.ctx.createGain();
+  gain.gain.value = look.elements.length > 1 ? .62 : look.doubled ? .9 : .85;
+  gain.connect(b.out);
+  const quiet = { ...b, out: gain };
+  look.elements.forEach((element, i) => elementMaterial(quiet, element, t + i * .035));
+  if (look.doubled) { tone(quiet, t + .12, 'sine', 150, 60, .22, .07); bell(quiet, t + .22, 660, .025, .35); }
+  // A silent source owns cleanup on the audio clock, including offline rendering.
+  const end = b.ctx.createBufferSource(); end.buffer = b.ctx.createBuffer(1, 1, b.ctx.sampleRate);
+  end.onended = () => { gain.disconnect(); end.disconnect(); }; end.connect(gain); end.start(t + 1.1);
+}
+
 export class FishSfx {
   private bench: Bench | null = null;
   private off = false;
   private ticks = 0;
   private nextTick = 0;
+  private nextElement = 0;
 
-  constructor() {
+  constructor(private readonly options: { persistent?: boolean } = {}) {
     try { this.off = window.localStorage.getItem(KEY) === "1"; } catch { /* no storage: on */ }
   }
   get on() { return !this.off; }
   /** Sounds on or off, kept on the device. */
   setOn(on: boolean) {
     this.off = !on;
+    if (this.options.persistent === false) return;
     try { if (on) window.localStorage.removeItem(KEY); else window.localStorage.setItem(KEY, "1"); } catch { /* not kept, then */ }
   }
   /** Call from a tap or a key: the browser lets sound begin only then. */
@@ -618,6 +680,18 @@ export class FishSfx {
     quiet.gain.value = loud;
     quiet.connect(b.out);
     makeWork({ ...b, out: quiet }, name, b.ctx.currentTime + 0.01);
+  }
+  /** Each element has a sonic material; pairs layer both at a controlled volume. */
+  element(look: ElementAction, loud = 1) {
+    const b = this.bench;
+    if (this.off || !b || (b.ctx as AudioContext).state !== 'running' || !(loud > .005) || document.hidden) return;
+    const now = b.ctx.currentTime;
+    if (now < this.nextElement) return;
+    this.nextElement = now + .24;
+    const quiet = b.ctx.createGain();
+    quiet.gain.value = Math.min(1, loud); quiet.connect(b.out);
+    makeElement({ ...b, out: quiet }, look, now + .01);
+    setTimeout(() => quiet.disconnect(), 1400);
   }
   // ── gifts: helpers ──
   /** A note of the anklet's tune (lib/town/helping): the so-manieth of a run, quiet; at the run's most it has its fifth over it. */
@@ -672,4 +746,19 @@ export async function measure(name: FishSound | WorkSound | "tick", tier: Tier |
   let peak = 0, sum = 0, last = 0;
   for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > peak) peak = v; sum += v * v; if (v > 0.003) last = i; }
   return { peak: Math.round(peak * 1000) / 1000, rms: Math.round(Math.sqrt(sum / Math.max(1, last)) * 1000) / 1000, secs: Math.round((last / rate) * 100) / 100 };
+}
+
+/** Render the real elemental recipe for audible-output and clipping checks. */
+export async function measureElement(look: ElementAction) {
+  const rate = 44100, ctx = new OfflineAudioContext(1, rate * 2, rate);
+  const master = ctx.createGain(); master.gain.value = .7; master.connect(ctx.destination);
+  makeElement({ ctx, out: master, noise: noiseOf(ctx) }, look, .01);
+  const data = (await ctx.startRendering()).getChannelData(0);
+  let peak = 0, sum = 0, last = 0, fingerprint = 0;
+  for (let i = 0; i < data.length; i++) {
+    const v = Math.abs(data[i]); peak = Math.max(peak, v); sum += v * v;
+    if (v > .003) last = i;
+    if (i % 101 === 0) fingerprint = Math.imul(fingerprint ^ Math.round(data[i] * 32767), 16777619);
+  }
+  return { peak, rms: Math.sqrt(sum / Math.max(1, last)), secs: last / rate, fingerprint };
 }

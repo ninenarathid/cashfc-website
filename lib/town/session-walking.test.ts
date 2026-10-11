@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { TownSession } from "./session";
 import { SPEED } from "./world";
+import { toolWord } from "./tools";
 
 /** Exercise the actual frame method without opening a room or microphone. */
 function session() {
@@ -24,5 +25,13 @@ describe("returning to a walking tab", () => {
   it("the first frame walks normally rather than teleporting to the end", () => {
     const s=session();s.steppedAt=0;s.step(1000,0.05);
     expect(s.self.pos.x).toBeCloseTo(30+SPEED*0.05);expect(s.self.path).toHaveLength(1);
+  });
+  it("wind stacks with riding at the actual walking step for both local and remote players", () => {
+    const s=session();
+    Object.assign(s.self.info,{pet:"famStag",hold:"rod",tool:toolWord({item:"rod",n:1,plus:10,gems:["wind"]})});
+    Object.assign(s.avatars.get("B").info,{pet:"famStag",hold:"rod",tool:toolWord({item:"rod",n:1,plus:10,gems:["wind","wind"]})});
+    s.step(2500,0.05);
+    expect(s.self.pos.x).toBeCloseTo(30+SPEED*2.9*1.5);
+    expect(s.avatars.get("B").pos.x).toBeCloseTo(30+SPEED*3.3*1.5);
   });
 });

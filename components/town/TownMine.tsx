@@ -6,7 +6,7 @@ import { chamberOf, floorAtTile } from "@/lib/town/cave-state";
 import { familiarOf, wearing } from "@/lib/town/gifts";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
-import { MINING, hasBelow, isDug, lightOf, oreOf, pickOf, swingsFor, turnOf, type Peek, type PendingVein } from "@/lib/town/mining";
+import { MINING, hasBelow, isDug, lightOf, oreOf, pickOf, pickSwingMs, swingsFor, turnOf, type Peek, type PendingVein } from "@/lib/town/mining";
 import { powerLeft } from "@/lib/town/powers";
 import type { FishSfx } from "@/lib/town/sfx";
 import { isSpent } from "@/lib/town/stamina";
@@ -369,7 +369,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
       return true;
     }
     const tick = performance.now();
-    if (asking.current || tick - lastSwing.current < MINING.swing.ms) return true;
+    if (asking.current || tick - lastSwing.current < pickSwingMs(held)) return true;
     lastSwing.current = tick;
     swung.current = { at: tick, tile: tap.tile, from: me };
     // the day's crystal rock, and a pick that is not at the top: it rings off
@@ -553,7 +553,7 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
         if (h.rock) {
           const inReach = Math.max(Math.abs(Math.floor(me.x) - h.rock.tile[0]), Math.abs(Math.floor(me.y) - h.rock.tile[1])) <= MINING.reach;
           if (h.rock.floor !== floor || gone.includes(h.rock.id) || (h.swung && !inReach)) h.rock = null;
-          else if (inReach ? tick - lastSwing.current >= MINING.swing.ms && !asking.current : !h.walked) {
+          else if (inReach ? tick - lastSwing.current >= pickSwingMs(pickOf(keeper.purse())) && !asking.current : !h.walked) {
             // (out of reach: walked up to once, and swung at on getting there)
             if (inReach) h.swung = true; else h.walked = true;
             strikeRef.current(h.rock);

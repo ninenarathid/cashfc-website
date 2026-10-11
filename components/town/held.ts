@@ -114,7 +114,8 @@ export function longHead(item: string, fist: Vec, tall: number, side: 1 | -1, dp
  * Gives back where its head is on the screen, or null if its picture has not come yet (nothing is drawn then).
  * `under` is called with that place just before the picture is laid, for what belongs behind the tool's head.
  */
-export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: Vec, tall: number, side: 1 | -1, dpr: number, under?: (head: Vec) => void, rim?: Rim): Vec | null {
+export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: Vec, tall: number, side: 1 | -1, dpr: number, under?: (head: Vec) => void, rim?: Rim,
+  appearance?: (img: HTMLImageElement, cell: readonly number[]) => HTMLCanvasElement | null): Vec | null {
   const img = heldPicture(), layout = longLayout(item, tall, dpr);
   if (!img || !layout) return null;
   const { cell, cut, k, tail, grip } = layout, [sx, sy, w, h, gx] = cell;
@@ -139,8 +140,12 @@ export function drawLongTool(ctx: CanvasRenderingContext2D, item: string, fist: 
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = was;
   }
-  ctx.drawImage(img, sx, sy, w, cut, -gx * k, -grip, w * k, cut * k);
-  ctx.drawImage(img, sx, sy + cut, w, h - cut, -gx * k, cut * k - grip, w * k, (h - cut) * tail);
+  // Elemental inlays use the same source silhouette, split, grip and scale as the ordinary tool.
+  const skin = appearance?.(img, cell), picture = skin ?? img, x = skin ? 0 : sx, y = skin ? 0 : sy;
+  const detail = skin ? skin.width / w : 1;
+  if (detail > 1) ctx.imageSmoothingEnabled = k * dpr < detail;
+  ctx.drawImage(picture, x, y, w * detail, cut * detail, -gx * k, -grip, w * k, cut * k);
+  ctx.drawImage(picture, x, y + cut * detail, w * detail, (h - cut) * detail, -gx * k, cut * k - grip, w * k, (h - cut) * tail);
   ctx.restore();
   return head;
 }
@@ -458,12 +463,13 @@ function lightPicture(hex: string): HTMLCanvasElement {
  * own light about its head, and at the top a pool of it on the ground (`ground`: laid flat at its holder's feet).
  */
 const RGB = Object.fromEntries((Object.keys(GEMS) as Element[]).map((e) => { const n = parseInt(GEMS[e].hue.slice(1), 16); return [e, `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`]; })) as Record<Element, string>;
-export function gemLights(look: ToolLook | null): Array<{ rgb: string; reach: number; strong: number; ground?: boolean }> {
+export function gemLights(look: ToolLook | null, quiet = false): Array<{ rgb: string; reach: number; strong: number; ground?: boolean }> {
   if (!look) return [];
   const strength = gemShow(look), kinds = [...new Set(look.gems)], lights: Array<{ rgb: string; reach: number; strong: number; ground?: boolean }> = [];
   // (several lights at one head are each fainter: together about one and a half, never a white patch over a face)
   const each = 1 / Math.sqrt(kinds.length + (look.glow ? 1 : 0) || 1);
-  if (strength) for (const e of kinds) lights.push({ rgb: RGB[e], reach: 14 + 4 * strength, strong: each });
+  if (quiet) for (const e of kinds) lights.push({ rgb: RGB[e], reach: 10, strong: .22 / kinds.length });
+  else if (strength) for (const e of kinds) lights.push({ rgb: RGB[e], reach: 14 + 4 * strength, strong: each });
   // (and a tool forged far: its own light about its head, and at the top a pool of it on the ground)
   if (look.glow) lights.push({ rgb: rgbOf(levelHue(look)), reach: look.glow === 2 ? 30 : 20, strong: each });
   if (look.glow === 2) lights.push({ rgb: rgbOf(levelHue(look)), reach: 56, strong: 0.8, ground: true });
@@ -483,9 +489,10 @@ let frame = -1, left = CAP.screen;
  * else). Every piece belongs to one of the two.
  */
 export function drawGems(ctx: CanvasRenderingContext2D, look: ToolLook | null, layer: "under" | "over", head: Vec, ground: number, tall: number, zoom: number, dpr: number,
-  now: number, seed: number, still: boolean, mine: boolean) {
+  now: number, seed: number, still: boolean, mine: boolean, quiet = false) {
   const strength = gemShow(look);
-  if (!look || !strength) return;
+  // Idle elemental light is attached to the skin. The minigame VFX supplies action bursts.
+  if (!look || !strength || quiet) return;
   if (now !== frame) { frame = now; left = CAP.screen; }
   const gems = look.gems, kinds = [...new Set(gems)];
   // a picture pixel of a piece is a whole number of the screen's own pixels: by the doll's size and the map's zoom

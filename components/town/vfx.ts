@@ -3,6 +3,7 @@ import type { FarmFrame } from "./TownFarm";
 import { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { Stack } from "@/lib/town/trade";
 import { elementAction } from "@/lib/town/element-action";
+import { announceElementAction } from "./element-action-events";
 import { ACTION_LIFE, ACTION_LIMIT, paintElementAction, type ElementBurst } from "./element-action-art";
 
 /**
@@ -14,8 +15,8 @@ import { ACTION_LIFE, ACTION_LIMIT, paintElementAction, type ElementBurst } from
  * its own way from the burst's seed, so nothing is kept but when it began.
  *
  * Drawn among everything else on the map, by whoever keeps one (the farm's
- * panel, the kitchen's). Mine only: nobody is told of them. With reduced
- * motion there are none.
+ * panel, the kitchen's). Basic work particles stay local. Elemental equipment
+ * use also announces its visual recipe for nearby players and elemental sound.
  */
 export type VfxKind = "soil" | "leaves" | "seeds" | "water" | "dust" | "mist" | "sparkle" | "steam" | "smoke" | "bubbles" | "splash" | "pop" | "bless";
 
@@ -150,6 +151,7 @@ export class Vfx {
   element(stack: Stack | null | undefined, at: Vec | null = null, opts: { lift?: number } = {}) {
     const look = elementAction(stack);
     if (!look) return;
+    announceElementAction(look, 'world');
     const now = performance.now();
     this.elements = this.elements.filter((b) => now - b.burst.born < ACTION_LIFE);
     if (this.elements.length >= ACTION_LIMIT) this.elements.shift();

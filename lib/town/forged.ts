@@ -1,4 +1,5 @@
-import { ALL, FORGE, LEVELS, gemBy, has, levelOf, optN, toolKindOf, type ToolKind } from "./tools";
+import { ALL, FORGE, LEVELS, gemBy, gemStamina, has, levelOf, optN, toolKindOf, type ToolKind } from "./tools";
+import { GEM_BALANCE as BALANCE } from "./gem-balance";
 import type { Stack } from "./trade";
 
 /**
@@ -51,34 +52,37 @@ export function luckOf(word: string, ...n: number[]): number {
 
 /* ── what a gem does in the old tools ───────────────────────────────────── */
 
-const SHARE = [0.15, 0.25, 0.35, 0.45], COUNT = [1, 2, 3, 4], CHANCE = [0.1, 0.2, 0.3, 0.4], RARER = [1.2, 1.4, 1.6, 1.8];
+const COUNT = [1, 2, 3, 4];
 /**
  * What each element does in the old tools, at its levels 1 to 4 (`cook`: the pot, the pan and the grill alike).
  * - fire, the work is over sooner: the fish has so much less line to be won; a plot takes so many hits fewer; a
  *   filling is so many waterings more; the net's swing lands so much sooner; a pot wants so much fewer stirs.
- * - water, forgiving: so many of a go's first misses are not counted (the rod's miss is a strike too soon).
+ * - water, forgiving: first misses are not counted and clean work also saves stamina.
  * - ice, what moves is so much slower: the fish's stretch, the hoe's marker and the weeding's gusts, the pour's
  *   water, how fast an insect makes off, and how soon a pot's slip costs.
  * - earth: so much less stamina.
  * - lightning, how likely the deed does its neighbour too: the bait is not used up, the next plot is done, another
  *   insect comes with the one caught, a pot has a helping more.
+ * - wind: faster travel, shorter rod waits, faster net recovery with extra reach, and fewer cooking stirs.
  * - light, what is worth having shows: the float shimmers so many seconds before the bite; the weeding's stones glow;
  *   plants that want water glint within so many tiles; insects that hide are seen within so many; a light goes
- *   round a pot at the good pace.
+ *   round a pot at the good pace. Wider timing windows also help when the stones are already gone.
  * - dark, the rarer thing for a harder game: rare fish so many times as often and every fish so much fiercer; how
  *   likely a tilled plot turns up a worm, and the marker so much faster; a watering adds so much more and uses so
- *   many; the net's ring so much smaller; how likely a pot has a helping more, and its good pace so much narrower.
+ *   many; the net's ring so much smaller; how likely a pot has extra helpings, and its good pace so much narrower.
+ *   Successful tilling can also yield compost within the member's daily allowance.
  */
 export const OLD_FX = {
-  fire: { rod: { tires: SHARE }, hoe: { fewer: [1, 2, 3, 3] }, can: { more: COUNT }, bugNet: { sooner: SHARE }, cook: { shorter: SHARE } },
-  water: { spared: COUNT },
-  ice: { slow: SHARE },
-  earth: { stamina: SHARE },
-  lightning: { chance: CHANCE },
-  light: { rod: { early: [0.5, 1, 1.5, 2] }, hoe: { stones: [1,2,3,4] }, cook: { band: [.05,.1,.15,.2] }, can: { glint: [4, 7, 10, ALL] }, bugNet: { seen: [3, 5, 7, 9] } },
+  fire: { rod: { tires: BALANCE.fire }, hoe: { fewer: BALANCE.fireHoe }, can: { more: BALANCE.fireCan }, bugNet: { sooner: BALANCE.fire }, cook: { shorter: BALANCE.fire } },
+  water: { spared: COUNT, stamina: BALANCE.waterStamina },
+  ice: { slow: BALANCE.ice },
+  earth: { stamina: BALANCE.earth },
+  lightning: { chance: BALANCE.lightning },
+  wind: { quick: BALANCE.windQuick, reach: BALANCE.windReach },
+  light: { band: BALANCE.lightBand, rod: { early: BALANCE.lightEarly }, hoe: { stones: [1,2,3,4] }, cook: { band: BALANCE.lightBand }, can: { glint: [7, 10, 14, ALL] }, bugNet: { seen: [5, 8, 12, 16] } },
   dark: {
-    rod: { rare: RARER, fiercer: 0.1 }, hoe: { worm: [0.2, 0.35, 0.5, 0.65], faster: 0.1 }, can: { more: [0.25, 0.4, 0.55, 0.7], uses: 1 },
-    bugNet: { rare: RARER, smaller: 0.1 }, cook: { helping: CHANCE, harder: 0.1 },
+    rod: { rare: BALANCE.darkRare, fiercer: 0.1 }, hoe: { worm: [0.35, 0.5, 0.65, 0.8], faster: 0.1, soil: BALANCE.darkSoil, daily: BALANCE.darkSoilDaily }, can: { more: [0.35, 0.55, 0.75, 0.85], uses: 1 },
+    bugNet: { rare: BALANCE.darkRare, smaller: 0.1 }, cook: { helping: BALANCE.darkYield, harder: 0.1 },
   },
 } as const;
 
@@ -133,18 +137,20 @@ export function rodFx(stack: Held): RodFx {
   const s = of(stack, "rod");
   if (!s) return PLAIN_ROD;
   const l = levelOf(s), dark = gemBy(s, "dark", OLD_FX.dark.rod.rare, 0) > 0;
+  const quick = has(s, "rdQuick") ? optN("rdQuick", "shorter", s) : 0;
+  const wind = gemBy(s, "wind", OLD_FX.wind.quick);
   return {
-    band: LEVELS.rod.band[l] * (1 + gemBy(s,"lightning",OLD_FX.lightning.chance)),
+    band: LEVELS.rod.band[l] * (1 + gemBy(s,"lightning",OLD_FX.lightning.chance)) * (1 + gemBy(s, "light", OLD_FX.light.band)),
     pace: (1 - LEVELS.rod.slow[l]) * (1 - gemBy(s, "ice", OLD_FX.ice.slow)),
-    strike: times(LEVELS.rod.strike, s) + (has(s, "rdBait") ? optN("rdBait", "strike", s) : 0),
+    strike: (times(LEVELS.rod.strike, s) + (has(s, "rdBait") ? optN("rdBait", "strike", s) : 0)) * (1 + gemBy(s, "light", OLD_FX.light.band)),
     line: 1 - gemBy(s, "fire", OLD_FX.fire.rod.tires),
     fierce: dark ? 1 + OLD_FX.dark.rod.fiercer : 1,
     spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "rdBait") ? 1 : 0),
     still: has(s, "rdCalm") ? optN("rdCalm", "secs", s) : 0,
     shimmer: gemBy(s, "light", OLD_FX.light.rod.early),
-    stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
+    stamina: gemStamina(s),
     fresh: has(s, "rdFresh"),
-    quick: has(s, "rdQuick") ? optN("rdQuick", "shorter", s) : 0,
+    quick: wind > 0 ? 1 - (1 - quick) * (1 - wind) : quick,
     keeps: gemBy(s, "lightning", OLD_FX.lightning.chance),
     rare: gemBy(s, "dark", OLD_FX.dark.rod.rare, 1),
     call: has(s, "rdCall"),
@@ -189,14 +195,14 @@ export function hoeFx(stack: Held): HoeFx {
   if (!s) return PLAIN_HOE;
   const l = levelOf(s), worm = gemBy(s, "dark", OLD_FX.dark.hoe.worm);
   return {
-    band: LEVELS.hoe.band[l] * (has(s, "hoLight") ? optN("hoLight", "band", s) || 1 : 1),
+    band: LEVELS.hoe.band[l] * (has(s, "hoLight") ? optN("hoLight", "band", s) || 1 : 1) * (1 + gemBy(s, "light", OLD_FX.light.band)),
     pace: (1 - LEVELS.hoe.slow[l]) * (1 - gemBy(s, "ice", OLD_FX.ice.slow)) * (worm > 0 ? 1 + OLD_FX.dark.hoe.faster : 1),
     fewer: gemBy(s, "fire", OLD_FX.fire.hoe.fewer),
     spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "hoFirst") ? optN("hoFirst", "misses", s) : 0),
     stones: (has(s, "hoClear") ? optN("hoClear", "stones", s) : 0) + gemBy(s,"light",OLD_FX.light.hoe.stones),
     even: has(s, "hoLight"),
     glow: gemBy(s, "light", COUNT) > 0,
-    stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
+    stamina: gemStamina(s),
     fresh: has(s, "hoFresh"),
     next: gemBy(s, "lightning", OLD_FX.lightning.chance),
     worm,
@@ -245,11 +251,11 @@ export function canFx(stack: Held): CanFx {
   const l = levelOf(s), rich = gemBy(s, "dark", OLD_FX.dark.can.more);
   return {
     more: LEVELS.can.waterings[l] - LEVELS.can.waterings[0] + gemBy(s, "fire", OLD_FX.fire.can.more) + (has(s, "cnDrop") ? optN("cnDrop", "more", s) : 0) + (has(s, "cnThrift") ? optN("cnThrift", "more", s) : 0),
-    marks: LEVELS.can.marks[l],
+    marks: LEVELS.can.marks[l] * (1 + gemBy(s, "light", OLD_FX.light.band)),
     pace: 1 - gemBy(s, "ice", OLD_FX.ice.slow),
     spared: gemBy(s, "water", OLD_FX.water.spared),
     takes: has(s, "cnThrift") ? optN("cnThrift", "takes", s) : null,
-    stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
+    stamina: gemStamina(s),
     fresh: has(s, "cnFresh"),
     kind: has(s, "cnKind") ? optN("cnKind", "points", s) : 0,
     next: gemBy(s, "lightning", OLD_FX.lightning.chance),
@@ -299,14 +305,14 @@ export function netFx(stack: Held): NetFx {
   const s = of(stack, "bugNet");
   if (!s) return PLAIN_NET;
   return {
-    ring: times(LEVELS.bugNet.ring, s) * (gemBy(s, "dark", OLD_FX.dark.bugNet.rare) > 0 ? 1 - OLD_FX.dark.bugNet.smaller : 1),
+    ring: times(LEVELS.bugNet.ring, s) * (gemBy(s, "dark", OLD_FX.dark.bugNet.rare) > 0 ? 1 - OLD_FX.dark.bugNet.smaller : 1) * (1 + gemBy(s, "light", OLD_FX.light.band)),
     lands: times(LEVELS.bugNet.lands, s) * (1 - gemBy(s, "fire", OLD_FX.fire.bugNet.sooner)),
-    again: has(s, "ntAgain") ? optN("ntAgain", "by", s) : 1,
-    reach: has(s, "ntLong") ? optN("ntLong", "reach", s) : 0,
+    again: slowedBy(has(s, "ntAgain") ? optN("ntAgain", "by", s) : 1, 1 - gemBy(s, "wind", OLD_FX.wind.quick)),
+    reach: (has(s, "ntLong") ? optN("ntLong", "reach", s) : 0) + gemBy(s, "wind", OLD_FX.wind.reach),
     spared: gemBy(s, "water", OLD_FX.water.spared),
     bears: has(s, "ntMesh") ? optN("ntMesh", "misses", s) : 0,
     flight: 1 - gemBy(s, "ice", OLD_FX.ice.slow),
-    stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
+    stamina: gemStamina(s),
     fresh: has(s, "ntFresh"),
     twin: gemBy(s, "lightning", OLD_FX.lightning.chance),
     seen: gemBy(s, "light", OLD_FX.light.bugNet.seen),
@@ -354,10 +360,10 @@ export function cookFx(stack: Held): CookFx {
   const kind = toolKindOf(s.item) as "pot" | "pan" | "grill", dark = gemBy(s, "dark", OLD_FX.dark.cook.helping);
   return {
     band: LEVELS[kind].band[levelOf(s)] * (dark > 0 ? 1 / (1 + OLD_FX.dark.cook.harder) : 1) * (1 + gemBy(s,"light",OLD_FX.light.cook.band)),
-    shorter: 1 - (1 - gemBy(s, "fire", OLD_FX.fire.cook.shorter)) * (1 - (has(s, "ckBrisk") ? optN("ckBrisk", "shorter", s) : 0)),
+    shorter: Math.min(1 - 1 / FORGE.cap, 1 - (1 - gemBy(s, "fire", OLD_FX.fire.cook.shorter)) * (1 - (has(s, "ckBrisk") ? optN("ckBrisk", "shorter", s) : 0)) * (1 - gemBy(s, "wind", OLD_FX.wind.quick))),
     spared: gemBy(s, "water", OLD_FX.water.spared) + (has(s, "ckBase") ? optN("ckBase", "misses", s) : 0),
     grace: 1 / (1 - gemBy(s, "ice", OLD_FX.ice.slow)),
-    stamina: gemBy(s, "earth", OLD_FX.earth.stamina),
+    stamina: gemStamina(s),
     fresh: has(s, "ckFresh"),
     helping: gemBy(s, "lightning", OLD_FX.lightning.chance),
     darkHelping: dark,

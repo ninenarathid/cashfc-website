@@ -7,7 +7,7 @@ import type { ItemId } from "./items";
 import { stowAll } from "./pouches";
 import { mayPower, usePower } from "./powers";
 import { eased, isSpent, spend, staminaOf } from "./stamina";
-import { ELEMENTS, GEMS, GEM_FX, ORES, ROCKS, gemBy, has, levelOf, optN, pickSwings, toolKindOf, type Element } from "./tools";
+import { ELEMENTS, GEMS, GEM_FX, ORES, ROCKS, gemBy, gemStamina, has, levelOf, optN, pickSwings, toolKindOf, type Element } from "./tools";
 import { handOf, heldStack, held, take, type Purse, type Stack } from "./trade";
 import { VEIN, faceOf, play, veinMods, yieldOf, type Cell, type VeinMods } from "./vein";
 
@@ -81,6 +81,9 @@ export const nextTurnAt = (now: number): number => turnStart(turnOf(now) + 1);
 
 /** A rock as it is laid: its number in its place, its tile, and its look (3 has crystals in it). `floor` 0 is the mountain's foot. */
 export interface RockAt { id: number; x: number; y: number; look?: number }
+/** Fire still improves the mining loop when a rock already breaks in one hit. Never below the server's cadence floor. */
+export const pickSwingMs = (pick: Stack | null | undefined): number =>
+  Math.max(MINING.swing.least, Math.round(MINING.swing.ms * (1 - gemBy(pick, "fire", GEM_FX.fire.pick.tempo))));
 /** How hard a place's rocks are, for somebody with so many points on the mining line. */
 export function hardnessOf(floor: number, points = 0): number {
   if (floor <= 0) return MINING.hardness.foot;
@@ -426,7 +429,7 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   const fresh = has(pick, "pkFresh") ? usePower(after, pick, "pkFresh", go.now) : null;
   if (fresh?.ok) after = fresh.purse;
   else {
-    const had = staminaOf(after, go.now), did = eased(after, spend(after, MINING.stamina, go.now), go.now, 1 - gemBy(pick, "earth", GEM_FX.earth.pick.stamina), owed);
+    const had = staminaOf(after, go.now), did = eased(after, spend(after, MINING.stamina, go.now), go.now, 1 - gemStamina(pick), owed);
     cost = had - staminaOf(did.purse, go.now);
     after = did.purse; owed = did.owed;
   }
@@ -436,7 +439,8 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
     const tired = isSpent(after, go.now);
     vein = { f: go.floor, rock: rock.id, turn, seed: holds.seed, gem: holds.gem ? go.element : null, geology: geologyMods(after, go.now), mods: veinMods(pick, tired), more: holds.gem && has(pick, "pkCutter") ? optN("pkCutter", "more", pick) : 0 };
     const had = staminaOf(after, go.now);
-    after = spend(after, VEIN.stamina, go.now);
+    const veinPaid = eased(after, spend(after, VEIN.stamina, go.now), go.now, 1 - gemStamina(pick), owed);
+    after = veinPaid.purse; owed = veinPaid.owed;
     cost += had - staminaOf(after, go.now);
   }
   // what is loosened: the rocks that touch one that broke, and still stand

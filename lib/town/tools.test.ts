@@ -282,7 +282,7 @@ describe("what a tool carries, read as it works now", () => {
     expect(modsOf(tool("pick", 10, [], ["fire", "ice"])).gems).toEqual({ fire: 2, ice: 2 });
     expect(gemLevel(tool("pick", 10, [], ["fire", "fire"]), "fire")).toBe(3);
     expect(gemLevel(tool("pick", 10, [], ["fire", "fire", "fire"]), "fire")).toBe(3);
-    expect(walkPace(toolWord(tool("pick", 10, [], ["wind", "wind"])))).toBeCloseTo(1.2);
+    expect(walkPace(toolWord(tool("pick", 10, [], ["wind", "wind"])))).toBeCloseTo(1.65);
     expect(gemLevel(tool("pick", 0, [], ["fire"]), "fire")).toBe(1);
     expect(gemLevel(tool("pick", 9, [], ["fire"]), "fire")).toBe(1);
     expect(gemLevel(tool("pick", 10, [], ["fire"]), "fire")).toBe(2);
@@ -299,11 +299,11 @@ describe("what a tool carries, read as it works now", () => {
   });
   it("the two new tools' elements, as the table has them", () => {
     for (const e of ELEMENTS) for (const k of ["pick", "axe"] as const) for (const steps of Object.values(GEM_FX[e][k])) expect(steps.length).toBe(4);
-    expect([...GEM_FX.fire.pick.fewer]).toEqual([0.15, 0.25, 0.35, 0.45]);
-    expect([...GEM_FX.light.pick.glint]).toEqual([4, 7, 10, 999]);
-    expect([...GEM_FX.light.axe.glint]).toEqual([10, 20, 30, 999]);
-    expect([...GEM_FX.dark.pick.veins]).toEqual([1.3, 1.6, 1.9, 2.2]);
-    expect([...GEM_FX.wind.axe.walk]).toEqual([0.1, 0.15, 0.2, 0.25]);
+    expect([...GEM_FX.fire.pick.fewer]).toEqual([0.25, 0.4, 0.55, 0.65]);
+    expect([...GEM_FX.light.pick.glint]).toEqual([7, 10, 14, 999]);
+    expect([...GEM_FX.light.axe.glint]).toEqual([15, 25, 35, 999]);
+    expect([...GEM_FX.dark.pick.veins]).toEqual([1.6, 2.2, 2.8, 3.2]);
+    expect([...GEM_FX.wind.axe.walk]).toEqual([0.25, 0.45, 0.65, 0.75]);
   });
   it("the pick's and the axe's own numbers, all told", () => {
     expect(veinStrikes(tool("pick", 10))).toBe(10);
@@ -316,7 +316,7 @@ describe("what a tool carries, read as it works now", () => {
     expect(pickSwings(tool("pick", 10), 12)).toBe(1);
     expect(axeChops(tool("axe", 10))).toBe(4);
     expect(axeChops(tool("axe", 3, ["axKeen"]))).toBe(8);
-    expect(axeChops(tool("axe", 0, [], ["fire"]))).toBe(11);
+    expect(axeChops(tool("axe", 0, [], ["fire"]))).toBe(9);
     expect(axeChops(tool("axe", 10, ["axKeen"], ["fire"]))).toBe(2);
     // (a tree that takes twice the chops takes twice the axe's)
     expect(axeChops(tool("axe"), 24)).toBe(24);
@@ -324,11 +324,11 @@ describe("what a tool carries, read as it works now", () => {
     expect(axeAhead(tool("axe", 10))).toBe(5);
     expect(axeAhead(tool("axe", 3, ["axGrain"]))).toBe(5);
     expect(axeBarSlow(tool("axe", 10))).toBeCloseTo(0.5);
-    expect(axeBarSlow(tool("axe", 0, [], ["ice"]))).toBeCloseTo(0.15);
+    expect(axeBarSlow(tool("axe", 0, [], ["ice"]))).toBeCloseTo(0.25);
     expect(axeBarPace(tool("axe", 0, [], ["dark"]))).toBeCloseTo(1.15);
     expect(axeBarSlow(tool("axe", 0, [], ["dark"]))).toBeCloseTo(-0.15);
     // (the top and its ice together: under the cap, and never past it)
-    expect(axeBarPace(tool("axe", 10, [], ["ice"]))).toBeCloseTo(0.5 * 0.75);
+    expect(axeBarPace(tool("axe", 10, [], ["ice"]))).toBeCloseTo(1 / FORGE.cap);
     expect(axeBarPace(tool("axe", 10, [], ["ice"]))).toBeGreaterThanOrEqual(1 / FORGE.cap);
   });
   it("glows from +7 and fully at +10, in its gem's colour", () => {
@@ -362,9 +362,9 @@ describe("what a tool carries, read as it works now", () => {
     expect(walkPace("")).toBe(1);
     expect(walkPace(undefined)).toBe(1);
     expect(walkPace("2f2")).toBe(1);
-    expect(walkPace(toolWord(tool("hoe", 0, [], ["wind"])))).toBeCloseTo(1.1);
-    expect(walkPace(toolWord(tool("pick", 10, [], ["wind"])))).toBeCloseTo(1.15);
-    expect(walkPace("0a4")).toBeCloseTo(1.25);
+    expect(walkPace(toolWord(tool("hoe", 0, [], ["wind"])))).toBeCloseTo(1.25);
+    expect(walkPace(toolWord(tool("pick", 10, [], ["wind"])))).toBeCloseTo(1.45);
+    expect(walkPace("0a4")).toBeCloseTo(1.75);
     expect([...GEM_FX.wind.pick.walk]).toEqual([...WIND_WALK]);
     expect([...GEM_FX.wind.axe.walk]).toEqual([...WIND_WALK]);
   });

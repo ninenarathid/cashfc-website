@@ -1,0 +1,143 @@
+{
+  "cell": 128,
+  "elements": [
+    "fire",
+    "water",
+    "ice",
+    "earth",
+    "lightning",
+    "wind",
+    "light",
+    "dark"
+  ],
+  "tools": {
+    "pick": "/town/relic-detailed-v5/pick-93bec58f99ee.png",
+    "axe": "/town/relic-detailed-v5/axe-07ce35225136.png",
+    "hoe": "/town/relic-detailed-v5/hoe-e8272b534dea.png",
+    "bugNet": "/town/relic-detailed-v5/bugNet-a796969d43e0.png",
+    "rod": "/town/relic-detailed-v5/rod-235bb58b4301.png",
+    "can": "/town/relic-detailed-v5/can-c2402605d146.png",
+    "pot": "/town/relic-detailed-v5/pot-aeb179a6ec39.png",
+    "pan": "/town/relic-detailed-v5/pan-3c7431417e6d.png",
+    "grill": "/town/relic-detailed-v5/grill-7e72e426ecc9.png"
+  },
+  "twins": {
+    "pick": "/town/relic-detailed-v5/pick-twin-57c5a859e6b3.png",
+    "axe": "/town/relic-detailed-v5/axe-twin-230ee5757941.png",
+    "hoe": "/town/relic-detailed-v5/hoe-twin-0900b78283a8.png",
+    "bugNet": "/town/relic-detailed-v5/bugNet-twin-989b6d3aa4c8.png",
+    "rod": "/town/relic-detailed-v5/rod-twin-098186820c3c.png",
+    "can": "/town/relic-detailed-v5/can-twin-942d61598aa4.png",
+    "pot": "/town/relic-detailed-v5/pot-twin-43775cf0701c.png",
+    "pan": "/town/relic-detailed-v5/pan-twin-697664a349e5.png",
+    "grill": "/town/relic-detailed-v5/grill-twin-002a4bcc872e.png"
+  },
+  "pickHeads": [
+    [
+      4,
+      32,
+      120,
+      64
+    ],
+    [
+      4,
+      39,
+      120,
+      50
+    ],
+    [
+      4,
+      37,
+      120,
+      54
+    ],
+    [
+      4,
+      34,
+      120,
+      59
+    ],
+    [
+      4,
+      39,
+      120,
+      49
+    ],
+    [
+      4,
+      33,
+      120,
+      61
+    ],
+    [
+      4,
+      35,
+      120,
+      57
+    ],
+    [
+      4,
+      33,
+      120,
+      62
+    ]
+  ],
+  "pickTwinHeads": [
+    [
+      4,
+      30,
+      120,
+      68
+    ],
+    [
+      4,
+      36,
+      120,
+      56
+    ],
+    [
+      4,
+      31,
+      120,
+      66
+    ],
+    [
+      4,
+      33,
+      120,
+      61
+    ],
+    [
+      4,
+      35,
+      120,
+      58
+    ],
+    [
+      4,
+      33,
+      120,
+      62
+    ],
+    [
+      4,
+      33,
+      120,
+      62
+    ],
+    [
+      4,
+      30,
+      120,
+      67
+    ]
+  ],
+  "rodWidth": 320,
+  "rodHeight": 384,
+  "rodGrip": [
+    96,
+    294
+  ],
+  "rodUpright": "/town/relic-detailed-v5/rod-upright-27d77c19bacd.png",
+  "rodTwin": "/town/relic-detailed-v5/rod-twin-upright-5c8d1f199528.png"
+}

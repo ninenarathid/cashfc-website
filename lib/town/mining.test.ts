@@ -55,7 +55,7 @@ describe("mining: when, and what a place is", () => {
     expect(swingsFor(pickAt(), 5, false, true)).toBe(3);
     expect(swingsFor(pickAt(10), 5, false, true)).toBe(1);
     // Fire's integer rounding guarantees a useful reduction; dark adds work only on harder rocks.
-    expect(swingsFor(pickAt(0, [], ["fire"]), 25, false)).toBe(Math.floor(8 * 0.85));
+    expect(swingsFor(pickAt(0, [], ["fire"]), 25, false)).toBe(Math.floor(8 * 0.75));
     expect(swingsFor(pickAt(0, [], ["dark"]), 5, false)).toBe(5);
   });
   it("from the fourth rank of the line the deeper floors' rocks are harder, and the first ten floors' never", () => {
@@ -109,7 +109,7 @@ describe("mining: when, and what a place is", () => {
       if (a.kind === "vein") { plain++; expect(b).toEqual(a); }
       if (b.kind === "vein") more++;
     }
-    expect(more / plain).toBeGreaterThan(1.2); expect(more / plain).toBeLessThan(1.4);
+    expect(more / plain).toBeGreaterThan(1.5); expect(more / plain).toBeLessThan(1.7);
   });
   it("one rock a floor hides the way down, the same all day; none on a resting floor nor on the last", () => {
     for (const day of [20733, 20734]) for (let f = 1; f <= 30; f++) {
@@ -226,7 +226,7 @@ describe("mining: a rock struck", () => {
       expect(d.cost === 0 || d.cost === 1).toBe(true);
       p = { ...d.purse, bag: miner(pick).bag };
     }
-    expect(50 - staminaOf(p, now)).toBe(17);
+    expect(50 - staminaOf(p, now)).toBe(14);
     expect(mineOf(p).owed).toBeCloseTo(0, 5);
   });
   it("the miner's wind: the first ten rocks of a meal's hours cost no stamina", () => {
@@ -291,7 +291,7 @@ describe("mining: a rock struck", () => {
       expect(d.cost).toBe(1);
       expect(holdsOf(SALT, 5, d.chained, turnOf(now), NONE, pick).kind).toBe("stone");
     }
-    expect(chained / tried).toBeGreaterThan(0.05); expect(chained / tried).toBeLessThan(0.16);
+    expect(chained / tried).toBeGreaterThan(0.15); expect(chained / tried).toBeLessThan(0.25);
     // and never without the gem
     for (let t = 0; t < 50; t++) { const now = NOON + t * MINING.turn; if (holdsOf(SALT, 5, 3, turnOf(now), NONE).kind === "stone") expect(done(mine(miner(), go({ now, rock: 3 }))).chained).toBeNull(); }
   });

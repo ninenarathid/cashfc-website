@@ -39,6 +39,10 @@ import { DbKeeper, type Ask, type Keeper as GameKeeper, type Looked } from "@/li
 import ChatHistory from "./ChatHistory";
 import Wardrobe from "./Wardrobe";
 import { TownElementProvider } from "./TownElementFx";
+import { ElementBursts, paintElementAction } from './element-action-art';
+import { announceElementAction, onElementAction } from './element-action-events';
+import { readElementAction } from '@/lib/town/element-action';
+import { measureElement } from '@/lib/town/sfx';
 import TownClock from "./TownClock";
 import { RANK_TITLES } from "@/lib/town/well";
 import { ALL_GIFTS, CHARMS, dueOf, giftsOf, type Gifts } from "@/lib/town/gifts";
@@ -51,8 +55,8 @@ import TownBoard from "./TownBoard";
 import TownTalk, { type TalkAs, type TalkChoice } from "./TownTalk";
 import type { TradeSummary, TradeView } from "./TownTrade";
 import type { SmithView } from "./TownSmith";
-import { glowOf, readToolWord } from "@/lib/town/tools";
-import { drawElementSkin } from "./element-skins";
+import { GEMS, glowOf, readToolWord } from "@/lib/town/tools";
+import { drawElementSkin, drawElementIcon, elementAppearance, rodElementMaterial, ROD_ART_GRIP, skinElements } from "./element-skins";
 import type { ToolLook } from "@/lib/town/tools";
 import { drawGems, drawIconRim, drawLevel, drawLongTool, gemLights, handOf, handSize, heldPicture, isLongTool, longHead, rimFor, seedOf, toolGrip, type LevelAt, type Rim } from "./held";
 import type { FarmDraw } from "./TownFarm";
@@ -742,6 +746,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   const lineRef = useRef<LineState | null>(null);
   /** The sounds of fishing: mine (made from the rod's panel) and other people's (made here, softer, by how far off they fish). What each of them was last seen doing with a rod says when. */
   const sfxRef = useRef<FishSfx | null>(null);
+  const worldElements = useRef(new ElementBursts());
+  const heardElements = useRef(0);
   if (game && !sfxRef.current && typeof window !== "undefined") sfxRef.current = new FishSfx();
   useEffect(() => () => { sfxRef.current?.close(); }, []);
   const fishWas = useRef(new Map<string, number>());
@@ -974,6 +980,24 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   }, [me.id, testTopic, cap]);
   useEffect(() => { enter(); }, [enter]);
   useEffect(() => { sessionRef.current = session; }, [session]);
+  // Share actual use pulses with the map and nearby players, never idle trails.
+  useEffect(() => onElementAction((look, origin) => {
+    const stay = sessionRef.current;
+    if (!stay || !gameRef.current || document.hidden) return;
+    sfxRef.current?.element(look);
+    stay.element(look);
+    if (origin === 'stage') worldElements.current.add(look, performance.now(), stay.self.pos.x, stay.self.pos.y);
+  }), []);
+  useEffect(() => {
+    if (!session) return;
+    session.onElement = (avatar, look) => {
+      if (document.hidden) return;
+      heardElements.current++;
+      worldElements.current.add(look, performance.now(), avatar.pos.x, avatar.pos.y);
+      sfxRef.current?.element(look, heard(distance(session.self.pos, avatar.pos)));
+    };
+    return () => { session.onElement = null; worldElements.current.clear(); };
+  }, [session]);
   // A game two play together (water handed on: lib/town/handing): what the two pages tell each other goes by the
   // room's letterboxes, from one to the other and to nobody else.
   // ── gifts: well ── (a drink held out goes by the same letterboxes: each of the two hears every word, and takes its own)
@@ -2317,6 +2341,14 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // The farm, beyond the east gate (a map of its own): what stands about it. Its trees sway as the town's do.
     // The farm's plots: weeds, tilled soil, what grows (drawn by the farm's own code, once it has loaded).
     if (gameRef.current) {
+      for (const burst of worldElements.current.alive(now)) {
+        const at = { x: burst.x, y: burst.y };
+        if (placeOf(at.x, at.y) !== placeRef.current) continue;
+        const c = project(at);
+        if (!onScreen(c)) continue;
+        things.push({ depth: at.x + at.y + 1.7, draw: () => paintElementAction(ctx,
+          { ...burst, x: c.x + 12 * v.s, y: c.y - 24 * v.s }, now, v.s * .8, reducedRef.current) });
+      }
       const frame = {
         ctx, things, project, onScreen, s: v.s, now, img: iconImg.current, still: reducedRef.current, th: words.current.th,
         indoors: !(KITCHEN.stage === 2 && !!scenery?.has("kitchenHouse") && roofRef.current >= 1),
@@ -2824,47 +2856,64 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
    * from its tip to the float. Upright with no line out; leaning out over the water with one; dipping at the bite;
    * bent hard and shaking with a fish on.
    */
-  function drawRod(ctx: CanvasRenderingContext2D, p: Vec, h: number, rod: { float: Vec; state: LineState | "ready" }, id: string, now: number, which: RodId = "rod", held?: 1 | -1, race = 0, skin?: ToolLook | null): Vec {
+  function drawRod(ctx: CanvasRenderingContext2D, p: Vec, h: number, rod: { float: Vec; state: LineState | "ready" }, id: string, now: number, which: RodId = "rod", held?: 1 | -1, race = 0, skin?: ToolLook | null, sweep?: { from: Vec; to: Vec }): Vec {
     const wood = ROD_LOOKS[which];
     const v = cam.current, px = Math.max(1, v.s), still = reducedRef.current;
     // (only held, not fished with: on the side they face, with no float to lean towards)
     const to = held ? p : floatOn(rod.float, rod.state, id, now), side = held ?? (to.x >= p.x ? 1 : -1);
     const hand = held ? toolGrip(p, h, held, v.s, race) : { x: p.x + side * h * 0.2, y: p.y - h * 0.42 };
-    const long = held ? Math.min(30 * v.s, h * 0.52) : 34 * v.s;
-    // how far it leans from upright, how much its tip bends towards the float, and its shake
+    const long = held ? Math.min(36 * v.s, h * 0.62) : 36 * v.s;
+    // Pivot the complete rod at the hand so its reel and material details keep their shape.
     const lean = rod.state === "ready" ? 0.3 : rod.state === "fight" ? 0.85 : rod.state === "bite" ? 0.8 : 0.62;
-    const bend = rod.state === "fight" ? 0.75 : rod.state === "bite" ? 0.5 : rod.state === "nibble" ? 0.2 : 0.06;
     const shake = still ? 0 : rod.state === "fight" ? Math.sin(now / 55) * 0.05 : rod.state === "nibble" ? Math.sin(now / 45) * 0.04 : 0;
     const dir = (a: number, far: number) => ({ x: hand.x + side * Math.sin(a) * far, y: hand.y - Math.cos(a) * far });
-    const knee = dir(lean + shake - bend * 0.5, long * 0.6), tip = dir(lean + shake + bend * 0.5, long);
-    const at = (t: number) => ({
-      x: (1 - t) * (1 - t) * hand.x + 2 * t * (1 - t) * knee.x + t * t * tip.x,
-      y: (1 - t) * (1 - t) * hand.y + 2 * t * (1 - t) * knee.y + t * t * tip.y,
-    });
+    const at = (t: number) => dir(lean + shake, long * t);
     const steps = Math.ceil(long / px), snap = (n: number) => Math.round(n / px) * px;
+    const material = rodElementMaterial(skin ?? null, side);
     ctx.save();
-    const fantasyTip = drawElementSkin(ctx, which, skin ?? null, hand, h, side);
-    if (!fantasyTip) {
-    // its dark edge first, then the cane: thicker at the grip, with a joint every few pixels
-    ctx.fillStyle = wood.edge;
-    for (let i = 0; i <= steps; i++) { const q = at(i / steps), w = i < steps * 0.45 ? 2 : 1; ctx.fillRect(snap(q.x) - px, snap(q.y) - px, (w + 2) * px, 3 * px); }
-    for (let i = 0; i <= steps; i++) {
-      const q = at(i / steps), w = i < steps * 0.45 ? 2 : 1;
-      ctx.fillStyle = i < steps * 0.16 ? wood.grip : i % 6 === 0 ? wood.joint : wood.cane;
-      ctx.fillRect(snap(q.x), snap(q.y), w * px, px);
-    }
-    // a better rod has a reel by its grip
-    if (wood.reel) {
-      const q = at(0.2);
+    ctx.imageSmoothingEnabled = false;
+    if (material) {
+      const scale = long / ROD_ART_GRIP[1], wide = material.width * scale;
+      const gripX = side === 1 ? ROD_ART_GRIP[0] : material.width - ROD_ART_GRIP[0];
+      ctx.save();
+      ctx.translate(hand.x, hand.y);
+      ctx.rotate(side * (lean + shake));
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(material, -gripX * wide / material.width, -long, wide, material.height * scale);
+      ctx.restore();
+    } else {
+      // its dark edge first, then the cane: thicker at the grip, with a joint every few pixels
       ctx.fillStyle = wood.edge;
-      ctx.fillRect(snap(q.x) + side * 2 * px - px, snap(q.y) - px, 4 * px, 4 * px);
-      ctx.fillStyle = wood.reel;
-      ctx.fillRect(snap(q.x) + side * 2 * px, snap(q.y), 2 * px, 2 * px);
-    }
+      for (let i = 0; i <= steps; i++) { const q = at(i / steps), w = i < steps * 0.45 ? 2 : 1; ctx.fillRect(snap(q.x) - px, snap(q.y) - px, (w + 2) * px, 3 * px); }
+      for (let i = 0; i <= steps; i++) {
+        const q = at(i / steps), w = i < steps * 0.45 ? 2 : 1;
+        ctx.fillStyle = i < steps * 0.16 ? wood.grip : i % 6 === 0 ? wood.joint : wood.cane;
+        ctx.fillRect(snap(q.x), snap(q.y), w * px, px);
+      }
+      const elements = skin ? skinElements(skin) : [];
+      for (let e = 0; e < elements.length; e++) {
+        const { element, stage } = elements[e];
+        ctx.fillStyle = GEMS[element].hue;
+        ctx.globalAlpha *= .5 + stage * .12;
+        for (let i = 2 + e; i <= steps; i += Math.max(2, 6 - stage)) {
+          const q = at(i / steps);
+          ctx.fillRect(snap(q.x), snap(q.y), px, px);
+        }
+        ctx.globalAlpha /= .5 + stage * .12;
+      }
+      // A visible reel makes even the ordinary rod read as fishing equipment.
+      {
+        const q = at(0.2);
+        ctx.fillStyle = wood.edge;
+        ctx.fillRect(snap(q.x) + side * 2 * px - px, snap(q.y) - px, 4 * px, 4 * px);
+        ctx.fillStyle = wood.reel ?? "#bfa170";
+        ctx.fillRect(snap(q.x) + side * 2 * px, snap(q.y), 2 * px, 2 * px);
+      }
     }
     // the line: slack while it waits, tight with a fish on
     if (rod.state !== "ready") {
-      const end = fantasyTip ?? at(1), sag = rod.state === "fight" || rod.state === "bite" ? 0 : 7 * v.s;
+      const end = at(1), sag = rod.state === "fight" || rod.state === "bite" ? 0 : 7 * v.s;
       ctx.strokeStyle = "rgba(240,240,235,0.9)";
       ctx.lineWidth = Math.max(1, v.s * 0.6);
       ctx.beginPath();
@@ -2874,7 +2923,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     }
     ctx.restore();
     // (its tip: what its gems show is about that)
-    return fantasyTip ?? at(1);
+    if (sweep) { sweep.from = hand; sweep.to = at(1); }
+    return at(1);
   }
 
   /**
@@ -2898,10 +2948,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   function drawHeld(ctx: CanvasRenderingContext2D, p: Vec, h: number, item: string, side: 1 | -1, look: Look, id: string, now: number, wet = false, tall = h, dpr = 1,
     more: { under?: (head: Vec) => void; rim?: Rim; spot?: boolean; sweep?: { from: Vec; to: Vec }; skin?: ToolLook | null } = {}): Vec | null {
     if (isRod(item)) {
-      const grip = toolGrip(p, h, side, cam.current.s, look.race);
-      const transformed = drawElementSkin(ctx,item,more.skin ?? null,grip,tall,side,more.spot,more.under);
-      if (transformed) return transformed;
-      return more.spot ? null : drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side, look.race);
+      return more.spot ? null : drawRod(ctx, p, h, { float: { x: 0, y: 0 }, state: "ready" }, id, now, item, side, look.race, more.skin, more.sweep);
     }
     // (its picture is its own name's, but every scroll looks the same: lib/town/items' iconOf, without the catalog)
     const full = wet && `${item}Full` in ICON_ATLAS.icons;
@@ -2930,15 +2977,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.fillRect(x - px, y, 2 * px, 2 * px);
       ctx.restore();
     };
-    const transformed = drawElementSkin(ctx,item,more.skin ?? null,{x,y},tall,side,more.spot,more.under);
-    if (transformed) {
-      if (more.sweep) { more.sweep.from = {x,y}; more.sweep.to = transformed; }
-      if (!more.spot) fist();
-      return transformed;
-    }
     // a long tool: upright in the fist, its head at the top (until its picture has come, its bag picture as ever)
     if (isLongTool(item)) {
-      const grip = { x, y: y + px }, head = more.spot ? (heldPicture() ? longHead(item, grip, tall, side, dpr) : null) : drawLongTool(ctx, item, grip, tall, side, dpr, more.under, more.rim);
+      const grip = { x, y: y + px }, head = more.spot ? (heldPicture() ? longHead(item, grip, tall, side, dpr) : null) : drawLongTool(ctx, item, grip, tall, side, dpr, more.under, more.rim,
+        (img, cell) => elementAppearance(img, cell, more.skin ?? null));
       if (head) {
         if (more.sweep) { more.sweep.from = grip; more.sweep.to = head; }
         if (!more.spot) fist();
@@ -2952,17 +2994,20 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     if (more.spot) return { x, y: cy };
     if (hand) more.under?.({ x, y: cy });
     const rim = hand ? more.rim : undefined;
+    const picture = (cx: number) => {
+      if (!hand || !drawElementIcon(ctx, iconImg.current, icon, more.skin ?? null, cx, cy, size)) drawIcon(ctx, iconImg.current, icon, cx, cy, size);
+    };
     if (hand && (side === -1) !== !!hand.turn) {
       // (turned to the side faced: a can's spout and a pan's bowl are out before them)
       ctx.save();
       ctx.translate(x, 0);
       ctx.scale(-1, 1);
       if (rim) drawIconRim(ctx, iconImg.current, ICON_ATLAS.icons[icon], 0, cy, size, rim, dpr);
-      drawIcon(ctx, iconImg.current, icon, 0, cy, size);
+      picture(0);
       ctx.restore();
     } else {
       if (rim) drawIconRim(ctx, iconImg.current, ICON_ATLAS.icons[icon], x, cy, size, rim, dpr);
-      drawIcon(ctx, iconImg.current, icon, x, cy, size);
+      picture(x);
     }
     if (gathers !== null) drawRainGather(ctx, { x, y: cy - size * 0.25 }, v.s, now, reducedRef.current, gathers, side);
     if (full) drawIcon(ctx, iconImg.current, "plotDrop", snap(x + side * size * 0.45), snap(cy - size * 0.55), Math.round(size * 0.47));
@@ -3109,9 +3154,10 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
     // drawn by code and its tip known only then: it keeps a shadow of light for a rim, and all of its light goes
     // after it.)
     const gems = a.info.hold ? readToolWord(a.info.tool) : null, forgedFar = gems?.glow ? gems : null, seed = seedOf(a.info.id);
+    const quietSkin = !!a.info.hold && !!gems?.gems.length;
     const glow = a.info.hold ? glowOf(a.info.tool) : null, byCode = !!rod || (!!held && isRod(held));
     const lit = (draw: () => void) => {
-      if (!glow || !byCode) { draw(); return; }
+      if (!glow || !byCode || quietSkin) { draw(); return; }
       ctx.save();
       ctx.shadowColor = glow.hue;
       ctx.shadowBlur = (glow.glow === 2 ? 11 + (reducedRef.current ? 0 : 3 * Math.sin(now / 320 + a.info.id.charCodeAt(0))) : 6) * dpr;
@@ -3132,19 +3178,21 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       const spot = drawHeld(ctx, p, heldH, held, handSide, look, a.info.id, now, !!a.info.wet, heldTall, dpr, { spot: true, sweep, skin: gems });
       if (spot) { drawLevel(ctx, forgedFar, "back", levelAt(spot)); tool.back = true; }
     }
-    const gem = (layer: "under" | "over", head: Vec) => drawGems(ctx, gems, layer, head, p.y, heldTall, k, dpr, now, seed, reducedRef.current, isMe);
+    const gem = (layer: "under" | "over", head: Vec) => drawGems(ctx, gems, layer, head, p.y, heldTall, k, dpr, now, seed, reducedRef.current, isMe, quietSkin);
     const under = gems?.gems.length ? (head: Vec) => { if (!tool.under) { tool.under = true; gem("under", head); } } : undefined;
     const shine = () => {
       const head = tool.head;
       if (!head || !gems || (!forgedFar && !gems.gems.length)) return;
       if (forgedFar) {
-        if (!tool.back) { sweep.from = sweep.to = head; drawLevel(ctx, forgedFar, "back", { ...levelAt(head), late: true }); }
+        if (!tool.back) { drawLevel(ctx, forgedFar, "back", { ...levelAt(head), late: true }); }
         drawLevel(ctx, forgedFar, "over", levelAt(head));
       }
-      if (gems.gems.length) { under?.(head); gem("over", head); }
-      if (!faded && toolLights.current.length < 60) for (const l of gemLights(gems)) toolLights.current.push({ x: l.ground ? p.x : head.x, y: l.ground ? p.y : head.y, rgb: l.rgb, reach: l.reach, flat: l.ground ? 0.38 : 1, strong: l.strong });
+      if (gems.gems.length) {
+        under?.(head); gem("over", head);
+      }
+      if (!faded && toolLights.current.length < 60) for (const l of gemLights(gems, quietSkin)) toolLights.current.push({ x: l.ground ? p.x : head.x, y: l.ground ? p.y : head.y, rgb: l.rgb, reach: l.reach, flat: l.ground ? 0.38 : 1, strong: l.strong });
     };
-    if (rod && face.view === "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith, undefined, look.race, gems); }); shine(); }
+    if (rod && face.view === "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith, undefined, look.race, gems, sweep); }); shine(); }
     if (held && face.view === "back") { lit(() => { tool.head = drawHeld(ctx, p, heldH, held, handSide, look, a.info.id, now, !!a.info.wet, heldTall, dpr, { under, rim, sweep, skin: gems }); }); shine(); }
     // ── the bridge built by hand ── (a stone carried in both hands: before them, so behind whoever faces away)
     if (a.info.carry && face.view === "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, false);
@@ -3166,7 +3214,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
       ctx.arc(p.x, p.y - h * 0.72 - bob, h * 0.24, 0, Math.PI * 2);
       ctx.fill();
     }
-    if (rod && face.view !== "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith, undefined, look.race, gems); }); shine(); }
+    if (rod && face.view !== "back") { lit(() => { tool.head = drawRod(ctx, p, h, rod, a.info.id, now, fishesWith, undefined, look.race, gems, sweep); }); shine(); }
     if (held && face.view !== "back") { lit(() => { tool.head = drawHeld(ctx, p, heldH, held, handSide, look, a.info.id, now, !!a.info.wet, heldTall, dpr, { under, rim, sweep, skin: gems }); }); shine(); }
     if (a.info.carry && face.view !== "back") drawCarried(ctx, p, h, look, a.info.id, now, moving, dpr, true);
     if (flame && face.view !== "back") flame(ctx, a.info.flame!, p, h, "hands", dpr, names);   // ── the lamp relay ──
@@ -3730,10 +3778,28 @@ export default function Town({ me, testTopic, cap = ROOM_CAP }: { me: TownMe; te
   useEffect(() => {
     if (process.env.NODE_ENV === "production") return;
     const handle = {
+      elementVfx: async (canvas: HTMLCanvasElement, key: string, progress = .32, still = false) => {
+        const look = readElementAction(key), ctx = canvas.getContext('2d');
+        if (!look || !ctx) return false;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        paintElementAction(ctx, { look, born: 0, seed: 1, x: canvas.width / 2, y: canvas.height / 2, soft: false },
+          progress * 1050, canvas.height / 100, still);
+        return true;
+      },
+      elementSound: (key: string) => { const look = readElementAction(key); return look ? measureElement(look) : null; },
+      effect: (key: string) => { const look = readElementAction(key); if (look) { sfxRef.current?.wake(); announceElementAction(look); } },
+      effectsHeard: () => heardElements.current,
       /** Draw the actual held sprite for local equipment QA, including its grip. */
       equipment: (canvas: HTMLCanvasElement, item: string, word: string) => {
         const ctx = canvas.getContext("2d");
+        if (ctx && isRod(item)) return drawRod(ctx, { x: canvas.width / 2, y: canvas.height * .8 }, canvas.height,
+          { float: { x: 0, y: 0 }, state: "ready" }, "equipmentQA", 0, item, 1, 0, readToolWord(word));
         return ctx ? drawElementSkin(ctx, item, readToolWord(word), { x: canvas.width / 2, y: canvas.height * .8 }, canvas.height, 1) : null;
+      },
+      rodEquipment: (canvas: HTMLCanvasElement, word: string, state: LineState | "ready", side: 1 | -1 = 1) => {
+        const ctx = canvas.getContext("2d");
+        return ctx ? drawRod(ctx, { x: canvas.width / 2, y: canvas.height * .8 }, canvas.height,
+          { float: { x: 0, y: 0 }, state }, "equipmentQA", 0, "rod", side, 0, readToolWord(word)) : null;
       },
       screenOf: (id: string) => {
         const stay = sessionRef.current;
