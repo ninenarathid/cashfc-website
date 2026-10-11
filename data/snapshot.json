@@ -4139,7 +4139,7 @@
   "mounts": 173,
   "minions": 416,
   "rare": 437,
-  "level": 100,
+  "level": 50,
   "cc": [
    false,
    false,
@@ -4261,7 +4261,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-06"
+  "chg": "2026-10-11"
  },
  "43864764": {
   "name": "Shinonome Kamemaru",
@@ -7810,7 +7810,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 100,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -7855,7 +7855,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8619,7 +8619,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 80,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -8637,7 +8637,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8862,7 +8862,7 @@
   "mounts": 4,
   "minions": 14,
   "rare": null,
-  "level": 70,
+  "level": 30,
   "cc": [
    false,
    false,
@@ -8875,7 +8875,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-10"
+  "chg": "2026-10-11"
  },
  "61748681": {
   "name": "Qzarel Lumina",
@@ -9558,7 +9558,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 70,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -9571,7 +9571,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-09-30"
+  "chg": "2026-10-11"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

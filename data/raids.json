@@ -34636,7 +34636,13 @@
     "best": 66,
     "kills": 2,
     "job": "Samurai",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Samurai": {
+      "kills": 2,
+      "best": 66
+     }
+    }
    },
    {
     "zone": "Futures Rewritten",
@@ -73532,7 +73538,7 @@
       "best": 90
      },
      "Scholar": {
-      "kills": 10,
+      "kills": 15,
       "best": 84
      },
      "Sage": {
