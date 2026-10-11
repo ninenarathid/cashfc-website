@@ -881,7 +881,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     if (working || asking || !offer) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
+      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
       e.preventDefault();
       e.stopPropagation();
@@ -943,7 +943,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The ring of shared strength, for a friend standing near: wherever I stand still. */
   const ringOffer = people ? <RingOffer keeper={keeper} th={th} here={here} people={people} name={name} sfx={sfx} bottom={bottom} onGave={onGave} /> : null;
   // (it keeps its place whatever else is shown: so what it is telling of is not lost when a button comes or goes)
-  const gardenInfo = key && (pollenHint || (plots[key]?.plant && insectCareMode(hand)) || purse.gardenBook?.length || purse.insectGardenBook?.length);
+  const gardenInfo = key && (pollenHint || plots[key]?.plant || purse.gardenBook?.length || purse.insectGardenBook?.length);
   const bare = !placement && !working && !offer && !note && !powers.length && !running && !gardenInfo;
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;

@@ -3897,7 +3897,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       }
       if (e.key === "F2") { e.preventDefault(); setMenuOpen((o) => !o); return; }
       // Enter starts typing, as in a game; Esc in the box gives the keys back to walking.
-      if (e.key === "Enter" && !(target && /^(BUTTON|A)$/.test(target.tagName))) {
+      if (e.key === "Enter" && !(target && /^(BUTTON|A|SUMMARY)$/.test(target.tagName))) {
         e.preventDefault();
         setChatOpen(true);
         window.setTimeout(() => chatRef.current?.focus(), 0);

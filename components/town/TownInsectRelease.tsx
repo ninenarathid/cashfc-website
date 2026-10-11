@@ -8,12 +8,27 @@ import { see } from "@/lib/town/farm";
 import TownIcon, { type IconName } from "./TownIcon";
 import { WHY } from "./TownTrade";
 import styles from "./TownAdventure.module.css";
+import TownDiscoveryNote from "./TownDiscoveryNote";
 
 export default function TownInsectRelease({ keeper, at, th }: { keeper: Keeper; at: string; th: boolean }) {
   const [busy, setBusy] = useState(false), [note, setNote] = useState("");
   const p = keeper.purse(), hand = handOf(p), mode = insectCareMode(hand);
-  if (!mode || !hand || !keeper.farm()[at]?.plant) return null;
+  if (!keeper.farm()[at]?.plant) return null;
   const plot = keeper.farm()[at], plant = plot.plant!, seen = see(at, plot, keeper.now(), keeper.rains());
+  if (!mode || !hand) {
+    if (seen.dead || (plant.root && plant.root !== at)) return null;
+    const visitor = p.bag.find(s => s && s.n > 0 && (
+      insectCareMode(s.item) === "guard" && seen.pest ||
+      insectCareMode(s.item) === "pollinate" && plant.by === keeper.id && !seen.ripe && plant.pollenRound !== plant.picked
+    ));
+    if (!visitor && plant.by !== keeper.id) return null;
+    return <div className="pointer-events-auto w-[min(380px,calc(100vw-24px))]" data-garden-start-hint>
+      <TownDiscoveryNote title={th ? visitor ? "ในกระเป๋ามีแมลงที่ช่วยต้นนี้ได้" : "ลองปลูกต้นต่างชนิดไว้ข้างกัน" : visitor ? "An insect in your bag can help this plant" : "Try growing different neighbours"}>
+        {visitor && <p>{th ? `เปิดกระเป๋าแล้วถือ${ITEMS[visitor.item].name.th}ในมือ ขณะยืนที่จุดเมล็ดของต้นนี้ จะมีปุ่มให้ปล่อยแมลง · ใช้แมลง 1 ตัว` : `Open your bag and hold ${ITEMS[visitor.item].name.en} at this plant's seed plot to reveal the release action. It uses one insect.`}</p>}
+        {plant.by === keeper.id && <p>{th ? "ปลูกต่างชนิดให้ติดกันในแปลงเดียวกันของคุณ ดูแลจนทั้งคู่สุกพร้อมกัน แล้วลองเก็บผลที่จุดเมล็ด บางคู่มีสิ่งให้ค้นพบ" : "Grow different neighbours in the same bed of your own. Tend both until they are ripe together, then harvest at a seed plot. Some pairs have something to discover."}</p>}
+      </TownDiscoveryNote>
+    </div>;
+  }
   const unavailable = plant.root && plant.root !== at ? th ? "กลับไปปล่อยที่จุดเมล็ดของต้นนี้" : "Release at this plant's seed plot."
     : seen.dead ? th ? "ต้นนี้ตายแล้ว ต้องปลูกใหม่ก่อน" : "This plant has died. Plant again first."
     : mode === "pollinate" && plant.by !== keeper.id ? th ? "ผสมเกสรได้เฉพาะต้นของคุณ" : "Pollinate your own plant."

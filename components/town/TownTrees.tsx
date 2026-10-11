@@ -465,7 +465,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     if (!here || working || refused || book || holder) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
+      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
       e.preventDefault();
       e.stopPropagation();

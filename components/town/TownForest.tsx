@@ -455,7 +455,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     if (working || (!here && !digHere) || chart || mapOpen || inspect===hereId) return;
     const down = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
-      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(target.tagName)) return;
+      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
       e.preventDefault();
       e.stopPropagation();
@@ -570,7 +570,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
             );
           })() : inspect!==hereId&&(here || digHere || wantsHoe) && (
             <div className="pointer-events-none flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
-              {here&&!hereSecret&&Object.keys(partsAt(here.spot.kind)).length>0&&<button type="button" onClick={()=>setInspect(hereId)} data-forest-inspect className="pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border border-[#b2c088] bg-[#34422d] px-4 text-ui text-[#ebf3d2]"><TownIcon name="traceLeaf" size={24}/>{th?"ดูร่องรอย":"Inspect traces"}</button>}
+              {here&&!hereSecret&&Object.keys(partsAt(here.spot.kind)).length>0&&<button type="button" onClick={()=>setInspect(hereId)} data-forest-inspect className="pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border border-[#b2c088] bg-[#34422d] px-4 text-ui text-[#ebf3d2]"><TownIcon name="traceLeaf" size={24}/>{th?"ดูส่วนที่เก็บได้":"Inspect harvest parts"}</button>}
               {here && byHand && (hereSecret ? (
                 // a secret place of the deep woods: its own button, with a mark for each of its two games
                 <button type="button" onClick={() => begin()} data-forest-offer="secret" data-secret-kind={here.spot.kind} data-state="open"

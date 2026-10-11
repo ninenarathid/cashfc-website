@@ -250,8 +250,9 @@ export default function TownKitchen({ th, reduced, place, keeper, purse, now, cr
 
         {(place === "table" || place === "camp") && <div className="flex shrink-0 gap-2 px-3 py-1" role="group" aria-label={th ? "เลือกงานที่โต๊ะ" : "Choose table work"}>
           <button type="button" aria-pressed={!workshop} onClick={() => setWorkshop(false)} className="min-h-11 rounded border border-[#8a6948] px-3 text-[#f3e3c3]">{th ? "ทดลองส่วนผสม" : "Try ingredients"}</button>
-          <button type="button" aria-pressed={workshop} onClick={() => setWorkshop(true)} className="min-h-11 rounded border border-[#8a6948] px-3 text-[#f3e3c3]">{th ? "คราฟต์อุปกรณ์" : "Craft equipment"}</button>
+          <button type="button" data-workshop-open aria-pressed={workshop} onClick={() => setWorkshop(true)} className="min-h-11 rounded border border-[#bfa071] bg-[#4a2f18] px-3 text-[#f3e3c3]"><TownIcon name="axe" size={20}/> {th ? "โต๊ะช่าง · คราฟต์อุปกรณ์" : "Workbench · craft gear"}</button>
         </div>}
+        {place !== "table" && place !== "camp" && <p className="shrink-0 px-3 py-1 text-meta" style={{ color: CREAM_SOFT }} data-workshop-direction>{th ? "อยากทำอุปกรณ์? ไปโต๊ะเตรียมของในลานครัว แล้วเลือกโต๊ะช่าง" : "For equipment, visit the worktable in the kitchen yard and choose Workbench."}</p>}
         {workshop && <TownCrafting keeper={keeper} purse={purse} th={th} />}
         <div style={{ display: workshop ? "none" : undefined }} className="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_auto_minmax(0,1fr)] gap-2 px-2 pb-1 pt-1 min-[900px]:grid-cols-[16.5rem_minmax(0,1fr)_19.5rem] min-[900px]:grid-rows-[minmax(0,1fr)]">
           {/* ── the basket ── */}

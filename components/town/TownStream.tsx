@@ -7,10 +7,13 @@ import { STREAM_MAKES } from "@/lib/town/stream-items";
 import { STREAM_WORK, streamRouteAt, streamSiteAt, waterNature, type StreamAction } from "@/lib/town/stream-work";
 import { held } from "@/lib/town/trade";
 import { atWell } from "@/lib/town/world";
+import { WATER } from "@/lib/town/farm";
 import TownFoot from "./TownFoot";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import type { FarmDraw } from "./TownFarm";
 import TownNotebook from "./TownNotebook";
+import TownDiscoveryNote from "./TownDiscoveryNote";
+import TownStartingKit from "./TownStartingKit";
 import styles from "./TownAdventure.module.css";
 
 export default function TownStream({keeper,tile,busy,th,mountain,register}:{keeper:Keeper;tile:[number,number]|null;busy:boolean;th:boolean;mountain:boolean;register:(draw:FarmDraw|null)=>void}) {
@@ -61,6 +64,7 @@ export default function TownStream({keeper,tile,busy,th,mountain,register}:{keep
   const gate=keeper.streamGate(),route=streamRouteAt(gate,keeper.now()),book=p.streamBook??[];
   const name=(id:ItemId)=>ITEMS[id].name[th?"th":"en"];
   const ready=Object.entries(STREAM_MAKES).filter(([,r])=>r.needs.every(([id,n])=>held(p.bag,id)>=n));
+  const canSample=held(p.bag,"waterSampler")>0||Object.keys(WATER.buckets).some(id=>held(p.bag,id as ItemId)>0);
   async function deed(action:StreamAction,choice:string) {
     if(pending||!tile)return;
     setPending(true);setNote("");
@@ -70,11 +74,17 @@ export default function TownStream({keeper,tile,busy,th,mountain,register}:{keep
     } finally {setPending(false);}
   }
   if(!active)return null;
-  if(!open)return <TownFoot rank="chip"><button type="button" onClick={()=>setOpen(true)} data-stream-open className="pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded border-2 border-[#4b695c] bg-[#e3ddbe] px-3 text-ui text-[#293c32]"><TownIcon name="streamFork" size={26}/>{th?well?"ลองน้ำที่เตรียมไว้":"มีร่องน้ำแยกตรงนี้":well?"Try the prepared water":"A channel branches here"}</button></TownFoot>;
+  if(!open)return <TownFoot rank="chip"><button type="button" onClick={()=>setOpen(true)} data-stream-open className="pressable pointer-events-auto flex min-h-11 items-center gap-2 rounded border-2 border-[#4b695c] bg-[#e3ddbe] px-3 text-ui text-[#293c32]"><TownIcon name="streamFork" size={26}/>{th?well?"ลองน้ำที่เตรียมไว้":"สำรวจร่องน้ำ · เก็บและทดลองกรอง":well?"Try the prepared water":"Explore channels · collect and filter"}</button></TownFoot>;
   return <TownFoot rank="board"><section data-stream-panel className={`${styles.panel} ${styles.water} pointer-events-auto w-full max-w-[420px]`} aria-label={th?"ริมต้นน้ำ":"At the headwater"}>
     <header className="flex items-center gap-2"><TownIcon name="streamGate" size={30}/><h2 className="font-display text-title">{th?well?"น้ำที่นำกลับมา":"ร่องน้ำบนภูเขา":well?"Water brought home":"Mountain channels"}</h2><button type="button" onClick={()=>setOpen(false)} className="pressable ml-auto min-h-11 px-2">{th?"ปิด":"Close"}</button></header>
     <p className="mb-2 text-meta">{th?well?"เทน้ำที่เตรียมไว้ 1 ชิ้นและใช้แรง 1 แต้ม เพื่อเปลี่ยนน้ำในบ่อที่ทุกคนใช้ร่วมกัน":"เก็บตัวอย่างด้วยกระบอกเก็บน้ำหรือถัง แล้วนำมาลองกรองหรือผสม · สำรวจและเตรียมใช้แรงครั้งละ 3 แต้ม":well?"Pour 1 prepared water and spend 1 stamina to change the well shared by everyone.":"Sample with a water sampler or bucket, then try filtering or mixing · Gathering and preparation each cost 3 stamina."}</p>
     {site&&<>
+      <TownDiscoveryNote title={th?"เริ่มจากริมฝั่ง แล้วลองกรองน้ำ":"Start at the bank, then try filtering"}>
+        <p>{th?"กดสำรวจด้านล่างเพื่อเก็บของริมฝั่ง ถ้าจะเก็บตัวอย่างน้ำ ให้นำถังหรือกระบอกเก็บน้ำมาด้วย":"Use the exploration buttons below to gather bank materials. Bring a bucket or water sampler for water samples."}</p>
+        <p>{th?`นำ${name("filterFrame")}หรือ${name("mixingJug")}มาด้วย เมื่อวัตถุดิบเข้ากันจะมีชุดให้ทดลอง น้ำที่เตรียมได้บางชนิดนำกลับไปเทที่บ่อในสวนได้`:`Bring a ${name("filterFrame")} or ${name("mixingJug")}. Matching materials reveal experiments; some prepared waters can be poured into the farm well.`}</p>
+        {held(p.bag,"sluiceKey")<1&&<p>{th?`${name("sluiceKey")}ใช้หมุนเปลี่ยนทางน้ำร่วมกัน ทำได้ที่โต๊ะช่าง`:`A ${name("sluiceKey")} can divert the shared flow. Make one at the workbench.`}</p>}
+      </TownDiscoveryNote>
+      {!canSample&&<p className="mb-2 text-meta" data-stream-tool-hint>{th?"ยังเก็บของริมฝั่งได้ · เก็บตัวอย่างน้ำต้องมีถังหรือกระบอกเก็บน้ำ":"Bank materials are available. Water samples need a bucket or water sampler."}</p>}
       <svg viewBox="0 0 340 100" className={styles.routeMap} role="img" aria-label={th?`น้ำกำลังไหล${route==="pool"?"เข้าแอ่งพัก":"ผ่านร่องกก"}`:`Water flows ${route==="pool"?"into the pool":"through the reeds"}`}>
         <path d="M170 4 V34 M170 34 Q80 30 65 63 M170 34 Q260 30 275 63" fill="none" stroke="#a7bbb0" strokeWidth="8"/>
         <path d={route==="pool"?"M170 4 V34 Q80 30 65 63":"M170 4 V34 Q260 30 275 63"} fill="none" stroke="#397b83" strokeWidth="5"/>
@@ -87,8 +97,8 @@ export default function TownStream({keeper,tile,busy,th,mountain,register}:{keep
       {held(p.bag,"flowGauge")>0&&<p className="mb-2 text-meta" data-flow-gauge>{th?`ไม้เทียบระดับชี้ไปทาง${route==="pool"?"แอ่งพัก":"ร่องกก"}`:`The gauge points to the ${route} channel.`}{gate&&gate.until>keeper.now()?` · ${Math.ceil((gate.until-keeper.now())/60_000)} ${th?"นาที":"min"}`:""}</p>}
       {held(p.bag,"sluiceKey")>0&&<div className={styles.routeChoice}>{(["pool","reed"] as const).map(r=><button type="button" key={r} disabled={pending||route===r} aria-pressed={route===r} data-stream-route={r} onClick={()=>void deed("gate",r)} className="pressable text-ui">{th?r==="pool"?"หมุนเข้าแอ่งพัก":"หมุนผ่านร่องกก":r==="pool"?"Divert to pool":"Divert through reeds"}<small>{route===r?(th?"ทางที่น้ำไหลอยู่":"Current flow"):(th?"เปลี่ยนทางน้ำร่วมกัน":"Change the shared flow")}</small></button>)}</div>}
       <p className={styles.sectionLabel}>{th?"สำรวจริมฝั่ง":"Explore the bank"}</p>
-      <div className="grid grid-cols-2 gap-2">{site.items.map(id=>{const known=book.includes(id),available=(id!=="springSample"||route==="pool")&&(id!=="rushingSample"||route==="reed"),taken=p.streamTaken?.[`${site.id}:${id}`]===Math.floor(keeper.now()/STREAM_WORK.every);return <button type="button" key={id} disabled={pending||!available||taken} data-stream-sample={id} onClick={()=>void deed("sample",id)} className="pressable flex min-h-12 items-center gap-2 rounded border border-[#8b9576] bg-[#d7e3c7] p-2 text-left text-ui disabled:opacity-50"><TownIcon name={id as IconName} size={28}/>{known?name(id):th?id.endsWith("Sample")?"เก็บตัวอย่างน้ำ":"แยกของริมฝั่ง":id.endsWith("Sample")?"Sample the water":"Collect a bank material"}</button>;})}</div>
-      {ready.length>0&&<div className="mt-3 space-y-2">{ready.map(([id,r])=><button type="button" key={id} disabled={pending} data-stream-prepare={id} onClick={()=>void deed("prepare",id)} className="pressable w-full rounded border border-[#8b9576] bg-[#ddd4b8] p-2 text-left text-ui disabled:opacity-50"><span className="block font-semibold">{book.includes(id as ItemId)?name(id as ItemId):th?id.endsWith("Blend")?"ลองผสมในเหยือก":"ลองแยกและกรอง":id.endsWith("Blend")?"Try a mixture":"Try separating and filtering"}</span><small className="text-meta">{r.needs.map(([part,n])=>`${name(part)} ×${n}`).join(" · ")}</small></button>)}</div>}
+      <div className="grid grid-cols-2 gap-2">{site.items.map(id=>{const known=book.includes(id),available=(id!=="springSample"||route==="pool")&&(id!=="rushingSample"||route==="reed"),taken=p.streamTaken?.[`${site.id}:${id}`]===Math.floor(keeper.now()/STREAM_WORK.every);return <button type="button" key={id} disabled={pending||!available||taken||id.endsWith("Sample")&&!canSample} data-stream-sample={id} onClick={()=>void deed("sample",id)} className="pressable flex min-h-12 items-center gap-2 rounded border border-[#8b9576] bg-[#d7e3c7] p-2 text-left text-ui disabled:opacity-50"><TownIcon name={id as IconName} size={28}/>{known?name(id):th?id.endsWith("Sample")?"เก็บตัวอย่างน้ำ":"แยกของริมฝั่ง":id.endsWith("Sample")?"Sample the water":"Collect a bank material"}</button>;})}</div>
+      {ready.length>0?<div className="mt-3 space-y-2">{ready.map(([id,r])=>{const tool=id.endsWith("Blend")?"mixingJug":"filterFrame",hasTool=held(p.bag,tool)>0;return <div key={id}><button type="button" disabled={pending||!hasTool} data-stream-prepare={id} onClick={()=>void deed("prepare",id)} className="pressable min-h-11 w-full rounded border border-[#8b9576] bg-[#ddd4b8] p-2 text-left text-ui disabled:opacity-50"><span className="block font-semibold">{book.includes(id as ItemId)?name(id as ItemId):th?id.endsWith("Blend")?"ลองผสมในเหยือก":"ลองแยกและกรอง":id.endsWith("Blend")?"Try a mixture":"Try separating and filtering"}</span><small className="text-meta">{r.needs.map(([part,n])=>`${name(part)} ×${n}`).join(" · ")}</small></button>{!hasTool&&<TownStartingKit items={[[tool,1]]} bag={p.bag} th={th}/>}</div>;})}</div>:<p className="mt-3 text-meta" data-stream-start-hint>{th?"ยังไม่มีชุดให้กรองหรือผสม ลองเก็บของริมฝั่งและตัวอย่างน้ำเพิ่ม แล้วกลับมาดูที่นี่":"No filtering or blending combination yet. Gather more bank materials and water samples, then check here again."}</p>}
     </>}
     {well&&<div className="grid gap-2">{p.bag.filter(s=>s&&waterNature(s.item)).map((s,i)=>s&&<button type="button" key={`${s.item}:${i}`} disabled={pending} data-stream-pour={s.item} onClick={()=>void deed("pour",s.item)} className="pressable flex min-h-12 items-center gap-2 rounded border border-[#8b9576] bg-[#d7e3c7] p-2 text-ui disabled:opacity-50"><TownIcon name={s.item as IconName} size={28}/>{th?"เทลงบ่อ":"Pour into the well"} · {name(s.item)}</button>)}</div>}
     {note&&<p role="status" className={`${styles.result} text-ui`}>{note}</p>}
