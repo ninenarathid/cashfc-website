@@ -1,6 +1,6 @@
 # Equipment bond VFX assets
 
-Generated with the built-in `imagegen` tool on 2026-10-10, with `transparent_background: true`. Original images copied into public/town/combos without raster edits. These are generic effect families, not recipe diagrams.
+Runtime ล่าสุดใช้ native canvas particles/material จาก [drawComboMaterial.ts](../../../components/town/drawComboMaterial.ts) และ [TownComboMaterialFx.tsx](../../../components/town/TownComboMaterialFx.tsx) ที่ 64×56 สำหรับ cue พร้อม world effects จาก action จริง ไม่มีการขยาย หมุน หรือ fade ภาพ concept ทั้งแผ่นเป็นเอฟเฟกต์บนแผนที่ ดู [handoff ฉบับจบ](sessions/final-2026-10-11.md) ภาพ AI ด้านล่างเก็บเป็น concept reference เดิม
 
 Common prompt brief: Stylized concept: transparent pixel-art VFX sprite for a cozy isometric village game. Crisp 32-bit pixel art with limited colors and stepped edges, readable at 80 px. Centered with padding. No frame, badge, text, scenery or checkerboard.
 
@@ -25,4 +25,4 @@ Common prompt brief: Stylized concept: transparent pixel-art VFX sprite for a co
 - Prompt brief: Linked violet sonar arcs, an amber faceted crystal spark, three sound marks and a few gold glints; no bat.
 - Verified: 1254 × 1254, alpha channel includes transparent pixels.
 
-Motion is applied in TownComboFx: a water pulse, two wood beats, and an echo bloom, each once per mount. The town motion switch and prefers-reduced-motion keep a static motif and readable status.
+Current motion: water droplets/ripples, wood fibres/leaves and echo facets/rings originate from the actual action. Equip cue is generic and reveals no recipe. The town motion switch and prefers-reduced-motion keep a readable static material cue. Original PNG references are not runtime map VFX.

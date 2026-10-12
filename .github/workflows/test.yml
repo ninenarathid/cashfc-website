@@ -49,4 +49,6 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        # Bound CPU and memory while exhaustive game simulations run on the
+        # shared runner; keep every test and each test's explicit timeout.
+        run: npm test -- --maxWorkers=2 --testTimeout=30000

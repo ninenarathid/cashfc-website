@@ -6,6 +6,7 @@ import { usePower } from "./powers";
 import { GEMS, optN } from "./tools";
 import type { Purse } from "./trade";
 import { VEIN, faceOf, play, type Cell } from "./vein";
+import {rememberBranch} from "./reward-branch";
 
 /**
  * A go at a vein, as a page tells it to a keeper that does not lay the face out.
@@ -107,7 +108,7 @@ export function veinFrom(purse: Purse, said: unknown, now: number): VeinDone | {
   const stowed = stowAll(twin?.ok ? twin.purse : purse, got);
   if (!stowed) return { ok: false, why: "full" };
   // Match veinEnd: the accepted yield is multiplied immediately, with no replay.
-  const after = stowed;
+  const after = rememberBranch(stowed,purse,vein,told.ore,told.gems.length,oreOf(vein.f),told.geology,now);
   return {
     ok: true, got, passed: told.ore + told.gems.length, of: told.of, struck: told.struck, again: false, vein,
     purse: { ...after, mine: { ...mineOf(after), vein: null } },

@@ -1,5 +1,7 @@
 "use client";
 import {useTownEphemeral} from "@/lib/town/ephemeral";
+import{quietApproach}from'@/lib/town/bug-approach';
+import{comboWearKey}from'@/lib/town/combo-types';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -285,6 +287,9 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
   const [tip, setTip] = useState<string | null>(null);
   useEffect(() => { if (!tip) return; const t = setTimeout(() => setTip(null), TIP_MS); return () => clearTimeout(t); }, [tip]);
   const vfx = useMemo(() => new Vfx(), []);
+  const[approachOpen,setApproachOpen]=useState(false),[approaching,setApproaching]=useState(false);
+  const stopped=useRef<string|null>(null);
+  const approach=useCallback(async(id:number,turn:number)=>{if(approaching||!me.current||!keeper.comboPrepare)return;const at:[number,number]=[Math.floor(me.current.x),Math.floor(me.current.y)];setApproaching(true);try{const b=await keeper.comboPrepare('bugBegin',{id,turn,at});if(!b.ok){setNote(th?'ยังเข้าจังหวะเงียบไม่ได้':'The quiet rhythm is not ready.');return;}const start=performance.now(),pos={...me.current};let moved=false;while(performance.now()-start<1100){await new Promise(r=>setTimeout(r,50));if(!me.current||Math.hypot(me.current.x-pos.x,me.current.y-pos.y)>.05||about.current[0]?.moving){moved=true;break;}}if(moved){await keeper.comboPrepare('bugCancel');setNote(th?'หยุดยืนให้ครบหนึ่งวินาทีก่อน':'Stand still for one full second.');return;}const e=await keeper.comboPrepare('bugEnd',{id,turn,at});if(e.ok){stopped.current=null;setApproachOpen(false);setNote(th?'รอยเท้าเบาลงข้างแมลงตัวที่เลือก':'Your footsteps soften beside the chosen insect.');}}finally{setApproaching(false);}},[approaching,keeper,th]);
 
   // What every haunt has for me now: looked at afresh when something changes and every few seconds, not every frame.
   // (less those that fled from my tired hands: gone for me, for the rest of their turn)
@@ -432,6 +437,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           const missed = misses.current.get(key) ?? 0;
           void asked.then((did) => {
             if (!did.ok) { say(did.why); return; }
+            if(keeper.purse().professionRewards?.bugApproach){stopped.current=String(keeper.purse().professionRewards!.bugApproach!.began);void keeper.comboPrepare?.('bugCancel');}
             misses.current.delete(key);
             // (a go with the net, written down beside its deed: one that fled is written down below, and has no deed)
             keeper.record({ game: "insects", board: "net", at: keeper.now(), won: true, secs: 0, spent: live.current.spent, buff: null, what: sight.bug, need: 1, hits: 1, misses: missed });
@@ -465,6 +471,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             sfx?.work("flit");
             vfx.add("leaves", { x: pose.x, y: pose.y }, { lift: 30 });
             say("fled");
+            if(keeper.purse().professionRewards?.bugApproach){stopped.current=String(keeper.purse().professionRewards!.bugApproach!.began);void keeper.comboPrepare?.('bugCancel');}
             continue;
           }
           // (one asleep to my flute sleeps on: the miss is counted, and it has not minded it)
@@ -522,8 +529,8 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       if (drop && drop.h.place === here && now < drop.l.until + lag) {
         // (it lies beside the feet of whoever put it down, level with them on the screen: under them, or under their
         // name, it would not be seen)
-        const c0 = { x: drop.l.x + 1.2, y: drop.l.y - 0.2 }, c = project(c0), t = (now - (came - ARRIVE.ms)) / ARRIVE.ms;
-        if (onScreen(c)) things.push({ depth: c0.x + c0.y + 0.2, draw: () => drawDrop(ctx, c, s, now, still, now < came) });
+        const c0 = drop.l.origin ? {x:drop.l.x+.3,y:drop.l.y+.7} : { x: drop.l.x + 1.2, y: drop.l.y - 0.2 }, c = project(c0), t = (now - (came - ARRIVE.ms)) / ARRIVE.ms;
+        if (onScreen(c)) things.push({ depth: c0.x + c0.y + 0.2, draw: () => {if(drop.l.origin==="lantern")drawMoonLantern(ctx,c,s,now,still);else if(drop.l.origin==="crown")drawCrownPerch(ctx,c,s,now,still);else drawDrop(ctx, c, s, now, still, now < came);} });
         if (!still && t >= 0 && t < 1) {
           // it flies in from far off, down to where it will be the moment it is there
           const id = drop.l.bug as BugId, end = poseOf(id, drop.h, drop.l.seed, newMind(id, drop.h, drop.l.seed, came), came);
@@ -555,9 +562,12 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
         // ── forging: old tools ── (held still by my net: it is where it was when the swing began and minds nobody, for its seconds; let go, it is a moment getting back to where it would be)
         const fz = frozen.current.get(h.id), iced = !!fz && fz.turn === sight.turn && !dozing, holding = iced && now < fz!.until, thawing = iced && !holding && now < fz!.until + HELD.thaw;
         if (fz && !holding && !thawing) frozen.current.delete(h.id);
-        if (!still && !dozing && !holding) kept.mind = think(sight.bug, h, sight.seed, kept.mind, tick, about.current);
+        const p=keeper.purse(),q=p.professionRewards?.bugApproach,quiet=q&&String(q.began)!==stopped.current&&quietApproach(p,sight.id,sight.turn,keeper.now(),comboWearKey(p));
+        const people=quiet?about.current.map((person,i)=>i===0?{...person,soft:Math.min(person.soft??1,.5)}:person):about.current;
+        if (!still && !dozing && !holding) kept.mind = think(sight.bug, h, sight.seed, kept.mind, tick, people);
         const awake = poseOf(sight.bug, h, sight.seed, kept.mind, tick);
         const pose = dozing ? z!.pose : holding ? fz!.pose : thawing && !still ? eased(fz!.pose, awake, (now - fz!.until) / HELD.thaw) : waking && !still ? rising(z!.pose, awake, (now - z!.until) / LULL.wake) : awake, bug = BUGS[sight.bug], at = project({ x: pose.x, y: pose.y });
+        if(quiet&&frame.self&&onScreen(at)){frame.over?.(()=>{ctx.save();ctx.fillStyle='#9bbf83';for(let n=0;n<4;n++){const foot=project({x:frame.self!.x-(n%2?.12:-.12),y:frame.self!.y+n*.12});ctx.globalAlpha=.55-n*.1;ctx.fillRect(Math.round(foot.x),Math.round(foot.y),Math.max(1,2*s),Math.max(1,s));}ctx.restore();});}
         if (holding && onScreen(at)) frame.over?.(() => drawHeld(ctx, at.x, at.y - pose.lift * TILE_H * s, s, (fz!.until - now) / Math.max(1, fz!.until - fz!.from), now, still));
         // heard: off in a fright from somebody; and what sings, over and over, softer from further off
         const away = frame.self ? far(frame.self, pose) : 99;
@@ -955,7 +965,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
 
   // The hunter's belt: the things of the insects' ranks that are used by hand, there while a net is held. Each shows
   // its state (how many are left, whether it is out, how long it rests) and says nothing of what it does.
-  const belt = !busy && mayNet(hand) && (hasNectar || hasFlute);
+  const belt = !busy && mayNet(hand) && (hasNectar || hasFlute||!!keeper.comboPrepare);
   if (!note && !tip && !belt) return null;
   return (
     <>
@@ -968,6 +978,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
       {belt && (
         <TownFoot rank="side">
         <div className="pointer-events-none flex gap-2" data-bug-belt>
+          {!!keeper.comboPrepare&&<div className="pointer-events-auto"><button data-bug-approach className="min-h-12 rounded-full border border-[#8aac75] bg-[#243828] px-3 text-ui text-[#e5efd1]" onClick={()=>setApproachOpen(v=>!v)}>{th?'ลองเข้าหาเงียบ':'Try a quiet approach'}</button>{approachOpen&&<div className="mt-2 max-h-52 max-w-64 overflow-y-auto rounded-lg bg-bg/95 p-2">{seen.current.filter(s=>{const h=HAUNTS[s.id],m=me.current;return h&&m&&Math.min(...h.perches.map(v=>far(v,m)))<=8;}).map(s=><button key={s.id} data-approach-target={s.id} disabled={approaching} className="block min-h-11 w-full px-3 text-left text-ui text-ink" onClick={()=>void approach(s.id,s.turn)}>{th?ITEMS[s.bug].name.th:ITEMS[s.bug].name.en}</button>)}<p className="px-2 text-meta text-muted">{th?'เลือกหนึ่งตัว แล้วยืนนิ่งหนึ่งวินาที':'Choose one insect, then stand still for one second.'}</p></div>}</div>}
           {hasNectar && (
             <button type="button" onClick={dropNectar} disabled={!!lured || drops <= 0} data-bug-nectar data-left={drops} data-out={lured ? "1" : "0"}
                     title={giftName("thingNectar", th)} aria-label={`${giftName("thingNectar", th)} ${drops}`}
@@ -992,3 +1003,7 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
     </>
   );
 }
+
+function drawMoonLantern(ctx:CanvasRenderingContext2D,c:{x:number;y:number},s:number,now:number,still:boolean){ctx.save();ctx.translate(Math.round(c.x),Math.round(c.y));ctx.fillStyle="rgba(0,0,0,.2)";ctx.beginPath();ctx.ellipse(0,1,9*s,4*s,0,0,Math.PI*2);ctx.fill();const r=(x:number,y:number,w:number,h:number,color:string)=>{ctx.fillStyle=color;ctx.fillRect(Math.round(x*s),Math.round(y*s),Math.max(1,Math.round(w*s)),Math.max(1,Math.round(h*s)));};r(-6,-15,12,13,"#596a67");r(-4,-13,8,9,"#b8d4c1");r(-2,-12,4,7,"#e4e8ba");r(-6,-16,12,2,"#879c88");r(-7,-3,14,3,"#424f48");r(-3,-20,6,2,"#a4b298");r(-4,-19,2,4,"#6c8171");r(2,-19,2,4,"#6c8171");ctx.globalAlpha=still?.3:.25+.1*Math.sin(now/400);ctx.fillStyle="#b4d4b2";ctx.beginPath();ctx.ellipse(0,-4*s,15*s,6*s,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+
+function drawCrownPerch(ctx:CanvasRenderingContext2D,c:Vec,s:number,now:number,still:boolean){ctx.save();ctx.translate(Math.round(c.x),Math.round(c.y));ctx.fillStyle="rgba(0,0,0,.15)";ctx.beginPath();ctx.ellipse(0,1,11*s,4*s,0,0,Math.PI*2);ctx.fill();for(let i=0;i<5;i++){const angle=i*Math.PI*2/5,x=Math.round(Math.cos(angle)*8*s),y=Math.round(Math.sin(angle)*3*s);ctx.fillStyle=i%2?"#93b08a":"#6b9677";ctx.fillRect(x-2*s,y-4*s,4*s,3*s);ctx.fillStyle="#d7cb95";ctx.fillRect(x,y-6*s,2*s,2*s);if(!still){ctx.globalAlpha=.2+.2*Math.sin(now/350+i);ctx.fillRect(x,y-9*s,2*s,2*s);ctx.globalAlpha=1;}}ctx.fillStyle="#789d7e";ctx.fillRect(-3*s,-4*s,6*s,5*s);ctx.fillStyle="#b8cd9e";ctx.fillRect(-s,-6*s,2*s,4*s);ctx.restore();}

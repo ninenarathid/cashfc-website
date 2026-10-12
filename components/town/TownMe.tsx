@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CHARMS, USES, dueOf, giftOf, usesLeft, type CharmId, type FamiliarId, type Gift, type Gifts, type ThingId } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
 import { ALL_LINE_IDS, LINES, type LinesTold } from "@/lib/town/lines";
 import type { ComboCue } from "@/lib/town/combo-types";
 import TownComboFx from "./TownComboFx";
 import TownComboBook from "./TownComboBook";
+import TownGiftBook from "./TownGiftBook";
+import type { GuideId, WaterGiftId } from "@/lib/town/gift-guides";
 import TownIcon, { type IconName } from "./TownIcon";
 
 const CREAM = "#ffeccb", CREAM_SOFT = "#e9cfa4", HOLLOW = "#3a2513", GOLD = "#f0c060";
@@ -32,6 +34,9 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
   const [cue,setCue]=useState<ComboCue | undefined>();
   const loadoutKey = `${gifts.charms.slice().sort().join(",")}:${gifts.familiar ?? ""}`;
   useEffect(() => { let gone=false; setCue(undefined); void keeper.comboPrepare?.("wear").then(d => { if(!gone && d.ok) setCue(d.cue); }); return () => { gone=true; }; },[keeper,loadoutKey]);
+  const [guide, setGuide] = useState<GuideId | null>(null);
+  const guideTrigger = useRef<HTMLButtonElement | null>(null);
+  const guideButton = (id: GuideId) => <button type="button" data-read-gift={id} onClick={e=>{guideTrigger.current=e.currentTarget;setGuide(id);}} className="pressable mt-1 min-h-11 rounded-md border border-[#bda578] bg-[#f0dfb6] px-3 text-meta font-semibold text-[#4a3520]">{th?"วิธีใช้":"How to use"}</button>;
   const [busy, setBusy] = useState(false);
   const [said, setSaid] = useState<string | null>(null);
   const points = Object.fromEntries(ALL_LINE_IDS.map((id) => [id, told.lines[id].points]));
@@ -65,6 +70,7 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
       `}</style>
 
       {cue && <div className="mb-2"><TownComboFx cue={cue} th={th} quiet /></div>}
+      <TownGiftBook owned={gifts.had.filter(id=>given.includes(id))} containers={(["waterYoke","waterCart","waterYokeGreat"] as WaterGiftId[]).filter(id=>keeper.purse().bag.some(s=>s?.item===id))} th={th} first={guide} onClose={()=>{setGuide(null);requestAnimationFrame(()=>guideTrigger.current?.focus());}}/>
       <TownComboBook purse={keeper.purse()} th={th} />
       {/* ── what waits to be taken ── */}
       {due.length > 0 && (
@@ -110,6 +116,7 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
                     <span className="text-meta" style={{ color: CREAM_SOFT }}>{th ? "ช่องว่าง" : "An empty place"}</span>
                   </div>
                 )}
+                {g&&guideButton(g.id)}
               </li>
             ))}
           </ul>
@@ -133,6 +140,7 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
                         <span className="block text-label leading-snug" style={{ color: CREAM_SOFT }}>{th ? g.does.th : g.does.en}</span>
                       </span>
                     </button>
+                    {guideButton(id)}
                   </li>
                 );
               })}
@@ -166,6 +174,7 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
                 </p>
               </div>
             )}
+            {fam&&guideButton(fam.id)}
             {fams.filter((id) => id !== gifts.familiar).length > 0 && (
               <ul className="mt-2 grid gap-1.5">
                 {fams.filter((id) => id !== gifts.familiar).map((id) => {
@@ -180,6 +189,7 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
                           <span className="block text-label leading-snug" style={{ color: INK_SOFT }}>{th ? g.does.th : g.does.en}</span>
                         </span>
                       </button>
+                      {guideButton(id)}
                     </li>
                   );
                 })}
@@ -195,13 +205,14 @@ export default function TownMe({ keeper, told, gifts, given, th }: { keeper: Kee
                 {things.map((id) => {
                   const g = giftOf(id)!, use = USES[id], left = use ? usesLeft(keeper.purse(), id, keeper.now()) : null;
                   return (
-                    <li key={id} className="flex items-center gap-2 rounded-md border-2 px-2 py-1.5" style={{ borderColor: INK_SOFT, backgroundColor: "rgba(74,53,32,0.06)" }} data-me-thing={id} data-left={left ?? ""}>
+                    <li key={id} className="flex flex-wrap items-center gap-2 rounded-md border-2 px-2 py-1.5" style={{ borderColor: INK_SOFT, backgroundColor: "rgba(74,53,32,0.06)" }} data-me-thing={id} data-left={left ?? ""}>
                       <span className="grid size-10 shrink-0 place-items-center rounded-md border-2" style={{ borderColor: INK_SOFT, backgroundColor: PAPER_EDGE }}><TownIcon name={id as IconName} size={28} /></span>
                       <span className="min-w-0 flex-1">
                         <span className="block truncate text-meta font-semibold">{th ? g.name.th : g.name.en}</span>
                         <span className="block text-label leading-snug" style={{ color: INK_SOFT }}>{th ? g.does.th : g.does.en}</span>
                         {use && <span className="mt-0.5 block font-data text-label tabular-nums" style={{ color: left ? JADE : "#b0452f" }}>{th ? `${stretch(id)}เหลือ ${left}/${use.n}` : `${left}/${use.n} left ${stretch(id)}`}</span>}
                       </span>
+                      <span className="basis-full">{guideButton(id)}</span>
                     </li>
                   );
                 })}

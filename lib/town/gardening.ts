@@ -48,6 +48,7 @@ export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, 
   if (!root || root.by !== me || root.crossed || !see(key, plots[key], now, sky).ripe) return null;
   const cells = root.footprint ?? [key];
   for (const [a, b, child] of GARDEN.crosses) {
+    if(root.crossChoice&&child!==root.crossChoice)continue;
     const other = root.crop === a ? b : root.crop === b ? a : null;
     if (!other) continue;
     for (const [k, plot] of Object.entries(plots)) {
@@ -80,7 +81,7 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   const extras: Array<[ItemId, number]> = [];
   if (plant.root && fx.extra) extras.push([plant.crop, GARDEN.extra]);
   if (!updated.plant && plant.root && fx.seed) extras.push([CROPS[plant.crop].seed, 1]);
-  if (child) extras.push([GARDEN_CROPS[child].seed, fx.knife ? 2 : 1]);
+  if (child) extras.push([GARDEN_CROPS[child].seed, fx.knife || plant.insectCrossRound===plant.picked ? 2 : 1]);
   for (const [id, n] of extras) { if (roomFor(after.bag, id) < n) return no("full"); after = { ...after, bag: put(after.bag, id, n) }; }
   if (child) {
     after = { ...after, gardenBook: [...new Set([...(after.gardenBook ?? []), child])] };

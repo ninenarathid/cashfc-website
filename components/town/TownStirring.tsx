@@ -20,7 +20,8 @@ const HUB = 0.16;
  *
  * Played by a finger or the mouse: there is no going round a pot with a key.
  */
-export default function TownStirring({ th, title, need, mods, harder = 1, guide = false, onDone, onCancel, onHit }: GameProps & {
+export default function TownStirring({ th, title, need, mods, harder = 1, guide = false, onDone, onCancel, onHit, onMissRetry }: GameProps & {
+  onMissRetry?:(result:{hits:number;misses:number;secs:number})=>Promise<boolean>;
   need: number; mods: TimingMods;
   /** How many times harder this pot is for whoever stirs it (lib/town/cooking's harderCook): nothing of it is shown but the game itself. */
   harder?: number;
@@ -29,6 +30,8 @@ export default function TownStirring({ th, title, need, mods, harder = 1, guide 
 }) {
   const game = useRef<Stir>(startStir(need, mods, harder));
   const ended = useRef(false);
+  const checkpoint=useRef<Stir|null>(null),paused=useRef(false),asked=useRef(false);
+  const[retry,setRetry]=useState<{before:Stir;after:Stir}|null>(null);
   const [, setShown] = useState(0);
   /** Whether the town's motion is turned off on this device (lib/town/motion): the ring that says what to do stands still then. */
   const [still] = useState(() => !keptMotion());
@@ -70,14 +73,15 @@ export default function TownStirring({ th, title, need, mods, harder = 1, guide 
   const up = (e: React.PointerEvent) => { if (drag.current?.id === e.pointerId) drag.current = null; };
 
   useFrames((dt) => {
-    if (ended.current) return;
+    if (ended.current||paused.current) return;
     const was = game.current, auto = driven.current;
     if (auto !== null) angle.current += auto * dt * 2 * Math.PI;
     const now = stir(was, moved.current + (auto ?? 0) * dt, dt);
     moved.current = 0;
     game.current = now;
-    if (now.hits > was.hits) onHit?.(true);
+    if (now.hits > was.hits) {onHit?.(true);checkpoint.current={...now};}
     if (now.misses > was.misses) {
+      if(onMissRetry&&!asked.current&&checkpoint.current){asked.current=true;paused.current=true;const before={...checkpoint.current,t:now.t};void onMissRetry({hits:now.hits,misses:now.misses,secs:now.t}).then(ok=>{if(ok)setRetry({before,after:now});else paused.current=false;}).catch(()=>{paused.current=false;});}
       onHit?.(false);
       picture.current?.animate([{ transform: "translateX(-4px)" }, { transform: "translateX(4px)" }, { transform: "translateX(0)" }], { duration: 180 });
     }
@@ -113,6 +117,7 @@ export default function TownStirring({ th, title, need, mods, harder = 1, guide 
   const s = game.current, top = s.hi * 1.5;
   return (
     <GameFrame th={th} title={title} need={s.need} hits={s.hits} misses={s.misses} most={0} onCancel={onCancel} word={th ? "ลากวนรอบหม้อ ให้สม่ำเสมอ" : "Drag round the pot, at an even pace"}>
+      {retry&&<div className="mb-2 rounded-lg bg-[#213d32] p-3 text-ui" role="status"><p>{th?'ไอฝนเก็บจังหวะก่อนพลาดไว้ กลับไปคนต่อเองได้':'The rain kept your last good beat. Replay it by hand.'}</p><button data-cook-rain-retry className="mt-2 min-h-11 rounded bg-accent px-3 text-bg" onClick={()=>{game.current={...retry.before,out:0,off:0,pace:(s.lo+s.hi)/2};moved.current=0;drag.current=null;setRetry(null);paused.current=false;}}>{th?'กลับไปคนต่อ':'Replay the checkpoint'}</button><button className="ml-2 min-h-11 px-2" onClick={()=>{game.current=retry.after;setRetry(null);paused.current=false;}}>{th?'ยอมรับที่พลาด':'Keep the miss'}</button></div>}
       <div ref={stage} onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}
            className={`${STAGE} mx-auto mt-1 grid size-[232px] max-w-full cursor-grab touch-none place-items-center bg-[#2c1c10] active:cursor-grabbing`} data-look="stir" data-pot={pot}>
         {/* before the first touch: a ring that goes round, to say what the hand does */}

@@ -337,14 +337,16 @@ function cookUntrained(purse: Purse, things: Array<[ItemId, number]>, crew: Arra
  * One told by a keeper from before the table has no `set`, and stands where it was set until it is empty.
  */
 export interface Pot {
+  secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;
+  picnic?:boolean;
   id: string; by: string; dish: DishId; left: number; at: [number, number]; tok?: boolean; set?: number; feast?: boolean; name?: string;
   // ── forging: old tools ── (what the cookware it was cooked in gave it: a helping eaten out of it at the feast table has so many hours more of its buff, so much more stamina)
   warm?: number; scent?: number;
 }
 // ── forging: old tools ──
 /** What a pot of food carries from its cookware, as it is kept on a pot and on a slot of the bag alike: nothing kept that says nothing. */
-const potMarks = (from: { warm?: number; scent?: number }): { warm?: number; scent?: number } =>
-  ({ ...(typeof from.warm === "number" && from.warm > 0 ? { warm: from.warm } : {}), ...(typeof from.scent === "number" && from.scent > 0 ? { scent: from.scent } : {}) });
+export const potMarks = (from: import("./reward-kitchen").FoodMarks): import("./reward-kitchen").FoodMarks =>
+  ({ ...(from.secondary?{secondary:from.secondary}:{}),...(from.cookedBy?{cookedBy:from.cookedBy}:{}),...(from.cookId?{cookId:from.cookId}:{}),...(typeof from.warm === "number" && from.warm > 0 ? { warm: from.warm } : {}), ...(typeof from.scent === "number" && from.scent > 0 ? { scent: from.scent } : {}) });
 /** How near one has to stand to a pot on the ground to ladle from it. */
 export const reachOf = (pot: Pot) => (pot.tok ? COOKING.tok : COOKING.reach);
 /** Whether somebody standing on a tile reaches a pot: beside it, for one on the ground; anywhere on the yard's floor (`yard`: whether their tile is of it), for one on the feast table. */

@@ -1,0 +1,136 @@
+{
+    "capturedAtUtc":  "2026-10-10T15:36:55.2354609+00:00",
+    "date":  "2026-10-10",
+    "timezone":  "Asia/Bangkok",
+    "head":  "4c5148813144cacf6c50f8fa035cdc8e8ffe64ce",
+    "scope":  "Read-only gameplay/patch review, targeted local validation, and planning documentation; no runtime change, deployment, or production SQL",
+    "preexistingTrackedChanges":  [
+                                      "components/town/Town.tsx",
+                                      "lib/town/db-vectors-ground.test.ts",
+                                      "lib/town/db-vectors-lamps.test.ts",
+                                      "lib/town/ground.test.ts",
+                                      "lib/town/ground.ts",
+                                      "lib/town/lamps.test.ts",
+                                      "lib/town/lamps.ts"
+                                  ],
+    "checks":  {
+                   "focusedVitest":  {
+                                         "files":  7,
+                                         "tests":  71,
+                                         "failed":  0,
+                                         "command":  "npx.cmd vitest run lib/town/adventure-expansion.test.ts lib/town/regional-fish.test.ts lib/town/mountain-water.test.ts lib/town/ground.test.ts lib/town/lamps.test.ts lib/town/private/combos.test.ts lib/town/combo-keeper.test.ts --maxWorkers=2 --testTimeout=30000"
+                                     },
+                   "localSqlReplay":  {
+                                          "checks":  51,
+                                          "failed":  0,
+                                          "command":  "FC_REPO set to current workspace; node E:/NinenineProject/fcnext-codex-bench/release198.test.mjs",
+                                          "live":  false,
+                                          "includes":  "Already-applied v195 path and v180-v198 gameplay chain including v194; does not test v199-v201"
+                                      },
+                   "fullBuildRerun":  false,
+                   "liveQueriesThisReview":  false
+               },
+    "earlierSnapshotComparison":  [
+                                      {
+                                          "path":  "supabase/v180_a_workshop_for_the_tools.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v181_more_lines_on_the_water.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v182_fishing_the_streams_and_pools.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v184_reading_the_grain_before_the_axe.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v185_listening_to_the_layers_of_rock.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v186_a_garden_that_spreads_and_crosses.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v187_visitors_that_tend_the_garden.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v188_the_parts_a_forest_can_spare.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v196_the_channels_and_properties_of_water.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "supabase/v197_preparing_food_and_a_camp_for_friends.sql",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "components/town/TownFieldwork.tsx",
+                                          "matches":  false
+                                      },
+                                      {
+                                          "path":  "components/town/TownStream.tsx",
+                                          "matches":  false
+                                      },
+                                      {
+                                          "path":  "lib/town/preparation.ts",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "lib/town/camps.ts",
+                                          "matches":  true
+                                      },
+                                      {
+                                          "path":  "lib/town/icon-atlas.json",
+                                          "matches":  false
+                                      }
+                                  ],
+    "receivedEvidence":  {
+                             "gameplayRelease":  ".claude/skills/fc-cash-town/references/adventure-expansion-handoff.md",
+                             "v195":  ".codex/ram-audit/fix-verification.json",
+                             "v200LiveProbe":  ".codex/ram-audit/v200-live-probe.json",
+                             "v200LiveDefinitionReplay":  ".codex/ram-audit/v200-live-definition-test.log",
+                             "note":  "Received evidence belongs to earlier sessions; owner-confirmed installation is distinguished from authenticated feature verification."
+                         },
+    "files":  {
+                  "supabase/v180_a_workshop_for_the_tools.sql":  "1b1ab115291a72c04278298fd758b74f804e95e666c1e6eb64a15ab25f9b17d3",
+                  "supabase/v181_more_lines_on_the_water.sql":  "413e5e3ccd4c9e111eaa988ed751469de241f0bbe3f6c694ff274866d148e794",
+                  "supabase/v182_fishing_the_streams_and_pools.sql":  "a8f26c011c6fa005780e7bbbf36e22f93540f241191b6d108e36c1eeab60221c",
+                  "supabase/v184_reading_the_grain_before_the_axe.sql":  "b0f830c69dd1252c6ba987222ca8f85d36285a3b0fe994e108c346d9e035c44e",
+                  "supabase/v185_listening_to_the_layers_of_rock.sql":  "e7d2cf9698676822609951cbb0c0acaf5a6591ec7e04780ea34bef6a6d84d1d5",
+                  "supabase/v186_a_garden_that_spreads_and_crosses.sql":  "49583ee81ec4d90614a21a2c84404423cb0ac5b8cc7cd03e8d8d67c66e8751ae",
+                  "supabase/v187_visitors_that_tend_the_garden.sql":  "c85bfd34e42097c87148fc6d9cd1392c82e504681b36401698ce095e2ff1c7db",
+                  "supabase/v188_the_parts_a_forest_can_spare.sql":  "84ae780e3e8358bb553ff608da46bb0a0d671d2262961253872b49c594ad81aa",
+                  "supabase/v196_the_channels_and_properties_of_water.sql":  "b121296523864df14587d2b8f96c769d4321eb17736d3e6aa841c45cbd5daaf3",
+                  "supabase/v197_preparing_food_and_a_camp_for_friends.sql":  "cfccd81e1eaa2ce440bb53381a2e1876a461c3f329e6c93454d1f92b7ae172a8",
+                  "components/town/TownFieldwork.tsx":  "e446040d9957c92f8804242c00e0f46d84a17285f3846b89801addc7fcc00f74",
+                  "components/town/TownStream.tsx":  "9576b4aa05b4697778750238bf2a7b298b8e6bf9c591eb764dc856ab6388aad2",
+                  "lib/town/preparation.ts":  "6e5e2f6da5bca6bb18789ce91aaae7a149e6f0bc7aba1804ab56fe7d5005908d",
+                  "lib/town/camps.ts":  "c1bc494db89ca553b2a5069688d45baa5c51bbfcb3b9c097227aee3064231beb",
+                  "lib/town/icon-atlas.json":  "f4dcb52871d7862b0a23dfbf6b07015b357e7b2a94dc6cc3f0e2a2d2d1f8e271",
+                  "supabase/v194_secret_equipment_bonds.sql":  "1d71e4025a111f32cbce83db0ae805f3f673978fd2b000f9957e3bafe7da822d",
+                  "supabase/v198_twenty_fish_for_each_water.sql":  "7d806b7333db8ab71dc94f2e71e4f29607a6b29b5a7f26b464d60f38f41ea971",
+                  "supabase/v199_drops_on_the_mountain_and_in_the_mine.sql":  "c64555933f0f08f722cdfa9ccdc6e8098550d978142831edc5a406b9e2676ccc",
+                  "supabase/v200_ask_less_of_the_insects_and_the_cave.sql":  "55ce82308a34c0b6ec7f344dbd274ed39dea8d072089c6f17fd44a0bab121928",
+                  "supabase/v201_five_seconds_to_carry_the_flame.sql":  "45f8b207c7b1f421ba04f332f409605afe426065d64a75d6a804eacfe476d313",
+                  "lib/town/gifts.ts":  "f6a5def8e59478310b7cbba804892b95d4436ab7d3ddef6bb7d7878f544f0011",
+                  "lib/town/pouches.ts":  "749c1170bc21b51b628840975ed435e8483de99da1af0d047c971b6f6cf6b640",
+                  "lib/town/mining.ts":  "7b26a2387baa82cf4997a782772d702a9ed0cb6b0fc3467954f6c98736cec2ce",
+                  "lib/town/keeper.ts":  "ee3144751c296e5bd7c2805885c94ff6e139d46e7be556bf949b8bc574453c59",
+                  "lib/town/keeper-trial.ts":  "6527d3896aef0cc5f28da7dfcd2234d378097fbda5e7004183539928420f076c",
+                  "lib/town/ground.ts":  "e42f419986b567bcb9ad9ee4dc3e812b7816bedbb12b8d328d9904684676465b",
+                  "lib/town/lamps.ts":  "322dae9da9650b90f48c3c497cf262ae37b8fc03111fa2aca93ada3dec00b67a",
+                  "lib/town/mountain-water.ts":  "f929c8291d491d55e027e1b2d53bdf8a3f4476c1166e08c0bcbaa028b3610f2d",
+                  "lib/town/rendering.ts":  "66a7ba2d209e9dacd675e39840b5503dcdbe338c44499a26016cae3a1a47a082",
+                  "lib/town/private/combos.ts":  "a1ebbcc1a918836b896bb500a883a94a39bb04e89ee79b33af36a4a59fe1670f",
+                  "components/town/Town.tsx":  "576619ab4b95f6402d4afcc01d81b4559867836d5b646783d48113d4a4571a96",
+                  ".claude/skills/fc-cash-town/references/adventure-expansion-handoff.md":  "6333662b3562531e4a04d02bfb016440a63068808bd44371e1674de5c9095eea"
+              }
+}

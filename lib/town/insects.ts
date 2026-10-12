@@ -1,3 +1,4 @@
+import{crownCaught}from"./reward-crown";
 import { trainElement } from "./element-training";
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { INSECT_SPECIES, type InsectSpeciesId } from "./insect-items";
@@ -350,11 +351,11 @@ export const bugTurn = (h: Haunt, now: number) => Math.floor((now + phaseOf(h)) 
 export const bugTurnStart = (h: Haunt, turn: number) => turn * HAUNT_KINDS[h.kind].every * MINUTE - phaseOf(h);
 
 /** Whether an insect may be at a haunt in the turn that begins at a moment (`always`: whatever day it is, for one that has days of its own). */
-function fits(b: Bug, id: BugId, h: Haunt, at: number, salt: string, rains: readonly Rain[], always = false): boolean {
+export function fits(b: Bug, id: BugId, h: Haunt, at: number, salt: string, rains: readonly Rain[], always = false, skipHours = false): boolean {
   if (!b.at.includes(h.kind)) return false;
   if (b.places && !b.places.includes(h.place)) return false;
   if (b.zones && (!h.zone || !b.zones.includes(h.zone))) return false;
-  if (b.hours) { const hr = ((((at + BANGKOK) % DAY) + DAY) % DAY) / HOUR; if (!b.hours.some(([a, z]) => hr >= a && hr < z)) return false; }
+  if (b.hours && !skipHours) { const hr = ((((at + BANGKOK) % DAY) + DAY) % DAY) / HOUR; if (!b.hours.some(([a, z]) => hr >= a && hr < z)) return false; }
   if (b.dry && wetMs(rains, at - HOUR / 2, at) > 0) return false;
   if (b.day && !always && !isDayOf(salt, id, b.day, at)) return false;
   if (b.moon && !fullMoon(at)) return false;
@@ -707,7 +708,7 @@ function netMineUntrained(purse: Purse, which: Mine, hand: ItemId | null, at: re
   // ── forging: old tools ── (as a haunt's catch is paid for)
   const tool = heldStack(purse), more = one.n + (luckOf("twin", one.x, one.y, now) < netFx(tool).twin && roomFor(purse.bag, id) > one.n ? 1 : 0);
   const after = { ...toolPaid(purse, spend(purse, cost, now), now, tool, netFx(tool), "ntFresh"), bag: put(purse.bag, id, more) };
-  return { ok: true, purse: sweepCaught(l ? followed(purse, { ...after, lured: null }, id, one.n, at, now) : { ...after, follower: null }, now), got: [[id, more]] };
+  return { ok: true, purse: sweepCaught(l ? (l.origin ? { ...after, lured: null } : followed(purse, { ...after, lured: null }, id, one.n, at, now)) : { ...after, follower: null }, now), got: [[id, more]] };
 }
 
 /* ── a ladybird's doing ─────────────────────────────────────────────────── */
@@ -1072,11 +1073,13 @@ export const taken = (id: BugId, p: Pose, at: Vec, spent: boolean, wide = 1, har
 /** Training belongs to the tool used for this successful job, once per result. */
 export function net(...args: Parameters<typeof netUntrained>): ReturnType<typeof netUntrained> {
   const did = netUntrained(...args);
+  if(did.ok)did.purse=crownCaught(args[0],did.purse,did.got,args[8]);
   return did.ok ? { ...did, purse: trainElement(args[0], did.purse, heldStack(args[0])) } : did;
 }
 
 /** Training belongs to the tool used for this successful job, once per result. */
 export function netMine(...args: Parameters<typeof netMineUntrained>): ReturnType<typeof netMineUntrained> {
   const did = netMineUntrained(...args);
+  if(did.ok)did.purse=crownCaught(args[0],did.purse,did.got,args[5],args[1]==="pair"||args[0].lured?.origin==="crown");
   return did.ok ? { ...did, purse: trainElement(args[0], did.purse, heldStack(args[0])) } : did;
 }

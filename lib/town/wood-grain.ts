@@ -4,7 +4,7 @@ export interface GrainPlan { notches: [GrainSide, GrainSide, GrainSide]; lean: G
 export interface GrainChoice { notches: GrainSide[]; direction: GrainSide }
 export type GrainQuality = "rough" | "clear" | "heart";
 export type WoodPart = "wood" | "bark" | "sap" | "seed" | "root";
-export interface WoodSelection extends GrainChoice { part: WoodPart }
+export interface WoodSelection extends GrainChoice { part: WoodPart; second?:"bark"|"sap"|"seed" }
 export const WOOD_PARTS: WoodPart[] = ["wood", "bark", "sap", "seed", "root"];
 
 export function grainOf(tree: number): GrainPlan {
@@ -20,7 +20,7 @@ export function grainChoice(value: unknown): value is GrainChoice {
 }
 
 export function woodSelection(value: unknown): value is WoodSelection {
-  return grainChoice(value) && WOOD_PARTS.includes((value as WoodSelection).part);
+  return grainChoice(value) && WOOD_PARTS.includes((value as WoodSelection).part) && ((value as WoodSelection).second===undefined || ["bark","sap","seed"].includes((value as WoodSelection).second!) && (value as WoodSelection).second !== (value as WoodSelection).part);
 }
 
 export function grainQuality(tree: number, choice: GrainChoice, misses: number): GrainQuality {

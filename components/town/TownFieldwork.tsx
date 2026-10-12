@@ -16,6 +16,7 @@ import type {FarmDraw} from "./TownFarm";
 import TownNotebook from "./TownNotebook";
 import TownDiscoveryNote from "./TownDiscoveryNote";
 import TownStartingKit from "./TownStartingKit";
+import {drawCampPennant} from './drawCampPennant';
 import styles from "./TownAdventure.module.css";
 
 const methods=[["หั่นเป็นชิ้น","Cut"],["บดหรือตำ","Grind"],["คลุกหรือตี","Fold or whisk"]],heat=[["อ่อน / พัก","Low / rest"],["กลาง / เคี่ยว","Medium / simmer"],["แรง / คั่ว","High / toast"]],finish=[["สีอ่อน · เสียงเงียบ","Pale · quiet"],["สีทอง · เสียงกรอบ","Golden · crackling"],["ใสข้น · เดือดเบา","Clear and thick · bubbling"]];
@@ -33,7 +34,7 @@ export default function TownFieldwork({keeper,tile,busy,th,far,register,sfx}:{ke
    if(!img?.complete||!img.naturalWidth)return;
    const camps=keeper.camps().filter(c=>c.until>keeper.now());
    for(const c of camps){const at=project({x:c.x+0.5,y:c.y+0.5});if(!onScreen(at))continue;
-    things.push({depth:at.y,draw:()=>{const name:IconName="fieldCamp",[x,y,w,h]=ICON_ATLAS.icons[name],k=45*s/Math.max(w,h);ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(img,x,y,w,h,Math.round(at.x-w*k/2),Math.round(at.y-h*k),w*k,h*k);if(c.wide){ctx.fillStyle="#8b3b31";ctx.fillRect(at.x+12*s,at.y-40*s,12*s,7*s);ctx.fillStyle="#725533";ctx.fillRect(at.x+12*s,at.y-40*s,2*s,40*s);}if(c.lit){ctx.fillStyle="#ffdd88";ctx.fillRect(at.x+8*s,at.y-10*s,3*s,3*s);}ctx.restore();}});
+    things.push({depth:at.y,draw:()=>{const name:IconName="fieldCamp",[x,y,w,h]=ICON_ATLAS.icons[name],k=45*s/Math.max(w,h);ctx.save();ctx.imageSmoothingEnabled=false;ctx.drawImage(img,x,y,w,h,Math.round(at.x-w*k/2),Math.round(at.y-h*k),w*k,h*k);if(c.wide){ctx.fillStyle="#8b3b31";ctx.fillRect(at.x+12*s,at.y-40*s,12*s,7*s);ctx.fillStyle="#725533";ctx.fillRect(at.x+12*s,at.y-40*s,2*s,40*s);}drawCampPennant(ctx,c,at.x,at.y,s,keeper.now(),window.matchMedia("(prefers-reduced-motion: reduce)").matches);if(c.lit){ctx.fillStyle="#ffdd88";ctx.fillRect(at.x+8*s,at.y-10*s,3*s,3*s);}ctx.restore();}});
    }
    for(const [index,where] of CAMPS.sites.entries()){
     if(camps.some(c=>c.site===index)||!self||Math.max(Math.abs(where[0]-self.x),Math.abs(where[1]-self.y))>4)continue;

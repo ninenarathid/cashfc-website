@@ -1,0 +1,1 @@
+﻿import{rewardDB}from'./reward-db.mjs';import{writeFileSync}from'node:fs';const db=await rewardDB(248);try{writeFileSync('.codex/tier10/bugs-def.txt',(await db.query("select pg_get_functiondef('public.town_bugs()'::regprocedure) d")).rows[0].d);console.log(JSON.stringify((await db.query("select town.cat('insects')->'haunts'->0 h")).rows[0]));}finally{await db.close();}

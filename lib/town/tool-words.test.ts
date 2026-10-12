@@ -67,7 +67,7 @@ describe("what a gem does in a tool, in a line (said only on the card of a tool 
       expect(`${w!.th} ${w!.en}`).not.toMatch(/undefined|NaN/);
     }
     expect(gemDoes("rod", "wind", 1)).toEqual(gemDoes("pick", "wind", 1));
-    expect(gemDoes("hoe", "wind", 2)!.en).toContain("15%");
+    expect(gemDoes("hoe", "wind", 2)!.en).toContain("45%");
     expect(gemDoes("rod", "fire", 1)!.en).toContain(String(Math.round(OLD_FX.fire.rod.tires[0] * 100)));
     expect(gemDoes("rod", "fire", 1)!.en).toMatch(/tires/);
     expect(gemDoes("can", "fire", 2)!.en).toContain(String(OLD_FX.fire.can.more[1]));
@@ -96,7 +96,7 @@ describe("a tool's own numbers (its card, and what the next level changes)", () 
   });
   it("a card is the tool as it works: its options and its gem are in the numbers; nothing of what is not forged, or at the top", () => {
     expect(cardOf(tool("axe", 3, ["axKeen"])).find((x) => x.key === "chops")?.value.en).toBe("8");
-    expect(cardOf(tool("can", 0, [], ["fire"])).find((x) => x.key === "waterings")?.value.en).toBe("9");
+    expect(cardOf(tool("can", 0, [], ["fire"])).find((x) => x.key === "waterings")?.value.en).toBe("11");
     expect(cardOf({ item: "rodTeak", n: 1 })).toEqual([]);
     expect(cardOf(null)).toEqual([]);
     expect(nextOf(tool("pick", FORGE.top))).toEqual([]);

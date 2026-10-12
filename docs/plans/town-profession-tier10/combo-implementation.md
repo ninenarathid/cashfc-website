@@ -1,8 +1,12 @@
-# Handoff: คอมโบชุดนำร่อง 2026-10-10
+# ประวัติคอมโบชุดนำร่อง 2026-10-10
+
+สถานะปัจจุบัน: **18/18 ชุด local-done** พร้อม discovery/VFX และคู่มือหลังค้นพบ ดู [handoff ฉบับจบ](sessions/final-2026-10-11.md) ส่วนด้านล่างเป็นหลักฐาน release เก่าของห้าชุดแรก ไม่ใช่ backlog ล่าสุด
 
 ผู้ใช้อนุมัติ implement พร้อม gen ภาพ ชุดนี้ทำ SC01/SC02/SC03/SC11/SC13 จำนวน 5 คอมโบจากของเดิม เป็นงานเพิ่มข้าง gameplay อีก session; รางวัล tier 7–10 และ 13 คอมโบที่เหลือยังเป็น backlog
 
-Implemented: local | Tested: local | Deployed: no | SQL installed: no | Live verified: no
+Implemented: yes | Tested: local | Deployed: yes (gameplay release handoff) | SQL installed: owner-confirmed v194 | Live verified: pending for the five effects
+
+อัปเดตสถานะหลังรับ gameplay handoff วันที่ 2026-10-10: owner แจ้งติดตั้งทั้ง 12 expansion files รวม v194 หลัง deploy commit `4a529987`. หลักฐาน tests/browser ด้านล่างเป็นรอบ local เดิม ดู [baseline review](baseline-review-2026-10-10.md) สำหรับ snapshot ปัจจุบัน ไม่ถือว่า v194 เป็นไฟล์ค้างให้ติดตั้งใหม่
 
 ## พฤติกรรมที่ส่งต่อ
 
@@ -61,10 +65,10 @@ Browser QA ใช้ agent-browser session combo-pilot บน dev port 3014: ส
 
 ## ขั้นถัดไป
 
-1. ผู้รวม gameplay ตรวจ chain ล่าสุดแล้วรัน generator/tests อีกครั้งถ้า definition เปลี่ยน จากนั้น deploy site และให้ owner ติดตั้ง v194 ตาม workflow SQL เดิม
+1. ตรวจ feature markers และ live effects ของ v194 ที่ owner แจ้งติดตั้งแล้ว; หากงานคอมโบใหม่ต้องแก้ function ให้รับ definition ล่าสุดรวม v195/v200 ก่อนสร้าง migration ใหม่ ไม่ rerun/generate v194 ทับฐานปัจจุบัน
 2. ลอง mining/fishing ใน staging ที่ติดตั้ง SQL แล้ว ตรวจ retry/resume, รอบ twin/legend, latency และความชัดเจนของ discovery บนจอมือถือก่อน release
 3. รับ SC04–SC10/SC12/SC17–SC18 ทีละ 1–3 ชุดเมื่อฐานแต่ละสายพร้อม อย่าเพิ่มสูตรใน public catalog และอย่าเติมคอมโบที่ไม่ถูกช่องสวม
 
-Released ยังเป็น no จนมีหลักฐาน deploy, SQL installed และ live verified จริง งานรับคืน shared files ใน pilot นี้แล้ว
+Site deployed และ SQL installed รับตามหลักฐาน release/owner แล้ว; การยืนยัน live effects ทั้ง 5 ชุดยังค้าง ไม่ถือว่า local screenshots ทดแทนได้ งานรับคืน shared files ใน pilot นี้แล้ว
 
 Hashes ของ source/SQL ที่จับหลังตรวจในเครื่องและผลตรวจรวมอยู่ใน [combo-validation.json](combo-validation.json) working tree ยังมีอีก session แก้อยู่ จึงต้องตรวจความต่างและรันใหม่เมื่อรวม phase ถัดไป

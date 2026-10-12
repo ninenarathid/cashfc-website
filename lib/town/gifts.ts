@@ -1,6 +1,7 @@
 import { ALL_LINE_IDS, rankOf, type LineId } from "./lines";
 import { dayOf, eased, mealOf } from "./stamina";
 import type { Purse } from "./trade";
+import { REWARD_GIFTS, REWARD_USES, type RewardThingId, type RewardFamiliarId, type RewardCharmId } from "./reward-catalog";
 
 /**
  * What a rank of a line of work gives (the owner, 2026-10-06: "อยากทำให้มี progression และ ฉายา ได้ไอเทม เหมือนกับที่
@@ -24,20 +25,20 @@ import type { Purse } from "./trade";
 export const CHARM_IDS = ["charmApron", "charmGloves", "charmFloat", "charmLamp", "charmNet", "charmHoe",
   // the later ranks' (the ladder laid out anew, 2026-10-07)
   "charmAnklet", "charmBell", "charmLine", "charmFirefly", "charmWind", "charmSickle", "charmRing", "charmCloak", "charmGuard"] as const;
-export type CharmId = (typeof CHARM_IDS)[number] | (typeof MORE_CHARM_IDS)[number];
+export type CharmId = (typeof CHARM_IDS)[number] | (typeof MORE_CHARM_IDS)[number] | RewardCharmId;
 /**
  * The familiars: a creature that follows its member wherever they go, for everybody to see (the owner, 2026-10-06:
  * "ใส่ ภูติ หรือ สัตว์เดินตามได้ 1 ชนิด"; changed "อิสระ"). One at a time. It needs no hand: the hand stays free.
  */
 export const FAMILIAR_IDS = ["famSquirrel", "famButterfly", "famGnome", "famOtter", "famPiglet", "famSprite", "famFrog", "famStag", "famMandrake"] as const;
-export type FamiliarId = (typeof FAMILIAR_IDS)[number] | (typeof MORE_FAMILIAR_IDS)[number];
+export type FamiliarId = (typeof FAMILIAR_IDS)[number] | (typeof MORE_FAMILIAR_IDS)[number] | RewardFamiliarId;
 /**
  * The things: a gift that is neither worn nor follows. It takes no place: once had it works by itself, or is there to
  * be used (so many times to a day or a meal's hours, where it is counted: `USES`).
  */
 export const THING_IDS = ["thingBasket", "thingSpoon", "thingSpice", "thingFlame", "thingRod", "thingOrb", "thingBait", "thingMap", "thingNectar", "thingFlute",
   "thingPouch", "thingHourglass", "thingDust", "thingFlask", "thingMoon"] as const;
-export type ThingId = (typeof THING_IDS)[number] | (typeof MORE_THING_IDS)[number];
+export type ThingId = (typeof THING_IDS)[number] | (typeof MORE_THING_IDS)[number] | RewardThingId;
 // ── gifts to come (woodcutting and mining, 2026-10-08) ── The lists above are the gifts every keeper of the game
 // knows. A later line's gifts are in lists of their own, and are offered only where whoever keeps the game gives them
 // (the keeper's `gives`), as every round of gifts has gone out.
@@ -102,7 +103,7 @@ export const GIFTS: readonly Gift[] = [
   { id: "famOtter", kind: "familiar", line: "fishing", rank: 2, by: 1, name: { th: "นากคู่ใจ", en: "An otter" },
     does: { th: "ปลาหลุดเมื่อไหร่ นากต้อนกลับมาให้สู้ใหม่ทันทีอีกหนึ่งรอบ ไม่เสียเหยื่อ มื้อละ 10 ครั้ง", en: "A fish that gets away is driven back for one more fight at once, no bait lost, ten times to a meal's hours" } },
   { id: "thingRod", kind: "thing", line: "fishing", rank: 3, by: 0.75, name: { th: "คันเบ็ดสองสาย", en: "Rod of two lines" },
-    does: { th: "ตกได้ทีละคู่: ปลาอีกตัวติดสายที่สองมาด้วย ต้องสู้สองตัวพร้อมกัน ช่วงปลอดภัยแคบลง (ใช้เหยื่อ 2 ชิ้น)", en: "A pair at a time: a second fish on the second line, two fought at once in a narrower stretch (two baits)" } },
+    does: { th: "เพิ่มสายเบ็ดหนึ่งสาย: คันพื้นฐาน 1→2 คันขั้นสูง 2→3 สู้ปลาแต่ละสายเอง ช่วงปลอดภัยแคบลง และใช้เหยื่อตามจำนวนสาย", en: "Adds one fishing line: ordinary rods 1→2, advanced rods 2→3. Fight each fish yourself in a narrower safe stretch; one bait per line." } },
   { id: "charmLine", kind: "charm", line: "fishing", rank: 4, by: 3, name: { th: "สายเบ็ดใยมังกร", en: "Dragon-silk line" },
     does: { th: "สายตึงเกินหรือหย่อนเกินยังไม่หลุดทันที มีเวลาแก้ 3 วินาที ตัวละครั้ง แก้ไม่ทันปลาหลุดตามเดิม", en: "Too taut or too slack does not lose the fish at once: three seconds to mend it, once to a fight; not mended, it is lost as ever" } },
   { id: "thingOrb", kind: "thing", line: "fishing", rank: 5, by: 2, name: { th: "ลูกแก้วฟ้าจำลอง", en: "Sky orb" },
@@ -164,7 +165,7 @@ export const MORE_GIFTS: readonly Gift[] = [
 ];
 // ── end: felling, mining ──
 /** (gifts to come) Every gift there is: the ones every keeper knows, and the later lines'. */
-export const ALL_GIFTS: readonly Gift[] = [...GIFTS, ...MORE_GIFTS];
+export const ALL_GIFTS: readonly Gift[] = [...GIFTS, ...MORE_GIFTS, ...REWARD_GIFTS];
 
 /**
  * How many charms are worn at once, and what each does: the apron, the net and the hoe widen their games so many
@@ -193,6 +194,7 @@ export type Per = "day" | "meal" | "span";
 /** (`ms`: of a count to a span of time that is neither, how long the span is: once in five minutes is one to a span of 300,000) */
 export interface Use { n: number; per: Per; ms?: number }
 export const USES: Partial<Record<GiftId, Use>> = {
+  ...REWARD_USES,
   // (the later ranks': each line's own to tune)
   thingSpoon: { n: 3, per: "day" }, famSprite: { n: 3, per: "meal" }, thingSpice: { n: 1, per: "day" }, thingFlame: { n: 3, per: "day" },
   charmRing: { n: 3, per: "day" }, thingDust: { n: 5, per: "day" },

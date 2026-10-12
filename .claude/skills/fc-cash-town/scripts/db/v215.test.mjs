@@ -1,0 +1,62 @@
+import {tier10DB} from './tier10-db.mjs';
+import {readFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+import './repo-ts-town.mjs';
+const {newPurse}=await import('@/lib/town/trade');
+// Run against v179 alone as well as the pending town stack.
+import {createRequire} from 'node:module';
+import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
+async function baselineDB(){
+ const bench=process.env.FC_DB_BENCH??'E:/NinenineProject/fcnext-codex-bench';
+ const req=createRequire(join(bench,'package.json'));
+ const {PGlite}=await import(pathToFileURL(req.resolve('@electric-sql/pglite')).href);
+ const {migration}=await import(pathToFileURL(join(bench,'pglite-harness.mjs')).href);
+ const db=new PGlite({loadDataDir:new Blob([readFileSync('.claude/skills/fc-cash-town/scripts/db/snap-v178.tar')])});
+ await db.exec(migration(179,{repo:process.cwd()}));return db;
+}
+const db=process.env.TOWN_WAREHOUSE_BASELINE==='1'?await baselineDB():await tier10DB();
+let checks=0;const eq=(a,b)=>{assert.deepEqual(a,b);checks++;};
+const sql=readFileSync('supabase/v215_a_warehouse_for_friends_on_other_shifts.sql','utf8');
+const one=async(q,args=[])=>(await db.query(q,args)).rows[0];
+try{
+ await db.exec(sql);await db.exec(sql);
+ const a=(await one('select id from public.profiles where is_admin limit 1')).id;
+ const b='00000000-0000-4000-8000-000000000215',c='00000000-0000-4000-8000-000000000216';
+ await db.query('insert into auth.users(id) values($1),($2)',[b,c]);
+ await db.query('insert into public.profiles(id,is_admin,character_id,character_verified_at) values($1,false,987215,now()),($2,false,987216,null)',[b,c]);
+ const seed=async(id,p)=>{await db.query('insert into public.town_purses(member_id) values($1) on conflict do nothing',[id]);await db.query("select town.keep_purse($1,$2::jsonb)",[id,JSON.stringify(p)]);};
+ const get=async(id)=>(await one('select town.purse_of($1,false) p',[id])).p;
+ const call=async(id,input,request=crypto.randomUUID())=>{await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id]);return(await one('select public.town_warehouse($1::jsonb,$2::uuid) r',[JSON.stringify(input),request])).r;};
+ const bag=[...Array(5).fill({item:'log',n:20}),...Array(5).fill(null)];
+ await seed(a,{...newPurse(),coins:2000,bag});await seed(b,newPurse());
+ const at=[34,35],input={action:'create',at},request=crypto.randomUUID();
+ let r=await call(a,input,request);if(!r.ok)console.log('create refusal',r.why,(await get(a)).coins,(await get(a)).bag);eq(r.ok,true);eq(r.warehouses[0].things.length,20);eq((await get(a)).coins,1000);
+ r=await call(a,input,request);eq(r.ok,true);eq((await get(a)).coins,1000);
+ await assert.rejects(call(a,{action:'invite',owner:a,member:b,at},request));checks++;
+ eq((await call(b,{action:'look'})).warehouses,[]);
+ eq((await call(b,{action:'take',owner:a,slot:0,expected:{item:'rod',n:1},at})).why,'denied');
+ eq((await call(a,{action:'invite',owner:a,member:c,at})).why,'member');
+ eq((await call(a,{action:'invite',owner:a,member:b,at})).ok,true);
+ eq((await call(b,{action:'look'})).warehouses.length,1);
+ const tool={item:'rod',n:1,plus:4,opts:['rdBand'],makers:['Alice']};
+ await seed(a,{...newPurse(),coins:1000,bag:[tool,...Array(9).fill(null)]});
+ const deposit={action:'put',owner:a,slot:0,expected:tool,at};
+ r=await call(a,deposit);eq(r.ok,true);eq(r.warehouses[0].things[0],tool);eq((await get(a)).bag[0],null);
+ eq((await call(b,{action:'take',owner:a,slot:0,expected:{item:'rod',n:1},at})).why,'changed');
+ const take={action:'take',owner:a,slot:0,expected:tool,at},tid=crypto.randomUUID();
+ eq((await call(b,take,tid)).ok,true);eq((await get(b)).bag[0],tool);
+ eq((await call(b,take,tid)).ok,true);eq((await get(b)).bag.filter(Boolean).length,1);
+ eq((await call(a,take)).why,'changed');
+ eq((await call(a,{action:'remove',owner:a,member:b,at})).ok,true);
+ eq((await call(b,{action:'look'})).warehouses,[]);
+ eq((await call(b,deposit)).why,'denied');
+ eq((await call(a,{action:'create',at:[0,0]})).why,'far');
+ await db.query("select set_config('request.jwt.claim.sub',$1,false)",[a]);
+ await db.exec('set role authenticated');
+ await assert.rejects(db.query('select * from public.town_warehouses'));checks++;
+ await assert.rejects(db.query("update public.town_warehouses set members='{}' where owner=$1",[a]));checks++;
+ await db.exec('reset role;set role anon');await assert.rejects(db.query("select public.town_warehouse('{\"action\":\"look\"}'::jsonb,null)"));checks++;
+ await db.exec('reset role');await assert.rejects(call(c,{action:'look'}));checks++;
+ console.log(`${checks} warehouse checks passed: stock metadata, stale slots, idempotency, grants, verified members and revoked access.`);
+}finally{await db.close();}

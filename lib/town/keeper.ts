@@ -1,6 +1,8 @@
+import{mealDuration}from"./stamina";
 import type { RockChoice } from "./geology";
 import type { InsectCare } from "./insect-garden";
 import type { Box, BoxRefusal, BoxUpgrade } from "./box";
+import type { RewardInput, RewardReply } from "./reward-types";
 import type { CraftId } from "./crafting";
 import type { Current } from "./river-items";
 import type { StreamAction, StreamGate } from "./stream-work";
@@ -142,7 +144,7 @@ export type Looked = "stall" | "farm" | "kitchen" | "deal" | "fountain" | "wild"
   // ── felling ── (the mountain's trees: who felled which is everybody's)
   | "trees"
   // ── the bridge built by hand ── and ── the lamp relay ──
-  | "works" | "lamps";
+  | "works" | "lamps" | "boats";
 export type Water = "river" | "well" | null;
 /** A game of timing as the browser played it: the database keeps it with the play, and bounds what it costs. */
 export interface Timing { hits: number; misses: number; secs: number; need?: number; rotation?: number }
@@ -158,11 +160,14 @@ export type CastHow = "pair" | "star";
 export interface Hooked { what: CatchId; size: number; landed: boolean; kept?: boolean }
 /** (a strike's answer, of a rod of two lines: the two, in their order; and `harder`: how many times as hard the deck's good fish are for me, where they are: lib/town/gifts' harderFor) */
 export interface Struck { pair?: Hooked[]; harder?: number }
+export interface Struck { powers?:Array<{key:string;quiet:number}> }
 /** What a line dropped is told of: how long until the bite and when the float twitches; and, where it is told, a shade or the thing itself of what is on its way (`coming2`: of the second line's), and that two lines are out. */
 export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number };
 
 export interface Keeper {
   warehouse(input: import("./warehouse").WarehouseInput, request?: string): Promise<import("./warehouse").WarehouseReply | null>;
+  boats?():import("./lotus-boats").LotusBoat[];
+  boatsLook?(at:[number,number]):Promise<void>;
   readonly id: string;
   /** The browser's trial when that is what keeps things: the test window and the "skip a round" buttons are its. Null when the database keeps them. */
   readonly trial: Trial | null;
@@ -300,6 +305,7 @@ export interface Keeper {
   orbLight(sky: string): Promise<Did<{ until: number }>>;
   /** (`which`: of two fish still on a rod of two lines, the one that has ended: the first, or 1 for the second) */
   land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: number): Promise<Landed>;
+  fishingPower?(key:string,charge:number):Promise<Did<{quiet:number;combo?:import('./combo-types').ComboEffect}>>;
 
   /** `sure`: the page has asked a second time and been told that a living plant is meant to be dug out (lib/town/farm). */
   // (forging: `also`, the plots beside it that the tool in the hand did the same to, by their keys: lib/town/farm's beside)
@@ -637,6 +643,11 @@ export interface Keeper {
   mineDo(floor: number, rock: number, at: [number, number], swings: number, name: string, how?: "quake"): Promise<MineDone<MineDid>>;
   /** What a rock holds, for a pick that sees into it. */
   minePeek(floor: number, rock: number): Promise<MineDone<{ peek: Peek }>>;
+  springs?():import("./reward-springs").RewardSpring[];
+  springsLook?():Promise<void>;
+  bridges?():import("./temporary-crossings").TemporaryCrossing[];
+  bridgesLook?():Promise<void>;
+  rewardDo?(input: RewardInput, request: string): Promise<Did<RewardReply>>;
   /** The vein I opened, played out: its strikes in their order. */
   veinDo(strikes: Array<[number, number]>, choice?: RockChoice): Promise<MineDone<VeinDid>>;
   /** I have come to a floor: a resting floor reached is one of my lift's stops from then on. */
@@ -657,7 +668,7 @@ export interface Keeper {
   /** The mountain's trees as I am told them: every one that is not grown, and those half cut. Null where whoever keeps the game keeps no trees (then nothing is felled, and every tree is drawn grown). */
   trees(): TreesTold | null;
   /** Walk up to a tree with an axe in the hand, from the tile I stand on: the game that fells it (the trees it is for, and what the game is made from), or the state that refuses it. */
-  fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>>;
+  fellBegin(tree: number, at: [number, number],direction?:import("./reward-domino").DominoDirection): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>>;
   /** A go at felling as it was played, from the tile I stand on: what it brought home (a trunk cut through fells the tree; a go that was lost leaves it standing, `stood`). `name`: mine, for the book of the pines. */
   fellDo(went: FellWent, at: [number, number], name: string): Promise<Did<FellDid>>;
   /** Brace the trunk of somebody's go that is open, from the tile I stand on: the tree it is at. Paid when their go is over. */
@@ -734,7 +745,7 @@ type Answer = Record<string, unknown>;
 interface Turn { before?: () => boolean | void; after?: (a: Answer | null) => void }
 
 /** How often what others may change is asked for while it is looked at, in milliseconds. A nudge from the room asks at once. */
-const EVERY: Record<Looked, number> = { /* mining */ cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000 };
+const EVERY: Record<Looked, number> = { /* mining */ boats: 15000, cave: 60_000, stall: 30_000, farm: 60_000, kitchen: 90_000, deal: 60_000, fountain: 60_000, wild: 45_000, bugs: 45_000, notices: 30_000, line: 60_000, ground: 10_000, shop: 30_000, /* felling */ trees: 60_000, works: 45_000, lamps: 60_000 };
 /**
  * The room's word that a thing changed is answered at once, and then no oftener than this for the things that are
  * dear to read (seen on the live database the evening the mountain opened, 2026-10-09: seven members in the cave,
@@ -1208,6 +1219,9 @@ export class DbKeeper implements Keeper {
       const fire = fireOf(told.fire);
       if (fire) this.fire_ = fire;
     }
+    if(Array.isArray(a.boats))this.boats_=a.boats as import("./lotus-boats").LotusBoat[];
+    if(Array.isArray(a.bridges))this.bridges_=a.bridges as import("./temporary-crossings").TemporaryCrossing[];
+    if(Array.isArray(a.springs))this.springs_=a.springs as import("./reward-springs").RewardSpring[];
     if (Array.isArray(a.gives)) { this.givesRaw_ = (a.gives as unknown[]).filter((x): x is string => typeof x === "string"); this.fit(); }
     if (a.titles && typeof a.titles === "object") {
       this.titlesRaw_ = Object.fromEntries(Object.entries(a.titles as Record<string, unknown>).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
@@ -1317,6 +1331,7 @@ export class DbKeeper implements Keeper {
     };
   }
   nudged(what: Looked) {
+    if(what==="boats"){void this.boatsLook(this.boatAt_);return;}
     // (somebody handed me water: it is in my purse, which is read again)
     if (what === "line") {
       void this.refresh("town_me");
@@ -1374,6 +1389,7 @@ export class DbKeeper implements Keeper {
       : what === "trees" ? (this.far_ ? this.refresh("town_trees") : Promise.resolve(null))
       : what === "works" ? this.refresh("town_works_read")
       : what === "lamps" ? this.refresh("town_lamps_read")
+      : what === "boats" ? this.refresh("town_reward_boats",()=>({p_x:this.boatAt_[0],p_y:this.boatAt_[1]}))
       : this.refresh("town_farm", () => ({ p_since: this.farmAt })).then((a) => { if (a && typeof a.now === "number") this.farmAt = a.now; return a; });
     void asked.then(() => {
       const still = this.looking.get(what);
@@ -1449,9 +1465,9 @@ export class DbKeeper implements Keeper {
     this.tell();
     if (!this.farTimer && !this.shut) this.farTimer = setTimeout(() => { this.farTimer = null; void this.askFar(); }, FAR_MS);
   }
-  async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> {
+  async fellBegin(tree: number, at: [number, number],direction?:import("./reward-domino").DominoDirection): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> {
     if (!this.trees_) return { ok: false, why: "none" };
-    const a = await this.ask("town_fell_begin", { p_tree: tree, p_x: at[0], p_y: at[1] });
+    const a = await this.ask(direction?"town_fell_domino_begin":"town_fell_begin", { p_tree: tree, p_x: at[0], p_y: at[1],...(direction?{p_direction:direction}:{}) });
     if (!a) return AWAY;
     return a.ok === true ? { ok: true, trees: a.group as number[], ask: a.ask as FellingAsk, elder: !!a.elder } : { ok: false, why: (a.why as Why) ?? "none" };
   }
@@ -1589,7 +1605,7 @@ export class DbKeeper implements Keeper {
     if (this.mealEnd) { clearTimeout(this.mealEnd); this.mealEnd = null; }
     const e = this.mine.eating;
     if (!e) return;
-    const till = e.from + STAMINA.minutes * 60_000 - this.now();
+    const till = e.from + mealDuration(this.mine) - this.now();
     this.mealEnd = setTimeout(() => { this.mealEnd = null; if (this.mine.eating) this.munch(this.company); }, Math.max(0, till) + 300);
   }
   async getUp(company: number) { if (this.mine.eating) await this.ask("town_get_up", { p_company: company }); }
@@ -1667,6 +1683,7 @@ export class DbKeeper implements Keeper {
     if (!a.ok) return { ok: false, why: (a.why as Why) ?? "none" };
     return { ok: true, hooked: !!a.hooked, how: a.how as Struck["how"], what: a.what as CatchId | undefined, size: a.size as number | undefined,
       landed: !!a.landed, kept: a.kept as boolean | undefined, record: false,
+      ...(Array.isArray(a.powers)?{powers:a.powers as Array<{key:string;quiet:number}>}:{}),
       // ── gifts: fishing ──
       ...(Array.isArray(a.pair) ? { pair: a.pair as Hooked[] } : {}), ...(typeof a.harder === "number" && a.harder > 1 ? { harder: a.harder } : {}) };
   }
@@ -1691,6 +1708,7 @@ export class DbKeeper implements Keeper {
       // ── gifts: fishing ──
       ...(a.again ? { again: true } : {}), ...(a.more ? { more: true } : {}), ...(a.combo ? { combo: a.combo as import("./combo-types").ComboEffect } : {}) };
   }
+  async fishingPower(key:string,charge:number){return this.deed<{quiet:number;combo?:import('./combo-types').ComboEffect}>('town_fishing_power',{p_key:key,p_charge:charge});}
 
   // (forging: old tools: the answer's `also` are the plots beside the deed's that it changed too, each of which comes in the answer's `plots` and is kept as any answer's are)
   async farmDo(key: string, _name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
@@ -1893,6 +1911,28 @@ export class DbKeeper implements Keeper {
     return did;
   }
   minePeek(floor: number, rock: number) { return this.deed<{ peek: Peek }>("town_mine_peek", { p_floor: floor, p_rock: rock }) as Promise<MineDone<{ peek: Peek }>>; }
+  private boats_:import("./lotus-boats").LotusBoat[]=[];
+  private boatAt_:[number,number]=[0,0];
+  boats(){return this.boats_;}
+  async boatsLook(at:[number,number]){this.boatAt_=at;await this.refresh("town_reward_boats",()=>({p_x:at[0],p_y:at[1]}));}
+  private bridges_:import("./temporary-crossings").TemporaryCrossing[]=[];
+  bridges(){return this.bridges_;}
+  async bridgesLook(){await this.refresh("town_reward_bridges");}
+  private springs_:import("./reward-springs").RewardSpring[]=[];
+  springs(){return this.springs_;}
+  async springsLook(){await this.refresh("town_reward_springs");}
+  async rewardDo(input: RewardInput, request: string) {
+    const did=await this.deed<RewardReply>("town_reward",{p_request:request,p_input:input});
+    if(did.ok&&did.plots){for(const [key,plot]of Object.entries(did.plots))this.plot(key,plot);this.onDeed?.("farm");}
+    if(did.ok&&did.banquet){this.pots_=[...this.pots_,...did.banquet];this.tell();this.onDeed?.("kitchen");}
+    if(did.ok&&(input.action==="picnicPlace"||input.action==="picnicEat")){const pot=did.picnic;this.pots_=pot?[...this.pots_.filter(o=>o.id!==pot.id),pot]:input.action==="picnicEat"?this.pots_.filter(o=>o.id!==input.pot):this.pots_;this.tell();this.onDeed?.("kitchen");}
+    if(did.ok&&input.action==="boat"){await this.boatsLook(input.at);this.onDeed?.("boats");}
+    if(did.ok&&input.action==="bridgeBuild"){await this.bridgesLook();this.onDeed?.("trees");}
+    if(did.ok&&(input.action==="pactEnd"||input.action==="extractEnd")){await this.refresh("town_trees");this.onDeed?.("trees");}
+    if(did.ok&&(input.action==="springPlace"||input.action==="springDraw")){await this.springsLook();this.onDeed?.("farm");if(input.action==="springDraw")void this.refresh("town_moon");}
+    if(did.ok&&(input.action==="conduitEnd"||input.action==="cloudEnd")){await this.refresh("town_farm",()=>({p_since:this.farmAt}));this.onDeed?.("farm");if(this.wellBook_)void this.ask("town_well");}
+    return did;
+  }
   /**
    * The database does not lay a vein's face out (the generator is not written twice): this page, which has the face,
    * says what the go came to (lib/town/vein-account's `accountOf`), and is believed within what the rules allow of any

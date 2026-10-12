@@ -196,7 +196,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
         }
       }
       for (const pot of potsRef.current) {
-        if (pot.feast) continue;
+        if (pot.feast || pot.picnic) continue;
         // (a pot in the cooking yard is under its roof for whoever is outside)
         if (!indoors && onYard(pot.at[0], pot.at[1])) continue;
         // a little before whoever stands on its tile
@@ -239,7 +239,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     let best: Pot | null = null, far = Infinity;
     for (const pot of pots) {
       // (what is on the feast table is the table's panel's, from anywhere in the yard)
-      if (pot.feast) continue;
+      if (pot.feast || pot.picnic) continue;
       const d = Math.hypot(pot.at[0] - here.tile[0], pot.at[1] - here.tile[1]);
       if (d <= reachOf(pot) && d < far) { best = pot; far = d; }
     }
@@ -282,7 +282,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   const [open, setOpen] = useState(false);
   const [things, setThings] = useState<Array<[ItemId, number]>>([]);
   const leaving = useLeaving(keeper);
-  const [stirring, setStirring] = useState<{ things: Array<[ItemId, number]>; crew: Array<ItemId | null> } | null>(null);
+  const [stirring, setStirring] = useState<{ things: Array<[ItemId, number]>; crew: Array<ItemId | null>;warmJob?:string } | null>(null);
   /** What came of the last go, while its card is up. */
   const [result, setResult] = useState<KitchenResult | null>(null);
   /** The notebook: every try and what came of it, kept in this browser. */
@@ -347,11 +347,18 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
     if (!did.ok) { say(did.why); return; }
     sfx?.wake(); sfx?.work("down", 0.6);
   }, [keeper, say, sfx]);
-  const go = useCallback(() => {
+  const beginning = useRef(false);
+  const go = useCallback(async () => {
+    if (beginning.current || stirring) return;
     const why = keeper.cookTry(things, cooks);
     if (why) { say(why); return; }
-    setStirring({ things, crew: cooks });
-  }, [keeper, things, cooks, say]);
+    beginning.current = true;
+    try {
+      const warm=await keeper.comboPrepare?.('cookBegin',{things,crew:cooks});
+      setStirring({ things, crew: cooks,...(warm?.ok&&warm.job?{warmJob:warm.job}:{}) });
+    } finally { beginning.current = false; }
+  }, [keeper, things, cooks, say, stirring]);
+  const rainRetry=useCallback(async(result:{hits:number;misses:number;secs:number})=>{if(!stirring?.warmJob)return false;const d=await keeper.comboPrepare?.('cookRetry',{job:stirring.warmJob,...result});return !!d?.ok;},[keeper,stirring]);
   /** What a go came to, however it was cooked (`how`: by hand, with the game's account; by the hearth sprite, with none): told, written down, shown. */
   const cooked = useCallback(async (job: { things: Array<[ItemId, number]>; crew: Array<ItemId | null> }, result: GameResult, how: CookHow = {}) => {
     const before = keeper.purse().bag;
@@ -393,6 +400,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
   const giveUp = useCallback(() => {
     const job = stirring;
     setStirring(null);
+    void keeper.comboPrepare?.('cookCancel');
     if (job) leaving.left(job, { game: "cooking", board: job.crew[0] === "skewer" ? "roasting" : "stirring", how: "left", at: keeper.now(), won: false, secs: 0, spent: isSpent(keeper.purse(), keeper.now()), buff: null, what: "nothing", need: 0, hits: 0, misses: 0 });
   }, [stirring, keeper, leaving]);
   const finish = useCallback((result: GameResult) => {
@@ -563,6 +571,7 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
+      if (document.querySelector('[data-town-game], [data-reward-extraction-game]')) return;
       e.preventDefault();
       e.stopPropagation();
       act(first);
@@ -622,11 +631,13 @@ export default function TownCook({ me, keeper, called, th, here, crew, cooks: ot
           {/* what is cooked on a stick is roasted over the fire, a game of its own; everything else is stirred */}
           {stirring.crew[0] === "skewer" ? (
             <TownRoasting th={th} title={th ? "ย่างไฟ" : "Roasting"} spent={spent} calm={(1 + buffBy(purse, now, "calm"))} harder={harder} scene={art?.("gameFire") ?? null}
+                          onMissRetry={stirring.warmJob?rainRetry:undefined}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "sizzle" : "charred"); if (hit) { vfx.add("smoke", null, { lift: 22 }); vfx.element(heldStack(purse, keeper.handSlot()), null, { lift: 22 }); } }}
                           onTurn={() => { sfx?.wake(); sfx?.work("turn", 0.7); }} onFlare={() => { sfx?.wake(); sfx?.work("crackle"); }}
                           onDone={finish} onCancel={giveUp} />
           ) : (
             <TownStirring th={th} title={th ? "ทำอาหาร" : "Cooking"} need={stirsWith(stirsFor(stirring.things), cfx)} mods={{ ...stirMods(carriedBag(purse), spent, (1 + buffBy(purse, now, "calm"))), forged: cfx.band, spare: cfx.spared, grace: cfx.grace, steady: cfx.steady }} harder={harder} guide={cfx.guide}
+                          onMissRetry={stirring.warmJob?rainRetry:undefined}
                           onHit={(hit) => { sfx?.wake(); sfx?.work(hit ? "stir" : "clang"); if (hit) { vfx.add("steam", null, { lift: 22 }); vfx.element(heldStack(purse, keeper.handSlot()), null, { lift: 22 }); } }}
                           onDone={finish} onCancel={giveUp} />
           )}

@@ -4,8 +4,9 @@ import type { Held, Place } from "./forest";
 import type { ItemId } from "./items";
 import { hasBuff, spend } from "./stamina";
 import { held, no, put, roomFor, type Done, type Purse } from "./trade";
+import {works,useGift,usesLeft} from "./gifts";
 
-export type ForestPart="whole"|"leaf"|"root";
+export type ForestPart="whole"|"leaf"|"root"|"paired";
 export interface ForestRest {from:number;until:number}
 /** Uprooting leaves the current shares intact, then rests the site during its following turn. */
 export const FORAGE_PARTS={
@@ -17,6 +18,18 @@ export const seesTraces=(purse:Purse,now:number)=>held(carriedBag(purse),"traceL
 export const restingAt=(rest:ForestRest|undefined,now:number)=>!!rest&&rest.from<=now&&now<rest.until;
 /** All choices are checked again by the keeper; names and discoveries never determine a yield. */
 export function gatherPart(purse:Purse,spot:Pick<Place,"id"|"kind">,has:Held,part:ForestPart,hand:ItemId|null,misses:number,cost:number,nextTurn:number,now:number):Done<{purse:Purse;got:Array<[ItemId,number]>;rest?:ForestRest}> {
+  if(part==="paired"){
+    const parts=partsAt(spot.kind);
+    if(!works(purse,"famForestGuardian")||!parts.leaf||!parts.root||parts.leaf===parts.root)return no("none");
+    if(!Number.isFinite(misses)||misses<0||usesLeft(purse,"famForestGuardian",now)<1)return no("none");
+    if(held(carriedBag(purse),"rootSpade")<1&&(!hand||!HOES.includes(hand)))return no("tool");
+    // A flawed reading gets the normal leaf yield; it cannot be forgiven into a mastery reward.
+    if(misses!==0)return gatherPart(purse,spot,has,"leaf",hand,misses,cost,nextTurn,now);
+    const leaf=gatherPart(purse,spot,has,"leaf",hand,0,cost,nextTurn,now);if(!leaf.ok)return leaf;
+    const root=gatherPart(leaf.purse,spot,has,"root",hand,0,cost,nextTurn,now);if(!root.ok)return root;
+    const used=useGift(root.purse,"famForestGuardian",now);if(!used.ok)return no("none");
+    return {...root,purse:used.purse,got:[...leaf.got,...root.got]};
+  }
   if(part!=="leaf"&&part!=="root")return no("none");
   const item=partsAt(spot.kind)[part];if(!item)return no("none");
   if(part==="root"&&held(carriedBag(purse),"rootSpade")<1&&(!hand||!HOES.includes(hand)))return no("tool");

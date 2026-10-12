@@ -1,4 +1,5 @@
 import { giftsOf } from "./gifts";
+import { learnMinerals } from "./reward-knowledge";
 import type { ItemId } from "./items";
 import { ELEMENTS, GEMS, MINED, ORES } from "./tools";
 import { ITEMS, put, roomFor, take, type Purse, type Stack } from "./trade";
@@ -21,9 +22,10 @@ export interface Pouch {
 /** The pouches there are, in the order things are put into them. One line a pouch, each its builder's to add. */
 export const POUCHES: readonly Pouch[] = [
   // ── mining ── (the mine's things: stone, ore fragments, gem fragments, big ore and gems)
-  { gift: "thingSack", slots: 5, holds: [...MINED, ...ORES.map((o): ItemId => o.ore), ...ELEMENTS.map((e) => GEMS[e].gem)] },
+  { gift: "thingSack", slots: 5, holds: [...MINED, ...ORES.map((o): ItemId => o.ore), ...ELEMENTS.map((e) => GEMS[e].gem),
+    "slateLayer", "clayPocket", "quartzCore", "pyriteCluster", "copperNodule", "ironNodule", "silverNodule", "mineralSalt", "wholeGeode"] },
   // ── felling ── (wood: logs and fine timber)
-  { gift: "thingBundle", slots: 3, holds: ["log", "timber"] },
+  { gift: "thingBundle", slots: 3, holds: ["log", "timber", "knottedWood", "straightWood", "heartwood", "cedarSliver", "pineBark", "pinePitch", "pineNut", "rootFiber"] },
 ];
 export const pouchOf = (gift: string): Pouch | null => POUCHES.find((p) => p.gift === gift) ?? null;
 
@@ -74,7 +76,7 @@ export function stowAll<P extends Pick<Purse, "bag" | "gifts" | "pouches">>(purs
     if (roomIn(out, id) < n) return null;
     out = stow(out, id, n);
   }
-  return out;
+  return learnMinerals(out, things);
 }
 /** A purse with some of a thing taken out: from the bag first, then the pouches. (It must hold as many: `heldIn`.) */
 export function takeOut<P extends Pick<Purse, "bag" | "gifts" | "pouches">>(purse: P, id: ItemId, n: number): P {

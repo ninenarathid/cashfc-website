@@ -13,8 +13,8 @@ const selectedClass = "border-[#8fd45f] bg-[#31512c] text-[#f4ffe8]";
 const plainClass = "border-[#2a190d] bg-[#4a2f18] text-[#ffeccb]";
 
 /** Read the trunk, choose three notches and a safe fall, then play the timed chops. */
-export default function TownWoodGrain({ th, tree, hints, direction, buffered, onBond, reduced, onReady, onSkip, onCancel }: {
-  onBond?: (notches: number[]) => Promise<ComboEffect | undefined>; reduced?: boolean;
+export default function TownWoodGrain({ th, tree, hints, direction, buffered, onBond, reduced, masteryUses=0, restingParts=[], onReady, onSkip, onCancel }: {
+  onBond?: (notches: number[]) => Promise<ComboEffect | undefined>; reduced?: boolean;masteryUses?:number;restingParts?:WoodPart[];
   th: boolean; tree: number; hints: number; direction: boolean; buffered: boolean;
   onReady: (choice: WoodSelection) => void; onSkip: () => void; onCancel: () => void;
 }) {
@@ -25,7 +25,8 @@ export default function TownWoodGrain({ th, tree, hints, direction, buffered, on
   const [notches, setNotches] = useState<Array<GrainSide | null>>([null, null, null]);
   const [lean, setLean] = useState<GrainSide | null>(null);
   const [part, setPart] = useState<WoodPart>("wood");
-  const complete = notches.every(s => s !== null) && lean !== null;
+  const [second,setSecond]=useState<"bark"|"sap"|"seed"|null>(null);
+  const complete = notches.every(s => s !== null) && lean !== null && !restingParts.includes(part);
   return <section data-wood-grain data-town-game aria-label={th ? "อ่านลายไม้" : "Read the grain"}
     className={`${styles.panel} ${styles.wood} max-w-full`}>
     <div className="flex items-center justify-between gap-2">
@@ -65,13 +66,19 @@ export default function TownWoodGrain({ th, tree, hints, direction, buffered, on
     <fieldset className="mt-2">
       <legend className="mb-1 text-meta">{th ? "ส่วนที่จะเก็บเพิ่มเติม" : "Additional part to harvest"}</legend>
       <div className="flex flex-wrap gap-1">{WOOD_PARTS.map(p => <button key={p} type="button" aria-pressed={part === p}
-        onClick={() => setPart(p)} data-wood-part={p} className={`pressable min-h-11 grow rounded-md border-2 px-2 text-meta ${part === p ? selectedClass : plainClass}`}>{PART[p][th ? 0 : 1]}</button>)}</div>
+        disabled={restingParts.includes(p)} onClick={() => setPart(p)} data-wood-part={p} className={`pressable min-h-11 grow rounded-md border-2 px-2 text-meta ${part === p ? selectedClass : plainClass}`}>{PART[p][th ? 0 : 1]}</button>)}</div>
     </fieldset>
+    {masteryUses>0&&<fieldset className="mt-2" data-wood-mastery>
+      <legend className="mb-1 text-meta">{th?`ส่วนที่สองเมื่ออ่านถูกและไม่พลาด · เหลือ ${masteryUses} ต้น`:`Second part for a perfect reading · ${masteryUses} trunks left`}</legend>
+      <div className="flex flex-wrap gap-1">{([null,"bark","sap","seed"] as const).filter(p=>p===null||p!==part).map(p=><button key={p??"none"} type="button" aria-pressed={second===p} disabled={p!==null&&restingParts.includes(p)} onClick={()=>setSecond(p)} data-wood-second={p??"none"} className={`pressable min-h-11 grow rounded-md border-2 px-2 text-meta ${second===p?selectedClass:plainClass}`}>{p?PART[p][th?0:1]:th?"ไม่เก็บเพิ่ม":"No second part"}</button>)}</div>
+      <p className="mt-1 text-meta">{th?"รวมสองส่วนต่อต้น มีดแยกส่วนจะไม่เปิดซ้ำหลังได้ส่วนที่สอง":"Two parts per trunk. The knife cannot extract another part afterward."}</p>
+    </fieldset>}
+    {restingParts.length>0&&<p className="mt-2 text-meta" role="status">{th?"บางส่วนเพิ่งถูกเก็บและกำลังพัก เลือกส่วนอื่นหรือเก็บเนื้อไม้ได้ตามปกติ":"Some parts were recently collected and are resting. Choose another part or collect wood normally."}</p>}
     {buffered && <p className="mt-1 text-meta text-[#bde99e]">{th ? "หลักประคองช่วยรักษาคุณภาพจากการพลาดหนึ่งครั้ง" : "The bracing stake preserves quality through one miss."}</p>}
     {!complete && <p role="status" className="mt-2 text-meta">{th ? `เลือกรอยบากแล้ว ${notches.filter(s => s !== null).length} / 3 จุด${lean === null ? " · ยังไม่ได้เลือกทิศล้ม" : " · เลือกทิศล้มแล้ว"}` : `${notches.filter(s => s !== null).length} / 3 notches chosen · ${lean === null ? "Choose a fall direction" : "Fall direction chosen"}`}</p>}
     <div className="mt-3 flex gap-2">
       <button type="button" onClick={onSkip} className="pressable min-h-11 rounded-md border-2 border-[#2a190d] px-2 text-meta">{th ? "เก็บไม้ตามเดิม" : "Original harvest"}</button>
-      <button type="button" disabled={!complete || checking} onClick={async () => { if(!complete || checking) return; if(!checked && onBond) { setChecking(true); try { const effect=await onBond(notches as number[]); setChecked(true); if(effect) { setBond(effect); return; } } finally { setChecking(false); } } onReady({ notches: notches as GrainSide[], direction: lean!, part }); }}
+      <button type="button" disabled={!complete || checking} onClick={async () => { if(!complete || checking) return; if(!checked && onBond) { setChecking(true); try { const effect=await onBond(notches as number[]); setChecked(true); if(effect) { setBond(effect); return; } } finally { setChecking(false); } } onReady({ notches: notches as GrainSide[], direction: lean!, part,...(second&&second!==part&&!restingParts.includes(second)?{second}:{}) }); }}
         data-grain-ready className="pressable min-h-11 flex-1 rounded-md border-[3px] border-[#2a190d] bg-[#f0c060] px-3 text-ui font-semibold text-[#3a2209] disabled:opacity-45">{th ? "พร้อมลงขวาน" : "Ready to chop"}</button>
     </div>
   </section>;

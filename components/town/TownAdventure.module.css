@@ -161,3 +161,8 @@
 @media (max-width: 480px) { .bookCategories { flex-wrap: nowrap; overflow-x: auto; } .bookCategories button { flex-shrink: 0; white-space: nowrap; } }
 :global([data-still]) .turn { animation: none; }
 @media (max-height: 600px) { .panel { max-height: 78dvh; } .leaf { min-height: 180px; } }
+
+.coverCompact { min-height: 44px; padding: 6px 24px 6px 10px; gap: 8px; border-left-width: 5px; box-shadow: 1px 2px 0 #604b31; }
+.coverCompact::after { width: 7px; height: 16px; right: 9px; }
+.coverCompact .coverTitle { font-size: 12px; }
+.coverCompact .coverHint { font-size: 10px; margin-top: 0; }

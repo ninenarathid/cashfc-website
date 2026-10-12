@@ -1,9 +1,13 @@
+import {partReady,restPart,type TreeParts} from "./tree-parts";
 import { trainElement } from "./element-training";
 import { FELLING, leastSecs, timberOf, type Family, type FellTree, type FellingAsk, type Girth } from "./felling";
-import { works } from "./gifts";
+import { works,useGift,usesLeft } from "./gifts";
+import {dominoGroup,type DominoDirection} from "./reward-domino";
 import type { ItemId } from "./items";
 import type { TreeAge } from "./mountain";
 import { stowAll } from "./pouches";
+import { extractionSource } from "./reward-actions";
+import { listeningHarvest } from "./reward-wood";
 import { mayPower, usePower } from "./powers";
 import { dayOf, eased, isSpent, spend } from "./stamina";
 import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, gemStamina, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
@@ -141,13 +145,13 @@ const apart = (a: Standing, b: Standing) => Math.max(Math.abs(a.x - b.x), Math.a
 /** A tree that was felled: when, and by whom. */
 export interface Felled { at: number; by: string }
 /** A go that is open: the trees it is for (the one walked up to first), when its board was opened, and who braces its trunk, if anybody. */
-export interface Go { trees: number[]; at: number; braced?: string }
+export interface Go { trees: number[]; at: number; braced?: string;domino?:DominoDirection;comboLoadout?:string }
 /**
  * The trees as they are kept, the village's: those felled and not yet grown again, by their numbers; those an axe's
  * lightning has left half cut; the goes that are open, by whose they are; and the book of the pines, each keepsake
  * that was ever found with who found it first and when.
  */
-export interface Grove { down: Record<string, Felled>; half: number[]; goes?: Record<string, Go>; book?: Record<string, { by: string; at: number }> }
+export interface Grove { parts?:TreeParts; down: Record<string, Felled>; half: number[]; goes?: Record<string, Go>; book?: Record<string, { by: string; at: number }> }
 export const newGrove = (): Grove => ({ down: {}, half: [] });
 /** A grove as it is kept, made sound. */
 export function groveOf(v: unknown): Grove {
@@ -158,13 +162,14 @@ export function groveOf(v: unknown): Grove {
   const goes: Record<string, Go> = {}, book: Record<string, { by: string; at: number }> = {};
   for (const [who, go] of Object.entries(g.goes && typeof g.goes === "object" ? g.goes : {})) {
     if (go && Array.isArray(go.trees) && go.trees.length && go.trees.every((n) => Number.isInteger(n)) && typeof go.at === "number" && Number.isFinite(go.at)) {
-      goes[who] = { trees: [...go.trees], at: go.at, ...(typeof go.braced === "string" && go.braced && go.braced !== who ? { braced: go.braced } : {}) };
+      goes[who] = { trees: [...go.trees], at: go.at, ...(typeof go.braced === "string" && go.braced && go.braced !== who ? { braced: go.braced } : {}),...(Array.isArray(go.domino)&&go.domino.length===2?{domino:go.domino}:{}),...(typeof go.comboLoadout==='string'?{comboLoadout:go.comboLoadout}:{}) };
     }
   }
   for (const [id, f] of Object.entries(g.book && typeof g.book === "object" ? g.book : {})) {
     if (isKeepsake(id) && f && typeof f.by === "string" && typeof f.at === "number" && Number.isFinite(f.at)) book[id] = { by: f.by, at: f.at };
   }
   return {
+    ...(g.parts&&typeof g.parts==="object"?{parts:Object.fromEntries(Object.entries(g.parts).filter(([id])=>WOOD.some(t=>String(t.id)===id)).map(([id,parts])=>[id,Object.fromEntries(Object.entries(parts??{}).filter(([part,t])=>["bark","sap","seed","root"].includes(part)&&typeof t==="number"&&Number.isFinite(t))) ]))}:{}),
     down, half: Array.isArray(g.half) ? [...new Set(g.half.filter((n): n is number => Number.isInteger(n)))] : [],
     ...(Object.keys(goes).length ? { goes } : {}), ...(Object.keys(book).length ? { book } : {}),
   };
@@ -230,7 +235,7 @@ export function tidied(grove: Grove, now: number, wood: readonly Standing[] = WO
  * when it is grown again is told to whoever holds an axe that knows it. And the book of the pines, where anything
  * has been found: each keepsake with who found it first.
  */
-export interface TreesTold { down: Array<{ id: number; at: number; until?: number }>; half: number[]; book?: Array<[id: string, by: string]> }
+export interface TreesTold { parts?:TreeParts; down: Array<{ id: number; at: number; until?: number }>; half: number[]; book?: Array<[id: string, by: string]> }
 export function toldOf(grove: Grove, purse: Purse, now: number, wood: readonly Standing[] = WOOD): TreesTold {
   const knows = has(heldStack(purse), "axElder"), down: TreesTold["down"] = [];
   for (const [id, f] of Object.entries(grove.down)) {
@@ -240,7 +245,7 @@ export function toldOf(grove: Grove, purse: Purse, now: number, wood: readonly S
     if (now < until) down.push({ id: t.id, at: f.at, ...(t.elder && !knows ? {} : { until }) });
   }
   const book = KEEPSAKE_IDS.filter((id) => grove.book?.[id]).map((id): [string, string] => [id, grove.book![id].by]);
-  return { down: down.sort((a, b) => a.id - b.id), half: grove.half.filter((id) => !grove.down[id]).sort((a, b) => a - b), ...(book.length ? { book } : {}) };
+  return { ...(grove.parts?{parts:restPart(grove.parts,0,"wood",now)}:{}), down: down.sort((a, b) => a.id - b.id), half: grove.half.filter((id) => !grove.down[id]).sort((a, b) => a - b), ...(book.length ? { book } : {}) };
 }
 /** A tree's look as a page reads it from what it was told: grown, with nothing told of it. */
 export function lookOf(told: TreesTold | null, id: number, now: number): TreeAge {
@@ -393,7 +398,7 @@ export interface Begun { trees: number[]; ask: FellingAsk; elder: boolean }
  * be; their own never refuses them); a tree that is not grown; a bag with no room for what it may give.
  * (Whoever keeps the game writes the go down as open, with `opened`, when a board is put up for it.)
  */
-export function begin(purse: Purse, grove: Grove, id: number, at: readonly [number, number], now: number, seed: number, wood: readonly Standing[] = WOOD, me?: string): ({ ok: true } & Begun) | No {
+export function begin(purse: Purse, grove: Grove, id: number, at: readonly [number, number], now: number, seed: number, wood: readonly Standing[] = WOOD, me?: string,direction?:DominoDirection): ({ ok: true } & Begun) | No {
   const t = treeOf(id, wood), axe = axeOf(purse);
   if (!t) return no("none");
   if (!axe) return no("tool");
@@ -402,7 +407,8 @@ export function begin(purse: Purse, grove: Grove, id: number, at: readonly [numb
   if (refused) return no(refused);
   if (heldBy(grove, t.id, now, me)) return no("held");
   if (!isGrown(grove, t, now)) return no("stump");
-  const trees = groupOf(purse, grove, t, axe, now, wood, me);
+  const trees = direction?dominoGroup(purse,grove,t,axe,now,direction,wood,me):groupOf(purse, grove, t, axe, now, wood, me);
+  if(direction&&trees.length<2)return no(usesLeft(purse,"charmDomino",now)<1?"spent":"none");
   if (!hasRoom(purse, axe, trees)) return no("full");
   const trunk = trunkOf(axe, grove, trees), knobs = girthKnobs(trunk.t), spent = isSpent(purse, now);
   return {
@@ -418,8 +424,8 @@ export function begin(purse: Purse, grove: Grove, id: number, at: readonly [numb
   };
 }
 /** A board is put up for a go: its trees are held for its owner from now, for as long as a go is held (one go a member: an older one is forgotten). */
-export function opened(grove: Grove, me: string, trees: readonly number[], now: number): Grove {
-  return { ...grove, goes: { ...(grove.goes ?? {}), [me]: { trees: [...trees], at: now } } };
+export function opened(grove: Grove, me: string, trees: readonly number[], now: number,domino?:DominoDirection): Grove {
+  return { ...grove, goes: { ...(grove.goes ?? {}), [me]: { trees: [...trees], at: now,...(domino?{domino}:{}) } } };
 }
 /**
  * A friend braces the trunk of somebody's open go, from the tile they stand on: whoever it is stands near its first
@@ -587,7 +593,7 @@ function fellUntrained(purse: Purse, grove: Grove, me: string, went: FellWent, a
       found.push({ id: keepsake, first: !book[keepsake] });
       book[keepsake] ??= { by: who, at: now };
     }
-    if (quality && went.grain) got.push(...woodYield(t.id, !!t.elder, went.grain, quality, purse));
+    if (quality && went.grain && partReady(grove.parts,t.id,went.grain.part,now)) got.push(...woodYield(t.id, !!t.elder, went.grain, quality, purse));
     felled.push({ id: t.id, kind: kindOf(t), girth: girthOf(t), misses, got, timber, most: mostTimber(t), chained, free, twice, ...(keepsake ? { keepsake } : {}), ...(quality ? { quality } : {}) });
   });
   const got = summed(felled.map((f) => f.got)), home = bringHome(mine, got);
@@ -595,6 +601,7 @@ function fellUntrained(purse: Purse, grove: Grove, me: string, went: FellWent, a
   // (what has grown again is forgotten as the grove is written)
   for (const id of Object.keys(down)) { const t = treeOf(Number(id), wood); if (!t || now >= grownAt(t, down[id].at)) delete down[id]; }
   const after: Grove = { ...closed(grove), down, half, ...(Object.keys(book).length ? { book } : {}) };
+  if(quality&&went.grain&&went.grain.part!=="wood")for(const t of trees)if(partReady(grove.parts,t.id,went.grain.part,now))after.parts=restPart(after.parts,t.id,went.grain.part,now);
   return { ok: true, purse: { ...home, felling: keptOut(kept) }, grove: after, felled, got, one, plain, through, stood: false, found, braced: board && held?.braced && held.braced !== me ? held.braced : null };
 }
 
@@ -655,8 +662,14 @@ export const treesRow = (wood: readonly Standing[] = WOOD) => ({
 
 /** Training belongs to the tool used for this successful job, once per result. */
 export function fell(...args: Parameters<typeof fellUntrained>): ReturnType<typeof fellUntrained> {
+  const go=args[1].goes?.[args[2]],domino=go?.domino&&goHolds(go,args[5])&&go.trees[0]===args[3].tree;
+  if(domino&&(args[3].one||!works(args[0],"charmDomino")||usesLeft(args[0],"charmDomino",args[5])<1))return no("none");
   const did = fellUntrained(...args);
   if (!did.ok || !did.felled.length) return did;
-  const purse = trainElement(args[0], did.purse, axeOf(args[0]));
-  return { ...did, purse };
+  let purse=did.purse;
+  if(domino&&did.felled.length>=2){const used=useGift(purse,"charmDomino",args[5]);if(!used.ok)return no(used.why==="spent"?"spent":"none");purse=used.purse;}
+  purse = trainElement(args[0], purse, axeOf(args[0]));
+  const first = did.felled[0], grain = args[3].grain;
+  if (grain && first.quality) purse = extractionSource(purse, first.id, [...args[4]], grain.part, first.quality, args[5]);
+  return listeningHarvest(args[0],{...did,purse},grain,args[3].misses,args[5],!!treeOf(first.id,args[7])?.elder);
 }

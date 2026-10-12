@@ -1,8 +1,11 @@
 "use client";
+import TownTreePact from "./TownTreePact";
+import {partReady} from "@/lib/town/tree-parts";
+import { TownWoodExtraction, TownFieldProcessor } from "./TownRewardActions";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { nearOf, type FellOutcome, type FellingAsk, type Girth } from "@/lib/town/felling";
-import { works } from "@/lib/town/gifts";
+import { works,usesLeft } from "@/lib/town/gifts";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { FellDid, Keeper } from "@/lib/town/keeper";
 import type { Look } from "@/lib/town/look";
@@ -25,6 +28,8 @@ import TownPinesBook, { keepsakeIcon } from "./TownPinesBook";
 import { WHY } from "./TownTrade";
 import { Vfx } from "./vfx";
 import { fireFoundWords } from "@/lib/town/fire-words";
+import {useReward} from "./TownRewardActions";
+import {DOMINO_DIRECTIONS,type DominoDirection} from "@/lib/town/reward-domino";
 
 /** What a tree that is not felled says of itself, by the state that refused it (states, never the rule behind them). */
 const WHY_TREE: Record<string, [th: string, en: string]> = {
@@ -138,6 +143,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   const told: TreesTold | null = keeper.trees(), toldRef = useRef<TreesTold | null>(null);
   toldRef.current = told;
   const purse = keeper.purse(), now = keeper.now(), axe = axeOf(purse);
+  const [dominoDirection,setDominoDirection]=useState<DominoDirection>([1,0]),dominoAction=useReward(keeper,"domino"),sonar=useRef<{path:number[];stop:number|null;until:number}|null>(null);
+  useEffect(()=>{const reply=dominoAction.reply;if(reply?.ok&&reply.combo?.path&&reply.combo.previewAt!==undefined&&keeper.now()-reply.combo.previewAt>=0&&keeper.now()-reply.combo.previewAt<6000){sonar.current={path:reply.combo.path,stop:reply.combo.stop??null,until:performance.now()+6000-(keeper.now()-reply.combo.previewAt)};sfx?.work("pluck");}},[dominoAction.reply,sfx,keeper]);
   const [working, setWorking] = useState<Working | null>(null);
   const leaving = useLeaving(keeper);
   const [card, setCard] = useState<Card | null>(null);
@@ -184,12 +191,12 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   tileRef.current = tile; axeRef.current = axe; busyRef.current = busy || !!working;
   const beginning = useRef(false);
   /** The board is put up for a tree: the go is mine from now. */
-  const begin = useCallback(async (id: number) => {
+  const begin = useCallback(async (id: number,direction?:DominoDirection) => {
     const from = tileRef.current;
     if (!from || beginning.current || busyRef.current) return;
     beginning.current = true;
     try {
-      const did = await keeper.fellBegin(id, from);
+      const did = await keeper.fellBegin(id, from,direction);
       if (!did.ok) { say(did.why, id); return; }
       setCard(null);
       setNote(null);
@@ -371,6 +378,20 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     register((frame) => {
       const { ctx, things, project, onScreen, s, now: t, still, self, sign, over } = frame;
       vfx.draw(frame);
+      // Sonar travels from actual trunk to trunk; pixel pulses and the stop emerge along the chosen ray.
+      const echo=sonar.current;
+      const onTop=(draw:()=>void)=>over?over(draw):things.push({depth:1e6,draw});
+      if(echo&&t<echo.until){
+        const path=[...echo.path,...(echo.stop===null?[]:[echo.stop])].map(id=>WOOD.find(tr=>tr.id===id)).filter((tr):tr is Standing=>!!tr),phase=(t%1400)/1400;
+        for(let i=0;i<path.length;i++){
+          const tr=path[i],c=project({x:tr.x+.5,y:tr.y+.85}),stop=echo.stop===tr.id;
+          c.y-=22*s;sign(String(i+1),c.x,c.y-20*s);
+          if(i>0){const prev=project({x:path[i-1].x+.5,y:path[i-1].y+.85});prev.y-=22*s;const n=Math.max(1,Math.ceil(Math.hypot(c.x-prev.x,c.y-prev.y)/(4*s)));
+            onTop(()=>{for(let j=0;j<=n;j++){const q=j/n,head=reduced?1:Math.max(0,1-Math.abs(q-phase)*5);ctx.globalAlpha=.35+head*.65;ctx.fillStyle=stop?"#bc886d":"#aad6c7";ctx.fillRect(Math.round(prev.x+(c.x-prev.x)*q),Math.round(prev.y+(c.y-prev.y)*q),Math.max(1,Math.round(2*s)),Math.max(1,Math.round(2*s)));}ctx.globalAlpha=1;});
+          }
+          onTop(()=>{const r=Math.round((reduced?7:4+phase*10)*s),d=Math.max(1,Math.round(s));ctx.fillStyle=stop?"#e4a287":"#cbe8cc";for(let k=0;k<12;k++){const angle=k*Math.PI/6;ctx.fillRect(Math.round(c.x+Math.cos(angle)*r),Math.round(c.y+Math.sin(angle)*r*.55),d*2,d);}ctx.fillStyle=stop?"#f1c4a3":"#e3f2d6";ctx.fillRect(Math.round(c.x-d),Math.round(c.y-d),d*2,d*2);});
+        }
+      }
       const said = toldRef.current, at = keeper.now(), e = eye.current;
       let glints = 0, times = 0;
       // a tree half cut: pale chips at its foot, and a notch in its trunk, for everybody
@@ -443,7 +464,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       timed.current = times;
     });
     return () => register(null);
-  }, [register, vfx, keeper]);
+  }, [register, vfx, keeper,reduced]);
 
   // The woodpecker flies to the nearest grown tree about its member (anybody's woodpecker, on this page).
   useEffect(() => {
@@ -467,6 +488,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
+      if (document.querySelector('[data-town-game], [data-reward-extraction-game]')) return;
       e.preventDefault();
       e.stopPropagation();
       void begin(here.id);
@@ -482,6 +504,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
     const handle = {
       /** What I am told of the trees, and how each that is not grown looks now. */
       told: () => toldRef.current, looks: () => Object.fromEntries(looks()),
+      sonar:()=>sonar.current,
       /** Every tree of the layout, with its tile and its girth. */
       wood: () => WOOD.map((t) => ({ ...t, girth: girthOf(t) })),
       /** The tree the press is for where I stand; a tap on a tree, as the map hands one over; and the board put up at one. */
@@ -503,7 +526,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
 
   const nameOf = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
   const powers = axe ? { one: has(axe, "axOne") ? powerLeft(purse, "axOne", now) : 0, twice: has(axe, "axDouble") ? powerLeft(purse, "axDouble", now) : 0 } : undefined;
-  if (!working && !here && !note && !card && !open && !bracing && !book) return null;
+  const mainVisible = !!(working || here || note || card || open || bracing || book);
   const hereGirth: Girth | null = here && !here.elder ? girthOf(here) : null;
   /** How near the go was to more, in a few words: a state, of the tree walked up to. */
   const nearWord = (c: Card): string | null => {
@@ -519,7 +542,8 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
   // (placed by the foot's grid, components/town/TownFoot: the board, or the book, has the foot while it is up; what
   // the tree stood by is for is lowest otherwise. Nothing here keeps a distance of its own.)
   return (
-    <TownFoot rank={working || book ? "board" : "main"} order={61}>
+    <>
+    {mainVisible && <TownFoot rank={working || book ? "board" : "main"} order={61}>
       {note && (
         <p className="pop-in flex items-center gap-2 rounded-full bg-bg/85 py-1.5 pl-2 pr-4 text-ui text-ink shadow-lg shadow-black/30 backdrop-blur-sm" data-state="open" data-trees-note aria-live="polite">
           {note.wants && <Wanted wants={note.wants} />}
@@ -602,7 +626,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
       )}
       {working ? (
         <div key={`${working.id}:${working.ask.seed}`} className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game="felling" data-tree={working.id}>
-          <TownFelling onBond={async notches => { const d=await keeper.comboPrepare?.("wood",{notches}); return d?.ok ? d.effect : undefined; }} th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers} braced={bracer?.name ?? null}
+          <TownFelling restingParts={(["bark","sap","seed","root"] as const).filter(part=>!partReady(told?.parts,working.id,part,now))} masteryUses={works(keeper.purse(),"charmListening")?usesLeft(keeper.purse(),"charmListening",keeper.now()):0} onBond={async notches => { const d=await keeper.comboPrepare?.("wood",{notches}); return d?.ok ? d.effect : undefined; }} th={th} ask={working.ask} elder={working.elder} look={look} reduced={reduced} sfx={sfx} powers={powers} braced={bracer?.name ?? null}
                        onDone={(out, how) => void done(working, out, how)} onCancel={() => cancel(working)} />
         </div>
       ) : here && !card && !book && (
@@ -635,6 +659,7 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           ) : (
             <div className="flex flex-wrap items-stretch justify-center gap-2">
               {/* the board: played for the fine timber (the one way to fell a tree) */}
+              {!here.elder&&works(purse,"charmDomino")&&<fieldset className="pointer-events-auto flex max-w-full flex-wrap gap-1 rounded-lg border border-[#b59157]/60 bg-[#3e3022]/95 p-2 text-[#ffeccb]" data-domino-choice><legend className="px-2 text-meta">{th?`แนวโดมิโน · เหลือ ${usesLeft(purse,"charmDomino",now)} ครั้งวันนี้`:`Domino direction · ${usesLeft(purse,"charmDomino",now)} left today`}</legend>{DOMINO_DIRECTIONS.map((d,i)=><button type="button" key={i} aria-label={(th?["เหนือ","ตะวันออกเฉียงเหนือ","ตะวันออก","ตะวันออกเฉียงใต้","ใต้","ตะวันตกเฉียงใต้","ตะวันตก","ตะวันตกเฉียงเหนือ"]:["North","Northeast","East","Southeast","South","Southwest","West","Northwest"])[i]} data-domino-direction={d.join(',')} disabled={usesLeft(purse,"charmDomino",now)<1} aria-pressed={d.every((v,i)=>v===dominoDirection[i])} className={`pressable min-h-11 min-w-11 rounded text-xl disabled:opacity-40 ${d.every((v,i)=>v===dominoDirection[i])?"bg-[#d0ac68] text-[#322617]":"bg-[#806342]"}`} onClick={()=>setDominoDirection(d)}><svg aria-hidden viewBox="0 0 24 24" width="20" height="20" className="mx-auto" style={{transform:`rotate(${i*45}deg)`}}><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="square"/></svg></button>)}<button type="button" data-domino-confirm className="pressable min-h-11 rounded bg-[#d0ac68] px-3 text-ui text-[#322617] disabled:opacity-50" disabled={usesLeft(purse,"charmDomino",now)<1||dominoAction.busy||dominoAction.retry} onClick={()=>void begin(here.id,dominoDirection)}>{th?"ยืนยันแนวล้ม":"Confirm the chain"}</button><button type="button" data-domino-listen className="pressable min-h-11 rounded bg-[#47595a] px-3 text-ui disabled:opacity-50" disabled={dominoAction.busy||usesLeft(purse,"charmDomino",now)<1} onClick={()=>{const t=tileRef.current;if(t)void dominoAction.send({action:"dominoPreview",tree:here.id,direction:dominoDirection,at:t});}}>{dominoAction.retry?(th?"ตรวจเสียงเดิม":"Check the same echo"):(th?"ฟังแนวล้ม":"Listen along the chain")}</button>{dominoAction.reply&&!dominoAction.reply.ok&&<p role="status" className="w-full text-meta">{th?"ไม่มีเสียงตอบจากแนวนี้":"No echo answers along this direction"}</p>}</fieldset>}
               <button type="button" onClick={() => void begin(here.id)} data-trees-offer={here.id} data-state="open"
                       className="pop-in pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full bg-accent py-1 pl-2 pr-4 text-ui font-semibold text-bg shadow-xl shadow-black/40">
                 <span className="grid size-10 place-items-center rounded-full bg-bg/25"><TownIcon name={"axe" as IconName} size={28} /></span>
@@ -648,6 +673,10 @@ export default function TownTrees({ keeper, th, name, tile, near, look, reduced,
           )}
         </div>
       )}
-    </TownFoot>
+    </TownFoot>}
+    {!working && !book && <TownTreePact keeper={keeper} th={th} near={near} at={tile} onCare={id=>{const t=WOOD.find(v=>v.id===id);if(t){vfx.add("water",{x:t.x+.5,y:t.y+.5});vfx.add("sparkle",{x:t.x+.5,y:t.y+.5});}sfx?.work("pour");}}/>}
+    {!working && !book && <TownWoodExtraction keeper={keeper} th={th} at={()=>tileRef.current} />}
+    {!working && !book && <TownFieldProcessor keeper={keeper} th={th} at={()=>tileRef.current} kind="wood" />}
+    </>
   );
 }

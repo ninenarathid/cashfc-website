@@ -4,6 +4,7 @@ import { count, countsOf, linesRow, newLine, POINTS, type Done } from "./line-po
 import { ALL_LINE_IDS, LINES, LINE_IDS, MORE_LINE_IDS, ladderOf, linesOf, linesShown, mayWear, noLines, rankOf, titleOf, titlesOf, wornOf } from "./lines";
 import { lightOf } from "./mining";
 import { newPurse } from "./trade";
+import { REWARD_GIFTS } from "./reward-catalog";
 
 const deed = (what: string, thing: string | null, doc: Record<string, unknown> = {}, n = 1): Done => ({ from: "deed", what, thing, n, doc });
 
@@ -70,7 +71,7 @@ describe("the mining line's gifts", () => {
   it("are three, of ranks one to three, beside the gifts every keeper knows", () => {
     expect(GIFTS).toHaveLength(39);
     expect(MORE_GIFTS.filter((g) => g.line === "mining").map((g) => [g.id, g.kind, g.rank])).toEqual([["charmMinerLamp", "charm", 1], ["famBat", "familiar", 2], ["thingSack", "thing", 3]]);
-    expect(ALL_GIFTS).toHaveLength(GIFTS.length + MORE_GIFTS.length);
+    expect(ALL_GIFTS).toHaveLength(GIFTS.length + MORE_GIFTS.length + REWARD_GIFTS.length);
     for (const g of MORE_GIFTS) {
       expect(g.name.th && g.name.en && g.does.th && g.does.en, g.id).toBeTruthy();
       expect(giftOf(g.id)).toBe(g);

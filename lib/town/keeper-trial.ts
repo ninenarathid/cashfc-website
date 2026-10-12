@@ -1,5 +1,14 @@
+import{dragonDraw}from"./reward-dragon";
+import{warmCooking}from'./trial-combos';
+import{listenForest}from'./trial-combos';
+import{placeAt,turnOf}from'./forest';
+import{bugApproach}from'./bug-approach';
+import{matchesCombo,commitCombo}from'./trial-combos';
+import{bedOf}from'./world';
 // CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
-import { comboCue, comboLoadout, prepareCombo, rescueCombo } from "./private/combos";
+import { comboCue, comboLoadout, prepareCombo, rescueCombo,resourceCorrection,dominoPreview } from "./trial-combos";
+import {schoolWeights,type FishPool} from "./reward-fishing";
+import {fishQuiet} from './trial-combos';
 import { mineOf } from "./mining";
 import { warehouseAction, type Warehouse, type WarehouseInput } from "./warehouse";
 import type { ComboContext, ComboReply } from "./combo-types";
@@ -7,6 +16,7 @@ import type { RockChoice } from "./geology";
 import type { InsectCare } from "./insect-garden";
 import { COOKING, type Taste } from "./cooking";
 import type { CraftId } from "./crafting";
+import type { RewardInput, RewardReply } from "./reward-types";
 import type { StreamAction } from "./stream-work";
 import type { PrepAnswers, PrepId } from "./preparation";
 import type { Current } from "./river-items";
@@ -81,7 +91,7 @@ class TrialKeeper implements Keeper {
   /** The line that is out: what is on its way, and the bait it took. */
   // ── gifts: fishing ── (`again`: the otter has driven this line's fish back once; `two`: what is on the second line of a rod of two lines, while both are on)
   // (`bait`: none, of a stardust bait: nothing left the bag, and nothing comes back to it; `told`: the line told what was on its way; `hooked`: a strike has set the hook; `harder`: how many times as hard the deck's good fish are for whoever dropped it)
-  private out: { loadout: string; at: number; cast: Cast; bait: BaitId | null; again?: boolean; hooks?: Array<{ what: CatchId; size: number }>; told?: boolean; hooked?: boolean; harder?: number } | null = null;
+  private out: { loadout: string; at: number; current?:Current;struckAt?:number;powers?:Array<{key:string;quiet:number;used?:boolean}>;cast: Cast; bait: BaitId | null; again?: boolean; hooks?: Array<{ what: CatchId; size: number }>; told?: boolean; hooked?: boolean; harder?: number } | null = null;
   /** For scripts: what the next lines bring, whatever the odds (this keeper is `next dev`'s only). */
   private fated: CatchId[] = [];
   willBite(ids: CatchId[]) { this.fated = [...ids]; }
@@ -241,8 +251,10 @@ class TrialKeeper implements Keeper {
     if (rod.rare > 1) odds = rarer(odds, rod.rare);
     // (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
     if (!odds.length) return { ok: false, why: "calm" };
+    const dragon=dragonDraw(hooked.purse,odds,bait,current,place.tile,pair,star,now);
+    const school=schoolWeights(dragon.purse,dragon.odds,star,now);odds=school.odds;
     // (the line goes out: the bait has left the bag, or the stardust is counted)
-    this.trial.fished(habitat !== "town" ? {...hooked.purse,fishingPattern:pattern} : hooked.purse);
+    this.trial.fished(habitat !== "town" ? {...school.purse,fishingPattern:pattern} : school.purse);
     // (from the fourth rank of the deck, what is uncommon or better is bigger, and fights harder)
     const harder = harderFor("fishing", this.trial.lines().lines.fishing.points);
     const draw = () => { const fate = this.fated.shift(), c = castFrom(fate ? [{ what: fate, p: 1 }] : odds, rnd); return { ...c, size: biggerBy(c.size, harderOf(c.what, harder)) }; };
@@ -255,7 +267,8 @@ class TrialKeeper implements Keeper {
     const call = called(this.trial.purse(), now, this.handSlot());
     if (call) this.trial.fished(call);
     const cast = call ? calledCast(sooner) : haste > 0 ? hastened(sooner, haste) : sooner, told = wearing(p, "charmFloat");
-    this.out = { cast, loadout: comboLoadout(p), at: now, bait: star ? null : bait, told, harder, ...(pair ? { hooks: [cast, ...others].map(({ what, size }) => ({ what, size })) } : {}) };
+    this.trial.boatFishingBusy(this.id,now+(cast.wait+180)*1000);
+    this.out = { cast, loadout: comboLoadout(p), at: now,current, bait: star ? null : bait, told, harder, ...(pair ? { hooks: [cast, ...others].map(({ what, size }) => ({ what, size })) } : {}) };
     // (the trial's short wait: a fifth of it, never so short that the float cannot be watched)
     const k = quick ? 0.2 : 1, wait = Math.max(2, cast.wait * k);
     return { ok: true, wait, nibbles: cast.nibbles.map((n) => n * k).filter((n, i, all) => n >= 1 && wait - n >= 1.5 && (i === 0 || n - all[i - 1] >= 1.5)), lag: 0, ...(hasBuff(p, now, "clear") ? { shade: shadeOf(cast.what) } : {}), ...(told ? { coming: cast.what } : {}),
@@ -277,8 +290,10 @@ class TrialKeeper implements Keeper {
     // ── forging: old tools ── (a strike that came after the moment had passed is taken all the same by a rod of the golden moment, so many a day: as a late one)
     let how = struck;
     if (!how && reaction >= 0) { const gold = goldStrike(this.trial.purse(), reaction, this.trial.now(), this.handSlot()); if (gold) { this.trial.fished(gold); how = "late"; } }
-    if (!how) { this.out = null; this.letBy(o); return { ok: true, hooked: false, how: "early", what, size }; }
+    if (!how) { this.out = null;this.trial.boatFishingBusy(this.id,null); this.letBy(o); return { ok: true, hooked: false, how: "early", what, size }; }
     o.hooked = true;
+    o.struckAt=this.now();
+    const preparePowers=(n:number)=>{o.powers=Array.from({length:n},(_,i)=>{const key=`${o.at}:${i}`,bond=fishQuiet(this.purse(),key,'hook',o.current??'eddy',false,this.now(),o.loadout);if(bond)this.trial.fished(bond.purse);return {key,quiet:bond?.effect.quiet??0};});return o.powers;};
     // ── gifts: fishing ── (a rod of two lines: both are hooked by the one strike; what is no fish comes in at once, a fish's fight is paid for, each its own)
     if (o.hooks) {
       const told: Hooked[] = [], onhook: Array<{ what: CatchId; size: number }> = [];
@@ -286,24 +301,24 @@ class TrialKeeper implements Keeper {
         if (!(thing.what in FISH)) told.push({ what: thing.what, size: 0, landed: true, kept: this.trial.land(thing.what, 0).kept });
         else { this.trial.fished(lulled(fightPaid(this.trial.purse(), FISH[thing.what as FishId].fight.effort, this.trial.now(), this.handSlot()), thing.what, this.trial.now(), this.handSlot())); onhook.push(thing); told.push({ ...thing, landed: false }); }
       }
-      if (!onhook.length) this.out = null;
+      if (!onhook.length) {this.out = null;this.trial.boatFishingBusy(this.id,null);}
       else { o.cast = { ...o.cast, ...onhook[0] }; o.hooks = onhook.length > 1 ? onhook : undefined; }
-      return { ok: true, hooked: true, what: told[0].what, size: told[0].size, landed: !onhook.length, kept: told[0].kept, pair: told, ...harder };
+      return { ok: true, hooked: true, what: told[0].what, size: told[0].size, landed: !onhook.length, kept: told[0].kept, pair: told,powers:preparePowers(onhook.length), ...harder };
     }
     if (!(what in FISH)) {
       // no fish: it comes in with no fight
-      this.out = null;
+      this.out = null;this.trial.boatFishingBusy(this.id,null);
       return { ok: true, hooked: true, what, size: 0, landed: true, ...this.trial.land(what, 0) };
     }
     // a fight costs its stamina whatever comes of it
     // ── forging: old tools ── (less of it, or none, with what the rod carries: lib/town/fishing's fightPaid)
     // (and a fish better than a common one puts the water to sleep for a rod that lulls it, so often a day: lib/town/fishing's lulled)
     this.trial.fished(lulled(fightPaid(this.trial.purse(), FISH[what as FishId].fight.effort, this.trial.now(), this.handSlot()), what, this.trial.now(), this.handSlot()));
-    return { ok: true, hooked: true, what, size, landed: false, ...harder };
+    return { ok: true, hooked: true, what, size, landed: false,powers:preparePowers(1), ...harder };
   }
   async missed() {
     const o = this.out;
-    this.out = null;
+    this.out = null;this.trial.boatFishingBusy(this.id,null);
     if (o) this.letBy(o);
     return o ? { what: o.cast.what, size: o.cast.size } : {};
   }
@@ -311,12 +326,13 @@ class TrialKeeper implements Keeper {
     const o = this.out;
     if (!o) return { how, kept: false, record: false };
     // ── gifts: fishing ── (a line pulled up with nothing hooked yet: a line taken up, and counted so)
-    if (!o.hooked) { this.out = null; this.trial.fished(tookUp(this.trial.purse(), this.trial.now())); return { how: "left", kept: false, record: false }; }
+    if (!o.hooked) { this.out = null;this.trial.boatFishingBusy(this.id,null); this.trial.fished(tookUp(this.trial.purse(), this.trial.now())); return { how: "left", kept: false, record: false }; }
     // (two fish still on a rod of two lines: one of them has ended, and the line is a line as any other from here, with the other)
     if (o.hooks && how !== "left") {
       const i = which ?? 0;
       if (!Number.isInteger(i) || i < 0 || i >= o.hooks.length) return { how: "left", kept: false, record: false, more: true };
       const mine = o.hooks[i], others = o.hooks.filter((_, j) => j !== i);
+      o.powers?.splice(i,1);
       o.cast = { ...o.cast, ...others[0] };
       o.hooks = others.length > 1 ? others : undefined;
       if (how === "landed") return { how, ...this.trial.land(mine.what, mine.size), more: true };
@@ -326,7 +342,7 @@ class TrialKeeper implements Keeper {
     // (the otter drives a fish that got away back, once to a line: the line stays out, and the fight is to be had again)
     const driven = driveBack(this.trial.purse(), how, !!o.again, this.trial.now());
     if (driven.ok) { const bond = rescueCombo(driven.purse, `fish:${o.at}`, this.trial.now(), o.loadout); this.trial.fished(bond?.purse ?? driven.purse); o.again = true; return { how, kept: false, record: false, again: true, ...(bond ? { combo: bond.effect } : {}) }; }
-    this.out = null;
+    this.out = null;this.trial.boatFishingBusy(this.id,null);
     // ── forging: old tools ── (a fish landed with a rod that spares the bait so often: the bait is back in the bag, where there is room)
     if (how === "landed" && o.bait && o.cast.what in FISH && baitKept(this.trial.purse(), Math.random(), this.handSlot())) return { how, ...this.trial.land(o.cast.what, o.cast.size), ...(this.trial.back(o.bait) ? { back: true } : {}) };
     if (how === "landed") return { how, ...this.trial.land(o.cast.what, o.cast.size) };
@@ -334,6 +350,14 @@ class TrialKeeper implements Keeper {
     // (a fish hooked and lost in the fight gives the bait it took back, where the bag has room)
     const back = (how === "snapped" || how === "slipped") && !!o.bait && this.trial.back(o.bait);
     return { how, kept: false, record: false, ...(back ? { back: true } : {}) };
+  }
+  async fishingPower(key:string,charge:number){
+   const o=this.out,power=o?.powers?.find(x=>x.key===key);
+   if(!o?.hooked||!power||!works(this.purse(),'charmLunarReel')||o.loadout!==comboLoadout(this.purse())||!Number.isFinite(charge)||charge<5||this.now()-(o.struckAt??this.now())<5000)return {ok:false as const,why:'none' as const};
+   if(power.used)return {ok:true as const,quiet:power.quiet===2?2:0};
+   const rain=wetMs(SKIES.rains(),this.now(),this.now()+1)>0,bond=fishQuiet(this.purse(),key,'lunar',o.current??'eddy',rain,this.now(),o.loadout);
+   if(bond)this.trial.fished(bond.purse);power.used=true;power.quiet=bond?.effect.quiet??0;
+   return {ok:true as const,quiet:power.quiet,...(bond?{combo:bond.effect}:{})};
   }
 
   async farmDo(key: string, name: string, timing?: Timing, sure = false): Promise<Did<{ deed: Deed; got: Array<[ItemId, number]>; also?: string[] }>> {
@@ -374,6 +398,10 @@ class TrialKeeper implements Keeper {
   async comboPrepare(context: ComboContext, input: Record<string, unknown> = {}): Promise<Did<ComboReply>> {
     const p=this.trial.purse(), now=this.trial.now();
     if(context === "wear") return { ok:true, cue:comboCue(p,"wear") };
+    if(context==='forestListen'){const id=Number(input.spot),at=input.at as[number,number],spot=placeAt(id);if(!spot||!Array.isArray(at)||at.length!==2||at.some(n=>!Number.isInteger(n)))return{ok:false,why:'none'};const d=listenForest(p,id,at,this.trial.wild().find(s=>s.id===id),turnOf(spot,now),now);if(!d)return{ok:false,why:'none'};this.trial.fished(d.purse);return{ok:true,part:d.part,...(d.effect?{effect:d.effect}:{})};}
+    if(context==='rowBegin'){const key=String(input.key??''),row=this.trial.rowAt(key),[x,y]=key.split(',').map(Number),owner=this.trial.owners().get(bedOf(x,y))?.by;if(!matchesCombo(p,['charmHoe','charmGloves'])||!row||!['clear','till'].includes(row.deed)||!owner||owner===this.id)return{ok:false,why:'none'};this.trial.fished({...p,professionRewards:{...p.professionRewards,rowStart:{key,until:now+90000,loadout:comboLoadout(p)}}});return{ok:true};}
+    if(context==='bugBegin'||context==='bugEnd'||context==='bugCancel'){const d=bugApproach(p,context,input,now,this.trial.bugs(),matchesCombo(p,['charmNet','famStag']),comboLoadout(p));if(!d)return{ok:false,why:'none'};if(context==='bugEnd'){const r=p.professionRewards!.bugApproach!,token=`approach:${r.id}:${r.turn}:${r.began}`;if(p.combos?.actions?.[token])return{ok:false,why:'none'};const bond=commitCombo(d.purse,'SC05',token,now);if(!bond)return{ok:false,why:'spent'};d.purse=bond.purse;}this.trial.fished(d.purse);return{ok:true};}
+    if(context==='cookBegin'||context==='cookRetry'||context==='cookCancel'){const d=warmCooking(p,context,input,now,wetMs(SKIES.rains(),now,now+1)>0,crypto.randomUUID());if(!d)return{ok:false,why:'none'};this.trial.fished(d.purse);return{ok:true,...('job'in d?{job:d.job}:{}),...('effect'in d?{effect:d.effect}:{})};}
     let bond: ReturnType<typeof prepareCombo> = null;
     if(context === "wood") {
       const w=this.woodBond;
@@ -427,6 +455,34 @@ class TrialKeeper implements Keeper {
     return did;
   }
   async minePeek(floor: number, rock: number): Promise<MineDone<{ peek: Peek }>> { return this.trial.minePeek(floor, rock); }
+  boats(){return Object.values(this.trial.boats()).filter(b=>b.until>this.now());}
+  async boatsLook(_at:[number,number]){}
+  bridges(){return Object.values(this.trial.bridges()).filter(s=>s.until>this.now());}
+  async bridgesLook(){/* Trial rows are read on demand. */}
+  springs(){return Object.values(this.trial.springs()).filter(s=>s.until>this.now()&&s.left>0);}
+  async springsLook(){this.trial.springsLook();}
+  async rewardDo(input: RewardInput, request: string): Promise<Did<RewardReply>> {
+    let pool:FishPool=[];
+    if(input.action==="schoolStart"||input.action==="dragonBegin"){
+      const p=this.trial.purse(),now=this.trial.now(),water=fishFrom(...input.at);
+      if(water){
+        const rain=wetMs(SKIES.rains(),now,now+1)>0,habitat=water.habitat??"town",current=currentAt(habitat,water.current,input.current);
+        const named=(typeof location==="undefined"?"":new URLSearchParams(location.search).get("townSigns")??"").split(",").filter((x):x is Sign=>ALL_SIGNS.includes(x as Sign));
+        const signs=[...new Set([...signsOf({now,spent:isSpent(p,now),others:0,wet:wetMs(SKIES.rains(),now-SIGNS.after*60000,now)},rain),...named])];
+        const under=underOrb(orbOf(p,now),bangkokHour(now),rain,signs),pattern=castPattern(p,input.bait,input.at,current,now);
+        pool=oddsOf(input.bait,under.hour,under.rain,levelOf(p,now,"lucky"),!water.deep,under.signs,habitat,current);
+        if(habitat!=="town")pool=patternOdds([...pool],pattern.n);
+        if(isWary(p,now))pool=sift(pool,WARY.tiers);
+        const rod=rodFx(rodOf(p,this.handSlot()));if(rod.rare>1)pool=rarer(pool,rod.rare);
+        if(!hookBaits(p,input.bait,1).ok)pool=[];
+      }
+    }
+    const did=this.trial.rewardDo(input, request,resourceCorrection,pool,dominoPreview);
+    if(did.ok&&did.plots)this.onDeed?.("farm");
+    if(did.ok&&(did.banquet||input.action==="picnicPlace"||input.action==="picnicEat"))this.onDeed?.("kitchen");
+    if(did.ok&&input.action==="boat")this.onDeed?.("boats");
+    return did;
+  }
   async veinDo(strikes: Array<[number, number]>, choice?: RockChoice): Promise<MineDone<VeinDid>> {
     const before=mineOf(this.trial.purse()).vein;
     const loadout=before ? this.veinBonds.get(this.veinKey(before)) : undefined;
@@ -562,7 +618,7 @@ class TrialKeeper implements Keeper {
   async fireLeave() { return this.trial.fireLeave(); }
   // ── felling ── (whoever else is on the mountain is in another tab: told through the room, as the database's keeper tells them)
   trees() { return this.trial.trees(); }
-  async fellBegin(tree: number, at: [number, number]): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { const did=this.trial.fellBegin(tree, at); if(did.ok) this.woodBond={tree,at:this.trial.now(),loadout:comboLoadout(this.trial.purse()),hints:did.ask.grain?.hints ?? 0}; return did; }
+  async fellBegin(tree: number, at: [number, number],direction?:import("./reward-domino").DominoDirection): Promise<Did<{ trees: number[]; ask: FellingAsk; elder: boolean }>> { const did=this.trial.fellBegin(tree, at,direction); if(did.ok) this.woodBond={tree,at:this.trial.now(),loadout:comboLoadout(this.trial.purse()),hints:did.ask.grain?.hints ?? 0}; return did; }
   async fellDo(went: FellWent, at: [number, number], name: string): Promise<Did<FellDid>> {
     const did = this.trial.fellDo(went, at, name);
     if (did.ok && did.felled.length) this.onDeed?.("trees");

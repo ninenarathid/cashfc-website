@@ -5,7 +5,8 @@ import { ITEMS } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import { held } from "@/lib/town/trade";
 import { HOES } from "@/lib/town/farm";
-import TownIcon, { type IconName } from "./TownIcon";
+import {works,usesLeft} from "@/lib/town/gifts";
+import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownNotebook from "./TownNotebook";
 import styles from "./TownAdventure.module.css";
 
@@ -24,6 +25,10 @@ export default function TownForageParts({kind,keeper,th,onChoose,onClose}:{kind:
     <header className="flex items-center gap-2"><TownIcon name="traceLeaf" size={28}/><h2 className="font-display text-title">{th?"มีร่องรอยตรงนี้":"Traces here"}</h2><button type="button" onClick={onClose} className="pressable ml-auto min-h-11 px-2">{th?"ปิด":"Close"}</button></header>
     <div className={styles.scene}><TownIcon name="traceLeaf" size={48}/><p className="text-ui">{TRACE[kind]?.[th?0:1]}</p></div>
     <div className="grid gap-2">
+      {parts.leaf&&parts.root&&works(purse,"famForestGuardian")&&<button type="button" disabled={!rootTool||usesLeft(purse,"famForestGuardian",keeper.now())<1} data-forage-part="paired" onClick={()=>onChoose("paired")} className="pressable min-h-12 rounded border border-[#88b689] bg-[#bcd3bc] p-2 text-left text-ui disabled:opacity-50">
+        <span className="flex items-center gap-2"><TownIcon name={"famForestGuardian" in ICON_ATLAS.icons ? "famForestGuardian" as IconName : "traceLeaf"} size={30}/>{th?"ให้ผู้พิทักษ์ช่วยอ่านทั้งใบและราก":"Read leaves and roots with the guardian"}</span>
+        <small className="block text-meta">{th?`เล่นสองช่วง ใช้แรงสองส่วนและหนึ่งสิทธิ์เก็บ · เหลือ ${usesLeft(purse,"famForestGuardian",keeper.now())} ต้นวันนี้ · พลาดได้เฉพาะใบ และรอบถัดไปต้นพัก`:`Two games, two parts' stamina, one gathering share · ${usesLeft(purse,"famForestGuardian",keeper.now())} plants left · A miss gives leaves only; roots rest the next turn`}</small>
+      </button>}
       <button type="button" onClick={()=>onChoose("whole")} className="pressable min-h-11 rounded border border-[#8a7549] bg-[#dac69a] p-2 text-ui">{th?"เก็บของที่เห็นเหมือนเดิม":"Gather what you see"}</button>
       {Object.entries(parts).map(([part,item])=>{
         const discovered=known.includes(`${kind}:${part}:${item}`),root=part==="root",allowed=!root||rootTool;

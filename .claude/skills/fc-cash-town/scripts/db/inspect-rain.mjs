@@ -1,0 +1,1 @@
+import{rewardDB}from'./reward-db.mjs';const db=await rewardDB(243);try{console.log((await db.query("select pg_get_functiondef(p.oid) d from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='town' and p.proname in('raining','rains')")).rows);console.log((await db.query('select * from public.town_weather limit 1')).rows);}finally{await db.close();}

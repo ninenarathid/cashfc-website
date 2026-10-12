@@ -162,8 +162,14 @@ export const BEDS = { empty: 24, untended: 96, each: 2 };
 export type Soil = "wild" | "cleared" | "tilled";
 /** A plant in a plot: who sowed it, what, and what has been done to it. Times are milliseconds. */
 export interface Plant {
+  wingGuard?:number;
+  wetUntil?:number;
+  /** One rescue of this original, unharvested root; never resets its identity. */
+  revived?:boolean;
+  giant?:boolean;crossChoice?:import("./garden-items").GardenCropId;
   /** A released pollinator works once each time this plant bears. */
   pollenRound?: number;
+  insectCrossRound?:number;
   pollenUntil?: number;
   /** A sprawling plant is tended and harvested only at its root plot. */
   root?: string;
@@ -202,6 +208,8 @@ export interface Plant {
   twice?: number;
   /** A seed sown in the damp furrow keeps moisture for its growing life. */
   moist?: boolean;
+  /** One bounded local cloud interval, retained for elapsed growth after expiry. */
+  localRain?: {id:string;by:string;from:number;until:number;day:number};
 }
 export interface Plot {
   soil: Soil; plant: Plant | null;
@@ -312,12 +320,18 @@ export function quickUntil(p: Plant | null | undefined, now: number): number | n
   return at.length ? Math.max(...at) + span : null;
 }
 
+/** Local clouds contribute only dry time, so natural rain and permanent moistness never double it. */
+export function localRainMs(p:Plant,now:number,rains:FarmSky=DRY):number {
+ const rain=p.localRain;if(!rain||p.moist)return 0;
+ const from=Math.max(p.sown,rain.from),to=Math.min(now,rain.until);
+ return Math.max(0,to-from-wetMs(rainsIn(rains),from,to));
+}
 /** The hours a plant has grown by a moment: the clock's, faster once it is fed, what watering added, what the rain did, and what an hourglass turned over its bed did. */
 export function grown(p: Plant, now: number, rains: FarmSky = DRY): number {
   const fed = p.fed ? Math.max(0, now - Math.max(p.fed, p.sown)) * (FARMING.feed - 1) : 0;
   // (rain is watering by the minute: what a watering adds, for every stretch as long as a watering lasts)
   const wet = rainsIn(rains), wetTime = p.moist ? Math.max(0, now - p.sown) : wet.length ? wetMs(wet, p.sown, now) : 0;
-  const rained = wetTime * FARMING.water.adds / FARMING.water.every;
+  const rained = (wetTime + localRainMs(p,now,rains)) * FARMING.water.adds / FARMING.water.every;
   return (Math.max(0, now - p.sown) + fed + p.boost + rained + quickMs(p, p.sown, now)) / HOUR;
 }
 /**
@@ -346,6 +360,7 @@ export function growing(p: Plant, now: number, rains: FarmSky = DRY): ReturnType
 export function pestAt(key: string, p: Plant, now: number, rains: FarmSky = DRY): number | null {
   const { from, to } = FARMING.pests;
   const start = Math.max(p.sown, p.cured, p.pickedAt);
+  let wingUsed=p.cured>p.sown;
   for (let h = Math.ceil(start / HOUR); h * HOUR <= now; h++) {
     const t = h * HOUR, hour = Math.floor((((t + BANGKOK) % DAY) + DAY) % DAY / HOUR);
     // (the pest that comes at the very moment a plant is rid of one is the one it was rid of: until 2026-10-06 a
@@ -353,7 +368,7 @@ export function pestAt(key: string, p: Plant, now: number, rains: FarmSky = DRY)
     if (hour < from || hour >= to || t < p.guard || t <= p.cured) continue;
     // (a ripe plant is safe: it only waits to be picked)
     if (growing(p, t, rains).ripe) return null;
-    if (roll(key, h, p.sown) < pestChance(bugsIn(rains, h))) return t;
+    if (roll(key, h, p.sown) < pestChance(bugsIn(rains, h))) {if(!wingUsed&&p.wingGuard&&t<p.wingGuard){wingUsed=true;continue;}return t;}
   }
   return null;
 }
@@ -373,7 +388,7 @@ export function see(key: string, plot: Plot, now: number, rains: FarmSky = DRY):
   const g = growing(p, dead ? end : now, rains);
   return {
     soil: plot.soil, crop: p.crop, by: p.by, stage: g.stage, ripe: g.ripe && !dead, pest: struck !== null && !dead, dead,
-    wet: !!p.moist || now - p.watered < FARMING.water.every * 60_000 || rainingAt(rainsIn(rains), now),
+    wet: !!p.moist || !!p.wetUntil&&now<p.wetUntil || now - p.watered < FARMING.water.every * 60_000 || rainingAt(rainsIn(rains), now) || !!(p.localRain && p.localRain.from<=now && now<p.localRain.until),
   };
 }
 
@@ -550,7 +565,7 @@ export const isTree = (crop: CropId) => (CROPS[crop].picks ?? 1) >= TREE_PICKS;
 /** How many a picking gives: between the vegetable's least and most, the same for everybody who asks about that picking; one more with the right blade in the hand (a sickle, or shears for a tree). */
 export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): number {
   const [lo, hi] = CROPS[p.crop].yield;
-  return lo + Math.floor(roll(key, p.sown, p.picked) * (hi - lo + 1)) + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
+  return (lo + Math.floor(roll(key, p.sown, p.picked) * (hi - lo + 1))) * (p.giant ? 6 : 1) + (hand === (isTree(p.crop) ? BLADES.tree : BLADES.plant) ? 1 : 0);
 }
 
 /** Pick a ripe plant into the bag (which must have the room), by somebody who may. One that bears again goes back a stage; another leaves the plot cleared. */
@@ -565,7 +580,7 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
   // (the mandrake that follows whoever picks sings as a plant is picked for what would be the last time, and the plant
   // bears once more: any crop, one that is picked only once too; so many plants a day, lib/town/gifts' USES; a plant
   // it has sung to is not sung to again)
-  const sung = last && !moreOf(p) ? useGift(purse, "famMandrake", now) : null, mine = sung?.ok ? sung.purse : purse, spent = last && !sung?.ok;
+  const sung = !p.giant && last && !moreOf(p) ? useGift(purse, "famMandrake", now) : null, mine = sung?.ok ? sung.purse : purse, spent = last && !sung?.ok;
   return {
     ok: true, got: [[p.crop, n]],
     plot: spent ? { soil: "cleared", plant: null } : { ...plot, plant: { ...p, picked, pickedAt: now, watered: 0, ...(sung?.ok ? { more: numberOf("famMandrake") } : {}) } },

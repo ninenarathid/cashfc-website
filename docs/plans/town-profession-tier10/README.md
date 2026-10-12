@@ -1,10 +1,12 @@
 # แผน implement รางวัลสายอาชีพถึงระดับ 10
 
-แผนกลางสำหรับ FC Cash Town ครอบคลุม 9 สายอาชีพ เติมรางวัลที่ขาด 42 ชิ้น ทบทวนรางวัลเดิม 48 ชิ้น และเพิ่มคอมโบลับของเครื่องรางกับสัตว์คู่ใจ เป้าหมายคือให้แต่ละสายมีช่วงที่โดดเด่นและมีเหตุผลให้กลับมาเล่น โดยต่อยอด gameplay ที่อีก session กำลังขยายอยู่ ผู้ใช้ขอเตรียมแผนและตัวกลางสำหรับหลายแชทเมื่อ 2026-10-10; รางวัลใหม่ยังเป็นแผน ส่วนคอมโบชุดนำร่อง 5 ชุด implement/tested ในเครื่องแล้ว ดู combo-implementation.md
+แผนกลาง FC Cash Town ครบ 9 สายระดับ 1–10: **42/42 รางวัลใหม่, 90 รางวัลรวม, 18/18 คอมโบ และคู่มือไทย/อังกฤษครบ 90 รางวัล ตรวจในเครื่องแล้ว** อ่าน [handoff ฉบับจบ](sessions/final-2026-10-11.md), [balance ล่าสุด](balance-final-2026-10-11.md) และ [ชุดเตรียมปล่อย](release.md) ก่อนรับงานต่อ ยังไม่ได้ deploy หรือรัน SQL ใหม่บนระบบจริงจาก session นี้ สถานะระหว่างทางด้านล่างเป็นประวัติ ไม่ใช่งานค้าง
 
 ## จุดเริ่มต้นของทุก session
 
 อ่านตามลำดับนี้ก่อนรับงานหรือหลัง compact:
+
+เริ่มจาก [handoff ฉบับจบ](sessions/final-2026-10-11.md) แล้ว [baseline-review-2026-10-10.md](baseline-review-2026-10-10.md) ซึ่งรับสถานะล่าสุดและแก้ข้อเสนอที่ขึ้นกับระบบใหม่ แล้วอ่านเอกสารหลักด้านล่าง. รายการ runtime/migration ที่จะทำและ hashes อยู่ในเอกสารนี้ ไม่ใช้ข้อความสถานะก่อน release เป็นงานค้าง
 
 1. [ข้อตกลงและลำดับงาน](README.md) กำหนดทิศทาง ขอบเขต และการทำงานร่วมกัน
 2. [แบบรางวัลและ balance](rewards.md) ระบุข้อเสนอครบทุก tier ที่ยังขาด
@@ -133,13 +135,15 @@ Prototype ให้จดว่า “ผู้เล่นใช้แล้ว
 | 2026-10-10 | ไม้ระดับ 8 | ใช้การอ่านถูกเพื่อเปิดการเก็บส่วนที่สอง ไม่ยกคุณภาพให้ฟรี | รักษาเกมอ่านลายไม้ |
 | 2026-10-10 | ขั้นตอนปัจจุบัน | เตรียมเอกสารและ backlog; code task ยังไม่ได้เริ่ม | คำขอรอบนี้คือเตรียม implement หลาย session |
 | 2026-10-10 | คอมโบลับ | เพิ่ม 18 แบบตั้งต้น มีเครื่องรางคู่ ชุดข้ามสายและสามชิ้น ใช้ช่องสวมเดิมและ discovery ส่วนตัว | ผู้ใช้ขอผลพิเศษจากชุดเครื่องราง/สัตว์โดยให้ VFX เป็นเบาะแส |
+| 2026-10-10 | รับฐานหลัง gameplay จบ | รับทั้ง 9 source gates, แก้สถานะ v194 เป็น deployed/owner-confirmed installed; รอบแรกทำ foundation/compatibility และ mining04/felling04 | handoff ใหม่และ replay ผ่าน; ต้องรักษา v195/v200 และปิด action contracts ของรางวัล |
 
 ## ข้อความเริ่มแชทใหม่
 
 ```text
 งาน FC Cash Town รางวัลสายอาชีพถึงระดับ 10 อยู่ที่
 docs/plans/town-profession-tier10/README.md
-อ่าน README, rewards.md, secret-combos.md, work-board.md, handoff.md และแผน adventure-expansion ล่าสุดก่อน
+อ่าน baseline-review-2026-10-10.md, README, rewards.md, secret-combos.md, work-board.md,
+handoff.md และ adventure-expansion-handoff.md ล่าสุดก่อน
 ตรวจ git status และ handoff ของ gameplay ใหม่ เพราะมีหลาย session ใช้ repo นี้
 รับ task <TASK-ID> แล้ว claim พร้อมขอบเขตไฟล์ก่อนแก้
 ทำตาม dependency และ acceptance; ประสาน shared files กับผู้รวมงาน
@@ -149,4 +153,4 @@ docs/plans/town-profession-tier10/README.md
 
 ## คอมโบชุดนำร่องที่ implement แล้ว
 
-SC01/SC02/SC03/SC11/SC13 มี runtime, RPC, notebook และ VFX ในเครื่องแล้ว ดู [handoff และวิธีติดตั้ง](combo-implementation.md) กับ [ภาพและ prompt briefs](combo-assets.md) ก่อนรับงานต่อ ยังไม่ deploy/ติดตั้ง SQL production และไม่ได้เติมรางวัลใหม่ 42 ชิ้นในรอบนี้
+SC01/SC02/SC03/SC11/SC13 มี runtime, RPC, notebook และ VFX แล้ว รวมอยู่ใน site release และ v194 ที่ owner แจ้งติดตั้งพร้อม expansion; ยังต้อง live smoke ผลคอมโบทั้งหมด ดู [handoff](combo-implementation.md), [ภาพและ prompt briefs](combo-assets.md) และ [สถานะรับฐานล่าสุด](baseline-review-2026-10-10.md). ยังไม่ได้เติมรางวัลใหม่ 42 ชิ้น

@@ -1,3 +1,5 @@
+import {temporaryFloor} from "./temporary-crossings";
+import {boatFishing} from './lotus-boats';
 /**
  * Cash Town's ground: the map, where you can walk, how to get there, and how
  * loud somebody is from where you stand.
@@ -1501,6 +1503,7 @@ export function thingAt(tx: number, ty: number): Building | "fountain" | "shop" 
 /** Can somebody stand on this tile? */
 export function walkable(tx: number, ty: number): boolean {
   if (placeOf(tx, ty) === null) return false;
+  if (temporaryFloor(tx,ty)) return true;
   return thingAt(tx, ty) === null;
 }
 
@@ -1599,6 +1602,7 @@ export function asBuilt<T>(make: () => T): T {
  *   all along the river. The line lands a little way out; the shallows.
  */
 export function fishFrom(tx: number, ty: number): Fishing | null {
+  const boat=boatFishing(tx,ty);if(boat)return boat;
   const key = `${tx},${ty}`, known = fishing.get(key);
   if (known !== undefined) return known;
   let found: Fishing | null = null;

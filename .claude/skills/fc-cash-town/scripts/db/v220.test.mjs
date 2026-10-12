@@ -1,0 +1,22 @@
+import {readFileSync,readdirSync,writeFileSync} from 'node:fs';
+import assert from 'node:assert/strict';
+import {rewardDB} from './reward-db.mjs';
+await import('./repo-ts-town.mjs');
+const {newPurse}=await import('@/lib/town/trade'),{dayOf}=await import('@/lib/town/stamina'),{begin,opened,fell,newGrove,axeOf}=await import('@/lib/town/trees'),{dominoGroup,DOMINO_DIRECTIONS}=await import('@/lib/town/reward-domino'),{grainOf}=await import('@/lib/town/wood-grain');
+const db=await rewardDB(219),now=Date.parse('2026-10-11T12:00:00+07:00');let checks=0;
+const one=async(q,a=[])=>(await db.query(q,a)).rows[0],eq=(a,b)=>{assert.deepEqual(a,b);checks++;};
+const p={...newPurse(),bag:[{item:'axe',n:1},...Array(20).fill(null)],hand:'axe',handAt:0,stamina:{day:dayOf(now),left:50},gifts:{had:['charmDomino','charmEchoAxe'],charms:['charmDomino','charmEchoAxe'],familiar:null}};
+try{
+ const sql=readFileSync('supabase/'+readdirSync('supabase').find(f=>f.startsWith('v220_')),'utf8');await db.exec(sql);await db.exec(sql);eq((await one(sql.slice(sql.lastIndexOf('select jsonb_build_object(')))).v220_verified,{helper_private:true,domino_ready:true});
+ const cat=(await one("select town.cat('trees') c")).c,wood=cat.wood.filter(w=>w[0]!==cat.elder.id).map(w=>({id:w[0],x:w[1],y:w[2],tier:w[3],size:w[4]})),axe=axeOf(p);let realChain;
+ const group=async(p,g,t,d)=>(await one('select town.reward_domino_group($1::jsonb,$2::jsonb,town.tree_of($3),town.axe_of($1::jsonb),$4,$5,$6::jsonb) r',[JSON.stringify(p),JSON.stringify(g),t.id,now,'me',JSON.stringify(d)])).r;
+ for(const t of wood.slice(0,35))for(const d of DOMINO_DIRECTIONS){const wanted=dominoGroup(p,newGrove(),t,axe,now,d,wood,'me'),actual=await group(p,newGrove(),t,d);eq(actual.map(w=>w[0]),wanted.map(t=>t.id));if(wanted.length>1&&!realChain)realChain={t,d,wanted};}
+ if(!realChain)throw Error('No real eligible chain');const {t,d,wanted}=realChain,at=[t.x+1,t.y],begun=(await one('select town.fell_domino_begin($1::jsonb,$2::jsonb,$3,$4,$5,$6,123,$7,$8::jsonb) r',[JSON.stringify(p),JSON.stringify(newGrove()),t.id,...at,now,'me',JSON.stringify(d)])).r;eq(begun,begin(p,newGrove(),t.id,at,now,123,wood,'me',d));
+ const g=opened(newGrove(),'me',begun.trees,now,d),plan=grainOf(t.id),went={tree:t.id,through:true,misses:0,secs:60,grain:{notches:plan.notches,direction:plan.lean,part:'wood'}},call=async(p,g,w)=>(await one('select town.fell($1::jsonb,$2::jsonb,$3,$4::jsonb,$5,$6,$7,$8::jsonb,$9) r',[JSON.stringify(p),JSON.stringify(g),'me',JSON.stringify(w),...at,now+2000,JSON.stringify([]),'me'])).r;
+ for(const [q,w]of [[p,went],[p,{...went,through:false}],[p,{...went,one:true}],[{...p,gifts:{...p.gifts,charms:['charmEchoAxe']}},went],[{...p,gifts:{...p.gifts,used:{charmDomino:{k:dayOf(now),n:3}}}},went],[{...p,bag:[{item:'axe',n:1}]},went]])eq(await call(q,g,w),fell(q,g,'me',w,at,now+2000,[],wood));
+ for(const b of [wanted[1].id]){const held={...newGrove(),goes:{other:{trees:[b],at:now}}};eq((await group(p,held,t,d)).map(w=>w[0]),dominoGroup(p,held,t,axe,now,d,wood,'me').map(t=>t.id));}
+ const member=(await one('select id from public.profiles where is_admin limit 1')).id;await db.query("select set_config('request.jwt.claim.sub',$1,false)",[member]);await db.query("select set_config('test.reward.clock',$1,false)",[String(now)]);await db.exec("create or replace function town.now_ms() returns bigint language sql stable as $$select current_setting('test.reward.clock')::bigint$$;");await db.query('select town.purse_of($1,true)',[member]);await db.query('select town.keep_purse($1,$2::jsonb)',[member,JSON.stringify(p)]);await db.exec("select town.keep_thing('grove','{\"down\":{},\"half\":[]}'::jsonb)");
+ const rpc=(await one('select public.town_fell_domino_begin($1,$2,$3,$4::jsonb) r',[t.id,...at,JSON.stringify(d)])).r;eq(rpc.ok,true);eq(rpc.group,begun.trees);eq((await one("select town.thing('grove',false) g")).g.goes[member].domino,d);
+ const forbidden=(await one('select public.town_fell_domino_begin($1,$2,$3,$4::jsonb) r',[t.id,...at,'[0,0]'])).r;eq(forbidden.ok,false);
+ writeFileSync('.codex/tier10/v220-validation.json',JSON.stringify({checks,localOnly:true,realChain:realChain.wanted.map(t=>t.id),hardestGame:true,threeTargetCap:true},null,2));console.log(`v220: ${checks} real-tree SQL/TS grouping, quotas, locks, costs, failure/full and RPC checks passed.`);
+}catch(e){console.error(e.message,e.where??'');if(e.actual!==undefined)console.error(JSON.stringify({actual:e.actual,expected:e.expected}));process.exitCode=1;}finally{await db.close();}

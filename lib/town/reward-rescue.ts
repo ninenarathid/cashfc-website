@@ -1,0 +1,22 @@
+import {works,useGift} from './gifts';import {spend} from './stamina';import type {Purse} from './trade';import {extractionMarks} from './reward-actions';import type {BeanRun} from './reward-bean';import type {KitchenRun} from './reward-kitchen';
+export interface RescueTicket{id:string;kind:'bean'|'kitchen';at:[number,number];stage:number;until:number;ask:boolean;snapshot:BeanRun|KitchenRun;live:BeanRun|KitchenRun|null}
+export interface RescueOffer{id:string;target:string;kind:RescueTicket['kind'];at:[number,number];stage:number;until:number}
+export interface RescueRun{id:string;target:string;ticket:string;seed:number;at:[number,number];began:number;until:number;solo:boolean}
+export type RescueInput={action:'rescueLook'|'rescueAsk'|'rescueBegin'|'rescueEnd'|'rescueCancel';target?:string;ticket?:string;run?:string;marks?:number[];at:[number,number]};
+const no=(why:'none'|'far'|'spent')=>({ok:false as const,why}),same=(a:unknown,b:unknown)=>JSON.stringify(a)===JSON.stringify(b);
+export function rememberRescue(before:Purse,after:Purse,action:string,id:string,t:number,failed:boolean):Purse{
+ if(action==='beanCancel'||action==='kitchenCancel')return{...after,professionRewards:{...after.professionRewards,rescueTicket:null}};
+ const kind=action==='beanEnd'?'bean':action==='kitchenEnd'?'kitchen':null;if(!kind||!failed)return after;const old=before.professionRewards?.[kind];if(!old||old.rescued||kind==='kitchen'&&(old as KitchenRun).kind!=='banquet')return after;const live=after.professionRewards?.[kind]??null,snapshot=live??old,ticket:RescueTicket={id,kind,at:snapshot.at,stage:kind==='bean'?(snapshot as BeanRun).next:(snapshot as KitchenRun).stage,until:t+600000,ask:false,snapshot,live};return{...after,professionRewards:{...after.professionRewards,rescueTicket:ticket}};
+}
+export function rescueOffer(p:Purse,target:string,t:number,at:[number,number]):RescueOffer|null{const r=p.professionRewards?.rescueTicket;if(!r||!r.ask||r.until<=t||Math.max(...r.at.map((n,i)=>Math.abs(n-at[i])))>3||!same(p.professionRewards?.[r.kind]??null,r.live))return null;return{id:r.id,target,kind:r.kind,at:r.at,stage:r.stage,until:r.until};}
+export function rescueAction(p:Purse,c:RescueInput,id:string,t:number,seed:number,me:string,target:Purse|undefined,offers:RescueOffer[]=[]){
+ const state=p.professionRewards??{},r=state.rescue;
+ if(c.action==='rescueAsk'){const ticket=state.rescueTicket;if(!ticket||ticket.until<=t||!same(state[ticket.kind]??null,ticket.live))return no('none');return{ok:true as const,purse:{...p,professionRewards:{...state,rescueTicket:{...ticket,ask:true}}}};}
+ if(c.action==='rescueCancel')return{ok:true as const,purse:{...p,professionRewards:{...state,rescue:null}},rescue:null};
+ if(!works(p,'charmWaykeeper'))return no('none');if(c.action==='rescueLook')return{ok:true as const,purse:p,rescueOffers:offers};
+ const ticket=target?.professionRewards?.rescueTicket,solo=c.target===me;if(!target||!ticket||ticket.until<=t||!solo&&!ticket.ask||c.ticket!==ticket.id||!same(target.professionRewards?.[ticket.kind]??null,ticket.live))return no('none');if(Math.max(...ticket.at.map((n,i)=>Math.abs(n-c.at[i])))>3)return no('far');
+ if(c.action==='rescueBegin'){if(r&&r.until>t||!Number.isInteger(seed)||seed<0||seed>4294967295)return no('none');const u=useGift(p,'charmWaykeeper',t);if(!u.ok)return no('spent');const rescue:RescueRun={id,target:c.target!,ticket:ticket.id,seed,at:ticket.at,began:t,until:Math.min(ticket.until,t+120000),solo};return{ok:true as const,purse:{...spend(u.purse,1,t),professionRewards:{...state,rescue}},rescue};}
+ if(!r||r.id!==c.run||r.target!==c.target||r.ticket!==ticket.id||t<r.began+2400||t>r.until)return no('far');if(!c.marks||c.marks.length!==3||c.marks.some(n=>!Number.isFinite(n)||n<0||n>1))return no('none');const pass=extractionMarks(r.seed).every((n,i)=>Math.abs(n-c.marks![i])<=(solo?.055:.07)),mine={...spend(p,3,t),professionRewards:{...state,rescue:null}};if(!pass)return{ok:true as const,purse:mine,rescue:null,rescuePassed:false};
+ const restored={...ticket.snapshot,attempts:0,until:t+600000,rescued:true,...(ticket.kind==='bean'?{challenge:null}:{began:t})},theirState={...target.professionRewards,[ticket.kind]:restored,rescueTicket:null};
+ return solo?{ok:true as const,purse:{...mine,professionRewards:{...mine.professionRewards,...theirState,rescue:null}},rescue:null,rescuePassed:true}:{ok:true as const,purse:mine,targetPurse:{...target,professionRewards:theirState},rescue:null,rescuePassed:true};
+}

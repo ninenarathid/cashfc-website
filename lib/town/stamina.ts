@@ -1,4 +1,4 @@
-import { BOWL, BUFFS, BUFF_HOURS, BUFF_LEVELS, DISHES, SCROLLS, byOf, inBowl, isDish, type BuffId, type DishId, type ItemId, type MealBuffId } from "./items";
+import { BOWL, BUFF_STEPS, BUFFS, BUFF_HOURS, BUFF_LEVELS, DISHES, SCROLLS, byOf, inBowl, isDish, type BuffId, type DishId, type ItemId, type MealBuffId } from "./items";
 import type { WishId } from "./fountain";
 import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./trade";
 
@@ -204,9 +204,11 @@ export function sitDown(purse: Purse, slot: number, seated: boolean, now: number
   };
 }
 
+/** Only meals served directly on an actual picnic cloth carry this private marker. */
+export const mealDuration=(purse:Pick<Purse,"eating">)=>purse.eating?.picnic?30000:STAMINA.minutes*60000;
 /** How far through the meal somebody is, from 0 to 1. */
 export const mealProgress = (purse: Purse, now: number) =>
-  (purse.eating ? Math.min(1, Math.max(0, (now - purse.eating.from) / (STAMINA.minutes * 60_000))) : 0);
+  (purse.eating ? Math.min(1, Math.max(0, (now - purse.eating.from) / mealDuration(purse))) : 0);
 
 /**
  * The level the buff of the meal being eaten goes to at once when it is eaten up, where its bowl was sprinkled with
@@ -253,7 +255,7 @@ export function warmed(up: Pick<Purse, "buff" | "buffs">, id: MealBuffId, hours:
 export function chew(purse: Purse, company: number, now: number): { purse: Purse; done: boolean } {
   const e = purse.eating;
   if (!e) return { purse, done: false };
-  const whole = STAMINA.minutes * 60_000, end = e.from + whole, till = Math.min(now, end);
+  const whole = mealDuration(purse), end = e.from + whole, till = Math.min(now, end);
   const dish = DISHES[e.dish];
   // ── forging: old tools ── (`scent`: so much more stamina in a helping out of a pot whose cookware gave it as much: lib/town/cooking's feastEat)
   const scent = typeof e.scent === "number" && e.scent > 0 ? e.scent : 0;
@@ -266,6 +268,10 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
     eating: done ? null : { ...e, till, got: e.got + gain },
     ...(done && dish.buff ? warmed(raised(purse, dish.buff, now, spiceOf(purse)), dish.buff, typeof e.warm === "number" ? e.warm : 0, now, purse.buff) : {}),
   };
+  if(done){
+    if(e.secondary&&e.secondary in BUFF_STEPS&&e.secondary!==dish.buff){const live=mealBuffs(after,now),had=live.find(b=>b.id===e.secondary);after.buffs=had?live.map(b=>b===had?{...b,level:Math.max(1,b.level),until:Math.max(b.until,now+1800000)}:b):[...live,{id:e.secondary,level:1,until:now+1800000}];}
+    if(e.cookedBy&&e.cookId)after.lastMeal={cookedBy:e.cookedBy,cookId:e.cookId,at:now,buffs:[dish.buff,e.secondary].filter((b):b is MealBuffId=>!!b)};
+  }
   // (a helping out of one of the feast table's own bowls gives none back: the bowl was never the eater's)
   return { done, purse: done ? bowlsBack(after, inBowl(e.dish) && !e.lent ? 1 : 0) : after };
 }
@@ -279,7 +285,7 @@ export function chew(purse: Purse, company: number, now: number): { purse: Purse
  */
 export function settle(purse: Purse, now: number): Purse {
   if (!purse.eating) return bowlsBack(purse);
-  const end = purse.eating.from + STAMINA.minutes * 60_000;
+  const end = purse.eating.from + mealDuration(purse);
   return now >= end ? chew(purse, 0, end).purse : bowlsBack(purse);
 }
 

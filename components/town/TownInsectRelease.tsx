@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
-import { insectCareMode } from "@/lib/town/insect-garden";
+import {works} from "@/lib/town/gifts";
+import { insectCareMode,type InsectCare } from "@/lib/town/insect-garden";
 import { ITEMS, iconOf } from "@/lib/town/items";
 import type { Keeper } from "@/lib/town/keeper";
 import { handOf } from "@/lib/town/trade";
@@ -36,14 +37,13 @@ export default function TownInsectRelease({ keeper, at, th }: { keeper: Keeper; 
     : mode === "pollinate" && plant.pollenRound === plant.picked ? th ? "รอบนี้มีแมลงช่วยเกสรแล้ว รอให้เก็บผลก่อน" : "A visitor has already helped this bearing. Harvest before another visit."
     : mode === "guard" && !seen.pest ? th ? "ต้นนี้ไม่มีศัตรูพืช เก็บแมลงไว้ใช้เมื่อจำเป็น" : "This plant has no pests. Keep the insect for when it is needed."
     : null;
-  const slot = p.bag.findIndex(s => s?.item === hand && s.n > 0);
+  const slot = p.bag.findIndex(s => s?.item === hand && s.n > 0),guardian=mode==="pollinate"&&works(p,"charmPollenGuardian");
+  async function release(choice:InsectCare){setBusy(true);try{const did=await keeper.insectCare(at,slot,choice);setNote(did.ok?th?"แมลงไปดูแลต้นแล้ว":"The insect has left to tend the plant.":WHY[did.why as keyof typeof WHY]?.[th?0:1]??(th?"ต้นนี้ยังไม่พร้อม":"This plant is not ready."));}finally{setBusy(false);}}
   return <section data-insect-release className={`${styles.panel} ${styles.forest} pointer-events-auto w-[min(380px,calc(100vw-24px))]`} aria-label={th ? "ให้แมลงดูแลสวน" : "Let an insect tend the garden"}>
     <div className={styles.scene}><TownIcon name={iconOf(hand) as IconName} size={44} /><div><p className="font-display text-title">{th ? ITEMS[hand].name.th : ITEMS[hand].name.en}</p><p className={styles.caption}>{mode === "pollinate" ? th ? "ผู้ช่วยผสมเกสร" : "A pollination visitor" : th ? "ผู้ช่วยปกป้องต้นพืช" : "A garden guardian"}</p></div></div>
     <p className="mt-1 text-meta">{mode === "pollinate" ? th ? "ให้ตัวหนึ่งไปเยี่ยมดอกของต้นนี้ หรือเก็บไว้ในกระเป๋า" : "Let one visit this plant's flowers, or keep it in your bag." : th ? "ปล่อยตัวหนึ่งลงบนต้นที่มีศัตรูพืช หรือเก็บไว้ในกระเป๋า" : "Release one onto a plant with pests, or keep it in your bag."}</p>
     {unavailable && <p role="status" className="mt-2 text-meta">{unavailable}</p>}
-    <button type="button" disabled={busy || slot < 0 || !!unavailable} className="pressable mt-2 min-h-11 w-full rounded border border-[#d5df9a] bg-[#476238] px-3 py-2 text-ui disabled:opacity-50" onClick={async () => {
-      setBusy(true); try { const did = await keeper.insectCare(at, slot, mode); setNote(did.ok ? th ? "แมลงไปดูแลต้นแล้ว" : "The insect has left to tend the plant." : WHY[did.why as keyof typeof WHY]?.[th ? 0 : 1] ?? (th ? "ต้นนี้ยังไม่พร้อม" : "This plant is not ready.")); } finally { setBusy(false); }
-    }}>{busy ? th ? "กำลังปล่อย…" : "Releasing…" : th ? mode === "pollinate" ? "ปล่อย 1 ตัวไปผสมเกสร" : "ปล่อย 1 ตัวไปกำจัดศัตรูพืช" : mode === "pollinate" ? "Release one to pollinate" : "Release one to tend pests"}</button>
+    {guardian?<div className="mt-2 grid gap-2"><p className="text-meta">{th?"เลือกหนึ่งผล ใช้แมลงหนึ่งตัวและสิทธิ์เกสรของรอบนี้ เมล็ดผสมต้องมีคู่สุกข้างกันตอนเก็บ ไม่ซ้อนมีดทาบยอดเกินสองเมล็ด":"Choose one effect, using one insect and this bearing’s pollination. Hybrid seeds still need ripe neighbours at harvest; at most two with a grafting knife."}</p>{(["grow","cross"] as const).map(choice=><button key={choice} data-pollen-choice={choice} disabled={busy||slot<0||!!unavailable} className="pressable min-h-11 rounded border border-[#d5df9a] bg-[#476238] px-3 py-2 text-[#f0e8c8] text-ui disabled:opacity-50" onClick={()=>void release(choice)}>{choice==="grow"?(th?"ปล่อย 1 ตัว · เพิ่มโต 1 ชั่วโมง":"Release one · grow one hour"):(th?"ปล่อย 1 ตัว · เตรียมเมล็ดผสม":"Release one · prepare hybrid seed")}</button>)}</div>:<button type="button" disabled={busy||slot<0||!!unavailable} className="pressable mt-2 min-h-11 w-full rounded border border-[#d5df9a] bg-[#476238] px-3 py-2 text-[#f0e8c8] text-ui disabled:opacity-50" onClick={()=>void release(mode)}>{busy?(th?"กำลังปล่อย…":"Releasing…"):mode==="pollinate"?(th?"ปล่อย 1 ตัวไปผสมเกสร":"Release one to pollinate"):(th?"ปล่อย 1 ตัวไปกำจัดศัตรูพืช":"Release one to tend pests")}</button>}
     {note && <p className="mt-2 text-meta" aria-live="polite">{note}</p>}
   </section>;
 }

@@ -1,4 +1,6 @@
 import { trainElement } from "./element-training";
+import { learnFloor } from "./reward-knowledge";
+import {rememberVeinSite,rememberBranch} from "./reward-branch";
 import { geologicalYield, geologyMods, rockChoice, type RockChoice } from "./geology";
 import { depthOf, isRest } from "./cave";
 import { roll } from "./farm";
@@ -456,7 +458,8 @@ function pay(purse: Purse, go: Go, rock: RockAt, struck: Struck, quake: boolean,
   // vein elsewhere since is paid for the rock when somebody else breaks it, and their vein is theirs to play still.
   // A rock that does open one never comes here with one open: it is refused above, and waits)
   after = { ...after, mine: { ...kept, owed, crumb, loose: { k, ids: loose }, vein: vein ?? kept.vein, last: own ? go.now : kept.last, paid } };
-  return { ok: true, done: true, purse: after, struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each, moss };
+  if(vein)after=rememberVeinSite(after,purse,vein,go.at,go.day);
+  return { ok: true, done: true, purse: learnFloor(after,go.floor,MINING.floors), struck, broke: gone, chained, got, way, vein, crystal, loose, cost, spent, each, moss };
 }
 
 /* ── a vein played out ──────────────────────────────────────────────────── */
@@ -486,7 +489,8 @@ export function veinEnd(purse: Purse, strikes: ReadonlyArray<Cell>, now: number,
   if (choice) { const gems = crack.got.filter(i => face.points[i].gem > 0 && vein.gem).length; got.push(...geologicalYield(vein, choice, crack.got.length - gems, gems, purse)); }
   const stowed = stowAll(twin?.ok ? twin.purse : purse, got);
   if (!stowed) return { ok: false, why: "full" };
-  const after = stowed;
+  const gems=crack.got.filter(i=>face.points[i].gem>0&&vein.gem).length;
+  const after = rememberBranch(stowed,purse,vein,crack.got.length-gems,gems,oreOf(vein.f),choice,now);
   return {
     ok: true, got, passed: crack.got.length, of: face.points.length, struck: crack.struck, again: false, vein,
     purse: { ...after, mine: { ...mineOf(after), vein: null } },

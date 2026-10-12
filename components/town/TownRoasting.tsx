@@ -21,7 +21,8 @@ function colourOf(f: number, done: number): string {
  * about it that fills as each face does and is notched where a face is done. A touch anywhere, or the space bar,
  * turns the stick a quarter. The fire's flames are drawn here, so that they can crackle and flare.
  */
-export default function TownRoasting({ th, title, spent, calm = 1, harder = 1, scene, onDone, onCancel, onHit, onTurn, onFlare }: GameProps & {
+export default function TownRoasting({ th, title, spent, calm = 1, harder = 1, scene, onDone, onCancel, onHit, onTurn, onFlare, onMissRetry }: GameProps & {
+  onMissRetry?:(result:{hits:number;misses:number;secs:number})=>Promise<boolean>;
   spent: boolean;
   /** How many times harder this roast is for whoever turns it (lib/town/cooking's harderCook): nothing of it is shown but the game itself. */
   harder?: number;
@@ -34,13 +35,15 @@ export default function TownRoasting({ th, title, spent, calm = 1, harder = 1, s
 }) {
   const roast = useRef<Roast>(startRoast(spent, Math.floor(Math.random() * 2 ** 31), calm, harder));
   const from = useRef(0), ended = useRef(false), turned = useRef(0);
+  const checkpoint=useRef<Roast|null>(null),paused=useRef(false),asked=useRef(false);
+  const[retry,setRetry]=useState<{before:Roast;after:Roast}|null>(null);
   const [, setShown] = useState(0);
   const canvas = useRef<HTMLCanvasElement>(null), told = useRef<boolean[]>([]), burnt = useRef<boolean[]>([]);
   const now = () => (performance.now() - from.current) / 1000;
   useEffect(() => { from.current = performance.now(); }, []);
 
   const give = useCallback(() => {
-    if (ended.current) return;
+    if (ended.current||paused.current) return;
     roast.current = turn(roastAt(roast.current, now()));
     turned.current = performance.now();
     onTurn?.();
@@ -52,14 +55,14 @@ export default function TownRoasting({ th, title, spent, calm = 1, harder = 1, s
     const c = canvas.current, ctx = c?.getContext("2d");
     if (!c || !ctx) return;
     const t = now();
-    if (!ended.current) {
+    if (!ended.current&&!paused.current) {
       const was = roast.current, next = roastAt(was, t), done = doneFrom(next);
       roast.current = next;
       next.faces.forEach((f, i) => {
-        if (f >= done && !told.current[i]) { told.current[i] = true; onHit?.(true); setShown((n) => n + 1); }
-        if (f > ROASTING.burnt && !burnt.current[i]) { burnt.current[i] = true; onHit?.(false); setShown((n) => n + 1); }
+        if (f >= done && !told.current[i]) { told.current[i] = true; onHit?.(true);checkpoint.current={...next,faces:[...next.faces]};setShown((n) => n + 1); }
+        if (f > ROASTING.burnt && !burnt.current[i]) { burnt.current[i] = true; onHit?.(false); setShown((n) => n + 1);if(onMissRetry&&!asked.current&&checkpoint.current&&checkpoint.current.faces.every(n=>n<=ROASTING.burnt)){asked.current=true;paused.current=true;const before=checkpoint.current;void onMissRetry({...roastOf(next),secs:t}).then(ok=>{if(ok)setRetry({before,after:next});else{from.current=performance.now()-next.t*1000;paused.current=false;}}).catch(()=>{from.current=performance.now()-next.t*1000;paused.current=false;});} }
       });
-      if (roasted(next)) {
+      if (roasted(next)&&!paused.current) {
         ended.current = true;
         const out = roastOf(next);
         window.setTimeout(() => onDone({ ...out, secs: Math.round(t * 10) / 10, need: ROASTING.faces }), 450);
@@ -134,6 +137,7 @@ export default function TownRoasting({ th, title, spent, calm = 1, harder = 1, s
   const r = roast.current, out = roastOf(r);
   return (
     <GameFrame th={th} title={title} need={ROASTING.faces} hits={out.hits} misses={out.misses} most={0} onCancel={onCancel}>
+      {retry&&<div className="mb-2 rounded-lg bg-[#213d32] p-3 text-ui" role="status"><p>{th?'ไอฝนเก็บหน้าที่ย่างสำเร็จไว้ กลับไปคุมไฟต่อเองได้':'Rain kept the last golden face. Control the fire again.'}</p><button data-cook-rain-retry className="mt-2 min-h-11 rounded bg-accent px-3 text-bg" onClick={()=>{roast.current={...retry.before,faces:[...retry.before.faces]};from.current=performance.now()-roast.current.t*1000;told.current=roast.current.faces.map(n=>n>=doneFrom(roast.current));burnt.current=roast.current.faces.map(n=>n>ROASTING.burnt);setRetry(null);paused.current=false;}}>{th?'กลับไปคุมไฟ':'Replay the heat'}</button><button className="ml-2 min-h-11 px-2" onClick={()=>{roast.current=retry.after;from.current=performance.now()-retry.after.t*1000;setRetry(null);paused.current=false;}}>{th?'ยอมรับที่พลาด':'Keep the miss'}</button></div>}
       <div className={`${STAGE} mt-2 aspect-[3/2] w-full touch-none select-none`} data-look="roasting" onPointerDown={(e) => { e.preventDefault(); give(); }}>
         {scene ? <GameScene sprite={scene} className="absolute inset-0 size-full" /> : <PixelGround kind="leaf" className="absolute inset-0 size-full" />}
         <canvas ref={canvas} width={480} height={320} className="pointer-events-none absolute inset-0 size-full" />

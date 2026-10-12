@@ -1,5 +1,44 @@
+import{rootAfterFell}from'./trial-combos';
+import{rootExtraction}from'./reward-root-extraction';
+import{continueRow}from'./trial-combos';
+import{rowContinue}from'./reward-row-continuation';
+import{gardenRetry}from'./reward-garden-retry';
+import{rainCare}from'./reward-rain';
+import{commitCombo,matchesCombo,comboLoadout}from'./trial-combos';
+import{guardSeed,sharedMealBond}from'./trial-combos';
+import{rescueAction,rescueOffer,rememberRescue}from './reward-rescue';
+import{plantCampFlag,flagBenefit,consumeCampRetry}from './reward-camp';
+import{helpGarden}from './reward-help';
+import{rememberGardenMisses}from './help-checkpoints';
+import{beanAction}from "./reward-bean";
+import{gardenAction}from "./reward-garden";
+import{kitchenAction,kitchenCooked}from './reward-kitchen';
+import{picnicPlace,picnicEat}from"./reward-picnic";
+import{crownAction}from"./reward-crown";
+import{lanternAction}from"./reward-lantern";
+import{arenaAction}from"./reward-arena";
+import{beginDragon}from"./reward-dragon";
+import {boatAction} from './reward-boat';
+import type {LotusBoat} from './lotus-boats';
+import {buildCrossing} from "./reward-crossing";
+import type {TemporaryCrossing} from "./temporary-crossings";
+import {treePact} from "./reward-pact";
+import {partReady,restPart} from "./tree-parts";
+import {nursery} from "./reward-nursery";
+import {callCloud,type CloudConsent} from "./reward-cloud";
+import {springAction,type RewardSpring} from "./reward-springs";
+import {conduit} from "./reward-conduit";
+import {waterRelay} from "./reward-relay";
 // CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 import type { RockChoice } from "./geology";
+import { scanMineral, beginExtraction, endExtraction } from "./reward-actions";
+import { fieldProcess } from "./reward-field";
+import { beginTrail,trailAction } from "./reward-trails";
+import { beginCore,coreAction } from "./reward-core";
+import { beginResource,resourceAction,type ResourceCorrection } from "./reward-resources";
+import { startSchool,type FishPool } from "./reward-fishing";
+import {portableLift} from "./reward-lift";
+import type { RewardInput, RewardReply } from "./reward-types";
 import { gardenTend, syncGarden } from "./gardening";
 import { insectCare, type InsectCare } from "./insect-garden";
 import { boxOffer, moveBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
@@ -332,7 +371,7 @@ export class Trial {
     const camps=this.camps(),old=camps.find(c=>c.site===site)??null,now=this.now();
     const d=action==="place"?makeCamp(this.purse(),site,at,old,this.id,now):campBenefit(this.purse(),old,supply??"",at,now);
     if(!d.ok)return d;
-    const next=[...camps.filter(c=>c.site!==site),d.camp];this.write("cashtown.trial.camps.1",next);this.write(key,{...receipts,[request]:action});this.save(d.purse);
+    const bonus=action==="benefit"?flagBenefit(this.purse(),d.purse,d.camp,this.id,now):{purse:d.purse,camp:d.camp};const next=[...camps.filter(c=>c.site!==site),bonus.camp];this.write("cashtown.trial.camps.1",next);this.write(key,{...receipts,[request]:action});this.save(bonus.purse);
     if(action==="benefit"&&old)this.counted({from:"deed",what:"camp_prepare",thing:supply,n:1,doc:{owner:old.by}});
     return {ok:true as const,camps:next};
   }
@@ -590,6 +629,7 @@ export class Trial {
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
     const did = gardenTend(key, plots, beds[bed], (planted.get(bed) ?? 0) - (plot.plant ? 1 : 0), holds, p, this.id, now, this.sky(), sure, this.putLuck ?? undefined, rotation);
     if (!did.ok) return did;
+    if(did.deed==="sow"){const guarded=guardSeed(did.purse,did.plot,key,now);did.purse=guarded.purse;did.plot=guarded.plot;did.plots[key]=guarded.plot;}
     const next = { ...plots, ...did.plots };
     // (a watering on a hot afternoon does as much again, and has the nature of the well's water while it has one: lib/town/heat and waters, as the plot is kept)
     if (did.plot.soil === "wild" && !did.plot.plant) delete next[key]; else next[key] = this.poured(plot, did.plot, now, did.deed === "water" ? did.times ?? 1 : 0, this.bellWorn(bed));
@@ -636,6 +676,7 @@ export class Trial {
     const holds = [...this.owners()].filter(([n, o]) => n !== bed && o.by === this.id).length;
     const did = rowTend(key, keys, plots, beds[bed], (planted.get(bed) ?? 0) - keys.filter((k) => !!plots[k]?.plant).length, holds, p, this.id, now, marks, this.sky());
     if (!did.ok) return did;
+    if(did.deed==="sow")for(const e of did.each){const g=guardSeed(did.purse,did.plots[e.key],e.key,now);did.purse=g.purse;did.plots[e.key]=g.plot;}
     const next = { ...plots }, sky = SKIES.sky(now);
     for (const [k, plot] of Object.entries(did.plots)) { if (plot.soil === "wild" && !plot.plant) delete next[k]; else next[k] = keptAs(plots[k], plot, now, sky, this.natureNow(now)); }
     this.write(FARM, next);
@@ -649,7 +690,7 @@ export class Trial {
       if (did.deed === "sow") this.wellSeen({ by: this.id, at: now, what: "sow", tile: [u, v] });
       this.counted({ from: "deed", what: did.deed, thing: e.crop, n: 1, doc: { ...(was && was.by !== this.id ? { whose: was.by } : {}), ...(!was && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}) } });
     }
-    this.save(did.purse);
+    const offered=rowFor(key,keys,plots,p,this.id,now,this.owners().get(bed)?.by??null,this.sky())?.plots??[];this.save(continueRow(p,rememberGardenMisses(did.purse,offered,did.deed,plots,this.owners().get(bed)?.by??null,marks,did.each.map(e=>e.key),this.id,now),key,offered,did.each.map(e=>e.key),did.deed,next,this.owners().get(bed)?.by??null,marks,this.id,now,this.sky()));
     return { ok: true, deed: did.deed, done: did.each.map((e) => e.key), got: did.got, ...(did.seeds === undefined ? {} : { seeds: did.seeds }) };
   }
   /** The plots of the bed a plot is in that the garden gnome would water if it were sent now (lib/town/farm's gnomeReach), in the order it would go. */
@@ -732,7 +773,7 @@ export class Trial {
       this.wellSeen({ by: this.id, at: now, what: "water", can: hand, tile: [u, v], ...(by !== this.id ? { whose: by } : {}) });
       this.counted({ from: "deed", what: "water", thing: e.crop, n: 1, doc: by !== this.id ? { whose: by } : {} });
     }
-    this.save(did.purse);
+    this.save(rememberGardenMisses(did.purse,pourFor(key,keys,plots,p,this.id,now,this.owners().get(bed)?.by??null,this.sky()),"water",plots,this.owners().get(bed)?.by??null,marks,did.each.map(e=>e.key),this.id,now));
     this.bell(bed, did.each.map((e) => e.key), name);
     return { ok: true, done: did.each.map((e) => e.key) };
   }
@@ -741,8 +782,8 @@ export class Trial {
     if (!to || to === this.id) return { ok: false, why: "none" };
     const other = trialFor(to), did = share(this.purse(), other.purse(), this.id, name || this.id, far, this.now());
     if (!did.ok) return did;
-    other.save(did.theirs);
-    this.save(did.mine);
+    const bond=sharedMealBond(did.mine,did.theirs,this.id,this.now());other.save(bond.theirs);
+    this.save(bond.mine);
     return { ok: true, gave: did.gave, paid: did.paid, left: did.left };
   }
   /** Garden fae dust (lib/town/farm's dust): whether I could sprinkle it on the plant in a plot now, and sprinkling it. */
@@ -1122,7 +1163,7 @@ export class Trial {
     }
     // and it counts against its kind from the next turn on, for a day
     this.write(BUG_HUNTS, [...hunts, { bug: has!.bug, at: now, n: has!.n }]);
-    this.save(did.purse);
+    this.save(did.purse.professionRewards?.bugApproach?{...did.purse,professionRewards:{...did.purse.professionRewards,bugApproach:null}}:did.purse);
     this.counted({ from: "deed", what: "net", thing: has!.bug, n: has!.n, doc: {} });
     return { ok: true, got: did.got, first, rid };
   }
@@ -1159,7 +1200,7 @@ export class Trial {
       if (rid) this.write(FARM, { ...farm, [rid]: { ...farm[rid], plant: { ...farm[rid].plant!, cured: now } } });
     }
     this.write(BUG_HUNTS, [...this.hunts(), { bug, at: now, n }]);
-    this.save(did.purse);
+    this.save({ ...did.purse, professionRewards: { ...did.purse.professionRewards, bugApproach: null } });
     this.counted({ from: "deed", what: "net", thing: bug, n, doc: {} });
     return { ok: true, got: did.got, first, rid };
   }
@@ -1353,13 +1394,14 @@ export class Trial {
    */
   cookDo(things: Array<[ItemId, number]>, crew: Array<ItemId | null>, misses: number, name = "", how: CookHow = {}): Gifted<{ purse: Purse; made: ItemId | null; n: number; first: boolean; taste?: Taste; fresh?: boolean; sprite?: boolean; back?: boolean }> {
     // (── gifts: kitchen ── with what the kitchen's gifts change of it: lib/town/cooking's cookWith)
-    const now = this.now(), did = cookWith(this.purse(), things, crew, misses, now, how);
+    const now = this.now(), before=this.purse(), did = kitchenCooked(before,cookWith(before, things, crew, misses, now, how),misses,now,this.id,crypto.randomUUID());
     if (!did.ok) return did;
     const made = isFind(did.made) ? did.made : null, found = this.found(), first = !!made && !found.includes(made);
     // (a pot cooked while the yard's jar has water takes a bucketful of it, and has a helping more: lib/town/yard)
     const watered = freshen(did.purse, did.made, this.yardJar());
     if (watered.fresh) { this.write(YARD_JAR, watered.jar); this.wellSeen({ by: this.id, at: now, what: "fresh" }); }
     let purse = watered.purse;
+    if(purse.professionRewards?.warmJob)purse={...purse,professionRewards:{...purse.professionRewards,warmJob:null}};
     if (made && made in DISHES && !purse.recipes.includes(made as DishId)) purse = { ...purse, recipes: [...purse.recipes, made as DishId] };
     if (made && !hasMade(purse, made)) purse = { ...purse, made: [...(purse.made ?? []), made] };
     if (first && made) { this.write(FOUND, [...found, made]); this.write(FINDERS, { ...this.finders(), [made]: name || this.id }); }
@@ -1569,16 +1611,18 @@ export class Trial {
   }
   /** Wear these charms and no others (none: take them all off). */
   charmsWear(ids: readonly string[]): { ok: true } | { ok: false; why: GiftRefusal } {
-    const did = wearCharms(this.purse(), ids);
+    const before=this.purse();
+    const did = wearCharms(before, ids);
     if (!did.ok) return did;
-    this.save(did.purse);
+    this.save(comboLoadout(before)===comboLoadout(did.purse)?did.purse:{...did.purse,comboEpoch:(before.comboEpoch??0)+1});
     return { ok: true };
   }
   /** Have this familiar follow me and no other (null: none follows). */
   familiarWear(id: string | null): { ok: true } | { ok: false; why: GiftRefusal } {
-    const did = wearFamiliar(this.purse(), id);
+    const before=this.purse();
+    const did = wearFamiliar(before, id);
     if (!did.ok) return did;
-    this.save(did.purse);
+    this.save(comboLoadout(before)===comboLoadout(did.purse)?did.purse:{...did.purse,comboEpoch:(before.comboEpoch??0)+1});
     return { ok: true };
   }
   /** Use a counted gift once (lib/town/gifts): it has to work for me now, and to have a time left in this stretch. */
@@ -1669,9 +1713,9 @@ export class Trial {
   /** The trees as I am told them: every one that is not grown, and those half cut. */
   trees(): TreesTold { return treesTold(this.grove(), this.purse(), this.now()); }
   /** Walk up to a tree with an axe in the hand: the game that fells it, or the state that refuses it. Its trees are held for me from now, for as long as a go is held: nobody else's board or press takes on them meanwhile. */
-  fellBegin(tree: number, at: [number, number]): { ok: true; trees: number[]; ask: FellingAsk; elder: boolean } | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
-    const grove = this.grove(), did = fellBegin(this.purse(), grove, tree, at, this.now(), this.fellSeed ?? Math.floor(Math.random() * 2 ** 31), undefined, this.id);
-    if (did.ok) this.write(TREES_AT, fellOpened(grove, this.id, did.trees, this.now()));
+  fellBegin(tree: number, at: [number, number],direction?:import("./reward-domino").DominoDirection): { ok: true; trees: number[]; ask: FellingAsk; elder: boolean } | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
+    const grove = this.grove(), did = fellBegin(this.purse(), grove, tree, at, this.now(), this.fellSeed ?? Math.floor(Math.random() * 2 ** 31), undefined, this.id,direction);
+    if(did.ok){const opened=fellOpened(grove,this.id,did.trees,this.now(),direction);opened.goes![this.id].comboLoadout=comboLoadout(this.purse());this.write(TREES_AT,opened);}
     return did;
   }
   /**
@@ -1680,10 +1724,10 @@ export class Trial {
    */
   fellDo(went: FellWent, at: [number, number], name = ""): ({ ok: true } & FellDid) | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
     const luck = Array.from({ length: TREE_KNOBS.echo.trees }, (): FellLuck => this.fellLuck ?? { dark: Math.random(), scent: Math.random(), which: Math.random(), chain: Math.random(), keep: Math.random(), kind: Math.random() });
-    const did = fell(this.purse(), this.grove(), this.id, went, at, this.now(), luck, undefined, name || this.id);
+    const before=this.purse(),grove=this.grove(),t=this.now(),did=fell(before,grove,this.id,went,at,t,luck,undefined,name||this.id);
     if (!did.ok) return did;
     this.write(TREES_AT, did.grove);
-    this.save(did.purse);
+    this.save(rootAfterFell(before,did,went.grain,at,t,grove.goes?.[this.id]?.comboLoadout));
     const raw = did.braced ? this.get(purseKey(did.braced)) : null;
     if (did.braced && raw !== null) this.write(purseKey(did.braced), bracePay(JSON.parse(raw) as Purse).purse);
     did.felled.forEach((f, i) => this.counted({ from: "deed", what: "fell", thing: f.kind, n: 1, doc: { tree: f.id, misses: f.misses, girth: f.girth, timber: f.timber, ...(did.plain ? { how: "plain" } : did.one ? { how: "one" } : {}), ...(f.keepsake ? { keepsake: f.keepsake } : {}), ...(i === 0 && did.braced ? { braced: did.braced } : {}) } }));
@@ -1996,7 +2040,133 @@ export class Trial {
       ? { ok: true, got: paid.got, broke: paid.broke, way: way !== null, vein: paid.vein, crystal: paid.crystal, chained: paid.chained, cost: paid.cost, part: 1, moss: paid.moss.length > 0, ...(fire ? { fire } : {}) }
       : { ok: true, ...nothing, broke: paid.broke, way: way !== null, crystal: paid.crystal, chained: paid.chained, part: 1, helped: true, whose: theirs, paid: first, moss: paid.moss.length > 0 };
   }
+  springs(){return this.read<Record<string,RewardSpring>>("cashtown.trial.springs",()=>({}),v=>!!v&&typeof v==="object");}
+  springsLook(){this.tell();}
+  boats(){return this.read<Record<string,LotusBoat>>("cashtown.trial.boats",()=>({}),v=>!!v&&typeof v==="object");}
+  boatFishingBusy(who:string,until:number|null){const rows=this.boatLines();if(until===null)delete rows[who];else rows[who]=until;this.write("cashtown.trial.boat-lines",rows);}
+  boatLines(){return this.read<Record<string,number>>("cashtown.trial.boat-lines",()=>({}),v=>!!v&&typeof v==="object");}
+  bridges(){return this.read<Record<string,TemporaryCrossing>>("cashtown.trial.bridges",()=>({}),v=>!!v&&typeof v==="object");}
   /** What a rock holds, for a pick that sees it. */
+  rewardDo(input: RewardInput, request: string,correction?:ResourceCorrection,fishPool:FishPool=[],preview?:import("./reward-domino").DominoPreview): ({ ok: true } & RewardReply) | { ok: false; why: Refusal | GiftRefusal | "far" | "theirs" } {
+    const now=this.now(), key=`cashtown.trial.rewards.${this.id}`;
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(request) || !input || !Array.isArray(input.at) || input.at.length!==2 || !input.at.every(n=>Number.isSafeInteger(n)&&Math.abs(n)<=10000)) return {ok:false,why:"none"};
+    type Receipt = { request:string; command:string; reply:RewardReply; at:number };
+    const receipts=this.read<Receipt[]>(key,()=>[],Array.isArray), command=JSON.stringify(input), old=receipts.find(r=>r.request===request);
+    if (old) return old.command===command ? {ok:true,...old.reply} : {ok:false,why:"none"};
+    const coupon=consumeCampRetry(this.purse(),input,now);if(!coupon.ok)return coupon;const p=coupon.purse;
+    let did:ReturnType<typeof scanMineral>|ReturnType<typeof fieldProcess>|ReturnType<typeof beginTrail>|ReturnType<typeof startSchool>|ReturnType<typeof portableLift>;
+    if(input.action==="rescueLook"||input.action==="rescueAsk"||input.action==="rescueBegin"||input.action==="rescueEnd"||input.action==="rescueCancel"){const target=input.target===this.id?p:input.target?trialFor(input.target).purse():undefined,offers=Object.fromEntries([...new Set([this.id,...Object.keys(this.linesAll())])].map(who=>[who,trialFor(who).purse()]));const d=rescueAction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,target,Object.entries(offers).map(([who,q])=>rescueOffer(q,who,now,input.at)).filter((o):o is NonNullable<typeof o>=>!!o).slice(0,20));if(!d.ok)return d;if("targetPurse"in d&&d.targetPurse&&input.target)trialFor(input.target).save(d.targetPurse);const {targetPurse:_,...reply}=d as typeof d&{targetPurse?:Purse};did=reply;
+    }else if(input.action==="campFlag"){const camps=this.camps(),d=plantCampFlag(p,input.site,input.line,input.at,camps.find(c=>c.site===input.site)??null,this.id,now);if(!d.ok)return d;const next=[...camps.filter(c=>c.site!==input.site),d.camp];this.write("cashtown.trial.camps.1",next);did={ok:true,purse:d.purse,camps:next};
+    }else if(input.action==="rootExtractBegin"||input.action==="rootExtractEnd"||input.action==="rootExtractCancel"){const g=this.grove(),source=p.professionRewards?.rootSource,d=rootExtraction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],matchesCombo(p,["charmEchoAxe","famPiglet"]),comboLoadout(p),!!source&&partReady(g.parts,source.tree,"root",now));if(!d.ok)return d;if(input.action==="rootExtractBegin"){if(p.combos?.actions?.[`root:${source!.key}`])return{ok:false,why:"none"};const bond=commitCombo(d.purse,"SC10",`root:${source!.key}`,now);if(!bond)return{ok:false,why:"spent"};d.purse=bond.purse;}if(d.got?.length&&source)this.write(TREES_AT,{...g,parts:restPart(g.parts,source.tree,"root",now)});did=d;
+    }else if(input.action==="rowContinueBegin"||input.action==="rowContinueEnd"){const plots=this.farm(),d=rowContinue(p,input,request,now,this.id,plots,this.beds()[bedOf(...input.at)],this.sky(),matchesCombo(p,["charmHoe","charmGloves"]),comboLoadout(p));if(!d.ok)return d;if(input.action==="rowContinueBegin"){const bond=commitCombo(d.purse,"SC17",`row:${p.professionRewards!.rowContinuation!.id}`,now);if(!bond)return{ok:false,why:"spent"};d.purse=bond.purse;}if(d.plots)this.write(FARM,{...plots,...d.plots});for(const e of d.each??[])this.counted({from:"deed",what:p.professionRewards!.rowContinuation!.deed,thing:e.crop,n:1,doc:{owner:p.professionRewards!.rowContinuation!.owner,continuation:true}});did=d;
+    }else if(input.action==="gardenRetryBegin"||input.action==="gardenRetryEnd"){const plots=this.farm(),d=gardenRetry(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots[input.at.join(",")],this.beds()[bedOf(...input.at)],this.sky(),matchesCombo(p,["charmGuard","famGnome"]),comboLoadout(p));if(!d.ok)return d;if(input.action==="gardenRetryBegin"){const token=`retry:${input.job!.split(":")[0]}:${input.at[1]}`;if(p.combos?.actions?.[token])return{ok:false,why:"none"};const bond=commitCombo(d.purse,"SC12",token,now);if(!bond)return{ok:false,why:"spent"};d.purse=bond.purse;}if(d.plots)this.write(FARM,{...plots,...d.plots});if(d.helpDone)this.counted({from:"deed",what:d.helpDone,thing:null,n:1,doc:{owner:this.owners().get(bedOf(...input.at))?.by,retry:true}});did=d;
+    }else if(input.action==="rainCareBegin"||input.action==="rainCareEnd"||input.action==="rainCareCancel"){const plots=this.farm(),d=rainCare(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots[input.at.join(",")],this.sky(),matchesCombo(p,["charmGloves","famFrog"]),comboLoadout(p));if(!d.ok)return d;if("rainPassed"in d&&d.rainPassed){const bond=commitCombo(d.purse,"SC07",`rain:${input.at.join(",")}:${plots[input.at.join(",")]!.plant!.sown}:${p.professionRewards!.rainCare!.began}`,now);if(!bond)return{ok:false,why:"spent"};d.purse=bond.purse;}if("plots"in d&&d.plots)this.write(FARM,syncGarden({...plots,...d.plots}));did=d;
+    }else if(input.action==="helpMend"||input.action==="reviveBegin"||input.action==="reviveEnd"||input.action==="reviveCancel"){const plots=this.farm(),bed=this.beds()[bedOf(...input.at)],d=helpGarden(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots,bed,this.sky());if(!d.ok)return d;if("helpDone"in d&&d.helpDone==="water"&&"plots"in d&&d.plots)d.plots[input.at.join(",")]=this.poured(plots[input.at.join(",")],d.plots[input.at.join(",")],now,"times"in d?d.times??1:1,this.bellWorn(bedOf(...input.at)));if("plots"in d&&d.plots)this.write(FARM,syncGarden({...plots,...d.plots}));if("helpDone"in d&&d.helpDone)this.counted({from:"deed",what:d.helpDone,thing:plots[input.at.join(",")]?.plant?.crop??null,n:1,doc:{whose:plots[input.at.join(",")]?.plant?.by??bed?.by}});did=d;
+    }else if(input.action==="beanBegin"||input.action==="beanStage"||input.action==="beanEnd"||input.action==="beanCancel"){const d=beanAction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,this.farm()[input.at.join(",")],this.sky());if(!d.ok)return d;did=d;
+    }else if(input.action==="giantBegin"||input.action==="giantEnd"||input.action==="giantCancel"||input.action==="gardenBrush"||input.action==="pollenCollect"||input.action==="pollenApply"){const plots=this.farm(),owner=this.owners().get(bedOf(...input.at))?.by??null,d=gardenAction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id,plots,owner,this.sky());if(!d.ok)return d;if("plots"in d&&d.plots)this.write(FARM,syncGarden({...plots,...d.plots}));did=d;
+    }else if(input.action==="kitchenBegin"||input.action==="kitchenEnd"||input.action==="kitchenCancel"||input.action==="flavorTune"){
+      const d=kitchenAction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],this.id);if(!d.ok)return d;if("banquet" in d&&d.banquet)this.write(POTS,[...this.pots(),...d.banquet.map(o=>({...o,name:this.nameOf()(this.id)}))]);did=d;
+    }else if(input.action==="picnicPlace"||input.action==="picnicEat"){
+      const pots=this.pots();if(input.action==="picnicPlace"){
+        if(!mayLeave(pots,this.id,false)||pots.some(o=>!o.feast&&Math.abs(o.at[0]-input.at[0])<=1&&Math.abs(o.at[1]-input.at[1])<=1))return {ok:false,why:"none"};
+        const d=picnicPlace(p,input.slot,input.at,this.id,request,now);if(!d.ok)return d;this.write(POTS,[...pots,{...d.picnic,name:this.nameOf()(this.id)}]);did=d;
+      }else{const d=picnicEat(p,pots.find(o=>o.id===input.pot),input.at,input.seated,now);if(!d.ok)return d;this.write(POTS,d.picnic?pots.map(o=>o.id===input.pot?d.picnic!:o):pots.filter(o=>o.id!==input.pot));did=d;}
+    }else if(input.action==="crownLook"||input.action==="crownBegin"||input.action==="crownCall"||input.action==="crownCancel"){
+      const d=crownAction(p,input,request,now,this.salt(),SKIES.rains());if(!d.ok)return d;did=d;
+    }else if(input.action==="lanternLook"||input.action==="lanternLight"){
+      const known=(this.linesAll()[this.id]?.insects?.firsts??[]).filter(k=>k.startsWith("insects:")).map(k=>k.slice(8));
+      const d=lanternAction(p,input,now,this.salt(),SKIES.rains(),known);if(!d.ok)return d;did=d;
+    }else if(input.action==="arenaLook"||input.action==="arenaBegin"||input.action==="arenaEnd"||input.action==="arenaCancel"){
+      const known=(this.linesAll()[this.id]?.insects?.firsts??[]).filter(k=>k.startsWith('insects:')).map(k=>k.slice(8));
+      did=arenaAction(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],known);
+    }else if(input.action==='boat'){const rows=this.boats(),owner=input.boat.owner??this.id,busy=this.boatLines(),old=rows[owner]??null,aboard=Object.values(rows).some(b=>b.until>now&&(b.owner===this.id||b.guest===this.id)),d=boatAction(p,{...input.boat,at:input.at},this.id,old,now,aboard,(busy[this.id]??0)>now||!!old&&(busy[old.owner]??0)>now||!!old?.guest&&(busy[old.guest]??0)>now);if(!d.ok)return d;this.write('cashtown.trial.boats',{...rows,[owner]:d.boat});did=d;
+    }else if(input.action==="bridgeBuild"){const rows=this.bridges(),d=buildCrossing(p,input,request,this.id,rows[input.site]??null,now);if(!d.ok)return d;this.write("cashtown.trial.bridges",{...rows,[input.site]:d.bridge});did=d;}else if(input.action==="pactBegin"||input.action==="pactEnd"||input.action==="pactCancel"){
+      const d=treePact(p,this.grove(),input,request,this.id,now,crypto.getRandomValues(new Uint32Array(1))[0]);if(!d.ok)return d;if(d.grove)this.write(TREES_AT,d.grove);const {grove:_,...out}=d;did=out;
+    }else if(input.action==="nurseryLook"||input.action==="nurseryBegin"||input.action==="nurseryStage"||input.action==="nurseryEnd"||input.action==="nurseryCancel"){
+      const proof=(this.linesAll()[this.id]?.felling?.firsts??[]).filter(k=>k.startsWith('felling:')).map(k=>k.slice(8));
+      did=nursery(p,input,request,now,crypto.getRandomValues(new Uint32Array(1))[0],proof);
+    }else if(input.action==="cloudBegin"||input.action==="cloudEnd"||input.action==="cloudCancel"||input.action==="cloudConsent"){
+      const consents=this.read<Record<string,CloudConsent>>("cashtown.trial.cloud-consents",()=>({}),v=>!!v&&typeof v==='object'),source=carried(p),log=this.wellLog();
+      const owners=Object.fromEntries([...this.owners()].map(([n,b])=>[n,b.by]));
+      const d=callCloud(p,input,request,this.id,{plots:this.farm(),owners,consents,local:true,kind:source?log.kinds[`${this.id}/${source.hand}`]??null:null,rains:this.sky()},now,crypto.getRandomValues(new Uint32Array(1))[0]);if(!d.ok)return d;
+      if(input.action==="cloudConsent"){const next={...consents},bed=bedOf(...input.at);if(d.consent)next[bed]=d.consent;else delete next[bed];this.write("cashtown.trial.cloud-consents",next);}
+      if(d.plots&&Object.keys(d.plots).length)this.write(FARM,{...this.farm(),...d.plots});
+      if(input.action==="cloudEnd"&&source&&!d.purse.bag.some(s=>s?.item===source.hand&&(s.water??0)>0)){const kinds={...log.kinds},line={...log.line};delete kinds[`${this.id}/${source.hand}`];delete line[`${this.id}/${source.hand}`];this.write(WELL_LOG,{...log,kinds,line});}
+      const {plots:_,consent:__,...out}=d;did=out;
+    }else if(input.action==="springPlace"||input.action==="springDraw"){
+      const nodes=this.springs(),d=springAction(p,input,request,this.id,nodes[input.site]??null,now);if(!d.ok)return d;
+      this.write("cashtown.trial.springs",{...nodes,[input.site]:d.spring});
+      if(input.action==="springDraw")this.wellSeen({by:this.id,at:now,what:"draw",can:handOf(p)??undefined});
+      did=d;
+    }else if(input.action==="conduitBegin"||input.action==="conduitEnd"||input.action==="conduitCancel"){
+      const bed=bedOf(...input.at),rests=this.read<Record<string,number>>("cashtown.trial.conduits",()=>({}),v=>!!v&&typeof v==='object');
+      const c=conduit(p,input,request,this.bedAt(...input.at),rests[bed]??0,now,crypto.getRandomValues(new Uint32Array(1))[0],this.sky());
+      if(!c.ok)return c;
+      if(c.cooldown)this.write("cashtown.trial.conduits",{...rests,[bed]:c.cooldown});
+      if(c.plots){
+        const hand=handOf(p)!,plots=this.farm(),next={...plots};
+        if(c.used)this.wellSeen({by:this.id,at:now,what:"ditch",n:c.used,plants:c.watered!.length,can:hand});
+        for(const key of c.watered??[]){const [x,y]=key.split(',').map(Number),was=plots[key];next[key]=keptAs(was,c.plots[key],now,SKIES.sky(now),this.natureNow(now));this.wellSeen({by:this.id,at:now,what:"water",can:hand,tile:[x,y],...(was?.plant?.by!==this.id?{whose:was?.plant?.by}:{})});}
+        this.write(FARM,next);
+        const beds=this.beds();if(beds[bed]&&ownerOf(beds[bed],true,now)===this.id)this.write(BEDS,{...beds,[bed]:{...beds[bed],tended:now}});
+      }
+      const {plots:_,cooldown:__,...out}=c;did=out;
+    }else if(input.action==="relayPlace"||input.action==="relaySend"||input.action==="relayTake"){
+      const source=carried(p),log=this.wellLog(),key=source?`${this.id}/${source.hand}`:"";
+      did=waterRelay(p,input,now,{kind:log.kinds[key],hands:log.line[key]});
+      if(did.ok&&input.action==="relayTake"&&p.professionRewards?.relay){
+        const relay=p.professionRewards.relay,k=`${this.id}/${relay.item}`,kinds={...log.kinds},line={...log.line};
+        if(relay.kind&&relay.water>0)kinds[k]=relay.kind;else delete kinds[k];
+        if(relay.water>0&&relay.hands?.length)line[k]=relay.hands;else delete line[k];
+        this.write(WELL_LOG,{...log,kinds,line});
+      }
+    }else if(input.action==="dominoPreview"){
+      const bond=preview?.(p,this.grove(),input.tree,input.direction,input.at,now,undefined,this.id);
+      if(!bond)return {ok:false,why:"none"};did={ok:true,purse:bond.purse,combo:bond.effect};
+    }else if(input.action==="liftAnchor"||input.action==="liftRide"){
+      const proof=this.mineDeeds().filter(d=>["mine","crystal","vein","hew"].includes(d.what)&&d.n>0).map(d=>Number(d.doc.floor));
+      did=portableLift(p,input,request,now,proof);
+    }else if(input.action==="schoolStart"){
+      did=startSchool(p,input.fish,fishPool,now);
+    }else if (input.action==="scan") {
+      const f=input.floor, s=this.caveKept(), crystal=this.crystalToday(s.day);
+      if (!Number.isSafeInteger(f) || f<0 || f>MINING.floors || (f===0&&floorAtTile(...input.at)!==0) || (f>0 && !floorTile(f,s.day,input.at[0],input.at[1]))) return {ok:false,why:"far"};
+      const today=this.todayAt(f,s), pick=pickOf(p), turn=mineTurn(now), fate=this.fateAt(f,turn,today,pick);
+      did=scanMineral(p,input.mineral,input.at,now,{rocks:this.rocksAt(f,s.day),ore:oreOf(f),gem:GEMS[elementOf(this.salt(),f,s.day)].chip,
+        stands:id=>stands(s,f,id,now,crystal?.floor===f ? crystal.rock : null),fate:id=>fate(id)??holdsOf(this.salt(),f,id,turn,today,pick)});
+    } else if (input.action==="process") {
+      if (input.kind==="mineral" && (!Number.isInteger(input.floor)||input.floor!<1||input.floor!>MINING.floors||!floorTile(input.floor!,this.caveKept().day,input.at[0],input.at[1]))) return {ok:false,why:"far"};
+      did=fieldProcess(p,input.kind,input.recipe,now);
+    } else if (input.action==="coreBegin") {
+      const proof=this.mineDeeds().filter(d=>["mine","crystal","vein","hew"].includes(d.what)&&d.n>0).map(d=>Number(d.doc.floor));
+      did=beginCore(p,input.floor,request,input.at,now,crypto.getRandomValues(new Uint32Array(1))[0],proof);
+    } else if(input.action==="coreRoom"||input.action==="coreEnd"||input.action==="coreCancel") {
+      did=coreAction(p,input,request,now);
+    } else if(input.action==="dragonBegin"){
+      did=beginDragon(p,input.fish,input.bait,input.current,input.at,request,now,crypto.getRandomValues(new Uint32Array(1))[0],fishPool);
+    } else if (input.action==="trailBegin") {
+      did=beginTrail(p,input.kind,request,input.at,now,crypto.getRandomValues(new Uint32Array(1))[0]);
+    } else if(input.action==="trailStage"||input.action==="trailEnd"||input.action==="trailCancel") {
+      did=trailAction(p,input,request,now);
+    } else if(input.action==="resourceBegin") {
+      did=beginResource(p,input.kind,input.recipe,request,input.at,now,crypto.getRandomValues(new Uint32Array(1))[0]);
+    } else if(input.action==="resourceEnd"||input.action==="resourceCancel") {
+      did=resourceAction(p,input,now,correction);
+    } else if (input.action==="extractBegin") {
+      const source=p.professionRewards?.extraction;if(source&&!partReady(this.grove().parts,source.tree,input.part,now))return {ok:false,why:"spent"};
+      const seed=crypto.getRandomValues(new Uint32Array(1))[0];
+      did=beginExtraction(p,request,input.part,input.at,now,seed);
+    } else if (input.action==="extractEnd") {
+      const run=p.professionRewards?.run,g=this.grove();if(run&&!partReady(g.parts,run.tree,run.part,now))return {ok:false,why:"spent"};
+      did=endExtraction(p,input.run,input.marks,input.at,now);if(did.ok)did.purse={...did.purse,professionRewards:{...did.purse.professionRewards,rootSource:null,rootRun:null}};if(did.ok&&did.got?.length&&run)this.write(TREES_AT,{...g,parts:restPart(g.parts,run.tree,run.part,now)});
+    }
+    else return {ok:false,why:"none"};
+    if (!did.ok) return did;
+    const {purse,...reply}=did;
+    const recoverable="beanPassed"in did&&did.beanPassed===false||"kitchenPassed"in did&&did.kitchenPassed===false;this.save(rememberRescue(p,purse,input.action,request,now,recoverable));
+    this.write(key,[...receipts.filter(r=>r.at>=now-7*86400000),{request,command,reply,at:now}]);
+    return reply;
+  }
   minePeek(floor: number, rock: number): { ok: true; peek: Peek } | { ok: false; why: MineRefusal } {
     const now = this.now(), s = this.caveKept(), pick = pickOf(this.purse()), c = this.crystalToday(s.day), today = this.todayAt(floor, s);
     if (!pick || !toolHas(pick, "pkPeek")) return { ok: false, why: "tool" };

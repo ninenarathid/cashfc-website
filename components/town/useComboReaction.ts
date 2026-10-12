@@ -1,0 +1,4 @@
+"use client";
+import{useEffect,useRef,useState}from'react';import type{Keeper}from'@/lib/town/keeper';import type{ComboState}from'@/lib/town/combo-types';
+export function useComboReaction(keeper:Keeper){const pulse=useRef<{last:NonNullable<ComboState['last']>;from:number;at?:{x:number;y:number}}|null>(null),[notice,setNotice]=useState<NonNullable<ComboState['last']>|null>(null);
+ useEffect(()=>{let seen=keeper.purse().combos?.last?.action,timer:ReturnType<typeof setTimeout>|undefined;const stop=keeper.watch(()=>{const last=keeper.purse().combos?.last;if(!last||last.action===seen)return;seen=last.action;const root=/^seed:(\d+),(\d+):/.exec(last.action);pulse.current={last,from:performance.now(),...(root?{at:{x:Number(root[1])+.5,y:Number(root[2])+.5}}:{})};setNotice(last);if(timer)clearTimeout(timer);timer=setTimeout(()=>setNotice(null),last.fresh?5000:2400);});return()=>{stop();if(timer)clearTimeout(timer);};},[keeper]);return{pulse,notice};}

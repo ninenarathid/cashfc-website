@@ -1,5 +1,6 @@
 import { HOES, roll } from "./farm";
 import { gatherPart, type ForestPart, type ForestRest } from "./foraging-parts";
+import{comboWearKey}from'./combo-types';
 import { signsOf } from "./fishing";
 import { harderFor, numberOf, useGift, usesLeft, wearing, works, type GiftRefusal } from "./gifts";
 import { ITEMS, type ItemId } from "./items";
@@ -453,16 +454,18 @@ export function gather(purse: Purse, spot: Place, has: Held | null, taken: numbe
   if (mine) return { ok: false, why: "had" };
   if (taken >= kind.shares) return { ok: false, why: "bare" };
   if (!reaches(spot, at, reachOf(purse, kind.how, now))) return { ok: false, why: "far" };
+  const read=purse.professionRewards?.secretPart;
+  const secretLeaf=secret&&play.part==='leaf'&&read&&read.spot===spot.id&&read.turn===has.turn&&read.until>=now&&read.loadout===comboWearKey(purse)&&!play.with&&purse.forest?.secrets?.includes(spot.id);
   if (play.part != null && play.part !== "whole") {
-    if (secret || play.with || play.lost) return no("none");
-    return gatherPart(purse,spot,has,play.part,hand,play.misses+play.wrong,kind.cost,turnStart(spot,has.turn+1),now);
+    if (!secretLeaf){if(secret || play.with || play.lost) return no("none");return gatherPart(purse,spot,has,play.part,hand,play.misses+play.wrong,kind.cost,turnStart(spot,has.turn+1),now);}
   }
   if (secret) {
-    const spent = spend(purse, kind.cost, now);
+    const paid=spend(purse, kind.cost, now),spent=secretLeaf?{...paid,professionRewards:{...paid.professionRewards,secretPart:null}}:paid;
     if (play.lost || Math.floor(play.misses) > 0 || Math.floor(play.wrong) > 0) return { ok: true, purse: spent, got: [], lost: true };
-    if (roomFor(purse.bag, has.item) < has.n) return no("full");
+    const item=secretLeaf?read!.item:has.item,n=secretLeaf?1:has.n;
+    if (roomFor(purse.bag, item) < n) return no("full");
     const found = Array.isArray(purse.forest?.secrets) ? purse.forest.secrets : [];
-    return { ok: true, purse: { ...spent, bag: put(purse.bag, has.item, has.n), forest: { ...purse.forest, secrets: found.includes(spot.id) ? found : [...found, spot.id].sort((x, y) => x - y) } }, got: [[has.item, has.n]] };
+    return { ok: true, purse: { ...spent, bag: put(purse.bag, item, n), forest: { ...purse.forest, secrets: found.includes(spot.id) ? found : [...found, spot.id].sort((x, y) => x - y) } }, got: [[item, n]] };
   }
   const piglet = kind.how === "dig" && play.with === "famPiglet";
   let mine_ = purse;

@@ -54,7 +54,7 @@ function endWord(end: FellEnd, timber: number, elder: boolean, th: boolean): str
  * The one board of the town that says how it is played (the owner, 2026-10-08, of a game nobody had understood:
  * "ถ้าเข้าใจยากเขียนวิธีเล่นไว้คร่าวๆด้วย"): three short marks under its title, each a picture and a few words.
  */
-export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers, braced, onBond, onDone, onCancel }: {
+export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers, braced, onBond, masteryUses=0, restingParts=[], onDone, onCancel }: {
   th: boolean;
   /** The game, as whoever keeps it put it together (lib/town/trees). */
   ask: FellingAsk;
@@ -69,6 +69,8 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
   powers?: { one: number; twice: number };
   /** The friend who braces the trunk just now, by name, if anybody does: from then on the bar runs slower, for this go. */
   braced?: string | null;
+  masteryUses?:number;
+  restingParts?:import("@/lib/town/wood-grain").WoodPart[];
   onBond?: (notches: number[]) => Promise<import("@/lib/town/combo-types").ComboEffect | undefined>;
   onDone: (out: FellOutcome, how: { one?: boolean; twice?: boolean; grain?: WoodSelection }) => void;
   /** The board is left before its first chop: nothing was begun. */
@@ -375,7 +377,7 @@ export default function TownFelling({ th, ask, elder, look, reduced, sfx, powers
   const ready = !p.running && p.cut === 0 && !over;
   const heading = headingFor(game, p), edge = onTheEdge(game, p), left = Math.max(0, game.most - missesOf(p));
   const spared = Math.max(0, game.spared - p.forgiven);
-  if (!read && ask.grain) return <TownWoodGrain th={th} {...ask.grain} onBond={onBond} reduced={reduced}
+  if (!read && ask.grain) return <TownWoodGrain th={th} {...ask.grain} onBond={onBond} reduced={reduced} masteryUses={elder?0:masteryUses} restingParts={restingParts}
     onReady={choice => { grain.current = choice; readRef.current = true; setRead(true); }}
     onSkip={() => { readRef.current = true; setRead(true); }} onCancel={stop} />;
   return (

@@ -1,0 +1,78 @@
+-- v248: replay a real failed heat checkpoint in world rain. Run after v247 with matching site; safe rerun.
+-- Two pots/day, one replay/pot, successful beats stay played, ingredients paid once by ordinary cooking.
+begin;do $guard$ begin
+if md5(replace(pg_get_functiondef('public.town_combo(text,jsonb)'::regprocedure),chr(13),'')) not in ('38021c72ae4d98b957459cfc304370c6','0178c593b4bba35f5a0518ac97f90628') then raise exception 'Definition moved: rebuild v248';end if;
+if md5(replace(pg_get_functiondef('town.cook(jsonb,jsonb,jsonb,double precision,bigint)'::regprocedure),chr(13),'')) not in ('e4640721ff835305b125511463427148','621a371cc647b48f0364a0244c9fc563') then raise exception 'Definition moved: rebuild v248';end if;
+end $guard$;create or replace function town.combo_rules() returns jsonb language sql immutable set search_path='' as $rules$ select $json$[{"key":"SC13","version":1,"cue":"water","requires":["charmFloat","charmLine","famOtter"],"pool":"rescue","cap":3,"name":{"th":"สายใยพากลับ","en":"A thread home"},"does":{"th":"นากพาปลากลับมาใกล้ฝั่งขึ้น 35% ใช้ร่วมกับสิทธิ์ช่วยของนาก รวมกับชุดทุ่น–นากวันละ 3 ครั้ง","en":"The otter brings a lost fish 35% closer. Uses an otter rescue and shares three daily uses with the float–otter bond."}},{"key":"SC01","version":1,"cue":"water","requires":["charmFloat","famOtter"],"pool":"rescue","cap":3,"name":{"th":"นากจำทางน้ำ","en":"The otter remembers"},"does":{"th":"นากพาปลากลับมาใกล้ฝั่งขึ้น 20% ยังต้องสู้อีกรอบ ใช้ร่วมกับสิทธิ์ช่วยของนาก วันละ 3 ครั้ง","en":"The otter brings a lost fish 20% closer. Fight it again; uses an otter rescue, three times a day."}},{"key":"SC02","version":1,"cue":"wood","requires":["charmEchoAxe","famWoodpecker"],"pool":"notch","name":{"th":"จังหวะของเนื้อไม้","en":"The grain's rhythm"},"does":{"th":"ก่อนลงขวาน นกชี้รอยบากที่อ่านผิดให้แก้หนึ่งจุดต่อต้น อ่านที่เหลือและเล่นเกมเอง ไม่ซ้อนข้อมูลที่เครื่องมือบอกอยู่แล้ว","en":"Before chopping, the bird points out one unread, incorrect notch per trunk. Read the rest and play the game; existing tool hints take precedence."}},{"key":"SC03","version":1,"cue":"echo","requires":["charmMinerLamp","famBat"],"pool":"cavity","name":{"th":"แสงฟังโพรง","en":"Light hears hollows"},"does":{"th":"ก่อนเล่นแนวแร่ ค้างคาวสะท้อนตำแหน่งหินแข็งบนกระดานให้เห็น ไม่เพิ่มแร่หรือเฉลยสีผลึก ไม่ซ้อนเลนส์โพรง","en":"Before working a vein, the bat reveals hard pockets on its board. No extra ore or crystal colors; cavity lenses take precedence."}},{"key":"SC11","version":1,"cue":"echo","requires":["charmMinerLamp","famWoodpecker"],"pool":"echo","name":{"th":"เพลงใต้หิน","en":"A song under stone"},"does":{"th":"นกเคาะให้ฟังแนวสะท้อนก่อนเลือกแร่หรือผลึก ผู้เล่นเลือกและขุดเอง ไม่ซ้อนเครื่องมือหรือบัฟฟังชั้นหิน","en":"The bird taps the echo direction before choosing ore or crystal. Choose and mine yourself; existing echo tools and buffs take precedence."}},{"key":"SC15","version":1,"cue":"echo","requires":["charmGemColor","famSprite"],"pool":"gemCorrection","cap":1,"name":{"th":"แสงจำสี","en":"Light remembers colour"},"does":{"th":"ภูตช่วยให้ลองเรียงสีใหม่หนึ่งครั้งหลังพลาด ใช้ชุดวัตถุดิบและสิทธิ์ประสานสีเดิม วันละหนึ่งชุด ไม่เพิ่มระดับพลอย","en":"The sprite offers one correction after a missed colour sequence, within the same ingredients and batch allowance. One batch a day; no grade increase."}},{"key":"SC14","version":1,"cue":"echo","requires":["charmDomino","famBat"],"pool":"dominoPreview","name":{"th":"เสียงอ่านแนวล้ม","en":"Echoes read the fall"},"does":{"th":"ก่อนยืนยันโดมิโน ค้างคาวสะท้อนแนวต้นไม้ที่ล้มได้และต้นที่ขวางแนว ใช้เพดานสามต้นและสามแนวต่อวันเดิม ไม่เล่นโจทย์แทน","en":"Before confirming a domino chain, the bat traces eligible trunks and a blocking tree. Keeps the original three-tree and three-chain limits; play the trunk yourself."}},{"key":"SC16","version":1,"cue":"water","requires":["charmLunarReel","famFrog"],"pool":"fishQuiet","cap":5,"name":{"th":"จันทร์ฟังเสียงฝน","en":"Moon listens to rain"},"does":{"th":"เมื่อดึงรอกจันทราระหว่างฝนโลกจริง กบพักการตอบโต้สองวินาที ใช้ร่วมกับชุดลมที่ทุ่นวันละห้าปลา ยังต้องคุมสายเอง","en":"Pulling the lunar reel during real world rain quiets its counterattack for two seconds. Shares five daily fish with the float-and-wind bond; control the line yourself."}},{"key":"SC18","version":1,"cue":"water","requires":["charmFloat","charmWind"],"pool":"fishQuiet","cap":5,"name":{"th":"ลมโอบทุ่น","en":"Wind cradles the float"},"does":{"th":"เกี่ยวปลาในกระแสน้ำไหลแล้วได้ช่วงนิ่งหนึ่งวินาทีครึ่งรองรับการกระชากแรก ใช้ร่วมกับเสียงกบวันละห้าปลา ไม่เพิ่มปลาหรือจำนวนสาย","en":"Hooking a fish in a running current quiets its first surge for one and a half seconds. Shares five daily fish with the frog bond. Adds no fish or lines."}},{"key":"SC06","version":1,"cue":"wood","requires":["charmHoe","famButterfly"],"pool":"seedWings","cap":5,"name":{"th":"ปีกเฝ้าต้นกล้า","en":"Wings guard the seed"},"does":{"th":"ป้องกันแมลงครั้งแรกในสองชั่วโมงหลังปลูก ห้ารากต่อวัน ไม่เร่งโตและไม่ซ้อนการคุ้มกันที่ยาวกว่า","en":"Skips the first pest strike within two hours of planting, five roots/day. No growth boost; longer protection takes precedence."}},{"key":"SC08","version":1,"cue":"echo","requires":["charmRing","famSprite"],"pool":"sharedMeal","cap":3,"name":{"th":"ไออุ่นถึงเพื่อน","en":"Warmth reaches a friend"},"does":{"th":"แบ่งแรงให้เพื่อนภายในสิบนาทีหลังเพื่อนกินอาหารที่เราปรุง ขยายเฉพาะบัฟของมื้อนั้นสิบห้านาที ครั้งเดียวต่อมื้อ สามครั้งต่อวัน ใช้สิทธิ์แหวนเดิม","en":"Share stamina within ten minutes of a friend finishing your cooking: extend only that meal’s buffs by fifteen minutes, once/meal, three/day within the ring allowance."}},{"key":"SC07","version":1,"cue":"water","requires":["charmGloves","famFrog"],"pool":"rainCare","cap":5,"name":{"th":"กบเก็บไอฝน","en":"The frog keeps rain"},"does":{"th":"เล่นสามจังหวะข้างต้นเพื่อนระหว่างฝนโลกจริง ใช้น้ำหนึ่งหน่วยกับแรงหนึ่งเพื่อเก็บความชื้นถึงหนึ่งชั่วโมงหลังฝนหยุด ห้ารากต่อวัน ไม่เพิ่มการโตหรือ XP","en":"Play three beats beside a friend’s root during real world rain. One water and one stamina keep it wet until one hour after the rain ends, five roots/day. No growth or XP boost."}},{"key":"SC12","version":1,"cue":"wood","requires":["charmGuard","famGnome"],"pool":"tiredGarden","cap":3,"name":{"th":"โนมประคองมือ","en":"The gnome steadies your hands"},"does":{"th":"เมื่อแรงหมด ลองเล่นจังหวะที่พลาดจริงในงานถางหรือพรวนแถวสวนเพื่อนใหม่ได้หนึ่งราก สามครั้งต่อวัน ยังต้องเล่นให้ผ่าน ไม่เพิ่มแรง XP หรือพื้นที่รดน้ำ","en":"With no stamina, replay one actually missed clearing or tilling root from a friend’s row, three/day. Play it yourself; no extra stamina, XP or watering area."}},{"key":"SC17","version":1,"cue":"wood","requires":["charmHoe","charmGloves"],"pool":"gardenContinuation","cap":3,"name":{"th":"แนวดินต่อจังหวะ","en":"Furrows carry the rhythm"},"does":{"th":"ถางหรือพรวนแถวสวนเพื่อนครบโดยไม่พลาดแล้ว เล่นแถวติดกันต่อได้วันละสามครั้ง ใช้ทุกจังหวะและแรงตามเดิม แถวที่ต่อไม่เปิดแถวที่สาม","en":"After a perfect friend’s clearing or tilling row, manually play one adjacent row from your position, three/day. Every beat and ordinary cost still apply. A continuation never opens a third row."}},{"key":"SC10","version":1,"cue":"wood","requires":["charmEchoAxe","famPiglet"],"pool":"stumpRoot","cap":3,"name":{"th":"เสียงขวานตามราก","en":"The axe follows roots"},"does":{"th":"หลังเล่นตัดต้นหลัก หมูชี้รากให้สกัดอีกสามจังหวะ วันละสามตอ ใช้สิทธิ์หมูและแรงหนึ่ง มีส่วนต่อต้นได้ไม่เกินสองส่วนรวมมีดกับเครื่องรางฟังไม้","en":"After manually felling the primary trunk, the pig points out a root for three extra played beats, three stumps/day. Uses a piglet allowance and one stamina. Shares the two-part/trunk budget with knife and listener."}},{"key":"SC04","version":1,"cue":"water","requires":["charmApron","famFrog"],"pool":"rainCooking","cap":2,"name":{"th":"ไอฝนประคองไฟ","en":"Rain steadies the flame"},"does":{"th":"ระหว่างฝนโลกจริง หลังเล่นคุมไฟจนสำเร็จอย่างน้อยหนึ่งช่วงแล้วพลาด กบเปิดให้ย้อน checkpoint ที่สำเร็จและเล่นต่อเอง สองหม้อต่อวัน วัตถุดิบจ่ายครั้งเดียว ไม่เพิ่มอาหาร","en":"During real world rain, after at least one successful cooking beat, the frog offers a replay from the last successful checkpoint. Two pots/day, same ingredients once, no extra servings."}}]$json$::jsonb $rules$;revoke all on function town.combo_rules() from public,anon,authenticated;
+create or replace function town.combo_warm(p jsonb,context_ text,c jsonb,t bigint)
+returns jsonb language plpgsql stable set search_path='' as $$
+declare state_ jsonb:=coalesce(p->'professionRewards','{}'::jsonb);r jsonb:=state_->'warmJob';rule_ jsonb;made_ text;takes_ jsonb;x jsonb;bond_ jsonb;id_ uuid;
+begin
+ if context_='cookCancel' then return jsonb_build_object('ok',true,'purse',p||jsonb_build_object('professionRewards',state_||jsonb_build_object('warmJob',null)));end if;
+ select v into rule_ from jsonb_array_elements(town.combo_rules()) q(v) where v->>'key'='SC04';if not town.raining(t) or not town.combo_match(p,rule_) then return town.no('none');end if;
+ if context_='cookBegin' then
+  if jsonb_typeof(c->'things') is distinct from 'array' or jsonb_array_length(c->'things')=0 or jsonb_typeof(c->'crew') is distinct from 'array' or jsonb_array_length(c->'crew')=0 or c->'crew'->>0 is distinct from town.hand_of(p) or exists(select 1 from jsonb_array_elements(c->'things') q(v) where jsonb_typeof(v) is distinct from 'array' or jsonb_array_length(v)<>2 or jsonb_typeof(v->1) is distinct from 'number' or (v->>1)::numeric<>floor((v->>1)::numeric) or (v->>1)::numeric<1) then return town.no('none');end if;
+  made_:=town.made_of(town.tidy(c->'things'));if made_ is null or not coalesce(p->'made','[]'::jsonb)?made_ and not coalesce(p->'recipes','[]'::jsonb)?made_ then return town.no('none');end if;takes_:=town.takes(made_);if jsonb_array_length(c->'crew')<(takes_->>'cooks')::integer or not town.in_hands(takes_->'in',c->'crew') then return town.no('none');end if;
+  for x in select v from jsonb_array_elements(town.tidy(c->'things')) q(v) loop if town.held(p->'bag',x->>0)<(x->>1)::numeric then return town.no('none');end if;end loop;
+  id_:=gen_random_uuid();r:=jsonb_build_object('id',id_,'things',c->'things','crew',c->'crew','began',t,'until',t+120000,'loadout',town.combo_loadout(p));return jsonb_build_object('ok',true,'job',id_,'purse',p||jsonb_build_object('professionRewards',state_||jsonb_build_object('warmJob',r)));
+ end if;
+ if r is null or r='null'::jsonb or r->>'id' is distinct from c->>'job' or coalesce((r->>'retried')::boolean,false) or t<(r->>'began')::bigint+2400 or t>(r->>'until')::bigint or r->>'loadout' is distinct from town.combo_loadout(p) or coalesce((c->>'hits')::numeric,0)<1 or coalesce((c->>'misses')::numeric,0)<1 or coalesce((c->>'secs')::numeric,0)<2.4 or r->'crew'->>0 is distinct from town.hand_of(p) then return town.no('none');end if;
+ for x in select v from jsonb_array_elements(town.tidy(r->'things')) q(v) loop if town.held(p->'bag',x->>0)<(x->>1)::numeric then return town.no('none');end if;end loop;
+ bond_:=town.combo_grant(p,'SC04','cook:'||(r->>'id'),t,'{}'::jsonb);if bond_->'ok' is distinct from 'true'::jsonb then return town.no('spent');end if;return bond_||jsonb_build_object('purse',bond_->'purse'||jsonb_build_object('professionRewards',state_||jsonb_build_object('warmJob',r||jsonb_build_object('retried',true))));
+end $$;
+revoke all on function town.combo_warm(jsonb,text,jsonb,bigint) from public,anon,authenticated;
+
+CREATE OR REPLACE FUNCTION town.cook_v248(p_purse jsonb, p_things jsonb, p_crew jsonb, p_misses double precision, p_now bigint)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+declare did jsonb;begin
+ did:=town.cook_v205(p_purse,p_things,p_crew,p_misses,p_now);
+ if did->'ok'='true'::jsonb and town.made_of(town.tidy(p_things)) is not null and did->>'made' is not null then did:=jsonb_set(did,'{purse}',town.train_element(p_purse,did->'purse',town.cook_held(p_purse,p_crew)));end if;
+ return did;end;
+$function$
+;revoke all on function town.cook_v248(jsonb,jsonb,jsonb,double precision,bigint) from public,anon,authenticated;
+CREATE OR REPLACE FUNCTION public.town_combo(p_context text, p_input jsonb DEFAULT '{}'::jsonb)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+declare me uuid:=town.member(); t bigint:=town.now_ms(); p jsonb; grove jsonb; target jsonb; a text; k text; e jsonb; did jsonb; tree integer; i integer; side integer; hints integer;
+begin
+ if p_context in('cookBegin','cookRetry','cookCancel') then p:=town.purse_of(me,true);did:=town.combo_warm(p,p_context,p_input,t);if did->'ok'='true'::jsonb then perform town.keep_purse(me,did->'purse');end if;return town.answer(me,did-'purse');end if;
+ if p_context not in ('wear','wood','cavity','echo') or p_context is null then return town.answer(me,town.no('none')); end if;
+ -- Grove before purse, matching the felling deeds' lock order.
+ if p_context='wood' then grove:=town.thing('grove',true); end if;
+ p:=town.purse_of(me,true);
+ if p_context='wear' then return town.answer(me,jsonb_build_object('ok',true,'cue',town.combo_cue(p,'wear'))); end if;
+ if p_context='wood' then
+  target:=grove->'goes'->(me::text);
+  if target is null or t<(target->>'at')::bigint or t-(target->>'at')::bigint>45000 then return town.answer(me,town.no('none')); end if;
+  if jsonb_typeof(p_input->'notches') is distinct from 'array' then return town.answer(me,town.no('none')); end if;
+  if jsonb_array_length(p_input->'notches')<>3 or exists(select 1 from jsonb_array_elements(p_input->'notches') v where v not in ('-1'::jsonb,'1'::jsonb)) then return town.answer(me,town.no('none')); end if;
+  tree:=(target->>'comboTree')::integer; hints:=coalesce((target->>'comboHints')::integer,0); k:='SC02';
+  a:='wood:'||(target->>'at')||':'||tree;
+  if p->'combos'->'actions' ? a then e:=(p->'combos'->'actions'->a)-'key'-'cue'-'at';
+  else
+   for i in 0..2 loop
+    side:=case when ((abs(tree)::bigint % 16)>>i)&1=1 then 1 else -1 end;
+    if i>=hints and (p_input->'notches'->>i)::integer<>side then e:=jsonb_build_object('index',i,'side',side); exit; end if;
+   end loop;
+  end if;
+ else
+  target:=p->'mine'->'vein';
+  if jsonb_typeof(target) is distinct from 'object' or not (target ? 'geology') then return town.answer(me,town.no('none')); end if;
+  a:='vein:'||(target->>'f')||':'||(target->>'rock')||':'||(target->>'turn')||':'||(target->>'seed')||':'||coalesce(target->>'again','false');
+  if p_context='cavity' and not coalesce((target->'geology'->>'cavities')::boolean,false) then k:='SC03'; e:=jsonb_build_object('cavities',true);
+  elsif p_context='echo' and not coalesce((target->'geology'->>'hint')::boolean,false) then k:='SC11'; e:=jsonb_build_object('echo',case when abs((target->>'seed')::bigint)%2=1 then 1 else -1 end); end if;
+ end if;
+ if e is null or target->>'comboLoadout' is distinct from town.combo_loadout(p) then return town.answer(me,town.no('none')); end if;
+ did:=town.combo_grant(p,k,a,t,e);
+ if coalesce((did->>'ok')::boolean,false) then perform town.keep_purse(me,did->'purse'); end if;
+ return town.answer(me,did-'purse');
+end $function$
+;
+create or replace function town.cook(p_purse jsonb,p_things jsonb,p_crew jsonb,p_misses double precision,p_now bigint) returns jsonb language plpgsql stable set search_path='' as $$ declare d jsonb:=town.cook_v248(p_purse,p_things,p_crew,p_misses,p_now);begin if d->'ok'='true'::jsonb and d->'purse'->'professionRewards'?'warmJob' then d:=jsonb_set(d,'{purse,professionRewards,warmJob}','null'::jsonb);end if;return d;end $$;
+notify pgrst,'reload schema';commit;

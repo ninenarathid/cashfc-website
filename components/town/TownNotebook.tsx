@@ -8,9 +8,9 @@ import styles from "./TownAdventure.module.css";
 export interface NotebookEntry { key: string; title: string; searchText?: string; icon?: IconName; category?: string; body: ReactNode }
 
 /** Only supplied discoveries are rendered; this component never imports hidden rules. */
-export default function TownNotebook({ title, entries, th, icon = "wellBook", initiallyOpen = false, first, onClose }: {
+export default function TownNotebook({ title, entries, th, icon = "wellBook", initiallyOpen = false, first, onClose, compact = false }: {
   title: string; entries: readonly NotebookEntry[]; th: boolean; icon?: IconName;
-  initiallyOpen?: boolean; first?: string | null; onClose?: () => void;
+  initiallyOpen?: boolean; first?: string | null; onClose?: () => void; compact?: boolean;
 }) {
   const [open, setOpen] = useState(initiallyOpen);
   const [category, setCategory] = useState<string | null>(null);
@@ -31,8 +31,8 @@ export default function TownNotebook({ title, entries, th, icon = "wellBook", in
     return () => modal?.close();
   }, [open]);
   return <section className={styles.book} data-town-notebook data-state={open ? "open" : "closed"} aria-label={title}>
-    <button type="button" ref={cover} onClick={() => setOpen(true)} aria-expanded={open} className={styles.cover}>
-      <TownIcon name={icon} size={38}/><span className="min-w-0"><span className={`${styles.coverTitle} font-display`}>{title}</span>
+    <button type="button" ref={cover} onClick={() => setOpen(true)} aria-expanded={open} className={`${styles.cover} ${compact ? styles.coverCompact : ""}`}>
+      <TownIcon name={icon} size={compact?22:38}/><span className="min-w-0"><span className={`${styles.coverTitle} font-display`}>{title}</span>
         <span className={styles.coverHint}>{th ? `บันทึกไว้ ${entries.length} เรื่อง · เปิดสมุด` : `${entries.length} discoveries · Open the notebook`}</span></span>
     </button>
     {open&&createPortal(<dialog ref={dialog} className={styles.notebookDialog} aria-labelledby={titleId} onCancel={e=>{e.preventDefault();close();}} onKeyDown={e=>e.stopPropagation()}>

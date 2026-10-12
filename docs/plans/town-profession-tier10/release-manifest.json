@@ -1,0 +1,328 @@
+{
+  "localOnly": true,
+  "generatedAt": "2026-10-12T03:47:43.190Z",
+  "through": 251,
+  "pendingFileCount": 43,
+  "warehouseVersion215": "Already applied by another session; table observed 2026-10-12. Do not recreate as pending.",
+  "siteDeploy": "see deployment-2026-10-12.md for deployment status",
+  "liveSql": "not performed in this session",
+  "rerun": "43 immediate pending-file reruns verified after installed v215/v216; not whole-chain rewind",
+  "migrations": [
+    {
+      "version": 207,
+      "source": "supabase/v207_the_minerals_and_parts_we_earned.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "b1676e32de71bd080957a5af0068a91be0a8352d08fb78c93132fb620b920b31"
+    },
+    {
+      "version": 208,
+      "source": "supabase/v208_working_with_wood_and_minerals_on_the_road.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "1b13514571a7c59b7c653db8c736e914be022f1b900d42971cd548b2e359670f"
+    },
+    {
+      "version": 209,
+      "source": "supabase/v209_personal_traces_under_the_forest_canopy.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "dfead14ece4a960f6e3cd17c49e7c1c25248b56f1486e139e64f586bc6b2b331"
+    },
+    {
+      "version": 210,
+      "source": "supabase/v210_honey_crystals_and_colours_we_make.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "77e460e3b29545a4fab9a42540e7d0c2704339742463101c4a366174e866b77f"
+    },
+    {
+      "version": 211,
+      "source": "supabase/v211_a_light_that_remembers_the_colours.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "275a26f6f4b8bbbae503d7cd1e636024dbe5387f2077d9626bd5003a1429514a"
+    },
+    {
+      "version": 212,
+      "source": "supabase/v212_a_bell_for_fish_we_have_met.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "6b446c16b5f9579d8adf9abc452affc54902e4adfaad272859cfb063c1dd21dc"
+    },
+    {
+      "version": 213,
+      "source": "supabase/v213_a_lift_to_the_floor_we_worked.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "cfd12e4376cf66dfdb27365f20c3fc9695a9fc231ae72255aa531437621e2e5c"
+    },
+    {
+      "version": 214,
+      "source": "supabase/v214_a_branch_only_after_the_vein_pays.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "0dd2ba57548612565ffd95afe2ac792d009d6756abf7a48d9ad1eee016eb2b4f"
+    },
+    {
+      "version": 215,
+      "source": "supabase/v215_a_warehouse_for_friends_on_other_shifts.sql",
+      "status": "already-installed-by-other-session; verify-live",
+      "sha256": "38d7c9d08fdaefbdaebfb7df0fdad6e7692173ffdf6074a98aee5f1d838b223d",
+      "gitSource": "b574ac39^",
+      "pending": false
+    },
+    {
+      "version": 216,
+      "source": "supabase/v216_gems_worth_their_journey.sql",
+      "status": "already-installed; live forge markers verified 2026-10-12",
+      "pending": false,
+      "sha256": "ab793e8c6c7ffd240a4360695a1ffbcd93c706c9a2ba8682d0da57bf6a6b2c75"
+    },
+    {
+      "version": 217,
+      "source": "supabase/v217_the_guardian_reads_leaves_and_roots.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "3baab11dc8ef29328b99ae3cd531ad450686e06e273b6b07fd9c6cfbf06ff341"
+    },
+    {
+      "version": 218,
+      "source": "supabase/v218_a_second_part_from_a_perfect_trunk.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "91a725d2183c297d41d6c8d4ea47a3672641a080b62b6fad43d13f8ae78179d3"
+    },
+    {
+      "version": 219,
+      "source": "supabase/v219_three_private_rooms_beneath_a_worked_floor.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "d12672c482eb87d70a918e9c704cd398e1d211f386eadc3f9b069f9d5d637b59"
+    },
+    {
+      "version": 220,
+      "source": "supabase/v220_three_trunks_in_a_chosen_direction.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "de039a3810763b13c6cf05c05f134834fd6ccf34e9107130be6304b387f98255"
+    },
+    {
+      "version": 221,
+      "source": "supabase/v221_echoes_along_the_falling_trunks.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "cd6ad8d7c23393818bf286eb39bbeea1c1ae7475cc1cddafff91e4a5575d51c0"
+    },
+    {
+      "version": 222,
+      "source": "supabase/v222_water_to_our_waiting_container.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a23a8c96476facdc974d2be90dec905c0918418334b0c3c4d0c712665aac1d76"
+    },
+    {
+      "version": 223,
+      "source": "supabase/v223_three_branches_of_real_water.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a6bca712304bc385a17ff4a0d04e652265713b3a1f37ad2bf378b5c93f24ed73"
+    },
+    {
+      "version": 224,
+      "source": "supabase/v224_twelve_bucketfuls_to_share.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "c71f17b235ba331809207e40e49960462225815536d53ba374fb43d725878fd2"
+    },
+    {
+      "version": 225,
+      "source": "supabase/v225_a_cloud_over_consenting_gardens.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "c68c3a1d85e169279ddd605fa2db1c74020eeab423023ba5a017005a9687caf1"
+    },
+    {
+      "version": 226,
+      "source": "supabase/v226_three_living_trees_inside_a_bottle.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "9bfeb1bc797fdf8784652b40d16113cfb5c6b5b346143befc125f9b1f34f3b99"
+    },
+    {
+      "version": 227,
+      "source": "supabase/v227_small_parts_belong_to_living_trees.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "0aca6de9f3f9171bca026f2f0359a568031801a3aece5aa0bb12a319e3730952"
+    },
+    {
+      "version": 228,
+      "source": "supabase/v228_a_beavers_path_between_the_banks.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "10190e0530d3f5dcb0dfa537132c8abc04c7e9c41c4699dc7bddbc67db6e332a"
+    },
+    {
+      "version": 229,
+      "source": "supabase/v229_the_moon_reel_and_a_moment_of_quiet.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a4c1c424cb357dbc444685b8f98ef4fecedff405a883dd83799bb1c28b62d6d4"
+    },
+    {
+      "version": 230,
+      "source": "supabase/v230_a_lotus_leaf_for_two_fishers.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a52093e958baa93ed99b666481a9ef45641ce4087dc86512023e6bdbc7d7d5eb"
+    },
+    {
+      "version": 231,
+      "source": "supabase/v231_three_clues_before_a_legend_returns.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a2bccefba44559ac2c19088fa4092166c757c8f0db287ad115c2b11835e1ec4a"
+    },
+    {
+      "version": 232,
+      "source": "supabase/v232_beetles_return_from_the_ring_unharmed.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a8318912a779bff976ff191f677876450a0c28553bd1cebbe3a7ad2bae9c8722"
+    },
+    {
+      "version": 233,
+      "source": "supabase/v233_a_known_night_insect_under_one_lantern.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "92a79ca41ccb0fc30461093625dd6c4171e5aa91bca48b140f5ed4fb89c03420"
+    },
+    {
+      "version": 234,
+      "source": "supabase/v234_one_visitor_one_choice_for_the_pollen.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "880ad031ef49d956b4be1d17bc5c28a7605d56148ef0e5173dee9272578a36f3"
+    },
+    {
+      "version": 235,
+      "source": "supabase/v235_three_catches_before_the_wings_answer.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "42884d3d93bb652192668ef54630656da321e1008e93a0f5a8ad5260a41bccc5"
+    },
+    {
+      "version": 236,
+      "source": "supabase/v236_four_real_servings_on_a_picnic_cloth.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "3656e846d61d5d63104d50ec6548bb43bf5614674b33687250d741e5b7ec51fd"
+    },
+    {
+      "version": 237,
+      "source": "supabase/v237_fire_flavour_and_five_real_banquet_servings.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "170d55d74b7ea7a3f51d4c88136b4908fbf3845162bfbb4515285725286d1d10"
+    },
+    {
+      "version": 238,
+      "source": "supabase/v238_one_giant_root_and_pollen_kept_for_tomorrow.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "6d7031f9c243d29e1b0d103b893b04a690801f5706c2c12b03abae3d81c5280e"
+    },
+    {
+      "version": 239,
+      "source": "supabase/v239_three_canopy_gardens_on_a_real_bean_vine.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "3e364933d3dc09daa52eb3504a88bc3a66e845b2b96d00a05315a44e9acaef89"
+    },
+    {
+      "version": 240,
+      "source": "supabase/v240_missed_garden_beats_and_one_returning_root.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "5f580ff08ae9c2c8e28184845ce3772859f86002b7e689bc7496d1e76d94e7fd"
+    },
+    {
+      "version": 241,
+      "source": "supabase/v241_one_more_played_beat_under_a_camp_pennant.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "6af45e7952c870ca1fcf76209452398c9a72771918c88b61bd3aa442a06e75d0"
+    },
+    {
+      "version": 242,
+      "source": "supabase/v242_a_waykeeper_returns_one_unpaid_checkpoint.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "8b454b95396fadc7faec05d6d520cdfe1d30b7c559199b42c6d4909d41325f2f"
+    },
+    {
+      "version": 243,
+      "source": "supabase/v243_wings_at_sowing_and_warmth_after_a_shared_meal.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "3997ca707f3886d80e7c764c9075f2ac55c411776bea844afb10bc3af80bf780"
+    },
+    {
+      "version": 244,
+      "source": "supabase/v244_a_real_rain_kept_at_one_friends_root.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "d1300b8a539fb6c6177d1b3e3398c74ce8f3fb67a5a5ff83a2f86c4e6e6bb740"
+    },
+    {
+      "version": 245,
+      "source": "supabase/v245_tired_hands_play_one_missed_garden_beat_again.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a414df5bced48e85ab5fb4c25ae016f1539633023fb198a93aaaf1c11da7b1aa"
+    },
+    {
+      "version": 246,
+      "source": "supabase/v246_one_adjacent_row_carries_a_perfect_rhythm.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "7a62312f8d060feddb9c96f625a18b23d865fc6f4ff3e8c4230db0a09d2ff8ed"
+    },
+    {
+      "version": 247,
+      "source": "supabase/v247_a_second_part_beneath_the_real_stump.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "1bb186eb049026b50fb541681155916ff0a77aace20e381ef0f6e9a5cbd4708b"
+    },
+    {
+      "version": 248,
+      "source": "supabase/v248_rain_keeps_a_manually_played_cooking_checkpoint.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "4b810d835c8cfd95df89f025d8bcc1313b633f27173d3fc2ef1607ea98e85542"
+    },
+    {
+      "version": 249,
+      "source": "supabase/v249_one_insect_hears_quieter_footsteps.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "d424705f86519e31ae16c7876844f4a8f74deded6da6be986c4e208b21e161d3"
+    },
+    {
+      "version": 250,
+      "source": "supabase/v250_one_living_part_in_a_known_secret_place.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "a1b61ab079ccec9bfeec0327b3a4ae9eea2c69a6a66c7a3663d27d6906799461"
+    },
+    {
+      "version": 251,
+      "source": "supabase/v251_bonds_remember_every_equipment_change.sql",
+      "status": "prepared-local; actual-live-status-must-be-checked",
+      "pending": true,
+      "sha256": "5da0234ff2c7414158d54a6b612884b6a2ec09bed72d4d9b0f79f84e69231cfa"
+    }
+  ]
+}

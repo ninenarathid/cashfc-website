@@ -4,7 +4,7 @@ import { dayOf, levelOf, mealBuffs, spend } from "./stamina";
 import { held, take, type Purse } from "./trade";
 import { CAMP } from "./world";
 
-export interface FieldCamp { site:number; x:number;y:number;by:string;until:number;left:number;wide:boolean;lit:boolean }
+export interface FieldCamp { site:number; x:number;y:number;by:string;until:number;left:number;wide:boolean;lit:boolean;flag?:{line:import('./reward-camp').CampLine;members:string[]} }
 export const CAMPS={
  sites:[[CAMP.fire.x-3,CAMP.fire.y+3],[CAMP.fire.x+3,CAMP.fire.y+3],[11,216],[34,238],[58,230]] as [number,number][],
  reach:2,cost:4,minutes:30,awningMinutes:45,charges:3,chestCharges:5,benefitMinutes:10,daily:3,

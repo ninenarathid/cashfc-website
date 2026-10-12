@@ -1,4 +1,6 @@
 "use client";
+import { TownOreCompass, TownFieldProcessor, TownPocketLift, TownBranchVein } from "./TownRewardActions";
+import TownCoreExpedition from "./TownCoreExpedition";
 
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { isRest } from "@/lib/town/cave";
@@ -668,6 +670,11 @@ export default function TownMine({ keeper, th, name, sfx, busy, reduced, registe
 
   return (
     <>
+      {about && !busy && !vein && <TownPocketLift keeper={keeper} th={th} at={tile} floor={floor} onRide={journey=>{meant.current=performance.now();sfx?.work("liftRun");warp(...journey.at);}} />}
+      {about && !busy && !vein && <TownBranchVein keeper={keeper} th={th} at={tile} />}
+      {about && !busy && !vein && <TownCoreExpedition keeper={keeper} th={th} at={tile} floor={floor} />}
+      {about && !busy && !vein && <TownOreCompass keeper={keeper} th={th} at={tile} floor={floor} key={floor} />}
+      {about && !busy && !vein && <TownFieldProcessor keeper={keeper} th={th} at={tile} kind="mineral" floor={floor} key={`process:${floor}`} />}
       {/* what glints for me, over the dark */}
       <div ref={glintBox} aria-hidden className="pointer-events-none absolute inset-0 z-10 overflow-hidden" data-mine-glints={told.glints.length}>
         {told.glints.map((id) => (

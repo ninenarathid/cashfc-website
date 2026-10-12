@@ -4,6 +4,7 @@ import { STRIKE, strikeOf, strikeWindowOf } from "./fishing";
 import { CHARMS, CHARM_IDS, FAMILIARS, FAMILIAR_IDS, GIFTS, THING_IDS, charmBy, dueOf, famBy, familiarOf, giftAt, giftsOf, giftsRow, gloved, harderAt, harderFor, HARDER, leftOf, numberOf, stretchOf, takeGift, useGift, usedOf, usesLeft, USES, wearCharms, wearFamiliar, wearing, works, type CharmId, type FamiliarId } from "./gifts";
 import type { ItemId } from "./items";
 import { LINES, LINE_IDS } from "./lines";
+import { ALL_GIFTS } from "./gifts";
 import { eased, staminaOf } from "./stamina";
 import { hold, newPurse, put, type Purse } from "./trade";
 
@@ -32,14 +33,14 @@ describe("the gifts of the lines of work", () => {
     }
     // what is counted is of a gift there is, so many times and to a stretch that is known
     for (const [id, use] of Object.entries(USES)) {
-      expect(GIFTS.some((g) => g.id === id), id).toBe(true);
+      expect(ALL_GIFTS.some((g) => g.id === id), id).toBe(true);
       expect(use!.n).toBeGreaterThan(0);
       expect(use!.per === "day" || use!.per === "meal" || (use!.per === "span" && (use!.ms ?? 0) >= 1000), id).toBe(true);
     }
     expect(new Set(GIFTS.map((g) => g.id)).size).toBe(GIFTS.length);
     expect(giftAt("well", 1)).toBeNull();
     expect(giftAt("kitchen", 2)?.id).toBe("thingBasket");
-    expect(giftAt("kitchen", 7)).toBeNull();
+    expect(giftAt("kitchen", 7)?.id).toBe("thingPicnicCloth");
     expect(giftAt("well", 4)?.id).toBe("thingFlask");
     expect(giftAt("forest", 2)?.id).toBe("famSquirrel");
     expect(giftAt("cooking", 1)).toBeNull();
@@ -62,7 +63,7 @@ describe("the gifts of the lines of work", () => {
     const p = newPurse();
     expect(takeGift(p, {}, "kitchen", 1)).toEqual({ ok: false, why: "rank" });
     expect(takeGift(p, { kitchen: first("kitchen") - 1 }, "kitchen", 1)).toEqual({ ok: false, why: "rank" });
-    expect(takeGift(p, { kitchen: 99999 }, "kitchen", 7)).toEqual({ ok: false, why: "none" });
+    expect(takeGift(p, { kitchen: 99999 }, "kitchen", 11)).toEqual({ ok: false, why: "none" });
     expect(takeGift(p, { well: 99999 }, "well", 1)).toEqual({ ok: false, why: "none" });
     const took = done(takeGift(p, { kitchen: first("kitchen") }, "kitchen", 1));
     expect(took.gift).toBe("charmApron");

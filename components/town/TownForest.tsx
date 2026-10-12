@@ -1,4 +1,5 @@
 "use client";
+import { TownForestTrail,TownResourceBench } from "./TownRewardActions";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FARMING } from "@/lib/town/farm";
@@ -69,7 +70,7 @@ const iconFor = (item: ItemId | null): IconName => {
   return (name in ICON_ATLAS.icons ? name : "mound") as IconName;
 };
 /** What is being done at a place: its game, the tile it was begun from, whether the piglet does it, and at a secret place which of its two games this is and how long the first took. */
-interface Working { spot: Place; sight: Sight; game: ForestGame; from: [number, number]; pig?: boolean; stage?: 0 | 1; secs?: number; part?: ForestPart }
+interface Working { spot: Place; sight: Sight; game: ForestGame; from: [number, number]; pig?: boolean; stage?: 0 | 1; secs?: number; part?: ForestPart;pairStage?:0|1;pairMisses?:number }
 
 /**
  * The forest's things, to gather (the owner, 2026-10-05: "หาของป่า … สามารถเดินเข้าไปเก็บของป่าที่จะ spawn ออกมาเป็นช่วงเวลา …
@@ -87,13 +88,14 @@ interface Working { spot: Place; sight: Sight; game: ForestGame; from: [number, 
  * What is kept is the keeper's (lib/town/keeper): in `next dev`'s test room the browser's trial, one forest for
  * the browser.
  */
-export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, register, sendPet }: {
+export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, register, sendPet, walk }: {
   keeper: Keeper;
   th: boolean;
   /** The tile I stand still on, when I do. */
   tile: [number, number] | null;
   /** Whether I am on the forest's map: what it has is looked at afresh while I am. */
   near: boolean;
+  walk?: (x:number,y:number)=>boolean;
   sfx: FishSfx | null;
   /** How far up from the foot of the map the button and the game sit. */
   bottom: string;
@@ -126,6 +128,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
   const seen = useRef<Sight[]>([]);
   seen.current = near ? keeper.wild() : [];
   const traceRead=useRef(false);traceRead.current=seesTraces(keeper.purse(),keeper.now());
+  const personalTrail=useRef(keeper.purse().professionRewards?.trail);personalTrail.current=keeper.purse().professionRewards?.trail;
 
   useEffect(() => {
     register((frame) => {
@@ -161,6 +164,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
           ctx.fillRect(x, y, d, d);
         }
       });
+      const trail=personalTrail.current,node=trail?.nodes[trail.next];
+      if(node){const p=project({x:node.at[0]+.5,y:node.at[1]+.5});if(onScreen(p)){ctx.save();ctx.strokeStyle=trail!.kind==="star"?"#f2d28b":"#aee58d";ctx.lineWidth=Math.max(2,s*2);ctx.beginPath();ctx.ellipse(p.x,p.y,12*s,6*s,0,0,Math.PI*2);ctx.stroke();ctx.fillStyle=ctx.strokeStyle;ctx.fillRect(p.x-2*s,p.y-18*s,4*s,4*s);ctx.restore();}}
       for (const sight of seen.current) {
         const spot = placeAt(sight.id);
         if (!spot) continue;
@@ -349,8 +354,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
     const withPig = byPig && (pig || !byHand);
     if (!withPig && !byHand) return;
     // (what a squirrel fetches is no work of my hands: no game for it, tired or not)
-    const game = part==="root"?"digging":part==="leaf"?gameFor("choose",spent):fetchKept && fetches(purse, hereHow, keeper.now()) ? null : gameFor(hereHow, spent);
-    if (game) { setWorking({ ...here, ...(part!=="whole"?{sight:{...here.sight,n:part==="root"?1:2}}:{}), game, from: tile, pig: withPig, part, ...(hereSecret ? { stage: 0 as const } : {}) }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
+    const game = hereSecret?gameFor(hereHow,spent):part==="root"?"digging":part==="leaf"||part==="paired"?gameFor("choose",spent):fetchKept && fetches(purse, hereHow, keeper.now()) ? null : gameFor(hereHow, spent);
+    if (game) { setWorking({ ...here, ...(part!=="whole"?{sight:{...here.sight,n:hereSecret?here.sight.n:part==="root"?1:2}}:{}), game, from: tile, pig: withPig, part,...(part==="paired"?{pairStage:0 as const}:{}), ...(hereSecret ? { stage: 0 as const } : {}) }); if (game === "catching") { sfx?.wake(); sfx?.work("shake"); } }
     else void act(here.spot, tile, { misses: 0, wrong: 0,part });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- the purse is read when the button is pressed
   }, [here, tile, spent, act, sfx, byHand, byPig, hereSecret, hereHow, fetchKept]);
@@ -457,6 +462,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
+      if (document.querySelector('[data-town-game], [data-reward-extraction-game]')) return;
       e.preventDefault();
       e.stopPropagation();
       // (what a place offers first; with nothing here, the dig for the chest)
@@ -491,6 +497,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
 
   return (
     <>
+      {near&&!working&&keeper.purse().professionRewards?.trail?.kind!=="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>tile} walk={walk}/>}
+      {near&&!working&&<TownResourceBench keeper={keeper} th={th} at={()=>tile} place="forest"/>}
       {/* the firefly lantern's own button: the whole forest on a chart */}
       {lit && !working && (
         <button type="button" onClick={() => setChart(true)} data-forest-lantern aria-label={th ? "ป่าในแสงหิ่งห้อย" : "The forest by firefly light"}
@@ -535,7 +543,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
           )}
           {working && tile ? (() => {
             const { spot, sight, game, pig, stage } = working, how = ruleOf(spot).how, secret = stage !== undefined, games = gamesOf(spot);
-            const title = secret ? `${th ? SECRET[spot.kind as SecretKind][0] : SECRET[spot.kind as SecretKind][1]} · ${stage + 1}/2`
+            const title = working.part==="paired"?(th?`ผู้พิทักษ์อ่านใบและราก · ${(working.pairStage??0)+1}/2`:`Guardian of leaves and roots · ${(working.pairStage??0)+1}/2`):secret ? `${th ? SECRET[spot.kind as SecretKind][0] : SECRET[spot.kind as SecretKind][1]} · ${stage + 1}/2`
               : working.part==="root"?(th?"ขุดแยกส่วนใต้ต้น":"Separate the lower part"):working.part==="leaf"?(th?"เลือกเก็บส่วนเล็ก":"Gather the small parts"):pig ? (th ? "หมูน้อยขุด" : "The piglet digs") : th ? VERB[how][0] : VERB[how][1];
             // (a good thing is harder for a practised hand; what is buried and unseen is dug as by anybody)
             const hard = harderOf(sight.item, points);
@@ -546,12 +554,16 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
               keeper.record({ game: "forest", board: game, at: keeper.now(), won: !r.dropped && !(secret && r.misses > 0), secs: r.secs, spent, buff: null, what: spot.kind, need: r.need, hits: r.hits, misses: r.misses });
               // (tired hands that let it fall have gathered nothing, and lost nothing)
               if (!secret && r.dropped) { setWorking(null); say("shaky"); return; }
+              if(working.part==="paired"){
+                if(working.pairStage===0){setWorking({...working,game:"digging",pairStage:1,pairMisses:r.misses,secs:r.secs,sight:{...working.sight,n:1}});return;}
+                setWorking(null);void act(spot,working.from,{part:"paired",misses:(working.pairMisses??0)+r.misses,wrong:0,secs:(working.secs??0)+r.secs});return;
+              }
               if (secret) {
                 // a secret place: not one miss in either game, or it is gone; the first won, the second begins
                 if (r.dropped || r.misses > 0) { setWorking(null); void act(spot, working.from, { misses: Math.max(1, r.misses), wrong: 0, secs: (working.secs ?? 0) + r.secs, lost: true }); return; }
                 if (stage === 0 && games) { sfx?.wake(); sfx?.work("pick"); setWorking({ ...working, game: gameFor(games[1], spent)!, stage: 1, secs: r.secs }); if (games[1] === "shake") sfx?.work("shake"); return; }
                 setWorking(null);
-                void act(spot, working.from, { misses: 0, wrong: 0, secs: (working.secs ?? 0) + r.secs });
+                void act(spot, working.from, { misses: 0, wrong: 0,part:working.part, secs: (working.secs ?? 0) + r.secs });
                 return;
               }
               setWorking(null);
@@ -561,7 +573,7 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
             };
             const common = { th, title, onDone: done, onCancel: () => leave(working), onHit: (hit: boolean) => { sfx?.wake(); sfx?.work(GAME_FX[game][hit ? 0 : 1]); } };
             return (
-              <div key={`${spot.id}:${stage ?? "x"}`} className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game} data-secret-stage={stage ?? ""}>
+              <div key={`${spot.id}:${stage ?? "x"}:${working.pairStage??"x"}`} className="pop-in pointer-events-auto w-full max-w-[24rem]" data-state="open" data-game={game} data-secret-stage={stage ?? ""} data-guardian-stage={working.pairStage??""}>
                 {game === "choosing" ? <TownChoosing {...common} need={sight.n} spent={spent} eye={eye} harder={hard} icon={iconFor(sight.item)} scene={art("gameFloor")} />
                   : game === "digging" ? <TownDigging {...common} need={sight.n} spent={spent} eye={eye} how={{ gentle: !!pig, harder: hard }} scene={art("gameMound")} />
                     : game === "catching" ? <TownCatching {...common} need={sight.n} spent={spent} eye={eye + (secret ? 0 : famBy(purse, "famSquirrel"))} harder={hard} icon={iconFor(sight.item)} scene={art("gameCrown")} />
@@ -571,6 +583,8 @@ export default function TownForest({ keeper, th, tile, near, sfx, bottom, art, r
           })() : inspect!==hereId&&(here || digHere || wantsHoe) && (
             <div className="pointer-events-none flex max-w-[16.5rem] flex-wrap items-center justify-center gap-2 sm:max-w-none">
               {here&&!hereSecret&&Object.keys(partsAt(here.spot.kind)).length>0&&<button type="button" onClick={()=>setInspect(hereId)} data-forest-inspect className="pressable pointer-events-auto flex min-h-12 items-center gap-2 rounded-full border border-[#b2c088] bg-[#34422d] px-4 text-ui text-[#ebf3d2]"><TownIcon name="traceLeaf" size={24}/>{th?"ดูส่วนที่เก็บได้":"Inspect harvest parts"}</button>}
+              {here&&hereSecret&&purse.forest?.secrets?.includes(hereId)&&keeper.comboPrepare&&<button data-secret-listen type="button" className="pointer-events-auto min-h-12 rounded-full border border-[#b6cda5] bg-[#253027] px-4 text-ui text-[#e5efd9]" onClick={()=>void keeper.comboPrepare!('forestListen',{spot:hereId,at:tile}).then(d=>{if(d.ok&&d.part){setNote(th?`ฟังพบ ${nameOf(d.part.item)} · เลือกเก็บแทนของหลักได้`:`You hear ${nameOf(d.part.item)} · collect it instead of the main find.`);vfx.add('sparkle',{x:here.spot.x+.5,y:here.spot.y+.5});}else setNote(th?'ยังอ่านส่วนนี้ไม่ได้':'This part cannot be read yet.');})}>{th?'ฟังส่วนพืช':'Listen for a plant part'}</button>}
+              {here&&hereSecret&&purse.professionRewards?.secretPart?.spot===hereId&&purse.professionRewards.secretPart.until>keeper.now()&&<button data-secret-part type="button" className="pointer-events-auto min-h-12 rounded-full bg-[#57724a] px-4 text-ui text-white" onClick={()=>begin(false,'leaf')}>{th?'เก็บ':'Collect'} {nameOf(purse.professionRewards.secretPart.item)} ×1</button>}
               {here && byHand && (hereSecret ? (
                 // a secret place of the deep woods: its own button, with a mark for each of its two games
                 <button type="button" onClick={() => begin()} data-forest-offer="secret" data-secret-kind={here.spot.kind} data-state="open"

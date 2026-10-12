@@ -1,0 +1,1 @@
+﻿import{rewardDB}from'./reward-db.mjs';const db=await rewardDB(250);try{console.log((await db.query("select pg_get_functiondef('town.purse_of(uuid,boolean)'::regprocedure) d")).rows[0].d);}finally{await db.close();}

@@ -1,5 +1,5 @@
 "use client";
-import {useMapBag} from "@/lib/town/map-bag";
+import {useMapBag} from '@/lib/town/map-bag';
 import {useTownEphemeral} from "@/lib/town/ephemeral";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -327,7 +327,9 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
         </button>
       </div>
 
-      {view === 'bag' && mapBag && <div role="tablist" aria-label={th ? 'ช่องกระเป๋า' : 'Bag compartments'} className="flex gap-2 border-b border-line px-4 py-2">{[false,true].map(event=><button key={String(event)} role="tab" aria-selected={eventBag===event} className={`tk ${eventBag===event?'tk-slot-on':'tk-slot'} px-4 py-2`} onClick={()=>setEventBag(event)}>{event?'Event':th?'ของทั่วไป':'Items'}</button>)}</div>}
+      {view === 'bag' && mapBag && <div role="tablist" aria-label={th ? 'ช่องกระเป๋า' : 'Bag compartments'} className="flex gap-2 border-b border-line px-4 py-2">
+        {[false,true].map(event=><button key={String(event)} role="tab" aria-selected={eventBag===event} className={`tk ${eventBag===event?'tk-slot-on':'tk-slot'} px-4 py-2`} onClick={()=>setEventBag(event)}>{event?'Event':th?'ของทั่วไป':'Items'}</button>)}
+      </div>}
       {uncle && (
         <div role="tablist" aria-label={title} className="flex gap-1 border-b border-line px-3 pt-2">
           {([["buy", th ? "ซื้อของ" : "Buy"], ["sell", th ? "ฝากขาย" : "Sell"], ...(board ? [["board", th ? "กระดาน" : "Board"] as const] : [])] as const).map(([v, label]) => (

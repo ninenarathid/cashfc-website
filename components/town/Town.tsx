@@ -8,7 +8,7 @@ import { useLang } from "@/lib/i18n";
 import popotoArt from "@/assets/popoto/popoto.webp";
 import {
   BENCHES, BEYOND_PROPS, BOARD, BUILDINGS, CAMP, FAR, FARM, FARM_PROPS, FOREST_PROPS, FOUNTAIN, GATES, GREAT_TREE, WATERFALL, KEEPERS, KITCHEN, NEAR, PIER, PROPS, PROXIMITY, ROADWORKS, ROWS, COLS, SMITH, SPEED, SHOP, SIT_HERE, STOREBOX, TILE_H, TILE_W, YARD_SEATS, riverMiddle,
-  atFire, atWell, benchAt, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
+  atFire, atWell, benchAt, bySmith, byStorebox, distance, fishFrom, fromIso, isBuilt, isFar, setBridge, setBuilt, setFar, groundAt, hearing, inDiningYard, onYard, placeOf, plotAt, toIso, walkable, yardPlace, yardSeat, type Building, type Facing, type Fishing, type Keeper, type Place, type Prop, type Vec,
 } from "@/lib/town/world";
 import { bridgeSpans, bridgeWhole } from "@/lib/town/bridge";
 import { DECOR, FACES, artOf, carving, gateLook, ringAt } from "@/lib/town/decor";
@@ -141,6 +141,7 @@ const TownTest = process.env.NODE_ENV !== "production" ? lazy(() => import("./To
 const TownTrees = lazy(() => import("./TownTrees"));
 const TownFarm = lazy(() => import("./TownFarm"));
 const TownForest = lazy(() => import("./TownForest"));
+const TownResourceBench = lazy(() => import("./TownRewardActions").then(m=>({default:m.TownResourceBench})));
 const TownBugs = lazy(() => import("./TownBugs"));
 // ── mining ── (the mountain's rocks and the cave: in every build, shown only while the far side is open to me)
 const TownMine = lazy(() => import("./TownMine"));
@@ -168,7 +169,7 @@ const TownFountain = lazy(() => import("./TownFountain"));
 // ── forging ── (the blacksmith's screen: asked for only where whoever keeps the game has a smith)
 const TownSmith = lazy(() => import("./TownSmith"));
 /** What a nudge from the room may be about (lib/town/keeper's Looked). */
-const NUDGES: readonly string[] = ["stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps"];
+const NUDGES: readonly string[] = ["boats","stall", "farm", "kitchen", "deal", "fountain", "notices", "bugs", "line", "ground", "shop", /* mining */ "cave", /* felling */ "trees", /* the bridge and the lamps */ "works", "lamps"];
 /** The colour a carrier's rank is written in under their name (lib/town/well): wood, silver, gold. */
 const RANK_INK = ["#e0a66a", "#d5dce3", "#f2c94c"];
 /** What a worn title is written in, by its rank (components/town/TownLines' own, kept here so that the map does not load that screen to draw a name): bronze, silver, gold, and the last rank's own. */
@@ -852,6 +853,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   const [linesOpen, setLinesOpen] = useState<false | "lines" | "me">(false);
   /** What I have of the gifts of my ranks and wear of them, and whether whoever keeps the game gives any (lib/town/gifts). */
   const [giftsTold, setGiftsTold] = useState<{ gifting: boolean; given: string[]; gifts: Gifts }>({ gifting: false, given: [], gifts: { had: [], charms: [], owed: 0, familiar: null, used: {} } });
+  const picnicDraw=useRef<FarmDraw|null>(null);
+  const registerPicnic=useCallback((draw:FarmDraw|null)=>{picnicDraw.current=draw;},[]);
+  const boatsDraw=useRef<FarmDraw|null>(null);
+  const registerBoats=useCallback((draw:FarmDraw|null)=>{boatsDraw.current=draw;},[]);
+  const crossingsDraw=useRef<FarmDraw|null>(null);
+  const registerCrossings=useCallback((draw:FarmDraw|null)=>{crossingsDraw.current=draw;},[]);
+  const springsDraw=useRef<FarmDraw|null>(null);
+  const registerSprings=useCallback((draw:FarmDraw|null)=>{springsDraw.current=draw;},[]);
+  const relayDraw=useRef<FarmDraw|null>(null);
+  const registerRelay=useCallback((draw:FarmDraw|null)=>{relayDraw.current=draw;},[]);
   const farmDraw = useRef<FarmDraw | null>(null);
   const registerFarm = useCallback((draw: FarmDraw | null) => { farmDraw.current = draw; }, []);
   /** Everybody on the map now, as this screen has them (the bucket line asks who stands within sight: lib/town/line). */
@@ -2369,6 +2380,11 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           .map((a) => ({ id: a.info.id, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null) })),
         sign: (text: string, x: number, y: number) => { signs.push(() => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)")); },
       };
+      picnicDraw.current?.(frame);
+      boatsDraw.current?.(frame);
+      crossingsDraw.current?.(frame);
+      springsDraw.current?.(frame);
+      relayDraw.current?.(frame);
       if (placeRef.current === "farm") farmDraw.current?.(frame);
       if (placeRef.current === "farm") wellGiftDraw.current?.(frame);   // ── gifts: well ── (the light at the well as a moon flask is poured)
       if (placeRef.current === "forest") forestDraw.current?.(frame);
@@ -2865,7 +2881,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
    * The rod somebody fishes with, and their line (the owner, 2026-10-03: "ตอนตกปลา อยากให้มีรูป คันเบ็ดที่ใช้ด้วย ตอนนี้เหมือน
    * มีแต่สาย"): a bamboo cane from the hands up and out towards the water, in the dolls' own pixels, and the line
    * from its tip to the float. Upright with no line out; leaning out over the water with one; dipping at the bite;
-   * bent hard and shaking with a fish on.
+   * tilting and shaking with a fish on, keeping the detailed equipment intact.
    */
   function drawRod(ctx: CanvasRenderingContext2D, p: Vec, h: number, rod: { float: Vec; state: LineState | "ready" }, id: string, now: number, which: RodId = "rod", held?: 1 | -1, race = 0, skin?: ToolLook | null, sweep?: { from: Vec; to: Vec }): Vec {
     const wood = ROD_LOOKS[which];
@@ -5026,13 +5042,16 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                     people={standers} here={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) && !fishing && !signView ? standing?.tile ?? null : null}
                     at={wellHere ? standing?.tile ?? null : fishAt?.tile ?? null} near={onFarm}
                     water={talk || trade || boardOpen || wardrobeOpen || (phone && testOpen) ? null : wellHere ? "well" : fishAt ? "river" : null} sfx={sfxRef.current}
-                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} />
+                    bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerFarm} registerRelay={registerRelay} registerSprings={registerSprings} registerCrossings={registerCrossings} registerBoats={registerBoats} registerPicnic={registerPicnic} sitPicnic={()=>{if(s.self.path.length)return false;s.sitHere();return s.seated;}} walkTrail={(x,y)=>s.walkTo({x,y})} />
         </Suspense>
       )}
       {/* The forest: what lies and grows there, and gathering what is at the place I stand by */}
+      {s && game && keeper && standing && bySmith(standing.tile[0]+.5,standing.tile[1]+.5) && !talk && !trade && !smith && (
+        <Suspense fallback={null}><TownResourceBench keeper={keeper} th={w.th} at={()=>standing?.tile??null} place="smith"/></Suspense>
+      )}
       {s && game && keeper && (
         <Suspense fallback={null}>
-          <TownForest keeper={keeper} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onForest} sfx={sfxRef.current} art={boardArt}
+          <TownForest keeper={keeper} th={w.th} tile={!talk && !trade && !boardOpen && !wardrobeOpen && !(phone && testOpen) ? standing?.tile ?? null : null} near={onForest} sfx={sfxRef.current} art={boardArt} walk={walkToTile}
                       bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} register={registerForest} sendPet={sendPet} />
         </Suspense>
       )}

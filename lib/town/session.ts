@@ -1,5 +1,7 @@
 // CASINO_NATIVE_MAP: native Town runtime, private admin rehearsal.
 "use client";
+import {crossingExit} from "./temporary-crossings";
+import {boatMotion,boatRecovery,ridingBoat,boatMoving} from './lotus-boats';
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
@@ -151,6 +153,7 @@ const ASK_MS = 6_000;
 const NUDGE_MS = 4000;
 
 export class TownSession {
+  private boatMark='';
   /** Tells one stay from the next: the same id after a page change means nothing reconnected. */
   readonly id = Math.random().toString(36).slice(2, 10);
   readonly me: Identity;
@@ -314,8 +317,11 @@ export class TownSession {
   step(now: number, dt: number) {
     if (this.steppedAt && now - this.steppedAt > 1000) dt = (now - this.steppedAt) / 1000;
     this.steppedAt = now;
+    if(!this.options.terrain){const bank=crossingExit(this.self.pos);if(bank)this.warpTo(bank);else if(this.self.path.some(p=>crossingExit(p))){this.self.path=[];this.announceMove();this.notify();}}
+    if(!this.options.terrain&&!ridingBoat(this.self.info.id)){const bank=boatRecovery(this.self.pos);if(bank)this.warpTo(bank);}
     const all = [this.self, ...this.avatars.values()];
     for (const a of all) {
+      if(!this.options.terrain){const pos=boatMotion(a.info.id);if(pos){a.pos=pos;a.path=[];if(a===this.self){this.sitWhenThere=null;if(this.self.info.sit!==-1)this.tell({sit:-1});const boat=ridingBoat(a.info.id)!,stamp=`${boat.owner}:${boat.trip?.at??0}:${boatMoving(boat)?0:1}`;if(stamp!==this.boatMark){this.boatMark=stamp;this.announceMove();this.notify();}}continue;}}
       if (!a.path.length) continue;
       // (a water cart is heavy for one, and goes as fast as anybody with somebody beside it: lib/town/cart)
       // ── gifts: forest ── (and whoever has a moss stag to ride goes twice as fast, on every page that walks them: lib/town/riding; a cart is pushed on foot)
@@ -348,6 +354,7 @@ export class TownSession {
   /** Walk to a tile, if there is a way there. */
   walkTo(tile: Vec): boolean {
     if (this.closed) return false;
+    if(!this.options.terrain&&ridingBoat(this.self.info.id))return false;
     // Whoever holds a sign up, is in a chat room or looks at a stall stays where they are (the owner, 2026-10-06:
     // "ตอนอยุ่ในระหว่างชูป้าย หรือ คนที่เข้ามาดูช่วยทำให้คลิกเดินไม่ได้ด้วย"): each is left by its own button, never by
     // a slip of the finger on the map.
@@ -796,7 +803,6 @@ export class TownSession {
     a.elementAt = now;
     this.onElement?.(a, look);
   }
-
   forgeShown(told: { item: ForgeShow["item"]; from: number; out: ForgeShow["out"] } | null) {
     if (this.closed) return;
     const now = Date.now();

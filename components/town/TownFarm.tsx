@@ -1,4 +1,30 @@
 "use client";
+import TownRootExtraction from "./TownRootExtraction";
+import{useComboReaction}from'./useComboReaction';
+import{drawComboMaterial}from'./drawComboMaterial';
+import TownComboFx from'./TownComboFx';
+import TownRowContinuation from "./TownRowContinuation";
+import TownGardenRetry from "./TownGardenRetry";
+import TownRainCare from "./TownRainCare";
+import TownGardenHelp from './TownGardenHelp';
+import TownCampFlag from './TownCampFlag';
+import TownWaykeeper from './TownWaykeeper';
+import TownSkyBean from "./TownSkyBean";
+import{drawGiantPlant}from "./drawGiantPlant";
+import TownGardenRewards from "./TownGardenRewards";
+import TownKitchenRewards from "./TownKitchenRewards";
+import TownPicnic from "./TownPicnic";
+import TownWingCrown from "./TownWingCrown";
+import TownMoonLantern from "./TownMoonLantern";
+import {TownForestTrail} from "./TownRewardActions";
+import TownBeetleRing from "./TownBeetleRing";
+import TownLotusBoat from "./TownLotusBoat";
+import TownBeaverBridge from "./TownBeaverBridge";
+import TownNursery from "./TownNursery";
+import TownCloud from "./TownCloud";
+import TownSprings from "./TownSprings";
+import TownConduit from "./TownConduit";
+import TownWaterRelay from "./TownWaterRelay";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import TownNotebook, { type NotebookEntry } from "./TownNotebook";
@@ -177,7 +203,7 @@ function weedsOf(tx: number, ty: number): Weed[] {
  * one farm for the whole town; in `next dev`'s test room the browser's trial,
  * one farm for the browser.
  */
-export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register, here = null, people }: {
+export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx, bottom, register, registerRelay, registerSprings, registerCrossings, registerBoats, registerPicnic, sitPicnic, walkTrail, here = null, people }: {
   keeper: Keeper;
   /** What I am called, for the name plate of a bed I take. */
   name: string;
@@ -194,12 +220,20 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   bottom: string;
   /** Hand the map the way to draw the plots (and take it back with null). */
   register: (draw: FarmDraw | null) => void;
+  walkTrail?: (x:number,y:number)=>boolean;
+  registerPicnic?: (draw: FarmDraw | null) => void;
+  sitPicnic?: () => boolean;
+  registerBoats?: (draw: FarmDraw | null) => void;
+  registerCrossings?: (draw: FarmDraw | null) => void;
+  registerRelay?: (draw: FarmDraw | null) => void;
+  registerSprings?: (draw: FarmDraw | null) => void;
   // ── gifts: helpers ──
   /** Where I stand still, anywhere in town (null while walking, or while something else is open); and everybody on the map now, as the map has them: for the ring of shared strength, which is for a friend standing near, wherever that is. */
   here?: [number, number] | null;
   people?: () => Stander[];
 }) {
   const [, setTick] = useState(0);
+  const reaction=useComboReaction(keeper);
   useEffect(() => {
     const again = () => setTick((n) => n + 1);
     const stop = keeper.watch(again), t = setInterval(again, 5000);
@@ -235,6 +269,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const now = keeper.now(), plots = keeper.farm();
   const seen = useRef(new Map<string, Seen>());
   const gardenRoots = useRef(new Map<string, string>());
+  const giants=useRef(new Map<string,string>());giants.current=new Map(Object.entries(plots).flatMap(([k,plot])=>plot.plant?.giant&&plot.plant.root?[[k,plot.plant.root] as [string,string]]:[]));
   gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
@@ -258,6 +293,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
    * runs out, and of each bed that has any the latest of those. Read off the plants themselves, so everybody at the
    * farm sees it, whoever turned it. And the keeper's clock, for the frames to tell how long is left by.
    */
+  const clouds=useRef(new Map<string,number>());
+  clouds.current=new Map(Object.entries(plots).flatMap(([key,p])=>p.plant?.localRain&&p.plant.localRain.from<=now&&p.plant.localRain.until>now?[[key,p.plant.localRain.until] as [string,number]]:[]));
   const sand = useRef(new Map<string, number>()), sandBeds = useRef(new Map<number, number>());
   sand.current = new Map(Object.entries(plots).flatMap(([k, plot]) => { const until = quickUntil(plot.plant, now); return until === null ? [] : [[k, until] as [string, number]]; }));
   sandBeds.current = new Map();
@@ -308,6 +345,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     register((frame) => {
       const { ctx, things, project, onScreen, sign, s, now: t, img, still, th: thai } = frame;
       vfx.draw(frame);
+      const pulse=reaction.pulse.current;if(pulse&&performance.now()-pulse.from<1600){const point=pulse.at??frame.self;if(point){const screen=project(point);frame.over?.(()=>drawComboMaterial(ctx,screen.x,screen.y,s,performance.now()-pulse.from,pulse.last.cue,still));}}
       if (!img?.complete || !img.naturalWidth) return;
       const blit = (name: string, at: Vec, lift = 0, k = PLANT * s, flip = false) => {
         const cell = ICON_ATLAS.icons[name as IconName];
@@ -385,6 +423,10 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       // the hourglass's sand over a plant it quickens: a warm light at its foot, and grains falling past it, each in its own time.
       // Drawn over the night's dark, as a lamp's light is: it is seen from across the farm.
       const game = clock.current(), above = frame.over ?? ((draw: () => void) => draw());
+      // Drops land at real roots. Each plume occupies a plant's airspace, never the entire weather layer.
+      for(const [key,until] of clouds.current){if(until<=game)continue;const [x,y]=key.split(',').map(Number),p=project({x:x+.5,y:y+.5});if(!onScreen(p))continue;
+       above(()=>{ctx.save();const px=Math.max(1,Math.round(s));for(let i=0;i<5;i++){const fall=still?.65:((t/800+i*.19+x*.13+y*.07)%1),dx=((i*11+x*3+y)%29-14)*s;ctx.globalAlpha=.65*Math.sin(fall*Math.PI);ctx.fillStyle=i%2?'#a7d2cb':'#c0dcce';ctx.fillRect(Math.round(p.x+dx-fall*3*s),Math.round(p.y-(1-fall)*48*s),px,Math.round(3*s));if(fall>.85){ctx.globalAlpha=.5*(1-fall)/.15;ctx.fillRect(Math.round(p.x+dx-3*s),Math.round(p.y+3*s),Math.round(5*s),px);}}ctx.restore();});
+      }
       const grains = (at: Vec, seed: number) => {
         const px = Math.max(2, Math.round(1.6 * s));
         ctx.fillStyle = "#ffd98a";
@@ -545,12 +587,19 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ctx.fillRect(x, y - px, px, px * 3);
           ctx.globalAlpha = 1;
         });
-        things.push({ depth: tx + ty + 0.6, draw: () => {
+        // A giant belongs above every soil tile in its 2×2 footprint. Keep
+        // soil in the ordinary ground pass so the front tile cannot bury it.
+        const giantRoot = giants.current.get(plotKey(tx, ty));
+        if (giantRoot === plotKey(tx, ty) && what?.crop) {
+          things.push({ depth: tx + ty + 2.8, draw: () => drawGiantPlant(frame, tx, ty, what.crop!, what.stage, what.dead) });
+        }
+        things.push({ depth: tx + ty + .6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled") blit("plotSoil", at, 0, PLANT * s * 0.9);
           // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
+          if (giantRoot) return;
           if (gardenRoots.current.has(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) { blit("gardenTrellisMarker", at, 0, PLANT * s * 0.45); return; }
           if (what.dead) { blit("plotDead", at); return; }
           blit(growIconOf(what.crop, what.stage), at);
@@ -788,7 +837,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
    * Begin it. The hoe's row is one game, a beat to a plot, the one stood on first. The pouch's sowing has no game, as
    * sowing has none: it is done at once; tired hands steady themselves for it first, once, as they would for a plot.
    */
-  const beginRow = useCallback(() => {
+  const beginRow = useCallback(async () => {
     const row = key ? keeper.rowAt(key) : null;
     if (!key || !row) return;
     if (row.deed === "sow") {
@@ -804,6 +853,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       if (sweep.length > 1) setWorking({ key, work: "pick", need: sweep.length, sweep });
       return;
     }
+    await keeper.comboPrepare?.('rowBegin',{key});
     setWorking({ key, work: row.deed, need: row.plots.length, row: row.plots });
   }, [key, keeper, doRow]);
   /** What the gardener's gloves offer here: the plants of this row of somebody else's that one long pour would water (lib/town/farm's pourFor). */
@@ -883,6 +933,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
       const target = e.target as HTMLElement | null;
       if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|SUMMARY)$/.test(target.tagName)) return;
       if ((e.key !== " " && e.code !== "Space") || e.repeat) return;
+      if (document.querySelector('[data-town-game], [data-reward-extraction-game]')) return;
       e.preventDefault();
       e.stopPropagation();
       begin();
@@ -948,13 +999,13 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
-    <>{news}{ringOffer}{bare ? null : (
+    <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{bare ? null : (
     <TownFoot rank={placement || working || asking ? "board" : "main"} order={62}>
       {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}
       {running && <AnkletRun keeper={keeper} />}
       {!working && !placement && key && <TownInsectRelease keeper={keeper} at={key} th={th} />}
       {!working && !placement && key && ((purse.gardenBook?.length ?? 0) > 0 || (purse.insectGardenBook?.length ?? 0) > 0) && <div className="pointer-events-auto w-[min(400px,calc(100vw-24px))] max-h-[70dvh] overflow-y-auto" data-garden-notebook>
-        <TownNotebook title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={[
+        <TownNotebook compact title={th ? "สมุดทดลองสวนของฉัน" : "My garden experiments"} th={th} entries={[
           ...(purse.gardenBook??[]).map(id=>({key:id,title:ITEMS[id].name[th?"th":"en"],icon:id as IconName,category:th?"เมล็ดจากต้นข้างกัน":"Neighbouring seeds",body:<p>{th?`เคยได้เมล็ด${ITEMS[id].name.th}จากต้นข้างกัน ดูแลต้นและเก็บผลที่จุดเมล็ดเพื่อทดลองต่อ`:`Discovered ${ITEMS[id].name.en} seeds from neighbouring plants. Tend and harvest at the seed plot to experiment further.`}</p>})),
           ...(purse.insectGardenBook??[]).flatMap((entry):NotebookEntry[]=>{const[bug,crop,mode]=entry.split(":");return bug in ITEMS&&crop in ITEMS?[{key:entry,title:ITEMS[bug as ItemId].name[th?"th":"en"],icon:bug as IconName,category:th?"แมลงดูแลสวน":"Insect visitors",body:<><p>{ITEMS[crop as ItemId].name[th?"th":"en"]}</p><p>{mode==="guard"?th?"ปล่อยแมลงไปกำจัดศัตรูพืชบนต้นนี้":"Released an insect to remove pests on this plant.":th?"ปล่อยแมลงไปช่วยเกสรบนต้นนี้":"Released an insect to help pollination on this plant."}</p></>}]:[];})
         ]}/>

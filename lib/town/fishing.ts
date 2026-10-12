@@ -415,6 +415,8 @@ export interface Fight {
   /** A line of dragon silk (below): the seconds it gives; and, while what would have lost the fish is being mended, what that was and the seconds left. */
   silk?: number;
   mend?: Mend;
+  lunar?: {charge:number;used:boolean};
+  quiet?: {from:number;to:number};
 }
 /** What is being mended on a line of dragon silk: the line that would have snapped or the hook that would have slipped, and the seconds left to. */
 export type Mend = { how: "snapped" | "slipped"; left: number } | null;
@@ -431,6 +433,8 @@ const room = (band: number, middle: number) => Math.min(Math.max(FIGHT.edge + ba
 
 /** What changes a fight for somebody: no stamina left (much harder), steady hands (a meal's buff: a wider stretch), and their gear (lib/town/gear: a better rod, hook, line and net each make it easier). */
 export interface FightMods {
+  lunar?: boolean;
+  quiet?: number;
   spent?: boolean; calm?: Level; gear?: Pick<Gear, "band" | "pace" | "slip" | "snap" | "line" | "fx">;
   /** (the gifts of the deck's ranks, below) `narrow`: what is left of the safe stretch's width when two fish are fought at once on a rod of two lines. */
   narrow?: number;
@@ -474,12 +478,14 @@ export function startFight(fish: FishId, strike: Strike, mods: FightMods, seed: 
     pull: f.pull * k * (fx?.fierce ?? 1), power: f.surge * (mods.spent ? spent.surge : 1) * k * (fx?.fierce ?? 1),
     surge: { from, to: from + kind.surge },
     seed: next, over: null,
+    ...(mods.lunar ? { lunar: {charge:0,used:false} } : {}),
+    ...(mods.quiet && mods.quiet > 0 ? {quiet:{from,to:from+Math.min(2,mods.quiet)}} : {}),
     ...(mods.silk && mods.silk > 0 ? { silk: mods.silk, mend: null } : {}),
   };
 }
 
 /** Whether the fish is surging now. */
-export const surging = (f: Fight) => f.t >= f.surge.from && f.t < f.surge.to;
+export const surging = (f: Fight) => f.t >= f.surge.from && f.t < f.surge.to && !(f.quiet && f.t>=f.quiet.from&&f.t<f.quiet.to);
 /** Whether the fish is giving away that it is about to surge (those that do). */
 export const warning = (f: Fight, readCurrent = false) => (readCurrent || STYLE[FISH[f.fish].fight.style].tells) && f.t < f.surge.from && f.surge.from - f.t <= FIGHT.warn;
 
@@ -493,7 +499,8 @@ export function stepFight(f: Fight, holding: boolean, dt: number): Fight {
   const strain = tension > hi ? f.strain + dt / f.snapIn : Math.max(0, f.strain - dt / FIGHT.mend);
   const slack = tension < lo ? f.slack + dt / f.slipIn : Math.max(0, f.slack - dt / FIGHT.mend);
   const over = line <= 0 ? "landed" : strain >= 1 || tension >= 1.04 ? "snapped" : slack >= 1 || line > f.length * 1.6 ? "slipped" : null;
-  const next: Fight = { ...f, t, tension, line: Math.max(0, line), strain: Math.min(1, strain), slack: Math.min(1, slack), lo, hi, at, to, speed, rest, surge, seed, over };
+  const next: Fight = { ...f, t, tension, line: Math.max(0, line), strain: Math.min(1, strain), slack: Math.min(1, slack), lo, hi, at, to, speed, rest, surge, seed, over,
+    ...(f.lunar ? {lunar:{...f.lunar,charge:Math.min(5,f.lunar.charge+(tension>=lo&&tension<=hi?dt:0))}} : {}) };
   if (!f.silk || over === "landed") return next;
   // A line of dragon silk: what would have lost the fish begins a few seconds to mend it in. (A fish that has run
   // off with too much line is gone all the same: that is no line too taut or too slack, it is a fish never reeled.)
@@ -539,12 +546,14 @@ function swayed(f: Fight, dt: number): Pick<Fight, "t" | "surge" | "seed" | "at"
     const from = surge.to + fight.every[0] + (fight.every[1] - fight.every[0]) * r;
     surge = { from, to: from + kind.surge };
   }
-  const on = t >= surge.from && t < surge.to, pull = on ? f.power : f.pull;
+  const quiet = !!f.quiet && t >= f.quiet.from && t < f.quiet.to;
+  const on = t >= surge.from && t < surge.to && !quiet, pull = on ? f.power : f.pull;
 
   // The safe stretch: thrown up the gauge as a fish that carries it leaps or bolts; otherwise, once it has rested
   // where it is, off again. Where to, how fast, and whether it is a slide or a flick are drawn by chance.
   const carried = kind.carries && on;
-  if (carried && f.t < surge.from) {
+  if (quiet) { to=at;rest=Math.max(rest,f.quiet!.to); }
+  else if (carried && f.t < surge.from) {
     [r, seed] = draw(seed);
     // (up from where it is, as far as the gauge goes)
     to = room(f.band, at + f.sway * (0.7 + 0.3 * r));
@@ -727,7 +736,8 @@ export function stepPair(p: Pair, holding: boolean, dt: number): Pair {
     if (!m) return f;
     const { on: _on, pull: _pull, ...moved } = m;
     const line = f.line - (holding && tension >= lo[i] && tension <= hi[i] ? FIGHT.reel * dt : 0) + (tension < bottom ? FIGHT.run * dt * (m.on ? 2 : 1) : 0);
-    return { ...f, ...moved, tension, line: Math.max(0, line) };
+    return { ...f, ...moved, tension, line: Math.max(0, line),
+      ...(f.lunar?{lunar:{...f.lunar,charge:Math.min(5,f.lunar.charge+(tension>=lo[i]&&tension<=hi[i]?dt:0))}}:{}) };
   });
   let strain = tension > top ? p.strain + dt / p.snapIn : Math.max(0, p.strain - dt / FIGHT.mend);
   let slack = tension < bottom ? p.slack + dt / p.slipIn : Math.max(0, p.slack - dt / FIGHT.mend);

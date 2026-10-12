@@ -166,6 +166,7 @@ export interface Stack {
    * the feast table has more than its dish gives: so many hours of its buff, so much stamina. It goes with the pot
    * when it is set down and taken up; a helping ladled into a bowl is a plain helping.
    */
+  secondary?: import("./items").MealBuffId; cookedBy?:string; cookId?:string;
   warm?: number;
   scent?: number;
 }
@@ -221,7 +222,8 @@ export interface Purse {
    * the stamina it has given so far. `lent`: it is eaten at the feast table out of one of the table's bowls
    * (lib/town/cooking's feastEat), so no bowl comes back to the bag when it ends.
    */
-  eating: { dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number } | null;
+  lastMeal?:{cookedBy:string;cookId:string;at:number;buffs?:string[];extended?:boolean};
+  eating: { secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;picnic?:boolean; dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number } | null;
   /** The buff of the last helping eaten, as it was kept before buffs had levels: still written, for a page that knows no better. */
   buff: { id: BuffId; until: number } | null;
   /** What meals have left, each while it lasts: held together, each at its level (lib/town/stamina's mealBuffs reads them; a purse from before has only `buff`). */
@@ -238,6 +240,8 @@ export interface Purse {
   prepBook?: ItemId[];
   campBook?: ItemId[];
   campUses?: {day:number;n:number};
+  campRetry?:import('./reward-camp').CampRetry|null;
+  campRetryDay?:number;
   /** The thing taken up to hold in the hand, for everybody to see (handOf says whether it is still held). Missing from a purse older than hands. */
   hand?: ItemId | null;
   /** (forging) The slot it was taken up from: of two tools of a kind, which is held (handSlot believes it only while that slot still has the thing). */
@@ -250,6 +254,9 @@ export interface Purse {
   /** The gifts of the lines of work somebody has taken, and the charms worn of them, the familiar that follows, and what part of a point of stamina the gloves' half has left owing (lib/town/gifts reads them, and makes them sound): in no slot of the bag. */
   gifts?: { had: string[]; charms: string[]; owed?: number; familiar?: string | null; used?: Record<string, { k: number; n: number }> };
   combos?: import("./combo-types").ComboState;
+  /** Changes only when the equipped set changes; unfinished bonds cannot be restored by swapping back. */
+  comboEpoch?:number;
+  professionRewards?: import("./reward-types").ProfessionRewards;
   // ── gifts: fishing ──
   /** The sky an orb has lit for its owner, and until when (lib/town/fishing's orbOf reads it, and believes only one that still lasts). */
   orb?: { sky: string; until: number };
@@ -289,7 +296,7 @@ export interface Purse {
   forestPartsBook?: string[];
   // ── gifts: insects ──
   /** The drop of nectar I have out and what it brings (lib/town/insects' Lured): the tile it lies on, the haunt it called from, the insect and how many a catch gives, from when it is there and until when, and the seed its ways follow from. Mine alone. */
-  lured?: { x: number; y: number; haunt: number; bug: ItemId; n: number; from: number; until: number; seed: number } | null;
+  lured?: { origin?: "lantern" | "crown"; x: number; y: number; haunt: number; bug: ItemId; n: number; from: number; until: number; seed: number } | null;
   /** The insect following one I caught under the butterfly-wing cloak (lib/town/insects' Follower): its kind, how many a catch gives, the tile I stood on, and the moment it is off. Mine alone. */
   follower?: { bug: ItemId; n: number; at: [number, number]; until: number } | null;
   // ── gifts: helpers ──
