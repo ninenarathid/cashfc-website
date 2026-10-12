@@ -2,6 +2,41 @@
  "events": [
   {
    "date": "2026-10-12",
+   "type": "rare_up",
+   "id": 38152072,
+   "name": "Parker Thonhart",
+   "text": "earned A Load of Verminion I — only 2.9% of players have it"
+  },
+  {
+   "date": "2026-10-12",
+   "type": "rare_up",
+   "id": 44970350,
+   "name": "Allen Crist",
+   "text": "earned R&D: Mallet of Stars — only 4.1% of players have it"
+  },
+  {
+   "date": "2026-10-12",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Phantom of the Umbra: Harp Bow Umbrae"
+  },
+  {
+   "date": "2026-10-12",
+   "type": "rare_up",
+   "id": 42976317,
+   "name": "Zeadz Stellar",
+   "text": "earned Cloud Strife, and 1 more"
+  },
+  {
+   "date": "2026-10-12",
+   "type": "level_100",
+   "id": 60429500,
+   "name": "Jin Theape",
+   "text": "reached level 100 on Viper!"
+  },
+  {
+   "date": "2026-10-12",
    "type": "job_up",
    "id": 36130968,
    "name": "Chu Celestial",
@@ -1363,41 +1398,6 @@
    "type": "ult_clear",
    "id": 28789661,
    "name": "Zuma Zerk",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "ult_clear",
-   "id": 31236337,
-   "name": "Whitefrost Marionette",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "ult_clear",
-   "id": 26699926,
-   "name": "Boonies Princess",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "ult_clear",
-   "id": 12478532,
-   "name": "Hakuryu Flare",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "ult_clear",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "ult_clear",
-   "id": 29325838,
-   "name": "Ryuu Dawnblade",
    "text": "cleared Dancing Mad 🏆"
   }
  ]

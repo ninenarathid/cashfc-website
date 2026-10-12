@@ -21596,7 +21596,7 @@
     "cleared": true,
     "job_kills": {
      "Reaper": {
-      "kills": 5,
+      "kills": 7,
       "best": 55
      }
     }
@@ -73301,13 +73301,13 @@
       "kills": 1,
       "best": 19
      },
-     "Astrologian": {
-      "kills": 27,
-      "best": 75
-     },
      "WhiteMage": {
-      "kills": 3,
-      "best": 64
+      "kills": 4,
+      "best": 70
+     },
+     "Astrologian": {
+      "kills": 28,
+      "best": 75
      },
      "Scholar": {
       "kills": 14,
@@ -73335,7 +73335,7 @@
       "best": 26
      },
      "Astrologian": {
-      "kills": 37,
+      "kills": 38,
       "best": 79
      },
      "WhiteMage": {
@@ -73422,8 +73422,8 @@
       "best": 19
      },
      "Astrologian": {
-      "kills": 28,
-      "best": 80
+      "kills": 29,
+      "best": 87
      },
      "WhiteMage": {
       "kills": 1,
@@ -80956,7 +80956,13 @@
     "best": 34,
     "kills": 5,
     "job": "Astrologian",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Astrologian": {
+      "kills": 5,
+      "best": 34
+     }
+    }
    }
   ],
   "legacy": [],
