@@ -23,7 +23,7 @@ import { carried, type PassRefusal } from "./line";
 import { reachOf } from "./ditch";
 import { hotAt } from "./heat";
 import { DISHES, ITEMS, type BaitId, type CatchId, type DishId, type ItemId } from "./items";
-import { NO_PRICES, type PricesTold } from "./market";
+import { NO_PRICES, type MarketQuote, type PricesTold } from "./market";
 import type { NoticeRefusal, PinboardTold } from "./notices";
 import { shelfOf, sourcesAt, type Order } from "./orders";
 import { ofMountain } from "./uses";
@@ -233,7 +233,7 @@ export interface Keeper {
   buy(item: ItemId, n: number): Promise<Did>;
   hint(): Promise<Did<{ hint: ItemId }>>;
   orderGive(slot: number, n: number): Promise<Did<{ given: number; coins: number; opened: ItemId | null }>>;
-  leave(slot: number, n: number): Promise<Did>;
+  leave(slot: number, n: number, quote?: MarketQuote): Promise<Did>;
   takeBack(at: number): Promise<Did>;
   collect(): Promise<Did<{ coins: number }>>;
   change(kind: keyof Purse["popoto"], n: number): Promise<Did>;
@@ -1550,7 +1550,11 @@ export class DbKeeper implements Keeper {
   streamDo(action: StreamAction, choice: string, at: [number,number], request: string) { return this.deed<{stream:StreamGate|null;got?:Array<[ItemId,number]>}>("town_stream",{p_action:action,p_choice:choice,p_x:at[0],p_y:at[1],p_request:request}); }
   hint() { return this.deed<{ hint: ItemId }>("town_hint"); }
   orderGive(slot: number, n: number) { return this.deed<{ given: number; coins: number; opened: ItemId | null }>("town_give", { p_slot: slot, p_n: n }); }
-  leave(slot: number, n: number) { return this.deed("town_leave", { p_slot: slot, p_n: n }); }
+  leave(slot: number, n: number, quote?: MarketQuote) {
+    return quote
+      ? this.deed("town_leave_quote", { p_slot: slot, p_n: n, p_item: quote.item, p_round: quote.round, p_f: quote.f, p_base: quote.base })
+      : this.deed("town_leave", { p_slot: slot, p_n: n });
+  }
   takeBack(at: number) { return this.deed("town_take_back", { p_at: at }); }
   collect() { return this.deed<{ coins: number }>("town_collect"); }
   async change(kind: keyof Purse["popoto"], n: number): Promise<Did> {

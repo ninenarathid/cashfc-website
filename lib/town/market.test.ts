@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CROPS, ITEMS, ITEM_IDS } from "./items";
-import { MARKET, costOf, counted, factorOf, factsOf, movingOf, newMarket, next, rolled, thingOf, worth, type Market } from "./market";
+import { MARKET, costOf, counted, factorOf, factsOf, historicalPrice, marketDemand, movingOf, newMarket, next, pricesTold, rolled, thingOf, worth, type Market } from "./market";
 import { GOODS } from "./trade";
 
 const c = factsOf();
@@ -32,7 +32,7 @@ describe("a thing whose price moves", () => {
     for (const id of moving) { const t = thingOf(id, c)!; expect(ITEMS[id as keyof typeof ITEMS].pays).toBeGreaterThan(0); expect(t.floor).toBeLessThanOrEqual(100); expect(t.ceil).toBeGreaterThan(100); }
   });
   it("never falls under its cost and half as much again, nor under two fifths; what is cooked or made does not fall", () => {
-    expect(thingOf("kangkong", c)).toEqual({ usual: 5, floor: 40, ceil: 150 });
+    expect(thingOf("kangkong", c)).toEqual({ usual: 5, floor: 40, ceil: 220, batch: 5 });
     expect(thingOf("pumpkin", c)!.floor).toBe(40);
     // a minnow takes a worm that costs most of what it fetches: its price cannot fall
     expect(thingOf("minnow", c)!.floor).toBe(100);
@@ -47,9 +47,9 @@ describe("a thing whose price moves", () => {
   });
   it("may rise the higher the plainer it is", () => {
     const by = (tier: number) => new Set(movingOf(c).filter((id) => ITEMS[id as keyof typeof ITEMS].tier === tier).map((id) => thingOf(id, c)!.ceil));
-    expect([...by(1)]).toEqual([150]);
-    expect([...by(2)]).toEqual([130]);
-    expect([...by(3)]).toEqual([115]);
+    expect([...by(1)]).toEqual([220]);
+    expect([...by(2)]).toEqual([200]);
+    expect([...by(3)]).toEqual([180]);
   });
   it("has the same usual worth a head a round as every other of its kind", () => {
     expect(thingOf("kangkong", c)!.usual * ITEMS.kangkong.pays).toBe(MARKET.usual.crop);
@@ -63,28 +63,27 @@ describe("a round on", () => {
   it("sold as much as usual, the price stays", () => {
     expect(next({ f: 100, m: usual }, usual, usual, 40, 150)).toEqual({ f: 100, m: usual });
   });
-  it("sold a great deal, it falls: a quarter of itself in a round at the most, and never under its floor", () => {
+  it("large oversupply can reach the floor in two rounds, respecting the 40% step limit", () => {
     let st = { f: 100, m: usual };
     const seen: number[] = [];
     for (let i = 0; i < 8; i++) { st = next(st, usual * 20, usual, 40, 150); seen.push(st.f); }
-    expect(seen.slice(0, 4)).toEqual([75, 56, 42, 40]);
+    expect(seen.slice(0, 4)).toEqual([60, 40, 40, 40]);
     expect(seen.at(-1)).toBe(40);
   });
-  it("not sold, it rises: a tenth of itself in a round at the most, and never over its ceiling", () => {
+  it("scarcity responds faster but respects the 35% upward step and the ceiling", () => {
     let st = { f: 100, m: usual };
     const seen: number[] = [];
     for (let i = 0; i < 8; i++) { st = next(st, 0, usual, 40, 150); seen.push(st.f); }
-    expect(seen.slice(0, 5)).toEqual([110, 121, 133, 146, 150]);
+    expect(seen.slice(0, 5)).toEqual([135, 150, 150, 150, 150]);
     expect(seen.at(-1)).toBe(150);
   });
-  it("answers to what was sold by a gentle bend, and remembers half of the round before", () => {
-    // twice the usual amount, for good: the price settles at (1/2) ^ 0.7
+  it("buffers ordinary supply and remembers 65% of new sales", () => {
+    // Twice the usual supply, neutral buyer interest: equilibrium is two thirds.
     let st = { f: 100, m: usual };
     for (let i = 0; i < 30; i++) st = next(st, usual * 2, usual, 40, 150);
-    expect(st.f).toBe(Math.round(100 * 0.5 ** 0.7));
+    expect(st.f).toBe(67);
     expect(st.m).toBeCloseTo(usual * 2, 3);
-    // one great sale is half forgotten a round later
-    expect(next({ f: 100, m: usual }, usual * 9, usual, 40, 150).m).toBe(usual * 5);
+    expect(next({ f: 100, m: usual }, usual * 9, usual, 40, 150).m).toBeCloseTo(usual * 6.2);
   });
   it("a thing that cannot fall does not", () => {
     expect(next({ f: 100, m: usual }, usual * 50, usual, 100, 150).f).toBe(100);
@@ -114,31 +113,37 @@ describe("the market kept by the village", () => {
     const { market, log } = rolled(m, R + 1, heads, c);
     expect(market.round).toBe(R + 1);
     expect(market.sold).toEqual({});
-    expect(factorOf(market, "kangkong")).toBe(75);
-    expect(factorOf(market, "chili")).toBe(100);
-    expect(factorOf(market, "carrot")).toBe(110);
-    expect(factorOf(market, "minnow")).toBe(110);
+    expect(factorOf(market, "kangkong")).toBe(60);
+    expect(factorOf(market, "chili")).toBeGreaterThanOrEqual(40);
+    expect(factorOf(market, "carrot")).toBeGreaterThanOrEqual(40);
+    expect(factorOf(market, "minnow")).toBeGreaterThanOrEqual(100);
     expect(factorOf(market, "worm")).toBe(100);
     expect(factorOf(market, "rod")).toBe(100);
     // the round that ended is written down: what was sold, at the price it had
-    expect(log).toEqual([[R, { kangkong: [100, 5_000], chili: [100, Math.round(thingOf("chili", c)!.usual * heads)] }]]);
+    expect(log[0][0]).toBe(R);
+    expect(log[0][1].kangkong).toEqual([100, 5_000, ITEMS.kangkong.pays]);
+    expect(log[0][1].chili).toEqual([100, Math.round(thingOf("chili", c)!.usual * heads), ITEMS.chili.pays]);
     expect(Object.keys(market.at).sort()).toEqual(movingOf(c).sort());
   });
   it("left alone for some rounds, moves through each of them, selling nothing", () => {
     const first = rolled(counted(newMarket(R), "kangkong", 5_000), R + 1, heads, c).market;
     const { market, log } = rolled(first, R + 4, heads, c);
     expect(log.map(([round]) => round)).toEqual([R + 1, R + 2, R + 3]);
-    // the great sale is forgotten by halves: the price falls on for two rounds, a quarter of itself in each, and then turns
-    expect(log.map(([, things]) => things.kangkong[0])).toEqual([75, 56, 42]);
-    expect(factorOf(market, "kangkong")).toBe(46);
-    // (what nobody sold has risen a tenth a round, four rounds running)
-    expect(factorOf(market, "carrot")).toBe(146);
+    expect(log[0][1].kangkong[0]).toBe(60);
+    expect(log.slice(1).every(([, things]) => things.kangkong[1] === 0)).toBe(true);
+    expect(factorOf(market, "kangkong")).toBeGreaterThanOrEqual(40);
   });
-  it("left alone for a long while, is moved no further than it takes everything to settle", () => {
+  it("long inactivity keeps recent round dates and the current demand phase", () => {
     const { market, log } = rolled(newMarket(R), R + 400, heads, c);
     expect(log.length).toBe(2 * MARKET.lately);
     expect(market.round).toBe(R + 400);
-    for (const id of movingOf(c)) expect(factorOf(market, id)).toBe(thingOf(id, c)!.ceil);
+    expect(log.at(-1)![0]).toBe(R + 399);
+    expect(log[0][0]).toBe(R + 400 - 2 * MARKET.lately);
+    for (const id of movingOf(c)) {
+      const factor = factorOf(market, id), t = thingOf(id, c)!;
+      expect(factor).toBeGreaterThanOrEqual(t.floor);
+      expect(factor).toBeLessThanOrEqual(t.ceil);
+    }
   });
   it("more heads make the usual amount more: the same selling sinks a price less in a bigger village", () => {
     const sale = counted(newMarket(R), "kangkong", 300);
@@ -170,8 +175,8 @@ describe("a week of the farm filling up", () => {
     expect(factorOf(m, "kangkong")).toBeLessThan(60);
     expect(factorOf(m, "kangkong")).toBeGreaterThanOrEqual(40);
     expect(factorOf(m, "chili")).toBeLessThan(80);
-    expect(factorOf(m, "cabbage")).toBe(150);
-    expect(factorOf(m, "catfish")).toBe(150);
+    expect(factorOf(m, "cabbage")).toBeGreaterThan(factorOf(m, "kangkong"));
+    expect(factorOf(m, "catfish")).toBeGreaterThanOrEqual(100);
   });
 });
 
@@ -181,12 +186,68 @@ describe("what the whole village sells", () => {
   it("stands under its usual price when that is more than its usual amount, and over it when less", () => {
     const heads = 38, m = played(8, heads, () => ({ kangkong: 300, cabbage: 70, chili: 25 }));
     expect(thingOf("kangkong", c)!.usual * heads).toBe(190);
-    expect(factorOf(m, "kangkong")).toBe(73);
-    expect(factorOf(m, "cabbage")).toBe(53);
-    expect(factorOf(m, "chili")).toBe(150);
+    const scarce = played(8, heads, () => ({}));
+    expect(factorOf(m, "kangkong")).toBeLessThan(factorOf(scarce, "kangkong"));
+    expect(factorOf(m, "cabbage")).toBeLessThan(factorOf(scarce, "cabbage"));
   });
-  it("…and at its usual price when it is just that", () => {
-    const heads = 38, m = played(8, heads, () => ({ kangkong: 190 }));
-    expect(factorOf(m, "kangkong")).toBe(100);
+  it("neutral demand and ordinary sales have the base as their equilibrium", () => {
+    expect(next({ f: 100, m: 190 }, 190, 190, 40, 220)).toEqual({ f: 100, m: 190 });
+  });
+});
+
+describe("stock decisions and buyer interest", () => {
+  it("quiet buyers can cool an unsold item: hoarding is not an always-rising price", () => {
+    let st = { f: 200, m: 0 };
+    for (let i = 0; i < 5; i++) st = next(st, 0, 100, 40, 220, MARKET, 45);
+    expect(st.f).toBe(90);
+  });
+  it("normal supply still responds to strong and weak buyer interest", () => {
+    expect(next({ f: 100, m: 100 }, 100, 100, 40, 220, MARKET, 155).f).toBe(135);
+    expect(next({ f: 100, m: 100 }, 100, 100, 40, 220, MARKET, 45).f).toBe(60);
+  });
+  it("every buyer cycle is bounded, deterministic and has both quiet and busy phases", () => {
+    for (const id of ["blueCorn", "corn", "berryJam", "megaCatfish"]) {
+      const interest = Array.from({ length: 42 }, (_, i) => marketDemand(id, i));
+      expect(Math.min(...interest)).toBe(45);
+      expect(Math.max(...interest)).toBe(155);
+      expect(interest).toEqual(Array.from({ length: 42 }, (_, i) => marketDemand(id, i)));
+    }
+  });
+  it("one ordinary hybrid harvest is buffered even in the smallest village", () => {
+    const t = thingOf("blueCorn", c)!;
+    expect(t.batch).toBe(7);
+    const usual = Math.max(t.usual * MARKET.heads, t.batch);
+    expect(next({ f: 100, m: usual }, 7, usual, t.floor, t.ceil).f).toBe(100);
+  });
+  it("crafted staples move while bought staples keep their fixed buyback price", () => {
+    expect(thingOf("berryJam", c)!.floor).toBe(100);
+    expect(thingOf("rice", c)).toBeNull();
+    expect(thingOf("sugar", c)).toBeNull();
+    expect(thingOf("oil", c)).toBeNull();
+  });
+  it("new history freezes its base while legacy history stays explicitly unknown", () => {
+    const prior = newMarket(100), first = rolled(counted(prior, "blueCorn", 7), 101, 10, c);
+    const revalued = { ...c, items: { ...c.items, blueCorn: { ...c.items.blueCorn, pays: 999 } } };
+    const told = pricesTold(first.market, [[99, { blueCorn: [115, 2] }], ...first.log], ["blueCorn"], revalued).things.blueCorn;
+    expect(told.base).toBe(999);
+    expect(told.was[0][3]).toBeNull();
+    expect(told.was[1][3]).toBe(170);
+    expect(told.demand).toBe(marketDemand("blueCorn", 101));
+    expect(historicalPrice(told.was[0][3], told.was[0][1])).toBeNull();
+    expect(historicalPrice(told.was[1][3], told.was[1][1])).toBe(170);
+  });
+  it("a full buyer cycle can reverse an unsold price while respecting all step limits", () => {
+    let market = newMarket(0), prior = 100;
+    const seen = [prior];
+    for (let r = 1; r <= 42; r++) {
+      market = rolled(market, r, 10, c).market;
+      const f = factorOf(market, "blueCorn");
+      expect(f).toBeGreaterThanOrEqual(Math.round(prior * 0.6));
+      expect(f).toBeLessThanOrEqual(Math.round(prior * 1.35));
+      seen.push(f); prior = f;
+    }
+    expect(seen.some((f, i) => i > 0 && f < seen[i - 1])).toBe(true);
+    expect(seen.some((f, i) => i > 0 && f > seen[i - 1])).toBe(true);
+    expect(Math.max(...seen) - Math.min(...seen)).toBeGreaterThan(60);
   });
 });

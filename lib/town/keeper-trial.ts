@@ -13,6 +13,7 @@ import { mineOf } from "./mining";
 import { warehouseAction, type Warehouse, type WarehouseInput } from "./warehouse";
 import type { ComboContext, ComboReply } from "./combo-types";
 import type { RockChoice } from "./geology";
+import type { MarketQuote } from "./market";
 import type { InsectCare } from "./insect-garden";
 import { COOKING, type Taste } from "./cooking";
 import type { CraftId } from "./crafting";
@@ -154,7 +155,7 @@ class TrialKeeper implements Keeper {
   async streamDo(action: StreamAction, choice: string, at: [number,number], request: string) { return this.trial.streamDo(action,choice,at,request); }
   async hint(): Promise<Did<{ hint: ItemId }>> { return this.trial.hint(); }
   async orderGive(slot: number, n: number) { return this.trial.orderGive(slot, n); }
-  async leave(slot: number, n: number): Promise<Did> { return this.trial.leave(slot, n); }
+  async leave(slot: number, n: number, quote?: MarketQuote): Promise<Did> { return this.trial.leave(slot, n, quote); }
   async takeBack(at: number): Promise<Did> { return this.trial.takeBack(at); }
   async collect(): Promise<Did<{ coins: number }>> { return this.trial.collect(); }
   async change(kind: keyof Purse["popoto"], n: number): Promise<Did> { return this.trial.change(kind, n); }

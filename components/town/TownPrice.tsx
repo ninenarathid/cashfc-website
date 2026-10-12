@@ -2,7 +2,7 @@
 
 import { useState, type KeyboardEvent, type PointerEvent } from "react";
 import { ITEMS, type ItemId } from "@/lib/town/items";
-import type { PriceTold } from "@/lib/town/market";
+import { historicalPrice, type PriceTold } from "@/lib/town/market";
 import { roundStart } from "@/lib/town/trade";
 import TownIcon from "./TownIcon";
 
@@ -22,7 +22,7 @@ import TownIcon from "./TownIcon";
 /** The price line's colour: the site's accent a step down, which on a panel's surface is inside the band a mark wants (the chart skill's validator: lightness, chroma, 3:1). */
 const LINE = "#5a9ad8";
 /** What one of a thing fetches at a price, in coins: to the hundredth. */
-const eachOf = (id: ItemId, f: number) => Math.round(ITEMS[id].pays * f) / 100;
+const eachOf = (id: ItemId, f: number, base?: number) => historicalPrice(base ?? ITEMS[id].pays, f)!;
 /** A round as it is called: its day by Bangkok's clock, and which of the two it is. */
 function roundName(round: number, th: boolean): string {
   const day = new Intl.DateTimeFormat(th ? "th-TH" : "en-GB", { timeZone: "Asia/Bangkok", day: "numeric", month: "short" }).format(new Date(roundStart(round)));
@@ -37,7 +37,7 @@ export function Delta({ f, th }: { f: number; th: boolean }) {
   return (
     <span className={`flex shrink-0 items-center gap-0.5 font-data text-meta tabular-nums ${d > 0 ? "text-jade" : "text-copper"}`} data-price-delta={d}>
       <span aria-hidden>{d > 0 ? "▲" : "▼"}</span>{Math.abs(d)}%
-      <span className="sr-only"> {d > 0 ? (th ? "สูงกว่าราคาปกติ" : "over the usual price") : (th ? "ต่ำกว่าราคาปกติ" : "under the usual price")}</span>
+      <span className="sr-only"> {d > 0 ? (th ? "สูงกว่าราคาฐาน" : "above the base price") : (th ? "ต่ำกว่าราคาฐาน" : "below the base price")}</span>
     </span>
   );
 }
@@ -66,15 +66,20 @@ export function PriceNow({ id, told, th, open, onToggle }: { id: ItemId; told: P
   return (
     <div className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted" data-price={id} data-price-f={told.f}>
       <span>{th ? "ได้ชิ้นละ" : "Fetches"}</span>
-      <span className="flex shrink-0 items-center gap-1 font-data tabular-nums text-gold"><TownIcon name="coin" size={13} />{eachOf(id, told.f)}</span>
+      <span className="flex shrink-0 items-center gap-1 font-data tabular-nums text-gold"><TownIcon name="coin" size={13} />{eachOf(id, told.f, told.base)}</span>
       {!th && <span>each</span>}
       <Delta f={told.f} th={th} />
+      <span className="font-data tabular-nums">{th ? "ฐาน" : "Base"} {told.base ?? ITEMS[id].pays}</span>
       <button type="button" aria-expanded={open} onClick={onToggle} data-price-graph={id}
               className={`pressable -my-1 flex min-h-8 items-center gap-1 rounded-lg px-1.5 hover:bg-line/40 ${open ? "bg-line/40" : ""}`}>
         <Spark told={told} />
         <span aria-hidden className="text-label text-muted">{open ? "▴" : "▾"}</span>
         <span className="sr-only">{th ? "กราฟราคา 7 วัน" : "The price over seven days"}</span>
       </button>
+      {told.demand !== undefined && <span className="basis-full text-muted" data-market-demand={told.demand}>
+        {th ? "ผู้ซื้อรอบนี้" : "Buyer interest"}: {told.demand >= 115 ? th ? "คึกคัก" : "Strong" : told.demand <= 85 ? th ? "ซบเซา" : "Quiet" : th ? "ปกติ" : "Normal"}
+        {!!told.demandTrend && <span> · {told.demandTrend > 0 ? th ? "เริ่มสนใจมากขึ้น" : "Picking up" : th ? "ความสนใจลดลง" : "Cooling"}</span>}
+      </span>}
     </div>
   );
 }
@@ -85,7 +90,10 @@ const W = 340, L = 34, R = 40, IN = 12, TOP = 8, PRICE_H = 104, GAP = 26, SOLD_H
 /** Seven days of a thing's price, and of how many the village left to be sold: the graph a row opens. */
 export function PriceGraph({ id, told, round, th }: { id: ItemId; told: PriceTold; round: number; th: boolean }) {
   // every round gone by that was told, then the one we are in (what the village has left in it so far is not told)
-  const pts: Array<{ round: number; f: number; sold: number | null }> = [...told.was.map(([r, f, sold]) => ({ round: r, f, sold })), { round, f: told.f, sold: null }];
+  const pts: Array<{ round: number; f: number; sold: number | null; price: number | null }> = [
+    ...told.was.map(([r, f, sold, base]) => ({ round: r, f, sold, price: historicalPrice(base, f) })),
+    { round, f: told.f, sold: null, price: eachOf(id, told.f, told.base) },
+  ];
   const [at, setAt] = useState<number | null>(null);
   const n = pts.length, last = n - 1, { lo, hi } = frameOf(told);
   const step = n > 1 ? (W - L - R - 2 * IN) / (n - 1) : 0;
@@ -114,11 +122,13 @@ export function PriceGraph({ id, told, round, th }: { id: ItemId; told: PriceTol
       <p className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-meta text-muted" aria-live="polite" data-price-readout={p.round}>
         <span className="text-ink">{shown === last ? (th ? "รอบนี้" : "This round") : roundName(p.round, th)}</span>
         <span className="flex items-center gap-1"><span aria-hidden className="inline-block h-0.5 w-3 rounded-full" style={{ background: LINE }} />
-          <span className="flex items-center gap-1 font-data font-semibold tabular-nums text-ink"><TownIcon name="coin" size={13} />{eachOf(id, p.f)}</span></span>
+          <span className="flex items-center gap-1 font-data font-semibold tabular-nums text-ink">{p.price !== null ? <><TownIcon name="coin" size={13} />{p.price}</> : `${p.f}%`}</span></span>
         <Delta f={p.f} th={th} />
         {p.sold !== null && <span className="flex items-center gap-1"><span aria-hidden className="inline-block h-2.5 w-1.5 rounded-t-sm bg-line-strong" />
           <span className="font-data font-semibold tabular-nums text-ink">{p.sold}</span> {th ? "ชิ้นทั้งหมู่บ้าน" : "left by the village"}</span>}
       </p>
+      <p className="text-meta text-muted">{th ? "เส้นราคาเทียบฐานของแต่ละรอบ · 100% = ราคาฐาน" : "Price relative to each round's base · 100% = base"}</p>
+      {pts.some(q => q.price === null) && <p className="text-meta text-muted" data-market-legacy-history>{th ? "ช่วงก่อนปรับฐานราคาแสดงเฉพาะ % แทนราคาเหรียญย้อนหลัง" : "Older rounds show percentages where their original base price is unavailable."}</p>}
 
       <div tabIndex={0} role="group" onKeyDown={keyed} onBlur={() => setAt(null)}
            aria-label={th ? `กราฟราคา ${ITEMS[id].name.th} 7 วันที่ผ่านมา ใช้ลูกศรซ้ายขวาเพื่อดูทีละรอบ` : `The price of ${ITEMS[id].name.en.toLowerCase()} over seven days. Arrow keys step through the rounds.`}
@@ -128,7 +138,7 @@ export function PriceGraph({ id, told, round, th }: { id: ItemId; told: PriceTol
           {marks.map((f) => (
             <g key={f}>
               <line x1={L} x2={W - R} y1={y(f)} y2={y(f)} stroke={f === 100 ? "var(--color-line-lit)" : "var(--color-line)"} strokeWidth={1} />
-              {named(f) && <text x={L - 6} y={y(f) + 3.5} textAnchor="end" fontSize={10} className={`font-data ${f === 100 ? "fill-ink" : "fill-muted"}`}>{eachOf(id, f)}</text>}
+              {named(f) && <text x={L - 6} y={y(f) + 3.5} textAnchor="end" fontSize={10} className={`font-data ${f === 100 ? "fill-ink" : "fill-muted"}`}>{f}%</text>}
               {f === 100 && <text x={L - 6} y={y(f) + 13} textAnchor="end" fontSize={8.5} className="fill-muted">{th ? "ปกติ" : "usual"}</text>}
             </g>
           ))}
@@ -136,7 +146,7 @@ export function PriceGraph({ id, told, round, th }: { id: ItemId; told: PriceTol
           {n > 1 && <path d={line} fill="none" stroke={LINE} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />}
           {/* the round we are in: the end of the line, with what it comes to beside it */}
           <circle cx={x(last)} cy={y(told.f)} r={4} fill={LINE} stroke="var(--color-card)" strokeWidth={2} />
-          <text x={x(last) + 8} y={y(told.f) + 3.5} fontSize={10.5} className="fill-ink font-data font-semibold">{eachOf(id, told.f)}</text>
+          <text x={x(last) + 8} y={y(told.f) + 3.5} fontSize={10.5} className="fill-ink font-data font-semibold">{told.f}%</text>
 
           {/* how many the village left, round by round */}
           <text x={L} y={soldTop - 7} fontSize={9.5} className="fill-muted">{th ? "ทั้งหมู่บ้านฝากขาย (ชิ้น)" : "Left by the village (things)"}</text>
@@ -172,7 +182,7 @@ export function PriceGraph({ id, told, round, th }: { id: ItemId; told: PriceTol
             <tr className="border-b border-line text-left text-label uppercase tracking-wider">
               <th scope="col" className="py-1 pr-2 font-normal">{th ? "รอบ" : "Round"}</th>
               <th scope="col" className="py-1 pr-2 text-right font-normal">{th ? "ชิ้นละ" : "Each"}</th>
-              <th scope="col" className="py-1 pr-2 text-right font-normal">{th ? "เทียบปกติ" : "Of usual"}</th>
+              <th scope="col" className="py-1 pr-2 text-right font-normal">{th ? "เทียบฐาน" : "Of base"}</th>
               <th scope="col" className="py-1 text-right font-normal">{th ? "หมู่บ้านฝาก" : "Left"}</th>
             </tr>
           </thead>
@@ -180,7 +190,7 @@ export function PriceGraph({ id, told, round, th }: { id: ItemId; told: PriceTol
             {[...pts].reverse().map((q, i) => (
               <tr key={q.round} className="border-b border-line/50">
                 <th scope="row" className="py-1 pr-2 text-left font-normal text-ink">{i === 0 ? (th ? "รอบนี้" : "This round") : roundName(q.round, th)}</th>
-                <td className="py-1 pr-2 text-right text-ink">{eachOf(id, q.f)}</td>
+                <td className="py-1 pr-2 text-right text-ink">{q.price ?? "–"}</td>
                 <td className="py-1 pr-2 text-right">{q.f}%</td>
                 <td className="py-1 text-right">{q.sold ?? "–"}</td>
               </tr>

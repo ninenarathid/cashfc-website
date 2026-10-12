@@ -18,7 +18,7 @@ import { levelHue } from "./held";
 import type { Order } from "@/lib/town/orders";
 import { opens } from "@/lib/town/scrolls";
 import { carried } from "@/lib/town/line";
-import type { PricesTold } from "@/lib/town/market";
+import type { MarketQuote, PricesTold } from "@/lib/town/market";
 import { MEALS, STAMINA, bowlsToday, buffsOf, levelOf, mayEat as mayEatNow, mealBuffs, mealOf, mealProgress, nextMealAt, staminaOf } from "@/lib/town/stamina";
 import {
   GOODS, RULES, SHELF, forged, handOf, leftOf, lotWorth, mayBuy, mayChange, nextRoundAt, onShelf, waiting,
@@ -61,6 +61,7 @@ const PICTURES = false;
 
 /** Why something was not done, in a few words. */
 export const WHY: Record<Refusal, [th: string, en: string]> = {
+  quote: ["ราคาหรือรายการในกระเป๋าเปลี่ยนแล้ว ตรวจราคาใหม่ก่อนฝาก ของยังอยู่ในกระเป๋า", "The round, price or bag item changed. Check the updated offer and try again; your goods stayed in the bag."],
   coins: ["Popoto coin ไม่พอ", "Not enough Popoto coins"],
   sold: ["หมดแล้ว รอรอบหน้านะ", "Sold out until the next round"],
   each: ["รอบนี้ซื้อครบจำนวนที่ซื้อได้แล้ว", "You have bought all you may this round"],
@@ -360,7 +361,7 @@ export default function TownTrade({ keeper, view, th, art, seated, company, wher
                                       else say(`ขอบใจนะหลาน นี่ ${did.coins} coin`, `Much obliged, kiddo. Here's ${did.coins} coins.`);
                                     }} />}
         {view === "sell" && <Sell purse={purse} now={now} th={th} prices={keeper.prices()}
-                                  onLeave={(slot, n) => tried(keeper.leave(slot, n), ["ลุงรับฝากไว้ให้นะ ญาติลุงมารับรอบหน้า", "I'll keep it for my relatives. They fetch it next round."])}
+                                  onLeave={(slot, n, quote) => tried(keeper.leave(slot, n, quote), ["ลุงรับฝากไว้ให้นะ ญาติลุงมารับรอบหน้า", "I'll keep it for my relatives. They fetch it next round."])}
                                   onBack={(at) => tried(keeper.takeBack(at), ["เอาคืนไปได้เลย", "Here, have it back."])}
                                   onCollect={() => tried(keeper.collect(), ["นี่เงินของหลาน นับดูได้เลย", "Here's your money. Count it if you like."])} />}
         {view === "board" && board && <TownNotices keeper={keeper} board={board} purse={purse} prices={keeper.prices()} now={now} th={th} say={say} />}
@@ -533,7 +534,7 @@ function Buy({ purse, stall, now, th, hintCoins, shelf, onBuy, onHint }: {
  */
 function Sell({ purse, now, th, prices, onLeave, onBack, onCollect }: {
   purse: Purse; now: number; th: boolean; prices: PricesTold;
-  onLeave: (slot: number, n: number) => void; onBack: (at: number) => void; onCollect: () => void;
+  onLeave: (slot: number, n: number, quote?: MarketQuote) => void; onBack: (at: number) => void; onCollect: () => void;
 }) {
   const due = waiting(purse, now), mine = purse.bag.map((s, slot) => ({ s, slot })).filter((x) => x.s);
   /** The slot whose graph is open: shut again when the slot is emptied. */
@@ -542,6 +543,14 @@ function Sell({ purse, now, th, prices, onLeave, onBack, onCollect }: {
   useEffect(() => { if (gone) setGraph(null); }, [gone]);
   return (
     <>
+      <div className="mb-3 rounded-xl border border-gold/30 bg-card/60 px-3 py-2.5 text-meta" data-market-decision>
+        <p className="font-semibold text-ink">{th ? "ฝากตอนนี้ = ล็อกราคาที่เห็น" : "Leave now = lock the displayed price"}</p>
+        <p className="mt-1 text-muted">{th ? "รอราคาขึ้น? เก็บไว้ในกระเป๋าหรือกล่องก่อน ราคาปรับรอบ 07:00 และ 19:00 น." : "Waiting for a better price? Keep goods in your bag or box. Prices change at 07:00 and 19:00 Bangkok time."}</p>
+        <details className="mt-1" data-market-help>
+          <summary className="min-h-11 cursor-pointer py-2 text-accent focus-visible:outline focus-visible:outline-2">{th ? "ขายเลยหรือเก็บรอ ดูอะไรบ้าง?" : "Sell or hold: what should I watch?"}</summary>
+          <p className="pb-2 text-muted">{th ? "ดูราคาเทียบฐาน ความสนใจผู้ซื้อ และกราฟยอดขายรวมของหมู่บ้าน ขายมากอาจกดราคา ความต้องการผู้ซื้อมีช่วงคึกคักและซบเซา ราคาสูงตอนนี้ไม่ได้รับประกันรอบหน้า ถอนของที่ฝากไว้ได้ก่อนญาติลุงมารับ" : "Compare the price with its base, buyer interest and the village's sales history. Heavy selling can push prices down; buyer interest has busy and quiet periods. A high price does not guarantee the next round. You can take goods back before the relatives arrive."}</p>
+        </details>
+      </div>
       <div className={`mb-3 flex items-center gap-2 rounded-xl border px-3 py-2.5 ${due.coins ? "border-gold/60 bg-gold/10" : "border-line bg-card/60"}`}>
         <div className="min-w-0 flex-1">
           <p className="text-ui font-semibold text-ink">{th ? "เงินรอรับ" : "Money waiting"}</p>
@@ -558,6 +567,8 @@ function Sell({ purse, now, th, prices, onLeave, onBack, onCollect }: {
         <ul className="flex flex-col gap-1.5">
           {mine.map(({ s, slot }) => {
             const it = ITEMS[s!.item], told = it.pays ? prices.things[s!.item] : undefined;
+            const quote = told?.base !== undefined && told.demand !== undefined
+              ? { item: s!.item, round: prices.round, f: told.f, base: told.base } : undefined;
             return (
               <li key={slot} className="rounded-xl border border-line bg-card/60 px-2.5 py-2">
                 <div className="flex items-center gap-2.5">
@@ -573,12 +584,12 @@ function Sell({ purse, now, th, prices, onLeave, onBack, onCollect }: {
                   {it.pays > 0 && (
                     <div className="flex shrink-0 gap-1">
                       {s!.n > 1 && (
-                        <button type="button" onClick={() => onLeave(slot, s!.n)}
+                        <button type="button" onClick={() => onLeave(slot, s!.n, quote)}
                                 className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent">
                           {th ? "ทั้งหมด" : "All"}
                         </button>
                       )}
-                      <button type="button" onClick={() => onLeave(slot, 1)}
+                      <button type="button" onClick={() => onLeave(slot, 1, quote)}
                               className="pressable min-h-11 rounded-full bg-accent px-4 text-ui font-semibold text-bg">
                         {th ? "ฝาก 1" : "Leave 1"}
                       </button>

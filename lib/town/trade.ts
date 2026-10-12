@@ -344,6 +344,7 @@ export const newStall = (): Stall => ({ round: 0, sold: {} });
 
 /** Why something was not done. */
 export type Refusal =
+  | "quote"    // the displayed offer or bag item changed before deposit
   | "coins"    // not enough Popoto coins
   | "sold"     // the stall has none left this round
   | "each"     // this person has bought all they may this round
