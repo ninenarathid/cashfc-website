@@ -242,8 +242,8 @@ describe("the bridge built by hand (the owner, 2026-10-08: \"สะพานจ�
   it("gives a helpers' point to everybody a laid stone came by, and nothing for lifting, handing on or letting go", () => {
     for (const what of ["stone_lay", "stone_hand"]) expect(countsOf({ from: "deed", what, thing: "stone", n: 1, doc: {} }, "a")).toEqual([{ to: null, line: "helpers", raw: BRIDGE.point }]);
     for (const what of ["stone_lift", "stone_pass", "stone_drop", "work_give"]) expect(countsOf({ from: "deed", what, thing: "stone", n: 1, doc: {} }, "a")).toEqual([]);
-    // (the helpers' day counts two hundred in full: the bound that is theirs)
-    expect(LINES.helpers.day).toBe(200);
+    // Community XP has its own full allowance, separate from a single stone's value.
+    expect(LINES.helpers.day).toBe(375);
   });
 });
 

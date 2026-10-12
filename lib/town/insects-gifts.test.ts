@@ -8,7 +8,7 @@ import {
   type BugId, type Haunt, type Hunt, type Lured, type Mind, type Person,
 } from "./insects";
 import { ITEMS } from "./items";
-import { POINTS } from "./line-points";
+import { bugPoints } from "./line-points";
 import { LINES } from "./lines";
 import { dayOf, staminaOf } from "./stamina";
 import { DAY, HOUR, held, newPurse, put, type Purse } from "./trade";
@@ -30,8 +30,8 @@ describe("what an insect is among the others", () => {
     expect(of("common")).toEqual(["butterflyWhite", "caterpillar", "cricket", "dragonfly", "grasshopper", "ladybird", "monarch", "moth", "scarab"]);
     expect(of("uncommon")).toEqual(["carpenterBee", "cicada", "damselfly", "firefly", "goldenAnt", "honeyBee", "hoverfly", "lacewing", "leafInsect", "mantis", "orchardBeetle", "pollenMidge", "rhinoBeetle", "silkMoth", "stickInsect"]);
     expect(of("rare")).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "lunaMoth", "morpho", "orchidMantis", "stagBeetle"]);
-    // (the rare ones' mark is the one the line counts a rare catch from)
-    expect(TIERS.rare).toBe(POINTS.insects.pays);
+    // Presentation tiers may use prices; profession XP independently rewards encounter effort.
+    expect(bugPoints("goldenAnt")).toBe(8);
     for (const id of BUG_IDS) expect(ITEMS[id].pays >= TIERS.rare, id).toBe(tierOf(id) === "rare");
   });
 });

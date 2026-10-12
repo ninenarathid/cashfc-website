@@ -31,6 +31,27 @@ export type LineId = (typeof ALL_LINE_IDS)[number];
 export const RANKS = 10;
 /** What a point past the day's bound counts for. */
 export const PAST_BOUND = 0.25;
+/** Unused harvest allowance survives a week, so a long crop is not penalised on picking day. */
+export const HARVEST_BANK_DAYS = 7;
+
+export function harvestReserve(kept: { day: number; today: number; reserve?: number }, day: number, started?: number): number {
+  const daily = LINES.farming.day, maximum = daily * HARVEST_BANK_DAYS;
+  if (kept.day < 0) return Math.min(maximum, daily * (started === undefined ? 1 : Math.max(1, day - started + 1)));
+  const left = Number.isFinite(kept.reserve) ? Math.max(0, kept.reserve!) : Math.max(0, daily - kept.today);
+  return Math.min(maximum, left + Math.max(0, day - kept.day) * daily);
+}
+
+/** Older community records predate the 375 allowance; keep the XP they really earned that day. */
+export function earnedOn(line: LineId, kept: { day: number; today: number; earned?: number }, day: number): number {
+  if (kept.day !== day) return 0;
+  if (kept.earned !== undefined) return kept.earned;
+  if (line === "well") return kept.today;
+  if (line === "helpers") {
+    const full = Math.min(200, Math.max(0, kept.today));
+    return full + Math.max(0, kept.today - full) * PAST_BOUND;
+  }
+  return countedOn(line, 0, kept.today);
+}
 
 /** The marks of most ladders, and of the two that count what is done many times a day (water carried, help given). */
 const MARKS = [50, 150, 350, 700, 1300, 2200, 3600, 5500, 8000, 12000];
@@ -58,7 +79,7 @@ export const LINES: Record<LineId, LineDef> = {
     ],
   },
   well: {
-    name: { th: "สายหาบน้ำ", en: "The well" }, icon: "wellBook", marks: DEEP_MARKS, day: 200,
+    name: { th: "สายหาบน้ำ", en: "The well" }, icon: "wellBook", marks: DEEP_MARKS, day: 375,
     titles: [
       ["ผู้หาบน้ำ", "Water bearer"], ["ศิษย์แห่งสายธาร", "Apprentice of the stream"], ["ผู้เฝ้าบ่อน้ำ", "Keeper of the well"], ["ผู้ฟังเสียงน้ำ", "Listener to the water"],
       ["ผู้อ่านเมฆ", "Cloud reader"], ["นักเก็บน้ำค้างจันทร์", "Gatherer of moon dew"], ["สหายภูตน้ำ", "Water-sprite's friend"], ["ผู้เป่าแตรสายธาร", "Horn-blower of the stream"],
@@ -66,7 +87,7 @@ export const LINES: Record<LineId, LineDef> = {
     ],
   },
   helpers: {
-    name: { th: "สายผู้ช่วยเหลือ", en: "The helpers" }, icon: "handshake", marks: DEEP_MARKS, day: 200,
+    name: { th: "สายผู้ช่วยเหลือ", en: "The helpers" }, icon: "handshake", marks: DEEP_MARKS, day: 375,
     titles: [
       ["ผู้มีน้ำใจ", "Kind heart"], ["สหายชาวสวน", "Gardener's friend"], ["ผู้ดูแลแปลงเพื่อนบ้าน", "Minder of the neighbours' beds"], ["ผู้แบ่งแรง", "Sharer of strength"],
       ["ผู้เยียวยาต้นกล้า", "Healer of seedlings"], ["ผู้พิทักษ์สวน", "Guardian of the garden"], ["สหายภูตสวน", "Garden-sprite's friend"], ["ผู้ถักสายใย", "Weaver of threads"],
@@ -134,7 +155,7 @@ export interface Worn { line: LineId; rank: number }
  * before the day's bound; and the title they wear, if they chose one.
  */
 export interface LinesTold {
-  lines: Record<LineId, { points: number; today: number }>; worn: Worn | null;
+  lines: Record<LineId, { points: number; today: number; earned?: number; full?: number; bound?: number }>; worn: Worn | null;
   /** (lines to come) The later lines whoever keeps the game gives: none, from a keeper that says nothing of them. */
   given?: LineId[];
 }
@@ -144,10 +165,14 @@ export const linesShown = (told: Pick<LinesTold, "given"> | null | undefined): L
 export const noLines = (): LinesTold => ({ lines: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, { points: 0, today: 0 }])) as LinesTold["lines"], worn: null });
 /** Lines as a keeper is told them, made sound: every line there is, with numbers that are numbers. */
 export function linesOf(v: unknown, worn: unknown = null): LinesTold {
-  const told = noLines(), got = (v && typeof v === "object" ? v : {}) as Record<string, { points?: unknown; today?: unknown } | undefined>;
+  const told = noLines(), got = (v && typeof v === "object" ? v : {}) as Record<string, { points?: unknown; today?: unknown; earned?: unknown; full?: unknown; bound?: unknown } | undefined>;
   for (const id of ALL_LINE_IDS) {
     const l = got[id], points = Number(l?.points), today = Number(l?.today);
     told.lines[id] = { points: Number.isFinite(points) && points > 0 ? points : 0, today: Number.isFinite(today) && today > 0 ? today : 0 };
+    for (const key of ["earned", "full", "bound"] as const) {
+      const value = l?.[key];
+      if (typeof value === "number" && Number.isFinite(value) && value >= 0) told.lines[id][key] = value;
+    }
   }
   // (lines to come: a later line is given where the answer has a key for it; today's database has none)
   const given = MORE_LINE_IDS.filter((id) => !!got[id] && typeof got[id] === "object");
@@ -188,6 +213,12 @@ export function countedOn(line: LineId, today: number, add: number): number {
 }
 /** Whether a day has passed its bound: what it earns from here counts a quarter. */
 export const pastBound = (line: LineId, today: number) => today >= LINES[line].day;
+/** Older servers count water buckets directly; only a server reporting a bound can limit that line. */
+export function lineSlowed(line: LineId, status: LinesTold["lines"][LineId]): boolean {
+  if (status.full !== undefined) return status.full <= 0;
+  if (line === "well") return status.bound !== undefined && status.today >= status.bound;
+  return status.today >= (status.bound ?? LINES[line].day);
+}
 
 /**
  * One rank of a ladder as its member is told it: a rank they have, with its title and its mark; the next, with its

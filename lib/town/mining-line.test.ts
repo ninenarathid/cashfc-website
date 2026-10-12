@@ -42,9 +42,9 @@ describe("the mining line", () => {
   it("counts a point a rock, three a vein, five a way down found, ten the crystal rock, and ten more the first time each kind of fragment is found", () => {
     expect(countsOf(deed("mine", "stone", { floor: 3, rock: 4 }), "me")).toEqual([{ to: null, line: "mining", raw: 1 }]);
     expect(countsOf(deed("mine", "stone", { floor: 3, rock: 4, got: "shardCopper", shards: 2 }), "me")).toEqual([{ to: null, line: "mining", raw: 1, first: "mining:shardCopper" }]);
-    expect(countsOf(deed("vein", "shardIron", { floor: 13, passed: 3 }, 3), "me")).toEqual([{ to: null, line: "mining", raw: 3, first: "mining:shardIron" }]);
+    expect(countsOf(deed("vein", "shardIron", { floor: 13, passed: 3 }, 3), "me")).toEqual([{ to: null, line: "mining", raw: 4, first: "mining:shardIron" }]);
     expect(countsOf(deed("vein", "shardIron", { chip: "chipRuby" }), "me")).toEqual([{ to: null, line: "mining", raw: 3, first: "mining:shardIron" }, { to: null, line: "mining", raw: 0, first: "mining:chipRuby" }]);
-    expect(countsOf(deed("vein", null, {}, 0), "me")).toEqual([{ to: null, line: "mining", raw: 3 }]);
+    expect(countsOf(deed("vein", null, {}, 0), "me")).toEqual([{ to: null, line: "mining", raw: 0 }]);
     // (a twin's second go counts for nothing but what it finds for the first time)
     expect(countsOf(deed("vein", "shardIron", { again: true }), "me")).toEqual([{ to: null, line: "mining", raw: 0, first: "mining:shardIron" }]);
     expect(countsOf(deed("delve", null, { floor: 3 }), "me")).toEqual([{ to: null, line: "mining", raw: 5 }]);

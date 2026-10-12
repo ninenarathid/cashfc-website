@@ -290,9 +290,9 @@ describe("a tree felled", () => {
     expect(toldOf(did.grove, woodcutter({ plus: 10 }), NOON, WOOD).down).toEqual([{ id: TREES.elder.id, at: NOON }]);
   });
 
-  it("is two points on the line, ten for the ancient tree, and ten more the first of each kind", () => {
+  it("starts at two points on the line, twelve for the ancient tree, and ten more the first of each kind", () => {
     expect(countsOf({ from: "deed", what: "fell", thing: kindOf(treeOf(3, WOOD)!), n: 1, doc: {} }, "me")).toEqual([{ to: null, line: "felling", raw: 2, first: "felling:pine" }]);
-    expect(countsOf({ from: "deed", what: "fell", thing: kindOf(treeOf(TREES.elder.id, WOOD)!), n: 1, doc: {} }, "me")).toEqual([{ to: null, line: "felling", raw: 10, first: "felling:elder" }]);
+    expect(countsOf({ from: "deed", what: "fell", thing: kindOf(treeOf(TREES.elder.id, WOOD)!), n: 1, doc: {} }, "me")).toEqual([{ to: null, line: "felling", raw: 12, first: "felling:elder" }]);
     expect(countsOf({ from: "deed", what: "fell", thing: "oak", n: 1, doc: {} }, "me")).toEqual([]);
     // whoever braced the trunk has a point of the helpers' (never the feller's own)
     expect(countsOf({ from: "deed", what: "fell", thing: "pine", n: 1, doc: { braced: "her" } }, "me")).toEqual([{ to: null, line: "felling", raw: 2, first: "felling:pine" }, { to: "her", line: "helpers", raw: POINTS.braced }]);

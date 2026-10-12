@@ -180,7 +180,7 @@ describe("the cases the database's rules of the bridge built by hand are held to
         // (a work that takes any amount is never whole)
         story(1800, null, 5, 60, [100]),
         // (a long day for two: past the helpers' day's bound)
-        story(1900, 3000, 0, 4000, [100, 0], 10, 2),
+        story(1900, 3000, 0, 6000, [100, 0], 10, 2),
       ],
     });
     const all = made();
@@ -222,7 +222,7 @@ describe("the cases the database's rules of the bridge built by hand are held to
     expect(steps.some((x) => x.deed.fn === "lay" && x.want.ok && x.stamina === 0)).toBe(true);
     // the long day passes the helpers' bound: points fall behind what the day was worth
     const long = all.stories.at(-1)!;
-    expect(Object.values(long.end.helpers).some((l) => l.today > 200 && l.points < l.today)).toBe(true);
+    expect(Object.values(long.end.helpers).some((l) => l.today > 375 && l.points < l.today)).toBe(true);
     // everybody the stone came by is counted it: what the hands were counted comes to more than what the bridge has
     const counted_ = (s: Story) => Object.values(s.end.bridge.hands).reduce((n, h) => n + (h.stone?.n ?? 0), 0);
     expect(all.stories.some((s) => counted_(s) > s.end.bridge.needs.stone.have - s.have)).toBe(true);

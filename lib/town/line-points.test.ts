@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { KINDS } from "./forest";
 import { BUGS } from "./insects";
 import { CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS } from "./items";
-import { POINTS, count, countsOf, newLine, type Done } from "./line-points";
+import { POINTS, count, countsOf, farmPoints, newLine, type Done } from "./line-points";
 import { LINES } from "./lines";
 
 const deed = (what: string, thing: string | null = null, doc: Record<string, unknown> = {}, n = 1): Done => ({ from: "deed", what, thing, n, doc });
@@ -20,13 +20,17 @@ describe("what counts for a line's points", () => {
     for (const f of FISH_IDS) expect(countsOf(play("fishing", f), ME)[0]?.raw, f).toBeGreaterThan(0);
   });
 
-  it("kitchen: a pot of a real recipe is worth its helpings, three pots of a dish a day; the odd dish nothing", () => {
-    expect(countsOf(play("cooking", "tomYum"), ME)).toEqual([{ to: null, line: "kitchen", raw: DISHES.tomYum.recipe!.serves, first: "kitchen:tomYum", held: { key: "pot:tomYum", most: 3 } }]);
-    expect(countsOf(play("cooking", "pestCure"), ME)[0]).toMatchObject({ line: "kitchen", raw: 1 });
+  it("kitchen: serving and preparation work count, three pots of a dish a day; the odd dish nothing", () => {
+    expect(countsOf(play("cooking", "tomYum"), ME)).toEqual([{ to: null, line: "kitchen", raw: 5, first: "kitchen:tomYum", held: { key: "pot:tomYum", most: 3 } }]);
+    expect(countsOf(play("cooking", "pestCure"), ME)[0]).toMatchObject({ line: "kitchen", raw: 3 });
     expect(countsOf(play("cooking", "oddDish"), ME)).toEqual([]);
     expect(countsOf(play("cooking", "nothing"), ME)).toEqual([]);
     expect(countsOf(play("cooking", "tomYum", false), ME)).toEqual([]);
-    for (const d of DISH_IDS.filter((x) => DISHES[x].recipe)) expect(countsOf(play("cooking", d), ME)[0].raw, d).toBe(DISHES[d].recipe!.serves);
+    for (const d of DISH_IDS.filter((x) => DISHES[x].recipe)) {
+      const raw = countsOf(play("cooking", d), ME)[0].raw;
+      expect(raw, d).toBeGreaterThanOrEqual(DISHES[d].recipe!.serves);
+      expect(raw, d).toBeLessThanOrEqual(DISHES[d].recipe!.serves + 4);
+    }
   });
   it("kitchen: a helping somebody else ladles from one's pot is a point to whoever set it down, nine of one person's a day", () => {
     expect(countsOf(deed("ladle", "tomYum", { pot: "p1", whose: HER }), ME)).toEqual([{ to: HER, line: "kitchen", raw: 1, held: { key: `ladle:${ME}`, most: 9 } }]);
@@ -69,13 +73,13 @@ describe("what counts for a line's points", () => {
     for (const id of Object.keys(BUGS)) expect([1, 3, 8], id).toContain(countsOf(deed("net", id), ME)[0].raw);
   });
 
-  it("farming: a picking of a plant one sowed, a point for every twelve hours its crop takes", () => {
-    expect(countsOf(deed("pick", "kangkong", {}, 4), ME)).toEqual([{ to: null, line: "farming", raw: 1, first: "farming:kangkong" }]);
+  it("farming: a picking pays for the crop's occupied space and growth cycle, never its yield", () => {
+    expect(countsOf(deed("pick", "kangkong", {}, 4), ME)).toEqual([{ to: null, line: "farming", raw: 2, first: "farming:kangkong" }]);
     expect(countsOf(deed("pick", "tomato"), ME)[0].raw).toBe(6);
     expect(countsOf(deed("pick", "coconut"), ME)[0].raw).toBe(24);
     // somebody else's plant: no farming of one's own
     expect(countsOf(deed("pick", "tomato", { whose: HER }), ME)).toEqual([]);
-    for (const c of CROP_IDS) expect(countsOf(deed("pick", c), ME)[0].raw, c).toBe(Math.max(1, Math.floor(CROPS[c].hours / 12)));
+    for (const c of CROP_IDS) expect(countsOf(deed("pick", c), ME)[0].raw, c).toBe(farmPoints(c));
   });
 
   it("nothing else counts: buying, selling, eating, walking a pot about", () => {
@@ -97,7 +101,7 @@ describe("a line as it is kept", () => {
     expect(count(two, c, DAY + 1).points).toBe(13);
   });
   it("holds a thing to so many a day: a fourth pot of the same dish is worth nothing, and tomorrow's first is again", () => {
-    const c = countsOf(play("cooking", "tomYum"), ME)[0], serves = DISHES.tomYum.recipe!.serves;
+    const c = countsOf(play("cooking", "tomYum"), ME)[0], serves = 5;
     let k = newLine();
     for (let i = 0; i < 5; i++) k = count(k, c, DAY);
     expect(k.points).toBe(3 * serves + POINTS.first);

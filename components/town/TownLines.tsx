@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { giftAt, type Gifts } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
-import { ALL_LINE_IDS, LINES, RANKS, ladderOf, linesShown, pastBound, rankOf, titleOf, towards, type LineId, type LinesTold, type Worn } from "@/lib/town/lines";
+import { ALL_LINE_IDS, HARVEST_BANK_DAYS, LINES, RANKS, ladderOf, lineSlowed, linesShown, rankOf, titleOf, towards, type LineId, type LinesTold, type Worn } from "@/lib/town/lines";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownMe from "./TownMe";
 
@@ -123,7 +123,7 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
                       </span>
                       <span className="mt-0.5 flex items-center gap-1.5 font-data text-label tabular-nums" style={{ color: CREAM_SOFT }}>
                         <span>{at.next === null ? fmt(has.points) : `${fmt(has.points)} / ${fmt(at.next)}`}</span>
-                        {has.today > 0 && <span className="ml-auto" style={{ color: pastBound(id, has.today) ? "#ffb09c" : "#bfe7a0" }}>{th ? `วันนี้ +${fmt(has.today)}` : `today +${fmt(has.today)}`}</span>}
+                        {has.today > 0 && <span className="ml-auto" style={{ color: lineSlowed(id, has) ? "#ffb09c" : "#bfe7a0" }}>{has.earned !== undefined ? (th ? `วันนี้ +${fmt(has.earned)}` : `today +${fmt(has.earned)}`) : (th ? `งานวันนี้ ${fmt(has.today)}` : `work today ${fmt(has.today)}`)}</span>}
                       </span>
                     </span>
                   </button>
@@ -142,8 +142,13 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
                 <h3 className="truncate font-display text-title font-semibold leading-tight">{th ? line.name.th : line.name.en}</h3>
                 <p className="font-data text-meta tabular-nums" style={{ color: INK_SOFT }}>
                   {th ? `${fmt(mine.points)} แต้ม` : `${fmt(mine.points)} points`}
-                  {pastBound(picked, mine.today) && <span className="ml-2" data-lines-past>{th ? "วันนี้แต้มขึ้นช้าลงแล้ว" : "today's points come slower now"}</span>}
+                  {lineSlowed(picked, mine) && <span className="ml-2" data-lines-past>{th ? "ส่วนเกินได้ EXP 25%" : "further work earns 25% XP"}</span>}
                 </p>
+                {mine.full !== undefined && <p className="text-label" style={{ color: INK_SOFT }} data-lines-allowance>
+                  {picked === "farming"
+                    ? (th ? `โควตา EXP เต็มเหลือ ${fmt(mine.full)} · เติมวันละ ${fmt(mine.bound ?? line.day)} สะสมได้ ${HARVEST_BANK_DAYS} วัน` : `${fmt(mine.full)} full XP left · ${fmt(mine.bound ?? line.day)}/day, saved for ${HARVEST_BANK_DAYS} days`)
+                    : (th ? `วันนี้รับ EXP เต็มได้อีก ${fmt(mine.full)}` : `${fmt(mine.full)} full XP left today`)}
+                </p>}
               </div>
             </div>
             <ol className="min-h-0 flex-1 overflow-y-auto px-2.5 py-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]">

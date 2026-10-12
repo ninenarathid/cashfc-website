@@ -84,7 +84,8 @@ describe("a day's bound (the owner, of points past so many in a day counting a q
     expect(countedOn("kitchen", 150, 8)).toBe(2);
     expect(countedOn("kitchen", 900, 8)).toBe(2);
     expect(countedOn("well", 150, 8)).toBe(8);
-    expect(countedOn("well", 200, 8)).toBe(2);
+    expect(countedOn("well", 200, 8)).toBe(8);
+    expect(countedOn("well", 375, 8)).toBe(2);
     expect(countedOn("kitchen", 10, 0)).toBe(0);
     expect(countedOn("kitchen", 10, -5)).toBe(0);
     expect(pastBound("kitchen", 149)).toBe(false);

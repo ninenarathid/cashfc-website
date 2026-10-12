@@ -53,9 +53,9 @@ import { agree, lay, newDeal, sideOf, swap, type Deal, type Give } from "./deal"
 import { backBait, hookBait, landCatch, loseBait } from "./fishing";
 import { gather, holds, lanternLit, placeAt, ruleOf, sights, turnOf, type ForestRefusal, type Outcome, type Sight } from "./forest";
 import { huntTold, mapDig, mapUse, type HuntTold } from "./hunt";
-import { count as countLine, countsOf, newLine, type Done as Deeded, type LineKept } from "./line-points";
+import { count as countLine, countsOf, harvestWork, newLine, type Done as Deeded, type LineKept } from "./line-points";
 import { ALL_GIFTS, USES, giftsOf, stretchOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, wearing, type GiftId, type GiftRefusal } from "./gifts";
-import { LINE_IDS, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
+import { LINE_IDS, LINES, earnedOn, harvestReserve, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
 import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereFor, nectar, net, netMine, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Mine, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
@@ -658,6 +658,7 @@ export class Trial {
       ...(plot.plant && plot.plant.by !== this.id ? { whose: plot.plant.by } : {}),
       ...(!plot.plant && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}),
       ...(kind > 0 ? { kind } : {}),
+      ...(did.deed === "pick" && plot.plant ? harvestWork(plot.plant) : {}),
     } });
     const also = [...new Set([...Object.keys(more.plots), ...Object.keys(did.plots).filter(k => k !== key)])];
     return { ok: true, deed: did.deed, got: did.got, ...(also.length ? { also } : {}) };
@@ -690,7 +691,7 @@ export class Trial {
       const was = plots[e.key]?.plant, [u, v] = e.key.split(",").map(Number);
       // (a plot sown anew forgets who helped the plant that was there)
       if (did.deed === "sow") this.wellSeen({ by: this.id, at: now, what: "sow", tile: [u, v] });
-      this.counted({ from: "deed", what: did.deed, thing: e.crop, n: 1, doc: { ...(was && was.by !== this.id ? { whose: was.by } : {}), ...(!was && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}) } });
+      this.counted({ from: "deed", what: did.deed, thing: e.crop, n: 1, doc: { ...(was && was.by !== this.id ? { whose: was.by } : {}), ...(!was && beds[bed] && beds[bed].by !== this.id ? { owner: beds[bed].by } : {}), ...(did.deed === "pick" && was ? harvestWork(was) : {}) } });
     }
     const offered=rowFor(key,keys,plots,p,this.id,now,this.owners().get(bed)?.by??null,this.sky())?.plots??[];this.save(continueRow(p,rememberGardenMisses(did.purse,offered,did.deed,plots,this.owners().get(bed)?.by??null,marks,did.each.map(e=>e.key),this.id,now),key,offered,did.each.map(e=>e.key),did.deed,next,this.owners().get(bed)?.by??null,marks,this.id,now,this.sky()));
     return { ok: true, deed: did.deed, done: did.each.map((e) => e.key), got: did.got, ...(did.seeds === undefined ? {} : { seeds: did.seeds }) };
@@ -1212,7 +1213,19 @@ export class Trial {
     // (a log kept before it remembered who helped each plant, or what each did in a round, is given those as empty)
     return { ...newLog(), ...this.read<WellLog>(WELL_LOG, newLog, (v) => { const l = v as Partial<WellLog> | null; return !!l && Array.isArray(l.water) && !!l.cans && !!l.carriers && !!l.days && !!l.reach && !!l.hands; }) };
   }
-  private wellSeen(deed: WaterDeed) { this.write(WELL_LOG, seen(this.wellLog(), deed)); }
+  private wellSeen(deed: WaterDeed) {
+    const before = this.wellLog(), after = seen(before, deed), all = { ...this.linesAll() };
+    // The legacy book still counts actual water. Only positive carried deltas award profession XP.
+    for (const [who, carrier] of Object.entries(after.carriers)) {
+      const previous = before.carriers[who]?.buckets ?? 0, delta = carrier.buckets - previous;
+      if (delta <= 0) continue;
+      const theirs = { ...(all[who] ?? {}) }, kept = theirs.well ?? { ...newLine(), points: previous };
+      theirs.well = countLine(kept, { to: null, line: "well", raw: delta }, dayOf(deed.at));
+      all[who] = theirs;
+    }
+    this.write(LINES_AT, all);
+    this.write(WELL_LOG, after);
+  }
   /** The book as I read it now; a carrier is called what their bed is called by, if they have one. */
   wellBook(): WellBook {
     const names = new Map([...this.owners().values()].map((o) => [o.by, o.name]));
@@ -1570,13 +1583,17 @@ export class Trial {
     return Object.fromEntries(Object.entries(kept).flatMap(([id, w]) => { const worn = wornOf(w); return worn ? [[id, worn]] : []; }));
   }
   /**
-   * My lines as I am told them: each one's points and what today has been worth; the well's is the bucketfuls its
-   * own book counts (lib/town/well), which no bound holds. And the title I wear.
+   * Profession XP and its remaining allowance; the separate well book keeps actual bucketfuls.
    */
   lines(): LinesTold {
     const told = noLines(), mine = this.linesAll()[this.id] ?? {}, day = dayOf(this.now()), log = this.wellLog();
-    for (const id of ALL_LINE_IDS) { const k = mine[id]; if (k) told.lines[id] = { points: k.points, today: k.day === day ? k.today : 0 }; }
-    told.lines.well = { points: log.carriers[this.id]?.buckets ?? 0, today: log.days[String(day)]?.[this.id]?.buckets ?? 0 };
+    for (const id of ALL_LINE_IDS) {
+      const k = mine[id] ?? newLine(), today = k.day === day ? k.today : 0;
+      told.lines[id] = { points: k.points, today, bound: LINES[id].day,
+        earned: earnedOn(id, k, day),
+        full: id === "farming" ? harvestReserve(k, day) : Math.max(0, LINES[id].day - today) };
+    }
+    if (!mine.well) told.lines.well = { points: log.carriers[this.id]?.buckets ?? 0, today: log.days[String(day)]?.[this.id]?.buckets ?? 0 };
     // (lines to come: the trial gives every later line)
     return { ...told, worn: this.worn()[this.id] ?? null, given: [...MORE_LINE_IDS] };
   }

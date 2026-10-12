@@ -1,7 +1,11 @@
-import { KINDS } from "./forest";
+import { KINDS, SECRET_KINDS } from "./forest";
+import { FORAGE_PARTS } from "./foraging-parts";
+import { GARDEN } from "./gardening";
 import { BUGS } from "./insects";
-import { CROPS, DISHES, FISH, ITEMS, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
-import { ALL_LINE_IDS, LINES, PAST_BOUND, RANKS, countedOn, type LineId } from "./lines";
+import { CROPS, DISHES, FISH, MAKES, type CropId, type DishId, type FishId, type ItemId } from "./items";
+import { ALL_LINE_IDS, HARVEST_BANK_DAYS, LINES, PAST_BOUND, RANKS, countedOn, earnedOn, harvestReserve, type LineId } from "./lines";
+import { dayOf } from "./stamina";
+import type { Plant } from "./farm";
 import { optN, SIX } from "./tools";
 import { CROP_IDS, DISH_IDS, FISH_IDS, MAKE_IDS } from "./items";
 import { BRIDGE } from "./bridge";
@@ -10,24 +14,24 @@ import { LAMPS } from "./lamps";
 /**
  * What counts for the points of a line (lib/town/lines), read off what is written down anyway: a deed (the
  * database's `town_deeds`) or a go at a game (`town_plays`). One rule for the browser's trial and for the database,
- * which is held to it; and since both logs have been kept since the game opened, the same rule counts what was done
- * before there were lines (the owner: "นับย้อนหลังด้วย").
+ * which is held to it. v253 changes new work only; already-earned XP and discoveries are never replayed or reduced.
  *
- * - **Kitchen**: a pot of a real recipe is worth the helpings its recipe gives (something else that is made, one);
+ * - **Kitchen**: a pot rewards its servings plus bounded recipe complexity; preparations reward their inputs and stages;
  *   the odd dish nothing. The same dish counts three pots a day. A helping somebody else ladles from one's pot is
  *   one more, to whoever set it down: of one person's ladling, nine a day (what one can eat). The owner took this
  *   blend ("ใช้แบบผสมตามตาราง").
  * - **Helpers**: only on other people's plants and beds: a watering 1, clearing or tilling 2, feeding 2, a pest
  *   cured 5; and a thanks received 3.
- * - **Fishing**: a fish landed, by how rare it is: 1, 3, 8, 30.
- * - **Forest**: what is picked up 1, chosen or shaken down 2, dug 3; ten more for a rare thing on a day of its own.
- * - **Insects**: one in plain sight 1, one caught by its own way 3, a rare one or a beetle 8.
- * - **Farming**: a picking of a plant one sowed, a point for every twelve hours its crop takes (one at the least).
- * - **Felling** (lines to come): a tree felled 2, the ancient tree 10.
+ * - **Fishing**: rarity gives 1, 3, 8, 30; special encounter conditions add at most two.
+ * - **Forest**: every required stage counts; plant-part reading adds two and rare finds add ten.
+ * - **Insects**: encounter method, stamina and scarcity determine XP, independently of market prices.
+ * - **Farming**: occupied space and the actual bearing's base time count, plus at most two care points per bearing.
+ *   Unused full-XP allowance is saved for seven days. Sowing starts its clock and awards no XP.
+ * - **Felling**: tree family, girth and clean work count; timber yield never multiplies XP.
  * - **The first of its kind** (a fish, a forest thing, an insect, a crop, a recipe) is ten more, once ever.
  * - **A stone laid for the bridge** (lib/town/bridge) is a helpers' point to everybody whose hands it went through.
  * - **A lamp post lit at dusk** (lib/town/lamps) is three helpers' points to everybody whose hands its flame went through.
- * - **The well** is not here: its count is the bucketfuls poured, which the well's own book keeps (lib/town/well).
+ * - **The well**: actual positive carrier deltas award XP subject to the daily bound. The old water book keeps raw statistics.
  *
  * The numbers are knobs (mine, to be set from what the members really do before the lines open). A day's bound is
  * the line's own (lib/town/lines' `countedOn`).
@@ -40,12 +44,12 @@ export const POINTS = {
   helpers: { water: 1, clear: 2, till: 2, feed: 2, cure: 5, thanked: 3, dust: 2, bellows: 2 } as Record<string, number>,
   fishing: { common: 1, uncommon: 3, rare: 8, legend: 30 } as Record<string, number>,
   forest: { pick: 1, choose: 2, shake: 2, dig: 3, rare: 10 } as Record<string, number>,
-  /** An insect is rare when the relatives pay so much for it, or it is lured (the beetles). */
-  insects: { plain: 1, way: 3, rare: 8, pays: 20 },
-  farming: { every: 12 },
+  /** Encounter effort, not selling prices, determines insect experience. */
+  insects: { plain: 1, way: 3, rare: 8 },
+  farming: { every: 12, minimum: 2, establishment: 72, establishmentMax: 4, care: 2, giantCells: 4 },
   // ── felling ── (a tree felled, by its kind: lib/town/trees' kindOf; the ancient tree its own; and, on the helpers'
   // line, a trunk braced for somebody else's go)
-  felling: { pine: 2, ironwood: 2, moonwood: 2, elder: 10 } as Record<string, number>,
+  felling: { pine: 2, ironwood: 4, moonwood: 6, elder: 12 } as Record<string, number>,
   braced: 1,
   // ── end: felling ──
   // ── mining ── (a rock broken, a vein played out, a way down found, the day's crystal rock; the first of each kind of fragment is the "first".
@@ -54,25 +58,33 @@ export const POINTS = {
 };
 
 /**
- * The lines as the database is to read them (its catalog's `lines` row): every ladder's marks and day's bound, and
+ * The lines as the database is to read them (its catalog's `work` row): every ladder's marks and day's bound, and
  * what each thing is worth already worked out, thing by thing, so that the database only looks a number up and has
  * no rule of its own to drift from this one. A fish, a dish, an insect or a crop added later is a row to write over.
  */
 export function linesRow() {
   const insects = Object.fromEntries(Object.keys(BUGS).map((id) => [id, bugPoints(id)]));
   return {
-    ids: [...ALL_LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first,
+    ids: [...ALL_LINE_IDS], ranks: RANKS, past: PAST_BOUND, first: POINTS.first, experienceVersion: 2,
+    harvestBankDays: HARVEST_BANK_DAYS,
     marks: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].marks])),
     day: Object.fromEntries(ALL_LINE_IDS.map((id) => [id, LINES[id].day])),
     kitchen: {
       ladled: POINTS.kitchen.ladled, pots: POINTS.kitchen.pots, ladling: POINTS.kitchen.ladling,
-      pot: Object.fromEntries([...DISH_IDS.flatMap((id) => (DISHES[id].recipe ? [[id, DISHES[id].recipe!.serves] as [string, number]] : [])), ...MAKE_IDS.map((id) => [id, POINTS.kitchen.made] as [string, number])]),
+      pot: Object.fromEntries([...DISH_IDS.flatMap((id) => (DISHES[id].recipe ? [[id, kitchenPoints(id)] as [string, number]] : [])), ...MAKE_IDS.map((id) => [id, kitchenPoints(id)] as [string, number])]),
     },
     helpers: POINTS.helpers,
-    fishing: Object.fromEntries(FISH_IDS.map((id) => [id, POINTS.fishing[FISH[id].tier] ?? 0])),
-    forest: { how: { pick: POINTS.forest.pick, choose: POINTS.forest.choose, shake: POINTS.forest.shake, dig: POINTS.forest.dig }, rare: POINTS.forest.rare, rares: [...RARE_WILD].sort() },
+    fishing: Object.fromEntries(FISH_IDS.map((id) => [id, fishPoints(id)])),
+    forest: { how: { pick: POINTS.forest.pick, choose: POINTS.forest.choose, shake: POINTS.forest.shake, dig: POINTS.forest.dig }, rare: POINTS.forest.rare, rares: [...RARE_WILD].sort(),
+      kinds: Object.fromEntries(Object.entries(SECRET_KINDS).map(([id, k]) => [id, POINTS.forest[k.how] + POINTS.forest[k.then]])), parts: [...FOREST_PART_ITEMS].sort(), part: 2 },
     insects,
-    farming: Object.fromEntries(CROP_IDS.map((id) => [id, Math.max(1, Math.floor(CROPS[id].hours / POINTS.farming.every))])),
+    farming: Object.fromEntries(CROP_IDS.map((id) => [id, farmPoints(id)])),
+    farmingAgain: Object.fromEntries(CROP_IDS.map((id) => [id, farmPoints(id, 1)])),
+    farmingCells: Object.fromEntries(CROP_IDS.map((id) => [id, cropCells(id)])),
+    farmingCare: POINTS.farming.care, farmingGiantCells: POINTS.farming.giantCells,
+    well: { bucket: 1 },
+    fellingGirth: [0, 1, 2], fellingPerfect: 1,
+    miningDepth: [1, 2, 3], miningPerfect: 2,
     // ── felling ──
     felling: POINTS.felling, braced: POINTS.braced,
     // ── end: felling ──
@@ -98,16 +110,48 @@ export interface Done {
  * day's bound; the key of the kind it may be the first of; and, where a day holds a thing to so many, the key it is
  * counted under and the most.
  */
-export interface Counts { to: string | null; line: LineId; raw: number; first?: string; held?: { key: string; most: number } }
+export interface Counts { to: string | null; line: LineId; raw: number; first?: string; started?: number; held?: { key: string; most: number } }
 
 /** The forest's things that have a day of their own: the rare ones. */
 const RARE_WILD = new Set<string>(Object.values(KINDS).flatMap((k) => k.finds.filter((f) => "day" in f && f.day).map((f) => f.item)));
-/** What an insect is worth, by how it is caught. */
-function bugPoints(id: string): number {
+const FOREST_PART_ITEMS = new Set<string>(Object.values(FORAGE_PARTS.parts).flatMap(parts => Object.values(parts)));
+
+const cropCells = (id: CropId): number => GARDEN.shapes[id as keyof typeof GARDEN.shapes]?.length ?? 1;
+/** Each played root counts once, regardless of yield or the number of occupied satellite cells. */
+export function farmPoints(id: CropId, picked = 0, giant = false, care = 0): number {
+  const crop = CROPS[id];
+  if (!crop) return 0;
+  const hours = picked > 0 ? crop.again ?? crop.hours : crop.hours;
+  const establishment = picked > 0 ? Math.min(POINTS.farming.establishmentMax, Math.floor(crop.hours / POINTS.farming.establishment)) : 0;
+  const cells = giant ? POINTS.farming.giantCells : cropCells(id);
+  return (Math.max(POINTS.farming.minimum, Math.ceil(hours / POINTS.farming.every)) + establishment) * cells
+    + Math.min(POINTS.farming.care, Math.max(0, Math.floor(care)));
+}
+/** These fields are taken from the server's pre-harvest plant, never from game claims. */
+export function harvestWork(plant: Plant): Record<string, number | boolean> {
+  return { picked: plant.picked, giant: !!plant.giant, started: dayOf(plant.sown),
+    care: Number(plant.watered > plant.pickedAt) + Number(plant.fed > plant.pickedAt) };
+}
+export function kitchenPoints(id: ItemId): number {
+  const recipe = DISHES[id as DishId]?.recipe, make = MAKES[id];
+  const needs = recipe?.needs ?? make?.needs;
+  if (!needs) return 0;
+  const intermediates = needs.filter(([item]) => !!MAKES[item]).length;
+  return recipe ? recipe.serves + Math.min(4, Math.max(0, needs.length - 3) + Math.max(0, recipe.cooks - 1) + intermediates)
+    : POINTS.kitchen.made + Math.min(2, Math.max(0, needs.length - 1)) + Math.min(2, intermediates);
+}
+export function fishPoints(id: FishId): number {
+  const fish = FISH[id];
+  return fish ? (POINTS.fishing[fish.tier] ?? 0) + (fish.needs?.length ? Math.min(2, fish.needs.length) : 0) : 0;
+}
+const miningDepth = (floor: unknown) => typeof floor === "number" && Number.isInteger(floor) ? floor >= 21 ? 3 : floor >= 11 ? 2 : 1 : 1;
+/** What an insect is worth, by effort and encounter scarcity. */
+export function bugPoints(id: string): number {
   const b = BUGS[id as keyof typeof BUGS];
   if (!b) return 0;
-  if (b.habit === "lure" || (ITEMS[id as ItemId]?.pays ?? 0) >= POINTS.insects.pays) return POINTS.insects.rare;
-  return b.habit === "path" || b.habit === "crawl" ? POINTS.insects.plain : POINTS.insects.way;
+  const base = b.habit === "path" || b.habit === "crawl" ? POINTS.insects.plain : POINTS.insects.way;
+  const rare = b.habit === "lure" || !!b.day || b.weight <= 15;
+  return Math.max(base, b.cost, rare ? POINTS.insects.rare : 0);
 }
 
 /** What something done counts for, on every line it counts on: nothing, for most of what is done. `doer` is who did it. */
@@ -117,15 +161,22 @@ export function countsOf(d: Done, doer: string): Counts[] {
     if (!d.won) return [];
     if (d.what === "fishing") {
       const tier = FISH[thing as FishId]?.tier;
-      return tier ? [{ to: null, line: "fishing", raw: POINTS.fishing[tier] ?? 0, first: `fishing:${thing}` }] : [];
+      return tier ? [{ to: null, line: "fishing", raw: fishPoints(thing as FishId), first: `fishing:${thing}` }] : [];
     }
     if (d.what === "cooking") {
-      const serves = DISHES[thing as DishId]?.recipe?.serves, raw = serves ?? (MAKES[thing as ItemId] ? POINTS.kitchen.made : 0);
+      const raw = kitchenPoints(thing as ItemId);
       return raw ? [{ to: null, line: "kitchen", raw, first: `kitchen:${thing}`, held: { key: `pot:${thing}`, most: POINTS.kitchen.pots } }] : [];
     }
     return [];
   }
   switch (d.what) {
+    // Sowing starts the harvest allowance clock without awarding farmable action XP.
+    case "sow": return !other || other === doer ? [{ to: null, line: "farming", raw: 0 }] : [];
+    case "carry": return d.n > 0 ? [{ to: null, line: "well", raw: Math.floor(d.n) }] : [];
+    case "prepare": {
+      const raw = kitchenPoints(thing as ItemId);
+      return raw ? [{ to: null, line: "kitchen", raw, first: `kitchen:${thing}`, held: { key: `pot:${thing}`, most: POINTS.kitchen.pots } }] : [];
+    }
     case "camp_prepare":
       return typeof d.doc.owner==="string"&&d.doc.owner!==doer
         ?[{to:d.doc.owner,line:"helpers",raw:POINTS.helpers.water,held:{key:`camp:${doer}`,most:3}}]:[];
@@ -149,7 +200,9 @@ export function countsOf(d: Done, doer: string): Counts[] {
     case "gather": {
       // (one of the four ways there are of having a thing of the forest's, and no other word)
       const way = String(d.doc.how ?? ""), how = ["pick", "choose", "shake", "dig"].includes(way) ? POINTS.forest[way] : 0;
-      return how ? [{ to: null, line: "forest", raw: how + (RARE_WILD.has(thing) ? POINTS.forest.rare : 0), first: `forest:${thing}` }] : [];
+      const secret = SECRET_KINDS[String(d.doc.kind) as keyof typeof SECRET_KINDS];
+      return how ? [{ to: null, line: "forest", raw: (secret ? POINTS.forest[secret.how] + POINTS.forest[secret.then] : how)
+        + (FOREST_PART_ITEMS.has(thing) ? 2 : 0) + (RARE_WILD.has(thing) ? POINTS.forest.rare : 0), first: `forest:${thing}` }] : [];
     }
     case "net": {
       const raw = bugPoints(thing);
@@ -159,10 +212,11 @@ export function countsOf(d: Done, doer: string): Counts[] {
     // vein played out, with the ore and the gem it gave; one for a way down found; one for the crystal rock. A vein's
     // second go, a twin's, counts for nothing but its firsts)
     case "mine":
-      return [{ to: null, line: "mining", raw: POINTS.mining.rock * Math.max(1, Math.floor(d.n)), ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) }];
+      return [{ to: null, line: "mining", raw: miningDepth(d.doc.floor) * Math.max(1, Math.floor(d.n)), ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) }];
     case "vein":
       return [
-        { to: null, line: "mining", raw: d.doc.again ? 0 : POINTS.mining.vein, ...(thing ? { first: `mining:${thing}` } : {}) },
+        { to: null, line: "mining", raw: d.doc.again || d.n <= 0 ? 0 : POINTS.mining.vein + miningDepth(d.doc.floor) - 1
+          + (typeof d.doc.of === "number" && d.doc.of > 0 && d.doc.passed === d.doc.of ? 2 : 0), ...(thing ? { first: `mining:${thing}` } : {}) },
         ...(typeof d.doc.chip === "string" ? [{ to: null, line: "mining" as const, raw: 0, first: `mining:${d.doc.chip}` }] : []),
       ];
     case "delve":
@@ -173,14 +227,15 @@ export function countsOf(d: Done, doer: string): Counts[] {
         ? [{ to: null, line: "mining", raw: POINTS.mining.lent }, { to: null, line: "helpers", raw: POINTS.mining.lending }] : [];
     case "crystal":
       return [
-        { to: null, line: "mining", raw: POINTS.mining.crystal, ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) },
+        { to: null, line: "mining", raw: POINTS.mining.crystal + miningDepth(d.doc.floor) - 1, ...(typeof d.doc.got === "string" ? { first: `mining:${d.doc.got}` } : {}) },
         ...(typeof d.doc.chip === "string" ? [{ to: null, line: "mining" as const, raw: 0, first: `mining:${d.doc.chip}` }] : []),
       ];
     // ── end: mining ──
     case "pick": {
       // (a plant one sowed: a picking of somebody else's plant is no farming of one's own, and is nobody's help either)
-      const hours = CROPS[thing as CropId]?.hours;
-      return hours && !other ? [{ to: null, line: "farming", raw: Math.max(1, Math.floor(hours / POINTS.farming.every)), first: `farming:${thing}` }] : [];
+      const raw = farmPoints(thing as CropId, typeof d.doc.picked === "number" ? d.doc.picked : 0, d.doc.giant === true, typeof d.doc.care === "number" ? d.doc.care : 0);
+      return raw && (!other || other === doer) ? [{ to: null, line: "farming", raw, first: `farming:${thing}`,
+        ...(typeof d.doc.started === "number" && Number.isInteger(d.doc.started) ? { started: d.doc.started } : {}) }] : [];
     }
     // ── the bridge built by hand ── (lib/town/bridge: a stone laid counts for everybody whose hands it went through,
     // whoever laid it and each of the others, a line of the deeds for each; what it is worth is the bridge's own number)
@@ -195,7 +250,8 @@ export function countsOf(d: Done, doer: string): Counts[] {
     case "fell": {
       const raw = POINTS.felling[thing] ?? 0, by = d.doc.braced;
       if (!raw) return [];
-      return [{ to: null, line: "felling", raw, first: `felling:${thing}` }, ...(typeof by === "string" && by && by !== doer ? [{ to: by, line: "helpers" as const, raw: POINTS.braced }] : [])];
+      const girth = typeof d.doc.girth === "number" && Number.isInteger(d.doc.girth) ? Math.max(0, Math.min(2, d.doc.girth)) : 0;
+      return [{ to: null, line: "felling", raw: raw + girth + (d.doc.misses === 0 ? 1 : 0), first: `felling:${thing}` }, ...(typeof by === "string" && by && by !== doer ? [{ to: by, line: "helpers" as const, raw: POINTS.braced }] : [])];
     }
     // ── end: felling ──
     default:
@@ -208,7 +264,7 @@ export function countsOf(d: Done, doer: string): Counts[] {
  * what that day's deeds were worth before the bound (`today`) and how many times each thing a day holds to so many
  * has counted (`held`); and the kinds they have had the first of.
  */
-export interface LineKept { points: number; day: number; today: number; held: Record<string, number>; firsts: string[] }
+export interface LineKept { points: number; day: number; today: number; held: Record<string, number>; firsts: string[]; reserve?: number; earned?: number }
 export const newLine = (): LineKept => ({ points: 0, day: -1, today: 0, held: {}, firsts: [] });
 
 /**
@@ -217,13 +273,21 @@ export const newLine = (): LineKept => ({ points: 0, day: -1, today: 0, held: {}
  * by the day's bound (in full up to it, a quarter past).
  */
 export function count(kept: LineKept, c: Counts, day: number): LineKept {
-  const on = kept.day === day ? kept : { ...kept, day, today: 0, held: {} };
+  const on = kept.day === day ? kept : { ...kept, day, today: 0, held: {}, ...(kept.earned !== undefined ? { earned: 0 } : {}) };
+  const reserve = c.line === "farming" ? harvestReserve(kept, day, c.started) : undefined;
   let raw = Math.max(0, c.raw), held = on.held, firsts = on.firsts;
   if (c.held) {
     const had = held[c.held.key] ?? 0;
     if (had >= c.held.most) raw = 0; else held = { ...held, [c.held.key]: had + 1 };
   }
   if (c.first && !firsts.includes(c.first)) { raw += POINTS.first; firsts = [...firsts, c.first]; }
+  if (c.line === "farming") {
+    const full = Math.min(raw, reserve!), gain = full + (raw - full) * PAST_BOUND;
+    return { points: on.points + gain, day, today: on.today + raw, held, firsts, reserve: reserve! - full,
+      earned: (kept.day === day ? kept.earned ?? countedOn(c.line, 0, kept.today) : 0) + gain };
+  }
   if (raw <= 0) return held === on.held && firsts === on.firsts ? on : { ...on, held, firsts };
-  return { points: on.points + countedOn(c.line, on.today, raw), day, today: on.today + raw, held, firsts };
+  const gain = countedOn(c.line, on.today, raw);
+  return { points: on.points + gain, day, today: on.today + raw, held, firsts,
+    ...(c.line === "helpers" || c.line === "well" ? { earned: earnedOn(c.line, kept, day) + gain } : {}) };
 }
