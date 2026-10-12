@@ -35,7 +35,7 @@ export const INSECT_ITEMS = {
   nectarRice: item("dish", "ข้าวน้ำหวานดอกไม้", "Flower nectar rice", "Rice with golden honey and petals", 24),
   honeyHerbTea: item("dish", "ชาสมุนไพรน้ำผึ้ง", "Honey herb tea", "Honey tea with green leaves", 23),
   pollenCake: item("dish", "เค้กดอกไม้สวน", "Garden flower cake", "A golden cake on a green leaf", 26),
-  orchardSoup: item("dish", "ซุปสวนผลไม้", "Orchard soup", "Clear soup with berry and lotus slices", 27, 3),
+  orchardSoup: item("dish", "ซุปสวนผลไม้", "Orchard soup", "Clear soup with berry and lotus slices", 210, 3),
 } as const;
 export type InsectSpeciesId = "honeyBee" | "carpenterBee" | "lacewing" | "hoverfly" | "silkMoth" | "goldenAnt" | "orchardBeetle" | "pollenMidge";
 export type InsectDishId = "nectarRice" | "honeyHerbTea" | "pollenCake" | "orchardSoup";

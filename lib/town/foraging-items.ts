@@ -25,7 +25,7 @@ export const FORAGE_ITEMS={
   specimenPress:item("tool","แผ่นอัดตัวอย่างพืช","Specimen press","แผ่นไม้ประกบใบเฟิร์น","Two wooden plates holding a fern",28),
   forageBasket:item("tool","ตะกร้าถนอมของป่า","Foraging basket","ตะกร้าลึกรองใบไม้หนา","A deep woven basket padded with leaves",32),
   fernRice:item("dish","ข้าวยอดเฟิร์น","Fern rice","ข้าวกับยอดเฟิร์นในใบตอง","Fern rice in a banana leaf",25),
-  rootStew:item("dish","ซุปรากสมุนไพร","Herbal root stew","ซุปเข้มกับรากสมุนไพร","A rich stew with forest roots",32,3),
+  rootStew:item("dish","ซุปรากสมุนไพร","Herbal root stew","ซุปเข้มกับรากสมุนไพร","A rich stew with forest roots",85,3),
   petalBiscuit:item("dish","ขนมกลีบดอกป่า","Forest petal biscuits","ขนมสีครีมโรยกลีบดอก","Cream biscuits scattered with petals",27),
   sporeNoodles:item("dish","ก๋วยเตี๋ยวเห็ดป่า","Forest mushroom noodles","เส้นก๋วยเตี๋ยวกับเห็ดในซุปใส","Mushroom noodles in clear broth",29),
 } as const;
