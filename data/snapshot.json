@@ -1805,7 +1805,8 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "BlackMage": "master"
+   "BlackMage": "master",
+   "RedMage": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -5600,7 +5601,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 83,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -5722,7 +5723,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-11"
+  "chg": "2026-10-12"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -7242,7 +7243,7 @@
   "mounts": 70,
   "minions": 104,
   "rare": 57,
-  "level": 100,
+  "level": 72,
   "cc": [
    false,
    false,
@@ -7318,7 +7319,7 @@
    "Zelenia"
   ],
   "ults": [],
-  "chg": "2026-10-11"
+  "chg": "2026-10-12"
  },
  "34790386": {
   "name": "Mikote Menphina",
@@ -7812,7 +7813,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 86,
+  "level": 87,
   "cc": [
    false,
    false,
@@ -7857,7 +7858,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-11"
+  "chg": "2026-10-12"
  },
  "35158574": {
   "name": "Rikka Haulia",
@@ -8622,7 +8623,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 95,
+  "level": 99,
   "cc": [
    false,
    false,
@@ -8640,7 +8641,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-11"
+  "chg": "2026-10-12"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -9561,7 +9562,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 78,
+  "level": 82,
   "cc": [
    false,
    false,
@@ -9574,7 +9575,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-11"
+  "chg": "2026-10-12"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

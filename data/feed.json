@@ -1,6 +1,20 @@
 {
  "events": [
   {
+   "date": "2026-10-12",
+   "type": "job_up",
+   "id": 36130968,
+   "name": "Chu Celestial",
+   "text": "is now a Expert Red Mage"
+  },
+  {
+   "date": "2026-10-12",
+   "type": "level_100",
+   "id": 29339718,
+   "name": "Ashe Fantine",
+   "text": "reached level 100 on Black Mage!"
+  },
+  {
    "date": "2026-10-11",
    "type": "parse_up",
    "id": 60852230,
@@ -1385,20 +1399,6 @@
    "id": 29325838,
    "name": "Ryuu Dawnblade",
    "text": "cleared Dancing Mad 🏆"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "level_100",
-   "id": 60852230,
-   "name": "Lucienvt Yenslayer",
-   "text": "reached level 100 on Sage!"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "rare_up",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "earned Gathering in Spaaace"
   }
  ]
 }

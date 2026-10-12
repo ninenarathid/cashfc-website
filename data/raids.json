@@ -60563,6 +60563,10 @@
       "kills": 2,
       "best": 80
      },
+     "RedMage": {
+      "kills": 2,
+      "best": 89
+     },
      "BlackMage": {
       "kills": 11,
       "best": 32
@@ -60585,8 +60589,8 @@
     "cleared": true,
     "job_kills": {
      "RedMage": {
-      "kills": 4,
-      "best": 49
+      "kills": 5,
+      "best": 71
      },
      "Reaper": {
       "kills": 2,
@@ -72998,7 +73002,7 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 11,
+      "kills": 13,
       "best": 95
      },
      "Warrior": {
@@ -73027,7 +73031,7 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 7,
+      "kills": 8,
       "best": 92
      },
      "DarkKnight": {
@@ -73212,7 +73216,7 @@
      },
      "Paladin": {
       "kills": 3,
-      "best": 87
+      "best": 88
      },
      "Gunbreaker": {
       "kills": 4,
