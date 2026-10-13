@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { loadMyFace } from "./my-face";
 
 /**
  * The faces members chose for themselves, laid over the ones the Lodestone gave
@@ -70,62 +71,51 @@ export function useMyFace(): {
   characterId: number | null;
   name: string | null;
   avatar: string | null;
+  userId: string | null;
+  error: boolean;
+  retry(): void;
 } {
   const [state, setState] = useState<{
     ready: boolean; characterId: number | null;
     name: string | null; avatar: string | null;
-  }>({ ready: false, characterId: null, name: null, avatar: null });
+    userId: string | null; error: boolean;
+  }>({ ready: false, characterId: null, name: null, avatar: null, userId: null, error: false });
+  const [attempt, setAttempt] = useState(0);
+  const retry = useCallback(() => setAttempt(n => n + 1), []);
 
   useEffect(() => {
     const supabase = createClient();
     if (!supabase) { setState((s) => ({ ...s, ready: true })); return; }
 
-    const resolve = async (userId: string | undefined) => {
-      if (!userId) {
-        setState({ ready: true, characterId: null, name: null, avatar: null });
+    let stopped = false, generation = 0;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const resolve = async (user: import("@supabase/supabase-js").User | null) => {
+      const mine = ++generation;
+      clearTimeout(timer);
+      if (!user) {
+        setState({ ready: true, characterId: null, name: null, avatar: null, userId: null, error: false });
         return;
       }
-      const { data } = await supabase.from("profiles")
-        .select("character_id, character_name, display_name, discord_username, discord_avatar, avatar_url")
-        .eq("id", userId).maybeSingle();
-      const p = (data ?? {}) as {
-        character_id?: number | null; character_name?: string | null;
-        display_name?: string | null; discord_username?: string | null;
-        discord_avatar?: string | null; avatar_url?: string | null;
-      };
-      const characterId = p.character_id ?? null;
-      const name = p.character_name ?? p.display_name ?? p.discord_username ?? null;
-      if (p.avatar_url) {
-        setState({ ready: true, characterId, name, avatar: p.avatar_url });
-        return;
+      setState(s => s.userId === user.id ? s : { ready: false, characterId: null, name: null, avatar: null, userId: user.id, error: false });
+      try {
+        const face = await loadMyFace(supabase, user);
+        if (!stopped && mine === generation) setState({ ...face, ready: true, error: false });
+      } catch {
+        if (!stopped && mine === generation) {
+          setState(s => ({ ...s, ready: true, error: true }));
+          timer = setTimeout(retry, Math.min(30_000, 5_000 * (attempt + 1)));
+        }
       }
-      // Nothing chosen, so fall back to the character's own portrait. Asked for
-      // by id rather than shipped with the page: the header needs one member out
-      // of five hundred, and only when somebody is signed in.
-      if (characterId) {
-        try {
-          const res = await fetch(`/api/face/${characterId}`);
-          if (res.ok) {
-            const face = await res.json() as { name?: string; avatar?: string | null };
-            setState({
-              ready: true, characterId,
-              name: name ?? face.name ?? null,
-              avatar: face.avatar ?? p.discord_avatar ?? null,
-            });
-            return;
-          }
-        } catch { /* fall through to the account's own picture */ }
-      }
-      setState({ ready: true, characterId, name, avatar: p.discord_avatar ?? null });
     };
+    const initial = generation;
+    void supabase.auth.getUser().then(({ data }) => {
+      if (!stopped && initial === generation) void resolve(data.user);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => { void resolve(session?.user ?? null); });
+    return () => { stopped = true; generation++; clearTimeout(timer); sub.subscription.unsubscribe(); };
+  }, [attempt, retry]);
 
-    void supabase.auth.getUser().then(({ data }) => resolve(data.user?.id));
-    const { data: sub } = supabase.auth.onAuthStateChange(
-      (_e, session) => { void resolve(session?.user?.id); });
-    return () => sub.subscription.unsubscribe();
-  }, []);
-
-  return state;
+  return { ...state, retry };
 }
 
 /** Every chosen face on the page, keyed by character. */

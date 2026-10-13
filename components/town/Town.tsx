@@ -990,10 +990,13 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const resume = rec && rec.me.id === me.id && rec.testTopic === testTopic
       ? { voice: rec.voice, muted: rec.muted } : undefined;
     setSession(openSession(me, { testTopic, cap, resume, terrain: mapRef.current?.terrain, privateTopic: !!mapRef.current, ephemeral: mapRef.current?.mode === "test" || testTopic === "casino-lab" }));
-    // The stay is keyed by who you are; a new name or face waits for the next one.
+    // The stay is keyed by account; presentation updates below keep it running.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [me.id, testTopic, cap]);
   useEffect(() => { enter(); }, [enter]);
+  useEffect(() => {
+    session?.updateIdentity({ id: me.id, name: me.name, face: me.face, color: me.color });
+  }, [session, me.id, me.name, me.face, me.color]);
   useEffect(() => { sessionRef.current = session; }, [session]);
   // Share actual use pulses with the map and nearby players, never idle trails.
   useEffect(() => onElementAction((look, origin) => {

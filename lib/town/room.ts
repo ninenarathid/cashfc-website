@@ -138,12 +138,13 @@ export interface RoomHandlers {
   onNudge(id: string, what: unknown): void;
   /** Somebody tried their luck at the forge, and how it went (raw: lib/town/forge-show reads it; it is only shown). */
   onForged(id: string, told: unknown): void;
-  /** A bounded cosmetic word, never authoritative inventory data. */
+  /** A short, cosmetic equipment-use pulse. Older clients may ignore it. */
   onEffect?(id: string, word: unknown): void;
   onStatus(status: RoomStatus, detail?: string): void;
 }
 
 export interface Room {
+  identify(me: Identity): void;
   move(x: number, y: number): void;
   say(d: Doing): void;
   /** Into one person's letterbox: where I am, for somebody who just arrived. */
@@ -159,10 +160,10 @@ export interface Room {
   nudge(what: string, to?: string): void;
   /** A try of mine at the forge, for everybody in the room to see over my head (lib/town/forge-show). */
   forged(told: Record<string, unknown>): void;
-  effect(word: string): void;
+  effect?(word: string): void;
   bye(): void;
   /** Make sure the room still lists me; say who I am again if it lost me. */
-  check(): void;
+  check(resync?: boolean): void;
   leave(): Promise<void>;
 }
 
@@ -276,6 +277,15 @@ export async function joinTown(
   if (opts.cancelled?.()) return null;
 
   let leaving = false;
+  let roomUp = false;
+  let boxUp = multiplex;
+  let tracked = false;
+  let tracking = false;
+  let trackAt = -Infinity;
+  let helloAt = -Infinity;
+  let epoch = 0;
+  let ready = false;
+  let identityVersion = 0, sentIdentityVersion = -1;
   const outboxes = new Map<string, RealtimeChannel>();
 
   /* ── the room ── */
@@ -303,6 +313,7 @@ export async function joinTown(
       });
     }
     h.onMembers(people);
+    settle();
   });
   room.on("broadcast", { event: "hi" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
@@ -334,7 +345,6 @@ export async function joinTown(
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === "string" && p.id !== me.id) h.onForged(p.id, p);
   });
-
   room.on("broadcast", { event: "fx" }, ({ payload }) => {
     const p = payload as Record<string, unknown>;
     if (typeof p?.id === 'string' && p.id !== me.id && typeof p.w === 'string' && p.w.length <= 32) h.onEffect?.(p.id, p.w);
@@ -368,8 +378,6 @@ export async function joinTown(
     if (typeof p?.from === "string" && p.from !== me.id) h.onPair(p.from, p.data);
   });
 
-  let roomUp = false;
-  let boxUp = multiplex;
   // Into the room only while joined and connected; otherwise the client
   // quietly falls back to one HTTP request per message. Missed moves are not
   // lost: where I am is announced again (`hi`) the moment the room is back.
@@ -383,34 +391,59 @@ export async function joinTown(
   // know who has a microphone on, and would hang up on every line the others
   // opened to them.
   const settle = () => {
-    if (leaving || !roomUp || !boxUp) return;
+    if (leaving || !roomUp || !boxUp || !tracked || !room.presenceState()[me.id]?.length) return;
+    hello();
+    if (!ready) { ready = true; h.onStatus("ready"); }
+  };
+  const hello = (force = false) => {
+    if (!roomUp || !boxUp || !tracked || leaving) return;
+    if (!force && Date.now() - helloAt < 30_000) return;
     const d = opts.doing?.();
-    if (d) cast("hi", { id: me.id, ...d });
-    h.onStatus("ready");
+    if (d && cast("hi", { id: me.id, ...d })) helloAt = Date.now();
   };
   const trouble = (status: string, err?: Error) => {
     if (leaving) return;
+    ready = false;
     const text = err?.message ?? status;
     h.onStatus(/unauthori[sz]ed|denied|policy|permission/i.test(text) ? "denied" : "reconnecting", text);
+  };
+  // check() runs every second. A missing presence must never turn that into
+  // a track flood (the server permits only five tracks in thirty seconds).
+  const track = async () => {
+    if (leaving || !roomUp || tracking || Date.now() - trackAt < 6_500) return;
+    tracking = true;
+    trackAt = Date.now();
+    const joined = epoch;
+    const version = identityVersion;
+    try {
+      const result = await room.track({ ...identity });
+      if (leaving || joined !== epoch) return;
+      tracked = result === "ok";
+      if (tracked) { sentIdentityVersion = version; settle(); }
+      else trouble(`presence ${result}`);
+    } catch (error) {
+      if (joined === epoch) trouble("presence failed", error instanceof Error ? error : undefined);
+    } finally { tracking = false; }
   };
 
   // Called again after every rejoin, which is when the room has forgotten me
   // and I must say who and where I am once more.
-  room.subscribe(async (status, err) => {
+  room.subscribe((status, err) => {
     if (leaving) return;
     if (status === "SUBSCRIBED") {
-      await room.track(identity);
-      if (leaving) return;
       roomUp = true;
-      settle();
+      helloAt = -Infinity;
+      void track();
     } else {
+      epoch++;
       roomUp = false;
+      tracked = false;
       trouble(status, err);
     }
   });
   if (!multiplex) box.subscribe((status, err) => {
     if (leaving) return;
-    if (status === "SUBSCRIBED") { boxUp = true; settle(); }
+    if (status === "SUBSCRIBED") { boxUp = true; helloAt = -Infinity; settle(); }
     else { boxUp = false; trouble(status, err); }
   });
 
@@ -422,10 +455,22 @@ export async function joinTown(
       ch = supabase.channel(boxOf(to), { config: { private: isPrivate } });
       outboxes.set(to, ch);
     }
-    void ch.httpSend(event, payload).catch(() => { /* they left; the next one will do */ });
+    void ch.httpSend(event, payload).catch(() => {
+      // Positions are already public to this private room. If a letterbox
+      // reply fails, let the room hear it so a newcomer is not left at spawn.
+      if (!leaving && event === "st") cast("st", payload);
+    });
   };
 
   return {
+    identify(next) {
+      if (leaving || next.id !== me.id) return;
+      const n = next.name.slice(0, 40);
+      if (identity.n === n && identity.f === next.face && identity.c === next.color) return;
+      Object.assign(identity, { n, f: next.face, c: next.color });
+      identityVersion++;
+      void track();
+    },
     move(x, y) { cast("mv", { id: me.id, x, y }); },
     say(d) { cast("st", { id: me.id, ...d }); },
     tell(to, d) { post(to, "st", { id: me.id, ...d }); },
@@ -437,10 +482,15 @@ export async function joinTown(
     forged(told) { cast("fg", { ...told, id: me.id }); },
     effect(word) { cast('fx', { id: me.id, w: word }); },
     bye() { cast("bye", { id: me.id }); },
-    check() {
-      if (room.state !== "joined") return;
+    check(resync = false) {
+      if (leaving) return;
+      if (room.state !== "joined" || box.state !== "joined" || !supabase.realtime.isConnected()) {
+        trouble("connection lost");
+        return;
+      }
       const mine = room.presenceState()[me.id];
-      if (!mine || mine.length === 0) void room.track(identity);
+      if (!tracked || !mine?.length) { trouble("presence missing"); void track(); }
+      else { if (sentIdentityVersion !== identityVersion) void track(); hello(resync); settle(); }
     },
     async leave() {
       leaving = true;
@@ -449,7 +499,8 @@ export async function joinTown(
       if (box !== room && supabase.getChannels().includes(box)) await supabase.removeChannel(box);
       // Only if it is still ours: a newer join may already have replaced it.
       if (!supabase.getChannels().includes(room)) return;
-      try { await room.untrack(); } catch { /* already gone */ }
+      // Unsubscribe removes presence on the server too. Sending untrack first
+      // can wait for an acknowledgement on a dead socket and stall recovery.
       await supabase.removeChannel(room);
     },
   };

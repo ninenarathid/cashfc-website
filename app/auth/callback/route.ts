@@ -22,6 +22,11 @@ export async function GET(request: Request) {
       const { data } = await supabase.auth.getUser();
       if (!data.user) return NextResponse.redirect(`${origin}/?auth=retry`);
     }
+    const { data: active, error: sessionError } = await supabase.rpc("site_session");
+    if (sessionError || active !== true) {
+      await supabase.auth.signOut({ scope: "local" });
+      return NextResponse.redirect(`${origin}/profile?auth=${sessionError ? "retry" : "session-replaced"}`);
+    }
   }
 
   return NextResponse.redirect(`${origin}/profile`);

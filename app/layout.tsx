@@ -16,6 +16,7 @@ import { LangProvider } from "@/lib/i18n";
 import { AvatarProvider } from "@/lib/avatars";
 import { AdminProvider } from "@/lib/admin";
 import { everyone } from "@/lib/people";
+import SessionGuard from "@/components/SessionGuard";
 
 // This is a Free Company hangout, not a spreadsheet, so all three faces lean warm
 // and all three carry a full Thai set — the FC is Thai and the site is in English,
@@ -87,6 +88,7 @@ export default function RootLayout({
         className={`${display.variable} ${body.variable} ${data.variable} font-body antialiased`}
       >
         <LangProvider>
+          <SessionGuard>
           {/* One small query for the faces members chose, shared by the board,
               their pages, and every byline and tag in the gallery. */}
           <AdminProvider>
@@ -146,6 +148,7 @@ export default function RootLayout({
           </TooltipProvider>
           </AvatarProvider>
           </AdminProvider>
+          </SessionGuard>
         </LangProvider>
       </body>
     </html>

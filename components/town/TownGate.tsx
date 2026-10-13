@@ -69,6 +69,8 @@ function VillageGate() {
   const [verified, setVerified] = useState(false);
   const [color, setColor] = useState("#6aa9e0");
   const [checked, setChecked] = useState(false);
+  const [profileError, setProfileError] = useState(false);
+  const [profileAttempt, setProfileAttempt] = useState(0);
   const [test, setTest] = useState<string | null>(null);
   const [testCap, setTestCap] = useState<number | undefined>(undefined);
   const [testId, setTestId] = useState<string | null>(null);
@@ -97,12 +99,19 @@ function VillageGate() {
   useEffect(() => {
     const supabase = createClient();
     if (!supabase) { setChecked(true); return; }
-    void supabase.auth.getUser().then(async ({ data }) => {
+    let cancelled = false;
+    setChecked(false);
+    setProfileError(false);
+    void supabase.auth.getUser().then(async ({ data, error }) => {
+      if (cancelled) return;
+      if (error) throw error;
       const id = data.user?.id ?? null;
       setUserId(id);
       if (id) {
-        const { data: p } = await supabase.from("profiles")
+        const { data: p, error: profileError } = await supabase.from("profiles")
           .select("accent_color, character_id, character_verified_at").eq("id", id).maybeSingle();
+        if (cancelled) return;
+        if (profileError || !p) throw profileError ?? new Error("Profile unavailable");
         const row = p as {
           accent_color?: string | null; character_id?: number | null; character_verified_at?: string | null;
         } | null;
@@ -110,8 +119,10 @@ function VillageGate() {
         setVerified(!!row?.character_id && !!row?.character_verified_at);
       }
       setChecked(true);
-    });
-  }, []);
+    }).catch(() => { if (!cancelled) { setProfileError(true); setChecked(true); } });
+    return () => { cancelled = true; };
+  }, [face.error, profileAttempt]);
+  const retryProfile = () => { face.retry(); setProfileAttempt(n => n + 1); };
 
   let body: React.ReactNode;
   // The town (or the wait for it) fills the window; only a message for
@@ -124,9 +135,14 @@ function VillageGate() {
     body = <Town me={testBack.me} testTopic={testBack.testTopic} cap={testBack.cap} />;
   } else if (active && !active.testTopic?.startsWith("casino-")) {
     // Already in town in this tab (the dock brought you back): straight to it.
-    body = <Town me={active.me} testTopic={active.testTopic} cap={active.cap} />;
+    const me = !active.testTopic && face.userId === active.me.id && face.name
+      ? { ...active.me, name: face.name, face: face.avatar } : active.me;
+    body = <Town me={me} testTopic={active.testTopic} cap={active.cap} />;
   } else if (!ready || !checked || !face.ready) {
     body = <Waiting />;
+  } else if (profileError || (userId && face.error && !face.name)) {
+    stage = false;
+    body = <NameUnavailable th={th} retry={retryProfile} />;
   } else if (!userId || !(verified || realAdmin)) {
     stage = false;
     body = (
@@ -142,8 +158,11 @@ function VillageGate() {
         </Link>
       </div>
     );
+  } else if (!face.name || face.userId !== userId) {
+    stage = false;
+    body = <NameUnavailable th={th} retry={retryProfile} />;
   } else {
-    const me: TownMe = { id: userId, name: face.name ?? "Member", face: face.avatar, color };
+    const me: TownMe = { id: userId, name: face.name, face: face.avatar, color };
     body = <Town me={me} />;
   }
 
@@ -156,6 +175,13 @@ function VillageGate() {
       {body}
     </main>
   );
+}
+
+function NameUnavailable({ th, retry }: { th: boolean; retry(): void }) {
+  return <div role="alert" className="mt-6 rounded-2xl border border-line bg-surface p-6 text-center">
+    <p className="text-read text-ink">{th ? "ยังโหลดข้อมูลตัวละครไม่สำเร็จ กรุณาลองอีกครั้ง" : "Could not load your character profile. Please try again."}</p>
+    <button onClick={retry} className="mt-3 text-ui text-accent">{th ? "ลองอีกครั้ง" : "Try again"}</button>
+  </div>;
 }
 
 /** One tester identity per tab and letter, kept across reloads (dev only). */

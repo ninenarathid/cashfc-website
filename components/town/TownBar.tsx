@@ -4,6 +4,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useLang } from "@/lib/i18n";
 import { createClient } from "@/lib/supabase/client";
+import { useMyFace } from "@/lib/avatars";
 import { rememberTown, resumable } from "@/lib/town/active";
 import { BUBBLE_MS } from "@/lib/town/chat";
 import { currentSession, openSession, type TownSession } from "@/lib/town/session";
@@ -58,6 +59,7 @@ function useWords() {
 
 export default function TownBar() {
   const w = useWords();
+  const face = useMyFace();
   const [session, setSession] = useState<TownSession | null>(() => currentSession());
   const [chatOpen, setChatOpen] = useState(false);
   const [draft, setDraft] = useState("");
@@ -76,17 +78,24 @@ export default function TownBar() {
     let cancelled = false;
     void (async () => {
       if (!rec.testTopic) {
+        if (!face.ready || !face.name || face.userId !== rec.me.id) return;
         const supabase = createClient();
         const { data } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
         if (data.session?.user.id !== rec.me.id) { rememberTown(null); return; }
       }
       if (cancelled) return;
-      setSession(openSession(rec.me, {
+      const me = !rec.testTopic && face.name ? { ...rec.me, name: face.name, face: face.avatar } : rec.me;
+      setSession(openSession(me, {
         testTopic: rec.testTopic, cap: rec.cap, resume: { voice: rec.voice, muted: rec.muted },
       }));
     })();
     return () => { cancelled = true; };
-  }, [session]);
+  }, [session, face.ready, face.name, face.avatar, face.userId]);
+  useEffect(() => {
+    if (session && !session.testTopic && face.userId === session.me.id && face.name) {
+      session.updateIdentity({ ...session.me, name: face.name, face: face.avatar });
+    }
+  }, [session, face.userId, face.name, face.avatar]);
 
   const version = useSyncExternalStore(session?.subscribe ?? noSubscribe, () => session?.version ?? 0, () => 0);
 

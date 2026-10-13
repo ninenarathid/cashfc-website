@@ -31,7 +31,9 @@ async function me() {
   const supabase = await createClient();
   if (!supabase) return null;
   const { data } = await supabase.auth.getUser();
-  return data.user ?? null;
+  if (!data.user) return null;
+  const { data: active, error } = await supabase.rpc("site_session");
+  return !error && active === true ? data.user : null;
 }
 
 function parseId(raw: string | null): number | null {

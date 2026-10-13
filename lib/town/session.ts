@@ -190,7 +190,7 @@ export class TownSession {
   /** Bumped on every change the panels should show (for useSyncExternalStore). */
   version = 0;
 
-  private readonly client: SupabaseClient;
+  private client: SupabaseClient;
   private current: Room | null = null;
   private gen = 0;
   /** When it was last fine, or when we last started over: the watchdog's clock. */
@@ -203,6 +203,7 @@ export class TownSession {
   /** Whether this join has been counted in: "ready" waits for the first headcount. */
   private admitted = false;
   private readyHeld = false;
+  private connecting = false;
   /** How many town pages are showing this stay (normally 0 or 1). */
   private views = 0;
   private steppedAt = 0;
@@ -246,11 +247,7 @@ export class TownSession {
     window.addEventListener("pagehide", this.onPageHide);
 
     // The keep-alive says when the line has gone quiet before the channel does.
-    this.client = townClient(createClient(), (beat) => {
-      if ((beat === "timeout" || beat === "error") && this.status === "ready") this.report("reconnecting");
-      // (the keep-alive comes from a worker, which a hidden tab does not slow: my stall is kept open by it too)
-      else this.beatShop();
-    });
+    this.client = this.newClient();
     this.voice = new VoiceMesh(me.id, (to, s) => this.current?.signal(to, s), this.notify);
 
     document.addEventListener("visibilitychange", this.onVisibility);
@@ -950,12 +947,49 @@ export class TownSession {
     this.notify();
   }
 
+  /** Correct a previously cached name/portrait without moving or rejoining. */
+  updateIdentity(me: Identity) {
+    if (this.closed || me.id !== this.me.id || !me.name.trim()) return;
+    if (this.me.name === me.name && this.me.face === me.face && this.me.color === me.color) return;
+    if (this.me.face !== me.face) this.self.img = loadFace(me.face);
+    Object.assign(this.me, me);
+    this.self.info = { ...this.self.info, ...me };
+    this.current?.identify(me);
+    setTownActive({ me: this.me, testTopic: this.testTopic, cap: this.cap === ROOM_CAP ? undefined : this.cap });
+    this.remember();
+    this.notify();
+  }
+
+  private newClient() {
+    return townClient(createClient(), (beat) => {
+      if ((beat === "timeout" || beat === "error") && this.status === "ready") this.report("reconnecting");
+      else this.beatShop();
+    });
+  }
+
   private async connect() {
+    if (this.connecting || this.closed) return;
+    this.connecting = true;
+    try { await this.openRoom(); }
+    finally { this.connecting = false; }
+  }
+
+  private async openRoom() {
     const mine = ++this.gen;
+    const live = () => !this.closed && mine === this.gen;
     const old = this.current;
     this.current = null;
-    if (old) await old.leave();
-    const live = () => !this.closed && mine === this.gen;
+    if (old || this.client.getChannels().length > 0) {
+      // A channel can still say "joined" after its server connection is gone.
+      // Reusing that socket preserves stale presence and pending join refs.
+      // Disconnect before leaving (no acknowledgement to wait for), then use
+      // a fresh socket so timed-out channel cleanup cannot remove new channels.
+      await this.client.realtime.disconnect();
+      if (old) await old.leave();
+      await this.client.removeAllChannels();
+      if (!live()) return;
+      this.client = this.newClient();
+    }
     if (!live()) return;
     this.admitted = false;
     this.readyHeld = false;
@@ -1023,6 +1057,9 @@ export class TownSession {
             ...(d.sign !== undefined ? { sign: d.sign } : {}), ...(d.circle !== undefined ? { circle: d.circle } : {}), ...(d.tool !== undefined ? { tool: d.tool } : {}), ...(d.carry !== undefined ? { carry: d.carry } : {}), ...(d.flame !== undefined ? { flame: d.flame } : {}), /* mining */ ...(d.lit !== undefined ? { lit: d.lit } : {}), /* felling */ ...(d.fell !== undefined ? { fell: d.fell } : {}) },
           pos: { ...spot }, path: [], img: loadFace(p.face), placed: d.x !== undefined, sat: ++this.sittings,
         });
+        // A presence sync can beat or outlive the one-shot hello broadcast.
+        // Send our state on discovery too, including after a lost connection.
+        this.current?.tell(p.id, this.doing());
       } else {
         if (known.info.face !== p.face) known.img = loadFace(p.face);
         known.info = { ...known.info, name: p.name, face: p.face, color: p.color };
@@ -1220,7 +1257,7 @@ export class TownSession {
   // Coming back to the tab, or back online: check at once rather than waiting.
   private readonly onWake = () => {
     if (this.closed || document.visibilityState !== "visible") return;
-    if (this.status === "ready") { this.current?.check(); this.voice.repair(); return; }
+    if (this.status === "ready") { this.current?.check(true); this.voice.repair(); return; }
     if (this.status === "needs-migration" || this.status === "denied" || this.status === "full") return;
     this.settledAt = Date.now();
     void this.connect();
@@ -1260,6 +1297,12 @@ export class TownSession {
       return;
     }
     if (this.status === "needs-migration" || this.status === "denied") return;
+    // A successful socket rejoin may still be waiting for its presence track.
+    // Keep repairing that while reconnecting, rather than waiting for another
+    // full socket teardown when the first track was rejected or timed out.
+    if (this.status !== "full") {
+      this.current?.check();
+    }
     if (this.status === "full") {
       // Knock again now and then; the banner stays until we are in.
       if (now - this.settledAt > FULL_RETRY_MS) { this.settledAt = now; void this.connect(); }
@@ -1344,7 +1387,7 @@ export function currentSession(): TownSession | null {
 /** This tab's stay in town as `me`: the one already going, or a new one. */
 export function openSession(me: Identity, opts: SessionOptions = {}): TownSession {
   const s = currentSession();
-  if (s && s.me.id === me.id && s.testTopic === opts.testTopic) return s;
+  if (s && s.me.id === me.id && s.testTopic === opts.testTopic) { s.updateIdentity(me); return s; }
   s?.close();
   const fresh = new TownSession(me, opts);
   (globalThis as Slot)[SLOT] = fresh;
