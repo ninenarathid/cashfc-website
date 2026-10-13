@@ -76,9 +76,10 @@ export default function TownAnnouncements({ keeper, session, th }: { keeper: Kee
     }
     void read(); const timer = setInterval(() => void read(), 10000);
     const stopWatching = keeper.watchAnnouncements?.(() => void read());
+    const stopSent = session.watchAnnouncements(() => void read());
     const seen = () => { if (!document.hidden) void read(); }; document.addEventListener("visibilitychange", seen);
     if (process.env.NODE_ENV !== "production") (window as unknown as { __townAnnouncements?: unknown }).__townAnnouncements = { show: (event: TownAnnouncement) => accept([event], false) };
-    return () => { stopped = true; stopWatching?.(); clearInterval(timer); document.removeEventListener("visibilitychange", seen); if (process.env.NODE_ENV !== "production") delete (window as unknown as { __townAnnouncements?: unknown }).__townAnnouncements; };
+    return () => { stopped = true; stopWatching?.(); stopSent(); clearInterval(timer); document.removeEventListener("visibilitychange", seen); if (process.env.NODE_ENV !== "production") delete (window as unknown as { __townAnnouncements?: unknown }).__townAnnouncements; };
   }, [keeper, session]);
   const event = queue[0];
   useEffect(() => { if (!event) return; const timer = setTimeout(() => setQueue(was => was.slice(1)), 8000); return () => clearTimeout(timer); }, [event]);

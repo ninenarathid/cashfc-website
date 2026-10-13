@@ -1157,13 +1157,19 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     return () => window.clearInterval(id);
   }, [voiceOn, chatting]);
 
-  const sendChat = (e: React.FormEvent) => {
+  const [sendingChat, setSendingChat] = useState(false);
+  const sendChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!s) return;
-    const r = s.sendChat(draft);
-    if (r === "sent") { setDraft(""); setChatNote(null); s.setTyping(false); }
+    if (!s || sendingChat) return;
+    setSendingChat(true);
+    const r = await s.sendMessage(draft);
+    setSendingChat(false);
+    if (r === "sent") { setDraft(current => current === draft ? "" : current); setChatNote(null); s.setTyping(false); }
     else if (r === "slow") setChatNote(w.slow);
     else if (r === "offline") setChatNote(w.offline);
+    else if (r === "forbidden") setChatNote(w.th ? "คำสั่งประกาศใช้ได้เฉพาะ Ninenine" : "Only Ninenine can announce.");
+    else if (r === "invalid") setChatNote(w.th ? "ใช้ /announce ตามด้วยข้อความ 1–280 ตัวอักษร" : "Use /announce followed by 1–280 characters.");
+    else if (r === "unavailable") setChatNote(w.th ? "คำสั่งประกาศยังไม่พร้อมใช้งาน" : "Announcements are not available yet.");
   };
 
   /* ── the camera ──────────────────────────────────────────────────────── */
@@ -4912,7 +4918,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                                  placeholder={phone ? w.chatPlaceholderPhone : w.chatPlaceholder} aria-label={w.chatPlaceholderPhone}
                                  className="h-full min-w-0 flex-1 bg-transparent text-read text-ink outline-none placeholder:text-muted" />
                         </span>
-                        <button type="submit" className="pressable tk tk-btn town-hud-send h-11 shrink-0 px-3 font-display text-ui font-medium">
+                        <button type="submit" disabled={sendingChat} className="pressable tk tk-btn town-hud-send h-11 shrink-0 px-3 font-display text-ui font-medium">
                           {w.send}
                         </button>
                       </form>

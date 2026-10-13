@@ -88,6 +88,7 @@ export interface ChatLine {
 }
 
 export type ChatResult = "sent" | "empty" | "slow" | "offline";
+export type MessageResult = ChatResult | "forbidden" | "invalid" | "unavailable";
 
 /** How long somebody the room stopped listing (without a goodbye) stays. */
 export const GONE_MS = 4_000;
@@ -216,6 +217,9 @@ export class TownSession {
   private beatAt = 0;
   private lastChatAt = 0;
   private chatKey = 0;
+  private announcementBusy = false;
+  private pendingAnnouncement: { text: string; request: string } | null = null;
+  private readonly announcementListeners = new Set<() => void>();
   private lookTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly subs = new Set<() => void>();
   private readonly tick: ReturnType<typeof setInterval>;
@@ -831,6 +835,35 @@ export class TownSession {
     this.chat.sort((a, b) => a.at - b.at || a.key - b.key);
     if (this.chat.length > LOG_MAX) this.chat.splice(0, this.chat.length - LOG_MAX);
     this.notify();
+  }
+
+  watchAnnouncements(fn: () => void) {
+    this.announcementListeners.add(fn);
+    return () => { this.announcementListeners.delete(fn); };
+  }
+
+  /** Commands go to the authenticated RPC, never into player chat or a browser-only preview. */
+  async sendMessage(raw: string): Promise<MessageResult> {
+    const command = /^\/announce(?:\s|$)/i.exec(raw.trimStart());
+    if (!command) return this.sendChat(raw);
+    if (this.closed) return "offline";
+    if (this.announcementBusy) return "slow";
+    const text = raw.trimStart().slice(command[0].length).trim();
+    if (!text || Array.from(text).length > 280 || /[\u0000-\u001f\u007f]/.test(text)) return "invalid";
+    // Keep the request after a lost response so retrying cannot publish a second notice.
+    if (this.pendingAnnouncement?.text !== text) this.pendingAnnouncement = { text, request: crypto.randomUUID() };
+    this.announcementBusy = true;
+    try {
+      const { data, error } = await this.client.rpc("town_admin_announce", {
+        p_message: text, p_request: this.pendingAnnouncement.request, p_look: this.self.info.look ?? null,
+      });
+      if (error) return error.code === "PGRST202" || error.code === "42883" ? "unavailable" : "offline";
+      if (data?.ok !== true) return data?.why === "forbidden" ? "forbidden" : data?.why === "slow" ? "slow" : "invalid";
+      this.pendingAnnouncement = null;
+      for (const listener of this.announcementListeners) listener();
+      return "sent";
+    } catch { return "offline"; }
+    finally { this.announcementBusy = false; }
   }
 
   sendChat(raw: string): ChatResult {

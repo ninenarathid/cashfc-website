@@ -809,7 +809,11 @@ export class DbKeeper implements Keeper {
   private readonly announcementListeners = new Set<() => void>();
   watchAnnouncements(fn: () => void) { this.announcementListeners.add(fn); return () => { this.announcementListeners.delete(fn); }; }
   async announcements(after: number | null, look: string | null) {
-    try { return await this.rpc("town_announcements", { p_after: after, p_look: look }) as unknown as import("./announcements").AnnouncementPage; }
+    const args = { p_after: after, p_look: look };
+    try {
+      try { return await this.rpc("town_announcements_v256", args) as unknown as import("./announcements").AnnouncementPage; }
+      catch { return await this.rpc("town_announcements", args) as unknown as import("./announcements").AnnouncementPage; }
+    }
     catch { return null; }
   }
   async warehouse(input: import("./warehouse").WarehouseInput, request?: string) {

@@ -61,6 +61,7 @@ export default function TownBar() {
   const [session, setSession] = useState<TownSession | null>(() => currentSession());
   const [chatOpen, setChatOpen] = useState(false);
   const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [, setTick] = useState(0);
   const [lift, setLift] = useState(0);
@@ -135,12 +136,18 @@ export default function TownBar() {
     : voiceOn ? `${w.here(s.people.length + 1)} · ${muted ? w.muted : w.mic}`
     : w.here(s.people.length + 1);
 
-  const send = (e: React.FormEvent) => {
+  const send = async (e: React.FormEvent) => {
     e.preventDefault();
-    const r = s.sendChat(draft);
-    if (r === "sent") { setDraft(""); setNote(null); s.setTyping(false); }
+    if (sending) return;
+    setSending(true);
+    const r = await s.sendMessage(draft);
+    setSending(false);
+    if (r === "sent") { setDraft(current => current === draft ? "" : current); setNote(null); s.setTyping(false); }
     else if (r === "slow") setNote(w.slow);
     else if (r === "offline") setNote(w.offline);
+    else if (r === "forbidden") setNote(w.th ? "คำสั่งประกาศใช้ได้เฉพาะ Ninenine" : "Only Ninenine can announce.");
+    else if (r === "invalid") setNote(w.th ? "ใช้ /announce ตามด้วยข้อความ 1–280 ตัวอักษร" : "Use /announce followed by 1–280 characters.");
+    else if (r === "unavailable") setNote(w.th ? "คำสั่งประกาศยังไม่พร้อมใช้งาน" : "Announcements are not available yet.");
   };
 
   // a size bigger than it was (the owner, 2026-10-02: "ใหญ่ขึ้น"), and the same footprint as the door (TownDock)
@@ -158,7 +165,7 @@ export default function TownBar() {
                    onBlur={() => s.setTyping(false)} autoFocus
                    maxLength={600} placeholder={w.placeholder} aria-label={w.placeholder} enterKeyHint="send"
                    className="min-w-0 flex-1 rounded-full border border-line-strong bg-bg px-3 py-1.5 text-read text-ink outline-none placeholder:text-muted focus:border-accent" />
-            <button type="submit" className="rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent hover:bg-accent/30">
+            <button type="submit" disabled={sending} className="rounded-full bg-accent/20 px-3 py-1.5 text-ui font-semibold text-accent hover:bg-accent/30">
               {w.send}
             </button>
           </form>
