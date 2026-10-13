@@ -1155,14 +1155,14 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           )}
           {/* what a gift of the farming line does here, beside the plain deed: never in its place */}
           {powers.map((p) => (
-            <button key={p.id} type="button" onClick={p.go} data-farm-gift={p.id} data-state="open" className={GIFT_BTN}
+            <TownFoot key={p.id} rank="power" icon={p.id as IconName}><button type="button" onClick={p.go} data-farm-gift={p.id} data-state="open" className={GIFT_BTN}
                     title={(() => { const g = giftOf(p.id); return g ? g.name[th ? "th" : "en"] : undefined; })()}>
               <span aria-hidden className="grid size-9 place-items-center rounded-full border-2 border-[#2a190d] bg-[#6b4424]"><TownIcon name={p.id as IconName} size={26} /></span>
               <span className="flex flex-col items-start leading-tight">
                 {p.word}
                 {p.more && <span className="font-data text-label font-normal tabular-nums text-[#f0c060]" data-farm-gift-more>{p.more}</span>}
               </span>
-            </button>
+            </button></TownFoot>
           ))}
         </div>
       )}

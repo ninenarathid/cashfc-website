@@ -14,7 +14,7 @@ export default function TownCloud({keeper,th,at,people}:{keeper:Keeper;th:boolea
  if(!keeper.rewardDo||(!at&&!run)||(!own&&!mine&&!run))return null;
  const blocked=a.busy||a.retry||finishing,selected=beds.length?beds:bed>=0?[bed]:[],near=at&&run&&at.every((n,i)=>n===run.at[i]);
  async function finish(marks:number[]){if(!run||!at)return;setPlaying(false);setFinishing(true);try{const wait=Math.max(0,run.began+2400-keeper.now());if(wait)await new Promise(r=>setTimeout(r,wait));await a.send({action:'cloudEnd',run:run.id,marks,at});}finally{setFinishing(false);}}
- return <TownFoot rank={open?'board':'chip'} order={50}>
+ return <TownFoot rank={open?"board":"power"} icon="thingCloudJar" order={50}>
   <button className={`${button} pointer-events-auto`} data-cloud-open onClick={()=>setOpen(v=>!v)}><TownIcon name="thingCloudJar" size={22}/>{th?'เมฆเหนือสวน':'Garden clouds'}</button>
   {open&&<section className="pointer-events-auto mt-2 w-[min(370px,calc(100vw-24px))] max-h-[66dvh] overflow-y-auto rounded-xl border border-ink/20 bg-bg/95 p-3 text-ink shadow-xl" aria-label={th?'เมฆเหนือสวน':'Garden clouds'}>
    <p className="mb-3 text-ui">{th?'น้ำพิเศษจริงหนึ่งถัง · แรง 6 · จบเกมได้วันละครั้ง แม้พลาด ฝนอยู่ที่ต้นเดิมสิบนาที คุณน้ำให้ผลครั้งเดียว ต้นละวันละครั้ง':'One real special bucketful · 6 stamina · One finished game a day, including a miss. Ten-minute rain on existing roots; water nature applies once per root per day'}</p>

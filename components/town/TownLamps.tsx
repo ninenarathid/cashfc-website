@@ -52,7 +52,7 @@ const WARM = "255,206,138", WARMER = "255,170,96", COOL = "120,232,226", PALE = 
  * 2026-10-08: a lit ring is real daylight, the tint itself taken away, not a glow over a scene that is still dark).
  * And how much wider than the lamp's six tiles its picture is laid, for the soft edge to end beyond them.
  */
-const LIFT = "255,255,255", EDGE = 1.1;
+const LIFT = "255,255,255", EDGE = 1.6;
 /** Flowers and mushrooms round a post, in tiles from its foot: close by it, on its own tile. */
 const ROUND: Array<[dx: number, dy: number]> = [[-0.42, 0.22], [0.36, 0.4], [0.44, -0.32]];
 
@@ -188,7 +188,7 @@ function lightPicture(rgb: string, kind: "soft" | "ring" = "soft"): HTMLCanvasEl
     const fill = g.createRadialGradient(64, 64, 0, 64, 64, 64);
     // (a lit post's ring: the whole of the day's colours through the rule's six tiles, which is 1 / EDGE of this picture's
     // reach, and a soft edge of a little over half a tile beyond them; it was whole only to five tiles and a bit)
-    const stops: Array<[number, number]> = kind === "ring" ? [[0, 1], [1 / EDGE, 1], [0.96, 0.5], [1, 0]] : [[0, 1], [0.22, 0.72], [0.5, 0.3], [0.78, 0.08], [1, 0]];
+    const stops: Array<[number, number]> = kind === "ring" ? [[0, 1], [1 / EDGE, 1], [0.76, 0.65], [0.9, 0.16], [1, 0]] : [[0, 1], [0.22, 0.72], [0.5, 0.3], [0.78, 0.08], [1, 0]];
     for (const [at, a] of stops) fill.addColorStop(at, `rgba(${rgb},${a})`);
     g.fillStyle = fill;
     g.fillRect(0, 0, 128, 128);
@@ -590,7 +590,8 @@ export default function TownLamps({ keeper, me, th, here, place, people, sfx, ph
           });
           return;
         }
-        rings.current.push({ x: at.x, y: at.y, rx: ringX, ry: ringY, k: rise });
+        // Light has height as well as a footprint: keep heads and tall plants in the lit area.
+        rings.current.push({ x: at.x, y: at.y - 20 * s, rx: ringX, ry: ringY + 40 * s, k: rise });
         over(() => {
           ctx.save();
           ctx.globalCompositeOperation = "lighter";

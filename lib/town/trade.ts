@@ -213,17 +213,17 @@ export interface Purse {
   /** Stamina left, on the day it was last counted (a new day begins it full). */
   stamina: { day: number; left: number };
   /**
-   * Which of the day's three meals have been eaten of, and (`bowls`) how many helpings in each one's hours: three at
+   * Which of the day's four meals have been eaten of, and (`bowls`) how many helpings in each one's hours: three at
    * the most (lib/town/stamina). A purse from before helpings were counted has no `bowls`: a meal it ate is one.
    */
-  meals: { day: number; eaten: [boolean, boolean, boolean]; bowls?: [number, number, number] };
+  meals: { day: number; eaten: boolean[]; bowls?: number[] };
   /**
    * The meal being eaten: the dish, which meal of the day it is, when it was begun, how far it had been counted, and
    * the stamina it has given so far. `lent`: it is eaten at the feast table out of one of the table's bowls
    * (lib/town/cooking's feastEat), so no bowl comes back to the bag when it ends.
    */
   lastMeal?:{cookedBy:string;cookId:string;at:number;buffs?:string[];extended?:boolean};
-  eating: { secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;picnic?:boolean; dish: DishId; meal: 0 | 1 | 2; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number } | null;
+  eating: { secondary?:import("./items").MealBuffId;cookedBy?:string;cookId?:string;picnic?:boolean; dish: DishId; meal: 0 | 1 | 2 | 3; from: number; till: number; got: number; lent?: boolean; /* (forging: what the pot it came out of gave it, lib/town/cooking's feastEat) */ warm?: number; scent?: number } | null;
   /** The buff of the last helping eaten, as it was kept before buffs had levels: still written, for a page that knows no better. */
   buff: { id: BuffId; until: number } | null;
   /** What meals have left, each while it lasts: held together, each at its level (lib/town/stamina's mealBuffs reads them; a purse from before has only `buff`). */
@@ -280,7 +280,7 @@ export interface Purse {
   // ── gifts: well ── (lib/town/well-gifts)
   /** A drink of the flask of living water that I hold out: to whom, from which tile, until when. */
   toast?: { to: string; at: [number, number]; till: number };
-  /** The drink I was last given out of somebody's flask: in which meal's hours (the day's number three times over, and the meal), and by whom. One to a meal's hours. */
+  /** The drink I was last given out of somebody's flask: in which meal's hours (the day's meal period, and the meal), and by whom. One to a meal's hours. */
   drunk?: { k: number; by: string };
   /** When the rain last filled a bucket of mine by itself (the rain frog's): the next is full no sooner after than it takes to fill. */
   rained?: number;
@@ -338,7 +338,7 @@ export interface Stall { round: number; sold: Partial<Record<ItemId, number>> }
 
 export const newPurse = (popoto: Purse["popoto"] = { profile: 0, gallery: 0 }): Purse => ({
   coins: 0, bag: Array<Stack | null>(RULES.slots).fill(null), bought: { round: 0, n: {} }, left: [], changed: { week: 0, n: 0 }, popoto: { ...popoto },
-  stamina: { day: -1, left: 0 }, meals: { day: -1, eaten: [false, false, false] }, eating: null, buff: null, best: {}, recipes: [],
+  stamina: { day: -1, left: 0 }, meals: { day: -1, eaten: [false, false, false, false] }, eating: null, buff: null, best: {}, recipes: [],
 });
 export const newStall = (): Stall => ({ round: 0, sold: {} });
 

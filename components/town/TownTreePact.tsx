@@ -17,7 +17,7 @@ export default function TownTreePact({keeper,th,at,near,onCare}:{keeper:Keeper;t
  if(!keeper.rewardDo||!works(p,'charmTreePact')||!near)return null;
  const blocked=a.busy||a.retry||finishing;
  async function finish(answers:number[]){if(!run||!at)return;setPlaying(false);setFinishing(true);try{const d=await a.send({action:'pactEnd',run:run.id,answers,at});if(d?.ok&&d.got?.length)onCare(run.tree);}finally{setFinishing(false);}}
- return <TownFoot rank={open?'board':'chip'} order={60}>
+ return <TownFoot rank={open?"board":"power"} icon="charmTreePact" order={60}>
   <button className={`${button} pointer-events-auto`} data-pact-open onClick={()=>setOpen(v=>!v)}><TownIcon name="charmTreePact" size={22}/>{th?'ดูแลต้นที่ยังยืน':'Tend a living tree'}</button>
   {open&&<section aria-label={th?'สนธิสัญญาต้นไม้':'Living-tree pact'} className="pointer-events-auto mt-2 w-[min(360px,calc(100vw-24px))] max-h-[64dvh] overflow-y-auto rounded-xl border border-ink/20 bg-bg/95 p-3 text-ink shadow-xl">
    <p className="mb-3 text-ui">{th?'น้ำจริง 1 ถัง · ปุ๋ย 1 · แรง 2 ต่อครั้ง · วันละสามครั้ง เลือกส่วนแล้วจำลำดับการดูแลให้ถูก ต้นไม้จะยังยืนอยู่':'One real bucketful · One compost · Two stamina per attempt · Three a day. Choose a part and remember the care sequence; the tree stays standing.'}</p>

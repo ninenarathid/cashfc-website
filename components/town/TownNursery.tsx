@@ -16,7 +16,7 @@ export default function TownNursery({keeper,th,at}:{keeper:Keeper;th:boolean;at:
  if(!keeper.rewardDo||!works(p,'thingTinyForest')||(!run&&!nurseryPlace(at??[])))return null;
  const blocked=a.busy||a.retry||finishing,position=at??heldAt.current,near=position&&run&&Math.max(...position.map((n,i)=>Math.abs(n-run.at[i])))<=2;
  async function finish(answers:number[]){if(!run?.challenge||!position)return;setPlaying(false);setFinishing(true);try{const wait=Math.max(0,run.challenge.began+2400-keeper.now());if(wait)await new Promise(r=>setTimeout(r,wait));await a.send({action:'nurseryEnd',nursery:run.id,challenge:run.challenge.id,answers,at:position});}finally{setFinishing(false);}}
- return <TownFoot rank={open?'board':'chip'} order={51}>
+ return <TownFoot rank={open?"board":"power"} icon="thingTinyForest" order={51}>
   <button className={`${button} pointer-events-auto`} data-nursery-open onClick={()=>{if(at)heldAt.current=at;setOpen(v=>!v);if(!open&&at)void a.send({action:'nurseryLook',at});}}><TownIcon name="thingTinyForest" size={22}/>{th?'ดูแลป่าในขวด':'Tend the bottle forest'}</button>
   {open&&<section className="pointer-events-auto mt-2 w-[min(370px,calc(100vw-24px))] max-h-[66dvh] overflow-y-auto rounded-xl border border-ink/20 bg-bg/95 p-3 text-ink shadow-xl" aria-label={th?'ป่าในขวด':'Bottle forest'}>
    <div className="flex items-center gap-3"><TownIcon name="thingTinyForest" size={46}/><p className="text-ui">{th?'เมล็ดสนสามเมล็ด · เริ่มวันละครั้ง · สามต้นรวมสูงสุดหกส่วน · เล่นแต่ละครั้งใช้แรง 2 ไม่เพิ่มไม้ซุงหรือไม้แปรรูป':'Three pine seeds · One start a day · Three trees, up to six parts · 2 stamina per attempt. Creates no logs or timber'}</p></div>

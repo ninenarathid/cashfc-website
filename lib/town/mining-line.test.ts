@@ -69,7 +69,7 @@ describe("the mining line", () => {
 
 describe("the mining line's gifts", () => {
   it("are three, of ranks one to three, beside the gifts every keeper knows", () => {
-    expect(GIFTS).toHaveLength(39);
+    expect(GIFTS).toHaveLength(40);
     expect(MORE_GIFTS.filter((g) => g.line === "mining").map((g) => [g.id, g.kind, g.rank])).toEqual([["charmMinerLamp", "charm", 1], ["famBat", "familiar", 2], ["thingSack", "thing", 3]]);
     expect(ALL_GIFTS).toHaveLength(GIFTS.length + MORE_GIFTS.length + REWARD_GIFTS.length);
     for (const g of MORE_GIFTS) {

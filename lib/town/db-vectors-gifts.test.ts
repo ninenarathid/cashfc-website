@@ -109,6 +109,11 @@ export function vectorsGifts(): Vector[] {
       add("gift_take", [p, points, line, rank], did);
     }
   }
+  // An existing fisher can take the added creel without taking their float twice.
+  for (const has of [0, LINES.fishing.marks[0] - 0.25, LINES.fishing.marks[0]]) {
+    const p = purse({ had: ["charmFloat"], charms: ["charmFloat"] }), points = { fishing: has };
+    add("gift_take", [p, points, "fishing", 1], takeGift(p, points, "fishing", 1));
+  }
   // charms worn: none, one, two, three; the same twice; one not had; what is no gift
   for (let i = 0; i < 320; i++) {
     const had = some(c.int(0, 6)), p = purse(c.maybe(0.1) ? undefined : { had, charms: had.slice(0, c.int(0, 2)), ...(c.maybe(0.3) ? { owed: 0.5 } : {}) });

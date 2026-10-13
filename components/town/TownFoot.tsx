@@ -1,7 +1,8 @@
 "use client";
 
-import { createContext, useContext, type ReactNode } from "react";
+import { Children, cloneElement, isValidElement, createContext, useContext, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import TownIcon, { type IconName } from "./TownIcon";
 
 /**
  * The foot of the map, and its head: one place for everything the town offers at the bottom of the screen, and one
@@ -31,18 +32,27 @@ import { createPortal } from "react-dom";
  * thirty rem. The map (Town.tsx) makes the places and gives them by `TownFootContext`; with no map about, nothing is
  * drawn. The layout itself is `FOOT_CSS`, which the map puts on the page.
  */
-export type FootRank = "main" | "chip" | "note" | "board" | "side" | "toast" | "corner";
+export type FootRank = "main" | "chip" | "power" | "note" | "board" | "side" | "toast" | "corner";
 export interface FootPlaces { dock: HTMLElement | null; side: HTMLElement | null; head: HTMLElement | null; corner: HTMLElement | null }
 export const TownFootContext = createContext<FootPlaces>({ dock: null, side: null, head: null, corner: null });
 
-const ORDER: Record<FootRank, number> = { note: 10, chip: 30, main: 60, board: 60, side: 0, toast: 30, corner: 30 };
+const ORDER: Record<FootRank, number> = { note: 10, chip: 30, power: 20, main: 60, board: 60, side: 0, toast: 30, corner: 30 };
 
-export default function TownFoot({ rank = "chip", order, wide = false, children }: { rank?: FootRank; order?: number; wide?: boolean; children: ReactNode }) {
+export default function TownFoot({ rank = "chip", order, wide = false, icon, children }: { rank?: FootRank; order?: number; wide?: boolean; icon?: IconName; children: ReactNode }) {
   const places = useContext(TownFootContext);
   // Keep gameplay clear of transient notices on both phones and desktops.
   if (rank === "toast") return null;
-  const into = rank === "side" ? places.side : rank === "corner" ? places.corner : places.dock;
+  const into = rank === "side" ? places.side : rank === "corner" || rank === "power" ? places.corner : places.dock;
   if (!into) return null;
+  if (rank === "power" && icon) return createPortal(
+    <div data-foot="power" style={{ order: order ?? ORDER.power }} className="pointer-events-auto">
+      {Children.map(children, child => {
+        if (!isValidElement<{ children?: ReactNode; className?: string; title?: string; "aria-label"?: string }>(child) || child.type !== "button") return child;
+        const words = (node: ReactNode): string => typeof node === "string" || typeof node === "number" ? String(node) : Array.isArray(node) ? node.map(words).join(" ") : isValidElement<{children?:ReactNode}>(node) ? words(node.props.children) : "";
+        const title = child.props["aria-label"] || child.props.title || words(child.props.children);
+        return cloneElement(child, { title, "aria-label": title, className: "pressable grid h-11 w-11 place-items-center rounded-xl border-2 border-[#987144] bg-[#302a22]/95 text-[#f0dfb6] shadow-md hover:border-gold disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-gold" }, <TownIcon name={icon} size={30} />);
+      })}
+    </div>, into);
   return createPortal(
     <div data-foot={rank} style={{ order: order ?? ORDER[rank], ...(rank === "board" ? { maxHeight: "100%", minHeight: 0 } : {}) }}
          className={`pointer-events-none flex max-w-full flex-col gap-2 ${rank === "side" || rank === "corner" ? "items-start" : "items-center"} ${rank === "board" ? (wide ? "w-[30rem]" : "w-[26rem]") : ""}`}>
@@ -79,6 +89,7 @@ export default function TownFoot({ rank = "chip", order, wide = false, children 
 export const FOOT_CSS = `
   .town-foot { display: grid; align-items: end; column-gap: 0.5rem; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr) minmax(0, auto) auto auto; grid-template-areas: "corner corner" "toast toast" "hand hand" "said said" "dock dock" "ctrl right"; }
   .town-foot > [data-head-corner] { grid-area: corner; align-self: start; justify-self: start; }
+  [data-foot-powers] { display: flex; flex-wrap: wrap; gap: .375rem; max-width: min(20rem,calc(100vw - 2rem)); }
   .town-foot > [data-head-toast] { grid-area: toast; align-self: start; }
   .town-foot > [data-foot-hand] { grid-area: hand; }
   .town-foot > [data-foot-said] { grid-area: said; }
@@ -86,6 +97,7 @@ export const FOOT_CSS = `
   .town-foot > [data-foot-ctrl] { grid-area: ctrl; }
   .town-foot > [data-foot-right] { grid-area: right; position: relative; }
   .town-foot:has([data-foot="board"]) { z-index: 36; }
+  .town-foot:has([data-foot="board"]) [data-foot="power"] { display: none; }
   .town-foot [data-foot="board"] > * { max-height: 100%; min-height: 0; }
   .town-foot [data-foot-dock] button { max-width: 100%; }
   .town-foot [data-foot-dock]:has(> [data-foot="board"]) > :is([data-foot="chip"], [data-foot="main"]) { display: none; }

@@ -1,6 +1,6 @@
 import { giftsOf } from "./gifts";
 import { learnMinerals } from "./reward-knowledge";
-import type { ItemId } from "./items";
+import { FISH_IDS, type ItemId } from "./items";
 import { ELEMENTS, GEMS, MINED, ORES } from "./tools";
 import { ITEMS, put, roomFor, take, type Purse, type Stack } from "./trade";
 
@@ -21,6 +21,7 @@ export interface Pouch {
 }
 /** The pouches there are, in the order things are put into them. One line a pouch, each its builder's to add. */
 export const POUCHES: readonly Pouch[] = [
+  { gift: "thingCreel", slots: 5, holds: FISH_IDS },
   // ── mining ── (the mine's things: stone, ore fragments, gem fragments, big ore and gems)
   { gift: "thingSack", slots: 5, holds: [...MINED, ...ORES.map((o): ItemId => o.ore), ...ELEMENTS.map((e) => GEMS[e].gem),
     "slateLayer", "clayPocket", "quartzCore", "pyriteCluster", "copperNodule", "ironNodule", "silverNodule", "mineralSalt", "wholeGeode"] },

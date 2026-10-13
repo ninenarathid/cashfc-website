@@ -113,16 +113,16 @@ describe("stamina", () => {
 });
 
 describe("meals", () => {
-  it("are three a day, by the clock: breakfast, lunch, dinner", () => {
+  it("are four a day, by the clock: breakfast, lunch, dinner and late night", () => {
     expect(mealOf(at("2026-10-03T05:00:00"))).toBe(0);
     expect(mealOf(at("2026-10-03T10:59:00"))).toBe(0);
     expect(mealOf(at("2026-10-03T11:00:00"))).toBe(1);
     expect(mealOf(at("2026-10-03T16:59:00"))).toBe(1);
     expect(mealOf(at("2026-10-03T17:00:00"))).toBe(2);
-    expect(mealOf(at("2026-10-04T02:00:00"))).toBe(2);
-    expect(mealOf(at("2026-10-04T04:59:00"))).toBe(2);
+    expect(mealOf(at("2026-10-04T02:00:00"))).toBe(3);
+    expect(mealOf(at("2026-10-04T04:59:00"))).toBe(3);
     expect(nextMealAt(NOON)).toBe(at("2026-10-03T17:00:00"));
-    expect(nextMealAt(at("2026-10-03T22:00:00"))).toBe(at("2026-10-04T05:00:00"));
+    expect(nextMealAt(at("2026-10-03T22:00:00"))).toBe(at("2026-10-03T23:00:00"));
     expect(nextMealAt(at("2026-10-04T02:00:00"))).toBe(at("2026-10-04T05:00:00"));
   });
 
@@ -136,8 +136,8 @@ describe("meals", () => {
     if (!sat.ok) return;
     expect(sat.purse.bag[0]).toEqual({ item: "riceBox", n: 4 });
     expect(sat.purse.eating).toMatchObject({ dish: "riceBox", meal: 1, got: 0 });
-    expect(eatenToday(sat.purse, NOON)).toEqual([false, true, false]);
-    expect(bowlsToday(sat.purse, NOON)).toEqual([0, 1, 0]);
+    expect(eatenToday(sat.purse, NOON)).toEqual([false, true, false, false]);
+    expect(bowlsToday(sat.purse, NOON)).toEqual([0, 1, 0, 0]);
     // not a second helping while the first is being eaten
     expect(sitDown(sat.purse, 0, true, NOON + MIN)).toEqual({ ok: false, why: "meal" });
     // eaten up, a second and a third in the same hours, each when one likes (the owner, 2026-10-06: "กินข้าวได้ 3 จานต่อมื้อ",
@@ -149,18 +149,18 @@ describe("meals", () => {
       const more = sitDown(done, 0, true, when);
       expect(more.ok).toBe(true);
       if (!more.ok) return;
-      expect(bowlsToday(more.purse, when)).toEqual([0, n, 0]);
+      expect(bowlsToday(more.purse, when)).toEqual([0, n, 0, 0]);
       done = chew(more.purse, 0, when + 6 * MIN).purse;
     }
     expect(mayEat(done, at("2026-10-03T16:30:00"))).toBe(false);
     expect(sitDown(done, 0, true, at("2026-10-03T16:30:00"))).toEqual({ ok: false, why: "meal" });
     // dinner's hours have three of their own, and tomorrow is another day
     expect(sitDown(done, 0, true, at("2026-10-03T18:00:00")).ok).toBe(true);
-    expect(eatenToday(done, at("2026-10-04T05:00:00"))).toEqual([false, false, false]);
-    expect(bowlsToday(done, at("2026-10-04T05:00:00"))).toEqual([0, 0, 0]);
+    expect(eatenToday(done, at("2026-10-04T05:00:00"))).toEqual([false, false, false, false]);
+    expect(bowlsToday(done, at("2026-10-04T05:00:00"))).toEqual([0, 0, 0, 0]);
     // a purse from before helpings were counted: the meal it ate is one of the three
     const old: Purse = { ...p, meals: { day: dayOf(NOON), eaten: [false, true, false] } };
-    expect(bowlsToday(old, NOON)).toEqual([0, 1, 0]);
+    expect(bowlsToday(old, NOON)).toEqual([0, 1, 0, 0]);
     expect(mayEat(old, NOON)).toBe(true);
   });
 
@@ -365,7 +365,7 @@ describe("what meals leave (the owner, 2026-10-06: \"buff จะ stack เป็
     const up = getUp(sat.purse, 0, T1 + 3 * MIN);
     expect(mealBuffs(up, T1 + 3 * MIN)).toEqual([{ id: "hearty", level: 1, until: T1 + BUFF_HOURS * H }]);
     // (and the helping is spent all the same: it was one of the meal's three)
-    expect(bowlsToday(up, T1 + 3 * MIN)).toEqual([0, 2, 0]);
+    expect(bowlsToday(up, T1 + 3 * MIN)).toEqual([0, 2, 0, 0]);
   });
 });
 

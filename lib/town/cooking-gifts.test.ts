@@ -90,7 +90,7 @@ describe("the dimension basket (the kitchen's second rank)", () => {
     const sat = done(basketEat(Object.freeze(p) as Purse, "tomYum", true, NOON));
     expect(sat.dish).toBe("tomYum");
     expect(sat.purse.basket).toEqual([["tomYum", 1]]);
-    expect(sat.purse.meals.bowls).toEqual([0, 1, 0]);
+    expect(sat.purse.meals.bowls).toEqual([0, 1, 0, 0]);
     expect(sat.purse.eating).toEqual({ dish: "tomYum", meal: 1, from: NOON, till: NOON, got: 0 });
     // the same meal and the same count as the same helping out of the bag
     const bagged = done(sitDown({ ...p, bag: put(p.bag, "tomYum", 1) }, 0, true, NOON));

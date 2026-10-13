@@ -1,7 +1,15 @@
+import type { RodId } from "@/lib/town/gear";
 import art from "@/lib/town/held-art.json";
 import { ITEMS } from "@/lib/town/items";
 import { GEMS, gemShow, type Element, type ToolLook } from "@/lib/town/tools";
 import type { Vec } from "@/lib/town/world";
+
+/** How each rod is drawn in the hand: its cane, the joints along it, its grip, its dark edge, and its reel if it has one. */
+export const ROD_LOOKS: Record<RodId, { cane: string; joint: string; grip: string; edge: string; reel?: string }> = {
+  rod: { cane: "#e0ba72", joint: "#a67a38", grip: "#8a5a2b", edge: "#3d2913" },
+  rodTeak: { cane: "#a0683a", joint: "#7a4a24", grip: "#56331a", edge: "#2a180b", reel: "#c9a45c" },
+  rodMaster: { cane: "#3b3138", joint: "#c0392b", grip: "#e5cc80", edge: "#141014", reel: "#f1d06b" },
+};
 
 /**
  * A tool in the hand, in proportion to whoever holds it, and what its gems show about it (the owner, 2026-10-08:

@@ -38,7 +38,7 @@ export default function TownWaterRelay({keeper,th,at,register}:{keeper:Keeper;th
  if(!keeper.rewardDo||(!works(p,"famWaterRelay")&&!r))return null;
  const available=p.bag.flatMap((s,i)=>s&&WATER.buckets[s.item]&&s.n===1&&Object.keys(s).every(k=>['item','n'].includes(k))?[i]:[]),chosen=slot!==null&&available.includes(slot)?slot:available[0];
  const blocked=a.busy||a.retry||!at||!relayPlace(at),near=at&&r&&Math.max(...at.map((v,i)=>Math.abs(v-r.at[i])))<=1;
- return <TownFoot rank={open?"board":"chip"} order={45}>
+ return <TownFoot rank={open?"board":"power"} icon="famWaterRelay" order={45}>
   <button className={`${button} pointer-events-auto`} data-water-relay onClick={()=>setOpen(v=>!v)}><TownIcon name="famWaterRelay" size={20}/>{th?"จุดรับน้ำของฉัน":"My water receiver"}</button>
   {open&&<section className="pointer-events-auto mt-2 max-w-sm rounded-xl border border-ink/20 bg-bg/95 p-3 text-ink shadow-xl" aria-label={th?"ภูตส่งน้ำ":"Water relay spirit"}>
    <p className="mb-2 text-ui">{th?`ส่งน้ำจริงสูงสุด 6 ถัง · ระยะ 40 ช่องในแผนที่เดียวกัน · แรง 2 · เหลือ ${usesLeft(p,"famWaterRelay",keeper.now())} ครั้งวันนี้`:`Up to six real bucketfuls · 40 tiles on one map · 2 stamina · ${usesLeft(p,"famWaterRelay",keeper.now())} sends left today`}</p>

@@ -41,7 +41,7 @@ export default function TownBeaverBridge({keeper,th,at,register}:{keeper:Keeper;
  const p=keeper.purse(),own=works(p,'famBeaver'),site=at?CROSSINGS.findIndex(s=>[s.a,s.b].some(b=>b.every((n,i)=>n===at[i]))):-1;
  if(!near||!own||!keeper.rewardDo)return null;
  const active=rows.find(r=>r.site===site&&r.until>keeper.now());
- return <TownFoot rank={open?'board':'chip'} order={55}>
+ return <TownFoot rank={open?"board":"power"} icon="famBeaver" order={55}>
   <button className={`${button} pointer-events-auto`} data-beaver-open onClick={()=>setOpen(v=>!v)}><TownIcon name="famBeaver" size={24}/>{th?'บีเวอร์ทำทางข้าม':'Beaver crossings'}</button>
   {open&&<section className="pointer-events-auto mt-2 w-[min(360px,calc(100vw-24px))] max-h-[64dvh] overflow-y-auto rounded-xl border border-ink/20 bg-bg/95 p-3 text-ink shadow-xl" aria-label={th?'สะพานบีเวอร์':'Beaver bridge'}>
    <p className="mb-3 text-ui">{th?'สะพานร่วมกันวันละหนึ่งแห่ง อยู่ 30 นาที ใช้ใยราก 2 และแรง 3 ทุกคนเดินข้ามได้ด้วยความเร็วเดิม หมดเวลาแล้วจะกลับฝั่งใกล้ที่สุดอย่างปลอดภัย':'One shared bridge per day, lasting thirty minutes. Two root fibres and three stamina. Everyone walks at their usual speed; expiry brings travellers to the nearest bank.'}</p>

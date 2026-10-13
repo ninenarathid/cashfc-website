@@ -17,7 +17,7 @@ import { newPurse, put, type Purse } from "./trade";
  *   none, more than the slot has, more than the basket has room for;
  * - `basket_take`: dishes in the basket and not, amounts of every sort, bags with room, with a stack begun, with none;
  * - `begun`, `basket_eat`: sitting and standing, a meal at hand, a meal's hours with none, some and all of their
- *   helpings had, on the day kept and on another, in each of the three meals' hours;
+ *   helpings had, on the day kept and on another, in each of the four meals' hours;
  * - `whispers_of`, `spoon_says`, `spoon`: pots that are a part of every recipe there is (some of its things, all but
  *   its last, all of it, one too many of a thing, a thing no recipe has with the rest), with recipes read whole
  *   already and not; asked with the spoon and without, of things the bag has and has not, with every count of the
@@ -45,7 +45,7 @@ function chance(seed: number) {
 }
 const at = (s: string) => Date.parse(`${s}+07:00`);
 const NOON = at("2026-10-07T12:00:00"), HOUR = 3_600_000;
-/** A moment in each meal's hours, and one before dawn (the day before's dinner still). */
+/** A moment in each meal's hours, including late night before dawn. */
 const WHENS = [at("2026-10-07T06:30:00"), NOON, at("2026-10-07T19:10:00"), at("2026-10-08T03:00:00")];
 const DISHES_SOME: DishId[] = ["tomYum", "friedMinnow", "oddDish", "riceBox", "shabu", "grilledCorn", "moonTea", "laab"];
 const OTHERS: ItemId[] = ["minnow", "pot", "bowl", "rice", "worm", "boot"];
@@ -269,9 +269,9 @@ describe("the cases the database's rules of the kitchen's gifts are held to", ()
     expect(puts.some((x) => x.after.length === x.before.length && x.before.length > 0) && puts.some((x) => x.after.length === x.before.length + 1)).toBe(true);
     const takes = of("basket_take").filter((v) => (v.want as { ok: boolean }).ok).map((v) => ({ before: basketOf(v.args[0] as Purse), after: (v.want as { purse: Purse }).purse.basket! }));
     expect(takes.some((x) => x.after.length === x.before.length) && takes.some((x) => x.after.length === x.before.length - 1)).toBe(true);
-    // a meal begun out of the basket in each of the three meals' hours
+    // a meal begun out of the basket in each of the four meals' hours
     const meals = new Set(of("basket_eat").filter((v) => (v.want as { ok: boolean }).ok).map((v) => (v.want as { purse: Purse }).purse.eating!.meal));
-    expect([...meals].sort()).toEqual([0, 1, 2]);
+    expect([...meals].sort()).toEqual([0, 1, 2, 3]);
     // the spoon: told, and silent each way; of a pot that could be one recipe and of one that could be many; a recipe kept as told
     expect([...whys("spoon_says")].sort()).toEqual(["amount", "astray", "known", "ok"]);
     expect([...whys("spoon")].sort()).toEqual(["amount", "astray", "known", "none", "ok", "spent"]);

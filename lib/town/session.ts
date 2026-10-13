@@ -84,6 +84,7 @@ export interface ChatLine {
   text: string;
   at: number;
   mine: boolean;
+  announcement?: number;
 }
 
 export type ChatResult = "sent" | "empty" | "slow" | "offline";
@@ -820,6 +821,15 @@ export class TownSession {
     if (!told || (a.forged && now - a.forged.at < SHOW.every)) return;
     a.forged = { ...told, at: now };
     this.onForged?.(a);
+    this.notify();
+  }
+
+  /** Server announcements enter the local log without broadcasting a player chat message. */
+  townAnnouncement(id: number, text: string, at: number, name: string) {
+    if (this.closed || this.chat.some(line => line.announcement === id)) return;
+    this.chat.push({ key: ++this.chatKey, from: "town", name, text, at, mine: false, announcement: id });
+    this.chat.sort((a, b) => a.at - b.at || a.key - b.key);
+    if (this.chat.length > LOG_MAX) this.chat.splice(0, this.chat.length - LOG_MAX);
     this.notify();
   }
 

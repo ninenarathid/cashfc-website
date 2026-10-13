@@ -147,7 +147,7 @@ describe("pouches", () => {
     for (const id of ["stone", "shardCopper", "shardIron", "shardSilver", "chipRuby", "chipOnyx", "oreCopper", "oreSilver", "gemRuby", "gemOnyx"] as const) expect(holds).toContain(id);
     for (const id of ["log", "timber", "torch", "pick", "minnow"] as const) expect(holds).not.toContain(id);
     expect(pouchesOf(newPurse())).toEqual([]);
-    expect(pouchesOf(sack)).toEqual([{ pouch: POUCHES[0], slots: [null, null, null, null, null] }]);
+    expect(pouchesOf(sack)).toEqual([{ pouch: POUCHES.find(p => p.gift === "thingSack"), slots: [null, null, null, null, null] }]);
     expect(roomIn(newPurse(), "stone")).toBe(10 * 50);
     expect(roomIn(sack, "stone")).toBe(15 * 50);
     expect(roomIn(sack, "minnow")).toBe(roomIn(newPurse(), "minnow"));

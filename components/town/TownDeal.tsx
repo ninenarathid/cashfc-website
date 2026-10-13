@@ -1,14 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { DEAL, sideOf, type Give } from "@/lib/town/deal";
+import { DEAL, sideOf, dealChoices, giveKey, type Give, type GiveEntry } from "@/lib/town/deal";
 import { ITEMS, type ItemId } from "@/lib/town/items";
+import { OPTIONS, GEMS } from "@/lib/town/tools";
 import type { FishSfx } from "@/lib/town/sfx";
 import { held } from "@/lib/town/trade";
 import type { Keeper } from "@/lib/town/keeper";
 import TownIcon from "./TownIcon";
 import TownFoot from "./TownFoot";
-import { Coins, ItemIcon, WHY } from "./TownTrade";
+import { Coins, ItemIcon, StackIcon, WHY } from "./TownTrade";
 
 /** Open a deal with somebody: their id in the town, and what they are called. */
 export type OpenDeal = (id: string, name: string) => void;
@@ -67,7 +68,7 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
   const side = deal && !deal.end ? sideOf(deal, me) : null, other = side === "a" ? "b" : "a";
   // Show the proposed amount while it is saved; wait for that answer before another change or agreement.
   const [laid, setLaid] = useState<{ give: Give; coins: number } | null>(null);
-  const [chosen, setChosen] = useState<{ id: ItemId; value: string } | null>(null);
+  const [chosen, setChosen] = useState<{ entry: GiveEntry; value: string } | null>(null);
   const laying = useRef(0);
   const saving = useRef(false);
   useEffect(() => {
@@ -77,7 +78,8 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
     setChosen(null);
   }, [side, deal?.a, deal?.b, deal?.at]);
   const mine: Give = side ? laid?.give ?? deal!.give[side] : [], theirs: Give = side ? deal!.give[other] : [];
-  const count = (id: ItemId) => mine.find(([t]) => t === id)?.[1] ?? 0;
+  const count = (entry: GiveEntry) => mine.find(e => giveKey(e) === giveKey(entry))?.[1] ?? 0;
+  const maximum = (entry: GiveEntry) => entry[2] ? entry[2].stack.n : held(purse.bag, entry[0]);
   const coins = side ? laid?.coins ?? deal!.coins?.[side] ?? 0 : 0, theirCoins = side ? deal!.coins?.[other] ?? 0 : 0;
   const lay = (give: Give, pay = coins) => {
     if (saving.current || !side) return;
@@ -93,17 +95,18 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
   };
   /** So many coins more (or fewer) beside my things: never more than I have, never fewer than none. */
   const pay = (by: number) => lay(mine, Math.max(0, Math.min(purse.coins, coins + by)));
-  const amount = (id: ItemId, want: number) => {
+  const amount = (entry: GiveEntry, want: number) => {
     if (saving.current || !Number.isSafeInteger(want)) return;
-    const n = Math.max(0, Math.min(held(purse.bag, id), want));
-    if (n > 0 && !count(id) && mine.length >= DEAL.kinds) { say("amount"); return; }
-    setChosen({ id, value: String(n) });
-    if (n === count(id)) return;
-    lay(count(id) ? mine.flatMap(([t, old]): Give => t !== id ? [[t, old]] : n > 0 ? [[id, n]] : []) : n > 0 ? [...mine, [id, n]] : mine);
+    const n = Math.max(0, Math.min(maximum(entry), want));
+    if (n > 0 && !count(entry) && mine.length >= DEAL.kinds) { say("amount"); return; }
+    setChosen({ entry, value: String(n) });
+    if (n === count(entry)) return;
+    const next: GiveEntry = entry[2] ? [entry[0], n, entry[2]] : [entry[0], n];
+    lay(count(entry) ? mine.flatMap((e): Give => giveKey(e) !== giveKey(entry) ? [e] : n > 0 ? [next] : []) : n > 0 ? [...mine, next] : mine);
   };
   const pending = laid !== null;
-  const chosenCount = chosen ? count(chosen.id) : 0;
-  const chosenMax = chosen ? held(purse.bag, chosen.id) : 0;
+  const chosenCount = chosen ? count(chosen.entry) : 0;
+  const chosenMax = chosen ? maximum(chosen.entry) : 0;
   const chosenNumber = chosen && /^\d+$/.test(chosen.value) ? Number(chosen.value) : NaN;
   const validAmount = Number.isSafeInteger(chosenNumber) && chosenNumber >= 0 && chosenNumber <= chosenMax;
   const editing = chosen !== null && (!validAmount || chosenNumber !== chosenCount);
@@ -122,7 +125,14 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
 
   if (!side && !note) return null;
   const label = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
-  const stuff = side ? purse.bag.flatMap((s) => (s ? [s.item] : [])).filter((id, i, all) => all.indexOf(id) === i) : [];
+  const stuff = side ? dealChoices(purse.bag) : [];
+  const detail = (e: GiveEntry) => {
+    const stack = e[2]?.stack;
+    const options = stack?.opts?.flatMap(id => id && id in OPTIONS ? [OPTIONS[id as keyof typeof OPTIONS].name[th ? "th" : "en"]] : []);
+    const gems = stack?.gems?.flatMap(id => id && id in GEMS ? [GEMS[id as keyof typeof GEMS].name[th ? "th" : "en"]] : []);
+    return `${label(e[0])}${stack ? ` · ${th ? "ช่อง" : "Slot"} ${e[2]!.slot + 1}${stack.plus ? ` · +${stack.plus}` : ""}${options?.length ? ` · ${options.join(", ")}` : ""}${gems?.length ? ` · ${gems.join(", ")}` : ""}` : ""}`;
+  };
+  const icon = (e: GiveEntry, size: number) => e[2] ? <StackIcon stack={e[2].stack} size={size} /> : <ItemIcon id={e[0]} size={size} />;
   const Side = ({ title, give, word, own, paid }: { title: string; give: Give; word: boolean; own: boolean; paid: number }) => (
     <div className={`min-w-0 flex-1 rounded-xl border px-2 py-1.5 ${word ? "border-jade bg-jade/10" : "border-dashed border-line-strong bg-bg/40"}`}>
       <p className="mb-1 flex items-center gap-1 truncate font-data text-label uppercase tracking-wider text-muted">
@@ -141,20 +151,20 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
             )}
           </li>
         )}
-        {give.map(([id, n]) => (
-          <li key={id}>
+        {give.map((entry) => { const [id, n] = entry; return (
+          <li key={giveKey(entry)}>
             {own ? (
-              <button type="button" disabled={pending} onClick={() => setChosen({ id, value: String(n) })} aria-label={`${th ? "แก้จำนวน" : "Edit amount of"} ${label(id)} ×${n}`} title={label(id)}
+              <button type="button" disabled={pending} onClick={() => setChosen({ entry, value: String(n) })} aria-label={`${th ? "แก้จำนวน" : "Edit amount of"} ${detail(entry)} ×${n}`} title={detail(entry)}
                       className="pressable flex min-h-9 items-center gap-1 rounded-full border border-line-strong bg-card/70 pl-1.5 pr-2.5 text-ui text-ink hover:border-chili">
-                <ItemIcon id={id} size={22} /><span className="font-data tabular-nums">×{n}</span>
+                {icon(entry, 22)}<span className="font-data tabular-nums">×{n}</span>
               </button>
             ) : (
-              <span aria-label={`${label(id)} ×${n}`} title={label(id)} className="flex min-h-9 items-center gap-1 rounded-full border border-line-strong bg-card/70 pl-1.5 pr-2.5 text-ui text-ink">
-                <ItemIcon id={id} size={22} /><span className="font-data tabular-nums">×{n}</span>
+              <span aria-label={`${detail(entry)} ×${n}`} title={detail(entry)} className="flex min-h-9 items-center gap-1 rounded-full border border-line-strong bg-card/70 pl-1.5 pr-2.5 text-ui text-ink">
+                {icon(entry, 22)}<span className="font-data tabular-nums">×{n}</span>
               </span>
             )}
           </li>
-        ))}
+        ); })}
       </ul>
     </div>
   );
@@ -187,13 +197,14 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
           <p className="mt-2 text-meta text-muted">{th ? "กดของเพื่อเพิ่ม 1 ชิ้น แล้วเลือกจำนวนได้ด้านล่าง" : "Tap an item to add one, then choose its amount below"}</p>
           {/* A tap still adds one; the selected kind also gets bulk controls. */}
           <ul className="mt-2 grid max-h-[7.5rem] grid-cols-6 gap-1.5 overflow-y-auto pr-0.5" aria-label={th ? "ของในกระเป๋า" : "In the bag"}>
-            {stuff.map((id) => {
-              const left = held(purse.bag, id) - count(id);
+            {stuff.map((entry) => {
+              const id = entry[0];
+              const left = maximum(entry) - count(entry);
               return (
-                <li key={id}>
-                  <button type="button" disabled={pending || (left > 0 && !count(id) && mine.length >= DEAL.kinds)} onClick={() => amount(id, count(id) + (left > 0 ? 1 : 0))} aria-label={`${label(id)} ×${left}`} aria-pressed={chosen?.id === id} title={label(id)}
-                          className={`pressable relative grid aspect-square w-full place-items-center rounded-xl border-2 ${chosen?.id === id ? "border-gold" : "border-[#6b4a2a]"} bg-[#33251a] disabled:opacity-35`}>
-                    <ItemIcon id={id} size={30} />
+                <li key={giveKey(entry)}>
+                  <button type="button" disabled={pending || (left > 0 && !count(entry) && mine.length >= DEAL.kinds)} onClick={() => amount(entry, count(entry) + (left > 0 ? 1 : 0))} aria-label={`${detail(entry)} ×${left}`} aria-pressed={chosen !== null && giveKey(chosen.entry) === giveKey(entry)} title={detail(entry)}
+                          className={`pressable relative grid aspect-square w-full place-items-center rounded-xl border-2 ${chosen !== null && giveKey(chosen.entry) === giveKey(entry) ? "border-gold" : "border-[#6b4a2a]"} bg-[#33251a] disabled:opacity-35`}>
+                    {icon(entry, 30)}
                     <span className="absolute bottom-0 right-1 font-data text-meta font-semibold tabular-nums text-[#f3e3c3] [text-shadow:0_1px_2px_#000]">{left}</span>
                   </button>
                 </li>
@@ -201,27 +212,27 @@ export default function TownDeal({ me, keeper, name, th, sfx, bottom, register }
             })}
           </ul>
           {chosen && (
-            <form className="mt-2 rounded-xl border border-line-strong bg-bg/40 p-2" onSubmit={(event) => { event.preventDefault(); if (validAmount) amount(chosen.id, chosenNumber); }}>
+            <form className="mt-2 rounded-xl border border-line-strong bg-bg/40 p-2" onSubmit={(event) => { event.preventDefault(); if (validAmount) amount(chosen.entry, chosenNumber); }}>
               <div className="flex items-center gap-2 text-ui text-ink">
-                <ItemIcon id={chosen.id} size={22} />
-                <span className="min-w-0 flex-1 truncate">{label(chosen.id)}</span>
+                {icon(chosen.entry, 22)}
+                <span className="min-w-0 flex-1 truncate">{detail(chosen.entry)}</span>
                 <span className="shrink-0 font-data text-meta tabular-nums text-muted">{th ? "มี" : "Have"} {chosenMax}</span>
               </div>
               <div className="mt-2 flex items-center gap-2">
                 <label htmlFor="town-deal-amount" className="text-meta text-muted">{th ? "จำนวนที่เสนอ" : "Offer amount"}</label>
                 <input id="town-deal-amount" type="number" inputMode="numeric" min={0} max={chosenMax} step={1} value={chosen.value} disabled={pending}
-                       onChange={(event) => setChosen({ id: chosen.id, value: event.target.value })} aria-invalid={!validAmount}
+                       onChange={(event) => setChosen({ entry: chosen.entry, value: event.target.value })} aria-invalid={!validAmount}
                        className="min-h-10 min-w-0 flex-1 rounded-lg border border-line-strong bg-bg px-2 font-data text-ui tabular-nums text-ink focus-visible:outline-2 focus-visible:outline-gold" />
                 <button type="submit" disabled={pending || !validAmount || !editing} className="pressable min-h-10 shrink-0 rounded-lg bg-accent px-3 text-meta font-semibold text-bg disabled:opacity-35">{th ? "ใช้จำนวน" : "Apply"}</button>
               </div>
               <div className="mt-2 flex flex-wrap gap-1">
                 {[-1, 1, 10, 100].map((by) => (
-                  <button key={by} type="button" disabled={pending || (by < 0 ? chosenCount === 0 : chosenCount >= chosenMax)} onClick={() => amount(chosen.id, chosenCount + by)}
-                          aria-label={`${by > 0 ? "+" : ""}${by} ${label(chosen.id)}`}
+                  <button key={by} type="button" disabled={pending || (by < 0 ? chosenCount === 0 : chosenCount >= chosenMax)} onClick={() => amount(chosen.entry, chosenCount + by)}
+                          aria-label={`${by > 0 ? "+" : ""}${by} ${label(chosen.entry[0])}`}
                           className="pressable min-h-10 rounded-lg border border-line-strong px-2.5 font-data text-meta tabular-nums text-ink hover:border-gold disabled:opacity-35">{by > 0 ? `+${by}` : "−1"}</button>
                 ))}
-                <button type="button" disabled={pending || chosenCount >= chosenMax} onClick={() => amount(chosen.id, chosenMax)} className="pressable min-h-10 rounded-lg border border-line-strong px-2.5 text-meta text-ink hover:border-gold disabled:opacity-35">{th ? "ทั้งหมด" : "All"}</button>
-                <button type="button" disabled={pending || chosenCount === 0} onClick={() => amount(chosen.id, 0)} className="pressable min-h-10 rounded-lg border border-line-strong px-2.5 text-meta text-muted hover:border-chili disabled:opacity-35">{th ? "เอาออก" : "Remove"}</button>
+                <button type="button" disabled={pending || chosenCount >= chosenMax} onClick={() => amount(chosen.entry, chosenMax)} className="pressable min-h-10 rounded-lg border border-line-strong px-2.5 text-meta text-ink hover:border-gold disabled:opacity-35">{th ? "ทั้งหมด" : "All"}</button>
+                <button type="button" disabled={pending || chosenCount === 0} onClick={() => amount(chosen.entry, 0)} className="pressable min-h-10 rounded-lg border border-line-strong px-2.5 text-meta text-muted hover:border-chili disabled:opacity-35">{th ? "เอาออก" : "Remove"}</button>
               </div>
               {editing && <p className="mt-1 text-meta text-muted">{validAmount ? (th ? "กดใช้จำนวนก่อนตกลงแลก" : "Apply this amount before agreeing") : (th ? `กรอกจำนวนเต็มตั้งแต่ 0 ถึง ${chosenMax}` : `Enter a whole number from 0 to ${chosenMax}`)}</p>}
             </form>

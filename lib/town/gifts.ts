@@ -44,7 +44,7 @@ export type ThingId = (typeof THING_IDS)[number] | (typeof MORE_THING_IDS)[numbe
 // (the keeper's `gives`), as every round of gifts has gone out.
 export const MORE_CHARM_IDS = ["charmEchoAxe", "charmMinerLamp"] as const;
 export const MORE_FAMILIAR_IDS = ["famWoodpecker", "famBat"] as const;
-export const MORE_THING_IDS = ["thingBundle", "thingSack"] as const;
+export const MORE_THING_IDS = ["thingBundle", "thingSack", "thingCreel"] as const;
 // ── end: gifts to come ──
 export type GiftId = CharmId | FamiliarId | ThingId;
 export type GiftKind = "charm" | "familiar" | "thing";
@@ -102,6 +102,8 @@ export const GIFTS: readonly Gift[] = [
   // the deck
   { id: "famOtter", kind: "familiar", line: "fishing", rank: 2, by: 1, name: { th: "นากคู่ใจ", en: "An otter" },
     does: { th: "ปลาหลุดเมื่อไหร่ นากต้อนกลับมาให้สู้ใหม่ทันทีอีกหนึ่งรอบ ไม่เสียเหยื่อ มื้อละ 10 ครั้ง", en: "A fish that gets away is driven back for one more fight at once, no bait lost, ten times to a meal's hours" } },
+  { id: "thingCreel", kind: "thing", line: "fishing", rank: 1, by: 5, name: { th: "กระชังปลา", en: "Fishing creel" },
+    does: { th: "เก็บปลาที่จับได้ในกระเป๋าแยก 5 ช่อง ไม่กินช่องกระเป๋าหลัก ย้ายออกมาทำอาหารหรือแลกได้", en: "Five separate slots for caught fish. Move fish to the bag for cooking or trading." } },
   { id: "thingRod", kind: "thing", line: "fishing", rank: 3, by: 0.75, name: { th: "คันเบ็ดสองสาย", en: "Rod of two lines" },
     does: { th: "เพิ่มสายเบ็ดหนึ่งสาย: คันพื้นฐาน 1→2 คันขั้นสูง 2→3 สู้ปลาแต่ละสายเอง ช่วงปลอดภัยแคบลง และใช้เหยื่อตามจำนวนสาย", en: "Adds one fishing line: ordinary rods 1→2, advanced rods 2→3. Fight each fish yourself in a narrower safe stretch; one bait per line." } },
   { id: "charmLine", kind: "charm", line: "fishing", rank: 4, by: 3, name: { th: "สายเบ็ดใยมังกร", en: "Dragon-silk line" },
@@ -210,7 +212,7 @@ export const USES: Partial<Record<GiftId, Use>> = {
  * the same moment: a wait of up to a span, never more).
  */
 export const stretchOf = (rule: Use, now: number): number =>
-  (rule.per === "day" ? dayOf(now) : rule.per === "meal" ? dayOf(now) * 3 + mealOf(now) : Math.floor(now / Math.max(1, rule.ms ?? 1)));
+  (rule.per === "day" ? dayOf(now) : rule.per === "meal" ? (mealOf(now) === 3 ? -dayOf(now) - 1 : dayOf(now) * 3 + mealOf(now)) : Math.floor(now / Math.max(1, rule.ms ?? 1)));
 
 /** What a member has of the gifts: those taken, the charms worn of them, the familiar that follows, and what part of a point the gloves' half has left owing (lib/town/stamina's eased). */
 export interface Gifts { had: GiftId[]; charms: CharmId[]; owed: number; familiar: FamiliarId | null; used: Record<string, { k: number; n: number }> }
@@ -220,6 +222,7 @@ const isGift = (id: unknown): id is GiftId => typeof id === "string" && ALL_GIFT
 export const giftOf = (id: string): Gift | null => ALL_GIFTS.find((g) => g.id === id) ?? null;
 /** The gift of a rank of a line, if that rank gives one. */
 export const giftAt = (line: string, rank: number): Gift | null => ALL_GIFTS.find((g) => g.line === line && g.rank === rank) ?? null;
+export const giftsAt = (line: string, rank: number): Gift[] => ALL_GIFTS.filter(g => g.line === line && g.rank === rank);
 
 /** A purse's gifts, made sound: only gifts there are, each once; the charms worn are ones had, each once, no more than the places for them. */
 export function giftsOf(purse: Pick<Purse, "gifts">): Gifts {
@@ -297,12 +300,13 @@ export const leftOf = (purse: Pick<Purse, "gifts">): number => GIFTS.length - gi
 /** Take the gift of a rank one has reached: once. It goes into no bag. */
 export function takeGift<P extends Pick<Purse, "gifts">>(purse: P, points: Partial<Record<LineId, number>>, line: string, rank: number):
   { ok: true; purse: P; gift: GiftId } | { ok: false; why: GiftRefusal } {
-  const gift = giftAt(line, rank);
+  const available = giftsAt(line, rank), gift = available[0];
   if (!gift) return { ok: false, why: "none" };
   if (rankOf(gift.line, points[gift.line] ?? 0) < gift.rank) return { ok: false, why: "rank" };
   const mine = giftsOf(purse);
-  if (mine.had.includes(gift.id)) return { ok: false, why: "had" };
-  return { ok: true, gift: gift.id, purse: { ...purse, gifts: { ...mine, had: [...mine.had, gift.id] } } };
+  const missing = available.filter(g => !mine.had.includes(g.id));
+  if (!missing.length) return { ok: false, why: "had" };
+  return { ok: true, gift: missing[0].id, purse: { ...purse, gifts: { ...mine, had: [...mine.had, ...missing.map(g => g.id)] } } };
 }
 /** Wear these charms and no others (none: take them all off): ones had, each once, no more than the places for them. */
 export function wearCharms<P extends Pick<Purse, "gifts">>(purse: P, ids: readonly string[]): { ok: true; purse: P } | { ok: false; why: GiftRefusal } {

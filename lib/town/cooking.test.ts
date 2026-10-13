@@ -499,10 +499,11 @@ describe("the feast table (the owner, 2026-10-07: pots stood all over the town f
   const slotOf = (p: Purse) => p.bag.findIndex((b) => b?.item === "potFull");
 
   it("clears what came to it when the meal's hours after the ones it came in are over", () => {
-    // noon is lunch's hours (11 to 17): dinner's are the next, and end at five the next morning
+    // noon is lunch's hours (11 to 17): dinner's are the next, and end at eleven that night
     expect(mealOf(NOW)).toBe(1);
-    expect(feastEnds(NOW)).toBe(Date.parse("2026-10-04T05:00:00+07:00"));
-    // late at night is still dinner's hours: breakfast's are the next, and end at eleven
+    expect(feastEnds(NOW)).toBe(Date.parse("2026-10-03T23:00:00+07:00"));
+    expect(feastEnds(Date.parse("2026-10-03T19:00:00+07:00"))).toBe(Date.parse("2026-10-04T05:00:00+07:00"));
+    // late night's hours precede breakfast, which ends at eleven
     expect(feastEnds(Date.parse("2026-10-04T02:00:00+07:00"))).toBe(Date.parse("2026-10-04T11:00:00+07:00"));
     expect(feastEnds(Date.parse("2026-10-04T06:00:00+07:00"))).toBe(Date.parse("2026-10-04T17:00:00+07:00"));
     // never sooner than a whole meal's hours, never later than two
@@ -510,7 +511,7 @@ describe("the feast table (the owner, 2026-10-07: pots stood all over the town f
       const at = NOW + h * HOUR + 7 * MIN, left = feastEnds(at) - at;
       expect(feastEnds(at)).toBe(nextMealAt(nextMealAt(at)));
       expect(left).toBeGreaterThan(6 * HOUR - 8 * MIN);
-      expect(left).toBeLessThanOrEqual(18 * HOUR);
+      expect(left).toBeLessThanOrEqual(12 * HOUR);
     }
   });
 
@@ -602,7 +603,7 @@ describe("the feast table (the owner, 2026-10-07: pots stood all over the town f
     expect(one.pot).toEqual({ ...f, left: 1 });
     expect(one.purse.bag).toEqual(empty.bag);
     expect(one.purse.eating).toEqual({ dish: "tomYum", meal: 1, from: NOW, till: NOW, got: 0, lent: true });
-    expect(one.purse.meals.bowls).toEqual([0, 1, 0]);
+    expect(one.purse.meals.bowls).toEqual([0, 1, 0, 0]);
     // its last helping out, the pot is gone
     expect(done(feastEat(empty, { ...f, left: 1 }, true, NOW)).pot).toBeNull();
     // eaten up, it gives its stamina and its buff as any helping does, and no bowl

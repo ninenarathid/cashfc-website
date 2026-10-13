@@ -60,7 +60,7 @@ import type { SmithView } from "./TownSmith";
 import { GEMS, glowOf, readToolWord } from "@/lib/town/tools";
 import { drawElementSkin, drawElementIcon, elementAppearance, rodElementMaterial, ROD_ART_GRIP, skinElements } from "./element-skins";
 import type { ToolLook } from "@/lib/town/tools";
-import { drawGems, drawIconRim, drawLevel, drawLongTool, gemLights, handOf, handSize, heldPicture, isLongTool, longHead, rimFor, seedOf, toolGrip, type LevelAt, type Rim } from "./held";
+import { ROD_LOOKS, drawGems, drawIconRim, drawLevel, drawLongTool, gemLights, handOf, handSize, heldPicture, isLongTool, longHead, rimFor, seedOf, toolGrip, type LevelAt, type Rim } from "./held";
 import type { FarmDraw } from "./TownFarm";
 // ── gifts: farming ──
 import { FAMILIAR_AWAY } from "@/lib/town/familiar-away";
@@ -133,6 +133,7 @@ const LOG_SHOWN_MS = 120_000;
  * and the trial's own, sit in a branch a production build drops. Look at the build's chunks before this is pushed,
  * to see that it did.
  */
+const TownAnnouncements = lazy(() => import("./TownAnnouncements"));
 const TownTrade = lazy(() => import("./TownTrade"));
 /** Fishing from the finished deck, and a recipe unrolled to be read: of the same game, and loaded the same way. */
 const TownFish = lazy(() => import("./TownFish"));
@@ -241,12 +242,6 @@ function seatNear(p: Vec): number | null {
 const STEED = { k: 2.1, lift: 30 };
 /** How tall somebody sitting is against standing, for their name and the box a tap finds them in. */
 const SIT_HEIGHT = 0.72;
-/** How each rod is drawn in the hand: its cane, the joints along it, its grip, its dark edge, and its reel if it has one. */
-const ROD_LOOKS: Record<RodId, { cane: string; joint: string; grip: string; edge: string; reel?: string }> = {
-  rod: { cane: "#e0ba72", joint: "#a67a38", grip: "#8a5a2b", edge: "#3d2913" },
-  rodTeak: { cane: "#a0683a", joint: "#7a4a24", grip: "#56331a", edge: "#2a180b", reel: "#c9a45c" },
-  rodMaster: { cane: "#3b3138", joint: "#c0392b", grip: "#e5cc80", edge: "#141014", reel: "#f1d06b" },
-};
 /** How long a bite of a meal takes, the morsel going up and the chewing after it, in milliseconds. */
 const BITE_MS = 2600;
 /** Props drawn a little smaller than their pictures, to sit within a tile. */
@@ -3294,7 +3289,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
     const said = a.said && wall - a.said.at < BUBBLE_MS ? a.said : null;
     const typing = !said && (isMe ? !!a.info.typing : !!sessionRef.current?.isTyping(a));
     const sign = signOf(a.info.sign);
-    names.push(() => {
+    // Nameplates share their owner's depth: a character in front covers the plate behind.
+    {
       ctx.save();
       if (faded || away) ctx.globalAlpha = 0.6;
       label(ctx, name, p.x, foot.y + 13, isMe ? "#e5cc80" : "#e3e8ef", "rgba(15,19,25,0.78)");
@@ -3305,6 +3301,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       if (title) tag(ctx, words.current.th ? title.th : title.en, p.x, foot.y + 31, titleInk(worn.rank));
       else if (rank > 0) tag(ctx, RANK_TITLES[rank - 1][words.current.th ? 0 : 1], p.x, foot.y + 31, RANK_INK[rank - 1]);
       ctx.restore();
+    }
+    names.push(() => {
       // The sign they hold up: its pole in their hand, its board over their head; what they say goes over the board.
       const board = sign ? drawSign(ctx, a, p, h, top, sign, handSide, look, isMe, faded, now) : top;
       // Their try at the forge (lib/town/forge-show): a plate over their head, the knocks, and what came of it.
@@ -4824,7 +4822,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                 </div>
               )}
               {/* (and whatever else stays there puts itself here: a chat room folded away) */}
-              <div ref={setFootCorner} className="contents" />
+              <div ref={setFootCorner} data-foot-powers />
             </div>
             <div ref={setFootHead} data-head-toast className="z-30 flex min-w-0 flex-col items-center gap-2 pb-1.5 empty:hidden" />
             {/* What is used by hand, over the chat: the hunter's belt (it puts itself here), and while I sit the way to
@@ -4868,7 +4866,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
                     onClick={openHistory}>
                   {recent.map((l) => (
                     <li key={l.key} className="max-w-full whitespace-pre-wrap break-words bg-[#2a180c]/95 px-2 py-0.5 text-meta leading-normal shadow-[0_0_0_2px_#1a0e06] [overflow-wrap:anywhere]">
-                      <span className={l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
+                      <span className={l.announcement ? "font-semibold text-gold" : l.mine ? "text-gold" : "text-accent"}>{l.mine ? w.you : l.name}</span>
                       <span className="text-muted">: </span>
                       <span className="text-ink">{l.text}</span>
                     </li>
@@ -5173,6 +5171,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       {/* A deal with somebody: what each lays out, and their word */}
       {s && game && keeper && (
         <Suspense fallback={null}>
+          <TownAnnouncements keeper={keeper} session={session!} th={w.th} />
           <TownDeal me={keeper.id} keeper={keeper} name={me.name} th={w.th} sfx={sfxRef.current} register={registerDeal}
                     bottom={phone && tabbar ? "calc(4.75rem + env(safe-area-inset-bottom))" : "0.75rem"} />
         </Suspense>

@@ -8,7 +8,7 @@ import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./t
  * - **The gauge** is full once a day ("รี 1 ครั้งต่อวัน"), at dawn. Mini-games
  *   spend it. With none left they can still be played, only much harder ("ไม่ใช่
  *   ว่าจะเล่นต่อไม่ได้ แต่จะเล่นต่อแล้วยากขึ้นมากๆ").
- * - **Three meals a day add to it**: breakfast, lunch and dinner, each in its
+ * - **Four meals a day add to it**: breakfast, lunch, dinner and late night, each in its
  *   own hours by the real clock in Bangkok (asked, he chose "ตามเวลาจริง"). **Three
  *   helpings in a meal's hours** since 2026-10-06 ("ปรับให้ กินข้าวได้ 3 จานต่อมื้อ";
  *   "จานละ 5 นาที แยกกันกินได้ไม่ต้องกินทีเดียว"), each eaten when one likes; the
@@ -35,10 +35,10 @@ import { BANGKOK, DAY, HOUR, no, put, roomFor, type Done, type Purse } from "./t
  */
 export const STAMINA = {
   max: 100,
-  /** The hour, in Bangkok, a day begins: the gauge is full again and the day's three meals are ahead. */
+  /** The hour, in Bangkok, a day begins: the gauge is full again and the day's four meals are ahead. */
   dawn: 5,
-  /** The hour each meal begins at: breakfast, lunch, dinner. Each runs until the next; dinner until the day ends. */
-  meals: [5, 11, 17] as [number, number, number],
+  /** The hour each meal begins at: breakfast, lunch, dinner and late night. Late night ends at dawn. */
+  meals: [5, 11, 17, 23] as const,
   /** How long a helping takes, in minutes; and how many of them a meal's hours take. */
   minutes: 5,
   bowls: 3,
@@ -82,14 +82,14 @@ export const STAMINA = {
    */
   spent: { strike: 0.6, band: 0.75, surge: 1.15, sway: 1.1, pace: 1.2 },
 };
-export const MEALS = ["breakfast", "lunch", "dinner"] as const;
+export const MEALS = ["breakfast", "lunch", "dinner", "lateNight"] as const;
 
 /** The day a moment is in, counted from dawn in Bangkok. */
 export const dayOf = (now: number) => Math.floor((now + BANGKOK - STAMINA.dawn * HOUR) / DAY);
-/** Which meal's hours a moment is in: 0 breakfast, 1 lunch, 2 dinner. */
-export function mealOf(now: number): 0 | 1 | 2 {
+/** Which meal's hours a moment is in: 0 breakfast, 1 lunch, 2 dinner, 3 late night. */
+export function mealOf(now: number): 0 | 1 | 2 | 3 {
   const h = (((now + BANGKOK) % DAY) + DAY) % DAY / HOUR, [, lunch, dinner] = STAMINA.meals;
-  return h >= dinner || h < STAMINA.dawn ? 2 : h >= lunch ? 1 : 0;
+  return h >= STAMINA.meals[3] || h < STAMINA.dawn ? 3 : h >= dinner ? 2 : h >= lunch ? 1 : 0;
 }
 /** The moment the meal after this one begins. */
 export function nextMealAt(now: number): number {
@@ -130,11 +130,11 @@ export const hasBuff = (purse: Purse, now: number, id: WishId) => levelOf(purse,
 /** How much a meal's buff does for somebody now (items' byOf at their level): nothing, with none. */
 export const buffBy = (purse: Purse, now: number, id: MealBuffId) => byOf(id, levelOf(purse, now, id as WishId));
 /** Which of today's meals have been eaten of. */
-export const eatenToday = (purse: Purse, now: number): [boolean, boolean, boolean] =>
-  (purse.meals.day === dayOf(now) ? purse.meals.eaten : [false, false, false]);
+export const eatenToday = (purse: Purse, now: number): boolean[] =>
+  MEALS.map((_, i) => purse.meals.day === dayOf(now) && !!purse.meals.eaten[i]);
 /** How many helpings have been eaten in each of today's meals' hours (a meal eaten before helpings were counted is one). */
-export const bowlsToday = (purse: Purse, now: number): [number, number, number] =>
-  (purse.meals.day !== dayOf(now) ? [0, 0, 0] : purse.meals.bowls ?? (purse.meals.eaten.map((e) => (e ? 1 : 0)) as [number, number, number]));
+export const bowlsToday = (purse: Purse, now: number): number[] =>
+  MEALS.map((_, i) => purse.meals.day !== dayOf(now) ? 0 : purse.meals.bowls?.[i] ?? (purse.meals.eaten[i] ? 1 : 0));
 /**
  * Whether another helping may be begun now: none is being eaten, and this meal's hours have had fewer than they take
  * (`most`: three, unless whoever keeps the game still counts a meal once: the keeper's `helpings`).
@@ -176,8 +176,8 @@ export function bowlsBack(purse: Purse, more = 0): Purse {
  * lib/town/cooking): one more of this meal's hours' helpings, and the meal at hand.
  */
 export function begun(purse: Purse, dish: DishId, now: number): Pick<Purse, "meals" | "eating"> {
-  const meal = mealOf(now), bowls = bowlsToday(purse, now).map((n, i) => (i === meal ? n + 1 : n)) as [number, number, number];
-  return { meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0) as [boolean, boolean, boolean], bowls }, eating: { dish, meal, from: now, till: now, got: 0 } };
+  const meal = mealOf(now), bowls = bowlsToday(purse, now).map((n, i) => (i === meal ? n + 1 : n));
+  return { meals: { day: dayOf(now), eaten: bowls.map((n) => n > 0), bowls }, eating: { dish, meal, from: now, till: now, got: 0 } };
 }
 
 /**

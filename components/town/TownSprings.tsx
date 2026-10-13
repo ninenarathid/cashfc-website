@@ -44,7 +44,7 @@ export default function TownSprings({keeper,th,at,register}:{keeper:Keeper;th:bo
  if(!keeper.rewardDo||!keeper.springsLook||(!own&&!active&&site<0))return null;
  if(site<0&&!own)return null;
  const disabled=a.busy||a.retry||reading;
- return <TownFoot rank={open?"board":"chip"} order={49}>
+ return <TownFoot rank={open?"board":"power"} icon="thingSpringStone" order={49}>
   <button className={`${button} pointer-events-auto`} data-spring-open onClick={()=>setOpen(v=>!v)}><TownIcon name="thingSpringStone" size={22}/>{th?"ตาน้ำพักทาง":"Rest-site spring"}</button>
   {open&&<section className="pointer-events-auto mt-2 max-w-sm rounded-xl border border-ink/20 bg-bg/95 p-3 text-ink shadow-xl" aria-label={th?"ตาน้ำพักทาง":"Rest-site spring"}>
    {site>=0?<>

@@ -65,6 +65,8 @@ interface AtlasJson {
 export type View = "front" | "back";
 
 export interface DrawState {
+  /** Portraits may resample the source art smoothly at a larger UI size. */
+  smooth?: boolean;
   /** The step while walking (0–3, any whole number); standing otherwise. */
   step?: number;
   /** Eyes shut for a blink. */
@@ -369,14 +371,14 @@ export class PixelKit {
     if (mirror) ctx.scale(-1, 1);
     // the body, then the head on its neck, each at its own size
     ctx.save();
-    ctx.imageSmoothingEnabled = kb * px < 1;
+    ctx.imageSmoothingEnabled = state.smooth ?? kb * px < 1;
     ctx.scale(kb, kb);
     const [, , bw, bh, box, boy] = A.frames[step.body];
     if (perch) ctx.drawImage(this.body(step.body, look), 0, 0, bw, bh - perch, box, boy + perch, bw, bh - perch);
     else ctx.drawImage(this.body(step.body, look), box, boy);
     ctx.restore();
     ctx.translate(step.hx * kb, (step.hy + perch) * kb);
-    ctx.imageSmoothingEnabled = kh * px < 1;
+    ctx.imageSmoothingEnabled = state.smooth ?? kh * px < 1;
     ctx.scale(kh, kh);
     const [, , , , fox, foy] = A.frames[faceName];
     ctx.drawImage(face, fox, foy);

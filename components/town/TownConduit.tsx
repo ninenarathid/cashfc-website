@@ -16,7 +16,7 @@ export default function TownConduit({keeper,th,at,onWatered}:{keeper:Keeper;th:b
  if(!at&&!run&&!a.retry)return null;
  const blocked=a.busy||a.retry||finishing,expected=run?conduitAnswer(run.seed):null,near=run&&at&&at.every((v,i)=>v===run.at[i]);
  async function finish(){if(!run||!at)return;setFinishing(true);try{const wait=Math.max(0,run.began+2400-keeper.now());if(wait)await new Promise(r=>setTimeout(r,wait));const did=await a.send({action:"conduitEnd",run:run.id,answers,at});if(did?.ok)onWatered(did.watered??[]);}finally{setFinishing(false);}}
- return <TownFoot rank={open?"board":"chip"} order={47}>
+ return <TownFoot rank={open?"board":"power"} icon="thingRiverHorn" order={47}>
   <button className={`${button} pointer-events-auto`} data-conduit-open onClick={()=>setOpen(v=>!v)}><TownIcon name="thingRiverHorn" size={22}/>{th?"ต่อทางน้ำด้วยแตร":"Connect the water branches"}</button>
   {open&&<section className="pointer-events-auto mt-2 w-[min(370px,calc(100vw-24px))] max-h-[66dvh] overflow-y-auto rounded-xl border border-ink/20 bg-bg/95 p-3 text-ink shadow-xl" aria-label={th?"ต่อทางน้ำสามแขนง":"Three water branches"}>
    <p className="mb-3 text-ui">{th?"ต่อช่องออกให้เข้าทางสวนทั้งสามแขนง รดเฉพาะแขนงที่ถูก · น้ำจริงเท่าเดิม · แรง 1 ต่อเกม + 1 ต่อถังน้ำ · แปลงพักแตร 90 นาที":"Match each outlet to its garden branch. Correct branches only · Real water · 1 stamina per game + 1 per bucketful · 90-minute bed cooldown"}</p>

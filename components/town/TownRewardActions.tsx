@@ -66,7 +66,7 @@ export function TownPocketLift({keeper,th,at,floor,onRide}:Props&{floor:number;o
   const here=at(),mouth=here&&Math.max(Math.abs(here[0]-LIFT_MOUTH[0]),Math.abs(here[1]-LIFT_MOUTH[1]))<=3;
   if(floor===0&&!mouth&&!action.retry&&!open)return null;
   const disabled=action.busy||action.retry;
-  return <TownFoot rank={open?"board":"chip"} order={38}>
+  return <TownFoot rank={open?"board":"power"} icon={"thingPocketLift"} order={38}>
     <button className={button} onClick={()=>setOpen(x=>!x)} data-pocket-lift><TownIcon name="thingPocketLift" size={20}/>{th?"ลิฟต์พับ":"Folding lift"}</button>
     {open&&<section className={`${panel} mt-2 max-w-sm`} aria-label={th?"ลิฟต์พับใต้ดิน":"Folding cave lift"}>
       <p className="font-semibold">{anchor?(th?`ปักหลักไว้ที่ชั้น ${anchor}`:`Anchored on floor ${anchor}`):(th?"ยังไม่ได้ปักหลัก":"No floor anchored")}</p>
@@ -86,7 +86,7 @@ export function TownBranchVein({keeper,th,at}:Props){
   if(!keeper.rewardDo||!works(p,"charmBranchVein")||(!live&&!run&&!action.reply&&!action.retry))return null;
   const blocked=action.busy||action.retry||finishing;
   async function finish(answers:number[]){if(!run)return;setPlaying(false);setFinishing(true);try{const wait=Math.max(0,run.began+2400-keeper.now());if(wait)await new Promise(r=>setTimeout(r,wait));const t=at();if(t)await action.send({action:"resourceEnd",run:run.id,answers,at:t});}finally{setFinishing(false);}}
-  return <TownFoot rank={open?"board":"chip"} order={42}>
+  return <TownFoot rank={open?"board":"power"} icon={"charmBranchVein"} order={42}>
     {!open?<button className={button} onClick={()=>setOpen(true)} data-vein-branch>{th?"สำรวจกิ่งสายแร่":"Explore the vein branch"}</button>:<section className={panel} aria-label={th?"กิ่งสายแร่":"Vein branch"}>
       <div className="mb-3 flex justify-between gap-2"><p className="font-semibold"><TownIcon name="charmBranchVein" size={24}/>{th?"เครื่องรางแยกสายแร่":"Branch-vein charm"}</p><button className={button} disabled={blocked||playing} onClick={()=>{setOpen(false);if(!live)action.clear();}}>{th?"พักไว้":"Pause"}</button></div>
       <p className="mb-3 text-ui">{th?`เลือกเพียงกิ่งเดียว · จบเกมใช้แรง 3 แม้พลาด · เหลือ ${usesLeft(p,"charmBranchVein",keeper.now())} ครั้งวันนี้`:`Choose one branch · A finished attempt costs 3 stamina even on a miss · ${usesLeft(p,"charmBranchVein",keeper.now())} left today`}</p>
@@ -116,7 +116,7 @@ export function TownOreCompass({keeper,th,at,floor}:Props & {floor:number}) {
   if (!keeper.rewardDo || !works(keeper.purse(),"thingOreCompass")) return null;
   const did=action.reply;
   const directions={N:["เหนือ","North"],NE:["ตะวันออกเฉียงเหนือ","Northeast"],E:["ตะวันออก","East"],SE:["ตะวันออกเฉียงใต้","Southeast"],S:["ใต้","South"],SW:["ตะวันตกเฉียงใต้","Southwest"],W:["ตะวันตก","West"],NW:["ตะวันตกเฉียงเหนือ","Northwest"],here:["ใกล้จุดที่ยืน","Right here"]};
-  return <TownFoot rank={open?"board":"chip"} order={39}>
+  return <TownFoot rank={open?"board":"power"} icon={"thingOreCompass"} order={39}>
     {!open ? <button className={button} type="button" onClick={()=>setOpen(true)} data-reward-compass>{th?"เข็มทิศสายแร่":"Ore compass"}</button> :
       <section className={panel} aria-label={th?"เข็มทิศสายแร่":"Ore compass"}>
         <div className="flex items-center justify-between gap-2"><h3 className="font-semibold">{th?`เลือกแร่ที่รู้จัก · ชั้น ${floor}`:`Known minerals · Floor ${floor}`}</h3><button className={button} onClick={()=>setOpen(false)}>{th?"ปิด":"Close"}</button></div>
@@ -147,7 +147,7 @@ export function TownWoodExtraction({keeper,th,at}:Props) {
   const p=keeper.purse(),source=p.professionRewards?.extraction,run=p.professionRewards?.run;
   if (!keeper.rewardDo || !works(p,"thingForesterKnife") || (!source&&!action.reply&&!action.retry)) return null;
   async function finish(marks:number[]){if(!run)return;setPlaying(false);setFinishing(true);try{const delay=Math.max(0,run.began+2400-keeper.now());if(delay)await new Promise(resolve=>setTimeout(resolve,delay));const t=at();if(t)await action.send({action:"extractEnd",run:run.id,marks,at:t});}finally{setFinishing(false);}}
-  return <TownFoot rank={open?"board":"chip"} order={40}>
+  return <TownFoot rank={open?"board":"power"} icon={"thingForesterKnife"} order={40}>
     {!open?<button className={button} onClick={()=>setOpen(true)}>{th?"แยกส่วนจากต้นที่โค่น":"Extract from the felled tree"}</button>:
       <section className={panel} aria-label={th?"แยกส่วนไม้":"Wood extraction"}>
         <div className="mb-3 flex items-center justify-between gap-2"><h3 className="font-semibold">{th?"มีดแยกส่วนช่างป่า":"Forester’s extraction knife"}</h3><button className={button} disabled={playing||action.busy||finishing} onClick={()=>{setOpen(false);if(!source)action.clear();}}>{th?"ปิด":"Close"}</button></div>
@@ -186,7 +186,7 @@ export function TownResourceBench({keeper,th,at,place}:Props&{place:"forest"|"sm
   const title=place==="forest"?(th?"รังผึ้งต้นไม้ใหญ่":"Old-tree hive"):(th?"ประสานผลึกและสีพลอย":"Mend crystals and gem colours");
   const recipe=run?resourceRecipe(run.kind,run.recipe):null,colors=knownGemColors(p);
   function cost(kind:ResourceKind,key:string){return resourceRecipe(kind,key)?.needs.map(([id,n])=>`${ITEMS[id].name[th?"th":"en"]} ×${n}`).join(" + ");}
-  return <TownFoot rank={open?"board":"chip"} order={44}>
+  return <TownFoot rank={open?"board":"power"} icon={place==="forest"?"thingTreeHive":"thingCrystalRepair"} order={44}>
     {!open?<button className={button} disabled={!at()} onClick={()=>{heldAt.current=at();setOpen(true);}}>{title}</button>:<section className={panel} aria-label={title}>
       <div className="mb-3 flex justify-between gap-2"><h3 className="font-semibold">{title}</h3><button className={button} disabled={blocked||playing} onClick={()=>setOpen(false)}>{th?"พักไว้":"Pause"}</button></div>
       <p className="mb-3 text-meta">{th?"จบเกมใช้แรง 3 และสิทธิ์หนึ่งครั้ง ถ้าพลาดยังเก็บวัตถุดิบไว้":"Finishing costs 3 stamina and one attempt. A miss keeps the ingredients."}</p>
@@ -215,7 +215,7 @@ export function TownForestTrail({keeper,th,at,walk}:Props&{walk?:(x:number,y:num
   async function start(){const t=position();if(!t||!trail||!node||Math.max(Math.abs(t[0]-node.at[0]),Math.abs(t[1]-node.at[1]))>3){if(t&&trail)await action.send({action:"trailStage",trail:trail.id,at:t});return;}if(!trail.challenge||keeper.now()>trail.challenge.until)await action.send({action:"trailStage",trail:trail.id,at:t});if(keeper.purse().professionRewards?.trail?.challenge)setPlaying(true);}
   function follow(){if(!node||!walk)return;const [x,y]=node.at;const choices=[[x,y],[x-1,y],[x+1,y],[x,y-1],[x,y+1]];for(const [a,b]of choices)if(walkable(a,b)&&walk(a,b)){setOpen(false);break;}}
   const blocked=action.busy||action.retry||finishing;
-  return <TownFoot rank={open?"board":"chip"} order={43}>
+  return <TownFoot rank={open?"board":"power"} icon={"thingForestRing"} order={43}>
     {!open?<button className={button} disabled={!at()} onClick={()=>{const t=at();if(t){heldAt.current=t;setOpen(true);}}}>{trail?(th?`ตามรอยส่วนตัว · จุด ${trail.next+1}/3`:`Personal trail · Trace ${trail.next+1}/3`):(th?"เปิดเส้นทางภูตป่า":"Open a forest spirit trail")}</button>:<section className={panel} aria-label={th?"เส้นทางส่วนตัว":"Personal trail"}>
       <div className="mb-3 flex justify-between gap-2"><h3 className="font-semibold">{trail?.kind==="dragon"?(th?"ตามรอยมังกรสายธาร":"Follow the river dragon"):trail?.kind==="star"?(th?"ตามร่องรอยดาว":"Follow star traces"):(th?"ตามรอยภูตป่า":"Follow forest spirit traces")}</h3><button className={button} disabled={playing||blocked} onClick={()=>setOpen(false)}>{th?"พักไว้":"Pause"}</button></div>
       {!trail?<div className="flex flex-wrap gap-2">{(["forest","star"] as const).filter(kind=>works(p,kind==="forest"?"thingForestRing":"thingStarBottle")).map(kind=><button key={kind} className={button} disabled={blocked} onClick={()=>{const t=position();if(t)void action.send({action:"trailBegin",kind,at:t});}}>{kind==="forest"?(th?"รอยภูต · 2 เส้นทาง/วัน":"Spirit traces · 2 trails/day"):(th?"รอยดาว · 1 เส้นทาง/วัน":"Star traces · 1 trail/day")}</button>)}</div>:
@@ -233,7 +233,7 @@ export function TownFieldProcessor({keeper,th,at,kind,floor}:Props & {kind:"wood
   const p=keeper.purse(),recipes=fieldRecipes(p,kind);
   if(!keeper.rewardDo||!works(p,gift)||(kind==="mineral"&&(!floor||floor<1)))return null;
   const title=kind==="wood"?["โรงเลื่อยพับได้","Folding sawmill"]:["ภูตคนแคระแปรแร่","Dwarven mineral spirit"];
-  return <TownFoot rank={open?"board":"chip"} order={41}>
+  return <TownFoot rank={open?"board":"power"} icon={gift} order={41}>
     {!open?<button className={button} onClick={()=>setOpen(true)}>{title[th?0:1]}</button>:<section className={panel} aria-label={title[th?0:1]}>
       <div className="flex items-center justify-between"><h3 className="font-semibold">{title[th?0:1]}</h3><button className={button} onClick={()=>setOpen(false)}>{th?"ปิด":"Close"}</button></div>
       <p className="my-2 text-ui">{th?`เหลือ ${usesLeft(p,gift,keeper.now())} ชุดวันนี้ · ใช้สูตร เครื่องมือ และวัสดุเดิม`:`${usesLeft(p,gift,keeper.now())} batches left today · Original tools and ingredients required`}</p>

@@ -116,7 +116,7 @@ function NextRound({ keeper, th, sell, coming }: { keeper: Keeper; th: boolean; 
     </p>
   );
 }
-const MEAL_NAME: Array<[th: string, en: string]> = [["มื้อเช้า", "Breakfast"], ["มื้อเที่ยง", "Lunch"], ["มื้อเย็น", "Dinner"]];
+const MEAL_NAME: Array<[th: string, en: string]> = [["มื้อเช้า", "Breakfast"], ["มื้อเที่ยง", "Lunch"], ["มื้อเย็น", "Dinner"], ["มื้อดึก", "Late-night meal"]];
 
 /**
  * (forging) A gem's pip on a tool's slot, by its element: the element's colour in two tones, so that the eight are
@@ -758,7 +758,7 @@ function Bag({ purse, held, now, th, seated, company, helpings, recipeBook, book
           {MEALS.map((_, i) => (
             <span key={i} data-meal={i} data-bowls={bowls[i]} aria-label={th ? `${MEAL_NAME[i][0]} กินแล้ว ${bowls[i]} จาก ${helpings} ถ้วย` : `${MEAL_NAME[i][1]}: ${bowls[i]} of ${helpings} helpings eaten`}
                   className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-meta ${bowls[i] >= helpings ? "bg-line text-muted" : i === meal ? "bg-accent/15 font-semibold text-accent" : "bg-bg/40 text-muted"}`}>
-              <TownIcon name={(["morning", "noon", "evening"] as const)[i]} size={12} /><span className={bowls[i] >= helpings ? "line-through" : ""}>{th ? MEAL_NAME[i][0] : MEAL_NAME[i][1]}</span>
+              <TownIcon name={(["morning", "noon", "evening", "night"] as const)[i]} size={12} /><span className={bowls[i] >= helpings ? "line-through" : ""}>{th ? MEAL_NAME[i][0] : MEAL_NAME[i][1]}</span>
               {/* a mark for each helping the meal's hours take, filled as they are eaten */}
               <span aria-hidden className="ml-0.5 flex gap-0.5">
                 {Array.from({ length: helpings }, (_, k) => <span key={k} className={`size-1.5 rounded-full ${k < bowls[i] ? "bg-current" : "border border-current opacity-50"}`} />)}

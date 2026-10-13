@@ -165,6 +165,8 @@ export interface Struck { powers?:Array<{key:string;quiet:number}> }
 export type CastTold = { wait: number; nibbles: number[]; lag: number; shade?: Shade; coming?: CatchId; pair?: boolean; coming2?: CatchId; lines?: number };
 
 export interface Keeper {
+  announcements?(after: number | null, look: string | null): Promise<import("./announcements").AnnouncementPage | null>;
+  watchAnnouncements?(fn: () => void): () => void;
   warehouse(input: import("./warehouse").WarehouseInput, request?: string): Promise<import("./warehouse").WarehouseReply | null>;
   boats?():import("./lotus-boats").LotusBoat[];
   boatsLook?(at:[number,number]):Promise<void>;
@@ -804,6 +806,12 @@ const LATE_MS = 1500 + 300;
 const AWAY: { ok: false; why: Why } = { ok: false, why: "away" };
 
 export class DbKeeper implements Keeper {
+  private readonly announcementListeners = new Set<() => void>();
+  watchAnnouncements(fn: () => void) { this.announcementListeners.add(fn); return () => { this.announcementListeners.delete(fn); }; }
+  async announcements(after: number | null, look: string | null) {
+    try { return await this.rpc("town_announcements", { p_after: after, p_look: look }) as unknown as import("./announcements").AnnouncementPage; }
+    catch { return null; }
+  }
   async warehouse(input: import("./warehouse").WarehouseInput, request?: string) {
     return await this.ask("town_warehouse", { p_input: input, p_request: request ?? null }) as unknown as import("./warehouse").WarehouseReply | null;
   }
@@ -2226,7 +2234,11 @@ export class DbKeeper implements Keeper {
     return did;
   }
   // (the name on the tool and on the board is the one the site calls me by: the database reads it, and no page's word is sent)
-  smithTry(slot: number) { return this.smithDeed<{ out: ForgeOutcome; from: number; level: number; owed: number }>("town_smith_try", { p_slot: slot }); }
+  async smithTry(slot: number) {
+    const did = await this.smithDeed<{ out: ForgeOutcome; from: number; level: number; owed: number }>("town_smith_try", { p_slot: slot });
+    if (did.ok && did.out === "taken" && did.level >= 7 && did.level <= 9) for (const fn of this.announcementListeners) fn();
+    return did;
+  }
   smithDraw(slot: number) { return this.smithDeed<{ pending: Pending }>("town_smith_draw", { p_slot: slot }); }
   smithChoose(slot: number, pick: string) { return this.smithDeed<{ opt: OptionId; kept: boolean }>("town_smith_choose", { p_slot: slot, p_pick: pick }); }
   smithRedraw(slot: number, at: number, gem: ItemId) { return this.smithDeed<{ pending: Pending }>("town_smith_redraw", { p_slot: slot, p_at: at, p_gem: gem }); }

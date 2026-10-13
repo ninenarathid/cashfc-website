@@ -1,3 +1,4 @@
+import { roomIn, stow } from "./pouches";
 import { trainElement } from "./element-training";
 import { carriedBag } from "./passive-equipment";
 import { partOf, rodFx, slowPartOf } from "./forged";
@@ -189,9 +190,9 @@ export function backBait(purse: Purse, bait: BaitId): Purse {
 }
 /** Land what was caught: into the bag when there is room for it, and, a fish, onto the record when it is the longest of its kind yet. */
 function landCatchUntrained(purse: Purse, what: CatchId, size: number): { purse: Purse; kept: boolean; record: boolean } {
-  const kept = roomFor(purse.bag, what) > 0, fish = what in FISH ? (what as FishId) : null;
+  const kept = roomIn(purse, what) > 0, fish = what in FISH ? (what as FishId) : null;
   const record = !!fish && size > (purse.best[fish] ?? 0);
-  return { kept, record, purse: { ...purse, bag: kept ? put(purse.bag, what, 1) : purse.bag, best: record && fish ? { ...purse.best, [fish]: size } : purse.best } };
+  return { kept, record, purse: { ...(kept ? stow(purse, what, 1) : purse), best: record && fish ? { ...purse.best, [fish]: size } : purse.best } };
 }
 /** How long after the bite somebody's strike still hooks the fish, by the meal in them, the stamina left and the float they carry. */
 export const strikeWindowOf = (purse: Purse, now: number) =>

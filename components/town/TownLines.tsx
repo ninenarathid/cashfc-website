@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { giftAt, type Gifts } from "@/lib/town/gifts";
+import { giftsAt, type Gifts } from "@/lib/town/gifts";
 import type { Keeper } from "@/lib/town/keeper";
 import { ALL_LINE_IDS, HARVEST_BANK_DAYS, LINES, RANKS, ladderOf, lineSlowed, linesShown, rankOf, titleOf, towards, type LineId, type LinesTold, type Worn } from "@/lib/town/lines";
 import TownIcon, { type IconName } from "./TownIcon";
@@ -154,7 +154,8 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
             <ol className="min-h-0 flex-1 overflow-y-auto px-2.5 py-2 [scrollbar-color:#b99a5e_transparent] [scrollbar-width:thin]">
               {ladder.map((r) => {
                 const isWorn = worn?.line === picked && worn.rank === r.rank;
-                const there = gifting && r.state === "had" ? giftAt(picked, r.rank) : null, gift = there && given.includes(there.id) ? there : null, has = !!gift && gifts.had.includes(gift.id);
+                const rewards = gifting && r.state === "had" ? giftsAt(picked,r.rank).filter(g => given.includes(g.id)) : [];
+                const missing = rewards.some(g => !gifts.had.includes(g.id));
                 return (
                   <li key={r.rank} data-lines-rank={r.rank} data-state={r.state} className="flex items-center gap-2.5 py-1.5" style={{ opacity: r.state === "far" ? 0.55 : 1 }}>
                     <span className="grid size-9 shrink-0 place-items-center rounded-full border-2 font-data text-ui font-semibold tabular-nums"
@@ -164,10 +165,10 @@ export default function TownLines({ keeper, told, gifts, gifting, given, leaf, t
                         <>
                           <span className="block truncate text-ui font-semibold">{th ? r.title.th : r.title.en}</span>
                           <span className="block font-data text-label tabular-nums" style={{ color: JADE }}>{th ? `ถึงแล้ว · ${fmt(r.at)} แต้ม` : `reached · ${fmt(r.at)} points`}</span>
-                          {gift && has && (
-                            <span className="mt-0.5 flex items-center gap-1 text-label" data-lines-gift={gift.id}><TownIcon name={gift.id as IconName} size={16} /><span className="truncate">{th ? gift.name.th : gift.name.en}</span></span>
-                          )}
-                          {gift && !has && (
+                          {rewards.filter(gift => gifts.had.includes(gift.id)).map(gift => (
+                            <span key={gift.id} className="mt-0.5 flex items-center gap-1 text-label" data-lines-gift={gift.id}><TownIcon name={gift.id as IconName} size={16} /><span className="truncate">{th ? gift.name.th : gift.name.en}</span></span>
+                          ))}
+                          {missing && (
                             <button type="button" disabled={busy} onClick={() => take(r.rank)} data-lines-take={r.rank}
                                     className="pressable mt-1 min-h-8 rounded-md border-2 px-2.5 text-label font-semibold disabled:opacity-50" style={{ borderColor: "#8a5a12", backgroundColor: "#f0c060", color: "#3a2513" }}>{th ? "รับของขั้นนี้" : "Take this rank's gift"}</button>
                           )}

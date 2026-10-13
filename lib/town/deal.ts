@@ -33,7 +33,24 @@ export const DEAL = {
 };
 
 /** What one side lays out: so many of each thing. */
-export type Give = Array<[ItemId, number]>;
+export type SelectedStack = { slot: number; stack: Stack };
+export type GiveEntry = [ItemId, number, SelectedStack?];
+export type Give = GiveEntry[];
+export const giveKey = ([id, , selected]: GiveEntry) => selected ? `${id}@${selected.slot}` : id;
+const ordered = (value: unknown): unknown => value && typeof value === "object"
+  ? Array.isArray(value) ? value.map(ordered) : Object.fromEntries(Object.entries(value).filter(([,v]) => v !== undefined).sort(([a],[b]) => a.localeCompare(b)).map(([k,v]) => [k, ordered(v)]))
+  : value ?? null;
+const canonical = (value: unknown): string => JSON.stringify(ordered(value));
+/** Tools and carried containers are offered as their actual bag slot and complete snapshot. */
+export function dealChoices(bag: Purse["bag"]): Give {
+  const out: Give = [];
+  bag.forEach((stack, slot) => {
+    if (!stack) return;
+    if (ITEMS[stack.item].kind === "tool" || wholeStack(stack)) out.push([stack.item, stack.n, { slot, stack: JSON.parse(JSON.stringify(stack)) as Stack }]);
+    else { const have = out.find(e => !e[2] && e[0] === stack.item); if (have) have[1] += stack.n; else out.push([stack.item, stack.n]); }
+  });
+  return out;
+}
 export interface Deal {
   /** Who opened it, and with whom; and what each is called. */
   a: string; b: string; names: { a: string; b: string };
@@ -51,12 +68,23 @@ export const sideOf = (deal: Deal, me: string): "a" | "b" | null => (deal.a === 
 
 /** A side, tidied: each kind once, whole numbers above nothing. */
 export function tidyGive(give: Give): Give {
-  const all = new Map<ItemId, number>();
-  for (const [id, n] of give) if (id in ITEMS && Number.isInteger(n) && n > 0) all.set(id, (all.get(id) ?? 0) + n);
-  return [...all];
+  const all = new Map<string, GiveEntry>();
+  for (const e of give) if (e[0] in ITEMS && Number.isSafeInteger(e[1]) && e[1] > 0) {
+    const key = giveKey(e), had = all.get(key);
+    all.set(key, [e[0], e[1] + (had?.[1] ?? 0), ...(e[2] ? [e[2]] : [])] as GiveEntry);
+  }
+  return [...all.values()];
 }
 /** Whether a bag has everything a side lays out. */
-export const hasAll = (purse: Purse, give: Give) => tidyGive(give).every(([id, n]) => held(purse.bag, id) >= n);
+export const hasAll = (purse: Purse, give: Give) => {
+  const used = new Set<number>(), mine = tidyGive(give);
+  for (const [id,n,selected] of mine) if (selected) {
+    const stack = purse.bag[selected.slot];
+    if (!Number.isInteger(selected.slot) || used.has(selected.slot) || !stack || stack.item !== id || n > stack.n || canonical(stack) !== canonical(selected.stack)) return false;
+    used.add(selected.slot);
+  }
+  return mine.every(([id,n,selected]) => selected || held(purse.bag.filter((_,i) => !used.has(i)), id) >= n);
+};
 
 /** Change one side of a deal, its things and its coins: both words are taken back. */
 export function lay(deal: Deal, me: string, purse: Purse, give: Give, coins = 0): Done<{ deal: Deal }> {
@@ -77,11 +105,12 @@ export function agree(deal: Deal, me: string, word = true): Done<{ deal: Deal }>
 /** Take some things out of a bag, as the stacks they are (so that what a thing holds goes with it): from its last stacks first. */
 export function pull(bag: Purse["bag"], give: Give): { bag: Purse["bag"]; stacks: Stack[] } {
   const out = bag.map((s) => (s ? { ...s } : null)), stacks: Stack[] = [];
-  for (const [id, want] of give) {
+  const selectedSlots = new Set(give.flatMap(e => e[2] ? [e[2].slot] : []));
+  for (const [id, want, selected] of give) {
     let n = want;
     for (let i = out.length - 1; i >= 0 && n > 0; i--) {
       const s = out[i];
-      if (s?.item !== id) continue;
+      if (s?.item !== id || (selected ? i !== selected.slot : selectedSlots.has(i))) continue;
       const less = Math.min(n, s.n);
       n -= less;
       stacks.push({ ...s, n: less });

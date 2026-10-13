@@ -80,7 +80,7 @@ export default function ChatHistory({ lines, th, className = "", note }: {
         ) : lines.map((l) => (
           <p key={l.key} className="break-words py-px">
             <span className="mr-1.5 font-data text-label tabular-nums text-muted">{time(l.at)}</span>
-            <span className={`font-semibold ${l.mine ? "text-gold" : "text-accent"}`}>{l.mine ? (th ? "คุณ" : "You") : l.name}</span>
+            <span className={`font-semibold ${l.announcement ? "font-semibold text-gold" : l.mine ? "text-gold" : "text-accent"}`}>{l.mine ? (th ? "คุณ" : "You") : l.name}</span>
             <span className="text-muted">: </span>
             <span className="text-ink">{l.text}</span>
           </p>
