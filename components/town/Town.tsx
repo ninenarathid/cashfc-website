@@ -23,6 +23,7 @@ import { askFor, chatFor, talkFor, type Line, type Speaker } from "@/lib/town/ta
 import { WALK_FPS, facingFor, loadPixelKit, type PixelKit, type View } from "@/lib/town/pixeldoll";
 import { loadBoxes, loadForest, loadScenery, type SceneryKit } from "@/lib/town/scenery";
 import { boxSprite } from "@/lib/town/box-art";
+import { personHitAt } from "@/lib/town/person-hit";
 import { bangkokMinute, daylight, daylightAt, overcast, sunOf } from "@/lib/town/daylight";
 import { SHAPES as CLOUD_SHAPES, cloudBlobs, cloudsAt } from "@/lib/town/clouds";
 import { SKINS, decodeLook, defaultLook, hairsFor, skinsOf, type Look } from "@/lib/town/look";
@@ -3574,14 +3575,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   };
 
   /** Somebody under the pointer, the one in front first. */
-  const personAt = (x: number, y: number) => {
-    const list = hits.current;
-    for (let i = list.length - 1; i >= 0; i--) {
-      const b = list[i];
-      if (x >= b.x0 && x <= b.x1 && y >= b.y0 && y <= b.y1) return b;
-    }
-    return null;
-  };
+  const personAt = (x: number, y: number) => personHitAt(hits.current, x, y,
+    gameRef.current && boxKnown() ? storeBox.current : null);
 
   const tap = (x: number, y: number) => {
     setHint(false);
@@ -3785,6 +3780,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
   // The wheel zooms where the pointer is; a trackpad's pinch arrives as a wheel with ctrl.
   useEffect(() => {
     const canvas = canvasRef.current!;
+    // Pointer-up performs the map action. Suppress the touch's extra compatibility click on a newly opened card.
+    const onTouchStart = (e: TouchEvent) => e.preventDefault();
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
       const p = local(e.clientX, e.clientY);
@@ -3794,7 +3791,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
       setHint(false);
     };
     canvas.addEventListener("wheel", onWheel, { passive: false });
-    return () => canvas.removeEventListener("wheel", onWheel);
+    canvas.addEventListener("touchstart", onTouchStart, { passive: false });
+    return () => { canvas.removeEventListener("wheel", onWheel); canvas.removeEventListener("touchstart", onTouchStart); };
   }, [zoomBy]);
 
   const wardrobeOpenRef = useRef(false);
