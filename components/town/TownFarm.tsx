@@ -285,7 +285,11 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
-  seen.current = new Map(Object.entries(plots).map(([key, plot]) => [key, see(key, plot, now, rains)]));
+  seen.current = new Map(Object.entries(plots).map(([key, plot]) => {
+    // A footprint shares one living root, including its growth and pest state.
+    const root = plot.plant?.root ?? key;
+    return [key, see(root, plots[root] ?? plot, now, rains)];
+  }));
   // ── forging: old tools ── (a can with light in it: the plants that could be watered now, and within how many tiles of me one of them glints: lib/town/forged)
   const glintOf = canFx(heldStack(keeper.purse(), keeper.handSlot())).glint;
   const thirsty = useRef<{ reach: number; keys: Set<string> }>({ reach: 0, keys: new Set() });
@@ -612,10 +616,12 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
           if (giantRoot) return;
-          if (gardenRoots.current.has(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) { blit("gardenTrellisMarker", at, 0, PLANT * s * 0.45); return; }
           if (what.dead) { blit("plotDead", at); return; }
           const plant = growIconOf(what.crop, what.stage);
           blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
+          // Fill the real growing space with foliage, not a miniature placeholder.
+          // Its care and harvest indicators still belong to the actionable root.
+          if (gardenRoots.current.get(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) return;
           if (what.wet && !later.has(plotKey(tx, ty))) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           // (a hot afternoon: the air shimmers over a plant that is still growing and has had no water this hour)
           else if (hot.current && !what.ripe) shimmer(at, tx * 3 + ty);
