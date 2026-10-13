@@ -144,6 +144,18 @@ const GIFT_BTN = "pop-in pressable pointer-events-auto flex min-h-12 items-cente
 /** How big a plant is drawn: screen pixels to one of its picture's, at the map's own scale 1. */
 const PLANT = 0.62;
 
+/** Atlas crops were drawn at different resolutions. Size the visible plant,
+ * keeping its aspect ratio and roots at the soil; seedlings use their original scale. */
+const TREE_HEIGHT: Record<string, number> = {
+  growLime: 40, growPapaya: 46, growMango: 46, growBanana: 46, growCoconut: 50,
+};
+const PLANT_SCALES: Record<string, number> = Object.fromEntries(
+  Object.entries(ICON_ATLAS.icons).filter(([name]) => /^grow.+[AB]$/.test(name)).map(([name, [, , w, h]]) => {
+    const young = name.endsWith("A"), height = TREE_HEIGHT[name.slice(0, -1)];
+    return [name, Math.max(PLANT, height ? height * (young ? 0.82 : 1) / h : (young ? 26 : 30) / Math.max(w, h))];
+  }),
+);
+
 /**
  * What grows wild on a plot nobody has cleared (the owner, 2026-10-03: "วัชพืช
  * ตอนนี้มีแค่แบบเดียว มันเลยดูเป้นระเบียบเกินไป ช่วย gen มาหลายๆแบบ และ random ลงในดิน เพื่อที่จะได้
@@ -602,7 +614,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           if (giantRoot) return;
           if (gardenRoots.current.has(plotKey(tx, ty)) && gardenRoots.current.get(plotKey(tx, ty)) !== plotKey(tx, ty)) { blit("gardenTrellisMarker", at, 0, PLANT * s * 0.45); return; }
           if (what.dead) { blit("plotDead", at); return; }
-          blit(growIconOf(what.crop, what.stage), at);
+          const plant = growIconOf(what.crop, what.stage);
+          blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
           if (what.wet && !later.has(plotKey(tx, ty))) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           // (a hot afternoon: the air shimmers over a plant that is still growing and has had no water this hour)
           else if (hot.current && !what.ripe) shimmer(at, tx * 3 + ty);
