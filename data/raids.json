@@ -81635,7 +81635,13 @@
     "best": 9,
     "kills": 5,
     "job": "Ninja",
-    "cleared": true
+    "cleared": true,
+    "job_kills": {
+     "Ninja": {
+      "kills": 5,
+      "best": 9
+     }
+    }
    }
   ],
   "legacy": []
