@@ -6900,13 +6900,13 @@
   "chg": "2026-09-14"
  },
  "60852230": {
-  "name": "Lucienvt Yenslayer",
+  "name": "Lucien Rhul",
   "parse": 14,
   "ult": 0,
   "mounts": 30,
   "minions": 58,
   "rare": 0,
-  "level": 74,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -8765,7 +8765,7 @@
   "mounts": 4,
   "minions": 7,
   "rare": null,
-  "level": 69,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -9564,7 +9564,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 81,
+  "level": 82,
   "cc": [
    false,
    false,
