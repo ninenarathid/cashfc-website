@@ -417,12 +417,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 18,
     "kills": 4,
     "job": "Dragoon",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Dragoon": {
       "kills": 4,
@@ -20238,12 +20238,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 96,
     "kills": 5,
     "job": "Ninja",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Ninja": {
       "kills": 5,
@@ -47143,12 +47143,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1047,
     "name": "The Unending Coil of Bahamut",
     "best": 95,
     "kills": 9,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1047,
     "job_kills": {
      "Samurai": {
       "kills": 9,
@@ -47160,12 +47160,12 @@
     "zone": "Ultimates (Stormblood)",
     "zone_id": 30,
     "expansion": "Shadowbringers",
+    "encounter_id": 1048,
     "name": "The Weapon's Refrain",
     "best": 97,
     "kills": 12,
     "job": "Samurai",
     "cleared": true,
-    "encounter_id": 1048,
     "job_kills": {
      "Samurai": {
       "kills": 12,
