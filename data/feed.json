@@ -3,6 +3,62 @@
   {
    "date": "2026-10-14",
    "type": "level_100",
+   "id": 24228478,
+   "name": "Pyrozus Helison",
+   "text": "reached level 100 on Sage!"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "rare_up",
+   "id": 34509521,
+   "name": "Liliya Quintilis",
+   "text": "earned Resplendent: Brilliant Saw"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "rare_up",
+   "id": 6173187,
+   "name": "Motochita Muses",
+   "text": "earned Go Big or Go Home III"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "rare_up",
+   "id": 29998658,
+   "name": "Shippei Astana",
+   "text": "earned Occult Enlightenment II"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "rare_up",
+   "id": 22425670,
+   "name": "Shizuna-pan Misurugi",
+   "text": "earned R&D: Cosmic Raising Hammer"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "rare_up",
+   "id": 29918404,
+   "name": "Zarass Gierlos",
+   "text": "earned Tank You, Paladin IV"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "rare_up",
+   "id": 29918255,
+   "name": "Lyndanisse Vymmaith",
+   "text": "earned Phantom of the Umbra: Codex Umbrae"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "level_100",
+   "id": 60972300,
+   "name": "Mizuki Sekine",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "level_100",
    "id": 47218599,
    "name": "Kawa Lynn",
    "text": "reached level 100 on Gunbreaker!"
@@ -1343,62 +1399,6 @@
    "id": 29998658,
    "name": "Shippei Astana",
    "text": "earned I've Got It: Elemental Grimoire"
-  },
-  {
-   "date": "2026-10-01",
-   "type": "level_100",
-   "id": 8286372,
-   "name": "Aloha Banana",
-   "text": "reached level 100 on Summoner!"
-  },
-  {
-   "date": "2026-10-01",
-   "type": "level_100",
-   "id": 29918255,
-   "name": "Lyndanisse Vymmaith",
-   "text": "reached level 100 on Astrologian!"
-  },
-  {
-   "date": "2026-10-01",
-   "type": "level_100",
-   "id": 60972300,
-   "name": "Mizuki Sekine",
-   "text": "reached level 100 on Gunbreaker!"
-  },
-  {
-   "date": "2026-10-01",
-   "type": "level_100",
-   "id": 57375278,
-   "name": "Komi Kona",
-   "text": "reached level 100 on Ninja!"
-  },
-  {
-   "date": "2026-10-01",
-   "type": "level_100",
-   "id": 29918404,
-   "name": "Zarass Gierlos",
-   "text": "reached level 100 on Dark Knight!"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Master White Mage"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Master Gunbreaker"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Master Paladin"
   }
  ]
 }

@@ -81839,16 +81839,16 @@
     "cleared": true,
     "job_kills": {
      "DarkKnight": {
-      "kills": 8,
-      "best": 11
+      "kills": 9,
+      "best": 15
      },
      "Dragoon": {
       "kills": 6,
       "best": 3
      },
      "Paladin": {
-      "kills": 21,
-      "best": 8
+      "kills": 22,
+      "best": 11
      }
     }
    },
@@ -81869,6 +81869,10 @@
      },
      "DarkKnight": {
       "kills": 5,
+      "best": 14
+     },
+     "Paladin": {
+      "kills": 2,
       "best": 14
      }
     }
