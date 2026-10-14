@@ -2287,7 +2287,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 51,
+  "level": 60,
   "cc": [
    true,
    true,
@@ -5603,7 +5603,7 @@
   "mounts": 100,
   "minions": 289,
   "rare": 97,
-  "level": 84,
+  "level": 92,
   "cc": [
    false,
    false,
@@ -5725,7 +5725,7 @@
   "ults": [
    "The Epic of Alexander"
   ],
-  "chg": "2026-10-13"
+  "chg": "2026-10-14"
  },
  "13860363": {
   "name": "Ayino Kun",
@@ -6706,7 +6706,7 @@
   "mounts": 17,
   "minions": 45,
   "rare": 15,
-  "level": 86,
+  "level": 95,
   "cc": [
    false,
    false,
@@ -6737,7 +6737,7 @@
    "Valigarmanda"
   ],
   "ults": [],
-  "chg": "2026-09-27"
+  "chg": "2026-10-14"
  },
  "26844665": {
   "name": "J'atoh Nunh",
@@ -6806,7 +6806,7 @@
   "mounts": 55,
   "minions": 109,
   "rare": 1,
-  "level": 99,
+  "level": 100,
   "cc": [
    false,
    false,
@@ -6823,7 +6823,7 @@
   "ults": [
    "The Weapon's Refrain"
   ],
-  "chg": "2026-10-12"
+  "chg": "2026-10-14"
  },
  "31155521": {
   "name": "Ketchup Love",
@@ -7815,7 +7815,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 88,
+  "level": 70,
   "cc": [
    false,
    false,
@@ -8625,7 +8625,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 100,
+  "level": 86,
   "cc": [
    false,
    false,
@@ -8643,7 +8643,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-12"
+  "chg": "2026-10-14"
  },
  "60475540": {
   "name": "Joaline Auchefornei",
@@ -8814,7 +8814,7 @@
   "mounts": 14,
   "minions": 48,
   "rare": 2,
-  "level": 100,
+  "level": 68,
   "cc": [
    false,
    false,
@@ -8830,7 +8830,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-11"
+  "chg": "2026-10-14"
  },
  "29389419": {
   "name": "Osilit Bloodhood",
@@ -9564,7 +9564,7 @@
   "mounts": 2,
   "minions": 2,
   "rare": 0,
-  "level": 82,
+  "level": 84,
   "cc": [
    false,
    false,
@@ -9577,7 +9577,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-13"
+  "chg": "2026-10-14"
  },
  "20400811": {
   "name": "Ariadne Ilsildar",

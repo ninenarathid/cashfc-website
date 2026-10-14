@@ -1,6 +1,13 @@
 {
  "events": [
   {
+   "date": "2026-10-14",
+   "type": "level_100",
+   "id": 47218599,
+   "name": "Kawa Lynn",
+   "text": "reached level 100 on Gunbreaker!"
+  },
+  {
    "date": "2026-10-13",
    "type": "level_100",
    "id": 60852230,
@@ -1392,13 +1399,6 @@
    "id": 31239994,
    "name": "Sopier Kit",
    "text": "is now a Master Paladin"
-  },
-  {
-   "date": "2026-09-30",
-   "type": "job_up",
-   "id": 31239994,
-   "name": "Sopier Kit",
-   "text": "is now a Master Warrior"
   }
  ]
 }
