@@ -7311,12 +7311,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 66,
     "kills": 1,
     "job": "Samurai",
-    "cleared": true,
-    "encounter_id": 1065
+    "cleared": true
    },
    {
     "zone": "Ultimates",
@@ -21269,12 +21269,12 @@
     "zone": "Dragonsong's Reprise",
     "zone_id": 45,
     "expansion": "Endwalker",
+    "encounter_id": 1065,
     "name": "Dragonsong's Reprise",
     "best": 45,
     "kills": 3,
     "job": "Astrologian",
     "cleared": true,
-    "encounter_id": 1065,
     "job_kills": {
      "Astrologian": {
       "kills": 3,

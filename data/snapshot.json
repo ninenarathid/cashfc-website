@@ -2287,7 +2287,7 @@
   "mounts": 19,
   "minions": 100,
   "rare": 24,
-  "level": 100,
+  "level": 51,
   "cc": [
    true,
    true,
@@ -2333,7 +2333,7 @@
    "Zoraal Ja"
   ],
   "ults": [],
-  "chg": "2026-10-13"
+  "chg": "2026-10-14"
  },
  "42021700": {
   "name": "Josuke Mizumoto",
@@ -7815,7 +7815,7 @@
   "mounts": 42,
   "minions": 115,
   "rare": 29,
-  "level": 87,
+  "level": 88,
   "cc": [
    false,
    false,
@@ -7860,7 +7860,7 @@
   "jobs": {},
   "ex": [],
   "ults": [],
-  "chg": "2026-10-12"
+  "chg": "2026-10-14"
  },
  "35158574": {
   "name": "Rikka Haulia",
