@@ -2,6 +2,20 @@
  "events": [
   {
    "date": "2026-10-14",
+   "type": "job_up",
+   "id": 12478532,
+   "name": "Hakuryu Flare",
+   "text": "is now a Master Viper"
+  },
+  {
+   "date": "2026-10-14",
+   "type": "job_up",
+   "id": 42021700,
+   "name": "Josuke Mizumoto",
+   "text": "is now a Expert Warrior"
+  },
+  {
+   "date": "2026-10-14",
    "type": "level_100",
    "id": 24228478,
    "name": "Pyrozus Helison",
@@ -1385,20 +1399,6 @@
    "id": 44970350,
    "name": "Allen Crist",
    "text": "earned R&D: Mallet of Stars — only 4.0% of players have it"
-  },
-  {
-   "date": "2026-10-01",
-   "type": "rare_up",
-   "id": 30864049,
-   "name": "Lay Stardust",
-   "text": "earned Resplendent: Brilliant Raising Hammer"
-  },
-  {
-   "date": "2026-10-01",
-   "type": "rare_up",
-   "id": 29998658,
-   "name": "Shippei Astana",
-   "text": "earned I've Got It: Elemental Grimoire"
   }
  ]
 }

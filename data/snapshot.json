@@ -2260,7 +2260,7 @@
   "rare_ids": [],
   "tiers": {},
   "jobs": {
-   "Viper": "expert",
+   "Viper": "master",
    "Monk": "master",
    "Samurai": "master",
    "Summoner": "expert"
@@ -2449,7 +2449,8 @@
   },
   "jobs": {
    "Paladin": "master",
-   "Gunbreaker": "master"
+   "Gunbreaker": "master",
+   "Warrior": "expert"
   },
   "ex": [
    "Doomtrain",
@@ -8625,7 +8626,7 @@
   "mounts": 47,
   "minions": 188,
   "rare": 4,
-  "level": 88,
+  "level": 90,
   "cc": [
    false,
    false,

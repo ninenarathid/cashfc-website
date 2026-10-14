@@ -10380,8 +10380,8 @@
     "cleared": true,
     "job_kills": {
      "Viper": {
-      "kills": 2,
-      "best": 75
+      "kills": 3,
+      "best": 82
      }
     }
    },
@@ -27992,7 +27992,7 @@
     "cleared": true,
     "job_kills": {
      "BlackMage": {
-      "kills": 2,
+      "kills": 3,
       "best": 54
      }
     }
@@ -43783,7 +43783,7 @@
     "cleared": true,
     "job_kills": {
      "Bard": {
-      "kills": 2,
+      "kills": 3,
       "best": 27
      }
     }
@@ -46151,7 +46151,7 @@
     "cleared": true,
     "job_kills": {
      "WhiteMage": {
-      "kills": 2,
+      "kills": 3,
       "best": 18
      }
     }
@@ -73031,7 +73031,7 @@
     "cleared": true,
     "job_kills": {
      "Paladin": {
-      "kills": 8,
+      "kills": 10,
       "best": 92
      },
      "DarkKnight": {
@@ -73170,7 +73170,7 @@
       "best": 71
      },
      "RedMage": {
-      "kills": 2,
+      "kills": 3,
       "best": 62
      },
      "Pictomancer": {
@@ -73185,6 +73185,10 @@
       "kills": 12,
       "best": 88
      },
+     "Warrior": {
+      "kills": 2,
+      "best": 68
+     },
      "BlackMage": {
       "kills": 1,
       "best": 7
@@ -73192,10 +73196,6 @@
      "DarkKnight": {
       "kills": 1,
       "best": 29
-     },
-     "Warrior": {
-      "kills": 1,
-      "best": 22
      }
     }
    },
@@ -73223,8 +73223,12 @@
       "best": 80
      },
      "Warrior": {
-      "kills": 3,
-      "best": 78
+      "kills": 4,
+      "best": 82
+     },
+     "DarkKnight": {
+      "kills": 2,
+      "best": 47
      },
      "Sage": {
       "kills": 1,
@@ -73233,10 +73237,6 @@
      "Scholar": {
       "kills": 2,
       "best": 61
-     },
-     "DarkKnight": {
-      "kills": 1,
-      "best": 8
      }
     }
    }
@@ -80682,7 +80682,7 @@
       "best": 35
      },
      "Pictomancer": {
-      "kills": 11,
+      "kills": 12,
       "best": 60
      },
      "Reaper": {
@@ -80707,7 +80707,7 @@
     "cleared": true,
     "job_kills": {
      "Pictomancer": {
-      "kills": 9,
+      "kills": 11,
       "best": 62
      }
     }
