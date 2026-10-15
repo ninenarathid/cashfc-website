@@ -334,18 +334,30 @@ const SHEETS = [
   // 3840x1280 with icons-farm-d and the farm in the game for the reference. The rows are cut on their true grid (4), at
   // which their plants are the size of the garden's hybrids drawn at 0.62 (TownFarm's PLANT); the giants on twice it (8):
   // on 4 a ripe daikon stood 224 tall, six tomatoes high beside the farm's plants
-  ["icons-wide-a", ["wideBlueCornA", "wideBlueCornB", "wideLotusRootBedA", "wideLotusRootBedB", "wideTrellisBerryA", "wideTrellisBerryB"], { range: [3.9, 4.1] }],
-  ["icons-wide-b", ["wideRowBeanA", "wideRowBeanB", "wideTeaBushA", "wideTeaBushB", "_wideRedOkraA", "_wideRedOkraB"], { range: [3.9, 4.1] }],
-  ["icons-wide-c", ["wideBottleGourdFrontA", "wideBottleGourdFrontB", "wideBottleGourdBackA", "wideBottleGourdBackB", "wideBottleGourdSideA", "wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide-a", ["_wideBlueCornA", "_wideBlueCornB", "_wideLotusRootBedA", "_wideLotusRootBedB", "_wideTrellisBerryA", "_wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide-b", ["_wideRowBeanA", "_wideRowBeanB", "_wideTeaBushA", "_wideTeaBushB", "_wideRedOkraA", "_wideRedOkraB"], { range: [3.9, 4.1] }],
+  ["icons-wide-c", ["_wideBottleGourdFrontA", "_wideBottleGourdFrontB", "_wideBottleGourdBackA", "_wideBottleGourdBackB", "_wideBottleGourdSideA", "_wideBottleGourdSideB"], { range: [3.9, 4.1] }],
   ["icons-wide-d", ["_wideSunflowerPatchFrontA", "_wideSunflowerPatchFrontB", "_wideSunflowerPatchBackA", "_wideSunflowerPatchBackB", "_wideSunflowerPatchSideA", "_wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
   ["icons-giantcrop-a", ["giantPumpkinA", "giantPumpkinB", "_giantCabbageA", "_giantCabbageB", "giantCarrotA", "giantCarrotB"], { range: [7.9, 8.1] }],
   ["icons-giantcrop-b", ["_tomato", "giantDaikonA", "giantDaikonB", "_giantTaroA", "_giantTaroB", "_basil"], { range: [7.9, 8.1] }],
   // (drawn again after the look in the game: the sunflower patch's L read as several sunflowers along a bed, the okra row
   // as separate bushes, the giant taro as a little palm on a pedestal, the giant cabbage as broccoli; the first drawings'
   // names above begin "_". Sheet e is cut twice: its okra row on the rows' grid, its giants on twice it)
-  ["icons-wide-d2", ["wideSunflowerPatchFrontA", "wideSunflowerPatchFrontB", "wideSunflowerPatchBackA", "wideSunflowerPatchBackB", "wideSunflowerPatchSideA", "wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
-  ["icons-wide-e", ["wideRedOkraA", "wideRedOkraB", "_giantCabbageA", "_giantCabbageB", "_giantTaroA", "_giantTaroB"], { range: [3.9, 4.1] }],
+  ["icons-wide-d2", ["_wideSunflowerPatchFrontA", "_wideSunflowerPatchFrontB", "_wideSunflowerPatchBackA", "_wideSunflowerPatchBackB", "_wideSunflowerPatchSideA", "_wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide-e", ["_wideRedOkraA", "_wideRedOkraB", "_giantCabbageA", "_giantCabbageB", "_giantTaroA", "_giantTaroB"], { range: [3.9, 4.1] }],
   ["icons-wide-e", ["_wideRedOkraA", "_wideRedOkraB", "giantCabbageA", "giantCabbageB", "giantTaroA", "giantTaroB"], { range: [7.9, 8.1] }],
+  // (the hybrids drawn again to stand ON their plots, the owner: "พืชลูกผสม รู้สึกว่ายังทำภาพมาไม่ตรงช่องเท่าไหร่ ช่วยแก้ไขใหม่": one small
+  // mound on each plot instead of one long mound, and low; measure-wide.mjs finds the mounds and writes how each stands on
+  // its plots, lib/town/wide-art.json. The first drawings' names above begin "_")
+  ["icons-wide2-a", ["wideBlueCornA", "wideBlueCornB", "wideLotusRootBedA", "wideLotusRootBedB", "wideTrellisBerryA", "wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide2-b", ["wideRowBeanA", "wideRowBeanB", "wideTeaBushA", "wideTeaBushB", "wideRedOkraA", "wideRedOkraB"], { range: [3.9, 4.1] }],
+  ["icons-wide2-c", ["wideBottleGourdFrontA", "wideBottleGourdFrontB", "wideBottleGourdBackA", "wideBottleGourdBackB", "wideBottleGourdSideA", "wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide2-d", ["wideSunflowerPatchFrontA", "wideSunflowerPatchFrontB", "wideSunflowerPatchBackA", "wideSunflowerPatchBackB", "wideSunflowerPatchSideA", "wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
+  // (a, b and d drawn again with the clumps grown together over the gaps between the mounds: the first read as separate plants
+  // standing in a row. Drawn so, several have more clumps than plots: their mounds at the ends and the corner were marked)
+  ["icons-wide3-a", ["wideBlueCornA", "wideBlueCornB", "wideLotusRootBedA", "wideLotusRootBedB", "wideTrellisBerryA", "wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide3-b", ["wideRowBeanA", "wideRowBeanB", "wideTeaBushA", "wideTeaBushB", "wideRedOkraA", "wideRedOkraB"], { range: [3.9, 4.1] }],
+  ["icons-wide3-d", ["wideSunflowerPatchFrontA", "wideSunflowerPatchFrontB", "wideSunflowerPatchBackA", "wideSunflowerPatchBackB", "wideSunflowerPatchSideA", "wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
   // ── the garden's eight hybrids again, in this pipeline (the owner, 2026-10-15: "ช่วย Gen ภาพพืช ที่ codex เคยทำไปใหม่ด้วย จะได้เป็น
   // Template เดียวกัน"): their one-plot growth sprites with icons-farm-d, their crops and seed packets with icons-items-d (the
   // packet's band the crop's colour), replacing what build-garden-icons.mjs packed from grow-garden.png and icons-garden.png
