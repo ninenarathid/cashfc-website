@@ -14,12 +14,12 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | done: `quality-plant.ts`, trial hook, **v259** (trigger, dry run 1337 checks), `TownQuality.tsx` chip + inspector (shot, Codex looked); the compost act moves to 2.6 with the brush |
 | 2.3 | The roll at the pick and grades on items through every path (bag, box, ground, deal, notices, stalls, pouches, the uncle's relatives) | done: TS (trade, farm pick, box, deal) + **v260** (12 functions guarded, private salt, dry run 3446 checks) + bag stars, sell line, pick note (shot, Codex looked); Codex's code check of v259–v260 pending |
 | 2.4 | Cooking and stamina by grade | done on branch `farm-cook`: TS (cooking, preparation, stamina, the basket; `carriesGrade`/`usedGrade`, `FOOD_PREPS`; `quality-cook.test.ts`) + **v261** (12 functions guarded, 4 helpers closed, dry run 5163 checks) + the grade on the cook's card, the feast table, the meal in the bag, the basket and the picnic (shot, Codex looked) |
-| 2.5 | The twenty helper plants (four from the uncle), their shapes, fennel; the bed overview | |
-| 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | |
-| 2.7 | Dig out from the inspector (tilled ground, 2 stamina, nothing back) | |
+| 2.5 | The twenty helper plants (four from the uncle), their shapes, fennel; the bed overview | done (helper-items.ts, bed gift in v259, v263 catalog, placement preview, overview); **art on branch farm-art (agent)** |
+| 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | done: partners via the bed gift; compost and brush deeds (v262) |
+| 2.7 | Dig out from the inspector (tilled ground, 2 stamina, nothing back) | done: the hoe's dig-out of a living plant leaves tilled ground (v262) |
 | 3 | The 27 fertilisers, two slots, the chart, holding one shows its gain | |
 | 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | |
-| 5 | Crossing sun / moon / mist, hybrid seeds in the players' market, the seed tray | |
+| 5 | Crossing sun / moon / mist, hybrid seeds in the players' market, the seed tray | sun/moon done (8 helper crossings, pollinator skies, v263); mist with the pre-dawn insects (4) |
 | 6 | The bat merchant, 03:00–05:00 | |
 | 7 | Farming-line gear and charms 1–10 (the swap charm), designed with the owner first | |
 
@@ -89,3 +89,13 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 New rules: unit tests and TypeScript/SQL parity vectors; SQL: a PGlite dry run from the snapshot with the breaks
 that matter (a stranger, another's bed, the same call twice, retries at a full bag); Codex reads the SQL once; every
 screen shot at 1280×860, 384×730 and 360×640, Codex looks, the owner sees them before a push.
+
+## Order from here (2026-10-15 evening)
+
+The fertilisers' inputs (decomposer and glowing insects, ornate fish, mist mushroom, queen pollen, dew, bat guano) come
+of piece 4's new species and finds, so: 4b the 48 species and the rare finds (with their art), then 4a the insect
+house, then 3 the fertilisers, then 6 the bat merchant, 1b the board, and the mist crossings. The owner said "ทำต่อได้เลย
+จนจบทั้งหมด"; piece 7 (rank gear) waits for his design. Migrations so far: v259 (Quality round, bed gift), v260
+(grades), v261 (cooking by grade, branch farm-cook merged; also mends the big pot's batches, broken live since v177),
+v262 (compost, brush, dig-out), v263 (helpers and crossings); all dry-run; run in order with the matching code.
+
