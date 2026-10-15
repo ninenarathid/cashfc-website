@@ -86,6 +86,19 @@ function keepFled(fled: Map<string, number>) {
 }
 /** How big an insect is drawn on the map: screen pixels to one of its picture's, at the map's own scale 1. */
 const SIZE = 0.66;
+/**
+ * The insects that glow, and their light (the owner, 2026-10-15): where on the body (screen pixels from its feet, as
+ * it faces left), its colour, its reach (a lamp's halo is 44 and its pool 70: these are a fraction of it); whether it
+ * flashes now and then (`flash`, as it shows only lit) or glows on, breathing (`breathe`, ms).
+ */
+const LUMINOUS: Record<string, { flash?: true; breathe: number; spots: Array<[number, number, string, number]>; pool: number }> = {
+  firefly: { flash: true, breathe: 1, spots: [[3, -4, "214,255,120", 14]], pool: 22 },
+  // (the time bands' glowers show only while they glow, as the firefly does: lib/town/band-species, habit "look")
+  blueGhostFirefly: { flash: true, breathe: 1, spots: [[2, -5, "170,215,255", 16]], pool: 26 },
+  californiaGlowworm: { flash: true, breathe: 1, spots: [[3, -3, "125,245,210", 12]], pool: 20 },
+  cucujoBeetle: { flash: true, breathe: 1, spots: [[-4, -7, "196,255,120", 9], [-1, -8, "196,255,120", 9], [3, -4, "255,190,90", 8]], pool: 20 },
+  railroadWorm: { flash: true, breathe: 1, spots: [[-7, -3, "255,96,70", 8], [-2, -3, "160,255,150", 8], [3, -3, "160,255,150", 8], [8, -3, "160,255,150", 8]], pool: 22 },
+};
 /** How near an insect a tap has to be to be a swing at it, and not a step: in tiles. */
 const AIM = 1.5;
 /** How near the silver-web net's mark over an insect that does not show itself a tap has to be to be a tap on it: in tiles. */
@@ -667,6 +680,23 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
           }
         } });
         if (!pose.seen) continue;
+        // ── a light of its own ── (the owner, 2026-10-15: "แมลงที่น่าจะเรืองแสงได้ อยากให้มีแสงออกมาจริงๆ" and "อยากให้แสงของ
+        // แมลง อ่อนกว่า ลูกเล็กกว่า แสงโคมไฟ แต่สวย ทำมาแล้วสมจริง"): an insect that glows lights the dark about it, smaller and
+        // softer than a lamp: a bright point at its light organ, a small halo, a faint pool on the ground under it
+        const lum = LUMINOUS[sight.bug as string];
+        if (lum && frame.light) {
+          // (a flash: its glow comes up fast and dies away while it shows, lib/town/insects' poseOf; one that glows on, breathing)
+          const on = lum.flash ? (still ? 0.8 : pose.glow) : still ? 0.8 : 0.72 + 0.28 * Math.sin(now / lum.breathe + h.id * 1.3);
+          const up = pose.lift * TILE_H * s, flip = pose.right ? -1 : 1;
+          if (on > 0.02) {
+            for (const [dx, dy, rgb, reach] of lum.spots) {
+              const x = at.x + dx * s * flip, y = at.y - up + dy * s;
+              frame.light(x, y, reach * 0.35, rgb, 2.6 * on);
+              frame.light(x, y, reach, rgb, 1.1 * on);
+            }
+            frame.light(at.x, at.y + s, lum.pool, lum.spots[0][2], 0.55 * on, 0.4);
+          }
+        }
         // (what is in the air, or on a trunk, is drawn over whoever stands before it: it is what is being looked for)
         things.push({ depth: pose.x + pose.y + (pose.lift > 0.2 ? 3.6 : 0.6), draw: () => {
           const up = pose.lift * TILE_H * s;

@@ -2389,6 +2389,8 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
         people: () => (stay ? [stay.self, ...stay.avatars.values()] : []).filter((a) => a.byeAt === undefined)
           .map((a) => ({ id: a.info.id, x: a.pos.x, y: a.pos.y, moving: a.path.length > 0, hold: ((a.info.hold || null) as ItemId | null) })),
         sign: (text: string, x: number, y: number) => { signs.push(() => label(ctx, text, x, y, "#e5cc80", "rgba(15,19,25,0.82)")); },
+        // (a light of a map's layer: with the gems' lights, laid after the night, drawDaylight)
+        light: (x: number, y: number, reach: number, rgb: string, strong = 1, flat = 1) => { if (toolLights.current.length < 120) toolLights.current.push({ x, y, rgb, reach, flat, strong }); },
       };
       picnicDraw.current?.(frame);
       boatsDraw.current?.(frame);
