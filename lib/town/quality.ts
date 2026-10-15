@@ -236,6 +236,15 @@ export const COMPANIONS: Record<CompanionId, { role: Role; shape: Shape; uncle?:
   garlicChives: { role: "guard", shape: "line", th: "กุยช่าย", en: "Garlic chives" },
   mint: { role: "guard", shape: "plus", th: "มิ้นต์", en: "Mint" },
   dill: { role: "guard", shape: "plus", th: "ผักชีลาว", en: "Dill" },
+  // (the mist children, piece 5: each the role and shape of its sun child)
+  pearlNut: { role: "soil", shape: "plus", th: "ถั่วลิสงหมอก", en: "Mist peanut" },
+  silverGrain: { role: "soil", shape: "ring", th: "บัควีตหมอก", en: "Mist buckwheat" },
+  dewSesame: { role: "soil", shape: "line", th: "งาหมอก", en: "Mist sesame" },
+  glassFlower: { role: "soil", shape: "x", th: "โคลเวอร์หมอก", en: "Mist clover" },
+  opalStalk: { role: "water", shape: "ring", th: "รูบาร์บหมอก", en: "Mist rhubarb" },
+  crystalLeaf: { role: "water", shape: "line", th: "วอเตอร์เครสหมอก", en: "Mist watercress" },
+  dewFig: { role: "water", shape: "fig", th: "มะเดื่อหมอก", en: "Mist fig" },
+  silkPollen: { role: "water", shape: "x", th: "คาโมมายล์หมอก", en: "Mist chamomile" },
 };
 
 const PLUS = [[1, 0], [-1, 0], [0, 1], [0, -1]];

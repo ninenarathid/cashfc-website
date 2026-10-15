@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CROP_IDS } from "./items";
+import { HELPER_CROSSES } from "./helper-items";
 import {
   COMPANIONS, NO_Q, PARTNERS, QUALITY, accrue, barsOf, barsOfQ, ceilingOf, narrowingOfQ, rangeOfQ, chancesOf, coverOffsets, coveredShare, dishGrade, gradeOf,
   narrowingOf, paidFor, rangeOf, rollOne, type Cover,
@@ -78,8 +79,11 @@ describe("the farm's Quality", () => {
     expect(dishGrade([null, null])).toBe(0);
   });
 
-  it("has twenty helpers, five a role, and the uncle sells one of each role", () => {
-    const all = Object.values(COMPANIONS);
+  it("has twenty helpers, five a role, and the uncle sells one of each role (and the eight mist forms of a sun child)", () => {
+    const mist = new Set(HELPER_CROSSES.map((c) => c[4] as string));
+    for (const [, , sun, , m] of HELPER_CROSSES) expect([COMPANIONS[m].role, COMPANIONS[m].shape]).toEqual([COMPANIONS[sun].role, COMPANIONS[sun].shape]);
+    expect(mist.size).toBe(8);
+    const all = Object.entries(COMPANIONS).filter(([id]) => !mist.has(id)).map(([, c]) => c);
     expect(all).toHaveLength(20);
     for (const role of ["soil", "water", "pollen", "guard"]) {
       expect(all.filter((c) => c.role === role)).toHaveLength(5);

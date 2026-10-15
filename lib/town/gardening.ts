@@ -66,7 +66,7 @@ export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, 
   // (the helpers' crossings, lib/town/helper-items: a pollinator let go on it while it grew this bearing, whose sky
   // decides the child)
   if (root.pollenRound !== root.picked) return null;
-  for (const [a, b, sun, moon] of HELPER_CROSSES) {
+  for (const [a, b, sun, moon, mist] of HELPER_CROSSES) {
     const other = root.crop === a ? b : root.crop === b ? a : null;
     if (!other) continue;
     for (const [k, plot] of Object.entries(plots)) {
@@ -74,7 +74,7 @@ export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, 
       if (!p || p.by !== me || p.crop !== other || (p.root && p.root !== k) || !see(k, plot, now, sky).ripe) continue;
       const theirs = p.footprint ?? [k];
       if (cells.some(c => { const [x, y] = c.split(",").map(Number); return theirs.some(d => { const [u, v] = d.split(",").map(Number); return bedOf(x, y) === bedOf(u, v) && Math.max(Math.abs(x - u), Math.abs(y - v)) === 1; }); }))
-        return root.pollenSky === "moon" ? moon : sun;
+        return root.pollenSky === "moon" ? moon : root.pollenSky === "mist" ? mist : sun;
     }
   }
   return null;

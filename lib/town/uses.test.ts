@@ -120,7 +120,7 @@ describe("everything in the game (the owner: \"make sure ว่า recipe ขอ
     // nothing that is caught, grown or cooked is on the uncle's shelf (but the plain meal, and the pot's things)
     for (const id of Object.keys(GOODS) as ItemId[]) expect(["fish", "catch", "crop"]).not.toContain(ITEMS[id].kind);
     // Established seeds are sold; the new seeds are discovered through neighboring crosses.
-    for (const c of CROP_IDS) expect(!!GOODS[CROPS[c].seed] || GARDEN.crosses.some(([, , child]) => child === c) || HELPER_CROSSES.some(([, , sun, moon]) => sun === c || moon === c), c).toBe(true);
+    for (const c of CROP_IDS) expect(!!GOODS[CROPS[c].seed] || GARDEN.crosses.some(([, , child]) => child === c) || HELPER_CROSSES.some(([, , sun, moon, mist]) => sun === c || moon === c || mist === c), c).toBe(true);
   });
 
   it("woodcutting and mining: an axe and a pick from the uncle bring everything of the mountain, and the smith smelts the rest", () => {

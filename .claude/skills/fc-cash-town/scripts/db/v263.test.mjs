@@ -46,7 +46,7 @@ try {
     const plots = {};
     for (let n = 0; n < 8; n++) {
       const key = `${133 + Math.floor(rand() * 3)},${5 + Math.floor(rand() * 3)}`;
-      const bug = rand() < 0.6 ? { pollenRound: 0, pollenSky: pick(["sun", "moon"]) } : {};
+      const bug = rand() < 0.6 ? { pollenRound: 0, pollenSky: pick(["sun", "moon", "mist"]) } : {};
       plots[key] = { soil: "tilled", plant: { by: "me", crop: pick(KINDS), sown: T0 - 900 * H, boost: 0, watered: 0, fed: 0, guard: T0 + 99 * H, cured: 0, picked: 0, pickedAt: 0, ...bug } };
     }
     for (const key of Object.keys(plots)) {

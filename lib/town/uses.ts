@@ -125,7 +125,7 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     if (hoe) {
       for (const c of CROP_IDS) if (has(CROPS[c].seed)) { add(c, "farm"); add("compost", "farm"); }
       // (the helpers' crossings, lib/town/helper-items: both parents grown, and a pollinator of each sky to let go)
-      for (const [a, b, sun, moon] of HELPER_CROSSES) if (has(a) && has(b)) for (const [child, skyOf] of [[sun, "sun"], [moon, "moon"]] as const)
+      for (const [a, b, sun, moon, mist] of HELPER_CROSSES) if (has(a) && has(b)) for (const [child, skyOf] of [[sun, "sun"], [moon, "moon"], [mist, "mist"]] as const)
         if (Object.entries(POLLINATOR_SKY).some(([bug, s]) => s === skyOf && has(bug as ItemId))) add(CROPS[child].seed, "farm");
     }
     // the forest (lib/town/forest): with empty hands, whatever lies and grows and hangs there, on whatever day and

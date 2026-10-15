@@ -175,10 +175,10 @@ const PLANT = 0.62;
 const TREE_HEIGHT: Record<string, number> = {
   growLime: 40, growPapaya: 46, growMango: 46, growBanana: 46, growCoconut: 50,
   // (the fig, a helper of the farm's Quality, stands over its 2×2 as one tree: a little taller than the orchard's)
-  growFig: 54,
+  growFig: 54, growDewFig: 54,
 };
 /** Trees that stand over their whole footprint: drawn once, from the middle of their plots, not once a plot. */
-const WHOLE_TREES = new Set<string>(["fig"]);
+const WHOLE_TREES = new Set<string>(["fig", "dewFig"]);
 const PLANT_SCALES: Record<string, number> = Object.fromEntries(
   Object.entries(ICON_ATLAS.icons).filter(([name]) => /^grow.+[AB]$/.test(name)).map(([name, [, , w, h]]) => {
     const young = name.endsWith("A"), height = TREE_HEIGHT[name.slice(0, -1)];

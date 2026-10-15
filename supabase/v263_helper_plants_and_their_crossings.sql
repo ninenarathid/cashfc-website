@@ -10,7 +10,7 @@
 --
 -- The catalog's items, crops, gardening (the fig's 2x2 and the line helpers' turned plot), goods and shelf rows are
 -- written over from the code (lib/town/catalog's seedFor); town.insect_care keeps the pollinator's sky on the plant;
--- town.garden_cross knows the helpers' crossings.
+-- town.garden_cross knows the helpers' crossings (a mist pollinator's child the fifth of a crossing, piece 5).
 begin;
 set local statement_timeout='30s';
 set local lock_timeout='5s';
@@ -18,7 +18,7 @@ do $$ begin
  if to_regprocedure('town.quality_care(text,jsonb,jsonb,text,jsonb,text,bigint)') is null then raise exception 'Run v262 before v263'; end if;
 -- <guards:v263>
  if md5(replace(pg_get_functiondef('town.insect_care(text,jsonb,jsonb,integer,text,text,bigint)'::regprocedure),chr(13),'')) not in ('9f4903c825e2b347bc7ffd110ac2b5e5','dae89bca9e8cd7ce2150a2b7d814c047') then raise exception 'Definition changed: town.insect_care(text,jsonb,jsonb,integer,text,text,bigint); rebuild v263'; end if;
- if md5(replace(pg_get_functiondef('town.garden_cross(text,jsonb,text,bigint)'::regprocedure),chr(13),'')) not in ('b994e1bdc7657b7e7fcdc03bb1c34251','718c1c1bf3c4734bcb8ccd152ef2d8c0') then raise exception 'Definition changed: town.garden_cross(text,jsonb,text,bigint); rebuild v263'; end if;
+ if md5(replace(pg_get_functiondef('town.garden_cross(text,jsonb,text,bigint)'::regprocedure),chr(13),'')) not in ('b994e1bdc7657b7e7fcdc03bb1c34251','0b56d7086f0dc640b78b5bf5444eab8a') then raise exception 'Definition changed: town.garden_cross(text,jsonb,text,bigint); rebuild v263'; end if;
 -- </guards:v263>
 end $$;
 
@@ -821,6 +821,14 @@ insert into public.town_catalog (key, data) values
     "nasturtium": {"kind":"crop","tier":1,"stack":20,"pays":3},
     "garlicChives": {"kind":"crop","tier":1,"stack":20,"pays":3},
     "dill": {"kind":"crop","tier":1,"stack":20,"pays":3},
+    "pearlNut": {"kind":"crop","tier":3,"stack":20,"pays":16},
+    "silverGrain": {"kind":"crop","tier":3,"stack":20,"pays":12},
+    "dewSesame": {"kind":"crop","tier":3,"stack":20,"pays":16},
+    "glassFlower": {"kind":"crop","tier":3,"stack":20,"pays":8},
+    "opalStalk": {"kind":"crop","tier":3,"stack":20,"pays":16},
+    "crystalLeaf": {"kind":"crop","tier":3,"stack":20,"pays":8},
+    "dewFig": {"kind":"crop","tier":3,"stack":20,"pays":24},
+    "silkPollen": {"kind":"crop","tier":3,"stack":20,"pays":12},
     "insectHouse": {"kind":"tool","tier":2,"stack":20,"pays":30},
     "slatePowder": {"kind":"goods","tier":2,"stack":20,"pays":3},
     "biochar": {"kind":"goods","tier":2,"stack":20,"pays":2},
@@ -864,6 +872,14 @@ insert into public.town_catalog (key, data) values
     "seedNasturtium": {"kind":"seed","tier":1,"stack":10,"pays":0},
     "seedGarlicChives": {"kind":"seed","tier":1,"stack":10,"pays":0},
     "seedDill": {"kind":"seed","tier":1,"stack":10,"pays":0},
+    "seedPearlNut": {"kind":"seed","tier":3,"stack":10,"pays":0},
+    "seedSilverGrain": {"kind":"seed","tier":3,"stack":10,"pays":0},
+    "seedDewSesame": {"kind":"seed","tier":3,"stack":10,"pays":0},
+    "seedGlassFlower": {"kind":"seed","tier":3,"stack":10,"pays":0},
+    "seedOpalStalk": {"kind":"seed","tier":3,"stack":10,"pays":0},
+    "seedCrystalLeaf": {"kind":"seed","tier":3,"stack":10,"pays":0},
+    "seedDewFig": {"kind":"seed","tier":3,"stack":10,"pays":0},
+    "seedSilkPollen": {"kind":"seed","tier":3,"stack":10,"pays":0},
     "seedMint": {"kind":"seed","tier":1,"stack":10,"pays":0},
     "seedChamomile": {"kind":"seed","tier":1,"stack":10,"pays":0},
     "seedLavender": {"kind":"seed","tier":1,"stack":10,"pays":0},
@@ -1008,6 +1024,14 @@ insert into public.town_catalog (key, data) values
     "garlicChives": {"seed":"seedGarlicChives","hours":36,"yield":[2,2],"again":24,"picks":3},
     "mint": {"seed":"seedMint","hours":36,"yield":[2,2],"again":24,"picks":3},
     "dill": {"seed":"seedDill","hours":48,"yield":[2,2],"again":24,"picks":3},
+    "pearlNut": {"seed":"seedPearlNut","hours":72,"yield":[4,4],"again":null,"picks":1},
+    "silverGrain": {"seed":"seedSilverGrain","hours":48,"yield":[3,3],"again":null,"picks":1},
+    "dewSesame": {"seed":"seedDewSesame","hours":60,"yield":[3,3],"again":null,"picks":1},
+    "glassFlower": {"seed":"seedGlassFlower","hours":36,"yield":[2,2],"again":24,"picks":3},
+    "opalStalk": {"seed":"seedOpalStalk","hours":72,"yield":[2,2],"again":36,"picks":3},
+    "crystalLeaf": {"seed":"seedCrystalLeaf","hours":24,"yield":[2,2],"again":24,"picks":3},
+    "dewFig": {"seed":"seedDewFig","hours":120,"yield":[4,4],"again":48,"picks":4},
+    "silkPollen": {"seed":"seedSilkPollen","hours":48,"yield":[2,2],"again":24,"picks":3},
     "kangkong": {"seed":"seedKangkong","hours":6,"yield":[4,6],"again":12,"picks":3},
     "scallion": {"seed":"seedScallion","hours":8,"yield":[4,6],"again":12,"picks":3},
     "cabbage": {"seed":"seedCabbage","hours":24,"yield":[2,2],"again":null,"picks":1},
@@ -1039,7 +1063,7 @@ insert into public.town_catalog (key, data) values
     "version": 1,
     "boost": 3600000,
     "extra": 1,
-    "shapes": {"bottleGourd":[[0,0],[1,0],[1,1]],"rowBean":[[0,0],[1,0]],"trellisBerry":[[0,0],[0,1],[0,2]],"blueCorn":[[0,0],[1,0],[2,0]],"teaBush":[[0,0],[1,0]],"sunflowerPatch":[[0,0],[1,0],[0,1]],"redOkra":[[0,0],[0,1]],"lotusRootBed":[[0,0],[1,0],[2,0]],"fig":[[0,0],[1,0],[0,1],[1,1]],"sesame":[[0,0]],"watercress":[[0,0]],"borage":[[0,0]],"passionfruit":[[0,0]],"garlicChives":[[0,0]]},
+    "shapes": {"bottleGourd":[[0,0],[1,0],[1,1]],"rowBean":[[0,0],[1,0]],"trellisBerry":[[0,0],[0,1],[0,2]],"blueCorn":[[0,0],[1,0],[2,0]],"teaBush":[[0,0],[1,0]],"sunflowerPatch":[[0,0],[1,0],[0,1]],"redOkra":[[0,0],[0,1]],"lotusRootBed":[[0,0],[1,0],[2,0]],"fig":[[0,0],[1,0],[0,1],[1,1]],"dewFig":[[0,0],[1,0],[0,1],[1,1]],"sesame":[[0,0]],"watercress":[[0,0]],"borage":[[0,0]],"passionfruit":[[0,0]],"garlicChives":[[0,0]],"dewSesame":[[0,0]],"crystalLeaf":[[0,0]]},
     "crosses": [["pumpkin","cucumber","bottleGourd"],["longBean","basil","rowBean"],["rowBean","teaBush","trellisBerry"],["corn","sunflowerPatch","blueCorn"],["basil","lemongrass","teaBush"],["corn","basil","sunflowerPatch"],["chili","longBean","redOkra"],["taro","kangkong","lotusRootBed"]]
   }$town$::jsonb),
   ('goods', $town${
@@ -1232,7 +1256,7 @@ begin
     x:=split_part(mine,',',1)::integer; y:=split_part(mine,',',2)::integer;
     for theirs in select jsonb_array_elements_text(coalesce(q.value->'plant'->'footprint',jsonb_build_array(q.key))) loop
      u:=split_part(theirs,',',1)::integer; v:=split_part(theirs,',',2)::integer;
-     if town.bed_of(x,y)=town.bed_of(u,v) and greatest(abs(x-u),abs(y-v))=1 then return case when p->>'pollenSky'='moon' then c->>3 else c->>2 end; end if;
+     if town.bed_of(x,y)=town.bed_of(u,v) and greatest(abs(x-u),abs(y-v))=1 then return case p->>'pollenSky' when 'moon' then c->>3 when 'mist' then coalesce(c->>4,c->>2) else c->>2 end; end if;
     end loop;
    end loop;
   end loop;

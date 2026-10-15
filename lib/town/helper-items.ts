@@ -15,7 +15,16 @@ export type HelperCropId =
   | "runnerBean" | "peanut" | "buckwheat" | "sesame" | "clover"
   | "gardenStrawberry" | "rhubarb" | "watercress" | "fig" | "chamomile"
   | "borage" | "lavender" | "passionfruit" | "milkweed" | "fennel"
-  | "marigold" | "nasturtium" | "garlicChives" | "mint" | "dill";
+  | "marigold" | "nasturtium" | "garlicChives" | "mint" | "dill"
+  // (the eight mist children of the crossings, piece 5: each the sun child's rare form, giving a rare produce)
+  | MistCropId;
+export type MistCropId = "pearlNut" | "silverGrain" | "dewSesame" | "glassFlower" | "opalStalk" | "crystalLeaf" | "dewFig" | "silkPollen";
+/** The mist child's plant, by its name (its produce is the rare thing the design named: ถั่วลิสงหมอก gives เมล็ดมุก). */
+export const MIST_PLANTS: Record<MistCropId, [th: string, en: string]> = {
+  pearlNut: ["ถั่วลิสงหมอก", "Mist peanut"], silverGrain: ["บัควีตหมอก", "Mist buckwheat"], dewSesame: ["งาหมอก", "Mist sesame"],
+  glassFlower: ["โคลเวอร์หมอก", "Mist clover"], opalStalk: ["รูบาร์บหมอก", "Mist rhubarb"], crystalLeaf: ["วอเตอร์เครสหมอก", "Mist watercress"],
+  dewFig: ["มะเดื่อหมอก", "Mist fig"], silkPollen: ["คาโมมายล์หมอก", "Mist chamomile"],
+};
 
 /**
  * Three helpers grow what the forest's edge already gives (lib/town/items' wild herbs, lib/town/forest): mint,
@@ -45,6 +54,15 @@ export const HELPER_ITEMS = {
   nasturtium: item("crop", "แนสเทอร์ฌัม", "Nasturtium", "ดอกสีส้มแดงกับใบกลมเหมือนบัว", "Orange-red flowers among round, lily-pad leaves", 3),
   garlicChives: item("crop", "กุยช่าย", "Garlic chives", "ใบแบนยาวสีเขียวมีดอกขาวเล็ก", "Long flat green leaves with small white flowers", 3),
   dill: item("crop", "ผักชีลาว", "Dill", "ใบฝอยเส้นเล็กกับดอกเหลืองเป็นร่ม", "Thread-fine leaves and yellow flower umbrellas", 3),
+  // (the mist children's rare produce: four times what the sun child's is worth, of the third tier)
+  pearlNut: item("crop", "เมล็ดมุก", "Pearl nuts", "ถั่วเม็ดกลมสีขาวมุกวาว", "Round nuts with a pearly sheen", 16, 3),
+  silverGrain: item("crop", "เมล็ดเงิน", "Silver grain", "เมล็ดสามเหลี่ยมสีเงินเป็นประกาย", "Three-sided grains that shine like silver", 12, 3),
+  dewSesame: item("crop", "งาน้ำค้าง", "Dew sesame", "เมล็ดงาใสเหมือนหยดน้ำค้าง", "Sesame seeds clear as drops of dew", 16, 3),
+  glassFlower: item("crop", "ดอกแก้ว", "Glass flower", "ดอกโคลเวอร์ใสราวแก้ว", "A clover flower clear as glass", 8, 3),
+  opalStalk: item("crop", "ก้านโอปอล", "Opal stalks", "ก้านอวบสีรุ้งแบบโอปอล", "Plump stalks shot with opal colours", 16, 3),
+  crystalLeaf: item("crop", "ใบผลึก", "Crystal leaves", "ใบเล็กใสเป็นผลึก", "Small leaves gone clear as crystal", 8, 3),
+  dewFig: item("crop", "ผลน้ำค้าง", "Dew figs", "ผลมะเดื่อมีหยดน้ำค้างเกาะ", "Figs beaded with dew", 24, 3),
+  silkPollen: item("crop", "เกสรแพร", "Silk pollen", "เกสรสีทองนุ่มเหมือนแพรไหม", "Golden pollen soft as silk", 12, 3),
 } as const satisfies Record<Exclude<HelperCropId, ForestHerb>, Item>;
 
 /**
@@ -59,12 +77,14 @@ export const QUALITY_CRAFTS = {
 } as const;
 
 const seedName = (id: HelperCropId) => `seed${id[0].toUpperCase()}${id.slice(1)}` as `seed${Capitalize<HelperCropId>}`;
-const nameOf = (id: HelperCropId): [th: string, en: string] => (id in HERB_NAMES ? HERB_NAMES[id as ForestHerb] : [HELPER_ITEMS[id as Exclude<HelperCropId, ForestHerb>].name.th, HELPER_ITEMS[id as Exclude<HelperCropId, ForestHerb>].name.en]);
+const nameOf = (id: HelperCropId): [th: string, en: string] => (id in HERB_NAMES ? HERB_NAMES[id as ForestHerb] : id in MIST_PLANTS ? MIST_PLANTS[id as MistCropId] : [HELPER_ITEMS[id as Exclude<HelperCropId, ForestHerb>].name.th, HELPER_ITEMS[id as Exclude<HelperCropId, ForestHerb>].name.en]);
 export const HELPER_IDS = [...Object.keys(HELPER_ITEMS), "mint", "chamomile", "lavender"] as HelperCropId[];
 export const HELPER_SEED_ITEMS = Object.fromEntries(HELPER_IDS.map((id) => [seedName(id), item("seed",
-  `เมล็ด${nameOf(id)[0]}`, `${nameOf(id)[1]} seeds`, "เมล็ดพืชช่วยในซองกระดาษ", "Helper plant seeds in a paper packet",
-  // (the uncle's family buys back only the four he sells: the others are found by crossing, and kept or traded)
-  HELPER_STARTERS.includes(id) ? 1 : 0)])) as Record<`seed${Capitalize<HelperCropId>}`, Item>;
+  `เมล็ด${nameOf(id)[0]}`, `${nameOf(id)[1]} seeds`,
+  id in MIST_PLANTS ? "เมล็ดในซองกระดาษสีเทาหมอก" : "เมล็ดพืชช่วยในซองกระดาษ", id in MIST_PLANTS ? "Seeds in a paper packet the grey of mist" : "Helper plant seeds in a paper packet",
+  // (the uncle's family buys back only the four he sells: the others are found by crossing, and kept or traded; a
+  // mist child's seed is of its produce's tier)
+  HELPER_STARTERS.includes(id) ? 1 : 0, id in MIST_PLANTS ? 3 : 1)])) as Record<`seed${Capitalize<HelperCropId>}`, Item>;
 
 const crop = (id: HelperCropId, hours: number, again: number | null, picks: number, n: number): Crop =>
   ({ seed: seedName(id), hours, yield: [n, n], ...(again ? { again, picks } : {}) });
@@ -78,23 +98,28 @@ export const HELPER_CROPS: Record<HelperCropId, Crop> = {
   milkweed: crop("milkweed", 48, 24, 3, 2), fennel: crop("fennel", 72, 36, 3, 2),
   marigold: crop("marigold", 36, 24, 3, 2), nasturtium: crop("nasturtium", 48, 24, 3, 2), garlicChives: crop("garlicChives", 36, 24, 3, 2),
   mint: crop("mint", 36, 24, 3, 2), dill: crop("dill", 48, 24, 3, 2),
+  // (each mist child grows as its sun child does)
+  pearlNut: crop("pearlNut", 72, null, 1, 4), silverGrain: crop("silverGrain", 48, null, 1, 3), dewSesame: crop("dewSesame", 60, null, 1, 3),
+  glassFlower: crop("glassFlower", 36, 24, 3, 2), opalStalk: crop("opalStalk", 72, 36, 3, 2), crystalLeaf: crop("crystalLeaf", 24, 24, 3, 2),
+  dewFig: crop("dewFig", 120, 48, 4, 4), silkPollen: crop("silkPollen", 48, 24, 3, 2),
 };
 
 /**
  * The eight crossings that give the helpers' seeds (the design's section 4): the two parents ripe beside each other,
  * and a pollinator let go on the one that is picked while it grew. The pollinator's sky (`POLLINATOR_SKY`) decides
- * the child: a day insect's ☀ the first, a night insect's 🌙 the second (the hour it was let go is not asked; the
- * pre-dawn insects' 🌫 child comes with them). The garden's own eight crossings (lib/town/gardening) are as they were.
+ * the child: a day insect's ☀ the first, a night insect's 🌙 the second, a pre-dawn insect's 🌫 the third: the sun
+ * child's rare form, of the same role and shape, whose produce is worth four times its own (piece 5; the hour it was
+ * let go is not asked). The garden's own eight crossings (lib/town/gardening) are as they were.
  */
-export const HELPER_CROSSES: ReadonlyArray<readonly [import("./items").CropId, import("./items").CropId, HelperCropId, HelperCropId]> = [
-  ["corn", "longBean", "peanut", "lavender"],
-  ["cabbage", "carrot", "buckwheat", "passionfruit"],
-  ["corn", "chili", "sesame", "milkweed"],
-  ["basil", "cabbage", "clover", "fennel"],
-  ["gardenStrawberry", "tomato", "rhubarb", "nasturtium"],
-  ["kangkong", "scallion", "watercress", "garlicChives"],
-  ["pumpkin", "tomato", "fig", "mint"],
-  ["borage", "lemongrass", "chamomile", "dill"],
+export const HELPER_CROSSES: ReadonlyArray<readonly [import("./items").CropId, import("./items").CropId, HelperCropId, HelperCropId, MistCropId]> = [
+  ["corn", "longBean", "peanut", "lavender", "pearlNut"],
+  ["cabbage", "carrot", "buckwheat", "passionfruit", "silverGrain"],
+  ["corn", "chili", "sesame", "milkweed", "dewSesame"],
+  ["basil", "cabbage", "clover", "fennel", "glassFlower"],
+  ["gardenStrawberry", "tomato", "rhubarb", "nasturtium", "opalStalk"],
+  ["kangkong", "scallion", "watercress", "garlicChives", "crystalLeaf"],
+  ["pumpkin", "tomato", "fig", "mint", "dewFig"],
+  ["borage", "lemongrass", "chamomile", "dill", "silkPollen"],
 ];
 /** Each pollinator's sky, fixed by its kind: the moths are the night's, the bees, flies, beetles and butterflies the day's. */
 export const POLLINATOR_SKY: Readonly<Record<string, "sun" | "moon" | "mist">> = {
@@ -109,6 +134,7 @@ export const POLLINATOR_SKY: Readonly<Record<string, "sun" | "moon" | "mist">> =
  * line helper on one plot, but turned (its line runs east–west or north–south, as it was turned at its sowing).
  */
 export const HELPER_SHAPES: Partial<Record<HelperCropId, number[][]>> = {
-  fig: [[0, 0], [1, 0], [0, 1], [1, 1]],
+  fig: [[0, 0], [1, 0], [0, 1], [1, 1]], dewFig: [[0, 0], [1, 0], [0, 1], [1, 1]],
   sesame: [[0, 0]], watercress: [[0, 0]], borage: [[0, 0]], passionfruit: [[0, 0]], garlicChives: [[0, 0]],
+  dewSesame: [[0, 0]], crystalLeaf: [[0, 0]],
 };
