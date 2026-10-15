@@ -12,7 +12,7 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 1b | The trade board as a board of its own in the town centre (art: the board, the before-dawn icon) | to do |
 | 2.1 | Pure Quality rules (`lib/town/quality.ts`): bars, range, roll, grades, pay, helpers' shapes, partners | done |
 | 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | done: `quality-plant.ts`, trial hook, **v259** (trigger, dry run 1337 checks), `TownQuality.tsx` chip + inspector (shot, Codex looked); the compost act moves to 2.6 with the brush |
-| 2.3 | The roll at the pick and grades on items through every path (bag, box, ground, deal, notices, stalls, pouches, the uncle's relatives) | |
+| 2.3 | The roll at the pick and grades on items through every path (bag, box, ground, deal, notices, stalls, pouches, the uncle's relatives) | done: TS (trade, farm pick, box, deal) + **v260** (12 functions guarded, private salt, dry run 3446 checks) + bag stars, sell line, pick note (shot, Codex looked); Codex's code check of v259–v260 pending |
 | 2.4 | Cooking and stamina by grade | |
 | 2.5 | The twenty helper plants (four from the uncle), their shapes, fennel; the bed overview | |
 | 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | |
@@ -52,7 +52,16 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
   recipes, pictures and the one oversupply counter stay as they are. Produce with no field is normal (0); things the
   uncle sells carry none and are ignored by a dish's grade. Stacks join only at the same grade; downgrading to join is
   an explicit act that never raises a grade.
-- **Room before the roll:** a pick checks room for every grade its range can give before anything is drawn.
+- **The roll** is seeded by plot, sowing, picking and fruit through `roll()` (TS) / `town.roll` (SQL) mixed with a salt:
+  empty in the trial and the bench (so they match fruit for fruit), private in `town.quality_salt` live. The same draws
+  on a retry, so a full bag or a reload never re-rolls; the bag must hold every grade the pick gives (checked on the
+  real draws, as they cannot change). The charm sickle's extra fruit and the garden twine's are normal.
+- **Graded produce is not plain** (`plainStack`/`town.plain`/`take_plain` pass it over): stalls, the notice board and
+  the jar do not take it yet (grade-aware listings are a later piece); the box, the ground and deals move it with its
+  grade (`push` joins its own grade); a deal gives graded stock only by its slot; drag/sort never join graded stacks
+  (a pick's `put` does). The uncle's relatives pay by `gradePays` (raw produce, kind `crop`, only).
+- **The receipt** tells the plant's range (from the page's own rules) and the grades from the bag before and after:
+  the server's per-fruit numbers are not carried through `tend`.
 - **A line helper** reaches three cells each way (Codex's figure); a **partner** narrows by the share of the round it
   stood touching (as a rare insect does), so a partner set just before ripeness gives little.
 - **Migrations:** the next free number is v259 (v257 and v258 exist untracked in the shared tree); ask the peers first.
