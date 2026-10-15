@@ -28,7 +28,7 @@ do $$ begin
  if md5(replace(pg_get_functiondef('town.wild_holds(integer,bigint,jsonb,text)'::regprocedure),chr(13),'')) not in ('a0172511c2c779fd2b16cabeda840a09','040aba079d5137b5cfade6d07694c599') then raise exception 'Definition changed: town.wild_holds(integer,bigint,jsonb,text); rebuild v264'; end if;
  if md5(replace(pg_get_functiondef('town.stream_work(jsonb,text,text,integer,integer,jsonb,text,bigint)'::regprocedure),chr(13),'')) not in ('24e9653cd412a89c625598e73c357291','80da649d104c9bfae58efdc27cc8acf6') then raise exception 'Definition changed: town.stream_work(jsonb,text,text,integer,integer,jsonb,text,bigint); rebuild v264'; end if;
  if md5(replace(pg_get_functiondef('town.mine_pay(jsonb,jsonb,jsonb,jsonb,boolean,boolean,text)'::regprocedure),chr(13),'')) not in ('37d8276bae0466bbe7f4e16f777e1a4e','d7abe1ec9fbbb2b028e591ff824f3e11') then raise exception 'Definition changed: town.mine_pay(jsonb,jsonb,jsonb,jsonb,boolean,boolean,text); rebuild v264'; end if;
- if md5(replace(pg_get_functiondef('public.town_cast(text,integer,integer,boolean,text,text)'::regprocedure),chr(13),'')) not in ('dc29a26fcb2a46458c7ef97dd5858190','025ab03039cf1cf6ec8269c8cb63dade') then raise exception 'Definition changed: public.town_cast(text,integer,integer,boolean,text,text); rebuild v264'; end if;
+ if md5(replace(pg_get_functiondef('public.town_cast(text,integer,integer,boolean,text,text)'::regprocedure),chr(13),'')) not in ('e330aa9d72efde95d2b67ab8b5b8dc7f','3281ec040e4c3601f0f8d4952c025239') then raise exception 'Definition changed: public.town_cast(text,integer,integer,boolean,text,text); rebuild v264'; end if;
 -- </guards:v264>
 end $$;
 
@@ -1750,7 +1750,7 @@ begin
   if jsonb_array_length(odds) = 0 then return town.answer(me, town.no('calm')); end if;
   dragon_:=town.reward_dragon_draw(did->'purse',odds,bait,current_,jsonb_build_array(p_x,p_y),pair,star,now_);
   did:=did||jsonb_build_object('purse',dragon_->'purse');odds:=dragon_->'odds';
-  school_ := town.reward_school_weights(did->'purse', odds, star, now_);
+  school_ := town.reward_school_weights(did->'purse', odds, star or pair, now_);
   odds := school_->'odds';
   did := did || jsonb_build_object('purse',school_->'purse');
   -- ── v264: the time bands' newcomer fish, last of all: only in what is no fish's place (lib/town/fishing's freshOdds) ──

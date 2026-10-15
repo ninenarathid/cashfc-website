@@ -22,7 +22,7 @@ const pick = (xs) => xs[Math.floor(rand() * xs.length)];
 // (two files share v253: rewardDB replays the first it finds, so the chain is laid by hand from v253 on; v255 and v256 are
 // the town's announcements, which v256 checks against a real admin account, and the farm touches neither)
 const db = await rewardDB(252);
-for (const f of ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades"]) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
+for (const f of ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v255_important_town_announcements", "v258_finite_profession_rewards"]) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
 const one = async (q, a = []) => (await db.query(q, a)).rows[0];
 try {
   const sql = readFileSync(file, "utf8");

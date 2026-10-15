@@ -9,10 +9,10 @@ export function startSchool(p:Purse,fish:FishId,pool:FishPool,now:number){
   const used=useGift(p,"thingSchoolBell",now);if(!used.ok)return {ok:false as const,why:used.why==="spent"?"spent" as const:"none" as const};
   const school:SchoolCall={fish,left:3,until:now+30*60000};return {ok:true as const,purse:{...used.purse,professionRewards:{...used.purse.professionRewards,school}},school,left:used.left};
 }
-/** Weight, not a guarantee or a 3× probability. Pair casts spend one charge; stardust never uses one. */
-export function schoolWeights(p:Purse,pool:FishPool,star:boolean,now:number){
+/** One boosted catch per charge. Extra-line and stardust casts preserve the call. */
+export function schoolWeights(p:Purse,pool:FishPool,star:boolean,now:number,pair=false){
   const s=p.professionRewards?.school;
-  if(star||!s||s.left<1||now>=s.until||!works(p,"thingSchoolBell")||!FISH[s.fish]||FISH[s.fish].tier==="legend"||!pool.some(x=>x.what===s.fish&&x.p>0))return {purse:p,odds:pool.map(x=>({...x}))};
+  if(pair||star||!s||s.left<1||now>=s.until||!works(p,"thingSchoolBell")||!FISH[s.fish]||FISH[s.fish].tier==="legend"||!pool.some(x=>x.what===s.fish&&x.p>0))return {purse:p,odds:pool.map(x=>({...x}))};
   const weights=pool.map(x=>({...x,p:x.p*(x.what===s.fish?3:1)})),total=weights.reduce((sum,x)=>sum+x.p,0);
   if(!(total>0))return {purse:p,odds:pool.map(x=>({...x}))};
   return {purse:{...p,professionRewards:{...p.professionRewards,school:{...s,left:s.left-1}}},odds:weights.map(x=>({...x,p:x.p/total}))};

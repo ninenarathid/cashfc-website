@@ -568,7 +568,7 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
       if (gauge.fish.current) gauge.fish.current.style.transform = wild && !reduced ? `translateX(${Math.sin(t / 28) * 5}px) rotate(${Math.sin(t / 40) * 9}deg)` : about && !reduced ? `translateX(${Math.sin(t / 60) * 2}px)` : "";
       // (a legend's second bout: said as it begins)
       const boutWord = (phase.bout ?? 1) > 1 && f.t < 1.8 ? (th ? "ยังไม่ยอม! ยกที่สอง" : "Not done: a second bout!") : null;
-      if (gauge.word.current) gauge.word.current.textContent = silkWord ?? (quietNow?(th?"???????????????":"The water answers"):null) ?? boutWord ?? (wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel"));
+      if (gauge.word.current) gauge.word.current.textContent = silkWord ?? (quietNow?(th?"สายน้ำตอบรับ":"The water answers"):null) ?? boutWord ?? (wild ? (th ? "ปลาดิ้น!" : "It surges!") : about ? (th ? "ปลากำลังจะดิ้น" : "It is about to surge") : f.tension > f.hi ? (th ? "ตึงไป!" : "Too tight!") : f.tension < f.lo ? (th ? "หย่อนไป!" : "Too slack!") : (th ? "สาวสายได้" : "Reel"));
       if (f.over === "landed" && (phase.bout ?? 1) < boutsOf(phase.fish)) {
         // A legend is not landed by one fight: it breaks away at once and the next bout begins, with nothing told to
         // the keeper yet (the fish is one fish: its fight was paid for as the hook was set, and it is one go).
@@ -939,8 +939,8 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
   );
   return (
     <section ref={root} aria-labelledby="town-fish-h" data-town-game data-look="fish"
-             className="relative rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
-      <div className="flex items-center gap-2">
+             className="relative max-h-[72dvh] overflow-y-auto overscroll-contain rounded-lg border-[3px] border-[#2a190d] bg-[#6b4424] px-3 pb-3 pt-2 shadow-[inset_0_0_0_2px_#9c6b3d,0_14px_28px_rgba(0,0,0,0.5)]">
+      <div className="flex flex-wrap items-center gap-2">
         {/* the rod in use, when there is one */}
         <span title={gear.rod ? name(gear.rod) : undefined}>{gear.rod ? <ItemIcon id={gear.rod} size={24} /> : <TownIcon name="hook" size={22} />}</span>
         <h2 id="town-fish-h" className="font-display text-title font-semibold text-[#ffeccb] [text-shadow:0_2px_0_#2a190d]">{th ? "ตกปลา" : "Fishing"}</h2>
@@ -957,10 +957,10 @@ export default function TownFish({ me, keeper, th, rain, place, reduced, sfx, on
         )}
         <button type="button" onClick={() => { const on = !sound; sfx.setOn(on); setSound(on); if (on) { sfx.wake(); sfx.play("nibble"); } }} aria-pressed={sound}
                 title={th ? (sound ? "ปิดเสียงตกปลา" : "เปิดเสียงตกปลา") : (sound ? "Turn the fishing sounds off" : "Turn the fishing sounds on")}
-                className={`pressable grid size-8 place-items-center rounded-full border ${sound ? "border-[#2a190d]" : "border-[#2a190d] opacity-50"}`}>
+                className={`pressable grid size-11 shrink-0 place-items-center rounded-full border ${sound ? "border-[#2a190d]" : "border-[#2a190d] opacity-50"}`}>
           <TownIcon name={sound ? "volumeHigh" : "volumeLow"} size={16} /><span className="sr-only">{th ? "เสียงตกปลา" : "Fishing sounds"}</span>
         </button>
-        <button type="button" onClick={onClose} className="pressable -mr-1 rounded-full px-3 py-1.5 text-meta text-[#e9cfa4] hover:text-[#fff6e3]">
+        <button type="button" onClick={onClose} className="pressable -mr-1 min-h-11 min-w-11 shrink-0 rounded-full px-3 py-1.5 text-meta text-[#e9cfa4] hover:text-[#fff6e3]">
           {phase.at === "ready" || phase.at === "result" ? (th ? "ปิด" : "Close") : (th ? "เก็บเบ็ด" : "Reel in")}
         </button>
       </div>

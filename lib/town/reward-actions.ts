@@ -17,14 +17,14 @@ const no = (why: "none" | "spent" | "far" | "full"): Result => ({ ok: false, why
 export function scanMineral(p: Purse, mineral: ItemId, at: [number, number], now: number,
   world: { rocks: readonly RockAt[]; ore: ItemId; gem: ItemId; stands: (id: number) => boolean; fate: (id: number) => Holds }): Result {
   if (!tile(at) || !works(p, "thingOreCompass") || !mineralKnowledge(p).includes(mineral)) return no("none");
+  const used = useGift(p, "thingOreCompass", now);
+  if (!used.ok) return no(used.why === "spent" ? "spent" : "none");
   const choices = world.rocks.filter(r => {
     if (!world.stands(r.id)) return false;
     const f = world.fate(r.id);
     return f.kind === "vein" ? mineral === (f.gem ? world.gem : world.ore) : f.kind === "stone" && f.shards > 0 && mineral === world.ore;
   }).sort((a,b) => Math.max(Math.abs(a.x-at[0]), Math.abs(a.y-at[1]))-Math.max(Math.abs(b.x-at[0]), Math.abs(b.y-at[1])) || a.id-b.id);
-  if (!choices.length) return no("none");
-  const used = useGift(p, "thingOreCompass", now);
-  if (!used.ok) return no(used.why === "spent" ? "spent" : "none");
+  if (!choices.length) return { ok: true, purse: used.purse, left: used.left };
   const target=choices[0], dx=Math.sign(target.x-at[0]), dy=Math.sign(target.y-at[1]);
   const direction: ScanDirection = dy < 0 ? dx < 0 ? "NW" : dx > 0 ? "NE" : "N" : dy > 0 ? dx < 0 ? "SW" : dx > 0 ? "SE" : "S" : dx < 0 ? "W" : dx > 0 ? "E" : "here";
   const distance=Math.max(Math.abs(target.x-at[0]),Math.abs(target.y-at[1]));

@@ -1729,7 +1729,10 @@ export class DbKeeper implements Keeper {
     return {};
   }
   async land(how: "landed" | "snapped" | "slipped" | "left", fight: Record<string, unknown> | null, which?: number): Promise<Landed> {
-    const a = await this.ask("town_land", { p_how: how, p_fight: which === undefined ? fight : { ...(fight ?? {}), which } });
+    const args={p_how:how,p_fight:{...fight,...(which===undefined?{}:{which}),request:crypto.randomUUID()}};
+    // Reuse the operation ID if the response was lost, including an otter rescue.
+    const first=await this.ask("town_land",args);
+    const a=first??await this.ask("town_land",args);
     if (!a?.ok) return { how: how === "landed" ? "slipped" : how, kept: false, record: false };
     return { how: a.how as FishingEnd, kept: !!a.kept, record: !!a.record, ...(a.back ? { back: true } : {}),
       // ── gifts: fishing ──

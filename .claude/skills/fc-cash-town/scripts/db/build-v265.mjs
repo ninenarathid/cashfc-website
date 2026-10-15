@@ -8,7 +8,7 @@ const SIGS = ["town.quality_bed_gift(text,jsonb)", "town.quality_accrue(jsonb,bi
 const md5s = async (db) => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, (await db.query(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) m`)).rows[0].m])));
 const db = await rewardDB(252);
 try {
-  for (const f of ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v259_a_crop_counts_its_good_care", "v260_produce_keeps_its_grade", "v261_a_dish_as_good_as_what_went_in", "v262_compost_and_the_pollen_brush", "v263_helper_plants_and_their_crossings", "v264_species_of_the_time_bands"]) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
+  for (const f of ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v255_important_town_announcements", "v258_finite_profession_rewards", "v259_a_crop_counts_its_good_care", "v260_produce_keeps_its_grade", "v261_a_dish_as_good_as_what_went_in", "v262_compost_and_the_pollen_brush", "v263_helper_plants_and_their_crossings", "v264_species_of_the_time_bands"]) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
   const before = await md5s(db), text = readFileSync(FILE, "utf8").split("\r\n").join("\n");
   const open = text.indexOf("-- <guards:v265>"), close = text.indexOf("-- </guards:v265>");
   const bare = text.slice(0, open) + "-- <guards:v265>\n" + text.slice(close);

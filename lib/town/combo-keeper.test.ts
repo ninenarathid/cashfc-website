@@ -3,6 +3,22 @@ import { DbKeeper } from "./keeper";
 import { newPurse } from "./trade";
 
 describe("optional equipment-bond RPC",()=>{
+ it("retries a lost otter response with the same operation ID",async()=>{
+  const sent:Record<string,unknown>[]=[],purse=newPurse();
+  const k=new DbKeeper("me",async(fn,args)=>{
+   if(fn==="town_is_open")return true;
+   if(fn==="town_me")return {now:Date.now(),purse};
+   if(fn!=="town_land")return null;
+   sent.push(args!);
+   if(sent.length===1)return null;
+   return {ok:true,now:Date.now(),purse,how:"snapped",kept:false,record:false,again:true};
+  });
+  try{
+   expect(await k.land("snapped",{secs:10})).toMatchObject({again:true});
+   expect(sent).toHaveLength(2);expect(sent[1]).toEqual(sent[0]);
+   expect((sent[0].p_fight as {request:string}).request).toMatch(/^[0-9a-f-]{36}$/);
+  }finally{k.close();}
+ });
  it("an older database can refuse the optional RPC without shutting the game",async()=>{
   const k=new DbKeeper("me",async(fn)=>fn==="town_is_open"?true:fn==="town_me"?{now:Date.now(),purse:newPurse()}:null);
   const result=await k.comboPrepare("wear");

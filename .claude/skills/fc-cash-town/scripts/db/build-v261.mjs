@@ -9,7 +9,7 @@ const SIGS = ["town.cook_v205(jsonb,jsonb,jsonb,double precision,bigint)", "town
   "town.chew(jsonb,double precision,bigint)", "town.basket_of(jsonb)", "town.basket_less(jsonb,text,numeric)", "town.basket_put(jsonb,integer,numeric)",
   "town.basket_take(jsonb,text,numeric)", "town.basket_eat(jsonb,text,boolean,bigint)"];
 /** The chain v261 is laid on: the reward chain to v252, both v253 files, v254, v259 and v260 (v255 and v256 need a real admin). */
-const CHAIN = ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades",
+const CHAIN = ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v255_important_town_announcements", "v258_finite_profession_rewards",
   "v259_a_crop_counts_its_good_care", "v260_produce_keeps_its_grade"];
 const md5s = async (db) => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, (await db.query(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) m`)).rows[0].m])));
 {

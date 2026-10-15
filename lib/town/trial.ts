@@ -1764,7 +1764,7 @@ export class Trial {
    * its wood is in my bag. Whoever braced the trunk has their log, into their own bag (their purse is in this browser too).
    */
   fellDo(went: FellWent, at: [number, number], name = ""): ({ ok: true } & FellDid) | { ok: false; why: Refusal | TreeRefusal | GiftRefusal } {
-    const luck = Array.from({ length: TREE_KNOBS.echo.trees }, (): FellLuck => this.fellLuck ?? { dark: Math.random(), scent: Math.random(), which: Math.random(), chain: Math.random(), keep: Math.random(), kind: Math.random() });
+    const luck = Array.from({ length: Math.max(3,TREE_KNOBS.echo.trees) }, (): FellLuck => this.fellLuck ?? { dark: Math.random(), scent: Math.random(), which: Math.random(), chain: Math.random(), keep: Math.random(), kind: Math.random() });
     const before=this.purse(),grove=this.grove(),t=this.now(),did=fell(before,grove,this.id,went,at,t,luck,undefined,name||this.id);
     if (!did.ok) return did;
     this.write(TREES_AT, did.grove);

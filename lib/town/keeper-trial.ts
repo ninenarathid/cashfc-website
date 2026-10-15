@@ -253,7 +253,7 @@ class TrialKeeper implements Keeper {
     // (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
     if (!odds.length) return { ok: false, why: "calm" };
     const dragon=dragonDraw(hooked.purse,odds,bait,current,place.tile,pair,star,now);
-    const school=schoolWeights(dragon.purse,dragon.odds,star,now);odds=school.odds;
+    const school=schoolWeights(dragon.purse,dragon.odds,star,now,pair);odds=school.odds;
     // (the time bands' newcomers, last of all: only in what is no fish's place, lib/town/fishing's freshOdds)
     if (!star) odds = freshOdds(odds, bait, under.hour, habitat, !place.deep, [...(pair ? PAIR.never : []), ...(isWary(p, now) ? WARY.tiers : [])]);
     // (the line goes out: the bait has left the bag, or the stardust is counted)

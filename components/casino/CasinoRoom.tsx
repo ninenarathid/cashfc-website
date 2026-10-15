@@ -2,10 +2,11 @@
 import { useAdmin } from '@/lib/admin';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { CLAIM_LABEL, effectiveChance, money, reelAt, spinRevealed, type CasinoSpin, type SymbolId } from '@/lib/casino';
+import { CLAIM_LABEL, draftOf, effectiveChance, money, reelAt, spinRevealed, type CasinoSpin, type SymbolId } from '@/lib/casino';
 import { defaultLook, encodeLook, savedLook } from '@/lib/town/look';
 import CasinoMap, { MACHINE_X, SPAWN, type CasinoPeer } from './CasinoMap';
 import CasinoSymbol from './CasinoSymbol';
+import CasinoSimulation from './CasinoSimulation';
 import { useCasino } from './useCasino';
 import './casino.css';
 import { casinoWalkable } from '@/lib/town/casino-map';
@@ -29,6 +30,17 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
   const [selected, setSelected] = useState(1), [force, setForce] = useState('');
   const [busy, setBusy] = useState(false), [recover, setRecover] = useState(false);
   const [pane, setPane] = useState<'none'|'slots'|'bag'|'feed'|'desk'>('none'), [arrived, setArrived] = useState(true);
+  const [showSimulation, setShowSimulation] = useState(false);
+  const playLayout = useRef<HTMLDivElement>(null), simulationPanel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (pane !== 'slots' || !showSimulation || !matchMedia('(max-width: 639px)').matches) return;
+    const frame = requestAnimationFrame(() => {
+      const layout = playLayout.current, panel = simulationPanel.current;
+      if (layout && panel) layout.scrollTop = panel.offsetTop - layout.offsetTop;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [pane, showSimulation]);
+  const closeSimulation = () => { setShowSimulation(false); if (playLayout.current) playLayout.current.scrollTop = 0; };
   useEffect(()=>{if(pane==='none')return;const close=(e:KeyboardEvent)=>{const field=e.target instanceof HTMLElement&&!!e.target.closest('input,select,textarea');if(e.key==='Escape'){e.preventDefault();e.stopPropagation();setPane('none');document.querySelector<HTMLCanvasElement>('.casino-town-canvas')?.focus();}else if(!field&&e.key.toLowerCase()==='i')setPane('none');};document.addEventListener('keydown',close,true);return()=>document.removeEventListener('keydown',close,true);},[pane]);
   useEffect(()=>{const openNative=(e:PointerEvent)=>{if(e.target instanceof Element&&e.target.closest('button[aria-keyshortcuts="I"],button[data-town-lines-button]'))setPane('none');};document.addEventListener('pointerdown',openNative,true);return()=>document.removeEventListener('pointerdown',openNative,true);},[]);
   const [clock, setClock] = useState(Date.now());
@@ -158,7 +170,9 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
       {!native && <CasinoTownHud coins={state.account.coins} remaining={Math.max(0, remaining)} allowance={s.per_player} people={peers.length + 1} connected={connected} live={live} admin={realAdmin} pane={pane} onPane={setPane} onChat={sendCheer} sound={sound} onSound={() => { if (!sound) { audio.current ??= new AudioContext(); void audio.current.resume(); } setSound(!sound); }} camera={camera} />}
       {native&&<TownFoot rank="corner"><div className="casino-map-label tk tk-plate"><span>Casino {!live&&<small className="casino-test">TEST</small>}</span><button className="tk tk-slot" aria-label="ผลในห้อง" aria-expanded={pane==='feed'} onClick={()=>setPane(p=>p==='feed'?'none':'feed')}><TownIcon name="history" size={18}/></button></div></TownFoot>}
       {error && <p className="casino-error" role="alert">{error}</p>}
-      <div className="casino-lower tk tk-window" role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button><section className="casino-console"><h2>เครื่อง {selected}</h2>
+      <div className="casino-lower tk tk-window" data-simulation={pane === 'slots' && showSimulation && realAdmin} role="dialog" aria-label={pane === 'feed' ? 'ผลและเสียงเชียร์' : pane==='desk'?'พนักงาน Casino':`Slot เครื่อง ${selected}`}><button className="casino-panel-close pressable tk tk-slot" aria-label="ปิดหน้าต่าง" onClick={() => setPane('none')}>×</button>
+        {pane === 'slots' && showSimulation && realAdmin && <h2 className="casino-play-heading">เครื่อง {selected}</h2>}
+        <div className="casino-play-layout" ref={playLayout}><section className="casino-console"><h2>เครื่อง {selected}</h2>
         <nav className="casino-machines" aria-label="เลือกเครื่องสล็อต">{MACHINE_X.map((_, i) => <button key={i} className="casino-machine-tab pressable tk tk-slot" aria-label={`เครื่อง ${i + 1}`} aria-pressed={selected === i + 1} onClick={() => select(i + 1)}>{i + 1}</button>)}</nav>
         <p className="casino-allowance">เหลือ {Math.max(0,remaining)} ครั้ง · ครั้งละ {money(s.price)} coin</p>
         <div className="casino-reels" aria-label={rolling ? 'กำลังหมุน' : latest ? latest.reels.join(', ') : 'พร้อมเล่น'}>
@@ -166,12 +180,16 @@ export default function CasinoRoom({native}:{native?:TownMapRuntime}) {
             <CasinoSymbol id={latest ? reelAt(latest, i, clock, reduced) : 'popoto'} /></div>)}
         </div>
         <div className="casino-result" role="status">{rolling ? `${latest!.player_name} กำลังลุ้น…` : latest ? latest.prize ? `${latest.player_name} ได้ ${latest.prize.name}!` : `${latest.player_name} · รอบนี้ยังไม่ได้รางวัล` : 'เลือกเครื่อง แล้วดึงคันโยกได้เลย'}</div>
-        {recover ? <button className="casino-spin pressable tk tk-btn" disabled={busy} onClick={() => void spin(true)}>ตรวจผลครั้งเดิม</button> :
+        <div className="casino-play-actions">{recover ? <button className="casino-spin pressable tk tk-btn" disabled={busy} onClick={() => void spin(true)}>ตรวจผลครั้งเดิม</button> :
           <button className="casino-spin pressable tk tk-btn" disabled={busy || !arrived || !self.seat || ownRolling || rolling || closed || remaining <= 0 || state.account.coins < s.price} onClick={() => void spin()}>
             {!arrived ? 'กำลังเดินไปหน้าเครื่อง…' : busy || ownRolling ? 'กำลังเล่น…' : closed ? 'เครื่องพักอยู่' : `ปั่น · ${money(s.price)} coin`}</button>}
+          {realAdmin && <button type="button" className="casino-simulate-toggle pressable tk tk-slot" aria-expanded={showSimulation} onClick={() => showSimulation ? closeSimulation() : setShowSimulation(true)}>จำลอง</button>}
+        </div>
         <details className="casino-prize-details"><summary>โอกาสและรางวัล</summary>{state.prizes.map(p => <p key={p.id}>{p.name}: {effectiveChance(p, s, state.prizes).toFixed(3)}% · เหลือ {p.stock - p.issued} ชิ้น</p>)}
           <p>งบ Gil {live?"":"ทดลอง"}เหลือ {money(s.budget - s.reserved)} · ผลใช้การตั้งค่ารุ่น {s.revision}</p><p>{live?"ใบรับสิทธิ์รางวัลจริง · ยืนยันส่งมอบผ่าน Aqua":"เครดิตและใบรับสิทธิ์ในห้องนี้เป็น TEST · ปิดทุกหน้าจะเริ่มใหม่"}</p></details>
-      </section><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2><p>แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ใบรับสิทธิ์อยู่ในแท็บ Event ของกระเป๋า</p>
+      </section>{realAdmin && <div ref={simulationPanel} className="casino-simulation-pane" hidden={pane !== 'slots' || !showSimulation}>
+          <CasinoSimulation draft={draftOf(state)} settings={s} onClose={closeSimulation} />
+        </div>}</div><section className="casino-desk-in-room"><h2>พนักงาน Casino</h2><p>แตะตู้หรือเก้าอี้เพื่อเข้าเล่น · ใบรับสิทธิ์อยู่ในแท็บ Event ของกระเป๋า</p>
         <div className="casino-actions"><button aria-pressed={sound} onClick={()=>{if(!sound){audio.current??=new AudioContext();void audio.current.resume();}setSound(!sound);}}>{sound?'ปิดเสียงสล็อต':'เปิดเสียงสล็อต'}</button><Link className="tk tk-slot" href="/town?map=town">กลับหมู่บ้าน</Link></div>
         {realAdmin&&<><Link className="casino-aqua-link tk tk-btn" href={live?'/admin/aqua/casino-live':'/admin/aqua/casino'}>Aqua · ตั้งค่า {label}</Link>{!live&&<details className="casino-lab-tools"><summary>เครื่องมือห้องทดลอง</summary><div className="casino-actions"><button disabled={busy||ownRolling} onClick={()=>void credit(false)}>เติม 20,000 coin ทดลอง</button><button disabled={busy||ownRolling} onClick={()=>void credit(true)}>เริ่มกระเป๋าทดลองใหม่</button></div><label className="casino-forced">ผลทดสอบ<select aria-label="ผลสำหรับทดสอบ" value={force} disabled={s.mode==='pool'} onChange={e=>setForce(e.target.value)}><option value="">สุ่มจริง</option><option value="miss">พลาด</option>{state.prizes.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select></label></details>}</>}
       </section><section className="casino-feed"><h2>เสียงจากหน้าเครื่อง</h2><div className="casino-cheers">{CHEERS.map(text => <button key={text} onClick={() => sendCheer(text)}>{text}</button>)}</div>

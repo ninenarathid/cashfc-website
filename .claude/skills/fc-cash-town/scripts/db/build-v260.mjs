@@ -11,7 +11,7 @@ const SIGS = ["town.room(jsonb,text)", "town.put(jsonb,text,integer)", "town.tak
 const md5s = async (db) => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, (await db.query(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) m`)).rows[0].m])));
 const db = await rewardDB(252);
 try {
-  for (const f of ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v259_a_crop_counts_its_good_care"]) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
+  for (const f of ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v255_important_town_announcements", "v258_finite_profession_rewards", "v259_a_crop_counts_its_good_care"]) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
   const before = await md5s(db), text = readFileSync(FILE, "utf8").split("\r\n").join("\n");
   const open = text.indexOf("-- <guards:v260>"), close = text.indexOf("-- </guards:v260>");
   const bare = text.slice(0, open) + "-- <guards:v260>\n" + text.slice(close);

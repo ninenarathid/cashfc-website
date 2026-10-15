@@ -47,7 +47,7 @@ function bed(now, houses = rand() < 0.7 ? 1 : rand() < 0.5 ? 0 : 2) {
 const db = await rewardDB(252);
 const one = async (q, a = []) => (await db.query(q, a)).rows[0];
 try {
-  const chain = ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v259_a_crop_counts_its_good_care", "v260_produce_keeps_its_grade", "v261_a_dish_as_good_as_what_went_in", "v262_compost_and_the_pollen_brush", "v263_helper_plants_and_their_crossings"];
+  const chain = ["v253_experience_that_respects_the_work", "v253_a_market_for_selling_or_waiting", "v254_night_meals_and_exact_trades", "v255_important_town_announcements", "v258_finite_profession_rewards", "v259_a_crop_counts_its_good_care", "v260_produce_keeps_its_grade", "v261_a_dish_as_good_as_what_went_in", "v262_compost_and_the_pollen_brush", "v263_helper_plants_and_their_crossings"];
   const v264 = readdirSync("supabase").find((f) => f.startsWith("v264_") && f.endsWith(".sql"));
   if (v264 && existsSync(`supabase/${v264}`)) chain.push(v264.replace(/\.sql$/, ""));
   for (const f of chain) await db.exec(readFileSync(`supabase/${f}.sql`, "utf8"));
