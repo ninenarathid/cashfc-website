@@ -2,7 +2,8 @@ import{crownCaught}from"./reward-crown";
 import { trainElement } from "./element-training";
 import { FARMING, roll, see, type FarmSky, type Plot } from "./farm";
 import { INSECT_SPECIES, type InsectSpeciesId } from "./insect-items";
-import { scentMods } from "./insect-garden";
+import { INSECT_GARDEN, scentMods } from "./insect-garden";
+import { NEW_BUGS, QUIET, inHours, type NewInsectId } from "./band-species";
 import { SPOTS, fullMoon, isDayOf } from "./forest";
 import { luckOf, netFx, partOf, slowPartOf } from "./forged";
 import { toolPaid } from "./forged-keep";
@@ -12,7 +13,7 @@ import { ITEMS, type ItemId } from "./items";
 import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, heldStack, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { CAMP, COLS, FARM, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { CAMP, COLS, FARM, FARM_PROPS, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
 
 /**
  * Catching insects, as rules (the owner, 2026-10-05: "จับแมลง ในทุกแมพในเกม แมพกลางเมือง
@@ -59,11 +60,14 @@ import { CAMP, COLS, FARM, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, 
 /** How an insect is caught: by what it does. */
 export type Habit = "path" | "spot" | "behind" | "sound" | "look" | "lamp" | "lure" | "crawl";
 /** What a haunt is. */
-export type HauntKind = "blooms" | "water" | "field" | "lamp" | "tree" | "litter" | "glade" | "falls";
+export type HauntKind = "blooms" | "water" | "field" | "lamp" | "tree" | "litter" | "glade" | "falls"
+  // (the time bands' newcomers' own, lib/town/band-species' NEW_HAUNT_KINDS: no old insect keeps to one, and no newcomer to an old one)
+  | "petals" | "leaves" | "logs" | "bark" | "duff" | "sand" | "posts";
 export type BugId = InsectSpeciesId
   | "butterflyWhite" | "monarch" | "morpho" | "dragonfly" | "damselfly" | "glassDragonfly" | "grasshopper" | "mantis" | "cricket" | "cicada"
   | "stickInsect" | "leafInsect" | "firefly" | "orchidMantis" | "moth" | "lunaMoth" | "hawkMoth"
-  | "rhinoBeetle" | "stagBeetle" | "jewelBeetle" | "herculesBeetle" | "ladybird" | "scarab" | "caterpillar";
+  | "rhinoBeetle" | "stagBeetle" | "jewelBeetle" | "herculesBeetle" | "ladybird" | "scarab" | "caterpillar"
+  | NewInsectId;
 
 /** An insect: its habit, where it keeps, how often beside the others there, and what has to hold for it to be out at all. */
 export interface Bug {
@@ -82,6 +86,8 @@ export interface Bug {
   zones?: Zone[];
   /** Only in these hours, in Bangkok, as [from, to) pairs. */
   hours?: Array<[number, number]>;
+  /** (a newcomer that spans several bands, lib/town/band-species) the hours of the band it is most out in: in its other hours it weighs QUIET.offPeak of itself. */
+  peak?: Array<[number, number]>;
   /** Not when it has rained within the half hour. */
   dry?: boolean;
   /** Only on a day of its own: the chance that a day is one. */
@@ -150,6 +156,8 @@ export const BUGS: Record<BugId, Bug> = {
   scarab: { habit: "crawl", at: ["field"], weight: 30, n: [1, 1], cost: 1, size: 1, places: ["farm"], hours: DAYTIME },
   caterpillar: { habit: "crawl", at: ["litter", "blooms"], weight: 45, n: [1, 1], cost: 1, size: 1, places: ["forest"], hours: DAYTIME },
   ...INSECT_SPECIES,
+  // (the time bands' newcomers, last: lib/town/band-species. Each keeps to haunts of its own kinds, so no old haunt weighs one)
+  ...NEW_BUGS,
 };
 export const BUG_IDS = Object.keys(BUGS) as BugId[];
 export const isBug = (id: string | null | undefined): id is BugId => !!id && id in BUGS;
@@ -186,7 +194,11 @@ export const harderOn = (id: BugId, harder = 1): number => (tierOf(id) === "comm
 // and the falls) what it could, and twice as many are rolled in a day. (Before: blooms 10 / 0.55, water 10 / 0.5,
 // field 10 / 0.55, lamp 10 / 0.6, tree 20 / 0.5, litter 20 / 0.5, glade 60 / 0.25, falls 30 / 0.3. The database reads
 // these from the catalog's row: nothing of its rules changes.)
-export const HAUNT_KINDS: Record<HauntKind, { every: number; chance: number; shares: number }> = {
+export const HAUNT_KINDS: Record<HauntKind, { every: number; chance: number; shares: number;
+  /** The newcomers' own (lib/town/band-species): nothing comes back to one after a catch elsewhere, nor from one after a catch there, and the farm's pests do not count what is there. */
+  alone?: true;
+  /** …and a turn there has nothing so often beside the newcomers that may be out, so one alone in its band is not there at every turn. */
+  none?: number }> = {
   blooms: { every: 7, chance: 0.77, shares: 1 },
   water: { every: 7, chance: 0.7, shares: 1 },
   field: { every: 7, chance: 0.77, shares: 1 },
@@ -195,6 +207,14 @@ export const HAUNT_KINDS: Record<HauntKind, { every: number; chance: number; sha
   litter: { every: 14, chance: 0.7, shares: 1 },
   glade: { every: 30, chance: 0.25, shares: 1 },
   falls: { every: 15, chance: 0.3, shares: 1 },
+  // the newcomers' own (2026-10-15): a turn of ten minutes, likely to roll, and `none` against their weights (QUIET.none)
+  petals: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
+  leaves: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
+  logs: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
+  bark: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
+  duff: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
+  sand: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
+  posts: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
 };
 /**
  * An insect caught comes back somewhere else (the owner, the same day: "หลังจากนั้น จะมี delay เล็กน้อยก่อนสุ่มเกิดที่ใหม่"):
@@ -339,6 +359,25 @@ export const HAUNTS: Haunt[] = asBuilt(() => {
     placed++;
   }
   add("lamp", "forest", CAMP.fire.x, CAMP.fire.y, [{ x: CAMP.fire.x + 0.5, y: CAMP.fire.y + 0.5 }]);
+  // ── the time bands' newcomers (2026-10-15, lib/town/band-species): haunts of their own kinds, laid out after every
+  // old one, so that no old haunt moves or changes its number (the database keeps a copy of them and holds a catch to
+  // it), and kept apart from them as the old ones are from each other. A kind of the design's places a map: the
+  // flowers, the leaves and low brush, the logs, the bark, the litter, the sand of the stream's banks, the fence posts.
+  const nearProps = (kinds: string[], props: readonly { kind: string; x: number; y: number }[], place: Place): Array<[number, number]> =>
+    props.filter((p) => kinds.includes(p.kind) && placeOf(p.x, p.y) === place).map((p): [number, number] => [p.x, p.y]);
+  const verge = (x: number, y: number) => stands(x, y) && !plotAt(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => plotAt(x + dx, y + dy));
+  const woodFloor = (x: number, y: number) => stands(x, y) && groundAt(x, y) === "wood" && !taken(x, y) && ["woods", "bamboo", "rise", "deep"].includes(z(x, y));
+  scatter("petals", "town", 3, 5, nearProps(["flowers", "flowerbed", "planter"], PROPS, "town"));
+  scatter("petals", "farm", 3, 6, tilesOf(FARM, verge));
+  scatter("petals", "forest", 3, 6, tilesOf(FOREST, (x, y) => stands(x, y) && z(x, y) === "edge" && groundAt(x, y) === "grass"));
+  scatter("leaves", "forest", 3, 6, [...nearProps(["fern", "bush"], FOREST_PROPS, "forest"), ...tilesOf(FOREST, (x, y) => stands(x, y) && ["woods", "deep"].includes(z(x, y)) && groundAt(x, y) === "grass")]);
+  scatter("leaves", "farm", 2, 6, [...nearProps(["hay", "bush"], FARM_PROPS, "farm"), ...tilesOf(FARM, verge)]);
+  scatter("logs", "forest", 3, 6, [...nearProps(["log", "stump", "logseat"], FOREST_PROPS, "forest"), ...tilesOf(FOREST, woodFloor)]);
+  scatter("bark", "forest", 3, 6, nearProps(["oak", "birch"], FOREST_PROPS, "forest"));
+  scatter("duff", "farm", 3, 6, tilesOf(FARM, verge));
+  scatter("duff", "forest", 3, 6, tilesOf(FOREST, woodFloor));
+  scatter("sand", "forest", 3, 6, tilesOf(FOREST, (x, y) => stands(x, y) && groundAt(x, y) === "sand"));
+  scatter("posts", "farm", 2, 6, nearProps(["fence"], FARM_PROPS, "farm"));
   return out;
 });
 
@@ -367,6 +406,8 @@ export interface Swarm { turn: number; bug: BugId; n: number; seed: number; back
 /** An insect that comes back: at which haunt, in which turn of its, which insect and how many a catch gives, and from what moment it is there. */
 export interface Comeback { haunt: number; turn: number; bug: BugId; n: number; from: number }
 
+/** How much an insect weighs at a moment: its weight, or (a newcomer outside its peak band) QUIET.offPeak of it. */
+const weightAt = (id: BugId, at: number) => { const b = BUGS[id]; return b.peak && !inHours(b.peak, ((((at + BANGKOK) % DAY) + DAY) % DAY) / HOUR) ? b.weight * QUIET.offPeak : b.weight; };
 /** The insects that may be at a haunt in a turn of its, in the order they are weighed. */
 const mayBe = (salt: string, h: Haunt, turn: number, rains: readonly Rain[]) => { const at = bugTurnStart(h, turn); return BUG_IDS.filter((id) => fits(BUGS[id], id, h, at, salt, rains)); };
 /**
@@ -374,10 +415,12 @@ const mayBe = (salt: string, h: Haunt, turn: number, rains: readonly Rain[]) => 
  * number fell, from 0 up to 1 (which says nothing of which insect it is: it is as good a number of chance as another).
  */
 // ── forging: old tools ── (`rare`: the rare kinds weigh so many times their own: nothing said, as they are)
-function whichOf(may: BugId[], r: number, rare = 1): { bug: BugId; within: number } | undefined {
-  const w = (id: BugId) => BUGS[id].weight * (rare > 1 && tierOf(id) === "rare" ? rare : 1);
-  let left = r * may.reduce((t, id) => t + w(id), 0);
+// (`at`: the turn's start, for a newcomer's peak; `none`: what a newcomers' haunt has of nothing beside them, HAUNT_KINDS' none)
+function whichOf(may: BugId[], r: number, rare = 1, at?: number, none = 0): { bug: BugId; within: number } | undefined {
+  const w = (id: BugId) => (at === undefined ? BUGS[id].weight : weightAt(id, at)) * (rare > 1 && tierOf(id) === "rare" ? rare : 1);
+  let left = r * (may.reduce((t, id) => t + w(id), 0) + none);
   for (const id of may) { left -= w(id); if (left < 0) return { bug: id, within: (left + w(id)) / w(id) }; }
+  if (none > 0) return undefined;
   const last = may[may.length - 1];
   return last ? { bug: last, within: 0 } : undefined;
 }
@@ -407,7 +450,7 @@ export function plentyOf(hunts: readonly Hunt[], bug: BugId, at: number): number
 export function swarmAt(salt: string, h: Haunt, now: number, rains: readonly Rain[] = DRY, hunts: readonly Hunt[] = UNHUNTED): Swarm | null {
   const kind = HAUNT_KINDS[h.kind], turn = bugTurn(h, now);
   if (roll(`${salt}:bug`, h.id, turn) >= kind.chance) return null;
-  const one = whichOf(mayBe(salt, h, turn, rains), roll(`${salt}:which`, h.id, turn));
+  const one = whichOf(mayBe(salt, h, turn, rains), roll(`${salt}:which`, h.id, turn), 1, bugTurnStart(h, turn), kind.none ?? 0);
   if (!one || one.within >= plentyOf(hunts, one.bug, bugTurnStart(h, turn))) return null;
   const bug = one.bug, [lo, hi] = BUGS[bug].n;
   return { turn, bug, n: lo + Math.floor(roll(`${salt}:bugs`, h.id, turn) * (hi - lo + 1)), seed: h.id * 100003 + turn };
@@ -458,9 +501,11 @@ export const hereFor = (salt: string, h: Haunt, now: number, rains: readonly Rai
  * the one that comes back. Nothing said: as ever.)
  */
 export function comeback(salt: string, from: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], r: readonly [number, number, number], hunts: readonly Hunt[] = UNHUNTED, rare = 1): Comeback | null {
+  // (a newcomers' haunt neither sends one back nor takes one: band-species)
+  if (HAUNT_KINDS[from.kind].alone) return null;
   const at = now + COMEBACK.after * 1000;
   const free = HAUNTS.filter((h) => {
-    if (h.id === from.id || h.place !== from.place) return false;
+    if (h.id === from.id || h.place !== from.place || HAUNT_KINDS[h.kind].alone) return false;
     const turn = bugTurn(h, at);
     if (bugTurnStart(h, turn + 1) - at < COMEBACK.least * 1000) return false;
     if (swarmAt(salt, h, at, rains, hunts) || backs.some((b) => b.haunt === h.id && b.turn === turn)) return false;
@@ -502,7 +547,7 @@ export function farmBugs(salt: string, now: number, rains: readonly Rain[], took
   for (const h of HAUNTS) {
     if (h.place !== "farm") continue;
     const out = has(h);
-    if (!out || out.bug in INSECT_SPECIES || FARMING.rids[out.bug] !== undefined || took(h, out.turn) >= HAUNT_KINDS[h.kind].shares) continue;
+    if (!out || INSECT_GARDEN.visitors.includes(out.bug) || FARMING.rids[out.bug] !== undefined || took(h, out.turn) >= HAUNT_KINDS[h.kind].shares) continue;
     n++;
   }
   return n;

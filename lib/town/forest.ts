@@ -1,3 +1,4 @@
+import { FOREST_FINDS, QUIET } from "./band-species";
 import { HOES, roll } from "./farm";
 import { gatherPart, type ForestPart, type ForestRest } from "./foraging-parts";
 import{comboWearKey}from'./combo-types';
@@ -66,6 +67,11 @@ export interface Find {
   day?: number;
   /** Only when the moon is full. */
   moon?: boolean;
+  /**
+   * (the time bands' rare finds, lib/town/band-species) Only in a quiet turn: one in which none of the place's other
+   * finds is there (`holds`), so it never takes another's turn.
+   */
+  quiet?: true;
 }
 /** A kind of place: how its things are gathered, how many minutes its turn lasts, the chance a turn has anything, how many people may take from it in a turn, the stamina it costs, and what it may have. */
 export interface Kind { how: Gather; every: number; chance: number; shares: number; cost: number; finds: Find[] }
@@ -91,6 +97,8 @@ export const KINDS: Record<SpotKind, Kind> = {
     { item: "fourLeafClover", weight: 2, n: [1, 1], zones: ["edge"] },
     { item: "wildOrchid", weight: 40, n: [1, 1], zones: ["deep", "bamboo"], day: 0.25 },
     { item: "moonflower", weight: 400, n: [1, 1], zones: ["deep"], hours: NIGHT, moon: true },
+    // (the queen of the night's pollen at the forest's edge, 23:00 to 03:00, in a quiet turn: band-species)
+    ...FOREST_FINDS.flowers,
   ] },
   bamboo: { how: "pick", every: 30, chance: 0.7, shares: 3, cost: 1, finds: [{ item: "bambooCane", weight: 1, n: [1, 2] }] },
   clay: { how: "pick", every: 30, chance: 0.7, shares: 3, cost: 1, finds: [{ item: "clay", weight: 1, n: [1, 3] }] },
@@ -99,6 +107,8 @@ export const KINDS: Record<SpotKind, Kind> = {
     { item: "chanterelle", weight: 50, n: [1, 2], rain: 6 },
     { item: "porcini", weight: 35, n: [1, 2], rain: 6, zones: ["deep"] },
     { item: "glowMushroom", weight: 80, n: [1, 2], zones: ["deep"], hours: NIGHT },
+    // (the mist mushroom under the woods' logs, 03:00 to 05:00, in a quiet turn: band-species)
+    ...FOREST_FINDS.mushrooms,
   ] },
   greens: { how: "choose", every: 30, chance: 0.65, shares: 3, cost: 2, finds: [
     { item: "fiddlehead", weight: 100, n: [1, 2], zones: ["stream"] },
@@ -347,12 +357,18 @@ export interface Held { turn: number; item: ItemId; n: number }
  */
 export function holds(salt: string, spot: Place, now: number, rains: readonly Rain[] = DRY): Held | null {
   const kind = ruleOf(spot), turn = turnOf(spot, now), at = turnStart(spot, turn);
-  if (roll(`${salt}:has`, spot.id, turn) >= kind.chance) return null;
-  const may = kind.finds.filter((f) => fits(f, spot, at, salt, rains));
-  let left = roll(`${salt}:what`, spot.id, turn) * may.reduce((t, f) => t + f.weight, 0);
-  const f = may.find((m) => (left -= m.weight) < 0) ?? may[may.length - 1];
-  if (!f) return null;
-  return { turn, item: f.item, n: f.n[0] + Math.floor(roll(`${salt}:n`, spot.id, turn) * (f.n[1] - f.n[0] + 1)) };
+  const fit = kind.finds.filter((f) => fits(f, spot, at, salt, rains)), may = fit.filter((f) => !f.quiet);
+  if (roll(`${salt}:has`, spot.id, turn) < kind.chance && may.length) {
+    let left = roll(`${salt}:what`, spot.id, turn) * may.reduce((t, f) => t + f.weight, 0);
+    const f = may.find((m) => (left -= m.weight) < 0) ?? may[may.length - 1];
+    return { turn, item: f.item, n: f.n[0] + Math.floor(roll(`${salt}:n`, spot.id, turn) * (f.n[1] - f.n[0] + 1)) };
+  }
+  // a quiet turn, which had nothing before: a rare find of the time bands may be there, by its weight against nothing (band-species' QUIET)
+  const quiet = fit.filter((f) => f.quiet);
+  if (!quiet.length) return null;
+  let left = roll(`${salt}:quiet`, spot.id, turn) * (quiet.reduce((t, f) => t + f.weight, 0) + QUIET.none);
+  const f = quiet.find((m) => (left -= m.weight) < 0);
+  return f ? { turn, item: f.item, n: f.n[0] + Math.floor(roll(`${salt}:n`, spot.id, turn) * (f.n[1] - f.n[0] + 1)) } : null;
 }
 
 /**

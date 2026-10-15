@@ -5,6 +5,8 @@ import { levelOf, spend } from "./stamina";
 import { STREAM_MAKES } from "./stream-items";
 import { held, put, roomFor, take, type Purse } from "./trade";
 import type { Nature } from "./waters";
+import { DEW, inHours } from "./band-species";
+import { BANGKOK, DAY, HOUR } from "./trade";
 import { atWell } from "./world";
 
 export type StreamRoute = "pool" | "reed";
@@ -14,9 +16,11 @@ const no = (why: "none" | "far" | "tool" | "full" | "spent") => ({ ok: false as 
 export const STREAM_WORK = {
   // Banks are beside the existing stream, away from numbered trees, rocks and the stone crossings.
   sites: [
-    { id: "upper", x: 21, y: 252, items: ["springSample", "riverGrit", "mossFilter", "wetClay"] },
-    { id: "lower", x: 42, y: 254, items: ["rushingSample", "mineralSand", "reedPith", "waterMint"] },
+    { id: "upper", x: 21, y: 252, items: ["springSample", "riverGrit", "mossFilter", "wetClay", DEW.item] },
+    { id: "lower", x: 42, y: 254, items: ["rushingSample", "mineralSand", "reedPith", "waterMint", DEW.item] },
   ],
+  // (the time bands' rare finds, lib/town/band-species: a bank's sample that is there only in these hours, Thai time; the dew 05:00 to 07:00)
+  hours: { [DEW.item]: DEW.hours } as Record<string, Array<[number, number]>>,
   reach: 2, cost: 3, every: 15 * 60_000, gateMinutes: 15, gateCooldown: 30_000,
   nature: { clearSpring: "rain", herbalWater: "moon", mineralWater: "dawn", dawnBlend: "dawn", rainBlend: "rain", moonBlend: "moon" },
   recipes: STREAM_MAKES,
@@ -27,6 +31,8 @@ export const waterNature = (id: string): Nature | null => Object.hasOwn(STREAM_W
 export const propertyDuration = (p: Purse, now: number): number => Math.max(1, held(carriedBag(p),"sealedFlask") > 0 ? 2 : 1, byOf("waterProperty", levelOf(p,now,"waterProperty")));
 export interface StreamResult { ok: true; purse: Purse; got?: Array<[ItemId,number]>; gate?: StreamGate; nature?: Nature; times?: number }
 
+/** Whether a bank's sample is there at a moment: a sample with hours of its own only in them (the dew). */
+export const sampleOut = (id: string, now: number): boolean => { const hrs = STREAM_WORK.hours[id]; return !hrs || inHours(hrs, ((((now + BANGKOK) % DAY) + DAY) % DAY) / HOUR); };
 /** The server decides recipes, source availability, limits and property strength. */
 export function streamWork(p: Purse, action: string, choice: string, at: readonly number[], gate: StreamGate | null, me: string, now: number): StreamResult | {ok:false;why:"none"|"far"|"tool"|"full"|"spent"} {
   const site = streamSiteAt(at);
@@ -40,6 +46,7 @@ export function streamWork(p: Purse, action: string, choice: string, at: readonl
   }
   if (action === "sample") {
     if (!site!.items.includes(choice as never)) return no("none");
+    if (!sampleOut(choice, now)) return no("none");
     if (choice === "springSample" && route !== "pool" || choice === "rushingSample" && route !== "reed") return no("none");
     if (choice.endsWith("Sample") && held(p.bag,"waterSampler") < 1 && !Object.keys(WATER.buckets).some(id=>held(p.bag,id as ItemId)>0)) return no("tool");
     const turn = Math.floor(now/STREAM_WORK.every), key = `${site!.id}:${choice}`;

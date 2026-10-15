@@ -9,6 +9,7 @@ import { GARDEN_CROPS, GARDEN_DISHES, GARDEN_ITEMS, GARDEN_MAKES, GARDEN_SEED_IT
 import { HELPER_CROPS, HELPER_ITEMS, HELPER_SEED_ITEMS, type HelperCropId } from "./helper-items";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
+import { FIND_ITEMS, NEW_FISH, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS, type NewFishId } from "./band-species";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
 
 /**
@@ -673,6 +674,11 @@ export const ITEMS = {
   ...GEOLOGY_SCROLL_ITEMS,
   ...RIVER_SCROLL_ITEMS,
   ...REGIONAL_SCROLL_ITEMS,
+  // (the time bands' newcomers, piece 4b of the farm's Quality: twenty-four insects, twenty-four fish, four rare finds
+  // and glow powder, lib/town/band-species)
+  ...NEW_INSECT_ITEMS,
+  ...NEW_FISH_ITEMS,
+  ...FIND_ITEMS,
 } satisfies Record<string, Item>;
 
 export type ItemId = keyof typeof ITEMS;
@@ -732,9 +738,11 @@ export const potIconOf = (dish: DishId): string => `pot${dish[0].toUpperCase()}$
  * the early game's water has only the early game's fish in it.
  */
 export type BaitId = "shadeLure" | "worm" | "dough" | "minnow" | "corn" | "loach" | "cricket" | "branBait" | "shrimpLive" | "antEggs" | "lure" | "fermentedBait"
-  | "caterpillar" | "moth" | "dragonfly" | "grasshopper";
+  | "caterpillar" | "moth" | "dragonfly" | "grasshopper"
+  // (the newcomer small fish, lib/town/band-species: each goes on a hook as a minnow does, the small-fish family's use)
+  | (typeof SMALL_FISH_BAITS)[number];
 export const BAITS: BaitId[] = ["shadeLure", "worm", "dough", "minnow", "corn", "loach", "cricket", "branBait", "shrimpLive", "antEggs", "lure", "fermentedBait",
-  "caterpillar", "moth", "dragonfly", "grasshopper"];
+  "caterpillar", "moth", "dragonfly", "grasshopper", ...SMALL_FISH_BAITS];
 /**
  * Four insects go on a hook (lib/town/insects), each as a bait there already is does: whatever takes that takes the
  * insect, as readily, and nothing else does. A caterpillar is a worm and a moth a ball of dough, which nobody then
@@ -742,10 +750,11 @@ export const BAITS: BaitId[] = ["shadeLure", "worm", "dough", "minnow", "corn", 
  * the owner said the wild might give before the uncle's shelf does (2026-10-05, asked of the cricket: "ได้ครับยอมให้
  * เปิดก่อนได้").
  */
-export const BAIT_AS: Partial<Record<BaitId, BaitId>> = { caterpillar: "worm", moth: "dough", dragonfly: "minnow", grasshopper: "cricket" };
+export const BAIT_AS: Partial<Record<BaitId, BaitId>> = { caterpillar: "worm", moth: "dough", dragonfly: "minnow", grasshopper: "cricket",
+  ...Object.fromEntries(SMALL_FISH_BAITS.map((id) => [id, "minnow" as BaitId])) };
 /** Baits that are not eaten: they come back with the line, and are lost only when the line snaps. */
 export const KEPT_BAITS: BaitId[] = ["lure", "shadeLure"];
-export type FishId = RegionalFishId | RiverFishId
+export type FishId = RegionalFishId | RiverFishId | NewFishId
   | "minnow" | "barb" | "tilapia" | "perch" | "catfish" | "pangasius" | "snakehead" | "eel" | "prawn" | "featherback" | "goby" | "koi"
   | "gourami" | "crab" | "snail" | "hampala" | "sheatfish" | "bagrid" | "giantGourami" | "frog" | "tigerfish" | "wallago"
   | "croaker" | "blackEar" | "spinyEel" | "puffer" | "goldenCarp" | "giantSnakehead" | "royalFeatherback" | "arowana" | "stingray" | "megaCatfish"
@@ -807,6 +816,13 @@ export interface Fish {
    * at first: "เพิ่มหลอด ตกปลาให้กว้างกว่านี้ 2 เท่า".)
    */
   fight: { style: FightStyle; band: number; pull: number; surge: number; every: [number, number]; line: number; effort: number; sway: number; pace: number };
+  /**
+   * A newcomer of the time bands (lib/town/band-species): never weighed with the fish there were, it only ever takes
+   * the place of what is no fish (lib/town/fishing's freshOdds), this share of a cast at the most.
+   */
+  fresh?: number;
+  /** (a newcomer that spans several bands) the hours of the band it is most out in: in the others it has band-species' FRESH.offPeak of its share */
+  peak?: Array<[number, number]>;
 }
 
 const NIGHT: Array<[number, number]> = [[19, 24], [0, 5]];
@@ -932,8 +948,14 @@ export const FISH: Record<FishId, Fish> = {
     fight: { style: "slippery", band: 0.145, pull: 0.12, surge: 0.5, every: [2, 3.6], line: 1, effort: 7, sway: 0.3, pace: 0.16 } },
   ...RIVER_FISH,
   ...REGIONAL_FISH,
+  // (the time bands' newcomers: last, and never in the weighed list below)
+  ...NEW_FISH,
 };
 export const FISH_IDS = Object.keys(FISH) as FishId[];
+/** The fish that are weighed against each other on a cast, in the order they always were: every fish but the newcomers, which only take what is no fish's place (lib/town/fishing's freshOdds). */
+export const WEIGHED_FISH_IDS = FISH_IDS.filter((id) => !FISH[id].fresh);
+/** The newcomers of the time bands among the fish. */
+export const FRESH_FISH_IDS = FISH_IDS.filter((id) => !!FISH[id].fresh);
 /** How often each tier bites beside the others, before the bait, the hour and the rain are counted. */
 export const TIER_WEIGHT: Record<Tier, number> = { common: 100, uncommon: 26, rare: 7, legend: 2.5 };
 /**

@@ -8,6 +8,7 @@ import {
   type BugId, type Haunt, type Hunt, type Lured, type Mind, type Person,
 } from "./insects";
 import { ITEMS } from "./items";
+import { NEW_BUGS } from "./band-species";
 import { bugPoints } from "./line-points";
 import { LINES } from "./lines";
 import { dayOf, staminaOf } from "./stamina";
@@ -26,7 +27,8 @@ const before = (h: Haunt, m: Mind, d: number, more: Partial<Person> = {}): Perso
 
 describe("what an insect is among the others", () => {
   it("is common, uncommon or rare by what the relatives pay: nine, seven and eight of the twenty-four", () => {
-    const of = (t: string) => BUG_IDS.filter((id) => tierOf(id) === t).sort();
+    // (the twenty-four there were; the time bands' newcomers are tiered by the same rule, band-species)
+    const of = (t: string) => BUG_IDS.filter((id) => tierOf(id) === t && !(id in NEW_BUGS)).sort();
     expect(of("common")).toEqual(["butterflyWhite", "caterpillar", "cricket", "dragonfly", "grasshopper", "ladybird", "monarch", "moth", "scarab"]);
     expect(of("uncommon")).toEqual(["carpenterBee", "cicada", "damselfly", "firefly", "goldenAnt", "honeyBee", "hoverfly", "lacewing", "leafInsect", "mantis", "orchardBeetle", "pollenMidge", "rhinoBeetle", "silkMoth", "stickInsect"]);
     expect(of("rare")).toEqual(["glassDragonfly", "hawkMoth", "herculesBeetle", "jewelBeetle", "lunaMoth", "morpho", "orchidMantis", "stagBeetle"]);

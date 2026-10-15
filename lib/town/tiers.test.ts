@@ -16,6 +16,7 @@ import { INSECT_ITEMS, INSECT_SCROLL_ITEMS } from "./insect-items";
 import { FORAGE_ITEMS, FORAGE_SCROLL_ITEMS } from "./foraging-items";
 import { STREAM_ITEMS, STREAM_SCROLL_ITEMS } from "./stream-items";
 import { STAMINA } from "./stamina";
+import { FIND_ITEMS, NEW_FISH_ITEMS, NEW_INSECT_ITEMS, SMALL_FISH_BAITS } from "./band-species";
 import { GOODS, newPurse, put, type Purse } from "./trade";
 
 const tierOf = (id: ItemId) => ITEMS[id].tier;
@@ -24,7 +25,7 @@ const bagOf = (...items: ItemId[]): Purse["bag"] => items.reduce((bag, id) => pu
 
 describe("three times the things (the owner: \"ช่วยเพิ่ม ไอเทมทั้งหมดอีก 3 เท่า … ไอเทม next tier มาอีก จำนวน 2 เท่าของที่มีอยู่ตอนนี้\")", () => {
   it("keeps the first seventy-two as the early game, and has as many again in each of two tiers after it", () => {
-    const expansion = { ...REGIONAL_ITEMS, ...REGIONAL_SCROLL_ITEMS, ...PREP_ITEMS, ...PREP_SCROLL_ITEMS, ...CAMP_ITEMS, ...CAMP_SCROLL_ITEMS, ...STREAM_ITEMS, ...STREAM_SCROLL_ITEMS, ...RIVER_ITEMS, ...RIVER_SCROLL_ITEMS, ...WOOD_ITEMS, ...WOOD_SCROLL_ITEMS, ...GEOLOGY_ITEMS, ...GEOLOGY_SCROLL_ITEMS, ...GARDEN_ITEMS, ...GARDEN_SEED_ITEMS, ...GARDEN_SCROLL_ITEMS, ...INSECT_ITEMS, ...INSECT_SCROLL_ITEMS, ...FORAGE_ITEMS, ...FORAGE_SCROLL_ITEMS };
+    const expansion = { ...NEW_INSECT_ITEMS, ...NEW_FISH_ITEMS, ...FIND_ITEMS, ...REGIONAL_ITEMS, ...REGIONAL_SCROLL_ITEMS, ...PREP_ITEMS, ...PREP_SCROLL_ITEMS, ...CAMP_ITEMS, ...CAMP_SCROLL_ITEMS, ...STREAM_ITEMS, ...STREAM_SCROLL_ITEMS, ...RIVER_ITEMS, ...RIVER_SCROLL_ITEMS, ...WOOD_ITEMS, ...WOOD_SCROLL_ITEMS, ...GEOLOGY_ITEMS, ...GEOLOGY_SCROLL_ITEMS, ...GARDEN_ITEMS, ...GARDEN_SEED_ITEMS, ...GARDEN_SCROLL_ITEMS, ...INSECT_ITEMS, ...INSECT_SCROLL_ITEMS, ...FORAGE_ITEMS, ...FORAGE_SCROLL_ITEMS };
     const by = (t: 1 | 2 | 3) => ITEM_IDS.filter((id) => tierOf(id) === t && !(id in expansion));
     // seventy-two there were; the pot's things joined them (a pot of food and a bowl; the dirty pot, the scrubber and
     // the ash that came with them went again on 2026-10-04, when the owner cut the dirty pot) and a bucket for the
@@ -80,7 +81,7 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
       for (const o of oddsOf(bait, hour, false, false, shallow)) expect(tierOf(o.what)).toBe(1);
     }
     // a later tier's fish takes only that tier's baits, or later ones
-    for (const id of FISH_IDS.filter(id => !FISH[id].habitat)) for (const bait of Object.keys(FISH[id].baits) as BaitId[]) {
+    for (const id of FISH_IDS.filter(id => !FISH[id].habitat)) for (const bait of (Object.keys(FISH[id].baits) as BaitId[]).filter((b) => !SMALL_FISH_BAITS.includes(b as never))) {
       if (tierOf(id) > 1) expect(tierOf(bait)).toBeGreaterThanOrEqual(2);
       else expect(tierOf(bait)).toBe(1);
     }
@@ -95,7 +96,7 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
       expect(Array.from({ length: 24 }, (_, h) => h).some((h) => ["town", "creek", "headwater", "pool"].some(habitat => ["eddy", "run", "shelter"].some(current => oddsOf(bait, h, false, false, false, [], habitat as never, current as never).some((o) => o.what in FISH))))).toBe(true);
     }
     // (in its own water, under the sky it bites under, with what it waits for)
-    for (const id of FISH_IDS) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) =>
+    for (const id of FISH_IDS.filter((id) => !FISH[id].fresh)) expect(BAITS.some((b) => Array.from({ length: 24 }, (_, h) => h).some((h) =>
       oddsOf(b, h, (FISH[id].dry ?? 1) === 0, false, FISH[id].water === "bank", FISH[id].needs ?? [], FISH[id].habitat?.[0] ?? "town", FISH[id].current?.[0] ?? "eddy").some((o) => o.what === id)))).toBe(true);
     // a carved fish is not eaten: it comes back with the line
     expect(KEPT_BAITS).toEqual(["lure", "shadeLure"]);
@@ -115,7 +116,7 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
       expect(FISH[id].wait[1]).toBeLessThanOrEqual(240);
     }
     // three legends more, each on its own bait (and a second of the early game's, on a loach: 2026-10-05)
-    expect(FISH_IDS.filter((id) => FISH[id].tier === "legend" && !(id in REGIONAL_FISH)).sort()).toEqual(["arapaima", "arowana", "koi", "megaCatfish", "stingray", "waterfallSturgeon"]);
+    expect(FISH_IDS.filter((id) => FISH[id].tier === "legend" && !(id in REGIONAL_FISH) && !FISH[id].fresh).sort()).toEqual(["arapaima", "arowana", "koi", "megaCatfish", "stingray", "waterfallSturgeon"]);
   });
 
   it("grows the later vegetables slower, and its trees bear for a season", () => {

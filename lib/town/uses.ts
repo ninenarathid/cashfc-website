@@ -15,6 +15,7 @@ import { HELPER_CROSSES, POLLINATOR_SKY } from "./helper-items";
 import { INSECT_TOOLS } from "./insect-items";
 import { FORAGE_RAW, FORAGE_TOOLS } from "./foraging-items";
 import { STREAM_RAW, STREAM_TOOLS } from "./stream-items";
+import { DEW, GUANO } from "./band-species";
 import { PREP_TOOLS } from "./preparation-items";
 import { CAMP_TOOLS, CAMP_CRAFTS } from "./camp-items";
 import { WOOD_RAW, WOOD_TOOL_IDS } from "./wood-items";
@@ -129,6 +130,8 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // under whatever sky and moon; with a hoe, what is dug up; and the toadstool taken for a mushroom
     if (wild) {
       for (const id of STREAM_RAW) if (!id.endsWith("Sample") || has("waterSampler") || Object.keys(WATER.buckets).some(id=>has(id as ItemId))) add(id,"mountain");
+      // (the dew, a bank's sample in the early morning: lib/town/band-species)
+      add(DEW.item, "mountain");
       for (const id of FORAGE_RAW) if (!['flowerBulb','wildMedicRoot'].includes(id)||hoe||has('rootSpade')) add(id,"forest");
       for (const k of SPOT_KINDS) if (KINDS[k].how !== "dig" || hoe) for (const f of KINDS[k].finds) add(f.item, "forest");
       add(FORAGING.decoy, "forest");
@@ -140,7 +143,7 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     // on the mountain's foot and down the cave. Like the forest's, it is what somebody goes out and finds.
     if (wild) {
       if (ITEM_IDS.some((id) => toolKindOf(id) === "axe" && has(id))) for (const id of [...FELLED, ...WOOD_RAW]) add(id, "mountain");
-      if (ITEM_IDS.some((id) => toolKindOf(id) === "pick" && has(id))) for (const id of [...MINED,...GEOLOGY_RAW]) add(id, "mountain");
+      if (ITEM_IDS.some((id) => toolKindOf(id) === "pick" && has(id))) for (const id of [...MINED,...GEOLOGY_RAW, GUANO.item]) add(id, "mountain");
     }
     // the smith: big ore and gems, each of its own fragments and a piece of fine timber
     for (const id of Object.keys(SMELTS) as ItemId[]) if (has(SMELTS[id]!.of) && (SMELTING.timber <= 0 || has("timber"))) add(id, "smith");

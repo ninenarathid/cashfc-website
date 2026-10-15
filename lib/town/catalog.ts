@@ -22,7 +22,8 @@ import { BEDS, BLADES, FARMING, HOES, TREE_PICKS, WATER, toolOf } from "./farm";
 import { ENCORE, HOURGLASS } from "./farm";
 // ── gifts: helpers ──
 import { HELPING } from "./helping";
-import { BOUTS, FIGHT, NIBBLES_APART, ORB, PAIR, SIGNS, STAR, STRIKE, WARY } from "./fishing";
+import { BOUTS, FIGHT, FRESH_JUNK, NIBBLES_APART, ORB, PAIR, SIGNS, STAR, STRIKE, WARY } from "./fishing";
+import { FRESH, GUANO, QUIET, WINDOWS } from "./band-species";
 // ── forging ──
 import { forgeRow } from "./forge-row";
 import { FORAGING, KINDS, SECRETS, SECRET_KINDS, SPOTS } from "./forest";
@@ -37,7 +38,7 @@ import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAP
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
-  BAITS, BOWL, BUFFS, BUFF_HOURS, BUFF_LEVELS, BUFF_STEPS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT,
+  BAITS, BOWL, BUFFS, BUFF_HOURS, BUFF_LEVELS, BUFF_STEPS, CROPS, CROP_IDS, DISHES, DISH_IDS, FISH, FISH_IDS, FLOTSAM, FLOTSAM_IDS, FRESH_FISH_IDS, ITEMS, ITEM_IDS, KEPT_BAITS, MAKES, SCROLLS, STAGE_AT, TIER_WEIGHT, WEIGHED_FISH_IDS,
   inBowl, type ItemId,
 } from "./items";
 import { BASIC, ORDER, UNLOCKS, mayAsk, sourcesAt } from "./orders";
@@ -143,6 +144,8 @@ export function catalogOf() {
       effort: FISH[id].fight.effort, line: FISH[id].fight.line,
       ...(FISH[id].dry === undefined ? {} : { dry: FISH[id].dry }), ...(FISH[id].water ? { water: FISH[id].water } : {}), ...(FISH[id].needs ? { needs: FISH[id].needs } : {}),
       ...(FISH[id].habitat ? { habitat:FISH[id].habitat } : {}), ...(FISH[id].current ? { current:FISH[id].current } : {}),
+      // (v264: a newcomer of the time bands, its weight in what is no fish's place and its peak band's hours: lib/town/fishing's freshOdds)
+      ...(FISH[id].fresh ? { fresh: FISH[id].fresh } : {}), ...(FISH[id].peak ? { peak: FISH[id].peak } : {}),
     }])),
     /** What comes up that is no fish. */
     flotsam: FLOTSAM,
@@ -157,7 +160,11 @@ export function catalogOf() {
      * and whether its water is deep.
      */
     fishing: {
-      fish: FISH_IDS, flotsam: FLOTSAM_IDS, tiers: TIER_WEIGHT, baits: BAITS, kept: KEPT_BAITS, rods: ROD_IDS,
+      // (the fish weighed against each other: since v264 every fish but the time bands' newcomers, which are `fresh`:
+      // they take only what is no fish's place, `junk`, each its own share of a cast (fish' `fresh`, outside its peak band
+      // `offPeak` of it), all of them never more than `take` of what is no fish)
+      fish: WEIGHED_FISH_IDS, flotsam: FLOTSAM_IDS, tiers: TIER_WEIGHT, baits: BAITS, kept: KEPT_BAITS, rods: ROD_IDS,
+      fresh: { ids: FRESH_FISH_IDS, junk: FRESH_JUNK, take: FRESH.take, offPeak: FRESH.offPeak },
       floats: Object.fromEntries(Object.entries(TACKLE).filter(([, t]) => t!.strike).map(([id, t]) => [id, t!.strike])),
       // (v174: what each net leaves of the line to be won, lib/town/gear's TACKLE: a forged rod's own part of it is taken with the best of them)
       nets: Object.fromEntries(Object.entries(TACKLE).filter(([, t]) => t!.line).map(([id, t]) => [id, t!.line])),
@@ -257,6 +264,8 @@ export function catalogOf() {
       kinds: KINDS,
       spots: SPOTS.map((s): [string, number, number, string] => [s.kind, s.x, s.y, s.zone]),
       reach: FORAGING.reach, decoy: FORAGING.decoy, decoys: FORAGING.decoys, hoes: HOES, misses: 30,
+      // (v264: what a quiet turn has of nothing beside the time bands' rare finds, lib/town/forest's holds)
+      quiet: { none: QUIET.none },
       // ── gifts: forest ── (how near its member's way a squirrel fetches what lies on the ground, and how far is reached from a stag's back; and the secret places
       // of the deep woods, for whoever wears the firefly lantern: their kinds, as `kinds` with the way of the second
       // game (`then`), and the places themselves, whose numbers go on from the last of `spots`)
@@ -292,7 +301,15 @@ export function catalogOf() {
       nectar: { within: NECTAR.within, soon: NECTAR.soon, stays: NECTAR.stays, at: NECTAR.at, maps: NECTAR_MAPS },
       // the second of a pair (the butterfly-wing cloak): how many milliseconds past its seconds the keeper still takes it
       pair: { slack: BUG_PAIR.slack },
+      // (v264: what a newcomer of the time bands weighs outside its peak band, of itself)
+      quiet: { offPeak: QUIET.offPeak },
     },
+    /**
+     * The time bands' newcomers (v264, lib/town/band-species): the bat guano a plain rock of the cave lets fall in its
+     * hour, and every newcomer's window (its family, rarity, bands, the band it peaks in, its maps, where, how, its bait),
+     * for a museum to read later.
+     */
+    band_species: { guano: GUANO, windows: WINDOWS },
     /** The well's book (lib/town/well): the bucketfuls poured, all told, at which each rank begins; what the well has for whoever reaches a rank; how many of a day's carriers it lists. */
     well: {
       ranks: WELL_BOOK.ranks, gifts: WELL_BOOK.gifts, listed: WELL_BOOK.listed,
@@ -540,7 +557,10 @@ export type Catalog = ReturnType<typeof catalogOf>;
 // v176 ran on 2026-10-10: box_upgrade holds the character's three expansion prices, up to forty slots.
 export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Array<keyof Catalog> }> = { v180: { keys: ["workshop"], over: [] }, v259: { keys: ["quality"], over: [] },
   // (the farm's Quality's helper plants: their crops and seeds, the fig's and the lines' plots, the uncle's four seeds)
-  v263: { keys: [], over: ["items", "crops", "gardening", "goods", "shelf"] } };
+  v263: { keys: [], over: ["items", "crops", "gardening", "goods", "shelf"] },
+  // (the time bands' newcomers: their insects, fish and finds, their haunts and windows, the small fish as baits, the
+  // pollinators' skies and the garden's lists, the dew's hours, their points, the creel)
+  v264: { keys: ["band_species"], over: ["items", "fish", "fishing", "forest", "insects", "insect_garden", "quality", "stream_work", "work", "pouches"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

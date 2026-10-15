@@ -4,7 +4,12 @@ import { BUGS, BUG_IDS, type Habit, type HauntKind } from "@/lib/town/insects";
 import { insectCareMode } from "@/lib/town/insect-garden";
 import { ITEMS } from "@/lib/town/items";
 import TownNotebook from "./TownNotebook";
-import { type IconName } from "./TownIcon";
+import TownIcon, { type IconName } from "./TownIcon";
+import { BANDS } from "@/lib/town/bands";
+import { NEW_INSECTS } from "@/lib/town/band-species";
+
+/** A newcomer of the time bands' fixed time icon on its card: the day's, the night's, the dawn mist's (lib/town/band-species). */
+const TIME = { sun: ["noon", "ออกกลางวัน", "A day insect"], moon: ["night", "ออกกลางคืน", "A night insect"], mist: ["timeMist", "ออกในหมอกรุ่ง", "A dawn-mist insect"] } as const;
 
 const HABIT: Record<Habit, [string, string]> = {
   path: ["บินตามเส้นทาง", "Flying routes"], spot: ["บินวนและหยุดพัก", "Hover and rest"],
@@ -22,10 +27,14 @@ const HABIT_DETAIL: Record<Habit, [string, string]> = {
   lure: ["ลงมาหาของหวานที่ถืออยู่นิ่ง ๆ แล้วจึงเปลี่ยนไปใช้สวิง", "Comes down to something sweet held still; then switch to the net."],
   crawl: ["เดินจากที่หนึ่งไปอีกที่หนึ่ง และหยุดพักตามทาง", "Walks from perch to perch with rests along the way."],
 };
-const PLACE: Record<HauntKind, [string, string]> = {
+/** Each kind of haunt's name in the book (and in what is out now, TownOutNow). */
+export const PLACE: Record<HauntKind, [string, string]> = {
   blooms: ["ดอกไม้", "Flowers"], water: ["ริมน้ำ", "Water's edge"], field: ["ทุ่ง", "Fields"],
   lamp: ["โคมไฟ", "Lamps"], tree: ["ต้นไม้", "Trees"], litter: ["ใบไม้บนพื้น", "Leaf litter"],
   glade: ["ที่โล่งในป่า", "Forest clearings"], falls: ["น้ำตก", "Waterfalls"],
+  // (the time bands' newcomers' own, lib/town/band-species)
+  petals: ["ดอกไม้", "Flowers"], leaves: ["ใบไม้และพงต่ำ", "Leaves and low brush"], logs: ["ขอนไม้", "Logs"], bark: ["เปลือกต้นไม้", "Tree bark"],
+  duff: ["เศษใบบนดิน", "Leaf litter"], sand: ["ทรายริมลำธาร", "Stream sand"], posts: ["หลักรั้ว", "Fence posts"],
 };
 
 export default function TownBugBook({ book, th }: { book: Record<string, string>; th: boolean }) {
@@ -35,6 +44,8 @@ export default function TownBugBook({ book, th }: { book: Record<string, string>
     const bug = BUGS[id], care = insectCareMode(id);
     return { key: id, title: ITEMS[id].name[th ? "th" : "en"], searchText: `${ITEMS[id].name.th} ${ITEMS[id].name.en}`, icon: id as IconName, category: HABIT[bug.habit][lang], body: <div data-bug={id}>
       <p>{ITEMS[id].about[th?"th":"en"]}</p>
+      {(() => { const fresh = NEW_INSECTS.find((r) => r.id === id); if (!fresh) return null; const [icon, a, b] = TIME[fresh.time];
+        return <p className="flex flex-wrap items-center gap-2" data-bug-time={fresh.time}><TownIcon name={icon} size={18}/>{th ? a : b} · {fresh.bands.map((x) => { const band = BANDS.find((y) => y.id === x)!; return th ? band.th : band.en; }).join(" · ")}</p>; })()}
       <p>{HABIT_DETAIL[bug.habit][lang]}</p>
       <p><small>{th ? "พบแถว" : "Often near"}</small><br/>{bug.at.map(p => PLACE[p][lang]).join(" · ")}</p>
       {care && <p><small>{th ? "ช่วยดูแลสวน" : "Garden care"}</small><br/>{care === "pollinate" ? th ? "ปล่อยบนต้นของคุณที่ยังไม่สุก เพื่อช่วยผสมเกสร ใช้แมลง 1 ตัว" : "Release one on your unripe plant to help pollination. Uses one insect." : th ? "ปล่อยบนต้นที่มีศัตรูพืชเพื่อช่วยกำจัด ใช้แมลง 1 ตัว" : "Release one on a plant with pests to help remove them. Uses one insect."}</p>}

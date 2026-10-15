@@ -4,6 +4,7 @@ import { cook, isCookware } from "./cooking";
 import { PUT_ON } from "./farm";
 import { PLAIN, gearOf } from "./gear";
 import { DISHES, DISH_IDS, ITEMS, ITEM_IDS, MAKES, type ItemId } from "./items";
+import { FIND_ITEMS } from "./band-species";
 import { UNLOCKS, mayAsk, sourcesAt } from "./orders";
 import { staminaOf } from "./stamina";
 import { HOUR, held, newPurse, put, type Purse } from "./trade";
@@ -23,7 +24,8 @@ function over(salt: string, spot: Spot, from: number, turns: number, rains = DRY
 
 describe("the forest's things (the owner, 2026-10-05: \"หาของป่า … ของบางอย่างเกิดทุก 10 นาที ไปจนถึง ขอหายาก ที่จะเกิดเฉพาะบางวัน แบบ Random\")", () => {
   it("are things of the early game that are found, each of them somewhere", () => {
-    const wild = FINDS.filter((id) => ITEMS[id].kind === "wild");
+    // (the time bands' rare finds are not the early game's: band-species)
+    const wild = FINDS.filter((id) => ITEMS[id].kind === "wild" && !(id in FIND_ITEMS));
     expect(wild.length).toBe(35);
     for (const id of wild) {
       expect(ITEMS[id].tier).toBe(1);
