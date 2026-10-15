@@ -63,8 +63,9 @@ import { Vfx, type VfxKind } from "./vfx";
 import { GARDEN_CROPS, type GardenCropId } from "@/lib/town/garden-items";
 import { gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
-import { QualityChip, QualityInspector } from "./TownQuality";
+import { QualityBed, QualityChip, QualityInspector } from "./TownQuality";
 import { qualityNow } from "@/lib/town/quality-plant";
+import { COMPANIONS } from "@/lib/town/quality";
 import { held as countIn } from "@/lib/town/trade";
 import { GRADES } from "@/lib/town/quality";
 import TownInsectRelease from "./TownInsectRelease";
@@ -264,13 +265,15 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** (`sweep`: the ripe plants of a row that the crescent sickle sweeps along once, from one end to the other: where each stands in the row, what it is, and how much harder it is for me) */
   /** (`long`: the plants of a row of somebody else's that the gardener's gloves water at one long pour, from the row's head: where each stands in the row and what it is; `hard`: how much harder the row is for me) */
   const leaving = useLeaving(keeper);
-  const [placement, setPlacement] = useState<{ key: string; crop: GardenCropId } | null>(null);
+  const [placement, setPlacement] = useState<{ key: string; crop: CropId } | null>(null);
   const [working, setWorking] = useState<{ key: string | null; work: Work; need: number; row?: string[]; whole?: boolean; sweep?: Array<{ key: string; place: number; crop: CropId; hard: number }>;
     long?: Array<{ key: string; place: number; crop: CropId }>; hard?: number; rotation?: number } | null>(null);
   /** The plant I have been asked a second time about digging out: in which plot, and whether it is a dead one (pull) or a living (uproot). */
   const [asking, setAsking] = useState<{ key: string; deed: "pull" | "uproot" } | null>(null);
   /** The plot whose plant's Quality is open (components/town/TownQuality): shut again on walking off it. */
   const [inspecting, setInspecting] = useState<string | null>(null);
+  /** Whether the bed's overview is open from the inspector (components/town/TownQuality's QualityBed). */
+  const [bedView, setBedView] = useState(false);
   const leaveIt = useRef<HTMLButtonElement>(null);
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
@@ -792,7 +795,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const work: Work | null = key && deed ? deed : chore ?? (key && pours ? "ditch" : null);
     if (!work) return;
     const planting = cropOf(handOf(keeper.purse()));
-    if (work === "sow" && key && planting && planting in GARDEN_CROPS) { setPlacement({ key, crop: planting as GardenCropId }); return; }
+    // (a sprawling crop, and every helper plant of the farm's Quality: placed where what it covers can be seen first)
+    if (work === "sow" && key && planting && (planting in GARDEN_CROPS || planting in COMPANIONS)) { setPlacement({ key, crop: planting as CropId }); return; }
     if (work === "ditch") {
       // (no game with stamina; with none it is poured like any water, a short round)
       if (tiredOn(key)) setWorking({ key, work, need: FARMING.tired });
@@ -943,6 +947,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
   useEffect(() => { if (asking && (asking.key !== key || asking.deed !== deed)) setAsking(null); }, [asking, key, deed]);
   useEffect(() => { if (inspecting && inspecting !== key) setInspecting(null); }, [inspecting, key]);
+  useEffect(() => { if (!inspecting) setBedView(false); }, [inspecting]);
   // The asking opens with "leave it" under the keys: Space or Enter, pressed once too often, digs nothing out. Escape leaves it too.
   useEffect(() => {
     if (!asking) return;
@@ -1035,7 +1040,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   /** The plant the asking is about, as it stands. */
   const asked = asking ? seen.current.get(asking.key) : undefined;
   return (
-    <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspected && <TownFoot rank="board" order={62}><QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} /></TownFoot>}{bare ? null : (
+    <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspected && <TownFoot rank="board" order={62}>{bedView
+      ? <QualityBed at={inspecting!} plots={plots} now={now} rains={rains} th={th} onClose={() => setBedView(false)} />
+      : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} />}</TownFoot>}{bare ? null : (
     <TownFoot rank={placement || working || asking ? "board" : "main"} order={62}>
       {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}
       {running && <AnkletRun keeper={keeper} />}

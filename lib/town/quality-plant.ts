@@ -164,7 +164,7 @@ export function qualityNow(p: Plant, now: number, rains: FarmSky = DRY, launch: 
 /** What covers each bar at a moment, the best of them (and, among the best, the one that lasts longest): what the inspector names. */
 export function coveringNow(p: Plant, now: number, rains: FarmSky = DRY): Partial<Record<Role, Cover>> {
   const out: Partial<Record<Role, Cover>> = {};
-  for (const c of handCovers(p, now, rains)) {
+  for (const c of [...handCovers(p, now, rains), ...(p.q ? giftOf(p.q).covers : [])]) {
     if (!(c.from <= now && now < c.to)) continue;
     const was = out[c.role];
     if (!was || c.level > was.level || (c.level === was.level && c.to > was.to)) out[c.role] = c;
