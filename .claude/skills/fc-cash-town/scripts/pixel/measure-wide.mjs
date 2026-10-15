@@ -32,9 +32,8 @@ function soil(r, g, b) {
 const BY_EYE = {
   // rows (icons-wide3-a, -b): the two end mounds (a row of clumps drawn on more mounds than plots stands its end ones on the
   // end plots' middles)
-  wideBlueCornA: [[25, 103], [125, 62]], wideBlueCornB: [[30, 123], [118, 80]],
-  wideLotusRootBedA: [[25, 95], [110, 58]], wideLotusRootBedB: [[25, 102], [120, 62]],
-  wideTrellisBerryA: [[22, 108], [127, 74]], wideTrellisBerryB: [[25, 115], [125, 77]],
+  // (icons-wide4-a2, 2026-10-16: the ripe corn's soil runs together, and the trellis posts stand on the trellis berry's mounds)
+  wideBlueCornB: [[29, 128], [119, 86]], wideTrellisBerryA: [[29, 119], [123, 78]], wideTrellisBerryB: [[30, 118], [122, 78]],
   wideRowBeanA: [[30, 128], [95, 92]], wideRowBeanB: [[40, 130], [105, 95]],
   wideTeaBushA: [[40, 108], [110, 75]], wideTeaBushB: [[45, 120], [110, 85]],
   wideRedOkraA: [[40, 128], [110, 92]], wideRedOkraB: [[45, 128], [110, 92]],
@@ -42,9 +41,10 @@ const BY_EYE = {
   // shape's order (front: left, right; back: right, left; side: upper left, lower left)
   wideSunflowerPatchFrontA: [[75, 88], [20, 45], [130, 55]], wideSunflowerPatchFrontB: [[75, 92], [20, 47], [130, 57]],
   wideSunflowerPatchBackA: [[75, 62], [130, 90], [25, 90]], wideSunflowerPatchBackB: [[78, 62], [135, 92], [30, 92]],
+  // (icons-wide4-c3, 2026-10-16: the back L's corner mound is half under the leaves; the side L's arms were drawn unevenly)
+  wideBottleGourdBackA: [[71, 58], [123, 83], [20, 83]],
+  wideBottleGourdSideA: [[88, 93], [18, 42], [23, 122]], wideBottleGourdSideB: [[88, 92], [18, 42], [23, 122]],
   wideSunflowerPatchSideA: [[88, 80], [20, 45], [25, 118]], wideSunflowerPatchSideB: [[90, 82], [20, 50], [35, 118]],
-  wideBottleGourdSideA: [[93, 95], [20, 52], [20, 128]], wideBottleGourdSideB: [[95, 97], [20, 52], [20, 128]],
-  wideBottleGourdFrontA: [[75, 92], [20, 60], [130, 58]],
 };
 const out = {}, report = [];
 function fit(name, shape, w, h, P, M, how) {

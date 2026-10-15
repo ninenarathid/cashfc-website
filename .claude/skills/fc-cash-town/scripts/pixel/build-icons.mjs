@@ -289,11 +289,11 @@ const SHEETS = [
   // a strip of the sun children's own drawings in the sheet's order (work/out/ref-mist-*.png). The plants are cut where
   // their sizes are the sun children's (grow-c with 96 colours, or its figs go grey), the bag's sheets on their finer
   // grid; the packets are mist grey, with the role's band. grow-c's tomatoes and bag-c's plain packets are fillers.
-  ["icons-mist-grow-a", ["growPearlNutA", "growPearlNutB", "growSilverGrainA", "growSilverGrainB", "growDewSesameA", "growDewSesameB"], { range: [6.95, 7.3] }],
-  ["icons-mist-grow-b", ["growGlassFlowerA", "growGlassFlowerB", "growOpalStalkA", "growOpalStalkB", "growCrystalLeafA", "growCrystalLeafB"], { range: [7.85, 8.15] }],
-  ["icons-mist-grow-c", ["growSilkPollenA", "growSilkPollenB", "growDewFigA", "growDewFigB", "_tomatoA", "_tomatoB"], { range: [7.8, 8.2], colours: 96 }],
+  ["icons-mist-grow-a", ["growPearlNutA", "growPearlNutB", "_growSilverGrainA", "growSilverGrainB", "_growDewSesameA", "growDewSesameB"], { range: [6.95, 7.3] }],
+  ["icons-mist-grow-b", ["growGlassFlowerA", "_growGlassFlowerB", "growOpalStalkA", "growOpalStalkB", "_growCrystalLeafA", "growCrystalLeafB"], { range: [7.85, 8.15] }],
+  ["icons-mist-grow-c", ["growSilkPollenA", "growSilkPollenB", "_growDewFigA", "_growDewFigB", "_tomatoA", "_tomatoB"], { range: [7.8, 8.2], colours: 96 }],
   ["icons-mist-bag-a", ["pearlNut", "seedPearlNut", "silverGrain", "_seedSilverGrain", "_dewSesame", "_seedDewSesame"], { range: [5.5, 5.8] }],
-  ["icons-mist-bag-b", ["glassFlower", "seedGlassFlower", "opalStalk", "seedOpalStalk", "crystalLeaf", "seedCrystalLeaf"], { range: [5.3, 5.6] }],
+  ["icons-mist-bag-b", ["_glassFlower", "_seedGlassFlower", "opalStalk", "seedOpalStalk", "crystalLeaf", "seedCrystalLeaf"], { range: [5.3, 5.6] }],
   ["icons-mist-bag-c", ["dewFig", "seedDewFig", "silkPollen", "seedSilkPollen", "_seedMistSoil", "_seedMistWater"], { range: [6.5, 6.8] }],
   // (drawn again after the look in the game: the dew sesame's two split pods read as plain sesame in the bag, so it is
   // dew-bead seeds heaped on a leaf; the silver grain packet's grains outlined darker on the grey paper. Its last three
@@ -341,7 +341,7 @@ const SHEETS = [
   ["icons-fert-f", ["packetMist", "_packetNight", "_growFert", "_guardFert", "_mulch", "_compost"], { range: [6.3, 6.55] }],
   // (drawn again after the look in the game: the beetle frass's shell and pellets ran into one muddy heap, the night
   // packet's fireflies were lost; the scale powder of g came out as plain white powder, so e's is kept)
-  ["icons-fert-g", ["beetleFrass", "_scalePowder", "packetNight", "_growFert", "_guardFert", "_compost"], { range: [7.85, 8.15] }],
+  ["icons-fert-g", ["beetleFrass", "_scalePowder", "_packetNight", "_growFert", "_guardFert", "_compost"], { range: [7.85, 8.15] }],
   // ── the insect house's insects in flight (components/town/TownFarm's drawHouseInsect): each insect twice, its wings up (A)
   // and down (B), three a sheet, each sheet drawn from its insects' own bag icons laid in a row (work/out/ref-icons-fly-*);
   // the golden ant (a worker, no wings), the antlion (a larva) and the rove beetle (it walks) are not drawn. Each pair is
@@ -354,7 +354,7 @@ const SHEETS = [
   ["icons-fly-f", ["flySilkMothA", "flySilkMothB", "flyClearwingMothA", "flyClearwingMothB", "flyYuccaMothA", "flyYuccaMothB"], { range: [7.8, 8.2], pairs: true }],
   ["icons-fly-g", ["flyTobaccoHawkmothA", "flyTobaccoHawkmothB", "flyLacewingA", "flyLacewingB", "flySnakeflyA", "flySnakeflyB"], { range: [7.8, 8.2], pairs: true }],
   ["icons-fly-h", ["flyOrchardBeetleA", "flyOrchardBeetleB", "flyLadybirdA", "flyLadybirdB", "flyTigerBeetleA", "flyTigerBeetleB"], { range: [7.8, 8.2], pairs: true }],
-  ["icons-fly-i", ["flyMantisA", "flyMantisB", "flyOrchidMantisA", "flyOrchidMantisB", "flyGhostMantisA", "flyGhostMantisB"], { range: [7.8, 8.7], pairs: true }],
+  ["icons-fly-i", ["_flyMantisA", "_flyMantisB", "flyOrchidMantisA", "flyOrchidMantisB", "flyGhostMantisA", "flyGhostMantisB"], { range: [7.8, 8.7], pairs: true }],
   ["icons-fly-j", ["flyAssassinBugA", "flyAssassinBugB", "flyRobberFlyA", "flyRobberFlyB", "_flyHoneyBeeA", "_flyHoneyBeeB"], { range: [7.8, 8.2], pairs: true }],
   // ── the farm's plants of more than one plot, each one plant over its plots (the owner, 2026-10-15: "พืชที่กินมากกว่า 1 ช่อง
   // แบบผสม ช่วย gen ภาพใหม่ ให้ดูเชื่อมต่อกัน ไม่ใช่ ภาพ 1 ช่องแบบนี้ / แบบขนาดใหญ่ ไป Gen ภาพให้ออกมาดีๆ"): the garden's hybrids as one
@@ -380,11 +380,11 @@ const SHEETS = [
   // its plots, lib/town/wide-art.json. The first drawings' names above begin "_")
   ["icons-wide2-a", ["wideBlueCornA", "wideBlueCornB", "wideLotusRootBedA", "wideLotusRootBedB", "wideTrellisBerryA", "wideTrellisBerryB"], { range: [3.9, 4.1] }],
   ["icons-wide2-b", ["wideRowBeanA", "wideRowBeanB", "wideTeaBushA", "wideTeaBushB", "wideRedOkraA", "wideRedOkraB"], { range: [3.9, 4.1] }],
-  ["icons-wide2-c", ["wideBottleGourdFrontA", "wideBottleGourdFrontB", "wideBottleGourdBackA", "wideBottleGourdBackB", "wideBottleGourdSideA", "wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide2-c", ["_wideBottleGourdFrontA", "_wideBottleGourdFrontB", "_wideBottleGourdBackA", "_wideBottleGourdBackB", "_wideBottleGourdSideA", "_wideBottleGourdSideB"], { range: [3.9, 4.1] }],
   ["icons-wide2-d", ["wideSunflowerPatchFrontA", "wideSunflowerPatchFrontB", "wideSunflowerPatchBackA", "wideSunflowerPatchBackB", "wideSunflowerPatchSideA", "wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
   // (a, b and d drawn again with the clumps grown together over the gaps between the mounds: the first read as separate plants
   // standing in a row. Drawn so, several have more clumps than plots: their mounds at the ends and the corner were marked)
-  ["icons-wide3-a", ["wideBlueCornA", "wideBlueCornB", "wideLotusRootBedA", "wideLotusRootBedB", "wideTrellisBerryA", "wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide3-a", ["_wideBlueCornA", "_wideBlueCornB", "_wideLotusRootBedA", "_wideLotusRootBedB", "_wideTrellisBerryA", "_wideTrellisBerryB"], { range: [3.9, 4.1] }],
   ["icons-wide3-b", ["wideRowBeanA", "wideRowBeanB", "wideTeaBushA", "wideTeaBushB", "wideRedOkraA", "wideRedOkraB"], { range: [3.9, 4.1] }],
   ["icons-wide3-d", ["wideSunflowerPatchFrontA", "wideSunflowerPatchFrontB", "wideSunflowerPatchBackA", "wideSunflowerPatchBackB", "wideSunflowerPatchSideA", "wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
   // ── the garden's eight hybrids again, in this pipeline (the owner, 2026-10-15: "ช่วย Gen ภาพพืช ที่ codex เคยทำไปใหม่ด้วย จะได้เป็น
@@ -397,6 +397,36 @@ const SHEETS = [
   ["icons-garden-bag-a", ["bottleGourd", "seedBottleGourd", "rowBean", "seedRowBean", "trellisBerry", "seedTrellisBerry"], { range: [8.0, 8.3] }],
   ["icons-garden-bag-b", ["blueCorn", "seedBlueCorn", "teaBush", "seedTeaBush", "sunflowerPatch", "seedSunflowerPatch"], { range: [6.25, 6.5] }],
   ["icons-garden-bag-c", ["redOkra", "seedRedOkra", "lotusRootBed", "seedLotusRootBed", "_seedTomato", "_seedBasil"], { range: [6.5, 6.75] }],
+  // ── the leftover fixes (2026-10-16): what Codex left as worth fixing after looking in the game, drawn again; the first
+  // drawings' names above begin "_". fert-h: the night packet given back the rare packets' sparkle star (fert-g lost it),
+  // its firefly light kept, the size of packetMist. mist-grow-d: the young mist buckwheat, sesame and watercress a living
+  // sage green with dew (they read frosted), the glass flower's heads as clear glass (they read as white clover), the mist
+  // fig a fig tree's full lobed crown (it read as a cactus); 96 colours, as grow-c, for the figs' violet. mist-bag-d: the
+  // glass flower and its packet the same way (its last four copy bag-b, to hold the size). fly-k: the green mantis a deep
+  // green back, a pale cream underside and a dark rim (it was lost against the leaves); the other mantises copy fly-i.
+  // wide4-a, wide4-c: the hybrids crisp (the bottle gourd's fruit and the lotus pads were soft), the ripe corn lower and
+  // open, the ripe lotus roots in the mounds, the ripe berries bright; measured again by measure-wide.mjs
+  ["icons-fert-h", ["_packetMist", "packetNight", "_growFert", "_guardFert", "_mulch", "_compost"], { range: [7.85, 8.15] }],
+  ["icons-mist-grow-d", ["growSilverGrainA", "growDewSesameA", "_growCrystalLeafA", "growGlassFlowerB", "_growDewFigA", "_growDewFigB"], { range: [7.85, 8.15], colours: 96 }],
+  ["icons-fly-k", ["flyMantisA", "flyMantisB", "_flyOrchidMantisA", "_flyOrchidMantisB", "_flyGhostMantisA", "_flyGhostMantisB"], { range: [7.8, 8.7], pairs: true }],
+  // (wide4-a laid the ripe lotus roots along the mounds' fronts again, a kerb: a2 is its prompt with only the ripe lotus's
+  // words changed, and came out with the corn lower and more open too, so all six are a2's. wide4-c drew the gourds as pears,
+  // c2 as figure eights as big as the leafy clumps, standing on the mounds: c3 hangs them small among the leaves)
+  ["icons-wide4-a", ["_wideBlueCornA", "_wideBlueCornB", "_wideLotusRootBedA", "_wideLotusRootBedB", "_wideTrellisBerryA", "_wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide4-a2", ["wideBlueCornA", "wideBlueCornB", "wideLotusRootBedA", "wideLotusRootBedB", "wideTrellisBerryA", "wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide4-c", ["_wideBottleGourdFrontA", "_wideBottleGourdFrontB", "_wideBottleGourdBackA", "_wideBottleGourdBackB", "_wideBottleGourdSideA", "_wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide4-c2", ["_wideBottleGourdFrontA", "_wideBottleGourdFrontB", "_wideBottleGourdBackA", "_wideBottleGourdBackB", "_wideBottleGourdSideA", "_wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide4-c3", ["wideBottleGourdFrontA", "wideBottleGourdFrontB", "wideBottleGourdBackA", "wideBottleGourdBackB", "wideBottleGourdSideA", "wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  ["icons-mist-bag-d", ["_glassFlower", "_seedGlassFlower", "_opalStalk", "_seedOpalStalk", "_crystalLeaf", "_seedCrystalLeaf"], { range: [5.3, 5.6] }],
+  // (the fix round after Codex looked at the above in the game: the young mist fig still a cactus's upright lobes (must fix),
+  // the young mist watercress still a little icy, the glass flower's crop and packet still white clover. grow-e's young fig
+  // forks into branches under overlapping leaves, so it parts from the sun's young fig, one big leaf; its places 2 to 4
+  // copy grow-d. bag-e's places 3 to 6 copy bag-d. The lotus pads and the gourds were drawn again too (wide4-a3, wide4-c4):
+  // both came out worse (the lotus roots a kerb again, the gourds pears), so a2 and c3 stand)
+  ["icons-mist-grow-e", ["growCrystalLeafA", "_growSilverGrainA", "_growDewSesameA", "_growGlassFlowerB", "growDewFigA", "growDewFigB"], { range: [7.85, 8.15], colours: 96 }],
+  ["icons-mist-bag-e", ["glassFlower", "seedGlassFlower", "_opalStalk", "_seedOpalStalk", "_crystalLeaf", "_seedCrystalLeaf"], { range: [5.3, 5.6] }],
+  ["icons-wide4-a3", ["_wideBlueCornA", "_wideBlueCornB", "_wideLotusRootBedA", "_wideLotusRootBedB", "_wideTrellisBerryA", "_wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide4-c4", ["_wideBottleGourdFrontA", "_wideBottleGourdFrontB", "_wideBottleGourdBackA", "_wideBottleGourdBackB", "_wideBottleGourdSideA", "_wideBottleGourdSideB"], { range: [3.9, 4.1] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
