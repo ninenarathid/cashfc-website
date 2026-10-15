@@ -696,6 +696,10 @@ export default function TownBugs({ keeper, th, name, sfx, bottom, busy, register
             }
             frame.light(at.x, at.y + s, lum.pool, lum.spots[0][2], 0.55 * on, 0.4);
           }
+        } else if (h.kind === "garden" && frame.light) {
+          // (a good garden's visitor at night, lib/town/insects' GOOD_GARDEN: its pale wings catch what light there is,
+          // so that it may be found over the bed by whoever walks by; far fainter than a glow of its own, and nothing by day)
+          frame.light(at.x, at.y - pose.lift * TILE_H * s - 3 * s, 9, "200,212,245", 0.8);
         }
         // (what is in the air, or on a trunk, is drawn over whoever stands before it: it is what is being looked for)
         things.push({ depth: pose.x + pose.y + (pose.lift > 0.2 ? 3.6 : 0.6), draw: () => {
