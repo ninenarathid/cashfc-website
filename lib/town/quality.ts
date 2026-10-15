@@ -94,7 +94,14 @@ export const ceilingOf = (bars: Record<Role, number>): number => Math.min(100, R
  * ripe (its growing stops there), so the bars freeze by themselves. A jump of growth (a watering's boost) falls
  * between two settles and is counted for nobody, which `span` leaves out of the share.
  */
-export interface PlantQ { at: number; span: number; area: [number, number, number, number]; nar: [number, number, number] }
+export interface PlantQ { at: number; span: number; area: [number, number, number, number]; nar: [number, number, number]; bed?: BedGift }
+/**
+ * What the bed around a plant gives it, as it stands since the bed last changed (a plant set or taken out in it):
+ * each role's best helper cover (`c`, a whole bar 1, a part for a plant on several plots only partly covered), its
+ * partner touching it (`p`), and the soil fennel beside it takes (`f`, points). Kept on the round, so that a settle
+ * needs nothing but the plant (lib/town/quality-plant's bedGift).
+ */
+export interface BedGift { c?: Partial<Record<Role, number>>; p?: 1; f?: number }
 /** A narrowing source while it lasts: `share` of the plant it reaches (a rare insect's house covers all of it, 1). */
 export interface NarrowCover { kind: Exclude<Narrowing, "brush">; from: number; to: number; share?: number }
 export const NO_Q = (at: number): PlantQ => ({ at, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0] });

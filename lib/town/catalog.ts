@@ -50,7 +50,7 @@ import { WELL_BOOK } from "./well";
 import { DRINK, FROG, MOON } from "./well-gifts";
 import { BEDS_IN_FARM, COLS, FARM, FOREST, MOUNTAIN, KITCHEN, ROWS, STOREBOX, WELL, asBuilt, bedCorner, bedOf, fishFrom } from "./world";
 import { YARD } from "./yard";
-import { QUALITY } from "./quality";
+import { COMPANIONS, PARTNERS, QUALITY } from "./quality";
 import { HAND } from "./quality-plant";
 
 /**
@@ -100,7 +100,7 @@ export function catalogOf() {
     gardening: GARDEN,
     insect_garden: INSECT_GARDEN,
     // (v259: the farm's Quality, lib/town/quality and quality-plant: the range's numbers, from when it counts, hand work's hours, the encore's part)
-    quality: { ...QUALITY, hand: HAND, encore: ENCORE },
+    quality: { ...QUALITY, hand: HAND, encore: ENCORE, companions: Object.fromEntries(Object.entries(COMPANIONS).map(([id, c]) => [id, { role: c.role, shape: c.shape }])), partners: PARTNERS },
     forest_parts: FORAGE_PARTS,
     stream_work: STREAM_WORK,
     preparation: PREPARATION,

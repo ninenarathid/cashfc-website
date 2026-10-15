@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import type { Plant, Plot } from "./farm";
 import { barsOfQ } from "./quality";
-import { HAND, progressOf, qualityNow, settled, syncQuality } from "./quality-plant";
+import { HAND, bedGift, progressOf, qualityNow, settled, syncQuality } from "./quality-plant";
+import { narrowingOfQ } from "./quality";
 
 const H = 3_600_000, T0 = Date.UTC(2026, 9, 20), LAUNCH = T0 - 100 * H;
 // a tomato: 72 hours to its first bearing, then every 36
@@ -53,8 +54,9 @@ describe("a plant's Quality in the ground", () => {
     const was = tomato({ moist: true }), now = T0 + 80 * H;
     const picked = syncQuality({ "1,1": plot(was) }, { "1,1": plot({ ...was, picked: 1, pickedAt: now }) }, now, [], LAUNCH)["1,1"].plant!;
     expect(picked.q).toEqual({ at: now, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0] });
+    // (another planting in its place starts a round of its own from its sowing: nothing of the old one is kept)
     const other = syncQuality({ "1,1": plot(was) }, { "1,1": plot(tomato({ sown: now })) }, now, [], LAUNCH)["1,1"].plant!;
-    expect(other.q).toBeUndefined();
+    expect(other.q).toEqual({ at: now, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0] });
   });
 
   it("tells the inspector the bars, the range and its chances, the brush raising the floor this round", () => {
@@ -65,3 +67,31 @@ describe("a plant's Quality in the ground", () => {
     expect(seen.chances[0] + seen.chances[1]).toBeCloseTo(1);
   });
 });
+
+describe("what the bed around a plant gives it", () => {
+  // the first bed's plots run from 132,4 to 138,10
+  const at = (crop: string, more: Partial<Plant> = {}): Plot => plot(tomato({ crop: crop as Plant["crop"], ...more }));
+
+  it("is its partner touching it, the helpers covering it by their shapes, and fennel beside it", () => {
+    const plots = { "133,5": at("tomato"), "134,5": at("basil"), "132,4": at("marigold"), "133,6": at("fennel"), "120,5": at("basil") };
+    expect(bedGift("133,5", plots)).toEqual({ c: { guard: 1 }, p: 1, f: 10 });
+    expect(bedGift("133,5", { "133,5": at("tomato") })).toBeUndefined();
+    // basil's own partner is the tomato; a plant of another bed gives nothing
+    expect(bedGift("134,5", plots)?.p).toBe(1);
+    expect(bedGift("120,5", plots)).toBeUndefined();
+  });
+
+  it("settles a plant when the bed changes, and counts the new gift from then on", () => {
+    const t1 = T0 + 20 * H, t2 = T0 + 50 * H;
+    let plots: Record<string, Plot> = { "133,5": at("tomato") };
+    // a basil set beside it at 20 hours
+    plots = syncQuality(plots, { ...plots, "134,5": at("basil", { sown: t1 }) }, t1, [], LAUNCH);
+    expect(plots["133,5"].plant!.q).toMatchObject({ at: t1, bed: { p: 1 } });
+    // taken out at 50 hours: 30 of the tomato's 72 hours had its partner beside it
+    plots = syncQuality(plots, { "133,5": plots["133,5"] }, t2, [], LAUNCH);
+    const q = plots["133,5"].plant!.q!;
+    expect(q.bed).toBeUndefined();
+    expect(narrowingOfQ(settled({ ...plots["133,5"].plant!, q }, T0 + 100 * H, [], LAUNCH))).toBe(Math.floor(10 * 30 / 72));
+  });
+});
+

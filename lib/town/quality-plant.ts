@@ -13,7 +13,8 @@ import { CROPS } from "./items";
 import { encoreHours, grown, quickMs, roll, type FarmSky, type Plant, type Plot } from "./farm";
 import { HOUR } from "./trade";
 import { DRY, type Rain } from "./weather";
-import { NO_Q, QUALITY, accrue, barsOfQ, ceilingOf, chancesOf, gradeOf, narrowingOfQ, rangeOf, rollOne, type Cover, type Grade, type PlantQ, type Range, type Role } from "./quality";
+import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf, chancesOf, coveredShare, gradeOf, narrowingOfQ, rangeOf, rollOne, type BedGift, type CompanionId, type Cover, type Grade, type NarrowCover, type Penalty, type PlantQ, type Range, type Role } from "./quality";
+import { bedOf } from "./world";
 
 export const HAND = {
   /** How long a watering keeps the water bar's half. */
@@ -56,12 +57,62 @@ export function handCovers(p: Plant, from: number, rains: FarmSky = DRY): Cover[
   return out;
 }
 
+/* ── the bed around a plant ── */
+
+const END = Number.MAX_SAFE_INTEGER;
+const cellsOf = (key: string, p: Plant): string[] => p.footprint ?? [key];
+const touching = (a: readonly string[], b: readonly string[]): boolean =>
+  a.some((c) => { const [x, y] = c.split(",").map(Number); return b.some((d) => { const [u, v] = d.split(",").map(Number); return Math.abs(x - u) + Math.abs(y - v) === 1; }); });
+const keyBed = (key: string): number => { const [x, y] = key.split(",").map(Number); return bedOf(x, y); };
+/** The plant whose root is a plot, if one is. */
+const rootAt = (plots: Readonly<Record<string, Plot>>, key: string): Plant | null => { const p = plots[key]?.plant; return p && (!p.root || p.root === key) ? p : null; };
+
+/**
+ * What the bed gives a plant now: the helpers of its bed by their shapes (each role's best), its partner touching it
+ * (✚), and fennel touching it (✚) taking soil. Nothing for a plant alone. (A dead helper helps until it is taken out.)
+ */
+export function bedGift(key: string, plots: Readonly<Record<string, Plot>>): BedGift | undefined {
+  const p = rootAt(plots, key);
+  if (!p) return undefined;
+  const mine = cellsOf(key, p), bed = keyBed(key), c: Partial<Record<Role, number>> = {};
+  let partner = false, fennel = 0;
+  for (const other of Object.keys(plots).sort()) {
+    const o = other === key ? null : rootAt(plots, other);
+    if (!o || keyBed(other) !== bed) continue;
+    const theirs = cellsOf(other, o), helper = COMPANIONS[o.crop as CompanionId];
+    if (helper) {
+      const share = coveredShare(mine, other, helper.shape, o.rotation ?? 0, theirs);
+      if (share > 0) c[helper.role] = Math.max(c[helper.role] ?? 0, share);
+    }
+    if (PARTNERS[p.crop] === o.crop && touching(mine, theirs)) partner = true;
+    if ((o.crop as string) === "fennel" && touching(mine, theirs)) fennel += QUALITY.fennel;
+  }
+  const cs = Object.fromEntries(ROLES.filter((r) => c[r]).map((r) => [r, c[r]!])) as Partial<Record<Role, number>>;
+  const gift: BedGift = { ...(Object.keys(cs).length ? { c: cs } : {}), ...(partner ? { p: 1 as const } : {}), ...(fennel ? { f: fennel } : {}) };
+  return Object.keys(gift).length ? gift : undefined;
+}
+
+/** What a round's bed gift covers, narrows and takes, from the round's last settle on (it holds until the bed changes). */
+function giftOf(q: PlantQ): { covers: Cover[]; narrows: NarrowCover[]; penalties: Penalty[] } {
+  const g = q.bed;
+  return {
+    covers: ROLES.flatMap((role) => (g?.c?.[role] ? [{ role, level: g.c[role]!, from: 0, to: END, src: "helper" }] : [])),
+    narrows: g?.p ? [{ kind: "partner", from: 0, to: END }] : [],
+    penalties: g?.f ? [{ role: "soil", points: g.f, from: 0, to: END }] : [],
+  };
+}
+
 /** A plant's round settled to a moment (nothing counts before `launch`). */
 export function settled(p: Plant, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): PlantQ {
   const q = p.q ?? NO_Q(Math.max(launch, roundStart(p)));
-  return now > q.at ? accrue(q, now, progressOf(p, rains), handCovers(p, q.at, rains)) : q;
+  if (!(now > q.at)) return q;
+  const g = giftOf(q);
+  return accrue(q, now, progressOf(p, rains), [...handCovers(p, q.at, rains), ...g.covers], g.penalties, g.narrows);
 }
 
+/** Whether two gifts of a bed are the same (none and none alike). */
+const sameGift = (a: BedGift | undefined, b: BedGift | undefined): boolean =>
+  (a?.p ?? 0) === (b?.p ?? 0) && (a?.f ?? 0) === (b?.f ?? 0) && ROLES.every((r) => (a?.c?.[r] ?? 0) === (b?.c?.[r] ?? 0));
 /** The same planting before and after a change (and not one sown in its place). */
 const samePlanting = (a: Plant, b: Plant): boolean => a.sown === b.sown && a.crop === b.crop && a.by === b.by;
 
@@ -72,12 +123,32 @@ const samePlanting = (a: Plant, b: Plant): boolean => a.sown === b.sown && a.cro
  */
 export function syncQuality(before: Readonly<Record<string, Plot>>, after: Record<string, Plot>, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): Record<string, Plot> {
   let out = after;
-  for (const [key, plot] of Object.entries(after)) {
-    const p = plot?.plant, was = before[key]?.plant;
-    if (!p || !was || was === p || (p.root && p.root !== key) || !samePlanting(was, p)) continue;
-    const q = p.picked > was.picked ? NO_Q(Math.max(launch, now)) : settled(was, now, rains, launch);
-    if (out === after) out = { ...after };
-    out[key] = { ...plot, plant: { ...p, q } };
+  const set = (key: string, plant: Plant) => { if (out === after) out = { ...after }; out[key] = { ...out[key], plant }; };
+  const beds = new Set<number>(), done = new Set<string>();
+  for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
+    const was = rootAt(before, key), p = rootAt(after, key);
+    if (!was && !p) continue;
+    if (was && p && samePlanting(was, p)) {
+      if (was === p) continue;
+      // (a pick: a new round, the bed's gift kept as it is; any other change: the round as it stood, settled)
+      set(key, { ...p, q: p.picked > was.picked ? { ...NO_Q(Math.max(launch, now)), ...(was.q?.bed ? { bed: was.q.bed } : {}) } : settled(was, now, rains, launch) });
+      done.add(key);
+      continue;
+    }
+    // a plant set, taken out or put in another's place: the bed around it changes
+    beds.add(keyBed(key));
+  }
+  if (!beds.size) return out;
+  // every plant of a bed that changed whose gift changes with it (and one newly set): settled with what the bed gave it
+  // until now, and given what it gives it from now (the database's trigger does the same, and no more)
+  for (const key of Object.keys(out)) {
+    const p = rootAt(out, key);
+    if (!p || !beds.has(keyBed(key))) continue;
+    const was = rootAt(before, key), same = !!was && samePlanting(was, p), gift = bedGift(key, out);
+    if (same && sameGift(p.q?.bed, gift)) continue;
+    const q = done.has(key) ? p.q! : same ? settled(was!, now, rains, launch) : p.q ?? NO_Q(Math.max(launch, roundStart(p)));
+    const { bed: _, ...rest } = q;
+    set(key, { ...p, q: gift ? { ...rest, bed: gift } : rest });
   }
   return out;
 }
