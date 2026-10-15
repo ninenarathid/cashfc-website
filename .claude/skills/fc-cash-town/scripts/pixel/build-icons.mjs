@@ -282,6 +282,14 @@ const SHEETS = [
   ["icons-helper-fix-a", ["growFigA", "growFigB", "growGarlicChivesA", "growGarlicChivesB", "_fig", "_seedFig"], { range: [7.85, 8.15] }],
   ["icons-helper-fix-a", ["_growFigA", "_growFigB", "_growGarlicChivesA", "_growGarlicChivesB", "fig", "seedFig"], { range: [3.9, 4.1] }],
   // ── end: helper plants ──
+  // ── the farm's insect house (2026-10-15; lib/town/insect-house): the house standing on its plot, drawn by TownFarm as
+  // the growth sprites are (plotInsectHouse), and the same house for the bag in the wood line's set (insectHouse), drawn
+  // between a tomato and a basil (icons-farm-d) and two wood tools (icons-wood) to hold its scale; only the two houses
+  // are packed. Cut on its finer grid: on the coarser (11.4) the bamboo tubes' rims and the drilled holes ran together
+  ["icons-insect-house-a", ["_tomato", "plotInsectHouse", "_basil", "_insectHouse", "_wedge", "_stake"], { range: [5.65, 5.9] }],
+  // (the bag's house drawn again with icons-wood and the first sheet for the reference: in the bag and the hotbar the
+  // first one's nine small tube ends and holes ran into speckles; this one has six bigger ones)
+  ["icons-insect-house-b", ["insectHouse", "_wedge", "_stake", "_barkKnife", "_sapTap", "_grainLens"], { range: [5.45, 5.65] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);

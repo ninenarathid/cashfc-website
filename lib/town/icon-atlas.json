@@ -1,8 +1,8 @@
 {
-  "image": "/town/icons-60c9fb1aa86f.png",
+  "image": "/town/icons-87df5a8653b9.png",
   "size": [
     256,
-    11429
+    11498
   ],
   "icons": {
     "mic": [
@@ -8218,6 +8218,18 @@
       11413,
       15,
       14
+    ],
+    "plotInsectHouse": [
+      2,
+      11431,
+      38,
+      65
+    ],
+    "insectHouse": [
+      42,
+      11431,
+      44,
+      49
     ]
   },
   "cursor": {
