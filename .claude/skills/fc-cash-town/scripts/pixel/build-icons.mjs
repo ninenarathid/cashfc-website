@@ -6,6 +6,13 @@
 // picture: ICONS_SHEETS, ICONS_PUB and ICONS_JSON say otherwise. Two sessions that each added sheets build an atlas
 // of their own sheets alone that way, to commit, while the shared tree keeps the one with both.)
 //
+//   ICONS_ONLY=<sheet,sheet> ICONS_APPEND=1 node build-icons.mjs
+//
+// (Since 2026-10-10 the atlas holds sets that later builders laid under it (build-garden-icons.mjs and the others),
+// which a build of every sheet here would leave out. ICONS_ONLY cuts the sheets named alone, and ICONS_APPEND lays
+// what they give under the atlas that is there, ICONS_JSON and its picture, as those builders do: the helper plants'
+// sheets went in that way, 2026-10-15.)
+//
 // The owner's call (2026-10-02): every icon in Cash Town is pixel art made for
 // it, no emoji ("จะได้ดูไม่เหมือน AI ทำ"). Each sheet is one row of icons drawn on
 // a 16-pixel grid and scaled up; the true pixels are found, each icon cut out,
@@ -243,10 +250,40 @@ const SHEETS = [
   ["icons-felling-b", ["keep_nest", "keep_feather", "keep_twinCones", "keep_cicada", "keep_pellet", "keep_initials"], { range: [7.5, 8.5] }],
   ["icons-felling-c", ["keep_heartKnot", "keep_amber", "keep_ribbon", "keep_rustKey", "keep_silverRing", "keep_carvedBird"]],
   // ── end: felling ──
+  // ── the farm's helper plants (2026-10-15; lib/town/helper-items) ── each one young (A) and grown with its crop (B), three
+  // to a sheet with icons-farm-d for the reference; then each crop beside its seed packet, with icons-items-d for the
+  // packets: the packet's band is its role's colour (soil, water, pollen, guard: components/town/TownQuality's bars).
+  // Mint, chamomile and lavender's crops are the forest's herbs (icons-items-bd, -be). The bag's sheets are cut on their
+  // finer grid, where the squares are crisp (the coarser one, twice it, is the one measured freely), as the later seeds
+  // were. The plants' sheets a to e are cut on the coarser, as icons-farm-d was: on their finer grid the plants came out
+  // 75 to 97 tall, and the map draws a plant no smaller than 0.62 of a screen pixel to one of its own (TownFarm's
+  // PLANT_SCALES), so they stood twice a tomato's height. Sheets f and g were drawn coarser, and their finer grid gives
+  // plants 45 to 63 tall. A name beginning "_" is a filler drawn so that the sheet has six, and is not packed.
+  ["icons-helper-grow-a", ["growRunnerBeanA", "growRunnerBeanB", "growPeanutA", "growPeanutB", "growCloverA", "growCloverB"], { range: [9.35, 9.65] }],
+  ["icons-helper-grow-b", ["growBuckwheatA", "growBuckwheatB", "growSesameA", "growSesameB", "growRhubarbA", "growRhubarbB"], { range: [7.8, 8.1] }],
+  ["icons-helper-grow-c", ["growGardenStrawberryA", "growGardenStrawberryB", "growWatercressA", "growWatercressB", "growChamomileA", "growChamomileB"], { range: [7.85, 8.15] }],
+  ["icons-helper-grow-d", ["growBorageA", "growBorageB", "growLavenderA", "growLavenderB", "growMilkweedA", "growMilkweedB"], { range: [7.85, 8.15] }],
+  ["icons-helper-grow-e", ["growFennelA", "growFennelB", "growDillA", "growDillB", "_growGarlicChivesA", "_growGarlicChivesB"], { range: [7.85, 8.15] }],
+  ["icons-helper-grow-f", ["growMarigoldA", "growMarigoldB", "growNasturtiumA", "growNasturtiumB", "growMintA", "growMintB"], { range: [5.25, 5.45] }],
+  ["icons-helper-grow-g", ["_growFigA", "_growFigB", "growPassionfruitA", "growPassionfruitB", "_fig", "passionfruit"], { range: [5.5, 5.7] }],
+  ["icons-helper-bag-a", ["runnerBean", "seedRunnerBean", "peanut", "seedPeanut", "buckwheat", "seedBuckwheat"], { range: [6.1, 6.35], near: true }],
+  ["icons-helper-bag-b", ["sesame", "seedSesame", "clover", "seedClover", "gardenStrawberry", "seedGardenStrawberry"], { range: [6.3, 6.55] }],
+  ["icons-helper-bag-c", ["rhubarb", "seedRhubarb", "watercress", "seedWatercress", "borage", "seedBorage"], { range: [5.65, 5.9] }],
+  ["icons-helper-bag-d", ["milkweed", "seedMilkweed", "fennel", "seedFennel", "marigold", "seedMarigold"], { range: [6.75, 7.0] }],
+  ["icons-helper-bag-e", ["nasturtium", "seedNasturtium", "garlicChives", "seedGarlicChives", "dill", "seedDill"], { range: [5.35, 5.6] }],
+  ["icons-helper-bag-f", ["_seedFig", "seedPassionfruit", "seedMint", "seedChamomile", "seedLavender", "_seedHelper"], { range: [6.0, 6.2] }],
+  // (drawn again after the look in the game, the same day: the fig read as an aubergine on a little palm, and the garlic
+  // chives' flowers as chamomile; the first drawings' names above begin "_". The plants are cut on the coarser grid as the
+  // others are, the fig and its packet for the bag on the finer, as the bag's sheets are)
+  ["icons-helper-fix-a", ["growFigA", "growFigB", "growGarlicChivesA", "growGarlicChivesB", "_fig", "_seedFig"], { range: [7.85, 8.15] }],
+  ["icons-helper-fix-a", ["_growFigA", "_growFigB", "_growGarlicChivesA", "_growGarlicChivesB", "fig", "seedFig"], { range: [3.9, 4.1] }],
+  // ── end: helper plants ──
 ];
 
+const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
 const pieces = [];
 for (const [sheet, names, opts] of SHEETS) {
+  if (ONLY && !ONLY.includes(sheet)) continue;
   const file = path.join(OUT, `${sheet}.png`);
   if (!fs.existsSync(file)) { console.log(`no ${sheet}`); continue; }
   const raw = await L.loadRaw(file);
@@ -273,12 +310,42 @@ for (const [sheet, names, opts] of SHEETS) {
     for (const i of c.mem) figs[Math.min(names.length - 1, Math.floor(((opts?.split ? i % g.GW : mid) - x0) / col))].add(i);
   }
   names.forEach((name, k) => {
+    if (name.startsWith("_")) return;
     const set = figs[k];
     if (!set || !set.size) { console.log(`  ${name}: nothing found`); return; }
     const im = L.crop(g, set);
     pieces.push({ name, img: im });
     console.log(`${name.padEnd(15)} ${im.w}x${im.h}  (grid ${grid.p.toFixed(2)})`);
   });
+}
+
+if (process.env.ICONS_APPEND) {
+  // under the atlas there is: its picture kept as it is, the new pieces packed in rows below it, tallest first
+  const atlas = JSON.parse(fs.readFileSync(JSON_OUT, "utf8"));
+  const dup = pieces.filter((p) => Object.hasOwn(atlas.icons, p.name)).map((p) => p.name);
+  if (dup.length) throw new Error(`already in the atlas: ${dup.join(", ")}`);
+  if (!pieces.length) throw new Error("no sheet cut: ICONS_ONLY names none of SHEETS");
+  const [AW, AH] = atlas.size, PAD = 2;
+  let x = PAD, y = AH + PAD, rowH = 0;
+  for (const p of [...pieces].sort((a, b) => b.img.h - a.img.h)) {
+    if (x + p.img.w + PAD > AW) { x = PAD; y += rowH + PAD; rowH = 0; }
+    p.x = x; p.y = y; x += p.img.w + PAD; rowH = Math.max(rowH, p.img.h);
+  }
+  const H = y + rowH + PAD, was = path.join(PUB, path.basename(atlas.image));
+  const old = await L.sharp(was).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  if (old.info.width !== AW || old.info.height !== AH) throw new Error(`${atlas.image} is ${old.info.width}x${old.info.height}, the atlas says ${AW}x${AH}`);
+  const sheet = Buffer.alloc(AW * H * 4);
+  old.data.copy(sheet, 0);
+  for (const p of pieces) for (let r = 0; r < p.img.h; r++) p.img.buf.copy(sheet, ((p.y + r) * AW + p.x) * 4, r * p.img.w * 4, (r + 1) * p.img.w * 4);
+  const png = await L.sharp(sheet, { raw: { width: AW, height: H, channels: 4 } }).png({ compressionLevel: 9 }).toBuffer();
+  const image = `/town/icons-${crypto.createHash("sha256").update(png).digest("hex").slice(0, 12)}.png`;
+  fs.writeFileSync(path.join(PUB, path.basename(image)), png);
+  if (image !== atlas.image) fs.unlinkSync(was);
+  atlas.image = image; atlas.size = [AW, H];
+  for (const p of pieces) atlas.icons[p.name] = [p.x, p.y, p.img.w, p.img.h];
+  fs.writeFileSync(JSON_OUT, JSON.stringify(atlas, null, 2) + "\n");
+  console.log(`appended ${pieces.length} icons under the atlas: ${image} ${AW}x${H} (${(png.length / 1024).toFixed(1)} KB)`);
+  process.exit(0);
 }
 
 const PAD = 1, W = 256;
