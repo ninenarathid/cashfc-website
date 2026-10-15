@@ -9,7 +9,7 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | # | Piece | State |
 |---|---|---|
 | 1a | The clock names the eight bands (`lib/town/bands.ts`, TownClock) | done, waits for his OK |
-| 1b | The trade board as a board of its own in the town centre (art: the board, the before-dawn icon) | to do |
+| 1b | The trade board as a board of its own in the town centre (art: the board, the before-dawn icon) | done: `TRADE_BOARD` at 36,33 (south-east of the fountain, outside the ring members appear on), its own sprite `tradeBoard`, the uncle's tab removed; the clock's `beforeDawn` icon |
 | 2.1 | Pure Quality rules (`lib/town/quality.ts`): bars, range, roll, grades, pay, helpers' shapes, partners | done |
 | 2.2 | Coverage on each plant and the plant inspector (bars, sources, range, chances); harvest still ungraded | done: `quality-plant.ts`, trial hook, **v259** (trigger, dry run 1337 checks), `TownQuality.tsx` chip + inspector (shot, Codex looked); the compost act moves to 2.6 with the brush |
 | 2.3 | The roll at the pick and grades on items through every path (bag, box, ground, deal, notices, stalls, pouches, the uncle's relatives) | done: TS (trade, farm pick, box, deal) + **v260** (12 functions guarded, private salt, dry run 3446 checks) + bag stars, sell line, pick note (shot, Codex looked); Codex's code check of v259–v260 pending |
@@ -18,7 +18,7 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | done: partners via the bed gift; compost and brush deeds (v262) |
 | 2.7 | Dig out from the inspector (tilled ground, 2 stamina, nothing back) | done: the hoe's dig-out of a living plant leaves tilled ground (v262) |
 | 3 | The 27 fertilisers, two slots, the chart, holding one shows its gain | |
-| 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | |
+| 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | **4a the house done** (`insect-house.ts`, `TownInsectHouse.tsx`, **v265** dry run 5117 checks, art `insectHouse`/`plotInsectHouse`); 4b the species on branch `farm-species` (agent, v264); wild insects drawn to good gardens not yet |
 | 5 | Crossing sun / moon / mist, hybrid seeds in the players' market, the seed tray | sun/moon done (8 helper crossings, pollinator skies, v263); mist with the pre-dawn insects (4) |
 | 6 | The bat merchant, 03:00–05:00 | |
 | 7 | Farming-line gear and charms 1–10 (the swap charm), designed with the owner first | |
@@ -84,6 +84,20 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
   integer, so on the bench (built from the migrations) a pot cooked with the batch power fails with "function does not
   exist", as it likely does live since v177; v261 casts it to a whole number.
 
+- **The insect house** (piece 4a, mine where the design was silent): a column of its plot (`town_plots.house`) with the
+  plot's soil `"house"` while it stands, so every deed that asks for tilled, cleared or wild ground passes it over and
+  no other function had to change; its own deeds (set, fill a room, lift with the hoe) are `town_house` / the trial's
+  `houseDo`, beside `tend`, with the whole bed in view. One a bed, its owner's only; 1 stamina each deed. Lifting gives
+  the house back and the insects in it are lost, so it is asked twice. A room keeps its end (`until`): the favourite
+  plant counts when the insect goes in (the design said "when it is there"; one moment asked keeps it simple and
+  exact). Rare = what the relatives pay is 20 or more (morpho, luna moth, hawk moth, orchid mantis). Favourites
+  (`FAVOURITES`) are mine, each a helper of another role. Recipe: split plank 3, carving blank 1, pitch seal 1 (the
+  woodworkers' goods), worth 30, tier 2; it is the farm Quality's own gear (`QUALITY_GEAR`), not one of the wood
+  line's twenty-five. Its cover reaches the plants through the bed's gift (`h`), which v265's trigger re-works when a
+  house changes. Soil-workers come with 4b's species.
+- **The fig on 2×2** is drawn once as one tree at the middle of its plots (sized like the orchard's trees), not a
+  small tree on each plot.
+
 ## Checks a piece gets
 
 New rules: unit tests and TypeScript/SQL parity vectors; SQL: a PGlite dry run from the snapshot with the breaks
@@ -97,5 +111,6 @@ of piece 4's new species and finds, so: 4b the 48 species and the rare finds (wi
 house, then 3 the fertilisers, then 6 the bat merchant, 1b the board, and the mist crossings. The owner said "ทำต่อได้เลย
 จนจบทั้งหมด"; piece 7 (rank gear) waits for his design. Migrations so far: v259 (Quality round, bed gift), v260
 (grades), v261 (cooking by grade, branch farm-cook merged; also mends the big pot's batches, broken live since v177),
-v262 (compost, brush, dig-out), v263 (helpers and crossings); all dry-run; run in order with the matching code.
+v262 (compost, brush, dig-out), v263 (helpers and crossings), v265 (the insect house; v264 is 4b's species); all
+dry-run; run in order with the matching code.
 
