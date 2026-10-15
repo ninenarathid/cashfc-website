@@ -73,16 +73,13 @@ export function HousePanel({ at, house, plots, now, th, mine, onClose }: { at: s
       </div>
       <p className="tk tk-window px-3 py-2 text-meta text-[#3b2412]" data-house-tip>
         ▸ {mine
-          ? (th ? "ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (ป้องกัน) แล้วกดที่บ้าน ต้นในพื้นที่ 5×5 ได้ครึ่งแถบ ส่วนที่เหลือให้พืชช่วยเติม" : "Hold a pollinator (pollen) or a predator (guard) and use it on the house: the plants within 5×5 get half a bar; helpers fill the rest")
+          ? (th ? "ถือแมลงผสมเกสร (เกสร) หรือแมลงล่าเหยื่อ (ป้องกัน) แล้วกดที่บ้าน ต้นในพื้นที่ 5×5 ได้ครึ่งแถบ ถ้ามีพืชที่มันชอบอยู่ใกล้ตอนใส่ อยู่ต่อ +24 ชม." : "Use a pollinator (pollen) or a predator (guard) on the house: plants within 5×5 get half a bar; with its favourite plant near as it goes in, it stays 24 h more")
           : th ? "บ้านแมลงของคนอื่น" : "Somebody else's insect house"}
-      </p>
-      {mine && <p className="text-label text-muted" data-house-favourites>
-        {th ? "ถ้ามีพืชที่มันชอบอยู่ในพื้นที่ตอนใส่ จะอยู่ต่ออีก 24 ชม." : "With its favourite plant in reach when it goes in, it stays 24 h more."}
-        {house.rooms.some((r) => !r || r.until <= now) && (() => {
+        {mine && house.rooms.some((r) => !r || r.until <= now) && (() => {
           const near = Object.entries(FAVOURITES).filter(([bug]) => favouriteNear(at, bug as ItemId, plots)).map(([bug]) => name(bug as ItemId));
-          return near.length ? (th ? ` ตอนนี้: ${near.slice(0, 4).join(", ")} ได้ +24 ชม.` : ` Now: ${near.slice(0, 4).join(", ")} would get +24 h.`) : null;
+          return near.length ? <span className="block" data-house-favourites>{th ? `ตอนนี้ได้ +24 ชม.: ${near.slice(0, 4).join(", ")}` : `+24 h now: ${near.slice(0, 4).join(", ")}`}</span> : null;
         })()}
-      </p>}
+      </p>
     </section>
   );
 }
