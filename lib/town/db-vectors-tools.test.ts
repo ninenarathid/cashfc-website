@@ -8,7 +8,7 @@ import { PLAIN_ROD, canFx, cookFx, easedBy, hoeFx, luckOf, netFx, partOf, rodFx,
 import { toolOwed, toolPaid } from "./forged-keep";
 import { hastened } from "./fountain";
 import { gearOf } from "./gear";
-import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, NET, UNHUNTED, comeback, nearHaunt, net, netMine, netMore, tierOf, type BugId, type Comeback, type Swarm } from "./insects";
+import { BUGS, BUG_IDS, HAUNTS as EVERY_HAUNT, HAUNT_KINDS, NET, UNHUNTED, comeback, nearHaunt, net, netMine, netMore, tierOf, type BugId, type Comeback, type Swarm } from "./insects";
 import { BAITS, CROPS, DISHES, FISH, FISH_IDS, ITEMS, type CropId, type DishId, type ItemId } from "./items";
 import { countsOf, type Done } from "./line-points";
 import { usePower } from "./powers";
@@ -17,6 +17,8 @@ import { BUILT, ELEMENTS, FORGE, OPTIONS, TOOL_KINDS, drawable, has, type Elemen
 import { HOUR, handOf, heldStack, newPurse, put, type Purse, type Stack } from "./trade";
 import { DRY } from "./weather";
 import { BEDS_IN_FARM, bedCorner, rowOf } from "./world";
+// (the haunts that have insects of their own: a good garden's, laid after them, has what its bed draws, lib/town/insects' GOOD_GARDEN)
+const HAUNTS = EVERY_HAUNT.filter((h) => h.kind !== "garden");
 
 /**
  * The cases the database's rules of the seven older tools are held to (v174's tools part;

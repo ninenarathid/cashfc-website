@@ -13,7 +13,8 @@ import { ITEMS, type ItemId } from "./items";
 import { buffBy, isSpent, spend } from "./stamina";
 import { BANGKOK, DAY, HOUR, heldStack, no, put, roomFor, type Done, type Purse } from "./trade";
 import { DRY, wetMs, type Rain } from "./weather";
-import { CAMP, COLS, FARM, FARM_PROPS, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { BEDS_IN_FARM, CAMP, COLS, FARM, FARM_PROPS, FOREST, FOREST_PROPS, GATES, PROPS, ROWS, WATERFALL, WELL, asBuilt, bedCorner, groundAt, placeOf, plotAt, walkable, zoneAt, type Place, type Vec, type Zone } from "./world";
+import { POLLINATOR_SKY } from "./helper-items";
 
 /**
  * Catching insects, as rules (the owner, 2026-10-05: "จับแมลง ในทุกแมพในเกม แมพกลางเมือง
@@ -62,7 +63,9 @@ export type Habit = "path" | "spot" | "behind" | "sound" | "look" | "lamp" | "lu
 /** What a haunt is. */
 export type HauntKind = "blooms" | "water" | "field" | "lamp" | "tree" | "litter" | "glade" | "falls"
   // (the time bands' newcomers' own, lib/town/band-species' NEW_HAUNT_KINDS: no old insect keeps to one, and no newcomer to an old one)
-  | "petals" | "leaves" | "logs" | "bark" | "duff" | "sand" | "posts";
+  | "petals" | "leaves" | "logs" | "bark" | "duff" | "sand" | "posts"
+  // (a good garden's, one over each bed of the farm: `GOOD_GARDEN`)
+  | "garden";
 export type BugId = InsectSpeciesId
   | "butterflyWhite" | "monarch" | "morpho" | "dragonfly" | "damselfly" | "glassDragonfly" | "grasshopper" | "mantis" | "cricket" | "cicada"
   | "stickInsect" | "leafInsect" | "firefly" | "orchidMantis" | "moth" | "lunaMoth" | "hawkMoth"
@@ -215,7 +218,21 @@ export const HAUNT_KINDS: Record<HauntKind, { every: number; chance: number; sha
   duff: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
   sand: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
   posts: { every: 10, chance: 0.8, shares: 1, alone: true, none: QUIET.none },
+  // a good garden's (2026-10-16): a turn of half an hour, one in four with an insect, and alone as the newcomers' are
+  garden: { every: 30, chance: 0.25, shares: 1, alone: true },
 };
+/**
+ * A good garden draws wild insects (the owner's design, "สวนดึงแมลงป่า", and his choice of 2026-10-16: "เพิ่มจุดเกิดใน
+ * สวน แบบจำกัด"). A bed holding at least `least` living pollen helpers grown to their own picture (lib/town/garden-
+ * visitors' gardenNow: a regrowing one counts) has the uncommon and rare pollinators of the moment come to its haunt,
+ * each by its own hours, days, rain and moon but by none of its places or haunts; an uncommon one weighs
+ * `weights.uncommon` there and a rare one `weights.rare`. A bed with a grown milkweed has the monarch come to it,
+ * weighing `milkweed[1]`, good or not. Its haunt rolls every half hour, one turn in four (HAUNT_KINDS' garden): about
+ * one insect in two hours a bed. The numbers are mine (told to him).
+ */
+export const GOOD_GARDEN = { least: 3, weights: { uncommon: 3, rare: 1 }, milkweed: ["monarch", 3] as [BugId, number] };
+/** A bed's garden now: good (enough grown pollen helpers), and whether a grown milkweed is in it. */
+export interface GardenNow { good: boolean; milkweed: boolean }
 /**
  * An insect caught comes back somewhere else (the owner, the same day: "หลังจากนั้น จะมี delay เล็กน้อยก่อนสุ่มเกิดที่ใหม่"):
  * so many seconds after the catch, at another haunt of the same map that has nothing in its turn, which must have at
@@ -378,6 +395,13 @@ export const HAUNTS: Haunt[] = asBuilt(() => {
   scatter("duff", "forest", 3, 6, tilesOf(FOREST, woodFloor));
   scatter("sand", "forest", 3, 6, tilesOf(FOREST, (x, y) => stands(x, y) && groundAt(x, y) === "sand"));
   scatter("posts", "farm", 2, 6, nearProps(["fence"], FARM_PROPS, "farm"));
+  // ── a good garden's (2026-10-16): one haunt over each bed of the farm, laid after every other so that none moves, its
+  // perches round the bed's middle, open while its bed is good (`GOOD_GARDEN`)
+  for (let b = 0; b < BEDS_IN_FARM; b++) {
+    const [bx, by] = bedCorner(b);
+    out.push({ id: out.length, kind: "garden", place: "farm", zone: null, x: bx + 3.5, y: by + 3.5,
+      perches: [[1.5, 1.5], [3.5, 1], [5.5, 1.5], [6, 3.5], [5.5, 5.5], [3.5, 6], [1.5, 5.5], [1, 3.5]].map(([u, v]) => ({ x: bx + u, y: by + v })) });
+  }
   return out;
 });
 
@@ -389,11 +413,13 @@ const phaseOf = (h: Haunt) => Math.floor(roll("bugphase", h.id) * HAUNT_KINDS[h.
 export const bugTurn = (h: Haunt, now: number) => Math.floor((now + phaseOf(h)) / (HAUNT_KINDS[h.kind].every * MINUTE));
 export const bugTurnStart = (h: Haunt, turn: number) => turn * HAUNT_KINDS[h.kind].every * MINUTE - phaseOf(h);
 
-/** Whether an insect may be at a haunt in the turn that begins at a moment (`always`: whatever day it is, for one that has days of its own). */
-export function fits(b: Bug, id: BugId, h: Haunt, at: number, salt: string, rains: readonly Rain[], always = false, skipHours = false): boolean {
-  if (!b.at.includes(h.kind)) return false;
-  if (b.places && !b.places.includes(h.place)) return false;
-  if (b.zones && (!h.zone || !b.zones.includes(h.zone))) return false;
+/** Whether an insect may be at a haunt in the turn that begins at a moment (`always`: whatever day it is, for one that has days of its own; `anywhere`: its hours, days, rain and moon only, as at a good garden). */
+export function fits(b: Bug, id: BugId, h: Haunt, at: number, salt: string, rains: readonly Rain[], always = false, skipHours = false, anywhere = false): boolean {
+  if (!anywhere) {
+    if (!b.at.includes(h.kind)) return false;
+    if (b.places && !b.places.includes(h.place)) return false;
+    if (b.zones && (!h.zone || !b.zones.includes(h.zone))) return false;
+  }
   if (b.hours && !skipHours) { const hr = ((((at + BANGKOK) % DAY) + DAY) % DAY) / HOUR; if (!b.hours.some(([a, z]) => hr >= a && hr < z)) return false; }
   if (b.dry && wetMs(rains, at - HOUR / 2, at) > 0) return false;
   if (b.day && !always && !isDayOf(salt, id, b.day, at)) return false;
@@ -408,16 +434,28 @@ export interface Comeback { haunt: number; turn: number; bug: BugId; n: number; 
 
 /** How much an insect weighs at a moment: its weight, or (a newcomer outside its peak band) QUIET.offPeak of it. */
 const weightAt = (id: BugId, at: number) => { const b = BUGS[id]; return b.peak && !inHours(b.peak, ((((at + BANGKOK) % DAY) + DAY) % DAY) / HOUR) ? b.weight * QUIET.offPeak : b.weight; };
-/** The insects that may be at a haunt in a turn of its, in the order they are weighed. */
-const mayBe = (salt: string, h: Haunt, turn: number, rains: readonly Rain[]) => { const at = bugTurnStart(h, turn); return BUG_IDS.filter((id) => fits(BUGS[id], id, h, at, salt, rains)); };
+/** What a good garden draws and what each weighs there (`GOOD_GARDEN`), in the order the insects are weighed. */
+export function gardenDraws(g: GardenNow | null | undefined): Partial<Record<BugId, number>> {
+  const out: Partial<Record<BugId, number>> = {};
+  if (g?.good) for (const id of BUG_IDS) { const t = id in POLLINATOR_SKY ? tierOf(id) : "common"; if (t !== "common") out[id] = GOOD_GARDEN.weights[t]; }
+  if (g?.milkweed) out[GOOD_GARDEN.milkweed[0]] = GOOD_GARDEN.milkweed[1];
+  return out;
+}
+/** The insects that may be at a haunt in a turn of its, in the order they are weighed (a garden's: what its bed draws now). */
+const mayBe = (salt: string, h: Haunt, turn: number, rains: readonly Rain[], garden?: GardenNow | null) => {
+  const at = bugTurnStart(h, turn);
+  if (h.kind === "garden") { const w = gardenDraws(garden); return BUG_IDS.filter((id) => w[id] !== undefined && fits(BUGS[id], id, h, at, salt, rains, false, false, true)); }
+  return BUG_IDS.filter((id) => fits(BUGS[id], id, h, at, salt, rains));
+};
 /**
  * One of them, by their weights and a number from 0 up to 1; and where in that insect's own share of the weights the
  * number fell, from 0 up to 1 (which says nothing of which insect it is: it is as good a number of chance as another).
  */
 // ── forging: old tools ── (`rare`: the rare kinds weigh so many times their own: nothing said, as they are)
 // (`at`: the turn's start, for a newcomer's peak; `none`: what a newcomers' haunt has of nothing beside them, HAUNT_KINDS' none)
-function whichOf(may: BugId[], r: number, rare = 1, at?: number, none = 0): { bug: BugId; within: number } | undefined {
-  const w = (id: BugId) => (at === undefined ? BUGS[id].weight : weightAt(id, at)) * (rare > 1 && tierOf(id) === "rare" ? rare : 1);
+// (`weights`: a garden's own, `gardenDraws`)
+function whichOf(may: BugId[], r: number, rare = 1, at?: number, none = 0, weights?: Partial<Record<BugId, number>>): { bug: BugId; within: number } | undefined {
+  const w = (id: BugId) => (weights ? weights[id]! : at === undefined ? BUGS[id].weight : weightAt(id, at)) * (rare > 1 && tierOf(id) === "rare" ? rare : 1);
   let left = r * (may.reduce((t, id) => t + w(id), 0) + none);
   for (const id of may) { left -= w(id); if (left < 0) return { bug: id, within: (left + w(id)) / w(id) }; }
   if (none > 0) return undefined;
@@ -447,18 +485,19 @@ export function plentyOf(hunts: readonly Hunt[], bug: BugId, at: number): number
  * The same for everybody. `hunts` is what has been caught in the village of late: the insect the turn rolled is out
  * only as often as it is plentiful as the turn begins (so nothing caught during a turn changes what that turn has).
  */
-export function swarmAt(salt: string, h: Haunt, now: number, rains: readonly Rain[] = DRY, hunts: readonly Hunt[] = UNHUNTED): Swarm | null {
+// (`garden`: a good garden's haunt, its bed as it is now; none, and it has nothing)
+export function swarmAt(salt: string, h: Haunt, now: number, rains: readonly Rain[] = DRY, hunts: readonly Hunt[] = UNHUNTED, garden?: GardenNow | null): Swarm | null {
   const kind = HAUNT_KINDS[h.kind], turn = bugTurn(h, now);
   if (roll(`${salt}:bug`, h.id, turn) >= kind.chance) return null;
-  const one = whichOf(mayBe(salt, h, turn, rains), roll(`${salt}:which`, h.id, turn), 1, bugTurnStart(h, turn), kind.none ?? 0);
+  const one = whichOf(mayBe(salt, h, turn, rains, garden), roll(`${salt}:which`, h.id, turn), 1, bugTurnStart(h, turn), kind.none ?? 0, h.kind === "garden" ? gardenDraws(garden) : undefined);
   if (!one || one.within >= plentyOf(hunts, one.bug, bugTurnStart(h, turn))) return null;
   const bug = one.bug, [lo, hi] = BUGS[bug].n;
   return { turn, bug, n: lo + Math.floor(roll(`${salt}:bugs`, h.id, turn) * (hi - lo + 1)), seed: h.id * 100003 + turn };
 }
 
 /** What a haunt has now, of its own or come back to it after a catch elsewhere (`backs`: those the keeper knows of). */
-export function hereAt(salt: string, h: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], hunts: readonly Hunt[] = UNHUNTED): Swarm | null {
-  const own = swarmAt(salt, h, now, rains, hunts);
+export function hereAt(salt: string, h: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], hunts: readonly Hunt[] = UNHUNTED, garden?: GardenNow | null): Swarm | null {
+  const own = swarmAt(salt, h, now, rains, hunts, garden);
   if (own) return own;
   const turn = bugTurn(h, now), back = backs.find((b) => b.haunt === h.id && b.turn === turn && b.from <= now);
   return back ? { turn, bug: back.bug, n: back.n, seed: h.id * 100003 + turn, back: true } : null;
@@ -487,8 +526,8 @@ export function cloakAt(salt: string, h: Haunt, now: number, rains: readonly Rai
   return { turn, bug: one.bug, n: lo + Math.floor(roll(`${salt}:bugs`, h.id, turn) * (hi - lo + 1)), seed: h.id * 100003 + turn, cloak: true };
 }
 /** What a haunt has now for somebody: with the cloak, the insect that is there for its wearers alone, where there is one; else what it has for everybody. */
-export const hereFor = (salt: string, h: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], hunts: readonly Hunt[] = UNHUNTED, cloak = false): Swarm | null =>
-  (cloak ? cloakAt(salt, h, now, rains, hunts) : null) ?? hereAt(salt, h, now, rains, backs, hunts);
+export const hereFor = (salt: string, h: Haunt, now: number, rains: readonly Rain[], backs: readonly Comeback[], hunts: readonly Hunt[] = UNHUNTED, cloak = false, garden?: GardenNow | null): Swarm | null =>
+  (cloak ? cloakAt(salt, h, now, rains, hunts) : null) ?? hereAt(salt, h, now, rains, backs, hunts, garden);
 
 /**
  * Where the insect caught at a haunt comes back, and as what: at another haunt of the same map that has nothing in the
@@ -522,10 +561,12 @@ export function comeback(salt: string, from: Haunt, now: number, rains: readonly
 /** A haunt as somebody sees it now: which, its insect, and what its ways follow from. */
 export interface BugSight { id: number; bug: BugId; turn: number; seed: number }
 /** Every haunt that has an insect for me now: one out this turn (its own, or come back to it; with the cloak, the one that is there for its wearers), that nobody has caught. */
-export function swarms(salt: string, now: number, rains: readonly Rain[], took: (h: Haunt, turn: number) => { n: number; mine: boolean }, backs: readonly Comeback[] = [], hunts: readonly Hunt[] = UNHUNTED, cloak = false): BugSight[] {
+// (`gardens`: each good garden's bed as it is now, lib/town/garden-visitors)
+export function swarms(salt: string, now: number, rains: readonly Rain[], took: (h: Haunt, turn: number) => { n: number; mine: boolean }, backs: readonly Comeback[] = [], hunts: readonly Hunt[] = UNHUNTED, cloak = false,
+  gardens: (h: Haunt) => GardenNow | null = () => null): BugSight[] {
   const out: BugSight[] = [];
   for (const h of HAUNTS) {
-    const has = hereFor(salt, h, now, rains, backs, hunts, cloak);
+    const has = hereFor(salt, h, now, rains, backs, hunts, cloak, h.kind === "garden" ? gardens(h) : null);
     if (!has) continue;
     const t = took(h, has.turn);
     if (t.mine || t.n >= HAUNT_KINDS[h.kind].shares) continue;
@@ -545,7 +586,8 @@ export function farmBugs(salt: string, now: number, rains: readonly Rain[], took
   has: (h: Haunt) => Swarm | null = (h) => hereAt(salt, h, now, rains, backs, hunts)): number {
   let n = 0;
   for (const h of HAUNTS) {
-    if (h.place !== "farm") continue;
+    // (a good garden's visitors come for its flowers, and are not counted with what eats the crops)
+    if (h.place !== "farm" || h.kind === "garden") continue;
     const out = has(h);
     if (!out || INSECT_GARDEN.visitors.includes(out.bug) || FARMING.rids[out.bug] !== undefined || took(h, out.turn) >= HAUNT_KINDS[h.kind].shares) continue;
     n++;

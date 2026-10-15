@@ -52,7 +52,9 @@ describe("the time bands' newcomers (piece 4b)", () => {
   });
 
   it("lays its own haunts after every old one, leaving those as they were", () => {
-    expect(HAUNTS.length).toBe(OLD_HAUNTS + 31);
+    // (and after them, a good garden's over each bed of the farm, 2026-10-16: lib/town/insects' GOOD_GARDEN)
+    expect(HAUNTS.length).toBe(OLD_HAUNTS + 31 + 24);
+    expect(HAUNTS.slice(OLD_HAUNTS + 31).every((h) => h.kind === "garden")).toBe(true);
     expect(HAUNTS.slice(0, OLD_HAUNTS).every((h) => !NEW_HAUNT_KINDS.includes(h.kind as never))).toBe(true);
     expect(HAUNTS.slice(OLD_HAUNTS).every((h) => HAUNT_KINDS[h.kind].alone)).toBe(true);
     for (const r of NEW_INSECTS) expect(HAUNTS.some((h) => h.kind === r.at && h.place === r.place && (!r.zones || r.zones.includes(h.zone as never))), `${r.id} has a haunt`).toBe(true);

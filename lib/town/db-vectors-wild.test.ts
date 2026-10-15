@@ -2,12 +2,14 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { FARMING, HOES, pestAt, see, type Plant, type Plot } from "./farm";
 import { KINDS, SPOTS, gather, holds, turnStart, type Held } from "./forest";
-import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, LURES, SCARCE, bugTurnStart, net, pestToRid, plentyOf, swarmAt, type BugId, type Hunt, type Swarm, COMEBACK, comeback, hereAt, type Comeback } from "./insects";
+import { BUGS, BUG_IDS, HAUNTS as EVERY_HAUNT, HAUNT_KINDS, LURES, SCARCE, bugTurnStart, net, pestToRid, plentyOf, swarmAt, type BugId, type Hunt, type Swarm, COMEBACK, comeback, hereAt, type Comeback } from "./insects";
 import { CROP_IDS, type ItemId } from "./items";
 import { newPurse, put, type Purse } from "./trade";
 import { DRY, type Rain } from "./weather";
 import { WISHES } from "./fountain";
 import { FARM, plotAt } from "./world";
+// (the haunts that have insects of their own: a good garden's, laid after them, has what its bed draws, lib/town/insects' GOOD_GARDEN)
+const HAUNTS = EVERY_HAUNT.filter((h) => h.kind !== "garden");
 
 /**
  * The cases the database's forest and insects are held to (v125), made as lib/town/db-vectors makes the others':

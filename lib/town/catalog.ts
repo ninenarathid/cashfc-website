@@ -34,7 +34,7 @@ import { GROUND, GROUND_MAPS } from "./ground";
 import { BRIDGE } from "./bridge";
 import { LAMPS } from "./lamps";
 import { HINT_IDS, HINT_PRICE } from "./hints";
-import { BUGS, BUG_IDS, COMEBACK, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE, tierOf } from "./insects";
+import { BUGS, BUG_IDS, COMEBACK, GOOD_GARDEN, HAUNTS, HAUNT_KINDS, gardenDraws, LURES, NECTAR, NECTAR_MAPS, NET, NETS, PAIR as BUG_PAIR, SCARCE, tierOf } from "./insects";
 import { JAR } from "./jar";
 import { LINE } from "./line";
 import {
@@ -302,6 +302,9 @@ export function catalogOf() {
       comeback: { after: COMEBACK.after, least: COMEBACK.least },
       // hunted, a kind grows scarce: the hours a catch counts against it for, less with each, and how many counting halve it
       scarce: { day: SCARCE.day, half: SCARCE.half },
+      // (v267: a good garden, lib/town/insects' GOOD_GARDEN: how many grown pollen helpers make one, what it draws and what
+      // each weighs there, and the one a grown milkweed draws, with its weight)
+      garden: { least: GOOD_GARDEN.least, draws: gardenDraws({ good: true, milkweed: false }), milkweed: GOOD_GARDEN.milkweed },
       // ── gifts: insects ──
       // a drop of nectar: within how many seconds an insect comes to it and no sooner than how many, how many it stays, the kinds of haunt a drop calls from, and the maps as boxes of tiles
       nectar: { within: NECTAR.within, soon: NECTAR.soon, stays: NECTAR.stays, at: NECTAR.at, maps: NECTAR_MAPS },
@@ -571,7 +574,8 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   v265: { keys: [], over: ["quality", "items", "workshop"] },
   // (the fertilisers: their numbers in the quality row, the things, how each is made, the leaf mulch no longer a growth
   // feed, and what may be put in to make them)
-  v266: { keys: [], over: ["quality", "items", "makes", "farming", "cooking"] } };
+  v266: { keys: [], over: ["quality", "items", "makes", "farming", "cooking"] },
+  v267: { keys: [], over: ["insects"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

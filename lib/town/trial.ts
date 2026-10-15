@@ -57,6 +57,7 @@ import { huntTold, mapDig, mapUse, type HuntTold } from "./hunt";
 import { count as countLine, countsOf, harvestWork, newLine, type Done as Deeded, type LineKept } from "./line-points";
 import { ALL_GIFTS, USES, giftsOf, stretchOf, takeGift as takeRankGift, useGift, wearCharms, wearFamiliar, wearing, type GiftId, type GiftRefusal } from "./gifts";
 import { LINE_IDS, LINES, earnedOn, harvestReserve, mayWear, noLines, wornOf, type LineId, type LinesTold, type Worn } from "./lines";
+import { gardensOf } from "./garden-visitors";
 import { BUGS, HAUNTS, HAUNT_KINDS, SCARCE, bugTurn, comeback, farmBugs, hereFor, nectar, net, netMine, swarms, type BugId, type BugRefusal, type BugSight, type Comeback, type Haunt, type Hunt, type Mine, type Swarm, pestToRid } from "./insects";
 import { NOTE, blessed, newFountain, tidyNote, told, toss, type Fountain, type FountainTold, type WishId, type WishNote } from "./fountain";
 import { drop as dropDown, lying, pickUp, type Dropped } from "./ground";
@@ -1131,7 +1132,7 @@ export class Trial {
   /** What a haunt has now (`cloak`: for whoever wears the butterfly-wing cloak, lib/town/insects' hereFor). */
   private swarm(h: Haunt, now: number, cloak = false): Swarm | null {
     const bug = this.forced.get(h.id);
-    if (!bug) return hereFor(this.salt(), h, now, SKIES.rains(), this.backs(), this.hunts(), cloak);
+    if (!bug) return hereFor(this.salt(), h, now, SKIES.rains(), this.backs(), this.hunts(), cloak, h.kind === "garden" ? gardensOf(this.farm(), now, this.sky())(h) : null);
     const turn = bugTurn(h, now);
     return { turn, bug, n: BUGS[bug].n[0], seed: h.id * 100003 + turn };
   }
@@ -1139,7 +1140,7 @@ export class Trial {
   bugs(): BugSight[] {
     const took = this.netted(), now = this.now();
     const mine = (h: Haunt, turn: number) => { const who = took[`${h.id}:${turn}`] ?? []; return { n: who.length, mine: who.includes(this.id) }; };
-    const rolled = swarms(this.salt(), now, SKIES.rains(), mine, this.backs(), this.hunts(), wearing(this.purse(), "charmCloak")).filter((s) => !this.forced.has(s.id));
+    const rolled = swarms(this.salt(), now, SKIES.rains(), mine, this.backs(), this.hunts(), wearing(this.purse(), "charmCloak"), gardensOf(this.farm(), now, this.sky())).filter((s) => !this.forced.has(s.id));
     const told = [...this.forced.keys()].flatMap((id) => {
       const h = HAUNTS[id], has = h ? this.swarm(h, now) : null, t = has ? mine(h, has.turn) : null;
       return has && t && !t.mine && t.n < HAUNT_KINDS[h.kind].shares ? [{ id, bug: has.bug, turn: has.turn, seed: has.seed }] : [];

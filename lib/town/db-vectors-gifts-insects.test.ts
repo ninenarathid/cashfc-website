@@ -3,12 +3,14 @@ import { describe, expect, it } from "vitest";
 import { catalogOf } from "./catalog";
 import { fullMoon } from "./forest";
 import { stretchOf, USES, wearing } from "./gifts";
-import { BUGS, BUG_IDS, HAUNTS, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, PAIR, UNHUNTED, bugTurnStart, cloakAt, nectar, nectarHaunt, net, netMine, swarmAt, tierOf, type BugId, type Follower, type Lured, type Mine, type Swarm } from "./insects";
+import { BUGS, BUG_IDS, HAUNTS as EVERY_HAUNT, HAUNT_KINDS, LURES, NECTAR, NECTAR_MAPS, PAIR, UNHUNTED, bugTurnStart, cloakAt, nectar, nectarHaunt, net, netMine, swarmAt, tierOf, type BugId, type Follower, type Lured, type Mine, type Swarm } from "./insects";
 import type { ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { handOf, newPurse, put, type Purse } from "./trade";
 import { DRY } from "./weather";
 import { placeOf } from "./world";
+// (the haunts that have insects of their own: a good garden's, laid after them, has what its bed draws, lib/town/insects' GOOD_GARDEN)
+const HAUNTS = EVERY_HAUNT.filter((h) => h.kind !== "garden");
 
 /**
  * The cases the database's rules of the insects' gifts are held to (v153; lib/town/db-vectors-gifts.test.ts says how

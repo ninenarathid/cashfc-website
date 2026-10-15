@@ -35,6 +35,8 @@ export const PLACE: Record<HauntKind, [string, string]> = {
   // (the time bands' newcomers' own, lib/town/band-species)
   petals: ["ดอกไม้", "Flowers"], leaves: ["ใบไม้และพงต่ำ", "Leaves and low brush"], logs: ["ขอนไม้", "Logs"], bark: ["เปลือกต้นไม้", "Tree bark"],
   duff: ["เศษใบบนดิน", "Leaf litter"], sand: ["ทรายริมลำธาร", "Stream sand"], posts: ["หลักรั้ว", "Fence posts"],
+  // (a good garden's, lib/town/insects' GOOD_GARDEN)
+  garden: ["สวนที่ดอกบาน", "Gardens in flower"],
 };
 
 export default function TownBugBook({ book, th }: { book: Record<string, string>; th: boolean }) {

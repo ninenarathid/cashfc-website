@@ -51,7 +51,8 @@ try {
   const ins = (await one("select town.cat('insects') c")).c;
   eq(ins.haunts.slice(0, OLD), oldIns.haunts, "the old haunts kept");
   eq(Object.fromEntries(Object.keys(oldIns.bugs).map((k) => [k, ins.bugs[k]])), oldIns.bugs, "the old insects kept");
-  eq(ins.haunts.length, OLD + 31, "thirty-one haunts of the newcomers");
+  // (and the code's catalog has the good gardens' 24 after them, which v267 brings: v264's own bug_at has nothing there)
+  eq(ins.haunts.length, OLD + 31 + 24, "thirty-one haunts of the newcomers, and the gardens'");
 
   // the old haunts' draws, to the last roll; every haunt's, the code's
   let k = 0, newOut = 0;
