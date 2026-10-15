@@ -4472,7 +4472,7 @@ export default function Town({ me, testTopic, cap = ROOM_CAP, mapAddon }: { me: 
           <span aria-hidden className="hidden h-3 w-px shrink-0 bg-current opacity-30 sm:block" />
           {s && everReady && !live
             ? <span className="flex shrink-0 items-center gap-1 text-label text-gold"><TownIcon name="signal" size={13} className="animate-pulse" />{w.reconnecting}</span>
-            : <TownClock th={w.th} compact={phone} bare />}
+            : <TownClock th={w.th} compact={phone} bare hour={forcedHour.current} />}
         </div>
         <span role="status" className="sr-only">{s && everReady ? (live ? w.online : w.reconnecting) : ""}</span>
        </div>

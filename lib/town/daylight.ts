@@ -87,13 +87,3 @@ export function clockText(date = new Date()): string {
   return `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
 }
 
-/** Each part of the day's name; its picture is the town icon of the same name (components/town/TownIcon). */
-export const PHASE_NAMES: Record<Phase, { th: string; en: string }> = {
-  dawn: { th: "รุ่งสาง", en: "Dawn" },
-  morning: { th: "เช้า", en: "Morning" },
-  noon: { th: "เที่ยง", en: "Noon" },
-  afternoon: { th: "บ่าย", en: "Afternoon" },
-  dusk: { th: "เย็น", en: "Dusk" },
-  evening: { th: "ค่ำ", en: "Evening" },
-  night: { th: "กลางคืน", en: "Night" },
-};
