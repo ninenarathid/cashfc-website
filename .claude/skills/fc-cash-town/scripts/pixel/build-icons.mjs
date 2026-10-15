@@ -327,6 +327,20 @@ const SHEETS = [
   // (drawn again after the look in the game: the beetle frass's shell and pellets ran into one muddy heap, the night
   // packet's fireflies were lost; the scale powder of g came out as plain white powder, so e's is kept)
   ["icons-fert-g", ["beetleFrass", "_scalePowder", "packetNight", "_growFert", "_guardFert", "_compost"], { range: [7.85, 8.15] }],
+  // ── the insect house's insects in flight (components/town/TownFarm's drawHouseInsect): each insect twice, its wings up (A)
+  // and down (B), three a sheet, each sheet drawn from its insects' own bag icons laid in a row (work/out/ref-icons-fly-*);
+  // the golden ant (a worker, no wings), the antlion (a larva) and the rove beetle (it walks) are not drawn. Each pair is
+  // laid on itself and cut to one box (`pairs`), so the body does not jump as the wings beat
+  ["icons-fly-a", ["flyHoneyBeeA", "flyHoneyBeeB", "flyCarpenterBeeA", "flyCarpenterBeeB", "flyHoverflyA", "flyHoverflyB"], { range: [7.85, 8.15], pairs: true }],
+  ["icons-fly-b", ["flyPollenMidgeA", "flyPollenMidgeB", "flyMegaloptaBeeA", "flyMegaloptaBeeB", "flyIndianNightBeeA", "flyIndianNightBeeB"], { range: [7.8, 8.2], pairs: true }],
+  ["icons-fly-c", ["flyMasonBeeA", "flyMasonBeeB", "flyWoolCarderBeeA", "flyWoolCarderBeeB", "flyBlueBandedBeeA", "flyBlueBandedBeeB"], { range: [7.8, 8.2], pairs: true }],
+  ["icons-fly-d", ["flyButterflyWhiteA", "flyButterflyWhiteB", "flyMonarchA", "flyMonarchB", "flyMorphoA", "flyMorphoB"], { range: [7.8, 8.2], pairs: true }],
+  ["icons-fly-e", ["flyMothA", "flyMothB", "flyLunaMothA", "flyLunaMothB", "flyHawkMothA", "flyHawkMothB"], { range: [7.8, 8.2], pairs: true }],
+  ["icons-fly-f", ["flySilkMothA", "flySilkMothB", "flyClearwingMothA", "flyClearwingMothB", "flyYuccaMothA", "flyYuccaMothB"], { range: [7.8, 8.2], pairs: true }],
+  ["icons-fly-g", ["flyTobaccoHawkmothA", "flyTobaccoHawkmothB", "flyLacewingA", "flyLacewingB", "flySnakeflyA", "flySnakeflyB"], { range: [7.8, 8.2], pairs: true }],
+  ["icons-fly-h", ["flyOrchardBeetleA", "flyOrchardBeetleB", "flyLadybirdA", "flyLadybirdB", "flyTigerBeetleA", "flyTigerBeetleB"], { range: [7.8, 8.2], pairs: true }],
+  ["icons-fly-i", ["flyMantisA", "flyMantisB", "flyOrchidMantisA", "flyOrchidMantisB", "flyGhostMantisA", "flyGhostMantisB"], { range: [7.8, 8.7], pairs: true }],
+  ["icons-fly-j", ["flyAssassinBugA", "flyAssassinBugB", "flyRobberFlyA", "flyRobberFlyB", "_flyHoneyBeeA", "_flyHoneyBeeB"], { range: [7.8, 8.2], pairs: true }],
   // ── the farm's plants of more than one plot, each one plant over its plots (the owner, 2026-10-15: "พืชที่กินมากกว่า 1 ช่อง
   // แบบผสม ช่วย gen ภาพใหม่ ให้ดูเชื่อมต่อกัน ไม่ใช่ ภาพ 1 ช่องแบบนี้ / แบบขนาดใหญ่ ไป Gen ภาพให้ออกมาดีๆ"): the garden's hybrids as one
   // row on one long mound (a and b: three and two plots in a line, running from the lower left up to the upper right;
@@ -407,6 +421,24 @@ for (const [sheet, names, opts] of SHEETS) {
     pieces.push({ name, img: im });
     console.log(`${name.padEnd(15)} ${im.w}x${im.h}  (grid ${grid.p.toFixed(2)})`);
   });
+  // (`pairs`: two frames of one thing side by side, an insect's wings up and down: each pair is laid one on the other where
+  // the most of their px agree, its body, and both are cut to the box of the two, so that the body stays still between them)
+  if (opts?.pairs) for (let k = 0; k + 1 < names.length; k += 2) {
+    const a = pieces.find((p) => p.name === names[k]), b = pieces.find((p) => p.name === names[k + 1]);
+    if (!a || !b) continue;
+    const A = a.img, B = b.img, px = (im, x, y) => (x < 0 || y < 0 || x >= im.w || y >= im.h ? null : im.buf[(y * im.w + x) * 4 + 3] ? im.buf.subarray((y * im.w + x) * 4, (y * im.w + x) * 4 + 3) : null);
+    let best = { n: -1, dx: 0, dy: 0 };
+    for (let dy = -12; dy <= 12; dy++) for (let dx = -12; dx <= 12; dx++) {
+      let n = 0;
+      for (let y = 0; y < A.h; y++) for (let x = 0; x < A.w; x++) { const p = px(A, x, y), q = p && px(B, x + dx, y + dy); if (q && Math.abs(p[0] - q[0]) + Math.abs(p[1] - q[1]) + Math.abs(p[2] - q[2]) < 40) n++; }
+      if (n > best.n) best = { n, dx, dy };
+    }
+    // B's (x + dx, y + dy) lies on A's (x, y): the box of the two in A's frame
+    const x0 = Math.min(0, -best.dx), y0 = Math.min(0, -best.dy), x1 = Math.max(A.w, B.w - best.dx), y1 = Math.max(A.h, B.h - best.dy), w = x1 - x0, h = y1 - y0;
+    const lay = (im, ox, oy) => { const buf = Buffer.alloc(w * h * 4); for (let y = 0; y < im.h; y++) im.buf.copy(buf, ((y + oy) * w + ox) * 4, y * im.w * 4, (y + 1) * im.w * 4); return { buf, w, h }; };
+    a.img = lay(A, -x0, -y0); b.img = lay(B, -best.dx - x0, -best.dy - y0);
+    console.log(`  ${names[k]} + ${names[k + 1]}: laid together at ${best.dx},${best.dy} (${best.n} px agree), both ${w}x${h}`);
+  }
 }
 
 if (process.env.ICONS_APPEND) {
