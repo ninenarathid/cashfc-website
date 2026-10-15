@@ -111,7 +111,7 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   return { ...did, purse: after, plot: updated, got: [...did.got, ...(twine ? [[plant.crop, GARDEN.extra] as [ItemId, number]] : []), ...extras], ...(child ? { cross: child } : {}) };
 }
 export function gardenTend(key: string, plots: Readonly<Record<string, Plot>>, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, sky: FarmSky, sure = false, luck?: number, rotation = 0) {
-  const plot = plots[key] ?? WILD, hand = handOf(purse), crop = Object.keys(GARDEN_CROPS).find(c => GARDEN_CROPS[c as GardenCropId].seed === hand) as GardenCropId | undefined;
+  const plot = plots[key] ?? WILD, hand = handOf(purse), crop = (Object.keys(GARDEN.shapes) as CropId[]).find(c => CROPS[c]?.seed === hand);
   const cells = crop && !plot.plant ? gardenRoom(key, crop, plots, rotation) : undefined;
   if (crop && !plot.plant && !cells) return { ok: false as const, why: "soil" as const };
   const ownCells = (plot.plant?.footprint?.length ?? 1) - 1;

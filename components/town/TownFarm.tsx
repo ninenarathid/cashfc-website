@@ -689,6 +689,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           });
         }
       }
+      // (a plant over several plots chooses its picture once a frame, at the first of its plots met; the rest only ask)
+      const wholeOnce = new Map<string, (() => void) | null>();
       for (let v = 0; v < FARM.h; v++) for (let u = 0; u < FARM.w; u++) {
         const tx = FARM.x + u, ty = FARM.y + v;
         if (!plotAt(tx, ty)) continue;
@@ -741,7 +743,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         // A plant over several plots (the fig, a garden hybrid, a giant): drawn once from its root, over all its plots'
         // soil, by its one picture (lib/town/wide-plants: the owner, 2026-10-15); a young one keeps a sprout a plot
         const rootKey = gardenRoots.current.get(plotKey(tx, ty)) ?? plotKey(tx, ty), whole = wholeTrees.current.get(rootKey);
-        const once = whole && what?.crop ? wholeDraw(whole, what) : null;
+        let once: (() => void) | null = null;
+        if (whole && what?.crop) { if (wholeOnce.has(rootKey)) once = wholeOnce.get(rootKey)!; else { once = wholeDraw(whole, seen.current.get(rootKey) ?? what); wholeOnce.set(rootKey, once); } }
         if (once && rootKey === plotKey(tx, ty)) things.push({ depth: whole!.front + 0.7, draw: once });
         // (its plots show the bed's own soil under it: its picture has its own ground)
         const underTree = !!once;

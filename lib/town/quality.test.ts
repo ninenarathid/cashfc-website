@@ -98,6 +98,10 @@ describe("the farm's Quality", () => {
     expect(coverOffsets("line", 0)).toEqual([[-3, 0], [-2, 0], [-1, 0], [1, 0], [2, 0], [3, 0]]);
     expect(coverOffsets("line", 1)).toEqual([[0, -3], [0, -2], [0, -1], [0, 1], [0, 2], [0, 3]]);
     expect(coverOffsets("fig")).toHaveLength(12);
+    // (a fig turned a quarter stands on x-1..x, y..y+1: its ring is round those plots, Codex's check of 2026-10-16)
+    const turned = new Set(coverOffsets("fig", 1).map(([u, v]) => `${u},${v}`));
+    expect(turned.has("-2,0") && turned.has("1,1") && turned.has("-1,-1") && turned.has("0,2")).toBe(true);
+    expect(turned.has("2,0") || turned.has("0,0") || turned.has("-1,1")).toBe(false);
   });
 
   it("covers a plant on several cells by its share of them, and never itself", () => {

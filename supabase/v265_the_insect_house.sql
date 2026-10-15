@@ -19,7 +19,7 @@ do $$ begin
 -- <guards:v265>
  if md5(replace(pg_get_functiondef('town.quality_bed_gift(text,jsonb)'::regprocedure),chr(13),'')) not in ('8dd77c6c43df95ccae8fd812056d087f','d29afceba83dbd003fabecfdc1be2437') then raise exception 'Definition changed: town.quality_bed_gift(text,jsonb); rebuild v265'; end if;
  if md5(replace(pg_get_functiondef('town.quality_accrue(jsonb,bigint,jsonb)'::regprocedure),chr(13),'')) not in ('31050d35db06c0714d8c179c87427559','55a5514c3c13471cc0fd1a8c8b0b6a5a') then raise exception 'Definition changed: town.quality_accrue(jsonb,bigint,jsonb); rebuild v265'; end if;
- if md5(replace(pg_get_functiondef('town.quality_keep()'::regprocedure),chr(13),'')) not in ('e7794b4f2caf0a0ac976db82c501d5da','6a0ed4392294fe2288ca0f904e599ece') then raise exception 'Definition changed: town.quality_keep(); rebuild v265'; end if;
+ if md5(replace(pg_get_functiondef('town.quality_keep()'::regprocedure),chr(13),'')) not in ('e7794b4f2caf0a0ac976db82c501d5da','9a9eddcb2a787a22266bc92a21cb16f0') then raise exception 'Definition changed: town.quality_keep(); rebuild v265'; end if;
  if md5(replace(pg_get_functiondef('public.town_farm(bigint)'::regprocedure),chr(13),'')) not in ('db1ca5eb1705df530d79b70bef92bbe5','6316928886c805a2e0c13d08c6bdeb09') then raise exception 'Definition changed: public.town_farm(bigint); rebuild v265'; end if;
 -- </guards:v265>
 end $$;
@@ -1074,7 +1074,11 @@ returns text language plpgsql stable set search_path='' as $$
 declare plot jsonb:=p_plots->p_key; house jsonb:=p_plots->p_key->'house'; bed integer;
 begin
  if jsonb_typeof(house)='object' then
-  if house->>'by' is distinct from p_me then return null; end if;
+  -- (one left by whoever no longer holds the bed is the bed's owner's to lift with a hoe, as a plant left there is theirs
+  -- to dig out: it goes to their bag)
+  if house->>'by' is distinct from p_me then
+   return case when p_owner=p_me and house->>'by' is distinct from p_owner and coalesce(town.tool_of(p_hand),'')='hoe' then 'lift' end;
+  end if;
   if coalesce(town.tool_of(p_hand),'')='hoe' then return 'lift'; end if;
   return case when town.house_role(p_hand) is not null and town.house_free(house,p_now)>=0 then 'room' end;
  end if;
@@ -1220,7 +1224,7 @@ returns trigger language plpgsql set search_path='' as $$
 declare
  key_ text:=new.x::text||','||new.y::text; was jsonb; p jsonb:=new.plant; now_ bigint:=coalesce(new.changed,town.now_ms());
  launch_ bigint:=(town.cat('quality')->>'launch')::bigint; wasroot boolean; isroot boolean; plots jsonb; o record; gift jsonb; q jsonb; okey text;
- housed boolean;
+ housed boolean; first_ boolean:=false;
 begin
  if tg_op='UPDATE' then was:=old.plant; housed:=old.house is distinct from new.house; else housed:=new.house is not null; end if;
  if was='null'::jsonb then was:=null; end if;
@@ -1230,11 +1234,16 @@ begin
  if not wasroot and not isroot and not housed then return new; end if;
  if wasroot and isroot and was->>'sown' is not distinct from p->>'sown' and was->>'crop' is not distinct from p->>'crop' and was->>'by' is not distinct from p->>'by' then
   if was=p or (was-'q')=(p-'q') then return new; end if;
-  new.plant:=p || jsonb_build_object('q',case
-   when coalesce((p->>'picked')::integer,0)>coalesce((was->>'picked')::integer,0)
-    then town.quality_fresh(greatest(launch_,now_)) || case when jsonb_typeof(was->'q'->'bed')='object' then jsonb_build_object('bed',was->'q'->'bed') else '{}'::jsonb end
-   else town.quality_settled(was,now_) end);
-  return new;
+  if jsonb_typeof(was->'q')='object' then
+   new.plant:=p || jsonb_build_object('q',case
+    when coalesce((p->>'picked')::integer,0)>coalesce((was->>'picked')::integer,0)
+     then town.quality_fresh(greatest(launch_,now_)) || case when jsonb_typeof(was->'q'->'bed')='object' then jsonb_build_object('bed',was->'q'->'bed') else '{}'::jsonb end
+    else town.quality_settled(was,now_) end);
+   return new;
+  end if;
+  -- (one with no round yet, growing when Quality came: its first, settled with what the bed gives it, which has stood
+  -- since then, for a change of the bed would have given it a round)
+  first_:=true;
  end if;
  -- the bed changes: its plots as they will be (each with its house, where it has one)
  select coalesce(jsonb_object_agg(t.x::text||','||t.y::text,jsonb_build_object('soil',t.soil,'plant',t.plant) || case when t.house is not null then jsonb_build_object('house',t.house) else '{}'::jsonb end),'{}'::jsonb) into plots
@@ -1242,7 +1251,11 @@ begin
  plots:=plots || jsonb_build_object(key_,jsonb_build_object('soil',new.soil,'plant',coalesce(p,'null'::jsonb)) || case when new.house is not null then jsonb_build_object('house',new.house) else '{}'::jsonb end);
  if isroot then
   gift:=town.quality_bed_gift(key_,plots);
-  new.plant:=p || jsonb_build_object('q',coalesce(case when jsonb_typeof(p->'q')='object' then p->'q' end,town.quality_fresh(greatest(launch_,town.quality_round_start(p)))) - 'bed'
+  new.plant:=p || jsonb_build_object('q',(case
+    when first_ and coalesce((p->>'picked')::integer,0)>coalesce((was->>'picked')::integer,0) then town.quality_fresh(greatest(launch_,now_))
+    when first_ then town.quality_settled(was || jsonb_build_object('q',town.quality_fresh(greatest(launch_,town.quality_round_start(was)))
+      || case when gift is null then '{}'::jsonb else jsonb_build_object('bed',gift) end),now_)
+    else coalesce(case when jsonb_typeof(p->'q')='object' then p->'q' end,town.quality_fresh(greatest(launch_,town.quality_round_start(p)))) end) - 'bed'
    || case when gift is null then '{}'::jsonb else jsonb_build_object('bed',gift) end);
   plots:=plots || jsonb_build_object(key_,jsonb_build_object('soil',new.soil,'plant',new.plant));
  end if;

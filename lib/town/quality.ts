@@ -253,7 +253,8 @@ const RING = [...PLUS, ...X];
 
 /**
  * The cells a helper standing at its anchor covers, as offsets. A line runs three cells each way along its axis
- * (rotation 0 east–west, 1 north–south); the fig is 2×2 from its anchor and covers the twelve cells round it.
+ * (rotation 0 east–west, 1 north–south); the fig is 2×2 from its anchor and covers the twelve cells round it, turned
+ * with it as its plots are (lib/town/gardening's gardenShape: each quarter turn takes (u, v) to (−v, u)).
  */
 export function coverOffsets(shape: Shape, rotation = 0): number[][] {
   switch (shape) {
@@ -263,7 +264,11 @@ export function coverOffsets(shape: Shape, rotation = 0): number[][] {
     case "line": return [-3, -2, -1, 1, 2, 3].map((d) => (rotation % 2 ? [0, d] : [d, 0]));
     case "fig": {
       const out: number[][] = [];
-      for (let y = -1; y <= 2; y++) for (let x = -1; x <= 2; x++) if (x < 0 || x > 1 || y < 0 || y > 1) out.push([x, y]);
+      for (let y = -1; y <= 2; y++) for (let x = -1; x <= 2; x++) if (x < 0 || x > 1 || y < 0 || y > 1) {
+        let [u, v] = [x, y];
+        for (let r = 0; r < (((rotation % 4) + 4) % 4); r++) [u, v] = [-v, u];
+        out.push([u, v]);
+      }
       return out;
     }
   }

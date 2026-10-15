@@ -140,7 +140,7 @@ const samePlanting = (a: Plant, b: Plant): boolean => a.sown === b.sown && a.cro
 export function syncQuality(before: Readonly<Record<string, Plot>>, after: Record<string, Plot>, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): Record<string, Plot> {
   let out = after;
   const set = (key: string, plant: Plant) => { if (out === after) out = { ...after }; out[key] = { ...out[key], plant }; };
-  const beds = new Set<number>(), done = new Set<string>();
+  const beds = new Set<number>(), done = new Set<string>(), fresh = new Set<string>();
   for (const key of new Set([...Object.keys(before), ...Object.keys(after)])) {
     // (an insect house set, filled or lifted changes the bed around it, as a plant does)
     if (JSON.stringify(before[key]?.house ?? null) !== JSON.stringify(after[key]?.house ?? null)) beds.add(keyBed(key));
@@ -149,9 +149,14 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
     if (was && p && samePlanting(was, p)) {
       if (was === p) continue;
       // (a pick: a new round, the bed's gift kept as it is; any other change: the round as it stood, settled)
-      set(key, { ...p, q: p.picked > was.picked ? { ...NO_Q(Math.max(launch, now)), ...(was.q?.bed ? { bed: was.q.bed } : {}) } : settled(was, now, rains, launch) });
-      done.add(key);
-      continue;
+      if (was.q) {
+        set(key, { ...p, q: p.picked > was.picked ? { ...NO_Q(Math.max(launch, now)), ...(was.q.bed ? { bed: was.q.bed } : {}) } : settled(was, now, rains, launch) });
+        done.add(key);
+        continue;
+      }
+      // (one with no round yet, growing when Quality came: its first, settled with what the bed gives it, which has
+      // stood since then, for a change of the bed would have given it a round)
+      fresh.add(key);
     }
     // a plant set, taken out or put in another's place: the bed around it changes
     beds.add(keyBed(key));
@@ -163,8 +168,10 @@ export function syncQuality(before: Readonly<Record<string, Plot>>, after: Recor
     const p = rootAt(out, key);
     if (!p || !beds.has(keyBed(key))) continue;
     const was = rootAt(before, key), same = !!was && samePlanting(was, p), gift = bedGift(key, out);
-    if (same && sameGift(p.q?.bed, gift)) continue;
-    const q = done.has(key) ? p.q! : same ? settled(was!, now, rains, launch) : p.q ?? NO_Q(Math.max(launch, roundStart(p)));
+    if (same && !fresh.has(key) && sameGift(p.q?.bed, gift)) continue;
+    const q = done.has(key) ? p.q!
+      : fresh.has(key) ? (p.picked > was!.picked ? NO_Q(Math.max(launch, now)) : settled({ ...was!, q: { ...NO_Q(Math.max(launch, roundStart(was!))), ...(gift ? { bed: gift } : {}) } }, now, rains, launch))
+      : same ? settled(was!, now, rains, launch) : p.q ?? NO_Q(Math.max(launch, roundStart(p)));
     const { bed: _, ...rest } = q;
     set(key, { ...p, q: gift ? { ...rest, bed: gift } : rest });
   }

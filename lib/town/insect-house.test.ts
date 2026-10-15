@@ -40,6 +40,17 @@ describe("the insect house", () => {
     expect(did.ok && held(did.purse.bag, "insectHouse")).toBe(0);
   });
 
+  it("left by whoever no longer holds the bed, is the bed's owner's to lift with a hoe, and to nobody else", () => {
+    const left: Plot = { soil: "house", plant: null, house: { by: "them", at: T0, rooms: [null, null] } }, plots = { "133,5": left };
+    expect(houseDeedFor("133,5", plots, "hoe", "me", "me", T0)).toBe("lift");
+    expect(houseDeedFor("133,5", plots, "honeyBee", "me", "me", T0)).toBeNull();
+    expect(houseDeedFor("133,5", plots, "hoe", "me", "them", T0)).toBeNull();
+    expect(houseDeedFor("133,5", plots, "hoe", "me", null, T0)).toBeNull();
+    const did = houseDo("133,5", plots, holding("hoe"), "me", "me", T0);
+    expect(did.ok && did.plot).toEqual({ soil: "tilled", plant: null });
+    expect(did.ok && held(did.purse.bag, "insectHouse")).toBe(1);
+  });
+
   it("takes an insect into a free room for 48 hours, a rare one for 72, and 24 more with its favourite near", () => {
     const plots: Record<string, Plot> = { "133,5": housed([null, null]), "134,5": grow("tomato") };
     expect(houseDeedFor("133,5", plots, "honeyBee", "me", "me", T0)).toBe("room");
@@ -71,7 +82,7 @@ describe("the insect house", () => {
     const did = houseDo("133,5", plots, holding("hoe"), "me", "me", T0);
     expect(did.ok && did.plot).toEqual({ soil: "tilled", plant: null });
     expect(did.ok && held(did.purse.bag, "insectHouse")).toBe(1);
-    expect(houseDeedFor("133,5", { "133,5": { ...plots["133,5"], house: { ...plots["133,5"].house!, by: "them" } } }, "hoe", "me", "me", T0)).toBeNull();
+    expect(houseDeedFor("133,5", { "133,5": { ...plots["133,5"], house: { ...plots["133,5"].house!, by: "them" } } }, "hoe", "me", "them", T0)).toBeNull();
   });
 
   it("covers half the bar of each room's role for the plants it reaches, while its insect stays", () => {

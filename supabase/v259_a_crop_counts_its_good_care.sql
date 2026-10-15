@@ -98,7 +98,9 @@ returns table(dx integer, dy integer) language sql immutable set search_path='' 
  select v.dx, v.dy from (values (1,0),(-1,0),(0,1),(0,-1)) v(dx,dy) where p_shape in ('plus','ring')
  union all select v.dx, v.dy from (values (1,1),(1,-1),(-1,1),(-1,-1)) v(dx,dy) where p_shape in ('x','ring')
  union all select case when coalesce(p_rotation,0)%2=1 then 0 else d end, case when coalesce(p_rotation,0)%2=1 then d else 0 end from unnest(array[-3,-2,-1,1,2,3]) d where p_shape='line'
- union all select gx, gy from generate_series(-1,2) gx, generate_series(-1,2) gy where p_shape='fig' and (gx<0 or gx>1 or gy<0 or gy>1)
+ -- (the fig's ring turned with it, as its plots are: each quarter turn takes (u, v) to (-v, u))
+ union all select case r when 1 then -gy when 2 then -gx when 3 then gy else gx end, case r when 1 then gx when 2 then -gy when 3 then -gx else gy end
+   from generate_series(-1,2) gx, generate_series(-1,2) gy, (select ((coalesce(p_rotation,0)%4)+4)%4 r) t where p_shape='fig' and (gx<0 or gx>1 or gy<0 or gy>1)
 $$;
 
 -- The share of a plant's cells a helper reaches, never its own (lib/town/quality's coveredShare).

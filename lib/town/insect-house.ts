@@ -127,7 +127,9 @@ export type HouseRefusal = "hand" | "soil" | "theirs" | "beds" | "rooms";
 export function houseDeedFor(key: string, plots: Readonly<Record<string, Plot>>, hand: ItemId | null, me: string, owner: string | null, now: number): HouseDeed | null {
   const plot = plots[key], house = plot?.house;
   if (house) {
-    if (house.by !== me) return null;
+    // (one left by whoever no longer holds the bed is the bed's owner's to lift with a hoe, as a plant left there is
+    // theirs to dig out: it goes to their bag)
+    if (house.by !== me) return owner === me && house.by !== owner && toolOf(hand) === "hoe" ? "lift" : null;
     if (toolOf(hand) === "hoe") return "lift";
     return houseRoleOf(hand) && freeRoom(house, now) >= 0 ? "room" : null;
   }
