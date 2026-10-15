@@ -103,7 +103,7 @@ describe("the farm's Quality", () => {
   });
 
   it("names a partner for every main crop, a crop or a helper", () => {
-    for (const crop of CROP_IDS) expect(PARTNERS[crop], crop).toBeDefined();
+    for (const crop of CROP_IDS) if (!(crop in COMPANIONS)) expect(PARTNERS[crop], crop).toBeDefined();
     for (const p of Object.values(PARTNERS)) expect(CROP_IDS.includes(p as never) || p in COMPANIONS, p).toBe(true);
   });
 

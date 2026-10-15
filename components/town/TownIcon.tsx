@@ -55,6 +55,8 @@ export function petScale(name: IconName): number {
 
 export function drawIcon(ctx: CanvasRenderingContext2D, img: HTMLImageElement | null, name: IconName, cx: number, cy: number, size: number) {
   if (!img?.complete || !img.naturalWidth) return false;
+  // (a thing whose picture is not drawn yet draws nothing, rather than stopping the map)
+  if (!ICON_ATLAS.icons[name]) return false;
   const [x, y, w, h] = ICON_ATLAS.icons[name];
   const k = size / Math.max(w, h);
   ctx.save();

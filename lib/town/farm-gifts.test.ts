@@ -1,3 +1,4 @@
+import { HELPER_CROPS } from "./helper-items";
 import { describe, expect, it } from "vitest";
 import {
   BEDS, ENCORE, FARMING, HOURGLASS, WILD, encoreHours, glassReach, glassTurn, gnomeReach, gnomeWater, grown, growing, hardFor, moreOf, pestAt, pick, pouchPlots, pouchSeeds, quickMs, quickUntil, rowFor, rowTend, see, sungTo, tend, yieldOf,
@@ -352,7 +353,8 @@ describe("the crescent sickle: a whole ripe row picked at one sweep", () => {
 
 describe("good things are harder for the skilled on the farm: a crop of the second tier or better, from the line's fourth rank", () => {
   it("the simplest crops are as they are for everybody, at any rank; and so is everybody below the fourth", () => {
-    const marks = LINES.farming.marks, tiers = CROP_IDS.map((c) => ITEMS[c].tier);
+    // (the vegetables: the farm's Quality's twenty helper plants are none of these, and all of the first tier)
+    const marks = LINES.farming.marks, tiers = CROP_IDS.filter((c) => !(c in HELPER_CROPS)).map((c) => ITEMS[c].tier);
     expect(tiers.filter((t) => t === 1).length).toBe(12);
     expect(tiers.filter((t) => t === 2).length).toBe(12);
     expect(tiers.filter((t) => t === 3).length).toBe(10);

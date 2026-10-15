@@ -1,5 +1,6 @@
 import { KINDS, SPOT_KINDS, type SpotKind } from "./forest";
 import { CROPS, CROP_IDS, FISH, ITEMS, MAKES, growIconOf, type CropId, type Fish, type FishId, type ItemId, type ItemKind, type Tier } from "./items";
+import { HELPER_CROPS } from "./helper-items";
 import { BASIC, UNLOCKS } from "./orders";
 import type { Line } from "./talk";
 import { GEOLOGY_RAW } from "./geology-items";
@@ -102,6 +103,8 @@ const SOWN_AS: Record<string, Line> = {
   plotNut: line("ผลไม้ที่ปลูกจากลูกทั้งผล", "a tree grown from a whole fruit"),
 };
 function cropClue(crop: CropId): Clue {
+  // (the farm's Quality: a helper plant is told as one, so that the twenty never crowd a vegetable's clue)
+  if (crop in HELPER_CROPS) return { sort: line("พืชช่วยในสวน", "a helper plant of the garden"), from: ripens(CROPS[crop].hours) };
   return { sort: SOWN_AS[growIconOf(crop, 1)] ?? KIND_WORD.crop, from: ripens(CROPS[crop].hours) };
 }
 

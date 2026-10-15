@@ -187,11 +187,8 @@ export const paidFor = (price: number, grade: Grade): number => Math.floor(price
 /* ── companion plants ── */
 
 export type Shape = "plus" | "ring" | "line" | "x" | "fig";
-export type CompanionId =
-  | "runnerBean" | "peanut" | "buckwheat" | "sesame" | "clover"
-  | "gardenStrawberry" | "rhubarb" | "watercress" | "fig" | "chamomile"
-  | "borage" | "lavender" | "passionfruit" | "milkweed" | "fennel"
-  | "marigold" | "nasturtium" | "garlicChives" | "mint" | "dill";
+/** The helper plants, crops of lib/town/helper-items. */
+export type CompanionId = import("./helper-items").HelperCropId;
 
 /** The twenty helpers, five a role (the design's section 3); `uncle`: the four whose seeds he sells. */
 export const COMPANIONS: Record<CompanionId, { role: Role; shape: Shape; uncle?: true; th: string; en: string }> = {

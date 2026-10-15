@@ -6,6 +6,7 @@ import { INSECT_ITEMS, INSECT_MAKES, INSECT_DISHES, INSECT_SCROLLS, INSECT_SCROL
 import { FORAGE_ITEMS, FORAGE_MAKES, FORAGE_DISHES, FORAGE_SCROLLS, FORAGE_SCROLL_ITEMS, type ForageDishId } from "./foraging-items";
 import { STREAM_ITEMS, STREAM_MAKES, STREAM_DISHES, STREAM_SCROLLS, STREAM_SCROLL_ITEMS, type StreamDishId } from "./stream-items";
 import { GARDEN_CROPS, GARDEN_DISHES, GARDEN_ITEMS, GARDEN_MAKES, GARDEN_SEED_ITEMS, GARDEN_SCROLL_ITEMS, GARDEN_SCROLLS, type GardenCropId, type GardenDishId } from "./garden-items";
+import { HELPER_CROPS, HELPER_ITEMS, HELPER_SEED_ITEMS, type HelperCropId } from "./helper-items";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
@@ -663,6 +664,9 @@ export const ITEMS = {
   ...WOOD_ITEMS,
   ...GARDEN_ITEMS,
   ...GARDEN_SEED_ITEMS,
+  // (the farm's Quality: the twenty helper plants and their seeds, lib/town/helper-items)
+  ...HELPER_ITEMS,
+  ...HELPER_SEED_ITEMS,
   ...GARDEN_SCROLL_ITEMS,
   ...WOOD_SCROLL_ITEMS,
   ...GEOLOGY_ITEMS,
@@ -956,6 +960,7 @@ for (const [bug, as] of Object.entries(BAIT_AS) as Array<[BaitId, BaitId]>) {
 
 export type CropId =
   | GardenCropId
+  | HelperCropId
   | "kangkong" | "scallion" | "cabbage" | "carrot" | "daikon" | "corn" | "chili" | "tomato" | "basil" | "sweetPotato" | "garlic" | "pumpkin"
   | "eggplant" | "cucumber" | "longBean" | "lemongrass" | "galangal" | "lime" | "papaya"
   | "mango" | "banana" | "coconut" | "ginger" | "turmeric" | "taro" | "watermelon";
@@ -986,6 +991,7 @@ export interface Crop {
 }
 export const CROPS: Record<CropId, Crop> = {
   ...GARDEN_CROPS,
+  ...HELPER_CROPS,
   kangkong: { seed: "seedKangkong", hours: 6, yield: [4, 6], again: 12, picks: 3 },
   scallion: { seed: "seedScallion", hours: 8, yield: [4, 6], again: 12, picks: 3 },
   cabbage: { seed: "seedCabbage", hours: 24, yield: [2, 2] },

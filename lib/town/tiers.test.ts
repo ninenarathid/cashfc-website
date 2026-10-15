@@ -39,7 +39,8 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
     // (and the two yokes the well gives whoever carries water to it, 2026-10-05; and the cart it has between them)
     // (and woodcutting and mining, 2026-10-08: a pick and an axe, stone, two woods, three ores in fragments and
     // smelted, eight gems in fragments and cut, and a torch: twenty-eight)
-    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8 + 35 + 5 + 16 + 16 + 1 + 22 + 2 + 1 + 28);
+    // (+ 37: the farm's Quality's helper plants, seventeen new crops and twenty seeds, all of the first tier)
+    expect(by(1).length).toBe(79 - 3 + 13 + 1 + 20 + 2 + 8 + 8 + 35 + 5 + 16 + 16 + 1 + 22 + 2 + 1 + 28 + 37);
     expect(ITEM_IDS.filter((id) => ITEMS[id].kind === "bug" && !(id in expansion)).length).toBe(23);
     expect(by(1).filter((id) => ITEMS[id].kind === "wild").length).toBe(35);
     // the later tiers were twice what the early game was when he asked, seventy-two each; then came the dishes of five
@@ -120,7 +121,8 @@ describe("three times the things (the owner: \"ช่วยเพิ่ม ไ�
   it("grows the later vegetables slower, and its trees bear for a season", () => {
     for (const id of CROP_IDS) {
       const c = CROPS[id];
-      expect(ITEMS[id].kind).toBe("crop");
+      // (a crop, or one of the three herbs the forest gives and the garden grows as well)
+      expect(["crop", "wild"]).toContain(ITEMS[id].kind);
       expect(ITEMS[c.seed].kind).toBe("seed");
       expect(tierOf(c.seed)).toBe(tierOf(id));
     }

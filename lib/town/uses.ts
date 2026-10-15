@@ -11,6 +11,7 @@ import { GOODS } from "./trade";
 import { WELL_BOOK } from "./well";
 import { GEOLOGY_RAW, GEOLOGY_TOOLS } from "./geology-items";
 import { GARDEN_TOOLS } from "./garden-items";
+import { HELPER_CROSSES, POLLINATOR_SKY } from "./helper-items";
 import { INSECT_TOOLS } from "./insect-items";
 import { FORAGE_RAW, FORAGE_TOOLS } from "./foraging-items";
 import { STREAM_RAW, STREAM_TOOLS } from "./stream-items";
@@ -120,6 +121,9 @@ export function sources(shelf: ItemId[] = Object.keys(GOODS) as ItemId[], wild =
     const hoe = ITEM_IDS.some((id) => toolOf(id) === "hoe" && has(id));
     if (hoe) {
       for (const c of CROP_IDS) if (has(CROPS[c].seed)) { add(c, "farm"); add("compost", "farm"); }
+      // (the helpers' crossings, lib/town/helper-items: both parents grown, and a pollinator of each sky to let go)
+      for (const [a, b, sun, moon] of HELPER_CROSSES) if (has(a) && has(b)) for (const [child, skyOf] of [[sun, "sun"], [moon, "moon"]] as const)
+        if (Object.entries(POLLINATOR_SKY).some(([bug, s]) => s === skyOf && has(bug as ItemId))) add(CROPS[child].seed, "farm");
     }
     // the forest (lib/town/forest): with empty hands, whatever lies and grows and hangs there, on whatever day and
     // under whatever sky and moon; with a hoe, what is dug up; and the toadstool taken for a mushroom

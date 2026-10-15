@@ -87,7 +87,7 @@ export function bedGift(key: string, plots: Readonly<Record<string, Plot>>): Bed
       if (share > 0) c[helper.role] = Math.max(c[helper.role] ?? 0, share);
     }
     if (PARTNERS[p.crop] === o.crop && touching(mine, theirs)) partner = true;
-    if ((o.crop as string) === "fennel" && touching(mine, theirs)) fennel += QUALITY.fennel;
+    if (o.crop === "fennel" && touching(mine, theirs)) fennel += QUALITY.fennel;
   }
   const cs = Object.fromEntries(ROLES.filter((r) => c[r]).map((r) => [r, c[r]!])) as Partial<Record<Role, number>>;
   const gift: BedGift = { ...(Object.keys(cs).length ? { c: cs } : {}), ...(partner ? { p: 1 as const } : {}), ...(fennel ? { f: fennel } : {}) };

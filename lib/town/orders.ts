@@ -48,6 +48,8 @@ export const BASIC: ItemId[] = [
   "scrollFriedMinnow", "scrollGrilledFish", "scrollPestCure", "bowl", "bucket", "bugNet",
   // (woodcutting and mining, 2026-10-08)
   "pick", "axe",
+  // (the farm's Quality, 2026-10-15: the four helper plants' seeds)
+  "seedRunnerBean", "seedGardenStrawberry", "seedBorage", "seedMarigold",
 ];
 /**
  * What the orders open, in this order, one for each day filled: the early

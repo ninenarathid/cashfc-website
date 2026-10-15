@@ -76,6 +76,9 @@ export const GOODS: Partial<Record<ItemId, Good>> = {
   // without them half the early dishes could not be cooked at all.
   seedDaikon: good(10, 40, 4), seedCorn: good(12, 40, 4), seedTomato: good(14, 40, 4), seedBasil: good(8, 40, 4),
   seedSweetPotato: good(14, 40, 4), seedGarlic: good(10, 40, 4),
+  // (the farm's Quality, 2026-10-15: the seeds of the four helper plants he sells, one of each role; the other sixteen
+  // are found by crossing, never sold here)
+  seedRunnerBean: good(6, 60, 6), seedGardenStrawberry: good(8, 60, 6), seedBorage: good(5, 60, 6), seedMarigold: good(5, 60, 6),
   // The later tiers' basic things (the owner, 2026-10-03: "make sure ว่า recipe ของอาหารทุกอย่าง สามารถหาได้ในเกม"): gear,
   // bait, staples, seeds, and the two things no line of work makes. What is grown, caught or made is not sold.
   rodTeak: good(240, 3, 1), floatQuill: good(90, 4, 1), hookSteel: good(90, 4, 1), lineBraid: good(90, 4, 1), netSmall: good(110, 4, 1),
@@ -211,7 +214,7 @@ export const lotWorth = (l: Lot) => (l.n * l.pays * (l.f ?? 100) * gradePays(l.i
  * recipes they know.
  */
 export interface Purse {
-  gardenBook?: import("./garden-items").GardenCropId[];
+  gardenBook?: import("./items").CropId[];
   insectGardenBook?: string[];
   /** The hook chosen for the fishing rig; its item remains in the bag. */
   fishingHook?: "hookScale" | "hookSteel" | "hookTwin" | null;

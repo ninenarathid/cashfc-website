@@ -5,6 +5,7 @@ import { WILD, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
 import { held, handOf, no, put, roomFor, type Purse } from "./trade";
 import { hasBuff } from "./stamina";
 import { bedOf } from "./world";
+import { HELPER_CROSSES, HELPER_SHAPES } from "./helper-items";
 import { QUALITY } from "./quality";
 import { harvestOf } from "./quality-plant";
 
@@ -15,7 +16,9 @@ export const GARDEN = {
     trellisBerry: [[0, 0], [0, 1], [0, 2]], blueCorn: [[0, 0], [1, 0], [2, 0]],
     teaBush: [[0, 0], [1, 0]], sunflowerPatch: [[0, 0], [1, 0], [0, 1]],
     redOkra: [[0, 0], [0, 1]], lotusRootBed: [[0, 0], [1, 0], [2, 0]],
-  } satisfies Record<GardenCropId, number[][]>,
+    // (the farm's Quality: the fig on 2x2, and each line helper on one plot it is turned on, lib/town/helper-items)
+    ...HELPER_SHAPES,
+  } as Record<GardenCropId, number[][]> & Partial<Record<CropId, number[][]>>,
   crosses: [
     ["pumpkin", "cucumber", "bottleGourd"], ["longBean", "basil", "rowBean"],
     ["rowBean", "teaBush", "trellisBerry"], ["corn", "sunflowerPatch", "blueCorn"],
@@ -25,7 +28,7 @@ export const GARDEN = {
 };
 export function gardenShape(key: string, crop: CropId, rotation = 0): string[] | null {
   if (!Number.isInteger(rotation) || rotation < 0 || rotation > 3) return null;
-  const [x, y] = key.split(",").map(Number), shape = GARDEN.shapes[crop as GardenCropId];
+  const [x, y] = key.split(",").map(Number), shape = GARDEN.shapes[crop];
   if (!Number.isInteger(x) || !Number.isInteger(y) || bedOf(x, y) < 0) return null;
   const offsets = (shape ?? [[0, 0]]).map(([u, v]) => {
     for (let r = 0; r < rotation; r++) [u, v] = [-v, u];
@@ -45,7 +48,7 @@ export function gardenMods(purse: Purse, now: number) {
     extra: held(carriedBag(purse), "gardenTwine") > 0 };
 }
 /** One root can record a cross only once, even when it bears again. */
-export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, me: string, now: number, sky: FarmSky): GardenCropId | null {
+export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, me: string, now: number, sky: FarmSky): CropId | null {
   const root = plots[key]?.plant;
   if (!root || root.by !== me || root.crossed || !see(key, plots[key], now, sky).ripe) return null;
   const cells = root.footprint ?? [key];
@@ -58,6 +61,20 @@ export function gardenCross(key: string, plots: Readonly<Record<string, Plot>>, 
       if (!p || p.by !== me || p.crop !== other || (p.root && p.root !== k) || !see(k, plot, now, sky).ripe) continue;
       const theirs = p.footprint ?? [k];
       if (cells.some(c => { const [x, y] = c.split(",").map(Number); return theirs.some(d => { const [u, v] = d.split(",").map(Number); return bedOf(x, y) === bedOf(u, v) && Math.max(Math.abs(x - u), Math.abs(y - v)) === 1; }); })) return child;
+    }
+  }
+  // (the helpers' crossings, lib/town/helper-items: a pollinator let go on it while it grew this bearing, whose sky
+  // decides the child)
+  if (root.pollenRound !== root.picked) return null;
+  for (const [a, b, sun, moon] of HELPER_CROSSES) {
+    const other = root.crop === a ? b : root.crop === b ? a : null;
+    if (!other) continue;
+    for (const [k, plot] of Object.entries(plots)) {
+      const p = plot.plant;
+      if (!p || p.by !== me || p.crop !== other || (p.root && p.root !== k) || !see(k, plot, now, sky).ripe) continue;
+      const theirs = p.footprint ?? [k];
+      if (cells.some(c => { const [x, y] = c.split(",").map(Number); return theirs.some(d => { const [u, v] = d.split(",").map(Number); return bedOf(x, y) === bedOf(u, v) && Math.max(Math.abs(x - u), Math.abs(y - v)) === 1; }); }))
+        return root.pollenSky === "moon" ? moon : sun;
     }
   }
   return null;
@@ -85,7 +102,7 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   const twine = plant.root && fx.extra ? harvestOf(key, plant, GARDEN.extra, now, sky, QUALITY.launch, "", did.got[0]?.[1] ?? 0) : null;
   for (const [g, c] of twine?.groups ?? []) { if (roomFor(after.bag, plant.crop, g) < c) return no("full"); after = { ...after, bag: put(after.bag, plant.crop, c, g) }; }
   if (!updated.plant && plant.root && fx.seed) extras.push([CROPS[plant.crop].seed, 1]);
-  if (child) extras.push([GARDEN_CROPS[child].seed, fx.knife || plant.insectCrossRound===plant.picked ? 2 : 1]);
+  if (child) extras.push([CROPS[child].seed, fx.knife || plant.insectCrossRound===plant.picked ? 2 : 1]);
   for (const [id, n] of extras) { if (roomFor(after.bag, id) < n) return no("full"); after = { ...after, bag: put(after.bag, id, n) }; }
   if (child) {
     after = { ...after, gardenBook: [...new Set([...(after.gardenBook ?? []), child])] };

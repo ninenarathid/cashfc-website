@@ -5,6 +5,7 @@ import { buffBy, hasBuff } from "./stamina";
 import { held, take, type Purse } from "./trade";
 import type { ItemId } from "./items";
 import { INSECT_SPECIES } from "./insect-items";
+import { POLLINATOR_SKY } from "./helper-items";
 
 export const INSECT_GARDEN = {
   visitors: Object.keys(INSECT_SPECIES),
@@ -33,7 +34,7 @@ export function insectCare(key: string, plot: Plot, purse: Purse, slot: number, 
   if (pollen && p.by !== me) return { ok: false as const, why: "theirs" as const };
   if (pollen && (seen.ripe || p.pollenRound === p.picked)) return { ok: false as const, why: "wet" as const };
   if (mode === "guard" && !seen.pest) return { ok: false as const, why: "soil" as const };
-  const plant = pollen ? { ...p, pollenRound: p.picked, pollenUntil: now + (held(carriedBag(purse), "releaseCage") > 0 ? INSECT_GARDEN.cageMinutes : INSECT_GARDEN.pollenMinutes) * 60000,
+  const plant = pollen ? { ...p, pollenRound: p.picked, pollenSky: POLLINATOR_SKY[stack.item] ?? "sun", pollenUntil: now + (held(carriedBag(purse), "releaseCage") > 0 ? INSECT_GARDEN.cageMinutes : INSECT_GARDEN.pollenMinutes) * 60000,
     ...(mode==="cross"?{insectCrossRound:p.picked}:{}),
     boost: p.boost + (mode==="cross"?0:mode==="grow"?60*60000:(held(carriedBag(purse), "pollenFan") > 0 ? INSECT_GARDEN.fanBoost : INSECT_GARDEN.boost)) }
     : { ...p, cured: now, guard: Math.max(p.guard, held(carriedBag(purse), "pestWhistle") > 0 ? now + INSECT_GARDEN.guardMinutes * 60000 : 0) };

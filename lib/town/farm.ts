@@ -168,9 +168,11 @@ export interface Plant {
   wetUntil?:number;
   /** One rescue of this original, unharvested root; never resets its identity. */
   revived?:boolean;
-  giant?:boolean;crossChoice?:import("./garden-items").GardenCropId;
+  giant?:boolean;crossChoice?:CropId;
   /** A released pollinator works once each time this plant bears. */
   pollenRound?: number;
+  /** That pollinator's sky (lib/town/helper-items' POLLINATOR_SKY): which child a helper's crossing gives. */
+  pollenSky?: "sun" | "moon" | "mist";
   insectCrossRound?:number;
   pollenUntil?: number;
   /** A sprawling plant is tended and harvested only at its root plot. */

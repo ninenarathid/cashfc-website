@@ -79,7 +79,8 @@ describe("the clues of a recipe's hidden thing", () => {
   it("tells a vegetable by what it is grown from and how long it takes; a seed's card says the same of its plant", () => {
     expect(clueOf("garlic")).toEqual({ sort: { th: "ผักที่ปลูกจากหัว", en: "a plant grown from a bulb" }, from: { th: "ใช้เวลาโต ราว 3 วัน", en: "ripe in about three days" } });
     // the same words on the seed as in the clue, so that one can be matched to the other at the uncle's shelf
-    for (const crop of CROP_IDS) expect(seedTime(CROPS[crop].seed)).toEqual(clueOf(crop).from);
+    // (of what is a crop: the three herbs the garden grows as well are told by where the forest gives them)
+    for (const crop of CROP_IDS) if (ITEMS[crop].kind === "crop") expect(seedTime(CROPS[crop].seed)).toEqual(clueOf(crop).from);
     expect(seedTime("garlic")).toBeNull();
     expect(seedTime("rod")).toBeNull();
     // round words, never the hours themselves
