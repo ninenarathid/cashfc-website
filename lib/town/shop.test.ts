@@ -153,3 +153,58 @@ describe("a stall of one's own (the owner: \"ตั้งรับซื้อ�
     expect(told(null, NOW, SEEN).mine).toBeNull();
   });
 });
+
+describe("a stall's graded lines (the farm's Quality: \"tomato ★★\" is a thing of its own)", () => {
+  const bagOf = (coins: number, ...stacks: Stack[]): Purse => ({ ...newPurse(), coins, bag: [...stacks, ...Array(10 - stacks.length).fill(null)] });
+  const SEEN_T: ItemId[] = [...SEEN, "tomato", "carrot"];
+
+  it("opens a line of each grade of a thing, and refuses the same thing twice at one grade", () => {
+    const keeper = bagOf(100, { item: "tomato", n: 6, grade: 2 }, { item: "tomato", n: 5 });
+    const shop = done(open(keeper, "keeper", [{ kind: "sell", item: "tomato", n: 6, price: 30, grade: 2 }, { kind: "sell", item: "tomato", n: 5, price: 8 }, { kind: "buy", item: "tomato", n: 2, price: 40, grade: 3 }], HERE, NOW, SEEN_T)).shop;
+    expect(shop.lines).toEqual([
+      { kind: "sell", item: "tomato", n: 6, left: 6, price: 30, grade: 2 },
+      { kind: "sell", item: "tomato", n: 5, left: 5, price: 8 },
+      { kind: "buy", item: "tomato", n: 2, left: 2, price: 40, grade: 3 },
+    ]);
+    expect(why(open(keeper, "k", [{ kind: "sell", item: "tomato", n: 1, price: 8, grade: 2 }, { kind: "buy", item: "tomato", n: 1, price: 8, grade: 2 }], HERE, NOW, SEEN_T))).toBe("lines");
+    expect(why(open(keeper, "k", [{ kind: "sell", item: "tomato", n: 1, price: 8 }, { kind: "buy", item: "tomato", n: 1, price: 8 }], HERE, NOW, SEEN_T))).toBe("lines");
+    // to sell, only what the bag holds at the grade; a grade only of a thing that can carry one
+    expect(why(open(keeper, "k", [{ kind: "sell", item: "tomato", n: 7, price: 8, grade: 2 }], HERE, NOW, SEEN_T))).toBe("none");
+    expect(why(open(keeper, "k", [{ kind: "sell", item: "tomato", n: 1, price: 8, grade: 1 }], HERE, NOW, SEEN_T))).toBe("none");
+    expect(why(open(keeper, "k", [{ kind: "buy", item: "minnow", n: 1, price: 3, grade: 2 }], HERE, NOW, SEEN_T))).toBe("none");
+    expect(why(open(keeper, "k", [{ kind: "buy", item: "carrot", n: 1, price: 3, grade: 5 as never }], HERE, NOW, SEEN_T))).toBe("none");
+    // and never a thing nobody has found, whatever its grade
+    expect(why(open(keeper, "k", [{ kind: "buy", item: "corn", n: 1, price: 3, grade: 2 }], HERE, NOW, SEEN_T))).toBe("none");
+  });
+
+  it("asks at most the normal most times what the relatives pay for the grade", () => {
+    const keeper = bagOf(1000, { item: "tomato", n: 6, grade: 3 });
+    const most = Math.floor(capOf("tomato") * 2.5);
+    expect(capOf("tomato", SHOP, 3)).toBe(most);
+    expect(why(open(keeper, "k", [{ kind: "sell", item: "tomato", n: 1, price: most + 1, grade: 3 }], HERE, NOW, SEEN_T))).toBe("dear");
+    expect(why(open(keeper, "k", [{ kind: "sell", item: "tomato", n: 1, price: most, grade: 3 }], HERE, NOW, SEEN_T))).toBe("ok");
+    expect(why(open(keeper, "k", [{ kind: "buy", item: "tomato", n: 1, price: most, grade: 3 }], HERE, NOW, SEEN_T))).toBe("ok");
+  });
+
+  it("sells and buys a line only at its grade, and the things change hands at it", () => {
+    const keeper = bagOf(100, { item: "tomato", n: 6, grade: 2 }, { item: "tomato", n: 5 });
+    const shop = done(open(keeper, "keeper", [{ kind: "sell", item: "tomato", n: 6, price: 30, grade: 2 }, { kind: "buy", item: "carrot", n: 3, price: 10, grade: 1 }], HERE, NOW, SEEN_T)).shop;
+    const me = bagOf(200, { item: "carrot", n: 4 }, { item: "carrot", n: 2, grade: 1 }, { item: "carrot", n: 2, grade: 3 });
+    // no normal tomato line, and no gold carrot line
+    expect(why(buy(me, keeper, shop, "me", "tomato", 1, HERE, NOW))).toBe("gone");
+    expect(why(sell(me, keeper, shop, "me", "carrot", 1, HERE, NOW, SHOP, 3))).toBe("gone");
+    const bought = done(buy(me, keeper, shop, "me", "tomato", 4, HERE, NOW, SHOP, 2));
+    expect(held(bought.mine.bag, "tomato", 2)).toBe(4);
+    expect(bought.theirs.bag.filter(Boolean)).toEqual([{ item: "tomato", n: 2, grade: 2 }, { item: "tomato", n: 5 }]);
+    expect(bought.shop.lines[0].left).toBe(2);
+    // three silver carrots wanted: I hold two
+    expect(why(sell(bought.mine, bought.theirs, bought.shop, "me", "carrot", 3, HERE, NOW, SHOP, 1))).toBe("none");
+    const brought = done(sell(bought.mine, bought.theirs, bought.shop, "me", "carrot", 2, HERE, NOW, SHOP, 1));
+    expect(held(brought.mine.bag, "carrot", 1)).toBe(0);
+    expect([held(brought.mine.bag, "carrot", 0), held(brought.mine.bag, "carrot", 3)]).toEqual([4, 2]);
+    expect(held(brought.theirs.bag, "carrot", 1)).toBe(2);
+    // as a comer is told it, and how many can change hands, by the grade
+    expect(toldOf(brought.shop, brought.theirs, NOW)?.lines).toEqual([{ kind: "sell", item: "tomato", price: 30, can: 2, grade: 2 }, { kind: "buy", item: "carrot", price: 10, can: 1, grade: 1 }]);
+    expect(canOf(brought.shop.lines[0], bagOf(0, { item: "tomato", n: 9 }))).toBe(0);
+  });
+});

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { JAR, collect, drop, mayDrop, newJar, settle, settleWith, shares, workOf, type Jar, type Owed } from "./jar";
 import { boardOf, helpersOf, thank, toThank, unthanked, type Thanks } from "./thanks";
-import { newPurse, put, roundOf, roundStart, type Purse } from "./trade";
+import { newPurse, put, roundOf, roundStart, type Purse, type Stack } from "./trade";
 import { newLog, seen, type WaterDeed } from "./well";
 
 const DAY = Date.parse("2026-10-06T09:00:00+07:00"), MIN = 60_000, HOUR = 3_600_000;
@@ -156,5 +156,43 @@ describe("the jar at the well: what one drops, those who worked for the others a
     expect(some.ok && [some.coins, some.things, some.owed]).toEqual([48, [], { bo: { coins: 0, things: [["kangkong", 4], ["tilapia", 1]] } }]);
     // …and with only things waiting and no room, nothing is taken
     if (some.ok) expect(collect(full, some.owed, "bo")).toEqual({ ok: false, why: "full" });
+  });
+});
+
+describe("the jar keeps a graded thing at its grade (the farm's Quality)", () => {
+  const round = roundOf(DAY);
+  const bagOf = (...stacks: Stack[]): Purse => ({ ...newPurse(), bag: [...stacks, ...Array(10 - stacks.length).fill(null)] });
+
+  it("takes a graded thing, and keeps it apart from the normal one and from other grades", () => {
+    expect(mayDrop({ item: "tomato", n: 2, grade: 3 })).toBe(true);
+    expect(mayDrop({ item: "tomYum", n: 1, grade: 2 })).toBe(true);
+    expect(mayDrop({ item: "potFull", n: 1, of: { dish: "tomYum", left: 3 }, grade: 2 })).toBe(false);
+    const p = bagOf({ item: "tomato", n: 5, grade: 2 }, { item: "tomato", n: 4 }, { item: "tomato", n: 3, grade: 2 });
+    let did = drop(p, { round, coins: 0, things: [["tomato", 1]] }, { slot: 0, n: 2 });
+    if (!did.ok) throw new Error(did.why);
+    expect(did.purse.bag[0]).toEqual({ item: "tomato", n: 3, grade: 2 });
+    expect(did.jar.things).toEqual([["tomato", 1], ["tomato", 2, 2]]);
+    did = drop(did.purse, did.jar, { slot: 2, n: 3 });
+    if (!did.ok) throw new Error(did.why);
+    expect(did.jar.things).toEqual([["tomato", 1], ["tomato", 5, 2]]);
+    did = drop(did.purse, did.jar, { slot: 1, n: 4 });
+    if (!did.ok) throw new Error(did.why);
+    expect(did.jar.things).toEqual([["tomato", 5], ["tomato", 5, 2]]);
+  });
+
+  it("shares each grade out by work, and hands it over at its grade", () => {
+    const jar: Jar = { round, coins: 0, things: [["tomato", 3], ["tomato", 4, 3], ["kangkong", 2]] };
+    const did = settleWith(jar, { bo: { coins: 0, things: [["tomato", 1, 3]] } }, [["bo", 1], ["cy", 1]], round + 1);
+    expect(did.owed).toEqual({ bo: { coins: 0, things: [["tomato", 3, 3], ["tomato", 2], ["kangkong", 1]] }, cy: { coins: 0, things: [["tomato", 1], ["tomato", 2, 3], ["kangkong", 1]] } });
+    const got = collect(bagOf({ item: "tomato", n: 1 }), did.owed, "cy");
+    if (!got.ok) throw new Error(got.why);
+    expect(got.things).toEqual([["tomato", 1], ["tomato", 2, 3], ["kangkong", 1]]);
+    expect(got.purse.bag.filter(Boolean)).toEqual([{ item: "tomato", n: 2 }, { item: "tomato", n: 2, grade: 3 }, { item: "kangkong", n: 1 }]);
+    // with room only for normal tomatoes (beside a stack of them), the excellent ones wait on at their grade
+    const tight: Purse = { ...newPurse(), bag: [{ item: "tomato", n: 1 }, ...Array(9).fill({ item: "rod", n: 1 })] };
+    const some = collect(tight, did.owed, "cy");
+    if (!some.ok) throw new Error(some.why);
+    expect(some.things).toEqual([["tomato", 1]]);
+    expect(some.owed.cy).toEqual({ coins: 0, things: [["tomato", 2, 3], ["kangkong", 1]] });
   });
 });

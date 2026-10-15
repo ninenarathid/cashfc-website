@@ -183,8 +183,8 @@ export interface Stack {
 }
 /** Helpings of a dish in the dimension basket (lib/town/cooking's basketOf): normal ones as a pair, graded ones with their grade third. */
 export type BasketEntry = [DishId, number] | [DishId, number, 1 | 2 | 3];
-/** A stack's grade: its own, or normal. */
-export const gradeIn = (s: Stack | null | undefined): 0 | 1 | 2 | 3 => s?.grade ?? 0;
+/** A stack's grade: its own, or normal (of anything that may carry one: a stack, a stall's line, a notice). */
+export const gradeIn = (s: { grade?: 1 | 2 | 3 } | null | undefined): 0 | 1 | 2 | 3 => s?.grade ?? 0;
 // ── forging ──
 /** Whether a tool carries something of its own: a plus, an option drawn for it (awake or asleep), a gem set in it. */
 export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus ?? 0) > 0 || !!s.opts?.length || !!s.gems?.length || !!Object.keys(s.mastery ?? {}).length);
@@ -194,6 +194,19 @@ export const forged = (s: Stack | null | undefined): boolean => !!s && ((s.plus 
  * of them is like any other.
  */
 export const plainStack = (s: Stack | null | undefined): boolean => !!s && !s.of && !s.water && !forged(s) && !s.grade;
+/**
+ * (graded listings) A thing as a stall, the notice board and the well's jar take it: plain but for its grade (no dish,
+ * no water, not forged), and of exactly that grade (normal when not said, which is `plainStack`). "Tomato ★★" is a
+ * thing of its own there: only stacks of its grade are counted, sold and brought for it.
+ */
+export const plainAt = (s: Stack | null | undefined, grade: 0 | 1 | 2 | 3 = 0): boolean => !!s && !s.of && !s.water && !forged(s) && gradeIn(s) === grade;
+/**
+ * (graded listings) Whether a thing can ever carry a grade, so that a listing may name one: what carries a grade into a
+ * dish (produce and the preparations of it) and a dish's helpings. A wanted "log ★★" could never be brought.
+ */
+export const mayGrade = (id: ItemId): boolean => carriesGrade(id) || ITEMS[id]?.kind === "dish";
+/** (graded listings) A grade as a listing names it: left out (or 0) for normal, 1 to 3; null for anything else. */
+export const gradeArg = (g: unknown): 0 | 1 | 2 | 3 | null => (g === undefined || g === null || g === 0 ? 0 : g === 1 || g === 2 || g === 3 ? g : null);
 /** A thing that is moved whole, slot to slot, and never laid on another of its kind: one that holds something, or a tool that carries something of its own (a deal, the storage box, the ground). */
 export const wholeStack = (s: Stack | null | undefined): boolean => !!s && (!!s.of || s.water !== undefined || forged(s) || !!s.grade);
 /**

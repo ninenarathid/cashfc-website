@@ -78,6 +78,16 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
   the lowest grade the cook held of it. The odd dish is a dish and takes a grade the same way.
 - **Graded dishes and preparations are not plain**, as graded produce: stalls, the notice board and the jar pass them
   over until grade-aware listings; the relatives pay them the old price (`gradePays` is for raw produce only).
+- **Graded listings** (branch `farm-list`, **v268**): a stall line, a notice and a thing in the jar carry a grade, and
+  "tomato ★★" is a thing of its own there (`plainAt`, `plain`/`takePlain` at a grade; `town.plain_g`, `take_plain_g`).
+  A graded thing's most is the plain most × `gradePays`, floored; a grade only of a thing that can carry one
+  (`mayGrade`: produce, the food preparations, a dish; the design was silent, so a wanted "log ★★" is refused "none");
+  a wanted notice is still only of a thing somebody has found. A stall names a thing once at a grade (a normal line
+  and a ★★ line of one thing may stand together); `town_shop_buy`/`sell` and `town_notice_post` gain `p_grade` (0 when
+  left out; the page sends it only for a graded thing), the old signatures dropped. The board's sales keep the grade
+  and are told by `saleKey` ("tomato:2"). The jar keeps `[thing, n]` or `[thing, n, grade]`; before v268 the database's
+  jar took a graded thing and lost its grade (the code refused it), now both keep it. A wanted thing's grade is
+  chosen on its line (four chips), not as four entries in the picker, to keep the picker short.
 - **The basket** keeps one entry a dish and grade, `[dish, n, grade]` (a pair is normal, as before); taking out and
   eating by dish give the lowest grade first (the RPCs are unchanged), and the basket tells which grade comes out first.
 - **Eating:** `(stamina × (1 + restores) + scent) × company`, under the hundred; an excellent dish's own buff is at the

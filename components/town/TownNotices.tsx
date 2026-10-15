@@ -4,10 +4,11 @@ import { useState } from "react";
 import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
 import type { Did, Keeper } from "@/lib/town/keeper";
 import type { PricesTold } from "@/lib/town/market";
-import { NOTICES, afterFee, capOf, plain, type NoticeTold, type PinboardTold } from "@/lib/town/notices";
-import { roomFor, type Purse } from "@/lib/town/trade";
+import { NOTICES, afterFee, capOf, plain, saleKey, type NoticeTold, type PinboardTold } from "@/lib/town/notices";
+import { gradeIn, gradePays, mayGrade, plainAt, roomFor, type Purse } from "@/lib/town/trade";
 import TownIcon, { type IconName } from "./TownIcon";
 import TownNumber from "./TownNumber";
+import { GradeBadge } from "./TownTrade";
 
 /**
  * The notice board beside the uncle's stall (lib/town/notices; the owner, 2026-10-05: "กระดานฝากขายระหว่างสมาชิก ทำได้
@@ -21,6 +22,9 @@ import TownNumber from "./TownNumber";
  *   database tells (`seen`) is all this page ever names. With every place of mine taken, the way to one more is there.
  * - **Mine**: my notices, whatever has become of them (one past its days is off the board, and says so).
  * - **What the board keeps is said plainly** where a notice is written, like the bank's rate: coins are at stake.
+ * - **A grade is a thing of its own** (the farm's Quality): each thing the bag holds at each grade is a choice to sell,
+ *   with its stars; a wanted thing that can carry a grade says which, normal or one to three stars; every notice says
+ *   its grade, and what the board knows of a price is of that grade alone.
  *
  * It asks its keeper for every deed and shows what the keeper was told; nothing is decided here.
  */
@@ -42,6 +46,18 @@ function Coin({ n, small = false }: { n: number; small?: boolean }) {
   return <span className={`flex shrink-0 items-center gap-1 font-data tabular-nums text-gold ${small ? "text-meta" : "text-ui font-semibold"}`}><TownIcon name="coin" size={small ? 13 : 17} />{n}<span className="sr-only"> Popoto coin</span></span>;
 }
 const Pic = ({ id, size }: { id: ItemId; size: number }) => <TownIcon name={iconOf(id) as IconName} size={size} className="shrink-0" />;
+/** A notice's thing, its grade's stars and how many: on a narrow line how many goes to a line of its own rather than be cut short; the stars stay with the name. */
+function Named({ name, grade, th, children }: { name: string; grade?: number; th: boolean; children: React.ReactNode }) {
+  return (
+    <span className="flex min-w-0 flex-wrap items-center gap-x-1 text-ui font-semibold text-ink">
+      <span className="flex min-w-0 items-center">
+        <span className="min-w-0 truncate">{name}</span>
+        {grade ? <span className="shrink-0"><GradeBadge grade={grade} th={th} inline /></span> : null}
+      </span>
+      <span className="whitespace-nowrap">{children}</span>
+    </span>
+  );
+}
 /** How long a notice has left, in days and hours (or hours and minutes at the end). */
 function leftOf(ms: number, th: boolean): string {
   if (ms <= 0) return th ? "หมดเวลาแล้ว" : "past its days";
@@ -50,7 +66,10 @@ function leftOf(ms: number, th: boolean): string {
 }
 
 type Tab = "sell" | "want" | "mine";
-interface Draft { kind: "sell" | "want"; item: ItemId | null; n: number; price: number }
+type Grade = 0 | 1 | 2 | 3;
+interface Draft { kind: "sell" | "want"; item: ItemId | null; n: number; price: number; grade: Grade }
+/** A thing's grade, as stars after its name in a line said in words. */
+const stars = (g: Grade) => (g ? ` ${"★".repeat(g)}` : "");
 
 export default function TownNotices({ keeper, board, purse, prices, now, th, say }: {
   keeper: Keeper; board: PinboardTold; purse: Purse; prices: PricesTold; now: number; th: boolean;
@@ -60,6 +79,8 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
   const [tab, setTab] = useState<Tab>("sell");
   const [draft, setDraft] = useState<Draft | null>(null);
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
+  /** A notice's thing with its grade, in words. */
+  const named = (n: NoticeTold) => `${name(n.item)}${stars(gradeIn(n))}`;
   /** A deed's answer: thanks in its own words, or why not. */
   const tried = <T,>(doing: Promise<Did<T>>, thanks: (did: T) => [string, string], then?: () => void) => {
     void doing.then((did) => { if (did.ok) { say(...thanks(did)); then?.(); } else say(...(WHY[did.why] ?? WHY.none)); });
@@ -76,16 +97,16 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
       {draft ? (
         <div className="mb-3">
           <Writing draft={draft} board={board} purse={purse} prices={prices} th={th} onChange={setDraft} onCancel={() => setDraft(null)}
-                   onPin={(d) => tried(keeper.noticePost(d.kind, d.item!, d.n, d.price), () => ["ปักประกาศแล้ว", "Pinned up."], () => { setDraft(null); setTab("mine"); })} />
+                   onPin={(d) => tried(keeper.noticePost(d.kind, d.item!, d.n, d.price, d.grade), () => ["ปักประกาศแล้ว", "Pinned up."], () => { setDraft(null); setTab("mine"); })} />
         </div>
       ) : mine.length < board.slots ? (
         <div className="mb-3 grid grid-cols-2 gap-2">
-          <button type="button" onClick={() => setDraft({ kind: "sell", item: null, n: 1, price: 1 })} data-notice-new="sell"
+          <button type="button" onClick={() => setDraft({ kind: "sell", item: null, n: 1, price: 1, grade: 0 })} data-notice-new="sell"
                   className="pressable flex min-h-14 flex-col items-center justify-center rounded-2xl bg-accent px-3 py-2 text-bg">
             <span className="text-lead font-semibold">{th ? "ฝากขาย" : "Sell"}</span>
             <span className="text-meta opacity-80">{th ? "ของในกระเป๋า" : "from your bag"}</span>
           </button>
-          <button type="button" onClick={() => setDraft({ kind: "want", item: null, n: 1, price: 1 })} data-notice-new="want"
+          <button type="button" onClick={() => setDraft({ kind: "want", item: null, n: 1, price: 1, grade: 0 })} data-notice-new="want"
                   className="pressable flex min-h-14 flex-col items-center justify-center rounded-2xl border border-accent/70 bg-accent/10 px-3 py-2 text-ink hover:border-accent">
             <span className="text-lead font-semibold">{th ? "ฝากซื้อ" : "Ask for"}</span>
             <span className="text-meta text-muted">{th ? "ของที่อยากได้" : "something you want"}</span>
@@ -131,23 +152,23 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
       {tab === "sell" && (selling.length ? (
         <ul className="flex flex-col gap-1.5">
           {selling.map((n) => {
-            const can = Math.min(n.left, Math.floor(purse.coins / n.price), roomFor(purse.bag, n.item));
+            const can = Math.min(n.left, Math.floor(purse.coins / n.price), roomFor(purse.bag, n.item, gradeIn(n)));
             return (
-              <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id}>
+              <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-grade={gradeIn(n)}>
                 <Pic id={n.item} size={30} />
                 <div className="min-w-0 flex-1">
-                  <span className="block truncate text-ui font-semibold text-ink">{name(n.item)} <span className="font-data text-muted">×{n.left}</span></span>
+                  <Named name={name(n.item)} grade={n.grade} th={th}><span className="font-data text-muted">×{n.left}</span></Named>
                   <span className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted">{th ? "ชิ้นละ" : "Each"} <Coin n={n.price} small /><span className="truncate">· {n.mine ? (th ? "ของฉัน" : "mine") : n.by}</span></span>
                 </div>
                 {!n.mine && (
                   <div className="flex shrink-0 gap-1">
                     {can > 1 && (
-                      <button type="button" onClick={() => tried(keeper.noticeBuy(n.id, can), (d) => [`ซื้อ ${name(d.item)} ${can} ชิ้น จ่าย ${d.coins} coin`, `Bought ${can} for ${d.coins} coins.`])}
+                      <button type="button" onClick={() => tried(keeper.noticeBuy(n.id, can), (d) => [`ซื้อ ${named(n)} ${can} ชิ้น จ่าย ${d.coins} coin`, `Bought ${can} for ${d.coins} coins.`])}
                               className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent">
                         {th ? `ซื้อ ${can}` : `Buy ${can}`}
                       </button>
                     )}
-                    <button type="button" disabled={can < 1} onClick={() => tried(keeper.noticeBuy(n.id, 1), (d) => [`ซื้อ ${name(d.item)} 1 ชิ้น จ่าย ${d.coins} coin`, `Bought one for ${d.coins} coins.`])}
+                    <button type="button" disabled={can < 1} onClick={() => tried(keeper.noticeBuy(n.id, 1), (d) => [`ซื้อ ${named(n)} 1 ชิ้น จ่าย ${d.coins} coin`, `Bought one for ${d.coins} coins.`])}
                             className="pressable min-h-11 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
                       {th ? "ซื้อ 1" : "Buy 1"}
                     </button>
@@ -162,23 +183,24 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
       {tab === "want" && (wanted.length ? (
         <ul className="flex flex-col gap-1.5">
           {wanted.map((n) => {
-            const can = Math.min(n.left, plain(purse.bag, n.item));
+            // (only stacks of the notice's grade bring to it)
+            const can = Math.min(n.left, plain(purse.bag, n.item, gradeIn(n)));
             return (
-              <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id}>
+              <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-grade={gradeIn(n)}>
                 <Pic id={n.item} size={30} />
                 <div className="min-w-0 flex-1">
-                  <span className="block truncate text-ui font-semibold text-ink">{name(n.item)} <span className="font-data text-muted">{th ? `ต้องการ ${n.left}` : `${n.left} wanted`}</span></span>
+                  <Named name={name(n.item)} grade={n.grade} th={th}><span className="font-data text-muted">{th ? `ต้องการ ${n.left}` : `${n.left} wanted`}</span></Named>
                   <span className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted">{th ? "ให้ชิ้นละ" : "Pays"} <Coin n={n.price} small /><span className="truncate">· {n.mine ? (th ? "ของฉัน" : "mine") : n.by}</span></span>
                 </div>
                 {!n.mine && (
                   <div className="flex shrink-0 gap-1">
                     {can > 1 && (
-                      <button type="button" onClick={() => tried(keeper.noticeFill(n.id, can), (d) => [`ส่ง ${name(d.item)} ${can} ชิ้นแล้ว เงินรอรับที่กระดาน`, `Brought ${can}. The money waits at the board.`])}
+                      <button type="button" onClick={() => tried(keeper.noticeFill(n.id, can), () => [`ส่ง ${named(n)} ${can} ชิ้นแล้ว เงินรอรับที่กระดาน`, `Brought ${can}. The money waits at the board.`])}
                               className="pressable min-h-11 rounded-full border border-line-strong px-3 text-ui text-ink hover:border-accent">
                         {th ? `ส่ง ${can}` : `Bring ${can}`}
                       </button>
                     )}
-                    <button type="button" disabled={can < 1} onClick={() => tried(keeper.noticeFill(n.id, 1), (d) => [`ส่ง ${name(d.item)} 1 ชิ้นแล้ว เงินรอรับที่กระดาน`, "Brought one. The money waits at the board."])}
+                    <button type="button" disabled={can < 1} onClick={() => tried(keeper.noticeFill(n.id, 1), () => [`ส่ง ${named(n)} 1 ชิ้นแล้ว เงินรอรับที่กระดาน`, "Brought one. The money waits at the board."])}
                             className="pressable min-h-11 rounded-full bg-accent px-4 text-ui font-semibold text-bg disabled:opacity-40">
                       {th ? "ส่ง 1" : "Bring 1"}
                     </button>
@@ -195,10 +217,10 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
           {mine.length > 0 && (
             <ul className="flex flex-col gap-1.5">
               {mine.map((n) => (
-                <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-notice-mine>
+                <li key={n.id} className="flex items-center gap-2.5 rounded-xl border border-line bg-card/60 px-2.5 py-2" data-notice={n.id} data-notice-mine data-grade={gradeIn(n)}>
                   <Pic id={n.item} size={28} />
                   <div className="min-w-0 flex-1">
-                    <span className="block truncate text-ui font-semibold text-ink">{name(n.item)} <span className="font-data text-muted">{n.kind === "sell" ? `×${n.left}` : (th ? `ต้องการอีก ${n.left}` : `${n.left} more wanted`)}</span></span>
+                    <Named name={name(n.item)} grade={n.grade} th={th}><span className="font-data text-muted">{n.kind === "sell" ? `×${n.left}` : (th ? `ต้องการอีก ${n.left}` : `${n.left} more wanted`)}</span></Named>
                     <span className="flex flex-wrap items-center gap-x-1.5 text-meta text-muted">
                       {n.kind === "sell" ? (th ? "ขายชิ้นละ" : "Each") : (th ? "ให้ชิ้นละ" : "Pays")} <Coin n={n.price} small />
                       <span className={now >= n.until ? "text-copper" : ""}>· {leftOf(n.until - now, th)}</span>
@@ -206,7 +228,7 @@ export default function TownNotices({ keeper, board, purse, prices, now, th, say
                   </div>
                   <div className="flex shrink-0 gap-1">
                     {n.held > 0 && (
-                      <button type="button" onClick={() => tried(keeper.noticeFetch(n.id), (d) => [`รับ ${name(d.item)} ${d.got} ชิ้นแล้ว`, `Took ${d.got}.`])}
+                      <button type="button" onClick={() => tried(keeper.noticeFetch(n.id), (d) => [`รับ ${named(n)} ${d.got} ชิ้นแล้ว`, `Took ${d.got}.`])}
                               className="pressable min-h-11 rounded-full bg-accent px-3 text-ui font-semibold text-bg">
                         {th ? `รับของ ${n.held}` : `Take ${n.held}`}
                       </button>
@@ -234,22 +256,27 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
   onChange: (d: Draft) => void; onCancel: () => void; onPin: (d: Draft) => void;
 }) {
   const [find, setFind] = useState("");
-  const sell = draft.kind === "sell", item = draft.item;
+  const sell = draft.kind === "sell", item = draft.item, grade = draft.grade;
   const name = (id: ItemId) => (th ? ITEMS[id].name.th : ITEMS[id].name.en);
-  // what can be chosen: to sell, the plain things in my bag; wanted, what the village has met (and this page can draw)
-  const mine = [...new Set(purse.bag.flatMap((s) => (s && plain(purse.bag, s.item) > 0 ? [s.item] : [])))];
+  const knobs = { ...NOTICES, cap: board.cap, capless: board.capless };
+  // what can be chosen: to sell, the plain things in my bag, each grade of a thing its own choice; wanted, what the
+  // village has met (and this page can draw), its grade said after
+  const mine: Array<{ id: ItemId; grade: Grade }> = [];
+  for (const s of purse.bag) if (s && s.item in ITEMS && plainAt(s, gradeIn(s)) && !mine.some((c) => c.id === s.item && c.grade === gradeIn(s))) mine.push({ id: s.item, grade: gradeIn(s) });
   const q = find.trim().toLowerCase();
   const met = board.seen.filter((id): id is ItemId => id in ITEMS).filter((id) => !q || ITEMS[id].name.th.toLowerCase().includes(q) || ITEMS[id].name.en.toLowerCase().includes(q));
-  const cap = item ? capOf(item, { ...NOTICES, cap: board.cap, capless: board.capless }) : 1;
-  const most = item ? (sell ? Math.min(board.most, plain(purse.bag, item)) : board.most) : 1;
+  const cap = item ? capOf(item, knobs, grade) : 1;
+  const most = item ? (sell ? Math.min(board.most, plain(purse.bag, item, grade)) : board.most) : 1;
   const total = draft.n * draft.price, short = !sell && purse.coins < total;
-  // what is known of its price: what the relatives give for one this round (or usually), and what it fetched on the board lately
-  const told = item ? prices.things[item] : undefined, pays = item ? ITEMS[item].pays : 0, uncle = item && pays > 0 ? Math.round(pays * (told?.f ?? 100)) / 100 : null;
-  const days = item ? board.sales[item] ?? [] : [], soldN = days.reduce((t, d) => t + d[1], 0), soldCoins = days.reduce((t, d) => t + d[2], 0);
-  const pick = (id: ItemId) => {
-    const c = capOf(id, { ...NOTICES, cap: board.cap, capless: board.capless }), usual = ITEMS[id].pays || 1;
-    onChange({ ...draft, item: id, n: sell ? Math.max(1, Math.min(board.most, plain(purse.bag, id))) : 1, price: Math.max(1, Math.min(c, usual)) });
+  // what is known of its price, at its grade: what the relatives give for one this round (or usually), and what it fetched on the board lately
+  const told = item ? prices.things[item] : undefined, pays = item ? ITEMS[item].pays : 0, uncle = item && pays > 0 ? Math.round(pays * (told?.f ?? 100) * gradePays(item, grade)) / 100 : null;
+  const days = item ? board.sales[saleKey(item, grade)] ?? [] : [], soldN = days.reduce((t, d) => t + d[1], 0), soldCoins = days.reduce((t, d) => t + d[2], 0);
+  /** What a notice of a thing at a grade begins at: all I hold of it to sell, one wanted, at what the relatives usually pay for it at that grade. */
+  const begin = (id: ItemId, g: Grade, n: number): Draft => {
+    const c = capOf(id, knobs, g), usual = Math.round((ITEMS[id].pays || 1) * gradePays(id, g));
+    return { ...draft, item: id, grade: g, n, price: Math.max(1, Math.min(c, usual)) };
   };
+  const pick = (id: ItemId, g: Grade) => onChange(begin(id, g, sell ? Math.max(1, Math.min(board.most, plain(purse.bag, id, g))) : 1));
 
   return (
     <div className="rounded-xl border border-accent/50 bg-card/60 px-3 py-3" data-notice-writing={draft.kind}>
@@ -262,10 +289,10 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
         sell ? (
           mine.length ? (
             <ul className="flex flex-wrap gap-1.5">
-              {mine.map((id) => (
-                <li key={id}><button type="button" onClick={() => pick(id)} data-notice-pick={id}
+              {mine.map(({ id, grade: g }) => (
+                <li key={`${id}:${g}`}><button type="button" onClick={() => pick(id, g)} data-notice-pick={id} data-grade={g}
                                      className="pressable flex min-h-11 items-center gap-1.5 rounded-xl border border-line-strong px-2.5 text-ui text-ink hover:border-accent">
-                  <Pic id={id} size={22} />{name(id)} <span className="font-data text-muted">×{plain(purse.bag, id)}</span></button></li>
+                  <Pic id={id} size={22} />{name(id)}<GradeBadge grade={g} th={th} inline /> <span className="font-data text-muted">×{plain(purse.bag, id, g)}</span></button></li>
               ))}
             </ul>
           ) : <p className="text-meta text-muted">{th ? "กระเป๋ายังว่างอยู่" : "Your bag is empty."}</p>
@@ -279,7 +306,7 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
             {met.length ? (
               <ul className="flex max-h-56 flex-wrap gap-1.5 overflow-y-auto overscroll-contain">
                 {met.slice(0, 60).map((id) => (
-                  <li key={id}><button type="button" onClick={() => pick(id)} data-notice-pick={id}
+                  <li key={id}><button type="button" onClick={() => pick(id, 0)} data-notice-pick={id}
                                        className="pressable flex min-h-11 items-center gap-1.5 rounded-xl border border-line-strong px-2.5 text-ui text-ink hover:border-accent">
                     <Pic id={id} size={22} />{name(id)}</button></li>
                 ))}
@@ -289,11 +316,23 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
         )
       ) : (
         <>
-          <button type="button" onClick={() => onChange({ ...draft, item: null })} className="pressable mb-2 flex min-h-11 w-full items-center gap-2 rounded-xl border border-line-strong px-2.5 text-left hover:border-accent">
+          <button type="button" onClick={() => onChange({ ...draft, item: null, grade: 0 })} className="pressable mb-2 flex min-h-11 w-full items-center gap-2 rounded-xl border border-line-strong px-2.5 text-left hover:border-accent" data-notice-chosen={item} data-grade={grade}>
             <Pic id={item} size={26} />
-            <span className="min-w-0 flex-1 truncate text-ui font-semibold text-ink">{name(item)}{sell && <span className="font-data font-normal text-muted"> ×{plain(purse.bag, item)}</span>}</span>
+            <span className="min-w-0 flex-1 truncate text-ui font-semibold text-ink">{name(item)}<GradeBadge grade={grade} th={th} inline />{sell && <span className="font-data font-normal text-muted"> ×{plain(purse.bag, item, grade)}</span>}</span>
             <span className="text-meta text-muted">{th ? "เปลี่ยน" : "Change"}</span>
           </button>
+          {/* (a wanted thing that can carry a grade says which: only that grade fills the notice) */}
+          {!sell && mayGrade(item) && (
+            <div role="radiogroup" aria-label={th ? "เกรดที่ต้องการ" : "Grade wanted"} className="mb-2 grid grid-cols-4 gap-1.5" data-notice-grades>
+              {([0, 1, 2, 3] as const).map((g) => (
+                <button key={g} type="button" role="radio" aria-checked={grade === g} onClick={() => onChange(begin(item, g, draft.n))} data-notice-grade={g}
+                        aria-label={g ? (th ? `เกรด ${"★".repeat(g)}` : `Grade ${"★".repeat(g)}`) : (th ? "ธรรมดา" : "Normal")}
+                        className={`pressable flex min-h-11 items-center justify-center rounded-xl border px-1 text-meta font-semibold ${grade === g ? "border-accent bg-accent/15 text-accent" : "border-line-strong text-muted hover:text-ink"}`}>
+                  {g ? <GradeBadge grade={g} th={th} inline /> : (th ? "ธรรมดา" : "Normal")}
+                </button>
+              ))}
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-2">
             <label className="block">
               <span className="mb-1 block text-meta text-muted">{th ? `จำนวน (ไม่เกิน ${most})` : `How many (${most} at the most)`}</span>
@@ -309,7 +348,7 @@ function Writing({ draft, board, purse, prices, th, onChange, onCancel, onPin }:
           {(uncle !== null || soldN > 0) && (
             <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-meta text-muted" data-notice-known>
               {uncle !== null && <span className="flex items-center gap-1">{th ? "ญาติลุงให้ชิ้นละ" : "The relatives give"} <Coin n={uncle} small /></span>}
-              {soldN > 0 && <span className="flex items-center gap-1">{th ? `บนกระดาน ${board.sales[item]!.length} วันล่าสุด ${soldN} ชิ้น เฉลี่ย` : `On the board lately: ${soldN}, on average`} <Coin n={Math.round((soldCoins / soldN) * 10) / 10} small /></span>}
+              {soldN > 0 && <span className="flex items-center gap-1" data-notice-sold={saleKey(item, grade)}>{th ? `บนกระดาน${stars(grade)} ${days.length} วันล่าสุด ${soldN} ชิ้น เฉลี่ย` : `On the board lately${stars(grade)}: ${soldN}, on average`} <Coin n={Math.round((soldCoins / soldN) * 10) / 10} small /></span>}
             </p>
           )}
           <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-0.5 border-t border-line pt-2 text-meta text-muted" data-notice-sum>

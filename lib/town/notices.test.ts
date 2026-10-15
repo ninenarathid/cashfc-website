@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { ItemId } from "./items";
-import { NOTICES, afterFee, buy, capOf, collectDue, dueOf, fetch, fill, moreSlot, newPinboard, nextSlot, plain, post, slotsOf, takeDown, told, type Pinboard } from "./notices";
+import { NOTICES, afterFee, buy, capOf, collectDue, dueOf, fetch, fill, moreSlot, newPinboard, nextSlot, plain, post, saleKey, slotsOf, takeDown, takePlain, told, type Pinboard } from "./notices";
 import { dayOf } from "./stamina";
 import { capOf as stallCap } from "./shop";
-import { GOODS, HOUR, newPurse, put, type Purse } from "./trade";
+import { GOODS, HOUR, newPurse, put, type Purse, type Stack } from "./trade";
 
 const NOON = Date.parse("2026-10-05T12:00:00+07:00");
 const SEEN: ItemId[] = ["kangkong", "minnow", "carrot", "worm"];
@@ -185,5 +185,92 @@ describe("the board's books", () => {
     expect(mine.mine.map((n) => n.id)).toEqual([1]);
     // …and what was sold more than seven days ago is no longer told
     expect(told(board, "a", NOON + 9 * 24 * HOUR, name, SEEN).sales).toEqual({});
+  });
+});
+
+describe("a notice of a graded thing (the farm's Quality: \"tomato ★★\" is a thing of its own)", () => {
+  const bag = (coins: number, ...stacks: Stack[]): Purse => ({ ...newPurse(), coins, bag: [...stacks, ...Array(10 - stacks.length).fill(null)] });
+  const SEEN_TOO: ItemId[] = [...SEEN, "tomato"];
+
+  it("counts and takes only stacks of its grade that hold and carry nothing else", () => {
+    const b: Purse["bag"] = [{ item: "tomato", n: 6, grade: 2 }, { item: "tomato", n: 5 }, { item: "tomato", n: 4, grade: 2 }, { item: "tomato", n: 3, grade: 3 }, null];
+    expect([plain(b, "tomato"), plain(b, "tomato", 1), plain(b, "tomato", 2), plain(b, "tomato", 3)]).toEqual([5, 0, 10, 3]);
+    // from the last stacks of the grade first; the others are left as they were
+    expect(takePlain(b, "tomato", 7, 2)).toEqual([{ item: "tomato", n: 3, grade: 2 }, { item: "tomato", n: 5 }, null, { item: "tomato", n: 3, grade: 3 }, null]);
+    expect(takePlain(b, "tomato", 2)).toEqual([{ item: "tomato", n: 6, grade: 2 }, { item: "tomato", n: 3 }, { item: "tomato", n: 4, grade: 2 }, { item: "tomato", n: 3, grade: 3 }, null]);
+  });
+
+  it("puts up only its grade, and whoever buys has the things at it; the sale is kept with its grade", () => {
+    const p = bag(0, { item: "tomato", n: 6, grade: 2 }, { item: "tomato", n: 5 }, { item: "tomato", n: 4, grade: 3 });
+    expect(post(p, newPinboard(), "a", "sell", "tomato", 7, 4, NOON, SEEN, undefined, 2)).toEqual({ ok: false, why: "none" });
+    const up = done(post(p, newPinboard(), "a", "sell", "tomato", 6, 4, NOON, SEEN, undefined, 2));
+    expect(up.purse.bag.filter(Boolean)).toEqual([{ item: "tomato", n: 5 }, { item: "tomato", n: 4, grade: 3 }]);
+    expect(up.board.notices).toEqual([{ id: 1, by: "a", kind: "sell", item: "tomato", n: 6, left: 6, price: 4, held: 0, at: NOON, until: NOON + 72 * HOUR, grade: 2 }]);
+    const bought = done(buy(bag(100, { item: "tomato", n: 2 }), up.board, "b", 1, 4, NOON + 1));
+    expect(bought.purse.bag.filter(Boolean)).toEqual([{ item: "tomato", n: 2 }, { item: "tomato", n: 4, grade: 2 }]);
+    expect(bought.board.sales).toEqual([{ at: NOON + 1, item: "tomato", n: 4, price: 4, grade: 2 }]);
+    // with room only beside other grades, a buyer's bag is full for it
+    const packed = bag(100, ...Array.from({ length: 10 }, (_, i): Stack => ({ item: "tomato", n: i < 5 ? 1 : 2, ...(i < 5 ? {} : { grade: 1 as const }) })));
+    expect(buy(packed, up.board, "b", 1, 1, NOON)).toEqual({ ok: false, why: "full" });
+  });
+
+  it("a notice of the normal thing takes no graded stack, as it always took none", () => {
+    const p = bag(0, { item: "tomato", n: 6, grade: 1 }, { item: "tomato", n: 2 });
+    expect(post(p, newPinboard(), "a", "sell", "tomato", 3, 4, NOON, SEEN)).toEqual({ ok: false, why: "none" });
+    const up = done(post(p, newPinboard(), "a", "sell", "tomato", 2, 4, NOON, SEEN));
+    expect(up.purse.bag.filter(Boolean)).toEqual([{ item: "tomato", n: 6, grade: 1 }]);
+    expect("grade" in up.board.notices[0]).toBe(false);
+  });
+
+  it("asks at most the normal most times what the relatives pay over the usual for the grade, in whole coins", () => {
+    const base = capOf("tomato");
+    expect([1, 2, 3].map((g) => capOf("tomato", NOTICES, g as 1 | 2 | 3))).toEqual([Math.floor(base * 1.25), Math.floor(base * 1.75), Math.floor(base * 2.5)]);
+    expect(capOf("tomato", NOTICES, 0)).toBe(base);
+    // a preparation and a dish keep their grade for the kitchen and are asked for as the normal thing (×1)
+    expect(capOf("curryPaste", NOTICES, 3)).toBe(capOf("curryPaste"));
+    expect(capOf("tomYum", NOTICES, 2)).toBe(capOf("tomYum"));
+    // the stall's most is the board's
+    for (const g of [1, 2, 3] as const) expect(stallCap("tomato", undefined, g)).toBe(capOf("tomato", NOTICES, g));
+    const p = bag(0, { item: "tomato", n: 6, grade: 3 });
+    expect(post(p, newPinboard(), "a", "sell", "tomato", 1, Math.floor(base * 2.5) + 1, NOON, SEEN, undefined, 3)).toEqual({ ok: false, why: "dear" });
+    expect(post(p, newPinboard(), "a", "sell", "tomato", 1, Math.floor(base * 2.5), NOON, SEEN, undefined, 3).ok).toBe(true);
+  });
+
+  it("wanted: names its grade (only of a thing that can carry one, and still only of a thing somebody has found), and only that grade fills it", () => {
+    const want = done(post(bag(200), newPinboard(), "a", "want", "carrot", 5, 3, NOON, SEEN, undefined, 1));
+    expect(want.board.notices[0]).toMatchObject({ kind: "want", item: "carrot", grade: 1 });
+    // a normal carrot, or a gold one, does not fill it
+    expect(fill(bag(0, { item: "carrot", n: 5 }, { item: "carrot", n: 5, grade: 2 }), want.board, "b", 1, 1, NOON)).toEqual({ ok: false, why: "none" });
+    const brought = done(fill(bag(0, { item: "carrot", n: 3, grade: 1 }, { item: "carrot", n: 5 }), want.board, "b", 1, 3, NOON + 1));
+    expect(brought.purse.bag.filter(Boolean)).toEqual([{ item: "carrot", n: 5 }]);
+    expect(brought.board.sales).toEqual([{ at: NOON + 1, item: "carrot", n: 3, price: 3, grade: 1 }]);
+    // its writer takes them at their grade
+    const got = done(fetch(bag(0, { item: "carrot", n: 1 }), brought.board, "a", 1));
+    expect(got.purse.bag.filter(Boolean)).toEqual([{ item: "carrot", n: 1 }, { item: "carrot", n: 3, grade: 1 }]);
+    // a grade on a thing that never carries one, or a grade that is none, is refused
+    expect(post(bag(200), newPinboard(), "a", "want", "worm", 1, 1, NOON, [...SEEN, "worm"], undefined, 2)).toEqual({ ok: false, why: "none" });
+    expect(post(bag(200), newPinboard(), "a", "want", "carrot", 1, 1, NOON, SEEN, undefined, 4 as never)).toEqual({ ok: false, why: "none" });
+    // the owner's rule holds for a grade too: nothing nobody has found ("การรับซื้อห้าม show ไอเทม ที่ยังไม่มีคนพบเด็ดขาด")
+    expect(post(bag(200), newPinboard(), "a", "want", "tomato", 1, 1, NOON, SEEN, undefined, 2)).toEqual({ ok: false, why: "none" });
+    expect(post(bag(200), newPinboard(), "a", "want", "tomato", 1, 1, NOON, SEEN_TOO, undefined, 2).ok).toBe(true);
+  });
+
+  it("is taken down at its grade", () => {
+    const up = done(post(bag(0, { item: "tomato", n: 6, grade: 3 }), newPinboard(), "a", "sell", "tomato", 6, 4, NOON, SEEN, undefined, 3));
+    const down = done(takeDown(bag(0, { item: "tomato", n: 2 }), up.board, "a", 1));
+    expect(down.purse.bag.filter(Boolean)).toEqual([{ item: "tomato", n: 2 }, { item: "tomato", n: 6, grade: 3 }]);
+  });
+
+  it("is told with its grade, and what it sold for apart from the normal thing's", () => {
+    let board = done(post(bag(0, { item: "tomato", n: 6, grade: 2 }, { item: "tomato", n: 6 }), newPinboard(), "a", "sell", "tomato", 6, 20, NOON, SEEN, undefined, 2)).board;
+    board = done(post(bag(0, { item: "tomato", n: 6 }), board, "a", "sell", "tomato", 6, 8, NOON, SEEN)).board;
+    board = done(buy(bag(500), board, "b", 1, 2, NOON + 1)).board;
+    board = done(buy(bag(500), board, "b", 2, 3, NOON + 2)).board;
+    const t = told(board, "b", NOON + 3, (id) => id, SEEN), day = dayOf(NOON);
+    expect(t.notices.map((n) => [n.id, n.grade ?? 0])).toEqual([[2, 0], [1, 2]]);
+    expect("grade" in t.notices[0]).toBe(false);
+    expect(t.sales).toEqual({ tomato: [[day, 3, 24]], [saleKey("tomato", 2)]: [[day, 2, 40]] });
+    expect(saleKey("tomato", 2)).toBe("tomato:2");
+    expect(saleKey("tomato")).toBe("tomato");
   });
 });

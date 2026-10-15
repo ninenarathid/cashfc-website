@@ -41,6 +41,7 @@ import type { Cooked, KitchenDid } from "./keeper";
 import type { Worn } from "./lines";
 import type { Play } from "./plays";
 import type { ShopAsk } from "./shop";
+import type { JarThing } from "./jar";
 import { SKIES } from "./skies";
 import { STAMINA, hasBuff, isSpent, levelOf } from "./stamina";
 import { handSlot, type Purse } from "./trade";
@@ -162,7 +163,7 @@ class TrialKeeper implements Keeper {
   async toss(wish: WishId, coins: number, note: string | null = null): Promise<Did<{ took: number; counted: number; granted: WishId | null }>> { return this.trial.toss(wish, coins, note); }
   async cheer(note: number, coins: number): Promise<Did<{ took: number; counted: number; granted: WishId | null }>> { return this.trial.cheer(note, coins); }
   async wishReport(note: number): Promise<Did> { return this.trial.wishReport(note); }
-  async noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number): Promise<Did<{ id: number }>> { return this.trial.noticePost(kind, item, n, price); }
+  async noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number, grade: 0 | 1 | 2 | 3 = 0): Promise<Did<{ id: number }>> { return this.trial.noticePost(kind, item, n, price, grade); }
   async noticeBuy(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>> { return this.trial.noticeBuy(id, n); }
   async noticeFill(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>> { return this.trial.noticeFill(id, n); }
   async noticeFetch(id: number): Promise<Did<{ item: ItemId; got: number }>> { return this.trial.noticeFetch(id); }
@@ -429,7 +430,7 @@ class TrialKeeper implements Keeper {
   thanked() { return this.trial.thanksBoard().today; }
   jar() { return this.trial.jar(); }
   async jarDrop(what: { coins: number } | { slot: number; n: number }): Promise<Did> { return this.trial.jarDrop(what); }
-  async jarTake(): Promise<Did<{ coins: number; things: Array<[ItemId, number]> }>> { return this.trial.jarTake(); }
+  async jarTake(): Promise<Did<{ coins: number; things: JarThing[] }>> { return this.trial.jarTake(); }
   hot() { return this.trial.hot(); }
   ditchAt(key: string) { return this.trial.ditchAt(key); }
   async ditchDo(key: string): Promise<Did<{ used: number; watered: string[] }>> { return this.trial.ditchDo(key); }
@@ -531,13 +532,13 @@ class TrialKeeper implements Keeper {
   async shopVisit(who: string | null) { this.visit = who; }
   shopSeen() { return this.visit ? { who: this.visit, told: this.trial.shopOf(this.visit) } : null; }
   // (the stall's keeper is in another tab: told through the room, as the database's keeper tells them)
-  async shopBuy(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
-    const did = this.trial.shopBuy(who, item, n, at);
+  async shopBuy(who: string, item: ItemId, n: number, at: [number, number], grade: 0 | 1 | 2 | 3 = 0): Promise<Did<{ coins: number }>> {
+    const did = this.trial.shopBuy(who, item, n, at, grade);
     if (did.ok) this.onDeed?.("shop", who);
     return did;
   }
-  async shopSell(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
-    const did = this.trial.shopSell(who, item, n, at);
+  async shopSell(who: string, item: ItemId, n: number, at: [number, number], grade: 0 | 1 | 2 | 3 = 0): Promise<Did<{ coins: number }>> {
+    const did = this.trial.shopSell(who, item, n, at, grade);
     if (did.ok) this.onDeed?.("shop", who);
     return did;
   }

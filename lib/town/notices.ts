@@ -1,7 +1,7 @@
 import { ITEMS, type ItemId } from "./items";
 import { dayOf } from "./stamina";
 import { GEMS } from "./tools";
-import { HOUR, no as refuse, plainStack, put, roomFor, type Purse, type Refusal } from "./trade";
+import { HOUR, gradeArg, gradeIn, gradePays, mayGrade, no as refuse, plainAt, put, roomFor, type Purse, type Refusal } from "./trade";
 
 /**
  * The notice board beside the uncle's stall, where members sell to one another
@@ -31,6 +31,15 @@ import { HOUR, no as refuse, plainStack, put, roomFor, type Purse, type Refusal 
  *   แพงกว่าร้านขายของลุงได้", and of the board: "กระดานฝากขาย เอาเหมือนกัน").
  * - A thing that holds something (a pot with food in it, a can with water) is
  *   not put up: only the plain thing.
+ * - **A notice carries a grade** (the farm's Quality: produce, and the dishes and
+ *   preparations made of it, are silver, gold or excellent). "Tomato ★★" is a
+ *   thing of its own: only stacks of that very grade are put up, bought and
+ *   brought for it, whoever has it gets it at that grade, and what it sold for is
+ *   told apart from the normal thing's. A wanted notice names its grade, which
+ *   only a thing that can carry one may have; it is still only of a thing
+ *   somebody has found. Its most is the normal thing's times what the relatives
+ *   pay over the usual for the grade (lib/town/trade's `gradePays`), in whole
+ *   coins. A notice that names no grade is as it always was.
  *
  * Every number is a knob the database keeps. Pure: nothing here reads a clock
  * or keeps anything; the browser's trial and the database are two keepers of
@@ -68,10 +77,10 @@ export type NoticeRefusal = Refusal
   | "dear"    // a price above the most the thing may be asked or offered for
   | "own";    // my own notice: nothing to buy from myself, or to bring myself
 
-/** A notice on the board. `left`: how many are still to be bought, or still wanted. `held`: of a wanted notice, how many have been brought and wait for its writer. */
-export interface Notice { id: number; by: string; kind: "sell" | "want"; item: ItemId; n: number; left: number; price: number; held: number; at: number; until: number }
-/** Something sold over the board, either way. */
-export interface Sale { at: number; item: ItemId; n: number; price: number }
+/** A notice on the board. `left`: how many are still to be bought, or still wanted. `held`: of a wanted notice, how many have been brought and wait for its writer. `grade`: of a graded thing, its grade (left out for normal). */
+export interface Notice { id: number; by: string; kind: "sell" | "want"; item: ItemId; n: number; left: number; price: number; held: number; at: number; until: number; grade?: 1 | 2 | 3 }
+/** Something sold over the board, either way (of a graded thing, with its grade). */
+export interface Sale { at: number; item: ItemId; n: number; price: number; grade?: 1 | 2 | 3 }
 /** The board, as the village keeps it: its notices, what each member is owed (in hundredths of a coin), how many more places each has bought, and what has been sold. */
 export interface Pinboard { next: number; notices: Notice[]; due: Record<string, number>; more: Record<string, number>; sales: Sale[] }
 export const newPinboard = (): Pinboard => ({ next: 1, notices: [], due: {}, more: {}, sales: [] });
@@ -80,22 +89,26 @@ type Did<T> = ({ ok: true } & T) | { ok: false; why: NoticeRefusal };
 const no = (why: NoticeRefusal) => refuse(why as Refusal) as { ok: false; why: NoticeRefusal };
 const whole = (n: number) => Number.isInteger(n) && n > 0;
 
-/** The most a thing may be asked or offered for: by what the relatives pay for it, whether the uncle sells it or not (the same as at a stall: lib/town/shop). */
-export function capOf(item: ItemId, k: NoticeKnobs = NOTICES): number {
-  const pays = ITEMS[item].pays;
-  return dearOf(item) ?? (pays > 0 ? pays * k.cap : k.capless);
+/**
+ * The most a thing may be asked or offered for: by what the relatives pay for it, whether the uncle sells it or not (the
+ * same as at a stall: lib/town/shop). Of a graded thing, the normal thing's times what the relatives pay over the
+ * usual for its grade, in whole coins (raw produce ×1.25 / ×1.75 / ×2.5; anything else ×1; a gem keeps its own).
+ */
+export function capOf(item: ItemId, k: NoticeKnobs = NOTICES, grade: 0 | 1 | 2 | 3 = 0): number {
+  const pays = ITEMS[item].pays, plainCap = dearOf(item) ?? (pays > 0 ? pays * k.cap : k.capless);
+  return grade ? Math.floor(plainCap * gradePays(item, grade)) : plainCap;
 }
 const DEAR = new Map<string, number>(Object.values(GEMS).flatMap((g): Array<[string, number]> => [[g.gem, NOTICES.gem], [g.chip, NOTICES.chip]]));
 /** The most a gem or a gem's fragment may be asked or offered for, on the board and at a stall; nothing for any other thing. */
 export const dearOf = (item: ItemId): number | null => DEAR.get(item) ?? null;
-/** How many of a thing are in a bag as plain things: a stack that holds something is not counted. */
-export const plain = (bag: Purse["bag"], id: ItemId) => bag.reduce((t, s) => t + (s && s.item === id && plainStack(s) ? s.n : 0), 0);
-/** A bag with so many plain ones of a thing out of it, from its last stacks first. (It must hold as many.) */
-export function takePlain(bag: Purse["bag"], id: ItemId, n: number): Purse["bag"] {
+/** How many of a thing are in a bag as plain things (of one grade, normal when not said): a stack that holds something is not counted. */
+export const plain = (bag: Purse["bag"], id: ItemId, grade: 0 | 1 | 2 | 3 = 0) => bag.reduce((t, s) => t + (s && s.item === id && plainAt(s, grade) ? s.n : 0), 0);
+/** A bag with so many plain ones of a thing (of one grade, normal when not said) out of it, from its last stacks first. (It must hold as many.) */
+export function takePlain(bag: Purse["bag"], id: ItemId, n: number, grade: 0 | 1 | 2 | 3 = 0): Purse["bag"] {
   const out = bag.map((s) => (s ? { ...s } : null));
   for (let i = out.length - 1; i >= 0 && n > 0; i--) {
     const s = out[i];
-    if (!s || s.item !== id || !plainStack(s)) continue;
+    if (!s || s.item !== id || !plainAt(s, grade)) continue;
     const less = Math.min(n, s.n);
     n -= less;
     out[i] = s.n === less ? null : { ...s, n: s.n - less };
@@ -113,23 +126,30 @@ export function nextSlot(board: Pinboard, who: string, k: NoticeKnobs = NOTICES)
 /** Whether a notice can still be bought from, or brought to. */
 export const live = (n: Notice, now: number) => now < n.until && n.left > 0;
 const owed = (board: Pinboard, who: string, coins: number, k: NoticeKnobs): Pinboard["due"] => ({ ...board.due, [who]: (board.due[who] ?? 0) + coins * (100 - k.fee) });
+/** What a sale over a notice is kept as: of a graded thing, with its grade. */
+const saleOf = (at: number, notice: Notice, n: number): Sale => ({ at, item: notice.item, n, price: notice.price, ...(notice.grade ? { grade: notice.grade } : {}) });
+/** How what was sold of a thing is told: by the thing, and a graded thing by the thing and its grade apart ("tomato:2"), so its price is not lifted by the excellent ones. */
+export const saleKey = (item: ItemId, grade: 0 | 1 | 2 | 3 = 0): string => (grade ? `${item}:${grade}` : item);
 
 /**
- * Pin a notice up. To sell: so many plain ones of a thing leave my bag. Wanted: the coins for all of them leave my
- * purse, and the thing must be one somebody has found (`seen`).
+ * Pin a notice up. To sell: so many plain ones of a thing (of its grade) leave my bag. Wanted: the coins for all of
+ * them leave my purse, and the thing must be one somebody has found (`seen`). A grade is only of a thing that can carry
+ * one (lib/town/trade's `mayGrade`); left out, the notice is of the normal thing.
  */
-export function post(purse: Purse, board: Pinboard, me: string, kind: "sell" | "want", item: ItemId, n: number, price: number, now: number, seen: readonly ItemId[], k: NoticeKnobs = NOTICES): Did<{ purse: Purse; board: Pinboard; id: number }> {
+export function post(purse: Purse, board: Pinboard, me: string, kind: "sell" | "want", item: ItemId, n: number, price: number, now: number, seen: readonly ItemId[], k: NoticeKnobs = NOTICES, grade: 0 | 1 | 2 | 3 = 0): Did<{ purse: Purse; board: Pinboard; id: number }> {
   if (!(item in ITEMS) || (kind !== "sell" && kind !== "want")) return no("none");
+  const g = gradeArg(grade);
+  if (g === null || (g > 0 && !mayGrade(item))) return no("none");
   if (!whole(n) || !whole(price) || n > k.most) return no("amount");
   if (kind === "want" && !seen.includes(item)) return no("none");
-  if (kind === "sell" && plain(purse.bag, item) < n) return no("none");
-  if (price > capOf(item, k)) return no("dear");
+  if (kind === "sell" && plain(purse.bag, item, g) < n) return no("none");
+  if (price > capOf(item, k, g)) return no("dear");
   if (kind === "want" && purse.coins < n * price) return no("coins");
   if (upOf(board, me) >= slotsOf(board, me, k)) return no("slots");
-  const notice: Notice = { id: board.next, by: me, kind, item, n, left: n, price, held: 0, at: now, until: now + k.hours * HOUR };
+  const notice: Notice = { id: board.next, by: me, kind, item, n, left: n, price, held: 0, at: now, until: now + k.hours * HOUR, ...(g ? { grade: g } : {}) };
   return {
     ok: true, id: notice.id,
-    purse: kind === "sell" ? { ...purse, bag: takePlain(purse.bag, item, n) } : { ...purse, coins: purse.coins - n * price },
+    purse: kind === "sell" ? { ...purse, bag: takePlain(purse.bag, item, n, g) } : { ...purse, coins: purse.coins - n * price },
     board: { ...board, next: board.next + 1, notices: [...board.notices, notice] },
   };
 }
@@ -140,14 +160,14 @@ export function buy(purse: Purse, board: Pinboard, me: string, id: number, n: nu
   const notice = board.notices.find((x) => x.id === id);
   if (!notice || notice.kind !== "sell" || !live(notice, now) || notice.left < n) return no("gone");
   if (notice.by === me) return no("own");
-  const coins = n * notice.price;
+  const coins = n * notice.price, g = gradeIn(notice);
   if (purse.coins < coins) return no("coins");
-  if (roomFor(purse.bag, notice.item) < n) return no("full");
+  if (roomFor(purse.bag, notice.item, g) < n) return no("full");
   return {
     ok: true, item: notice.item, coins,
-    purse: { ...purse, coins: purse.coins - coins, bag: put(purse.bag, notice.item, n) },
+    purse: { ...purse, coins: purse.coins - coins, bag: put(purse.bag, notice.item, n, g) },
     board: {
-      ...board, due: owed(board, notice.by, coins, k), sales: [...board.sales, { at: now, item: notice.item, n, price: notice.price }],
+      ...board, due: owed(board, notice.by, coins, k), sales: [...board.sales, saleOf(now, notice, n)],
       notices: board.notices.flatMap((x) => (x !== notice ? [x] : x.left === n ? [] : [{ ...x, left: x.left - n }])),
     },
   };
@@ -159,13 +179,13 @@ export function fill(purse: Purse, board: Pinboard, me: string, id: number, n: n
   const notice = board.notices.find((x) => x.id === id);
   if (!notice || notice.kind !== "want" || !live(notice, now) || notice.left < n) return no("gone");
   if (notice.by === me) return no("own");
-  if (plain(purse.bag, notice.item) < n) return no("none");
+  if (plain(purse.bag, notice.item, gradeIn(notice)) < n) return no("none");
   const coins = n * notice.price;
   return {
     ok: true, item: notice.item, coins,
-    purse: { ...purse, bag: takePlain(purse.bag, notice.item, n) },
+    purse: { ...purse, bag: takePlain(purse.bag, notice.item, n, gradeIn(notice)) },
     board: {
-      ...board, due: owed(board, me, coins, k), sales: [...board.sales, { at: now, item: notice.item, n, price: notice.price }],
+      ...board, due: owed(board, me, coins, k), sales: [...board.sales, saleOf(now, notice, n)],
       notices: board.notices.map((x) => (x !== notice ? x : { ...x, left: x.left - n, held: x.held + n })),
     },
   };
@@ -175,11 +195,11 @@ export function fill(purse: Purse, board: Pinboard, me: string, id: number, n: n
 export function fetch(purse: Purse, board: Pinboard, me: string, id: number): Did<{ purse: Purse; board: Pinboard; item: ItemId; got: number }> {
   const notice = board.notices.find((x) => x.id === id && x.by === me);
   if (!notice || notice.kind !== "want" || notice.held <= 0) return no("none");
-  const got = Math.min(notice.held, roomFor(purse.bag, notice.item));
+  const got = Math.min(notice.held, roomFor(purse.bag, notice.item, gradeIn(notice)));
   if (got <= 0) return no("full");
   return {
     ok: true, item: notice.item, got,
-    purse: { ...purse, bag: put(purse.bag, notice.item, got) },
+    purse: { ...purse, bag: put(purse.bag, notice.item, got, gradeIn(notice)) },
     board: { ...board, notices: board.notices.flatMap((x) => (x !== notice ? [x] : x.left === 0 && x.held === got ? [] : [{ ...x, held: x.held - got }])) },
   };
 }
@@ -189,10 +209,10 @@ export function takeDown(purse: Purse, board: Pinboard, me: string, id: number):
   const notice = board.notices.find((x) => x.id === id && x.by === me);
   if (!notice) return no("none");
   const things = notice.kind === "sell" ? notice.left : notice.held, coins = notice.kind === "want" ? notice.left * notice.price : 0;
-  if (roomFor(purse.bag, notice.item) < things) return no("full");
+  if (roomFor(purse.bag, notice.item, gradeIn(notice)) < things) return no("full");
   return {
     ok: true, item: notice.item, things, coins,
-    purse: { ...purse, coins: purse.coins + coins, bag: things ? put(purse.bag, notice.item, things) : purse.bag },
+    purse: { ...purse, coins: purse.coins + coins, bag: things ? put(purse.bag, notice.item, things, gradeIn(notice)) : purse.bag },
     board: { ...board, notices: board.notices.filter((x) => x !== notice) },
   };
 }
@@ -214,13 +234,13 @@ export function moreSlot(purse: Purse, board: Pinboard, me: string, k: NoticeKno
   return { ok: true, coins: price, purse: { ...purse, coins: purse.coins - price }, board: { ...board, more: { ...board.more, [me]: (board.more[me] ?? 0) + 1 } } };
 }
 
-/** A notice as a member is told it: whose it is by name, and whether it is theirs. `held` is told only of one's own. */
-export interface NoticeTold { id: number; kind: "sell" | "want"; item: ItemId; n: number; left: number; price: number; held: number; by: string; mine: boolean; until: number }
+/** A notice as a member is told it: whose it is by name, and whether it is theirs. `held` is told only of one's own. `grade` only of a graded thing. */
+export interface NoticeTold { id: number; kind: "sell" | "want"; item: ItemId; n: number; left: number; price: number; held: number; by: string; mine: boolean; until: number; grade?: 1 | 2 | 3 }
 /**
  * The board as a member is told it: the notices that can be bought from or brought to, the newest first; my own,
  * whatever has become of them; what waits for me; my places and what one more costs; what may be wanted; and what
  * was sold over the board in the last days, a thing and a day at a time (`[day, how many, coins]`, the oldest first;
- * a day as lib/town/stamina counts one).
+ * a day as lib/town/stamina counts one), a graded thing apart from the normal one (`saleKey`).
  */
 export interface PinboardTold {
   notices: NoticeTold[];
@@ -234,15 +254,16 @@ export interface PinboardTold {
   capless: number;
   most: number;
   seen: ItemId[];
+  /** By `saleKey`: the thing's id, or of a graded thing its id and grade. */
   sales: Record<string, Array<[day: number, n: number, coins: number]>>;
 }
 export function told(board: Pinboard, me: string, now: number, name: (id: string) => string, seen: readonly ItemId[], k: NoticeKnobs = NOTICES): PinboardTold {
-  const tell = (n: Notice): NoticeTold => ({ id: n.id, kind: n.kind, item: n.item, n: n.n, left: n.left, price: n.price, held: n.by === me ? n.held : 0, by: name(n.by), mine: n.by === me, until: n.until });
+  const tell = (n: Notice): NoticeTold => ({ id: n.id, kind: n.kind, item: n.item, n: n.n, left: n.left, price: n.price, held: n.by === me ? n.held : 0, by: name(n.by), mine: n.by === me, until: n.until, ...(n.grade ? { grade: n.grade } : {}) });
   const today = dayOf(now), sales: PinboardTold["sales"] = {};
   for (const s of board.sales) {
     const day = dayOf(s.at);
     if (day <= today - k.days || day > today) continue;
-    const rows = (sales[s.item] ??= []), row = rows.find((r) => r[0] === day);
+    const rows = (sales[saleKey(s.item, gradeIn(s))] ??= []), row = rows.find((r) => r[0] === day);
     if (row) { row[1] += s.n; row[2] += s.n * s.price; } else rows.push([day, s.n, s.n * s.price]);
   }
   for (const rows of Object.values(sales)) rows.sort((a, b) => a[0] - b[0]);
