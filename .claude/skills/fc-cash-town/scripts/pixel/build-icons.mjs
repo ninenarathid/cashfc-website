@@ -320,6 +320,35 @@ const SHEETS = [
   // size, the ash's puff fell into specks, the nectar's flower and the resin's sprig were lost; each now its own cloth and
   // shape with what it holds spilled in front, a big brass sprinkler, a pine cone on the flask)
   ["icons-fert-d", ["slatePowder", "biochar", "silkFrass", "woodAsh", "nectarLure", "resinWash"], { range: [6.15, 6.4] }],
+  // ── the farm's plants of more than one plot, each one plant over its plots (the owner, 2026-10-15: "พืชที่กินมากกว่า 1 ช่อง
+  // แบบผสม ช่วย gen ภาพใหม่ ให้ดูเชื่อมต่อกัน ไม่ใช่ ภาพ 1 ช่องแบบนี้ / แบบขนาดใหญ่ ไป Gen ภาพให้ออกมาดีๆ"): the garden's hybrids as one
+  // row on one long mound (a and b: three and two plots in a line, running from the lower left up to the upper right;
+  // c and d: the two L's with the corner at the front, at the back and at the right), and the five 2x2 giants. Drawn on
+  // 3840x1280 with icons-farm-d and the farm in the game for the reference. The rows are cut on their true grid (4), at
+  // which their plants are the size of the garden's hybrids drawn at 0.62 (TownFarm's PLANT); the giants on twice it (8):
+  // on 4 a ripe daikon stood 224 tall, six tomatoes high beside the farm's plants
+  ["icons-wide-a", ["wideBlueCornA", "wideBlueCornB", "wideLotusRootBedA", "wideLotusRootBedB", "wideTrellisBerryA", "wideTrellisBerryB"], { range: [3.9, 4.1] }],
+  ["icons-wide-b", ["wideRowBeanA", "wideRowBeanB", "wideTeaBushA", "wideTeaBushB", "_wideRedOkraA", "_wideRedOkraB"], { range: [3.9, 4.1] }],
+  ["icons-wide-c", ["wideBottleGourdFrontA", "wideBottleGourdFrontB", "wideBottleGourdBackA", "wideBottleGourdBackB", "wideBottleGourdSideA", "wideBottleGourdSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide-d", ["_wideSunflowerPatchFrontA", "_wideSunflowerPatchFrontB", "_wideSunflowerPatchBackA", "_wideSunflowerPatchBackB", "_wideSunflowerPatchSideA", "_wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
+  ["icons-giantcrop-a", ["giantPumpkinA", "giantPumpkinB", "_giantCabbageA", "_giantCabbageB", "giantCarrotA", "giantCarrotB"], { range: [7.9, 8.1] }],
+  ["icons-giantcrop-b", ["_tomato", "giantDaikonA", "giantDaikonB", "_giantTaroA", "_giantTaroB", "_basil"], { range: [7.9, 8.1] }],
+  // (drawn again after the look in the game: the sunflower patch's L read as several sunflowers along a bed, the okra row
+  // as separate bushes, the giant taro as a little palm on a pedestal, the giant cabbage as broccoli; the first drawings'
+  // names above begin "_". Sheet e is cut twice: its okra row on the rows' grid, its giants on twice it)
+  ["icons-wide-d2", ["wideSunflowerPatchFrontA", "wideSunflowerPatchFrontB", "wideSunflowerPatchBackA", "wideSunflowerPatchBackB", "wideSunflowerPatchSideA", "wideSunflowerPatchSideB"], { range: [3.9, 4.1] }],
+  ["icons-wide-e", ["wideRedOkraA", "wideRedOkraB", "_giantCabbageA", "_giantCabbageB", "_giantTaroA", "_giantTaroB"], { range: [3.9, 4.1] }],
+  ["icons-wide-e", ["_wideRedOkraA", "_wideRedOkraB", "giantCabbageA", "giantCabbageB", "giantTaroA", "giantTaroB"], { range: [7.9, 8.1] }],
+  // ── the garden's eight hybrids again, in this pipeline (the owner, 2026-10-15: "ช่วย Gen ภาพพืช ที่ codex เคยทำไปใหม่ด้วย จะได้เป็น
+  // Template เดียวกัน"): their one-plot growth sprites with icons-farm-d, their crops and seed packets with icons-items-d (the
+  // packet's band the crop's colour), replacing what build-garden-icons.mjs packed from grow-garden.png and icons-garden.png
+  // (drawn outside gen.mjs, each cell resized into a box). Packed with ICONS_REPLACE; the names beginning "_" are fillers
+  ["icons-garden-grow-a", ["growBottleGourdA", "growBottleGourdB", "growRowBeanA", "growRowBeanB", "growTrellisBerryA", "growTrellisBerryB"], { range: [9.9, 10.3] }],
+  ["icons-garden-grow-b", ["growBlueCornA", "growBlueCornB", "growTeaBushA", "growTeaBushB", "growSunflowerPatchA", "growSunflowerPatchB"], { range: [6.0, 6.25] }],
+  ["icons-garden-grow-c", ["growRedOkraA", "growRedOkraB", "growLotusRootBedA", "growLotusRootBedB", "_tomato", "_basil"], { range: [7.85, 8.15] }],
+  ["icons-garden-bag-a", ["bottleGourd", "seedBottleGourd", "rowBean", "seedRowBean", "trellisBerry", "seedTrellisBerry"], { range: [8.0, 8.3] }],
+  ["icons-garden-bag-b", ["blueCorn", "seedBlueCorn", "teaBush", "seedTeaBush", "sunflowerPatch", "seedSunflowerPatch"], { range: [6.25, 6.5] }],
+  ["icons-garden-bag-c", ["redOkra", "seedRedOkra", "lotusRootBed", "seedLotusRootBed", "_seedTomato", "_seedBasil"], { range: [6.5, 6.75] }],
 ];
 
 const ONLY = process.env.ICONS_ONLY?.split(",").map((s) => s.trim()).filter(Boolean);
@@ -364,8 +393,11 @@ for (const [sheet, names, opts] of SHEETS) {
 if (process.env.ICONS_APPEND) {
   // under the atlas there is: its picture kept as it is, the new pieces packed in rows below it, tallest first
   const atlas = JSON.parse(fs.readFileSync(JSON_OUT, "utf8"));
+  // (ICONS_REPLACE: names already there are drawn again, and their entries point at the new pieces; the old pixels stay
+  // in the picture, unused. The garden's hybrids went in that way, 2026-10-15)
   const dup = pieces.filter((p) => Object.hasOwn(atlas.icons, p.name)).map((p) => p.name);
-  if (dup.length) throw new Error(`already in the atlas: ${dup.join(", ")}`);
+  if (dup.length && !process.env.ICONS_REPLACE) throw new Error(`already in the atlas: ${dup.join(", ")}`);
+  if (dup.length) console.log(`drawn again: ${dup.join(", ")}`);
   if (!pieces.length) throw new Error("no sheet cut: ICONS_ONLY names none of SHEETS");
   const [AW, AH] = atlas.size, PAD = 2;
   let x = PAD, y = AH + PAD, rowH = 0;
