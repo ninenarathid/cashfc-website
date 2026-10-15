@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { rewardDB } from "./reward-db.mjs";
 const FILE = "supabase/v262_compost_and_the_pollen_brush.sql";
-const SIGS = ["town.deed_for(text,jsonb,text,text,bigint,text)", "town.tend(text,jsonb,jsonb,integer,integer,jsonb,text,bigint,boolean)"];
+const SIGS = ["town.deed_for(text,jsonb,text,text,bigint,text)", "town.tend(text,jsonb,jsonb,integer,integer,jsonb,text,bigint,boolean)", "town.uproot(text,jsonb,jsonb,boolean,boolean,text,bigint)"];
 const md5s = async (db) => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, (await db.query(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) m`)).rows[0].m])));
 const db = await rewardDB(252);
 try {

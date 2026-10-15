@@ -7,6 +7,7 @@
 -- brush is kept, 2 stamina; half the pollen bar to ripeness and the round's floor raised by 10). Both are deeds of the
 -- farm as watering is: the same button, tired hands steady themselves for them, and they are written in the town's
 -- deeds by their names. v259's trigger settles the plant's round before the change, as for any other.
+-- And a living plant dug out with the hoe leaves its plot tilled (it was cleared), so that it is sown again at once.
 begin;
 set local statement_timeout='30s';
 set local lock_timeout='5s';
@@ -15,6 +16,7 @@ do $$ begin
 -- <guards:v262>
  if md5(replace(pg_get_functiondef('town.deed_for(text,jsonb,text,text,bigint,text)'::regprocedure),chr(13),'')) not in ('12140060f29db649ad2e1126d5fbcef7','9f7b4d2f441089a10cda0dc529187bdc') then raise exception 'Definition changed: town.deed_for(text,jsonb,text,text,bigint,text); rebuild v262'; end if;
  if md5(replace(pg_get_functiondef('town.tend(text,jsonb,jsonb,integer,integer,jsonb,text,bigint,boolean)'::regprocedure),chr(13),'')) not in ('487c398312868222e2b766ce5b09d6ed','2d1a8af13baf561f6e0a1fbb530b67ce') then raise exception 'Definition changed: town.tend(text,jsonb,jsonb,integer,integer,jsonb,text,bigint,boolean); rebuild v262'; end if;
+ if md5(replace(pg_get_functiondef('town.uproot(text,jsonb,jsonb,boolean,boolean,text,bigint)'::regprocedure),chr(13),'')) not in ('fc30f5776316248db0a67cf5b5feb44e','39d6461a3bb85a998d050d5d4f7a2cd4') then raise exception 'Definition changed: town.uproot(text,jsonb,jsonb,boolean,boolean,text,bigint); rebuild v262'; end if;
 -- </guards:v262>
 end $$;
 
@@ -83,6 +85,31 @@ declare did jsonb;bond_ jsonb;bed_ jsonb:=case when p_bed is null or p_bed='null
  did:=town.tend_v205(p_key,p_plot,p_bed,p_others,p_holds,p_purse,p_me,p_now,p_sure);
  if did->'ok'='true'::jsonb and did->>'deed' in ('clear','till','water') then did:=jsonb_set(did,'{purse}',town.train_element(p_purse,did->'purse',town.hand_stack(p_purse)));end if;
  if did->'ok'='true'::jsonb and did->>'deed'='sow' then bond_:=town.combo_seed(did->'purse',did->'plot',p_key,p_now);did:=did||bond_;end if;return did;end;
+$function$;
+
+CREATE OR REPLACE FUNCTION town.uproot(p_key text, p_purse jsonb, p_plot jsonb, p_may boolean, p_sure boolean, p_hand text, p_now bigint)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+declare
+  f jsonb := town.cat('farming');
+  left_ text := f->>'pulled';
+  dead boolean;
+  room boolean;
+begin
+  if coalesce(town.tool_of(p_hand), '') <> 'hoe' or town.held(p_purse->'bag', p_hand) = 0 then return town.no('hand'); end if;
+  if coalesce(p_plot->'plant', 'null'::jsonb) = 'null'::jsonb then return town.no('soil'); end if;
+  if not coalesce(p_may, false) then return town.no('theirs'); end if;
+  dead := (town.see(p_key, p_plot, p_now)->>'dead')::boolean;
+  if not dead and not coalesce(p_sure, false) then return town.no('sure'); end if;
+  room := dead and town.room(p_purse->'bag', left_) > 0;
+  -- ── v262: a living plant dug out leaves its plot tilled, to be sown again at once; a dead one pulled up leaves it cleared ──
+  return jsonb_build_object('ok', true, 'plot', jsonb_build_object('soil', case when dead then 'cleared' else 'tilled' end, 'plant', null),
+    'purse', town.spend(p_purse, (f->'costs'->>'pull')::double precision, p_now)
+      || jsonb_build_object('bag', case when room then town.put(p_purse->'bag', left_, 1) else p_purse->'bag' end),
+    'got', case when room then jsonb_build_array(jsonb_build_array(left_, 1)) else '[]'::jsonb end);
+end;
 $function$;
 
 revoke all on function town.quality_care(text,jsonb,jsonb,text,jsonb,text,bigint) from public, anon, authenticated;

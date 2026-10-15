@@ -47,6 +47,16 @@ try {
     cared++;
   }
   assert.ok(cared >= 40, `enough care done (${cared})`); checks++;
+  // a plant dug out with the hoe: a living one leaves its plot tilled, a dead one cleared (with its compost)
+  for (const [ago, dead] of [[10, false], [10, true]]) {
+    const now = T0, plant = { by: "me", crop: "tomato", sown: now - ago * H, boost: 0, watered: 0, fed: 0, guard: dead ? 0 : now + 99 * H, cured: 0, picked: 0, pickedAt: 0 };
+    const plot = { soil: "tilled", plant }, purse = { ...trade.newPurse(), bag: [{ item: "hoe", n: 1 }, ...Array(9).fill(null)], hand: "hoe" };
+    const got = (await one("select town.uproot($1,$2::jsonb,$3::jsonb,true,true,'hoe',$4) v", ["3,3", JSON.stringify(purse), JSON.stringify(plot), now])).v;
+    const { uproot } = await import("@/lib/town/farm");
+    const want = uproot("3,3", purse, plot, true, true, "hoe", now);
+    eq(norm(got.plot), norm(want.plot), `dug out (${dead ? "a dead one" : "a living one"}) as the code leaves it`);
+    if (!dead) eq(got.plot.soil, "tilled", "a living plant dug out leaves its plot tilled");
+  }
   const bare = await bareWrites((q) => db.query(q).then((r) => r.rows));
   eq(bare.filter((b) => /quality|care|deed_for|tend/.test(JSON.stringify(b))), [], "no bare write");
   for (const role of ["anon", "authenticated"]) eq((await one(`select has_function_privilege('${role}','town.quality_care(text,jsonb,jsonb,text,jsonb,text,bigint)','EXECUTE') a`)).a, false, `${role} may not call the care`);

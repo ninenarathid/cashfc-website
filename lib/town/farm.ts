@@ -428,7 +428,8 @@ export function uproot(key: string, purse: Purse, plot: Plot, may: boolean, sure
   const dead = see(key, plot, now, rains).dead;
   if (!dead && !sure) return not("sure");
   const left = FARMING.pulled, room = dead && roomFor(purse.bag, left) > 0;
-  return { ok: true, plot: { soil: "cleared", plant: null }, purse: { ...spend(purse, FARMING.costs.pull, now), bag: room ? put(purse.bag, left, 1) : purse.bag }, got: room ? [[left, 1]] : [] };
+  // (a living plant dug out leaves its plot tilled, to be sown again at once: the farm's Quality, 2026-10-15; a dead one pulled up leaves it cleared)
+  return { ok: true, plot: { soil: dead ? "cleared" : "tilled", plant: null }, purse: { ...spend(purse, FARMING.costs.pull, now), bag: room ? put(purse.bag, left, 1) : purse.bag }, got: room ? [[left, 1]] : [] };
 }
 
 /** Sow the seed in the hand in a tilled plot: one seed, one plot. */
