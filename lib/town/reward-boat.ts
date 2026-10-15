@@ -18,7 +18,7 @@ export function boatAction(p:Purse,input:BoatInput,me:string,old:LotusBoat|null,
  if(input.action==='open'){if(old.owner!==me||old.station!==0||typeof input.open!=='boolean')return {ok:false,why:'none'};return {ok:true,purse:p,boat:{...old,open:input.open}};}
  if(input.action==='leave'){if(old.station!==0)return {ok:false,why:'far'};return {ok:true,purse:membership(null),boat:old.owner===me?{...old,until:t,open:false}:{...old,guest:null}};}
  if(input.action==='depart'||input.action==='return'){
-  const to=input.action==='depart'?1:0;if(old.station===to||input.action==='depart'&&old.owner!==me||fishBusy)return {ok:false,why:'spent'};
+  const to=input.action==='depart'?1:0;if(old.station===to||old.owner!==me||fishBusy)return {ok:false,why:'spent'};
   const duration=Math.ceil(Math.hypot(route.dock[0]-route.anchor[0],route.dock[1]-route.anchor[1])/3.5*1000),trip={from:old.station,to:to as 0|1,at:t,arrives:t+duration},boat={...old,station:to as 0|1,open:false,trip,...(to===0?{until:t+duration}:{})};return {ok:true,purse:membership(boat),boat};
  }
  return {ok:false,why:'none'};

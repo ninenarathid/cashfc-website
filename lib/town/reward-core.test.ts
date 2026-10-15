@@ -25,15 +25,15 @@ describe("three private core rooms",()=>{
    const d=coreAction(s.purse,input,"e",now+i*6000+3000);if(!d.ok)throw Error(d.why);loot.push(...d.got!);p=d.purse;
    expect(coreAction(p,input,"replay",now+i*6000+4000).ok).toBe(false);
   }
-  expect(loot).toEqual([[oreOf(floor),2],["chipRuby",1],["stone",2]]);expect(staminaOf(p,now+16000)).toBe(41);expect(p.professionRewards?.core).toBeNull();expect(beginCore(p,floor,id,at,now+16000,1)).toEqual({ok:false,why:"spent"});
+  expect(loot).toEqual([[oreOf(floor),8],["chipRuby",4],["stone",8]]);expect(staminaOf(p,now+16000)).toBe(41);expect(p.professionRewards?.core).toBeNull();expect(beginCore(p,floor,id,at,now+16000,1)).toEqual({ok:false,why:"spent"});
  });
- it("locks a room through miss/expiry/day rollover; cannot reroll its route",()=>{
+ it("a played miss forfeits the room; reconnects preserve unplayed rooms",()=>{
   const p=started(),s=coreAction(p,{action:"coreRoom",core:id,route:"crystal",at},"s",now);if(!s.ok||!s.core?.room)throw Error('room');
   expect(coreAction(s.purse,{action:"coreRoom",core:id,route:"ore",at},"x",now).ok).toBe(false);
   const a=trailAnswer(s.core.room.node).map(n=>(n+1)%3),d=coreAction(s.purse,{action:"coreEnd",core:id,challenge:"s",answers:a,at},"e",now+3000);if(!d.ok)throw Error(d.why);
-  expect(d.got).toEqual([]);expect(d.core?.next).toBe(0);expect(staminaOf(d.purse,now+3000)).toBe(46);
+  expect(d.got).toEqual([]);expect(d.core?.next).toBe(1);expect(staminaOf(d.purse,now+3000)).toBe(46);
   const t=now+86400000,next=coreAction(d.purse,{action:"coreRoom",core:id,route:"crystal",at:floorSpots(floor,dayOf(t)).arrive},"next",t);if(!next.ok)throw Error(next.why);
-  expect(next.core?.room?.node.seed).toBe(s.core.room.node.seed);expect(next.core?.room?.mineral).toBe(s.core.room.mineral);expect(next.core?.next).toBe(0);
+  expect(next.core?.room?.node.seed).not.toBe(s.core.room.node.seed);expect(next.core?.next).toBe(1);
  });
  it("leaves a full-bag challenge intact and allows cancellation without the pick",()=>{
   const p=started({...player(),bag:[{item:"pick",n:1}]}),s=coreAction(p,{action:"coreRoom",core:id,route:"safe",at},"s",now);if(!s.ok||!s.core?.room)throw Error('room');

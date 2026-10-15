@@ -41,6 +41,7 @@ export function nursery(p:Purse,input:RewardInput,id:string,now:number,seed:numb
  const node=nurseryNode(run),expected=trailAnswer(node),timing=node.game==='timing';
  if(!Array.isArray(input.answers)||input.answers.length!==expected.length||!input.answers.every(n=>Number.isFinite(n)&&n>=0&&n<=(timing?1:2)))return {ok:false,why:'none'};
  const won=expected.every((n,i)=>timing?Math.abs(n-input.answers[i])<=.09:n===input.answers[i]),got=won?[nurseryLoot(run.kinds[run.next],run.part)]:[],after=stowAll(p,got);if(!after)return {ok:false,why:'full'};
- const completed=won&&run.next===2,next=completed?null:{...run,next:run.next+(won?1:0),part:won?null:run.part,challenge:null};
+ // Each tree gets one played attempt; a miss forfeits its harvest.
+ const completed=run.next===2,next=completed?null:{...run,next:run.next+1,part:null,challenge:null};
  return {ok:true,purse:{...spend(after,2,now),professionRewards:{...state,nursery:next}},nursery:next,got,completed,passed:won?expected.length:0};
 }

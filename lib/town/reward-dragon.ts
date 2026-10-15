@@ -19,5 +19,6 @@ export function beginDragon(p:Purse,fish:FishId,bait:BaitId,current:Current,at:[
 export function dragonDraw(p:Purse,pool:FishPool,bait:BaitId,current:Current,at:[number,number],pair:boolean,star:boolean,t:number){
  const call=p.professionRewards?.dragon;
  if(!call||call.until<=t||!works(p,'famRiverDragon')||pair||star||call.bait!==bait||call.current!==current||!call.at.every((n,i)=>n===at[i])||FISH[call.fish]?.tier!=='legend'||!((p.best[call.fish]??0)>0)||!pool.some(x=>x.what===call.fish&&x.p>0))return {purse:p,odds:pool};
- return {purse:{...p,professionRewards:{...p.professionRewards,dragon:null}},odds:[{what:call.fish,p:1}]};
+ const weighted=pool.map(x=>({...x,p:x.p*(x.what===call.fish?5:1)})),total=weighted.reduce((n,x)=>n+x.p,0);
+ return {purse:{...p,professionRewards:{...p.professionRewards,dragon:null}},odds:weighted.map(x=>({...x,p:x.p/total}))};
 }

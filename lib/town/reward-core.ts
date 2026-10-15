@@ -10,7 +10,7 @@ import { trailAnswer } from "./reward-trails";
 import type { Purse } from "./trade";
 import type { CoreRun,CoreRoute,RewardInput,RewardReply } from "./reward-types";
 type Result=({ok:true;purse:Purse}&RewardReply)|{ok:false;why:"none"|"far"|"full"|"spent"};
-export const CORE_ROUTES={ore:{game:"timing",cost:3,n:2},crystal:{game:"order",cost:4,n:1},safe:{game:"memory",cost:2,n:2}} as const;
+export const CORE_ROUTES={ore:{game:"timing",cost:3,n:8},crystal:{game:"order",cost:4,n:4},safe:{game:"memory",cost:2,n:8}} as const;
 export function coreChoices(run:CoreRun){return (["ore","crystal","safe"] as const).filter(r=>r==="safe"||(r==="ore"?run.known.includes(oreOf(run.floor)):ELEMENTS.some(e=>run.known.includes(GEMS[e].chip))));}
 const located=(f:number,at:[number,number],now:number)=>at.length===2&&at.every(Number.isSafeInteger)&&floorTile(f,dayOf(now),...at);
 export function beginCore(p:Purse,floor:number,id:string,at:[number,number],now:number,seed:number,proof:readonly number[]=[]):Result{
@@ -20,7 +20,7 @@ export function beginCore(p:Purse,floor:number,id:string,at:[number,number],now:
  const core:CoreRun={id,floor,seed,began:now,next:0,known:mineralKnowledge(p),room:null},learned=learnFloor(used.purse,floor,MINING.floors);
  return {ok:true,core,left:used.left,purse:{...learned,professionRewards:{...learned.professionRewards,core}}};
 }
-/** A room's route, mineral and puzzle stay fixed across misses, reconnects and expired challenges. */
+/** Reconnects preserve a room; a played miss forfeits it and advances the expedition. */
 export function coreAction(p:Purse,input:Extract<RewardInput,{action:"coreRoom"|"coreEnd"|"coreCancel"}>,request:string,now:number):Result{
  const run=p.professionRewards?.core;if(!run||run.id!==input.core)return {ok:false,why:"none"};
  if(input.action==="coreCancel")return {ok:true,core:null,purse:{...p,professionRewards:{...p.professionRewards,core:null}}};
@@ -42,6 +42,6 @@ export function coreAction(p:Purse,input:Extract<RewardInput,{action:"coreRoom"|
  if(!Array.isArray(a)||a.length!==expected.length||!a.every(n=>Number.isFinite(n)&&n>=0&&n<=(timing?1:2)))return {ok:false,why:"none"};
  const won=expected.every((v,i)=>timing?Math.abs(v-a[i])<=.09:v===a[i]),budget=CORE_ROUTES[room.route];
  const got:Array<[typeof room.mineral,number]>=won?[[room.mineral,budget.n]]:[],after=stowAll(p,got);if(!after)return {ok:false,why:"full"};
- const completed=won&&run.next===2,core=completed?null:{...run,next:run.next+(won?1:0),room:won?null:{...room,challenge:null}};
+ const completed=run.next===2,core=completed?null:{...run,next:run.next+1,room:null};
  return {ok:true,core,got,completed,passed:won?expected.length:0,purse:{...spend(after,budget.cost,now),professionRewards:{...after.professionRewards,core}}};
 }

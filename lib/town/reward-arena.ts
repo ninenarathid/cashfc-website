@@ -1,4 +1,4 @@
-import{works}from'./gifts';import{held,type Purse}from'./trade';import{spend}from'./stamina';import{extractionMarks}from'./reward-actions';
+import{works,useGift}from'./gifts';import{held,type Purse}from'./trade';import{spend}from'./stamina';import{extractionMarks}from'./reward-actions';
 export const RING_BEETLES=['rhinoBeetle','stagBeetle','jewelBeetle','herculesBeetle','scarab','orchardBeetle']as const;
 export type RingBeetle=typeof RING_BEETLES[number];
 export interface ArenaRun{id:string;bug:RingBeetle;opponent:RingBeetle;seed:number;at:[number,number];began:number;until:number}
@@ -16,5 +16,7 @@ export function arenaAction(p:Purse,input:{action:'arenaLook'|'arenaBegin'|'aren
  if(!state.at.every((n,i)=>n===input.at[i]))return {ok:false as const,why:'far' as const};
  if(!Array.isArray(input.answers)||input.answers.length!==3||input.answers.some(a=>!Number.isInteger(a.stance)||a.stance<0||a.stance>2||!Number.isFinite(a.mark)||a.mark<0||a.mark>1))return {ok:false as const,why:'none' as const};
  const targets=arenaTargets(state.seed),score=targets.reduce((n,x,i)=>n+(input.answers![i].stance===(x.attack+1)%3&&Math.abs(input.answers![i].mark-x.mark)<=.1?1:0),0),arenaBook={...before.arenaBook,[state.bug]:Math.max(before.arenaBook?.[state.bug]??0,score)};
- return {ok:true as const,purse:{...spend(p,1,t),professionRewards:{...before,arena:null,arenaBook}},arena:null,arenaScore:score};
+ // Five paid perfect matches per day; practice and misses never consume a prize.
+ const prize=score===3?useGift(p,'thingBeetleRing',t):null,earned=prize?.ok?prize.purse:p,coins=prize?.ok?12:0;
+ return {ok:true as const,purse:{...spend(earned,1,t),coins:earned.coins+coins,professionRewards:{...before,arena:null,arenaBook}},arena:null,arenaScore:score};
 }

@@ -8,6 +8,7 @@ import type { TreeAge } from "./mountain";
 import { stowAll } from "./pouches";
 import { extractionSource } from "./reward-actions";
 import { listeningHarvest } from "./reward-wood";
+import { comboWearKey } from "./combo-types";
 import { mayPower, usePower } from "./powers";
 import { dayOf, eased, isSpent, spend } from "./stamina";
 import { ALL, ELEMENTS, FORGE, GEM_FX, GEM_LEVELS, LEVELS, OPTIONS, SIX, OPTION_IDS, axeAhead, axeBarPace, axeChops, gemBy, gemStamina, has, levelOf, optN, toolKindOf, type OptionUse } from "./tools";
@@ -355,7 +356,7 @@ export function chopsFor(axe: Stack, t: Standing, half: boolean): number {
  * felled by itself and never among others.
  */
 export function groupOf(purse: Purse, grove: Grove, first: Standing, axe: Stack, now: number, wood: readonly Standing[] = WOOD, me?: string): Standing[] {
-  if (first.elder || !works(purse, "charmEchoAxe")) return [first];
+  if (first.elder || !works(purse, "charmEchoAxe") || usesLeft(purse,"charmEchoAxe",now)<1) return [first];
   // (never a tree somebody else's go holds)
   const more = wood.filter((t) => t.id !== first.id && !t.elder && !bites(axe, t) && apart(t, first) <= TREES.echo.reach && isGrown(grove, t, now) && !heldBy(grove, t.id, now, me))
     .sort((a, b) => apart(a, first) - apart(b, first) || a.id - b.id);
@@ -663,11 +664,13 @@ export const treesRow = (wood: readonly Standing[] = WOOD) => ({
 /** Training belongs to the tool used for this successful job, once per result. */
 export function fell(...args: Parameters<typeof fellUntrained>): ReturnType<typeof fellUntrained> {
   const go=args[1].goes?.[args[2]],domino=go?.domino&&goHolds(go,args[5])&&go.trees[0]===args[3].tree;
+  if(!args[3].one&&goHolds(go,args[5])&&go.trees[0]===args[3].tree&&go.comboLoadout!==undefined&&go.comboLoadout!==comboWearKey(args[0]))return no("none");
   if(domino&&(args[3].one||!works(args[0],"charmDomino")||usesLeft(args[0],"charmDomino",args[5])<1))return no("none");
   const did = fellUntrained(...args);
   if (!did.ok || !did.felled.length) return did;
   let purse=did.purse;
   if(domino&&did.felled.length>=2){const used=useGift(purse,"charmDomino",args[5]);if(!used.ok)return no(used.why==="spent"?"spent":"none");purse=used.purse;}
+  if(!domino&&did.felled.length>=2){const used=useGift(purse,"charmEchoAxe",args[5]);if(!used.ok)return no(used.why==="spent"?"spent":"none");purse=used.purse;}
   purse = trainElement(args[0], purse, axeOf(args[0]));
   const first = did.felled[0], grain = args[3].grain;
   if (grain && first.quality) purse = extractionSource(purse, first.id, [...args[4]], grain.part, first.quality, args[5]);

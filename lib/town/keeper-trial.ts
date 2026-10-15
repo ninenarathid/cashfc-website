@@ -253,7 +253,7 @@ class TrialKeeper implements Keeper {
     // (nothing is there to take a stardust bait: the line is not dropped, and the bait is not spent)
     if (!odds.length) return { ok: false, why: "calm" };
     const dragon=dragonDraw(hooked.purse,odds,bait,current,place.tile,pair,star,now);
-    const school=schoolWeights(dragon.purse,dragon.odds,star,now);odds=school.odds;
+    const school=schoolWeights(dragon.purse,dragon.odds,star,now,pair);odds=school.odds;
     // (the line goes out: the bait has left the bag, or the stardust is counted)
     this.trial.fished(habitat !== "town" ? {...school.purse,fishingPattern:pattern} : school.purse);
     // (from the fourth rank of the deck, what is uncommon or better is bigger, and fights harder)

@@ -23,7 +23,7 @@ describe("earned profession rewards",()=>{
     expect(d.direction).toBe("NE");expect(d.distance).toBe("near");expect(d.left).toBe(4);
     expect(Object.keys(d).sort()).toEqual(["direction","distance","left","ok","purse"]);
     expect(scanMineral(p,"chipRuby",[10,10],now,world)).toEqual({ok:false,why:"none"});
-    expect(scanMineral(p,"shardCopper",[10,10],now,{...world,stands:()=>false})).toEqual({ok:false,why:"none"});
+    const empty=scanMineral(p,"shardCopper",[10,10],now,{...world,stands:()=>false});expect(empty.ok).toBe(true);if(empty.ok){expect(empty.left).toBe(4);expect(empty.direction).toBeUndefined();expect(usesLeft(empty.purse,"thingOreCompass",now)).toBe(4);}
   });
   it("has a five-scan daily cap without spending stamina",()=>{
     let p=learnMinerals(player(),[["shardCopper",1]]);

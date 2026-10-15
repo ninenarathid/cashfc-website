@@ -17,10 +17,10 @@ const gems=ELEMENTS.map(e=>GEMS[e].gem),chips=ELEMENTS.map(e=>GEMS[e].chip);
 export function resourceRecipe(kind:ResourceKind,key:string,p?:Purse):ResourceRecipe|null{
   if(kind==="branch"&&(key==="ore"||key==="crystal")){const item=p?.professionRewards?.branch?.[key];return item?{needs:[],got:[[item,key==="ore"?4:3]]}:null;}
   if(kind==="hive"&&["honey","wax"].includes(key))return {needs:[["fragrantPetal",5]],got:[[key==="honey"?"gardenHoney":"beeswax",2]]};
-  if(kind==="repair"&&chips.includes(key as ItemId))return {needs:[[key as ItemId,10],["quartzCore",2],["rootTwine",1]],got:[["wholeGeode",1]]};
+  if(kind==="repair"&&chips.includes(key as ItemId))return {needs:[[key as ItemId,2],["quartzCore",1],["rootTwine",1]],got:[["wholeGeode",1]]};
   if(kind==="color"){
     const [a,b,target,...extra]=key.split(":");
-    if(!extra.length&&gems.includes(a as ItemId)&&gems.includes(b as ItemId)&&gems.includes(target as ItemId)&&a!==b)return {needs:[[a as ItemId,1],[b as ItemId,1],["sparkPowder",1]],got:[[target as ItemId,1]]};
+    if(!extra.length&&gems.includes(a as ItemId)&&gems.includes(b as ItemId)&&gems.includes(target as ItemId)&&target!==GEMS.light.gem&&target!==GEMS.dark.gem&&a!==b)return {needs:[[a as ItemId,1],[b as ItemId,1],["sparkPowder",1]],got:[[target as ItemId,1]]};
   }
   return null;
 }
