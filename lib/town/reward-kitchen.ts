@@ -36,7 +36,7 @@ export function kitchenAction(p:Purse,c:KitchenInput,id:string,t:number,seed:num
  if(!pass){const kitchen=attempts>=5?null:{...r,began:t,attempts};return {ok:true as const,purse:{...after,professionRewards:{...state,kitchen}},kitchen,kitchenPassed:false};}
  if(r.kind==='fire')return {ok:true as const,purse:{...after,professionRewards:{...state,kitchen:null,fire:{recipe:r.recipe!,until:t+1800000}}},kitchen:null,kitchenPassed:true};
  if(r.stage<2){const kitchen={...r,stage:r.stage+1,began:t,attempts};return {ok:true as const,purse:{...after,professionRewards:{...state,kitchen}},kitchen,kitchenPassed:true};}
- const banquet:Pot[]=r.foods!.map((s,i)=>({id:`${id}-${i}`,by:me,dish:s.of!.dish,left:1,at:KITCHEN.feast.tile,feast:true,set:t,warm:Math.max(s.warm??0,.5),...(s.scent?{scent:s.scent}:{}),...(s.secondary?{secondary:s.secondary}:{}),...(s.cookedBy?{cookedBy:s.cookedBy}:{}),...(s.cookId?{cookId:s.cookId}:{})}));
+ const banquet:Pot[]=r.foods!.map((s,i)=>({id:`${id}-${i}`,by:me,dish:s.of!.dish,left:1,at:KITCHEN.feast.tile,feast:true,set:t,warm:Math.max(s.warm??0,.5),...(s.scent?{scent:s.scent}:{}),...(s.secondary?{secondary:s.secondary}:{}),...(s.cookedBy?{cookedBy:s.cookedBy}:{}),...(s.cookId?{cookId:s.cookId}:{}),...(s.grade?{grade:s.grade}:{})}));
  return {ok:true as const,purse:{...after,professionRewards:{...state,kitchen:null}},kitchen:null,banquet,kitchenPassed:true};
 }
 /** One prepared bonus belongs to one actual manual pot, never a failed guess or sprite batch. */
@@ -47,4 +47,5 @@ export function kitchenCooked<T extends {ok:boolean;purse?:Purse;made?:ItemId|nu
  const bag=d.purse.bag.map((s,i)=>i===slot?{...s!,of:{...s!.of!,left:s!.of!.left+extra},cookedBy:me,cookId:id,...(flavor?{secondary:state.flavor!.secondary}:{})}:s),professionRewards={...d.purse.professionRewards,...(fire?{fire:null}:{}),...(flavor?{flavor:null}:{})};
  return {...d,n:(d.n??0)+extra,purse:{...d.purse,bag,professionRewards}};
 }
-export type FoodMarks={warm?:number;scent?:number;secondary?:MealBuffId;cookedBy?:string;cookId?:string};
+/** What a pot of food carries beyond its dish and helpings (lib/town/cooking's potMarks); since piece 2.4 its grade too. */
+export type FoodMarks={warm?:number;scent?:number;secondary?:MealBuffId;cookedBy?:string;cookId?:string;grade?:1|2|3};
