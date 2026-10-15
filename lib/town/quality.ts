@@ -29,6 +29,8 @@ export const QUALITY = {
   narrow: 10,
   /** What fennel takes off the soil of the plants it touches (✚), at full time. */
   fennel: 10,
+  /** From when anything counts (Bangkok midnight, 2026-10-15, for the trial; set to the moment it goes live). */
+  launch: Date.UTC(2026, 9, 14, 17),
 } as const;
 
 /* ── grades ── */
@@ -87,12 +89,12 @@ export const ceilingOf = (bars: Record<Role, number>): number => Math.min(100, R
 /**
  * What a plant's round has gathered so far, kept on the plant (`Plant.q`): when it was last settled, how much growing
  * has been counted (`span`, in parts of the round), each bar's covered growing (`area`, soil water pollen guard, a
- * whole bar 1), the narrowing sources' covered growing (`nar`: partner, rare, packet), and whether the brush was used.
+ * whole bar 1) and the narrowing sources' covered growing (`nar`: partner, rare, packet); the brush is the plant's own.
  * Weighed by GROWING, not by the clock: a plant that grows faster counts faster, and nothing is counted once it is
  * ripe (its growing stops there), so the bars freeze by themselves. A jump of growth (a watering's boost) falls
  * between two settles and is counted for nobody, which `span` leaves out of the share.
  */
-export interface PlantQ { at: number; span: number; area: [number, number, number, number]; nar: [number, number, number]; brush?: true }
+export interface PlantQ { at: number; span: number; area: [number, number, number, number]; nar: [number, number, number] }
 /** A narrowing source while it lasts: `share` of the plant it reaches (a rare insect's house covers all of it, 1). */
 export interface NarrowCover { kind: Exclude<Narrowing, "brush">; from: number; to: number; share?: number }
 export const NO_Q = (at: number): PlantQ => ({ at, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0] });
@@ -132,13 +134,13 @@ export function barsOfQ(q: PlantQ): Record<Role, number> {
   ROLES.forEach((role, k) => { out[role] = Math.max(0, Math.min(QUALITY.bar, Math.floor((QUALITY.bar * q.area[k]) / q.span + 1e-9))); });
   return out;
 }
-/** How far a round has raised its floor. */
-export function narrowingOfQ(q: PlantQ): number {
+/** How far a round has raised its floor; `brushed`, whether the brush was used on it this round. */
+export function narrowingOfQ(q: PlantQ, brushed = false): number {
   const share = (k: number) => (q.span > 0 ? q.nar[k] / q.span : 0);
-  return narrowingOf({ partner: share(0), rare: share(1), packet: share(2), brush: q.brush ? 1 : 0 });
+  return narrowingOf({ partner: share(0), rare: share(1), packet: share(2), brush: brushed ? 1 : 0 });
 }
 /** A round's range as it stands. */
-export const rangeOfQ = (q: PlantQ): Range => rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q));
+export const rangeOfQ = (q: PlantQ, brushed = false): Range => rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q, brushed));
 
 /* ── the range ── */
 

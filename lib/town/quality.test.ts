@@ -143,8 +143,8 @@ describe("the farm's Quality", () => {
     it("narrows by the share of the growing each source covered, and the brush whole", () => {
       const q = accrue(NO_Q(0), 10 * H, linear, [full], [], [{ kind: "rare", from: 5 * H, to: 20 * H }, { kind: "partner", from: 0, to: 20 * H }]);
       expect(narrowingOfQ(q)).toBe(15);
-      expect(narrowingOfQ({ ...q, brush: true })).toBe(20);
-      expect(rangeOfQ({ ...q, brush: true })).toEqual({ lo: 15, hi: 25 });
+      expect(narrowingOfQ(q, true)).toBe(20);
+      expect(rangeOfQ(q, true)).toEqual({ lo: 15, hi: 25 });
     });
   });
 });

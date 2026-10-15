@@ -40,6 +40,7 @@ import { startSchool,type FishPool } from "./reward-fishing";
 import {portableLift} from "./reward-lift";
 import type { RewardInput, RewardReply } from "./reward-types";
 import { gardenTend, syncGarden } from "./gardening";
+import { syncQuality } from "./quality-plant";
 import { insectCare, type InsectCare } from "./insect-garden";
 import { boxOffer, moveBox, newBox, roomyBox, sortBox, stow, unstow, upgradeBox, type Box, type BoxRefusal } from "./box";
 import { craft, type CraftId } from "./crafting";
@@ -257,7 +258,8 @@ export class Trial {
     }
     return fresh();
   }
-  private write(key: string, value: unknown) { this.set(key, JSON.stringify(key === FARM ? syncGarden(value as Record<string, Plot>) : value)); }
+  // (the farm: each changed plant's Quality round settled as it stood before, as the trigger on town_plots does)
+  private write(key: string, value: unknown) { this.set(key, JSON.stringify(key === FARM ? syncGarden(syncQuality(this.farm(), value as Record<string, Plot>, this.now(), this.sky())) : value)); }
 
   /** The trial's clock: the real one, put forward by however much was skipped. */
   now(): number { return Date.now() + this.read<number>(CLOCK, () => 0, (v) => typeof v === "number" && Number.isFinite(v)); }

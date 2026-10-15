@@ -210,6 +210,13 @@ export interface Plant {
   moist?: boolean;
   /** One bounded local cloud interval, retained for elapsed growth after expiry. */
   localRain?: {id:string;by:string;from:number;until:number;day:number};
+  // ── Quality (lib/town/quality, lib/town/quality-plant) ──
+  /** When compost was put on it (once a planting): half the soil bar from then on. Missing from a plant given none. */
+  compost?: number;
+  /** When the pollen brush was last used on it: half the pollen bar from then to ripeness, and its floor raised, for the round it was used in. */
+  brushed?: number;
+  /** Its present round as gathered so far (settled before every change of it). Missing from a plant not yet settled. */
+  q?: import("./quality").PlantQ;
 }
 export interface Plot {
   soil: Soil; plant: Plant | null;
