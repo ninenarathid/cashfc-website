@@ -18,7 +18,7 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | done: partners via the bed gift; compost and brush deeds (v262) |
 | 2.7 | Dig out from the inspector (tilled ground, 2 stamina, nothing back) | done: the hoe's dig-out of a living plant leaves tilled ground (v262) |
 | 3 | The 27 fertilisers, two slots, the chart, holding one shows its gain | |
-| 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | |
+| 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | **4b done** on branch `farm-species`: the 48 species and 4 rare finds (`lib/town/band-species.ts`), their art (10 calls, $0.19), the time icons, "out now" from the clock's band, **v264** (6 functions guarded, 3 new, dry run 7631 checks); 4a (the house) on farm-bands, v265 |
 | 5 | Crossing sun / moon / mist, hybrid seeds in the players' market, the seed tray | sun/moon done (8 helper crossings, pollinator skies, v263); mist with the pre-dawn insects (4) |
 | 6 | The bat merchant, 03:00–05:00 | |
 | 7 | Farming-line gear and charms 1–10 (the swap charm), designed with the owner first | |
@@ -83,6 +83,40 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 - **A fix found on the way:** the big pot's batch take calls `town.take(bag, id, numeric)`, and `town.take` takes an
   integer, so on the bench (built from the migrations) a pot cooked with the batch power fails with "function does not
   exist", as it likely does live since v177; v261 casts it to a whole number.
+
+## Piece 4b: decisions taken while building (not the owner's words; told to him)
+
+- **No newcomer thins an old one, and how:** the old draws are untouched to the last roll (the dry run compares the 94
+  old haunts' draws before and after v264 at every band). *Insects* keep to 31 haunts of their own kinds (flowers,
+  leaves, logs, bark, litter, sand, fence posts) laid after the old ones; such a haunt has nothing so often beside its
+  newcomers (`QUIET.none` 100), nothing comes back from or to it, and the farm's pests do not count them. *Fish:* every
+  cast catches one thing, so a new fish must take some old outcome's place; it takes only **what is no fish** (hyacinth,
+  boot, driftwood, bottle; never a pearl or a chest), each its rarity's share of a cast (C 6%, U 2.5%, R 0.8%, V 0.3%,
+  half outside its peak band), all of them never more than half of what is no fish, and only after every gift has
+  shaped the odds. **So where a newcomer fits, junk comes up less often (at most half as often); the hyacinth there
+  feeds compost, rope and baskets: the owner's to weigh** (the alternative, thinning the old fish a few per cent in the
+  newcomer's band and bait, breaks the rule). In the town's crowded water this makes the town's newcomers rarer than
+  their letter (a C small fish there is about 1% of dough casts). *Rare finds:* the forest's two only in a turn of their
+  place that had nothing; the dew a sample of its own; the guano besides what a rock left, never instead.
+- **Rarities (mine, measured in band-species.test.ts):** insects C about 3.6 to 5.4 an hour on their map in their window,
+  U 1.6 to 2.4, R 0.55 to 0.8 (the old commons are 20 to 30); fish as above; the mist mushroom about 0.5 an hour in the
+  woods 03-05 (V), the queen's pollen about 1.3 an hour at the edge 23-03 (R); the dew one a bank per 15-minute turn per
+  member 05-07; guano a 30% chance per plain cave rock broken 18-19.
+- **Places:** "the town pond" is the town's river (the only water in town); "mountain headwater/pool" are the headwater and
+  pool habitats (on the forest's stream and the mountain). The antlion and the tiger beetle share the stream's sand.
+  "Small fish" as a bait is a minnow or a loach (and the newcomer small fish go on a hook as a minnow does).
+- **Uses by family now:** pollinators join `INSECT_GARDEN.pollinators` and `POLLINATOR_SKY` by their time icon (the two
+  dawn bees are "mist", which crosses as the day's until piece 5); hunters join `predators`; small fish are bait.
+  Recorded for later (`FAMILIES.later`): the house's soil room (`DECOMPOSERS`, piece 4a), glow powder (its picture is
+  drawn, the item comes with its recipe), beetle frass, fish emulsion, bone meal, scale powder and the "any small fish
+  ×3" recipes all need **recipes that take any of a family**, one mechanic for piece 3; medium fish's "food" needs the
+  same. Points: a newcomer of two stamina scores a way's 3 (the line's ladder of 1, 3, 8).
+- **Found, for the dark shapes:** an insect once the village has caught one (the village's book), a fish once I have (my
+  longest of it). The book shows only the newcomers (the old species' windows and baits stay unsaid, as the owner hid
+  the odds of a bait).
+- **The uncle's orders never ask for a newcomer** (they are not in the weighed fish), and the newcomers are not in the
+  stardust bait, the school bell or the dragon's pools.
+- **Pre-existing:** `lib/town/preview.test.ts` "joins the town and the mountain by a gate each" fails on farm-bands too.
 
 ## Checks a piece gets
 
