@@ -1,4 +1,5 @@
 import{mealDuration}from"./stamina";
+import { syncQuality } from "./quality-plant";
 import type { RockChoice } from "./geology";
 import type { InsectCare } from "./insect-garden";
 import type { Box, BoxRefusal, BoxUpgrade } from "./box";
@@ -1285,8 +1286,12 @@ export class DbKeeper implements Keeper {
     this.tell();
   }
   private plot(key: string, plot: Plot) {
-    const next = { ...this.plots };
-    if (plot.soil === "wild" && !plot.plant) delete next[key]; else next[key] = plot;
+    const next = { ...this.plots }, was = this.plots[key];
+    // (the farm's Quality: an act's answer carries the plant as it was before the database's trigger settled its round;
+    // when its round comes back as it was, it is settled here by the same rules, lib/town/quality-plant's syncQuality)
+    const stale = !!was?.plant && !!plot.plant && JSON.stringify(was.plant.q ?? null) === JSON.stringify(plot.plant.q ?? null);
+    if (plot.soil === "wild" && !plot.plant) delete next[key];
+    else next[key] = stale ? syncQuality({ [key]: was! }, { [key]: plot }, this.now(), this.rains())[key] : plot;
     this.plots = next;
   }
   /** My deal as the database tells it: open, or just ended (which is shown for a moment, then forgotten). */

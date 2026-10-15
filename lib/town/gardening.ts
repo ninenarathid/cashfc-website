@@ -5,6 +5,8 @@ import { WILD, see, tend, type Bed, type FarmSky, type Plot } from "./farm";
 import { held, handOf, no, put, roomFor, type Purse } from "./trade";
 import { hasBuff } from "./stamina";
 import { bedOf } from "./world";
+import { QUALITY } from "./quality";
+import { harvestOf } from "./quality-plant";
 
 export const GARDEN = {
   version: 1, boost: 3600000, extra: 1,
@@ -79,7 +81,9 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
   const child = gardenCross(key, plots, me, now, sky), fx = gardenMods(before, now);
   let after = did.purse, updated = did.plot;
   const extras: Array<[ItemId, number]> = [];
-  if (plant.root && fx.extra) extras.push([plant.crop, GARDEN.extra]);
+  // (the twine's fruit is of the plant's own crop: rolled for its Quality as the fruits after the pick's, lib/town/quality-plant)
+  const twine = plant.root && fx.extra ? harvestOf(key, plant, GARDEN.extra, now, sky, QUALITY.launch, "", did.got[0]?.[1] ?? 0) : null;
+  for (const [g, c] of twine?.groups ?? []) { if (roomFor(after.bag, plant.crop, g) < c) return no("full"); after = { ...after, bag: put(after.bag, plant.crop, c, g) }; }
   if (!updated.plant && plant.root && fx.seed) extras.push([CROPS[plant.crop].seed, 1]);
   if (child) extras.push([GARDEN_CROPS[child].seed, fx.knife || plant.insectCrossRound===plant.picked ? 2 : 1]);
   for (const [id, n] of extras) { if (roomFor(after.bag, id) < n) return no("full"); after = { ...after, bag: put(after.bag, id, n) }; }
@@ -87,7 +91,7 @@ export function gardenHarvest<T extends { purse: Purse; plot: Plot; got: Array<[
     after = { ...after, gardenBook: [...new Set([...(after.gardenBook ?? []), child])] };
     if (updated.plant) updated = { ...updated, plant: { ...updated.plant, crossed: true } };
   }
-  return { ...did, purse: after, plot: updated, got: [...did.got, ...extras], ...(child ? { cross: child } : {}) };
+  return { ...did, purse: after, plot: updated, got: [...did.got, ...(twine ? [[plant.crop, GARDEN.extra] as [ItemId, number]] : []), ...extras], ...(child ? { cross: child } : {}) };
 }
 export function gardenTend(key: string, plots: Readonly<Record<string, Plot>>, bed: Bed | undefined, others: number, holds: number, purse: Purse, me: string, now: number, sky: FarmSky, sure = false, luck?: number, rotation = 0) {
   const plot = plots[key] ?? WILD, hand = handOf(purse), crop = Object.keys(GARDEN_CROPS).find(c => GARDEN_CROPS[c as GardenCropId].seed === hand) as GardenCropId | undefined;

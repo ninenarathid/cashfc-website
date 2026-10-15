@@ -30,7 +30,9 @@ do $$ begin
  if md5(replace(pg_get_functiondef('town.collect(jsonb,bigint)'::regprocedure),chr(13),'')) not in ('c232948b0580824bd21b3486a2cf0ee2','b6eec4cf3ada7e7ffbc974d6e43e3531') then raise exception 'Definition changed: town.collect(jsonb,bigint); rebuild v260'; end if;
  if md5(replace(pg_get_functiondef('town.has_all(jsonb,jsonb)'::regprocedure),chr(13),'')) not in ('f60288e6791052ff322a8da9de847a20','3db81951c9a96ab62c727aab36bf516d') then raise exception 'Definition changed: town.has_all(jsonb,jsonb); rebuild v260'; end if;
  if md5(replace(pg_get_functiondef('town.pull(jsonb,jsonb)'::regprocedure),chr(13),'')) not in ('dd3a5ecbc4a19f9f61496dcf881a2598','3756784e8f6aeeac5667d6ec6dcf072e') then raise exception 'Definition changed: town.pull(jsonb,jsonb); rebuild v260'; end if;
- if md5(replace(pg_get_functiondef('town.pick(text,jsonb,jsonb,boolean,text,bigint)'::regprocedure),chr(13),'')) not in ('9d43fb6a887d6e5dd19a87a85ff7274e','c8ab9b215d0fca6196ed6b34d2f84161') then raise exception 'Definition changed: town.pick(text,jsonb,jsonb,boolean,text,bigint); rebuild v260'; end if;
+ if md5(replace(pg_get_functiondef('town.pick(text,jsonb,jsonb,boolean,text,bigint)'::regprocedure),chr(13),'')) not in ('9d43fb6a887d6e5dd19a87a85ff7274e','80e8495aa4e147d32e78f482b7e1bc5f') then raise exception 'Definition changed: town.pick(text,jsonb,jsonb,boolean,text,bigint); rebuild v260'; end if;
+ if md5(replace(pg_get_functiondef('town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint)'::regprocedure),chr(13),'')) not in ('2cea6d67a8a6c99cb0427d94d8b50f54','0d2a7cb3e48de505bc51d469bf33dee1') then raise exception 'Definition changed: town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint); rebuild v260'; end if;
+ if md5(replace(pg_get_functiondef('town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb)'::regprocedure),chr(13),'')) not in ('938891183582cd7da7b5039e9f588de7','bcda3d8440ec0b755decea5bccf44ec1') then raise exception 'Definition changed: town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb); rebuild v260'; end if;
 -- </guards:v260>
 end $$;
 
@@ -357,9 +359,19 @@ begin
 end;
 $function$;
 
+-- One fruit's draw in [0, 1): md5 over the private salt and the fruit's place (plot, sowing, picking, which fruit), so
+-- that nothing short of the salt tells a draw (Codex's check: a salt fed into the 32-bit town.roll could be found again
+-- from a few fruits); with an empty salt, the code's own draw (lib/town/farm's roll), as the trial and the bench have it.
+create or replace function town.quality_draw(p_salt text, p_key text, p_sown bigint, p_picked bigint, p_i bigint)
+returns double precision language sql immutable set search_path='' as $$
+ select case when coalesce(p_salt, '') = '' then town.roll('quality||' || p_key, p_sown, p_picked, p_i)
+  else ('x' || substr(md5(p_salt || '|' || p_key || '|' || p_sown || '|' || p_picked || '|' || p_i), 1, 8))::bit(32)::bigint::double precision / 4294967296 end
+$$;
+
 -- A pick's fruits (lib/town/quality-plant's harvestOf): the round's range as it stands, one even roll a fruit from the
--- seeded draws, and the fruits by grade. `p_salt` is the private salt (the bench passes an empty one to match the code).
-create or replace function town.quality_harvest(p_key text, p_plant jsonb, p_n integer, p_now bigint, p_salt text)
+-- seeded draws, and the fruits by grade. `p_salt` is the private salt (the bench passes an empty one to match the code);
+-- `p_from`, the first fruit's number (the twine's and the sickle's come after the pick's own).
+create or replace function town.quality_harvest(p_key text, p_plant jsonb, p_n integer, p_now bigint, p_salt text, p_from integer default 0)
 returns jsonb language plpgsql stable set search_path='' as $$
 declare
  q jsonb := town.quality_settled(p_plant, p_now); qc jsonb := town.cat('quality'); bars integer[] := '{}'; k integer; ceiling_ integer := 0;
@@ -378,7 +390,7 @@ begin
  hi := greatest(0, least(100, ceiling_));
  lo := greatest(0, hi - ((qc->>'spread')::integer - least((qc->>'narrowest')::integer, floor(nar + 1e-9)::integer)));
  for i in 0..p_n - 1 loop
-  v := lo + least(hi - lo, floor(town.roll('quality|' || coalesce(p_salt, '') || '|' || p_key, (p_plant->>'sown')::bigint, (p_plant->>'picked')::bigint, i::bigint) * (hi - lo + 1))::integer);
+  v := lo + least(hi - lo, floor(town.quality_draw(p_salt, p_key, (p_plant->>'sown')::bigint, (p_plant->>'picked')::bigint, (p_from + i)::bigint) * (hi - lo + 1))::integer);
   vals := vals || v;
   g := case when v >= 95 then 3 when v >= 70 then 2 when v >= 40 then 1 else 0 end;
   counts[g + 1] := counts[g + 1] + 1;
@@ -415,7 +427,7 @@ begin
   n := town.yield_of(p_key, p, case when town.held(p_purse->'bag', p_hand) > 0 then p_hand end);
   if p->'giant'='true'::jsonb then n:=n+5*town.yield_of(p_key,p,null);end if;
   -- ── v260: each fruit's Quality; the bag must hold every grade the pick gives, before anything is done ──
-  fruits := town.quality_harvest(p_key, p, n, p_now, (select s.salt from town.quality_salt s where s.one));
+  fruits := town.quality_harvest(p_key, p, n, p_now, (select s.salt from town.quality_salt s where s.one), 0);
   room_ := p_purse->'bag';
   for g in select e.v from jsonb_array_elements(fruits->'groups') e(v) loop
     if town.room_g(room_, p->>'crop', (g->>0)::integer) < (g->>1)::integer then return town.no('full'); end if;
@@ -442,7 +454,139 @@ end;
 $function$;
 
 revoke all on function town.grade_in(jsonb), town.held_g(jsonb,text,integer), town.room_g(jsonb,text,integer), town.put_g(jsonb,text,integer,integer),
- town.grade_pays(text,integer), town.quality_harvest(text,jsonb,integer,bigint,text) from public, anon, authenticated;
+ town.grade_pays(text,integer), town.quality_draw(text,text,bigint,bigint,bigint), town.quality_harvest(text,jsonb,integer,bigint,text,integer) from public, anon, authenticated;
+-- The garden's harvest and the sickle's row: their fruits of the plant's own crop are graded too (Codex's check).
+CREATE OR REPLACE FUNCTION town.garden_harvest(p_key text, p_before jsonb, p_plot jsonb, p_plots jsonb, p_done jsonb, p_now bigint)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+ SET search_path TO ''
+AS $function$
+-- v203: passive equipment, outside the physical bag.
+declare
+ p jsonb:=p_plot->'plant'; after_ jsonb:=p_done->'purse'; updated jsonb:=p_done->'plot'; extras jsonb:='[]'::jsonb;
+ child text:=town.garden_cross(p_key,p_plots,p->>'by',p_now); book jsonb; stowed jsonb; twine jsonb; g jsonb;
+begin
+ if p is null or p='null'::jsonb or (p->>'root' is not null and p->>'root'<>p_key) then return p_done; end if;
+ -- v260: the twine's fruit is of the plant's own crop: rolled for its Quality as the fruits after the pick's
+ if p->>'root' is not null and town.held(town.carried_bag(p_before),'gardenTwine')>0 then
+  twine:=town.quality_harvest(p_key,p,(town.cat('gardening')->>'extra')::integer,p_now,(select s.salt from town.quality_salt s where s.one),coalesce((p_done->'got'->0->>1)::integer,0));
+  for g in select e.v from jsonb_array_elements(twine->'groups') e(v) loop
+   if town.room_g(after_->'bag',p->>'crop',(g->>0)::integer)<(g->>1)::integer then return town.no('full'); end if;
+   after_:=after_ || jsonb_build_object('bag',town.put_g(after_->'bag',p->>'crop',(g->>1)::integer,(g->>0)::integer));
+  end loop;
+ end if;
+ if updated->'plant'='null'::jsonb and p->>'root' is not null and town.held(town.carried_bag(p_before),'seedTray')>0 then extras:=extras || jsonb_build_array(jsonb_build_array(town.cat('crops')->(p->>'crop')->>'seed',1)); end if;
+ if child is not null then extras:=extras || jsonb_build_array(jsonb_build_array(town.cat('crops')->child->>'seed',case when town.held(town.carried_bag(p_before),'graftKnife')>0 or p->'insectCrossRound'=p->'picked' then 2 else 1 end)); end if;
+ stowed:=town.stow_all(after_,extras);
+ if stowed is null then return town.no('full'); end if;
+ after_:=stowed;
+ if child is not null then
+  book:=coalesce(after_->'gardenBook','[]'::jsonb);
+  if not book ? child then book:=book || to_jsonb(child); end if;
+  after_:=after_ || jsonb_build_object('gardenBook',book);
+  if updated->'plant'<>'null'::jsonb then updated:=jsonb_set(updated,'{plant,crossed}','true'::jsonb); end if;
+ end if;
+ return p_done || jsonb_build_object('purse',after_,'plot',updated,'got',p_done->'got' || case when twine is null then '[]'::jsonb else jsonb_build_array(jsonb_build_array(p->>'crop',(town.cat('gardening')->>'extra')::integer)) end || extras) || case when child is not null then jsonb_build_object('cross',child) else '{}'::jsonb end;
+end $function$;
+
+CREATE OR REPLACE FUNCTION town.row_tend(p_at text, p_keys jsonb, p_plots jsonb, p_bed jsonb, p_rest integer, p_holds integer, p_purse jsonb, p_me text, p_now bigint, p_marks jsonb)
+ RETURNS jsonb
+ LANGUAGE plpgsql
+ STABLE
+AS $function$
+declare
+  wild jsonb := '{"soil": "wild", "plant": null}'::jsonb;
+  bed jsonb := case when p_bed is null or p_bed = 'null'::jsonb then null else p_bed end;
+  plots jsonb := case when jsonb_typeof(p_plots) = 'object' then p_plots else '{}'::jsonb end;
+  marks jsonb := case when jsonb_typeof(p_marks) = 'object' then p_marks else '{}'::jsonb end;
+  found jsonb;
+  state jsonb := '{}'::jsonb;
+  stand jsonb;
+  each jsonb := '[]'::jsonb;
+  mine jsonb := p_purse;
+  key text;
+  plot jsonb;
+  did jsonb;
+  others integer;
+  hand text := town.hand_of(p_purse);
+  sows boolean;
+  spared integer := 0;
+  reaps boolean;
+  more integer := (town.cat('gifts')->'gifts'->'charmSickle'->>'by')::integer;
+  crop text;
+  n integer;
+  well boolean;
+  cell_ text;
+  extras_ jsonb:='[]'::jsonb;
+  got_ jsonb;
+  cut_ jsonb;
+  g_ jsonb;
+begin
+  found := town.row_for(p_at, p_keys, plots, p_purse, p_me, p_now, town.owner_of(bed,
+    p_rest + (select count(*) from jsonb_array_elements_text(p_keys) as k(key_) where coalesce(plots->k.key_->'plant', 'null'::jsonb) <> 'null'::jsonb) > 0, p_now));
+  if found is null then return town.no('none'); end if;
+  sows := found->>'deed' = 'sow';
+  reaps := found->>'deed' = 'pick';
+  -- (the pouch: of the seeds its plots would have taken one by one, so many are spared)
+  if sows then spared := jsonb_array_length(found->'plots') - town.pouch_seeds(jsonb_array_length(found->'plots'), jsonb_array_length(p_keys)); end if;
+  for key in select t.key_ from jsonb_array_elements_text(found->'plots') with ordinality as t(key_, ord) order by t.ord loop
+    -- (a beat missed leaves its plot undone; sowing has no beats: every plot of its row is sown; and every plant the
+    -- sickle swung at is picked, however it was cut: only one that was not in the sweep is left)
+    continue when case when reaps then not (marks ? key) else not sows and marks->key is distinct from 'true'::jsonb end;
+    stand := plots || state;
+    plot := coalesce(stand->key, wild);
+    select p_rest + count(*)::int into others from jsonb_array_elements_text(p_keys) as k(key_)
+     where k.key_ <> key and coalesce(stand->k.key_->'plant', 'null'::jsonb) <> 'null'::jsonb;
+    others:=others + coalesce((select sum(case when coalesce(stand->e.key->'plant','null'::jsonb)<>'null'::jsonb then 1 else 0 end - case when coalesce(plots->e.key->'plant','null'::jsonb)<>'null'::jsonb then 1 else 0 end)::integer from jsonb_each(state) e where not p_keys ? e.key),0)
+      - greatest(0,coalesce(jsonb_array_length(plot->'plant'->'footprint'),1)-1);
+    did := town.tend(key, plot, bed, others, p_holds, mine, p_me, p_now, false);
+    if not (did->>'ok')::boolean or did->>'deed' <> found->>'deed' then
+      if jsonb_array_length(each) = 0 and not (did->>'ok')::boolean then return did; end if;
+      exit;
+    end if;
+    mine := did->'purse';
+    bed := did->'bed';
+    state := state || jsonb_build_object(key, did->'plot');
+    for cell_ in select jsonb_array_elements_text(coalesce(plot->'plant'->'footprint','[]'::jsonb)) loop state:=state || jsonb_build_object(cell_,did->'plot'); end loop;
+    if reaps then extras_:=extras_ || ((did->'got') - 0); end if;
+    -- (a seed spared is back in the bag as soon as it was taken: there is room for it where it lay)
+    if sows and jsonb_array_length(each) < spared then mine := mine || jsonb_build_object('bag', town.put(mine->'bag', hand, 1)); end if;
+    if not reaps then
+      each := each || jsonb_build_array(jsonb_build_object('key', key, 'crop', coalesce(plot->'plant'->'crop', did->'plot'->'plant'->'crop', 'null'::jsonb), 'n', 1));
+      continue;
+    end if;
+    -- (a plant cut well: the sickle's one more, where the bag has room for it)
+    crop := plot->'plant'->>'crop';
+    well := marks->key = 'true'::jsonb;
+    n := (did->'got'->0->>1)::integer;
+    -- v260: its fruits are rolled for their Quality as the fruits after the pick's and the twine's
+    if well then
+      cut_ := mine->'bag';
+      for g_ in select e.v from jsonb_array_elements((town.quality_harvest(key, plot->'plant', more, p_now, (select s.salt from town.quality_salt s where s.one),
+          (select coalesce(sum((e.v->>1)::integer), 0)::integer from jsonb_array_elements(did->'got') e(v) where e.v->>0 = crop)))->'groups') e(v) loop
+        if cut_ is not null and town.room_g(cut_, crop, (g_->>0)::integer) >= (g_->>1)::integer then cut_ := town.put_g(cut_, crop, (g_->>1)::integer, (g_->>0)::integer); else cut_ := null; end if;
+      end loop;
+      if cut_ is not null then
+        mine := mine || jsonb_build_object('bag', cut_);
+        n := n + more;
+      end if;
+    end if;
+    each := each || jsonb_build_array(jsonb_build_object('key', key, 'crop', crop, 'n', n, 'well', well));
+  end loop;
+  select coalesce(jsonb_agg(jsonb_build_array(q.item,q.n) order by q.ord),'[]'::jsonb) into got_
+    from (select g.v->>0 item,sum((g.v->>1)::numeric) n,min(g.ord) ord from jsonb_array_elements(
+      coalesce((select jsonb_agg(jsonb_build_array(e.v->>'crop',(e.v->>'n')::integer) order by e.ord) from jsonb_array_elements(each) with ordinality e(v,ord) where reaps),'[]'::jsonb) || extras_) with ordinality g(v,ord) group by g.v->>0) q;
+  mine:=town.remember_garden_misses(mine,found->'plots',found->>'deed',plots,town.owner_of(p_bed,p_rest+(select count(*) from jsonb_each(plots) q where coalesce(q.value->'plant','null'::jsonb)<>'null'::jsonb)>0,p_now),marks,(select coalesce(jsonb_agg(v->'key'),'[]'::jsonb) from jsonb_array_elements(each) q(v)),p_me,p_now);
+  mine:=town.combo_row_checkpoint(p_purse,mine,p_at,found->'plots',(select coalesce(jsonb_agg(v->'key'),'[]'::jsonb) from jsonb_array_elements(each) q(v)),found->>'deed',plots||state,town.owner_of(p_bed,false,p_now),marks,p_me,p_now);
+  return jsonb_build_object('ok', true, 'deed', found->>'deed', 'purse', mine, 'plots', state, 'each', each,
+      -- (what was picked, all told: of each crop how many, in the order they were first picked)
+      'got', coalesce(got_,'[]'::jsonb))
+    || case when bed is null then '{}'::jsonb else jsonb_build_object('bed', bed) end
+    || case when sows then jsonb_build_object('seeds', jsonb_array_length(each) - least(spared, jsonb_array_length(each))) else '{}'::jsonb end;
+end;
+$function$;
+
 -- (the functions written over keep the grants they had)
 
 commit;

@@ -6,7 +6,8 @@ import { rewardDB } from "./reward-db.mjs";
 const FILE = "supabase/v260_produce_keeps_its_grade.sql";
 const SIGS = ["town.room(jsonb,text)", "town.put(jsonb,text,integer)", "town.take(jsonb,text,integer)", "town.plain(jsonb,text)", "town.take_plain(jsonb,text,integer)",
   "town.push(jsonb,jsonb)", "town.leave(jsonb,integer,integer,bigint,integer)", "town.take_back(jsonb,integer,bigint)", "town.collect(jsonb,bigint)",
-  "town.has_all(jsonb,jsonb)", "town.pull(jsonb,jsonb)", "town.pick(text,jsonb,jsonb,boolean,text,bigint)"];
+  "town.has_all(jsonb,jsonb)", "town.pull(jsonb,jsonb)", "town.pick(text,jsonb,jsonb,boolean,text,bigint)",
+  "town.garden_harvest(text,jsonb,jsonb,jsonb,jsonb,bigint)", "town.row_tend(text,jsonb,jsonb,jsonb,integer,integer,jsonb,text,bigint,jsonb)"];
 const md5s = async (db) => Object.fromEntries(await Promise.all(SIGS.map(async (sig) => [sig, (await db.query(`select md5(replace(pg_get_functiondef('${sig}'::regprocedure),chr(13),'')) m`)).rows[0].m])));
 const db = await rewardDB(252);
 try {

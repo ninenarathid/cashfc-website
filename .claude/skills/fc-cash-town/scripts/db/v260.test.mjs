@@ -12,6 +12,7 @@ const trade = await import("@/lib/town/trade");
 const { pull: tsPull, push: tsPush } = await import("@/lib/town/deal");
 const { plain: tsPlain } = await import("@/lib/town/notices");
 const { pick: tsPick } = await import("@/lib/town/farm");
+const { gardenHarvest } = await import("@/lib/town/gardening");
 
 const H = 3_600_000, T0 = Date.UTC(2026, 9, 20);
 let checks = 0, s = 11;
@@ -87,6 +88,35 @@ try {
   }
   assert.ok(graded >= 10, `enough picks gave graded fruit (${graded})`); checks++;
 
+  // the garden twine's fruit of the plant's own crop: graded as the fruits after the pick's (Codex's check), the code's
+  let twined = 0;
+  for (let k = 0; k < 40; k++) {
+    const sown = T0 - 400 * H, area = [0, 1, 2, 3].map(() => pick([0.5, 0.75, 1]));
+    const plant = { by: "me", crop: "rowBean", sown, boost: 0, watered: 0, fed: 0, guard: sown + 900 * H, cured: 0, picked: 0, pickedAt: 0,
+      root: "3,3", footprint: ["3,3", "4,3"], rotation: 0, q: { at: T0, span: 1, area, nar: [1, 0, 0] } };
+    const plot = { soil: "tilled", plant }, plots = { "3,3": plot, "4,3": plot };
+    const purse = { ...trade.newPurse(), bag: [{ item: "gardenTwine", n: 1 }, ...Array(9).fill(null)] };
+    const got = (await one("select town.pick($1,$2::jsonb,$3::jsonb,true,null,$4) v", ["3,3", JSON.stringify(purse), JSON.stringify(plot), T0])).v;
+    const base = tsPick("3,3", purse, plot, true, null, T0), want = base.ok ? gardenHarvest("3,3", plots, purse, base, "me", T0, []) : base;
+    eq(got.ok ?? false, want.ok, "a twined pick ok");
+    if (!want.ok) continue;
+    eq(norm(got.purse.bag), norm(want.purse.bag), "the twined bag is the code's");
+    eq(norm(got.got), norm(want.got), "what the twined pick says it got");
+    const range = want.fruits.range, beans = want.purse.bag.filter((x) => x?.item === "rowBean");
+    for (const st of beans) { const gr = st.grade ?? 0, lo = [0, 40, 70, 95][gr], hi = [39, 69, 94, 100][gr]; assert.ok(hi >= range.lo && lo <= range.hi, `a twined bean graded outside the range ${JSON.stringify(range)}`); checks++; }
+    twined++;
+  }
+  assert.ok(twined >= 30, `enough twined picks (${twined})`); checks++;
+
+  // the live draw: md5 over the salt, the same for the same fruit, and not the code's hash
+  const live = "a-salt-of-some-length";
+  const d1 = (await one("select town.quality_draw($1,'3,3',1,0,0) v", [live])).v, d2 = (await one("select town.quality_draw($1,'3,3',1,0,0) v", [live])).v;
+  eq(d1, d2, "the same fruit, the same draw");
+  assert.ok(d1 !== (await one("select town.quality_draw('', '3,3',1,0,0) v")).v, "a salted draw is not the bare hash's"); checks++;
+  const many = (await one("select array_agg(town.quality_draw($1,'3,3',1,0,i)) v from generate_series(0,1999) i", [live])).v;
+  const mean = many.reduce((t, x) => t + x, 0) / many.length;
+  assert.ok(many.every((x) => x >= 0 && x < 1) && Math.abs(mean - 0.5) < 0.03, `salted draws spread evenly (mean ${mean})`); checks++;
+
   // no function, old or new, writes to a table with no WHERE (the live API refuses those)
   const bare = await bareWrites((q) => db.query(q).then((r) => r.rows));
   eq(bare.filter((b) => /quality|grade|_g|pick|take|put|push|leave|collect|pull|has_all|plain|room/.test(JSON.stringify(b))), [], "no bare write in what v259 and v260 wrote");
@@ -94,7 +124,7 @@ try {
   // nobody in a browser may read the salt or call the new functions
   for (const role of ["anon", "authenticated"]) {
     eq((await one(`select has_table_privilege('${role}','town.quality_salt','SELECT') a`)).a, false, `${role} may not read the salt`);
-    for (const fn of ["town.quality_harvest(text,jsonb,integer,bigint,text)", "town.put_g(jsonb,text,integer,integer)", "town.grade_pays(text,integer)"]) eq((await one(`select has_function_privilege('${role}','${fn}','EXECUTE') a`)).a, false, `${role} may not call ${fn}`);
+    for (const fn of ["town.quality_harvest(text,jsonb,integer,bigint,text,integer)", "town.quality_draw(text,text,bigint,bigint,bigint)", "town.put_g(jsonb,text,integer,integer)", "town.grade_pays(text,integer)"]) eq((await one(`select has_function_privilege('${role}','${fn}','EXECUTE') a`)).a, false, `${role} may not call ${fn}`);
   }
   console.log(`v260: ${checks} checks passed (the bag's helpers, the uncle's lots, deals and the pick against the code; the salt and the functions closed).`);
 } catch (e) {

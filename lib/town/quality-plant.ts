@@ -101,14 +101,15 @@ export function coveringNow(p: Plant, now: number, rains: FarmSky = DRY): Partia
 
 /**
  * A pick's fruits: the round's range as it stands (ripe, so frozen), and one even roll a fruit. The draws are the same
- * for the same plant, picking and fruit (a retry with a full bag gives the same fruits, never a new roll); the database
- * mixes in a salt of its own that no browser sees, the trial an empty one.
+ * for the same plant, picking and fruit (a retry with a full bag gives the same fruits, never a new roll). The database
+ * draws with md5 over a salt of its own that no browser sees; with an empty salt (the trial, the bench) it draws as here.
  */
-export function harvestOf(key: string, p: Plant, n: number, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = ""):
+export function harvestOf(key: string, p: Plant, n: number, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch, salt = "", from = 0):
   { range: Range; values: number[]; groups: Array<[Grade, number]> } {
   const q = settled(p, now, rains, launch), brushed = typeof p.brushed === "number" && p.brushed >= roundStart(p);
   const range = rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q, brushed));
-  const values = Array.from({ length: n }, (_, i) => rollOne(range, () => roll(`quality|${salt}|${key}`, p.sown, p.picked, i)));
+  // (fruits after the pick's own, the garden twine's and the sickle's, are drawn as the fruits that follow: `from` on)
+  const values = Array.from({ length: n }, (_, i) => rollOne(range, () => roll(`quality|${salt}|${key}`, p.sown, p.picked, from + i)));
   const count = [0, 0, 0, 0];
   for (const v of values) count[gradeOf(v)]++;
   return { range, values, groups: ([0, 1, 2, 3] as const).filter((g) => count[g] > 0).map((g) => [g, count[g]] as [Grade, number]) };

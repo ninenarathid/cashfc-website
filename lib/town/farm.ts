@@ -15,6 +15,7 @@ import { buffBy, hasBuff, isSpent, spend } from "./stamina";
 import { HELPING, bridged, chime, diesAt, dustUntil, dustsOf, type HelpRefusal } from "./helping";
 import { DRY, rainingAt, wetMs, type Rain } from "./weather";
 import { harvestOf } from "./quality-plant";
+import { QUALITY } from "./quality";
 import { BANGKOK, DAY, HOUR, forged, handOf, handSlot, held, heldStack, no, put, roomFor, take, type Done, type Purse, type Refusal, type Stack } from "./trade";
 
 /**
@@ -951,8 +952,13 @@ export function rowTend(at: string, keys: readonly string[], plots: Readonly<Rec
     if (sows && each.length < spared) mine = { ...mine, bag: put(mine.bag, hand!, 1) };
     if (!reaps) { each.push({ key, crop: plot.plant?.crop ?? did.plot.plant?.crop ?? null, n: 1 }); continue; }
     // (a plant cut well: the sickle's one more, where the bag has room for it)
-    const crop = plot.plant!.crop, well = marks[key] === true, more = well && roomFor(mine.bag, crop) >= numberOf("charmSickle") ? numberOf("charmSickle") : 0;
-    if (more) mine = { ...mine, bag: put(mine.bag, crop, more) };
+    // (its fruits are rolled for their Quality as the fruits after the pick's and the twine's, lib/town/quality-plant)
+    const crop = plot.plant!.crop, well = marks[key] === true, from = did.got.filter(([id]) => id === crop).reduce((t, [, m]) => t + m, 0);
+    const sickle = well ? harvestOf(key, plot.plant!, numberOf("charmSickle"), now, rains, QUALITY.launch, "", from) : null;
+    let cut: Purse["bag"] | null = sickle ? mine.bag : null;
+    for (const [g, c] of sickle?.groups ?? []) cut = cut && roomFor(cut, crop, g) >= c ? put(cut, crop, c, g) : null;
+    const more = cut ? numberOf("charmSickle") : 0;
+    if (cut) mine = { ...mine, bag: cut };
     const n = (did.got[0]?.[1] ?? 0) + more;
     each.push({ key, crop, n, well });
     got.set(crop, (got.get(crop) ?? 0) + n);
