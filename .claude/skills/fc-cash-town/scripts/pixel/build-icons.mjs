@@ -320,6 +320,13 @@ const SHEETS = [
   // size, the ash's puff fell into specks, the nectar's flower and the resin's sprig were lost; each now its own cloth and
   // shape with what it holds spilled in front, a big brass sprinkler, a pine cone on the flask)
   ["icons-fert-d", ["slatePowder", "biochar", "silkFrass", "woodAsh", "nectarLure", "resinWash"], { range: [6.15, 6.4] }],
+  // (the time bands' fertilisers, the same day: five in e, and in f the two rare three-day packets with the sparkle star,
+  // drawn among plain goods that hold the size; the names beginning "_" are not packed)
+  ["icons-fert-e", ["boneMeal", "guanoMeal", "scalePowder", "_beetleFrass", "dewPollen", "_growFert"], { range: [5.7, 5.95] }],
+  ["icons-fert-f", ["packetMist", "_packetNight", "_growFert", "_guardFert", "_mulch", "_compost"], { range: [6.3, 6.55] }],
+  // (drawn again after the look in the game: the beetle frass's shell and pellets ran into one muddy heap, the night
+  // packet's fireflies were lost; the scale powder of g came out as plain white powder, so e's is kept)
+  ["icons-fert-g", ["beetleFrass", "_scalePowder", "packetNight", "_growFert", "_guardFert", "_compost"], { range: [7.85, 8.15] }],
   // ── the farm's plants of more than one plot, each one plant over its plots (the owner, 2026-10-15: "พืชที่กินมากกว่า 1 ช่อง
   // แบบผสม ช่วย gen ภาพใหม่ ให้ดูเชื่อมต่อกัน ไม่ใช่ ภาพ 1 ช่องแบบนี้ / แบบขนาดใหญ่ ไป Gen ภาพให้ออกมาดีๆ"): the garden's hybrids as one
   // row on one long mound (a and b: three and two plots in a line, running from the lower left up to the upper right;
