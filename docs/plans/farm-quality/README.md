@@ -17,12 +17,13 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
 | 2.5 | The twenty helper plants (four from the uncle), their shapes, fennel; the bed overview | done (helper-items.ts, bed gift in v259, v263 catalog, placement preview, overview); **art on branch farm-art (agent)** |
 | 2.6 | Partners, the pollen brush and compost (hand acts on a plant: one RPC, tired hands as other farm work) | done: partners via the bed gift; compost and brush deeds (v262) |
 | 2.7 | Dig out from the inspector (tilled ground, 2 stamina, nothing back) | done: the hoe's dig-out of a living plant leaves tilled ground (v262) |
-| 3 | The 27 fertilisers, two slots, the chart, holding one shows its gain | |
+| 3 | The 27 fertilisers, two slots, the chart, holding one shows its gain | done: `fertilisers.ts` (25 made by hand), the deed "fert", the slot row and chart, a held one's gain; **v266** (dry run 1474 checks); art 17 + 8 bag icons |
 | 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | **4a the house done** (`insect-house.ts`, `TownInsectHouse.tsx`, **v265** dry run 5117 checks, art `insectHouse`/`plotInsectHouse`); 4b the species on branch `farm-species` (agent, v264); wild insects drawn to good gardens not yet |
 
 | 4 | The insect house, 48 new species, time icons, "out now" notebook, wild insects drawn to good gardens | **4b done** on branch `farm-species`: the 48 species and 4 rare finds (`lib/town/band-species.ts`), their art (10 calls, $0.19), the time icons, "out now" from the clock's band, **v264** (6 functions guarded, 3 new, dry run 7631 checks); 4a (the house) on farm-bands, v265 |
-| 5 | Crossing sun / moon / mist, hybrid seeds in the players' market, the seed tray | sun/moon done (8 helper crossings, pollinator skies, v263); mist with the pre-dawn insects (4) |
-| 6 | The bat merchant, 03:00–05:00 | |
+| 5 | Crossing sun / moon / mist, hybrid seeds in the players' market, the seed tray | done: sun/moon (v263) and **mist**: each crossing's fifth member, the sun child's rare form (same role, shape and growth; produce of the third tier at four times its worth), given by a pre-dawn bee; v263's town.garden_cross reads it; art 32 sprites (7 calls, $0.217) |
+| 4c | Wild insects drawn to good gardens | done: a haunt over each bed (**v267**, dry run 2354 checks), the owner's choice "เพิ่มจุดเกิดในสวน แบบจำกัด" |
+| 6 | The bat merchant, 03:00–05:00 | **postponed** (the owner, 2026-10-15: "เลื่อนไปก่อน") |
 | 7 | Farming-line gear and charms 1–10 (the swap charm), designed with the owner first | |
 
 ## Decisions taken while building (not the owner's words; told to him)
@@ -157,6 +158,27 @@ is the artifact https://claude.ai/artifact/6jR6hbg7pHtGmfa3vQHFJC. This file is 
   being redrawn to fit their plots exactly (the first were two thirds of their footprint).
 - **Every plot can be tapped** (the owner's ask): a tap on one's own doll over another tile walks there.
 
+## 2026-10-16: the mist crossings, the gardens, the final checks (not the owner's words unless quoted; told to him)
+
+- **The mist children** (piece 5): pearl nuts, silver grain, dew sesame, glass flower, opal stalks, crystal leaves, dew
+  figs (a 2x2 tree), silk pollen; the design's own names. A pre-dawn pollinator (megalopta and Indian night bees,
+  03–07) let go on a parent gives the mist child in place of the sun child. It covers what the sun child covers and
+  grows as it does: the hour buys a rarer thing to trade, not strength. Its seed is of the third tier, as its produce.
+- **Good gardens draw wild insects** (piece 4c). Claude proposed added haunts, Codex relocation of existing sightings
+  (no added count); the owner chose **"เพิ่มจุดเกิดในสวน แบบจำกัด"**. Mine: a bed is good with at least three living pollen
+  helpers grown to their own picture (stage 4 on, a regrowing one too), anyone's; its haunt rolls every 30 minutes, one
+  turn in four (about one insect in two hours a bed; at most 12 an hour if all 24 beds are good); it draws the uncommon
+  (weight 3) and rare (weight 1) pollinators by their own hours, days, rain and moon, not their places; a grown
+  milkweed draws the monarch (weight 3) in any bed; its visitors are not counted as crop-eaters for pests; at night a
+  visitor's pale wings catch a faint light (Codex's look at the phone shots). The database reads the bed only for a
+  garden haunt whose roll has an insect.
+- **Codex's final checks of the branch** (rules and database; drawing and screens): a turned fig covered the ring of
+  its unturned plots (mended in code and v259); the trial planted a fig without its footprint (mended); a plant growing
+  when Quality came never got its bed's gift until the bed changed (its first change now settles its past with the
+  gift, code and v265's trigger); a house left by a former bed owner blocked the next one's (the bed's owner may lift
+  it with a hoe, as they may dig out a plant left there); a wide plant chose its picture at each of its plots each
+  frame (once a frame now). Nothing else found.
+
 ## Checks a piece gets
 
 New rules: unit tests and TypeScript/SQL parity vectors; SQL: a PGlite dry run from the snapshot with the breaks
@@ -170,6 +192,7 @@ of piece 4's new species and finds, so: 4b the 48 species and the rare finds (wi
 house, then 3 the fertilisers, then 6 the bat merchant, 1b the board, and the mist crossings. The owner said "ทำต่อได้เลย
 จนจบทั้งหมด"; piece 7 (rank gear) waits for his design. Migrations so far: v259 (Quality round, bed gift), v260
 (grades), v261 (cooking by grade, branch farm-cook merged; also mends the big pot's batches, broken live since v177),
-v262 (compost, brush, dig-out), v263 (helpers and crossings), v265 (the insect house; v264 is 4b's species); all
-dry-run; run in order with the matching code.
+v262 (compost, brush, dig-out), v263 (helpers and crossings, the mist child), v264 (4b's species), v265 (the insect
+house), v266 (fertilisers), v267 (good gardens); all dry-run on one chain; run in order with the matching code, and set
+`QUALITY.launch` (and regenerate the catalog blocks) before the push.
 
