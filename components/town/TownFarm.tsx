@@ -66,6 +66,7 @@ import TownGardenPlacement from "./TownGardenPlacement";
 import { QualityBed, QualityChip, QualityInspector } from "./TownQuality";
 import { HouseChip, HousePanel } from "./TownInsectHouse";
 import { houseRoleOf, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
+import { FERTS, isFert } from "@/lib/town/fertilisers";
 import { qualityNow } from "@/lib/town/quality-plant";
 import { COMPANIONS } from "@/lib/town/quality";
 import { held as countIn } from "@/lib/town/trade";
@@ -109,12 +110,15 @@ const VERB: Record<Work, [th: string, en: string]> = {
   clear: ["ถางหญ้า", "Clear the weeds"], till: ["พรวนดิน", "Till the soil"], pull: ["ถอนทิ้ง", "Pull it up"], uproot: ["ขุดออก", "Dig it out"], sow: ["หว่านเมล็ด", "Sow"],
   water: ["รดน้ำ", "Water"], feed: ["ใส่ปุ๋ย", "Feed"], cure: ["ไล่แมลง", "Drive the pest off"], pick: ["เก็บ", "Pick"],
   compost: ["ใส่ปุ๋ยหมัก", "Put compost on"], brush: ["ปัดเกสรด้วยพู่กัน", "Brush the pollen"],
+  fert: ["ใส่ปุ๋ย", "Put fertiliser on"],
   house: ["วางบ้านแมลง", "Set the insect house down"], room: ["ใส่แมลงในบ้าน", "Put it in the house"], lift: ["ยกบ้านแมลงคืน", "Lift the house"],
   draw: ["ตักน้ำ", "Draw water"], pour: ["เทน้ำลงบ่อ", "Pour it into the well"], fill: ["เติมน้ำใส่บัว", "Fill the can"],
 };
 /** An insect in the hand is let go on a plant, not spread on it: the button says so (the deed is the fertiliser's all the same: lib/town/farm's PUT_ON). */
 const LET_GO: [th: string, en: string] = ["ปล่อยแมลง", "Let it go"];
-const verbOf = (work: Work, hand: ItemId | null): [th: string, en: string] => (work === "feed" && hand && ITEMS[hand].kind === "bug" ? LET_GO : VERB[work]);
+// (a fertiliser of Quality says which of the plant's two slots it fills, lib/town/fertilisers)
+const verbOf = (work: Work, hand: ItemId | null): [th: string, en: string] => (work === "feed" && hand && ITEMS[hand].kind === "bug" ? LET_GO
+  : work === "fert" && isFert(hand) ? (FERTS[hand].slot === "base" ? ["รองพื้นด้วยปุ๋ย", "Base-dress it"] : ["ใส่ปุ๋ยแต่งหน้า", "Top-dress it"]) : VERB[work]);
 const WHY_FARM: Record<string, [string, string]> = {
   hand: ["ของในมือทำอะไรกับแปลงนี้ไม่ได้", "What you hold does nothing here"], soil: ["แปลงนี้ยังไม่พร้อม", "This plot is not ready for that"],
   wet: ["เพิ่งรดไป", "Watered already"], theirs: ["แปลงนี้มีเจ้าของแล้ว", "This bed is somebody's"], unripe: ["ยังไม่สุก", "Not ripe yet"],
@@ -143,7 +147,7 @@ function toolIcon(work: Work, hand: ItemId | null): IconName {
 /** What flies up at each deed, and what it sounds like (the owner, 2026-10-03: "ปลูกพืช ช่วยใช้ vfx ที่เหมาะสมด้วยนะครับ ตอนนี้เหมือน ตกปลาเลย"). */
 const DEED_FX: Record<Deed, [VfxKind, WorkSound]> = {
   clear: ["leaves", "pull"], till: ["soil", "hoe"], pull: ["soil", "pull"], uproot: ["soil", "pull"], sow: ["seeds", "sow"], water: ["water", "water"], feed: ["dust", "feed"], cure: ["mist", "spray"], pick: ["sparkle", "pick"],
-  compost: ["soil", "feed"], brush: ["sparkle", "feed"],
+  compost: ["soil", "feed"], brush: ["sparkle", "feed"], fert: ["dust", "feed"],
 };
 /** And at each chore with water. */
 const CHORE_FX: Record<Chore, [VfxKind, WorkSound]> = { draw: ["splash", "dip"], pour: ["splash", "pour"], fill: ["water", "pour"] };

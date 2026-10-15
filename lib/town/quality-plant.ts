@@ -16,10 +16,11 @@ import { DRY, type Rain } from "./weather";
 import { COMPANIONS, NO_Q, PARTNERS, QUALITY, ROLES, accrue, barsOfQ, ceilingOf, chancesOf, coveredShare, gradeOf, narrowingOfQ, rangeOf, rollOne, type BedGift, type CompanionId, type Cover, type Grade, type NarrowCover, type Penalty, type PlantQ, type Range, type Role } from "./quality";
 import { bedOf } from "./world";
 import { HOUSE, houseCovers } from "./insect-house";
+import { FERTS } from "./fertilisers";
 
 export const HAND = {
   /** The stamina the farm's own care costs: compost put on a plant, the pollen brush. */
-  costs: { compost: 1, brush: 2 },
+  costs: { compost: 1, brush: 2, fert: 1 },
   /** How long a watering keeps the water bar's half. */
   water: 26 * HOUR,
   /** How long the ground stays wet after rain stops. */
@@ -57,6 +58,9 @@ export function handCovers(p: Plant, from: number, rains: FarmSky = DRY): Cover[
   if (typeof p.brushed === "number" && p.brushed >= roundStart(p)) out.push({ role: "pollen", level: half, from: p.brushed, to: end, src: "brush" });
   if (typeof p.pollenUntil === "number") out.push({ role: "pollen", level: half, from, to: p.pollenUntil, src: "pollinator" });
   if (p.guard > 0) out.push({ role: "guard", level: half, from, to: p.guard, src: "guard" });
+  // (its fertilisers of Quality, lib/town/fertilisers: a base to the first picking, a top for its hours)
+  if (p.base && p.picked === 0 && FERTS[p.base.item]) for (const r of ROLES) { const level = (FERTS[p.base.item].bars as Partial<Record<Role, number>>)[r]; if (level) out.push({ role: r, level, from: p.base.at, to: end, src: "base" }); }
+  if (p.top && FERTS[p.top.item]) for (const r of ROLES) { const level = (FERTS[p.top.item].bars as Partial<Record<Role, number>>)[r]; if (level) out.push({ role: r, level, from: p.top.at, to: p.top.until ?? p.top.at, src: "top" }); }
   return out;
 }
 
@@ -108,12 +112,16 @@ function giftOf(q: PlantQ): { covers: Cover[]; narrows: NarrowCover[]; penalties
   };
 }
 
+/** What a three-day packet on it narrows while it lasts (lib/town/fertilisers' `narrows`). */
+export const fertNarrows = (p: Plant): NarrowCover[] =>
+  p.top && (FERTS[p.top.item] as { narrows?: true } | undefined)?.narrows ? [{ kind: "packet", from: p.top.at, to: p.top.until ?? p.top.at }] : [];
+
 /** A plant's round settled to a moment (nothing counts before `launch`). */
 export function settled(p: Plant, now: number, rains: FarmSky = DRY, launch: number = QUALITY.launch): PlantQ {
   const q = p.q ?? NO_Q(Math.max(launch, roundStart(p)));
   if (!(now > q.at)) return q;
   const g = giftOf(q);
-  return accrue(q, now, progressOf(p, rains), [...handCovers(p, q.at, rains), ...g.covers], g.penalties, g.narrows);
+  return accrue(q, now, progressOf(p, rains), [...handCovers(p, q.at, rains), ...g.covers], g.penalties, [...g.narrows, ...fertNarrows(p)]);
 }
 
 /** Whether two gifts of a bed are the same (none and none alike). */

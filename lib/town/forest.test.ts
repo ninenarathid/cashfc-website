@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { FERTS } from "./fertilisers";
 import { FINDS, FORAGING, KINDS, SPOTS, SPOT_KINDS, fullMoon, gameFor, gather, holds, isDayOf, mayGather, reaches, turnOf, turnStart, type Held, type Spot } from "./forest";
 import { cook, isCookware } from "./cooking";
 import { PUT_ON } from "./farm";
@@ -317,8 +318,10 @@ describe("what is made of the forest's things", () => {
     expect(DISHES.fishOnStick.recipe!.needs.some(([n]) => wild.has(n))).toBe(false);
   });
 
-  it("mulch feeds a plant and a sachet of lavender guards one; a feather floats and silk is a line", () => {
-    expect(PUT_ON.mulch).toBe("feed");
+  // (the mulch is a base fertiliser of the farm's Quality since 2026-10-15, lib/town/fertilisers: no longer the growth feed)
+  it("mulch is a base fertiliser and a sachet of lavender guards a plant; a feather floats and silk is a line", () => {
+    expect(PUT_ON.mulch).toBeUndefined();
+    expect(FERTS.mulch.slot).toBe("base");
     expect(PUT_ON.lavenderSachet).toBe("guard");
     expect(gearOf(bagOf(["floatFeather", 1]).bag, null).strike).toBeGreaterThan(PLAIN.strike);
     expect(gearOf(bagOf(["lineSpun", 1]).bag, null).snap).toBeGreaterThan(PLAIN.snap);

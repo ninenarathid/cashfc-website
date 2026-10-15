@@ -54,6 +54,7 @@ import { COMPANIONS, PARTNERS, QUALITY } from "./quality";
 import { HAND } from "./quality-plant";
 import { HELPER_CROSSES, POLLINATOR_SKY } from "./helper-items";
 import { FAVOURITES, HOUSE, SOIL_WORKERS } from "./insect-house";
+import { FERTS } from "./fertilisers";
 
 /**
  * What the database is told of the game: the numbers its functions decide by.
@@ -105,7 +106,9 @@ export function catalogOf() {
     quality: { ...QUALITY, hand: HAND, encore: ENCORE, companions: Object.fromEntries(Object.entries(COMPANIONS).map(([id, c]) => [id, { role: c.role, shape: c.shape }])), partners: PARTNERS,
       crosses: HELPER_CROSSES, skies: POLLINATOR_SKY,
       // (v265: the insect house, lib/town/insect-house: its reach, stays, costs, each insect's favourite plant, the soil-workers)
-      house: { ...HOUSE, favourites: FAVOURITES, soilWorkers: SOIL_WORKERS } },
+      house: { ...HOUSE, favourites: FAVOURITES, soilWorkers: SOIL_WORKERS },
+      // (v266: the fertilisers, lib/town/fertilisers: each one's slot, bars, hours and whether it raises the floor)
+      ferts: FERTS },
     forest_parts: FORAGE_PARTS,
     stream_work: STREAM_WORK,
     preparation: PREPARATION,
@@ -545,7 +548,10 @@ export const CATALOG_KEYS: Record<string, { keys: Array<keyof Catalog>; over: Ar
   // (the farm's Quality's helper plants: their crops and seeds, the fig's and the lines' plots, the uncle's four seeds)
   v263: { keys: [], over: ["items", "crops", "gardening", "goods", "shelf"] },
   // (the insect house: its numbers in the quality row, the house itself among the things, its recipe at the workshop)
-  v265: { keys: [], over: ["quality", "items", "workshop"] } };
+  v265: { keys: [], over: ["quality", "items", "workshop"] },
+  // (the fertilisers: their numbers in the quality row, the things, how each is made, the leaf mulch no longer a growth
+  // feed, and what may be put in to make them)
+  v266: { keys: [], over: ["quality", "items", "makes", "farming", "cooking"] } };
 
 /** One document as text the SQL editor takes: its top entries a line each, so that a change shows as the lines that changed. */
 function lines(doc: unknown): string {

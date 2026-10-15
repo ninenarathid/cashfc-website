@@ -7,6 +7,7 @@ import { FORAGE_ITEMS, FORAGE_MAKES, FORAGE_DISHES, FORAGE_SCROLLS, FORAGE_SCROL
 import { STREAM_ITEMS, STREAM_MAKES, STREAM_DISHES, STREAM_SCROLLS, STREAM_SCROLL_ITEMS, type StreamDishId } from "./stream-items";
 import { GARDEN_CROPS, GARDEN_DISHES, GARDEN_ITEMS, GARDEN_MAKES, GARDEN_SEED_ITEMS, GARDEN_SCROLL_ITEMS, GARDEN_SCROLLS, type GardenCropId, type GardenDishId } from "./garden-items";
 import { HELPER_CROPS, HELPER_ITEMS, HELPER_SEED_ITEMS, QUALITY_GEAR, type HelperCropId } from "./helper-items";
+import { FERT_ITEMS, FERT_MAKES } from "./fertilisers";
 import { GEOLOGY_DISHES, GEOLOGY_ITEMS, GEOLOGY_MAKES, GEOLOGY_SCROLL_ITEMS, GEOLOGY_SCROLLS, type GeologyDishId } from "./geology-items";
 import { WOOD_DISHES, WOOD_ITEMS, WOOD_MAKES, WOOD_SCROLL_ITEMS, WOOD_SCROLLS, type WoodDishId } from "./wood-items";
 import { RIVER_DISHES, RIVER_FISH, RIVER_ITEMS, RIVER_MAKES, RIVER_SCROLL_ITEMS, RIVER_SCROLLS, type Current, type FishingHabitat, type RiverDishId, type RiverFishId } from "./river-items";
@@ -665,7 +666,7 @@ export const ITEMS = {
   ...GARDEN_ITEMS,
   ...GARDEN_SEED_ITEMS,
   // (the farm's Quality: the twenty helper plants and their seeds, lib/town/helper-items)
-  ...HELPER_ITEMS, ...QUALITY_GEAR,
+  ...HELPER_ITEMS, ...QUALITY_GEAR, ...FERT_ITEMS,
   ...HELPER_SEED_ITEMS,
   ...GARDEN_SCROLL_ITEMS,
   ...WOOD_SCROLL_ITEMS,
@@ -1292,6 +1293,8 @@ export const inBowl = (id: DishId): boolean => id === "oddDish" || !!DISHES[id].
  */
 export interface Make { needs: Array<[ItemId, number]>; in: Cookware[]; gives: number }
 export const MAKES: Partial<Record<ItemId, Make>> = {
+  // (the farm's Quality's fertilisers, made by hand: lib/town/fertilisers)
+  ...FERT_MAKES,
   ...WOOD_MAKES,
   ...INSECT_MAKES,
   ...FORAGE_MAKES,

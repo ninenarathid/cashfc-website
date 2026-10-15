@@ -138,7 +138,9 @@ export const NOT_PUT_IN = ["tool", "scroll", "dish", "bug",
  * (woodcutting and mining) The things that go in whatever their kind, and those that never do whatever theirs: fine
  * timber is what a torch is made of, by hand; a torch is made, and is nothing to cook.
  */
-export const PUT_IN: { also: ItemId[]; never: ItemId[] } = { also: [...GEOLOGY_RAW, "charcoal", "mineralSand", "honeyBee", "silkMoth", "orchardBeetle", "timber", "straightWood", "heartwood", "pineBark", "pinePitch", "pineNut", "rootFiber", "cedarSliver"], never: ["torch"] };
+// (and what the farm's Quality's fertilisers are made of, lib/town/fertilisers: knotted wood, the stream's wet clay,
+// and the odd dish that rots down in a ferment; never a log, the owner's rule of 2026-10-08)
+export const PUT_IN: { also: ItemId[]; never: ItemId[] } = { also: [...GEOLOGY_RAW, "charcoal", "mineralSand", "honeyBee", "silkMoth", "orchardBeetle", "timber", "straightWood", "heartwood", "pineBark", "pinePitch", "pineNut", "rootFiber", "cedarSliver", "knottedWood", "wetClay", "oddDish"], never: ["torch"] };
 /** Whether a thing can be put in. */
 export const goesIn = (id: ItemId) => !PUT_IN.never.includes(id) && (PUT_IN.also.includes(id) || !NOT_PUT_IN.includes(ITEMS[id].kind));
 

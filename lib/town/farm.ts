@@ -1,4 +1,5 @@
 import { trainElement } from "./element-training";
+import { FERTS, isFert } from "./fertilisers";
 import { darkSoil } from "./gem-soil";
 import { canFx, hoeFx, luckOf } from "./forged";
 import { toolPaid } from "./forged-keep";
@@ -220,6 +221,9 @@ export interface Plant {
   compost?: number;
   /** When the pollen brush was last used on it: half the pollen bar from then to ripeness, and its floor raised, for the round it was used in. */
   brushed?: number;
+  /** Its fertilisers of Quality (lib/town/fertilisers): the base, put on in its first round and covering to its first picking; the top, for its hours. */
+  base?: import("./fertilisers").FertOn;
+  top?: import("./fertilisers").FertOn;
   /** Its present round as gathered so far (settled before every change of it). Missing from a plant not yet settled. */
   q?: import("./quality").PlantQ;
 }
@@ -257,8 +261,9 @@ const isCan = (id: ItemId | null) => !!id && id in WATER.cans;
 export const PUT_ON: Partial<Record<ItemId, "feed" | "guard" | "cure">> = {
   growFert: "feed", guardFert: "guard", pestCure: "cure",
   herring: "feed", mosquitofish: "guard", archerfish: "cure",
-  // (and two made of the forest's things: rotted leaves to grow in, and a scent the pests keep away from)
-  mulch: "feed", lavenderSachet: "guard",
+  // (and a scent of the forest's things the pests keep away from; the rotted leaves to grow in, `mulch`, are a base
+  // fertiliser of Quality since 2026-10-15, lib/town/fertilisers: the growth fertiliser is the growth one)
+  lavenderSachet: "guard",
   // (and five insects let go on a plant, lib/town/insects: a ladybird and a mantis eat what would eat it; a butterfly
   // sets its flowers; a scarab buries what feeds it)
   ladybird: "guard", mantis: "guard", butterflyWhite: "feed", monarch: "feed", scarab: "feed",
@@ -588,9 +593,16 @@ export function yieldOf(key: string, p: Plant, hand: ItemId | null = null): numb
  * the bag; half the soil bar for the rest of the planting) or the pollen brush (the brush is kept; half the pollen bar to
  * ripeness, and the round's floor raised). The deed's choice (deedFor) says when each may be done.
  */
-export function care(deed: "compost" | "brush", purse: Purse, plot: Plot, now: number): Did {
+export function care(deed: "compost" | "brush" | "fert", purse: Purse, plot: Plot, now: number): Did {
   const p = plot.plant;
   if (!p) return not("soil");
+  if (deed === "fert") {
+    const hand = purse.hand;
+    if (!isFert(hand) || held(purse.bag, hand) < 1) return not("hand");
+    const f = FERTS[hand], spent = spend(purse, HAND.costs.fert, now);
+    const on = f.slot === "base" ? { base: { item: hand, at: now } } : { top: { item: hand, at: now, until: now + (f.hours ?? 0) * HOUR } };
+    return { ok: true, purse: { ...spent, bag: take(spent.bag, hand, 1) }, plot: { ...plot, plant: { ...p, ...on } } };
+  }
   if (deed === "compost" && held(purse.bag, "compost") < 1) return no("none");
   const spent = spend(purse, HAND.costs[deed], now), bag = deed === "compost" ? take(spent.bag, "compost", 1) : spent.bag;
   return { ok: true, purse: { ...spent, bag }, plot: { ...plot, plant: { ...p, [deed === "compost" ? "compost" : "brushed"]: now } } };
@@ -629,7 +641,7 @@ export function pick(key: string, purse: Purse, plot: Plot, may: boolean, hand: 
  * hoe in the hand a ripe plant is dug out, not picked: so it is asked twice.)
  */
 // (the farm's Quality, lib/town/quality-plant: `compost` put on a plant once a planting, the pollen `brush` once a round)
-export type Deed = "clear" | "till" | "pull" | "uproot" | "sow" | "water" | "feed" | "cure" | "pick" | "compost" | "brush";
+export type Deed = "clear" | "till" | "pull" | "uproot" | "sow" | "water" | "feed" | "cure" | "pick" | "compost" | "brush" | "fert";
 // (`twice`: the can in the hand waters a plant twice in an hour now, lib/town/farm's mayTwice: a plant wet from one watering is offered another)
 export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string, now: number, owner: string | null = null, rains: FarmSky = DRY, twice = false): Deed | null {
   if (plot.plant?.root && plot.plant.root !== key) return null;
@@ -640,6 +652,8 @@ export function deedFor(key: string, plot: Plot, hand: ItemId | null, me: string
     // (the farm's own care, on one's own plant in one's own bed: compost once a planting, the brush once a round before it is ripe)
     if (hand === "compost" && mine && p.by === me && typeof p.compost !== "number") return "compost";
     if (hand === "pollenBrush" && mine && p.by === me && !seen.ripe && !(typeof p.brushed === "number" && p.brushed >= roundStart(p))) return "brush";
+    // (a fertiliser of Quality on one's own growing plant: a base in its first round, once; a top over no live top)
+    if (isFert(hand) && mine && p.by === me && !seen.ripe && (FERTS[hand].slot === "base" ? p.picked === 0 && !p.base : !(p.top && (p.top.until ?? 0) > now))) return "fert";
     if (kind === "cure" && seen.pest) return "cure";
     if (kind === "can" && (!seen.wet || (twice && wetOnce(p, now, rains))) && !growing(p, now, rains).spent && !(seen.ripe && !CROPS[p.crop].again)) return "water";
     if (kind === "feed" && !p.fed) return "feed";
@@ -671,7 +685,7 @@ function tendUntrained(key: string, plot: Plot, bed: Bed | undefined, others: nu
   const did = deed === "clear" || deed === "till" ? hoe(key, purse, plot, hand, now, rains) : deed === "pull" || deed === "uproot" ? uproot(key, purse, plot, true, sure, hand, now, rains)
     : deed === "sow" ? sow(purse, plot, hand, me, now) : deed === "water" ? water(key, purse, plot, hand, now, rains)
       : deed === "feed" ? feed(key, purse, plot, hand, now, rains, luck) : deed === "cure" ? cure(key, purse, plot, hand, now, rains)
-        : deed === "compost" || deed === "brush" ? care(deed, purse, plot, now) : pick(key, purse, plot, true, hand, now, rains);
+        : deed === "compost" || deed === "brush" || deed === "fert" ? care(deed, purse, plot, now) : pick(key, purse, plot, true, hand, now, rains);
   if (!did.ok) return did;
   // (work in somebody else's bed, or on somebody else's plant, with the gardener's gloves on: half its stamina)
   const theirs = (owner !== null && owner !== me) || (!!plot.plant && plot.plant.by !== me);
