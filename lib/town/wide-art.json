@@ -1,0 +1,122 @@
+{
+ "wideBlueCornA": [
+  0.6602,
+  75,
+  82.5
+ ],
+ "wideBlueCornB": [
+  0.7305,
+  74,
+  101.5
+ ],
+ "wideBottleGourdBackA": [
+  0.5669,
+  75.17,
+  83.25
+ ],
+ "wideBottleGourdBackB": [
+  0.5709,
+  75.5,
+  83.42
+ ],
+ "wideBottleGourdFrontA": [
+  0.5713,
+  75,
+  70
+ ],
+ "wideBottleGourdFrontB": [
+  0.5694,
+  74.83,
+  71.58
+ ],
+ "wideBottleGourdSideA": [
+  0.4295,
+  44.33,
+  91.67
+ ],
+ "wideBottleGourdSideB": [
+  0.4221,
+  45,
+  92.33
+ ],
+ "wideLotusRootBedA": [
+  0.7708,
+  67.5,
+  76.5
+ ],
+ "wideLotusRootBedB": [
+  0.6927,
+  72.5,
+  82
+ ],
+ "wideRedOkraA": [
+  0.4545,
+  75,
+  110
+ ],
+ "wideRedOkraB": [
+  0.4811,
+  77.5,
+  110
+ ],
+ "wideRowBeanA": [
+  0.4811,
+  62.5,
+  110
+ ],
+ "wideRowBeanB": [
+  0.4844,
+  72.5,
+  112.5
+ ],
+ "wideSunflowerPatchBackA": [
+  0.6058,
+  76.67,
+  80.67
+ ],
+ "wideSunflowerPatchBackB": [
+  0.6007,
+  81,
+  82
+ ],
+ "wideSunflowerPatchFrontA": [
+  0.5558,
+  75,
+  62.67
+ ],
+ "wideSunflowerPatchFrontB": [
+  0.5507,
+  75,
+  65.33
+ ],
+ "wideSunflowerPatchSideA": [
+  0.4632,
+  44.33,
+  81
+ ],
+ "wideSunflowerPatchSideB": [
+  0.4813,
+  48.33,
+  83.33
+ ],
+ "wideTeaBushA": [
+  0.4622,
+  75,
+  91.5
+ ],
+ "wideTeaBushB": [
+  0.4844,
+  77.5,
+  102.5
+ ],
+ "wideTrellisBerryA": [
+  0.641,
+  74.5,
+  91
+ ],
+ "wideTrellisBerryB": [
+  0.6655,
+  75,
+  96
+ ]
+}
