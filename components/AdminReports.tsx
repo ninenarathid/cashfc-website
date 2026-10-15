@@ -7,7 +7,6 @@ import { useAvatar } from "@/lib/avatars";
 import { EVENT_FROM, EVENT_TO, bangkokDay } from "@/lib/evercold";
 import { isFcMember } from "@/lib/people";
 import { allRowsOrThrow } from "@/lib/rows";
-import { fmtDate } from "@/lib/dates";
 import PopotoIcon from "@/components/ui/PopotoIcon";
 import { useLang, type Key } from "@/lib/i18n";
 
@@ -42,6 +41,12 @@ interface Entry {
   /** How many they gave that day, and the split behind it. */
   count: number;
   parts: number[];
+}
+
+/** One person across the span: what the list shows. */
+interface Tally extends Omit<Entry, "key" | "day"> {
+  /** The days they gave on, which is how many tickets they hold in the draw. */
+  entries: number;
 }
 
 interface Report {
@@ -179,7 +184,10 @@ const SPANS: { label: Key; from: () => string; to?: () => string }[] = [
 ];
 
 function Person(
-  { row, portraits }: { row: Entry; portraits: Record<number, string> },
+  { row, portraits }: {
+    row: Pick<Entry, "characterId" | "name" | "avatar" | "unclaimed">;
+    portraits: Record<number, string>;
+  },
 ) {
   const { t } = useLang();
   // What they chose, then the picture the game has of their character. A grey
@@ -328,8 +336,39 @@ export default function AdminReports(
     return scope === "fc" ? fc : !fc;
   }), [rows, scope]);
 
-  const people = useMemo(
-    () => new Set(shown.map((r) => r.profileId)).size, [shown]);
+  /*
+   * The list: one line a person, with the entries they hold.
+   *
+   * It was one line a day, and the number on each line was the potatoes given
+   * that day. Read down the list, that number was taken for entries: 523 beside
+   * a name, on a day somebody gave a potato to everyone on the site, looked like
+   * 523 chances when it was one. Thirty-one lines for one member said the right
+   * thing only to somebody who counted them. So the days are added up here and
+   * said as entries; the draw still draws from the days themselves.
+   */
+  const tallies = useMemo(() => {
+    const by = new Map<string, Tally>();
+    for (const r of shown) {
+      const had = by.get(r.profileId);
+      if (!had) {
+        by.set(r.profileId, {
+          profileId: r.profileId, characterId: r.characterId, name: r.name,
+          avatar: r.avatar, unclaimed: r.unclaimed,
+          entries: 1, count: r.count, parts: [...r.parts],
+        });
+        continue;
+      }
+      had.entries += 1;
+      had.count += r.count;
+      r.parts.forEach((n, i) => { had.parts[i] = (had.parts[i] ?? 0) + n; });
+    }
+    // Most entries first, because that is the order of the odds; then the
+    // keener giver among those level, so the list is stable between readings.
+    return [...by.values()].sort((a, b) => b.entries - a.entries
+      || b.count - a.count || a.name.localeCompare(b.name));
+  }, [shown]);
+
+  const people = tallies.length;
   const given = useMemo(
     () => shown.reduce((a, r) => a + r.count, 0), [shown]);
   const hidden = (rows ?? []).length - shown.length;
@@ -468,20 +507,19 @@ export default function AdminReports(
               )}
             </div>
             <ol className="flex flex-col gap-1">
-              {shown.map((r) => (
-                <li key={r.key}
-                    className="grid grid-cols-[76px_32px_1fr_auto] items-center gap-2 border-b border-line/40 py-1 text-read last:border-0">
-                  {/* The day, because the day is the entry — the same name on
-                      three dates is three chances, and has to look like three
-                      rows rather than a repeat somebody wants to tidy away. */}
-                  <span className="font-data text-meta text-muted">
-                    {fmtDate(`${r.day}T00:00:00`)}
-                  </span>
+              {tallies.map((r) => (
+                <li key={r.profileId}
+                    className="grid grid-cols-[32px_1fr_auto] items-center gap-2 border-b border-line/40 py-1 text-read last:border-0">
                   <Person row={r} portraits={portraits} />
-                  <span className="font-data text-ui text-ink">
-                    <PopotoIcon /> {r.count}
-                    <span className="ml-1 text-meta text-muted">
-                      ({r.parts.join("/")})
+                  {/* The entries first and in ink, the potatoes after them and
+                      quiet: the one is what the draw is made of, the other is
+                      only how keen somebody was on the days they came. */}
+                  <span className="flex flex-col items-end text-right sm:flex-row sm:items-baseline sm:gap-2">
+                    <span className="font-data text-ui font-medium text-ink">
+                      {t("adm.rpDays", { n: r.entries })}
+                    </span>
+                    <span className="font-data text-meta text-muted">
+                      <PopotoIcon /> {r.count} ({r.parts.join("/")})
                     </span>
                   </span>
                 </li>
