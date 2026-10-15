@@ -19,7 +19,7 @@ import { BUGS, type BugId, type BugRefusal, type BugSight, type Mine } from "./i
 import type { FountainTold, Shade, WishId } from "./fountain";
 import type { Dropped, GroundRefusal } from "./ground";
 import { hintPrice } from "./hints";
-import type { JarTold } from "./jar";
+import type { JarThing, JarTold } from "./jar";
 import { carried, type PassRefusal } from "./line";
 import { reachOf } from "./ditch";
 import { hotAt } from "./heat";
@@ -250,8 +250,12 @@ export interface Keeper {
   wishReport(note: number): Promise<Did>;
   wishUnsay(note: number): Promise<Did>;
   wishHide(note: number, hidden: boolean): Promise<Did>;
-  /** The notice board: pin a notice up (to sell so many of a thing from my bag, or of something wanted, with the coins put down); buy from one, or bring to one; take what was brought to mine; take mine down; collect what waits there; buy one more place. */
-  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number): Promise<Did<{ id: number }>>;
+  /**
+   * The notice board: pin a notice up (to sell so many of a thing from my bag, or of something wanted, with the coins
+   * put down; of a graded thing at its grade, normal when left out); buy from one, or bring to one; take what was
+   * brought to mine; take mine down; collect what waits there; buy one more place.
+   */
+  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number, grade?: 0 | 1 | 2 | 3): Promise<Did<{ id: number }>>;
   noticeBuy(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>>;
   noticeFill(id: number, n: number): Promise<Did<{ item: ItemId; coins: number }>>;
   noticeFetch(id: number): Promise<Did<{ item: ItemId; got: number }>>;
@@ -456,7 +460,7 @@ export interface Keeper {
   /** The jar at the well (lib/town/jar), as last read with the book; dropping coins or a thing into it; taking what waits for me. */
   jar(): JarTold | null;
   jarDrop(what: { coins: number } | { slot: number; n: number }): Promise<Did>;
-  jarTake(): Promise<Did<{ coins: number; things: Array<[ItemId, number]> }>>;
+  jarTake(): Promise<Did<{ coins: number; things: JarThing[] }>>;
 
   /** Whether it is a hot afternoon now (lib/town/heat): a watering does as much again. Never, where whoever keeps the game knows of no heat. */
   hot(): boolean;
@@ -526,8 +530,9 @@ export interface Keeper {
    */
   shopVisit(who: string | null): Promise<void>;
   shopSeen(): { who: string; told: ShopTold | null } | null;
-  shopBuy(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>>;
-  shopSell(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>>;
+  /** (a line of a graded thing is named by its grade too: normal when left out) */
+  shopBuy(who: string, item: ItemId, n: number, at: [number, number], grade?: 0 | 1 | 2 | 3): Promise<Did<{ coins: number }>>;
+  shopSell(who: string, item: ItemId, n: number, at: [number, number], grade?: 0 | 1 | 2 | 3): Promise<Did<{ coins: number }>>;
 
   /**
    * Put some things together. The other cooks are told both ways: what each holds (as the room shows it), and who
@@ -1604,7 +1609,8 @@ export class DbKeeper implements Keeper {
     if (did.ok && shown) this.onDeed?.("notices");
     return did;
   }
-  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number) { return this.pinned<{ id: number }>("town_notice_post", { p_kind: kind, p_item: item, p_n: n, p_price: price }, true); }
+  // (a grade is asked only of a graded thing: a normal notice asks as it always did)
+  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number, grade: 0 | 1 | 2 | 3 = 0) { return this.pinned<{ id: number }>("town_notice_post", { p_kind: kind, p_item: item, p_n: n, p_price: price, ...(grade ? { p_grade: grade } : {}) }, true); }
   noticeBuy(id: number, n: number) { return this.pinned<{ item: ItemId; coins: number }>("town_notice_buy", { p_id: id, p_n: n }, true); }
   noticeFill(id: number, n: number) { return this.pinned<{ item: ItemId; coins: number }>("town_notice_fill", { p_id: id, p_n: n }, true); }
   noticeFetch(id: number) { return this.pinned<{ item: ItemId; got: number }>("town_notice_fetch", { p_id: id }, false); }
@@ -1909,7 +1915,7 @@ export class DbKeeper implements Keeper {
   thanked() { return this.thanked_; }
   jar(): JarTold | null { return this.jar_; }
   jarDrop(what: { coins: number } | { slot: number; n: number }) { return this.deed("town_jar_drop", "coins" in what ? { p_coins: what.coins } : { p_slot: what.slot, p_n: what.n }); }
-  jarTake() { return this.deed<{ coins: number; things: Array<[ItemId, number]> }>("town_jar_take"); }
+  jarTake() { return this.deed<{ coins: number; things: JarThing[] }>("town_jar_take"); }
   shops(): ShopsTold | null { return this.shops_; }
   async shopLook() { if (this.shops_) await this.ask("town_shop"); }
   shopOpen(ask: ShopAsk, at: [number, number]) { return this.deed("town_shop_open", { p_lines: ask, p_x: at[0], p_y: at[1] }); }
@@ -1922,13 +1928,13 @@ export class DbKeeper implements Keeper {
     else this.tell();
   }
   shopSeen() { return this.visit_; }
-  async shopBuy(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
-    const did = await this.deed<{ coins: number }>("town_shop_buy", { p_who: who, p_item: item, p_n: n, p_x: at[0], p_y: at[1] });
+  async shopBuy(who: string, item: ItemId, n: number, at: [number, number], grade: 0 | 1 | 2 | 3 = 0): Promise<Did<{ coins: number }>> {
+    const did = await this.deed<{ coins: number }>("town_shop_buy", { p_who: who, p_item: item, p_n: n, p_x: at[0], p_y: at[1], ...(grade ? { p_grade: grade } : {}) });
     if (did.ok) this.onDeed?.("shop", who);
     return did;
   }
-  async shopSell(who: string, item: ItemId, n: number, at: [number, number]): Promise<Did<{ coins: number }>> {
-    const did = await this.deed<{ coins: number }>("town_shop_sell", { p_who: who, p_item: item, p_n: n, p_x: at[0], p_y: at[1] });
+  async shopSell(who: string, item: ItemId, n: number, at: [number, number], grade: 0 | 1 | 2 | 3 = 0): Promise<Did<{ coins: number }>> {
+    const did = await this.deed<{ coins: number }>("town_shop_sell", { p_who: who, p_item: item, p_n: n, p_x: at[0], p_y: at[1], ...(grade ? { p_grade: grade } : {}) });
     if (did.ok) this.onDeed?.("shop", who);
     return did;
   }

@@ -9,12 +9,12 @@ import type { TownSession } from "@/lib/town/session";
 import type { FishSfx } from "@/lib/town/sfx";
 import { capOf, type ShopAsk, type ShopLine, type ShopLineTold } from "@/lib/town/shop";
 import { SIGN, decodeSign, tidyTitle, type Sign } from "@/lib/town/sign";
-import { plainStack, roomFor } from "@/lib/town/trade";
+import { gradeIn, gradePays, mayGrade, plainAt, roomFor } from "@/lib/town/trade";
 import SignIcon from "./SignIcon";
 import TownIcon from "./TownIcon";
 import TownNumber from "./TownNumber";
 import TownFoot from "./TownFoot";
-import { Coins, ItemIcon, WHY } from "./TownTrade";
+import { Coins, GradeBadge, ItemIcon, WHY } from "./TownTrade";
 
 /** Which of the sign's panels is open: holding one up, my own, or somebody's stall. */
 export type SignView = "setup" | "mine" | { who: string; name: string };
@@ -35,6 +35,13 @@ const WHY_SIGN: Record<string, [th: string, en: string]> = {
 };
 const why = (w: string, th: boolean) => { const m = WHY_SIGN[w] ?? WHY[w as keyof typeof WHY] ?? WHY.none; return th ? m[0] : m[1]; };
 const nameOf = (id: ItemId, th: boolean) => (id in ITEMS ? (th ? ITEMS[id].name.th : ITEMS[id].name.en) : id);
+/** (the farm's Quality) A thing and its grade: one choice, one line. */
+type Grade = 0 | 1 | 2 | 3;
+const keyOf = (item: ItemId, grade: Grade | undefined) => `${item}:${grade ?? 0}`;
+/** A thing's name with its grade's stars, for a line said in words. */
+const namedOf = (id: ItemId, grade: Grade | undefined, th: boolean) => `${nameOf(id, th)}${grade ? ` ${"★".repeat(grade)}` : ""}`;
+/** What a line begins at: what the relatives usually pay for the thing at its grade, under the most it may be asked for. */
+const priceOf = (id: ItemId, grade: Grade, cap: number) => Math.max(1, Math.min(cap, Math.round((ITEMS[id].pays || 1) * gradePays(id, grade))));
 
 /** The two marks a stall's sign carries, in the board's own colours (the map draws the same). */
 export const SELL_INK = "#a8452a", BUY_INK = "#2f6f8f";
@@ -48,6 +55,9 @@ export const SELL_INK = "#a8452a", BUY_INK = "#2f6f8f";
  *   title; for a stall, its lines: things from my bag to sell, things wanted
  *   (only those the village has met, which is all the keeper ever names), each
  *   with how many and at what price. The board is shown as it will read.
+ *   (The farm's Quality) A thing at each grade is a choice of its own, with its
+ *   stars: what the bag holds to sell; and a wanted thing that can carry a grade
+ *   says which, normal or one to three stars.
  * - **My own**: what it is; of a stall, what is left on each line and what it
  *   has taken and paid; and taking it down.
  * - **Somebody's stall** (a tap on their sign, standing by them): what they
@@ -182,16 +192,17 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
     onView("mine");
   }, [session, keeper, kind, title, lines, th, where, sfx, onView]);
 
-  /** Buy so many at the stall I am looking at, or bring it so many. */
+  /** Buy so many at the stall I am looking at, or bring it so many (of the line's thing at its grade). */
   const trade = useCallback(async (line: ShopLineTold, n: number) => {
     const at = where();
     if (!keeper || !who || !at || busy.current) return;
     busy.current = true;
-    const did = await (line.kind === "sell" ? keeper.shopBuy(who, line.item, n, at) : keeper.shopSell(who, line.item, n, at));
+    const g = gradeIn(line);
+    const did = await (line.kind === "sell" ? keeper.shopBuy(who, line.item, n, at, g) : keeper.shopSell(who, line.item, n, at, g));
     busy.current = false;
     if (!did.ok) { setSaid(why(did.why, th)); void keeper.shopVisit(who); return; }
     sfx?.wake(); sfx?.work("pick");
-    const what = `${nameOf(line.item, th)}${n > 1 ? ` ×${n}` : ""}`;
+    const what = `${namedOf(line.item, g, th)}${n > 1 ? ` ×${n}` : ""}`;
     setSaid(line.kind === "sell" ? (th ? `ซื้อ ${what} แล้ว −${did.coins} เหรียญ` : `Bought ${what}: −${did.coins} coins`) : (th ? `ขาย ${what} แล้ว +${did.coins} เหรียญ` : `Sold ${what}: +${did.coins} coins`));
   }, [keeper, who, where, th, sfx]);
 
@@ -202,7 +213,7 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
       view: () => view, open: (v: SignView | null) => onView(v), said: () => said, toast: () => toast,
       form: (k: Sign["kind"], name: string, ask: ShopAsk = []) => { setKind(k); setTitle(name); setLines(ask); },
       raise, shops: () => keeper?.shops() ?? null, seen: () => keeper?.shopSeen() ?? null,
-      trade: (item: ItemId, n: number) => { const l = keeper?.shopSeen()?.told?.lines.find((x) => x.item === item); return l ? trade(l, n) : Promise.resolve(); },
+      trade: (item: ItemId, n: number, grade: Grade = 0) => { const l = keeper?.shopSeen()?.told?.lines.find((x) => x.item === item && gradeIn(x) === grade); return l ? trade(l, n) : Promise.resolve(); },
     };
     (window as unknown as { __townSign?: typeof handle }).__townSign = handle;
     return () => { delete (window as unknown as { __townSign?: typeof handle }).__townSign; };
@@ -221,7 +232,7 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
   const heading = visiting ? (th ? `ร้านของ ${view.name}` : `${view.name}'s stall`) : view === "mine" ? t("ป้ายของฉัน", "My sign") : t("ชูป้าย", "Hold up a sign");
   const count = letters(title).length;
   const wanted = lines.filter((l) => l.kind === "buy").reduce((sum, l) => sum + l.n * l.price, 0);
-  const onLine = new Set(lines.map((l) => l.item));
+  const onLine = new Set(lines.map((l) => keyOf(l.item, l.grade)));
   const mineLines: ShopLine[] = shops?.mine?.lines ?? [];
   return (
     <>
@@ -274,13 +285,16 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                   <div className="mt-3" data-sign-lines>
                     <ul className="flex flex-col gap-1.5">
                       {lines.map((l, i) => {
-                        const most = l.kind === "sell" ? Math.min(shops.most, plain(purse.bag, l.item)) : shops.most, cap = capOf(l.item, { ...shops, quiet: 0 });
+                        const g = gradeIn(l), most = l.kind === "sell" ? Math.min(shops.most, plain(purse.bag, l.item, g)) : shops.most, cap = capOf(l.item, { ...shops, quiet: 0 }, g);
                         const set = (patch: Partial<ShopAsk[number]>) => setLines((all) => all.map((x, j) => (j === i ? { ...x, ...patch } : x)));
+                        // (a wanted thing that can carry a grade says which: normal, or one to three stars; a grade another wanted line has is not offered twice)
+                        const grades = l.kind === "buy" && mayGrade(l.item) ? ([0, 1, 2, 3] as const) : null;
+                        const regrade = (to: Grade) => set({ grade: to || undefined, price: Math.min(l.price, capOf(l.item, { ...shops, quiet: 0 }, to)) });
                         return (
-                          <li key={l.item} data-line={l.item} className="flex items-center gap-2 rounded-xl border border-line bg-card/60 p-2">
+                          <li key={keyOf(l.item, l.grade)} data-line={l.item} data-grade={g} className="flex flex-wrap items-center gap-2 rounded-xl border border-line bg-card/60 p-2">
                             <ItemIcon id={l.item} size={30} />
                             <div className="min-w-0 flex-1">
-                              <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}</div>
+                              <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}<GradeBadge grade={g} th={th} inline /></div>
                               <Mark kind={l.kind} th={th} />
                             </div>
                             <label className="flex flex-col items-center text-label text-muted">{t("จำนวน", "How many")}
@@ -291,8 +305,22 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                               <TownNumber max={cap} value={l.price} onChange={(price) => set({ price })} data-line-price
                                      className="h-9 w-16 rounded-lg border border-line-strong bg-bg/85 text-center font-data text-ui tabular-nums text-gold outline-none focus:border-accent" />
                             </label>
-                            <button type="button" onClick={() => setLines((all) => all.filter((_, j) => j !== i))} aria-label={`${t("เอาออก", "Remove")}: ${nameOf(l.item, th)}`}
+                            <button type="button" onClick={() => setLines((all) => all.filter((_, j) => j !== i))} aria-label={`${t("เอาออก", "Remove")}: ${namedOf(l.item, g, th)}`}
                                     className="pressable grid size-8 shrink-0 place-items-center rounded-full text-muted hover:bg-card hover:text-ink"><TownIcon name="close" size={14} /></button>
+                            {grades && (
+                              <div role="radiogroup" aria-label={t("เกรดที่รับซื้อ", "Grade wanted")} className="grid basis-full grid-cols-4 gap-1.5" data-line-grades>
+                                {grades.map((to) => {
+                                  const taken = to !== g && onLine.has(keyOf(l.item, to));
+                                  return (
+                                    <button key={to} type="button" role="radio" aria-checked={g === to} disabled={taken} onClick={() => regrade(to)} data-line-grade={to}
+                                            aria-label={to ? (th ? `เกรด ${"★".repeat(to)}` : `Grade ${"★".repeat(to)}`) : t("ธรรมดา", "Normal")}
+                                            className={`pressable flex min-h-11 items-center justify-center rounded-lg border px-1 text-label font-semibold disabled:opacity-30 ${g === to ? "border-accent bg-accent/15 text-accent" : "border-line-strong text-muted hover:text-ink"}`}>
+                                      {to ? <GradeBadge grade={to} th={th} inline /> : t("ธรรมดา", "Normal")}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </li>
                         );
                       })}
@@ -306,22 +334,30 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                       </div>
                     )}
                     {pick === "sell" && (() => {
-                      const mine = [...new Set(purse.bag.flatMap((s) => (s && plainStack(s) && s.item in ITEMS ? [s.item] : [])))].filter((id) => !onLine.has(id));
+                      // (each thing the bag holds at each grade is a choice of its own: "tomato ★★" beside "tomato")
+                      const seen = new Set<string>(), mine: Choice[] = [];
+                      for (const s of purse.bag) {
+                        if (!s || !(s.item in ITEMS) || !plainAt(s, gradeIn(s))) continue;
+                        const c = { id: s.item, grade: gradeIn(s) }, key = keyOf(c.id, c.grade);
+                        if (!seen.has(key) && !onLine.has(key)) { seen.add(key); mine.push(c); }
+                      }
                       return (
-                        <Picker th={th} ids={mine} empty={t("ไม่มีของในกระเป๋าที่ลงขายได้", "Nothing in the bag to put up")}
-                                count={(id) => plain(purse.bag, id)}
-                                onPick={(id) => { setLines((all) => [...all, { kind: "sell", item: id, n: Math.min(shops.most, plain(purse.bag, id)), price: Math.max(1, Math.min(capOf(id, { ...shops, quiet: 0 }), ITEMS[id].pays || 1)) }]); setPick(null); }} />
+                        <Picker th={th} choices={mine} empty={t("ไม่มีของในกระเป๋าที่ลงขายได้", "Nothing in the bag to put up")}
+                                count={(c) => plain(purse.bag, c.id, c.grade)}
+                                onPick={({ id, grade }) => { setLines((all) => [...all, { kind: "sell", item: id, n: Math.min(shops.most, plain(purse.bag, id, grade)), price: priceOf(id, grade, capOf(id, { ...shops, quiet: 0 }, grade)), ...(grade ? { grade } : {}) }]); setPick(null); }} />
                       );
                     })()}
                     {pick === "buy" && (() => {
                       const k = q.trim().toLowerCase();
-                      const met = shops.seen.filter((id) => id in ITEMS && !onLine.has(id)).filter((id) => !k || ITEMS[id].name.th.toLowerCase().includes(k) || ITEMS[id].name.en.toLowerCase().includes(k));
+                      // (a thing is offered while some grade of it is not on the stall yet; the line then says which grade, normal first)
+                      const free = (id: ItemId): Grade | null => ([0, 1, 2, 3] as const).find((g) => (g === 0 || mayGrade(id)) && !onLine.has(keyOf(id, g))) ?? null;
+                      const met = shops.seen.filter((id) => id in ITEMS && free(id) !== null).filter((id) => !k || ITEMS[id].name.th.toLowerCase().includes(k) || ITEMS[id].name.en.toLowerCase().includes(k));
                       return (
                         <>
                           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("ค้นหาชื่อของ", "Find a thing")} aria-label={t("ค้นหาชื่อของ", "Find a thing")}
                                  className="mt-2 h-9 w-full rounded-xl border border-line-strong bg-bg/85 px-3 text-ui text-ink outline-none placeholder:text-muted focus:border-accent" />
-                          <Picker th={th} ids={met} empty={t("ไม่พบ", "Nothing found")}
-                                  onPick={(id) => { setLines((all) => [...all, { kind: "buy", item: id, n: 1, price: Math.max(1, Math.min(capOf(id, { ...shops, quiet: 0 }), ITEMS[id].pays || 1)) }]); setPick(null); setQ(""); }} />
+                          <Picker th={th} choices={met.map((id) => ({ id, grade: 0 as const }))} empty={t("ไม่พบ", "Nothing found")}
+                                  onPick={({ id }) => { const grade = free(id) ?? 0; setLines((all) => [...all, { kind: "buy", item: id, n: 1, price: priceOf(id, grade, capOf(id, { ...shops, quiet: 0 }, grade)), ...(grade ? { grade } : {}) }]); setPick(null); setQ(""); }} />
                         </>
                       );
                     })()}
@@ -353,10 +389,10 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                   <>
                     <ul className="mt-3 flex flex-col gap-1.5" data-sign-mine>
                       {mineLines.map((l) => (
-                        <li key={l.item} data-line={l.item} data-left={l.left} className={`flex items-center gap-2 rounded-xl border border-line bg-card/60 p-2 ${l.left ? "" : "opacity-50"}`}>
+                        <li key={`${l.kind}:${keyOf(l.item, l.grade)}`} data-line={l.item} data-grade={gradeIn(l)} data-left={l.left} className={`flex items-center gap-2 rounded-xl border border-line bg-card/60 p-2 ${l.left ? "" : "opacity-50"}`}>
                           <ItemIcon id={l.item} size={30} />
                           <div className="min-w-0 flex-1">
-                            <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}</div>
+                            <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}<GradeBadge grade={l.grade} th={th} inline /></div>
                             <Mark kind={l.kind} th={th} />
                           </div>
                           <span className="font-data text-ui tabular-nums text-ink">{l.left} / {l.n}</span>
@@ -388,11 +424,11 @@ export default function TownSign({ keeper, session, th, phone, tabbar, view, onV
                   </p>
                   {purse && sells.length > 0 && (
                     <StallLines title={t("ขาย", "Sells")} ink={SELL_INK} lines={sells} th={th} act={t("ซื้อ", "Buy")}
-                                most={(l) => Math.min(l.can, Math.floor(purse.coins / l.price), l.item in ITEMS ? roomFor(purse.bag, l.item) : l.can)} onDo={(l, n) => void trade(l, n)} />
+                                most={(l) => Math.min(l.can, Math.floor(purse.coins / l.price), l.item in ITEMS ? roomFor(purse.bag, l.item, gradeIn(l)) : l.can)} onDo={(l, n) => void trade(l, n)} />
                   )}
                   {purse && buys.length > 0 && (
-                    <StallLines title={t("รับซื้อ", "Wants")} ink={BUY_INK} lines={buys} th={th} act={t("ขายให้", "Sell")} held={(l) => plain(purse.bag, l.item)}
-                                most={(l) => Math.min(l.can, plain(purse.bag, l.item))} onDo={(l, n) => void trade(l, n)} />
+                    <StallLines title={t("รับซื้อ", "Wants")} ink={BUY_INK} lines={buys} th={th} act={t("ขายให้", "Sell")} held={(l) => plain(purse.bag, l.item, gradeIn(l))}
+                                most={(l) => Math.min(l.can, plain(purse.bag, l.item, gradeIn(l)))} onDo={(l, n) => void trade(l, n)} />
                   )}
                 </div>
               );
@@ -426,17 +462,20 @@ export function Board({ sign, th }: { sign: Sign; th: boolean }) {
   );
 }
 
-/** Things to choose from, a few to a row: each a picture with its name under the pointer; how many are held, where that is told. */
-function Picker({ ids, th, empty, count, onPick }: { ids: ItemId[]; th: boolean; empty: string; count?: (id: ItemId) => number; onPick: (id: ItemId) => void }) {
-  if (!ids.length) return <p className="mt-2 text-meta text-muted">{empty}</p>;
+/** A thing to choose, at a grade (normal for a thing chosen before its grade is said). */
+interface Choice { id: ItemId; grade: Grade }
+/** Things to choose from, a few to a row: each a picture with its name under the pointer and its grade's stars in a corner, as the bag shows them; how many are held, where that is told. */
+function Picker({ choices, th, empty, count, onPick }: { choices: Choice[]; th: boolean; empty: string; count?: (c: Choice) => number; onPick: (c: Choice) => void }) {
+  if (!choices.length) return <p className="mt-2 text-meta text-muted">{empty}</p>;
   return (
     <ul className="mt-2 grid max-h-44 grid-cols-6 gap-1.5 overflow-y-auto overscroll-contain rounded-xl border border-line bg-bg/60 p-2" data-sign-picker>
-      {ids.map((id) => (
-        <li key={id}>
-          <button type="button" onClick={() => onPick(id)} title={nameOf(id, th)} aria-label={nameOf(id, th)} data-item={id}
+      {choices.map((c) => (
+        <li key={keyOf(c.id, c.grade)}>
+          <button type="button" onClick={() => onPick(c)} title={namedOf(c.id, c.grade, th)} aria-label={namedOf(c.id, c.grade, th)} data-item={c.id} data-grade={c.grade}
                   className="pressable relative grid aspect-square w-full place-items-center rounded-lg border border-line-strong bg-card hover:border-accent">
-            <ItemIcon id={id} size={30} />
-            {count && <span className="absolute bottom-0 right-1 font-data text-label font-semibold tabular-nums text-ink [text-shadow:0_1px_2px_#000]">{count(id)}</span>}
+            <ItemIcon id={c.id} size={30} />
+            <GradeBadge grade={c.grade} th={th} />
+            {count && <span className="absolute bottom-0 right-1 font-data text-label font-semibold tabular-nums text-ink [text-shadow:0_1px_2px_#000]">{count(c)}</span>}
           </button>
         </li>
       ))}
@@ -450,18 +489,20 @@ function StallLines({ title, ink, lines, th, act, most, held, onDo }: {
   most: (l: ShopLineTold) => number; held?: (l: ShopLineTold) => number; onDo: (l: ShopLineTold, n: number) => void;
 }) {
   const [n, setN] = useState<Record<string, number>>({});
+  // (a thing on two lines, at two grades, is two lines)
+  const key = (l: ShopLineTold) => keyOf(l.item, gradeIn(l));
   return (
     <section className="mt-2" data-stall-side={lines[0]?.kind}>
       <h3 className="inline-block rounded px-2 py-0.5 text-label font-bold text-white" style={{ background: ink }}>{title}</h3>
       <ul className="mt-1.5 flex flex-col gap-1.5">
         {lines.map((l) => {
-          const top = Math.max(0, most(l)), want = Math.max(1, Math.min(top || 1, n[l.item] ?? 1));
-          const set = (v: number) => setN((all) => ({ ...all, [l.item]: Math.max(1, Math.min(top || 1, v)) }));
+          const top = Math.max(0, most(l)), want = Math.max(1, Math.min(top || 1, n[key(l)] ?? 1));
+          const set = (v: number) => setN((all) => ({ ...all, [key(l)]: Math.max(1, Math.min(top || 1, v)) }));
           return (
-            <li key={l.item} data-line={l.item} data-can={l.can} className="flex items-center gap-2 rounded-xl border border-line bg-card/60 p-2">
+            <li key={key(l)} data-line={l.item} data-grade={gradeIn(l)} data-can={l.can} className="flex items-center gap-2 rounded-xl border border-line bg-card/60 p-2">
               <ItemIcon id={l.item} size={32} />
               <div className="min-w-0 flex-1">
-                <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}</div>
+                <div className="truncate text-ui font-semibold text-ink">{nameOf(l.item, th)}<GradeBadge grade={l.grade} th={th} inline /></div>
                 <div className="flex items-center gap-2 text-label text-muted">
                   <Coins n={l.price} th={th} small /><span>× {l.can}</span>
                   {held && <span className="flex items-center gap-1"><TownIcon name="bag" size={11} />{held(l)}</span>}

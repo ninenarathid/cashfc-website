@@ -1,16 +1,16 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ITEMS, iconOf, type ItemId } from "@/lib/town/items";
-import { mayDrop } from "@/lib/town/jar";
+import { ITEMS, iconOf } from "@/lib/town/items";
+import { jarGrade, mayDrop, type JarThing } from "@/lib/town/jar";
 import type { Keeper } from "@/lib/town/keeper";
 import type { FishSfx } from "@/lib/town/sfx";
-import { handOf } from "@/lib/town/trade";
+import { gradeIn, handOf } from "@/lib/town/trade";
 import { NATURE_NAMES, type Nature } from "@/lib/town/waters";
 import { RANK_TITLES } from "@/lib/town/well";
 import TownIcon, { ICON_ATLAS, type IconName } from "./TownIcon";
 import TownFoot from "./TownFoot";
-import { WHY } from "./TownTrade";
+import { GradeBadge, WHY } from "./TownTrade";
 
 /** The mark of each rank, the first to the last. */
 export const RANK_ICONS: IconName[] = ["rankWaterA", "rankWaterB", "rankWaterC"];
@@ -32,7 +32,8 @@ const NATURE_ICONS: Record<Nature, IconName> = { dawn: "waterDawn", rain: "water
  * thanks): today's, by whom; this week's and all told; and who has been
  * thanked most this week. And **the jar** that stands by the well (lib/town/
  * jar): what is in it, when it is next shared, coins or the thing in my hand
- * dropped in, and what waits for me taken. The jar alone says what it is for,
+ * dropped in (a graded thing at each grade the bag holds of it, each with its
+ * stars), and what waits for me taken. The jar alone says what it is for,
  * as the bank says what changing popoto costs: nobody gives to a jar they
  * know nothing of.
  *
@@ -69,7 +70,9 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
   }, [open]);
 
   const book = keeper.wellBook(), thanks = keeper.thanks(), jar = keeper.jar();
-  const purse = keeper.purse(), hand = handOf(purse), handSlot = hand ? purse.bag.findIndex((s) => s?.item === hand && mayDrop(s)) : -1;
+  const purse = keeper.purse(), hand = handOf(purse);
+  // (the thing in my hand, at each grade the bag holds of it that the jar takes: one button a grade, the lowest first)
+  const handSlots = hand ? ([0, 1, 2, 3] as const).flatMap((g) => { const slot = purse.bag.findIndex((s) => s?.item === hand && gradeIn(s) === g && mayDrop(s)); return slot >= 0 ? [{ slot, grade: g }] : []; }) : [];
   /** Drop coins into the jar, or one of the thing in my hand; and take what waits for me. */
   const give = useCallback(async (what: { coins: number } | { slot: number; n: number }) => {
     setBusy(true);
@@ -112,10 +115,12 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
   const title = book.rank > 0 ? RANK_TITLES[book.rank - 1][th ? 0 : 1] : null;
   const n = (k: number) => k.toLocaleString(th ? "th-TH" : "en-US");
   const hour = (at: number) => new Intl.DateTimeFormat("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Bangkok" }).format(at);
-  const things = (list: Array<[ItemId, number]>) => list.map(([id, k]) => (
-    <span key={id} className="flex items-center gap-1" title={th ? ITEMS[id]?.name.th : ITEMS[id]?.name.en}>
-      <TownIcon name={(iconOf(id) in ICON_ATLAS.icons ? iconOf(id) : "mystery") as IconName} size={18} />
-      <span className="font-data tabular-nums">{n(k)}</span>
+  // (a graded thing says its grade beside its picture, as the bag does; the same thing at two grades is two)
+  const things = (list: JarThing[]) => list.map((t) => (
+    <span key={`${t[0]}:${jarGrade(t)}`} className="flex items-center gap-1" title={th ? ITEMS[t[0]]?.name.th : ITEMS[t[0]]?.name.en} data-jar-thing={t[0]} data-grade={jarGrade(t)}>
+      <TownIcon name={(iconOf(t[0]) in ICON_ATLAS.icons ? iconOf(t[0]) : "mystery") as IconName} size={18} />
+      <GradeBadge grade={jarGrade(t)} th={th} inline />
+      <span className="font-data tabular-nums">{n(t[1])}</span>
     </span>
   ));
   return (
@@ -270,12 +275,13 @@ export default function TownWell({ keeper, name, th, at, phone, tabbar, bottom, 
                           +{k} <TownIcon name="coin" size={14} />
                         </button>
                       ))}
-                      {hand && handSlot >= 0 && (
-                        <button type="button" onClick={() => void give({ slot: handSlot, n: 1 })} disabled={busy} data-jar-give-thing
+                      {hand && handSlots.map(({ slot, grade }) => (
+                        <button key={grade} type="button" onClick={() => void give({ slot, n: 1 })} disabled={busy} data-jar-give-thing data-grade={grade}
+                                aria-label={`+1 ${th ? ITEMS[hand].name.th : ITEMS[hand].name.en}${grade ? ` ${"★".repeat(grade)}` : ""}`}
                                 className="pressable flex min-h-10 items-center gap-1 rounded-full border border-line-strong px-3 text-ui font-semibold text-ink transition-colors hover:border-accent disabled:opacity-40">
-                          +1 <TownIcon name={(iconOf(hand) in ICON_ATLAS.icons ? iconOf(hand) : "mystery") as IconName} size={16} />
+                          +1 <TownIcon name={(iconOf(hand) in ICON_ATLAS.icons ? iconOf(hand) : "mystery") as IconName} size={16} /><GradeBadge grade={grade} th={th} inline />
                         </button>
-                      )}
+                      ))}
                     </div>
                     {jar.mine && (jar.mine.coins > 0 || jar.mine.things.length > 0) && (
                       <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-accent/60 bg-accent/10 px-2.5 py-2 text-ui text-ink" data-jar-mine>

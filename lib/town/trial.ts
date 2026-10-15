@@ -77,7 +77,7 @@ import {
   type Done, type Purse, type Refusal, type Stall,
 } from "./trade";
 import { KITCHEN, bedCorner, bedOf, yardFloor } from "./world";
-import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarTold, type Owed } from "./jar";
+import { collect as jarCollect, drop as jarDrop, newJar, settle, type Jar, type JarThing, type JarTold, type Owed } from "./jar";
 import { boardOf, thank, toThank, type Helper, type Thanks, type ThanksBoard } from "./thanks";
 // ── gifts: kitchen ──
 import { basketEat, basketPut, basketTake, cookWith, spiceEat, spoon, type CookHow, type Gifted } from "./cooking";
@@ -481,7 +481,7 @@ export class Trial {
     if (did.ok) { this.write(PINBOARD, did.board); this.save(did.purse); }
     return did;
   }
-  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number) { return this.pin(Notices.post(this.purse(), this.pinboard(), this.id, kind, item, n, price, this.now(), this.seen())); }
+  noticePost(kind: "sell" | "want", item: ItemId, n: number, price: number, grade: 0 | 1 | 2 | 3 = 0) { return this.pin(Notices.post(this.purse(), this.pinboard(), this.id, kind, item, n, price, this.now(), this.seen(), undefined, grade)); }
   noticeBuy(id: number, n: number) { return this.pin(Notices.buy(this.purse(), this.pinboard(), this.id, id, n, this.now())); }
   noticeFill(id: number, n: number) { return this.pin(Notices.fill(this.purse(), this.pinboard(), this.id, id, n, this.now())); }
   noticeFetch(id: number) { return this.pin(Notices.fetch(this.purse(), this.pinboard(), this.id, id)); }
@@ -1299,7 +1299,7 @@ export class Trial {
     this.save(did.purse);
     return { ok: true };
   }
-  jarTake(): { ok: true; coins: number; things: Array<[ItemId, number]> } | { ok: false; why: Refusal } {
+  jarTake(): { ok: true; coins: number; things: JarThing[] } | { ok: false; why: Refusal } {
     const { jar, owed } = this.jarKept(), did = jarCollect(this.purse(), owed, this.id);
     if (!did.ok) return did;
     this.write(JAR, { jar, owed: did.owed });
@@ -1715,10 +1715,10 @@ export class Trial {
     const raw = this.get(purseKey(who));
     return raw === null ? null : Shops.toldOf(this.shopsKept()[who], JSON.parse(raw) as Purse, this.now());
   }
-  private shopDeal(who: string, item: ItemId, n: number, at: [number, number], how: typeof Shops.buy) {
+  private shopDeal(who: string, item: ItemId, n: number, at: [number, number], how: typeof Shops.buy, grade: 0 | 1 | 2 | 3) {
     const all = this.shopsKept(), raw = this.get(purseKey(who));
     if (raw === null) return { ok: false as const, why: "shut" as const };
-    const did = how(this.purse(), JSON.parse(raw) as Purse, all[who], this.id, item, n, at, this.now());
+    const did = how(this.purse(), JSON.parse(raw) as Purse, all[who], this.id, item, n, at, this.now(), undefined, grade);
     if (!did.ok) return did;
     // (the other's purse is in this browser too: both are written here)
     this.write(purseKey(who), did.theirs);
@@ -1727,8 +1727,8 @@ export class Trial {
     return { ok: true as const, coins: did.coins };
   }
   /** Buy at somebody's stall, or bring it what it wants, from the tile I stand on. */
-  shopBuy(who: string, item: ItemId, n: number, at: [number, number]) { return this.shopDeal(who, item, n, at, Shops.buy); }
-  shopSell(who: string, item: ItemId, n: number, at: [number, number]) { return this.shopDeal(who, item, n, at, Shops.sell); }
+  shopBuy(who: string, item: ItemId, n: number, at: [number, number], grade: 0 | 1 | 2 | 3 = 0) { return this.shopDeal(who, item, n, at, Shops.buy, grade); }
+  shopSell(who: string, item: ItemId, n: number, at: [number, number], grade: 0 | 1 | 2 | 3 = 0) { return this.shopDeal(who, item, n, at, Shops.sell, grade); }
 
   /* ── things dropped on the ground: the whole browser's, like the farm ── */
   /** What lies about now. */

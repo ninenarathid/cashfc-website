@@ -1,5 +1,5 @@
 import { ITEMS, type ItemId } from "./items";
-import { no, plainStack, put, roomFor, roundOf, type Done, type Purse } from "./trade";
+import { gradeIn, no, plainAt, put, roomFor, roundOf, type Done, type Purse } from "./trade";
 import type { WellLog } from "./well";
 
 /**
@@ -18,6 +18,10 @@ import type { WellLog } from "./well";
  * every share is written down. Nobody having worked, the jar keeps what it
  * has for the next time.
  *
+ * A graded thing (the farm's Quality) goes in at its grade and comes out at it:
+ * each thing is kept as `[thing, how many]`, or `[thing, how many, grade]`, the
+ * same thing at two grades as two, and so it is shared and taken (v268).
+ *
  * Pure. The database keeps the same (v129).
  */
 export const JAR = {
@@ -27,20 +31,26 @@ export const JAR = {
   kinds: ["crop", "fish", "dish", "goods", "catch", "staple"] as string[],
 };
 
+/** Some of a thing in the jar, or waiting at it: a normal thing as a pair, a graded one with its grade third. */
+export type JarThing = [ItemId, number] | [ItemId, number, 1 | 2 | 3];
+/** A thing's grade, as the jar keeps it: its third number, or normal. */
+export const jarGrade = (t: JarThing): 0 | 1 | 2 | 3 => (t.length === 3 ? t[2] : 0);
 /** What is in the jar, and the round it was last shared in. Things in the order they were first dropped. */
-export interface Jar { round: number; coins: number; things: Array<[ItemId, number]> }
+export interface Jar { round: number; coins: number; things: JarThing[] }
 /** What waits at the jar for each: coins, and things. */
-export type Owed = Record<string, { coins: number; things: Array<[ItemId, number]> }>;
+export type Owed = Record<string, { coins: number; things: JarThing[] }>;
 export const newJar = (round: number): Jar => ({ round, coins: 0, things: [] });
 /** The jar as a page is told of it: what is in it, the moment it is next shared, and what waits for whoever asks. */
 export interface JarTold extends Jar { next: number; mine: Owed[string] | null }
 
-/** Whether a stack may be dropped in: a plain thing of a kind the jar takes (not a pot of food, not a bucket of water). */
-export const mayDrop = (s: Purse["bag"][number]): boolean => !!s && JAR.kinds.includes(ITEMS[s.item].kind) && plainStack(s);
+/** Whether a stack may be dropped in: a plain thing (of its grade) of a kind the jar takes (not a pot of food, not a bucket of water). */
+export const mayDrop = (s: Purse["bag"][number]): boolean => !!s && JAR.kinds.includes(ITEMS[s.item].kind) && plainAt(s, gradeIn(s));
 
 const whole = (n: number) => Number.isInteger(n) && n > 0;
-const add = (things: Array<[ItemId, number]>, id: ItemId, n: number): Array<[ItemId, number]> =>
-  (things.some(([t]) => t === id) ? things.map(([t, k]): [ItemId, number] => (t === id ? [t, k + n] : [t, k])) : [...things, [id, n]]);
+const thing = (id: ItemId, n: number, grade: 0 | 1 | 2 | 3): JarThing => (grade ? [id, n, grade] : [id, n]);
+/** So many more of a thing at a grade: onto its own entry, or a new one at the end. */
+const add = (things: JarThing[], id: ItemId, n: number, grade: 0 | 1 | 2 | 3 = 0): JarThing[] =>
+  (things.some((t) => t[0] === id && jarGrade(t) === grade) ? things.map((t) => (t[0] === id && jarGrade(t) === grade ? thing(id, t[1] + n, grade) : t)) : [...things, thing(id, n, grade)]);
 
 /** Drop coins into the jar, or so many of the thing in a slot. */
 export function drop(purse: Purse, jar: Jar, what: { coins: number } | { slot: number; n: number }): Done<{ purse: Purse; jar: Jar }> {
@@ -54,7 +64,7 @@ export function drop(purse: Purse, jar: Jar, what: { coins: number } | { slot: n
   if (!mayDrop(s)) return no("unwanted");
   if (!whole(what.n) || what.n > s.n) return no("amount");
   const bag = purse.bag.map((b, i) => (i !== what.slot ? b : s.n === what.n ? null : { ...s, n: s.n - what.n }));
-  return { ok: true, purse: { ...purse, bag }, jar: { ...jar, things: add(jar.things, s.item, what.n) } };
+  return { ok: true, purse: { ...purse, bag }, jar: { ...jar, things: add(jar.things, s.item, what.n, gradeIn(s)) } };
 }
 
 /** What each did for the others from one round up to (not into) another, in waterings: a bucketful poured counts as so many. Only those who did something. */
@@ -92,25 +102,25 @@ export function settle(jar: Jar, owed: Owed, well: WellLog, now: number): { jar:
 export function settleWith(jar: Jar, owed: Owed, work: Array<[string, number]>, round: number): { jar: Jar; owed: Owed; shared: boolean } {
   if (!work.length || (!jar.coins && !jar.things.length)) return { jar: { ...jar, round }, owed, shared: false };
   const next: Owed = { ...owed };
-  const give = (who: string, coins: number, thing?: [ItemId, number]) => {
+  const give = (who: string, coins: number, got?: JarThing) => {
     const was = next[who] ?? { coins: 0, things: [] };
-    next[who] = { coins: was.coins + coins, things: thing ? add(was.things, thing[0], thing[1]) : was.things };
+    next[who] = { coins: was.coins + coins, things: got ? add(was.things, got[0], got[1], jarGrade(got)) : was.things };
   };
   for (const [who, n] of shares(jar.coins, work)) give(who, n);
-  for (const [id, k] of jar.things) for (const [who, n] of shares(k, work)) give(who, 0, [id, n]);
+  for (const t of jar.things) for (const [who, n] of shares(t[1], work)) give(who, 0, thing(t[0], n, jarGrade(t)));
   return { jar: newJar(round), owed: next, shared: true };
 }
 
-/** Take what waits for me at the jar: the coins, and as many of the things as the bag has room for (the rest wait on). */
-export function collect(purse: Purse, owed: Owed, me: string): Done<{ purse: Purse; owed: Owed; coins: number; things: Array<[ItemId, number]> }> {
+/** Take what waits for me at the jar: the coins, and as many of the things as the bag has room for, each at its grade (the rest wait on). */
+export function collect(purse: Purse, owed: Owed, me: string): Done<{ purse: Purse; owed: Owed; coins: number; things: JarThing[] }> {
   const mine = owed[me];
   if (!mine || (!mine.coins && !mine.things.length)) return no("nothing");
   let bag = purse.bag;
-  const took: Array<[ItemId, number]> = [], left: Array<[ItemId, number]> = [];
-  for (const [id, n] of mine.things) {
-    const fits = Math.min(n, roomFor(bag, id));
-    if (fits > 0) { bag = put(bag, id, fits); took.push([id, fits]); }
-    if (fits < n) left.push([id, n - fits]);
+  const took: JarThing[] = [], left: JarThing[] = [];
+  for (const t of mine.things) {
+    const [id, n] = t, g = jarGrade(t), fits = Math.min(n, roomFor(bag, id, g));
+    if (fits > 0) { bag = put(bag, id, fits, g); took.push(thing(id, fits, g)); }
+    if (fits < n) left.push(thing(id, n - fits, g));
   }
   if (!mine.coins && !took.length) return no("full");
   const rest: Owed = { ...owed };

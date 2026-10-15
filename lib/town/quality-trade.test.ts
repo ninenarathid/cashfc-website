@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { deedFor, pick, tend, type Plant, type Plot } from "./farm";
 import { ITEMS } from "./items";
 import { harvestOf } from "./quality-plant";
-import { collect, held, leave, newPurse, plainStack, put, roomFor, roundOf, take, takeBack, waiting, wholeStack, type Purse } from "./trade";
+import { collect, gradeArg, held, leave, mayGrade, newPurse, plainAt, plainStack, put, roomFor, roundOf, take, takeBack, waiting, wholeStack, type Purse } from "./trade";
 import { fits } from "./box";
 import { pull, push } from "./deal";
 
@@ -25,10 +25,15 @@ describe("graded produce in the bag", () => {
     expect(take(bag, "tomato", 1, 3).filter(Boolean)).toEqual([{ item: "tomato", n: 4, grade: 3 }, { item: "tomato", n: 2 }]);
   });
 
-  it("is moved whole, never sold by number on a stall or the board", () => {
+  it("is moved whole, and sold by number on a stall or the board only as a thing of its own grade", () => {
     expect(plainStack({ item: "tomato", n: 4, grade: 1 })).toBe(false);
     expect(wholeStack({ item: "tomato", n: 4, grade: 1 })).toBe(true);
     expect(plainStack({ item: "tomato", n: 4 })).toBe(true);
+    // (graded listings) plain but for its grade: counted at that grade only, and never when it holds or carries more
+    expect([plainAt({ item: "tomato", n: 4, grade: 1 }, 1), plainAt({ item: "tomato", n: 4, grade: 1 }, 0), plainAt({ item: "tomato", n: 4 }, 0)]).toEqual([true, false, true]);
+    expect(plainAt({ item: "potFull", n: 1, of: { dish: "tomYum", left: 2 }, grade: 2 }, 2)).toBe(false);
+    expect([mayGrade("tomato"), mayGrade("curryPaste"), mayGrade("tomYum"), mayGrade("minnow"), mayGrade("worm")]).toEqual([true, true, true, false, false]);
+    expect([gradeArg(undefined), gradeArg(null), gradeArg(0), gradeArg(2), gradeArg(4), gradeArg(1.5), gradeArg("2")]).toEqual([0, 0, 0, 2, null, null, null]);
   });
 });
 
