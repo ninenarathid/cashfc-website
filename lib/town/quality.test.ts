@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CROP_IDS } from "./items";
 import {
-  COMPANIONS, PARTNERS, QUALITY, barsOf, ceilingOf, chancesOf, coverOffsets, coveredShare, dishGrade, gradeOf,
+  COMPANIONS, NO_Q, PARTNERS, QUALITY, accrue, barsOf, barsOfQ, ceilingOf, narrowingOfQ, rangeOfQ, chancesOf, coverOffsets, coveredShare, dishGrade, gradeOf,
   narrowingOf, paidFor, rangeOf, rollOne, type Cover,
 } from "./quality";
 
@@ -105,5 +105,46 @@ describe("the farm's Quality", () => {
   it("names a partner for every main crop, a crop or a helper", () => {
     for (const crop of CROP_IDS) expect(PARTNERS[crop], crop).toBeDefined();
     for (const p of Object.values(PARTNERS)) expect(CROP_IDS.includes(p as never) || p in COMPANIONS, p).toBe(true);
+  });
+
+  describe("a plant's round, kept as it goes", () => {
+    // a 10-hour plant growing by the clock, then ripe
+    const linear = (t: number) => Math.min(1, Math.max(0, t / (10 * H)));
+    const half: Cover = { role: "water", level: 0.5, from: 0, to: 20 * H }, full: Cover = { role: "soil", level: 1, from: 0, to: 20 * H };
+
+    it("fills by the growing done while covered, and stops counting once ripe", () => {
+      const q = accrue(NO_Q(0), 30 * H, linear, [half, full]);
+      expect(q.span).toBeCloseTo(1);
+      expect(barsOfQ(q)).toEqual({ soil: 25, water: 12, pollen: 0, guard: 0 });
+    });
+
+    it("comes to the same whether settled once or in pieces", () => {
+      let q = NO_Q(0);
+      for (const t of [2, 3.5, 7, 9.9, 12].map((h) => h * H)) q = accrue(q, t, linear, [half, full]);
+      expect(barsOfQ(q)).toEqual(barsOfQ(accrue(NO_Q(0), 12 * H, linear, [half, full])));
+    });
+
+    it("weighs by growing, so a stretch of fast growth counts for more", () => {
+      // grows 0.8 of the round in the first hour (a boost), 0.2 over the next nine; covered only in that first hour
+      const fast = (t: number) => (t <= H ? (0.8 * t) / H : Math.min(1, 0.8 + (0.2 * (t - H)) / (9 * H)));
+      const q = accrue(NO_Q(0), 10 * H, fast, [{ role: "guard", level: 1, from: 0, to: H }]);
+      expect(barsOfQ(q).guard).toBe(20);
+    });
+
+    it("leaves a jump of growth between two settles out of the share", () => {
+      // settled at 5 h on the old clock, then a watering jumps the plant on by 0.2: the new clock starts higher
+      let q = accrue(NO_Q(0), 5 * H, linear, [full]);
+      const after = (t: number) => Math.min(1, linear(t) + 0.2);
+      q = accrue(q, 10 * H, after, [full]);
+      expect(q.span).toBeCloseTo(0.8);
+      expect(barsOfQ(q).soil).toBe(25);
+    });
+
+    it("narrows by the share of the growing each source covered, and the brush whole", () => {
+      const q = accrue(NO_Q(0), 10 * H, linear, [full], [], [{ kind: "rare", from: 5 * H, to: 20 * H }, { kind: "partner", from: 0, to: 20 * H }]);
+      expect(narrowingOfQ(q)).toBe(15);
+      expect(narrowingOfQ({ ...q, brush: true })).toBe(20);
+      expect(rangeOfQ({ ...q, brush: true })).toEqual({ lo: 15, hi: 25 });
+    });
   });
 });

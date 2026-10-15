@@ -82,6 +82,64 @@ export function barsOf(covers: readonly Cover[], from: number, to: number, penal
 
 export const ceilingOf = (bars: Record<Role, number>): number => Math.min(100, ROLES.reduce((s, r) => s + bars[r], 0));
 
+/* ── a plant's round, kept as it goes ── */
+
+/**
+ * What a plant's round has gathered so far, kept on the plant (`Plant.q`): when it was last settled, how much growing
+ * has been counted (`span`, in parts of the round), each bar's covered growing (`area`, soil water pollen guard, a
+ * whole bar 1), the narrowing sources' covered growing (`nar`: partner, rare, packet), and whether the brush was used.
+ * Weighed by GROWING, not by the clock: a plant that grows faster counts faster, and nothing is counted once it is
+ * ripe (its growing stops there), so the bars freeze by themselves. A jump of growth (a watering's boost) falls
+ * between two settles and is counted for nobody, which `span` leaves out of the share.
+ */
+export interface PlantQ { at: number; span: number; area: [number, number, number, number]; nar: [number, number, number]; brush?: true }
+/** A narrowing source while it lasts: `share` of the plant it reaches (a rare insect's house covers all of it, 1). */
+export interface NarrowCover { kind: Exclude<Narrowing, "brush">; from: number; to: number; share?: number }
+export const NO_Q = (at: number): PlantQ => ({ at, span: 0, area: [0, 0, 0, 0], nar: [0, 0, 0] });
+
+/**
+ * Count a round's growing from the last settle to `to`: in each stretch between two changes, the best cover of each
+ * bar times the growing done in it (`progress`: the round's part grown by a moment, 0 to 1, as the plant now stands),
+ * less any penalty the same way; and the narrowing sources likewise. Settle before anything that changes a source.
+ */
+export function accrue(q: PlantQ, to: number, progress: (t: number) => number, covers: readonly Cover[], penalties: readonly Penalty[] = [], narrows: readonly NarrowCover[] = []): PlantQ {
+  if (!(to > q.at)) return q;
+  const cuts = [...new Set([q.at, to, ...[...covers, ...penalties, ...narrows].flatMap((c) => [c.from, c.to])])]
+    .filter((t) => t >= q.at && t <= to).sort((a, b) => a - b);
+  const area = [...q.area] as PlantQ["area"], nar = [...q.nar] as PlantQ["nar"];
+  let span = q.span;
+  for (let i = 0; i + 1 < cuts.length; i++) {
+    const a = cuts[i], b = cuts[i + 1], mid = (a + b) / 2, grew = Math.max(0, progress(b) - progress(a));
+    if (!grew) continue;
+    span += grew;
+    ROLES.forEach((role, k) => {
+      const best = covers.reduce((m, c) => (c.role === role && c.from <= mid && mid < c.to ? Math.max(m, c.level) : m), 0);
+      const lost = penalties.reduce((m, p) => (p.role === role && p.from <= mid && mid < p.to ? m + p.points : m), 0);
+      area[k] += (Math.min(1, best) - lost / QUALITY.bar) * grew;
+    });
+    (["partner", "rare", "packet"] as const).forEach((kind, k) => {
+      const best = narrows.reduce((m, n) => (n.kind === kind && n.from <= mid && mid < n.to ? Math.max(m, n.share ?? 1) : m), 0);
+      nar[k] += Math.min(1, best) * grew;
+    });
+  }
+  return { ...q, at: to, span, area, nar };
+}
+
+/** The bars a round has gathered, whole points. */
+export function barsOfQ(q: PlantQ): Record<Role, number> {
+  const out = { soil: 0, water: 0, pollen: 0, guard: 0 } as Record<Role, number>;
+  if (!(q.span > 0)) return out;
+  ROLES.forEach((role, k) => { out[role] = Math.max(0, Math.min(QUALITY.bar, Math.floor((QUALITY.bar * q.area[k]) / q.span + 1e-9))); });
+  return out;
+}
+/** How far a round has raised its floor. */
+export function narrowingOfQ(q: PlantQ): number {
+  const share = (k: number) => (q.span > 0 ? q.nar[k] / q.span : 0);
+  return narrowingOf({ partner: share(0), rare: share(1), packet: share(2), brush: q.brush ? 1 : 0 });
+}
+/** A round's range as it stands. */
+export const rangeOfQ = (q: PlantQ): Range => rangeOf(ceilingOf(barsOfQ(q)), narrowingOfQ(q));
+
 /* ── the range ── */
 
 export type Narrowing = "partner" | "brush" | "rare" | "packet";
