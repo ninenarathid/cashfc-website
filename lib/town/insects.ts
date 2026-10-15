@@ -1048,7 +1048,9 @@ export function poseOf(id: BugId, h: Haunt, seed: number, m: Mind, now: number):
       if (!bug.like) {
         // what only glows: it drifts its round in the dark, and shows a moment at a time
         const { at, to } = onRound(h, seed, H.drift, now), every = mix(H.blink, roll("blink", seed)), lit = now > m.hush && (now + roll("lit", seed) * every) % every < H.glow;
-        return { ...POSE, x: at.x, y: at.y, lift: H.lift + 0.1 * Math.sin(s * 1.7 + seed), right: side(at, to) > 0, seen: lit, glow: lit ? 1 : 0, flying: true };
+        // (its glow comes up fast and dies away while it is lit, as a firefly's flash does: never nothing while it shows)
+        const phase = ((now + roll("lit", seed) * every) % every) / H.glow, glow = phase < 0.18 ? phase / 0.18 : 1 - (0.75 * (phase - 0.18)) / 0.82;
+        return { ...POSE, x: at.x, y: at.y, lift: H.lift + 0.1 * Math.sin(s * 1.7 + seed), right: side(at, to) > 0, seen: lit, glow: lit ? Math.max(0.25, glow) : 0, flying: true };
       }
       const every = mix(H.tell, roll("tell", seed, m.visit));
       return { ...POSE, x: here.x, y: here.y, right: m.face > 0, twitch: now > m.hush && (now - m.land) % every > every - H.twitch };

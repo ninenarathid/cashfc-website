@@ -10,7 +10,7 @@ import TownGardenHelp from './TownGardenHelp';
 import TownCampFlag from './TownCampFlag';
 import TownWaykeeper from './TownWaykeeper';
 import TownSkyBean from "./TownSkyBean";
-import{drawGiantPlant}from "./drawGiantPlant";
+import { wideSprite } from "@/lib/town/wide-plants";
 import TownGardenRewards from "./TownGardenRewards";
 import TownKitchenRewards from "./TownKitchenRewards";
 import TownPicnic from "./TownPicnic";
@@ -63,12 +63,12 @@ import { Vfx, type VfxKind } from "./vfx";
 import { GARDEN_CROPS, type GardenCropId } from "@/lib/town/garden-items";
 import { gardenCross, gardenMods } from "@/lib/town/gardening";
 import TownGardenPlacement from "./TownGardenPlacement";
-import { QualityBed, QualityChip, QualityInspector } from "./TownQuality";
+import { FertChart, QualityBed, QualityChip, QualityInspector } from "./TownQuality";
 import { HouseChip, HousePanel } from "./TownInsectHouse";
 import { houseRoleOf, plantsInReach, type HouseDeed, type InsectHouse } from "@/lib/town/insect-house";
 import { insectPose, type HouseFlight, type InsectPose } from "./houseInsects";
 import { FERTS, isFert } from "@/lib/town/fertilisers";
-import { qualityNow } from "@/lib/town/quality-plant";
+import { fertGain, qualityNow } from "@/lib/town/quality-plant";
 import { COMPANIONS } from "@/lib/town/quality";
 import { held as countIn } from "@/lib/town/trade";
 import { GRADES } from "@/lib/town/quality";
@@ -83,6 +83,12 @@ export interface FarmFrame {
   onScreen: (p: Vec) => boolean;
   /** Write a few words over a point of the screen, as the map writes its own signs. */
   sign: (text: string, x: number, y: number) => void;
+  /**
+   * A light in the dark at a point of the screen, laid with the map's lights once the night is on the picture (so it
+   * lights the dark, as a lamp does): its reach in the map's own pixels, its colour "r,g,b", how strong (1 a gem's),
+   * and how flat (1 round; less, a pool on the ground). Nothing by day.
+   */
+  light?: (x: number, y: number, reach: number, rgb: string, strong?: number, flat?: number) => void;
   /** The map's scale: screen pixels to one of its own. */
   s: number;
   now: number;
@@ -290,6 +296,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const [inspecting, setInspecting] = useState<string | null>(null);
   /** Whether the bed's overview is open from the inspector (components/town/TownQuality's QualityBed). */
   const [bedView, setBedView] = useState(false);
+  /** The fertiliser chart open from the inspector (lib/town/fertilisers). */
+  const [chartView, setChartView] = useState(false);
   const leaveIt = useRef<HTMLButtonElement>(null);
   const [note, setNote] = useState<string | null>(null);
   useEffect(() => { if (!note) return; const t = setTimeout(() => setNote(null), 2600); return () => clearTimeout(t); }, [note]);
@@ -308,7 +316,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   const now = keeper.now(), plots = keeper.farm();
   const seen = useRef(new Map<string, Seen>());
   const gardenRoots = useRef(new Map<string, string>());
-  const giants=useRef(new Map<string,string>());giants.current=new Map(Object.entries(plots).flatMap(([k,plot])=>plot.plant?.giant&&plot.plant.root?[[k,plot.plant.root] as [string,string]]:[]));
   gardenRoots.current = new Map(Object.entries(plots).flatMap(([k, plot]) => plot.plant?.root ? [[k, plot.plant.root] as [string, string]] : []));
   /** The insect houses standing on the farm, by their plots (lib/town/insect-house): drawn on their plots, with the insects of their lived-in rooms about them. */
   const houses = useRef(new Map<string, InsectHouse>());
@@ -319,16 +326,29 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
     const cells = (plots[root]?.plant?.footprint ?? [root]).map((c) => c.split(",").map(Number));
     return { x: cells.reduce((n, [x]) => n + x + 0.5, 0) / cells.length, y: cells.reduce((n, [, y]) => n + y + 0.5, 0) / cells.length };
   })]));
-  /** A whole tree's root: the middle of its plots on the map, and the frontmost of them (it is drawn over all their soil). */
-  const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number }>());
+  /**
+   * A plant over several plots, by its root (the fig, a garden hybrid, a giant): the middle of its plots on the map, the
+   * frontmost of them (it is drawn over all their soil), its plots, its crop and whether it is a giant.
+   */
+  const wholeTrees = useRef(new Map<string, { x: number; y: number; front: number; cells: Array<[number, number]>; crop: string; giant: boolean }>());
   wholeTrees.current = new Map(Object.entries(plots).flatMap(([k, plot]) => {
-    const cells = plot.plant?.root === k && WHOLE_TREES.has(plot.plant.crop) ? plot.plant.footprint ?? [] : [];
-    if (!cells.length) return [];
-    const at = cells.map((c) => c.split(",").map(Number));
-    return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)) }]];
+    const p = plot.plant, cells = p?.root === k ? p.footprint ?? [] : [];
+    if (!p || cells.length < 2) return [];
+    const at = cells.map((c) => c.split(",").map(Number) as [number, number]);
+    return [[k, { x: at.reduce((n, [x]) => n + x + 0.5, 0) / at.length, y: at.reduce((n, [, y]) => n + y + 0.5, 0) / at.length, front: Math.max(...at.map(([x, y]) => x + y)), cells: at, crop: p.crop, giant: !!p.giant }]];
   }));
   // (with the rain the plots have had: lib/town/weather, by way of whoever keeps the game)
   const rains = keeper.rains();
+  /** With a fertiliser in the hand: what it would add to each of my plants it may go on (lib/town/quality-plant's fertGain), drawn over each. */
+  const fertGains = useRef(new Map<string, number>());
+  {
+    const held = handOf(keeper.purse());
+    fertGains.current = isFert(held) ? new Map(Object.keys(plots).flatMap((k) => {
+      const p = plots[k]?.plant;
+      if (!p || (p.root && p.root !== k) || keeper.deedAt(k) !== "fert") return [];
+      return [[k, fertGain(p, held, now, rains)] as [string, number]];
+    })) : new Map();
+  }
   seen.current = new Map(Object.entries(plots).map(([key, plot]) => {
     // A footprint shares one living root, including its growth and pest state.
     const root = plot.plant?.root ?? key;
@@ -418,6 +438,17 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         ctx.scale(-1, 1);
         ctx.drawImage(img, x, y, w, h, -(w * k) / 2, Math.round(at.y - h * k + 5 * s - lift), w * k, h * k);
         ctx.restore();
+      };
+      /** How a plant over several plots is drawn once, from its root: its one picture, or null for one a plot. */
+      const wholeDraw = (whole: { x: number; y: number; cells: Array<[number, number]>; crop: string; giant: boolean }, what: Seen): (() => void) | null => {
+        const mid = project({ x: whole.x, y: whole.y });
+        if (WHOLE_TREES.has(whole.crop)) { const plant = growIconOf(what.crop!, what.stage); return () => (what.dead ? blit("plotDead", mid) : blit(plant, mid, 0, (PLANT_SCALES[plant] ?? PLANT) * s)); }
+        if (what.dead) return null;
+        const w = wideSprite(whole.crop, whole.giant, what.stage, whole.cells);
+        if (!w || !(w.name in ICON_ATLAS.icons)) return null;
+        // (a giant stands on the middle of its four plots; a row or an L on the front of its frontmost plot)
+        const foot = { x: mid.x, y: w.giant ? mid.y + 7 * s : Math.max(...whole.cells.map(([x, y]) => project({ x: x + 0.5, y: y + 0.5 }).y)) + s };
+        return () => blit(w.name, foot, 0, PLANT * s, w.flip);
       };
       /**
        * One of an insect house's insects (the owner's ask, 2026-10-15): its own picture, in the air with its shadow under
@@ -679,12 +710,9 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           ctx.fillRect(x, y - px, px, px * 3);
           ctx.globalAlpha = 1;
         });
-        // A giant belongs above every soil tile in its 2×2 footprint. Keep
-        // soil in the ordinary ground pass so the front tile cannot bury it.
-        const giantRoot = giants.current.get(plotKey(tx, ty));
-        if (giantRoot === plotKey(tx, ty) && what?.crop) {
-          things.push({ depth: tx + ty + 2.8, draw: () => drawGiantPlant(frame, tx, ty, what.crop!, what.stage, what.dead) });
-        }
+        // (a fertiliser in the hand: what it would add to the ceiling of this plant of mine, over it)
+        const gain = fertGains.current.get(plotKey(tx, ty));
+        if (gain !== undefined) sign(gain > 0 ? `+${gain}` : "+0", at.x, at.y - 44 * s);
         // An insect house's insects: two of each lived-in room's own about the plants it reaches (components/town/houseInsects)
         const hk = plotKey(tx, ty), home = what?.soil === "house" ? houses.current.get(hk) : undefined;
         if (home) home.rooms.forEach((room, i) => {
@@ -698,14 +726,13 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
             things.push({ depth: pose.at.x + pose.at.y + (pose.lift > 0.2 ? 3.6 : 0.65), draw: () => drawHouseInsect(room.bug, how, pose, c, seed) });
           }
         });
-        // A whole tree (the fig): drawn once from its root, standing in the middle of its plots and over all their soil.
-        const whole = wholeTrees.current.get(plotKey(tx, ty));
-        if (whole && what?.crop) {
-          const plant = growIconOf(what.crop, what.stage), mid = project({ x: whole.x, y: whole.y });
-          things.push({ depth: whole.front + 0.7, draw: () => what.dead ? blit("plotDead", mid) : blit(plant, mid, 0, (PLANT_SCALES[plant] ?? PLANT) * s) });
-        }
-        // (its plots show the bed's own soil under it: the tree's picture has its mound)
-        const wholeRoot = gardenRoots.current.get(plotKey(tx, ty)), underTree = !!wholeRoot && wholeTrees.current.has(wholeRoot);
+        // A plant over several plots (the fig, a garden hybrid, a giant): drawn once from its root, over all its plots'
+        // soil, by its one picture (lib/town/wide-plants: the owner, 2026-10-15); a young one keeps a sprout a plot
+        const rootKey = gardenRoots.current.get(plotKey(tx, ty)) ?? plotKey(tx, ty), whole = wholeTrees.current.get(rootKey);
+        const once = whole && what?.crop ? wholeDraw(whole, what) : null;
+        if (once && rootKey === plotKey(tx, ty)) things.push({ depth: whole!.front + 0.7, draw: once });
+        // (its plots show the bed's own soil under it: its picture has its own ground)
+        const underTree = !!once;
         things.push({ depth: tx + ty + .6, draw: () => {
           if (!what) { for (const w of weedsOf(tx, ty)) blit(w.name, { x: at.x + w.dx * s, y: at.y + w.dy * s }, 0, PLANT * s * w.k, w.flip); return; }
           if (what.soil === "tilled" && !(what.crop && underTree)) blit("plotSoil", at, 0, PLANT * s * 0.9);
@@ -719,7 +746,6 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
           // ── forging: old tools ── (a furrow the hoe left damp: a drop on the bare soil, as on a plant that has been watered)
           if (what.damp) blit("plotDrop", { x: at.x + 13 * s, y: at.y }, 0, PLANT * s * 0.45);
           if (!what.crop) return;
-          if (giantRoot) return;
           if (what.dead) { if (!underTree) blit("plotDead", at); return; }
           const plant = growIconOf(what.crop, what.stage);
           if (!underTree) blit(plant, at, 0, (PLANT_SCALES[plant] ?? PLANT) * s);
@@ -1058,7 +1084,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   // …and the asking: it is about this plot and this plant as it stands (one that dies meanwhile, or is cured, is asked about afresh)
   useEffect(() => { if (asking && (asking.key !== key || asking.deed !== (asking.deed === "lift" ? houseDeed : deed))) setAsking(null); }, [asking, key, deed, houseDeed]);
   useEffect(() => { if (inspecting && inspecting !== key) setInspecting(null); }, [inspecting, key]);
-  useEffect(() => { if (!inspecting) setBedView(false); }, [inspecting]);
+  useEffect(() => { if (!inspecting) { setBedView(false); setChartView(false); } }, [inspecting]);
   // The asking opens with "leave it" under the keys: Space or Enter, pressed once too often, digs nothing out. Escape leaves it too.
   useEffect(() => {
     if (!asking) return;
@@ -1155,7 +1181,8 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
   return (
     <>{reaction.notice&&<TownFoot rank="note" order={5}><TownComboFx cue={reaction.notice.cue} effect={{cue:reaction.notice.cue,fresh:reaction.notice.fresh}} th={th}/></TownFoot>}<TownRootExtraction keeper={keeper} th={th} at={here}/><TownRowContinuation keeper={keeper} th={th} at={here}/><TownGardenRetry keeper={keeper} th={th} at={tile}/><TownRainCare keeper={keeper} th={th} at={tile}/><TownWaykeeper keeper={keeper} th={th} at={here}/><TownCampFlag keeper={keeper} th={th} at={here}/><TownGardenHelp keeper={keeper} th={th} at={tile}/><TownSkyBean keeper={keeper} th={th} at={tile}/><TownGardenRewards keeper={keeper} th={th} at={tile}/><TownKitchenRewards keeper={keeper} th={th} at={here}/><TownPicnic keeper={keeper} th={th} at={here} register={registerPicnic} sit={sitPicnic}/>{keeper.purse().professionRewards?.trail?.kind==="dragon"&&<TownForestTrail keeper={keeper} th={th} at={()=>here} walk={walkTrail}/>}<TownWingCrown keeper={keeper} th={th} at={here}/><TownMoonLantern keeper={keeper} th={th} at={here}/><TownBeetleRing keeper={keeper} th={th} at={here}/><TownLotusBoat keeper={keeper} th={th} at={here} register={registerBoats}/><TownBeaverBridge keeper={keeper} th={th} at={here} register={registerCrossings}/><TownNursery keeper={keeper} th={th} at={here}/><TownCloud keeper={keeper} th={th} at={tile} people={people}/><TownSprings keeper={keeper} th={th} at={here} register={registerSprings}/><TownConduit keeper={keeper} th={th} at={tile} onWatered={keys=>{for(const key of keys){const [x,y]=key.split(",").map(Number);vfx.add("water",{x:x+.5,y:y+.5});}sfx?.work("pour");}}/><TownWaterRelay keeper={keeper} th={th} at={here} register={registerRelay}/>{news}{ringOffer}{inspectedHouse && <TownFoot rank="board" order={62}><HousePanel at={inspecting!} house={inspectedHouse} plots={plots} now={now} th={th} mine={inspectedHouse.by === keeper.id} onClose={() => setInspecting(null)} /></TownFoot>}{inspected && <TownFoot rank="board" order={62}>{bedView
       ? <QualityBed at={inspecting!} plots={plots} now={now} rains={rains} th={th} onClose={() => setBedView(false)} />
-      : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} />}</TownFoot>}{bare ? null : (
+      : chartView ? <FertChart th={th} onClose={() => setChartView(false)} />
+      : <QualityInspector plant={inspected} now={now} rains={rains} th={th} onClose={() => setInspecting(null)} onBed={() => setBedView(true)} onChart={() => setChartView(true)} />}</TownFoot>}{bare ? null : (
     <TownFoot rank={placement || working || asking ? "board" : "main"} order={62}>
       {placement && <TownGardenPlacement at={placement.key} crop={placement.crop} keeper={keeper} th={th} onClose={() => setPlacement(null)} onPlant={async rotation => { const need = hitsFor("sow", tiredOn(placement.key)); if (need) { setWorking({ key: placement.key, work: "sow", need, rotation }); setPlacement(null); } else if (await act(placement.key, undefined, false, rotation)) setPlacement(null); }} />}
       {running && <AnkletRun keeper={keeper} />}
@@ -1285,7 +1312,7 @@ export default function TownFarm({ keeper, name, th, tile, water, at, near, sfx,
         </div>
       ) : !placement && (offer || powers.length > 0 || !!(key && (plots[key]?.plant || plots[key]?.house))) && (
         <div className="flex max-w-full flex-col items-center justify-center gap-2 sm:flex-row sm:flex-wrap">
-          {key && plots[key]?.plant && <QualityChip plant={plots[key].plant!} now={now} rains={rains} th={th} onOpen={() => setInspecting(key)} />}
+          {key && plots[key]?.plant && <QualityChip plant={plots[key].plant!} now={now} rains={rains} th={th} onOpen={() => setInspecting(key)} gain={deed === "fert" && isFert(hand) ? fertGain(plots[key].plant!, hand, now, rains) : undefined} />}
           {key && plots[key]?.house && <HouseChip at={key} house={plots[key].house!} plots={plots} now={now} th={th} onOpen={() => setInspecting(key)} />}
           {offer && (
             <button type="button" onClick={begin} data-farm-offer={offer}

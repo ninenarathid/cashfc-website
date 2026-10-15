@@ -230,6 +230,8 @@ export function QualityBed({ at, plots, now, rains, th, onClose }: { at: string;
  */
 export function FertChart({ th, onClose }: { th: boolean; onClose: () => void }) {
   const close = useRef<HTMLButtonElement>(null);
+  // (a phone has no hover: the fertiliser tapped is named under the chart)
+  const [picked, setPicked] = useState<string | null>(null);
   useEffect(() => {
     close.current?.focus();
     const down = (e: KeyboardEvent) => { if (e.key === "Escape") { e.preventDefault(); onClose(); } };
@@ -249,21 +251,48 @@ export function FertChart({ th, onClose }: { th: boolean; onClose: () => void })
         <button ref={close} type="button" onClick={onClose} aria-label={th ? "ปิด" : "Close"} className="pressable tk tk-btn-wood grid size-11 shrink-0 place-items-center"><TownIcon name="close" size={16} /></button>
       </header>
       <p className="text-meta text-muted">{th ? "ช่องทแยงเติมแถบเดียวเต็ม ช่องอื่นเติมสองแถบครึ่งหนึ่ง · ร = รองพื้น (ถึงเก็บครั้งแรก) · ต = แต่งหน้า (ตามชั่วโมง)" : "The diagonal fills one bar whole, the rest two bars by half · B = base (to the first picking) · T = top (its hours)"}</p>
-      <div className="grid grid-cols-[2.5rem_repeat(4,minmax(0,1fr))] gap-1" role="table">
+      {(() => {
+        const f = picked ? (FERTS as Record<string, Fert>)[picked] : null;
+        if (!picked || !f) return <p className="text-meta text-muted" data-fert-picked="">{th ? "แตะที่ปุ๋ยเพื่อดูชื่อ" : "Tap a fertiliser to see its name"}</p>;
+        const bars = (Object.entries(f.bars) as Array<[Role, number]>).map(([r, v]) => `${th ? ROLE[r].th : ROLE[r].en}${v < 1 ? (th ? "ครึ่ง" : " half") : th ? "เต็ม" : " whole"}`).join(" · ");
+        return <p className="tk tk-window flex items-center gap-2 px-3 py-2 text-meta text-[#3b2412]" data-fert-picked={picked}>
+          <TownIcon name={picked as IconName} size={24} />
+          <span><b>{ITEMS[picked as ItemId]?.name[th ? "th" : "en"]}</b> · {f.slot === "base" ? (th ? "รองพื้น ถึงเก็บครั้งแรก" : "base, to the first picking") : th ? `แต่งหน้า ${f.hours} ชม.` : `top, ${f.hours} h`} · {bars}{f.narrows ? (th ? " · ยกต่ำสุด" : " · raises the floor") : ""}</span>
+        </p>;
+      })()}
+      <div className="hidden grid-cols-[2.5rem_repeat(4,minmax(0,1fr))] gap-1 sm:grid" role="table">
         <span />
-        {ROLES.map((r) => <span key={r} role="columnheader" className="flex justify-center py-1" title={th ? ROLE[r].th : ROLE[r].en}><TownIcon name={ROLE[r].icon} size={18} /></span>)}
+        {ROLES.map((r) => <span key={r} role="columnheader" className="flex flex-col items-center py-1 text-label text-muted"><TownIcon name={ROLE[r].icon} size={18} />{th ? ROLE[r].th : ROLE[r].en}</span>)}
         {ROLES.map((a, i) => <div key={a} role="row" className="contents">
           <span role="rowheader" className="flex items-center justify-center" title={th ? ROLE[a].th : ROLE[a].en}><TownIcon name={ROLE[a].icon} size={18} /></span>
           {ROLES.map((b, j) => {
             const here = j < i ? [] : fills(a, b);
             return <div key={b} role="cell" data-fert-cell={`${a}-${b}`} className={`flex min-h-12 min-w-0 flex-wrap content-start gap-0.5 rounded border p-1 ${j < i ? "border-transparent" : i === j ? "border-[#f0c060]/60 bg-[#4a3522]" : "border-[#1a0e06] bg-[#3a2a1a]"}`}>
-              {here.map(([id, f]) => <span key={id} className="inline-flex items-center" title={`${ITEMS[id as ItemId]?.name[th ? "th" : "en"]} · ${f.slot === "base" ? (th ? "รองพื้น" : "base") : `${th ? "แต่งหน้า" : "top"} ${f.hours} ${th ? "ชม." : "h"}`}`}>
+              {here.map(([id, f]) => <button key={id} type="button" onClick={() => setPicked(id)} data-fert-pick={id} aria-pressed={picked === id}
+                  className={`pressable inline-flex min-h-8 min-w-8 items-center justify-center rounded ${picked === id ? "bg-[#f0c060]/30 outline outline-1 outline-[#f0c060]" : ""}`}
+                  title={`${ITEMS[id as ItemId]?.name[th ? "th" : "en"]} · ${f.slot === "base" ? (th ? "รองพื้น" : "base") : `${th ? "แต่งหน้า" : "top"} ${f.hours} ${th ? "ชม." : "h"}`}`}>
                 <TownIcon name={id as IconName} size={20} /><sup className="font-data text-[0.6rem] text-[#ead9b4]">{f.slot === "base" ? (th ? "ร" : "B") : (th ? "ต" : "T")}</sup>
-              </span>)}
+              </button>)}
             </div>;
           })}
         </div>)}
       </div>
+      {/* (a phone: the same ten pairs as rows, each fertiliser a whole tap wide) */}
+      <ul className="flex flex-col gap-1 sm:hidden" data-fert-list>
+        {ROLES.flatMap((a, i) => ROLES.slice(i).map((b) => [a, b] as const)).map(([a, b]) => (
+          <li key={`${a}-${b}`} className={`flex items-center gap-2 rounded border p-1 ${a === b ? "border-[#f0c060]/60 bg-[#4a3522]" : "border-[#1a0e06] bg-[#3a2a1a]"}`}>
+            <span className="flex w-16 shrink-0 items-center gap-0.5 text-label text-muted">
+              <TownIcon name={ROLE[a].icon} size={16} />{a === b ? (th ? "เต็ม" : "whole") : <><TownIcon name={ROLE[b].icon} size={16} />{th ? "ครึ่ง" : "half"}</>}
+            </span>
+            <span className="flex min-w-0 flex-wrap gap-1">
+              {fills(a, b).map(([id, f]) => <button key={id} type="button" onClick={() => setPicked(id)} data-fert-pick={id} aria-pressed={picked === id} aria-label={ITEMS[id as ItemId]?.name[th ? "th" : "en"]}
+                  className={`pressable relative grid size-11 place-items-center rounded ${picked === id ? "bg-[#f0c060]/30 outline outline-1 outline-[#f0c060]" : "bg-black/10"}`}>
+                <TownIcon name={id as IconName} size={26} /><span className="absolute bottom-0 right-0.5 font-data text-[0.6rem] text-[#ead9b4]">{f.slot === "base" ? (th ? "ร" : "B") : (th ? "ต" : "T")}</span>
+              </button>)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
