@@ -284,6 +284,21 @@ const SHEETS = [
   // others are, the fig and its packet for the bag on the finer, as the bag's sheets are)
   ["icons-helper-fix-a", ["growFigA", "growFigB", "growGarlicChivesA", "growGarlicChivesB", "_fig", "_seedFig"], { range: [7.85, 8.15] }],
   ["icons-helper-fix-a", ["_growFigA", "_growFigB", "_growGarlicChivesA", "_growGarlicChivesB", "fig", "seedFig"], { range: [3.9, 4.1] }],
+  // the eight mist children (2026-10-15; lib/town/helper-items' MIST_PLANTS): each the rare form of its sun child, the same
+  // plant in silvery sage with dew, its rare crop showing; drawn with icons-farm-d (plants) or icons-items-d (packets) and
+  // a strip of the sun children's own drawings in the sheet's order (work/out/ref-mist-*.png). The plants are cut where
+  // their sizes are the sun children's (grow-c with 96 colours, or its figs go grey), the bag's sheets on their finer
+  // grid; the packets are mist grey, with the role's band. grow-c's tomatoes and bag-c's plain packets are fillers.
+  ["icons-mist-grow-a", ["growPearlNutA", "growPearlNutB", "growSilverGrainA", "growSilverGrainB", "growDewSesameA", "growDewSesameB"], { range: [6.95, 7.3] }],
+  ["icons-mist-grow-b", ["growGlassFlowerA", "growGlassFlowerB", "growOpalStalkA", "growOpalStalkB", "growCrystalLeafA", "growCrystalLeafB"], { range: [7.85, 8.15] }],
+  ["icons-mist-grow-c", ["growSilkPollenA", "growSilkPollenB", "growDewFigA", "growDewFigB", "_tomatoA", "_tomatoB"], { range: [7.8, 8.2], colours: 96 }],
+  ["icons-mist-bag-a", ["pearlNut", "seedPearlNut", "silverGrain", "_seedSilverGrain", "_dewSesame", "_seedDewSesame"], { range: [5.5, 5.8] }],
+  ["icons-mist-bag-b", ["glassFlower", "seedGlassFlower", "opalStalk", "seedOpalStalk", "crystalLeaf", "seedCrystalLeaf"], { range: [5.3, 5.6] }],
+  ["icons-mist-bag-c", ["dewFig", "seedDewFig", "silkPollen", "seedSilkPollen", "_seedMistSoil", "_seedMistWater"], { range: [6.5, 6.8] }],
+  // (drawn again after the look in the game: the dew sesame's two split pods read as plain sesame in the bag, so it is
+  // dew-bead seeds heaped on a leaf; the silver grain packet's grains outlined darker on the grey paper. Its last three
+  // are bag-a's, to hold the size)
+  ["icons-mist-fix-a", ["dewSesame", "seedDewSesame", "seedSilverGrain", "_pearlNut", "_seedPearlNut", "_silverGrain"], { range: [5.4, 5.8] }],
   // ── end: helper plants ──
   // ── the farm's insect house (2026-10-15; lib/town/insect-house): the house standing on its plot, drawn by TownFarm as
   // the growth sprites are (plotInsectHouse), and the same house for the bag in the wood line's set (insectHouse), drawn
@@ -394,7 +409,9 @@ for (const [sheet, names, opts] of SHEETS) {
   // icons on a 16-pixel grid fill about 180 of the sheet's pixels: big true pixels
   const grid = L.detectGrid(raw, undefined, opts?.range ?? [6, 16]);
   const g = L.cellsOf(raw, grid);
-  L.snap(g, L.paletteOf([g], 48));
+  // (`colours`: a sheet with one pale hue close to another's takes a larger palette: at 48 the mist fig's pale violet
+  // went into its sage leaves, 2026-10-16)
+  L.snap(g, L.paletteOf([g], opts?.colours ?? 48));
   // The icons stand evenly spaced, and some are in parts (corner brackets, footprints):
   // every piece goes to the column its middle is in, not to the nearest gap.
   const parts = L.components(g).filter((c) => c.mem.length >= 2);
